@@ -61,6 +61,13 @@ RUN find . -name "ajv" -type d -path "*/node_modules/*" -exec sh -c 'if [ -f "$1
 # Fix mime package.json to point to existing TypeScript source files
 RUN find . -name "mime" -type d -path "*/node_modules/*" -exec sh -c 'if [ -f "$1/package.json" ]; then sed -i "s|\"\\.\": \"\\./dist/src/index\\.js\"|\".\": \"./src/index.ts\"|g" "$1/package.json"; sed -i "s|\"main\": \"\\./dist/src/index\\.js\"|\"main\": \"./src/index.ts\"|g" "$1/package.json"; fi' _ {} \;
 
+# Fix fileUtils.ts to use correct mime imports and methods
+RUN sed -i "s|import mime from 'mime/lite';|import mime from 'mime';|g" packages/core/src/utils/fileUtils.ts && \
+    sed -i "s|mime\\.getType(|mime.lookup(|g" packages/core/src/utils/fileUtils.ts
+
+# Reinstall ajv and json-schema-traverse to fix dependency resolution
+RUN cd packages/core && npm uninstall ajv && npm install ajv@8.17.1 --save
+
 # Create a simple entrypoint script that runs the CLI in development mode
 RUN mkdir -p /home/node/bin && \
     echo '#!/bin/bash' > /home/node/bin/entrypoint.sh && \

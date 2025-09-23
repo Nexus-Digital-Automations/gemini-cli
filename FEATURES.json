@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 3,
+      "total_reinitializations": 4,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
@@ -18,7 +18,7 @@
         },
         "12:00-16:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 1
         },
         "17:00-21:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T16:49:32.124Z"
+      "last_updated": "2025-09-23T17:36:53.024Z"
     }
   },
   "workflow_config": {
@@ -44,7 +44,15 @@
     "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
     "required_fields": ["title", "description", "business_value", "category"]
   },
-  "agents": {},
+  "agents": {
+    "CLAUDE_RECOVERY_AGENT_001": {
+      "lastHeartbeat": "2025-09-23T17:36:53.022Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T17:36:53.022Z",
+      "sessionId": "1cc3451bd8286183",
+      "previousSessions": []
+    }
+  },
   "tasks": [],
   "completed_tasks": []
 }
