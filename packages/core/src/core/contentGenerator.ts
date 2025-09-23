@@ -19,6 +19,8 @@ import type { Config } from '../config/config.js';
 import type { UserTierId } from '../code_assist/types.js';
 import { LoggingContentGenerator } from './loggingContentGenerator.js';
 import { InstallationManager } from '../utils/installationManager.js';
+import { createBudgetContentGenerator } from './budgetContentGenerator.js';
+import type { BudgetSettings } from '../../cli/src/config/settingsSchema.js';
 
 /**
  * Interface abstracting the core functionalities for generating content and counting tokens.
@@ -101,6 +103,7 @@ export async function createContentGenerator(
   config: ContentGeneratorConfig,
   gcConfig: Config,
   sessionId?: string,
+  budgetSettings?: BudgetSettings,
 ): Promise<ContentGenerator> {
   const version = process.env['CLI_VERSION'] || process.version;
   const userAgent = `GeminiCLI/${version} (${process.platform}; ${process.arch})`;
@@ -113,7 +116,7 @@ export async function createContentGenerator(
     config.authType === AuthType.CLOUD_SHELL
   ) {
     const httpOptions = { headers: baseHeaders };
-    return new LoggingContentGenerator(
+    const loggingGenerator = new LoggingContentGenerator(
       await createCodeAssistContentGenerator(
         httpOptions,
         config.authType,
@@ -122,6 +125,13 @@ export async function createContentGenerator(
       ),
       gcConfig,
     );
+
+    // Wrap with budget enforcement if budget settings are provided and enabled
+    if (budgetSettings?.enabled) {
+      return createBudgetContentGenerator(loggingGenerator, gcConfig, budgetSettings);
+    }
+
+    return loggingGenerator;
   }
 
   if (
@@ -144,7 +154,14 @@ export async function createContentGenerator(
       vertexai: config.vertexai,
       httpOptions,
     });
-    return new LoggingContentGenerator(googleGenAI.models, gcConfig);
+    const loggingGenerator = new LoggingContentGenerator(googleGenAI.models, gcConfig);
+
+    // Wrap with budget enforcement if budget settings are provided and enabled
+    if (budgetSettings?.enabled) {
+      return createBudgetContentGenerator(loggingGenerator, gcConfig, budgetSettings);
+    }
+
+    return loggingGenerator;
   }
   throw new Error(
     `Error creating contentGenerator: Unsupported authType: ${config.authType}`,

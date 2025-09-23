@@ -17,6 +17,7 @@ import type {
   OutputFormat,
 } from '@google/gemini-cli-core';
 import { extensionsCommand } from '../commands/extensions.js';
+import { budgetCommand } from '../commands/budget.js';
 import {
   Config,
   loadServerHierarchicalMemory,
@@ -86,6 +87,8 @@ export interface CliArgs {
   useWriteTodos: boolean | undefined;
   promptWords: string[] | undefined;
   outputFormat: string | undefined;
+  budgetLimit: number | undefined;
+  disableBudget: boolean | undefined;
 }
 
 export async function parseArguments(settings: Settings): Promise<CliArgs> {
@@ -280,6 +283,14 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           description: 'The format of the CLI output.',
           choices: ['text', 'json'],
         })
+        .option('budget-limit', {
+          type: 'number',
+          description: 'Set daily budget limit for API requests (number of requests).',
+        })
+        .option('disable-budget', {
+          type: 'boolean',
+          description: 'Temporarily disable budget tracking and enforcement.',
+        })
         .deprecateOption(
           'show-memory-usage',
           'Use the "ui.showMemoryUsage" setting in settings.json instead. This flag will be removed in a future version.',
@@ -326,6 +337,9 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
   if (settings?.experimental?.extensionManagement ?? true) {
     yargsInstance.command(extensionsCommand);
   }
+
+  // Register budget subcommands
+  yargsInstance.command(budgetCommand);
 
   yargsInstance
     .version(await getCliVersion()) // This will enable the --version flag based on package.json

@@ -15,6 +15,7 @@ export * from './policy/policy-engine.js';
 export * from './core/client.js';
 export * from './core/contentGenerator.js';
 export * from './core/loggingContentGenerator.js';
+export * from './core/budgetContentGenerator.js';
 export * from './core/geminiChat.js';
 export * from './core/logger.js';
 export * from './core/prompts.js';
@@ -23,6 +24,9 @@ export * from './core/turn.js';
 export * from './core/geminiRequest.js';
 export * from './core/coreToolScheduler.js';
 export * from './core/nonInteractiveToolExecutor.js';
+
+// Export Budget Management
+export * from './budget/index.js';
 
 export * from './fallback/types.js';
 

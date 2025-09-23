@@ -83,6 +83,20 @@ export interface SettingsSchema {
 export type MemoryImportFormat = 'tree' | 'flat';
 export type DnsResolutionOrder = 'ipv4first' | 'verbatim';
 
+export interface BudgetSettings {
+  enabled?: boolean;
+  dailyLimit?: number;
+  resetTime?: string;
+  warningThresholds?: number[];
+}
+
+export interface BudgetUsageData {
+  date: string;
+  requestCount: number;
+  lastResetTime: string;
+  warningsShown: number[];
+}
+
 /**
  * The canonical schema for all settings.
  * The structure of this object defines the structure of the `Settings` type.
@@ -990,6 +1004,55 @@ const SETTINGS_SCHEMA = {
         description:
           'Enable model routing to route requests to the best model based on complexity.',
         showInDialog: false,
+      },
+    },
+  },
+
+  budget: {
+    type: 'object',
+    label: 'Budget',
+    category: 'Budget',
+    requiresRestart: false,
+    default: {},
+    description: 'Daily usage budget settings for API requests.',
+    showInDialog: false,
+    properties: {
+      enabled: {
+        type: 'boolean',
+        label: 'Enable Budget Tracking',
+        category: 'Budget',
+        requiresRestart: false,
+        default: false,
+        description: 'Enable daily budget tracking and enforcement.',
+        showInDialog: true,
+      },
+      dailyLimit: {
+        type: 'number',
+        label: 'Daily Request Limit',
+        category: 'Budget',
+        requiresRestart: false,
+        default: 100,
+        description: 'Maximum number of API requests allowed per day.',
+        showInDialog: true,
+      },
+      resetTime: {
+        type: 'string',
+        label: 'Budget Reset Time',
+        category: 'Budget',
+        requiresRestart: false,
+        default: '00:00',
+        description: 'Time of day when the daily budget resets (HH:MM format).',
+        showInDialog: true,
+      },
+      warningThresholds: {
+        type: 'array',
+        label: 'Warning Thresholds',
+        category: 'Budget',
+        requiresRestart: false,
+        default: [50, 75, 90] as number[],
+        description: 'Percentage thresholds at which to show usage warnings.',
+        showInDialog: false,
+        mergeStrategy: MergeStrategy.REPLACE,
       },
     },
   },

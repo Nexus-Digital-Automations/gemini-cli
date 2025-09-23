@@ -15,6 +15,8 @@ import Gradient from 'ink-gradient';
 import { MemoryUsageDisplay } from './MemoryUsageDisplay.js';
 import { ContextUsageDisplay } from './ContextUsageDisplay.js';
 import { DebugProfiler } from './DebugProfiler.js';
+import { BudgetDisplay } from './BudgetDisplay.js';
+import type { BudgetSettings } from '../../config/settingsSchema.js';
 
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
@@ -36,6 +38,8 @@ export interface FooterProps {
   hideCWD?: boolean;
   hideSandboxStatus?: boolean;
   hideModelInfo?: boolean;
+  budgetSettings?: BudgetSettings;
+  showBudgetStatus?: boolean;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -55,6 +59,8 @@ export const Footer: React.FC<FooterProps> = ({
   hideCWD = false,
   hideSandboxStatus = false,
   hideModelInfo = false,
+  budgetSettings,
+  showBudgetStatus = true,
 }) => {
   const { columns: terminalWidth } = useTerminalSize();
 
@@ -103,34 +109,53 @@ export const Footer: React.FC<FooterProps> = ({
         </Box>
       )}
 
-      {/* Middle Section: Centered Trust/Sandbox Info */}
-      {!hideSandboxStatus && (
+      {/* Middle Section: Centered Trust/Sandbox Info and Budget */}
+      {(!hideSandboxStatus || (showBudgetStatus && budgetSettings?.enabled)) && (
         <Box
           flexGrow={isNarrow || hideCWD || hideModelInfo ? 0 : 1}
           alignItems="center"
           justifyContent={isNarrow || hideCWD ? 'flex-start' : 'center'}
           display="flex"
+          flexDirection={isNarrow ? 'column' : 'row'}
           paddingX={isNarrow ? 0 : 1}
           paddingTop={isNarrow ? 1 : 0}
         >
-          {isTrustedFolder === false ? (
-            <Text color={theme.status.warning}>untrusted</Text>
-          ) : process.env['SANDBOX'] &&
-            process.env['SANDBOX'] !== 'sandbox-exec' ? (
-            <Text color="green">
-              {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
-            </Text>
-          ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
-            <Text color={theme.status.warning}>
-              macOS Seatbelt{' '}
-              <Text color={theme.text.secondary}>
-                ({process.env['SEATBELT_PROFILE']})
-              </Text>
-            </Text>
-          ) : (
-            <Text color={theme.status.error}>
-              no sandbox <Text color={theme.text.secondary}>(see /docs)</Text>
-            </Text>
+          {!hideSandboxStatus && (
+            <Box alignItems="center">
+              {isTrustedFolder === false ? (
+                <Text color={theme.status.warning}>untrusted</Text>
+              ) : process.env['SANDBOX'] &&
+                process.env['SANDBOX'] !== 'sandbox-exec' ? (
+                <Text color="green">
+                  {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
+                </Text>
+              ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
+                <Text color={theme.status.warning}>
+                  macOS Seatbelt{' '}
+                  <Text color={theme.text.secondary}>
+                    ({process.env['SEATBELT_PROFILE']})
+                  </Text>
+                </Text>
+              ) : (
+                <Text color={theme.status.error}>
+                  no sandbox <Text color={theme.text.secondary}>(see /docs)</Text>
+                </Text>
+              )}
+            </Box>
+          )}
+
+          {/* Budget Display */}
+          {showBudgetStatus && budgetSettings?.enabled && (
+            <Box alignItems="center" paddingLeft={!hideSandboxStatus && !isNarrow ? 2 : 0}>
+              {!hideSandboxStatus && !isNarrow && (
+                <Text color={theme.ui.comment}>| </Text>
+              )}
+              <BudgetDisplay
+                budgetSettings={budgetSettings}
+                projectRoot={targetDir}
+                compact={isNarrow}
+              />
+            </Box>
           )}
         </Box>
       )}
