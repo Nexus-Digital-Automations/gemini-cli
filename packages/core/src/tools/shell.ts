@@ -37,18 +37,38 @@ import {
   stripShellWrapper,
 } from '../utils/shell-utils.js';
 
+/** Interval for updating shell command output in milliseconds */
 export const OUTPUT_UPDATE_INTERVAL_MS = 1000;
 
+/**
+ * Parameters for the Shell tool execution
+ */
 export interface ShellToolParams {
+  /** The shell command to execute */
   command: string;
+  /** Optional description of what the command does */
   description?: string;
+  /** Optional absolute path to the directory where the command should run */
   directory?: string;
 }
 
+/**
+ * Implementation of shell command execution logic
+ *
+ * This class handles the execution of shell commands with proper validation,
+ * confirmation, output streaming, and process management including background
+ * process tracking.
+ */
 export class ShellToolInvocation extends BaseToolInvocation<
   ShellToolParams,
   ToolResult
 > {
+  /**
+   * Creates a new shell tool invocation
+   * @param config - The configuration object
+   * @param params - Shell execution parameters
+   * @param allowlist - Set of approved commands that don't require confirmation
+   */
   constructor(
     private readonly config: Config,
     params: ShellToolParams,
@@ -57,6 +77,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
     super(params);
   }
 
+  /**
+   * Gets a human-readable description of the command to be executed
+   * @returns Formatted description including command, directory, and optional description
+   */
   getDescription(): string {
     let description = `${this.params.command}`;
     // append optional [in directory]
@@ -71,6 +95,15 @@ export class ShellToolInvocation extends BaseToolInvocation<
     return description;
   }
 
+  /**
+   * Determines if user confirmation is required for command execution
+   *
+   * Commands that haven't been previously approved require user confirmation.
+   * Once approved, commands can be added to the allowlist to skip future confirmations.
+   *
+   * @param _abortSignal - Abort signal for cancellation (not used in this implementation)
+   * @returns Confirmation details if confirmation is needed, false otherwise
+   */
   override async shouldConfirmExecute(
     _abortSignal: AbortSignal,
   ): Promise<ToolCallConfirmationDetails | false> {
@@ -98,6 +131,32 @@ export class ShellToolInvocation extends BaseToolInvocation<
     return confirmationDetails;
   }
 
+  /**
+   * Executes the shell command with comprehensive monitoring and output handling
+   *
+   * This method handles the complete execution lifecycle including:
+   * - Command validation and preprocessing
+   * - Process group management and background process tracking
+   * - Real-time output streaming with binary detection
+   * - Error handling and result formatting
+   * - Cleanup of temporary resources
+   *
+   * @param signal - Abort signal for cancellation
+   * @param updateOutput - Optional callback for streaming output updates
+   * @param shellExecutionConfig - Optional shell execution configuration
+   * @param setPidCallback - Optional callback to receive the process ID
+   * @returns Promise resolving to tool execution result
+   *
+   * @example
+   * ```typescript
+   * const result = await invocation.execute(
+   *   abortSignal,
+   *   (output) => console.log(output),
+   *   { timeout: 30000 },
+   *   (pid) => console.log(`Process started: ${pid}`)
+   * );
+   * ```
+   */
   async execute(
     signal: AbortSignal,
     updateOutput?: (output: string | AnsiOutput) => void,
@@ -300,6 +359,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
   }
 }
 
+/**
+ * Generates a platform-specific description for the shell tool
+ * @returns Detailed description of shell tool capabilities and behavior
+ */
 function getShellToolDescription(): string {
   const returnedInfo = `
 
@@ -322,6 +385,10 @@ function getShellToolDescription(): string {
   }
 }
 
+/**
+ * Generates a platform-specific description for the command parameter
+ * @returns Platform-appropriate command parameter description
+ */
 function getCommandDescription(): string {
   if (os.platform() === 'win32') {
     return 'Exact command to execute as `cmd.exe /c <command>`';
@@ -330,13 +397,35 @@ function getCommandDescription(): string {
   }
 }
 
+/**
+ * Shell command execution tool for the Gemini CLI
+ *
+ * This tool provides secure shell command execution with the following features:
+ * - Cross-platform support (Windows cmd.exe and Unix/Linux bash)
+ * - Command allowlisting and user confirmation for security
+ * - Real-time output streaming with binary detection
+ * - Background process tracking and management
+ * - Process group handling for proper cleanup
+ * - Workspace directory validation and sandboxing
+ * - Comprehensive error handling and reporting
+ *
+ * Commands are executed with proper isolation and monitoring to ensure
+ * safe operation within the configured workspace boundaries.
+ */
 export class ShellTool extends BaseDeclarativeTool<
   ShellToolParams,
   ToolResult
 > {
+  /** Tool identifier for registration and configuration */
   static Name: string = 'run_shell_command';
+
+  /** Set of command roots that have been approved by the user */
   private allowlist: Set<string> = new Set();
 
+  /**
+   * Creates a new shell tool instance
+   * @param config - Configuration object containing workspace and security settings
+   */
   constructor(private readonly config: Config) {
     super(
       ShellTool.Name,
@@ -368,6 +457,17 @@ export class ShellTool extends BaseDeclarativeTool<
     );
   }
 
+  /**
+   * Validates shell tool parameters for security and correctness
+   *
+   * Performs comprehensive validation including:
+   * - Command allowlist checking against security policies
+   * - Directory path validation and workspace boundary enforcement
+   * - Command root extraction for permission management
+   *
+   * @param params - Shell tool parameters to validate
+   * @returns Error message if validation fails, null if parameters are valid
+   */
   protected override validateToolParamValues(
     params: ShellToolParams,
   ): string | null {
@@ -403,6 +503,11 @@ export class ShellTool extends BaseDeclarativeTool<
     return null;
   }
 
+  /**
+   * Creates a shell tool invocation instance for command execution
+   * @param params - Validated shell tool parameters
+   * @returns Configured shell tool invocation ready for execution
+   */
   protected createInvocation(
     params: ShellToolParams,
   ): ToolInvocation<ShellToolParams, ToolResult> {

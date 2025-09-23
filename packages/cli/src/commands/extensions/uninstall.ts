@@ -8,10 +8,27 @@ import type { CommandModule } from 'yargs';
 import { uninstallExtension } from '../../config/extension.js';
 import { getErrorMessage } from '../../utils/errors.js';
 
+/**
+ * Arguments interface for the uninstall extension command
+ */
 interface UninstallArgs {
-  name: string; // can be extension name or source URL.
+  /** The name or source URL of the extension to uninstall */
+  name: string;
 }
 
+/**
+ * Handles the uninstall extension command execution
+ * @param args - The command arguments containing extension name or source URL
+ *
+ * @example
+ * ```typescript
+ * // Uninstall by extension name
+ * await handleUninstall({ name: 'my-extension' });
+ *
+ * // Uninstall by source URL
+ * await handleUninstall({ name: 'https://github.com/user/extension.git' });
+ * ```
+ */
 export async function handleUninstall(args: UninstallArgs) {
   try {
     await uninstallExtension(args.name);
@@ -22,6 +39,12 @@ export async function handleUninstall(args: UninstallArgs) {
   }
 }
 
+/**
+ * Yargs command module for uninstalling extensions
+ *
+ * This command removes extensions from the system and cleans up associated
+ * configuration. Extensions can be identified either by name or source URL.
+ */
 export const uninstallCommand: CommandModule = {
   command: 'uninstall <name>',
   describe: 'Uninstalls an extension.',

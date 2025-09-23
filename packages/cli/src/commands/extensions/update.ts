@@ -19,14 +19,37 @@ import { checkForExtensionUpdate } from '../../config/extensions/github.js';
 import { getErrorMessage } from '../../utils/errors.js';
 import { ExtensionUpdateState } from '../../ui/state/extensions.js';
 
+/**
+ * Arguments interface for the update extension command
+ */
 interface UpdateArgs {
+  /** The name of a specific extension to update */
   name?: string;
+  /** Whether to update all extensions */
   all?: boolean;
 }
 
+/**
+ * Formats update information for display output
+ * @param info - Extension update information
+ * @returns Formatted string describing the update
+ */
 const updateOutput = (info: ExtensionUpdateInfo) =>
   `Extension "${info.name}" successfully updated: ${info.originalVersion} → ${info.updatedVersion}.`;
 
+/**
+ * Handles the update extension command execution
+ * @param args - The command arguments containing extension name or all flag
+ *
+ * @example
+ * ```typescript
+ * // Update specific extension
+ * await handleUpdate({ name: 'my-extension' });
+ *
+ * // Update all extensions
+ * await handleUpdate({ all: true });
+ * ```
+ */
 export async function handleUpdate(args: UpdateArgs) {
   const workingDir = process.cwd();
   const allExtensions = loadExtensions();
@@ -101,6 +124,13 @@ export async function handleUpdate(args: UpdateArgs) {
   }
 }
 
+/**
+ * Yargs command module for updating extensions
+ *
+ * This command supports updating either a specific extension by name or all
+ * installed extensions at once. It checks for available updates and applies
+ * them automatically.
+ */
 export const updateCommand: CommandModule = {
   command: 'update [<name>] [--all]',
   describe:

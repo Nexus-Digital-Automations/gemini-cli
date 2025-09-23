@@ -18,6 +18,22 @@ export const OAUTH_DISPLAY_MESSAGE_EVENT = 'oauth-display-message' as const;
 
 /**
  * OAuth configuration for an MCP server.
+ *
+ * Defines the OAuth 2.0 configuration parameters required for authenticating
+ * with MCP (Model Context Protocol) servers that implement OAuth 2.0 authorization.
+ *
+ * @example
+ * ```typescript
+ * const config: MCPOAuthConfig = {
+ *   enabled: true,
+ *   clientId: 'your-client-id',
+ *   clientSecret: 'your-client-secret',
+ *   authorizationUrl: 'https://auth.example.com/oauth/authorize',
+ *   tokenUrl: 'https://auth.example.com/oauth/token',
+ *   scopes: ['read', 'write'],
+ *   redirectUri: 'http://localhost:7777/oauth/callback'
+ * };
+ * ```
  */
 export interface MCPOAuthConfig {
   enabled?: boolean; // Whether OAuth is enabled for this server
@@ -33,6 +49,9 @@ export interface MCPOAuthConfig {
 
 /**
  * OAuth authorization response.
+ *
+ * Contains the authorization code and state parameter returned by the OAuth server
+ * after successful user authorization. Used in the authorization code flow.
  */
 export interface OAuthAuthorizationResponse {
   code: string;
@@ -41,6 +60,9 @@ export interface OAuthAuthorizationResponse {
 
 /**
  * OAuth token response from the authorization server.
+ *
+ * Standard OAuth 2.0 token response containing access token and optional refresh token.
+ * Follows RFC 6749 specification for token endpoint responses.
  */
 export interface OAuthTokenResponse {
   access_token: string;
@@ -52,6 +74,9 @@ export interface OAuthTokenResponse {
 
 /**
  * Dynamic client registration request.
+ *
+ * Follows RFC 7591 for OAuth 2.0 Dynamic Client Registration Protocol.
+ * Used to register OAuth clients dynamically with authorization servers.
  */
 export interface OAuthClientRegistrationRequest {
   client_name: string;
@@ -65,6 +90,9 @@ export interface OAuthClientRegistrationRequest {
 
 /**
  * Dynamic client registration response.
+ *
+ * Response from dynamic client registration endpoint containing the registered
+ * client credentials and metadata. Follows RFC 7591 specification.
  */
 export interface OAuthClientRegistrationResponse {
   client_id: string;
@@ -81,6 +109,11 @@ export interface OAuthClientRegistrationResponse {
 
 /**
  * PKCE (Proof Key for Code Exchange) parameters.
+ *
+ * Implements RFC 7636 PKCE extension for OAuth 2.0 to provide additional
+ * security for public clients and prevent authorization code interception attacks.
+ *
+ * @private
  */
 interface PKCEParams {
   codeVerifier: string;
@@ -94,6 +127,36 @@ const HTTP_OK = 200;
 
 /**
  * Provider for handling OAuth authentication for MCP servers.
+ *
+ * This class implements a complete OAuth 2.0 authorization flow with PKCE
+ * for secure authentication with MCP (Model Context Protocol) servers.
+ * It supports:
+ *
+ * - OAuth 2.0 Authorization Code Flow with PKCE (RFC 7636)
+ * - Dynamic Client Registration (RFC 7591)
+ * - OAuth 2.0 Server Metadata Discovery (RFC 8414)
+ * - Token refresh and management
+ * - MCP-specific resource parameter handling
+ * - Local callback server for authorization code capture
+ *
+ * The provider handles the complete authentication lifecycle from initial
+ * authorization through token refresh, with secure token storage and
+ * automatic discovery of OAuth configuration from MCP servers.
+ *
+ * @example
+ * ```typescript
+ * const provider = new MCPOAuthProvider();
+ * const token = await provider.authenticate(
+ *   'my-mcp-server',
+ *   {
+ *     clientId: 'your-client-id',
+ *     authorizationUrl: 'https://auth.example.com/oauth/authorize',
+ *     tokenUrl: 'https://auth.example.com/oauth/token'
+ *   },
+ *   'https://mcp.example.com/api',
+ *   eventEmitter
+ * );
+ * ```
  */
 export class MCPOAuthProvider {
   private readonly tokenStorage: MCPOAuthTokenStorage;
@@ -105,9 +168,15 @@ export class MCPOAuthProvider {
   /**
    * Register a client dynamically with the OAuth server.
    *
-   * @param registrationUrl The client registration endpoint URL
-   * @param config OAuth configuration
-   * @returns The registered client information
+   * Implements RFC 7591 Dynamic Client Registration Protocol to automatically
+   * register the Gemini CLI as an OAuth client with the authorization server.
+   * This eliminates the need for manual client registration in many cases.
+   *
+   * @param registrationUrl - The client registration endpoint URL
+   * @param config - OAuth configuration with scopes and redirect URI
+   * @returns Promise resolving to the registered client information
+   * @throws {Error} When registration fails or server returns an error
+   * @private
    */
   private async registerClient(
     registrationUrl: string,
@@ -147,8 +216,13 @@ export class MCPOAuthProvider {
   /**
    * Discover OAuth configuration from an MCP server URL.
    *
-   * @param mcpServerUrl The MCP server URL
-   * @returns OAuth configuration if discovered, null otherwise
+   * Attempts to discover OAuth 2.0 configuration from an MCP server using
+   * standard discovery mechanisms including .well-known endpoints and
+   * server metadata responses.
+   *
+   * @param mcpServerUrl - The MCP server URL to discover OAuth config from
+   * @returns Promise resolving to OAuth configuration if discovered, null otherwise
+   * @private
    */
   private async discoverOAuthFromMCPServer(
     mcpServerUrl: string,
@@ -160,7 +234,13 @@ export class MCPOAuthProvider {
   /**
    * Generate PKCE parameters for OAuth flow.
    *
+   * Creates cryptographically secure PKCE parameters following RFC 7636:
+   * - Code verifier: 43-128 character random string
+   * - Code challenge: SHA256 hash of verifier, base64url encoded
+   * - State: Random string for CSRF protection
+   *
    * @returns PKCE parameters including code verifier, challenge, and state
+   * @private
    */
   private generatePKCEParams(): PKCEParams {
     // Generate code verifier (43-128 characters)
@@ -181,8 +261,14 @@ export class MCPOAuthProvider {
   /**
    * Start a local HTTP server to handle OAuth callback.
    *
-   * @param expectedState The state parameter to validate
-   * @returns Promise that resolves with the authorization code
+   * Creates a temporary HTTP server on localhost to receive the OAuth
+   * authorization callback. Validates the state parameter to prevent
+   * CSRF attacks and extracts the authorization code.
+   *
+   * @param expectedState - The state parameter to validate against CSRF attacks
+   * @returns Promise that resolves with the authorization code and state
+   * @throws {Error} When callback times out, state mismatches, or OAuth error occurs
+   * @private
    */
   private async startCallbackServer(
     expectedState: string,
@@ -274,10 +360,15 @@ export class MCPOAuthProvider {
   /**
    * Build the authorization URL with PKCE parameters.
    *
-   * @param config OAuth configuration
-   * @param pkceParams PKCE parameters
-   * @param mcpServerUrl The MCP server URL to use as the resource parameter
-   * @returns The authorization URL
+   * Constructs the OAuth 2.0 authorization URL with all required parameters
+   * including PKCE challenge, scopes, and MCP-specific resource parameter.
+   * The resource parameter indicates which MCP server the token will be used for.
+   *
+   * @param config - OAuth configuration with client ID and scopes
+   * @param pkceParams - PKCE parameters for secure authorization
+   * @param mcpServerUrl - Optional MCP server URL to include as resource parameter
+   * @returns The complete authorization URL for user redirection
+   * @private
    */
   private buildAuthorizationUrl(
     config: MCPOAuthConfig,
@@ -329,11 +420,17 @@ export class MCPOAuthProvider {
   /**
    * Exchange authorization code for tokens.
    *
-   * @param config OAuth configuration
-   * @param code Authorization code
-   * @param codeVerifier PKCE code verifier
-   * @param mcpServerUrl The MCP server URL to use as the resource parameter
-   * @returns The token response
+   * Implements the OAuth 2.0 authorization code exchange flow with PKCE.
+   * Sends the authorization code and code verifier to the token endpoint
+   * to receive access and refresh tokens.
+   *
+   * @param config - OAuth configuration with client credentials
+   * @param code - Authorization code received from callback
+   * @param codeVerifier - PKCE code verifier for security validation
+   * @param mcpServerUrl - Optional MCP server URL for resource parameter
+   * @returns Promise resolving to the token response
+   * @throws {Error} When token exchange fails or returns an error
+   * @private
    */
   private async exchangeCodeForToken(
     config: MCPOAuthConfig,
@@ -453,11 +550,16 @@ export class MCPOAuthProvider {
   /**
    * Refresh an access token using a refresh token.
    *
-   * @param config OAuth configuration
-   * @param refreshToken The refresh token
-   * @param tokenUrl The token endpoint URL
-   * @param mcpServerUrl The MCP server URL to use as the resource parameter
-   * @returns The new token response
+   * Implements OAuth 2.0 refresh token flow to obtain new access tokens
+   * when the current token expires. Maintains the same scopes and audience
+   * as the original token grant.
+   *
+   * @param config - OAuth configuration with client credentials
+   * @param refreshToken - The refresh token to use for obtaining new access token
+   * @param tokenUrl - The token endpoint URL for refresh requests
+   * @param mcpServerUrl - Optional MCP server URL for resource parameter
+   * @returns Promise resolving to the new token response
+   * @throws {Error} When token refresh fails or refresh token is invalid
    */
   async refreshAccessToken(
     config: MCPOAuthConfig,
@@ -575,11 +677,34 @@ export class MCPOAuthProvider {
   /**
    * Perform the full OAuth authorization code flow with PKCE.
    *
-   * @param serverName The name of the MCP server
-   * @param config OAuth configuration
-   * @param mcpServerUrl Optional MCP server URL for OAuth discovery
-   * @param messageHandler Optional handler for displaying user-facing messages
-   * @returns The obtained OAuth token
+   * This is the main entry point for OAuth authentication. It orchestrates
+   * the complete flow including:
+   * - OAuth configuration discovery from MCP servers
+   * - Dynamic client registration if no client ID provided
+   * - PKCE parameter generation for security
+   * - Browser-based user authorization
+   * - Authorization code exchange for tokens
+   * - Secure token storage
+   *
+   * The method handles both standard OAuth flows and MCP-specific extensions,
+   * including automatic discovery of OAuth endpoints from MCP server metadata.
+   *
+   * @param serverName - The name of the MCP server for token storage
+   * @param config - OAuth configuration (may be partial for discovery)
+   * @param mcpServerUrl - Optional MCP server URL for OAuth discovery and resource parameter
+   * @param events - Optional event emitter for displaying user messages
+   * @returns Promise resolving to the obtained OAuth token
+   * @throws {Error} When authentication fails at any stage
+   *
+   * @example
+   * ```typescript
+   * const token = await provider.authenticate(
+   *   'github-mcp',
+   *   { clientId: 'abc123' },
+   *   'https://api.github.com/mcp',
+   *   eventEmitter
+   * );
+   * ```
    */
   async authenticate(
     serverName: string,
@@ -819,9 +944,23 @@ ${authUrl}
   /**
    * Get a valid access token for an MCP server, refreshing if necessary.
    *
-   * @param serverName The name of the MCP server
-   * @param config OAuth configuration
-   * @returns A valid access token or null if not authenticated
+   * Retrieves a stored access token and validates its expiration status.
+   * If the token is expired but a refresh token is available, automatically
+   * refreshes the token and updates storage. Returns null if no valid
+   * authentication exists.
+   *
+   * @param serverName - The name of the MCP server to get token for
+   * @param config - OAuth configuration with client credentials for refresh
+   * @returns Promise resolving to valid access token or null if not authenticated
+   *
+   * @example
+   * ```typescript
+   * const token = await provider.getValidToken('my-server', config);
+   * if (token) {
+   *   // Use token for authenticated requests
+   *   headers.Authorization = `Bearer ${token}`;
+   * }
+   * ```
    */
   async getValidToken(
     serverName: string,

@@ -10,10 +10,28 @@ import type { ExtensionInstallMetadata } from '@google/gemini-cli-core';
 
 import { getErrorMessage } from '../../utils/errors.js';
 
+/**
+ * Arguments interface for the link extension command
+ */
 interface InstallArgs {
+  /** Local file system path to the extension directory */
   path: string;
 }
 
+/**
+ * Handles the link extension command execution
+ *
+ * Creates a symbolic link to a local extension directory, allowing changes
+ * to be reflected immediately without reinstallation.
+ *
+ * @param args - The command arguments containing the path to link
+ *
+ * @example
+ * ```typescript
+ * await handleLink({ path: '/path/to/extension/directory' });
+ * // Links extension and enables it immediately
+ * ```
+ */
 export async function handleLink(args: InstallArgs) {
   try {
     const installMetadata: ExtensionInstallMetadata = {
@@ -30,6 +48,13 @@ export async function handleLink(args: InstallArgs) {
   }
 }
 
+/**
+ * Yargs command module for linking extensions
+ *
+ * This command creates a symbolic link to a local extension directory,
+ * enabling development mode where changes to the extension are reflected
+ * immediately without reinstallation.
+ */
 export const linkCommand: CommandModule = {
   command: 'link <path>',
   describe:

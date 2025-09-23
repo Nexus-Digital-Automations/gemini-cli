@@ -14,52 +14,85 @@ import { type Config } from '../config/config.js';
 import { getResponseText } from '../utils/partUtils.js';
 import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 
+/**
+ * Web grounding chunk metadata from Google Search results
+ */
 interface GroundingChunkWeb {
+  /** URL of the source webpage */
   uri?: string;
+  /** Title of the source webpage */
   title?: string;
 }
 
+/**
+ * Grounding chunk item containing web search result metadata
+ */
 interface GroundingChunkItem {
+  /** Web-specific metadata for the grounding chunk */
   web?: GroundingChunkWeb;
   // Other properties might exist if needed in the future
 }
 
+/**
+ * Text segment information for grounding support
+ */
 interface GroundingSupportSegment {
+  /** Start position in the text (UTF-8 byte index) */
   startIndex: number;
+  /** End position in the text (UTF-8 byte index) */
   endIndex: number;
-  text?: string; // text is optional as per the example
-}
-
-interface GroundingSupportItem {
-  segment?: GroundingSupportSegment;
-  groundingChunkIndices?: number[];
-  confidenceScores?: number[]; // Optional as per example
+  /** Optional text content of the segment */
+  text?: string;
 }
 
 /**
- * Parameters for the WebSearchTool.
+ * Support item linking text segments to grounding chunks
+ */
+interface GroundingSupportItem {
+  /** Text segment this support item refers to */
+  segment?: GroundingSupportSegment;
+  /** Indices of grounding chunks that support this segment */
+  groundingChunkIndices?: number[];
+  /** Confidence scores for the grounding chunks */
+  confidenceScores?: number[];
+}
+
+/**
+ * Parameters for the WebSearchTool
  */
 export interface WebSearchToolParams {
-  /**
-   * The search query.
-   */
-
+  /** The search query to execute on Google Search */
   query: string;
 }
 
 /**
- * Extends ToolResult to include sources for web search.
+ * Extended tool result including web search sources and citations
  */
 export interface WebSearchToolResult extends ToolResult {
+  /** Grounding chunks containing source URLs and titles from search results */
   sources?: GroundingMetadata extends { groundingChunks: GroundingChunkItem[] }
     ? GroundingMetadata['groundingChunks']
     : GroundingChunkItem[];
 }
 
+/**
+ * Implementation of web search execution logic using Google Search via Gemini API
+ *
+ * This class handles the complete web search workflow including:
+ * - Query execution through Gemini's Google Search integration
+ * - Source extraction and citation formatting
+ * - Response text modification with inline citations
+ * - Error handling for search failures
+ */
 class WebSearchToolInvocation extends BaseToolInvocation<
   WebSearchToolParams,
   WebSearchToolResult
 > {
+  /**
+   * Creates a new web search tool invocation
+   * @param config - Configuration object containing Gemini client settings
+   * @param params - Web search parameters including the query
+   */
   constructor(
     private readonly config: Config,
     params: WebSearchToolParams,
@@ -67,10 +100,34 @@ class WebSearchToolInvocation extends BaseToolInvocation<
     super(params);
   }
 
+  /**
+   * Gets a human-readable description of the search operation
+   * @returns Formatted description of the search query
+   */
   override getDescription(): string {
     return `Searching the web for: "${this.params.query}"`;
   }
 
+  /**
+   * Executes the web search and processes results with citations
+   *
+   * This method performs the following operations:
+   * - Sends the search query to Google Search via Gemini API
+   * - Extracts grounding metadata including source URLs and titles
+   * - Processes grounding supports to add inline citations
+   * - Formats the response with source list and citations
+   * - Handles UTF-8 byte positioning for citation insertion
+   *
+   * @param signal - Abort signal for cancellation
+   * @returns Promise resolving to search results with sources and citations
+   *
+   * @example
+   * ```typescript
+   * const result = await invocation.execute(abortSignal);
+   * console.log(result.llmContent); // Search results with citations
+   * console.log(result.sources); // Array of source URLs and titles
+   * ```
+   */
   async execute(signal: AbortSignal): Promise<WebSearchToolResult> {
     const geminiClient = this.config.getGeminiClient();
 
@@ -178,14 +235,33 @@ class WebSearchToolInvocation extends BaseToolInvocation<
 }
 
 /**
- * A tool to perform web searches using Google Search via the Gemini API.
+ * Web search tool using Google Search integration via Gemini API
+ *
+ * This tool provides access to real-time web search results through Google Search,
+ * integrated with Gemini's grounding capabilities. Features include:
+ * - Real-time web search results from Google
+ * - Automatic source citation and grounding
+ * - URL and title extraction from search results
+ * - Inline citation placement within response text
+ * - UTF-8 aware text processing for accurate positioning
+ *
+ * The tool is particularly useful for:
+ * - Finding current information and recent developments
+ * - Researching topics with authoritative sources
+ * - Fact-checking and verification with citations
+ * - Gathering information from across the web
  */
 export class WebSearchTool extends BaseDeclarativeTool<
   WebSearchToolParams,
   WebSearchToolResult
 > {
+  /** Tool identifier for registration and configuration */
   static readonly Name: string = 'google_web_search';
 
+  /**
+   * Creates a new web search tool instance
+   * @param config - Configuration object containing Gemini API settings
+   */
   constructor(private readonly config: Config) {
     super(
       WebSearchTool.Name,
@@ -219,6 +295,11 @@ export class WebSearchTool extends BaseDeclarativeTool<
     return null;
   }
 
+  /**
+   * Creates a web search tool invocation instance
+   * @param params - Validated web search parameters
+   * @returns Configured web search invocation ready for execution
+   */
   protected createInvocation(
     params: WebSearchToolParams,
   ): ToolInvocation<WebSearchToolParams, WebSearchToolResult> {

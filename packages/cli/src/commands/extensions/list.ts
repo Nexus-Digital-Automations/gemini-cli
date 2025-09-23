@@ -8,6 +8,18 @@ import type { CommandModule } from 'yargs';
 import { loadUserExtensions, toOutputString } from '../../config/extension.js';
 import { getErrorMessage } from '../../utils/errors.js';
 
+/**
+ * Handles the list extensions command execution
+ *
+ * Lists all installed extensions with their metadata including name, source,
+ * version, status, and other relevant information.
+ *
+ * @example
+ * ```typescript
+ * await handleList();
+ * // Outputs information about all installed extensions
+ * ```
+ */
 export async function handleList() {
   try {
     const extensions = loadUserExtensions();
@@ -26,6 +38,12 @@ export async function handleList() {
   }
 }
 
+/**
+ * Yargs command module for listing installed extensions
+ *
+ * This command displays all currently installed extensions with their
+ * metadata such as name, source, enabled status, and installation details.
+ */
 export const listCommand: CommandModule = {
   command: 'list',
   describe: 'Lists installed extensions.',

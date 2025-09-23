@@ -17,6 +17,10 @@ import {
 } from '@google/gemini-cli-core';
 import type { CustomTheme } from '../ui/themes/theme.js';
 
+/**
+ * Enumeration of supported setting data types for configuration schema validation.
+ * These types determine how settings are validated, stored, and displayed in the UI.
+ */
 export type SettingsType =
   | 'boolean'
   | 'string'
@@ -25,6 +29,10 @@ export type SettingsType =
   | 'object'
   | 'enum';
 
+/**
+ * Union type representing all possible values that can be stored in application settings.
+ * Supports primitive types, arrays, objects, and undefined for optional settings.
+ */
 export type SettingsValue =
   | boolean
   | string
@@ -43,57 +51,144 @@ export const TOGGLE_TYPES: ReadonlySet<SettingsType | undefined> = new Set([
   'enum',
 ]);
 
+/**
+ * Configuration option for enumeration-type settings that have predefined choices.
+ * Used to define the available options and their display labels in the UI.
+ *
+ * @example
+ * ```typescript
+ * const outputOptions: SettingEnumOption[] = [
+ *   { value: 'text', label: 'Text' },
+ *   { value: 'json', label: 'JSON' }
+ * ];
+ * ```
+ */
 export interface SettingEnumOption {
+  /** The actual value stored when this option is selected */
   value: string | number;
+  /** Human-readable label displayed in the UI for this option */
   label: string;
 }
 
+/**
+ * Strategies for merging configuration values when combining settings from multiple sources
+ * (system defaults, user settings, workspace settings, etc.).
+ * Determines how conflicts between different configuration scopes are resolved.
+ */
 export enum MergeStrategy {
-  // Replace the old value with the new value. This is the default.
+  /** Replace the old value with the new value completely. This is the default behavior. */
   REPLACE = 'replace',
-  // Concatenate arrays.
+  /** Concatenate arrays, preserving order and allowing duplicates. */
   CONCAT = 'concat',
-  // Merge arrays, ensuring unique values.
+  /** Merge arrays while ensuring unique values (set union operation). */
   UNION = 'union',
-  // Shallow merge objects.
+  /** Perform shallow merge for objects, where new properties are added and existing ones are overwritten. */
   SHALLOW_MERGE = 'shallow_merge',
 }
 
+/**
+ * Complete definition of a single configuration setting including its behavior,
+ * validation rules, UI presentation, and merge strategy.
+ *
+ * @example
+ * ```typescript
+ * const vimModeSetting: SettingDefinition = {
+ *   type: 'boolean',
+ *   label: 'Vim Mode',
+ *   category: 'General',
+ *   requiresRestart: false,
+ *   default: false,
+ *   description: 'Enable Vim keybindings',
+ *   showInDialog: true
+ * };
+ * ```
+ */
 export interface SettingDefinition {
+  /** Data type of the setting value, determines validation and UI input type */
   type: SettingsType;
+  /** Human-readable display name for the setting in UI */
   label: string;
+  /** Category grouping for organizing settings in the UI */
   category: string;
+  /** Whether changing this setting requires application restart to take effect */
   requiresRestart: boolean;
+  /** Default value when no user preference is set */
   default: SettingsValue;
+  /** Optional detailed description explaining the setting's purpose and behavior */
   description?: string;
+  /** Parent key path for nested settings hierarchy */
   parentKey?: string;
+  /** Child key for nested settings */
   childKey?: string;
+  /** Unique identifier for the setting */
   key?: string;
+  /** Nested schema for object-type settings containing sub-properties */
   properties?: SettingsSchema;
+  /** Whether to display this setting in configuration dialogs */
   showInDialog?: boolean;
+  /** Strategy for merging values from different configuration sources */
   mergeStrategy?: MergeStrategy;
-  /** Enum type options  */
+  /** Available options for enum-type settings */
   options?: readonly SettingEnumOption[];
 }
 
+/**
+ * Schema definition mapping setting keys to their complete configuration definitions.
+ * Forms the structural blueprint for all application settings and their behavior.
+ * Used for validation, UI generation, and settings management throughout the application.
+ */
 export interface SettingsSchema {
   [key: string]: SettingDefinition;
 }
 
+/**
+ * Format options for importing context memory files into the application.
+ * Determines how directory structures and file relationships are represented.
+ */
 export type MemoryImportFormat = 'tree' | 'flat';
+/**
+ * DNS resolution ordering preference for network operations.
+ * Controls how domain names are resolved to IP addresses.
+ */
 export type DnsResolutionOrder = 'ipv4first' | 'verbatim';
 
+/**
+ * Configuration for daily API usage budget tracking and enforcement.
+ * Helps users monitor and control their API consumption to avoid unexpected costs.
+ *
+ * @example
+ * ```typescript
+ * const budget: BudgetSettings = {
+ *   enabled: true,
+ *   dailyLimit: 100,
+ *   resetTime: '00:00',
+ *   warningThresholds: [50, 75, 90]
+ * };
+ * ```
+ */
 export interface BudgetSettings {
+  /** Whether budget tracking and enforcement is active */
   enabled?: boolean;
+  /** Maximum number of API requests allowed per day */
   dailyLimit?: number;
+  /** Time when daily budget resets in HH:MM format (24-hour time) */
   resetTime?: string;
+  /** Percentage thresholds at which to show usage warnings (e.g., [50, 75, 90]) */
   warningThresholds?: number[];
 }
 
+/**
+ * Runtime tracking data for API usage budget monitoring.
+ * Stores current usage statistics and warning states for the current budget period.
+ */
 export interface BudgetUsageData {
+  /** Date of the current budget period in ISO format */
   date: string;
+  /** Number of API requests made in the current budget period */
   requestCount: number;
+  /** Timestamp of the last budget reset in ISO format */
   lastResetTime: string;
+  /** List of warning threshold percentages that have already been shown to the user */
   warningsShown: number[];
 }
 
@@ -1091,12 +1186,41 @@ const SETTINGS_SCHEMA = {
   },
 } as const satisfies SettingsSchema;
 
+/**
+ * TypeScript type derived from the complete settings schema constant.
+ * Provides compile-time type safety for all configuration operations.
+ */
 export type SettingsSchemaType = typeof SETTINGS_SCHEMA;
 
+/**
+ * Returns the complete settings schema definition for the application.
+ * This schema defines all available configuration options, their types,
+ * default values, validation rules, and UI presentation.
+ *
+ * @returns The complete settings schema containing all configuration definitions
+ *
+ * @example
+ * ```typescript
+ * const schema = getSettingsSchema();
+ * const vimModeSetting = schema.general.properties?.vimMode;
+ * console.log(vimModeSetting?.default); // false
+ * ```
+ */
 export function getSettingsSchema(): SettingsSchemaType {
   return SETTINGS_SCHEMA;
 }
 
+/**
+ * Advanced TypeScript utility type that infers the actual settings object structure
+ * from the schema definition. Automatically generates the correct TypeScript types
+ * for all settings based on their schema definitions.
+ *
+ * This type performs the following transformations:
+ * - Removes readonly modifiers to allow settings modification
+ * - Makes all properties optional since settings may not be set
+ * - Recursively processes nested object properties
+ * - Preserves the exact type structure defined in the schema
+ */
 type InferSettings<T extends SettingsSchema> = {
   -readonly [K in keyof T]?: T[K] extends { properties: SettingsSchema }
     ? InferSettings<T[K]['properties']>
@@ -1105,10 +1229,50 @@ type InferSettings<T extends SettingsSchema> = {
       : T[K]['default'];
 };
 
+/**
+ * Main type representing the complete application settings object.
+ * Automatically inferred from the settings schema to ensure type safety
+ * and consistency between schema definitions and runtime settings.
+ *
+ * This type is used throughout the application for:
+ * - Type-safe access to configuration values
+ * - Settings validation and serialization
+ * - IDE autocompletion and error checking
+ *
+ * @example
+ * ```typescript
+ * const settings: Settings = {
+ *   general: {
+ *     vimMode: true,
+ *     preferredEditor: 'code'
+ *   },
+ *   ui: {
+ *     theme: 'dark',
+ *     hideFooter: false
+ *   }
+ * };
+ * ```
+ */
 export type Settings = InferSettings<SettingsSchemaType>;
 
+/**
+ * Specific configuration options for the application footer display.
+ * Controls the visibility of various information elements in the status bar.
+ *
+ * @example
+ * ```typescript
+ * const footerConfig: FooterSettings = {
+ *   hideCWD: false,           // Show current working directory
+ *   hideSandboxStatus: true,  // Hide sandbox status indicator
+ *   hideModelInfo: false      // Show active model information
+ * };
+ * ```
+ */
 export interface FooterSettings {
+  /** Whether to hide the current working directory path in the footer */
   hideCWD?: boolean;
+  /** Whether to hide the sandbox execution status indicator */
   hideSandboxStatus?: boolean;
+  /** Whether to hide the model name and context usage information */
   hideModelInfo?: boolean;
 }

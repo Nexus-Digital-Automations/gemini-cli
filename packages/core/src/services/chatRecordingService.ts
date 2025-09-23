@@ -113,6 +113,16 @@ export class ChatRecordingService {
   private queuedTokens: TokensSummary | null = null;
   private config: Config;
 
+  /**
+   * Creates a new ChatRecordingService instance tied to a specific configuration.
+   *
+   * @param config - Application configuration containing session and project settings
+   *
+   * @remarks
+   * The constructor extracts session identification and project context from the
+   * configuration but does not create any files. Call initialize() to set up
+   * the recording infrastructure and begin capturing conversations.
+   */
   constructor(config: Config) {
     this.config = config;
     this.sessionId = config.getSessionId();
@@ -120,8 +130,27 @@ export class ChatRecordingService {
   }
 
   /**
-   * Initializes the chat recording service: creates a new conversation file and associates it with
-   * this service instance, or resumes from an existing session if resumedSessionData is provided.
+   * Initializes the chat recording service and sets up conversation tracking.
+   *
+   * @param resumedSessionData - Optional existing session data for resuming a conversation
+   * @throws Error if file system operations fail during initialization
+   *
+   * @remarks
+   * This method performs different initialization based on whether resuming or starting new:
+   *
+   * **New Session Mode** (no resumedSessionData):
+   * - Creates a new conversation file in ~/.gemini/tmp/<project_hash>/chats/
+   * - Uses timestamp-based filename for uniqueness
+   * - Initializes empty conversation structure
+   *
+   * **Resume Mode** (with resumedSessionData):
+   * - Associates with existing conversation file
+   * - Updates session ID to current session
+   * - Preserves existing conversation history
+   * - Clears any cached data for fresh reads
+   *
+   * The service creates necessary directory structure and handles any queued
+   * data (thoughts, tokens) from previous interactions.
    */
   initialize(resumedSessionData?: ResumedSessionData): void {
     try {
@@ -192,7 +221,25 @@ export class ChatRecordingService {
   }
 
   /**
-   * Records a message in the conversation.
+   * Records a message in the active conversation session.
+   *
+   * @param message - Message details including type, content, and model information
+   *
+   * @remarks
+   * This method handles recording of both user and model messages with different
+   * processing based on message type:
+   *
+   * **User Messages**:
+   * - Recorded immediately with provided content
+   * - Tagged with timestamp and unique ID
+   *
+   * **Model Messages (Gemini)**:
+   * - Incorporates any queued thoughts from reasoning process
+   * - Includes token usage statistics if available
+   * - Associates with specific model used
+   * - Clears thought and token queues after incorporation
+   *
+   * All messages are persisted to disk immediately for crash recovery.
    */
   recordMessage(message: {
     model: string;

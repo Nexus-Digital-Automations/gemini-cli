@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 22,
+      "total_reinitializations": 24,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
@@ -22,7 +22,7 @@
         },
         "17:00-21:59": {
           "init": 0,
-          "reinit": 5
+          "reinit": 7
         },
         "22:00-02:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T22:45:31.994Z"
+      "last_updated": "2025-09-23T22:52:00.984Z"
     }
   },
   "workflow_config": {
@@ -78,6 +78,20 @@
       "status": "active",
       "reinitialized": "2025-09-23T22:45:31.993Z",
       "sessionId": "5eac2055f1366f47",
+      "previousSessions": []
+    },
+    "JSDOC_AGENT": {
+      "lastHeartbeat": "2025-09-23T22:52:00.637Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T22:52:00.637Z",
+      "sessionId": "4f7908842e1bc543",
+      "previousSessions": []
+    },
+    "DOCS_AGENT": {
+      "lastHeartbeat": "2025-09-23T22:52:00.978Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T22:52:00.978Z",
+      "sessionId": "4dd92f3450f36c4a",
       "previousSessions": []
     }
   },

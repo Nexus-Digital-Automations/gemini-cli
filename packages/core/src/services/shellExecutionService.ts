@@ -100,6 +100,35 @@ const getFullBufferText = (terminal: pkg.Terminal): string => {
  * A centralized service for executing shell commands with robust process
  * management, cross-platform compatibility, and streaming output capabilities.
  *
+ * This service provides enterprise-grade shell command execution with support for:
+ * - Multiple execution backends (node-pty, lydell-node-pty, child_process)
+ * - Real-time output streaming with ANSI terminal rendering
+ * - Cross-platform process management and signal handling
+ * - Binary content detection and progress reporting
+ * - Terminal interaction capabilities (PTY write, resize, scroll)
+ * - Graceful process termination and cleanup
+ *
+ * The service automatically selects the best available execution method based on
+ * system capabilities and configuration, falling back to child_process if PTY
+ * implementations are unavailable.
+ *
+ * @example
+ * ```typescript
+ * const result = await ShellExecutionService.execute(
+ *   'npm install',
+ *   '/path/to/project',
+ *   (event) => console.log(event),
+ *   abortSignal,
+ *   true,
+ *   { terminalWidth: 120, terminalHeight: 30 }
+ * );
+ * console.log(`Exit code: ${result.exitCode}`);
+ * ```
+ *
+ * @remarks
+ * This service is designed for high-throughput command execution in development
+ * tools and supports advanced terminal features when PTY backends are available.
+ * The service maintains a registry of active PTY processes for interaction.
  */
 
 export class ShellExecutionService {
@@ -148,6 +177,21 @@ export class ShellExecutionService {
     );
   }
 
+  /**
+   * Fallback execution method using Node.js child_process when PTY is unavailable.
+   *
+   * @param commandToExecute - The shell command to execute
+   * @param cwd - The working directory for command execution
+   * @param onOutputEvent - Callback for streaming output events
+   * @param abortSignal - Signal for aborting the process
+   * @returns A handle containing the process ID and result promise
+   * @throws Error if the process fails to spawn
+   *
+   * @remarks
+   * This method provides basic command execution without terminal features.
+   * It uses cross-platform process spawning with proper signal handling
+   * and output encoding detection.
+   */
   private static childProcessFallback(
     commandToExecute: string,
     cwd: string,
@@ -327,6 +371,24 @@ export class ShellExecutionService {
     }
   }
 
+  /**
+   * Primary execution method using pseudo-terminal (PTY) for full terminal features.
+   *
+   * @param commandToExecute - The shell command to execute
+   * @param cwd - The working directory for command execution
+   * @param onOutputEvent - Callback for streaming output events with ANSI support
+   * @param abortSignal - Signal for aborting the process
+   * @param shellExecutionConfig - Terminal configuration options
+   * @param ptyInfo - PTY implementation details
+   * @returns A handle containing the process ID and result promise
+   * @throws Error if PTY initialization fails
+   *
+   * @remarks
+   * This method provides full terminal emulation with ANSI color support,
+   * interactive capabilities, and proper terminal sizing. It maintains
+   * a headless terminal buffer for output capture and supports real-time
+   * terminal interactions like scrolling and resizing.
+   */
   private static executeWithPty(
     commandToExecute: string,
     cwd: string,

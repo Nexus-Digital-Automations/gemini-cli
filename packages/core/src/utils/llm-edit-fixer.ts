@@ -64,10 +64,18 @@ const EDIT_USER_PROMPT = `
 Based on the error and the file content, provide a corrected \`search\` string that will succeed. Remember to keep your correction minimal and explain the precise reason for the failure in your \`explanation\`.
 `;
 
+/**
+ * Represents the result of an LLM-corrected search and replace operation.
+ * Used when the original edit attempt failed and needs to be fixed by analyzing the file content.
+ */
 export interface SearchReplaceEdit {
+  /** The corrected search string that should match the exact text in the file */
   search: string;
+  /** The replacement string to be used (typically unchanged from original) */
   replace: string;
+  /** True if the desired change is already present in the file and no edit is needed */
   noChangesRequired: boolean;
+  /** Detailed explanation of why the original search failed and how it was corrected */
   explanation: string;
 }
 
@@ -88,16 +96,38 @@ const editCorrectionWithInstructionCache = new LruCache<
 >(MAX_CACHE_SIZE);
 
 /**
- * Attempts to fix a failed edit by using an LLM to generate a new search and replace pair.
- * @param instruction The instruction for what needs to be done.
- * @param old_string The original string to be replaced.
- * @param new_string The original replacement string.
- * @param error The error that occurred during the initial edit.
- * @param current_content The current content of the file.
- * @param baseLlmClient The BaseLlmClient to use for the LLM call.
- * @param abortSignal An abort signal to cancel the operation.
- * @param promptId A unique ID for the prompt.
- * @returns A new search and replace pair.
+ * Attempts to fix a failed edit by using an LLM to generate a corrected search and replace pair.
+ *
+ * This function analyzes why a search-and-replace operation failed by providing the LLM with:
+ * - The original instruction
+ * - The failed search/replace strings
+ * - The error message
+ * - The complete file content
+ *
+ * The LLM then generates a corrected search string that should match the file exactly,
+ * while preserving the original replacement logic.
+ *
+ * @param instruction - The high-level instruction describing what the edit should accomplish
+ * @param old_string - The original search string that failed to match
+ * @param new_string - The original replacement string (usually preserved)
+ * @param error - The specific error message from the failed edit attempt
+ * @param current_content - The complete current content of the target file
+ * @param baseLlmClient - The LLM client instance to use for generating the correction
+ * @param abortSignal - Signal to abort the LLM operation if needed
+ * @returns Promise resolving to a corrected SearchReplaceEdit object
+ *
+ * @example
+ * ```typescript
+ * const correctedEdit = await FixLLMEditWithInstruction(
+ *   'Add error handling to the function',
+ *   'function getData() {', // This failed to match
+ *   'function getData() {\n  try {',
+ *   'Search string not found in file',
+ *   fileContent,
+ *   llmClient,
+ *   abortController.signal
+ * );
+ * ```
  */
 export async function FixLLMEditWithInstruction(
   instruction: string,
@@ -147,6 +177,12 @@ export async function FixLLMEditWithInstruction(
   return result;
 }
 
+/**
+ * Clears the internal cache used by the LLM edit fixer.
+ * This function is intended for testing purposes only to ensure clean state between tests.
+ *
+ * @internal
+ */
 export function resetLlmEditFixerCaches_TEST_ONLY() {
   editCorrectionWithInstructionCache.clear();
 }
