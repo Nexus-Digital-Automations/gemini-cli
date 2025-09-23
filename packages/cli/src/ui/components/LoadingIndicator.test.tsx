@@ -9,6 +9,7 @@ import { render } from 'ink-testing-library';
 import { Text } from 'ink';
 import { LoadingIndicator } from './LoadingIndicator.js';
 import { StreamingContext } from '../contexts/StreamingContext.js';
+import { ProgressProvider } from '../contexts/ProgressContext.js';
 import { StreamingState } from '../types.js';
 import { vi } from 'vitest';
 import * as useTerminalSize from '../hooks/useTerminalSize.js';
@@ -44,9 +45,11 @@ const renderWithContext = (
   useTerminalSizeMock.mockReturnValue({ columns: width, rows: 24 });
   const contextValue: StreamingState = streamingStateValue;
   return render(
-    <StreamingContext.Provider value={contextValue}>
-      {ui}
-    </StreamingContext.Provider>,
+    <ProgressProvider>
+      <StreamingContext.Provider value={contextValue}>
+        {ui}
+      </StreamingContext.Provider>
+    </ProgressProvider>,
   );
 };
 
@@ -145,12 +148,14 @@ describe('<LoadingIndicator />', () => {
 
     // Transition to Responding
     rerender(
-      <StreamingContext.Provider value={StreamingState.Responding}>
-        <LoadingIndicator
-          currentLoadingPhrase="Now Responding"
-          elapsedTime={2}
-        />
-      </StreamingContext.Provider>,
+      <ProgressProvider>
+        <StreamingContext.Provider value={StreamingState.Responding}>
+          <LoadingIndicator
+            currentLoadingPhrase="Now Responding"
+            elapsedTime={2}
+          />
+        </StreamingContext.Provider>
+      </ProgressProvider>,
     );
     let output = lastFrame();
     expect(output).toContain('MockRespondingSpinner');
@@ -159,12 +164,16 @@ describe('<LoadingIndicator />', () => {
 
     // Transition to WaitingForConfirmation
     rerender(
-      <StreamingContext.Provider value={StreamingState.WaitingForConfirmation}>
-        <LoadingIndicator
-          currentLoadingPhrase="Please Confirm"
-          elapsedTime={15}
-        />
-      </StreamingContext.Provider>,
+      <ProgressProvider>
+        <StreamingContext.Provider
+          value={StreamingState.WaitingForConfirmation}
+        >
+          <LoadingIndicator
+            currentLoadingPhrase="Please Confirm"
+            elapsedTime={15}
+          />
+        </StreamingContext.Provider>
+      </ProgressProvider>,
     );
     output = lastFrame();
     expect(output).toContain('⠏');
@@ -174,9 +183,11 @@ describe('<LoadingIndicator />', () => {
 
     // Transition back to Idle
     rerender(
-      <StreamingContext.Provider value={StreamingState.Idle}>
-        <LoadingIndicator {...defaultProps} />
-      </StreamingContext.Provider>,
+      <ProgressProvider>
+        <StreamingContext.Provider value={StreamingState.Idle}>
+          <LoadingIndicator {...defaultProps} />
+        </StreamingContext.Provider>
+      </ProgressProvider>,
     );
     expect(lastFrame()).toBe('');
   });

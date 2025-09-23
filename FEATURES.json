@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 13,
+      "total_reinitializations": 17,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
@@ -18,7 +18,7 @@
         },
         "12:00-16:59": {
           "init": 0,
-          "reinit": 10
+          "reinit": 14
         },
         "17:00-21:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T18:49:36.095Z"
+      "last_updated": "2025-09-23T19:59:27.697Z"
     }
   },
   "workflow_config": {
@@ -46,37 +46,26 @@
   },
   "agents": {
     "CLAUDE_RECOVERY_AGENT_001": {
-      "lastHeartbeat": "2025-09-23T18:49:36.091Z",
+      "lastHeartbeat": "2025-09-23T19:59:27.696Z",
       "status": "active",
-      "reinitialized": "2025-09-23T18:49:36.091Z",
-      "sessionId": "9e1783f0f263cd80",
+      "reinitialized": "2025-09-23T19:59:27.696Z",
+      "sessionId": "2fd9d165f6e5a38b",
       "previousSessions": [
         "1cc3451bd8286183",
         "e528d2b13351f14b",
         "dbead9bea5c64808",
         "c4e96ab801ed5d58",
-        "87e71caacc45d3af"
+        "87e71caacc45d3af",
+        "9e1783f0f263cd80",
+        "c1980af1e7275c81",
+        "9d28ae835389754b"
       ]
     },
     "gemini-docker-agent": {
-      "lastHeartbeat": "2025-09-23T18:23:18.392Z",
+      "lastHeartbeat": "2025-09-23T18:56:25.835Z",
       "status": "active",
-      "reinitialized": "2025-09-23T18:23:18.392Z",
-      "sessionId": "d9c610600e907a07",
-      "previousSessions": ["cbce7e1f6d0fbd64"]
-    },
-    "agent_fix_imports": {
-      "lastHeartbeat": "2025-09-23T18:24:24.760Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T18:24:24.760Z",
-      "sessionId": "d9a114726dee3900",
-      "previousSessions": []
-    },
-    "agent-ink-prop-fixer": {
-      "lastHeartbeat": "2025-09-23T18:24:25.044Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T18:24:25.044Z",
-      "sessionId": "7e4c7870c67bbfee",
+      "reinitialized": "2025-09-23T18:56:25.835Z",
+      "sessionId": "fe7a92d89571ea37",
       "previousSessions": []
     }
   },

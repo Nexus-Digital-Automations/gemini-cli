@@ -7,6 +7,7 @@
 import { render } from 'ink-testing-library';
 import { describe, it, expect, vi } from 'vitest';
 import { Footer } from './Footer.js';
+import { ProgressProvider } from '../contexts/ProgressContext.js';
 import * as useTerminalSize from '../hooks/useTerminalSize.js';
 import { tildeifyPath } from '@google/gemini-cli-core';
 import path from 'node:path';
@@ -45,7 +46,11 @@ const defaultProps = {
 
 const renderWithWidth = (width: number, props = defaultProps) => {
   useTerminalSizeMock.mockReturnValue({ columns: width, rows: 24 });
-  return render(<Footer {...props} />);
+  return render(
+    <ProgressProvider>
+      <Footer {...props} />
+    </ProgressProvider>,
+  );
 };
 
 describe('<Footer />', () => {

@@ -15,6 +15,7 @@ import {
 } from '../contexts/UIActionsContext.js';
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { SettingsContext } from '../contexts/SettingsContext.js';
+import { ProgressProvider } from '../contexts/ProgressContext.js';
 // Mock VimModeContext hook
 vi.mock('../contexts/VimModeContext.js', () => ({
   useVimMode: vi.fn(() => ({
@@ -167,7 +168,9 @@ const renderComposer = (
       <SettingsContext.Provider value={settings as any}>
         <UIStateContext.Provider value={uiState}>
           <UIActionsContext.Provider value={uiActions}>
-            <Composer />
+            <ProgressProvider>
+              <Composer />
+            </ProgressProvider>
           </UIActionsContext.Provider>
         </UIStateContext.Provider>
       </SettingsContext.Provider>
