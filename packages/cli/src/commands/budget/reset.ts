@@ -6,7 +6,9 @@
 
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
-import { createBudgetTracker } from '@google/gemini-cli-core';
+import { createBudgetTracker , getComponentLogger } from '@google/gemini-cli-core';
+
+const logger = getComponentLogger('budget-reset');
 
 interface ResetCommandArgs {
   confirm?: boolean;
@@ -48,6 +50,10 @@ export const resetCommand: CommandModule<object, ResetCommandArgs> = {
       const statsBefore = await tracker.getUsageStats();
 
       if (statsBefore.requestCount === 0) {
+        logger.info('Budget reset skipped - usage count already at zero', {
+          dailyLimit: statsBefore.dailyLimit,
+          requestCount: statsBefore.requestCount,
+        });
         console.log('✅ Usage count is already at zero. No reset needed.');
         return;
       }
@@ -73,11 +79,19 @@ export const resetCommand: CommandModule<object, ResetCommandArgs> = {
           rl.close();
 
           if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
+            logger.info('Budget reset cancelled by user', {
+              requestCount: statsBefore.requestCount,
+              dailyLimit: statsBefore.dailyLimit,
+            });
             console.log('Reset cancelled.');
             return;
           }
         } catch (_error) {
           rl.close();
+          logger.info('Budget reset cancelled due to input error', {
+            requestCount: statsBefore.requestCount,
+            dailyLimit: statsBefore.dailyLimit,
+          });
           console.log('Reset cancelled.');
           return;
         }
@@ -89,6 +103,12 @@ export const resetCommand: CommandModule<object, ResetCommandArgs> = {
       // Get stats after reset to confirm
       const statsAfter = await tracker.getUsageStats();
 
+      logger.info('Budget reset successfully', {
+        beforeCount: statsBefore.requestCount,
+        afterCount: statsAfter.requestCount,
+        dailyLimit: statsAfter.dailyLimit,
+        remainingRequests: statsAfter.remainingRequests,
+      });
       console.log('✅ Budget reset successfully!');
       console.log('');
       console.log(
@@ -101,6 +121,9 @@ export const resetCommand: CommandModule<object, ResetCommandArgs> = {
       console.log('');
       console.log('Your usage counter has been reset to zero for today.');
     } catch (error) {
+      logger.error('Failed to reset budget', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       console.error('Error resetting budget:', error);
       process.exit(1);
     }

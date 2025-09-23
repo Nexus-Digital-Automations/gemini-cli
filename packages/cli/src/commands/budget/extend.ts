@@ -6,7 +6,9 @@
 
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
-import { createBudgetTracker } from '@google/gemini-cli-core';
+import { createBudgetTracker , getComponentLogger } from '@google/gemini-cli-core';
+
+const logger = getComponentLogger('budget-extend');
 
 interface ExtendCommandArgs {
   amount: number;
@@ -39,11 +41,15 @@ export const extendCommand: CommandModule<object, ExtendCommandArgs> = {
 
     // Validate amount
     if (amount <= 0) {
+      logger.error('Extension amount must be a positive number', { amount });
       console.error('Error: Extension amount must be a positive number.');
       process.exit(1);
     }
 
     if (amount > 1000) {
+      logger.error('Extension amount cannot exceed 1000 requests at once', {
+        amount,
+      });
       console.error(
         'Error: Extension amount cannot exceed 1000 requests at once.',
       );
@@ -100,11 +106,15 @@ export const extendCommand: CommandModule<object, ExtendCommandArgs> = {
           rl.close();
 
           if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
+            logger.info('Budget extension cancelled by user', { amount });
             console.log('Extension cancelled.');
             return;
           }
         } catch (_error) {
           rl.close();
+          logger.info('Budget extension cancelled due to input error', {
+            amount,
+          });
           console.log('Extension cancelled.');
           return;
         }
@@ -116,6 +126,12 @@ export const extendCommand: CommandModule<object, ExtendCommandArgs> = {
       // Get stats after extension to confirm
       const statsAfter = await tracker.getUsageStats();
 
+      logger.info('Budget extended successfully', {
+        amount,
+        previousLimit: statsBefore.dailyLimit,
+        newLimit: statsAfter.dailyLimit,
+        remainingRequests: statsAfter.remainingRequests,
+      });
       console.log('✅ Budget extended successfully!');
       console.log('');
       console.log(`   Previous limit: ${statsBefore.dailyLimit} requests`);
@@ -135,6 +151,10 @@ export const extendCommand: CommandModule<object, ExtendCommandArgs> = {
         '💡 To permanently change your limit, use "gemini budget set <limit>".',
       );
     } catch (error) {
+      logger.error('Failed to extend budget', {
+        amount,
+        error: error instanceof Error ? error.message : String(error),
+      });
       console.error('Error extending budget:', error);
       process.exit(1);
     }

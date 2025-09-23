@@ -13,8 +13,13 @@ import type { OAuthToken } from './token-storage/types.js';
 import { MCPOAuthTokenStorage } from './oauth-token-storage.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { OAuthUtils } from './oauth-utils.js';
+// TODO: Add back when implementing structured logging
+// import { getComponentLogger } from '../utils/logger.js';
 
 export const OAUTH_DISPLAY_MESSAGE_EVENT = 'oauth-display-message' as const;
+
+// TODO: Replace console statements with structured logging
+// const logger = getComponentLogger('OAuthProvider');
 
 /**
  * OAuth configuration for an MCP server.

@@ -1,7 +1,0 @@
-{
-  "stop_allowed": true,
-  "authorized_by": "ux-analysis-agent",
-  "reason": "All UX analysis tasks complete: comprehensive assessment report generated covering CLI usability, error reporting, performance perception, configuration experience, and accessibility features",
-  "timestamp": "2025-09-23T22:37:46.203Z",
-  "session_type": "self_authorized"
-}

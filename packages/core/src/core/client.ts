@@ -37,6 +37,7 @@ import {
   getEffectiveModel,
 } from '../config/models.js';
 import { LoopDetectionService } from '../services/loopDetectionService.js';
+import { getComponentLogger } from '../utils/logger.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import {
   logChatCompression,
@@ -383,7 +384,8 @@ export class GeminiClient {
       ];
 
       if (this.config.getDebugMode()) {
-        console.log(contextParts.join('\n'));
+        const logger = getComponentLogger('Client');
+        logger.debug('IDE context', { contextParts: contextParts.join('\n') });
       }
       return {
         contextParts,
@@ -493,7 +495,8 @@ export class GeminiClient {
       ];
 
       if (this.config.getDebugMode()) {
-        console.log(contextParts.join('\n'));
+        const logger = getComponentLogger('Client');
+        logger.debug('IDE context', { contextParts: contextParts.join('\n') });
       }
       return {
         contextParts,
@@ -823,7 +826,10 @@ export class GeminiClient {
         contents: curatedHistory,
       });
     if (originalTokenCount === undefined) {
-      console.warn(`Could not determine token count for model ${model}.`);
+      const logger = getComponentLogger('Client');
+      logger.warn(`Could not determine token count for model ${model}.`, {
+        model,
+      });
       this.hasFailedCompressionAttempt = !force && true;
       return {
         originalTokenCount: 0,
@@ -900,7 +906,8 @@ export class GeminiClient {
         contents: chat.getHistory(),
       });
     if (newTokenCount === undefined) {
-      console.warn('Could not determine compressed history token count.');
+      const logger = getComponentLogger('Client');
+      logger.warn('Could not determine compressed history token count.');
       this.hasFailedCompressionAttempt = !force && true;
       return {
         originalTokenCount,

@@ -24,6 +24,7 @@ import {
 } from './tools.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { summarizeToolOutput } from '../utils/summarizer.js';
+import { getComponentLogger } from '../utils/logger.js';
 import type {
   ShellExecutionConfig,
   ShellOutputEvent,
@@ -39,6 +40,9 @@ import {
 
 /** Interval for updating shell command output in milliseconds */
 export const OUTPUT_UPDATE_INTERVAL_MS = 1000;
+
+/** Logger instance for shell tool */
+const logger = getComponentLogger('ShellTool');
 
 /**
  * Parameters for the Shell tool execution
@@ -257,7 +261,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
             .filter(Boolean);
           for (const line of pgrepLines) {
             if (!/^\d+$/.test(line)) {
-              console.error(`pgrep: ${line}`);
+              logger.error('Invalid pgrep output line', {
+                line,
+                command: this.params.command,
+              });
             }
             const pid = Number(line);
             if (pid !== result.pid) {
@@ -266,7 +273,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
           }
         } else {
           if (!signal.aborted) {
-            console.error('missing pgrep output');
+            logger.error('Missing pgrep output file', {
+              tempFile: tempFilePath,
+              command: this.params.command,
+            });
           }
         }
       }
@@ -474,9 +484,9 @@ export class ShellTool extends BaseDeclarativeTool<
     const commandCheck = isCommandAllowed(params.command, this.config);
     if (!commandCheck.allowed) {
       if (!commandCheck.reason) {
-        console.error(
-          'Unexpected: isCommandAllowed returned false without a reason',
-        );
+        logger.error('Command validation failed without reason', {
+          command: params.command,
+        });
         return `Command is not allowed: ${params.command}`;
       }
       return commandCheck.reason;

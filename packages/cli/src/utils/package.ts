@@ -10,6 +10,9 @@ import {
 } from 'read-package-up';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
+
+const logger = getComponentLogger('package-utils');
 
 export type PackageJson = BasePackageJson & {
   config?: {
@@ -31,6 +34,7 @@ export async function getPackageJson(): Promise<PackageJson | undefined> {
   if (!result) {
     // Log for debugging but don't throw to maintain compatibility with callers
     // that expect graceful degradation when package.json is not available
+    logger.warn('Could not locate package.json', { searchDir: __dirname });
     console.warn('Warning: Could not locate package.json from', __dirname);
     return;
   }

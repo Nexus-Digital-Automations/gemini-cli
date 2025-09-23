@@ -11,6 +11,7 @@ import { glob } from 'glob';
 import { z } from 'zod';
 import type { Config } from '@google/gemini-cli-core';
 import { Storage } from '@google/gemini-cli-core';
+import { getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
 import type { ICommandLoader } from './types.js';
 import type {
   CommandContext,
@@ -38,6 +39,8 @@ interface CommandDirectory {
   path: string;
   extensionName?: string;
 }
+
+const logger = getComponentLogger('file-command-loader');
 
 /**
  * Defines the Zod schema for a command definition file. This serves as the
@@ -121,6 +124,11 @@ export class FileCommandLoader implements ICommandLoader {
         allCommands.push(...commands);
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+          logger.error('Error loading commands from directory', {
+            path: dirInfo.path,
+            extensionName: dirInfo.extensionName,
+            error: error instanceof Error ? error.message : String(error),
+          });
           console.error(
             `[FileCommandLoader] Error loading commands from ${dirInfo.path}:`,
             error,
@@ -182,6 +190,12 @@ export class FileCommandLoader implements ICommandLoader {
     try {
       fileContent = await fs.readFile(filePath, 'utf-8');
     } catch (error: unknown) {
+      logger.error('Failed to read command file', {
+        filePath,
+        baseDir,
+        extensionName,
+        error: error instanceof Error ? error.message : String(error),
+      });
       console.error(
         `[FileCommandLoader] Failed to read file ${filePath}:`,
         error instanceof Error ? error.message : String(error),
@@ -193,6 +207,12 @@ export class FileCommandLoader implements ICommandLoader {
     try {
       parsed = toml.parse(fileContent);
     } catch (error: unknown) {
+      logger.error('Failed to parse TOML command file', {
+        filePath,
+        baseDir,
+        extensionName,
+        error: error instanceof Error ? error.message : String(error),
+      });
       console.error(
         `[FileCommandLoader] Failed to parse TOML file ${filePath}:`,
         error instanceof Error ? error.message : String(error),
@@ -203,6 +223,12 @@ export class FileCommandLoader implements ICommandLoader {
     const validationResult = TomlCommandDefSchema.safeParse(parsed);
 
     if (!validationResult.success) {
+      logger.error('Skipping invalid command file due to validation errors', {
+        filePath,
+        baseDir,
+        extensionName,
+        validationErrors: validationResult.error.flatten(),
+      });
       console.error(
         `[FileCommandLoader] Skipping invalid command file: ${filePath}. Validation errors:`,
         validationResult.error.flatten(),
@@ -270,6 +296,14 @@ export class FileCommandLoader implements ICommandLoader {
         _args: string,
       ): Promise<SlashCommandActionReturn> => {
         if (!context.invocation) {
+          logger.error(
+            'Critical error: Command executed without invocation context',
+            {
+              commandName: baseCommandName,
+              extensionName,
+              filePath,
+            },
+          );
           console.error(
             `[FileCommandLoader] Critical error: Command '${baseCommandName}' was executed without invocation context.`,
           );

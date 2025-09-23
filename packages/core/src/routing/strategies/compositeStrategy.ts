@@ -12,6 +12,7 @@ import type {
   RoutingStrategy,
   TerminalStrategy,
 } from '../routingStrategy.js';
+import { getComponentLogger } from '../../utils/logger.js';
 
 /**
  * A strategy that attempts a list of child strategies in order (Chain of Responsibility).
@@ -98,9 +99,11 @@ export class CompositeStrategy implements TerminalStrategy {
           return this.finalizeDecision(decision, startTime);
         }
       } catch (error) {
-        console.error(
-          `[Routing] Strategy '${strategy.name}' failed. Continuing to next strategy. Error:`,
-          error,
+        const logger = getComponentLogger('CompositeStrategy');
+        logger.error(
+          `Strategy '${strategy.name}' failed. Continuing to next strategy.`,
+          error as Error,
+          { strategyName: strategy.name },
         );
       }
     }
@@ -115,9 +118,11 @@ export class CompositeStrategy implements TerminalStrategy {
 
       return this.finalizeDecision(decision, startTime);
     } catch (error) {
-      console.error(
-        `[Routing] Critical Error: Terminal strategy '${terminalStrategy.name}' failed. Routing cannot proceed. Error:`,
-        error,
+      const logger = createLogger('CompositeStrategy');
+      logger.error(
+        `Critical Error: Terminal strategy '${terminalStrategy.name}' failed. Routing cannot proceed.`,
+        error as Error,
+        { terminalStrategyName: terminalStrategy.name },
       );
       throw error;
     }

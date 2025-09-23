@@ -36,12 +36,16 @@ import { MCPOAuthTokenStorage } from '../mcp/oauth-token-storage.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { getComponentLogger } from '../utils/logger.js';
 import type {
   Unsubscribe,
   WorkspaceContext,
 } from '../utils/workspaceContext.js';
 
 export const MCP_DEFAULT_TIMEOUT_MSEC = 10 * 60 * 1000; // default to 10 minutes
+
+/** Logger instance for MCP client */
+const logger = getComponentLogger('MCPClient');
 
 export type DiscoveredMCPPrompt = Prompt & {
   serverName: string;
@@ -111,7 +115,10 @@ export class McpClient {
         if (this.isDisconnecting) {
           return;
         }
-        console.error(`MCP ERROR (${this.serverName}):`, error.toString());
+        logger.error('MCP client error', {
+          server: this.serverName,
+          error,
+        });
         this.updateStatus(MCPServerStatus.DISCONNECTED);
       };
 
@@ -325,7 +332,9 @@ async function handleAutomaticOAuth(
   wwwAuthenticate: string,
 ): Promise<boolean> {
   try {
-    console.log(`🔐 '${mcpServerName}' requires OAuth authentication`);
+    logger.info('Server requires OAuth authentication', {
+      server: mcpServerName,
+    });
 
     // Always try to parse the resource metadata URI from the www-authenticate header
     let oauthConfig;
@@ -343,8 +352,12 @@ async function handleAutomaticOAuth(
     }
 
     if (!oauthConfig) {
-      console.error(
-        `❌ Could not configure OAuth for '${mcpServerName}' - please authenticate manually with /mcp auth ${mcpServerName}`,
+      logger.error(
+        'Could not configure OAuth - manual authentication required',
+        {
+          server: mcpServerName,
+          message: `Please authenticate manually with /mcp auth ${mcpServerName}`,
+        },
       );
       return false;
     }
@@ -362,20 +375,17 @@ async function handleAutomaticOAuth(
     // Perform OAuth authentication
     // Pass the server URL for proper discovery
     const serverUrl = mcpServerConfig.httpUrl || mcpServerConfig.url;
-    console.log(
-      `Starting OAuth authentication for server '${mcpServerName}'...`,
-    );
+    logger.info('Starting OAuth authentication', { server: mcpServerName });
     const authProvider = new MCPOAuthProvider(new MCPOAuthTokenStorage());
     await authProvider.authenticate(mcpServerName, oauthAuthConfig, serverUrl);
 
-    console.log(
-      `OAuth authentication successful for server '${mcpServerName}'`,
-    );
+    logger.info('OAuth authentication successful', { server: mcpServerName });
     return true;
   } catch (error) {
-    console.error(
-      `Failed to handle automatic OAuth for server '${mcpServerName}': ${getErrorMessage(error)}`,
-    );
+    logger.error('Failed to handle automatic OAuth', {
+      server: mcpServerName,
+      error,
+    });
     return false;
   }
 }

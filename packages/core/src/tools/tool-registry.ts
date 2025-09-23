@@ -21,8 +21,12 @@ import { parse } from 'shell-quote';
 import { ToolErrorType } from './tool-error.js';
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
 import type { EventEmitter } from 'node:events';
+import { getComponentLogger } from '../utils/logger.js';
 
 type ToolParams = Record<string, unknown>;
+
+/** Logger instance for tool registry */
+const logger = getComponentLogger('ToolRegistry');
 
 class DiscoveredToolInvocation extends BaseToolInvocation<
   ToolParams,
@@ -195,9 +199,9 @@ export class ToolRegistry {
         tool = tool.asFullyQualifiedTool();
       } else {
         // Decide on behavior: throw error, log warning, or allow overwrite
-        console.warn(
-          `Tool with name "${tool.name}" is already registered. Overwriting.`,
-        );
+        logger.warn('Tool already registered - overwriting', {
+          toolName: tool.name,
+        });
       }
     }
     this.tools.set(tool.name, tool);
@@ -353,8 +357,10 @@ export class ToolRegistry {
           }
 
           if (code !== 0) {
-            console.error(`Command failed with code ${code}`);
-            console.error(stderr);
+            logger.error('Tool discovery command failed', {
+              exitCode: code,
+              stderr,
+            });
             return reject(
               new Error(`Tool discovery command failed with exit code ${code}`),
             );
@@ -387,7 +393,7 @@ export class ToolRegistry {
       // register each function as a tool
       for (const func of functions) {
         if (!func.name) {
-          console.warn('Discovered a tool with no name. Skipping.');
+          logger.warn('Discovered tool with no name - skipping');
           continue;
         }
         const parameters =
@@ -406,7 +412,10 @@ export class ToolRegistry {
         );
       }
     } catch (e) {
-      console.error(`Tool discovery command "${discoveryCmd}" failed:`, e);
+      logger.error('Tool discovery command failed', {
+        command: discoveryCmd,
+        error: e as Error,
+      });
       throw e;
     }
   }
