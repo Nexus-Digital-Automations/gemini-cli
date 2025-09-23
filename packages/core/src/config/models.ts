@@ -4,15 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/** Default Gemini Pro model for high-quality conversations */
 export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
+/** Default Gemini Flash model for faster, cost-effective conversations */
 export const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
+/** Default Gemini Flash Lite model for ultra-fast, minimal cost conversations */
 export const DEFAULT_GEMINI_FLASH_LITE_MODEL = 'gemini-2.5-flash-lite';
 
+/** Auto model selection identifier for dynamic model routing */
 export const DEFAULT_GEMINI_MODEL_AUTO = 'auto';
 
+/** Default embedding model for vector operations and semantic search */
 export const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
 
-// Some thinking models do not default to dynamic thinking which is done by a value of -1
+/** Default thinking mode setting (-1 enables dynamic thinking for models that support it) */
 export const DEFAULT_THINKING_MODE = -1;
 
 /**

@@ -7,12 +7,31 @@
 import type { CommandModule } from 'yargs';
 import { loadSettings, SettingScope } from '../../config/settings.js';
 
+/**
+ * Arguments interface for the budget set command
+ */
 interface SetCommandArgs {
+  /** Daily API request limit */
   limit: number;
+  /** Time when budget resets daily in HH:MM format */
   'reset-time'?: string;
+  /** Configuration scope (user or project) */
   scope: 'user' | 'project';
 }
 
+/**
+ * Yargs command module for setting budget limits and configuration
+ *
+ * This command enables and configures API request budget tracking with:
+ * - Daily request limits to control API usage
+ * - Customizable reset times for budget cycles
+ * - User and project scope support for flexible configuration
+ * - Input validation for limits and time formats
+ * - Automatic budget enabling when limits are set
+ *
+ * The command includes comprehensive validation and provides clear
+ * feedback about the configured settings and next steps.
+ */
 export const setCommand: CommandModule<object, SetCommandArgs> = {
   command: 'set <limit>',
   describe: 'Set the daily API request budget limit',

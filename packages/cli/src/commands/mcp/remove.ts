@@ -8,6 +8,26 @@
 import type { CommandModule } from 'yargs';
 import { loadSettings, SettingScope } from '../../config/settings.js';
 
+/**
+ * Removes an MCP (Model Context Protocol) server configuration
+ *
+ * This function handles the removal of MCP server configurations from
+ * either user or project scope settings. It provides safe deletion with
+ * validation to ensure the server exists before attempting removal.
+ *
+ * @param name - Unique identifier of the MCP server to remove
+ * @param options - Configuration options for the removal operation
+ * @param options.scope - Configuration scope ('user' or 'project')
+ *
+ * @example
+ * ```typescript
+ * // Remove server from project scope
+ * await removeMcpServer('my-server', { scope: 'project' });
+ *
+ * // Remove server from user scope
+ * await removeMcpServer('global-server', { scope: 'user' });
+ * ```
+ */
 async function removeMcpServer(
   name: string,
   options: {
@@ -34,6 +54,13 @@ async function removeMcpServer(
   console.log(`Server "${name}" removed from ${scope} settings.`);
 }
 
+/**
+ * Yargs command module for removing MCP servers
+ *
+ * This command provides a safe interface for removing MCP server configurations
+ * from either user or project scope. It includes validation to ensure the server
+ * exists before attempting removal and provides clear feedback about the operation.
+ */
 export const removeCommand: CommandModule = {
   command: 'remove <name>',
   describe: 'Remove a server',

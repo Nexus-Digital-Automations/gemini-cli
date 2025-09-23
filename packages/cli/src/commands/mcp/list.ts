@@ -12,11 +12,24 @@ import { MCPServerStatus, createTransport } from '@google/gemini-cli-core';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { loadExtensions } from '../../config/extension.js';
 
+/** ANSI color codes for status indicators */
 const COLOR_GREEN = '\u001b[32m';
 const COLOR_YELLOW = '\u001b[33m';
 const COLOR_RED = '\u001b[31m';
 const RESET_COLOR = '\u001b[0m';
 
+/**
+ * Retrieves all configured MCP servers from settings and extensions
+ *
+ * This function aggregates MCP server configurations from multiple sources:
+ * - User and workspace settings
+ * - Installed extensions with MCP server configurations
+ *
+ * Settings take precedence over extension configurations when servers
+ * have the same name.
+ *
+ * @returns Promise resolving to a record of server names to configurations
+ */
 async function getMcpServersFromConfig(): Promise<
   Record<string, MCPServerConfig>
 > {
@@ -39,6 +52,17 @@ async function getMcpServersFromConfig(): Promise<
   return mcpServers;
 }
 
+/**
+ * Tests connectivity to an MCP server
+ *
+ * This function performs an actual connection test to verify if an MCP server
+ * is reachable and responding correctly. It creates a transport, establishes
+ * a connection, and performs a ping operation to validate the server.
+ *
+ * @param serverName - Name of the server for identification
+ * @param config - MCP server configuration including transport details
+ * @returns Promise resolving to the server's connection status
+ */
 async function testMCPConnection(
   serverName: string,
   config: MCPServerConfig,
@@ -72,6 +96,17 @@ async function testMCPConnection(
   }
 }
 
+/**
+ * Gets the current status of an MCP server
+ *
+ * This is a wrapper function that delegates to the connection testing logic.
+ * It provides a consistent interface for status checking while allowing for
+ * future expansion of status determination logic.
+ *
+ * @param serverName - Name of the server to check
+ * @param server - MCP server configuration
+ * @returns Promise resolving to the server's current status
+ */
 async function getServerStatus(
   serverName: string,
   server: MCPServerConfig,
@@ -80,6 +115,25 @@ async function getServerStatus(
   return await testMCPConnection(serverName, server);
 }
 
+/**
+ * Lists all configured MCP servers with their connection status
+ *
+ * This function provides a comprehensive overview of all MCP servers including:
+ * - Server names and configuration details
+ * - Real-time connection status with color-coded indicators
+ * - Transport type information (stdio, sse, http)
+ * - Command/URL details for each server
+ *
+ * The function aggregates servers from both settings and extensions,
+ * performs connectivity tests, and displays formatted output with
+ * visual status indicators.
+ *
+ * @example
+ * ```
+ * ✓ my-server: /path/to/server --arg (stdio) - Connected
+ * ✗ api-server: https://api.example.com (sse) - Disconnected
+ * ```
+ */
 export async function listMcpServers(): Promise<void> {
   const mcpServers = await getMcpServersFromConfig();
   const serverNames = Object.keys(mcpServers);
@@ -127,6 +181,14 @@ export async function listMcpServers(): Promise<void> {
   }
 }
 
+/**
+ * Yargs command module for listing MCP servers
+ *
+ * This command provides a comprehensive view of all configured MCP servers
+ * across user settings, workspace settings, and extensions. It includes
+ * real-time connectivity testing and color-coded status indicators for
+ * quick assessment of server availability.
+ */
 export const listCommand: CommandModule = {
   command: 'list',
   describe: 'List all configured MCP servers',
