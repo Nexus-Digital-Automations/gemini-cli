@@ -6,7 +6,10 @@
 
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
-import { createBudgetTracker , getComponentLogger } from '@google/gemini-cli-core';
+import {
+  createBudgetTracker,
+  getComponentLogger,
+} from '@google/gemini-cli-core';
 
 const logger = getComponentLogger('budget-extend');
 
@@ -153,7 +156,7 @@ export const extendCommand: CommandModule<object, ExtendCommandArgs> = {
     } catch (error) {
       logger.error('Failed to extend budget', {
         amount,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       console.error('Error extending budget:', error);
       process.exit(1);

@@ -9,9 +9,11 @@ import path from 'node:path';
 import toml from '@iarna/toml';
 import { glob } from 'glob';
 import { z } from 'zod';
-import type { Config } from '@google/gemini-cli-core';
-import { Storage } from '@google/gemini-cli-core';
-import { getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
+import {
+  Storage,
+  getComponentLogger,
+  type Config,
+} from '@google/gemini-cli-core';
 import type { ICommandLoader } from './types.js';
 import type {
   CommandContext,
@@ -127,7 +129,7 @@ export class FileCommandLoader implements ICommandLoader {
           logger.error('Error loading commands from directory', {
             path: dirInfo.path,
             extensionName: dirInfo.extensionName,
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
           console.error(
             `[FileCommandLoader] Error loading commands from ${dirInfo.path}:`,
@@ -194,7 +196,7 @@ export class FileCommandLoader implements ICommandLoader {
         filePath,
         baseDir,
         extensionName,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       console.error(
         `[FileCommandLoader] Failed to read file ${filePath}:`,
@@ -211,7 +213,7 @@ export class FileCommandLoader implements ICommandLoader {
         filePath,
         baseDir,
         extensionName,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       console.error(
         `[FileCommandLoader] Failed to parse TOML file ${filePath}:`,

@@ -6,7 +6,10 @@
 
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
-import { createBudgetTracker , getComponentLogger } from '@google/gemini-cli-core';
+import {
+  createBudgetTracker,
+  getComponentLogger,
+} from '@google/gemini-cli-core';
 
 const logger = getComponentLogger('budget-reset');
 
@@ -122,7 +125,7 @@ export const resetCommand: CommandModule<object, ResetCommandArgs> = {
       console.log('Your usage counter has been reset to zero for today.');
     } catch (error) {
       logger.error('Failed to reset budget', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       console.error('Error resetting budget:', error);
       process.exit(1);

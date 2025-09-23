@@ -95,6 +95,16 @@ export async function loadSandboxConfig(
   const sandboxOption = argv.sandbox ?? settings.tools?.sandbox;
   const command = getSandboxCommand(sandboxOption);
 
+  if (!command) {
+    return undefined;
+  }
+
+  // sandbox-exec doesn't need a container image
+  if (command === 'sandbox-exec') {
+    return { command, image: undefined };
+  }
+
+  // Container-based sandboxing requires an image
   const packageJson = await getPackageJson();
   const image =
     argv.sandboxImage ??

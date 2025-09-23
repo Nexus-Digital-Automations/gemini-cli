@@ -354,6 +354,13 @@ export async function start_sandbox(
 
     console.error(`hopping into sandbox (command: ${config.command}) ...`);
 
+    // ensure we have a valid image for container-based sandboxing
+    if (!config.image) {
+      throw new FatalSandboxError(
+        `Container image is required for ${config.command} sandboxing`,
+      );
+    }
+
     // determine full path for gemini-cli to distinguish linked vs installed setting
     const gcPath = fs.realpathSync(process.argv[1]);
 

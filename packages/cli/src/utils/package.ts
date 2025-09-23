@@ -10,7 +10,7 @@ import {
 } from 'read-package-up';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
+import { getComponentLogger } from '@google/gemini-cli-core';
 
 const logger = getComponentLogger('package-utils');
 

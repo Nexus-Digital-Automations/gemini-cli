@@ -6,7 +6,7 @@
 
 import type { SlashCommand } from '../ui/commands/types.js';
 import type { ICommandLoader } from './types.js';
-import { getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
+import { getComponentLogger } from '@google/gemini-cli-core';
 
 const logger = getComponentLogger('command-service');
 
