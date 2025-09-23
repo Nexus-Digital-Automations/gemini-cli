@@ -30,7 +30,7 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
   const { columns: terminalWidth } = useTerminalSize();
   const isNarrow = isNarrowWidth(terminalWidth);
   const [displayResults, setDisplayResults] = useState<FormattedResult[]>([]);
-  const scrollRef = useRef<any>(null);
+  const scrollRef = useRef<HTMLElement>(null);
 
   // Convert operation intermediate results to formatted display results
   useEffect(() => {
@@ -85,10 +85,7 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
       </Box>
 
       {/* Results list */}
-      <Box
-        flexDirection="column"
-        ref={scrollRef}
-      >
+      <Box flexDirection="column" ref={scrollRef}>
         {displayResults.map((result, index) => (
           <ResultItem
             key={`${result.stepId}-${index}`}
@@ -199,9 +196,7 @@ const ResultItem: React.FC<ResultItemProps> = ({
 
         {result.stepId && !compact && (
           <Box marginLeft={1}>
-            <Text color={theme.text.muted}>
-              [{result.stepId}]
-            </Text>
+            <Text color={theme.text.muted}>[{result.stepId}]</Text>
           </Box>
         )}
 
@@ -353,9 +348,7 @@ const UpdateItem: React.FC<UpdateItemProps> = ({ update, compact }) => {
       </Box>
       {!compact && (
         <Box marginLeft={1}>
-          <Text color={theme.text.muted}>
-            ({timestamp})
-          </Text>
+          <Text color={theme.text.muted}>({timestamp})</Text>
         </Box>
       )}
     </Box>

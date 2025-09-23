@@ -264,7 +264,7 @@ function autoCreateSteps(
 
   switch (name) {
     case 'MultiEdit': {
-      const edits = (args['edits'] as unknown[]) || [];
+      const edits = (args.edits as unknown[]) || [];
       edits.forEach((_, index) => {
         globalProgressTracker.addStep(
           operationId,
@@ -276,7 +276,7 @@ function autoCreateSteps(
     }
 
     case 'Bash': {
-      const command = args['command'] as string;
+      const command = args.command as string;
       if (
         command?.includes('npm install') ||
         command?.includes('yarn install')

@@ -1032,7 +1032,10 @@ describe('Approval mode tool exclusion logic', () => {
 
   beforeEach(() => {
     process.stdin.isTTY = false; // Ensure non-interactive mode
-    vi.mocked(isWorkspaceTrusted).mockReturnValue(true);
+    vi.mocked(isWorkspaceTrusted).mockReturnValue({
+      isTrusted: true,
+      source: 'file',
+    });
   });
 
   afterEach(() => {
@@ -1887,7 +1890,10 @@ describe('loadCliConfig tool exclusions', () => {
     vi.mocked(os.homedir).mockReturnValue('/mock/home/user');
     vi.stubEnv('GEMINI_API_KEY', 'test-api-key');
     process.stdin.isTTY = true;
-    vi.mocked(isWorkspaceTrusted).mockReturnValue(true);
+    vi.mocked(isWorkspaceTrusted).mockReturnValue({
+      isTrusted: true,
+      source: 'file',
+    });
   });
 
   afterEach(() => {
@@ -2028,7 +2034,10 @@ describe('loadCliConfig approval mode', () => {
     vi.mocked(os.homedir).mockReturnValue('/mock/home/user');
     vi.stubEnv('GEMINI_API_KEY', 'test-api-key');
     process.argv = ['node', 'script.js']; // Reset argv for each test
-    vi.mocked(isWorkspaceTrusted).mockReturnValue(true);
+    vi.mocked(isWorkspaceTrusted).mockReturnValue({
+      isTrusted: true,
+      source: 'file',
+    });
   });
 
   afterEach(() => {

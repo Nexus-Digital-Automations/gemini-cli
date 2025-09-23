@@ -13,8 +13,12 @@ import { formatDuration } from '../utils/formatters.js';
 import { useProgress } from '../contexts/ProgressContext.js';
 import { ToolExecutionDisplay } from './ToolExecutionDisplay.js';
 import { ProgressBar, StepIndicator, MultiProgressBar } from './ProgressBar.js';
-import { ToolCallStatus , ProgressState } from '../types.js';
-import type { OperationProgress, ProgressInteraction } from '../types.js';
+import {
+  ToolCallStatus,
+  ProgressState,
+  type OperationProgress,
+  type ProgressInteraction,
+} from '../types.js';
 
 export interface ProgressPanelProps {
   isExpanded: boolean;
