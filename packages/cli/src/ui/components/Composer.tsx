@@ -67,6 +67,7 @@ export const Composer = () => {
     hideCWD: settings.merged.ui?.footer?.hideCWD || false,
     hideSandboxStatus: settings.merged.ui?.footer?.hideSandboxStatus || false,
     hideModelInfo: settings.merged.ui?.footer?.hideModelInfo || false,
+    sandboxConfig: config.getSandbox(),
   };
 
   return (

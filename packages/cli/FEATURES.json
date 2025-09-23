@@ -1,28 +1,28 @@
 {
-  "project": "gemini-cli",
+  "project": "cli",
   "features": [],
   "metadata": {
     "version": "1.0.0",
-    "created": "2025-09-23T15:25:59.770Z",
-    "updated": "2025-09-23T15:25:59.770Z",
+    "created": "2025-09-23T20:07:35.392Z",
+    "updated": "2025-09-23T20:07:35.393Z",
     "total_features": 0,
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 18,
+      "total_reinitializations": 1,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
           "init": 0,
-          "reinit": 2
+          "reinit": 0
         },
         "12:00-16:59": {
           "init": 0,
-          "reinit": 14
+          "reinit": 1
         },
         "17:00-21:59": {
           "init": 0,
-          "reinit": 1
+          "reinit": 0
         },
         "22:00-02:59": {
           "init": 0,
@@ -34,8 +34,8 @@
         }
       },
       "daily_history": [],
-      "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T22:23:57.509Z"
+      "last_reset": "2025-09-23T20:07:35.399Z",
+      "last_updated": "2025-09-23T20:07:35.399Z"
     }
   },
   "workflow_config": {
@@ -45,14 +45,12 @@
     "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
-    "agent-sandbox-diagnostic": {
-      "lastHeartbeat": "2025-09-23T22:23:57.508Z",
+    "AGENT_GEMINI_CLI_001": {
+      "lastHeartbeat": "2025-09-23T20:07:35.393Z",
       "status": "active",
-      "reinitialized": "2025-09-23T22:23:57.508Z",
-      "sessionId": "841ec7067d172eb9",
+      "reinitialized": "2025-09-23T20:07:35.393Z",
+      "sessionId": "85de41cdcbaa0796",
       "previousSessions": []
     }
-  },
-  "tasks": [],
-  "completed_tasks": []
+  }
 }

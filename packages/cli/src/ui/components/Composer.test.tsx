@@ -145,6 +145,7 @@ const createMockConfig = (overrides = {}) => ({
   getAccessibility: vi.fn(() => ({})),
   getMcpServers: vi.fn(() => ({})),
   getBlockedMcpServers: vi.fn(() => []),
+  getSandbox: vi.fn(() => undefined),
   ...overrides,
 });
 

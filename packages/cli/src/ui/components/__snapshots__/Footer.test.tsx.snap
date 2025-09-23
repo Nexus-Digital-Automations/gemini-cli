@@ -9,8 +9,8 @@ gemini-pro (100% context left)"
 `;
 
 exports[`<Footer /> > footer configuration filtering (golden snapshots) > renders complete footer with all sections visible (baseline) > complete-footer-wide 1`] = `
-"...bar/and/some/more/directories/to/make/it/long    no sandbox (see     gemini-pro (100% context
-(main*)                                             /docs)             left)"
+"...bar/and/some/more/directories/to/make/it/long     no sandbox (see    gemini-pro (100% context
+(main*)                                              /docs)            left)"
 `;
 
 exports[`<Footer /> > footer configuration filtering (golden snapshots) > renders footer with CWD and model info hidden to test alignment (only sandbox visible) > footer-only-sandbox 1`] = `"                                       no sandbox (see /docs)"`;

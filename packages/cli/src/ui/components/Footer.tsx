@@ -17,6 +17,7 @@ import { ContextUsageDisplay } from './ContextUsageDisplay.js';
 import { DebugProfiler } from './DebugProfiler.js';
 import { BudgetDisplay } from './BudgetDisplay.js';
 import type { BudgetSettings } from '../../config/settingsSchema.js';
+import type { SandboxConfig } from '@google/gemini-cli-core';
 
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
@@ -40,6 +41,7 @@ export interface FooterProps {
   hideModelInfo?: boolean;
   budgetSettings?: BudgetSettings;
   showBudgetStatus?: boolean;
+  sandboxConfig?: SandboxConfig;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -61,6 +63,7 @@ export const Footer: React.FC<FooterProps> = ({
   hideModelInfo = false,
   budgetSettings,
   showBudgetStatus = true,
+  sandboxConfig,
 }) => {
   const { columns: terminalWidth } = useTerminalSize();
 
@@ -137,6 +140,17 @@ export const Footer: React.FC<FooterProps> = ({
                     ({process.env['SEATBELT_PROFILE']})
                   </Text>
                 </Text>
+              ) : sandboxConfig ? (
+                sandboxConfig.command === 'sandbox-exec' ? (
+                  <Text color={theme.status.warning}>
+                    macOS Seatbelt{' '}
+                    <Text color={theme.text.secondary}>
+                      ({process.env['SEATBELT_PROFILE'] || 'permissive-open'})
+                    </Text>
+                  </Text>
+                ) : (
+                  <Text color="green">{sandboxConfig.command}</Text>
+                )
               ) : (
                 <Text color={theme.status.error}>
                   no sandbox{' '}
