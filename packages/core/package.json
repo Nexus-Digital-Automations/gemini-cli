@@ -20,10 +20,10 @@
     "dist"
   ],
   "dependencies": {
-    "@google/genai": "1.16.0",
+    "@google-cloud/logging": "^11.2.1",
     "@google-cloud/opentelemetry-cloud-monitoring-exporter": "^0.21.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^3.0.0",
-    "@google-cloud/logging": "^11.2.1",
+    "@google/genai": "1.16.0",
     "@joshua.litt/get-ripgrep": "^0.0.2",
     "@modelcontextprotocol/sdk": "^1.11.0",
     "@opentelemetry/api": "^1.9.0",
@@ -46,7 +46,7 @@
     "dotenv": "^17.1.0",
     "fast-levenshtein": "^2.0.6",
     "fast-uri": "^3.0.6",
-    "fdir": "^6.4.6",
+    "fdir": "^6.5.0",
     "fzf": "^0.5.2",
     "glob": "^10.4.5",
     "google-auth-library": "^9.11.0",

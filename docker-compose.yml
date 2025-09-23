@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  gemini-cli:
+    image: gemini-cli:simple
+    container_name: gemini-cli-dev
+    volumes:
+      # Mount source code for development (optional - uncomment if you want live editing)
+      # - .:/usr/src/app
+      # Mount a volume for persistent data
+      - gemini-data:/home/node/.gemini
+      # Mount host's .gemini config if it exists (optional)
+      # - ~/.gemini:/home/node/.gemini:ro
+    environment:
+      - NODE_ENV=development
+      - SANDBOX=gemini-cli-sandbox
+    stdin_open: true
+    tty: true
+    # Uncomment to expose ports if needed
+    # ports:
+    #   - "3000:3000"
+    #   - "8080:8080"
+    networks:
+      - gemini-network
+    # Add any environment variables needed for your setup
+    # env_file:
+    #   - .env
+
+  # Optional: Add additional services like databases, Redis, etc.
+  # Example:
+  # postgres:
+  #   image: postgres:15
+  #   container_name: gemini-postgres
+  #   environment:
+  #     POSTGRES_DB: gemini
+  #     POSTGRES_USER: gemini
+  #     POSTGRES_PASSWORD: password
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - gemini-network
+
+volumes:
+  gemini-data:
+    driver: local
+  # postgres-data:
+  #   driver: local
+
+networks:
+  gemini-network:
+    driver: bridge

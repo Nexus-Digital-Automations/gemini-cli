@@ -34,7 +34,7 @@ export class BudgetContentGenerator implements ContentGenerator {
     budgetSettings: BudgetSettings,
     options: BudgetEnforcementOptions = {},
   ) {
-    const projectRoot = config.getProjectRoot();
+    const projectRoot = this.config.getProjectRoot();
     this.budgetEnforcement = new BudgetEnforcement(
       projectRoot,
       budgetSettings,

@@ -23,7 +23,7 @@ export class BudgetTracker {
   constructor(projectRoot: string, settings: BudgetSettings) {
     this.projectRoot = projectRoot;
     this.settings = settings;
-    this.usageFilePath = path.join(projectRoot, '.gemini', 'budget-usage.json');
+    this.usageFilePath = path.join(this.projectRoot, '.gemini', 'budget-usage.json');
   }
 
   /**

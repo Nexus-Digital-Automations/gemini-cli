@@ -39,3 +39,30 @@ export {
 export { makeFakeConfig } from './src/test-utils/config.js';
 export * from './src/utils/pathReader.js';
 export { ClearcutLogger } from './src/telemetry/clearcut-logger/clearcut-logger.js';
+
+// Budget tracking exports
+export {
+  BudgetTracker,
+  createBudgetTracker,
+} from './src/budget/budget-tracker.js';
+export {
+  BudgetEnforcement,
+  BudgetExceededError,
+  createBudgetEnforcement,
+  isBudgetExceededError,
+} from './src/budget/budget-enforcement.js';
+export {
+  BudgetContentGenerator,
+  createBudgetContentGenerator,
+} from './src/core/budgetContentGenerator.js';
+
+// Progress tracking exports
+export {
+  ProgressTracker,
+  globalProgressTracker,
+  OperationDetector,
+} from './src/progress/index.js';
+export type {
+  ProgressUpdateCallback,
+  ToolCallInfo,
+} from './src/progress/index.js';
