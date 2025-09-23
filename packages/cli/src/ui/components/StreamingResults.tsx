@@ -12,6 +12,10 @@ import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 import type { OperationProgress, ProgressUpdate } from '../types.js';
 
+/**
+ * Props for the StreamingResults component.
+ * Configures how streaming operation results are displayed and formatted.
+ */
 export interface StreamingResultsProps {
   operation: OperationProgress;
   maxResults?: number;
@@ -20,6 +24,26 @@ export interface StreamingResultsProps {
   autoScroll?: boolean;
 }
 
+/**
+ * StreamingResults displays live intermediate results from ongoing operations.
+ *
+ * This component renders operation results in real-time with proper formatting,
+ * type detection, and scrolling behavior. It supports different display modes
+ * for narrow terminals and provides visual indicators for result types.
+ *
+ * @param props - Configuration options for the streaming results display
+ * @returns A React component that shows live operation results
+ *
+ * @example
+ * ```tsx
+ * <StreamingResults
+ *   operation={currentOperation}
+ *   maxResults={15}
+ *   showTimestamps={true}
+ *   autoScroll={true}
+ * />
+ * ```
+ */
 export const StreamingResults: React.FC<StreamingResultsProps> = ({
   operation,
   maxResults = 10,
@@ -107,6 +131,10 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
   );
 };
 
+/**
+ * Represents a formatted result item with metadata for display purposes.
+ * Contains the processed result data, type information, and display state.
+ */
 interface FormattedResult {
   stepId?: string;
   content: string;
@@ -115,12 +143,24 @@ interface FormattedResult {
   truncated: boolean;
 }
 
+/**
+ * Props for individual result item components within the streaming results display.
+ */
 interface ResultItemProps {
   result: FormattedResult;
   isLatest: boolean;
   compact: boolean;
 }
 
+/**
+ * Renders an individual result item with appropriate styling and type indicators.
+ *
+ * Displays results with type-specific colors, icons, and formatting.
+ * Supports expansion of truncated content and shows metadata like timestamps.
+ *
+ * @param props - The result item configuration and display options
+ * @returns A rendered result item with proper styling and interaction
+ */
 const ResultItem: React.FC<ResultItemProps> = ({
   result,
   isLatest,
@@ -231,12 +271,35 @@ const ResultItem: React.FC<ResultItemProps> = ({
   );
 };
 
+/**
+ * Props for the LiveUpdateDisplay component.
+ * Configures how progress updates are shown during operations.
+ */
 export interface LiveUpdateDisplayProps {
   updates: ProgressUpdate[];
   maxUpdates?: number;
   compact?: boolean;
 }
 
+/**
+ * LiveUpdateDisplay shows recent progress updates from ongoing operations.
+ *
+ * This component renders a list of recent progress updates with icons and
+ * timestamps. It provides a real-time view of operation state changes,
+ * step progress, and completion status.
+ *
+ * @param props - Configuration for the update display
+ * @returns A React component showing recent operation updates
+ *
+ * @example
+ * ```tsx
+ * <LiveUpdateDisplay
+ *   updates={progressUpdates}
+ *   maxUpdates={10}
+ *   compact={false}
+ * />
+ * ```
+ */
 export const LiveUpdateDisplay: React.FC<LiveUpdateDisplayProps> = ({
   updates,
   maxUpdates = 5,
@@ -267,11 +330,23 @@ export const LiveUpdateDisplay: React.FC<LiveUpdateDisplayProps> = ({
   );
 };
 
+/**
+ * Props for individual update item components within the live update display.
+ */
 interface UpdateItemProps {
   update: ProgressUpdate;
   compact: boolean;
 }
 
+/**
+ * Renders an individual progress update item with appropriate icons and formatting.
+ *
+ * Displays update information with type-specific icons, colors, and content.
+ * Supports both compact and full display modes with optional timestamps.
+ *
+ * @param props - The update item data and display configuration
+ * @returns A rendered update item with proper styling
+ */
 const UpdateItem: React.FC<UpdateItemProps> = ({ update, compact }) => {
   const getUpdateIcon = (type: ProgressUpdate['type']) => {
     switch (type) {
@@ -355,6 +430,18 @@ const UpdateItem: React.FC<UpdateItemProps> = ({ update, compact }) => {
 
 // Utility functions
 
+/**
+ * Formats raw operation results into displayable format with type detection.
+ *
+ * Analyzes the result data to determine its type (text, JSON, file, URL, etc.)
+ * and formats it appropriately for display. Handles truncation of long content
+ * and preserves metadata like step IDs and timestamps.
+ *
+ * @param result - The raw result data from an operation
+ * @param index - The index of this result in the results array
+ * @param showTimestamps - Whether to include timestamp information
+ * @returns A formatted result object ready for display, or null if invalid
+ */
 function formatResult(
   result: unknown,
   index: number,
@@ -434,6 +521,15 @@ function formatResult(
   };
 }
 
+/**
+ * Formats intermediate results for compact display in update items.
+ *
+ * Converts various result types into short, readable strings suitable
+ * for display in progress updates. Truncates long content appropriately.
+ *
+ * @param result - The intermediate result data to format
+ * @returns A short string representation of the result
+ */
 function formatIntermediateResult(result: unknown): string {
   if (typeof result === 'string') {
     return result.length > 50 ? result.substring(0, 47) + '...' : result;
@@ -447,6 +543,17 @@ function formatIntermediateResult(result: unknown): string {
   return String(result);
 }
 
+/**
+ * Retrieves the full content for a truncated result.
+ *
+ * This function would typically fetch complete content from storage
+ * for results that have been truncated due to length limits.
+ *
+ * @param result - The formatted result that may have truncated content
+ * @returns The full content string for display
+ *
+ * @todo Implement actual full content retrieval from storage
+ */
 function getFullContent(result: FormattedResult): string {
   // This would typically fetch the full content from storage
   // For now, return the truncated content with a note

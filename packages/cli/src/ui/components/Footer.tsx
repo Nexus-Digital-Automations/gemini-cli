@@ -22,6 +22,10 @@ import type { SandboxConfig } from '@google/gemini-cli-core';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 
+/**
+ * Props for the Footer component.
+ * Configures the comprehensive status information displayed in the footer.
+ */
 export interface FooterProps {
   model: string;
   targetDir: string;
@@ -44,6 +48,38 @@ export interface FooterProps {
   sandboxConfig?: SandboxConfig;
 }
 
+/**
+ * Footer displays comprehensive status information at the bottom of the CLI.
+ *
+ * This component renders a status bar showing current directory, model information,
+ * debug status, memory usage, context usage, budget status, and various other
+ * system indicators. It adapts to different terminal widths and supports
+ * optional information hiding for cleaner displays.
+ *
+ * Features:
+ * - Current working directory with branch information
+ * - AI model and configuration status
+ * - Memory and context usage indicators
+ * - Budget tracking and quota displays
+ * - Debug mode indicators and error counts
+ * - Sandbox status and trust indicators
+ * - Responsive layout for narrow terminals
+ * - Gradient theming support
+ *
+ * @param props - Configuration for footer display elements and behavior
+ * @returns A React component showing comprehensive CLI status
+ *
+ * @example
+ * ```tsx
+ * <Footer
+ *   model="gemini-pro"
+ *   targetDir="/path/to/project"
+ *   debugMode={false}
+ *   showMemoryUsage={true}
+ *   budgetSettings={budgetConfig}
+ * />
+ * ```
+ */
 export const Footer: React.FC<FooterProps> = ({
   model,
   targetDir,

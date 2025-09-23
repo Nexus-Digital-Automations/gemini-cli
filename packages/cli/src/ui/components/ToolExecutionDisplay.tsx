@@ -12,6 +12,10 @@ import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 import { formatDuration } from '../utils/formatters.js';
 import type { OperationProgress, ToolCallStatus } from '../types.js';
 
+/**
+ * Props for the ToolExecutionDisplay component.
+ * Configures how tool execution progress and status are displayed.
+ */
 export interface ToolExecutionDisplayProps {
   operation: OperationProgress;
   toolCallStatus: ToolCallStatus;
@@ -20,6 +24,34 @@ export interface ToolExecutionDisplayProps {
   showIntermediateResults?: boolean;
 }
 
+/**
+ * ToolExecutionDisplay shows the progress and status of tool executions.
+ *
+ * This component renders detailed information about ongoing tool operations,
+ * including progress bars, step-by-step execution status, warnings, errors,
+ * and intermediate results. It adapts to different terminal widths and
+ * supports both compact and detailed display modes.
+ *
+ * Features:
+ * - Visual progress indicators with status-specific colors
+ * - Step-by-step execution tracking with completion markers
+ * - Error and warning display with appropriate styling
+ * - File targeting information and metadata display
+ * - Responsive layout for narrow terminals
+ *
+ * @param props - Configuration for tool execution display behavior
+ * @returns A React component showing detailed tool execution status
+ *
+ * @example
+ * ```tsx
+ * <ToolExecutionDisplay
+ *   operation={currentOperation}
+ *   toolCallStatus="Executing"
+ *   showSteps={true}
+ *   showIntermediateResults={true}
+ * />
+ * ```
+ */
 export const ToolExecutionDisplay: React.FC<ToolExecutionDisplayProps> = ({
   operation,
   toolCallStatus,
@@ -30,6 +62,13 @@ export const ToolExecutionDisplay: React.FC<ToolExecutionDisplayProps> = ({
   const { columns: terminalWidth } = useTerminalSize();
   const isNarrow = isNarrowWidth(terminalWidth);
 
+  /**
+   * Determines the appropriate color for tool call status display.
+   * Maps status values to theme colors for consistent visual feedback.
+   *
+   * @param status - The current tool call status
+   * @returns The appropriate theme color for the status
+   */
   const getStatusColor = (status: ToolCallStatus) => {
     switch (status) {
       case 'Pending':
@@ -47,6 +86,12 @@ export const ToolExecutionDisplay: React.FC<ToolExecutionDisplayProps> = ({
     }
   };
 
+  /**
+   * Gets an emoji indicator for the current operation state.
+   * Provides visual cues for different operation phases.
+   *
+   * @returns An emoji string representing the current operation state
+   */
   const getOperationStatusIndicator = () => {
     switch (operation.state) {
       case 'initializing':
@@ -68,6 +113,13 @@ export const ToolExecutionDisplay: React.FC<ToolExecutionDisplayProps> = ({
     }
   };
 
+  /**
+   * Determines the appropriate color for progress display based on completion percentage.
+   * Uses different colors to indicate progress levels and completion status.
+   *
+   * @param progress - The completion percentage (0-100)
+   * @returns The appropriate theme color for the progress level
+   */
   const getProgressColor = (progress: number) => {
     if (progress >= 100) return theme.status.success;
     if (progress >= 75) return theme.text.accent;
@@ -75,6 +127,14 @@ export const ToolExecutionDisplay: React.FC<ToolExecutionDisplayProps> = ({
     return theme.text.secondary;
   };
 
+  /**
+   * Creates a visual progress bar using Unicode block characters.
+   * Represents completion percentage as filled and empty blocks.
+   *
+   * @param progress - The completion percentage (0-100)
+   * @param width - The total width of the progress bar in characters
+   * @returns A string representing the visual progress bar
+   */
   const createProgressBar = (progress: number, width: number = 20) => {
     const filled = Math.round((progress / 100) * width);
     const empty = width - filled;
@@ -254,14 +314,28 @@ export const ToolExecutionDisplay: React.FC<ToolExecutionDisplayProps> = ({
 };
 
 /**
- * Utility functions
+ * Utility functions for formatting and display
  */
 
+/**
+ * Extracts the filename from a file path.
+ * Returns just the filename portion without directory paths.
+ *
+ * @param filePath - The full file path
+ * @returns The filename portion or fallback text
+ */
 function getFileName(filePath: string): string {
   if (!filePath) return 'file';
   return filePath.split('/').pop() || filePath;
 }
 
+/**
+ * Formats intermediate results for compact display.
+ * Converts various result types into short, readable strings.
+ *
+ * @param result - The intermediate result data to format
+ * @returns A short string representation of the result
+ */
 function formatIntermediateResult(result: unknown): string {
   if (typeof result === 'string') {
     return result.length > 50 ? result.substring(0, 47) + '...' : result;
@@ -284,6 +358,13 @@ function formatIntermediateResult(result: unknown): string {
   return String(result);
 }
 
+/**
+ * Formats operation metadata for display.
+ * Converts metadata object into a readable string with truncation.
+ *
+ * @param metadata - The metadata object to format
+ * @returns A formatted string representation of the metadata
+ */
 function formatMetadata(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata);
   const formatted = entries.slice(0, 2).map(([key, value]) => {
