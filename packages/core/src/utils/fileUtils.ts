@@ -293,14 +293,25 @@ export async function detectFileType(
   return 'text';
 }
 
+/**
+ * Result of processing a file read operation for LLM consumption.
+ * Contains both the content formatted for the LLM and display information for the user.
+ */
 export interface ProcessedFileReadResult {
-  llmContent: PartUnion; // string for text, Part for image/pdf/unreadable binary
+  /** Content formatted for LLM consumption - string for text, Part for image/pdf/binary */
+  llmContent: PartUnion;
+  /** Human-readable display string showing file content summary */
   returnDisplay: string;
-  error?: string; // Optional error message for the LLM if file processing failed
-  errorType?: ToolErrorType; // Structured error type
-  isTruncated?: boolean; // For text files, indicates if content was truncated
-  originalLineCount?: number; // For text files
-  linesShown?: [number, number]; // For text files [startLine, endLine] (1-based for display)
+  /** Optional error message for the LLM if file processing failed */
+  error?: string;
+  /** Structured error type for programmatic handling */
+  errorType?: ToolErrorType;
+  /** For text files, indicates if content was truncated due to size limits */
+  isTruncated?: boolean;
+  /** For text files, the total number of lines in the original file */
+  originalLineCount?: number;
+  /** For text files, the range of lines shown [startLine, endLine] (1-based for display) */
+  linesShown?: [number, number];
 }
 
 /**

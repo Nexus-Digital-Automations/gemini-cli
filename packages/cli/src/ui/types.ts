@@ -16,78 +16,150 @@ import { type ReactNode } from 'react';
 
 export type { ThoughtSummary };
 
+/**
+ * Represents the current authentication state of the user.
+ * Used to track the user's authentication status throughout the application lifecycle.
+ */
 export enum AuthState {
-  // Attemtping to authenticate or re-authenticate
+  /** User is not authenticated or authentication has failed */
   Unauthenticated = 'unauthenticated',
-  // Auth dialog is open for user to select auth method
+  /** Authentication dialog is open for user to select auth method */
   Updating = 'updating',
-  // Successfully authenticated
+  /** User is successfully authenticated and ready to use the application */
   Authenticated = 'authenticated',
 }
 
-// Only defining the state enum needed by the UI
+/**
+ * Represents the current streaming state of the LLM response.
+ * Used to track the real-time status of conversation with the model.
+ */
 export enum StreamingState {
+  /** No active streaming, ready for new input */
   Idle = 'idle',
+  /** LLM is currently generating and streaming a response */
   Responding = 'responding',
+  /** LLM response is complete but waiting for user confirmation before executing tools */
   WaitingForConfirmation = 'waiting_for_confirmation',
 }
 
-// Copied from server/src/core/turn.ts for CLI usage
+/**
+ * Represents different types of events that can occur during Gemini model interaction.
+ * Copied from server/src/core/turn.ts for CLI usage.
+ */
 export enum GeminiEventType {
+  /** Standard content response from the model */
   Content = 'content',
+  /** Model is requesting to execute a tool/function call */
   ToolCallRequest = 'tool_call_request',
   // Add other event types if the UI hook needs to handle them
 }
 
+/**
+ * Represents the current status of a tool call execution.
+ * Used to track the lifecycle of tool/function calls from request to completion.
+ */
 export enum ToolCallStatus {
+  /** Tool call has been requested but not yet processed */
   Pending = 'Pending',
+  /** Tool call was canceled before execution */
   Canceled = 'Canceled',
+  /** Tool call is awaiting user confirmation before execution */
   Confirming = 'Confirming',
+  /** Tool call is currently being executed */
   Executing = 'Executing',
+  /** Tool call completed successfully */
   Success = 'Success',
+  /** Tool call failed with an error */
   Error = 'Error',
 }
 
+/**
+ * Represents a tool call event that occurs during model interaction.
+ * Contains all the necessary information to track and display tool execution status.
+ */
 export interface ToolCallEvent {
+  /** Event type identifier for tool calls */
   type: 'tool_call';
+  /** Current status of the tool call execution */
   status: ToolCallStatus;
+  /** Unique identifier for this specific tool call */
   callId: string;
+  /** Name of the tool being called */
   name: string;
+  /** Arguments passed to the tool (currently unused/empty) */
   args: Record<string, never>;
+  /** Display information for the tool's result output */
   resultDisplay: ToolResultDisplay | undefined;
+  /** Details needed for user confirmation before tool execution */
   confirmationDetails: ToolCallConfirmationDetails | undefined;
 }
 
+/**
+ * Display information for an individual tool call in the UI.
+ * Used by UI components to render tool call details and results.
+ */
 export interface IndividualToolCallDisplay {
+  /** Unique identifier for this tool call */
   callId: string;
+  /** Name of the tool being called */
   name: string;
+  /** Human-readable description of what the tool does */
   description: string;
+  /** Display information for the tool's execution result */
   resultDisplay: ToolResultDisplay | undefined;
+  /** Current execution status of the tool call */
   status: ToolCallStatus;
+  /** Details needed for user confirmation before execution */
   confirmationDetails: ToolCallConfirmationDetails | undefined;
+  /** Whether to render the tool output as markdown (optional) */
   renderOutputAsMarkdown?: boolean;
+  /** PTY session ID for interactive tools (optional) */
   ptyId?: number;
+  /** Output file path for tools that write to files (optional) */
   outputFile?: string;
 }
 
+/**
+ * Properties for compression-related UI components.
+ * Used to display token compression status and progress to users.
+ */
 export interface CompressionProps {
+  /** Whether compression is currently in progress */
   isPending: boolean;
+  /** Original token count before compression */
   originalTokenCount: number | null;
+  /** New token count after compression */
   newTokenCount: number | null;
+  /** Current status of the compression operation */
   compressionStatus: CompressionStatus | null;
 }
 
+/**
+ * Base interface for all history items in the conversation.
+ * Provides common properties shared across different message types.
+ */
 export interface HistoryItemBase {
-  text?: string; // Text content for user/gemini/info/error messages
+  /** Text content for user/gemini/info/error messages */
+  text?: string;
 }
 
+/**
+ * Represents a message sent by the user in the conversation history.
+ */
 export type HistoryItemUser = HistoryItemBase & {
+  /** Message type identifier for user messages */
   type: 'user';
+  /** The user's input text */
   text: string;
 };
 
+/**
+ * Represents a response from the Gemini model in the conversation history.
+ */
 export type HistoryItemGemini = HistoryItemBase & {
+  /** Message type identifier for Gemini responses */
   type: 'gemini';
+  /** The model's response text */
   text: string;
 };
 
