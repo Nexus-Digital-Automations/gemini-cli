@@ -63,7 +63,13 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
     return null;
   }
 
-  const { requestCount, dailyLimit, remainingRequests, usagePercentage, timeUntilReset } = budgetStats;
+  const {
+    requestCount,
+    dailyLimit,
+    remainingRequests,
+    usagePercentage,
+    timeUntilReset,
+  } = budgetStats;
 
   // Determine color based on usage percentage
   const getUsageColor = () => {
@@ -87,7 +93,10 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
         <Text color={getUsageColor()}>
           {requestCount}/{dailyLimit}
         </Text>
-        <Text color={theme.text.secondary}> ({usagePercentage.toFixed(0)}%)</Text>
+        <Text color={theme.text.secondary}>
+          {' '}
+          ({usagePercentage.toFixed(0)}%)
+        </Text>
       </Box>
     );
   }

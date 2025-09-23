@@ -110,7 +110,8 @@ export const Footer: React.FC<FooterProps> = ({
       )}
 
       {/* Middle Section: Centered Trust/Sandbox Info and Budget */}
-      {(!hideSandboxStatus || (showBudgetStatus && budgetSettings?.enabled)) && (
+      {(!hideSandboxStatus ||
+        (showBudgetStatus && budgetSettings?.enabled)) && (
         <Box
           flexGrow={isNarrow || hideCWD || hideModelInfo ? 0 : 1}
           alignItems="center"
@@ -138,7 +139,8 @@ export const Footer: React.FC<FooterProps> = ({
                 </Text>
               ) : (
                 <Text color={theme.status.error}>
-                  no sandbox <Text color={theme.text.secondary}>(see /docs)</Text>
+                  no sandbox{' '}
+                  <Text color={theme.text.secondary}>(see /docs)</Text>
                 </Text>
               )}
             </Box>
@@ -146,7 +148,10 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Budget Display */}
           {showBudgetStatus && budgetSettings?.enabled && (
-            <Box alignItems="center" paddingLeft={!hideSandboxStatus && !isNarrow ? 2 : 0}>
+            <Box
+              alignItems="center"
+              paddingLeft={!hideSandboxStatus && !isNarrow ? 2 : 0}
+            >
               {!hideSandboxStatus && !isNarrow && (
                 <Text color={theme.ui.comment}>| </Text>
               )}
