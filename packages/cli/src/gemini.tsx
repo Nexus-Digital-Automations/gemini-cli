@@ -249,6 +249,15 @@ export async function main() {
     }
   }
 
+  // We need to load extensions and config early for sandbox functionality
+  const extensions = loadExtensions();
+  const config = await loadCliConfig(
+    settings.merged,
+    extensions,
+    sessionId,
+    argv,
+  );
+
   // hop into sandbox if we are outside and sandboxing is enabled
   if (!process.env['SANDBOX']) {
     const memoryArgs = settings.merged.advanced?.autoConfigureMemory
@@ -329,17 +338,6 @@ export async function main() {
       await relaunchAppInChildProcess(memoryArgs, []);
     }
   }
-
-  // We are now past the logic handling potentially launching a child process
-  // to run Gemini CLI. It is now safe to perform expensive initialization that
-  // may have side effects.
-  const extensions = loadExtensions();
-  const config = await loadCliConfig(
-    settings.merged,
-    extensions,
-    sessionId,
-    argv,
-  );
 
   if (config.getListExtensions()) {
     console.log('Installed extensions:');
