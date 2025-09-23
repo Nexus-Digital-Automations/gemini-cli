@@ -7,38 +7,65 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import ignore from 'ignore';
+import { getComponentLogger, createTimer, LogLevel } from './logger.js';
 
 export interface GeminiIgnoreFilter {
   isIgnored(filePath: string): boolean;
   getPatterns(): string[];
+  initialize(): Promise<void>;
 }
+
+const logger = getComponentLogger('GeminiIgnoreParser');
 
 export class GeminiIgnoreParser implements GeminiIgnoreFilter {
   private projectRoot: string;
   private patterns: string[] = [];
   private ig = ignore();
+  private initialized: boolean = false;
+  private initPromise: Promise<void> | null = null;
 
   constructor(projectRoot: string) {
     this.projectRoot = path.resolve(projectRoot);
-    this.loadPatterns();
   }
 
-  private loadPatterns(): void {
-    const patternsFilePath = path.join(this.projectRoot, '.geminiignore');
-    let content: string;
-    try {
-      content = fs.readFileSync(patternsFilePath, 'utf-8');
-    } catch (_error) {
-      // ignore file not found
+  async initialize(): Promise<void> {
+    if (this.initialized) {
       return;
     }
 
-    this.patterns = (content ?? '')
-      .split('\n')
-      .map((p) => p.trim())
-      .filter((p) => p !== '' && !p.startsWith('#'));
+    if (this.initPromise) {
+      return this.initPromise;
+    }
 
-    this.ig.add(this.patterns);
+    this.initPromise = this.loadPatternsAsync();
+    await this.initPromise;
+    this.initialized = true;
+  }
+
+  private async loadPatternsAsync(): Promise<void> {
+    const endTimer = createTimer(logger, 'loadPatternsAsync', LogLevel.DEBUG);
+    const patternsFilePath = path.join(this.projectRoot, '.geminiignore');
+
+    try {
+      const content = await fs.promises.readFile(patternsFilePath, 'utf-8');
+      this.patterns = (content ?? '')
+        .split('\n')
+        .map((p) => p.trim())
+        .filter((p) => p !== '' && !p.startsWith('#'));
+
+      this.ig.add(this.patterns);
+      logger.debug('Loaded .geminiignore patterns', {
+        patternCount: this.patterns.length,
+        filePath: patternsFilePath,
+      });
+    } catch (_error) {
+      // ignore file not found - this is expected behavior
+      logger.debug('.geminiignore file not found, using empty patterns', {
+        filePath: patternsFilePath,
+      });
+    } finally {
+      endTimer();
+    }
   }
 
   isIgnored(filePath: string): boolean {

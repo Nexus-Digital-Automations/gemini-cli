@@ -707,11 +707,11 @@ export class Config {
    * Performs asynchronous initialization of services and registries.
    * Must be called exactly once after construction and before using the config.
    *
-   * Initialization steps:
-   * 1. Sets up file discovery service
-   * 2. Initializes Git service if checkpointing is enabled
-   * 3. Creates prompt and tool registries
-   * 4. Initializes the Gemini client
+   * Initialization steps (optimized for parallel execution):
+   * 1. Sets up file discovery service with async ignore file loading
+   * 2. Initializes Git service if checkpointing is enabled (parallel with file service)
+   * 3. Creates prompt and tool registries (parallel where possible)
+   * 4. Initializes the Gemini client (parallel with tool registry)
    *
    * @throws Error if called more than once
    *
@@ -727,15 +727,62 @@ export class Config {
     }
     this.initialized = true;
 
-    // Initialize centralized FileDiscoveryService
-    this.getFileService();
-    if (this.getCheckpointingEnabled()) {
-      await this.getGitService();
-    }
-    this.promptRegistry = new PromptRegistry();
-    this.toolRegistry = await this.createToolRegistry();
+    // Import logger for performance tracking
+    const { getComponentLogger, createTimer, LogLevel } = await import(
+      '../utils/logger.js'
+    );
+    const logger = getComponentLogger('Config', { sessionId: this.sessionId });
+    const endTimer = createTimer(logger, 'initialize', LogLevel.INFO);
 
-    await this.geminiClient.initialize();
+    try {
+      // Phase 1: Initialize services that can run in parallel
+      const phase1Promises: Array<Promise<void>> = [];
+
+      // Initialize FileDiscoveryService with async ignore file loading
+      const fileService = this.getFileService();
+      phase1Promises.push(fileService.initialize());
+
+      // Initialize Git service if checkpointing is enabled (parallel with file service)
+      if (this.getCheckpointingEnabled()) {
+        phase1Promises.push(this.getGitService().then(() => {}));
+      }
+
+      // Wait for Phase 1 completion
+      await Promise.all(phase1Promises);
+
+      logger.debug('Phase 1 initialization completed', {
+        fileServiceInitialized: true,
+        gitServiceInitialized: this.getCheckpointingEnabled(),
+      });
+
+      // Phase 2: Initialize registries and client (some can run in parallel)
+      const phase2Promises: Array<Promise<void>> = [];
+
+      // Initialize prompt registry (lightweight, synchronous)
+      this.promptRegistry = new PromptRegistry();
+
+      // Initialize tool registry (can be resource intensive)
+      const toolRegistryPromise = this.createToolRegistry().then((registry) => {
+        this.toolRegistry = registry;
+      });
+      phase2Promises.push(toolRegistryPromise);
+
+      // Initialize Gemini client (can run in parallel with tool registry)
+      phase2Promises.push(this.geminiClient.initialize());
+
+      // Wait for Phase 2 completion
+      await Promise.all(phase2Promises);
+
+      logger.info('Config initialization completed successfully', {
+        sessionId: this.sessionId,
+        toolCount: this.toolRegistry.getAllToolNames().length,
+      });
+    } catch (error) {
+      logger.error('Config initialization failed', { error: error as Error });
+      throw error;
+    } finally {
+      endTimer();
+    }
   }
 
   getContentGenerator(): ContentGenerator {
@@ -1256,98 +1303,122 @@ export class Config {
   }
 
   async createToolRegistry(): Promise<ToolRegistry> {
-    const registry = new ToolRegistry(this, this.eventEmitter);
+    // Import logger for performance tracking
+    const { getComponentLogger, createTimer, LogLevel } = await import(
+      '../utils/logger.js'
+    );
+    const logger = getComponentLogger('ToolRegistry', {
+      sessionId: this.sessionId,
+    });
+    const endTimer = createTimer(logger, 'createToolRegistry', LogLevel.DEBUG);
 
-    // helper to create & register core tools that are enabled
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const registerCoreTool = (ToolClass: any, ...args: unknown[]) => {
-      const className = ToolClass.name;
-      const toolName = ToolClass.Name || className;
-      const coreTools = this.getCoreTools();
-      const excludeTools = this.getExcludeTools() || [];
-      // On some platforms, the className can be minified to _ClassName.
-      const normalizedClassName = className.replace(/^_+/, '');
+    try {
+      const registry = new ToolRegistry(this, this.eventEmitter);
 
-      let isEnabled = true; // Enabled by default if coreTools is not set.
-      if (coreTools) {
-        isEnabled = coreTools.some(
-          (tool) =>
-            tool === toolName ||
-            tool === normalizedClassName ||
-            tool.startsWith(`${toolName}(`) ||
-            tool.startsWith(`${normalizedClassName}(`),
+      // helper to create & register core tools that are enabled
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const registerCoreTool = (ToolClass: any, ...args: unknown[]) => {
+        const className = ToolClass.name;
+        const toolName = ToolClass.Name || className;
+        const coreTools = this.getCoreTools();
+        const excludeTools = this.getExcludeTools() || [];
+        // On some platforms, the className can be minified to _ClassName.
+        const normalizedClassName = className.replace(/^_+/, '');
+
+        let isEnabled = true; // Enabled by default if coreTools is not set.
+        if (coreTools) {
+          isEnabled = coreTools.some(
+            (tool) =>
+              tool === toolName ||
+              tool === normalizedClassName ||
+              tool.startsWith(`${toolName}(`) ||
+              tool.startsWith(`${normalizedClassName}(`),
+          );
+        }
+
+        const isExcluded = excludeTools.some(
+          (tool) => tool === toolName || tool === normalizedClassName,
         );
-      }
 
-      const isExcluded = excludeTools.some(
-        (tool) => tool === toolName || tool === normalizedClassName,
-      );
-
-      if (isExcluded) {
-        isEnabled = false;
-      }
-
-      if (isEnabled) {
-        // Pass message bus to tools when feature flag is enabled
-        // This first implementation is only focused on the general case of
-        // the tool registry.
-        const messageBusEnabled = this.getEnableMessageBusIntegration();
-        if (this.debugMode && messageBusEnabled) {
-          console.log(
-            `[DEBUG] enableMessageBusIntegration setting: ${messageBusEnabled}`,
-          );
+        if (isExcluded) {
+          isEnabled = false;
         }
-        const toolArgs = messageBusEnabled
-          ? [...args, this.getMessageBus()]
-          : args;
-        if (this.debugMode && messageBusEnabled) {
-          console.log(
-            `[DEBUG] Registering ${className} with messageBus: ${messageBusEnabled ? 'YES' : 'NO'}`,
-          );
+
+        if (isEnabled) {
+          // Pass message bus to tools when feature flag is enabled
+          // This first implementation is only focused on the general case of
+          // the tool registry.
+          const messageBusEnabled = this.getEnableMessageBusIntegration();
+          if (this.debugMode && messageBusEnabled) {
+            console.log(
+              `[DEBUG] enableMessageBusIntegration setting: ${messageBusEnabled}`,
+            );
+          }
+          const toolArgs = messageBusEnabled
+            ? [...args, this.getMessageBus()]
+            : args;
+          if (this.debugMode && messageBusEnabled) {
+            console.log(
+              `[DEBUG] Registering ${className} with messageBus: ${messageBusEnabled ? 'YES' : 'NO'}`,
+            );
+          }
+          registry.registerTool(new ToolClass(...toolArgs));
         }
-        registry.registerTool(new ToolClass(...toolArgs));
-      }
-    };
+      };
 
-    registerCoreTool(LSTool, this);
-    registerCoreTool(ReadFileTool, this);
+      registerCoreTool(LSTool, this);
+      registerCoreTool(ReadFileTool, this);
 
-    if (this.getUseRipgrep()) {
-      let useRipgrep = false;
-      let errorString: undefined | string = undefined;
-      try {
-        useRipgrep = await canUseRipgrep();
-      } catch (error: unknown) {
-        errorString = String(error);
-      }
-      if (useRipgrep) {
-        registerCoreTool(RipGrepTool, this);
+      if (this.getUseRipgrep()) {
+        let useRipgrep = false;
+        let errorString: undefined | string = undefined;
+        try {
+          useRipgrep = await canUseRipgrep();
+        } catch (error: unknown) {
+          errorString = String(error);
+        }
+        if (useRipgrep) {
+          registerCoreTool(RipGrepTool, this);
+        } else {
+          logRipgrepFallback(this, new RipgrepFallbackEvent(errorString));
+          registerCoreTool(GrepTool, this);
+        }
       } else {
-        logRipgrepFallback(this, new RipgrepFallbackEvent(errorString));
         registerCoreTool(GrepTool, this);
       }
-    } else {
-      registerCoreTool(GrepTool, this);
-    }
 
-    registerCoreTool(GlobTool, this);
-    if (this.getUseSmartEdit()) {
-      registerCoreTool(SmartEditTool, this);
-    } else {
-      registerCoreTool(EditTool, this);
-    }
-    registerCoreTool(WriteFileTool, this);
-    registerCoreTool(WebFetchTool, this);
-    registerCoreTool(ReadManyFilesTool, this);
-    registerCoreTool(ShellTool, this);
-    registerCoreTool(MemoryTool);
-    registerCoreTool(WebSearchTool, this);
-    if (this.getUseWriteTodos()) {
-      registerCoreTool(WriteTodosTool, this);
-    }
+      registerCoreTool(GlobTool, this);
+      if (this.getUseSmartEdit()) {
+        registerCoreTool(SmartEditTool, this);
+      } else {
+        registerCoreTool(EditTool, this);
+      }
+      registerCoreTool(WriteFileTool, this);
+      registerCoreTool(WebFetchTool, this);
+      registerCoreTool(ReadManyFilesTool, this);
+      registerCoreTool(ShellTool, this);
+      registerCoreTool(MemoryTool);
+      registerCoreTool(WebSearchTool, this);
+      if (this.getUseWriteTodos()) {
+        registerCoreTool(WriteTodosTool, this);
+      }
 
-    await registry.discoverAllTools();
-    return registry;
+      await registry.discoverAllTools();
+
+      logger.debug('Tool registry created successfully', {
+        coreToolCount: registry
+          .getAllToolNames()
+          .filter((name) => !name.startsWith('mcp:')).length,
+        totalToolCount: registry.getAllToolNames().length,
+      });
+
+      return registry;
+    } catch (error) {
+      logger.error('Tool registry creation failed', { error: error as Error });
+      throw error;
+    } finally {
+      endTimer();
+    }
   }
 }
 // Export model constants for use in CLI

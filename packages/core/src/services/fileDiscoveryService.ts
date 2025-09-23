@@ -26,17 +26,46 @@ export class FileDiscoveryService {
   private gitIgnoreFilter: GitIgnoreFilter | null = null;
   private geminiIgnoreFilter: GeminiIgnoreFilter | null = null;
   private projectRoot: string;
+  private initialized: boolean = false;
+  private initPromise: Promise<void> | null = null;
 
   constructor(projectRoot: string) {
     this.projectRoot = path.resolve(projectRoot);
+  }
+
+  async initialize(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+
+    this.initPromise = this.initializeAsync();
+    await this.initPromise;
+    this.initialized = true;
+  }
+
+  private async initializeAsync(): Promise<void> {
+    // Initialize in parallel for better performance
+    const promises: Array<Promise<void>> = [];
+
+    // Initialize Git ignore filter if in git repository
     if (isGitRepository(this.projectRoot)) {
       this.gitIgnoreFilter = new GitIgnoreParser(this.projectRoot);
+      promises.push(this.gitIgnoreFilter.initialize());
     }
+
+    // Initialize Gemini ignore filter
     this.geminiIgnoreFilter = new GeminiIgnoreParser(this.projectRoot);
+    promises.push(this.geminiIgnoreFilter.initialize());
+
+    await Promise.all(promises);
   }
 
   /**
-   * Filters a list of file paths based on git ignore rules
+   * Filters a list of file paths based on git ignore rules with performance optimization
    */
   filterFiles(
     filePaths: string[],
@@ -45,18 +74,35 @@ export class FileDiscoveryService {
       respectGeminiIgnore: true,
     },
   ): string[] {
-    return filePaths.filter((filePath) => {
-      if (options.respectGitIgnore && this.shouldGitIgnoreFile(filePath)) {
-        return false;
-      }
-      if (
-        options.respectGeminiIgnore &&
-        this.shouldGeminiIgnoreFile(filePath)
-      ) {
-        return false;
-      }
-      return true;
-    });
+    // Early return for empty arrays
+    if (filePaths.length === 0) {
+      return [];
+    }
+
+    // Batch process for better performance with large file lists
+    const BATCH_SIZE = 500;
+    const results: string[] = [];
+
+    for (let i = 0; i < filePaths.length; i += BATCH_SIZE) {
+      const batch = filePaths.slice(i, i + BATCH_SIZE);
+
+      const filteredBatch = batch.filter((filePath) => {
+        if (options.respectGitIgnore && this.shouldGitIgnoreFile(filePath)) {
+          return false;
+        }
+        if (
+          options.respectGeminiIgnore &&
+          this.shouldGeminiIgnoreFile(filePath)
+        ) {
+          return false;
+        }
+        return true;
+      });
+
+      results.push(...filteredBatch);
+    }
+
+    return results;
   }
 
   /**

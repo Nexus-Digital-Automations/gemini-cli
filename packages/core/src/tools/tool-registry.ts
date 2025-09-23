@@ -21,7 +21,7 @@ import { parse } from 'shell-quote';
 import { ToolErrorType } from './tool-error.js';
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
 import type { EventEmitter } from 'node:events';
-import { getComponentLogger } from '../utils/logger.js';
+import { getComponentLogger, createTimer, LogLevel } from '../utils/logger.js';
 
 type ToolParams = Record<string, unknown>;
 
@@ -231,17 +231,42 @@ export class ToolRegistry {
    * Discovers tools from project (if available and configured).
    * Can be called multiple times to update discovered tools.
    * This will discover tools from the command line and from MCP servers.
+   * Optimized for parallel execution where possible.
    */
   async discoverAllTools(): Promise<void> {
-    // remove any previously discovered tools
-    this.removeDiscoveredTools();
+    const endTimer = createTimer(logger, 'discoverAllTools', LogLevel.DEBUG);
 
-    this.config.getPromptRegistry().clear();
+    try {
+      // remove any previously discovered tools
+      this.removeDiscoveredTools();
 
-    await this.discoverAndRegisterToolsFromCommand();
+      this.config.getPromptRegistry().clear();
 
-    // discover tools using MCP servers, if configured
-    await this.mcpClientManager.discoverAllMcpTools(this.config);
+      // Run tool discovery operations in parallel where safe
+      const discoveryPromises: Array<Promise<void>> = [];
+
+      // Discover command-line tools
+      discoveryPromises.push(this.discoverAndRegisterToolsFromCommand());
+
+      // Discover MCP tools in parallel (they are independent)
+      discoveryPromises.push(
+        this.mcpClientManager.discoverAllMcpTools(this.config),
+      );
+
+      await Promise.all(discoveryPromises);
+
+      logger.debug('Tool discovery completed', {
+        totalTools: this.getAllToolNames().length,
+        mcpToolCount: this.getAllTools().filter(
+          (tool) => tool.constructor.name === 'DiscoveredMCPTool',
+        ).length,
+      });
+    } catch (error) {
+      logger.error('Tool discovery failed', { error: error as Error });
+      throw error;
+    } finally {
+      endTimer();
+    }
   }
 
   /**
