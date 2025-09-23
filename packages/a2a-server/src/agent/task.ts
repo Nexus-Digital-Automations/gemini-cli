@@ -825,12 +825,9 @@ export class Task {
     };
     // Set task state to working as we are about to call LLM
     this.setTaskStateAndPublishUpdate('working', stateChange);
-    // TODO: Determine what it mean to have, then add a prompt ID.
-    yield* this.geminiClient.sendMessageStream(
-      llmParts,
-      aborted,
-      /*prompt_id*/ '',
-    );
+    // Generate unique prompt ID for telemetry and loop detection tracking
+    const promptId = uuidv4();
+    yield* this.geminiClient.sendMessageStream(llmParts, aborted, promptId);
   }
 
   async *acceptUserMessage(
@@ -865,12 +862,9 @@ export class Task {
       };
       // Set task state to working as we are about to call LLM
       this.setTaskStateAndPublishUpdate('working', stateChange);
-      // TODO: Determine what it mean to have, then add a prompt ID.
-      yield* this.geminiClient.sendMessageStream(
-        llmParts,
-        aborted,
-        /*prompt_id*/ '',
-      );
+      // Generate unique prompt ID for telemetry and loop detection tracking
+      const promptId = uuidv4();
+      yield* this.geminiClient.sendMessageStream(llmParts, aborted, promptId);
     } else if (anyConfirmationHandled) {
       logger.info(
         '[Task] User message only contained tool confirmations. Scheduler is active. No new input for LLM this turn.',
