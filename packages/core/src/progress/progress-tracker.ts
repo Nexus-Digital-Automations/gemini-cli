@@ -4,14 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { OperationType, ProgressState } from '../../../cli/src/ui/types.js';
+import { OperationType, ProgressState } from './types.js';
 import type {
   OperationContext,
   OperationProgress,
   ProgressStep,
   ProgressUpdate,
   ProgressInteraction,
-} from '../../../cli/src/ui/types.js';
+} from './types.js';
 
 export type ProgressUpdateCallback = (update: ProgressUpdate) => void;
 

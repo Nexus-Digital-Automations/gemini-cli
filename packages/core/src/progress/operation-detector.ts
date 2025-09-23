@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { OperationType } from '../../../cli/src/ui/types.js';
-import type { OperationContext } from '../../../cli/src/ui/types.js';
+import { OperationType } from './types.js';
+import type { OperationContext } from './types.js';
 
 export interface ToolCallInfo {
   name: string;

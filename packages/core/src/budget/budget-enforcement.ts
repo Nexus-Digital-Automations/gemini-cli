@@ -5,7 +5,7 @@
  */
 
 import { BudgetTracker } from './budget-tracker.js';
-import type { BudgetSettings } from '../../../cli/src/config/settingsSchema.js';
+import type { BudgetSettings } from './types.js';
 
 /**
  * Error thrown when a request is blocked due to budget limits

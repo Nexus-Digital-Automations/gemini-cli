@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { CSSProperties } from 'react';
 import type { SemanticColors } from './semantic-tokens.js';
 export type ThemeType = 'light' | 'dark' | 'ansi' | 'custom';

@@ -13,4 +13,4 @@ export {
   type BudgetWarning,
   type BudgetEnforcementOptions,
 } from './budget-enforcement.js';
-export type { BudgetSettings, BudgetUsageData } from '../../../cli/src/config/settingsSchema.js';
+export type { BudgetSettings, BudgetUsageData } from './types.js';

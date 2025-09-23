@@ -20,7 +20,7 @@ import type { UserTierId } from '../code_assist/types.js';
 import { LoggingContentGenerator } from './loggingContentGenerator.js';
 import { InstallationManager } from '../utils/installationManager.js';
 import { createBudgetContentGenerator } from './budgetContentGenerator.js';
-import type { BudgetSettings } from '../../../cli/src/config/settingsSchema.js';
+import type { BudgetSettings } from '../budget/types.js';
 
 /**
  * Interface abstracting the core functionalities for generating content and counting tokens.

@@ -34,7 +34,9 @@ CORE OPERATION PRINCIPLES (Display at start of every response):
 
 ## 🚨 AGENT WORKFLOW MANDATES
 **MANDATORY AGENT LIFECYCLE:**
-1. **INITIALIZE AGENT** - Start fresh agent or reinitialize existing agent for session
+1. **MANDATORY INITIALIZATION** - ALWAYS reinitialize agent on EVERY user message and stop hook interaction
+   - **COMMAND**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" reinitialize [AGENT_ID]`
+   - **TRACKING**: This tracks all user interactions in initialization statistics for usage analytics
 2. **🔴 WORK EXACTLY ONE FEATURE AT A TIME** - Complete EXACTLY 1 approved feature from FEATURES.json fully and completely, then move to next approved feature. NEVER work on multiple features simultaneously.
 3. **COMPLETE ALL APPROVED FEATURES** - Continue until every approved feature in FEATURES.json is implemented
 4. **TODOWRITE EXECUTION** - Use TodoWrite for task management and infinite continuation
@@ -84,13 +86,17 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 - ❌ ANY test failures or inadequate coverage (if tests exist)
 
 **IMMEDIATE ACTION PROTOCOL:**
-1. **PLAN TASKS** - Use TodoWrite to create task breakdown for complex requests
-2. **AGENT PLANNING** - Think about task complexity and MANDATORY communicate approach to user
+1. **MANDATORY INITIALIZATION** - ALWAYS reinitialize agent on every user message and stop hook interaction
+   - **COMMAND**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" reinitialize [AGENT_ID]`
+   - **REQUIRED**: Execute this command immediately at start of EVERY conversation turn
+   - **PURPOSE**: Track all user interactions and agent sessions in initialization statistics
+2. **PLAN TASKS** - Use TodoWrite to create task breakdown for complex requests
+3. **AGENT PLANNING** - Think about task complexity and MANDATORY communicate approach to user
    - **SIMPLE TASKS**: "Handling this solo" for straightforward single-component work
    - **COMPLEX TASKS**: "Using X concurrent agents" (2-10) for multi-component/complex work
    - **DECISION CRITERIA**: Multi-file changes, research + implementation, testing + docs = concurrent agents
    - **MANDATORY COMMUNICATION**: ALWAYS tell user exactly how many subagents will be deployed before starting
-3. **EXECUTE** - Begin implementation immediately with TodoWrite task tracking
+4. **EXECUTE** - Begin implementation immediately with TodoWrite task tracking
 
 **ZERO DELAY MANDATE:**
 - **❌ NO**: Analysis first, "let me check" responses, preliminary questions

@@ -303,91 +303,13 @@ export interface LoopDetectionConfirmationRequest {
   onComplete: (result: { userSelection: 'disable' | 'keep' }) => void;
 }
 
-// Enhanced Progress Tracking Types
-
-export enum OperationType {
-  FileOperation = 'file_operation',
-  NetworkOperation = 'network_operation',
-  CodeAnalysis = 'code_analysis',
-  BuildOperation = 'build_operation',
-  TestOperation = 'test_operation',
-  GitOperation = 'git_operation',
-  PackageOperation = 'package_operation',
-  SearchOperation = 'search_operation',
-  GeneralOperation = 'general_operation',
-}
-
-export enum ProgressState {
-  Initializing = 'initializing',
-  InProgress = 'in_progress',
-  Paused = 'paused',
-  Completing = 'completing',
-  Completed = 'completed',
-  Failed = 'failed',
-  Cancelled = 'cancelled',
-}
-
-export interface OperationContext {
-  type: OperationType;
-  description: string;
-  targetFiles?: string[];
-  totalSteps?: number;
-  currentStep?: number;
-  estimatedDuration?: number;
-  startTime: Date;
-  metadata?: Record<string, unknown>;
-}
-
-export interface ProgressStep {
-  id: string;
-  description: string;
-  state: ProgressState;
-  progress?: number; // 0-100 percentage
-  startTime?: Date;
-  endTime?: Date;
-  error?: string;
-  intermediateResults?: unknown[];
-}
-
-export interface OperationProgress {
-  operationId: string;
-  toolCallId?: string;
-  context: OperationContext;
-  state: ProgressState;
-  overallProgress: number; // 0-100 percentage
-  steps: ProgressStep[];
-  currentStepIndex: number;
-  intermediateResults: unknown[];
-  canPause: boolean;
-  canCancel: boolean;
-  estimatedTimeRemaining?: number;
-  warnings: string[];
-  errors: string[];
-}
-
-export interface ProgressUpdate {
-  operationId: string;
-  type:
-    | 'state_change'
-    | 'step_progress'
-    | 'step_complete'
-    | 'intermediate_result'
-    | 'error'
-    | 'warning';
-  data: unknown;
-  timestamp: Date;
-}
-
-export interface ProgressInteraction {
-  type:
-    | 'pause'
-    | 'resume'
-    | 'cancel'
-    | 'skip_step'
-    | 'retry_step'
-    | 'expand_details'
-    | 'collapse_details';
-  operationId: string;
-  stepId?: string;
-  data?: unknown;
-}
+// Enhanced Progress Tracking Types - re-exported from core package
+export {
+  OperationType,
+  ProgressState,
+  type OperationContext,
+  type ProgressStep,
+  type OperationProgress,
+  type ProgressUpdate,
+  type ProgressInteraction,
+} from '@google/gemini-cli-core/src/progress/types.js';

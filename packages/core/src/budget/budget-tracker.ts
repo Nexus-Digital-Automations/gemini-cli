@@ -9,7 +9,7 @@ import * as path from 'node:path';
 import type {
   BudgetSettings,
   BudgetUsageData,
-} from '../../../cli/src/config/settingsSchema.js';
+} from './types.js';
 
 /**
  * Core budget tracking functionality for managing daily API request limits.

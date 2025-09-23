@@ -19,7 +19,7 @@ import {
   BudgetExceededError,
   type BudgetEnforcementOptions,
 } from '../budget/budget-enforcement.js';
-import type { BudgetSettings } from '../../../cli/src/config/settingsSchema.js';
+import type { BudgetSettings } from '../budget/types.js';
 
 /**
  * A decorator that wraps a ContentGenerator to add budget enforcement to API calls.
