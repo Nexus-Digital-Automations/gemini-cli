@@ -33,6 +33,13 @@ const initialState: TextBufferState = {
   redoStack: [],
   clipboard: null,
   selectionAnchor: null,
+  viewportWidth: 80,
+  viewportHeight: 24,
+  visualLayout: {
+    visualLines: [''],
+    logicalToVisualMap: [[[0, 0]]],
+    visualToLogicalMap: [[0, 0]],
+  },
 };
 
 describe('textBufferReducer', () => {

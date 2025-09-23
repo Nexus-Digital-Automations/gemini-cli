@@ -312,4 +312,4 @@ export {
   type OperationProgress,
   type ProgressUpdate,
   type ProgressInteraction,
-} from '@google/gemini-cli-core/src/progress/types.js';
+} from '@google/gemini-cli-core';
