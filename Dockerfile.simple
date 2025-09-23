@@ -45,10 +45,10 @@ WORKDIR /usr/src/app
 # Copy all source code
 COPY --chown=node:node . .
 
-# Install dependencies without running prepare scripts
+# Install dependencies but skip prepare script that runs bundle
 RUN npm install --ignore-scripts
 
-# Build only what we need for basic operation
+# Generate required files only
 RUN npm run generate
 
 # Create a simple entrypoint script that runs the CLI in development mode
@@ -59,14 +59,14 @@ RUN mkdir -p /home/node/bin && \
     echo 'echo "Progress Tracking: ✓ Implemented"' >> /home/node/bin/entrypoint.sh && \
     echo 'echo ""' >> /home/node/bin/entrypoint.sh && \
     echo 'echo "Available commands:"' >> /home/node/bin/entrypoint.sh && \
-    echo 'echo "  npm run start [args] - Start the CLI"' >> /home/node/bin/entrypoint.sh && \
+    echo 'echo "  node packages/cli/src/index.js [args] - Start the CLI directly"' >> /home/node/bin/entrypoint.sh && \
     echo 'echo "  npm run lint - Run linting"' >> /home/node/bin/entrypoint.sh && \
     echo 'echo "  npm run typecheck - Check TypeScript"' >> /home/node/bin/entrypoint.sh && \
     echo 'echo "  bash - Enter shell"' >> /home/node/bin/entrypoint.sh && \
     echo 'echo ""' >> /home/node/bin/entrypoint.sh && \
     echo 'echo "Example usage:"' >> /home/node/bin/entrypoint.sh && \
-    echo 'echo "  npm run start -- --help"' >> /home/node/bin/entrypoint.sh && \
-    echo 'echo "  npm run start -- budget --help"' >> /home/node/bin/entrypoint.sh && \
+    echo 'echo "  node packages/cli/src/index.js --help"' >> /home/node/bin/entrypoint.sh && \
+    echo 'echo "  node packages/cli/src/index.js budget --help"' >> /home/node/bin/entrypoint.sh && \
     echo 'echo ""' >> /home/node/bin/entrypoint.sh && \
     echo 'if [ "$#" -eq 0 ]; then' >> /home/node/bin/entrypoint.sh && \
     echo '  exec bash' >> /home/node/bin/entrypoint.sh && \

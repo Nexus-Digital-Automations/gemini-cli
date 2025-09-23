@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 2,
+      "total_reinitializations": 3,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
           "init": 0,
-          "reinit": 1
+          "reinit": 2
         },
         "12:00-16:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T16:19:44.478Z"
+      "last_updated": "2025-09-23T16:49:32.124Z"
     }
   },
   "workflow_config": {
@@ -50,6 +50,13 @@
       "status": "active",
       "reinitialized": "2025-09-23T16:19:44.477Z",
       "sessionId": "dd83e1a76d3fb241",
+      "previousSessions": []
+    },
+    "DOCKER_COMPLETION_AGENT": {
+      "lastHeartbeat": "2025-09-23T16:49:32.122Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T16:49:32.122Z",
+      "sessionId": "9e0ea9c2384f55ec",
       "previousSessions": []
     }
   },
