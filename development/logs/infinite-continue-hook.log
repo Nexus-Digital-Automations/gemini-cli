@@ -1,15 +1,15 @@
 {
   "execution": {
-    "timestamp": "2025-09-23T18:11:10.074Z",
+    "timestamp": "2025-09-23T18:49:17.246Z",
     "projectRoot": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
     "hookVersion": "1.0.0",
     "nodeVersion": "v22.19.0",
     "platform": "darwin",
     "arch": "arm64",
-    "pid": 89025,
+    "pid": 45030,
     "cwd": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
-    "endTimestamp": "2025-09-23T18:11:10.098Z",
-    "durationMs": 24
+    "endTimestamp": "2025-09-23T18:49:17.256Z",
+    "durationMs": 10
   },
   "input": {
     "sessionId": "fbb1583a-67e2-4532-a2f8-24214e57da04",
@@ -28,71 +28,107 @@
   "decisions": [],
   "flow": [
     {
-      "timestamp": "2025-09-23T18:11:10.077Z",
+      "timestamp": "2025-09-23T18:49:17.247Z",
       "message": "Raw input data: \"{\"session_id\":\"fbb1583a-67e2-4532-a2f8-24214e57da04\",\"transcript_path\":\"/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/fbb1583a-67e2-4532-a2f8-24214e57da04.jsonl\",\"cwd\":\"/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli\",\"permission_mode\":\"acceptEdits\",\"hook_event_name\":\"Stop\",\"stop_hook_active\":false}\""
     },
     {
-      "timestamp": "2025-09-23T18:11:10.077Z",
+      "timestamp": "2025-09-23T18:49:17.247Z",
       "message": "Input data length: 367"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.077Z",
+      "timestamp": "2025-09-23T18:49:17.247Z",
       "message": "Received input from Claude Code"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.077Z",
+      "timestamp": "2025-09-23T18:49:17.247Z",
       "message": "Received Stop event from Claude Code"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.095Z",
-      "message": "Found 1 total agents in TODO.json"
+      "timestamp": "2025-09-23T18:49:17.254Z",
+      "message": "Found 4 total agents in TODO.json"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.095Z",
+      "timestamp": "2025-09-23T18:49:17.254Z",
       "message": "🧹 Starting multi-project stale agent cleanup across 2 projects..."
     },
     {
-      "timestamp": "2025-09-23T18:11:10.096Z",
+      "timestamp": "2025-09-23T18:49:17.254Z",
       "message": "No FEATURES.json found in /Users/jeremyparker/Desktop/Claude Coding Projects/AIgent/bytebot - skipping"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.097Z",
-      "message": "🧹 Multi-project cleanup complete: 0 agents removed, 0 tasks unassigned, 0 orphaned tasks reset"
+      "timestamp": "2025-09-23T18:49:17.254Z",
+      "message": "Removed stale agent from /Users/jeremyparker/infinite-continue-stop-hook: claude-interaction-tracker"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.097Z",
-      "message": "Agent CLAUDE_RECOVERY_AGENT_001: heartbeat=2025-09-23T17:56:43.328Z, timeSince=867s, isActive=true"
+      "timestamp": "2025-09-23T18:49:17.254Z",
+      "message": "Removed stale agent from /Users/jeremyparker/infinite-continue-stop-hook: stop-hook-continuation-agent"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.097Z",
+      "timestamp": "2025-09-23T18:49:17.254Z",
+      "message": "Removed stale agent from /Users/jeremyparker/infinite-continue-stop-hook: test-agent"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.254Z",
+      "message": "Removed stale agent from /Users/jeremyparker/infinite-continue-stop-hook: claude-code-main-agent"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.255Z",
+      "message": "Updated /Users/jeremyparker/infinite-continue-stop-hook/FEATURES.json with cleanup results"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.255Z",
+      "message": "🧹 Multi-project cleanup complete: 4 agents removed, 0 tasks unassigned, 0 orphaned tasks reset"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.255Z",
+      "message": "✅ Multi-project cleanup: 4 stale agents removed, 0 tasks unassigned, 0 orphaned tasks reset across 2 projects"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.256Z",
+      "message": "Agent CLAUDE_RECOVERY_AGENT_001: heartbeat=2025-09-23T18:22:29.679Z, timeSince=1608s, isActive=true"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.256Z",
+      "message": "Agent gemini-docker-agent: heartbeat=2025-09-23T18:23:18.392Z, timeSince=1559s, isActive=true"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.256Z",
+      "message": "Agent agent_fix_imports: heartbeat=2025-09-23T18:24:24.760Z, timeSince=1492s, isActive=true"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.256Z",
+      "message": "Agent agent-ink-prop-fixer: heartbeat=2025-09-23T18:24:25.044Z, timeSince=1492s, isActive=true"
+    },
+    {
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "Running automatic task sorting and test error reclassification"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.097Z",
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "Task sorting completed - no reclassification needed"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.097Z",
-      "message": "Active agents found: 1, Stale agents removed: 0, Tasks unassigned: 0, Stale tasks reset: 0"
+      "timestamp": "2025-09-23T18:49:17.256Z",
+      "message": "Active agents found: 4, Stale agents removed: 0, Tasks unassigned: 0, Stale tasks reset: 0"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.098Z",
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "Task status: 0 pending, 0 in_progress, 0 completed"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.098Z",
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "Running automatic task archival for completed tasks"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.098Z",
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "No completed tasks found to archive"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.098Z",
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "Never-stop mode: Providing instructive task management guidance"
     },
     {
-      "timestamp": "2025-09-23T18:11:10.098Z",
+      "timestamp": "2025-09-23T18:49:17.256Z",
       "message": "Exiting with code 2: Infinite continue mode - providing task guidance"
     }
   ],
