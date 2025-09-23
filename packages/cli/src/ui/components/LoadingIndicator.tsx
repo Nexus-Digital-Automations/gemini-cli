@@ -133,9 +133,7 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
       {primaryOperation && !isNarrow && (
         <Box marginTop={1}>
           <Text color={theme.text.muted}>
-            {isProgressPanelExpanded
-              ? 'Tab to collapse details'
-              : 'Tab for details, Space to pause/resume'}
+            {'Tab for details, Space to pause/resume'}
           </Text>
         </Box>
       )}

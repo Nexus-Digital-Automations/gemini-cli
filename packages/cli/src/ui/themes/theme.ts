@@ -37,6 +37,7 @@ export interface CustomTheme {
     secondary?: string;
     link?: string;
     accent?: string;
+    muted?: string;
   };
   background?: {
     primary?: string;
@@ -161,6 +162,7 @@ export class Theme {
         secondary: this.colors.Gray,
         link: this.colors.AccentBlue,
         accent: this.colors.AccentPurple,
+        muted: this.colors.Gray,
       },
       background: {
         primary: this.colors.Background,
@@ -414,6 +416,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       secondary: customTheme.text?.secondary ?? colors.Gray,
       link: customTheme.text?.link ?? colors.AccentBlue,
       accent: customTheme.text?.accent ?? colors.AccentPurple,
+      muted: customTheme.text?.muted ?? colors.Gray,
     },
     background: {
       primary: customTheme.background?.primary ?? colors.Background,

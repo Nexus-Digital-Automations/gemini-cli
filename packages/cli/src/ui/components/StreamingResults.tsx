@@ -30,7 +30,7 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
   const { columns: terminalWidth } = useTerminalSize();
   const isNarrow = isNarrowWidth(terminalWidth);
   const [displayResults, setDisplayResults] = useState<FormattedResult[]>([]);
-  const scrollRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<any>(null);
 
   // Convert operation intermediate results to formatted display results
   useEffect(() => {
@@ -87,7 +87,7 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
       {/* Results list */}
       <Box
         flexDirection="column"
-        ref={scrollRef as React.RefObject<HTMLElement>}
+        ref={scrollRef}
       >
         {displayResults.map((result, index) => (
           <ResultItem
@@ -131,7 +131,7 @@ const ResultItem: React.FC<ResultItemProps> = ({
   isLatest,
   compact,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded] = useState(false);
 
   const getTypeColor = (type: FormattedResult['type']) => {
     switch (type) {
@@ -198,25 +198,27 @@ const ResultItem: React.FC<ResultItemProps> = ({
         </Text>
 
         {result.stepId && !compact && (
-          <Text color={theme.text.muted} marginLeft={1}>
-            [{result.stepId}]
-          </Text>
+          <Box marginLeft={1}>
+            <Text color={theme.text.muted}>
+              [{result.stepId}]
+            </Text>
+          </Box>
         )}
 
         {result.timestamp && !compact && (
-          <Text color={theme.text.muted} marginLeft={1}>
-            {formatTimestamp(result.timestamp)}
-          </Text>
+          <Box marginLeft={1}>
+            <Text color={theme.text.muted}>
+              {formatTimestamp(result.timestamp)}
+            </Text>
+          </Box>
         )}
 
         {canExpand && (
-          <Text
-            color={theme.text.link}
-            marginLeft={1}
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? '[collapse]' : '[expand]'}
-          </Text>
+          <Box marginLeft={1}>
+            <Text color={theme.text.link}>
+              {isExpanded ? '[collapse]' : '[expand]'}
+            </Text>
+          </Box>
         )}
       </Box>
 
@@ -225,9 +227,11 @@ const ResultItem: React.FC<ResultItemProps> = ({
         <Text color={getTypeColor(result.type)}>{displayContent}</Text>
 
         {result.truncated && !isExpanded && (
-          <Text color={theme.text.muted} italic marginTop={1}>
-            ... content truncated
-          </Text>
+          <Box marginTop={1}>
+            <Text color={theme.text.muted} italic>
+              ... content truncated
+            </Text>
+          </Box>
         )}
       </Box>
     </Box>
@@ -253,9 +257,11 @@ export const LiveUpdateDisplay: React.FC<LiveUpdateDisplayProps> = ({
 
   return (
     <Box flexDirection="column" padding={1}>
-      <Text color={theme.text.secondary} bold marginBottom={1}>
-        Recent Updates
-      </Text>
+      <Box marginBottom={1}>
+        <Text color={theme.text.secondary} bold>
+          Recent Updates
+        </Text>
+      </Box>
 
       {recentUpdates.map((update, index) => (
         <UpdateItem
@@ -313,17 +319,17 @@ const UpdateItem: React.FC<UpdateItemProps> = ({ update, compact }) => {
     const data = update.data as Record<string, unknown>;
     switch (update.type) {
       case 'state_change':
-        return `State: ${data?.state || 'unknown'}`;
+        return `State: ${data?.['state'] || 'unknown'}`;
       case 'step_progress':
-        return `Step progress: ${(data?.step as Record<string, unknown>)?.description || 'unknown'}`;
+        return `Step progress: ${(data?.['step'] as Record<string, unknown>)?.['description'] || 'unknown'}`;
       case 'step_complete':
-        return `Completed: ${(data?.step as Record<string, unknown>)?.description || 'step'}`;
+        return `Completed: ${(data?.['step'] as Record<string, unknown>)?.['description'] || 'step'}`;
       case 'intermediate_result':
-        return `Result: ${formatIntermediateResult(data?.result)}`;
+        return `Result: ${formatIntermediateResult(data?.['result'])}`;
       case 'error':
-        return `Error: ${data?.error || 'unknown error'}`;
+        return `Error: ${data?.['error'] || 'unknown error'}`;
       case 'warning':
-        return `Warning: ${data?.warning || 'unknown warning'}`;
+        return `Warning: ${data?.['warning'] || 'unknown warning'}`;
       default:
         return 'Update received';
     }
@@ -340,13 +346,17 @@ const UpdateItem: React.FC<UpdateItemProps> = ({ update, compact }) => {
       <Text color={getUpdateColor(update.type)}>
         {getUpdateIcon(update.type)}
       </Text>
-      <Text color={getUpdateColor(update.type)} marginLeft={1}>
-        {formatUpdateData(update)}
-      </Text>
-      {!compact && (
-        <Text color={theme.text.muted} marginLeft={1}>
-          ({timestamp})
+      <Box marginLeft={1}>
+        <Text color={getUpdateColor(update.type)}>
+          {formatUpdateData(update)}
         </Text>
+      </Box>
+      {!compact && (
+        <Box marginLeft={1}>
+          <Text color={theme.text.muted}>
+            ({timestamp})
+          </Text>
+        </Box>
       )}
     </Box>
   );
@@ -368,13 +378,13 @@ function formatResult(
     const obj = result as Record<string, unknown>;
 
     if ('stepId' in obj && 'result' in obj && 'timestamp' in obj) {
-      const innerResult = formatResult(obj.result, index, showTimestamps);
+      const innerResult = formatResult(obj['result'], index, showTimestamps);
       if (innerResult) {
         return {
           ...innerResult,
-          stepId: obj.stepId as string,
+          stepId: obj['stepId'] as string,
           timestamp: showTimestamps
-            ? new Date(obj.timestamp as string)
+            ? new Date(obj['timestamp'] as string)
             : undefined,
         };
       }

@@ -277,8 +277,8 @@ describe('extension tests', () => {
     });
 
     it('should resolve environment variables in extension configuration', () => {
-      process.env.TEST_API_KEY = 'test-api-key-123';
-      process.env.TEST_DB_URL = 'postgresql://localhost:5432/testdb';
+      process.env['TEST_API_KEY'] = 'test-api-key-123';
+      process.env['TEST_DB_URL'] = 'postgresql://localhost:5432/testdb';
 
       try {
         const userExtensionsDir = path.join(
@@ -319,14 +319,14 @@ describe('extension tests', () => {
         const serverConfig = extension.config.mcpServers?.['test-server'];
         expect(serverConfig).toBeDefined();
         expect(serverConfig?.env).toBeDefined();
-        expect(serverConfig?.env?.API_KEY).toBe('test-api-key-123');
-        expect(serverConfig?.env?.DATABASE_URL).toBe(
+        expect(serverConfig?.env?.['API_KEY']).toBe('test-api-key-123');
+        expect(serverConfig?.env?.['DATABASE_URL']).toBe(
           'postgresql://localhost:5432/testdb',
         );
-        expect(serverConfig?.env?.STATIC_VALUE).toBe('no-substitution');
+        expect(serverConfig?.env?.['STATIC_VALUE']).toBe('no-substitution');
       } finally {
-        delete process.env.TEST_API_KEY;
-        delete process.env.TEST_DB_URL;
+        delete process.env['TEST_API_KEY'];
+        delete process.env['TEST_DB_URL'];
       }
     });
 
@@ -366,8 +366,8 @@ describe('extension tests', () => {
       const extension = extensions[0];
       const serverConfig = extension.config.mcpServers!['test-server'];
       expect(serverConfig.env).toBeDefined();
-      expect(serverConfig.env!.MISSING_VAR).toBe('$UNDEFINED_ENV_VAR');
-      expect(serverConfig.env!.MISSING_VAR_BRACES).toBe('${ALSO_UNDEFINED}');
+      expect(serverConfig.env!['MISSING_VAR']).toBe('$UNDEFINED_ENV_VAR');
+      expect(serverConfig.env!['MISSING_VAR_BRACES']).toBe('${ALSO_UNDEFINED}');
     });
 
     it('should skip extensions with invalid JSON and log a warning', () => {

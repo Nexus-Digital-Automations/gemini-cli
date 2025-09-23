@@ -11,6 +11,7 @@ export const lightSemanticColors = {
         secondary: lightTheme.Gray,
         link: lightTheme.AccentBlue,
         accent: lightTheme.AccentPurple,
+        muted: lightTheme.Gray,
     },
     background: {
         primary: lightTheme.Background,
@@ -40,6 +41,7 @@ export const darkSemanticColors = {
         secondary: darkTheme.Gray,
         link: darkTheme.AccentBlue,
         accent: darkTheme.AccentPurple,
+        muted: darkTheme.Gray,
     },
     background: {
         primary: darkTheme.Background,
@@ -69,6 +71,7 @@ export const ansiSemanticColors = {
         secondary: ansiTheme.Gray,
         link: ansiTheme.AccentBlue,
         accent: ansiTheme.AccentPurple,
+        muted: ansiTheme.Gray,
     },
     background: {
         primary: ansiTheme.Background,

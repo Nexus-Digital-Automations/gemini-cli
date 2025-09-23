@@ -13,7 +13,8 @@ import { formatDuration } from '../utils/formatters.js';
 import { useProgress } from '../contexts/ProgressContext.js';
 import { ToolExecutionDisplay } from './ToolExecutionDisplay.js';
 import { ProgressBar, StepIndicator, MultiProgressBar } from './ProgressBar.js';
-import type { OperationProgress, ToolCallStatus } from '../types.js';
+import { ToolCallStatus , ProgressState } from '../types.js';
+import type { OperationProgress, ProgressInteraction } from '../types.js';
 
 export interface ProgressPanelProps {
   isExpanded: boolean;
@@ -142,7 +143,11 @@ export const ProgressPanel: React.FC<ProgressPanelProps> = ({
               <StepIndicator
                 currentStep={primaryOperation.currentStepIndex}
                 totalSteps={primaryOperation.steps.length}
-                steps={primaryOperation.steps}
+                steps={primaryOperation.steps.map((step) => ({
+                  id: step.id,
+                  description: step.description,
+                  state: mapProgressStateToStepState(step.state),
+                }))}
                 compact={isNarrow}
                 showLabels={!isNarrow}
               />
@@ -154,9 +159,11 @@ export const ProgressPanel: React.FC<ProgressPanelProps> = ({
       {/* Other active operations */}
       {activeOperations.length > 1 && (
         <Box flexDirection="column">
-          <Text color={theme.text.secondary} bold marginBottom={1}>
-            Other Operations
-          </Text>
+          <Box marginBottom={1}>
+            <Text color={theme.text.secondary} bold>
+              Other Operations
+            </Text>
+          </Box>
           <MultiProgressBar
             operations={activeOperations
               .filter((op) => op.operationId !== primaryOperation?.operationId)
@@ -164,7 +171,7 @@ export const ProgressPanel: React.FC<ProgressPanelProps> = ({
                 id: op.operationId,
                 label: op.context.description,
                 progress: op.overallProgress,
-                state: op.state,
+                state: mapProgressStateToStepState(op.state),
               }))}
             compact={isNarrow}
             maxVisible={isNarrow ? 3 : 5}
@@ -187,15 +194,16 @@ export const ProgressPanel: React.FC<ProgressPanelProps> = ({
 
 interface OperationControlsProps {
   operation: OperationProgress;
-  onInteraction: (interaction: Record<string, unknown>) => boolean;
+  onInteraction: (interaction: ProgressInteraction) => boolean;
 }
 
 const OperationControls: React.FC<OperationControlsProps> = ({
   operation,
   onInteraction: _onInteraction,
 }) => {
-  const isPaused = operation.state === 'paused';
-  const canPause = operation.canPause && operation.state === 'in_progress';
+  const isPaused = operation.state === ProgressState.Paused;
+  const canPause =
+    operation.canPause && operation.state === ProgressState.InProgress;
   const canResume = operation.canPause && isPaused;
   const canCancel = operation.canCancel;
 
@@ -230,11 +238,19 @@ interface ProgressSummaryProps {
 
 const ProgressSummary: React.FC<ProgressSummaryProps> = ({ operations }) => {
   const totalOperations = operations.length;
-  const completedOps = operations.filter((op) => op.state === 'completed');
-  const failedOps = operations.filter((op) => op.state === 'failed');
-  const cancelledOps = operations.filter((op) => op.state === 'cancelled');
+  const completedOps = operations.filter(
+    (op) => op.state === ProgressState.Completed,
+  );
+  const failedOps = operations.filter(
+    (op) => op.state === ProgressState.Failed,
+  );
+  const cancelledOps = operations.filter(
+    (op) => op.state === ProgressState.Cancelled,
+  );
   const activeOps = operations.filter(
-    (op) => op.state === 'in_progress' || op.state === 'initializing',
+    (op) =>
+      op.state === ProgressState.InProgress ||
+      op.state === ProgressState.Initializing,
   );
 
   const totalProgress =
@@ -318,21 +334,47 @@ const ProgressSummary: React.FC<ProgressSummaryProps> = ({ operations }) => {
 
 // Utility functions
 
+/**
+ * Maps ProgressState enum to the string literal type expected by UI components
+ */
+function mapProgressStateToStepState(
+  state: ProgressState,
+): 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled' {
+  switch (state) {
+    case ProgressState.Initializing:
+      return 'pending';
+    case ProgressState.InProgress:
+      return 'in_progress';
+    case ProgressState.Paused:
+      return 'in_progress'; // Paused operations are still "in progress"
+    case ProgressState.Completing:
+      return 'in_progress';
+    case ProgressState.Completed:
+      return 'completed';
+    case ProgressState.Failed:
+      return 'failed';
+    case ProgressState.Cancelled:
+      return 'cancelled';
+    default:
+      return 'pending';
+  }
+}
+
 function getToolCallStatus(operation: OperationProgress): ToolCallStatus {
   switch (operation.state) {
-    case 'initializing':
-      return 'Pending';
-    case 'in_progress':
-    case 'paused':
-      return 'Executing';
-    case 'completed':
-      return 'Success';
-    case 'failed':
-      return 'Error';
-    case 'cancelled':
-      return 'Canceled';
+    case ProgressState.Initializing:
+      return ToolCallStatus.Pending;
+    case ProgressState.InProgress:
+    case ProgressState.Paused:
+      return ToolCallStatus.Executing;
+    case ProgressState.Completed:
+      return ToolCallStatus.Success;
+    case ProgressState.Failed:
+      return ToolCallStatus.Error;
+    case ProgressState.Cancelled:
+      return ToolCallStatus.Canceled;
     default:
-      return 'Pending';
+      return ToolCallStatus.Pending;
   }
 }
 

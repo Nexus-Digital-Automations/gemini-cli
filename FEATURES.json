@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 6,
+      "total_reinitializations": 12,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
@@ -18,7 +18,7 @@
         },
         "12:00-16:59": {
           "init": 0,
-          "reinit": 3
+          "reinit": 9
         },
         "17:00-21:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T17:56:43.335Z"
+      "last_updated": "2025-09-23T18:24:25.045Z"
     }
   },
   "workflow_config": {
@@ -56,14 +56,39 @@
   },
   "agents": {
     "CLAUDE_RECOVERY_AGENT_001": {
-      "lastHeartbeat": "2025-09-23T17:56:43.328Z",
+      "lastHeartbeat": "2025-09-23T18:22:29.679Z",
       "status": "active",
-      "reinitialized": "2025-09-23T17:56:43.328Z",
-      "sessionId": "dbead9bea5c64808",
+      "reinitialized": "2025-09-23T18:22:29.679Z",
+      "sessionId": "87e71caacc45d3af",
       "previousSessions": [
         "1cc3451bd8286183",
-        "e528d2b13351f14b"
+        "e528d2b13351f14b",
+        "dbead9bea5c64808",
+        "c4e96ab801ed5d58"
       ]
+    },
+    "gemini-docker-agent": {
+      "lastHeartbeat": "2025-09-23T18:23:18.392Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T18:23:18.392Z",
+      "sessionId": "d9c610600e907a07",
+      "previousSessions": [
+        "cbce7e1f6d0fbd64"
+      ]
+    },
+    "agent_fix_imports": {
+      "lastHeartbeat": "2025-09-23T18:24:24.760Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T18:24:24.760Z",
+      "sessionId": "d9a114726dee3900",
+      "previousSessions": []
+    },
+    "agent-ink-prop-fixer": {
+      "lastHeartbeat": "2025-09-23T18:24:25.044Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T18:24:25.044Z",
+      "sessionId": "7e4c7870c67bbfee",
+      "previousSessions": []
     }
   },
   "tasks": [],

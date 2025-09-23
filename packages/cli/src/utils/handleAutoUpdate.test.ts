@@ -26,7 +26,7 @@ vi.mock('./updateEventEmitter.js', async () => {
   return {
     ...actual,
     updateEventEmitter: {
-      ...actual.updateEventEmitter,
+      ...actual['updateEventEmitter'],
       emit: vi.fn(),
     },
   };

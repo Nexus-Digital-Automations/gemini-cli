@@ -10,6 +10,7 @@ export interface SemanticColors {
         secondary: string;
         link: string;
         accent: string;
+        muted: string;
     };
     background: {
         primary: string;

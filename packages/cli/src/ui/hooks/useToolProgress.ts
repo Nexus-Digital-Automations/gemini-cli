@@ -6,7 +6,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useProgress } from '../contexts/ProgressContext.js';
-import type { ToolCallStatus, OperationProgress } from '../types.js';
+import { ToolCallStatus } from '../types.js';
+import type { OperationProgress } from '../types.js';
 import type { ToolCallInfo } from '@google/gemini-cli-core';
 
 export interface ToolProgressState {

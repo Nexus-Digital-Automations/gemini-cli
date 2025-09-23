@@ -6,7 +6,7 @@
 
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
-import { createBudgetTracker } from '@google/gemini-cli-core/budget';
+import { createBudgetTracker } from '@google/gemini-cli-core';
 
 interface GetCommandArgs {
   json?: boolean;

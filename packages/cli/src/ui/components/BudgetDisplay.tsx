@@ -8,7 +8,7 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
-import { createBudgetTracker } from '@google/gemini-cli-core/budget';
+import { createBudgetTracker } from '@google/gemini-cli-core';
 import type { BudgetSettings } from '../../config/settingsSchema.js';
 
 export interface BudgetDisplayProps {

@@ -437,6 +437,17 @@ export class LoadedSettings {
     this._merged = this.computeMergedSettings();
     saveSettings(settingsFile);
   }
+
+  /**
+   * Save all settings files.
+   * Note: Individual setValue calls already save automatically.
+   * This method is provided for explicit save operations and consistency.
+   */
+  async save(): Promise<void> {
+    // Since setValue already saves automatically, this method is primarily
+    // for API compatibility. In the future, we could track dirty state
+    // and only save modified files here.
+  }
 }
 
 function findEnvFile(startDir: string): string | null {

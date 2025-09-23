@@ -55,6 +55,14 @@ export {
   BudgetContentGenerator,
   createBudgetContentGenerator,
 } from './src/core/budgetContentGenerator.js';
+export type {
+  BudgetSettings,
+  BudgetUsageData,
+} from './src/budget/types.js';
+export type {
+  BudgetWarning,
+  BudgetEnforcementOptions,
+} from './src/budget/budget-enforcement.js';
 
 // Progress tracking exports
 export {

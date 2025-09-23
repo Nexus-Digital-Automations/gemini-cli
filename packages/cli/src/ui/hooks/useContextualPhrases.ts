@@ -6,6 +6,7 @@
 
 import { useMemo } from 'react';
 import type { OperationType, OperationProgress } from '../types.js';
+import type { OperationContext } from '@google/gemini-cli-core/src/progress/types.js';
 
 export interface ContextualPhrase {
   message: string;
@@ -95,7 +96,7 @@ function getOperationSpecificPhrase(
  */
 function getStepSpecificPhrase(
   stepDescription: string,
-  _context: Record<string, unknown>,
+  _context: OperationContext,
 ): string | null {
   const lower = stepDescription.toLowerCase();
 
