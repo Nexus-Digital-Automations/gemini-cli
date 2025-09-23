@@ -532,7 +532,6 @@ export function createLoggerConfigFromAppConfig(
 
 // Legacy compatibility exports for existing usage
 export type LogContext = LogMeta;
-export type { LogMeta as LogEntry };
 
 // Global logger instance (for backwards compatibility)
 export const logger = (): StructuredLogger => getLogger();
