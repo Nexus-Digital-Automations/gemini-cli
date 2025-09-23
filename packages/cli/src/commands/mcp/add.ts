@@ -9,6 +9,50 @@ import type { CommandModule } from 'yargs';
 import { loadSettings, SettingScope } from '../../config/settings.js';
 import type { MCPServerConfig } from '@google/gemini-cli-core';
 
+/**
+ * Adds or updates an MCP (Model Context Protocol) server configuration
+ *
+ * This function handles the complete process of configuring MCP servers including:
+ * - Validating scope and settings path conflicts
+ * - Processing different transport types (stdio, sse, http)
+ * - Parsing environment variables and HTTP headers
+ * - Managing tool inclusion/exclusion lists
+ * - Updating or creating server configurations
+ *
+ * @param name - Unique identifier for the MCP server
+ * @param commandOrUrl - Command path for stdio or URL for sse/http transport
+ * @param args - Optional command line arguments for stdio transport
+ * @param options - Configuration options for the MCP server
+ * @param options.scope - Configuration scope ('user' or 'project')
+ * @param options.transport - Transport protocol ('stdio', 'sse', 'http')
+ * @param options.env - Environment variables in 'KEY=value' format
+ * @param options.header - HTTP headers for sse/http transports
+ * @param options.timeout - Connection timeout in milliseconds
+ * @param options.trust - Whether to bypass tool confirmation prompts
+ * @param options.description - Human-readable server description
+ * @param options.includeTools - List of tools to include from the server
+ * @param options.excludeTools - List of tools to exclude from the server
+ *
+ * @example
+ * ```typescript
+ * // Add stdio-based MCP server
+ * await addMcpServer('my-server', '/path/to/command', ['--arg1', 'value'], {
+ *   scope: 'project',
+ *   transport: 'stdio',
+ *   env: ['API_KEY=secret'],
+ *   timeout: 5000,
+ *   trust: false
+ * });
+ *
+ * // Add HTTP-based MCP server
+ * await addMcpServer('api-server', 'https://api.example.com/mcp', undefined, {
+ *   scope: 'user',
+ *   transport: 'http',
+ *   header: ['Authorization: Bearer token'],
+ *   timeout: 10000
+ * });
+ * ```
+ */
 async function addMcpServer(
   name: string,
   commandOrUrl: string,
@@ -134,6 +178,21 @@ async function addMcpServer(
   }
 }
 
+/**
+ * Yargs command module for adding MCP servers
+ *
+ * This command provides a comprehensive interface for configuring MCP servers
+ * with support for multiple transport protocols, security settings, and tool
+ * filtering. It handles both creation of new servers and updating existing ones.
+ *
+ * Supported features:
+ * - Multiple transport protocols (stdio, Server-Sent Events, HTTP)
+ * - Flexible argument passing with -- separator support
+ * - Environment variable and HTTP header configuration
+ * - Tool inclusion/exclusion filtering
+ * - User and project scope management
+ * - Security settings including trust levels and timeouts
+ */
 export const addCommand: CommandModule = {
   command: 'add <name> <commandOrUrl> [args...]',
   describe: 'Add a server',
