@@ -23,6 +23,8 @@ import { useUIActions } from '../contexts/UIActionsContext.js';
 import { useVimMode } from '../contexts/VimModeContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { useSettings } from '../contexts/SettingsContext.js';
+import { useProgress } from '../contexts/ProgressContext.js';
+import { ProgressPanel } from './ProgressPanel.js';
 import { ApprovalMode } from '@google/gemini-cli-core';
 import { StreamingState } from '../types.js';
 import { ConfigInitDisplay } from '../components/ConfigInitDisplay.js';
@@ -33,6 +35,8 @@ export const Composer = () => {
   const uiState = useUIState();
   const uiActions = useUIActions();
   const { vimEnabled, vimMode } = useVimMode();
+  const { primaryOperation, isProgressPanelExpanded, toggleProgressPanel } =
+    useProgress();
   const terminalWidth = process.stdout.columns;
   const isNarrow = isNarrowWidth(terminalWidth);
   const debugConsoleMaxHeight = Math.floor(Math.max(terminalWidth * 0.2, 5));
@@ -173,6 +177,15 @@ export const Composer = () => {
               ? "  Press 'i' for INSERT mode and 'Esc' for NORMAL mode."
               : '  Type your message or @path/to/file'
           }
+        />
+      )}
+
+      {/* Progress Panel - shows when there are active operations */}
+      {primaryOperation && (
+        <ProgressPanel
+          isExpanded={isProgressPanelExpanded}
+          onToggle={toggleProgressPanel}
+          maxHeight={Math.floor(terminalWidth * 0.3)}
         />
       )}
 

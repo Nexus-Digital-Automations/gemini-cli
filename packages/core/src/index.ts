@@ -28,6 +28,9 @@ export * from './core/nonInteractiveToolExecutor.js';
 // Export Budget Management
 export * from './budget/index.js';
 
+// Export Progress Tracking
+export * from './progress/index.js';
+
 export * from './fallback/types.js';
 
 export * from './code_assist/codeAssist.js';

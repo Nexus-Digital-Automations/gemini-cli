@@ -6,6 +6,7 @@
 
 import { Box, Text } from 'ink';
 import { StreamingContext } from './contexts/StreamingContext.js';
+import { ProgressProvider } from './contexts/ProgressContext.js';
 import { Notifications } from './components/Notifications.js';
 import { MainContent } from './components/MainContent.js';
 import { DialogManager } from './components/DialogManager.js';
@@ -23,35 +24,37 @@ export const App = () => {
 
   return (
     <StreamingContext.Provider value={uiState.streamingState}>
-      <Box flexDirection="column" width="90%">
-        <MainContent />
+      <ProgressProvider>
+        <Box flexDirection="column" width="90%">
+          <MainContent />
 
-        <Box flexDirection="column" ref={uiState.mainControlsRef}>
-          <Notifications />
+          <Box flexDirection="column" ref={uiState.mainControlsRef}>
+            <Notifications />
 
-          {uiState.dialogsVisible ? (
-            <DialogManager addItem={uiState.historyManager.addItem} />
-          ) : (
-            <Composer />
-          )}
+            {uiState.dialogsVisible ? (
+              <DialogManager addItem={uiState.historyManager.addItem} />
+            ) : (
+              <Composer />
+            )}
 
-          {uiState.dialogsVisible && uiState.ctrlCPressedOnce && (
-            <Box marginTop={1}>
-              <Text color={theme.status.warning}>
-                Press Ctrl+C again to exit.
-              </Text>
-            </Box>
-          )}
+            {uiState.dialogsVisible && uiState.ctrlCPressedOnce && (
+              <Box marginTop={1}>
+                <Text color={theme.status.warning}>
+                  Press Ctrl+C again to exit.
+                </Text>
+              </Box>
+            )}
 
-          {uiState.dialogsVisible && uiState.ctrlDPressedOnce && (
-            <Box marginTop={1}>
-              <Text color={theme.status.warning}>
-                Press Ctrl+D again to exit.
-              </Text>
-            </Box>
-          )}
+            {uiState.dialogsVisible && uiState.ctrlDPressedOnce && (
+              <Box marginTop={1}>
+                <Text color={theme.status.warning}>
+                  Press Ctrl+D again to exit.
+                </Text>
+              </Box>
+            )}
+          </Box>
         </Box>
-      </Box>
+      </ProgressProvider>
     </StreamingContext.Provider>
   );
 };
