@@ -44,22 +44,7 @@
     "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
     "required_fields": ["title", "description", "business_value", "category"]
   },
-  "agents": {
-    "RECOVERY_AGENT": {
-      "lastHeartbeat": "2025-09-23T16:19:44.477Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T16:19:44.477Z",
-      "sessionId": "dd83e1a76d3fb241",
-      "previousSessions": []
-    },
-    "DOCKER_COMPLETION_AGENT": {
-      "lastHeartbeat": "2025-09-23T16:49:32.122Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T16:49:32.122Z",
-      "sessionId": "9e0ea9c2384f55ec",
-      "previousSessions": []
-    }
-  },
+  "agents": {},
   "tasks": [],
   "completed_tasks": []
 }
