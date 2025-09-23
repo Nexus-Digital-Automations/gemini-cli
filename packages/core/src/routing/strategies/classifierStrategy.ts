@@ -256,7 +256,9 @@ export class ClassifierStrategy implements RoutingStrategy {
       // If the classifier fails for any reason (API error, parsing error, etc.),
       // we log it and return null to allow the composite strategy to proceed.
       const logger = getComponentLogger('ClassifierStrategy');
-      logger.warn('ClassifierStrategy failed', { error });
+      logger.warn('ClassifierStrategy failed', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return null;
     }
   }

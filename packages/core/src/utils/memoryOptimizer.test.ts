@@ -224,7 +224,7 @@ describe('ContextWindowManager', () => {
         role: 'user',
         parts: [{ text: 'Final user message in the conversation' }],
       },
-    ] as const;
+    ];
 
     // Set a low token limit to force sliding
     const slidHistory = manager.slideContextWindow(mockHistory, 50);

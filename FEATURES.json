@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 28,
+      "total_reinitializations": 29,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
@@ -22,7 +22,7 @@
         },
         "17:00-21:59": {
           "init": 0,
-          "reinit": 11
+          "reinit": 12
         },
         "22:00-02:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T23:05:23.240Z"
+      "last_updated": "2025-09-23T23:28:52.840Z"
     }
   },
   "workflow_config": {
@@ -45,27 +45,6 @@
     "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
-    "AGENT_CONTINUE_TODO_ADDRESSING": {
-      "lastHeartbeat": "2025-09-23T22:45:31.993Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T22:45:31.993Z",
-      "sessionId": "5eac2055f1366f47",
-      "previousSessions": []
-    },
-    "JSDOC_AGENT": {
-      "lastHeartbeat": "2025-09-23T22:52:00.637Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T22:52:00.637Z",
-      "sessionId": "4f7908842e1bc543",
-      "previousSessions": []
-    },
-    "DOCS_AGENT": {
-      "lastHeartbeat": "2025-09-23T22:52:00.978Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T22:52:00.978Z",
-      "sessionId": "4dd92f3450f36c4a",
-      "previousSessions": []
-    },
     "SANDBOX_DEBUG_AGENT_001": {
       "lastHeartbeat": "2025-09-23T22:59:27.572Z",
       "status": "active",
@@ -92,6 +71,13 @@
       "status": "active",
       "reinitialized": "2025-09-23T23:05:23.232Z",
       "sessionId": "ea355705a3dcb144",
+      "previousSessions": []
+    },
+    "FILE_OPS_OPTIMIZER": {
+      "lastHeartbeat": "2025-09-23T23:28:52.833Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T23:28:52.833Z",
+      "sessionId": "454b6dfdba84c0d9",
       "previousSessions": []
     }
   },

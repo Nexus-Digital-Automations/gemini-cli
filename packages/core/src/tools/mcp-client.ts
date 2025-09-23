@@ -384,7 +384,7 @@ async function handleAutomaticOAuth(
   } catch (error) {
     logger.error('Failed to handle automatic OAuth', {
       server: mcpServerName,
-      error,
+      error: error instanceof Error ? error : new Error(String(error)),
     });
     return false;
   }

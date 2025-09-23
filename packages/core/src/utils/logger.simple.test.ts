@@ -77,7 +77,7 @@ describe('Structured Logger API', () => {
     expect(config.debugMode).toBe(true);
     expect(config.level).toBe(LogLevel.DEBUG);
     expect(config.logDir).toBe('/custom/logs');
-    expect(config.defaultMeta?.sessionId).toBe('session-123');
+    expect(config.defaultMeta?.['sessionId']).toBe('session-123');
   });
 
   it('should handle different log levels correctly', () => {

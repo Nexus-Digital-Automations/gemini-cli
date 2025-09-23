@@ -233,8 +233,8 @@ export function initializeTelemetry(config: Config): void {
     telemetryInitialized = true;
     initializeMetrics(config);
   } catch (error) {
-    const logger = createLogger('TelemetrySDK');
-    logger.error('Error starting OpenTelemetry SDK', error as Error);
+    const logger = getComponentLogger('TelemetrySDK');
+    logger.error('Error starting OpenTelemetry SDK', { error: error as Error });
   }
 
   process.on('SIGTERM', () => {
@@ -283,8 +283,8 @@ export async function shutdownTelemetry(config: Config): Promise<void> {
       logger.info('OpenTelemetry SDK shut down successfully.');
     }
   } catch (error) {
-    const logger = createLogger('TelemetrySDK');
-    logger.error('Error shutting down SDK', error as Error);
+    const logger = getComponentLogger('TelemetrySDK');
+    logger.error('Error shutting down SDK', { error: error as Error });
   } finally {
     telemetryInitialized = false;
   }
