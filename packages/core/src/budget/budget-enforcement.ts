@@ -14,9 +14,11 @@ export class BudgetExceededError extends Error {
   constructor(
     public requestCount: number,
     public dailyLimit: number,
-    public timeUntilReset: string
+    public timeUntilReset: string,
   ) {
-    super(`Daily budget exceeded: ${requestCount}/${dailyLimit} requests used. Reset in ${timeUntilReset}`);
+    super(
+      `Daily budget exceeded: ${requestCount}/${dailyLimit} requests used. Reset in ${timeUntilReset}`,
+    );
     this.name = 'BudgetExceededError';
   }
 }
@@ -55,7 +57,7 @@ export class BudgetEnforcement {
   constructor(
     projectRoot: string,
     settings: BudgetSettings,
-    options: BudgetEnforcementOptions = {}
+    options: BudgetEnforcementOptions = {},
   ) {
     this.tracker = new BudgetTracker(projectRoot, settings);
     this.options = options;
@@ -82,7 +84,7 @@ export class BudgetEnforcement {
       const error = new BudgetExceededError(
         stats.requestCount,
         stats.dailyLimit,
-        stats.timeUntilReset
+        stats.timeUntilReset,
       );
       return { allowed: false, error };
     }
@@ -201,18 +203,13 @@ export class BudgetEnforcement {
         console.warn(this.formatWarningMessage(check.warning));
       }
 
-      try {
-        // Make the API call
-        const result = await apiCall();
+      // Make the API call
+      const result = await apiCall();
 
-        // Record successful request
-        await this.recordSuccessfulRequest();
+      // Record successful request
+      await this.recordSuccessfulRequest();
 
-        return result;
-      } catch (error) {
-        // Don't record failed requests
-        throw error;
-      }
+      return result;
     };
   }
 }
@@ -223,7 +220,7 @@ export class BudgetEnforcement {
 export function createBudgetEnforcement(
   projectRoot: string,
   settings: BudgetSettings,
-  options: BudgetEnforcementOptions = {}
+  options: BudgetEnforcementOptions = {},
 ): BudgetEnforcement {
   return new BudgetEnforcement(projectRoot, settings, options);
 }
@@ -231,6 +228,8 @@ export function createBudgetEnforcement(
 /**
  * Utility function to check if an error is a budget exceeded error
  */
-export function isBudgetExceededError(error: unknown): error is BudgetExceededError {
+export function isBudgetExceededError(
+  error: unknown,
+): error is BudgetExceededError {
   return error instanceof BudgetExceededError;
 }

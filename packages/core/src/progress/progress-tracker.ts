@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { OperationType, ProgressState } from '../../../cli/src/ui/types.js';
 import type {
-  OperationType,
   OperationContext,
   OperationProgress,
   ProgressStep,
-  ProgressState,
   ProgressUpdate,
   ProgressInteraction,
 } from '../../../cli/src/ui/types.js';
@@ -360,7 +359,10 @@ export class ProgressTracker {
       return;
     }
 
-    const totalProgress = operation.steps.reduce((sum, step) => sum + (step.progress || 0), 0);
+    const totalProgress = operation.steps.reduce(
+      (sum, step) => sum + (step.progress || 0),
+      0,
+    );
 
     operation.overallProgress = Math.round(
       totalProgress / operation.steps.length,

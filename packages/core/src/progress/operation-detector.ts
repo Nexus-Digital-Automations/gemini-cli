@@ -4,10 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  OperationType,
-  OperationContext,
-} from '../../../cli/src/ui/types.js';
+import { OperationType } from '../../../cli/src/ui/types.js';
+import type { OperationContext } from '../../../cli/src/ui/types.js';
 
 export interface ToolCallInfo {
   name: string;
@@ -104,38 +102,38 @@ export class OperationDetector {
 
     switch (name) {
       case 'Read':
-        return `Reading ${this.getFileName(args.file_path as string)}`;
+        return `Reading ${this.getFileName(args['file_path'] as string)}`;
 
       case 'Write':
-        return `Writing ${this.getFileName(args.file_path as string)}`;
+        return `Writing ${this.getFileName(args['file_path'] as string)}`;
 
       case 'Edit':
-        return `Editing ${this.getFileName(args.file_path as string)}`;
+        return `Editing ${this.getFileName(args['file_path'] as string)}`;
 
       case 'MultiEdit': {
-        const editCount = (args.edits as unknown[])?.length || 1;
-        return `Making ${editCount} edits to ${this.getFileName(args.file_path as string)}`;
+        const editCount = (args['edits'] as unknown[])?.length || 1;
+        return `Making ${editCount} edits to ${this.getFileName(args['file_path'] as string)}`;
       }
 
       case 'Bash': {
-        const command = (args.command as string)?.split(' ')[0] || 'command';
+        const command = (args['command'] as string)?.split(' ')[0] || 'command';
         return `Running ${command}`;
       }
 
       case 'Glob':
-        return `Finding files matching "${args.pattern}"`;
+        return `Finding files matching "${args['pattern']}"`;
 
       case 'Grep':
-        return `Searching for "${args.pattern}"`;
+        return `Searching for "${args['pattern']}"`;
 
       case 'WebFetch':
-        return `Fetching ${this.getDomain(args.url as string)}`;
+        return `Fetching ${this.getDomain(args['url'] as string)}`;
 
       case 'WebSearch':
-        return `Searching for "${args.query}"`;
+        return `Searching for "${args['query']}"`;
 
       case 'Task':
-        return `Launching ${args.subagent_type} agent`;
+        return `Launching ${args['subagent_type']} agent`;
 
       default:
         return `Executing ${name}`;
@@ -151,21 +149,21 @@ export class OperationDetector {
     const { name, args } = toolCall;
     const files: string[] = [];
 
-    if (args.file_path && typeof args.file_path === 'string') {
-      files.push(args.file_path);
+    if (args['file_path'] && typeof args['file_path'] === 'string') {
+      files.push(args['file_path']);
     }
 
-    if (args.notebook_path && typeof args.notebook_path === 'string') {
-      files.push(args.notebook_path);
+    if (args['notebook_path'] && typeof args['notebook_path'] === 'string') {
+      files.push(args['notebook_path']);
     }
 
-    if (name === 'Glob' && args.pattern) {
+    if (name === 'Glob' && args['pattern']) {
       // For glob operations, we can't know the files ahead of time
       return undefined;
     }
 
-    if (name === 'Grep' && args.path && typeof args.path === 'string') {
-      files.push(args.path);
+    if (name === 'Grep' && args['path'] && typeof args['path'] === 'string') {
+      files.push(args['path']);
     }
 
     return files.length > 0 ? files : undefined;
@@ -190,12 +188,12 @@ export class OperationDetector {
         return 2000; // 2 seconds for writing/editing
 
       case 'MultiEdit': {
-        const editCount = (args.edits as unknown[])?.length || 1;
+        const editCount = (args['edits'] as unknown[])?.length || 1;
         return editCount * 500; // 500ms per edit
       }
 
       case 'Bash': {
-        const command = (args.command as string) || '';
+        const command = (args['command'] as string) || '';
         if (
           command.includes('npm install') ||
           command.includes('yarn install')
@@ -243,26 +241,26 @@ export class OperationDetector {
     const metadata: Record<string, unknown> = {};
 
     if (name === 'Bash') {
-      metadata.command = args.command;
-      metadata.hasTimeout = 'timeout' in args;
-      metadata.runInBackground = args.run_in_background === true;
+      metadata['command'] = args['command'];
+      metadata['hasTimeout'] = 'timeout' in args;
+      metadata['runInBackground'] = args['run_in_background'] === true;
     }
 
     if (name === 'Grep') {
-      metadata.pattern = args.pattern;
-      metadata.caseInsensitive = args['-i'] === true;
-      metadata.multiline = args.multiline === true;
-      metadata.outputMode = args.output_mode || 'files_with_matches';
+      metadata['pattern'] = args['pattern'];
+      metadata['caseInsensitive'] = args['-i'] === true;
+      metadata['multiline'] = args['multiline'] === true;
+      metadata['outputMode'] = args['output_mode'] || 'files_with_matches';
     }
 
     if (name === 'WebFetch' || name === 'WebSearch') {
-      metadata.url = args.url;
-      metadata.query = args.query;
+      metadata['url'] = args['url'];
+      metadata['query'] = args['query'];
     }
 
     if (name === 'Task') {
-      metadata.subagentType = args.subagent_type;
-      metadata.description = args.description;
+      metadata['subagentType'] = args['subagent_type'];
+      metadata['description'] = args['description'];
     }
 
     return metadata;
@@ -283,7 +281,7 @@ export class OperationDetector {
     ];
     return (
       fileOperations.includes(name) ||
-      (name === 'Bash' && this.isFileCommand(args.command as string))
+      (name === 'Bash' && this.isFileCommand(args['command'] as string))
     );
   }
 
@@ -294,7 +292,7 @@ export class OperationDetector {
     const networkOperations = ['WebFetch', 'WebSearch'];
     return (
       networkOperations.includes(name) ||
-      (name === 'Bash' && this.isNetworkCommand(args.command as string))
+      (name === 'Bash' && this.isNetworkCommand(args['command'] as string))
     );
   }
 
@@ -302,11 +300,11 @@ export class OperationDetector {
     name: string,
     args: Record<string, unknown>,
   ): boolean {
-    if (name === 'Grep' && this.isCodePattern(args.pattern as string)) {
+    if (name === 'Grep' && this.isCodePattern(args['pattern'] as string)) {
       return true;
     }
     return (
-      name === 'Bash' && this.isCodeAnalysisCommand(args.command as string)
+      name === 'Bash' && this.isCodeAnalysisCommand(args['command'] as string)
     );
   }
 
@@ -314,28 +312,28 @@ export class OperationDetector {
     name: string,
     args: Record<string, unknown>,
   ): boolean {
-    return name === 'Bash' && this.isBuildCommand(args.command as string);
+    return name === 'Bash' && this.isBuildCommand(args['command'] as string);
   }
 
   private static isTestOperation(
     name: string,
     args: Record<string, unknown>,
   ): boolean {
-    return name === 'Bash' && this.isTestCommand(args.command as string);
+    return name === 'Bash' && this.isTestCommand(args['command'] as string);
   }
 
   private static isGitOperation(
     name: string,
     args: Record<string, unknown>,
   ): boolean {
-    return name === 'Bash' && this.isGitCommand(args.command as string);
+    return name === 'Bash' && this.isGitCommand(args['command'] as string);
   }
 
   private static isPackageOperation(
     name: string,
     args: Record<string, unknown>,
   ): boolean {
-    return name === 'Bash' && this.isPackageCommand(args.command as string);
+    return name === 'Bash' && this.isPackageCommand(args['command'] as string);
   }
 
   private static isSearchOperation(
@@ -344,7 +342,7 @@ export class OperationDetector {
   ): boolean {
     return (
       ['Glob', 'Grep'].includes(name) ||
-      (name === 'Bash' && this.isSearchCommand(args.command as string))
+      (name === 'Bash' && this.isSearchCommand(args['command'] as string))
     );
   }
 

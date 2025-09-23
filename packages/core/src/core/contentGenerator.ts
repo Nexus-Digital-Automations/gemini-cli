@@ -20,7 +20,7 @@ import type { UserTierId } from '../code_assist/types.js';
 import { LoggingContentGenerator } from './loggingContentGenerator.js';
 import { InstallationManager } from '../utils/installationManager.js';
 import { createBudgetContentGenerator } from './budgetContentGenerator.js';
-import type { BudgetSettings } from '../../cli/src/config/settingsSchema.js';
+import type { BudgetSettings } from '../../../cli/src/config/settingsSchema.js';
 
 /**
  * Interface abstracting the core functionalities for generating content and counting tokens.
@@ -128,7 +128,11 @@ export async function createContentGenerator(
 
     // Wrap with budget enforcement if budget settings are provided and enabled
     if (budgetSettings?.enabled) {
-      return createBudgetContentGenerator(loggingGenerator, gcConfig, budgetSettings);
+      return createBudgetContentGenerator(
+        loggingGenerator,
+        gcConfig,
+        budgetSettings,
+      );
     }
 
     return loggingGenerator;
@@ -154,11 +158,18 @@ export async function createContentGenerator(
       vertexai: config.vertexai,
       httpOptions,
     });
-    const loggingGenerator = new LoggingContentGenerator(googleGenAI.models, gcConfig);
+    const loggingGenerator = new LoggingContentGenerator(
+      googleGenAI.models,
+      gcConfig,
+    );
 
     // Wrap with budget enforcement if budget settings are provided and enabled
     if (budgetSettings?.enabled) {
-      return createBudgetContentGenerator(loggingGenerator, gcConfig, budgetSettings);
+      return createBudgetContentGenerator(
+        loggingGenerator,
+        gcConfig,
+        budgetSettings,
+      );
     }
 
     return loggingGenerator;

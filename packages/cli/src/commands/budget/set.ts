@@ -13,7 +13,7 @@ interface SetCommandArgs {
   scope: 'user' | 'project';
 }
 
-export const setCommand: CommandModule<{}, SetCommandArgs> = {
+export const setCommand: CommandModule<object, SetCommandArgs> = {
   command: 'set <limit>',
   describe: 'Set the daily API request budget limit',
   builder: (yargs) =>
@@ -34,8 +34,14 @@ export const setCommand: CommandModule<{}, SetCommandArgs> = {
         default: 'project' as const,
       })
       .example('gemini budget set 200', 'Set daily limit to 200 requests')
-      .example('gemini budget set 100 --reset-time 06:00', 'Set limit to 100 requests, reset at 6 AM')
-      .example('gemini budget set 500 --scope user', 'Set user-level limit to 500 requests'),
+      .example(
+        'gemini budget set 100 --reset-time 06:00',
+        'Set limit to 100 requests, reset at 6 AM',
+      )
+      .example(
+        'gemini budget set 500 --scope user',
+        'Set user-level limit to 500 requests',
+      ),
 
   handler: async (args) => {
     const { limit, 'reset-time': resetTime, scope } = args;
@@ -47,7 +53,9 @@ export const setCommand: CommandModule<{}, SetCommandArgs> = {
     }
 
     if (limit === 0) {
-      console.error('Error: Budget limit cannot be zero. Use "gemini budget disable" to disable budget tracking.');
+      console.error(
+        'Error: Budget limit cannot be zero. Use "gemini budget disable" to disable budget tracking.',
+      );
       process.exit(1);
     }
 
@@ -55,7 +63,9 @@ export const setCommand: CommandModule<{}, SetCommandArgs> = {
     if (resetTime) {
       const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
       if (!timeRegex.test(resetTime)) {
-        console.error('Error: Reset time must be in HH:MM format (e.g., 06:00, 14:30).');
+        console.error(
+          'Error: Reset time must be in HH:MM format (e.g., 06:00, 14:30).',
+        );
         process.exit(1);
       }
     }
@@ -66,12 +76,13 @@ export const setCommand: CommandModule<{}, SetCommandArgs> = {
 
       if (scope === 'project' && inHome) {
         console.error(
-          'Error: Please use --scope user to edit settings in the home directory.'
+          'Error: Please use --scope user to edit settings in the home directory.',
         );
         process.exit(1);
       }
 
-      const settingsScope = scope === 'user' ? SettingScope.User : SettingScope.Workspace;
+      const settingsScope =
+        scope === 'user' ? SettingScope.User : SettingScope.Workspace;
 
       // Set the budget limit
       settings.setValue(settingsScope, 'budget.dailyLimit', limit);
@@ -96,7 +107,6 @@ export const setCommand: CommandModule<{}, SetCommandArgs> = {
       console.log(`   Budget tracking: enabled`);
       console.log('');
       console.log('Use "gemini budget get" to check your current usage.');
-
     } catch (error) {
       console.error('Error setting budget configuration:', error);
       process.exit(1);

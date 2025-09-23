@@ -12,9 +12,9 @@ interface ResetCommandArgs {
   confirm?: boolean;
 }
 
-export const resetCommand: CommandModule<{}, ResetCommandArgs> = {
+export const resetCommand: CommandModule<object, ResetCommandArgs> = {
   command: 'reset',
-  describe: 'Reset today\'s usage count to zero',
+  describe: "Reset today's usage count to zero",
   builder: (yargs) =>
     yargs
       .option('confirm', {
@@ -23,7 +23,10 @@ export const resetCommand: CommandModule<{}, ResetCommandArgs> = {
         default: false,
       })
       .example('gemini budget reset', 'Reset usage count with confirmation')
-      .example('gemini budget reset --confirm', 'Reset usage count without confirmation'),
+      .example(
+        'gemini budget reset --confirm',
+        'Reset usage count without confirmation',
+      ),
 
   handler: async (args) => {
     try {
@@ -35,7 +38,9 @@ export const resetCommand: CommandModule<{}, ResetCommandArgs> = {
 
       if (!tracker.isEnabled()) {
         console.log('Budget tracking is not enabled for this project.');
-        console.log('Use "gemini budget set <limit>" to enable budget tracking.');
+        console.log(
+          'Use "gemini budget set <limit>" to enable budget tracking.',
+        );
         return;
       }
 
@@ -49,7 +54,9 @@ export const resetCommand: CommandModule<{}, ResetCommandArgs> = {
 
       // Confirmation prompt (unless --confirm is used)
       if (!args.confirm) {
-        console.log(`Current usage: ${statsBefore.requestCount}/${statsBefore.dailyLimit} requests`);
+        console.log(
+          `Current usage: ${statsBefore.requestCount}/${statsBefore.dailyLimit} requests`,
+        );
         console.log('');
         console.log('⚠️  This will reset your usage count to zero for today.');
         console.log('Are you sure you want to continue? (y/N)');
@@ -69,7 +76,7 @@ export const resetCommand: CommandModule<{}, ResetCommandArgs> = {
             console.log('Reset cancelled.');
             return;
           }
-        } catch (error) {
+        } catch (_error) {
           rl.close();
           console.log('Reset cancelled.');
           return;
@@ -84,12 +91,15 @@ export const resetCommand: CommandModule<{}, ResetCommandArgs> = {
 
       console.log('✅ Budget reset successfully!');
       console.log('');
-      console.log(`   Before: ${statsBefore.requestCount}/${statsBefore.dailyLimit} requests used`);
-      console.log(`   After:  ${statsAfter.requestCount}/${statsAfter.dailyLimit} requests used`);
+      console.log(
+        `   Before: ${statsBefore.requestCount}/${statsBefore.dailyLimit} requests used`,
+      );
+      console.log(
+        `   After:  ${statsAfter.requestCount}/${statsAfter.dailyLimit} requests used`,
+      );
       console.log(`   Available: ${statsAfter.remainingRequests} requests`);
       console.log('');
       console.log('Your usage counter has been reset to zero for today.');
-
     } catch (error) {
       console.error('Error resetting budget:', error);
       process.exit(1);

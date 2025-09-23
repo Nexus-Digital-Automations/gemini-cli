@@ -6,7 +6,10 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BudgetSettings, BudgetUsageData } from '../../../cli/src/config/settingsSchema.js';
+import type {
+  BudgetSettings,
+  BudgetUsageData,
+} from '../../../cli/src/config/settingsSchema.js';
 
 /**
  * Core budget tracking functionality for managing daily API request limits.
@@ -27,7 +30,9 @@ export class BudgetTracker {
    * Check if budget tracking is enabled
    */
   isEnabled(): boolean {
-    return this.settings.enabled === true && (this.settings.dailyLimit ?? 0) > 0;
+    return (
+      this.settings.enabled === true && (this.settings.dailyLimit ?? 0) > 0
+    );
   }
 
   /**
@@ -96,7 +101,10 @@ export class BudgetTracker {
     const thresholds = this.settings.warningThresholds ?? [50, 75, 90];
 
     for (const threshold of thresholds.sort((a, b) => b - a)) {
-      if (usagePercentage >= threshold && !usageData.warningsShown.includes(threshold)) {
+      if (
+        usagePercentage >= threshold &&
+        !usageData.warningsShown.includes(threshold)
+      ) {
         // Mark this warning as shown
         usageData.warningsShown.push(threshold);
         await this.saveUsageData(usageData);
@@ -120,7 +128,8 @@ export class BudgetTracker {
     const usageData = await this.getCurrentUsageData();
     const dailyLimit = this.settings.dailyLimit ?? 0;
     const remainingRequests = Math.max(0, dailyLimit - usageData.requestCount);
-    const usagePercentage = dailyLimit > 0 ? (usageData.requestCount / dailyLimit) * 100 : 0;
+    const usagePercentage =
+      dailyLimit > 0 ? (usageData.requestCount / dailyLimit) * 100 : 0;
     const timeUntilReset = this.getTimeUntilReset();
 
     return {
@@ -176,7 +185,7 @@ export class BudgetTracker {
       }
 
       return usageData;
-    } catch (error) {
+    } catch (_error) {
       // File doesn't exist or is corrupted, create default
       return this.createDefaultUsageData();
     }
@@ -191,7 +200,10 @@ export class BudgetTracker {
       const dir = path.dirname(this.usageFilePath);
       await fs.mkdir(dir, { recursive: true });
 
-      await fs.writeFile(this.usageFilePath, JSON.stringify(usageData, null, 2));
+      await fs.writeFile(
+        this.usageFilePath,
+        JSON.stringify(usageData, null, 2),
+      );
     } catch (error) {
       console.warn('Failed to save budget usage data:', error);
     }
@@ -270,7 +282,7 @@ export class BudgetTracker {
  */
 export function createBudgetTracker(
   projectRoot: string,
-  settings: BudgetSettings
+  settings: BudgetSettings,
 ): BudgetTracker {
   return new BudgetTracker(projectRoot, settings);
 }

@@ -12,7 +12,7 @@ interface DisableCommandArgs {
   confirm?: boolean;
 }
 
-export const disableCommand: CommandModule<{}, DisableCommandArgs> = {
+export const disableCommand: CommandModule<object, DisableCommandArgs> = {
   command: 'disable',
   describe: 'Disable budget tracking',
   builder: (yargs) =>
@@ -27,9 +27,18 @@ export const disableCommand: CommandModule<{}, DisableCommandArgs> = {
         type: 'boolean',
         default: false,
       })
-      .example('gemini budget disable', 'Disable budget tracking for this project')
-      .example('gemini budget disable --scope user', 'Disable budget tracking globally')
-      .example('gemini budget disable --confirm', 'Disable without confirmation'),
+      .example(
+        'gemini budget disable',
+        'Disable budget tracking for this project',
+      )
+      .example(
+        'gemini budget disable --scope user',
+        'Disable budget tracking globally',
+      )
+      .example(
+        'gemini budget disable --confirm',
+        'Disable without confirmation',
+      ),
 
   handler: async (args) => {
     const { scope, confirm } = args;
@@ -40,12 +49,13 @@ export const disableCommand: CommandModule<{}, DisableCommandArgs> = {
 
       if (scope === 'project' && inHome) {
         console.error(
-          'Error: Please use --scope user to edit settings in the home directory.'
+          'Error: Please use --scope user to edit settings in the home directory.',
         );
         process.exit(1);
       }
 
-      const settingsScope = scope === 'user' ? SettingScope.User : SettingScope.Workspace;
+      const settingsScope =
+        scope === 'user' ? SettingScope.User : SettingScope.Workspace;
       const currentBudgetSettings = settings.merged.budget || {};
 
       // Check if already disabled
@@ -56,17 +66,23 @@ export const disableCommand: CommandModule<{}, DisableCommandArgs> = {
 
       // Confirmation prompt (unless --confirm is used)
       if (!confirm) {
-        console.log('⚠️  This will disable budget tracking and allow unlimited API requests.');
+        console.log(
+          '⚠️  This will disable budget tracking and allow unlimited API requests.',
+        );
         console.log('');
         console.log(`   Current settings (${scope} scope):`);
         if (currentBudgetSettings.dailyLimit) {
-          console.log(`   - Daily limit: ${currentBudgetSettings.dailyLimit} requests`);
+          console.log(
+            `   - Daily limit: ${currentBudgetSettings.dailyLimit} requests`,
+          );
         }
         if (currentBudgetSettings.resetTime) {
           console.log(`   - Reset time: ${currentBudgetSettings.resetTime}`);
         }
         console.log('');
-        console.log('These settings will be preserved but budget enforcement will be disabled.');
+        console.log(
+          'These settings will be preserved but budget enforcement will be disabled.',
+        );
         console.log('Are you sure you want to continue? (y/N)');
 
         // Simple confirmation logic
@@ -84,7 +100,7 @@ export const disableCommand: CommandModule<{}, DisableCommandArgs> = {
             console.log('Disable cancelled.');
             return;
           }
-        } catch (error) {
+        } catch (_error) {
           rl.close();
           console.log('Disable cancelled.');
           return;
@@ -102,10 +118,15 @@ export const disableCommand: CommandModule<{}, DisableCommandArgs> = {
       console.log(`   Scope: ${scope}`);
       console.log('   Status: Budget enforcement is now disabled');
       console.log('');
-      console.log('⚠️  API requests will no longer be limited by daily budget.');
-      console.log('💡 Use "gemini budget enable" to re-enable budget tracking.');
-      console.log('💡 Your budget settings have been preserved and will be restored when re-enabled.');
-
+      console.log(
+        '⚠️  API requests will no longer be limited by daily budget.',
+      );
+      console.log(
+        '💡 Use "gemini budget enable" to re-enable budget tracking.',
+      );
+      console.log(
+        '💡 Your budget settings have been preserved and will be restored when re-enabled.',
+      );
     } catch (error) {
       console.error('Error disabling budget tracking:', error);
       process.exit(1);

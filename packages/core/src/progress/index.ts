@@ -6,7 +6,5 @@
 
 export { ProgressTracker, globalProgressTracker } from './progress-tracker.js';
 export { OperationDetector } from './operation-detector.js';
-export type {
-  ProgressUpdateCallback,
-  ToolCallInfo,
-} from './progress-tracker.js';
+export type { ProgressUpdateCallback } from './progress-tracker.js';
+export type { ToolCallInfo } from './operation-detector.js';

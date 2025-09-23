@@ -9,33 +9,33 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 1,
+      "total_reinitializations": 2,
       "current_day": "2025-09-23",
       "time_buckets": {
-        "09:00-13:59": {
+        "07:00-11:59": {
           "init": 0,
           "reinit": 1
         },
-        "14:00-18:59": {
+        "12:00-16:59": {
           "init": 0,
           "reinit": 0
         },
-        "19:00-23:59": {
+        "17:00-21:59": {
           "init": 0,
           "reinit": 0
         },
-        "00:00-04:59": {
+        "22:00-02:59": {
           "init": 0,
           "reinit": 0
         },
-        "05:00-09:59": {
+        "03:00-07:59": {
           "init": 0,
           "reinit": 0
         }
       },
       "daily_history": [],
-      "last_reset": "2025-09-23T15:25:59.771Z",
-      "last_updated": "2025-09-23T15:25:59.771Z"
+      "last_reset": "2025-09-23T16:19:44.478Z",
+      "last_updated": "2025-09-23T16:19:44.478Z"
     }
   },
   "workflow_config": {
@@ -45,12 +45,14 @@
     "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
-    "BUDGET_AGENT": {
-      "lastHeartbeat": "2025-09-23T15:25:59.771Z",
+    "RECOVERY_AGENT": {
+      "lastHeartbeat": "2025-09-23T16:19:44.477Z",
       "status": "active",
-      "reinitialized": "2025-09-23T15:25:59.771Z",
-      "sessionId": "920fe99d8f7f8b11",
+      "reinitialized": "2025-09-23T16:19:44.477Z",
+      "sessionId": "dd83e1a76d3fb241",
       "previousSessions": []
     }
-  }
+  },
+  "tasks": [],
+  "completed_tasks": []
 }

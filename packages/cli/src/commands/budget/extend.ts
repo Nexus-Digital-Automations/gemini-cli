@@ -13,9 +13,9 @@ interface ExtendCommandArgs {
   confirm?: boolean;
 }
 
-export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
+export const extendCommand: CommandModule<object, ExtendCommandArgs> = {
   command: 'extend <amount>',
-  describe: 'Temporarily extend today\'s budget limit',
+  describe: "Temporarily extend today's budget limit",
   builder: (yargs) =>
     yargs
       .positional('amount', {
@@ -28,8 +28,11 @@ export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
         type: 'boolean',
         default: false,
       })
-      .example('gemini budget extend 50', 'Add 50 requests to today\'s limit')
-      .example('gemini budget extend 25 --confirm', 'Add 25 requests without confirmation'),
+      .example('gemini budget extend 50', "Add 50 requests to today's limit")
+      .example(
+        'gemini budget extend 25 --confirm',
+        'Add 25 requests without confirmation',
+      ),
 
   handler: async (args) => {
     const { amount, confirm } = args;
@@ -41,7 +44,9 @@ export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
     }
 
     if (amount > 1000) {
-      console.error('Error: Extension amount cannot exceed 1000 requests at once.');
+      console.error(
+        'Error: Extension amount cannot exceed 1000 requests at once.',
+      );
       process.exit(1);
     }
 
@@ -54,7 +59,9 @@ export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
 
       if (!tracker.isEnabled()) {
         console.log('Budget tracking is not enabled for this project.');
-        console.log('Use "gemini budget set <limit>" to enable budget tracking.');
+        console.log(
+          'Use "gemini budget set <limit>" to enable budget tracking.',
+        );
         return;
       }
 
@@ -64,13 +71,21 @@ export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
       // Confirmation prompt (unless --confirm is used)
       if (!confirm) {
         console.log(`Current limit: ${statsBefore.dailyLimit} requests`);
-        console.log(`Current usage: ${statsBefore.requestCount}/${statsBefore.dailyLimit} requests`);
+        console.log(
+          `Current usage: ${statsBefore.requestCount}/${statsBefore.dailyLimit} requests`,
+        );
         console.log(`Remaining: ${statsBefore.remainingRequests} requests`);
         console.log('');
-        console.log(`⚠️  This will temporarily add ${amount} requests to today's limit.`);
-        console.log(`New limit for today: ${statsBefore.dailyLimit + amount} requests`);
+        console.log(
+          `⚠️  This will temporarily add ${amount} requests to today's limit.`,
+        );
+        console.log(
+          `New limit for today: ${statsBefore.dailyLimit + amount} requests`,
+        );
         console.log('');
-        console.log('⚠️  Note: This extension only applies to today and will reset tomorrow.');
+        console.log(
+          '⚠️  Note: This extension only applies to today and will reset tomorrow.',
+        );
         console.log('Are you sure you want to continue? (y/N)');
 
         // Simple confirmation logic
@@ -88,7 +103,7 @@ export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
             console.log('Extension cancelled.');
             return;
           }
-        } catch (error) {
+        } catch (_error) {
           rl.close();
           console.log('Extension cancelled.');
           return;
@@ -104,14 +119,21 @@ export const extendCommand: CommandModule<{}, ExtendCommandArgs> = {
       console.log('✅ Budget extended successfully!');
       console.log('');
       console.log(`   Previous limit: ${statsBefore.dailyLimit} requests`);
-      console.log(`   New limit (today only): ${statsAfter.dailyLimit} requests`);
+      console.log(
+        `   New limit (today only): ${statsAfter.dailyLimit} requests`,
+      );
       console.log(`   Additional requests: +${amount} requests`);
-      console.log(`   Current usage: ${statsAfter.requestCount}/${statsAfter.dailyLimit} requests`);
+      console.log(
+        `   Current usage: ${statsAfter.requestCount}/${statsAfter.dailyLimit} requests`,
+      );
       console.log(`   Available now: ${statsAfter.remainingRequests} requests`);
       console.log('');
-      console.log('⏰ This extension applies only to today and will reset tomorrow.');
-      console.log('💡 To permanently change your limit, use "gemini budget set <limit>".');
-
+      console.log(
+        '⏰ This extension applies only to today and will reset tomorrow.',
+      );
+      console.log(
+        '💡 To permanently change your limit, use "gemini budget set <limit>".',
+      );
     } catch (error) {
       console.error('Error extending budget:', error);
       process.exit(1);

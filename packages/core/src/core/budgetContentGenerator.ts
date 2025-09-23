@@ -17,10 +17,9 @@ import type { Config } from '../config/config.js';
 import {
   BudgetEnforcement,
   BudgetExceededError,
-  isBudgetExceededError,
   type BudgetEnforcementOptions,
 } from '../budget/budget-enforcement.js';
-import type { BudgetSettings } from '../../cli/src/config/settingsSchema.js';
+import type { BudgetSettings } from '../../../cli/src/config/settingsSchema.js';
 
 /**
  * A decorator that wraps a ContentGenerator to add budget enforcement to API calls.
@@ -33,10 +32,14 @@ export class BudgetContentGenerator implements ContentGenerator {
     private readonly wrapped: ContentGenerator,
     private readonly config: Config,
     budgetSettings: BudgetSettings,
-    options: BudgetEnforcementOptions = {}
+    options: BudgetEnforcementOptions = {},
   ) {
     const projectRoot = config.getProjectRoot();
-    this.budgetEnforcement = new BudgetEnforcement(projectRoot, budgetSettings, options);
+    this.budgetEnforcement = new BudgetEnforcement(
+      projectRoot,
+      budgetSettings,
+      options,
+    );
   }
 
   getWrapped(): ContentGenerator {
@@ -82,18 +85,13 @@ export class BudgetContentGenerator implements ContentGenerator {
     // Check budget before making the request
     await this.checkAndEnforceBudget('generateContent');
 
-    try {
-      // Make the API call
-      const response = await this.wrapped.generateContent(req, userPromptId);
+    // Make the API call
+    const response = await this.wrapped.generateContent(req, userPromptId);
 
-      // Record successful request
-      await this.budgetEnforcement.recordSuccessfulRequest();
+    // Record successful request
+    await this.budgetEnforcement.recordSuccessfulRequest();
 
-      return response;
-    } catch (error) {
-      // Don't record failed requests in budget
-      throw error;
-    }
+    return response;
   }
 
   async generateContentStream(
@@ -103,39 +101,29 @@ export class BudgetContentGenerator implements ContentGenerator {
     // Check budget before making the request
     await this.checkAndEnforceBudget('generateContentStream');
 
-    try {
-      // Make the API call
-      const stream = await this.wrapped.generateContentStream(req, userPromptId);
+    // Make the API call
+    const stream = await this.wrapped.generateContentStream(req, userPromptId);
 
-      // Wrap the stream to record successful request when stream completes
-      return this.budgetStreamWrapper(stream);
-    } catch (error) {
-      // Don't record failed requests in budget
-      throw error;
-    }
+    // Wrap the stream to record successful request when stream completes
+    return this.budgetStreamWrapper(stream);
   }
 
   /**
    * Wrapper for content streams that records successful requests when stream completes
    */
   private async *budgetStreamWrapper(
-    stream: AsyncGenerator<GenerateContentResponse>
+    stream: AsyncGenerator<GenerateContentResponse>,
   ): AsyncGenerator<GenerateContentResponse> {
     let hasYieldedAnyResponse = false;
 
-    try {
-      for await (const response of stream) {
-        hasYieldedAnyResponse = true;
-        yield response;
-      }
+    for await (const response of stream) {
+      hasYieldedAnyResponse = true;
+      yield response;
+    }
 
-      // Record successful request only if we got at least one response
-      if (hasYieldedAnyResponse) {
-        await this.budgetEnforcement.recordSuccessfulRequest();
-      }
-    } catch (error) {
-      // Don't record failed requests in budget
-      throw error;
+    // Record successful request only if we got at least one response
+    if (hasYieldedAnyResponse) {
+      await this.budgetEnforcement.recordSuccessfulRequest();
     }
   }
 
@@ -144,22 +132,19 @@ export class BudgetContentGenerator implements ContentGenerator {
     return this.wrapped.countTokens(req);
   }
 
-  async embedContent(req: EmbedContentParameters): Promise<EmbedContentResponse> {
+  async embedContent(
+    req: EmbedContentParameters,
+  ): Promise<EmbedContentResponse> {
     // Check budget before making the request
     await this.checkAndEnforceBudget('embedContent');
 
-    try {
-      // Make the API call
-      const response = await this.wrapped.embedContent(req);
+    // Make the API call
+    const response = await this.wrapped.embedContent(req);
 
-      // Record successful request
-      await this.budgetEnforcement.recordSuccessfulRequest();
+    // Record successful request
+    await this.budgetEnforcement.recordSuccessfulRequest();
 
-      return response;
-    } catch (error) {
-      // Don't record failed requests in budget
-      throw error;
-    }
+    return response;
   }
 
   /**
@@ -174,19 +159,23 @@ export class BudgetContentGenerator implements ContentGenerator {
 
     // Show warnings if needed
     if (check.warning) {
-      const warningMessage = this.budgetEnforcement.formatWarningMessage(check.warning);
+      const warningMessage = this.budgetEnforcement.formatWarningMessage(
+        check.warning,
+      );
       console.warn(`\n⚠️  ${warningMessage}\n`);
     }
 
     // Block request if budget exceeded
     if (!check.allowed && check.error) {
-      const errorMessage = this.budgetEnforcement.formatBudgetExceededMessage(check.error);
+      const errorMessage = this.budgetEnforcement.formatBudgetExceededMessage(
+        check.error,
+      );
 
       // Create a more detailed error for the CLI
       const enhancedError = new BudgetExceededError(
         check.error.requestCount,
         check.error.dailyLimit,
-        check.error.timeUntilReset
+        check.error.timeUntilReset,
       );
 
       // Add context about the operation that was blocked
@@ -218,7 +207,7 @@ export function createBudgetContentGenerator(
   wrapped: ContentGenerator,
   config: Config,
   budgetSettings: BudgetSettings,
-  options: BudgetEnforcementOptions = {}
+  options: BudgetEnforcementOptions = {},
 ): BudgetContentGenerator {
   return new BudgetContentGenerator(wrapped, config, budgetSettings, options);
 }

@@ -12,7 +12,7 @@ interface GetCommandArgs {
   json?: boolean;
 }
 
-export const getCommand: CommandModule<{}, GetCommandArgs> = {
+export const getCommand: CommandModule<object, GetCommandArgs> = {
   command: 'get',
   describe: 'Show current budget status and usage',
   builder: (yargs) =>
@@ -35,15 +35,23 @@ export const getCommand: CommandModule<{}, GetCommandArgs> = {
 
       if (!tracker.isEnabled()) {
         if (args.json) {
-          console.log(JSON.stringify({
-            enabled: false,
-            message: 'Budget tracking is disabled'
-          }, null, 2));
+          console.log(
+            JSON.stringify(
+              {
+                enabled: false,
+                message: 'Budget tracking is disabled',
+              },
+              null,
+              2,
+            ),
+          );
         } else {
           console.log('📊 Budget Status: Disabled');
           console.log('');
           console.log('Budget tracking is not enabled for this project.');
-          console.log('Use "gemini budget set <limit>" to enable budget tracking.');
+          console.log(
+            'Use "gemini budget set <limit>" to enable budget tracking.',
+          );
         }
         return;
       }
@@ -52,15 +60,23 @@ export const getCommand: CommandModule<{}, GetCommandArgs> = {
       const budgetConfig = tracker.getBudgetSettings();
 
       if (args.json) {
-        console.log(JSON.stringify({
-          enabled: true,
-          ...stats,
-          settings: budgetConfig
-        }, null, 2));
+        console.log(
+          JSON.stringify(
+            {
+              enabled: true,
+              ...stats,
+              settings: budgetConfig,
+            },
+            null,
+            2,
+          ),
+        );
       } else {
         console.log('📊 Budget Status');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`   Status: ${tracker.isEnabled() ? '✅ Enabled' : '❌ Disabled'}`);
+        console.log(
+          `   Status: ${tracker.isEnabled() ? '✅ Enabled' : '❌ Disabled'}`,
+        );
         console.log(`   Daily Limit: ${stats.dailyLimit} requests`);
         console.log(`   Used Today: ${stats.requestCount} requests`);
         console.log(`   Remaining: ${stats.remainingRequests} requests`);
@@ -70,27 +86,35 @@ export const getCommand: CommandModule<{}, GetCommandArgs> = {
 
         // Progress bar
         const barLength = 30;
-        const filledLength = Math.round((stats.usagePercentage / 100) * barLength);
-        const bar = '█'.repeat(filledLength) + '░'.repeat(barLength - filledLength);
-        console.log(`   Progress: [${bar}] ${stats.usagePercentage.toFixed(1)}%`);
+        const filledLength = Math.round(
+          (stats.usagePercentage / 100) * barLength,
+        );
+        const bar =
+          '█'.repeat(filledLength) + '░'.repeat(barLength - filledLength);
+        console.log(
+          `   Progress: [${bar}] ${stats.usagePercentage.toFixed(1)}%`,
+        );
 
         // Status indicator
         console.log('');
         if (stats.remainingRequests === 0) {
           console.log('⚠️  Budget exceeded! No requests remaining today.');
-          console.log('   Use "gemini budget extend <amount>" to temporarily increase your limit.');
+          console.log(
+            '   Use "gemini budget extend <amount>" to temporarily increase your limit.',
+          );
         } else if (stats.usagePercentage >= 90) {
-          console.log('🔶 Warning: You\'re approaching your daily limit.');
+          console.log("🔶 Warning: You're approaching your daily limit.");
         } else if (stats.usagePercentage >= 75) {
-          console.log('💡 Notice: You\'ve used 75% of your daily budget.');
+          console.log("💡 Notice: You've used 75% of your daily budget.");
         } else {
-          console.log('✅ You\'re within your daily budget.');
+          console.log("✅ You're within your daily budget.");
         }
 
         console.log('');
-        console.log('💡 Tip: Use "gemini budget set <limit>" to adjust your daily limit.');
+        console.log(
+          '💡 Tip: Use "gemini budget set <limit>" to adjust your daily limit.',
+        );
       }
-
     } catch (error) {
       console.error('Error retrieving budget status:', error);
       process.exit(1);
