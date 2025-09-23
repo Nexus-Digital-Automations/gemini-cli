@@ -270,7 +270,7 @@ function formatIntermediateResult(result: unknown): string {
   if (typeof result === 'object' && result !== null) {
     const obj = result as Record<string, unknown>;
     if ('stepId' in obj && 'result' in obj) {
-      return formatIntermediateResult(obj.result);
+      return formatIntermediateResult(obj['result']);
     }
 
     const keys = Object.keys(obj);
