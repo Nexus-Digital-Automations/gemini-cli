@@ -166,8 +166,11 @@ describe('InputPrompt', () => {
       handleAutocomplete: vi.fn(),
       promptCompletion: {
         text: '',
+        isLoading: false,
+        isActive: false,
         accept: vi.fn(),
         clear: vi.fn(),
+        markSelected: vi.fn(),
       },
     };
     mockedUseCommandCompletion.mockReturnValue(mockCommandCompletion);

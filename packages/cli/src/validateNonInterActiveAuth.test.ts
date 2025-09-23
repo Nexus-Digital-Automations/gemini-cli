@@ -79,7 +79,7 @@ describe('validateNonInterActiveAuth', () => {
       getContentGeneratorConfig: vi
         .fn()
         .mockReturnValue({ authType: undefined }),
-    };
+    } as unknown as Config;
     try {
       await validateNonInteractiveAuth(
         undefined,

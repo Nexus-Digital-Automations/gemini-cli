@@ -5,7 +5,7 @@
  */
 
 import type React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
@@ -30,7 +30,6 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
   const { columns: terminalWidth } = useTerminalSize();
   const isNarrow = isNarrowWidth(terminalWidth);
   const [displayResults, setDisplayResults] = useState<FormattedResult[]>([]);
-  const scrollRef = useRef<HTMLElement>(null);
 
   // Convert operation intermediate results to formatted display results
   useEffect(() => {
@@ -41,10 +40,9 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
 
     setDisplayResults(formatted);
 
-    // Auto-scroll to bottom if enabled
-    if (autoScroll && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    // Note: Auto-scroll is not supported in Ink components
+    // Results are automatically shown in order
+    // autoScroll parameter is kept for API compatibility
   }, [operation.intermediateResults, maxResults, showTimestamps, autoScroll]);
 
   if (displayResults.length === 0) {
@@ -85,7 +83,7 @@ export const StreamingResults: React.FC<StreamingResultsProps> = ({
       </Box>
 
       {/* Results list */}
-      <Box flexDirection="column" ref={scrollRef}>
+      <Box flexDirection="column">
         {displayResults.map((result, index) => (
           <ResultItem
             key={`${result.stepId}-${index}`}
