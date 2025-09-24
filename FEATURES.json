@@ -59,12 +59,12 @@
     ],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 60,
+      "total_reinitializations": 62,
       "current_day": "2025-09-24",
       "time_buckets": {
         "08:00-12:59": {
           "init": 0,
-          "reinit": 5
+          "reinit": 7
         },
         "13:00-17:59": {
           "init": 0,
@@ -113,7 +113,7 @@
         }
       ],
       "last_reset": "2025-09-24T05:11:48.944Z",
-      "last_updated": "2025-09-24T16:42:03.963Z"
+      "last_updated": "2025-09-24T16:54:41.767Z"
     }
   },
   "workflow_config": {
@@ -123,13 +123,6 @@
     "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
-    "agent-continue": {
-      "lastHeartbeat": "2025-09-24T16:15:56.483Z",
-      "status": "active",
-      "reinitialized": "2025-09-24T16:15:56.483Z",
-      "sessionId": "f1781f9a8336f8ec",
-      "previousSessions": []
-    },
     "claude-agent": {
       "lastHeartbeat": "2025-09-24T16:39:26.553Z",
       "status": "active",
@@ -156,6 +149,20 @@
       "status": "active",
       "reinitialized": "2025-09-24T16:42:03.961Z",
       "sessionId": "5b29d453cf2fc5b5",
+      "previousSessions": []
+    },
+    "budget-settings-agent": {
+      "lastHeartbeat": "2025-09-24T16:49:14.661Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T16:49:14.661Z",
+      "sessionId": "8273c1e8f16100a7",
+      "previousSessions": []
+    },
+    "AGENT_VALIDATION_001": {
+      "lastHeartbeat": "2025-09-24T16:54:41.761Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T16:54:41.761Z",
+      "sessionId": "857d2016ba0e4f8b",
       "previousSessions": []
     }
   },

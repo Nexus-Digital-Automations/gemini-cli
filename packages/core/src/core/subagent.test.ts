@@ -56,16 +56,18 @@ async function createMockConfig(
     ...configParameters,
   };
   const config = new Config(configParams);
-  await config.initialize();
 
-  // Mock ToolRegistry
+  // Mock ToolRegistry BEFORE initializing config
   const mockToolRegistry = {
     getTool: vi.fn(),
+    getFunctionDeclarations: vi.fn().mockReturnValue([]),
     getFunctionDeclarationsFiltered: vi.fn().mockReturnValue([]),
     ...toolRegistryMocks,
   } as unknown as ToolRegistry;
 
   vi.spyOn(config, 'getToolRegistry').mockReturnValue(mockToolRegistry);
+
+  await config.initialize();
   return { config, toolRegistry: mockToolRegistry };
 }
 
