@@ -39,6 +39,8 @@ describe('FileDiscoveryService', () => {
       await createTestFile('.gitignore', 'node_modules/');
 
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
+
       // Let's check the effect of the parser instead of mocking it.
       expect(service.shouldGitIgnoreFile('node_modules/foo.js')).toBe(true);
       expect(service.shouldGitIgnoreFile('src/foo.js')).toBe(false);
@@ -48,6 +50,7 @@ describe('FileDiscoveryService', () => {
       // No .git directory
       await createTestFile('.gitignore', 'node_modules/');
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       // .gitignore is not loaded in non-git repos
       expect(service.shouldGitIgnoreFile('node_modules/foo.js')).toBe(false);
@@ -56,6 +59,7 @@ describe('FileDiscoveryService', () => {
     it('should load .geminiignore patterns even when not in a git repo', async () => {
       await createTestFile('.geminiignore', 'secrets.txt');
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(service.shouldGeminiIgnoreFile('secrets.txt')).toBe(true);
       expect(service.shouldGeminiIgnoreFile('src/index.js')).toBe(false);
@@ -69,7 +73,7 @@ describe('FileDiscoveryService', () => {
       await createTestFile('.geminiignore', 'logs/');
     });
 
-    it('should filter out git-ignored and gemini-ignored files by default', () => {
+    it('should filter out git-ignored and gemini-ignored files by default', async () => {
       const files = [
         'src/index.ts',
         'node_modules/package/index.js',
@@ -80,13 +84,14 @@ describe('FileDiscoveryService', () => {
       ].map((f) => path.join(projectRoot, f));
 
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(service.filterFiles(files)).toEqual(
         ['src/index.ts', 'README.md'].map((f) => path.join(projectRoot, f)),
       );
     });
 
-    it('should not filter files when respectGitIgnore is false', () => {
+    it('should not filter files when respectGitIgnore is false', async () => {
       const files = [
         'src/index.ts',
         'node_modules/package/index.js',
@@ -95,6 +100,7 @@ describe('FileDiscoveryService', () => {
       ].map((f) => path.join(projectRoot, f));
 
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       const filtered = service.filterFiles(files, {
         respectGitIgnore: false,
@@ -108,7 +114,7 @@ describe('FileDiscoveryService', () => {
       );
     });
 
-    it('should not filter files when respectGeminiIgnore is false', () => {
+    it('should not filter files when respectGeminiIgnore is false', async () => {
       const files = [
         'src/index.ts',
         'node_modules/package/index.js',
@@ -116,6 +122,7 @@ describe('FileDiscoveryService', () => {
       ].map((f) => path.join(projectRoot, f));
 
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       const filtered = service.filterFiles(files, {
         respectGitIgnore: true,
@@ -129,8 +136,9 @@ describe('FileDiscoveryService', () => {
       );
     });
 
-    it('should handle empty file list', () => {
+    it('should handle empty file list', async () => {
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(service.filterFiles([])).toEqual([]);
     });
@@ -143,8 +151,9 @@ describe('FileDiscoveryService', () => {
       await createTestFile('.geminiignore', '*.log');
     });
 
-    it('should return true for git-ignored files', () => {
+    it('should return true for git-ignored files', async () => {
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(
         service.shouldGitIgnoreFile(
@@ -153,24 +162,27 @@ describe('FileDiscoveryService', () => {
       ).toBe(true);
     });
 
-    it('should return false for non-git-ignored files', () => {
+    it('should return false for non-git-ignored files', async () => {
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(
         service.shouldGitIgnoreFile(path.join(projectRoot, 'src/index.ts')),
       ).toBe(false);
     });
 
-    it('should return true for gemini-ignored files', () => {
+    it('should return true for gemini-ignored files', async () => {
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(
         service.shouldGeminiIgnoreFile(path.join(projectRoot, 'debug.log')),
       ).toBe(true);
     });
 
-    it('should return false for non-gemini-ignored files', () => {
+    it('should return false for non-gemini-ignored files', async () => {
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       expect(
         service.shouldGeminiIgnoreFile(path.join(projectRoot, 'src/index.ts')),
@@ -185,6 +197,7 @@ describe('FileDiscoveryService', () => {
       const service = new FileDiscoveryService(
         path.relative(process.cwd(), projectRoot),
       );
+      await service.initialize(); // Initialize the service before using it
 
       expect(
         service.shouldGitIgnoreFile(path.join(projectRoot, 'ignored.txt')),
@@ -198,6 +211,7 @@ describe('FileDiscoveryService', () => {
       await fs.mkdir(path.join(projectRoot, '.git'));
       await createTestFile('.gitignore', 'ignored.txt');
       const service = new FileDiscoveryService(projectRoot);
+      await service.initialize(); // Initialize the service before using it
 
       const files = ['src/index.ts', 'ignored.txt'].map((f) =>
         path.join(projectRoot, f),

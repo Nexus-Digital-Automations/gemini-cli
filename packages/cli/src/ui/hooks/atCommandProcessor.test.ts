@@ -49,11 +49,15 @@ describe('handleAtCommand', () => {
 
     const getToolRegistry = vi.fn();
 
+    // Create and initialize FileDiscoveryService
+    const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+    await fileDiscoveryService.initialize();
+
     mockConfig = {
       getToolRegistry,
       getTargetDir: () => testRootDir,
       isSandboxed: () => false,
-      getFileService: () => new FileDiscoveryService(testRootDir),
+      getFileService: () => fileDiscoveryService,
       getFileFilteringRespectGitIgnore: () => true,
       getFileFilteringRespectGeminiIgnore: () => true,
       getFileFilteringOptions: () => ({
@@ -416,6 +420,11 @@ describe('handleAtCommand', () => {
       await fsPromises.mkdir(path.join(testRootDir, '.git'), {
         recursive: true,
       });
+
+      // Re-initialize FileDiscoveryService after creating .git directory
+      const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+      await fileDiscoveryService.initialize();
+      mockConfig.getFileService = () => fileDiscoveryService;
     });
 
     it('should skip git-ignored files in @ commands', async () => {
@@ -579,6 +588,13 @@ describe('handleAtCommand', () => {
   });
 
   describe('gemini-ignore filtering', () => {
+    beforeEach(async () => {
+      // Re-initialize FileDiscoveryService for gemini-ignore tests
+      const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+      await fileDiscoveryService.initialize();
+      mockConfig.getFileService = () => fileDiscoveryService;
+    });
+
     it('should skip gemini-ignored files in @ commands', async () => {
       await createTestFile(
         path.join(testRootDir, '.geminiignore'),

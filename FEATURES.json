@@ -1,15 +1,61 @@
 {
   "project": "gemini-cli",
-  "features": [],
+  "features": [
+    {
+      "id": "feature_1758679903715_9ab34090405a",
+      "title": "Fix git-aware filtering test failures in atCommandProcessor.test.ts",
+      "description": "Fix failing tests: should skip git-ignored files in @ commands, should handle mixed git-ignored and valid files, should always ignore .git directory files. The tests are failing due to expectation mismatches in the processedQuery output structure.",
+      "business_value": "Ensures proper functionality of git-aware file filtering in @ commands, preventing users from accessing git-ignored files when they should be excluded",
+      "category": "bug-fix",
+      "status": "approved",
+      "created_at": "2025-09-24T02:11:43.716Z",
+      "updated_at": "2025-09-24T02:12:02.534Z",
+      "suggested_by": "system",
+      "metadata": {},
+      "approved_by": "test-validation-coordinator",
+      "approval_date": "2025-09-24T02:12:02.535Z",
+      "approval_notes": "Critical test failures must be fixed to achieve project perfection"
+    },
+    {
+      "id": "feature_1758679912165_b31c9dbb74e5",
+      "title": "Fix gemini-ignore filtering test failures in atCommandProcessor.test.ts",
+      "description": "Fix failing tests: should skip gemini-ignored files in @ commands, should handle mixed gemini-ignored and valid files. The tests are failing due to expectation mismatches in the processedQuery output structure when gemini-ignored files should be excluded.",
+      "business_value": "Ensures proper functionality of gemini-ignore file filtering in @ commands, preventing users from accessing gemini-ignored files when they should be excluded",
+      "category": "bug-fix",
+      "status": "approved",
+      "created_at": "2025-09-24T02:11:52.165Z",
+      "updated_at": "2025-09-24T02:12:10.297Z",
+      "suggested_by": "system",
+      "metadata": {},
+      "approved_by": "test-validation-coordinator",
+      "approval_date": "2025-09-24T02:12:10.300Z",
+      "approval_notes": "Critical test failures must be fixed to achieve project perfection"
+    }
+  ],
   "metadata": {
     "version": "1.0.0",
     "created": "2025-09-23T15:25:59.770Z",
-    "updated": "2025-09-23T15:25:59.770Z",
-    "total_features": 0,
-    "approval_history": [],
+    "updated": "2025-09-24T02:12:10.300Z",
+    "total_features": 2,
+    "approval_history": [
+      {
+        "feature_id": "feature_1758679903715_9ab34090405a",
+        "action": "approved",
+        "timestamp": "2025-09-24T02:12:02.535Z",
+        "approved_by": "test-validation-coordinator",
+        "notes": "Critical test failures must be fixed to achieve project perfection"
+      },
+      {
+        "feature_id": "feature_1758679912165_b31c9dbb74e5",
+        "action": "approved",
+        "timestamp": "2025-09-24T02:12:10.300Z",
+        "approved_by": "test-validation-coordinator",
+        "notes": "Critical test failures must be fixed to achieve project perfection"
+      }
+    ],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 34,
+      "total_reinitializations": 39,
       "current_day": "2025-09-24",
       "time_buckets": {
         "07:00-11:59": {
@@ -22,11 +68,11 @@
         },
         "17:00-21:59": {
           "init": 0,
-          "reinit": 2
+          "reinit": 6
         },
         "22:00-02:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 1
         },
         "03:00-07:59": {
           "init": 0,
@@ -63,7 +109,7 @@
         }
       ],
       "last_reset": "2025-09-24T01:54:29.451Z",
-      "last_updated": "2025-09-24T01:55:33.112Z"
+      "last_updated": "2025-09-24T04:14:02.432Z"
     }
   },
   "workflow_config": {
@@ -73,46 +119,46 @@
     "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
-    "FILE_OPS_OPTIMIZER": {
-      "lastHeartbeat": "2025-09-23T23:28:52.833Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:28:52.833Z",
-      "sessionId": "454b6dfdba84c0d9",
-      "previousSessions": []
-    },
-    "AGENT_MAIN": {
-      "lastHeartbeat": "2025-09-23T23:34:50.968Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:34:50.968Z",
-      "sessionId": "b90863f7594273b9",
-      "previousSessions": []
-    },
-    "CLI_INFINITE_AGENT_003": {
-      "lastHeartbeat": "2025-09-23T23:43:21.217Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:43:21.217Z",
-      "sessionId": "382e52edcf6e97a7",
-      "previousSessions": []
-    },
-    "SANDBOX_INVESTIGATION_AGENT": {
-      "lastHeartbeat": "2025-09-23T23:47:08.435Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:47:08.435Z",
-      "sessionId": "101576e357f7c7ff",
-      "previousSessions": []
-    },
     "MAIN_AGENT": {
-      "lastHeartbeat": "2025-09-24T01:54:29.443Z",
+      "lastHeartbeat": "2025-09-24T04:14:02.426Z",
       "status": "active",
-      "reinitialized": "2025-09-24T01:54:29.443Z",
-      "sessionId": "7ae97ed2ea509d83",
-      "previousSessions": []
+      "reinitialized": "2025-09-24T04:14:02.426Z",
+      "sessionId": "b1af05042b299999",
+      "previousSessions": ["7ae97ed2ea509d83"]
     },
     "doc-validation-agent": {
       "lastHeartbeat": "2025-09-24T01:55:33.105Z",
       "status": "active",
       "reinitialized": "2025-09-24T01:55:33.105Z",
       "sessionId": "5d196780ff069a0e",
+      "previousSessions": []
+    },
+    "VALIDATION_AGENT": {
+      "lastHeartbeat": "2025-09-24T02:03:05.743Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T02:03:05.743Z",
+      "sessionId": "d1943a6787176073",
+      "previousSessions": []
+    },
+    "configuration-test-fix-agent": {
+      "lastHeartbeat": "2025-09-24T02:07:26.119Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T02:07:26.119Z",
+      "sessionId": "1daccc7286c64ecf",
+      "previousSessions": []
+    },
+    "test-validation-coordinator": {
+      "lastHeartbeat": "2025-09-24T02:07:26.179Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T02:07:26.179Z",
+      "sessionId": "bbc39d19d298f686",
+      "previousSessions": []
+    },
+    "ui-test-fix-agent": {
+      "lastHeartbeat": "2025-09-24T02:07:28.815Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T02:07:28.815Z",
+      "sessionId": "f37c3da04db82e0b",
       "previousSessions": []
     }
   },

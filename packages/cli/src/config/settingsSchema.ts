@@ -573,13 +573,20 @@ const SETTINGS_SCHEMA = {
     showInDialog: false,
     properties: {
       name: {
-        type: 'string',
+        type: 'enum',
         label: 'Model',
         category: 'Model',
         requiresRestart: false,
-        default: undefined as string | undefined,
-        description: 'The Gemini model to use for conversations.',
-        showInDialog: false,
+        default: 'auto',
+        description:
+          'The Gemini model to use for conversations. Auto enables intelligent model selection based on task complexity.',
+        showInDialog: true,
+        options: [
+          { value: 'auto', label: 'Auto (Smart Selection)' },
+          { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+          { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+          { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
+        ],
       },
       maxSessionTurns: {
         type: 'number',
@@ -1092,13 +1099,13 @@ const SETTINGS_SCHEMA = {
       },
       useModelRouter: {
         type: 'boolean',
-        label: 'Use Model Router',
-        category: 'Experimental',
+        label: 'Enable Smart Model Routing',
+        category: 'Model',
         requiresRestart: true,
-        default: false,
+        default: true,
         description:
-          'Enable model routing to route requests to the best model based on complexity.',
-        showInDialog: false,
+          'Enable AI-powered model routing to automatically select the best model based on task complexity. Required for Auto model selection to work.',
+        showInDialog: true,
       },
     },
   },
