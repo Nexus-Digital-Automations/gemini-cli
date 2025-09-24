@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/** Default Gemini Pro model for high-quality conversations */
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
+/** Default Gemini Flash model for fast, cost-effective conversations (Flash-first approach) */
+export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
 /** Default Gemini Flash model for faster, cost-effective conversations */
 export const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
 /** Default Gemini Flash Lite model for ultra-fast, minimal cost conversations */

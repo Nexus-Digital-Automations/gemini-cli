@@ -88,6 +88,17 @@ When ALL criteria met, agent MUST authorize stop using:
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" authorize-stop [AGENT_ID] "All TodoWrite tasks complete and project perfect: linter✅ build✅ start✅ tests✅"
 ```
 
+**VALIDATION BEFORE AUTHORIZATION:**
+
+- Run all available scripts: `npm run lint`, `npm run typecheck`, `npm run build`, `npm run start`, `npm test`
+- Verify TodoWrite tasks completed and FEATURES.json approved features implemented
+- Confirm codebase functions as expected
+
+**STOP AUTHORIZATION EFFECTS:**
+
+- Creates `.stop-allowed` file for single-use authorization
+- Next stop hook trigger allows termination, then returns to infinite mode
+
 **FORBIDDEN SCENARIOS:**
 
 - ❌ ANY approved features incomplete
@@ -96,6 +107,9 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 - ❌ ANY build failures (if build script exists)
 - ❌ ANY runtime/start errors (if start script exists)
 - ❌ ANY test failures or inadequate coverage (if tests exist)
+- ❌ AUTHORIZATION WITHOUT VALIDATION - Never authorize without running all applicable validation commands
+- ❌ UNCOMMITTED CHANGES - Never authorize with uncommitted work
+- ❌ PARTIAL FEATURE IMPLEMENTATION - Never authorize with incomplete approved features
 
 **IMMEDIATE ACTION PROTOCOL:**
 

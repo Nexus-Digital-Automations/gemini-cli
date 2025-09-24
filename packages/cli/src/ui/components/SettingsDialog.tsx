@@ -404,7 +404,7 @@ export function SettingsDialog({
   let showScopeSelection = true;
 
   // If we have limited height, prioritize showing more settings over scope selection
-  if (availableTerminalHeight && availableTerminalHeight < 25) {
+  if (availableTerminalHeight && availableTerminalHeight < 8) {
     // For very limited height, hide scope selection to show more settings
     const totalWithScope = totalFixedHeight + SCOPE_SELECTION_HEIGHT;
     const availableWithScope = Math.max(
@@ -436,8 +436,8 @@ export function SettingsDialog({
   }
 
   // Use the calculated maxVisibleItems or fall back to the original maxItemsToShow
-  // Ensure we show at least 25 items to guarantee Model settings visibility (positions 20-22)
-  const minRequiredItems = 25;
+  // Ensure we show at least 8 items to guarantee Model settings visibility (positions 20-22)
+  const minRequiredItems = 8;
   const effectiveMaxItemsToShow = availableTerminalHeight
     ? Math.max(minRequiredItems, Math.min(maxVisibleItems, items.length))
     : maxItemsToShow;
