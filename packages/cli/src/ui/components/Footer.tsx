@@ -101,6 +101,13 @@ export const Footer: React.FC<FooterProps> = ({
   showBudgetStatus = true,
   sandboxConfig,
 }) => {
+  console.log('[DEBUG] Footer - sandboxConfig:', sandboxConfig);
+  console.log('[DEBUG] Footer - process.env.SANDBOX:', process.env['SANDBOX']);
+  console.log(
+    '[DEBUG] Footer - process.env.SEATBELT_PROFILE:',
+    process.env['SEATBELT_PROFILE'],
+  );
+
   const { columns: terminalWidth } = useTerminalSize();
 
   const isNarrow = isNarrowWidth(terminalWidth);

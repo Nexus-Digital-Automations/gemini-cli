@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 1,
+      "total_reinitializations": 3,
       "current_day": "2025-09-23",
       "time_buckets": {
         "07:00-11:59": {
@@ -22,7 +22,7 @@
         },
         "17:00-21:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 2
         },
         "22:00-02:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-23T20:07:35.399Z",
-      "last_updated": "2025-09-23T20:07:35.399Z"
+      "last_updated": "2025-09-23T23:56:06.496Z"
     }
   },
   "workflow_config": {
@@ -50,6 +50,20 @@
       "status": "active",
       "reinitialized": "2025-09-23T20:07:35.393Z",
       "sessionId": "85de41cdcbaa0796",
+      "previousSessions": []
+    },
+    "COMPREHENSIVE_CODEBASE_AGENT": {
+      "lastHeartbeat": "2025-09-23T23:53:35.416Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T23:53:35.416Z",
+      "sessionId": "2195a2e897b8bea2",
+      "previousSessions": []
+    },
+    "SANDBOX_DEBUG_FINAL": {
+      "lastHeartbeat": "2025-09-23T23:56:06.492Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T23:56:06.492Z",
+      "sessionId": "8ef0cfb9d57f27a6",
       "previousSessions": []
     }
   }

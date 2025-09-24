@@ -9,20 +9,20 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 29,
-      "current_day": "2025-09-23",
+      "total_reinitializations": 34,
+      "current_day": "2025-09-24",
       "time_buckets": {
         "07:00-11:59": {
           "init": 0,
-          "reinit": 2
+          "reinit": 0
         },
         "12:00-16:59": {
           "init": 0,
-          "reinit": 14
+          "reinit": 0
         },
         "17:00-21:59": {
           "init": 0,
-          "reinit": 12
+          "reinit": 2
         },
         "22:00-02:59": {
           "init": 0,
@@ -33,9 +33,37 @@
           "reinit": 0
         }
       },
-      "daily_history": [],
-      "last_reset": "2025-09-23T16:19:44.478Z",
-      "last_updated": "2025-09-23T23:28:52.840Z"
+      "daily_history": [
+        {
+          "date": "2025-09-23",
+          "total_init": 0,
+          "total_reinit": 31,
+          "buckets": {
+            "07:00-11:59": {
+              "init": 0,
+              "reinit": 2
+            },
+            "12:00-16:59": {
+              "init": 0,
+              "reinit": 14
+            },
+            "17:00-21:59": {
+              "init": 0,
+              "reinit": 15
+            },
+            "22:00-02:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "03:00-07:59": {
+              "init": 0,
+              "reinit": 0
+            }
+          }
+        }
+      ],
+      "last_reset": "2025-09-24T01:54:29.451Z",
+      "last_updated": "2025-09-24T01:55:33.112Z"
     }
   },
   "workflow_config": {
@@ -45,39 +73,46 @@
     "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
-    "SANDBOX_DEBUG_AGENT_001": {
-      "lastHeartbeat": "2025-09-23T22:59:27.572Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T22:59:27.572Z",
-      "sessionId": "4b03226e14b76ba4",
-      "previousSessions": []
-    },
-    "CLI_LOGGING_REFACTOR": {
-      "lastHeartbeat": "2025-09-23T23:05:22.768Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:05:22.768Z",
-      "sessionId": "fccc0f986691f83e",
-      "previousSessions": []
-    },
-    "refactoring-agent": {
-      "lastHeartbeat": "2025-09-23T23:05:22.822Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:05:22.822Z",
-      "sessionId": "fa1ad04bd24669b7",
-      "previousSessions": []
-    },
-    "agent-console-replacement": {
-      "lastHeartbeat": "2025-09-23T23:05:23.232Z",
-      "status": "active",
-      "reinitialized": "2025-09-23T23:05:23.232Z",
-      "sessionId": "ea355705a3dcb144",
-      "previousSessions": []
-    },
     "FILE_OPS_OPTIMIZER": {
       "lastHeartbeat": "2025-09-23T23:28:52.833Z",
       "status": "active",
       "reinitialized": "2025-09-23T23:28:52.833Z",
       "sessionId": "454b6dfdba84c0d9",
+      "previousSessions": []
+    },
+    "AGENT_MAIN": {
+      "lastHeartbeat": "2025-09-23T23:34:50.968Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T23:34:50.968Z",
+      "sessionId": "b90863f7594273b9",
+      "previousSessions": []
+    },
+    "CLI_INFINITE_AGENT_003": {
+      "lastHeartbeat": "2025-09-23T23:43:21.217Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T23:43:21.217Z",
+      "sessionId": "382e52edcf6e97a7",
+      "previousSessions": []
+    },
+    "SANDBOX_INVESTIGATION_AGENT": {
+      "lastHeartbeat": "2025-09-23T23:47:08.435Z",
+      "status": "active",
+      "reinitialized": "2025-09-23T23:47:08.435Z",
+      "sessionId": "101576e357f7c7ff",
+      "previousSessions": []
+    },
+    "MAIN_AGENT": {
+      "lastHeartbeat": "2025-09-24T01:54:29.443Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T01:54:29.443Z",
+      "sessionId": "7ae97ed2ea509d83",
+      "previousSessions": []
+    },
+    "doc-validation-agent": {
+      "lastHeartbeat": "2025-09-24T01:55:33.105Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T01:55:33.105Z",
+      "sessionId": "5d196780ff069a0e",
       "previousSessions": []
     }
   },

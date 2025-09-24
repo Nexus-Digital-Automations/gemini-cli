@@ -95,6 +95,23 @@ export async function loadSandboxConfig(
   const sandboxOption = argv.sandbox ?? settings.tools?.sandbox;
   const command = getSandboxCommand(sandboxOption);
 
+  // If we're already inside a sandbox, create a config based on the environment
+  if (process.env['SANDBOX']) {
+    const sandboxEnv = process.env['SANDBOX'];
+    const command =
+      sandboxEnv === 'sandbox-exec'
+        ? 'sandbox-exec'
+        : isSandboxCommand(sandboxEnv)
+          ? sandboxEnv
+          : 'docker'; // fallback to docker if invalid command
+
+    const result = {
+      command,
+      image: command === 'sandbox-exec' ? undefined : sandboxEnv,
+    };
+    return result;
+  }
+
   if (!command) {
     return undefined;
   }

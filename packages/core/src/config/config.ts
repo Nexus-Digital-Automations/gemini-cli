@@ -304,8 +304,8 @@ export enum AuthProviderType {
 export interface SandboxConfig {
   /** Sandboxing technology to use (Docker, Podman, or macOS sandbox-exec) */
   command: 'docker' | 'podman' | 'sandbox-exec';
-  /** Container image name or sandbox profile to use */
-  image: string;
+  /** Container image name or sandbox profile to use (undefined for sandbox-exec) */
+  image: string | undefined;
 }
 
 /**
@@ -900,6 +900,7 @@ export class Config {
   }
 
   getSandbox(): SandboxConfig | undefined {
+    console.log('[DEBUG] Config.getSandbox() returning:', this.sandbox);
     return this.sandbox;
   }
 
