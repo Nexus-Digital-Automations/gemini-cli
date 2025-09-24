@@ -55,7 +55,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 53,
+      "total_reinitializations": 54,
       "current_day": "2025-09-24",
       "time_buckets": {
         "08:00-12:59": {
@@ -72,7 +72,7 @@
         },
         "23:00-03:59": {
           "init": 0,
-          "reinit": 9
+          "reinit": 10
         },
         "04:00-08:59": {
           "init": 0,
@@ -109,7 +109,7 @@
         }
       ],
       "last_reset": "2025-09-24T05:11:48.944Z",
-      "last_updated": "2025-09-24T05:39:31.178Z"
+      "last_updated": "2025-09-24T05:45:02.038Z"
     }
   },
   "workflow_config": {
@@ -120,52 +120,18 @@
   },
   "agents": {
     "claude-agent": {
-      "lastHeartbeat": "2025-09-24T05:37:40.651Z",
+      "lastHeartbeat": "2025-09-24T05:45:02.036Z",
       "status": "active",
-      "reinitialized": "2025-09-24T05:37:40.651Z",
-      "sessionId": "69d11593c19b7454",
+      "reinitialized": "2025-09-24T05:45:02.036Z",
+      "sessionId": "91b3834bb905bcc4",
       "previousSessions": [
         "557e433bc7a62ce4",
         "b9df7b50c36cba9a",
         "29309dfbde588a8e",
         "45e8795a39337a5a",
-        "ead62b05240c878f"
+        "ead62b05240c878f",
+        "69d11593c19b7454"
       ]
-    },
-    "claude-code-main-agent-001": {
-      "lastHeartbeat": "2025-09-24T05:11:48.933Z",
-      "status": "active",
-      "reinitialized": "2025-09-24T05:11:48.933Z",
-      "sessionId": "e06f769b43a3eb5f",
-      "previousSessions": []
-    },
-    "TEST_VALIDATION_AGENT": {
-      "lastHeartbeat": "2025-09-24T05:13:17.603Z",
-      "status": "active",
-      "reinitialized": "2025-09-24T05:13:17.603Z",
-      "sessionId": "307534c25beaaece",
-      "previousSessions": []
-    },
-    "fix-implementation-agent": {
-      "lastHeartbeat": "2025-09-24T05:13:18.377Z",
-      "status": "active",
-      "reinitialized": "2025-09-24T05:13:18.377Z",
-      "sessionId": "ff2d66a01a0b5c1a",
-      "previousSessions": []
-    },
-    "TEST_ANALYSIS_AGENT": {
-      "lastHeartbeat": "2025-09-24T05:13:23.164Z",
-      "status": "active",
-      "reinitialized": "2025-09-24T05:13:23.164Z",
-      "sessionId": "6a1d701aba4acfdb",
-      "previousSessions": []
-    },
-    "CODE_INVESTIGATION_AGENT": {
-      "lastHeartbeat": "2025-09-24T05:13:23.418Z",
-      "status": "active",
-      "reinitialized": "2025-09-24T05:13:23.418Z",
-      "sessionId": "d82d252d9291902a",
-      "previousSessions": []
     },
     "Agent-5": {
       "lastHeartbeat": "2025-09-24T05:39:31.176Z",
