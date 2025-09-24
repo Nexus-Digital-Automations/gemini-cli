@@ -22,6 +22,50 @@ exports[`SettingsDialog > Snapshot Tests > should render default state correctly
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
 │                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    false                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
+│                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
 │                                                                                                  │
@@ -56,6 +100,50 @@ exports[`SettingsDialog > Snapshot Tests > should render focused on scope select
 │   Hide Tips                                            false                                     │
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
+│                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    false                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
 │                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
@@ -92,6 +180,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with accessibility sett
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
 │                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    true*                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    true*                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              true*                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   true*                                     │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
+│                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
 │                                                                                                  │
@@ -126,6 +258,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with all boolean settin
 │   Hide Tips                                            false*                                    │
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
+│                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    false*                                    │
+│                                                                                                  │
+│   Show Line Numbers                                    false*                                    │
+│                                                                                                  │
+│   Show Citations                                       false*                                    │
+│                                                                                                  │
+│   Disable Loading Phrases                              false*                                    │
+│                                                                                                  │
+│   Screen Reader Mode                                   false*                                    │
+│                                                                                                  │
+│   IDE Mode                                             false*                                    │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false*                                    │
+│                                                                                                  │
+│   Respect .gitignore                                   false*                                    │
+│                                                                                                  │
+│   Respect .geminiignore                                false*                                    │
+│                                                                                                  │
+│   Enable Recursive File Search                         false*                                    │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false*                                    │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false*                                    │
 │                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
@@ -162,6 +338,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with different scope se
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
 │                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage (Modified in System)               false                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
+│                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
 │                                                                                                  │
@@ -196,6 +416,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with different scope se
 │   Hide Tips                                            false                                     │
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
+│                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    false                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
 │                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
@@ -232,6 +496,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with file filtering set
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
 │                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    false                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            100*                                      │
+│                                                                                                  │
+│   Load Memory From Include Directories                 true*                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   false*                                    │
+│                                                                                                  │
+│   Respect .geminiignore                                true*                                     │
+│                                                                                                  │
+│   Enable Recursive File Search                         false*                                    │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 true*                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
+│                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
 │                                                                                                  │
@@ -266,6 +574,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with mixed boolean and 
 │   Hide Tips                                            false                                     │
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
+│                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    true*                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    100*                                      │
+│                                                                                                  │
+│   Skip Next Speaker Check                              false*                                    │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            500*                                      │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false                                     │
 │                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
@@ -302,6 +654,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with tools and security
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
 │                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    false                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    false                                     │
+│                                                                                                  │
+│   Show Citations                                       false                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              false                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   undefined                                 │
+│                                                                                                  │
+│   IDE Mode                                             false                                     │
+│                                                                                                  │
+│   Max Session Turns                                    50*                                       │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true*                                     │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 false                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true                                      │
+│                                                                                                  │
+│   Respect .geminiignore                                true                                      │
+│                                                                                                  │
+│   Enable Recursive File Search                         true                                      │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false                                     │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          false*                                    │
+│                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
 │                                                                                                  │
@@ -336,6 +732,50 @@ exports[`SettingsDialog > Snapshot Tests > should render with various boolean se
 │   Hide Tips                                            true*                                     │
 │                                                                                                  │
 │   Hide Banner                                          false                                     │
+│                                                                                                  │
+│   Hide Context Summary                                 false                                     │
+│                                                                                                  │
+│   Hide CWD                                             false                                     │
+│                                                                                                  │
+│   Hide Sandbox Status                                  false                                     │
+│                                                                                                  │
+│   Hide Model Info                                      false                                     │
+│                                                                                                  │
+│   Hide Footer                                          false                                     │
+│                                                                                                  │
+│   Show Memory Usage                                    true*                                     │
+│                                                                                                  │
+│   Show Line Numbers                                    true*                                     │
+│                                                                                                  │
+│   Show Citations                                       true*                                     │
+│                                                                                                  │
+│   Disable Loading Phrases                              true*                                     │
+│                                                                                                  │
+│   Screen Reader Mode                                   true*                                     │
+│                                                                                                  │
+│   IDE Mode                                             true*                                     │
+│                                                                                                  │
+│   Max Session Turns                                    -1                                        │
+│                                                                                                  │
+│   Skip Next Speaker Check                              true                                      │
+│                                                                                                  │
+│   Memory Discovery Max Dirs                            200                                       │
+│                                                                                                  │
+│   Load Memory From Include Directories                 true*                                     │
+│                                                                                                  │
+│   Respect .gitignore                                   true*                                     │
+│                                                                                                  │
+│   Respect .geminiignore                                true*                                     │
+│                                                                                                  │
+│   Enable Recursive File Search                         true*                                     │
+│                                                                                                  │
+│   Disable Fuzzy Search                                 false*                                    │
+│                                                                                                  │
+│   Enable Interactive Shell                             false                                     │
+│                                                                                                  │
+│   Show Color                                           false                                     │
+│                                                                                                  │
+│   Auto Accept                                          true*                                     │
 │                                                                                                  │
 │ ▼                                                                                                │
 │                                                                                                  │
