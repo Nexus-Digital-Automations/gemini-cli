@@ -9,33 +9,61 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 3,
-      "current_day": "2025-09-23",
+      "total_reinitializations": 4,
+      "current_day": "2025-09-24",
       "time_buckets": {
-        "07:00-11:59": {
+        "08:00-12:59": {
           "init": 0,
           "reinit": 0
         },
-        "12:00-16:59": {
+        "13:00-17:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "18:00-22:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "23:00-03:59": {
           "init": 0,
           "reinit": 1
         },
-        "17:00-21:59": {
-          "init": 0,
-          "reinit": 2
-        },
-        "22:00-02:59": {
-          "init": 0,
-          "reinit": 0
-        },
-        "03:00-07:59": {
+        "04:00-08:59": {
           "init": 0,
           "reinit": 0
         }
       },
-      "daily_history": [],
-      "last_reset": "2025-09-23T20:07:35.399Z",
-      "last_updated": "2025-09-23T23:56:06.496Z"
+      "daily_history": [
+        {
+          "date": "2025-09-23",
+          "total_init": 0,
+          "total_reinit": 3,
+          "buckets": {
+            "07:00-11:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "12:00-16:59": {
+              "init": 0,
+              "reinit": 1
+            },
+            "17:00-21:59": {
+              "init": 0,
+              "reinit": 2
+            },
+            "22:00-02:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "03:00-07:59": {
+              "init": 0,
+              "reinit": 0
+            }
+          }
+        }
+      ],
+      "last_reset": "2025-09-24T05:58:13.302Z",
+      "last_updated": "2025-09-24T05:58:13.302Z"
     }
   },
   "workflow_config": {
@@ -64,6 +92,13 @@
       "status": "active",
       "reinitialized": "2025-09-23T23:56:06.492Z",
       "sessionId": "8ef0cfb9d57f27a6",
+      "previousSessions": []
+    },
+    "agent-continue": {
+      "lastHeartbeat": "2025-09-24T05:58:13.301Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T05:58:13.301Z",
+      "sessionId": "239003ad87a2d57a",
       "previousSessions": []
     }
   }
