@@ -627,6 +627,76 @@ const SETTINGS_SCHEMA = {
         description: 'Skip the next speaker check.',
         showInDialog: true,
       },
+      flashFirst: {
+        type: 'object',
+        label: 'Flash-First Smart Routing',
+        category: 'Model',
+        requiresRestart: false,
+        default: {},
+        description:
+          'Settings for Flash-first smart model routing that defaults to cost-effective Flash model and escalates to Pro only when necessary.',
+        showInDialog: false,
+        properties: {
+          enabled: {
+            type: 'boolean',
+            label: 'Enable Flash-First Mode',
+            category: 'Model',
+            requiresRestart: false,
+            default: true,
+            description:
+              'Enable Flash-first routing that defaults to gemini-2.5-flash and escalates to gemini-2.5-pro only when Flash fails or is inadequate.',
+            showInDialog: true,
+          },
+          failureThreshold: {
+            type: 'number',
+            label: 'Failure Escalation Threshold',
+            category: 'Model',
+            requiresRestart: false,
+            default: 2,
+            description:
+              'Number of Flash model failures before automatically escalating similar requests to Pro model.',
+            showInDialog: true,
+          },
+          timeoutThreshold: {
+            type: 'number',
+            label: 'Timeout Threshold (ms)',
+            category: 'Model',
+            requiresRestart: false,
+            default: 30000,
+            description:
+              'Maximum time in milliseconds to wait for Flash model before considering it too slow (30 seconds default).',
+            showInDialog: true,
+          },
+          enableSessionMemory: {
+            type: 'boolean',
+            label: 'Remember Escalation Decisions',
+            category: 'Model',
+            requiresRestart: false,
+            default: true,
+            description:
+              'Remember escalation patterns during the session to avoid repeated Flash failures for similar requests.',
+            showInDialog: true,
+          },
+          complexityBias: {
+            type: 'enum',
+            label: 'Complexity Classification Bias',
+            category: 'Model',
+            requiresRestart: false,
+            default: 'flash-first',
+            description:
+              'How aggressively to favor Flash model in complexity classification.',
+            showInDialog: true,
+            options: [
+              {
+                value: 'flash-first',
+                label: 'Flash-First (Aggressive Cost Savings)',
+              },
+              { value: 'balanced', label: 'Balanced' },
+              { value: 'quality-first', label: 'Quality-First (Conservative)' },
+            ],
+          },
+        },
+      },
     },
   },
 

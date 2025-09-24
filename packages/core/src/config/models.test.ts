@@ -16,7 +16,7 @@ describe('getEffectiveModel', () => {
   describe('When NOT in fallback mode', () => {
     const isInFallbackMode = false;
 
-    it('should return the Pro model when Pro is requested', () => {
+    it('should return the default Flash model when default is requested', () => {
       const model = getEffectiveModel(isInFallbackMode, DEFAULT_GEMINI_MODEL);
       expect(model).toBe(DEFAULT_GEMINI_MODEL);
     });
@@ -47,7 +47,7 @@ describe('getEffectiveModel', () => {
   describe('When IN fallback mode', () => {
     const isInFallbackMode = true;
 
-    it('should downgrade the Pro model to the Flash model', () => {
+    it('should return the default Flash model when default is requested', () => {
       const model = getEffectiveModel(isInFallbackMode, DEFAULT_GEMINI_MODEL);
       expect(model).toBe(DEFAULT_GEMINI_FLASH_MODEL);
     });

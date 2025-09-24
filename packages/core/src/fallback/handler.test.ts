@@ -17,10 +17,7 @@ import {
 import { handleFallback } from './handler.js';
 import type { Config } from '../config/config.js';
 import { AuthType } from '../core/contentGenerator.js';
-import {
-  DEFAULT_GEMINI_FLASH_MODEL,
-  DEFAULT_GEMINI_MODEL,
-} from '../config/models.js';
+import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 import { logFlashFallback } from '../telemetry/index.js';
 import type { FallbackModelHandler } from './types.js';
 
@@ -30,7 +27,7 @@ vi.mock('../telemetry/index.js', () => ({
   FlashFallbackEvent: class {},
 }));
 
-const MOCK_PRO_MODEL = DEFAULT_GEMINI_MODEL;
+const MOCK_PRO_MODEL = 'gemini-2.5-pro'; // Use actual Pro model for testing fallback
 const FALLBACK_MODEL = DEFAULT_GEMINI_FLASH_MODEL;
 const AUTH_OAUTH = AuthType.LOGIN_WITH_GOOGLE;
 const AUTH_API_KEY = AuthType.USE_GEMINI;

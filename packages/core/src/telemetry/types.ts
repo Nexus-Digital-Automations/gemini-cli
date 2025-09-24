@@ -561,6 +561,35 @@ export class ModelRoutingEvent implements BaseTelemetryEvent {
   }
 }
 
+export class FlashEscalationEvent implements BaseTelemetryEvent {
+  'event.name': 'flash_escalation';
+  'event.timestamp': string;
+  request_hash: string;
+  failure_count: number;
+  escalation_reason: string;
+  threshold_reached: boolean;
+  session_memory_enabled: boolean;
+  time_since_last_failure_ms?: number;
+
+  constructor(
+    request_hash: string,
+    failure_count: number,
+    escalation_reason: string,
+    threshold_reached: boolean,
+    session_memory_enabled: boolean,
+    time_since_last_failure_ms?: number,
+  ) {
+    this['event.name'] = 'flash_escalation';
+    this['event.timestamp'] = new Date().toISOString();
+    this.request_hash = request_hash;
+    this.failure_count = failure_count;
+    this.escalation_reason = escalation_reason;
+    this.threshold_reached = threshold_reached;
+    this.session_memory_enabled = session_memory_enabled;
+    this.time_since_last_failure_ms = time_since_last_failure_ms;
+  }
+}
+
 export type TelemetryEvent =
   | StartSessionEvent
   | EndSessionEvent
@@ -586,6 +615,7 @@ export type TelemetryEvent =
   | ExtensionInstallEvent
   | ExtensionUninstallEvent
   | ModelRoutingEvent
+  | FlashEscalationEvent
   | ToolOutputTruncatedEvent;
 
 export class ExtensionInstallEvent implements BaseTelemetryEvent {

@@ -41,6 +41,9 @@ export const METRIC_CONTENT_RETRY_COUNT = 'gemini_cli.chat.content_retry.count';
 export const METRIC_CONTENT_RETRY_FAILURE_COUNT =
   'gemini_cli.chat.content_retry_failure.count';
 export const EVENT_MODEL_ROUTING = 'gemini_cli.model_routing';
+export const EVENT_FLASH_ESCALATION = 'gemini_cli.flash_escalation';
 export const METRIC_MODEL_ROUTING_LATENCY = 'gemini_cli.model_routing.latency';
 export const METRIC_MODEL_ROUTING_FAILURE_COUNT =
   'gemini_cli.model_routing.failure.count';
+export const METRIC_FLASH_ESCALATION_COUNT =
+  'gemini_cli.flash_escalation.count';

@@ -14,6 +14,8 @@ import type {
 // Models are imported as string literals to avoid dependencies
 import { getComponentLogger } from '../../utils/logger.js';
 import type { PartListUnion } from '@google/genai';
+import { FlashEscalationEvent } from '../../telemetry/types.js';
+import { logFlashEscalation } from '../../telemetry/loggers.js';
 
 /**
  * Configuration options for failure escalation behavior.
@@ -134,6 +136,17 @@ export class FailureEscalationStrategy implements RoutingStrategy {
           failureCount: pattern.failureCount,
           lastFailure: pattern.lastFailure,
         });
+
+        // Log telemetry for Flash escalation
+        const escalationEvent = new FlashEscalationEvent(
+          requestHash,
+          pattern.failureCount,
+          'threshold_reached',
+          true,
+          this.config.enableSessionMemory,
+          Date.now() - pattern.lastFailure,
+        );
+        logFlashEscalation(_config, escalationEvent);
 
         return {
           model: 'gemini-2.5-pro', // Escalate to Pro model for failed Flash patterns

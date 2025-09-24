@@ -31,6 +31,7 @@ import {
   EVENT_FILE_OPERATION,
   EVENT_RIPGREP_FALLBACK,
   EVENT_MODEL_ROUTING,
+  EVENT_FLASH_ESCALATION,
   EVENT_EXTENSION_INSTALL,
 } from './constants.js';
 import type {
@@ -57,6 +58,7 @@ import type {
   RipgrepFallbackEvent,
   ToolOutputTruncatedEvent,
   ModelRoutingEvent,
+  FlashEscalationEvent,
   ExtensionEnableEvent,
   ExtensionUninstallEvent,
   ExtensionInstallEvent,
@@ -696,6 +698,27 @@ export function logModelRouting(
   };
   logger.emit(logRecord);
   recordModelRoutingMetrics(config, event);
+}
+
+export function logFlashEscalation(
+  config: Config,
+  event: FlashEscalationEvent,
+): void {
+  // ClearcutLogger.getInstance(config)?.logFlashEscalationEvent(event);
+  if (!isTelemetrySdkInitialized()) return;
+
+  const attributes: LogAttributes = {
+    ...getCommonAttributes(config),
+    ...event,
+    'event.name': EVENT_FLASH_ESCALATION,
+  };
+
+  const logger = logs.getLogger(SERVICE_NAME);
+  const logRecord: LogRecord = {
+    body: `Flash escalation to Pro model. Reason: ${event.escalation_reason}, Failures: ${event.failure_count}`,
+    attributes,
+  };
+  logger.emit(logRecord);
 }
 
 export function logExtensionInstallEvent(
