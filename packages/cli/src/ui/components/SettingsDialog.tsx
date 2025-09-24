@@ -45,7 +45,7 @@ interface SettingsDialogProps {
   availableTerminalHeight?: number;
 }
 
-const maxItemsToShow = 8;
+const maxItemsToShow = 25; // Increased to show Model settings (positions 20-22) by default
 
 export function SettingsDialog({
   settings,

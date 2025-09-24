@@ -55,7 +55,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 40,
+      "total_reinitializations": 42,
       "current_day": "2025-09-24",
       "time_buckets": {
         "07:00-11:59": {
@@ -72,7 +72,7 @@
         },
         "22:00-02:59": {
           "init": 0,
-          "reinit": 2
+          "reinit": 4
         },
         "03:00-07:59": {
           "init": 0,
@@ -109,7 +109,7 @@
         }
       ],
       "last_reset": "2025-09-24T01:54:29.451Z",
-      "last_updated": "2025-09-24T04:21:21.710Z"
+      "last_updated": "2025-09-24T04:40:54.417Z"
     }
   },
   "workflow_config": {
@@ -131,6 +131,20 @@
       "status": "active",
       "reinitialized": "2025-09-24T04:21:21.709Z",
       "sessionId": "ebaceaff8fe6d1ae",
+      "previousSessions": []
+    },
+    "claude-agent": {
+      "lastHeartbeat": "2025-09-24T04:39:51.514Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T04:39:51.514Z",
+      "sessionId": "557e433bc7a62ce4",
+      "previousSessions": []
+    },
+    "SETTINGS_UI_INVESTIGATOR": {
+      "lastHeartbeat": "2025-09-24T04:40:54.403Z",
+      "status": "active",
+      "reinitialized": "2025-09-24T04:40:54.403Z",
+      "sessionId": "26c0d9987cc9b303",
       "previousSessions": []
     }
   },
