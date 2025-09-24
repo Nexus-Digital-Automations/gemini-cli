@@ -45,7 +45,7 @@ interface SettingsDialogProps {
   availableTerminalHeight?: number;
 }
 
-const maxItemsToShow = 25; // Increased to show Model settings (positions 20-22) by default
+const maxItemsToShow = 30; // Ensure Model settings (positions 20-22) are always visible
 
 export function SettingsDialog({
   settings,
@@ -436,8 +436,10 @@ export function SettingsDialog({
   }
 
   // Use the calculated maxVisibleItems or fall back to the original maxItemsToShow
+  // Ensure we show at least 25 items to guarantee Model settings visibility (positions 20-22)
+  const minRequiredItems = 25;
   const effectiveMaxItemsToShow = availableTerminalHeight
-    ? Math.min(maxVisibleItems, items.length)
+    ? Math.max(minRequiredItems, Math.min(maxVisibleItems, items.length))
     : maxItemsToShow;
 
   // Ensure focus stays on settings when scope selection is hidden
