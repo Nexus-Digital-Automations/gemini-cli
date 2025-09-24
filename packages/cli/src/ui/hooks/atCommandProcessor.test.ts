@@ -600,6 +600,12 @@ describe('handleAtCommand', () => {
         path.join(testRootDir, '.geminiignore'),
         'build/output.js',
       );
+
+      // Re-initialize FileDiscoveryService after creating .geminiignore
+      const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+      await fileDiscoveryService.initialize();
+      mockConfig.getFileService = () => fileDiscoveryService;
+
       const geminiIgnoredFile = await createTestFile(
         path.join(testRootDir, 'build', 'output.js'),
         'console.log("Hello");',
@@ -664,6 +670,12 @@ describe('handleAtCommand', () => {
       path.join(testRootDir, '.geminiignore'),
       'dist/bundle.js',
     );
+
+    // Re-initialize FileDiscoveryService after creating .geminiignore
+    const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+    await fileDiscoveryService.initialize();
+    mockConfig.getFileService = () => fileDiscoveryService;
+
     const validFile = await createTestFile(
       path.join(testRootDir, 'src', 'main.ts'),
       '// Main application entry',
