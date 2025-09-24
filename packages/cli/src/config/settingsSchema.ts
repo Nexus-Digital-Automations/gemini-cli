@@ -1187,7 +1187,7 @@ const SETTINGS_SCHEMA = {
     requiresRestart: false,
     default: {},
     description: 'Daily usage budget settings for API requests.',
-    showInDialog: false,
+    showInDialog: true,
     properties: {
       enabled: {
         type: 'boolean',
