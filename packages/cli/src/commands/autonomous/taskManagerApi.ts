@@ -23,7 +23,7 @@ const API_TIMEOUT = 10000; // 10 seconds
 
 export interface TaskManagerResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   message?: string;
 }
@@ -133,7 +133,9 @@ export async function suggestFeature(
 /**
  * List features with optional filtering
  */
-export async function listFeatures(filter?: any): Promise<TaskManagerResponse> {
+export async function listFeatures(
+  filter?: Record<string, unknown>,
+): Promise<TaskManagerResponse> {
   const filterArg = filter
     ? `"${JSON.stringify(filter).replace(/"/g, '\\"')}"`
     : '';
@@ -145,7 +147,7 @@ export async function listFeatures(filter?: any): Promise<TaskManagerResponse> {
  */
 export async function approveFeature(
   featureId: string,
-  approvalData?: any,
+  approvalData?: Record<string, unknown>,
 ): Promise<TaskManagerResponse> {
   const approvalArg = approvalData
     ? `"${JSON.stringify(approvalData).replace(/"/g, '\\"')}"`
@@ -160,7 +162,7 @@ export async function approveFeature(
  */
 export async function rejectFeature(
   featureId: string,
-  rejectionData?: any,
+  rejectionData?: Record<string, unknown>,
 ): Promise<TaskManagerResponse> {
   const rejectionArg = rejectionData
     ? `"${JSON.stringify(rejectionData).replace(/"/g, '\\"')}"`
@@ -279,7 +281,9 @@ export function handleApiFallback(
 /**
  * Convert autonomous task to TaskManager feature suggestion
  */
-export function convertTaskToFeature(task: any): FeatureSuggestion {
+export function convertTaskToFeature(
+  task: Record<string, unknown>,
+): FeatureSuggestion {
   // Map task categories to TaskManager feature categories
   const categoryMap: Record<string, FeatureSuggestion['category']> = {
     FEATURE: 'new-feature',

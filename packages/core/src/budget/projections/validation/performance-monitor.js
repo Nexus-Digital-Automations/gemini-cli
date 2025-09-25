@@ -5,6 +5,7 @@
  */
 
 import { Logger } from '../../utils/logger.js';
+import os from 'node:os';
 /**
  * Performance monitoring and benchmarking system
  * Tracks algorithm performance over time and detects degradation
@@ -115,8 +116,8 @@ export class PerformanceMonitor {
     const environment = {
       nodeVersion: process.version,
       platform: `${process.platform} ${process.arch}`,
-      totalMemory: Math.round(require('node:os').totalmem() / 1024 / 1024), // MB
-      cpuCount: require('node:os').cpus().length,
+      totalMemory: Math.round(os.totalmem() / 1024 / 1024), // MB
+      cpuCount: os.cpus().length,
     };
     // Warm-up runs
     for (let i = 0; i < 3; i++) {
@@ -601,6 +602,10 @@ export class PerformanceMonitor {
           break;
         case 'percentage_change':
           // This would require baseline comparison - simplified for now
+          shouldTrigger = false;
+          break;
+        default:
+          this.logger.warn(`Unknown threshold operator: ${alert.threshold.operator}`);
           shouldTrigger = false;
           break;
       }

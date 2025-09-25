@@ -17,6 +17,7 @@
 import { EventEmitter } from 'node:events';
 import { promisify } from 'node:util';
 import { exec } from 'node:child_process';
+import os from 'node:os';
 const execAsync = promisify(exec);
 /**
  * Comprehensive system monitoring and alerting service
@@ -244,7 +245,7 @@ export class SystemMonitor extends EventEmitter {
                 uptime,
                 cpu: {
                     usage: Math.min(100, cpuPercentage),
-                    cores: require('node:os').cpus().length,
+                    cores: os.cpus().length,
                 },
                 memory: {
                     used: memUsage.heapUsed,
@@ -366,10 +367,10 @@ export class SystemMonitor extends EventEmitter {
         catch (error) {
             // Fallback for non-macOS systems
             try {
-                const os = require('node:os');
+                // os already imported at top
                 return os.totalmem();
             }
-            catch {
+            catch (_error) {
                 return 8 * 1024 * 1024 * 1024; // 8GB default
             }
         }

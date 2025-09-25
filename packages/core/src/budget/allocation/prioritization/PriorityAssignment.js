@@ -211,7 +211,7 @@ export class PriorityAssignment {
      * @param performanceData - Recent performance data
      * @returns Updated priority assignment
      */
-    updatePriority(resourceId, contextChanges, performanceData) {
+    updatePriority(resourceId, contextChanges, _performanceData) {
         this.logger.info(`Updating priority for resource ${resourceId}`, {
             contextChanges,
         });
@@ -235,7 +235,7 @@ export class PriorityAssignment {
      */
     applyBusinessRules(candidate) {
         const appliedRules = [];
-        let totalRuleWeight = 0;
+        let _totalRuleWeight = 0;
         let totalRuleConfidence = 0;
         // Process mandatory rules first
         for (const rule of this.config.businessRules.mandatory) {
@@ -243,7 +243,7 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                totalRuleWeight += rule.priority;
+                _totalRuleWeight += rule.priority;
                 totalRuleConfidence += 1.0; // Mandatory rules have full confidence
             }
         }
@@ -253,7 +253,7 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                totalRuleWeight += rule.priority;
+                _totalRuleWeight += rule.priority;
                 totalRuleConfidence += 0.8; // Conditional rules have lower confidence
             }
         }
@@ -263,7 +263,7 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                totalRuleWeight += rule.priority;
+                _totalRuleWeight += rule.priority;
                 totalRuleConfidence += 0.6; // Priority rules have lowest confidence
             }
         }
@@ -478,6 +478,10 @@ export class PriorityAssignment {
             case 'deferred':
                 maxAllocation = baseConstraints.maxAllocation * 0.5;
                 break;
+            default:
+                // Handle unknown priority levels - use normal constraints
+                console.warn(`Unknown priority level: ${assignedPriority}`);
+                break;
         }
         return {
             ...baseConstraints,
@@ -503,6 +507,11 @@ export class PriorityAssignment {
                 break;
             case 'weekly':
                 now.setDate(now.getDate() + 7);
+                break;
+            default:
+                // Default to daily review for unknown intervals
+                now.setDate(now.getDate() + 1);
+                console.warn(`Unknown review interval: ${reviewInterval}, defaulting to daily`);
                 break;
         }
         return now;
@@ -581,6 +590,11 @@ export class PriorityAssignment {
                     this.resolveByHighestPriority(conflict, assignments);
                     break;
                 // Add more resolution strategies as needed
+                default:
+                    // Default to business value resolution for unknown strategies
+                    this.resolveByBusinessValue(conflict, assignments);
+                    console.warn(`Unknown conflict resolution strategy: ${this.config.conflictResolution.strategy}, using business_value`);
+                    break;
             }
             conflict.status = 'resolved';
         }
@@ -627,7 +641,7 @@ export class PriorityAssignment {
     /**
      * Generate portfolio insights
      */
-    generatePortfolioInsights(assignments, candidates) {
+    generatePortfolioInsights(assignments, _candidates) {
         // Calculate priority distribution
         const distribution = {
             critical: assignments.filter(a => a.assignedPriority === 'critical').length,
@@ -683,7 +697,7 @@ export class PriorityAssignment {
     /**
      * Generate portfolio recommendations
      */
-    generatePortfolioRecommendations(assignments, insights, conflicts) {
+    generatePortfolioRecommendations(_assignments, insights, conflicts) {
         const recommendations = [];
         // Recommend rebalancing if portfolio is unbalanced
         if (!insights.balance.balanced) {

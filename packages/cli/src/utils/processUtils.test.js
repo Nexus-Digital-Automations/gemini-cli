@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { vi } from 'vitest';
+/* eslint-env jest */
+import { vi, describe, it, expect } from 'vitest';
 import { RELAUNCH_EXIT_CODE, relaunchApp } from './processUtils.js';
 import * as cleanup from './cleanup.js';
 describe('processUtils', () => {

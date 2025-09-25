@@ -14,6 +14,53 @@ interface MetricsOptions {
   'time-range'?: string;
 }
 
+interface SystemMetrics {
+  system: {
+    uptime: number;
+    totalTasks: number;
+    successRate: number;
+    averageExecutionTime: number;
+    throughput: number;
+    resourceUsage: {
+      cpu: number;
+      memory: number;
+      disk: number;
+    };
+  };
+  tasks: {
+    total: number;
+    completed: number;
+    failed: number;
+    cancelled: number;
+    running: number;
+    queued: number;
+    byCategory: Record<string, number>;
+    byPriority: Record<string, number>;
+  };
+  agents: {
+    total: number;
+    active: number;
+    idle: number;
+    busy: number;
+    utilization: number;
+    topPerformers: Array<{
+      id: string;
+      completedTasks: number;
+      successRate: number;
+    }>;
+  };
+  performance: {
+    averageResponseTime: number;
+    p95ResponseTime: number;
+    p99ResponseTime: number;
+    errorRate: number;
+    tokensPerSecond: number;
+    toolCallsPerMinute: number;
+  };
+  timeRange: string;
+  lastUpdated: string;
+}
+
 export const metricsCommand: CommandModule<object, MetricsOptions> = {
   command: 'metrics',
   describe: 'Show autonomous system performance metrics',
@@ -119,10 +166,10 @@ export const metricsCommand: CommandModule<object, MetricsOptions> = {
   },
 };
 
-async function getSystemMetrics(timeRange: string) {
+async function getSystemMetrics(timeRange: string): Promise<SystemMetrics> {
   // In real implementation, this would fetch from the autonomous system
   // Mock metrics data based on time range
-  const baseMetrics = {
+  const baseMetrics: SystemMetrics = {
     system: {
       uptime: 3600000, // 1 hour
       totalTasks: 156,
@@ -193,7 +240,7 @@ async function getSystemMetrics(timeRange: string) {
   return baseMetrics;
 }
 
-function displayMetricsData(metrics: any, showHeader: boolean) {
+function displayMetricsData(metrics: SystemMetrics, showHeader: boolean): void {
   if (showHeader) {
     console.log(chalk.cyan('📊 Autonomous System Performance Metrics'));
     console.log(
@@ -273,7 +320,7 @@ function displayMetricsData(metrics: any, showHeader: boolean) {
   );
 
   console.log(chalk.underline('\n   Top Performers:'));
-  metrics.agents.topPerformers.forEach((agent: any, index: number) => {
+  metrics.agents.topPerformers.forEach((agent, index: number) => {
     const medal = ['🥇', '🥈', '🥉'][index] || '🏅';
     console.log(
       `     ${medal} ${agent.id}: ${agent.completedTasks} tasks (${(agent.successRate * 100).toFixed(1)}% success)`,
@@ -382,7 +429,7 @@ function getQualityDisplay(rate: number): string {
 }
 
 function getPriorityColor(priority: string) {
-  const colors: Record<string, any> = {
+  const colors: Record<string, (text: string) => string> = {
     critical: chalk.red.bold,
     high: chalk.red,
     medium: chalk.yellow,

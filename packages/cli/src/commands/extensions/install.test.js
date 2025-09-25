@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, vi } from 'vitest';
+/* eslint-env jest */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { handleInstall, installCommand } from './install.js';
 import yargs from 'yargs';
 const mockInstallExtension = vi.hoisted(() => vi.fn());

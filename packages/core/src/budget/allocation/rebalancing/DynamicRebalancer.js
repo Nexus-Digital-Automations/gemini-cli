@@ -226,7 +226,9 @@ export class DynamicRebalancer {
           break;
         default:
           // Handle unexpected execution strategies
-          console.warn(`Unknown execution strategy: ${this.config.automation.execution.strategy}`);
+          console.warn(
+            `Unknown execution strategy: ${this.config.automation.execution.strategy}`,
+          );
           // Default to immediate execution
           await this.executeImmediate(analysis.recommendedActions);
           break;
@@ -478,7 +480,7 @@ export class DynamicRebalancer {
   /**
    * Determine appropriate action for resource
    */
-  determineAction(state, candidate, triggeredConditions) {
+  determineAction(state, candidate, _triggeredConditions) {
     // Determine if action is needed based on state
     let actionType = 'maintain';
     let priority = 'medium';
@@ -564,7 +566,7 @@ export class DynamicRebalancer {
   /**
    * Assess rebalancing risks
    */
-  assessRebalancingRisks(actions, resourceStates) {
+  assessRebalancingRisks(actions, _resourceStates) {
     const riskFactors = [];
     // Assess individual risks
     for (const action of actions) {
@@ -625,7 +627,7 @@ export class DynamicRebalancer {
   /**
    * Predict rebalancing outcomes
    */
-  predictRebalancingOutcomes(actions, resourceStates) {
+  predictRebalancingOutcomes(actions, _resourceStates) {
     const performanceImprovement =
       actions.reduce(
         (sum, action) => sum + action.expectedImpact.performance,

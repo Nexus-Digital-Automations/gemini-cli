@@ -124,9 +124,9 @@ function saveConfig(config: SystemConfig): void {
   }
 }
 
-function getConfigValue(config: SystemConfig, key: string): any {
+function getConfigValue(config: SystemConfig, key: string): unknown {
   const keys = key.split('.');
-  let value: any = config;
+  let value: unknown = config;
 
   for (const k of keys) {
     if (value && typeof value === 'object' && k in value) {
@@ -146,7 +146,7 @@ function setConfigValue(
 ): SystemConfig {
   const keys = key.split('.');
   const newConfig = JSON.parse(JSON.stringify(config));
-  let current: any = newConfig;
+  let current: Record<string, unknown> = newConfig as Record<string, unknown>;
 
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i];
@@ -177,13 +177,13 @@ function resetConfigValue(config: SystemConfig, key: string): SystemConfig {
   return config;
 }
 
-function printConfigTree(obj: any, prefix = ''): void {
+function printConfigTree(obj: Record<string, unknown>, prefix = ''): void {
   for (const [key, value] of Object.entries(obj)) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
 
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       console.log(chalk.cyan(`${fullKey}:`));
-      printConfigTree(value, fullKey);
+      printConfigTree(value as Record<string, unknown>, fullKey);
     } else {
       console.log(`  ${fullKey}: ${chalk.green(JSON.stringify(value))}`);
     }

@@ -5,9 +5,7 @@
  */
 
 import { describe, test, expect, beforeEach } from 'vitest';
-import { Task } from '../../../packages/core/src/task/types.js';
-import { DetectedDependency } from '../../../packages/core/src/decision/DependencyAnalyzer.js';
-import { ParallelOptimizer as SequenceOptimizer, ParallelOptimizationConfig as SequenceOptimizationConfig, ResourceConstraint, } from '../../../packages/core/src/decision/ParallelOptimizer.js';
+import { ParallelOptimizer as SequenceOptimizer } from '../../../packages/core/src/decision/ParallelOptimizer.js';
 describe('SequenceOptimizer', () => {
     let optimizer;
     let sampleTasks;

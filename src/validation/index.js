@@ -4,6 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AutomaticValidationSystem } from './AutomaticValidationSystem.js';
+import { validateTaskCompletion } from './ValidationIntegration.js';
+import { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+import { readFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
+
 /**
  * Automatic Validation System - Main Export Module
  *
@@ -56,7 +63,7 @@ export { examples } from './examples.js';
  * ```
  */
 export function createValidationSystem(projectRoot, config) {
-    const { AutomaticValidationSystem } = require('./AutomaticValidationSystem');
+    // AutomaticValidationSystem already imported at top
     return new AutomaticValidationSystem(projectRoot, config);
 }
 /**
@@ -78,7 +85,7 @@ export function createValidationSystem(projectRoot, config) {
  * ```
  */
 export async function quickValidate(projectRoot, options) {
-    const { validateTaskCompletion } = require('./ValidationIntegration');
+    // validateTaskCompletion already imported at top
     try {
         const result = await validateTaskCompletion(projectRoot, options.description, options.type);
         return {
@@ -111,8 +118,7 @@ export async function quickValidate(projectRoot, options) {
  * ```
  */
 export async function validateSystemHealth(projectRoot) {
-    const { spawn } = require('node:child_process');
-    const { promisify } = require('node:util');
+    // spawn and promisify already imported at top
     const execAsync = promisify(spawn);
     const tools = [
         { name: 'npm', command: 'npm', args: ['--version'] },
@@ -209,8 +215,7 @@ export const DEFAULT_CONFIGS = {
  * @returns Recommended configuration
  */
 export async function getRecommendedConfig(projectRoot) {
-    const { readFile, access } = require('node:fs/promises');
-    const { join } = require('node:path');
+    // readFile, access, and join already imported at top
     try {
         // Check package.json for project size indicators
         const packagePath = join(projectRoot, 'package.json');

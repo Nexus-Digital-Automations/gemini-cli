@@ -37,10 +37,17 @@ const mockConfig = {
 const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
+interface MockUsageData {
+  date: string;
+  requestCount: number;
+  lastResetTime: string;
+  warningsShown: string[];
+}
+
 describe('Budget CLI Integration Tests', () => {
-  let _testProjectRoot: string;
+  let testProjectRoot: string;
   let mockBudgetSettings: BudgetSettings;
-  let mockUsageData: any;
+  let mockUsageData: MockUsageData;
 
   beforeEach(() => {
     vi.clearAllMocks();

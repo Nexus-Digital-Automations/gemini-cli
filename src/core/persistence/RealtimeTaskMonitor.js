@@ -36,10 +36,10 @@
  * @since 2025-09-25
  */
 
-const EventEmitter = require('node:events');
-const fs = require('node:fs').promises;
-const path = require('node:path');
-const crypto = require('node:crypto');
+import EventEmitter from 'node:events';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 
 /**
  * Real-Time Task Monitor - Live monitoring and broadcasting system

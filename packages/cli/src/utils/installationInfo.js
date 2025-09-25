@@ -8,7 +8,7 @@ import { isGitRepository } from '@google/gemini-cli-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as childProcess from 'node:child_process';
-export var PackageManager;
+export let PackageManager;
 (function (PackageManager) {
     PackageManager["NPM"] = "npm";
     PackageManager["YARN"] = "yarn";

@@ -9,10 +9,10 @@
  * Tests core persistence functionality, ACID guarantees, and file locking
  */
 
-const fs = require('node:fs').promises;
-const path = require('node:path');
-const os = require('node:os');
-const { TaskPersistenceEngine } = require('../TaskPersistenceEngine');
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { TaskPersistenceEngine } from '../TaskPersistenceEngine.js';
 
 describe('TaskPersistenceEngine', () => {
   let engine;

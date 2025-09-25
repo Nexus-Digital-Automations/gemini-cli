@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect } from 'vitest';
+/* eslint-env jest */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
 // Schema utilities
 getSettingsByCategory, getSettingDefinition, requiresRestart, getDefaultValue, getRestartRequiredSettings, getEffectiveValue, getAllSettingKeys, getSettingsByType, getSettingsRequiringRestart, isValidSettingKey, getSettingCategory, shouldShowInDialog, getDialogSettingsByCategory, getDialogSettingsByType, getDialogSettingKeys, 

@@ -32,14 +32,14 @@ const mockConfig = {
 const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 describe('Budget CLI Integration Tests', () => {
-  let testProjectRoot;
+  let _testProjectRoot;
   let mockBudgetSettings;
   let mockUsageData;
   beforeEach(() => {
     vi.clearAllMocks();
     consoleSpy.mockClear();
     consoleErrorSpy.mockClear();
-    testProjectRoot = '/test/project';
+    _testProjectRoot = '/test/project';
     mockBudgetSettings = {
       enabled: true,
       dailyLimit: 100,

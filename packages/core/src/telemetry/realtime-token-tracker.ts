@@ -6,6 +6,7 @@
 
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
+import { Readable } from 'node:stream';
 import type { GenerateContentResponseUsageMetadata } from '@google/genai';
 import type { Config } from '../config/config.js';
 import type { AuthType } from '../core/contentGenerator.js';
@@ -307,7 +308,7 @@ export class RealtimeTokenTracker extends EventEmitter {
    * Stream live token usage updates
    */
   createLiveStream(): NodeJS.ReadableStream {
-    const { Readable } = require('node:stream');
+    // Readable already imported at top
 
     const stream = new Readable({
       objectMode: true,

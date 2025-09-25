@@ -12,15 +12,14 @@ import {
   TaskValidationType,
   TaskValidationLevel,
 } from '../TaskValidator.js';
-import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
+import { QualityAssurance } from '../QualityAssurance.js';
 import {
   RollbackManager,
   RollbackTrigger,
   RollbackType,
 } from '../RollbackManager.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
-import { TaskStatus } from '../../task-management/TaskQueue.js';
-import { TaskPriority } from '../../task-management/types.js';
+import { TaskPriority, TaskStatus } from '../../task-management/types.js';
 
 // Mock logger to avoid console output during tests
 vi.mock('../../logger/Logger.js');
@@ -49,7 +48,7 @@ describe('ValidationSystem Integration', () => {
       title: 'Integration Test Task',
       description:
         'A comprehensive task for testing the complete validation system',
-      type: 'implementation' as any,
+      category: 'implementation',
       priority: TaskPriority.HIGH,
       status: TaskStatus.PENDING,
       metadata: {
@@ -783,7 +782,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
         title: 'End-to-End Lifecycle Test Task',
         description:
           'A task that goes through the complete lifecycle with validation at every stage',
-        type: 'implementation' as any,
+        category: 'implementation',
         priority: TaskPriority.HIGH,
         status: TaskStatus.PENDING,
         metadata: {

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Mock } from 'vitest';
 import { vi, describe, it, expect, beforeEach, type Mocked } from 'vitest';
 import * as fs from 'node:fs';
@@ -13,11 +12,11 @@ import type { BaseLlmClient } from '../core/baseLlmClient.js';
 
 // MOCKS
 let callCount = 0;
-const mockResponses: any[] = [];
+const mockResponses: unknown[] = [];
 
-let mockGenerateJson: any;
-let mockStartChat: any;
-let mockSendMessageStream: any;
+let mockGenerateJson: Mock;
+let mockStartChat: Mock;
+let mockSendMessageStream: Mock;
 
 vi.mock('fs', () => ({
   statSync: vi.fn(),
@@ -26,11 +25,11 @@ vi.mock('fs', () => ({
 
 vi.mock('../core/client.js', () => ({
   GeminiClient: vi.fn().mockImplementation(function (
-    this: any,
+    this: Record<string, unknown>,
     _config: Config,
   ) {
-    this.startChat = (...params: any[]) => mockStartChat(...params);
-    this.sendMessageStream = (...params: any[]) =>
+    this.startChat = (...params: unknown[]) => mockStartChat(...params);
+    this.sendMessageStream = (...params: unknown[]) =>
       mockSendMessageStream(...params);
     return this;
   }),

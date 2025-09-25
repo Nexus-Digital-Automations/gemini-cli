@@ -28,7 +28,7 @@ export class CompatibilityValidator {
       name: 'cli-command-registration',
       description: 'Verify autonomous commands are properly registered',
       critical: true,
-      check: async () => {
+      check: async () =>
         // Temporary: return false until index.js is implemented
         // TODO: Re-enable when ./index.js is available
         /*
@@ -39,8 +39,7 @@ export class CompatibilityValidator {
                     return false;
                 }
                 */
-        return false;
-      },
+        false,
       remediation:
         'Ensure autonomous commands are properly exported and imported in config.ts',
     });

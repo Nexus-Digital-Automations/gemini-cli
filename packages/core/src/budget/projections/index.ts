@@ -101,6 +101,12 @@ export {
 
 // Re-export utilities
 import { Logger } from '../utils/logger.js';
+import { CostForecastingEngine } from './forecasting/cost-forecasting-engine.js';
+import { BudgetAlertSystem } from './alerts/budget-alert-system.js';
+import { CostAnalysisEngine } from './analysis/cost-analysis-engine.js';
+import { BudgetOptimizationEngine } from './optimization/budget-optimization-engine.js';
+import { AlgorithmValidator } from './validation/algorithm-validator.js';
+import { PerformanceMonitor } from './validation/performance-monitor.js';
 
 /**
  * Configuration for the comprehensive cost projection system
@@ -140,12 +146,12 @@ export interface CostProjectionSystemConfig {
 export class CostProjectionSystem {
   private logger: Logger;
   private config: CostProjectionSystemConfig;
-  private forecastingEngine: import('./forecasting/cost-forecasting-engine.js').CostForecastingEngine;
-  private alertSystem: import('./alerts/budget-alert-system.js').BudgetAlertSystem;
-  private analysisEngine: import('./analysis/cost-analysis-engine.js').CostAnalysisEngine;
-  private optimizationEngine: import('./optimization/budget-optimization-engine.js').BudgetOptimizationEngine;
-  private validator?: import('./validation/algorithm-validator.js').AlgorithmValidator;
-  private performanceMonitor?: import('./validation/performance-monitor.js').PerformanceMonitor;
+  private forecastingEngine: CostForecastingEngine;
+  private alertSystem: BudgetAlertSystem;
+  private analysisEngine: CostAnalysisEngine;
+  private optimizationEngine: BudgetOptimizationEngine;
+  private validator?: AlgorithmValidator;
+  private performanceMonitor?: PerformanceMonitor;
 
   constructor(config: CostProjectionSystemConfig) {
     this.config = config;
@@ -153,21 +159,15 @@ export class CostProjectionSystem {
     this.logger.info('Initializing cost projection system', { config });
 
     // Initialize core components
-    this.forecastingEngine =
-      new (require('./forecasting/cost-forecasting-engine.js').CostForecastingEngine)();
-    this.alertSystem =
-      new (require('./alerts/budget-alert-system.js').BudgetAlertSystem)();
-    this.analysisEngine =
-      new (require('./analysis/cost-analysis-engine.js').CostAnalysisEngine)();
-    this.optimizationEngine =
-      new (require('./optimization/budget-optimization-engine.js').BudgetOptimizationEngine)();
+    this.forecastingEngine = new CostForecastingEngine();
+    this.alertSystem = new BudgetAlertSystem();
+    this.analysisEngine = new CostAnalysisEngine();
+    this.optimizationEngine = new BudgetOptimizationEngine();
 
     // Initialize optional validation components
     if (config.enableValidation) {
-      this.validator =
-        new (require('./validation/algorithm-validator.js').AlgorithmValidator)();
-      this.performanceMonitor =
-        new (require('./validation/performance-monitor.js').PerformanceMonitor)();
+      this.validator = new AlgorithmValidator();
+      this.performanceMonitor = new PerformanceMonitor();
     }
 
     this.logger.info('Cost projection system initialized successfully');

@@ -18,6 +18,26 @@ import {
   initializeAgent,
 } from '../taskManagerApi.js';
 
+interface TaskFeature {
+  id?: string;
+  title: string;
+  status?: string;
+  priority?: string;
+  category?: string;
+  created_at?: string | number;
+}
+
+interface DisplayTask {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  category: string;
+  progress: number;
+  assignedAgent?: string;
+  createdAt: Date;
+}
+
 interface ListTasksOptions {
   status?: string;
   priority?: string;
@@ -107,7 +127,7 @@ export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
         // Convert TaskManager features to task format
         if (apiResponse.data?.features) {
           tasks = apiResponse.data.features.map(
-            (feature: any, index: number) => ({
+            (feature: TaskFeature, index: number) => ({
               id: feature.id || `feature_${index}`,
               title: feature.title,
               status: feature.status || 'suggested',
@@ -252,7 +272,7 @@ export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
   },
 };
 
-function displayTask(task: any) {
+function displayTask(task: DisplayTask) {
   const statusIcon = getStatusIcon(task.status);
   const statusColor = getStatusColor(task.status);
   const priorityColor = getPriorityColor(task.priority);

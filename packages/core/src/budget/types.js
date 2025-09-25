@@ -7,7 +7,7 @@
 /**
  * Budget enforcement levels
  */
-export var BudgetEnforcementLevel;
+export let BudgetEnforcementLevel;
 (function (BudgetEnforcementLevel) {
   /** Only show warnings, don't block usage */
   BudgetEnforcementLevel['WARNING_ONLY'] = 'warning_only';
@@ -21,7 +21,7 @@ export var BudgetEnforcementLevel;
 /**
  * Notification frequency options
  */
-export var NotificationFrequency;
+export let NotificationFrequency;
 (function (NotificationFrequency) {
   /** Immediate notifications */
   NotificationFrequency['IMMEDIATE'] = 'immediate';
@@ -35,7 +35,7 @@ export var NotificationFrequency;
 /**
  * Budget event types for the event system
  */
-export var BudgetEventType;
+export let BudgetEventType;
 (function (BudgetEventType) {
   /** Budget limit exceeded */
   BudgetEventType['LIMIT_EXCEEDED'] = 'limit_exceeded';
@@ -57,7 +57,7 @@ export var BudgetEventType;
 /**
  * Event severity levels
  */
-export var EventSeverity;
+export let EventSeverity;
 (function (EventSeverity) {
   /** Informational event */
   EventSeverity['INFO'] = 'info';
@@ -71,7 +71,7 @@ export var EventSeverity;
 /**
  * Budget permission levels
  */
-export var BudgetPermission;
+export let BudgetPermission;
 (function (BudgetPermission) {
   /** View budget information */
   BudgetPermission['VIEW_BUDGET'] = 'view_budget';

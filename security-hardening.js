@@ -17,9 +17,9 @@
  * @author Security Hardening Team
  */
 
-const crypto = require('node:crypto');
-const fs = require('node:fs').promises;
-const path = require('node:path');
+import crypto from 'node:crypto';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
 /**
  * SecurityHardening - Comprehensive security implementation

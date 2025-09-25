@@ -6,6 +6,7 @@
 
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
+import { Readable } from 'node:stream';
 import { getComponentLogger, createTimer, LogLevel } from '../utils/logger.js';
 import { getGlobalStorageEngine } from './analytics-storage-engine.js';
 /** High-performance logger for real-time tracking */
@@ -146,7 +147,7 @@ export class RealtimeTokenTracker extends EventEmitter {
      * Stream live token usage updates
      */
     createLiveStream() {
-        const { Readable } = require('node:stream');
+        // Readable already imported at top
         const stream = new Readable({
             objectMode: true,
             read() { },

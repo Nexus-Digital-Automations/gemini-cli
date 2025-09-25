@@ -13,6 +13,7 @@ import {
 } from './ValidationIntegration.js';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
+import fs from 'node:fs';
 
 function isValidationCommand(command: string): command is ValidationCommand {
   return ['validate-task', 'validate-feature', 'validate-project', 'validate-commit'].includes(command);
@@ -115,7 +116,7 @@ function findProjectRoot(): string | null {
     } catch {
       // Check for .git directory
       try {
-        const fs = require('node:fs');
+        // fs already imported at top
         fs.accessSync(resolve(currentDir, '.git'));
         return currentDir;
       } catch {

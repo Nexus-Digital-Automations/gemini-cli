@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Mock } from 'vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
@@ -144,7 +143,7 @@ describe('useReactToolScheduler in YOLO Mode', () => {
       callId: 'yoloCall',
       name: 'mockToolRequiresConfirmation',
       args: { data: 'any data' },
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -222,7 +221,7 @@ describe('useReactToolScheduler', () => {
           tools: [],
         };
 
-        pendingItem = updaterOrValue(prevState as any); // Allow any for more flexibility
+        pendingItem = updaterOrValue(prevState as Record<string, unknown>); // Allow for more flexibility
       } else {
         pendingItem = updaterOrValue;
       }

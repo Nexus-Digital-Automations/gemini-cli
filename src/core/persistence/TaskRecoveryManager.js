@@ -34,11 +34,11 @@
  * @since 2025-09-25
  */
 
-const fs = require('node:fs').promises;
-const path = require('node:path');
-const crypto = require('node:crypto');
-const EventEmitter = require('node:events');
-const { performance } = require('node:perf_hooks');
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import EventEmitter from 'node:events';
+import { performance } from 'node:perf_hooks';
 
 /**
  * Recovery strategies in order of preference

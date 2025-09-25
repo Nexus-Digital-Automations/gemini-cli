@@ -12,6 +12,7 @@
  * @version 1.0.0
  */
 import { Logger } from '@google/gemini-cli/src/utils/logger.js';
+import { BudgetEnforcementLevel } from '../types.js';
 /**
  * Budget constraint violation
  */
@@ -105,7 +106,7 @@ class WeeklyLimitRule {
   priority = 90;
   enabled = true;
   async validate(context) {
-    const { settings, usageData, costCalculation } = context;
+    const { settings, usageData, _costCalculation } = context;
     if (!settings.weeklyLimit || settings.weeklyLimit <= 0) {
       return {
         ruleId: this.id,

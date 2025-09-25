@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/* eslint-env jest */
 import { AuthType } from '@google/gemini-cli-core';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { validateAuthMethod } from './auth.js';
 vi.mock('./settings.js', () => ({
   loadEnvironment: vi.fn(),

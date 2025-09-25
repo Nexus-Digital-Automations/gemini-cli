@@ -228,7 +228,7 @@ async function displayLegacyVisualization(
         );
         displaySavingsBreakdown(report.potentialSavings);
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️  Analytics temporarily unavailable (insufficient data)');
       console.log('   Continue using the system to build analytics history.');
     }
@@ -291,7 +291,7 @@ async function displayJSONVisualization(
         jsonOutput.potentialSavings = report.potentialSavings;
         jsonOutput.actionPlan = report.actionPlan;
       }
-    } catch (error) {
+    } catch (_error) {
       jsonOutput.analyticsError = 'Insufficient data for analytics generation';
     }
   }
@@ -372,7 +372,7 @@ function displayAnalyticsInsights(report) {
   );
   if (report.patternAnalysis.length > 0) {
     console.log('\n🔍 Detected patterns:');
-    report.patternAnalysis.forEach((pattern, index) => {
+    report.patternAnalysis.forEach((pattern, _index) => {
       const icon = getPatternIcon(pattern.patternType);
       console.log(`   ${icon} ${pattern.patternType}: ${pattern.description}`);
     });

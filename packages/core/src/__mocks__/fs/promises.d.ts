@@ -6,7 +6,7 @@
 
 import type * as actualFsPromises from 'node:fs/promises';
 export declare const mockControl: {
-  mockReadFile: import('vitest').Mock<(...args: any[]) => any>;
+  mockReadFile: import('vitest').Mock<(...args: unknown[]) => unknown>;
 };
 export declare const access: typeof actualFsPromises.access;
 export const appendFile: typeof actualFsPromises.appendFile;
@@ -34,4 +34,6 @@ export const unlink: typeof actualFsPromises.unlink;
 export const utimes: typeof actualFsPromises.utimes;
 export const watch: typeof actualFsPromises.watch;
 export const writeFile: typeof actualFsPromises.writeFile;
-export declare const readFile: import('vitest').Mock<(...args: any[]) => any>;
+export declare const readFile: import('vitest').Mock<
+  (...args: unknown[]) => unknown
+>;

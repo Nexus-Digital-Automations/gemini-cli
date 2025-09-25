@@ -20,7 +20,7 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    context: TaskBreakdownContext,
+    _context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
@@ -158,6 +158,8 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
         return baseDuration * 4;
       case TaskComplexity.HIGHLY_COMPLEX:
         return baseDuration * 8;
+      default:
+        return baseDuration;
     }
   }
 }
@@ -170,7 +172,7 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    context: TaskBreakdownContext,
+    _context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
@@ -295,6 +297,8 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
         return Math.max(30, baseComplexity * 4);
       case TaskComplexity.HIGHLY_COMPLEX:
         return Math.max(60, baseComplexity * 8);
+      default:
+        return Math.max(5, baseComplexity);
     }
   }
 }
@@ -307,7 +311,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    context: TaskBreakdownContext,
+    _context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
@@ -444,6 +448,8 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
         return baseDuration * 3;
       case TaskComplexity.HIGHLY_COMPLEX:
         return baseDuration * 5;
+      default:
+        return baseDuration;
     }
   }
 }
@@ -456,7 +462,7 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    context: TaskBreakdownContext,
+    _context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
@@ -627,6 +633,8 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         return Math.max(30, dependencyComplexity * 3);
       case TaskComplexity.HIGHLY_COMPLEX:
         return Math.max(60, dependencyComplexity * 5);
+      default:
+        return Math.max(5, dependencyComplexity);
     }
   }
 }

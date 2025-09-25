@@ -17,10 +17,10 @@
  * @author Security Performance Analysis Team
  */
 
-const fs = require('node:fs').promises;
-const path = require('node:path');
-const crypto = require('node:crypto');
-const { promisify } = require('node:util');
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { promisify } from 'node:util';
 
 /**
  * SecurityPerformanceMonitor - Real-time monitoring and alerting system

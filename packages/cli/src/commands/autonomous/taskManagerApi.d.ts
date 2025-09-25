@@ -6,7 +6,7 @@
 
 export interface TaskManagerResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   message?: string;
 }
@@ -44,21 +44,21 @@ export declare function suggestFeature(
  * List features with optional filtering
  */
 export declare function listFeatures(
-  filter?: any,
+  filter?: Record<string, unknown>,
 ): Promise<TaskManagerResponse>;
 /**
  * Approve a feature
  */
 export declare function approveFeature(
   featureId: string,
-  approvalData?: any,
+  approvalData?: Record<string, unknown>,
 ): Promise<TaskManagerResponse>;
 /**
  * Reject a feature
  */
 export declare function rejectFeature(
   featureId: string,
-  rejectionData?: any,
+  rejectionData?: Record<string, unknown>,
 ): Promise<TaskManagerResponse>;
 /**
  * Get feature statistics
@@ -104,4 +104,6 @@ export declare function handleApiFallback(
 /**
  * Convert autonomous task to TaskManager feature suggestion
  */
-export declare function convertTaskToFeature(task: any): FeatureSuggestion;
+export declare function convertTaskToFeature(
+  task: Record<string, unknown>,
+): FeatureSuggestion;

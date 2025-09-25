@@ -9,7 +9,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Audit event types for comprehensive tracking
  */
-export var AuditEventType;
+export let AuditEventType;
 (function (AuditEventType) {
   AuditEventType['TASK_CREATED'] = 'task:created';
   AuditEventType['TASK_ASSIGNED'] = 'task:assigned';
@@ -192,12 +192,17 @@ export class AuditTrailAnalytics extends EventEmitter {
         case 'timestamp':
           comparison = a.timestamp.getTime() - b.timestamp.getTime();
           break;
-        case 'severity':
+        case 'severity': {
           const severityOrder = { info: 0, warning: 1, error: 2, critical: 3 };
           comparison = severityOrder[a.severity] - severityOrder[b.severity];
           break;
+        }
         case 'type':
           comparison = a.type.localeCompare(b.type);
+          break;
+        default:
+          // Default to timestamp sorting for unknown sort criteria
+          comparison = a.timestamp.getTime() - b.timestamp.getTime();
           break;
       }
       return sortOrder === 'desc' ? -comparison : comparison;
@@ -341,6 +346,13 @@ export class AuditTrailAnalytics extends EventEmitter {
         action = 'FAIL_TASK';
         description = `Task "${task.title}" failed: ${update?.error || 'Unknown error'}`;
         break;
+      default:
+        // Handle unknown event types
+        auditType = AuditEventType.SYSTEM_EVENT;
+        action = 'UNKNOWN_EVENT';
+        description = `Unknown task event: ${event} for task "${task.title}"`;
+        console.warn(`Unknown task event type: ${event}`);
+        break;
     }
     this.recordEvent(auditType, action, description, {
       source: 'task-management',
@@ -397,6 +409,14 @@ export class AuditTrailAnalytics extends EventEmitter {
         action = 'CHANGE_AGENT_STATUS';
         description = `Agent ${agent.id} status changed to ${agent.status}`;
         severity = agent.status === 'offline' ? 'warning' : 'info';
+        break;
+      default:
+        // Handle unknown agent event types
+        auditType = AuditEventType.SYSTEM_EVENT;
+        action = 'UNKNOWN_AGENT_EVENT';
+        description = `Unknown agent event: ${event} for agent ${agent.id}`;
+        severity = 'warning';
+        console.warn(`Unknown agent event type: ${event}`);
         break;
     }
     this.recordEvent(auditType, action, description, {
@@ -554,7 +574,7 @@ export class AuditTrailAnalytics extends EventEmitter {
     }
     return violations;
   }
-  generatePerformanceInsights(events) {
+  generatePerformanceInsights(_events) {
     return [
       {
         metric: 'task_completion_rate',

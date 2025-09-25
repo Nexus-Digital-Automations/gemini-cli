@@ -21,6 +21,112 @@ interface VisualizeArgs {
   recommendations?: boolean;
 }
 
+interface BudgetTracker {
+  isEnabled(): boolean;
+  getUsageStats(): Promise<UsageStats>;
+}
+
+interface UsageStats {
+  requestCount: number;
+  dailyLimit: number;
+  usagePercentage: number;
+  timeUntilReset: string;
+  remainingRequests: number;
+}
+
+interface AnalyticsEngine {
+  generateReport(): Promise<AnalyticsReport>;
+}
+
+interface AnalyticsReport {
+  period: {
+    start: string;
+    end: string;
+  };
+  summary: {
+    costTrend: string;
+    budgetUtilization: number;
+    projectedMonthlySpend: number;
+  };
+  featureAnalysis: FeatureAnalysis[];
+  patternAnalysis: PatternAnalysis[];
+  anomalies: Anomaly[];
+  optimizationRecommendations: OptimizationRecommendation[];
+  potentialSavings: PotentialSavings;
+  actionPlan: string[];
+}
+
+interface FeatureAnalysis {
+  feature: string;
+  usage: number;
+  cost: number;
+  trend: string;
+}
+
+interface PatternAnalysis {
+  patternType: string;
+  description: string;
+  confidence: number;
+}
+
+interface Anomaly {
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  timestamp: string;
+}
+
+interface OptimizationRecommendation {
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  implementationComplexity: 'low' | 'medium' | 'high';
+  potentialSavings: number;
+  savingsPercentage: string;
+  timeToImplement: string;
+  actionItems: string[];
+}
+
+interface PotentialSavings {
+  total: number;
+  percentage: number;
+  immediate: number;
+  shortTerm: number;
+  longTerm: number;
+}
+
+interface UsageMetric {
+  timestamp: string;
+  cost: number;
+  feature: string;
+  responseTime: number;
+  tokens: number;
+}
+
+interface ChartDataPoint {
+  label: string;
+  value: number;
+}
+
+interface JSONOutput {
+  timestamp: string;
+  currentStatus: {
+    enabled: boolean;
+    [key: string]: unknown;
+  };
+  usageMetrics: UsageMetric[];
+  analytics?: {
+    summary: AnalyticsReport['summary'];
+    featureAnalysis: FeatureAnalysis[];
+    patternAnalysis: PatternAnalysis[];
+    anomalies: Anomaly[];
+  };
+  optimizationRecommendations?: OptimizationRecommendation[];
+  potentialSavings?: PotentialSavings;
+  actionPlan?: string[];
+  analyticsError?: string;
+}
+
 /**
  * Yargs command module for budget visualization with analytics
  *
@@ -135,8 +241,8 @@ export const visualizeCommand = {
  * Display interactive dashboard using the new BudgetDashboard system
  */
 async function displayInteractiveDashboard(
-  tracker: any,
-  analyticsEngine: any,
+  tracker: BudgetTracker,
+  analyticsEngine: AnalyticsEngine,
   period: string,
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
@@ -208,9 +314,9 @@ async function displayInteractiveDashboard(
  * Legacy display function (fallback)
  */
 async function displayLegacyVisualization(
-  stats: any,
-  mockMetrics: any[],
-  analyticsEngine: any,
+  stats: UsageStats,
+  mockMetrics: UsageMetric[],
+  analyticsEngine: AnalyticsEngine,
   period: string,
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
@@ -258,7 +364,7 @@ async function displayLegacyVisualization(
         );
         displaySavingsBreakdown(report.potentialSavings);
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️  Analytics temporarily unavailable (insufficient data)');
       console.log('   Continue using the system to build analytics history.');
     }
@@ -274,8 +380,8 @@ async function displayLegacyVisualization(
  * Display ASCII chart visualization
  */
 async function displayASCIIVisualization(
-  stats: any,
-  mockMetrics: any[],
+  stats: UsageStats,
+  mockMetrics: UsageMetric[],
   period: string,
 ): Promise<void> {
   console.log(`📊 Budget Usage Chart (${period})`);
@@ -305,13 +411,13 @@ async function displayASCIIVisualization(
  * Display JSON output for programmatic use
  */
 async function displayJSONVisualization(
-  stats: any,
-  mockMetrics: any[],
-  analyticsEngine: any,
+  stats: UsageStats,
+  mockMetrics: UsageMetric[],
+  analyticsEngine: AnalyticsEngine,
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
 ): Promise<void> {
-  const jsonOutput: any = {
+  const jsonOutput: JSONOutput = {
     timestamp: new Date().toISOString(),
     currentStatus: {
       enabled: true,
@@ -336,7 +442,7 @@ async function displayJSONVisualization(
         jsonOutput.potentialSavings = report.potentialSavings;
         jsonOutput.actionPlan = report.actionPlan;
       }
-    } catch (error) {
+    } catch (_error) {
       jsonOutput.analyticsError = 'Insufficient data for analytics generation';
     }
   }
@@ -347,7 +453,7 @@ async function displayJSONVisualization(
 /**
  * Display current budget status
  */
-function displayCurrentStatus(stats: any): void {
+function displayCurrentStatus(stats: UsageStats): void {
   const percentage = stats.usagePercentage;
   const statusIcon = percentage >= 90 ? '🔴' : percentage >= 75 ? '🟡' : '🟢';
 
@@ -367,7 +473,7 @@ function displayCurrentStatus(stats: any): void {
 /**
  * Display usage trend over time
  */
-function displayUsageTrend(mockMetrics: any[], period: string): void {
+function displayUsageTrend(mockMetrics: UsageMetric[], period: string): void {
   const trend = calculateTrend(mockMetrics);
   const trendIcon = trend > 0 ? '📈' : trend < 0 ? '📉' : '➡️';
   const trendText =
@@ -389,9 +495,9 @@ function displayUsageTrend(mockMetrics: any[], period: string): void {
 /**
  * Display cost analysis
  */
-function displayCostAnalysis(mockMetrics: any[]): void {
+function displayCostAnalysis(mockMetrics: UsageMetric[]): void {
   const totalCost = mockMetrics.reduce(
-    (sum: number, m: any) => sum + (m.cost || 0),
+    (sum: number, m: UsageMetric) => sum + (m.cost || 0),
     0,
   );
   const avgCostPerRequest = totalCost / mockMetrics.length;
@@ -420,7 +526,7 @@ function displayCostAnalysis(mockMetrics: any[]): void {
 /**
  * Display analytics insights
  */
-function displayAnalyticsInsights(report: any): void {
+function displayAnalyticsInsights(report: AnalyticsReport): void {
   console.log(
     `🔍 Analysis period: ${report.period.start.split('T')[0]} to ${report.period.end.split('T')[0]}`,
   );
@@ -434,7 +540,7 @@ function displayAnalyticsInsights(report: any): void {
 
   if (report.patternAnalysis.length > 0) {
     console.log('\n🔍 Detected patterns:');
-    report.patternAnalysis.forEach((pattern: any, index: number) => {
+    report.patternAnalysis.forEach((pattern: PatternAnalysis, _index: number) => {
       const icon = getPatternIcon(pattern.patternType);
       console.log(`   ${icon} ${pattern.patternType}: ${pattern.description}`);
     });
@@ -442,7 +548,7 @@ function displayAnalyticsInsights(report: any): void {
 
   if (report.anomalies.length > 0) {
     console.log('\n⚠️  Anomalies detected:');
-    report.anomalies.forEach((anomaly: any) => {
+    report.anomalies.forEach((anomaly: Anomaly) => {
       const severityIcon = getSeverityIcon(anomaly.severity);
       console.log(`   ${severityIcon} ${anomaly.type}: ${anomaly.description}`);
     });
@@ -452,7 +558,7 @@ function displayAnalyticsInsights(report: any): void {
 /**
  * Display optimization recommendations
  */
-function displayOptimizationRecommendations(recommendations: any[]): void {
+function displayOptimizationRecommendations(recommendations: OptimizationRecommendation[]): void {
   recommendations.forEach((rec, index) => {
     const priorityIcon = getPriorityIcon(rec.priority);
     const complexityColor = getComplexityColor(rec.implementationComplexity);
@@ -482,7 +588,7 @@ function displayOptimizationRecommendations(recommendations: any[]): void {
 /**
  * Display savings breakdown
  */
-function displaySavingsBreakdown(savings: any): void {
+function displaySavingsBreakdown(savings: PotentialSavings): void {
   console.log(
     `💸 Total potential savings: $${savings.total.toFixed(2)} (${savings.percentage.toFixed(1)}%)`,
   );
@@ -502,8 +608,8 @@ function displaySavingsBreakdown(savings: any): void {
 /**
  * Display action items and next steps
  */
-function displayActionItems(stats: any): void {
-  const items = [];
+function displayActionItems(stats: UsageStats): void {
+  const items: string[] = [];
 
   if (stats.usagePercentage >= 80) {
     items.push('⚠️  Monitor usage closely - approaching budget limit');
@@ -529,7 +635,7 @@ function displayActionItems(stats: any): void {
  * Generate and display ASCII chart
  */
 function displayASCIIChart(
-  data: Array<{ label: string; value: number }>,
+  data: ChartDataPoint[],
   unit: string,
 ): void {
   const maxValue = Math.max(...data.map((d) => d.value));
@@ -548,15 +654,15 @@ function displayASCIIChart(
 /**
  * Display quick statistics summary
  */
-function displayQuickStats(mockMetrics: any[], stats: any): void {
+function displayQuickStats(mockMetrics: UsageMetric[], stats: UsageStats): void {
   const totalRequests = mockMetrics.length;
   const totalCost = mockMetrics.reduce(
-    (sum: number, m: any) => sum + (m.cost || 0),
+    (sum: number, m: UsageMetric) => sum + (m.cost || 0),
     0,
   );
   const avgResponseTime =
     mockMetrics.reduce(
-      (sum: number, m: any) => sum + (m.responseTime || 0),
+      (sum: number, m: UsageMetric) => sum + (m.responseTime || 0),
       0,
     ) / totalRequests;
 
@@ -570,12 +676,12 @@ function displayQuickStats(mockMetrics: any[], stats: any): void {
 
 // Helper functions
 
-function generateMockUsageData(period: string): any[] {
+function generateMockUsageData(period: string): UsageMetric[] {
   const dataPoints = period === 'day' ? 24 : period === 'week' ? 168 : 720; // Hours in period
   const baseDate = new Date();
   baseDate.setHours(baseDate.getHours() - dataPoints);
 
-  const metrics = [];
+  const metrics: UsageMetric[] = [];
   for (let i = 0; i < dataPoints; i++) {
     const timestamp = new Date(baseDate.getTime() + i * 60 * 60 * 1000);
     const hour = timestamp.getHours();
@@ -606,7 +712,7 @@ function generateMockUsageData(period: string): any[] {
   return metrics;
 }
 
-function calculateTrend(metrics: any[]): number {
+function calculateTrend(metrics: UsageMetric[]): number {
   if (metrics.length < 10) return 0;
 
   const firstHalf = metrics.slice(0, Math.floor(metrics.length / 2));
@@ -618,10 +724,10 @@ function calculateTrend(metrics: any[]): number {
   return ((secondAvg - firstAvg) / firstAvg) * 100;
 }
 
-function identifyPeakHours(metrics: any[]): string[] {
+function identifyPeakHours(metrics: UsageMetric[]): string[] {
   const hourCounts = new Map<number, number>();
 
-  metrics.forEach((m) => {
+  metrics.forEach((m: UsageMetric) => {
     const hour = new Date(m.timestamp).getHours();
     hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
   });
@@ -636,16 +742,16 @@ function identifyPeakHours(metrics: any[]): string[] {
 }
 
 function generateHourlyData(
-  metrics: any[],
+  metrics: UsageMetric[],
   period: string,
-): Array<{ label: string; value: number }> {
+): ChartDataPoint[] {
   const hours = period === 'day' ? 24 : 12; // Show 12 hours for week/month
-  const data = [];
+  const data: ChartDataPoint[] = [];
 
   for (let i = 0; i < hours; i++) {
     const hour = i;
     const count = metrics.filter(
-      (m) => new Date(m.timestamp).getHours() === hour,
+      (m: UsageMetric) => new Date(m.timestamp).getHours() === hour,
     ).length;
     data.push({
       label: `${hour.toString().padStart(2, '0')}h`,
@@ -657,18 +763,18 @@ function generateHourlyData(
 }
 
 function generateHourlyCostData(
-  metrics: any[],
+  metrics: UsageMetric[],
   period: string,
-): Array<{ label: string; value: number }> {
+): ChartDataPoint[] {
   const hours = period === 'day' ? 24 : 12;
-  const data = [];
+  const data: ChartDataPoint[] = [];
 
   for (let i = 0; i < hours; i++) {
     const hour = i;
     const hourMetrics = metrics.filter(
-      (m) => new Date(m.timestamp).getHours() === hour,
+      (m: UsageMetric) => new Date(m.timestamp).getHours() === hour,
     );
-    const totalCost = hourMetrics.reduce((sum, m) => sum + (m.cost || 0), 0);
+    const totalCost = hourMetrics.reduce((sum: number, m: UsageMetric) => sum + (m.cost || 0), 0);
 
     data.push({
       label: `${hour.toString().padStart(2, '0')}h`,
@@ -692,7 +798,7 @@ function getDayCount(period: string): number {
   }
 }
 
-function calculateEfficiencyScore(metrics: any[], stats: any): number {
+function calculateEfficiencyScore(metrics: UsageMetric[], stats: UsageStats): number {
   // Simple efficiency score based on usage vs limit ratio and cost effectiveness
   const utilizationScore = Math.min(10, (stats.usagePercentage / 100) * 10);
   const costScore =

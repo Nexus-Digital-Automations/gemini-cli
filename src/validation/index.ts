@@ -4,6 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AutomaticValidationSystem } from './AutomaticValidationSystem.js';
+import { validateTaskCompletion } from './ValidationIntegration.js';
+import { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+import { readFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
+
 /**
  * Automatic Validation System - Main Export Module
  *
@@ -88,7 +95,7 @@ export function createValidationSystem(
   projectRoot: string,
   config?: Partial<import('./AutomaticValidationSystem').ValidationConfig>,
 ): AutomaticValidationSystem {
-  const { AutomaticValidationSystem } = require('./AutomaticValidationSystem');
+  // AutomaticValidationSystem already imported at top
   return new AutomaticValidationSystem(projectRoot, config);
 }
 
@@ -118,7 +125,7 @@ export async function quickValidate(
     context?: Record<string, unknown>;
   },
 ): Promise<{ passed: boolean; summary: string; issues: string[] }> {
-  const { validateTaskCompletion } = require('./ValidationIntegration');
+  // validateTaskCompletion already imported at top
 
   try {
     const result = await validateTaskCompletion(
@@ -162,8 +169,7 @@ export async function validateSystemHealth(projectRoot: string): Promise<{
   missingTools: string[];
   recommendations: string[];
 }> {
-  const { spawn } = require('node:child_process');
-  const { promisify } = require('node:util');
+  // spawn and promisify already imported at top
   const execAsync = promisify(spawn);
 
   const tools = [
@@ -272,8 +278,7 @@ export const DEFAULT_CONFIGS = {
 export async function getRecommendedConfig(
   projectRoot: string,
 ): Promise<typeof DEFAULT_CONFIGS.STANDARD> {
-  const { readFile, access } = require('node:fs/promises');
-  const { join } = require('node:path');
+  // readFile, access, and join already imported at top
 
   try {
     // Check package.json for project size indicators

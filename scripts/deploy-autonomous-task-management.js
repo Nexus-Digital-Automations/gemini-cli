@@ -14,10 +14,10 @@
  * and production readiness verification.
  */
 
-const fs = require('node:fs').promises;
-const path = require('node:path');
-const { spawn } = require('node:child_process');
-const { promisify } = require('node:util');
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
 
 // Configuration
 const DEPLOYMENT_CONFIG = {
