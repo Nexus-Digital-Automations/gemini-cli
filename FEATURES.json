@@ -324,8 +324,8 @@
       }
     ],
     "initialization_stats": {
-      "total_initializations": 12,
-      "total_reinitializations": 148,
+      "total_initializations": 16,
+      "total_reinitializations": 149,
       "current_day": "2025-09-25",
       "time_buckets": {
         "08:00-12:59": {
@@ -341,8 +341,8 @@
           "reinit": 73
         },
         "23:00-03:59": {
-          "init": 1,
-          "reinit": 12
+          "init": 5,
+          "reinit": 13
         },
         "04:00-08:59": {
           "init": 0,
@@ -406,24 +406,14 @@
         }
       ],
       "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T04:36:39.415Z"
+      "last_updated": "2025-09-25T04:37:22.983Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "ARCHITECTURE_ANALYSIS_AGENT": {
@@ -431,10 +421,7 @@
       "status": "active",
       "reinitialized": "2025-09-25T03:59:23.808Z",
       "sessionId": "d5650c41111c0632",
-      "previousSessions": [
-        "35a53c16bb9372e6",
-        "c7e981fbf0498479"
-      ]
+      "previousSessions": ["35a53c16bb9372e6", "c7e981fbf0498479"]
     },
     "TESTING_AGENT": {
       "lastHeartbeat": "2025-09-25T03:48:59.156Z",
@@ -464,18 +451,14 @@
       "status": "active",
       "reinitialized": "2025-09-25T03:59:18.288Z",
       "sessionId": "069374e0a3913b6a",
-      "previousSessions": [
-        "6b26306da1043ba0"
-      ]
+      "previousSessions": ["6b26306da1043ba0"]
     },
     "TASK_ENGINE_DEV_001": {
       "lastHeartbeat": "2025-09-25T03:59:17.866Z",
       "status": "active",
       "reinitialized": "2025-09-25T03:59:17.866Z",
       "sessionId": "9c7e901e61d39fc8",
-      "previousSessions": [
-        "f6cc822c6270c4f5"
-      ]
+      "previousSessions": ["f6cc822c6270c4f5"]
     },
     "TASK_QUEUE_DESIGNER_01": {
       "lastHeartbeat": "2025-09-25T04:08:19.625Z",
@@ -493,19 +476,14 @@
       "status": "active",
       "reinitialized": "2025-09-25T04:08:54.215Z",
       "sessionId": "3effa89d43f741bb",
-      "previousSessions": [
-        "3979f13b28814dec",
-        "159eaf1766f985ff"
-      ]
+      "previousSessions": ["3979f13b28814dec", "159eaf1766f985ff"]
     },
     "DEPENDENCY_ANALYSIS_SPECIALIST": {
       "lastHeartbeat": "2025-09-25T03:59:19.740Z",
       "status": "active",
       "reinitialized": "2025-09-25T03:59:19.740Z",
       "sessionId": "f74eb9e130c161f1",
-      "previousSessions": [
-        "d1e90192839f9de5"
-      ]
+      "previousSessions": ["d1e90192839f9de5"]
     },
     "VALIDATION_TESTING_LEAD": {
       "lastHeartbeat": "2025-09-25T04:16:51.106Z",
@@ -513,10 +491,7 @@
       "initialized": "2025-09-25T00:29:22.662Z",
       "sessionId": "e8cb3335ec3b5768",
       "reinitialized": "2025-09-25T04:16:51.106Z",
-      "previousSessions": [
-        "0acea578b0118832",
-        "cd4f98b83c71adb9"
-      ]
+      "previousSessions": ["0acea578b0118832", "cd4f98b83c71adb9"]
     },
     "INTEGRATION_SPECIALIST": {
       "lastHeartbeat": "2025-09-25T03:59:18.707Z",
@@ -547,9 +522,7 @@
       "status": "active",
       "reinitialized": "2025-09-25T03:42:26.738Z",
       "sessionId": "5f90c420aa0af4da",
-      "previousSessions": [
-        "887eba4846d7c117"
-      ]
+      "previousSessions": ["887eba4846d7c117"]
     },
     "COMPATIBILITY_VALIDATOR_001": {
       "lastHeartbeat": "2025-09-25T03:42:06.527Z",
@@ -559,13 +532,11 @@
       "previousSessions": []
     },
     "ANALYTICS_ENGINE_DEVELOPER": {
-      "lastHeartbeat": "2025-09-25T04:36:13.009Z",
+      "lastHeartbeat": "2025-09-25T04:37:04.336Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:36:13.009Z",
-      "sessionId": "06d73943a1c648c3",
-      "previousSessions": [
-        "140320ec8159086b"
-      ]
+      "reinitialized": "2025-09-25T04:37:04.336Z",
+      "sessionId": "ccebc8f542dc10d2",
+      "previousSessions": ["140320ec8159086b", "06d73943a1c648c3"]
     },
     "CLI_INTEGRATION_SPECIALIST": {
       "lastHeartbeat": "2025-09-25T04:21:49.426Z",
@@ -607,6 +578,30 @@
       "status": "active",
       "initialized": "2025-09-25T04:36:39.413Z",
       "sessionId": "1380f10ac67413e1"
+    },
+    "ARCHITECTURE_DESIGNER": {
+      "lastHeartbeat": "2025-09-25T04:36:50.247Z",
+      "status": "active",
+      "initialized": "2025-09-25T04:36:50.247Z",
+      "sessionId": "14a96bee84da7eab"
+    },
+    "DATA_MODELER": {
+      "lastHeartbeat": "2025-09-25T04:37:01.182Z",
+      "status": "active",
+      "initialized": "2025-09-25T04:37:01.182Z",
+      "sessionId": "fb82b809eaed4c6f"
+    },
+    "INTEGRATION_STRATEGIST": {
+      "lastHeartbeat": "2025-09-25T04:37:12.069Z",
+      "status": "active",
+      "initialized": "2025-09-25T04:37:12.069Z",
+      "sessionId": "bf6cf85acc3de3d8"
+    },
+    "ANALYTICS_FRAMEWORK_DESIGNER": {
+      "lastHeartbeat": "2025-09-25T04:37:22.981Z",
+      "status": "active",
+      "initialized": "2025-09-25T04:37:22.981Z",
+      "sessionId": "654493a8bd6a864f"
     }
   },
   "tasks": [],
