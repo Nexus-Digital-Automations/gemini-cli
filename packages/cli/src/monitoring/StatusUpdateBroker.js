@@ -304,6 +304,8 @@ export class StatusUpdateBroker extends EventEmitter {
         case 'webhook':
           this.queueWebhookEvent(subscriberId, event);
           break;
+        default:
+          break;
       }
     }
     this.performanceMetrics.eventsProcessed++;

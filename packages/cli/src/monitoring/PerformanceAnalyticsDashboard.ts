@@ -10,9 +10,6 @@ import type {
   TaskMetadata,
   TaskStatusUpdate,
   AgentStatus,
-  TaskStatus,
-  TaskType,
-  TaskPriority,
 } from './TaskStatusMonitor.js';
 
 /**
@@ -211,6 +208,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
       case 'failed':
         this.handleTaskFailure(task, update, agent);
         break;
+      default:
+        break;
     }
   }
 
@@ -235,6 +234,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
           agentId: agent.id,
           newStatus: agent.status,
         });
+        break;
+      default:
         break;
     }
   }

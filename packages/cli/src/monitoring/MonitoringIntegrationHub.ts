@@ -13,8 +13,6 @@ import {
 import { enhancedMonitoringDashboard } from './EnhancedMonitoringDashboard.js';
 import {
   taskStatusMonitor,
-  type TaskMetadata,
-  type AgentStatus,
 } from './TaskStatusMonitor.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
 import type { ExecutionMonitoringSystem } from '../../core/src/task-management/ExecutionMonitoringSystem.js';
@@ -287,7 +285,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
    * Get aggregated monitoring data
    */
   getAggregatedData(
-    timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour',
+    _timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour',
   ): {
     systemSnapshot: MonitoringSnapshot;
     taskMetrics: {
@@ -605,7 +603,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
 
     // Sync data between monitoring systems
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
-    const taskMetrics = taskStatusMonitor.getPerformanceMetrics();
+    const _taskMetrics = taskStatusMonitor.getPerformanceMetrics();
 
     // Update performance analytics with current data
     performanceAnalyticsDashboard.recordMetric(

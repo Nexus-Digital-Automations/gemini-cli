@@ -222,7 +222,7 @@ export class HealthDiagnostics extends EventEmitter {
   /**
    * Get health check history for a component
    */
-  getComponentHealthHistory(componentName, hours = 24) {
+  getComponentHealthHistory(componentName, _hours = 24) {
     // This would be implemented with persistent storage in a real system
     // For now, return the current result
     const current = this.lastHealthResults.get(componentName);
@@ -354,7 +354,7 @@ export class HealthDiagnostics extends EventEmitter {
       let message = 'Component is healthy';
       const details = {};
       switch (componentName) {
-        case 'TaskStatusMonitor':
+        case 'TaskStatusMonitor': {
           const taskMetrics = taskStatusMonitor.getPerformanceMetrics();
           details.totalTasks = taskMetrics.totalTasks;
           details.activeAgents = taskMetrics.activeAgents;
@@ -367,7 +367,8 @@ export class HealthDiagnostics extends EventEmitter {
             message = `Degraded system efficiency: ${taskMetrics.systemEfficiency.toFixed(1)}%`;
           }
           break;
-        case 'ProgressTracker':
+        }
+        case 'ProgressTracker': {
           const progressAnalytics = progressTracker.getProgressAnalytics();
           details.totalTrackedTasks = progressAnalytics.totalTasksTracked;
           details.activeTasks = progressAnalytics.activeTasks;
@@ -378,6 +379,7 @@ export class HealthDiagnostics extends EventEmitter {
             message = `Low estimation accuracy: ${progressAnalytics.averageEstimationAccuracy.toFixed(1)}%`;
           }
           break;
+        }
         case 'PerformanceAnalyticsDashboard': {
           const dashboardData =
             performanceAnalyticsDashboard.getDashboardData();
@@ -482,6 +484,9 @@ export class HealthDiagnostics extends EventEmitter {
           score += 25;
           break;
         case 'unknown':
+          score += 50;
+          break;
+        default:
           score += 50;
           break;
       }

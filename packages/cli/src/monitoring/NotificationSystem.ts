@@ -8,12 +8,7 @@ import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
 import type { StatusEvent, NotificationConfig } from './StatusUpdateBroker.js';
 import { statusUpdateBroker, StatusEventType } from './StatusUpdateBroker.js';
-import {
-  taskStatusMonitor,
-  TaskMetadata,
-  TaskStatus,
-  AgentStatus,
-} from './TaskStatusMonitor.js';
+// Imports available but unused in current implementation
 
 export interface NotificationPreferences {
   userId: string;
@@ -475,7 +470,7 @@ export class NotificationSystem extends EventEmitter {
   }
 
   private getRelevantEventTypes(
-    preferences: NotificationPreferences,
+    _preferences: NotificationPreferences,
   ): StatusEventType[] {
     // Return all event types that match user's interests
     // This could be more sophisticated based on user preferences
@@ -617,7 +612,7 @@ export class NotificationSystem extends EventEmitter {
     if (!preferences.quietHours) return false;
 
     const now = new Date();
-    const timezone = preferences.quietHours.timezone;
+    const _timezone = preferences.quietHours.timezone;
 
     // Simple quiet hours check (would need proper timezone handling in production)
     const currentHour = now.getHours();

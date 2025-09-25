@@ -703,14 +703,17 @@ export class MonitoringIntegrations extends EventEmitter {
         case 'bearer':
           headers.Authorization = `Bearer ${config.authentication.credentials.token}`;
           break;
-        case 'basic':
+        case 'basic': {
           const encoded = Buffer.from(
             `${config.authentication.credentials.username}:${config.authentication.credentials.password}`,
           ).toString('base64');
           headers.Authorization = `Basic ${encoded}`;
           break;
+        }
         case 'api_key':
           headers['X-API-Key'] = config.authentication.credentials.apiKey;
+          break;
+        default:
           break;
       }
     } else if (config.apiKey) {

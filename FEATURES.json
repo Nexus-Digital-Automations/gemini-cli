@@ -328,12 +328,12 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 212,
+      "total_reinitializations": 213,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 5
+          "reinit": 6
         },
         "14:00-18:59": {
           "init": 0,
@@ -409,14 +409,24 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T14:56:46.944Z"
+      "last_updated": "2025-09-25T15:38:49.059Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {
     "no-unused-vars-specialist": {
@@ -452,6 +462,13 @@
       "status": "active",
       "reinitialized": "2025-09-25T14:56:46.933Z",
       "sessionId": "e96874dd6981d0fb",
+      "previousSessions": []
+    },
+    "FINAL_BLOCKING_ERRORS_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T15:38:49.047Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T15:38:49.047Z",
+      "sessionId": "d0fa74b9accf157f",
       "previousSessions": []
     }
   },

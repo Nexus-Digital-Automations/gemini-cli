@@ -7,12 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
 import { statusUpdateBroker, StatusEventType } from './StatusUpdateBroker.js';
-import {
-  taskStatusMonitor,
-  TaskMetadata,
-  TaskStatus,
-  AgentStatus,
-} from './TaskStatusMonitor.js';
+// Imports available but unused in current implementation
 /**
  * Real-time Notification System
  *
@@ -342,7 +337,7 @@ export class NotificationSystem extends EventEmitter {
       await this.deliverNotification(userId, notification, channel, event);
     }
   }
-  getRelevantEventTypes(preferences) {
+  getRelevantEventTypes(_preferences) {
     // Return all event types that match user's interests
     // This could be more sophisticated based on user preferences
     return [
@@ -447,7 +442,7 @@ export class NotificationSystem extends EventEmitter {
   isInQuietHours(preferences) {
     if (!preferences.quietHours) return false;
     const now = new Date();
-    const timezone = preferences.quietHours.timezone;
+    const _timezone = preferences.quietHours.timezone;
     // Simple quiet hours check (would need proper timezone handling in production)
     const currentHour = now.getHours();
     const startHour = parseInt(preferences.quietHours.start.split(':')[0], 10);

@@ -11,7 +11,6 @@ import { Logger } from '../utils/logger.js';
 import type {
   TaskMetadata,
   TaskStatus,
-  AgentStatus,
 } from './TaskStatusMonitor.js';
 
 /**
@@ -867,7 +866,7 @@ export class MetricsCollector extends EventEmitter {
   }
 
   private calculateTaskCompletionTrend(
-    tasks: TaskPerformanceMetrics[],
+    _tasks: TaskPerformanceMetrics[],
   ): number[] {
     // Implementation would calculate completion rate trends over time
     return [];
@@ -882,7 +881,7 @@ export class MetricsCollector extends EventEmitter {
     return [];
   }
 
-  private calculateErrorRateTrend(tasks: TaskPerformanceMetrics[]): number[] {
+  private calculateErrorRateTrend(_tasks: TaskPerformanceMetrics[]): number[] {
     // Implementation would calculate error rate trends over time
     return [];
   }
@@ -911,9 +910,9 @@ export class MetricsCollector extends EventEmitter {
   }
 
   private generateSystemRecommendations(
-    metrics: SystemMetrics[],
-    tasks: TaskPerformanceMetrics[],
-    bottlenecks: BottleneckAnalysis[],
+    _metrics: SystemMetrics[],
+    _tasks: TaskPerformanceMetrics[],
+    _bottlenecks: BottleneckAnalysis[],
   ): SystemAnalytics['recommendations'] {
     return {
       systemOptimization: [

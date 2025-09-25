@@ -290,7 +290,7 @@ export function createBudgetRouter() {
     budgetController.resetAllBudgets.bind(budgetController),
   );
   // Error handling middleware
-  router.use((error, req, res, next) => {
+  router.use((error, req, res, _next) => {
     logger.error('Budget API route error', {
       error: error.message,
       path: req.path,

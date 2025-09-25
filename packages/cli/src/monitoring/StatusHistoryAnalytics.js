@@ -566,6 +566,8 @@ export class StatusHistoryAnalytics {
             bucket.queued++;
           }
           break;
+        default:
+          break;
       }
     }
     // Convert to array format
@@ -582,10 +584,11 @@ export class StatusHistoryAnalytics {
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
       case 'day':
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-      case 'week':
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         return `${weekStart.getFullYear()}-W${Math.ceil(weekStart.getDate() / 7)}`;
+      }
       case 'month':
         return `${date.getFullYear()}-${date.getMonth()}`;
       default:
@@ -597,25 +600,25 @@ export class StatusHistoryAnalytics {
     switch (granularity) {
       case 'hour':
         return new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
-          parseInt(parts[3]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
+          parseInt(parts[3], 10),
         );
       case 'day':
         return new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
         );
       case 'week':
       case 'month':
-        return new Date(parseInt(parts[0]), parseInt(parts[1]) || 0, 1);
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) || 0, 1);
       default:
         return new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
         );
     }
   }
@@ -632,6 +635,8 @@ export class StatusHistoryAnalytics {
         break;
       case 'month':
         date.setMonth(date.getMonth() + 1);
+        break;
+      default:
         break;
     }
   }
