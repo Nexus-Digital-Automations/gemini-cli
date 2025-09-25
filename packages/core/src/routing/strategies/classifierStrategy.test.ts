@@ -19,19 +19,26 @@ import {
   DEFAULT_GEMINI_MODEL,
 } from '../../config/models.js';
 import { promptIdContext } from '../../utils/promptIdContext.js';
+import { getComponentLogger } from '../../utils/logger.js';
 import type { Content } from '@google/genai';
 
 vi.mock('../../core/baseLlmClient.js');
 vi.mock('../../utils/promptIdContext.js');
+vi.mock('../../utils/logger.js');
 
 describe('ClassifierStrategy', () => {
   let strategy: ClassifierStrategy;
   let mockContext: RoutingContext;
   let mockConfig: Config;
   let mockBaseLlmClient: BaseLlmClient;
+  let mockLogger: { warn: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock the logger
+    mockLogger = { warn: vi.fn() };
+    vi.mocked(getComponentLogger).mockReturnValue(mockLogger as ReturnType<typeof getComponentLogger>);
 
     strategy = new ClassifierStrategy();
     mockContext = {
@@ -127,9 +134,6 @@ describe('ClassifierStrategy', () => {
   });
 
   it('should return null if the classifier API call fails', async () => {
-    const consoleWarnSpy = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => {});
     const testError = new Error('API Failure');
     vi.mocked(mockBaseLlmClient.generateJson).mockRejectedValue(testError);
 
@@ -140,14 +144,15 @@ describe('ClassifierStrategy', () => {
     );
 
     expect(decision).toBeNull();
-    expect(consoleWarnSpy).toHaveBeenCalled();
-    consoleWarnSpy.mockRestore();
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'ClassifierStrategy failed',
+      expect.objectContaining({
+        error: testError,
+      }),
+    );
   });
 
   it('should return null if the classifier returns a malformed JSON object', async () => {
-    const consoleWarnSpy = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => {});
     const malformedApiResponse = {
       reasoning: 'This is a simple task.',
       // model_choice is missing, which will cause a Zod parsing error.
@@ -163,8 +168,12 @@ describe('ClassifierStrategy', () => {
     );
 
     expect(decision).toBeNull();
-    expect(consoleWarnSpy).toHaveBeenCalled();
-    consoleWarnSpy.mockRestore();
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'ClassifierStrategy failed',
+      expect.objectContaining({
+        error: expect.any(Error),
+      }),
+    );
   });
 
   it('should filter out tool-related history before sending to classifier', async () => {
@@ -247,9 +256,6 @@ describe('ClassifierStrategy', () => {
   });
 
   it('should use a fallback promptId if not found in context', async () => {
-    const consoleWarnSpy = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => {});
     vi.mocked(promptIdContext.getStore).mockReturnValue(undefined);
     const mockApiResponse = {
       reasoning: 'Simple.',
@@ -267,11 +273,13 @@ describe('ClassifierStrategy', () => {
     expect(generateJsonCall.promptId).toMatch(
       /^classifier-router-fallback-\d+-\w+$/,
     );
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
+    expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.stringContaining(
         'Could not find promptId in context. This is unexpected. Using a fallback ID:',
       ),
+      expect.objectContaining({
+        promptId: expect.stringMatching(/^classifier-router-fallback-\d+-\w+$/),
+      }),
     );
-    consoleWarnSpy.mockRestore();
   });
 });

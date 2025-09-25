@@ -145,6 +145,11 @@ async function getGeminiMdFilePathsInternalForEachDir(
   const allPaths = new Set<string>();
   const geminiMdFilenames = getAllGeminiMdFilenames();
 
+  // Initialize the FileDiscoveryService to ensure gitignore parsing works properly
+  if (fileService) {
+    await fileService.initialize();
+  }
+
   for (const geminiMdFilename of geminiMdFilenames) {
     const resolvedHome = path.resolve(userHomePath);
     const globalMemoryPath = path.join(
