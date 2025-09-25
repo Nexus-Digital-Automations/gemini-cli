@@ -11,7 +11,7 @@ import { performanceAnalyticsDashboard, type PerformanceMetric } from './Perform
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { WebSocketServer } from 'ws';
-import type { Server } from 'http';
+import type { Server } from 'node:http';
 
 /**
  * Real-time monitoring configuration
@@ -428,7 +428,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       config: this.config,
       snapshots: history,
       insights: insights.slice(0, 50), // Last 50 insights
-      alerts: alerts,
+      alerts,
       statistics: {
         totalSnapshots: history.length,
         totalInsights: insights.length,
@@ -1027,9 +1027,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   private calculateAverageAgentUtilization(agents: AgentStatus[]): number {
     if (agents.length === 0) return 0;
 
-    const totalUtilization = agents.reduce((sum, agent) => {
-      return sum + (agent.currentTasks.length > 0 ? 1 : 0);
-    }, 0);
+    const totalUtilization = agents.reduce((sum, agent) => sum + (agent.currentTasks.length > 0 ? 1 : 0), 0);
 
     return (totalUtilization / agents.length) * 100;
   }

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type {
   DecisionContext,
   Decision,
@@ -361,7 +361,7 @@ export class ConflictResolver extends EventEmitter {
 
     const strategyUsage: Record<ResolutionStrategy, number> = {} as Record<ResolutionStrategy, number>;
     const severityDistribution: Record<ConflictSeverity, number> = {} as Record<ConflictSeverity, number>;
-    let totalResolutionTime = 0;
+    const totalResolutionTime = 0;
     let totalFairness = 0;
     let totalEfficiency = 0;
     let totalSatisfaction = 0;

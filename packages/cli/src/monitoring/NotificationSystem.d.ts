@@ -3,9 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
-import type { StatusEvent } from './StatusUpdateBroker.js';
-import { StatusEventType } from './StatusUpdateBroker.js';
+import type { StatusEvent , StatusEventType } from './StatusUpdateBroker.js';
 export interface NotificationPreferences {
     userId: string;
     realTimeNotifications: boolean;

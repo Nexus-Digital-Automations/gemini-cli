@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CreateTaskRequest, UpdateTaskRequest } from '../types/Task';
-import { Logger } from './Logger';
+
+import type { CreateTaskRequest, UpdateTaskRequest } from '../types/Task';
+import type { Logger } from './Logger';
 /**
  * Validator utility for the Autonomous Task Management System
  */

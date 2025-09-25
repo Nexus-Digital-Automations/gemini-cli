@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export declare function createToolCallErrorMessage(expectedTools: string | string[], foundTools: string[], result: string): string;
 export declare function printDebugInfo(rig: TestRig, result: string, context?: Record<string, unknown>): {
     toolRequest: {

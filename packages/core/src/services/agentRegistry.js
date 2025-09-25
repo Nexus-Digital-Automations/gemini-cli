@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Agent Registry for Dynamic Agent Registration and Capability Discovery
  *

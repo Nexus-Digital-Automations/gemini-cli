@@ -3,8 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import chalk from 'chalk';
 import { TaskPriority, TaskCategory, TaskType } from '@google/gemini-cli-core/task-management/types.js';
+import { suggestFeature, convertTaskToFeature, handleApiResponse, handleApiFallback, initializeAgent } from '../taskManagerApi.js';
 export const addTaskCommand = {
     command: 'add <description>',
     describe: 'Add a new task to the autonomous system',
@@ -113,16 +115,40 @@ export const addTaskCommand = {
                 context: parsedContext,
                 expectedOutputs: parsedExpectedOutputs,
             };
-            // In a real implementation, this would send the task to the autonomous system
-            console.log(chalk.green('✅ Task added successfully!'));
-            console.log(chalk.blue('📋 Task Details:'));
-            console.log(`   ID: ${chalk.bold(taskId)}`);
-            console.log(`   Title: ${chalk.bold(newTask.title)}`);
-            console.log(`   Description: ${newTask.description}`);
-            console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
-            console.log(`   Category: ${chalk.cyan(newTask.category)}`);
-            console.log(`   Type: ${chalk.magenta(newTask.type)}`);
-            console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
+            // Initialize agent for task management
+            const agentId = `TASK_MANAGER_${Date.now()}`;
+            await initializeAgent(agentId);
+            // Convert autonomous task to TaskManager feature
+            const feature = convertTaskToFeature(newTask);
+            // Send task to TaskManager API
+            const apiResponse = await suggestFeature(feature);
+            if (handleApiResponse(apiResponse, 'Task submission')) {
+                console.log(chalk.blue('📋 Task Details:'));
+                console.log(`   ID: ${chalk.bold(taskId)}`);
+                console.log(`   Title: ${chalk.bold(newTask.title)}`);
+                console.log(`   Description: ${newTask.description}`);
+                console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
+                console.log(`   Category: ${chalk.cyan(newTask.category)}`);
+                console.log(`   Type: ${chalk.magenta(newTask.type)}`);
+                console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
+                if (apiResponse.data?.feature_id) {
+                    console.log(`   TaskManager Feature ID: ${chalk.green(apiResponse.data.feature_id)}`);
+                }
+            }
+            else {
+                // Fallback to local simulation
+                handleApiFallback('task submission', () => {
+                    console.log(chalk.green('✅ Task added to local queue!'));
+                    console.log(chalk.blue('📋 Task Details:'));
+                    console.log(`   ID: ${chalk.bold(taskId)}`);
+                    console.log(`   Title: ${chalk.bold(newTask.title)}`);
+                    console.log(`   Description: ${newTask.description}`);
+                    console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
+                    console.log(`   Category: ${chalk.cyan(newTask.category)}`);
+                    console.log(`   Type: ${chalk.magenta(newTask.type)}`);
+                    console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
+                });
+            }
             if (newTask.dependencies.length > 0) {
                 console.log(`   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`);
             }

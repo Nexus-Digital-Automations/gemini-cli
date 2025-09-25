@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { defineConfig } from 'vitest/config';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

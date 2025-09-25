@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export declare const SERVICE_NAME = "gemini-cli";
 export declare const EVENT_USER_PROMPT = "gemini_cli.user_prompt";
 export declare const EVENT_TOOL_CALL = "gemini_cli.tool_call";

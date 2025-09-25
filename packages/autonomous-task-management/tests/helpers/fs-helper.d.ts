@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { DirectoryJSON } from 'memfs';
 /**
  * File system helper for testing autonomous task management components

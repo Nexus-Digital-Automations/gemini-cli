@@ -74,9 +74,7 @@ export class CompatibilityValidator {
       name: 'taskmanager-api-connectivity',
       description: 'Verify TaskManager API is accessible and responsive',
       critical: false,
-      check: async () => {
-        return await checkApiAvailability();
-      },
+      check: async () => await checkApiAvailability(),
       remediation: 'Install and start the infinite-continue-stop-hook TaskManager API system'
     });
 

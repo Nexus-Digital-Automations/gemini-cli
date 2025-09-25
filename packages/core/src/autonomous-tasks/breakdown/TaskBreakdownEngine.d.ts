@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import winston from 'winston';
+
+import type winston from 'winston';
 import type { ITask, ITaskBreakdownStrategy, TaskContext } from '../interfaces/TaskInterfaces.js';
-import { TaskType, TaskPriority } from '../interfaces/TaskInterfaces.js';
+import type { TaskType, TaskPriority } from '../interfaces/TaskInterfaces.js';
 /**
  * Task complexity analysis result
  */

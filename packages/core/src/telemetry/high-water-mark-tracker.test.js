@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { HighWaterMarkTracker } from './high-water-mark-tracker.js';
 describe('HighWaterMarkTracker', () => {

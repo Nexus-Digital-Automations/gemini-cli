@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive Test Suite for QueueOptimizer
  *
  * Tests all aspects of queue optimization including:
@@ -11,16 +17,19 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
+import type {
+  QueueMetrics} from '../QueueOptimizer.js';
 import {
   QueueOptimizer,
   OptimizationStrategy,
   OptimizationRecommendation,
-  QueueMetrics,
   ResourceAllocation,
   BatchingStrategy,
 } from '../QueueOptimizer.js';
-import { Task, TaskStatus, TaskPriority } from '../TaskQueue.js';
-import { DependencyAnalysis, DependencyType } from '../DependencyResolver.js';
+import type { Task} from '../TaskQueue.js';
+import { TaskStatus, TaskPriority } from '../TaskQueue.js';
+import type { DependencyAnalysis} from '../DependencyResolver.js';
+import { DependencyType } from '../DependencyResolver.js';
 
 // Mock logger
 vi.mock('../utils/logger.js', () => ({

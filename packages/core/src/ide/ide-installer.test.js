@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi } from 'vitest';
 vi.mock('node:child_process', async (importOriginal) => {
     const actual = (await importOriginal());

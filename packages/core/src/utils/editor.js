@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { execSync, spawn, spawnSync } from 'node:child_process';
 function isValidEditorType(editor) {
     return [

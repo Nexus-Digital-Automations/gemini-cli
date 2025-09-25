@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, jest } from '@jest/globals';
 import { SystemInitializer, SystemConfig } from '@google/gemini-cli-core/autonomous-tasks/SystemInitializer.js';
 import { TaskExecutionEngine, TaskType, TaskPriority } from '@google/gemini-cli-core/task-management/TaskExecutionEngine.js';

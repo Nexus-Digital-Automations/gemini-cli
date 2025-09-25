@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { StatusEventType } from './StatusUpdateBroker.js';
+
+import type { StatusEventType } from './StatusUpdateBroker.js';
 export interface AnalyticsTimeframe {
     startDate: Date;
     endDate: Date;
@@ -21,13 +22,13 @@ export interface TaskAnalytics {
     tasksByType: Record<string, number>;
     tasksByPriority: Record<string, number>;
     tasksByAgent: Record<string, number>;
-    timeSeriesData: {
+    timeSeriesData: Array<{
         timestamp: Date;
         completed: number;
         failed: number;
         started: number;
         queued: number;
-    }[];
+    }>;
 }
 export interface AgentAnalytics {
     totalAgents: number;
@@ -36,12 +37,12 @@ export interface AgentAnalytics {
     busyAgents: number;
     offlineAgents: number;
     averageTasksPerAgent: number;
-    topPerformers: {
+    topPerformers: Array<{
         agentId: string;
         completedTasks: number;
         successRate: number;
         averageTaskTime: number;
-    }[];
+    }>;
     agentEfficiency: Record<string, {
         tasksCompleted: number;
         tasksStarted: number;
@@ -55,13 +56,13 @@ export interface SystemAnalytics {
     totalEvents: number;
     eventsPerHour: number;
     systemEfficiency: number;
-    bottlenecks: {
+    bottlenecks: Array<{
         type: 'agent_capacity' | 'task_queue' | 'dependency_chain' | 'resource_constraint';
         description: string;
         severity: 'low' | 'medium' | 'high' | 'critical';
         affectedTasks: string[];
         suggestedResolution: string;
-    }[];
+    }>;
     trends: {
         taskCompletionTrend: 'improving' | 'stable' | 'declining';
         agentUtilizationTrend: 'improving' | 'stable' | 'declining';

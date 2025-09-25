@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { appendToLastTextPart } from '@google/gemini-cli-core';
 /**
  * Appends the user's full command invocation to the prompt if arguments are

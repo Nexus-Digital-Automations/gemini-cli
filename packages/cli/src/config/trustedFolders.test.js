@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as osActual from 'node:os';
 import { FatalConfigError, ideContextStore } from '@google/gemini-cli-core';
 import { describe, it, expect, vi, beforeEach, afterEach, } from 'vitest';

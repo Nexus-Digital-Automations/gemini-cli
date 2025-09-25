@@ -1313,11 +1313,9 @@ export class FileBasedTaskStore extends TaskStore {
   }
 
   private getNestedValue(obj: unknown, path: string): unknown {
-    return path.split('.').reduce((current, key) => {
-      return current && typeof current === 'object' && key in current
+    return path.split('.').reduce((current, key) => current && typeof current === 'object' && key in current
         ? (current as Record<string, unknown>)[key]
-        : undefined;
-    }, obj);
+        : undefined, obj);
   }
 
   private async migrateStorageIfNeeded(): Promise<void> {

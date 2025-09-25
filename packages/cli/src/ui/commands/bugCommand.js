@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import open from 'open';
 import process from 'node:process';
 import { CommandKind, } from './types.js';

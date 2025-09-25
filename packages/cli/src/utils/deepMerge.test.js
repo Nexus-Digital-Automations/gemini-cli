@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect } from 'vitest';
 import { customDeepMerge } from './deepMerge.js';
 import { MergeStrategy } from '../config/settingsSchema.js';
@@ -136,7 +137,7 @@ describe('customDeepMerge', () => {
         const getMergeStrategy = () => undefined;
         const result = customDeepMerge(getMergeStrategy, {}, maliciousSource);
         expect(result).toEqual({});
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         expect({}.polluted).toBeUndefined();
     });
 });

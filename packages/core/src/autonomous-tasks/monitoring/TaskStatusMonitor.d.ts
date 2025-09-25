@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { ITask, ITaskStatusMonitor, TaskMetrics, StatusSummary, AlertCondition, AlertCallback } from '../interfaces/TaskInterfaces.js';
-import { TaskStatus } from '../interfaces/TaskInterfaces.js';
+import type { TaskStatus } from '../interfaces/TaskInterfaces.js';
 /**
  * Monitor configuration options
  */

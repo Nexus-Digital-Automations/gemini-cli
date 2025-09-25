@@ -3,8 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type FunctionCall } from '@google/genai';
-import { PolicyDecision, type PolicyEngineConfig, type PolicyRule } from './types.js';
+import type { PolicyDecision} from './types.js';
+import { type PolicyEngineConfig, type PolicyRule } from './types.js';
 export declare class PolicyEngine {
     private rules;
     private readonly defaultDecision;

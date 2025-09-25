@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useState, useCallback } from 'react';
 import { MessageType } from '../types.js';
 import { allowEditorTypeInSandbox, checkHasEditorType, } from '@google/gemini-cli-core';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useCompletion } from './useCompletion.js';
 function useDebouncedValue(value, delay = 200) {

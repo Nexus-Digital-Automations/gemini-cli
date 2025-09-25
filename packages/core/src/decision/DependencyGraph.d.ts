@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { z } from 'zod';
+
+import type { z } from 'zod';
 import type { TaskId, Task, TaskDependency } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
 /**
@@ -244,13 +245,13 @@ export declare const DecisionDependencyNodeSchema: z.ZodObject<{
         dependencyConfidence: z.ZodMap<z.ZodString, z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
         impactScore: number;
-        criticality: "high" | "critical" | "low" | "medium";
+        criticality: "high" | "low" | "medium" | "critical";
         flexibility: number;
         delayCost: number;
         dependencyConfidence: Map<string, number>;
     }, {
         impactScore: number;
-        criticality: "high" | "critical" | "low" | "medium";
+        criticality: "high" | "low" | "medium" | "critical";
         flexibility: number;
         delayCost: number;
         dependencyConfidence: Map<string, number>;
@@ -263,57 +264,57 @@ export declare const DecisionDependencyNodeSchema: z.ZodObject<{
         pathCost: z.ZodOptional<z.ZodNumber>;
         heuristic: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        visited?: boolean | undefined;
         processing?: boolean | undefined;
-        depth?: number | undefined;
         topologicalOrder?: number | undefined;
+        visited?: boolean | undefined;
+        depth?: number | undefined;
         pathCost?: number | undefined;
         heuristic?: number | undefined;
     }, {
-        visited?: boolean | undefined;
         processing?: boolean | undefined;
-        depth?: number | undefined;
         topologicalOrder?: number | undefined;
+        visited?: boolean | undefined;
+        depth?: number | undefined;
         pathCost?: number | undefined;
         heuristic?: number | undefined;
     }>;
 }, "strip", z.ZodTypeAny, {
-    taskId: string;
     dependencies: string[];
+    taskId: string;
     dependents: string[];
     dependencyRelations: any[];
     decisionMetadata: {
         impactScore: number;
-        criticality: "high" | "critical" | "low" | "medium";
+        criticality: "high" | "low" | "medium" | "critical";
         flexibility: number;
         delayCost: number;
         dependencyConfidence: Map<string, number>;
     };
     traversalMetadata: {
-        visited?: boolean | undefined;
         processing?: boolean | undefined;
-        depth?: number | undefined;
         topologicalOrder?: number | undefined;
+        visited?: boolean | undefined;
+        depth?: number | undefined;
         pathCost?: number | undefined;
         heuristic?: number | undefined;
     };
 }, {
-    taskId: string;
     dependencies: string[];
+    taskId: string;
     dependents: string[];
     dependencyRelations: any[];
     decisionMetadata: {
         impactScore: number;
-        criticality: "high" | "critical" | "low" | "medium";
+        criticality: "high" | "low" | "medium" | "critical";
         flexibility: number;
         delayCost: number;
         dependencyConfidence: Map<string, number>;
     };
     traversalMetadata: {
-        visited?: boolean | undefined;
         processing?: boolean | undefined;
-        depth?: number | undefined;
         topologicalOrder?: number | undefined;
+        visited?: boolean | undefined;
+        depth?: number | undefined;
         pathCost?: number | undefined;
         heuristic?: number | undefined;
     };
@@ -350,8 +351,8 @@ export declare const GraphOptimizationSchema: z.ZodObject<{
     complexity: z.ZodEnum<["low", "medium", "high"]>;
     confidence: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    type: "remove_edge" | "add_edge" | "split_node" | "merge_nodes" | "reorder_execution";
     description: string;
+    type: "remove_edge" | "add_edge" | "split_node" | "merge_nodes" | "reorder_execution";
     confidence: number;
     complexity: "high" | "low" | "medium";
     targets: {
@@ -365,8 +366,8 @@ export declare const GraphOptimizationSchema: z.ZodObject<{
         flexibilityIncrease: number;
     };
 }, {
-    type: "remove_edge" | "add_edge" | "split_node" | "merge_nodes" | "reorder_execution";
     description: string;
+    type: "remove_edge" | "add_edge" | "split_node" | "merge_nodes" | "reorder_execution";
     confidence: number;
     complexity: "high" | "low" | "medium";
     targets: {

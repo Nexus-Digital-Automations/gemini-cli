@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { BudgetEnforcement, BudgetExceededError, } from '../budget/budget-enforcement.js';
 /**
  * A decorator that wraps a ContentGenerator to add budget enforcement to API calls.

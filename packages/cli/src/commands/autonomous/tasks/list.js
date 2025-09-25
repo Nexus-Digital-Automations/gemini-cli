@@ -3,8 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import chalk from 'chalk';
 import { TaskStatus, TaskPriority, TaskCategory } from '@google/gemini-cli-core/task-management/types.js';
+import { listFeatures, getFeatureStats, handleApiResponse, handleApiFallback, initializeAgent } from '../taskManagerApi.js';
 export const listTasksCommand = {
     command: 'list',
     describe: 'List tasks in the autonomous system',
@@ -51,56 +53,88 @@ export const listTasksCommand = {
         try {
             console.log(chalk.cyan('📋 Task List'));
             console.log(chalk.gray('─'.repeat(80)));
-            // Mock task data for demonstration
-            // In real implementation, this would fetch from the autonomous system
-            const mockTasks = [
-                {
-                    id: 'task_001',
-                    title: 'Implement user authentication system',
-                    status: TaskStatus.RUNNING,
-                    priority: TaskPriority.HIGH,
-                    category: TaskCategory.FEATURE,
-                    progress: 65,
-                    assignedAgent: 'SECURITY_AGENT_001',
-                    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-                    startedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-                    estimatedCompletion: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes from now
-                },
-                {
-                    id: 'task_002',
-                    title: 'Fix memory leak in task queue',
-                    status: TaskStatus.QUEUED,
-                    priority: TaskPriority.CRITICAL,
-                    category: TaskCategory.BUG_FIX,
-                    progress: 0,
-                    createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-                    dependencies: ['task_001']
-                },
-                {
-                    id: 'task_003',
-                    title: 'Update API documentation',
-                    status: TaskStatus.COMPLETED,
-                    priority: TaskPriority.MEDIUM,
-                    category: TaskCategory.DOCUMENTATION,
-                    progress: 100,
-                    assignedAgent: 'DOCUMENTATION_AGENT_001',
-                    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-                    completedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-                },
-                {
-                    id: 'task_004',
-                    title: 'Optimize database queries',
-                    status: TaskStatus.BLOCKED,
-                    priority: TaskPriority.HIGH,
-                    category: TaskCategory.PERFORMANCE,
-                    progress: 25,
-                    assignedAgent: 'PERFORMANCE_AGENT_001',
-                    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-                    blockedReason: 'Waiting for database schema update'
+            // Initialize agent for task management
+            const agentId = `TASK_LIST_${Date.now()}`;
+            await initializeAgent(agentId);
+            // Try to fetch from TaskManager API first
+            let tasks = [];
+            let useApiData = false;
+            const filter = {
+                ...(argv.status && { status: argv.status }),
+                ...(argv.priority && { priority: argv.priority }),
+                ...(argv.category && { category: argv.category })
+            };
+            const apiResponse = await listFeatures(Object.keys(filter).length > 0 ? filter : undefined);
+            if (handleApiResponse(apiResponse, 'Task list retrieval')) {
+                // Convert TaskManager features to task format
+                if (apiResponse.data?.features) {
+                    tasks = apiResponse.data.features.map((feature, index) => ({
+                        id: feature.id || `feature_${index}`,
+                        title: feature.title,
+                        status: feature.status || 'suggested',
+                        priority: feature.priority || 'medium',
+                        category: feature.category || 'feature',
+                        progress: feature.status === 'implemented' ? 100 :
+                            feature.status === 'approved' ? 50 : 0,
+                        createdAt: new Date(feature.created_at || Date.now()),
+                        description: feature.description
+                    }));
+                    useApiData = true;
                 }
-            ];
+            }
+            // Fallback to mock data if API is unavailable
+            if (!useApiData) {
+                handleApiFallback('task listing');
+                // Mock task data for demonstration
+                tasks = [
+                    {
+                        id: 'task_001',
+                        title: 'Implement user authentication system',
+                        status: TaskStatus.RUNNING,
+                        priority: TaskPriority.HIGH,
+                        category: TaskCategory.FEATURE,
+                        progress: 65,
+                        assignedAgent: 'SECURITY_AGENT_001',
+                        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+                        startedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+                        estimatedCompletion: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes from now
+                    },
+                    {
+                        id: 'task_002',
+                        title: 'Fix memory leak in task queue',
+                        status: TaskStatus.QUEUED,
+                        priority: TaskPriority.CRITICAL,
+                        category: TaskCategory.BUG_FIX,
+                        progress: 0,
+                        createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+                        dependencies: ['task_001']
+                    },
+                    {
+                        id: 'task_003',
+                        title: 'Update API documentation',
+                        status: TaskStatus.COMPLETED,
+                        priority: TaskPriority.MEDIUM,
+                        category: TaskCategory.DOCUMENTATION,
+                        progress: 100,
+                        assignedAgent: 'DOCUMENTATION_AGENT_001',
+                        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+                        completedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+                    },
+                    {
+                        id: 'task_004',
+                        title: 'Optimize database queries',
+                        status: TaskStatus.BLOCKED,
+                        priority: TaskPriority.HIGH,
+                        category: TaskCategory.PERFORMANCE,
+                        progress: 25,
+                        assignedAgent: 'PERFORMANCE_AGENT_001',
+                        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+                        blockedReason: 'Waiting for database schema update'
+                    }
+                ];
+            }
             // Apply filters
-            let filteredTasks = mockTasks.filter(task => {
+            let filteredTasks = tasks.filter(task => {
                 if (argv.status && task.status !== argv.status)
                     return false;
                 if (argv.category && task.category !== argv.category)

@@ -323,7 +323,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 11,
-      "total_reinitializations": 123,
+      "total_reinitializations": 125,
       "current_day": "2025-09-25",
       "time_buckets": {
         "08:00-12:59": {
@@ -336,7 +336,7 @@
         },
         "18:00-22:59": {
           "init": 11,
-          "reinit": 60
+          "reinit": 62
         },
         "23:00-03:59": {
           "init": 0,
@@ -404,7 +404,7 @@
         }
       ],
       "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T02:19:51.704Z"
+      "last_updated": "2025-09-25T03:42:26.740Z"
     }
   },
   "workflow_config": {
@@ -742,11 +742,13 @@
       "previousSessions": []
     },
     "PERSISTENCE_ENGINE_DEVELOPER": {
-      "lastHeartbeat": "2025-09-25T02:18:05.982Z",
+      "lastHeartbeat": "2025-09-25T03:42:26.738Z",
       "status": "active",
-      "reinitialized": "2025-09-25T02:18:05.982Z",
-      "sessionId": "887eba4846d7c117",
-      "previousSessions": []
+      "reinitialized": "2025-09-25T03:42:26.738Z",
+      "sessionId": "5f90c420aa0af4da",
+      "previousSessions": [
+        "887eba4846d7c117"
+      ]
     },
     "TASK_QUEUE_DESIGNER": {
       "lastHeartbeat": "2025-09-25T02:18:06.696Z",
@@ -766,6 +768,13 @@
       "status": "active",
       "initialized": "2025-09-25T02:19:51.702Z",
       "sessionId": "fd4d59a013d01e20"
+    },
+    "COMPATIBILITY_VALIDATOR_001": {
+      "lastHeartbeat": "2025-09-25T03:42:06.527Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T03:42:06.527Z",
+      "sessionId": "8958268f82235a01",
+      "previousSessions": []
     }
   },
   "tasks": [],

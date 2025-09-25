@@ -6,8 +6,8 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { InfiniteHookIntegration } from '../InfiniteHookIntegration.js';
-import { TaskExecutionEngine } from '../TaskExecutionEngine.complete.js';
-import { ExecutionMonitoringSystem } from '../ExecutionMonitoringSystem.js';
+import type { TaskExecutionEngine } from '../TaskExecutionEngine.complete.js';
+import type { ExecutionMonitoringSystem } from '../ExecutionMonitoringSystem.js';
 import type { Config } from '../../config/config.js';
 
 /**

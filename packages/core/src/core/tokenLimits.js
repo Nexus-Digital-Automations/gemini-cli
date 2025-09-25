@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export const DEFAULT_TOKEN_LIMIT = 1_048_576;
 export function tokenLimit(model) {
     // Add other models as they become relevant or if specified by config

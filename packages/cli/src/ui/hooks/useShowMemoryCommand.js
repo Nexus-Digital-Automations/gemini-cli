@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { MessageType } from '../types.js';
 export function createShowMemoryAction(config, settings, addMessage) {
     return async () => {

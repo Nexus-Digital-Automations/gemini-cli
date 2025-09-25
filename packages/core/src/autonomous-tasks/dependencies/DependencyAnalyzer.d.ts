@@ -1,4 +1,10 @@
-import { Task } from '../types/TaskTypes';
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type { Task } from '../types/TaskTypes';
 /**
  * Dependency analysis configuration
  */

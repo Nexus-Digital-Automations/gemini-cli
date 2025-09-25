@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as crypto from 'node:crypto';
 import { BaseTokenStorage } from './base-token-storage.js';
 const KEYCHAIN_TEST_PREFIX = '__keychain_test__';

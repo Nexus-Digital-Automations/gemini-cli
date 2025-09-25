@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GeminiClient } from '../core/client.js';
 import { Config } from '../config/config.js';

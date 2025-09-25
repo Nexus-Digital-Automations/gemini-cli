@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { lightTheme, Theme } from './theme.js';
 export const DefaultLight = new Theme('Default Light', 'light', {
     hljs: {

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /** Default Gemini Flash model for fast, cost-effective conversations (Flash-first approach) */
 export declare const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 /** Default Gemini Flash model for faster, cost-effective conversations */

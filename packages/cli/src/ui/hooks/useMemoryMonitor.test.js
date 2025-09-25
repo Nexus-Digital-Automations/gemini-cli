@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { useMemoryMonitor, MEMORY_CHECK_INTERVAL, MEMORY_WARNING_THRESHOLD, } from './useMemoryMonitor.js';

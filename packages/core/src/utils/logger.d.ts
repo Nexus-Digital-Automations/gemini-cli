@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Log level enumeration defining the severity hierarchy.
  * Used to filter log messages by importance and control verbosity.

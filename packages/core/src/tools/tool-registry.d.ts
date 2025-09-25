@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { FunctionDeclaration } from '@google/genai';
 import type { AnyDeclarativeTool, ToolResult, ToolInvocation } from './tools.js';
 import { BaseDeclarativeTool } from './tools.js';

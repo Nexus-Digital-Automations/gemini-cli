@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 const PATH_SEPARATOR_DEFINITION = {
     type: 'string',
     description: 'The path separator.',

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { randomUUID } from 'node:crypto';
 /**
  * Represents the complexity level of a task for breakdown analysis

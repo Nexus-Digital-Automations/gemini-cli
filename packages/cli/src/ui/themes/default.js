@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { darkTheme, Theme } from './theme.js';
 export const DefaultDark = new Theme('Default', 'dark', {
     hljs: {

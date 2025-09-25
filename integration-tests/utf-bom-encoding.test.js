@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';

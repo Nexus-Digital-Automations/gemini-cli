@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Config } from '../config/config.js';
 import type { ApiErrorEvent, ApiRequestEvent, ApiResponseEvent, FileOperationEvent, IdeConnectionEvent, StartSessionEvent, ToolCallEvent, UserPromptEvent, FlashFallbackEvent, NextSpeakerCheckEvent, LoopDetectedEvent, LoopDetectionDisabledEvent, SlashCommandEvent, ConversationFinishedEvent, KittySequenceOverflowEvent, ChatCompressionEvent, MalformedJsonResponseEvent, InvalidChunkEvent, ContentRetryEvent, ContentRetryFailureEvent, RipgrepFallbackEvent, ToolOutputTruncatedEvent, ModelRoutingEvent, FlashEscalationEvent, ExtensionEnableEvent, ExtensionUninstallEvent, ExtensionInstallEvent } from './types.js';
 export declare function logCliConfiguration(config: Config, event: StartSessionEvent): void;

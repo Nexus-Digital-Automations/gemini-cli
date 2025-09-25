@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach, afterEach, } from 'vitest';
 import { main, setupUnhandledRejectionHandler, validateDnsResolutionOrder, startInteractiveUI, } from './gemini.js';
 import {} from './config/settings.js';
@@ -193,9 +194,9 @@ describe('gemini.tsx main function kitty protocol', () => {
         // Set no relaunch in tests since process spawning causing issues in tests
         originalEnvNoRelaunch = process.env['GEMINI_CLI_NO_RELAUNCH'];
         process.env['GEMINI_CLI_NO_RELAUNCH'] = 'true';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         if (!process.stdin.setRawMode) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             process.stdin.setRawMode = vi.fn();
         }
         setRawModeSpy = vi.spyOn(process.stdin, 'setRawMode');

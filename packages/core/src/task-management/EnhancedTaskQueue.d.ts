@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import type { Task, TaskExecutionResult, QueueMetrics, TaskQueueOptions } from './TaskQueue.js';
-import { TaskQueue, TaskPriority, TaskCategory } from './TaskQueue.js';
+
+import type { Task, TaskExecutionResult, QueueMetrics, TaskQueueOptions , TaskPriority, TaskCategory } from './TaskQueue.js';
+import { TaskQueue } from './TaskQueue.js';
 /**
  * @fileoverview Enhanced Task Queue with Advanced Priority Scheduling
  *

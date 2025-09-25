@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { ValidationFramework, ValidationResult } from './ValidationFramework.js';
-import { ValidationSeverity } from './ValidationFramework.js';
+import type { ValidationSeverity } from './ValidationFramework.js';
 import type { TaskValidator, TaskExecutionMetrics } from './TaskValidator.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 /**

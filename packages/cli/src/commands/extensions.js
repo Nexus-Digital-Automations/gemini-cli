@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { installCommand } from './extensions/install.js';
 import { uninstallCommand } from './extensions/uninstall.js';
 import { listCommand } from './extensions/list.js';

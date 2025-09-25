@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Defines the structure of a virtual file system to be created for testing.
  * Keys are file or directory names, and values can be:

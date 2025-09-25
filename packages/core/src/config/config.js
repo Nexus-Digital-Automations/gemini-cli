@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as path from 'node:path';
 import process from 'node:process';
 import { AuthType, createContentGenerator, createContentGeneratorConfig, } from '../core/contentGenerator.js';
@@ -875,7 +876,7 @@ export class Config {
         try {
             const registry = new ToolRegistry(this, this.eventEmitter);
             // helper to create & register core tools that are enabled
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             const registerCoreTool = (ToolClass, ...args) => {
                 const className = ToolClass.name;
                 const toolName = ToolClass.Name || className;

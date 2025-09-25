@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { PartUnion } from '@google/genai';
 import type { FileSystemService } from '../services/fileSystemService.js';
-import { ToolErrorType } from '../tools/tool-error.js';
+import type { ToolErrorType } from '../tools/tool-error.js';
 export declare const DEFAULT_ENCODING: BufferEncoding;
 type UnicodeEncoding = 'utf8' | 'utf16le' | 'utf16be' | 'utf32le' | 'utf32be';
 interface BOMInfo {

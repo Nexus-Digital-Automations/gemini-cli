@@ -3,10 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { z } from 'zod';
+
+import type { z } from 'zod';
 import type { TaskId, Task, TaskDependency, ExecutionSequence } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
-import { DependencyAnalyzer } from './DependencyAnalyzer.js';
+import type { DependencyAnalyzer } from './DependencyAnalyzer.js';
 /**
  * Advanced sequencing algorithm types
  */
@@ -187,44 +188,44 @@ export declare const TaskSequencingConfigSchema: z.ZodObject<{
         deadline: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         duration: number;
-        resources: number;
-        dependencies: number;
         priority: number;
+        dependencies: number;
         deadline: number;
+        resources: number;
     }, {
         duration: number;
-        resources: number;
-        dependencies: number;
         priority: number;
+        dependencies: number;
         deadline: number;
+        resources: number;
     }>;
     enableDynamicResequencing: z.ZodBoolean;
     maxOptimizationTime: z.ZodNumber;
     enablePredictiveScheduling: z.ZodBoolean;
     resourcePools: z.ZodMap<z.ZodString, z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    algorithm: SequencingAlgorithm;
     weights: {
         duration: number;
-        resources: number;
-        dependencies: number;
         priority: number;
+        dependencies: number;
         deadline: number;
+        resources: number;
     };
     resourcePools: Map<string, number>;
+    algorithm: SequencingAlgorithm;
     enableDynamicResequencing: boolean;
     maxOptimizationTime: number;
     enablePredictiveScheduling: boolean;
 }, {
-    algorithm: SequencingAlgorithm;
     weights: {
         duration: number;
-        resources: number;
-        dependencies: number;
         priority: number;
+        dependencies: number;
         deadline: number;
+        resources: number;
     };
     resourcePools: Map<string, number>;
+    algorithm: SequencingAlgorithm;
     enableDynamicResequencing: boolean;
     maxOptimizationTime: number;
     enablePredictiveScheduling: boolean;
@@ -237,17 +238,17 @@ export declare const SequenceMetricsSchema: z.ZodObject<{
     dependencySatisfaction: z.ZodNumber;
     riskAssessment: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    totalExecutionTime: number;
     resourceUtilization: number;
+    criticalPathDuration: number;
+    totalExecutionTime: number;
     riskAssessment: number;
     parallelizationFactor: number;
-    criticalPathDuration: number;
     dependencySatisfaction: number;
 }, {
-    totalExecutionTime: number;
     resourceUtilization: number;
+    criticalPathDuration: number;
+    totalExecutionTime: number;
     riskAssessment: number;
     parallelizationFactor: number;
-    criticalPathDuration: number;
     dependencySatisfaction: number;
 }>;

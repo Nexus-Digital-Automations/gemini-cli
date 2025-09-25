@@ -524,11 +524,11 @@ describe('TaskLifecycle', () => {
     });
 
     it('should handle null/undefined task references', async () => {
-      expect(() => {
+      await expect(() => {
         lifecycle.transitionTo(null as any, 'ready');
       }).rejects.toThrow();
 
-      expect(() => {
+      await expect(() => {
         lifecycle.validateState(undefined as any);
       }).rejects.toThrow();
     });

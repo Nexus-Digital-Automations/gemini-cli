@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { MCPServerConfig, GeminiCLIExtension, ExtensionInstallMetadata } from '@google/gemini-cli-core';
-import { SettingScope } from '../config/settings.js';
+import type { SettingScope } from '../config/settings.js';
 import type { LoadExtensionContext } from './extensions/variableSchema.js';
 export declare const EXTENSIONS_DIRECTORY_NAME: string;
 export declare const EXTENSIONS_CONFIG_FILENAME = "gemini-extension.json";

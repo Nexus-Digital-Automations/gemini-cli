@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { act, renderHook } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach, } from 'vitest';
 const mockIsBinary = vi.hoisted(() => vi.fn());

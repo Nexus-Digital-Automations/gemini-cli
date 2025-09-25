@@ -3,12 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
-import { TaskValidationLevel, TaskExecutionMetrics } from './TaskValidator.js';
-import { QualityCheckType } from './QualityAssurance.js';
-import { RollbackTrigger } from './RollbackManager.js';
-import { Task } from '../task-management/types.js';
-import { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';
+import type { TaskValidationLevel, TaskExecutionMetrics } from './TaskValidator.js';
+import type { QualityCheckType } from './QualityAssurance.js';
+import type { RollbackTrigger } from './RollbackManager.js';
+import type { Task } from '../task-management/types.js';
+import type { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';
 /**
  * Validation integration events for system-wide monitoring
  */

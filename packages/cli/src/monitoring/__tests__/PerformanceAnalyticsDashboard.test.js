@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { PerformanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
 import { TaskType, TaskPriority, TaskStatus } from '../TaskStatusMonitor.js';

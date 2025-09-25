@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export declare enum EventMetadataKey {
     GEMINI_CLI_KEY_UNKNOWN = 0,
     GEMINI_CLI_START_SESSION_MODEL = 1,

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, expect, it, afterEach, beforeEach } from 'vitest';
 import * as child_process from 'node:child_process';
 import { isGitHubRepository, getGitRepoRoot, getLatestGitHubRelease, getGitHubRepoInfo, } from './gitUtils.js';

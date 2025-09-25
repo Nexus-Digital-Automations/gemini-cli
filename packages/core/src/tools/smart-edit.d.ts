@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { BaseDeclarativeTool, type ToolInvocation, type ToolResult } from './tools.js';
-import { ToolErrorType } from './tool-error.js';
+import type { ToolErrorType } from './tool-error.js';
 import { type Config } from '../config/config.js';
 import { type ModifiableDeclarativeTool, type ModifyContext } from './modifiable-tool.js';
 interface ReplacementContext {

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, expect, it } from 'vitest';
 import { getDiffStat } from './diffOptions.js';
 describe('getDiffStat', () => {

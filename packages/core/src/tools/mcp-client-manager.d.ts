@@ -3,10 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Config, MCPServerConfig } from '../config/config.js';
 import type { ToolRegistry } from './tool-registry.js';
 import type { PromptRegistry } from '../prompts/prompt-registry.js';
-import { MCPDiscoveryState } from './mcp-client.js';
+import type { MCPDiscoveryState } from './mcp-client.js';
 import type { EventEmitter } from 'node:events';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 /**

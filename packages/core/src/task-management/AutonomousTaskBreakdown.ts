@@ -437,7 +437,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
     ];
 
     let sequenceOrder = 0;
-    let cumulativeDependencies: string[] = [];
+    const cumulativeDependencies: string[] = [];
 
     for (let i = 0; i < Math.min(phaseCount, phases.length); i++) {
       const phase = phases[i];
@@ -1939,7 +1939,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
     logger.info('Execution outcome recorded for learning', {
       breakdownStrategy: breakdown.breakdownStrategy,
       subtaskCount: breakdown.subtasks.length,
-      successRate: successRate,
+      successRate,
       actualSpeedup: breakdown.originalTask.estimatedDuration / totalDuration
     });
 

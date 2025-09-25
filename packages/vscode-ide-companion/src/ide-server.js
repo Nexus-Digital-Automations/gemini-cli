@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as vscode from 'vscode';
 import { CloseDiffRequestSchema, IdeContextNotificationSchema, OpenDiffRequestSchema, } from '@google/gemini-cli-core/src/ide/types.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';

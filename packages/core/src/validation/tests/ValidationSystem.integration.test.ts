@@ -10,7 +10,8 @@ import { ValidationRules, RuleExecutionContext } from '../ValidationRules.js';
 import { TaskValidator, TaskValidationType, TaskValidationLevel } from '../TaskValidator.js';
 import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
 import { RollbackManager, RollbackTrigger, RollbackType } from '../RollbackManager.js';
-import { Task, TaskStatus, TaskPriority, TaskResult } from '../../task-management/types.js';
+import type { Task, TaskResult } from '../../task-management/types.js';
+import { TaskStatus, TaskPriority } from '../../task-management/types.js';
 
 // Mock logger to avoid console output during tests
 jest.mock('../../logger/Logger.js');

@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Content, ContentListUnion, GenerateContentParameters, CountTokensParameters, CountTokensResponse, GenerationConfigRoutingConfig, MediaResolution, Candidate, ModelSelectionConfig, GenerateContentResponsePromptFeedback, GenerateContentResponseUsageMetadata, Part, SafetySetting, PartUnion, SpeechConfigUnion, ThinkingConfig, ToolListUnion, ToolConfig } from '@google/genai';
-import { GenerateContentResponse } from '@google/genai';
+import type { GenerateContentResponse } from '@google/genai';
 export interface CAGenerateContentRequest {
     model: string;
     project?: string;

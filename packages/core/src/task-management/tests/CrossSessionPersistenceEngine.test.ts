@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive Test Suite for CrossSessionPersistenceEngine
  *
  * Tests all aspects of cross-session persistence including:

@@ -3,9 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { EventEmitter } from 'events';
+
+import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine';
-import { ResourceAllocator, ResourceType, ResourceInfo, AllocationResult, type AllocationStrategy, type ResourceRequirement } from './resourceAllocator';
+import type { ResourceAllocator, ResourceType, ResourceInfo, AllocationResult} from './resourceAllocator';
+import { type AllocationStrategy, type ResourceRequirement } from './resourceAllocator';
 import type { DecisionContext, Decision, DecisionPriority } from './types';
 /**
  * Task resource profile for decision making

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { TaskPersistence } from './TaskPersistence.js';
 import type { SessionManager } from './SessionManager.js';

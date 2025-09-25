@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { TrustLevel } from '../../config/trustedFolders.js';
+
+import type { TrustLevel } from '../../config/trustedFolders.js';
 import { type UseHistoryManagerReturn } from './useHistoryManager.js';
 export declare const usePermissionsModifyTrust: (onExit: () => void, addItem: UseHistoryManagerReturn["addItem"]) => {
     cwd: string;

@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive test suite for TaskPersistenceEngine
  * Tests core persistence functionality, ACID guarantees, and file locking
  */

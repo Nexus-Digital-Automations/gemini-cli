@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import { vol } from 'memfs';
 import { mockProcess } from './helpers/process-helper';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export const formatMemoryUsage = (bytes) => {
     const gb = bytes / (1024 * 1024 * 1024);
     if (bytes < 1024 * 1024) {

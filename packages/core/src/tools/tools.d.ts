@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { FunctionDeclaration, PartListUnion } from '@google/genai';
-import { ToolErrorType } from './tool-error.js';
+import type { ToolErrorType } from './tool-error.js';
 import type { DiffUpdateResult } from '../ide/ide-client.js';
 import type { ShellExecutionConfig } from '../services/shellExecutionService.js';
 import type { AnsiOutput } from '../utils/terminalSerializer.js';

@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ValidationContext, ValidationResult } from './ValidationFramework.js';
-import { ValidationSeverity } from './ValidationFramework.js';
+import type { ValidationSeverity } from './ValidationFramework.js';
 /**
  * Code quality validation configuration
  */

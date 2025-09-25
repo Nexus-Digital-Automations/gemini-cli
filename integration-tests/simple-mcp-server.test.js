@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * This test verifies MCP (Model Context Protocol) server integration.
  * It uses a minimal MCP server implementation that doesn't require

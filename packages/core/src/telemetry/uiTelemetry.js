@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { EVENT_API_ERROR, EVENT_API_RESPONSE, EVENT_TOOL_CALL, } from './constants.js';
 import { ToolCallDecision } from './tool-call-decision.js';

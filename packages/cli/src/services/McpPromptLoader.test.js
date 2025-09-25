@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { McpPromptLoader } from './McpPromptLoader.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CommandKind } from '../ui/commands/types.js';

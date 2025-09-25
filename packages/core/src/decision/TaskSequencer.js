@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { z } from 'zod';
 import { DependencyAnalyzer } from './DependencyAnalyzer.js';
 import { getComponentLogger } from '../utils/logger.js';

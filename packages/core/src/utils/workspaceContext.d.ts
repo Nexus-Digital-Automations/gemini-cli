@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export type Unsubscribe = () => void;
 /**
  * WorkspaceContext manages multiple workspace directories and validates paths

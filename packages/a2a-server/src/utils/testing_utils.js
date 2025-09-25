@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { ApprovalMode, DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES, DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD, GeminiClient, } from '@google/gemini-cli-core';
 import { expect, vi } from 'vitest';
 export function createMockConfig(overrides = {}) {

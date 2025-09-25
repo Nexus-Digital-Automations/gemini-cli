@@ -3,11 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { Prompt, GetPromptResult } from '@modelcontextprotocol/sdk/types.js';
 import type { Config, MCPServerConfig } from '../config/config.js';
-import { DiscoveredMCPTool } from './mcp-tool.js';
+import type { DiscoveredMCPTool } from './mcp-tool.js';
 import type { FunctionDeclaration } from '@google/genai';
 import type { ToolRegistry } from './tool-registry.js';
 import type { PromptRegistry } from '../prompts/prompt-registry.js';

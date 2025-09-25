@@ -3,11 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { z } from 'zod';
+
+import type { z } from 'zod';
 import type { TaskId, Task, TaskDependency } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
-import { DependencyAnalyzer } from './DependencyAnalyzer.js';
-import { DecisionDependencyGraph } from './DependencyGraph.js';
+import type { DependencyAnalyzer } from './DependencyAnalyzer.js';
+import type { DecisionDependencyGraph } from './DependencyGraph.js';
 /**
  * Parallel execution strategies
  */
@@ -266,7 +267,6 @@ export declare const ParallelOptimizationConfigSchema: z.ZodObject<{
     enablePredictiveAllocation: z.ZodBoolean;
     learningRate: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    maxConcurrency: number;
     strategy: ParallelStrategy;
     resourcePools: Map<string, {
         name: string;
@@ -277,13 +277,13 @@ export declare const ParallelOptimizationConfigSchema: z.ZodObject<{
         priorityMultiplier: number;
         costPerUnit?: number | undefined;
     }>;
+    maxConcurrency: number;
     enableDynamicRebalancing: boolean;
     targetResourceUtilization: number;
     minTaskDurationForParallelization: number;
     enablePredictiveAllocation: boolean;
     learningRate: number;
 }, {
-    maxConcurrency: number;
     strategy: ParallelStrategy;
     resourcePools: Map<string, {
         name: string;
@@ -294,6 +294,7 @@ export declare const ParallelOptimizationConfigSchema: z.ZodObject<{
         priorityMultiplier: number;
         costPerUnit?: number | undefined;
     }>;
+    maxConcurrency: number;
     enableDynamicRebalancing: boolean;
     targetResourceUtilization: number;
     minTaskDurationForParallelization: number;
@@ -310,20 +311,20 @@ export declare const ParallelExecutionGroupSchema: z.ZodObject<{
     confidence: z.ZodNumber;
     risks: z.ZodArray<z.ZodString, "many">;
 }, "strip", z.ZodTypeAny, {
-    id: string;
-    priority: number;
     tasks: string[];
-    estimatedDuration: number;
+    priority: number;
+    id: string;
     confidence: number;
+    estimatedDuration: number;
     risks: string[];
     resourceAllocations: Map<string, number>;
     satisfiesDependencies: any[];
 }, {
-    id: string;
-    priority: number;
     tasks: string[];
-    estimatedDuration: number;
+    priority: number;
+    id: string;
     confidence: number;
+    estimatedDuration: number;
     risks: string[];
     resourceAllocations: Map<string, number>;
     satisfiesDependencies: any[];

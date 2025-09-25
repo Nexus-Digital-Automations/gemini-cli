@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import fs from 'node:fs/promises';
 /**
  * Standard file system implementation using Node.js fs/promises API.

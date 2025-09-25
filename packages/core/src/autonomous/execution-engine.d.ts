@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { AutonomousTask, TaskStatus, ExecutionStrategy } from './task-breakdown-engine.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { setCommand } from './budget/set.js';
 import { getCommand } from './budget/get.js';
 import { resetCommand } from './budget/reset.js';

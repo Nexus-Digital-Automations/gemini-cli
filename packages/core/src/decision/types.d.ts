@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { z } from 'zod';
+
+import type { z } from 'zod';
 /**
  * Priority levels for autonomous decision-making.
  * Higher numbers indicate higher priority.
@@ -286,13 +287,13 @@ export declare const DecisionContextSchema: z.ZodObject<{
         agentCapabilities: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>;
         agentWorkloads: z.ZodRecord<z.ZodString, z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        maxConcurrentAgents: number;
         agentCapabilities: Record<string, string[]>;
+        maxConcurrentAgents: number;
         activeAgents: number;
         agentWorkloads: Record<string, number>;
     }, {
-        maxConcurrentAgents: number;
         agentCapabilities: Record<string, string[]>;
+        maxConcurrentAgents: number;
         activeAgents: number;
         agentWorkloads: Record<string, number>;
     }>;
@@ -305,13 +306,13 @@ export declare const DecisionContextSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         buildStatus: "failed" | "success" | "unknown" | "in-progress";
         testStatus: "unknown" | "in-progress" | "passing" | "failing";
-        lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+        lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
         gitStatus: "unknown" | "clean" | "modified" | "conflicted";
         lastBuildTime?: number | undefined;
     }, {
         buildStatus: "failed" | "success" | "unknown" | "in-progress";
         testStatus: "unknown" | "in-progress" | "passing" | "failing";
-        lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+        lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
         gitStatus: "unknown" | "clean" | "modified" | "conflicted";
         lastBuildTime?: number | undefined;
     }>;
@@ -398,15 +399,15 @@ export declare const DecisionContextSchema: z.ZodObject<{
         avgProcessingTime: number;
     };
     agentContext: {
-        maxConcurrentAgents: number;
         agentCapabilities: Record<string, string[]>;
+        maxConcurrentAgents: number;
         activeAgents: number;
         agentWorkloads: Record<string, number>;
     };
     projectState: {
         buildStatus: "failed" | "success" | "unknown" | "in-progress";
         testStatus: "unknown" | "in-progress" | "passing" | "failing";
-        lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+        lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
         gitStatus: "unknown" | "clean" | "modified" | "conflicted";
         lastBuildTime?: number | undefined;
     };
@@ -448,15 +449,15 @@ export declare const DecisionContextSchema: z.ZodObject<{
         avgProcessingTime: number;
     };
     agentContext: {
-        maxConcurrentAgents: number;
         agentCapabilities: Record<string, string[]>;
+        maxConcurrentAgents: number;
         activeAgents: number;
         agentWorkloads: Record<string, number>;
     };
     projectState: {
         buildStatus: "failed" | "success" | "unknown" | "in-progress";
         testStatus: "unknown" | "in-progress" | "passing" | "failing";
-        lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+        lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
         gitStatus: "unknown" | "clean" | "modified" | "conflicted";
         lastBuildTime?: number | undefined;
     };
@@ -547,13 +548,13 @@ export declare const DecisionSchema: z.ZodObject<{
             agentCapabilities: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>;
             agentWorkloads: z.ZodRecord<z.ZodString, z.ZodNumber>;
         }, "strip", z.ZodTypeAny, {
-            maxConcurrentAgents: number;
             agentCapabilities: Record<string, string[]>;
+            maxConcurrentAgents: number;
             activeAgents: number;
             agentWorkloads: Record<string, number>;
         }, {
-            maxConcurrentAgents: number;
             agentCapabilities: Record<string, string[]>;
+            maxConcurrentAgents: number;
             activeAgents: number;
             agentWorkloads: Record<string, number>;
         }>;
@@ -566,13 +567,13 @@ export declare const DecisionSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             buildStatus: "failed" | "success" | "unknown" | "in-progress";
             testStatus: "unknown" | "in-progress" | "passing" | "failing";
-            lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+            lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
             gitStatus: "unknown" | "clean" | "modified" | "conflicted";
             lastBuildTime?: number | undefined;
         }, {
             buildStatus: "failed" | "success" | "unknown" | "in-progress";
             testStatus: "unknown" | "in-progress" | "passing" | "failing";
-            lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+            lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
             gitStatus: "unknown" | "clean" | "modified" | "conflicted";
             lastBuildTime?: number | undefined;
         }>;
@@ -659,15 +660,15 @@ export declare const DecisionSchema: z.ZodObject<{
             avgProcessingTime: number;
         };
         agentContext: {
-            maxConcurrentAgents: number;
             agentCapabilities: Record<string, string[]>;
+            maxConcurrentAgents: number;
             activeAgents: number;
             agentWorkloads: Record<string, number>;
         };
         projectState: {
             buildStatus: "failed" | "success" | "unknown" | "in-progress";
             testStatus: "unknown" | "in-progress" | "passing" | "failing";
-            lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+            lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
             gitStatus: "unknown" | "clean" | "modified" | "conflicted";
             lastBuildTime?: number | undefined;
         };
@@ -709,15 +710,15 @@ export declare const DecisionSchema: z.ZodObject<{
             avgProcessingTime: number;
         };
         agentContext: {
-            maxConcurrentAgents: number;
             agentCapabilities: Record<string, string[]>;
+            maxConcurrentAgents: number;
             activeAgents: number;
             agentWorkloads: Record<string, number>;
         };
         projectState: {
             buildStatus: "failed" | "success" | "unknown" | "in-progress";
             testStatus: "unknown" | "in-progress" | "passing" | "failing";
-            lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+            lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
             gitStatus: "unknown" | "clean" | "modified" | "conflicted";
             lastBuildTime?: number | undefined;
         };
@@ -750,17 +751,18 @@ export declare const DecisionSchema: z.ZodObject<{
         score: z.ZodNumber;
         reasoning: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        reasoning: string;
         score: number;
+        reasoning: string;
         choice: string;
     }, {
-        reasoning: string;
         score: number;
+        reasoning: string;
         choice: string;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     timestamp: number;
     type: DecisionType;
+    priority: DecisionPriority;
     context: {
         timestamp: number;
         systemLoad: {
@@ -777,15 +779,15 @@ export declare const DecisionSchema: z.ZodObject<{
             avgProcessingTime: number;
         };
         agentContext: {
-            maxConcurrentAgents: number;
             agentCapabilities: Record<string, string[]>;
+            maxConcurrentAgents: number;
             activeAgents: number;
             agentWorkloads: Record<string, number>;
         };
         projectState: {
             buildStatus: "failed" | "success" | "unknown" | "in-progress";
             testStatus: "unknown" | "in-progress" | "passing" | "failing";
-            lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+            lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
             gitStatus: "unknown" | "clean" | "modified" | "conflicted";
             lastBuildTime?: number | undefined;
         };
@@ -813,25 +815,25 @@ export declare const DecisionSchema: z.ZodObject<{
         };
     };
     id: string;
-    priority: DecisionPriority;
     confidence: number;
+    evidence: Record<string, unknown>;
     reasoning: string;
     choice: string;
-    evidence: Record<string, unknown>;
     expectedOutcome: {
         estimatedDuration: number;
         requiredResources: string[];
         successProbability: number;
     };
     requiresApproval: boolean;
-    alternatives: {
-        reasoning: string;
+    alternatives: Array<{
         score: number;
+        reasoning: string;
         choice: string;
-    }[];
+    }>;
 }, {
     timestamp: number;
     type: DecisionType;
+    priority: DecisionPriority;
     context: {
         timestamp: number;
         systemLoad: {
@@ -848,15 +850,15 @@ export declare const DecisionSchema: z.ZodObject<{
             avgProcessingTime: number;
         };
         agentContext: {
-            maxConcurrentAgents: number;
             agentCapabilities: Record<string, string[]>;
+            maxConcurrentAgents: number;
             activeAgents: number;
             agentWorkloads: Record<string, number>;
         };
         projectState: {
             buildStatus: "failed" | "success" | "unknown" | "in-progress";
             testStatus: "unknown" | "in-progress" | "passing" | "failing";
-            lintStatus: "unknown" | "clean" | "warnings" | "errors" | "in-progress";
+            lintStatus: "errors" | "warnings" | "unknown" | "clean" | "in-progress";
             gitStatus: "unknown" | "clean" | "modified" | "conflicted";
             lastBuildTime?: number | undefined;
         };
@@ -884,22 +886,21 @@ export declare const DecisionSchema: z.ZodObject<{
         };
     };
     id: string;
-    priority: DecisionPriority;
     confidence: number;
+    evidence: Record<string, unknown>;
     reasoning: string;
     choice: string;
-    evidence: Record<string, unknown>;
     expectedOutcome: {
         estimatedDuration: number;
         requiredResources: string[];
         successProbability: number;
     };
     requiresApproval: boolean;
-    alternatives: {
-        reasoning: string;
+    alternatives: Array<{
         score: number;
+        reasoning: string;
         choice: string;
-    }[];
+    }>;
 }>;
 export declare const DecisionOutcomeSchema: z.ZodObject<{
     decisionId: z.ZodString;
@@ -912,20 +913,20 @@ export declare const DecisionOutcomeSchema: z.ZodObject<{
     insights: z.ZodArray<z.ZodString, "many">;
     errors: z.ZodArray<z.ZodString, "many">;
 }, "strip", z.ZodTypeAny, {
-    success: boolean;
     timestamp: number;
-    metrics: Record<string, number>;
+    success: boolean;
     errors: string[];
+    metrics: Record<string, number>;
     actualDuration: number;
     insights: string[];
     decisionId: string;
     actualResources: Record<string, number>;
     userSatisfaction?: number | undefined;
 }, {
-    success: boolean;
     timestamp: number;
-    metrics: Record<string, number>;
+    success: boolean;
     errors: string[];
+    metrics: Record<string, number>;
     actualDuration: number;
     insights: string[];
     decisionId: string;

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import path from 'node:path';
 import { promises as fsp, readFileSync } from 'node:fs';
 import { Storage } from '../config/storage.js';

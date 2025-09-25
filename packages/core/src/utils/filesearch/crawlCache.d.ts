@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Generates a unique cache key based on the project directory and the content
  * of ignore files. This ensures that the cache is invalidated if the project

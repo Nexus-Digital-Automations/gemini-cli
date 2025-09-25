@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as fs from 'node:fs';
 import { isSubpath } from '../utils/paths.js';
 import { detectIde } from '../ide/detect-ide.js';
@@ -19,9 +20,9 @@ import { EnvHttpProxyAgent } from 'undici';
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js';
 import { IDE_REQUEST_TIMEOUT_MS } from './constants.js';
 const logger = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     debug: (...args) => console.debug('[DEBUG] [IDEClient]', ...args),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     error: (...args) => console.error('[ERROR] [IDEClient]', ...args),
 };
 export var IDEConnectionStatus;

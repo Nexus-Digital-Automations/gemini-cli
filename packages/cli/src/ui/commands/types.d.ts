@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import type { Content, PartListUnion } from '@google/genai';
 import type { HistoryItemWithoutId, HistoryItem } from '../types.js';

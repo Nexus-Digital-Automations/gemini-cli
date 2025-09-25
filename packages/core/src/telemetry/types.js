@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { DiscoveredMCPTool } from '../tools/mcp-tool.js';
 import { AuthType } from '../core/contentGenerator.js';
 import { getDecisionFromOutcome, ToolCallDecision, } from './tool-call-decision.js';
@@ -104,7 +105,7 @@ export class ToolCallEvent {
     tool_type;
     content_length;
     mcp_server_name;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     metadata;
     constructor(call) {
         this['event.name'] = 'tool_call';

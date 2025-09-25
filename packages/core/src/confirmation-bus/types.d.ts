@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type FunctionCall } from '@google/genai';
 export declare enum MessageBusType {
     TOOL_CONFIRMATION_REQUEST = "tool-confirmation-request",

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { isSlashCommand } from './ui/utils/commandUtils.js';
 import { executeToolCall, shutdownTelemetry, isTelemetrySdkInitialized, GeminiEventType, FatalInputError, promptIdContext, OutputFormat, JsonFormatter, uiTelemetryService, } from '@google/gemini-cli-core';
 import { handleSlashCommand } from './nonInteractiveCliCommands.js';

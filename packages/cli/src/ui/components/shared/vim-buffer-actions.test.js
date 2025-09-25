@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect } from 'vitest';
 import { handleVimAction } from './vim-buffer-actions.js';
 // Helper to create test state

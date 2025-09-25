@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine';
+import type {
+  ResourceInfo,
+  AllocationRequest,
+  AllocationResult} from './resourceAllocator';
 import {
   ResourceAllocator,
   ResourceType,
-  ResourceInfo,
-  AllocationRequest,
-  AllocationResult,
   AllocationStrategies,
   type AllocationStrategy,
   type ResourceRequirement,

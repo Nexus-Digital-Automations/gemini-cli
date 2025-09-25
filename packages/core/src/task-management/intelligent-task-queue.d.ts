@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { TaskId, Task, TaskStatus, TaskResult, ExecutionPlan, TaskQueueConfig, ResourceAllocation } from './types.js';
-import { DependencyManager } from './dependency-manager.js';
+import type { DependencyManager } from './dependency-manager.js';
 import type { CoreToolScheduler } from '../core/coreToolScheduler.js';
 /**
  * Task execution context with enhanced metadata

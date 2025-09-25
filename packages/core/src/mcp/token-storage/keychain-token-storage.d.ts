@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { BaseTokenStorage } from './base-token-storage.js';
 import type { OAuthCredentials } from './types.js';
 interface Keytar {

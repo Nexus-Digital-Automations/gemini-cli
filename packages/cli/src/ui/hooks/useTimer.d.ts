@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Custom hook to manage a timer that increments every second.
  * @param isActive Whether the timer should be running.

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Resolves environment variables in a string.
  * Replaces $VAR_NAME and ${VAR_NAME} with their corresponding environment variable values.

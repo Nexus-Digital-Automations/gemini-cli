@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ContextState, SubAgentScope, SubagentTerminateMode, } from './subagent.js';
 import { Config } from '../config/config.js';
@@ -103,7 +104,7 @@ describe('subagent.ts', () => {
             ]);
             vi.mocked(createContentGenerator).mockResolvedValue({
                 getGenerativeModel: vi.fn(),
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
             });
             mockSendMessageStream = vi.fn();
             // We mock the implementation of the constructor.
@@ -144,7 +145,7 @@ describe('subagent.ts', () => {
                     }),
                 };
                 const { config } = await createMockConfig({
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                     
                     getTool: vi.fn().mockReturnValue(mockTool),
                 });
                 const toolConfig = { tools: ['risky_tool'] };
@@ -160,7 +161,7 @@ describe('subagent.ts', () => {
                     }),
                 };
                 const { config } = await createMockConfig({
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                     
                     getTool: vi.fn().mockReturnValue(mockTool),
                 });
                 const toolConfig = { tools: ['safe_tool'] };
@@ -501,7 +502,7 @@ describe('subagent.ts', () => {
                 // We need to control the resolution of the sendMessageStream promise to advance the timer during execution.
                 let resolveStream;
                 const streamPromise = new Promise((resolve) => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                     
                     resolveStream = resolve;
                 });
                 // The LLM call will hang until we resolve the promise.
@@ -511,7 +512,7 @@ describe('subagent.ts', () => {
                 // Advance time beyond the limit (6 minutes) while the agent is awaiting the LLM response.
                 await vi.advanceTimersByTimeAsync(6 * 60 * 1000);
                 // Now resolve the stream. The model returns 'stop'.
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 resolveStream(createMockStream(['stop'])());
                 await runPromise;
                 expect(scope.output.terminate_reason).toBe(SubagentTerminateMode.TIMEOUT);

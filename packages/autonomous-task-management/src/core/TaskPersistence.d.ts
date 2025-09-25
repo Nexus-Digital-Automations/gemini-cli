@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Task, TaskId } from '../types/Task';
-import { Logger } from '../utils/Logger';
+
+import type { Task, TaskId } from '../types/Task';
+import type { Logger } from '../utils/Logger';
 /**
  * TaskPersistence class - Handles task persistence and storage
  */

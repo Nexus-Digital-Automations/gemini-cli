@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { GeminiEventType, ApprovalMode, } from '@google/gemini-cli-core';
 import request from 'supertest';
 import { afterAll, afterEach, beforeEach, beforeAll, describe, expect, it, vi, } from 'vitest';

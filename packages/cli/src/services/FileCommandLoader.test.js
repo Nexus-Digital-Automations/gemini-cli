@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as path from 'node:path';
 import { Storage } from '@google/gemini-cli-core';
 import mock from 'mock-fs';

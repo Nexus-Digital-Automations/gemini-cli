@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import { writeFile, readFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * Advanced Test Metrics Collector
@@ -96,9 +96,9 @@ export class TestMetricsCollector {
       nodeVersion: process.version,
       platform: process.platform,
       architecture: process.arch,
-      cpuCount: require('os').cpus().length,
-      totalMemory: require('os').totalmem(),
-      freeMemory: require('os').freemem(),
+      cpuCount: require('node:os').cpus().length,
+      totalMemory: require('node:os').totalmem(),
+      freeMemory: require('node:os').freemem(),
       ci: process.env.CI === 'true',
       testEnvironment: process.env.NODE_ENV || 'development'
     };

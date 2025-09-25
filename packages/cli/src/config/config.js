@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { homedir } from 'node:os';
@@ -12,6 +13,7 @@ import process from 'node:process';
 import { mcpCommand } from '../commands/mcp.js';
 import { extensionsCommand } from '../commands/extensions.js';
 import { budgetCommand } from '../commands/budget.js';
+import { autonomousCommand } from '../commands/autonomous.js';
 import { Config, loadServerHierarchicalMemory, setGeminiMdFilename as setServerGeminiMdFilename, getCurrentGeminiMdFilename, ApprovalMode, DEFAULT_GEMINI_MODEL, DEFAULT_GEMINI_MODEL_AUTO, DEFAULT_GEMINI_EMBEDDING_MODEL, DEFAULT_MEMORY_FILE_FILTERING_OPTIONS, FileDiscoveryService, ShellTool, EditTool, WriteFileTool, resolveTelemetrySettings, FatalConfigError, } from '@google/gemini-cli-core';
 import { annotateActiveExtensions } from './extension.js';
 import { getCliVersion } from '../utils/version.js';
@@ -22,11 +24,11 @@ import { isWorkspaceTrusted } from './trustedFolders.js';
 import { createPolicyEngineConfig } from './policy.js';
 // Simple console logger for now - replace with actual logger if available
 const logger = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     debug: (...args) => console.debug('[DEBUG]', ...args),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     warn: (...args) => console.warn('[WARN]', ...args),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     error: (...args) => console.error('[ERROR]', ...args),
 };
 export async function parseArguments(settings) {
@@ -215,6 +217,8 @@ export async function parseArguments(settings) {
     }
     // Register budget subcommands
     yargsInstance.command(budgetCommand);
+    // Register autonomous task management subcommands
+    yargsInstance.command(autonomousCommand);
     yargsInstance
         .version(await getCliVersion()) // This will enable the --version flag based on package.json
         .alias('v', 'version')

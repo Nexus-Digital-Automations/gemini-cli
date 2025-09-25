@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { newCommand } from './new.js';
 import yargs from 'yargs';
@@ -17,7 +18,7 @@ describe('extensions new command', () => {
             { name: 'custom-commands', isDirectory: () => true },
             { name: 'mcp-server', isDirectory: () => true },
         ];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         mockedFs.readdir.mockResolvedValue(fakeFiles);
     });
     it('should fail if no path is provided', async () => {

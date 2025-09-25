@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as fse from 'fs-extra';
 import { join, dirname } from 'node:path';
 import { homedir } from 'node:os';

@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { EventEmitter } from 'events';
+
+import { EventEmitter } from 'node:events';
 import { Task, TaskId } from '../types/Task';
 import { AgentCoordinator } from './AgentCoordinator';
 import { QualityGateway } from './QualityGateway';

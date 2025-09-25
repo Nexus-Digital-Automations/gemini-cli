@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { parseSlashCommand } from './utils/commands.js';
 import { FatalInputError, Logger, uiTelemetryService, } from '@google/gemini-cli-core';
 import { CommandService } from './services/CommandService.js';

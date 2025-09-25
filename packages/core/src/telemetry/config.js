@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { FatalConfigError } from '../utils/errors.js';
 import { TelemetryTarget } from './index.js';
 /**

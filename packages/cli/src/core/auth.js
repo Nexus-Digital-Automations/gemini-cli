@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { getErrorMessage, } from '@google/gemini-cli-core';
 /**
  * Handles the initial authentication flow.

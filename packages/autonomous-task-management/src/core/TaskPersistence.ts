@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Task, TaskId } from '../types/Task';
-import { Logger } from '../utils/Logger';
+import type { Task, TaskId } from '../types/Task';
+import type { Logger } from '../utils/Logger';
 
 /**
  * TaskPersistence class - Handles task persistence and storage
@@ -20,24 +20,24 @@ export class TaskPersistence {
     this.logger = logger;
   }
 
-  public async initialize(): Promise<void> {
+  async initialize(): Promise<void> {
     this.logger.info('TaskPersistence initialized');
   }
 
-  public async shutdown(): Promise<void> {
+  async shutdown(): Promise<void> {
     this.logger.info('TaskPersistence shutdown');
   }
 
-  public async saveTask(task: Task): Promise<void> {
+  async saveTask(task: Task): Promise<void> {
     this.storage.set(task.id, task);
     this.logger.debug('Task saved', { taskId: task.id });
   }
 
-  public async loadTask(taskId: TaskId): Promise<Task | null> {
+  async loadTask(taskId: TaskId): Promise<Task | null> {
     return this.storage.get(taskId) || null;
   }
 
-  public async loadAllTasks(): Promise<Task[]> {
+  async loadAllTasks(): Promise<Task[]> {
     return Array.from(this.storage.values());
   }
 }

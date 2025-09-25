@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Quality scoring and assessment system for validation results
  * Provides intelligent quality scoring algorithms and assessment metrics

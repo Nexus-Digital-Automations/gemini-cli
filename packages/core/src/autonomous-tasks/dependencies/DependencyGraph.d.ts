@@ -1,5 +1,11 @@
-import { Task } from '../types/TaskTypes';
-import { DetectedDependency } from './DependencyAnalyzer';
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type { Task } from '../types/TaskTypes';
+import type { DetectedDependency } from './DependencyAnalyzer';
 /**
  * Graph node representing a task in the dependency graph
  */

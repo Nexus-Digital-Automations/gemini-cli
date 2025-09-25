@@ -3,9 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
-import type { TaskType, TaskMetadata } from '../../monitoring/TaskStatusMonitor.js';
-import { TaskPriority } from '../../monitoring/TaskStatusMonitor.js';
+import type { TaskType, TaskMetadata , TaskPriority } from '../../monitoring/TaskStatusMonitor.js';
 /**
  * Task scheduling options for intelligent queue management
  */

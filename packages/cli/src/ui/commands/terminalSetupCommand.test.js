@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { terminalSetupCommand } from './terminalSetupCommand.js';
 import * as terminalSetupModule from '../utils/terminalSetup.js';

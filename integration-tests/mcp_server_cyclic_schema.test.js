@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * This test verifies we can match maximum schema depth errors from Gemini
  * and then detect and warn about the potential tools that caused the error.

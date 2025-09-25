@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { SubAgentScope, ContextState, SubagentTerminateMode } from '../core/subagent.js';
 import { CoreToolScheduler } from '../core/coreToolScheduler.js';
 import { Turn } from '../core/turn.js';

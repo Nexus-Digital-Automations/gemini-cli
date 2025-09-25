@@ -5,11 +5,12 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import type {
+  ResourceInfo,
+  AllocationRequest} from './resourceAllocator';
 import {
   ResourceAllocator,
   ResourceType,
-  ResourceInfo,
-  AllocationRequest,
   AllocationStrategies,
   type AllocationResult,
   type ResourceRequirement,

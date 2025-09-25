@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { ITask, ITaskQueue, QueueStats } from '../interfaces/TaskInterfaces.js';
-import { TaskPriority } from '../interfaces/TaskInterfaces.js';
+import type { TaskPriority } from '../interfaces/TaskInterfaces.js';
 /**
  * Queue event types for monitoring and notifications
  */

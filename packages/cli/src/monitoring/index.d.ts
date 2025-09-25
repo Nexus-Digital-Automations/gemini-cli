@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Real-Time Task Status Monitoring System
  *
@@ -181,8 +182,8 @@ export declare const MonitoringUtils: {
             activeAgents: number;
             systemEfficiency: number;
         };
-        tasks: import("./TaskStatusMonitor.js").TaskMetadata[];
-        agents: import("./TaskStatusMonitor.js").AgentStatus[];
+        tasks: Array<import("./TaskStatusMonitor.js").TaskMetadata>;
+        agents: Array<import("./TaskStatusMonitor.js").AgentStatus>;
         metrics: {
             totalTasks: number;
             completedTasks: number;
@@ -295,8 +296,8 @@ declare const _default: {
                 activeAgents: number;
                 systemEfficiency: number;
             };
-            tasks: import("./TaskStatusMonitor.js").TaskMetadata[];
-            agents: import("./TaskStatusMonitor.js").AgentStatus[];
+            tasks: Array<import("./TaskStatusMonitor.js").TaskMetadata>;
+            agents: Array<import("./TaskStatusMonitor.js").AgentStatus>;
             metrics: {
                 totalTasks: number;
                 completedTasks: number;

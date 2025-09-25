@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { type VariableSchema, VARIABLE_SCHEMA } from './variableSchema.js';
+
+import type { VARIABLE_SCHEMA , type VariableSchema } from './variableSchema.js';
 export type JsonObject = {
     [key: string]: JsonValue;
 };

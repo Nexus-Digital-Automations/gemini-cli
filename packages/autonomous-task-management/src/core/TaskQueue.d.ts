@@ -3,11 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { Task, TaskId } from '../types/Task';
-import { TaskStatus } from '../types/Task';
+import type { TaskStatus } from '../types/Task';
 import type { QueueStatistics } from '../types/Queue';
-import { QueueStatus } from '../types/Queue';
+import type { QueueStatus } from '../types/Queue';
 import type { SystemConfig } from '../index';
 import type { Logger } from '../utils/Logger';
 /**

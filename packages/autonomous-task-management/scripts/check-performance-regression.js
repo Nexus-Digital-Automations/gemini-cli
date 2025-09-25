@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -13,8 +14,8 @@
  * pipelines to prevent performance degradation from being deployed.
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require('node:fs').promises;
+const path = require('node:path');
 
 class PerformanceRegressionChecker {
   constructor() {

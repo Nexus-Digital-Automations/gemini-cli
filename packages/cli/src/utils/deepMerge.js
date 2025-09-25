@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { MergeStrategy } from '../config/settingsSchema.js';
 function isPlainObject(item) {
     return !!item && typeof item === 'object' && !Array.isArray(item);

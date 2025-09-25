@@ -3,12 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { expect } from 'vitest';
 // RegExp to detect invalid characters: backspace, and ANSI escape codes
 // eslint-disable-next-line no-control-regex
 const invalidCharsRegex = /[\b\x1b]/;
 function toHaveOnlyValidCharacters(buffer) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { isNot } = this;
     let pass = true;
     const invalidLines = [];
@@ -35,6 +36,6 @@ function toHaveOnlyValidCharacters(buffer) {
 }
 expect.extend({
     toHaveOnlyValidCharacters,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
 });
 //# sourceMappingURL=customMatchers.js.map

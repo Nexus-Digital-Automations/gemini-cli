@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
@@ -49,7 +55,7 @@ export const ToolConfirmationMessage = ({ confirmationDetails, config, isFocused
     const handleSelect = (item) => handleConfirm(item);
     let bodyContent = null; // Removed contextDisplay here
     let question;
-    const options = new Array();
+    const options = [];
     // Body content is now the DiffRenderer, passing filename to it
     // The bordered box is removed from here and handled within DiffRenderer
     function availableBodyContentHeight() {

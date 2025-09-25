@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { DEFAULT_GEMINI_FLASH_LITE_MODEL, getResponseText, } from '@google/gemini-cli-core';
 import { isSlashCommand } from '../utils/commandUtils.js';

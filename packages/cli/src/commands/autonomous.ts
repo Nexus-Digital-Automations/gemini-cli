@@ -11,6 +11,7 @@ import { statusCommand } from './autonomous/status.js';
 import { tasksCommand } from './autonomous/tasks.js';
 import { metricsCommand } from './autonomous/metrics.js';
 import { configCommand } from './autonomous/config.js';
+import { compatibilityCheckCommand } from './autonomous/compatibility-check.js';
 
 /**
  * Autonomous Task Management CLI Command Interface
@@ -29,6 +30,7 @@ export const autonomousCommand: CommandModule = {
       .command(tasksCommand)
       .command(metricsCommand)
       .command(configCommand)
+      .command(compatibilityCheckCommand)
       .demandCommand(1, 'You need at least one command before continuing.')
       .version(false)
       .example('gemini autonomous start', 'Start the autonomous task management system')
@@ -37,6 +39,7 @@ export const autonomousCommand: CommandModule = {
       .example('gemini autonomous tasks add "Implement user auth"', 'Add a new task')
       .example('gemini autonomous metrics', 'Show performance metrics')
       .example('gemini autonomous config set maxAgents 10', 'Configure system settings')
+      .example('gemini autonomous compatibility-check', 'Validate system compatibility')
       .example('gemini autonomous stop', 'Stop the autonomous system gracefully')
       .epilog(`The autonomous task management system transforms Gemini CLI into a proactive
 development partner that can independently manage complex multi-session projects,

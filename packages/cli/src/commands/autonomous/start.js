@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import chalk from 'chalk';
 import { SystemInitializer } from '@google/gemini-cli-core/autonomous-tasks/SystemInitializer.js';
 import { getConfig } from '../../core/initializer.js';

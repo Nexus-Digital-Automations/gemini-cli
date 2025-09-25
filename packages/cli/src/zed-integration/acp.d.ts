@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import * as schema from './schema.js';
+
+import type * as schema from './schema.js';
 export * from './schema.js';
 import type { WritableStream, ReadableStream } from 'node:stream/web';
 export declare class AgentSideConnection implements Client {

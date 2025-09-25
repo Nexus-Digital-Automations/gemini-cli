@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { getComponentLogger } from '@google/gemini-cli-core';
 const logger = getComponentLogger('command-service');
 /**

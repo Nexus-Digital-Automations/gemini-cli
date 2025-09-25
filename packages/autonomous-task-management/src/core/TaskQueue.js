@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { TaskPriority, TaskStatus } from '../types/Task';
 import { QueueType, QueueStatus, TaskQueue as ITaskQueue } from '../types/Queue';

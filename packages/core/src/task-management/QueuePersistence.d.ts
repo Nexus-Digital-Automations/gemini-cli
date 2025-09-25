@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { Task, TaskExecutionRecord, QueueMetrics, TaskDependency } from './TaskQueue.js';
 import type { TaskId } from './types.js';

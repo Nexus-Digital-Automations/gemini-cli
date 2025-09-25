@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { EventMetadataKey } from './event-metadata-key.js';
 import { InstallationManager } from '../../utils/installationManager.js';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { cpuUsage, memoryUsage } from 'node:process';
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';

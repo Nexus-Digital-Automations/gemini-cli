@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ValidationResult, ValidationSeverity } from '../core/ValidationEngine.js';
 /**
  * Quality scoring weights configuration

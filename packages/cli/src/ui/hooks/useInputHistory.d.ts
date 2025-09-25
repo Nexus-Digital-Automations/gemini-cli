@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 interface UseInputHistoryProps {
     userMessages: readonly string[];
     onSubmit: (value: string) => void;

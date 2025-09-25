@@ -10,15 +10,17 @@ import { Logger } from '../logger/Logger.js';
 // Import validation system components
 import { ValidationFramework } from './ValidationFramework.js';
 import { ValidationRules, RuleExecutionContext } from './ValidationRules.js';
-import { TaskValidator, TaskValidationType, TaskValidationLevel, TaskValidationContext, TaskExecutionMetrics } from './TaskValidator.js';
+import type { TaskValidationContext, TaskExecutionMetrics } from './TaskValidator.js';
+import { TaskValidator, TaskValidationType, TaskValidationLevel } from './TaskValidator.js';
 import { QualityAssurance, QualityCheckType } from './QualityAssurance.js';
 import { RollbackManager, RollbackTrigger, RollbackType } from './RollbackManager.js';
 
 // Import task management types (using our types as they are compatible)
-import { Task, TaskStatus, TaskPriority, TaskResult } from '../task-management/types.js';
+import type { Task, TaskResult } from '../task-management/types.js';
+import { TaskStatus, TaskPriority } from '../task-management/types.js';
 
 // Import existing task execution engine types
-import { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';
+import type { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';
 
 /**
  * Validation integration events for system-wide monitoring

@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EventEmitter } from 'events';
-import { Task, TaskId } from '../types/Task';
-import { AgentCoordinator } from './AgentCoordinator';
-import { QualityGateway } from './QualityGateway';
-import { MonitoringService } from './MonitoringService';
-import { Logger } from '../utils/Logger';
+import { EventEmitter } from 'node:events';
+import type { Task} from '../types/Task';
+import { TaskId } from '../types/Task';
+import type { AgentCoordinator } from './AgentCoordinator';
+import type { QualityGateway } from './QualityGateway';
+import type { MonitoringService } from './MonitoringService';
+import type { Logger } from '../utils/Logger';
 
 /**
  * TaskExecutionEngine class - Manages task execution and validation
@@ -33,19 +34,19 @@ export class TaskExecutionEngine extends EventEmitter {
     this.logger = logger;
   }
 
-  public async initialize(): Promise<void> {
+  async initialize(): Promise<void> {
     this.logger.info('TaskExecutionEngine initialized');
   }
 
-  public async start(): Promise<void> {
+  async start(): Promise<void> {
     this.logger.info('TaskExecutionEngine started');
   }
 
-  public async stop(): Promise<void> {
+  async stop(): Promise<void> {
     this.logger.info('TaskExecutionEngine stopped');
   }
 
-  public async executeTask(task: Task): Promise<void> {
+  async executeTask(task: Task): Promise<void> {
     this.logger.info('Executing task', { taskId: task.id });
 
     try {

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /** Directory name for Gemini CLI configuration and data storage */
 export declare const GEMINI_DIR = ".gemini";
 /** Filename for Google accounts configuration */

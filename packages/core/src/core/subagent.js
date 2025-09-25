@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { reportError } from '../utils/errorReporting.js';
 import { ToolRegistry } from '../tools/tool-registry.js';
 import { executeToolCall } from './nonInteractiveToolExecutor.js';

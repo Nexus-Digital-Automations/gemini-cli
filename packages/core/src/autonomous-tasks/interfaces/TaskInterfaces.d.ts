@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { EventEmitter } from 'node:events';
 /**
  * Task priority levels for queue management

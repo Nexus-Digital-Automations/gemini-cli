@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Config } from '@google/gemini-cli-core';
+
+import type { Config } from '@google/gemini-cli-core';
 import type { Settings } from './settings.js';
 import type { Extension } from './extension.js';
 import { type AgentSettings } from '../types.js';

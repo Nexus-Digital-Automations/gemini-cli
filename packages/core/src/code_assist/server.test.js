@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { CodeAssistServer } from './server.js';
 import { OAuth2Client } from 'google-auth-library';

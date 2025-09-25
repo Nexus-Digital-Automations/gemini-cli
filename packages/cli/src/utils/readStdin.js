@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export async function readStdin() {
     const MAX_STDIN_SIZE = 8 * 1024 * 1024; // 8MB
     return new Promise((resolve, reject) => {

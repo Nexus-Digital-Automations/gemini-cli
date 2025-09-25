@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { loadExtensions, annotateActiveExtensions, } from '../../config/extension.js';
 import { updateAllUpdatableExtensions, checkForAllExtensionUpdates, updateExtension, } from '../../config/extensions/update.js';
 import { checkForExtensionUpdate } from '../../config/extensions/github.js';

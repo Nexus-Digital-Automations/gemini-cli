@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import winston from 'winston';
 const logger = winston.createLogger({
     level: 'info',

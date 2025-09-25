@@ -21,7 +21,8 @@ import type {
   DependencyError,
   DependencyWarning
 } from '../interfaces/TaskInterfaces.js';
-import { DependencyAnalyzer, DetectedDependency, DependencyAnalysisResult } from './DependencyAnalyzer.js';
+import type { DependencyAnalysisResult } from './DependencyAnalyzer.js';
+import { DependencyAnalyzer, DetectedDependency } from './DependencyAnalyzer.js';
 
 /**
  * Sequencing strategy for task execution
@@ -839,9 +840,7 @@ export class DependencySequencer extends EventEmitter implements IDependencyMana
     const maxConcurrency = Math.max(...groups.map(g => g.tasks.length));
 
     // Calculate resource efficiency (simplified)
-    const totalResources = groups.reduce((sum, group) => {
-      return sum + Object.values(group.resourceRequirements).reduce((s, r) => s + r, 0);
-    }, 0);
+    const totalResources = groups.reduce((sum, group) => sum + Object.values(group.resourceRequirements).reduce((s, r) => s + r, 0), 0);
     const resourceEfficiency = totalResources > 0 ? Math.min(1, totalResources / (groups.length * 100)) : 0.8;
 
     // Calculate confidence based on multiple factors

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { ToolConfirmationOutcome, ApprovalMode, logToolCall, ReadFileTool, ToolErrorType, ToolCallEvent, ShellTool, logToolOutputTruncated, ToolOutputTruncatedEvent, } from '../index.js';
 import { getResponseTextFromParts } from '../utils/generateContentResponseUtilities.js';
 import { isModifiableDeclarativeTool, modifyWithEditor, } from '../tools/modifiable-tool.js';

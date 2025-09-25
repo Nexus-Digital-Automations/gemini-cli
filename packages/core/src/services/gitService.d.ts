@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Storage } from '../config/storage.js';
 /**
  * Git-based checkpointing service for project state management and recovery.

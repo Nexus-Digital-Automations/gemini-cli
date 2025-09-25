@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { type Config, UserTierId } from '@google/gemini-cli-core';
+
+import type { UserTierId , type Config } from '@google/gemini-cli-core';
 import { type UseHistoryManagerReturn } from './useHistoryManager.js';
-import { AuthState } from '../types.js';
+import type { AuthState } from '../types.js';
 import { type ProQuotaDialogRequest } from '../contexts/UIStateContext.js';
 interface UseQuotaAndFallbackArgs {
     config: Config;

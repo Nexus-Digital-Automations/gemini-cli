@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type EditorType } from '@google/gemini-cli-core';
 export interface EditorDisplay {
     name: string;

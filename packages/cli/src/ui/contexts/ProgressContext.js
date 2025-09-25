@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useState, useCallback, } from 'react';
 import { globalProgressTracker, OperationDetector, } from '@google/gemini-cli-core';

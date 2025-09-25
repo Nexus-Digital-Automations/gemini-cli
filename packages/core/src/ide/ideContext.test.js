@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { IDE_MAX_OPEN_FILES, IDE_MAX_SELECTED_TEXT_LENGTH, } from './constants.js';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { IdeContextStore } from './ideContext.js';

@@ -17,7 +17,7 @@ export class MetricsCollector {
     this.config = config;
   }
 
-  public start(): void {
+  start(): void {
     if (this.isStarted) return;
 
     this.isStarted = true;
@@ -28,7 +28,7 @@ export class MetricsCollector {
     }
   }
 
-  public stop(): void {
+  stop(): void {
     if (this.collectionInterval) {
       clearInterval(this.collectionInterval);
       this.collectionInterval = null;
@@ -36,7 +36,7 @@ export class MetricsCollector {
     this.isStarted = false;
   }
 
-  public incrementCounter(name: string, tags?: Record<string, string>): void {
+  incrementCounter(name: string, tags?: Record<string, string>): void {
     const key = this.getMetricKey(name, tags);
     const existing = this.metrics.get(key);
 
@@ -54,7 +54,7 @@ export class MetricsCollector {
     }
   }
 
-  public setGauge(name: string, value: number, tags?: Record<string, string>): void {
+  setGauge(name: string, value: number, tags?: Record<string, string>): void {
     const key = this.getMetricKey(name, tags);
     this.metrics.set(key, {
       name,
@@ -65,7 +65,7 @@ export class MetricsCollector {
     });
   }
 
-  public recordTimer(name: string, duration: number, tags?: Record<string, string>): void {
+  recordTimer(name: string, duration: number, tags?: Record<string, string>): void {
     const key = this.getMetricKey(name, tags);
     this.metrics.set(key, {
       name,
@@ -76,7 +76,7 @@ export class MetricsCollector {
     });
   }
 
-  public getMetrics(): Metric[] {
+  getMetrics(): Metric[] {
     return Array.from(this.metrics.values());
   }
 

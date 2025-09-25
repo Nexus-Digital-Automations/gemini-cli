@@ -3,12 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type React from 'react';
 import type { TextBuffer } from './shared/text-buffer.js';
 import type { Key } from '../hooks/useKeypress.js';
 import type { CommandContext, SlashCommand } from '../commands/types.js';
-import type { Config } from '@google/gemini-cli-core';
-import { ApprovalMode } from '@google/gemini-cli-core';
+import type { Config , ApprovalMode } from '@google/gemini-cli-core';
 export interface InputPromptProps {
     buffer: TextBuffer;
     onSubmit: (value: string) => void;

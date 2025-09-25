@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { getErrorMessage, loadServerHierarchicalMemory, } from '@google/gemini-cli-core';
 import { MessageType } from '../types.js';
 import { CommandKind } from './types.js';

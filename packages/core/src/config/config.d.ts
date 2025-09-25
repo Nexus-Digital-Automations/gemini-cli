@@ -3,30 +3,31 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ContentGenerator, ContentGeneratorConfig } from '../core/contentGenerator.js';
-import { AuthType } from '../core/contentGenerator.js';
-import { PromptRegistry } from '../prompts/prompt-registry.js';
-import { ToolRegistry } from '../tools/tool-registry.js';
-import { GeminiClient } from '../core/client.js';
-import { BaseLlmClient } from '../core/baseLlmClient.js';
-import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
-import { GitService } from '../services/gitService.js';
+import type { AuthType } from '../core/contentGenerator.js';
+import type { PromptRegistry } from '../prompts/prompt-registry.js';
+import type { ToolRegistry } from '../tools/tool-registry.js';
+import type { GeminiClient } from '../core/client.js';
+import type { BaseLlmClient } from '../core/baseLlmClient.js';
+import type { FileDiscoveryService } from '../services/fileDiscoveryService.js';
+import type { GitService } from '../services/gitService.js';
 import type { TelemetryTarget } from '../telemetry/index.js';
 import { DEFAULT_GEMINI_FLASH_MODEL } from './models.js';
 import type { MCPOAuthConfig } from '../mcp/oauth-provider.js';
 import type { FileSystemService } from '../services/fileSystemService.js';
 import type { FallbackModelHandler } from '../fallback/types.js';
-import { ModelRouterService } from '../routing/modelRouterService.js';
-import { OutputFormat } from '../output/types.js';
+import type { ModelRouterService } from '../routing/modelRouterService.js';
+import type { OutputFormat } from '../output/types.js';
 export type { MCPOAuthConfig, AnyToolInvocation };
 import type { AnyToolInvocation } from '../tools/tools.js';
-import { WorkspaceContext } from '../utils/workspaceContext.js';
-import { Storage } from './storage.js';
+import type { WorkspaceContext } from '../utils/workspaceContext.js';
+import type { Storage } from './storage.js';
 import type { ShellExecutionConfig } from '../services/shellExecutionService.js';
-import { FileExclusions } from '../utils/ignorePatterns.js';
+import type { FileExclusions } from '../utils/ignorePatterns.js';
 import type { EventEmitter } from 'node:events';
-import { MessageBus } from '../confirmation-bus/message-bus.js';
-import { PolicyEngine } from '../policy/policy-engine.js';
+import type { MessageBus } from '../confirmation-bus/message-bus.js';
+import type { PolicyEngine } from '../policy/policy-engine.js';
 import type { PolicyEngineConfig } from '../policy/types.js';
 import type { UserTierId } from '../code_assist/types.js';
 /**

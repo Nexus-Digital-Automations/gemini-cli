@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import * as vscode from 'vscode';
+
+import type * as vscode from 'vscode';
 import type { IdeContext } from '@google/gemini-cli-core/src/ide/types.js';
 export declare const MAX_FILES = 10;
 /**

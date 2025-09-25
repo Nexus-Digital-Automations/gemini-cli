@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { TextBufferState, TextBufferAction } from './text-buffer.js';
 export type VimAction = Extract<TextBufferAction, {
     type: 'vim_delete_word_forward';

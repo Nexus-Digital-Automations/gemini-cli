@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach, } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useAutoAcceptIndicator } from './useAutoAcceptIndicator.js';
@@ -55,7 +56,7 @@ describe('useAutoAcceptIndicator', () => {
         mockedUseKeypress.mockImplementation((handler, _options) => {
             capturedUseKeypressHandler = handler;
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         mockConfigInstance = new Config();
     });
     it('should initialize with ApprovalMode.AUTO_EDIT if config.getApprovalMode returns ApprovalMode.AUTO_EDIT', () => {

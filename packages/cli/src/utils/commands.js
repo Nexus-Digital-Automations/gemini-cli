@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import {} from '../ui/commands/types.js';
 /**
  * Parses a raw slash command string into its command, arguments, and canonical path.

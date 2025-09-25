@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach, afterEach, } from 'vitest';
 import { checkHasEditorType, getDiffCommand, openDiff, allowEditorTypeInSandbox, isEditorAvailable, } from './editor.js';
 import { execSync, spawn, spawnSync } from 'node:child_process';
