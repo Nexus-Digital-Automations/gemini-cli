@@ -156,7 +156,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['packages/*/src/**/*.test.{ts,tsx}'],
+    files: [
+      'packages/*/src/**/*.test.{ts,tsx,js}',
+      'packages/*/src/**/__tests__/**/*.{ts,tsx,js}',
+      'packages/*/src/**/tests/**/*.{ts,tsx,js}',
+      'scripts/tests/**/*.test.{ts,tsx,js}',
+      'src/**/*.test.{ts,tsx,js}',
+    ],
     plugins: {
       vitest,
     },
@@ -391,6 +397,27 @@ export default tseslint.config(
       globals: {
         ...globals.node,
         ...globals.es2021,
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // settings for test files in root directory
+  {
+    files: ['test-*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
         console: 'readonly',
         process: 'readonly',
       },
