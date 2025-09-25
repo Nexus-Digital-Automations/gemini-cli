@@ -60,7 +60,9 @@ describe('BudgetDisplay', () => {
       compact: false,
     };
 
-    vi.mocked(createBudgetTracker).mockReturnValue(mockTracker as any);
+    vi.mocked(createBudgetTracker).mockReturnValue(
+      mockTracker as ReturnType<typeof createBudgetTracker>,
+    );
 
     // Mock timer functions for async operations
     vi.useFakeTimers();
@@ -647,7 +649,7 @@ describe('BudgetDisplay', () => {
         requestCount: 25,
         dailyLimit: 100,
         remainingRequests: 75,
-        usagePercentage: undefined as any,
+        usagePercentage: undefined as number | undefined,
         timeUntilReset: '14h 30m',
       });
 

@@ -9,7 +9,7 @@ declare const getConstructorCallCount: () => number;
 declare const createDefaultAsyncFzfMock: () => (
   items: readonly string[],
   _options: unknown,
-) => any;
+) => Promise<Array<{ indices: number[]; score?: number }>>;
 export {
   resetConstructorCallCount,
   getConstructorCallCount,
