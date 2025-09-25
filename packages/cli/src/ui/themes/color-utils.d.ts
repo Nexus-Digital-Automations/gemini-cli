@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export declare const CSS_NAME_TO_HEX_MAP: Readonly<Record<string, string>>;
 export declare const INK_SUPPORTED_NAMES: Set<string>;
 /**

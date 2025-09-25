@@ -18,6 +18,7 @@ import type {
 } from '@google/gemini-cli-core';
 import { extensionsCommand } from '../commands/extensions.js';
 import { budgetCommand } from '../commands/budget.js';
+import { autonomousCommand } from '../commands/autonomous.js';
 import {
   Config,
   loadServerHierarchicalMemory,
@@ -340,6 +341,9 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
 
   // Register budget subcommands
   yargsInstance.command(budgetCommand);
+
+  // Register autonomous task management subcommands
+  yargsInstance.command(autonomousCommand);
 
   yargsInstance
     .version(await getCliVersion()) // This will enable the --version flag based on package.json

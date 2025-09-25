@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { resolveColor } from './color-utils.js';
 export const lightTheme = {
     type: 'light',
@@ -85,6 +84,7 @@ export class Theme {
                 secondary: this.colors.Gray,
                 link: this.colors.AccentBlue,
                 accent: this.colors.AccentPurple,
+                muted: this.colors.Gray,
             },
             background: {
                 primary: this.colors.Background,
@@ -326,6 +326,7 @@ export function createCustomTheme(customTheme) {
             secondary: customTheme.text?.secondary ?? colors.Gray,
             link: customTheme.text?.link ?? colors.AccentBlue,
             accent: customTheme.text?.accent ?? colors.AccentPurple,
+            muted: customTheme.text?.muted ?? colors.Gray,
         },
         background: {
             primary: customTheme.background?.primary ?? colors.Background,

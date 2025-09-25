@@ -70,10 +70,10 @@ export interface DependencyAnalysisResult {
  */
 export class DependencyAnalyzer {
   private config: DependencyAnalysisConfig;
-  private keywordPatterns: Map&lt;string, string[]&gt;;
-  private resourcePatterns: Map&lt;string, string[]&gt;;
+  private keywordPatterns: Map<string, string[]>;
+  private resourcePatterns: Map<string, string[]>;
 
-  constructor(config: Partial&lt;DependencyAnalysisConfig&gt; = {}) {
+  constructor(config: Partial<DependencyAnalysisConfig> = {}) {
     this.config = {
       enableImplicitDetection: true,
       maxChainLength: 10,
@@ -97,7 +97,7 @@ export class DependencyAnalyzer {
   /**
    * Analyze tasks for dependencies
    */
-  async analyzeDependencies(tasks: Task[]): Promise&lt;DependencyAnalysisResult&gt; {
+  async analyzeDependencies(tasks: Task[]): Promise<DependencyAnalysisResult> {
     const startTime = Date.now();
     const logger = this.getLogger();
 

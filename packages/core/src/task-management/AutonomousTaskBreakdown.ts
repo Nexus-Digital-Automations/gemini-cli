@@ -6,8 +6,6 @@
 
 import { EventEmitter } from 'node:events';
 import { logger as createLogger } from '../utils/logger.js';
-
-const logger = createLogger();
 import type {
   Task,
   TaskContext,
@@ -15,10 +13,10 @@ import type {
 } from './TaskQueue.js';
 import {
   TaskCategory,
-  TaskPriority,
-  TaskStatus
+  TaskPriority
 } from './TaskQueue.js';
-import type { TaskId } from './types.js';
+
+const logger = createLogger();
 
 /**
  * Task complexity analysis metrics

@@ -322,8 +322,8 @@
       }
     ],
     "initialization_stats": {
-      "total_initializations": 9,
-      "total_reinitializations": 111,
+      "total_initializations": 11,
+      "total_reinitializations": 123,
       "current_day": "2025-09-25",
       "time_buckets": {
         "08:00-12:59": {
@@ -335,8 +335,8 @@
           "reinit": 0
         },
         "18:00-22:59": {
-          "init": 9,
-          "reinit": 48
+          "init": 11,
+          "reinit": 60
         },
         "23:00-03:59": {
           "init": 0,
@@ -404,7 +404,7 @@
         }
       ],
       "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T00:47:58.528Z"
+      "last_updated": "2025-09-25T02:19:51.704Z"
     }
   },
   "workflow_config": {
@@ -446,19 +446,22 @@
       "previousSessions": []
     },
     "ARCHITECTURE_ANALYSIS_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:23.360Z",
+      "lastHeartbeat": "2025-09-25T02:18:08.268Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:28:23.360Z",
-      "sessionId": "35a53c16bb9372e6",
-      "previousSessions": []
+      "reinitialized": "2025-09-25T02:18:08.268Z",
+      "sessionId": "c7e981fbf0498479",
+      "previousSessions": [
+        "35a53c16bb9372e6"
+      ]
     },
     "TESTING_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:32.416Z",
+      "lastHeartbeat": "2025-09-25T02:18:11.787Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:28:32.416Z",
-      "sessionId": "71dd99ab12d0d680",
+      "reinitialized": "2025-09-25T02:18:11.787Z",
+      "sessionId": "8cc0ceab24c017ad",
       "previousSessions": [
-        "f75ac3bfaabbb21b"
+        "f75ac3bfaabbb21b",
+        "71dd99ab12d0d680"
       ]
     },
     "PERSISTENCE_AGENT": {
@@ -469,18 +472,23 @@
       "previousSessions": []
     },
     "EXECUTION_ENGINE_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:23.958Z",
+      "lastHeartbeat": "2025-09-25T02:18:06.963Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:28:23.958Z",
-      "sessionId": "1870743b3c906b78",
-      "previousSessions": []
+      "reinitialized": "2025-09-25T02:18:06.963Z",
+      "sessionId": "5d84b3c1a75e68f2",
+      "previousSessions": [
+        "1870743b3c906b78",
+        "76f2d93a1e391074"
+      ]
     },
     "MAIN_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:24.274Z",
+      "lastHeartbeat": "2025-09-25T02:16:25.210Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:28:24.274Z",
-      "sessionId": "44d7ddf32f6732da",
-      "previousSessions": []
+      "reinitialized": "2025-09-25T02:16:25.210Z",
+      "sessionId": "398f76e8dd289208",
+      "previousSessions": [
+        "44d7ddf32f6732da"
+      ]
     },
     "TASK_QUEUE_AGENT": {
       "lastHeartbeat": "2025-09-25T00:47:00.854Z",
@@ -543,11 +551,13 @@
       "previousSessions": []
     },
     "TASK_QUEUE_DESIGNER_01": {
-      "lastHeartbeat": "2025-09-25T00:28:40.076Z",
+      "lastHeartbeat": "2025-09-25T00:53:15.799Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:28:40.076Z",
-      "sessionId": "0a201a25eba209c9",
-      "previousSessions": []
+      "reinitialized": "2025-09-25T00:53:15.799Z",
+      "sessionId": "a0d6c8451da07634",
+      "previousSessions": [
+        "0a201a25eba209c9"
+      ]
     },
     "PERSISTENCE_STORAGE_ENGINEER": {
       "lastHeartbeat": "2025-09-25T00:28:40.169Z",
@@ -598,13 +608,14 @@
       "sessionId": "0acea578b0118832"
     },
     "INTEGRATION_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T00:34:02.665Z",
+      "lastHeartbeat": "2025-09-25T02:18:06.388Z",
       "status": "active",
       "initialized": "2025-09-25T00:29:22.670Z",
-      "sessionId": "a92b9b3f1a177e4c",
-      "reinitialized": "2025-09-25T00:34:02.665Z",
+      "sessionId": "72d0499775eded9d",
+      "reinitialized": "2025-09-25T02:18:06.388Z",
       "previousSessions": [
-        "aa4ae74a8e5a203a"
+        "aa4ae74a8e5a203a",
+        "a92b9b3f1a177e4c"
       ]
     },
     "PROGRESS_MONITOR_SPECIALIST": {
@@ -649,12 +660,14 @@
       ]
     },
     "MONITORING_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T00:34:01.187Z",
+      "lastHeartbeat": "2025-09-25T02:18:10.025Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:34:01.187Z",
-      "sessionId": "1d08baaee63b457e",
+      "reinitialized": "2025-09-25T02:18:10.025Z",
+      "sessionId": "b1deb5a47d8b6aff",
       "previousSessions": [
-        "edbc24d184b3a864"
+        "edbc24d184b3a864",
+        "1d08baaee63b457e",
+        "2d3c10fb655d1893"
       ]
     },
     "ARCHITECTURE_SPECIALIST": {
@@ -691,12 +704,13 @@
       ]
     },
     "VALIDATION_EXPERT": {
-      "lastHeartbeat": "2025-09-25T00:34:01.708Z",
+      "lastHeartbeat": "2025-09-25T02:18:08.016Z",
       "status": "active",
-      "reinitialized": "2025-09-25T00:34:01.708Z",
-      "sessionId": "ba29c1908f8ac383",
+      "reinitialized": "2025-09-25T02:18:08.016Z",
+      "sessionId": "aa1d30770529a8f8",
       "previousSessions": [
-        "6a54f770780dba89"
+        "6a54f770780dba89",
+        "ba29c1908f8ac383"
       ]
     },
     "SECURITY_AUDITOR": {
@@ -726,6 +740,32 @@
       "reinitialized": "2025-09-25T00:47:55.594Z",
       "sessionId": "2d6756edcf9928a7",
       "previousSessions": []
+    },
+    "PERSISTENCE_ENGINE_DEVELOPER": {
+      "lastHeartbeat": "2025-09-25T02:18:05.982Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T02:18:05.982Z",
+      "sessionId": "887eba4846d7c117",
+      "previousSessions": []
+    },
+    "TASK_QUEUE_DESIGNER": {
+      "lastHeartbeat": "2025-09-25T02:18:06.696Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T02:18:06.696Z",
+      "sessionId": "086fa3ffc13bbd89",
+      "previousSessions": []
+    },
+    "TASK_MANAGER_ARCHITECT": {
+      "lastHeartbeat": "2025-09-25T02:19:34.366Z",
+      "status": "active",
+      "initialized": "2025-09-25T02:19:34.366Z",
+      "sessionId": "5ab5c10862f6c70d"
+    },
+    "EVENT_SYSTEM_ARCHITECT": {
+      "lastHeartbeat": "2025-09-25T02:19:51.702Z",
+      "status": "active",
+      "initialized": "2025-09-25T02:19:51.702Z",
+      "sessionId": "fd4d59a013d01e20"
     }
   },
   "tasks": [],

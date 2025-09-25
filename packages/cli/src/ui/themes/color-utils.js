@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 // Mapping from common CSS color names (lowercase) to hex codes (lowercase)
 // Excludes names directly supported by Ink
 export const CSS_NAME_TO_HEX_MAP = {
@@ -216,7 +215,6 @@ export function resolveColor(colorValue) {
         return CSS_NAME_TO_HEX_MAP[lowerColor]; // Use mapped hex
     }
     // 4. Could not resolve
-    // eslint-disable-next-line no-undef
     console.warn(`[ColorUtils] Could not resolve color "${colorValue}" to an Ink-compatible format.`);
     return undefined;
 }

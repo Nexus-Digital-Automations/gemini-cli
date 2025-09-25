@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES, DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD, } from '@google/gemini-cli-core';
 /**
  * Setting datatypes that "toggle" through a fixed list of options
@@ -14,15 +13,20 @@ export const TOGGLE_TYPES = new Set([
     'boolean',
     'enum',
 ]);
+/**
+ * Strategies for merging configuration values when combining settings from multiple sources
+ * (system defaults, user settings, workspace settings, etc.).
+ * Determines how conflicts between different configuration scopes are resolved.
+ */
 export var MergeStrategy;
 (function (MergeStrategy) {
-    // Replace the old value with the new value. This is the default.
+    /** Replace the old value with the new value completely. This is the default behavior. */
     MergeStrategy["REPLACE"] = "replace";
-    // Concatenate arrays.
+    /** Concatenate arrays, preserving order and allowing duplicates. */
     MergeStrategy["CONCAT"] = "concat";
-    // Merge arrays, ensuring unique values.
+    /** Merge arrays while ensuring unique values (set union operation). */
     MergeStrategy["UNION"] = "union";
-    // Shallow merge objects.
+    /** Perform shallow merge for objects, where new properties are added and existing ones are overwritten. */
     MergeStrategy["SHALLOW_MERGE"] = "shallow_merge";
 })(MergeStrategy || (MergeStrategy = {}));
 /**
@@ -396,13 +400,19 @@ const SETTINGS_SCHEMA = {
         showInDialog: false,
         properties: {
             name: {
-                type: 'string',
+                type: 'enum',
                 label: 'Model',
                 category: 'Model',
                 requiresRestart: false,
-                default: undefined,
-                description: 'The Gemini model to use for conversations.',
-                showInDialog: false,
+                default: 'auto',
+                description: 'The Gemini model to use for conversations. Auto enables intelligent model selection based on task complexity.',
+                showInDialog: true,
+                options: [
+                    { value: 'auto', label: 'Auto (Smart Selection)' },
+                    { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+                    { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+                    { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
+                ],
             },
             maxSessionTurns: {
                 type: 'number',
@@ -439,6 +449,70 @@ const SETTINGS_SCHEMA = {
                 default: true,
                 description: 'Skip the next speaker check.',
                 showInDialog: true,
+            },
+            flashFirst: {
+                type: 'object',
+                label: 'Flash-First Smart Routing',
+                category: 'Model',
+                requiresRestart: false,
+                default: {},
+                description: 'Settings for Flash-first smart model routing that defaults to cost-effective Flash model and escalates to Pro only when necessary.',
+                showInDialog: false,
+                properties: {
+                    enabled: {
+                        type: 'boolean',
+                        label: 'Enable Flash-First Mode',
+                        category: 'Model',
+                        requiresRestart: false,
+                        default: true,
+                        description: 'Enable Flash-first routing that defaults to gemini-2.5-flash and escalates to gemini-2.5-pro only when Flash fails or is inadequate.',
+                        showInDialog: true,
+                    },
+                    failureThreshold: {
+                        type: 'number',
+                        label: 'Failure Escalation Threshold',
+                        category: 'Model',
+                        requiresRestart: false,
+                        default: 2,
+                        description: 'Number of Flash model failures before automatically escalating similar requests to Pro model.',
+                        showInDialog: true,
+                    },
+                    timeoutThreshold: {
+                        type: 'number',
+                        label: 'Timeout Threshold (ms)',
+                        category: 'Model',
+                        requiresRestart: false,
+                        default: 30000,
+                        description: 'Maximum time in milliseconds to wait for Flash model before considering it too slow (30 seconds default).',
+                        showInDialog: true,
+                    },
+                    enableSessionMemory: {
+                        type: 'boolean',
+                        label: 'Remember Escalation Decisions',
+                        category: 'Model',
+                        requiresRestart: false,
+                        default: true,
+                        description: 'Remember escalation patterns during the session to avoid repeated Flash failures for similar requests.',
+                        showInDialog: true,
+                    },
+                    complexityBias: {
+                        type: 'enum',
+                        label: 'Complexity Classification Bias',
+                        category: 'Model',
+                        requiresRestart: false,
+                        default: 'flash-first',
+                        description: 'How aggressively to favor Flash model in complexity classification.',
+                        showInDialog: true,
+                        options: [
+                            {
+                                value: 'flash-first',
+                                label: 'Flash-First (Aggressive Cost Savings)',
+                            },
+                            { value: 'balanced', label: 'Balanced' },
+                            { value: 'quality-first', label: 'Quality-First (Conservative)' },
+                        ],
+                    },
+                },
             },
         },
     },
@@ -897,12 +971,12 @@ const SETTINGS_SCHEMA = {
             },
             useModelRouter: {
                 type: 'boolean',
-                label: 'Use Model Router',
-                category: 'Experimental',
+                label: 'Enable Smart Model Routing',
+                category: 'Model',
                 requiresRestart: true,
-                default: false,
-                description: 'Enable model routing to route requests to the best model based on complexity.',
-                showInDialog: false,
+                default: true,
+                description: 'Enable AI-powered model routing to automatically select the best model based on task complexity. Required for Auto model selection to work.',
+                showInDialog: true,
             },
         },
     },
@@ -913,7 +987,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: false,
         default: {},
         description: 'Daily usage budget settings for API requests.',
-        showInDialog: false,
+        showInDialog: true,
         properties: {
             enabled: {
                 type: 'boolean',
@@ -986,6 +1060,20 @@ const SETTINGS_SCHEMA = {
         },
     },
 };
+/**
+ * Returns the complete settings schema definition for the application.
+ * This schema defines all available configuration options, their types,
+ * default values, validation rules, and UI presentation.
+ *
+ * @returns The complete settings schema containing all configuration definitions
+ *
+ * @example
+ * ```typescript
+ * const schema = getSettingsSchema();
+ * const vimModeSetting = schema.general.properties?.vimMode;
+ * console.log(vimModeSetting?.default); // false
+ * ```
+ */
 export function getSettingsSchema() {
     return SETTINGS_SCHEMA;
 }

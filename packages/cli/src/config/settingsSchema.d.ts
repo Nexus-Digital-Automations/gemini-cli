@@ -3,10 +3,17 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { MCPServerConfig, BugCommandSettings, TelemetrySettings, AuthType, ChatCompressionSettings } from '@google/gemini-cli-core';
-import type { CustomTheme } from '../ui/themes/theme.d.ts';
+import type { CustomTheme } from '../ui/themes/theme.js';
+/**
+ * Enumeration of supported setting data types for configuration schema validation.
+ * These types determine how settings are validated, stored, and displayed in the UI.
+ */
 export type SettingsType = 'boolean' | 'string' | 'number' | 'array' | 'object' | 'enum';
+/**
+ * Union type representing all possible values that can be stored in application settings.
+ * Supports primitive types, arrays, objects, and undefined for optional settings.
+ */
 export type SettingsValue = boolean | string | number | string[] | object | undefined;
 /**
  * Setting datatypes that "toggle" through a fixed list of options
@@ -14,44 +21,146 @@ export type SettingsValue = boolean | string | number | string[] | object | unde
  * (like a number or string).
  */
 export declare const TOGGLE_TYPES: ReadonlySet<SettingsType | undefined>;
+/**
+ * Configuration option for enumeration-type settings that have predefined choices.
+ * Used to define the available options and their display labels in the UI.
+ *
+ * @example
+ * ```typescript
+ * const outputOptions: SettingEnumOption[] = [
+ *   { value: 'text', label: 'Text' },
+ *   { value: 'json', label: 'JSON' }
+ * ];
+ * ```
+ */
 export interface SettingEnumOption {
+    /** The actual value stored when this option is selected */
     value: string | number;
+    /** Human-readable label displayed in the UI for this option */
     label: string;
 }
+/**
+ * Strategies for merging configuration values when combining settings from multiple sources
+ * (system defaults, user settings, workspace settings, etc.).
+ * Determines how conflicts between different configuration scopes are resolved.
+ */
 export declare enum MergeStrategy {
+    /** Replace the old value with the new value completely. This is the default behavior. */
     REPLACE = "replace",
+    /** Concatenate arrays, preserving order and allowing duplicates. */
     CONCAT = "concat",
+    /** Merge arrays while ensuring unique values (set union operation). */
     UNION = "union",
+    /** Perform shallow merge for objects, where new properties are added and existing ones are overwritten. */
     SHALLOW_MERGE = "shallow_merge"
 }
+/**
+ * Complete definition of a single configuration setting including its behavior,
+ * validation rules, UI presentation, and merge strategy.
+ *
+ * @example
+ * ```typescript
+ * const vimModeSetting: SettingDefinition = {
+ *   type: 'boolean',
+ *   label: 'Vim Mode',
+ *   category: 'General',
+ *   requiresRestart: false,
+ *   default: false,
+ *   description: 'Enable Vim keybindings',
+ *   showInDialog: true
+ * };
+ * ```
+ */
 export interface SettingDefinition {
+    /** Data type of the setting value, determines validation and UI input type */
     type: SettingsType;
+    /** Human-readable display name for the setting in UI */
     label: string;
+    /** Category grouping for organizing settings in the UI */
     category: string;
+    /** Whether changing this setting requires application restart to take effect */
     requiresRestart: boolean;
+    /** Default value when no user preference is set */
     default: SettingsValue;
+    /** Optional detailed description explaining the setting's purpose and behavior */
     description?: string;
+    /** Parent key path for nested settings hierarchy */
     parentKey?: string;
+    /** Child key for nested settings */
     childKey?: string;
+    /** Unique identifier for the setting */
     key?: string;
+    /** Nested schema for object-type settings containing sub-properties */
     properties?: SettingsSchema;
+    /** Whether to display this setting in configuration dialogs */
     showInDialog?: boolean;
+    /** Strategy for merging values from different configuration sources */
     mergeStrategy?: MergeStrategy;
-    /** Enum type options  */
+    /** Available options for enum-type settings */
     options?: readonly SettingEnumOption[];
 }
+/**
+ * Schema definition mapping setting keys to their complete configuration definitions.
+ * Forms the structural blueprint for all application settings and their behavior.
+ * Used for validation, UI generation, and settings management throughout the application.
+ */
 export interface SettingsSchema {
     [key: string]: SettingDefinition;
 }
+/**
+ * Format options for importing context memory files into the application.
+ * Determines how directory structures and file relationships are represented.
+ */
 export type MemoryImportFormat = 'tree' | 'flat';
+/**
+ * DNS resolution ordering preference for network operations.
+ * Controls how domain names are resolved to IP addresses.
+ */
 export type DnsResolutionOrder = 'ipv4first' | 'verbatim';
-export type { BudgetSettings, BudgetUsageData } from '@google/gemini-cli-core/src/budget/types.js';
+/**
+ * Configuration for daily API usage budget tracking and enforcement.
+ * Helps users monitor and control their API consumption to avoid unexpected costs.
+ *
+ * @example
+ * ```typescript
+ * const budget: BudgetSettings = {
+ *   enabled: true,
+ *   dailyLimit: 100,
+ *   resetTime: '00:00',
+ *   warningThresholds: [50, 75, 90]
+ * };
+ * ```
+ */
+export interface BudgetSettings {
+    /** Whether budget tracking and enforcement is active */
+    enabled?: boolean;
+    /** Maximum number of API requests allowed per day */
+    dailyLimit?: number;
+    /** Time when daily budget resets in HH:MM format (24-hour time) */
+    resetTime?: string;
+    /** Percentage thresholds at which to show usage warnings (e.g., [50, 75, 90]) */
+    warningThresholds?: number[];
+}
+/**
+ * Runtime tracking data for API usage budget monitoring.
+ * Stores current usage statistics and warning states for the current budget period.
+ */
+export interface BudgetUsageData {
+    /** Date of the current budget period in ISO format */
+    date: string;
+    /** Number of API requests made in the current budget period */
+    requestCount: number;
+    /** Timestamp of the last budget reset in ISO format */
+    lastResetTime: string;
+    /** List of warning threshold percentages that have already been shown to the user */
+    warningsShown: number[];
+}
 /**
  * The canonical schema for all settings.
  * The structure of this object defines the structure of the `Settings` type.
  * `as const` is crucial for TypeScript to infer the most specific types possible.
  */
-declare const _SETTINGS_SCHEMA: {
+declare const SETTINGS_SCHEMA: {
     readonly mcpServers: {
         readonly type: "object";
         readonly label: "MCP Servers";
@@ -67,7 +176,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "General";
         readonly category: "General";
         readonly requiresRestart: false;
-        readonly default: object;
+        readonly default: {};
         readonly description: "General application settings.";
         readonly showInDialog: false;
         readonly properties: {
@@ -112,7 +221,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "Checkpointing";
                 readonly category: "General";
                 readonly requiresRestart: true;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Session checkpointing settings.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -152,7 +261,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Output";
         readonly category: "General";
         readonly requiresRestart: false;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Settings for the CLI output.";
         readonly showInDialog: false;
         readonly properties: {
@@ -179,7 +288,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "UI";
         readonly category: "UI";
         readonly requiresRestart: false;
-        readonly default: object;
+        readonly default: {};
         readonly description: "User interface settings.";
         readonly showInDialog: false;
         readonly properties: {
@@ -242,7 +351,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "Footer";
                 readonly category: "UI";
                 readonly requiresRestart: false;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Settings for the footer.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -325,7 +434,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "Accessibility";
                 readonly category: "UI";
                 readonly requiresRestart: true;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Accessibility settings.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -356,7 +465,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "IDE";
         readonly category: "IDE";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "IDE integration settings.";
         readonly showInDialog: false;
         readonly properties: {
@@ -385,7 +494,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Privacy";
         readonly category: "Privacy";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Privacy-related settings.";
         readonly showInDialog: false;
         readonly properties: {
@@ -414,18 +523,31 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Model";
         readonly category: "Model";
         readonly requiresRestart: false;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Settings related to the generative model.";
         readonly showInDialog: false;
         readonly properties: {
             readonly name: {
-                readonly type: "string";
+                readonly type: "enum";
                 readonly label: "Model";
                 readonly category: "Model";
                 readonly requiresRestart: false;
-                readonly default: string | undefined;
-                readonly description: "The Gemini model to use for conversations.";
-                readonly showInDialog: false;
+                readonly default: "auto";
+                readonly description: "The Gemini model to use for conversations. Auto enables intelligent model selection based on task complexity.";
+                readonly showInDialog: true;
+                readonly options: readonly [{
+                    readonly value: "auto";
+                    readonly label: "Auto (Smart Selection)";
+                }, {
+                    readonly value: "gemini-2.5-pro";
+                    readonly label: "Gemini 2.5 Pro";
+                }, {
+                    readonly value: "gemini-2.5-flash";
+                    readonly label: "Gemini 2.5 Flash";
+                }, {
+                    readonly value: "gemini-2.5-flash-lite";
+                    readonly label: "Gemini 2.5 Flash Lite";
+                }];
             };
             readonly maxSessionTurns: {
                 readonly type: "number";
@@ -465,6 +587,72 @@ declare const _SETTINGS_SCHEMA: {
                 readonly description: "Skip the next speaker check.";
                 readonly showInDialog: true;
             };
+            readonly flashFirst: {
+                readonly type: "object";
+                readonly label: "Flash-First Smart Routing";
+                readonly category: "Model";
+                readonly requiresRestart: false;
+                readonly default: {};
+                readonly description: "Settings for Flash-first smart model routing that defaults to cost-effective Flash model and escalates to Pro only when necessary.";
+                readonly showInDialog: false;
+                readonly properties: {
+                    readonly enabled: {
+                        readonly type: "boolean";
+                        readonly label: "Enable Flash-First Mode";
+                        readonly category: "Model";
+                        readonly requiresRestart: false;
+                        readonly default: true;
+                        readonly description: "Enable Flash-first routing that defaults to gemini-2.5-flash and escalates to gemini-2.5-pro only when Flash fails or is inadequate.";
+                        readonly showInDialog: true;
+                    };
+                    readonly failureThreshold: {
+                        readonly type: "number";
+                        readonly label: "Failure Escalation Threshold";
+                        readonly category: "Model";
+                        readonly requiresRestart: false;
+                        readonly default: 2;
+                        readonly description: "Number of Flash model failures before automatically escalating similar requests to Pro model.";
+                        readonly showInDialog: true;
+                    };
+                    readonly timeoutThreshold: {
+                        readonly type: "number";
+                        readonly label: "Timeout Threshold (ms)";
+                        readonly category: "Model";
+                        readonly requiresRestart: false;
+                        readonly default: 30000;
+                        readonly description: "Maximum time in milliseconds to wait for Flash model before considering it too slow (30 seconds default).";
+                        readonly showInDialog: true;
+                    };
+                    readonly enableSessionMemory: {
+                        readonly type: "boolean";
+                        readonly label: "Remember Escalation Decisions";
+                        readonly category: "Model";
+                        readonly requiresRestart: false;
+                        readonly default: true;
+                        readonly description: "Remember escalation patterns during the session to avoid repeated Flash failures for similar requests.";
+                        readonly showInDialog: true;
+                    };
+                    readonly complexityBias: {
+                        readonly type: "enum";
+                        readonly label: "Complexity Classification Bias";
+                        readonly category: "Model";
+                        readonly requiresRestart: false;
+                        readonly default: "flash-first";
+                        readonly description: "How aggressively to favor Flash model in complexity classification.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "flash-first";
+                            readonly label: "Flash-First (Aggressive Cost Savings)";
+                        }, {
+                            readonly value: "balanced";
+                            readonly label: "Balanced";
+                        }, {
+                            readonly value: "quality-first";
+                            readonly label: "Quality-First (Conservative)";
+                        }];
+                    };
+                };
+            };
         };
     };
     readonly context: {
@@ -472,7 +660,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Context";
         readonly category: "Context";
         readonly requiresRestart: false;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Settings for managing context provided to the model.";
         readonly showInDialog: false;
         readonly properties: {
@@ -527,7 +715,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "File Filtering";
                 readonly category: "Context";
                 readonly requiresRestart: true;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Settings for git-aware file filtering.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -576,7 +764,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Tools";
         readonly category: "Tools";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Settings for built-in and custom tools.";
         readonly showInDialog: false;
         readonly properties: {
@@ -594,7 +782,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "Shell";
                 readonly category: "Tools";
                 readonly requiresRestart: false;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Settings for shell execution.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -734,7 +922,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "MCP";
         readonly category: "MCP";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Settings for Model Context Protocol (MCP) servers.";
         readonly showInDialog: false;
         readonly properties: {
@@ -790,7 +978,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Security";
         readonly category: "Security";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Security-related settings.";
         readonly showInDialog: false;
         readonly properties: {
@@ -799,7 +987,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "Folder Trust";
                 readonly category: "Security";
                 readonly requiresRestart: false;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Settings for folder trust.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -819,7 +1007,7 @@ declare const _SETTINGS_SCHEMA: {
                 readonly label: "Authentication";
                 readonly category: "Security";
                 readonly requiresRestart: true;
-                readonly default: object;
+                readonly default: {};
                 readonly description: "Authentication settings.";
                 readonly showInDialog: false;
                 readonly properties: {
@@ -859,7 +1047,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Advanced";
         readonly category: "Advanced";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Advanced settings for power users.";
         readonly showInDialog: false;
         readonly properties: {
@@ -907,7 +1095,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Experimental";
         readonly category: "Experimental";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Setting to enable experimental features";
         readonly showInDialog: false;
         readonly properties: {
@@ -922,12 +1110,12 @@ declare const _SETTINGS_SCHEMA: {
             };
             readonly useModelRouter: {
                 readonly type: "boolean";
-                readonly label: "Use Model Router";
-                readonly category: "Experimental";
+                readonly label: "Enable Smart Model Routing";
+                readonly category: "Model";
                 readonly requiresRestart: true;
-                readonly default: false;
-                readonly description: "Enable model routing to route requests to the best model based on complexity.";
-                readonly showInDialog: false;
+                readonly default: true;
+                readonly description: "Enable AI-powered model routing to automatically select the best model based on task complexity. Required for Auto model selection to work.";
+                readonly showInDialog: true;
             };
         };
     };
@@ -936,9 +1124,9 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Budget";
         readonly category: "Budget";
         readonly requiresRestart: false;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Daily usage budget settings for API requests.";
-        readonly showInDialog: false;
+        readonly showInDialog: true;
         readonly properties: {
             readonly enabled: {
                 readonly type: "boolean";
@@ -984,7 +1172,7 @@ declare const _SETTINGS_SCHEMA: {
         readonly label: "Extensions";
         readonly category: "Extensions";
         readonly requiresRestart: true;
-        readonly default: object;
+        readonly default: {};
         readonly description: "Settings for extensions.";
         readonly showInDialog: false;
         readonly properties: {
@@ -1011,17 +1199,86 @@ declare const _SETTINGS_SCHEMA: {
         };
     };
 };
-export type SettingsSchemaType = typeof _SETTINGS_SCHEMA;
+/**
+ * TypeScript type derived from the complete settings schema constant.
+ * Provides compile-time type safety for all configuration operations.
+ */
+export type SettingsSchemaType = typeof SETTINGS_SCHEMA;
+/**
+ * Returns the complete settings schema definition for the application.
+ * This schema defines all available configuration options, their types,
+ * default values, validation rules, and UI presentation.
+ *
+ * @returns The complete settings schema containing all configuration definitions
+ *
+ * @example
+ * ```typescript
+ * const schema = getSettingsSchema();
+ * const vimModeSetting = schema.general.properties?.vimMode;
+ * console.log(vimModeSetting?.default); // false
+ * ```
+ */
 export declare function getSettingsSchema(): SettingsSchemaType;
+/**
+ * Advanced TypeScript utility type that infers the actual settings object structure
+ * from the schema definition. Automatically generates the correct TypeScript types
+ * for all settings based on their schema definitions.
+ *
+ * This type performs the following transformations:
+ * - Removes readonly modifiers to allow settings modification
+ * - Makes all properties optional since settings may not be set
+ * - Recursively processes nested object properties
+ * - Preserves the exact type structure defined in the schema
+ */
 type InferSettings<T extends SettingsSchema> = {
     -readonly [K in keyof T]?: T[K] extends {
         properties: SettingsSchema;
     } ? InferSettings<T[K]['properties']> : T[K]['default'] extends boolean ? boolean : T[K]['default'];
 };
+/**
+ * Main type representing the complete application settings object.
+ * Automatically inferred from the settings schema to ensure type safety
+ * and consistency between schema definitions and runtime settings.
+ *
+ * This type is used throughout the application for:
+ * - Type-safe access to configuration values
+ * - Settings validation and serialization
+ * - IDE autocompletion and error checking
+ *
+ * @example
+ * ```typescript
+ * const settings: Settings = {
+ *   general: {
+ *     vimMode: true,
+ *     preferredEditor: 'code'
+ *   },
+ *   ui: {
+ *     theme: 'dark',
+ *     hideFooter: false
+ *   }
+ * };
+ * ```
+ */
 export type Settings = InferSettings<SettingsSchemaType>;
+/**
+ * Specific configuration options for the application footer display.
+ * Controls the visibility of various information elements in the status bar.
+ *
+ * @example
+ * ```typescript
+ * const footerConfig: FooterSettings = {
+ *   hideCWD: false,           // Show current working directory
+ *   hideSandboxStatus: true,  // Hide sandbox status indicator
+ *   hideModelInfo: false      // Show active model information
+ * };
+ * ```
+ */
 export interface FooterSettings {
+    /** Whether to hide the current working directory path in the footer */
     hideCWD?: boolean;
+    /** Whether to hide the sandbox execution status indicator */
     hideSandboxStatus?: boolean;
+    /** Whether to hide the model name and context usage information */
     hideModelInfo?: boolean;
 }
 export {};

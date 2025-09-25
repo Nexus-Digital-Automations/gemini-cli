@@ -7,6 +7,13 @@
 import type { CommandModule } from 'yargs';
 import chalk from 'chalk';
 import { TaskStatus, TaskPriority, TaskCategory } from '@google/gemini-cli-core/task-management/types.js';
+import {
+  listFeatures,
+  getFeatureStats,
+  handleApiResponse,
+  handleApiFallback,
+  initializeAgent
+} from '../taskManagerApi.js';
 
 interface ListTasksOptions {
   status?: string;
@@ -66,9 +73,45 @@ export const listTasksCommand: CommandModule<{}, ListTasksOptions> = {
       console.log(chalk.cyan('📋 Task List'));
       console.log(chalk.gray('─'.repeat(80)));
 
-      // Mock task data for demonstration
-      // In real implementation, this would fetch from the autonomous system
-      const mockTasks = [
+      // Initialize agent for task management
+      const agentId = `TASK_LIST_${Date.now()}`;
+      await initializeAgent(agentId);
+
+      // Try to fetch from TaskManager API first
+      let tasks = [];
+      let useApiData = false;
+
+      const filter = {
+        ...(argv.status && { status: argv.status }),
+        ...(argv.priority && { priority: argv.priority }),
+        ...(argv.category && { category: argv.category })
+      };
+
+      const apiResponse = await listFeatures(Object.keys(filter).length > 0 ? filter : undefined);
+
+      if (handleApiResponse(apiResponse, 'Task list retrieval')) {
+        // Convert TaskManager features to task format
+        if (apiResponse.data?.features) {
+          tasks = apiResponse.data.features.map((feature: any, index: number) => ({
+            id: feature.id || `feature_${index}`,
+            title: feature.title,
+            status: feature.status || 'suggested',
+            priority: feature.priority || 'medium',
+            category: feature.category || 'feature',
+            progress: feature.status === 'implemented' ? 100 :
+                     feature.status === 'approved' ? 50 : 0,
+            createdAt: new Date(feature.created_at || Date.now()),
+            description: feature.description
+          }));
+          useApiData = true;
+        }
+      }
+
+      // Fallback to mock data if API is unavailable
+      if (!useApiData) {
+        handleApiFallback('task listing');
+        // Mock task data for demonstration
+        tasks = [
         {
           id: 'task_001',
           title: 'Implement user authentication system',
@@ -113,10 +156,11 @@ export const listTasksCommand: CommandModule<{}, ListTasksOptions> = {
           createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
           blockedReason: 'Waiting for database schema update'
         }
-      ];
+        ];
+      }
 
       // Apply filters
-      let filteredTasks = mockTasks.filter(task => {
+      let filteredTasks = tasks.filter(task => {
         if (argv.status && task.status !== argv.status) return false;
         if (argv.category && task.category !== argv.category) return false;
         if (!argv['show-completed'] && task.status === TaskStatus.COMPLETED) return false;
