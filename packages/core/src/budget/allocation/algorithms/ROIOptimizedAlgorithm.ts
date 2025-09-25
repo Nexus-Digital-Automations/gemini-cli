@@ -258,6 +258,10 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
       case 'volatile':
         stability = 0.3;
         break;
+      default:
+        // Handle unexpected cost trend values, use base stability
+        stability = 0.5;
+        break;
     }
 
     // High utilization suggests stability
