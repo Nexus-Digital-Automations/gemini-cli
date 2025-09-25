@@ -6,16 +6,9 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestRig } from './test-helper.js';
-import { spawn, execSync as _execSync } from 'node:child_process';
-import {
-  writeFileSync,
-  readFileSync as _readFileSync,
-  existsSync as _existsSync,
-  mkdirSync,
-  unlinkSync as _unlinkSync,
-} from 'node:fs';
-import { join, dirname as _dirname } from 'node:path';
-import { performance as _performance } from 'node:perf_hooks';
+import { spawn } from 'node:child_process';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * CI/CD Integration and Test Automation Suite
@@ -248,7 +241,9 @@ describe('CI/CD Integration & Test Automation', () => {
 
       const initResults = await Promise.allSettled(initPromises);
       const successfulInits = initResults.filter(
-        (r) => r.status === 'fulfilled' && (r.value as any).success,
+        (r) =>
+          r.status === 'fulfilled' &&
+          (r.value as unknown as { success: boolean }).success,
       );
 
       expect(successfulInits.length).toBe(parallelAgents.length);
@@ -274,7 +269,9 @@ describe('CI/CD Integration & Test Automation', () => {
       expect(parallelFeatures.length).toBe(8);
 
       // Bulk approve for parallel processing
-      const featureIds = parallelFeatures.map((f: any) => f.id);
+      const featureIds = parallelFeatures.map(
+        (f: unknown) => (f as { id: string }).id,
+      );
       const bulkApproveResult = await execTaskManagerCommand(
         'bulk-approve-features',
         [
@@ -864,7 +861,7 @@ describe('CI/CD Integration & Test Automation', () => {
   async function execTaskManagerCommand(
     command: string,
     args: string[] = [],
-  ): Promise<any> {
+  ): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const child = spawn(
         'timeout',

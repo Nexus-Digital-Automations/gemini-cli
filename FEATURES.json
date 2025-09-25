@@ -325,7 +325,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 16,
-      "total_reinitializations": 182,
+      "total_reinitializations": 183,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
@@ -346,7 +346,7 @@
         },
         "05:00-09:59": {
           "init": 0,
-          "reinit": 25
+          "reinit": 26
         }
       },
       "daily_history": [
@@ -406,7 +406,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T11:16:42.954Z"
+      "last_updated": "2025-09-25T11:27:32.482Z"
     }
   },
   "workflow_config": {
@@ -442,81 +442,11 @@
         "f4d979cfa5845a3e"
       ]
     },
-    "budget-core-infrastructure-agent": {
-      "lastHeartbeat": "2025-09-25T10:23:31.553Z",
+    "LINTING_ERROR_RESOLUTION_AGENT": {
+      "lastHeartbeat": "2025-09-25T11:27:32.475Z",
       "status": "active",
-      "reinitialized": "2025-09-25T10:23:31.553Z",
-      "sessionId": "537e422b4b9c5101",
-      "previousSessions": []
-    },
-    "cost-analysis-agent": {
-      "lastHeartbeat": "2025-09-25T10:23:31.639Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:23:31.639Z",
-      "sessionId": "691afba3e18bf872",
-      "previousSessions": []
-    },
-    "TESTING_AGENT": {
-      "lastHeartbeat": "2025-09-25T10:23:32.626Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:23:32.626Z",
-      "sessionId": "1214ea203e46c1bb",
-      "previousSessions": []
-    },
-    "budget_allocation_agent": {
-      "lastHeartbeat": "2025-09-25T10:23:32.947Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:23:32.947Z",
-      "sessionId": "680c859a2013c4d5",
-      "previousSessions": []
-    },
-    "usage-analytics-agent": {
-      "lastHeartbeat": "2025-09-25T10:23:33.118Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:23:33.118Z",
-      "sessionId": "f7d8b0c27cade42b",
-      "previousSessions": []
-    },
-    "BUDGET_API_AGENT_001": {
-      "lastHeartbeat": "2025-09-25T10:23:37.451Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:23:37.451Z",
-      "sessionId": "40efaa7c653fa5ff",
-      "previousSessions": []
-    },
-    "cost-projection-agent": {
-      "lastHeartbeat": "2025-09-25T10:55:03.395Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:55:03.395Z",
-      "sessionId": "8b0d0a981c9b3953",
-      "previousSessions": ["500fec285249f5e5", "65f099258983a8e0"]
-    },
-    "USAGE_ANALYTICS_ENGINE_AGENT": {
-      "lastHeartbeat": "2025-09-25T10:31:09.983Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:31:09.983Z",
-      "sessionId": "5a95ae624e5a556e",
-      "previousSessions": []
-    },
-    "BUDGET_CORE_INFRASTRUCTURE_AGENT": {
-      "lastHeartbeat": "2025-09-25T10:38:27.200Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:38:27.200Z",
-      "sessionId": "93e3c590438a9d7f",
-      "previousSessions": []
-    },
-    "BUDGET_ALLOCATION_AGENT": {
-      "lastHeartbeat": "2025-09-25T10:39:02.944Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:39:02.944Z",
-      "sessionId": "335bfeeb0a55ea37",
-      "previousSessions": []
-    },
-    "COST_ANALYSIS_AGENT": {
-      "lastHeartbeat": "2025-09-25T10:42:28.986Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T10:42:28.986Z",
-      "sessionId": "be172fb283f8e978",
+      "reinitialized": "2025-09-25T11:27:32.475Z",
+      "sessionId": "da2c42483bd97ecc",
       "previousSessions": []
     }
   },

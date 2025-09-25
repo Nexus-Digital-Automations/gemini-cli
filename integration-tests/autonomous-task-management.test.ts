@@ -11,6 +11,24 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
+// Type definitions for API responses
+interface TaskManagerResponse {
+  success: boolean;
+  error?: string;
+  agent?: {
+    sessionId: string;
+    previousSessions?: number;
+  };
+  feature?: {
+    id: string;
+  };
+  features?: Array<unknown>;
+  stats?: {
+    total_initializations: number;
+    total_reinitializations: number;
+  };
+}
+
 /**
  * Comprehensive Integration Testing Suite for Autonomous Task Management System
  *
@@ -38,7 +56,7 @@ describe('Autonomous Task Management Integration Tests', () => {
   describe('Multi-Agent Coordination', () => {
     it('should handle concurrent agent initialization without conflicts', async () => {
       const numAgents = 5;
-      const agentPromises: Promise<any>[] = [];
+      const agentPromises: Promise<unknown>[] = [];
       const startTime = performance.now();
 
       // Initialize multiple agents concurrently
@@ -112,13 +130,18 @@ describe('Autonomous Task Management Integration Tests', () => {
 
       // Verify each agent has unique session ID
       const sessionIds = new Set();
-      successful.forEach((result: any) => {
-        const agentData = result.value.result;
-        expect(agentData.success).toBe(true);
-        expect(agentData.agent.sessionId).toBeTruthy();
-        expect(sessionIds.has(agentData.agent.sessionId)).toBe(false);
-        sessionIds.add(agentData.agent.sessionId);
-      });
+      successful.forEach(
+        (result: {
+          status: 'fulfilled';
+          value: { result: { success: boolean; agent: { sessionId: string } } };
+        }) => {
+          const agentData = result.value.result;
+          expect(agentData.success).toBe(true);
+          expect(agentData.agent.sessionId).toBeTruthy();
+          expect(sessionIds.has(agentData.agent.sessionId)).toBe(false);
+          sessionIds.add(agentData.agent.sessionId);
+        },
+      );
 
       // Performance benchmark: Should complete within 5 seconds
       expect(duration).toBeLessThan(5000);
@@ -126,7 +149,10 @@ describe('Autonomous Task Management Integration Tests', () => {
 
     it('should handle concurrent feature operations without race conditions', async () => {
       const numFeatures = 10;
-      const featurePromises: Promise<any>[] = [];
+      const featurePromises: Promise<{
+        result: { success?: boolean; feature?: { id: string } };
+        duration: number;
+      }>[] = [];
 
       // Create multiple features concurrently
       for (let i = 0; i < numFeatures; i++) {
@@ -154,13 +180,18 @@ describe('Autonomous Task Management Integration Tests', () => {
 
       // Verify unique feature IDs
       const featureIds = new Set();
-      successful.forEach((result: any) => {
-        const featureData = result.value.result;
-        if (featureData.success && featureData.feature) {
-          expect(featureIds.has(featureData.feature.id)).toBe(false);
-          featureIds.add(featureData.feature.id);
-        }
-      });
+      successful.forEach(
+        (result: {
+          status: 'fulfilled';
+          value: { result: { success?: boolean; feature?: { id: string } } };
+        }) => {
+          const featureData = result.value.result;
+          if (featureData.success && featureData.feature) {
+            expect(featureIds.has(featureData.feature.id)).toBe(false);
+            featureIds.add(featureData.feature.id);
+          }
+        },
+      );
     }, 45000);
 
     it('should coordinate task assignment across multiple agents', async () => {
@@ -191,7 +222,10 @@ describe('Autonomous Task Management Integration Tests', () => {
     async function execConcurrentCommand(
       command: string,
       args: string[],
-    ): Promise<{ result: any; duration: number }> {
+    ): Promise<{
+      result: { success?: boolean; feature?: { id: string } };
+      duration: number;
+    }> {
       return new Promise((resolve, reject) => {
         const startTime = performance.now();
         const child = spawn(
@@ -568,7 +602,8 @@ describe('Autonomous Task Management Integration Tests', () => {
 
       const results = await Promise.allSettled(promises);
       const successful = results.filter((r) => r.status === 'fulfilled');
-      const _failed = results.filter((r) => r.status === 'rejected');
+      // Count failed results for reporting but explicitly ignore the unused variable
+      results.filter((r) => r.status === 'rejected');
 
       console.log(
         `Stress test: ${successful.length}/${stressIterations} successful`,
@@ -795,7 +830,10 @@ describe('Autonomous Task Management Integration Tests', () => {
   /**
    * Utility function to execute task manager commands
    */
-  async function execCommand(command: string, args: string[]): Promise<any> {
+  async function execCommand(
+    command: string,
+    args: string[],
+  ): Promise<TaskManagerResponse> {
     return new Promise((resolve, reject) => {
       const child = spawn(
         'timeout',
