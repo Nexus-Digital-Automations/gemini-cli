@@ -11,7 +11,6 @@
  * by testing the main components and their integration.
  */
 
-const { exec } = require('node:child_process');
 const fs = require('node:fs').promises;
 const path = require('node:path');
 
