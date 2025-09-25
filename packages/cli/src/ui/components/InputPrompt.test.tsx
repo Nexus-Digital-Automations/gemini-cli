@@ -1789,7 +1789,7 @@ describe('InputPrompt', () => {
       });
 
       mockedUseReverseSearchCompletion.mockImplementation(
-        (buffer, shellHistory, reverseSearchActive) => ({
+        (_buffer, _shellHistory, reverseSearchActive) => ({
           ...mockReverseSearchCompletion,
           suggestions: reverseSearchActive
             ? [

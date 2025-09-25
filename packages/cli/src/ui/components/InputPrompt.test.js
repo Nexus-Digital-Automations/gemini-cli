@@ -1366,7 +1366,7 @@ describe('InputPrompt', () => {
     describe('command search (Ctrl+R when not in shell)', () => {
         it('enters command search on Ctrl+R and shows suggestions', async () => {
             props.shellModeActive = false;
-            vi.mocked(useReverseSearchCompletion).mockImplementation((buffer, data, isActive) => ({
+            vi.mocked(useReverseSearchCompletion).mockImplementation((_buffer, _data, isActive) => ({
                 ...mockReverseSearchCompletion,
                 suggestions: isActive
                     ? [

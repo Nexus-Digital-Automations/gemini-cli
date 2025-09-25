@@ -13,6 +13,7 @@
  */
 
 import { EventEmitter } from 'node:events';
+import os from 'node:os';
 import { Logger } from '../../utils/logger.js';
 import type { ValidationReport } from '../core/ValidationEngine.js';
 
@@ -226,7 +227,7 @@ export class PerformanceMonitor extends EventEmitter {
   private getCurrentResourceMetrics(): ResourceMetrics {
     const memoryUsage = process.memoryUsage();
     const cpuUsage = process.cpuUsage();
-    const loadAverage = require('node:os').loadavg();
+    const loadAverage = os.loadavg();
 
     return {
       cpu: {
@@ -235,8 +236,8 @@ export class PerformanceMonitor extends EventEmitter {
       },
       memory: {
         used: memoryUsage.rss,
-        free: require('node:os').freemem(),
-        usage: (memoryUsage.rss / require('node:os').totalmem()) * 100,
+        free: os.freemem(),
+        usage: (memoryUsage.rss / os.totalmem()) * 100,
         heap: memoryUsage,
       },
       disk: {
