@@ -6,7 +6,7 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
+import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 /**
  * Task Queue Performance Optimizer
  *
@@ -282,7 +282,7 @@ export class PerformanceOptimizer extends EventEmitter {
         this.recordLatency(new Date(executionTime));
       }
     });
-    this.taskQueue.on('queue:rebalanced', (event) => {
+    this.taskQueue.on('queue:rebalanced', (_event) => {
       this.logger.debug('Queue rebalanced detected, updating metrics');
     });
   }
@@ -603,7 +603,7 @@ export class PerformanceOptimizer extends EventEmitter {
     return recommendations;
   }
   async executeOptimization(recommendation) {
-    const startTime = Date.now();
+    const _startTime = Date.now();
     let revertAction;
     try {
       // Execute actions based on recommendation type
@@ -647,18 +647,18 @@ export class PerformanceOptimizer extends EventEmitter {
       };
     }
   }
-  async executeSchedulingOptimization(recommendation) {
+  async executeSchedulingOptimization(_recommendation) {
     // Trigger queue rebalancing
     await this.taskQueue.rebalanceQueue();
   }
-  async executeAgentOptimization(recommendation) {
+  async executeAgentOptimization(_recommendation) {
     // Agent optimization logic would be implemented here
     // Return a revert function
     return async () => {
       // Revert agent optimizations
     };
   }
-  async executeSystemOptimization(recommendation) {
+  async executeSystemOptimization(_recommendation) {
     // System optimization logic (e.g., garbage collection)
     if (global.gc) {
       global.gc();
@@ -667,7 +667,7 @@ export class PerformanceOptimizer extends EventEmitter {
       // Revert system optimizations if needed
     };
   }
-  async executeResourceOptimization(recommendation) {
+  async executeResourceOptimization(_recommendation) {
     // Resource optimization logic would be implemented here
     return async () => {
       // Revert resource optimizations
@@ -713,7 +713,7 @@ export class PerformanceOptimizer extends EventEmitter {
     if (totalAgents === 0) return 0;
     return (queueStatus.busyAgents / totalAgents) * 100;
   }
-  calculateLoadBalanceEfficiency(queueStatus) {
+  calculateLoadBalanceEfficiency(_queueStatus) {
     // Simplified calculation - would be more sophisticated in practice
     return 75; // Placeholder
   }

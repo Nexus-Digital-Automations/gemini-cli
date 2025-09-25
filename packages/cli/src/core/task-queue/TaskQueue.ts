@@ -340,7 +340,14 @@ export class TaskQueue extends EventEmitter {
     ).length;
 
     // Find next scheduled task
-    let nextScheduledTask: any = undefined;
+    let nextScheduledTask:
+      | {
+          taskId: string;
+          title: string;
+          priority: TaskPriority;
+          estimatedStartTime: Date;
+        }
+      | undefined = undefined;
     for (const priority of [
       TaskPriority.CRITICAL,
       TaskPriority.HIGH,
@@ -398,7 +405,7 @@ export class TaskQueue extends EventEmitter {
     // Find queue position if task is queued
     let queuePosition: number | undefined = undefined;
     if (task) {
-      for (const [priority, queue] of this.queuesByPriority) {
+      for (const [_priority, queue] of this.queuesByPriority) {
         const position = queue.findIndex((node) => node.task.id === taskId);
         if (position !== -1) {
           queuePosition = position + 1; // 1-based indexing
@@ -426,7 +433,7 @@ export class TaskQueue extends EventEmitter {
     }
 
     // Remove from queue if present
-    for (const [priority, queue] of this.queuesByPriority) {
+    for (const [_priority, queue] of this.queuesByPriority) {
       const index = queue.findIndex((node) => node.task.id === taskId);
       if (index !== -1) {
         queue.splice(index, 1);
@@ -911,7 +918,13 @@ export class TaskQueue extends EventEmitter {
     return sizes;
   }
 
-  private handleTaskStatusChange(task: TaskMetadata, update: any): void {
+  private handleTaskStatusChange(
+    task: TaskMetadata,
+    update: {
+      newStatus: TaskStatus;
+      error?: Error;
+    },
+  ): void {
     // Handle task status changes from monitoring system
     if (update.newStatus === TaskStatus.COMPLETED) {
       this.updateTaskCompletion(task.id);

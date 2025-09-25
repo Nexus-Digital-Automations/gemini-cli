@@ -10,7 +10,7 @@ import type {
   TaskPriority,
   TaskType,
 } from '../../monitoring/TaskStatusMonitor.js';
-import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
+import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 import type { TaskQueue } from './TaskQueue.js';
 
 /**
@@ -123,6 +123,26 @@ export interface OptimizationResult {
   };
   sideEffects: string[];
   revertAction?: () => Promise<void>;
+}
+
+/**
+ * Queue status interface to replace any types
+ */
+interface QueueStatus {
+  queueSizes: Record<TaskPriority, number>;
+  totalQueued: number;
+  totalActive: number;
+  totalCompleted: number;
+  totalFailed: number;
+  availableAgents: number;
+  busyAgents: number;
+  performance: unknown;
+  nextScheduledTask?: {
+    taskId: string;
+    title: string;
+    priority: TaskPriority;
+    estimatedStartTime: Date;
+  };
 }
 
 /**
@@ -459,16 +479,19 @@ export class PerformanceOptimizer extends EventEmitter {
   private setupMonitoring(): void {
     // Initialize performance history for different intervals
     ['minute', 'hour', 'day', 'week'].forEach((interval) => {
-      this.performanceHistory.set(interval as any, {
-        interval: interval as any,
-        dataPoints: [],
-        trends: {
-          throughput: 'stable',
-          latency: 'stable',
-          efficiency: 'stable',
-          errorRate: 'stable',
+      this.performanceHistory.set(
+        interval as 'minute' | 'hour' | 'day' | 'week',
+        {
+          interval: interval as 'minute' | 'hour' | 'day' | 'week',
+          dataPoints: [],
+          trends: {
+            throughput: 'stable',
+            latency: 'stable',
+            efficiency: 'stable',
+            errorRate: 'stable',
+          },
         },
-      });
+      );
     });
   }
 
@@ -478,15 +501,15 @@ export class PerformanceOptimizer extends EventEmitter {
       this.recordLatency(event.assignment?.assignedAt || new Date());
     });
 
-    this.taskQueue.on('task:completed', (event) => {
-      if (event.task.endTime && event.task.startTime) {
+    this.taskQueue.on('task:completed', (_event) => {
+      if (_event.task.endTime && _event.task.startTime) {
         const executionTime =
-          event.task.endTime.getTime() - event.task.startTime.getTime();
+          _event.task.endTime.getTime() - _event.task.startTime.getTime();
         this.recordLatency(new Date(executionTime));
       }
     });
 
-    this.taskQueue.on('queue:rebalanced', (event) => {
+    this.taskQueue.on('queue:rebalanced', (_event) => {
       this.logger.debug('Queue rebalanced detected, updating metrics');
     });
   }
@@ -853,7 +876,7 @@ export class PerformanceOptimizer extends EventEmitter {
   private async executeOptimization(
     recommendation: OptimizationRecommendation,
   ): Promise<OptimizationResult> {
-    const startTime = Date.now();
+    const _startTime = Date.now();
     let revertAction: (() => Promise<void>) | undefined;
 
     try {
@@ -902,14 +925,14 @@ export class PerformanceOptimizer extends EventEmitter {
   }
 
   private async executeSchedulingOptimization(
-    recommendation: OptimizationRecommendation,
+    _recommendation: OptimizationRecommendation,
   ): Promise<void> {
     // Trigger queue rebalancing
     await this.taskQueue.rebalanceQueue();
   }
 
   private async executeAgentOptimization(
-    recommendation: OptimizationRecommendation,
+    _recommendation: OptimizationRecommendation,
   ): Promise<() => Promise<void>> {
     // Agent optimization logic would be implemented here
     // Return a revert function
@@ -919,7 +942,7 @@ export class PerformanceOptimizer extends EventEmitter {
   }
 
   private async executeSystemOptimization(
-    recommendation: OptimizationRecommendation,
+    _recommendation: OptimizationRecommendation,
   ): Promise<() => Promise<void>> {
     // System optimization logic (e.g., garbage collection)
     if (global.gc) {
@@ -932,7 +955,7 @@ export class PerformanceOptimizer extends EventEmitter {
   }
 
   private async executeResourceOptimization(
-    recommendation: OptimizationRecommendation,
+    _recommendation: OptimizationRecommendation,
   ): Promise<() => Promise<void>> {
     // Resource optimization logic would be implemented here
     return async () => {
@@ -941,7 +964,7 @@ export class PerformanceOptimizer extends EventEmitter {
   }
 
   private async measureOptimizationImpact(
-    recommendation: OptimizationRecommendation,
+    _recommendation: OptimizationRecommendation,
   ): Promise<{
     throughputChange: number;
     latencyChange: number;
@@ -963,7 +986,7 @@ export class PerformanceOptimizer extends EventEmitter {
     return 0; // Would be calculated from actual data
   }
 
-  private calculateQueueEfficiency(queueStatus: any): number {
+  private calculateQueueEfficiency(queueStatus: QueueStatus): number {
     const total =
       queueStatus.totalQueued +
       queueStatus.totalActive +
@@ -972,34 +995,34 @@ export class PerformanceOptimizer extends EventEmitter {
     return (queueStatus.totalCompleted / total) * 100;
   }
 
-  private calculateSuccessRate(queueStatus: any): number {
+  private calculateSuccessRate(queueStatus: QueueStatus): number {
     const total = queueStatus.totalCompleted + queueStatus.totalFailed;
     if (total === 0) return 100;
     return (queueStatus.totalCompleted / total) * 100;
   }
 
-  private calculateFailureRate(queueStatus: any): number {
+  private calculateFailureRate(queueStatus: QueueStatus): number {
     return 100 - this.calculateSuccessRate(queueStatus);
   }
 
-  private calculateAverageAgentLoad(queueStatus: any): number {
+  private calculateAverageAgentLoad(queueStatus: QueueStatus): number {
     const totalAgents = queueStatus.availableAgents + queueStatus.busyAgents;
     if (totalAgents === 0) return 0;
     return queueStatus.totalActive / totalAgents;
   }
 
-  private calculateAgentUtilization(queueStatus: any): number {
-    const totalAgents = queueStatus.availableAgents + queueStatus.busyAgents;
+  private calculateAgentUtilization(_queueStatus: QueueStatus): number {
+    const totalAgents = _queueStatus.availableAgents + _queueStatus.busyAgents;
     if (totalAgents === 0) return 0;
-    return (queueStatus.busyAgents / totalAgents) * 100;
+    return (_queueStatus.busyAgents / totalAgents) * 100;
   }
 
-  private calculateLoadBalanceEfficiency(queueStatus: any): number {
+  private calculateLoadBalanceEfficiency(_queueStatus: QueueStatus): number {
     // Simplified calculation - would be more sophisticated in practice
     return 75; // Placeholder
   }
 
-  private calculateErrorRate(queueStatus: any): number {
+  private calculateErrorRate(queueStatus: QueueStatus): number {
     const total = queueStatus.totalCompleted + queueStatus.totalFailed;
     if (total === 0) return 0;
     return (queueStatus.totalFailed / total) * 100;
@@ -1034,7 +1057,7 @@ export class PerformanceOptimizer extends EventEmitter {
   }
 
   private async detectBottlenecks(
-    queueStatus: any,
+    queueStatus: QueueStatus,
   ): Promise<PerformanceMetrics['bottlenecks']> {
     const bottlenecks: PerformanceMetrics['bottlenecks'] = [];
 

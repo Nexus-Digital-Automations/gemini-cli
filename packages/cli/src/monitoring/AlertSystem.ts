@@ -62,11 +62,11 @@ export interface AlertRule {
   enabled: boolean;
   condition: {
     type: 'threshold' | 'pattern' | 'anomaly' | 'combination';
-    parameters: Record<string, any>;
+    parameters: Record<string, unknown>;
   };
   triggers: {
     eventTypes: string[];
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
   };
   actions: {
     notifications: {
@@ -102,7 +102,7 @@ export interface Alert {
   description: string;
   timestamp: Date;
   source: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
   status: 'active' | 'acknowledged' | 'resolved' | 'suppressed';
   acknowledgedBy?: string;
   acknowledgedAt?: Date;
@@ -119,7 +119,7 @@ export interface Alert {
     action: string;
     timestamp: Date;
     status: 'pending' | 'running' | 'completed' | 'failed';
-    result?: any;
+    result?: unknown;
     error?: string;
   }>;
 }
@@ -524,7 +524,7 @@ export class AlertSystem extends EventEmitter {
   private async evaluateTaskFailureAlerts(
     task: TaskMetadata,
     update: TaskStatusUpdate,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     // High priority task failure
     if (task.priority === 'critical' || task.priority === 'high') {
@@ -559,7 +559,7 @@ export class AlertSystem extends EventEmitter {
   private async evaluateTaskDelayAlerts(
     task: TaskMetadata,
     update: TaskStatusUpdate,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     const overrunPercent =
       (task.actualDuration! / task.estimatedDuration!) * 100 - 100;
@@ -579,7 +579,7 @@ export class AlertSystem extends EventEmitter {
   private async evaluateTaskBlockingAlerts(
     task: TaskMetadata,
     update: TaskStatusUpdate,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     await this.createAlert({
       ruleId: 'task_blocked',
@@ -597,7 +597,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateAgentOfflineAlerts(
     agent: AgentStatus,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     const timeSinceHeartbeat = Date.now() - agent.lastHeartbeat.getTime();
     const minutesOffline = Math.round(timeSinceHeartbeat / 60000);
@@ -616,7 +616,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateAgentPerformanceAlerts(
     agent: AgentStatus,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     await this.createAlert({
       ruleId: 'agent_performance_degradation',
@@ -634,7 +634,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateBottleneckAlerts(
     bottleneck: BottleneckAnalysis,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     const severityMap: Record<BottleneckAnalysis['severity'], AlertSeverity> = {
       low: AlertSeverity.INFO,
@@ -656,7 +656,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateRules(
     eventType: string,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     for (const [ruleId, rule] of this.alertRules) {
       if (!rule.enabled) continue;
@@ -681,7 +681,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateRuleCondition(
     rule: AlertRule,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<boolean> {
     try {
       switch (rule.condition.type) {
@@ -718,8 +718,8 @@ export class AlertSystem extends EventEmitter {
   }
 
   private evaluateThresholdCondition(
-    params: Record<string, any>,
-    context: Record<string, any>,
+    params: Record<string, unknown>,
+    context: Record<string, unknown>,
   ): boolean {
     const { metric, operator, threshold } = params;
     const value = this.getValueFromContext(context, metric);
@@ -745,8 +745,8 @@ export class AlertSystem extends EventEmitter {
   }
 
   private evaluatePatternCondition(
-    params: Record<string, any>,
-    context: Record<string, any>,
+    params: Record<string, unknown>,
+    context: Record<string, unknown>,
   ): boolean {
     const { field, pattern } = params;
     const value = this.getValueFromContext(context, field);
@@ -758,11 +758,11 @@ export class AlertSystem extends EventEmitter {
   }
 
   private evaluateAnomalyCondition(
-    params: Record<string, any>,
-    context: Record<string, any>,
+    params: Record<string, unknown>,
+    context: Record<string, unknown>,
   ): boolean {
     // Simplified anomaly detection - in practice, this would use statistical methods
-    const { metric, deviationThreshold = 2 } = params;
+    const { metric, _deviationThreshold = 2 } = params;
     const value = this.getValueFromContext(context, metric);
 
     if (typeof value !== 'number') return false;
@@ -772,12 +772,12 @@ export class AlertSystem extends EventEmitter {
   }
 
   private evaluateCombinationCondition(
-    params: Record<string, any>,
-    context: Record<string, any>,
+    params: Record<string, unknown>,
+    context: Record<string, unknown>,
   ): boolean {
     const { operator, conditions } = params;
 
-    const results = conditions.map((condition: any) => {
+    const results = conditions.map((condition: unknown) => {
       switch (condition.type) {
         case 'threshold':
           return this.evaluateThresholdCondition(condition, context);
@@ -800,7 +800,10 @@ export class AlertSystem extends EventEmitter {
     }
   }
 
-  private getValueFromContext(context: Record<string, any>, path: string): any {
+  private getValueFromContext(
+    context: Record<string, unknown>,
+    path: string,
+  ): unknown {
     const keys = path.split('.');
     let value = context;
 
@@ -817,7 +820,7 @@ export class AlertSystem extends EventEmitter {
 
   private async triggerRule(
     rule: AlertRule,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
   ): Promise<void> {
     await this.createAlert({
       ruleId: rule.id,
@@ -837,12 +840,12 @@ export class AlertSystem extends EventEmitter {
     title: string;
     description: string;
     source: string;
-    context: Record<string, any>;
+    context: Record<string, unknown>;
   }): Promise<Alert> {
     // Check for suppression
     if (this.isAlertSuppressed(alertData.title)) {
       this.logger.debug('Alert suppressed', { title: alertData.title });
-      return null as any; // Suppressed alerts don't get created
+      return null as unknown as Alert; // Suppressed alerts don't get created
     }
 
     const alert: Alert = {
@@ -1007,8 +1010,8 @@ export class AlertSystem extends EventEmitter {
 
   private async executeRemediationAction(
     action: string,
-    alert: Alert,
-  ): Promise<any> {
+    _alert: Alert,
+  ): Promise<{ action: string; success: boolean }> {
     // Placeholder for remediation action execution
     // In practice, this would map to specific remediation strategies
     switch (action) {
@@ -1117,7 +1120,7 @@ export class AlertSystem extends EventEmitter {
     // Dashboard notification channel (placeholder)
     this.registerNotificationChannel(NotificationChannel.DASHBOARD, {
       channel: NotificationChannel.DASHBOARD,
-      async send(alert: Alert): Promise<boolean> {
+      async send(_alert: Alert): Promise<boolean> {
         // In practice, this would update a dashboard UI
         return true;
       },
@@ -1234,7 +1237,7 @@ export class AlertSystem extends EventEmitter {
       .map((alert) => alert.resolvedAt!.getTime() - alert.timestamp.getTime());
   }
 
-  private calculateEscalationRates(alerts: Alert[]): number[] {
+  private calculateEscalationRates(_alerts: Alert[]): number[] {
     // Placeholder implementation
     return [];
   }

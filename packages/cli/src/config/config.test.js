@@ -7,6 +7,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { promises as fsPromises } from 'node:fs';
+import mockFs from 'mock-fs';
 import {
   ShellTool,
   EditTool,
@@ -15,7 +17,11 @@ import {
   DEFAULT_GEMINI_MODEL_AUTO,
   OutputFormat,
 } from '@google/gemini-cli-core';
-import { loadCliConfig, parseArguments } from './config.js';
+import {
+  loadCliConfig,
+  parseArguments,
+  loadHierarchicalGeminiMemory,
+} from './config.js';
 import * as ServerConfig from '@google/gemini-cli-core';
 import { isWorkspaceTrusted } from './trustedFolders.js';
 vi.mock('./trustedFolders.js', () => ({
@@ -665,13 +671,13 @@ describe('Hierarchical Memory Loading (config.ts) - Placeholder Suite', () => {
       MOCK_GEMINI_DIR_LOCAL,
       'GEMINI.md',
     );
-    mockFs({
+    vi.mocked(mockFs)({
       [MOCK_GLOBAL_PATH_LOCAL]: { type: 'file', content: 'GlobalContentOnly' },
     });
     const memory = await loadHierarchicalGeminiMemory('/some/other/cwd', false);
     expect(memory).toBe('GlobalContentOnly');
     expect(vi.mocked(os.homedir)).toHaveBeenCalled();
-    expect(fsPromises.readFile).toHaveBeenCalledWith(
+    expect(vi.mocked(fsPromises.readFile)).toHaveBeenCalledWith(
       MOCK_GLOBAL_PATH_LOCAL,
       'utf-8',
     );

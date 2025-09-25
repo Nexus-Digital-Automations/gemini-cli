@@ -56,11 +56,11 @@ export interface AlertRule {
   enabled: boolean;
   condition: {
     type: 'threshold' | 'pattern' | 'anomaly' | 'combination';
-    parameters: Record<string, any>;
+    parameters: Record<string, unknown>;
   };
   triggers: {
     eventTypes: string[];
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
   };
   actions: {
     notifications: {
@@ -95,7 +95,7 @@ export interface Alert {
   description: string;
   timestamp: Date;
   source: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
   status: 'active' | 'acknowledged' | 'resolved' | 'suppressed';
   acknowledgedBy?: string;
   acknowledgedAt?: Date;
@@ -112,7 +112,7 @@ export interface Alert {
     action: string;
     timestamp: Date;
     status: 'pending' | 'running' | 'completed' | 'failed';
-    result?: any;
+    result?: unknown;
     error?: string;
   }>;
 }

@@ -45,7 +45,7 @@ interface MockUsageData {
 }
 
 describe('Budget CLI Integration Tests', () => {
-  let testProjectRoot: string;
+  let _testProjectRoot: string;
   let mockBudgetSettings: BudgetSettings;
   let mockUsageData: MockUsageData;
 
@@ -54,7 +54,7 @@ describe('Budget CLI Integration Tests', () => {
     consoleSpy.mockClear();
     consoleErrorSpy.mockClear();
 
-    testProjectRoot = '/test/project';
+    _testProjectRoot = '/test/project';
     mockBudgetSettings = {
       enabled: true,
       dailyLimit: 100,

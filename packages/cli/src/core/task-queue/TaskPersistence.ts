@@ -12,11 +12,11 @@ import type {
   TaskMetadata,
   TaskPriority,
 } from '../../monitoring/TaskStatusMonitor.js';
-import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
+import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 import type {
   AgentCapability,
   TaskAssignment,
-  TaskDefinition,
+  TaskDefinition as _TaskDefinition,
 } from './TaskQueue.js';
 
 /**
@@ -577,7 +577,7 @@ export class TaskPersistence extends EventEmitter {
     }
 
     // Check disk space
-    const stats = await fs.stat(this.storageDir);
+    const _stats = await fs.stat(this.storageDir);
     // Additional disk space checks could be added here
   }
 
@@ -668,7 +668,7 @@ export class TaskPersistence extends EventEmitter {
     // Simple file-based locking
     try {
       await fs.writeFile(lockFile, JSON.stringify(lockData), { flag: 'wx' });
-    } catch (error) {
+    } catch (_error) {
       // Lock already exists, wait and retry
       await new Promise((resolve) => setTimeout(resolve, 100));
       throw new Error('Failed to acquire lock');
@@ -715,7 +715,9 @@ export class TaskPersistence extends EventEmitter {
     await fs.writeFile(backupPath, serializedData, 'utf8');
   }
 
-  private async updateMetadata(metadata: Record<string, any>): Promise<void> {
+  private async updateMetadata(
+    metadata: Record<string, unknown>,
+  ): Promise<void> {
     const metadataFile = join(this.storageDir, this.fileNames.metadata);
 
     let existingMetadata = {};
@@ -907,12 +909,12 @@ export class TaskPersistence extends EventEmitter {
     return data;
   }
 
-  private async encryptData(data: string, key: string): Promise<string> {
+  private async encryptData(data: string, _key: string): Promise<string> {
     // In a real implementation, this would use a crypto library
     return data;
   }
 
-  private async decryptData(data: string, key: string): Promise<string> {
+  private async decryptData(data: string, _key: string): Promise<string> {
     // In a real implementation, this would decrypt the data
     return data;
   }

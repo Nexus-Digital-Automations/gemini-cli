@@ -644,7 +644,7 @@ Please take appropriate action.
         return false;
     }
   }
-  evaluateEventCondition(condition, event) {
+  evaluateEventCondition(_condition, _event) {
     // Implementation would depend on the specific condition structure
     // For now, return false as a placeholder
     return false;
@@ -1115,7 +1115,7 @@ Please take appropriate action.
       .sort((a, b) => b.triggers - a.triggers);
   }
   calculatePerformanceMetrics(alerts) {
-    const resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
+    const _resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
     const escalatedAlerts = alerts.filter(
       (a) => a.escalationLevel && a.escalationLevel > 0,
     );

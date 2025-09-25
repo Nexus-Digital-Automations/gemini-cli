@@ -1239,7 +1239,7 @@ declare const _SETTINGS_SCHEMA: {
  * TypeScript type derived from the complete settings schema constant.
  * Provides compile-time type safety for all configuration operations.
  */
-export type SettingsSchemaType = typeof SETTINGS_SCHEMA;
+export type SettingsSchemaType = typeof _SETTINGS_SCHEMA;
 /**
  * Returns the complete settings schema definition for the application.
  * This schema defines all available configuration options, their types,

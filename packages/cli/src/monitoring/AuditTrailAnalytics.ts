@@ -869,7 +869,7 @@ export class AuditTrailAnalytics extends EventEmitter {
     for (const violation of violations) {
       recommendations.push({
         category: 'security',
-        priority: violation.severity as any,
+        priority: violation.severity as 'low' | 'medium' | 'high' | 'critical',
         title: `Address ${violation.rule} violations`,
         description: violation.description,
         implementation: violation.recommendation,
@@ -919,7 +919,15 @@ export class AuditTrailAnalytics extends EventEmitter {
     securityEvents: number;
     errors: number;
   }> {
-    const dailyActivity: Record<string, any> = {};
+    const dailyActivity: Record<
+      string,
+      {
+        date: string;
+        events: number;
+        securityEvents: number;
+        errors: number;
+      }
+    > = {};
 
     for (const event of events) {
       const dateKey = event.timestamp.toISOString().split('T')[0];
@@ -945,7 +953,7 @@ export class AuditTrailAnalytics extends EventEmitter {
       }
     }
 
-    return Object.values(dailyActivity).sort((a: any, b: any) =>
+    return Object.values(dailyActivity).sort((a, b) =>
       a.date.localeCompare(b.date),
     );
   }
@@ -958,11 +966,11 @@ export class AuditTrailAnalytics extends EventEmitter {
     const counts: Record<string, number> = {};
 
     for (const event of events) {
-      let value: any = event;
+      let value: unknown = event;
       const pathParts = path.split('.');
 
       for (const part of pathParts) {
-        value = value?.[part];
+        value = (value as Record<string, unknown>)?.[part];
       }
 
       if (value) {
@@ -975,7 +983,7 @@ export class AuditTrailAnalytics extends EventEmitter {
       .sort(([, a], [, b]) => b - a)
       .slice(0, limit)
       .map(([key, count]) => {
-        const result: any = { count };
+        const result: Record<string, string | number> = { count };
         const lastPart = path.split('.').pop()!;
         result[lastPart] = key;
         return result;

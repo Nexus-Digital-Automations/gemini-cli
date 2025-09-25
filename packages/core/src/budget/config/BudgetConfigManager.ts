@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from '@google/gemini-cli/src/utils/logger.js';
+import { Logger } from '../../utils/logger.js';
 import type {
   BudgetSettings,
   NotificationSettings,
@@ -31,7 +31,7 @@ export class BudgetConfigValidationError extends Error {
   constructor(
     message: string,
     readonly field: string,
-    readonly value: any,
+    readonly value: unknown,
   ) {
     super(message);
     this.name = 'BudgetConfigValidationError';
@@ -291,7 +291,10 @@ export class BudgetConfigManager {
    * Get configuration summary for diagnostics
    * @returns Configuration summary
    */
-  getConfigurationSummary(): Record<string, any> {
+  getConfigurationSummary(): Record<
+    string,
+    boolean | number | string | undefined
+  > {
     this.validatePermission(BudgetPermission.VIEW_BUDGET);
 
     return {

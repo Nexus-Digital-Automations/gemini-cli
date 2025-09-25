@@ -6,6 +6,7 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
+import { TaskStatus } from './TaskStatusMonitor.js';
 /**
  * Alert severity levels
  */
@@ -515,7 +516,7 @@ export class AlertSystem extends EventEmitter {
   }
   evaluateAnomalyCondition(params, context) {
     // Simplified anomaly detection - in practice, this would use statistical methods
-    const { metric, deviationThreshold = 2 } = params;
+    const { metric, _deviationThreshold = 2 } = params;
     const value = this.getValueFromContext(context, metric);
     if (typeof value !== 'number') return false;
     // This would typically compare against historical data and calculate z-score
@@ -700,7 +701,7 @@ export class AlertSystem extends EventEmitter {
       }
     }
   }
-  async executeRemediationAction(action, alert) {
+  async executeRemediationAction(action, _alert) {
     // Placeholder for remediation action execution
     // In practice, this would map to specific remediation strategies
     switch (action) {
@@ -805,7 +806,7 @@ export class AlertSystem extends EventEmitter {
     // Dashboard notification channel (placeholder)
     this.registerNotificationChannel(NotificationChannel.DASHBOARD, {
       channel: NotificationChannel.DASHBOARD,
-      async send(alert) {
+      async send(_alert) {
         // In practice, this would update a dashboard UI
         return true;
       },
@@ -896,7 +897,7 @@ export class AlertSystem extends EventEmitter {
       .filter((alert) => alert.resolvedAt && alert.timestamp)
       .map((alert) => alert.resolvedAt.getTime() - alert.timestamp.getTime());
   }
-  calculateEscalationRates(alerts) {
+  calculateEscalationRates(_alerts) {
     // Placeholder implementation
     return [];
   }
