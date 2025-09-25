@@ -74,7 +74,7 @@ function getNightlyVersion() {
   const baseVersion = latestVersion.split('-')[0];
   const versionParts = baseVersion.split('.');
   const major = versionParts[0];
-  const minor = versionParts[1] ? parseInt(versionParts[1]) : 0;
+  const minor = versionParts[1] ? parseInt(versionParts[1], 10) : 0;
   const nextMinor = minor + 1;
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const gitShortHash = execSync('git rev-parse --short HEAD').toString().trim();
@@ -170,7 +170,7 @@ function getPatchVersion(patchFrom) {
     const versionParts = latestVersion.split('.');
     const major = versionParts[0];
     const minor = versionParts[1];
-    const patch = versionParts[2] ? parseInt(versionParts[2]) : 0;
+    const patch = versionParts[2] ? parseInt(versionParts[2], 10) : 0;
     const releaseVersion = `${major}.${minor}.${patch + 1}`;
     return {
       releaseVersion,
@@ -186,7 +186,7 @@ function getPatchVersion(patchFrom) {
       );
     }
 
-    const previewNumber = parseInt(prereleasePart.split('.')[1]);
+    const previewNumber = parseInt(prereleasePart.split('.')[1], 10);
     if (isNaN(previewNumber)) {
       throw new Error(`Could not parse preview number from: ${prereleasePart}`);
     }

@@ -13,12 +13,26 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+<<<<<<< Updated upstream
 import { AutoCompressionManager, AutoCompressionEvent } from '../AutoCompressionManager.js';
+=======
+import {
+  AutoCompressionManager,
+  AutoCompressionEvent,
+} from '../AutoCompressionManager.js';
+>>>>>>> Stashed changes
 import { TokenMonitorService } from '../TokenMonitorService.js';
-import { CompressionConfigurationManager, ConfigurationPreset } from '../CompressionConfigurationManager.js';
+import {
+  CompressionConfigurationManager,
+  ConfigurationPreset,
+} from '../CompressionConfigurationManager.js';
 import { CompressionFallbackSystem } from '../CompressionFallbackSystem.js';
 import { EnhancedCompressionAlgorithms } from '../EnhancedCompressionAlgorithms.js';
+<<<<<<< Updated upstream
 import type { ContextItem} from '../types.js';
+=======
+import type { ContextItem } from '../types.js';
+>>>>>>> Stashed changes
 import { ContextType, ContextPriority } from '../types.js';
 import { performance } from 'node:perf_hooks';
 
@@ -35,7 +49,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
 
   afterEach(async () => {
     compressionManager.stop();
-    await new Promise(resolve => setTimeout(resolve, 100)); // Allow cleanup
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Allow cleanup
   });
 
   describe('Large Context Handling', () => {
@@ -55,50 +69,72 @@ describe('AutoCompressionSystem Integration Tests', () => {
               name: 'conversation',
               tokens: 800_000,
               maxTokens: 400_000,
-              content: largeContextItems.conversation.map(item => item.content).join('\n'),
+              content: largeContextItems.conversation
+                .map((item) => item.content)
+                .join('\n'),
               items: largeContextItems.conversation,
-              priority: ContextPriority.HIGH
+              priority: ContextPriority.HIGH,
             },
             code: {
               name: 'code',
               tokens: 300_000,
               maxTokens: 400_000,
-              content: largeContextItems.code.map(item => item.content).join('\n'),
+              content: largeContextItems.code
+                .map((item) => item.content)
+                .join('\n'),
               items: largeContextItems.code,
-              priority: ContextPriority.CRITICAL
+              priority: ContextPriority.CRITICAL,
             },
             logs: {
               name: 'logs',
               tokens: 172_932,
               maxTokens: 200_000,
-              content: largeContextItems.logs.map(item => item.content).join('\n'),
+              content: largeContextItems.logs
+                .map((item) => item.content)
+                .join('\n'),
               items: largeContextItems.logs,
-              priority: ContextPriority.LOW
-            }
-          }
+              priority: ContextPriority.LOW,
+            },
+          },
         })),
+<<<<<<< Updated upstream
         updateContextWindowTotals: vi.fn()
+=======
+        updateContextWindowTotals: vi.fn(),
+>>>>>>> Stashed changes
       };
 
-      compressionManager.registerContextManager('test-session', mockContextManager as any);
+      compressionManager.registerContextManager(
+        'test-session',
+        mockContextManager as any,
+      );
 
       // Set up event listeners to track compression
       const compressionEvents: any[] = [];
-      compressionManager.on(AutoCompressionEvent.COMPRESSION_STARTED, (event) => {
-        compressionEvents.push({ type: 'started', ...event });
-      });
-      compressionManager.on(AutoCompressionEvent.COMPRESSION_COMPLETED, (event) => {
-        compressionEvents.push({ type: 'completed', ...event });
-      });
-      compressionManager.on(AutoCompressionEvent.TOKEN_LIMIT_WARNING, (event) => {
-        compressionEvents.push({ type: 'warning', ...event });
-      });
+      compressionManager.on(
+        AutoCompressionEvent.COMPRESSION_STARTED,
+        (event) => {
+          compressionEvents.push({ type: 'started', ...event });
+        },
+      );
+      compressionManager.on(
+        AutoCompressionEvent.COMPRESSION_COMPLETED,
+        (event) => {
+          compressionEvents.push({ type: 'completed', ...event });
+        },
+      );
+      compressionManager.on(
+        AutoCompressionEvent.TOKEN_LIMIT_WARNING,
+        (event) => {
+          compressionEvents.push({ type: 'warning', ...event });
+        },
+      );
 
       // Start monitoring and wait for automatic compression
       compressionManager.start();
 
       // Wait for automatic compression to trigger
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Manually trigger compression to ensure it runs
       const result = await compressionManager.triggerRobustCompression(false);
@@ -119,7 +155,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         compressionRatio: result.compressionRatio,
         tokensSaved: result.originalTokens - result.compressedTokens,
         withinLimit: finalSnapshot.totalTokens <= targetTokens,
-        compressionEvents: compressionEvents.length
+        compressionEvents: compressionEvents.length,
       });
     });
 
@@ -141,24 +177,37 @@ describe('AutoCompressionSystem Integration Tests', () => {
                 tokens: currentTokens * 0.8,
                 maxTokens: 500_000,
                 content: 'Growing conversation content...',
-                items: createContextItems(Math.floor(currentTokens * 0.8 / 1000), ContextType.CONVERSATION),
-                priority: ContextPriority.MEDIUM
+                items: createContextItems(
+                  Math.floor((currentTokens * 0.8) / 1000),
+                  ContextType.CONVERSATION,
+                ),
+                priority: ContextPriority.MEDIUM,
               },
               system: {
                 name: 'system',
                 tokens: currentTokens * 0.2,
                 maxTokens: 200_000,
                 content: 'System context...',
-                items: createContextItems(Math.floor(currentTokens * 0.2 / 1000), ContextType.SYSTEM),
-                priority: ContextPriority.HIGH
-              }
-            }
+                items: createContextItems(
+                  Math.floor((currentTokens * 0.2) / 1000),
+                  ContextType.SYSTEM,
+                ),
+                priority: ContextPriority.HIGH,
+              },
+            },
           };
         }),
+<<<<<<< Updated upstream
         updateContextWindowTotals: vi.fn()
+=======
+        updateContextWindowTotals: vi.fn(),
+>>>>>>> Stashed changes
       };
 
-      compressionManager.registerContextManager('growth-test', mockContextManager as any);
+      compressionManager.registerContextManager(
+        'growth-test',
+        mockContextManager as any,
+      );
 
       // Enable predictive compression
       compressionManager.updateConfiguration({
@@ -166,22 +215,25 @@ describe('AutoCompressionSystem Integration Tests', () => {
           maxTokenLimit: 1_048_576,
           thresholds: {
             info: 0.75,
-            warning: 0.80,
+            warning: 0.8,
             critical: 0.85,
-            emergency: 0.95
+            emergency: 0.95,
           },
           predictive: {
             enabled: true,
             minutesAhead: 10, // Trigger if hitting limit in 10 minutes
-            minGrowthRate: 1000 // tokens per minute
-          }
-        }
+            minGrowthRate: 1000, // tokens per minute
+          },
+        },
       });
 
       const warnings: any[] = [];
-      compressionManager.on(AutoCompressionEvent.TOKEN_LIMIT_WARNING, (event) => {
-        warnings.push(event);
-      });
+      compressionManager.on(
+        AutoCompressionEvent.TOKEN_LIMIT_WARNING,
+        (event) => {
+          warnings.push(event);
+        },
+      );
 
       // Start monitoring with shorter interval for testing
       compressionManager.updateConfiguration({
@@ -191,21 +243,25 @@ describe('AutoCompressionSystem Integration Tests', () => {
           criticalInterval: 200,
           enableEvents: true,
           performance: { enabled: true, historySize: 50, slowThreshold: 2000 },
-          history: { enabled: true, maxEntries: 100, cleanupInterval: 10000 }
-        }
+          history: { enabled: true, maxEntries: 100, cleanupInterval: 10000 },
+        },
       });
       compressionManager.start();
 
       // Wait for predictive compression to trigger
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       expect(warnings.length).toBeGreaterThan(0);
-      expect(warnings.some(w => w.level === 'warning' || w.level === 'critical')).toBe(true);
+      expect(
+        warnings.some((w) => w.level === 'warning' || w.level === 'critical'),
+      ).toBe(true);
 
       console.log('Predictive Compression Test Results:', {
         finalTokens: currentTokens,
         warningsTriggered: warnings.length,
-        predictivelyTriggered: warnings.some(w => w.triggerType?.includes('predictive'))
+        predictivelyTriggered: warnings.some((w) =>
+          w.triggerType?.includes('predictive'),
+        ),
       });
     });
 
@@ -222,21 +278,35 @@ describe('AutoCompressionSystem Integration Tests', () => {
               name: 'conversation',
               tokens: emergencyTokens,
               maxTokens: 600_000,
-              content: 'Emergency level context content that must be compressed immediately...',
-              items: createContextItems(Math.floor(emergencyTokens / 1000), ContextType.CONVERSATION),
-              priority: ContextPriority.MEDIUM
-            }
-          }
+              content:
+                'Emergency level context content that must be compressed immediately...',
+              items: createContextItems(
+                Math.floor(emergencyTokens / 1000),
+                ContextType.CONVERSATION,
+              ),
+              priority: ContextPriority.MEDIUM,
+            },
+          },
         })),
+<<<<<<< Updated upstream
         updateContextWindowTotals: vi.fn()
+=======
+        updateContextWindowTotals: vi.fn(),
+>>>>>>> Stashed changes
       };
 
-      compressionManager.registerContextManager('emergency-test', mockContextManager as any);
+      compressionManager.registerContextManager(
+        'emergency-test',
+        mockContextManager as any,
+      );
 
       const emergencyEvents: any[] = [];
-      compressionManager.on(AutoCompressionEvent.EMERGENCY_COMPRESSION, (event) => {
-        emergencyEvents.push(event);
-      });
+      compressionManager.on(
+        AutoCompressionEvent.EMERGENCY_COMPRESSION,
+        (event) => {
+          emergencyEvents.push(event);
+        },
+      );
 
       // Trigger emergency compression
       const result = await compressionManager.triggerRobustCompression(true);
@@ -248,8 +318,9 @@ describe('AutoCompressionSystem Integration Tests', () => {
       console.log('Emergency Compression Test Results:', {
         originalTokens: emergencyTokens,
         compressedTokens: result.compressedTokens,
-        aggressionLevel: (emergencyTokens - result.compressedTokens) / emergencyTokens,
-        emergencyEventsTriggered: emergencyEvents.length
+        aggressionLevel:
+          (emergencyTokens - result.compressedTokens) / emergencyTokens,
+        emergencyEventsTriggered: emergencyEvents.length,
       });
     });
   });
@@ -260,7 +331,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         { type: ContextType.CODE, expectedRatio: 0.8 }, // Code is harder to compress
         { type: ContextType.CONVERSATION, expectedRatio: 0.6 }, // Conversation compresses well
         { type: ContextType.ERROR, expectedRatio: 0.7 }, // Logs compress moderately
-        { type: ContextType.FILE, expectedRatio: 0.5 } // File listings compress very well
+        { type: ContextType.FILE, expectedRatio: 0.5 }, // File listings compress very well
       ];
 
       const enhancedCompressor = new EnhancedCompressionAlgorithms();
@@ -271,7 +342,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
 
         const result = await enhancedCompressor.compressWithTypeOptimization(
           testItem,
-          0.7 // Target 70% compression
+          0.7, // Target 70% compression
         );
 
         expect(result.success).toBe(true);
@@ -282,17 +353,33 @@ describe('AutoCompressionSystem Integration Tests', () => {
           originalTokens: result.originalTokens,
           compressedTokens: result.compressedTokens,
           ratio: result.compressionRatio,
-          meetingExpected: result.compressionRatio <= expectedRatio
+          meetingExpected: result.compressionRatio <= expectedRatio,
         });
       }
     });
 
     test('should preserve critical content priority', async () => {
       const items = [
-        createContextItem('Critical system error occurred', ContextType.ERROR, ContextPriority.CRITICAL),
-        createContextItem('Debug log entry', ContextType.SYSTEM, ContextPriority.LOW),
-        createContextItem('User conversation', ContextType.CONVERSATION, ContextPriority.MEDIUM),
-        createContextItem('Important function definition', ContextType.CODE, ContextPriority.HIGH)
+        createContextItem(
+          'Critical system error occurred',
+          ContextType.ERROR,
+          ContextPriority.CRITICAL,
+        ),
+        createContextItem(
+          'Debug log entry',
+          ContextType.SYSTEM,
+          ContextPriority.LOW,
+        ),
+        createContextItem(
+          'User conversation',
+          ContextType.CONVERSATION,
+          ContextPriority.MEDIUM,
+        ),
+        createContextItem(
+          'Important function definition',
+          ContextType.CODE,
+          ContextPriority.HIGH,
+        ),
       ];
 
       const fallbackSystem = new CompressionFallbackSystem();
@@ -302,7 +389,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         items,
         0.3, // Very aggressive 30% target
         new Error('Test compression'),
-        false
+        false,
       );
 
       expect(result.success).toBe(true);
@@ -316,7 +403,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         originalLength: result.original.length,
         compressedLength: result.compressed.length,
         preservesCritical: compressedContent.includes('critical'),
-        compressionRatio: result.compressionRatio
+        compressionRatio: result.compressionRatio,
       });
     });
   });
@@ -333,7 +420,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         items,
         0.7,
         compressionError,
-        false
+        false,
       );
 
       expect(result.fallbackStrategy).toBeDefined();
@@ -349,7 +436,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         fallbackStrategy: result.fallbackStrategy,
         attempts: result.fallbackAttempts,
         success: result.success,
-        errors: result.fallbackErrors?.length || 0
+        errors: result.fallbackErrors?.length || 0,
       });
     });
 
@@ -361,14 +448,14 @@ describe('AutoCompressionSystem Integration Tests', () => {
         maxFallbackAttempts: 1,
         enableEmergencyRemoval: true,
         minPreservationRatio: 0.05, // Keep only 5% minimum
-        fallbackTimeoutMs: 100 // Very short timeout
+        fallbackTimeoutMs: 100, // Very short timeout
       });
 
       const result = await restrictiveFallback.applyFallbackCompression(
         items,
         0.1, // Very aggressive target
         new Error('All algorithms failed'),
-        true // Emergency mode
+        true, // Emergency mode
       );
 
       if (result.emergencyMeasuresApplied) {
@@ -379,7 +466,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
       console.log('Emergency Measures Test:', {
         emergencyApplied: result.emergencyMeasuresApplied,
         finalRatio: result.compressionRatio,
-        recoveryActions: result.recoveryActions?.length || 0
+        recoveryActions: result.recoveryActions?.length || 0,
       });
     });
   });
@@ -389,7 +476,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
       const presets = [
         ConfigurationPreset.CONSERVATIVE,
         ConfigurationPreset.BALANCED,
-        ConfigurationPreset.AGGRESSIVE
+        ConfigurationPreset.AGGRESSIVE,
       ];
 
       for (const preset of presets) {
@@ -402,10 +489,14 @@ describe('AutoCompressionSystem Integration Tests', () => {
         switch (preset) {
           case ConfigurationPreset.CONSERVATIVE:
             expect(config.tokenLimits.thresholds.critical).toBeLessThan(0.8);
-            expect(config.compressionRatios.targets.normal).toBeGreaterThan(0.7);
+            expect(config.compressionRatios.targets.normal).toBeGreaterThan(
+              0.7,
+            );
             break;
           case ConfigurationPreset.AGGRESSIVE:
-            expect(config.tokenLimits.thresholds.critical).toBeGreaterThan(0.85);
+            expect(config.tokenLimits.thresholds.critical).toBeGreaterThan(
+              0.85,
+            );
             expect(config.compressionRatios.targets.normal).toBeLessThan(0.6);
             break;
           case ConfigurationPreset.BALANCED:
@@ -417,7 +508,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         console.log(`Preset ${preset} Configuration:`, {
           criticalThreshold: config.tokenLimits.thresholds.critical,
           normalRatio: config.compressionRatios.targets.normal,
-          fallbackEnabled: config.fallback.enabled
+          fallbackEnabled: config.fallback.enabled,
         });
       }
     });
@@ -434,9 +525,14 @@ describe('AutoCompressionSystem Integration Tests', () => {
       configManager.updateConfig({
         tokenLimits: {
           maxTokenLimit: 2_000_000,
-          thresholds: { info: 0.6, warning: 0.7, critical: 0.8, emergency: 0.9 },
-          predictive: { enabled: true, minutesAhead: 15, minGrowthRate: 500 }
-        }
+          thresholds: {
+            info: 0.6,
+            warning: 0.7,
+            critical: 0.8,
+            emergency: 0.9,
+          },
+          predictive: { enabled: true, minutesAhead: 15, minGrowthRate: 500 },
+        },
       });
 
       // Verify change was applied
@@ -447,7 +543,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
       console.log('Dynamic Configuration Test:', {
         configChanges: configChangeEvents,
         newMaxLimit: updatedConfig.maxTokenLimit,
-        newCriticalThreshold: updatedConfig.compressionThreshold
+        newCriticalThreshold: updatedConfig.compressionThreshold,
       });
     });
   });
@@ -455,31 +551,29 @@ describe('AutoCompressionSystem Integration Tests', () => {
   describe('Performance Tests', () => {
     test('should compress large contexts within reasonable time limits', async () => {
       const items = createLargeContextItems(500_000); // 500K tokens
-      const allItems = [
-        ...items.conversation,
-        ...items.code,
-        ...items.logs
-      ];
+      const allItems = [...items.conversation, ...items.code, ...items.logs];
 
       const startTime = performance.now();
 
       const enhancedCompressor = new EnhancedCompressionAlgorithms();
       const results = await Promise.all(
-        allItems.slice(0, 10).map(item => // Test with first 10 items
-          enhancedCompressor.compressWithTypeOptimization(item, 0.7)
-        )
+        allItems.slice(0, 10).map(
+          (
+            item, // Test with first 10 items
+          ) => enhancedCompressor.compressWithTypeOptimization(item, 0.7),
+        ),
       );
 
       const duration = performance.now() - startTime;
 
       expect(duration).toBeLessThan(10000); // Should complete within 10 seconds
-      expect(results.every(r => r.success)).toBe(true);
+      expect(results.every((r) => r.success)).toBe(true);
 
       console.log('Performance Test Results:', {
         itemsProcessed: results.length,
         totalDurationMs: duration,
         averageDurationPerItem: duration / results.length,
-        allSuccessful: results.every(r => r.success)
+        allSuccessful: results.every((r) => r.success),
       });
     });
 
@@ -489,14 +583,14 @@ describe('AutoCompressionSystem Integration Tests', () => {
         createContextItem(
           'x'.repeat(50_000), // 50K character items
           ContextType.FILE,
-          ContextPriority.LOW
-        )
+          ContextPriority.LOW,
+        ),
       );
 
       const fallbackSystem = new CompressionFallbackSystem({
         maxFallbackAttempts: 3,
         enableEmergencyRemoval: true,
-        fallbackTimeoutMs: 5000
+        fallbackTimeoutMs: 5000,
       });
 
       const memoryError = new Error('JavaScript heap out of memory');
@@ -504,7 +598,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         largeItems,
         0.5,
         memoryError,
-        false
+        false,
       );
 
       // Should handle memory constraints without crashing
@@ -515,7 +609,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
         handled: !!result,
         strategy: result.fallbackStrategy,
         success: result.success,
-        finalSize: result.compressed?.length || 0
+        finalSize: result.compressed?.length || 0,
       });
     });
   });
@@ -532,21 +626,30 @@ function createLargeContextItems(totalTokens: number): {
   const logTokens = totalTokens - conversationTokens - codeTokens;
 
   return {
-    conversation: createContextItems(Math.floor(conversationTokens / 1000), ContextType.CONVERSATION),
+    conversation: createContextItems(
+      Math.floor(conversationTokens / 1000),
+      ContextType.CONVERSATION,
+    ),
     code: createContextItems(Math.floor(codeTokens / 1000), ContextType.CODE),
-    logs: createContextItems(Math.floor(logTokens / 1000), ContextType.ERROR)
+    logs: createContextItems(Math.floor(logTokens / 1000), ContextType.ERROR),
   };
 }
 
 function createContextItems(count: number, type: ContextType): ContextItem[] {
-  return Array.from({ length: count }, (_, i) => createContextItem(
-    generateContentByType(type, i),
-    type,
-    i % 3 === 0 ? ContextPriority.HIGH : ContextPriority.MEDIUM
-  ));
+  return Array.from({ length: count }, (_, i) =>
+    createContextItem(
+      generateContentByType(type, i),
+      type,
+      i % 3 === 0 ? ContextPriority.HIGH : ContextPriority.MEDIUM,
+    ),
+  );
 }
 
-function createContextItem(content: string, type: ContextType, priority: ContextPriority): ContextItem {
+function createContextItem(
+  content: string,
+  type: ContextType,
+  priority: ContextPriority,
+): ContextItem {
   return {
     id: `test-item-${Date.now()}-${Math.random()}`,
     content,
@@ -558,7 +661,7 @@ function createContextItem(content: string, type: ContextType, priority: Context
     tokenCount: Math.ceil(content.length / 4), // Rough token estimation
     dependencies: [],
     metadata: { testItem: true },
-    tags: [`type:${type}`, `priority:${priority}`]
+    tags: [`type:${type}`, `priority:${priority}`],
   };
 }
 

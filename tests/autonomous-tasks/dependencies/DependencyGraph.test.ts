@@ -8,8 +8,6 @@ import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/task/types.js';
 import {
   DecisionDependencyGraph as DependencyGraph,
-  DecisionDependencyNode as _GraphNode,
-  DecisionDependencyGraph as _GraphEdge,
 } from '../../../packages/core/src/decision/DependencyGraph.js';
 import { DetectedDependency } from '../../../packages/core/src/decision/DependencyAnalyzer.js';
 

@@ -8,7 +8,14 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { memoryCommand } from './memoryCommand.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import { MessageType } from '../types.js';
+<<<<<<< Updated upstream
 import { getErrorMessage, loadServerHierarchicalMemory } from '@google/gemini-cli-core';
+=======
+import {
+  getErrorMessage,
+  loadServerHierarchicalMemory,
+} from '@google/gemini-cli-core';
+>>>>>>> Stashed changes
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
   const original = await importOriginal();

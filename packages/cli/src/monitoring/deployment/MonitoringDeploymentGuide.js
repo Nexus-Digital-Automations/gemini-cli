@@ -592,7 +592,10 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
     switch (check) {
       case 'Verify Node.js version >= 18.x': {
         const nodeVersion = process.version;
-        const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0], 10);
+        const majorVersion = parseInt(
+          nodeVersion.substring(1).split('.')[0],
+          10,
+        );
         if (majorVersion < 18) {
           throw new Error(
             `Node.js version ${nodeVersion} is not supported. Requires >= 18.x`,

@@ -78,7 +78,15 @@ export interface SerializedAlertData {
  */
 export interface SerializedPredictiveInsight {
   id: string;
+<<<<<<< Updated upstream
   type: 'capacity_prediction' | 'failure_prediction' | 'bottleneck_prediction' | 'trend_analysis';
+=======
+  type:
+    | 'capacity_prediction'
+    | 'failure_prediction'
+    | 'bottleneck_prediction'
+    | 'trend_analysis';
+>>>>>>> Stashed changes
   title: string;
   description: string;
   confidence: number;

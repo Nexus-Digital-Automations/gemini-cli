@@ -74,7 +74,7 @@ export enum ContentTypeCategory {
   FILE_LISTING = 'file_listing',
   CONFIGURATION = 'configuration',
   DOCUMENTATION = 'documentation',
-  MIXED_CONTENT = 'mixed_content'
+  MIXED_CONTENT = 'mixed_content',
 }
 
 /**
@@ -136,7 +136,7 @@ const DEFAULT_ENHANCED_CONFIG: EnhancedCompressionConfig = {
   adaptiveThresholds: true,
   maxProcessingTime: 5000, // 5 seconds max per item
   enableTypeOptimizations: true,
-  preserveCriticalElements: true
+  preserveCriticalElements: true,
 };
 
 /**
@@ -169,7 +169,7 @@ export class EnhancedCompressionAlgorithms {
       targetRatio: this.config.targetRatio,
       qualityLevel: this.config.qualityLevel,
       adaptiveThresholds: this.config.adaptiveThresholds,
-      typeOptimizations: this.config.enableTypeOptimizations
+      typeOptimizations: this.config.enableTypeOptimizations,
     });
   }
 
@@ -182,7 +182,7 @@ export class EnhancedCompressionAlgorithms {
 
     logger.info('EnhancedCompressionAlgorithms configuration updated', {
       oldConfig,
-      newConfig: this.config
+      newConfig: this.config,
     });
   }
 
@@ -191,7 +191,7 @@ export class EnhancedCompressionAlgorithms {
    */
   async compressWithTypeOptimization(
     item: ContextItem,
-    targetRatio: number = this.config.targetRatio
+    targetRatio: number = this.config.targetRatio,
   ): Promise<EnhancedCompressionResult> {
     const startTime = performance.now();
 
@@ -203,14 +203,14 @@ export class EnhancedCompressionAlgorithms {
         itemId: item.id,
         primaryType: contentAnalysis.primaryType,
         confidence: contentAnalysis.confidence,
-        recommendedStrategy: contentAnalysis.recommendedStrategy
+        recommendedStrategy: contentAnalysis.recommendedStrategy,
       });
 
       // Select and apply compression strategy
       const compressionResult = await this.applyTypeSpecificCompression(
         item,
         contentAnalysis,
-        targetRatio
+        targetRatio,
       );
 
       const processingTime = performance.now() - startTime;
@@ -222,22 +222,31 @@ export class EnhancedCompressionAlgorithms {
         ...compressionResult,
         detectedContentType: contentAnalysis.primaryType,
         processingTime,
-        qualityScore: this.calculateQualityScore(compressionResult, contentAnalysis),
-        criticalElementsPreserved: this.extractCriticalElements(item.content, compressionResult.compressed),
+        qualityScore: this.calculateQualityScore(
+          compressionResult,
+          contentAnalysis,
+        ),
+        criticalElementsPreserved: this.extractCriticalElements(
+          item.content,
+          compressionResult.compressed,
+        ),
         methodDetails: {
           primaryMethod: contentAnalysis.recommendedStrategy,
           fallbackMethods: [],
           parameters: {
             targetRatio,
             qualityLevel: this.config.qualityLevel,
-            contentType: contentAnalysis.primaryType
+            contentType: contentAnalysis.primaryType,
           },
           methodMetrics: {
             compressionRatio: compressionResult.compressionRatio,
             processingTime,
-            qualityScore: this.calculateQualityScore(compressionResult, contentAnalysis)
-          }
-        }
+            qualityScore: this.calculateQualityScore(
+              compressionResult,
+              contentAnalysis,
+            ),
+          },
+        },
       };
 
       logger.info('Type-optimized compression completed', {
@@ -247,18 +256,17 @@ export class EnhancedCompressionAlgorithms {
         compressedTokens: compressionResult.compressedTokens,
         compressionRatio: compressionResult.compressionRatio.toFixed(3),
         processingTime: processingTime.toFixed(2),
-        qualityScore: enhancedResult.qualityScore.toFixed(3)
+        qualityScore: enhancedResult.qualityScore.toFixed(3),
       });
 
       return enhancedResult;
-
     } catch (error) {
       const processingTime = performance.now() - startTime;
 
       logger.error('Type-optimized compression failed', {
         itemId: item.id,
         error: error instanceof Error ? error.message : String(error),
-        processingTime: processingTime.toFixed(2)
+        processingTime: processingTime.toFixed(2),
       });
 
       // Return fallback result
@@ -279,8 +287,8 @@ export class EnhancedCompressionAlgorithms {
           primaryMethod: 'fallback',
           fallbackMethods: [],
           parameters: {},
-          methodMetrics: {}
-        }
+          methodMetrics: {},
+        },
       };
     }
   }
@@ -292,51 +300,47 @@ export class EnhancedCompressionAlgorithms {
     const characteristics = this.analyzeContentCharacteristics(content);
 
     // Content type detection patterns
-    const typePatterns: Array<{ type: ContentTypeCategory; patterns: RegExp[]; weight: number }> = [
+    const typePatterns: Array<{
+      type: ContentTypeCategory;
+      patterns: RegExp[];
+      weight: number;
+    }> = [
       {
         type: ContentTypeCategory.JAVASCRIPT_CODE,
         patterns: [
           /\b(function|const|let|var|class|import|export|async|await)\b/g,
           /\{[\s\S]*\}/g,
-          /\/\*[\s\S]*?\*\/|\/\/.*$/gm
+          /\/\*[\s\S]*?\*\/|\/\/.*$/gm,
         ],
-        weight: 0.8
+        weight: 0.8,
       },
       {
         type: ContentTypeCategory.TYPESCRIPT_CODE,
         patterns: [
           /:\s*(string|number|boolean|void|any|unknown)\b/g,
           /interface\s+\w+/g,
-          /type\s+\w+\s*=/g
+          /type\s+\w+\s*=/g,
         ],
-        weight: 0.9
+        weight: 0.9,
       },
       {
         type: ContentTypeCategory.PYTHON_CODE,
         patterns: [
           /\b(def|class|import|from|if __name__|print)\b/g,
           /:\s*$/gm,
-          /#.*$/gm
+          /#.*$/gm,
         ],
-        weight: 0.8
+        weight: 0.8,
       },
       {
         type: ContentTypeCategory.HTML_MARKUP,
-        patterns: [
-          /<[^>]+>/g,
-          /<!DOCTYPE\s+html>/i,
-          /&\w+;/g
-        ],
-        weight: 0.9
+        patterns: [/<[^>]+>/g, /<!DOCTYPE\s+html>/i, /&\w+;/g],
+        weight: 0.9,
       },
       {
         type: ContentTypeCategory.JSON_DATA,
-        patterns: [
-          /^\s*[\{\[]/,
-          /"\w+":\s*["\d\{\[]/g,
-          /,\s*$/gm
-        ],
-        weight: 0.95
+        patterns: [/^\s*[\{\[]/, /"\w+":\s*["\d\{\[]/g, /,\s*$/gm],
+        weight: 0.95,
       },
       {
         type: ContentTypeCategory.ERROR_LOG,
@@ -344,18 +348,18 @@ export class EnhancedCompressionAlgorithms {
           /\b(ERROR|WARN|INFO|DEBUG|FATAL)\b/g,
           /\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}:\d{2}/g,
           /at\s+\w+\.\w+\(/g,
-          /stack\s*trace/i
+          /stack\s*trace/i,
         ],
-        weight: 0.85
+        weight: 0.85,
       },
       {
         type: ContentTypeCategory.CONVERSATION_LOG,
         patterns: [
           /\b(user|assistant|system):/gi,
           /\d{2}:\d{2}:\d{2}/g,
-          /^>\s+/gm
+          /^>\s+/gm,
         ],
-        weight: 0.8
+        weight: 0.8,
       },
       {
         type: ContentTypeCategory.MARKDOWN_TEXT,
@@ -363,19 +367,19 @@ export class EnhancedCompressionAlgorithms {
           /^#{1,6}\s+/gm,
           /\*\*.*?\*\*|\*.*?\*/g,
           /\[.*?\]\(.*?\)/g,
-          /```[\s\S]*?```/g
+          /```[\s\S]*?```/g,
         ],
-        weight: 0.8
+        weight: 0.8,
       },
       {
         type: ContentTypeCategory.FILE_LISTING,
         patterns: [
           /^[\w.-]+\.(js|ts|py|html|css|json|md)$/gm,
           /^\s*[\w.-]+\/\s*$/gm,
-          /\d+\s+bytes?/g
+          /\d+\s+bytes?/g,
         ],
-        weight: 0.9
-      }
+        weight: 0.9,
+      },
     ];
 
     // Calculate type scores
@@ -410,21 +414,26 @@ export class EnhancedCompressionAlgorithms {
     const secondaryTypes = allScores.slice(1, 3).map(([type]) => type);
 
     // Recommend compression strategy based on type
-    const recommendedStrategy = this.getRecommendedStrategy(bestType, characteristics);
+    const recommendedStrategy = this.getRecommendedStrategy(
+      bestType,
+      characteristics,
+    );
 
     return {
       primaryType: bestType,
       confidence: Math.min(bestScore, 1.0),
       secondaryTypes,
       characteristics,
-      recommendedStrategy
+      recommendedStrategy,
     };
   }
 
   /**
    * Analyze content characteristics for optimization
    */
-  private analyzeContentCharacteristics(content: string): ContentCharacteristics {
+  private analyzeContentCharacteristics(
+    content: string,
+  ): ContentCharacteristics {
     const lines = content.split('\n');
     const words = content.split(/\s+/);
     const uniqueWords = new Set(words);
@@ -439,23 +448,28 @@ export class EnhancedCompressionAlgorithms {
     for (const count of wordCounts.values()) {
       if (count > 2) repetitiveWords += count - 1;
     }
-    const repetitionRatio = words.length > 0 ? repetitiveWords / words.length : 0;
+    const repetitionRatio =
+      words.length > 0 ? repetitiveWords / words.length : 0;
 
     // Calculate average line length
-    const averageLineLength = lines.length > 0 ?
-      lines.reduce((sum, line) => sum + line.length, 0) / lines.length : 0;
+    const averageLineLength =
+      lines.length > 0
+        ? lines.reduce((sum, line) => sum + line.length, 0) / lines.length
+        : 0;
 
     // Detect structured data patterns
-    const hasStructuredData = /[\{\}\[\]"':,]/.test(content) &&
-                              content.split(/[\{\}\[\]]/).length > 3;
+    const hasStructuredData =
+      /[\{\}\[\]"':,]/.test(content) && content.split(/[\{\}\[\]]/).length > 3;
 
     // Detect code patterns
-    const hasCodePatterns = /[(){};=]/.test(content) &&
-                           /\b(function|class|if|for|while|return)\b/.test(content);
+    const hasCodePatterns =
+      /[(){};=]/.test(content) &&
+      /\b(function|class|if|for|while|return)\b/.test(content);
 
     // Estimate noise ratio (whitespace, punctuation, etc.)
     const noiseCharacters = content.match(/[\s\n\r\t.,;:!?'"(){}[\]]/g) || [];
-    const noiseRatio = content.length > 0 ? noiseCharacters.length / content.length : 0;
+    const noiseRatio =
+      content.length > 0 ? noiseCharacters.length / content.length : 0;
 
     // Extract key concepts (common meaningful words)
     const keyConcepts = this.extractKeyConcepts(content);
@@ -467,7 +481,7 @@ export class EnhancedCompressionAlgorithms {
       hasStructuredData,
       hasCodePatterns,
       noiseRatio,
-      keyConcepts
+      keyConcepts,
     };
   }
 
@@ -475,10 +489,16 @@ export class EnhancedCompressionAlgorithms {
    * Extract key concepts from content
    */
   private extractKeyConcepts(content: string): string[] {
-    const words = content.toLowerCase()
+    const words = content
+      .toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 3 && !/^\d+$/.test(word))
-      .filter(word => !/^(the|and|for|are|but|not|you|all|can|has|had|her|was|one|our|out|day|get|use|man|new|now|old|see|him|two|how|its|who|oil|sit|did)$/.test(word));
+      .filter((word) => word.length > 3 && !/^\d+$/.test(word))
+      .filter(
+        (word) =>
+          !/^(the|and|for|are|but|not|you|all|can|has|had|her|was|one|our|out|day|get|use|man|new|now|old|see|him|two|how|its|who|oil|sit|did)$/.test(
+            word,
+          ),
+      );
 
     const wordCounts = new Map<string, number>();
     for (const word of words) {
@@ -496,15 +516,15 @@ export class EnhancedCompressionAlgorithms {
    */
   private getRecommendedStrategy(
     type: ContentTypeCategory,
-    characteristics: ContentCharacteristics
+    characteristics: ContentCharacteristics,
   ): CompressionStrategy {
     switch (type) {
       case ContentTypeCategory.JAVASCRIPT_CODE:
       case ContentTypeCategory.TYPESCRIPT_CODE:
       case ContentTypeCategory.PYTHON_CODE:
-        return characteristics.repetitionRatio > 0.3 ?
-               CompressionStrategy.SEMANTIC_CLUSTERING :
-               CompressionStrategy.PROGRESSIVE_DETAIL;
+        return characteristics.repetitionRatio > 0.3
+          ? CompressionStrategy.SEMANTIC_CLUSTERING
+          : CompressionStrategy.PROGRESSIVE_DETAIL;
 
       case ContentTypeCategory.JSON_DATA:
       case ContentTypeCategory.XML_DATA:
@@ -523,9 +543,9 @@ export class EnhancedCompressionAlgorithms {
         return CompressionStrategy.PROGRESSIVE_DETAIL;
 
       default:
-        return characteristics.repetitionRatio > 0.4 ?
-               CompressionStrategy.SEMANTIC_CLUSTERING :
-               CompressionStrategy.SUMMARIZATION;
+        return characteristics.repetitionRatio > 0.4
+          ? CompressionStrategy.SEMANTIC_CLUSTERING
+          : CompressionStrategy.SUMMARIZATION;
     }
   }
 
@@ -535,7 +555,7 @@ export class EnhancedCompressionAlgorithms {
   private async applyTypeSpecificCompression(
     item: ContextItem,
     analysis: ContentTypeAnalysis,
-    targetRatio: number
+    targetRatio: number,
   ): Promise<CompressionResult> {
     const { primaryType, characteristics, recommendedStrategy } = analysis;
 
@@ -565,7 +585,11 @@ export class EnhancedCompressionAlgorithms {
         return this.compressMarkdownContent(item, targetRatio);
 
       default:
-        return this.compressGenericContent(item, recommendedStrategy, targetRatio);
+        return this.compressGenericContent(
+          item,
+          recommendedStrategy,
+          targetRatio,
+        );
     }
   }
 
@@ -575,7 +599,7 @@ export class EnhancedCompressionAlgorithms {
   private compressCodeContent(
     item: ContextItem,
     characteristics: ContentCharacteristics,
-    targetRatio: number
+    targetRatio: number,
   ): CompressionResult {
     let compressed = item.content;
     const originalLength = compressed.length;
@@ -590,13 +614,22 @@ export class EnhancedCompressionAlgorithms {
 
     // Step 2: Compress comments while preserving important ones
     const importantCommentPatterns = [
-      /@param/, /@return/, /@throws/, /@description/,
-      /TODO/, /FIXME/, /NOTE/, /WARNING/,
-      /eslint-disable/, /prettier-ignore/
+      /@param/,
+      /@return/,
+      /@throws/,
+      /@description/,
+      /TODO/,
+      /FIXME/,
+      /NOTE/,
+      /WARNING/,
+      /eslint-disable/,
+      /prettier-ignore/,
     ];
 
     compressed = compressed.replace(/\/\*[\s\S]*?\*\//g, (comment) => {
-      const isImportant = importantCommentPatterns.some(pattern => pattern.test(comment));
+      const isImportant = importantCommentPatterns.some((pattern) =>
+        pattern.test(comment),
+      );
       if (isImportant) return comment;
 
       // Compress non-important comments
@@ -608,7 +641,9 @@ export class EnhancedCompressionAlgorithms {
     });
 
     compressed = compressed.replace(/\/\/.*$/gm, (comment) => {
-      const isImportant = importantCommentPatterns.some(pattern => pattern.test(comment));
+      const isImportant = importantCommentPatterns.some((pattern) =>
+        pattern.test(comment),
+      );
       return isImportant ? comment : '';
     });
 
@@ -619,11 +654,15 @@ export class EnhancedCompressionAlgorithms {
 
     // Step 4: Calculate compression metrics
     const compressedTokens = this.estimateTokenCount(compressed);
-    const compressionRatio = item.tokenCount > 0 ? compressedTokens / item.tokenCount : 1.0;
+    const compressionRatio =
+      item.tokenCount > 0 ? compressedTokens / item.tokenCount : 1.0;
 
     // Step 5: If not compressed enough, apply progressive detail reduction
     if (compressionRatio > targetRatio) {
-      compressed = this.applyProgressiveDetailReduction(compressed, targetRatio);
+      compressed = this.applyProgressiveDetailReduction(
+        compressed,
+        targetRatio,
+      );
     }
 
     return {
@@ -634,14 +673,17 @@ export class EnhancedCompressionAlgorithms {
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
       preservedConcepts: characteristics.keyConcepts,
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy: CompressionStrategy.SEMANTIC_CLUSTERING
+      strategy: CompressionStrategy.SEMANTIC_CLUSTERING,
     };
   }
 
   /**
    * Compress JSON data content
    */
-  private compressJsonContent(item: ContextItem, targetRatio: number): CompressionResult {
+  private compressJsonContent(
+    item: ContextItem,
+    targetRatio: number,
+  ): CompressionResult {
     try {
       const parsed = JSON.parse(item.content);
       let compressed = item.content;
@@ -651,7 +693,11 @@ export class EnhancedCompressionAlgorithms {
 
       // Step 2: If still too large, apply progressive field reduction
       if (this.estimateTokenCount(compressed) / item.tokenCount > targetRatio) {
-        compressed = this.compressJsonProgressively(parsed, targetRatio, item.tokenCount);
+        compressed = this.compressJsonProgressively(
+          parsed,
+          targetRatio,
+          item.tokenCount,
+        );
       }
 
       return {
@@ -661,19 +707,29 @@ export class EnhancedCompressionAlgorithms {
         compressedTokens: this.estimateTokenCount(compressed),
         compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
         preservedConcepts: this.extractJsonConcepts(parsed),
-        informationLoss: this.calculateInformationLoss(item.content, compressed),
-        strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+        informationLoss: this.calculateInformationLoss(
+          item.content,
+          compressed,
+        ),
+        strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
       };
     } catch {
       // Fallback for invalid JSON
-      return this.compressGenericContent(item, CompressionStrategy.PROGRESSIVE_DETAIL, targetRatio);
+      return this.compressGenericContent(
+        item,
+        CompressionStrategy.PROGRESSIVE_DETAIL,
+        targetRatio,
+      );
     }
   }
 
   /**
    * Compress error log content
    */
-  private compressErrorLog(item: ContextItem, targetRatio: number): CompressionResult {
+  private compressErrorLog(
+    item: ContextItem,
+    targetRatio: number,
+  ): CompressionResult {
     let compressed = item.content;
     const lines = compressed.split('\n');
 
@@ -692,19 +748,23 @@ export class EnhancedCompressionAlgorithms {
       }
 
       // Track duplicates
-      const normalized = line.replace(/\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}:\d{2}/, '[TIMESTAMP]');
+      const normalized = line.replace(
+        /\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}:\d{2}/,
+        '[TIMESTAMP]',
+      );
       duplicates.set(normalized, (duplicates.get(normalized) || 0) + 1);
     }
 
     // Step 2: Remove duplicate log entries
-    const uniqueLines = Array.from(duplicates.entries())
-      .map(([line, count]) => count > 1 ? `${line} (×${count})` : line);
+    const uniqueLines = Array.from(duplicates.entries()).map(([line, count]) =>
+      count > 1 ? `${line} (×${count})` : line,
+    );
 
     // Step 3: Prioritize critical errors and stack traces
     const keywordExtracted = [
       ...errorLines,
       ...contextLines.slice(0, Math.max(5, contextLines.length * 0.3)),
-      ...uniqueLines.slice(0, Math.max(10, uniqueLines.length * 0.5))
+      ...uniqueLines.slice(0, Math.max(10, uniqueLines.length * 0.5)),
     ];
 
     compressed = keywordExtracted.join('\n');
@@ -720,22 +780,32 @@ export class EnhancedCompressionAlgorithms {
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
       preservedConcepts: errorConcepts,
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy: CompressionStrategy.KEYWORD_EXTRACTION
+      strategy: CompressionStrategy.KEYWORD_EXTRACTION,
     };
   }
 
   /**
    * Compress conversation log content
    */
-  private compressConversationLog(item: ContextItem, targetRatio: number): CompressionResult {
+  private compressConversationLog(
+    item: ContextItem,
+    targetRatio: number,
+  ): CompressionResult {
     const lines = item.content.split('\n');
-    const conversations: Array<{ speaker: string; content: string; timestamp?: string }> = [];
+    const conversations: Array<{
+      speaker: string;
+      content: string;
+      timestamp?: string;
+    }> = [];
 
     // Parse conversation structure
     for (const line of lines) {
       const match = line.match(/^(user|assistant|system):\s*(.*)/i);
       if (match) {
-        conversations.push({ speaker: match[1].toLowerCase(), content: match[2] });
+        conversations.push({
+          speaker: match[1].toLowerCase(),
+          content: match[2],
+        });
       }
     }
 
@@ -748,7 +818,9 @@ export class EnhancedCompressionAlgorithms {
 
       if (batch.length === 1 || this.isImportantExchange(batch)) {
         // Keep important exchanges full
-        compressed += batch.map(conv => `${conv.speaker}: ${conv.content}`).join('\n') + '\n';
+        compressed +=
+          batch.map((conv) => `${conv.speaker}: ${conv.content}`).join('\n') +
+          '\n';
       } else {
         // Summarize routine exchanges
         const summary = this.summarizeConversationBatch(batch);
@@ -764,14 +836,17 @@ export class EnhancedCompressionAlgorithms {
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
       preservedConcepts: this.extractConversationConcepts(item.content),
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy: CompressionStrategy.SUMMARIZATION
+      strategy: CompressionStrategy.SUMMARIZATION,
     };
   }
 
   /**
    * Compress file listing content
    */
-  private compressFileListings(item: ContextItem, targetRatio: number): CompressionResult {
+  private compressFileListings(
+    item: ContextItem,
+    targetRatio: number,
+  ): CompressionResult {
     const lines = item.content.split('\n');
     const files: Array<{ path: string; size?: string; type: string }> = [];
 
@@ -781,7 +856,9 @@ export class EnhancedCompressionAlgorithms {
       if (match) {
         const path = match[1].trim();
         const size = match[2];
-        const type = path.includes('.') ? path.split('.').pop() || 'unknown' : 'directory';
+        const type = path.includes('.')
+          ? path.split('.').pop() || 'unknown'
+          : 'directory';
         files.push({ path, size, type });
       }
     }
@@ -799,11 +876,16 @@ export class EnhancedCompressionAlgorithms {
     for (const [type, fileList] of grouped.entries()) {
       if (fileList.length <= 3) {
         // Show all if few files
-        compressed += fileList.map(f => `${f.path}${f.size ? ` ${f.size}` : ''}`).join('\n') + '\n';
+        compressed +=
+          fileList
+            .map((f) => `${f.path}${f.size ? ` ${f.size}` : ''}`)
+            .join('\n') + '\n';
       } else {
         // Show representative samples + count
         const samples = fileList.slice(0, 2);
-        compressed += samples.map(f => `${f.path}${f.size ? ` ${f.size}` : ''}`).join('\n');
+        compressed += samples
+          .map((f) => `${f.path}${f.size ? ` ${f.size}` : ''}`)
+          .join('\n');
         compressed += `\n... and ${fileList.length - 2} more ${type} files\n`;
       }
     }
@@ -816,14 +898,17 @@ export class EnhancedCompressionAlgorithms {
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
       preservedConcepts: Array.from(grouped.keys()),
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Compress HTML markup content
    */
-  private compressHtmlContent(item: ContextItem, targetRatio: number): CompressionResult {
+  private compressHtmlContent(
+    item: ContextItem,
+    targetRatio: number,
+  ): CompressionResult {
     let compressed = item.content;
 
     // Step 1: Remove excessive whitespace between tags
@@ -831,18 +916,26 @@ export class EnhancedCompressionAlgorithms {
 
     // Step 2: Remove comments except important ones
     compressed = compressed.replace(/<!--[\s\S]*?-->/g, (comment) => {
-      if (comment.includes('TODO') || comment.includes('FIXME') || comment.includes('NOTE')) {
+      if (
+        comment.includes('TODO') ||
+        comment.includes('FIXME') ||
+        comment.includes('NOTE')
+      ) {
         return comment;
       }
       return '';
     });
 
     // Step 3: Compress inline styles and scripts (preserve functionality)
-    compressed = compressed.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, (styleBlock) => {
-      const content = styleBlock.match(/<style[^>]*>([\s\S]*?)<\/style>/i)?.[1] || '';
-      const compressed_css = content.replace(/\s+/g, ' ').trim();
-      return `<style>${compressed_css}</style>`;
-    });
+    compressed = compressed.replace(
+      /<style[^>]*>[\s\S]*?<\/style>/gi,
+      (styleBlock) => {
+        const content =
+          styleBlock.match(/<style[^>]*>([\s\S]*?)<\/style>/i)?.[1] || '';
+        const compressed_css = content.replace(/\s+/g, ' ').trim();
+        return `<style>${compressed_css}</style>`;
+      },
+    );
 
     return {
       original: item.content,
@@ -852,17 +945,25 @@ export class EnhancedCompressionAlgorithms {
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
       preservedConcepts: this.extractHtmlConcepts(item.content),
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Compress markdown content
    */
-  private compressMarkdownContent(item: ContextItem, targetRatio: number): CompressionResult {
+  private compressMarkdownContent(
+    item: ContextItem,
+    targetRatio: number,
+  ): CompressionResult {
     const lines = item.content.split('\n');
-    const sections: Array<{ level: number; title: string; content: string }> = [];
-    let currentSection: { level: number; title: string; content: string } | null = null;
+    const sections: Array<{ level: number; title: string; content: string }> =
+      [];
+    let currentSection: {
+      level: number;
+      title: string;
+      content: string;
+    } | null = null;
 
     // Parse markdown sections
     for (const line of lines) {
@@ -874,7 +975,7 @@ export class EnhancedCompressionAlgorithms {
         currentSection = {
           level: headerMatch[1].length,
           title: headerMatch[2],
-          content: ''
+          content: '',
         };
       } else if (currentSection) {
         currentSection.content += line + '\n';
@@ -906,9 +1007,9 @@ export class EnhancedCompressionAlgorithms {
       originalTokens: item.tokenCount,
       compressedTokens: this.estimateTokenCount(compressed),
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
-      preservedConcepts: sections.map(s => s.title),
+      preservedConcepts: sections.map((s) => s.title),
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy: CompressionStrategy.SUMMARIZATION
+      strategy: CompressionStrategy.SUMMARIZATION,
     };
   }
 
@@ -918,7 +1019,7 @@ export class EnhancedCompressionAlgorithms {
   private compressGenericContent(
     item: ContextItem,
     strategy: CompressionStrategy,
-    targetRatio: number
+    targetRatio: number,
   ): CompressionResult {
     let compressed = item.content;
 
@@ -933,7 +1034,10 @@ export class EnhancedCompressionAlgorithms {
         compressed = this.applySemanticClustering(compressed, targetRatio);
         break;
       case CompressionStrategy.PROGRESSIVE_DETAIL:
-        compressed = this.applyProgressiveDetailReduction(compressed, targetRatio);
+        compressed = this.applyProgressiveDetailReduction(
+          compressed,
+          targetRatio,
+        );
         break;
     }
 
@@ -945,7 +1049,7 @@ export class EnhancedCompressionAlgorithms {
       compressionRatio: this.estimateTokenCount(compressed) / item.tokenCount,
       preservedConcepts: this.extractKeyConcepts(compressed),
       informationLoss: this.calculateInformationLoss(item.content, compressed),
-      strategy
+      strategy,
     };
   }
 
@@ -971,7 +1075,10 @@ export class EnhancedCompressionAlgorithms {
         const representative = funcs[0];
         const others = funcs.slice(1);
         for (const func of others) {
-          compressed = compressed.replace(func, `// Similar to above (${funcs.length} total)`);
+          compressed = compressed.replace(
+            func,
+            `// Similar to above (${funcs.length} total)`,
+          );
         }
       }
     }
@@ -979,8 +1086,20 @@ export class EnhancedCompressionAlgorithms {
     return compressed;
   }
 
-  private compressJsonProgressively(data: unknown, targetRatio: number, originalTokens: number): string {
-    const priorityFields = ['id', 'name', 'type', 'value', 'error', 'message', 'status'];
+  private compressJsonProgressively(
+    data: unknown,
+    targetRatio: number,
+    originalTokens: number,
+  ): string {
+    const priorityFields = [
+      'id',
+      'name',
+      'type',
+      'value',
+      'error',
+      'message',
+      'status',
+    ];
 
     if (Array.isArray(data)) {
       // For arrays, keep representative samples
@@ -1003,7 +1122,9 @@ export class EnhancedCompressionAlgorithms {
       }
 
       // Add remaining fields up to target ratio
-      const remaining = entries.filter(([key]) => !priorityFields.includes(key.toLowerCase()));
+      const remaining = entries.filter(
+        ([key]) => !priorityFields.includes(key.toLowerCase()),
+      );
       const remainingCount = Math.floor(remaining.length * targetRatio);
 
       for (let i = 0; i < remainingCount; i++) {
@@ -1041,7 +1162,7 @@ export class EnhancedCompressionAlgorithms {
       /Exception:\s*(.+)/gi,
       /Failed:\s*(.+)/gi,
       /\bat\s+([^(]+)/gi,
-      /File\s+"([^"]+)"/gi
+      /File\s+"([^"]+)"/gi,
     ];
 
     const concepts: string[] = [];
@@ -1055,38 +1176,63 @@ export class EnhancedCompressionAlgorithms {
     return Array.from(new Set(concepts));
   }
 
-  private isImportantExchange(conversations: Array<{ speaker: string; content: string }>): boolean {
+  private isImportantExchange(
+    conversations: Array<{ speaker: string; content: string }>,
+  ): boolean {
     const importantKeywords = [
-      'error', 'problem', 'issue', 'bug', 'fix', 'solution',
-      'implement', 'create', 'build', 'test', 'deploy',
-      'question', 'help', 'explain', 'how', 'what', 'why'
+      'error',
+      'problem',
+      'issue',
+      'bug',
+      'fix',
+      'solution',
+      'implement',
+      'create',
+      'build',
+      'test',
+      'deploy',
+      'question',
+      'help',
+      'explain',
+      'how',
+      'what',
+      'why',
     ];
 
-    const content = conversations.map(c => c.content.toLowerCase()).join(' ');
-    return importantKeywords.some(keyword => content.includes(keyword));
+    const content = conversations.map((c) => c.content.toLowerCase()).join(' ');
+    return importantKeywords.some((keyword) => content.includes(keyword));
   }
 
-  private summarizeConversationBatch(conversations: Array<{ speaker: string; content: string }>): string {
-    const topics = conversations.map(c => {
-      const words = c.content.split(' ').filter(w => w.length > 4);
+  private summarizeConversationBatch(
+    conversations: Array<{ speaker: string; content: string }>,
+  ): string {
+    const topics = conversations.map((c) => {
+      const words = c.content.split(' ').filter((w) => w.length > 4);
       return words.slice(0, 3).join(' ');
     });
     return `Discussion about ${topics.join(', ')}`;
   }
 
   private extractConversationConcepts(content: string): string[] {
-    const actionWords = content.match(/\b(implement|create|fix|build|test|deploy|analyze|review|update|remove)\b/gi) || [];
-    return Array.from(new Set(actionWords.map(word => word.toLowerCase())));
+    const actionWords =
+      content.match(
+        /\b(implement|create|fix|build|test|deploy|analyze|review|update|remove)\b/gi,
+      ) || [];
+    return Array.from(new Set(actionWords.map((word) => word.toLowerCase())));
   }
 
   private extractHtmlConcepts(content: string): string[] {
     const tags = content.match(/<(\w+)[^>]*>/g) || [];
-    const tagNames = tags.map(tag => tag.match(/<(\w+)/)?.[1] || '').filter(Boolean);
+    const tagNames = tags
+      .map((tag) => tag.match(/<(\w+)/)?.[1] || '')
+      .filter(Boolean);
     return Array.from(new Set(tagNames));
   }
 
   private summarizeMarkdownSection(content: string): string {
-    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    const sentences = content
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 10);
     if (sentences.length <= 2) return content.trim();
 
     // Keep first and last sentence, or most important ones
@@ -1101,7 +1247,9 @@ export class EnhancedCompressionAlgorithms {
   }
 
   private applySummarization(content: string, targetRatio: number): string {
-    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 5);
+    const sentences = content
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 5);
     const targetCount = Math.max(1, Math.floor(sentences.length * targetRatio));
 
     // Keep most important sentences (first, last, and longest ones)
@@ -1113,7 +1261,7 @@ export class EnhancedCompressionAlgorithms {
 
     // Add longest sentences up to target
     const remaining = sentences
-      .filter(s => !selected.includes(s))
+      .filter((s) => !selected.includes(s))
       .sort((a, b) => b.length - a.length);
 
     while (selected.length < targetCount && remaining.length > 0) {
@@ -1129,15 +1277,29 @@ export class EnhancedCompressionAlgorithms {
 
     // Extract important words (longer, non-common words)
     const importantWords = words
-      .filter(word => word.length > 3 && !/^(the|and|for|are|but|not|you|all|can|has|had|her|was|one|our|out|day|get|use|man|new|now|old|see|him|two|how|its|who|oil|sit|did)$/.test(word.toLowerCase()))
+      .filter(
+        (word) =>
+          word.length > 3 &&
+          !/^(the|and|for|are|but|not|you|all|can|has|had|her|was|one|our|out|day|get|use|man|new|now|old|see|him|two|how|its|who|oil|sit|did)$/.test(
+            word.toLowerCase(),
+          ),
+      )
       .slice(0, targetCount);
 
     return importantWords.join(' ');
   }
 
-  private applySemanticClustering(content: string, targetRatio: number): string {
-    const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0);
-    const targetCount = Math.max(1, Math.floor(paragraphs.length * targetRatio));
+  private applySemanticClustering(
+    content: string,
+    targetRatio: number,
+  ): string {
+    const paragraphs = content
+      .split(/\n\s*\n/)
+      .filter((p) => p.trim().length > 0);
+    const targetCount = Math.max(
+      1,
+      Math.floor(paragraphs.length * targetRatio),
+    );
 
     // Simple clustering by paragraph similarity (basic approach)
     const selected = paragraphs
@@ -1147,7 +1309,10 @@ export class EnhancedCompressionAlgorithms {
     return selected.join('\n\n');
   }
 
-  private applyProgressiveDetailReduction(content: string, targetRatio: number): string {
+  private applyProgressiveDetailReduction(
+    content: string,
+    targetRatio: number,
+  ): string {
     let compressed = content;
 
     // Step 1: Remove extra whitespace
@@ -1160,13 +1325,17 @@ export class EnhancedCompressionAlgorithms {
     const currentRatio = compressed.length / content.length;
     if (currentRatio > targetRatio) {
       const targetLength = Math.floor(content.length * targetRatio);
-      compressed = compressed.substring(0, targetLength - 20) + '... [truncated]';
+      compressed =
+        compressed.substring(0, targetLength - 20) + '... [truncated]';
     }
 
     return compressed;
   }
 
-  private calculateQualityScore(result: CompressionResult, analysis: ContentTypeAnalysis): number {
+  private calculateQualityScore(
+    result: CompressionResult,
+    analysis: ContentTypeAnalysis,
+  ): number {
     let quality = 1.0;
 
     // Penalize high information loss
@@ -1177,13 +1346,18 @@ export class EnhancedCompressionAlgorithms {
     if (result.compressionRatio < 0.6) quality += 0.1;
 
     // Reward preserved concepts
-    const conceptRatio = result.preservedConcepts.length / Math.max(1, analysis.characteristics.keyConcepts.length);
+    const conceptRatio =
+      result.preservedConcepts.length /
+      Math.max(1, analysis.characteristics.keyConcepts.length);
     quality += conceptRatio * 0.2;
 
     return Math.max(0, Math.min(1.0, quality));
   }
 
-  private calculateInformationLoss(original: string, compressed: string): number {
+  private calculateInformationLoss(
+    original: string,
+    compressed: string,
+  ): number {
     const originalWords = new Set(original.toLowerCase().split(/\s+/));
     const compressedWords = new Set(compressed.toLowerCase().split(/\s+/));
 
@@ -1195,12 +1369,15 @@ export class EnhancedCompressionAlgorithms {
     return originalWords.size > 0 ? lostWords / originalWords.size : 0;
   }
 
-  private extractCriticalElements(original: string, compressed: string): string[] {
+  private extractCriticalElements(
+    original: string,
+    compressed: string,
+  ): string[] {
     const criticalPatterns = [
       /\b(error|exception|failed|success|warning|critical)\b/gi,
       /\b(function|class|interface|type)\s+\w+/gi,
       /\b(import|export|require)\b[^;]+/gi,
-      /\b(TODO|FIXME|NOTE|WARNING)\b[^:\n]*/gi
+      /\b(TODO|FIXME|NOTE|WARNING)\b[^:\n]*/gi,
     ];
 
     const elements: string[] = [];
@@ -1219,7 +1396,10 @@ export class EnhancedCompressionAlgorithms {
     return Math.ceil(text.length / 4);
   }
 
-  private trackPerformanceMetrics(contentType: ContentTypeCategory, processingTime: number): void {
+  private trackPerformanceMetrics(
+    contentType: ContentTypeCategory,
+    processingTime: number,
+  ): void {
     const key = contentType;
     if (!this.performanceMetrics.has(key)) {
       this.performanceMetrics.set(key, []);
@@ -1239,7 +1419,7 @@ export class EnhancedCompressionAlgorithms {
       logger.debug('Performance metrics updated', {
         contentType,
         averageProcessingTime: avg.toFixed(2),
-        measurements: metrics.length
+        measurements: metrics.length,
       });
     }
   }
@@ -1247,16 +1427,24 @@ export class EnhancedCompressionAlgorithms {
   /**
    * Get performance statistics
    */
-  getPerformanceStats(): Record<string, { average: number; count: number; latest: number }> {
-    const stats: Record<string, { average: number; count: number; latest: number }> = {};
+  getPerformanceStats(): Record<
+    string,
+    { average: number; count: number; latest: number }
+  > {
+    const stats: Record<
+      string,
+      { average: number; count: number; latest: number }
+    > = {};
 
     for (const [type, measurements] of this.performanceMetrics.entries()) {
       if (measurements.length > 0) {
-        const average = measurements.reduce((sum, time) => sum + time, 0) / measurements.length;
+        const average =
+          measurements.reduce((sum, time) => sum + time, 0) /
+          measurements.length;
         stats[type] = {
           average: Number(average.toFixed(2)),
           count: measurements.length,
-          latest: Number(measurements[measurements.length - 1].toFixed(2))
+          latest: Number(measurements[measurements.length - 1].toFixed(2)),
         };
       }
     }

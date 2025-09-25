@@ -123,7 +123,9 @@ describe('BudgetDashboard', () => {
     toggleAutoRefresh: vi.fn(),
     dismissAlert: vi.fn(),
     exportData: vi.fn(),
-  };
+};
+
+describe('BudgetDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseBudgetDashboard.mockReturnValue(mockDashboardData);

@@ -415,18 +415,8 @@
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "LINTER_FIX_AGENT": {
@@ -434,9 +424,7 @@
       "status": "active",
       "reinitialized": "2025-09-25T17:42:24.300Z",
       "sessionId": "129f7e3b3badcdb1",
-      "previousSessions": [
-        "d48d1b11f2f29471"
-      ]
+      "previousSessions": ["d48d1b11f2f29471"]
     },
     "LINTING_COMPLETION_MAXIMUM_AGENTS": {
       "lastHeartbeat": "2025-09-25T17:42:43.345Z",

@@ -615,19 +615,14 @@ export class PerformanceValidator {
   private async runWebpackBundleAnalyzer(
     _result: BundleAnalysisResult,
   ): Promise<void> {
-    try {
-      // Try to run webpack-bundle-analyzer
-      const { stdout: _stdout } = await execAsync('npx webpack-bundle-analyzer --help', {
-        timeout: 10000,
-      });
+    // Try to run webpack-bundle-analyzer
+    const { stdout: _stdout } = await execAsync('npx webpack-bundle-analyzer --help', {
+      timeout: 10000,
+    });
 
-      // If available, run analysis
-      // This is a simplified version - real implementation would parse analyzer output
-      this.logger.debug('Webpack bundle analyzer available');
-    } catch (error) {
-      // Not available, continue with basic analysis
-      throw error;
-    }
+    // If available, run analysis
+    // This is a simplified version - real implementation would parse analyzer output
+    this.logger.debug('Webpack bundle analyzer available');
   }
 
   /**

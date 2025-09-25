@@ -239,6 +239,9 @@ export class TaskStatusMonitor extends EventEmitter {
       case TaskStatus.BLOCKED:
         // Track blocking reasons in context
         break;
+
+      default:
+        break;
     }
 
     // Create status update record

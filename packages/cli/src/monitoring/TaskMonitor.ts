@@ -11,11 +11,11 @@ import type {
   TaskStatus,
   AgentStatus,
 } from './TaskStatusMonitor.js';
-import { taskStatusMonitor, TaskStatusUpdate } from './TaskStatusMonitor.js';
+import { taskStatusMonitor, _TaskStatusUpdate } from './TaskStatusMonitor.js';
 import { progressTracker, ProgressGranularity } from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
-import { statusUpdateBroker } from './StatusUpdateBroker.js';
-import { notificationSystem } from './NotificationSystem.js';
+import { _statusUpdateBroker } from './StatusUpdateBroker.js';
+import { _notificationSystem } from './NotificationSystem.js';
 
 export interface MonitoringScope {
   taskId: string;
@@ -191,7 +191,7 @@ export class TaskMonitor extends EventEmitter {
     const progressEstimate = progressTracker.predictCompletionTime(taskId);
 
     // Get performance data
-    const dashboardData = performanceAnalyticsDashboard.getDashboardData();
+    const _dashboardData = performanceAnalyticsDashboard.getDashboardData();
 
     // Get agent data
     const agent = task.assignedAgent

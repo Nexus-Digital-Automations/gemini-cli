@@ -10,6 +10,7 @@ import {
   AlertSeverity,
   AlertCategory,
   NotificationChannel,
+  Alert,
 } from '../AlertSystem.js';
 import { TaskStatus, TaskType, TaskPriority } from '../TaskStatusMonitor.js';
 
@@ -343,7 +344,7 @@ describe('AlertSystem', () => {
     it('should register custom notification channels', () => {
       const testChannel = {
         channel: NotificationChannel.EMAIL,
-        async send(alert: any): Promise<boolean> {
+        async send(_alert: Alert): Promise<boolean> {
           return true;
         },
       };

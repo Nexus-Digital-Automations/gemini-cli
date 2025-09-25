@@ -516,8 +516,8 @@ export class BuildValidator {
     while ((match = tsErrorPattern.exec(output)) !== null) {
       errors.push({
         file: match[1],
-        line: parseInt(match[2]),
-        column: parseInt(match[3]),
+        line: parseInt(match[2], 10),
+        column: parseInt(match[3], 10),
         code: match[4],
         message: match[5],
         severity: 'error',
@@ -558,8 +558,8 @@ export class BuildValidator {
     while ((match = tsWarningPattern.exec(output)) !== null) {
       warnings.push({
         file: match[1],
-        line: parseInt(match[2]),
-        column: parseInt(match[3]),
+        line: parseInt(match[2], 10),
+        column: parseInt(match[3], 10),
         code: match[4],
         message: match[5],
       });

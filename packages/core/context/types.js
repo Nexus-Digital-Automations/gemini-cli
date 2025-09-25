@@ -15,6 +15,7 @@
  */
 export var ContextType;
 (function (ContextType) {
+<<<<<<< Updated upstream
     ContextType["CONVERSATION"] = "conversation";
     ContextType["CODE"] = "code";
     ContextType["FILE"] = "file";
@@ -22,25 +23,49 @@ export var ContextType;
     ContextType["ERROR"] = "error";
     ContextType["SYSTEM"] = "system";
     ContextType["USER_PREFERENCE"] = "user-preference";
+=======
+  ContextType['CONVERSATION'] = 'conversation';
+  ContextType['CODE'] = 'code';
+  ContextType['FILE'] = 'file';
+  ContextType['PROJECT_STATE'] = 'project-state';
+  ContextType['ERROR'] = 'error';
+  ContextType['SYSTEM'] = 'system';
+  ContextType['USER_PREFERENCE'] = 'user-preference';
+>>>>>>> Stashed changes
 })(ContextType || (ContextType = {}));
 /**
  * Priority levels for context items
  */
 export var ContextPriority;
 (function (ContextPriority) {
+<<<<<<< Updated upstream
     ContextPriority["CRITICAL"] = "critical";
     ContextPriority["HIGH"] = "high";
     ContextPriority["MEDIUM"] = "medium";
     ContextPriority["LOW"] = "low";
     ContextPriority["CACHED"] = "cached";
+=======
+  ContextPriority['CRITICAL'] = 'critical';
+  ContextPriority['HIGH'] = 'high';
+  ContextPriority['MEDIUM'] = 'medium';
+  ContextPriority['LOW'] = 'low';
+  ContextPriority['CACHED'] = 'cached';
+>>>>>>> Stashed changes
 })(ContextPriority || (ContextPriority = {}));
 /**
  * Compression strategies
  */
 export var CompressionStrategy;
 (function (CompressionStrategy) {
+<<<<<<< Updated upstream
     CompressionStrategy["SUMMARIZATION"] = "summarization";
     CompressionStrategy["KEYWORD_EXTRACTION"] = "keyword_extraction";
     CompressionStrategy["SEMANTIC_CLUSTERING"] = "semantic_clustering";
     CompressionStrategy["PROGRESSIVE_DETAIL"] = "progressive_detail";
+=======
+  CompressionStrategy['SUMMARIZATION'] = 'summarization';
+  CompressionStrategy['KEYWORD_EXTRACTION'] = 'keyword_extraction';
+  CompressionStrategy['SEMANTIC_CLUSTERING'] = 'semantic_clustering';
+  CompressionStrategy['PROGRESSIVE_DETAIL'] = 'progressive_detail';
+>>>>>>> Stashed changes
 })(CompressionStrategy || (CompressionStrategy = {}));

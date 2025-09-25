@@ -6,10 +6,10 @@
 
 export let TaskComplexity = {};
 (function (TaskComplexity) {
-    TaskComplexity["TRIVIAL"] = "trivial";
-    TaskComplexity["SIMPLE"] = "simple";
-    TaskComplexity["MODERATE"] = "moderate";
-    TaskComplexity["COMPLEX"] = "complex";
-    TaskComplexity["ENTERPRISE"] = "enterprise";
+  TaskComplexity['TRIVIAL'] = 'trivial';
+  TaskComplexity['SIMPLE'] = 'simple';
+  TaskComplexity['MODERATE'] = 'moderate';
+  TaskComplexity['COMPLEX'] = 'complex';
+  TaskComplexity['ENTERPRISE'] = 'enterprise';
 })(TaskComplexity || (TaskComplexity = {}));
 //# sourceMappingURL=types.js.map

@@ -6,13 +6,13 @@
 
 export let ExtensionUpdateState = {};
 (function (ExtensionUpdateState) {
-    ExtensionUpdateState["CHECKING_FOR_UPDATES"] = "checking for updates";
-    ExtensionUpdateState["UPDATED_NEEDS_RESTART"] = "updated, needs restart";
-    ExtensionUpdateState["UPDATING"] = "updating";
-    ExtensionUpdateState["UPDATE_AVAILABLE"] = "update available";
-    ExtensionUpdateState["UP_TO_DATE"] = "up to date";
-    ExtensionUpdateState["ERROR"] = "error checking for updates";
-    ExtensionUpdateState["NOT_UPDATABLE"] = "not updatable";
-    ExtensionUpdateState["UNKNOWN"] = "unknown";
+  ExtensionUpdateState['CHECKING_FOR_UPDATES'] = 'checking for updates';
+  ExtensionUpdateState['UPDATED_NEEDS_RESTART'] = 'updated, needs restart';
+  ExtensionUpdateState['UPDATING'] = 'updating';
+  ExtensionUpdateState['UPDATE_AVAILABLE'] = 'update available';
+  ExtensionUpdateState['UP_TO_DATE'] = 'up to date';
+  ExtensionUpdateState['ERROR'] = 'error checking for updates';
+  ExtensionUpdateState['NOT_UPDATABLE'] = 'not updatable';
+  ExtensionUpdateState['UNKNOWN'] = 'unknown';
 })(ExtensionUpdateState || (ExtensionUpdateState = {}));
 //# sourceMappingURL=extensions.js.map

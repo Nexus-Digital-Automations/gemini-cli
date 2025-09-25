@@ -4,269 +4,276 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+<<<<<<< Updated upstream
 import { ValidationContext, ValidationResult } from '../core/ValidationEngine.js';
+=======
+import {
+  ValidationContext,
+  ValidationResult,
+} from '../core/ValidationEngine.js';
+>>>>>>> Stashed changes
 /**
  * Performance validation configuration
  */
 export interface PerformanceValidationConfig {
-    thresholds: {
-        bundleSize: {
-            maxSizeKB: number;
-            warningSizeKB: number;
-        };
-        buildTime: {
-            maxDurationMs: number;
-            warningDurationMs: number;
-        };
-        testExecution: {
-            maxDurationMs: number;
-            warningDurationMs: number;
-        };
-        memoryUsage: {
-            maxMB: number;
-            warningMB: number;
-        };
-        codeComplexity: {
-            maxCyclomaticComplexity: number;
-            warningCyclomaticComplexity: number;
-        };
+  thresholds: {
+    bundleSize: {
+      maxSizeKB: number;
+      warningSizeKB: number;
     };
-    enabledMetrics: {
-        bundleAnalysis: boolean;
-        buildPerformance: boolean;
-        testPerformance: boolean;
-        memoryProfiling: boolean;
-        codeComplexity: boolean;
-        dependencyAnalysis: boolean;
+    buildTime: {
+      maxDurationMs: number;
+      warningDurationMs: number;
     };
-    bundleAnalyzer: {
-        enabled: boolean;
-        outputPath: string;
+    testExecution: {
+      maxDurationMs: number;
+      warningDurationMs: number;
     };
-    benchmarkSuites: string[];
-    timeout: number;
+    memoryUsage: {
+      maxMB: number;
+      warningMB: number;
+    };
+    codeComplexity: {
+      maxCyclomaticComplexity: number;
+      warningCyclomaticComplexity: number;
+    };
+  };
+  enabledMetrics: {
+    bundleAnalysis: boolean;
+    buildPerformance: boolean;
+    testPerformance: boolean;
+    memoryProfiling: boolean;
+    codeComplexity: boolean;
+    dependencyAnalysis: boolean;
+  };
+  bundleAnalyzer: {
+    enabled: boolean;
+    outputPath: string;
+  };
+  benchmarkSuites: string[];
+  timeout: number;
 }
 /**
  * Bundle analysis result
  */
 export interface BundleAnalysisResult {
-    totalSize: number;
-    gzippedSize: number;
-    modules: BundleModule[];
-    chunks: BundleChunk[];
-    assets: BundleAsset[];
-    duplicates: DuplicateModule[];
-    treeShakingOpportunities: TreeShakingOpportunity[];
+  totalSize: number;
+  gzippedSize: number;
+  modules: BundleModule[];
+  chunks: BundleChunk[];
+  assets: BundleAsset[];
+  duplicates: DuplicateModule[];
+  treeShakingOpportunities: TreeShakingOpportunity[];
 }
 /**
  * Bundle module
  */
 export interface BundleModule {
-    name: string;
-    size: number;
-    path: string;
-    reasons: string[];
+  name: string;
+  size: number;
+  path: string;
+  reasons: string[];
 }
 /**
  * Bundle chunk
  */
 export interface BundleChunk {
-    name: string;
-    size: number;
-    modules: string[];
-    initial: boolean;
+  name: string;
+  size: number;
+  modules: string[];
+  initial: boolean;
 }
 /**
  * Bundle asset
  */
 export interface BundleAsset {
-    name: string;
-    size: number;
-    type: string;
+  name: string;
+  size: number;
+  type: string;
 }
 /**
  * Duplicate module
  */
 export interface DuplicateModule {
-    name: string;
-    versions: string[];
-    totalSize: number;
+  name: string;
+  versions: string[];
+  totalSize: number;
 }
 /**
  * Tree shaking opportunity
  */
 export interface TreeShakingOpportunity {
-    module: string;
-    unusedExports: string[];
-    potentialSavingsKB: number;
+  module: string;
+  unusedExports: string[];
+  potentialSavingsKB: number;
 }
 /**
  * Build performance metrics
  */
 export interface BuildPerformanceMetrics {
-    totalDuration: number;
-    phases: BuildPhaseMetric[];
-    parallelization: number;
-    cacheHitRate: number;
-    bottlenecks: PerformanceBottleneck[];
+  totalDuration: number;
+  phases: BuildPhaseMetric[];
+  parallelization: number;
+  cacheHitRate: number;
+  bottlenecks: PerformanceBottleneck[];
 }
 /**
  * Build phase metric
  */
 export interface BuildPhaseMetric {
-    name: string;
-    duration: number;
-    percentage: number;
+  name: string;
+  duration: number;
+  percentage: number;
 }
 /**
  * Performance bottleneck
  */
 export interface PerformanceBottleneck {
-    phase: string;
-    description: string;
-    impact: 'high' | 'medium' | 'low';
-    recommendation: string;
+  phase: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  recommendation: string;
 }
 /**
  * Memory profiling result
  */
 export interface MemoryProfilingResult {
-    peakUsage: number;
-    averageUsage: number;
-    leaks: MemoryLeak[];
-    gcPressure: number;
-    recommendations: string[];
+  peakUsage: number;
+  averageUsage: number;
+  leaks: MemoryLeak[];
+  gcPressure: number;
+  recommendations: string[];
 }
 /**
  * Memory leak
  */
 export interface MemoryLeak {
-    location: string;
-    size: number;
-    type: string;
-    description: string;
+  location: string;
+  size: number;
+  type: string;
+  description: string;
 }
 /**
  * Code complexity metrics
  */
 export interface CodeComplexityMetrics {
-    cyclomaticComplexity: number;
-    maintainabilityIndex: number;
-    linesOfCode: number;
-    functions: FunctionComplexity[];
-    hotspots: ComplexityHotspot[];
+  cyclomaticComplexity: number;
+  maintainabilityIndex: number;
+  linesOfCode: number;
+  functions: FunctionComplexity[];
+  hotspots: ComplexityHotspot[];
 }
 /**
  * Function complexity
  */
 export interface FunctionComplexity {
-    name: string;
-    file: string;
-    line: number;
-    complexity: number;
-    maintainability: number;
+  name: string;
+  file: string;
+  line: number;
+  complexity: number;
+  maintainability: number;
 }
 /**
  * Complexity hotspot
  */
 export interface ComplexityHotspot {
-    file: string;
-    complexity: number;
-    maintainability: number;
-    recommendations: string[];
+  file: string;
+  complexity: number;
+  maintainability: number;
+  recommendations: string[];
 }
 /**
  * Dependency analysis result
  */
 export interface DependencyAnalysisResult {
-    totalDependencies: number;
-    productionDependencies: number;
-    devDependencies: number;
-    outdatedDependencies: OutdatedDependency[];
-    securityVulnerabilities: number;
-    licensesIssues: string[];
-    bundleImpact: DependencyBundleImpact[];
+  totalDependencies: number;
+  productionDependencies: number;
+  devDependencies: number;
+  outdatedDependencies: OutdatedDependency[];
+  securityVulnerabilities: number;
+  licensesIssues: string[];
+  bundleImpact: DependencyBundleImpact[];
 }
 /**
  * Performance metrics collection
  */
 export interface PerformanceMetrics {
-    bundleAnalysis?: BundleAnalysisResult;
-    buildPerformance?: BuildPerformanceMetrics;
-    codeComplexity?: CodeComplexityMetrics;
-    dependencyAnalysis?: DependencyAnalysisResult;
-    memoryProfiling?: MemoryProfilingResult;
+  bundleAnalysis?: BundleAnalysisResult;
+  buildPerformance?: BuildPerformanceMetrics;
+  codeComplexity?: CodeComplexityMetrics;
+  dependencyAnalysis?: DependencyAnalysisResult;
+  memoryProfiling?: MemoryProfilingResult;
 }
 /**
  * Outdated dependency
  */
 export interface OutdatedDependency {
-    name: string;
-    current: string;
-    wanted: string;
-    latest: string;
-    impactLevel: 'high' | 'medium' | 'low';
+  name: string;
+  current: string;
+  wanted: string;
+  latest: string;
+  impactLevel: 'high' | 'medium' | 'low';
 }
 /**
  * Dependency bundle impact
  */
 export interface DependencyBundleImpact {
-    name: string;
-    sizeKB: number;
-    usagePercentage: number;
-    alternatives: string[];
+  name: string;
+  sizeKB: number;
+  usagePercentage: number;
+  alternatives: string[];
 }
 /**
  * NPM outdated package information
  */
 export interface NpmOutdatedPackageInfo {
-    current: string;
-    wanted: string;
-    latest: string;
+  current: string;
+  wanted: string;
+  latest: string;
 }
 /**
  * Error with stdout property (from child process)
  */
 export interface ChildProcessError extends Error {
-    stdout?: string;
+  stdout?: string;
 }
 /**
  * Performance summary
  */
 export interface PerformanceSummary {
-    overallScore: number;
-    bundleAnalysis?: BundleAnalysisResult;
-    buildPerformance?: BuildPerformanceMetrics;
-    memoryProfiling?: MemoryProfilingResult;
-    codeComplexity?: CodeComplexityMetrics;
-    dependencyAnalysis?: DependencyAnalysisResult;
-    issues: PerformanceIssue[];
-    recommendations: PerformanceRecommendation[];
+  overallScore: number;
+  bundleAnalysis?: BundleAnalysisResult;
+  buildPerformance?: BuildPerformanceMetrics;
+  memoryProfiling?: MemoryProfilingResult;
+  codeComplexity?: CodeComplexityMetrics;
+  dependencyAnalysis?: DependencyAnalysisResult;
+  issues: PerformanceIssue[];
+  recommendations: PerformanceRecommendation[];
 }
 /**
  * Performance issue
  */
 export interface PerformanceIssue {
-    category: 'bundle' | 'build' | 'memory' | 'complexity' | 'dependency';
-    severity: 'critical' | 'high' | 'medium' | 'low';
-    title: string;
-    description: string;
-    file?: string;
-    metric: string;
-    value: number;
-    threshold: number;
-    recommendation: string;
+  category: 'bundle' | 'build' | 'memory' | 'complexity' | 'dependency';
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  file?: string;
+  metric: string;
+  value: number;
+  threshold: number;
+  recommendation: string;
 }
 /**
  * Performance recommendation
  */
 export interface PerformanceRecommendation {
-    category: string;
-    priority: 'high' | 'medium' | 'low';
-    title: string;
-    description: string;
-    estimatedImpact: string;
-    effort: 'low' | 'medium' | 'high';
+  category: string;
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  estimatedImpact: string;
+  effort: 'low' | 'medium' | 'high';
 }
 /**
  * Comprehensive performance validation system
@@ -281,115 +288,115 @@ export interface PerformanceRecommendation {
  * - Runtime performance benchmarking
  */
 export declare class PerformanceValidator {
-    private readonly logger;
-    private readonly config;
-    constructor(config?: Partial<PerformanceValidationConfig>);
-    /**
-     * Execute comprehensive performance validation
-     */
-    validate(context: ValidationContext): Promise<ValidationResult>;
-    /**
-     * Gather performance metrics based on enabled metrics
-     */
-    private gatherPerformanceMetrics;
-    /**
-     * Analyze bundle size and composition
-     */
-    private analyzeBundleSize;
-    /**
-     * Run build to generate bundle files
-     */
-    private runBuild;
-    /**
-     * Detect build command from package.json
-     */
-    private detectBuildCommand;
-    /**
-     * Find bundle files in output directory
-     */
-    private findBundleFiles;
-    /**
-     * Calculate total size of bundle files
-     */
-    private calculateTotalSize;
-    /**
-     * Run webpack bundle analyzer if available
-     */
-    private runWebpackBundleAnalyzer;
-    /**
-     * Analyze build performance
-     */
-    private analyzeBuildPerformance;
-    /**
-     * Analyze code complexity
-     */
-    private analyzeCodeComplexity;
-    /**
-     * Get source files for analysis
-     */
-    private getSourceFiles;
-    /**
-     * Calculate basic file complexity
-     */
-    private calculateFileComplexity;
-    /**
-     * Extract functions from file content
-     */
-    private extractFunctions;
-    /**
-     * Calculate function-specific complexity
-     */
-    private calculateFunctionComplexity;
-    /**
-     * Analyze dependencies
-     */
-    private analyzeDependencies;
-    /**
-     * Check for outdated dependencies
-     */
-    private checkOutdatedDependencies;
-    /**
-     * Assess impact of dependency update
-     */
-    private assessUpdateImpact;
-    /**
-     * Profile memory usage (requires special setup)
-     */
-    private profileMemoryUsage;
-    /**
-     * Analyze performance results and generate summary
-     */
-    private analyzePerformanceResults;
-    /**
-     * Calculate overall performance score
-     */
-    private calculateOverallPerformanceScore;
-    /**
-     * Calculate performance validation score
-     */
-    private calculatePerformanceScore;
-    /**
-     * Determine performance validation status
-     */
-    private determinePerformanceStatus;
-    /**
-     * Determine performance validation severity
-     */
-    private determinePerformanceSeverity;
-    /**
-     * Generate performance validation message
-     */
-    private generatePerformanceMessage;
-    /**
-     * Generate detailed performance report
-     */
-    private generatePerformanceDetails;
-    /**
-     * Generate performance improvement suggestions
-     */
-    private generatePerformanceSuggestions;
-    /**
-     * Create performance evidence artifacts
-     */
-    private createPerformanceEvidence;
+  private readonly logger;
+  private readonly config;
+  constructor(config?: Partial<PerformanceValidationConfig>);
+  /**
+   * Execute comprehensive performance validation
+   */
+  validate(context: ValidationContext): Promise<ValidationResult>;
+  /**
+   * Gather performance metrics based on enabled metrics
+   */
+  private gatherPerformanceMetrics;
+  /**
+   * Analyze bundle size and composition
+   */
+  private analyzeBundleSize;
+  /**
+   * Run build to generate bundle files
+   */
+  private runBuild;
+  /**
+   * Detect build command from package.json
+   */
+  private detectBuildCommand;
+  /**
+   * Find bundle files in output directory
+   */
+  private findBundleFiles;
+  /**
+   * Calculate total size of bundle files
+   */
+  private calculateTotalSize;
+  /**
+   * Run webpack bundle analyzer if available
+   */
+  private runWebpackBundleAnalyzer;
+  /**
+   * Analyze build performance
+   */
+  private analyzeBuildPerformance;
+  /**
+   * Analyze code complexity
+   */
+  private analyzeCodeComplexity;
+  /**
+   * Get source files for analysis
+   */
+  private getSourceFiles;
+  /**
+   * Calculate basic file complexity
+   */
+  private calculateFileComplexity;
+  /**
+   * Extract functions from file content
+   */
+  private extractFunctions;
+  /**
+   * Calculate function-specific complexity
+   */
+  private calculateFunctionComplexity;
+  /**
+   * Analyze dependencies
+   */
+  private analyzeDependencies;
+  /**
+   * Check for outdated dependencies
+   */
+  private checkOutdatedDependencies;
+  /**
+   * Assess impact of dependency update
+   */
+  private assessUpdateImpact;
+  /**
+   * Profile memory usage (requires special setup)
+   */
+  private profileMemoryUsage;
+  /**
+   * Analyze performance results and generate summary
+   */
+  private analyzePerformanceResults;
+  /**
+   * Calculate overall performance score
+   */
+  private calculateOverallPerformanceScore;
+  /**
+   * Calculate performance validation score
+   */
+  private calculatePerformanceScore;
+  /**
+   * Determine performance validation status
+   */
+  private determinePerformanceStatus;
+  /**
+   * Determine performance validation severity
+   */
+  private determinePerformanceSeverity;
+  /**
+   * Generate performance validation message
+   */
+  private generatePerformanceMessage;
+  /**
+   * Generate detailed performance report
+   */
+  private generatePerformanceDetails;
+  /**
+   * Generate performance improvement suggestions
+   */
+  private generatePerformanceSuggestions;
+  /**
+   * Create performance evidence artifacts
+   */
+  private createPerformanceEvidence;
 }

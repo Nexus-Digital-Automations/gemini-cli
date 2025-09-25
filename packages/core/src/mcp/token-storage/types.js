@@ -6,7 +6,7 @@
 
 export let TokenStorageType = {};
 (function (TokenStorageType) {
-    TokenStorageType["KEYCHAIN"] = "keychain";
-    TokenStorageType["ENCRYPTED_FILE"] = "encrypted_file";
+  TokenStorageType['KEYCHAIN'] = 'keychain';
+  TokenStorageType['ENCRYPTED_FILE'] = 'encrypted_file';
 })(TokenStorageType || (TokenStorageType = {}));
 //# sourceMappingURL=types.js.map
