@@ -328,12 +328,12 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 207,
+      "total_reinitializations": 209,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 2
         },
         "14:00-18:59": {
           "init": 0,
@@ -409,7 +409,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T13:37:00.549Z"
+      "last_updated": "2025-09-25T14:45:18.265Z"
     }
   },
   "workflow_config": {
@@ -418,7 +418,22 @@
     "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
     "required_fields": ["title", "description", "business_value", "category"]
   },
-  "agents": {},
+  "agents": {
+    "no-unused-vars-specialist": {
+      "lastHeartbeat": "2025-09-25T14:42:48.264Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T14:42:48.264Z",
+      "sessionId": "a22d02922619db15",
+      "previousSessions": []
+    },
+    "AGENT_CONTINUE_1758815000": {
+      "lastHeartbeat": "2025-09-25T14:45:18.254Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T14:45:18.254Z",
+      "sessionId": "0dfd894234c35eb5",
+      "previousSessions": []
+    }
+  },
   "tasks": [],
   "completed_tasks": []
 }

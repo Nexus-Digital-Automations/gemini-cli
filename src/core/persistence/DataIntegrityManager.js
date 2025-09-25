@@ -145,10 +145,10 @@ class DataIntegrityManager extends EventEmitter {
       await this._startValidationScheduler();
 
       console.log('DataIntegrityManager: System initialized successfully');
-    } catch (error) {
-      console.error('DataIntegrityManager: Initialization failed:', error);
+    } catch (_error) {
+      console.error('DataIntegrityManager: Initialization failed:', _error);
       throw new Error(
-        `Data integrity system initialization failed: ${error.message}`,
+        `Data integrity system initialization failed: ${_error.message}`,
       );
     }
   }
@@ -205,10 +205,10 @@ class DataIntegrityManager extends EventEmitter {
       const validationLog = JSON.parse(validationData);
       this.state.validationHistory = validationLog.validations || [];
       this.state.lastValidation = validationLog.lastValidation;
-    } catch (error) {
+    } catch (_error) {
       console.warn(
         'DataIntegrityManager: Could not load previous state:',
-        error.message,
+        _error.message,
       );
     }
   }
@@ -221,12 +221,12 @@ class DataIntegrityManager extends EventEmitter {
     this.state.validationInterval = setInterval(async () => {
       try {
         await this.performIntegrityCheck();
-      } catch (error) {
+      } catch (_error) {
         console.error(
           'DataIntegrityManager: Scheduled validation failed:',
-          error,
+          _error,
         );
-        await this._logCriticalError('scheduled_validation_failed', error);
+        await this._logCriticalError('scheduled_validation_failed', _error);
       }
     }, this.config.validationInterval);
   }
@@ -320,20 +320,20 @@ class DataIntegrityManager extends EventEmitter {
       this.emit('integrityCheck', validationResult);
 
       return validationResult;
-    } catch (error) {
+    } catch (_error) {
       const errorResult = {
         id: checkId,
         timestamp: new Date().toISOString(),
         startTime,
         duration: Date.now() - startTime,
         status: 'failed',
-        error: error.message,
+        error: _error.message,
         checks: {},
         issues: [
           {
             severity: 'critical',
             type: 'validation_failure',
-            message: error.message,
+            message: _error.message,
           },
         ],
         repairs: [],
@@ -347,9 +347,9 @@ class DataIntegrityManager extends EventEmitter {
       };
 
       await this._logValidationResult(errorResult);
-      await this._logCriticalError('integrity_check_failed', error);
+      await this._logCriticalError('integrity_check_failed', _error);
 
-      throw error;
+      throw _error;
     }
   }
 
@@ -405,12 +405,12 @@ class DataIntegrityManager extends EventEmitter {
             issues.push(...agentIssues);
           });
         }
-      } catch (error) {
+      } catch (_error) {
         issues.push({
           severity: 'critical',
           type: 'json_parse_error',
           path: 'FEATURES.json',
-          message: `Failed to parse FEATURES.json: ${error.message}`,
+          message: `Failed to parse FEATURES.json: ${_error.message}`,
         });
       }
 
@@ -420,14 +420,14 @@ class DataIntegrityManager extends EventEmitter {
         checkType: 'schema_validation',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         valid: false,
         issues: [
           {
             severity: 'critical',
             type: 'schema_validation_error',
-            message: `Schema validation failed: ${error.message}`,
+            message: `Schema validation failed: ${_error.message}`,
           },
         ],
         checkType: 'schema_validation',
@@ -470,13 +470,13 @@ class DataIntegrityManager extends EventEmitter {
 
           // Update stored checksum
           this.state.checksums.set(filePath, currentChecksum);
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
+        } catch (_error) {
+          if (_error.code !== 'ENOENT') {
             issues.push({
               severity: 'warning',
               type: 'checksum_verification_failed',
               path: filePath,
-              message: `Could not verify checksum: ${error.message}`,
+              message: `Could not verify checksum: ${_error.message}`,
             });
           }
         }
@@ -491,14 +491,14 @@ class DataIntegrityManager extends EventEmitter {
         checkType: 'checksum_verification',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         valid: false,
         issues: [
           {
             severity: 'critical',
             type: 'checksum_verification_error',
-            message: `Checksum verification failed: ${error.message}`,
+            message: `Checksum verification failed: ${_error.message}`,
           },
         ],
         checkType: 'checksum_verification',
@@ -599,14 +599,14 @@ class DataIntegrityManager extends EventEmitter {
         checkType: 'cross_reference_validation',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         valid: false,
         issues: [
           {
             severity: 'critical',
             type: 'cross_reference_validation_error',
-            message: `Cross-reference validation failed: ${error.message}`,
+            message: `Cross-reference validation failed: ${_error.message}`,
           },
         ],
         checkType: 'cross_reference_validation',
@@ -627,7 +627,7 @@ class DataIntegrityManager extends EventEmitter {
       for (const requiredPath of requiredPaths) {
         try {
           await fs.access(requiredPath);
-        } catch (error) {
+        } catch (_error) {
           issues.push({
             severity: 'critical',
             type: 'missing_required_path',
@@ -643,7 +643,7 @@ class DataIntegrityManager extends EventEmitter {
           this.featuresPath,
           fs.constants.R_OK | fs.constants.W_OK,
         );
-      } catch (error) {
+      } catch (_error) {
         issues.push({
           severity: 'critical',
           type: 'file_permission_error',
@@ -662,7 +662,7 @@ class DataIntegrityManager extends EventEmitter {
             message: 'Potential disk space issue detected',
           });
         }
-      } catch (error) {
+      } catch (_error) {
         // Ignore disk space check errors for now
       }
 
@@ -672,14 +672,14 @@ class DataIntegrityManager extends EventEmitter {
         checkType: 'filesystem_validation',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         valid: false,
         issues: [
           {
             severity: 'critical',
             type: 'filesystem_validation_error',
-            message: `Filesystem validation failed: ${error.message}`,
+            message: `Filesystem validation failed: ${_error.message}`,
           },
         ],
         checkType: 'filesystem_validation',
@@ -747,14 +747,14 @@ class DataIntegrityManager extends EventEmitter {
         checkType: 'data_consistency_validation',
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         valid: false,
         issues: [
           {
             severity: 'critical',
             type: 'consistency_validation_error',
-            message: `Data consistency validation failed: ${error.message}`,
+            message: `Data consistency validation failed: ${_error.message}`,
           },
         ],
         checkType: 'data_consistency_validation',
@@ -775,12 +775,12 @@ class DataIntegrityManager extends EventEmitter {
           repairs.push(repair);
           this.state.repairCount++;
         }
-      } catch (error) {
+      } catch (_error) {
         console.error(
           `DataIntegrityManager: Auto-repair failed for ${issue.type}:`,
-          error,
+          _error,
         );
-        await this._logCriticalError('auto_repair_failed', error, { issue });
+        await this._logCriticalError('auto_repair_failed', _error, { issue });
       }
     }
 
@@ -832,9 +832,9 @@ class DataIntegrityManager extends EventEmitter {
       }
 
       repairResult.status = 'completed';
-    } catch (error) {
+    } catch (_error) {
       repairResult.status = 'failed';
-      repairResult.details = { error: error.message };
+      repairResult.details = { error: _error.message };
     }
 
     return repairResult;
@@ -864,7 +864,7 @@ class DataIntegrityManager extends EventEmitter {
     // Find and remove orphaned task
     const taskIndex = features.tasks.findIndex((t) => t.id === issue.taskId);
     if (taskIndex !== -1) {
-      const removedTask = features.tasks.splice(taskIndex, 1)[0];
+      const _removedTask = features.tasks.splice(taskIndex, 1)[0];
       await fs.writeFile(this.featuresPath, JSON.stringify(features, null, 2));
 
       return {
@@ -955,7 +955,7 @@ class DataIntegrityManager extends EventEmitter {
         newChecksum,
         message: `Updated stored checksum after verifying file integrity`,
       };
-    } catch (error) {
+    } catch (_error) {
       // If file is corrupted, try to restore from backup
       return await this._restoreFromBackup(issue.path);
     }
@@ -1020,11 +1020,11 @@ class DataIntegrityManager extends EventEmitter {
 
           manifest.files.push(file.dest);
           manifest.checksums[file.dest] = this._calculateChecksum(sourceData);
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
+        } catch (_error) {
+          if (_error.code !== 'ENOENT') {
             console.warn(
               `DataIntegrityManager: Could not backup ${file.source}:`,
-              error.message,
+              _error.message,
             );
           }
         }
@@ -1042,7 +1042,7 @@ class DataIntegrityManager extends EventEmitter {
             ? Object.keys(features.agents).length
             : 0,
         };
-      } catch (error) {
+      } catch (_error) {
         // Use defaults if can't read features file
       }
 
@@ -1064,8 +1064,8 @@ class DataIntegrityManager extends EventEmitter {
         path: recoveryDir,
         manifest,
       };
-    } catch (error) {
-      throw new Error(`Recovery point creation failed: ${error.message}`);
+    } catch (_error) {
+      throw new Error(`Recovery point creation failed: ${_error.message}`);
     }
   }
 
@@ -1111,7 +1111,7 @@ class DataIntegrityManager extends EventEmitter {
           // Create backup of current file
           try {
             await fs.copyFile(destPath, `${destPath}.backup-${Date.now()}`);
-          } catch (error) {
+          } catch (_error) {
             // File might not exist, which is fine
           }
 
@@ -1121,8 +1121,8 @@ class DataIntegrityManager extends EventEmitter {
 
           // Update checksum
           this.state.checksums.set(destPath, checksum);
-        } catch (error) {
-          errors.push(`Failed to restore ${fileName}: ${error.message}`);
+        } catch (_error) {
+          errors.push(`Failed to restore ${fileName}: ${_error.message}`);
         }
       }
 
@@ -1141,8 +1141,8 @@ class DataIntegrityManager extends EventEmitter {
         errors,
         manifest,
       };
-    } catch (error) {
-      throw new Error(`System restore failed: ${error.message}`);
+    } catch (_error) {
+      throw new Error(`System restore failed: ${_error.message}`);
     }
   }
 
@@ -1178,11 +1178,11 @@ class DataIntegrityManager extends EventEmitter {
         recoveryPoint: latestRecoveryPoint.name,
         message: `Restored file from recovery point ${latestRecoveryPoint.name}`,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         action: 'restoration_failed',
-        error: error.message,
-        message: `Failed to restore from backup: ${error.message}`,
+        error: _error.message,
+        message: `Failed to restore from backup: ${_error.message}`,
       };
     }
   }
@@ -1202,7 +1202,7 @@ class DataIntegrityManager extends EventEmitter {
           const manifestData = await fs.readFile(manifestPath, 'utf8');
           const manifest = JSON.parse(manifestData);
           recoveryPoints.push(manifest);
-        } catch (error) {
+        } catch (_error) {
           // Skip invalid recovery points
         }
       }
@@ -1213,10 +1213,10 @@ class DataIntegrityManager extends EventEmitter {
       );
 
       return recoveryPoints;
-    } catch (error) {
+    } catch (_error) {
       console.warn(
         'DataIntegrityManager: Could not list recovery points:',
-        error.message,
+        _error.message,
       );
       return [];
     }
@@ -1319,10 +1319,10 @@ class DataIntegrityManager extends EventEmitter {
         this.paths.validationLog,
         JSON.stringify(log, null, 2),
       );
-    } catch (error) {
+    } catch (_error) {
       console.error(
         'DataIntegrityManager: Failed to log validation result:',
-        error,
+        _error,
       );
     }
   }
@@ -1351,8 +1351,8 @@ class DataIntegrityManager extends EventEmitter {
         this.paths.transactionLog,
         JSON.stringify(log, null, 2),
       );
-    } catch (error) {
-      console.error('DataIntegrityManager: Failed to log transaction:', error);
+    } catch (_error) {
+      console.error('DataIntegrityManager: Failed to log transaction:', _error);
     }
   }
 
@@ -1374,21 +1374,21 @@ class DataIntegrityManager extends EventEmitter {
         this.paths.repairHistory,
         JSON.stringify(history, null, 2),
       );
-    } catch (error) {
+    } catch (_error) {
       console.error(
         'DataIntegrityManager: Failed to log repair history:',
-        error,
+        _error,
       );
     }
   }
 
-  async _logCriticalError(errorType, error, context = {}) {
+  async _logCriticalError(errorType, _error, context = {}) {
     const criticalError = {
       id: crypto.randomBytes(8).toString('hex'),
       timestamp: new Date().toISOString(),
       type: errorType,
-      message: error.message,
-      stack: error.stack,
+      message: _error.message,
+      stack: _error.stack,
       context,
     };
 
