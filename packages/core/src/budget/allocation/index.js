@@ -8,6 +8,8 @@
 export { BaseAllocationAlgorithm, UsageBasedAlgorithm, ROIOptimizedAlgorithm, PriorityBasedAlgorithm, createAllocationAlgorithm, createUsageBasedAlgorithm, createROIOptimizedAlgorithm, createPriorityBasedAlgorithm, getDefaultAlgorithmConfig, validateAlgorithmConfig, getAlgorithmMetrics, compareAlgorithmPerformance, ALGORITHM_REGISTRY, } from './algorithms/index.js';
 // Recommendation engine exports
 export { RecommendationEngine, createRecommendationEngine, } from './recommendations/index.js';
+// Import for internal use
+import { createRecommendationEngine } from './recommendations/index.js';
 // Optimization system exports
 export { EfficiencyAnalyzer, createEfficiencyAnalyzer, ResourceUtilizationOptimizer, createResourceUtilizationOptimizer, DEFAULT_EFFICIENCY_CONFIG, DEFAULT_UTILIZATION_CONFIG, } from './optimization/index.js';
 // Prioritization system exports

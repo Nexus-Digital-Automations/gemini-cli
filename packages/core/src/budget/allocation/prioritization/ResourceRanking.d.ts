@@ -207,13 +207,13 @@ export interface SensitivityAnalysis {
  */
 export interface PortfolioRanking {
   /** Individual resource rankings */
-  rankings: ResourceRanking[];
+  rankings: ResourceRankingResult[];
   /** Portfolio-level insights */
   insights: PortfolioInsights;
   /** Ranking summary statistics */
   statistics: RankingStatistics;
   /** Resource groupings by priority */
-  priorityGroups: Record<AllocationPriority, ResourceRanking[]>;
+  priorityGroups: Record<AllocationPriority, ResourceRankingResult[]>;
   /** Recommended allocation strategy */
   recommendedStrategy: AllocationStrategy;
 }

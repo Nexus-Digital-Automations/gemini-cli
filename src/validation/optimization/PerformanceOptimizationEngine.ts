@@ -834,11 +834,9 @@ export class PerformanceOptimizationEngine extends EventEmitter {
           );
           break;
       default:
-        // Handle unexpected values
+        // Handle unexpected bottleneck types
         break;
-    
-
-      }
+    }
 
     // General system optimizations
     recommendations.push(...this.generateSystemOptimizations(metrics));

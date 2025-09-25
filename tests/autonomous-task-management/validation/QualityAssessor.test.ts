@@ -25,7 +25,7 @@ vi.mock('../../../packages/core/src/logger/Logger.js');
 
 describe('QualityAssessor', () => {
   let qualityAssessor: QualityAssessor;
-  let mockValidationFramework: any;
+  let mockValidationFramework: MockValidationFramework;
   let sampleTask: Task;
   let sampleTaskResult: TaskResult;
   let sampleContext: QualityAssessmentContext;

@@ -660,6 +660,9 @@ export class ValidationFailureHandler extends EventEmitter {
 
           case 'alternative':
             return await this.executeAlternative<T>(context, strategy.config);
+          default:
+            // Handle unexpected values
+            break;
         }
       } catch (fallbackError) {
         this.logger.warn(`Fallback strategy ${strategy.type} failed`, {
@@ -957,6 +960,9 @@ export class ValidationFailureHandler extends EventEmitter {
             break;
           case 'fallback':
             // Trigger fallback strategy
+            break;
+          default:
+            // Handle unexpected values
             break;
         }
       } catch (actionError) {

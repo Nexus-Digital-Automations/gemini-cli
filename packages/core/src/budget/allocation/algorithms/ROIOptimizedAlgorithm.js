@@ -201,9 +201,6 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
             stability += 0.1;
         }
         return Math.max(0.1, Math.min(1.0, stability));
-            default:
-              // Handle unexpected values
-              break;
     }
     /**
      * Calculate time to ROI realization

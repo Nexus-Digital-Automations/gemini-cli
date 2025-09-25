@@ -639,11 +639,6 @@ class TaskHistoryManager extends EventEmitter {
           const startTime = new Date(metrics.createdAt);
           const endTime = new Date(metrics.completedAt || metrics.failedAt);
           metrics.duration = endTime.getTime() - startTime.getTime();
-        default:
-          // Handle unexpected values
-          break;
-      
-
         }
 
       const completedTasks = Array.from(taskMetrics.values()).filter(

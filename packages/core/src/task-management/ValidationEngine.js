@@ -284,6 +284,9 @@ export class ValidationEngine extends EventEmitter {
                 case 'skipped':
                     summary.skippedGates++;
                     break;
+                default:
+                  // Handle unexpected values
+                  break;
             }
             // Count violations by severity
             for (const ruleResult of gateResult.ruleResults) {
@@ -303,6 +306,9 @@ export class ValidationEngine extends EventEmitter {
                             case 'low':
                                 summary.lowViolations++;
                                 break;
+                            default:
+                              // Handle unexpected values
+                              break;
                         }
                     }
                 }
@@ -331,6 +337,9 @@ export class ValidationEngine extends EventEmitter {
                     case 'functional_testing':
                         recommendations.push('Fix failing tests and ensure proper test coverage');
                         break;
+                    default:
+                      // Handle unexpected values
+                      break;
                 }
                 // Add rule-specific suggestions
                 for (const ruleResult of gateResult.ruleResults) {

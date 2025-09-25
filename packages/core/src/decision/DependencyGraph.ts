@@ -145,7 +145,7 @@ export interface PathAnalysis {
  * Advanced dependency graph with intelligent decision-making capabilities
  */
 export class DecisionDependencyGraph {
-  private graph: DecisionDependencyGraph;
+  private graph: DecisionDependencyGraphData;
   private tasks: Map<TaskId, Task>;
   private optimizationCache: Map<string, GraphOptimization[]>;
   private pathCache: Map<string, PathAnalysis>;
@@ -1308,7 +1308,7 @@ export class DecisionDependencyGraph {
     };
   }
 
-  private cloneGraph(): DecisionDependencyGraph {
+  private cloneGraph(): DecisionDependencyGraphData {
     // Deep clone the graph for what-if analysis
     return JSON.parse(JSON.stringify(this.graph));
   }

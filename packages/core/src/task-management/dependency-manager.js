@@ -241,6 +241,9 @@ export class DependencyManager {
                             description: strategy.description,
                         });
                         return false;
+                    default:
+                      // Handle unexpected values
+                      break;
                 }
             }
             catch (error) {

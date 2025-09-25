@@ -13,6 +13,10 @@
  */
 // Base algorithm exports
 export { BaseAllocationAlgorithm, } from './BaseAllocationAlgorithm.js';
+// Algorithm factory functions
+export { createUsageBasedAlgorithm } from './UsageBasedAlgorithm.js';
+export { createROIOptimizedAlgorithm } from './ROIOptimizedAlgorithm.js';
+export { createPriorityBasedAlgorithm } from './PriorityBasedAlgorithm.js';
 // Algorithm implementations
 export { UsageBasedAlgorithm, createUsageBasedAlgorithm, } from './UsageBasedAlgorithm.js';
 export { ROIOptimizedAlgorithm, createROIOptimizedAlgorithm, } from './ROIOptimizedAlgorithm.js';

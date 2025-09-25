@@ -860,6 +860,9 @@ export class PerformanceMonitor {
           // This would require baseline comparison - simplified for now
           shouldTrigger = false;
           break;
+        default:
+          // Handle unexpected values
+          break;
       }
 
       if (shouldTrigger) {

@@ -79,6 +79,9 @@ export class QueueOptimizer extends EventEmitter {
           ),
         );
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
     // Add general optimization recommendations
     recommendations.push(

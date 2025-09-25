@@ -20,7 +20,7 @@ import type {
 } from '../types.js';
 import type {
   BusinessContextConfig,
-  ResourceRanking,
+  ResourceRankingResult,
 } from './ResourceRanking.js';
 /**
  * Priority assignment configuration
@@ -438,7 +438,7 @@ export declare class PriorityAssignment {
    */
   assignPortfolioPriorities(
     candidates: AllocationCandidate[],
-    rankings: ResourceRanking[],
+    rankings: ResourceRankingResult[],
     historicalData: Record<string, FeatureCostAnalysis[]>,
   ): PortfolioPriorityAssignmentResult;
   /**

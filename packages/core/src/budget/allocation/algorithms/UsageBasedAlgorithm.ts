@@ -149,7 +149,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     usageMetrics: Map<string, UsageMetric>,
   ): Map<string, number> {
     const adjustments = new Map<string, number>();
-    const totalCurrentBudget = this.calculateTotalCurrentBudget(candidates);
+    const _totalCurrentBudget = this.calculateTotalCurrentBudget(candidates);
 
     for (const candidate of candidates) {
       const metrics = usageMetrics.get(candidate.resourceId);
@@ -270,7 +270,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculatePeakUsageRatio(candidate: AllocationCandidate): number {
     const peakHours = candidate.costAnalysis.peakUsageHours.length;
-    const totalHours = 24;
+    const _totalHours = 24;
 
     // Estimate peak ratio based on concentration of usage
     if (peakHours <= 4) {

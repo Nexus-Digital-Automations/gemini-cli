@@ -321,6 +321,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       case 'deferred':
         urgency = 0.1;
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
 
     // High utilization suggests urgency

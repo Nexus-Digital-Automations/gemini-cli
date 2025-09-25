@@ -355,6 +355,9 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       case TaskCategory.EXECUTE:
         tools.push('shell');
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
 
     // Parse description for tool mentions

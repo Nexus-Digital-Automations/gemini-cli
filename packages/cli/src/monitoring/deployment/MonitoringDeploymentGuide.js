@@ -7,9 +7,9 @@
 import { Logger } from '../../utils/logger.js';
 import { monitoringIntegrationHub } from '../MonitoringIntegrationHub.js';
 import { realTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
-import { enhancedMonitoringDashboard } from '../EnhancedMonitoringDashboard.js';
-import { taskStatusMonitor } from '../TaskStatusMonitor.js';
-import { performanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
+import { enhancedMonitoringDashboard as _enhancedMonitoringDashboard } from '../EnhancedMonitoringDashboard.js';
+import { taskStatusMonitor as _taskStatusMonitor } from '../TaskStatusMonitor.js';
+import { performanceAnalyticsDashboard as _performanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 /**
@@ -620,7 +620,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
             this.deploymentPath,
             fs.constants.R_OK | fs.constants.W_OK,
           );
-        } catch (error) {
+        } catch (_error) {
           throw new Error(
             `Insufficient filesystem permissions for ${this.deploymentPath}`,
           );

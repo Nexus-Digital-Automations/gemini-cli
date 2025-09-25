@@ -777,7 +777,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getAlertHistoryData(widget: DashboardWidget): Record<string, unknown> {
+  private getAlertHistoryData(_widget: DashboardWidget): Record<string, unknown> {
     const activeAlerts = realTimeMonitoringSystem.getActiveAlerts();
 
     return {
@@ -800,7 +800,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getPredictiveInsightsData(widget: DashboardWidget): Record<string, unknown> {
+  private getPredictiveInsightsData(_widget: DashboardWidget): Record<string, unknown> {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
     return {
@@ -868,7 +868,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateSystemHealthChart(
     snapshots: MonitoringSnapshot[],
-    widget: DashboardWidget,
+    _widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-20)
@@ -914,7 +914,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateTaskMetricsChart(
     snapshots: MonitoringSnapshot[],
-    widget: DashboardWidget,
+    _widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-20)
@@ -968,7 +968,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateAgentPerformanceChart(
     snapshots: MonitoringSnapshot[],
-    widget: DashboardWidget,
+    _widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-20)
@@ -1012,7 +1012,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateAlertHistoryChart(
     snapshots: MonitoringSnapshot[],
-    widget: DashboardWidget,
+    _widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-10)
@@ -1043,7 +1043,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private generatePredictiveInsightsChart(widget: DashboardWidget): ChartData {
+  private generatePredictiveInsightsChart(_widget: DashboardWidget): ChartData {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
     const confidenceData = insights.slice(0, 10).map((insight) => ({

@@ -98,6 +98,9 @@ export class AlertTriggerEngine {
             context.projectedRunway = currentValue;
           }
           break;
+        default:
+          // Handle unexpected values
+          break;
       }
       // Apply dynamic threshold adjustments
       const adjustedThreshold = this.applyDynamicThresholdAdjustments(

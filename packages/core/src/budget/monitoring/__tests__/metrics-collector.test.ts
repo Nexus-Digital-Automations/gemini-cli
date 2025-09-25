@@ -229,7 +229,7 @@ describe('MetricsCollector', () => {
   });
 
   describe('Anomaly Detection', () => {
-    let anomalyDetected: any = null;
+    let anomalyDetected: Record<string, unknown> | null = null;
 
     beforeEach(() => {
       metricsCollector.on('anomaly-detected', (anomaly) => {

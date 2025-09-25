@@ -108,10 +108,11 @@ export class FileBasedTimeSeriesStorage {
     switch (this.config.bucketStrategy) {
       case 'daily':
         return date.toISOString().split('T')[0]; // YYYY-MM-DD
-      case 'weekly':
+      case 'weekly': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         return `${weekStart.toISOString().split('T')[0]}-week`;
+      }
       case 'monthly':
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       default:

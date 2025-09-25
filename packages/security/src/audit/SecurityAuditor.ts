@@ -275,6 +275,9 @@ export class SecurityAuditor extends EventEmitter {
       case 'data-protection':
         findings.push(...(await this.analyzeDataProtection(target)));
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
 
     return findings;

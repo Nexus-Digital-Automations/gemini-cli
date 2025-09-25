@@ -365,6 +365,9 @@ export class ValidationFramework extends EventEmitter {
         case ValidationStatus.SKIPPED:
           stats.skipped++;
           break;
+        default:
+          // Handle unexpected values
+          break;
       }
     });
     categoryStats.forEach((stats, category) => {

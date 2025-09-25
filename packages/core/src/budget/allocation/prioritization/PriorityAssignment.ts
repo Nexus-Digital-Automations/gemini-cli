@@ -23,7 +23,7 @@ import type {
 import type {
   ResourceRankingConfig,
   BusinessContextConfig,
-  ResourceRanking,
+  ResourceRankingResult,
 } from './ResourceRanking.js';
 
 /**
@@ -599,7 +599,7 @@ export class PriorityAssignment {
    */
   assignPortfolioPriorities(
     candidates: AllocationCandidate[],
-    rankings: ResourceRanking[],
+    rankings: ResourceRankingResult[],
     historicalData: Record<string, FeatureCostAnalysis[]>
   ): PortfolioPriorityAssignmentResult {
     this.logger.info('Starting portfolio priority assignment', {

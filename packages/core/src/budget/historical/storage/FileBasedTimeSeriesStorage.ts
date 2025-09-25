@@ -505,10 +505,11 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
         return `${date.toISOString().split('T')[0]}-${date.getHours()}`;
       case 'day':
         return date.toISOString().split('T')[0];
-      case 'week':
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         return weekStart.toISOString().split('T')[0] + '-week';
+      }
       case 'month':
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       default:
@@ -526,7 +527,7 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
     const date = new Date(timestamp);
 
     switch (aggregation) {
-      case 'hour':
+      case 'hour': {
         const hourStart = new Date(
           date.getFullYear(),
           date.getMonth(),
@@ -537,7 +538,8 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
           windowStart: hourStart.getTime(),
           windowEnd: hourStart.getTime() + 60 * 60 * 1000,
         };
-      case 'day':
+      }
+      case 'day': {
         const dayStart = new Date(
           date.getFullYear(),
           date.getMonth(),
@@ -547,7 +549,8 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
           windowStart: dayStart.getTime(),
           windowEnd: dayStart.getTime() + 24 * 60 * 60 * 1000,
         };
-      case 'week':
+      }
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         weekStart.setHours(0, 0, 0, 0);
@@ -555,14 +558,16 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
           windowStart: weekStart.getTime(),
           windowEnd: weekStart.getTime() + 7 * 24 * 60 * 60 * 1000,
         };
-      case 'month':
+      }
+      case 'month': {
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 1);
         return {
           windowStart: monthStart.getTime(),
           windowEnd: monthEnd.getTime(),
         };
-      default:
+      }
+      default: {
         const defaultStart = new Date(
           date.getFullYear(),
           date.getMonth(),
@@ -572,6 +577,7 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
           windowStart: defaultStart.getTime(),
           windowEnd: defaultStart.getTime() + 24 * 60 * 60 * 1000,
         };
+      }
     }
   }
 

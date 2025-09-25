@@ -515,14 +515,14 @@ export class TaskBreakdownEngine {
       case TaskComplexity.HIGHLY_COMPLEX:
         baseDuration = 120;
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
     // Adjust based on request length and factors
     const lengthMultiplier = Math.min(request.length / 100, 2);
     const factorMultiplier = 1 + factors.length * 0.1;
     return Math.round(baseDuration * lengthMultiplier * factorMultiplier);
-      default:
-        // Handle unexpected values
-        break;
   }
   // Strategy and rule management methods (to be implemented)
   findApplicableStrategies(task, _complexityResult) {
