@@ -8,10 +8,49 @@ import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/task/types.js';
 import {
   DecisionDependencyGraph as DependencyGraph,
-  DecisionDependencyNode as GraphNode,
-  DecisionDependencyGraph as GraphEdge,
+  DecisionDependencyNode as _GraphNode,
+  DecisionDependencyGraph as _GraphEdge,
 } from '../../../packages/core/src/decision/DependencyGraph.js';
 import { DetectedDependency } from '../../../packages/core/src/decision/DependencyAnalyzer.js';
+
+// Define proper interfaces for test types
+interface TestGraphNode {
+  id: string;
+  task: Task;
+  level: number;
+  earliestStart: number;
+  outEdges: unknown[];
+  inEdges: unknown[];
+}
+
+interface _TestGraphEdge {
+  from: string;
+  to: string;
+  dependency: DetectedDependency;
+}
+
+interface _TestValidationResult {
+  isValid: boolean;
+  issues: Array<{
+    type: string;
+    affectedNodes?: string[];
+  }>;
+  metrics: {
+    nodeCount: number;
+    edgeCount: number;
+    maxPathLength: number;
+    criticalPathLength: number;
+    density: number;
+    averageFanOut: number;
+  };
+}
+
+interface TestCycleComponent {
+  nodes: string[];
+  breakingOptions: Array<{
+    impactScore: number;
+  }>;
+}
 
 describe('DependencyGraph', () => {
   let graph: DependencyGraph;
@@ -128,8 +167,8 @@ describe('DependencyGraph', () => {
       expect(edges).toHaveLength(3);
 
       // Verify nodes have correct task references
-      nodes.forEach((node: any) => {
-        const task = sampleTasks.find((t: any) => t.id === node.id);
+      nodes.forEach((node: TestGraphNode) => {
+        const task = sampleTasks.find((t: Task) => t.id === node.id);
         expect(task).toBeDefined();
         expect(node.task).toEqual(task);
       });
@@ -140,10 +179,10 @@ describe('DependencyGraph', () => {
 
       const nodes = graph.getNodes();
 
-      const task1Node = nodes.find((n: any) => n.id === 'task-1')!;
-      const task2Node = nodes.find((n: any) => n.id === 'task-2')!;
-      const task3Node = nodes.find((n: any) => n.id === 'task-3')!;
-      const task4Node = nodes.find((n: any) => n.id === 'task-4')!;
+      const task1Node = nodes.find((n: TestGraphNode) => n.id === 'task-1')!;
+      const task2Node = nodes.find((n: TestGraphNode) => n.id === 'task-2')!;
+      const task3Node = nodes.find((n: TestGraphNode) => n.id === 'task-3')!;
+      const task4Node = nodes.find((n: TestGraphNode) => n.id === 'task-4')!;
 
       expect(task1Node.level).toBe(0);
       expect(task2Node.level).toBe(1);
@@ -169,8 +208,8 @@ describe('DependencyGraph', () => {
 
       const nodes = graph.getNodes();
 
-      const task1Node = nodes.find((n: any) => n.id === 'task-1')!;
-      const task2Node = nodes.find((n: any) => n.id === 'task-2')!;
+      const task1Node = nodes.find((n: TestGraphNode) => n.id === 'task-1')!;
+      const task2Node = nodes.find((n: TestGraphNode) => n.id === 'task-2')!;
 
       expect(task1Node.earliestStart).toBe(0);
       expect(task2Node.earliestStart).toBe(3); // After task-1 completes (effort: 3)
@@ -207,7 +246,7 @@ describe('DependencyGraph', () => {
 
     test('should add edges correctly', () => {
       // First add nodes
-      sampleTasks.forEach((task: any) => graph.addNode(task));
+      sampleTasks.forEach((task: Task) => graph.addNode(task));
 
       // Then add edge
       graph.addEdge(sampleDependencies[0]);
@@ -230,12 +269,12 @@ describe('DependencyGraph', () => {
     });
 
     test('should update node edge references', () => {
-      sampleTasks.forEach((task: any) => graph.addNode(task));
+      sampleTasks.forEach((task: Task) => graph.addNode(task));
       graph.addEdge(sampleDependencies[0]);
 
       const nodes = graph.getNodes();
-      const fromNode = nodes.find((n: any) => n.id === 'task-1')!;
-      const toNode = nodes.find((n: any) => n.id === 'task-2')!;
+      const fromNode = nodes.find((n: TestGraphNode) => n.id === 'task-1')!;
+      const toNode = nodes.find((n: TestGraphNode) => n.id === 'task-2')!;
 
       expect(fromNode.outEdges).toHaveLength(1);
       expect(toNode.inEdges).toHaveLength(1);
@@ -264,8 +303,8 @@ describe('DependencyGraph', () => {
       graph.removeEdge('task-1', 'task-2');
 
       const nodes = graph.getNodes();
-      const fromNode = nodes.find((n: any) => n.id === 'task-1')!;
-      const toNode = nodes.find((n: any) => n.id === 'task-2')!;
+      const fromNode = nodes.find((n: TestGraphNode) => n.id === 'task-1')!;
+      const toNode = nodes.find((n: TestGraphNode) => n.id === 'task-2')!;
 
       expect(fromNode.outEdges).toHaveLength(0);
       expect(toNode.inEdges).toHaveLength(0);
@@ -304,7 +343,7 @@ describe('DependencyGraph', () => {
       expect(validation.isValid).toBe(false);
 
       const circularIssues = validation.issues.filter(
-        (issue: any) => issue.type === 'circular_dependency',
+        (issue) => issue.type === 'circular_dependency',
       );
       expect(circularIssues.length).toBeGreaterThan(0);
     });
@@ -332,7 +371,7 @@ describe('DependencyGraph', () => {
       const validation = await graph.validateGraph();
 
       const orphanIssues = validation.issues.filter(
-        (issue: any) => issue.type === 'orphaned_node',
+        (issue) => issue.type === 'orphaned_node',
       );
       expect(orphanIssues.length).toBeGreaterThan(0);
       expect(orphanIssues[0].affectedNodes).toContain('orphaned-task');
@@ -380,7 +419,7 @@ describe('DependencyGraph', () => {
       const validation = await graph.validateGraph();
 
       const fanOutIssues = validation.issues.filter(
-        (issue: any) => issue.type === 'excessive_fan_out',
+        (issue) => issue.type === 'excessive_fan_out',
       );
       expect(fanOutIssues.length).toBeGreaterThan(0);
     });
@@ -407,7 +446,7 @@ describe('DependencyGraph', () => {
       const cycles = await graph.detectStronglyConnectedComponents();
 
       // Filter for actual cycles (components with more than 1 node)
-      const actualCycles = cycles.filter((cycle: any) => cycle.nodes.length > 1);
+      const actualCycles = cycles.filter((cycle: TestCycleComponent) => cycle.nodes.length > 1);
       expect(actualCycles).toHaveLength(0);
     });
 
@@ -445,7 +484,7 @@ describe('DependencyGraph', () => {
       await graph.buildGraph(sampleTasks.slice(0, 3), cyclicDeps);
 
       const cycles = await graph.detectStronglyConnectedComponents();
-      const actualCycles = cycles.filter((cycle: any) => cycle.nodes.length > 1);
+      const actualCycles = cycles.filter((cycle: TestCycleComponent) => cycle.nodes.length > 1);
 
       expect(actualCycles.length).toBeGreaterThan(0);
       expect(actualCycles[0].nodes).toContain('task-1');
@@ -478,7 +517,7 @@ describe('DependencyGraph', () => {
       await graph.buildGraph(sampleTasks.slice(0, 2), cyclicDeps);
 
       const cycles = await graph.detectStronglyConnectedComponents();
-      const actualCycles = cycles.filter((cycle: any) => cycle.nodes.length > 1);
+      const actualCycles = cycles.filter((cycle: TestCycleComponent) => cycle.nodes.length > 1);
 
       expect(actualCycles.length).toBeGreaterThan(0);
       expect(actualCycles[0].breakingOptions.length).toBeGreaterThan(0);

@@ -225,6 +225,17 @@ export interface DependencyAnalysisResult {
 }
 
 /**
+ * Performance metrics collection
+ */
+export interface PerformanceMetrics {
+  bundleAnalysis?: BundleAnalysisResult;
+  buildPerformance?: BuildPerformanceMetrics;
+  codeComplexity?: CodeComplexityMetrics;
+  dependencyAnalysis?: DependencyAnalysisResult;
+  memoryProfiling?: MemoryProfilingResult;
+}
+
+/**
  * Outdated dependency
  */
 export interface OutdatedDependency {
@@ -243,6 +254,22 @@ export interface DependencyBundleImpact {
   sizeKB: number;
   usagePercentage: number;
   alternatives: string[];
+}
+
+/**
+ * NPM outdated package information
+ */
+export interface NpmOutdatedPackageInfo {
+  current: string;
+  wanted: string;
+  latest: string;
+}
+
+/**
+ * Error with stdout property (from child process)
+ */
+export interface ChildProcessError extends Error {
+  stdout?: string;
 }
 
 /**
@@ -418,8 +445,8 @@ export class PerformanceValidator {
    */
   private async gatherPerformanceMetrics(
     context: ValidationContext,
-  ): Promise<any> {
-    const metrics: any = {};
+  ): Promise<PerformanceMetrics> {
+    const metrics: PerformanceMetrics = {};
 
     // Bundle analysis
     if (this.config.enabledMetrics.bundleAnalysis) {
@@ -886,7 +913,7 @@ export class PerformanceValidator {
       const dependencies: OutdatedDependency[] = [];
 
       for (const [name, info] of Object.entries(outdated)) {
-        const depInfo = info as any;
+        const depInfo = info as NpmOutdatedPackageInfo;
         dependencies.push({
           name,
           current: depInfo.current,
@@ -899,13 +926,13 @@ export class PerformanceValidator {
       return dependencies;
     } catch (error) {
       // npm outdated returns non-zero when outdated packages found
-      if ((error as any).stdout) {
+      if ((error as ChildProcessError).stdout) {
         try {
-          const outdated = JSON.parse((error as any).stdout);
+          const outdated = JSON.parse((error as ChildProcessError).stdout!);
           const dependencies: OutdatedDependency[] = [];
 
           for (const [name, info] of Object.entries(outdated)) {
-            const depInfo = info as any;
+            const depInfo = info as NpmOutdatedPackageInfo;
             dependencies.push({
               name,
               current: depInfo.current,
@@ -985,7 +1012,7 @@ export class PerformanceValidator {
   /**
    * Analyze performance results and generate summary
    */
-  private analyzePerformanceResults(metrics: any): PerformanceSummary {
+  private analyzePerformanceResults(metrics: PerformanceMetrics): PerformanceSummary {
     const issues: PerformanceIssue[] = [];
     const recommendations: PerformanceRecommendation[] = [];
 

@@ -12,6 +12,22 @@ import {
   ParallelStrategy
 } from '../../../packages/core/src/decision/ParallelOptimizer.js';
 
+// Define proper interfaces for test types based on actual usage
+interface TestExecutionBatch {
+  tasks: string[];
+}
+
+interface TestParallelGroup {
+  tasks: string[];
+  resourceUtilization: Record<string, number>;
+  bottlenecks: string[];
+}
+
+interface _TestOptimizationResult {
+  executionOrder: TestExecutionBatch[];
+  parallelGroups: TestParallelGroup[];
+}
+
 describe('SequenceOptimizer', () => {
   let optimizer: SequenceOptimizer;
   let sampleTasks: Task[];
@@ -325,9 +341,9 @@ describe('SequenceOptimizer', () => {
       expect(result).toBeDefined();
 
       // Should respect resource constraints
-      result.executionOrder.forEach((batch: any) => {
-        const backendTasks = batch.tasks.filter((taskId: any) => {
-          const task = sampleTasks.find((t: any) => t.id === taskId);
+      result.executionOrder.forEach((batch: TestExecutionBatch) => {
+        const backendTasks = batch.tasks.filter((taskId: string) => {
+          const task = sampleTasks.find((t: Task) => t.id === taskId);
           return task?.required_capabilities?.includes('backend');
         });
 
@@ -355,9 +371,9 @@ describe('SequenceOptimizer', () => {
       );
 
       // Check that no batch has more than 1 backend task
-      result.executionOrder.forEach((batch: any) => {
-        const backendTaskCount = batch.tasks.filter((taskId: any) => {
-          const task = sampleTasks.find((t: any) => t.id === taskId);
+      result.executionOrder.forEach((batch: TestExecutionBatch) => {
+        const backendTaskCount = batch.tasks.filter((taskId: string) => {
+          const task = sampleTasks.find((t: Task) => t.id === taskId);
           return task?.required_capabilities?.includes('backend');
         }).length;
 
@@ -371,11 +387,11 @@ describe('SequenceOptimizer', () => {
         sampleDependencies,
       );
 
-      result.parallelGroups.forEach((group: any) => {
+      result.parallelGroups.forEach((group: TestParallelGroup) => {
         expect(group.resourceUtilization).toBeDefined();
 
         // Resource utilization should be a valid object
-        Object.values(group.resourceUtilization).forEach((utilization: any) => {
+        Object.values(group.resourceUtilization).forEach((utilization: number) => {
           expect(typeof utilization).toBe('number');
           expect(utilization).toBeGreaterThanOrEqual(0);
         });
@@ -430,7 +446,7 @@ describe('SequenceOptimizer', () => {
 
       // At least one group should contain independent tasks
       const independentGroup = result.parallelGroups.find(
-        (group: any) =>
+        (group: TestParallelGroup) =>
           group.parallelTasks.includes('independent-1') &&
           group.parallelTasks.includes('independent-2'),
       );
@@ -443,13 +459,13 @@ describe('SequenceOptimizer', () => {
         sampleDependencies,
       );
 
-      result.parallelGroups.forEach((group: any) => {
+      result.parallelGroups.forEach((group: TestParallelGroup) => {
         if (group.parallelTasks.length > 1) {
           expect(group.bottlenecks).toBeDefined();
           expect(Array.isArray(group.bottlenecks)).toBe(true);
 
           // Bottlenecks should be tasks with highest effort in the group
-          group.bottlenecks.forEach((bottleneckId: any) => {
+          group.bottlenecks.forEach((bottleneckId: string) => {
             expect(group.parallelTasks).toContain(bottleneckId);
           });
         }
@@ -462,16 +478,16 @@ describe('SequenceOptimizer', () => {
         sampleDependencies,
       );
 
-      result.parallelGroups.forEach((group: any) => {
+      result.parallelGroups.forEach((group: TestParallelGroup) => {
         expect(group.estimatedCompletion).toBeGreaterThan(0);
 
         // Completion time should be at least as long as the longest task
         const groupTasks = group.parallelTasks
-          .map((taskId: any) => sampleTasks.find((t: any) => t.id === taskId))
-          .filter((t: any) => t !== undefined);
+          .map((taskId: string) => sampleTasks.find((t: Task) => t.id === taskId))
+          .filter((t: Task | undefined): t is Task => t !== undefined);
 
         const maxEffort = Math.max(
-          ...groupTasks.map((t: any) => t!.estimated_effort || 1),
+          ...groupTasks.map((t: Task) => t.estimated_effort || 1),
         );
         expect(group.estimatedCompletion).toBeGreaterThanOrEqual(maxEffort);
       });
@@ -490,7 +506,7 @@ describe('SequenceOptimizer', () => {
     });
 
     test('should handle tasks with no dependencies', async () => {
-      const independentTasks = sampleTasks.map((task: any) => ({
+      const independentTasks = sampleTasks.map((task: Task) => ({
         ...task,
         dependencies: [],
       }));
@@ -538,7 +554,7 @@ describe('SequenceOptimizer', () => {
     });
 
     test('should handle tasks with invalid effort values', async () => {
-      const tasksWithInvalidEffort = sampleTasks.map((task: any) => ({
+      const tasksWithInvalidEffort = sampleTasks.map((task: Task) => ({
         ...task,
         estimated_effort: undefined, // Invalid effort
       }));
@@ -614,7 +630,7 @@ describe('SequenceOptimizer', () => {
       );
 
       // Each batch should not exceed max parallelism
-      result.executionOrder.forEach((batch: any) => {
+      result.executionOrder.forEach((batch: TestExecutionBatch) => {
         expect(batch.tasks.length).toBeLessThanOrEqual(2);
       });
     });
@@ -637,8 +653,8 @@ describe('SequenceOptimizer', () => {
 
       // Normal priority tasks should be scheduled prominently due to high weight
       const firstBatch = result.executionOrder[0];
-      const normalPriorityInFirst = firstBatch.tasks.some((taskId: any) => {
-        const task = sampleTasks.find((t: any) => t.id === taskId);
+      const normalPriorityInFirst = firstBatch.tasks.some((taskId: string) => {
+        const task = sampleTasks.find((t: Task) => t.id === taskId);
         return task?.priority === 'normal';
       });
 

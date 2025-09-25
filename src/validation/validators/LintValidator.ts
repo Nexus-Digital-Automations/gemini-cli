@@ -23,6 +23,14 @@ import type {
 } from '../core/ValidationEngine.js';
 
 /**
+ * Build artifact interface
+ */
+export interface BuildArtifact {
+  type: string;
+  path: string;
+}
+
+/**
  * Lint validation configuration
  */
 export interface LintValidationConfig {
@@ -242,7 +250,7 @@ export class LintValidator {
   /**
    * Get files to lint from artifacts
    */
-  private getFilesToLint(artifacts: any[]): string[] {
+  private getFilesToLint(artifacts: BuildArtifact[]): string[] {
     const lintableExtensions = ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'];
 
     return artifacts

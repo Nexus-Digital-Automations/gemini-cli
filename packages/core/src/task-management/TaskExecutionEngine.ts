@@ -6,13 +6,13 @@
 
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
-import type { AnyDeclarativeTool } from '../tools/tools.js';
+import type { AnyDeclarativeTool as _AnyDeclarativeTool } from '../tools/tools.js';
 import type {
-  TaskCategory,
+  TaskCategory as _TaskCategory,
   TaskStatus,
-  TaskId,
+  TaskId as _TaskId,
   TaskPriority,
-  TaskMetadata,
+  TaskMetadata as _TaskMetadata,
   Task as BaseTask,
 } from './types.js';
 import { TaskComplexity } from './types.js';
@@ -21,12 +21,12 @@ import {
   ContextState,
   SubagentTerminateMode,
 } from '../core/subagent.js';
-import { CoreToolScheduler } from '../core/coreToolScheduler.js';
-import { Turn, type ToolCallRequestInfo } from '../core/turn.js';
-import { GeminiChat } from '../core/geminiChat.js';
-import { getEnvironmentContext } from '../utils/environmentContext.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import { CoreToolScheduler as _CoreToolScheduler } from '../core/coreToolScheduler.js';
+import { Turn as _Turn, type ToolCallRequestInfo as _ToolCallRequestInfo } from '../core/turn.js';
+import { GeminiChat as _GeminiChat } from '../core/geminiChat.js';
+import { getEnvironmentContext as _getEnvironmentContext } from '../utils/environmentContext.js';
+import * as _fs from 'node:fs/promises';
+import * as _path from 'node:path';
 
 /**
  * @fileoverview Comprehensive Task Execution Engine with Intelligent Breakdown
@@ -428,6 +428,8 @@ Focus on creating a practical, executable breakdown that enables efficient auton
         return 'Create 8-12 subtasks, complex dependency chains, extensive validation and monitoring';
       case TaskComplexity.ENTERPRISE:
         return 'Create 10-15+ subtasks, multi-phase execution, comprehensive quality gates and monitoring';
+      default:
+        throw new Error(`Unsupported task complexity: ${complexity}`);
     }
   }
 
@@ -452,6 +454,8 @@ Focus on creating a practical, executable breakdown that enables efficient auton
         return 'Include security assessment, vulnerability identification, remediation, and validation';
       case TaskType.PERFORMANCE:
         return 'Include profiling, optimization, testing, and performance validation';
+      default:
+        throw new Error(`Unsupported task type: ${type}`);
     }
   }
 
@@ -860,6 +864,8 @@ export class TaskExecutionEngine {
         return 120;
       case TaskComplexity.ENTERPRISE:
         return 300;
+      default:
+        return 60; // Default to moderate complexity time
     }
   }
 

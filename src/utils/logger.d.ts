@@ -18,7 +18,7 @@ export declare enum LogLevel {
     ERROR = 3
 }
 export interface LogContext {
-    [key: string]: any;
+    [key: string]: unknown;
 }
 export interface LogEntry {
     timestamp: Date;

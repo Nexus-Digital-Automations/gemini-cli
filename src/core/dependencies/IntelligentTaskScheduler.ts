@@ -35,9 +35,9 @@ import {
   DependencyAnalyzer,
   TaskNode,
   TaskDependency,
-  DependencyType,
-  ExecutionReadiness,
-  SchedulingResult,
+  DependencyType as _DependencyType,
+  ExecutionReadiness as _ExecutionReadiness,
+  SchedulingResult as _SchedulingResult,
   DependencyAnalysisResult,
 } from './DependencyAnalyzer.js';
 
@@ -612,7 +612,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
   private handleTaskCompletion(
     taskId: string,
     success: boolean,
-    error?: any,
+    error?: Error,
   ): void {
     const context = this.runningTasks.get(taskId);
     if (!context) {
