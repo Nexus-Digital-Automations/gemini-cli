@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Semantic Context Compression Engine
  * AI-powered context compression while preserving essential meaning

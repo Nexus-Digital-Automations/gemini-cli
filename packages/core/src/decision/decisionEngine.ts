@@ -707,7 +707,7 @@ export class DecisionEngine extends EventEmitter {
 }
 
 // Type augmentation for EventEmitter to provide proper typing
-declare interface DecisionEngine {
+interface DecisionEngineEventMethods {
   on<K extends keyof DecisionEngineEvents>(
     event: K,
     listener: DecisionEngineEvents[K],

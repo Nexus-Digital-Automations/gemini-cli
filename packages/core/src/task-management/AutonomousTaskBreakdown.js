@@ -219,9 +219,6 @@ export class AutonomousTaskBreakdown extends EventEmitter {
           break;
       }
       strategyScores.set(strategy, score);
-        default:
-          // Handle unexpected values
-          break;
     }
     // Select strategy with highest score
     const bestStrategy = Array.from(strategyScores.entries()).sort(
@@ -274,9 +271,6 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       expectedImprovement,
       metadata,
     };
-      default:
-        // Handle unexpected values
-        break;
   }
   /**
    * Temporal breakdown: Break task into time-based phases

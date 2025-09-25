@@ -168,10 +168,11 @@ export class FileBasedTimeSeriesStorage {
         return startTime + 24 * 60 * 60 * 1000; // Add 1 day
       case 'weekly':
         return startTime + 7 * 24 * 60 * 60 * 1000; // Add 1 week
-      case 'monthly':
+      case 'monthly': {
         const date = new Date(startTime);
         date.setMonth(date.getMonth() + 1);
         return date.getTime();
+      }
       default:
         return startTime + 24 * 60 * 60 * 1000;
     }
@@ -408,10 +409,11 @@ export class FileBasedTimeSeriesStorage {
         return `${date.toISOString().split('T')[0]}-${date.getHours()}`;
       case 'day':
         return date.toISOString().split('T')[0];
-      case 'week':
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         return weekStart.toISOString().split('T')[0] + '-week';
+      }
       case 'month':
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       default:
@@ -445,7 +447,7 @@ export class FileBasedTimeSeriesStorage {
           windowStart: dayStart.getTime(),
           windowEnd: dayStart.getTime() + 24 * 60 * 60 * 1000,
         };
-      case 'week':
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         weekStart.setHours(0, 0, 0, 0);
@@ -453,14 +455,16 @@ export class FileBasedTimeSeriesStorage {
           windowStart: weekStart.getTime(),
           windowEnd: weekStart.getTime() + 7 * 24 * 60 * 60 * 1000,
         };
-      case 'month':
+      }
+      case 'month': {
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 1);
         return {
           windowStart: monthStart.getTime(),
           windowEnd: monthEnd.getTime(),
         };
-      default:
+      }
+      default: {
         const defaultStart = new Date(
           date.getFullYear(),
           date.getMonth(),
@@ -470,6 +474,7 @@ export class FileBasedTimeSeriesStorage {
           windowStart: defaultStart.getTime(),
           windowEnd: defaultStart.getTime() + 24 * 60 * 60 * 1000,
         };
+      }
     }
   }
   /**

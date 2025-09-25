@@ -369,9 +369,6 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       }
 
       strategyScores.set(strategy, score);
-        default:
-          // Handle unexpected values
-          break;
     }
 
     // Select strategy with highest score
@@ -436,9 +433,6 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       expectedImprovement,
       metadata,
     };
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**

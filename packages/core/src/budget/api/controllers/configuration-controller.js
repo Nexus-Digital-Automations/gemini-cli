@@ -106,7 +106,7 @@ export class ConfigurationController {
         ...newSettings,
       };
       // Perform validation
-      const validationResult = this.validateConfiguration(updatedSettings);
+      const validationResult = this._validateConfigurationSettings(updatedSettings);
       if (!validationResult.valid) {
         logger.warn('Configuration validation failed', {
           errors: validationResult.errors,
@@ -238,7 +238,7 @@ export class ConfigurationController {
       // Convert string parameters to appropriate types
       const parsedSettings = this.parseQueryParameters(settingsToValidate);
       // Perform validation
-      const validationResult = this.validateConfiguration(parsedSettings);
+      const validationResult = this._validateConfigurationSettings(parsedSettings);
       const responseTime = Date.now() - startTime;
       const response = {
         success: true,
@@ -276,9 +276,9 @@ export class ConfigurationController {
     }
   }
   /**
-   * Validate configuration settings
+   * Validate configuration settings (internal helper)
    */
-  validateConfiguration(settings) {
+  _validateConfigurationSettings(settings) {
     const errors = [];
     const warnings = [];
     const recommendations = [];

@@ -41,7 +41,7 @@ class MockContentGenerator implements ContentGenerator {
   constructor(private failAfter?: number) {}
 
   async generateContent(
-    req: any,
+    req: Record<string, unknown>,
     userPromptId: string,
   ): Promise<GenerateContentResponse> {
     this.requestCount++;
@@ -72,7 +72,7 @@ class MockContentGenerator implements ContentGenerator {
   }
 
   async *generateContentStream(
-    req: any,
+    req: Record<string, unknown>,
     userPromptId: string,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     this.requestCount++;
@@ -120,11 +120,11 @@ class MockContentGenerator implements ContentGenerator {
     };
   }
 
-  async countTokens(req: any): Promise<{ totalTokens: number }> {
+  async countTokens(req: Record<string, unknown>): Promise<{ totalTokens: number }> {
     return { totalTokens: 10 };
   }
 
-  async embedContent(req: any): Promise<any> {
+  async embedContent(req: Record<string, unknown>): Promise<Record<string, unknown>> {
     return { embedding: { values: [0.1, 0.2, 0.3] } };
   }
 
@@ -338,7 +338,7 @@ describe('Token Monitoring Integration', () => {
   });
 
   describe('Event System', () => {
-    let eventReceived: any = null;
+    let eventReceived: Record<string, unknown> | null = null;
 
     beforeEach(() => {
       integration.getEventManager().on('budget-event', (event) => {
