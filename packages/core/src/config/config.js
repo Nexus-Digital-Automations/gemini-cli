@@ -65,7 +65,7 @@ import { ProxyAgent, setGlobalDispatcher } from 'undici';
  *
  * Security Note: Higher automation modes should only be used in trusted environments.
  */
-export var ApprovalMode;
+export let ApprovalMode;
 (function (ApprovalMode) {
   /** Default mode requiring user approval for each tool call */
   ApprovalMode['DEFAULT'] = 'default';
@@ -191,7 +191,7 @@ export class MCPServerConfig {
  * Types of authentication providers supported for MCP server connections.
  * Determines how authentication credentials are obtained and managed.
  */
-export var AuthProviderType;
+export let AuthProviderType;
 (function (AuthProviderType) {
   /** Dynamically discover authentication method through server negotiation */
   AuthProviderType['DYNAMIC_DISCOVERY'] = 'dynamic_discovery';

@@ -43,9 +43,9 @@ export interface DecisionDependencyNode {
   };
 }
 /**
- * Enhanced dependency graph for decision-making
+ * Enhanced dependency graph configuration for decision-making
  */
-export interface DecisionDependencyGraph {
+export interface DecisionDependencyGraphConfig {
   /** Map of task ID to enhanced dependency node */
   nodes: Map<TaskId, DecisionDependencyNode>;
   /** All dependency relationships */

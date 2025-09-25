@@ -6,6 +6,7 @@
 
 import { z } from 'zod';
 import { getComponentLogger } from '../utils/logger.js';
+import { DecisionType, DecisionPriority } from './types.js';
 const logger = getComponentLogger('DecisionDependencyGraph');
 /**
  * Advanced dependency graph with intelligent decision-making capabilities

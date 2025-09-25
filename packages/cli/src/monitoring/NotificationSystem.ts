@@ -547,7 +547,7 @@ export class NotificationSystem extends EventEmitter {
     });
   }
 
-  private getNestedValue(obj: any, path: string): unknown {
+  private getNestedValue(obj: Record<string, unknown>, path: string): unknown {
     return path
       .split('.')
       .reduce(
@@ -621,8 +621,8 @@ export class NotificationSystem extends EventEmitter {
 
     // Simple quiet hours check (would need proper timezone handling in production)
     const currentHour = now.getHours();
-    const startHour = parseInt(preferences.quietHours.start.split(':')[0]);
-    const endHour = parseInt(preferences.quietHours.end.split(':')[0]);
+    const startHour = parseInt(preferences.quietHours.start.split(':')[0], 10);
+    const endHour = parseInt(preferences.quietHours.end.split(':')[0], 10);
 
     if (startHour <= endHour) {
       return currentHour >= startHour && currentHour < endHour;

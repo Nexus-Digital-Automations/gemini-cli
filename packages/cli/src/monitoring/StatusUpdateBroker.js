@@ -9,7 +9,7 @@ import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js'
 /**
  * Event types for the status update system
  */
-export var StatusEventType;
+export let StatusEventType;
 (function (StatusEventType) {
   StatusEventType['TASK_REGISTERED'] = 'task:registered';
   StatusEventType['TASK_STATUS_CHANGED'] = 'task:status-changed';

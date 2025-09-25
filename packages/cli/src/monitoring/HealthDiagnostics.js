@@ -378,13 +378,14 @@ export class HealthDiagnostics extends EventEmitter {
             message = `Low estimation accuracy: ${progressAnalytics.averageEstimationAccuracy.toFixed(1)}%`;
           }
           break;
-        case 'PerformanceAnalyticsDashboard':
+        case 'PerformanceAnalyticsDashboard': {
           const dashboardData =
             performanceAnalyticsDashboard.getDashboardData();
           details.insights = dashboardData.insights.length;
           details.trends = dashboardData.trends.length;
           break;
-        case 'StatusUpdateBroker':
+        }
+        case 'StatusUpdateBroker': {
           const brokerMetrics = statusUpdateBroker.getMetrics();
           details.totalEvents = brokerMetrics.totalEvents;
           details.activeSubscriptions = brokerMetrics.activeSubscriptions;
@@ -395,7 +396,8 @@ export class HealthDiagnostics extends EventEmitter {
             message = `High processing time: ${brokerMetrics.averageProcessingTime.toFixed(0)}ms`;
           }
           break;
-        case 'NotificationSystem':
+        }
+        case 'NotificationSystem': {
           const notificationMetrics = notificationSystem.getMetrics();
           details.totalNotifications = notificationMetrics.totalNotifications;
           details.activeUsers = notificationMetrics.activeUsers;
@@ -412,11 +414,13 @@ export class HealthDiagnostics extends EventEmitter {
             message = `Degraded delivery success rate: ${deliveryRate.toFixed(1)}%`;
           }
           break;
-        case 'TaskMonitor':
+        }
+        case 'TaskMonitor': {
           // Basic health check - ensure the monitor is responsive
           details.isResponsive = true;
           break;
-        case 'MetricsCollector':
+        }
+        case 'MetricsCollector': {
           const collectorSummary = metricsCollector.getMetricsSummary();
           details.totalMetrics = collectorSummary.totalRawValues;
           details.memoryUsage = collectorSummary.memoryUsage.percentage;
@@ -429,6 +433,7 @@ export class HealthDiagnostics extends EventEmitter {
             message = `Elevated memory usage: ${collectorSummary.memoryUsage.percentage.toFixed(1)}%`;
           }
           break;
+        }
         default:
           status = 'unknown';
           message = 'No default health check available for this component';
@@ -531,6 +536,8 @@ export class HealthDiagnostics extends EventEmitter {
               'Reduce metrics retention period or increase available memory',
             );
           }
+          break;
+        default:
           break;
       }
     }

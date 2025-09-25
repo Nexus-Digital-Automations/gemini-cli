@@ -962,9 +962,9 @@ export class MetricsCollector extends EventEmitter {
   ): number | null {
     try {
       const path = metricPath.split('.');
-      let value: any = metrics;
+      let value: unknown = metrics;
       for (const key of path) {
-        value = value[key];
+        value = (value as Record<string, unknown>)[key];
       }
       return typeof value === 'number' ? value : null;
     } catch {

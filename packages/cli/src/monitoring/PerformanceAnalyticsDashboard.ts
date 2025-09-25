@@ -264,7 +264,13 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
   } {
     const realTimeMetrics: Record<string, PerformanceMetric> = {};
     const trends: TrendData[] = [];
-    const benchmarkStatus: any[] = [];
+    const benchmarkStatus: Array<{
+      metric: string;
+      current: number;
+      target: number;
+      status: 'good' | 'warning' | 'critical';
+      benchmark: PerformanceBenchmark;
+    }> = [];
 
     // Get latest metrics
     for (const [name, metricHistory] of this.metrics) {
@@ -329,7 +335,13 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     trends: TrendData[];
   } {
     const filteredMetrics: Record<string, PerformanceMetric[]> = {};
-    const aggregations: Record<string, any> = {};
+    const aggregations: Record<string, {
+      average: number;
+      min: number;
+      max: number;
+      count: number;
+      sum: number;
+    }> = {};
 
     const metricsToAnalyze = metrics || Array.from(this.metrics.keys());
 
