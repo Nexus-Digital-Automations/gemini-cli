@@ -12,7 +12,7 @@ import {
   expect,
   vi,
   beforeAll,
-  afterAll as _afterAll,
+  afterAll: _afterAll,
 } from 'vitest';
 import { performance } from 'node:perf_hooks';
 
@@ -169,8 +169,7 @@ describe('Monitoring System Performance Tests', () => {
           id: `perf-test-rule-${i}`,
           name: `Performance Test Rule ${i}`,
           description: 'Alert rule for performance testing',
-          condition: (data: Record<string, unknown>) =>
-            (data.taskMetrics as { total: number }).total > i,
+          condition: (data: Record<string, unknown>) => (data.taskMetrics as {total: number}).total > i,
           severity: 'medium' as const,
           cooldownMs: 100,
           enabled: true,
