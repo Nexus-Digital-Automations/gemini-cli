@@ -20,6 +20,29 @@ describe('Autonomous Task Management Integration Tests', () => {
   let rig;
   const taskManagerPath =
     '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
+
+  // Helper function to create bulk features for performance testing
+  async function createBulkFeatures(count) {
+    const batchSize = 10;
+    for (let batch = 0; batch < Math.ceil(count / batchSize); batch++) {
+      const promises = [];
+      const batchStart = batch * batchSize;
+      const batchEnd = Math.min(batchStart + batchSize, count);
+      for (let i = batchStart; i < batchEnd; i++) {
+        const featureData = {
+          title: `Bulk Feature ${i + 1}`,
+          description: `Performance testing feature number ${i + 1} created for scaling analysis`,
+          business_value: `Validates system performance under load feature ${i + 1}`,
+          category: 'performance',
+        };
+        promises.push(
+          execCommand('suggest-feature', [JSON.stringify(featureData)]),
+        );
+      }
+      await Promise.all(promises);
+    }
+  }
+
   beforeEach(async () => {
     rig = new TestRig();
     rig.setup('autonomous-task-management');
@@ -184,7 +207,7 @@ describe('Autonomous Task Management Integration Tests', () => {
             try {
               const result = JSON.parse(stdout);
               resolve({ result, duration });
-            } catch (error) {
+            } catch (_error) {
               reject({
                 error: 'Failed to parse JSON',
                 stdout,
@@ -280,6 +303,28 @@ describe('Autonomous Task Management Integration Tests', () => {
    * Performance Benchmarking and Optimization Testing
    */
   describe('Performance Benchmarking', () => {
+    // Helper function to create bulk features for performance testing
+    async function createBulkFeatures(count) {
+      const batchSize = 10;
+      for (let batch = 0; batch < Math.ceil(count / batchSize); batch++) {
+        const promises = [];
+        const batchStart = batch * batchSize;
+        const batchEnd = Math.min(batchStart + batchSize, count);
+        for (let i = batchStart; i < batchEnd; i++) {
+          const featureData = {
+            title: `Bulk Feature ${i + 1}`,
+            description: `Performance testing feature number ${i + 1} created for scaling analysis`,
+            business_value: `Validates system performance under load feature ${i + 1}`,
+            category: 'performance',
+          };
+          promises.push(
+            execCommand('suggest-feature', [JSON.stringify(featureData)]),
+          );
+        }
+        await Promise.all(promises);
+      }
+    }
+
     it('should meet performance benchmarks for basic operations', async () => {
       const benchmarks = {
         initialize: { maxTime: 1000, iterations: 10 },
@@ -417,7 +462,7 @@ describe('Autonomous Task Management Integration Tests', () => {
         }
         // Restore permissions
         execSync(`chmod 644 "${featuresPath}"`, { stdio: 'ignore' });
-      } catch (error) {
+      } catch (_error) {
         // Skip test if chmod not available (e.g., Windows)
         console.log('Skipping file permission test - chmod not available');
       }
@@ -466,7 +511,7 @@ describe('Autonomous Task Management Integration Tests', () => {
       }
       const results = await Promise.allSettled(promises);
       const successful = results.filter((r) => r.status === 'fulfilled');
-      const failed = results.filter((r) => r.status === 'rejected');
+      const _failed = results.filter((r) => r.status === 'rejected');
       console.log(
         `Stress test: ${successful.length}/${stressIterations} successful`,
       );
@@ -516,7 +561,7 @@ describe('Autonomous Task Management Integration Tests', () => {
           const result = await execCommand(operation, []);
           const duration = performance.now() - opStart;
           results.push({ success: result.success, duration, operation });
-        } catch (error) {
+        } catch (_error) {
           const duration = performance.now() - opStart;
           results.push({ success: false, duration, operation });
         }
@@ -665,7 +710,7 @@ describe('Autonomous Task Management Integration Tests', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          } catch (_error) {
             reject(
               new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
             );

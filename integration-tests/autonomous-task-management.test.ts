@@ -70,7 +70,7 @@ describe('Autonomous Task Management Integration Tests', () => {
               try {
                 const result = JSON.parse(stdout);
                 resolve({ agentId, result, stdout, stderr });
-              } catch (_error) {
+              } catch {
                 reject({
                   agentId,
                   error: 'Failed to parse JSON',
@@ -220,7 +220,7 @@ describe('Autonomous Task Management Integration Tests', () => {
             try {
               const result = JSON.parse(stdout);
               resolve({ result, duration });
-            } catch (error) {
+            } catch {
               reject({
                 error: 'Failed to parse JSON',
                 stdout,
@@ -511,7 +511,7 @@ describe('Autonomous Task Management Integration Tests', () => {
 
         // Restore permissions
         execSync(`chmod 644 "${featuresPath}"`, { stdio: 'ignore' });
-      } catch (error) {
+      } catch {
         // Skip test if chmod not available (e.g., Windows)
         console.log('Skipping file permission test - chmod not available');
       }
@@ -568,7 +568,7 @@ describe('Autonomous Task Management Integration Tests', () => {
 
       const results = await Promise.allSettled(promises);
       const successful = results.filter((r) => r.status === 'fulfilled');
-      const failed = results.filter((r) => r.status === 'rejected');
+      const _failed = results.filter((r) => r.status === 'rejected');
 
       console.log(
         `Stress test: ${successful.length}/${stressIterations} successful`,
@@ -636,7 +636,7 @@ describe('Autonomous Task Management Integration Tests', () => {
           const result = await execCommand(operation, []);
           const duration = performance.now() - opStart;
           results.push({ success: result.success, duration, operation });
-        } catch (error) {
+        } catch {
           const duration = performance.now() - opStart;
           results.push({ success: false, duration, operation });
         }
@@ -822,7 +822,7 @@ describe('Autonomous Task Management Integration Tests', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          } catch {
             reject(
               new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
             );

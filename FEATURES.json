@@ -325,7 +325,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 16,
-      "total_reinitializations": 181,
+      "total_reinitializations": 182,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
@@ -346,7 +346,7 @@
         },
         "05:00-09:59": {
           "init": 0,
-          "reinit": 24
+          "reinit": 25
         }
       },
       "daily_history": [
@@ -406,24 +406,14 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T10:59:55.594Z"
+      "last_updated": "2025-09-25T11:16:42.954Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "MAIN_AGENT": {
@@ -439,16 +429,17 @@
       ]
     },
     "claude-agent": {
-      "lastHeartbeat": "2025-09-25T10:58:10.181Z",
+      "lastHeartbeat": "2025-09-25T11:16:42.948Z",
       "status": "active",
-      "reinitialized": "2025-09-25T10:58:10.181Z",
-      "sessionId": "f4d979cfa5845a3e",
+      "reinitialized": "2025-09-25T11:16:42.948Z",
+      "sessionId": "ea0b4ad9fa5f53ab",
       "previousSessions": [
         "0d47d3e153139d61",
         "a7fdf9d1ba24c4a4",
         "aa8165097175af05",
         "6991a4a3a875e461",
-        "d438c13c3dbbb0fa"
+        "d438c13c3dbbb0fa",
+        "f4d979cfa5845a3e"
       ]
     },
     "budget-core-infrastructure-agent": {
@@ -498,10 +489,7 @@
       "status": "active",
       "reinitialized": "2025-09-25T10:55:03.395Z",
       "sessionId": "8b0d0a981c9b3953",
-      "previousSessions": [
-        "500fec285249f5e5",
-        "65f099258983a8e0"
-      ]
+      "previousSessions": ["500fec285249f5e5", "65f099258983a8e0"]
     },
     "USAGE_ANALYTICS_ENGINE_AGENT": {
       "lastHeartbeat": "2025-09-25T10:31:09.983Z",

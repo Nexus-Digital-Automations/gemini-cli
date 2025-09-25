@@ -6,16 +6,16 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestRig } from './test-helper.js';
-import { spawn, execSync } from 'node:child_process';
+import { spawn, execSync as _execSync } from 'node:child_process';
 import {
   writeFileSync,
-  readFileSync,
-  existsSync,
+  readFileSync as _readFileSync,
+  existsSync as _existsSync,
   mkdirSync,
-  unlinkSync,
+  unlinkSync as _unlinkSync,
 } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { performance } from 'node:perf_hooks';
+import { join, dirname as _dirname } from 'node:path';
+import { performance as _performance } from 'node:perf_hooks';
 /**
  * CI/CD Integration and Test Automation Suite
  *
@@ -776,7 +776,7 @@ describe('CI/CD Integration & Test Automation', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          } catch {
             reject(
               new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
             );
