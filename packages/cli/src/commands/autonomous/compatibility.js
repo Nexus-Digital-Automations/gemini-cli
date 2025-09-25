@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Autonomous Task Management System - Backward Compatibility Validator
  *
@@ -12,7 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import { checkApiAvailability, getApiGuide, handleApiResponse, initializeAgent } from './taskManagerApi.js';
+import { checkApiAvailability, _getApiGuide, _handleApiResponse, initializeAgent } from './taskManagerApi.js';
 /**
  * Core compatibility checks for autonomous task management integration
  */
@@ -152,7 +153,7 @@ export class CompatibilityValidator {
                 const autonomousDir = path.join(process.cwd(), 'packages/cli/src/commands/autonomous');
                 if (fs.existsSync(autonomousDir)) {
                     const tsFiles = fs.readdirSync(autonomousDir).filter(f => f.endsWith('.ts'));
-                    const dtsFiles = fs.readdirSync(autonomousDir).filter(f => f.endsWith('.d.ts'));
+                    const _dtsFiles = fs.readdirSync(autonomousDir).filter(f => f.endsWith('.d.ts'));
                     // Should have corresponding .d.ts files (or be able to generate them)
                     return tsFiles.length > 0; // Basic check - files exist
                 }

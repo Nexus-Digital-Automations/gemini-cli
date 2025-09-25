@@ -169,6 +169,13 @@ export default tseslint.config(
     plugins: {
       vitest,
     },
+    languageOptions: {
+      globals: {
+        ...vitest.environments.env.globals,
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
     rules: {
       ...vitest.configs.recommended.rules,
       'vitest/expect-expect': 'off',
@@ -255,6 +262,28 @@ export default tseslint.config(
         ...globals.node,
         process: 'readonly',
         console: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // settings for autonomous compatibility.js file
+  {
+    files: ['packages/cli/src/commands/autonomous/compatibility.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
       },
     },
     rules: {

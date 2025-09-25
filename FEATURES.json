@@ -325,7 +325,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 11,
-      "total_reinitializations": 136,
+      "total_reinitializations": 146,
       "current_day": "2025-09-25",
       "time_buckets": {
         "08:00-12:59": {
@@ -342,7 +342,7 @@
         },
         "23:00-03:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 10
         },
         "04:00-08:59": {
           "init": 0,
@@ -406,7 +406,7 @@
         }
       ],
       "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T03:59:23.809Z"
+      "last_updated": "2025-09-25T04:22:04.076Z"
     }
   },
   "workflow_config": {
@@ -426,27 +426,6 @@
     ]
   },
   "agents": {
-    "AGENT_MAIN_001": {
-      "lastHeartbeat": "2025-09-25T00:34:40.616Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:34:40.616Z",
-      "sessionId": "4c94c558ef769443",
-      "previousSessions": [
-        "faccefce4650d0be",
-        "48a44ccd6bcb0442",
-        "0b9d1a554a054166",
-        "35a34943dc52b1a1",
-        "4bc5e2eb8fd3129d",
-        "8b9854bf1b78f5bc"
-      ]
-    },
-    "SECURITY_PERFORMANCE_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:23.201Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:28:23.201Z",
-      "sessionId": "e7f9964fcb130a15",
-      "previousSessions": []
-    },
     "ARCHITECTURE_ANALYSIS_AGENT": {
       "lastHeartbeat": "2025-09-25T03:59:23.808Z",
       "status": "active",
@@ -468,77 +447,15 @@
         "8cc0ceab24c017ad"
       ]
     },
-    "PERSISTENCE_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:23.854Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:28:23.854Z",
-      "sessionId": "37012df2debd75b6",
-      "previousSessions": []
-    },
-    "EXECUTION_ENGINE_AGENT": {
-      "lastHeartbeat": "2025-09-25T02:18:06.963Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T02:18:06.963Z",
-      "sessionId": "5d84b3c1a75e68f2",
-      "previousSessions": [
-        "1870743b3c906b78",
-        "76f2d93a1e391074"
-      ]
-    },
     "MAIN_AGENT": {
-      "lastHeartbeat": "2025-09-25T03:57:49.709Z",
+      "lastHeartbeat": "2025-09-25T04:19:40.888Z",
       "status": "active",
-      "reinitialized": "2025-09-25T03:57:49.709Z",
-      "sessionId": "dbed6ec9be8606e3",
+      "reinitialized": "2025-09-25T04:19:40.888Z",
+      "sessionId": "89735d2a5ea9891e",
       "previousSessions": [
         "44d7ddf32f6732da",
-        "398f76e8dd289208"
-      ]
-    },
-    "TASK_QUEUE_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:47:00.854Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:47:00.854Z",
-      "sessionId": "35e98eb8cde96114",
-      "previousSessions": [
-        "c48308699158088e"
-      ]
-    },
-    "VALIDATION_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:25.017Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:28:25.017Z",
-      "sessionId": "4877d0c08c37ff36",
-      "previousSessions": []
-    },
-    "DOCUMENTATION_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:25.263Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:28:25.263Z",
-      "sessionId": "24a8c36c131a40db",
-      "previousSessions": []
-    },
-    "AUTONOMOUS_INTEGRATION_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:28:29.946Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:28:29.946Z",
-      "sessionId": "6b1cbbd064a7ccce",
-      "previousSessions": []
-    },
-    "ARCH_DESIGNER_001": {
-      "lastHeartbeat": "2025-09-25T00:28:33.172Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:28:33.172Z",
-      "sessionId": "ac042310d7ca7175",
-      "previousSessions": []
-    },
-    "DECISION_FRAMEWORK_ARCHITECT": {
-      "lastHeartbeat": "2025-09-25T00:47:20.666Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:47:20.666Z",
-      "sessionId": "eabc46056c3701c3",
-      "previousSessions": [
-        "6cb32c9e2a265a83"
+        "398f76e8dd289208",
+        "dbed6ec9be8606e3"
       ]
     },
     "status-monitor-system-architect": {
@@ -560,22 +477,24 @@
       ]
     },
     "TASK_QUEUE_DESIGNER_01": {
-      "lastHeartbeat": "2025-09-25T03:59:18.430Z",
+      "lastHeartbeat": "2025-09-25T04:08:19.625Z",
       "status": "active",
-      "reinitialized": "2025-09-25T03:59:18.430Z",
-      "sessionId": "183b09eebe1fb0b9",
+      "reinitialized": "2025-09-25T04:08:19.625Z",
+      "sessionId": "8114ee0bc2dc9fa7",
       "previousSessions": [
         "0a201a25eba209c9",
-        "a0d6c8451da07634"
+        "a0d6c8451da07634",
+        "183b09eebe1fb0b9"
       ]
     },
     "PERSISTENCE_STORAGE_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T03:59:18.056Z",
+      "lastHeartbeat": "2025-09-25T04:08:54.215Z",
       "status": "active",
-      "reinitialized": "2025-09-25T03:59:18.056Z",
-      "sessionId": "159eaf1766f985ff",
+      "reinitialized": "2025-09-25T04:08:54.215Z",
+      "sessionId": "3effa89d43f741bb",
       "previousSessions": [
-        "3979f13b28814dec"
+        "3979f13b28814dec",
+        "159eaf1766f985ff"
       ]
     },
     "DEPENDENCY_ANALYSIS_SPECIALIST": {
@@ -587,42 +506,15 @@
         "d1e90192839f9de5"
       ]
     },
-    "TASK_BREAKDOWN_ARCHITECT": {
-      "lastHeartbeat": "2025-09-25T00:29:22.624Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.624Z",
-      "sessionId": "5c0db8224a04a347"
-    },
-    "DEPENDENCY_ANALYZER": {
-      "lastHeartbeat": "2025-09-25T00:29:22.648Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.648Z",
-      "sessionId": "7026223a8056c394"
-    },
-    "SECURITY_COMPLIANCE_AUDITOR": {
-      "lastHeartbeat": "2025-09-25T00:29:22.651Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.651Z",
-      "sessionId": "af177d47d26db2d7"
-    },
-    "DOCUMENTATION_ARCHITECT": {
-      "lastHeartbeat": "2025-09-25T00:32:17.172Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.657Z",
-      "sessionId": "e83b2062e4e6f09e",
-      "reinitialized": "2025-09-25T00:32:17.172Z",
-      "previousSessions": [
-        "a68be3ffaa2a362a"
-      ]
-    },
     "VALIDATION_TESTING_LEAD": {
-      "lastHeartbeat": "2025-09-25T03:59:18.021Z",
+      "lastHeartbeat": "2025-09-25T04:16:51.106Z",
       "status": "active",
       "initialized": "2025-09-25T00:29:22.662Z",
-      "sessionId": "cd4f98b83c71adb9",
-      "reinitialized": "2025-09-25T03:59:18.021Z",
+      "sessionId": "e8cb3335ec3b5768",
+      "reinitialized": "2025-09-25T04:16:51.106Z",
       "previousSessions": [
-        "0acea578b0118832"
+        "0acea578b0118832",
+        "cd4f98b83c71adb9"
       ]
     },
     "INTEGRATION_SPECIALIST": {
@@ -637,47 +529,6 @@
         "72d0499775eded9d"
       ]
     },
-    "PROGRESS_MONITOR_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T00:29:22.675Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.675Z",
-      "sessionId": "a79dce76b397dcf3"
-    },
-    "PERSISTENCE_ENGINE_DEV": {
-      "lastHeartbeat": "2025-09-25T00:29:22.689Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.689Z",
-      "sessionId": "aaea59d989ad6814"
-    },
-    "PERFORMANCE_METRICS_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T00:29:22.695Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.695Z",
-      "sessionId": "9e71a34655d6b5c9"
-    },
-    "SECURITY_AUDIT_AGENT": {
-      "lastHeartbeat": "2025-09-25T00:29:32.257Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:29:32.257Z",
-      "sessionId": "997d7ec0ba1a145f",
-      "previousSessions": []
-    },
-    "AGENT_COORDINATOR": {
-      "lastHeartbeat": "2025-09-25T00:32:16.553Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:32:16.553Z",
-      "sessionId": "fa1f15ef7d9445e1",
-      "previousSessions": []
-    },
-    "DEPENDENCY_ANALYST": {
-      "lastHeartbeat": "2025-09-25T00:34:02.066Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:34:02.066Z",
-      "sessionId": "3bab83b93e29f0f7",
-      "previousSessions": [
-        "0f30a40cc8de16a3"
-      ]
-    },
     "MONITORING_ENGINEER": {
       "lastHeartbeat": "2025-09-25T03:52:30.170Z",
       "status": "active",
@@ -690,77 +541,6 @@
         "b1deb5a47d8b6aff"
       ]
     },
-    "ARCHITECTURE_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T00:32:16.931Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:32:16.931Z",
-      "sessionId": "acecfa142913b96f",
-      "previousSessions": []
-    },
-    "INTEGRATION_TESTER": {
-      "lastHeartbeat": "2025-09-25T00:32:17.279Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:32:17.279Z",
-      "sessionId": "afbd485e470fa570",
-      "previousSessions": []
-    },
-    "PERSISTENCE_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T00:34:02.289Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:34:02.289Z",
-      "sessionId": "c2ff5a2b8062d021",
-      "previousSessions": [
-        "e1282f472e835cd1"
-      ]
-    },
-    "TASK_QUEUE_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T00:47:58.527Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:47:58.527Z",
-      "sessionId": "e3f9f84bf7127819",
-      "previousSessions": [
-        "de456b6e02b40b51",
-        "fc9c093ac361f4c4"
-      ]
-    },
-    "VALIDATION_EXPERT": {
-      "lastHeartbeat": "2025-09-25T02:18:08.016Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T02:18:08.016Z",
-      "sessionId": "aa1d30770529a8f8",
-      "previousSessions": [
-        "6a54f770780dba89",
-        "ba29c1908f8ac383"
-      ]
-    },
-    "SECURITY_AUDITOR": {
-      "lastHeartbeat": "2025-09-25T00:32:33.190Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:32:33.190Z",
-      "sessionId": "f5be16c4896d472d",
-      "previousSessions": []
-    },
-    "ARCHITECTURE_ANALYST": {
-      "lastHeartbeat": "2025-09-25T00:33:59.824Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:33:59.824Z",
-      "sessionId": "1757b23bbe33dadb",
-      "previousSessions": []
-    },
-    "EXECUTION_ENGINE_DEVELOPER": {
-      "lastHeartbeat": "2025-09-25T00:34:02.276Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:34:02.276Z",
-      "sessionId": "60648ca6c31459d2",
-      "previousSessions": []
-    },
-    "monitoring-architect-001": {
-      "lastHeartbeat": "2025-09-25T00:47:55.594Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T00:47:55.594Z",
-      "sessionId": "2d6756edcf9928a7",
-      "previousSessions": []
-    },
     "PERSISTENCE_ENGINE_DEVELOPER": {
       "lastHeartbeat": "2025-09-25T03:42:26.738Z",
       "status": "active",
@@ -770,30 +550,53 @@
         "887eba4846d7c117"
       ]
     },
-    "TASK_QUEUE_DESIGNER": {
-      "lastHeartbeat": "2025-09-25T02:18:06.696Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T02:18:06.696Z",
-      "sessionId": "086fa3ffc13bbd89",
-      "previousSessions": []
-    },
-    "TASK_MANAGER_ARCHITECT": {
-      "lastHeartbeat": "2025-09-25T02:19:34.366Z",
-      "status": "active",
-      "initialized": "2025-09-25T02:19:34.366Z",
-      "sessionId": "5ab5c10862f6c70d"
-    },
-    "EVENT_SYSTEM_ARCHITECT": {
-      "lastHeartbeat": "2025-09-25T02:19:51.702Z",
-      "status": "active",
-      "initialized": "2025-09-25T02:19:51.702Z",
-      "sessionId": "fd4d59a013d01e20"
-    },
     "COMPATIBILITY_VALIDATOR_001": {
       "lastHeartbeat": "2025-09-25T03:42:06.527Z",
       "status": "active",
       "reinitialized": "2025-09-25T03:42:06.527Z",
       "sessionId": "8958268f82235a01",
+      "previousSessions": []
+    },
+    "ANALYTICS_ENGINE_DEVELOPER": {
+      "lastHeartbeat": "2025-09-25T04:21:47.853Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T04:21:47.853Z",
+      "sessionId": "140320ec8159086b",
+      "previousSessions": []
+    },
+    "CLI_INTEGRATION_SPECIALIST": {
+      "lastHeartbeat": "2025-09-25T04:21:49.426Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T04:21:49.426Z",
+      "sessionId": "2f38af8f40fc8cf7",
+      "previousSessions": []
+    },
+    "ML_PREDICTION_ENGINEER": {
+      "lastHeartbeat": "2025-09-25T04:21:49.991Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T04:21:49.991Z",
+      "sessionId": "3656474d7778608c",
+      "previousSessions": []
+    },
+    "REALTIME_TRACKING_ENGINEER": {
+      "lastHeartbeat": "2025-09-25T04:21:51.798Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T04:21:51.798Z",
+      "sessionId": "7f527cf401d98a0a",
+      "previousSessions": []
+    },
+    "VISUALIZATION_SPECIALIST": {
+      "lastHeartbeat": "2025-09-25T04:21:52.487Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T04:21:52.487Z",
+      "sessionId": "64212fb3de6faa70",
+      "previousSessions": []
+    },
+    "TESTING_VALIDATION_ENGINEER": {
+      "lastHeartbeat": "2025-09-25T04:22:04.065Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T04:22:04.065Z",
+      "sessionId": "a57dc4fcf6c7f6fc",
       "previousSessions": []
     }
   },
