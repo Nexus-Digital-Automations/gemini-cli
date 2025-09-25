@@ -13,7 +13,7 @@
  * @version 1.0.0
  */
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
 
 const logger = new Logger('RateLimitMiddleware');
@@ -22,8 +22,8 @@ const logger = new Logger('RateLimitMiddleware');
  * Rate limit configuration interface
  */
 interface RateLimitConfig {
-  windowMs: number;           // Time window in milliseconds
-  maxRequests: number;        // Maximum requests per window
+  windowMs: number; // Time window in milliseconds
+  maxRequests: number; // Maximum requests per window
   strategy: 'sliding' | 'fixed'; // Rate limiting strategy
   skipSuccessfulRequests?: boolean;
   skipFailedRequests?: boolean;
@@ -81,7 +81,7 @@ class RateLimitStore {
         requests: 1,
         windowStart: now,
         lastRequest: now,
-        blocked: false
+        blocked: false,
       };
       this.store.set(key, newEntry);
       return newEntry;
@@ -121,7 +121,7 @@ class RateLimitStore {
     if (expiredKeys.length > 0) {
       logger.debug('Cleaned up rate limit entries', {
         removedEntries: expiredKeys.length,
-        remainingEntries: this.store.size
+        remainingEntries: this.store.size,
       });
     }
   }
@@ -132,7 +132,7 @@ class RateLimitStore {
   getStats(): { totalKeys: number; memoryUsage: string } {
     return {
       totalKeys: this.store.size,
-      memoryUsage: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`
+      memoryUsage: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`,
     };
   }
 
@@ -164,27 +164,29 @@ const defaultConfigs: Record<string, RateLimitConfig> = {
   standard: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 100,
-    strategy: 'sliding'
+    strategy: 'sliding',
   },
   strict: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 20,
-    strategy: 'sliding'
+    strategy: 'sliding',
   },
   lenient: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 500,
-    strategy: 'sliding'
-  }
+    strategy: 'sliding',
+  },
 };
 
 /**
  * Rate limiting middleware factory
  */
-export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req: Request, res: Response, next: NextFunction) => void {
+export function rateLimitMiddleware(
+  config: Partial<RateLimitConfig> = {},
+): (req: Request, res: Response, next: NextFunction) => void {
   const finalConfig: RateLimitConfig = {
     ...defaultConfigs.standard,
-    ...config
+    ...config,
   };
 
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -192,9 +194,9 @@ export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req
 
     try {
       // Generate rate limit key
-      const key = finalConfig.keyGenerator ?
-        finalConfig.keyGenerator(req) :
-        generateDefaultKey(req);
+      const key = finalConfig.keyGenerator
+        ? finalConfig.keyGenerator(req)
+        : generateDefaultKey(req);
 
       logger.debug('Rate limit check', {
         key: key.substring(0, 20) + '...',
@@ -203,8 +205,8 @@ export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req
         config: {
           windowMs: finalConfig.windowMs,
           maxRequests: finalConfig.maxRequests,
-          strategy: finalConfig.strategy
-        }
+          strategy: finalConfig.strategy,
+        },
       });
 
       // Get or create rate limit entry
@@ -225,7 +227,7 @@ export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req
           resetTime: resetTime.toISOString(),
           checkTime,
           ip: req.ip,
-          path: req.path
+          path: req.path,
         });
 
         // Set rate limit headers
@@ -244,10 +246,12 @@ export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req
             limit: finalConfig.maxRequests,
             window: `${finalConfig.windowMs / 1000} seconds`,
             requests: entry.requests,
-            resetTime: resetTime.toISOString()
+            resetTime: resetTime.toISOString(),
           },
-          retryAfter: Math.ceil((entry.windowStart + finalConfig.windowMs - Date.now()) / 1000),
-          timestamp: new Date().toISOString()
+          retryAfter: Math.ceil(
+            (entry.windowStart + finalConfig.windowMs - Date.now()) / 1000,
+          ),
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -260,11 +264,10 @@ export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req
         key: key.substring(0, 20) + '...',
         requests: entry.requests,
         maxRequests: finalConfig.maxRequests,
-        checkTime
+        checkTime,
       });
 
       next();
-
     } catch (error) {
       const checkTime = Date.now() - startTime;
 
@@ -272,7 +275,7 @@ export function rateLimitMiddleware(config: Partial<RateLimitConfig> = {}): (req
         error: error instanceof Error ? error.message : 'Unknown error',
         checkTime,
         path: req.path,
-        ip: req.ip
+        ip: req.ip,
       });
 
       // On error, allow the request through but log the issue
@@ -290,7 +293,7 @@ export function userRateLimit(config: Partial<RateLimitConfig> = {}) {
     keyGenerator: (req: any) => {
       const userId = req.user?.id || req.ip;
       return `user:${userId}`;
-    }
+    },
   });
 }
 
@@ -300,7 +303,7 @@ export function userRateLimit(config: Partial<RateLimitConfig> = {}) {
 export function ipRateLimit(config: Partial<RateLimitConfig> = {}) {
   return rateLimitMiddleware({
     ...config,
-    keyGenerator: (req: Request) => `ip:${req.ip}`
+    keyGenerator: (req: Request) => `ip:${req.ip}`,
   });
 }
 
@@ -313,7 +316,7 @@ export function endpointRateLimit(config: Partial<RateLimitConfig> = {}) {
     keyGenerator: (req: Request) => {
       const userId = (req as any).user?.id || req.ip;
       return `endpoint:${req.method}:${req.path}:${userId}`;
-    }
+    },
   });
 }
 
@@ -323,7 +326,7 @@ export function endpointRateLimit(config: Partial<RateLimitConfig> = {}) {
 export function globalRateLimit(config: Partial<RateLimitConfig> = {}) {
   return rateLimitMiddleware({
     ...config,
-    keyGenerator: () => 'global'
+    keyGenerator: () => 'global',
   });
 }
 
@@ -338,7 +341,7 @@ export function burstProtection() {
     keyGenerator: (req: Request) => {
       const userId = (req as any).user?.id || req.ip;
       return `burst:${userId}`;
-    }
+    },
   });
 }
 
@@ -359,7 +362,11 @@ function generateDefaultKey(req: Request): string {
 /**
  * Set rate limit headers
  */
-function setRateLimitHeaders(res: Response, config: RateLimitConfig, entry: RateLimitEntry): void {
+function setRateLimitHeaders(
+  res: Response,
+  config: RateLimitConfig,
+  entry: RateLimitEntry,
+): void {
   const remaining = Math.max(0, config.maxRequests - entry.requests);
   const resetTime = entry.windowStart + config.windowMs;
 
@@ -367,23 +374,33 @@ function setRateLimitHeaders(res: Response, config: RateLimitConfig, entry: Rate
     'X-RateLimit-Limit': config.maxRequests.toString(),
     'X-RateLimit-Remaining': remaining.toString(),
     'X-RateLimit-Reset': Math.ceil(resetTime / 1000).toString(),
-    'X-RateLimit-Window': config.windowMs.toString()
+    'X-RateLimit-Window': config.windowMs.toString(),
   });
 
   if (entry.blocked) {
-    res.set('Retry-After', Math.ceil((resetTime - Date.now()) / 1000).toString());
+    res.set(
+      'Retry-After',
+      Math.ceil((resetTime - Date.now()) / 1000).toString(),
+    );
   }
 }
 
 /**
  * Rate limit bypass middleware for testing
  */
-export function bypassRateLimit(req: Request, res: Response, next: NextFunction): void {
-  if (process.env.NODE_ENV === 'test' || process.env.BYPASS_RATE_LIMIT === 'true') {
+export function bypassRateLimit(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
+  if (
+    process.env.NODE_ENV === 'test' ||
+    process.env.BYPASS_RATE_LIMIT === 'true'
+  ) {
     logger.warn('Rate limiting bypassed', {
       NODE_ENV: process.env.NODE_ENV,
       BYPASS_RATE_LIMIT: process.env.BYPASS_RATE_LIMIT,
-      path: req.path
+      path: req.path,
     });
     return next();
   }
@@ -404,10 +421,10 @@ export function rateLimitStatus(req: Request, res: Response): void {
       store: stats,
       configs: {
         available: Object.keys(defaultConfigs),
-        default: defaultConfigs.standard
+        default: defaultConfigs.standard,
       },
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 }
 
@@ -427,5 +444,5 @@ export const rateLimitUtils = {
   defaultConfigs,
   generateDefaultKey,
   setRateLimitHeaders,
-  resetRateLimits
+  resetRateLimits,
 };

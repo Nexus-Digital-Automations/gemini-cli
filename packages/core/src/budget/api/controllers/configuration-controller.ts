@@ -13,9 +13,9 @@
  * @version 1.0.0
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
-import { BudgetSettings } from '../../types.js';
+import type { BudgetSettings } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
 
 const logger = new Logger('ConfigurationController');
@@ -41,7 +41,7 @@ export class ConfigurationController {
   constructor() {
     logger.info('Initializing Configuration Controller', {
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     });
   }
 
@@ -49,12 +49,15 @@ export class ConfigurationController {
    * Get current budget configuration
    * GET /api/budget/config
    */
-  async getConfiguration(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async getConfiguration(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
 
     logger.info('Configuration retrieval requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -63,7 +66,7 @@ export class ConfigurationController {
         logger.warn('Budget tracker unavailable for configuration retrieval');
         res.status(503).json({
           success: false,
-          error: 'Budget configuration service unavailable'
+          error: 'Budget configuration service unavailable',
         });
         return;
       }
@@ -80,32 +83,31 @@ export class ConfigurationController {
             timestamp: new Date().toISOString(),
             responseTime,
             version: '1.0.0',
-            lastModified: await budgetTracker.getLastConfigUpdate()
-          }
-        }
+            lastModified: await budgetTracker.getLastConfigUpdate(),
+          },
+        },
       };
 
       logger.info('Configuration retrieved successfully', {
         responseTime,
         enabled: settings.enabled,
-        dailyLimit: settings.dailyLimit
+        dailyLimit: settings.dailyLimit,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get configuration', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve configuration',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -114,14 +116,17 @@ export class ConfigurationController {
    * Update budget configuration
    * POST /api/budget/config
    */
-  async updateConfiguration(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async updateConfiguration(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
     const newSettings: Partial<BudgetSettings> = req.body;
 
     logger.info('Configuration update requested', {
       userId: req.user?.id,
       settings: newSettings,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -130,7 +135,7 @@ export class ConfigurationController {
         logger.warn('Budget tracker unavailable for configuration update');
         res.status(503).json({
           success: false,
-          error: 'Budget configuration service unavailable'
+          error: 'Budget configuration service unavailable',
         });
         return;
       }
@@ -141,7 +146,7 @@ export class ConfigurationController {
       // Merge and validate new settings
       const updatedSettings: BudgetSettings = {
         ...currentSettings,
-        ...newSettings
+        ...newSettings,
       };
 
       // Perform validation
@@ -149,13 +154,13 @@ export class ConfigurationController {
       if (!validationResult.valid) {
         logger.warn('Configuration validation failed', {
           errors: validationResult.errors,
-          userId: req.user?.id
+          userId: req.user?.id,
         });
 
         res.status(400).json({
           success: false,
           error: 'Configuration validation failed',
-          details: validationResult.errors
+          details: validationResult.errors,
         });
         return;
       }
@@ -168,37 +173,39 @@ export class ConfigurationController {
         success: true,
         data: {
           configuration: updatedSettings,
-          changes: this.getConfigurationChanges(currentSettings, updatedSettings),
+          changes: this.getConfigurationChanges(
+            currentSettings,
+            updatedSettings,
+          ),
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
             updatedBy: req.user?.id,
-            previousVersion: currentSettings
-          }
-        }
+            previousVersion: currentSettings,
+          },
+        },
       };
 
       logger.info('Configuration updated successfully', {
         responseTime,
         changesCount: Object.keys(newSettings).length,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to update configuration', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to update configuration',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -207,12 +214,15 @@ export class ConfigurationController {
    * Reset configuration to defaults
    * POST /api/budget/config/reset
    */
-  async resetConfiguration(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async resetConfiguration(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
 
     logger.warn('Configuration reset requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -220,7 +230,7 @@ export class ConfigurationController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Budget configuration service unavailable'
+          error: 'Budget configuration service unavailable',
         });
         return;
       }
@@ -233,7 +243,7 @@ export class ConfigurationController {
         enabled: true,
         dailyLimit: 10.0,
         resetTime: '00:00',
-        warningThresholds: [50, 75, 90]
+        warningThresholds: [50, 75, 90],
       };
 
       await budgetTracker.updateSettings(defaultSettings);
@@ -248,31 +258,30 @@ export class ConfigurationController {
             timestamp: new Date().toISOString(),
             responseTime,
             resetBy: req.user?.id,
-            operation: 'reset-to-defaults'
-          }
-        }
+            operation: 'reset-to-defaults',
+          },
+        },
       };
 
       logger.warn('Configuration reset completed', {
         responseTime,
-        resetBy: req.user?.id
+        resetBy: req.user?.id,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to reset configuration', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to reset configuration',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -281,14 +290,17 @@ export class ConfigurationController {
    * Validate configuration without applying changes
    * GET /api/budget/config/validate
    */
-  async validateConfiguration(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async validateConfiguration(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
     const settingsToValidate: Partial<BudgetSettings> = req.query;
 
     logger.info('Configuration validation requested', {
       userId: req.user?.id,
       settings: settingsToValidate,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -309,32 +321,31 @@ export class ConfigurationController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            validatedBy: req.user?.id
-          }
-        }
+            validatedBy: req.user?.id,
+          },
+        },
       };
 
       logger.info('Configuration validation completed', {
         responseTime,
         valid: validationResult.valid,
-        errorsCount: validationResult.errors.length
+        errorsCount: validationResult.errors.length,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Configuration validation failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Configuration validation failed',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -369,7 +380,9 @@ export class ConfigurationController {
     if (settings.resetTime !== undefined) {
       if (typeof settings.resetTime !== 'string') {
         errors.push('resetTime must be a string');
-      } else if (!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(settings.resetTime)) {
+      } else if (
+        !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(settings.resetTime)
+      ) {
         errors.push('resetTime must be in HH:MM format (24-hour)');
       }
     }
@@ -392,13 +405,18 @@ export class ConfigurationController {
 
         // Check for reasonable thresholds
         if (settings.warningThresholds.length === 0) {
-          recommendations.push('Consider adding warning thresholds for better budget monitoring');
+          recommendations.push(
+            'Consider adding warning thresholds for better budget monitoring',
+          );
         }
       }
     }
 
     // Validate enabled flag
-    if (settings.enabled !== undefined && typeof settings.enabled !== 'boolean') {
+    if (
+      settings.enabled !== undefined &&
+      typeof settings.enabled !== 'boolean'
+    ) {
       errors.push('enabled must be a boolean');
     }
 
@@ -406,7 +424,9 @@ export class ConfigurationController {
     if (settings.dailyLimit && settings.warningThresholds) {
       const highestThreshold = Math.max(...settings.warningThresholds);
       if (highestThreshold < 80) {
-        recommendations.push('Consider adding a warning threshold above 80% for better budget control');
+        recommendations.push(
+          'Consider adding a warning threshold above 80% for better budget control',
+        );
       }
     }
 
@@ -414,7 +434,7 @@ export class ConfigurationController {
       valid: errors.length === 0,
       errors,
       warnings: warnings.length > 0 ? warnings : undefined,
-      recommendations: recommendations.length > 0 ? recommendations : undefined
+      recommendations: recommendations.length > 0 ? recommendations : undefined,
     };
   }
 
@@ -455,7 +475,7 @@ export class ConfigurationController {
    */
   private getConfigurationChanges(
     previous: BudgetSettings,
-    current: BudgetSettings
+    current: BudgetSettings,
   ): Array<{
     field: string;
     previousValue: any;
@@ -469,7 +489,10 @@ export class ConfigurationController {
       type: 'added' | 'modified' | 'removed';
     }> = [];
 
-    const allKeys = new Set([...Object.keys(previous), ...Object.keys(current)]);
+    const allKeys = new Set([
+      ...Object.keys(previous),
+      ...Object.keys(current),
+    ]);
 
     for (const key of allKeys) {
       const prevValue = (previous as any)[key];
@@ -480,21 +503,21 @@ export class ConfigurationController {
           field: key,
           previousValue: undefined,
           newValue: currValue,
-          type: 'added'
+          type: 'added',
         });
       } else if (prevValue !== undefined && currValue === undefined) {
         changes.push({
           field: key,
           previousValue: prevValue,
           newValue: undefined,
-          type: 'removed'
+          type: 'removed',
         });
       } else if (prevValue !== currValue) {
         changes.push({
           field: key,
           previousValue: prevValue,
           newValue: currValue,
-          type: 'modified'
+          type: 'modified',
         });
       }
     }

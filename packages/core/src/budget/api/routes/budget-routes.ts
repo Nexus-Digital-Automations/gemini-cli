@@ -30,7 +30,7 @@ import {
   configurationRequestSchema,
   analyticsRequestSchema,
   exportRequestSchema,
-  notificationRequestSchema
+  notificationRequestSchema,
 } from '../schemas/request-schemas.js';
 
 const logger = new Logger('BudgetAPIRoutes');
@@ -41,7 +41,7 @@ const logger = new Logger('BudgetAPIRoutes');
 export function createBudgetRouter(): Router {
   logger.info('Initializing Budget API routes', {
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
   });
 
   const router = Router();
@@ -67,39 +67,43 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/usage
    * Retrieve current budget usage data with optional filtering
    */
-  router.get('/usage',
+  router.get(
+    '/usage',
     authenticateRequest,
     validateRequest(usageRequestSchema, 'query'),
-    budgetController.getCurrentUsage.bind(budgetController)
+    budgetController.getCurrentUsage.bind(budgetController),
   );
 
   /**
    * GET /api/budget/usage/history
    * Get historical usage data with pagination and filters
    */
-  router.get('/usage/history',
+  router.get(
+    '/usage/history',
     authenticateRequest,
     validateRequest(usageRequestSchema, 'query'),
-    budgetController.getUsageHistory.bind(budgetController)
+    budgetController.getUsageHistory.bind(budgetController),
   );
 
   /**
    * GET /api/budget/usage/summary
    * Get usage summary for dashboard display
    */
-  router.get('/usage/summary',
+  router.get(
+    '/usage/summary',
     authenticateRequest,
-    budgetController.getUsageSummary.bind(budgetController)
+    budgetController.getUsageSummary.bind(budgetController),
   );
 
   /**
    * POST /api/budget/usage/record
    * Record a new API usage (for manual tracking)
    */
-  router.post('/usage/record',
+  router.post(
+    '/usage/record',
     authenticateRequest,
     validateRequest(usageRequestSchema, 'body'),
-    budgetController.recordUsage.bind(budgetController)
+    budgetController.recordUsage.bind(budgetController),
   );
 
   // === BUDGET CONFIGURATION ENDPOINTS ===
@@ -108,38 +112,42 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/config
    * Get current budget configuration
    */
-  router.get('/config',
+  router.get(
+    '/config',
     authenticateRequest,
-    configurationController.getConfiguration.bind(configurationController)
+    configurationController.getConfiguration.bind(configurationController),
   );
 
   /**
    * POST /api/budget/config
    * Update budget configuration
    */
-  router.post('/config',
+  router.post(
+    '/config',
     authenticateRequest,
     validateRequest(configurationRequestSchema, 'body'),
-    configurationController.updateConfiguration.bind(configurationController)
+    configurationController.updateConfiguration.bind(configurationController),
   );
 
   /**
    * POST /api/budget/config/reset
    * Reset budget configuration to defaults
    */
-  router.post('/config/reset',
+  router.post(
+    '/config/reset',
     authenticateRequest,
-    configurationController.resetConfiguration.bind(configurationController)
+    configurationController.resetConfiguration.bind(configurationController),
   );
 
   /**
    * GET /api/budget/config/validate
    * Validate configuration without applying changes
    */
-  router.get('/config/validate',
+  router.get(
+    '/config/validate',
     authenticateRequest,
     validateRequest(configurationRequestSchema, 'query'),
-    configurationController.validateConfiguration.bind(configurationController)
+    configurationController.validateConfiguration.bind(configurationController),
   );
 
   // === ANALYTICS AND REPORTING ENDPOINTS ===
@@ -148,50 +156,55 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/analytics
    * Get comprehensive usage analytics
    */
-  router.get('/analytics',
+  router.get(
+    '/analytics',
     authenticateRequest,
     validateRequest(analyticsRequestSchema, 'query'),
-    analyticsController.getAnalytics.bind(analyticsController)
+    analyticsController.getAnalytics.bind(analyticsController),
   );
 
   /**
    * GET /api/budget/analytics/trends
    * Get usage trends and patterns
    */
-  router.get('/analytics/trends',
+  router.get(
+    '/analytics/trends',
     authenticateRequest,
     validateRequest(analyticsRequestSchema, 'query'),
-    analyticsController.getTrends.bind(analyticsController)
+    analyticsController.getTrends.bind(analyticsController),
   );
 
   /**
    * GET /api/budget/analytics/predictions
    * Get cost predictions and forecasts
    */
-  router.get('/analytics/predictions',
+  router.get(
+    '/analytics/predictions',
     authenticateRequest,
     validateRequest(analyticsRequestSchema, 'query'),
-    analyticsController.getPredictions.bind(analyticsController)
+    analyticsController.getPredictions.bind(analyticsController),
   );
 
   /**
    * GET /api/budget/analytics/breakdown
    * Get detailed cost breakdown by feature/model/time
    */
-  router.get('/analytics/breakdown',
+  router.get(
+    '/analytics/breakdown',
     authenticateRequest,
     validateRequest(analyticsRequestSchema, 'query'),
-    analyticsController.getCostBreakdown.bind(analyticsController)
+    analyticsController.getCostBreakdown.bind(analyticsController),
   );
 
   /**
    * POST /api/budget/analytics/custom
    * Run custom analytics query
    */
-  router.post('/analytics/custom',
+  router.post(
+    '/analytics/custom',
     authenticateRequest,
     validateRequest(analyticsRequestSchema, 'body'),
-    analyticsController.runCustomAnalytics.bind(analyticsController)
+    analyticsController.runCustomAnalytics.bind(analyticsController),
   );
 
   // === BUDGET ALERTS AND NOTIFICATIONS ===
@@ -200,38 +213,42 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/alerts
    * Get active budget alerts
    */
-  router.get('/alerts',
+  router.get(
+    '/alerts',
     authenticateRequest,
-    notificationController.getAlerts.bind(notificationController)
+    notificationController.getAlerts.bind(notificationController),
   );
 
   /**
    * POST /api/budget/alerts
    * Create or update alert configuration
    */
-  router.post('/alerts',
+  router.post(
+    '/alerts',
     authenticateRequest,
     validateRequest(notificationRequestSchema, 'body'),
-    notificationController.configureAlerts.bind(notificationController)
+    notificationController.configureAlerts.bind(notificationController),
   );
 
   /**
    * DELETE /api/budget/alerts/:alertId
    * Remove specific alert
    */
-  router.delete('/alerts/:alertId',
+  router.delete(
+    '/alerts/:alertId',
     authenticateRequest,
-    notificationController.removeAlert.bind(notificationController)
+    notificationController.removeAlert.bind(notificationController),
   );
 
   /**
    * POST /api/budget/alerts/test
    * Test notification delivery
    */
-  router.post('/alerts/test',
+  router.post(
+    '/alerts/test',
     authenticateRequest,
     validateRequest(notificationRequestSchema, 'body'),
-    notificationController.testNotification.bind(notificationController)
+    notificationController.testNotification.bind(notificationController),
   );
 
   // === DATA EXPORT AND IMPORT ENDPOINTS ===
@@ -240,28 +257,31 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/export
    * Export budget data in specified format
    */
-  router.get('/export',
+  router.get(
+    '/export',
     authenticateRequest,
     validateRequest(exportRequestSchema, 'query'),
-    exportImportController.exportData.bind(exportImportController)
+    exportImportController.exportData.bind(exportImportController),
   );
 
   /**
    * POST /api/budget/import
    * Import budget data from file
    */
-  router.post('/import',
+  router.post(
+    '/import',
     authenticateRequest,
-    exportImportController.importData.bind(exportImportController)
+    exportImportController.importData.bind(exportImportController),
   );
 
   /**
    * GET /api/budget/export/templates
    * Get available export templates
    */
-  router.get('/export/templates',
+  router.get(
+    '/export/templates',
     authenticateRequest,
-    exportImportController.getExportTemplates.bind(exportImportController)
+    exportImportController.getExportTemplates.bind(exportImportController),
   );
 
   // === REAL-TIME STREAMING ENDPOINTS ===
@@ -270,18 +290,20 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/stream
    * WebSocket endpoint for real-time budget updates
    */
-  router.get('/stream',
+  router.get(
+    '/stream',
     authenticateRequest,
-    streamingController.handleStreamRequest.bind(streamingController)
+    streamingController.handleStreamRequest.bind(streamingController),
   );
 
   /**
    * GET /api/budget/stream/status
    * Get streaming connection status
    */
-  router.get('/stream/status',
+  router.get(
+    '/stream/status',
     authenticateRequest,
-    streamingController.getStreamStatus.bind(streamingController)
+    streamingController.getStreamStatus.bind(streamingController),
   );
 
   // === ADMINISTRATIVE ENDPOINTS ===
@@ -290,18 +312,20 @@ export function createBudgetRouter(): Router {
    * GET /api/budget/admin/stats
    * Get system-wide budget statistics
    */
-  router.get('/admin/stats',
+  router.get(
+    '/admin/stats',
     authenticateRequest,
-    budgetController.getAdminStats.bind(budgetController)
+    budgetController.getAdminStats.bind(budgetController),
   );
 
   /**
    * POST /api/budget/admin/reset-all
    * Reset all budget data (admin only)
    */
-  router.post('/admin/reset-all',
+  router.post(
+    '/admin/reset-all',
     authenticateRequest,
-    budgetController.resetAllBudgets.bind(budgetController)
+    budgetController.resetAllBudgets.bind(budgetController),
   );
 
   // Error handling middleware
@@ -310,20 +334,20 @@ export function createBudgetRouter(): Router {
       error: error.message,
       path: req.path,
       method: req.method,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     res.status(500).json({
       success: false,
       error: 'Internal server error',
       timestamp: new Date().toISOString(),
-      path: req.path
+      path: req.path,
     });
   });
 
   logger.info('Budget API routes initialized successfully', {
     routesCount: router.stack.length,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   return router;

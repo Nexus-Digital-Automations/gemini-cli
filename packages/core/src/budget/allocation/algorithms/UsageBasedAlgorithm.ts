@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BaseAllocationAlgorithm, type AllocationLogger } from './BaseAllocationAlgorithm.js';
+import {
+  BaseAllocationAlgorithm,
+  type AllocationLogger,
+} from './BaseAllocationAlgorithm.js';
 import type {
   AllocationCandidate,
   AllocationRecommendation,
   AllocationAlgorithmConfig,
   AllocationImpact,
-  RiskAssessment
+  RiskAssessment,
 } from '../types.js';
 
 /**
@@ -46,16 +49,16 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    * @returns Array of allocation recommendations
    */
   protected async executeOptimization(
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): Promise<AllocationRecommendation[]> {
     this.logger.info('Starting usage-based allocation optimization', {
       candidateCount: candidates.length,
-      strategy: 'usage_based'
+      strategy: 'usage_based',
     });
 
     // Build candidate lookup map
     this.candidatesMap.clear();
-    candidates.forEach(candidate => {
+    candidates.forEach((candidate) => {
       this.candidatesMap.set(candidate.resourceId, candidate);
     });
 
@@ -63,23 +66,30 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     const usageMetrics = this.calculateUsageMetrics(candidates);
 
     // Determine allocation adjustments based on usage patterns
-    const allocationAdjustments = this.calculateUsageBasedAdjustments(candidates, usageMetrics);
+    const allocationAdjustments = this.calculateUsageBasedAdjustments(
+      candidates,
+      usageMetrics,
+    );
 
     // Apply constraints and generate recommendations
     const recommendations = this.generateRecommendations(
       candidates,
       usageMetrics,
-      allocationAdjustments
+      allocationAdjustments,
     );
 
     // Ensure budget balance while respecting usage patterns
-    const balancedRecommendations = this.ensureBudgetBalance(candidates, recommendations);
+    const balancedRecommendations = this.ensureBudgetBalance(
+      candidates,
+      recommendations,
+    );
 
     this.logger.info('Usage-based optimization completed', {
       recommendationCount: balancedRecommendations.length,
       totalRebalanced: balancedRecommendations.reduce(
-        (sum, r) => sum + Math.abs(r.allocationChange), 0
-      )
+        (sum, r) => sum + Math.abs(r.allocationChange),
+        0,
+      ),
     });
 
     return balancedRecommendations;
@@ -90,7 +100,9 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    * @param candidates - Allocation candidates
    * @returns Usage metrics for each candidate
    */
-  private calculateUsageMetrics(candidates: AllocationCandidate[]): Map<string, UsageMetric> {
+  private calculateUsageMetrics(
+    candidates: AllocationCandidate[],
+  ): Map<string, UsageMetric> {
     const metrics = new Map<string, UsageMetric>();
 
     for (const candidate of candidates) {
@@ -110,7 +122,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
         requestVelocity: this.calculateRequestVelocity(candidate),
         peakUsageRatio: this.calculatePeakUsageRatio(candidate),
         usageVolatility: this.calculateUsageVolatility(candidate),
-        predictedGrowth: this.predictUsageGrowth(candidate)
+        predictedGrowth: this.predictUsageGrowth(candidate),
       };
 
       metrics.set(candidate.resourceId, usageMetric);
@@ -119,7 +131,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
         resourceId: candidate.resourceId,
         utilization: currentUtilization,
         trend: usageTrend,
-        growth: usageMetric.predictedGrowth
+        growth: usageMetric.predictedGrowth,
       });
     }
 
@@ -134,7 +146,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculateUsageBasedAdjustments(
     candidates: AllocationCandidate[],
-    usageMetrics: Map<string, UsageMetric>
+    usageMetrics: Map<string, UsageMetric>,
   ): Map<string, number> {
     const adjustments = new Map<string, number>();
     const totalCurrentBudget = this.calculateTotalCurrentBudget(candidates);
@@ -166,7 +178,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
       this.logger.debug('Calculated usage-based adjustment', {
         resourceId: candidate.resourceId,
         adjustmentFactor,
-        currentAllocation: candidate.currentAllocation
+        currentAllocation: candidate.currentAllocation,
       });
     }
 
@@ -248,7 +260,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     const requests = candidate.costAnalysis.requestCount;
     const frequency = candidate.costAnalysis.usageFrequency;
 
-    return requests * frequency / 24; // Approximate requests per hour
+    return (requests * frequency) / 24; // Approximate requests per hour
   }
 
   /**
@@ -290,7 +302,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     const roi = Math.max(0, candidate.costAnalysis.roi);
 
     // Combine trend, business impact, and ROI for growth prediction
-    const growthFactor = 1 + (trend * 0.3) + (businessImpact * 0.2) + (roi * 0.1);
+    const growthFactor = 1 + trend * 0.3 + businessImpact * 0.2 + roi * 0.1;
 
     return Math.max(0.5, Math.min(3.0, growthFactor));
   }
@@ -323,7 +335,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculateTrendAdjustment(metrics: UsageMetric): number {
     const trend = metrics.usageTrend;
-    return 1.0 + (trend * 0.3); // ±30% adjustment based on trend
+    return 1.0 + trend * 0.3; // ±30% adjustment based on trend
   }
 
   /**
@@ -367,7 +379,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
   private generateRecommendations(
     candidates: AllocationCandidate[],
     usageMetrics: Map<string, UsageMetric>,
-    adjustments: Map<string, number>
+    adjustments: Map<string, number>,
   ): AllocationRecommendation[] {
     const recommendations: AllocationRecommendation[] = [];
 
@@ -381,8 +393,8 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
         candidate.constraints.minAllocation,
         Math.min(
           candidate.constraints.maxAllocation,
-          candidate.currentAllocation * adjustmentFactor
-        )
+          candidate.currentAllocation * adjustmentFactor,
+        ),
       );
 
       const allocationChange = newAllocation - candidate.currentAllocation;
@@ -393,24 +405,33 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
         resourceId: candidate.resourceId,
         type: 'budget_reallocation',
         title: `Usage-based allocation adjustment for ${candidate.resourceName}`,
-        description: this.generateRecommendationDescription(candidate, metrics, adjustmentFactor),
+        description: this.generateRecommendationDescription(
+          candidate,
+          metrics,
+          adjustmentFactor,
+        ),
         currentAllocation: candidate.currentAllocation,
         recommendedAllocation: newAllocation,
         allocationChange,
         potentialSavings,
-        savingsPercentage: candidate.currentAllocation > 0
-          ? (potentialSavings / candidate.currentAllocation) * 100
-          : 0,
+        savingsPercentage:
+          candidate.currentAllocation > 0
+            ? (potentialSavings / candidate.currentAllocation) * 100
+            : 0,
         implementationComplexity: 'low',
         strategy: 'usage_based',
         confidence: this.calculateConfidence(candidate, metrics),
-        expectedImpact: this.calculateExpectedImpact(candidate, metrics, allocationChange),
+        expectedImpact: this.calculateExpectedImpact(
+          candidate,
+          metrics,
+          allocationChange,
+        ),
         riskAssessment: this.assessRisk(candidate, metrics, allocationChange),
         dependencies: [],
         priority: candidate.priority,
         estimatedTimeToImplement: '1-2 days',
         category: 'cost_optimization',
-        tags: ['usage-based', 'automatic', 'data-driven']
+        tags: ['usage-based', 'automatic', 'data-driven'],
       };
 
       recommendations.push(recommendation);
@@ -429,7 +450,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
   private generateRecommendationDescription(
     candidate: AllocationCandidate,
     metrics: UsageMetric,
-    adjustmentFactor: number
+    adjustmentFactor: number,
   ): string {
     const utilizationPct = Math.round(metrics.currentUtilization * 100);
     const changeDirection = adjustmentFactor > 1.0 ? 'increase' : 'decrease';
@@ -459,7 +480,10 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    * @param metrics - Usage metrics
    * @returns Confidence score (0-100)
    */
-  private calculateConfidence(candidate: AllocationCandidate, metrics: UsageMetric): number {
+  private calculateConfidence(
+    candidate: AllocationCandidate,
+    metrics: UsageMetric,
+  ): number {
     let confidence = 70; // Base confidence
 
     // Higher confidence for stable patterns
@@ -491,11 +515,12 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
   private calculateExpectedImpact(
     candidate: AllocationCandidate,
     metrics: UsageMetric,
-    allocationChange: number
+    allocationChange: number,
   ): AllocationImpact {
-    const changeRatio = candidate.currentAllocation > 0
-      ? allocationChange / candidate.currentAllocation
-      : 0;
+    const changeRatio =
+      candidate.currentAllocation > 0
+        ? allocationChange / candidate.currentAllocation
+        : 0;
 
     return {
       costImpact: allocationChange,
@@ -503,7 +528,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
       utilizationImpact: changeRatio * 0.3, // Utilization change
       businessValueImpact: changeRatio * candidate.businessImpact * 0.1,
       roiImpact: changeRatio * candidate.costAnalysis.roi * 0.2,
-      impactTimeline: 'short_term'
+      impactTimeline: 'short_term',
     };
   }
 
@@ -517,19 +542,22 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
   private assessRisk(
     candidate: AllocationCandidate,
     metrics: UsageMetric,
-    allocationChange: number
+    allocationChange: number,
   ): RiskAssessment {
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
     const riskFactors: string[] = [];
     const mitigationStrategies: string[] = [];
 
-    const changeRatio = Math.abs(allocationChange) / candidate.currentAllocation;
+    const changeRatio =
+      Math.abs(allocationChange) / candidate.currentAllocation;
 
     // Assess risk based on change magnitude
     if (changeRatio > 0.5) {
       riskLevel = 'high';
       riskFactors.push('Large allocation change (>50%)');
-      mitigationStrategies.push('Implement change gradually over multiple cycles');
+      mitigationStrategies.push(
+        'Implement change gradually over multiple cycles',
+      );
     } else if (changeRatio > 0.25) {
       riskLevel = 'medium';
       riskFactors.push('Moderate allocation change (>25%)');
@@ -551,7 +579,9 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     if (riskFactors.length === 0) {
-      riskFactors.push('Standard allocation adjustment based on usage patterns');
+      riskFactors.push(
+        'Standard allocation adjustment based on usage patterns',
+      );
       mitigationStrategies.push('Regular monitoring and adjustment');
     }
 
@@ -560,7 +590,8 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
       riskFactors,
       mitigationStrategies,
       maxNegativeImpact: Math.abs(allocationChange) * 1.2,
-      negativeProbability: riskLevel === 'high' ? 30 : riskLevel === 'medium' ? 15 : 5
+      negativeProbability:
+        riskLevel === 'high' ? 30 : riskLevel === 'medium' ? 15 : 5,
     };
   }
 
@@ -572,10 +603,13 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private ensureBudgetBalance(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): AllocationRecommendation[] {
     const originalTotal = this.calculateTotalCurrentBudget(originalCandidates);
-    const recommendedTotal = recommendations.reduce((sum, r) => sum + r.recommendedAllocation, 0);
+    const recommendedTotal = recommendations.reduce(
+      (sum, r) => sum + r.recommendedAllocation,
+      0,
+    );
     const difference = recommendedTotal - originalTotal;
 
     if (Math.abs(difference) < originalTotal * 0.001) {
@@ -585,11 +619,11 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     this.logger.info('Balancing budget allocations', {
       originalTotal,
       recommendedTotal,
-      difference
+      difference,
     });
 
     // Apply proportional adjustment to balance budget
-    const balancedRecommendations = recommendations.map(recommendation => {
+    const balancedRecommendations = recommendations.map((recommendation) => {
       const candidate = this.candidatesMap.get(recommendation.resourceId);
       if (!candidate) return recommendation;
 
@@ -598,15 +632,19 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
         candidate.constraints.minAllocation,
         Math.min(
           candidate.constraints.maxAllocation,
-          recommendation.recommendedAllocation + adjustment
-        )
+          recommendation.recommendedAllocation + adjustment,
+        ),
       );
 
       return {
         ...recommendation,
         recommendedAllocation: newRecommendedAllocation,
-        allocationChange: newRecommendedAllocation - candidate.currentAllocation,
-        potentialSavings: Math.max(0, candidate.currentAllocation - newRecommendedAllocation)
+        allocationChange:
+          newRecommendedAllocation - candidate.currentAllocation,
+        potentialSavings: Math.max(
+          0,
+          candidate.currentAllocation - newRecommendedAllocation,
+        ),
       };
     });
 
@@ -618,7 +656,9 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
    * @param resourceId - Resource identifier
    * @returns Matching candidate or undefined
    */
-  protected findCandidateById(resourceId: string): AllocationCandidate | undefined {
+  protected findCandidateById(
+    resourceId: string,
+  ): AllocationCandidate | undefined {
     return this.candidatesMap.get(resourceId);
   }
 }
@@ -647,7 +687,7 @@ interface UsageMetric {
  */
 export function createUsageBasedAlgorithm(
   config: AllocationAlgorithmConfig,
-  logger: AllocationLogger
+  logger: AllocationLogger,
 ): UsageBasedAlgorithm {
   return new UsageBasedAlgorithm(config, logger);
 }

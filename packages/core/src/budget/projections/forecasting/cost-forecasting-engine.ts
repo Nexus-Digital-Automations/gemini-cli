@@ -23,10 +23,10 @@ export class CostForecastingEngine {
   /**
    * Generate comprehensive cost projections using ensemble methods
    */
-  public static async generateProjections(
+  static async generateProjections(
     historicalData: CostDataPoint[],
     projectionDays: number = 30,
-    confidenceLevel: number = 0.95
+    confidenceLevel: number = 0.95,
   ): Promise<CostProjection> {
     const startTime = Date.now();
     this.logger.info('Generating cost projections', {
@@ -37,51 +37,83 @@ export class CostForecastingEngine {
 
     try {
       if (historicalData.length < 3) {
-        throw new Error('At least 3 historical data points required for forecasting');
+        throw new Error(
+          'At least 3 historical data points required for forecasting',
+        );
       }
 
       // Sort data by timestamp
-      const sortedData = [...historicalData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedData = [...historicalData].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
 
       // Perform comprehensive analysis
-      const trendAnalysis = MathematicalAlgorithms.performTrendAnalysis(sortedData);
-      const seasonalAnalysis = MathematicalAlgorithms.analyzeSeasonality(sortedData);
+      const trendAnalysis =
+        MathematicalAlgorithms.performTrendAnalysis(sortedData);
+      const seasonalAnalysis =
+        MathematicalAlgorithms.analyzeSeasonality(sortedData);
       const burnRateAnalysis = this.calculateBurnRateAnalysis(sortedData);
       const dataQualityScore = this.calculateDataQualityScore(sortedData);
 
       // Generate projections using multiple algorithms
-      const linearProjection = this.generateLinearProjection(sortedData, trendAnalysis, projectionDays);
-      const exponentialProjection = this.generateExponentialProjection(sortedData, trendAnalysis, projectionDays);
-      const seasonalProjection = this.generateSeasonalProjection(sortedData, seasonalAnalysis, projectionDays);
+      const linearProjection = this.generateLinearProjection(
+        sortedData,
+        trendAnalysis,
+        projectionDays,
+      );
+      const exponentialProjection = this.generateExponentialProjection(
+        sortedData,
+        trendAnalysis,
+        projectionDays,
+      );
+      const seasonalProjection = this.generateSeasonalProjection(
+        sortedData,
+        seasonalAnalysis,
+        projectionDays,
+      );
 
       // Create ensemble projection
       const ensembleProjection = this.createEnsembleProjection(
         linearProjection,
         exponentialProjection,
         seasonalProjection,
-        confidenceLevel
+        confidenceLevel,
       );
 
       // Calculate accuracy metrics if we have enough historical data
-      const accuracyMetrics = sortedData.length > 14
-        ? await this.calculateAccuracyMetrics(sortedData)
-        : undefined;
+      const accuracyMetrics =
+        sortedData.length > 14
+          ? await this.calculateAccuracyMetrics(sortedData)
+          : undefined;
 
       // Generate final projection result
       const projection: CostProjection = {
         metadata: {
           algorithm: 'ensemble',
           projectionPeriod: {
-            start: new Date(sortedData[sortedData.length - 1].timestamp.getTime() + 24 * 60 * 60 * 1000),
-            end: new Date(sortedData[sortedData.length - 1].timestamp.getTime() + projectionDays * 24 * 60 * 60 * 1000),
+            start: new Date(
+              sortedData[sortedData.length - 1].timestamp.getTime() +
+                24 * 60 * 60 * 1000,
+            ),
+            end: new Date(
+              sortedData[sortedData.length - 1].timestamp.getTime() +
+                projectionDays * 24 * 60 * 60 * 1000,
+            ),
           },
           confidenceInterval: confidenceLevel,
           dataQualityScore,
         },
         projectedCosts: ensembleProjection,
         summary: {
-          totalProjectedCost: ensembleProjection.reduce((sum, point) => sum + point.projectedCost, 0),
-          averageDailyCost: ensembleProjection.reduce((sum, point) => sum + point.projectedCost, 0) / projectionDays,
+          totalProjectedCost: ensembleProjection.reduce(
+            (sum, point) => sum + point.projectedCost,
+            0,
+          ),
+          averageDailyCost:
+            ensembleProjection.reduce(
+              (sum, point) => sum + point.projectedCost,
+              0,
+            ) / projectionDays,
           burnRatePerDay: burnRateAnalysis.currentBurnRate,
           budgetRunwayDays: burnRateAnalysis.runway.currentRateDays,
         },
@@ -97,7 +129,9 @@ export class CostForecastingEngine {
 
       return projection;
     } catch (error) {
-      this.logger.error('Failed to generate cost projections', { error: error.message });
+      this.logger.error('Failed to generate cost projections', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -105,9 +139,9 @@ export class CostForecastingEngine {
   /**
    * Generate burn rate analysis for budget runway calculations
    */
-  public static calculateBurnRateAnalysis(
+  static calculateBurnRateAnalysis(
     dataPoints: CostDataPoint[],
-    currentBudget?: number
+    currentBudget?: number,
   ): BurnRateAnalysis {
     const startTime = Date.now();
     this.logger.info('Calculating burn rate analysis', {
@@ -117,38 +151,59 @@ export class CostForecastingEngine {
 
     try {
       if (dataPoints.length < 2) {
-        throw new Error('At least 2 data points required for burn rate analysis');
+        throw new Error(
+          'At least 2 data points required for burn rate analysis',
+        );
       }
 
-      const sortedData = [...dataPoints].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedData = [...dataPoints].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
 
       // Calculate daily burn rates
       const dailyBurnRates = this.calculateDailyBurnRates(sortedData);
-      const currentBurnRate = dailyBurnRates[dailyBurnRates.length - 1]?.burnRate || 0;
-      const averageBurnRate = dailyBurnRates.reduce((sum, day) => sum + day.burnRate, 0) / dailyBurnRates.length;
+      const currentBurnRate =
+        dailyBurnRates[dailyBurnRates.length - 1]?.burnRate || 0;
+      const averageBurnRate =
+        dailyBurnRates.reduce((sum, day) => sum + day.burnRate, 0) /
+        dailyBurnRates.length;
 
       // Analyze burn rate trend
       const burnRateTrend = MathematicalAlgorithms.performTrendAnalysis(
-        dailyBurnRates.map(day => ({
+        dailyBurnRates.map((day) => ({
           timestamp: day.date,
           cost: day.burnRate,
           tokens: 0, // Not applicable for burn rate
-        }))
+        })),
       );
 
       // Calculate runway analysis
       const remainingBudget = currentBudget || 1000; // Default budget if not provided
       const runway = {
-        currentRateDays: currentBurnRate > 0 ? Math.floor(remainingBudget / currentBurnRate) : Infinity,
-        averageRateDays: averageBurnRate > 0 ? Math.floor(remainingBudget / averageBurnRate) : Infinity,
+        currentRateDays:
+          currentBurnRate > 0
+            ? Math.floor(remainingBudget / currentBurnRate)
+            : Infinity,
+        averageRateDays:
+          averageBurnRate > 0
+            ? Math.floor(remainingBudget / averageBurnRate)
+            : Infinity,
         projectedRateDays: 0, // Will be calculated based on trend
         exhaustionDate: new Date(),
       };
 
       // Calculate projected burn rate and runway
-      const projectedBurnRate = this.calculateProjectedBurnRate(burnRateTrend, currentBurnRate);
-      runway.projectedRateDays = projectedBurnRate > 0 ? Math.floor(remainingBudget / projectedBurnRate) : Infinity;
-      runway.exhaustionDate = new Date(Date.now() + runway.projectedRateDays * 24 * 60 * 60 * 1000);
+      const projectedBurnRate = this.calculateProjectedBurnRate(
+        burnRateTrend,
+        currentBurnRate,
+      );
+      runway.projectedRateDays =
+        projectedBurnRate > 0
+          ? Math.floor(remainingBudget / projectedBurnRate)
+          : Infinity;
+      runway.exhaustionDate = new Date(
+        Date.now() + runway.projectedRateDays * 24 * 60 * 60 * 1000,
+      );
 
       // Calculate category breakdown if context information is available
       const categoryBreakdown = this.calculateCategoryBurnRates(sortedData);
@@ -170,7 +225,9 @@ export class CostForecastingEngine {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to calculate burn rate analysis', { error: error.message });
+      this.logger.error('Failed to calculate burn rate analysis', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -180,15 +237,21 @@ export class CostForecastingEngine {
   private static generateLinearProjection(
     data: CostDataPoint[],
     trendAnalysis: TrendAnalysis,
-    projectionDays: number
+    projectionDays: number,
   ): Array<CostProjection['projectedCosts'][0]> {
     const lastDataPoint = data[data.length - 1];
     const baseTimestamp = lastDataPoint.timestamp.getTime();
     const projectedCosts: Array<CostProjection['projectedCosts'][0]> = [];
 
     for (let day = 1; day <= projectionDays; day++) {
-      const projectedCost = Math.max(0, trendAnalysis.intercept + trendAnalysis.slope * day);
-      const confidence = Math.max(0.5, trendAnalysis.confidence * (1 - (day - 1) * 0.02)); // Decrease confidence over time
+      const projectedCost = Math.max(
+        0,
+        trendAnalysis.intercept + trendAnalysis.slope * day,
+      );
+      const confidence = Math.max(
+        0.5,
+        trendAnalysis.confidence * (1 - (day - 1) * 0.02),
+      ); // Decrease confidence over time
 
       // Calculate confidence intervals
       const errorMargin = projectedCost * (1 - confidence) * 2;
@@ -210,7 +273,7 @@ export class CostForecastingEngine {
   private static generateExponentialProjection(
     data: CostDataPoint[],
     trendAnalysis: TrendAnalysis,
-    projectionDays: number
+    projectionDays: number,
   ): Array<CostProjection['projectedCosts'][0]> {
     const lastDataPoint = data[data.length - 1];
     const baseTimestamp = lastDataPoint.timestamp.getTime();
@@ -220,7 +283,10 @@ export class CostForecastingEngine {
 
     for (let day = 1; day <= projectionDays; day++) {
       const projectedCost = Math.max(0, baseCost * Math.exp(growthRate * day));
-      const confidence = Math.max(0.4, trendAnalysis.confidence * (1 - (day - 1) * 0.03));
+      const confidence = Math.max(
+        0.4,
+        trendAnalysis.confidence * (1 - (day - 1) * 0.03),
+      );
 
       // Calculate confidence intervals
       const errorMargin = projectedCost * (1 - confidence) * 2.5;
@@ -242,28 +308,41 @@ export class CostForecastingEngine {
   private static generateSeasonalProjection(
     data: CostDataPoint[],
     seasonalAnalysis: SeasonalAnalysis,
-    projectionDays: number
+    projectionDays: number,
   ): Array<CostProjection['projectedCosts'][0]> {
     const lastDataPoint = data[data.length - 1];
     const baseTimestamp = lastDataPoint.timestamp.getTime();
-    const baseCost = data.reduce((sum, point) => sum + point.cost, 0) / data.length;
+    const baseCost =
+      data.reduce((sum, point) => sum + point.cost, 0) / data.length;
     const projectedCosts: Array<CostProjection['projectedCosts'][0]> = [];
 
     for (let day = 1; day <= projectionDays; day++) {
-      const projectionDate = new Date(baseTimestamp + day * 24 * 60 * 60 * 1000);
+      const projectionDate = new Date(
+        baseTimestamp + day * 24 * 60 * 60 * 1000,
+      );
 
       // Apply seasonal adjustments
       let seasonalMultiplier = 1.0;
-      seasonalAnalysis.patterns.forEach(pattern => {
-        seasonalMultiplier *= this.calculateSeasonalMultiplier(projectionDate, pattern);
+      seasonalAnalysis.patterns.forEach((pattern) => {
+        seasonalMultiplier *= this.calculateSeasonalMultiplier(
+          projectionDate,
+          pattern,
+        );
       });
 
       // Apply deseasonalized trend
-      const trendAdjustment = seasonalAnalysis.deseasonalizedTrend.intercept +
-                             seasonalAnalysis.deseasonalizedTrend.slope * day;
+      const trendAdjustment =
+        seasonalAnalysis.deseasonalizedTrend.intercept +
+        seasonalAnalysis.deseasonalizedTrend.slope * day;
 
-      const projectedCost = Math.max(0, (baseCost + trendAdjustment) * seasonalMultiplier);
-      const confidence = Math.max(0.3, seasonalAnalysis.seasonalityStrength * (1 - (day - 1) * 0.025));
+      const projectedCost = Math.max(
+        0,
+        (baseCost + trendAdjustment) * seasonalMultiplier,
+      );
+      const confidence = Math.max(
+        0.3,
+        seasonalAnalysis.seasonalityStrength * (1 - (day - 1) * 0.025),
+      );
 
       // Calculate confidence intervals
       const errorMargin = projectedCost * (1 - confidence) * 3;
@@ -286,7 +365,7 @@ export class CostForecastingEngine {
     linearProjection: Array<CostProjection['projectedCosts'][0]>,
     exponentialProjection: Array<CostProjection['projectedCosts'][0]>,
     seasonalProjection: Array<CostProjection['projectedCosts'][0]>,
-    confidenceLevel: number
+    confidenceLevel: number,
   ): Array<CostProjection['projectedCosts'][0]> {
     const ensembleProjection: Array<CostProjection['projectedCosts'][0]> = [];
 
@@ -350,9 +429,10 @@ export class CostForecastingEngine {
 
     // Factor 3: Data variance (penalize excessive noise)
     const statistics = MathematicalAlgorithms.calculateStatistics(data);
-    const varianceScore = statistics.coefficientOfVariation < 50
-      ? 1.0
-      : Math.max(0.3, 1.0 - (statistics.coefficientOfVariation - 50) / 100);
+    const varianceScore =
+      statistics.coefficientOfVariation < 50
+        ? 1.0
+        : Math.max(0.3, 1.0 - (statistics.coefficientOfVariation - 50) / 100);
     qualityScore *= varianceScore;
 
     return Math.max(0.1, Math.min(1.0, qualityScore));
@@ -361,9 +441,13 @@ export class CostForecastingEngine {
   private static calculateExpectedDataPoints(data: CostDataPoint[]): number {
     if (data.length < 2) return data.length;
 
-    const sortedData = [...data].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-    const timeSpanDays = (sortedData[sortedData.length - 1].timestamp.getTime() - sortedData[0].timestamp.getTime())
-      / (24 * 60 * 60 * 1000);
+    const sortedData = [...data].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+    const timeSpanDays =
+      (sortedData[sortedData.length - 1].timestamp.getTime() -
+        sortedData[0].timestamp.getTime()) /
+      (24 * 60 * 60 * 1000);
 
     // Expect at least one data point per day
     return Math.max(data.length, Math.ceil(timeSpanDays));
@@ -372,41 +456,57 @@ export class CostForecastingEngine {
   private static calculateConsistencyScore(data: CostDataPoint[]): number {
     if (data.length < 3) return 1.0;
 
-    const sortedData = [...data].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sortedData = [...data].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
     const gaps: number[] = [];
 
     for (let i = 1; i < sortedData.length; i++) {
-      const gap = (sortedData[i].timestamp.getTime() - sortedData[i - 1].timestamp.getTime()) / (60 * 60 * 1000); // Gap in hours
+      const gap =
+        (sortedData[i].timestamp.getTime() -
+          sortedData[i - 1].timestamp.getTime()) /
+        (60 * 60 * 1000); // Gap in hours
       gaps.push(gap);
     }
 
     const averageGap = gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length;
-    const gapVariance = gaps.reduce((sum, gap) => sum + Math.pow(gap - averageGap, 2), 0) / gaps.length;
+    const gapVariance =
+      gaps.reduce((sum, gap) => sum + Math.pow(gap - averageGap, 2), 0) /
+      gaps.length;
     const gapStdDev = Math.sqrt(gapVariance);
 
     // Score based on gap consistency (lower variance = higher score)
-    const consistencyScore = averageGap > 0
-      ? Math.max(0.3, 1.0 - (gapStdDev / averageGap))
-      : 1.0;
+    const consistencyScore =
+      averageGap > 0 ? Math.max(0.3, 1.0 - gapStdDev / averageGap) : 1.0;
 
     return consistencyScore;
   }
 
-  private static async calculateAccuracyMetrics(data: CostDataPoint[]): Promise<CostProjection['accuracyMetrics']> {
+  private static async calculateAccuracyMetrics(
+    data: CostDataPoint[],
+  ): Promise<CostProjection['accuracyMetrics']> {
     // Use last 30% of data for validation
     const validationSize = Math.floor(data.length * 0.3);
     const trainingData = data.slice(0, data.length - validationSize);
     const validationData = data.slice(data.length - validationSize);
 
     // Generate predictions for validation period
-    const predictions = await this.generateProjections(trainingData, validationSize, 0.95);
+    const predictions = await this.generateProjections(
+      trainingData,
+      validationSize,
+      0.95,
+    );
 
     let mapeSum = 0;
     let maeSum = 0;
     let rmseSum = 0;
     let validPredictions = 0;
 
-    for (let i = 0; i < Math.min(predictions.projectedCosts.length, validationData.length); i++) {
+    for (
+      let i = 0;
+      i < Math.min(predictions.projectedCosts.length, validationData.length);
+      i++
+    ) {
       const predicted = predictions.projectedCosts[i].projectedCost;
       const actual = validationData[i].cost;
 
@@ -424,7 +524,10 @@ export class CostForecastingEngine {
     }
 
     const count = Math.max(1, validPredictions);
-    const totalCount = Math.max(1, Math.min(predictions.projectedCosts.length, validationData.length));
+    const totalCount = Math.max(
+      1,
+      Math.min(predictions.projectedCosts.length, validationData.length),
+    );
 
     return {
       mape: mapeSum / count,
@@ -433,11 +536,13 @@ export class CostForecastingEngine {
     };
   }
 
-  private static calculateDailyBurnRates(data: CostDataPoint[]): Array<{ date: Date; burnRate: number }> {
+  private static calculateDailyBurnRates(
+    data: CostDataPoint[],
+  ): Array<{ date: Date; burnRate: number }> {
     // Group data by day
     const dailyData = new Map<string, CostDataPoint[]>();
 
-    data.forEach(point => {
+    data.forEach((point) => {
       const dateKey = point.timestamp.toISOString().split('T')[0];
       if (!dailyData.has(dateKey)) {
         dailyData.set(dateKey, []);
@@ -454,16 +559,21 @@ export class CostForecastingEngine {
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-  private static calculateProjectedBurnRate(burnRateTrend: TrendAnalysis, currentBurnRate: number): number {
+  private static calculateProjectedBurnRate(
+    burnRateTrend: TrendAnalysis,
+    currentBurnRate: number,
+  ): number {
     // Project burn rate based on trend
     const projectedChange = burnRateTrend.slope * 30; // 30 days ahead
     return Math.max(0, currentBurnRate + projectedChange);
   }
 
-  private static calculateCategoryBurnRates(data: CostDataPoint[]): BurnRateAnalysis['categoryBreakdown'] {
+  private static calculateCategoryBurnRates(
+    data: CostDataPoint[],
+  ): BurnRateAnalysis['categoryBreakdown'] {
     const categoryData = new Map<string, CostDataPoint[]>();
 
-    data.forEach(point => {
+    data.forEach((point) => {
       const category = point.context?.feature || 'unknown';
       if (!categoryData.has(category)) {
         categoryData.set(category, []);
@@ -494,15 +604,24 @@ export class CostForecastingEngine {
     return breakdown.sort((a, b) => b.burnRate - a.burnRate);
   }
 
-  private static calculateSimpleTrend(points: CostDataPoint[]): 'increasing' | 'decreasing' | 'stable' {
+  private static calculateSimpleTrend(
+    points: CostDataPoint[],
+  ): 'increasing' | 'decreasing' | 'stable' {
     if (points.length < 2) return 'stable';
 
-    const sortedPoints = [...points].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-    const firstHalf = sortedPoints.slice(0, Math.floor(sortedPoints.length / 2));
+    const sortedPoints = [...points].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+    const firstHalf = sortedPoints.slice(
+      0,
+      Math.floor(sortedPoints.length / 2),
+    );
     const secondHalf = sortedPoints.slice(Math.floor(sortedPoints.length / 2));
 
-    const firstHalfAvg = firstHalf.reduce((sum, p) => sum + p.cost, 0) / firstHalf.length;
-    const secondHalfAvg = secondHalf.reduce((sum, p) => sum + p.cost, 0) / secondHalf.length;
+    const firstHalfAvg =
+      firstHalf.reduce((sum, p) => sum + p.cost, 0) / firstHalf.length;
+    const secondHalfAvg =
+      secondHalf.reduce((sum, p) => sum + p.cost, 0) / secondHalf.length;
 
     const threshold = 0.1; // 10% change threshold
     const change = (secondHalfAvg - firstHalfAvg) / firstHalfAvg;
@@ -513,7 +632,7 @@ export class CostForecastingEngine {
 
   private static calculateSeasonalMultiplier(
     date: Date,
-    pattern: SeasonalAnalysis['patterns'][0]
+    pattern: SeasonalAnalysis['patterns'][0],
   ): number {
     // Calculate seasonal multiplier based on pattern type
     const baseMultiplier = 1.0;
@@ -526,16 +645,22 @@ export class CostForecastingEngine {
 
       case 'weekly':
         const dayOfWeek = date.getDay();
-        return pattern.peaks.includes(dayOfWeek) ? maxMultiplier : baseMultiplier;
+        return pattern.peaks.includes(dayOfWeek)
+          ? maxMultiplier
+          : baseMultiplier;
 
       case 'monthly':
         const dayOfMonth = date.getDate();
-        return pattern.peaks.includes(dayOfMonth) ? maxMultiplier : baseMultiplier;
+        return pattern.peaks.includes(dayOfMonth)
+          ? maxMultiplier
+          : baseMultiplier;
 
       case 'quarterly':
         const month = date.getMonth();
         const quarterMonth = month % 3;
-        return pattern.peaks.includes(quarterMonth) ? maxMultiplier : baseMultiplier;
+        return pattern.peaks.includes(quarterMonth)
+          ? maxMultiplier
+          : baseMultiplier;
 
       default:
         return baseMultiplier;

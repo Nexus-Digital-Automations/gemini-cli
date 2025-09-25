@@ -9,7 +9,7 @@ import type {
   AllocationRecommendation,
   AllocationAlgorithmConfig,
   AllocationOptimizationResult,
-  AllocationStrategy
+  AllocationStrategy,
 } from '../types.js';
 
 /**
@@ -50,7 +50,7 @@ export abstract class BaseAllocationAlgorithm {
   constructor(
     strategy: AllocationStrategy,
     config: AllocationAlgorithmConfig,
-    logger: AllocationLogger
+    logger: AllocationLogger,
   ) {
     this.strategy = strategy;
     this.config = config;
@@ -59,7 +59,7 @@ export abstract class BaseAllocationAlgorithm {
     this.logger.info('Allocation algorithm initialized', {
       strategy,
       objectives: config.objectives,
-      weights: config.weights
+      weights: config.weights,
     });
   }
 
@@ -68,12 +68,14 @@ export abstract class BaseAllocationAlgorithm {
    * @param candidates - Array of allocation candidates to optimize
    * @returns Optimization result with recommendations
    */
-  public async optimize(candidates: AllocationCandidate[]): Promise<AllocationOptimizationResult> {
+  async optimize(
+    candidates: AllocationCandidate[],
+  ): Promise<AllocationOptimizationResult> {
     const startTime = performance.now();
     this.logger.info('Starting allocation optimization', {
       strategy: this.strategy,
       candidateCount: candidates.length,
-      totalBudget: this.calculateTotalCurrentBudget(candidates)
+      totalBudget: this.calculateTotalCurrentBudget(candidates),
     });
 
     try {
@@ -91,24 +93,39 @@ export abstract class BaseAllocationAlgorithm {
       const result: AllocationOptimizationResult = {
         originalCandidates: candidates,
         recommendations,
-        totalAllocated: recommendations.reduce((sum, rec) => sum + rec.recommendedAllocation, 0),
-        optimizationScore: this.calculateOptimizationScore(candidates, recommendations),
+        totalAllocated: recommendations.reduce(
+          (sum, rec) => sum + rec.recommendedAllocation,
+          0,
+        ),
+        optimizationScore: this.calculateOptimizationScore(
+          candidates,
+          recommendations,
+        ),
         algorithmMetrics: {
           executionTime: this.executionTime,
           convergenceIterations: this.iterations,
-          optimizationEfficiency: this.calculateEfficiencyScore(candidates, recommendations)
+          optimizationEfficiency: this.calculateEfficiencyScore(
+            candidates,
+            recommendations,
+          ),
         },
         validation: {
           constraintsSatisfied: this.validateConstraints(recommendations),
-          budgetBalanced: this.validateBudgetBalance(candidates, recommendations),
-          improvementAchieved: this.validateImprovement(candidates, recommendations)
-        }
+          budgetBalanced: this.validateBudgetBalance(
+            candidates,
+            recommendations,
+          ),
+          improvementAchieved: this.validateImprovement(
+            candidates,
+            recommendations,
+          ),
+        },
       };
 
       this.logger.info('Allocation optimization completed', {
         executionTime: this.executionTime,
         recommendationCount: recommendations.length,
-        optimizationScore: result.optimizationScore
+        optimizationScore: result.optimizationScore,
       });
 
       return result;
@@ -116,7 +133,7 @@ export abstract class BaseAllocationAlgorithm {
       this.logger.error('Allocation optimization failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         strategy: this.strategy,
-        candidateCount: candidates.length
+        candidateCount: candidates.length,
       });
       throw error;
     }
@@ -129,7 +146,7 @@ export abstract class BaseAllocationAlgorithm {
    * @returns Array of allocation recommendations
    */
   protected abstract executeOptimization(
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): Promise<AllocationRecommendation[]>;
 
   /**
@@ -140,21 +157,28 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected calculateOptimizationScore(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): number {
     const weights = this.config.weights;
     let score = 0;
 
     // Cost optimization score
-    const costImprovement = this.calculateCostImprovement(originalCandidates, recommendations);
+    const costImprovement = this.calculateCostImprovement(
+      originalCandidates,
+      recommendations,
+    );
     score += costImprovement * weights.cost * 100;
 
     // ROI improvement score
-    const roiImprovement = this.calculateROIImprovement(originalCandidates, recommendations);
+    const roiImprovement = this.calculateROIImprovement(
+      originalCandidates,
+      recommendations,
+    );
     score += roiImprovement * weights.roi * 100;
 
     // Business value score
-    const businessValueScore = this.calculateBusinessValueScore(recommendations);
+    const businessValueScore =
+      this.calculateBusinessValueScore(recommendations);
     score += businessValueScore * weights.businessValue;
 
     // Performance score
@@ -163,7 +187,7 @@ export abstract class BaseAllocationAlgorithm {
 
     // Risk adjustment
     const riskScore = this.calculateRiskScore(recommendations);
-    score = score * (1 - (riskScore * weights.risk));
+    score = score * (1 - riskScore * weights.risk);
 
     return Math.max(0, Math.min(100, score));
   }
@@ -183,7 +207,9 @@ export abstract class BaseAllocationAlgorithm {
         throw new Error('Candidate missing resourceId');
       }
       if (candidate.currentAllocation < 0) {
-        throw new Error(`Invalid current allocation for ${candidate.resourceId}`);
+        throw new Error(
+          `Invalid current allocation for ${candidate.resourceId}`,
+        );
       }
       if (!candidate.constraints) {
         throw new Error(`Missing constraints for ${candidate.resourceId}`);
@@ -191,7 +217,7 @@ export abstract class BaseAllocationAlgorithm {
     }
 
     // Check for duplicate resource IDs
-    const resourceIds = new Set(candidates.map(c => c.resourceId));
+    const resourceIds = new Set(candidates.map((c) => c.resourceId));
     if (resourceIds.size !== candidates.length) {
       throw new Error('Duplicate resource IDs found in candidates');
     }
@@ -205,7 +231,7 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected validateResults(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): void {
     if (recommendations.length !== originalCandidates.length) {
       throw new Error('Recommendation count does not match candidate count');
@@ -213,7 +239,9 @@ export abstract class BaseAllocationAlgorithm {
 
     for (const recommendation of recommendations) {
       if (recommendation.recommendedAllocation < 0) {
-        throw new Error(`Negative allocation recommended for ${recommendation.resourceId}`);
+        throw new Error(
+          `Negative allocation recommended for ${recommendation.resourceId}`,
+        );
       }
     }
   }
@@ -223,8 +251,13 @@ export abstract class BaseAllocationAlgorithm {
    * @param candidates - Allocation candidates
    * @returns Total current budget
    */
-  protected calculateTotalCurrentBudget(candidates: AllocationCandidate[]): number {
-    return candidates.reduce((sum, candidate) => sum + candidate.currentAllocation, 0);
+  protected calculateTotalCurrentBudget(
+    candidates: AllocationCandidate[],
+  ): number {
+    return candidates.reduce(
+      (sum, candidate) => sum + candidate.currentAllocation,
+      0,
+    );
   }
 
   /**
@@ -235,11 +268,19 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected calculateCostImprovement(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): number {
-    const originalCost = originalCandidates.reduce((sum, c) => sum + c.currentAllocation, 0);
-    const newCost = recommendations.reduce((sum, r) => sum + r.recommendedAllocation, 0);
-    return originalCost > 0 ? Math.max(0, (originalCost - newCost) / originalCost) : 0;
+    const originalCost = originalCandidates.reduce(
+      (sum, c) => sum + c.currentAllocation,
+      0,
+    );
+    const newCost = recommendations.reduce(
+      (sum, r) => sum + r.recommendedAllocation,
+      0,
+    );
+    return originalCost > 0
+      ? Math.max(0, (originalCost - newCost) / originalCost)
+      : 0;
   }
 
   /**
@@ -250,14 +291,18 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected calculateROIImprovement(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): number {
     const originalROI = this.calculateWeightedROI(originalCandidates);
-    const newROI = recommendations.reduce(
-      (sum, r) => sum + (r.expectedImpact.roiImpact * r.recommendedAllocation), 0
-    ) / recommendations.reduce((sum, r) => sum + r.recommendedAllocation, 0);
+    const newROI =
+      recommendations.reduce(
+        (sum, r) => sum + r.expectedImpact.roiImpact * r.recommendedAllocation,
+        0,
+      ) / recommendations.reduce((sum, r) => sum + r.recommendedAllocation, 0);
 
-    return originalROI > 0 ? Math.max(0, (newROI - originalROI) / originalROI) : 0;
+    return originalROI > 0
+      ? Math.max(0, (newROI - originalROI) / originalROI)
+      : 0;
   }
 
   /**
@@ -266,11 +311,16 @@ export abstract class BaseAllocationAlgorithm {
    * @returns Weighted average ROI
    */
   protected calculateWeightedROI(candidates: AllocationCandidate[]): number {
-    const totalAllocation = candidates.reduce((sum, c) => sum + c.currentAllocation, 0);
+    const totalAllocation = candidates.reduce(
+      (sum, c) => sum + c.currentAllocation,
+      0,
+    );
     if (totalAllocation === 0) return 0;
 
     return candidates.reduce(
-      (sum, c) => sum + (c.costAnalysis.roi * c.currentAllocation / totalAllocation), 0
+      (sum, c) =>
+        sum + (c.costAnalysis.roi * c.currentAllocation) / totalAllocation,
+      0,
     );
   }
 
@@ -279,9 +329,13 @@ export abstract class BaseAllocationAlgorithm {
    * @param recommendations - Optimization recommendations
    * @returns Business value score (0-100)
    */
-  protected calculateBusinessValueScore(recommendations: AllocationRecommendation[]): number {
+  protected calculateBusinessValueScore(
+    recommendations: AllocationRecommendation[],
+  ): number {
     const totalBusinessValue = recommendations.reduce(
-      (sum, r) => sum + (r.expectedImpact.businessValueImpact * r.confidence / 100), 0
+      (sum, r) =>
+        sum + (r.expectedImpact.businessValueImpact * r.confidence) / 100,
+      0,
     );
     return Math.min(100, totalBusinessValue / recommendations.length);
   }
@@ -291,10 +345,14 @@ export abstract class BaseAllocationAlgorithm {
    * @param recommendations - Optimization recommendations
    * @returns Performance score (0-100)
    */
-  protected calculatePerformanceScore(recommendations: AllocationRecommendation[]): number {
-    const avgPerformanceImpact = recommendations.reduce(
-      (sum, r) => sum + r.expectedImpact.performanceImpact, 0
-    ) / recommendations.length;
+  protected calculatePerformanceScore(
+    recommendations: AllocationRecommendation[],
+  ): number {
+    const avgPerformanceImpact =
+      recommendations.reduce(
+        (sum, r) => sum + r.expectedImpact.performanceImpact,
+        0,
+      ) / recommendations.length;
     return Math.max(0, Math.min(100, avgPerformanceImpact));
   }
 
@@ -303,11 +361,20 @@ export abstract class BaseAllocationAlgorithm {
    * @param recommendations - Optimization recommendations
    * @returns Risk score (0-1, higher = more risk)
    */
-  protected calculateRiskScore(recommendations: AllocationRecommendation[]): number {
-    const riskLevelWeights = { low: 0.1, medium: 0.3, high: 0.6, critical: 1.0 };
-    const avgRisk = recommendations.reduce(
-      (sum, r) => sum + riskLevelWeights[r.riskAssessment.riskLevel], 0
-    ) / recommendations.length;
+  protected calculateRiskScore(
+    recommendations: AllocationRecommendation[],
+  ): number {
+    const riskLevelWeights = {
+      low: 0.1,
+      medium: 0.3,
+      high: 0.6,
+      critical: 1.0,
+    };
+    const avgRisk =
+      recommendations.reduce(
+        (sum, r) => sum + riskLevelWeights[r.riskAssessment.riskLevel],
+        0,
+      ) / recommendations.length;
     return Math.max(0, Math.min(1, avgRisk));
   }
 
@@ -319,17 +386,22 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected calculateEfficiencyScore(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): number {
     // Efficiency based on improvement per unit of change
     const totalChange = recommendations.reduce(
-      (sum, r) => sum + Math.abs(r.allocationChange), 0
+      (sum, r) => sum + Math.abs(r.allocationChange),
+      0,
     );
     const totalImprovement = recommendations.reduce(
-      (sum, r) => sum + r.potentialSavings + r.expectedImpact.businessValueImpact, 0
+      (sum, r) =>
+        sum + r.potentialSavings + r.expectedImpact.businessValueImpact,
+      0,
     );
 
-    return totalChange > 0 ? Math.min(100, (totalImprovement / totalChange) * 10) : 0;
+    return totalChange > 0
+      ? Math.min(100, (totalImprovement / totalChange) * 10)
+      : 0;
   }
 
   /**
@@ -337,8 +409,10 @@ export abstract class BaseAllocationAlgorithm {
    * @param recommendations - Optimization recommendations
    * @returns True if all constraints satisfied
    */
-  protected validateConstraints(recommendations: AllocationRecommendation[]): boolean {
-    return recommendations.every(r => {
+  protected validateConstraints(
+    recommendations: AllocationRecommendation[],
+  ): boolean {
+    return recommendations.every((r) => {
       const candidate = this.findCandidateById(r.resourceId);
       if (!candidate) return false;
 
@@ -358,10 +432,13 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected validateBudgetBalance(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): boolean {
     const originalTotal = this.calculateTotalCurrentBudget(originalCandidates);
-    const newTotal = recommendations.reduce((sum, r) => sum + r.recommendedAllocation, 0);
+    const newTotal = recommendations.reduce(
+      (sum, r) => sum + r.recommendedAllocation,
+      0,
+    );
     const tolerance = originalTotal * 0.001; // 0.1% tolerance
     return Math.abs(originalTotal - newTotal) <= tolerance;
   }
@@ -374,11 +451,15 @@ export abstract class BaseAllocationAlgorithm {
    */
   protected validateImprovement(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): boolean {
-    const totalPotentialSavings = recommendations.reduce((sum, r) => sum + r.potentialSavings, 0);
+    const totalPotentialSavings = recommendations.reduce(
+      (sum, r) => sum + r.potentialSavings,
+      0,
+    );
     const totalBusinessValue = recommendations.reduce(
-      (sum, r) => sum + r.expectedImpact.businessValueImpact, 0
+      (sum, r) => sum + r.expectedImpact.businessValueImpact,
+      0,
     );
     return totalPotentialSavings > 0 || totalBusinessValue > 0;
   }
@@ -388,7 +469,9 @@ export abstract class BaseAllocationAlgorithm {
    * @param resourceId - Resource identifier
    * @returns Matching candidate or undefined
    */
-  protected findCandidateById(resourceId: string): AllocationCandidate | undefined {
+  protected findCandidateById(
+    resourceId: string,
+  ): AllocationCandidate | undefined {
     // This would be set during optimization - simplified for base class
     return undefined;
   }
@@ -397,7 +480,7 @@ export abstract class BaseAllocationAlgorithm {
    * Get algorithm strategy
    * @returns Current allocation strategy
    */
-  public getStrategy(): AllocationStrategy {
+  getStrategy(): AllocationStrategy {
     return this.strategy;
   }
 
@@ -405,7 +488,7 @@ export abstract class BaseAllocationAlgorithm {
    * Get algorithm configuration
    * @returns Current configuration
    */
-  public getConfig(): AllocationAlgorithmConfig {
+  getConfig(): AllocationAlgorithmConfig {
     return { ...this.config };
   }
 
@@ -413,10 +496,10 @@ export abstract class BaseAllocationAlgorithm {
    * Get execution metrics
    * @returns Performance metrics from last optimization
    */
-  public getExecutionMetrics(): { executionTime: number; iterations: number } {
+  getExecutionMetrics(): { executionTime: number; iterations: number } {
     return {
       executionTime: this.executionTime,
-      iterations: this.iterations
+      iterations: this.iterations,
     };
   }
 }

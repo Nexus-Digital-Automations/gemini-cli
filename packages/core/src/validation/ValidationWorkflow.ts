@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../../../src/utils/logger.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
 import type {
   ValidationContext,
   ValidationReport,

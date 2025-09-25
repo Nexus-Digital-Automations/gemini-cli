@@ -29,7 +29,7 @@ export {
   createBudgetConfigManager,
   BudgetConfigValidationError,
   BudgetConfigAccessError,
-  DEFAULT_BUDGET_SETTINGS
+  DEFAULT_BUDGET_SETTINGS,
 } from './config/BudgetConfigManager.js';
 
 // Persistence Layer Exports
@@ -45,12 +45,9 @@ export type {
   StorageEventListener,
   StorageFactory,
   MigratableStorage,
-  StorageMigration
+  StorageMigration,
 } from './persistence/BudgetStorageInterface.js';
-export {
-  FileStorage,
-  createFileStorage
-} from './persistence/FileStorage.js';
+export { FileStorage, createFileStorage } from './persistence/FileStorage.js';
 
 // Calculation Engine Exports
 export {
@@ -58,7 +55,7 @@ export {
   createCostCalculationEngine,
   type ModelPricing,
   type CostCalculationResult,
-  type UsageCalculationResult
+  type UsageCalculationResult,
 } from './calculations/CostCalculationEngine.js';
 
 // Validation System Exports
@@ -69,7 +66,7 @@ export {
   type ValidationRule,
   type ValidationContext,
   type ValidationRuleResult,
-  type ComprehensiveValidationResult
+  type ComprehensiveValidationResult,
 } from './validation/BudgetValidator.js';
 
 // Event System Exports
@@ -80,7 +77,7 @@ export {
   type BudgetEventHandler,
   type EventSubscriptionOptions,
   type EventSubscription,
-  type EventStatistics
+  type EventStatistics,
 } from './events/BudgetEventSystem.js';
 
 // Utility Functions Exports
@@ -100,7 +97,7 @@ export {
   type CurrencyFormatOptions,
   type TimePeriod,
   type UsageStatsSummary,
-  type BudgetProjection
+  type BudgetProjection,
 } from './utils/BudgetUtils.js';
 
 // Security and Access Control Exports
@@ -111,7 +108,7 @@ export {
   type AccessControlRule,
   type AccessCondition,
   type PermissionCheckResult,
-  type SecurityConfig
+  type SecurityConfig,
 } from './security/BudgetAccessControl.js';
 
 // Analytics exports
@@ -146,9 +143,15 @@ export {
   BudgetDashboard,
   createBudgetDashboard,
 } from './dashboard/BudgetDashboard.js';
-export { RealTimeTracker, createRealTimeTracker } from './dashboard/RealTimeTracker.js';
+export {
+  RealTimeTracker,
+  createRealTimeTracker,
+} from './dashboard/RealTimeTracker.js';
 export { DashboardFormatter } from './dashboard/DashboardFormatter.js';
-export { ChartRenderer, createChartRenderer } from './dashboard/ChartRenderer.js';
+export {
+  ChartRenderer,
+  createChartRenderer,
+} from './dashboard/ChartRenderer.js';
 
 // Core Type exports
 export type {
@@ -168,7 +171,7 @@ export type {
   BudgetEvent,
   EventSeverity,
   BudgetSecurityContext,
-  BudgetPermission
+  BudgetPermission,
 } from './types.js';
 
 // Analytics type exports
@@ -198,4 +201,258 @@ export type {
   UsageEvent,
   UsageEventListener,
 } from './dashboard/BudgetDashboard.js';
-export type { ChartConfig, ChartColors, ChartDataPoint, ChartSeries } from './dashboard/ChartRenderer.js';
+export type {
+  ChartConfig,
+  ChartColors,
+  ChartDataPoint,
+  ChartSeries,
+} from './dashboard/ChartRenderer.js';
+
+// Allocation System Exports - Intelligent Budget Allocation and Optimization
+export {
+  // Core allocation system
+  AllocationSystem,
+  createAllocationSystem,
+  createAllocationCandidatesFromBudgetData,
+  createRecommendationContext,
+  DEFAULT_ALLOCATION_CONFIG,
+  // Algorithm framework
+  BaseAllocationAlgorithm,
+  UsageBasedAlgorithm,
+  ROIOptimizedAlgorithm,
+  PriorityBasedAlgorithm,
+  createAllocationAlgorithm,
+  createUsageBasedAlgorithm,
+  createROIOptimizedAlgorithm,
+  createPriorityBasedAlgorithm,
+  getDefaultAlgorithmConfig,
+  validateAlgorithmConfig,
+  getAlgorithmMetrics,
+  compareAlgorithmPerformance,
+  ALGORITHM_REGISTRY,
+  // Recommendation engine
+  RecommendationEngine,
+  createRecommendationEngine,
+} from './allocation/index.js';
+
+// Allocation Type Exports
+export type {
+  // Core allocation types
+  AllocationPriority,
+  AllocationStrategy,
+  AllocationConstraints,
+  SLARequirements,
+  AllocationCandidate,
+  AllocationRecommendation,
+  AllocationImpact,
+  RiskAssessment,
+  AllocationScenario,
+  ScenarioOutcome,
+  AllocationAlgorithmConfig,
+  AllocationOptimizationResult,
+  // System configuration types
+  AllocationSystemConfig,
+  AllocationSystemHealth,
+  // Algorithm and recommendation types
+  AllocationLogger,
+  AlgorithmComparison,
+  RecommendationEngineConfig,
+  RecommendationContext,
+  RecommendationResult,
+  RecommendationInsights,
+  RecommendationPerformanceMetrics,
+} from './allocation/index.js';
+
+// Real-Time Token Usage Monitoring System Exports
+export {
+  // Core monitoring components
+  TokenTracker,
+  MetricsCollector,
+  UsageCalculator,
+  BudgetEventManager,
+  QuotaManager,
+  TokenDataAggregator,
+  RealTimeStreamingService,
+  TokenUsageCache,
+  createTokenUsageCache,
+  // Integration layer
+  TokenMonitoringIntegration,
+  TokenTrackingContentGenerator,
+  createTokenMonitoringIntegration,
+  createMonitoringEnabledContentGenerator,
+  // Configuration presets and utilities
+  MonitoringPresets,
+  MonitoringHealthChecker,
+  MonitoringUtils,
+  // Cache presets and utilities
+  CachePriority,
+  CachePresets,
+  CacheKeys,
+} from './monitoring/index.js';
+
+// Monitoring Type Exports
+export type {
+  // Token tracking types
+  TokenTrackerConfig,
+  TokenTrackingEvent,
+  RequestTrackingData,
+  TokenUsageStats,
+  // Metrics collection types
+  MetricsCollectorConfig,
+  MetricsDataPoint,
+  MetricsSummary,
+  AggregatedMetrics,
+  TrendAnalysis,
+  StatisticalAnalysis,
+  // Event management types
+  EventManagerConfig,
+  EventSubscription,
+  EventFilter,
+  EventRoutingRule,
+  EventHandler,
+  // Quota management types
+  QuotaManagerConfig,
+  QuotaLimit,
+  RateLimitStrategy,
+  TokenBucket,
+  SlidingWindowLimiter,
+  // Data aggregation types
+  AggregatorConfig,
+  AggregationConfig,
+  TimeWindow,
+  WindowedData,
+  // Streaming types
+  StreamingConfig,
+  StreamSubscription,
+  StreamType,
+  StreamMessage,
+  StreamFilter,
+  // Cache types
+  CacheEntry,
+  CacheConfig,
+  CacheStats,
+  CacheInvalidationEvent,
+  PrefetchConfig,
+  // Integration types
+  MonitoringIntegrationConfig,
+  IntegrationStats,
+  // Calculation types
+  ModelPricing,
+  CostBreakdown,
+  UsageCostAnalysis,
+} from './monitoring/index.js';
+
+// Cost Analysis System Exports - Feature-Level Cost Attribution and Analysis
+export {
+  // Core cost analysis components
+  FeatureCostTracker,
+  createFeatureCostTracker,
+  CostBreakdownAnalyzer,
+  createCostBreakdownAnalyzer,
+  CostAllocationManager,
+  createCostAllocationManager,
+  EfficiencyAnalyzer,
+  createEfficiencyAnalyzer,
+  CostComparator,
+  createCostComparator,
+  CostImpactAssessment,
+  createCostImpactAssessment,
+  CostReportGenerator,
+  createCostReportGenerator,
+  CostModelingEngine,
+  createCostModelingEngine,
+  // Comprehensive cost analysis system
+  createComprehensiveCostAnalysisSystem,
+  DEFAULT_COST_ANALYSIS_CONFIG,
+} from './cost-analysis/index.js';
+
+// Cost Analysis Type Exports
+export type {
+  // Feature cost tracking types
+  FeatureCostEntry,
+  FeatureCostConfig,
+  CostAttributionRule,
+  FeatureCostAggregation,
+  // Cost breakdown analysis types
+  CostBreakdownConfig,
+  CostBreakdownEntry,
+  CostBreakdownAnalysis,
+  DimensionBreakdown,
+  BreakdownDimension,
+  TimeSeriesAnalysis,
+  StatisticalSummary,
+  CostDistribution,
+  // Cost allocation types
+  CostAllocationConfig,
+  AllocationMethod,
+  AllocationTarget,
+  AllocationRule,
+  CostAllocationRule,
+  AllocationResult,
+  AllocationRecommendation,
+  AllocationEfficiencyAnalysis,
+  // Efficiency analysis types
+  EfficiencyAnalysisConfig,
+  FeatureEfficiencyMetrics,
+  BusinessValue,
+  ROICalculationParams,
+  EfficiencyBenchmark,
+  OptimizationOpportunity,
+  EfficiencyTrend,
+  // Cost comparison types
+  CostComparisonConfig,
+  CostComparison,
+  ComparisonMetrics,
+  BenchmarkingAnalysis,
+  ComparisonDimension,
+  StatisticalSignificance,
+  CrossDimensionalAnalysis,
+  ExecutiveSummary,
+  // Impact assessment types
+  CostImpactConfig,
+  CostImpact,
+  ImpactSeverity,
+  ImpactRecommendation,
+  RiskAssessment,
+  ScenarioImpact,
+  ImpactMetrics,
+  // Cost reporting types
+  ReportGenerationConfig,
+  ReportFormat,
+  ReportTemplateConfig,
+  CustomReportSection,
+  ReportSectionContent,
+  ChartDataSet,
+  ChartDataPoint,
+  ChartOptions,
+  AxisConfig,
+  CostAnalysisReport,
+  ReportMetadata,
+  CostOptimizationRecommendation,
+  CostTrendAnalysis,
+  SeasonalPattern,
+  CostAnomaly,
+  ForecastData,
+  ForecastPeriod,
+  CostAlert,
+  ComprehensiveCostData,
+  // Cost modeling types
+  CostModelConfig,
+  CostModelType,
+  ModelParameters,
+  PiecewiseBreakpoint,
+  ModelValidationConfig,
+  ValidationMetric,
+  CostDataPoint,
+  CostPrediction,
+  ModelValidationResult,
+  ModelComparison,
+  ModelRanking,
+  StatisticalTest,
+  CostSensitivityAnalysis,
+  FeatureSensitivity,
+  ScenarioAnalysis,
+  CriticalThreshold,
+  // System types
+  CostAnalysisSystem,
+} from './cost-analysis/index.js';

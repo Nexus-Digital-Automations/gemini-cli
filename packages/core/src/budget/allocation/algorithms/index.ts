@@ -72,7 +72,7 @@ export const ALGORITHM_REGISTRY = {
 export function createAllocationAlgorithm(
   strategy: AllocationStrategy,
   config: AllocationAlgorithmConfig,
-  logger: AllocationLogger
+  logger: AllocationLogger,
 ): BaseAllocationAlgorithm {
   switch (strategy) {
     case 'usage_based':
@@ -98,7 +98,9 @@ export function createAllocationAlgorithm(
  * @param strategy - Allocation strategy
  * @returns Default algorithm configuration
  */
-export function getDefaultAlgorithmConfig(strategy: AllocationStrategy): AllocationAlgorithmConfig {
+export function getDefaultAlgorithmConfig(
+  strategy: AllocationStrategy,
+): AllocationAlgorithmConfig {
   const baseConfig: AllocationAlgorithmConfig = {
     strategy,
     weights: {
@@ -194,9 +196,14 @@ export function getDefaultAlgorithmConfig(strategy: AllocationStrategy): Allocat
  * @param config - Algorithm configuration to validate
  * @throws Error if configuration is invalid
  */
-export function validateAlgorithmConfig(config: AllocationAlgorithmConfig): void {
+export function validateAlgorithmConfig(
+  config: AllocationAlgorithmConfig,
+): void {
   // Check weights sum to 1.0
-  const weightsSum = Object.values(config.weights).reduce((sum, weight) => sum + weight, 0);
+  const weightsSum = Object.values(config.weights).reduce(
+    (sum, weight) => sum + weight,
+    0,
+  );
   if (Math.abs(weightsSum - 1.0) > 0.01) {
     throw new Error(`Algorithm weights must sum to 1.0, got ${weightsSum}`);
   }
@@ -248,14 +255,17 @@ export function getAlgorithmMetrics(algorithm: BaseAllocationAlgorithm): {
  * @returns Performance comparison data
  */
 export function compareAlgorithmPerformance(
-  results: Array<{ strategy: AllocationStrategy; result: AllocationOptimizationResult }>
+  results: Array<{
+    strategy: AllocationStrategy;
+    result: AllocationOptimizationResult;
+  }>,
 ): AlgorithmComparison {
   const comparison: AlgorithmComparison = {
-    strategies: results.map(r => r.strategy),
-    executionTimes: results.map(r => r.result.algorithmMetrics.executionTime),
-    optimizationScores: results.map(r => r.result.optimizationScore),
-    totalAllocated: results.map(r => r.result.totalAllocated),
-    recommendationCounts: results.map(r => r.result.recommendations.length),
+    strategies: results.map((r) => r.strategy),
+    executionTimes: results.map((r) => r.result.algorithmMetrics.executionTime),
+    optimizationScores: results.map((r) => r.result.optimizationScore),
+    totalAllocated: results.map((r) => r.result.totalAllocated),
+    recommendationCounts: results.map((r) => r.result.recommendations.length),
     bestStrategy: '',
     worstStrategy: '',
     averageScore: 0,
@@ -263,17 +273,24 @@ export function compareAlgorithmPerformance(
   };
 
   // Calculate statistics
-  comparison.averageScore = comparison.optimizationScores.reduce((sum, score) => sum + score, 0) / results.length;
+  comparison.averageScore =
+    comparison.optimizationScores.reduce((sum, score) => sum + score, 0) /
+    results.length;
 
-  const variance = comparison.optimizationScores.reduce(
-    (sum, score) => sum + Math.pow(score - comparison.averageScore, 2),
-    0
-  ) / results.length;
+  const variance =
+    comparison.optimizationScores.reduce(
+      (sum, score) => sum + Math.pow(score - comparison.averageScore, 2),
+      0,
+    ) / results.length;
   comparison.scoreVariance = variance;
 
   // Find best and worst strategies
-  const maxScoreIndex = comparison.optimizationScores.indexOf(Math.max(...comparison.optimizationScores));
-  const minScoreIndex = comparison.optimizationScores.indexOf(Math.min(...comparison.optimizationScores));
+  const maxScoreIndex = comparison.optimizationScores.indexOf(
+    Math.max(...comparison.optimizationScores),
+  );
+  const minScoreIndex = comparison.optimizationScores.indexOf(
+    Math.min(...comparison.optimizationScores),
+  );
 
   comparison.bestStrategy = comparison.strategies[maxScoreIndex];
   comparison.worstStrategy = comparison.strategies[minScoreIndex];

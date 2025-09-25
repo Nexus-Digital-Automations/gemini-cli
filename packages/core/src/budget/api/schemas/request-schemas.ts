@@ -50,14 +50,19 @@ function validateRequired(data: any, requiredFields: string[]): string[] {
 /**
  * Utility function to validate field types
  */
-function validateTypes(data: any, fieldTypes: Record<string, string>): string[] {
+function validateTypes(
+  data: any,
+  fieldTypes: Record<string, string>,
+): string[] {
   const errors: string[] = [];
 
   for (const [field, expectedType] of Object.entries(fieldTypes)) {
     if (data[field] !== undefined) {
       const actualType = typeof data[field];
       if (actualType !== expectedType) {
-        errors.push(`Field '${field}' must be of type ${expectedType}, got ${actualType}`);
+        errors.push(
+          `Field '${field}' must be of type ${expectedType}, got ${actualType}`,
+        );
       }
     }
   }
@@ -68,7 +73,11 @@ function validateTypes(data: any, fieldTypes: Record<string, string>): string[] 
 /**
  * Utility function to validate enum values
  */
-function validateEnum(data: any, field: string, enumValues: string[]): string[] {
+function validateEnum(
+  data: any,
+  field: string,
+  enumValues: string[],
+): string[] {
   const errors: string[] = [];
 
   if (data[field] !== undefined && !enumValues.includes(data[field])) {
@@ -81,7 +90,9 @@ function validateEnum(data: any, field: string, enumValues: string[]): string[] 
 /**
  * Usage request schema validator
  */
-export const usageRequestSchema: SchemaValidator = (data: any): ValidationResult => {
+export const usageRequestSchema: SchemaValidator = (
+  data: any,
+): ValidationResult => {
   logger.debug('Validating usage request', { data });
 
   const errors: string[] = [];
@@ -95,7 +106,7 @@ export const usageRequestSchema: SchemaValidator = (data: any): ValidationResult
     offset: 'number',
     feature: 'string',
     model: 'string',
-    sessionId: 'string'
+    sessionId: 'string',
   });
 
   errors.push(...typeValidation);
@@ -127,7 +138,9 @@ export const usageRequestSchema: SchemaValidator = (data: any): ValidationResult
 /**
  * Configuration request schema validator
  */
-export const configurationRequestSchema: SchemaValidator = (data: any): ValidationResult => {
+export const configurationRequestSchema: SchemaValidator = (
+  data: any,
+): ValidationResult => {
   logger.debug('Validating configuration request', { data });
 
   const errors: string[] = [];
@@ -140,14 +153,18 @@ export const configurationRequestSchema: SchemaValidator = (data: any): Validati
     monthlyLimit: 'number',
     resetTime: 'string',
     currency: 'string',
-    alertsEnabled: 'boolean'
+    alertsEnabled: 'boolean',
   });
 
   errors.push(...typeValidation);
 
   // Validate enum values
   if (data.enforcement) {
-    const enumValidation = validateEnum(data, 'enforcement', Object.values(BudgetEnforcementLevel));
+    const enumValidation = validateEnum(
+      data,
+      'enforcement',
+      Object.values(BudgetEnforcementLevel),
+    );
     errors.push(...enumValidation);
   }
 
@@ -179,7 +196,10 @@ export const configurationRequestSchema: SchemaValidator = (data: any): Validati
   }
 
   // Validate reset time format (HH:MM)
-  if (data.resetTime && !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(data.resetTime)) {
+  if (
+    data.resetTime &&
+    !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(data.resetTime)
+  ) {
     errors.push('resetTime must be in HH:MM format');
   }
 
@@ -198,7 +218,9 @@ export const configurationRequestSchema: SchemaValidator = (data: any): Validati
 /**
  * Analytics request schema validator
  */
-export const analyticsRequestSchema: SchemaValidator = (data: any): ValidationResult => {
+export const analyticsRequestSchema: SchemaValidator = (
+  data: any,
+): ValidationResult => {
   logger.debug('Validating analytics request', { data });
 
   const errors: string[] = [];
@@ -210,7 +232,7 @@ export const analyticsRequestSchema: SchemaValidator = (data: any): ValidationRe
     granularity: 'string',
     metrics: 'object',
     filters: 'object',
-    groupBy: 'string'
+    groupBy: 'string',
   });
 
   errors.push(...typeValidation);
@@ -219,7 +241,9 @@ export const analyticsRequestSchema: SchemaValidator = (data: any): ValidationRe
   if (data.granularity) {
     const validGranularities = ['hour', 'day', 'week', 'month'];
     if (!validGranularities.includes(data.granularity)) {
-      errors.push(`granularity must be one of: ${validGranularities.join(', ')}`);
+      errors.push(
+        `granularity must be one of: ${validGranularities.join(', ')}`,
+      );
     }
   }
 
@@ -248,7 +272,9 @@ export const analyticsRequestSchema: SchemaValidator = (data: any): ValidationRe
 /**
  * Export request schema validator
  */
-export const exportRequestSchema: SchemaValidator = (data: any): ValidationResult => {
+export const exportRequestSchema: SchemaValidator = (
+  data: any,
+): ValidationResult => {
   logger.debug('Validating export request', { data });
 
   const errors: string[] = [];
@@ -264,7 +290,7 @@ export const exportRequestSchema: SchemaValidator = (data: any): ValidationResul
     endDate: 'string',
     includeHistory: 'boolean',
     includeAnalytics: 'boolean',
-    compression: 'string'
+    compression: 'string',
   });
 
   errors.push(...typeValidation);
@@ -281,7 +307,9 @@ export const exportRequestSchema: SchemaValidator = (data: any): ValidationResul
   if (data.compression) {
     const validCompressions = ['none', 'gzip', 'zip'];
     if (!validCompressions.includes(data.compression)) {
-      errors.push(`compression must be one of: ${validCompressions.join(', ')}`);
+      errors.push(
+        `compression must be one of: ${validCompressions.join(', ')}`,
+      );
     }
   }
 
@@ -294,7 +322,9 @@ export const exportRequestSchema: SchemaValidator = (data: any): ValidationResul
 /**
  * Notification request schema validator
  */
-export const notificationRequestSchema: SchemaValidator = (data: any): ValidationResult => {
+export const notificationRequestSchema: SchemaValidator = (
+  data: any,
+): ValidationResult => {
   logger.debug('Validating notification request', { data });
 
   const errors: string[] = [];
@@ -304,7 +334,7 @@ export const notificationRequestSchema: SchemaValidator = (data: any): Validatio
     type: 'string',
     threshold: 'number',
     enabled: 'boolean',
-    message: 'string'
+    message: 'string',
   });
 
   errors.push(...typeValidation);
@@ -318,7 +348,10 @@ export const notificationRequestSchema: SchemaValidator = (data: any): Validatio
   }
 
   // Validate threshold
-  if (data.threshold !== undefined && (data.threshold < 0 || data.threshold > 100)) {
+  if (
+    data.threshold !== undefined &&
+    (data.threshold < 0 || data.threshold > 100)
+  ) {
     errors.push('threshold must be between 0 and 100');
   }
 
@@ -346,7 +379,7 @@ function validateNotificationSettings(notifications: any): string[] {
     emailAddress: 'string',
     desktop: 'boolean',
     webhook: 'boolean',
-    webhookUrl: 'string'
+    webhookUrl: 'string',
   });
 
   errors.push(...typeValidation);
@@ -363,7 +396,11 @@ function validateNotificationSettings(notifications: any): string[] {
 
   // Validate frequency
   if (notifications.frequency) {
-    const enumValidation = validateEnum(notifications, 'frequency', Object.values(NotificationFrequency));
+    const enumValidation = validateEnum(
+      notifications,
+      'frequency',
+      Object.values(NotificationFrequency),
+    );
     errors.push(...enumValidation);
   }
 
@@ -406,10 +443,10 @@ export const schemas = {
   configurationRequestSchema,
   analyticsRequestSchema,
   exportRequestSchema,
-  notificationRequestSchema
+  notificationRequestSchema,
 };
 
 logger.info('Request validation schemas initialized', {
   schemasCount: Object.keys(schemas).length,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });

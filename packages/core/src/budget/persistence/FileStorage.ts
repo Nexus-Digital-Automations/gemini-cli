@@ -14,7 +14,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { Logger } from '../../../../../src/utils/logger.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
 import type { BudgetSettings, BudgetUsageData } from '../types.js';
 import type {
   BudgetStorage,
@@ -25,7 +25,7 @@ import type {
   ObservableStorage,
   StorageEvent,
   StorageEventType,
-  StorageEventListener
+  StorageEventListener,
 } from './BudgetStorageInterface.js';
 
 /**
@@ -61,7 +61,7 @@ const DEFAULT_CONFIG: Required<FileStorageConfig> = {
   atomicWrites: true,
   fileMode: 0o644,
   dirMode: 0o755,
-  backupRetentionDays: 30
+  backupRetentionDays: 30,
 };
 
 /**
@@ -85,7 +85,10 @@ export class FileStorage implements ObservableStorage {
     this.config = {
       ...DEFAULT_CONFIG,
       ...config,
-      baseDir: path.resolve(projectRoot, config.baseDir || DEFAULT_CONFIG.baseDir)
+      baseDir: path.resolve(
+        projectRoot,
+        config.baseDir || DEFAULT_CONFIG.baseDir,
+      ),
     };
 
     this.metrics = {
@@ -95,33 +98,33 @@ export class FileStorage implements ObservableStorage {
       averageReadLatency: 0,
       averageWriteLatency: 0,
       errorRate: 0,
-      uptime: 0
+      uptime: 0,
     };
 
     this.logger.info('File storage initialized', {
       baseDir: this.config.baseDir,
-      atomicWrites: this.config.atomicWrites
+      atomicWrites: this.config.atomicWrites,
     });
   }
 
   /**
    * Initialize storage system
    */
-  public async initialize(): Promise<StorageOperationResult> {
+  async initialize(): Promise<StorageOperationResult> {
     const start = Date.now();
 
     try {
       // Ensure base directory exists
       await fs.mkdir(this.config.baseDir, {
         recursive: true,
-        mode: this.config.dirMode
+        mode: this.config.dirMode,
       });
 
       // Ensure backup directory exists
       const backupPath = path.join(this.config.baseDir, this.config.backupDir);
       await fs.mkdir(backupPath, {
         recursive: true,
-        mode: this.config.dirMode
+        mode: this.config.dirMode,
       });
 
       // Verify write permissions
@@ -137,12 +140,12 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration: Date.now() - start,
         success: true,
-        metadata: { baseDir: this.config.baseDir }
+        metadata: { baseDir: this.config.baseDir },
       });
 
       this.logger.info('File storage initialized successfully', {
         baseDir: this.config.baseDir,
-        duration: Date.now() - start
+        duration: Date.now() - start,
       });
 
       return { success: true };
@@ -153,14 +156,14 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration: Date.now() - start,
         success: false,
-        error: error as Error
+        error: error as Error,
       });
 
       this.logger.error('Failed to initialize file storage', error as Error);
 
       return {
         success: false,
-        error: `Storage initialization failed: ${(error as Error).message}`
+        error: `Storage initialization failed: ${(error as Error).message}`,
       };
     }
   }
@@ -168,7 +171,7 @@ export class FileStorage implements ObservableStorage {
   /**
    * Check storage health
    */
-  public async healthCheck(): Promise<StorageHealthCheck> {
+  async healthCheck(): Promise<StorageHealthCheck> {
     const start = Date.now();
     let healthy = true;
     const details: Record<string, any> = {};
@@ -177,7 +180,9 @@ export class FileStorage implements ObservableStorage {
       // Check base directory accessibility
       const stats = await fs.stat(this.config.baseDir);
       details.baseDirectoryExists = stats.isDirectory();
-      details.baseDirectoryWritable = await this.isWritable(this.config.baseDir);
+      details.baseDirectoryWritable = await this.isWritable(
+        this.config.baseDir,
+      );
 
       // Check backup directory
       const backupPath = path.join(this.config.baseDir, this.config.backupDir);
@@ -185,14 +190,15 @@ export class FileStorage implements ObservableStorage {
       details.backupDirectoryExists = backupStats.isDirectory();
 
       // Check file permissions
-      details.settingsFileExists = await this.fileExists(this.getSettingsPath());
+      details.settingsFileExists = await this.fileExists(
+        this.getSettingsPath(),
+      );
       details.usageFileExists = await this.fileExists(this.getUsagePath());
 
       // Update metrics
       this.metrics.uptime = Date.now() - this.startTime;
 
       healthy = details.baseDirectoryExists && details.baseDirectoryWritable;
-
     } catch (error) {
       healthy = false;
       details.error = (error as Error).message;
@@ -203,21 +209,23 @@ export class FileStorage implements ObservableStorage {
       timestamp: new Date(),
       storageId: 'file-storage',
       duration: Date.now() - start,
-      success: healthy
+      success: healthy,
     });
 
     return {
       healthy,
       storageType: 'file',
       details,
-      metrics: { ...this.metrics }
+      metrics: { ...this.metrics },
     };
   }
 
   /**
    * Read usage data from file
    */
-  public async readUsageData(): Promise<StorageOperationResult<BudgetUsageData>> {
+  async readUsageData(): Promise<
+    StorageOperationResult<BudgetUsageData>
+  > {
     const start = Date.now();
     this.metrics.readOperations++;
 
@@ -236,13 +244,13 @@ export class FileStorage implements ObservableStorage {
           duration: Date.now() - start,
           dataSize: JSON.stringify(defaultData).length,
           success: true,
-          metadata: { isDefault: true }
+          metadata: { isDefault: true },
         });
 
         return {
           success: true,
           data: defaultData,
-          metadata: { isDefault: true }
+          metadata: { isDefault: true },
         };
       }
 
@@ -261,19 +269,18 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         dataSize: content.length,
-        success: true
+        success: true,
       });
 
       this.logger.debug('Successfully read usage data', {
         fileSize: content.length,
-        duration
+        duration,
       });
 
       return {
         success: true,
-        data: validatedData
+        data: validatedData,
       };
-
     } catch (error) {
       const duration = Date.now() - start;
       this.updateReadLatency(duration);
@@ -285,14 +292,14 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         success: false,
-        error: error as Error
+        error: error as Error,
       });
 
       this.logger.error('Failed to read usage data', error as Error);
 
       return {
         success: false,
-        error: `Failed to read usage data: ${(error as Error).message}`
+        error: `Failed to read usage data: ${(error as Error).message}`,
       };
     }
   }
@@ -300,7 +307,9 @@ export class FileStorage implements ObservableStorage {
   /**
    * Write usage data to file with atomic operation
    */
-  public async writeUsageData(data: BudgetUsageData): Promise<StorageOperationResult> {
+  async writeUsageData(
+    data: BudgetUsageData,
+  ): Promise<StorageOperationResult> {
     const start = Date.now();
     this.metrics.writeOperations++;
 
@@ -327,16 +336,15 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         dataSize: content.length,
-        success: true
+        success: true,
       });
 
       this.logger.debug('Successfully wrote usage data', {
         dataSize: content.length,
-        duration
+        duration,
       });
 
       return { success: true };
-
     } catch (error) {
       const duration = Date.now() - start;
       this.updateWriteLatency(duration);
@@ -348,14 +356,14 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         success: false,
-        error: error as Error
+        error: error as Error,
       });
 
       this.logger.error('Failed to write usage data', error as Error);
 
       return {
         success: false,
-        error: `Failed to write usage data: ${(error as Error).message}`
+        error: `Failed to write usage data: ${(error as Error).message}`,
       };
     }
   }
@@ -363,7 +371,7 @@ export class FileStorage implements ObservableStorage {
   /**
    * Read settings from file
    */
-  public async readSettings(): Promise<StorageOperationResult<BudgetSettings>> {
+  async readSettings(): Promise<StorageOperationResult<BudgetSettings>> {
     const start = Date.now();
     this.metrics.readOperations++;
 
@@ -376,7 +384,7 @@ export class FileStorage implements ObservableStorage {
           enabled: false,
           dailyLimit: 100,
           resetTime: '00:00',
-          warningThresholds: [50, 75, 90]
+          warningThresholds: [50, 75, 90],
         };
 
         this.emit({
@@ -385,13 +393,13 @@ export class FileStorage implements ObservableStorage {
           storageId: 'file-storage',
           duration: Date.now() - start,
           success: true,
-          metadata: { isDefault: true }
+          metadata: { isDefault: true },
         });
 
         return {
           success: true,
           data: defaultSettings,
-          metadata: { isDefault: true }
+          metadata: { isDefault: true },
         };
       }
 
@@ -407,11 +415,10 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         dataSize: content.length,
-        success: true
+        success: true,
       });
 
       return { success: true, data: settings };
-
     } catch (error) {
       const duration = Date.now() - start;
       this.updateReadLatency(duration);
@@ -423,12 +430,12 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         success: false,
-        error: error as Error
+        error: error as Error,
       });
 
       return {
         success: false,
-        error: `Failed to read settings: ${(error as Error).message}`
+        error: `Failed to read settings: ${(error as Error).message}`,
       };
     }
   }
@@ -436,7 +443,9 @@ export class FileStorage implements ObservableStorage {
   /**
    * Write settings to file
    */
-  public async writeSettings(settings: BudgetSettings): Promise<StorageOperationResult> {
+  async writeSettings(
+    settings: BudgetSettings,
+  ): Promise<StorageOperationResult> {
     const start = Date.now();
     this.metrics.writeOperations++;
 
@@ -459,11 +468,10 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         dataSize: content.length,
-        success: true
+        success: true,
       });
 
       return { success: true };
-
     } catch (error) {
       const duration = Date.now() - start;
       this.updateWriteLatency(duration);
@@ -475,12 +483,12 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration,
         success: false,
-        error: error as Error
+        error: error as Error,
       });
 
       return {
         success: false,
-        error: `Failed to write settings: ${(error as Error).message}`
+        error: `Failed to write settings: ${(error as Error).message}`,
       };
     }
   }
@@ -488,11 +496,13 @@ export class FileStorage implements ObservableStorage {
   /**
    * Clear all budget data
    */
-  public async clearAllData(confirmationToken: string): Promise<StorageOperationResult> {
+  async clearAllData(
+    confirmationToken: string,
+  ): Promise<StorageOperationResult> {
     if (confirmationToken !== 'CONFIRM_CLEAR_ALL') {
       return {
         success: false,
-        error: 'Invalid confirmation token'
+        error: 'Invalid confirmation token',
       };
     }
 
@@ -514,13 +524,12 @@ export class FileStorage implements ObservableStorage {
       this.logger.info('All budget data cleared');
 
       return { success: true };
-
     } catch (error) {
       this.logger.error('Failed to clear budget data', error as Error);
 
       return {
         success: false,
-        error: `Failed to clear data: ${(error as Error).message}`
+        error: `Failed to clear data: ${(error as Error).message}`,
       };
     }
   }
@@ -528,20 +537,30 @@ export class FileStorage implements ObservableStorage {
   /**
    * Create backup of current data
    */
-  public async createBackup(): Promise<StorageOperationResult<string>> {
+  async createBackup(): Promise<StorageOperationResult<string>> {
     const start = Date.now();
 
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupId = `backup-${timestamp}`;
-      const backupPath = path.join(this.config.baseDir, this.config.backupDir, backupId);
+      const backupPath = path.join(
+        this.config.baseDir,
+        this.config.backupDir,
+        backupId,
+      );
 
-      await fs.mkdir(backupPath, { recursive: true, mode: this.config.dirMode });
+      await fs.mkdir(backupPath, {
+        recursive: true,
+        mode: this.config.dirMode,
+      });
 
       // Backup settings if exists
       const settingsPath = this.getSettingsPath();
       if (await this.fileExists(settingsPath)) {
-        const settingsBackupPath = path.join(backupPath, this.config.settingsFile);
+        const settingsBackupPath = path.join(
+          backupPath,
+          this.config.settingsFile,
+        );
         await fs.copyFile(settingsPath, settingsBackupPath);
       }
 
@@ -563,20 +582,19 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration: Date.now() - start,
         success: true,
-        metadata: { backupId }
+        metadata: { backupId },
       });
 
       return {
         success: true,
-        data: backupId
+        data: backupId,
       };
-
     } catch (error) {
       this.logger.error('Failed to create backup', error as Error);
 
       return {
         success: false,
-        error: `Failed to create backup: ${(error as Error).message}`
+        error: `Failed to create backup: ${(error as Error).message}`,
       };
     }
   }
@@ -584,23 +602,32 @@ export class FileStorage implements ObservableStorage {
   /**
    * Restore data from backup
    */
-  public async restoreFromBackup(backupId: string): Promise<StorageOperationResult> {
+  async restoreFromBackup(
+    backupId: string,
+  ): Promise<StorageOperationResult> {
     const start = Date.now();
 
     try {
-      const backupPath = path.join(this.config.baseDir, this.config.backupDir, backupId);
+      const backupPath = path.join(
+        this.config.baseDir,
+        this.config.backupDir,
+        backupId,
+      );
 
       // Verify backup exists
       const backupStats = await fs.stat(backupPath);
       if (!backupStats.isDirectory()) {
         return {
           success: false,
-          error: 'Backup not found'
+          error: 'Backup not found',
         };
       }
 
       // Restore settings if backup contains it
-      const settingsBackupPath = path.join(backupPath, this.config.settingsFile);
+      const settingsBackupPath = path.join(
+        backupPath,
+        this.config.settingsFile,
+      );
       if (await this.fileExists(settingsBackupPath)) {
         await fs.copyFile(settingsBackupPath, this.getSettingsPath());
       }
@@ -617,17 +644,16 @@ export class FileStorage implements ObservableStorage {
         storageId: 'file-storage',
         duration: Date.now() - start,
         success: true,
-        metadata: { backupId }
+        metadata: { backupId },
       });
 
       return { success: true };
-
     } catch (error) {
       this.logger.error('Failed to restore from backup', error as Error);
 
       return {
         success: false,
-        error: `Failed to restore backup: ${(error as Error).message}`
+        error: `Failed to restore backup: ${(error as Error).message}`,
       };
     }
   }
@@ -635,19 +661,19 @@ export class FileStorage implements ObservableStorage {
   /**
    * Get storage metrics
    */
-  public async getMetrics(): Promise<StorageOperationResult<StorageMetrics>> {
+  async getMetrics(): Promise<StorageOperationResult<StorageMetrics>> {
     try {
       this.metrics.spaceUsed = await this.calculateSpaceUsed();
       this.metrics.uptime = Date.now() - this.startTime;
 
       return {
         success: true,
-        data: { ...this.metrics }
+        data: { ...this.metrics },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Failed to get metrics: ${(error as Error).message}`
+        error: `Failed to get metrics: ${(error as Error).message}`,
       };
     }
   }
@@ -655,14 +681,14 @@ export class FileStorage implements ObservableStorage {
   /**
    * Close storage connections
    */
-  public async close(): Promise<StorageOperationResult> {
+  async close(): Promise<StorageOperationResult> {
     this.logger.info('File storage closed');
 
     this.emit({
       type: StorageEventType.CLOSED,
       timestamp: new Date(),
       storageId: 'file-storage',
-      success: true
+      success: true,
     });
 
     return { success: true };
@@ -671,7 +697,10 @@ export class FileStorage implements ObservableStorage {
   /**
    * Subscribe to storage events
    */
-  public on(eventType: StorageEventType | 'all', listener: StorageEventListener): void {
+  on(
+    eventType: StorageEventType | 'all',
+    listener: StorageEventListener,
+  ): void {
     const key = eventType.toString();
     if (!this.eventListeners.has(key)) {
       this.eventListeners.set(key, []);
@@ -682,7 +711,10 @@ export class FileStorage implements ObservableStorage {
   /**
    * Unsubscribe from storage events
    */
-  public off(eventType: StorageEventType | 'all', listener: StorageEventListener): void {
+  off(
+    eventType: StorageEventType | 'all',
+    listener: StorageEventListener,
+  ): void {
     const key = eventType.toString();
     const listeners = this.eventListeners.get(key);
     if (listeners) {
@@ -696,7 +728,7 @@ export class FileStorage implements ObservableStorage {
   /**
    * Emit storage event to listeners
    */
-  public emit(event: StorageEvent): void {
+  emit(event: StorageEvent): void {
     // Emit to specific event type listeners
     const typeListeners = this.eventListeners.get(event.type);
     if (typeListeners) {
@@ -786,13 +818,13 @@ export class FileStorage implements ObservableStorage {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
-        tokenCosts: { input: 0, output: 0 }
+        tokenCosts: { input: 0, output: 0 },
       },
       lastResetTime: now,
       warningsShown: [],
       featureCosts: {},
       sessionUsage: [],
-      history: []
+      history: [],
     };
   }
 
@@ -809,13 +841,13 @@ export class FileStorage implements ObservableStorage {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
-        tokenCosts: { input: 0, output: 0 }
+        tokenCosts: { input: 0, output: 0 },
       },
       lastResetTime: data.lastResetTime || new Date().toISOString(),
       warningsShown: data.warningsShown || [],
       featureCosts: data.featureCosts || {},
       sessionUsage: data.sessionUsage || [],
-      history: data.history || []
+      history: data.history || [],
     };
   }
 
@@ -848,16 +880,20 @@ export class FileStorage implements ObservableStorage {
    * Update read latency metrics
    */
   private updateReadLatency(duration: number): void {
-    const total = this.metrics.averageReadLatency * (this.metrics.readOperations - 1);
-    this.metrics.averageReadLatency = (total + duration) / this.metrics.readOperations;
+    const total =
+      this.metrics.averageReadLatency * (this.metrics.readOperations - 1);
+    this.metrics.averageReadLatency =
+      (total + duration) / this.metrics.readOperations;
   }
 
   /**
    * Update write latency metrics
    */
   private updateWriteLatency(duration: number): void {
-    const total = this.metrics.averageWriteLatency * (this.metrics.writeOperations - 1);
-    this.metrics.averageWriteLatency = (total + duration) / this.metrics.writeOperations;
+    const total =
+      this.metrics.averageWriteLatency * (this.metrics.writeOperations - 1);
+    this.metrics.averageWriteLatency =
+      (total + duration) / this.metrics.writeOperations;
   }
 
   /**
@@ -878,7 +914,9 @@ export class FileStorage implements ObservableStorage {
       const entries = await fs.readdir(backupDir);
 
       const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - this.config.backupRetentionDays);
+      cutoffDate.setDate(
+        cutoffDate.getDate() - this.config.backupRetentionDays,
+      );
 
       for (const entry of entries) {
         if (!entry.startsWith('backup-')) continue;
@@ -905,7 +943,7 @@ export class FileStorage implements ObservableStorage {
  */
 export function createFileStorage(
   projectRoot: string,
-  config: Partial<FileStorageConfig> = {}
+  config: Partial<FileStorageConfig> = {},
 ): FileStorage {
   return new FileStorage(projectRoot, config);
 }

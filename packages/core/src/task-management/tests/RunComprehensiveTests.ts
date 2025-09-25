@@ -1,6 +1,12 @@
 #!/usr/bin/env ts-node
 
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive Test Suite Runner
  *
  * Master test execution script for the autonomous task management system.
@@ -31,8 +37,8 @@ import {
   qualityGates,
 } from './TestSuiteConfiguration';
 import { CoverageTestUtilities } from './CoverageReporting.test';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import chalk from 'chalk';
 
 class ComprehensiveTestRunner {

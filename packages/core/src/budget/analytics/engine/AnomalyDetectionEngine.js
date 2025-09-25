@@ -64,7 +64,7 @@ export class AnomalyDetectionEngine {
       adaptiveThresholds: true,
       contextualAnalysis: true,
 
-      ...config
+      ...config,
     };
 
     // Adjust thresholds based on sensitivity
@@ -72,7 +72,7 @@ export class AnomalyDetectionEngine {
 
     this.logger.info('AnomalyDetectionEngine initialized', {
       config: this.config,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -86,7 +86,7 @@ export class AnomalyDetectionEngine {
     const startTime = Date.now();
     this.logger.info('Starting anomaly detection', {
       metricsCount: metrics.length,
-      dateRange: this.getDateRange(metrics)
+      dateRange: this.getDateRange(metrics),
     });
 
     try {
@@ -95,7 +95,7 @@ export class AnomalyDetectionEngine {
       if (validatedMetrics.length < this.config.minDataPoints) {
         this.logger.warn('Insufficient data for anomaly detection', {
           available: validatedMetrics.length,
-          required: this.config.minDataPoints
+          required: this.config.minDataPoints,
         });
         return this.createEmptyResults();
       }
@@ -110,26 +110,30 @@ export class AnomalyDetectionEngine {
         this.detectPatternAnomalies(validatedMetrics),
         this.detectContextualAnomalies(validatedMetrics),
         this.detectCollectiveAnomalies(validatedMetrics),
-        this.detectSeasonalAnomalies(validatedMetrics)
+        this.detectSeasonalAnomalies(validatedMetrics),
       ]);
 
       // Consolidate and score anomalies
       const allAnomalies = this.consolidateAnomalies(detectionResults);
-      const scoredAnomalies = await this.scoreAnomalies(allAnomalies, validatedMetrics);
+      const scoredAnomalies = await this.scoreAnomalies(
+        allAnomalies,
+        validatedMetrics,
+      );
 
       // Filter by confidence threshold
       const significantAnomalies = scoredAnomalies.filter(
-        anomaly => anomaly.confidence >= this.config.confidenceThreshold
+        (anomaly) => anomaly.confidence >= this.config.confidenceThreshold,
       );
 
       // Generate recommendations for anomalies
-      const recommendations = await this.generateAnomalyRecommendations(significantAnomalies);
+      const recommendations =
+        await this.generateAnomalyRecommendations(significantAnomalies);
 
       const executionTime = Date.now() - startTime;
       this.logger.info('Anomaly detection completed', {
         executionTime: `${executionTime}ms`,
         totalAnomalies: allAnomalies.length,
-        significantAnomalies: significantAnomalies.length
+        significantAnomalies: significantAnomalies.length,
       });
 
       return {
@@ -142,14 +146,14 @@ export class AnomalyDetectionEngine {
         metadata: {
           detectionConfig: this.config,
           dataQuality: this.assessDataQuality(validatedMetrics),
-          baselineInfo: this.getBaselineInfo()
-        }
+          baselineInfo: this.getBaselineInfo(),
+        },
       };
     } catch (error) {
       this.logger.error('Anomaly detection failed', {
         error: error.message,
         stack: error.stack,
-        executionTime: `${Date.now() - startTime}ms`
+        executionTime: `${Date.now() - startTime}ms`,
       });
       throw new Error(`Anomaly detection failed: ${error.message}`);
     }
@@ -169,23 +173,32 @@ export class AnomalyDetectionEngine {
 
     // Analyze cost anomalies
     if (this.config.detectCostAnomalies) {
-      const costAnomalies = await this.detectCostStatisticalAnomalies(metrics, timeGroups);
+      const costAnomalies = await this.detectCostStatisticalAnomalies(
+        metrics,
+        timeGroups,
+      );
       anomalies.push(...costAnomalies);
     }
 
     // Analyze volume anomalies
     if (this.config.detectVolumeAnomalies) {
-      const volumeAnomalies = await this.detectVolumeStatisticalAnomalies(metrics, timeGroups);
+      const volumeAnomalies = await this.detectVolumeStatisticalAnomalies(
+        metrics,
+        timeGroups,
+      );
       anomalies.push(...volumeAnomalies);
     }
 
     // Analyze efficiency anomalies
     if (this.config.detectEfficiencyAnomalies) {
-      const efficiencyAnomalies = await this.detectEfficiencyStatisticalAnomalies(metrics, timeGroups);
+      const efficiencyAnomalies =
+        await this.detectEfficiencyStatisticalAnomalies(metrics, timeGroups);
       anomalies.push(...efficiencyAnomalies);
     }
 
-    this.logger.debug('Statistical anomaly detection completed', { anomaliesFound: anomalies.length });
+    this.logger.debug('Statistical anomaly detection completed', {
+      anomaliesFound: anomalies.length,
+    });
     return anomalies;
   }
 
@@ -197,7 +210,9 @@ export class AnomalyDetectionEngine {
    */
   async detectCostStatisticalAnomalies(metrics, timeGroups) {
     const anomalies = [];
-    const costData = metrics.map(m => m.cost).filter(c => typeof c === 'number' && !isNaN(c));
+    const costData = metrics
+      .map((m) => m.cost)
+      .filter((c) => typeof c === 'number' && !isNaN(c));
 
     if (costData.length === 0) return anomalies;
 
@@ -208,7 +223,9 @@ export class AnomalyDetectionEngine {
     for (const metric of metrics) {
       if (typeof metric.cost !== 'number' || isNaN(metric.cost)) continue;
 
-      const zScore = Math.abs((metric.cost - costStats.mean) / Math.max(costStats.stdDev, 0.001));
+      const zScore = Math.abs(
+        (metric.cost - costStats.mean) / Math.max(costStats.stdDev, 0.001),
+      );
 
       if (zScore > zScoreThreshold) {
         anomalies.push({
@@ -221,15 +238,15 @@ export class AnomalyDetectionEngine {
           baseline: costStats.mean,
           deviation: zScore,
           description: `Unusual cost spike detected: $${metric.cost.toFixed(4)} (${zScore.toFixed(1)}σ above normal)`,
-          affectedFeatures: [metric.feature].filter(f => f),
-          affectedUsers: [metric.user].filter(u => u),
+          affectedFeatures: [metric.feature].filter((f) => f),
+          affectedUsers: [metric.user].filter((u) => u),
           confidence: Math.min(0.95, Math.max(0.5, (zScore - 1) / 4)),
           rawData: {
             cost: metric.cost,
             timestamp: metric.timestamp,
             feature: metric.feature,
-            user: metric.user
-          }
+            user: metric.user,
+          },
         });
       }
     }
@@ -242,7 +259,8 @@ export class AnomalyDetectionEngine {
       if (hourCost > 0 && avgHourlyCost > 0) {
         const ratio = hourCost / avgHourlyCost;
 
-        if (ratio > 3) { // 3x above average
+        if (ratio > 3) {
+          // 3x above average
           anomalies.push({
             id: `hourly-cost-spike-${hour}`,
             type: 'cost_anomaly',
@@ -253,14 +271,16 @@ export class AnomalyDetectionEngine {
             baseline: avgHourlyCost,
             deviation: ratio,
             description: `Hourly cost spike: $${hourCost.toFixed(4)} (${ratio.toFixed(1)}x above average)`,
-            affectedFeatures: [...new Set(hourMetrics.map(m => m.feature))].filter(f => f),
+            affectedFeatures: [
+              ...new Set(hourMetrics.map((m) => m.feature)),
+            ].filter((f) => f),
             confidence: Math.min(0.9, Math.max(0.6, (ratio - 2) / 5)),
             rawData: {
               hour,
               cost: hourCost,
               requestCount: hourMetrics.length,
-              avgCostPerRequest: hourCost / hourMetrics.length
-            }
+              avgCostPerRequest: hourCost / hourMetrics.length,
+            },
           });
         }
       }
@@ -281,31 +301,38 @@ export class AnomalyDetectionEngine {
     if (timeGroups.size === 0) return anomalies;
 
     // Calculate volume statistics per hour
-    const volumeData = Array.from(timeGroups.values()).map(hourMetrics => hourMetrics.length);
+    const volumeData = Array.from(timeGroups.values()).map(
+      (hourMetrics) => hourMetrics.length,
+    );
     const volumeStats = this.calculateStatistics(volumeData);
 
     for (const [hour, hourMetrics] of timeGroups.entries()) {
       const hourVolume = hourMetrics.length;
-      const zScore = Math.abs((hourVolume - volumeStats.mean) / Math.max(volumeStats.stdDev, 0.1));
+      const zScore = Math.abs(
+        (hourVolume - volumeStats.mean) / Math.max(volumeStats.stdDev, 0.1),
+      );
 
       if (zScore > this.config.zScoreThreshold) {
         anomalies.push({
           id: `volume-anomaly-${hour}`,
           type: 'volume_anomaly',
-          subtype: hourVolume > volumeStats.mean ? 'volume_spike' : 'volume_drop',
+          subtype:
+            hourVolume > volumeStats.mean ? 'volume_spike' : 'volume_drop',
           severity: this.calculateSeverity(zScore, this.config.zScoreThreshold),
           timestamp: hour,
           value: hourVolume,
           baseline: volumeStats.mean,
           deviation: zScore,
           description: `${hourVolume > volumeStats.mean ? 'Volume spike' : 'Volume drop'}: ${hourVolume} requests (${zScore.toFixed(1)}σ ${hourVolume > volumeStats.mean ? 'above' : 'below'} normal)`,
-          affectedFeatures: [...new Set(hourMetrics.map(m => m.feature))].filter(f => f),
+          affectedFeatures: [
+            ...new Set(hourMetrics.map((m) => m.feature)),
+          ].filter((f) => f),
           confidence: Math.min(0.9, Math.max(0.6, (zScore - 1) / 3)),
           rawData: {
             hour,
             volume: hourVolume,
-            avgVolume: volumeStats.mean
-          }
+            avgVolume: volumeStats.mean,
+          },
         });
       }
     }
@@ -325,10 +352,13 @@ export class AnomalyDetectionEngine {
     for (const [hour, hourMetrics] of timeGroups.entries()) {
       if (hourMetrics.length === 0) continue;
 
-      const costs = hourMetrics.map(m => m.cost).filter(c => typeof c === 'number' && !isNaN(c));
+      const costs = hourMetrics
+        .map((m) => m.cost)
+        .filter((c) => typeof c === 'number' && !isNaN(c));
       if (costs.length === 0) continue;
 
-      const avgCostPerRequest = costs.reduce((sum, c) => sum + c, 0) / costs.length;
+      const avgCostPerRequest =
+        costs.reduce((sum, c) => sum + c, 0) / costs.length;
       const efficiency = costs.length / Math.max(1, avgCostPerRequest * 1000); // Requests per dollar (scaled)
 
       // Compare with baseline efficiency if available
@@ -336,25 +366,36 @@ export class AnomalyDetectionEngine {
       if (baseline) {
         const efficiencyRatio = efficiency / baseline.mean;
 
-        if (efficiencyRatio < 0.5) { // 50% drop in efficiency
+        if (efficiencyRatio < 0.5) {
+          // 50% drop in efficiency
           anomalies.push({
             id: `efficiency-drop-${hour}`,
             type: 'efficiency_anomaly',
             subtype: 'efficiency_drop',
-            severity: efficiencyRatio < 0.3 ? 'critical' : efficiencyRatio < 0.4 ? 'high' : 'medium',
+            severity:
+              efficiencyRatio < 0.3
+                ? 'critical'
+                : efficiencyRatio < 0.4
+                  ? 'high'
+                  : 'medium',
             timestamp: hour,
             value: efficiency,
             baseline: baseline.mean,
             deviation: 1 - efficiencyRatio,
             description: `Efficiency drop: ${(efficiencyRatio * 100).toFixed(1)}% of normal efficiency`,
-            affectedFeatures: [...new Set(hourMetrics.map(m => m.feature))].filter(f => f),
-            confidence: Math.min(0.85, Math.max(0.6, (1 - efficiencyRatio) * 2)),
+            affectedFeatures: [
+              ...new Set(hourMetrics.map((m) => m.feature)),
+            ].filter((f) => f),
+            confidence: Math.min(
+              0.85,
+              Math.max(0.6, (1 - efficiencyRatio) * 2),
+            ),
             rawData: {
               hour,
               efficiency,
               avgCostPerRequest,
-              requestCount: hourMetrics.length
-            }
+              requestCount: hourMetrics.length,
+            },
           });
         }
       }
@@ -377,15 +418,22 @@ export class AnomalyDetectionEngine {
 
     if (dailyGroups.size < 3) return anomalies; // Need at least 3 days for trend
 
-    const dailyData = Array.from(dailyGroups.entries()).map(([day, dayMetrics]) => ({
-      day,
-      cost: dayMetrics.reduce((sum, m) => sum + (m.cost || 0), 0),
-      volume: dayMetrics.length,
-      efficiency: dayMetrics.length / Math.max(1, dayMetrics.reduce((sum, m) => sum + (m.cost || 0), 0) * 1000)
-    })).sort((a, b) => a.day.localeCompare(b.day));
+    const dailyData = Array.from(dailyGroups.entries())
+      .map(([day, dayMetrics]) => ({
+        day,
+        cost: dayMetrics.reduce((sum, m) => sum + (m.cost || 0), 0),
+        volume: dayMetrics.length,
+        efficiency:
+          dayMetrics.length /
+          Math.max(
+            1,
+            dayMetrics.reduce((sum, m) => sum + (m.cost || 0), 0) * 1000,
+          ),
+      }))
+      .sort((a, b) => a.day.localeCompare(b.day));
 
     // Analyze cost trends
-    const costTrend = this.calculateTrend(dailyData.map(d => d.cost));
+    const costTrend = this.calculateTrend(dailyData.map((d) => d.cost));
     if (Math.abs(costTrend.slope) > this.config.changeRateThreshold) {
       anomalies.push({
         id: `cost-trend-${Date.now()}`,
@@ -400,8 +448,8 @@ export class AnomalyDetectionEngine {
         confidence: Math.min(0.9, costTrend.confidence),
         rawData: {
           trend: costTrend,
-          dailyData: dailyData.slice(-7) // Last 7 days
-        }
+          dailyData: dailyData.slice(-7), // Last 7 days
+        },
       });
     }
 
@@ -443,12 +491,13 @@ export class AnomalyDetectionEngine {
       explainedVariation += Math.pow(predicted - yMean, 2);
     }
 
-    const rSquared = totalVariation === 0 ? 0 : explainedVariation / totalVariation;
+    const rSquared =
+      totalVariation === 0 ? 0 : explainedVariation / totalVariation;
 
     return {
       slope: slope / Math.max(1, yMean), // Normalize by mean for percentage change
       confidence: Math.max(0, Math.min(1, rSquared)),
-      rSquared
+      rSquared,
     };
   }
 
@@ -458,12 +507,14 @@ export class AnomalyDetectionEngine {
   validateMetrics(metrics) {
     if (!Array.isArray(metrics)) return [];
 
-    return metrics.filter(metric => {
+    return metrics.filter((metric) => {
       return (
         metric &&
         typeof metric.timestamp === 'string' &&
         !isNaN(new Date(metric.timestamp).getTime()) &&
-        (typeof metric.cost === 'number' && !isNaN(metric.cost) && metric.cost >= 0)
+        typeof metric.cost === 'number' &&
+        !isNaN(metric.cost) &&
+        metric.cost >= 0
       );
     });
   }
@@ -509,7 +560,8 @@ export class AnomalyDetectionEngine {
     const sum = data.reduce((acc, val) => acc + val, 0);
     const mean = sum / count;
 
-    const variance = data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count;
+    const variance =
+      data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count;
     const stdDev = Math.sqrt(variance);
 
     const min = Math.min(...data);
@@ -531,8 +583,8 @@ export class AnomalyDetectionEngine {
     }
 
     const timestamps = metrics
-      .map(m => new Date(m.timestamp).getTime())
-      .filter(t => !isNaN(t));
+      .map((m) => new Date(m.timestamp).getTime())
+      .filter((t) => !isNaN(t));
 
     if (timestamps.length === 0) {
       return { start: null, end: null, days: 0 };
@@ -540,12 +592,13 @@ export class AnomalyDetectionEngine {
 
     const start = new Date(Math.min(...timestamps));
     const end = new Date(Math.max(...timestamps));
-    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const days =
+      Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
     return {
       start: start.toISOString(),
       end: end.toISOString(),
-      days
+      days,
     };
   }
 
@@ -556,12 +609,18 @@ export class AnomalyDetectionEngine {
       case 'low':
         this.config.zScoreThreshold *= 1.5;
         this.config.changeRateThreshold *= 1.5;
-        this.config.confidenceThreshold = Math.max(0.8, this.config.confidenceThreshold);
+        this.config.confidenceThreshold = Math.max(
+          0.8,
+          this.config.confidenceThreshold,
+        );
         break;
       case 'high':
         this.config.zScoreThreshold *= 0.7;
         this.config.changeRateThreshold *= 0.7;
-        this.config.confidenceThreshold = Math.min(0.6, this.config.confidenceThreshold);
+        this.config.confidenceThreshold = Math.min(
+          0.6,
+          this.config.confidenceThreshold,
+        );
         break;
       // medium is default - no changes
     }
@@ -578,8 +637,8 @@ export class AnomalyDetectionEngine {
       metadata: {
         detectionConfig: this.config,
         dataQuality: { score: 0, issues: ['Insufficient data'] },
-        baselineInfo: 'No baseline available'
-      }
+        baselineInfo: 'No baseline available',
+      },
     };
   }
 
@@ -605,15 +664,18 @@ export class AnomalyDetectionEngine {
   }
 
   consolidateAnomalies(detectionResults) {
-    return detectionResults.flat().filter(anomaly => anomaly !== null && anomaly !== undefined);
+    return detectionResults
+      .flat()
+      .filter((anomaly) => anomaly !== null && anomaly !== undefined);
   }
 
   async scoreAnomalies(anomalies, metrics) {
     // Score anomalies based on impact and confidence
-    return anomalies.map(anomaly => ({
+    return anomalies.map((anomaly) => ({
       ...anomaly,
       impactScore: this.calculateImpactScore(anomaly, metrics),
-      overallScore: (anomaly.confidence + this.calculateImpactScore(anomaly, metrics)) / 2
+      overallScore:
+        (anomaly.confidence + this.calculateImpactScore(anomaly, metrics)) / 2,
     }));
   }
 
@@ -622,10 +684,18 @@ export class AnomalyDetectionEngine {
     let score = 0.5; // base score
 
     switch (anomaly.severity) {
-      case 'critical': score += 0.4; break;
-      case 'high': score += 0.3; break;
-      case 'medium': score += 0.2; break;
-      case 'low': score += 0.1; break;
+      case 'critical':
+        score += 0.4;
+        break;
+      case 'high':
+        score += 0.3;
+        break;
+      case 'medium':
+        score += 0.2;
+        break;
+      case 'low':
+        score += 0.1;
+        break;
     }
 
     // Boost score based on affected scope
@@ -648,7 +718,9 @@ export class AnomalyDetectionEngine {
           recommendations.push(this.createVolumeAnomalyRecommendation(anomaly));
           break;
         case 'efficiency_anomaly':
-          recommendations.push(this.createEfficiencyAnomalyRecommendation(anomaly));
+          recommendations.push(
+            this.createEfficiencyAnomalyRecommendation(anomaly),
+          );
           break;
         case 'trend_anomaly':
           recommendations.push(this.createTrendAnomalyRecommendation(anomaly));
@@ -656,7 +728,7 @@ export class AnomalyDetectionEngine {
       }
     }
 
-    return recommendations.filter(rec => rec !== null);
+    return recommendations.filter((rec) => rec !== null);
   }
 
   createCostAnomalyRecommendation(anomaly) {
@@ -670,10 +742,10 @@ export class AnomalyDetectionEngine {
         'Review recent changes or deployments',
         'Check for unusual user activity patterns',
         'Analyze feature usage during the anomaly period',
-        'Implement additional monitoring and alerts'
+        'Implement additional monitoring and alerts',
       ],
       estimatedTimeToResolve: '1-2 hours',
-      potentialImpact: 'Cost control and budget management'
+      potentialImpact: 'Cost control and budget management',
     };
   }
 
@@ -688,10 +760,10 @@ export class AnomalyDetectionEngine {
         'Analyze traffic sources and user behavior',
         'Check system capacity and scaling policies',
         'Review rate limiting and load balancing',
-        'Monitor for potential abuse or bot traffic'
+        'Monitor for potential abuse or bot traffic',
       ],
       estimatedTimeToResolve: '2-4 hours',
-      potentialImpact: 'System performance and resource utilization'
+      potentialImpact: 'System performance and resource utilization',
     };
   }
 
@@ -706,10 +778,10 @@ export class AnomalyDetectionEngine {
         'Profile application performance',
         'Check for resource bottlenecks',
         'Review recent code changes',
-        'Analyze database query performance'
+        'Analyze database query performance',
       ],
       estimatedTimeToResolve: '4-8 hours',
-      potentialImpact: 'Cost efficiency and system performance'
+      potentialImpact: 'Cost efficiency and system performance',
     };
   }
 
@@ -724,15 +796,21 @@ export class AnomalyDetectionEngine {
         'Establish trend monitoring dashboard',
         'Set up predictive alerts',
         'Review growth projections and capacity planning',
-        'Implement cost optimization strategies'
+        'Implement cost optimization strategies',
       ],
       estimatedTimeToResolve: '1-2 weeks',
-      potentialImpact: 'Long-term cost management and planning'
+      potentialImpact: 'Long-term cost management and planning',
     };
   }
 
   createAnomalySummary(anomalies) {
-    const summary = { total: anomalies.length, critical: 0, high: 0, medium: 0, low: 0 };
+    const summary = {
+      total: anomalies.length,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    };
 
     for (const anomaly of anomalies) {
       if (summary[anomaly.severity] !== undefined) {
@@ -745,19 +823,26 @@ export class AnomalyDetectionEngine {
 
   async updateBaselines(metrics) {
     // Update baseline statistics for future comparisons
-    const costs = metrics.map(m => m.cost).filter(c => typeof c === 'number' && !isNaN(c));
+    const costs = metrics
+      .map((m) => m.cost)
+      .filter((c) => typeof c === 'number' && !isNaN(c));
     if (costs.length > 0) {
       this.baselineStats.set('cost', this.calculateStatistics(costs));
     }
 
     const dailyGroups = this.groupMetricsByTime(metrics, 'day');
-    const efficiencyData = Array.from(dailyGroups.values()).map(dayMetrics => {
-      const totalCost = dayMetrics.reduce((sum, m) => sum + (m.cost || 0), 0);
-      return dayMetrics.length / Math.max(1, totalCost * 1000);
-    });
+    const efficiencyData = Array.from(dailyGroups.values()).map(
+      (dayMetrics) => {
+        const totalCost = dayMetrics.reduce((sum, m) => sum + (m.cost || 0), 0);
+        return dayMetrics.length / Math.max(1, totalCost * 1000);
+      },
+    );
 
     if (efficiencyData.length > 0) {
-      this.baselineStats.set('efficiency', this.calculateStatistics(efficiencyData));
+      this.baselineStats.set(
+        'efficiency',
+        this.calculateStatistics(efficiencyData),
+      );
     }
   }
 
@@ -765,12 +850,17 @@ export class AnomalyDetectionEngine {
     const total = metrics.length;
     if (total === 0) return { score: 0, issues: ['No data available'] };
 
-    const validTimestamps = metrics.filter(m => !isNaN(new Date(m.timestamp).getTime())).length;
-    const validCosts = metrics.filter(m => typeof m.cost === 'number' && !isNaN(m.cost)).length;
-    const hasFeatures = metrics.filter(m => m.feature).length;
-    const hasUsers = metrics.filter(m => m.user).length;
+    const validTimestamps = metrics.filter(
+      (m) => !isNaN(new Date(m.timestamp).getTime()),
+    ).length;
+    const validCosts = metrics.filter(
+      (m) => typeof m.cost === 'number' && !isNaN(m.cost),
+    ).length;
+    const hasFeatures = metrics.filter((m) => m.feature).length;
+    const hasUsers = metrics.filter((m) => m.user).length;
 
-    const score = (validTimestamps + validCosts + hasFeatures + hasUsers) / (total * 4);
+    const score =
+      (validTimestamps + validCosts + hasFeatures + hasUsers) / (total * 4);
 
     const issues = [];
     if (validTimestamps < total) issues.push('Invalid timestamps detected');
@@ -787,7 +877,7 @@ export class AnomalyDetectionEngine {
       info[key] = {
         mean: stats.mean,
         stdDev: stats.stdDev,
-        dataPoints: stats.count
+        dataPoints: stats.count,
       };
     }
     return info;

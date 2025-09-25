@@ -14,7 +14,11 @@
 
 import { EventEmitter } from 'node:events';
 import { getComponentLogger } from '../../utils/logger.js';
-import type { TokenTracker, TokenUsageStats, RequestTrackingData } from './token-tracker.js';
+import type {
+  TokenTracker,
+  TokenUsageStats,
+  RequestTrackingData,
+} from './token-tracker.js';
 import type {
   TokenUsageData,
   ModelUsageData,
@@ -71,8 +75,8 @@ export interface MetricsSummary {
   trends: TrendAnalysis;
   anomalies: AnomalyData[];
   topModels: ModelUsageData[];
-  topFeatures: { feature: string; usage: TokenUsageData }[];
-  topSessions: { sessionId: string; usage: TokenUsageData }[];
+  topFeatures: Array<{ feature: string; usage: TokenUsageData }>;
+  topSessions: Array<{ sessionId: string; usage: TokenUsageData }>;
 }
 
 /**
@@ -258,13 +262,13 @@ export class MetricsCollector extends EventEmitter {
   getHistoricalData(
     startTime?: Date,
     endTime?: Date,
-    maxPoints?: number
+    maxPoints?: number,
   ): MetricsDataPoint[] {
     let data = this.historicalData;
 
     // Filter by time range if specified
     if (startTime || endTime) {
-      data = data.filter(point => {
+      data = data.filter((point) => {
         if (startTime && point.timestamp < startTime) return false;
         if (endTime && point.timestamp > endTime) return false;
         return true;
@@ -286,7 +290,7 @@ export class MetricsCollector extends EventEmitter {
    */
   getAnomalies(hours: number = 24): AnomalyData[] {
     const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return this.anomalies.filter(anomaly => anomaly.timestamp >= cutoff);
+    return this.anomalies.filter((anomaly) => anomaly.timestamp >= cutoff);
   }
 
   /**
@@ -317,18 +321,29 @@ export class MetricsCollector extends EventEmitter {
       let requestRate = 0;
 
       if (this.lastSnapshot) {
-        const timeDiffMinutes = (timestamp.getTime() - this.lastSnapshot.timestamp.getTime()) / 60000;
+        const timeDiffMinutes =
+          (timestamp.getTime() - this.lastSnapshot.timestamp.getTime()) / 60000;
         if (timeDiffMinutes > 0) {
-          costRate = (stats.totalCost - this.lastSnapshot.totalCost) / timeDiffMinutes;
-          tokenRate = (stats.totalTokens - this.lastSnapshot.totalTokens) / timeDiffMinutes;
-          requestRate = (stats.totalRequests - this.lastSnapshot.requestCount) / timeDiffMinutes;
+          costRate =
+            (stats.totalCost - this.lastSnapshot.totalCost) / timeDiffMinutes;
+          tokenRate =
+            (stats.totalTokens - this.lastSnapshot.totalTokens) /
+            timeDiffMinutes;
+          requestRate =
+            (stats.totalRequests - this.lastSnapshot.requestCount) /
+            timeDiffMinutes;
         }
       }
 
       // Calculate error rate from recent requests
       const recentRequests = stats.recentRequests.slice(-100); // Last 100 requests
-      const errorCount = recentRequests.filter(req => req.status === 'error').length;
-      const errorRate = recentRequests.length > 0 ? (errorCount / recentRequests.length) * 100 : 0;
+      const errorCount = recentRequests.filter(
+        (req) => req.status === 'error',
+      ).length;
+      const errorRate =
+        recentRequests.length > 0
+          ? (errorCount / recentRequests.length) * 100
+          : 0;
 
       const snapshot: MetricsDataPoint = {
         timestamp,
@@ -402,7 +417,9 @@ export class MetricsCollector extends EventEmitter {
   /**
    * Get aggregated metrics for a time period
    */
-  private getAggregatedMetrics(period: '1hour' | '1day' | '1week'): AggregatedMetrics {
+  private getAggregatedMetrics(
+    period: '1hour' | '1day' | '1week',
+  ): AggregatedMetrics {
     const now = new Date();
     let startTime: Date;
 
@@ -419,7 +436,7 @@ export class MetricsCollector extends EventEmitter {
     }
 
     const periodData = this.historicalData.filter(
-      point => point.timestamp >= startTime
+      (point) => point.timestamp >= startTime,
     );
 
     if (periodData.length === 0) {
@@ -445,8 +462,11 @@ export class MetricsCollector extends EventEmitter {
     const totalRequests = last.requestCount - first.requestCount;
     const totalTokens = last.totalTokens - first.totalTokens;
 
-    const errorRates = periodData.map(p => p.errorRate);
-    const responseTimeSum = periodData.reduce((sum, p) => sum + p.averageResponseTime, 0);
+    const errorRates = periodData.map((p) => p.errorRate);
+    const responseTimeSum = periodData.reduce(
+      (sum, p) => sum + p.averageResponseTime,
+      0,
+    );
 
     return {
       totalCost,
@@ -454,12 +474,14 @@ export class MetricsCollector extends EventEmitter {
       totalTokens,
       averageResponseTime: responseTimeSum / periodData.length,
       errorCount: 0, // We don't track absolute error count in snapshots
-      errorRate: errorRates.reduce((sum, rate) => sum + rate, 0) / errorRates.length,
-      peakCostRate: Math.max(...periodData.map(p => p.costRate)),
-      peakTokenRate: Math.max(...periodData.map(p => p.tokenRate)),
-      peakRequestRate: Math.max(...periodData.map(p => p.requestRate)),
+      errorRate:
+        errorRates.reduce((sum, rate) => sum + rate, 0) / errorRates.length,
+      peakCostRate: Math.max(...periodData.map((p) => p.costRate)),
+      peakTokenRate: Math.max(...periodData.map((p) => p.tokenRate)),
+      peakRequestRate: Math.max(...periodData.map((p) => p.requestRate)),
       averageCostPerRequest: totalRequests > 0 ? totalCost / totalRequests : 0,
-      averageTokensPerRequest: totalRequests > 0 ? totalTokens / totalRequests : 0,
+      averageTokensPerRequest:
+        totalRequests > 0 ? totalTokens / totalRequests : 0,
     };
   }
 
@@ -482,13 +504,17 @@ export class MetricsCollector extends EventEmitter {
       };
     }
 
-    const recentData = this.historicalData.slice(-this.config.movingAverageWindow);
+    const recentData = this.historicalData.slice(
+      -this.config.movingAverageWindow,
+    );
 
     return {
-      costTrend: this.calculateTrendData(recentData.map(d => d.totalCost)),
-      usageTrend: this.calculateTrendData(recentData.map(d => d.totalTokens)),
-      performanceTrend: this.calculateTrendData(recentData.map(d => d.averageResponseTime)),
-      errorTrend: this.calculateTrendData(recentData.map(d => d.errorRate)),
+      costTrend: this.calculateTrendData(recentData.map((d) => d.totalCost)),
+      usageTrend: this.calculateTrendData(recentData.map((d) => d.totalTokens)),
+      performanceTrend: this.calculateTrendData(
+        recentData.map((d) => d.averageResponseTime),
+      ),
+      errorTrend: this.calculateTrendData(recentData.map((d) => d.errorRate)),
       predictions: this.calculatePredictions(recentData),
     };
   }
@@ -515,18 +541,29 @@ export class MetricsCollector extends EventEmitter {
     // Calculate correlation coefficient
     const meanX = sumX / n;
     const meanY = sumY / n;
-    const numerator = x.reduce((acc, xi, i) => acc + (xi - meanX) * (values[i] - meanY), 0);
-    const denomX = Math.sqrt(x.reduce((acc, xi) => acc + Math.pow(xi - meanX, 2), 0));
-    const denomY = Math.sqrt(values.reduce((acc, yi) => acc + Math.pow(yi - meanY, 2), 0));
+    const numerator = x.reduce(
+      (acc, xi, i) => acc + (xi - meanX) * (values[i] - meanY),
+      0,
+    );
+    const denomX = Math.sqrt(
+      x.reduce((acc, xi) => acc + Math.pow(xi - meanX, 2), 0),
+    );
+    const denomY = Math.sqrt(
+      values.reduce((acc, yi) => acc + Math.pow(yi - meanY, 2), 0),
+    );
     const correlation = denomX && denomY ? numerator / (denomX * denomY) : 0;
 
     // Determine trend direction and magnitude
     const startValue = intercept;
     const endValue = intercept + slope * (n - 1);
-    const magnitude = startValue !== 0 ? Math.abs((endValue - startValue) / startValue) * 100 : 0;
+    const magnitude =
+      startValue !== 0
+        ? Math.abs((endValue - startValue) / startValue) * 100
+        : 0;
 
     let direction: 'up' | 'down' | 'stable' = 'stable';
-    if (Math.abs(slope) > 0.01) { // Threshold for significant change
+    if (Math.abs(slope) > 0.01) {
+      // Threshold for significant change
       direction = slope > 0 ? 'up' : 'down';
     }
 
@@ -568,7 +605,9 @@ export class MetricsCollector extends EventEmitter {
     }
 
     // Simple linear extrapolation based on recent cost rate
-    const costRates = recentData.map(d => d.costRate).filter(rate => rate > 0);
+    const costRates = recentData
+      .map((d) => d.costRate)
+      .filter((rate) => rate > 0);
     if (costRates.length === 0) {
       return {
         nextHourCost: 0,
@@ -578,14 +617,22 @@ export class MetricsCollector extends EventEmitter {
       };
     }
 
-    const avgCostRate = costRates.reduce((sum, rate) => sum + rate, 0) / costRates.length;
+    const avgCostRate =
+      costRates.reduce((sum, rate) => sum + rate, 0) / costRates.length;
     const nextHourCost = avgCostRate * 60; // Cost per minute * 60
     const nextDayCost = avgCostRate * 60 * 24;
 
     // Calculate confidence based on variance in cost rates
-    const variance = costRates.reduce((sum, rate) => sum + Math.pow(rate - avgCostRate, 2), 0) / costRates.length;
+    const variance =
+      costRates.reduce(
+        (sum, rate) => sum + Math.pow(rate - avgCostRate, 2),
+        0,
+      ) / costRates.length;
     const standardDeviation = Math.sqrt(variance);
-    const confidence = Math.max(0, Math.min(1, 1 - (standardDeviation / avgCostRate)));
+    const confidence = Math.max(
+      0,
+      Math.min(1, 1 - standardDeviation / avgCostRate),
+    );
 
     return {
       nextHourCost,
@@ -603,15 +650,17 @@ export class MetricsCollector extends EventEmitter {
       return; // Not enough data for anomaly detection
     }
 
-    const recentData = this.historicalData.slice(-this.config.movingAverageWindow);
+    const recentData = this.historicalData.slice(
+      -this.config.movingAverageWindow,
+    );
 
     // Check for cost spikes
     this.detectAnomalyInMetric(
       snapshot,
       'costRate',
       snapshot.costRate,
-      recentData.map(d => d.costRate),
-      'cost_spike'
+      recentData.map((d) => d.costRate),
+      'cost_spike',
     );
 
     // Check for usage spikes
@@ -619,8 +668,8 @@ export class MetricsCollector extends EventEmitter {
       snapshot,
       'tokenRate',
       snapshot.tokenRate,
-      recentData.map(d => d.tokenRate),
-      'usage_spike'
+      recentData.map((d) => d.tokenRate),
+      'usage_spike',
     );
 
     // Check for error spikes
@@ -628,8 +677,8 @@ export class MetricsCollector extends EventEmitter {
       snapshot,
       'errorRate',
       snapshot.errorRate,
-      recentData.map(d => d.errorRate),
-      'error_spike'
+      recentData.map((d) => d.errorRate),
+      'error_spike',
     );
 
     // Check for performance drops (higher is worse for response time)
@@ -637,8 +686,8 @@ export class MetricsCollector extends EventEmitter {
       snapshot,
       'averageResponseTime',
       snapshot.averageResponseTime,
-      recentData.map(d => d.averageResponseTime),
-      'performance_drop'
+      recentData.map((d) => d.averageResponseTime),
+      'performance_drop',
     );
   }
 
@@ -650,12 +699,16 @@ export class MetricsCollector extends EventEmitter {
     metricName: string,
     currentValue: number,
     historicalValues: number[],
-    anomalyType: AnomalyData['type']
+    anomalyType: AnomalyData['type'],
   ): void {
     if (historicalValues.length === 0) return;
 
-    const mean = historicalValues.reduce((sum, val) => sum + val, 0) / historicalValues.length;
-    const variance = historicalValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / historicalValues.length;
+    const mean =
+      historicalValues.reduce((sum, val) => sum + val, 0) /
+      historicalValues.length;
+    const variance =
+      historicalValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      historicalValues.length;
     const standardDeviation = Math.sqrt(variance);
 
     if (standardDeviation === 0) return; // No variation
@@ -672,7 +725,12 @@ export class MetricsCollector extends EventEmitter {
         value: currentValue,
         expectedValue: mean,
         deviationScore,
-        description: this.generateAnomalyDescription(anomalyType, currentValue, mean, deviationScore),
+        description: this.generateAnomalyDescription(
+          anomalyType,
+          currentValue,
+          mean,
+          deviationScore,
+        ),
       };
 
       this.anomalies.push(anomaly);
@@ -681,7 +739,9 @@ export class MetricsCollector extends EventEmitter {
       const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
       const recentAnomaliesCount = this.anomalies.length;
       this.anomalies.splice(0, this.anomalies.length);
-      this.anomalies.push(...this.anomalies.filter(a => a.timestamp >= cutoff));
+      this.anomalies.push(
+        ...this.anomalies.filter((a) => a.timestamp >= cutoff),
+      );
 
       this.logger.warn('Anomaly detected', {
         type: anomalyType,
@@ -717,11 +777,12 @@ export class MetricsCollector extends EventEmitter {
     type: AnomalyData['type'],
     currentValue: number,
     expectedValue: number,
-    deviationScore: number
+    deviationScore: number,
   ): string {
-    const percentageChange = expectedValue !== 0
-      ? Math.abs((currentValue - expectedValue) / expectedValue) * 100
-      : 0;
+    const percentageChange =
+      expectedValue !== 0
+        ? Math.abs((currentValue - expectedValue) / expectedValue) * 100
+        : 0;
 
     switch (type) {
       case 'cost_spike':
@@ -742,13 +803,16 @@ export class MetricsCollector extends EventEmitter {
    */
   private getRecentAnomalies(hours: number): AnomalyData[] {
     const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return this.anomalies.filter(anomaly => anomaly.timestamp >= cutoff);
+    return this.anomalies.filter((anomaly) => anomaly.timestamp >= cutoff);
   }
 
   /**
    * Get top models by usage
    */
-  private getTopModels(stats: TokenUsageStats, limit: number): ModelUsageData[] {
+  private getTopModels(
+    stats: TokenUsageStats,
+    limit: number,
+  ): ModelUsageData[] {
     return Object.values(stats.modelBreakdown)
       .sort((a, b) => b.cost - a.cost)
       .slice(0, limit);
@@ -757,20 +821,36 @@ export class MetricsCollector extends EventEmitter {
   /**
    * Get top features by usage
    */
-  private getTopFeatures(stats: TokenUsageStats, limit: number): { feature: string; usage: TokenUsageData }[] {
+  private getTopFeatures(
+    stats: TokenUsageStats,
+    limit: number,
+  ): Array<{ feature: string; usage: TokenUsageData }> {
     return Object.entries(stats.featureBreakdown)
       .map(([feature, usage]) => ({ feature, usage }))
-      .sort((a, b) => (b.usage.tokenCosts.input + b.usage.tokenCosts.output) - (a.usage.tokenCosts.input + a.usage.tokenCosts.output))
+      .sort(
+        (a, b) =>
+          b.usage.tokenCosts.input +
+          b.usage.tokenCosts.output -
+          (a.usage.tokenCosts.input + a.usage.tokenCosts.output),
+      )
       .slice(0, limit);
   }
 
   /**
    * Get top sessions by usage
    */
-  private getTopSessions(stats: TokenUsageStats, limit: number): { sessionId: string; usage: TokenUsageData }[] {
+  private getTopSessions(
+    stats: TokenUsageStats,
+    limit: number,
+  ): Array<{ sessionId: string; usage: TokenUsageData }> {
     return Object.entries(stats.sessionBreakdown)
       .map(([sessionId, usage]) => ({ sessionId, usage }))
-      .sort((a, b) => (b.usage.tokenCosts.input + b.usage.tokenCosts.output) - (a.usage.tokenCosts.input + a.usage.tokenCosts.output))
+      .sort(
+        (a, b) =>
+          b.usage.tokenCosts.input +
+          b.usage.tokenCosts.output -
+          (a.usage.tokenCosts.input + a.usage.tokenCosts.output),
+      )
       .slice(0, limit);
   }
 
@@ -802,7 +882,7 @@ export class MetricsCollector extends EventEmitter {
  */
 export function createMetricsCollector(
   tokenTracker: TokenTracker,
-  config?: MetricsCollectorConfig
+  config?: MetricsCollectorConfig,
 ): MetricsCollector {
   return new MetricsCollector(tokenTracker, config);
 }

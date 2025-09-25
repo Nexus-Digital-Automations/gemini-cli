@@ -197,7 +197,7 @@ export enum StorageEventType {
   /** Storage health check */
   HEALTH_CHECK = 'health_check',
   /** Storage connection closed */
-  CLOSED = 'closed'
+  CLOSED = 'closed',
 }
 
 /**
@@ -245,7 +245,10 @@ export interface ObservableStorage extends BudgetStorage {
    * @param eventType - Event type to stop listening for
    * @param listener - Event listener function to remove
    */
-  off(eventType: StorageEventType | 'all', listener: StorageEventListener): void;
+  off(
+    eventType: StorageEventType | 'all',
+    listener: StorageEventListener,
+  ): void;
 
   /**
    * Emit storage event to all listeners
@@ -321,11 +324,13 @@ export interface MigratableStorage extends BudgetStorage {
    * @param targetVersion - Target version (optional, defaults to latest)
    * @returns Migration result
    */
-  migrate(targetVersion?: string): Promise<StorageOperationResult<{
-    fromVersion: string;
-    toVersion: string;
-    migrationsApplied: string[];
-  }>>;
+  migrate(targetVersion?: string): Promise<
+    StorageOperationResult<{
+      fromVersion: string;
+      toVersion: string;
+      migrationsApplied: string[];
+    }>
+  >;
 
   /**
    * Register migration

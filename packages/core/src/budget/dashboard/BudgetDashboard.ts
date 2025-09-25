@@ -8,9 +8,13 @@ import type { BudgetTracker } from '../budget-tracker.js';
 import type {
   AnalyticsEngine,
   FeatureCostAnalysis,
-  OptimizationRecommendation
+  OptimizationRecommendation,
 } from '../index';
-import { createRealTimeTracker, type RealTimeTracker, type RealTimeData } from './RealTimeTracker.js';
+import {
+  createRealTimeTracker,
+  type RealTimeTracker,
+  type RealTimeData,
+} from './RealTimeTracker.js';
 import { DashboardFormatter } from './DashboardFormatter.js';
 import { ChartRenderer } from './ChartRenderer.js';
 
@@ -118,7 +122,7 @@ export class BudgetDashboard {
   constructor(
     budgetTracker: BudgetTracker,
     analytics: AnalyticsEngine,
-    config: DashboardConfig = {}
+    config: DashboardConfig = {},
   ) {
     this.budgetTracker = budgetTracker;
     this.analytics = analytics;
@@ -131,21 +135,23 @@ export class BudgetDashboard {
       showRealTime: config.showRealTime ?? true,
       enableInteractivity: config.enableInteractivity ?? true,
       theme: config.theme ?? 'auto',
-      chartType: config.chartType ?? 'mixed'
+      chartType: config.chartType ?? 'mixed',
     };
 
     this.formatter = new DashboardFormatter(this.config);
     this.chartRenderer = new ChartRenderer({
       theme: this.config.theme,
       width: 80,
-      height: 15
+      height: 15,
     });
   }
 
   /**
    * Start the interactive dashboard
    */
-  async startDashboard(sections: Partial<DashboardSections> = {}): Promise<void> {
+  async startDashboard(
+    sections: Partial<DashboardSections> = {},
+  ): Promise<void> {
     if (this.isRunning) {
       return;
     }
@@ -187,7 +193,9 @@ export class BudgetDashboard {
   /**
    * Generate a static dashboard report
    */
-  async generateReport(sections: Partial<DashboardSections> = {}): Promise<string> {
+  async generateReport(
+    sections: Partial<DashboardSections> = {},
+  ): Promise<string> {
     const data = await this.collectDashboardData();
     const fullSections: DashboardSections = {
       summary: true,
@@ -197,7 +205,7 @@ export class BudgetDashboard {
       costProjections: true,
       optimizationRecommendations: true,
       budgetAlerts: true,
-      ...sections
+      ...sections,
     };
 
     return this.formatter.formatDashboard(data, fullSections);
@@ -213,7 +221,9 @@ export class BudgetDashboard {
   /**
    * Refresh dashboard display
    */
-  private async refreshDashboard(sections: Partial<DashboardSections>): Promise<void> {
+  private async refreshDashboard(
+    sections: Partial<DashboardSections>,
+  ): Promise<void> {
     try {
       // Collect latest data
       this.currentData = await this.collectDashboardData();
@@ -227,17 +237,19 @@ export class BudgetDashboard {
         costProjections: true,
         optimizationRecommendations: true,
         budgetAlerts: true,
-        ...sections
+        ...sections,
       };
 
-      const output = this.formatter.formatDashboard(this.currentData, fullSections);
+      const output = this.formatter.formatDashboard(
+        this.currentData,
+        fullSections,
+      );
 
       // Clear console and display updated dashboard
       if (this.config.enableInteractivity) {
         console.clear();
       }
       console.log(output);
-
     } catch (error) {
       console.error('Dashboard refresh failed:', error);
     }
@@ -255,27 +267,36 @@ export class BudgetDashboard {
     const currentUsage: CurrentUsageData = {
       todayRequests: todayUsage.requestCount,
       todayCost: todayUsage.totalCost,
-      budgetRemaining: Math.max(0, (settings.dailyLimit || 0) - todayUsage.totalCost),
-      budgetUtilization: settings.dailyLimit ?
-        (todayUsage.totalCost / settings.dailyLimit) * 100 : 0
+      budgetRemaining: Math.max(
+        0,
+        (settings.dailyLimit || 0) - todayUsage.totalCost,
+      ),
+      budgetUtilization: settings.dailyLimit
+        ? (todayUsage.totalCost / settings.dailyLimit) * 100
+        : 0,
     };
 
     // Generate cost projections
-    const projections = this.generateCostProjections(currentUsage, settings.dailyLimit || 0);
+    const projections = this.generateCostProjections(
+      currentUsage,
+      settings.dailyLimit || 0,
+    );
 
     // Generate trends data (mock data for now - would integrate with historical tracking)
     const trends = this.generateTrendsData();
 
     // Get real-time data if available
-    const realTimeData = this.config.showRealTime ?
-      this.realTimeTracker.getRealTimeData() : undefined;
+    const realTimeData = this.config.showRealTime
+      ? this.realTimeTracker.getRealTimeData()
+      : undefined;
 
     // Generate budget alerts
     const alerts = this.generateBudgetAlerts(currentUsage, settings);
 
     // Get analytics data (mock for now - would integrate with actual analytics engine)
     const features = this.generateFeatureAnalysis();
-    const recommendations = this.generateOptimizationRecommendations(currentUsage);
+    const recommendations =
+      this.generateOptimizationRecommendations(currentUsage);
 
     return {
       currentUsage,
@@ -284,19 +305,23 @@ export class BudgetDashboard {
       features,
       recommendations,
       alerts,
-      realTimeData
+      realTimeData,
     };
   }
 
   /**
    * Generate cost projections based on current usage
    */
-  private generateCostProjections(usage: CurrentUsageData, dailyLimit: number): CostProjections {
+  private generateCostProjections(
+    usage: CurrentUsageData,
+    dailyLimit: number,
+  ): CostProjections {
     const hourOfDay = new Date().getHours();
     const dailyProgress = hourOfDay / 24;
 
     // Simple linear projection based on current usage
-    const dailyProjection = dailyProgress > 0 ? usage.todayCost / dailyProgress : usage.todayCost;
+    const dailyProjection =
+      dailyProgress > 0 ? usage.todayCost / dailyProgress : usage.todayCost;
     const weeklyProjection = dailyProjection * 7;
     const monthlyProjection = dailyProjection * 30;
 
@@ -305,8 +330,8 @@ export class BudgetDashboard {
       weeklyProjection,
       monthlyProjection,
       exceedsDaily: dailyProjection > dailyLimit,
-      exceedsWeekly: weeklyProjection > (dailyLimit * 7),
-      exceedsMonthly: monthlyProjection > (dailyLimit * 30)
+      exceedsWeekly: weeklyProjection > dailyLimit * 7,
+      exceedsMonthly: monthlyProjection > dailyLimit * 30,
     };
   }
 
@@ -316,16 +341,25 @@ export class BudgetDashboard {
   private generateTrendsData(): TrendsData {
     // Generate mock data - in real implementation would pull from historical storage
     return {
-      hourlyUsage: Array.from({ length: 24 }, () => Math.floor(Math.random() * 100)),
-      dailyUsage: Array.from({ length: 30 }, () => Math.floor(Math.random() * 500)),
-      weeklyUsage: Array.from({ length: 12 }, () => Math.floor(Math.random() * 2000))
+      hourlyUsage: Array.from({ length: 24 }, () =>
+        Math.floor(Math.random() * 100),
+      ),
+      dailyUsage: Array.from({ length: 30 }, () =>
+        Math.floor(Math.random() * 500),
+      ),
+      weeklyUsage: Array.from({ length: 12 }, () =>
+        Math.floor(Math.random() * 2000),
+      ),
     };
   }
 
   /**
    * Generate budget alerts based on current status
    */
-  private generateBudgetAlerts(usage: CurrentUsageData, _settings: unknown): BudgetAlert[] {
+  private generateBudgetAlerts(
+    usage: CurrentUsageData,
+    _settings: unknown,
+  ): BudgetAlert[] {
     const alerts: BudgetAlert[] = [];
 
     // Budget utilization alerts
@@ -338,7 +372,7 @@ export class BudgetDashboard {
         timestamp: new Date().toISOString(),
         threshold: 90,
         currentValue: usage.budgetUtilization,
-        actionable: true
+        actionable: true,
       });
     } else if (usage.budgetUtilization > 75) {
       alerts.push({
@@ -349,7 +383,7 @@ export class BudgetDashboard {
         timestamp: new Date().toISOString(),
         threshold: 75,
         currentValue: usage.budgetUtilization,
-        actionable: true
+        actionable: true,
       });
     }
 
@@ -360,7 +394,13 @@ export class BudgetDashboard {
    * Generate feature cost analysis (mock data)
    */
   private generateFeatureAnalysis(): FeatureCostAnalysis[] {
-    const features = ['chat', 'code-analysis', 'documentation', 'debugging', 'testing'];
+    const features = [
+      'chat',
+      'code-analysis',
+      'documentation',
+      'debugging',
+      'testing',
+    ];
 
     return features.map((feature, index) => ({
       featureId: `feature_${index}`,
@@ -371,17 +411,21 @@ export class BudgetDashboard {
       usageFrequency: Math.random(),
       businessValue: Math.random() * 10,
       roi: Math.random() * 5,
-      costTrend: (['increasing', 'decreasing', 'stable', 'volatile'] as const)[Math.floor(Math.random() * 4)] as 'increasing' | 'decreasing' | 'stable' | 'volatile',
+      costTrend: (['increasing', 'decreasing', 'stable', 'volatile'] as const)[
+        Math.floor(Math.random() * 4)
+      ] as 'increasing' | 'decreasing' | 'stable' | 'volatile',
       utilizationRate: Math.random(),
       peakUsageHours: [`${9 + Math.floor(Math.random() * 8)}:00`],
-      recommendations: []
+      recommendations: [],
     }));
   }
 
   /**
    * Generate optimization recommendations
    */
-  private generateOptimizationRecommendations(usage: CurrentUsageData): OptimizationRecommendation[] {
+  private generateOptimizationRecommendations(
+    usage: CurrentUsageData,
+  ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
     if (usage.budgetUtilization > 80) {
@@ -400,13 +444,13 @@ export class BudgetDashboard {
         actionItems: [
           'Implement request batching logic',
           'Add local caching for frequently accessed data',
-          'Optimize context window usage'
+          'Optimize context window usage',
         ],
         metrics: {
           currentCost: usage.todayCost,
           projectedCost: usage.todayCost * 0.75,
-          expectedReduction: usage.todayCost * 0.25
-        }
+          expectedReduction: usage.todayCost * 0.25,
+        },
       });
     }
 
@@ -470,7 +514,7 @@ export class BudgetDashboard {
 export function createBudgetDashboard(
   budgetTracker: BudgetTracker,
   analytics: AnalyticsEngine,
-  config?: DashboardConfig
+  config?: DashboardConfig,
 ): BudgetDashboard {
   return new BudgetDashboard(budgetTracker, analytics, config);
 }
@@ -485,5 +529,5 @@ export type {
   BudgetAlert,
   CurrentUsageData,
   CostProjections,
-  TrendsData
+  TrendsData,
 };

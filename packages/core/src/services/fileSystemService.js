@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import fs from 'node:fs/promises';
 /**
  * Standard file system implementation using Node.js fs/promises API.
@@ -24,17 +25,17 @@ import fs from 'node:fs/promises';
  * using a mock implementation that implements the FileSystemService interface.
  */
 export class StandardFileSystemService {
-    /**
-     * {@inheritDoc FileSystemService.readTextFile}
-     */
-    async readTextFile(filePath) {
-        return fs.readFile(filePath, 'utf-8');
-    }
-    /**
-     * {@inheritDoc FileSystemService.writeTextFile}
-     */
-    async writeTextFile(filePath, content) {
-        await fs.writeFile(filePath, content, 'utf-8');
-    }
+  /**
+   * {@inheritDoc FileSystemService.readTextFile}
+   */
+  async readTextFile(filePath) {
+    return fs.readFile(filePath, 'utf-8');
+  }
+  /**
+   * {@inheritDoc FileSystemService.writeTextFile}
+   */
+  async writeTextFile(filePath, content) {
+    await fs.writeFile(filePath, content, 'utf-8');
+  }
 }
 //# sourceMappingURL=fileSystemService.js.map

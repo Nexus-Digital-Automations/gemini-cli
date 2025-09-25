@@ -294,7 +294,7 @@ export class BudgetTracker {
 
     return {
       requestCount: usageData.requestCount,
-      totalCost: usageData.totalCost || 0
+      totalCost: usageData.totalCost || 0,
     };
   }
 
@@ -336,7 +336,7 @@ export function createBudgetTracker(
     enabled: false,
     dailyLimit: 1000,
     resetTime: '00:00',
-    warningThresholds: [50, 75, 90]
+    warningThresholds: [50, 75, 90],
   };
 
   return new BudgetTracker(projectRoot, settings || defaultSettings);

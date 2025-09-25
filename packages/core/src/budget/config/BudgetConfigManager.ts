@@ -12,14 +12,16 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../../../../src/utils/logger.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
 import type {
   BudgetSettings,
-  BudgetEnforcementLevel,
   NotificationSettings,
-  NotificationFrequency,
   BudgetSecurityContext,
-  BudgetPermission
+} from '../types.js';
+import {
+  BudgetEnforcementLevel,
+  NotificationFrequency,
+  BudgetPermission,
 } from '../types.js';
 
 /**
@@ -28,8 +30,8 @@ import type {
 export class BudgetConfigValidationError extends Error {
   constructor(
     message: string,
-    public readonly field: string,
-    public readonly value: any
+    readonly field: string,
+    readonly value: any,
   ) {
     super(message);
     this.name = 'BudgetConfigValidationError';
@@ -42,7 +44,7 @@ export class BudgetConfigValidationError extends Error {
 export class BudgetConfigAccessError extends Error {
   constructor(
     message: string,
-    public readonly requiredPermission: BudgetPermission
+    readonly requiredPermission: BudgetPermission,
   ) {
     super(message);
     this.name = 'BudgetConfigAccessError';
@@ -65,9 +67,9 @@ export const DEFAULT_BUDGET_SETTINGS: Required<BudgetSettings> = {
     email: false,
     desktop: true,
     webhook: false,
-    frequency: NotificationFrequency.IMMEDIATE
+    frequency: NotificationFrequency.IMMEDIATE,
   },
-  enforcement: BudgetEnforcementLevel.WARNING_ONLY
+  enforcement: BudgetEnforcementLevel.WARNING_ONLY,
 };
 
 /**
@@ -85,7 +87,7 @@ export class BudgetConfigManager {
    */
   constructor(
     initialSettings: Partial<BudgetSettings> = {},
-    securityContext?: BudgetSecurityContext
+    securityContext?: BudgetSecurityContext,
   ) {
     this.logger = new Logger('BudgetConfigManager');
     this.securityContext = securityContext;
@@ -93,7 +95,7 @@ export class BudgetConfigManager {
 
     this.logger.info('Budget configuration manager initialized', {
       hasSettings: Object.keys(initialSettings).length > 0,
-      hasSecurityContext: !!securityContext
+      hasSecurityContext: !!securityContext,
     });
   }
 
@@ -101,7 +103,7 @@ export class BudgetConfigManager {
    * Get current budget settings (read-only copy)
    * @returns Current budget settings
    */
-  public getSettings(): Readonly<BudgetSettings> {
+  getSettings(): Readonly<BudgetSettings> {
     this.validatePermission(BudgetPermission.VIEW_BUDGET);
 
     const start = Date.now();
@@ -110,8 +112,12 @@ export class BudgetConfigManager {
 
       this.logger.debug('Retrieved budget settings', {
         enabled: settings.enabled,
-        hasLimits: !!(settings.dailyLimit || settings.weeklyLimit || settings.monthlyLimit),
-        executionTime: Date.now() - start
+        hasLimits: !!(
+          settings.dailyLimit ||
+          settings.weeklyLimit ||
+          settings.monthlyLimit
+        ),
+        executionTime: Date.now() - start,
       });
 
       return settings;
@@ -126,13 +132,15 @@ export class BudgetConfigManager {
    * @param updates - Partial settings to update
    * @returns Updated settings
    */
-  public async updateSettings(updates: Partial<BudgetSettings>): Promise<BudgetSettings> {
+  async updateSettings(
+    updates: Partial<BudgetSettings>,
+  ): Promise<BudgetSettings> {
     this.validatePermission(BudgetPermission.MODIFY_SETTINGS);
 
     const start = Date.now();
     this.logger.info('Updating budget settings', {
       updates: Object.keys(updates),
-      sessionId: this.securityContext?.sessionId
+      sessionId: this.securityContext?.sessionId,
     });
 
     try {
@@ -150,14 +158,14 @@ export class BudgetConfigManager {
 
       this.logger.info('Budget settings updated successfully', {
         updatedFields: Object.keys(updates),
-        executionTime: Date.now() - start
+        executionTime: Date.now() - start,
       });
 
       return { ...this.settings };
     } catch (error) {
       this.logger.error('Failed to update budget settings', {
         error: error as Error,
-        updates
+        updates,
       });
       throw error;
     }
@@ -166,7 +174,7 @@ export class BudgetConfigManager {
   /**
    * Reset settings to defaults
    */
-  public async resetToDefaults(): Promise<BudgetSettings> {
+  async resetToDefaults(): Promise<BudgetSettings> {
     this.validatePermission(BudgetPermission.MODIFY_SETTINGS);
 
     this.logger.info('Resetting budget settings to defaults');
@@ -180,7 +188,7 @@ export class BudgetConfigManager {
    * @param settings - Settings to validate
    * @throws BudgetConfigValidationError if validation fails
    */
-  public validateSettings(settings: Partial<BudgetSettings>): void {
+  validateSettings(settings: Partial<BudgetSettings>): void {
     const start = Date.now();
 
     try {
@@ -191,12 +199,22 @@ export class BudgetConfigManager {
 
       // Validate weekly limit
       if (settings.weeklyLimit !== undefined) {
-        this.validateNumericLimit('weeklyLimit', settings.weeklyLimit, 0, 50000);
+        this.validateNumericLimit(
+          'weeklyLimit',
+          settings.weeklyLimit,
+          0,
+          50000,
+        );
       }
 
       // Validate monthly limit
       if (settings.monthlyLimit !== undefined) {
-        this.validateNumericLimit('monthlyLimit', settings.monthlyLimit, 0, 200000);
+        this.validateNumericLimit(
+          'monthlyLimit',
+          settings.monthlyLimit,
+          0,
+          200000,
+        );
       }
 
       // Validate reset time format
@@ -206,7 +224,10 @@ export class BudgetConfigManager {
 
       // Validate warning thresholds
       if (settings.warningThresholds !== undefined) {
-        this.validateWarningThresholds('warningThresholds', settings.warningThresholds);
+        this.validateWarningThresholds(
+          'warningThresholds',
+          settings.warningThresholds,
+        );
       }
 
       // Validate currency code
@@ -221,12 +242,15 @@ export class BudgetConfigManager {
 
       // Validate notification settings
       if (settings.notifications !== undefined) {
-        this.validateNotificationSettings('notifications', settings.notifications);
+        this.validateNotificationSettings(
+          'notifications',
+          settings.notifications,
+        );
       }
 
       this.logger.debug('Budget settings validation completed', {
         validatedFields: Object.keys(settings),
-        executionTime: Date.now() - start
+        executionTime: Date.now() - start,
       });
     } catch (error) {
       this.logger.error('Budget settings validation failed', error as Error);
@@ -239,7 +263,7 @@ export class BudgetConfigManager {
    * @param key - Setting key
    * @returns Setting value
    */
-  public getSetting<K extends keyof BudgetSettings>(key: K): BudgetSettings[K] {
+  getSetting<K extends keyof BudgetSettings>(key: K): BudgetSettings[K] {
     this.validatePermission(BudgetPermission.VIEW_BUDGET);
     return this.settings[key];
   }
@@ -248,11 +272,13 @@ export class BudgetConfigManager {
    * Check if budget tracking is properly configured
    * @returns True if configuration is valid for tracking
    */
-  public isConfigurationValid(): boolean {
+  isConfigurationValid(): boolean {
     try {
       return !!(
         this.settings.enabled &&
-        (this.settings.dailyLimit || this.settings.weeklyLimit || this.settings.monthlyLimit) &&
+        (this.settings.dailyLimit ||
+          this.settings.weeklyLimit ||
+          this.settings.monthlyLimit) &&
         this.settings.currency &&
         this.settings.resetTime
       );
@@ -265,12 +291,16 @@ export class BudgetConfigManager {
    * Get configuration summary for diagnostics
    * @returns Configuration summary
    */
-  public getConfigurationSummary(): Record<string, any> {
+  getConfigurationSummary(): Record<string, any> {
     this.validatePermission(BudgetPermission.VIEW_BUDGET);
 
     return {
       enabled: this.settings.enabled,
-      hasLimits: !!(this.settings.dailyLimit || this.settings.weeklyLimit || this.settings.monthlyLimit),
+      hasLimits: !!(
+        this.settings.dailyLimit ||
+        this.settings.weeklyLimit ||
+        this.settings.monthlyLimit
+      ),
       dailyLimit: this.settings.dailyLimit,
       weeklyLimit: this.settings.weeklyLimit,
       monthlyLimit: this.settings.monthlyLimit,
@@ -282,7 +312,7 @@ export class BudgetConfigManager {
         this.settings.notifications?.email ||
         this.settings.notifications?.desktop ||
         this.settings.notifications?.webhook
-      )
+      ),
     };
   }
 
@@ -291,14 +321,16 @@ export class BudgetConfigManager {
    * @param userSettings - User-provided settings
    * @returns Merged settings
    */
-  private mergeWithDefaults(userSettings: Partial<BudgetSettings>): BudgetSettings {
+  private mergeWithDefaults(
+    userSettings: Partial<BudgetSettings>,
+  ): BudgetSettings {
     return {
       ...DEFAULT_BUDGET_SETTINGS,
       ...userSettings,
       notifications: {
         ...DEFAULT_BUDGET_SETTINGS.notifications,
-        ...(userSettings.notifications || {})
-      }
+        ...(userSettings.notifications || {}),
+      },
     };
   }
 
@@ -309,12 +341,17 @@ export class BudgetConfigManager {
    * @param min - Minimum allowed value
    * @param max - Maximum allowed value
    */
-  private validateNumericLimit(field: string, value: number, min: number, max: number): void {
+  private validateNumericLimit(
+    field: string,
+    value: number,
+    min: number,
+    max: number,
+  ): void {
     if (typeof value !== 'number' || isNaN(value)) {
       throw new BudgetConfigValidationError(
         `${field} must be a valid number`,
         field,
-        value
+        value,
       );
     }
 
@@ -322,7 +359,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `${field} must be between ${min} and ${max}`,
         field,
-        value
+        value,
       );
     }
   }
@@ -337,7 +374,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `${field} must be a string`,
         field,
-        value
+        value,
       );
     }
 
@@ -346,7 +383,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `${field} must be in HH:MM format`,
         field,
-        value
+        value,
       );
     }
   }
@@ -361,7 +398,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `${field} must be an array`,
         field,
-        value
+        value,
       );
     }
 
@@ -370,7 +407,7 @@ export class BudgetConfigManager {
         throw new BudgetConfigValidationError(
           `Warning thresholds must be between 0 and 100`,
           field,
-          threshold
+          threshold,
         );
       }
     }
@@ -381,7 +418,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `Warning thresholds must not contain duplicates`,
         field,
-        value
+        value,
       );
     }
   }
@@ -396,7 +433,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `${field} must be a string`,
         field,
-        value
+        value,
       );
     }
 
@@ -406,7 +443,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         `${field} must be a valid 3-letter ISO currency code`,
         field,
-        value
+        value,
       );
     }
   }
@@ -416,12 +453,15 @@ export class BudgetConfigManager {
    * @param field - Field name
    * @param value - Enforcement level to validate
    */
-  private validateEnforcementLevel(field: string, value: BudgetEnforcementLevel): void {
+  private validateEnforcementLevel(
+    field: string,
+    value: BudgetEnforcementLevel,
+  ): void {
     if (!Object.values(BudgetEnforcementLevel).includes(value)) {
       throw new BudgetConfigValidationError(
         `${field} must be a valid enforcement level`,
         field,
-        value
+        value,
       );
     }
   }
@@ -431,12 +471,15 @@ export class BudgetConfigManager {
    * @param field - Field name
    * @param value - Notification settings to validate
    */
-  private validateNotificationSettings(field: string, value: NotificationSettings): void {
+  private validateNotificationSettings(
+    field: string,
+    value: NotificationSettings,
+  ): void {
     if (typeof value !== 'object' || value === null) {
       throw new BudgetConfigValidationError(
         `${field} must be an object`,
         field,
-        value
+        value,
       );
     }
 
@@ -445,7 +488,7 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         'Email address is required when email notifications are enabled',
         'emailAddress',
-        value.emailAddress
+        value.emailAddress,
       );
     }
 
@@ -454,16 +497,19 @@ export class BudgetConfigManager {
       throw new BudgetConfigValidationError(
         'Webhook URL is required when webhook notifications are enabled',
         'webhookUrl',
-        value.webhookUrl
+        value.webhookUrl,
       );
     }
 
     // Validate frequency
-    if (value.frequency && !Object.values(NotificationFrequency).includes(value.frequency)) {
+    if (
+      value.frequency &&
+      !Object.values(NotificationFrequency).includes(value.frequency)
+    ) {
       throw new BudgetConfigValidationError(
         'Invalid notification frequency',
         'frequency',
-        value.frequency
+        value.frequency,
       );
     }
   }
@@ -478,13 +524,14 @@ export class BudgetConfigManager {
       return; // No security context means no restrictions
     }
 
-    const hasPermission = this.securityContext.userPermissions.includes(requiredPermission) ||
-                         this.securityContext.userPermissions.includes(BudgetPermission.ADMIN);
+    const hasPermission =
+      this.securityContext.userPermissions.includes(requiredPermission) ||
+      this.securityContext.userPermissions.includes(BudgetPermission.ADMIN);
 
     if (!hasPermission) {
       throw new BudgetConfigAccessError(
         `Operation requires ${requiredPermission} permission`,
-        requiredPermission
+        requiredPermission,
       );
     }
   }
@@ -498,7 +545,7 @@ export class BudgetConfigManager {
  */
 export function createBudgetConfigManager(
   settings: Partial<BudgetSettings> = {},
-  securityContext?: BudgetSecurityContext
+  securityContext?: BudgetSecurityContext,
 ): BudgetConfigManager {
   return new BudgetConfigManager(settings, securityContext);
 }

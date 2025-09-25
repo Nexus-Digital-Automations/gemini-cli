@@ -4,10 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
+import type {
   DependencyGraph,
-  DependencyNode,
-  DependencyEdge,
   DependencyNodeId,
   DependencyEdgeId,
   CircularDependency,
@@ -18,6 +16,11 @@ import {
   GraphValidationStatus,
   GraphValidationError,
   GraphValidationWarning,
+  Bottleneck,
+  BreakingPoint} from '../types/Dependency';
+import {
+  DependencyNode,
+  DependencyEdge,
   ViolationType,
   ViolationSeverity,
   NodeExecutionStatus,
@@ -25,9 +28,7 @@ import {
   GraphErrorType,
   GraphWarningType,
   OptimizationType,
-  OptimizationComplexity,
-  Bottleneck,
-  BreakingPoint,
+  OptimizationComplexity
 } from '../types/Dependency';
 import type { Task, TaskId } from '../types/Task';
 
@@ -48,7 +49,7 @@ export class DependencyAnalysisEngine {
   /**
    * Validates dependency graph for structural integrity and logical consistency
    */
-  public async validateGraph(
+  async validateGraph(
     graph: DependencyGraph,
   ): Promise<GraphValidationStatus> {
     const startTime = performance.now();
@@ -111,7 +112,7 @@ export class DependencyAnalysisEngine {
   /**
    * Detects circular dependencies using Tarjan's strongly connected components algorithm
    */
-  public async detectCircularDependencies(
+  async detectCircularDependencies(
     graph: DependencyGraph,
   ): Promise<CircularDependency[]> {
     const circularDependencies: CircularDependency[] = [];
@@ -202,7 +203,7 @@ export class DependencyAnalysisEngine {
   /**
    * Performs topological sorting to determine optimal execution order
    */
-  public async topologicalSort(
+  async topologicalSort(
     graph: DependencyGraph,
   ): Promise<DependencyNodeId[]> {
     console.log('Performing topological sort for execution order');
@@ -267,7 +268,7 @@ export class DependencyAnalysisEngine {
   /**
    * Identifies parallel execution opportunities
    */
-  public async identifyParallelGroups(
+  async identifyParallelGroups(
     graph: DependencyGraph,
   ): Promise<ParallelGroup[]> {
     console.log('Identifying parallel execution opportunities');
@@ -340,7 +341,7 @@ export class DependencyAnalysisEngine {
   /**
    * Calculates critical path using Forward and Backward Pass algorithms
    */
-  public async calculateCriticalPath(
+  async calculateCriticalPath(
     graph: DependencyGraph,
   ): Promise<CriticalPath> {
     console.log('Calculating critical path using CPM algorithm');
@@ -460,7 +461,7 @@ export class DependencyAnalysisEngine {
   /**
    * Performs comprehensive dependency analysis
    */
-  public async analyzeGraph(
+  async analyzeGraph(
     graph: DependencyGraph,
   ): Promise<DependencyAnalysisResult> {
     const startTime = performance.now();
@@ -838,7 +839,7 @@ export class DependencyAnalysisEngine {
   /**
    * Clears analysis cache
    */
-  public clearCache(): void {
+  clearCache(): void {
     this.cache.clear();
     console.log('Dependency analysis cache cleared');
   }
@@ -846,7 +847,7 @@ export class DependencyAnalysisEngine {
   /**
    * Gets analysis history for a graph
    */
-  public getAnalysisHistory(graphId: string): DependencyAnalysisResult[] {
+  getAnalysisHistory(graphId: string): DependencyAnalysisResult[] {
     return this.analysisHistory.get(graphId) ?? [];
   }
 }

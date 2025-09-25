@@ -6,8 +6,16 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BudgetUsageTimeSeriesPoint, QueryRange, TimeSeriesStorage } from '../storage/types.js';
-import type { AggregationResult, AggregationWindow, AggregationEngine } from '../aggregation/types.js';
+import type {
+  BudgetUsageTimeSeriesPoint,
+  QueryRange,
+  TimeSeriesStorage,
+} from '../storage/types.js';
+import type {
+  AggregationResult,
+  AggregationWindow,
+  AggregationEngine,
+} from '../aggregation/types.js';
 import type {
   QueryEngine,
   QueryBuilder,
@@ -67,7 +75,10 @@ class AdvancedQueryBuilder implements QueryBuilder {
     return this;
   }
 
-  groupBy(field: string, aggregation: 'count' | 'sum' | 'avg' | 'min' | 'max'): QueryBuilder {
+  groupBy(
+    field: string,
+    aggregation: 'count' | 'sum' | 'avg' | 'min' | 'max',
+  ): QueryBuilder {
     this.groups.push({ field, aggregation });
     return this;
   }
@@ -144,7 +155,8 @@ export class AdvancedQueryEngine implements QueryEngine {
   private readonly savedQueriesDir: string;
 
   private indexes: Map<string, IndexSpec> = new Map();
-  private queryCache: Map<string, { result: QueryResult; timestamp: number }> = new Map();
+  private queryCache: Map<string, { result: QueryResult; timestamp: number }> =
+    new Map();
   private queryStats: Map<string, QueryStats[]> = new Map();
   private savedQueries: Map<string, SavedQuery> = new Map();
   private queryTemplates: Map<string, QueryTemplate> = new Map();
@@ -160,7 +172,7 @@ export class AdvancedQueryEngine implements QueryEngine {
   constructor(
     private storage: TimeSeriesStorage,
     private aggregationEngine: AggregationEngine,
-    baseDir: string
+    baseDir: string,
   ) {
     this.indexesDir = path.join(baseDir, 'indexes');
     this.cacheDir = path.join(baseDir, 'query-cache');
@@ -236,10 +248,15 @@ export class AdvancedQueryEngine implements QueryEngine {
         this.savedQueries.set(id, query as SavedQuery);
       }
 
-      console.log(`[AdvancedQueryEngine] Loaded ${this.savedQueries.size} saved queries`);
+      console.log(
+        `[AdvancedQueryEngine] Loaded ${this.savedQueries.size} saved queries`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn('[AdvancedQueryEngine] Failed to load saved queries:', error);
+        console.warn(
+          '[AdvancedQueryEngine] Failed to load saved queries:',
+          error,
+        );
       }
     }
   }
@@ -257,10 +274,15 @@ export class AdvancedQueryEngine implements QueryEngine {
         this.queryTemplates.set(id, template as QueryTemplate);
       }
 
-      console.log(`[AdvancedQueryEngine] Loaded ${this.queryTemplates.size} query templates`);
+      console.log(
+        `[AdvancedQueryEngine] Loaded ${this.queryTemplates.size} query templates`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn('[AdvancedQueryEngine] Failed to load query templates:', error);
+        console.warn(
+          '[AdvancedQueryEngine] Failed to load query templates:',
+          error,
+        );
       }
     }
   }
@@ -283,7 +305,7 @@ export class AdvancedQueryEngine implements QueryEngine {
       skip?: number;
       select?: string[];
       timeRange?: QueryRange;
-    } = {}
+    } = {},
   ): Promise<QueryResult> {
     const startTime = Date.now();
 
@@ -291,7 +313,7 @@ export class AdvancedQueryEngine implements QueryEngine {
     const cacheKey = this.generateCacheKey(filters, options);
     if (this.cacheConfig.enabled) {
       const cached = this.queryCache.get(cacheKey);
-      if (cached && (Date.now() - cached.timestamp) < this.cacheConfig.ttl) {
+      if (cached && Date.now() - cached.timestamp < this.cacheConfig.ttl) {
         return cached.result;
       }
     }
@@ -376,12 +398,14 @@ export class AdvancedQueryEngine implements QueryEngine {
     options: {
       timeRange?: QueryRange;
       window?: AggregationWindow;
-    } = {}
+    } = {},
   ): Promise<QueryResult<AggregationResult>> {
     const startTime = Date.now();
 
     // First get the raw data
-    const rawResult = await this.query(filters, { timeRange: options.timeRange });
+    const rawResult = await this.query(filters, {
+      timeRange: options.timeRange,
+    });
 
     if (rawResult.data.length === 0) {
       return {
@@ -396,21 +420,24 @@ export class AdvancedQueryEngine implements QueryEngine {
 
     // Use aggregation engine for complex aggregation
     if (options.window) {
-      const aggregationResult = await this.aggregationEngine.aggregate(rawResult.data, {
-        windows: [options.window],
-        calculatePercentiles: true,
-        percentileLevels: [25, 50, 75, 90, 95, 99],
-        confidenceLevel: 0.95,
-        trackFeatureDistribution: true,
-        trackTimePatterns: true,
-        includeAdvancedStats: true,
-        batchSize: 1000,
-        parallelProcessing: false,
-        cacheResults: true,
-        minDataPoints: 1,
-        outlierDetection: false,
-        outlierThreshold: 2.0,
-      });
+      const aggregationResult = await this.aggregationEngine.aggregate(
+        rawResult.data,
+        {
+          windows: [options.window],
+          calculatePercentiles: true,
+          percentileLevels: [25, 50, 75, 90, 95, 99],
+          confidenceLevel: 0.95,
+          trackFeatureDistribution: true,
+          trackTimePatterns: true,
+          includeAdvancedStats: true,
+          batchSize: 1000,
+          parallelProcessing: false,
+          cacheResults: true,
+          minDataPoints: 1,
+          outlierDetection: false,
+          outlierThreshold: 2.0,
+        },
+      );
 
       return {
         data: aggregationResult,
@@ -438,16 +465,20 @@ export class AdvancedQueryEngine implements QueryEngine {
   /**
    * Apply filters to data
    */
-  private applyFilters(data: BudgetUsageTimeSeriesPoint[], filters: QueryFilter[]): BudgetUsageTimeSeriesPoint[] {
-    return data.filter(dataPoint => {
-      return filters.every(filter => this.evaluateFilter(dataPoint, filter));
-    });
+  private applyFilters(
+    data: BudgetUsageTimeSeriesPoint[],
+    filters: QueryFilter[],
+  ): BudgetUsageTimeSeriesPoint[] {
+    return data.filter((dataPoint) => filters.every((filter) => this.evaluateFilter(dataPoint, filter)));
   }
 
   /**
    * Evaluate a single filter condition
    */
-  private evaluateFilter(dataPoint: BudgetUsageTimeSeriesPoint, filter: QueryFilter): boolean {
+  private evaluateFilter(
+    dataPoint: BudgetUsageTimeSeriesPoint,
+    filter: QueryFilter,
+  ): boolean {
     const fieldValue = this.getFieldValue(dataPoint, filter.field);
 
     switch (filter.operator) {
@@ -456,24 +487,51 @@ export class AdvancedQueryEngine implements QueryEngine {
       case 'ne':
         return fieldValue !== filter.value;
       case 'gt':
-        return typeof fieldValue === 'number' && typeof filter.value === 'number' && fieldValue > filter.value;
+        return (
+          typeof fieldValue === 'number' &&
+          typeof filter.value === 'number' &&
+          fieldValue > filter.value
+        );
       case 'gte':
-        return typeof fieldValue === 'number' && typeof filter.value === 'number' && fieldValue >= filter.value;
+        return (
+          typeof fieldValue === 'number' &&
+          typeof filter.value === 'number' &&
+          fieldValue >= filter.value
+        );
       case 'lt':
-        return typeof fieldValue === 'number' && typeof filter.value === 'number' && fieldValue < filter.value;
+        return (
+          typeof fieldValue === 'number' &&
+          typeof filter.value === 'number' &&
+          fieldValue < filter.value
+        );
       case 'lte':
-        return typeof fieldValue === 'number' && typeof filter.value === 'number' && fieldValue <= filter.value;
+        return (
+          typeof fieldValue === 'number' &&
+          typeof filter.value === 'number' &&
+          fieldValue <= filter.value
+        );
       case 'in':
         return Array.isArray(filter.value) && filter.value.includes(fieldValue);
       case 'nin':
-        return Array.isArray(filter.value) && !filter.value.includes(fieldValue);
+        return (
+          Array.isArray(filter.value) && !filter.value.includes(fieldValue)
+        );
       case 'exists':
         return fieldValue !== undefined && fieldValue !== null;
       case 'regex':
-        return typeof fieldValue === 'string' && typeof filter.value === 'string' &&
-               new RegExp(filter.value, filter.caseSensitive ? 'g' : 'gi').test(fieldValue);
+        return (
+          typeof fieldValue === 'string' &&
+          typeof filter.value === 'string' &&
+          new RegExp(filter.value, filter.caseSensitive ? 'g' : 'gi').test(
+            fieldValue,
+          )
+        );
       case 'between':
-        if (Array.isArray(filter.value) && filter.value.length === 2 && typeof fieldValue === 'number') {
+        if (
+          Array.isArray(filter.value) &&
+          filter.value.length === 2 &&
+          typeof fieldValue === 'number'
+        ) {
           return fieldValue >= filter.value[0] && fieldValue <= filter.value[1];
         }
         return false;
@@ -485,7 +543,10 @@ export class AdvancedQueryEngine implements QueryEngine {
   /**
    * Get field value from data point (supports nested paths)
    */
-  private getFieldValue(dataPoint: BudgetUsageTimeSeriesPoint, fieldPath: string): unknown {
+  private getFieldValue(
+    dataPoint: BudgetUsageTimeSeriesPoint,
+    fieldPath: string,
+  ): unknown {
     const path = fieldPath.split('.');
     let value: any = dataPoint;
 
@@ -503,7 +564,10 @@ export class AdvancedQueryEngine implements QueryEngine {
   /**
    * Apply sorting to data
    */
-  private applySorting(data: BudgetUsageTimeSeriesPoint[], sorts: SortSpec[]): BudgetUsageTimeSeriesPoint[] {
+  private applySorting(
+    data: BudgetUsageTimeSeriesPoint[],
+    sorts: SortSpec[],
+  ): BudgetUsageTimeSeriesPoint[] {
     return [...data].sort((a, b) => {
       for (const sort of sorts) {
         const valueA = this.getFieldValue(a, sort.field);
@@ -531,8 +595,11 @@ export class AdvancedQueryEngine implements QueryEngine {
   /**
    * Apply field selection
    */
-  private applyFieldSelection(data: BudgetUsageTimeSeriesPoint[], fields: string[]): BudgetUsageTimeSeriesPoint[] {
-    return data.map(dataPoint => {
+  private applyFieldSelection(
+    data: BudgetUsageTimeSeriesPoint[],
+    fields: string[],
+  ): BudgetUsageTimeSeriesPoint[] {
+    return data.map((dataPoint) => {
       const selected: any = {};
 
       for (const field of fields) {
@@ -565,7 +632,10 @@ export class AdvancedQueryEngine implements QueryEngine {
   /**
    * Perform simple grouping and aggregation
    */
-  private performGrouping(data: BudgetUsageTimeSeriesPoint[], groupBy: GroupSpec[]): any[] {
+  private performGrouping(
+    data: BudgetUsageTimeSeriesPoint[],
+    groupBy: GroupSpec[],
+  ): any[] {
     if (groupBy.length === 0) {
       return data;
     }
@@ -574,7 +644,9 @@ export class AdvancedQueryEngine implements QueryEngine {
 
     // Group data
     for (const dataPoint of data) {
-      const groupKey = groupBy.map(spec => String(this.getFieldValue(dataPoint, spec.field))).join('|');
+      const groupKey = groupBy
+        .map((spec) => String(this.getFieldValue(dataPoint, spec.field)))
+        .join('|');
 
       if (!groups.has(groupKey)) {
         groups.set(groupKey, []);
@@ -598,8 +670,8 @@ export class AdvancedQueryEngine implements QueryEngine {
       // Apply aggregation functions
       for (const spec of groupBy) {
         const values = groupData
-          .map(dp => this.getFieldValue(dp, spec.field))
-          .filter(v => typeof v === 'number') as number[];
+          .map((dp) => this.getFieldValue(dp, spec.field))
+          .filter((v) => typeof v === 'number') as number[];
 
         switch (spec.aggregation) {
           case 'count':
@@ -609,13 +681,18 @@ export class AdvancedQueryEngine implements QueryEngine {
             result[`${spec.field}_sum`] = values.reduce((sum, v) => sum + v, 0);
             break;
           case 'avg':
-            result[`${spec.field}_avg`] = values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : 0;
+            result[`${spec.field}_avg`] =
+              values.length > 0
+                ? values.reduce((sum, v) => sum + v, 0) / values.length
+                : 0;
             break;
           case 'min':
-            result[`${spec.field}_min`] = values.length > 0 ? Math.min(...values) : 0;
+            result[`${spec.field}_min`] =
+              values.length > 0 ? Math.min(...values) : 0;
             break;
           case 'max':
-            result[`${spec.field}_max`] = values.length > 0 ? Math.max(...values) : 0;
+            result[`${spec.field}_max`] =
+              values.length > 0 ? Math.max(...values) : 0;
             break;
         }
       }
@@ -646,7 +723,7 @@ export class AdvancedQueryEngine implements QueryEngine {
     let hash = 0;
     for (let i = 0; i < keyStr.length; i++) {
       const char = keyStr.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
 
@@ -662,10 +739,14 @@ export class AdvancedQueryEngine implements QueryEngine {
     }
 
     // Remove oldest entries
-    const entries = Array.from(this.queryCache.entries())
-      .sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const entries = Array.from(this.queryCache.entries()).sort(
+      (a, b) => a[1].timestamp - b[1].timestamp,
+    );
 
-    const entriesToRemove = entries.slice(0, entries.length - this.cacheConfig.maxSize);
+    const entriesToRemove = entries.slice(
+      0,
+      entries.length - this.cacheConfig.maxSize,
+    );
 
     for (const [key] of entriesToRemove) {
       this.queryCache.delete(key);
@@ -732,7 +813,7 @@ export class AdvancedQueryEngine implements QueryEngine {
       estimatedCost: Math.max(estimatedCost, 10),
       indexesUsed,
       bucketsScan: 1, // Simplified
-      filterOrder: filters.map(f => f.field),
+      filterOrder: filters.map((f) => f.field),
       sortRequired: !!options.sort,
       aggregationRequired: false,
     };
@@ -750,19 +831,33 @@ export class AdvancedQueryEngine implements QueryEngine {
   }> {
     const allStats = Array.from(this.queryStats.values()).flat();
     const totalQueries = allStats.length;
-    const averageExecutionTime = totalQueries > 0
-      ? allStats.reduce((sum, stat) => sum + stat.executionTime, 0) / totalQueries
-      : 0;
+    const averageExecutionTime =
+      totalQueries > 0
+        ? allStats.reduce((sum, stat) => sum + stat.executionTime, 0) /
+          totalQueries
+        : 0;
 
-    const totalCacheRequests = allStats.reduce((sum, stat) => sum + stat.cacheHits + stat.cacheMisses, 0);
-    const totalCacheHits = allStats.reduce((sum, stat) => sum + stat.cacheHits, 0);
-    const cacheHitRatio = totalCacheRequests > 0 ? totalCacheHits / totalCacheRequests : 0;
+    const totalCacheRequests = allStats.reduce(
+      (sum, stat) => sum + stat.cacheHits + stat.cacheMisses,
+      0,
+    );
+    const totalCacheHits = allStats.reduce(
+      (sum, stat) => sum + stat.cacheHits,
+      0,
+    );
+    const cacheHitRatio =
+      totalCacheRequests > 0 ? totalCacheHits / totalCacheRequests : 0;
 
-    const slowQueries = allStats.filter(stat => stat.executionTime > 1000).length;
+    const slowQueries = allStats.filter(
+      (stat) => stat.executionTime > 1000,
+    ).length;
 
     const indexUtilization: Record<string, number> = {};
     for (const [field] of this.indexes) {
-      indexUtilization[field] = allStats.reduce((sum, stat) => sum + stat.indexSeeks, 0);
+      indexUtilization[field] = allStats.reduce(
+        (sum, stat) => sum + stat.indexSeeks,
+        0,
+      );
     }
 
     return {
@@ -814,11 +909,15 @@ export class AdvancedQueryEngine implements QueryEngine {
 
     // Analyze query patterns and suggest optimizations
     for (const [queryKey, queryHistory] of this.queryStats) {
-      const avgTime = queryHistory.reduce((sum, stat) => sum + stat.executionTime, 0) / queryHistory.length;
+      const avgTime =
+        queryHistory.reduce((sum, stat) => sum + stat.executionTime, 0) /
+        queryHistory.length;
 
       if (avgTime > 500) {
         slowQueries.push(queryKey);
-        optimizationRecommendations.push(`Query ${queryKey} averages ${avgTime.toFixed(2)}ms - consider adding indexes`);
+        optimizationRecommendations.push(
+          `Query ${queryKey} averages ${avgTime.toFixed(2)}ms - consider adding indexes`,
+        );
       }
     }
 
@@ -877,7 +976,7 @@ export class AdvancedQueryEngine implements QueryEngine {
 export function createAdvancedQueryEngine(
   storage: TimeSeriesStorage,
   aggregationEngine: AggregationEngine,
-  baseDir: string
+  baseDir: string,
 ): AdvancedQueryEngine {
   return new AdvancedQueryEngine(storage, aggregationEngine, baseDir);
 }

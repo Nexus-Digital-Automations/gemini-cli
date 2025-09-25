@@ -27,12 +27,13 @@ import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
 import { TaskQueue, TaskPriority } from './TaskQueue.js';
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
-import {
+import type {
   Task,
   TaskId,
   TaskStatus,
   TaskResult,
-  TaskExecutionContext,
+  TaskExecutionContext} from './types.js';
+import {
   TaskQueueConfig,
   ExecutionPlan,
   DependencyGraph,
@@ -364,9 +365,7 @@ export class TaskManager {
         category: (options?.category as any) || 'implementation',
         priority: options?.priority || TaskPriority.MEDIUM,
         estimatedDuration: this.estimateTaskDuration(title, description),
-        executeFunction: async (task, executionContext) => {
-          return this.executeTaskWithQualityGates(task, executionContext);
-        },
+        executeFunction: async (task, executionContext) => this.executeTaskWithQualityGates(task, executionContext),
         dependencies: options?.dependencies,
         executionContext: options?.executionContext,
         parameters: options?.parameters,

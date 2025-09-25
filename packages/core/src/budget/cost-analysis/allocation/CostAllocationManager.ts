@@ -4,22 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import type { FeatureCostEntry } from '../tracking/FeatureCostTracker.js';
+import * as fs from &apos;node:fs/promises&apos;;
+import * as path from &apos;node:path&apos;;
+import type { FeatureCostEntry } from &apos;../tracking/FeatureCostTracker.js&apos;;
 
 /**
  * Cost allocation method for distributing costs
  */
 export type CostAllocationMethod =
-  | 'equal'           // Equal distribution
-  | 'proportional'    // Based on usage metrics
-  | 'usage_based'     // Based on actual usage
-  | 'value_based'     // Based on business value
-  | 'custom'          // Custom allocation rules
-  | 'activity_based'  // Activity-based costing
-  | 'weighted'        // Weighted allocation
-  | 'hybrid';         // Combination of methods
+  | &apos;equal&apos; // Equal distribution
+  | &apos;proportional&apos; // Based on usage metrics
+  | &apos;usage_based&apos; // Based on actual usage
+  | &apos;value_based&apos; // Based on business value
+  | &apos;custom&apos; // Custom allocation rules
+  | &apos;activity_based&apos; // Activity-based costing
+  | &apos;weighted&apos; // Weighted allocation
+  | &apos;hybrid&apos;; // Combination of methods
 
 /**
  * Cost allocation rule configuration
@@ -38,7 +38,10 @@ export interface CostAllocationRule {
   /** Weight for weighted allocation */
   weight?: number;
   /** Custom allocation function */
-  customAllocator?: (cost: FeatureCostEntry, context: AllocationContext) => AllocationResult[];
+  customAllocator?: (
+    cost: FeatureCostEntry,
+    context: AllocationContext,
+  ) => AllocationResult[];
   /** Business value multiplier */
   businessValueMultiplier?: number;
   /** Description of the rule */
@@ -75,7 +78,7 @@ export interface AllocationTarget {
   /** Target name */
   name: string;
   /** Target type (department, project, user, feature) */
-  type: 'department' | 'project' | 'user' | 'feature' | 'team' | 'service';
+  type: &apos;department&apos; | &apos;project&apos; | &apos;user&apos; | &apos;feature&apos; | &apos;team&apos; | 'service&apos;;
   /** Business priority score */
   priority: number;
   /** Current budget allocation */
@@ -95,13 +98,13 @@ export interface AllocationTarget {
  */
 export interface UsagePattern {
   /** Pattern type */
-  type: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'seasonal';
+  type: &apos;hourly&apos; | &apos;daily&apos; | &apos;weekly&apos; | &apos;monthly&apos; | 'seasonal&apos;;
   /** Usage coefficient */
   coefficient: number;
   /** Peak usage hours/periods */
   peakPeriods: string[];
   /** Usage trend */
-  trend: 'increasing' | 'decreasing' | 'stable';
+  trend: &apos;increasing&apos; | &apos;decreasing&apos; | 'stable&apos;;
 }
 
 /**
@@ -204,14 +207,20 @@ export class CostAllocationManager {
 
   constructor(config: CostAllocationConfig) {
     this.config = {
-      defaultMethod: 'proportional',
+      defaultMethod: &apos;proportional&apos;,
       reallocationFrequency: 24, // 24 hours
       enableAutoReallocation: true,
       ...config,
     };
-    this.targetsFile = path.join(this.config.dataDir, 'allocation-targets.json');
-    this.rulesFile = path.join(this.config.dataDir, 'allocation-rules.json');
-    this.historicalFile = path.join(this.config.dataDir, 'allocation-history.jsonl');
+    this.targetsFile = path.join(
+      this.config.dataDir,
+      &apos;allocation-_targets.json&apos;,
+    );
+    this.rulesFile = path.join(this.config.dataDir, &apos;allocation-rules.json&apos;);
+    this.historicalFile = path.join(
+      this.config.dataDir,
+      &apos;allocation-history.jsonl&apos;,
+    );
   }
 
   /**
@@ -219,17 +228,20 @@ export class CostAllocationManager {
    */
   async allocateCosts(
     costs: FeatureCostEntry[],
-    timePeriod: { start: string; end: string }
+    timePeriod: { start: string; end: string },
   ): Promise<AllocationResult[]> {
     const logger = this.getLogger();
-    logger.info('CostAllocationManager.allocateCosts - Starting cost allocation', {
-      costsCount: costs.length,
-      timePeriod,
-    });
+    logger.info(
+      &apos;CostAllocationManager.allocateCosts - Starting cost allocation&apos;,
+      {
+        costsCount: costs.length,
+        timePeriod,
+      },
+    );
 
     try {
       // Load allocation targets and rules
-      const targets = await this.loadAllocationTargets();
+      const _targets = await this.loadAllocationTargets();
       const rules = await this.loadAllocationRules();
       const historicalData = await this.loadHistoricalAllocations(timePeriod);
 
@@ -238,10 +250,10 @@ export class CostAllocationManager {
       const context: AllocationContext = {
         timePeriod,
         totalCost,
-        targets: targets.filter(t => t.active),
+        targets: targets.filter((t) => t.active),
         historicalData,
-        businessPriorities: this.calculateBusinessPriorities(targets),
-        budgetConstraints: this.calculateBudgetConstraints(targets),
+        businessPriorities: this.calculateBusinessPriorities(_targets),
+        budgetConstraints: this.calculateBudgetConstraints(_targets),
       };
 
       // Group costs by allocation criteria
@@ -249,7 +261,7 @@ export class CostAllocationManager {
       const allocationResults: AllocationResult[] = [];
 
       // Process each cost group
-      for (const [groupKey, groupCosts] of costGroups) {
+      for (const [_groupKey, groupCosts] of costGroups) {
         const groupTotal = groupCosts.reduce((sum, cost) => sum + cost.cost, 0);
 
         // Apply allocation rules
@@ -257,29 +269,39 @@ export class CostAllocationManager {
           groupCosts,
           groupTotal,
           context,
-          rules
+          rules,
         );
 
         allocationResults.push(...groupAllocations);
       }
 
       // Normalize allocations to ensure they sum to total cost
-      const normalizedResults = this.normalizeAllocations(allocationResults, totalCost);
+      const normalizedResults = this.normalizeAllocations(
+        allocationResults,
+        totalCost,
+      );
 
       // Record historical allocation data
       await this.recordHistoricalAllocations(normalizedResults, timePeriod);
 
-      logger.info('CostAllocationManager.allocateCosts - Cost allocation completed', {
-        totalCost,
-        allocationsCount: normalizedResults.length,
-        uniqueTargets: new Set(normalizedResults.map(r => r.target.id)).size,
-      });
+      logger.info(
+        &apos;CostAllocationManager.allocateCosts - Cost allocation completed&apos;,
+        {
+          totalCost,
+          allocationsCount: normalizedResults.length,
+          uniqueTargets: new Set(normalizedResults.map((r) => r.target.id))
+            .size,
+        },
+      );
 
       return normalizedResults;
-    } catch (error) {
-      logger.error('CostAllocationManager.allocateCosts - Cost allocation failed', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;CostAllocationManager.allocateCosts - Cost allocation failed&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+        },
+      );
       throw error;
     }
   }
@@ -288,26 +310,34 @@ export class CostAllocationManager {
    * Reallocate costs based on updated usage patterns
    */
   async reallocateCosts(
-    currentAllocations: AllocationResult[],
-    newUsageData: FeatureCostEntry[]
+    _currentAllocations: AllocationResult[],
+    newUsageData: FeatureCostEntry[],
   ): Promise<AllocationResult[]> {
     const logger = this.getLogger();
-    logger.info('CostAllocationManager.reallocateCosts - Starting cost reallocation', {
-      currentAllocationsCount: currentAllocations.length,
-      newUsageDataCount: newUsageData.length,
-    });
+    logger.info(
+      &apos;CostAllocationManager.reallocateCosts - Starting cost reallocation&apos;,
+      {
+        currentAllocationsCount: _currentAllocations.length,
+        newUsageDataCount: newUsageData.length,
+      },
+    );
 
     try {
       // Analyze usage changes
-      const usageChanges = await this.analyzeUsageChanges(currentAllocations, newUsageData);
+      const usageChanges = await this.analyzeUsageChanges(
+        _currentAllocations,
+        newUsageData,
+      );
 
       // Determine reallocation needs
-      const reallocationNeeded = usageChanges.some(change =>
-        Math.abs(change.changePercentage) > 10 // 10% threshold
+      const reallocationNeeded = usageChanges.some(
+        (change) => Math.abs(change.changePercentage) > 10, // 10% threshold
       );
 
       if (!reallocationNeeded) {
-        logger.info('CostAllocationManager.reallocateCosts - No significant usage changes detected');
+        logger.info(
+          &apos;CostAllocationManager.reallocateCosts - No significant usage changes detected&apos;,
+        );
         return currentAllocations;
       }
 
@@ -317,17 +347,25 @@ export class CostAllocationManager {
         end: new Date().toISOString(),
       };
 
-      const newAllocations = await this.allocateCosts(newUsageData, timePeriod);
+      const newAllocations = await this.allocateCosts(_newUsageData, timePeriod);
 
-      logger.info('CostAllocationManager.reallocateCosts - Cost reallocation completed', {
-        significantChanges: usageChanges.filter(c => Math.abs(c.changePercentage) > 10).length,
-      });
+      logger.info(
+        &apos;CostAllocationManager.reallocateCosts - Cost reallocation completed&apos;,
+        {
+          significantChanges: usageChanges.filter(
+            (c) => Math.abs(c.changePercentage) > 10,
+          ).length,
+        },
+      );
 
       return newAllocations;
-    } catch (error) {
-      logger.error('CostAllocationManager.reallocateCosts - Cost reallocation failed', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;CostAllocationManager.reallocateCosts - Cost reallocation failed&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+        },
+      );
       throw error;
     }
   }
@@ -337,75 +375,94 @@ export class CostAllocationManager {
    */
   async generateAllocationRecommendations(
     costs: FeatureCostEntry[],
-    currentAllocations: AllocationResult[]
+    _currentAllocations: AllocationResult[],
   ): Promise<{
     recommendations: AllocationRecommendation[];
     projectedSavings: number;
     confidence: number;
   }> {
     const logger = this.getLogger();
-    logger.info('CostAllocationManager.generateAllocationRecommendations - Generating recommendations');
+    logger.info(
+      &apos;CostAllocationManager.generateAllocationRecommendations - Generating recommendations&apos;,
+    );
 
     try {
       const recommendations: AllocationRecommendation[] = [];
 
       // Analyze allocation efficiency
-      const efficiencyAnalysis = await this.analyzeAllocationEfficiency(currentAllocations);
+      const efficiencyAnalysis =
+        await this.analyzeAllocationEfficiency(_currentAllocations);
 
       // Generate efficiency-based recommendations
       for (const inefficiency of efficiencyAnalysis.inefficiencies) {
-        if (inefficiency.severity > 0.2) { // 20% inefficiency threshold
+        if (inefficiency.severity > 0.2) {
+          // 20% inefficiency threshold
           recommendations.push({
-            type: 'reallocation',
-            priority: this.calculateRecommendationPriority(inefficiency.severity),
+            type: &apos;reallocation&apos;,
+            priority: this.calculateRecommendationPriority(
+              inefficiency.severity,
+            ),
             description: `Reallocate ${inefficiency.wastedAmount.toFixed(2)} from ${inefficiency.target} to more efficient targets`,
             expectedSaving: inefficiency.wastedAmount,
             confidence: inefficiency.confidence,
-            implementation: 'automatic',
-            impact: inefficiency.severity > 0.5 ? 'high' : 'medium',
+            implementation: &apos;automatic&apos;,
+            impact: inefficiency.severity > 0.5 ? &apos;high&apos; : &apos;medium&apos;,
           });
         }
       }
 
       // Analyze underutilized targets
-      const underutilized = currentAllocations.filter(a =>
-        a.metrics.cost.budgetUtilization < 0.7 // Less than 70% utilization
+      const underutilized = currentAllocations.filter(
+        (a) => a.metrics.cost.budgetUtilization < 0.7, // Less than 70% utilization
       );
 
       for (const target of underutilized) {
-        const unusedBudget = target.target.budgetAllocation - target.allocatedCost;
-        if (unusedBudget > 10) { // $10 threshold
+        const unusedBudget =
+          target.target.budgetAllocation - target.allocatedCost;
+        if (unusedBudget > 10) {
+          // $10 threshold
           recommendations.push({
-            type: 'budget_reduction',
-            priority: 'medium',
+            type: &apos;budget_reduction&apos;,
+            priority: &apos;medium&apos;,
             description: `Consider reducing budget allocation for ${target.target.name} by $${unusedBudget.toFixed(2)}`,
             expectedSaving: unusedBudget,
             confidence: 0.8,
-            implementation: 'manual',
-            impact: 'low',
+            implementation: &apos;manual&apos;,
+            impact: &apos;low&apos;,
           });
         }
       }
 
       // Calculate projected savings
-      const projectedSavings = recommendations.reduce((sum, rec) => sum + rec.expectedSaving, 0);
-      const avgConfidence = recommendations.reduce((sum, rec) => sum + rec.confidence, 0) / recommendations.length;
+      const projectedSavings = recommendations.reduce(
+        (sum, rec) => sum + rec.expectedSaving,
+        0,
+      );
+      const avgConfidence =
+        recommendations.reduce((sum, rec) => sum + rec.confidence, 0) /
+        recommendations.length;
 
-      logger.info('CostAllocationManager.generateAllocationRecommendations - Recommendations generated', {
-        recommendationCount: recommendations.length,
-        projectedSavings,
-        avgConfidence,
-      });
+      logger.info(
+        &apos;CostAllocationManager.generateAllocationRecommendations - Recommendations generated&apos;,
+        {
+          recommendationCount: recommendations.length,
+          projectedSavings,
+          avgConfidence,
+        },
+      );
 
       return {
         recommendations,
         projectedSavings,
         confidence: avgConfidence || 0,
       };
-    } catch (error) {
-      logger.error('CostAllocationManager.generateAllocationRecommendations - Failed to generate recommendations', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;CostAllocationManager.generateAllocationRecommendations - Failed to generate recommendations&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+        },
+      );
       throw error;
     }
   }
@@ -417,7 +474,7 @@ export class CostAllocationManager {
     costs: FeatureCostEntry[],
     totalCost: number,
     context: AllocationContext,
-    rules: CostAllocationRule[]
+    rules: CostAllocationRule[],
   ): Promise<AllocationResult[]> {
     const sortedRules = rules.sort((a, b) => b.priority - a.priority);
     const results: AllocationResult[] = [];
@@ -428,7 +485,11 @@ export class CostAllocationManager {
       // Try each rule in priority order
       for (const rule of sortedRules) {
         if (rule.condition(cost)) {
-          const ruleResults = await this.applyAllocationRule(cost, rule, context);
+          const ruleResults = await this.applyAllocationRule(
+            cost,
+            rule,
+            context,
+          );
           results.push(...ruleResults);
           allocated = true;
           break;
@@ -451,24 +512,24 @@ export class CostAllocationManager {
   private async applyAllocationRule(
     cost: FeatureCostEntry,
     rule: CostAllocationRule,
-    context: AllocationContext
+    context: AllocationContext,
   ): Promise<AllocationResult[]> {
     switch (rule.method) {
-      case 'equal':
+      case &apos;equal&apos;:
         return this.allocateEqually(cost, context, rule);
-      case 'proportional':
+      case &apos;proportional&apos;:
         return this.allocateProportionally(cost, context, rule);
-      case 'usage_based':
+      case &apos;usage_based&apos;:
         return this.allocateBasedOnUsage(cost, context, rule);
-      case 'value_based':
+      case &apos;value_based&apos;:
         return this.allocateBasedOnValue(cost, context, rule);
-      case 'custom':
+      case &apos;custom&apos;:
         return rule.customAllocator!(cost, context);
-      case 'activity_based':
+      case &apos;activity_based&apos;:
         return this.allocateBasedOnActivity(cost, context, rule);
-      case 'weighted':
+      case &apos;weighted&apos;:
         return this.allocateWeighted(cost, context, rule);
-      case 'hybrid':
+      case &apos;hybrid&apos;:
         return this.allocateHybrid(cost, context, rule);
       default:
         return this.allocateProportionally(cost, context, rule);
@@ -481,16 +542,16 @@ export class CostAllocationManager {
   private allocateEqually(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
-    const activeTargets = context.targets.filter(t => t.active);
+    const activeTargets = context.targets.filter((t) => t.active);
     const costPerTarget = cost.cost / activeTargets.length;
 
-    return activeTargets.map(target => ({
+    return activeTargets.map((target) => ({
       target,
       allocatedCost: costPerTarget,
       allocationPercentage: (costPerTarget / cost.cost) * 100,
-      method: 'equal',
+      method: &apos;equal&apos;,
       ruleId: rule.id,
       confidence: 0.7,
       justification: `Equal distribution across ${activeTargets.length} targets`,
@@ -504,19 +565,23 @@ export class CostAllocationManager {
   private allocateProportionally(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
-    const totalBudget = context.targets.reduce((sum, t) => sum + t.budgetAllocation, 0);
+    const totalBudget = context.targets.reduce(
+      (sum, t) => sum + t.budgetAllocation,
+      0,
+    );
 
-    return context.targets.map(target => {
-      const proportion = totalBudget > 0 ? target.budgetAllocation / totalBudget : 0;
+    return context.targets.map((target) => {
+      const proportion =
+        totalBudget > 0 ? target.budgetAllocation / totalBudget : 0;
       const allocatedCost = cost.cost * proportion;
 
       return {
         target,
         allocatedCost,
         allocationPercentage: proportion * 100,
-        method: 'proportional',
+        method: &apos;proportional&apos;,
         ruleId: rule.id,
         confidence: 0.8,
         justification: `Proportional to budget allocation (${(proportion * 100).toFixed(1)}%)`,
@@ -531,7 +596,7 @@ export class CostAllocationManager {
   private allocateBasedOnUsage(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
     // This would require usage tracking per target
     // For now, use proportional allocation with usage weighting
@@ -544,19 +609,23 @@ export class CostAllocationManager {
   private allocateBasedOnValue(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
-    const totalPriority = context.targets.reduce((sum, t) => sum + t.priority, 0);
+    const totalPriority = context.targets.reduce(
+      (sum, t) => sum + t.priority,
+      0,
+    );
 
-    return context.targets.map(target => {
-      const valueWeight = totalPriority > 0 ? target.priority / totalPriority : 0;
+    return context.targets.map((target) => {
+      const valueWeight =
+        totalPriority > 0 ? target.priority / totalPriority : 0;
       const allocatedCost = cost.cost * valueWeight;
 
       return {
         target,
         allocatedCost,
         allocationPercentage: valueWeight * 100,
-        method: 'value_based',
+        method: &apos;value_based&apos;,
         ruleId: rule.id,
         confidence: 0.75,
         justification: `Value-based allocation by business priority (${(valueWeight * 100).toFixed(1)}%)`,
@@ -571,7 +640,7 @@ export class CostAllocationManager {
   private allocateBasedOnActivity(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
     // Activity-based costing would require detailed activity tracking
     // For now, use a combination of usage and value metrics
@@ -584,16 +653,16 @@ export class CostAllocationManager {
   private allocateWeighted(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
     const weight = rule.weight || 1.0;
     const results = this.allocateProportionally(cost, context, rule);
 
     // Apply weight to the proportional allocation
-    return results.map(result => ({
+    return results.map((result) => ({
       ...result,
       allocatedCost: result.allocatedCost * weight,
-      method: 'weighted',
+      method: &apos;weighted&apos;,
       justification: `Weighted allocation (weight: ${weight})`,
     }));
   }
@@ -604,22 +673,27 @@ export class CostAllocationManager {
   private allocateHybrid(
     cost: FeatureCostEntry,
     context: AllocationContext,
-    rule: CostAllocationRule
+    rule: CostAllocationRule,
   ): AllocationResult[] {
     // Combine proportional (50%) and value-based (50%) allocation
-    const proportionalResults = this.allocateProportionally(cost, context, rule);
+    const proportionalResults = this.allocateProportionally(
+      cost,
+      context,
+      rule,
+    );
     const valueResults = this.allocateBasedOnValue(cost, context, rule);
 
-    return proportionalResults.map((propResult, index) => {
+    return proportionalResults.map((propResult, _index) => {
       const valueResult = valueResults[index];
-      const hybridCost = (propResult.allocatedCost * 0.5) + (valueResult.allocatedCost * 0.5);
+      const hybridCost =
+        propResult.allocatedCost * 0.5 + valueResult.allocatedCost * 0.5;
 
       return {
         ...propResult,
         allocatedCost: hybridCost,
         allocationPercentage: (hybridCost / cost.cost) * 100,
-        method: 'hybrid',
-        justification: 'Hybrid allocation (50% proportional, 50% value-based)',
+        method: &apos;hybrid&apos;,
+        justification: &apos;Hybrid allocation (50% proportional, 50% value-based)&apos;,
         confidence: 0.85,
       };
     });
@@ -630,11 +704,11 @@ export class CostAllocationManager {
    */
   private async applyDefaultAllocation(
     cost: FeatureCostEntry,
-    context: AllocationContext
+    context: AllocationContext,
   ): Promise<AllocationResult[]> {
     const defaultRule: CostAllocationRule = {
-      id: 'default',
-      name: 'Default Allocation',
+      id: &apos;default&apos;,
+      name: &apos;Default Allocation&apos;,
       method: this.config.defaultMethod,
       priority: 0,
       condition: () => true,
@@ -648,7 +722,7 @@ export class CostAllocationManager {
    */
   private generateAllocationMetrics(
     cost: FeatureCostEntry,
-    target: AllocationTarget
+    target: AllocationTarget,
   ): AllocationMetrics {
     return {
       usage: {
@@ -675,9 +749,12 @@ export class CostAllocationManager {
    */
   private normalizeAllocations(
     allocations: AllocationResult[],
-    totalCost: number
+    totalCost: number,
   ): AllocationResult[] {
-    const allocatedTotal = allocations.reduce((sum, alloc) => sum + alloc.allocatedCost, 0);
+    const allocatedTotal = allocations.reduce(
+      (sum, alloc) => sum + alloc.allocatedCost,
+      0,
+    );
 
     if (Math.abs(allocatedTotal - totalCost) < 0.01) {
       return allocations; // Already normalized
@@ -685,10 +762,11 @@ export class CostAllocationManager {
 
     const normalizationFactor = totalCost / allocatedTotal;
 
-    return allocations.map(allocation => ({
+    return allocations.map((allocation) => ({
       ...allocation,
       allocatedCost: allocation.allocatedCost * normalizationFactor,
-      allocationPercentage: allocation.allocationPercentage * normalizationFactor,
+      allocationPercentage:
+        allocation.allocationPercentage * normalizationFactor,
     }));
   }
 
@@ -696,13 +774,13 @@ export class CostAllocationManager {
    * Group costs by allocation criteria
    */
   private groupCostsByAllocationCriteria(
-    costs: FeatureCostEntry[]
+    costs: FeatureCostEntry[],
   ): Map<string, FeatureCostEntry[]> {
     const groups = new Map<string, FeatureCostEntry[]>();
 
     for (const cost of costs) {
       // Group by feature for now, could be more sophisticated
-      const key = cost.featureId || 'unclassified';
+      const key = cost.featureId || &apos;unclassified&apos;;
 
       if (!groups.has(key)) {
         groups.set(key, []);
@@ -718,9 +796,9 @@ export class CostAllocationManager {
    */
   private async loadAllocationTargets(): Promise<AllocationTarget[]> {
     try {
-      const content = await fs.readFile(this.targetsFile, 'utf-8');
+      const content = await fs.readFile(this.targetsFile, &apos;utf-8&apos;);
       return JSON.parse(content);
-    } catch (error) {
+    } catch (_error) {
       return this.getDefaultAllocationTargets();
     }
   }
@@ -730,18 +808,18 @@ export class CostAllocationManager {
    */
   private async loadAllocationRules(): Promise<CostAllocationRule[]> {
     try {
-      const content = await fs.readFile(this.rulesFile, 'utf-8');
+      const content = await fs.readFile(this.rulesFile, &apos;utf-8&apos;);
       const rulesData = JSON.parse(content);
 
       // Convert serialized functions back to functions
-      return rulesData.map((rule: any) => ({
+      return rulesData.map((rule: unknown) => ({
         ...rule,
-        condition: new Function('entry', rule.conditionCode || 'return true'),
+        condition: new Function(&apos;entry&apos;, rule.conditionCode || &apos;return true&apos;),
         customAllocator: rule.customAllocatorCode
-          ? new Function('cost', 'context', rule.customAllocatorCode)
+          ? new Function(&apos;cost&apos;, &apos;context&apos;, rule.customAllocatorCode)
           : undefined,
       }));
-    } catch (error) {
+    } catch (_error) {
       return this.getDefaultAllocationRules();
     }
   }
@@ -749,12 +827,13 @@ export class CostAllocationManager {
   /**
    * Load historical allocation data
    */
-  private async loadHistoricalAllocations(
-    timePeriod: { start: string; end: string }
-  ): Promise<HistoricalAllocation[]> {
+  private async loadHistoricalAllocations(timePeriod: {
+    start: string;
+    end: string;
+  }): Promise<HistoricalAllocation[]> {
     try {
-      const content = await fs.readFile(this.historicalFile, 'utf-8');
-      const lines = content.trim().split('\n');
+      const content = await fs.readFile(this.historicalFile, &apos;utf-8&apos;);
+      const lines = content.trim().split(&apos;\n&apos;);
 
       const historicalData: HistoricalAllocation[] = [];
       for (const line of lines) {
@@ -773,7 +852,7 @@ export class CostAllocationManager {
       }
 
       return historicalData;
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -783,12 +862,12 @@ export class CostAllocationManager {
    */
   private async recordHistoricalAllocations(
     allocations: AllocationResult[],
-    timePeriod: { start: string; end: string }
+    timePeriod: { start: string; end: string },
   ): Promise<void> {
     try {
       await fs.mkdir(path.dirname(this.historicalFile), { recursive: true });
 
-      const historicalEntries = allocations.map(allocation => ({
+      const historicalEntries = allocations.map((allocation) => ({
         date: timePeriod.start,
         targetId: allocation.target.id,
         amount: allocation.allocatedCost,
@@ -800,11 +879,13 @@ export class CostAllocationManager {
         },
       }));
 
-      const lines = historicalEntries.map(entry => JSON.stringify(entry)).join('\n') + '\n';
+      const lines =
+        historicalEntries.map((entry) => JSON.stringify(entry)).join(&apos;\n&apos;) +
+        &apos;\n&apos;;
       await fs.appendFile(this.historicalFile, lines);
-    } catch (error) {
-      this.getLogger().error('Failed to record historical allocations', {
-        error: error instanceof Error ? error.message : String(error),
+    } catch (_error) {
+      this.getLogger().error(&apos;Failed to record historical allocations&apos;, {
+        _error: error instanceof Error ? error.message : String(_error),
       });
     }
   }
@@ -815,27 +896,27 @@ export class CostAllocationManager {
   private getDefaultAllocationTargets(): AllocationTarget[] {
     return [
       {
-        id: 'development',
-        name: 'Development Team',
-        type: 'team',
+        id: &apos;development&apos;,
+        name: &apos;Development Team&apos;,
+        type: &apos;team&apos;,
         priority: 90,
         budgetAllocation: 5000,
         usagePatterns: [],
         active: true,
       },
       {
-        id: 'qa',
-        name: 'Quality Assurance',
-        type: 'team',
+        id: &apos;qa&apos;,
+        name: &apos;Quality Assurance&apos;,
+        type: &apos;team&apos;,
         priority: 70,
         budgetAllocation: 2000,
         usagePatterns: [],
         active: true,
       },
       {
-        id: 'research',
-        name: 'Research & Development',
-        type: 'department',
+        id: &apos;research&apos;,
+        name: &apos;Research & Development&apos;,
+        type: &apos;department&apos;,
         priority: 95,
         budgetAllocation: 3000,
         usagePatterns: [],
@@ -850,28 +931,29 @@ export class CostAllocationManager {
   private getDefaultAllocationRules(): CostAllocationRule[] {
     return [
       {
-        id: 'high-priority',
-        name: 'High Priority Features',
-        method: 'value_based',
+        id: &apos;high-priority&apos;,
+        name: &apos;High Priority Features&apos;,
+        method: &apos;value_based&apos;,
         priority: 100,
-        condition: (cost) => cost.featureId?.includes('critical') || false,
-        description: 'Allocate high-priority feature costs based on business value',
+        condition: (cost) => cost.featureId?.includes(&apos;critical&apos;) || false,
+        description:
+          &apos;Allocate high-priority feature costs based on business value&apos;,
       },
       {
-        id: 'development-features',
-        name: 'Development Features',
-        method: 'proportional',
+        id: &apos;development-features&apos;,
+        name: &apos;Development Features&apos;,
+        method: &apos;proportional&apos;,
         priority: 80,
-        condition: (cost) => cost.operationType?.includes('code') || false,
-        description: 'Allocate development-related costs proportionally',
+        condition: (cost) => cost.operationType?.includes(&apos;code&apos;) || false,
+        description: &apos;Allocate development-related costs proportionally&apos;,
       },
       {
-        id: 'default',
-        name: 'Default Allocation',
-        method: 'equal',
+        id: &apos;default&apos;,
+        name: &apos;Default Allocation&apos;,
+        method: &apos;equal&apos;,
         priority: 0,
         condition: () => true,
-        description: 'Default equal allocation for all other costs',
+        description: &apos;Default equal allocation for all other costs&apos;,
       },
     ];
   }
@@ -879,9 +961,11 @@ export class CostAllocationManager {
   /**
    * Calculate business priorities
    */
-  private calculateBusinessPriorities(targets: AllocationTarget[]): Record<string, number> {
+  private calculateBusinessPriorities(
+    _targets: AllocationTarget[],
+  ): Record<string, number> {
     const priorities: Record<string, number> = {};
-    for (const target of targets) {
+    for (const target of _targets) {
       priorities[target.id] = target.priority;
     }
     return priorities;
@@ -890,9 +974,11 @@ export class CostAllocationManager {
   /**
    * Calculate budget constraints
    */
-  private calculateBudgetConstraints(targets: AllocationTarget[]): Record<string, number> {
+  private calculateBudgetConstraints(
+    _targets: AllocationTarget[],
+  ): Record<string, number> {
     const constraints: Record<string, number> = {};
-    for (const target of targets) {
+    for (const target of _targets) {
       constraints[target.id] = target.budgetAllocation;
     }
     return constraints;
@@ -902,9 +988,11 @@ export class CostAllocationManager {
    * Analyze usage changes for reallocation
    */
   private async analyzeUsageChanges(
-    currentAllocations: AllocationResult[],
-    newUsageData: FeatureCostEntry[]
-  ): Promise<Array<{ targetId: string; changePercentage: number; reason: string }>> {
+    _currentAllocations: AllocationResult[],
+    newUsageData: FeatureCostEntry[],
+  ): Promise<
+    Array<{ targetId: string; changePercentage: number; reason: string }>
+  > {
     // Placeholder implementation - would need actual usage tracking
     return [];
   }
@@ -913,7 +1001,7 @@ export class CostAllocationManager {
    * Analyze allocation efficiency
    */
   private async analyzeAllocationEfficiency(
-    allocations: AllocationResult[]
+    allocations: AllocationResult[],
   ): Promise<{
     overallEfficiency: number;
     inefficiencies: Array<{
@@ -924,17 +1012,23 @@ export class CostAllocationManager {
     }>;
   }> {
     const inefficiencies = allocations
-      .filter(alloc => alloc.confidence < 0.7)
-      .map(alloc => ({
+      .filter((alloc) => alloc.confidence < 0.7)
+      .map((alloc) => ({
         target: alloc.target.name,
         severity: 1 - alloc.confidence,
         wastedAmount: alloc.allocatedCost * (1 - alloc.confidence),
         confidence: alloc.confidence,
       }));
 
-    const totalCost = allocations.reduce((sum, alloc) => sum + alloc.allocatedCost, 0);
-    const wastedCost = inefficiencies.reduce((sum, ineff) => sum + ineff.wastedAmount, 0);
-    const overallEfficiency = totalCost > 0 ? 1 - (wastedCost / totalCost) : 1;
+    const totalCost = allocations.reduce(
+      (sum, alloc) => sum + alloc.allocatedCost,
+      0,
+    );
+    const wastedCost = inefficiencies.reduce(
+      (sum, ineff) => sum + ineff.wastedAmount,
+      0,
+    );
+    const overallEfficiency = totalCost > 0 ? 1 - wastedCost / totalCost : 1;
 
     return { overallEfficiency, inefficiencies };
   }
@@ -942,10 +1036,12 @@ export class CostAllocationManager {
   /**
    * Calculate recommendation priority
    */
-  private calculateRecommendationPriority(severity: number): 'low' | 'medium' | 'high' {
-    if (severity > 0.5) return 'high';
-    if (severity > 0.2) return 'medium';
-    return 'low';
+  private calculateRecommendationPriority(
+    severity: number,
+  ): &apos;low&apos; | &apos;medium&apos; | &apos;high&apos; {
+    if (severity > 0.5) return &apos;high&apos;;
+    if (severity > 0.2) return &apos;medium&apos;;
+    return &apos;low&apos;;
   }
 
   /**
@@ -955,16 +1051,16 @@ export class CostAllocationManager {
     return {
       info: (message: string, meta?: Record<string, unknown>) => {
         if (this.config.enableLogging) {
-          console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta) : '');
+          console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta) : &apos;');
         }
       },
       warn: (message: string, meta?: Record<string, unknown>) => {
         if (this.config.enableLogging) {
-          console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta) : '');
+          console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta) : &apos;');
         }
       },
       error: (message: string, meta?: Record<string, unknown>) => {
-        console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta) : '');
+        console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta) : &apos;');
       },
     };
   }
@@ -975,9 +1071,9 @@ export class CostAllocationManager {
  */
 export interface AllocationRecommendation {
   /** Recommendation type */
-  type: 'reallocation' | 'budget_increase' | 'budget_reduction' | 'rule_change';
+  type: &apos;reallocation&apos; | &apos;budget_increase&apos; | &apos;budget_reduction&apos; | &apos;rule_change&apos;;
   /** Priority level */
-  priority: 'low' | 'medium' | 'high';
+  priority: &apos;low&apos; | &apos;medium&apos; | &apos;high&apos;;
   /** Recommendation description */
   description: string;
   /** Expected cost saving */
@@ -985,14 +1081,16 @@ export interface AllocationRecommendation {
   /** Confidence in the recommendation */
   confidence: number;
   /** Implementation type */
-  implementation: 'automatic' | 'manual';
+  implementation: &apos;automatic&apos; | &apos;manual&apos;;
   /** Expected impact */
-  impact: 'low' | 'medium' | 'high';
+  impact: &apos;low&apos; | &apos;medium&apos; | &apos;high&apos;;
 }
 
 /**
  * Create a new CostAllocationManager instance
  */
-export function createCostAllocationManager(config: CostAllocationConfig): CostAllocationManager {
+export function createCostAllocationManager(
+  config: CostAllocationConfig,
+): CostAllocationManager {
   return new CostAllocationManager(config);
 }

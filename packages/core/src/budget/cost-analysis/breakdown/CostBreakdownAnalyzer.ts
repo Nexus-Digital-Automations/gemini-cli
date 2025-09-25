@@ -4,27 +4,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import type { FeatureCostEntry } from '../tracking/FeatureCostTracker.js';
+import * as fs from &apos;node:fs/promises&apos;;
+import * as path from &apos;node:path&apos;;
+import type { FeatureCostEntry } from &apos;../tracking/FeatureCostTracker.js&apos;;
 
 /**
  * Cost breakdown dimension for analysis
  */
 export type CostBreakdownDimension =
-  | 'operation'
-  | 'user'
-  | 'project'
-  | 'session'
-  | 'model'
-  | 'feature'
-  | 'time'
-  | 'geographic';
+  | &apos;operation&apos;
+  | &apos;user&apos;
+  | &apos;project&apos;
+  | 'session&apos;
+  | &apos;model&apos;
+  | &apos;feature&apos;
+  | &apos;time&apos;
+  | &apos;geographic&apos;;
 
 /**
  * Time period granularity for breakdown analysis
  */
-export type TimeGranularity = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+export type TimeGranularity =
+  | &apos;hour&apos;
+  | &apos;day&apos;
+  | &apos;week&apos;
+  | &apos;month&apos;
+  | &apos;quarter&apos;
+  | &apos;year&apos;;
 
 /**
  * Cost breakdown entry for a specific dimension
@@ -147,7 +153,7 @@ export interface TimeSeriesAnalysis {
   series: TimeSeries[];
   /** Trend analysis */
   trends: {
-    costTrend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
+    costTrend: &apos;increasing&apos; | &apos;decreasing&apos; | 'stable&apos; | &apos;volatile&apos;;
     growthRate: number;
     seasonalPatterns: string[];
     anomalies: TimeSeries[];
@@ -184,7 +190,7 @@ export class CostBreakdownAnalyzer {
       maxEntriesInMemory: 100000, // 100k entries max
       ...config,
     };
-    this.cacheDir = path.join(this.config.dataDir, 'breakdown-cache');
+    this.cacheDir = path.join(this.config.dataDir, &apos;breakdown-cache&apos;);
   }
 
   /**
@@ -197,21 +203,24 @@ export class CostBreakdownAnalyzer {
       includeSubBreakdown?: boolean;
       subDimension?: CostBreakdownDimension;
       topN?: number;
-    }
+    },
   ): Promise<CostBreakdownAnalysis> {
     const logger = this.getLogger();
-    logger.info('CostBreakdownAnalyzer.analyzeCostBreakdown - Starting analysis', {
-      entriesCount: entries.length,
-      dimension,
-      options,
-    });
+    logger.info(
+      &apos;CostBreakdownAnalyzer.analyzeCostBreakdown - Starting analysis&apos;,
+      {
+        entriesCount: entries.length,
+        dimension,
+        options,
+      },
+    );
 
     try {
       // Group entries by dimension
       const dimensionMap = new Map<string, FeatureCostEntry[]>();
       let totalCost = 0;
       let totalRequests = 0;
-      let totalTokens = 0;
+      let _totalTokens = 0;
 
       for (const entry of entries) {
         const dimensionValue = this.getDimensionValue(entry, dimension);
@@ -235,8 +244,8 @@ export class CostBreakdownAnalyzer {
           dimensionEntries,
           totalCost,
           totalRequests,
-          totalTokens,
-          options
+          _totalTokens,
+          options,
         );
         breakdown.push(entry);
       }
@@ -250,19 +259,28 @@ export class CostBreakdownAnalyzer {
       // Get top consumers
       const topN = options?.topN || 10;
       const topConsumers = {
-        byCost: [...breakdown].sort((a, b) => b.totalCost - a.totalCost).slice(0, topN),
-        byRequests: [...breakdown].sort((a, b) => b.requestCount - a.requestCount).slice(0, topN),
-        byTokens: [...breakdown].sort((a, b) => b.totalTokens - a.totalTokens).slice(0, topN),
+        byCost: [...breakdown]
+          .sort((a, b) => b.totalCost - a.totalCost)
+          .slice(0, topN),
+        byRequests: [...breakdown]
+          .sort((a, b) => b.requestCount - a.requestCount)
+          .slice(0, topN),
+        byTokens: [...breakdown]
+          .sort((a, b) => b.totalTokens - a.totalTokens)
+          .slice(0, topN),
       };
 
       const timePeriod = this.getTimePeriod(entries);
 
-      logger.info('CostBreakdownAnalyzer.analyzeCostBreakdown - Analysis completed', {
-        dimension,
-        breakdownCount: breakdown.length,
-        totalCost,
-        totalRequests,
-      });
+      logger.info(
+        &apos;CostBreakdownAnalyzer.analyzeCostBreakdown - Analysis completed&apos;,
+        {
+          dimension,
+          breakdownCount: breakdown.length,
+          totalCost,
+          totalRequests,
+        },
+      );
 
       return {
         timePeriod,
@@ -274,11 +292,14 @@ export class CostBreakdownAnalyzer {
         statistics,
         topConsumers,
       };
-    } catch (error) {
-      logger.error('CostBreakdownAnalyzer.analyzeCostBreakdown - Analysis failed', {
-        error: error instanceof Error ? error.message : String(error),
-        dimension,
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;CostBreakdownAnalyzer.analyzeCostBreakdown - Analysis failed&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+          dimension,
+        },
+      );
       throw error;
     }
   }
@@ -289,21 +310,27 @@ export class CostBreakdownAnalyzer {
   async analyzeTimeSeries(
     entries: FeatureCostEntry[],
     dimension: CostBreakdownDimension,
-    granularity: TimeGranularity
+    granularity: TimeGranularity,
   ): Promise<TimeSeriesAnalysis> {
     const logger = this.getLogger();
-    logger.info('CostBreakdownAnalyzer.analyzeTimeSeries - Starting time series analysis', {
-      entriesCount: entries.length,
-      dimension,
-      granularity,
-    });
+    logger.info(
+      &apos;CostBreakdownAnalyzer.analyzeTimeSeries - Starting time series analysis&apos;,
+      {
+        entriesCount: entries.length,
+        dimension,
+        granularity,
+      },
+    );
 
     try {
       // Group entries by time periods
       const timeMap = new Map<string, FeatureCostEntry[]>();
 
       for (const entry of entries) {
-        const timePeriod = this.getTimePeriodLabel(new Date(entry.timestamp), granularity);
+        const timePeriod = this.getTimePeriodLabel(
+          new Date(entry.timestamp),
+          granularity,
+        );
 
         if (!timeMap.has(timePeriod)) {
           timeMap.set(timePeriod, []);
@@ -315,7 +342,10 @@ export class CostBreakdownAnalyzer {
       const series: TimeSeries[] = [];
       for (const [period, periodEntries] of timeMap) {
         const periodCost = periodEntries.reduce((sum, e) => sum + e.cost, 0);
-        const periodTokens = periodEntries.reduce((sum, e) => sum + (e.tokens || 0), 0);
+        const periodTokens = periodEntries.reduce(
+          (sum, e) => sum + (e.tokens || 0),
+          0,
+        );
 
         // Calculate dimension breakdown for this period
         const dimensionBreakdown: Record<string, number> = {};
@@ -323,7 +353,10 @@ export class CostBreakdownAnalyzer {
 
         for (const entry of periodEntries) {
           const dimensionValue = this.getDimensionValue(entry, dimension);
-          dimensionMap.set(dimensionValue, (dimensionMap.get(dimensionValue) || 0) + entry.cost);
+          dimensionMap.set(
+            dimensionValue,
+            (dimensionMap.get(dimensionValue) || 0) + entry.cost,
+          );
         }
 
         for (const [dimValue, cost] of dimensionMap) {
@@ -341,17 +374,23 @@ export class CostBreakdownAnalyzer {
       }
 
       // Sort by timestamp
-      series.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      series.sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      );
 
       // Analyze trends
       const trends = this.analyzeTrends(series);
       const timePeriod = this.getTimePeriod(entries);
 
-      logger.info('CostBreakdownAnalyzer.analyzeTimeSeries - Time series analysis completed', {
-        seriesLength: series.length,
-        granularity,
-        totalCost: series.reduce((sum, s) => sum + s.cost, 0),
-      });
+      logger.info(
+        &apos;CostBreakdownAnalyzer.analyzeTimeSeries - Time series analysis completed&apos;,
+        {
+          seriesLength: series.length,
+          granularity,
+          totalCost: series.reduce((sum, s) => sum + s.cost, 0),
+        },
+      );
 
       return {
         granularity,
@@ -360,12 +399,15 @@ export class CostBreakdownAnalyzer {
         series,
         trends,
       };
-    } catch (error) {
-      logger.error('CostBreakdownAnalyzer.analyzeTimeSeries - Time series analysis failed', {
-        error: error instanceof Error ? error.message : String(error),
-        dimension,
-        granularity,
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;CostBreakdownAnalyzer.analyzeTimeSeries - Time series analysis failed&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+          dimension,
+          granularity,
+        },
+      );
       throw error;
     }
   }
@@ -377,8 +419,8 @@ export class CostBreakdownAnalyzer {
     entries1: FeatureCostEntry[],
     entries2: FeatureCostEntry[],
     dimension: CostBreakdownDimension,
-    period1Label: string = 'Period 1',
-    period2Label: string = 'Period 2'
+    _period1Label: string = &apos;Period 1&apos;,
+    period2Label: string = &apos;Period 2&apos;,
   ): Promise<{
     period1: CostBreakdownAnalysis;
     period2: CostBreakdownAnalysis;
@@ -389,16 +431,27 @@ export class CostBreakdownAnalyzer {
       tokenChange: number;
       newDimensions: string[];
       removedDimensions: string[];
-      topGainers: Array<{ dimension: string; change: number; changePercentage: number }>;
-      topLosers: Array<{ dimension: string; change: number; changePercentage: number }>;
+      topGainers: Array<{
+        dimension: string;
+        change: number;
+        changePercentage: number;
+      }>;
+      topLosers: Array<{
+        dimension: string;
+        change: number;
+        changePercentage: number;
+      }>;
     };
   }> {
     const logger = this.getLogger();
-    logger.info('CostBreakdownAnalyzer.compareBreakdowns - Starting comparison', {
-      entries1Count: entries1.length,
-      entries2Count: entries2.length,
-      dimension,
-    });
+    logger.info(
+      &apos;CostBreakdownAnalyzer.compareBreakdowns - Starting comparison&apos;,
+      {
+        entries1Count: entries1.length,
+        entries2Count: entries2.length,
+        dimension,
+      },
+    );
 
     try {
       // Analyze both periods
@@ -406,47 +459,56 @@ export class CostBreakdownAnalyzer {
       const analysis2 = await this.analyzeCostBreakdown(entries2, dimension);
 
       // Create dimension maps for comparison
-      const dim1Map = new Map(analysis1.breakdown.map(b => [b.dimension, b]));
-      const dim2Map = new Map(analysis2.breakdown.map(b => [b.dimension, b]));
+      const dim1Map = new Map(analysis1.breakdown.map((b) => [b.dimension, b]));
+      const dim2Map = new Map(analysis2.breakdown.map((b) => [b.dimension, b]));
 
       // Calculate changes
       const costChange = analysis2.totalCost - analysis1.totalCost;
-      const costChangePercentage = analysis1.totalCost > 0
-        ? ((costChange / analysis1.totalCost) * 100)
-        : 0;
+      const costChangePercentage =
+        analysis1.totalCost > 0 ? (costChange / analysis1.totalCost) * 100 : 0;
 
       const requestChange = analysis2.totalRequests - analysis1.totalRequests;
       const tokenChange = analysis2.totalTokens - analysis1.totalTokens;
 
       // Find new and removed dimensions
-      const newDimensions = Array.from(dim2Map.keys()).filter(d => !dim1Map.has(d));
-      const removedDimensions = Array.from(dim1Map.keys()).filter(d => !dim2Map.has(d));
+      const newDimensions = Array.from(dim2Map.keys()).filter(
+        (d) => !dim1Map.has(d),
+      );
+      const removedDimensions = Array.from(dim1Map.keys()).filter(
+        (d) => !dim2Map.has(d),
+      );
 
       // Calculate changes for each dimension
-      const changes: Array<{ dimension: string; change: number; changePercentage: number }> = [];
+      const changes: Array<{
+        dimension: string;
+        change: number;
+        changePercentage: number;
+      }> = [];
 
       for (const [dimension, entry2] of dim2Map) {
         const entry1 = dim1Map.get(dimension);
         if (entry1) {
           const change = entry2.totalCost - entry1.totalCost;
-          const changePercentage = entry1.totalCost > 0
-            ? ((change / entry1.totalCost) * 100)
-            : 0;
+          const changePercentage =
+            entry1.totalCost > 0 ? (change / entry1.totalCost) * 100 : 0;
           changes.push({ dimension, change, changePercentage });
         }
       }
 
       changes.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
 
-      const topGainers = changes.filter(c => c.change > 0).slice(0, 5);
-      const topLosers = changes.filter(c => c.change < 0).slice(0, 5);
+      const topGainers = changes.filter((c) => c.change > 0).slice(0, 5);
+      const topLosers = changes.filter((c) => c.change < 0).slice(0, 5);
 
-      logger.info('CostBreakdownAnalyzer.compareBreakdowns - Comparison completed', {
-        costChange,
-        costChangePercentage,
-        newDimensions: newDimensions.length,
-        removedDimensions: removedDimensions.length,
-      });
+      logger.info(
+        &apos;CostBreakdownAnalyzer.compareBreakdowns - Comparison completed&apos;,
+        {
+          costChange,
+          costChangePercentage,
+          newDimensions: newDimensions.length,
+          removedDimensions: removedDimensions.length,
+        },
+      );
 
       return {
         period1: analysis1,
@@ -462,10 +524,13 @@ export class CostBreakdownAnalyzer {
           topLosers,
         },
       };
-    } catch (error) {
-      logger.error('CostBreakdownAnalyzer.compareBreakdowns - Comparison failed', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;CostBreakdownAnalyzer.compareBreakdowns - Comparison failed&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+        },
+      );
       throw error;
     }
   }
@@ -473,26 +538,29 @@ export class CostBreakdownAnalyzer {
   /**
    * Get dimension value from a cost entry
    */
-  private getDimensionValue(entry: FeatureCostEntry, dimension: CostBreakdownDimension): string {
+  private getDimensionValue(
+    entry: FeatureCostEntry,
+    dimension: CostBreakdownDimension,
+  ): string {
     switch (dimension) {
-      case 'operation':
-        return entry.operationType || 'unknown';
-      case 'user':
-        return entry.userId || 'anonymous';
-      case 'project':
-        return entry.projectId || 'default';
-      case 'session':
-        return entry.sessionId || 'unknown';
-      case 'model':
-        return entry.model || 'unknown';
-      case 'feature':
-        return entry.featureId || 'unknown';
-      case 'time':
-        return new Date(entry.timestamp).toISOString().split('T')[0]; // Daily by default
-      case 'geographic':
-        return entry.metadata?.region as string || 'unknown';
+      case &apos;operation&apos;:
+        return entry.operationType || &apos;unknown&apos;;
+      case &apos;user&apos;:
+        return entry.userId || &apos;anonymous&apos;;
+      case &apos;project&apos;:
+        return entry.projectId || &apos;default&apos;;
+      case 'session&apos;:
+        return entry.sessionId || &apos;unknown&apos;;
+      case &apos;model&apos;:
+        return entry.model || &apos;unknown&apos;;
+      case &apos;feature&apos;:
+        return entry.featureId || &apos;unknown&apos;;
+      case &apos;time&apos;:
+        return new Date(entry.timestamp).toISOString().split(&apos;T')[0]; // Daily by default
+      case &apos;geographic&apos;:
+        return (entry.metadata?.region as string) || &apos;unknown&apos;;
       default:
-        return 'unknown';
+        return &apos;unknown&apos;;
     }
   }
 
@@ -505,17 +573,17 @@ export class CostBreakdownAnalyzer {
     entries: FeatureCostEntry[],
     totalCost: number,
     totalRequests: number,
-    totalTokens: number,
+    _totalTokens: number,
     options?: {
       includeSubBreakdown?: boolean;
       subDimension?: CostBreakdownDimension;
-    }
+    },
   ): Promise<CostBreakdownEntry> {
     const entryCost = entries.reduce((sum, e) => sum + e.cost, 0);
     const entryTokens = entries.reduce((sum, e) => sum + (e.tokens || 0), 0);
-    const requestCount = entries.length;
+    const _requestCount = entries.length;
 
-    const timestamps = entries.map(e => new Date(e.timestamp).getTime());
+    const timestamps = entries.map((e) => new Date(e.timestamp).getTime());
     const firstSeen = new Date(Math.min(...timestamps)).toISOString();
     const lastSeen = new Date(Math.max(...timestamps)).toISOString();
 
@@ -527,15 +595,19 @@ export class CostBreakdownAnalyzer {
       totalTokens: entryTokens,
       avgCostPerRequest: entryCost / requestCount,
       costPercentage: totalCost > 0 ? (entryCost / totalCost) * 100 : 0,
-      requestPercentage: totalRequests > 0 ? (requestCount / totalRequests) * 100 : 0,
-      tokenPercentage: totalTokens > 0 ? (entryTokens / totalTokens) * 100 : 0,
+      requestPercentage:
+        totalRequests > 0 ? (_requestCount / totalRequests) * 100 : 0,
+      tokenPercentage: totalTokens > 0 ? (entryTokens / _totalTokens) * 100 : 0,
       firstSeen,
       lastSeen,
     };
 
     // Add sub-breakdown if requested
     if (options?.includeSubBreakdown && options.subDimension) {
-      const subAnalysis = await this.analyzeCostBreakdown(entries, options.subDimension);
+      const subAnalysis = await this.analyzeCostBreakdown(
+        entries,
+        options.subDimension,
+      );
       entry.subBreakdown = {};
       for (const subEntry of subAnalysis.breakdown) {
         entry.subBreakdown[subEntry.dimension] = subEntry;
@@ -548,18 +620,22 @@ export class CostBreakdownAnalyzer {
   /**
    * Calculate statistical analysis of breakdown
    */
-  private calculateStatistics(breakdown: CostBreakdownEntry[]): CostBreakdownStatistics {
-    const costs = breakdown.map(b => b.totalCost);
+  private calculateStatistics(
+    breakdown: CostBreakdownEntry[],
+  ): CostBreakdownStatistics {
+    const costs = breakdown.map((b) => b.totalCost);
     costs.sort((a, b) => a - b);
 
     const sum = costs.reduce((a, b) => a + b, 0);
     const mean = sum / costs.length;
-    const variance = costs.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / costs.length;
+    const variance =
+      costs.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / costs.length;
     const stdDev = Math.sqrt(variance);
 
-    const median = costs.length % 2 === 0
-      ? (costs[costs.length / 2 - 1] + costs[costs.length / 2]) / 2
-      : costs[Math.floor(costs.length / 2)];
+    const median =
+      costs.length % 2 === 0
+        ? (costs[costs.length / 2 - 1] + costs[costs.length / 2]) / 2
+        : costs[Math.floor(costs.length / 2)];
 
     const p95Index = Math.floor(costs.length * 0.95);
     const p95 = costs[Math.min(p95Index, costs.length - 1)];
@@ -568,10 +644,10 @@ export class CostBreakdownAnalyzer {
     const giniCoeff = this.calculateGiniCoefficient(costs);
 
     const mostActive = breakdown.reduce((max, b) =>
-      b.requestCount > max.requestCount ? b : max
+      b.requestCount > max.requestCount ? b : max,
     );
     const mostExpensive = breakdown.reduce((max, b) =>
-      b.totalCost > max.totalCost ? b : max
+      b.totalCost > max.totalCost ? b : max,
     );
 
     // Calculate quartiles
@@ -618,13 +694,16 @@ export class CostBreakdownAnalyzer {
   /**
    * Get time period from entries
    */
-  private getTimePeriod(entries: FeatureCostEntry[]): { start: string; end: string } {
+  private getTimePeriod(entries: FeatureCostEntry[]): {
+    start: string;
+    end: string;
+  } {
     if (entries.length === 0) {
       const now = new Date().toISOString();
       return { start: now, end: now };
     }
 
-    const timestamps = entries.map(e => new Date(e.timestamp).getTime());
+    const timestamps = entries.map((e) => new Date(e.timestamp).getTime());
     return {
       start: new Date(Math.min(...timestamps)).toISOString(),
       end: new Date(Math.max(...timestamps)).toISOString(),
@@ -636,20 +715,24 @@ export class CostBreakdownAnalyzer {
    */
   private getTimePeriodLabel(date: Date, granularity: TimeGranularity): string {
     switch (granularity) {
-      case 'hour':
-        return date.toISOString().substring(0, 13) + ':00:00Z';
-      case 'day':
+      case &apos;hour&apos;:
+        return date.toISOString().substring(0, 13) + &apos;:00:00Z&apos;;
+      case &apos;day&apos;:
         return date.toISOString().substring(0, 10);
-      case 'week':
+      case &apos;week&apos;:
+      {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
-        return weekStart.toISOString().substring(0, 10) + '_week';
-      case 'month':
+        return weekStart.toISOString().substring(0, 10) + &apos;_week&apos;;
+      case &apos;month&apos;:
         return date.toISOString().substring(0, 7);
-      case 'quarter':
+      case &apos;quarter&apos;:
+      {
         const quarter = Math.floor((date.getMonth() + 3) / 3);
-        return `${date.getFullYear()}-Q${quarter}`;
-      case 'year':
+        return `${date.getFullYear()
+        default:
+          break;}-Q${quarter}`;
+      case &apos;year&apos;:
         return date.getFullYear().toString();
       default:
         return date.toISOString().substring(0, 10);
@@ -659,24 +742,30 @@ export class CostBreakdownAnalyzer {
   /**
    * Get timestamp for a time period label
    */
-  private getTimePeriodTimestamp(period: string, granularity: TimeGranularity): string {
+  private getTimePeriodTimestamp(
+    period: string,
+    granularity: TimeGranularity,
+  ): string {
     switch (granularity) {
-      case 'hour':
+      case &apos;hour&apos;:
         return period;
-      case 'day':
-        return period + 'T00:00:00Z';
-      case 'week':
-        return period.replace('_week', 'T00:00:00Z');
-      case 'month':
-        return period + '-01T00:00:00Z';
-      case 'quarter':
-        const [year, quarter] = period.split('-Q');
-        const month = (parseInt(quarter) - 1) * 3 + 1;
-        return `${year}-${month.toString().padStart(2, '0')}-01T00:00:00Z`;
-      case 'year':
-        return period + '-01-01T00:00:00Z';
+      case &apos;day&apos;:
+        return period + &apos;T00:00:00Z&apos;;
+      case &apos;week&apos;:
+        return period.replace(&apos;_week&apos;, &apos;T00:00:00Z&apos;);
+      case &apos;month&apos;:
+        return period + &apos;-01T00:00:00Z&apos;;
+      case &apos;quarter&apos;:
+      {
+        const [year, quarter] = period.split(&apos;-Q&apos;);
+        const month = (parseInt(quarter, 10) - 1) * 3 + 1;
+        return `${year
+        default:
+          break;}-${month.toString().padStart(2, &apos;0')}-01T00:00:00Z`;
+      case &apos;year&apos;:
+        return period + &apos;-01-01T00:00:00Z&apos;;
       default:
-        return period + 'T00:00:00Z';
+        return period + &apos;T00:00:00Z&apos;;
     }
   }
 
@@ -684,21 +773,21 @@ export class CostBreakdownAnalyzer {
    * Analyze trends in time series data
    */
   private analyzeTrends(series: TimeSeries[]): {
-    costTrend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
+    costTrend: &apos;increasing&apos; | &apos;decreasing&apos; | 'stable&apos; | &apos;volatile&apos;;
     growthRate: number;
     seasonalPatterns: string[];
     anomalies: TimeSeries[];
   } {
     if (series.length < 2) {
       return {
-        costTrend: 'stable',
+        costTrend: 'stable&apos;,
         growthRate: 0,
         seasonalPatterns: [],
         anomalies: [],
       };
     }
 
-    const costs = series.map(s => s.cost);
+    const costs = series.map((s) => s.cost);
     const firstCost = costs[0];
     const lastCost = costs[costs.length - 1];
 
@@ -713,26 +802,32 @@ export class CostBreakdownAnalyzer {
     const avgCost = sumY / n;
 
     // Determine trend
-    let trend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
+    let trend: &apos;increasing&apos; | &apos;decreasing&apos; | 'stable&apos; | &apos;volatile&apos;;
     const slopeThreshold = avgCost * 0.05; // 5% of average cost
 
     if (Math.abs(slope) < slopeThreshold) {
       // Check volatility
-      const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - avgCost, 2), 0) / n;
+      const variance =
+        costs.reduce((sum, cost) => sum + Math.pow(cost - avgCost, 2), 0) / n;
       const stdDev = Math.sqrt(variance);
       const coefficientOfVariation = stdDev / avgCost;
 
-      trend = coefficientOfVariation > 0.3 ? 'volatile' : 'stable';
+      trend = coefficientOfVariation > 0.3 ? &apos;volatile&apos; : 'stable&apos;;
     } else {
-      trend = slope > 0 ? 'increasing' : 'decreasing';
+      trend = slope > 0 ? &apos;increasing&apos; : &apos;decreasing&apos;;
     }
 
     // Calculate growth rate
-    const growthRate = firstCost > 0 ? ((lastCost - firstCost) / firstCost) * 100 : 0;
+    const growthRate =
+      firstCost > 0 ? ((lastCost - firstCost) / firstCost) * 100 : 0;
 
     // Basic anomaly detection using z-score
-    const stdDev = Math.sqrt(costs.reduce((sum, cost) => sum + Math.pow(cost - avgCost, 2), 0) / n);
-    const anomalies = series.filter(s => Math.abs(s.cost - avgCost) > 2 * stdDev);
+    const stdDev = Math.sqrt(
+      costs.reduce((sum, cost) => sum + Math.pow(cost - avgCost, 2), 0) / n,
+    );
+    const anomalies = series.filter(
+      (s) => Math.abs(s.cost - avgCost) > 2 * stdDev,
+    );
 
     return {
       costTrend: trend,
@@ -749,16 +844,16 @@ export class CostBreakdownAnalyzer {
     return {
       info: (message: string, meta?: Record<string, unknown>) => {
         if (this.config.enableLogging) {
-          console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta) : '');
+          console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta) : &apos;');
         }
       },
       warn: (message: string, meta?: Record<string, unknown>) => {
         if (this.config.enableLogging) {
-          console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta) : '');
+          console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta) : &apos;');
         }
       },
       error: (message: string, meta?: Record<string, unknown>) => {
-        console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta) : '');
+        console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta) : &apos;');
       },
     };
   }
@@ -767,6 +862,8 @@ export class CostBreakdownAnalyzer {
 /**
  * Create a new CostBreakdownAnalyzer instance
  */
-export function createCostBreakdownAnalyzer(config: CostBreakdownConfig): CostBreakdownAnalyzer {
+export function createCostBreakdownAnalyzer(
+  config: CostBreakdownConfig,
+): CostBreakdownAnalyzer {
   return new CostBreakdownAnalyzer(config);
 }

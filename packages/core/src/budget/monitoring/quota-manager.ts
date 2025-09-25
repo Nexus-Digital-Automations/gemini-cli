@@ -83,7 +83,7 @@ export interface QuotaUsage {
   /** Time until next reset */
   timeToReset: number;
   /** Recent usage history */
-  recentUsage: { timestamp: Date; value: number }[];
+  recentUsage: Array<{ timestamp: Date; value: number }>;
 }
 
 /**
@@ -147,7 +147,7 @@ class TokenBucket {
 
   constructor(
     private maxTokens: number,
-    private refillRate: number // tokens per second
+    private refillRate: number, // tokens per second
   ) {
     this.tokens = maxTokens;
     this.lastRefill = Date.now();
@@ -196,7 +196,7 @@ class SlidingWindowLimiter {
 
   constructor(
     private maxRequests: number,
-    private windowMs: number
+    private windowMs: number,
   ) {}
 
   /**
@@ -207,7 +207,7 @@ class SlidingWindowLimiter {
     const windowStart = now - this.windowMs;
 
     // Remove old requests
-    this.requests = this.requests.filter(time => time > windowStart);
+    this.requests = this.requests.filter((time) => time > windowStart);
 
     if (this.requests.length < this.maxRequests) {
       this.requests.push(now);
@@ -223,7 +223,7 @@ class SlidingWindowLimiter {
   getCurrentCount(): number {
     const now = Date.now();
     const windowStart = now - this.windowMs;
-    this.requests = this.requests.filter(time => time > windowStart);
+    this.requests = this.requests.filter((time) => time > windowStart);
     return this.requests.length;
   }
 }
@@ -249,7 +249,10 @@ export class QuotaManager extends EventEmitter {
   private readonly config: Required<QuotaManagerConfig>;
   private readonly quotaLimits = new Map<string, QuotaLimit>();
   private readonly quotaUsage = new Map<string, QuotaUsage>();
-  private readonly rateLimiters = new Map<string, SlidingWindowLimiter | TokenBucket>();
+  private readonly rateLimiters = new Map<
+    string,
+    SlidingWindowLimiter | TokenBucket
+  >();
   private readonly violations = new Map<string, QuotaViolation>();
 
   private throttleActive = false;
@@ -260,7 +263,8 @@ export class QuotaManager extends EventEmitter {
 
     this.config = {
       defaultLimits: config.defaultLimits ?? this.getDefaultLimits(),
-      rateLimitConfig: config.rateLimitConfig ?? this.getDefaultRateLimitConfig(),
+      rateLimitConfig:
+        config.rateLimitConfig ?? this.getDefaultRateLimitConfig(),
       throttleConfig: config.throttleConfig ?? this.getDefaultThrottleConfig(),
       enableAutoAdjustment: config.enableAutoAdjustment ?? true,
       gracePeriodMs: config.gracePeriodMs ?? 60000, // 1 minute
@@ -288,7 +292,7 @@ export class QuotaManager extends EventEmitter {
       feature?: string;
       sessionId?: string;
       userId?: string;
-    }
+    },
   ): Promise<BudgetValidationResult> {
     try {
       // Check rate limits first
@@ -301,7 +305,11 @@ export class QuotaManager extends EventEmitter {
       for (const [limitId, limit] of this.quotaLimits.entries()) {
         if (!limit.enabled) continue;
 
-        const quotaResult = await this.checkQuotaLimit(limitId, requestType, value);
+        const quotaResult = await this.checkQuotaLimit(
+          limitId,
+          requestType,
+          value,
+        );
         if (!quotaResult.allowed) {
           await this.handleQuotaViolation(limitId, limit, quotaResult);
           return quotaResult;
@@ -353,7 +361,7 @@ export class QuotaManager extends EventEmitter {
       feature?: string;
       sessionId?: string;
       userId?: string;
-    }
+    },
   ): Promise<void> {
     const timestamp = new Date();
 
@@ -500,7 +508,7 @@ export class QuotaManager extends EventEmitter {
    */
   private checkRateLimit(
     requestType: string,
-    context?: Record<string, any>
+    context?: Record<string, any>,
   ): BudgetValidationResult {
     const key = `${requestType}:${context?.userId || 'global'}`;
     const limiter = this.rateLimiters.get(key);
@@ -554,7 +562,7 @@ export class QuotaManager extends EventEmitter {
   private async checkQuotaLimit(
     limitId: string,
     requestType: string,
-    value: number
+    value: number,
   ): Promise<BudgetValidationResult> {
     const limit = this.quotaLimits.get(limitId);
     const usage = this.quotaUsage.get(limitId);
@@ -580,8 +588,12 @@ export class QuotaManager extends EventEmitter {
       currentUsage: newUsage,
       limit: limit.maxValue,
       usagePercentage,
-      message: allowed ? 'Quota limit OK' : `Quota limit exceeded for ${limit.name}`,
-      recommendations: allowed ? [] : [`Reduce usage or increase limit for ${limit.name}`],
+      message: allowed
+        ? 'Quota limit OK'
+        : `Quota limit exceeded for ${limit.name}`,
+      recommendations: allowed
+        ? []
+        : [`Reduce usage or increase limit for ${limit.name}`],
     };
   }
 
@@ -603,7 +615,9 @@ export class QuotaManager extends EventEmitter {
           delay *= 2;
           break;
         case 'random':
-          delay = config.minDelay + Math.random() * (config.maxDelay - config.minDelay);
+          delay =
+            config.minDelay +
+            Math.random() * (config.maxDelay - config.minDelay);
           break;
       }
     }
@@ -618,7 +632,9 @@ export class QuotaManager extends EventEmitter {
       currentUsage: delay,
       limit: config.maxDelay,
       usagePercentage: (delay / config.maxDelay) * 100,
-      message: shouldThrottle ? `Throttled for ${delay}ms` : 'Throttling passed',
+      message: shouldThrottle
+        ? `Throttled for ${delay}ms`
+        : 'Throttling passed',
     };
   }
 
@@ -628,7 +644,7 @@ export class QuotaManager extends EventEmitter {
   private async handleQuotaViolation(
     limitId: string,
     limit: QuotaLimit,
-    validation: BudgetValidationResult
+    validation: BudgetValidationResult,
   ): Promise<void> {
     const usage = this.quotaUsage.get(limitId);
     if (!usage) return;
@@ -687,11 +703,18 @@ export class QuotaManager extends EventEmitter {
     // Create global rate limiter
     switch (config.strategy) {
       case 'sliding_window':
-        this.rateLimiters.set('global', new SlidingWindowLimiter(config.maxRequests, config.windowMs));
+        this.rateLimiters.set(
+          'global',
+          new SlidingWindowLimiter(config.maxRequests, config.windowMs),
+        );
         break;
       case 'token_bucket':
-        const refillRate = config.recoveryRate || (config.maxRequests / (config.windowMs / 1000));
-        this.rateLimiters.set('global', new TokenBucket(config.maxRequests, refillRate));
+        const refillRate =
+          config.recoveryRate || config.maxRequests / (config.windowMs / 1000);
+        this.rateLimiters.set(
+          'global',
+          new TokenBucket(config.maxRequests, refillRate),
+        );
         break;
       // Add other strategies as needed
     }
@@ -720,7 +743,11 @@ export class QuotaManager extends EventEmitter {
   /**
    * Update quota usage for a limit
    */
-  private async updateQuotaUsage(limitId: string, value: number, timestamp: Date): Promise<void> {
+  private async updateQuotaUsage(
+    limitId: string,
+    value: number,
+    timestamp: Date,
+  ): Promise<void> {
     const usage = this.quotaUsage.get(limitId);
     if (!usage) return;
 
@@ -730,7 +757,7 @@ export class QuotaManager extends EventEmitter {
     // Keep only recent usage (last 100 entries or 1 hour)
     const oneHourAgo = new Date(timestamp.getTime() - 60 * 60 * 1000);
     usage.recentUsage = usage.recentUsage
-      .filter(entry => entry.timestamp > oneHourAgo)
+      .filter((entry) => entry.timestamp > oneHourAgo)
       .slice(-100);
 
     // Update current usage
@@ -759,10 +786,15 @@ export class QuotaManager extends EventEmitter {
     } else if (limit.resetBehavior === 'sliding') {
       // For sliding window, remove old usage
       const windowStart = new Date(now.getTime() - limit.windowMs);
-      const validUsage = usage.recentUsage.filter(entry => entry.timestamp > windowStart);
+      const validUsage = usage.recentUsage.filter(
+        (entry) => entry.timestamp > windowStart,
+      );
 
       usage.recentUsage = validUsage;
-      usage.currentUsage = validUsage.reduce((sum, entry) => sum + entry.value, 0);
+      usage.currentUsage = validUsage.reduce(
+        (sum, entry) => sum + entry.value,
+        0,
+      );
       usage.usagePercentage = (usage.currentUsage / usage.maxValue) * 100;
       usage.isExceeded = usage.currentUsage > usage.maxValue;
       usage.windowStart = windowStart;
@@ -847,7 +879,10 @@ export class QuotaManager extends EventEmitter {
   /**
    * Emit budget event
    */
-  private emitBudgetEvent(type: BudgetEventType, data: Record<string, any>): void {
+  private emitBudgetEvent(
+    type: BudgetEventType,
+    data: Record<string, any>,
+  ): void {
     const event: BudgetEvent = {
       type,
       timestamp: new Date(),
@@ -893,7 +928,9 @@ let globalQuotaManager: QuotaManager | null = null;
 /**
  * Get or create the global quota manager instance
  */
-export function getGlobalQuotaManager(config?: QuotaManagerConfig): QuotaManager {
+export function getGlobalQuotaManager(
+  config?: QuotaManagerConfig,
+): QuotaManager {
   if (!globalQuotaManager) {
     globalQuotaManager = createQuotaManager(config);
   }

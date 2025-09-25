@@ -12,14 +12,14 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../../../../src/utils/logger.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
 import type {
   BudgetSettings,
   BudgetUsageData,
   BudgetValidationResult,
   BudgetEnforcementLevel,
   CostCalculationParams,
-  BudgetCalculationContext
+  BudgetCalculationContext,
 } from '../types.js';
 import type { CostCalculationResult } from '../calculations/CostCalculationEngine.js';
 
@@ -107,10 +107,10 @@ export interface ComprehensiveValidationResult extends BudgetValidationResult {
 export class BudgetConstraintViolation extends Error {
   constructor(
     message: string,
-    public readonly constraint: string,
-    public readonly currentValue: number,
-    public readonly limitValue: number,
-    public readonly severity: 'warning' | 'error' | 'critical'
+    readonly constraint: string,
+    readonly currentValue: number,
+    readonly limitValue: number,
+    readonly severity: 'warning' | 'error' | 'critical',
   ) {
     super(message);
     this.name = 'BudgetConstraintViolation';
@@ -134,7 +134,7 @@ class DailyLimitRule implements ValidationRule {
         ruleId: this.id,
         passed: true,
         severity: 'info',
-        message: 'No daily limit configured'
+        message: 'No daily limit configured',
       };
     }
 
@@ -152,15 +152,15 @@ class DailyLimitRule implements ValidationRule {
         recommendations: [
           'Reduce usage for today',
           'Increase daily limit',
-          'Wait until tomorrow for budget reset'
+          'Wait until tomorrow for budget reset',
         ],
         metadata: {
           currentCost,
           proposedCost,
           projectedCost,
           limit: settings.dailyLimit,
-          usagePercentage
-        }
+          usagePercentage,
+        },
       };
     }
 
@@ -176,9 +176,9 @@ class DailyLimitRule implements ValidationRule {
         message: `Approaching daily limit: ${usagePercentage.toFixed(1)}% of $${settings.dailyLimit}`,
         recommendations: [
           'Monitor usage closely',
-          'Consider optimizing expensive operations'
+          'Consider optimizing expensive operations',
         ],
-        metadata: { usagePercentage, threshold: highestThreshold }
+        metadata: { usagePercentage, threshold: highestThreshold },
       };
     }
 
@@ -187,7 +187,7 @@ class DailyLimitRule implements ValidationRule {
       passed: true,
       severity: 'info',
       message: `Daily usage: ${usagePercentage.toFixed(1)}% of $${settings.dailyLimit}`,
-      metadata: { usagePercentage }
+      metadata: { usagePercentage },
     };
   }
 }
@@ -209,7 +209,7 @@ class WeeklyLimitRule implements ValidationRule {
         ruleId: this.id,
         passed: true,
         severity: 'info',
-        message: 'No weekly limit configured'
+        message: 'No weekly limit configured',
       };
     }
 
@@ -227,9 +227,13 @@ class WeeklyLimitRule implements ValidationRule {
         recommendations: [
           'Reduce daily usage',
           'Increase weekly limit',
-          'Optimize expensive operations'
+          'Optimize expensive operations',
         ],
-        metadata: { weeklyProjection, limit: settings.weeklyLimit, usagePercentage }
+        metadata: {
+          weeklyProjection,
+          limit: settings.weeklyLimit,
+          usagePercentage,
+        },
       };
     }
 
@@ -238,7 +242,7 @@ class WeeklyLimitRule implements ValidationRule {
       passed: true,
       severity: 'info',
       message: `Projected weekly usage: ${usagePercentage.toFixed(1)}% of $${settings.weeklyLimit}`,
-      metadata: { usagePercentage }
+      metadata: { usagePercentage },
     };
   }
 }
@@ -260,17 +264,19 @@ class TokenUsageRule implements ValidationRule {
         ruleId: this.id,
         passed: true,
         severity: 'info',
-        message: 'No token usage to validate'
+        message: 'No token usage to validate',
       };
     }
 
     const tokenUsage = usageData.tokenUsage;
-    const efficiency = tokenUsage.totalTokens > 0
-      ? (costCalculation.totalCost / tokenUsage.totalTokens) * 1000
-      : 0;
+    const efficiency =
+      tokenUsage.totalTokens > 0
+        ? (costCalculation.totalCost / tokenUsage.totalTokens) * 1000
+        : 0;
 
     // Check for unusually high cost per token
-    if (efficiency > 10) { // $10 per 1000 tokens seems high
+    if (efficiency > 10) {
+      // $10 per 1000 tokens seems high
       return {
         ruleId: this.id,
         passed: true,
@@ -279,9 +285,9 @@ class TokenUsageRule implements ValidationRule {
         recommendations: [
           'Consider using a more cost-effective model',
           'Optimize prompt length',
-          'Review token usage patterns'
+          'Review token usage patterns',
         ],
-        metadata: { efficiency, totalTokens: tokenUsage.totalTokens }
+        metadata: { efficiency, totalTokens: tokenUsage.totalTokens },
       };
     }
 
@@ -290,7 +296,7 @@ class TokenUsageRule implements ValidationRule {
       passed: true,
       severity: 'info',
       message: `Token efficiency: $${efficiency.toFixed(4)} per 1K tokens`,
-      metadata: { efficiency }
+      metadata: { efficiency },
     };
   }
 }
@@ -322,9 +328,9 @@ class RequestFrequencyRule implements ValidationRule {
         recommendations: [
           'Consider batching requests',
           'Implement request caching',
-          'Review automation scripts'
+          'Review automation scripts',
         ],
-        metadata: { requestsPerHour, requestCount, hoursElapsed }
+        metadata: { requestsPerHour, requestCount, hoursElapsed },
       };
     }
 
@@ -333,7 +339,7 @@ class RequestFrequencyRule implements ValidationRule {
       passed: true,
       severity: 'info',
       message: `Request frequency: ${requestsPerHour.toFixed(1)} requests/hour`,
-      metadata: { requestsPerHour }
+      metadata: { requestsPerHour },
     };
   }
 
@@ -365,7 +371,7 @@ export class BudgetValidator {
     this.registerRule(new RequestFrequencyRule());
 
     this.logger.info('Budget validator initialized', {
-      rulesCount: this.rules.size
+      rulesCount: this.rules.size,
     });
   }
 
@@ -373,11 +379,11 @@ export class BudgetValidator {
    * Register a validation rule
    * @param rule - Validation rule to register
    */
-  public registerRule(rule: ValidationRule): void {
+  registerRule(rule: ValidationRule): void {
     this.rules.set(rule.id, rule);
     this.logger.debug('Registered validation rule', {
       ruleId: rule.id,
-      description: rule.description
+      description: rule.description,
     });
   }
 
@@ -385,7 +391,7 @@ export class BudgetValidator {
    * Unregister a validation rule
    * @param ruleId - Rule ID to unregister
    */
-  public unregisterRule(ruleId: string): void {
+  unregisterRule(ruleId: string): void {
     if (this.rules.delete(ruleId)) {
       this.logger.debug('Unregistered validation rule', { ruleId });
     }
@@ -396,7 +402,7 @@ export class BudgetValidator {
    * @param ruleId - Rule ID
    * @param enabled - Whether to enable the rule
    */
-  public setRuleEnabled(ruleId: string, enabled: boolean): void {
+  setRuleEnabled(ruleId: string, enabled: boolean): void {
     const rule = this.rules.get(ruleId);
     if (rule) {
       rule.enabled = enabled;
@@ -412,11 +418,11 @@ export class BudgetValidator {
    * @param context - Additional context
    * @returns Comprehensive validation result
    */
-  public async validateBudgetConstraints(
+  async validateBudgetConstraints(
     settings: BudgetSettings,
     usageData: BudgetUsageData,
     costCalculation?: CostCalculationResult,
-    context?: BudgetCalculationContext
+    context?: BudgetCalculationContext,
   ): Promise<ComprehensiveValidationResult> {
     const start = Date.now();
     const validationContext: ValidationContext = {
@@ -424,19 +430,19 @@ export class BudgetValidator {
       usageData,
       costCalculation,
       context,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     this.logger.debug('Starting budget validation', {
       rulesCount: this.rules.size,
       hasSettings: !!settings,
       hasUsageData: !!usageData,
-      hasCostCalculation: !!costCalculation
+      hasCostCalculation: !!costCalculation,
     });
 
     const ruleResults: ValidationRuleResult[] = [];
     const enabledRules = Array.from(this.rules.values())
-      .filter(rule => rule.enabled)
+      .filter((rule) => rule.enabled)
       .sort((a, b) => b.priority - a.priority);
 
     const ruleTimings: Record<string, number> = {};
@@ -454,23 +460,22 @@ export class BudgetValidator {
           ruleId: rule.id,
           passed: result.passed,
           severity: result.severity,
-          duration: ruleTimings[rule.id]
+          duration: ruleTimings[rule.id],
         });
-
       } catch (error) {
         const errorResult: ValidationRuleResult = {
           ruleId: rule.id,
           passed: false,
           severity: 'error',
           message: `Rule validation failed: ${(error as Error).message}`,
-          metadata: { error: (error as Error).message }
+          metadata: { error: (error as Error).message },
         };
         ruleResults.push(errorResult);
         ruleTimings[rule.id] = Date.now() - ruleStart;
 
         this.logger.error('Rule validation failed', {
           ruleId: rule.id,
-          error: error as Error
+          error: error as Error,
         });
       }
     }
@@ -478,9 +483,11 @@ export class BudgetValidator {
     // Analyze results
     const summary = {
       totalRules: ruleResults.length,
-      passedRules: ruleResults.filter(r => r.passed).length,
-      warningRules: ruleResults.filter(r => r.severity === 'warning').length,
-      failedRules: ruleResults.filter(r => !r.passed || r.severity === 'critical').length
+      passedRules: ruleResults.filter((r) => r.passed).length,
+      warningRules: ruleResults.filter((r) => r.severity === 'warning').length,
+      failedRules: ruleResults.filter(
+        (r) => !r.passed || r.severity === 'critical',
+      ).length,
     };
 
     // Determine overall status
@@ -493,9 +500,15 @@ export class BudgetValidator {
 
     // Calculate performance metrics
     const validationTime = Date.now() - start;
-    const sortedTimings = Object.entries(ruleTimings).sort((a, b) => b[1] - a[1]);
-    const slowestRule = sortedTimings.length > 0 ? sortedTimings[0][0] : undefined;
-    const fastestRule = sortedTimings.length > 0 ? sortedTimings[sortedTimings.length - 1][0] : undefined;
+    const sortedTimings = Object.entries(ruleTimings).sort(
+      (a, b) => b[1] - a[1],
+    );
+    const slowestRule =
+      sortedTimings.length > 0 ? sortedTimings[0][0] : undefined;
+    const fastestRule =
+      sortedTimings.length > 0
+        ? sortedTimings[sortedTimings.length - 1][0]
+        : undefined;
 
     // Create comprehensive result
     const result: ComprehensiveValidationResult = {
@@ -513,15 +526,15 @@ export class BudgetValidator {
       performance: {
         validationTime,
         slowestRule,
-        fastestRule
-      }
+        fastestRule,
+      },
     };
 
     this.logger.info('Budget validation completed', {
       status,
       totalRules: summary.totalRules,
       failedRules: summary.failedRules,
-      validationTime
+      validationTime,
     });
 
     return result;
@@ -534,10 +547,10 @@ export class BudgetValidator {
    * @param proposedCost - Proposed additional cost
    * @returns Simple validation result
    */
-  public async quickValidate(
+  async quickValidate(
     settings: BudgetSettings,
     usageData: BudgetUsageData,
-    proposedCost: number = 0
+    proposedCost: number = 0,
   ): Promise<BudgetValidationResult> {
     const currentUsage = usageData.totalCost || 0;
     const projectedUsage = currentUsage + proposedCost;
@@ -551,13 +564,14 @@ export class BudgetValidator {
         usagePercentage: settings.dailyLimit
           ? (projectedUsage / settings.dailyLimit) * 100
           : 0,
-        message: 'Tracking only - no enforcement'
+        message: 'Tracking only - no enforcement',
       };
     }
 
     // Check daily limit
     if (settings.dailyLimit && projectedUsage > settings.dailyLimit) {
-      const allowed = settings.enforcement === BudgetEnforcementLevel.SOFT_LIMIT;
+      const allowed =
+        settings.enforcement === BudgetEnforcementLevel.SOFT_LIMIT;
 
       return {
         allowed,
@@ -569,8 +583,8 @@ export class BudgetValidator {
           : `Daily limit exceeded: $${projectedUsage.toFixed(4)} > $${settings.dailyLimit}`,
         recommendations: [
           'Reduce usage for today',
-          'Increase daily limit if needed'
-        ]
+          'Increase daily limit if needed',
+        ],
       };
     }
 
@@ -580,7 +594,9 @@ export class BudgetValidator {
       ? (projectedUsage / settings.dailyLimit) * 100
       : 0;
 
-    const warningThreshold = thresholds.find(threshold => usagePercentage >= threshold);
+    const warningThreshold = thresholds.find(
+      (threshold) => usagePercentage >= threshold,
+    );
 
     return {
       allowed: true,
@@ -590,7 +606,7 @@ export class BudgetValidator {
       warningLevel: warningThreshold,
       message: warningThreshold
         ? `Warning: ${usagePercentage.toFixed(1)}% of daily limit used`
-        : `Usage: ${usagePercentage.toFixed(1)}% of daily limit`
+        : `Usage: ${usagePercentage.toFixed(1)}% of daily limit`,
     };
   }
 
@@ -598,7 +614,7 @@ export class BudgetValidator {
    * Get available validation rules
    * @returns Array of validation rules
    */
-  public getRules(): ValidationRule[] {
+  getRules(): ValidationRule[] {
     return Array.from(this.rules.values());
   }
 
@@ -610,7 +626,7 @@ export class BudgetValidator {
    */
   private createSummaryMessage(
     status: 'passed' | 'warning' | 'failed',
-    summary: ComprehensiveValidationResult['summary']
+    summary: ComprehensiveValidationResult['summary'],
   ): string {
     switch (status) {
       case 'failed':
@@ -627,12 +643,14 @@ export class BudgetValidator {
    * @param ruleResults - Rule validation results
    * @returns Array of unique recommendations
    */
-  private extractRecommendations(ruleResults: ValidationRuleResult[]): string[] {
+  private extractRecommendations(
+    ruleResults: ValidationRuleResult[],
+  ): string[] {
     const recommendations = new Set<string>();
 
     for (const result of ruleResults) {
       if (result.recommendations) {
-        result.recommendations.forEach(rec => recommendations.add(rec));
+        result.recommendations.forEach((rec) => recommendations.add(rec));
       }
     }
 

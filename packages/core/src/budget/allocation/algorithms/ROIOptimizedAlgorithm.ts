@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BaseAllocationAlgorithm, type AllocationLogger } from './BaseAllocationAlgorithm.js';
+import {
+  BaseAllocationAlgorithm,
+  type AllocationLogger,
+} from './BaseAllocationAlgorithm.js';
 import type {
   AllocationCandidate,
   AllocationRecommendation,
   AllocationAlgorithmConfig,
   AllocationImpact,
-  RiskAssessment
+  RiskAssessment,
 } from '../types.js';
 
 /**
@@ -47,16 +50,16 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @returns Array of allocation recommendations
    */
   protected async executeOptimization(
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): Promise<AllocationRecommendation[]> {
     this.logger.info('Starting ROI-optimized allocation optimization', {
       candidateCount: candidates.length,
-      strategy: 'roi_optimized'
+      strategy: 'roi_optimized',
     });
 
     // Build candidate lookup map
     this.candidatesMap.clear();
-    candidates.forEach(candidate => {
+    candidates.forEach((candidate) => {
       this.candidatesMap.set(candidate.resourceId, candidate);
     });
 
@@ -64,20 +67,27 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
     this.analyzeROIPotential(candidates);
 
     // Calculate optimal allocation distribution
-    const optimalDistribution = this.calculateOptimalROIDistribution(candidates);
+    const optimalDistribution =
+      this.calculateOptimalROIDistribution(candidates);
 
     // Generate ROI-optimized recommendations
-    const recommendations = this.generateROIRecommendations(candidates, optimalDistribution);
+    const recommendations = this.generateROIRecommendations(
+      candidates,
+      optimalDistribution,
+    );
 
     // Validate and balance recommendations
-    const balancedRecommendations = this.balanceROIAllocations(candidates, recommendations);
+    const balancedRecommendations = this.balanceROIAllocations(
+      candidates,
+      recommendations,
+    );
 
     this.logger.info('ROI-optimized optimization completed', {
       recommendationCount: balancedRecommendations.length,
       totalROIImprovement: this.calculateTotalROIImprovement(
         candidates,
-        balancedRecommendations
-      )
+        balancedRecommendations,
+      ),
     });
 
     return balancedRecommendations;
@@ -98,7 +108,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
         resourceId: candidate.resourceId,
         currentROI: analysis.currentROI,
         potentialROI: analysis.potentialROI,
-        riskAdjustedROI: analysis.riskAdjustedROI
+        riskAdjustedROI: analysis.riskAdjustedROI,
       });
     }
   }
@@ -138,7 +148,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
       timeToROI,
       roiTrend: this.determineROITrend(candidate),
       competitiveAdvantage: this.calculateCompetitiveAdvantage(candidate),
-      scalabilityFactor: this.calculateScalabilityFactor(candidate)
+      scalabilityFactor: this.calculateScalabilityFactor(candidate),
     };
   }
 
@@ -164,7 +174,8 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     // Factor in projected growth
-    const projectedGrowth = candidate.projectedUsage / Math.max(1, candidate.currentAllocation);
+    const projectedGrowth =
+      candidate.projectedUsage / Math.max(1, candidate.currentAllocation);
     potentialImprovement += Math.min(0.4, projectedGrowth * 0.2);
 
     return Math.max(currentROI, currentROI * potentialImprovement);
@@ -190,7 +201,13 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     // Priority-based risk (lower priority = higher risk)
-    const priorityWeights = { critical: 0, high: 0.05, medium: 0.1, low: 0.2, deferred: 0.3 };
+    const priorityWeights = {
+      critical: 0,
+      high: 0.05,
+      medium: 0.1,
+      low: 0.2,
+      deferred: 0.3,
+    };
     riskFactor += priorityWeights[candidate.priority];
 
     return Math.max(0.05, Math.min(0.5, riskFactor));
@@ -202,7 +219,10 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param potentialROI - Potential ROI value
    * @returns Marginal ROI improvement
    */
-  private calculateMarginalROI(candidate: AllocationCandidate, potentialROI: number): number {
+  private calculateMarginalROI(
+    candidate: AllocationCandidate,
+    potentialROI: number,
+  ): number {
     const currentROI = candidate.costAnalysis.roi;
     const currentAllocation = candidate.currentAllocation;
 
@@ -271,7 +291,9 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param candidate - Allocation candidate
    * @returns ROI trend
    */
-  private determineROITrend(candidate: AllocationCandidate): 'increasing' | 'decreasing' | 'stable' {
+  private determineROITrend(
+    candidate: AllocationCandidate,
+  ): 'increasing' | 'decreasing' | 'stable' {
     const costTrend = candidate.costAnalysis.costTrend;
     const businessImpact = candidate.businessImpact;
 
@@ -289,12 +311,16 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param candidate - Allocation candidate
    * @returns Competitive advantage score (0-1)
    */
-  private calculateCompetitiveAdvantage(candidate: AllocationCandidate): number {
+  private calculateCompetitiveAdvantage(
+    candidate: AllocationCandidate,
+  ): number {
     const businessImpact = candidate.businessImpact / 100;
     const roi = candidate.costAnalysis.roi;
     const uniqueness = this.calculateResourceUniqueness(candidate);
 
-    return (businessImpact * 0.4) + (Math.min(1, roi / 10) * 0.4) + (uniqueness * 0.2);
+    return (
+      businessImpact * 0.4 + Math.min(1, roi / 10) * 0.4 + uniqueness * 0.2
+    );
   }
 
   /**
@@ -315,13 +341,14 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculateScalabilityFactor(candidate: AllocationCandidate): number {
     const utilizationRate = candidate.costAnalysis.utilizationRate;
-    const projectedGrowth = candidate.projectedUsage / Math.max(1, candidate.currentAllocation);
+    const projectedGrowth =
+      candidate.projectedUsage / Math.max(1, candidate.currentAllocation);
 
     // Low utilization with high projected growth = high scalability
     const utilizationFactor = 1 - utilizationRate;
     const growthFactor = Math.min(1, projectedGrowth);
 
-    return Math.min(2, 1 + (utilizationFactor * 0.5) + (growthFactor * 0.5));
+    return Math.min(2, 1 + utilizationFactor * 0.5 + growthFactor * 0.5);
   }
 
   /**
@@ -330,21 +357,25 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @returns Optimal allocation distribution
    */
   private calculateOptimalROIDistribution(
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): Map<string, number> {
     const distribution = new Map<string, number>();
     const totalBudget = this.calculateTotalCurrentBudget(candidates);
 
     // Sort candidates by risk-adjusted ROI
     const sortedCandidates = candidates
-      .map(candidate => ({
+      .map((candidate) => ({
         candidate,
-        analysis: this.roiAnalysis.get(candidate.resourceId)!
+        analysis: this.roiAnalysis.get(candidate.resourceId)!,
       }))
       .sort((a, b) => b.analysis.riskAdjustedROI - a.analysis.riskAdjustedROI);
 
     // Allocate budget using efficient frontier approach
-    this.allocateUsingEfficientFrontier(sortedCandidates, totalBudget, distribution);
+    this.allocateUsingEfficientFrontier(
+      sortedCandidates,
+      totalBudget,
+      distribution,
+    );
 
     return distribution;
   }
@@ -356,9 +387,12 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param distribution - Distribution map to populate
    */
   private allocateUsingEfficientFrontier(
-    sortedCandidates: Array<{ candidate: AllocationCandidate; analysis: ROIAnalysis }>,
+    sortedCandidates: Array<{
+      candidate: AllocationCandidate;
+      analysis: ROIAnalysis;
+    }>,
     totalBudget: number,
-    distribution: Map<string, number>
+    distribution: Map<string, number>,
   ): void {
     let remainingBudget = totalBudget;
 
@@ -371,7 +405,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
 
     // Second pass: Allocate remaining budget based on marginal ROI
     while (remainingBudget > 0 && sortedCandidates.length > 0) {
-      let bestCandidate: typeof sortedCandidates[0] | null = null;
+      let bestCandidate: (typeof sortedCandidates)[0] | null = null;
       let bestMarginalROI = 0;
 
       for (const candidateData of sortedCandidates) {
@@ -387,7 +421,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
         const marginalROI = this.calculateMarginalROIForAdditionalBudget(
           candidate,
           analysis,
-          currentAllocation
+          currentAllocation,
         );
 
         if (marginalROI > bestMarginalROI) {
@@ -404,7 +438,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
       const maxAdditionalAllocation = Math.min(
         remainingBudget,
         candidate.constraints.maxAllocation - currentAllocation,
-        currentAllocation * 0.1 // Maximum 10% increase per iteration
+        currentAllocation * 0.1, // Maximum 10% increase per iteration
       );
 
       const newAllocation = currentAllocation + maxAdditionalAllocation;
@@ -417,7 +451,11 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
 
     // Third pass: Handle any remaining budget proportionally
     if (remainingBudget > 0.01) {
-      this.distributeRemainingBudget(sortedCandidates, remainingBudget, distribution);
+      this.distributeRemainingBudget(
+        sortedCandidates,
+        remainingBudget,
+        distribution,
+      );
     }
   }
 
@@ -431,11 +469,12 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
   private calculateMarginalROIForAdditionalBudget(
     candidate: AllocationCandidate,
     analysis: ROIAnalysis,
-    currentAllocation: number
+    currentAllocation: number,
   ): number {
     // Use diminishing returns model for marginal ROI
-    const allocationRatio = currentAllocation / candidate.constraints.maxAllocation;
-    const diminishingFactor = Math.max(0.1, 1 - (allocationRatio * 0.5));
+    const allocationRatio =
+      currentAllocation / candidate.constraints.maxAllocation;
+    const diminishingFactor = Math.max(0.1, 1 - allocationRatio * 0.5);
 
     return analysis.marginalROI * diminishingFactor;
   }
@@ -447,25 +486,35 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param distribution - Current distribution
    */
   private distributeRemainingBudget(
-    sortedCandidates: Array<{ candidate: AllocationCandidate; analysis: ROIAnalysis }>,
+    sortedCandidates: Array<{
+      candidate: AllocationCandidate;
+      analysis: ROIAnalysis;
+    }>,
     remainingBudget: number,
-    distribution: Map<string, number>
+    distribution: Map<string, number>,
   ): void {
     const totalROI = sortedCandidates.reduce(
       (sum, { analysis }) => sum + analysis.riskAdjustedROI,
-      0
+      0,
     );
 
     for (const { candidate, analysis } of sortedCandidates) {
       const currentAllocation = distribution.get(candidate.resourceId) || 0;
-      const maxAdditional = candidate.constraints.maxAllocation - currentAllocation;
+      const maxAdditional =
+        candidate.constraints.maxAllocation - currentAllocation;
 
       if (maxAdditional <= 0) continue;
 
       const roiWeight = analysis.riskAdjustedROI / totalROI;
-      const additionalAllocation = Math.min(maxAdditional, remainingBudget * roiWeight);
+      const additionalAllocation = Math.min(
+        maxAdditional,
+        remainingBudget * roiWeight,
+      );
 
-      distribution.set(candidate.resourceId, currentAllocation + additionalAllocation);
+      distribution.set(
+        candidate.resourceId,
+        currentAllocation + additionalAllocation,
+      );
     }
   }
 
@@ -477,14 +526,16 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    */
   private generateROIRecommendations(
     candidates: AllocationCandidate[],
-    distribution: Map<string, number>
+    distribution: Map<string, number>,
   ): AllocationRecommendation[] {
     const recommendations: AllocationRecommendation[] = [];
 
     for (const candidate of candidates) {
       const analysis = this.roiAnalysis.get(candidate.resourceId)!;
-      const recommendedAllocation = distribution.get(candidate.resourceId) || candidate.currentAllocation;
-      const allocationChange = recommendedAllocation - candidate.currentAllocation;
+      const recommendedAllocation =
+        distribution.get(candidate.resourceId) || candidate.currentAllocation;
+      const allocationChange =
+        recommendedAllocation - candidate.currentAllocation;
 
       if (Math.abs(allocationChange) < 0.01) {
         // Skip minimal changes
@@ -496,24 +547,41 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
         resourceId: candidate.resourceId,
         type: 'budget_reallocation',
         title: `ROI-optimized allocation for ${candidate.resourceName}`,
-        description: this.generateROIRecommendationDescription(candidate, analysis, allocationChange),
+        description: this.generateROIRecommendationDescription(
+          candidate,
+          analysis,
+          allocationChange,
+        ),
         currentAllocation: candidate.currentAllocation,
         recommendedAllocation,
         allocationChange,
         potentialSavings: Math.max(0, -allocationChange),
-        savingsPercentage: candidate.currentAllocation > 0
-          ? (Math.max(0, -allocationChange) / candidate.currentAllocation) * 100
-          : 0,
-        implementationComplexity: this.determineImplementationComplexity(candidate, analysis),
+        savingsPercentage:
+          candidate.currentAllocation > 0
+            ? (Math.max(0, -allocationChange) / candidate.currentAllocation) *
+              100
+            : 0,
+        implementationComplexity: this.determineImplementationComplexity(
+          candidate,
+          analysis,
+        ),
         strategy: 'roi_optimized',
         confidence: this.calculateROIConfidence(candidate, analysis),
-        expectedImpact: this.calculateROIExpectedImpact(candidate, analysis, allocationChange),
-        riskAssessment: this.assessROIRisk(candidate, analysis, allocationChange),
+        expectedImpact: this.calculateROIExpectedImpact(
+          candidate,
+          analysis,
+          allocationChange,
+        ),
+        riskAssessment: this.assessROIRisk(
+          candidate,
+          analysis,
+          allocationChange,
+        ),
         dependencies: [],
         priority: candidate.priority,
         estimatedTimeToImplement: `${Math.ceil(analysis.timeToROI / 7)}-${Math.ceil(analysis.timeToROI / 7) + 1} weeks`,
         category: 'roi_optimization',
-        tags: ['roi-optimized', 'efficient-frontier', 'data-driven']
+        tags: ['roi-optimized', 'efficient-frontier', 'data-driven'],
       };
 
       recommendations.push(recommendation);
@@ -532,10 +600,12 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
   private generateROIRecommendationDescription(
     candidate: AllocationCandidate,
     analysis: ROIAnalysis,
-    allocationChange: number
+    allocationChange: number,
   ): string {
     const changeDirection = allocationChange > 0 ? 'increase' : 'decrease';
-    const changePct = Math.round(Math.abs(allocationChange) / candidate.currentAllocation * 100);
+    const changePct = Math.round(
+      (Math.abs(allocationChange) / candidate.currentAllocation) * 100,
+    );
     const currentROI = Math.round(analysis.currentROI * 100) / 100;
     const potentialROI = Math.round(analysis.potentialROI * 100) / 100;
 
@@ -562,7 +632,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    */
   private determineImplementationComplexity(
     candidate: AllocationCandidate,
-    analysis: ROIAnalysis
+    analysis: ROIAnalysis,
   ): 'low' | 'medium' | 'high' {
     const complexityScore = candidate.technicalComplexity;
     const roiStability = analysis.roiStability;
@@ -580,7 +650,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculateROIConfidence(
     candidate: AllocationCandidate,
-    analysis: ROIAnalysis
+    analysis: ROIAnalysis,
   ): number {
     let confidence = 60; // Base confidence
 
@@ -613,13 +683,15 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
   private calculateROIExpectedImpact(
     candidate: AllocationCandidate,
     analysis: ROIAnalysis,
-    allocationChange: number
+    allocationChange: number,
   ): AllocationImpact {
-    const changeRatio = candidate.currentAllocation > 0
-      ? allocationChange / candidate.currentAllocation
-      : 0;
+    const changeRatio =
+      candidate.currentAllocation > 0
+        ? allocationChange / candidate.currentAllocation
+        : 0;
 
-    const roiImprovement = (analysis.potentialROI - analysis.currentROI) * Math.abs(changeRatio);
+    const roiImprovement =
+      (analysis.potentialROI - analysis.currentROI) * Math.abs(changeRatio);
 
     return {
       costImpact: allocationChange,
@@ -627,7 +699,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
       utilizationImpact: changeRatio * 0.2,
       businessValueImpact: roiImprovement * candidate.businessImpact * 0.1,
       roiImpact: roiImprovement,
-      impactTimeline: analysis.timeToROI <= 30 ? 'short_term' : 'medium_term'
+      impactTimeline: analysis.timeToROI <= 30 ? 'short_term' : 'medium_term',
     };
   }
 
@@ -641,9 +713,10 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
   private assessROIRisk(
     candidate: AllocationCandidate,
     analysis: ROIAnalysis,
-    allocationChange: number
+    allocationChange: number,
   ): RiskAssessment {
-    const changeRatio = Math.abs(allocationChange) / candidate.currentAllocation;
+    const changeRatio =
+      Math.abs(allocationChange) / candidate.currentAllocation;
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
     const riskFactors: string[] = [];
     const mitigationStrategies: string[] = [];
@@ -656,14 +729,18 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
     } else if (changeRatio > 0.25) {
       riskLevel = 'medium';
       riskFactors.push('Moderate allocation change requires monitoring');
-      mitigationStrategies.push('Monitor ROI metrics closely during transition');
+      mitigationStrategies.push(
+        'Monitor ROI metrics closely during transition',
+      );
     }
 
     // Assess ROI stability risk
     if (analysis.roiStability < 0.5) {
       riskLevel = 'high';
       riskFactors.push('Low ROI stability increases uncertainty');
-      mitigationStrategies.push('Implement additional monitoring and adjustment mechanisms');
+      mitigationStrategies.push(
+        'Implement additional monitoring and adjustment mechanisms',
+      );
     }
 
     // Assess time to realization risk
@@ -674,7 +751,9 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     if (riskFactors.length === 0) {
-      riskFactors.push('Standard ROI optimization with manageable risk profile');
+      riskFactors.push(
+        'Standard ROI optimization with manageable risk profile',
+      );
       mitigationStrategies.push('Regular ROI performance monitoring');
     }
 
@@ -682,8 +761,10 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
       riskLevel,
       riskFactors,
       mitigationStrategies,
-      maxNegativeImpact: Math.abs(allocationChange) * (1 - analysis.roiStability),
-      negativeProbability: riskLevel === 'high' ? 25 : riskLevel === 'medium' ? 15 : 8
+      maxNegativeImpact:
+        Math.abs(allocationChange) * (1 - analysis.roiStability),
+      negativeProbability:
+        riskLevel === 'high' ? 25 : riskLevel === 'medium' ? 15 : 8,
     };
   }
 
@@ -695,11 +776,13 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    */
   private balanceROIAllocations(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): AllocationRecommendation[] {
     if (recommendations.length === 0) {
       // No changes needed, create identity recommendations
-      return originalCandidates.map(candidate => this.createIdentityRecommendation(candidate));
+      return originalCandidates.map((candidate) =>
+        this.createIdentityRecommendation(candidate),
+      );
     }
 
     return this.ensureBudgetBalance(originalCandidates, recommendations);
@@ -710,7 +793,9 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param candidate - Allocation candidate
    * @returns Identity recommendation
    */
-  private createIdentityRecommendation(candidate: AllocationCandidate): AllocationRecommendation {
+  private createIdentityRecommendation(
+    candidate: AllocationCandidate,
+  ): AllocationRecommendation {
     return {
       id: `roi_identity_${candidate.resourceId}_${Date.now()}`,
       resourceId: candidate.resourceId,
@@ -731,20 +816,20 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
         utilizationImpact: 0,
         businessValueImpact: 0,
         roiImpact: 0,
-        impactTimeline: 'immediate'
+        impactTimeline: 'immediate',
       },
       riskAssessment: {
         riskLevel: 'low',
         riskFactors: ['No change, minimal risk'],
         mitigationStrategies: ['Continue regular monitoring'],
         maxNegativeImpact: 0,
-        negativeProbability: 0
+        negativeProbability: 0,
       },
       dependencies: [],
       priority: candidate.priority,
       estimatedTimeToImplement: 'immediate',
       category: 'roi_optimization',
-      tags: ['roi-optimized', 'no-change', 'stable']
+      tags: ['roi-optimized', 'no-change', 'stable'],
     };
   }
 
@@ -756,9 +841,12 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculateTotalROIImprovement(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): number {
-    return recommendations.reduce((total, rec) => total + rec.expectedImpact.roiImpact, 0);
+    return recommendations.reduce(
+      (total, rec) => total + rec.expectedImpact.roiImpact,
+      0,
+    );
   }
 
   /**
@@ -766,7 +854,9 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
    * @param resourceId - Resource identifier
    * @returns Matching candidate or undefined
    */
-  protected findCandidateById(resourceId: string): AllocationCandidate | undefined {
+  protected findCandidateById(
+    resourceId: string,
+  ): AllocationCandidate | undefined {
     return this.candidatesMap.get(resourceId);
   }
 }
@@ -795,7 +885,7 @@ interface ROIAnalysis {
  */
 export function createROIOptimizedAlgorithm(
   config: AllocationAlgorithmConfig,
-  logger: AllocationLogger
+  logger: AllocationLogger,
 ): ROIOptimizedAlgorithm {
   return new ROIOptimizedAlgorithm(config, logger);
 }

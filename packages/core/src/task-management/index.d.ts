@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Comprehensive Task Management System Integration
  *
@@ -104,11 +105,12 @@ export {
   HookIntegrationConfig,
 } from './InfiniteHookIntegration.js';
 import type { Config } from '../config/config.js';
-import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
-import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
-import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
+import type { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
+import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
+import type { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
+import type {
+  EnhancedAutonomousTaskQueue} from './EnhancedAutonomousTaskQueue.js';
 import {
-  EnhancedAutonomousTaskQueue,
   type EnhancedQueueConfig,
 } from './EnhancedAutonomousTaskQueue.js';
 /**

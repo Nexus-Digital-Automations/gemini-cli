@@ -20,7 +20,7 @@ import type {
   HistoricalDataPoint,
   ModelUsageData,
   BudgetEnforcementLevel,
-  NotificationFrequency
+  NotificationFrequency,
 } from '../types.js';
 
 /**
@@ -98,15 +98,15 @@ export class BudgetUtils {
    * @param options - Formatting options
    * @returns Formatted currency string
    */
-  public static formatCurrency(
+  static formatCurrency(
     amount: number,
-    options: CurrencyFormatOptions = { currency: 'USD' }
+    options: CurrencyFormatOptions = { currency: 'USD' },
   ): string {
     const formatter = new Intl.NumberFormat(options.locale || 'en-US', {
       style: 'currency',
       currency: options.currency,
       minimumFractionDigits: options.minimumFractionDigits ?? 2,
-      maximumFractionDigits: options.maximumFractionDigits ?? 4
+      maximumFractionDigits: options.maximumFractionDigits ?? 4,
     });
 
     return formatter.format(amount);
@@ -118,7 +118,7 @@ export class BudgetUtils {
    * @param decimals - Number of decimal places
    * @returns Formatted number string
    */
-  public static formatLargeNumber(value: number, decimals: number = 1): string {
+  static formatLargeNumber(value: number, decimals: number = 1): string {
     if (value < 1000) {
       return value.toString();
     }
@@ -137,10 +137,10 @@ export class BudgetUtils {
    * @param decimals - Decimal places
    * @returns Percentage value
    */
-  public static calculatePercentage(
+  static calculatePercentage(
     value: number,
     total: number,
-    decimals: number = 1
+    decimals: number = 1,
   ): number {
     if (total === 0) return 0;
     return Number(((value / total) * 100).toFixed(decimals));
@@ -151,7 +151,7 @@ export class BudgetUtils {
    * @param milliseconds - Duration in milliseconds
    * @returns Human-readable duration string
    */
-  public static formatDuration(milliseconds: number): string {
+  static formatDuration(milliseconds: number): string {
     if (milliseconds < 1000) {
       return `${milliseconds}ms`;
     }
@@ -178,7 +178,9 @@ export class BudgetUtils {
    * @param data - Array of historical data points
    * @returns Usage statistics summary
    */
-  public static calculateUsageStats(data: HistoricalDataPoint[]): UsageStatsSummary {
+  static calculateUsageStats(
+    data: HistoricalDataPoint[],
+  ): UsageStatsSummary {
     if (data.length === 0) {
       return {
         totalCost: 0,
@@ -190,23 +192,31 @@ export class BudgetUtils {
         period: {
           start: new Date(),
           end: new Date(),
-          duration: 0
-        }
+          duration: 0,
+        },
       };
     }
 
     // Sort data by timestamp
-    const sortedData = [...data].sort((a, b) =>
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    const sortedData = [...data].sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
 
     const totalCost = sortedData.reduce((sum, point) => sum + point.cost, 0);
-    const totalRequests = sortedData.reduce((sum, point) => sum + point.requests, 0);
-    const totalTokens = sortedData.reduce((sum, point) => sum + point.tokens, 0);
+    const totalRequests = sortedData.reduce(
+      (sum, point) => sum + point.requests,
+      0,
+    );
+    const totalTokens = sortedData.reduce(
+      (sum, point) => sum + point.tokens,
+      0,
+    );
 
     // Calculate averages
     const avgCostPerRequest = totalRequests > 0 ? totalCost / totalRequests : 0;
-    const avgTokensPerRequest = totalRequests > 0 ? totalTokens / totalRequests : 0;
+    const avgTokensPerRequest =
+      totalRequests > 0 ? totalTokens / totalRequests : 0;
 
     // Find most used models
     const modelUsage = new Map<string, { cost: number; requests: number }>();
@@ -236,7 +246,7 @@ export class BudgetUtils {
     }
 
     // Calculate trend
-    const trend = this.calculateTrend(sortedData.map(d => d.cost));
+    const trend = this.calculateTrend(sortedData.map((d) => d.cost));
 
     // Calculate period
     const startTime = new Date(sortedData[0].timestamp);
@@ -255,8 +265,8 @@ export class BudgetUtils {
       period: {
         start: startTime,
         end: endTime,
-        duration
-      }
+        duration,
+      },
     };
   }
 
@@ -267,10 +277,10 @@ export class BudgetUtils {
    * @param targetPeriod - Period to project to (in milliseconds)
    * @returns Budget projection
    */
-  public static projectBudgetUsage(
+  static projectBudgetUsage(
     currentUsage: number,
     historicalData: HistoricalDataPoint[],
-    targetPeriod: number
+    targetPeriod: number,
   ): BudgetProjection {
     if (historicalData.length < 2) {
       return {
@@ -278,33 +288,41 @@ export class BudgetUtils {
         projectedUsage: currentUsage,
         confidence: 0,
         usageRate: 0,
-        recommendations: ['Insufficient historical data for accurate projection']
+        recommendations: [
+          'Insufficient historical data for accurate projection',
+        ],
       };
     }
 
     // Sort data by timestamp
-    const sortedData = [...historicalData].sort((a, b) =>
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    const sortedData = [...historicalData].sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
 
     // Calculate usage rate (cost per hour)
-    const totalDuration = new Date(sortedData[sortedData.length - 1].timestamp).getTime() -
-                         new Date(sortedData[0].timestamp).getTime();
-    const totalCostInPeriod = sortedData[sortedData.length - 1].cost - sortedData[0].cost;
+    const totalDuration =
+      new Date(sortedData[sortedData.length - 1].timestamp).getTime() -
+      new Date(sortedData[0].timestamp).getTime();
+    const totalCostInPeriod =
+      sortedData[sortedData.length - 1].cost - sortedData[0].cost;
     const usageRate = totalCostInPeriod / (totalDuration / (1000 * 60 * 60)); // per hour
 
     // Project usage for target period
     const targetHours = targetPeriod / (1000 * 60 * 60);
-    const projectedUsage = currentUsage + (usageRate * targetHours);
+    const projectedUsage = currentUsage + usageRate * targetHours;
 
     // Calculate confidence based on data consistency
     const confidence = this.calculateProjectionConfidence(sortedData);
 
     const recommendations: string[] = [];
     if (confidence < 0.5) {
-      recommendations.push('Low confidence projection - usage pattern is inconsistent');
+      recommendations.push(
+        'Low confidence projection - usage pattern is inconsistent',
+      );
     }
-    if (usageRate > 1) { // $1/hour seems high
+    if (usageRate > 1) {
+      // $1/hour seems high
       recommendations.push('High usage rate detected - consider optimization');
     }
 
@@ -313,7 +331,7 @@ export class BudgetUtils {
       projectedUsage,
       confidence,
       usageRate,
-      recommendations
+      recommendations,
     };
   }
 
@@ -322,7 +340,9 @@ export class BudgetUtils {
    * @param usageDataArray - Array of usage data to merge
    * @returns Merged usage data
    */
-  public static mergeUsageData(usageDataArray: BudgetUsageData[]): BudgetUsageData {
+  static mergeUsageData(
+    usageDataArray: BudgetUsageData[],
+  ): BudgetUsageData {
     if (usageDataArray.length === 0) {
       throw new Error('Cannot merge empty array of usage data');
     }
@@ -332,8 +352,10 @@ export class BudgetUtils {
     }
 
     // Use the most recent date and reset time
-    const sortedByDate = [...usageDataArray].sort((a, b) =>
-      new Date(b.lastResetTime).getTime() - new Date(a.lastResetTime).getTime()
+    const sortedByDate = [...usageDataArray].sort(
+      (a, b) =>
+        new Date(b.lastResetTime).getTime() -
+        new Date(a.lastResetTime).getTime(),
     );
 
     const merged: BudgetUsageData = {
@@ -345,12 +367,12 @@ export class BudgetUtils {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
-        tokenCosts: { input: 0, output: 0 }
+        tokenCosts: { input: 0, output: 0 },
       },
       warningsShown: [],
       featureCosts: {},
       sessionUsage: [],
-      history: []
+      history: [],
     };
 
     // Aggregate values
@@ -363,20 +385,25 @@ export class BudgetUtils {
         merged.tokenUsage.inputTokens += data.tokenUsage.inputTokens || 0;
         merged.tokenUsage.outputTokens += data.tokenUsage.outputTokens || 0;
         merged.tokenUsage.totalTokens += data.tokenUsage.totalTokens || 0;
-        merged.tokenUsage.tokenCosts.input += data.tokenUsage.tokenCosts?.input || 0;
-        merged.tokenUsage.tokenCosts.output += data.tokenUsage.tokenCosts?.output || 0;
+        merged.tokenUsage.tokenCosts.input +=
+          data.tokenUsage.tokenCosts?.input || 0;
+        merged.tokenUsage.tokenCosts.output +=
+          data.tokenUsage.tokenCosts?.output || 0;
       }
 
       // Merge feature costs
       if (data.featureCosts) {
         for (const [feature, cost] of Object.entries(data.featureCosts)) {
-          merged.featureCosts![feature] = (merged.featureCosts![feature] || 0) + cost;
+          merged.featureCosts![feature] =
+            (merged.featureCosts![feature] || 0) + cost;
         }
       }
 
       // Merge warnings shown (union)
       if (data.warningsShown) {
-        merged.warningsShown = [...new Set([...merged.warningsShown, ...data.warningsShown])];
+        merged.warningsShown = [
+          ...new Set([...merged.warningsShown, ...data.warningsShown]),
+        ];
       }
 
       // Merge session usage
@@ -401,7 +428,10 @@ export class BudgetUtils {
 
     if (merged.history) {
       merged.history = merged.history
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        )
         .slice(0, 1000); // Keep only last 1000 entries
     }
 
@@ -413,7 +443,7 @@ export class BudgetUtils {
    * @param settings - Budget settings to validate
    * @returns Validation result with errors
    */
-  public static validateBudgetSettings(settings: BudgetSettings): {
+  static validateBudgetSettings(settings: BudgetSettings): {
     isValid: boolean;
     errors: string[];
     warnings: string[];
@@ -441,11 +471,19 @@ export class BudgetUtils {
     }
 
     // Check limit hierarchy
-    if (settings.dailyLimit && settings.weeklyLimit && settings.dailyLimit > settings.weeklyLimit) {
+    if (
+      settings.dailyLimit &&
+      settings.weeklyLimit &&
+      settings.dailyLimit > settings.weeklyLimit
+    ) {
       warnings.push('Daily limit exceeds weekly limit');
     }
 
-    if (settings.weeklyLimit && settings.monthlyLimit && settings.weeklyLimit > settings.monthlyLimit) {
+    if (
+      settings.weeklyLimit &&
+      settings.monthlyLimit &&
+      settings.weeklyLimit > settings.monthlyLimit
+    ) {
       warnings.push('Weekly limit exceeds monthly limit');
     }
 
@@ -453,7 +491,9 @@ export class BudgetUtils {
     if (settings.warningThresholds) {
       for (const threshold of settings.warningThresholds) {
         if (threshold < 0 || threshold > 100) {
-          errors.push(`Invalid warning threshold: ${threshold}% (must be 0-100)`);
+          errors.push(
+            `Invalid warning threshold: ${threshold}% (must be 0-100)`,
+          );
         }
       }
 
@@ -465,25 +505,38 @@ export class BudgetUtils {
     }
 
     // Check reset time format
-    if (settings.resetTime && !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(settings.resetTime)) {
+    if (
+      settings.resetTime &&
+      !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(settings.resetTime)
+    ) {
       errors.push('Invalid reset time format (use HH:MM)');
     }
 
     // Check notification settings
     if (settings.notifications) {
-      if (settings.notifications.email && !settings.notifications.emailAddress) {
-        errors.push('Email notifications enabled but no email address provided');
+      if (
+        settings.notifications.email &&
+        !settings.notifications.emailAddress
+      ) {
+        errors.push(
+          'Email notifications enabled but no email address provided',
+        );
       }
 
-      if (settings.notifications.webhook && !settings.notifications.webhookUrl) {
-        errors.push('Webhook notifications enabled but no webhook URL provided');
+      if (
+        settings.notifications.webhook &&
+        !settings.notifications.webhookUrl
+      ) {
+        errors.push(
+          'Webhook notifications enabled but no webhook URL provided',
+        );
       }
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -492,10 +545,16 @@ export class BudgetUtils {
    * @param resetTime - Reset time in HH:MM format
    * @returns Time until reset in milliseconds
    */
-  public static getTimeUntilReset(resetTime: string): number {
+  static getTimeUntilReset(resetTime: string): number {
     const [hours, minutes] = resetTime.split(':').map(Number);
     const now = new Date();
-    const resetToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+    const resetToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      hours,
+      minutes,
+    );
 
     // If reset time has passed today, calculate for tomorrow
     if (resetToday <= now) {
@@ -510,7 +569,9 @@ export class BudgetUtils {
    * @param level - Enforcement level
    * @returns Description string
    */
-  public static getEnforcementDescription(level: BudgetEnforcementLevel): string {
+  static getEnforcementDescription(
+    level: BudgetEnforcementLevel,
+  ): string {
     switch (level) {
       case BudgetEnforcementLevel.WARNING_ONLY:
         return 'Shows warnings but allows usage above limits';
@@ -530,7 +591,9 @@ export class BudgetUtils {
    * @param frequency - Notification frequency
    * @returns Description string
    */
-  public static getFrequencyDescription(frequency: NotificationFrequency): string {
+  static getFrequencyDescription(
+    frequency: NotificationFrequency,
+  ): string {
     switch (frequency) {
       case NotificationFrequency.IMMEDIATE:
         return 'Send notifications immediately when events occur';
@@ -550,14 +613,18 @@ export class BudgetUtils {
    * @param values - Array of numerical values
    * @returns Trend direction
    */
-  private static calculateTrend(values: number[]): 'increasing' | 'decreasing' | 'stable' {
+  private static calculateTrend(
+    values: number[],
+  ): 'increasing' | 'decreasing' | 'stable' {
     if (values.length < 2) return 'stable';
 
     const firstHalf = values.slice(0, Math.floor(values.length / 2));
     const secondHalf = values.slice(Math.floor(values.length / 2));
 
-    const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
-    const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+    const firstAvg =
+      firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
+    const secondAvg =
+      secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
 
     const change = (secondAvg - firstAvg) / firstAvg;
 
@@ -571,13 +638,17 @@ export class BudgetUtils {
    * @param data - Historical data points
    * @returns Confidence level (0-1)
    */
-  private static calculateProjectionConfidence(data: HistoricalDataPoint[]): number {
+  private static calculateProjectionConfidence(
+    data: HistoricalDataPoint[],
+  ): number {
     if (data.length < 3) return 0.3;
 
     // Calculate coefficient of variation for cost values
-    const costs = data.map(d => d.cost);
+    const costs = data.map((d) => d.cost);
     const mean = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
-    const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / costs.length;
+    const variance =
+      costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) /
+      costs.length;
     const stdDev = Math.sqrt(variance);
     const coefficientOfVariation = mean > 0 ? stdDev / mean : 1;
 

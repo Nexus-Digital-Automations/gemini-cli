@@ -56,7 +56,7 @@ export class AlertTriggerEngine {
   /**
    * Evaluate all configured triggers against current data
    */
-  public static evaluateAllTriggers(
+  static evaluateAllTriggers(
     costData: CostDataPoint[],
     alertConfigs: BudgetAlertConfig[],
     currentBudget: {
@@ -65,7 +65,7 @@ export class AlertTriggerEngine {
       remaining: number;
     },
     projection?: CostProjection,
-    variance?: VarianceDetection
+    variance?: VarianceDetection,
   ): TriggerEvaluationResult[] {
     const startTime = Date.now();
     this.logger.info('Evaluating all alert triggers', {
@@ -83,7 +83,7 @@ export class AlertTriggerEngine {
           costData,
           currentBudget,
           projection,
-          variance
+          variance,
         );
         results.push(result);
       }
@@ -94,19 +94,21 @@ export class AlertTriggerEngine {
         costData,
         currentBudget,
         projection,
-        variance
+        variance,
       );
       results.push(...compositeTriggers);
 
       this.logger.info('All triggers evaluated', {
         duration: Date.now() - startTime,
         totalTriggers: results.length,
-        triggeredAlerts: results.filter(r => r.triggered).length,
+        triggeredAlerts: results.filter((r) => r.triggered).length,
       });
 
       return results;
     } catch (error) {
-      this.logger.error('Failed to evaluate triggers', { error: error.message });
+      this.logger.error('Failed to evaluate triggers', {
+        error: error.message,
+      });
       return [];
     }
   }
@@ -114,7 +116,7 @@ export class AlertTriggerEngine {
   /**
    * Evaluate a single trigger configuration
    */
-  public static evaluateTrigger(
+  static evaluateTrigger(
     config: BudgetAlertConfig,
     costData: CostDataPoint[],
     currentBudget: {
@@ -123,10 +125,10 @@ export class AlertTriggerEngine {
       remaining: number;
     },
     projection?: CostProjection,
-    variance?: VarianceDetection
+    variance?: VarianceDetection,
   ): TriggerEvaluationResult {
     try {
-      let currentValue: number = 0;
+      let currentValue = 0;
       let confidence = 0.8;
       const context: Record<string, unknown> = {};
 
@@ -162,21 +164,21 @@ export class AlertTriggerEngine {
         config.threshold.value,
         config.threshold.type,
         costData,
-        variance
+        variance,
       );
 
       // Evaluate threshold condition
       const triggered = this.evaluateThresholdCondition(
         currentValue,
         adjustedThreshold,
-        config.threshold.operator
+        config.threshold.operator,
       );
 
       // Apply temporal conditions
       const temporallyTriggered = this.applyTemporalConditions(
         triggered,
         config,
-        costData
+        costData,
       );
 
       return {
@@ -209,7 +211,7 @@ export class AlertTriggerEngine {
   /**
    * Evaluate composite triggers that depend on multiple conditions
    */
-  public static evaluateCompositeTriggers(
+  static evaluateCompositeTriggers(
     basicResults: TriggerEvaluationResult[],
     costData: CostDataPoint[],
     currentBudget: {
@@ -218,39 +220,46 @@ export class AlertTriggerEngine {
       remaining: number;
     },
     projection?: CostProjection,
-    variance?: VarianceDetection
+    variance?: VarianceDetection,
   ): TriggerEvaluationResult[] {
     const compositeResults: TriggerEvaluationResult[] = [];
 
     // Budget exhaustion composite trigger
-    const budgetTriggers = basicResults.filter(r =>
-      r.triggerId.includes('budget') || r.triggerId.includes('percentage')
+    const budgetTriggers = basicResults.filter(
+      (r) =>
+        r.triggerId.includes('budget') || r.triggerId.includes('percentage'),
     );
-    const rateTriggers = basicResults.filter(r =>
-      r.triggerId.includes('rate') || r.triggerId.includes('burn')
+    const rateTriggers = basicResults.filter(
+      (r) => r.triggerId.includes('rate') || r.triggerId.includes('burn'),
     );
 
-    if (budgetTriggers.some(t => t.triggered) && rateTriggers.some(t => t.triggered)) {
+    if (
+      budgetTriggers.some((t) => t.triggered) &&
+      rateTriggers.some((t) => t.triggered)
+    ) {
       compositeResults.push({
         triggerId: 'composite_budget_exhaustion_risk',
         triggered: true,
         severity: 'critical',
-        value: currentBudget.used / currentBudget.total * 100,
+        value: (currentBudget.used / currentBudget.total) * 100,
         threshold: 80,
         confidence: 0.95,
         context: {
           type: 'composite',
           description: 'High budget usage combined with high burn rate',
-          triggeredAlerts: [...budgetTriggers, ...rateTriggers].map(t => t.triggerId),
+          triggeredAlerts: [...budgetTriggers, ...rateTriggers].map(
+            (t) => t.triggerId,
+          ),
         },
       });
     }
 
     // Cost spike cascade trigger
     if (variance && variance.summary.significantVariances > 0) {
-      const recentSpikes = variance.variances.filter(v =>
-        v.varianceType === 'spike' &&
-        v.dataPoint.timestamp.getTime() > Date.now() - 24 * 60 * 60 * 1000
+      const recentSpikes = variance.variances.filter(
+        (v) =>
+          v.varianceType === 'spike' &&
+          v.dataPoint.timestamp.getTime() > Date.now() - 24 * 60 * 60 * 1000,
       );
 
       if (recentSpikes.length >= 3) {
@@ -265,7 +274,9 @@ export class AlertTriggerEngine {
             type: 'composite',
             description: 'Multiple cost spikes detected within 24 hours',
             spikes: recentSpikes.length,
-            maxSpikeValue: Math.max(...recentSpikes.map(s => s.varianceScore)),
+            maxSpikeValue: Math.max(
+              ...recentSpikes.map((s) => s.varianceScore),
+            ),
           },
         });
       }
@@ -273,7 +284,10 @@ export class AlertTriggerEngine {
 
     // Trend deterioration trigger
     if (projection && projection.summary.burnRatePerDay > 0) {
-      const projectedOverrun = (currentBudget.used + projection.summary.totalProjectedCost) - currentBudget.total;
+      const projectedOverrun =
+        currentBudget.used +
+        projection.summary.totalProjectedCost -
+        currentBudget.total;
       if (projectedOverrun > 0) {
         compositeResults.push({
           triggerId: 'composite_projected_overrun',
@@ -298,9 +312,13 @@ export class AlertTriggerEngine {
   /**
    * Process escalation rules for active alerts
    */
-  public static processEscalationRules(activeAlerts: BudgetAlert[]): BudgetAlert[] {
+  static processEscalationRules(
+    activeAlerts: BudgetAlert[],
+  ): BudgetAlert[] {
     const startTime = Date.now();
-    this.logger.info('Processing escalation rules', { activeAlerts: activeAlerts.length });
+    this.logger.info('Processing escalation rules', {
+      activeAlerts: activeAlerts.length,
+    });
 
     try {
       const escalatedAlerts: BudgetAlert[] = [];
@@ -320,7 +338,9 @@ export class AlertTriggerEngine {
 
       return escalatedAlerts;
     } catch (error) {
-      this.logger.error('Failed to process escalation rules', { error: error.message });
+      this.logger.error('Failed to process escalation rules', {
+        error: error.message,
+      });
       return [];
     }
   }
@@ -328,7 +348,7 @@ export class AlertTriggerEngine {
   /**
    * Register custom escalation rule
    */
-  public static registerEscalationRule(rule: EscalationRule): void {
+  static registerEscalationRule(rule: EscalationRule): void {
     this.escalationRules.set(rule.id, rule);
     this.logger.info('Escalation rule registered', { ruleId: rule.id });
   }
@@ -336,16 +356,17 @@ export class AlertTriggerEngine {
   /**
    * Create intelligent trigger configurations based on usage patterns
    */
-  public static createIntelligentTriggers(
+  static createIntelligentTriggers(
     costData: CostDataPoint[],
     currentBudget: { total: number; used: number; remaining: number },
-    variance?: VarianceDetection
+    variance?: VarianceDetection,
   ): BudgetAlertConfig[] {
     const triggers: BudgetAlertConfig[] = [];
     let triggerId = 0;
 
     // Adaptive budget percentage triggers
-    const utilizationPercentage = (currentBudget.used / currentBudget.total) * 100;
+    const utilizationPercentage =
+      (currentBudget.used / currentBudget.total) * 100;
     const remainingPercentage = 100 - utilizationPercentage;
 
     // Create staged percentage alerts based on remaining budget
@@ -463,21 +484,25 @@ export class AlertTriggerEngine {
   private static calculateCurrentBurnRate(costData: CostDataPoint[]): number {
     if (costData.length === 0) return 0;
 
-    const sortedData = [...costData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sortedData = [...costData].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
 
     // Use last 24 hours if available, otherwise use all data
     const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentData = sortedData.filter(point => point.timestamp >= cutoffTime);
+    const recentData = sortedData.filter(
+      (point) => point.timestamp >= cutoffTime,
+    );
 
     const dataToAnalyze = recentData.length >= 3 ? recentData : sortedData;
 
     if (dataToAnalyze.length === 0) return 0;
 
     const totalCost = dataToAnalyze.reduce((sum, point) => sum + point.cost, 0);
-    const timeSpanHours = (
-      dataToAnalyze[dataToAnalyze.length - 1].timestamp.getTime() -
-      dataToAnalyze[0].timestamp.getTime()
-    ) / (60 * 60 * 1000);
+    const timeSpanHours =
+      (dataToAnalyze[dataToAnalyze.length - 1].timestamp.getTime() -
+        dataToAnalyze[0].timestamp.getTime()) /
+      (60 * 60 * 1000);
 
     return timeSpanHours > 0 ? (totalCost / timeSpanHours) * 24 : 0; // Convert to daily rate
   }
@@ -486,7 +511,7 @@ export class AlertTriggerEngine {
     baseThreshold: number,
     thresholdType: string,
     costData: CostDataPoint[],
-    variance?: VarianceDetection
+    variance?: VarianceDetection,
   ): number {
     let adjustedThreshold = baseThreshold;
 
@@ -505,8 +530,11 @@ export class AlertTriggerEngine {
 
     // Adjust based on data recency
     if (costData.length > 0) {
-      const sortedData = [...costData].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-      const latestDataAge = (Date.now() - sortedData[0].timestamp.getTime()) / (60 * 60 * 1000); // Hours
+      const sortedData = [...costData].sort(
+        (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+      );
+      const latestDataAge =
+        (Date.now() - sortedData[0].timestamp.getTime()) / (60 * 60 * 1000); // Hours
 
       if (latestDataAge > 24) {
         // Increase sensitivity when data is old
@@ -522,7 +550,7 @@ export class AlertTriggerEngine {
   private static evaluateThresholdCondition(
     value: number,
     threshold: number,
-    operator: string
+    operator: string,
   ): boolean {
     switch (operator) {
       case 'greater_than':
@@ -543,7 +571,7 @@ export class AlertTriggerEngine {
   private static applyTemporalConditions(
     basicTriggered: boolean,
     config: BudgetAlertConfig,
-    costData: CostDataPoint[]
+    costData: CostDataPoint[],
   ): boolean {
     if (!basicTriggered) return false;
 
@@ -560,11 +588,17 @@ export class AlertTriggerEngine {
           windowStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
           break;
         case 'daily':
-          windowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          windowStart = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+          );
           break;
         case 'weekly':
           const dayOfWeek = now.getDay();
-          windowStart = new Date(now.getTime() - dayOfWeek * 24 * 60 * 60 * 1000);
+          windowStart = new Date(
+            now.getTime() - dayOfWeek * 24 * 60 * 60 * 1000,
+          );
           windowStart.setHours(0, 0, 0, 0);
           break;
         case 'monthly':
@@ -575,7 +609,9 @@ export class AlertTriggerEngine {
       }
 
       // Check if we have sufficient data in the time window
-      const windowData = costData.filter(point => point.timestamp >= windowStart);
+      const windowData = costData.filter(
+        (point) => point.timestamp >= windowStart,
+      );
       if (windowData.length < 2) {
         return false; // Not enough data in window
       }
@@ -584,7 +620,9 @@ export class AlertTriggerEngine {
     return basicTriggered;
   }
 
-  private static findApplicableEscalationRule(alert: BudgetAlert): EscalationRule | null {
+  private static findApplicableEscalationRule(
+    alert: BudgetAlert,
+  ): EscalationRule | null {
     for (const [ruleId, rule] of this.escalationRules) {
       if (this.isRuleApplicable(alert, rule)) {
         return rule;
@@ -593,7 +631,10 @@ export class AlertTriggerEngine {
     return null;
   }
 
-  private static isRuleApplicable(alert: BudgetAlert, rule: EscalationRule): boolean {
+  private static isRuleApplicable(
+    alert: BudgetAlert,
+    rule: EscalationRule,
+  ): boolean {
     const alertAge = (Date.now() - alert.timestamp.getTime()) / (60 * 1000); // Minutes
 
     // Check age condition
@@ -617,8 +658,10 @@ export class AlertTriggerEngine {
 
     // Check consecutive alerts condition
     const history = this.alertHistory.get(alert.alertConfigId) || [];
-    const recentAlerts = history.filter(h =>
-      h.timestamp.getTime() > Date.now() - rule.condition.alertAge * 60 * 1000
+    const recentAlerts = history.filter(
+      (h) =>
+        h.timestamp.getTime() >
+        Date.now() - rule.condition.alertAge * 60 * 1000,
     );
 
     if (recentAlerts.length < rule.condition.consecutiveAlerts) {
@@ -628,7 +671,10 @@ export class AlertTriggerEngine {
     return true;
   }
 
-  private static shouldEscalate(alert: BudgetAlert, rule: EscalationRule): boolean {
+  private static shouldEscalate(
+    alert: BudgetAlert,
+    rule: EscalationRule,
+  ): boolean {
     // Additional logic to determine if escalation should actually proceed
     // This could include business hours, notification limits, etc.
 
@@ -636,7 +682,10 @@ export class AlertTriggerEngine {
     return alert.status === 'active';
   }
 
-  private static applyEscalation(alert: BudgetAlert, rule: EscalationRule): BudgetAlert {
+  private static applyEscalation(
+    alert: BudgetAlert,
+    rule: EscalationRule,
+  ): BudgetAlert {
     const escalatedAlert = { ...alert };
 
     // Apply severity escalation
@@ -667,13 +716,13 @@ export class AlertTriggerEngine {
   /**
    * Update alert history for escalation tracking
    */
-  public static updateAlertHistory(alert: BudgetAlert): void {
+  static updateAlertHistory(alert: BudgetAlert): void {
     const history = this.alertHistory.get(alert.alertConfigId) || [];
     history.push(alert);
 
     // Keep only recent history (last 24 hours)
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const filteredHistory = history.filter(h => h.timestamp >= cutoff);
+    const filteredHistory = history.filter((h) => h.timestamp >= cutoff);
 
     this.alertHistory.set(alert.alertConfigId, filteredHistory);
   }
@@ -681,11 +730,11 @@ export class AlertTriggerEngine {
   /**
    * Clear old escalation rules and alert history
    */
-  public static cleanup(): void {
+  static cleanup(): void {
     // Remove old alert history
     const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
     for (const [configId, history] of this.alertHistory) {
-      const filteredHistory = history.filter(h => h.timestamp >= cutoff);
+      const filteredHistory = history.filter((h) => h.timestamp >= cutoff);
       if (filteredHistory.length === 0) {
         this.alertHistory.delete(configId);
       } else {

@@ -31,7 +31,8 @@ export class StatisticalUtils {
     const max = sortedValues[n - 1];
 
     // Variance and standard deviation
-    const variance = values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / n;
+    const variance =
+      values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / n;
     const stddev = Math.sqrt(variance);
 
     // Percentiles
@@ -86,11 +87,17 @@ export class StatisticalUtils {
   /**
    * Calculate skewness (measure of asymmetry)
    */
-  private static calculateSkewness(values: number[], mean: number, stddev: number): number {
+  private static calculateSkewness(
+    values: number[],
+    mean: number,
+    stddev: number,
+  ): number {
     if (values.length < 3 || stddev === 0) return 0;
 
     const n = values.length;
-    const m3 = values.reduce((acc, val) => acc + Math.pow((val - mean) / stddev, 3), 0) / n;
+    const m3 =
+      values.reduce((acc, val) => acc + Math.pow((val - mean) / stddev, 3), 0) /
+      n;
 
     // Sample skewness adjustment
     return (Math.sqrt(n * (n - 1)) / (n - 2)) * m3;
@@ -99,11 +106,17 @@ export class StatisticalUtils {
   /**
    * Calculate kurtosis (measure of tail heaviness)
    */
-  private static calculateKurtosis(values: number[], mean: number, stddev: number): number {
+  private static calculateKurtosis(
+    values: number[],
+    mean: number,
+    stddev: number,
+  ): number {
     if (values.length < 4 || stddev === 0) return 0;
 
     const n = values.length;
-    const m4 = values.reduce((acc, val) => acc + Math.pow((val - mean) / stddev, 4), 0) / n;
+    const m4 =
+      values.reduce((acc, val) => acc + Math.pow((val - mean) / stddev, 4), 0) /
+      n;
 
     // Sample kurtosis adjustment (excess kurtosis)
     return ((n - 1) / ((n - 2) * (n - 3))) * ((n + 1) * m4 - 3 * (n - 1));
@@ -114,7 +127,7 @@ export class StatisticalUtils {
    */
   static calculateConfidenceInterval(
     values: number[],
-    confidenceLevel: number = 0.95
+    confidenceLevel: number = 0.95,
   ): { lower: number; upper: number; confidence: number } {
     if (values.length === 0) {
       return { lower: 0, upper: 0, confidence: 0 };
@@ -140,9 +153,20 @@ export class StatisticalUtils {
   private static getTValue(degreesOfFreedom: number, alpha: number): number {
     // Common t-values for 95% confidence interval
     const tTable: Record<number, number> = {
-      1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
-      6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
-      15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042,
+      1: 12.706,
+      2: 4.303,
+      3: 3.182,
+      4: 2.776,
+      5: 2.571,
+      6: 2.447,
+      7: 2.365,
+      8: 2.306,
+      9: 2.262,
+      10: 2.228,
+      15: 2.131,
+      20: 2.086,
+      25: 2.06,
+      30: 2.042,
     };
 
     if (alpha !== 0.025) {
@@ -156,7 +180,9 @@ export class StatisticalUtils {
     const closestDf = Object.keys(tTable)
       .map(Number)
       .reduce((prev, curr) =>
-        Math.abs(curr - degreesOfFreedom) < Math.abs(prev - degreesOfFreedom) ? curr : prev
+        Math.abs(curr - degreesOfFreedom) < Math.abs(prev - degreesOfFreedom)
+          ? curr
+          : prev,
       );
 
     return tTable[closestDf];
@@ -167,7 +193,7 @@ export class StatisticalUtils {
    */
   static detectOutliers(
     values: number[],
-    threshold: number = 1.5
+    threshold: number = 1.5,
   ): { outliers: number[]; indices: number[]; cleanValues: number[] } {
     if (values.length === 0) {
       return { outliers: [], indices: [], cleanValues: [] };
@@ -205,7 +231,8 @@ export class StatisticalUtils {
     const result: number[] = [];
 
     for (let i = windowSize - 1; i < values.length; i++) {
-      const sum = values.slice(i - windowSize + 1, i + 1)
+      const sum = values
+        .slice(i - windowSize + 1, i + 1)
         .reduce((acc, val) => acc + val, 0);
       result.push(sum / windowSize);
     }
@@ -216,7 +243,10 @@ export class StatisticalUtils {
   /**
    * Calculate exponential moving average
    */
-  static exponentialMovingAverage(values: number[], alpha: number = 0.1): number[] {
+  static exponentialMovingAverage(
+    values: number[],
+    alpha: number = 0.1,
+  ): number[] {
     if (values.length === 0) return [];
 
     const result: number[] = [values[0]];
@@ -259,7 +289,10 @@ export class StatisticalUtils {
   /**
    * Perform linear regression analysis
    */
-  static linearRegression(x: number[], y: number[]): {
+  static linearRegression(
+    x: number[],
+    y: number[],
+  ): {
     slope: number;
     intercept: number;
     rSquared: number;
@@ -287,10 +320,13 @@ export class StatisticalUtils {
     const intercept = yMean - slope * xMean;
 
     // Calculate R-squared
-    const predictions = x.map(xi => slope * xi + intercept);
-    const ssRes = y.reduce((sum, yi, i) => sum + Math.pow(yi - predictions[i], 2), 0);
+    const predictions = x.map((xi) => slope * xi + intercept);
+    const ssRes = y.reduce(
+      (sum, yi, i) => sum + Math.pow(yi - predictions[i], 2),
+      0,
+    );
     const ssTot = y.reduce((sum, yi) => sum + Math.pow(yi - yMean, 2), 0);
-    const rSquared = ssTot === 0 ? 1 : 1 - (ssRes / ssTot);
+    const rSquared = ssTot === 0 ? 1 : 1 - ssRes / ssTot;
 
     return { slope, intercept, rSquared, predictions };
   }
@@ -309,7 +345,11 @@ export class StatisticalUtils {
     const trendStart = Math.floor(period / 2);
 
     // Calculate seasonal components
-    for (let i = trendStart; i < values.length - trendStart && i - trendStart < trend.length; i++) {
+    for (
+      let i = trendStart;
+      i < values.length - trendStart && i - trendStart < trend.length;
+      i++
+    ) {
       const seasonIndex = i % period;
       const detrended = values[i] / trend[i - trendStart];
       seasonalSums[seasonIndex] += detrended;
@@ -318,12 +358,14 @@ export class StatisticalUtils {
 
     // Calculate seasonal indices
     const seasonalIndices = seasonalSums.map((sum, i) =>
-      seasonalCounts[i] > 0 ? sum / seasonalCounts[i] : 1
+      seasonalCounts[i] > 0 ? sum / seasonalCounts[i] : 1,
     );
 
     // Normalize so average seasonal index is 1
     const avgIndex = seasonalIndices.reduce((a, b) => a + b, 0) / period;
-    return avgIndex > 0 ? seasonalIndices.map(idx => idx / avgIndex) : new Array(period).fill(1);
+    return avgIndex > 0
+      ? seasonalIndices.map((idx) => idx / avgIndex)
+      : new Array(period).fill(1);
   }
 
   /**
@@ -332,7 +374,11 @@ export class StatisticalUtils {
   static calculateDataQuality(
     values: number[],
     expectedCount?: number,
-    timeRange?: { start: number; end: number; granularity: 'minute' | 'hour' | 'day' }
+    timeRange?: {
+      start: number;
+      end: number;
+      granularity: 'minute' | 'hour' | 'day';
+    },
   ): number {
     if (values.length === 0) return 0;
 
@@ -378,8 +424,12 @@ export class StatisticalUtils {
       count: 0,
       stddev: 0,
       percentiles: {
-        p25: 0, p50: 0, p75: 0,
-        p90: 0, p95: 0, p99: 0,
+        p25: 0,
+        p50: 0,
+        p75: 0,
+        p90: 0,
+        p95: 0,
+        p99: 0,
       },
       variance: 0,
       skewness: 0,
@@ -390,7 +440,10 @@ export class StatisticalUtils {
   /**
    * Validate statistical computation inputs
    */
-  static validateInputs(values: number[]): { valid: boolean; errors: string[] } {
+  static validateInputs(values: number[]): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!Array.isArray(values)) {
@@ -398,7 +451,7 @@ export class StatisticalUtils {
       return { valid: false, errors };
     }
 
-    if (values.some(v => typeof v !== 'number' || !isFinite(v))) {
+    if (values.some((v) => typeof v !== 'number' || !isFinite(v))) {
       errors.push('All values must be finite numbers');
     }
 

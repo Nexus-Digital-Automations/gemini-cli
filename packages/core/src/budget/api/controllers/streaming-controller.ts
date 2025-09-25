@@ -13,7 +13,7 @@
  * @version 1.0.0
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { WebSocket, WebSocketServer } from 'ws';
 import { Logger } from '../../../../../src/utils/logger.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
@@ -68,7 +68,7 @@ export class StreamingController {
   constructor() {
     logger.info('Initializing Streaming Controller', {
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     });
 
     this.startUpdateScheduler();
@@ -79,11 +79,14 @@ export class StreamingController {
    * Handle WebSocket upgrade request
    * GET /api/budget/stream
    */
-  async handleStreamRequest(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async handleStreamRequest(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     logger.info('WebSocket stream request received', {
       userId: req.user?.id,
       origin: req.get('Origin'),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -92,7 +95,7 @@ export class StreamingController {
         res.status(400).json({
           success: false,
           error: 'WebSocket upgrade required',
-          instructions: 'Use WebSocket client to connect to this endpoint'
+          instructions: 'Use WebSocket client to connect to this endpoint',
         });
         return;
       }
@@ -108,17 +111,16 @@ export class StreamingController {
       wss.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws) => {
         wss.emit('connection', ws, req);
       });
-
     } catch (error) {
       logger.error('Failed to handle stream request', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to establish WebSocket connection',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   }
@@ -127,21 +129,24 @@ export class StreamingController {
    * Get streaming connection status
    * GET /api/budget/stream/status
    */
-  async getStreamStatus(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async getStreamStatus(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
 
     logger.info('Stream status requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
-      const activeConnections = Array.from(this.clients.values()).filter(client =>
-        client.ws.readyState === WebSocket.OPEN
+      const activeConnections = Array.from(this.clients.values()).filter(
+        (client) => client.ws.readyState === WebSocket.OPEN,
       );
 
-      const userConnections = activeConnections.filter(client =>
-        client.userId === req.user?.id
+      const userConnections = activeConnections.filter(
+        (client) => client.userId === req.user?.id,
       );
 
       const responseTime = Date.now() - startTime;
@@ -154,10 +159,12 @@ export class StreamingController {
           usageUpdates: true,
           alerts: true,
           analytics: true,
-          heartbeat: true
+          heartbeat: true,
         },
-        lastActivity: userConnections.length > 0 ?
-          Math.max(...userConnections.map(c => c.lastActivity.getTime())) : null
+        lastActivity:
+          userConnections.length > 0
+            ? Math.max(...userConnections.map((c) => c.lastActivity.getTime()))
+            : null,
       };
 
       const response = {
@@ -167,32 +174,31 @@ export class StreamingController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            userId: req.user?.id
-          }
-        }
+            userId: req.user?.id,
+          },
+        },
       };
 
       logger.info('Stream status retrieved', {
         responseTime,
         activeConnections: userConnections.length,
-        totalConnections: activeConnections.length
+        totalConnections: activeConnections.length,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get stream status', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve stream status',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -206,7 +212,7 @@ export class StreamingController {
     logger.info('New WebSocket client connected', {
       clientId,
       userId: user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     const client: BudgetWebSocketClient = {
@@ -215,7 +221,7 @@ export class StreamingController {
       userId: user?.id,
       subscriptions: ['usage_updates', 'alerts'], // Default subscriptions
       lastActivity: new Date(),
-      isAlive: true
+      isAlive: true,
     };
 
     this.clients.set(clientId, client);
@@ -248,10 +254,10 @@ export class StreamingController {
         message: 'Connected to Budget Stream API',
         clientId,
         subscriptions: client.subscriptions,
-        features: ['usage_updates', 'alerts', 'analytics_updates']
+        features: ['usage_updates', 'alerts', 'analytics_updates'],
       },
       timestamp: new Date().toISOString(),
-      source: 'streaming-controller'
+      source: 'streaming-controller',
     });
   }
 
@@ -270,7 +276,7 @@ export class StreamingController {
       logger.debug('WebSocket message received', {
         clientId,
         messageType: message.type,
-        userId: client.userId
+        userId: client.userId,
       });
 
       switch (message.type) {
@@ -287,7 +293,7 @@ export class StreamingController {
             type: 'heartbeat',
             data: { message: 'pong' },
             timestamp: new Date().toISOString(),
-            source: 'streaming-controller'
+            source: 'streaming-controller',
           });
           break;
 
@@ -295,15 +301,14 @@ export class StreamingController {
           logger.warn('Unknown WebSocket message type', {
             clientId,
             messageType: message.type,
-            userId: client.userId
+            userId: client.userId,
           });
       }
-
     } catch (error) {
       logger.error('Failed to parse WebSocket message', {
         clientId,
         error: error instanceof Error ? error.message : 'Parse error',
-        userId: client.userId
+        userId: client.userId,
       });
     }
   }
@@ -317,7 +322,7 @@ export class StreamingController {
     logger.info('WebSocket client disconnected', {
       clientId,
       userId: client?.userId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     this.clients.delete(clientId);
@@ -332,7 +337,7 @@ export class StreamingController {
     logger.error('WebSocket client error', {
       clientId,
       userId: client?.userId,
-      error: error.message
+      error: error.message,
     });
   }
 
@@ -343,26 +348,30 @@ export class StreamingController {
     const client = this.clients.get(clientId);
     if (!client) return;
 
-    const validSubscriptions = subscriptions.filter(sub =>
-      ['usage_updates', 'alerts', 'analytics_updates', 'heartbeat'].includes(sub)
+    const validSubscriptions = subscriptions.filter((sub) =>
+      ['usage_updates', 'alerts', 'analytics_updates', 'heartbeat'].includes(
+        sub,
+      ),
     );
 
-    client.subscriptions = [...new Set([...client.subscriptions, ...validSubscriptions])];
+    client.subscriptions = [
+      ...new Set([...client.subscriptions, ...validSubscriptions]),
+    ];
 
     logger.info('Client subscriptions updated', {
       clientId,
       userId: client.userId,
-      subscriptions: client.subscriptions
+      subscriptions: client.subscriptions,
     });
 
     this.sendMessage(clientId, {
       type: 'heartbeat',
       data: {
         message: 'Subscriptions updated',
-        subscriptions: client.subscriptions
+        subscriptions: client.subscriptions,
       },
       timestamp: new Date().toISOString(),
-      source: 'streaming-controller'
+      source: 'streaming-controller',
     });
   }
 
@@ -373,12 +382,14 @@ export class StreamingController {
     const client = this.clients.get(clientId);
     if (!client) return;
 
-    client.subscriptions = client.subscriptions.filter(sub => !subscriptions.includes(sub));
+    client.subscriptions = client.subscriptions.filter(
+      (sub) => !subscriptions.includes(sub),
+    );
 
     logger.info('Client unsubscribed', {
       clientId,
       userId: client.userId,
-      remainingSubscriptions: client.subscriptions
+      remainingSubscriptions: client.subscriptions,
     });
   }
 
@@ -394,7 +405,7 @@ export class StreamingController {
       } catch (error) {
         logger.error('Failed to send WebSocket message', {
           clientId,
-          error: error instanceof Error ? error.message : 'Send error'
+          error: error instanceof Error ? error.message : 'Send error',
         });
       }
     }
@@ -404,15 +415,16 @@ export class StreamingController {
    * Broadcast message to all subscribed clients
    */
   private broadcastMessage(message: StreamMessage, subscription: string): void {
-    const activeClients = Array.from(this.clients.values()).filter(client =>
-      client.ws.readyState === WebSocket.OPEN &&
-      client.subscriptions.includes(subscription)
+    const activeClients = Array.from(this.clients.values()).filter(
+      (client) =>
+        client.ws.readyState === WebSocket.OPEN &&
+        client.subscriptions.includes(subscription),
     );
 
     logger.debug('Broadcasting message', {
       messageType: message.type,
       subscription,
-      clientCount: activeClients.length
+      clientCount: activeClients.length,
     });
 
     for (const client of activeClients) {
@@ -431,16 +443,18 @@ export class StreamingController {
 
         const usageData = await budgetTracker.getCurrentUsage();
 
-        this.broadcastMessage({
-          type: 'usage_update',
-          data: usageData,
-          timestamp: new Date().toISOString(),
-          source: 'budget-tracker'
-        }, 'usage_updates');
-
+        this.broadcastMessage(
+          {
+            type: 'usage_update',
+            data: usageData,
+            timestamp: new Date().toISOString(),
+            source: 'budget-tracker',
+          },
+          'usage_updates',
+        );
       } catch (error) {
         logger.error('Failed to broadcast usage update', {
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }, 10000); // Update every 10 seconds
@@ -470,7 +484,6 @@ export class StreamingController {
         this.clients.delete(clientId);
         logger.info('Cleaned up dead WebSocket client', { clientId });
       }
-
     }, 30000); // Check every 30 seconds
   }
 
@@ -484,7 +497,7 @@ export class StreamingController {
   /**
    * Cleanup resources
    */
-  public cleanup(): void {
+  cleanup(): void {
     logger.info('Cleaning up streaming controller');
 
     if (this.updateInterval) {

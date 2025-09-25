@@ -4,12 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { OptimizationRecommendation, FeatureCostAnalysis } from '../analytics/AnalyticsEngine.js';
+import type {
+  OptimizationRecommendation,
+  FeatureCostAnalysis,
+} from '../analytics/AnalyticsEngine.js';
 
 /**
  * Budget allocation priority levels for resource ranking
  */
-export type AllocationPriority = 'critical' | 'high' | 'medium' | 'low' | 'deferred';
+export type AllocationPriority =
+  | 'critical'
+  | 'high'
+  | 'medium'
+  | 'low'
+  | 'deferred';
 
 /**
  * Budget allocation strategy types for different optimization approaches

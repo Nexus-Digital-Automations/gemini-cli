@@ -4,23 +4,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { BudgetUsageTimeSeriesPoint, QueryRange } from '../storage/types.js';
-import type { AggregationResult, AggregationWindow } from '../aggregation/types.js';
+import type {
+  BudgetUsageTimeSeriesPoint,
+  QueryRange,
+} from '../storage/types.js';
+import type {
+  AggregationResult,
+  AggregationWindow,
+} from '../aggregation/types.js';
 
 /**
  * Query operator types
  */
 export type QueryOperator =
-  | 'eq'     // equals
-  | 'ne'     // not equals
-  | 'gt'     // greater than
-  | 'gte'    // greater than or equal
-  | 'lt'     // less than
-  | 'lte'    // less than or equal
-  | 'in'     // in array
-  | 'nin'    // not in array
+  | 'eq' // equals
+  | 'ne' // not equals
+  | 'gt' // greater than
+  | 'gte' // greater than or equal
+  | 'lt' // less than
+  | 'lte' // less than or equal
+  | 'in' // in array
+  | 'nin' // not in array
   | 'exists' // field exists
-  | 'regex'  // regular expression
+  | 'regex' // regular expression
   | 'between'; // between two values
 
 /**
@@ -81,7 +87,10 @@ export interface QueryBuilder {
   /**
    * Add grouping with aggregation
    */
-  groupBy(field: string, aggregation: 'count' | 'sum' | 'avg' | 'min' | 'max'): QueryBuilder;
+  groupBy(
+    field: string,
+    aggregation: 'count' | 'sum' | 'avg' | 'min' | 'max',
+  ): QueryBuilder;
 
   /**
    * Limit number of results
@@ -198,7 +207,7 @@ export interface QueryEngine {
       skip?: number;
       select?: string[];
       timeRange?: QueryRange;
-    }
+    },
   ): Promise<QueryResult>;
 
   /**
@@ -210,7 +219,7 @@ export interface QueryEngine {
     options?: {
       timeRange?: QueryRange;
       window?: AggregationWindow;
-    }
+    },
   ): Promise<QueryResult<AggregationResult>>;
 
   /**
@@ -345,7 +354,7 @@ export interface TemporalQuery {
   withinTimeWindow(
     center: number,
     windowSize: number,
-    unit: 'minutes' | 'hours' | 'days'
+    unit: 'minutes' | 'hours' | 'days',
   ): QueryBuilder;
 
   /**
@@ -353,7 +362,7 @@ export interface TemporalQuery {
    */
   withPattern(
     pattern: 'weekday' | 'weekend' | 'business_hours' | 'peak_hours',
-    timezone?: string
+    timezone?: string,
   ): QueryBuilder;
 
   /**
@@ -362,7 +371,7 @@ export interface TemporalQuery {
   seasonal(
     referenceDate: number,
     windowDays: number,
-    years?: number[]
+    years?: number[],
   ): QueryBuilder;
 
   /**
@@ -371,7 +380,7 @@ export interface TemporalQuery {
   relativeToEvent(
     eventTimestamp: number,
     beforeMinutes: number,
-    afterMinutes: number
+    afterMinutes: number,
   ): QueryBuilder;
 }
 
@@ -387,12 +396,14 @@ export interface QueryMonitor {
   /**
    * Get slow query report
    */
-  getSlowQueries(threshold: number): Promise<Array<{
-    query: string;
-    avgExecutionTime: number;
-    count: number;
-    lastExecuted: number;
-  }>>;
+  getSlowQueries(threshold: number): Promise<
+    Array<{
+      query: string;
+      avgExecutionTime: number;
+      count: number;
+      lastExecuted: number;
+    }>
+  >;
 
   /**
    * Get query frequency analysis

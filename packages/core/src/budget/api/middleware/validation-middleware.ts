@@ -13,9 +13,12 @@
  * @version 1.0.0
  */
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
-import { SchemaValidator, ValidationResult } from '../schemas/request-schemas.js';
+import type {
+  SchemaValidator,
+  ValidationResult,
+} from '../schemas/request-schemas.js';
 
 const logger = new Logger('ValidationMiddleware');
 
@@ -68,7 +71,7 @@ export function validateRequest(
     optional?: boolean;
     sanitize?: boolean;
     strict?: boolean;
-  } = {}
+  } = {},
 ) {
   return (req: ValidatedRequest, res: Response, next: NextFunction): void => {
     const startTime = Date.now();
@@ -78,7 +81,7 @@ export function validateRequest(
       path: req.path,
       method: req.method,
       options,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -86,8 +89,13 @@ export function validateRequest(
       const dataToValidate = extractValidationData(req, location);
 
       // Skip validation if data is empty and optional
-      if (options.optional && (!dataToValidate || Object.keys(dataToValidate).length === 0)) {
-        logger.debug('Skipping validation - optional and no data', { location });
+      if (
+        options.optional &&
+        (!dataToValidate || Object.keys(dataToValidate).length === 0)
+      ) {
+        logger.debug('Skipping validation - optional and no data', {
+          location,
+        });
         return next();
       }
 
@@ -108,7 +116,7 @@ export function validateRequest(
           errors: validationResult.errors,
           validationTime,
           path: req.path,
-          method: req.method
+          method: req.method,
         });
 
         const errorResponse = {
@@ -117,10 +125,10 @@ export function validateRequest(
           details: {
             location,
             errors: validationResult.errors,
-            receivedData: options.strict ? undefined : dataToValidate
+            receivedData: options.strict ? undefined : dataToValidate,
           },
           timestamp: new Date().toISOString(),
-          validationTime
+          validationTime,
         };
 
         return res.status(400).json(errorResponse);
@@ -139,7 +147,7 @@ export function validateRequest(
         logger.debug('Data sanitized', {
           location,
           originalKeys: Object.keys(dataToValidate || {}),
-          sanitizedKeys: Object.keys(validationResult.data)
+          sanitizedKeys: Object.keys(validationResult.data),
         });
       }
 
@@ -149,11 +157,10 @@ export function validateRequest(
         location,
         validationTime,
         dataKeys: Object.keys(dataToValidate || {}),
-        sanitized: options.sanitize
+        sanitized: options.sanitize,
       });
 
       next();
-
     } catch (error) {
       const validationTime = Date.now() - startTime;
 
@@ -162,14 +169,14 @@ export function validateRequest(
         validationTime,
         location,
         path: req.path,
-        method: req.method
+        method: req.method,
       });
 
       res.status(500).json({
         success: false,
         error: 'Validation service error',
         timestamp: new Date().toISOString(),
-        validationTime
+        validationTime,
       });
     }
   };
@@ -179,14 +186,18 @@ export function validateRequest(
  * Multi-location validation middleware
  */
 export function validateMultiple(validationConfigs: ValidationConfig[]) {
-  return async (req: ValidatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: ValidatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     const startTime = Date.now();
     const allErrors: ValidationError[] = [];
 
     logger.debug('Multiple validation started', {
       configurationsCount: validationConfigs.length,
-      locations: validationConfigs.map(c => c.location),
-      path: req.path
+      locations: validationConfigs.map((c) => c.location),
+      path: req.path,
     });
 
     try {
@@ -195,7 +206,10 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
         const dataToValidate = extractValidationData(req, config.location);
 
         // Skip if optional and no data
-        if (config.optional && (!dataToValidate || Object.keys(dataToValidate).length === 0)) {
+        if (
+          config.optional &&
+          (!dataToValidate || Object.keys(dataToValidate).length === 0)
+        ) {
           continue;
         }
 
@@ -209,11 +223,13 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
 
         if (!validationResult.valid) {
           // Convert validation errors to detailed format
-          const locationErrors: ValidationError[] = validationResult.errors.map(error => ({
-            location: config.location,
-            message: error,
-            value: dataToValidate
-          }));
+          const locationErrors: ValidationError[] = validationResult.errors.map(
+            (error) => ({
+              location: config.location,
+              message: error,
+              value: dataToValidate,
+            }),
+          );
 
           allErrors.push(...locationErrors);
 
@@ -237,7 +253,7 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
         logger.warn('Multiple validation failed', {
           errorsCount: allErrors.length,
           validationTime,
-          path: req.path
+          path: req.path,
         });
 
         return res.status(400).json({
@@ -245,34 +261,33 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
           error: 'Multiple validation failures',
           details: {
             totalErrors: allErrors.length,
-            errors: allErrors
+            errors: allErrors,
           },
           timestamp: new Date().toISOString(),
-          validationTime
+          validationTime,
         });
       }
 
       logger.debug('Multiple validation successful', {
         validationTime,
-        configurationsValidated: validationConfigs.length
+        configurationsValidated: validationConfigs.length,
       });
 
       next();
-
     } catch (error) {
       const validationTime = Date.now() - startTime;
 
       logger.error('Multiple validation error', {
         error: error instanceof Error ? error.message : 'Unknown error',
         validationTime,
-        path: req.path
+        path: req.path,
       });
 
       res.status(500).json({
         success: false,
         error: 'Multiple validation service error',
         timestamp: new Date().toISOString(),
-        validationTime
+        validationTime,
       });
     }
   };
@@ -288,18 +303,18 @@ export function validateContentType(expectedTypes: string[]) {
     logger.debug('Content-Type validation', {
       received: contentType,
       expected: expectedTypes,
-      path: req.path
+      path: req.path,
     });
 
-    const isValidType = expectedTypes.some(type =>
-      contentType.toLowerCase().includes(type.toLowerCase())
+    const isValidType = expectedTypes.some((type) =>
+      contentType.toLowerCase().includes(type.toLowerCase()),
     );
 
     if (!isValidType) {
       logger.warn('Invalid Content-Type', {
         received: contentType,
         expected: expectedTypes,
-        path: req.path
+        path: req.path,
       });
 
       return res.status(415).json({
@@ -307,9 +322,9 @@ export function validateContentType(expectedTypes: string[]) {
         error: 'Unsupported Media Type',
         details: {
           received: contentType,
-          expected: expectedTypes
+          expected: expectedTypes,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -320,21 +335,22 @@ export function validateContentType(expectedTypes: string[]) {
 /**
  * Request size validation middleware
  */
-export function validateRequestSize(maxSize: number = 1024 * 1024) { // 1MB default
+export function validateRequestSize(maxSize: number = 1024 * 1024) {
+  // 1MB default
   return (req: Request, res: Response, next: NextFunction): void => {
     const contentLength = parseInt(req.get('Content-Length') || '0');
 
     logger.debug('Request size validation', {
       contentLength,
       maxSize,
-      path: req.path
+      path: req.path,
     });
 
     if (contentLength > maxSize) {
       logger.warn('Request too large', {
         contentLength,
         maxSize,
-        path: req.path
+        path: req.path,
       });
 
       return res.status(413).json({
@@ -342,9 +358,9 @@ export function validateRequestSize(maxSize: number = 1024 * 1024) { // 1MB defa
         error: 'Request Entity Too Large',
         details: {
           received: contentLength,
-          maximum: maxSize
+          maximum: maxSize,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -355,14 +371,16 @@ export function validateRequestSize(maxSize: number = 1024 * 1024) { // 1MB defa
 /**
  * Custom field validation middleware
  */
-export function validateCustomFields(fieldValidators: Record<string, (value: any) => boolean>) {
+export function validateCustomFields(
+  fieldValidators: Record<string, (value: any) => boolean>,
+) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const startTime = Date.now();
     const errors: string[] = [];
 
     logger.debug('Custom field validation', {
       fields: Object.keys(fieldValidators),
-      path: req.path
+      path: req.path,
     });
 
     try {
@@ -380,7 +398,7 @@ export function validateCustomFields(fieldValidators: Record<string, (value: any
         logger.warn('Custom field validation failed', {
           errors,
           validationTime,
-          path: req.path
+          path: req.path,
         });
 
         return res.status(400).json({
@@ -388,31 +406,30 @@ export function validateCustomFields(fieldValidators: Record<string, (value: any
           error: 'Custom field validation failed',
           details: { errors },
           timestamp: new Date().toISOString(),
-          validationTime
+          validationTime,
         });
       }
 
       logger.debug('Custom field validation successful', {
         validationTime,
-        fieldsValidated: Object.keys(fieldValidators).length
+        fieldsValidated: Object.keys(fieldValidators).length,
       });
 
       next();
-
     } catch (error) {
       const validationTime = Date.now() - startTime;
 
       logger.error('Custom field validation error', {
         error: error instanceof Error ? error.message : 'Unknown error',
         validationTime,
-        path: req.path
+        path: req.path,
       });
 
       res.status(500).json({
         success: false,
         error: 'Custom validation service error',
         timestamp: new Date().toISOString(),
-        validationTime
+        validationTime,
       });
     }
   };
@@ -421,18 +438,20 @@ export function validateCustomFields(fieldValidators: Record<string, (value: any
 /**
  * Security validation middleware
  */
-export function validateSecurity(options: {
-  preventXSS?: boolean;
-  preventSQLInjection?: boolean;
-  sanitizeHtml?: boolean;
-  maxStringLength?: number;
-} = {}) {
+export function validateSecurity(
+  options: {
+    preventXSS?: boolean;
+    preventSQLInjection?: boolean;
+    sanitizeHtml?: boolean;
+    maxStringLength?: number;
+  } = {},
+) {
   return (req: ValidatedRequest, res: Response, next: NextFunction): void => {
     const startTime = Date.now();
 
     logger.debug('Security validation', {
       options,
-      path: req.path
+      path: req.path,
     });
 
     try {
@@ -450,12 +469,19 @@ export function validateSecurity(options: {
 
           // SQL injection prevention
           if (options.preventSQLInjection && containsSQLInjection(value)) {
-            securityIssues.push(`Potential SQL injection detected in field: ${key}`);
+            securityIssues.push(
+              `Potential SQL injection detected in field: ${key}`,
+            );
           }
 
           // String length validation
-          if (options.maxStringLength && value.length > options.maxStringLength) {
-            securityIssues.push(`String too long in field: ${key} (${value.length} > ${options.maxStringLength})`);
+          if (
+            options.maxStringLength &&
+            value.length > options.maxStringLength
+          ) {
+            securityIssues.push(
+              `String too long in field: ${key} (${value.length} > ${options.maxStringLength})`,
+            );
           }
         }
       }
@@ -467,7 +493,7 @@ export function validateSecurity(options: {
           issues: securityIssues,
           validationTime,
           path: req.path,
-          ip: req.ip
+          ip: req.ip,
         });
 
         return res.status(400).json({
@@ -475,31 +501,30 @@ export function validateSecurity(options: {
           error: 'Security validation failed',
           details: { issues: securityIssues },
           timestamp: new Date().toISOString(),
-          validationTime
+          validationTime,
         });
       }
 
       logger.debug('Security validation passed', {
         validationTime,
-        fieldsChecked: Object.keys(allData).length
+        fieldsChecked: Object.keys(allData).length,
       });
 
       next();
-
     } catch (error) {
       const validationTime = Date.now() - startTime;
 
       logger.error('Security validation error', {
         error: error instanceof Error ? error.message : 'Unknown error',
         validationTime,
-        path: req.path
+        path: req.path,
       });
 
       res.status(500).json({
         success: false,
         error: 'Security validation service error',
         timestamp: new Date().toISOString(),
-        validationTime
+        validationTime,
       });
     }
   };
@@ -508,7 +533,10 @@ export function validateSecurity(options: {
 /**
  * Extract data from request based on location
  */
-function extractValidationData(req: Request, location: ValidationLocation): any {
+function extractValidationData(
+  req: Request,
+  location: ValidationLocation,
+): any {
   switch (location) {
     case 'body':
       return req.body;
@@ -526,7 +554,11 @@ function extractValidationData(req: Request, location: ValidationLocation): any 
 /**
  * Set data in request based on location
  */
-function setValidationData(req: Request, location: ValidationLocation, data: any): void {
+function setValidationData(
+  req: Request,
+  location: ValidationLocation,
+  data: any,
+): void {
   switch (location) {
     case 'body':
       req.body = data;
@@ -560,10 +592,10 @@ function containsXSS(input: string): boolean {
     /on\w+\s*=/gi,
     /<iframe/gi,
     /<object/gi,
-    /<embed/gi
+    /<embed/gi,
   ];
 
-  return xssPatterns.some(pattern => pattern.test(input));
+  return xssPatterns.some((pattern) => pattern.test(input));
 }
 
 /**
@@ -574,16 +606,20 @@ function containsSQLInjection(input: string): boolean {
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
     /('|(\\'))|(;|\||`)/gi,
     /((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/gi,
-    /((\%27)|(\'))union/gi
+    /((\%27)|(\'))union/gi,
   ];
 
-  return sqlPatterns.some(pattern => pattern.test(input));
+  return sqlPatterns.some((pattern) => pattern.test(input));
 }
 
 /**
  * Validation middleware composition utility
  */
-export function composeValidation(...middlewares: Array<(req: Request, res: Response, next: NextFunction) => void>) {
+export function composeValidation(
+  ...middlewares: Array<
+    (req: Request, res: Response, next: NextFunction) => void
+  >
+) {
   return (req: Request, res: Response, next: NextFunction): void => {
     let currentIndex = 0;
 
@@ -608,5 +644,5 @@ export const validationUtils = {
   setValidationData,
   getNestedProperty,
   containsXSS,
-  containsSQLInjection
+  containsSQLInjection,
 };

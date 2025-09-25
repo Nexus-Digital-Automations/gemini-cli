@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Test Coverage Reporting and Validation Suite
  *
  * Comprehensive coverage analysis, reporting, and validation for the
@@ -14,11 +20,11 @@
  * - Documentation coverage
  */
 export declare class CoverageTestUtilities {
-    static validateMinimumCoverageRequirements(): Promise<boolean>;
-    static generateFinalCoverageReport(): Promise<string>;
-    static validateProductionReadiness(): Promise<{
-        ready: boolean;
-        blockers: string[];
-        recommendations: string[];
-    }>;
+  static validateMinimumCoverageRequirements(): Promise<boolean>;
+  static generateFinalCoverageReport(): Promise<string>;
+  static validateProductionReadiness(): Promise<{
+    ready: boolean;
+    blockers: string[];
+    recommendations: string[];
+  }>;
 }

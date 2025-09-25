@@ -12,10 +12,12 @@ import {
   formatCompact,
   formatTime,
   createSparkline,
-  calculateMovingAverage,
-  createTimeSeriesFromMetrics,
 } from '../utils/chartUtils.js';
-import type { ChartConfig, UsageDataPoint, TokenUsageMetrics } from '../types/index.js';
+import type {
+  ChartConfig,
+  UsageDataPoint,
+  TokenUsageMetrics,
+} from '../types/index.js';
 
 /**
  * Props for the TokenUsageChart component.
@@ -59,7 +61,7 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
   metrics = [],
   loading = false,
   error,
-  onDataPointSelect,
+  onDataPointSelect: _onDataPointSelect,
 }) => {
   // Handle loading state
   if (loading) {
@@ -126,7 +128,7 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
 
   // Prepare chart data
   const tokenChartData = convertUsageToChartData(data, 'tokens');
-  const tokenValues = tokenChartData.map(point => point.y as number);
+  const tokenValues = tokenChartData.map((point) => point.y as number);
 
   // Calculate statistics
   const totalTokens = tokenValues.reduce((sum, value) => sum + value, 0);
@@ -137,22 +139,26 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
   // Calculate trend
   const recentData = tokenValues.slice(-10);
   const earlierData = tokenValues.slice(-20, -10);
-  const recentAvg = recentData.reduce((sum, val) => sum + val, 0) / recentData.length;
-  const earlierAvg = earlierData.length > 0
-    ? earlierData.reduce((sum, val) => sum + val, 0) / earlierData.length
-    : recentAvg;
+  const recentAvg =
+    recentData.reduce((sum, val) => sum + val, 0) / recentData.length;
+  const earlierAvg =
+    earlierData.length > 0
+      ? earlierData.reduce((sum, val) => sum + val, 0) / earlierData.length
+      : recentAvg;
 
-  const trendDirection = recentAvg > earlierAvg * 1.1
-    ? 'increasing'
-    : recentAvg < earlierAvg * 0.9
-    ? 'decreasing'
-    : 'stable';
+  const trendDirection =
+    recentAvg > earlierAvg * 1.1
+      ? 'increasing'
+      : recentAvg < earlierAvg * 0.9
+        ? 'decreasing'
+        : 'stable';
 
-  const trendColor = trendDirection === 'increasing'
-    ? theme.status.warning
-    : trendDirection === 'decreasing'
-    ? theme.status.success
-    : theme.text.muted;
+  const trendColor =
+    trendDirection === 'increasing'
+      ? theme.status.warning
+      : trendDirection === 'decreasing'
+        ? theme.status.success
+        : theme.text.muted;
 
   /**
    * Renders the chart statistics header.
@@ -180,7 +186,11 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
       <Box flexDirection="column" alignItems="flex-end">
         <Text color={theme.text.muted}>Trend</Text>
         <Text color={trendColor}>
-          {trendDirection === 'increasing' ? '↗' : trendDirection === 'decreasing' ? '↘' : '→'}{' '}
+          {trendDirection === 'increasing'
+            ? '↗'
+            : trendDirection === 'decreasing'
+              ? '↘'
+              : '→'}{' '}
           {trendDirection}
         </Text>
       </Box>
@@ -192,9 +202,10 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
    */
   const renderSparklineChart = () => {
     const sparkline = createSparkline(tokenValues, config.width - 4);
-    const timeRange = data.length > 0 ?
-      `${formatTime(data[0].timestamp)} - ${formatTime(data[data.length - 1].timestamp)}` :
-      'No time range';
+    const timeRange =
+      data.length > 0
+        ? `${formatTime(data[0].timestamp)} - ${formatTime(data[data.length - 1].timestamp)}`
+        : 'No time range';
 
     return (
       <Box flexDirection="column">
@@ -202,15 +213,9 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
           <Text color={theme.charts.line}>{sparkline}</Text>
         </Box>
         <Box justifyContent="space-between">
-          <Text color={theme.text.muted}>
-            {formatCompact(minTokens)}
-          </Text>
-          <Text color={theme.text.muted}>
-            {timeRange}
-          </Text>
-          <Text color={theme.text.muted}>
-            {formatCompact(maxTokens)}
-          </Text>
+          <Text color={theme.text.muted}>{formatCompact(minTokens)}</Text>
+          <Text color={theme.text.muted}>{timeRange}</Text>
+          <Text color={theme.text.muted}>{formatCompact(maxTokens)}</Text>
         </Box>
       </Box>
     );
@@ -221,13 +226,21 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
    */
   const renderBarChart = () => {
     const barHeight = config.height - 6; // Reserve space for title and stats
-    const barWidth = Math.max(1, Math.floor((config.width - 4) / Math.min(data.length, 20)));
-    const visibleData = data.slice(-Math.min(data.length, Math.floor((config.width - 4) / barWidth)));
+    const barWidth = Math.max(
+      1,
+      Math.floor((config.width - 4) / Math.min(data.length, 20)),
+    );
+    const visibleData = data.slice(
+      -Math.min(data.length, Math.floor((config.width - 4) / barWidth)),
+    );
 
-    const chartRows: string[][] = Array(barHeight).fill(null).map(() => []);
+    const chartRows: string[][] = Array(barHeight)
+      .fill(null)
+      .map(() => []);
 
-    visibleData.forEach((point, index) => {
-      const normalizedValue = (point.tokens - minTokens) / (maxTokens - minTokens || 1);
+    visibleData.forEach((point, _index) => {
+      const normalizedValue =
+        (point.tokens - minTokens) / (maxTokens - minTokens || 1);
       const barFillHeight = Math.round(normalizedValue * barHeight);
 
       for (let row = 0; row < barHeight; row++) {
@@ -242,11 +255,9 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
 
     return (
       <Box flexDirection="column">
-        {chartRows.map((row, index) => (
-          <Box key={index}>
-            <Text color={theme.charts.bar}>
-              {row.join('')}
-            </Text>
+        {chartRows.map((row, rowIndex) => (
+          <Box key={rowIndex}>
+            <Text color={theme.charts.bar}>{row.join('')}</Text>
           </Box>
         ))}
         <Box justifyContent="space-between" marginTop={1}>
@@ -254,7 +265,9 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
             {formatTime(visibleData[0]?.timestamp || new Date())}
           </Text>
           <Text color={theme.text.muted}>
-            {formatTime(visibleData[visibleData.length - 1]?.timestamp || new Date())}
+            {formatTime(
+              visibleData[visibleData.length - 1]?.timestamp || new Date(),
+            )}
           </Text>
         </Box>
       </Box>
@@ -281,13 +294,16 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
         <Text color={theme.text.muted}>Token Breakdown:</Text>
         <Box gap={2} marginTop={1}>
           <Text color={theme.status.info}>
-            Input: {formatCompact(latestMetric.inputTokens)} ({inputPct.toFixed(1)}%)
+            Input: {formatCompact(latestMetric.inputTokens)} (
+            {inputPct.toFixed(1)}%)
           </Text>
           <Text color={theme.status.success}>
-            Output: {formatCompact(latestMetric.outputTokens)} ({outputPct.toFixed(1)}%)
+            Output: {formatCompact(latestMetric.outputTokens)} (
+            {outputPct.toFixed(1)}%)
           </Text>
           <Text color={theme.status.warning}>
-            Cached: {formatCompact(latestMetric.cachedTokens)} ({cachedPct.toFixed(1)}%)
+            Cached: {formatCompact(latestMetric.cachedTokens)} (
+            {cachedPct.toFixed(1)}%)
           </Text>
         </Box>
       </Box>
@@ -312,9 +328,7 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
               {formatCompact(point.tokens)} tokens
             </Text>
             {point.feature && (
-              <Text color={theme.text.muted}>
-                {point.feature}
-              </Text>
+              <Text color={theme.text.muted}>{point.feature}</Text>
             )}
           </Box>
         ))}
@@ -354,13 +368,14 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
       )}
 
       {/* Footer with data info */}
-      <Box justifyContent="space-between" marginTop={1} paddingTop={1} borderTop>
-        <Text color={theme.text.muted}>
-          {data.length} data points
-        </Text>
-        <Text color={theme.text.muted}>
-          Updated: {formatTime(new Date())}
-        </Text>
+      <Box
+        justifyContent="space-between"
+        marginTop={1}
+        paddingTop={1}
+        borderTop
+      >
+        <Text color={theme.text.muted}>{data.length} data points</Text>
+        <Text color={theme.text.muted}>Updated: {formatTime(new Date())}</Text>
       </Box>
     </Box>
   );

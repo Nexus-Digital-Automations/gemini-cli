@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { createServer } from 'node:http';
 import { parse as parseUrl } from 'node:url';
 import { parse as parseQuery } from 'node:querystring';
 import { performance } from 'node:perf_hooks';
@@ -320,7 +321,7 @@ export class DashboardApiServer extends EventEmitter {
   /**
    * Start the dashboard API server
    */
-  public async start(): Promise<void> {
+  async start(): Promise<void> {
     if (this.isRunning) {
       throw new Error('Dashboard API server is already running');
     }
@@ -353,7 +354,7 @@ export class DashboardApiServer extends EventEmitter {
   /**
    * Stop the dashboard API server
    */
-  public async stop(): Promise<void> {
+  async stop(): Promise<void> {
     if (!this.isRunning) {
       return;
     }
@@ -374,7 +375,7 @@ export class DashboardApiServer extends EventEmitter {
   /**
    * Get server status
    */
-  public getStatus(): {
+  getStatus(): {
     isRunning: boolean;
     port: number;
     host: string;

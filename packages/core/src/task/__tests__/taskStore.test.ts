@@ -1,8 +1,15 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { TaskStore } from '../taskStore';
-import { Task, TaskStatus, TaskPriority } from '../types';
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import { homedir } from 'os';
+import type { Task} from '../types';
+import { TaskStatus, TaskPriority } from '../types';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import { homedir } from 'node:os';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 
 const MOCK_TASKS_DIR = path.join(homedir(), '.gemini_test_tasks');

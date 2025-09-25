@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Test Coverage Reporting and Validation Suite
  *
  * Comprehensive coverage analysis, reporting, and validation for the
@@ -23,8 +29,8 @@ import {
   CoverageAnalyzer,
   ReportGenerator,
 } from './utils/TestFactories';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 describe('Test Coverage Reporting and Validation', () => {
   let taskStore: MockTaskStore;

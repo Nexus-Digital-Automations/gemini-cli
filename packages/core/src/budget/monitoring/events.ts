@@ -14,11 +14,7 @@
 
 import { EventEmitter } from 'node:events';
 import { getComponentLogger } from '../../utils/logger.js';
-import type {
-  BudgetEvent,
-  BudgetEventType,
-  EventSeverity,
-} from '../types.js';
+import type { BudgetEvent, BudgetEventType, EventSeverity } from '../types.js';
 
 /**
  * Event filter configuration
@@ -169,7 +165,10 @@ export class BudgetEventManager extends EventEmitter {
   private readonly routingRules = new Map<string, EventRoutingRule>();
   private readonly aggregations = new Map<string, EventAggregationConfig>();
   private readonly eventHistory: BudgetEvent[] = [];
-  private readonly rateLimiters = new Map<string, { count: number; resetTime: number }>();
+  private readonly rateLimiters = new Map<
+    string,
+    { count: number; resetTime: number }
+  >();
 
   private eventStats: EventStatistics = {
     totalEvents: 0,
@@ -191,16 +190,18 @@ export class BudgetEventManager extends EventEmitter {
     this.historyConfig = {
       maxEvents: historyConfig.maxEvents ?? 10000,
       maxAge: historyConfig.maxAge ?? 24 * 60 * 60 * 1000, // 24 hours
-      types: historyConfig.types ?? Object.values({
-        'limit_exceeded': 'limit_exceeded',
-        'warning_threshold': 'warning_threshold',
-        'budget_reset': 'budget_reset',
-        'usage_updated': 'usage_updated',
-        'settings_changed': 'settings_changed',
-        'cost_calculated': 'cost_calculated',
-        'session_started': 'session_started',
-        'session_ended': 'session_ended',
-      } as Record<BudgetEventType, BudgetEventType>),
+      types:
+        historyConfig.types ??
+        Object.values({
+          limit_exceeded: 'limit_exceeded',
+          warning_threshold: 'warning_threshold',
+          budget_reset: 'budget_reset',
+          usage_updated: 'usage_updated',
+          settings_changed: 'settings_changed',
+          cost_calculated: 'cost_calculated',
+          session_started: 'session_started',
+          session_ended: 'session_ended',
+        } as Record<BudgetEventType, BudgetEventType>),
       persistent: historyConfig.persistent ?? false,
     };
 
@@ -351,24 +352,25 @@ export class BudgetEventManager extends EventEmitter {
   /**
    * Get event history
    */
-  getEventHistory(
-    filter?: {
-      types?: BudgetEventType[];
-      severities?: EventSeverity[];
-      sources?: string[];
-      startTime?: Date;
-      endTime?: Date;
-      limit?: number;
-    }
-  ): BudgetEvent[] {
+  getEventHistory(filter?: {
+    types?: BudgetEventType[];
+    severities?: EventSeverity[];
+    sources?: string[];
+    startTime?: Date;
+    endTime?: Date;
+    limit?: number;
+  }): BudgetEvent[] {
     let events = this.eventHistory;
 
     if (filter) {
-      events = events.filter(event => {
+      events = events.filter((event) => {
         if (filter.types && !filter.types.includes(event.type)) return false;
-        if (filter.severities && !filter.severities.includes(event.severity)) return false;
-        if (filter.sources && !filter.sources.includes(event.source)) return false;
-        if (filter.startTime && event.timestamp < filter.startTime) return false;
+        if (filter.severities && !filter.severities.includes(event.severity))
+          return false;
+        if (filter.sources && !filter.sources.includes(event.source))
+          return false;
+        if (filter.startTime && event.timestamp < filter.startTime)
+          return false;
         if (filter.endTime && event.timestamp > filter.endTime) return false;
         return true;
       });
@@ -410,7 +412,7 @@ export class BudgetEventManager extends EventEmitter {
    * Get active subscriptions
    */
   getActiveSubscriptions(): EventSubscription[] {
-    return Array.from(this.subscriptions.values()).filter(sub => sub.active);
+    return Array.from(this.subscriptions.values()).filter((sub) => sub.active);
   }
 
   /**
@@ -428,7 +430,9 @@ export class BudgetEventManager extends EventEmitter {
       if (!subscription.active) continue;
 
       if (this.matchesFilter(event, subscription.filter)) {
-        if (this.checkRateLimit(subscription.id, subscription.filter?.rateLimit)) {
+        if (
+          this.checkRateLimit(subscription.id, subscription.filter?.rateLimit)
+        ) {
           try {
             subscription.handler(event);
           } catch (error) {
@@ -449,7 +453,7 @@ export class BudgetEventManager extends EventEmitter {
    */
   private processRoutingRules(event: BudgetEvent): void {
     const matchingRules = Array.from(this.routingRules.values())
-      .filter(rule => rule.active && this.matchesFilter(event, rule.filter))
+      .filter((rule) => rule.active && this.matchesFilter(event, rule.filter))
       .sort((a, b) => b.priority - a.priority); // Sort by priority (highest first)
 
     for (const rule of matchingRules) {
@@ -489,7 +493,8 @@ export class BudgetEventManager extends EventEmitter {
     if (!filter) return true;
 
     if (filter.types && !filter.types.includes(event.type)) return false;
-    if (filter.severities && !filter.severities.includes(event.severity)) return false;
+    if (filter.severities && !filter.severities.includes(event.severity))
+      return false;
     if (filter.sources && !filter.sources.includes(event.source)) return false;
     if (filter.customFilter && !filter.customFilter(event)) return false;
 
@@ -499,7 +504,10 @@ export class BudgetEventManager extends EventEmitter {
   /**
    * Check rate limiting for subscription
    */
-  private checkRateLimit(subscriptionId: string, rateLimit?: EventFilter['rateLimit']): boolean {
+  private checkRateLimit(
+    subscriptionId: string,
+    rateLimit?: EventFilter['rateLimit'],
+  ): boolean {
     if (!rateLimit) return true;
 
     const now = Date.now();
@@ -587,9 +595,12 @@ export class BudgetEventManager extends EventEmitter {
    */
   private updateEventStatistics(event: BudgetEvent): void {
     this.eventStats.totalEvents++;
-    this.eventStats.eventsByType[event.type] = (this.eventStats.eventsByType[event.type] || 0) + 1;
-    this.eventStats.eventsBySeverity[event.severity] = (this.eventStats.eventsBySeverity[event.severity] || 0) + 1;
-    this.eventStats.eventsBySource[event.source] = (this.eventStats.eventsBySource[event.source] || 0) + 1;
+    this.eventStats.eventsByType[event.type] =
+      (this.eventStats.eventsByType[event.type] || 0) + 1;
+    this.eventStats.eventsBySeverity[event.severity] =
+      (this.eventStats.eventsBySeverity[event.severity] || 0) + 1;
+    this.eventStats.eventsBySource[event.source] =
+      (this.eventStats.eventsBySource[event.source] || 0) + 1;
     this.eventStats.lastEventTime = event.timestamp;
 
     // Track recent event times for rate calculation
@@ -597,7 +608,9 @@ export class BudgetEventManager extends EventEmitter {
 
     // Keep only last minute of events
     const oneMinuteAgo = Date.now() - 60000;
-    this.recentEventTimes = this.recentEventTimes.filter(time => time > oneMinuteAgo);
+    this.recentEventTimes = this.recentEventTimes.filter(
+      (time) => time > oneMinuteAgo,
+    );
   }
 
   /**
@@ -648,9 +661,12 @@ export class BudgetEventManager extends EventEmitter {
    */
   private setupPeriodicTasks(): void {
     // Cleanup history every 5 minutes
-    setInterval(() => {
-      this.cleanupHistory();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupHistory();
+      },
+      5 * 60 * 1000,
+    );
 
     // Update statistics every minute
     setInterval(() => {
@@ -658,21 +674,26 @@ export class BudgetEventManager extends EventEmitter {
     }, 60 * 1000);
 
     // Clean up rate limiters every 10 minutes
-    setInterval(() => {
-      const now = Date.now();
-      for (const [key, limiter] of this.rateLimiters.entries()) {
-        if (now > limiter.resetTime) {
-          this.rateLimiters.delete(key);
+    setInterval(
+      () => {
+        const now = Date.now();
+        for (const [key, limiter] of this.rateLimiters.entries()) {
+          if (now > limiter.resetTime) {
+            this.rateLimiters.delete(key);
+          }
         }
-      }
-    }, 10 * 60 * 1000);
+      },
+      10 * 60 * 1000,
+    );
   }
 }
 
 /**
  * Create a new BudgetEventManager instance
  */
-export function createBudgetEventManager(config?: EventHistoryConfig): BudgetEventManager {
+export function createBudgetEventManager(
+  config?: EventHistoryConfig,
+): BudgetEventManager {
   return new BudgetEventManager(config);
 }
 
@@ -684,7 +705,9 @@ let globalEventManager: BudgetEventManager | null = null;
 /**
  * Get or create the global event manager instance
  */
-export function getGlobalEventManager(config?: EventHistoryConfig): BudgetEventManager {
+export function getGlobalEventManager(
+  config?: EventHistoryConfig,
+): BudgetEventManager {
   if (!globalEventManager) {
     globalEventManager = createBudgetEventManager(config);
   }
@@ -705,7 +728,7 @@ export function createBudgetEvent(
   type: BudgetEventType,
   source: string,
   data: Record<string, any>,
-  severity?: EventSeverity
+  severity?: EventSeverity,
 ): BudgetEvent {
   return {
     type,

@@ -34,7 +34,12 @@ import type {
  * Token usage tracking event interface
  */
 export interface TokenTrackingEvent {
-  type: 'request_start' | 'request_complete' | 'token_count' | 'cost_calculated' | 'error';
+  type:
+    | 'request_start'
+    | 'request_complete'
+    | 'token_count'
+    | 'cost_calculated'
+    | 'error';
   timestamp: Date;
   requestId: string;
   model?: string;
@@ -144,7 +149,8 @@ export class TokenTracker extends EventEmitter {
       enablePerformanceMetrics: config.enablePerformanceMetrics ?? true,
       maxRecentRequests: config.maxRecentRequests ?? 100,
       persistData: config.persistData ?? true,
-      costCalculator: config.costCalculator ?? this.defaultCostCalculator.bind(this),
+      costCalculator:
+        config.costCalculator ?? this.defaultCostCalculator.bind(this),
     };
 
     this.logger.info('TokenTracker initialized', {
@@ -162,7 +168,7 @@ export class TokenTracker extends EventEmitter {
     model: string,
     feature: string,
     sessionId: string,
-    additionalData?: Record<string, any>
+    additionalData?: Record<string, any>,
   ): void {
     this.logger.debug('Starting request tracking', {
       requestId,
@@ -208,11 +214,13 @@ export class TokenTracker extends EventEmitter {
   async completeRequest(
     requestId: string,
     response?: GenerateContentResponse,
-    error?: Error
+    error?: Error,
   ): Promise<void> {
     const trackingData = this.activeRequests.get(requestId);
     if (!trackingData) {
-      this.logger.warn('Attempted to complete tracking for unknown request', { requestId });
+      this.logger.warn('Attempted to complete tracking for unknown request', {
+        requestId,
+      });
       return;
     }
 
@@ -224,7 +232,8 @@ export class TokenTracker extends EventEmitter {
 
     // Update tracking data
     trackingData.endTime = new Date();
-    trackingData.responseTime = trackingData.endTime.getTime() - trackingData.startTime.getTime();
+    trackingData.responseTime =
+      trackingData.endTime.getTime() - trackingData.startTime.getTime();
 
     if (error) {
       trackingData.status = 'error';
@@ -235,13 +244,19 @@ export class TokenTracker extends EventEmitter {
       // Extract token information from response if available
       if (response?.usageMetadata) {
         trackingData.inputTokens = response.usageMetadata.promptTokenCount ?? 0;
-        trackingData.outputTokens = response.usageMetadata.candidatesTokenCount ?? 0;
-        trackingData.totalTokens = response.usageMetadata.totalTokenCount ??
-          (trackingData.inputTokens + trackingData.outputTokens);
+        trackingData.outputTokens =
+          response.usageMetadata.candidatesTokenCount ?? 0;
+        trackingData.totalTokens =
+          response.usageMetadata.totalTokenCount ??
+          trackingData.inputTokens + trackingData.outputTokens;
       }
 
       // Calculate cost if enabled
-      if (this.config.enableRealTimeCosts && trackingData.inputTokens && trackingData.outputTokens) {
+      if (
+        this.config.enableRealTimeCosts &&
+        trackingData.inputTokens &&
+        trackingData.outputTokens
+      ) {
         try {
           trackingData.cost = await this.calculateCost({
             inputTokens: trackingData.inputTokens,
@@ -257,7 +272,10 @@ export class TokenTracker extends EventEmitter {
         } catch (costError) {
           this.logger.warn('Failed to calculate cost', {
             requestId,
-            error: costError instanceof Error ? costError.message : String(costError),
+            error:
+              costError instanceof Error
+                ? costError.message
+                : String(costError),
           });
         }
       }
@@ -310,7 +328,7 @@ export class TokenTracker extends EventEmitter {
     response: CountTokensResponse,
     model: string,
     feature: string = 'token_count',
-    sessionId: string
+    sessionId: string,
   ): Promise<void> {
     this.logger.debug('Tracking token count', {
       requestId,
@@ -408,7 +426,9 @@ export class TokenTracker extends EventEmitter {
   /**
    * Default cost calculation based on token counts and model
    */
-  private async defaultCostCalculator(params: CostCalculationParams): Promise<number> {
+  private async defaultCostCalculator(
+    params: CostCalculationParams,
+  ): Promise<number> {
     // Default cost calculation - can be overridden in config
     // These are example rates and should be updated with actual pricing
     const costPer1kInputTokens = this.getModelInputCost(params.model);
@@ -435,7 +455,7 @@ export class TokenTracker extends EventEmitter {
    */
   private getModelOutputCost(model: string): number {
     // Example pricing - should be updated with actual costs
-    if (model.includes('flash')) return 0.30; // $0.30 per 1k output tokens
+    if (model.includes('flash')) return 0.3; // $0.30 per 1k output tokens
     if (model.includes('pro')) return 5.0; // $5.0 per 1k output tokens
     return 0.4; // Default cost
   }
@@ -473,7 +493,11 @@ export class TokenTracker extends EventEmitter {
    * Update aggregate statistics with completed request data
    */
   private async updateStatistics(request: RequestTrackingData): Promise<void> {
-    if (request.status !== 'completed' || !request.inputTokens || !request.outputTokens) {
+    if (
+      request.status !== 'completed' ||
+      !request.inputTokens ||
+      !request.outputTokens
+    ) {
       return;
     }
 
@@ -481,17 +505,23 @@ export class TokenTracker extends EventEmitter {
     this.totalStats.totalRequests++;
     this.totalStats.totalInputTokens += request.inputTokens;
     this.totalStats.totalOutputTokens += request.outputTokens;
-    this.totalStats.totalTokens += request.totalTokens || (request.inputTokens + request.outputTokens);
+    this.totalStats.totalTokens +=
+      request.totalTokens || request.inputTokens + request.outputTokens;
 
     if (request.cost) {
       this.totalStats.totalCost += request.cost;
-      this.totalStats.averageRequestCost = this.totalStats.totalCost / this.totalStats.totalRequests;
+      this.totalStats.averageRequestCost =
+        this.totalStats.totalCost / this.totalStats.totalRequests;
     }
 
     if (request.responseTime) {
       // Update running average response time
-      const totalResponseTime = this.totalStats.averageResponseTime * (this.totalStats.totalRequests - 1);
-      this.totalStats.averageResponseTime = (totalResponseTime + request.responseTime) / this.totalStats.totalRequests;
+      const totalResponseTime =
+        this.totalStats.averageResponseTime *
+        (this.totalStats.totalRequests - 1);
+      this.totalStats.averageResponseTime =
+        (totalResponseTime + request.responseTime) /
+        this.totalStats.totalRequests;
     }
 
     // Update model usage statistics
@@ -524,8 +554,10 @@ export class TokenTracker extends EventEmitter {
     existing.cost += request.cost || 0;
 
     if (request.responseTime) {
-      const totalResponseTime = existing.avgResponseTime * (existing.requests - 1);
-      existing.avgResponseTime = (totalResponseTime + request.responseTime) / existing.requests;
+      const totalResponseTime =
+        existing.avgResponseTime * (existing.requests - 1);
+      existing.avgResponseTime =
+        (totalResponseTime + request.responseTime) / existing.requests;
     }
 
     this.modelUsage.set(request.model, existing);
@@ -546,7 +578,8 @@ export class TokenTracker extends EventEmitter {
 
     existing.inputTokens += request.inputTokens;
     existing.outputTokens += request.outputTokens;
-    existing.totalTokens += request.totalTokens || (request.inputTokens + request.outputTokens);
+    existing.totalTokens +=
+      request.totalTokens || request.inputTokens + request.outputTokens;
 
     // Update cost breakdown if available
     if (request.cost) {
@@ -577,7 +610,8 @@ export class TokenTracker extends EventEmitter {
 
     existing.inputTokens += request.inputTokens;
     existing.outputTokens += request.outputTokens;
-    existing.totalTokens += request.totalTokens || (request.inputTokens + request.outputTokens);
+    existing.totalTokens +=
+      request.totalTokens || request.inputTokens + request.outputTokens;
 
     if (request.cost) {
       const totalTokens = request.inputTokens + request.outputTokens;
@@ -594,7 +628,10 @@ export class TokenTracker extends EventEmitter {
   /**
    * Emit a budget-specific event
    */
-  private emitBudgetEvent(type: BudgetEventType, data: Record<string, any>): void {
+  private emitBudgetEvent(
+    type: BudgetEventType,
+    data: Record<string, any>,
+  ): void {
     const event: BudgetEvent = {
       type,
       timestamp: new Date(),
@@ -639,7 +676,9 @@ let globalTokenTracker: TokenTracker | null = null;
 /**
  * Get or create the global token tracker instance
  */
-export function getGlobalTokenTracker(config?: TokenTrackerConfig): TokenTracker {
+export function getGlobalTokenTracker(
+  config?: TokenTrackerConfig,
+): TokenTracker {
   if (!globalTokenTracker) {
     globalTokenTracker = createTokenTracker(config);
   }

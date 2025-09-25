@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Logger } from '../../../../src/utils/logger.js';
-import { TaskStatus } from '../task-management/types.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import type { TaskStatus } from '../task-management/types.js';
 import type {
   ValidationRule,
   ValidationExecutor,
@@ -652,16 +652,8 @@ export class ValidationRules {
       ];
     }
 
-    const validExecutionStatuses = [
-      'pending',
-      'ready',
-      'in_progress',
-    ];
-    const invalidStatuses = [
-      'completed',
-      'failed',
-      'cancelled',
-    ];
+    const validExecutionStatuses = ['pending', 'ready', 'in_progress'];
+    const invalidStatuses = ['completed', 'failed', 'cancelled'];
 
     if (invalidStatuses.includes(task.status)) {
       return [

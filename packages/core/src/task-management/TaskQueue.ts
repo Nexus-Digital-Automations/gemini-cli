@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 // Note: Using relative import to utils/logger for internal usage
-// eslint-disable-next-line import/no-internal-modules
+ 
 import { logger } from '../utils/logger.js';
 
 /**

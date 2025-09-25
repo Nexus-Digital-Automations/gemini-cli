@@ -87,7 +87,10 @@ export function formatCompact(value: number, precision: number = 1): string {
  * @param precision - Number of decimal places (default: 1)
  * @returns Formatted percentage string
  */
-export function formatPercentage(percentage: number, precision: number = 1): string {
+export function formatPercentage(
+  percentage: number,
+  precision: number = 1,
+): string {
   if (!isFinite(percentage) || isNaN(percentage)) {
     return '0.0%';
   }
@@ -110,11 +113,16 @@ export function formatPercentage(percentage: number, precision: number = 1): str
  */
 export function convertUsageToChartData(
   usageData: UsageDataPoint[],
-  type: 'cost' | 'tokens' | 'requests'
+  type: 'cost' | 'tokens' | 'requests',
 ): ChartDataPoint[] {
   return usageData.map((point) => ({
     x: point.timestamp,
-    y: type === 'cost' ? point.cost : type === 'tokens' ? point.tokens : point.requests,
+    y:
+      type === 'cost'
+        ? point.cost
+        : type === 'tokens'
+          ? point.tokens
+          : point.requests,
     label: `${formatTime(point.timestamp)}: ${
       type === 'cost'
         ? formatCurrency(point.cost)
@@ -140,7 +148,7 @@ export function convertUsageToChartData(
  */
 export function convertBreakdownToChartData(
   breakdown: CostBreakdownItem[],
-  colorPalette: string[] = DEFAULT_PIE_COLORS
+  colorPalette: string[] = DEFAULT_PIE_COLORS,
 ): ChartDataPoint[] {
   return breakdown.map((item, index) => ({
     x: item.feature,
@@ -168,7 +176,12 @@ export function convertBreakdownToChartData(
  */
 export function createTimeSeriesFromMetrics(
   metrics: TokenUsageMetrics[],
-  field: 'totalTokens' | 'totalCost' | 'inputTokens' | 'outputTokens' | 'cachedTokens'
+  field:
+    | 'totalTokens'
+    | 'totalCost'
+    | 'inputTokens'
+    | 'outputTokens'
+    | 'cachedTokens',
 ): TimeSeriesData {
   return metrics.map((metric) => ({
     timestamp: metric.timestamp,
@@ -187,7 +200,7 @@ export function createTimeSeriesFromMetrics(
  */
 export function calculateMovingAverage(
   data: TimeSeriesData,
-  windowSize: number = 5
+  windowSize: number = 5,
 ): TimeSeriesData {
   if (windowSize <= 1) return data;
 
@@ -198,7 +211,8 @@ export function calculateMovingAverage(
     const end = Math.min(data.length, start + windowSize);
 
     const window = data.slice(start, end);
-    const average = window.reduce((sum, point) => sum + point.value, 0) / window.length;
+    const average =
+      window.reduce((sum, point) => sum + point.value, 0) / window.length;
 
     result.push({
       timestamp: data[i].timestamp,
@@ -218,7 +232,10 @@ export function calculateMovingAverage(
  * @param format - Format type ('short' | 'medium' | 'long')
  * @returns Formatted time string
  */
-export function formatTime(timestamp: Date, format: 'short' | 'medium' | 'long' = 'short'): string {
+export function formatTime(
+  timestamp: Date,
+  format: 'short' | 'medium' | 'long' = 'short',
+): string {
   const now = new Date();
   const diffMs = now.getTime() - timestamp.getTime();
   const diffHours = diffMs / (1000 * 60 * 60);
@@ -272,7 +289,7 @@ export function createProgressBar(
   percentage: number,
   width: number = 10,
   filled: string = '█',
-  empty: string = '░'
+  empty: string = '░',
 ): string {
   const clampedPercentage = Math.max(0, Math.min(100, percentage));
   const filledWidth = Math.round((clampedPercentage / 100) * width);
@@ -294,7 +311,9 @@ export function createSparkline(data: number[], width?: number): string {
 
   const actualWidth = width || Math.min(data.length, 20);
   const step = Math.max(1, Math.floor(data.length / actualWidth));
-  const sampledData = data.filter((_, index) => index % step === 0).slice(0, actualWidth);
+  const sampledData = data
+    .filter((_, index) => index % step === 0)
+    .slice(0, actualWidth);
 
   const min = Math.min(...sampledData);
   const max = Math.max(...sampledData);
@@ -321,10 +340,18 @@ export function createSparkline(data: number[], width?: number): string {
  */
 export function generateColorPalette(
   count: number,
-  theme: 'default' | 'budget' | 'usage' | 'cost' = 'default'
+  theme: 'default' | 'budget' | 'usage' | 'cost' = 'default',
 ): string[] {
   const themes = {
-    default: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'],
+    default: [
+      '#3b82f6',
+      '#10b981',
+      '#f59e0b',
+      '#ef4444',
+      '#8b5cf6',
+      '#06b6d4',
+      '#84cc16',
+    ],
     budget: ['#059669', '#dc2626', '#d97706', '#7c3aed', '#0891b2'],
     usage: ['#2563eb', '#16a34a', '#ca8a04', '#dc2626'],
     cost: ['#dc2626', '#ea580c', '#d97706', '#ca8a04', '#65a30d'],
@@ -365,7 +392,7 @@ export const DEFAULT_PIE_COLORS = [
  */
 export function aggregateUsageByPeriod(
   data: UsageDataPoint[],
-  period: 'hour' | 'day' | 'week' | 'month'
+  period: 'hour' | 'day' | 'week' | 'month',
 ): UsageDataPoint[] {
   const groups = new Map<string, UsageDataPoint[]>();
 
@@ -379,19 +406,27 @@ export function aggregateUsageByPeriod(
   });
 
   // Aggregate each group
-  return Array.from(groups.entries()).map(([key, groupData]) => {
-    const totalTokens = groupData.reduce((sum, point) => sum + point.tokens, 0);
-    const totalCost = groupData.reduce((sum, point) => sum + point.cost, 0);
-    const totalRequests = groupData.reduce((sum, point) => sum + point.requests, 0);
+  return Array.from(groups.entries())
+    .map(([key, groupData]) => {
+      const totalTokens = groupData.reduce(
+        (sum, point) => sum + point.tokens,
+        0,
+      );
+      const totalCost = groupData.reduce((sum, point) => sum + point.cost, 0);
+      const totalRequests = groupData.reduce(
+        (sum, point) => sum + point.requests,
+        0,
+      );
 
-    return {
-      timestamp: new Date(key),
-      tokens: totalTokens,
-      cost: totalCost,
-      requests: totalRequests,
-      feature: 'aggregated',
-    };
-  }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      return {
+        timestamp: new Date(key),
+        tokens: totalTokens,
+        cost: totalCost,
+        requests: totalRequests,
+        feature: 'aggregated',
+      };
+    })
+    .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 }
 
 /**
@@ -402,7 +437,10 @@ export function aggregateUsageByPeriod(
  * @param period - The time period for grouping
  * @returns String key for the time period
  */
-function getTimePeriodKey(timestamp: Date, period: 'hour' | 'day' | 'week' | 'month'): string {
+function getTimePeriodKey(
+  timestamp: Date,
+  period: 'hour' | 'day' | 'week' | 'month',
+): string {
   const date = new Date(timestamp);
 
   switch (period) {
@@ -410,10 +448,11 @@ function getTimePeriodKey(timestamp: Date, period: 'hour' | 'day' | 'week' | 'mo
       return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
     case 'day':
       return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-    case 'week':
+    case 'week': {
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
       return `${weekStart.getFullYear()}-${weekStart.getMonth()}-${weekStart.getDate()}`;
+    }
     case 'month':
       return `${date.getFullYear()}-${date.getMonth()}`;
     default:

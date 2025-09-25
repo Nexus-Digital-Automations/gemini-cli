@@ -3,82 +3,83 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import ignore from 'ignore';
 import { getComponentLogger, createTimer, LogLevel } from './logger.js';
 const logger = getComponentLogger('GeminiIgnoreParser');
 export class GeminiIgnoreParser {
-    projectRoot;
-    patterns = [];
-    ig = ignore();
-    initialized = false;
-    initPromise = null;
-    constructor(projectRoot) {
-        this.projectRoot = path.resolve(projectRoot);
+  projectRoot;
+  patterns = [];
+  ig = ignore();
+  initialized = false;
+  initPromise = null;
+  constructor(projectRoot) {
+    this.projectRoot = path.resolve(projectRoot);
+  }
+  async initialize() {
+    if (this.initialized) {
+      return;
     }
-    async initialize() {
-        if (this.initialized) {
-            return;
-        }
-        if (this.initPromise) {
-            return this.initPromise;
-        }
-        this.initPromise = this.loadPatternsAsync();
-        await this.initPromise;
-        this.initialized = true;
+    if (this.initPromise) {
+      return this.initPromise;
     }
-    async loadPatternsAsync() {
-        const endTimer = createTimer(logger, 'loadPatternsAsync', LogLevel.DEBUG);
-        const patternsFilePath = path.join(this.projectRoot, '.geminiignore');
-        try {
-            const content = await fs.promises.readFile(patternsFilePath, 'utf-8');
-            this.patterns = (content ?? '')
-                .split('\n')
-                .map((p) => p.trim())
-                .filter((p) => p !== '' && !p.startsWith('#'));
-            this.ig.add(this.patterns);
-            logger.debug('Loaded .geminiignore patterns', {
-                patternCount: this.patterns.length,
-                filePath: patternsFilePath,
-            });
-        }
-        catch (_error) {
-            // ignore file not found - this is expected behavior
-            logger.debug('.geminiignore file not found, using empty patterns', {
-                filePath: patternsFilePath,
-            });
-        }
-        finally {
-            endTimer();
-        }
+    this.initPromise = this.loadPatternsAsync();
+    await this.initPromise;
+    this.initialized = true;
+  }
+  async loadPatternsAsync() {
+    const endTimer = createTimer(logger, 'loadPatternsAsync', LogLevel.DEBUG);
+    const patternsFilePath = path.join(this.projectRoot, '.geminiignore');
+    try {
+      const content = await fs.promises.readFile(patternsFilePath, 'utf-8');
+      this.patterns = (content ?? '')
+        .split('\n')
+        .map((p) => p.trim())
+        .filter((p) => p !== '' && !p.startsWith('#'));
+      this.ig.add(this.patterns);
+      logger.debug('Loaded .geminiignore patterns', {
+        patternCount: this.patterns.length,
+        filePath: patternsFilePath,
+      });
+    } catch (_error) {
+      // ignore file not found - this is expected behavior
+      logger.debug('.geminiignore file not found, using empty patterns', {
+        filePath: patternsFilePath,
+      });
+    } finally {
+      endTimer();
     }
-    isIgnored(filePath) {
-        if (this.patterns.length === 0) {
-            return false;
-        }
-        if (!filePath || typeof filePath !== 'string') {
-            return false;
-        }
-        if (filePath.startsWith('\\') ||
-            filePath === '/' ||
-            filePath.includes('\0')) {
-            return false;
-        }
-        const resolved = path.resolve(this.projectRoot, filePath);
-        const relativePath = path.relative(this.projectRoot, resolved);
-        if (relativePath === '' || relativePath.startsWith('..')) {
-            return false;
-        }
-        // Even in windows, Ignore expects forward slashes.
-        const normalizedPath = relativePath.replace(/\\/g, '/');
-        if (normalizedPath.startsWith('/') || normalizedPath === '') {
-            return false;
-        }
-        return this.ig.ignores(normalizedPath);
+  }
+  isIgnored(filePath) {
+    if (this.patterns.length === 0) {
+      return false;
     }
-    getPatterns() {
-        return this.patterns;
+    if (!filePath || typeof filePath !== 'string') {
+      return false;
     }
+    if (
+      filePath.startsWith('\\') ||
+      filePath === '/' ||
+      filePath.includes('\0')
+    ) {
+      return false;
+    }
+    const resolved = path.resolve(this.projectRoot, filePath);
+    const relativePath = path.relative(this.projectRoot, resolved);
+    if (relativePath === '' || relativePath.startsWith('..')) {
+      return false;
+    }
+    // Even in windows, Ignore expects forward slashes.
+    const normalizedPath = relativePath.replace(/\\/g, '/');
+    if (normalizedPath.startsWith('/') || normalizedPath === '') {
+      return false;
+    }
+    return this.ig.ignores(normalizedPath);
+  }
+  getPatterns() {
+    return this.patterns;
+  }
 }
 //# sourceMappingURL=geminiIgnoreParser.js.map

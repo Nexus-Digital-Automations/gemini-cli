@@ -68,7 +68,7 @@ export class RealTimeTracker {
   private readonly TRACKING_INTERVAL_MS = 60000; // 1 minute
   private readonly HISTORY_SIZE = 60; // Keep 60 minutes of data
   private readonly REQUEST_RATE_THRESHOLD = 100; // requests per minute
-  private readonly COST_RATE_THRESHOLD = 0.10; // $0.10 per minute
+  private readonly COST_RATE_THRESHOLD = 0.1; // $0.10 per minute
 
   constructor(budgetTracker: BudgetTracker, analytics: AnalyticsEngine) {
     this.budgetTracker = budgetTracker;
@@ -120,14 +120,20 @@ export class RealTimeTracker {
    */
   getRealTimeData(): RealTimeData {
     const currentMinute = new Date().getMinutes();
-    const uptimeMinutes = Math.floor((Date.now() - this.startTime.getTime()) / 60000);
+    const uptimeMinutes = Math.floor(
+      (Date.now() - this.startTime.getTime()) / 60000,
+    );
 
     // Calculate rates
     const requestsPerMinute = this.requestCounts[currentMinute] || 0;
     const costPerMinute = this.costHistory[currentMinute] || 0;
     const peakRequestsPerMinute = Math.max(...this.requestCounts);
-    const totalRequests = this.requestCounts.reduce((sum, count) => sum + count, 0);
-    const averageRequestsPerMinute = uptimeMinutes > 0 ? totalRequests / uptimeMinutes : 0;
+    const totalRequests = this.requestCounts.reduce(
+      (sum, count) => sum + count,
+      0,
+    );
+    const averageRequestsPerMinute =
+      uptimeMinutes > 0 ? totalRequests / uptimeMinutes : 0;
 
     // Calculate total current usage
     const currentRequests = totalRequests;
@@ -146,15 +152,19 @@ export class RealTimeTracker {
       alertThresholds: {
         requestsPerMinute: this.REQUEST_RATE_THRESHOLD,
         costPerMinute: this.COST_RATE_THRESHOLD,
-        budgetUtilization: 75 // 75% budget utilization threshold
-      }
+        budgetUtilization: 75, // 75% budget utilization threshold
+      },
     };
   }
 
   /**
    * Record a usage event (called by the system when requests are made)
    */
-  recordUsage(cost: number, feature?: string, metadata?: Record<string, unknown>): void {
+  recordUsage(
+    cost: number,
+    feature?: string,
+    metadata?: Record<string, unknown>,
+  ): void {
     const currentMinute = new Date().getMinutes();
 
     // Update current minute's counters
@@ -178,7 +188,7 @@ export class RealTimeTracker {
       type: 'request',
       value: 1,
       feature,
-      metadata
+      metadata,
     };
 
     // Check for threshold breaches
@@ -214,8 +224,10 @@ export class RealTimeTracker {
     const recentData = this.requestCounts.slice(-10); // Last 10 minutes
     const olderData = this.requestCounts.slice(-20, -10); // Previous 10 minutes
 
-    const recentAvg = recentData.reduce((sum, val) => sum + val, 0) / recentData.length;
-    const olderAvg = olderData.reduce((sum, val) => sum + val, 0) / olderData.length;
+    const recentAvg =
+      recentData.reduce((sum, val) => sum + val, 0) / recentData.length;
+    const olderAvg =
+      olderData.reduce((sum, val) => sum + val, 0) / olderData.length;
 
     let trend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
     let confidence: number;
@@ -235,7 +247,9 @@ export class RealTimeTracker {
     }
 
     // Check for volatility
-    const variance = recentData.reduce((sum, val) => sum + Math.pow(val - recentAvg, 2), 0) / recentData.length;
+    const variance =
+      recentData.reduce((sum, val) => sum + Math.pow(val - recentAvg, 2), 0) /
+      recentData.length;
     if (variance > recentAvg) {
       trend = 'volatile';
       confidence = 0.6;
@@ -244,8 +258,9 @@ export class RealTimeTracker {
     // Project next hour usage
     const currentRate = recentAvg;
     const projectedRequests = currentRate * 60; // 60 minutes
-    const avgCostPerRequest = this.costHistory.reduce((sum, cost) => sum + cost, 0) /
-                             this.requestCounts.reduce((sum, req) => sum + req, 0);
+    const avgCostPerRequest =
+      this.costHistory.reduce((sum, cost) => sum + cost, 0) /
+      this.requestCounts.reduce((sum, req) => sum + req, 0);
     const projectedCost = projectedRequests * (avgCostPerRequest || 0);
 
     return {
@@ -253,15 +268,19 @@ export class RealTimeTracker {
       confidence,
       projectedNextHour: {
         requests: Math.round(projectedRequests),
-        cost: Math.round(projectedCost * 10000) / 10000 // Round to 4 decimal places
-      }
+        cost: Math.round(projectedCost * 10000) / 10000, // Round to 4 decimal places
+      },
     };
   }
 
   /**
    * Get current minute-by-minute usage data for visualization
    */
-  getMinutelyData(): { requests: number[]; costs: number[]; timestamps: string[] } {
+  getMinutelyData(): {
+    requests: number[];
+    costs: number[];
+    timestamps: string[];
+  } {
     const timestamps = Array.from({ length: this.HISTORY_SIZE }, (_, i) => {
       const date = new Date();
       date.setMinutes(date.getMinutes() - (this.HISTORY_SIZE - 1 - i));
@@ -271,7 +290,7 @@ export class RealTimeTracker {
     return {
       requests: [...this.requestCounts],
       costs: [...this.costHistory],
-      timestamps
+      timestamps,
     };
   }
 
@@ -317,8 +336,8 @@ export class RealTimeTracker {
         metadata: {
           threshold: this.REQUEST_RATE_THRESHOLD,
           type: 'request_rate',
-          severity: 'warning'
-        }
+          severity: 'warning',
+        },
       };
       this.notifyListeners(event);
     }
@@ -332,8 +351,8 @@ export class RealTimeTracker {
         metadata: {
           threshold: this.COST_RATE_THRESHOLD,
           type: 'cost_rate',
-          severity: 'warning'
-        }
+          severity: 'warning',
+        },
       };
       this.notifyListeners(event);
     }
@@ -352,8 +371,8 @@ export class RealTimeTracker {
           metadata: {
             threshold: 75,
             type: 'budget_utilization',
-            severity
-          }
+            severity,
+          },
         };
         this.notifyListeners(event);
       }
@@ -364,7 +383,7 @@ export class RealTimeTracker {
    * Notify all listeners of a usage event
    */
   private notifyListeners(event: UsageEvent): void {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(event);
       } catch (error) {
@@ -379,7 +398,7 @@ export class RealTimeTracker {
  */
 export function createRealTimeTracker(
   budgetTracker: BudgetTracker,
-  analytics: AnalyticsEngine
+  analytics: AnalyticsEngine,
 ): RealTimeTracker {
   return new RealTimeTracker(budgetTracker, analytics);
 }

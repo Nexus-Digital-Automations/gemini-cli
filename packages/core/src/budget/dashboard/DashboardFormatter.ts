@@ -8,10 +8,10 @@
 const createChalkFallback = () => {
   const identity = (str: string) => str;
   const colorProxy = new Proxy(identity, {
-    get: () => identity
+    get: () => identity,
   });
   return new Proxy(identity, {
-    get: () => colorProxy
+    get: () => colorProxy,
   });
 };
 
@@ -27,7 +27,12 @@ let chalk: ReturnType<typeof createChalkFallback> = createChalkFallback();
     // Keep using fallback
   }
 })();
-import type { DashboardConfig, DashboardData, DashboardSections, BudgetAlert } from './BudgetDashboard.js';
+import type {
+  DashboardConfig,
+  DashboardData,
+  DashboardSections,
+  BudgetAlert,
+} from './BudgetDashboard.js';
 import type { FeatureCostAnalysis, OptimizationRecommendation } from '../index';
 import { ChartRenderer } from './ChartRenderer.js';
 
@@ -47,7 +52,7 @@ export class DashboardFormatter {
     this.chartRenderer = new ChartRenderer({
       width: this.PANEL_WIDTH - 4,
       height: 15,
-      theme: config.theme
+      theme: config.theme,
     });
   }
 
@@ -91,7 +96,10 @@ export class DashboardFormatter {
     }
 
     // Optimization recommendations
-    if (sections.optimizationRecommendations && data.recommendations.length > 0) {
+    if (
+      sections.optimizationRecommendations &&
+      data.recommendations.length > 0
+    ) {
       dashboard += this.formatOptimizationRecommendations(data.recommendations);
     }
 
@@ -110,17 +118,43 @@ export class DashboardFormatter {
 
     let header = '';
     header += chalk.bold.cyan('═'.repeat(this.PANEL_WIDTH)) + '\n';
-    header += chalk.bold.cyan('║') + ' '.repeat(this.PANEL_WIDTH - 2) + chalk.bold.cyan('║') + '\n';
+    header +=
+      chalk.bold.cyan('║') +
+      ' '.repeat(this.PANEL_WIDTH - 2) +
+      chalk.bold.cyan('║') +
+      '\n';
     header += chalk.bold.cyan('║');
-    header += chalk.bold.white(title.padStart((this.PANEL_WIDTH - 2 + title.length) / 2));
-    header += ' '.repeat(this.PANEL_WIDTH - 2 - title.length - Math.floor((this.PANEL_WIDTH - 2 - title.length) / 2));
+    header += chalk.bold.white(
+      title.padStart((this.PANEL_WIDTH - 2 + title.length) / 2),
+    );
+    header += ' '.repeat(
+      this.PANEL_WIDTH -
+        2 -
+        title.length -
+        Math.floor((this.PANEL_WIDTH - 2 - title.length) / 2),
+    );
     header += chalk.bold.cyan('║') + '\n';
-    header += chalk.bold.cyan('║') + ' '.repeat(this.PANEL_WIDTH - 2) + chalk.bold.cyan('║') + '\n';
+    header +=
+      chalk.bold.cyan('║') +
+      ' '.repeat(this.PANEL_WIDTH - 2) +
+      chalk.bold.cyan('║') +
+      '\n';
     header += chalk.bold.cyan('║');
-    header += chalk.dim(timestamp.padStart((this.PANEL_WIDTH - 2 + timestamp.length) / 2));
-    header += ' '.repeat(this.PANEL_WIDTH - 2 - timestamp.length - Math.floor((this.PANEL_WIDTH - 2 - timestamp.length) / 2));
+    header += chalk.dim(
+      timestamp.padStart((this.PANEL_WIDTH - 2 + timestamp.length) / 2),
+    );
+    header += ' '.repeat(
+      this.PANEL_WIDTH -
+        2 -
+        timestamp.length -
+        Math.floor((this.PANEL_WIDTH - 2 - timestamp.length) / 2),
+    );
     header += chalk.bold.cyan('║') + '\n';
-    header += chalk.bold.cyan('║') + ' '.repeat(this.PANEL_WIDTH - 2) + chalk.bold.cyan('║') + '\n';
+    header +=
+      chalk.bold.cyan('║') +
+      ' '.repeat(this.PANEL_WIDTH - 2) +
+      chalk.bold.cyan('║') +
+      '\n';
     header += chalk.bold.cyan('═'.repeat(this.PANEL_WIDTH)) + '\n\n';
 
     return header;
@@ -138,10 +172,26 @@ export class DashboardFormatter {
 
     // Current metrics in a grid layout
     const metrics = [
-      { label: 'Today\'s Requests', value: currentUsage.todayRequests, color: chalk.cyan },
-      { label: 'Today\'s Cost', value: `$${currentUsage.todayCost.toFixed(4)}`, color: chalk.green },
-      { label: 'Budget Remaining', value: `$${currentUsage.budgetRemaining.toFixed(4)}`, color: chalk.yellow },
-      { label: 'Budget Used', value: `${currentUsage.budgetUtilization.toFixed(1)}%`, color: chalk.blue }
+      {
+        label: "Today's Requests",
+        value: currentUsage.todayRequests,
+        color: chalk.cyan,
+      },
+      {
+        label: "Today's Cost",
+        value: `$${currentUsage.todayCost.toFixed(4)}`,
+        color: chalk.green,
+      },
+      {
+        label: 'Budget Remaining',
+        value: `$${currentUsage.budgetRemaining.toFixed(4)}`,
+        color: chalk.yellow,
+      },
+      {
+        label: 'Budget Used',
+        value: `${currentUsage.budgetUtilization.toFixed(1)}%`,
+        color: chalk.blue,
+      },
     ];
 
     // Render metrics in a 2x2 grid
@@ -150,7 +200,9 @@ export class DashboardFormatter {
       const right = metrics[i + 1];
 
       const leftSide = `${left.label}: ${left.color(left.value)}`;
-      const rightSide = right ? `${right.label}: ${right.color(right.value)}` : '';
+      const rightSide = right
+        ? `${right.label}: ${right.color(right.value)}`
+        : '';
 
       panel += leftSide.padEnd(this.PANEL_WIDTH / 2);
       panel += rightSide + '\n';
@@ -163,7 +215,7 @@ export class DashboardFormatter {
       currentUsage.budgetUtilization,
       100,
       { warning: 75, critical: 90 },
-      { title: 'Daily Budget Utilization', unit: '%' }
+      { title: 'Daily Budget Utilization', unit: '%' },
     );
 
     return panel;
@@ -180,14 +232,14 @@ export class DashboardFormatter {
     // Hourly usage sparkline
     const hourlySparkline = this.chartRenderer.renderSparkline(
       data.trends.hourlyUsage,
-      'Last 24 Hours:'
+      'Last 24 Hours:',
     );
     section += hourlySparkline + '\n\n';
 
     // Daily usage sparkline
     const dailySparkline = this.chartRenderer.renderSparkline(
       data.trends.dailyUsage,
-      'Last 30 Days: '
+      'Last 30 Days: ',
     );
     section += dailySparkline + '\n\n';
 
@@ -202,7 +254,7 @@ export class DashboardFormatter {
     section += chalk.bold('🚨 Budget Alerts') + '\n';
     section += '━'.repeat(this.PANEL_WIDTH) + '\n';
 
-    alerts.forEach(alert => {
+    alerts.forEach((alert) => {
       let alertLine = '';
 
       // Alert icon and type
@@ -230,8 +282,13 @@ export class DashboardFormatter {
 
       // Add threshold info if available
       if (alert.threshold && alert.currentValue) {
-        const percentage = ((alert.currentValue / alert.threshold) * 100).toFixed(1);
-        alertLine += chalk.dim(` (${alert.currentValue}/${alert.threshold} - ${percentage}%)`);
+        const percentage = (
+          (alert.currentValue / alert.threshold) *
+          100
+        ).toFixed(1);
+        alertLine += chalk.dim(
+          ` (${alert.currentValue}/${alert.threshold} - ${percentage}%)`,
+        );
       }
 
       alertLine += '\n';
@@ -262,17 +319,31 @@ export class DashboardFormatter {
 
     // Projection table
     const projectionData = [
-      { period: 'Daily', projection: projections.dailyProjection, exceeds: projections.exceedsDaily },
-      { period: 'Weekly', projection: projections.weeklyProjection, exceeds: projections.exceedsWeekly },
-      { period: 'Monthly', projection: projections.monthlyProjection, exceeds: projections.exceedsMonthly }
+      {
+        period: 'Daily',
+        projection: projections.dailyProjection,
+        exceeds: projections.exceedsDaily,
+      },
+      {
+        period: 'Weekly',
+        projection: projections.weeklyProjection,
+        exceeds: projections.exceedsWeekly,
+      },
+      {
+        period: 'Monthly',
+        projection: projections.monthlyProjection,
+        exceeds: projections.exceedsMonthly,
+      },
     ];
 
-    section += chalk.dim('Period').padEnd(15) +
-              chalk.dim('Projection').padEnd(15) +
-              chalk.dim('Status') + '\n';
+    section +=
+      chalk.dim('Period').padEnd(15) +
+      chalk.dim('Projection').padEnd(15) +
+      chalk.dim('Status') +
+      '\n';
     section += '─'.repeat(this.PANEL_WIDTH) + '\n';
 
-    projectionData.forEach(proj => {
+    projectionData.forEach((proj) => {
       const statusColor = proj.exceeds ? chalk.red : chalk.green;
       const statusText = proj.exceeds ? 'Over Budget' : 'Within Budget';
 
@@ -301,7 +372,7 @@ export class DashboardFormatter {
     section += this.chartRenderer.renderLineChart(
       trends.dailyUsage,
       Array.from({ length: 30 }, (_, i) => `${30 - i}d`),
-      { title: 'Daily Usage (Last 30 Days)', yAxisLabel: 'Requests' }
+      { title: 'Daily Usage (Last 30 Days)', yAxisLabel: 'Requests' },
     );
 
     section += '\n';
@@ -318,27 +389,29 @@ export class DashboardFormatter {
     section += '━'.repeat(this.PANEL_WIDTH) + '\n';
 
     // Convert to chart data
-    const chartData = features.slice(0, 10).map(feature => ({
+    const chartData = features.slice(0, 10).map((feature) => ({
       label: feature.featureName,
       value: feature.totalCost,
-      color: this.getFeatureColor(feature.roi)
+      color: this.getFeatureColor(feature.roi),
     }));
 
     section += this.chartRenderer.renderBarChart(chartData, {
       title: 'Cost by Feature (Top 10)',
-      maxBars: 10
+      maxBars: 10,
     });
 
     // Feature details table
     section += chalk.bold('\nDetailed Analysis:') + '\n';
-    section += chalk.dim('Feature').padEnd(20) +
-              chalk.dim('Cost').padEnd(12) +
-              chalk.dim('Requests').padEnd(12) +
-              chalk.dim('ROI').padEnd(8) +
-              chalk.dim('Trend') + '\n';
+    section +=
+      chalk.dim('Feature').padEnd(20) +
+      chalk.dim('Cost').padEnd(12) +
+      chalk.dim('Requests').padEnd(12) +
+      chalk.dim('ROI').padEnd(8) +
+      chalk.dim('Trend') +
+      '\n';
     section += '─'.repeat(this.PANEL_WIDTH) + '\n';
 
-    features.slice(0, 5).forEach(feature => {
+    features.slice(0, 5).forEach((feature) => {
       const roiColor = feature.roi >= 1 ? chalk.green : chalk.red;
       const trendIcon = this.getTrendIcon(feature.costTrend);
 
@@ -358,19 +431,28 @@ export class DashboardFormatter {
   /**
    * Format optimization recommendations section
    */
-  private formatOptimizationRecommendations(recommendations: OptimizationRecommendation[]): string {
+  private formatOptimizationRecommendations(
+    recommendations: OptimizationRecommendation[],
+  ): string {
     let section = '';
     section += chalk.bold('🚀 Optimization Recommendations') + '\n';
     section += '━'.repeat(this.PANEL_WIDTH) + '\n';
 
     recommendations.slice(0, 5).forEach((rec, index) => {
       const savingsColor = rec.potentialSavings > 0 ? chalk.green : chalk.blue;
-      const complexityColor = this.getComplexityColor(rec.implementationComplexity);
+      const complexityColor = this.getComplexityColor(
+        rec.implementationComplexity,
+      );
 
       section += chalk.bold(`${index + 1}. ${rec.title}`) + '\n';
       section += `   ${rec.description}` + '\n';
-      section += '   ' + savingsColor(`💰 Potential Savings: $${rec.potentialSavings.toFixed(4)} (${rec.savingsPercentage.toFixed(1)}%)`);
-      section += ' • ' + complexityColor(`Complexity: ${rec.implementationComplexity}`);
+      section +=
+        '   ' +
+        savingsColor(
+          `💰 Potential Savings: $${rec.potentialSavings.toFixed(4)} (${rec.savingsPercentage.toFixed(1)}%)`,
+        );
+      section +=
+        ' • ' + complexityColor(`Complexity: ${rec.implementationComplexity}`);
       section += '\n\n';
     });
 
@@ -384,8 +466,10 @@ export class DashboardFormatter {
     let footer = '';
     footer += '═'.repeat(this.PANEL_WIDTH) + '\n';
     footer += chalk.dim(`Last updated: ${new Date().toLocaleString()}`);
-    footer += chalk.dim(` • Refresh rate: ${this.config.refreshInterval}ms`) + '\n';
-    footer += chalk.dim('Press [q] to quit, [r] to refresh, [h] for help') + '\n';
+    footer +=
+      chalk.dim(` • Refresh rate: ${this.config.refreshInterval}ms`) + '\n';
+    footer +=
+      chalk.dim('Press [q] to quit, [r] to refresh, [h] for help') + '\n';
 
     return footer;
   }
@@ -405,23 +489,34 @@ export class DashboardFormatter {
    */
   private getTrendIcon(trend: string): string {
     switch (trend) {
-      case 'increasing': return chalk.red('↗');
-      case 'decreasing': return chalk.green('↘');
-      case 'stable': return chalk.blue('→');
-      case 'volatile': return chalk.yellow('↕');
-      default: return chalk.dim('–');
+      case 'increasing':
+        return chalk.red('↗');
+      case 'decreasing':
+        return chalk.green('↘');
+      case 'stable':
+        return chalk.blue('→');
+      case 'volatile':
+        return chalk.yellow('↕');
+      default:
+        return chalk.dim('–');
     }
   }
 
   /**
    * Get color for complexity level
    */
-  private getComplexityColor(complexity: string): ReturnType<typeof createChalkFallback> {
+  private getComplexityColor(
+    complexity: string,
+  ): ReturnType<typeof createChalkFallback> {
     switch (complexity) {
-      case 'low': return chalk.green;
-      case 'medium': return chalk.yellow;
-      case 'high': return chalk.red;
-      default: return chalk.dim;
+      case 'low':
+        return chalk.green;
+      case 'medium':
+        return chalk.yellow;
+      case 'high':
+        return chalk.red;
+      default:
+        return chalk.dim;
     }
   }
 }

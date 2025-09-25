@@ -10,7 +10,7 @@ import {
   createAnalyticsEngine,
   createBudgetDashboard,
   type DashboardConfig,
-  type DashboardSections
+  type DashboardSections,
 } from '@google/gemini-cli-core';
 import type { Arguments, CommandBuilder } from 'yargs';
 
@@ -163,7 +163,12 @@ async function displayInteractiveDashboard(
     };
 
     // Create the dashboard instance
-    const dashboard = createBudgetDashboard(process.cwd(), tracker, analyticsEngine, dashboardConfig);
+    const dashboard = createBudgetDashboard(
+      process.cwd(),
+      tracker,
+      analyticsEngine,
+      dashboardConfig,
+    );
 
     console.log('🚀 Launching Budget Usage Visualizer & Analytics Dashboard');
     console.log('═'.repeat(80));
@@ -174,9 +179,12 @@ async function displayInteractiveDashboard(
 
     console.log('');
     console.log('✅ Dashboard display complete!');
-    console.log('💡 Tip: Use "gemini budget visualize ascii" for simpler charts');
-    console.log('📄 Tip: Use "gemini budget visualize json" for programmatic data');
-
+    console.log(
+      '💡 Tip: Use "gemini budget visualize ascii" for simpler charts',
+    );
+    console.log(
+      '📄 Tip: Use "gemini budget visualize json" for programmatic data',
+    );
   } catch (error) {
     console.error('❌ Dashboard Error:', error);
     console.log('');
@@ -185,7 +193,14 @@ async function displayInteractiveDashboard(
     // Fallback to legacy display
     const stats = await tracker.getUsageStats();
     const mockMetrics = await generateMockUsageData(period);
-    await displayLegacyVisualization(stats, mockMetrics, analyticsEngine, period, includeAnalytics, includeRecommendations);
+    await displayLegacyVisualization(
+      stats,
+      mockMetrics,
+      analyticsEngine,
+      period,
+      includeAnalytics,
+      includeRecommendations,
+    );
   }
 }
 

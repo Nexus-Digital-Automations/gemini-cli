@@ -4,14 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BaseAllocationAlgorithm, type AllocationLogger } from './BaseAllocationAlgorithm.js';
+import {
+  BaseAllocationAlgorithm,
+  type AllocationLogger,
+} from './BaseAllocationAlgorithm.js';
 import type {
   AllocationCandidate,
   AllocationRecommendation,
   AllocationAlgorithmConfig,
   AllocationImpact,
   RiskAssessment,
-  AllocationPriority
+  AllocationPriority,
 } from '../types.js';
 
 /**
@@ -39,7 +42,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     high: 0.75,
     medium: 0.5,
     low: 0.25,
-    deferred: 0.1
+    deferred: 0.1,
   };
 
   /**
@@ -57,16 +60,16 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    * @returns Array of allocation recommendations
    */
   protected async executeOptimization(
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): Promise<AllocationRecommendation[]> {
     this.logger.info('Starting priority-based allocation optimization', {
       candidateCount: candidates.length,
-      strategy: 'priority_weighted'
+      strategy: 'priority_weighted',
     });
 
     // Build candidate lookup map
     this.candidatesMap.clear();
-    candidates.forEach(candidate => {
+    candidates.forEach((candidate) => {
       this.candidatesMap.set(candidate.resourceId, candidate);
     });
 
@@ -77,15 +80,24 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     const priorityDistribution = this.calculatePriorityDistribution(candidates);
 
     // Generate priority-based recommendations
-    const recommendations = this.generatePriorityRecommendations(candidates, priorityDistribution);
+    const recommendations = this.generatePriorityRecommendations(
+      candidates,
+      priorityDistribution,
+    );
 
     // Balance allocations within priority constraints
-    const balancedRecommendations = this.balancePriorityAllocations(candidates, recommendations);
+    const balancedRecommendations = this.balancePriorityAllocations(
+      candidates,
+      recommendations,
+    );
 
     this.logger.info('Priority-based optimization completed', {
       recommendationCount: balancedRecommendations.length,
-      criticalResourcesCount: this.countResourcesByPriority(candidates, 'critical'),
-      totalPriorityScore: this.calculateTotalPriorityScore(candidates)
+      criticalResourcesCount: this.countResourcesByPriority(
+        candidates,
+        'critical',
+      ),
+      totalPriorityScore: this.calculateTotalPriorityScore(candidates),
     });
 
     return balancedRecommendations;
@@ -106,7 +118,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
         resourceId: candidate.resourceId,
         priority: candidate.priority,
         strategicScore: analysis.strategicScore,
-        dependencyCount: analysis.dependencyCount
+        dependencyCount: analysis.dependencyCount,
       });
     }
   }
@@ -119,7 +131,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculatePriorityAnalysis(
     candidate: AllocationCandidate,
-    allCandidates: AllocationCandidate[]
+    allCandidates: AllocationCandidate[],
   ): PriorityAnalysis {
     const baseWeight = this.priorityWeights[candidate.priority];
     const businessImpact = candidate.businessImpact / 100;
@@ -146,7 +158,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       strategicScore,
       urgencyFactor,
       continuityCritical,
-      competitiveImpact
+      competitiveImpact,
     );
 
     return {
@@ -160,9 +172,10 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       overallPriorityScore,
       dependencies,
       dependencyCount: dependencies.length,
-      allocationMultiplier: this.calculateAllocationMultiplier(overallPriorityScore),
+      allocationMultiplier:
+        this.calculateAllocationMultiplier(overallPriorityScore),
       timeToImplement: this.estimateImplementationTime(candidate),
-      riskOfDelaying: this.assessDelayRisk(candidate)
+      riskOfDelaying: this.assessDelayRisk(candidate),
     };
   }
 
@@ -177,7 +190,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     const utilizationRate = candidate.costAnalysis.utilizationRate;
 
     // Strategic score combines business impact, ROI, and utilization
-    return (businessImpact * 0.5) + (roi * 0.3) + (utilizationRate * 0.2);
+    return businessImpact * 0.5 + roi * 0.3 + utilizationRate * 0.2;
   }
 
   /**
@@ -188,7 +201,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private analyzeDependencies(
     candidate: AllocationCandidate,
-    allCandidates: AllocationCandidate[]
+    allCandidates: AllocationCandidate[],
   ): ResourceDependency[] {
     const dependencies: ResourceDependency[] = [];
 
@@ -196,14 +209,17 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     for (const other of allCandidates) {
       if (other.resourceId === candidate.resourceId) continue;
 
-      const dependencyStrength = this.calculateDependencyStrength(candidate, other);
+      const dependencyStrength = this.calculateDependencyStrength(
+        candidate,
+        other,
+      );
 
       if (dependencyStrength > 0.3) {
         dependencies.push({
           dependentResourceId: other.resourceId,
           dependencyType: this.determineDependencyType(candidate, other),
           strength: dependencyStrength,
-          bidirectional: this.isBidirectionalDependency(candidate, other)
+          bidirectional: this.isBidirectionalDependency(candidate, other),
         });
       }
     }
@@ -219,14 +235,21 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculateDependencyStrength(
     resource1: AllocationCandidate,
-    resource2: AllocationCandidate
+    resource2: AllocationCandidate,
   ): number {
     // Simplified dependency calculation based on similar characteristics
-    const businessImpactSimilarity = 1 - Math.abs(resource1.businessImpact - resource2.businessImpact) / 100;
-    const complexitySimilarity = 1 - Math.abs(resource1.technicalComplexity - resource2.technicalComplexity) / 100;
-    const prioritySimilarity = resource1.priority === resource2.priority ? 1 : 0.5;
+    const businessImpactSimilarity =
+      1 - Math.abs(resource1.businessImpact - resource2.businessImpact) / 100;
+    const complexitySimilarity =
+      1 -
+      Math.abs(resource1.technicalComplexity - resource2.technicalComplexity) /
+        100;
+    const prioritySimilarity =
+      resource1.priority === resource2.priority ? 1 : 0.5;
 
-    return (businessImpactSimilarity + complexitySimilarity + prioritySimilarity) / 3;
+    return (
+      (businessImpactSimilarity + complexitySimilarity + prioritySimilarity) / 3
+    );
   }
 
   /**
@@ -237,11 +260,16 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private determineDependencyType(
     dependent: AllocationCandidate,
-    dependency: AllocationCandidate
+    dependency: AllocationCandidate,
   ): 'technical' | 'business' | 'resource' | 'sequence' {
-    if (dependent.technicalComplexity > 70 && dependency.technicalComplexity > 70) {
+    if (
+      dependent.technicalComplexity > 70 &&
+      dependency.technicalComplexity > 70
+    ) {
       return 'technical';
-    } else if (Math.abs(dependent.businessImpact - dependency.businessImpact) < 20) {
+    } else if (
+      Math.abs(dependent.businessImpact - dependency.businessImpact) < 20
+    ) {
       return 'business';
     } else if (dependent.priority === dependency.priority) {
       return 'resource';
@@ -258,12 +286,14 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private isBidirectionalDependency(
     resource1: AllocationCandidate,
-    resource2: AllocationCandidate
+    resource2: AllocationCandidate,
   ): boolean {
     // Simplified: high business impact resources with similar priorities are likely bidirectional
-    return resource1.businessImpact > 70 &&
-           resource2.businessImpact > 70 &&
-           resource1.priority === resource2.priority;
+    return (
+      resource1.businessImpact > 70 &&
+      resource2.businessImpact > 70 &&
+      resource1.priority === resource2.priority
+    );
   }
 
   /**
@@ -325,7 +355,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     const roi = Math.min(1, candidate.costAnalysis.roi / 5); // Normalize ROI
 
     // High business impact with good ROI suggests competitive advantage
-    return (businessImpact * 0.7) + (roi * 0.3);
+    return businessImpact * 0.7 + roi * 0.3;
   }
 
   /**
@@ -344,7 +374,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     strategicScore: number,
     urgencyFactor: number,
     continuityCritical: boolean,
-    competitiveImpact: number
+    competitiveImpact: number,
   ): number {
     let score = baseWeight * 0.4; // 40% base priority
     score += businessImpact * 0.25; // 25% business impact
@@ -403,7 +433,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     return {
       level: riskLevel,
       impactOnBusiness: businessImpact,
-      impactOnDependencies: this.calculateDependencyImpact(candidate)
+      impactOnDependencies: this.calculateDependencyImpact(candidate),
     };
   }
 
@@ -424,7 +454,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    * @returns Priority-based distribution
    */
   private calculatePriorityDistribution(
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): Map<string, number> {
     const distribution = new Map<string, number>();
     const totalBudget = this.calculateTotalCurrentBudget(candidates);
@@ -451,7 +481,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       // Ensure constraints are met
       priorityAllocation = Math.max(
         candidate.constraints.minAllocation,
-        Math.min(candidate.constraints.maxAllocation, priorityAllocation)
+        Math.min(candidate.constraints.maxAllocation, priorityAllocation),
       );
 
       distribution.set(candidate.resourceId, priorityAllocation);
@@ -460,7 +490,12 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
 
     // Adjust for budget balance
     if (allocatedBudget !== totalBudget) {
-      this.adjustForBudgetBalance(candidates, distribution, totalBudget, allocatedBudget);
+      this.adjustForBudgetBalance(
+        candidates,
+        distribution,
+        totalBudget,
+        allocatedBudget,
+      );
     }
 
     return distribution;
@@ -477,7 +512,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     candidates: AllocationCandidate[],
     distribution: Map<string, number>,
     totalBudget: number,
-    allocatedBudget: number
+    allocatedBudget: number,
   ): void {
     const difference = totalBudget - allocatedBudget;
 
@@ -486,14 +521,16 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     // Distribute the difference proportionally among candidates that can accommodate it
-    const adjustableCandidates = candidates.filter(candidate => {
+    const adjustableCandidates = candidates.filter((candidate) => {
       const currentAllocation = distribution.get(candidate.resourceId) || 0;
       const analysis = this.priorityAnalysis.get(candidate.resourceId)!;
 
       if (difference > 0) {
         // Can we increase allocation?
-        return currentAllocation < candidate.constraints.maxAllocation &&
-               analysis.overallPriorityScore > 0.3; // Only for reasonably high priority
+        return (
+          currentAllocation < candidate.constraints.maxAllocation &&
+          analysis.overallPriorityScore > 0.3
+        ); // Only for reasonably high priority
       } else {
         // Can we decrease allocation?
         return currentAllocation > candidate.constraints.minAllocation;
@@ -512,8 +549,8 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
         candidate.constraints.minAllocation,
         Math.min(
           candidate.constraints.maxAllocation,
-          currentAllocation + adjustmentPerCandidate
-        )
+          currentAllocation + adjustmentPerCandidate,
+        ),
       );
 
       distribution.set(candidate.resourceId, newAllocation);
@@ -528,38 +565,59 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private generatePriorityRecommendations(
     candidates: AllocationCandidate[],
-    distribution: Map<string, number>
+    distribution: Map<string, number>,
   ): AllocationRecommendation[] {
     const recommendations: AllocationRecommendation[] = [];
 
     for (const candidate of candidates) {
       const analysis = this.priorityAnalysis.get(candidate.resourceId)!;
-      const recommendedAllocation = distribution.get(candidate.resourceId) || candidate.currentAllocation;
-      const allocationChange = recommendedAllocation - candidate.currentAllocation;
+      const recommendedAllocation =
+        distribution.get(candidate.resourceId) || candidate.currentAllocation;
+      const allocationChange =
+        recommendedAllocation - candidate.currentAllocation;
 
       const recommendation: AllocationRecommendation = {
         id: `priority_${candidate.resourceId}_${Date.now()}`,
         resourceId: candidate.resourceId,
         type: 'budget_reallocation',
         title: `Priority-based allocation for ${candidate.resourceName}`,
-        description: this.generatePriorityRecommendationDescription(candidate, analysis, allocationChange),
+        description: this.generatePriorityRecommendationDescription(
+          candidate,
+          analysis,
+          allocationChange,
+        ),
         currentAllocation: candidate.currentAllocation,
         recommendedAllocation,
         allocationChange,
         potentialSavings: Math.max(0, -allocationChange),
-        savingsPercentage: candidate.currentAllocation > 0
-          ? (Math.max(0, -allocationChange) / candidate.currentAllocation) * 100
-          : 0,
-        implementationComplexity: this.determinePriorityComplexity(candidate, analysis),
+        savingsPercentage:
+          candidate.currentAllocation > 0
+            ? (Math.max(0, -allocationChange) / candidate.currentAllocation) *
+              100
+            : 0,
+        implementationComplexity: this.determinePriorityComplexity(
+          candidate,
+          analysis,
+        ),
         strategy: 'priority_weighted',
         confidence: this.calculatePriorityConfidence(candidate, analysis),
-        expectedImpact: this.calculatePriorityExpectedImpact(candidate, analysis, allocationChange),
-        riskAssessment: this.assessPriorityRisk(candidate, analysis, allocationChange),
-        dependencies: analysis.dependencies.map(dep => dep.dependentResourceId),
+        expectedImpact: this.calculatePriorityExpectedImpact(
+          candidate,
+          analysis,
+          allocationChange,
+        ),
+        riskAssessment: this.assessPriorityRisk(
+          candidate,
+          analysis,
+          allocationChange,
+        ),
+        dependencies: analysis.dependencies.map(
+          (dep) => dep.dependentResourceId,
+        ),
         priority: candidate.priority,
         estimatedTimeToImplement: `${Math.ceil(analysis.timeToImplement / 7)} weeks`,
         category: 'priority_optimization',
-        tags: ['priority-based', 'strategic', 'business-aligned']
+        tags: ['priority-based', 'strategic', 'business-aligned'],
       };
 
       recommendations.push(recommendation);
@@ -578,9 +636,14 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
   private generatePriorityRecommendationDescription(
     candidate: AllocationCandidate,
     analysis: PriorityAnalysis,
-    allocationChange: number
+    allocationChange: number,
   ): string {
-    const changeDirection = allocationChange > 0 ? 'increase' : allocationChange < 0 ? 'decrease' : 'maintain';
+    const changeDirection =
+      allocationChange > 0
+        ? 'increase'
+        : allocationChange < 0
+          ? 'decrease'
+          : 'maintain';
     const priorityScore = Math.round(analysis.overallPriorityScore * 100) / 100;
 
     let description = `${changeDirection} allocation based on priority analysis. `;
@@ -598,7 +661,10 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       description += 'High urgency factor. ';
     }
 
-    if (analysis.riskOfDelaying.level === 'critical' || analysis.riskOfDelaying.level === 'high') {
+    if (
+      analysis.riskOfDelaying.level === 'critical' ||
+      analysis.riskOfDelaying.level === 'high'
+    ) {
       description += `${analysis.riskOfDelaying.level.toUpperCase()} risk if delayed. `;
     }
 
@@ -615,11 +681,12 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private determinePriorityComplexity(
     candidate: AllocationCandidate,
-    analysis: PriorityAnalysis
+    analysis: PriorityAnalysis,
   ): 'low' | 'medium' | 'high' {
     if (analysis.dependencyCount > 3) return 'high';
     if (candidate.technicalComplexity > 70) return 'high';
-    if (analysis.dependencyCount > 1 || candidate.technicalComplexity > 40) return 'medium';
+    if (analysis.dependencyCount > 1 || candidate.technicalComplexity > 40)
+      return 'medium';
     return 'low';
   }
 
@@ -631,7 +698,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private calculatePriorityConfidence(
     candidate: AllocationCandidate,
-    analysis: PriorityAnalysis
+    analysis: PriorityAnalysis,
   ): number {
     let confidence = 70; // Base confidence
 
@@ -663,11 +730,12 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
   private calculatePriorityExpectedImpact(
     candidate: AllocationCandidate,
     analysis: PriorityAnalysis,
-    allocationChange: number
+    allocationChange: number,
   ): AllocationImpact {
-    const changeRatio = candidate.currentAllocation > 0
-      ? allocationChange / candidate.currentAllocation
-      : 0;
+    const changeRatio =
+      candidate.currentAllocation > 0
+        ? allocationChange / candidate.currentAllocation
+        : 0;
 
     const priorityMultiplier = this.priorityWeights[candidate.priority];
 
@@ -675,10 +743,16 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       costImpact: allocationChange,
       performanceImpact: Math.max(0, changeRatio * priorityMultiplier * 25),
       utilizationImpact: changeRatio * 0.2,
-      businessValueImpact: changeRatio * candidate.businessImpact * priorityMultiplier * 0.1,
-      roiImpact: changeRatio * candidate.costAnalysis.roi * priorityMultiplier * 0.15,
-      impactTimeline: candidate.priority === 'critical' ? 'immediate' :
-                     candidate.priority === 'high' ? 'short_term' : 'medium_term'
+      businessValueImpact:
+        changeRatio * candidate.businessImpact * priorityMultiplier * 0.1,
+      roiImpact:
+        changeRatio * candidate.costAnalysis.roi * priorityMultiplier * 0.15,
+      impactTimeline:
+        candidate.priority === 'critical'
+          ? 'immediate'
+          : candidate.priority === 'high'
+            ? 'short_term'
+            : 'medium_term',
     };
   }
 
@@ -692,9 +766,10 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
   private assessPriorityRisk(
     candidate: AllocationCandidate,
     analysis: PriorityAnalysis,
-    allocationChange: number
+    allocationChange: number,
   ): RiskAssessment {
-    const changeRatio = Math.abs(allocationChange) / candidate.currentAllocation;
+    const changeRatio =
+      Math.abs(allocationChange) / candidate.currentAllocation;
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
     const riskFactors: string[] = [];
     const mitigationStrategies: string[] = [];
@@ -713,7 +788,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     // Risk from dependencies
     if (analysis.dependencyCount > 2) {
       riskLevel = riskLevel === 'low' ? 'medium' : 'high';
-      riskFactors.push(`High dependency count (${analysis.dependencyCount}) increases complexity`);
+      riskFactors.push(
+        `High dependency count (${analysis.dependencyCount}) increases complexity`,
+      );
       mitigationStrategies.push('Coordinate changes with dependent resources');
     }
 
@@ -721,7 +798,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     if (candidate.priority === 'critical' && allocationChange < 0) {
       riskLevel = 'critical';
       riskFactors.push('Reducing allocation for critical business resource');
-      mitigationStrategies.push('Ensure business continuity plans are in place');
+      mitigationStrategies.push(
+        'Ensure business continuity plans are in place',
+      );
     }
 
     // Delay risk consideration
@@ -739,10 +818,16 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
       riskLevel,
       riskFactors,
       mitigationStrategies,
-      maxNegativeImpact: Math.abs(allocationChange) * analysis.riskOfDelaying.impactOnBusiness,
-      negativeProbability: riskLevel === 'critical' ? 40 :
-                          riskLevel === 'high' ? 25 :
-                          riskLevel === 'medium' ? 15 : 5
+      maxNegativeImpact:
+        Math.abs(allocationChange) * analysis.riskOfDelaying.impactOnBusiness,
+      negativeProbability:
+        riskLevel === 'critical'
+          ? 40
+          : riskLevel === 'high'
+            ? 25
+            : riskLevel === 'medium'
+              ? 15
+              : 5,
     };
   }
 
@@ -754,7 +839,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private balancePriorityAllocations(
     originalCandidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): AllocationRecommendation[] {
     return this.ensureBudgetBalance(originalCandidates, recommendations);
   }
@@ -767,9 +852,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    */
   private countResourcesByPriority(
     candidates: AllocationCandidate[],
-    priority: AllocationPriority
+    priority: AllocationPriority,
   ): number {
-    return candidates.filter(c => c.priority === priority).length;
+    return candidates.filter((c) => c.priority === priority).length;
   }
 
   /**
@@ -777,7 +862,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    * @param candidates - Allocation candidates
    * @returns Total priority score
    */
-  private calculateTotalPriorityScore(candidates: AllocationCandidate[]): number {
+  private calculateTotalPriorityScore(
+    candidates: AllocationCandidate[],
+  ): number {
     return candidates.reduce((total, candidate) => {
       const analysis = this.priorityAnalysis.get(candidate.resourceId);
       return total + (analysis ? analysis.overallPriorityScore : 0);
@@ -789,7 +876,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
    * @param resourceId - Resource identifier
    * @returns Matching candidate or undefined
    */
-  protected findCandidateById(resourceId: string): AllocationCandidate | undefined {
+  protected findCandidateById(
+    resourceId: string,
+  ): AllocationCandidate | undefined {
     return this.candidatesMap.get(resourceId);
   }
 }
@@ -840,7 +929,7 @@ interface DelayRisk {
  */
 export function createPriorityBasedAlgorithm(
   config: AllocationAlgorithmConfig,
-  logger: AllocationLogger
+  logger: AllocationLogger,
 ): PriorityBasedAlgorithm {
   return new PriorityBasedAlgorithm(config, logger);
 }

@@ -13,7 +13,7 @@
  * @version 1.0.0
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
 import { BudgetSettings, BudgetEventType } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
@@ -74,7 +74,7 @@ interface AlertCondition {
  */
 export class NotificationController {
   private alertConfigs: Map<string, AlertConfig> = new Map();
-  private notificationHistory: Array<any> = [];
+  private notificationHistory: any[] = [];
 
   /**
    * Initialize notification controller
@@ -82,7 +82,7 @@ export class NotificationController {
   constructor() {
     logger.info('Initializing Notification Controller', {
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     });
 
     this.loadDefaultAlerts();
@@ -101,7 +101,7 @@ export class NotificationController {
       status,
       type,
       limit,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -109,7 +109,7 @@ export class NotificationController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Alert service unavailable'
+          error: 'Alert service unavailable',
         });
         return;
       }
@@ -125,12 +125,18 @@ export class NotificationController {
       let filteredConfigs = alertConfigs;
 
       if (status) {
-        filteredAlerts = filteredAlerts.filter((alert: any) => alert.status === status);
+        filteredAlerts = filteredAlerts.filter(
+          (alert: any) => alert.status === status,
+        );
       }
 
       if (type) {
-        filteredAlerts = filteredAlerts.filter((alert: any) => alert.type === type);
-        filteredConfigs = filteredConfigs.filter(config => config.type === type);
+        filteredAlerts = filteredAlerts.filter(
+          (alert: any) => alert.type === type,
+        );
+        filteredConfigs = filteredConfigs.filter(
+          (config) => config.type === type,
+        );
       }
 
       // Apply limit
@@ -146,37 +152,38 @@ export class NotificationController {
           summary: {
             totalActive: activeAlerts.length,
             totalConfigurations: alertConfigs.length,
-            enabledConfigurations: alertConfigs.filter(config => config.enabled).length
+            enabledConfigurations: alertConfigs.filter(
+              (config) => config.enabled,
+            ).length,
           },
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            filters: { status, type, limit }
-          }
-        }
+            filters: { status, type, limit },
+          },
+        },
       };
 
       logger.info('Alerts retrieved successfully', {
         responseTime,
         activeAlertsCount: filteredAlerts.length,
-        configurationsCount: filteredConfigs.length
+        configurationsCount: filteredConfigs.length,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get alerts', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve alerts',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -185,7 +192,10 @@ export class NotificationController {
    * Configure budget alerts
    * POST /api/budget/alerts
    */
-  async configureAlerts(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async configureAlerts(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
     const alertConfig = req.body;
 
@@ -193,7 +203,7 @@ export class NotificationController {
       userId: req.user?.id,
       alertType: alertConfig.type,
       alertName: alertConfig.name,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -203,7 +213,7 @@ export class NotificationController {
         res.status(400).json({
           success: false,
           error: 'Invalid alert configuration',
-          details: validationResult.errors
+          details: validationResult.errors,
         });
         return;
       }
@@ -224,8 +234,8 @@ export class NotificationController {
         metadata: {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          createdBy: req.user?.id || 'unknown'
-        }
+          createdBy: req.user?.id || 'unknown',
+        },
       };
 
       // Store alert configuration
@@ -245,33 +255,32 @@ export class NotificationController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            operation: alertConfig.id ? 'updated' : 'created'
-          }
-        }
+            operation: alertConfig.id ? 'updated' : 'created',
+          },
+        },
       };
 
       logger.info('Alert configured successfully', {
         responseTime,
         alertId,
         alertType: newAlertConfig.type,
-        operation: alertConfig.id ? 'updated' : 'created'
+        operation: alertConfig.id ? 'updated' : 'created',
       });
 
       res.status(alertConfig.id ? 200 : 201).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to configure alert', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to configure alert',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -287,7 +296,7 @@ export class NotificationController {
     logger.info('Alert removal requested', {
       userId: req.user?.id,
       alertId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -295,7 +304,7 @@ export class NotificationController {
       if (!alertConfig) {
         res.status(404).json({
           success: false,
-          error: 'Alert configuration not found'
+          error: 'Alert configuration not found',
         });
         return;
       }
@@ -317,33 +326,32 @@ export class NotificationController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            removedBy: req.user?.id
-          }
-        }
+            removedBy: req.user?.id,
+          },
+        },
       };
 
       logger.info('Alert removed successfully', {
         responseTime,
         alertId,
-        alertType: alertConfig.type
+        alertType: alertConfig.type,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to remove alert', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
         userId: req.user?.id,
-        alertId
+        alertId,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to remove alert',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -352,7 +360,10 @@ export class NotificationController {
    * Test notification delivery
    * POST /api/budget/alerts/test
    */
-  async testNotification(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async testNotification(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
     const { alertId, channel, testData } = req.body;
 
@@ -360,7 +371,7 @@ export class NotificationController {
       userId: req.user?.id,
       alertId,
       channel,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -371,7 +382,7 @@ export class NotificationController {
         if (!alertConfig) {
           res.status(404).json({
             success: false,
-            error: 'Alert configuration not found'
+            error: 'Alert configuration not found',
           });
           return;
         }
@@ -383,23 +394,23 @@ export class NotificationController {
         title: 'Budget Alert Test',
         message: 'This is a test notification from the Budget Management API',
         data: testData || {
-          currentUsage: 85.50,
-          limit: 100.00,
+          currentUsage: 85.5,
+          limit: 100.0,
           percentage: 85.5,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         },
         metadata: {
           testBy: req.user?.id,
           testTimestamp: new Date().toISOString(),
-          alertId
-        }
+          alertId,
+        },
       };
 
       // Attempt to send test notification
       const deliveryResults = await this.sendTestNotification(
         testNotification,
         channel,
-        alertConfig
+        alertConfig,
       );
 
       const responseTime = Date.now() - startTime;
@@ -411,34 +422,33 @@ export class NotificationController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            testedBy: req.user?.id
-          }
-        }
+            testedBy: req.user?.id,
+          },
+        },
       };
 
       logger.info('Notification test completed', {
         responseTime,
         alertId,
         channel,
-        deliverySuccess: deliveryResults.every((result: any) => result.success)
+        deliverySuccess: deliveryResults.every((result: any) => result.success),
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Notification test failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
         userId: req.user?.id,
-        alertId
+        alertId,
       });
 
       res.status(500).json({
         success: false,
         error: 'Notification test failed',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -446,24 +456,40 @@ export class NotificationController {
   /**
    * Validate alert configuration
    */
-  private validateAlertConfig(config: any): { valid: boolean; errors: string[] } {
+  private validateAlertConfig(config: any): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!config.name || typeof config.name !== 'string') {
       errors.push('Alert name is required and must be a string');
     }
 
-    if (!config.type || !['threshold', 'limit_exceeded', 'anomaly', 'custom'].includes(config.type)) {
-      errors.push('Alert type must be one of: threshold, limit_exceeded, anomaly, custom');
+    if (
+      !config.type ||
+      !['threshold', 'limit_exceeded', 'anomaly', 'custom'].includes(
+        config.type,
+      )
+    ) {
+      errors.push(
+        'Alert type must be one of: threshold, limit_exceeded, anomaly, custom',
+      );
     }
 
-    if (config.type === 'threshold' && (config.threshold === undefined || typeof config.threshold !== 'number')) {
+    if (
+      config.type === 'threshold' &&
+      (config.threshold === undefined || typeof config.threshold !== 'number')
+    ) {
       errors.push('Threshold alerts require a numeric threshold value');
     }
 
     if (config.channels && Array.isArray(config.channels)) {
       for (const channel of config.channels) {
-        if (!channel.type || !['email', 'webhook', 'desktop', 'sms'].includes(channel.type)) {
+        if (
+          !channel.type ||
+          !['email', 'webhook', 'desktop', 'sms'].includes(channel.type)
+        ) {
           errors.push('Invalid notification channel type');
           break;
         }
@@ -472,7 +498,7 @@ export class NotificationController {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -482,42 +508,45 @@ export class NotificationController {
   private async sendTestNotification(
     notification: any,
     channel?: string,
-    alertConfig?: AlertConfig
+    alertConfig?: AlertConfig,
   ): Promise<any[]> {
     const results: any[] = [];
 
     // Determine channels to test
-    const channelsToTest = channel ? [{ type: channel, enabled: true, config: {} }] :
-      alertConfig?.channels || [{ type: 'email', enabled: true, config: {} }];
+    const channelsToTest = channel
+      ? [{ type: channel, enabled: true, config: {} }]
+      : alertConfig?.channels || [{ type: 'email', enabled: true, config: {} }];
 
     for (const channelConfig of channelsToTest) {
       if (!channelConfig.enabled) continue;
 
       try {
-        const result = await this.sendNotificationToChannel(notification, channelConfig);
+        const result = await this.sendNotificationToChannel(
+          notification,
+          channelConfig,
+        );
         results.push({
           channel: channelConfig.type,
           success: true,
           result,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
         logger.info('Test notification sent successfully', {
           channel: channelConfig.type,
-          notificationType: notification.type
+          notificationType: notification.type,
         });
-
       } catch (error) {
         results.push({
           channel: channelConfig.type,
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
         logger.warn('Test notification failed for channel', {
           channel: channelConfig.type,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -530,7 +559,7 @@ export class NotificationController {
    */
   private async sendNotificationToChannel(
     notification: any,
-    channel: NotificationChannel
+    channel: NotificationChannel,
   ): Promise<any> {
     switch (channel.type) {
       case 'email':
@@ -553,68 +582,80 @@ export class NotificationController {
   /**
    * Send email notification (mock implementation)
    */
-  private async sendEmailNotification(notification: any, config: any): Promise<any> {
+  private async sendEmailNotification(
+    notification: any,
+    config: any,
+  ): Promise<any> {
     // Mock email sending - replace with actual email service
     logger.info('Mock email notification sent', {
       to: config.email || 'user@example.com',
       subject: notification.title,
-      message: notification.message
+      message: notification.message,
     });
 
     return {
       messageId: `email_${Date.now()}`,
       status: 'sent',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
   /**
    * Send webhook notification (mock implementation)
    */
-  private async sendWebhookNotification(notification: any, config: any): Promise<any> {
+  private async sendWebhookNotification(
+    notification: any,
+    config: any,
+  ): Promise<any> {
     // Mock webhook sending - replace with actual HTTP request
     logger.info('Mock webhook notification sent', {
       url: config.url || 'https://example.com/webhook',
-      payload: notification
+      payload: notification,
     });
 
     return {
       responseStatus: 200,
       responseTime: 150,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
   /**
    * Send desktop notification (mock implementation)
    */
-  private async sendDesktopNotification(notification: any, config: any): Promise<any> {
+  private async sendDesktopNotification(
+    notification: any,
+    config: any,
+  ): Promise<any> {
     // Mock desktop notification - replace with actual desktop notification API
     logger.info('Mock desktop notification sent', {
       title: notification.title,
-      message: notification.message
+      message: notification.message,
     });
 
     return {
       displayed: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
   /**
    * Send SMS notification (mock implementation)
    */
-  private async sendSMSNotification(notification: any, config: any): Promise<any> {
+  private async sendSMSNotification(
+    notification: any,
+    config: any,
+  ): Promise<any> {
     // Mock SMS sending - replace with actual SMS service
     logger.info('Mock SMS notification sent', {
       to: config.phoneNumber || '+1234567890',
-      message: `${notification.title}: ${notification.message}`
+      message: `${notification.title}: ${notification.message}`,
     });
 
     return {
       messageId: `sms_${Date.now()}`,
       status: 'sent',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -631,14 +672,12 @@ export class NotificationController {
         threshold: 80,
         enabled: true,
         channels: [{ type: 'email', enabled: true, config: {} }],
-        conditions: [
-          { field: 'usagePercentage', operator: 'gte', value: 80 }
-        ],
+        conditions: [{ field: 'usagePercentage', operator: 'gte', value: 80 }],
         metadata: {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          createdBy: 'system'
-        }
+          createdBy: 'system',
+        },
       },
       {
         id: 'default_limit_exceeded',
@@ -648,17 +687,15 @@ export class NotificationController {
         enabled: true,
         channels: [
           { type: 'email', enabled: true, config: {} },
-          { type: 'desktop', enabled: true, config: {} }
+          { type: 'desktop', enabled: true, config: {} },
         ],
-        conditions: [
-          { field: 'usagePercentage', operator: 'gt', value: 100 }
-        ],
+        conditions: [{ field: 'usagePercentage', operator: 'gt', value: 100 }],
         metadata: {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          createdBy: 'system'
-        }
-      }
+          createdBy: 'system',
+        },
+      },
     ];
 
     for (const alert of defaultAlerts) {
@@ -666,7 +703,7 @@ export class NotificationController {
     }
 
     logger.info('Default alert configurations loaded', {
-      count: defaultAlerts.length
+      count: defaultAlerts.length,
     });
   }
 

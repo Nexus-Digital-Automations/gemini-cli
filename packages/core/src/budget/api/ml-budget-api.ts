@@ -11,8 +11,9 @@ import type {
   MLRiskAssessment,
   PredictionConfidence,
 } from '../types.js';
+import type {
+  MLEnhancedBudgetTracker} from '../ml-enhanced-tracker.js';
 import {
-  MLEnhancedBudgetTracker,
   createMLEnhancedBudgetTracker,
 } from '../ml-enhanced-tracker.js';
 

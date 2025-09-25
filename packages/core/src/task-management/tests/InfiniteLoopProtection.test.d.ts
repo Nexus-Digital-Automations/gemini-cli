@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Infinite Loop Detection and Prevention Test Suite
  *
  * Critical safety tests to ensure the task management system cannot

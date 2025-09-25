@@ -12,12 +12,12 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../../../../src/utils/logger.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
 import type {
   CostCalculationParams,
   BudgetCalculationContext,
   TokenUsageData,
-  ModelUsageData
+  ModelUsageData,
 } from '../types.js';
 
 /**
@@ -104,7 +104,7 @@ const DEFAULT_MODEL_PRICING: ModelPricing[] = [
     maxTokens: 1048576,
     supportsStreaming: true,
     currency: 'USD',
-    effectiveDate: new Date('2024-01-01')
+    effectiveDate: new Date('2024-01-01'),
   },
   {
     modelId: 'gemini-1.5-pro',
@@ -114,7 +114,7 @@ const DEFAULT_MODEL_PRICING: ModelPricing[] = [
     maxTokens: 2097152,
     supportsStreaming: true,
     currency: 'USD',
-    effectiveDate: new Date('2024-01-01')
+    effectiveDate: new Date('2024-01-01'),
   },
   {
     modelId: 'gemini-1.0-pro',
@@ -124,8 +124,8 @@ const DEFAULT_MODEL_PRICING: ModelPricing[] = [
     maxTokens: 30720,
     supportsStreaming: false,
     currency: 'USD',
-    effectiveDate: new Date('2024-01-01')
-  }
+    effectiveDate: new Date('2024-01-01'),
+  },
 ];
 
 /**
@@ -135,7 +135,8 @@ export class CostCalculationEngine {
   private readonly logger: Logger;
   private readonly modelPricing: Map<string, ModelPricing>;
   private readonly calculationHistory: CostCalculationResult[] = [];
-  private readonly usageHistory: Map<string, UsageCalculationResult[]> = new Map();
+  private readonly usageHistory: Map<string, UsageCalculationResult[]> =
+    new Map();
 
   /**
    * Create new cost calculation engine
@@ -159,7 +160,7 @@ export class CostCalculationEngine {
 
     this.logger.info('Cost calculation engine initialized', {
       modelsLoaded: this.modelPricing.size,
-      hasCustomPricing: !!customPricing
+      hasCustomPricing: !!customPricing,
     });
   }
 
@@ -168,14 +169,16 @@ export class CostCalculationEngine {
    * @param params - Calculation parameters
    * @returns Cost calculation result
    */
-  public async calculateCost(params: CostCalculationParams): Promise<CostCalculationResult> {
+  async calculateCost(
+    params: CostCalculationParams,
+  ): Promise<CostCalculationResult> {
     const start = Date.now();
 
     try {
       this.logger.debug('Calculating cost', {
         model: params.model,
         inputTokens: params.inputTokens,
-        outputTokens: params.outputTokens
+        outputTokens: params.outputTokens,
       });
 
       // Get model pricing
@@ -202,13 +205,14 @@ export class CostCalculationEngine {
         inputTokens: params.inputTokens,
         outputTokens: params.outputTokens,
         totalTokens: params.inputTokens + params.outputTokens,
-        costPerToken: finalCost / (params.inputTokens + params.outputTokens || 1),
+        costPerToken:
+          finalCost / (params.inputTokens + params.outputTokens || 1),
         currency: pricing.currency,
         metadata: {
           executionTime: Date.now() - start,
           pricingVersion: pricing.effectiveDate.toISOString(),
-          context: params.context
-        }
+          context: params.context,
+        },
       };
 
       // Store in calculation history
@@ -221,15 +225,14 @@ export class CostCalculationEngine {
 
       this.logger.debug('Cost calculation completed', {
         totalCost: result.totalCost,
-        executionTime: Date.now() - start
+        executionTime: Date.now() - start,
       });
 
       return result;
-
     } catch (error) {
       this.logger.error('Cost calculation failed', {
         error: error as Error,
-        params
+        params,
       });
       throw error;
     }
@@ -243,11 +246,11 @@ export class CostCalculationEngine {
    * @param periodElapsed - How much of the period has elapsed (0-1)
    * @returns Usage calculation result
    */
-  public calculateUsage(
+  calculateUsage(
     currentUsage: number,
     limit: number,
     period: 'daily' | 'weekly' | 'monthly',
-    periodElapsed: number
+    periodElapsed: number,
   ): UsageCalculationResult {
     const start = Date.now();
 
@@ -257,9 +260,8 @@ export class CostCalculationEngine {
       const remainingBudget = Math.max(0, limit - currentUsage);
 
       // Project usage for full period
-      const projectedUsage = periodElapsed > 0
-        ? currentUsage / periodElapsed
-        : currentUsage;
+      const projectedUsage =
+        periodElapsed > 0 ? currentUsage / periodElapsed : currentUsage;
 
       // Calculate remaining time in period
       const periodHours = this.getPeriodHours(period);
@@ -267,9 +269,11 @@ export class CostCalculationEngine {
 
       // Calculate average cost per request (if we have history)
       const recentCalculations = this.calculationHistory.slice(-10);
-      const avgCostPerRequest = recentCalculations.length > 0
-        ? recentCalculations.reduce((sum, calc) => sum + calc.totalCost, 0) / recentCalculations.length
-        : 0;
+      const avgCostPerRequest =
+        recentCalculations.length > 0
+          ? recentCalculations.reduce((sum, calc) => sum + calc.totalCost, 0) /
+            recentCalculations.length
+          : 0;
 
       // Determine usage trend
       const trend = this.calculateUsageTrend(currentUsage, period);
@@ -282,7 +286,7 @@ export class CostCalculationEngine {
         period,
         periodRemaining,
         avgCostPerRequest,
-        trend
+        trend,
       };
 
       // Store usage calculation
@@ -301,11 +305,10 @@ export class CostCalculationEngine {
         period,
         usagePercentage,
         trend,
-        executionTime: Date.now() - start
+        executionTime: Date.now() - start,
       });
 
       return result;
-
     } catch (error) {
       this.logger.error('Usage calculation failed', error as Error);
       throw error;
@@ -317,13 +320,14 @@ export class CostCalculationEngine {
    * @param timeframe - Time range in milliseconds
    * @returns Token usage data
    */
-  public getTokenUsageSummary(timeframe: number): TokenUsageData {
+  getTokenUsageSummary(timeframe: number): TokenUsageData {
     const cutoffTime = Date.now() - timeframe;
 
     // Filter recent calculations
     const recentCalculations = this.calculationHistory.filter(
-      calc => calc.metadata?.timestamp &&
-              new Date(calc.metadata.timestamp).getTime() > cutoffTime
+      (calc) =>
+        calc.metadata?.timestamp &&
+        new Date(calc.metadata.timestamp).getTime() > cutoffTime,
     );
 
     // Aggregate token usage
@@ -340,8 +344,8 @@ export class CostCalculationEngine {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
-        tokenCosts: { input: 0, output: 0 }
-      } as TokenUsageData
+        tokenCosts: { input: 0, output: 0 },
+      } as TokenUsageData,
     );
 
     return summary;
@@ -352,14 +356,17 @@ export class CostCalculationEngine {
    * @param timeframe - Time range in milliseconds
    * @returns Model usage breakdown
    */
-  public getModelUsageBreakdown(timeframe: number): Record<string, ModelUsageData> {
+  getModelUsageBreakdown(
+    timeframe: number,
+  ): Record<string, ModelUsageData> {
     const cutoffTime = Date.now() - timeframe;
     const modelUsage: Record<string, ModelUsageData> = {};
 
     // Filter and group by model
     const recentCalculations = this.calculationHistory.filter(
-      calc => calc.metadata?.timestamp &&
-              new Date(calc.metadata.timestamp).getTime() > cutoffTime
+      (calc) =>
+        calc.metadata?.timestamp &&
+        new Date(calc.metadata.timestamp).getTime() > cutoffTime,
     );
 
     for (const calc of recentCalculations) {
@@ -369,7 +376,7 @@ export class CostCalculationEngine {
           inputTokens: 0,
           outputTokens: 0,
           cost: 0,
-          avgResponseTime: 0
+          avgResponseTime: 0,
         };
       }
 
@@ -382,7 +389,8 @@ export class CostCalculationEngine {
       // Calculate average response time if available
       if (calc.metadata?.executionTime) {
         const totalTime = (usage.avgResponseTime || 0) * (usage.requests - 1);
-        usage.avgResponseTime = (totalTime + calc.metadata.executionTime) / usage.requests;
+        usage.avgResponseTime =
+          (totalTime + calc.metadata.executionTime) / usage.requests;
       }
     }
 
@@ -393,12 +401,12 @@ export class CostCalculationEngine {
    * Update model pricing
    * @param pricing - New pricing configuration
    */
-  public updateModelPricing(pricing: ModelPricing): void {
+  updateModelPricing(pricing: ModelPricing): void {
     this.modelPricing.set(pricing.modelId, pricing);
     this.logger.info('Updated model pricing', {
       model: pricing.modelId,
       inputCost: pricing.inputCostPer1K,
-      outputCost: pricing.outputCostPer1K
+      outputCost: pricing.outputCostPer1K,
     });
   }
 
@@ -406,7 +414,7 @@ export class CostCalculationEngine {
    * Get available models and pricing
    * @returns Array of model pricing information
    */
-  public getModelPricing(): ModelPricing[] {
+  getModelPricing(): ModelPricing[] {
     return Array.from(this.modelPricing.values());
   }
 
@@ -414,7 +422,7 @@ export class CostCalculationEngine {
    * Get calculation statistics
    * @returns Calculation engine statistics
    */
-  public getStatistics(): {
+  getStatistics(): {
     totalCalculations: number;
     totalCost: number;
     totalTokens: number;
@@ -422,24 +430,33 @@ export class CostCalculationEngine {
     modelsUsed: string[];
     calculationHistory: number;
   } {
-    const totalCost = this.calculationHistory.reduce((sum, calc) => sum + calc.totalCost, 0);
-    const totalTokens = this.calculationHistory.reduce((sum, calc) => sum + calc.totalTokens, 0);
-    const modelsUsed = Array.from(new Set(this.calculationHistory.map(calc => calc.model)));
+    const totalCost = this.calculationHistory.reduce(
+      (sum, calc) => sum + calc.totalCost,
+      0,
+    );
+    const totalTokens = this.calculationHistory.reduce(
+      (sum, calc) => sum + calc.totalTokens,
+      0,
+    );
+    const modelsUsed = Array.from(
+      new Set(this.calculationHistory.map((calc) => calc.model)),
+    );
 
     return {
       totalCalculations: this.calculationHistory.length,
       totalCost,
       totalTokens,
-      averageCostPerCalculation: totalCost / (this.calculationHistory.length || 1),
+      averageCostPerCalculation:
+        totalCost / (this.calculationHistory.length || 1),
       modelsUsed,
-      calculationHistory: this.calculationHistory.length
+      calculationHistory: this.calculationHistory.length,
     };
   }
 
   /**
    * Clear calculation history
    */
-  public clearHistory(): void {
+  clearHistory(): void {
     this.calculationHistory.length = 0;
     this.usageHistory.clear();
     this.logger.info('Calculation history cleared');
@@ -471,7 +488,7 @@ export class CostCalculationEngine {
    */
   private calculateUsageTrend(
     currentUsage: number,
-    period: 'daily' | 'weekly' | 'monthly'
+    period: 'daily' | 'weekly' | 'monthly',
   ): 'increasing' | 'decreasing' | 'stable' {
     const history = this.usageHistory.get(period);
     if (!history || history.length < 2) {
@@ -480,7 +497,8 @@ export class CostCalculationEngine {
 
     // Compare with previous calculation
     const previous = history[history.length - 2];
-    const change = (currentUsage - previous.currentUsage) / previous.currentUsage;
+    const change =
+      (currentUsage - previous.currentUsage) / previous.currentUsage;
 
     if (change > 0.1) return 'increasing';
     if (change < -0.1) return 'decreasing';
@@ -493,6 +511,8 @@ export class CostCalculationEngine {
  * @param customPricing - Optional custom model pricing
  * @returns New cost calculation engine
  */
-export function createCostCalculationEngine(customPricing?: ModelPricing[]): CostCalculationEngine {
+export function createCostCalculationEngine(
+  customPricing?: ModelPricing[],
+): CostCalculationEngine {
   return new CostCalculationEngine(customPricing);
 }

@@ -8,12 +8,10 @@ import type React from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../../../semantic-colors.js';
 import {
-  convertBreakdownToChartData,
   formatCurrency,
   formatPercentage,
   createProgressBar,
   generateColorPalette,
-  DEFAULT_PIE_COLORS,
 } from '../utils/chartUtils.js';
 import type { ChartConfig, CostBreakdownItem } from '../types/index.js';
 
@@ -56,7 +54,7 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
   config,
   loading = false,
   error,
-  onItemSelect,
+  onItemSelect: _onItemSelect,
 }) => {
   // Handle loading state
   if (loading) {
@@ -124,7 +122,10 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
   // Sort data by cost (descending) and prepare chart data
   const sortedData = [...data].sort((a, b) => b.cost - a.cost);
   const totalCost = sortedData.reduce((sum, item) => sum + item.cost, 0);
-  const colorPalette = generateColorPalette(sortedData.length, config.colorScheme);
+  const colorPalette = generateColorPalette(
+    sortedData.length,
+    config.colorScheme,
+  );
 
   /**
    * Renders the cost statistics header.
@@ -162,39 +163,31 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
   /**
    * Renders a simple ASCII pie chart using block characters.
    */
-  const renderPieChart = () => {
-    // Create a simple pie representation using progress bars
-    const pieSize = Math.min(8, config.width / 8);
-    const centerX = Math.floor(pieSize / 2);
-    const centerY = Math.floor(pieSize / 2);
+  const renderPieChart = () => (
+    <Box flexDirection="column" marginBottom={1}>
+      <Text color={theme.text.muted} marginBottom={1}>
+        Cost Distribution:
+      </Text>
+      {sortedData.map((item, index) => {
+        const color =
+          index < colorPalette.length
+            ? colorPalette[index]
+            : theme.text.secondary;
 
-    // For CLI, we'll use a simplified representation
-    return (
-      <Box flexDirection="column" marginBottom={1}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Cost Distribution:
-        </Text>
-        {sortedData.map((item, index) => {
-          const color = index < colorPalette.length ? colorPalette[index] : theme.text.secondary;
-          const progressWidth = Math.max(1, Math.floor((item.percentage / 100) * 20));
-
-          return (
-            <Box key={item.feature} gap={1} marginBottom={1}>
-              <Text color={color}>
-                {createProgressBar(item.percentage, 10, '█', '░')}
-              </Text>
-              <Text color={theme.text.primary}>
-                {item.feature}
-              </Text>
-              <Text color={theme.text.muted}>
-                ({formatPercentage(item.percentage)})
-              </Text>
-            </Box>
-          );
-        })}
-      </Box>
-    );
-  };
+        return (
+          <Box key={item.feature} gap={1} marginBottom={1}>
+            <Text color={color}>
+              {createProgressBar(item.percentage, 10, '█', '░')}
+            </Text>
+            <Text color={theme.text.primary}>{item.feature}</Text>
+            <Text color={theme.text.muted}>
+              ({formatPercentage(item.percentage)})
+            </Text>
+          </Box>
+        );
+      })}
+    </Box>
+  );
 
   /**
    * Renders horizontal bar chart for detailed breakdown.
@@ -206,8 +199,14 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
     return (
       <Box flexDirection="column">
         {sortedData.map((item, index) => {
-          const barWidth = Math.max(1, Math.floor((item.cost / maxCost) * availableWidth));
-          const color = index < colorPalette.length ? colorPalette[index] : theme.text.secondary;
+          const barWidth = Math.max(
+            1,
+            Math.floor((item.cost / maxCost) * availableWidth),
+          );
+          const color =
+            index < colorPalette.length
+              ? colorPalette[index]
+              : theme.text.secondary;
 
           return (
             <Box key={item.feature} flexDirection="column" marginBottom={1}>
@@ -216,18 +215,18 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
                   {item.feature}
                 </Text>
                 <Text color={theme.text.secondary}>
-                  {formatCurrency(item.cost)} ({formatPercentage(item.percentage)})
+                  {formatCurrency(item.cost)} (
+                  {formatPercentage(item.percentage)})
                 </Text>
               </Box>
               <Box alignItems="center" gap={1}>
                 <Text color={color}>
-                  {'█'.repeat(barWidth)}{'░'.repeat(Math.max(0, availableWidth - barWidth))}
+                  {'█'.repeat(barWidth)}
+                  {'░'.repeat(Math.max(0, availableWidth - barWidth))}
                 </Text>
               </Box>
               <Box justifyContent="space-between">
-                <Text color={theme.text.muted}>
-                  {item.requests} requests
-                </Text>
+                <Text color={theme.text.muted}>{item.requests} requests</Text>
                 <Text color={theme.text.muted}>
                   {formatCurrency(item.avgCostPerRequest)} avg/req
                 </Text>
@@ -259,16 +258,15 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
           <Box key={rowIndex} gap={2} marginBottom={1}>
             {row.map((item, index) => {
               const globalIndex = rowIndex * itemsPerRow + index;
-              const color = globalIndex < colorPalette.length
-                ? colorPalette[globalIndex]
-                : theme.text.secondary;
+              const color =
+                globalIndex < colorPalette.length
+                  ? colorPalette[globalIndex]
+                  : theme.text.secondary;
 
               return (
                 <Box key={item.feature} alignItems="center" gap={1}>
                   <Text color={color}>●</Text>
-                  <Text color={theme.text.secondary}>
-                    {item.feature}
-                  </Text>
+                  <Text color={theme.text.secondary}>{item.feature}</Text>
                 </Box>
               );
             })}
@@ -284,7 +282,10 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
   const renderDetailedAnalysis = () => {
     const topFeatures = sortedData.slice(0, 3);
     const totalTokens = sortedData.reduce((sum, item) => sum + item.tokens, 0);
-    const totalRequests = sortedData.reduce((sum, item) => sum + item.requests, 0);
+    const totalRequests = sortedData.reduce(
+      (sum, item) => sum + item.requests,
+      0,
+    );
     const avgCostPerToken = totalTokens > 0 ? totalCost / totalTokens : 0;
 
     return (
@@ -309,7 +310,11 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
           Top Cost Contributors:
         </Text>
         {topFeatures.map((item, index) => (
-          <Box key={item.feature} justifyContent="space-between" marginBottom={1}>
+          <Box
+            key={item.feature}
+            justifyContent="space-between"
+            marginBottom={1}
+          >
             <Text color={theme.text.primary}>
               {index + 1}. {item.feature}
             </Text>
@@ -317,7 +322,8 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
               {formatCurrency(item.cost)}
             </Text>
             <Text color={theme.text.muted}>
-              ({item.requests} req, {formatCurrency(item.avgCostPerRequest)} avg)
+              ({item.requests} req, {formatCurrency(item.avgCostPerRequest)}{' '}
+              avg)
             </Text>
           </Box>
         ))}
@@ -351,27 +357,31 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
 
       {/* Chart visualization */}
       <Box flexGrow={1}>
-        {config.height > 15
-          ? renderBarChart()
-          : config.height > 10
-          ? renderPieChart()
-          : (
-              <Box flexDirection="column">
-                {sortedData.slice(0, 3).map((item, index) => (
-                  <Box key={item.feature} justifyContent="space-between" marginBottom={1}>
-                    <Text color={theme.text.primary}>{item.feature}</Text>
-                    <Text color={theme.text.secondary}>
-                      {formatCurrency(item.cost)}
-                    </Text>
-                  </Box>
-                ))}
-                {sortedData.length > 3 && (
-                  <Text color={theme.text.muted}>
-                    +{sortedData.length - 3} more
-                  </Text>
-                )}
+        {config.height > 15 ? (
+          renderBarChart()
+        ) : config.height > 10 ? (
+          renderPieChart()
+        ) : (
+          <Box flexDirection="column">
+            {sortedData.slice(0, 3).map((item) => (
+              <Box
+                key={item.feature}
+                justifyContent="space-between"
+                marginBottom={1}
+              >
+                <Text color={theme.text.primary}>{item.feature}</Text>
+                <Text color={theme.text.secondary}>
+                  {formatCurrency(item.cost)}
+                </Text>
               </Box>
+            ))}
+            {sortedData.length > 3 && (
+              <Text color={theme.text.muted}>
+                +{sortedData.length - 3} more
+              </Text>
             )}
+          </Box>
+        )}
       </Box>
 
       {/* Additional information for larger charts */}
@@ -379,13 +389,14 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
       {config.height > 12 && config.height <= 20 && renderLegend()}
 
       {/* Footer */}
-      <Box justifyContent="space-between" marginTop={1} paddingTop={1} borderTop>
-        <Text color={theme.text.muted}>
-          {sortedData.length} features
-        </Text>
-        <Text color={theme.text.muted}>
-          Total: {formatCurrency(totalCost)}
-        </Text>
+      <Box
+        justifyContent="space-between"
+        marginTop={1}
+        paddingTop={1}
+        borderTop
+      >
+        <Text color={theme.text.muted}>{sortedData.length} features</Text>
+        <Text color={theme.text.muted}>Total: {formatCurrency(totalCost)}</Text>
       </Box>
     </Box>
   );

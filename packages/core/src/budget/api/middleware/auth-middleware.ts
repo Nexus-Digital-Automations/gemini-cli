@@ -13,9 +13,10 @@
  * @version 1.0.0
  */
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
-import { BudgetPermission, BudgetSecurityContext } from '../../types.js';
+import type { BudgetSecurityContext } from '../../types.js';
+import { BudgetPermission } from '../../types.js';
 
 const logger = new Logger('AuthMiddleware');
 
@@ -50,29 +51,35 @@ interface UserAuthData {
  * Mock user database - replace with actual user service
  */
 const mockUsers = new Map<string, UserAuthData>([
-  ['user_123', {
-    id: 'user_123',
-    email: 'test@example.com',
-    permissions: [
-      BudgetPermission.VIEW_BUDGET,
-      BudgetPermission.VIEW_USAGE,
-      BudgetPermission.VIEW_HISTORY,
-      BudgetPermission.MODIFY_SETTINGS
-    ],
-    roles: ['user'],
-    isActive: true,
-    lastLoginAt: new Date(),
-    metadata: { department: 'engineering' }
-  }],
-  ['admin_456', {
-    id: 'admin_456',
-    email: 'admin@example.com',
-    permissions: Object.values(BudgetPermission),
-    roles: ['admin', 'user'],
-    isActive: true,
-    lastLoginAt: new Date(),
-    metadata: { department: 'operations' }
-  }]
+  [
+    'user_123',
+    {
+      id: 'user_123',
+      email: 'test@example.com',
+      permissions: [
+        BudgetPermission.VIEW_BUDGET,
+        BudgetPermission.VIEW_USAGE,
+        BudgetPermission.VIEW_HISTORY,
+        BudgetPermission.MODIFY_SETTINGS,
+      ],
+      roles: ['user'],
+      isActive: true,
+      lastLoginAt: new Date(),
+      metadata: { department: 'engineering' },
+    },
+  ],
+  [
+    'admin_456',
+    {
+      id: 'admin_456',
+      email: 'admin@example.com',
+      permissions: Object.values(BudgetPermission),
+      roles: ['admin', 'user'],
+      isActive: true,
+      lastLoginAt: new Date(),
+      metadata: { department: 'operations' },
+    },
+  ],
 ]);
 
 /**
@@ -81,7 +88,7 @@ const mockUsers = new Map<string, UserAuthData>([
 const validApiKeys = new Set([
   'api_key_development_123',
   'api_key_production_456',
-  'api_key_staging_789'
+  'api_key_staging_789',
 ]);
 
 /**
@@ -90,7 +97,7 @@ const validApiKeys = new Set([
 export function authenticateRequest(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   const startTime = Date.now();
 
@@ -99,7 +106,7 @@ export function authenticateRequest(
     path: req.path,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   try {
@@ -110,14 +117,14 @@ export function authenticateRequest(
       logger.warn('Authentication failed - no valid credentials', {
         path: req.path,
         ip: req.ip,
-        error: authResult.error
+        error: authResult.error,
       });
 
       res.status(401).json({
         success: false,
         error: 'Authentication required',
         details: authResult.error,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       return;
     }
@@ -129,13 +136,13 @@ export function authenticateRequest(
       logger.warn('Authentication failed - invalid credentials', {
         path: req.path,
         ip: req.ip,
-        credentialsType: authResult.type
+        credentialsType: authResult.type,
       });
 
       res.status(401).json({
         success: false,
         error: 'Invalid credentials',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       return;
     }
@@ -144,13 +151,13 @@ export function authenticateRequest(
       logger.warn('Authentication failed - inactive user', {
         path: req.path,
         ip: req.ip,
-        userId: user.id
+        userId: user.id,
       });
 
       res.status(401).json({
         success: false,
         error: 'Account is inactive',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       return;
     }
@@ -159,8 +166,8 @@ export function authenticateRequest(
     req.user = {
       id: user.id,
       email: user.email,
-      permissions: user.permissions.map(p => p.toString()),
-      roles: user.roles
+      permissions: user.permissions.map((p) => p.toString()),
+      roles: user.roles,
     };
 
     // Generate session ID
@@ -173,7 +180,7 @@ export function authenticateRequest(
       requiredPermissions: [], // Will be set by authorization middleware
       userPermissions: user.permissions,
       ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     };
 
     const authTime = Date.now() - startTime;
@@ -182,11 +189,10 @@ export function authenticateRequest(
       userId: user.id,
       authTime,
       permissions: user.permissions.length,
-      roles: user.roles.length
+      roles: user.roles.length,
     });
 
     next();
-
   } catch (error) {
     const authTime = Date.now() - startTime;
 
@@ -194,13 +200,13 @@ export function authenticateRequest(
       error: error instanceof Error ? error.message : 'Unknown error',
       authTime,
       path: req.path,
-      ip: req.ip
+      ip: req.ip,
     });
 
     res.status(500).json({
       success: false,
       error: 'Authentication service error',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }
@@ -209,26 +215,30 @@ export function authenticateRequest(
  * Authorization middleware factory
  */
 export function requirePermissions(requiredPermissions: BudgetPermission[]) {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): void => {
     const startTime = Date.now();
 
     logger.debug('Authorization check', {
       userId: req.user?.id,
       requiredPermissions,
       userPermissions: req.user?.permissions,
-      path: req.path
+      path: req.path,
     });
 
     try {
       if (!req.user) {
         logger.warn('Authorization failed - no authenticated user', {
-          path: req.path
+          path: req.path,
         });
 
         res.status(401).json({
           success: false,
           error: 'Authentication required for this endpoint',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
         return;
       }
@@ -239,22 +249,24 @@ export function requirePermissions(requiredPermissions: BudgetPermission[]) {
       }
 
       // Check if user has required permissions
-      const hasAllPermissions = requiredPermissions.every(requiredPerm =>
-        req.user!.permissions.includes(requiredPerm.toString()) ||
-        req.user!.roles.includes('admin') // Admins have all permissions
+      const hasAllPermissions = requiredPermissions.every(
+        (requiredPerm) =>
+          req.user!.permissions.includes(requiredPerm.toString()) ||
+          req.user!.roles.includes('admin'), // Admins have all permissions
       );
 
       if (!hasAllPermissions) {
-        const missingPermissions = requiredPermissions.filter(requiredPerm =>
-          !req.user!.permissions.includes(requiredPerm.toString()) &&
-          !req.user!.roles.includes('admin')
+        const missingPermissions = requiredPermissions.filter(
+          (requiredPerm) =>
+            !req.user!.permissions.includes(requiredPerm.toString()) &&
+            !req.user!.roles.includes('admin'),
         );
 
         logger.warn('Authorization failed - insufficient permissions', {
           userId: req.user.id,
           path: req.path,
           requiredPermissions,
-          missingPermissions
+          missingPermissions,
         });
 
         res.status(403).json({
@@ -262,9 +274,9 @@ export function requirePermissions(requiredPermissions: BudgetPermission[]) {
           error: 'Insufficient permissions',
           details: {
             required: requiredPermissions,
-            missing: missingPermissions
+            missing: missingPermissions,
           },
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
         return;
       }
@@ -274,11 +286,10 @@ export function requirePermissions(requiredPermissions: BudgetPermission[]) {
       logger.debug('Authorization successful', {
         userId: req.user.id,
         authTime,
-        permissions: requiredPermissions
+        permissions: requiredPermissions,
       });
 
       next();
-
     } catch (error) {
       const authTime = Date.now() - startTime;
 
@@ -286,13 +297,13 @@ export function requirePermissions(requiredPermissions: BudgetPermission[]) {
         error: error instanceof Error ? error.message : 'Unknown error',
         authTime,
         userId: req.user?.id,
-        path: req.path
+        path: req.path,
       });
 
       res.status(500).json({
         success: false,
         error: 'Authorization service error',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   };
@@ -302,25 +313,29 @@ export function requirePermissions(requiredPermissions: BudgetPermission[]) {
  * Role-based authorization middleware
  */
 export function requireRoles(requiredRoles: string[]) {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): void => {
     logger.debug('Role authorization check', {
       userId: req.user?.id,
       requiredRoles,
       userRoles: req.user?.roles,
-      path: req.path
+      path: req.path,
     });
 
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       return;
     }
 
-    const hasRequiredRole = requiredRoles.some(role =>
-      req.user!.roles.includes(role)
+    const hasRequiredRole = requiredRoles.some((role) =>
+      req.user!.roles.includes(role),
     );
 
     if (!hasRequiredRole) {
@@ -328,7 +343,7 @@ export function requireRoles(requiredRoles: string[]) {
         userId: req.user.id,
         path: req.path,
         requiredRoles,
-        userRoles: req.user.roles
+        userRoles: req.user.roles,
       });
 
       res.status(403).json({
@@ -336,9 +351,9 @@ export function requireRoles(requiredRoles: string[]) {
         error: 'Insufficient role privileges',
         details: {
           required: requiredRoles,
-          current: req.user.roles
+          current: req.user.roles,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       return;
     }
@@ -367,7 +382,7 @@ function extractAuthenticationCredentials(req: Request): {
         return {
           success: true,
           credentials: token,
-          type: 'bearer'
+          type: 'bearer',
         };
       }
     }
@@ -379,7 +394,7 @@ function extractAuthenticationCredentials(req: Request): {
         return {
           success: true,
           credentials,
-          type: 'basic'
+          type: 'basic',
         };
       }
     }
@@ -391,7 +406,7 @@ function extractAuthenticationCredentials(req: Request): {
     return {
       success: true,
       credentials: apiKey,
-      type: 'apikey'
+      type: 'apikey',
     };
   }
 
@@ -400,13 +415,13 @@ function extractAuthenticationCredentials(req: Request): {
     return {
       success: true,
       credentials: req.query.api_key,
-      type: 'apikey'
+      type: 'apikey',
     };
   }
 
   return {
     success: false,
-    error: 'No authentication credentials provided'
+    error: 'No authentication credentials provided',
   };
 }
 
@@ -415,7 +430,7 @@ function extractAuthenticationCredentials(req: Request): {
  */
 function validateCredentials(
   credentials: string,
-  type: 'bearer' | 'apikey' | 'basic'
+  type: 'bearer' | 'apikey' | 'basic',
 ): UserAuthData | null {
   switch (type) {
     case 'bearer':
@@ -455,7 +470,9 @@ function validateJWTToken(token: string): UserAuthData | null {
  * Validate API key
  */
 function validateApiKey(apiKey: string): UserAuthData | null {
-  logger.debug('Validating API key', { apiKey: apiKey.substring(0, 10) + '...' });
+  logger.debug('Validating API key', {
+    apiKey: apiKey.substring(0, 10) + '...',
+  });
 
   if (!validApiKeys.has(apiKey)) {
     return null;
@@ -494,10 +511,9 @@ function validateBasicAuth(credentials: string): UserAuthData | null {
     }
 
     return null;
-
   } catch (error) {
     logger.warn('Basic auth decode error', {
-      error: error instanceof Error ? error.message : 'Decode error'
+      error: error instanceof Error ? error.message : 'Decode error',
     });
     return null;
   }
@@ -518,12 +534,12 @@ function generateSessionId(): string {
 export function logAuthEvents(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   // Log authentication events for audit trail
   const originalSend = res.send;
 
-  res.send = function(body: any) {
+  res.send = function (body: any) {
     const statusCode = res.statusCode;
 
     if (statusCode === 401 || statusCode === 403) {
@@ -534,7 +550,7 @@ export function logAuthEvents(
         method: req.method,
         ip: req.ip,
         userAgent: req.get('User-Agent'),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -551,7 +567,7 @@ export function logAuthEvents(
 export function devBypassAuth(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   if (process.env.NODE_ENV !== 'development') {
     return next();
@@ -559,15 +575,15 @@ export function devBypassAuth(
 
   logger.warn('Development authentication bypass active', {
     path: req.path,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
   });
 
   // Attach mock user for development
   req.user = {
     id: 'dev_user',
     email: 'dev@example.com',
-    permissions: Object.values(BudgetPermission).map(p => p.toString()),
-    roles: ['admin', 'dev']
+    permissions: Object.values(BudgetPermission).map((p) => p.toString()),
+    roles: ['admin', 'dev'],
   };
 
   req.sessionId = 'dev_session';
@@ -583,5 +599,5 @@ export const authUtils = {
   validateCredentials,
   generateSessionId,
   mockUsers, // For testing purposes
-  validApiKeys // For testing purposes
+  validApiKeys, // For testing purposes
 };

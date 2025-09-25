@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { StructuredLogger, getComponentLogger } from '../../../../packages/core/src/utils/logger.js';
+import type { StructuredLogger} from "@google/gemini-cli-core/src/utils/logger.js";
+import { getComponentLogger } from "@google/gemini-cli-core/src/utils/logger.js";
 import {
   TaskStatusMonitor,
   TaskMetadata,
@@ -38,13 +39,13 @@ export interface TaskAnalytics {
   tasksByType: Record<string, number>;
   tasksByPriority: Record<string, number>;
   tasksByAgent: Record<string, number>;
-  timeSeriesData: {
+  timeSeriesData: Array<{
     timestamp: Date;
     completed: number;
     failed: number;
     started: number;
     queued: number;
-  }[];
+  }>;
 }
 
 export interface AgentAnalytics {
@@ -54,12 +55,12 @@ export interface AgentAnalytics {
   busyAgents: number;
   offlineAgents: number;
   averageTasksPerAgent: number;
-  topPerformers: {
+  topPerformers: Array<{
     agentId: string;
     completedTasks: number;
     successRate: number;
     averageTaskTime: number;
-  }[];
+  }>;
   agentEfficiency: Record<
     string,
     {
@@ -77,7 +78,7 @@ export interface SystemAnalytics {
   totalEvents: number;
   eventsPerHour: number;
   systemEfficiency: number;
-  bottlenecks: {
+  bottlenecks: Array<{
     type:
       | 'agent_capacity'
       | 'task_queue'
@@ -87,7 +88,7 @@ export interface SystemAnalytics {
     severity: 'low' | 'medium' | 'high' | 'critical';
     affectedTasks: string[];
     suggestedResolution: string;
-  }[];
+  }>;
   trends: {
     taskCompletionTrend: 'improving' | 'stable' | 'declining';
     agentUtilizationTrend: 'improving' | 'stable' | 'declining';
@@ -264,7 +265,7 @@ export class StatusHistoryAnalytics {
     const sortOrder = query.sortOrder || 'desc';
 
     entries.sort((a, b) => {
-      let aValue: any, bValue: any;
+      let aValue: any; let bValue: any;
 
       switch (sortBy) {
         case 'timestamp':

@@ -5,7 +5,8 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { StructuredLogger, getComponentLogger } from '../../../../packages/core/src/utils/logger.js';
+import type { StructuredLogger} from "@google/gemini-cli-core/src/utils/logger.js";
+import { getComponentLogger } from "@google/gemini-cli-core/src/utils/logger.js";
 
 /**
  * Task status definitions for comprehensive monitoring

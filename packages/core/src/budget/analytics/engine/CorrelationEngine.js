@@ -31,9 +31,9 @@ export class CorrelationEngine {
       weakCorrelationThreshold: 0.2,
 
       // Analysis windows
-      shortTermWindow: 7,  // days
+      shortTermWindow: 7, // days
       mediumTermWindow: 30, // days
-      longTermWindow: 90,   // days
+      longTermWindow: 90, // days
 
       // Statistical confidence levels
       confidenceLevel: 0.95,
@@ -41,14 +41,14 @@ export class CorrelationEngine {
 
       // Feature groupings for analysis
       featureGroups: {
-        'authentication': ['login', 'logout', 'auth', 'signin', 'signup'],
-        'analytics': ['report', 'dashboard', 'chart', 'analytics', 'metrics'],
-        'data_management': ['import', 'export', 'sync', 'backup', 'restore'],
-        'user_management': ['user', 'profile', 'settings', 'account'],
-        'admin': ['admin', 'config', 'manage', 'system']
+        authentication: ['login', 'logout', 'auth', 'signin', 'signup'],
+        analytics: ['report', 'dashboard', 'chart', 'analytics', 'metrics'],
+        data_management: ['import', 'export', 'sync', 'backup', 'restore'],
+        user_management: ['user', 'profile', 'settings', 'account'],
+        admin: ['admin', 'config', 'manage', 'system'],
       },
 
-      ...config
+      ...config,
     };
 
     this.logger.info('CorrelationEngine initialized', { config: this.config });
@@ -64,14 +64,16 @@ export class CorrelationEngine {
     const startTime = Date.now();
     this.logger.info('Starting comprehensive correlation analysis', {
       metricsCount: metrics.length,
-      options
+      options,
     });
 
     try {
       // Validate input metrics
       const validatedMetrics = this.validateMetrics(metrics);
       if (validatedMetrics.length < this.config.minSampleSize) {
-        throw new Error(`Insufficient sample size: ${validatedMetrics.length} < ${this.config.minSampleSize}`);
+        throw new Error(
+          `Insufficient sample size: ${validatedMetrics.length} < ${this.config.minSampleSize}`,
+        );
       }
 
       // Perform all correlation analyses
@@ -84,7 +86,7 @@ export class CorrelationEngine {
         this.analyzeSessionCorrelations(validatedMetrics),
         this.analyzeGeographicCorrelations(validatedMetrics),
         this.analyzePredictiveCorrelations(validatedMetrics),
-        this.analyzeCustomCorrelations(validatedMetrics, options)
+        this.analyzeCustomCorrelations(validatedMetrics, options),
       ]);
 
       const results = {
@@ -100,27 +102,27 @@ export class CorrelationEngine {
           sessionCorrelations: correlationResults[5],
           geographicCorrelations: correlationResults[6],
           predictiveCorrelations: correlationResults[7],
-          customCorrelations: correlationResults[8]
+          customCorrelations: correlationResults[8],
         },
         strongCorrelations: this.extractStrongCorrelations(correlationResults),
         correlationSummary: this.generateCorrelationSummary(correlationResults),
-        actionableInsights: await this.generateActionableInsights(correlationResults),
-        processingTime: Date.now() - startTime
+        actionableInsights:
+          await this.generateActionableInsights(correlationResults),
+        processingTime: Date.now() - startTime,
       };
 
       this.logger.info('Correlation analysis completed', {
         totalCorrelations: this.countTotalCorrelations(results.correlations),
         strongCorrelations: results.strongCorrelations.length,
-        processingTime: results.processingTime
+        processingTime: results.processingTime,
       });
 
       return results;
-
     } catch (error) {
       this.logger.error('Correlation analysis failed', {
         error: error.message,
         stack: error.stack,
-        metricsCount: metrics.length
+        metricsCount: metrics.length,
       });
       throw error;
     }
@@ -138,7 +140,7 @@ export class CorrelationEngine {
       // Create feature usage matrix by user
       const userFeatureMatrix = new Map();
 
-      metrics.forEach(metric => {
+      metrics.forEach((metric) => {
         const userId = metric.userId || 'anonymous';
         const feature = metric.feature || 'unknown';
 
@@ -151,7 +153,9 @@ export class CorrelationEngine {
       });
 
       // Get all unique features
-      const allFeatures = [...new Set(metrics.map(m => m.feature || 'unknown'))];
+      const allFeatures = [
+        ...new Set(metrics.map((m) => m.feature || 'unknown')),
+      ];
 
       // Calculate pairwise correlations
       const correlationMatrix = {};
@@ -166,7 +170,9 @@ export class CorrelationEngine {
       // Calculate correlation coefficient for each feature pair
       for (const [featureA, featureB] of featurePairs) {
         const correlation = this.calculateFeaturePairCorrelation(
-          featureA, featureB, userFeatureMatrix
+          featureA,
+          featureB,
+          userFeatureMatrix,
         );
 
         const pairKey = `${featureA}_${featureB}`;
@@ -176,20 +182,25 @@ export class CorrelationEngine {
           correlation: correlation.coefficient,
           significance: correlation.significance,
           sampleSize: correlation.sampleSize,
-          strength: this.classifyCorrelationStrength(correlation.coefficient)
+          strength: this.classifyCorrelationStrength(correlation.coefficient),
         };
       }
 
       // Group features by correlation strength
-      const strongCorrelations = Object.values(correlationMatrix)
-        .filter(c => Math.abs(c.correlation) >= this.config.strongCorrelationThreshold);
+      const strongCorrelations = Object.values(correlationMatrix).filter(
+        (c) =>
+          Math.abs(c.correlation) >= this.config.strongCorrelationThreshold,
+      );
 
-      const moderateCorrelations = Object.values(correlationMatrix)
-        .filter(c => Math.abs(c.correlation) >= this.config.moderateCorrelationThreshold &&
-                     Math.abs(c.correlation) < this.config.strongCorrelationThreshold);
+      const moderateCorrelations = Object.values(correlationMatrix).filter(
+        (c) =>
+          Math.abs(c.correlation) >= this.config.moderateCorrelationThreshold &&
+          Math.abs(c.correlation) < this.config.strongCorrelationThreshold,
+      );
 
       // Analyze feature groups
-      const groupCorrelations = await this.analyzeFeatureGroupCorrelations(metrics);
+      const groupCorrelations =
+        await this.analyzeFeatureGroupCorrelations(metrics);
 
       return {
         totalFeatures: allFeatures.length,
@@ -198,12 +209,17 @@ export class CorrelationEngine {
         strongCorrelations,
         moderateCorrelations,
         groupCorrelations,
-        mostCorrelatedFeature: this.findMostCorrelatedFeature(correlationMatrix),
-        insights: this.generateFeatureCorrelationInsights(correlationMatrix, strongCorrelations)
+        mostCorrelatedFeature:
+          this.findMostCorrelatedFeature(correlationMatrix),
+        insights: this.generateFeatureCorrelationInsights(
+          correlationMatrix,
+          strongCorrelations,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Feature correlation analysis failed', { error: error.message });
+      this.logger.error('Feature correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -217,35 +233,45 @@ export class CorrelationEngine {
     this.logger.info('Analyzing cost-usage correlations');
 
     try {
-      const metricsWithCost = metrics.filter(m => m.cost !== undefined && m.cost !== null);
+      const metricsWithCost = metrics.filter(
+        (m) => m.cost !== undefined && m.cost !== null,
+      );
 
       if (metricsWithCost.length < this.config.minSampleSize) {
         return {
           message: 'Insufficient cost data for correlation analysis',
-          availableMetrics: metricsWithCost.length
+          availableMetrics: metricsWithCost.length,
         };
       }
 
       // Prepare data arrays for correlation analysis
-      const costs = metricsWithCost.map(m => m.cost);
-      const requestCounts = metricsWithCost.map(m => 1); // Each metric represents one request
-      const responseTimes = metricsWithCost.filter(m => m.responseTime).map(m => m.responseTime);
-      const timestamps = metricsWithCost.map(m => new Date(m.timestamp).getHours());
+      const costs = metricsWithCost.map((m) => m.cost);
+      const requestCounts = metricsWithCost.map((m) => 1); // Each metric represents one request
+      const responseTimes = metricsWithCost
+        .filter((m) => m.responseTime)
+        .map((m) => m.responseTime);
+      const timestamps = metricsWithCost.map((m) =>
+        new Date(m.timestamp).getHours(),
+      );
 
       // Calculate various cost correlations
       const correlations = {
         costVsVolume: this.calculateCorrelation(costs, requestCounts),
-        costVsResponseTime: responseTimes.length > this.config.minSampleSize ?
-          this.calculateCorrelation(
-            metricsWithCost.filter(m => m.responseTime).map(m => m.cost),
-            responseTimes
-          ) : null,
+        costVsResponseTime:
+          responseTimes.length > this.config.minSampleSize
+            ? this.calculateCorrelation(
+                metricsWithCost
+                  .filter((m) => m.responseTime)
+                  .map((m) => m.cost),
+                responseTimes,
+              )
+            : null,
         costVsTimeOfDay: this.calculateCorrelation(costs, timestamps),
       };
 
       // Analyze cost distribution by feature
       const costByFeature = new Map();
-      metricsWithCost.forEach(metric => {
+      metricsWithCost.forEach((metric) => {
         const feature = metric.feature || 'unknown';
         if (!costByFeature.has(feature)) {
           costByFeature.set(feature, []);
@@ -264,7 +290,8 @@ export class CorrelationEngine {
           maxCost: Math.max(...costs),
           costVariation: this.calculateVariation(costs),
           requestCount: costs.length,
-          costEfficiency: costs.length / costs.reduce((sum, cost) => sum + cost, 0)
+          costEfficiency:
+            costs.length / costs.reduce((sum, cost) => sum + cost, 0),
         };
       });
 
@@ -279,11 +306,16 @@ export class CorrelationEngine {
         highestCostFeatures: Object.values(featureCostAnalysis)
           .sort((a, b) => b.avgCost - a.avgCost)
           .slice(0, 5),
-        insights: this.generateCostUsageInsights(correlations, featureCostAnalysis, costPatterns)
+        insights: this.generateCostUsageInsights(
+          correlations,
+          featureCostAnalysis,
+          costPatterns,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Cost-usage correlation analysis failed', { error: error.message });
+      this.logger.error('Cost-usage correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -305,7 +337,7 @@ export class CorrelationEngine {
       const hourlyFeatureUsage = new Map();
       const dailyFeatureUsage = new Map();
 
-      metrics.forEach(metric => {
+      metrics.forEach((metric) => {
         const date = new Date(metric.timestamp);
         const hour = date.getHours();
         const dayOfWeek = date.getDay();
@@ -336,22 +368,33 @@ export class CorrelationEngine {
       for (let i = 0; i < 23; i++) {
         const correlation = this.calculateCorrelation(
           hourlyUsage.slice(i, i + 2),
-          hourlyUsage.slice(i + 1, i + 3)
+          hourlyUsage.slice(i + 1, i + 3),
         );
         hourlyCorrelations.push({
           hourRange: `${i}:00-${i + 2}:00`,
-          correlation: correlation.coefficient
+          correlation: correlation.coefficient,
         });
       }
 
       // Day-to-day correlations
       const dailyCorrelations = [];
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayNames = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+      ];
       for (let i = 0; i < 6; i++) {
-        const correlation = this.calculateCorrelation([dailyUsage[i]], [dailyUsage[i + 1]]);
+        const correlation = this.calculateCorrelation(
+          [dailyUsage[i]],
+          [dailyUsage[i + 1]],
+        );
         dailyCorrelations.push({
           dayPair: `${dayNames[i]} -> ${dayNames[i + 1]}`,
-          correlation: correlation.coefficient
+          correlation: correlation.coefficient,
         });
       }
 
@@ -367,7 +410,7 @@ export class CorrelationEngine {
           lowHour,
           usage: usage,
           peakToLowRatio: usage[peakHour] / Math.max(usage[lowHour], 1),
-          temporalConsistency: this.calculateTemporalConsistency(usage)
+          temporalConsistency: this.calculateTemporalConsistency(usage),
         });
       });
 
@@ -385,12 +428,16 @@ export class CorrelationEngine {
         peakUsageHour: hourlyUsage.indexOf(Math.max(...hourlyUsage)),
         peakUsageDay: dailyUsage.indexOf(Math.max(...dailyUsage)),
         insights: this.generateTemporalCorrelationInsights(
-          hourlyCorrelations, dailyCorrelations, featureTemporalPatterns, timeClusters
-        )
+          hourlyCorrelations,
+          dailyCorrelations,
+          featureTemporalPatterns,
+          timeClusters,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Temporal correlation analysis failed', { error: error.message });
+      this.logger.error('Temporal correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -407,7 +454,7 @@ export class CorrelationEngine {
       // Aggregate user behavior data
       const userBehaviors = new Map();
 
-      metrics.forEach(metric => {
+      metrics.forEach((metric) => {
         const userId = metric.userId || 'anonymous';
 
         if (!userBehaviors.has(userId)) {
@@ -421,13 +468,13 @@ export class CorrelationEngine {
             responseTimeCount: 0,
             errorCount: 0,
             timeSlots: new Set(),
-            platforms: new Set()
+            platforms: new Set(),
           });
         }
 
         const user = userBehaviors.get(userId);
         user.totalRequests++;
-        user.totalCost += (metric.cost || 0);
+        user.totalCost += metric.cost || 0;
 
         if (metric.feature) user.uniqueFeatures.add(metric.feature);
         if (metric.sessionId) user.sessions.add(metric.sessionId);
@@ -435,8 +482,10 @@ export class CorrelationEngine {
         if (metric.platform) user.platforms.add(metric.platform);
 
         if (metric.responseTime) {
-          user.avgResponseTime = (user.avgResponseTime * user.responseTimeCount + metric.responseTime) /
-                                (user.responseTimeCount + 1);
+          user.avgResponseTime =
+            (user.avgResponseTime * user.responseTimeCount +
+              metric.responseTime) /
+            (user.responseTimeCount + 1);
           user.responseTimeCount++;
         }
 
@@ -446,14 +495,15 @@ export class CorrelationEngine {
       });
 
       // Convert sets to numbers and calculate derived metrics
-      userBehaviors.forEach(user => {
+      userBehaviors.forEach((user) => {
         user.uniqueFeatures = user.uniqueFeatures.size;
         user.sessions = user.sessions.size;
         user.timeSlots = user.timeSlots.size;
         user.platforms = user.platforms.size;
         user.errorRate = user.errorCount / user.totalRequests;
         user.avgCostPerRequest = user.totalCost / user.totalRequests;
-        user.featuresPerSession = user.uniqueFeatures / Math.max(user.sessions, 1);
+        user.featuresPerSession =
+          user.uniqueFeatures / Math.max(user.sessions, 1);
       });
 
       const users = Array.from(userBehaviors.values());
@@ -461,25 +511,27 @@ export class CorrelationEngine {
       // Calculate behavior correlations
       const behaviorCorrelations = {
         requestsVsFeatures: this.calculateCorrelation(
-          users.map(u => u.totalRequests),
-          users.map(u => u.uniqueFeatures)
+          users.map((u) => u.totalRequests),
+          users.map((u) => u.uniqueFeatures),
         ),
         requestsVsCost: this.calculateCorrelation(
-          users.map(u => u.totalRequests),
-          users.map(u => u.totalCost)
+          users.map((u) => u.totalRequests),
+          users.map((u) => u.totalCost),
         ),
         featuresVsCost: this.calculateCorrelation(
-          users.map(u => u.uniqueFeatures),
-          users.map(u => u.totalCost)
+          users.map((u) => u.uniqueFeatures),
+          users.map((u) => u.totalCost),
         ),
         sessionsVsFeatures: this.calculateCorrelation(
-          users.map(u => u.sessions),
-          users.map(u => u.uniqueFeatures)
+          users.map((u) => u.sessions),
+          users.map((u) => u.uniqueFeatures),
         ),
         responseTimeVsCost: this.calculateCorrelation(
-          users.filter(u => u.responseTimeCount > 0).map(u => u.avgResponseTime),
-          users.filter(u => u.responseTimeCount > 0).map(u => u.totalCost)
-        )
+          users
+            .filter((u) => u.responseTimeCount > 0)
+            .map((u) => u.avgResponseTime),
+          users.filter((u) => u.responseTimeCount > 0).map((u) => u.totalCost),
+        ),
       };
 
       // Identify user behavior clusters
@@ -494,11 +546,16 @@ export class CorrelationEngine {
         behaviorClusters,
         behaviorPatterns,
         userSegmentation: this.segmentUsersByBehavior(users),
-        insights: this.generateUserBehaviorInsights(behaviorCorrelations, behaviorClusters, behaviorPatterns)
+        insights: this.generateUserBehaviorInsights(
+          behaviorCorrelations,
+          behaviorClusters,
+          behaviorPatterns,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('User behavior correlation analysis failed', { error: error.message });
+      this.logger.error('User behavior correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -512,19 +569,21 @@ export class CorrelationEngine {
     this.logger.info('Analyzing platform correlations');
 
     try {
-      const platformMetrics = metrics.filter(m => m.platform || m.device || m.userAgent);
+      const platformMetrics = metrics.filter(
+        (m) => m.platform || m.device || m.userAgent,
+      );
 
       if (platformMetrics.length < this.config.minSampleSize) {
         return {
           message: 'Insufficient platform data for correlation analysis',
-          availableMetrics: platformMetrics.length
+          availableMetrics: platformMetrics.length,
         };
       }
 
       // Extract platform information
       const platformData = new Map();
 
-      platformMetrics.forEach(metric => {
+      platformMetrics.forEach((metric) => {
         const platform = this.extractPlatform(metric);
 
         if (!platformData.has(platform)) {
@@ -537,13 +596,13 @@ export class CorrelationEngine {
             avgResponseTime: 0,
             responseTimeCount: 0,
             errorCount: 0,
-            sessions: new Set()
+            sessions: new Set(),
           });
         }
 
         const data = platformData.get(platform);
         data.requests++;
-        data.totalCost += (metric.cost || 0);
+        data.totalCost += metric.cost || 0;
 
         if (metric.userId) data.users.add(metric.userId);
         if (metric.feature) data.features.add(metric.feature);
@@ -551,56 +610,82 @@ export class CorrelationEngine {
         if (metric.error) data.errorCount++;
 
         if (metric.responseTime) {
-          data.avgResponseTime = (data.avgResponseTime * data.responseTimeCount + metric.responseTime) /
-                                (data.responseTimeCount + 1);
+          data.avgResponseTime =
+            (data.avgResponseTime * data.responseTimeCount +
+              metric.responseTime) /
+            (data.responseTimeCount + 1);
           data.responseTimeCount++;
         }
       });
 
       // Calculate platform statistics
-      platformData.forEach(data => {
+      platformData.forEach((data) => {
         data.users = data.users.size;
         data.features = data.features.size;
         data.sessions = data.sessions.size;
         data.errorRate = data.errorCount / data.requests;
         data.avgCostPerRequest = data.totalCost / data.requests;
-        data.marketShare = data.requests / platformMetrics.length * 100;
+        data.marketShare = (data.requests / platformMetrics.length) * 100;
       });
 
       const platforms = Array.from(platformData.values());
 
       // Calculate platform correlations
       const platformCorrelations = {};
-      const metrics = ['requests', 'users', 'features', 'totalCost', 'avgResponseTime', 'errorRate'];
+      const metrics = [
+        'requests',
+        'users',
+        'features',
+        'totalCost',
+        'avgResponseTime',
+        'errorRate',
+      ];
 
       for (let i = 0; i < metrics.length; i++) {
         for (let j = i + 1; j < metrics.length; j++) {
           const metricA = metrics[i];
           const metricB = metrics[j];
 
-          const valuesA = platforms.map(p => p[metricA]).filter(v => v !== undefined && !isNaN(v));
-          const valuesB = platforms.map(p => p[metricB]).filter(v => v !== undefined && !isNaN(v));
+          const valuesA = platforms
+            .map((p) => p[metricA])
+            .filter((v) => v !== undefined && !isNaN(v));
+          const valuesB = platforms
+            .map((p) => p[metricB])
+            .filter((v) => v !== undefined && !isNaN(v));
 
-          if (valuesA.length >= this.config.minSampleSize && valuesB.length >= this.config.minSampleSize) {
-            platformCorrelations[`${metricA}_${metricB}`] = this.calculateCorrelation(valuesA, valuesB);
+          if (
+            valuesA.length >= this.config.minSampleSize &&
+            valuesB.length >= this.config.minSampleSize
+          ) {
+            platformCorrelations[`${metricA}_${metricB}`] =
+              this.calculateCorrelation(valuesA, valuesB);
           }
         }
       }
 
       // Identify platform preferences by feature
-      const featurePlatformMatrix = this.buildFeaturePlatformMatrix(platformMetrics);
+      const featurePlatformMatrix =
+        this.buildFeaturePlatformMatrix(platformMetrics);
 
       return {
         totalPlatforms: platforms.length,
         platformData: Object.fromEntries(platformData),
         platformCorrelations,
         featurePlatformMatrix,
-        dominantPlatform: platforms.reduce((max, p) => p.marketShare > max.marketShare ? p : max, platforms[0]),
-        insights: this.generatePlatformInsights(platforms, platformCorrelations, featurePlatformMatrix)
+        dominantPlatform: platforms.reduce(
+          (max, p) => (p.marketShare > max.marketShare ? p : max),
+          platforms[0],
+        ),
+        insights: this.generatePlatformInsights(
+          platforms,
+          platformCorrelations,
+          featurePlatformMatrix,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Platform correlation analysis failed', { error: error.message });
+      this.logger.error('Platform correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -617,8 +702,9 @@ export class CorrelationEngine {
       // Group metrics by session
       const sessionData = new Map();
 
-      metrics.forEach(metric => {
-        const sessionId = metric.sessionId ||
+      metrics.forEach((metric) => {
+        const sessionId =
+          metric.sessionId ||
           `${metric.userId || 'anon'}_${new Date(metric.timestamp).toDateString()}`;
 
         if (!sessionData.has(sessionId)) {
@@ -633,21 +719,23 @@ export class CorrelationEngine {
             avgResponseTime: 0,
             responseTimeCount: 0,
             errors: 0,
-            platforms: new Set()
+            platforms: new Set(),
           });
         }
 
         const session = sessionData.get(sessionId);
         session.requests++;
-        session.totalCost += (metric.cost || 0);
+        session.totalCost += metric.cost || 0;
 
         if (metric.feature) session.features.add(metric.feature);
         if (metric.error) session.errors++;
         if (metric.platform) session.platforms.add(metric.platform);
 
         if (metric.responseTime) {
-          session.avgResponseTime = (session.avgResponseTime * session.responseTimeCount + metric.responseTime) /
-                                   (session.responseTimeCount + 1);
+          session.avgResponseTime =
+            (session.avgResponseTime * session.responseTimeCount +
+              metric.responseTime) /
+            (session.responseTimeCount + 1);
           session.responseTimeCount++;
         }
 
@@ -660,9 +748,13 @@ export class CorrelationEngine {
       });
 
       // Calculate session metrics
-      sessionData.forEach(session => {
-        const duration = new Date(session.endTime) - new Date(session.startTime);
-        session.durationMinutes = Math.max(1, Math.round(duration / (1000 * 60)));
+      sessionData.forEach((session) => {
+        const duration =
+          new Date(session.endTime) - new Date(session.startTime);
+        session.durationMinutes = Math.max(
+          1,
+          Math.round(duration / (1000 * 60)),
+        );
         session.features = session.features.size;
         session.platforms = session.platforms.size;
         session.errorRate = session.errors / session.requests;
@@ -675,25 +767,29 @@ export class CorrelationEngine {
       // Calculate session correlations
       const sessionCorrelations = {
         durationVsRequests: this.calculateCorrelation(
-          sessions.map(s => s.durationMinutes),
-          sessions.map(s => s.requests)
+          sessions.map((s) => s.durationMinutes),
+          sessions.map((s) => s.requests),
         ),
         durationVsFeatures: this.calculateCorrelation(
-          sessions.map(s => s.durationMinutes),
-          sessions.map(s => s.features)
+          sessions.map((s) => s.durationMinutes),
+          sessions.map((s) => s.features),
         ),
         requestsVsCost: this.calculateCorrelation(
-          sessions.map(s => s.requests),
-          sessions.map(s => s.totalCost)
+          sessions.map((s) => s.requests),
+          sessions.map((s) => s.totalCost),
         ),
         featuresVsCost: this.calculateCorrelation(
-          sessions.map(s => s.features),
-          sessions.map(s => s.totalCost)
+          sessions.map((s) => s.features),
+          sessions.map((s) => s.totalCost),
         ),
         responseTimeVsDuration: this.calculateCorrelation(
-          sessions.filter(s => s.responseTimeCount > 0).map(s => s.avgResponseTime),
-          sessions.filter(s => s.responseTimeCount > 0).map(s => s.durationMinutes)
-        )
+          sessions
+            .filter((s) => s.responseTimeCount > 0)
+            .map((s) => s.avgResponseTime),
+          sessions
+            .filter((s) => s.responseTimeCount > 0)
+            .map((s) => s.durationMinutes),
+        ),
       };
 
       // Identify session patterns
@@ -703,13 +799,20 @@ export class CorrelationEngine {
         totalSessions: sessions.length,
         sessionCorrelations,
         sessionPatterns,
-        avgSessionDuration: sessions.reduce((sum, s) => sum + s.durationMinutes, 0) / sessions.length,
+        avgSessionDuration:
+          sessions.reduce((sum, s) => sum + s.durationMinutes, 0) /
+          sessions.length,
         mostProductiveSessionType: this.findMostProductiveSessionType(sessions),
-        insights: this.generateSessionInsights(sessionCorrelations, sessionPatterns, sessions)
+        insights: this.generateSessionInsights(
+          sessionCorrelations,
+          sessionPatterns,
+          sessions,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Session correlation analysis failed', { error: error.message });
+      this.logger.error('Session correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -723,20 +826,24 @@ export class CorrelationEngine {
     this.logger.info('Analyzing geographic correlations');
 
     try {
-      const geoMetrics = metrics.filter(m => m.location || m.country || m.region);
+      const geoMetrics = metrics.filter(
+        (m) => m.location || m.country || m.region,
+      );
 
       if (geoMetrics.length < this.config.minSampleSize) {
         return {
           message: 'Insufficient geographic data for correlation analysis',
-          availableMetrics: geoMetrics.length
+          availableMetrics: geoMetrics.length,
         };
       }
 
       // Group by geographic regions
       const geoData = new Map();
 
-      geoMetrics.forEach(metric => {
-        const region = this.normalizeGeographicRegion(metric.location || metric.country || metric.region);
+      geoMetrics.forEach((metric) => {
+        const region = this.normalizeGeographicRegion(
+          metric.location || metric.country || metric.region,
+        );
 
         if (!geoData.has(region)) {
           geoData.set(region, {
@@ -748,21 +855,23 @@ export class CorrelationEngine {
             avgResponseTime: 0,
             responseTimeCount: 0,
             timeSlots: new Map(),
-            platforms: new Set()
+            platforms: new Set(),
           });
         }
 
         const geo = geoData.get(region);
         geo.requests++;
-        geo.totalCost += (metric.cost || 0);
+        geo.totalCost += metric.cost || 0;
 
         if (metric.userId) geo.users.add(metric.userId);
         if (metric.feature) geo.features.add(metric.feature);
         if (metric.platform) geo.platforms.add(metric.platform);
 
         if (metric.responseTime) {
-          geo.avgResponseTime = (geo.avgResponseTime * geo.responseTimeCount + metric.responseTime) /
-                               (geo.responseTimeCount + 1);
+          geo.avgResponseTime =
+            (geo.avgResponseTime * geo.responseTimeCount +
+              metric.responseTime) /
+            (geo.responseTimeCount + 1);
           geo.responseTimeCount++;
         }
 
@@ -773,12 +882,12 @@ export class CorrelationEngine {
       });
 
       // Calculate geographic statistics
-      geoData.forEach(geo => {
+      geoData.forEach((geo) => {
         geo.users = geo.users.size;
         geo.features = geo.features.size;
         geo.platforms = geo.platforms.size;
         geo.avgCostPerRequest = geo.totalCost / geo.requests;
-        geo.marketShare = geo.requests / geoMetrics.length * 100;
+        geo.marketShare = (geo.requests / geoMetrics.length) * 100;
         geo.timeSlots = Object.fromEntries(geo.timeSlots);
 
         // Find peak time slot for region
@@ -806,12 +915,20 @@ export class CorrelationEngine {
         geoData: Object.fromEntries(geoData),
         geoCorrelations,
         regionalPatterns,
-        dominantRegion: regions.reduce((max, r) => r.marketShare > max.marketShare ? r : max, regions[0]),
-        insights: this.generateGeographicInsights(geoCorrelations, regionalPatterns, regions)
+        dominantRegion: regions.reduce(
+          (max, r) => (r.marketShare > max.marketShare ? r : max),
+          regions[0],
+        ),
+        insights: this.generateGeographicInsights(
+          geoCorrelations,
+          regionalPatterns,
+          regions,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Geographic correlation analysis failed', { error: error.message });
+      this.logger.error('Geographic correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -826,9 +943,9 @@ export class CorrelationEngine {
 
     try {
       // Sort metrics by timestamp
-      const sortedMetrics = metrics.slice().sort((a, b) =>
-        new Date(a.timestamp) - new Date(b.timestamp)
-      );
+      const sortedMetrics = metrics
+        .slice()
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
       // Create time series data
       const timeSeriesData = this.createTimeSeriesData(sortedMetrics);
@@ -841,7 +958,8 @@ export class CorrelationEngine {
       const trendCorrelations = this.calculateTrendCorrelations(timeSeriesData);
 
       // Seasonal correlations
-      const seasonalCorrelations = this.calculateSeasonalCorrelations(sortedMetrics);
+      const seasonalCorrelations =
+        this.calculateSeasonalCorrelations(sortedMetrics);
 
       // Usage momentum analysis
       const momentumAnalysis = this.analyzeMomentum(timeSeriesData);
@@ -854,12 +972,16 @@ export class CorrelationEngine {
         seasonalCorrelations,
         momentumAnalysis,
         insights: this.generatePredictiveInsights(
-          leadingIndicators, laggingIndicators, trendCorrelations, momentumAnalysis
-        )
+          leadingIndicators,
+          laggingIndicators,
+          trendCorrelations,
+          momentumAnalysis,
+        ),
       };
-
     } catch (error) {
-      this.logger.error('Predictive correlation analysis failed', { error: error.message });
+      this.logger.error('Predictive correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -874,7 +996,10 @@ export class CorrelationEngine {
     this.logger.info('Analyzing custom correlations', { options });
 
     try {
-      if (!options.customCorrelations || options.customCorrelations.length === 0) {
+      if (
+        !options.customCorrelations ||
+        options.customCorrelations.length === 0
+      ) {
         return { message: 'No custom correlation criteria provided' };
       }
 
@@ -891,16 +1016,17 @@ export class CorrelationEngine {
 
         // Extract values for correlation
         const valuesA = filteredMetrics
-          .map(m => this.extractFieldValue(m, fieldA))
-          .filter(v => v !== undefined && v !== null && !isNaN(v));
+          .map((m) => this.extractFieldValue(m, fieldA))
+          .filter((v) => v !== undefined && v !== null && !isNaN(v));
 
         const valuesB = filteredMetrics
-          .map(m => this.extractFieldValue(m, fieldB))
-          .filter(v => v !== undefined && v !== null && !isNaN(v));
+          .map((m) => this.extractFieldValue(m, fieldB))
+          .filter((v) => v !== undefined && v !== null && !isNaN(v));
 
-        if (valuesA.length >= this.config.minSampleSize &&
-            valuesB.length >= this.config.minSampleSize) {
-
+        if (
+          valuesA.length >= this.config.minSampleSize &&
+          valuesB.length >= this.config.minSampleSize
+        ) {
           const correlation = this.calculateCorrelation(valuesA, valuesB);
 
           customResults[name] = {
@@ -911,7 +1037,7 @@ export class CorrelationEngine {
             significance: correlation.significance,
             sampleSize: Math.min(valuesA.length, valuesB.length),
             strength: this.classifyCorrelationStrength(correlation.coefficient),
-            filters: filters || null
+            filters: filters || null,
           };
         } else {
           customResults[name] = {
@@ -919,7 +1045,7 @@ export class CorrelationEngine {
             fieldA,
             fieldB,
             error: 'Insufficient data for correlation analysis',
-            sampleSize: Math.min(valuesA.length, valuesB.length)
+            sampleSize: Math.min(valuesA.length, valuesB.length),
           };
         }
       }
@@ -927,11 +1053,12 @@ export class CorrelationEngine {
       return {
         totalCustomCorrelations: options.customCorrelations.length,
         customResults,
-        insights: this.generateCustomCorrelationInsights(customResults)
+        insights: this.generateCustomCorrelationInsights(customResults),
       };
-
     } catch (error) {
-      this.logger.error('Custom correlation analysis failed', { error: error.message });
+      this.logger.error('Custom correlation analysis failed', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -949,16 +1076,18 @@ export class CorrelationEngine {
       return [];
     }
 
-    const validatedMetrics = metrics.filter(metric => {
-      return metric &&
-             typeof metric === 'object' &&
-             metric.timestamp &&
-             !isNaN(new Date(metric.timestamp).getTime());
+    const validatedMetrics = metrics.filter((metric) => {
+      return (
+        metric &&
+        typeof metric === 'object' &&
+        metric.timestamp &&
+        !isNaN(new Date(metric.timestamp).getTime())
+      );
     });
 
     this.logger.info('Metrics validated for correlation analysis', {
       original: metrics.length,
-      valid: validatedMetrics.length
+      valid: validatedMetrics.length,
     });
 
     return validatedMetrics;
@@ -971,7 +1100,12 @@ export class CorrelationEngine {
    * @returns {Object} Correlation result with coefficient and significance
    */
   calculateCorrelation(x, y) {
-    if (!Array.isArray(x) || !Array.isArray(y) || x.length !== y.length || x.length === 0) {
+    if (
+      !Array.isArray(x) ||
+      !Array.isArray(y) ||
+      x.length !== y.length ||
+      x.length === 0
+    ) {
       return { coefficient: 0, significance: 0, sampleSize: 0 };
     }
 
@@ -983,18 +1117,21 @@ export class CorrelationEngine {
     const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
 
     const numerator = n * sumXY - sumX * sumY;
-    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    const denominator = Math.sqrt(
+      (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
+    );
 
     const coefficient = denominator === 0 ? 0 : numerator / denominator;
 
     // Calculate statistical significance (simplified)
-    const tStatistic = coefficient * Math.sqrt((n - 2) / (1 - coefficient * coefficient));
+    const tStatistic =
+      coefficient * Math.sqrt((n - 2) / (1 - coefficient * coefficient));
     const significance = Math.min(1, Math.abs(tStatistic) / 2); // Simplified p-value estimation
 
     return {
       coefficient: Number.isFinite(coefficient) ? coefficient : 0,
       significance: Number.isFinite(significance) ? significance : 0,
-      sampleSize: n
+      sampleSize: n,
     };
   }
 
@@ -1017,16 +1154,20 @@ export class CorrelationEngine {
    * @returns {Object} Analysis window information
    */
   calculateAnalysisWindow(metrics) {
-    const timestamps = metrics.map(m => new Date(m.timestamp)).sort((a, b) => a - b);
+    const timestamps = metrics
+      .map((m) => new Date(m.timestamp))
+      .sort((a, b) => a - b);
     const startDate = timestamps[0];
     const endDate = timestamps[timestamps.length - 1];
-    const durationDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    const durationDays = Math.ceil(
+      (endDate - startDate) / (1000 * 60 * 60 * 24),
+    );
 
     return {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       durationDays,
-      totalDataPoints: metrics.length
+      totalDataPoints: metrics.length,
     };
   }
 
@@ -1038,19 +1179,22 @@ export class CorrelationEngine {
   extractStrongCorrelations(correlationResults) {
     const strongCorrelations = [];
 
-    correlationResults.forEach(result => {
+    correlationResults.forEach((result) => {
       if (result.strongCorrelations) {
         strongCorrelations.push(...result.strongCorrelations);
       }
       if (result.correlationMatrix) {
-        const strong = Object.values(result.correlationMatrix)
-          .filter(c => c.strength === 'strong');
+        const strong = Object.values(result.correlationMatrix).filter(
+          (c) => c.strength === 'strong',
+        );
         strongCorrelations.push(...strong);
       }
     });
 
-    return strongCorrelations.sort((a, b) =>
-      Math.abs(b.correlation || b.coefficient || 0) - Math.abs(a.correlation || a.coefficient || 0)
+    return strongCorrelations.sort(
+      (a, b) =>
+        Math.abs(b.correlation || b.coefficient || 0) -
+        Math.abs(a.correlation || a.coefficient || 0),
     );
   }
 
@@ -1065,12 +1209,12 @@ export class CorrelationEngine {
       strongCorrelations: 0,
       moderateCorrelations: 0,
       weakCorrelations: 0,
-      negligibleCorrelations: 0
+      negligibleCorrelations: 0,
     };
 
-    correlationResults.forEach(result => {
+    correlationResults.forEach((result) => {
       if (result.correlationMatrix) {
-        Object.values(result.correlationMatrix).forEach(corr => {
+        Object.values(result.correlationMatrix).forEach((corr) => {
           summary[`${corr.strength}Correlations`]++;
         });
       }
@@ -1086,7 +1230,7 @@ export class CorrelationEngine {
    */
   countTotalCorrelations(correlations) {
     let total = 0;
-    Object.values(correlations).forEach(correlation => {
+    Object.values(correlations).forEach((correlation) => {
       if (correlation.correlationMatrix) {
         total += Object.keys(correlation.correlationMatrix).length;
       }
@@ -1111,15 +1255,16 @@ export class CorrelationEngine {
     const insights = [];
 
     // Extract insights from strong correlations
-    const strongCorrelations = this.extractStrongCorrelations(correlationResults);
+    const strongCorrelations =
+      this.extractStrongCorrelations(correlationResults);
 
-    strongCorrelations.slice(0, 5).forEach(corr => {
+    strongCorrelations.slice(0, 5).forEach((corr) => {
       insights.push({
         type: 'correlation',
         priority: 'high',
         message: `Strong correlation detected between ${corr.featureA || corr.fieldA} and ${corr.featureB || corr.fieldB} (r=${(corr.correlation || corr.coefficient).toFixed(3)})`,
         actionable: true,
-        impact: 'optimization_opportunity'
+        impact: 'optimization_opportunity',
       });
     });
 
@@ -1150,7 +1295,9 @@ export class CorrelationEngine {
 
   calculateVariation(values) {
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    const variance =
+      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      values.length;
     return Math.sqrt(variance);
   }
 

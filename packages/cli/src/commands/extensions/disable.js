@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import {} from 'yargs';
 import { disableExtension } from '../../config/extension.js';
 import { SettingScope } from '../../config/settings.js';
@@ -21,19 +22,19 @@ import { getErrorMessage } from '../../utils/errors.js';
  * ```
  */
 export function handleDisable(args) {
-    try {
-        if (args.scope?.toLowerCase() === 'workspace') {
-            disableExtension(args.name, SettingScope.Workspace);
-        }
-        else {
-            disableExtension(args.name, SettingScope.User);
-        }
-        console.log(`Extension "${args.name}" successfully disabled for scope "${args.scope}".`);
+  try {
+    if (args.scope?.toLowerCase() === 'workspace') {
+      disableExtension(args.name, SettingScope.Workspace);
+    } else {
+      disableExtension(args.name, SettingScope.User);
     }
-    catch (error) {
-        console.error(getErrorMessage(error));
-        process.exit(1);
-    }
+    console.log(
+      `Extension "${args.name}" successfully disabled for scope "${args.scope}".`,
+    );
+  } catch (error) {
+    console.error(getErrorMessage(error));
+    process.exit(1);
+  }
 }
 /**
  * Yargs command module for disabling extensions
@@ -43,34 +44,41 @@ export function handleDisable(args) {
  * from the Gemini CLI environment.
  */
 export const disableCommand = {
-    command: 'disable [--scope] <name>',
-    describe: 'Disables an extension.',
-    builder: (yargs) => yargs
-        .positional('name', {
+  command: 'disable [--scope] <name>',
+  describe: 'Disables an extension.',
+  builder: (yargs) =>
+    yargs
+      .positional('name', {
         describe: 'The name of the extension to disable.',
         type: 'string',
-    })
-        .option('scope', {
+      })
+      .option('scope', {
         describe: 'The scope to disable the extenison in.',
         type: 'string',
         default: SettingScope.User,
-    })
-        .check((argv) => {
-        if (argv.scope &&
-            !Object.values(SettingScope)
-                .map((s) => s.toLowerCase())
-                .includes(argv.scope.toLowerCase())) {
-            throw new Error(`Invalid scope: ${argv.scope}. Please use one of ${Object.values(SettingScope)
-                .map((s) => s.toLowerCase())
-                .join(', ')}.`);
+      })
+      .check((argv) => {
+        if (
+          argv.scope &&
+          !Object.values(SettingScope)
+            .map((s) => s.toLowerCase())
+            .includes(argv.scope.toLowerCase())
+        ) {
+          throw new Error(
+            `Invalid scope: ${argv.scope}. Please use one of ${Object.values(
+              SettingScope,
+            )
+              .map((s) => s.toLowerCase())
+              .join(', ')}.`,
+          );
         }
         return true;
-    }),
-    handler: (argv) => {
-        handleDisable({
-            name: argv['name'],
-            scope: argv['scope'],
-        });
-    },
+      }),
+  handler: (argv) => {
+    handleDisable({
+      name: argv['name'],
+      scope: argv['scope'],
+    });
+  },
 };
 //# sourceMappingURL=disable.js.map

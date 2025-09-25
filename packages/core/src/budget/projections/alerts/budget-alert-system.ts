@@ -37,14 +37,14 @@ export class BudgetAlertSystem {
   /**
    * Monitor cost data and trigger alerts based on configured thresholds
    */
-  public static async monitorAndAlert(
+  static async monitorAndAlert(
     costData: CostDataPoint[],
     alertConfigs: BudgetAlertConfig[],
     currentBudget: {
       total: number;
       used: number;
       remaining: number;
-    }
+    },
   ): Promise<BudgetAlert[]> {
     const startTime = Date.now();
     this.logger.info('Monitoring cost data for alerts', {
@@ -58,8 +58,12 @@ export class BudgetAlertSystem {
 
       // Analyze current cost data
       const recentTrend = MathematicalAlgorithms.performTrendAnalysis(costData);
-      const varianceDetection = MathematicalAlgorithms.detectVariances(costData);
-      const costProjection = await CostForecastingEngine.generateProjections(costData, 30);
+      const varianceDetection =
+        MathematicalAlgorithms.detectVariances(costData);
+      const costProjection = await CostForecastingEngine.generateProjections(
+        costData,
+        30,
+      );
 
       // Process each alert configuration
       for (const config of alertConfigs) {
@@ -69,7 +73,7 @@ export class BudgetAlertSystem {
           currentBudget,
           recentTrend,
           varianceDetection,
-          costProjection
+          costProjection,
         );
 
         if (alert && this.shouldTriggerAlert(config, alert)) {
@@ -86,7 +90,9 @@ export class BudgetAlertSystem {
 
       return triggeredAlerts;
     } catch (error) {
-      this.logger.error('Failed to monitor and alert', { error: error.message });
+      this.logger.error('Failed to monitor and alert', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -100,12 +106,12 @@ export class BudgetAlertSystem {
     currentBudget: { total: number; used: number; remaining: number },
     recentTrend: TrendAnalysis,
     varianceDetection: VarianceDetection,
-    costProjection: CostProjection
+    costProjection: CostProjection,
   ): Promise<BudgetAlert | null> {
     const startTime = Date.now();
 
     try {
-      let currentValue: number = 0;
+      let currentValue = 0;
       let thresholdMet = false;
 
       // Calculate current value based on threshold type
@@ -126,12 +132,15 @@ export class BudgetAlertSystem {
 
         case 'projection':
           // Projected budget exhaustion in days
-          const projectedExhaustionDays = costProjection.summary.budgetRunwayDays;
+          const projectedExhaustionDays =
+            costProjection.summary.budgetRunwayDays;
           currentValue = projectedExhaustionDays;
           break;
 
         default:
-          this.logger.error('Unknown threshold type', { type: config.threshold.type });
+          this.logger.error('Unknown threshold type', {
+            type: config.threshold.type,
+          });
           return null;
       }
 
@@ -144,7 +153,8 @@ export class BudgetAlertSystem {
           thresholdMet = currentValue < config.threshold.value;
           break;
         case 'equals':
-          thresholdMet = Math.abs(currentValue - config.threshold.value) < 0.001;
+          thresholdMet =
+            Math.abs(currentValue - config.threshold.value) < 0.001;
           break;
         case 'greater_than_or_equal':
           thresholdMet = currentValue >= config.threshold.value;
@@ -165,7 +175,7 @@ export class BudgetAlertSystem {
         currentBudget,
         recentTrend,
         varianceDetection,
-        costProjection
+        costProjection,
       );
 
       this.logger.info('Alert condition evaluated', {
@@ -194,19 +204,23 @@ export class BudgetAlertSystem {
     currentBudget: { total: number; used: number; remaining: number },
     recentTrend: TrendAnalysis,
     varianceDetection: VarianceDetection,
-    costProjection: CostProjection
+    costProjection: CostProjection,
   ): BudgetAlert {
     const alertId = `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const thresholdPercentage = (currentValue / config.threshold.value) * 100;
 
     // Generate contextual message
-    const { title, message } = this.generateAlertMessage(config, currentValue, thresholdPercentage);
+    const { title, message } = this.generateAlertMessage(
+      config,
+      currentValue,
+      thresholdPercentage,
+    );
 
     // Calculate projected impact
     const projectedImpact = this.calculateProjectedImpact(
       currentBudget,
       costProjection,
-      config.threshold.type
+      config.threshold.type,
     );
 
     // Generate recommendations
@@ -216,7 +230,7 @@ export class BudgetAlertSystem {
       currentBudget,
       recentTrend,
       varianceDetection,
-      costProjection
+      costProjection,
     );
 
     return {
@@ -253,7 +267,7 @@ export class BudgetAlertSystem {
   private static generateAlertMessage(
     config: BudgetAlertConfig,
     currentValue: number,
-    thresholdPercentage: number
+    thresholdPercentage: number,
   ): { title: string; message: string } {
     const formatValue = (value: number, type: string): string => {
       switch (type) {
@@ -270,8 +284,14 @@ export class BudgetAlertSystem {
       }
     };
 
-    const formattedCurrentValue = formatValue(currentValue, config.threshold.type);
-    const formattedThreshold = formatValue(config.threshold.value, config.threshold.type);
+    const formattedCurrentValue = formatValue(
+      currentValue,
+      config.threshold.type,
+    );
+    const formattedThreshold = formatValue(
+      config.threshold.value,
+      config.threshold.type,
+    );
 
     let title: string;
     let message: string;
@@ -311,14 +331,18 @@ export class BudgetAlertSystem {
   private static calculateProjectedImpact(
     currentBudget: { total: number; used: number; remaining: number },
     costProjection: CostProjection,
-    thresholdType: string
+    thresholdType: string,
   ): { estimatedOverage: number; daysUntilBudgetExhaustion: number } {
     const projectedTotalCost = costProjection.summary.totalProjectedCost;
-    const estimatedOverage = Math.max(0, currentBudget.used + projectedTotalCost - currentBudget.total);
+    const estimatedOverage = Math.max(
+      0,
+      currentBudget.used + projectedTotalCost - currentBudget.total,
+    );
 
     let daysUntilBudgetExhaustion = Infinity;
     if (costProjection.summary.burnRatePerDay > 0) {
-      daysUntilBudgetExhaustion = currentBudget.remaining / costProjection.summary.burnRatePerDay;
+      daysUntilBudgetExhaustion =
+        currentBudget.remaining / costProjection.summary.burnRatePerDay;
     }
 
     return {
@@ -336,7 +360,7 @@ export class BudgetAlertSystem {
     currentBudget: { total: number; used: number; remaining: number },
     recentTrend: TrendAnalysis,
     varianceDetection: VarianceDetection,
-    costProjection: CostProjection
+    costProjection: CostProjection,
   ): BudgetAlert['recommendations'] {
     const recommendations: BudgetAlert['recommendations'] = [];
 
@@ -360,9 +384,13 @@ export class BudgetAlertSystem {
     }
 
     // Trend-based recommendations
-    if (recentTrend.direction === 'increasing' && recentTrend.confidence > 0.7) {
+    if (
+      recentTrend.direction === 'increasing' &&
+      recentTrend.confidence > 0.7
+    ) {
       recommendations.push({
-        action: 'Investigate the cause of increasing costs and implement optimization strategies',
+        action:
+          'Investigate the cause of increasing costs and implement optimization strategies',
         impact: 'Reduce cost acceleration and extend budget runway',
         urgency: recentTrend.slope > 1 ? 'critical' : 'high',
       });
@@ -371,9 +399,11 @@ export class BudgetAlertSystem {
     // Variance-based recommendations
     if (varianceDetection.summary.significantVariances > 0) {
       recommendations.push({
-        action: 'Investigate cost spikes and implement monitoring for unusual usage patterns',
+        action:
+          'Investigate cost spikes and implement monitoring for unusual usage patterns',
         impact: 'Prevent unexpected cost surges and improve predictability',
-        urgency: varianceDetection.summary.maxVarianceScore > 0.8 ? 'high' : 'medium',
+        urgency:
+          varianceDetection.summary.maxVarianceScore > 0.8 ? 'high' : 'medium',
       });
     }
 
@@ -392,7 +422,8 @@ export class BudgetAlertSystem {
       recommendations.push({
         action: 'Implement rate limiting and optimize high-cost operations',
         impact: 'Reduce daily spending and extend budget lifecycle',
-        urgency: currentValue > config.threshold.value * 2 ? 'critical' : 'medium',
+        urgency:
+          currentValue > config.threshold.value * 2 ? 'critical' : 'medium',
       });
     }
 
@@ -411,7 +442,10 @@ export class BudgetAlertSystem {
   /**
    * Check if alert should be triggered based on suppression rules
    */
-  private static shouldTriggerAlert(config: BudgetAlertConfig, alert: BudgetAlert): boolean {
+  private static shouldTriggerAlert(
+    config: BudgetAlertConfig,
+    alert: BudgetAlert,
+  ): boolean {
     const suppression = this.alertSuppressions.get(config.id);
     const now = new Date();
 
@@ -421,7 +455,8 @@ export class BudgetAlertSystem {
     }
 
     // Check cooldown period
-    const minutesSinceLastAlert = (now.getTime() - suppression.lastAlertTime.getTime()) / (60 * 1000);
+    const minutesSinceLastAlert =
+      (now.getTime() - suppression.lastAlertTime.getTime()) / (60 * 1000);
     if (minutesSinceLastAlert < config.suppression.cooldownMinutes) {
       this.logger.info('Alert suppressed due to cooldown', {
         configId: config.id,
@@ -432,14 +467,18 @@ export class BudgetAlertSystem {
     }
 
     // Check hourly rate limit
-    const hoursElapsed = (now.getTime() - suppression.hourWindowStart.getTime()) / (60 * 60 * 1000);
+    const hoursElapsed =
+      (now.getTime() - suppression.hourWindowStart.getTime()) /
+      (60 * 60 * 1000);
     if (hoursElapsed >= 1) {
       // Reset hourly window
       suppression.hourWindowStart = now;
       suppression.alertCountInLastHour = 0;
     }
 
-    if (suppression.alertCountInLastHour >= config.suppression.maxAlertsPerHour) {
+    if (
+      suppression.alertCountInLastHour >= config.suppression.maxAlertsPerHour
+    ) {
       this.logger.info('Alert suppressed due to rate limit', {
         configId: config.id,
         alertCountInLastHour: suppression.alertCountInLastHour,
@@ -477,23 +516,37 @@ export class BudgetAlertSystem {
   private static calculateCurrentBurnRate(costData: CostDataPoint[]): number {
     if (costData.length === 0) return 0;
 
-    const sortedData = [...costData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sortedData = [...costData].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
 
     // Use last 24 hours of data if available
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentData = sortedData.filter(point => point.timestamp >= oneDayAgo);
+    const recentData = sortedData.filter(
+      (point) => point.timestamp >= oneDayAgo,
+    );
 
     if (recentData.length === 0) {
       // Fallback to all data
       const totalCost = sortedData.reduce((sum, point) => sum + point.cost, 0);
-      const timeSpanDays = (sortedData[sortedData.length - 1].timestamp.getTime() - sortedData[0].timestamp.getTime()) / (24 * 60 * 60 * 1000);
+      const timeSpanDays =
+        (sortedData[sortedData.length - 1].timestamp.getTime() -
+          sortedData[0].timestamp.getTime()) /
+        (24 * 60 * 60 * 1000);
       return timeSpanDays > 0 ? totalCost / timeSpanDays : 0;
     }
 
     // Calculate burn rate from recent data
-    const totalRecentCost = recentData.reduce((sum, point) => sum + point.cost, 0);
-    const timeSpanHours = (recentData[recentData.length - 1].timestamp.getTime() - recentData[0].timestamp.getTime()) / (60 * 60 * 1000);
-    const dailyBurnRate = timeSpanHours > 0 ? (totalRecentCost / timeSpanHours) * 24 : 0;
+    const totalRecentCost = recentData.reduce(
+      (sum, point) => sum + point.cost,
+      0,
+    );
+    const timeSpanHours =
+      (recentData[recentData.length - 1].timestamp.getTime() -
+        recentData[0].timestamp.getTime()) /
+      (60 * 60 * 1000);
+    const dailyBurnRate =
+      timeSpanHours > 0 ? (totalRecentCost / timeSpanHours) * 24 : 0;
 
     return dailyBurnRate;
   }
@@ -501,14 +554,14 @@ export class BudgetAlertSystem {
   /**
    * Get all active alerts
    */
-  public static getActiveAlerts(): BudgetAlert[] {
+  static getActiveAlerts(): BudgetAlert[] {
     return Array.from(this.activeAlerts.values());
   }
 
   /**
    * Acknowledge an alert
    */
-  public static acknowledgeAlert(alertId: string): boolean {
+  static acknowledgeAlert(alertId: string): boolean {
     const alert = this.activeAlerts.get(alertId);
     if (alert) {
       alert.status = 'acknowledged';
@@ -521,7 +574,7 @@ export class BudgetAlertSystem {
   /**
    * Resolve an alert
    */
-  public static resolveAlert(alertId: string): boolean {
+  static resolveAlert(alertId: string): boolean {
     const alert = this.activeAlerts.get(alertId);
     if (alert) {
       alert.status = 'resolved';
@@ -534,7 +587,7 @@ export class BudgetAlertSystem {
   /**
    * Clean up old suppression records
    */
-  public static cleanupSuppressions(): void {
+  static cleanupSuppressions(): void {
     const now = new Date();
     const maxAge = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -549,7 +602,7 @@ export class BudgetAlertSystem {
   /**
    * Create default alert configurations for common scenarios
    */
-  public static createDefaultAlertConfigs(): BudgetAlertConfig[] {
+  static createDefaultAlertConfigs(): BudgetAlertConfig[] {
     return [
       {
         id: 'budget_warning_80',

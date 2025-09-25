@@ -7,7 +7,14 @@
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
-import type { TaskCategory, TaskStatus, TaskId, TaskPriority, TaskMetadata, Task as BaseTask } from './types.js';
+import type {
+  TaskCategory,
+  TaskStatus,
+  TaskId,
+  TaskPriority,
+  TaskMetadata,
+  Task as BaseTask,
+} from './types.js';
 import { TaskComplexity } from './types.js';
 import {
   SubAgentScope,

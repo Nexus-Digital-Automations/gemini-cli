@@ -13,7 +13,7 @@
  * @version 1.0.0
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
 import { BudgetSettings, BudgetUsageData } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
@@ -42,7 +42,7 @@ export class BudgetController {
   constructor() {
     logger.info('Initializing Budget Controller', {
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     });
   }
 
@@ -55,7 +55,7 @@ export class BudgetController {
     logger.info('Budget API health check requested', {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -65,45 +65,47 @@ export class BudgetController {
 
       // Test ML API availability
       const mlAPI = getMLBudgetAPI();
-      const mlHealthResult = await mlAPI.healthCheck(
-        process.cwd(),
-        { enabled: true, dailyLimit: 100 }
-      );
+      const mlHealthResult = await mlAPI.healthCheck(process.cwd(), {
+        enabled: true,
+        dailyLimit: 100,
+      });
 
       const responseTime = Date.now() - startTime;
       const healthStatus = {
-        status: isTrackerHealthy && mlHealthResult.success ? 'healthy' : 'degraded',
+        status:
+          isTrackerHealthy && mlHealthResult.success ? 'healthy' : 'degraded',
         timestamp: new Date().toISOString(),
         responseTime,
         components: {
           budgetTracker: {
             status: isTrackerHealthy ? 'healthy' : 'unhealthy',
-            message: isTrackerHealthy ? 'Budget tracker operational' : 'Budget tracker unavailable'
+            message: isTrackerHealthy
+              ? 'Budget tracker operational'
+              : 'Budget tracker unavailable',
           },
           mlAPI: {
             status: mlHealthResult.status,
-            details: mlHealthResult.details
-          }
+            details: mlHealthResult.details,
+          },
         },
-        version: '1.0.0'
+        version: '1.0.0',
       };
 
       logger.info('Budget API health check completed', {
         status: healthStatus.status,
         responseTime,
-        components: Object.keys(healthStatus.components).length
+        components: Object.keys(healthStatus.components).length,
       });
 
       res.status(200).json({
         success: true,
-        data: healthStatus
+        data: healthStatus,
       });
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Budget API health check failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        responseTime
+        responseTime,
       });
 
       res.status(503).json({
@@ -111,7 +113,7 @@ export class BudgetController {
         error: 'Health check failed',
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -120,7 +122,10 @@ export class BudgetController {
    * Get current budget usage
    * GET /api/budget/usage
    */
-  async getCurrentUsage(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async getCurrentUsage(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
     const { projectRoot, feature, model } = req.query;
 
@@ -129,7 +134,7 @@ export class BudgetController {
       projectRoot,
       feature,
       model,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -138,7 +143,7 @@ export class BudgetController {
         logger.warn('Budget tracker not available');
         res.status(503).json({
           success: false,
-          error: 'Budget tracking service unavailable'
+          error: 'Budget tracking service unavailable',
         });
         return;
       }
@@ -153,7 +158,7 @@ export class BudgetController {
       try {
         const mlStats = await mlAPI.getUsageStats({
           projectRoot: (projectRoot as string) || process.cwd(),
-          settings: await budgetTracker.getSettings()
+          settings: await budgetTracker.getSettings(),
         });
 
         if (mlStats.success && mlStats.data?.mlPredictions) {
@@ -161,7 +166,8 @@ export class BudgetController {
         }
       } catch (mlError) {
         logger.warn('ML predictions unavailable', {
-          error: mlError instanceof Error ? mlError.message : 'Unknown ML error'
+          error:
+            mlError instanceof Error ? mlError.message : 'Unknown ML error',
         });
       }
 
@@ -175,32 +181,31 @@ export class BudgetController {
             timestamp: new Date().toISOString(),
             responseTime,
             source: 'budget-tracker',
-            filters: { projectRoot, feature, model }
-          }
-        }
+            filters: { projectRoot, feature, model },
+          },
+        },
       };
 
       logger.info('Current usage retrieved successfully', {
         responseTime,
         requestCount: usageData.requestCount,
-        totalCost: usageData.totalCost
+        totalCost: usageData.totalCost,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get current usage', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve current usage',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -209,14 +214,17 @@ export class BudgetController {
    * Get historical usage data with pagination
    * GET /api/budget/usage/history
    */
-  async getUsageHistory(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async getUsageHistory(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
     const {
       startDate,
       endDate,
       limit = 50,
       offset = 0,
-      granularity = 'day'
+      granularity = 'day',
     } = req.query;
 
     logger.info('Usage history requested', {
@@ -226,7 +234,7 @@ export class BudgetController {
       limit,
       offset,
       granularity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -234,7 +242,7 @@ export class BudgetController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Budget tracking service unavailable'
+          error: 'Budget tracking service unavailable',
         });
         return;
       }
@@ -245,7 +253,7 @@ export class BudgetController {
         endDate: endDate as string,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string),
-        granularity: granularity as string
+        granularity: granularity as string,
       });
 
       const responseTime = Date.now() - startTime;
@@ -256,36 +264,35 @@ export class BudgetController {
           pagination: {
             limit: parseInt(limit as string),
             offset: parseInt(offset as string),
-            total: historyData.length
+            total: historyData.length,
           },
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            granularity
-          }
-        }
+            granularity,
+          },
+        },
       };
 
       logger.info('Usage history retrieved successfully', {
         responseTime,
-        recordsReturned: historyData.length
+        recordsReturned: historyData.length,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get usage history', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve usage history',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -294,12 +301,15 @@ export class BudgetController {
    * Get usage summary for dashboard
    * GET /api/budget/usage/summary
    */
-  async getUsageSummary(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async getUsageSummary(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
 
     logger.info('Usage summary requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -307,7 +317,7 @@ export class BudgetController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Budget tracking service unavailable'
+          error: 'Budget tracking service unavailable',
         });
         return;
       }
@@ -315,12 +325,13 @@ export class BudgetController {
       // Get current usage and settings
       const [usageData, settings] = await Promise.all([
         budgetTracker.getCurrentUsage(),
-        budgetTracker.getSettings()
+        budgetTracker.getSettings(),
       ]);
 
       // Calculate summary metrics
       const dailyLimit = settings.dailyLimit || 0;
-      const usagePercentage = dailyLimit > 0 ? (usageData.totalCost / dailyLimit) * 100 : 0;
+      const usagePercentage =
+        dailyLimit > 0 ? (usageData.totalCost / dailyLimit) * 100 : 0;
       const remainingBudget = Math.max(0, dailyLimit - usageData.totalCost);
 
       // Get trend data for the last 7 days
@@ -330,7 +341,7 @@ export class BudgetController {
       const trendData = await budgetTracker.getUsageHistory({
         startDate: sevenDaysAgo.toISOString(),
         endDate: new Date().toISOString(),
-        granularity: 'day'
+        granularity: 'day',
       });
 
       const responseTime = Date.now() - startTime;
@@ -341,45 +352,51 @@ export class BudgetController {
           dailyLimit,
           usagePercentage: Math.round(usagePercentage * 100) / 100,
           remainingBudget: Math.round(remainingBudget * 100) / 100,
-          status: usagePercentage > 100 ? 'over_limit' :
-                 usagePercentage > 80 ? 'warning' : 'normal'
+          status:
+            usagePercentage > 100
+              ? 'over_limit'
+              : usagePercentage > 80
+                ? 'warning'
+                : 'normal',
         },
         trends: {
           last7Days: trendData,
-          avgDailyCost: trendData.length > 0 ?
-            trendData.reduce((sum, day) => sum + (day.totalCost || 0), 0) / trendData.length : 0
+          avgDailyCost:
+            trendData.length > 0
+              ? trendData.reduce((sum, day) => sum + (day.totalCost || 0), 0) /
+                trendData.length
+              : 0,
         },
         metadata: {
           timestamp: new Date().toISOString(),
           responseTime,
-          calculatedAt: new Date().toISOString()
-        }
+          calculatedAt: new Date().toISOString(),
+        },
       };
 
       logger.info('Usage summary generated successfully', {
         responseTime,
         usagePercentage: summary.current.usagePercentage,
-        status: summary.current.status
+        status: summary.current.status,
       });
 
       res.status(200).json({
         success: true,
-        data: summary
+        data: summary,
       });
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to generate usage summary', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to generate usage summary',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -398,7 +415,7 @@ export class BudgetController {
       model,
       feature,
       tokens,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -406,7 +423,7 @@ export class BudgetController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Budget tracking service unavailable'
+          error: 'Budget tracking service unavailable',
         });
         return;
       }
@@ -419,7 +436,7 @@ export class BudgetController {
         tokens,
         metadata,
         timestamp: new Date().toISOString(),
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       const responseTime = Date.now() - startTime;
@@ -428,7 +445,7 @@ export class BudgetController {
         responseTime,
         cost,
         model,
-        feature
+        feature,
       });
 
       res.status(201).json({
@@ -438,24 +455,23 @@ export class BudgetController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            userId: req.user?.id
-          }
-        }
+            userId: req.user?.id,
+          },
+        },
       });
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to record usage', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to record usage',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -469,19 +485,19 @@ export class BudgetController {
 
     logger.info('Admin stats requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
       // Check admin permissions
       if (!req.user?.permissions.includes('admin')) {
         logger.warn('Unauthorized admin stats access attempt', {
-          userId: req.user?.id
+          userId: req.user?.id,
         });
 
         res.status(403).json({
           success: false,
-          error: 'Admin access required'
+          error: 'Admin access required',
         });
         return;
       }
@@ -490,7 +506,7 @@ export class BudgetController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Budget tracking service unavailable'
+          error: 'Budget tracking service unavailable',
         });
         return;
       }
@@ -502,7 +518,7 @@ export class BudgetController {
 
       logger.info('Admin stats retrieved successfully', {
         responseTime,
-        totalUsers: stats.totalUsers || 0
+        totalUsers: stats.totalUsers || 0,
       });
 
       res.status(200).json({
@@ -512,24 +528,23 @@ export class BudgetController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            requestedBy: req.user?.id
-          }
-        }
+            requestedBy: req.user?.id,
+          },
+        },
       });
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get admin stats', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve admin statistics',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -538,24 +553,27 @@ export class BudgetController {
    * Reset all budget data (admin only)
    * POST /api/budget/admin/reset-all
    */
-  async resetAllBudgets(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async resetAllBudgets(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
 
     logger.warn('Admin reset all budgets requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
       // Check admin permissions
       if (!req.user?.permissions.includes('admin')) {
         logger.error('Unauthorized budget reset attempt', {
-          userId: req.user?.id
+          userId: req.user?.id,
         });
 
         res.status(403).json({
           success: false,
-          error: 'Admin access required for budget reset'
+          error: 'Admin access required for budget reset',
         });
         return;
       }
@@ -564,7 +582,7 @@ export class BudgetController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Budget tracking service unavailable'
+          error: 'Budget tracking service unavailable',
         });
         return;
       }
@@ -577,7 +595,7 @@ export class BudgetController {
       logger.warn('All budgets reset completed', {
         responseTime,
         resetBy: req.user?.id,
-        result: resetResult
+        result: resetResult,
       });
 
       res.status(200).json({
@@ -588,24 +606,23 @@ export class BudgetController {
             timestamp: new Date().toISOString(),
             responseTime,
             resetBy: req.user?.id,
-            operation: 'reset-all-budgets'
-          }
-        }
+            operation: 'reset-all-budgets',
+          },
+        },
       });
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to reset all budgets', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to reset budgets',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }

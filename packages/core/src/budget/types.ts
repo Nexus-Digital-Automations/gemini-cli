@@ -164,7 +164,7 @@ export enum BudgetEnforcementLevel {
   /** Allow brief overages with strong warnings */
   SOFT_LIMIT = 'soft_limit',
   /** No enforcement, tracking only */
-  TRACKING_ONLY = 'tracking_only'
+  TRACKING_ONLY = 'tracking_only',
 }
 
 /**
@@ -178,7 +178,7 @@ export enum NotificationFrequency {
   /** Daily digest */
   DAILY = 'daily',
   /** Weekly digest */
-  WEEKLY = 'weekly'
+  WEEKLY = 'weekly',
 }
 
 /**
@@ -252,7 +252,7 @@ export enum BudgetEventType {
   /** Session started */
   SESSION_STARTED = 'session_started',
   /** Session ended */
-  SESSION_ENDED = 'session_ended'
+  SESSION_ENDED = 'session_ended',
 }
 
 /**
@@ -282,7 +282,7 @@ export enum EventSeverity {
   /** Error event */
   ERROR = 'error',
   /** Critical event */
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 /**
@@ -338,5 +338,5 @@ export enum BudgetPermission {
   /** Access historical data */
   VIEW_HISTORY = 'view_history',
   /** Administrative access */
-  ADMIN = 'admin'
+  ADMIN = 'admin',
 }

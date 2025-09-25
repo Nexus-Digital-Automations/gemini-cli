@@ -23,36 +23,43 @@ export class MathematicalAlgorithms {
   /**
    * Calculate comprehensive statistical measures for cost data
    */
-  public static calculateStatistics(dataPoints: CostDataPoint[]): StatisticalMeasures {
+  static calculateStatistics(
+    dataPoints: CostDataPoint[],
+  ): StatisticalMeasures {
     const startTime = Date.now();
-    this.logger.info('Calculating statistical measures', { dataPoints: dataPoints.length });
+    this.logger.info('Calculating statistical measures', {
+      dataPoints: dataPoints.length,
+    });
 
     try {
       if (dataPoints.length === 0) {
         throw new Error('No data points provided for statistical analysis');
       }
 
-      const costs = dataPoints.map(point => point.cost).sort((a, b) => a - b);
+      const costs = dataPoints.map((point) => point.cost).sort((a, b) => a - b);
       const n = costs.length;
 
       // Calculate mean
       const mean = costs.reduce((sum, cost) => sum + cost, 0) / n;
 
       // Calculate variance and standard deviation
-      const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / n;
+      const variance =
+        costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / n;
       const standardDeviation = Math.sqrt(variance);
 
       // Calculate median
-      const median = n % 2 === 0
-        ? (costs[n / 2 - 1] + costs[n / 2]) / 2
-        : costs[Math.floor(n / 2)];
+      const median =
+        n % 2 === 0
+          ? (costs[n / 2 - 1] + costs[n / 2]) / 2
+          : costs[Math.floor(n / 2)];
 
       // Calculate percentiles
       const percentile95Index = Math.ceil(0.95 * n) - 1;
       const percentile95 = costs[percentile95Index];
 
       // Calculate coefficient of variation (volatility measure)
-      const coefficientOfVariation = mean > 0 ? (standardDeviation / mean) * 100 : 0;
+      const coefficientOfVariation =
+        mean > 0 ? (standardDeviation / mean) * 100 : 0;
 
       const result: StatisticalMeasures = {
         mean,
@@ -74,7 +81,9 @@ export class MathematicalAlgorithms {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to calculate statistical measures', { error: error.message });
+      this.logger.error('Failed to calculate statistical measures', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -82,9 +91,13 @@ export class MathematicalAlgorithms {
   /**
    * Perform linear regression analysis for trend detection
    */
-  public static performTrendAnalysis(dataPoints: CostDataPoint[]): TrendAnalysis {
+  static performTrendAnalysis(
+    dataPoints: CostDataPoint[],
+  ): TrendAnalysis {
     const startTime = Date.now();
-    this.logger.info('Performing trend analysis', { dataPoints: dataPoints.length });
+    this.logger.info('Performing trend analysis', {
+      dataPoints: dataPoints.length,
+    });
 
     try {
       if (dataPoints.length < 2) {
@@ -92,18 +105,26 @@ export class MathematicalAlgorithms {
       }
 
       // Sort by timestamp
-      const sortedPoints = [...dataPoints].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedPoints = [...dataPoints].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
 
       // Convert timestamps to days since start
       const startTimestamp = sortedPoints[0].timestamp.getTime();
-      const timePoints = sortedPoints.map(point => (point.timestamp.getTime() - startTimestamp) / (24 * 60 * 60 * 1000));
-      const costPoints = sortedPoints.map(point => point.cost);
+      const timePoints = sortedPoints.map(
+        (point) =>
+          (point.timestamp.getTime() - startTimestamp) / (24 * 60 * 60 * 1000),
+      );
+      const costPoints = sortedPoints.map((point) => point.cost);
 
       // Calculate linear regression using least squares method
       const n = timePoints.length;
       const sumX = timePoints.reduce((sum, x) => sum + x, 0);
       const sumY = costPoints.reduce((sum, y) => sum + y, 0);
-      const sumXY = timePoints.reduce((sum, x, i) => sum + x * costPoints[i], 0);
+      const sumXY = timePoints.reduce(
+        (sum, x, i) => sum + x * costPoints[i],
+        0,
+      );
       const sumXX = timePoints.reduce((sum, x) => sum + x * x, 0);
       const sumYY = costPoints.reduce((sum, y) => sum + y * y, 0);
 
@@ -115,13 +136,15 @@ export class MathematicalAlgorithms {
       const numerator = n * sumXY - sumX * sumY;
       const denominatorX = Math.sqrt(n * sumXX - sumX * sumX);
       const denominatorY = Math.sqrt(n * sumYY - sumY * sumY);
-      const correlation = denominatorX * denominatorY !== 0
-        ? Math.abs(numerator / (denominatorX * denominatorY))
-        : 0;
+      const correlation =
+        denominatorX * denominatorY !== 0
+          ? Math.abs(numerator / (denominatorX * denominatorY))
+          : 0;
 
       // Calculate p-value for statistical significance (simplified t-test)
       const standardError = Math.sqrt(
-        (sumYY - intercept * sumY - slope * sumXY) / ((n - 2) * (sumXX - sumX * sumX / n))
+        (sumYY - intercept * sumY - slope * sumXY) /
+          ((n - 2) * (sumXX - (sumX * sumX) / n)),
       );
       const tStatistic = Math.abs(slope / standardError);
       // Simplified p-value calculation (more complex statistical methods could be used)
@@ -139,7 +162,10 @@ export class MathematicalAlgorithms {
       }
 
       // Confidence level based on correlation and data points
-      const confidence = Math.min(0.95, correlation * (Math.log(n) / Math.log(100)));
+      const confidence = Math.min(
+        0.95,
+        correlation * (Math.log(n) / Math.log(100)),
+      );
 
       const result: TrendAnalysis = {
         slope,
@@ -160,7 +186,9 @@ export class MathematicalAlgorithms {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to perform trend analysis', { error: error.message });
+      this.logger.error('Failed to perform trend analysis', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -168,9 +196,9 @@ export class MathematicalAlgorithms {
   /**
    * Calculate moving averages with configurable parameters
    */
-  public static calculateMovingAverage(
+  static calculateMovingAverage(
     dataPoints: CostDataPoint[],
-    config: MovingAverageAnalysis['config']
+    config: MovingAverageAnalysis['config'],
   ): MovingAverageAnalysis {
     const startTime = Date.now();
     this.logger.info('Calculating moving average', {
@@ -180,11 +208,15 @@ export class MathematicalAlgorithms {
 
     try {
       if (dataPoints.length < config.windowSize) {
-        throw new Error(`Insufficient data points for moving average window size ${config.windowSize}`);
+        throw new Error(
+          `Insufficient data points for moving average window size ${config.windowSize}`,
+        );
       }
 
       // Sort by timestamp
-      const sortedPoints = [...dataPoints].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedPoints = [...dataPoints].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
       const values: MovingAverageAnalysis['values'] = [];
 
       for (let i = config.windowSize - 1; i < sortedPoints.length; i++) {
@@ -194,22 +226,26 @@ export class MathematicalAlgorithms {
 
         switch (config.type) {
           case 'simple':
-            movingAverageValue = windowData.reduce((sum, point) => sum + point.cost, 0) / config.windowSize;
+            movingAverageValue =
+              windowData.reduce((sum, point) => sum + point.cost, 0) /
+              config.windowSize;
             break;
 
           case 'exponential':
             const alpha = config.alpha || 0.2;
-            movingAverageValue = windowData.reduce((ema, point, index) => {
-              return index === 0 ? point.cost : alpha * point.cost + (1 - alpha) * ema;
-            }, windowData[0].cost);
+            movingAverageValue = windowData.reduce((ema, point, index) => index === 0
+                ? point.cost
+                : alpha * point.cost + (1 - alpha) * ema, windowData[0].cost);
             break;
 
           case 'weighted':
-            const weights = Array.from({ length: config.windowSize }, (_, i) => i + 1);
+            const weights = Array.from(
+              { length: config.windowSize },
+              (_, i) => i + 1,
+            );
             const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
-            movingAverageValue = windowData.reduce((sum, point, index) => {
-              return sum + point.cost * weights[index];
-            }, 0) / weightSum;
+            movingAverageValue =
+              windowData.reduce((sum, point, index) => sum + point.cost * weights[index], 0) / weightSum;
             break;
 
           default:
@@ -229,7 +265,7 @@ export class MathematicalAlgorithms {
 
       if (recentValues.length >= 2) {
         const trendSlope = this.calculateSlope(
-          recentValues.map((v, i) => ({ x: i, y: v.value }))
+          recentValues.map((v, i) => ({ x: i, y: v.value })),
         );
 
         const trendThreshold = 0.01;
@@ -256,7 +292,9 @@ export class MathematicalAlgorithms {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to calculate moving average', { error: error.message });
+      this.logger.error('Failed to calculate moving average', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -264,9 +302,13 @@ export class MathematicalAlgorithms {
   /**
    * Analyze seasonal patterns in cost data
    */
-  public static analyzeSeasonality(dataPoints: CostDataPoint[]): SeasonalAnalysis {
+  static analyzeSeasonality(
+    dataPoints: CostDataPoint[],
+  ): SeasonalAnalysis {
     const startTime = Date.now();
-    this.logger.info('Analyzing seasonality', { dataPoints: dataPoints.length });
+    this.logger.info('Analyzing seasonality', {
+      dataPoints: dataPoints.length,
+    });
 
     try {
       if (dataPoints.length < 14) {
@@ -278,7 +320,9 @@ export class MathematicalAlgorithms {
         };
       }
 
-      const sortedPoints = [...dataPoints].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedPoints = [...dataPoints].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
       const patterns: SeasonalAnalysis['patterns'] = [];
 
       // Analyze daily patterns (hourly peaks/troughs)
@@ -290,15 +334,18 @@ export class MathematicalAlgorithms {
       if (weeklyPattern) patterns.push(weeklyPattern);
 
       // Analyze monthly patterns (if enough data)
-      if (sortedPoints.length > 60) { // At least 2 months
+      if (sortedPoints.length > 60) {
+        // At least 2 months
         const monthlyPattern = this.analyzeMonthlyPattern(sortedPoints);
         if (monthlyPattern) patterns.push(monthlyPattern);
       }
 
       // Calculate overall seasonality strength
-      const seasonalityStrength = patterns.length > 0
-        ? patterns.reduce((sum, pattern) => sum + pattern.strength, 0) / patterns.length
-        : 0;
+      const seasonalityStrength =
+        patterns.length > 0
+          ? patterns.reduce((sum, pattern) => sum + pattern.strength, 0) /
+            patterns.length
+          : 0;
 
       // Calculate deseasonalized trend
       const deseasonalizedData = this.removeSeasonality(sortedPoints, patterns);
@@ -318,7 +365,9 @@ export class MathematicalAlgorithms {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to analyze seasonality', { error: error.message });
+      this.logger.error('Failed to analyze seasonality', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -326,9 +375,9 @@ export class MathematicalAlgorithms {
   /**
    * Detect variances and anomalies using statistical methods
    */
-  public static detectVariances(
+  static detectVariances(
     dataPoints: CostDataPoint[],
-    algorithm: VarianceDetection['algorithm'] = 'z_score'
+    algorithm: VarianceDetection['algorithm'] = 'z_score',
   ): VarianceDetection {
     const startTime = Date.now();
     this.logger.info('Detecting variances', {
@@ -338,7 +387,9 @@ export class MathematicalAlgorithms {
 
     try {
       if (dataPoints.length < 3) {
-        throw new Error('At least 3 data points required for variance detection');
+        throw new Error(
+          'At least 3 data points required for variance detection',
+        );
       }
 
       const variances: VarianceDetection['variances'] = [];
@@ -354,7 +405,9 @@ export class MathematicalAlgorithms {
           break;
 
         case 'moving_average_deviation':
-          variances.push(...this.detectVariancesMovingAverageDeviation(dataPoints));
+          variances.push(
+            ...this.detectVariancesMovingAverageDeviation(dataPoints),
+          );
           break;
 
         case 'isolation_forest':
@@ -363,17 +416,24 @@ export class MathematicalAlgorithms {
           break;
 
         default:
-          throw new Error(`Unsupported variance detection algorithm: ${algorithm}`);
+          throw new Error(
+            `Unsupported variance detection algorithm: ${algorithm}`,
+          );
       }
 
       // Calculate summary statistics
-      const significantVariances = variances.filter(v => v.varianceScore > 0.7).length;
-      const averageVarianceScore = variances.length > 0
-        ? variances.reduce((sum, v) => sum + v.varianceScore, 0) / variances.length
-        : 0;
-      const maxVarianceScore = variances.length > 0
-        ? Math.max(...variances.map(v => v.varianceScore))
-        : 0;
+      const significantVariances = variances.filter(
+        (v) => v.varianceScore > 0.7,
+      ).length;
+      const averageVarianceScore =
+        variances.length > 0
+          ? variances.reduce((sum, v) => sum + v.varianceScore, 0) /
+            variances.length
+          : 0;
+      const maxVarianceScore =
+        variances.length > 0
+          ? Math.max(...variances.map((v) => v.varianceScore))
+          : 0;
 
       const result: VarianceDetection = {
         timestamp: new Date(),
@@ -403,7 +463,9 @@ export class MathematicalAlgorithms {
 
   // Private helper methods
 
-  private static calculateSlope(points: Array<{ x: number; y: number }>): number {
+  private static calculateSlope(
+    points: Array<{ x: number; y: number }>,
+  ): number {
     if (points.length < 2) return 0;
 
     const n = points.length;
@@ -415,11 +477,13 @@ export class MathematicalAlgorithms {
     return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
   }
 
-  private static analyzeDailyPattern(dataPoints: CostDataPoint[]): SeasonalAnalysis['patterns'][0] | null {
+  private static analyzeDailyPattern(
+    dataPoints: CostDataPoint[],
+  ): SeasonalAnalysis['patterns'][0] | null {
     // Group by hour of day
     const hourlyData = new Map<number, number[]>();
 
-    dataPoints.forEach(point => {
+    dataPoints.forEach((point) => {
       const hour = point.timestamp.getHours();
       if (!hourlyData.has(hour)) {
         hourlyData.set(hour, []);
@@ -439,7 +503,9 @@ export class MathematicalAlgorithms {
     // Find peaks and troughs
     const peaks: number[] = [];
     const troughs: number[] = [];
-    const averageValue = hourlyAverages.reduce((sum, item) => sum + item.average, 0) / hourlyAverages.length;
+    const averageValue =
+      hourlyAverages.reduce((sum, item) => sum + item.average, 0) /
+      hourlyAverages.length;
 
     hourlyAverages.forEach(({ hour, average }) => {
       if (average > averageValue * 1.2) peaks.push(hour);
@@ -447,7 +513,11 @@ export class MathematicalAlgorithms {
     });
 
     // Calculate pattern strength
-    const variance = hourlyAverages.reduce((sum, item) => sum + Math.pow(item.average - averageValue, 2), 0) / hourlyAverages.length;
+    const variance =
+      hourlyAverages.reduce(
+        (sum, item) => sum + Math.pow(item.average - averageValue, 2),
+        0,
+      ) / hourlyAverages.length;
     const strength = Math.min(1, Math.sqrt(variance) / averageValue);
 
     return {
@@ -458,11 +528,13 @@ export class MathematicalAlgorithms {
     };
   }
 
-  private static analyzeWeeklyPattern(dataPoints: CostDataPoint[]): SeasonalAnalysis['patterns'][0] | null {
+  private static analyzeWeeklyPattern(
+    dataPoints: CostDataPoint[],
+  ): SeasonalAnalysis['patterns'][0] | null {
     // Group by day of week
     const dailyData = new Map<number, number[]>();
 
-    dataPoints.forEach(point => {
+    dataPoints.forEach((point) => {
       const day = point.timestamp.getDay(); // 0 = Sunday, 6 = Saturday
       if (!dailyData.has(day)) {
         dailyData.set(day, []);
@@ -482,7 +554,9 @@ export class MathematicalAlgorithms {
     // Find peaks and troughs
     const peaks: number[] = [];
     const troughs: number[] = [];
-    const averageValue = dailyAverages.reduce((sum, item) => sum + item.average, 0) / dailyAverages.length;
+    const averageValue =
+      dailyAverages.reduce((sum, item) => sum + item.average, 0) /
+      dailyAverages.length;
 
     dailyAverages.forEach(({ day, average }) => {
       if (average > averageValue * 1.15) peaks.push(day);
@@ -490,7 +564,11 @@ export class MathematicalAlgorithms {
     });
 
     // Calculate pattern strength
-    const variance = dailyAverages.reduce((sum, item) => sum + Math.pow(item.average - averageValue, 2), 0) / dailyAverages.length;
+    const variance =
+      dailyAverages.reduce(
+        (sum, item) => sum + Math.pow(item.average - averageValue, 2),
+        0,
+      ) / dailyAverages.length;
     const strength = Math.min(1, Math.sqrt(variance) / averageValue);
 
     return {
@@ -501,11 +579,13 @@ export class MathematicalAlgorithms {
     };
   }
 
-  private static analyzeMonthlyPattern(dataPoints: CostDataPoint[]): SeasonalAnalysis['patterns'][0] | null {
+  private static analyzeMonthlyPattern(
+    dataPoints: CostDataPoint[],
+  ): SeasonalAnalysis['patterns'][0] | null {
     // Group by day of month
     const dailyData = new Map<number, number[]>();
 
-    dataPoints.forEach(point => {
+    dataPoints.forEach((point) => {
       const day = point.timestamp.getDate();
       if (!dailyData.has(day)) {
         dailyData.set(day, []);
@@ -525,7 +605,9 @@ export class MathematicalAlgorithms {
     // Find peaks and troughs
     const peaks: number[] = [];
     const troughs: number[] = [];
-    const averageValue = dailyAverages.reduce((sum, item) => sum + item.average, 0) / dailyAverages.length;
+    const averageValue =
+      dailyAverages.reduce((sum, item) => sum + item.average, 0) /
+      dailyAverages.length;
 
     dailyAverages.forEach(({ day, average }) => {
       if (average > averageValue * 1.2) peaks.push(day);
@@ -533,7 +615,11 @@ export class MathematicalAlgorithms {
     });
 
     // Calculate pattern strength
-    const variance = dailyAverages.reduce((sum, item) => sum + Math.pow(item.average - averageValue, 2), 0) / dailyAverages.length;
+    const variance =
+      dailyAverages.reduce(
+        (sum, item) => sum + Math.pow(item.average - averageValue, 2),
+        0,
+      ) / dailyAverages.length;
     const strength = Math.min(1, Math.sqrt(variance) / averageValue);
 
     return {
@@ -546,15 +632,18 @@ export class MathematicalAlgorithms {
 
   private static removeSeasonality(
     dataPoints: CostDataPoint[],
-    patterns: SeasonalAnalysis['patterns']
+    patterns: SeasonalAnalysis['patterns'],
   ): CostDataPoint[] {
     // Simple deseasonalization by removing detected patterns
-    return dataPoints.map(point => {
+    return dataPoints.map((point) => {
       let adjustedCost = point.cost;
 
-      patterns.forEach(pattern => {
+      patterns.forEach((pattern) => {
         // Apply seasonal adjustment based on pattern type
-        const adjustment = this.calculateSeasonalAdjustment(point.timestamp, pattern);
+        const adjustment = this.calculateSeasonalAdjustment(
+          point.timestamp,
+          pattern,
+        );
         adjustedCost -= adjustment;
       });
 
@@ -567,7 +656,7 @@ export class MathematicalAlgorithms {
 
   private static calculateSeasonalAdjustment(
     timestamp: Date,
-    pattern: SeasonalAnalysis['patterns'][0]
+    pattern: SeasonalAnalysis['patterns'][0],
   ): number {
     // Simplified seasonal adjustment calculation
     const baseAdjustment = 0.1; // 10% base seasonal effect
@@ -575,15 +664,21 @@ export class MathematicalAlgorithms {
     switch (pattern.type) {
       case 'daily':
         const hour = timestamp.getHours();
-        return pattern.peaks.includes(hour) ? baseAdjustment * pattern.strength : 0;
+        return pattern.peaks.includes(hour)
+          ? baseAdjustment * pattern.strength
+          : 0;
 
       case 'weekly':
         const day = timestamp.getDay();
-        return pattern.peaks.includes(day) ? baseAdjustment * pattern.strength : 0;
+        return pattern.peaks.includes(day)
+          ? baseAdjustment * pattern.strength
+          : 0;
 
       case 'monthly':
         const monthDay = timestamp.getDate();
-        return pattern.peaks.includes(monthDay) ? baseAdjustment * pattern.strength : 0;
+        return pattern.peaks.includes(monthDay)
+          ? baseAdjustment * pattern.strength
+          : 0;
 
       default:
         return 0;
@@ -592,17 +687,20 @@ export class MathematicalAlgorithms {
 
   private static detectVariancesZScore(
     dataPoints: CostDataPoint[],
-    statistics: StatisticalMeasures
+    statistics: StatisticalMeasures,
   ): VarianceDetection['variances'] {
     const threshold = 2.5; // Z-score threshold for outlier detection
     const variances: VarianceDetection['variances'] = [];
 
-    dataPoints.forEach(point => {
-      const zScore = Math.abs((point.cost - statistics.mean) / statistics.standardDeviation);
+    dataPoints.forEach((point) => {
+      const zScore = Math.abs(
+        (point.cost - statistics.mean) / statistics.standardDeviation,
+      );
 
       if (zScore > threshold) {
         const deviation = point.cost - statistics.mean;
-        const deviationPercentage = (Math.abs(deviation) / statistics.mean) * 100;
+        const deviationPercentage =
+          (Math.abs(deviation) / statistics.mean) * 100;
 
         variances.push({
           dataPoint: point,
@@ -619,8 +717,10 @@ export class MathematicalAlgorithms {
     return variances;
   }
 
-  private static detectVariancesIQR(dataPoints: CostDataPoint[]): VarianceDetection['variances'] {
-    const costs = dataPoints.map(point => point.cost).sort((a, b) => a - b);
+  private static detectVariancesIQR(
+    dataPoints: CostDataPoint[],
+  ): VarianceDetection['variances'] {
+    const costs = dataPoints.map((point) => point.cost).sort((a, b) => a - b);
     const n = costs.length;
 
     // Calculate quartiles
@@ -636,7 +736,7 @@ export class MathematicalAlgorithms {
 
     const variances: VarianceDetection['variances'] = [];
 
-    dataPoints.forEach(point => {
+    dataPoints.forEach((point) => {
       if (point.cost < lowerBound || point.cost > upperBound) {
         const expectedValue = (q1 + q3) / 2; // Use median of quartiles as expected
         const deviation = point.cost - expectedValue;
@@ -657,18 +757,26 @@ export class MathematicalAlgorithms {
     return variances;
   }
 
-  private static detectVariancesMovingAverageDeviation(dataPoints: CostDataPoint[]): VarianceDetection['variances'] {
+  private static detectVariancesMovingAverageDeviation(
+    dataPoints: CostDataPoint[],
+  ): VarianceDetection['variances'] {
     const windowSize = Math.min(7, Math.floor(dataPoints.length / 3)); // Adaptive window size
     if (dataPoints.length < windowSize + 1) return [];
 
-    const sortedPoints = [...dataPoints].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sortedPoints = [...dataPoints].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
     const variances: VarianceDetection['variances'] = [];
 
     for (let i = windowSize; i < sortedPoints.length; i++) {
       const window = sortedPoints.slice(i - windowSize, i);
-      const windowAverage = window.reduce((sum, point) => sum + point.cost, 0) / windowSize;
+      const windowAverage =
+        window.reduce((sum, point) => sum + point.cost, 0) / windowSize;
       const windowStdDev = Math.sqrt(
-        window.reduce((sum, point) => sum + Math.pow(point.cost - windowAverage, 2), 0) / windowSize
+        window.reduce(
+          (sum, point) => sum + Math.pow(point.cost - windowAverage, 2),
+          0,
+        ) / windowSize,
       );
 
       const currentPoint = sortedPoints[i];
@@ -693,7 +801,9 @@ export class MathematicalAlgorithms {
     return variances;
   }
 
-  private static detectVariancesIsolationForest(dataPoints: CostDataPoint[]): VarianceDetection['variances'] {
+  private static detectVariancesIsolationForest(
+    dataPoints: CostDataPoint[],
+  ): VarianceDetection['variances'] {
     // Simplified isolation forest implementation
     // In a real implementation, you would use a more sophisticated algorithm
     const variances: VarianceDetection['variances'] = [];
@@ -703,14 +813,16 @@ export class MathematicalAlgorithms {
     const statistics = this.calculateStatistics(dataPoints);
     const threshold = statistics.mean + 2.5 * statistics.standardDeviation;
 
-    dataPoints.forEach(point => {
+    dataPoints.forEach((point) => {
       // Simplified anomaly score based on distance from mean
       const distanceFromMean = Math.abs(point.cost - statistics.mean);
-      const anomalyScore = distanceFromMean / (statistics.standardDeviation + 0.001); // Avoid division by zero
+      const anomalyScore =
+        distanceFromMean / (statistics.standardDeviation + 0.001); // Avoid division by zero
 
       if (anomalyScore > 2.5) {
         const deviation = point.cost - statistics.mean;
-        const deviationPercentage = (Math.abs(deviation) / statistics.mean) * 100;
+        const deviationPercentage =
+          (Math.abs(deviation) / statistics.mean) * 100;
 
         variances.push({
           dataPoint: point,
@@ -718,7 +830,10 @@ export class MathematicalAlgorithms {
           expectedValue: statistics.mean,
           deviation,
           deviationPercentage,
-          varianceType: Math.abs(deviation) > statistics.standardDeviation ? 'outlier' : 'drift',
+          varianceType:
+            Math.abs(deviation) > statistics.standardDeviation
+              ? 'outlier'
+              : 'drift',
           confidence: Math.min(0.85, anomalyScore / 4),
         });
       }

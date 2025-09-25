@@ -73,7 +73,7 @@ class PerformanceTestUtils {
 
   static async measureBatchOperations<T>(
     operationName: string,
-    operations: (() => Promise<T>)[],
+    operations: Array<() => Promise<T>>,
     threshold?: number,
   ): Promise<{ results: T[]; totalDuration: number; averageDuration: number }> {
     const startTime = performance.now();

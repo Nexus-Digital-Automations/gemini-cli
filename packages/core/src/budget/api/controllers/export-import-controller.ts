@@ -13,11 +13,11 @@
  * @version 1.0.0
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Logger } from '../../../../../src/utils/logger.js';
 import { BudgetUsageData, BudgetSettings } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
-import { Readable } from 'stream';
+import type { Readable } from 'node:stream';
 
 const logger = new Logger('ExportImportController');
 
@@ -72,7 +72,7 @@ export class ExportImportController {
   constructor() {
     logger.info('Initializing Export/Import Controller', {
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     });
 
     this.loadExportTemplates();
@@ -93,13 +93,13 @@ export class ExportImportController {
       includeSettings: req.query.includeSettings === 'true',
       compression: (req.query.compression as string) || 'none',
       template: req.query.template as string,
-      filters: req.query.filters ? JSON.parse(req.query.filters as string) : {}
+      filters: req.query.filters ? JSON.parse(req.query.filters as string) : {},
     };
 
     logger.info('Data export requested', {
       userId: req.user?.id,
       config,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -107,7 +107,7 @@ export class ExportImportController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Export service unavailable'
+          error: 'Export service unavailable',
         });
         return;
       }
@@ -128,7 +128,7 @@ export class ExportImportController {
         logger.info('Streaming export data', {
           format: config.format,
           filename: exportResult.filename,
-          size: exportResult.size
+          size: exportResult.size,
         });
 
         exportResult.stream.pipe(res);
@@ -136,26 +136,25 @@ export class ExportImportController {
         logger.info('Export data generated successfully', {
           responseTime,
           format: config.format,
-          size: exportResult.data?.length || 0
+          size: exportResult.data?.length || 0,
         });
 
         res.send(exportResult.data);
       }
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to export data', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
         userId: req.user?.id,
-        format: config.format
+        format: config.format,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to export data',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -170,7 +169,7 @@ export class ExportImportController {
     logger.info('Data import requested', {
       userId: req.user?.id,
       contentType: req.headers['content-type'],
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -178,7 +177,7 @@ export class ExportImportController {
       if (!req.user?.permissions.includes('modify_settings')) {
         res.status(403).json({
           success: false,
-          error: 'Insufficient permissions for data import'
+          error: 'Insufficient permissions for data import',
         });
         return;
       }
@@ -187,7 +186,7 @@ export class ExportImportController {
       if (!budgetTracker) {
         res.status(503).json({
           success: false,
-          error: 'Import service unavailable'
+          error: 'Import service unavailable',
         });
         return;
       }
@@ -201,7 +200,7 @@ export class ExportImportController {
         res.status(400).json({
           success: false,
           error: 'Invalid import data',
-          details: validationResult.errors
+          details: validationResult.errors,
         });
         return;
       }
@@ -218,37 +217,36 @@ export class ExportImportController {
             recordsProcessed: importResult.recordsProcessed,
             recordsImported: importResult.recordsImported,
             recordsSkipped: importResult.recordsSkipped,
-            errors: importResult.errors
+            errors: importResult.errors,
           },
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            importedBy: req.user?.id
-          }
-        }
+            importedBy: req.user?.id,
+          },
+        },
       };
 
       logger.info('Data imported successfully', {
         responseTime,
         recordsProcessed: importResult.recordsProcessed,
-        recordsImported: importResult.recordsImported
+        recordsImported: importResult.recordsImported,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to import data', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to import data',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -257,12 +255,15 @@ export class ExportImportController {
    * Get available export templates
    * GET /api/budget/export/templates
    */
-  async getExportTemplates(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async getExportTemplates(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
     const startTime = Date.now();
 
     logger.info('Export templates requested', {
       userId: req.user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -275,35 +276,34 @@ export class ExportImportController {
           templates,
           summary: {
             totalTemplates: templates.length,
-            availableFormats: [...new Set(templates.map(t => t.format))]
+            availableFormats: [...new Set(templates.map((t) => t.format))],
           },
           metadata: {
             timestamp: new Date().toISOString(),
-            responseTime
-          }
-        }
+            responseTime,
+          },
+        },
       };
 
       logger.info('Export templates retrieved successfully', {
         responseTime,
-        templatesCount: templates.length
+        templatesCount: templates.length,
       });
 
       res.status(200).json(response);
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to get export templates', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseTime,
-        userId: req.user?.id
+        userId: req.user?.id,
       });
 
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve export templates',
         timestamp: new Date().toISOString(),
-        responseTime
+        responseTime,
       });
     }
   }
@@ -323,10 +323,10 @@ export class ExportImportController {
         format: config.format,
         dateRange: {
           startDate: config.startDate,
-          endDate: config.endDate
+          endDate: config.endDate,
         },
-        filters: config.filters
-      }
+        filters: config.filters,
+      },
     };
 
     // Include current usage data
@@ -342,7 +342,7 @@ export class ExportImportController {
       exportData.history = await budgetTracker.getUsageHistory({
         startDate: config.startDate,
         endDate: config.endDate,
-        limit: 10000 // Large limit for export
+        limit: 10000, // Large limit for export
       });
     }
 
@@ -357,7 +357,10 @@ export class ExportImportController {
   /**
    * Generate export based on format and configuration
    */
-  private async generateExport(data: any, config: ExportConfig): Promise<{
+  private async generateExport(
+    data: any,
+    config: ExportConfig,
+  ): Promise<{
     data?: any;
     stream?: Readable;
     filename: string;
@@ -370,13 +373,13 @@ export class ExportImportController {
       case 'json':
         return {
           data: JSON.stringify(data, null, 2),
-          filename
+          filename,
         };
 
       case 'csv':
         return {
           data: this.generateCSVExport(data),
-          filename: filename.replace('.csv', '.csv')
+          filename: filename.replace('.csv', '.csv'),
         };
 
       case 'xlsx':
@@ -402,15 +405,23 @@ export class ExportImportController {
     // Add current usage
     if (data.currentUsage) {
       const usage = data.currentUsage;
-      const usagePercentage = usage.dailyLimit > 0 ? (usage.totalCost / usage.dailyLimit) * 100 : 0;
-      rows.push(`${usage.date},${usage.requestCount},${usage.totalCost},${usage.dailyLimit || 0},${usagePercentage.toFixed(2)}`);
+      const usagePercentage =
+        usage.dailyLimit > 0 ? (usage.totalCost / usage.dailyLimit) * 100 : 0;
+      rows.push(
+        `${usage.date},${usage.requestCount},${usage.totalCost},${usage.dailyLimit || 0},${usagePercentage.toFixed(2)}`,
+      );
     }
 
     // Add historical data
     if (data.history && Array.isArray(data.history)) {
       for (const record of data.history) {
-        const usagePercentage = record.dailyLimit > 0 ? (record.totalCost / record.dailyLimit) * 100 : 0;
-        rows.push(`${record.date},${record.requestCount},${record.totalCost},${record.dailyLimit || 0},${usagePercentage.toFixed(2)}`);
+        const usagePercentage =
+          record.dailyLimit > 0
+            ? (record.totalCost / record.dailyLimit) * 100
+            : 0;
+        rows.push(
+          `${record.date},${record.requestCount},${record.totalCost},${record.dailyLimit || 0},${usagePercentage.toFixed(2)}`,
+        );
       }
     }
 
@@ -420,7 +431,10 @@ export class ExportImportController {
   /**
    * Generate Excel export (mock implementation)
    */
-  private async generateExcelExport(data: any, filename: string): Promise<{
+  private async generateExcelExport(
+    data: any,
+    filename: string,
+  ): Promise<{
     data?: any;
     stream?: Readable;
     filename: string;
@@ -428,18 +442,23 @@ export class ExportImportController {
     // Mock Excel generation - replace with actual Excel library like ExcelJS
     logger.info('Generating Excel export (mock)', { filename });
 
-    const mockExcelData = Buffer.from(`Excel export data for ${filename}\n${JSON.stringify(data, null, 2)}`);
+    const mockExcelData = Buffer.from(
+      `Excel export data for ${filename}\n${JSON.stringify(data, null, 2)}`,
+    );
 
     return {
       data: mockExcelData,
-      filename
+      filename,
     };
   }
 
   /**
    * Generate PDF export (mock implementation)
    */
-  private async generatePDFExport(data: any, filename: string): Promise<{
+  private async generatePDFExport(
+    data: any,
+    filename: string,
+  ): Promise<{
     data?: any;
     stream?: Readable;
     filename: string;
@@ -447,11 +466,13 @@ export class ExportImportController {
     // Mock PDF generation - replace with actual PDF library like PDFKit
     logger.info('Generating PDF export (mock)', { filename });
 
-    const mockPDFData = Buffer.from(`PDF export data for ${filename}\n${JSON.stringify(data, null, 2)}`);
+    const mockPDFData = Buffer.from(
+      `PDF export data for ${filename}\n${JSON.stringify(data, null, 2)}`,
+    );
 
     return {
       data: mockPDFData,
-      filename
+      filename,
     };
   }
 
@@ -465,10 +486,10 @@ export class ExportImportController {
         totalCost: 0,
         totalRequests: 0,
         averageCostPerRequest: 0,
-        peakUsageDay: null
+        peakUsageDay: null,
       },
       trends: [],
-      costBreakdown: []
+      costBreakdown: [],
     };
   }
 
@@ -491,16 +512,16 @@ export class ExportImportController {
    * Parse CSV import data
    */
   private parseCSVData(csvText: string): any {
-    const lines = csvText.split('\n').filter(line => line.trim());
+    const lines = csvText.split('\n').filter((line) => line.trim());
     if (lines.length < 2) {
       throw new Error('Invalid CSV data: missing header or data rows');
     }
 
-    const headers = lines[0].split(',').map(h => h.trim());
+    const headers = lines[0].split(',').map((h) => h.trim());
     const records: any[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      const values = lines[i].split(',').map((v) => v.trim());
       const record: any = {};
 
       headers.forEach((header, index) => {
@@ -513,7 +534,7 @@ export class ExportImportController {
     return {
       type: 'csv',
       headers,
-      records
+      records,
     };
   }
 
@@ -541,7 +562,7 @@ export class ExportImportController {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -564,7 +585,9 @@ export class ExportImportController {
           recordsImported++;
         } catch (error) {
           recordsSkipped++;
-          errors.push(`Row ${recordsProcessed}: ${error instanceof Error ? error.message : 'Import error'}`);
+          errors.push(
+            `Row ${recordsProcessed}: ${error instanceof Error ? error.message : 'Import error'}`,
+          );
         }
       }
     }
@@ -573,7 +596,7 @@ export class ExportImportController {
       recordsProcessed,
       recordsImported,
       recordsSkipped,
-      errors
+      errors,
     };
   }
 
@@ -596,15 +619,22 @@ export class ExportImportController {
   /**
    * Set appropriate response headers for export
    */
-  private setExportHeaders(res: Response, config: ExportConfig, filename: string): void {
+  private setExportHeaders(
+    res: Response,
+    config: ExportConfig,
+    filename: string,
+  ): void {
     const mimeTypes = {
       json: 'application/json',
       csv: 'text/csv',
       xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      pdf: 'application/pdf'
+      pdf: 'application/pdf',
     };
 
-    res.setHeader('Content-Type', mimeTypes[config.format] || 'application/octet-stream');
+    res.setHeader(
+      'Content-Type',
+      mimeTypes[config.format] || 'application/octet-stream',
+    );
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
     if (config.compression === 'gzip') {
@@ -620,17 +650,24 @@ export class ExportImportController {
       {
         id: 'default_json',
         name: 'Complete JSON Export',
-        description: 'Full data export in JSON format with all available fields',
+        description:
+          'Full data export in JSON format with all available fields',
         format: 'json',
         fields: ['*'],
-        formatting: { indent: 2 }
+        formatting: { indent: 2 },
       },
       {
         id: 'summary_csv',
         name: 'Usage Summary CSV',
         description: 'Basic usage data in CSV format',
         format: 'csv',
-        fields: ['date', 'requestCount', 'totalCost', 'dailyLimit', 'usagePercentage']
+        fields: [
+          'date',
+          'requestCount',
+          'totalCost',
+          'dailyLimit',
+          'usagePercentage',
+        ],
       },
       {
         id: 'financial_report',
@@ -638,8 +675,8 @@ export class ExportImportController {
         description: 'Professional financial report in PDF format',
         format: 'pdf',
         fields: ['summary', 'trends', 'costBreakdown'],
-        formatting: { template: 'financial', includeCharts: true }
-      }
+        formatting: { template: 'financial', includeCharts: true },
+      },
     ];
 
     for (const template of templates) {
@@ -647,7 +684,7 @@ export class ExportImportController {
     }
 
     logger.info('Export templates loaded', {
-      count: templates.length
+      count: templates.length,
     });
   }
 }

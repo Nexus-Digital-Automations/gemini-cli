@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Infinite Loop Detection and Prevention Test Suite
  *
  * Critical safety tests to ensure the task management system cannot
@@ -244,15 +250,13 @@ describe('Infinite Loop Protection System', () => {
       let callbackDepth = 0;
       const maxCallbackDepth = 50;
 
-      const createNestedCallback = (depth: number): any => {
-        return () => {
+      const createNestedCallback = (depth: number): any => () => {
           callbackDepth = Math.max(callbackDepth, depth);
           if (depth < 1000) {
             // Try to create deep callback chain
             return createNestedCallback(depth + 1)();
           }
         };
-      };
 
       const callbackTask = TaskFactories.createTask({
         id: 'callback-chain-task',

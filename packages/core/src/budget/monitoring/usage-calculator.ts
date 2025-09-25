@@ -175,7 +175,9 @@ export class UsageCalculator {
   /**
    * Calculate cost with detailed breakdown
    */
-  async calculateCostWithBreakdown(params: CostCalculationParams): Promise<CostBreakdown> {
+  async calculateCostWithBreakdown(
+    params: CostCalculationParams,
+  ): Promise<CostBreakdown> {
     // Create cache key if caching is enabled
     let cacheKey = '';
     if (this.config.enableCaching) {
@@ -243,7 +245,9 @@ export class UsageCalculator {
         outputTokens: params.outputTokens,
         error: error instanceof Error ? error.message : String(error),
       });
-      throw new Error(`Cost calculation failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Cost calculation failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -254,11 +258,15 @@ export class UsageCalculator {
     tokenUsage: TokenUsageData,
     modelUsage: Record<string, ModelUsageData>,
     featureUsage: Record<string, TokenUsageData>,
-    timePeriodHours: number = 24
+    timePeriodHours: number = 24,
   ): UsageCostAnalysis {
-    const totalCost = tokenUsage.tokenCosts.input + tokenUsage.tokenCosts.output;
+    const totalCost =
+      tokenUsage.tokenCosts.input + tokenUsage.tokenCosts.output;
     const totalTokens = tokenUsage.totalTokens;
-    const totalRequests = Object.values(modelUsage).reduce((sum, usage) => sum + usage.requests, 0);
+    const totalRequests = Object.values(modelUsage).reduce(
+      (sum, usage) => sum + usage.requests,
+      0,
+    );
 
     // Calculate period costs (extrapolated from current usage)
     const periodCosts = {
@@ -282,8 +290,14 @@ export class UsageCalculator {
 
     // Calculate efficiency metrics
     const efficiency = {
-      costPerOutputToken: tokenUsage.outputTokens > 0 ? tokenUsage.tokenCosts.output / tokenUsage.outputTokens : 0,
-      inputOutputRatio: tokenUsage.outputTokens > 0 ? tokenUsage.inputTokens / tokenUsage.outputTokens : 0,
+      costPerOutputToken:
+        tokenUsage.outputTokens > 0
+          ? tokenUsage.tokenCosts.output / tokenUsage.outputTokens
+          : 0,
+      inputOutputRatio:
+        tokenUsage.outputTokens > 0
+          ? tokenUsage.inputTokens / tokenUsage.outputTokens
+          : 0,
       wastedTokenPercentage: this.calculateWastedTokenPercentage(tokenUsage),
     };
 
@@ -303,66 +317,71 @@ export class UsageCalculator {
    */
   getCostOptimizationRecommendations(
     analysis: UsageCostAnalysis,
-    modelUsage: Record<string, ModelUsageData>
+    modelUsage: Record<string, ModelUsageData>,
   ): string[] {
     const recommendations: string[] = [];
 
     // Check for high input/output ratios (potentially inefficient prompts)
     if (analysis.efficiency.inputOutputRatio > 5) {
       recommendations.push(
-        'Consider optimizing prompts to reduce input tokens while maintaining output quality'
+        'Consider optimizing prompts to reduce input tokens while maintaining output quality',
       );
     }
 
     // Check for expensive model usage
-    const sortedModels = Object.entries(analysis.modelCosts)
-      .sort(([, a], [, b]) => b - a);
+    const sortedModels = Object.entries(analysis.modelCosts).sort(
+      ([, a], [, b]) => b - a,
+    );
 
     if (sortedModels.length > 1) {
       const [topModel, topCost] = sortedModels[0];
       const totalCost = analysis.totalCost;
       if (topCost / totalCost > 0.7) {
         recommendations.push(
-          `Consider using less expensive models for tasks currently handled by ${topModel} (${((topCost / totalCost) * 100).toFixed(1)}% of total cost)`
+          `Consider using less expensive models for tasks currently handled by ${topModel} (${((topCost / totalCost) * 100).toFixed(1)}% of total cost)`,
         );
       }
     }
 
     // Check for features with high cost but low efficiency
-    const sortedFeatures = Object.entries(analysis.featureCosts)
-      .sort(([, a], [, b]) => b - a);
+    const sortedFeatures = Object.entries(analysis.featureCosts).sort(
+      ([, a], [, b]) => b - a,
+    );
 
     if (sortedFeatures.length > 0) {
       const [topFeature, topFeatureCost] = sortedFeatures[0];
       if (topFeatureCost / analysis.totalCost > 0.5) {
         recommendations.push(
-          `Review usage patterns for '${topFeature}' feature (${((topFeatureCost / analysis.totalCost) * 100).toFixed(1)}% of total cost)`
+          `Review usage patterns for '${topFeature}' feature (${((topFeatureCost / analysis.totalCost) * 100).toFixed(1)}% of total cost)`,
         );
       }
     }
 
     // Check for high request rates with low output
-    const avgOutputPerRequest = Object.values(modelUsage)
-      .reduce((sum, usage) => sum + usage.outputTokens, 0) /
+    const avgOutputPerRequest =
+      Object.values(modelUsage).reduce(
+        (sum, usage) => sum + usage.outputTokens,
+        0,
+      ) /
       Object.values(modelUsage).reduce((sum, usage) => sum + usage.requests, 0);
 
     if (avgOutputPerRequest < 50) {
       recommendations.push(
-        'Low average output per request detected. Consider batching requests or optimizing prompts for more substantial responses'
+        'Low average output per request detected. Consider batching requests or optimizing prompts for more substantial responses',
       );
     }
 
     // Check for potential waste
     if (analysis.efficiency.wastedTokenPercentage > 10) {
       recommendations.push(
-        `High token waste detected (${analysis.efficiency.wastedTokenPercentage.toFixed(1)}%). Review prompt efficiency and response formatting`
+        `High token waste detected (${analysis.efficiency.wastedTokenPercentage.toFixed(1)}%). Review prompt efficiency and response formatting`,
       );
     }
 
     // Budget-based recommendations
     if (analysis.periodCosts.monthly > 100) {
       recommendations.push(
-        'Monthly projected cost exceeds $100. Consider implementing usage quotas or optimizing high-cost operations'
+        'Monthly projected cost exceeds $100. Consider implementing usage quotas or optimizing high-cost operations',
       );
     }
 
@@ -375,7 +394,7 @@ export class UsageCalculator {
   estimateCost(
     model: string,
     estimatedInputTokens: number,
-    estimatedOutputTokens: number
+    estimatedOutputTokens: number,
   ): Promise<CostBreakdown> {
     const params: CostCalculationParams = {
       model,
@@ -390,7 +409,10 @@ export class UsageCalculator {
   /**
    * Update model pricing configuration
    */
-  updateModelPricing(model: string, pricing: Omit<ModelPricing, 'model'>): void {
+  updateModelPricing(
+    model: string,
+    pricing: Omit<ModelPricing, 'model'>,
+  ): void {
     const modelPricing: ModelPricing = {
       model,
       ...pricing,
@@ -442,7 +464,7 @@ export class UsageCalculator {
       {
         model: 'gemini-1.5-flash',
         inputCostPer1k: 0.075,
-        outputCostPer1k: 0.30,
+        outputCostPer1k: 0.3,
         tier: 'standard',
       },
       {
@@ -460,7 +482,7 @@ export class UsageCalculator {
       {
         model: 'gemini-2.0-flash-exp',
         inputCostPer1k: 0.075,
-        outputCostPer1k: 0.30,
+        outputCostPer1k: 0.3,
         tier: 'standard',
       },
     ];
@@ -567,7 +589,8 @@ export class UsageCalculator {
     // For now, we consider the ratio of input to output tokens as a proxy for efficiency
     if (usage.inputTokens === 0) return 0;
 
-    const inputOutputRatio = usage.inputTokens / Math.max(usage.outputTokens, 1);
+    const inputOutputRatio =
+      usage.inputTokens / Math.max(usage.outputTokens, 1);
 
     // If input is much higher than output, there might be inefficiency
     if (inputOutputRatio > 10) {
@@ -581,7 +604,9 @@ export class UsageCalculator {
 /**
  * Create a new UsageCalculator instance
  */
-export function createUsageCalculator(config?: UsageCalculatorConfig): UsageCalculator {
+export function createUsageCalculator(
+  config?: UsageCalculatorConfig,
+): UsageCalculator {
   return new UsageCalculator(config);
 }
 
@@ -593,7 +618,9 @@ let globalUsageCalculator: UsageCalculator | null = null;
 /**
  * Get or create the global usage calculator instance
  */
-export function getGlobalUsageCalculator(config?: UsageCalculatorConfig): UsageCalculator {
+export function getGlobalUsageCalculator(
+  config?: UsageCalculatorConfig,
+): UsageCalculator {
   if (!globalUsageCalculator) {
     globalUsageCalculator = createUsageCalculator(config);
   }

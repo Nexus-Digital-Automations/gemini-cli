@@ -64,16 +64,25 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
     try {
       // Create base directory structure
       await fs.mkdir(this.config.baseDir, { recursive: true });
-      await fs.mkdir(path.join(this.config.baseDir, 'buckets'), { recursive: true });
-      await fs.mkdir(path.join(this.config.baseDir, 'backups'), { recursive: true });
+      await fs.mkdir(path.join(this.config.baseDir, 'buckets'), {
+        recursive: true,
+      });
+      await fs.mkdir(path.join(this.config.baseDir, 'backups'), {
+        recursive: true,
+      });
 
       // Load existing bucket index
       await this.loadBucketIndex();
 
       this.isInitialized = true;
-      console.log(`[FileBasedTimeSeriesStorage] Initialized in ${Date.now() - startTime}ms`);
+      console.log(
+        `[FileBasedTimeSeriesStorage] Initialized in ${Date.now() - startTime}ms`,
+      );
     } catch (error) {
-      console.error('[FileBasedTimeSeriesStorage] Failed to initialize:', error);
+      console.error(
+        '[FileBasedTimeSeriesStorage] Failed to initialize:',
+        error,
+      );
       throw error;
     }
   }
@@ -86,10 +95,15 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
       const indexData = await fs.readFile(this.indexPath, 'utf-8');
       const index = JSON.parse(indexData);
       this.bucketIndex = new Map(index.buckets || []);
-      console.log(`[FileBasedTimeSeriesStorage] Loaded ${this.bucketIndex.size} buckets from index`);
+      console.log(
+        `[FileBasedTimeSeriesStorage] Loaded ${this.bucketIndex.size} buckets from index`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.error('[FileBasedTimeSeriesStorage] Failed to load bucket index:', error);
+        console.error(
+          '[FileBasedTimeSeriesStorage] Failed to load bucket index:',
+          error,
+        );
       }
       // Initialize empty index if file doesn't exist
       this.bucketIndex = new Map();
@@ -125,7 +139,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
       case 'monthly':
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       default:
-        throw new Error(`Unsupported bucket strategy: ${this.config.bucketStrategy}`);
+        throw new Error(
+          `Unsupported bucket strategy: ${this.config.bucketStrategy}`,
+        );
     }
   }
 
@@ -162,7 +178,13 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
    * Get bucket start time based on strategy
    */
   private getBucketStartTime(bucketKey: string): number {
-    const date = new Date(bucketKey.split('-')[0] + '-' + (bucketKey.split('-')[1] || '01') + '-' + (bucketKey.split('-')[2] || '01'));
+    const date = new Date(
+      bucketKey.split('-')[0] +
+        '-' +
+        (bucketKey.split('-')[1] || '01') +
+        '-' +
+        (bucketKey.split('-')[2] || '01'),
+    );
     return date.getTime();
   }
 
@@ -189,7 +211,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
   /**
    * Determine granularity for bucket based on age
    */
-  private getGranularityForBucket(timestamp: number): 'minute' | 'hour' | 'day' {
+  private getGranularityForBucket(
+    timestamp: number,
+  ): 'minute' | 'hour' | 'day' {
     const age = Date.now() - timestamp;
     const daysOld = age / (24 * 60 * 60 * 1000);
 
@@ -213,7 +237,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
   /**
    * Read data from bucket file
    */
-  private async readBucketData(bucket: StorageBucket): Promise<BudgetUsageTimeSeriesPoint[]> {
+  private async readBucketData(
+    bucket: StorageBucket,
+  ): Promise<BudgetUsageTimeSeriesPoint[]> {
     try {
       let rawData: Buffer;
 
@@ -237,11 +263,16 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
   /**
    * Write data to bucket file
    */
-  private async writeBucketData(bucket: StorageBucket, data: BudgetUsageTimeSeriesPoint[]): Promise<void> {
+  private async writeBucketData(
+    bucket: StorageBucket,
+    data: BudgetUsageTimeSeriesPoint[],
+  ): Promise<void> {
     const dataStr = JSON.stringify(data, null, 2);
 
     if (bucket.compressionLevel > 0) {
-      const compressedData = await gzip(Buffer.from(dataStr), { level: bucket.compressionLevel });
+      const compressedData = await gzip(Buffer.from(dataStr), {
+        level: bucket.compressionLevel,
+      });
       await fs.writeFile(bucket.filePath + '.gz', compressedData);
 
       // Remove uncompressed file if it exists
@@ -258,7 +289,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
   /**
    * Store a single data point
    */
-  async store(dataPoint: BudgetUsageTimeSeriesPoint): Promise<StorageOperationResult> {
+  async store(
+    dataPoint: BudgetUsageTimeSeriesPoint,
+  ): Promise<StorageOperationResult> {
     const startTime = Date.now();
 
     try {
@@ -268,7 +301,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
       const existingData = await this.readBucketData(bucket);
 
       // Insert in chronological order
-      const insertIndex = existingData.findIndex(dp => dp.timestamp > dataPoint.timestamp);
+      const insertIndex = existingData.findIndex(
+        (dp) => dp.timestamp > dataPoint.timestamp,
+      );
       if (insertIndex === -1) {
         existingData.push(dataPoint);
       } else {
@@ -295,7 +330,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
   /**
    * Store multiple data points in batch
    */
-  async storeBatch(dataPoints: BudgetUsageTimeSeriesPoint[]): Promise<StorageOperationResult> {
+  async storeBatch(
+    dataPoints: BudgetUsageTimeSeriesPoint[],
+  ): Promise<StorageOperationResult> {
     const startTime = Date.now();
 
     try {
@@ -316,7 +353,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
 
       // Process each bucket
       for (const [bucketKey, bucketDataPoints] of bucketGroups) {
-        const bucket = await this.getOrCreateBucket(bucketDataPoints[0].timestamp);
+        const bucket = await this.getOrCreateBucket(
+          bucketDataPoints[0].timestamp,
+        );
         const existingData = await this.readBucketData(bucket);
 
         // Merge and sort data points
@@ -351,18 +390,19 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
     const results: BudgetUsageTimeSeriesPoint[] = [];
 
     // Find relevant buckets for the query range
-    const relevantBuckets = Array.from(this.bucketIndex.values())
-      .filter(bucket =>
-        bucket.timeRange.start <= range.end && bucket.timeRange.end >= range.start
-      );
+    const relevantBuckets = Array.from(this.bucketIndex.values()).filter(
+      (bucket) =>
+        bucket.timeRange.start <= range.end &&
+        bucket.timeRange.end >= range.start,
+    );
 
     // Read data from relevant buckets
     for (const bucket of relevantBuckets) {
       const bucketData = await this.readBucketData(bucket);
 
       // Filter data points within range
-      const filteredData = bucketData.filter(dp =>
-        dp.timestamp >= range.start && dp.timestamp <= range.end
+      const filteredData = bucketData.filter(
+        (dp) => dp.timestamp >= range.start && dp.timestamp <= range.end,
       );
 
       results.push(...filteredData);
@@ -383,7 +423,7 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
    */
   async queryAggregated(
     range: QueryRange,
-    aggregation: 'hour' | 'day' | 'week' | 'month'
+    aggregation: 'hour' | 'day' | 'week' | 'month',
   ): Promise<AggregatedUsageData[]> {
     const rawData = await this.query(range);
 
@@ -392,10 +432,16 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
     const aggregated = new Map<string, AggregatedUsageData>();
 
     for (const dataPoint of rawData) {
-      const windowKey = this.getAggregationWindowKey(dataPoint.timestamp, aggregation);
+      const windowKey = this.getAggregationWindowKey(
+        dataPoint.timestamp,
+        aggregation,
+      );
 
       if (!aggregated.has(windowKey)) {
-        const { windowStart, windowEnd } = this.getAggregationWindow(dataPoint.timestamp, aggregation);
+        const { windowStart, windowEnd } = this.getAggregationWindow(
+          dataPoint.timestamp,
+          aggregation,
+        );
         aggregated.set(windowKey, {
           timeWindow: aggregation,
           windowStart,
@@ -438,13 +484,18 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
       }
     }
 
-    return Array.from(aggregated.values()).sort((a, b) => a.windowStart - b.windowStart);
+    return Array.from(aggregated.values()).sort(
+      (a, b) => a.windowStart - b.windowStart,
+    );
   }
 
   /**
    * Get aggregation window key for grouping
    */
-  private getAggregationWindowKey(timestamp: number, aggregation: 'hour' | 'day' | 'week' | 'month'): string {
+  private getAggregationWindowKey(
+    timestamp: number,
+    aggregation: 'hour' | 'day' | 'week' | 'month',
+  ): string {
     const date = new Date(timestamp);
 
     switch (aggregation) {
@@ -466,18 +517,30 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
   /**
    * Get aggregation window start and end times
    */
-  private getAggregationWindow(timestamp: number, aggregation: 'hour' | 'day' | 'week' | 'month'): { windowStart: number; windowEnd: number } {
+  private getAggregationWindow(
+    timestamp: number,
+    aggregation: 'hour' | 'day' | 'week' | 'month',
+  ): { windowStart: number; windowEnd: number } {
     const date = new Date(timestamp);
 
     switch (aggregation) {
       case 'hour':
-        const hourStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
+        const hourStart = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+          date.getHours(),
+        );
         return {
           windowStart: hourStart.getTime(),
           windowEnd: hourStart.getTime() + 60 * 60 * 1000,
         };
       case 'day':
-        const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const dayStart = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+        );
         return {
           windowStart: dayStart.getTime(),
           windowEnd: dayStart.getTime() + 24 * 60 * 60 * 1000,
@@ -498,7 +561,11 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
           windowEnd: monthEnd.getTime(),
         };
       default:
-        const defaultStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const defaultStart = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+        );
         return {
           windowStart: defaultStart.getTime(),
           windowEnd: defaultStart.getTime() + 24 * 60 * 60 * 1000,
@@ -520,7 +587,10 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
 
     for (const bucket of buckets) {
       try {
-        const filePath = bucket.compressionLevel > 0 ? bucket.filePath + '.gz' : bucket.filePath;
+        const filePath =
+          bucket.compressionLevel > 0
+            ? bucket.filePath + '.gz'
+            : bucket.filePath;
         const stats = await fs.stat(filePath);
         totalFileSize += stats.size;
 
@@ -529,14 +599,20 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
 
         if (data.length > 0) {
           oldestRecord = Math.min(oldestRecord, data[0].timestamp);
-          newestRecord = Math.max(newestRecord, data[data.length - 1].timestamp);
+          newestRecord = Math.max(
+            newestRecord,
+            data[data.length - 1].timestamp,
+          );
         }
       } catch (error) {
         // Skip missing files
       }
     }
 
-    const totalDays = totalDataPoints > 0 ? (newestRecord - oldestRecord) / (24 * 60 * 60 * 1000) : 0;
+    const totalDays =
+      totalDataPoints > 0
+        ? (newestRecord - oldestRecord) / (24 * 60 * 60 * 1000)
+        : 0;
 
     return {
       totalDataPoints,
@@ -561,8 +637,11 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
       await this.initialize();
 
       let recordsAffected = 0;
-      const oldBuckets = Array.from(this.bucketIndex.values())
-        .filter(bucket => bucket.compressionLevel === 0 && this.shouldCompressBucket(bucket.timeRange.start));
+      const oldBuckets = Array.from(this.bucketIndex.values()).filter(
+        (bucket) =>
+          bucket.compressionLevel === 0 &&
+          this.shouldCompressBucket(bucket.timeRange.start),
+      );
 
       for (const bucket of oldBuckets) {
         const data = await this.readBucketData(bucket);
@@ -598,8 +677,9 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
       await this.initialize();
 
       let recordsAffected = 0;
-      const bucketsToDelete = Array.from(this.bucketIndex.entries())
-        .filter(([key, bucket]) => bucket.timeRange.end < olderThan);
+      const bucketsToDelete = Array.from(this.bucketIndex.entries()).filter(
+        ([key, bucket]) => bucket.timeRange.end < olderThan,
+      );
 
       for (const [bucketKey, bucket] of bucketsToDelete) {
         try {
@@ -613,7 +693,10 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
           // Remove from index
           this.bucketIndex.delete(bucketKey);
         } catch (error) {
-          console.warn(`[FileBasedTimeSeriesStorage] Failed to delete bucket ${bucketKey}:`, error);
+          console.warn(
+            `[FileBasedTimeSeriesStorage] Failed to delete bucket ${bucketKey}:`,
+            error,
+          );
         }
       }
 
@@ -700,6 +783,8 @@ export class FileBasedTimeSeriesStorage implements TimeSeriesStorage {
 /**
  * Factory function to create a file-based time-series storage instance
  */
-export function createFileBasedTimeSeriesStorage(config?: Partial<StorageConfig>): FileBasedTimeSeriesStorage {
+export function createFileBasedTimeSeriesStorage(
+  config?: Partial<StorageConfig>,
+): FileBasedTimeSeriesStorage {
   return new FileBasedTimeSeriesStorage(config);
 }

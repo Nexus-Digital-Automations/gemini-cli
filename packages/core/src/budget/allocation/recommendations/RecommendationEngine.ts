@@ -5,7 +5,10 @@
  */
 
 import type { AllocationLogger } from '../algorithms/BaseAllocationAlgorithm.js';
-import { createAllocationAlgorithm, validateAlgorithmConfig } from '../algorithms/index.js';
+import {
+  createAllocationAlgorithm,
+  validateAlgorithmConfig,
+} from '../algorithms/index.js';
 import type {
   AllocationCandidate,
   AllocationRecommendation,
@@ -13,7 +16,7 @@ import type {
   AllocationOptimizationResult,
   AllocationStrategy,
   AllocationScenario,
-  ScenarioOutcome
+  ScenarioOutcome,
 } from '../types.js';
 
 /**
@@ -85,7 +88,10 @@ export interface RecommendationResult {
   /** Primary recommendations using default strategy */
   primaryRecommendations: AllocationRecommendation[];
   /** Alternative recommendations using different strategies */
-  alternativeRecommendations: Map<AllocationStrategy, AllocationRecommendation[]>;
+  alternativeRecommendations: Map<
+    AllocationStrategy,
+    AllocationRecommendation[]
+  >;
   /** Generated scenarios for planning */
   scenarios: AllocationScenario[];
   /** Optimization results for each strategy */
@@ -152,7 +158,7 @@ export class RecommendationEngine {
     this.logger.info('Recommendation engine initialized', {
       defaultStrategy: config.defaultStrategy,
       multiStrategy: config.enableMultiStrategy,
-      maxRecommendations: config.maxRecommendations
+      maxRecommendations: config.maxRecommendations,
     });
   }
 
@@ -164,14 +170,14 @@ export class RecommendationEngine {
    */
   async generateRecommendations(
     candidates: AllocationCandidate[],
-    context: RecommendationContext
+    context: RecommendationContext,
   ): Promise<RecommendationResult> {
     this.processingStartTime = performance.now();
 
     this.logger.info('Starting recommendation generation', {
       candidateCount: candidates.length,
       strategy: this.config.defaultStrategy,
-      totalBudget: context.budgetConstraints.totalBudget
+      totalBudget: context.budgetConstraints.totalBudget,
     });
 
     try {
@@ -185,35 +191,46 @@ export class RecommendationEngine {
       const primaryRecommendations = await this.generatePrimaryRecommendations(
         candidates,
         context,
-        algorithmConfigs.get(this.config.defaultStrategy)!
+        algorithmConfigs.get(this.config.defaultStrategy)!,
       );
 
       // Generate alternative recommendations if enabled
       const alternativeRecommendations = this.config.enableMultiStrategy
-        ? await this.generateAlternativeRecommendations(candidates, context, algorithmConfigs)
+        ? await this.generateAlternativeRecommendations(
+            candidates,
+            context,
+            algorithmConfigs,
+          )
         : new Map<AllocationStrategy, AllocationRecommendation[]>();
 
       // Generate scenarios if enabled
       const scenarios = this.config.enableScenarios
-        ? await this.generateScenarios(candidates, context, primaryRecommendations)
+        ? await this.generateScenarios(
+            candidates,
+            context,
+            primaryRecommendations,
+          )
         : [];
 
       // Collect optimization results
-      const optimizationResults = new Map<AllocationStrategy, AllocationOptimizationResult>();
+      const optimizationResults = new Map<
+        AllocationStrategy,
+        AllocationOptimizationResult
+      >();
 
       // Generate insights and analysis
       const insights = this.generateInsights(
         candidates,
         primaryRecommendations,
         alternativeRecommendations,
-        context
+        context,
       );
 
       // Calculate performance metrics
       const performanceMetrics = this.calculatePerformanceMetrics(
         candidates,
         primaryRecommendations,
-        alternativeRecommendations
+        alternativeRecommendations,
       );
 
       const result: RecommendationResult = {
@@ -222,21 +239,21 @@ export class RecommendationEngine {
         scenarios,
         optimizationResults,
         insights,
-        performanceMetrics
+        performanceMetrics,
       };
 
       this.logger.info('Recommendation generation completed', {
         processingTime: performanceMetrics.processingTime,
         primaryCount: primaryRecommendations.length,
         alternativeStrategies: alternativeRecommendations.size,
-        qualityScore: performanceMetrics.qualityScore
+        qualityScore: performanceMetrics.qualityScore,
       });
 
       return result;
     } catch (error) {
       this.logger.error('Recommendation generation failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        candidateCount: candidates.length
+        candidateCount: candidates.length,
       });
       throw error;
     }
@@ -247,7 +264,10 @@ export class RecommendationEngine {
    * @param candidates - Allocation candidates
    * @param context - Recommendation context
    */
-  private validateInputs(candidates: AllocationCandidate[], context: RecommendationContext): void {
+  private validateInputs(
+    candidates: AllocationCandidate[],
+    context: RecommendationContext,
+  ): void {
     if (!candidates || candidates.length === 0) {
       throw new Error('No allocation candidates provided');
     }
@@ -267,7 +287,9 @@ export class RecommendationEngine {
       }
 
       if (candidate.currentAllocation < 0) {
-        throw new Error(`Invalid current allocation for ${candidate.resourceId}`);
+        throw new Error(
+          `Invalid current allocation for ${candidate.resourceId}`,
+        );
       }
     }
   }
@@ -278,7 +300,7 @@ export class RecommendationEngine {
    * @returns Map of strategy to configuration
    */
   private prepareAlgorithmConfigs(
-    context: RecommendationContext
+    context: RecommendationContext,
   ): Map<AllocationStrategy, AllocationAlgorithmConfig> {
     const configs = new Map<AllocationStrategy, AllocationAlgorithmConfig>();
     const strategies = this.getStrategiesToEvaluate();
@@ -327,20 +349,27 @@ export class RecommendationEngine {
    */
   private createStrategyConfig(
     strategy: AllocationStrategy,
-    context: RecommendationContext
+    context: RecommendationContext,
   ): AllocationAlgorithmConfig {
     const baseConfig: AllocationAlgorithmConfig = {
       strategy,
       weights: this.calculateStrategyWeights(strategy, context),
       globalConstraints: {
-        minAllocation: Math.max(100, context.budgetConstraints.totalBudget * 0.001),
-        maxAllocation: Math.min(context.budgetConstraints.totalBudget * 0.5, 50000),
+        minAllocation: Math.max(
+          100,
+          context.budgetConstraints.totalBudget * 0.001,
+        ),
+        maxAllocation: Math.min(
+          context.budgetConstraints.totalBudget * 0.5,
+          50000,
+        ),
         allocationGranularity: 50,
         maxUtilizationRate: 0.9,
-        minROIThreshold: context.preferences.riskTolerance === 'conservative' ? 0.15 : 0.05
+        minROIThreshold:
+          context.preferences.riskTolerance === 'conservative' ? 0.15 : 0.05,
       },
       objectives: this.getStrategyObjectives(strategy, context),
-      parameters: this.getStrategyParameters(strategy, context)
+      parameters: this.getStrategyParameters(strategy, context),
     };
 
     return baseConfig;
@@ -354,7 +383,7 @@ export class RecommendationEngine {
    */
   private calculateStrategyWeights(
     strategy: AllocationStrategy,
-    context: RecommendationContext
+    context: RecommendationContext,
   ): AllocationAlgorithmConfig['weights'] {
     const { riskTolerance, priorityFocus } = context.preferences;
     const { businessCycle, marketConditions } = context.businessContext;
@@ -364,19 +393,37 @@ export class RecommendationEngine {
       performance: 0.25,
       roi: 0.25,
       businessValue: 0.15,
-      risk: 0.1
+      risk: 0.1,
     };
 
     // Adjust based on strategy
     switch (strategy) {
       case 'usage_based':
-        baseWeights = { cost: 0.4, performance: 0.3, roi: 0.15, businessValue: 0.1, risk: 0.05 };
+        baseWeights = {
+          cost: 0.4,
+          performance: 0.3,
+          roi: 0.15,
+          businessValue: 0.1,
+          risk: 0.05,
+        };
         break;
       case 'roi_optimized':
-        baseWeights = { cost: 0.1, performance: 0.2, roi: 0.45, businessValue: 0.2, risk: 0.05 };
+        baseWeights = {
+          cost: 0.1,
+          performance: 0.2,
+          roi: 0.45,
+          businessValue: 0.2,
+          risk: 0.05,
+        };
         break;
       case 'priority_weighted':
-        baseWeights = { cost: 0.15, performance: 0.2, roi: 0.2, businessValue: 0.35, risk: 0.1 };
+        baseWeights = {
+          cost: 0.15,
+          performance: 0.2,
+          roi: 0.2,
+          businessValue: 0.35,
+          risk: 0.1,
+        };
         break;
     }
 
@@ -437,7 +484,7 @@ export class RecommendationEngine {
    */
   private getStrategyObjectives(
     strategy: AllocationStrategy,
-    context: RecommendationContext
+    context: RecommendationContext,
   ): string[] {
     const baseObjectives = ['maximize_efficiency', 'minimize_risk'];
 
@@ -461,14 +508,15 @@ export class RecommendationEngine {
    */
   private getStrategyParameters(
     strategy: AllocationStrategy,
-    context: RecommendationContext
+    context: RecommendationContext,
   ): Record<string, unknown> {
     return {
       riskTolerance: context.preferences.riskTolerance,
       optimizationHorizon: context.preferences.optimizationHorizon,
       businessCycle: context.businessContext.businessCycle,
-      enableIterativeImprovement: this.config.optimization.enableIterativeImprovement,
-      maxIterations: this.config.optimization.maxIterations
+      enableIterativeImprovement:
+        this.config.optimization.enableIterativeImprovement,
+      maxIterations: this.config.optimization.maxIterations,
     };
   }
 
@@ -482,9 +530,13 @@ export class RecommendationEngine {
   private async generatePrimaryRecommendations(
     candidates: AllocationCandidate[],
     context: RecommendationContext,
-    config: AllocationAlgorithmConfig
+    config: AllocationAlgorithmConfig,
   ): Promise<AllocationRecommendation[]> {
-    const algorithm = createAllocationAlgorithm(this.config.defaultStrategy, config, this.logger);
+    const algorithm = createAllocationAlgorithm(
+      this.config.defaultStrategy,
+      config,
+      this.logger,
+    );
     const result = await algorithm.optimize(candidates);
 
     return this.filterRecommendationsByConfidence(result.recommendations);
@@ -500,23 +552,35 @@ export class RecommendationEngine {
   private async generateAlternativeRecommendations(
     candidates: AllocationCandidate[],
     context: RecommendationContext,
-    algorithmConfigs: Map<AllocationStrategy, AllocationAlgorithmConfig>
+    algorithmConfigs: Map<AllocationStrategy, AllocationAlgorithmConfig>,
   ): Promise<Map<AllocationStrategy, AllocationRecommendation[]>> {
-    const alternatives = new Map<AllocationStrategy, AllocationRecommendation[]>();
+    const alternatives = new Map<
+      AllocationStrategy,
+      AllocationRecommendation[]
+    >();
 
     for (const [strategy, config] of algorithmConfigs) {
       if (strategy === this.config.defaultStrategy) continue;
 
       try {
-        const algorithm = createAllocationAlgorithm(strategy, config, this.logger);
+        const algorithm = createAllocationAlgorithm(
+          strategy,
+          config,
+          this.logger,
+        );
         const result = await algorithm.optimize(candidates);
-        const filteredRecommendations = this.filterRecommendationsByConfidence(result.recommendations);
+        const filteredRecommendations = this.filterRecommendationsByConfidence(
+          result.recommendations,
+        );
 
         alternatives.set(strategy, filteredRecommendations);
       } catch (error) {
-        this.logger.warn(`Failed to generate recommendations for strategy ${strategy}`, {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
+        this.logger.warn(
+          `Failed to generate recommendations for strategy ${strategy}`,
+          {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          },
+        );
       }
     }
 
@@ -529,9 +593,11 @@ export class RecommendationEngine {
    * @returns Filtered recommendations
    */
   private filterRecommendationsByConfidence(
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): AllocationRecommendation[] {
-    const filtered = recommendations.filter(rec => rec.confidence >= this.config.minConfidence);
+    const filtered = recommendations.filter(
+      (rec) => rec.confidence >= this.config.minConfidence,
+    );
 
     // Sort by confidence descending, then by potential savings descending
     filtered.sort((a, b) => {
@@ -555,7 +621,7 @@ export class RecommendationEngine {
   private async generateScenarios(
     candidates: AllocationCandidate[],
     context: RecommendationContext,
-    primaryRecommendations: AllocationRecommendation[]
+    primaryRecommendations: AllocationRecommendation[],
   ): Promise<AllocationScenario[]> {
     const scenarios: AllocationScenario[] = [];
 
@@ -567,8 +633,8 @@ export class RecommendationEngine {
         'Risk-averse allocation focusing on proven resources',
         candidates,
         primaryRecommendations,
-        0.8 // 80% of recommended changes
-      )
+        0.8, // 80% of recommended changes
+      ),
     );
 
     // Aggressive scenario
@@ -579,8 +645,8 @@ export class RecommendationEngine {
         'Bold allocation changes for maximum optimization',
         candidates,
         primaryRecommendations,
-        1.3 // 130% of recommended changes
-      )
+        1.3, // 130% of recommended changes
+      ),
     );
 
     // Balanced scenario (baseline)
@@ -591,8 +657,8 @@ export class RecommendationEngine {
         'Moderate allocation changes balancing risk and reward',
         candidates,
         primaryRecommendations,
-        1.0 // 100% of recommended changes
-      )
+        1.0, // 100% of recommended changes
+      ),
     );
 
     return scenarios;
@@ -614,17 +680,24 @@ export class RecommendationEngine {
     description: string,
     candidates: AllocationCandidate[],
     recommendations: AllocationRecommendation[],
-    multiplier: number
+    multiplier: number,
   ): AllocationScenario {
-    const adjustedRecommendations = recommendations.map(rec => ({
+    const adjustedRecommendations = recommendations.map((rec) => ({
       ...rec,
       allocationChange: rec.allocationChange * multiplier,
-      recommendedAllocation: rec.currentAllocation + (rec.allocationChange * multiplier),
-      potentialSavings: Math.max(0, rec.potentialSavings * multiplier)
+      recommendedAllocation:
+        rec.currentAllocation + rec.allocationChange * multiplier,
+      potentialSavings: Math.max(0, rec.potentialSavings * multiplier),
     }));
 
-    const totalBudget = candidates.reduce((sum, c) => sum + c.currentAllocation, 0);
-    const expectedOutcomes = this.calculateScenarioOutcomes(adjustedRecommendations, candidates);
+    const totalBudget = candidates.reduce(
+      (sum, c) => sum + c.currentAllocation,
+      0,
+    );
+    const expectedOutcomes = this.calculateScenarioOutcomes(
+      adjustedRecommendations,
+      candidates,
+    );
 
     return {
       scenarioId: id,
@@ -638,8 +711,8 @@ export class RecommendationEngine {
         'Market conditions remain stable',
         'Resource utilization patterns continue',
         'No major strategic pivots',
-        `Risk tolerance: ${multiplier > 1.1 ? 'high' : multiplier < 0.9 ? 'low' : 'moderate'}`
-      ]
+        `Risk tolerance: ${multiplier > 1.1 ? 'high' : multiplier < 0.9 ? 'low' : 'moderate'}`,
+      ],
     };
   }
 
@@ -651,26 +724,38 @@ export class RecommendationEngine {
    */
   private calculateScenarioOutcomes(
     recommendations: AllocationRecommendation[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): ScenarioOutcome {
-    const totalCost = recommendations.reduce((sum, rec) => sum + rec.recommendedAllocation, 0);
-    const totalSavings = recommendations.reduce((sum, rec) => sum + rec.potentialSavings, 0);
-    const averageROI = recommendations.reduce((sum, rec) => sum + rec.expectedImpact.roiImpact, 0) / recommendations.length;
+    const totalCost = recommendations.reduce(
+      (sum, rec) => sum + rec.recommendedAllocation,
+      0,
+    );
+    const totalSavings = recommendations.reduce(
+      (sum, rec) => sum + rec.potentialSavings,
+      0,
+    );
+    const averageROI =
+      recommendations.reduce(
+        (sum, rec) => sum + rec.expectedImpact.roiImpact,
+        0,
+      ) / recommendations.length;
 
-    const utilizationEfficiency = recommendations.reduce(
-      (sum, rec) => sum + Math.abs(rec.expectedImpact.utilizationImpact),
-      0
-    ) / recommendations.length;
+    const utilizationEfficiency =
+      recommendations.reduce(
+        (sum, rec) => sum + Math.abs(rec.expectedImpact.utilizationImpact),
+        0,
+      ) / recommendations.length;
 
     const businessValue = recommendations.reduce(
       (sum, rec) => sum + rec.expectedImpact.businessValueImpact,
-      0
+      0,
     );
 
-    const riskScore = recommendations.reduce((sum, rec) => {
-      const riskWeights = { low: 0.1, medium: 0.3, high: 0.6, critical: 1.0 };
-      return sum + riskWeights[rec.riskAssessment.riskLevel];
-    }, 0) / recommendations.length;
+    const riskScore =
+      recommendations.reduce((sum, rec) => {
+        const riskWeights = { low: 0.1, medium: 0.3, high: 0.6, critical: 1.0 };
+        return sum + riskWeights[rec.riskAssessment.riskLevel];
+      }, 0) / recommendations.length;
 
     return {
       totalCost,
@@ -678,7 +763,7 @@ export class RecommendationEngine {
       utilizationEfficiency,
       businessValue,
       riskAdjustedReturn: averageROI * (1 - riskScore * 0.3),
-      successProbability: Math.max(20, 90 - (riskScore * 40))
+      successProbability: Math.max(20, 90 - riskScore * 40),
     };
   }
 
@@ -693,24 +778,34 @@ export class RecommendationEngine {
   private generateInsights(
     candidates: AllocationCandidate[],
     primaryRecommendations: AllocationRecommendation[],
-    alternativeRecommendations: Map<AllocationStrategy, AllocationRecommendation[]>,
-    context: RecommendationContext
+    alternativeRecommendations: Map<
+      AllocationStrategy,
+      AllocationRecommendation[]
+    >,
+    context: RecommendationContext,
   ): RecommendationInsights {
-    const keyFindings = this.generateKeyFindings(candidates, primaryRecommendations);
-    const opportunities = this.identifyOptimizationOpportunities(primaryRecommendations);
+    const keyFindings = this.generateKeyFindings(
+      candidates,
+      primaryRecommendations,
+    );
+    const opportunities = this.identifyOptimizationOpportunities(
+      primaryRecommendations,
+    );
     const risks = this.identifyRisks(primaryRecommendations);
     const strategicRecommendations = this.generateStrategicRecommendations(
       primaryRecommendations,
-      context
+      context,
     );
-    const implementationPriorities = this.determineImplementationPriorities(primaryRecommendations);
+    const implementationPriorities = this.determineImplementationPriorities(
+      primaryRecommendations,
+    );
 
     return {
       keyFindings,
       opportunities,
       risks,
       strategicRecommendations,
-      implementationPriorities
+      implementationPriorities,
     };
   }
 
@@ -722,30 +817,50 @@ export class RecommendationEngine {
    */
   private generateKeyFindings(
     candidates: AllocationCandidate[],
-    recommendations: AllocationRecommendation[]
+    recommendations: AllocationRecommendation[],
   ): string[] {
     const findings: string[] = [];
 
-    const totalSavings = recommendations.reduce((sum, rec) => sum + rec.potentialSavings, 0);
-    const totalBudget = candidates.reduce((sum, c) => sum + c.currentAllocation, 0);
+    const totalSavings = recommendations.reduce(
+      (sum, rec) => sum + rec.potentialSavings,
+      0,
+    );
+    const totalBudget = candidates.reduce(
+      (sum, c) => sum + c.currentAllocation,
+      0,
+    );
     const savingsPercentage = (totalSavings / totalBudget) * 100;
 
     if (savingsPercentage > 15) {
-      findings.push(`Significant optimization opportunity: ${Math.round(savingsPercentage)}% potential savings identified`);
+      findings.push(
+        `Significant optimization opportunity: ${Math.round(savingsPercentage)}% potential savings identified`,
+      );
     } else if (savingsPercentage > 5) {
-      findings.push(`Moderate optimization potential: ${Math.round(savingsPercentage)}% savings possible`);
+      findings.push(
+        `Moderate optimization potential: ${Math.round(savingsPercentage)}% savings possible`,
+      );
     } else {
-      findings.push('Current allocation is relatively optimized with minimal adjustment opportunities');
+      findings.push(
+        'Current allocation is relatively optimized with minimal adjustment opportunities',
+      );
     }
 
-    const highConfidenceCount = recommendations.filter(r => r.confidence > 80).length;
+    const highConfidenceCount = recommendations.filter(
+      (r) => r.confidence > 80,
+    ).length;
     if (highConfidenceCount > recommendations.length * 0.7) {
-      findings.push(`High confidence in ${highConfidenceCount} out of ${recommendations.length} recommendations`);
+      findings.push(
+        `High confidence in ${highConfidenceCount} out of ${recommendations.length} recommendations`,
+      );
     }
 
-    const criticalResources = candidates.filter(c => c.priority === 'critical').length;
+    const criticalResources = candidates.filter(
+      (c) => c.priority === 'critical',
+    ).length;
     if (criticalResources > 0) {
-      findings.push(`${criticalResources} critical resources requiring careful allocation management`);
+      findings.push(
+        `${criticalResources} critical resources requiring careful allocation management`,
+      );
     }
 
     return findings;
@@ -756,28 +871,36 @@ export class RecommendationEngine {
    * @param recommendations - Generated recommendations
    * @returns Array of opportunities
    */
-  private identifyOptimizationOpportunities(recommendations: AllocationRecommendation[]): string[] {
+  private identifyOptimizationOpportunities(
+    recommendations: AllocationRecommendation[],
+  ): string[] {
     const opportunities: string[] = [];
 
     const underutilizedResources = recommendations.filter(
-      r => r.allocationChange < 0 && r.confidence > 70
+      (r) => r.allocationChange < 0 && r.confidence > 70,
     );
     if (underutilizedResources.length > 0) {
-      opportunities.push(`${underutilizedResources.length} underutilized resources identified for reallocation`);
+      opportunities.push(
+        `${underutilizedResources.length} underutilized resources identified for reallocation`,
+      );
     }
 
     const highROIOpportunities = recommendations.filter(
-      r => r.expectedImpact.roiImpact > 0.2 && r.confidence > 75
+      (r) => r.expectedImpact.roiImpact > 0.2 && r.confidence > 75,
     );
     if (highROIOpportunities.length > 0) {
-      opportunities.push(`${highROIOpportunities.length} high-ROI opportunities with significant return potential`);
+      opportunities.push(
+        `${highROIOpportunities.length} high-ROI opportunities with significant return potential`,
+      );
     }
 
     const quickWins = recommendations.filter(
-      r => r.implementationComplexity === 'low' && r.potentialSavings > 0
+      (r) => r.implementationComplexity === 'low' && r.potentialSavings > 0,
     );
     if (quickWins.length > 0) {
-      opportunities.push(`${quickWins.length} quick-win opportunities for immediate impact`);
+      opportunities.push(
+        `${quickWins.length} quick-win opportunities for immediate impact`,
+      );
     }
 
     return opportunities;
@@ -791,19 +914,33 @@ export class RecommendationEngine {
   private identifyRisks(recommendations: AllocationRecommendation[]): string[] {
     const risks: string[] = [];
 
-    const highRiskChanges = recommendations.filter(r => r.riskAssessment.riskLevel === 'high' || r.riskAssessment.riskLevel === 'critical');
+    const highRiskChanges = recommendations.filter(
+      (r) =>
+        r.riskAssessment.riskLevel === 'high' ||
+        r.riskAssessment.riskLevel === 'critical',
+    );
     if (highRiskChanges.length > 0) {
-      risks.push(`${highRiskChanges.length} recommendations carry high implementation risk`);
+      risks.push(
+        `${highRiskChanges.length} recommendations carry high implementation risk`,
+      );
     }
 
-    const largeChanges = recommendations.filter(r => Math.abs(r.allocationChange / r.currentAllocation) > 0.3);
+    const largeChanges = recommendations.filter(
+      (r) => Math.abs(r.allocationChange / r.currentAllocation) > 0.3,
+    );
     if (largeChanges.length > 0) {
-      risks.push(`${largeChanges.length} resources face significant allocation changes (>30%)`);
+      risks.push(
+        `${largeChanges.length} resources face significant allocation changes (>30%)`,
+      );
     }
 
-    const lowConfidenceChanges = recommendations.filter(r => r.confidence < 70);
+    const lowConfidenceChanges = recommendations.filter(
+      (r) => r.confidence < 70,
+    );
     if (lowConfidenceChanges.length > 0) {
-      risks.push(`${lowConfidenceChanges.length} recommendations have lower confidence levels`);
+      risks.push(
+        `${lowConfidenceChanges.length} recommendations have lower confidence levels`,
+      );
     }
 
     return risks;
@@ -817,27 +954,39 @@ export class RecommendationEngine {
    */
   private generateStrategicRecommendations(
     recommendations: AllocationRecommendation[],
-    context: RecommendationContext
+    context: RecommendationContext,
   ): string[] {
     const strategic: string[] = [];
 
     if (context.preferences.optimizationHorizon === 'long_term') {
-      strategic.push('Focus on long-term ROI optimization over immediate cost savings');
+      strategic.push(
+        'Focus on long-term ROI optimization over immediate cost savings',
+      );
     }
 
     if (context.businessContext.businessCycle === 'growth') {
-      strategic.push('Prioritize growth-enabling resource allocation over cost optimization');
+      strategic.push(
+        'Prioritize growth-enabling resource allocation over cost optimization',
+      );
     }
 
     if (context.preferences.riskTolerance === 'conservative') {
-      strategic.push('Implement changes gradually with careful monitoring of performance impacts');
+      strategic.push(
+        'Implement changes gradually with careful monitoring of performance impacts',
+      );
     } else if (context.preferences.riskTolerance === 'aggressive') {
-      strategic.push('Consider accelerated implementation timeline for maximum impact');
+      strategic.push(
+        'Consider accelerated implementation timeline for maximum impact',
+      );
     }
 
-    const criticalRecommendations = recommendations.filter(r => r.priority === 'critical');
+    const criticalRecommendations = recommendations.filter(
+      (r) => r.priority === 'critical',
+    );
     if (criticalRecommendations.length > 0) {
-      strategic.push('Ensure business continuity plans are in place before implementing critical resource changes');
+      strategic.push(
+        'Ensure business continuity plans are in place before implementing critical resource changes',
+      );
     }
 
     return strategic;
@@ -848,31 +997,53 @@ export class RecommendationEngine {
    * @param recommendations - Generated recommendations
    * @returns Array of implementation priorities
    */
-  private determineImplementationPriorities(recommendations: AllocationRecommendation[]): string[] {
+  private determineImplementationPriorities(
+    recommendations: AllocationRecommendation[],
+  ): string[] {
     const priorities: string[] = [];
 
     // Sort by combination of confidence, potential savings, and implementation complexity
     const sortedRecommendations = [...recommendations].sort((a, b) => {
-      const scoreA = a.confidence * 0.4 + a.potentialSavings * 0.4 +
-                    (a.implementationComplexity === 'low' ? 30 : a.implementationComplexity === 'medium' ? 15 : 0) * 0.2;
-      const scoreB = b.confidence * 0.4 + b.potentialSavings * 0.4 +
-                    (b.implementationComplexity === 'low' ? 30 : b.implementationComplexity === 'medium' ? 15 : 0) * 0.2;
+      const scoreA =
+        a.confidence * 0.4 +
+        a.potentialSavings * 0.4 +
+        (a.implementationComplexity === 'low'
+          ? 30
+          : a.implementationComplexity === 'medium'
+            ? 15
+            : 0) *
+          0.2;
+      const scoreB =
+        b.confidence * 0.4 +
+        b.potentialSavings * 0.4 +
+        (b.implementationComplexity === 'low'
+          ? 30
+          : b.implementationComplexity === 'medium'
+            ? 15
+            : 0) *
+          0.2;
       return scoreB - scoreA;
     });
 
     const topPriority = sortedRecommendations.slice(0, 3);
     if (topPriority.length > 0) {
-      priorities.push(`Immediate: ${topPriority.map(r => r.title).join(', ')}`);
+      priorities.push(
+        `Immediate: ${topPriority.map((r) => r.title).join(', ')}`,
+      );
     }
 
     const secondPriority = sortedRecommendations.slice(3, 6);
     if (secondPriority.length > 0) {
-      priorities.push(`Short-term: ${secondPriority.map(r => r.title).join(', ')}`);
+      priorities.push(
+        `Short-term: ${secondPriority.map((r) => r.title).join(', ')}`,
+      );
     }
 
     const remainingPriority = sortedRecommendations.slice(6);
     if (remainingPriority.length > 0) {
-      priorities.push(`Medium-term: ${remainingPriority.length} additional optimization opportunities`);
+      priorities.push(
+        `Medium-term: ${remainingPriority.length} additional optimization opportunities`,
+      );
     }
 
     return priorities;
@@ -888,30 +1059,46 @@ export class RecommendationEngine {
   private calculatePerformanceMetrics(
     candidates: AllocationCandidate[],
     primaryRecommendations: AllocationRecommendation[],
-    alternativeRecommendations: Map<AllocationStrategy, AllocationRecommendation[]>
+    alternativeRecommendations: Map<
+      AllocationStrategy,
+      AllocationRecommendation[]
+    >,
   ): RecommendationPerformanceMetrics {
     const processingTime = performance.now() - this.processingStartTime;
     const strategiesEvaluated = 1 + alternativeRecommendations.size;
 
     // Calculate quality score based on multiple factors
-    const avgConfidence = primaryRecommendations.reduce((sum, r) => sum + r.confidence, 0) / primaryRecommendations.length;
-    const avgPotentialSavings = primaryRecommendations.reduce((sum, r) => sum + r.potentialSavings, 0) / primaryRecommendations.length;
-    const totalBudget = candidates.reduce((sum, c) => sum + c.currentAllocation, 0);
-    const savingsRatio = avgPotentialSavings / (totalBudget / primaryRecommendations.length);
+    const avgConfidence =
+      primaryRecommendations.reduce((sum, r) => sum + r.confidence, 0) /
+      primaryRecommendations.length;
+    const avgPotentialSavings =
+      primaryRecommendations.reduce((sum, r) => sum + r.potentialSavings, 0) /
+      primaryRecommendations.length;
+    const totalBudget = candidates.reduce(
+      (sum, c) => sum + c.currentAllocation,
+      0,
+    );
+    const savingsRatio =
+      avgPotentialSavings / (totalBudget / primaryRecommendations.length);
 
-    const qualityScore = Math.min(100, (avgConfidence * 0.5) + (savingsRatio * 100 * 0.3) + (strategiesEvaluated * 5));
+    const qualityScore = Math.min(
+      100,
+      avgConfidence * 0.5 + savingsRatio * 100 * 0.3 + strategiesEvaluated * 5,
+    );
 
     // Calculate confidence distribution
-    const high = primaryRecommendations.filter(r => r.confidence > 80).length;
-    const medium = primaryRecommendations.filter(r => r.confidence >= 60 && r.confidence <= 80).length;
-    const low = primaryRecommendations.filter(r => r.confidence < 60).length;
+    const high = primaryRecommendations.filter((r) => r.confidence > 80).length;
+    const medium = primaryRecommendations.filter(
+      (r) => r.confidence >= 60 && r.confidence <= 80,
+    ).length;
+    const low = primaryRecommendations.filter((r) => r.confidence < 60).length;
 
     return {
       processingTime,
       candidatesAnalyzed: candidates.length,
       strategiesEvaluated,
       qualityScore,
-      confidenceDistribution: { high, medium, low }
+      confidenceDistribution: { high, medium, low },
     };
   }
 }
@@ -924,7 +1111,7 @@ export class RecommendationEngine {
  */
 export function createRecommendationEngine(
   strategy: AllocationStrategy = 'usage_based',
-  logger: AllocationLogger
+  logger: AllocationLogger,
 ): RecommendationEngine {
   const config: RecommendationEngineConfig = {
     defaultStrategy: strategy,
@@ -936,8 +1123,8 @@ export function createRecommendationEngine(
       enableIterativeImprovement: true,
       maxIterations: 10,
       convergenceThreshold: 0.001,
-      enableParallelProcessing: false
-    }
+      enableParallelProcessing: false,
+    },
   };
 
   return new RecommendationEngine(config, logger);

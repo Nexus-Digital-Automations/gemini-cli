@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Self-Managing Task Queue with Intelligent Scheduling and Autonomous Optimization
  *
@@ -19,8 +20,9 @@ import {
   type EnhancedQueueConfig,
   type AutonomousQueueMetrics,
 } from './EnhancedAutonomousTaskQueue.js';
+import type {
+  OptimizationStrategy} from './QueueOptimizer.js';
 import {
-  OptimizationStrategy,
   type OptimizationRecommendation,
 } from './QueueOptimizer.js';
 import { type Task } from './TaskQueue.js';

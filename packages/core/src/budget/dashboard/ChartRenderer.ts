@@ -8,10 +8,10 @@
 const createChalkFallback = () => {
   const identity = (str: string) => str;
   const colorProxy = new Proxy(identity, {
-    get: () => identity
+    get: () => identity,
   });
   return new Proxy(identity, {
-    get: () => colorProxy
+    get: () => colorProxy,
   });
 };
 
@@ -91,7 +91,7 @@ export class ChartRenderer {
       showLabels: config.showLabels ?? true,
       showGrid: config.showGrid ?? true,
       theme: config.theme ?? 'auto',
-      colors: config.colors ?? this.getDefaultColors()
+      colors: config.colors ?? this.getDefaultColors(),
     };
 
     this.colors = this.config.colors;
@@ -103,7 +103,7 @@ export class ChartRenderer {
   renderLineChart(
     data: number[],
     labels: string[] = [],
-    options: { title?: string; yAxisLabel?: string } = {}
+    options: { title?: string; yAxisLabel?: string } = {},
   ): string {
     const { width, height } = this.config;
     const title = options.title || 'Usage Trend';
@@ -140,7 +140,10 @@ export class ChartRenderer {
 
         if (Math.abs(value - threshold) < range / (height * 2)) {
           line += chalk.cyan('●');
-        } else if (col > 0 && this.shouldDrawLine(data[col - 1], value, threshold, range, height)) {
+        } else if (
+          col > 0 &&
+          this.shouldDrawLine(data[col - 1], value, threshold, range, height)
+        ) {
           line += chalk.blue('─');
         } else {
           line += ' ';
@@ -170,7 +173,7 @@ export class ChartRenderer {
    */
   renderBarChart(
     data: ChartDataPoint[],
-    options: { title?: string; maxBars?: number } = {}
+    options: { title?: string; maxBars?: number } = {},
   ): string {
     const { width } = this.config;
     const title = options.title || 'Usage Distribution';
@@ -185,8 +188,8 @@ export class ChartRenderer {
       .sort((a, b) => b.value - a.value)
       .slice(0, maxBars);
 
-    const maxValue = Math.max(...sortedData.map(d => d.value));
-    const maxLabelWidth = Math.max(...sortedData.map(d => d.label.length));
+    const maxValue = Math.max(...sortedData.map((d) => d.value));
+    const maxLabelWidth = Math.max(...sortedData.map((d) => d.label.length));
     const barWidth = width - maxLabelWidth - 15;
 
     let chart = '';
@@ -196,8 +199,12 @@ export class ChartRenderer {
     chart += '━'.repeat(width) + '\n';
 
     sortedData.forEach((item, index) => {
-      const barLength = Math.max(1, Math.floor((item.value / maxValue) * barWidth));
-      const percentage = maxValue > 0 ? ((item.value / maxValue) * 100).toFixed(1) : '0.0';
+      const barLength = Math.max(
+        1,
+        Math.floor((item.value / maxValue) * barWidth),
+      );
+      const percentage =
+        maxValue > 0 ? ((item.value / maxValue) * 100).toFixed(1) : '0.0';
 
       // Label
       const label = item.label.padEnd(maxLabelWidth);
@@ -255,7 +262,7 @@ export class ChartRenderer {
     value: number,
     max: number,
     thresholds: { warning: number; critical: number },
-    options: { title?: string; unit?: string } = {}
+    options: { title?: string; unit?: string } = {},
   ): string {
     const { width } = this.config;
     const title = options.title || 'Usage';
@@ -317,7 +324,10 @@ export class ChartRenderer {
   /**
    * Render a multi-series line chart
    */
-  renderMultiLineChart(series: ChartSeries[], options: { title?: string } = {}): string {
+  renderMultiLineChart(
+    series: ChartSeries[],
+    options: { title?: string } = {},
+  ): string {
     const { width } = this.config;
     const title = options.title || 'Multi-Series Chart';
 
@@ -348,7 +358,7 @@ export class ChartRenderer {
     // Chart rendering would be more complex for multi-series
     // For now, render sparklines for each series
     series.forEach((s) => {
-      const values = s.data.map(d => d.value);
+      const values = s.data.map((d) => d.value);
       const sparkline = this.renderSparkline(values, s.name);
       chart += sparkline + '\n';
     });
@@ -379,17 +389,27 @@ export class ChartRenderer {
     current: number,
     threshold: number,
     range: number,
-    height: number
+    height: number,
   ): boolean {
     const tolerance = range / (height * 2);
-    return Math.abs(prev - threshold) < tolerance && Math.abs(current - threshold) < tolerance;
+    return (
+      Math.abs(prev - threshold) < tolerance &&
+      Math.abs(current - threshold) < tolerance
+    );
   }
 
   /**
    * Get color for bar chart bars
    */
   private getBarColor(index: number): string {
-    const colors = ['#00d9ff', '#00ff88', '#ff8800', '#ff4444', '#8844ff', '#ffdd00'];
+    const colors = [
+      '#00d9ff',
+      '#00ff88',
+      '#ff8800',
+      '#ff4444',
+      '#8844ff',
+      '#ffdd00',
+    ];
     return colors[index % colors.length];
   }
 
@@ -397,7 +417,14 @@ export class ChartRenderer {
    * Get color for chart series
    */
   private getSeriesColor(index: number): string {
-    const colors = ['#00d9ff', '#00ff88', '#ff8800', '#ff4444', '#8844ff', '#ffdd00'];
+    const colors = [
+      '#00d9ff',
+      '#00ff88',
+      '#ff8800',
+      '#ff4444',
+      '#8844ff',
+      '#ffdd00',
+    ];
     return colors[index % colors.length];
   }
 
@@ -413,7 +440,7 @@ export class ChartRenderer {
       warning: '#ffdd00',
       error: '#ff4444',
       grid: '#333333',
-      text: '#ffffff'
+      text: '#ffffff',
     };
   }
 }

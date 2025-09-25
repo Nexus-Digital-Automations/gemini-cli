@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive Test Suite Configuration
  *
  * Central configuration for the autonomous task management testing framework.
@@ -16,7 +22,7 @@
  */
 
 import { defineConfig } from 'vitest/config';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 /**
  * Master Test Suite Configuration

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type {
   Task,
   TaskDependency,
@@ -143,7 +144,7 @@ export declare class TestFactories {
     /**
      * Resource-intensive tasks
      */
-    resourceIntensive: (count?: number) => {
+    resourceIntensive: (count?: number) => Array<{
       executionContext: {
         resourceConstraints: ResourceConstraint[];
         timeout: number;
@@ -161,11 +162,11 @@ export declare class TestFactories {
       parameters?: Record<string, unknown>;
       expectedOutput?: Record<string, unknown>;
       validationCriteria?: string[];
-    }[];
+    }>;
     /**
      * Mixed priority workload
      */
-    mixedPriority: (count?: number) => {
+    mixedPriority: (count?: number) => Array<{
       priority: TaskPriority;
       metadata: {
         estimatedDuration: number;
@@ -188,11 +189,11 @@ export declare class TestFactories {
       parameters?: Record<string, unknown>;
       expectedOutput?: Record<string, unknown>;
       validationCriteria?: string[];
-    }[];
+    }>;
     /**
      * Long-running tasks
      */
-    longRunning: (count?: number) => {
+    longRunning: (count?: number) => Array<{
       category: TaskCategory;
       metadata: {
         estimatedDuration: number;
@@ -221,7 +222,7 @@ export declare class TestFactories {
       parameters?: Record<string, unknown>;
       expectedOutput?: Record<string, unknown>;
       validationCriteria?: string[];
-    }[];
+    }>;
   };
   /**
    * Creates error scenarios for testing error handling
@@ -241,7 +242,7 @@ export declare class TestFactories {
     /**
      * Tasks that will timeout during execution
      */
-    timeoutTasks: () => {
+    timeoutTasks: () => Array<{
       executionContext: {
         timeout: number;
         workingDirectory?: string;
@@ -270,7 +271,7 @@ export declare class TestFactories {
       parameters?: Record<string, unknown>;
       expectedOutput?: Record<string, unknown>;
       validationCriteria?: string[];
-    }[];
+    }>;
     /**
      * Tasks with missing dependencies
      */
@@ -356,11 +357,11 @@ export declare class TestUtils {
    */
   static createMemoryTracker(): {
     snapshot: (label?: string) => void;
-    getSnapshots: () => {
+    getSnapshots: () => Array<{
       timestamp: number;
       usage: NodeJS.MemoryUsage;
       label?: string;
-    }[];
+    }>;
     getMemoryIncrease: (
       fromLabel?: string,
       toLabel?: string,

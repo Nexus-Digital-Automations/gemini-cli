@@ -146,7 +146,14 @@ export interface DashboardFilters {
   timeRange: {
     start: Date;
     end: Date;
-    preset?: 'today' | 'yesterday' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
+    preset?:
+      | 'today'
+      | 'yesterday'
+      | 'week'
+      | 'month'
+      | 'quarter'
+      | 'year'
+      | 'custom';
   };
   /** Features to include/exclude */
   features: {

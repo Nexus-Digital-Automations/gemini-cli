@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview CLI Task Management Integration Layer
  *
@@ -17,7 +18,7 @@
  * - Error reporting and user notifications
  */
 import type { Config } from '../config/config.js';
-import { ExtendedTaskState } from './TaskStateManager.js';
+import type { ExtendedTaskState } from './TaskStateManager.js';
 import type { Task, TaskId } from './types.js';
 /**
  * CLI integration configuration

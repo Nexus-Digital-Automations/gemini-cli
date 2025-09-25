@@ -15,7 +15,10 @@ import { UsageTrendsGraph } from '../charts/UsageTrendsGraph.js';
 import { CostProjectionChart } from '../charts/CostProjectionChart.js';
 import { BudgetAlertsPanel } from './BudgetAlertsPanel.js';
 import { BudgetControlsPanel } from './BudgetControlsPanel.js';
-import { formatCurrency, formatPercentage, createProgressBar } from '../utils/chartUtils.js';
+import {
+  formatPercentage,
+  createProgressBar,
+} from '../utils/chartUtils.js';
 import type { BudgetDashboardProps } from '../types/index.js';
 
 /**
@@ -39,7 +42,7 @@ import type { BudgetDashboardProps } from '../types/index.js';
 export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
   projectRoot,
   budgetSettings = { enabled: true },
-  initialView = 'overview',
+  initialView: _initialView = 'overview',
   compact = false,
   refreshInterval = 30,
 }) => {
@@ -82,7 +85,9 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
     if (key.leftArrow || input === 'h') {
       setSelectedIndex(Math.max(0, selectedIndex - 1));
     } else if (key.rightArrow || input === 'l') {
-      setSelectedIndex(Math.min(navigationOptions.length - 1, selectedIndex + 1));
+      setSelectedIndex(
+        Math.min(navigationOptions.length - 1, selectedIndex + 1),
+      );
     } else if (key.return || input === ' ') {
       const selectedView = navigationOptions[selectedIndex].key;
       setActiveView(selectedView);
@@ -94,7 +99,7 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
       toggleAutoRefresh();
     } else if (input === 'e') {
       // Export data (JSON format)
-      exportData('json').then(data => {
+      exportData('json').then((data) => {
         console.log('Export data available:', data.slice(0, 100) + '...');
       });
     }
@@ -104,9 +109,7 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
   if (!budgetSettings?.enabled) {
     return (
       <Box flexDirection="column" alignItems="center" paddingY={2}>
-        <Text color={theme.status.warning}>
-          Budget tracking is disabled
-        </Text>
+        <Text color={theme.status.warning}>Budget tracking is disabled</Text>
         <Text color={theme.text.secondary}>
           Enable budget settings to view the dashboard
         </Text>
@@ -118,12 +121,8 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
   if (dashboardState.isLoading && !budgetStats) {
     return (
       <Box flexDirection="column" alignItems="center" paddingY={2}>
-        <Text color={theme.text.secondary}>
-          Loading budget dashboard...
-        </Text>
-        <Text color={theme.text.muted}>
-          Fetching real-time budget data
-        </Text>
+        <Text color={theme.text.secondary}>Loading budget dashboard...</Text>
+        <Text color={theme.text.muted}>Fetching real-time budget data</Text>
       </Box>
     );
   }
@@ -132,15 +131,9 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
   if (dashboardState.error) {
     return (
       <Box flexDirection="column" alignItems="center" paddingY={2}>
-        <Text color={theme.status.error}>
-          Dashboard Error
-        </Text>
-        <Text color={theme.text.secondary}>
-          {dashboardState.error}
-        </Text>
-        <Text color={theme.text.muted}>
-          Press 'r' to retry
-        </Text>
+        <Text color={theme.status.error}>Dashboard Error</Text>
+        <Text color={theme.text.secondary}>{dashboardState.error}</Text>
+        <Text color={theme.text.muted}>Press &apos;r&apos; to retry</Text>
       </Box>
     );
   }
@@ -158,13 +151,11 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
                 index === selectedIndex
                   ? theme.primary.main
                   : dashboardState.activeView === option.key
-                  ? theme.status.success
-                  : theme.text.secondary
+                    ? theme.status.success
+                    : theme.text.secondary
               }
               backgroundColor={
-                index === selectedIndex
-                  ? theme.primary.light
-                  : undefined
+                index === selectedIndex ? theme.primary.light : undefined
               }
             >
               {option.icon} {option.label}
@@ -181,14 +172,21 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
   const renderHeader = () => {
     if (!budgetStats) return null;
 
-    const usageColor = budgetStats.usagePercentage >= 90
-      ? theme.status.error
-      : budgetStats.usagePercentage >= 75
-      ? theme.status.warning
-      : theme.status.success;
+    const usageColor =
+      budgetStats.usagePercentage >= 90
+        ? theme.status.error
+        : budgetStats.usagePercentage >= 75
+          ? theme.status.warning
+          : theme.status.success;
 
     return (
-      <Box flexDirection="column" borderStyle="single" paddingX={2} paddingY={1} marginBottom={1}>
+      <Box
+        flexDirection="column"
+        borderStyle="single"
+        paddingX={2}
+        paddingY={1}
+        marginBottom={1}
+      >
         <Box justifyContent="space-between" marginBottom={1}>
           <Text color={theme.text.primary} bold>
             Budget Usage Dashboard
@@ -223,9 +221,7 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
 
             <Box flexDirection="column">
               <Text color={theme.text.secondary}>Reset</Text>
-              <Text color={theme.text.muted}>
-                {budgetStats.timeUntilReset}
-              </Text>
+              <Text color={theme.text.muted}>{budgetStats.timeUntilReset}</Text>
             </Box>
           </Box>
 
@@ -243,7 +239,12 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
         </Box>
 
         {alerts.length > 0 && (
-          <Box marginTop={1} paddingTop={1} borderColor={theme.status.warning} borderStyle="single">
+          <Box
+            marginTop={1}
+            paddingTop={1}
+            borderColor={theme.status.warning}
+            borderStyle="single"
+          >
             <Text color={theme.status.warning}>
               🚨 {alerts.length} active alert{alerts.length > 1 ? 's' : ''}
             </Text>
@@ -413,27 +414,22 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
    * Renders the footer with keyboard shortcuts.
    */
   const renderFooter = () => (
-    <Box justifyContent="space-between" paddingTop={1} borderStyle="single" borderTop>
+    <Box
+      justifyContent="space-between"
+      paddingTop={1}
+      borderStyle="single"
+      borderTop
+    >
       <Box gap={4}>
-        <Text color={theme.text.muted}>
-          ←→/hl: Navigate
-        </Text>
-        <Text color={theme.text.muted}>
-          Enter/Space: Select
-        </Text>
-        <Text color={theme.text.muted}>
-          r: Refresh
-        </Text>
-        <Text color={theme.text.muted}>
-          t: Toggle auto-refresh
-        </Text>
-        <Text color={theme.text.muted}>
-          e: Export
-        </Text>
+        <Text color={theme.text.muted}>←→/hl: Navigate</Text>
+        <Text color={theme.text.muted}>Enter/Space: Select</Text>
+        <Text color={theme.text.muted}>r: Refresh</Text>
+        <Text color={theme.text.muted}>t: Toggle auto-refresh</Text>
+        <Text color={theme.text.muted}>e: Export</Text>
       </Box>
       <Text color={theme.text.muted}>
-        Auto-refresh: {dashboardState.autoRefresh ? 'ON' : 'OFF'}
-        ({dashboardState.refreshInterval}s)
+        Auto-refresh: {dashboardState.autoRefresh ? 'ON' : 'OFF'}(
+        {dashboardState.refreshInterval}s)
       </Text>
     </Box>
   );

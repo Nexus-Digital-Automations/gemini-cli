@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as fs from &apos;node:fs/promises&apos;;
+import * as path from &apos;node:path&apos;;
 
 /**
  * Feature cost tracking entry
@@ -15,7 +15,7 @@ export interface FeatureCostEntry {
   featureId: string;
   /** Human-readable feature name */
   featureName: string;
-  /** Operation type (e.g., 'chat', 'code-generation', 'analysis') */
+  /** Operation type (e.g., &apos;chat&apos;, &apos;code-generation&apos;, &apos;analysis&apos;) */
   operationType: string;
   /** Timestamp of the cost entry */
   timestamp: string;
@@ -90,11 +90,14 @@ export interface FeatureCostAggregation {
   /** Average tokens per operation */
   avgTokensPerOperation: number;
   /** Cost breakdown by operation type */
-  operationBreakdown: Record<string, {
-    cost: number;
-    count: number;
-    tokens: number;
-  }>;
+  operationBreakdown: Record<
+    string,
+    {
+      cost: number;
+      count: number;
+      tokens: number;
+    }
+  >;
   /** Time period for this aggregation */
   timePeriod: {
     start: string;
@@ -119,8 +122,11 @@ export class FeatureCostTracker {
       retentionDays: 90,
       ...config,
     };
-    this.costEntriesFile = path.join(this.config.dataDir, 'feature-costs.jsonl');
-    this.rulesFile = path.join(this.config.dataDir, 'attribution-rules.json');
+    this.costEntriesFile = path.join(
+      this.config.dataDir,
+      &apos;feature-costs.jsonl&apos;,
+    );
+    this.rulesFile = path.join(this.config.dataDir, &apos;attribution-rules.json&apos;);
   }
 
   /**
@@ -128,7 +134,7 @@ export class FeatureCostTracker {
    */
   async recordCost(entry: FeatureCostEntry): Promise<void> {
     const logger = this.getLogger();
-    logger.info('FeatureCostTracker.recordCost - Recording cost entry', {
+    logger.info(&apos;FeatureCostTracker.recordCost - Recording cost entry&apos;, {
       featureId: entry.featureId,
       cost: entry.cost,
       tokens: entry.tokens,
@@ -137,7 +143,7 @@ export class FeatureCostTracker {
 
     try {
       // Apply cost attribution rules if feature is not already assigned
-      if (!entry.featureId || entry.featureId === 'unknown') {
+      if (!entry.featureId || entry.featureId === &apos;unknown&apos;) {
         const attributedEntry = await this.applyAttributionRules(entry);
         Object.assign(entry, attributedEntry);
       }
@@ -146,22 +152,29 @@ export class FeatureCostTracker {
       await fs.mkdir(this.config.dataDir, { recursive: true });
 
       // Append entry to JSONL file
-      const entryLine = JSON.stringify({
-        ...entry,
-        timestamp: entry.timestamp || new Date().toISOString(),
-      }) + '\n';
+      const entryLine =
+        JSON.stringify({
+          ...entry,
+          timestamp: entry.timestamp || new Date().toISOString(),
+        }) + &apos;\n&apos;;
 
       await fs.appendFile(this.costEntriesFile, entryLine);
 
-      logger.info('FeatureCostTracker.recordCost - Cost entry recorded successfully', {
-        featureId: entry.featureId,
-        timestamp: entry.timestamp,
-      });
-    } catch (error) {
-      logger.error('FeatureCostTracker.recordCost - Failed to record cost entry', {
-        error: error instanceof Error ? error.message : String(error),
-        featureId: entry.featureId,
-      });
+      logger.info(
+        &apos;FeatureCostTracker.recordCost - Cost entry recorded successfully&apos;,
+        {
+          featureId: entry.featureId,
+          timestamp: entry.timestamp,
+        },
+      );
+    } catch (_error) {
+      logger.error(
+        &apos;FeatureCostTracker.recordCost - Failed to record cost entry&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+          featureId: entry.featureId,
+        },
+      );
       throw error;
     }
   }
@@ -169,12 +182,17 @@ export class FeatureCostTracker {
   /**
    * Apply cost attribution rules to determine feature assignment
    */
-  private async applyAttributionRules(entry: Partial<FeatureCostEntry>): Promise<Partial<FeatureCostEntry>> {
+  private async applyAttributionRules(
+    entry: Partial<FeatureCostEntry>,
+  ): Promise<Partial<FeatureCostEntry>> {
     const logger = this.getLogger();
-    logger.info('FeatureCostTracker.applyAttributionRules - Applying attribution rules', {
-      operationType: entry.operationType,
-      userId: entry.userId,
-    });
+    logger.info(
+      &apos;FeatureCostTracker.applyAttributionRules - Applying attribution rules&apos;,
+      {
+        operationType: entry.operationType,
+        userId: entry.userId,
+      },
+    );
 
     try {
       const rules = await this.loadAttributionRules();
@@ -184,11 +202,14 @@ export class FeatureCostTracker {
 
       for (const rule of sortedRules) {
         if (rule.condition(entry)) {
-          logger.info('FeatureCostTracker.applyAttributionRules - Rule matched', {
-            ruleId: rule.id,
-            ruleName: rule.name,
-            assignedFeatureId: rule.featureId,
-          });
+          logger.info(
+            &apos;FeatureCostTracker.applyAttributionRules - Rule matched&apos;,
+            {
+              ruleId: rule.id,
+              ruleName: rule.name,
+              assignedFeatureId: rule.featureId,
+            },
+          );
 
           return {
             ...entry,
@@ -199,19 +220,25 @@ export class FeatureCostTracker {
       }
 
       // No rule matched, use default
-      logger.warn('FeatureCostTracker.applyAttributionRules - No rules matched, using default', {
-        operationType: entry.operationType,
-      });
+      logger.warn(
+        &apos;FeatureCostTracker.applyAttributionRules - No rules matched, using default&apos;,
+        {
+          operationType: entry.operationType,
+        },
+      );
 
       return {
         ...entry,
-        featureId: 'unclassified',
-        featureName: 'Unclassified Operations',
+        featureId: &apos;unclassified&apos;,
+        featureName: &apos;Unclassified Operations&apos;,
       };
-    } catch (error) {
-      logger.error('FeatureCostTracker.applyAttributionRules - Failed to apply attribution rules', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;FeatureCostTracker.applyAttributionRules - Failed to apply attribution rules&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+        },
+      );
       throw error;
     }
   }
@@ -221,10 +248,10 @@ export class FeatureCostTracker {
    */
   private async loadAttributionRules(): Promise<CostAttributionRule[]> {
     try {
-      const rulesContent = await fs.readFile(this.rulesFile, 'utf-8');
+      const rulesContent = await fs.readFile(this.rulesFile, &apos;utf-8&apos;);
       return JSON.parse(rulesContent);
-    } catch (error) {
-      // Return default rules if file doesn't exist
+    } catch (_error) {
+      // Return default rules if file doesn&apos;t exist
       return this.getDefaultAttributionRules();
     }
   }
@@ -235,35 +262,43 @@ export class FeatureCostTracker {
   private getDefaultAttributionRules(): CostAttributionRule[] {
     return [
       {
-        id: 'code-generation',
-        name: 'Code Generation',
-        condition: (entry) => entry.operationType?.includes('code') || entry.operationType?.includes('generation'),
-        featureId: 'code-gen',
-        featureName: 'Code Generation',
+        id: &apos;code-generation&apos;,
+        name: &apos;Code Generation&apos;,
+        condition: (entry) =>
+          entry.operationType?.includes(&apos;code&apos;) ||
+          entry.operationType?.includes(&apos;generation&apos;),
+        featureId: &apos;code-gen&apos;,
+        featureName: &apos;Code Generation&apos;,
         priority: 100,
       },
       {
-        id: 'chat-assistance',
-        name: 'Chat Assistance',
-        condition: (entry) => entry.operationType?.includes('chat') || entry.operationType?.includes('conversation'),
-        featureId: 'chat',
-        featureName: 'Chat Assistance',
+        id: &apos;chat-assistance&apos;,
+        name: &apos;Chat Assistance&apos;,
+        condition: (entry) =>
+          entry.operationType?.includes(&apos;chat&apos;) ||
+          entry.operationType?.includes(&apos;conversation&apos;),
+        featureId: &apos;chat&apos;,
+        featureName: &apos;Chat Assistance&apos;,
         priority: 90,
       },
       {
-        id: 'code-analysis',
-        name: 'Code Analysis',
-        condition: (entry) => entry.operationType?.includes('analysis') || entry.operationType?.includes('review'),
-        featureId: 'analysis',
-        featureName: 'Code Analysis',
+        id: &apos;code-analysis&apos;,
+        name: &apos;Code Analysis&apos;,
+        condition: (entry) =>
+          entry.operationType?.includes(&apos;analysis&apos;) ||
+          entry.operationType?.includes(&apos;review&apos;),
+        featureId: &apos;analysis&apos;,
+        featureName: &apos;Code Analysis&apos;,
         priority: 85,
       },
       {
-        id: 'documentation',
-        name: 'Documentation',
-        condition: (entry) => entry.operationType?.includes('docs') || entry.operationType?.includes('documentation'),
-        featureId: 'docs',
-        featureName: 'Documentation',
+        id: &apos;documentation&apos;,
+        name: &apos;Documentation&apos;,
+        condition: (entry) =>
+          entry.operationType?.includes(&apos;docs&apos;) ||
+          entry.operationType?.includes(&apos;documentation&apos;),
+        featureId: &apos;docs&apos;,
+        featureName: &apos;Documentation&apos;,
         priority: 80,
       },
     ];
@@ -275,14 +310,17 @@ export class FeatureCostTracker {
   async getFeatureCostAggregation(
     startDate: Date,
     endDate: Date,
-    featureId?: string
+    featureId?: string,
   ): Promise<FeatureCostAggregation[]> {
     const logger = this.getLogger();
-    logger.info('FeatureCostTracker.getFeatureCostAggregation - Getting cost aggregation', {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      featureId,
-    });
+    logger.info(
+      &apos;FeatureCostTracker.getFeatureCostAggregation - Getting cost aggregation&apos;,
+      {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        featureId,
+      },
+    );
 
     try {
       const entries = await this.loadCostEntries(startDate, endDate, featureId);
@@ -326,26 +364,35 @@ export class FeatureCostTracker {
 
         aggregation.operationBreakdown[entry.operationType].cost += entry.cost;
         aggregation.operationBreakdown[entry.operationType].count += 1;
-        aggregation.operationBreakdown[entry.operationType].tokens += entry.tokens || 0;
+        aggregation.operationBreakdown[entry.operationType].tokens +=
+          entry.tokens || 0;
       }
 
       // Calculate averages
       for (const aggregation of aggregations.values()) {
-        aggregation.avgCostPerOperation = aggregation.totalCost / aggregation.operationCount;
-        aggregation.avgTokensPerOperation = aggregation.totalTokens / aggregation.operationCount;
+        aggregation.avgCostPerOperation =
+          aggregation.totalCost / aggregation.operationCount;
+        aggregation.avgTokensPerOperation =
+          aggregation.totalTokens / aggregation.operationCount;
       }
 
       const result = Array.from(aggregations.values());
-      logger.info('FeatureCostTracker.getFeatureCostAggregation - Aggregation completed', {
-        featureCount: result.length,
-        totalCost: result.reduce((sum, agg) => sum + agg.totalCost, 0),
-      });
+      logger.info(
+        &apos;FeatureCostTracker.getFeatureCostAggregation - Aggregation completed&apos;,
+        {
+          featureCount: result.length,
+          totalCost: result.reduce((sum, agg) => sum + agg.totalCost, 0),
+        },
+      );
 
       return result;
-    } catch (error) {
-      logger.error('FeatureCostTracker.getFeatureCostAggregation - Failed to get aggregation', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    } catch (_error) {
+      logger.error(
+        &apos;FeatureCostTracker.getFeatureCostAggregation - Failed to get aggregation&apos;,
+        {
+          _error: error instanceof Error ? error.message : String(_error),
+        },
+      );
       throw error;
     }
   }
@@ -356,11 +403,14 @@ export class FeatureCostTracker {
   private async loadCostEntries(
     startDate: Date,
     endDate: Date,
-    featureId?: string
+    featureId?: string,
   ): Promise<FeatureCostEntry[]> {
     try {
-      const content = await fs.readFile(this.costEntriesFile, 'utf-8');
-      const lines = content.trim().split('\n').filter(line => line.length > 0);
+      const content = await fs.readFile(this.costEntriesFile, &apos;utf-8&apos;);
+      const lines = content
+        .trim()
+        .split(&apos;\n&apos;)
+        .filter((line) => line.length > 0);
 
       const entries: FeatureCostEntry[] = [];
       for (const line of lines) {
@@ -375,16 +425,16 @@ export class FeatureCostTracker {
               entries.push(entry);
             }
           }
-        } catch (parseError) {
+        } catch (_parseError) {
           // Skip invalid lines
           continue;
         }
       }
 
       return entries;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        return []; // File doesn't exist, return empty array
+    } catch (_error) {
+      if ((_error as NodeJS.ErrnoException).code === &apos;ENOENT&apos;) {
+        return []; // File doesn&apos;t exist, return empty array
       }
       throw error;
     }
@@ -396,9 +446,12 @@ export class FeatureCostTracker {
   async getTopCostFeatures(
     startDate: Date,
     endDate: Date,
-    limit: number = 10
+    limit: number = 10,
   ): Promise<FeatureCostAggregation[]> {
-    const aggregations = await this.getFeatureCostAggregation(startDate, endDate);
+    const aggregations = await this.getFeatureCostAggregation(
+      startDate,
+      endDate,
+    );
 
     return aggregations
       .sort((a, b) => b.totalCost - a.totalCost)
@@ -410,7 +463,7 @@ export class FeatureCostTracker {
    */
   async cleanupOldEntries(): Promise<void> {
     const logger = this.getLogger();
-    logger.info('FeatureCostTracker.cleanupOldEntries - Starting cleanup', {
+    logger.info(&apos;FeatureCostTracker.cleanupOldEntries - Starting cleanup&apos;, {
       retentionDays: this.config.retentionDays,
     });
 
@@ -418,8 +471,8 @@ export class FeatureCostTracker {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - this.config.retentionDays);
 
-      const content = await fs.readFile(this.costEntriesFile, 'utf-8');
-      const lines = content.trim().split('\n');
+      const content = await fs.readFile(this.costEntriesFile, &apos;utf-8&apos;);
+      const lines = content.trim().split(&apos;\n&apos;);
 
       const validLines: string[] = [];
       let removedCount = 0;
@@ -441,15 +494,15 @@ export class FeatureCostTracker {
       }
 
       // Write back only valid entries
-      await fs.writeFile(this.costEntriesFile, validLines.join('\n') + '\n');
+      await fs.writeFile(this.costEntriesFile, validLines.join(&apos;\n&apos;) + &apos;\n&apos;);
 
-      logger.info('FeatureCostTracker.cleanupOldEntries - Cleanup completed', {
+      logger.info(&apos;FeatureCostTracker.cleanupOldEntries - Cleanup completed&apos;, {
         removedCount,
         remainingCount: validLines.length,
       });
-    } catch (error) {
-      logger.error('FeatureCostTracker.cleanupOldEntries - Cleanup failed', {
-        error: error instanceof Error ? error.message : String(error),
+    } catch (_error) {
+      logger.error(&apos;FeatureCostTracker.cleanupOldEntries - Cleanup failed&apos;, {
+        _error: error instanceof Error ? error.message : String(_error),
       });
       throw error;
     }
@@ -462,16 +515,16 @@ export class FeatureCostTracker {
     return {
       info: (message: string, meta?: Record<string, unknown>) => {
         if (this.config.enableLogging) {
-          console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta) : '');
+          console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta) : &apos;');
         }
       },
       warn: (message: string, meta?: Record<string, unknown>) => {
         if (this.config.enableLogging) {
-          console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta) : '');
+          console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta) : &apos;');
         }
       },
       error: (message: string, meta?: Record<string, unknown>) => {
-        console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta) : '');
+        console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta) : &apos;');
       },
     };
   }
@@ -480,6 +533,8 @@ export class FeatureCostTracker {
 /**
  * Create a new FeatureCostTracker instance
  */
-export function createFeatureCostTracker(config: FeatureCostConfig): FeatureCostTracker {
+export function createFeatureCostTracker(
+  config: FeatureCostConfig,
+): FeatureCostTracker {
   return new FeatureCostTracker(config);
 }

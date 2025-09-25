@@ -19,7 +19,7 @@ export interface ModelPerformance {
   accuracy: number;
   mape: number; // Mean Absolute Percentage Error
   rmse: number; // Root Mean Square Error
-  mae: number;  // Mean Absolute Error
+  mae: number; // Mean Absolute Error
   r2Score: number; // R-squared
   trainingTime: number;
   predictionTime: number;
@@ -48,11 +48,11 @@ export class PredictionModels {
   /**
    * Linear regression model with regularization
    */
-  public static async linearRegressionModel(
+  static async linearRegressionModel(
     trainingData: CostDataPoint[],
     predictionDays: number,
     regularization: 'none' | 'ridge' | 'lasso' = 'ridge',
-    alpha: number = 0.1
+    alpha: number = 0.1,
   ): Promise<{
     predictions: Array<{ date: Date; value: number; confidence: number }>;
     performance: Partial<ModelPerformance>;
@@ -71,7 +71,9 @@ export class PredictionModels {
       }
 
       // Prepare data
-      const sortedData = [...trainingData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedData = [...trainingData].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
       const baseTime = sortedData[0].timestamp.getTime();
 
       // Convert to numerical features
@@ -82,17 +84,25 @@ export class PredictionModels {
         point.timestamp.getDay(), // Day of week
       ]);
 
-      const y = sortedData.map(point => point.cost);
+      const y = sortedData.map((point) => point.cost);
 
       // Calculate coefficients using regularized least squares
-      const coefficients = this.calculateRegularizedCoefficients(X, y, regularization, alpha);
+      const coefficients = this.calculateRegularizedCoefficients(
+        X,
+        y,
+        regularization,
+        alpha,
+      );
 
       // Generate predictions
-      const lastTimestamp = sortedData[sortedData.length - 1].timestamp.getTime();
+      const lastTimestamp =
+        sortedData[sortedData.length - 1].timestamp.getTime();
       const predictions = [];
 
       for (let day = 1; day <= predictionDays; day++) {
-        const predictionDate = new Date(lastTimestamp + day * 24 * 60 * 60 * 1000);
+        const predictionDate = new Date(
+          lastTimestamp + day * 24 * 60 * 60 * 1000,
+        );
         const features = [
           (predictionDate.getTime() - baseTime) / (24 * 60 * 60 * 1000),
           sortedData.length + day - 1,
@@ -133,7 +143,9 @@ export class PredictionModels {
 
       return { predictions, performance };
     } catch (error) {
-      this.logger.error('Failed to run linear regression model', { error: error.message });
+      this.logger.error('Failed to run linear regression model', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -141,15 +153,15 @@ export class PredictionModels {
   /**
    * Exponential smoothing model with trend and seasonality
    */
-  public static async exponentialSmoothingModel(
+  static async exponentialSmoothingModel(
     trainingData: CostDataPoint[],
     predictionDays: number,
     smoothingParams: {
       alpha: number; // Level smoothing
-      beta: number;  // Trend smoothing
+      beta: number; // Trend smoothing
       gamma: number; // Seasonal smoothing
     } = { alpha: 0.3, beta: 0.1, gamma: 0.1 },
-    seasonalPeriod: number = 7
+    seasonalPeriod: number = 7,
   ): Promise<{
     predictions: Array<{ date: Date; value: number; confidence: number }>;
     performance: Partial<ModelPerformance>;
@@ -164,14 +176,21 @@ export class PredictionModels {
 
     try {
       if (trainingData.length < seasonalPeriod * 2) {
-        throw new Error(`Insufficient training data for exponential smoothing with seasonal period ${seasonalPeriod}`);
+        throw new Error(
+          `Insufficient training data for exponential smoothing with seasonal period ${seasonalPeriod}`,
+        );
       }
 
-      const sortedData = [...trainingData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-      const values = sortedData.map(point => point.cost);
+      const sortedData = [...trainingData].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
+      const values = sortedData.map((point) => point.cost);
 
       // Initialize components
-      const { level, trend, seasonal } = this.initializeHoltWinters(values, seasonalPeriod);
+      const { level, trend, seasonal } = this.initializeHoltWinters(
+        values,
+        seasonalPeriod,
+      );
       const { alpha, beta, gamma } = smoothingParams;
 
       // Apply Holt-Winters exponential smoothing
@@ -182,14 +201,20 @@ export class PredictionModels {
 
       for (let t = 0; t < values.length; t++) {
         const seasonalIndex = t % seasonalPeriod;
-        const prediction = (currentLevel + currentTrend) * currentSeasonal[seasonalIndex];
+        const prediction =
+          (currentLevel + currentTrend) * currentSeasonal[seasonalIndex];
         smoothedValues.push(prediction);
 
         if (t < values.length - 1) {
           // Update components
-          const newLevel = alpha * (values[t] / currentSeasonal[seasonalIndex]) + (1 - alpha) * (currentLevel + currentTrend);
-          const newTrend = beta * (newLevel - currentLevel) + (1 - beta) * currentTrend;
-          const newSeasonal = gamma * (values[t] / newLevel) + (1 - gamma) * currentSeasonal[seasonalIndex];
+          const newLevel =
+            alpha * (values[t] / currentSeasonal[seasonalIndex]) +
+            (1 - alpha) * (currentLevel + currentTrend);
+          const newTrend =
+            beta * (newLevel - currentLevel) + (1 - beta) * currentTrend;
+          const newSeasonal =
+            gamma * (values[t] / newLevel) +
+            (1 - gamma) * currentSeasonal[seasonalIndex];
 
           currentLevel = newLevel;
           currentTrend = newTrend;
@@ -198,13 +223,17 @@ export class PredictionModels {
       }
 
       // Generate predictions
-      const lastTimestamp = sortedData[sortedData.length - 1].timestamp.getTime();
+      const lastTimestamp =
+        sortedData[sortedData.length - 1].timestamp.getTime();
       const predictions = [];
 
       for (let day = 1; day <= predictionDays; day++) {
-        const predictionDate = new Date(lastTimestamp + day * 24 * 60 * 60 * 1000);
+        const predictionDate = new Date(
+          lastTimestamp + day * 24 * 60 * 60 * 1000,
+        );
         const seasonalIndex = (values.length + day - 1) % seasonalPeriod;
-        const predictedValue = (currentLevel + currentTrend * day) * currentSeasonal[seasonalIndex];
+        const predictedValue =
+          (currentLevel + currentTrend * day) * currentSeasonal[seasonalIndex];
         const confidence = Math.max(0.2, 0.9 - (day - 1) * 0.03); // Exponential decay
 
         predictions.push({
@@ -232,7 +261,9 @@ export class PredictionModels {
 
       return { predictions, performance };
     } catch (error) {
-      this.logger.error('Failed to run exponential smoothing model', { error: error.message });
+      this.logger.error('Failed to run exponential smoothing model', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -240,10 +271,10 @@ export class PredictionModels {
   /**
    * ARIMA model (simplified implementation)
    */
-  public static async arimaModel(
+  static async arimaModel(
     trainingData: CostDataPoint[],
     predictionDays: number,
-    order: { p: number; d: number; q: number } = { p: 2, d: 1, q: 1 }
+    order: { p: number; d: number; q: number } = { p: 2, d: 1, q: 1 },
   ): Promise<{
     predictions: Array<{ date: Date; value: number; confidence: number }>;
     performance: Partial<ModelPerformance>;
@@ -260,8 +291,10 @@ export class PredictionModels {
         throw new Error('Insufficient training data for ARIMA model');
       }
 
-      const sortedData = [...trainingData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-      let values = sortedData.map(point => point.cost);
+      const sortedData = [...trainingData].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
+      let values = sortedData.map((point) => point.cost);
 
       // Apply differencing (d parameter)
       for (let i = 0; i < order.d; i++) {
@@ -269,16 +302,22 @@ export class PredictionModels {
       }
 
       // Simplified ARIMA estimation using least squares
-      const { arParams, maParams, residuals } = this.estimateARIMAParameters(values, order);
+      const { arParams, maParams, residuals } = this.estimateARIMAParameters(
+        values,
+        order,
+      );
 
       // Generate predictions
-      const lastTimestamp = sortedData[sortedData.length - 1].timestamp.getTime();
+      const lastTimestamp =
+        sortedData[sortedData.length - 1].timestamp.getTime();
       const predictions = [];
       const lastValues = values.slice(-order.p);
       const lastResiduals = residuals.slice(-order.q);
 
       for (let day = 1; day <= predictionDays; day++) {
-        const predictionDate = new Date(lastTimestamp + day * 24 * 60 * 60 * 1000);
+        const predictionDate = new Date(
+          lastTimestamp + day * 24 * 60 * 60 * 1000,
+        );
 
         // AR component
         let arComponent = 0;
@@ -323,13 +362,24 @@ export class PredictionModels {
       }
 
       // Calculate performance metrics
-      const fittedValues = this.calculateARIMAFittedValues(values, arParams, maParams, order);
+      const fittedValues = this.calculateARIMAFittedValues(
+        values,
+        arParams,
+        maParams,
+        order,
+      );
       const performance: Partial<ModelPerformance> = {
         modelName: `ARIMA(${order.p},${order.d},${order.q})`,
         trainingTime: Date.now() - startTime,
         predictionTime: Date.now() - startTime,
-        rmse: this.calculateRMSE(values.slice(Math.max(order.p, order.q)), fittedValues),
-        mae: this.calculateMAE(values.slice(Math.max(order.p, order.q)), fittedValues),
+        rmse: this.calculateRMSE(
+          values.slice(Math.max(order.p, order.q)),
+          fittedValues,
+        ),
+        mae: this.calculateMAE(
+          values.slice(Math.max(order.p, order.q)),
+          fittedValues,
+        ),
       };
 
       this.logger.info('ARIMA model completed', {
@@ -347,7 +397,7 @@ export class PredictionModels {
   /**
    * Ensemble model combining multiple prediction approaches
    */
-  public static async ensembleModel(
+  static async ensembleModel(
     trainingData: CostDataPoint[],
     predictionDays: number,
     config: EnsembleConfig = {
@@ -358,11 +408,14 @@ export class PredictionModels {
       ],
       votingStrategy: 'weighted_average',
       minimumAgreement: 0.7,
-    }
+    },
   ): Promise<{
     predictions: Array<{ date: Date; value: number; confidence: number }>;
     performance: Partial<ModelPerformance>;
-    individualModels: Array<{ name: string; performance: Partial<ModelPerformance> }>;
+    individualModels: Array<{
+      name: string;
+      performance: Partial<ModelPerformance>;
+    }>;
   }> {
     const startTime = Date.now();
     this.logger.info('Running ensemble model', {
@@ -379,16 +432,24 @@ export class PredictionModels {
         let modelResult;
         switch (modelConfig.name) {
           case 'linear_regression':
-            modelResult = await this.linearRegressionModel(trainingData, predictionDays);
+            modelResult = await this.linearRegressionModel(
+              trainingData,
+              predictionDays,
+            );
             break;
           case 'exponential_smoothing':
-            modelResult = await this.exponentialSmoothingModel(trainingData, predictionDays);
+            modelResult = await this.exponentialSmoothingModel(
+              trainingData,
+              predictionDays,
+            );
             break;
           case 'arima':
             modelResult = await this.arimaModel(trainingData, predictionDays);
             break;
           default:
-            this.logger.warn('Unknown model in ensemble config', { model: modelConfig.name });
+            this.logger.warn('Unknown model in ensemble config', {
+              model: modelConfig.name,
+            });
             continue;
         }
 
@@ -405,7 +466,7 @@ export class PredictionModels {
       const ensemblePredictions = [];
 
       for (let day = 0; day < predictionDays; day++) {
-        const dayPredictions = individualResults.map(result => ({
+        const dayPredictions = individualResults.map((result) => ({
           value: result.predictions[day].value,
           weight: result.weight,
           confidence: result.confidence,
@@ -416,31 +477,65 @@ export class PredictionModels {
 
         switch (config.votingStrategy) {
           case 'weighted_average':
-            const totalWeight = dayPredictions.reduce((sum, p) => sum + p.weight, 0);
-            combinedValue = dayPredictions.reduce((sum, p) => sum + p.value * p.weight, 0) / totalWeight;
-            combinedConfidence = dayPredictions.reduce((sum, p) => sum + p.confidence * p.weight, 0) / totalWeight;
+            const totalWeight = dayPredictions.reduce(
+              (sum, p) => sum + p.weight,
+              0,
+            );
+            combinedValue =
+              dayPredictions.reduce((sum, p) => sum + p.value * p.weight, 0) /
+              totalWeight;
+            combinedConfidence =
+              dayPredictions.reduce(
+                (sum, p) => sum + p.confidence * p.weight,
+                0,
+              ) / totalWeight;
             break;
 
           case 'median':
-            const sortedValues = dayPredictions.map(p => p.value).sort((a, b) => a - b);
+            const sortedValues = dayPredictions
+              .map((p) => p.value)
+              .sort((a, b) => a - b);
             combinedValue = this.median(sortedValues);
-            combinedConfidence = dayPredictions.reduce((sum, p) => sum + p.confidence, 0) / dayPredictions.length;
+            combinedConfidence =
+              dayPredictions.reduce((sum, p) => sum + p.confidence, 0) /
+              dayPredictions.length;
             break;
 
           case 'confidence_weighted':
-            const totalConfidence = dayPredictions.reduce((sum, p) => sum + p.confidence, 0);
-            combinedValue = dayPredictions.reduce((sum, p) => sum + p.value * p.confidence, 0) / totalConfidence;
+            const totalConfidence = dayPredictions.reduce(
+              (sum, p) => sum + p.confidence,
+              0,
+            );
+            combinedValue =
+              dayPredictions.reduce(
+                (sum, p) => sum + p.value * p.confidence,
+                0,
+              ) / totalConfidence;
             combinedConfidence = totalConfidence / dayPredictions.length;
             break;
 
           default:
-            combinedValue = dayPredictions.reduce((sum, p) => sum + p.value, 0) / dayPredictions.length;
-            combinedConfidence = dayPredictions.reduce((sum, p) => sum + p.confidence, 0) / dayPredictions.length;
+            combinedValue =
+              dayPredictions.reduce((sum, p) => sum + p.value, 0) /
+              dayPredictions.length;
+            combinedConfidence =
+              dayPredictions.reduce((sum, p) => sum + p.confidence, 0) /
+              dayPredictions.length;
         }
 
         // Check for model agreement
-        const meanValue = dayPredictions.reduce((sum, p) => sum + p.value, 0) / dayPredictions.length;
-        const agreement = 1 - (Math.sqrt(dayPredictions.reduce((sum, p) => sum + Math.pow(p.value - meanValue, 2), 0) / dayPredictions.length) / meanValue);
+        const meanValue =
+          dayPredictions.reduce((sum, p) => sum + p.value, 0) /
+          dayPredictions.length;
+        const agreement =
+          1 -
+          Math.sqrt(
+            dayPredictions.reduce(
+              (sum, p) => sum + Math.pow(p.value - meanValue, 2),
+              0,
+            ) / dayPredictions.length,
+          ) /
+            meanValue;
 
         if (agreement < config.minimumAgreement) {
           combinedConfidence *= 0.7; // Reduce confidence when models disagree
@@ -454,17 +549,34 @@ export class PredictionModels {
       }
 
       // Calculate ensemble performance (weighted average of individual performances)
-      const totalWeight = individualResults.reduce((sum, r) => sum + r.weight, 0);
+      const totalWeight = individualResults.reduce(
+        (sum, r) => sum + r.weight,
+        0,
+      );
       const ensemblePerformance: Partial<ModelPerformance> = {
         modelName: `Ensemble (${config.votingStrategy})`,
-        trainingTime: Math.max(...individualResults.map(r => r.performance.trainingTime || 0)),
+        trainingTime: Math.max(
+          ...individualResults.map((r) => r.performance.trainingTime || 0),
+        ),
         predictionTime: Date.now() - startTime,
-        rmse: individualResults.reduce((sum, r) => sum + (r.performance.rmse || 0) * r.weight, 0) / totalWeight,
-        mae: individualResults.reduce((sum, r) => sum + (r.performance.mae || 0) * r.weight, 0) / totalWeight,
-        r2Score: individualResults.reduce((sum, r) => sum + (r.performance.r2Score || 0) * r.weight, 0) / totalWeight,
+        rmse:
+          individualResults.reduce(
+            (sum, r) => sum + (r.performance.rmse || 0) * r.weight,
+            0,
+          ) / totalWeight,
+        mae:
+          individualResults.reduce(
+            (sum, r) => sum + (r.performance.mae || 0) * r.weight,
+            0,
+          ) / totalWeight,
+        r2Score:
+          individualResults.reduce(
+            (sum, r) => sum + (r.performance.r2Score || 0) * r.weight,
+            0,
+          ) / totalWeight,
       };
 
-      const individualModels = individualResults.map(r => ({
+      const individualModels = individualResults.map((r) => ({
         name: r.name,
         performance: r.performance,
       }));
@@ -481,7 +593,9 @@ export class PredictionModels {
         individualModels,
       };
     } catch (error) {
-      this.logger.error('Failed to run ensemble model', { error: error.message });
+      this.logger.error('Failed to run ensemble model', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -492,10 +606,10 @@ export class PredictionModels {
     X: number[][],
     y: number[],
     regularization: 'none' | 'ridge' | 'lasso',
-    alpha: number
+    alpha: number,
   ): number[] {
     // Add bias column to X
-    const XWithBias = X.map(row => [1, ...row]);
+    const XWithBias = X.map((row) => [1, ...row]);
     const n = XWithBias.length;
     const p = XWithBias[0].length;
 
@@ -504,7 +618,8 @@ export class PredictionModels {
 
     // Add regularization
     if (regularization === 'ridge') {
-      for (let i = 1; i < p; i++) { // Skip bias term
+      for (let i = 1; i < p; i++) {
+        // Skip bias term
         XTX[i][i] += alpha;
       }
     }
@@ -532,11 +647,14 @@ export class PredictionModels {
   }
 
   private static transpose(matrix: number[][]): number[][] {
-    return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
+    return matrix[0].map((_, colIndex) => matrix.map((row) => row[colIndex]));
   }
 
-  private static matrixVectorMultiply(matrix: number[][], vector: number[]): number[] {
-    return matrix.map(row => this.dotProduct(row, vector));
+  private static matrixVectorMultiply(
+    matrix: number[][],
+    vector: number[],
+  ): number[] {
+    return matrix.map((row) => this.dotProduct(row, vector));
   }
 
   private static dotProduct(a: number[], b: number[]): number {
@@ -584,7 +702,10 @@ export class PredictionModels {
     return x;
   }
 
-  private static initializeHoltWinters(values: number[], seasonalPeriod: number) {
+  private static initializeHoltWinters(
+    values: number[],
+    seasonalPeriod: number,
+  ) {
     // Simple initialization for Holt-Winters
     const level = [values[0]];
     const trend = [(values[seasonalPeriod] - values[0]) / seasonalPeriod];
@@ -614,7 +735,7 @@ export class PredictionModels {
 
   private static estimateARIMAParameters(
     values: number[],
-    order: { p: number; d: number; q: number }
+    order: { p: number; d: number; q: number },
   ): { arParams: number[]; maParams: number[]; residuals: number[] } {
     // Simplified ARIMA parameter estimation using method of moments
     const { p, q } = order;
@@ -654,10 +775,14 @@ export class PredictionModels {
     return { arParams, maParams, residuals };
   }
 
-  private static calculateAutocorrelations(values: number[], lags: number): number[] {
+  private static calculateAutocorrelations(
+    values: number[],
+    lags: number,
+  ): number[] {
     const n = values.length;
     const mean = values.reduce((sum, val) => sum + val, 0) / n;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n;
+    const variance =
+      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n;
 
     const autocorrs = [];
     for (let lag = 1; lag <= lags; lag++) {
@@ -665,7 +790,7 @@ export class PredictionModels {
       for (let i = lag; i < n; i++) {
         covariance += (values[i] - mean) * (values[i - lag] - mean);
       }
-      covariance /= (n - lag);
+      covariance /= n - lag;
       autocorrs.push(covariance / variance);
     }
 
@@ -676,7 +801,7 @@ export class PredictionModels {
     values: number[],
     arParams: number[],
     maParams: number[],
-    order: { p: number; d: number; q: number }
+    order: { p: number; d: number; q: number },
   ): number[] {
     const fitted = [];
     const residuals = [];
@@ -721,9 +846,13 @@ export class PredictionModels {
     return sumAbsoluteError / n;
   }
 
-  private static calculateR2Score(actual: number[], predicted: number[]): number {
+  private static calculateR2Score(
+    actual: number[],
+    predicted: number[],
+  ): number {
     const n = Math.min(actual.length, predicted.length);
-    const actualMean = actual.slice(0, n).reduce((sum, val) => sum + val, 0) / n;
+    const actualMean =
+      actual.slice(0, n).reduce((sum, val) => sum + val, 0) / n;
 
     let ssRes = 0; // Sum of squares of residuals
     let ssTot = 0; // Total sum of squares
@@ -733,7 +862,7 @@ export class PredictionModels {
       ssTot += Math.pow(actual[i] - actualMean, 2);
     }
 
-    return ssTot === 0 ? 1 : 1 - (ssRes / ssTot);
+    return ssTot === 0 ? 1 : 1 - ssRes / ssTot;
   }
 
   private static median(values: number[]): number {

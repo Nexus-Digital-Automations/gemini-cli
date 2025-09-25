@@ -121,7 +121,11 @@ export interface CostProjection {
   /** Projection metadata */
   metadata: {
     /** Algorithm used for projection */
-    algorithm: 'linear_regression' | 'exponential_smoothing' | 'seasonal_arima' | 'ensemble';
+    algorithm:
+      | 'linear_regression'
+      | 'exponential_smoothing'
+      | 'seasonal_arima'
+      | 'ensemble';
     /** Projection date range */
     projectionPeriod: {
       start: Date;
@@ -183,7 +187,12 @@ export interface BudgetAlertConfig {
     /** Threshold value */
     value: number;
     /** Comparison operator */
-    operator: 'greater_than' | 'less_than' | 'equals' | 'greater_than_or_equal' | 'less_than_or_equal';
+    operator:
+      | 'greater_than'
+      | 'less_than'
+      | 'equals'
+      | 'greater_than_or_equal'
+      | 'less_than_or_equal';
     /** Time window for evaluation */
     timeWindow?: 'daily' | 'weekly' | 'monthly' | 'rolling_24h' | 'rolling_7d';
   };
@@ -276,7 +285,11 @@ export interface BudgetAlert {
 export interface VarianceDetection {
   /** Detection metadata */
   timestamp: Date;
-  algorithm: 'z_score' | 'iqr' | 'isolation_forest' | 'moving_average_deviation';
+  algorithm:
+    | 'z_score'
+    | 'iqr'
+    | 'isolation_forest'
+    | 'moving_average_deviation';
 
   /** Detected variances */
   variances: Array<{
@@ -345,7 +358,11 @@ export interface OptimizationRecommendation {
   id: string;
   title: string;
   description: string;
-  category: 'cost_reduction' | 'usage_optimization' | 'budget_reallocation' | 'process_improvement';
+  category:
+    | 'cost_reduction'
+    | 'usage_optimization'
+    | 'budget_reallocation'
+    | 'process_improvement';
 
   /** Impact analysis */
   impact: {

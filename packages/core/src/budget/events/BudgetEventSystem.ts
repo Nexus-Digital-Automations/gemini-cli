@@ -12,12 +12,8 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../../../../src/utils/logger.js';
-import type {
-  BudgetEvent,
-  BudgetEventType,
-  EventSeverity
-} from '../types.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import type { BudgetEvent, BudgetEventType, EventSeverity } from '../types.js';
 
 /**
  * Event handler function type
@@ -116,15 +112,15 @@ export class BudgetEventSystem {
       activeSubscriptions: 0,
       averageEventsPerMinute: 0,
       averageLatency: 0,
-      failedDeliveries: 0
+      failedDeliveries: 0,
     };
 
     // Initialize statistics counters
-    Object.values(BudgetEventType).forEach(type => {
+    Object.values(BudgetEventType).forEach((type) => {
       this.statistics.eventsByType[type] = 0;
     });
 
-    Object.values(EventSeverity).forEach(severity => {
+    Object.values(EventSeverity).forEach((severity) => {
       this.statistics.eventsBySeverity[severity] = 0;
     });
 
@@ -135,14 +131,14 @@ export class BudgetEventSystem {
    * Emit a budget event to all matching subscribers
    * @param event - Budget event to emit
    */
-  public async emit(event: BudgetEvent): Promise<void> {
+  async emit(event: BudgetEvent): Promise<void> {
     const start = Date.now();
 
     try {
       this.logger.debug('Emitting budget event', {
         type: event.type,
         severity: event.severity,
-        source: event.source
+        source: event.source,
       });
 
       // Update statistics
@@ -156,13 +152,13 @@ export class BudgetEventSystem {
       if (matchingSubscriptions.length === 0) {
         this.logger.debug('No matching subscriptions for event', {
           type: event.type,
-          severity: event.severity
+          severity: event.severity,
         });
         return;
       }
 
       // Process each matching subscription
-      const promises: Promise<void>[] = [];
+      const promises: Array<Promise<void>> = [];
 
       for (const subscription of matchingSubscriptions) {
         if (subscription.options.immediate !== false) {
@@ -184,13 +180,12 @@ export class BudgetEventSystem {
       this.logger.debug('Event emitted successfully', {
         type: event.type,
         matchingSubscriptions: matchingSubscriptions.length,
-        latency
+        latency,
       });
-
     } catch (error) {
       this.logger.error('Failed to emit event', {
         error: error as Error,
-        eventType: event.type
+        eventType: event.type,
       });
       throw error;
     }
@@ -202,9 +197,9 @@ export class BudgetEventSystem {
    * @param options - Subscription options
    * @returns Subscription object
    */
-  public subscribe(
+  subscribe(
     handler: BudgetEventHandler,
-    options: EventSubscriptionOptions = {}
+    options: EventSubscriptionOptions = {},
   ): EventSubscription {
     const id = `sub_${++this.subscriptionCounter}_${Date.now()}`;
 
@@ -215,11 +210,11 @@ export class BudgetEventSystem {
         immediate: true,
         batchSize: 10,
         batchTimeout: 1000,
-        ...options
+        ...options,
       },
       createdAt: new Date(),
       eventCount: 0,
-      active: true
+      active: true,
     };
 
     this.subscriptions.set(id, subscription);
@@ -229,7 +224,7 @@ export class BudgetEventSystem {
       subscriptionId: id,
       eventType: options.eventType,
       severityLevel: options.severityLevel,
-      immediate: subscription.options.immediate
+      immediate: subscription.options.immediate,
     });
 
     return subscription;
@@ -240,7 +235,7 @@ export class BudgetEventSystem {
    * @param subscriptionId - Subscription ID to remove
    * @returns Whether subscription was found and removed
    */
-  public unsubscribe(subscriptionId: string): boolean {
+  unsubscribe(subscriptionId: string): boolean {
     const subscription = this.subscriptions.get(subscriptionId);
 
     if (!subscription) {
@@ -266,7 +261,7 @@ export class BudgetEventSystem {
 
     this.logger.info('Event subscription removed', {
       subscriptionId,
-      eventCount: subscription.eventCount
+      eventCount: subscription.eventCount,
     });
 
     return true;
@@ -275,7 +270,7 @@ export class BudgetEventSystem {
   /**
    * Create specific event emitters for common scenarios
    */
-  public createEmitters() {
+  createEmitters() {
     return {
       /**
        * Emit limit exceeded event
@@ -285,15 +280,13 @@ export class BudgetEventSystem {
         currentAmount: number;
         limitAmount: number;
         source: string;
-      }) => {
-        return this.emit({
+      }) => this.emit({
           type: BudgetEventType.LIMIT_EXCEEDED,
           timestamp: new Date(),
           data,
           source: data.source,
-          severity: EventSeverity.CRITICAL
-        });
-      },
+          severity: EventSeverity.CRITICAL,
+        }),
 
       /**
        * Emit warning threshold reached event
@@ -303,15 +296,13 @@ export class BudgetEventSystem {
         currentUsage: number;
         limitAmount: number;
         source: string;
-      }) => {
-        return this.emit({
+      }) => this.emit({
           type: BudgetEventType.WARNING_THRESHOLD,
           timestamp: new Date(),
           data,
           source: data.source,
-          severity: EventSeverity.WARNING
-        });
-      },
+          severity: EventSeverity.WARNING,
+        }),
 
       /**
        * Emit budget reset event
@@ -320,15 +311,13 @@ export class BudgetEventSystem {
         resetType: 'daily' | 'weekly' | 'monthly';
         previousUsage: number;
         source: string;
-      }) => {
-        return this.emit({
+      }) => this.emit({
           type: BudgetEventType.BUDGET_RESET,
           timestamp: new Date(),
           data,
           source: data.source,
-          severity: EventSeverity.INFO
-        });
-      },
+          severity: EventSeverity.INFO,
+        }),
 
       /**
        * Emit usage updated event
@@ -338,15 +327,13 @@ export class BudgetEventSystem {
         currentUsage: number;
         difference: number;
         source: string;
-      }) => {
-        return this.emit({
+      }) => this.emit({
           type: BudgetEventType.USAGE_UPDATED,
           timestamp: new Date(),
           data,
           source: data.source,
-          severity: EventSeverity.INFO
-        });
-      },
+          severity: EventSeverity.INFO,
+        }),
 
       /**
        * Emit settings changed event
@@ -356,15 +343,13 @@ export class BudgetEventSystem {
         oldSettings: any;
         newSettings: any;
         source: string;
-      }) => {
-        return this.emit({
+      }) => this.emit({
           type: BudgetEventType.SETTINGS_CHANGED,
           timestamp: new Date(),
           data,
           source: data.source,
-          severity: EventSeverity.INFO
-        });
-      },
+          severity: EventSeverity.INFO,
+        }),
 
       /**
        * Emit cost calculated event
@@ -375,15 +360,13 @@ export class BudgetEventSystem {
         outputTokens: number;
         totalCost: number;
         source: string;
-      }) => {
-        return this.emit({
+      }) => this.emit({
           type: BudgetEventType.COST_CALCULATED,
           timestamp: new Date(),
           data,
           source: data.source,
-          severity: EventSeverity.INFO
-        });
-      }
+          severity: EventSeverity.INFO,
+        }),
     };
   }
 
@@ -391,15 +374,14 @@ export class BudgetEventSystem {
    * Get event statistics
    * @returns Current event statistics
    */
-  public getStatistics(): EventStatistics {
+  getStatistics(): EventStatistics {
     const runtime = Date.now() - this.startTime;
     const runtimeMinutes = runtime / (1000 * 60);
 
     return {
       ...this.statistics,
-      averageEventsPerMinute: runtimeMinutes > 0
-        ? this.statistics.totalEvents / runtimeMinutes
-        : 0
+      averageEventsPerMinute:
+        runtimeMinutes > 0 ? this.statistics.totalEvents / runtimeMinutes : 0,
     };
   }
 
@@ -407,16 +389,16 @@ export class BudgetEventSystem {
    * Get active subscriptions
    * @returns Array of active subscriptions (without handlers for security)
    */
-  public getSubscriptions(): Omit<EventSubscription, 'handler'>[] {
+  getSubscriptions(): Array<Omit<EventSubscription, 'handler'>> {
     return Array.from(this.subscriptions.values())
-      .filter(sub => sub.active)
+      .filter((sub) => sub.active)
       .map(({ handler, ...subscription }) => subscription);
   }
 
   /**
    * Clear all subscriptions and reset statistics
    */
-  public reset(): void {
+  reset(): void {
     // Clear all timers
     for (const timer of this.batchTimers.values()) {
       clearTimeout(timer);
@@ -433,11 +415,11 @@ export class BudgetEventSystem {
     this.statistics.averageLatency = 0;
     this.statistics.failedDeliveries = 0;
 
-    Object.values(BudgetEventType).forEach(type => {
+    Object.values(BudgetEventType).forEach((type) => {
       this.statistics.eventsByType[type] = 0;
     });
 
-    Object.values(EventSeverity).forEach(severity => {
+    Object.values(EventSeverity).forEach((severity) => {
       this.statistics.eventsBySeverity[severity] = 0;
     });
 
@@ -468,7 +450,9 @@ export class BudgetEventSystem {
 
       // Check severity filter
       if (subscription.options.severityLevel) {
-        const allowedSeverities = Array.isArray(subscription.options.severityLevel)
+        const allowedSeverities = Array.isArray(
+          subscription.options.severityLevel,
+        )
           ? subscription.options.severityLevel
           : [subscription.options.severityLevel];
 
@@ -501,7 +485,7 @@ export class BudgetEventSystem {
    */
   private async deliverEventToSubscription(
     event: BudgetEvent,
-    subscription: EventSubscription
+    subscription: EventSubscription,
   ): Promise<void> {
     try {
       await subscription.handler(event);
@@ -511,16 +495,15 @@ export class BudgetEventSystem {
 
       this.logger.debug('Event delivered to subscription', {
         subscriptionId: subscription.id,
-        eventType: event.type
+        eventType: event.type,
       });
-
     } catch (error) {
       this.statistics.failedDeliveries++;
 
       this.logger.error('Failed to deliver event to subscription', {
         error: error as Error,
         subscriptionId: subscription.id,
-        eventType: event.type
+        eventType: event.type,
       });
     }
   }
@@ -532,7 +515,7 @@ export class BudgetEventSystem {
    */
   private queueEventForSubscription(
     event: BudgetEvent,
-    subscription: EventSubscription
+    subscription: EventSubscription,
   ): void {
     if (!this.eventQueue.has(subscription.id)) {
       this.eventQueue.set(subscription.id, []);
@@ -542,7 +525,7 @@ export class BudgetEventSystem {
     queue.push({
       event,
       timestamp: new Date(),
-      subscriptionId: subscription.id
+      subscriptionId: subscription.id,
     });
 
     // Check if we should deliver immediately due to batch size
@@ -550,7 +533,10 @@ export class BudgetEventSystem {
       this.deliverBatchedEvents(subscription.id);
     } else {
       // Set timer for batch timeout
-      this.setBatchTimer(subscription.id, subscription.options.batchTimeout || 1000);
+      this.setBatchTimer(
+        subscription.id,
+        subscription.options.batchTimeout || 1000,
+      );
     }
   }
 
@@ -594,7 +580,7 @@ export class BudgetEventSystem {
     }
 
     // Extract events
-    const events = queue.map(q => q.event);
+    const events = queue.map((q) => q.event);
     this.eventQueue.set(subscriptionId, []);
 
     try {
@@ -608,16 +594,15 @@ export class BudgetEventSystem {
 
       this.logger.debug('Batched events delivered', {
         subscriptionId,
-        eventCount: events.length
+        eventCount: events.length,
       });
-
     } catch (error) {
       this.statistics.failedDeliveries += events.length;
 
       this.logger.error('Failed to deliver batched events', {
         error: error as Error,
         subscriptionId,
-        eventCount: events.length
+        eventCount: events.length,
       });
     }
   }
@@ -627,8 +612,10 @@ export class BudgetEventSystem {
    * @param latency - Event processing latency
    */
   private updateLatencyStatistics(latency: number): void {
-    const total = this.statistics.averageLatency * (this.statistics.totalEvents - 1);
-    this.statistics.averageLatency = (total + latency) / this.statistics.totalEvents;
+    const total =
+      this.statistics.averageLatency * (this.statistics.totalEvents - 1);
+    this.statistics.averageLatency =
+      (total + latency) / this.statistics.totalEvents;
   }
 }
 

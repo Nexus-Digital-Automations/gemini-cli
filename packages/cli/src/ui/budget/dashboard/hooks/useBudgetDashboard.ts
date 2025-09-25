@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type {
   DashboardState,
   DashboardFilters,
@@ -97,9 +97,11 @@ interface UseBudgetDashboardReturn extends BudgetDashboardData {
  * });
  * ```
  */
-export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudgetDashboardReturn {
+export function useBudgetDashboard(
+  options: UseBudgetDashboardOptions,
+): UseBudgetDashboardReturn {
   const {
-    projectRoot,
+    projectRoot: _projectRoot,
     budgetSettings,
     refreshInterval = 30,
     autoRefresh = true,
@@ -128,7 +130,7 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
 
   // Data state
   const [budgetStats, setBudgetStats] = useState<BudgetUsageStats | null>(null);
-  const [tokenMetrics, setTokenMetrics] = useState<TokenUsageMetrics[]>([]);
+  const [tokenMetrics, _setTokenMetrics] = useState<TokenUsageMetrics[]>([]);
   const [historicalData, setHistoricalData] = useState<UsageDataPoint[]>([]);
   const [costBreakdown, setCostBreakdown] = useState<CostBreakdownItem[]>([]);
   const [alerts, setAlerts] = useState<BudgetAlert[]>([]);
@@ -138,40 +140,48 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
    * Fetches current budget usage statistics from the backend.
    * Updates the budgetStats state with real-time data.
    */
-  const fetchBudgetStats = useCallback(async (): Promise<BudgetUsageStats | null> => {
-    if (!budgetSettings?.enabled) {
-      return null;
-    }
+  const fetchBudgetStats =
+    useCallback(async (): Promise<BudgetUsageStats | null> => {
+      if (!budgetSettings?.enabled) {
+        return null;
+      }
 
-    try {
-      // TODO: Replace with actual API call when budget API is available
-      // For now, return mock data for UI development
-      const mockStats: BudgetUsageStats = {
-        requestCount: Math.floor(Math.random() * 800) + 100,
-        dailyLimit: budgetSettings.dailyLimit || 1000,
-        remainingRequests: Math.max(0, (budgetSettings.dailyLimit || 1000) - Math.floor(Math.random() * 800) - 100),
-        usagePercentage: Math.random() * 100,
-        timeUntilReset: '12h 34m',
-        lastUpdated: new Date(),
-      };
+      try {
+        // TODO: Replace with actual API call when budget API is available
+        // For now, return mock data for UI development
+        const mockStats: BudgetUsageStats = {
+          requestCount: Math.floor(Math.random() * 800) + 100,
+          dailyLimit: budgetSettings.dailyLimit || 1000,
+          remainingRequests: Math.max(
+            0,
+            (budgetSettings.dailyLimit || 1000) -
+              Math.floor(Math.random() * 800) -
+              100,
+          ),
+          usagePercentage: Math.random() * 100,
+          timeUntilReset: '12h 34m',
+          lastUpdated: new Date(),
+        };
 
-      setBudgetStats(mockStats);
-      return mockStats;
-    } catch (error) {
-      console.error('Failed to fetch budget stats:', error);
-      setDashboardState(prev => ({
-        ...prev,
-        error: 'Failed to load budget statistics',
-      }));
-      return null;
-    }
-  }, [budgetSettings]);
+        setBudgetStats(mockStats);
+        return mockStats;
+      } catch (error) {
+        console.error('Failed to fetch budget stats:', error);
+        setDashboardState((prev) => ({
+          ...prev,
+          error: 'Failed to load budget statistics',
+        }));
+        return null;
+      }
+    }, [budgetSettings]);
 
   /**
    * Fetches historical usage data based on current filters.
    * Updates the historicalData state for trend analysis.
    */
-  const fetchHistoricalData = useCallback(async (): Promise<UsageDataPoint[]> => {
+  const fetchHistoricalData = useCallback(async (): Promise<
+    UsageDataPoint[]
+  > => {
     const { timeRange } = dashboardState.filters;
 
     try {
@@ -190,7 +200,9 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
           tokens: Math.floor(Math.random() * 10000) + 1000,
           cost: Math.random() * 5 + 0.1,
           requests: Math.floor(Math.random() * 100) + 10,
-          feature: ['chat', 'code-analysis', 'completion', 'debugging'][Math.floor(Math.random() * 4)],
+          feature: ['chat', 'code-analysis', 'completion', 'debugging'][
+            Math.floor(Math.random() * 4)
+          ],
         });
       }
 
@@ -198,7 +210,7 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
       return mockData;
     } catch (error) {
       console.error('Failed to fetch historical data:', error);
-      setDashboardState(prev => ({
+      setDashboardState((prev) => ({
         ...prev,
         error: 'Failed to load historical data',
       }));
@@ -210,11 +222,19 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
    * Fetches cost breakdown data by feature.
    * Updates the costBreakdown state for spending analysis.
    */
-  const fetchCostBreakdown = useCallback(async (): Promise<CostBreakdownItem[]> => {
+  const fetchCostBreakdown = useCallback(async (): Promise<
+    CostBreakdownItem[]
+  > => {
     try {
       // TODO: Replace with actual API call when budget API is available
       // Generate mock cost breakdown data for UI development
-      const features = ['chat', 'code-analysis', 'completion', 'debugging', 'refactoring'];
+      const features = [
+        'chat',
+        'code-analysis',
+        'completion',
+        'debugging',
+        'refactoring',
+      ];
       const mockBreakdown: CostBreakdownItem[] = features.map((feature) => {
         const cost = Math.random() * 10 + 0.5;
         const tokens = Math.floor(Math.random() * 50000) + 5000;
@@ -232,7 +252,7 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
 
       // Recalculate percentages to sum to 100%
       const totalCost = mockBreakdown.reduce((sum, item) => sum + item.cost, 0);
-      mockBreakdown.forEach(item => {
+      mockBreakdown.forEach((item) => {
         item.percentage = (item.cost / totalCost) * 100;
       });
 
@@ -294,7 +314,9 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
           period: 'daily',
           projectedCost: Math.random() * 20 + 5,
           confidence: Math.random() * 30 + 70,
-          trend: ['increasing', 'decreasing', 'stable'][Math.floor(Math.random() * 3)] as any,
+          trend: (['increasing', 'decreasing', 'stable'] as const)[
+            Math.floor(Math.random() * 3)
+          ],
           basedOnDays: 7,
           projectionRange: {
             start: new Date(),
@@ -338,7 +360,7 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
    * Fetches updated data from all endpoints and updates state.
    */
   const refreshData = useCallback(async (): Promise<void> => {
-    setDashboardState(prev => ({ ...prev, isLoading: true, error: null }));
+    setDashboardState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
       await Promise.all([
@@ -349,87 +371,109 @@ export function useBudgetDashboard(options: UseBudgetDashboardOptions): UseBudge
         fetchProjections(),
       ]);
 
-      setDashboardState(prev => ({
+      setDashboardState((prev) => ({
         ...prev,
         isLoading: false,
         lastRefresh: new Date(),
       }));
     } catch (error) {
       console.error('Failed to refresh dashboard data:', error);
-      setDashboardState(prev => ({
+      setDashboardState((prev) => ({
         ...prev,
         isLoading: false,
         error: 'Failed to refresh data',
       }));
     }
-  }, [fetchBudgetStats, fetchHistoricalData, fetchCostBreakdown, fetchAlerts, fetchProjections]);
+  }, [
+    fetchBudgetStats,
+    fetchHistoricalData,
+    fetchCostBreakdown,
+    fetchAlerts,
+    fetchProjections,
+  ]);
 
   /**
    * Updates dashboard filters and triggers data refresh.
    */
-  const updateFilters = useCallback((newFilters: Partial<DashboardFilters>): void => {
-    setDashboardState(prev => ({
-      ...prev,
-      filters: { ...prev.filters, ...newFilters },
-    }));
+  const updateFilters = useCallback(
+    (newFilters: Partial<DashboardFilters>): void => {
+      setDashboardState((prev) => ({
+        ...prev,
+        filters: { ...prev.filters, ...newFilters },
+      }));
 
-    // Refresh data when filters change
-    refreshData();
-  }, [refreshData]);
+      // Refresh data when filters change
+      refreshData();
+    },
+    [refreshData],
+  );
 
   /**
    * Changes the active dashboard view.
    */
-  const setActiveView = useCallback((view: DashboardState['activeView']): void => {
-    setDashboardState(prev => ({ ...prev, activeView: view }));
-  }, []);
+  const setActiveView = useCallback(
+    (view: DashboardState['activeView']): void => {
+      setDashboardState((prev) => ({ ...prev, activeView: view }));
+    },
+    [],
+  );
 
   /**
    * Toggles auto-refresh on/off.
    */
   const toggleAutoRefresh = useCallback((): void => {
-    setDashboardState(prev => ({ ...prev, autoRefresh: !prev.autoRefresh }));
+    setDashboardState((prev) => ({ ...prev, autoRefresh: !prev.autoRefresh }));
   }, []);
 
   /**
    * Dismisses an active alert.
    */
   const dismissAlert = useCallback((alertId: string): void => {
-    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
   }, []);
 
   /**
    * Exports dashboard data in the specified format.
    */
-  const exportData = useCallback(async (format: 'json' | 'csv'): Promise<string> => {
-    const data = {
+  const exportData = useCallback(
+    async (format: 'json' | 'csv'): Promise<string> => {
+      const data = {
+        budgetStats,
+        tokenMetrics,
+        historicalData,
+        costBreakdown,
+        alerts,
+        projections,
+        exportTimestamp: new Date().toISOString(),
+      };
+
+      if (format === 'json') {
+        return JSON.stringify(data, null, 2);
+      }
+
+      // CSV export (simplified)
+      const csv: string[] = ['Category,Value'];
+      if (budgetStats) {
+        csv.push(`Total Requests,${budgetStats.requestCount}`);
+        csv.push(`Daily Limit,${budgetStats.dailyLimit}`);
+        csv.push(`Usage Percentage,${budgetStats.usagePercentage}%`);
+      }
+
+      costBreakdown.forEach((item) => {
+        csv.push(`${item.feature} Cost,$${item.cost.toFixed(2)}`);
+      });
+
+      return csv.join('\n');
+    },
+    [
       budgetStats,
       tokenMetrics,
       historicalData,
       costBreakdown,
       alerts,
       projections,
-      exportTimestamp: new Date().toISOString(),
-    };
-
-    if (format === 'json') {
-      return JSON.stringify(data, null, 2);
-    }
-
-    // CSV export (simplified)
-    const csv: string[] = ['Category,Value'];
-    if (budgetStats) {
-      csv.push(`Total Requests,${budgetStats.requestCount}`);
-      csv.push(`Daily Limit,${budgetStats.dailyLimit}`);
-      csv.push(`Usage Percentage,${budgetStats.usagePercentage}%`);
-    }
-
-    costBreakdown.forEach(item => {
-      csv.push(`${item.feature} Cost,$${item.cost.toFixed(2)}`);
-    });
-
-    return csv.join('\n');
-  }, [budgetStats, tokenMetrics, historicalData, costBreakdown, alerts, projections]);
+    ],
+  );
 
   // Auto-refresh effect
   useEffect(() => {

@@ -421,7 +421,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
   /**
    * Analyze current usage patterns and detect anomalies
    */
-  public async analyzeUsagePatterns(
+  async analyzeUsagePatterns(
     sessionId?: string,
     timeRangeMs: number = 3600000, // 1 hour
   ): Promise<UsagePattern[]> {
@@ -503,7 +503,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
   /**
    * Generate cost optimization recommendations
    */
-  public async generateOptimizationRecommendations(
+  async generateOptimizationRecommendations(
     sessionId?: string,
     timeRangeMs: number = 24 * 60 * 60 * 1000, // 24 hours
   ): Promise<CostOptimizationRecommendation[]> {
@@ -561,7 +561,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
   /**
    * Predict performance for upcoming requests
    */
-  public predictPerformance(context: {
+  predictPerformance(context: {
     model: string;
     promptLength: number;
     sessionId?: string;
@@ -583,7 +583,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
   /**
    * Get insights dashboard data
    */
-  public async getDashboardInsights(
+  async getDashboardInsights(
     timeRangeMs: number = 24 * 60 * 60 * 1000,
   ): Promise<{
     patterns: UsagePattern[];
@@ -1107,9 +1107,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
     }
 
     if (highFrequencyHours.length > 0) {
-      const batchableRequests = highFrequencyHours.reduce((sum, hour) => {
-        return sum + (requestsByHour.get(hour)?.length || 0);
-      }, 0);
+      const batchableRequests = highFrequencyHours.reduce((sum, hour) => sum + (requestsByHour.get(hour)?.length || 0), 0);
 
       const potentialSavings = batchableRequests * 0.002; // Estimate $0.002 savings per batched request
 
@@ -1261,7 +1259,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
   /**
    * Cleanup method for graceful shutdown
    */
-  public cleanup(): void {
+  cleanup(): void {
     if (this.analysisInterval) {
       clearInterval(this.analysisInterval);
       this.analysisInterval = null;

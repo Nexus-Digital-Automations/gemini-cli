@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Unified Task Management System Integrator
  *
@@ -10,12 +11,12 @@
  * providing enterprise-grade task orchestration, monitoring, and control.
  */
 import type { Config } from '../config/config.js';
-import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
-import { EnhancedAutonomousTaskQueue } from './EnhancedAutonomousTaskQueue.js';
-import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
-import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
-import { DependencyResolver } from './DependencyResolver.js';
+import type { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
+import type { EnhancedAutonomousTaskQueue } from './EnhancedAutonomousTaskQueue.js';
+import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
+import type { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
+import type { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
+import type { DependencyResolver } from './DependencyResolver.js';
 /**
  * Configuration options for the integrated task management system
  */

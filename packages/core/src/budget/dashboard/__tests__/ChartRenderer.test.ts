@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ChartRenderer, type ChartConfig, type ChartDataPoint, type ChartColors } from '../ChartRenderer.js';
+import {
+  ChartRenderer,
+  type ChartConfig,
+  type ChartDataPoint,
+  type ChartColors,
+} from '../ChartRenderer.js';
 
 // Mock chalk to avoid terminal color issues in tests
 vi.mock('chalk', () => ({
@@ -101,7 +106,9 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle empty data gracefully', () => {
-      const chart = chartRenderer.renderLineChart([], [], { title: 'Empty Chart' });
+      const chart = chartRenderer.renderLineChart([], [], {
+        title: 'Empty Chart',
+      });
 
       expect(chart).toContain('📈 Empty Chart');
       expect(chart).toContain('No data available');
@@ -156,7 +163,7 @@ describe('ChartRenderer', () => {
       expect(lines.length).toBeGreaterThan(10);
 
       // Title underline should match width
-      const titleUnderline = lines.find(line => line.includes('━'));
+      const titleUnderline = lines.find((line) => line.includes('━'));
       expect(titleUnderline?.length).toBe(40);
     });
   });
@@ -170,7 +177,9 @@ describe('ChartRenderer', () => {
         { label: 'Feature D', value: 300 },
       ];
 
-      const chart = chartRenderer.renderBarChart(data, { title: 'Feature Usage' });
+      const chart = chartRenderer.renderBarChart(data, {
+        title: 'Feature Usage',
+      });
 
       expect(chart).toContain('📊 Feature Usage');
       expect(chart).toContain('━'); // Title underline
@@ -183,7 +192,9 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle empty data gracefully', () => {
-      const chart = chartRenderer.renderBarChart([], { title: 'Empty Bar Chart' });
+      const chart = chartRenderer.renderBarChart([], {
+        title: 'Empty Bar Chart',
+      });
 
       expect(chart).toContain('📊 Empty Bar Chart');
       expect(chart).toContain('No data available');
@@ -216,7 +227,7 @@ describe('ChartRenderer', () => {
       const chart = chartRenderer.renderBarChart(data, { maxBars: 5 });
 
       // Should only show top 5 items
-      const lines = chart.split('\n').filter(line => line.includes('Item'));
+      const lines = chart.split('\n').filter((line) => line.includes('Item'));
       expect(lines.length).toBeLessThanOrEqual(5);
     });
 
@@ -242,12 +253,15 @@ describe('ChartRenderer', () => {
       const chart = chartRenderer.renderBarChart(data);
 
       expect(chart).toContain('100.0%'); // Full should be 100%
-      expect(chart).toContain('50.0%');  // Half should be 50%
+      expect(chart).toContain('50.0%'); // Half should be 50%
     });
 
     it('should handle very long labels gracefully', () => {
       const data: ChartDataPoint[] = [
-        { label: 'This is a very long feature name that exceeds normal length', value: 100 },
+        {
+          label: 'This is a very long feature name that exceeds normal length',
+          value: 100,
+        },
         { label: 'Short', value: 50 },
       ];
 
@@ -266,7 +280,9 @@ describe('ChartRenderer', () => {
         { label: 'Budget Remaining', value: 40 },
       ];
 
-      const chart = chartRenderer.renderPieChart(data, { title: 'Budget Distribution' });
+      const chart = chartRenderer.renderPieChart(data, {
+        title: 'Budget Distribution',
+      });
 
       expect(chart).toContain('🥧 Budget Distribution');
       expect(chart).toContain('Budget Used');
@@ -294,9 +310,7 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle single slice pie chart', () => {
-      const data: ChartDataPoint[] = [
-        { label: 'Complete', value: 100 },
-      ];
+      const data: ChartDataPoint[] = [{ label: 'Complete', value: 100 }];
 
       const chart = chartRenderer.renderPieChart(data);
 
@@ -351,19 +365,27 @@ describe('ChartRenderer', () => {
       const series = [
         {
           name: 'Series 1',
-          data: [{ label: 'A', value: 10 }, { label: 'B', value: 20 }],
+          data: [
+            { label: 'A', value: 10 },
+            { label: 'B', value: 20 },
+          ],
           color: 'blue',
           type: 'line' as const,
         },
         {
           name: 'Series 2',
-          data: [{ label: 'A', value: 15 }, { label: 'B', value: 25 }],
+          data: [
+            { label: 'A', value: 15 },
+            { label: 'B', value: 25 },
+          ],
           color: 'red',
           type: 'line' as const,
         },
       ];
 
-      const chart = chartRenderer.renderMultiSeriesChart(series, { title: 'Multi-Series' });
+      const chart = chartRenderer.renderMultiSeriesChart(series, {
+        title: 'Multi-Series',
+      });
 
       expect(chart).toContain('📈 Multi-Series');
       expect(chart).toContain('Series 1');
@@ -372,7 +394,9 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle empty multi-series data', () => {
-      const chart = chartRenderer.renderMultiSeriesChart([], { title: 'Empty Multi-Series' });
+      const chart = chartRenderer.renderMultiSeriesChart([], {
+        title: 'Empty Multi-Series',
+      });
 
       expect(chart).toContain('📈 Empty Multi-Series');
       expect(chart).toContain('No data available');
@@ -482,7 +506,10 @@ describe('ChartRenderer', () => {
 
   describe('Performance and Memory', () => {
     it('should handle large datasets efficiently', () => {
-      const largeData = Array.from({ length: 10000 }, (_, i) => i * Math.random());
+      const largeData = Array.from(
+        { length: 10000 },
+        (_, i) => i * Math.random(),
+      );
 
       const startTime = performance.now();
       const chart = chartRenderer.renderLineChart(largeData);
@@ -493,13 +520,18 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle memory efficiently with large bar chart data', () => {
-      const largeBarData: ChartDataPoint[] = Array.from({ length: 5000 }, (_, i) => ({
-        label: `Item ${i}`,
-        value: Math.random() * 1000,
-      }));
+      const largeBarData: ChartDataPoint[] = Array.from(
+        { length: 5000 },
+        (_, i) => ({
+          label: `Item ${i}`,
+          value: Math.random() * 1000,
+        }),
+      );
 
       const startTime = performance.now();
-      const chart = chartRenderer.renderBarChart(largeBarData, { maxBars: 100 });
+      const chart = chartRenderer.renderBarChart(largeBarData, {
+        maxBars: 100,
+      });
       const endTime = performance.now();
 
       expect(typeof chart).toBe('string');
@@ -546,8 +578,9 @@ describe('ChartRenderer', () => {
     it('should truncate very long labels appropriately', () => {
       const data: ChartDataPoint[] = [
         {
-          label: 'This is an extremely long label that should be truncated to fit within reasonable chart width constraints',
-          value: 100
+          label:
+            'This is an extremely long label that should be truncated to fit within reasonable chart width constraints',
+          value: 100,
         },
       ];
 
@@ -566,10 +599,10 @@ describe('ChartRenderer', () => {
 
       const chart = chartRenderer.renderBarChart(data);
 
-      const lines = chart.split('\n').filter(line => line.includes('█'));
+      const lines = chart.split('\n').filter((line) => line.includes('█'));
 
       // All data lines should have consistent structure
-      lines.forEach(line => {
+      lines.forEach((line) => {
         expect(line).toMatch(/\w+.*█+.*\d+\.\d+%/);
       });
     });

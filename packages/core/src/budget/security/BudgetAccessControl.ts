@@ -12,11 +12,8 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../../../../src/utils/logger.js';
-import type {
-  BudgetSecurityContext,
-  BudgetPermission
-} from '../types.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import type { BudgetSecurityContext, BudgetPermission } from '../types.js';
 
 /**
  * Security audit log entry
@@ -75,7 +72,12 @@ export interface AccessControlRule {
  */
 export interface AccessCondition {
   /** Condition type */
-  type: 'ip_range' | 'time_window' | 'user_attribute' | 'session_age' | 'custom';
+  type:
+    | 'ip_range'
+    | 'time_window'
+    | 'user_attribute'
+    | 'session_age'
+    | 'custom';
   /** Condition parameters */
   params: Record<string, any>;
   /** Condition evaluator function (for custom conditions) */
@@ -135,7 +137,7 @@ const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   rateLimiting: true,
   rateLimit: 100, // requests per minute
   permissionCaching: true,
-  permissionCacheTTL: 300 // 5 minutes
+  permissionCacheTTL: 300, // 5 minutes
 };
 
 /**
@@ -146,8 +148,14 @@ export class BudgetAccessControl {
   private readonly config: SecurityConfig;
   private readonly auditLog: SecurityAuditEntry[] = [];
   private readonly accessRules = new Map<string, AccessControlRule>();
-  private readonly permissionCache = new Map<string, { permissions: BudgetPermission[]; expiresAt: number }>();
-  private readonly rateLimitTracker = new Map<string, { count: number; windowStart: number }>();
+  private readonly permissionCache = new Map<
+    string,
+    { permissions: BudgetPermission[]; expiresAt: number }
+  >();
+  private readonly rateLimitTracker = new Map<
+    string,
+    { count: number; windowStart: number }
+  >();
   private auditCounter = 0;
 
   /**
@@ -164,7 +172,7 @@ export class BudgetAccessControl {
     this.logger.info('Budget access control initialized', {
       auditLogging: this.config.auditLogging,
       rateLimiting: this.config.rateLimiting,
-      ipValidation: this.config.ipValidation
+      ipValidation: this.config.ipValidation,
     });
   }
 
@@ -176,11 +184,11 @@ export class BudgetAccessControl {
    * @param action - Action being performed
    * @returns Permission check result
    */
-  public async checkPermissions(
+  async checkPermissions(
     context: BudgetSecurityContext,
     requiredPermissions: BudgetPermission[],
     resource: string,
-    action: string
+    action: string,
   ): Promise<PermissionCheckResult> {
     const start = Date.now();
 
@@ -193,7 +201,7 @@ export class BudgetAccessControl {
           resource,
           requiredPermissions,
           false,
-          'Rate limit exceeded'
+          'Rate limit exceeded',
         );
 
         return {
@@ -202,19 +210,22 @@ export class BudgetAccessControl {
           missingPermissions: requiredPermissions,
           matchedRules: [],
           denialReason: 'Rate limit exceeded',
-          auditEntryId
+          auditEntryId,
         };
       }
 
       // Check IP validation if enabled
-      if (this.config.ipValidation && !this.validateIpAddress(context.ipAddress)) {
+      if (
+        this.config.ipValidation &&
+        !this.validateIpAddress(context.ipAddress)
+      ) {
         const auditEntryId = await this.logSecurityEvent(
           context,
           action,
           resource,
           requiredPermissions,
           false,
-          'IP address not allowed'
+          'IP address not allowed',
         );
 
         return {
@@ -223,7 +234,7 @@ export class BudgetAccessControl {
           missingPermissions: requiredPermissions,
           matchedRules: [],
           denialReason: 'IP address not allowed',
-          auditEntryId
+          auditEntryId,
         };
       }
 
@@ -238,7 +249,7 @@ export class BudgetAccessControl {
           resource,
           requiredPermissions,
           true,
-          'Admin permission granted'
+          'Admin permission granted',
         );
 
         return {
@@ -246,26 +257,32 @@ export class BudgetAccessControl {
           requiredPermissions,
           missingPermissions: [],
           matchedRules: ['admin-override'],
-          auditEntryId
+          auditEntryId,
         };
       }
 
       // Find matching access control rules
-      const matchedRules = await this.findMatchingRules(context, resource, action);
+      const matchedRules = await this.findMatchingRules(
+        context,
+        resource,
+        action,
+      );
 
       // Combine required permissions from all matched rules
       const allRequiredPermissions = new Set<BudgetPermission>();
-      requiredPermissions.forEach(perm => allRequiredPermissions.add(perm));
+      requiredPermissions.forEach((perm) => allRequiredPermissions.add(perm));
 
       for (const rule of matchedRules) {
-        rule.requiredPermissions.forEach(perm => allRequiredPermissions.add(perm));
+        rule.requiredPermissions.forEach((perm) =>
+          allRequiredPermissions.add(perm),
+        );
       }
 
       const finalRequiredPermissions = Array.from(allRequiredPermissions);
 
       // Check if user has all required permissions
       const missingPermissions = finalRequiredPermissions.filter(
-        perm => !userPermissions.includes(perm)
+        (perm) => !userPermissions.includes(perm),
       );
 
       const granted = missingPermissions.length === 0;
@@ -276,7 +293,9 @@ export class BudgetAccessControl {
         resource,
         finalRequiredPermissions,
         granted,
-        granted ? undefined : `Missing permissions: ${missingPermissions.join(', ')}`
+        granted
+          ? undefined
+          : `Missing permissions: ${missingPermissions.join(', ')}`,
       );
 
       this.logger.debug('Permission check completed', {
@@ -284,23 +303,24 @@ export class BudgetAccessControl {
         requiredPermissions: finalRequiredPermissions.length,
         missingPermissions: missingPermissions.length,
         matchedRules: matchedRules.length,
-        executionTime: Date.now() - start
+        executionTime: Date.now() - start,
       });
 
       return {
         granted,
         requiredPermissions: finalRequiredPermissions,
         missingPermissions,
-        matchedRules: matchedRules.map(rule => rule.id),
-        denialReason: granted ? undefined : `Missing permissions: ${missingPermissions.join(', ')}`,
-        auditEntryId
+        matchedRules: matchedRules.map((rule) => rule.id),
+        denialReason: granted
+          ? undefined
+          : `Missing permissions: ${missingPermissions.join(', ')}`,
+        auditEntryId,
       };
-
     } catch (error) {
       this.logger.error('Permission check failed', {
         error: error as Error,
         action,
-        resource
+        resource,
       });
 
       const auditEntryId = await this.logSecurityEvent(
@@ -309,7 +329,7 @@ export class BudgetAccessControl {
         resource,
         requiredPermissions,
         false,
-        `Permission check error: ${(error as Error).message}`
+        `Permission check error: ${(error as Error).message}`,
       );
 
       return {
@@ -318,7 +338,7 @@ export class BudgetAccessControl {
         missingPermissions: requiredPermissions,
         matchedRules: [],
         denialReason: 'Security system error',
-        auditEntryId
+        auditEntryId,
       };
     }
   }
@@ -327,12 +347,12 @@ export class BudgetAccessControl {
    * Register a new access control rule
    * @param rule - Access control rule
    */
-  public registerRule(rule: AccessControlRule): void {
+  registerRule(rule: AccessControlRule): void {
     this.accessRules.set(rule.id, rule);
     this.logger.debug('Access control rule registered', {
       ruleId: rule.id,
       name: rule.name,
-      requiredPermissions: rule.requiredPermissions
+      requiredPermissions: rule.requiredPermissions,
     });
   }
 
@@ -340,7 +360,7 @@ export class BudgetAccessControl {
    * Remove an access control rule
    * @param ruleId - Rule ID to remove
    */
-  public removeRule(ruleId: string): boolean {
+  removeRule(ruleId: string): boolean {
     const removed = this.accessRules.delete(ruleId);
     if (removed) {
       this.logger.debug('Access control rule removed', { ruleId });
@@ -354,7 +374,10 @@ export class BudgetAccessControl {
    * @param offset - Offset for pagination
    * @returns Array of audit log entries
    */
-  public getAuditLog(limit: number = 100, offset: number = 0): SecurityAuditEntry[] {
+  getAuditLog(
+    limit: number = 100,
+    offset: number = 0,
+  ): SecurityAuditEntry[] {
     return this.auditLog
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(offset, offset + limit);
@@ -363,7 +386,7 @@ export class BudgetAccessControl {
   /**
    * Clear audit log
    */
-  public clearAuditLog(): void {
+  clearAuditLog(): void {
     this.auditLog.length = 0;
     this.logger.info('Audit log cleared');
   }
@@ -371,7 +394,7 @@ export class BudgetAccessControl {
   /**
    * Get security statistics
    */
-  public getSecurityStatistics(): {
+  getSecurityStatistics(): {
     totalAuditEntries: number;
     grantedRequests: number;
     deniedRequests: number;
@@ -379,8 +402,12 @@ export class BudgetAccessControl {
     activeRules: number;
     cacheHitRate?: number;
   } {
-    const grantedRequests = this.auditLog.filter(entry => entry.accessGranted).length;
-    const deniedRequests = this.auditLog.filter(entry => !entry.accessGranted).length;
+    const grantedRequests = this.auditLog.filter(
+      (entry) => entry.accessGranted,
+    ).length;
+    const deniedRequests = this.auditLog.filter(
+      (entry) => !entry.accessGranted,
+    ).length;
 
     // Count denial reasons
     const denialReasons = new Map<string, number>();
@@ -401,7 +428,9 @@ export class BudgetAccessControl {
       grantedRequests,
       deniedRequests,
       topDenialReasons,
-      activeRules: Array.from(this.accessRules.values()).filter(rule => rule.enabled).length
+      activeRules: Array.from(this.accessRules.values()).filter(
+        (rule) => rule.enabled,
+      ).length,
     };
   }
 
@@ -421,7 +450,7 @@ export class BudgetAccessControl {
     resource: string,
     requiredPermissions: BudgetPermission[],
     accessGranted: boolean,
-    denialReason?: string
+    denialReason?: string,
   ): Promise<string> {
     if (!this.config.auditLogging) {
       return 'audit-disabled';
@@ -441,14 +470,17 @@ export class BudgetAccessControl {
       accessGranted,
       denialReason,
       ipAddress: context.ipAddress,
-      userAgent: context.userAgent
+      userAgent: context.userAgent,
     };
 
     this.auditLog.push(entry);
 
     // Trim audit log if too large
     if (this.auditLog.length > this.config.maxAuditEntries) {
-      this.auditLog.splice(0, this.auditLog.length - this.config.maxAuditEntries);
+      this.auditLog.splice(
+        0,
+        this.auditLog.length - this.config.maxAuditEntries,
+      );
     }
 
     if (!accessGranted) {
@@ -456,7 +488,7 @@ export class BudgetAccessControl {
         action,
         resource,
         userId: context.userId,
-        denialReason
+        denialReason,
       });
     }
 
@@ -468,7 +500,9 @@ export class BudgetAccessControl {
    * @param context - Security context
    * @returns User permissions array
    */
-  private async getUserPermissions(context: BudgetSecurityContext): Promise<BudgetPermission[]> {
+  private async getUserPermissions(
+    context: BudgetSecurityContext,
+  ): Promise<BudgetPermission[]> {
     const cacheKey = `${context.userId || 'anonymous'}_${context.sessionId}`;
 
     // Check cache if enabled
@@ -484,7 +518,7 @@ export class BudgetAccessControl {
 
     // Cache permissions if enabled
     if (this.config.permissionCaching) {
-      const expiresAt = Date.now() + (this.config.permissionCacheTTL * 1000);
+      const expiresAt = Date.now() + this.config.permissionCacheTTL * 1000;
       this.permissionCache.set(cacheKey, { permissions, expiresAt });
 
       // Cleanup expired cache entries
@@ -504,7 +538,7 @@ export class BudgetAccessControl {
   private async findMatchingRules(
     context: BudgetSecurityContext,
     resource: string,
-    action: string
+    action: string,
   ): Promise<AccessControlRule[]> {
     const matchingRules: AccessControlRule[] = [];
 
@@ -540,11 +574,14 @@ export class BudgetAccessControl {
    */
   private async evaluateCondition(
     condition: AccessCondition,
-    context: BudgetSecurityContext
+    context: BudgetSecurityContext,
   ): Promise<boolean> {
     switch (condition.type) {
       case 'ip_range':
-        return this.evaluateIpRangeCondition(condition.params, context.ipAddress);
+        return this.evaluateIpRangeCondition(
+          condition.params,
+          context.ipAddress,
+        );
 
       case 'time_window':
         return this.evaluateTimeWindowCondition(condition.params);
@@ -576,7 +613,7 @@ export class BudgetAccessControl {
 
     const tracker = this.rateLimitTracker.get(sessionId);
 
-    if (!tracker || (now - tracker.windowStart) >= windowSize) {
+    if (!tracker || now - tracker.windowStart >= windowSize) {
       // New window
       this.rateLimitTracker.set(sessionId, { count: 1, windowStart: now });
       return true;
@@ -621,7 +658,7 @@ export class BudgetAccessControl {
       description: 'Allows viewing budget information',
       requiredPermissions: [BudgetPermission.VIEW_BUDGET],
       enabled: true,
-      priority: 100
+      priority: 100,
     });
 
     // Modify settings rule
@@ -631,7 +668,7 @@ export class BudgetAccessControl {
       description: 'Allows modifying budget settings',
       requiredPermissions: [BudgetPermission.MODIFY_SETTINGS],
       enabled: true,
-      priority: 200
+      priority: 200,
     });
 
     // Admin rule
@@ -641,7 +678,7 @@ export class BudgetAccessControl {
       description: 'Grants full administrative access',
       requiredPermissions: [BudgetPermission.ADMIN],
       enabled: true,
-      priority: 1000
+      priority: 1000,
     });
   }
 
@@ -666,7 +703,10 @@ export class BudgetAccessControl {
   /**
    * Evaluate IP range condition
    */
-  private evaluateIpRangeCondition(params: Record<string, any>, ipAddress?: string): boolean {
+  private evaluateIpRangeCondition(
+    params: Record<string, any>,
+    ipAddress?: string,
+  ): boolean {
     if (!ipAddress || !params.ranges) return false;
 
     for (const range of params.ranges) {
@@ -695,7 +735,7 @@ export class BudgetAccessControl {
    */
   private evaluateUserAttributeCondition(
     params: Record<string, any>,
-    context: BudgetSecurityContext
+    context: BudgetSecurityContext,
   ): boolean {
     if (!params.attribute || !params.value) return false;
 
@@ -709,7 +749,7 @@ export class BudgetAccessControl {
    */
   private evaluateSessionAgeCondition(
     params: Record<string, any>,
-    context: BudgetSecurityContext
+    context: BudgetSecurityContext,
   ): boolean {
     const maxAge = params.maxAgeMinutes || this.config.sessionTimeout;
 
@@ -724,6 +764,8 @@ export class BudgetAccessControl {
  * @param config - Security configuration
  * @returns New access control manager
  */
-export function createBudgetAccessControl(config?: Partial<SecurityConfig>): BudgetAccessControl {
+export function createBudgetAccessControl(
+  config?: Partial<SecurityConfig>,
+): BudgetAccessControl {
   return new BudgetAccessControl(config);
 }

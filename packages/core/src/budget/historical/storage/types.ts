@@ -113,7 +113,9 @@ export interface TimeSeriesStorage {
   /**
    * Store multiple data points in batch
    */
-  storeBatch(dataPoints: BudgetUsageTimeSeriesPoint[]): Promise<StorageOperationResult>;
+  storeBatch(
+    dataPoints: BudgetUsageTimeSeriesPoint[],
+  ): Promise<StorageOperationResult>;
 
   /**
    * Query data points within a time range
@@ -125,7 +127,7 @@ export interface TimeSeriesStorage {
    */
   queryAggregated(
     range: QueryRange,
-    aggregation: 'hour' | 'day' | 'week' | 'month'
+    aggregation: 'hour' | 'day' | 'week' | 'month',
   ): Promise<AggregatedUsageData[]>;
 
   /**

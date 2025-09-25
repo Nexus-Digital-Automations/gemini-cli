@@ -7,9 +7,11 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { BudgetSettings, BudgetUsageData } from './types.js';
-import { BudgetTracker, createBudgetTracker } from './budget-tracker.js';
+import type { BudgetTracker} from './budget-tracker.js';
+import { createBudgetTracker } from './budget-tracker.js';
+import type {
+  HistoricalBudgetAnalyzer} from './historical-analysis.js';
 import {
-  HistoricalBudgetAnalyzer,
   createHistoricalBudgetAnalyzer,
   type HistoricalBudgetRecord,
   type TrendAnalysis,
@@ -22,8 +24,9 @@ import {
   type ScenarioConfig,
   type EnsembleForecast,
 } from './forecasting-models.js';
+import type {
+  HistoricalVisualizationEngine} from './historical-visualization.js';
 import {
-  HistoricalVisualizationEngine,
   createHistoricalVisualizationEngine,
   type ChartConfig,
   type DashboardWidget,
@@ -54,7 +57,7 @@ export interface HistoricalServiceConfig {
   generateDashboard: boolean;
   dashboardRefreshInterval: number; // minutes
   exportReports: boolean;
-  reportFormats: ('html' | 'json' | 'csv' | 'pdf')[];
+  reportFormats: Array<'html' | 'json' | 'csv' | 'pdf'>;
 
   // Performance settings
   batchProcessingSize: number;

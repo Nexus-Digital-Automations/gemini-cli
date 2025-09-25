@@ -9,12 +9,26 @@ import type { BudgetUsageTimeSeriesPoint } from '../storage/types.js';
 /**
  * Aggregation time window types
  */
-export type AggregationWindow = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+export type AggregationWindow =
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'year';
 
 /**
  * Aggregation function types
  */
-export type AggregationFunction = 'sum' | 'avg' | 'min' | 'max' | 'count' | 'stddev' | 'percentile';
+export type AggregationFunction =
+  | 'sum'
+  | 'avg'
+  | 'min'
+  | 'max'
+  | 'count'
+  | 'stddev'
+  | 'percentile';
 
 /**
  * Statistical summary for aggregated data
@@ -206,7 +220,7 @@ export interface AggregationEngine {
    */
   aggregate(
     data: BudgetUsageTimeSeriesPoint[],
-    config: AggregationConfig
+    config: AggregationConfig,
   ): Promise<AggregationResult[]>;
 
   /**
@@ -214,7 +228,7 @@ export interface AggregationEngine {
    */
   createHierarchy(
     baseWindow: AggregationWindow,
-    levels: number
+    levels: number,
   ): AggregationHierarchy;
 
   /**
@@ -228,7 +242,7 @@ export interface AggregationEngine {
   getCachedAggregation(
     windowStart: number,
     windowEnd: number,
-    window: AggregationWindow
+    window: AggregationWindow,
   ): Promise<AggregationResult | null>;
 
   /**

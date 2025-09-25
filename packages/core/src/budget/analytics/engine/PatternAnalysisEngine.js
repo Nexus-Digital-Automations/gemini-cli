@@ -46,12 +46,12 @@ export class PatternAnalysisEngine {
       enablePredictiveAnalysis: true,
       enableCrossCorrelation: true,
 
-      ...config
+      ...config,
     };
 
     this.logger.info('PatternAnalysisEngine initialized', {
       config: this.config,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -64,7 +64,7 @@ export class PatternAnalysisEngine {
     const startTime = Date.now();
     this.logger.info('Starting comprehensive pattern analysis', {
       metricsCount: metrics.length,
-      dateRange: this.getDateRange(metrics)
+      dateRange: this.getDateRange(metrics),
     });
 
     try {
@@ -73,7 +73,7 @@ export class PatternAnalysisEngine {
       if (validatedMetrics.length < this.config.minimumDataPoints) {
         this.logger.warn('Insufficient data for pattern analysis', {
           available: validatedMetrics.length,
-          required: this.config.minimumDataPoints
+          required: this.config.minimumDataPoints,
         });
         return this.createEmptyAnalysis();
       }
@@ -91,23 +91,32 @@ export class PatternAnalysisEngine {
         this.analyzeFeatureUsagePatterns(validatedMetrics),
         this.detectCostEfficiencyPatterns(validatedMetrics),
         this.analyzeGeographicPatterns(validatedMetrics),
-        this.detectAnomalousPatterns(validatedMetrics)
+        this.detectAnomalousPatterns(validatedMetrics),
       ]);
 
       // Combine and cross-reference patterns
-      const consolidatedPatterns = await this.consolidatePatterns(analysisResults);
+      const consolidatedPatterns =
+        await this.consolidatePatterns(analysisResults);
 
       // Generate pattern insights and recommendations
-      const insights = await this.generatePatternInsights(consolidatedPatterns, validatedMetrics);
+      const insights = await this.generatePatternInsights(
+        consolidatedPatterns,
+        validatedMetrics,
+      );
 
       // Calculate pattern confidence scores
-      const scoredPatterns = await this.calculateConfidenceScores(consolidatedPatterns, validatedMetrics);
+      const scoredPatterns = await this.calculateConfidenceScores(
+        consolidatedPatterns,
+        validatedMetrics,
+      );
 
       const executionTime = Date.now() - startTime;
       this.logger.info('Pattern analysis completed', {
         executionTime: `${executionTime}ms`,
         patternsFound: scoredPatterns.length,
-        highConfidencePatterns: scoredPatterns.filter(p => p.confidence >= this.config.confidenceThreshold).length
+        highConfidencePatterns: scoredPatterns.filter(
+          (p) => p.confidence >= this.config.confidenceThreshold,
+        ).length,
       });
 
       return {
@@ -117,18 +126,21 @@ export class PatternAnalysisEngine {
         dateRange: this.getDateRange(validatedMetrics),
         patterns: scoredPatterns,
         insights: insights,
-        recommendations: await this.generatePatternRecommendations(scoredPatterns, insights),
+        recommendations: await this.generatePatternRecommendations(
+          scoredPatterns,
+          insights,
+        ),
         metadata: {
           analysisConfig: this.config,
           dataQuality: this.assessDataQuality(validatedMetrics),
-          statisticalSummary: this.generateStatisticalSummary(validatedMetrics)
-        }
+          statisticalSummary: this.generateStatisticalSummary(validatedMetrics),
+        },
       };
     } catch (error) {
       this.logger.error('Pattern analysis failed', {
         error: error.message,
         stack: error.stack,
-        executionTime: `${Date.now() - startTime}ms`
+        executionTime: `${Date.now() - startTime}ms`,
       });
       throw new Error(`Pattern analysis failed: ${error.message}`);
     }
@@ -144,8 +156,8 @@ export class PatternAnalysisEngine {
     this.logger.debug('Detecting usage spikes');
 
     const spikes = [];
-    const costStats = this.calculateStatistics(metrics.map(m => m.cost));
-    const volumeStats = this.calculateStatistics(metrics.map(m => 1)); // Request count
+    const costStats = this.calculateStatistics(metrics.map((m) => m.cost));
+    const volumeStats = this.calculateStatistics(metrics.map((m) => 1)); // Request count
 
     // Analyze hourly groupings for spikes
     for (const [hour, hourMetrics] of timeGroupings.hourly.entries()) {
@@ -153,7 +165,10 @@ export class PatternAnalysisEngine {
       const hourVolume = hourMetrics.length;
 
       // Cost spike detection
-      if (hourCost > costStats.mean + (this.config.spikeThreshold * costStats.stdDev)) {
+      if (
+        hourCost >
+        costStats.mean + this.config.spikeThreshold * costStats.stdDev
+      ) {
         spikes.push({
           type: 'cost_spike',
           severity: this.calculateSpikeSeverity(hourCost, costStats),
@@ -162,16 +177,21 @@ export class PatternAnalysisEngine {
           metrics: {
             value: hourCost,
             baseline: costStats.mean,
-            deviation: (hourCost - costStats.mean) / costStats.stdDev
+            deviation: (hourCost - costStats.mean) / costStats.stdDev,
           },
-          affectedFeatures: [...new Set(hourMetrics.map(m => m.feature))].filter(f => f),
+          affectedFeatures: [
+            ...new Set(hourMetrics.map((m) => m.feature)),
+          ].filter((f) => f),
           confidence: 0.9,
-          patternType: 'spike'
+          patternType: 'spike',
         });
       }
 
       // Volume spike detection
-      if (hourVolume > volumeStats.mean + (this.config.spikeThreshold * volumeStats.stdDev)) {
+      if (
+        hourVolume >
+        volumeStats.mean + this.config.spikeThreshold * volumeStats.stdDev
+      ) {
         spikes.push({
           type: 'volume_spike',
           severity: this.calculateSpikeSeverity(hourVolume, volumeStats),
@@ -180,16 +200,20 @@ export class PatternAnalysisEngine {
           metrics: {
             value: hourVolume,
             baseline: volumeStats.mean,
-            deviation: (hourVolume - volumeStats.mean) / volumeStats.stdDev
+            deviation: (hourVolume - volumeStats.mean) / volumeStats.stdDev,
           },
-          affectedFeatures: [...new Set(hourMetrics.map(m => m.feature))].filter(f => f),
+          affectedFeatures: [
+            ...new Set(hourMetrics.map((m) => m.feature)),
+          ].filter((f) => f),
           confidence: 0.9,
-          patternType: 'spike'
+          patternType: 'spike',
         });
       }
     }
 
-    this.logger.debug('Spike detection completed', { spikesFound: spikes.length });
+    this.logger.debug('Spike detection completed', {
+      spikesFound: spikes.length,
+    });
     return spikes;
   }
 
@@ -205,24 +229,41 @@ export class PatternAnalysisEngine {
     const patterns = [];
 
     // Daily periodicity analysis
-    const dailyPattern = await this.analyzeDailyPeriodicity(timeGroupings.daily);
-    if (dailyPattern && dailyPattern.confidence >= this.config.periodicityThreshold) {
+    const dailyPattern = await this.analyzeDailyPeriodicity(
+      timeGroupings.daily,
+    );
+    if (
+      dailyPattern &&
+      dailyPattern.confidence >= this.config.periodicityThreshold
+    ) {
       patterns.push(dailyPattern);
     }
 
     // Weekly periodicity analysis
-    const weeklyPattern = await this.analyzeWeeklyPeriodicity(timeGroupings.daily);
-    if (weeklyPattern && weeklyPattern.confidence >= this.config.periodicityThreshold) {
+    const weeklyPattern = await this.analyzeWeeklyPeriodicity(
+      timeGroupings.daily,
+    );
+    if (
+      weeklyPattern &&
+      weeklyPattern.confidence >= this.config.periodicityThreshold
+    ) {
       patterns.push(weeklyPattern);
     }
 
     // Hourly periodicity within days
-    const hourlyPattern = await this.analyzeHourlyPeriodicity(timeGroupings.hourly);
-    if (hourlyPattern && hourlyPattern.confidence >= this.config.periodicityThreshold) {
+    const hourlyPattern = await this.analyzeHourlyPeriodicity(
+      timeGroupings.hourly,
+    );
+    if (
+      hourlyPattern &&
+      hourlyPattern.confidence >= this.config.periodicityThreshold
+    ) {
       patterns.push(hourlyPattern);
     }
 
-    this.logger.debug('Periodic pattern analysis completed', { patternsFound: patterns.length });
+    this.logger.debug('Periodic pattern analysis completed', {
+      patternsFound: patterns.length,
+    });
     return patterns;
   }
 
@@ -252,11 +293,15 @@ export class PatternAnalysisEngine {
       return null;
     }
 
-    const businessHoursCost = businessHourMetrics.reduce((sum, m) => sum + m.cost, 0);
+    const businessHoursCost = businessHourMetrics.reduce(
+      (sum, m) => sum + m.cost,
+      0,
+    );
     const offHoursCost = offHourMetrics.reduce((sum, m) => sum + m.cost, 0);
     const totalCost = businessHoursCost + offHoursCost;
 
-    const businessHoursRatio = totalCost > 0 ? businessHoursCost / totalCost : 0;
+    const businessHoursRatio =
+      totalCost > 0 ? businessHoursCost / totalCost : 0;
 
     if (businessHoursRatio >= this.config.businessHoursThreshold) {
       return {
@@ -268,11 +313,14 @@ export class PatternAnalysisEngine {
           offHoursCost,
           businessHoursRatio,
           businessHoursRequests: businessHourMetrics.length,
-          offHoursRequests: offHourMetrics.length
+          offHoursRequests: offHourMetrics.length,
         },
-        recommendation: 'Consider off-peak scheduling for non-critical operations',
+        recommendation:
+          'Consider off-peak scheduling for non-critical operations',
         potentialSavings: businessHoursCost * 0.15, // Estimated 15% savings
-        affectedFeatures: [...new Set(businessHourMetrics.map(m => m.feature))].filter(f => f)
+        affectedFeatures: [
+          ...new Set(businessHourMetrics.map((m) => m.feature)),
+        ].filter((f) => f),
       };
     }
 
@@ -289,7 +337,7 @@ export class PatternAnalysisEngine {
       hourly: new Map(),
       daily: new Map(),
       weekly: new Map(),
-      monthly: new Map()
+      monthly: new Map(),
     };
 
     for (const metric of metrics) {
@@ -338,9 +386,13 @@ export class PatternAnalysisEngine {
       return [];
     }
 
-    return metrics.filter(metric => {
+    return metrics.filter((metric) => {
       // Check required fields
-      if (!metric.timestamp || typeof metric.cost !== 'number' || isNaN(metric.cost)) {
+      if (
+        !metric.timestamp ||
+        typeof metric.cost !== 'number' ||
+        isNaN(metric.cost)
+      ) {
         return false;
       }
 
@@ -351,7 +403,8 @@ export class PatternAnalysisEngine {
       }
 
       // Check for reasonable cost values
-      if (metric.cost < 0 || metric.cost > 1000) { // Assuming max reasonable cost is $1000
+      if (metric.cost < 0 || metric.cost > 1000) {
+        // Assuming max reasonable cost is $1000
         return false;
       }
 
@@ -373,7 +426,8 @@ export class PatternAnalysisEngine {
     const sum = data.reduce((acc, val) => acc + val, 0);
     const mean = sum / count;
 
-    const variance = data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count;
+    const variance =
+      data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count;
     const stdDev = Math.sqrt(variance);
 
     const min = Math.min(...data);
@@ -398,19 +452,22 @@ export class PatternAnalysisEngine {
       return { start: null, end: null, days: 0 };
     }
 
-    const timestamps = metrics.map(m => new Date(m.timestamp).getTime()).filter(t => !isNaN(t));
+    const timestamps = metrics
+      .map((m) => new Date(m.timestamp).getTime())
+      .filter((t) => !isNaN(t));
     if (timestamps.length === 0) {
       return { start: null, end: null, days: 0 };
     }
 
     const start = new Date(Math.min(...timestamps));
     const end = new Date(Math.max(...timestamps));
-    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const days =
+      Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
     return {
       start: start.toISOString(),
       end: end.toISOString(),
-      days
+      days,
     };
   }
 
@@ -430,8 +487,8 @@ export class PatternAnalysisEngine {
       metadata: {
         analysisConfig: this.config,
         dataQuality: { score: 0, issues: ['Insufficient data'] },
-        statisticalSummary: {}
-      }
+        statisticalSummary: {},
+      },
     };
   }
 
@@ -469,7 +526,9 @@ export class PatternAnalysisEngine {
 
   async consolidatePatterns(analysisResults) {
     // Flatten all patterns from different analysis types
-    return analysisResults.flat().filter(pattern => pattern !== null && pattern !== undefined);
+    return analysisResults
+      .flat()
+      .filter((pattern) => pattern !== null && pattern !== undefined);
   }
 
   async generatePatternInsights(patterns, metrics) {
@@ -479,7 +538,9 @@ export class PatternAnalysisEngine {
 
   async calculateConfidenceScores(patterns, metrics) {
     // Return patterns with confidence scores (already included in most patterns)
-    return patterns.filter(pattern => pattern.confidence >= this.config.confidenceThreshold);
+    return patterns.filter(
+      (pattern) => pattern.confidence >= this.config.confidenceThreshold,
+    );
   }
 
   async generatePatternRecommendations(patterns, insights) {
@@ -489,29 +550,46 @@ export class PatternAnalysisEngine {
 
   assessDataQuality(metrics) {
     const totalMetrics = metrics.length;
-    const validTimestamps = metrics.filter(m => !isNaN(new Date(m.timestamp).getTime())).length;
-    const validCosts = metrics.filter(m => typeof m.cost === 'number' && !isNaN(m.cost)).length;
-    const hasFeatureInfo = metrics.filter(m => m.feature && m.feature.length > 0).length;
-    const hasUserInfo = metrics.filter(m => m.user && m.user.length > 0).length;
+    const validTimestamps = metrics.filter(
+      (m) => !isNaN(new Date(m.timestamp).getTime()),
+    ).length;
+    const validCosts = metrics.filter(
+      (m) => typeof m.cost === 'number' && !isNaN(m.cost),
+    ).length;
+    const hasFeatureInfo = metrics.filter(
+      (m) => m.feature && m.feature.length > 0,
+    ).length;
+    const hasUserInfo = metrics.filter(
+      (m) => m.user && m.user.length > 0,
+    ).length;
 
-    const score = totalMetrics > 0 ?
-      (validTimestamps + validCosts + hasFeatureInfo + hasUserInfo) / (totalMetrics * 4) : 0;
+    const score =
+      totalMetrics > 0
+        ? (validTimestamps + validCosts + hasFeatureInfo + hasUserInfo) /
+          (totalMetrics * 4)
+        : 0;
 
     const issues = [];
-    if (validTimestamps < totalMetrics) issues.push('Invalid timestamps detected');
+    if (validTimestamps < totalMetrics)
+      issues.push('Invalid timestamps detected');
     if (validCosts < totalMetrics) issues.push('Invalid cost values detected');
-    if (hasFeatureInfo < totalMetrics * 0.8) issues.push('Missing feature information');
-    if (hasUserInfo < totalMetrics * 0.5) issues.push('Limited user information');
+    if (hasFeatureInfo < totalMetrics * 0.8)
+      issues.push('Missing feature information');
+    if (hasUserInfo < totalMetrics * 0.5)
+      issues.push('Limited user information');
 
     return { score, issues };
   }
 
   generateStatisticalSummary(metrics) {
-    const costs = metrics.map(m => m.cost);
+    const costs = metrics.map((m) => m.cost);
     const costStats = this.calculateStatistics(costs);
 
-    const uniqueFeatures = new Set(metrics.map(m => m.feature).filter(f => f)).size;
-    const uniqueUsers = new Set(metrics.map(m => m.user).filter(u => u)).size;
+    const uniqueFeatures = new Set(
+      metrics.map((m) => m.feature).filter((f) => f),
+    ).size;
+    const uniqueUsers = new Set(metrics.map((m) => m.user).filter((u) => u))
+      .size;
 
     return {
       totalMetrics: metrics.length,
@@ -519,12 +597,13 @@ export class PatternAnalysisEngine {
       costStatistics: costStats,
       uniqueFeatures,
       uniqueUsers,
-      averageCostPerRequest: costStats.mean
+      averageCostPerRequest: costStats.mean,
     };
   }
 
   calculateSpikeSeverity(value, stats) {
-    const deviation = Math.abs(value - stats.mean) / Math.max(stats.stdDev, 0.01);
+    const deviation =
+      Math.abs(value - stats.mean) / Math.max(stats.stdDev, 0.01);
     if (deviation >= 4) return 'critical';
     if (deviation >= 3) return 'high';
     if (deviation >= 2) return 'medium';
@@ -553,7 +632,7 @@ export class PatternAnalysisEngine {
     const firstThursday = target.valueOf();
     target.setMonth(0, 1);
     if (target.getDay() !== 4) {
-      target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+      target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
     }
     const weekNumber = 1 + Math.ceil((firstThursday - target) / 604800000);
     return `${target.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;

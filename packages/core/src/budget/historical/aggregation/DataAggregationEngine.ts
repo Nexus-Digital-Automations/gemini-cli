@@ -71,7 +71,9 @@ export class DataAggregationEngine implements AggregationEngine {
         }
       }
 
-      console.log(`[DataAggregationEngine] Loaded ${this.cache.size} cache entries`);
+      console.log(
+        `[DataAggregationEngine] Loaded ${this.cache.size} cache entries`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         console.warn('[DataAggregationEngine] Failed to load cache:', error);
@@ -108,7 +110,7 @@ export class DataAggregationEngine implements AggregationEngine {
     windowStart: number,
     windowEnd: number,
     window: AggregationWindow,
-    configHash?: string
+    configHash?: string,
   ): string {
     const baseKey = `${window}_${windowStart}_${windowEnd}`;
     return configHash ? `${baseKey}_${configHash}` : baseKey;
@@ -132,7 +134,7 @@ export class DataAggregationEngine implements AggregationEngine {
     let hash = 0;
     for (let i = 0; i < configStr.length; i++) {
       const char = configStr.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
 
@@ -144,11 +146,13 @@ export class DataAggregationEngine implements AggregationEngine {
    */
   async aggregate(
     data: BudgetUsageTimeSeriesPoint[],
-    config: AggregationConfig
+    config: AggregationConfig,
   ): Promise<AggregationResult[]> {
     const startTime = Date.now();
 
-    console.log(`[DataAggregationEngine] Starting aggregation of ${data.length} data points`);
+    console.log(
+      `[DataAggregationEngine] Starting aggregation of ${data.length} data points`,
+    );
 
     if (data.length === 0) {
       return [];
@@ -164,7 +168,11 @@ export class DataAggregationEngine implements AggregationEngine {
 
     // Process each requested time window
     for (const window of config.windows) {
-      const windowResults = await this.aggregateByWindow(cleanData, window, config);
+      const windowResults = await this.aggregateByWindow(
+        cleanData,
+        window,
+        config,
+      );
       results.push(...windowResults);
     }
 
@@ -173,7 +181,9 @@ export class DataAggregationEngine implements AggregationEngine {
       await this.cacheResults(results, config);
     }
 
-    console.log(`[DataAggregationEngine] Aggregation completed in ${Date.now() - startTime}ms`);
+    console.log(
+      `[DataAggregationEngine] Aggregation completed in ${Date.now() - startTime}ms`,
+    );
 
     return results;
   }
@@ -183,32 +193,41 @@ export class DataAggregationEngine implements AggregationEngine {
    */
   private validateAndCleanData(
     data: BudgetUsageTimeSeriesPoint[],
-    config: AggregationConfig
+    config: AggregationConfig,
   ): BudgetUsageTimeSeriesPoint[] {
-    let cleanData = data.filter(point => {
+    let cleanData = data.filter((point) => {
       // Remove invalid data points
       if (!point.timestamp || point.timestamp <= 0) return false;
-      if (typeof point.requestCount !== 'number' || isNaN(point.requestCount)) return false;
-      if (typeof point.totalCost !== 'number' || isNaN(point.totalCost)) return false;
+      if (typeof point.requestCount !== 'number' || isNaN(point.requestCount))
+        return false;
+      if (typeof point.totalCost !== 'number' || isNaN(point.totalCost))
+        return false;
       return true;
     });
 
     // Apply time range filter if specified
     if (config.startTime) {
-      cleanData = cleanData.filter(point => point.timestamp >= config.startTime!);
+      cleanData = cleanData.filter(
+        (point) => point.timestamp >= config.startTime!,
+      );
     }
 
     if (config.endTime) {
-      cleanData = cleanData.filter(point => point.timestamp <= config.endTime!);
+      cleanData = cleanData.filter(
+        (point) => point.timestamp <= config.endTime!,
+      );
     }
 
     // Remove outliers if enabled
     if (config.outlierDetection) {
-      const costs = cleanData.map(p => p.totalCost);
-      const outlierAnalysis = StatisticalUtils.detectOutliers(costs, config.outlierThreshold);
+      const costs = cleanData.map((p) => p.totalCost);
+      const outlierAnalysis = StatisticalUtils.detectOutliers(
+        costs,
+        config.outlierThreshold,
+      );
 
-      cleanData = cleanData.filter((_, index) =>
-        !outlierAnalysis.indices.includes(index)
+      cleanData = cleanData.filter(
+        (_, index) => !outlierAnalysis.indices.includes(index),
       );
     }
 
@@ -221,7 +240,7 @@ export class DataAggregationEngine implements AggregationEngine {
   private async aggregateByWindow(
     data: BudgetUsageTimeSeriesPoint[],
     window: AggregationWindow,
-    config: AggregationConfig
+    config: AggregationConfig,
   ): Promise<AggregationResult[]> {
     // Group data points by time window
     const windowGroups = this.groupDataByTimeWindow(data, window);
@@ -249,26 +268,33 @@ export class DataAggregationEngine implements AggregationEngine {
 
         // Derived metrics
         costPerRequest: this.calculateCostPerRequestMetrics(windowData),
-        requestsPerHour: this.calculateRequestsPerHour(windowData, windowStart, windowEnd),
+        requestsPerHour: this.calculateRequestsPerHour(
+          windowData,
+          windowStart,
+          windowEnd,
+        ),
 
         // Categorical aggregations
-        featureDistribution: this.calculateFeatureDistribution(windowData, config),
+        featureDistribution: this.calculateFeatureDistribution(
+          windowData,
+          config,
+        ),
         sessionCount: this.calculateSessionCount(windowData),
         uniqueUsers: this.calculateUniqueUsers(windowData),
 
         // Quality metrics
         dataQuality: StatisticalUtils.calculateDataQuality(
-          windowData.map(d => d.totalCost),
+          windowData.map((d) => d.totalCost),
           config.minDataPoints,
           {
             start: windowStart,
             end: windowEnd,
             granularity: this.getGranularityForWindow(window),
-          }
+          },
         ),
         confidenceInterval: StatisticalUtils.calculateConfidenceInterval(
-          windowData.map(d => d.totalCost),
-          config.confidenceLevel
+          windowData.map((d) => d.totalCost),
+          config.confidenceLevel,
         ),
       };
 
@@ -291,7 +317,7 @@ export class DataAggregationEngine implements AggregationEngine {
    */
   private groupDataByTimeWindow(
     data: BudgetUsageTimeSeriesPoint[],
-    window: AggregationWindow
+    window: AggregationWindow,
   ): Map<string, BudgetUsageTimeSeriesPoint[]> {
     const groups = new Map<string, BudgetUsageTimeSeriesPoint[]>();
 
@@ -340,7 +366,10 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Parse window key back to start and end timestamps
    */
-  private parseWindowKey(windowKey: string, window: AggregationWindow): { windowStart: number; windowEnd: number } {
+  private parseWindowKey(
+    windowKey: string,
+    window: AggregationWindow,
+  ): { windowStart: number; windowEnd: number } {
     const parts = windowKey.split('-');
 
     switch (window) {
@@ -350,7 +379,7 @@ export class DataAggregationEngine implements AggregationEngine {
           parseInt(parts[1]), // month
           parseInt(parts[2]), // day
           parseInt(parts[3]), // hour
-          parseInt(parts[4])  // minute
+          parseInt(parts[4]), // minute
         );
         return {
           windowStart: minuteDate.getTime(),
@@ -362,7 +391,7 @@ export class DataAggregationEngine implements AggregationEngine {
           parseInt(parts[0]), // year
           parseInt(parts[1]), // month
           parseInt(parts[2]), // day
-          parseInt(parts[3])  // hour
+          parseInt(parts[3]), // hour
         );
         return {
           windowStart: hourDate.getTime(),
@@ -373,7 +402,7 @@ export class DataAggregationEngine implements AggregationEngine {
         const dayDate = new Date(
           parseInt(parts[0]), // year
           parseInt(parts[1]), // month
-          parseInt(parts[2])  // day
+          parseInt(parts[2]), // day
         );
         return {
           windowStart: dayDate.getTime(),
@@ -419,7 +448,11 @@ export class DataAggregationEngine implements AggregationEngine {
 
       default:
         // Default to day
-        const defaultDate = new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        const defaultDate = new Date(
+          parseInt(parts[0]),
+          parseInt(parts[1]),
+          parseInt(parts[2]),
+        );
         return {
           windowStart: defaultDate.getTime(),
           windowEnd: defaultDate.getTime() + 24 * 60 * 60 * 1000,
@@ -431,11 +464,13 @@ export class DataAggregationEngine implements AggregationEngine {
    * Get week number for date
    */
   private getWeekNumber(date: Date): number {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const d = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+    );
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
 
   /**
@@ -456,7 +491,9 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Get appropriate granularity for time window
    */
-  private getGranularityForWindow(window: AggregationWindow): 'minute' | 'hour' | 'day' {
+  private getGranularityForWindow(
+    window: AggregationWindow,
+  ): 'minute' | 'hour' | 'day' {
     switch (window) {
       case 'minute':
       case 'hour':
@@ -472,42 +509,52 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Aggregate usage metrics
    */
-  private aggregateUsageMetrics(data: BudgetUsageTimeSeriesPoint[]): StatisticalSummary {
-    const values = data.map(d => d.requestCount);
+  private aggregateUsageMetrics(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): StatisticalSummary {
+    const values = data.map((d) => d.requestCount);
     return StatisticalUtils.calculateSummary(values);
   }
 
   /**
    * Aggregate cost metrics
    */
-  private aggregateCostMetrics(data: BudgetUsageTimeSeriesPoint[]): StatisticalSummary {
-    const values = data.map(d => d.totalCost);
+  private aggregateCostMetrics(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): StatisticalSummary {
+    const values = data.map((d) => d.totalCost);
     return StatisticalUtils.calculateSummary(values);
   }
 
   /**
    * Aggregate request metrics
    */
-  private aggregateRequestMetrics(data: BudgetUsageTimeSeriesPoint[]): StatisticalSummary {
-    const values = data.map(d => d.requestCount);
+  private aggregateRequestMetrics(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): StatisticalSummary {
+    const values = data.map((d) => d.requestCount);
     return StatisticalUtils.calculateSummary(values);
   }
 
   /**
    * Aggregate usage percentage metrics
    */
-  private aggregateUsagePercentageMetrics(data: BudgetUsageTimeSeriesPoint[]): StatisticalSummary {
-    const values = data.map(d => d.usagePercentage);
+  private aggregateUsagePercentageMetrics(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): StatisticalSummary {
+    const values = data.map((d) => d.usagePercentage);
     return StatisticalUtils.calculateSummary(values);
   }
 
   /**
    * Calculate cost per request metrics
    */
-  private calculateCostPerRequestMetrics(data: BudgetUsageTimeSeriesPoint[]): StatisticalSummary {
+  private calculateCostPerRequestMetrics(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): StatisticalSummary {
     const values = data
-      .filter(d => d.requestCount > 0)
-      .map(d => d.totalCost / d.requestCount);
+      .filter((d) => d.requestCount > 0)
+      .map((d) => d.totalCost / d.requestCount);
     return StatisticalUtils.calculateSummary(values);
   }
 
@@ -517,7 +564,7 @@ export class DataAggregationEngine implements AggregationEngine {
   private calculateRequestsPerHour(
     data: BudgetUsageTimeSeriesPoint[],
     windowStart: number,
-    windowEnd: number
+    windowEnd: number,
   ): number {
     const totalRequests = data.reduce((sum, d) => sum + d.requestCount, 0);
     const windowDurationHours = (windowEnd - windowStart) / (60 * 60 * 1000);
@@ -529,7 +576,7 @@ export class DataAggregationEngine implements AggregationEngine {
    */
   private calculateFeatureDistribution(
     data: BudgetUsageTimeSeriesPoint[],
-    config: AggregationConfig
+    config: AggregationConfig,
   ): Record<string, number> {
     if (!config.trackFeatureDistribution) {
       return {};
@@ -575,7 +622,10 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Add time patterns to aggregation result
    */
-  private addTimePatterns(result: AggregationResult, data: BudgetUsageTimeSeriesPoint[]): void {
+  private addTimePatterns(
+    result: AggregationResult,
+    data: BudgetUsageTimeSeriesPoint[],
+  ): void {
     // Day of week pattern (0=Sunday)
     const dayOfWeekUsage = new Array(7).fill(0);
     const dayOfWeekCounts = new Array(7).fill(0);
@@ -598,18 +648,21 @@ export class DataAggregationEngine implements AggregationEngine {
 
     // Calculate averages
     result.dayOfWeekPattern = dayOfWeekUsage.map((usage, i) =>
-      dayOfWeekCounts[i] > 0 ? usage / dayOfWeekCounts[i] : 0
+      dayOfWeekCounts[i] > 0 ? usage / dayOfWeekCounts[i] : 0,
     );
 
     result.hourOfDayPattern = hourOfDayUsage.map((usage, i) =>
-      hourOfDayCounts[i] > 0 ? usage / hourOfDayCounts[i] : 0
+      hourOfDayCounts[i] > 0 ? usage / hourOfDayCounts[i] : 0,
     );
   }
 
   /**
    * Add peak usage analysis
    */
-  private addPeakUsageAnalysis(result: AggregationResult, data: BudgetUsageTimeSeriesPoint[]): void {
+  private addPeakUsageAnalysis(
+    result: AggregationResult,
+    data: BudgetUsageTimeSeriesPoint[],
+  ): void {
     if (!result.hourOfDayPattern) return;
 
     // Find peak and low usage hours
@@ -624,7 +677,10 @@ export class DataAggregationEngine implements AggregationEngine {
         peakHour = hour;
       }
 
-      if (result.hourOfDayPattern[hour] < lowUsage && result.hourOfDayPattern[hour] > 0) {
+      if (
+        result.hourOfDayPattern[hour] < lowUsage &&
+        result.hourOfDayPattern[hour] > 0
+      ) {
         lowUsage = result.hourOfDayPattern[hour];
         lowHour = hour;
       }
@@ -637,7 +693,10 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Cache aggregation results
    */
-  private async cacheResults(results: AggregationResult[], config: AggregationConfig): Promise<void> {
+  private async cacheResults(
+    results: AggregationResult[],
+    config: AggregationConfig,
+  ): Promise<void> {
     try {
       const configHash = this.hashConfig(config);
 
@@ -646,7 +705,7 @@ export class DataAggregationEngine implements AggregationEngine {
           result.windowStart,
           result.windowEnd,
           result.timeWindow,
-          configHash
+          configHash,
         );
 
         const cacheEntry: AggregationCache = {
@@ -658,7 +717,7 @@ export class DataAggregationEngine implements AggregationEngine {
           computedAt: Date.now(),
           accessCount: 0,
           lastAccessed: Date.now(),
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
           dependencies: [],
           invalidated: false,
         };
@@ -675,8 +734,19 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Create multi-level aggregation hierarchy
    */
-  createHierarchy(baseWindow: AggregationWindow, levels: number): AggregationHierarchy {
-    const windows: AggregationWindow[] = ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'];
+  createHierarchy(
+    baseWindow: AggregationWindow,
+    levels: number,
+  ): AggregationHierarchy {
+    const windows: AggregationWindow[] = [
+      'minute',
+      'hour',
+      'day',
+      'week',
+      'month',
+      'quarter',
+      'year',
+    ];
     const baseIndex = windows.indexOf(baseWindow);
 
     if (baseIndex === -1) {
@@ -692,9 +762,16 @@ export class DataAggregationEngine implements AggregationEngine {
 
     let currentLevel = hierarchy;
 
-    for (let level = 1; level <= levels && baseIndex + level < windows.length; level++) {
+    for (
+      let level = 1;
+      level <= levels && baseIndex + level < windows.length;
+      level++
+    ) {
       const nextWindow = windows[baseIndex + level];
-      const rollupFactor = this.calculateRollupFactor(currentLevel.window, nextWindow);
+      const rollupFactor = this.calculateRollupFactor(
+        currentLevel.window,
+        nextWindow,
+      );
 
       const nextLevel: AggregationHierarchy = {
         level,
@@ -714,7 +791,10 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Calculate rollup factor between two time windows
    */
-  private calculateRollupFactor(from: AggregationWindow, to: AggregationWindow): number {
+  private calculateRollupFactor(
+    from: AggregationWindow,
+    to: AggregationWindow,
+  ): number {
     const factors: Record<string, number> = {
       'minute->hour': 60,
       'hour->day': 24,
@@ -731,7 +811,10 @@ export class DataAggregationEngine implements AggregationEngine {
    * Execute rollup strategy
    */
   async rollup(strategy: RollupStrategy): Promise<void> {
-    console.log('[DataAggregationEngine] Starting rollup strategy:', strategy.strategy);
+    console.log(
+      '[DataAggregationEngine] Starting rollup strategy:',
+      strategy.strategy,
+    );
 
     // Implementation would depend on the specific strategy
     // This is a placeholder for the actual rollup logic
@@ -754,7 +837,9 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Execute time-based rollup strategy
    */
-  private async executeTimeBasedRollup(config: NonNullable<RollupStrategy['timeBased']>): Promise<void> {
+  private async executeTimeBasedRollup(
+    config: NonNullable<RollupStrategy['timeBased']>,
+  ): Promise<void> {
     // Implementation would handle time-based data rollup
     console.log('[DataAggregationEngine] Executing time-based rollup', config);
   }
@@ -762,15 +847,22 @@ export class DataAggregationEngine implements AggregationEngine {
   /**
    * Execute threshold-based rollup
    */
-  private async executeThresholdBasedRollup(config: NonNullable<RollupStrategy['thresholdBased']>): Promise<void> {
+  private async executeThresholdBasedRollup(
+    config: NonNullable<RollupStrategy['thresholdBased']>,
+  ): Promise<void> {
     // Implementation would handle threshold-based data rollup
-    console.log('[DataAggregationEngine] Executing threshold-based rollup', config);
+    console.log(
+      '[DataAggregationEngine] Executing threshold-based rollup',
+      config,
+    );
   }
 
   /**
    * Execute hybrid rollup strategy
    */
-  private async executeHybridRollup(config: NonNullable<RollupStrategy['hybrid']>): Promise<void> {
+  private async executeHybridRollup(
+    config: NonNullable<RollupStrategy['hybrid']>,
+  ): Promise<void> {
     // Implementation would handle hybrid rollup approach
     console.log('[DataAggregationEngine] Executing hybrid rollup', config);
   }
@@ -781,7 +873,7 @@ export class DataAggregationEngine implements AggregationEngine {
   async getCachedAggregation(
     windowStart: number,
     windowEnd: number,
-    window: AggregationWindow
+    window: AggregationWindow,
   ): Promise<AggregationResult | null> {
     const cacheKey = this.generateCacheKey(windowStart, windowEnd, window);
     const cacheEntry = this.cache.get(cacheKey);
@@ -800,7 +892,7 @@ export class DataAggregationEngine implements AggregationEngine {
    */
   async invalidateCache(dependencies: string[]): Promise<void> {
     for (const [key, entry] of this.cache) {
-      if (dependencies.some(dep => entry.dependencies.includes(dep))) {
+      if (dependencies.some((dep) => entry.dependencies.includes(dep))) {
         entry.invalidated = true;
       }
     }
@@ -844,13 +936,12 @@ export class DataAggregationEngine implements AggregationEngine {
       // Simulate job execution progress
       for (let i = 0; i <= 100; i += 10) {
         job.progress = { current: i, total: 100, percentage: i };
-        await new Promise(resolve => setTimeout(resolve, 100)); // Simulate work
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate work
       }
 
       job.status = 'completed';
       job.completedAt = Date.now();
       job.results = []; // Would contain actual results
-
     } catch (error) {
       job.status = 'failed';
       job.error = (error as Error).message;
@@ -892,13 +983,15 @@ export class DataAggregationEngine implements AggregationEngine {
   }> {
     const totalAggregations = this.cache.size;
     const totalAccesses = Array.from(this.cache.values()).reduce(
-      (sum, entry) => sum + entry.accessCount, 0
+      (sum, entry) => sum + entry.accessCount,
+      0,
     );
-    const cacheHitRatio = totalAccesses > 0 ? totalAggregations / totalAccesses : 0;
+    const cacheHitRatio =
+      totalAccesses > 0 ? totalAggregations / totalAccesses : 0;
 
     const jobs = Array.from(this.jobQueue.values());
-    const pendingJobs = jobs.filter(job => job.status === 'pending').length;
-    const runningJobs = jobs.filter(job => job.status === 'running').length;
+    const pendingJobs = jobs.filter((job) => job.status === 'pending').length;
+    const runningJobs = jobs.filter((job) => job.status === 'running').length;
 
     return {
       totalAggregations,
@@ -913,6 +1006,8 @@ export class DataAggregationEngine implements AggregationEngine {
 /**
  * Factory function to create a data aggregation engine
  */
-export function createDataAggregationEngine(baseDir: string): DataAggregationEngine {
+export function createDataAggregationEngine(
+  baseDir: string,
+): DataAggregationEngine {
   return new DataAggregationEngine(baseDir);
 }

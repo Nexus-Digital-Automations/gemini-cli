@@ -3,12 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine.js';
-import type { ResourceInfo, AllocationResult } from './resourceAllocator.js';
-import {
+import type { ResourceInfo, AllocationResult ,
   ResourceAllocator,
-  ResourceType,
+  ResourceType} from './resourceAllocator.js';
+import {
   type AllocationStrategy,
   type ResourceRequirement,
 } from './resourceAllocator.js';

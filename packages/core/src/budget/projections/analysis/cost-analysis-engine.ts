@@ -44,7 +44,7 @@ export class CostAnalysisEngine {
   /**
    * Perform comprehensive cost analysis
    */
-  public static async performComprehensiveAnalysis(
+  static async performComprehensiveAnalysis(
     costData: CostDataPoint[],
     currentBudget: {
       total: number;
@@ -56,7 +56,7 @@ export class CostAnalysisEngine {
       name: string;
       threshold: { type: string; value: number; operator: string };
       severity: 'info' | 'warning' | 'critical' | 'emergency';
-    }> = []
+    }> = [],
   ): Promise<CostAnalysisResult> {
     const startTime = Date.now();
     this.logger.info('Starting comprehensive cost analysis', {
@@ -77,31 +77,42 @@ export class CostAnalysisEngine {
       const variance = MathematicalAlgorithms.detectVariances(costData);
 
       // Calculate moving averages for trend smoothing
-      const movingAverage = MathematicalAlgorithms.calculateMovingAverage(costData, {
-        windowSize: Math.min(7, Math.floor(costData.length / 2)),
-        type: 'exponential',
-        alpha: 0.3,
-      });
+      const movingAverage = MathematicalAlgorithms.calculateMovingAverage(
+        costData,
+        {
+          windowSize: Math.min(7, Math.floor(costData.length / 2)),
+          type: 'exponential',
+          alpha: 0.3,
+        },
+      );
 
       // Generate cost projections
-      const projection = await CostForecastingEngine.generateProjections(costData, 30, 0.95);
+      const projection = await CostForecastingEngine.generateProjections(
+        costData,
+        30,
+        0.95,
+      );
 
       // Calculate burn rate analysis
-      const burnRate = CostForecastingEngine.calculateBurnRateAnalysis(costData, currentBudget.total);
+      const burnRate = CostForecastingEngine.calculateBurnRateAnalysis(
+        costData,
+        currentBudget.total,
+      );
 
       // Monitor for active alerts
-      const activeAlerts = alertConfigs.length > 0
-        ? await BudgetAlertSystem.monitorAndAlert(
-            costData,
-            alertConfigs.map(config => ({
-              ...config,
-              description: `Auto-generated alert: ${config.name}`,
-              channels: ['console'],
-              suppression: { cooldownMinutes: 60, maxAlertsPerHour: 2 },
-            })),
-            currentBudget
-          )
-        : [];
+      const activeAlerts =
+        alertConfigs.length > 0
+          ? await BudgetAlertSystem.monitorAndAlert(
+              costData,
+              alertConfigs.map((config) => ({
+                ...config,
+                description: `Auto-generated alert: ${config.name}`,
+                channels: ['console'],
+                suppression: { cooldownMinutes: 60, maxAlertsPerHour: 2 },
+              })),
+              currentBudget,
+            )
+          : [];
 
       // Generate optimization recommendations
       const recommendations = this.generateOptimizationRecommendations(
@@ -110,7 +121,7 @@ export class CostAnalysisEngine {
         trend,
         projection,
         burnRate,
-        variance
+        variance,
       );
 
       // Calculate health scores
@@ -119,7 +130,7 @@ export class CostAnalysisEngine {
         trend,
         projection,
         burnRate,
-        variance
+        variance,
       );
 
       // Create analysis result
@@ -127,8 +138,12 @@ export class CostAnalysisEngine {
         metadata: {
           analysisDate: new Date(),
           dataRange: {
-            start: new Date(Math.min(...costData.map(d => d.timestamp.getTime()))),
-            end: new Date(Math.max(...costData.map(d => d.timestamp.getTime()))),
+            start: new Date(
+              Math.min(...costData.map((d) => d.timestamp.getTime())),
+            ),
+            end: new Date(
+              Math.max(...costData.map((d) => d.timestamp.getTime())),
+            ),
           },
           dataPoints: costData.length,
           analysisVersion: '1.0.0',
@@ -154,7 +169,9 @@ export class CostAnalysisEngine {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to perform comprehensive analysis', { error: error.message });
+      this.logger.error('Failed to perform comprehensive analysis', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -162,11 +179,11 @@ export class CostAnalysisEngine {
   /**
    * Identify usage patterns in cost data
    */
-  public static identifyUsagePattern(
+  static identifyUsagePattern(
     costData: CostDataPoint[],
     trend: CostAnalysisResult['trend'],
     variance: CostAnalysisResult['variance'],
-    seasonal: CostAnalysisResult['seasonal']
+    seasonal: CostAnalysisResult['seasonal'],
   ): {
     primaryPattern: UsagePattern;
     confidence: number;
@@ -205,16 +222,21 @@ export class CostAnalysisEngine {
 
       // Analyze seasonal characteristics
       if (seasonal.seasonalityStrength > 0.3) {
-        if (primaryPattern === 'steady_state' || primaryPattern === 'volatile') {
+        if (
+          primaryPattern === 'steady_state' ||
+          primaryPattern === 'volatile'
+        ) {
           primaryPattern = 'seasonal';
           confidence = seasonal.seasonalityStrength;
         }
-        characteristics.push(`Seasonal patterns detected (strength: ${seasonal.seasonalityStrength.toFixed(2)})`);
+        characteristics.push(
+          `Seasonal patterns detected (strength: ${seasonal.seasonalityStrength.toFixed(2)})`,
+        );
       }
 
       // Analyze burst patterns
       const significantSpikes = variance.variances.filter(
-        v => v.varianceType === 'spike' && v.varianceScore > 0.7
+        (v) => v.varianceType === 'spike' && v.varianceScore > 0.7,
       ).length;
       if (significantSpikes > 0) {
         const spikeRatio = significantSpikes / costData.length;
@@ -240,14 +262,20 @@ export class CostAnalysisEngine {
       }
 
       // Check for cost optimization patterns
-      if (trend.direction === 'decreasing' && variance.summary.averageVarianceScore < 0.3) {
+      if (
+        trend.direction === 'decreasing' &&
+        variance.summary.averageVarianceScore < 0.3
+      ) {
         primaryPattern = 'cost_optimized';
         confidence = 0.8;
         characteristics.push('Evidence of cost optimization efforts');
       }
 
       // Generate description
-      const description = this.generateUsagePatternDescription(primaryPattern, characteristics);
+      const description = this.generateUsagePatternDescription(
+        primaryPattern,
+        characteristics,
+      );
 
       this.logger.info('Usage pattern identified', {
         duration: Date.now() - startTime,
@@ -263,7 +291,9 @@ export class CostAnalysisEngine {
         characteristics,
       };
     } catch (error) {
-      this.logger.error('Failed to identify usage pattern', { error: error.message });
+      this.logger.error('Failed to identify usage pattern', {
+        error: error.message,
+      });
       return {
         primaryPattern: 'steady_state',
         confidence: 0.3,
@@ -276,10 +306,10 @@ export class CostAnalysisEngine {
   /**
    * Calculate budget runway with multiple scenarios
    */
-  public static calculateBudgetRunway(
+  static calculateBudgetRunway(
     currentBudget: { total: number; used: number; remaining: number },
     projection: CostProjection,
-    burnRate: BurnRateAnalysis
+    burnRate: BurnRateAnalysis,
   ): {
     scenarios: Array<{
       name: string;
@@ -301,7 +331,9 @@ export class CostAnalysisEngine {
         name: 'Current Rate',
         description: 'Based on current daily burn rate',
         runwayDays: burnRate.runway.currentRateDays,
-        exhaustionDate: new Date(Date.now() + burnRate.runway.currentRateDays * 24 * 60 * 60 * 1000),
+        exhaustionDate: new Date(
+          Date.now() + burnRate.runway.currentRateDays * 24 * 60 * 60 * 1000,
+        ),
         confidence: 0.7,
       });
 
@@ -310,7 +342,9 @@ export class CostAnalysisEngine {
         name: 'Average Rate',
         description: 'Based on historical average burn rate',
         runwayDays: burnRate.runway.averageRateDays,
-        exhaustionDate: new Date(Date.now() + burnRate.runway.averageRateDays * 24 * 60 * 60 * 1000),
+        exhaustionDate: new Date(
+          Date.now() + burnRate.runway.averageRateDays * 24 * 60 * 60 * 1000,
+        ),
         confidence: 0.8,
       });
 
@@ -325,42 +359,64 @@ export class CostAnalysisEngine {
 
       // Conservative scenario (10% higher burn rate)
       const conservativeRate = burnRate.currentBurnRate * 1.1;
-      const conservativeDays = conservativeRate > 0 ? currentBudget.remaining / conservativeRate : Infinity;
+      const conservativeDays =
+        conservativeRate > 0
+          ? currentBudget.remaining / conservativeRate
+          : Infinity;
       scenarios.push({
         name: 'Conservative',
         description: 'Assumes 10% higher burn rate for safety margin',
         runwayDays: Math.floor(conservativeDays),
-        exhaustionDate: new Date(Date.now() + conservativeDays * 24 * 60 * 60 * 1000),
+        exhaustionDate: new Date(
+          Date.now() + conservativeDays * 24 * 60 * 60 * 1000,
+        ),
         confidence: 0.9,
       });
 
       // Optimistic scenario (10% lower burn rate)
       const optimisticRate = burnRate.currentBurnRate * 0.9;
-      const optimisticDays = optimisticRate > 0 ? currentBudget.remaining / optimisticRate : Infinity;
+      const optimisticDays =
+        optimisticRate > 0
+          ? currentBudget.remaining / optimisticRate
+          : Infinity;
       scenarios.push({
         name: 'Optimistic',
         description: 'Assumes 10% lower burn rate with optimization',
         runwayDays: Math.floor(optimisticDays),
-        exhaustionDate: new Date(Date.now() + optimisticDays * 24 * 60 * 60 * 1000),
+        exhaustionDate: new Date(
+          Date.now() + optimisticDays * 24 * 60 * 60 * 1000,
+        ),
         confidence: 0.5,
       });
 
       // Generate recommendations based on runway
-      const minRunway = Math.min(...scenarios.map(s => s.runwayDays));
-      const maxRunway = Math.max(...scenarios.filter(s => s.runwayDays !== Infinity).map(s => s.runwayDays));
+      const minRunway = Math.min(...scenarios.map((s) => s.runwayDays));
+      const maxRunway = Math.max(
+        ...scenarios
+          .filter((s) => s.runwayDays !== Infinity)
+          .map((s) => s.runwayDays),
+      );
 
       if (minRunway < 7) {
-        recommendations.push('Critical: Budget may be exhausted within a week. Implement immediate cost controls.');
+        recommendations.push(
+          'Critical: Budget may be exhausted within a week. Implement immediate cost controls.',
+        );
       } else if (minRunway < 30) {
-        recommendations.push('Warning: Budget runway is less than 30 days. Consider extending budget or optimizing costs.');
+        recommendations.push(
+          'Warning: Budget runway is less than 30 days. Consider extending budget or optimizing costs.',
+        );
       }
 
       if (maxRunway - minRunway > 30) {
-        recommendations.push('High uncertainty in projections. Monitor spending closely and update forecasts frequently.');
+        recommendations.push(
+          'High uncertainty in projections. Monitor spending closely and update forecasts frequently.',
+        );
       }
 
       if (burnRate.burnRateTrend.direction === 'increasing') {
-        recommendations.push('Burn rate is increasing. Investigate causes and implement cost optimization measures.');
+        recommendations.push(
+          'Burn rate is increasing. Investigate causes and implement cost optimization measures.',
+        );
       }
 
       this.logger.info('Budget runway calculated', {
@@ -372,15 +428,19 @@ export class CostAnalysisEngine {
 
       return { scenarios, recommendations };
     } catch (error) {
-      this.logger.error('Failed to calculate budget runway', { error: error.message });
+      this.logger.error('Failed to calculate budget runway', {
+        error: error.message,
+      });
       return {
-        scenarios: [{
-          name: 'Error',
-          description: 'Unable to calculate runway due to error',
-          runwayDays: 0,
-          exhaustionDate: new Date(),
-          confidence: 0,
-        }],
+        scenarios: [
+          {
+            name: 'Error',
+            description: 'Unable to calculate runway due to error',
+            runwayDays: 0,
+            exhaustionDate: new Date(),
+            confidence: 0,
+          },
+        ],
         recommendations: ['Error occurred during runway calculation'],
       };
     }
@@ -395,18 +455,20 @@ export class CostAnalysisEngine {
     trend: CostAnalysisResult['trend'],
     projection: CostProjection,
     burnRate: BurnRateAnalysis,
-    variance: CostAnalysisResult['variance']
+    variance: CostAnalysisResult['variance'],
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
     let recommendationCounter = 0;
 
     // Budget utilization recommendations
-    const utilizationPercentage = (currentBudget.used / currentBudget.total) * 100;
+    const utilizationPercentage =
+      (currentBudget.used / currentBudget.total) * 100;
     if (utilizationPercentage > 85) {
       recommendations.push({
         id: `opt_${++recommendationCounter}`,
         title: 'Implement Immediate Cost Controls',
-        description: 'Budget utilization is approaching critical levels. Implement strict cost controls and review all non-essential spending.',
+        description:
+          'Budget utilization is approaching critical levels. Implement strict cost controls and review all non-essential spending.',
         category: 'cost_reduction',
         impact: {
           estimatedSavings: currentBudget.remaining * 0.2,
@@ -422,8 +484,15 @@ export class CostAnalysisEngine {
             'Create emergency cost reduction plan',
           ],
           estimatedTimeHours: 8,
-          requiredResources: ['Budget manager', 'Technical team', 'Management approval'],
-          risks: ['Potential service disruption', 'Reduced feature development velocity'],
+          requiredResources: [
+            'Budget manager',
+            'Technical team',
+            'Management approval',
+          ],
+          risks: [
+            'Potential service disruption',
+            'Reduced feature development velocity',
+          ],
         },
         priority: 'critical',
         urgency: 'immediate',
@@ -440,7 +509,8 @@ export class CostAnalysisEngine {
       recommendations.push({
         id: `opt_${++recommendationCounter}`,
         title: 'Address Cost Growth Trend',
-        description: 'Costs are trending upward significantly. Investigate root causes and implement optimization strategies.',
+        description:
+          'Costs are trending upward significantly. Investigate root causes and implement optimization strategies.',
         category: 'usage_optimization',
         impact: {
           estimatedSavings: Math.abs(projectedIncrease) * 0.5,
@@ -456,8 +526,15 @@ export class CostAnalysisEngine {
             'Review and adjust usage patterns',
           ],
           estimatedTimeHours: 16,
-          requiredResources: ['Data analyst', 'DevOps engineer', 'Product manager'],
-          risks: ['Temporary monitoring overhead', 'Initial analysis time investment'],
+          requiredResources: [
+            'Data analyst',
+            'DevOps engineer',
+            'Product manager',
+          ],
+          risks: [
+            'Temporary monitoring overhead',
+            'Initial analysis time investment',
+          ],
         },
         priority: trend.slope > 1 ? 'high' : 'medium',
         urgency: trend.slope > 2 ? 'this_week' : 'this_month',
@@ -473,10 +550,12 @@ export class CostAnalysisEngine {
       recommendations.push({
         id: `opt_${++recommendationCounter}`,
         title: 'Stabilize Cost Variance',
-        description: 'Significant cost spikes detected. Implement measures to reduce cost volatility and improve predictability.',
+        description:
+          'Significant cost spikes detected. Implement measures to reduce cost volatility and improve predictability.',
         category: 'process_improvement',
         impact: {
-          estimatedSavings: variance.summary.maxVarianceScore * currentBudget.used * 0.1,
+          estimatedSavings:
+            variance.summary.maxVarianceScore * currentBudget.used * 0.1,
           savingsPercentage: 10,
           timeToRealizeDays: 14,
           implementationEffort: 'medium',
@@ -489,8 +568,15 @@ export class CostAnalysisEngine {
             'Create cost spike response procedures',
           ],
           estimatedTimeHours: 12,
-          requiredResources: ['DevOps engineer', 'Monitoring specialist', 'Development team'],
-          risks: ['Potential service limitations during optimization', 'Learning curve for new procedures'],
+          requiredResources: [
+            'DevOps engineer',
+            'Monitoring specialist',
+            'Development team',
+          ],
+          risks: [
+            'Potential service limitations during optimization',
+            'Learning curve for new procedures',
+          ],
         },
         priority: variance.summary.maxVarianceScore > 0.8 ? 'high' : 'medium',
         urgency: 'this_week',
@@ -506,7 +592,8 @@ export class CostAnalysisEngine {
       recommendations.push({
         id: `opt_${++recommendationCounter}`,
         title: 'Extend Budget Runway',
-        description: 'Current burn rate will exhaust budget quickly. Implement strategies to extend budget runway.',
+        description:
+          'Current burn rate will exhaust budget quickly. Implement strategies to extend budget runway.',
         category: 'budget_reallocation',
         impact: {
           estimatedSavings: burnRate.currentBurnRate * 7, // One week of savings
@@ -522,11 +609,21 @@ export class CostAnalysisEngine {
             'Consider budget extension or reallocation',
           ],
           estimatedTimeHours: 20,
-          requiredResources: ['Budget manager', 'Product manager', 'Executive approval', 'Finance team'],
-          risks: ['Reduced feature scope', 'Potential project delays', 'Budget approval dependencies'],
+          requiredResources: [
+            'Budget manager',
+            'Product manager',
+            'Executive approval',
+            'Finance team',
+          ],
+          risks: [
+            'Reduced feature scope',
+            'Potential project delays',
+            'Budget approval dependencies',
+          ],
         },
         priority: 'critical',
-        urgency: burnRate.runway.currentRateDays < 7 ? 'immediate' : 'this_week',
+        urgency:
+          burnRate.runway.currentRateDays < 7 ? 'immediate' : 'this_week',
         supportingData: {
           historicalEvidence: `Budget runway: ${burnRate.runway.currentRateDays} days at current burn rate of $${burnRate.currentBurnRate.toFixed(2)}/day`,
           confidence: 0.85,
@@ -557,8 +654,15 @@ export class CostAnalysisEngine {
               'Monitor and measure optimization impact',
             ],
             estimatedTimeHours: 14,
-            requiredResources: ['Category specialist', 'Data analyst', 'Development team'],
-            risks: ['Category-specific service limitations', 'Learning curve for optimization'],
+            requiredResources: [
+              'Category specialist',
+              'Data analyst',
+              'Development team',
+            ],
+            risks: [
+              'Category-specific service limitations',
+              'Learning curve for optimization',
+            ],
           },
           priority: 'high',
           urgency: 'this_week',
@@ -572,7 +676,12 @@ export class CostAnalysisEngine {
 
     return recommendations.sort((a, b) => {
       const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      const urgencyOrder = { immediate: 4, this_week: 3, this_month: 2, when_convenient: 1 };
+      const urgencyOrder = {
+        immediate: 4,
+        this_week: 3,
+        this_month: 2,
+        when_convenient: 1,
+      };
 
       const scoreA = priorityOrder[a.priority] * 10 + urgencyOrder[a.urgency];
       const scoreB = priorityOrder[b.priority] * 10 + urgencyOrder[b.urgency];
@@ -589,37 +698,53 @@ export class CostAnalysisEngine {
     trend: CostAnalysisResult['trend'],
     projection: CostProjection,
     burnRate: BurnRateAnalysis,
-    variance: CostAnalysisResult['variance']
+    variance: CostAnalysisResult['variance'],
   ): CostAnalysisResult['healthScore'] {
     // Calculate component scores (0-100)
 
     // Trend health: positive trends are bad for budget health
-    const trendHealth = trend.direction === 'decreasing' ? 90
-      : trend.direction === 'stable' ? 75
-      : trend.confidence > 0.7 ? Math.max(20, 60 - trend.slope * 100)
-      : 60;
+    const trendHealth =
+      trend.direction === 'decreasing'
+        ? 90
+        : trend.direction === 'stable'
+          ? 75
+          : trend.confidence > 0.7
+            ? Math.max(20, 60 - trend.slope * 100)
+            : 60;
 
     // Variance health: lower variance is better
-    const varianceHealth = Math.max(10, 100 - variance.summary.averageVarianceScore * 80);
+    const varianceHealth = Math.max(
+      10,
+      100 - variance.summary.averageVarianceScore * 80,
+    );
 
     // Projection health: based on data quality and confidence
-    const projectionHealth = Math.min(95, projection.metadata.dataQualityScore * 100);
+    const projectionHealth = Math.min(
+      95,
+      projection.metadata.dataQualityScore * 100,
+    );
 
     // Burn rate health: based on runway and trend
     const runwayDays = burnRate.runway.currentRateDays;
-    const burnRateHealth = runwayDays > 90 ? 95
-      : runwayDays > 60 ? 80
-      : runwayDays > 30 ? 60
-      : runwayDays > 14 ? 40
-      : runwayDays > 7 ? 20
-      : 10;
+    const burnRateHealth =
+      runwayDays > 90
+        ? 95
+        : runwayDays > 60
+          ? 80
+          : runwayDays > 30
+            ? 60
+            : runwayDays > 14
+              ? 40
+              : runwayDays > 7
+                ? 20
+                : 10;
 
     // Calculate overall health score (weighted average)
     const overall = Math.round(
-      (trendHealth * 0.25) +
-      (varianceHealth * 0.20) +
-      (projectionHealth * 0.15) +
-      (burnRateHealth * 0.40)
+      trendHealth * 0.25 +
+        varianceHealth * 0.2 +
+        projectionHealth * 0.15 +
+        burnRateHealth * 0.4,
     );
 
     return {
@@ -645,17 +770,25 @@ export class CostAnalysisEngine {
       return { gapRatio: 0, largestGapHours: 0, averageGapHours: 0 };
     }
 
-    const sortedData = [...costData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sortedData = [...costData].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
     const gaps: number[] = [];
 
     for (let i = 1; i < sortedData.length; i++) {
-      const gap = (sortedData[i].timestamp.getTime() - sortedData[i - 1].timestamp.getTime()) / (60 * 60 * 1000); // Gap in hours
+      const gap =
+        (sortedData[i].timestamp.getTime() -
+          sortedData[i - 1].timestamp.getTime()) /
+        (60 * 60 * 1000); // Gap in hours
       gaps.push(gap);
     }
 
-    const totalTimespan = (sortedData[sortedData.length - 1].timestamp.getTime() - sortedData[0].timestamp.getTime()) / (60 * 60 * 1000);
+    const totalTimespan =
+      (sortedData[sortedData.length - 1].timestamp.getTime() -
+        sortedData[0].timestamp.getTime()) /
+      (60 * 60 * 1000);
     const expectedGap = totalTimespan / (sortedData.length - 1);
-    const significantGaps = gaps.filter(gap => gap > expectedGap * 3);
+    const significantGaps = gaps.filter((gap) => gap > expectedGap * 3);
 
     return {
       gapRatio: significantGaps.length / gaps.length,
@@ -669,17 +802,25 @@ export class CostAnalysisEngine {
    */
   private static generateUsagePatternDescription(
     pattern: UsagePattern,
-    characteristics: string[]
+    characteristics: string[],
   ): string {
     const baseDescriptions = {
-      steady_state: 'Your spending follows a consistent, predictable pattern with minimal fluctuations.',
-      growth_phase: 'Your costs are steadily increasing, indicating expansion or increased usage.',
-      decline_phase: 'Your spending is decreasing over time, suggesting optimization or reduced usage.',
-      volatile: 'Your costs fluctuate significantly, making budget prediction challenging.',
-      seasonal: 'Your spending follows predictable seasonal or cyclical patterns.',
-      sporadic: 'Your usage is irregular with periods of activity followed by gaps.',
-      burst_intensive: 'Your spending is characterized by occasional high-cost spikes.',
-      cost_optimized: 'Your spending shows evidence of successful cost optimization efforts.',
+      steady_state:
+        'Your spending follows a consistent, predictable pattern with minimal fluctuations.',
+      growth_phase:
+        'Your costs are steadily increasing, indicating expansion or increased usage.',
+      decline_phase:
+        'Your spending is decreasing over time, suggesting optimization or reduced usage.',
+      volatile:
+        'Your costs fluctuate significantly, making budget prediction challenging.',
+      seasonal:
+        'Your spending follows predictable seasonal or cyclical patterns.',
+      sporadic:
+        'Your usage is irregular with periods of activity followed by gaps.',
+      burst_intensive:
+        'Your spending is characterized by occasional high-cost spikes.',
+      cost_optimized:
+        'Your spending shows evidence of successful cost optimization efforts.',
     };
 
     let description = baseDescriptions[pattern];
@@ -694,7 +835,7 @@ export class CostAnalysisEngine {
   /**
    * Get health level description from numeric score
    */
-  public static getHealthLevel(score: number): HealthLevel {
+  static getHealthLevel(score: number): HealthLevel {
     if (score >= 85) return 'excellent';
     if (score >= 70) return 'good';
     if (score >= 55) return 'fair';
@@ -705,13 +846,13 @@ export class CostAnalysisEngine {
   /**
    * Get health level color for UI display
    */
-  public static getHealthLevelColor(level: HealthLevel): string {
+  static getHealthLevelColor(level: HealthLevel): string {
     const colors = {
       excellent: '#22c55e', // Green
-      good: '#84cc16',      // Light green
-      fair: '#f59e0b',      // Orange
-      poor: '#f97316',      // Dark orange
-      critical: '#ef4444',  // Red
+      good: '#84cc16', // Light green
+      fair: '#f59e0b', // Orange
+      poor: '#f97316', // Dark orange
+      critical: '#ef4444', // Red
     };
     return colors[level];
   }

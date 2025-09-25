@@ -293,7 +293,7 @@ describe('Monitoring System Performance Tests', () => {
       const startTime = performance.now();
 
       const taskIds: string[] = [];
-      const operations: Promise<void>[] = [];
+      const operations: Array<Promise<void>> = [];
 
       // Create tasks in batches to simulate realistic load
       for (let batch = 0; batch < taskCount / batchSize; batch++) {
