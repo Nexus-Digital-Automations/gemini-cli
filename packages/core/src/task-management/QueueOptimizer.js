@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Optimization strategy types
  */
-export var OptimizationStrategy;
+export const OptimizationStrategy = {};
 (function (OptimizationStrategy) {
     OptimizationStrategy["THROUGHPUT_MAXIMIZATION"] = "throughput_maximization";
     OptimizationStrategy["LATENCY_MINIMIZATION"] = "latency_minimization";

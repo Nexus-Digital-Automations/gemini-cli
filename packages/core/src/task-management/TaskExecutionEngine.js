@@ -31,7 +31,7 @@ import * as path from 'node:path';
 /**
  * Task types for specialized handling and agent assignment
  */
-export var TaskType;
+export const TaskType = {};
 (function (TaskType) {
     TaskType["IMPLEMENTATION"] = "implementation";
     TaskType["TESTING"] = "testing";
@@ -45,7 +45,7 @@ export var TaskType;
 /**
  * Dependency types for task orchestration
  */
-export var DependencyType;
+export const DependencyType = {};
 (function (DependencyType) {
     DependencyType["HARD"] = "hard";
     DependencyType["SOFT"] = "soft";
@@ -56,7 +56,7 @@ export var DependencyType;
 /**
  * Agent capabilities for task assignment
  */
-export var AgentCapability;
+export const AgentCapability = {};
 (function (AgentCapability) {
     AgentCapability["FRONTEND"] = "frontend";
     AgentCapability["BACKEND"] = "backend";

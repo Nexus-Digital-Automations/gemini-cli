@@ -9,7 +9,7 @@ import { z } from 'zod';
  * Priority levels for autonomous decision-making.
  * Higher numbers indicate higher priority.
  */
-export var DecisionPriority;
+export const DecisionPriority = {};
 (function (DecisionPriority) {
   DecisionPriority[(DecisionPriority['LOW'] = 1)] = 'LOW';
   DecisionPriority[(DecisionPriority['NORMAL'] = 2)] = 'NORMAL';
@@ -20,7 +20,7 @@ export var DecisionPriority;
 /**
  * Categories of decisions the system can make autonomously.
  */
-export var DecisionType;
+export const DecisionType = {};
 (function (DecisionType) {
   DecisionType['TASK_PRIORITIZATION'] = 'task_prioritization';
   DecisionType['RESOURCE_ALLOCATION'] = 'resource_allocation';

@@ -11,7 +11,7 @@ import { TaskValidationResult, TaskValidationContext, } from './TaskValidator.js
 /**
  * Types of quality checks performed
  */
-export var QualityCheckType;
+export const QualityCheckType = {};
 (function (QualityCheckType) {
     QualityCheckType["CODE_QUALITY"] = "code_quality";
     QualityCheckType["PERFORMANCE"] = "performance";

@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Dependency resolution strategy
  */
-export var ResolutionStrategy;
+export const ResolutionStrategy = {};
 (function (ResolutionStrategy) {
     ResolutionStrategy["STRICT"] = "strict";
     ResolutionStrategy["BEST_EFFORT"] = "best_effort";

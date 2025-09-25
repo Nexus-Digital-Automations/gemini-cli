@@ -8,7 +8,7 @@ import { Type } from '@google/genai';
 /**
  * Task complexity levels for testing different scenarios
  */
-export var TaskComplexity;
+export const TaskComplexity = {};
 (function (TaskComplexity) {
     TaskComplexity["SIMPLE"] = "SIMPLE";
     TaskComplexity["MODERATE"] = "MODERATE";
@@ -18,7 +18,7 @@ export var TaskComplexity;
 /**
  * Task categories for organizational testing
  */
-export var TaskCategory;
+export const TaskCategory = {};
 (function (TaskCategory) {
     TaskCategory["CODE_GENERATION"] = "CODE_GENERATION";
     TaskCategory["FILE_MANIPULATION"] = "FILE_MANIPULATION";
@@ -32,7 +32,7 @@ export var TaskCategory;
 /**
  * Priority levels for task scheduling tests
  */
-export var TaskPriority;
+export const TaskPriority = {};
 (function (TaskPriority) {
     TaskPriority[TaskPriority["LOW"] = 1] = "LOW";
     TaskPriority[TaskPriority["NORMAL"] = 2] = "NORMAL";

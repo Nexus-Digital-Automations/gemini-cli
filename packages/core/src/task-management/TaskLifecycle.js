@@ -11,7 +11,7 @@ import { TaskStatus, TaskExecutionRecord, TaskExecutionResult, } from './TaskQue
 /**
  * Task lifecycle states with detailed substates
  */
-export var LifecycleState;
+export const LifecycleState = {};
 (function (LifecycleState) {
     // Creation and initialization
     LifecycleState["CREATED"] = "created";

@@ -27,7 +27,7 @@ const logger = getComponentLogger('MCPClient');
 /**
  * Enum representing the connection status of an MCP server
  */
-export var MCPServerStatus;
+export const MCPServerStatus = {};
 (function (MCPServerStatus) {
     /** Server is disconnected or experiencing errors */
     MCPServerStatus["DISCONNECTED"] = "disconnected";
@@ -39,7 +39,7 @@ export var MCPServerStatus;
 /**
  * Enum representing the overall MCP discovery state
  */
-export var MCPDiscoveryState;
+export const MCPDiscoveryState = {};
 (function (MCPDiscoveryState) {
     /** Discovery has not started yet */
     MCPDiscoveryState["NOT_STARTED"] = "not_started";

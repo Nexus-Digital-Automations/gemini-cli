@@ -587,15 +587,17 @@ async function main() {
         }, 30000);
         break;
 
-      case 'status':
+      case 'status': {
         const health = monitor.getHealthStatus();
         console.log('System Health:', JSON.stringify(health, null, 2));
         break;
+      }
 
-      case 'report':
+      case 'report': {
         const report = await monitor.generateReport();
         console.log('Report generated:', report.reportId);
         break;
+      }
 
       default:
         console.log(

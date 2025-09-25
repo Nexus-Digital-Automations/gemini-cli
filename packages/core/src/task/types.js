@@ -5,7 +5,7 @@
  */
 
 // packages/core/src/task/types.ts
-export var TaskStatus;
+export const TaskStatus = {};
 (function (TaskStatus) {
     TaskStatus["Todo"] = "todo";
     TaskStatus["InProgress"] = "in_progress";
@@ -13,7 +13,7 @@ export var TaskStatus;
     TaskStatus["Failed"] = "failed";
     TaskStatus["Blocked"] = "blocked";
 })(TaskStatus || (TaskStatus = {}));
-export var TaskPriority;
+export const TaskPriority = {};
 (function (TaskPriority) {
     TaskPriority["Low"] = "low";
     TaskPriority["Medium"] = "medium";

@@ -7,7 +7,7 @@
 /**
  * Types of operations that can be tracked for progress
  */
-export var OperationType;
+export const OperationType = {};
 (function (OperationType) {
     OperationType["FileOperation"] = "file_operation";
     OperationType["NetworkOperation"] = "network_operation";
@@ -22,7 +22,7 @@ export var OperationType;
 /**
  * States that an operation can be in
  */
-export var ProgressState;
+export const ProgressState = {};
 (function (ProgressState) {
     ProgressState["Initializing"] = "initializing";
     ProgressState["InProgress"] = "in_progress";

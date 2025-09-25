@@ -35,7 +35,7 @@ import { Logger } from '../../utils/logger.js';
 /**
  * Task dependency relationship types
  */
-export var DependencyType;
+export const DependencyType = {};
 (function (DependencyType) {
     DependencyType["HARD"] = "hard";
     DependencyType["SOFT"] = "soft";
@@ -46,7 +46,7 @@ export var DependencyType;
 /**
  * Dependency status tracking
  */
-export var DependencyStatus;
+export const DependencyStatus = {};
 (function (DependencyStatus) {
     DependencyStatus["PENDING"] = "pending";
     DependencyStatus["SATISFIED"] = "satisfied";
@@ -57,7 +57,7 @@ export var DependencyStatus;
 /**
  * Task execution readiness levels
  */
-export var ExecutionReadiness;
+export const ExecutionReadiness = {};
 (function (ExecutionReadiness) {
     ExecutionReadiness["READY"] = "ready";
     ExecutionReadiness["CONDITIONALLY_READY"] = "conditionally_ready";

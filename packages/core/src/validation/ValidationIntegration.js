@@ -16,7 +16,7 @@ import { TaskPriority } from '../task-management/types.js';
 /**
  * Task validation phases in the execution lifecycle
  */
-export var TaskValidationPhase;
+export const TaskValidationPhase = {};
 (function (TaskValidationPhase) {
     TaskValidationPhase["PRE_EXECUTION"] = "pre_execution";
     TaskValidationPhase["DURING_EXECUTION"] = "during_execution";
@@ -27,7 +27,7 @@ export var TaskValidationPhase;
 /**
  * Quality assurance triggers
  */
-export var QualityTrigger;
+export const QualityTrigger = {};
 (function (QualityTrigger) {
     QualityTrigger["TASK_COMPLETION"] = "task_completion";
     QualityTrigger["SCHEDULED_CHECK"] = "scheduled_check";

@@ -11,7 +11,7 @@ const logger = getComponentLogger('DecisionTaskSequencer');
 /**
  * Advanced sequencing algorithm types
  */
-export var SequencingAlgorithm;
+export const SequencingAlgorithm = {};
 (function (SequencingAlgorithm) {
   SequencingAlgorithm['CRITICAL_PATH'] = 'critical_path';
   SequencingAlgorithm['PRIORITY_WEIGHTED'] = 'priority_weighted';

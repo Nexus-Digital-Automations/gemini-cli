@@ -5,7 +5,7 @@
  */
 
 import {} from '@google/genai';
-export var MessageBusType;
+export const MessageBusType = {};
 (function (MessageBusType) {
   MessageBusType['TOOL_CONFIRMATION_REQUEST'] = 'tool-confirmation-request';
   MessageBusType['TOOL_CONFIRMATION_RESPONSE'] = 'tool-confirmation-response';

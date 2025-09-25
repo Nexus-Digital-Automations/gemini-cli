@@ -7,16 +7,16 @@
 import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import {
-  TaskStatusMonitor,
-  TaskMetadata,
+  TaskStatusMonitor as _TaskStatusMonitor,
+  TaskMetadata as _TaskMetadata,
   TaskStatus,
-  TaskStatusUpdate,
-  AgentStatus,
+  TaskStatusUpdate as _TaskStatusUpdate,
+  AgentStatus as _AgentStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
-  StatusUpdateBroker,
-  StatusEvent,
+  StatusUpdateBroker as _StatusUpdateBroker,
+  StatusEvent as _StatusEvent,
   StatusEventType,
   statusUpdateBroker,
 } from './StatusUpdateBroker.js';
@@ -643,7 +643,7 @@ export class StatusHistoryAnalytics {
 
   private async calculateAgentMetrics(
     entries: StatusHistoryEntry[],
-    timeframe: AnalyticsTimeframe,
+    _timeframe: AnalyticsTimeframe,
   ): Promise<AgentAnalytics> {
     const agentIds = new Set(
       entries
@@ -846,25 +846,25 @@ export class StatusHistoryAnalytics {
     switch (granularity) {
       case 'hour':
         return new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
-          parseInt(parts[3]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
+          parseInt(parts[3], 10),
         );
       case 'day':
         return new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
         );
       case 'week':
       case 'month':
-        return new Date(parseInt(parts[0]), parseInt(parts[1]) || 0, 1);
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) || 0, 1);
       default:
         return new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
         );
     }
   }

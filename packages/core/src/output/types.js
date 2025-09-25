@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export var OutputFormat;
+export const OutputFormat = {};
 (function (OutputFormat) {
     OutputFormat["TEXT"] = "text";
     OutputFormat["JSON"] = "json";

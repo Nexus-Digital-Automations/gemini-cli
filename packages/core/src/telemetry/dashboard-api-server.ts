@@ -53,7 +53,7 @@ export interface DashboardConfig {
 /**
  * API response wrapper
  */
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   readonly success: boolean;
   readonly data?: T;
   readonly error?: {
@@ -154,7 +154,7 @@ class ResponseCache {
   private readonly cache = new Map<
     string,
     {
-      data: any;
+      data: unknown;
       timestamp: number;
       hits: number;
     }
@@ -162,7 +162,7 @@ class ResponseCache {
 
   constructor(private readonly ttlMs: number) {}
 
-  get(key: string): any | null {
+  get(key: string): unknown | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
 
@@ -175,7 +175,7 @@ class ResponseCache {
     return entry.data;
   }
 
-  set(key: string, data: any): void {
+  set(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
@@ -241,7 +241,7 @@ class SSEManager extends EventEmitter {
     });
   }
 
-  broadcast(data: any): void {
+  broadcast(data: unknown): void {
     const message = `data: ${JSON.stringify(data)}\n\n`;
 
     const deadConnections: string[] = [];
@@ -544,7 +544,7 @@ export class DashboardApiServer extends EventEmitter {
   private async handleDashboardInsights(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
@@ -557,7 +557,7 @@ export class DashboardApiServer extends EventEmitter {
       }
     }
 
-    const timeRange = parseInt(query.timeRange as string) || 3600000; // 1 hour default
+    const timeRange = parseInt(query.timeRange as string, 10) || 3600000; // 1 hour default
     const sessionId = query.sessionId as string;
 
     const [statistics, patterns, recommendations] = await Promise.all([
@@ -615,7 +615,7 @@ export class DashboardApiServer extends EventEmitter {
   private async handleUsageStatistics(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
@@ -628,7 +628,7 @@ export class DashboardApiServer extends EventEmitter {
       }
     }
 
-    const timeRange = parseInt(query.timeRange as string) || 3600000;
+    const timeRange = parseInt(query.timeRange as string, 10) || 3600000;
     const sessionId = query.sessionId as string;
 
     const statistics = this.tokenTracker.getRealtimeStatistics(
@@ -646,7 +646,7 @@ export class DashboardApiServer extends EventEmitter {
   private async handleUsageData(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
@@ -657,11 +657,11 @@ export class DashboardApiServer extends EventEmitter {
       command: query.command as string,
       feature: query.feature as string,
       startTime: query.startTime
-        ? parseInt(query.startTime as string)
+        ? parseInt(query.startTime as string, 10)
         : undefined,
-      endTime: query.endTime ? parseInt(query.endTime as string) : undefined,
-      limit: query.limit ? parseInt(query.limit as string) : 100,
-      offset: query.offset ? parseInt(query.offset as string) : 0,
+      endTime: query.endTime ? parseInt(query.endTime as string, 10) : undefined,
+      limit: query.limit ? parseInt(query.limit as string, 10) : 100,
+      offset: query.offset ? parseInt(query.offset as string, 10) : 0,
       sortBy: query.sortBy as keyof TokenUsageData,
       sortOrder: (query.sortOrder as 'asc' | 'desc') || 'desc',
     };
@@ -673,11 +673,11 @@ export class DashboardApiServer extends EventEmitter {
   private async handleUsagePatterns(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
-    const timeRange = parseInt(query.timeRange as string) || 3600000;
+    const timeRange = parseInt(query.timeRange as string, 10) || 3600000;
     const sessionId = query.sessionId as string;
 
     const patterns = await this.intelligenceEngine.analyzeUsagePatterns(
@@ -690,11 +690,11 @@ export class DashboardApiServer extends EventEmitter {
   private async handleOptimizationRecommendations(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
-    const timeRange = parseInt(query.timeRange as string) || 86400000; // 24 hours default
+    const timeRange = parseInt(query.timeRange as string, 10) || 86400000; // 24 hours default
     const sessionId = query.sessionId as string;
 
     const recommendations =
@@ -708,12 +708,12 @@ export class DashboardApiServer extends EventEmitter {
   private async handlePerformancePrediction(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
     const model = query.model as string;
-    const promptLength = parseInt(query.promptLength as string);
+    const promptLength = parseInt(query.promptLength as string, 10);
     const sessionId = query.sessionId as string;
 
     if (!model || !promptLength) {
@@ -739,7 +739,7 @@ export class DashboardApiServer extends EventEmitter {
   private async handleStorageStats(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
@@ -750,7 +750,7 @@ export class DashboardApiServer extends EventEmitter {
   private async handleExportUsage(
     req: IncomingMessage,
     res: ServerResponse,
-    query: any,
+    query: Record<string, unknown>,
     requestId: string,
     startTime: number,
   ): Promise<void> {
@@ -760,9 +760,9 @@ export class DashboardApiServer extends EventEmitter {
       sessionId: query.sessionId as string,
       model: query.model as string,
       startTime: query.startTime
-        ? parseInt(query.startTime as string)
+        ? parseInt(query.startTime as string, 10)
         : undefined,
-      endTime: query.endTime ? parseInt(query.endTime as string) : undefined,
+      endTime: query.endTime ? parseInt(query.endTime as string, 10) : undefined,
     };
 
     const stream = await this.storageEngine.exportData(analyticsQuery, format);

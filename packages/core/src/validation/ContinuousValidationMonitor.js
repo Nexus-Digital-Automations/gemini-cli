@@ -9,7 +9,7 @@ import { Logger } from '../logger/Logger.js';
 /**
  * Monitoring trigger types
  */
-export var MonitoringTrigger;
+export const MonitoringTrigger = {};
 (function (MonitoringTrigger) {
     MonitoringTrigger["FILE_CHANGE"] = "file-change";
     MonitoringTrigger["TIME_BASED"] = "time-based";
@@ -22,7 +22,7 @@ export var MonitoringTrigger;
 /**
  * Monitoring scope
  */
-export var MonitoringScope;
+export const MonitoringScope = {};
 (function (MonitoringScope) {
     MonitoringScope["PROJECT"] = "project";
     MonitoringScope["WORKSPACE"] = "workspace";
@@ -33,7 +33,7 @@ export var MonitoringScope;
 /**
  * Health status
  */
-export var HealthStatus;
+export const HealthStatus = {};
 (function (HealthStatus) {
     HealthStatus["HEALTHY"] = "healthy";
     HealthStatus["DEGRADED"] = "degraded";

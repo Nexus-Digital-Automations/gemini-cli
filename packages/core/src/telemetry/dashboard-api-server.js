@@ -334,7 +334,7 @@ export class DashboardApiServer extends EventEmitter {
                 return this.sendSuccess(res, cached, requestId, startTime, true);
             }
         }
-        const timeRange = parseInt(query.timeRange) || 3600000; // 1 hour default
+        const timeRange = parseInt(query.timeRange, 10) || 3600000; // 1 hour default
         const sessionId = query.sessionId;
         const [statistics, patterns, recommendations] = await Promise.all([
             this.tokenTracker.getRealtimeStatistics(timeRange, sessionId),
@@ -387,7 +387,7 @@ export class DashboardApiServer extends EventEmitter {
                 return this.sendSuccess(res, cached, requestId, startTime, true);
             }
         }
-        const timeRange = parseInt(query.timeRange) || 3600000;
+        const timeRange = parseInt(query.timeRange, 10) || 3600000;
         const sessionId = query.sessionId;
         const statistics = this.tokenTracker.getRealtimeStatistics(timeRange, sessionId);
         if (this.config.enableCaching) {
@@ -403,11 +403,11 @@ export class DashboardApiServer extends EventEmitter {
             command: query.command,
             feature: query.feature,
             startTime: query.startTime
-                ? parseInt(query.startTime)
+                ? parseInt(query.startTime, 10)
                 : undefined,
-            endTime: query.endTime ? parseInt(query.endTime) : undefined,
-            limit: query.limit ? parseInt(query.limit) : 100,
-            offset: query.offset ? parseInt(query.offset) : 0,
+            endTime: query.endTime ? parseInt(query.endTime, 10) : undefined,
+            limit: query.limit ? parseInt(query.limit, 10) : 100,
+            offset: query.offset ? parseInt(query.offset, 10) : 0,
             sortBy: query.sortBy,
             sortOrder: query.sortOrder || 'desc',
         };
@@ -415,20 +415,20 @@ export class DashboardApiServer extends EventEmitter {
         this.sendSuccess(res, result, requestId, startTime);
     }
     async handleUsagePatterns(req, res, query, requestId, startTime) {
-        const timeRange = parseInt(query.timeRange) || 3600000;
+        const timeRange = parseInt(query.timeRange, 10) || 3600000;
         const sessionId = query.sessionId;
         const patterns = await this.intelligenceEngine.analyzeUsagePatterns(sessionId, timeRange);
         this.sendSuccess(res, { patterns }, requestId, startTime);
     }
     async handleOptimizationRecommendations(req, res, query, requestId, startTime) {
-        const timeRange = parseInt(query.timeRange) || 86400000; // 24 hours default
+        const timeRange = parseInt(query.timeRange, 10) || 86400000; // 24 hours default
         const sessionId = query.sessionId;
         const recommendations = await this.intelligenceEngine.generateOptimizationRecommendations(sessionId, timeRange);
         this.sendSuccess(res, { recommendations }, requestId, startTime);
     }
     async handlePerformancePrediction(req, res, query, requestId, startTime) {
         const model = query.model;
-        const promptLength = parseInt(query.promptLength);
+        const promptLength = parseInt(query.promptLength, 10);
         const sessionId = query.sessionId;
         if (!model || !promptLength) {
             return this.sendError(res, 'BAD_REQUEST', 'model and promptLength are required', 400, requestId, startTime);
@@ -450,9 +450,9 @@ export class DashboardApiServer extends EventEmitter {
             sessionId: query.sessionId,
             model: query.model,
             startTime: query.startTime
-                ? parseInt(query.startTime)
+                ? parseInt(query.startTime, 10)
                 : undefined,
-            endTime: query.endTime ? parseInt(query.endTime) : undefined,
+            endTime: query.endTime ? parseInt(query.endTime, 10) : undefined,
         };
         const stream = await this.storageEngine.exportData(analyticsQuery, format);
         // Set appropriate headers

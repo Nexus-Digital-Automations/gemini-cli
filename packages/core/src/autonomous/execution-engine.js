@@ -5,11 +5,11 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { randomUUID } from 'node:crypto';
+import { randomUUID as _randomUUID } from 'node:crypto';
 /**
  * Types of execution errors
  */
-export var ExecutionErrorType;
+export const ExecutionErrorType = {};
 (function (ExecutionErrorType) {
     ExecutionErrorType["VALIDATION_FAILED"] = "validation_failed";
     ExecutionErrorType["TOOL_NOT_FOUND"] = "tool_not_found";

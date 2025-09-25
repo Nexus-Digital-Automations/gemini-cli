@@ -10,7 +10,7 @@ import { TaskPriority, TaskStatus, PriorityFactors, SchedulingFactors, Execution
 /**
  * Advanced scheduling algorithms
  */
-export var SchedulingAlgorithm;
+export const SchedulingAlgorithm = {};
 (function (SchedulingAlgorithm) {
     SchedulingAlgorithm["FIFO"] = "fifo";
     SchedulingAlgorithm["PRIORITY"] = "priority";

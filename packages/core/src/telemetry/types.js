@@ -237,7 +237,7 @@ export class RipgrepFallbackEvent {
         this['event.timestamp'] = new Date().toISOString();
     }
 }
-export var LoopType;
+export const LoopType = {};
 (function (LoopType) {
     LoopType["CONSECUTIVE_IDENTICAL_TOOL_CALLS"] = "consecutive_identical_tool_calls";
     LoopType["CHANTING_IDENTICAL_SENTENCES"] = "chanting_identical_sentences";
@@ -288,7 +288,7 @@ export function makeSlashCommandEvent({ command, subcommand, status, }) {
         status,
     };
 }
-export var SlashCommandStatus;
+export const SlashCommandStatus = {};
 (function (SlashCommandStatus) {
     SlashCommandStatus["SUCCESS"] = "success";
     SlashCommandStatus["ERROR"] = "error";
@@ -311,7 +311,7 @@ export class MalformedJsonResponseEvent {
         this.model = model;
     }
 }
-export var IdeConnectionType;
+export const IdeConnectionType = {};
 (function (IdeConnectionType) {
     IdeConnectionType["START"] = "start";
     IdeConnectionType["SESSION"] = "session";

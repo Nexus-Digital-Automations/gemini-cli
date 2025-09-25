@@ -792,20 +792,22 @@ async function main() {
 
   try {
     switch (command) {
-      case 'apply':
+      case 'apply': {
         const result = await hardening.applySecurityHardening();
         console.log('Security hardening completed:', result.summary);
         break;
+      }
 
-      case 'audit':
+      case 'audit': {
         const auditReport = hardening.getSecurityAuditReport();
         console.log(
           'Security Audit Report:',
           JSON.stringify(auditReport, null, 2),
         );
         break;
+      }
 
-      case 'test':
+      case 'test': {
         // Test security features
         console.log('🧪 Testing security features...');
 

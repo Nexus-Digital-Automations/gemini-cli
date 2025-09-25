@@ -347,15 +347,17 @@ export class DataAggregationEngine implements AggregationEngine {
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
       case 'day':
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-      case 'week':
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         return `${weekStart.getFullYear()}-W${this.getWeekNumber(weekStart)}`;
+      }
       case 'month':
         return `${date.getFullYear()}-${date.getMonth()}`;
-      case 'quarter':
+      case 'quarter': {
         const quarter = Math.floor(date.getMonth() / 3);
         return `${date.getFullYear()}-Q${quarter}`;
+      }
       case 'year':
         return `${date.getFullYear()}`;
       default:
@@ -373,90 +375,98 @@ export class DataAggregationEngine implements AggregationEngine {
     const parts = windowKey.split('-');
 
     switch (window) {
-      case 'minute':
+      case 'minute': {
         const minuteDate = new Date(
-          parseInt(parts[0]), // year
-          parseInt(parts[1]), // month
-          parseInt(parts[2]), // day
-          parseInt(parts[3]), // hour
-          parseInt(parts[4]), // minute
+          parseInt(parts[0], 10), // year
+          parseInt(parts[1], 10), // month
+          parseInt(parts[2], 10), // day
+          parseInt(parts[3], 10), // hour
+          parseInt(parts[4], 10), // minute
         );
         return {
           windowStart: minuteDate.getTime(),
           windowEnd: minuteDate.getTime() + 60 * 1000, // 1 minute
         };
+      }
 
-      case 'hour':
+      case 'hour': {
         const hourDate = new Date(
-          parseInt(parts[0]), // year
-          parseInt(parts[1]), // month
-          parseInt(parts[2]), // day
-          parseInt(parts[3]), // hour
+          parseInt(parts[0], 10), // year
+          parseInt(parts[1], 10), // month
+          parseInt(parts[2], 10), // day
+          parseInt(parts[3], 10), // hour
         );
         return {
           windowStart: hourDate.getTime(),
           windowEnd: hourDate.getTime() + 60 * 60 * 1000, // 1 hour
         };
+      }
 
-      case 'day':
+      case 'day': {
         const dayDate = new Date(
-          parseInt(parts[0]), // year
-          parseInt(parts[1]), // month
-          parseInt(parts[2]), // day
+          parseInt(parts[0], 10), // year
+          parseInt(parts[1], 10), // month
+          parseInt(parts[2], 10), // day
         );
         return {
           windowStart: dayDate.getTime(),
           windowEnd: dayDate.getTime() + 24 * 60 * 60 * 1000, // 1 day
         };
+      }
 
-      case 'week':
+      case 'week': {
         const [yearStr, weekStr] = parts;
-        const year = parseInt(yearStr);
-        const week = parseInt(weekStr.substring(1)); // Remove 'W' prefix
+        const year = parseInt(yearStr, 10);
+        const week = parseInt(weekStr.substring(1), 10); // Remove 'W' prefix
         const weekStart = this.getDateFromWeekNumber(year, week);
         return {
           windowStart: weekStart.getTime(),
           windowEnd: weekStart.getTime() + 7 * 24 * 60 * 60 * 1000, // 1 week
         };
+      }
 
-      case 'month':
-        const monthDate = new Date(parseInt(parts[0]), parseInt(parts[1]));
-        const nextMonth = new Date(parseInt(parts[0]), parseInt(parts[1]) + 1);
+      case 'month': {
+        const monthDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10));
+        const nextMonth = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) + 1);
         return {
           windowStart: monthDate.getTime(),
           windowEnd: nextMonth.getTime(),
         };
+      }
 
-      case 'quarter':
+      case 'quarter': {
         const [qYearStr, quarterStr] = parts;
-        const qYear = parseInt(qYearStr);
-        const quarter = parseInt(quarterStr.substring(1)); // Remove 'Q' prefix
+        const qYear = parseInt(qYearStr, 10);
+        const quarter = parseInt(quarterStr.substring(1), 10); // Remove 'Q' prefix
         const quarterStart = new Date(qYear, quarter * 3);
         const quarterEnd = new Date(qYear, (quarter + 1) * 3);
         return {
           windowStart: quarterStart.getTime(),
           windowEnd: quarterEnd.getTime(),
         };
+      }
 
-      case 'year':
-        const yearStart = new Date(parseInt(parts[0]), 0, 1);
-        const yearEnd = new Date(parseInt(parts[0]) + 1, 0, 1);
+      case 'year': {
+        const yearStart = new Date(parseInt(parts[0], 10), 0, 1);
+        const yearEnd = new Date(parseInt(parts[0], 10) + 1, 0, 1);
         return {
           windowStart: yearStart.getTime(),
           windowEnd: yearEnd.getTime(),
         };
+      }
 
-      default:
+      default: {
         // Default to day
         const defaultDate = new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]),
-          parseInt(parts[2]),
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10),
         );
         return {
           windowStart: defaultDate.getTime(),
           windowEnd: defaultDate.getTime() + 24 * 60 * 60 * 1000,
         };
+      }
     }
   }
 

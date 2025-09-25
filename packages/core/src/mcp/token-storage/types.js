@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export var TokenStorageType;
+export const TokenStorageType = {};
 (function (TokenStorageType) {
     TokenStorageType["KEYCHAIN"] = "keychain";
     TokenStorageType["ENCRYPTED_FILE"] = "encrypted_file";

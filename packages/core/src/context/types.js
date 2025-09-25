@@ -14,7 +14,7 @@
 /**
  * Types of context items in the system
  */
-export var ContextType;
+export const ContextType = {};
 (function (ContextType) {
   ContextType['CONVERSATION'] = 'conversation';
   ContextType['CODE'] = 'code';
@@ -27,7 +27,7 @@ export var ContextType;
 /**
  * Priority levels for context items
  */
-export var ContextPriority;
+export const ContextPriority = {};
 (function (ContextPriority) {
   ContextPriority['CRITICAL'] = 'critical';
   ContextPriority['HIGH'] = 'high';
@@ -38,7 +38,7 @@ export var ContextPriority;
 /**
  * Compression strategies
  */
-export var CompressionStrategy;
+export const CompressionStrategy = {};
 (function (CompressionStrategy) {
   CompressionStrategy['SUMMARIZATION'] = 'summarization';
   CompressionStrategy['KEYWORD_EXTRACTION'] = 'keyword_extraction';

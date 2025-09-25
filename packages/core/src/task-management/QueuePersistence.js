@@ -14,7 +14,7 @@ import { TaskResult } from './types.js';
 /**
  * Persistence storage backends
  */
-export var StorageBackend;
+export const StorageBackend = {};
 (function (StorageBackend) {
     StorageBackend["FILE_SYSTEM"] = "filesystem";
     StorageBackend["SQLITE"] = "sqlite";

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export var TelemetryTarget;
+export const TelemetryTarget = {};
 (function (TelemetryTarget) {
     TelemetryTarget["GCP"] = "gcp";
     TelemetryTarget["LOCAL"] = "local";

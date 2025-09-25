@@ -11,7 +11,7 @@ import * as path from 'node:path';
 /**
  * Report format types
  */
-export var ReportFormat;
+export const ReportFormat = {};
 (function (ReportFormat) {
     ReportFormat["JSON"] = "json";
     ReportFormat["XML"] = "xml";
@@ -23,7 +23,7 @@ export var ReportFormat;
 /**
  * Analytics time period
  */
-export var AnalyticsPeriod;
+export const AnalyticsPeriod = {};
 (function (AnalyticsPeriod) {
     AnalyticsPeriod["HOUR"] = "hour";
     AnalyticsPeriod["DAY"] = "day";

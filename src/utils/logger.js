@@ -11,7 +11,7 @@
  * @author Claude Code - Validation Expert
  * @version 1.0.0
  */
-export var LogLevel;
+export const LogLevel = {};
 (function (LogLevel) {
     LogLevel[LogLevel["DEBUG"] = 0] = "DEBUG";
     LogLevel[LogLevel["INFO"] = 1] = "INFO";

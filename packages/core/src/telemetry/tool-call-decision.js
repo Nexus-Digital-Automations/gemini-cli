@@ -5,7 +5,7 @@
  */
 
 import { ToolConfirmationOutcome } from '../tools/tools.js';
-export var ToolCallDecision;
+export const ToolCallDecision = {};
 (function (ToolCallDecision) {
     ToolCallDecision["ACCEPT"] = "accept";
     ToolCallDecision["REJECT"] = "reject";

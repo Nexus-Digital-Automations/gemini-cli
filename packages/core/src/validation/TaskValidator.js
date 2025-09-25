@@ -12,7 +12,7 @@ import { TaskPriority, DependencyType } from '../task-management/types.js';
 /**
  * Task validation types for different validation scenarios
  */
-export var TaskValidationType;
+export const TaskValidationType = {};
 (function (TaskValidationType) {
     TaskValidationType["PRE_EXECUTION"] = "pre_execution";
     TaskValidationType["IN_PROGRESS"] = "in_progress";
@@ -24,7 +24,7 @@ export var TaskValidationType;
 /**
  * Task validation result levels
  */
-export var TaskValidationLevel;
+export const TaskValidationLevel = {};
 (function (TaskValidationLevel) {
     TaskValidationLevel["STRICT"] = "strict";
     TaskValidationLevel["MODERATE"] = "moderate";

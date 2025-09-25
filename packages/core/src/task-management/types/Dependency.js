@@ -7,7 +7,7 @@
 /**
  * Dependency relationship types
  */
-export var DependencyType;
+export const DependencyType = {};
 (function (DependencyType) {
     /** Task B must complete before Task A can start */
     DependencyType["FINISH_TO_START"] = "finish_to_start";
@@ -29,7 +29,7 @@ export var DependencyType;
 /**
  * Dependency strength levels for conflict resolution
  */
-export var DependencyStrength;
+export const DependencyStrength = {};
 (function (DependencyStrength) {
     /** Cannot be violated under any circumstances */
     DependencyStrength["HARD"] = "hard";
@@ -43,7 +43,7 @@ export var DependencyStrength;
 /**
  * Dependency violation resolution strategies
  */
-export var ViolationResolution;
+export const ViolationResolution = {};
 (function (ViolationResolution) {
     /** Fail immediately on violation */
     ViolationResolution["FAIL_FAST"] = "fail_fast";
@@ -59,7 +59,7 @@ export var ViolationResolution;
 /**
  * Dependency status enumeration
  */
-export var DependencyStatus;
+export const DependencyStatus = {};
 (function (DependencyStatus) {
     /** Dependency is active and enforced */
     DependencyStatus["ACTIVE"] = "active";
@@ -77,7 +77,7 @@ export var DependencyStatus;
 /**
  * Violation types
  */
-export var ViolationType;
+export const ViolationType = {};
 (function (ViolationType) {
     /** Circular dependency detected */
     ViolationType["CIRCULAR_DEPENDENCY"] = "circular_dependency";
@@ -95,7 +95,7 @@ export var ViolationType;
 /**
  * Violation severity levels
  */
-export var ViolationSeverity;
+export const ViolationSeverity = {};
 (function (ViolationSeverity) {
     /** Critical violation that must be resolved immediately */
     ViolationSeverity["CRITICAL"] = "critical";
@@ -111,7 +111,7 @@ export var ViolationSeverity;
 /**
  * Node execution status
  */
-export var NodeExecutionStatus;
+export const NodeExecutionStatus = {};
 (function (NodeExecutionStatus) {
     /** Not ready to execute (dependencies not satisfied) */
     NodeExecutionStatus["NOT_READY"] = "not_ready";
@@ -131,7 +131,7 @@ export var NodeExecutionStatus;
 /**
  * Graph complexity levels
  */
-export var GraphComplexity;
+export const GraphComplexity = {};
 (function (GraphComplexity) {
     /** Simple linear dependencies */
     GraphComplexity["SIMPLE"] = "simple";
@@ -145,7 +145,7 @@ export var GraphComplexity;
 /**
  * Graph error types
  */
-export var GraphErrorType;
+export const GraphErrorType = {};
 (function (GraphErrorType) {
     /** Circular dependency cycle */
     GraphErrorType["CIRCULAR_DEPENDENCY"] = "circular_dependency";
@@ -163,7 +163,7 @@ export var GraphErrorType;
 /**
  * Graph warning types
  */
-export var GraphWarningType;
+export const GraphWarningType = {};
 (function (GraphWarningType) {
     /** Long dependency chain */
     GraphWarningType["LONG_CHAIN"] = "long_chain";
@@ -177,7 +177,7 @@ export var GraphWarningType;
 /**
  * Optimization types
  */
-export var OptimizationType;
+export const OptimizationType = {};
 (function (OptimizationType) {
     /** Parallel execution opportunity */
     OptimizationType["PARALLELIZATION"] = "parallelization";
@@ -195,7 +195,7 @@ export var OptimizationType;
 /**
  * Optimization complexity levels
  */
-export var OptimizationComplexity;
+export const OptimizationComplexity = {};
 (function (OptimizationComplexity) {
     /** Simple to implement */
     OptimizationComplexity["LOW"] = "low";
@@ -209,7 +209,7 @@ export var OptimizationComplexity;
 /**
  * Recommendation types
  */
-export var RecommendationType;
+export const RecommendationType = {};
 (function (RecommendationType) {
     /** Adjust task priority */
     RecommendationType["PRIORITY_ADJUSTMENT"] = "priority_adjustment";

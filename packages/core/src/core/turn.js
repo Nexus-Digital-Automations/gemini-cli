@@ -11,7 +11,7 @@ import {
   UnauthorizedError,
   toFriendlyError,
 } from '../utils/errors.js';
-export var GeminiEventType;
+export const GeminiEventType = {};
 (function (GeminiEventType) {
   GeminiEventType['Content'] = 'content';
   GeminiEventType['ToolCallRequest'] = 'tool_call_request';
@@ -27,7 +27,7 @@ export var GeminiEventType;
   GeminiEventType['Citation'] = 'citation';
   GeminiEventType['Retry'] = 'retry';
 })(GeminiEventType || (GeminiEventType = {}));
-export var CompressionStatus;
+export const CompressionStatus = {};
 (function (CompressionStatus) {
   /** The compression was successful */
   CompressionStatus[(CompressionStatus['COMPRESSED'] = 1)] = 'COMPRESSED';

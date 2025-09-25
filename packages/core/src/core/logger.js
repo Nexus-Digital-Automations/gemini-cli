@@ -7,7 +7,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 const LOG_FILE_NAME = 'logs.json';
-export var MessageSenderType;
+export const MessageSenderType = {};
 (function (MessageSenderType) {
   MessageSenderType['USER'] = 'user';
 })(MessageSenderType || (MessageSenderType = {}));

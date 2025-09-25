@@ -30,7 +30,7 @@ import { RealtimeQueueSnapshot } from './RealtimeQueueMonitor.js';
 /**
  * Types of optimization strategies available
  */
-export var OptimizationType;
+export const OptimizationType = {};
 (function (OptimizationType) {
     OptimizationType["ALGORITHM_SWITCH"] = "algorithm_switch";
     OptimizationType["CONCURRENCY_TUNING"] = "concurrency_tuning";

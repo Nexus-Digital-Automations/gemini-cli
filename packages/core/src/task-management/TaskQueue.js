@@ -11,7 +11,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Task priority levels with intelligent scoring system
  */
-export var TaskPriority;
+export const TaskPriority = {};
 (function (TaskPriority) {
     TaskPriority[TaskPriority["CRITICAL"] = 1000] = "CRITICAL";
     TaskPriority[TaskPriority["HIGH"] = 800] = "HIGH";
@@ -22,7 +22,7 @@ export var TaskPriority;
 /**
  * Task execution status
  */
-export var TaskStatus;
+export const TaskStatus = {};
 (function (TaskStatus) {
     TaskStatus["PENDING"] = "pending";
     TaskStatus["QUEUED"] = "queued";
@@ -35,7 +35,7 @@ export var TaskStatus;
 /**
  * Task category for intelligent grouping and optimization
  */
-export var TaskCategory;
+export const TaskCategory = {};
 (function (TaskCategory) {
     TaskCategory["FEATURE"] = "feature";
     TaskCategory["BUG_FIX"] = "bug_fix";
@@ -49,7 +49,7 @@ export var TaskCategory;
 /**
  * Dependency relationship types
  */
-export var DependencyType;
+export const DependencyType = {};
 (function (DependencyType) {
     DependencyType["BLOCKS"] = "blocks";
     DependencyType["ENABLES"] = "enables";

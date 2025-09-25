@@ -9,7 +9,7 @@ import { ValidationStatus, ValidationSeverity, ValidationCategory, } from './Val
 /**
  * Rule categories for organization and filtering
  */
-export var RuleCategory;
+export const RuleCategory = {};
 (function (RuleCategory) {
     RuleCategory["TASK_PRECONDITIONS"] = "task_preconditions";
     RuleCategory["TASK_EXECUTION"] = "task_execution";
@@ -25,7 +25,7 @@ export var RuleCategory;
 /**
  * Rule execution contexts for conditional rule application
  */
-export var RuleExecutionContext;
+export const RuleExecutionContext = {};
 (function (RuleExecutionContext) {
     RuleExecutionContext["PRE_EXECUTION"] = "pre_execution";
     RuleExecutionContext["DURING_EXECUTION"] = "during_execution";

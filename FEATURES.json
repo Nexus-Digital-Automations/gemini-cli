@@ -328,12 +328,12 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 217,
+      "total_reinitializations": 224,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 10
+          "reinit": 17
         },
         "14:00-18:59": {
           "init": 0,
@@ -409,7 +409,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T16:31:49.482Z"
+      "last_updated": "2025-09-25T16:50:53.283Z"
     }
   },
   "workflow_config": {
@@ -497,6 +497,55 @@
       "status": "active",
       "reinitialized": "2025-09-25T16:31:49.480Z",
       "sessionId": "61e7a614d30e85e9",
+      "previousSessions": []
+    },
+    "NO_UNDEF_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:46:22.852Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:46:22.852Z",
+      "sessionId": "50a636a0cb587d71",
+      "previousSessions": []
+    },
+    "NO_CONST_ASSIGN_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:46:22.958Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:46:22.958Z",
+      "sessionId": "615b322fa772829e",
+      "previousSessions": []
+    },
+    "NO_EXPLICIT_ANY_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:46:23.211Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:46:23.211Z",
+      "sessionId": "57f3947af92032b0",
+      "previousSessions": []
+    },
+    "NO_UNUSED_VARS_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:46:24.123Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:46:24.123Z",
+      "sessionId": "f704a695e93a92e9",
+      "previousSessions": []
+    },
+    "MISC_ERRORS_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:46:24.294Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:46:24.294Z",
+      "sessionId": "ce1386b8484cb515",
+      "previousSessions": []
+    },
+    "RADIX_SPECIALIST_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:46:31.125Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:46:31.125Z",
+      "sessionId": "0d8bb0b335cc6d51",
+      "previousSessions": []
+    },
+    "NO_UNUSED_VARS_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:50:53.279Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:50:53.279Z",
+      "sessionId": "1ce1e927a4257bf0",
       "previousSessions": []
     }
   },

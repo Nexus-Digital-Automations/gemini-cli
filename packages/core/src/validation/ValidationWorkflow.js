@@ -13,7 +13,7 @@ import { IntegrationValidator } from './IntegrationValidator.js';
 /**
  * Task execution stage for validation workflow integration
  */
-export var TaskExecutionStage;
+export const TaskExecutionStage = {};
 (function (TaskExecutionStage) {
     TaskExecutionStage["PRE_EXECUTION"] = "pre-execution";
     TaskExecutionStage["POST_EXECUTION"] = "post-execution";

@@ -7,7 +7,7 @@
 /**
  * Types of user activities that can be tracked
  */
-export var ActivityType;
+export const ActivityType = {};
 (function (ActivityType) {
     ActivityType["USER_INPUT_START"] = "user_input_start";
     ActivityType["USER_INPUT_END"] = "user_input_end";

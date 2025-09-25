@@ -11,7 +11,7 @@ import { existsSync, mkdirSync } from 'node:fs';
  * Log level enumeration defining the severity hierarchy.
  * Used to filter log messages by importance and control verbosity.
  */
-export var LogLevel;
+export const LogLevel = {};
 (function (LogLevel) {
     /** Detailed debugging information for development */
     LogLevel["DEBUG"] = "debug";

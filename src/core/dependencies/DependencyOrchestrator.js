@@ -20,7 +20,7 @@ import { DependencyPersistenceIntegration, DependencySystemSnapshot, } from './D
 /**
  * System health status enumeration
  */
-export var SystemHealthStatus;
+export const SystemHealthStatus = {};
 (function (SystemHealthStatus) {
     SystemHealthStatus["OPTIMAL"] = "optimal";
     SystemHealthStatus["DEGRADED"] = "degraded";
@@ -31,7 +31,7 @@ export var SystemHealthStatus;
 /**
  * Recovery action types
  */
-export var RecoveryAction;
+export const RecoveryAction = {};
 (function (RecoveryAction) {
     RecoveryAction["RESTART_COMPONENT"] = "restart_component";
     RecoveryAction["CLEAR_CACHE"] = "clear_cache";

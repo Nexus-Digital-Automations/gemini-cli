@@ -6,25 +6,25 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type { TaskMetadata } from './TaskStatusMonitor.js';
+import type { TaskMetadata as _TaskMetadata } from './TaskStatusMonitor.js';
 import {
-  TaskStatusMonitor,
+  TaskStatusMonitor as _TaskStatusMonitor,
   TaskStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
-  StatusUpdateBroker,
+  StatusUpdateBroker as _StatusUpdateBroker,
   StatusEventType,
   statusUpdateBroker,
 } from './StatusUpdateBroker.js';
 import {
-  NotificationSystem,
-  NotificationPreferences,
-  notificationSystem,
+  NotificationSystem as _NotificationSystem,
+  NotificationPreferences as _NotificationPreferences,
+  notificationSystem as _notificationSystem,
 } from './NotificationSystem.js';
 import {
-  StatusHistoryAnalytics,
-  statusHistoryAnalytics,
+  StatusHistoryAnalytics as _StatusHistoryAnalytics,
+  statusHistoryAnalytics as _statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
 
 /**
@@ -253,7 +253,7 @@ export class MonitoringIntegrations extends EventEmitter {
    */
   async exportMonitoringData(
     format: 'json' | 'csv' | 'prometheus' | 'influxdb' = 'json',
-    timeframe?: {
+    _timeframe?: {
       startDate: Date;
       endDate: Date;
     },

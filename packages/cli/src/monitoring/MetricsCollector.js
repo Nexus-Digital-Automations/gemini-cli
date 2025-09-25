@@ -595,7 +595,7 @@ export class MetricsCollector extends EventEmitter {
     );
     return totalDuration > 0 ? totalOperations / (totalDuration / 1000) : 0;
   }
-  calculateTaskCompletionTrend(tasks) {
+  calculateTaskCompletionTrend(_tasks) {
     // Implementation would calculate completion rate trends over time
     return [];
   }
@@ -606,7 +606,7 @@ export class MetricsCollector extends EventEmitter {
     // Implementation would calculate agent utilization trends
     return [];
   }
-  calculateErrorRateTrend(tasks) {
+  calculateErrorRateTrend(_tasks) {
     // Implementation would calculate error rate trends over time
     return [];
   }
@@ -625,7 +625,7 @@ export class MetricsCollector extends EventEmitter {
     const resolvedBottlenecks = bottlenecks.filter((b) => b.resolved).length;
     return (resolvedBottlenecks / bottlenecks.length) * 100;
   }
-  generateSystemRecommendations(metrics, tasks, bottlenecks) {
+  generateSystemRecommendations(_metrics, _tasks, _bottlenecks) {
     return {
       systemOptimization: [
         'Monitor resource usage patterns',

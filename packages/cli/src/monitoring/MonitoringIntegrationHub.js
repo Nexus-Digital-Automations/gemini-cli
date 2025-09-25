@@ -180,7 +180,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
   /**
    * Get aggregated monitoring data
    */
-  getAggregatedData(timeRange = 'last_hour') {
+  getAggregatedData(_timeRange = 'last_hour') {
     const systemSnapshot = realTimeMonitoringSystem.getCurrentSnapshot();
     const taskMetrics = taskStatusMonitor.getPerformanceMetrics();
     const allAgents = taskStatusMonitor.getAllAgents();
@@ -422,7 +422,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
     this.lastSyncTimestamp = new Date();
     // Sync data between monitoring systems
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
-    const taskMetrics = taskStatusMonitor.getPerformanceMetrics();
+    const _taskMetrics = taskStatusMonitor.getPerformanceMetrics();
     // Update performance analytics with current data
     performanceAnalyticsDashboard.recordMetric(
       'system_sync',

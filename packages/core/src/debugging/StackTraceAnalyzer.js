@@ -445,14 +445,14 @@ export class StackTraceAnalyzer {
         if (match.length >= 4) {
           functionName = match[1] || '<anonymous>';
           filePath = match[2] || '';
-          lineNumber = parseInt(match[3]) || 0;
-          columnNumber = parseInt(match[4]) || 0;
+          lineNumber = parseInt(match[3], 10) || 0;
+          columnNumber = parseInt(match[4], 10) || 0;
         }
         break;
       case 'python':
         if (match.length >= 3) {
           filePath = match[1] || '';
-          lineNumber = parseInt(match[2]) || 0;
+          lineNumber = parseInt(match[2], 10) || 0;
           functionName = match[3] || '<unknown>';
         }
         break;
@@ -462,14 +462,14 @@ export class StackTraceAnalyzer {
           const methodName = match[2] || '';
           functionName = `${className}.${methodName}`;
           filePath = match[3] || '';
-          lineNumber = parseInt(match[4]) || 0;
+          lineNumber = parseInt(match[4], 10) || 0;
         }
         break;
       default:
         functionName = match[1] || '<unknown>';
         filePath = match[2] || '';
-        lineNumber = parseInt(match[3]) || 0;
-        columnNumber = parseInt(match[4]) || 0;
+        lineNumber = parseInt(match[3], 10) || 0;
+        columnNumber = parseInt(match[4], 10) || 0;
     }
     return {
       index: 0, // Will be set by caller

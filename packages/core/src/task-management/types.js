@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export var TaskComplexity;
+export const TaskComplexity = {};
 (function (TaskComplexity) {
     TaskComplexity["TRIVIAL"] = "trivial";
     TaskComplexity["SIMPLE"] = "simple";
