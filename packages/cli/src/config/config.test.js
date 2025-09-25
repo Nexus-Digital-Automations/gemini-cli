@@ -671,8 +671,8 @@ describe('Hierarchical Memory Loading (config.ts) - Placeholder Suite', () => {
       MOCK_GEMINI_DIR_LOCAL,
       'GEMINI.md',
     );
-    vi.mocked(mockFs)({
-      [MOCK_GLOBAL_PATH_LOCAL]: { type: 'file', content: 'GlobalContentOnly' },
+    mockFs({
+      [MOCK_GLOBAL_PATH_LOCAL]: 'GlobalContentOnly',
     });
     const memory = await loadHierarchicalGeminiMemory('/some/other/cwd', false);
     expect(memory).toBe('GlobalContentOnly');
