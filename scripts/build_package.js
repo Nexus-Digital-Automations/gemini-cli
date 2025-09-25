@@ -18,7 +18,7 @@
 // limitations under the License.
 
 import { execSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, chmodSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 if (!process.cwd().includes('packages')) {
@@ -34,4 +34,12 @@ execSync('node ../../scripts/copy_files.js', { stdio: 'inherit' });
 
 // touch dist/.last_build
 writeFileSync(join(process.cwd(), 'dist', '.last_build'), '');
+
+// Set execute permissions for CLI binary (if it exists)
+const indexJsPath = join(process.cwd(), 'dist', 'index.js');
+if (existsSync(indexJsPath)) {
+  chmodSync(indexJsPath, 0o755);
+  console.log('Set execute permissions for dist/index.js');
+}
+
 process.exit(0);
