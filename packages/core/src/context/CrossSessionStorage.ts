@@ -20,15 +20,11 @@ import {
   stat,
   rm,
 } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { Storage } from '../config/storage.js';
 import { getComponentLogger } from '../utils/logger.js';
-import type {
-  ContextItem,
-  SessionContext,
-  CodeContextSnapshot,
-} from './types.js';
+import type { SessionContext } from './types.js';
 
 const logger = getComponentLogger('cross-session-storage');
 
@@ -508,7 +504,7 @@ export class CrossSessionStorage {
       const indexData = await readFile(indexPath, 'utf-8');
       this.index = JSON.parse(indexData) as StorageIndex;
       logger.debug('Storage index loaded successfully');
-    } catch (error) {
+    } catch (_error) {
       // Create new index if file doesn't exist
       logger.info('Creating new storage index');
       this.index = {
@@ -526,7 +522,9 @@ export class CrossSessionStorage {
     await writeFile(indexPath, JSON.stringify(this.index, null, 2), 'utf-8');
   }
 
-  private prepareSessionForStorage(session: SessionContext): any {
+  private prepareSessionForStorage(
+    session: SessionContext,
+  ): Record<string, unknown> {
     // Create a storage-friendly version of the session
     return {
       ...session,

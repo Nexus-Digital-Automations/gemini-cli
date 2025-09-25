@@ -14,15 +14,11 @@
 
 import { getComponentLogger } from '../utils/logger.js';
 import type {
-  ContextItem,
   ContextSuggestion,
   CodeContextSnapshot,
   SessionContext,
-  FunctionSummary,
-  CodeChange,
 } from './types.js';
 import { ContextPrioritizer } from './ContextPrioritizer.js';
-import { CodeContextAnalyzer } from './CodeContextAnalyzer.js';
 
 const logger = getComponentLogger('suggestion-engine');
 
@@ -163,7 +159,10 @@ export class SuggestionEngine {
   private interactionPatterns: Map<string, InteractionPattern> = new Map();
   private workflowOptimizations: Map<string, WorkflowOptimization> = new Map();
   private errorPatterns: Map<string, ErrorPattern> = new Map();
-  private userFeedback: Map<string, { suggestion: ContextSuggestion; accepted: boolean }> = new Map();
+  private userFeedback: Map<
+    string,
+    { suggestion: ContextSuggestion; accepted: boolean }
+  > = new Map();
   private contextPrioritizer: ContextPrioritizer;
 
   constructor(config: Partial<SuggestionConfig> = {}) {
@@ -186,11 +185,18 @@ export class SuggestionEngine {
    */
   async getSuggestions(
     currentContext: string,
-    contextType: 'command' | 'code' | 'workflow' | 'optimization' | 'debug' = 'workflow',
+    contextType:
+      | 'command'
+      | 'code'
+      | 'workflow'
+      | 'optimization'
+      | 'debug' = 'workflow',
     codeContext?: CodeContextSnapshot,
   ): Promise<ContextSuggestion[]> {
     const startTime = performance.now();
-    logger.debug(`Generating ${contextType} suggestions`, { contextLength: currentContext.length });
+    logger.debug(`Generating ${contextType} suggestions`, {
+      contextLength: currentContext.length,
+    });
 
     try {
       const suggestions: ContextSuggestion[] = [];
@@ -198,33 +204,66 @@ export class SuggestionEngine {
       // Generate different types of suggestions based on context type
       switch (contextType) {
         case 'command':
-          suggestions.push(...await this.generateCommandSuggestions(currentContext));
+          suggestions.push(
+            ...(await this.generateCommandSuggestions(currentContext)),
+          );
           break;
         case 'code':
-          suggestions.push(...await this.generateCodeSuggestions(currentContext, codeContext));
+          suggestions.push(
+            ...(await this.generateCodeSuggestions(
+              currentContext,
+              codeContext,
+            )),
+          );
           break;
         case 'workflow':
-          suggestions.push(...await this.generateWorkflowSuggestions(currentContext));
+          suggestions.push(
+            ...(await this.generateWorkflowSuggestions(currentContext)),
+          );
           break;
         case 'optimization':
-          suggestions.push(...await this.generateOptimizationSuggestions(currentContext, codeContext));
+          suggestions.push(
+            ...(await this.generateOptimizationSuggestions(
+              currentContext,
+              codeContext,
+            )),
+          );
           break;
         case 'debug':
-          suggestions.push(...await this.generateDebugSuggestions(currentContext, codeContext));
+          suggestions.push(
+            ...(await this.generateDebugSuggestions(
+              currentContext,
+              codeContext,
+            )),
+          );
+          break;
+        default:
+          // Default to workflow suggestions if unknown type
+          suggestions.push(
+            ...(await this.generateWorkflowSuggestions(currentContext)),
+          );
           break;
       }
 
       // Filter by confidence threshold and limit results
       const filteredSuggestions = suggestions
-        .filter(suggestion => suggestion.confidence >= this.config.minConfidenceThreshold)
+        .filter(
+          (suggestion) =>
+            suggestion.confidence >= this.config.minConfidenceThreshold,
+        )
         .sort((a, b) => b.confidence - a.confidence)
         .slice(0, this.config.maxSuggestions);
 
       const duration = performance.now() - startTime;
-      logger.info(`Generated ${filteredSuggestions.length} suggestions in ${duration.toFixed(2)}ms`, {
-        type: contextType,
-        avgConfidence: filteredSuggestions.reduce((sum, s) => sum + s.confidence, 0) / filteredSuggestions.length || 0,
-      });
+      logger.info(
+        `Generated ${filteredSuggestions.length} suggestions in ${duration.toFixed(2)}ms`,
+        {
+          type: contextType,
+          avgConfidence:
+            filteredSuggestions.reduce((sum, s) => sum + s.confidence, 0) /
+              filteredSuggestions.length || 0,
+        },
+      );
 
       return filteredSuggestions;
     } catch (error) {
@@ -236,7 +275,9 @@ export class SuggestionEngine {
   /**
    * Generate command suggestions based on current context
    */
-  private async generateCommandSuggestions(currentContext: string): Promise<ContextSuggestion[]> {
+  private async generateCommandSuggestions(
+    currentContext: string,
+  ): Promise<ContextSuggestion[]> {
     const suggestions: ContextSuggestion[] = [];
 
     // Analyze current context for command patterns
@@ -257,7 +298,10 @@ export class SuggestionEngine {
         suggestions: [
           { command: 'npm test', reason: 'Run test suite' },
           { command: 'npm run test:watch', reason: 'Run tests in watch mode' },
-          { command: 'npm run test:coverage', reason: 'Generate coverage report' },
+          {
+            command: 'npm run test:coverage',
+            reason: 'Generate coverage report',
+          },
         ],
       },
       {
@@ -272,26 +316,37 @@ export class SuggestionEngine {
         keywords: ['install', 'dependency', 'package'],
         suggestions: [
           { command: 'npm install', reason: 'Install dependencies' },
-          { command: 'npm audit', reason: 'Check for security vulnerabilities' },
+          {
+            command: 'npm audit',
+            reason: 'Check for security vulnerabilities',
+          },
           { command: 'npm outdated', reason: 'Check for outdated packages' },
         ],
       },
     ];
 
     for (const pattern of commandPatterns) {
-      const hasKeywords = pattern.keywords.some(keyword => contextLower.includes(keyword));
+      const hasKeywords = pattern.keywords.some((keyword) =>
+        contextLower.includes(keyword),
+      );
 
       if (hasKeywords) {
         for (const commandSuggestion of pattern.suggestions) {
-          const historicalSuccess = this.getCommandSuccessRate(commandSuggestion.command);
+          const historicalSuccess = this.getCommandSuccessRate(
+            commandSuggestion.command,
+          );
 
           suggestions.push({
             type: 'command',
             suggestion: commandSuggestion.command,
             confidence: Math.min(0.9, 0.6 + historicalSuccess * 0.3),
             reasoning: commandSuggestion.reason,
-            historicalContext: this.getRelatedHistoricalCommands(commandSuggestion.command),
-            estimatedBenefit: this.estimateCommandBenefit(commandSuggestion.command),
+            historicalContext: this.getRelatedHistoricalCommands(
+              commandSuggestion.command,
+            ),
+            estimatedBenefit: this.estimateCommandBenefit(
+              commandSuggestion.command,
+            ),
           });
         }
       }
@@ -299,7 +354,9 @@ export class SuggestionEngine {
 
     // Add pattern-based suggestions from learned interactions
     if (this.config.enablePatternLearning) {
-      suggestions.push(...this.generatePatternBasedCommandSuggestions(currentContext));
+      suggestions.push(
+        ...this.generatePatternBasedCommandSuggestions(currentContext),
+      );
     }
 
     return suggestions;
@@ -328,8 +385,12 @@ export class SuggestionEngine {
           type: 'code',
           suggestion: `Refactor ${func.name} to reduce complexity (current: ${func.complexity})`,
           confidence: 0.8,
-          reasoning: 'High complexity functions are harder to maintain and test',
-          historicalContext: [`Function complexity: ${func.complexity}`, `Lines of code: ${func.lineCount}`],
+          reasoning:
+            'High complexity functions are harder to maintain and test',
+          historicalContext: [
+            `Function complexity: ${func.complexity}`,
+            `Lines of code: ${func.lineCount}`,
+          ],
           estimatedBenefit: 'Improved maintainability and reduced bug risk',
           warnings: ['Refactoring may require updating tests'],
         });
@@ -340,15 +401,20 @@ export class SuggestionEngine {
           type: 'code',
           suggestion: `Break down ${func.name} into smaller, focused functions`,
           confidence: 0.7,
-          reasoning: 'Large functions with many dependencies violate single responsibility principle',
-          historicalContext: [`Function size: ${func.lineCount} lines`, `Dependencies: ${func.dependencies.length}`],
+          reasoning:
+            'Large functions with many dependencies violate single responsibility principle',
+          historicalContext: [
+            `Function size: ${func.lineCount} lines`,
+            `Dependencies: ${func.dependencies.length}`,
+          ],
           estimatedBenefit: 'Better code organization and testability',
         });
       }
     }
 
     // Project structure suggestions
-    const hasTests = Object.keys(codeContext.testCoverage.sourceToTest).length > 0;
+    const hasTests =
+      Object.keys(codeContext.testCoverage.sourceToTest).length > 0;
     if (!hasTests) {
       suggestions.push({
         type: 'code',
@@ -370,20 +436,25 @@ export class SuggestionEngine {
           suggestion: `Add tests for files with low coverage: ${uncoveredFiles.slice(0, 3).join(', ')}`,
           confidence: 0.7,
           reasoning: 'Low test coverage increases risk of undetected bugs',
-          historicalContext: [`${uncoveredFiles.length} files under 50% coverage`],
+          historicalContext: [
+            `${uncoveredFiles.length} files under 50% coverage`,
+          ],
           estimatedBenefit: 'Better bug detection and safer refactoring',
         });
       }
     }
 
     // Dependency suggestions
-    const externalDeps = Object.keys(codeContext.dependencies).filter(dep => !dep.startsWith('./'));
+    const externalDeps = Object.keys(codeContext.dependencies).filter(
+      (dep) => !dep.startsWith('./'),
+    );
     if (externalDeps.length > 50) {
       suggestions.push({
         type: 'code',
         suggestion: 'Review and minimize external dependencies',
         confidence: 0.6,
-        reasoning: 'Large number of dependencies increases security risk and bundle size',
+        reasoning:
+          'Large number of dependencies increases security risk and bundle size',
         historicalContext: [`${externalDeps.length} external dependencies`],
         estimatedBenefit: 'Reduced bundle size and security surface',
         warnings: ['Carefully review dependency removal impact'],
@@ -405,7 +476,9 @@ export class SuggestionEngine {
   /**
    * Generate workflow optimization suggestions
    */
-  private async generateWorkflowSuggestions(currentContext: string): Promise<ContextSuggestion[]> {
+  private async generateWorkflowSuggestions(
+    currentContext: string,
+  ): Promise<ContextSuggestion[]> {
     const suggestions: ContextSuggestion[] = [];
 
     if (!this.config.enableWorkflowOptimization) {
@@ -416,26 +489,35 @@ export class SuggestionEngine {
     const contextLower = currentContext.toLowerCase();
 
     // Development workflow suggestions
-    if (contextLower.includes('development') || contextLower.includes('coding')) {
-      const devOptimizations = this.identifyDevelopmentWorkflowOptimizations(currentContext);
+    if (
+      contextLower.includes('development') ||
+      contextLower.includes('coding')
+    ) {
+      const devOptimizations =
+        this.identifyDevelopmentWorkflowOptimizations(currentContext);
       suggestions.push(...devOptimizations);
     }
 
     // Testing workflow suggestions
     if (contextLower.includes('test') || contextLower.includes('quality')) {
-      const testOptimizations = this.identifyTestingWorkflowOptimizations(currentContext);
+      const testOptimizations =
+        this.identifyTestingWorkflowOptimizations(currentContext);
       suggestions.push(...testOptimizations);
     }
 
     // Deployment workflow suggestions
     if (contextLower.includes('deploy') || contextLower.includes('release')) {
-      const deployOptimizations = this.identifyDeploymentWorkflowOptimizations(currentContext);
+      const deployOptimizations =
+        this.identifyDeploymentWorkflowOptimizations(currentContext);
       suggestions.push(...deployOptimizations);
     }
 
     // Add learned workflow optimizations
     for (const optimization of this.workflowOptimizations.values()) {
-      const contextRelevance = this.calculateContextRelevance(currentContext, optimization.description);
+      const contextRelevance = this.calculateContextRelevance(
+        currentContext,
+        optimization.description,
+      );
 
       if (contextRelevance > 0.5) {
         suggestions.push({
@@ -476,33 +558,43 @@ export class SuggestionEngine {
         suggestion: `Extract common logic into shared utilities: ${duplicatedLogic.join(', ')}`,
         confidence: 0.8,
         reasoning: 'Duplicated code increases maintenance burden and bug risk',
-        historicalContext: [`${duplicatedLogic.length} instances of duplicated logic found`],
+        historicalContext: [
+          `${duplicatedLogic.length} instances of duplicated logic found`,
+        ],
         estimatedBenefit: 'Reduced code duplication and easier maintenance',
       });
     }
 
     // Performance optimizations
-    const largeFunctions = codeContext.activeFunctions.filter(f => f.lineCount > 200);
+    const largeFunctions = codeContext.activeFunctions.filter(
+      (f) => f.lineCount > 200,
+    );
     if (largeFunctions.length > 0) {
       suggestions.push({
         type: 'optimization',
-        suggestion: `Consider lazy loading or code splitting for large functions: ${largeFunctions.map(f => f.name).join(', ')}`,
+        suggestion: `Consider lazy loading or code splitting for large functions: ${largeFunctions.map((f) => f.name).join(', ')}`,
         confidence: 0.6,
         reasoning: 'Large functions may impact initial load performance',
-        historicalContext: [`${largeFunctions.length} functions over 200 lines`],
+        historicalContext: [
+          `${largeFunctions.length} functions over 200 lines`,
+        ],
         estimatedBenefit: 'Improved initial load performance',
       });
     }
 
     // Architecture optimizations
-    const highCouplingFunctions = codeContext.activeFunctions.filter(f => f.dependencies.length > 15);
+    const highCouplingFunctions = codeContext.activeFunctions.filter(
+      (f) => f.dependencies.length > 15,
+    );
     if (highCouplingFunctions.length > 0) {
       suggestions.push({
         type: 'optimization',
         suggestion: 'Review and reduce coupling in highly dependent functions',
         confidence: 0.7,
         reasoning: 'High coupling makes code harder to test and modify',
-        historicalContext: [`${highCouplingFunctions.length} functions with >15 dependencies`],
+        historicalContext: [
+          `${highCouplingFunctions.length} functions with >15 dependencies`,
+        ],
         estimatedBenefit: 'Better testability and modularity',
         warnings: ['Architectural changes may require significant refactoring'],
       });
@@ -534,7 +626,8 @@ export class SuggestionEngine {
 
       suggestions.push({
         type: 'debug',
-        suggestion: 'Check recent code changes that might have introduced the issue',
+        suggestion:
+          'Check recent code changes that might have introduced the issue',
         confidence: 0.8,
         reasoning: 'Recent changes are the most likely source of new bugs',
         historicalContext: ['Git blame analysis recommended'],
@@ -548,7 +641,8 @@ export class SuggestionEngine {
         type: 'debug',
         suggestion: 'Profile application performance to identify bottlenecks',
         confidence: 0.8,
-        reasoning: 'Performance profiling reveals actual bottlenecks vs assumptions',
+        reasoning:
+          'Performance profiling reveals actual bottlenecks vs assumptions',
         historicalContext: ['Use browser dev tools or Node.js profiler'],
         estimatedBenefit: 'Data-driven performance optimization',
       });
@@ -560,10 +654,13 @@ export class SuggestionEngine {
       if (recentChanges.length > 0) {
         suggestions.push({
           type: 'debug',
-          suggestion: `Review recent changes in: ${recentChanges.map(c => c.filePath).join(', ')}`,
+          suggestion: `Review recent changes in: ${recentChanges.map((c) => c.filePath).join(', ')}`,
           confidence: 0.7,
-          reasoning: 'Recent file modifications are prime suspects for new issues',
-          historicalContext: [`${recentChanges.length} files modified recently`],
+          reasoning:
+            'Recent file modifications are prime suspects for new issues',
+          historicalContext: [
+            `${recentChanges.length} files modified recently`,
+          ],
           estimatedBenefit: 'Focused investigation scope',
         });
       }
@@ -594,7 +691,8 @@ export class SuggestionEngine {
           existing.frequency += 1;
           existing.lastObserved = new Date();
           // Update success rate based on session outcome
-          existing.successRate = (existing.successRate + pattern.successRate) / 2;
+          existing.successRate =
+            (existing.successRate + pattern.successRate) / 2;
         } else {
           this.interactionPatterns.set(pattern.id, pattern);
         }
@@ -625,14 +723,21 @@ export class SuggestionEngine {
         newErrorPatterns: errorPatterns.length,
       });
     } catch (error) {
-      logger.error('Failed to learn from session', { error, sessionId: session.sessionId });
+      logger.error('Failed to learn from session', {
+        error,
+        sessionId: session.sessionId,
+      });
     }
   }
 
   /**
    * Record user feedback on suggestions to improve future recommendations
    */
-  recordFeedback(suggestionId: string, suggestion: ContextSuggestion, accepted: boolean): void {
+  recordFeedback(
+    suggestionId: string,
+    suggestion: ContextSuggestion,
+    accepted: boolean,
+  ): void {
     this.userFeedback.set(suggestionId, { suggestion, accepted });
 
     // Update confidence scores based on feedback
@@ -642,13 +747,19 @@ export class SuggestionEngine {
       this.reduceNegativePattern(suggestion);
     }
 
-    logger.debug('Recorded suggestion feedback', { suggestionId, accepted, type: suggestion.type });
+    logger.debug('Recorded suggestion feedback', {
+      suggestionId,
+      accepted,
+      type: suggestion.type,
+    });
   }
 
   /**
    * Extract interaction patterns from session
    */
-  private extractInteractionPatterns(session: SessionContext): InteractionPattern[] {
+  private extractInteractionPatterns(
+    session: SessionContext,
+  ): InteractionPattern[] {
     const patterns: InteractionPattern[] = [];
 
     // Analyze conversation for command sequences
@@ -702,11 +813,21 @@ export class SuggestionEngine {
     const summary = session.conversationSummary.toLowerCase();
 
     // Look for success indicators
-    const successIndicators = ['completed', 'success', 'fixed', 'working', 'resolved'];
+    const successIndicators = [
+      'completed',
+      'success',
+      'fixed',
+      'working',
+      'resolved',
+    ];
     const failureIndicators = ['failed', 'error', 'broken', 'issue', 'problem'];
 
-    const successCount = successIndicators.filter(indicator => summary.includes(indicator)).length;
-    const failureCount = failureIndicators.filter(indicator => summary.includes(indicator)).length;
+    const successCount = successIndicators.filter((indicator) =>
+      summary.includes(indicator),
+    ).length;
+    const failureCount = failureIndicators.filter((indicator) =>
+      summary.includes(indicator),
+    ).length;
 
     if (successCount === 0 && failureCount === 0) return 0.5; // Neutral
 
@@ -721,12 +842,15 @@ export class SuggestionEngine {
 
     // Extract file types being worked on
     const activeFiles = session.codeContext.activeFiles;
-    const fileTypes = new Set(activeFiles.map(file => file.split('.').pop()).filter(Boolean));
-    conditions.push(...Array.from(fileTypes).map(type => `fileType:${type}`));
+    const fileTypes = new Set(
+      activeFiles.map((file) => file.split('.').pop()).filter(Boolean),
+    );
+    conditions.push(...Array.from(fileTypes).map((type) => `fileType:${type}`));
 
     // Extract project characteristics
     if (session.codeContext.testCoverage.coverage) {
-      const hasTests = Object.keys(session.codeContext.testCoverage.coverage).length > 0;
+      const hasTests =
+        Object.keys(session.codeContext.testCoverage.coverage).length > 0;
       conditions.push(`hasTests:${hasTests}`);
     }
 
@@ -736,7 +860,9 @@ export class SuggestionEngine {
   /**
    * Identify workflow optimizations from session
    */
-  private identifyWorkflowOptimizations(session: SessionContext): WorkflowOptimization[] {
+  private identifyWorkflowOptimizations(
+    session: SessionContext,
+  ): WorkflowOptimization[] {
     const optimizations: WorkflowOptimization[] = [];
 
     // Look for repetitive patterns that could be optimized
@@ -756,12 +882,19 @@ export class SuggestionEngine {
   /**
    * Suggest workflow optimization based on command sequence
    */
-  private suggestWorkflowOptimization(commands: string[]): WorkflowOptimization | null {
+  private suggestWorkflowOptimization(
+    commands: string[],
+  ): WorkflowOptimization | null {
     // Example: npm run lint → npm run typecheck → npm run test could be npm run ci
-    if (commands.includes('npm run lint') && commands.includes('npm run typecheck') && commands.includes('npm run test')) {
+    if (
+      commands.includes('npm run lint') &&
+      commands.includes('npm run typecheck') &&
+      commands.includes('npm run test')
+    ) {
       return {
         id: `opt_${Date.now()}`,
-        description: 'Use single CI command instead of running lint, typecheck, and test separately',
+        description:
+          'Use single CI command instead of running lint, typecheck, and test separately',
         currentWorkflow: ['npm run lint', 'npm run typecheck', 'npm run test'],
         optimizedWorkflow: ['npm run ci'],
         timeSavings: '30-50% faster execution',
@@ -786,18 +919,29 @@ export class SuggestionEngine {
         description: 'Linting errors encountered',
         causes: ['Code style violations', 'Unused variables', 'Type errors'],
         errorContext: ['Code modification', 'New file creation'],
-        prevention: ['Run lint on save', 'Use pre-commit hooks', 'Configure IDE linting'],
+        prevention: [
+          'Run lint on save',
+          'Use pre-commit hooks',
+          'Configure IDE linting',
+        ],
         frequency: 1,
       });
     }
 
-    if (summary.includes('build') && (summary.includes('failed') || summary.includes('error'))) {
+    if (
+      summary.includes('build') &&
+      (summary.includes('failed') || summary.includes('error'))
+    ) {
       patterns.push({
         id: 'build_error',
         description: 'Build compilation errors',
         causes: ['Type errors', 'Import issues', 'Configuration problems'],
         errorContext: ['Dependency changes', 'Configuration updates'],
-        prevention: ['Incremental builds', 'Type checking', 'Dependency audits'],
+        prevention: [
+          'Incremental builds',
+          'Type checking',
+          'Dependency audits',
+        ],
         frequency: 1,
       });
     }
@@ -808,11 +952,16 @@ export class SuggestionEngine {
   /**
    * Generate pattern-based command suggestions
    */
-  private generatePatternBasedCommandSuggestions(currentContext: string): ContextSuggestion[] {
+  private generatePatternBasedCommandSuggestions(
+    currentContext: string,
+  ): ContextSuggestion[] {
     const suggestions: ContextSuggestion[] = [];
 
     for (const pattern of this.interactionPatterns.values()) {
-      const contextRelevance = this.calculatePatternRelevance(currentContext, pattern);
+      const contextRelevance = this.calculatePatternRelevance(
+        currentContext,
+        pattern,
+      );
 
       if (contextRelevance > 0.5 && pattern.successRate > 0.6) {
         const nextCommand = this.predictNextCommand(currentContext, pattern);
@@ -822,7 +971,10 @@ export class SuggestionEngine {
             suggestion: nextCommand,
             confidence: pattern.successRate * contextRelevance,
             reasoning: `Based on successful pattern: ${pattern.description}`,
-            historicalContext: [`Pattern used ${pattern.frequency} times`, `Success rate: ${Math.round(pattern.successRate * 100)}%`],
+            historicalContext: [
+              `Pattern used ${pattern.frequency} times`,
+              `Success rate: ${Math.round(pattern.successRate * 100)}%`,
+            ],
             estimatedBenefit: 'Follows proven workflow pattern',
           });
         }
@@ -835,7 +987,10 @@ export class SuggestionEngine {
   /**
    * Calculate pattern relevance to current context
    */
-  private calculatePatternRelevance(currentContext: string, pattern: InteractionPattern): number {
+  private calculatePatternRelevance(
+    currentContext: string,
+    pattern: InteractionPattern,
+  ): number {
     let relevance = 0;
 
     // Check context conditions
@@ -861,7 +1016,10 @@ export class SuggestionEngine {
   /**
    * Predict next command in a pattern
    */
-  private predictNextCommand(currentContext: string, pattern: InteractionPattern): string | null {
+  private predictNextCommand(
+    currentContext: string,
+    pattern: InteractionPattern,
+  ): string | null {
     // Simple implementation - in production would use more sophisticated ML
     const contextLower = currentContext.toLowerCase();
 
@@ -879,11 +1037,16 @@ export class SuggestionEngine {
   /**
    * Calculate context relevance for optimization
    */
-  private calculateContextRelevance(currentContext: string, description: string): number {
+  private calculateContextRelevance(
+    currentContext: string,
+    description: string,
+  ): number {
     const contextWords = new Set(currentContext.toLowerCase().split(/\s+/));
     const descriptionWords = new Set(description.toLowerCase().split(/\s+/));
 
-    const intersection = new Set([...contextWords].filter(word => descriptionWords.has(word)));
+    const intersection = new Set(
+      [...contextWords].filter((word) => descriptionWords.has(word)),
+    );
     const union = new Set([...contextWords, ...descriptionWords]);
 
     return intersection.size / union.size;
@@ -894,11 +1057,13 @@ export class SuggestionEngine {
    */
   private getCommandSuccessRate(command: string): number {
     const feedback = Array.from(this.userFeedback.values());
-    const commandFeedback = feedback.filter(f => f.suggestion.suggestion.includes(command));
+    const commandFeedback = feedback.filter((f) =>
+      f.suggestion.suggestion.includes(command),
+    );
 
     if (commandFeedback.length === 0) return 0.5; // Neutral if no data
 
-    const acceptedCount = commandFeedback.filter(f => f.accepted).length;
+    const acceptedCount = commandFeedback.filter((f) => f.accepted).length;
     return acceptedCount / commandFeedback.length;
   }
 
@@ -936,18 +1101,26 @@ export class SuggestionEngine {
   /**
    * Generate performance suggestions
    */
-  private generatePerformanceSuggestions(codeContext: CodeContextSnapshot): ContextSuggestion[] {
+  private generatePerformanceSuggestions(
+    codeContext: CodeContextSnapshot,
+  ): ContextSuggestion[] {
     const suggestions: ContextSuggestion[] = [];
 
     // Check for potential performance issues
-    const largeFunctions = codeContext.activeFunctions.filter(f => f.lineCount > 100);
+    const largeFunctions = codeContext.activeFunctions.filter(
+      (f) => f.lineCount > 100,
+    );
     if (largeFunctions.length > 0) {
       suggestions.push({
         type: 'code',
-        suggestion: 'Consider code splitting for large functions to improve load performance',
+        suggestion:
+          'Consider code splitting for large functions to improve load performance',
         confidence: 0.7,
-        reasoning: 'Large functions can impact initial page load and memory usage',
-        historicalContext: [`${largeFunctions.length} functions over 100 lines`],
+        reasoning:
+          'Large functions can impact initial page load and memory usage',
+        historicalContext: [
+          `${largeFunctions.length} functions over 100 lines`,
+        ],
         estimatedBenefit: 'Improved initial load time and memory efficiency',
       });
     }
@@ -958,18 +1131,23 @@ export class SuggestionEngine {
   /**
    * Generate security suggestions
    */
-  private generateSecuritySuggestions(codeContext: CodeContextSnapshot): ContextSuggestion[] {
+  private generateSecuritySuggestions(
+    codeContext: CodeContextSnapshot,
+  ): ContextSuggestion[] {
     const suggestions: ContextSuggestion[] = [];
 
     // Check for potential security concerns
-    const hasManyDependencies = Object.keys(codeContext.dependencies).length > 30;
+    const hasManyDependencies =
+      Object.keys(codeContext.dependencies).length > 30;
     if (hasManyDependencies) {
       suggestions.push({
         type: 'code',
         suggestion: 'Audit dependencies for security vulnerabilities',
         confidence: 0.8,
         reasoning: 'Large dependency trees increase security attack surface',
-        historicalContext: [`${Object.keys(codeContext.dependencies).length} dependencies`],
+        historicalContext: [
+          `${Object.keys(codeContext.dependencies).length} dependencies`,
+        ],
         estimatedBenefit: 'Reduced security risk and vulnerability exposure',
       });
     }
@@ -980,14 +1158,17 @@ export class SuggestionEngine {
   /**
    * Identify development workflow optimizations
    */
-  private identifyDevelopmentWorkflowOptimizations(currentContext: string): ContextSuggestion[] {
+  private identifyDevelopmentWorkflowOptimizations(
+    _currentContext: string,
+  ): ContextSuggestion[] {
     const suggestions: ContextSuggestion[] = [];
 
     suggestions.push({
       type: 'workflow',
       suggestion: 'Set up pre-commit hooks for automated code quality checks',
       confidence: 0.8,
-      reasoning: 'Automated quality checks prevent issues from entering the repository',
+      reasoning:
+        'Automated quality checks prevent issues from entering the repository',
       historicalContext: ['Best practice for development workflows'],
       estimatedBenefit: 'Reduced manual review time and higher code quality',
     });
@@ -998,14 +1179,17 @@ export class SuggestionEngine {
   /**
    * Identify testing workflow optimizations
    */
-  private identifyTestingWorkflowOptimizations(currentContext: string): ContextSuggestion[] {
+  private identifyTestingWorkflowOptimizations(
+    _currentContext: string,
+  ): ContextSuggestion[] {
     const suggestions: ContextSuggestion[] = [];
 
     suggestions.push({
       type: 'workflow',
       suggestion: 'Set up test automation with watch mode for faster feedback',
       confidence: 0.7,
-      reasoning: 'Automated test execution provides immediate feedback on changes',
+      reasoning:
+        'Automated test execution provides immediate feedback on changes',
       historicalContext: ['Test-driven development best practice'],
       estimatedBenefit: 'Faster development cycles and bug detection',
     });
@@ -1016,12 +1200,15 @@ export class SuggestionEngine {
   /**
    * Identify deployment workflow optimizations
    */
-  private identifyDeploymentWorkflowOptimizations(currentContext: string): ContextSuggestion[] {
+  private identifyDeploymentWorkflowOptimizations(
+    _currentContext: string,
+  ): ContextSuggestion[] {
     const suggestions: ContextSuggestion[] = [];
 
     suggestions.push({
       type: 'workflow',
-      suggestion: 'Implement CI/CD pipeline for automated testing and deployment',
+      suggestion:
+        'Implement CI/CD pipeline for automated testing and deployment',
       confidence: 0.9,
       reasoning: 'Automated pipelines reduce manual errors and deployment time',
       historicalContext: ['Industry standard deployment practice'],
@@ -1038,11 +1225,13 @@ export class SuggestionEngine {
     const duplicates: string[] = [];
 
     // Simple heuristic: functions with similar names or high similarity
-    const functionNames = codeContext.activeFunctions.map(f => f.name);
+    const functionNames = codeContext.activeFunctions.map((f) => f.name);
     const patterns = new Map<string, string[]>();
 
     for (const name of functionNames) {
-      const baseName = name.replace(/\d+$/, '').replace(/(Create|Get|Set|Update|Delete)/, '');
+      const baseName = name
+        .replace(/\d+$/, '')
+        .replace(/(Create|Get|Set|Update|Delete)/, '');
       if (!patterns.has(baseName)) {
         patterns.set(baseName, []);
       }
@@ -1064,7 +1253,9 @@ export class SuggestionEngine {
   private reinforcePositivePattern(suggestion: ContextSuggestion): void {
     // Find and strengthen related patterns
     for (const pattern of this.interactionPatterns.values()) {
-      if (pattern.actions.some(action => suggestion.suggestion.includes(action))) {
+      if (
+        pattern.actions.some((action) => suggestion.suggestion.includes(action))
+      ) {
         pattern.successRate = Math.min(1, pattern.successRate * 1.1);
       }
     }
@@ -1076,7 +1267,9 @@ export class SuggestionEngine {
   private reduceNegativePattern(suggestion: ContextSuggestion): void {
     // Find and weaken related patterns
     for (const pattern of this.interactionPatterns.values()) {
-      if (pattern.actions.some(action => suggestion.suggestion.includes(action))) {
+      if (
+        pattern.actions.some((action) => suggestion.suggestion.includes(action))
+      ) {
         pattern.successRate = Math.max(0, pattern.successRate * 0.9);
       }
     }
@@ -1087,17 +1280,21 @@ export class SuggestionEngine {
    */
   getLearningStats(): LearningStats {
     const totalFeedback = this.userFeedback.size;
-    const successfulSuggestions = Array.from(this.userFeedback.values())
-      .filter(f => f.accepted).length;
+    const successfulSuggestions = Array.from(this.userFeedback.values()).filter(
+      (f) => f.accepted,
+    ).length;
 
     return {
       totalPatterns: this.interactionPatterns.size,
       successfulSuggestions,
       totalSuggestions: totalFeedback,
-      successRate: totalFeedback > 0 ? successfulSuggestions / totalFeedback : 0,
+      successRate:
+        totalFeedback > 0 ? successfulSuggestions / totalFeedback : 0,
       activeOptimizations: this.workflowOptimizations.size,
-      preventedErrors: Array.from(this.errorPatterns.values())
-        .reduce((sum, pattern) => sum + pattern.frequency, 0),
+      preventedErrors: Array.from(this.errorPatterns.values()).reduce(
+        (sum, pattern) => sum + pattern.frequency,
+        0,
+      ),
     };
   }
 
@@ -1106,7 +1303,9 @@ export class SuggestionEngine {
    */
   updateConfig(newConfig: Partial<SuggestionConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    logger.info('Suggestion engine configuration updated', { config: this.config });
+    logger.info('Suggestion engine configuration updated', {
+      config: this.config,
+    });
   }
 
   /**
@@ -1146,16 +1345,26 @@ export class SuggestionEngine {
   importLearningData(data: Record<string, unknown>): void {
     try {
       if (data.patterns) {
-        this.interactionPatterns = new Map(data.patterns as [string, InteractionPattern][]);
+        this.interactionPatterns = new Map(
+          data.patterns as Array<[string, InteractionPattern]>,
+        );
       }
       if (data.optimizations) {
-        this.workflowOptimizations = new Map(data.optimizations as [string, WorkflowOptimization][]);
+        this.workflowOptimizations = new Map(
+          data.optimizations as Array<[string, WorkflowOptimization]>,
+        );
       }
       if (data.errorPatterns) {
-        this.errorPatterns = new Map(data.errorPatterns as [string, ErrorPattern][]);
+        this.errorPatterns = new Map(
+          data.errorPatterns as Array<[string, ErrorPattern]>,
+        );
       }
       if (data.feedback) {
-        this.userFeedback = new Map(data.feedback as [string, { suggestion: ContextSuggestion; accepted: boolean }][]);
+        this.userFeedback = new Map(
+          data.feedback as Array<
+            [string, { suggestion: ContextSuggestion; accepted: boolean }]
+          >,
+        );
       }
 
       logger.info('Learning data imported successfully', {

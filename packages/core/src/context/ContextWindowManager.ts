@@ -18,10 +18,7 @@ import type {
   ContextWindow,
   ContextSections,
   ContextSection,
-  ContextType,
   ContextPriority,
-  PrioritizationResult,
-  CompressionResult,
 } from './types.js';
 import { ContextPrioritizer } from './ContextPrioritizer.js';
 import { SemanticCompressor } from './SemanticCompressor.js';
@@ -58,11 +55,11 @@ export interface ContextWindowConfig {
 export const DEFAULT_CONTEXT_WINDOW_CONFIG: ContextWindowConfig = {
   totalTokens: 32000, // Gemini Pro default
   sectionAllocation: {
-    system: 0.15,    // 15% for system prompts and instructions
+    system: 0.15, // 15% for system prompts and instructions
     conversation: 0.35, // 35% for conversation history
-    code: 0.25,      // 25% for code context
-    project: 0.15,   // 15% for project context
-    memory: 0.10,    // 10% for long-term memory
+    code: 0.25, // 25% for code context
+    project: 0.15, // 15% for project context
+    memory: 0.1, // 10% for long-term memory
   },
   minTokensPerSection: 500,
   bufferPercentage: 0.05, // 5% safety buffer
@@ -159,7 +156,10 @@ export class ContextWindowManager {
   /**
    * Create a new context section with default values
    */
-  private createSection(name: string, priority: ContextPriority): ContextSection {
+  private createSection(
+    name: string,
+    priority: ContextPriority,
+  ): ContextSection {
     return {
       name,
       tokens: 0,
@@ -174,26 +174,38 @@ export class ContextWindowManager {
    * Allocate tokens to sections based on configuration
    */
   private allocateTokensToSections(sections: ContextSections): void {
-    const availableTokens = this.config.totalTokens * (1 - this.config.bufferPercentage);
+    const availableTokens =
+      this.config.totalTokens * (1 - this.config.bufferPercentage);
 
     for (const [sectionName, section] of Object.entries(sections)) {
-      const allocationRatio = this.config.sectionAllocation[sectionName as keyof typeof this.config.sectionAllocation];
+      const allocationRatio =
+        this.config.sectionAllocation[
+          sectionName as keyof typeof this.config.sectionAllocation
+        ];
       const allocatedTokens = Math.max(
         this.config.minTokensPerSection,
         Math.floor(availableTokens * allocationRatio),
       );
 
       section.maxTokens = allocatedTokens;
-      logger.debug(`Allocated ${allocatedTokens} tokens to ${sectionName} section`);
+      logger.debug(
+        `Allocated ${allocatedTokens} tokens to ${sectionName} section`,
+      );
     }
   }
 
   /**
    * Add content to a specific section
    */
-  async addToSection(sectionName: keyof ContextSections, item: ContextItem): Promise<boolean> {
+  async addToSection(
+    sectionName: keyof ContextSections,
+    item: ContextItem,
+  ): Promise<boolean> {
     const startTime = performance.now();
-    logger.debug(`Adding item to ${sectionName} section`, { itemId: item.id, tokens: item.tokenCount });
+    logger.debug(`Adding item to ${sectionName} section`, {
+      itemId: item.id,
+      tokens: item.tokenCount,
+    });
 
     try {
       const section = this.contextWindow.sections[sectionName];
@@ -203,8 +215,13 @@ export class ContextWindowManager {
         logger.debug(`Section ${sectionName} full, attempting optimization`);
         const optimized = await this.optimizeSection(sectionName);
 
-        if (!optimized || section.tokens + item.tokenCount > section.maxTokens) {
-          logger.warn(`Cannot add item to ${sectionName}: insufficient space after optimization`);
+        if (
+          !optimized ||
+          section.tokens + item.tokenCount > section.maxTokens
+        ) {
+          logger.warn(
+            `Cannot add item to ${sectionName}: insufficient space after optimization`,
+          );
           return false;
         }
       }
@@ -226,15 +243,21 @@ export class ContextWindowManager {
       }
 
       const duration = performance.now() - startTime;
-      logger.info(`Added item to ${sectionName} section in ${duration.toFixed(2)}ms`, {
-        itemId: item.id,
-        sectionTokens: section.tokens,
-        totalUsed: this.contextWindow.usedTokens,
-      });
+      logger.info(
+        `Added item to ${sectionName} section in ${duration.toFixed(2)}ms`,
+        {
+          itemId: item.id,
+          sectionTokens: section.tokens,
+          totalUsed: this.contextWindow.usedTokens,
+        },
+      );
 
       return true;
     } catch (error) {
-      logger.error(`Failed to add item to ${sectionName} section`, { error, itemId: item.id });
+      logger.error(`Failed to add item to ${sectionName} section`, {
+        error,
+        itemId: item.id,
+      });
       return false;
     }
   }
@@ -242,22 +265,27 @@ export class ContextWindowManager {
   /**
    * Remove specific items from a section
    */
-  removeFromSection(sectionName: keyof ContextSections, itemIds: string[]): void {
+  removeFromSection(
+    sectionName: keyof ContextSections,
+    itemIds: string[],
+  ): void {
     logger.debug(`Removing items from ${sectionName} section`, { itemIds });
 
     const section = this.contextWindow.sections[sectionName];
     const itemsToRemove = new Set(itemIds);
 
     // Filter out items to remove
-    const remainingItems = section.items.filter(item => !itemsToRemove.has(item.id));
+    const remainingItems = section.items.filter(
+      (item) => !itemsToRemove.has(item.id),
+    );
     const removedTokens = section.items
-      .filter(item => itemsToRemove.has(item.id))
+      .filter((item) => itemsToRemove.has(item.id))
       .reduce((sum, item) => sum + item.tokenCount, 0);
 
     // Update section
     section.items = remainingItems;
     section.tokens -= removedTokens;
-    section.content = remainingItems.map(item => item.content).join('\n');
+    section.content = remainingItems.map((item) => item.content).join('\n');
 
     // Update totals
     this.updateContextWindowTotals();
@@ -271,7 +299,9 @@ export class ContextWindowManager {
   /**
    * Optimize a specific section by compression or eviction
    */
-  private async optimizeSection(sectionName: keyof ContextSections): Promise<boolean> {
+  private async optimizeSection(
+    sectionName: keyof ContextSections,
+  ): Promise<boolean> {
     const startTime = performance.now();
     logger.debug(`Optimizing ${sectionName} section`);
 
@@ -284,26 +314,38 @@ export class ContextWindowManager {
       }
 
       // Prioritize items in the section
-      const prioritizationResult = await this.prioritizer.prioritize(section.items);
+      const prioritizationResult = await this.prioritizer.prioritize(
+        section.items,
+      );
 
       // Remove low-priority items first
       if (prioritizationResult.toRemove.length > 0) {
-        const itemsToRemove = prioritizationResult.toRemove.map(item => item.id);
+        const itemsToRemove = prioritizationResult.toRemove.map(
+          (item) => item.id,
+        );
         this.removeFromSection(sectionName, itemsToRemove);
-        logger.info(`Removed ${itemsToRemove.length} low-priority items from ${sectionName}`);
+        logger.info(
+          `Removed ${itemsToRemove.length} low-priority items from ${sectionName}`,
+        );
       }
 
       // Compress items marked for compression
       if (prioritizationResult.toCompress.length > 0) {
-        await this.compressItemsInSection(sectionName, prioritizationResult.toCompress);
+        await this.compressItemsInSection(
+          sectionName,
+          prioritizationResult.toCompress,
+        );
       }
 
       const duration = performance.now() - startTime;
-      logger.info(`Optimized ${sectionName} section in ${duration.toFixed(2)}ms`, {
-        removedItems: prioritizationResult.toRemove.length,
-        compressedItems: prioritizationResult.toCompress.length,
-        newTokenCount: section.tokens,
-      });
+      logger.info(
+        `Optimized ${sectionName} section in ${duration.toFixed(2)}ms`,
+        {
+          removedItems: prioritizationResult.toRemove.length,
+          compressedItems: prioritizationResult.toCompress.length,
+          newTokenCount: section.tokens,
+        },
+      );
 
       return true;
     } catch (error) {
@@ -327,7 +369,7 @@ export class ContextWindowManager {
         const compressionResult = await this.compressor.compress(item);
 
         // Replace the item with compressed version
-        const itemIndex = section.items.findIndex(i => i.id === item.id);
+        const itemIndex = section.items.findIndex((i) => i.id === item.id);
         if (itemIndex !== -1) {
           const compressedItem: ContextItem = {
             ...item,
@@ -336,21 +378,31 @@ export class ContextWindowManager {
           };
 
           section.items[itemIndex] = compressedItem;
-          totalSavings += compressionResult.originalTokens - compressionResult.compressedTokens;
+          totalSavings +=
+            compressionResult.originalTokens -
+            compressionResult.compressedTokens;
         }
       } catch (error) {
-        logger.warn(`Failed to compress item ${item.id} in ${sectionName}`, { error });
+        logger.warn(`Failed to compress item ${item.id} in ${sectionName}`, {
+          error,
+        });
       }
     }
 
     // Recalculate section metrics
-    section.tokens = section.items.reduce((sum, item) => sum + item.tokenCount, 0);
-    section.content = section.items.map(item => item.content).join('\n');
+    section.tokens = section.items.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
+    section.content = section.items.map((item) => item.content).join('\n');
 
-    logger.info(`Compressed ${itemsToCompress.length} items in ${sectionName}`, {
-      tokensSaved: totalSavings,
-      newSectionSize: section.tokens,
-    });
+    logger.info(
+      `Compressed ${itemsToCompress.length} items in ${sectionName}`,
+      {
+        tokensSaved: totalSavings,
+        newSectionSize: section.tokens,
+      },
+    );
   }
 
   /**
@@ -400,7 +452,10 @@ export class ContextWindowManager {
     const sectionWeights: Record<string, number> = {};
 
     for (const [sectionName, usage] of Object.entries(usagePatterns)) {
-      const baseWeight = this.config.sectionAllocation[sectionName as keyof typeof this.config.sectionAllocation];
+      const baseWeight =
+        this.config.sectionAllocation[
+          sectionName as keyof typeof this.config.sectionAllocation
+        ];
       const usageWeight = usage.averageUsage / usage.maxCapacity;
 
       // Blend base allocation with usage patterns (70% base, 30% usage)
@@ -409,7 +464,8 @@ export class ContextWindowManager {
     }
 
     // Normalize weights and apply new allocation
-    const availableTokens = this.config.totalTokens * (1 - this.config.bufferPercentage);
+    const availableTokens =
+      this.config.totalTokens * (1 - this.config.bufferPercentage);
 
     for (const [sectionName, section] of Object.entries(sections)) {
       const normalizedWeight = sectionWeights[sectionName] / totalUsageWeight;
@@ -419,25 +475,39 @@ export class ContextWindowManager {
       );
 
       section.maxTokens = newAllocation;
-      logger.debug(`Dynamically allocated ${newAllocation} tokens to ${sectionName}`, {
-        previousAllocation: section.maxTokens,
-        usagePattern: usagePatterns[sectionName],
-      });
+      logger.debug(
+        `Dynamically allocated ${newAllocation} tokens to ${sectionName}`,
+        {
+          previousAllocation: section.maxTokens,
+          usagePattern: usagePatterns[sectionName],
+        },
+      );
     }
   }
 
   /**
    * Analyze section usage patterns over time
    */
-  private analyzeSectionUsage(): Record<string, { averageUsage: number; maxCapacity: number; trend: number }> {
-    const patterns: Record<string, { averageUsage: number; maxCapacity: number; trend: number }> = {};
+  private analyzeSectionUsage(): Record<
+    string,
+    { averageUsage: number; maxCapacity: number; trend: number }
+  > {
+    const patterns: Record<
+      string,
+      { averageUsage: number; maxCapacity: number; trend: number }
+    > = {};
 
-    for (const [sectionName, section] of Object.entries(this.contextWindow.sections)) {
+    for (const [sectionName, section] of Object.entries(
+      this.contextWindow.sections,
+    )) {
       const usageHistory = this.usageHistory.get(sectionName) || [];
 
       patterns[sectionName] = {
-        averageUsage: usageHistory.length > 0 ?
-          usageHistory.reduce((sum, usage) => sum + usage, 0) / usageHistory.length : 0,
+        averageUsage:
+          usageHistory.length > 0
+            ? usageHistory.reduce((sum, usage) => sum + usage, 0) /
+              usageHistory.length
+            : 0,
         maxCapacity: section.maxTokens,
         trend: this.calculateUsageTrend(usageHistory),
       };
@@ -453,12 +523,17 @@ export class ContextWindowManager {
     if (usageHistory.length < 2) return 0;
 
     const recentUsage = usageHistory.slice(-5); // Last 5 measurements
-    const earlyUsage = usageHistory.slice(0, Math.min(5, usageHistory.length - 5));
+    const earlyUsage = usageHistory.slice(
+      0,
+      Math.min(5, usageHistory.length - 5),
+    );
 
     if (earlyUsage.length === 0) return 0;
 
-    const recentAvg = recentUsage.reduce((sum, val) => sum + val, 0) / recentUsage.length;
-    const earlyAvg = earlyUsage.reduce((sum, val) => sum + val, 0) / earlyUsage.length;
+    const recentAvg =
+      recentUsage.reduce((sum, val) => sum + val, 0) / recentUsage.length;
+    const earlyAvg =
+      earlyUsage.reduce((sum, val) => sum + val, 0) / earlyUsage.length;
 
     return (recentAvg - earlyAvg) / earlyAvg;
   }
@@ -466,9 +541,10 @@ export class ContextWindowManager {
   /**
    * Record section usage for dynamic allocation
    */
-  private recordSectionUsage(sectionName: string, tokensDelta: number): void {
+  private recordSectionUsage(sectionName: string, _tokensDelta: number): void {
     const currentUsage = this.usageHistory.get(sectionName) || [];
-    const section = this.contextWindow.sections[sectionName as keyof ContextSections];
+    const section =
+      this.contextWindow.sections[sectionName as keyof ContextSections];
 
     currentUsage.push(section.tokens);
 
@@ -484,18 +560,22 @@ export class ContextWindowManager {
    * Update context window totals after section changes
    */
   private updateContextWindowTotals(): void {
-    const usedTokens = Object.values(this.contextWindow.sections)
-      .reduce((sum, section) => sum + section.tokens, 0);
+    const usedTokens = Object.values(this.contextWindow.sections).reduce(
+      (sum, section) => sum + section.tokens,
+      0,
+    );
 
     this.contextWindow.usedTokens = usedTokens;
-    this.contextWindow.availableTokens = this.contextWindow.totalTokens - usedTokens;
+    this.contextWindow.availableTokens =
+      this.contextWindow.totalTokens - usedTokens;
   }
 
   /**
    * Determine if optimization should be triggered
    */
   private shouldOptimize(): boolean {
-    const timeSinceLastOptimization = Date.now() - this.lastOptimization.getTime();
+    const timeSinceLastOptimization =
+      Date.now() - this.lastOptimization.getTime();
     const minOptimizationInterval = 30000; // 30 seconds
 
     // Don't optimize too frequently
@@ -560,8 +640,8 @@ export class ContextWindowManager {
       wastedTokens += Math.max(0, allocated - utilized);
     }
 
-    const efficiencyScore = totalAllocated > 0 ?
-      (totalAllocated - wastedTokens) / totalAllocated : 0;
+    const efficiencyScore =
+      totalAllocated > 0 ? (totalAllocated - wastedTokens) / totalAllocated : 0;
 
     return {
       totalAllocated,
@@ -592,7 +672,9 @@ export class ContextWindowManager {
    * Clear all content from context window
    */
   clearAll(): void {
-    for (const sectionName of Object.keys(this.contextWindow.sections) as (keyof ContextSections)[]) {
+    for (const sectionName of Object.keys(this.contextWindow.sections) as Array<
+      keyof ContextSections
+    >) {
       this.clearSection(sectionName);
     }
 
@@ -612,7 +694,9 @@ export class ContextWindowManager {
       this.updateContextWindowTotals();
     }
 
-    logger.info('Context window configuration updated', { config: this.config });
+    logger.info('Context window configuration updated', {
+      config: this.config,
+    });
   }
 
   /**

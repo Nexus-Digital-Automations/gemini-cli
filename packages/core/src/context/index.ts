@@ -80,8 +80,14 @@ export {
 } from './SuggestionEngine.js';
 
 // Configuration Types
-export type { ContextWindowConfig, AllocationStats } from './ContextWindowManager.js';
-export type { CodeAnalysisConfig, AnalysisStats } from './CodeContextAnalyzer.js';
+export type {
+  ContextWindowConfig,
+  AllocationStats,
+} from './ContextWindowManager.js';
+export type {
+  CodeAnalysisConfig,
+  AnalysisStats,
+} from './CodeContextAnalyzer.js';
 export type {
   SuggestionConfig,
   InteractionPattern,
@@ -89,20 +95,38 @@ export type {
   ErrorPattern,
   LearningStats,
 } from './SuggestionEngine.js';
-export type { StorageConfig, SessionIndex, StorageStats } from './CrossSessionStorage.js';
+export type {
+  StorageConfig,
+  SessionIndex,
+  StorageStats,
+} from './CrossSessionStorage.js';
 
 import { getComponentLogger } from '../utils/logger.js';
-import { ContextPrioritizer, DEFAULT_PRIORITIZATION_CONFIG } from './ContextPrioritizer.js';
-import { SemanticCompressor, DEFAULT_COMPRESSION_CONFIG } from './SemanticCompressor.js';
-import { CrossSessionStorage, DEFAULT_STORAGE_CONFIG } from './CrossSessionStorage.js';
-import { ContextWindowManager, DEFAULT_CONTEXT_WINDOW_CONFIG } from './ContextWindowManager.js';
-import { CodeContextAnalyzer, DEFAULT_CODE_ANALYSIS_CONFIG } from './CodeContextAnalyzer.js';
-import { SuggestionEngine, DEFAULT_SUGGESTION_CONFIG } from './SuggestionEngine.js';
+import {
+  ContextPrioritizer,
+  DEFAULT_PRIORITIZATION_CONFIG,
+} from './ContextPrioritizer.js';
+import {
+  SemanticCompressor,
+  DEFAULT_COMPRESSION_CONFIG,
+} from './SemanticCompressor.js';
+import { CrossSessionStorage } from './CrossSessionStorage.js';
+import {
+  ContextWindowManager,
+  DEFAULT_CONTEXT_WINDOW_CONFIG,
+} from './ContextWindowManager.js';
+import {
+  CodeContextAnalyzer,
+  DEFAULT_CODE_ANALYSIS_CONFIG,
+} from './CodeContextAnalyzer.js';
+import {
+  SuggestionEngine,
+  DEFAULT_SUGGESTION_CONFIG,
+} from './SuggestionEngine.js';
 import type {
   ContextItem,
   ContextSuggestion,
   SessionContext,
-  CodeContextSnapshot,
   ContextWindow,
   PrioritizationConfig,
   CompressionConfig,
@@ -124,7 +148,7 @@ export interface ContextSystemConfig {
   /** Configuration for semantic compression */
   compression?: Partial<CompressionConfig>;
   /** Configuration for cross-session storage */
-  storage?: Partial<any>; // StorageConfig from CrossSessionStorage
+  storage?: Partial<StorageConfig>; // StorageConfig from CrossSessionStorage
   /** Configuration for context window management */
   window?: Partial<ContextWindowConfig>;
   /** Configuration for code analysis */
@@ -195,7 +219,10 @@ export class ContextSystem {
     this.compressor = new SemanticCompressor(this.config.compression);
     this.storage = new CrossSessionStorage(this.config.storage);
     this.windowManager = new ContextWindowManager(this.config.window);
-    this.codeAnalyzer = new CodeContextAnalyzer(this.config.projectPath, this.config.codeAnalysis);
+    this.codeAnalyzer = new CodeContextAnalyzer(
+      this.config.projectPath,
+      this.config.codeAnalysis,
+    );
     this.suggestionEngine = new SuggestionEngine(this.config.suggestions);
 
     logger.info('ContextSystem created', {
@@ -219,7 +246,10 @@ export class ContextSystem {
     try {
       // Initialize storage and load historical sessions
       await this.storage.initialize();
-      const recentSessions = await this.storage.getRelatedSessions(this.config.projectPath, 5);
+      const recentSessions = await this.storage.getRelatedSessions(
+        this.config.projectPath,
+        5,
+      );
 
       // Learn from recent sessions
       for (const session of recentSessions) {
@@ -240,10 +270,13 @@ export class ContextSystem {
 
       this.initialized = true;
       const duration = performance.now() - startTime;
-      logger.info(`ContextSystem initialized successfully in ${duration.toFixed(2)}ms`, {
-        historicalSessions: recentSessions.length,
-        autoOptimize: this.config.autoOptimize,
-      });
+      logger.info(
+        `ContextSystem initialized successfully in ${duration.toFixed(2)}ms`,
+        {
+          historicalSessions: recentSessions.length,
+          autoOptimize: this.config.autoOptimize,
+        },
+      );
     } catch (error) {
       logger.error('Failed to initialize ContextSystem', { error });
       throw error;
@@ -253,9 +286,15 @@ export class ContextSystem {
   /**
    * Add content to the context system
    */
-  async addContext(item: ContextItem, section: keyof ContextSections = 'conversation'): Promise<boolean> {
+  async addContext(
+    item: ContextItem,
+    section: keyof ContextSections = 'conversation',
+  ): Promise<boolean> {
     this.ensureInitialized();
-    logger.debug(`Adding context item to ${section}`, { itemId: item.id, tokenCount: item.tokenCount });
+    logger.debug(`Adding context item to ${section}`, {
+      itemId: item.id,
+      tokenCount: item.tokenCount,
+    });
 
     try {
       // Record interaction for learning
@@ -267,7 +306,9 @@ export class ContextSystem {
       if (added) {
         logger.info(`Context item added to ${section}`, { itemId: item.id });
       } else {
-        logger.warn(`Failed to add context item to ${section}`, { itemId: item.id });
+        logger.warn(`Failed to add context item to ${section}`, {
+          itemId: item.id,
+        });
       }
 
       return added;
@@ -282,7 +323,12 @@ export class ContextSystem {
    */
   async getSuggestions(
     currentContext: string,
-    suggestionType: 'command' | 'code' | 'workflow' | 'optimization' | 'debug' = 'workflow',
+    suggestionType:
+      | 'command'
+      | 'code'
+      | 'workflow'
+      | 'optimization'
+      | 'debug' = 'workflow',
   ): Promise<ContextSuggestion[]> {
     this.ensureInitialized();
     logger.debug(`Generating ${suggestionType} suggestions`);
@@ -300,7 +346,9 @@ export class ContextSystem {
 
       logger.info(`Generated ${suggestions.length} suggestions`, {
         type: suggestionType,
-        avgConfidence: suggestions.reduce((sum, s) => sum + s.confidence, 0) / suggestions.length || 0,
+        avgConfidence:
+          suggestions.reduce((sum, s) => sum + s.confidence, 0) /
+            suggestions.length || 0,
       });
 
       return suggestions;
@@ -327,10 +375,13 @@ export class ContextSystem {
       const stats = this.windowManager.getAllocationStats();
 
       const duration = performance.now() - startTime;
-      logger.info(`Context optimization completed in ${duration.toFixed(2)}ms`, {
-        efficiencyScore: stats.efficiencyScore,
-        wastedTokens: stats.wastedTokens,
-      });
+      logger.info(
+        `Context optimization completed in ${duration.toFixed(2)}ms`,
+        {
+          efficiencyScore: stats.efficiencyScore,
+          wastedTokens: stats.wastedTokens,
+        },
+      );
     } catch (error) {
       logger.error('Failed to optimize context', { error });
     }
@@ -350,9 +401,14 @@ export class ContextSystem {
       // Learn from this session
       await this.suggestionEngine.learnFromSession(session);
 
-      logger.info('Session saved successfully', { sessionId: session.sessionId });
+      logger.info('Session saved successfully', {
+        sessionId: session.sessionId,
+      });
     } catch (error) {
-      logger.error('Failed to save session', { error, sessionId: session.sessionId });
+      logger.error('Failed to save session', {
+        error,
+        sessionId: session.sessionId,
+      });
       throw error;
     }
   }
@@ -415,7 +471,11 @@ export class ContextSystem {
   /**
    * Record user feedback on a suggestion for learning
    */
-  recordSuggestionFeedback(suggestionId: string, suggestion: ContextSuggestion, accepted: boolean): void {
+  recordSuggestionFeedback(
+    suggestionId: string,
+    suggestion: ContextSuggestion,
+    accepted: boolean,
+  ): void {
     this.ensureInitialized();
     this.suggestionEngine.recordFeedback(suggestionId, suggestion, accepted);
     logger.debug('Suggestion feedback recorded', { suggestionId, accepted });
@@ -433,7 +493,8 @@ export class ContextSystem {
     logger.debug('Analyzing code changes', { changedFiles });
 
     try {
-      const impactResult = await this.codeAnalyzer.analyzeChangeImpact(changedFiles);
+      const impactResult =
+        await this.codeAnalyzer.analyzeChangeImpact(changedFiles);
       const suggestions = await this.getSuggestions(
         `Code changes in: ${changedFiles.join(', ')}`,
         'code',
@@ -463,10 +524,10 @@ export class ContextSystem {
    * Get comprehensive system statistics
    */
   getSystemStats(): {
-    window: any; // AllocationStats
-    learning: any; // LearningStats
-    analysis: any; // AnalysisStats
-    storage: any; // StorageStats
+    window: AllocationStats; // AllocationStats
+    learning: LearningStats; // LearningStats
+    analysis: AnalysisStats; // AnalysisStats
+    storage: StorageStats; // StorageStats
   } {
     this.ensureInitialized();
 
@@ -546,7 +607,9 @@ export class ContextSystem {
     try {
       // Import learning data
       if (data.learning) {
-        this.suggestionEngine.importLearningData(data.learning as Record<string, unknown>);
+        this.suggestionEngine.importLearningData(
+          data.learning as Record<string, unknown>,
+        );
       }
 
       // Import storage data
@@ -622,7 +685,9 @@ export class ContextSystem {
    */
   private ensureInitialized(): void {
     if (!this.initialized) {
-      throw new Error('ContextSystem not initialized. Call initialize() first.');
+      throw new Error(
+        'ContextSystem not initialized. Call initialize() first.',
+      );
     }
   }
 }
@@ -630,7 +695,9 @@ export class ContextSystem {
 /**
  * Create and initialize a context system instance
  */
-export async function createContextSystem(config: ContextSystemConfig): Promise<ContextSystem> {
+export async function createContextSystem(
+  config: ContextSystemConfig,
+): Promise<ContextSystem> {
   const system = new ContextSystem(config);
   await system.initialize();
   return system;
@@ -639,7 +706,9 @@ export async function createContextSystem(config: ContextSystemConfig): Promise<
 /**
  * Factory function to create a pre-configured context system for development
  */
-export async function createDevelopmentContextSystem(projectPath: string): Promise<ContextSystem> {
+export async function createDevelopmentContextSystem(
+  projectPath: string,
+): Promise<ContextSystem> {
   return createContextSystem({
     projectPath,
     autoOptimize: true,
@@ -670,7 +739,9 @@ export async function createDevelopmentContextSystem(projectPath: string): Promi
 /**
  * Factory function to create a pre-configured context system for production
  */
-export async function createProductionContextSystem(projectPath: string): Promise<ContextSystem> {
+export async function createProductionContextSystem(
+  projectPath: string,
+): Promise<ContextSystem> {
   return createContextSystem({
     projectPath,
     autoOptimize: true,

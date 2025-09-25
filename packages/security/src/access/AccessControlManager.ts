@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+// import * as path from 'node:path'; // Currently not used
 
 export interface User {
   readonly id: string;
@@ -195,7 +195,7 @@ export class AccessControlManager extends EventEmitter {
    * Check if a user has access to a specific resource and action.
    */
   async checkAccess(request: AccessRequest): Promise<AccessResult> {
-    const startTime = Date.now();
+    // const startTime = Date.now(); // Could be used for performance monitoring
 
     try {
       // Calculate risk score

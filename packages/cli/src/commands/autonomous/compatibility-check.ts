@@ -16,7 +16,7 @@ interface CompatibilityCheckOptions {
 }
 
 export const compatibilityCheckCommand: CommandModule<
-  {},
+  Record<string, unknown>,
   CompatibilityCheckOptions
 > = {
   command: 'compatibility-check',
