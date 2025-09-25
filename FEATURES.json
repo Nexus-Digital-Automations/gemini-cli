@@ -324,7 +324,7 @@
       }
     ],
     "initialization_stats": {
-      "total_initializations": 11,
+      "total_initializations": 12,
       "total_reinitializations": 148,
       "current_day": "2025-09-25",
       "time_buckets": {
@@ -341,7 +341,7 @@
           "reinit": 73
         },
         "23:00-03:59": {
-          "init": 0,
+          "init": 1,
           "reinit": 12
         },
         "04:00-08:59": {
@@ -406,7 +406,7 @@
         }
       ],
       "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T04:36:13.010Z"
+      "last_updated": "2025-09-25T04:36:39.415Z"
     }
   },
   "workflow_config": {
@@ -601,6 +601,12 @@
       "reinitialized": "2025-09-25T04:22:04.065Z",
       "sessionId": "a57dc4fcf6c7f6fc",
       "previousSessions": []
+    },
+    "CODEBASE_ANALYST": {
+      "lastHeartbeat": "2025-09-25T04:36:39.413Z",
+      "status": "active",
+      "initialized": "2025-09-25T04:36:39.413Z",
+      "sessionId": "1380f10ac67413e1"
     }
   },
   "tasks": [],
