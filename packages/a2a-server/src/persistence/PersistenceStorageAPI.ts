@@ -202,7 +202,10 @@ export class PersistenceStorageAPI implements TaskStore {
       enableConflictResolution: config.enableConflictResolution ?? true,
       enableDataIntegrity: config.enableDataIntegrity ?? true,
       ownerId:
-        config.ownerId || process.env['USER'] || process.env['USERNAME'] || 'unknown',
+        config.ownerId ||
+        process.env['USER'] ||
+        process.env['USERNAME'] ||
+        'unknown',
       performance: {
         enableCaching: config.performance?.enableCaching ?? true,
         cacheSize: config.performance?.cacheSize ?? 100,
@@ -762,7 +765,8 @@ export class PersistenceStorageAPI implements TaskStore {
 
     let healthStatus: 'healthy' | 'warning' | 'critical' = 'healthy';
     if (
-      failureRate > (this.config.monitoring?.alertThresholds?.failureRate ?? 10) ||
+      failureRate >
+        (this.config.monitoring?.alertThresholds?.failureRate ?? 10) ||
       diskUsage > (this.config.monitoring?.alertThresholds?.diskUsage ?? 80)
     ) {
       healthStatus = 'warning';
@@ -827,23 +831,28 @@ export class PersistenceStorageAPI implements TaskStore {
     try {
       logger.info('Performing comprehensive storage maintenance');
 
-      const results: Record<string, unknown> = {
+      const results: {
+        cleanupResults: unknown;
+        integrityResults?: unknown;
+        sessionResults?: unknown;
+      } = {
         cleanupResults: null,
         integrityResults: null,
         sessionResults: null,
       };
 
       // File storage cleanup
-      results.cleanupResults = await this.fileStorage.performCleanup();
+      results['cleanupResults'] = await this.fileStorage.performCleanup();
 
       // Data integrity maintenance
       if (this.dataIntegrity) {
-        results.integrityResults = await this.dataIntegrity.cleanupOldBackups();
+        results['integrityResults'] =
+          await this.dataIntegrity.cleanupOldBackups();
       }
 
       // Session management cleanup (would implement in session manager)
       if (this.sessionManager) {
-        // results.sessionResults = await this.sessionManager.performMaintenance();
+        // results['sessionResults'] = await this.sessionManager.performMaintenance();
       }
 
       const duration = Date.now() - startTime;

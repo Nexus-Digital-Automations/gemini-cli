@@ -492,7 +492,9 @@ export class FileBasedTaskStore implements TaskStore {
     loadedMetadata: unknown,
     workspacePath: string,
   ): Promise<void> {
-    const persistedState = getPersistedState(loadedMetadata);
+    const persistedState = getPersistedState(
+      loadedMetadata as PersistedTaskMetadata,
+    );
     if (!persistedState) {
       throw new Error(
         `Loaded metadata for task ${taskId} is missing persisted state`,
@@ -539,20 +541,25 @@ export class FileBasedTaskStore implements TaskStore {
     loadedMetadata: unknown,
     sessionMetadata?: TaskSessionMetadata,
   ): SDKTask {
-    const persistedState = getPersistedState(loadedMetadata);
+    const persistedState = getPersistedState(
+      loadedMetadata as PersistedTaskMetadata,
+    );
     if (!persistedState) {
       throw new Error(`Invalid persisted state for task ${taskId}`);
     }
 
+    const metadata = loadedMetadata as PersistedTaskMetadata & {
+      _contextId?: string;
+    };
     return {
       id: taskId,
-      contextId: loadedMetadata._contextId || uuidv4(),
+      contextId: metadata._contextId || uuidv4(),
       kind: 'task',
       status: {
         state: persistedState._taskState,
         timestamp: sessionMetadata?.updatedAt || new Date().toISOString(),
       },
-      metadata: loadedMetadata,
+      metadata,
       history: [],
       artifacts: [],
     };
@@ -561,7 +568,10 @@ export class FileBasedTaskStore implements TaskStore {
   /**
    * Create backup of existing task data
    */
-  private async createBackup(taskId: string, paths: string[]): Promise<void> {
+  private async createBackup(
+    taskId: string,
+    paths: ReturnType<typeof this.getTaskPaths>,
+  ): Promise<void> {
     if (!this.config.maxBackupVersions || this.config.maxBackupVersions <= 0) {
       return;
     }
