@@ -7,7 +7,7 @@
 /**
  * A type-safe enum for tool-related errors.
  */
-export const ToolErrorType = {};
+export let ToolErrorType = {};
 (function (ToolErrorType) {
     // General Errors
     ToolErrorType["INVALID_TOOL_PARAMS"] = "invalid_tool_params";

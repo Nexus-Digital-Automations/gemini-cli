@@ -19,7 +19,7 @@ import { TaskQueue, TaskPriority, TaskCategory, TaskStatus, } from './TaskQueue.
 /**
  * Advanced scheduling algorithms
  */
-export const SchedulingAlgorithm = {};
+export let SchedulingAlgorithm = {};
 (function (SchedulingAlgorithm) {
     SchedulingAlgorithm["ROUND_ROBIN"] = "round_robin";
     SchedulingAlgorithm["WEIGHTED_FAIR"] = "weighted_fair";
@@ -31,7 +31,7 @@ export const SchedulingAlgorithm = {};
 /**
  * Load balancing strategies for distributed execution
  */
-export const LoadBalancingStrategy = {};
+export let LoadBalancingStrategy = {};
 (function (LoadBalancingStrategy) {
     LoadBalancingStrategy["LEAST_LOADED"] = "least_loaded";
     LoadBalancingStrategy["ROUND_ROBIN"] = "round_robin";
@@ -42,7 +42,7 @@ export const LoadBalancingStrategy = {};
 /**
  * Resource allocation policies
  */
-export const ResourcePolicy = {};
+export let ResourcePolicy = {};
 (function (ResourcePolicy) {
     ResourcePolicy["GREEDY"] = "greedy";
     ResourcePolicy["FAIR_SHARE"] = "fair_share";

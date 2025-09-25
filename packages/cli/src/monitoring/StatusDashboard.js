@@ -8,17 +8,17 @@ import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Text, useApp } from 'ink';
 import {
-  TaskStatusMonitor,
+  _TaskStatusMonitor,
   TaskStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
-  StatusHistoryAnalytics,
+  _StatusHistoryAnalytics,
   statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
 import {
-  NotificationSystem,
-  notificationSystem,
+  _NotificationSystem,
+  _notificationSystem,
 } from './NotificationSystem.js';
 /**
  * ASCII-based Chart Components for Terminal Display
@@ -205,15 +205,16 @@ const OverviewDashboard = ({ tasks, agents, metrics }) => {
  * Task Details Dashboard
  */
 const TaskDashboard = ({ tasks, agents }) => {
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [sortBy, setSortBy] = useState('priority');
+  const [_selectedTask, _setSelectedTask] = useState(null);
+  const [_sortBy, _setSortBy] = useState('priority');
   const sortedTasks = [...tasks].sort((a, b) => {
-    switch (sortBy) {
-      case 'priority':
+    switch (_sortBy) {
+      case 'priority': {
         const priorityOrder = { critical: 4, high: 3, normal: 2, low: 1 };
         return (
           (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
         );
+      }
       case 'status':
         return a.status.localeCompare(b.status);
       case 'created':
@@ -292,7 +293,7 @@ const TaskDashboard = ({ tasks, agents }) => {
         children: [
           _jsxs(Text, {
             bold: true,
-            children: ['Recent Tasks (sorted by ', sortBy, '):'],
+            children: ['Recent Tasks (sorted by ', _sortBy, '):'],
           }),
           sortedTasks.slice(0, 10).map((task) =>
             _jsxs(
@@ -475,7 +476,7 @@ const AnalyticsDashboard = ({
   agentAnalytics,
   systemAnalytics,
 }) => {
-  const [timeframe, setTimeframe] = useState('24h');
+  const [_timeframe, _setTimeframe] = useState('24h');
   return _jsxs(Box, {
     flexDirection: 'column',
     gap: 1,
@@ -727,6 +728,8 @@ export const StatusDashboard = ({
           break;
         case 'r':
           refreshData();
+          break;
+        default:
           break;
       }
     };

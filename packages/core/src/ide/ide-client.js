@@ -29,7 +29,7 @@ const logger = {
 
   error: (...args) => console.error('[ERROR] [IDEClient]', ...args),
 };
-export const IDEConnectionStatus = {};
+export let IDEConnectionStatus = {};
 (function (IDEConnectionStatus) {
   IDEConnectionStatus['Connected'] = 'connected';
   IDEConnectionStatus['Disconnected'] = 'disconnected';

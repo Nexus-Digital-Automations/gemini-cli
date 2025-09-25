@@ -590,16 +590,17 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
   async executePreflightCheck(check) {
     this.logger.debug('Executing preflight check', { check });
     switch (check) {
-      case 'Verify Node.js version >= 18.x':
+      case 'Verify Node.js version >= 18.x': {
         const nodeVersion = process.version;
-        const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0]);
+        const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0], 10);
         if (majorVersion < 18) {
           throw new Error(
             `Node.js version ${nodeVersion} is not supported. Requires >= 18.x`,
           );
         }
         break;
-      case 'Check available memory >= 512MB':
+      }
+      case 'Check available memory >= 512MB': {
         const memoryUsage = process.memoryUsage();
         const availableMemory = memoryUsage.heapTotal - memoryUsage.heapUsed;
         if (availableMemory < 512 * 1024 * 1024) {
@@ -609,6 +610,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
           });
         }
         break;
+      }
       case 'Validate filesystem permissions':
         try {
           await fs.access(

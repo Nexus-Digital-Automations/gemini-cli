@@ -10,7 +10,7 @@ import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './Val
 /**
  * Failure handling strategy types
  */
-export const FailureHandlingStrategy = {};
+export let FailureHandlingStrategy = {};
 (function (FailureHandlingStrategy) {
     FailureHandlingStrategy["IMMEDIATE_RETRY"] = "immediate-retry";
     FailureHandlingStrategy["EXPONENTIAL_BACKOFF"] = "exponential-backoff";

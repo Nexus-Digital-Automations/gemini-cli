@@ -12,7 +12,7 @@ const logger = getComponentLogger('ParallelOptimizer');
 /**
  * Parallel execution strategies
  */
-export const ParallelStrategy = {};
+export let ParallelStrategy = {};
 (function (ParallelStrategy) {
   ParallelStrategy['MAX_PARALLELISM'] = 'max_parallelism';
   ParallelStrategy['RESOURCE_BALANCED'] = 'resource_balanced';

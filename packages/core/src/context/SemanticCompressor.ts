@@ -15,11 +15,10 @@
 import { getComponentLogger } from '../utils/logger.js';
 import type {
   ContextItem,
-  ContextType,
   CompressionConfig,
-  CompressionStrategy,
   CompressionResult,
 } from './types.js';
+import { CompressionStrategy, ContextType } from './types.js';
 
 const logger = getComponentLogger('semantic-compressor');
 

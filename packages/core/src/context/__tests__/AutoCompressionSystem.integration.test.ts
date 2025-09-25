@@ -12,12 +12,14 @@
  * @version 1.0.0
  */
 
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AutoCompressionManager, AutoCompressionEvent } from '../AutoCompressionManager.js';
 import { TokenMonitorService } from '../TokenMonitorService.js';
 import { CompressionConfigurationManager, ConfigurationPreset } from '../CompressionConfigurationManager.js';
 import { CompressionFallbackSystem } from '../CompressionFallbackSystem.js';
 import { EnhancedCompressionAlgorithms } from '../EnhancedCompressionAlgorithms.js';
-import { ContextItem, ContextType, ContextPriority } from '../types.js';
+import type { ContextItem} from '../types.js';
+import { ContextType, ContextPriority } from '../types.js';
 import { performance } from 'node:perf_hooks';
 
 describe('AutoCompressionSystem Integration Tests', () => {
@@ -44,7 +46,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
 
       // Mock context manager
       const mockContextManager = {
-        getCurrentWindow: jest.fn(() => ({
+        getCurrentWindow: vi.fn(() => ({
           totalTokens: targetTokens,
           usedTokens: 1_272_932,
           availableTokens: targetTokens - 1_272_932, // Negative = over limit
@@ -75,7 +77,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
             }
           }
         })),
-        updateContextWindowTotals: jest.fn()
+        updateContextWindowTotals: vi.fn()
       };
 
       compressionManager.registerContextManager('test-session', mockContextManager as any);
@@ -127,7 +129,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
       let currentTokens = baseTokens;
 
       const mockContextManager = {
-        getCurrentWindow: jest.fn(() => {
+        getCurrentWindow: vi.fn(() => {
           currentTokens += growthRate; // Simulate growth
           return {
             totalTokens: 1_048_576,
@@ -153,7 +155,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
             }
           };
         }),
-        updateContextWindowTotals: jest.fn()
+        updateContextWindowTotals: vi.fn()
       };
 
       compressionManager.registerContextManager('growth-test', mockContextManager as any);
@@ -211,7 +213,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
       const emergencyTokens = Math.floor(1_048_576 * 0.96); // 96% of limit
 
       const mockContextManager = {
-        getCurrentWindow: jest.fn(() => ({
+        getCurrentWindow: vi.fn(() => ({
           totalTokens: 1_048_576,
           usedTokens: emergencyTokens,
           availableTokens: 1_048_576 - emergencyTokens,
@@ -226,7 +228,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
             }
           }
         })),
-        updateContextWindowTotals: jest.fn()
+        updateContextWindowTotals: vi.fn()
       };
 
       compressionManager.registerContextManager('emergency-test', mockContextManager as any);

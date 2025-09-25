@@ -8,6 +8,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { memoryCommand } from './memoryCommand.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import { MessageType } from '../types.js';
+import { getErrorMessage, loadServerHierarchicalMemory } from '@google/gemini-cli-core';
+
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
   const original = await importOriginal();
   return {
@@ -19,6 +21,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
     loadServerHierarchicalMemory: vi.fn(),
   };
 });
+
 const mockLoadServerHierarchicalMemory = loadServerHierarchicalMemory;
 describe('memoryCommand', () => {
   let mockContext;

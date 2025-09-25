@@ -19,11 +19,13 @@ import { getComponentLogger } from '../utils/logger.js';
 import { SemanticCompressor } from './SemanticCompressor.js';
 import { EnhancedCompressionAlgorithms } from './EnhancedCompressionAlgorithms.js';
 import { CompressionFallbackSystem } from './CompressionFallbackSystem.js';
-import {
+import type {
   CompressionConfigurationManager,
-  createCompressionConfigurationManager,
   ConfigurationPreset,
   CompressionSystemConfig
+} from './CompressionConfigurationManager.js';
+import {
+  createCompressionConfigurationManager
 } from './CompressionConfigurationManager.js';
 import type { ContextWindowManager } from './ContextWindowManager.js';
 import { CompressionStrategy } from './types.js';

@@ -9,7 +9,7 @@ import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
 import { LoggingContentGenerator } from './loggingContentGenerator.js';
 import { InstallationManager } from '../utils/installationManager.js';
 import { createBudgetContentGenerator } from './budgetContentGenerator.js';
-export const AuthType = {};
+export let AuthType = {};
 (function (AuthType) {
   AuthType['LOGIN_WITH_GOOGLE'] = 'oauth-personal';
   AuthType['USE_GEMINI'] = 'gemini-api-key';

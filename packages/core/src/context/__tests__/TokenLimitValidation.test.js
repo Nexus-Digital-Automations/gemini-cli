@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Validation Test for Specific Token Limit Issue
  * Tests the exact 1,272,932 → 1,048,576 token compression scenario

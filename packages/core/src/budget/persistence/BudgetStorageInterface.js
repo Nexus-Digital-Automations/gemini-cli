@@ -7,7 +7,7 @@
 /**
  * Storage event types for monitoring
  */
-export const StorageEventType = {};
+export let StorageEventType = {};
 (function (StorageEventType) {
   /** Storage initialized successfully */
   StorageEventType['INITIALIZED'] = 'initialized';

@@ -32,4 +32,4 @@ export { useBudgetDashboard } from './hooks/useBudgetDashboard.js';
 export * from './utils/chartUtils.js';
 
 // TypeScript interfaces and types
-export type * from './types/index.js';
+export type * from './types/index.ts';

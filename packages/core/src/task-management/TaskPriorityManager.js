@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Advanced priority calculation algorithms
  */
-export const PriorityAlgorithm = {};
+export let PriorityAlgorithm = {};
 (function (PriorityAlgorithm) {
     PriorityAlgorithm["WEIGHTED_FACTORS"] = "weighted_factors";
     PriorityAlgorithm["URGENCY_IMPACT_MATRIX"] = "urgency_impact_matrix";

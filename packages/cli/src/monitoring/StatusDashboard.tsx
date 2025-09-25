@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Box, Text, useApp } from 'ink';
 import type { TaskMetadata, AgentStatus } from './TaskStatusMonitor.js';
 import {
-  TaskStatusMonitor,
+  _TaskStatusMonitor,
   TaskStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
@@ -20,12 +20,12 @@ import type {
   AnalyticsTimeframe,
 } from './StatusHistoryAnalytics.js';
 import {
-  StatusHistoryAnalytics,
+  _StatusHistoryAnalytics,
   statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
 import {
-  NotificationSystem,
-  notificationSystem,
+  _NotificationSystem,
+  _notificationSystem,
 } from './NotificationSystem.js';
 
 interface DashboardState {
@@ -46,7 +46,7 @@ interface TaskStatusCounts {
   cancelled: number;
 }
 
-interface VisualizationProps {
+interface _VisualizationProps {
   data: TaskStatusCounts | AgentAnalytics | TaskAnalytics;
   type: 'bar' | 'pie' | 'line' | 'gauge';
   title: string;
@@ -239,18 +239,19 @@ const TaskDashboard: React.FC<{
   tasks: TaskMetadata[];
   agents: AgentStatus[];
 }> = ({ tasks, agents }) => {
-  const [selectedTask, setSelectedTask] = useState<TaskMetadata | null>(null);
-  const [sortBy, setSortBy] = useState<'priority' | 'status' | 'created'>(
+  const [_selectedTask, _setSelectedTask] = useState<TaskMetadata | null>(null);
+  const [_sortBy, _setSortBy] = useState<'priority' | 'status' | 'created'>(
     'priority',
   );
 
   const sortedTasks = [...tasks].sort((a, b) => {
-    switch (sortBy) {
-      case 'priority':
+    switch (_sortBy) {
+      case 'priority': {
         const priorityOrder = { critical: 4, high: 3, normal: 2, low: 1 };
         return (
           (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
         );
+      }
       case 'status':
         return a.status.localeCompare(b.status);
       case 'created':
@@ -326,7 +327,7 @@ const TaskDashboard: React.FC<{
 
       {/* Task List */}
       <Box flexDirection="column" marginTop={1}>
-        <Text bold>Recent Tasks (sorted by {sortBy}):</Text>
+        <Text bold>Recent Tasks (sorted by {_sortBy}):</Text>
         {sortedTasks.slice(0, 10).map((task) => (
           <Box key={task.id} gap={1}>
             <Text color={getStatusColor(task.status)}>●</Text>
@@ -474,7 +475,7 @@ const AnalyticsDashboard: React.FC<{
   agentAnalytics: AgentAnalytics;
   systemAnalytics: SystemAnalytics;
 }> = ({ taskAnalytics, agentAnalytics, systemAnalytics }) => {
-  const [timeframe, setTimeframe] = useState<'1h' | '24h' | '7d' | '30d'>(
+  const [_timeframe, _setTimeframe] = useState<'1h' | '24h' | '7d' | '30d'>(
     '24h',
   );
 
@@ -528,7 +529,7 @@ const AnalyticsDashboard: React.FC<{
 
       {/* Time Series Visualization (ASCII) */}
       <Box flexDirection="column" marginTop={1}>
-        <Text bold>⏱️ Task Completion Timeline (Last {timeframe}):</Text>
+        <Text bold>⏱️ Task Completion Timeline (Last {_timeframe}):</Text>
         {taskAnalytics.timeSeriesData.slice(-10).map((dataPoint, index) => (
           <Box key={index} gap={1}>
             <Text dimColor>

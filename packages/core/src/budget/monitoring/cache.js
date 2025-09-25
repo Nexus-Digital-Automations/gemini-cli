@@ -15,7 +15,7 @@ import { EventEmitter } from 'node:events';
 /**
  * Cache priority levels for retention decisions
  */
-export const CachePriority = {};
+export let CachePriority = {};
 (function (CachePriority) {
   /** Low priority - evict first */
   CachePriority[(CachePriority['LOW'] = 1)] = 'LOW';

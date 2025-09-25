@@ -17,7 +17,7 @@ import os from 'node:os';
 /**
  * Recovery strategy types
  */
-export const RecoveryStrategy = {};
+export let RecoveryStrategy = {};
 (function (RecoveryStrategy) {
     RecoveryStrategy["RETRY"] = "retry";
     RecoveryStrategy["ESCALATE"] = "escalate";

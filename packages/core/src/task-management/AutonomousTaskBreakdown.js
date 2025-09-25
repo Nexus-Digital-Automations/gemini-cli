@@ -11,7 +11,7 @@ const logger = createLogger();
 /**
  * Subtask breakdown strategy
  */
-export const BreakdownStrategy = {};
+export let BreakdownStrategy = {};
 (function (BreakdownStrategy) {
     BreakdownStrategy["TEMPORAL"] = "temporal";
     BreakdownStrategy["FUNCTIONAL"] = "functional";

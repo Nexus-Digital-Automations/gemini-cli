@@ -20,7 +20,7 @@ import { GeminiChat, StreamEventType } from './geminiChat.js';
  * Describes the possible termination modes for a subagent.
  * This enum provides a clear indication of why a subagent's execution might have ended.
  */
-export const SubagentTerminateMode = {};
+export let SubagentTerminateMode = {};
 (function (SubagentTerminateMode) {
   /**
    * Indicates that the subagent's execution terminated due to an unrecoverable error.

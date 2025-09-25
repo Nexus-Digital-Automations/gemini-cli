@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
 import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
@@ -238,7 +239,7 @@ export class PerformanceOptimizer extends EventEmitter {
         // Initialize performance history for different intervals
         ['minute', 'hour', 'day', 'week'].forEach((interval) => {
             this.performanceHistory.set(interval, {
-                interval: interval,
+                interval,
                 dataPoints: [],
                 trends: {
                     throughput: 'stable',
@@ -646,9 +647,9 @@ export class PerformanceOptimizer extends EventEmitter {
         // This would compare metrics before and after optimization
         // For now, return simulated impact based on expected values
         return {
-            throughputChange: recommendation.expectedImpact.throughputIncrease || 0,
-            latencyChange: -(recommendation.expectedImpact.latencyReduction || 0),
-            efficiencyChange: recommendation.expectedImpact.efficiencyGain || 0,
+            throughputChange: _recommendation.expectedImpact.throughputIncrease || 0,
+            latencyChange: -(_recommendation.expectedImpact.latencyReduction || 0),
+            efficiencyChange: _recommendation.expectedImpact.efficiencyGain || 0,
         };
     }
     // Utility methods for metrics calculation

@@ -56,6 +56,53 @@ export interface MonitoringEvent {
 }
 
 /**
+ * WebSocket message interface for broadcasting
+ */
+export interface WebSocketMessage {
+  type: 'update' | 'alert' | 'status' | 'metric';
+  timestamp: Date;
+  data: MonitoringSnapshot | AlertRule | PerformanceMetric | object;
+}
+
+/**
+ * Serialized alert data interface
+ */
+export interface SerializedAlertData {
+  rule: AlertRule;
+  startTime: string;
+  lastTriggered: string;
+}
+
+/**
+ * Serialized predictive insight interface
+ */
+export interface SerializedPredictiveInsight {
+  id: string;
+  type: 'capacity_prediction' | 'failure_prediction' | 'bottleneck_prediction' | 'trend_analysis';
+  title: string;
+  description: string;
+  confidence: number;
+  timeHorizon: number;
+  recommendation: string;
+  impact: 'low' | 'medium' | 'high' | 'critical';
+  dataPoints: Array<{
+    timestamp: string;
+    value: number;
+    predicted?: number;
+  }>;
+  createdAt: string;
+}
+
+/**
+ * Serialized data point interface
+ */
+export interface SerializedDataPoint {
+  timestamp: string;
+  value: number;
+  predicted?: number;
+}
+
+/**
  * Alerting rule configuration
  */
 export interface AlertRule {
@@ -1204,7 +1251,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     }
   }
 
-  private broadcastToClients(message: any): void {
+  private broadcastToClients(message: WebSocketMessage): void {
     if (this.connectedClients.size === 0) return;
 
     const messageStr = JSON.stringify(message);
@@ -1273,7 +1320,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         const parsed = JSON.parse(alertsData);
         // Restore active alerts with Date objects
         for (const [id, alertData] of Object.entries(parsed.alerts || {})) {
-          const data = alertData as any;
+          const data = alertData as SerializedAlertData;
           this.activeAlerts.set(id, {
             rule: data.rule,
             startTime: new Date(data.startTime),
@@ -1289,10 +1336,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         const insightsData = await fs.readFile(this.insightsPath, 'utf-8');
         const parsed = JSON.parse(insightsData);
         this.predictiveInsights = (parsed.insights || []).map(
-          (insight: any) => ({
+          (insight: SerializedPredictiveInsight) => ({
             ...insight,
             createdAt: new Date(insight.createdAt),
-            dataPoints: insight.dataPoints.map((dp: any) => ({
+            dataPoints: insight.dataPoints.map((dp: SerializedDataPoint) => ({
               ...dp,
               timestamp: new Date(dp.timestamp),
             })),
@@ -1374,7 +1421,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     );
   }
 
-  private convertToCSV(data: any): string {
+  private convertToCSV(data: MonitoringSnapshot[]): string {
     // Simple CSV conversion for snapshots
     const headers = [
       'timestamp',

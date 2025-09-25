@@ -60,13 +60,13 @@ describe('useVim hook', () => {
                     col = Math.max(0, col - 1);
                 }
                 else if (direction === 'right') {
-                    col = Math.min(line.length, col + 1);
+                    col = Math.min(_line.length, col + 1);
                 }
                 else if (direction === 'home') {
                     col = 0;
                 }
                 else if (direction === 'end') {
-                    col = line.length;
+                    col = _line.length;
                 }
                 cursorState.pos = [row, col];
             }),

@@ -72,8 +72,8 @@ export default tseslint.config(
     },
   },
   {
-    // General overrides and rules for the project (TS/TSX/JS files)
-    files: ['packages/*/src/**/*.{ts,tsx,js}'], // Target TS/TSX/JS in packages
+    // TypeScript/TSX files - no PropTypes needed due to type checking
+    files: ['packages/*/src/**/*.{ts,tsx}'],
     plugins: {
       import: importPlugin,
     },
@@ -95,6 +95,150 @@ export default tseslint.config(
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
       'arrow-body-style': ['error', 'as-needed'],
       curly: ['error', 'multi-line'],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      '@typescript-eslint/consistent-type-assertions': [
+        'error',
+        { assertionStyle: 'as' },
+      ],
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
+        { accessibility: 'no-public' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-inferrable-types': [
+        'error',
+        { ignoreParameters: true, ignoreProperties: true },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { disallowTypeAnnotations: false },
+      ],
+      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      'import/no-internal-modules': 'off', // Disabled for monorepo internal module access
+      'import/no-relative-packages': 'error',
+      'no-cond-assign': 'error',
+      'no-debugger': 'error',
+      'no-duplicate-case': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'CallExpression[callee.name="require"]',
+          message: 'Avoid using require(). Use ES6 imports instead.',
+        },
+        {
+          selector: 'ThrowStatement > Literal:not([value=/^\\w+Error:/])',
+          message:
+            'Do not throw string literals or non-Error objects. Throw new Error("...") instead.',
+        },
+      ],
+      'no-unsafe-finally': 'error',
+      'no-unused-expressions': 'off', // Disable base rule
+      '@typescript-eslint/no-unused-expressions': [
+        // Enable TS version
+        'error',
+        { allowShortCircuit: true, allowTernary: true },
+      ],
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'one-var': ['error', 'never'],
+      'prefer-arrow-callback': 'error',
+      'prefer-const': ['error', { destructuring: 'all' }],
+      radix: 'error',
+      'default-case': 'error',
+      'react/prop-types': 'off', // TypeScript provides type checking
+    },
+  },
+  {
+    // Compiled JavaScript files from TypeScript - disable PropTypes requirement
+    files: ['packages/*/src/**/*.js'],
+    plugins: {
+      import: importPlugin,
+    },
+    settings: {
+      'import/resolver': {
+        node: true,
+      },
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
+    rules: {
+      // General Best Practice Rules (subset adapted for flat config)
+      '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+      'arrow-body-style': ['error', 'as-needed'],
+      curly: ['error', 'multi-line'],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      '@typescript-eslint/consistent-type-assertions': [
+        'error',
+        { assertionStyle: 'as' },
+      ],
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
+        { accessibility: 'no-public' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-inferrable-types': [
+        'error',
+        { ignoreParameters: true, ignoreProperties: true },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { disallowTypeAnnotations: false },
+      ],
+      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      'import/no-internal-modules': 'off', // Disabled for monorepo internal module access
+      'import/no-relative-packages': 'error',
+      'no-cond-assign': 'error',
+      'no-debugger': 'error',
+      'no-duplicate-case': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'CallExpression[callee.name="require"]',
+          message: 'Avoid using require(). Use ES6 imports instead.',
+        },
+        {
+          selector: 'ThrowStatement > Literal:not([value=/^\\w+Error:/])',
+          message:
+            'Do not throw string literals or non-Error objects. Throw new Error("...") instead.',
+        },
+      ],
+      'no-unsafe-finally': 'error',
+      'no-unused-expressions': 'off', // Disable base rule
+      '@typescript-eslint/no-unused-expressions': [
+        // Enable TS version
+        'error',
+        { allowShortCircuit: true, allowTernary: true },
+      ],
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'one-var': ['error', 'never'],
+      'prefer-arrow-callback': 'error',
+      'prefer-const': ['error', { destructuring: 'all' }],
+      radix: 'error',
+      'default-case': 'error',
+      'react/prop-types': 'off', // Compiled from TypeScript - types already validated
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       '@typescript-eslint/consistent-type-assertions': [
         'error',

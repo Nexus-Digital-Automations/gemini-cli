@@ -9,7 +9,7 @@ import { randomUUID as _randomUUID } from 'node:crypto';
 /**
  * Types of execution errors
  */
-export const ExecutionErrorType = {};
+export let ExecutionErrorType = {};
 (function (ExecutionErrorType) {
     ExecutionErrorType["VALIDATION_FAILED"] = "validation_failed";
     ExecutionErrorType["TOOL_NOT_FOUND"] = "tool_not_found";

@@ -16,7 +16,7 @@ import { getComponentLogger } from '../../utils/logger.js';
 /**
  * Available stream types
  */
-export const StreamType = {};
+export let StreamType = {};
 (function (StreamType) {
   /** Real-time usage statistics */
   StreamType['USAGE_STATS'] = 'usage_stats';

@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { StatusEventType } from './StatusUpdateBroker.js';
+
+import type { StatusEventType } from './StatusUpdateBroker.js';
 export interface AnalyticsTimeframe {
     startDate: Date;
     endDate: Date;
@@ -74,8 +75,8 @@ export interface StatusHistoryEntry {
     eventType: StatusEventType;
     objectType: 'task' | 'agent' | 'system';
     objectId: string;
-    previousState?: any;
-    newState?: any;
+    previousState?: unknown;
+    newState?: unknown;
     metadata: Record<string, unknown>;
     context: {
         agentId?: string;
@@ -121,8 +122,8 @@ export declare class StatusHistoryAnalytics {
      * Record a status history entry
      */
     recordHistoryEntry(eventType: StatusEventType, objectType: 'task' | 'agent' | 'system', objectId: string, options?: {
-        previousState?: any;
-        newState?: any;
+        previousState?: unknown;
+        newState?: unknown;
         metadata?: Record<string, unknown>;
         agentId?: string;
         sessionId?: string;

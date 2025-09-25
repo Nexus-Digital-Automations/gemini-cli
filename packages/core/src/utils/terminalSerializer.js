@@ -12,7 +12,7 @@ let Attribute;
     Attribute[Attribute["underline"] = 8] = "underline";
     Attribute[Attribute["dim"] = 16] = "dim";
 })(Attribute || (Attribute = {}));
-export const ColorMode = {};
+export let ColorMode = {};
 (function (ColorMode) {
     ColorMode[ColorMode["DEFAULT"] = 0] = "DEFAULT";
     ColorMode[ColorMode["PALETTE"] = 1] = "PALETTE";

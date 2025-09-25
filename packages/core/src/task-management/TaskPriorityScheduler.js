@@ -20,7 +20,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Priority adjustment strategies
  */
-export const PriorityStrategy = {};
+export let PriorityStrategy = {};
 (function (PriorityStrategy) {
     PriorityStrategy["STATIC"] = "static";
     PriorityStrategy["AGE_BASED"] = "age_based";
@@ -33,7 +33,7 @@ export const PriorityStrategy = {};
 /**
  * Load balancing algorithms for priority queues
  */
-export const LoadBalanceAlgorithm = {};
+export let LoadBalanceAlgorithm = {};
 (function (LoadBalanceAlgorithm) {
     LoadBalanceAlgorithm["WEIGHTED_ROUND_ROBIN"] = "weighted_round_robin";
     LoadBalanceAlgorithm["DEFICIT_ROUND_ROBIN"] = "deficit_round_robin";
@@ -44,7 +44,7 @@ export const LoadBalanceAlgorithm = {};
 /**
  * Starvation prevention mechanisms
  */
-export const StarvationPreventionMode = {};
+export let StarvationPreventionMode = {};
 (function (StarvationPreventionMode) {
     StarvationPreventionMode["NONE"] = "none";
     StarvationPreventionMode["PRIORITY_AGING"] = "priority_aging";

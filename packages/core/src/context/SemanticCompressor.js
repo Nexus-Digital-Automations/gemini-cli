@@ -12,6 +12,7 @@
  * @version 1.0.0
  */
 import { getComponentLogger } from '../utils/logger.js';
+import { CompressionStrategy, ContextType } from './types.js';
 const logger = getComponentLogger('semantic-compressor');
 /**
  * Default configuration for semantic compression

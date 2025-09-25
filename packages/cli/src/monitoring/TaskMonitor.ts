@@ -287,7 +287,7 @@ export class TaskMonitor extends EventEmitter {
     recommendations: string[];
   }> {
     const activeTasks: IntegratedTaskStatus[] = [];
-    const alerts: any[] = [];
+    const alerts: TaskAlert[] = [];
 
     for (const taskId of this.monitoredTasks.keys()) {
       const status = await this.getIntegratedTaskStatus(taskId);
@@ -510,7 +510,7 @@ export class TaskMonitor extends EventEmitter {
   private async calculateTaskAnalytics(
     taskId: string,
     task: TaskMetadata,
-    progressMetrics: any,
+    progressMetrics: ProgressMetrics | null,
     config: TaskMonitoringConfig,
   ): Promise<IntegratedTaskStatus['analytics']> {
     const bottleneckAnalysis = progressTracker.analyzeBottlenecks(taskId);
@@ -584,11 +584,11 @@ export class TaskMonitor extends EventEmitter {
   private async generateTaskAlerts(
     taskId: string,
     status: IntegratedTaskStatus,
-  ): Promise<any[]> {
+  ): Promise<TaskAlert[]> {
     const config = this.monitoredTasks.get(taskId);
     if (!config) return [];
 
-    const alerts: any[] = [];
+    const alerts: TaskAlert[] = [];
     const now = new Date();
 
     // Progress stall alert

@@ -19,7 +19,7 @@ import { ValidationReporter } from '../reporting/ValidationReporter.js';
 /**
  * Validation result severity levels
  */
-export const ValidationSeverity = {};
+export let ValidationSeverity = {};
 (function (ValidationSeverity) {
     ValidationSeverity["CRITICAL"] = "critical";
     ValidationSeverity["HIGH"] = "high";
@@ -30,7 +30,7 @@ export const ValidationSeverity = {};
 /**
  * Task completion validation status
  */
-export const ValidationStatus = {};
+export let ValidationStatus = {};
 (function (ValidationStatus) {
     ValidationStatus["PENDING"] = "pending";
     ValidationStatus["VALIDATING"] = "validating";

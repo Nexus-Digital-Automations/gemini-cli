@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Auto-Compression Management System
  * Automatically handles context compression when approaching token limits
@@ -17,7 +18,7 @@ import { getComponentLogger } from '../utils/logger.js';
 import { SemanticCompressor } from './SemanticCompressor.js';
 import { EnhancedCompressionAlgorithms } from './EnhancedCompressionAlgorithms.js';
 import { CompressionFallbackSystem } from './CompressionFallbackSystem.js';
-import { CompressionConfigurationManager, createCompressionConfigurationManager, ConfigurationPreset, CompressionSystemConfig } from './CompressionConfigurationManager.js';
+import { CompressionConfigurationManager, createCompressionConfigurationManager, ConfigurationPreset, CompressionSystemConfig as _CompressionSystemConfig } from './CompressionConfigurationManager.js';
 import { CompressionStrategy } from './types.js';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
@@ -25,7 +26,7 @@ const logger = getComponentLogger('auto-compression-manager');
 /**
  * Auto-compression event types
  */
-export var AutoCompressionEvent;
+export let AutoCompressionEvent;
 (function (AutoCompressionEvent) {
     AutoCompressionEvent["THRESHOLD_REACHED"] = "threshold_reached";
     AutoCompressionEvent["COMPRESSION_STARTED"] = "compression_started";
@@ -178,7 +179,7 @@ export class AutoCompressionManager extends EventEmitter {
             minCompressionInterval: systemConfig.performance.rateLimiting.minInterval,
             maxCompressionAttempts: systemConfig.fallback.maxAttempts,
             compressionStrategies: Object.entries(systemConfig.algorithms.primaryStrategies).map(([strategy, priority]) => ({
-                strategy: strategy,
+                strategy,
                 priority,
                 tokenThreshold: systemConfig.algorithms.selectionRules.tokenThresholds[strategy] || 0
             })),
@@ -816,9 +817,9 @@ export class AutoCompressionManager extends EventEmitter {
             // Last resort: Apply emergency fallback compression to all items
             try {
                 const allItems = [];
-                for (const [managerId, manager] of this.contextManagers.entries()) {
+                for (const [_managerId, manager] of this.contextManagers.entries()) {
                     const window = manager.getCurrentWindow();
-                    for (const [sectionName, section] of Object.entries(window.sections)) {
+                    for (const [_sectionName, section] of Object.entries(window.sections)) {
                         if (section.items && section.items.length > 0) {
                             allItems.push(...section.items);
                         }
@@ -860,7 +861,7 @@ export class AutoCompressionManager extends EventEmitter {
                 compressionRatio: 1.0,
                 strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
                 duration: performance.now() - startTime,
-                error: error,
+                error,
                 itemsCompressed: 0,
                 itemsRemoved: 0,
             };
@@ -988,7 +989,7 @@ export class AutoCompressionManager extends EventEmitter {
                 compressionRatio: 1.0,
                 strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
                 duration,
-                error: error,
+                error,
                 itemsCompressed: 0,
                 itemsRemoved: 0,
             };

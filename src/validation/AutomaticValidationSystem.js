@@ -749,7 +749,7 @@ export class AutomaticValidationSystem {
     }
 }
 // Type definitions for the validation system
-export const TaskType = {};
+export let TaskType = {};
 (function (TaskType) {
     TaskType["FEATURE_IMPLEMENTATION"] = "feature_implementation";
     TaskType["BUG_FIX"] = "bug_fix";
@@ -759,14 +759,14 @@ export const TaskType = {};
     TaskType["CONFIGURATION"] = "configuration";
     TaskType["UNKNOWN"] = "unknown";
 })(TaskType || (TaskType = {}));
-export const ValidationStatus = {};
+export let ValidationStatus = {};
 (function (ValidationStatus) {
     ValidationStatus["PASSED"] = "passed";
     ValidationStatus["FAILED"] = "failed";
     ValidationStatus["PASSED_WITH_WARNINGS"] = "passed_with_warnings";
     ValidationStatus["SKIPPED"] = "skipped";
 })(ValidationStatus || (ValidationStatus = {}));
-export const GateType = {};
+export let GateType = {};
 (function (GateType) {
     GateType["LINTING"] = "linting";
     GateType["TYPE_CHECKING"] = "type_checking";
@@ -786,7 +786,7 @@ export const GateType = {};
     GateType["LINK_CHECK"] = "link_check";
     GateType["SPELL_CHECK"] = "spell_check";
 })(GateType || (GateType = {}));
-export const GateSeverity = {};
+export let GateSeverity = {};
 (function (GateSeverity) {
     GateSeverity["ERROR"] = "error";
     GateSeverity["WARNING"] = "warning";
@@ -800,7 +800,7 @@ const DEFAULT_VALIDATION_CONFIG = {
     evidenceRetentionDays: 30,
     reportFormats: ['json', 'text'],
 };
-export const EvidenceType = {};
+export let EvidenceType = {};
 (function (EvidenceType) {
     EvidenceType["COMMAND_OUTPUT"] = "command_output";
     EvidenceType["FILE_CONTENT"] = "file_content";
@@ -808,14 +808,14 @@ export const EvidenceType = {};
     EvidenceType["LOG_ENTRY"] = "log_entry";
     EvidenceType["METRIC"] = "metric";
 })(EvidenceType || (EvidenceType = {}));
-export const RecommendationType = {};
+export let RecommendationType = {};
 (function (RecommendationType) {
     RecommendationType["ERROR_RESOLUTION"] = "error_resolution";
     RecommendationType["PERFORMANCE_OPTIMIZATION"] = "performance_optimization";
     RecommendationType["PROCESS_IMPROVEMENT"] = "process_improvement";
     RecommendationType["SYSTEM_ERROR"] = "system_error";
 })(RecommendationType || (RecommendationType = {}));
-export const ArtifactType = {};
+export let ArtifactType = {};
 (function (ArtifactType) {
     ArtifactType["JSON_REPORT"] = "json_report";
     ArtifactType["SUMMARY_TEXT"] = "summary_text";

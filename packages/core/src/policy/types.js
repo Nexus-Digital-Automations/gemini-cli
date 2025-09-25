@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const PolicyDecision = {};
+export let PolicyDecision = {};
 (function (PolicyDecision) {
     PolicyDecision["ALLOW"] = "allow";
     PolicyDecision["DENY"] = "deny";

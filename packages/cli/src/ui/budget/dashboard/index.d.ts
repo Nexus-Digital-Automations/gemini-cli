@@ -20,4 +20,4 @@ export { BudgetAlertsPanel } from './components/BudgetAlertsPanel.js';
 export { BudgetControlsPanel } from './components/BudgetControlsPanel.js';
 export { useBudgetDashboard } from './hooks/useBudgetDashboard.js';
 export * from './utils/chartUtils.js';
-export type * from './types/index.js';
+export type * from './types/index.ts';

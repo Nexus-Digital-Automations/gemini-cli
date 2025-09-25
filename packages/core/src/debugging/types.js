@@ -14,7 +14,7 @@
 /**
  * Types of errors the system can analyze
  */
-export const ErrorType = {};
+export let ErrorType = {};
 (function (ErrorType) {
   ErrorType['SYNTAX'] = 'syntax';
   ErrorType['RUNTIME'] = 'runtime';
@@ -35,7 +35,7 @@ export const ErrorType = {};
 /**
  * Severity levels for errors
  */
-export const ErrorSeverity = {};
+export let ErrorSeverity = {};
 (function (ErrorSeverity) {
   ErrorSeverity['CRITICAL'] = 'critical';
   ErrorSeverity['HIGH'] = 'high';
@@ -46,7 +46,7 @@ export const ErrorSeverity = {};
 /**
  * Programming languages supported
  */
-export const SupportedLanguage = {};
+export let SupportedLanguage = {};
 (function (SupportedLanguage) {
   SupportedLanguage['JAVASCRIPT'] = 'javascript';
   SupportedLanguage['TYPESCRIPT'] = 'typescript';
@@ -66,7 +66,7 @@ export const SupportedLanguage = {};
 /**
  * Priority levels for fixes
  */
-export const FixPriority = {};
+export let FixPriority = {};
 (function (FixPriority) {
   FixPriority['IMMEDIATE'] = 'immediate';
   FixPriority['HIGH'] = 'high';
@@ -77,7 +77,7 @@ export const FixPriority = {};
 /**
  * Categories of fixes
  */
-export const FixCategory = {};
+export let FixCategory = {};
 (function (FixCategory) {
   FixCategory['QUICK_FIX'] = 'quick_fix';
   FixCategory['REFACTOR'] = 'refactor';
@@ -91,7 +91,7 @@ export const FixCategory = {};
 /**
  * Types of code changes
  */
-export const ChangeType = {};
+export let ChangeType = {};
 (function (ChangeType) {
   ChangeType['INSERT'] = 'insert';
   ChangeType['REPLACE'] = 'replace';
@@ -102,7 +102,7 @@ export const ChangeType = {};
 /**
  * Scope of impact
  */
-export const ImpactScope = {};
+export let ImpactScope = {};
 (function (ImpactScope) {
   ImpactScope['FILE'] = 'file';
   ImpactScope['MODULE'] = 'module';
@@ -113,7 +113,7 @@ export const ImpactScope = {};
 /**
  * Variable scope information
  */
-export const VariableScope = {};
+export let VariableScope = {};
 (function (VariableScope) {
   VariableScope['GLOBAL'] = 'global';
   VariableScope['MODULE'] = 'module';
@@ -125,7 +125,7 @@ export const VariableScope = {};
 /**
  * Types of error relationships
  */
-export const ErrorRelationship = {};
+export let ErrorRelationship = {};
 (function (ErrorRelationship) {
   ErrorRelationship['DUPLICATE'] = 'duplicate';
   ErrorRelationship['SIMILAR'] = 'similar';
@@ -137,7 +137,7 @@ export const ErrorRelationship = {};
 /**
  * Log levels for generated logging
  */
-export const LogLevel = {};
+export let LogLevel = {};
 (function (LogLevel) {
   LogLevel['DEBUG'] = 'debug';
   LogLevel['INFO'] = 'info';
@@ -148,7 +148,7 @@ export const LogLevel = {};
 /**
  * Breakpoint priority levels
  */
-export const BreakpointPriority = {};
+export let BreakpointPriority = {};
 (function (BreakpointPriority) {
   BreakpointPriority['CRITICAL'] = 'critical';
   BreakpointPriority['HIGH'] = 'high';
@@ -158,7 +158,7 @@ export const BreakpointPriority = {};
 /**
  * Types of breakpoint actions
  */
-export const BreakpointActionType = {};
+export let BreakpointActionType = {};
 (function (BreakpointActionType) {
   BreakpointActionType['LOG_VARIABLES'] = 'log_variables';
   BreakpointActionType['EVALUATE_EXPRESSION'] = 'evaluate_expression';
@@ -171,7 +171,7 @@ export const BreakpointActionType = {};
 /**
  * Variable tracking methods
  */
-export const TrackingMethod = {};
+export let TrackingMethod = {};
 (function (TrackingMethod) {
   TrackingMethod['WATCH'] = 'watch';
   TrackingMethod['LOG_CHANGES'] = 'log_changes';
@@ -181,7 +181,7 @@ export const TrackingMethod = {};
 /**
  * Performance metrics to measure
  */
-export const PerformanceMetric = {};
+export let PerformanceMetric = {};
 (function (PerformanceMetric) {
   PerformanceMetric['EXECUTION_TIME'] = 'execution_time';
   PerformanceMetric['MEMORY_USAGE'] = 'memory_usage';
@@ -193,7 +193,7 @@ export const PerformanceMetric = {};
 /**
  * Types of generated tests
  */
-export const TestType = {};
+export let TestType = {};
 (function (TestType) {
   TestType['UNIT'] = 'unit';
   TestType['INTEGRATION'] = 'integration';
@@ -204,7 +204,7 @@ export const TestType = {};
 /**
  * Types of test outputs
  */
-export const TestOutputType = {};
+export let TestOutputType = {};
 (function (TestOutputType) {
   TestOutputType['RETURN_VALUE'] = 'return_value';
   TestOutputType['EXCEPTION'] = 'exception';
@@ -215,7 +215,7 @@ export const TestOutputType = {};
 /**
  * Types of assertions
  */
-export const AssertionType = {};
+export let AssertionType = {};
 (function (AssertionType) {
   AssertionType['EQUALS'] = 'equals';
   AssertionType['NOT_EQUALS'] = 'not_equals';
@@ -231,7 +231,7 @@ export const AssertionType = {};
 /**
  * Types of alert actions
  */
-export const AlertActionType = {};
+export let AlertActionType = {};
 (function (AlertActionType) {
   AlertActionType['LOG'] = 'log';
   AlertActionType['EMAIL'] = 'email';
@@ -244,7 +244,7 @@ export const AlertActionType = {};
 /**
  * Debug session states
  */
-export const DebugState = {};
+export let DebugState = {};
 (function (DebugState) {
   DebugState['INITIALIZING'] = 'initializing';
   DebugState['RUNNING'] = 'running';
@@ -257,7 +257,7 @@ export const DebugState = {};
 /**
  * Types of debug targets
  */
-export const DebugTargetType = {};
+export let DebugTargetType = {};
 (function (DebugTargetType) {
   DebugTargetType['PROCESS'] = 'process';
   DebugTargetType['NODE_APP'] = 'node_app';
@@ -269,7 +269,7 @@ export const DebugTargetType = {};
 /**
  * Types of variable filters
  */
-export const VariableFilterType = {};
+export let VariableFilterType = {};
 (function (VariableFilterType) {
   VariableFilterType['INCLUDE'] = 'include';
   VariableFilterType['EXCLUDE'] = 'exclude';
@@ -279,7 +279,7 @@ export const VariableFilterType = {};
 /**
  * Types of debug suggestions
  */
-export const DebugSuggestionType = {};
+export let DebugSuggestionType = {};
 (function (DebugSuggestionType) {
   DebugSuggestionType['NEXT_STEP'] = 'next_step';
   DebugSuggestionType['VARIABLE_INSPECTION'] = 'variable_inspection';
@@ -292,7 +292,7 @@ export const DebugSuggestionType = {};
 /**
  * Suggestion priority levels
  */
-export const SuggestionPriority = {};
+export let SuggestionPriority = {};
 (function (SuggestionPriority) {
   SuggestionPriority['URGENT'] = 'urgent';
   SuggestionPriority['HIGH'] = 'high';
@@ -303,7 +303,7 @@ export const SuggestionPriority = {};
 /**
  * Types of debug actions
  */
-export const DebugActionType = {};
+export let DebugActionType = {};
 (function (DebugActionType) {
   DebugActionType['STEP_OVER'] = 'step_over';
   DebugActionType['STEP_INTO'] = 'step_into';

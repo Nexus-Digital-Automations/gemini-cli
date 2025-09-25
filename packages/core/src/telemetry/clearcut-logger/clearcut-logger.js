@@ -12,7 +12,7 @@ import { safeJsonStringify } from '../../utils/safeJsonStringify.js';
 import { FixedDeque } from 'mnemonist';
 import { GIT_COMMIT_INFO, CLI_VERSION } from '../../generated/git-commit.js';
 import { IDE_DEFINITIONS, detectIdeFromEnv } from '../../ide/detect-ide.js';
-export const EventNames = {};
+export let EventNames = {};
 (function (EventNames) {
     EventNames["START_SESSION"] = "start_session";
     EventNames["NEW_PROMPT"] = "new_prompt";

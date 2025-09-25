@@ -8,7 +8,7 @@ import { EventEmitter } from 'node:events';
 /**
  * Types of conflicts that can occur in the system
  */
-export const ConflictType = {};
+export let ConflictType = {};
 (function (ConflictType) {
   ConflictType['RESOURCE_CONTENTION'] = 'resource_contention';
   ConflictType['PRIORITY_CONFLICT'] = 'priority_conflict';
@@ -22,7 +22,7 @@ export const ConflictType = {};
 /**
  * Severity levels for conflicts
  */
-export const ConflictSeverity = {};
+export let ConflictSeverity = {};
 (function (ConflictSeverity) {
   ConflictSeverity[(ConflictSeverity['LOW'] = 1)] = 'LOW';
   ConflictSeverity[(ConflictSeverity['MEDIUM'] = 2)] = 'MEDIUM';
@@ -33,7 +33,7 @@ export const ConflictSeverity = {};
 /**
  * Conflict resolution strategies
  */
-export const ResolutionStrategy = {};
+export let ResolutionStrategy = {};
 (function (ResolutionStrategy) {
   ResolutionStrategy['PRIORITY_BASED'] = 'priority_based';
   ResolutionStrategy['ROUND_ROBIN'] = 'round_robin';

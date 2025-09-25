@@ -15,7 +15,8 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
-import { CompressionStrategy, CompressionResult, ContextType, ContextItem } from './types.js';
+import type { CompressionResult, ContextItem } from './types.js';
+import { CompressionStrategy, ContextType } from './types.js';
 import { performance } from 'node:perf_hooks';
 
 const logger = getComponentLogger('enhanced-compression-algorithms');
@@ -394,7 +395,7 @@ export class EnhancedCompressionAlgorithms {
     // Find best match
     let bestType = ContentTypeCategory.PLAIN_TEXT;
     let bestScore = 0;
-    let allScores: [ContentTypeCategory, number][] = [];
+    const allScores: Array<[ContentTypeCategory, number]> = [];
 
     for (const [type, score] of typeScores.entries()) {
       allScores.push([type, score]);

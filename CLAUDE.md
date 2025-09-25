@@ -78,14 +78,18 @@ When ALL criteria met, agent MUST authorize stop using:
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" authorize-stop [AGENT_ID] "All TodoWrite tasks complete and project perfect: linter✅ build✅ start✅ tests✅"
 ```
 
-**VALIDATION BEFORE AUTHORIZATION:**
+**🚨 MANDATORY VERIFICATION AND VALIDATION BEFORE AUTHORIZATION:**
 - **🚨 MANDATORY GIT VALIDATION**: Run `git status` to confirm clean working directory
 - **🚨 MANDATORY PUSH VALIDATION**: Run `git status` to confirm "up to date with origin/main"
 - **🚨 MANDATORY COMMIT CHECK**: Verify all work is committed with `git log --oneline -5`
+- **🚨 VERIFY ALL SUCCESS CRITERIA**: Must explicitly verify and validate EVERY success criterion before authorization
 - Run all available scripts: `npm run lint`, `npm run typecheck`, `npm run build`, `npm run start`, `npm test`
+- **🚨 VALIDATE SCRIPT RESULTS**: Confirm each script passes with zero errors/warnings - do not assume success
 - Verify TodoWrite tasks completed and FEATURES.json approved features implemented
-- Confirm codebase functions as expected
+- **🚨 VALIDATE FEATURE COMPLETION**: Explicitly validate each approved feature is fully implemented and working
+- Confirm codebase functions as expected through actual testing and verification
 - **🚨 FINAL GIT VERIFICATION**: Confirm working directory clean AND up-to-date with remote
+- **🚨 COMPREHENSIVE VALIDATION**: All success criteria must be verified and validated - no assumptions allowed
 
 **STOP AUTHORIZATION EFFECTS:**
 - Creates `.stop-allowed` file for single-use authorization
@@ -99,6 +103,8 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 - ❌ ANY runtime/start errors (if start script exists)
 - ❌ ANY test failures or inadequate coverage (if tests exist)
 - ❌ AUTHORIZATION WITHOUT VALIDATION - Never authorize without running all applicable validation commands
+- ❌ **AUTHORIZATION WITHOUT VERIFICATION** - Must VERIFY and VALIDATE every success criterion before authorization
+- ❌ ASSUMING SUCCESS - Never assume scripts passed - must verify actual results
 - ❌ UNCOMMITTED CHANGES - **ABSOLUTE MANDATE: ALL WORK MUST BE COMMITTED AND PUSHED BEFORE STOPPING**
 - ❌ UNPUSHED COMMITS - **ABSOLUTE MANDATE: ALL COMMITS MUST BE PUSHED TO REMOTE BEFORE STOPPING**
 - ❌ PARTIAL FEATURE IMPLEMENTATION - Never authorize with incomplete approved features
@@ -443,6 +449,8 @@ git status                                   # Verify clean/up-to-date
 **IMMEDIATE DEPLOYMENT TRIGGER:**
 - **INSTANT RESPONSE**: The moment linter or type errors are detected, immediately deploy appropriate concurrent agents
 - **NO DELAY**: Do not wait or analyze - deploy concurrent agents for error resolution immediately when appropriate
+- **MAXIMIZE CONCURRENT AGENTS**: When there are many isolated errors, maximize the number of concurrent agents to fix as many errors simultaneously as possible
+- **OPTIMAL PARALLELIZATION**: Deploy the maximum appropriate number of agents based on error count and isolation (e.g., 10 agents for 10+ isolated linter errors, 8 agents for multiple TypeScript module errors)
 - **MANDATORY NUMBER DECLARATION**: ALWAYS state the exact number of concurrent agents being deployed (e.g., "Deploying 3 concurrent agents for linter error fixes", "Using 5 agents for TypeScript error resolution")
 
 **🚨 FORBIDDEN FOR CONCURRENT AGENTS:**

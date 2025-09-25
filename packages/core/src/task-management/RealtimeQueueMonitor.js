@@ -28,7 +28,7 @@ import { Task, TaskStatus } from './TaskQueue';
 /**
  * Alert severity levels for notification filtering
  */
-export const AlertSeverity = {};
+export let AlertSeverity = {};
 (function (AlertSeverity) {
     AlertSeverity["INFO"] = "info";
     AlertSeverity["WARNING"] = "warning";

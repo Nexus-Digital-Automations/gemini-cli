@@ -12,10 +12,12 @@
  * @version 1.0.0
  */
 
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AutoCompressionManager } from '../AutoCompressionManager.js';
 import { CompressionConfigurationManager, ConfigurationPreset } from '../CompressionConfigurationManager.js';
 import { TokenMonitorService } from '../TokenMonitorService.js';
-import { ContextItem, ContextType, ContextPriority } from '../types.js';
+import type { ContextItem} from '../types.js';
+import { ContextType, ContextPriority } from '../types.js';
 import { performance } from 'node:perf_hooks';
 
 describe('Token Limit Validation - 1,272,932 → 1,048,576 Issue', () => {
@@ -83,7 +85,7 @@ describe('Token Limit Validation - 1,272,932 → 1,048,576 Issue', () => {
 
       // Mock context manager with exact token distribution
       const mockContextManager = {
-        getCurrentWindow: jest.fn(() => ({
+        getCurrentWindow: vi.fn(() => ({
           totalTokens: TARGET_LIMIT,
           usedTokens: ORIGINAL_TOKENS,
           availableTokens: TARGET_LIMIT - ORIGINAL_TOKENS, // Negative = over limit
@@ -122,7 +124,7 @@ describe('Token Limit Validation - 1,272,932 → 1,048,576 Issue', () => {
             }
           }
         })),
-        updateContextWindowTotals: jest.fn()
+        updateContextWindowTotals: vi.fn()
       };
 
       compressionManager.registerContextManager('exact-limit-test', mockContextManager as any);
@@ -594,7 +596,7 @@ function generateGenericContent(targetLength: number, index: number): string {
 
 function createMockContextManager(totalTokens: number, items: ContextItem[]): any {
   return {
-    getCurrentWindow: jest.fn(() => ({
+    getCurrentWindow: vi.fn(() => ({
       totalTokens: 1_048_576,
       usedTokens: totalTokens,
       availableTokens: 1_048_576 - totalTokens,
@@ -609,6 +611,6 @@ function createMockContextManager(totalTokens: number, items: ContextItem[]): an
         }
       }
     })),
-    updateContextWindowTotals: jest.fn()
+    updateContextWindowTotals: vi.fn()
   };
 }

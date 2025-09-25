@@ -28,7 +28,7 @@ import { handleFallback } from '../fallback/handler.js';
 import { isFunctionResponse } from '../utils/messageInspectors.js';
 import { partListUnionToString } from './geminiRequest.js';
 import { uiTelemetryService } from '../telemetry/uiTelemetry.js';
-export const StreamEventType = {};
+export let StreamEventType = {};
 (function (StreamEventType) {
   /** A regular content chunk from the API. */
   StreamEventType['CHUNK'] = 'chunk';

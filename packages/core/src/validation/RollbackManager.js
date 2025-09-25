@@ -12,7 +12,7 @@ import * as path from 'node:path';
 /**
  * Types of rollback operations
  */
-export const RollbackType = {};
+export let RollbackType = {};
 (function (RollbackType) {
     RollbackType["TASK_STATE"] = "task_state";
     RollbackType["FILE_SYSTEM"] = "file_system";
@@ -25,7 +25,7 @@ export const RollbackType = {};
 /**
  * Rollback triggers that initiate rollback operations
  */
-export const RollbackTrigger = {};
+export let RollbackTrigger = {};
 (function (RollbackTrigger) {
     RollbackTrigger["VALIDATION_FAILURE"] = "validation_failure";
     RollbackTrigger["EXECUTION_ERROR"] = "execution_error";
@@ -38,7 +38,7 @@ export const RollbackTrigger = {};
 /**
  * Rollback strategies for different scenarios
  */
-export const RollbackStrategy = {};
+export let RollbackStrategy = {};
 (function (RollbackStrategy) {
     RollbackStrategy["IMMEDIATE"] = "immediate";
     RollbackStrategy["GRACEFUL"] = "graceful";
@@ -50,7 +50,7 @@ export const RollbackStrategy = {};
 /**
  * Rollback operation priority levels
  */
-export const RollbackPriority = {};
+export let RollbackPriority = {};
 (function (RollbackPriority) {
     RollbackPriority["CRITICAL"] = "critical";
     RollbackPriority["HIGH"] = "high";

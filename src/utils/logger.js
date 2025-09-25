@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Logger utility for validation system
  * Provides structured logging with different levels and contexts
@@ -10,7 +11,7 @@
  * @author Claude Code - Validation Expert
  * @version 1.0.0
  */
-export var LogLevel;
+export let LogLevel;
 (function (LogLevel) {
     LogLevel[LogLevel["DEBUG"] = 0] = "DEBUG";
     LogLevel[LogLevel["INFO"] = 1] = "INFO";

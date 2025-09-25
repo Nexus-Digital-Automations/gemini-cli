@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Comprehensive Integration Tests for Auto-Compression System
  * Tests the complete system with large context scenarios and edge cases

@@ -7,7 +7,7 @@
 import { useEffect, useReducer, useRef } from 'react';
 import { FileSearchFactory, escapePath } from '@google/gemini-cli-core';
 import { MAX_SUGGESTIONS_TO_SHOW } from '../components/SuggestionsDisplay.js';
-export const AtCompletionStatus = {};
+export let AtCompletionStatus = {};
 (function (AtCompletionStatus) {
     AtCompletionStatus["IDLE"] = "idle";
     AtCompletionStatus["INITIALIZING"] = "initializing";

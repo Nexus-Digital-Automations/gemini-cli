@@ -8,7 +8,7 @@
  * List of predefined reason codes when a tier is blocked from a specific tier.
  * https://source.corp.google.com/piper///depot/google3/google/internal/cloud/code/v1internal/cloudcode.proto;l=378
  */
-export const IneligibleTierReasonCode = {};
+export let IneligibleTierReasonCode = {};
 (function (IneligibleTierReasonCode) {
   // go/keep-sorted start
   IneligibleTierReasonCode['DASHER_USER'] = 'DASHER_USER';
@@ -26,7 +26,7 @@ export const IneligibleTierReasonCode = {};
  *
  * //depot/google3/cloud/developer_experience/cloudcode/pa/service/usertier.go;l=16
  */
-export const UserTierId = {};
+export let UserTierId = {};
 (function (UserTierId) {
   UserTierId['FREE'] = 'free-tier';
   UserTierId['LEGACY'] = 'legacy-tier';
@@ -37,7 +37,7 @@ export const UserTierId = {};
  * it does not strictly correspond to the proto
  * Error value is an additional value assigned to error responses from OnboardUser
  */
-export const OnboardUserStatusCode = {};
+export let OnboardUserStatusCode = {};
 (function (OnboardUserStatusCode) {
   OnboardUserStatusCode['Default'] = 'DEFAULT';
   OnboardUserStatusCode['Notice'] = 'NOTICE';

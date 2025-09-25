@@ -5,7 +5,7 @@
  */
 
 // Defines valid event metadata keys for Clearcut logging.
-export const EventMetadataKey = {};
+export let EventMetadataKey = {};
 (function (EventMetadataKey) {
     // Deleted enums: 24
     EventMetadataKey[EventMetadataKey["GEMINI_CLI_KEY_UNKNOWN"] = 0] = "GEMINI_CLI_KEY_UNKNOWN";

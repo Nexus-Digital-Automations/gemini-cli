@@ -1,7 +1,0 @@
-{
-  "stop_allowed": true,
-  "authorized_by": "NO_UNUSED_VARS_AGENT",
-  "reason": "All no-unused-vars violations successfully resolved: cleaned unused imports, fixed parameters, and ran autofix command",
-  "timestamp": "2025-09-25T17:08:39.365Z",
-  "session_type": "self_authorized"
-}

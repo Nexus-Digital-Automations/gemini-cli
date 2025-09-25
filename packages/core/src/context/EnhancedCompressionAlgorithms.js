@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Enhanced Compression Algorithms - Content-Type Specific
  * Implements intelligent compression strategies optimized for different content types
@@ -13,13 +14,13 @@
  * @version 1.0.0
  */
 import { getComponentLogger } from '../utils/logger.js';
-import { CompressionStrategy, CompressionResult, ContextType, ContextItem } from './types.js';
+import { CompressionStrategy, CompressionResult as _CompressionResult, ContextType as _ContextType, ContextItem as _ContextItem } from './types.js';
 import { performance } from 'node:perf_hooks';
 const logger = getComponentLogger('enhanced-compression-algorithms');
 /**
  * Extended content type categories for compression optimization
  */
-export var ContentTypeCategory;
+export let ContentTypeCategory;
 (function (ContentTypeCategory) {
     ContentTypeCategory["JAVASCRIPT_CODE"] = "javascript_code";
     ContentTypeCategory["TYPESCRIPT_CODE"] = "typescript_code";
@@ -278,7 +279,7 @@ export class EnhancedCompressionAlgorithms {
         // Find best match
         let bestType = ContentTypeCategory.PLAIN_TEXT;
         let bestScore = 0;
-        let allScores = [];
+        const allScores = [];
         for (const [type, score] of typeScores.entries()) {
             allScores.push([type, score]);
             if (score > bestScore) {
@@ -419,7 +420,7 @@ export class EnhancedCompressionAlgorithms {
      */
     compressCodeContent(item, characteristics, targetRatio) {
         let compressed = item.content;
-        const originalLength = compressed.length;
+        const _originalLength = compressed.length;
         // Step 1: Remove excessive whitespace while preserving structure
         compressed = compressed.replace(/\n\s*\n\s*\n/g, '\n\n'); // Max 2 consecutive newlines
         compressed = compressed.replace(/^\s+/gm, (match) => {
@@ -773,7 +774,7 @@ export class EnhancedCompressionAlgorithms {
         }
         return compressed;
     }
-    compressJsonProgressively(data, targetRatio, originalTokens) {
+    compressJsonProgressively(data, targetRatio, _originalTokens) {
         const priorityFields = ['id', 'name', 'type', 'value', 'error', 'message', 'status'];
         if (Array.isArray(data)) {
             // For arrays, keep representative samples

@@ -9,7 +9,7 @@ import { Logger } from '../logger/Logger.js';
 /**
  * Validation severity levels for different types of validation failures
  */
-export const ValidationSeverity = {};
+export let ValidationSeverity = {};
 (function (ValidationSeverity) {
     ValidationSeverity["INFO"] = "info";
     ValidationSeverity["WARNING"] = "warning";
@@ -19,7 +19,7 @@ export const ValidationSeverity = {};
 /**
  * Validation status for tracking validation states
  */
-export const ValidationStatus = {};
+export let ValidationStatus = {};
 (function (ValidationStatus) {
     ValidationStatus["PENDING"] = "pending";
     ValidationStatus["RUNNING"] = "running";
@@ -30,7 +30,7 @@ export const ValidationStatus = {};
 /**
  * Validation rule category for organizing validation types
  */
-export const ValidationCategory = {};
+export let ValidationCategory = {};
 (function (ValidationCategory) {
     ValidationCategory["SYNTAX"] = "syntax";
     ValidationCategory["LOGIC"] = "logic";

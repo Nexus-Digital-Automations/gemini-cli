@@ -11,7 +11,7 @@ import { TaskStatus, TaskPriority } from '../task-management/types.js';
 /**
  * Quality assessment levels for different validation strictness
  */
-export const QualityAssessmentLevel = {};
+export let QualityAssessmentLevel = {};
 (function (QualityAssessmentLevel) {
     QualityAssessmentLevel["BASIC"] = "basic";
     QualityAssessmentLevel["STANDARD"] = "standard";

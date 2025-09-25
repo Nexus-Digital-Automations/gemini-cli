@@ -261,7 +261,7 @@ export class TaskQueue extends EventEmitter {
     // Find queue position if task is queued
     let queuePosition = undefined;
     if (task) {
-      for (const [priority, queue] of this.queuesByPriority) {
+      for (const [_priority, queue] of this.queuesByPriority) {
         const position = queue.findIndex((node) => node.task.id === taskId);
         if (position !== -1) {
           queuePosition = position + 1; // 1-based indexing
@@ -286,7 +286,7 @@ export class TaskQueue extends EventEmitter {
       return false;
     }
     // Remove from queue if present
-    for (const [priority, queue] of this.queuesByPriority) {
+    for (const [_priority, queue] of this.queuesByPriority) {
       const index = queue.findIndex((node) => node.task.id === taskId);
       if (index !== -1) {
         queue.splice(index, 1);

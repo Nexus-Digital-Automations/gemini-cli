@@ -102,8 +102,8 @@ export interface StatusHistoryEntry {
   eventType: StatusEventType;
   objectType: 'task' | 'agent' | 'system';
   objectId: string;
-  previousState?: any;
-  newState?: any;
+  previousState?: unknown;
+  newState?: unknown;
   metadata: Record<string, unknown>;
   context: {
     agentId?: string;
@@ -146,7 +146,7 @@ export class StatusHistoryAnalytics {
   private eventTypeIndex: Map<StatusEventType, string[]>;
   private analyticsCache: Map<
     string,
-    { data: any; timestamp: Date; ttl: number }
+    { data: unknown; timestamp: Date; ttl: number }
   >;
   private persistenceInterval?: NodeJS.Timeout;
 
@@ -173,8 +173,8 @@ export class StatusHistoryAnalytics {
     objectType: 'task' | 'agent' | 'system',
     objectId: string,
     options: {
-      previousState?: any;
-      newState?: any;
+      previousState?: unknown;
+      newState?: unknown;
       metadata?: Record<string, unknown>;
       agentId?: string;
       sessionId?: string;
@@ -265,8 +265,8 @@ export class StatusHistoryAnalytics {
     const sortOrder = query.sortOrder || 'desc';
 
     entries.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: unknown;
+      let bValue: unknown;
 
       switch (sortBy) {
         case 'timestamp':
@@ -806,6 +806,9 @@ export class StatusHistoryAnalytics {
             bucket.queued++;
           }
           break;
+        default:
+          // No action needed for other event types
+          break;
       }
     }
 
@@ -827,10 +830,11 @@ export class StatusHistoryAnalytics {
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
       case 'day':
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-      case 'week':
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
         return `${weekStart.getFullYear()}-W${Math.ceil(weekStart.getDate() / 7)}`;
+      }
       case 'month':
         return `${date.getFullYear()}-${date.getMonth()}`;
       default:
@@ -886,6 +890,10 @@ export class StatusHistoryAnalytics {
       case 'month':
         date.setMonth(date.getMonth() + 1);
         break;
+      default:
+        // Default to day granularity
+        date.setDate(date.getDate() + 1);
+        break;
     }
   }
 
@@ -916,7 +924,7 @@ export class StatusHistoryAnalytics {
     this.eventTypeIndex.set(entry.eventType, eventTypeEntries);
   }
 
-  private getFromCache(key: string): any {
+  private getFromCache(key: string): unknown {
     const cached = this.analyticsCache.get(key);
     if (!cached) return null;
 
@@ -929,7 +937,7 @@ export class StatusHistoryAnalytics {
     return cached.data;
   }
 
-  private setCache(key: string, data: any, ttl: number): void {
+  private setCache(key: string, data: unknown, ttl: number): void {
     this.analyticsCache.set(key, {
       data,
       timestamp: new Date(),

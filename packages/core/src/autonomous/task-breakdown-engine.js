@@ -15,7 +15,7 @@ import { TaskComplexity } from '../task-management/types.js';
 /**
  * Task execution status
  */
-export const TaskStatus = {};
+export let TaskStatus = {};
 (function (TaskStatus) {
     TaskStatus["PENDING"] = "pending";
     TaskStatus["IN_PROGRESS"] = "in_progress";

@@ -9,7 +9,7 @@ import {} from 'react';
  * Represents the current authentication state of the user.
  * Used to track the user's authentication status throughout the application lifecycle.
  */
-export const AuthState = {};
+export let AuthState = {};
 (function (AuthState) {
     /** User is not authenticated or authentication has failed */
     AuthState["Unauthenticated"] = "unauthenticated";
@@ -22,7 +22,7 @@ export const AuthState = {};
  * Represents the current streaming state of the LLM response.
  * Used to track the real-time status of conversation with the model.
  */
-export const StreamingState = {};
+export let StreamingState = {};
 (function (StreamingState) {
     /** No active streaming, ready for new input */
     StreamingState["Idle"] = "idle";
@@ -35,7 +35,7 @@ export const StreamingState = {};
  * Represents different types of events that can occur during Gemini model interaction.
  * Copied from server/src/core/turn.ts for CLI usage.
  */
-export const GeminiEventType = {};
+export let GeminiEventType = {};
 (function (GeminiEventType) {
     /** Standard content response from the model */
     GeminiEventType["Content"] = "content";
@@ -47,7 +47,7 @@ export const GeminiEventType = {};
  * Represents the current status of a tool call execution.
  * Used to track the lifecycle of tool/function calls from request to completion.
  */
-export const ToolCallStatus = {};
+export let ToolCallStatus = {};
 (function (ToolCallStatus) {
     /** Tool call has been requested but not yet processed */
     ToolCallStatus["Pending"] = "Pending";
@@ -63,7 +63,7 @@ export const ToolCallStatus = {};
     ToolCallStatus["Error"] = "Error";
 })(ToolCallStatus || (ToolCallStatus = {}));
 // Message types used by internal command feedback (subset of HistoryItem types)
-export const MessageType = {};
+export let MessageType = {};
 (function (MessageType) {
     MessageType["INFO"] = "info";
     MessageType["ERROR"] = "error";

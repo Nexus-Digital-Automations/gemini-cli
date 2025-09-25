@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import { TaskStatusMonitor as _TaskStatusMonitor, TaskMetadata as _TaskMetadata, TaskStatus, TaskStatusUpdate as _TaskStatusUpdate, AgentStatus as _AgentStatus, taskStatusMonitor, } from './TaskStatusMonitor.js';
 import { StatusUpdateBroker as _StatusUpdateBroker, StatusEvent as _StatusEvent, StatusEventType, statusUpdateBroker, } from './StatusUpdateBroker.js';
@@ -479,6 +480,9 @@ export class StatusHistoryAnalytics {
                         bucket.queued++;
                     }
                     break;
+                default:
+                    // No action needed for other event types
+                    break;
             }
         }
         // Convert to array format
@@ -495,10 +499,11 @@ export class StatusHistoryAnalytics {
                 return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
             case 'day':
                 return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-            case 'week':
+            case 'week': {
                 const weekStart = new Date(date);
                 weekStart.setDate(date.getDate() - date.getDay());
                 return `${weekStart.getFullYear()}-W${Math.ceil(weekStart.getDate() / 7)}`;
+            }
             case 'month':
                 return `${date.getFullYear()}-${date.getMonth()}`;
             default:
@@ -532,6 +537,10 @@ export class StatusHistoryAnalytics {
                 break;
             case 'month':
                 date.setMonth(date.getMonth() + 1);
+                break;
+            default:
+                // Default to day granularity
+                date.setDate(date.getDate() + 1);
                 break;
         }
     }

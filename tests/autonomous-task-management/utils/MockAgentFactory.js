@@ -9,7 +9,7 @@ import { SubAgentScope, ContextState, SubagentTerminateMode, } from '../../../pa
 /**
  * Mock agent states for testing different scenarios
  */
-export const MockAgentState = {};
+export let MockAgentState = {};
 (function (MockAgentState) {
     MockAgentState["SUCCESS"] = "SUCCESS";
     MockAgentState["FAILURE"] = "FAILURE";

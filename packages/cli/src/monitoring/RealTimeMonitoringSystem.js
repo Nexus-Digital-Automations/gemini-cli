@@ -712,6 +712,8 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         case TaskStatus.CANCELLED:
           counts.cancelled++;
           break;
+        default:
+          break;
       }
     }
     return counts;
@@ -737,6 +739,8 @@ export class RealTimeMonitoringSystem extends EventEmitter {
           break;
         case 'offline':
           counts.offline++;
+          break;
+        default:
           break;
       }
     }

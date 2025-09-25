@@ -6,11 +6,11 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import { taskStatusMonitor, TaskStatusUpdate } from './TaskStatusMonitor.js';
+import { taskStatusMonitor, _TaskStatusUpdate } from './TaskStatusMonitor.js';
 import { progressTracker, ProgressGranularity } from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
-import { statusUpdateBroker } from './StatusUpdateBroker.js';
-import { notificationSystem } from './NotificationSystem.js';
+import { _statusUpdateBroker } from './StatusUpdateBroker.js';
+import { _notificationSystem } from './NotificationSystem.js';
 /**
  * Comprehensive Task Monitor
  *
