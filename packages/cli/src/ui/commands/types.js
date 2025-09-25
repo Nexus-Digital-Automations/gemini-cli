@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export var CommandKind;
+export const CommandKind = {};
 (function (CommandKind) {
   CommandKind['BUILT_IN'] = 'built-in';
   CommandKind['FILE'] = 'file';

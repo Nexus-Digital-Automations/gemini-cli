@@ -8,7 +8,7 @@ import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
+import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 /**
  * Task Queue Persistence and Recovery Engine
  *
@@ -407,7 +407,7 @@ export class TaskPersistence extends EventEmitter {
       throw new Error(`Storage directory not writable: ${error}`);
     }
     // Check disk space
-    const stats = await fs.stat(this.storageDir);
+    const _stats = await fs.stat(this.storageDir);
     // Additional disk space checks could be added here
   }
   async startSyncProcess() {
@@ -478,7 +478,7 @@ export class TaskPersistence extends EventEmitter {
     // Simple file-based locking
     try {
       await fs.writeFile(lockFile, JSON.stringify(lockData), { flag: 'wx' });
-    } catch (error) {
+    } catch (_error) {
       // Lock already exists, wait and retry
       await new Promise((resolve) => setTimeout(resolve, 100));
       throw new Error('Failed to acquire lock');
@@ -669,11 +669,11 @@ export class TaskPersistence extends EventEmitter {
     // In a real implementation, this would decompress the data
     return data;
   }
-  async encryptData(data, key) {
+  async encryptData(data, _key) {
     // In a real implementation, this would use a crypto library
     return data;
   }
-  async decryptData(data, key) {
+  async decryptData(data, _key) {
     // In a real implementation, this would decrypt the data
     return data;
   }

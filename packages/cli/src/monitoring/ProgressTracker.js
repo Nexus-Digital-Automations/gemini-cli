@@ -9,7 +9,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Progress tracking granularity levels
  */
-export var ProgressGranularity;
+export const ProgressGranularity = {};
 (function (ProgressGranularity) {
   ProgressGranularity['TASK'] = 'task';
   ProgressGranularity['SUBTASK'] = 'subtask';
@@ -19,7 +19,7 @@ export var ProgressGranularity;
 /**
  * Progress tracking event types
  */
-export var ProgressEventType;
+export const ProgressEventType = {};
 (function (ProgressEventType) {
   ProgressEventType['CHECKPOINT_ADDED'] = 'checkpoint:added';
   ProgressEventType['PROGRESS_UPDATED'] = 'progress:updated';

@@ -18,7 +18,7 @@
 // limitations under the License.
 
 import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, chmodSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,6 +33,13 @@ if (!existsSync(join(root, 'node_modules'))) {
 // build all workspaces/packages
 execSync('npm run generate', { stdio: 'inherit', cwd: root });
 execSync('npm run build --workspaces', { stdio: 'inherit', cwd: root });
+
+// Make gemini executable
+const geminiPath = join(root, 'gemini');
+if (existsSync(geminiPath)) {
+  chmodSync(geminiPath, 0o755);
+  console.log('✓ Made gemini executable');
+}
 
 // also build container image if sandboxing is enabled
 // skip (-s) npm install + build since we did that above

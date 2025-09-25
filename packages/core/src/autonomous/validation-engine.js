@@ -9,7 +9,7 @@ import * as path from 'node:path';
 /**
  * Validation rule priority
  */
-export var ValidationPriority;
+export const ValidationPriority = {};
 (function (ValidationPriority) {
     ValidationPriority[ValidationPriority["LOW"] = 1] = "LOW";
     ValidationPriority[ValidationPriority["MEDIUM"] = 2] = "MEDIUM";

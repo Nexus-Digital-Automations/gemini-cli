@@ -328,12 +328,12 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 213,
+      "total_reinitializations": 217,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 6
+          "reinit": 10
         },
         "14:00-18:59": {
           "init": 0,
@@ -409,7 +409,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T15:38:49.059Z"
+      "last_updated": "2025-09-25T16:31:49.482Z"
     }
   },
   "workflow_config": {
@@ -469,6 +469,34 @@
       "status": "active",
       "reinitialized": "2025-09-25T15:38:49.047Z",
       "sessionId": "d0fa74b9accf157f",
+      "previousSessions": []
+    },
+    "NO_VAR_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:30:06.035Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:30:06.035Z",
+      "sessionId": "04998cd19bd90bb7",
+      "previousSessions": []
+    },
+    "LINTING_COMPLETION_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:30:27.141Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:30:27.141Z",
+      "sessionId": "2ee2ccfff5fc55b6",
+      "previousSessions": []
+    },
+    "ESLINT_FIXER_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:31:49.212Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:31:49.212Z",
+      "sessionId": "85c4fa41aeb3bfc2",
+      "previousSessions": []
+    },
+    "LINTING_FIX_AGENT": {
+      "lastHeartbeat": "2025-09-25T16:31:49.480Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T16:31:49.480Z",
+      "sessionId": "61e7a614d30e85e9",
       "previousSessions": []
     }
   },
