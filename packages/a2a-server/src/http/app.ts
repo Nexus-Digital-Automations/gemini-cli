@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import type { AgentSettings } from '../types.js';
 import { GCSTaskStore, NoOpTaskStore } from '../persistence/index.js';
-import { CoderAgentExecutor } from '../agent/index.js';
+import { CoderAgentExecutor, TaskWrapper } from '../agent/executor.js';
 import { requestStorage } from './requestStorage.js';
 
 const coderAgentCard: AgentCard = {
@@ -131,7 +131,7 @@ export async function createApp() {
         const wrappers = agentExecutor.getAllTasks();
         if (wrappers && wrappers.length > 0) {
           const tasksMetadata = await Promise.all(
-            wrappers.map((wrapper) => wrapper.task.getMetadata()),
+            wrappers.map((wrapper: TaskWrapper) => wrapper.task.getMetadata()),
           );
           res.status(200).json(tasksMetadata);
         } else {

@@ -3,8 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach } from 'vitest';
+import {} from '../../../test-types.js';
 // Mock CircularDependencyResolver for testing purposes
 class CircularDependencyResolver {
     config;
@@ -244,9 +244,9 @@ describe('CircularDependencyResolver', () => {
                 if (splitAttempt && splitAttempt.success) {
                     // Should have modified task structure
                     const removedTaskChange = splitAttempt.changes.find((change) => change.type === 'remove_dependency' &&
-                        change.description.includes('original task'));
+                        change.description?.includes('original task'));
                     const addedTaskChange = splitAttempt.changes.find((change) => change.type === 'add_task' &&
-                        change.description.includes('split tasks'));
+                        change.description?.includes('split tasks'));
                     expect(removedTaskChange || addedTaskChange).toBeDefined();
                 }
             }

@@ -5,5 +5,5 @@
  */
 
 // Public API exports for agent module
-export { CoderAgentExecutor } from './executor.js';
+export { CoderAgentExecutor, TaskWrapper } from './executor.js';
 export { Task } from './task.js';

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -138,8 +137,8 @@ export class SecurityAuditor extends EventEmitter {
                 findings.push(...(await this.analyzeDataProtection(target)));
                 break;
             default:
-              // Handle unexpected values
-              break;
+                // Handle unexpected values
+                break;
         }
         return findings;
     }

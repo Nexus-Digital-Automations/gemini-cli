@@ -94,7 +94,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await budgetCommand(context);
+      await budgetCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Manage API request budget limits'),
@@ -109,7 +109,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['invalid-command'],
       });
 
-      await budgetCommand(context);
+      await budgetCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Unknown budget command'),
@@ -122,7 +122,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['get'],
       });
 
-      await budgetCommand(context);
+      await budgetCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget Status'),
@@ -137,7 +137,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget Status: ✅ Enabled'),
@@ -164,7 +164,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget Status: ❌ Disabled'),
@@ -184,7 +184,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Usage: 105/100 (105.0%) ⚠️  Over Budget!'),
@@ -202,7 +202,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Usage: 0/100 (0.0%)'),
@@ -215,7 +215,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['--verbose'],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Reset Time: 00:00'),
@@ -233,7 +233,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['150'],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -252,7 +252,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['-10'],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget limit must be a positive number'),
@@ -266,7 +266,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['abc'],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget limit must be a positive number'),
@@ -285,7 +285,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['200'],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -305,7 +305,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Please provide a budget limit'),
@@ -326,7 +326,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await enableCommand(context);
+      await enableCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -350,7 +350,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await enableCommand(context);
+      await enableCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: expect.objectContaining({
@@ -369,7 +369,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await enableCommand(context);
+      await enableCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget tracking is already enabled'),
@@ -385,7 +385,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await disableCommand(context);
+      await disableCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -409,7 +409,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await disableCommand(context);
+      await disableCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget tracking is already disabled'),
@@ -425,7 +425,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await resetCommand(context);
+      await resetCommand.handler(context);
 
       expect(fs.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('budget-usage.json'),
@@ -447,7 +447,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await resetCommand(context);
+      await resetCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget tracking is not enabled'),
@@ -463,7 +463,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await resetCommand(context);
+      await resetCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to reset budget usage'),
@@ -476,7 +476,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['--confirm'],
       });
 
-      await resetCommand(context);
+      await resetCommand.handler(context);
 
       expect(fs.writeFile).toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -492,7 +492,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['50'],
       });
 
-      await extendCommand(context);
+      await extendCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -514,7 +514,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['-10'],
       });
 
-      await extendCommand(context);
+      await extendCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Extension amount must be a positive number'),
@@ -533,7 +533,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['50'],
       });
 
-      await extendCommand(context);
+      await extendCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Budget tracking is not enabled'),
@@ -547,7 +547,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await extendCommand(context);
+      await extendCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Please provide an extension amount'),
@@ -568,7 +568,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['20'],
       });
 
-      await extendCommand(context);
+      await extendCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Note: You are currently over your budget'),
@@ -595,7 +595,7 @@ describe('Budget CLI Integration Tests', () => {
         config: mockConfig,
         args: [],
       });
-      await enableCommand(enableContext);
+      await enableCommand.handler(enableContext);
 
       // 2. Set daily limit
       mockConfig.getBudgetSettings = vi.fn().mockReturnValue({
@@ -607,14 +607,14 @@ describe('Budget CLI Integration Tests', () => {
         config: mockConfig,
         args: ['150'],
       });
-      await setCommand(setContext);
+      await setCommand.handler(setContext);
 
       // 3. Check status
       const getContext = mockCommandContext({
         config: mockConfig,
         args: [],
       });
-      await getCommand(getContext);
+      await getCommand.handler(getContext);
 
       // Verify all commands executed successfully
       expect(mockConfig.updateSettings).toHaveBeenCalledTimes(2);
@@ -640,7 +640,7 @@ describe('Budget CLI Integration Tests', () => {
         config: mockConfig,
         args: [],
       });
-      await getCommand(getContext);
+      await getCommand.handler(getContext);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Over Budget!'),
       );
@@ -650,7 +650,7 @@ describe('Budget CLI Integration Tests', () => {
         config: mockConfig,
         args: ['50'],
       });
-      await extendCommand(extendContext);
+      await extendCommand.handler(extendContext);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Daily budget extended by 50'),
       );
@@ -665,7 +665,7 @@ describe('Budget CLI Integration Tests', () => {
         config: mockConfig,
         args: [],
       });
-      await getCommand(finalGetContext);
+      await getCommand.handler(finalGetContext);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Usage: 105/150'),
       );
@@ -677,14 +677,14 @@ describe('Budget CLI Integration Tests', () => {
         config: mockConfig,
         args: ['--confirm'],
       });
-      await resetCommand(resetContext);
+      await resetCommand.handler(resetContext);
 
       // 2. Reconfigure with new limit
       const setContext = mockCommandContext({
         config: mockConfig,
         args: ['200'],
       });
-      await setCommand(setContext);
+      await setCommand.handler(setContext);
 
       // 3. Verify clean state
       vi.mocked(fs.readFile).mockResolvedValue(
@@ -728,7 +728,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to retrieve budget settings'),
@@ -745,7 +745,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['150'],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to update budget settings'),
@@ -760,7 +760,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await getCommand(context);
+      await getCommand.handler(context);
 
       // Should fall back to default values
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -776,7 +776,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await resetCommand(context);
+      await resetCommand.handler(context);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to reset budget usage'),
@@ -789,7 +789,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [Number.MAX_SAFE_INTEGER.toString()],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -805,7 +805,7 @@ describe('Budget CLI Integration Tests', () => {
         args: ['150.75'],
       });
 
-      await setCommand(context);
+      await setCommand.handler(context);
 
       expect(mockConfig.updateSettings).toHaveBeenCalledWith({
         budget: {
@@ -863,7 +863,7 @@ describe('Budget CLI Integration Tests', () => {
         args: [],
       });
 
-      await budgetCommand(context);
+      await budgetCommand.handler(context);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Available commands:'),

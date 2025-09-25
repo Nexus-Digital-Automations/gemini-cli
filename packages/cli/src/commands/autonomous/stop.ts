@@ -203,7 +203,7 @@ export const stopCommand: CommandModule<object, StopOptions> = {
       }
 
       console.log(chalk.green('🧹 Cleanup completed'));
-    } catch {
+    } catch (error: unknown) {
       console.error(chalk.red('❌ Failed to stop autonomous system:'));
       console.error(
         chalk.red(error instanceof Error ? error.message : String(error)),

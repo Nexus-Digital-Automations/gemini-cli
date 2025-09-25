@@ -46,14 +46,14 @@ describe('PersistenceStorageAPI', () => {
     vi.clearAllMocks();
 
     // Mock fs-extra methods
-    mockFse.ensureDir = vi.fn().mockResolvedValue(undefined);
-    mockFse.pathExists = vi.fn().mockResolvedValue(false);
-    mockFse.writeJSON = vi.fn().mockResolvedValue(undefined);
-    mockFse.readJSON = vi.fn().mockResolvedValue({});
-    mockFse.copy = vi.fn().mockResolvedValue(undefined);
-    mockFse.move = vi.fn().mockResolvedValue(undefined);
-    mockFse.remove = vi.fn().mockResolvedValue(undefined);
-    mockFse.readdir = vi.fn().mockResolvedValue([]);
+    (mockFse.ensureDir as any) = vi.fn().mockResolvedValue(undefined);
+    (mockFse.pathExists as any) = vi.fn().mockResolvedValue(false);
+    (mockFse.writeJSON as any) = vi.fn().mockResolvedValue(undefined);
+    (mockFse.readJSON as any) = vi.fn().mockResolvedValue({});
+    (mockFse.copy as any) = vi.fn().mockResolvedValue(undefined);
+    (mockFse.move as any) = vi.fn().mockResolvedValue(undefined);
+    (mockFse.remove as any) = vi.fn().mockResolvedValue(undefined);
+    (mockFse.readdir as any) = vi.fn().mockResolvedValue([]);
 
     // Create test task
     mockTask = {
@@ -92,7 +92,7 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Task Storage Operations', () => {
     test('should save task successfully', async () => {
-      mockFse.pathExists.mockResolvedValue(false);
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(false);
 
       await storageAPI.save(mockTask);
 
@@ -114,8 +114,8 @@ describe('PersistenceStorageAPI', () => {
         },
       };
 
-      mockFse.pathExists.mockResolvedValue(true);
-      mockFse.readJSON.mockResolvedValue(taskMetadata);
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(taskMetadata);
 
       const loadedTask = await storageAPI.load('test-task-id');
 
@@ -125,7 +125,7 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should return undefined for non-existent task', async () => {
-      mockFse.pathExists.mockResolvedValue(false);
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(false);
 
       const loadedTask = await storageAPI.load('non-existent-task');
 
@@ -133,14 +133,14 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle save errors gracefully', async () => {
-      mockFse.writeJSON.mockRejectedValue(new Error('Write failed'));
+      (mockFse.writeJSON as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Write failed'));
 
       await expect(storageAPI.save(mockTask)).rejects.toThrow('Write failed');
     });
 
     test('should handle load errors gracefully', async () => {
-      mockFse.pathExists.mockResolvedValue(true);
-      mockFse.readJSON.mockRejectedValue(new Error('Read failed'));
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Read failed'));
 
       await expect(storageAPI.load('test-task-id')).rejects.toThrow(
         'Read failed',
@@ -387,7 +387,7 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Error Handling', () => {
     test('should handle filesystem errors during initialization', async () => {
-      mockFse.ensureDir.mockRejectedValue(new Error('Permission denied'));
+      (mockFse.ensureDir as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Permission denied'));
 
       await expect(
         () => new PersistenceStorageAPI({ baseDir: '/invalid/path' }),
@@ -404,8 +404,8 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle corrupted metadata during load', async () => {
-      mockFse.pathExists.mockResolvedValue(true);
-      mockFse.readJSON.mockResolvedValue({ invalid: 'data' });
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue({ invalid: 'data' });
 
       await expect(storageAPI.load('test-task-id')).rejects.toThrow();
     });
@@ -449,8 +449,8 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Integration', () => {
     test('should maintain data consistency across save/load cycle', async () => {
-      mockFse.pathExists.mockResolvedValueOnce(false); // For save
-      mockFse.pathExists.mockResolvedValueOnce(true); // For load
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(false); // For save
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true); // For load
 
       // Set up mock return value for load
       const expectedMetadata = {
@@ -466,7 +466,7 @@ describe('PersistenceStorageAPI', () => {
         },
       };
 
-      mockFse.readJSON.mockResolvedValue(expectedMetadata);
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(expectedMetadata);
 
       // Save task
       await storageAPI.save(mockTask);

@@ -10,7 +10,7 @@ import {
   TaskPriority,
   TaskCategory,
   TaskType,
-} from '@google/gemini-cli-core/task-management/types.js';
+} from '@google/gemini-cli-core/dist/src/task-management/types.js';
 import {
   suggestFeature,
   convertTaskToFeature,
@@ -20,14 +20,14 @@ import {
 } from '../taskManagerApi.js';
 
 interface AddTaskOptions {
-  priority?: string;
-  category?: string;
-  type?: string;
+  priority: string;
+  category: string;
+  type: string;
   description: string;
-  'max-time'?: number;
-  dependencies?: string[];
-  context?: string;
-  'expected-outputs'?: string;
+  'max-time': number;
+  dependencies: string[];
+  context: string;
+  'expected-outputs': string;
 }
 
 export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
@@ -187,9 +187,9 @@ export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
         console.log(`   Type: ${chalk.magenta(newTask.type)}`);
         console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
 
-        if (apiResponse.data?.feature_id) {
+        if ((apiResponse.data as any)?.feature_id) {
           console.log(
-            `   TaskManager Feature ID: ${chalk.green(apiResponse.data.feature_id)}`,
+            `   TaskManager Feature ID: ${chalk.green((apiResponse.data as any).feature_id)}`,
           );
         }
       } else {

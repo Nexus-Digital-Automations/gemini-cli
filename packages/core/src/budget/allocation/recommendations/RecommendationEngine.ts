@@ -474,9 +474,6 @@ export class RecommendationEngine {
     }
 
     return baseWeights;
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**

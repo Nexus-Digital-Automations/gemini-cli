@@ -929,10 +929,10 @@ export class PerformanceOptimizer extends EventEmitter {
   ): Promise<void> {
     // Trigger queue rebalancing based on recommendation parameters
     const parameters = recommendation.implementation.actions[0]?.parameters;
-    if (parameters?.rebalanceThreshold) {
+    if (parameters?.['rebalanceThreshold']) {
       // Use the threshold parameter for rebalancing
       this.logger.debug('Executing scheduling optimization', {
-        threshold: parameters.rebalanceThreshold,
+        threshold: parameters['rebalanceThreshold'],
       });
     }
     await this.taskQueue.rebalanceQueue();
@@ -943,7 +943,7 @@ export class PerformanceOptimizer extends EventEmitter {
   ): Promise<() => Promise<void>> {
     // Agent optimization logic based on recommendation parameters
     const parameters = recommendation.implementation.actions[0]?.parameters;
-    const targetUtilization = parameters?.targetUtilization as number;
+    const targetUtilization = parameters?.['targetUtilization'] as number;
 
     if (targetUtilization) {
       this.logger.debug('Executing agent optimization', {

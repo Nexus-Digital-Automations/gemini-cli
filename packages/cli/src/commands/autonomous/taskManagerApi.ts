@@ -296,12 +296,12 @@ export function convertTaskToFeature(
     TEST: 'enhancement',
   };
 
-  const mappedCategory = categoryMap[task.category] || 'new-feature';
+  const mappedCategory = categoryMap[(task as any)['category']] || 'new-feature';
 
   return {
-    title: task.title || task.description?.substring(0, 50) + '...',
-    description: task.description || 'Autonomous task execution',
-    business_value: `Autonomous task management: ${task.type || 'implementation'} with ${task.priority || 'medium'} priority`,
+    title: (task as any)['title'] || ((task as any)['description'] as string)?.substring(0, 50) + '...',
+    description: (task as any)['description'] || 'Autonomous task execution',
+    business_value: `Autonomous task management: ${(task as any)['type'] || 'implementation'} with ${(task as any)['priority'] || 'medium'} priority`,
     category: mappedCategory,
   };
 }

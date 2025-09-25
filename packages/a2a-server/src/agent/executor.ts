@@ -51,7 +51,7 @@ import { pushTaskStateFailed } from '../utils/executor_utils.js';
  * const sdkTask = wrapper.toSDKTask();
  * ```
  */
-class TaskWrapper {
+export class TaskWrapper {
   task: Task;
   agentSettings: AgentSettings;
 

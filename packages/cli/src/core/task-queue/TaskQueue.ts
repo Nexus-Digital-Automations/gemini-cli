@@ -229,7 +229,7 @@ export class TaskQueue extends EventEmitter {
 
     // Update submission metrics
     const submissionLatency = Date.now() - startTime;
-    task.metadata.submissionLatency = submissionLatency;
+    task.metadata['submissionLatency'] = submissionLatency;
 
     // Emit events
     this.emit('task:submitted', { task, submissionLatency });
@@ -492,7 +492,7 @@ export class TaskQueue extends EventEmitter {
     // Recalculate priorities and redistribute
     for (const node of allQueuedTasks) {
       const task = node.task;
-      const options = task.metadata.options as TaskSchedulingOptions;
+      const options = task.metadata['options'] as TaskSchedulingOptions;
 
       // Recalculate scheduling priority
       node.priority = this.calculateSchedulingPriority(task, options);
@@ -715,7 +715,7 @@ export class TaskQueue extends EventEmitter {
   ): AgentCapability | null {
     if (availableAgents.length === 0) return null;
 
-    const options = task.metadata.options as TaskSchedulingOptions;
+    const options = task.metadata['options'] as TaskSchedulingOptions;
 
     // Filter by required agent if specified
     if (options?.constraints?.requiresAgent) {
@@ -965,7 +965,7 @@ export class TaskQueue extends EventEmitter {
     this.failedTasks.set(taskId, currentFailures + 1);
 
     const task = this.taskRegistry.get(taskId);
-    const options = task?.metadata.options as TaskSchedulingOptions;
+    const options = task?.metadata['options'] as TaskSchedulingOptions;
     const maxRetries = options?.maxRetries || 3;
 
     if (currentFailures < maxRetries) {

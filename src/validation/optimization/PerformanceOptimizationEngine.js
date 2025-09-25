@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Performance Optimization Engine for validation system optimization
  * Analyzes performance bottlenecks and generates actionable optimization recommendations
@@ -415,29 +414,35 @@ export class PerformanceOptimizationEngine extends EventEmitter {
                 case 'io':
                     recommendations.push(...this.generateIoOptimizations(bottleneck, metrics));
                     break;
+                default:
+                    // Handle unexpected bottleneck types
+                    break;
             }
+            // General system optimizations
+            recommendations.push(...this.generateSystemOptimizations(metrics));
+            // Filter and rank recommendations
+            return recommendations
+                .filter((rec) => rec.impact.performance >=
+                this.config.recommendation.minImpactThreshold)
+                .sort((a, b) => {
+                const priorityWeight = { critical: 4, high: 3, medium: 2, low: 1 };
+                const difficultyWeight = {
+                    easy: 4,
+                    moderate: 3,
+                    complex: 2,
+                    expert: 1,
+                };
+                const aScore = (priorityWeight[a.priority] * a.impact.performance) /
+                    difficultyWeight[a.difficulty];
+                const bScore = (priorityWeight[b.priority] * b.impact.performance) /
+                    difficultyWeight[b.difficulty];
+                return bScore - aScore;
+            })
+                .slice(0, this.config.recommendation.maxRecommendations);
         }
-        // General system optimizations
-        recommendations.push(...this.generateSystemOptimizations(metrics));
-        // Filter and rank recommendations
-        return recommendations
-            .filter((rec) => rec.impact.performance >=
-            this.config.recommendation.minImpactThreshold)
-            .sort((a, b) => {
-            const priorityWeight = { critical: 4, high: 3, medium: 2, low: 1 };
-            const difficultyWeight = {
-                easy: 4,
-                moderate: 3,
-                complex: 2,
-                expert: 1,
-            };
-            const aScore = (priorityWeight[a.priority] * a.impact.performance) /
-                difficultyWeight[a.difficulty];
-            const bScore = (priorityWeight[b.priority] * b.impact.performance) /
-                difficultyWeight[b.difficulty];
-            return bScore - aScore;
-        })
-            .slice(0, this.config.recommendation.maxRecommendations);
+        /**
+         * Create CPU bottleneck analysis
+         */
     }
     /**
      * Create CPU bottleneck analysis

@@ -143,6 +143,7 @@ export const retryTaskCommand: CommandModule<object, RetryTaskOptions> = {
       );
 
       // Check dependencies if required
+      let allDepsComplete = true; // Declare at function scope
       if (argv['wait-for-dependencies']) {
         console.log(chalk.blue('\n🔗 Checking Dependencies:'));
 
@@ -154,8 +155,6 @@ export const retryTaskCommand: CommandModule<object, RetryTaskOptions> = {
             Math.floor(Math.random() * 3)
           ],
         }));
-
-        let allDepsComplete = true;
         mockDepStatuses.forEach((dep) => {
           const statusColor =
             dep.status === 'completed'

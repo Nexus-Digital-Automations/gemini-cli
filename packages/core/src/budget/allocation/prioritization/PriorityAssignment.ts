@@ -1012,10 +1012,6 @@ export class PriorityAssignment {
       minAllocation,
       maxAllocation,
     };
-      default:
-        // Handle unexpected values
-        break;
-  }
 
   /**
    * Calculate next review date

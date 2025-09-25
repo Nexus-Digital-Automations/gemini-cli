@@ -51,6 +51,7 @@ interface SystemConfig {
       failureRate: number;
     };
   };
+  [key: string]: unknown;
 }
 
 const DEFAULT_CONFIG: SystemConfig = {
@@ -130,7 +131,7 @@ function getConfigValue(config: SystemConfig, key: string): unknown {
 
   for (const k of keys) {
     if (value && typeof value === 'object' && k in value) {
-      value = value[k];
+      value = (value as Record<string, unknown>)[k];
     } else {
       return undefined;
     }
@@ -153,7 +154,7 @@ function setConfigValue(
     if (!(k in current)) {
       current[k] = {};
     }
-    current = current[k];
+    current = current[k] as Record<string, unknown>;
   }
 
   const lastKey = keys[keys.length - 1];

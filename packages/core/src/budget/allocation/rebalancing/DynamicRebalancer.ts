@@ -642,9 +642,6 @@ export class DynamicRebalancer {
       issues.push(
         error instanceof Error ? error.message : 'Unknown execution error',
       );
-        default:
-          // Handle unexpected values
-          break;
     }
 
     const executionTime = Date.now() - executionStart;

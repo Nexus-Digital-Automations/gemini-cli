@@ -760,12 +760,11 @@ export class EfficiencyAnalyzer {
             successMetrics: ['response_time', 'throughput', 'performance_score'],
           });
           break;
-      default:
+        default:
           // Handle unexpected values
           break;
-    
-
       }
+    }
 
     return improvements;
   }

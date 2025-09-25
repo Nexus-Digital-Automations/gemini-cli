@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Default priority assignment configuration
  */
@@ -211,7 +210,7 @@ export class PriorityAssignment {
      * @param performanceData - Recent performance data
      * @returns Updated priority assignment
      */
-    updatePriority(resourceId, contextChanges, _performanceData) {
+    updatePriority(resourceId, contextChanges, performanceData) {
         this.logger.info(`Updating priority for resource ${resourceId}`, {
             contextChanges,
         });
@@ -235,7 +234,7 @@ export class PriorityAssignment {
      */
     applyBusinessRules(candidate) {
         const appliedRules = [];
-        let _totalRuleWeight = 0;
+        let totalRuleWeight = 0;
         let totalRuleConfidence = 0;
         // Process mandatory rules first
         for (const rule of this.config.businessRules.mandatory) {
@@ -243,7 +242,7 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                _totalRuleWeight += rule.priority;
+                totalRuleWeight += rule.priority;
                 totalRuleConfidence += 1.0; // Mandatory rules have full confidence
             }
         }
@@ -253,7 +252,7 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                _totalRuleWeight += rule.priority;
+                totalRuleWeight += rule.priority;
                 totalRuleConfidence += 0.8; // Conditional rules have lower confidence
             }
         }
@@ -263,7 +262,7 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                _totalRuleWeight += rule.priority;
+                totalRuleWeight += rule.priority;
                 totalRuleConfidence += 0.6; // Priority rules have lowest confidence
             }
         }
@@ -478,10 +477,6 @@ export class PriorityAssignment {
             case 'deferred':
                 maxAllocation = baseConstraints.maxAllocation * 0.5;
                 break;
-            default:
-                // Handle unknown priority levels - use normal constraints
-                console.warn(`Unknown priority level: ${assignedPriority}`);
-                break;
         }
         return {
             ...baseConstraints,
@@ -489,273 +484,257 @@ export class PriorityAssignment {
             maxAllocation,
         };
     }
-    /**
-     * Calculate next review date
-     */
-    calculateNextReviewDate() {
-        const now = new Date();
-        const reviewInterval = this.config.dynamicAdjustment.frequency;
-        switch (reviewInterval) {
-            case 'real_time':
-                now.setHours(now.getHours() + 1);
-                break;
-            case 'hourly':
-                now.setHours(now.getHours() + 1);
-                break;
-            case 'daily':
-                now.setDate(now.getDate() + 1);
-                break;
-            case 'weekly':
-                now.setDate(now.getDate() + 7);
-                break;
-            default:
-                // Default to daily review for unknown intervals
-                now.setDate(now.getDate() + 1);
-                console.warn(`Unknown review interval: ${reviewInterval}, defaulting to daily`);
-                break;
-        }
-        return now;
+    default;
+}
+calculateNextReviewDate();
+Date;
+{
+    const now = new Date();
+    const reviewInterval = this.config.dynamicAdjustment.frequency;
+    switch (reviewInterval) {
+        case 'real_time':
+            now.setHours(now.getHours() + 1);
+            break;
+        case 'hourly':
+            now.setHours(now.getHours() + 1);
+            break;
+        case 'daily':
+            now.setDate(now.getDate() + 1);
+            break;
+        case 'weekly':
+            now.setDate(now.getDate() + 7);
+            break;
     }
-    /**
-     * Check if priority update is allowed
-     */
-    isUpdateAllowed(resourceId, metadata) {
-        const now = new Date();
-        const lastAssignment = metadata.assignedAt;
-        const stabilityPeriod = this.config.dynamicAdjustment.constraints.stabilityPeriod;
-        // Parse stability period (simplified)
-        let stabilityMs = 24 * 60 * 60 * 1000; // Default 24 hours
-        if (stabilityPeriod.endsWith('h')) {
-            stabilityMs = parseInt(stabilityPeriod, 10) * 60 * 60 * 1000;
-        }
-        else if (stabilityPeriod.endsWith('d')) {
-            stabilityMs = parseInt(stabilityPeriod, 10) * 24 * 60 * 60 * 1000;
-        }
-        return now.getTime() - lastAssignment.getTime() >= stabilityMs;
+    return now;
+    // Handle unexpected values
+    break;
+}
+isUpdateAllowed(resourceId, string, metadata, AssignmentMetadata);
+boolean;
+{
+    const now = new Date();
+    const lastAssignment = metadata.assignedAt;
+    const stabilityPeriod = this.config.dynamicAdjustment.constraints.stabilityPeriod;
+    // Parse stability period (simplified)
+    let stabilityMs = 24 * 60 * 60 * 1000; // Default 24 hours
+    if (stabilityPeriod.endsWith('h')) {
+        stabilityMs = parseInt(stabilityPeriod) * 60 * 60 * 1000;
     }
-    /**
-     * Detect priority conflicts
-     */
-    detectPriorityConflicts(assignments, candidates) {
-        const conflicts = [];
-        if (!this.config.conflictResolution.detection.enabled) {
-            return conflicts;
-        }
-        // Check for resource competition (simplified implementation)
-        const highPriorityResources = assignments.filter(a => a.assignedPriority === 'critical' || a.assignedPriority === 'high');
-        const totalHighPriorityAllocation = highPriorityResources.reduce((sum, assignment) => {
-            const candidate = candidates.find(c => c.resourceId === assignment.resourceId);
-            return sum + (candidate?.currentAllocation || 0);
-        }, 0);
-        // Assume budget constraint of 100,000
-        const budgetConstraint = 100000;
-        if (totalHighPriorityAllocation > budgetConstraint * 0.8) {
-            conflicts.push({
-                id: `budget_conflict_${Date.now()}`,
-                resources: highPriorityResources.map(r => r.resourceId),
-                type: 'resource_competition',
-                severity: 'high',
-                description: 'High priority resources exceed available budget allocation',
-                resolutions: [
-                    {
-                        strategy: 'Reduce some priorities',
-                        impact: 'May delay some initiatives',
-                        effort: 'medium',
-                        probability: 0.8,
-                    },
-                    {
-                        strategy: 'Increase budget',
-                        impact: 'Higher costs',
-                        effort: 'high',
-                        probability: 0.4,
-                    },
-                ],
-                status: 'detected',
-            });
-        }
+    else if (stabilityPeriod.endsWith('d')) {
+        stabilityMs = parseInt(stabilityPeriod) * 24 * 60 * 60 * 1000;
+    }
+    return now.getTime() - lastAssignment.getTime() >= stabilityMs;
+}
+detectPriorityConflicts(assignments, PriorityAssignmentResult[], candidates, AllocationCandidate[]);
+PriorityConflict[];
+{
+    const conflicts = [];
+    if (!this.config.conflictResolution.detection.enabled) {
         return conflicts;
     }
-    /**
-     * Resolve priority conflicts
-     */
-    resolvePriorityConflicts(conflicts, assignments) {
-        for (const conflict of conflicts) {
-            if (conflict.status !== 'detected')
-                continue;
-            switch (this.config.conflictResolution.strategy) {
-                case 'business_value':
-                    this.resolveByBusinessValue(conflict, assignments);
-                    break;
-                case 'highest_priority':
-                    this.resolveByHighestPriority(conflict, assignments);
-                    break;
-                // Add more resolution strategies as needed
-                default:
-                    // Default to business value resolution for unknown strategies
-                    this.resolveByBusinessValue(conflict, assignments);
-                    console.warn(`Unknown conflict resolution strategy: ${this.config.conflictResolution.strategy}, using business_value`);
-                    break;
-            }
-            conflict.status = 'resolved';
-        }
-    }
-    /**
-     * Resolve conflict by business value
-     */
-    resolveByBusinessValue(conflict, assignments) {
-        // Simplified resolution - would implement proper business value comparison
-        this.logger.info(`Resolving conflict ${conflict.id} by business value`);
-    }
-    /**
-     * Resolve conflict by highest priority
-     */
-    resolveByHighestPriority(conflict, assignments) {
-        // Simplified resolution - would implement proper priority-based resolution
-        this.logger.info(`Resolving conflict ${conflict.id} by highest priority`);
-    }
-    /**
-     * Generate escalations
-     */
-    generateEscalations(assignments, candidates) {
-        const escalations = [];
-        // Check for resources that need escalation
-        for (const assignment of assignments) {
-            if (assignment.assignedPriority === 'critical') {
-                const candidate = candidates.find(c => c.resourceId === assignment.resourceId);
-                if (candidate && this.checkEscalationTriggers(candidate, [])) {
-                    escalations.push({
-                        id: `escalation_${assignment.resourceId}_${Date.now()}`,
-                        resourceId: assignment.resourceId,
-                        trigger: this.config.escalation.triggers[0], // Use first trigger as example
-                        level: 'critical',
-                        timeline: [new Date()], // Would calculate proper timeline
-                        notifiedStakeholders: ['manager', 'director'],
-                        status: 'active',
-                        deadline: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-                    });
-                }
-            }
-        }
-        return escalations;
-    }
-    /**
-     * Generate portfolio insights
-     */
-    generatePortfolioInsights(assignments, _candidates) {
-        // Calculate priority distribution
-        const distribution = {
-            critical: assignments.filter(a => a.assignedPriority === 'critical').length,
-            high: assignments.filter(a => a.assignedPriority === 'high').length,
-            medium: assignments.filter(a => a.assignedPriority === 'medium').length,
-            low: assignments.filter(a => a.assignedPriority === 'low').length,
-            deferred: assignments.filter(a => a.assignedPriority === 'deferred').length,
-        };
-        // Calculate balance
-        const total = assignments.length;
-        const idealDistribution = { critical: 0.1, high: 0.2, medium: 0.4, low: 0.2, deferred: 0.1 };
-        let balanceScore = 0;
-        for (const [priority, count] of Object.entries(distribution)) {
-            const actualRatio = count / total;
-            const idealRatio = idealDistribution[priority];
-            const deviation = Math.abs(actualRatio - idealRatio);
-            balanceScore += Math.max(0, 100 - (deviation * 200));
-        }
-        balanceScore = balanceScore / Object.keys(distribution).length;
-        const balanced = balanceScore > 70;
-        const issues = balanced ? [] : ['Uneven priority distribution', 'May indicate resource allocation issues'];
-        // Competition analysis
-        const highCompetition = ['critical_resources', 'high_priority_resources'];
-        const opportunities = ['medium_priority_optimization', 'low_priority_consolidation'];
-        const intensity = distribution.critical + distribution.high > total * 0.4 ? 80 : 50;
-        // Strategic alignment
-        const strategicScore = assignments.reduce((sum, a) => sum + (a.rationale.primaryFactors.includes('strategic') ? 1 : 0), 0) / assignments.length * 100;
-        const wellAligned = assignments
-            .filter(a => a.confidence > 80)
-            .map(a => a.resourceId);
-        const misaligned = assignments
-            .filter(a => a.confidence < 60)
-            .map(a => a.resourceId);
-        return {
-            distribution,
-            balance: {
-                balanced,
-                score: balanceScore,
-                issues,
-            },
-            competition: {
-                highCompetition,
-                opportunities,
-                intensity,
-            },
-            alignment: {
-                score: strategicScore,
-                wellAligned,
-                misaligned,
-            },
-        };
-    }
-    /**
-     * Generate portfolio recommendations
-     */
-    generatePortfolioRecommendations(_assignments, insights, conflicts) {
-        const recommendations = [];
-        // Recommend rebalancing if portfolio is unbalanced
-        if (!insights.balance.balanced) {
-            recommendations.push({
-                type: 'priority_change',
-                resources: insights.alignment.misaligned,
-                description: 'Rebalance priority distribution to improve portfolio balance',
-                benefits: {
-                    cost: insights.balance.score * 0.5,
-                    performance: insights.balance.score * 0.3,
-                    efficiency: insights.balance.score * 0.7,
+    // Check for resource competition (simplified implementation)
+    const highPriorityResources = assignments.filter(a => a.assignedPriority === 'critical' || a.assignedPriority === 'high');
+    const totalHighPriorityAllocation = highPriorityResources.reduce((sum, assignment) => {
+        const candidate = candidates.find(c => c.resourceId === assignment.resourceId);
+        return sum + (candidate?.currentAllocation || 0);
+    }, 0);
+    // Assume budget constraint of 100,000
+    const budgetConstraint = 100000;
+    if (totalHighPriorityAllocation > budgetConstraint * 0.8) {
+        conflicts.push({
+            id: `budget_conflict_${Date.now()}`,
+            resources: highPriorityResources.map(r => r.resourceId),
+            type: 'resource_competition',
+            severity: 'high',
+            description: 'High priority resources exceed available budget allocation',
+            resolutions: [
+                {
+                    strategy: 'Reduce some priorities',
+                    impact: 'May delay some initiatives',
+                    effort: 'medium',
+                    probability: 0.8,
                 },
-                complexity: 'medium',
-                priority: 'short_term',
-            });
-        }
-        // Recommend conflict resolution
-        if (conflicts.length > 0) {
-            recommendations.push({
-                type: 'resource_reallocation',
-                resources: conflicts.flatMap(c => c.resources),
-                description: 'Resolve resource conflicts through reallocation or priority adjustment',
-                benefits: {
-                    cost: conflicts.length * 15,
-                    performance: conflicts.length * 20,
-                    efficiency: conflicts.length * 10,
+                {
+                    strategy: 'Increase budget',
+                    impact: 'Higher costs',
+                    effort: 'high',
+                    probability: 0.4,
                 },
-                complexity: 'high',
-                priority: 'immediate',
-            });
-        }
-        return recommendations;
+            ],
+            status: 'detected',
+        });
     }
-    /**
-     * Validate configuration
-     */
-    validateConfiguration() {
-        // Validate business rules
-        for (const rule of [...this.config.businessRules.mandatory, ...this.config.businessRules.conditional]) {
-            if (!rule.id || !rule.name || !rule.condition) {
-                throw new Error(`Invalid business rule: ${rule.id || 'unknown'}`);
+    return conflicts;
+}
+resolvePriorityConflicts(conflicts, PriorityConflict[], assignments, PriorityAssignmentResult[]);
+void {
+    for(, conflict, of, conflicts) {
+        if (conflict.status !== 'detected')
+            continue;
+        switch (this.config.conflictResolution.strategy) {
+            case 'business_value':
+                this.resolveByBusinessValue(conflict, assignments);
+                break;
+            case 'highest_priority':
+                this.resolveByHighestPriority(conflict, assignments);
+                break;
+            // Add more resolution strategies as needed
+        }
+        conflict.status = 'resolved';
+    },
+    default: 
+    // Handle unexpected values
+    ,
+    // Handle unexpected values
+    break: 
+};
+resolveByBusinessValue(conflict, PriorityConflict, assignments, PriorityAssignmentResult[]);
+void {
+    // Simplified resolution - would implement proper business value comparison
+    this: .logger.info(`Resolving conflict ${conflict.id} by business value`)
+};
+resolveByHighestPriority(conflict, PriorityConflict, assignments, PriorityAssignmentResult[]);
+void {
+    // Simplified resolution - would implement proper priority-based resolution
+    this: .logger.info(`Resolving conflict ${conflict.id} by highest priority`)
+};
+generateEscalations(assignments, PriorityAssignmentResult[], candidates, AllocationCandidate[]);
+PriorityEscalation[];
+{
+    const escalations = [];
+    // Check for resources that need escalation
+    for (const assignment of assignments) {
+        if (assignment.assignedPriority === 'critical') {
+            const candidate = candidates.find(c => c.resourceId === assignment.resourceId);
+            if (candidate && this.checkEscalationTriggers(candidate, [])) {
+                escalations.push({
+                    id: `escalation_${assignment.resourceId}_${Date.now()}`,
+                    resourceId: assignment.resourceId,
+                    trigger: this.config.escalation.triggers[0], // Use first trigger as example
+                    level: 'critical',
+                    timeline: [new Date()], // Would calculate proper timeline
+                    notifiedStakeholders: ['manager', 'director'],
+                    status: 'active',
+                    deadline: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+                });
             }
         }
-        // Validate thresholds in escalation configuration
-        if (this.config.escalation.enabled) {
-            if (!this.config.escalation.triggers || this.config.escalation.triggers.length === 0) {
-                throw new Error('Escalation triggers must be defined when escalation is enabled');
-            }
-        }
-        // Validate dynamic adjustment constraints
-        const constraints = this.config.dynamicAdjustment.constraints;
-        if (constraints.maxChangesPerPeriod <= 0) {
-            throw new Error('Maximum changes per period must be positive');
-        }
-        if (constraints.confidenceThreshold < 0 || constraints.confidenceThreshold > 1) {
-            throw new Error('Confidence threshold must be between 0 and 1');
-        }
     }
+    return escalations;
+}
+generatePortfolioInsights(assignments, PriorityAssignmentResult[], candidates, AllocationCandidate[]);
+PortfolioPriorityInsights;
+{
+    // Calculate priority distribution
+    const distribution = {
+        critical: assignments.filter(a => a.assignedPriority === 'critical').length,
+        high: assignments.filter(a => a.assignedPriority === 'high').length,
+        medium: assignments.filter(a => a.assignedPriority === 'medium').length,
+        low: assignments.filter(a => a.assignedPriority === 'low').length,
+        deferred: assignments.filter(a => a.assignedPriority === 'deferred').length,
+    };
+    // Calculate balance
+    const total = assignments.length;
+    const idealDistribution = { critical: 0.1, high: 0.2, medium: 0.4, low: 0.2, deferred: 0.1 };
+    let balanceScore = 0;
+    for (const [priority, count] of Object.entries(distribution)) {
+        const actualRatio = count / total;
+        const idealRatio = idealDistribution[priority];
+        const deviation = Math.abs(actualRatio - idealRatio);
+        balanceScore += Math.max(0, 100 - (deviation * 200));
+    }
+    balanceScore = balanceScore / Object.keys(distribution).length;
+    const balanced = balanceScore > 70;
+    const issues = balanced ? [] : ['Uneven priority distribution', 'May indicate resource allocation issues'];
+    // Competition analysis
+    const highCompetition = ['critical_resources', 'high_priority_resources'];
+    const opportunities = ['medium_priority_optimization', 'low_priority_consolidation'];
+    const intensity = distribution.critical + distribution.high > total * 0.4 ? 80 : 50;
+    // Strategic alignment
+    const strategicScore = assignments.reduce((sum, a) => sum + (a.rationale.primaryFactors.includes('strategic') ? 1 : 0), 0) / assignments.length * 100;
+    const wellAligned = assignments
+        .filter(a => a.confidence > 80)
+        .map(a => a.resourceId);
+    const misaligned = assignments
+        .filter(a => a.confidence < 60)
+        .map(a => a.resourceId);
+    return {
+        distribution,
+        balance: {
+            balanced,
+            score: balanceScore,
+            issues,
+        },
+        competition: {
+            highCompetition,
+            opportunities,
+            intensity,
+        },
+        alignment: {
+            score: strategicScore,
+            wellAligned,
+            misaligned,
+        },
+    };
+}
+generatePortfolioRecommendations(assignments, PriorityAssignmentResult[], insights, PortfolioPriorityInsights, conflicts, PriorityConflict[]);
+PriorityRecommendation[];
+{
+    const recommendations = [];
+    // Recommend rebalancing if portfolio is unbalanced
+    if (!insights.balance.balanced) {
+        recommendations.push({
+            type: 'priority_change',
+            resources: insights.alignment.misaligned,
+            description: 'Rebalance priority distribution to improve portfolio balance',
+            benefits: {
+                cost: insights.balance.score * 0.5,
+                performance: insights.balance.score * 0.3,
+                efficiency: insights.balance.score * 0.7,
+            },
+            complexity: 'medium',
+            priority: 'short_term',
+        });
+    }
+    // Recommend conflict resolution
+    if (conflicts.length > 0) {
+        recommendations.push({
+            type: 'resource_reallocation',
+            resources: conflicts.flatMap(c => c.resources),
+            description: 'Resolve resource conflicts through reallocation or priority adjustment',
+            benefits: {
+                cost: conflicts.length * 15,
+                performance: conflicts.length * 20,
+                efficiency: conflicts.length * 10,
+            },
+            complexity: 'high',
+            priority: 'immediate',
+        });
+    }
+    return recommendations;
+}
+validateConfiguration();
+void {
+    : .config.businessRules.mandatory, ...this.config.businessRules.conditional
+};
+{
+    if (!rule.id || !rule.name || !rule.condition) {
+        throw new Error(`Invalid business rule: ${rule.id || 'unknown'}`);
+    }
+}
+// Validate thresholds in escalation configuration
+if (this.config.escalation.enabled) {
+    if (!this.config.escalation.triggers || this.config.escalation.triggers.length === 0) {
+        throw new Error('Escalation triggers must be defined when escalation is enabled');
+    }
+}
+// Validate dynamic adjustment constraints
+const constraints = this.config.dynamicAdjustment.constraints;
+if (constraints.maxChangesPerPeriod <= 0) {
+    throw new Error('Maximum changes per period must be positive');
+}
+if (constraints.confidenceThreshold < 0 || constraints.confidenceThreshold > 1) {
+    throw new Error('Confidence threshold must be between 0 and 1');
 }
 /**
  * Create priority assignment instance

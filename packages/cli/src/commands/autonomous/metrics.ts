@@ -57,6 +57,12 @@ interface SystemMetrics {
     tokensPerSecond: number;
     toolCallsPerMinute: number;
   };
+  quality: {
+    lintPassRate: number;
+    testPassRate: number;
+    buildSuccessRate: number;
+    securityScanPassRate: number;
+  };
   timeRange: string;
   lastUpdated: string;
 }

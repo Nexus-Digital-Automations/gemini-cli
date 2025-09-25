@@ -9,23 +9,12 @@
  */
 
 export type TaskId = string;
-export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
-export type TaskStatus =
-  | 'pending'
-  | 'ready'
-  | 'in_progress'
-  | 'completed'
-  | 'failed'
-  | 'blocked'
-  | 'cancelled';
+
+// Re-export enums from TaskQueue and TaskExecutionEngine for backward compatibility
+export { TaskPriority, TaskStatus, TaskCategory } from './TaskQueue.js';
+export { TaskType } from './TaskExecutionEngine.js';
+
 export type DependencyType = 'hard' | 'soft' | 'resource' | 'temporal';
-export type TaskCategory =
-  | 'implementation'
-  | 'testing'
-  | 'documentation'
-  | 'analysis'
-  | 'refactoring'
-  | 'deployment';
 
 export enum TaskComplexity {
   TRIVIAL = 'trivial',

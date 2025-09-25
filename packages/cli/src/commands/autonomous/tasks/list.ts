@@ -10,7 +10,7 @@ import {
   TaskStatus,
   TaskPriority,
   TaskCategory,
-} from '@google/gemini-cli-core/task-management/types.js';
+} from '@google/gemini-cli-core/src/task-management/types.js';
 import {
   listFeatures,
   handleApiResponse,
@@ -25,6 +25,7 @@ interface TaskFeature {
   priority?: string;
   category?: string;
   created_at?: string | number;
+  description?: string;
 }
 
 interface DisplayTask {
@@ -36,15 +37,21 @@ interface DisplayTask {
   progress: number;
   assignedAgent?: string;
   createdAt: Date;
+  startedAt?: Date;
+  estimatedCompletion?: Date;
+  completedAt?: Date;
+  dependencies?: string[];
+  blockedReason?: string;
+  description?: string;
 }
 
 interface ListTasksOptions {
   status?: string;
   priority?: string;
   category?: string;
-  limit?: number;
-  json?: boolean;
-  'show-completed'?: boolean;
+  limit: number;
+  json: boolean;
+  'show-completed': boolean;
 }
 
 export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
@@ -125,8 +132,8 @@ export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
 
       if (handleApiResponse(apiResponse, 'Task list retrieval')) {
         // Convert TaskManager features to task format
-        if (apiResponse.data?.features) {
-          tasks = apiResponse.data.features.map(
+        if ((apiResponse.data as any)?.features) {
+          tasks = (apiResponse.data as any).features.map(
             (feature: TaskFeature, index: number) => ({
               id: feature.id || `feature_${index}`,
               title: feature.title,
