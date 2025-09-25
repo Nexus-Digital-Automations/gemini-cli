@@ -26,10 +26,8 @@ import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js';
 import { IDE_REQUEST_TIMEOUT_MS } from './constants.js';
 
 const logger = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  debug: (...args: any[]) => console.debug('[DEBUG] [IDEClient]', ...args),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: (...args: any[]) => console.error('[ERROR] [IDEClient]', ...args),
+  debug: (...args: unknown[]) => console.debug('[DEBUG] [IDEClient]', ...args),
+  error: (...args: unknown[]) => console.error('[ERROR] [IDEClient]', ...args),
 };
 
 export type DiffUpdateResult =

@@ -559,7 +559,7 @@ export class SystemMonitor extends EventEmitter {
     try {
       const { stdout } = await execAsync('sysctl -n hw.memsize');
       return parseInt(stdout.trim(), 10);
-    } catch (error) {
+    } catch (_error) {
       // Fallback for non-macOS systems
       try {
         return os.totalmem();

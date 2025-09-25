@@ -15,7 +15,7 @@ const mockFs = vi.hoisted(() => ({
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
-  files: new Map<string, string>(), // Define files map here
+  files: new Map(), // Define files map here
 }));
 
 const mockOs = vi.hoisted(() => ({

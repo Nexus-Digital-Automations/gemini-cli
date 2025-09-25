@@ -778,7 +778,6 @@ export class QueuePersistence extends EventEmitter {
      * Calculate MD5 checksum
      */
     calculateChecksum(data) {
-        const crypto = require('node:crypto');
         return crypto.createHash('md5').update(data).digest('hex');
     }
     /**

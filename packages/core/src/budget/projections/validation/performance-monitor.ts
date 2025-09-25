@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import os from 'node:os';
 import type { CostDataPoint, ValidationMetrics } from '../types.js';
 import { Logger } from '../../utils/logger.js';
 
@@ -268,8 +269,8 @@ export class PerformanceMonitor {
     const environment = {
       nodeVersion: process.version,
       platform: `${process.platform} ${process.arch}`,
-      totalMemory: Math.round(require('node:os').totalmem() / 1024 / 1024), // MB
-      cpuCount: require('node:os').cpus().length,
+      totalMemory: Math.round(os.totalmem() / 1024 / 1024), // MB
+      cpuCount: os.cpus().length,
     };
 
     // Warm-up runs

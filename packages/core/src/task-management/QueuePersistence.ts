@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { promises as fs } from 'node:fs';
 import { join, dirname } from 'node:path';
-import crypto from 'node:crypto';
+import _crypto from 'node:crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import type {
@@ -17,7 +17,7 @@ import type {
   TaskDependency,
 } from './TaskQueue.js';
 import type { TaskId } from './types.js';
-import { TaskResult } from './types.js';
+import { _TaskResult } from './types.js';
 import type { LifecycleContext, LifecycleEvent } from './TaskLifecycle.js';
 
 /**
@@ -1073,8 +1073,7 @@ export class QueuePersistence extends EventEmitter {
    * Calculate MD5 checksum
    */
   private calculateChecksum(data: string): string {
-    const crypto = require('node:crypto');
-    return crypto.createHash('md5').update(data).digest('hex');
+    return _crypto.createHash('md5').update(data).digest('hex');
   }
 
   /**

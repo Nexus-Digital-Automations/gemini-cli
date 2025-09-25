@@ -138,8 +138,7 @@ export class ToolCallEvent implements BaseTelemetryEvent {
   tool_type: 'native' | 'mcp';
   content_length?: number;
   mcp_server_name?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  metadata?: { [key: string]: any };
+  metadata?: Record<string, unknown>;
 
   constructor(call: CompletedToolCall) {
     this['event.name'] = 'tool_call';
