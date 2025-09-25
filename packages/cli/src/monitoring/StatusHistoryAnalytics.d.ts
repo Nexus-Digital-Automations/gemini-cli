@@ -82,8 +82,8 @@ export interface StatusHistoryEntry {
   eventType: StatusEventType;
   objectType: 'task' | 'agent' | 'system';
   objectId: string;
-  previousState?: any;
-  newState?: any;
+  previousState?: unknown;
+  newState?: unknown;
   metadata: Record<string, unknown>;
   context: {
     agentId?: string;
@@ -133,8 +133,8 @@ export declare class StatusHistoryAnalytics {
     objectType: 'task' | 'agent' | 'system',
     objectId: string,
     options?: {
-      previousState?: any;
-      newState?: any;
+      previousState?: unknown;
+      newState?: unknown;
       metadata?: Record<string, unknown>;
       agentId?: string;
       sessionId?: string;

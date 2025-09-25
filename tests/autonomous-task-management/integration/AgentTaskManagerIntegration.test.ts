@@ -9,9 +9,6 @@ import {
   SubAgentScope,
   ContextState,
   SubagentTerminateMode,
-  type PromptConfig,
-  type ModelConfig,
-  type RunConfig,
 } from '../../../packages/core/src/core/subagent.js';
 import {
   MockAgentFactory,
@@ -22,7 +19,6 @@ import {
   TaskBuilder,
   TaskComplexity,
   TaskCategory,
-  TaskPriority,
 } from '../utils/TaskBuilder.js';
 import type { Config } from '../../../packages/core/src/config/config.js';
 
@@ -30,13 +26,13 @@ import type { Config } from '../../../packages/core/src/config/config.js';
  * Mock TaskManager for testing integration with SubAgent system
  */
 class MockTaskManager {
-  private tasks: Map<string, any> = new Map();
+  private tasks: Map<string, unknown> = new Map();
   private agents: Map<string, SubAgentScope> = new Map();
   private executionQueue: string[] = [];
   private completedTasks: string[] = [];
   private failedTasks: string[] = [];
 
-  async createTask(taskConfig: any): Promise<string> {
+  async createTask(taskConfig: unknown): Promise<string> {
     const taskId = `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     this.tasks.set(taskId, {
       id: taskId,
@@ -59,7 +55,7 @@ class MockTaskManager {
     task.assignedAgent = agent.name;
   }
 
-  async executeTask(taskId: string, context?: ContextState): Promise<any> {
+  async executeTask(taskId: string, context?: ContextState): Promise<unknown> {
     const task = this.tasks.get(taskId);
     const agent = this.agents.get(taskId);
 
@@ -94,9 +90,9 @@ class MockTaskManager {
     }
   }
 
-  async executeBatch(taskIds: string[], maxConcurrency = 3): Promise<any[]> {
-    const results: any[] = [];
-    const executing: Promise<any>[] = [];
+  async executeBatch(taskIds: string[], maxConcurrency = 3): Promise<unknown[]> {
+    const results: unknown[] = [];
+    const executing: Promise<unknown>[] = [];
 
     for (const taskId of taskIds) {
       if (executing.length >= maxConcurrency) {
@@ -129,7 +125,7 @@ class MockTaskManager {
     return [...this.failedTasks];
   }
 
-  getAllTasks(): Map<string, any> {
+  getAllTasks(): Map<string, unknown> {
     return new Map(this.tasks);
   }
 

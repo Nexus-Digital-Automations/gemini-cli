@@ -17,7 +17,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { promisify } from 'node:util';
+// import { promisify } from 'node:util'; // Unused for now
 
 // Configuration
 const DEPLOYMENT_CONFIG = {
@@ -84,7 +84,7 @@ class AutonomousTaskManagementDeployment {
         passedChecks: Object.keys(this.results.checks).length,
         errors: this.results.errors.length,
         warnings: this.results.warnings.length,
-        duration: Date.now() - parseInt(this.deploymentId.split('_')[1]),
+        duration: Date.now() - parseInt(this.deploymentId.split('_')[1], 10),
       };
 
       console.log(
@@ -148,7 +148,7 @@ class AutonomousTaskManagementDeployment {
             component,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         results.missing.push(component);
         this.results.errors.push({
           check: 'validateComponents',
@@ -208,7 +208,7 @@ class AutonomousTaskManagementDeployment {
             testSuite,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         results.failed++;
         this.results.errors.push({
           check: 'runTests',
@@ -574,7 +574,7 @@ class AutonomousTaskManagementDeployment {
           try {
             const response = JSON.parse(stdout);
             resolve(response);
-          } catch (error) {
+          } catch (_error) {
             reject(new Error(`Failed to parse API response: ${stdout}`));
           }
         } else {

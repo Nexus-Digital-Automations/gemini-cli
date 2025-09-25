@@ -199,7 +199,7 @@ export class TaskBreakdownAnalyzer {
         const outputs = breakdownAgent.output.emitted_vars;
         const subtasks = this.parseSubtasks(outputs.subtasks_json || '[]');
         const dependencies = this.parseDependencies(outputs.dependencies_json || '[]');
-        const estimatedDurationMinutes = parseInt(outputs.total_duration || '60');
+        const estimatedDurationMinutes = parseInt(outputs.total_duration || '60', 10);
         const requiredCapabilities = JSON.parse(outputs.required_capabilities || '[]');
         const risksAndMitigation = JSON.parse(outputs.risks || '[]');
         return {

@@ -9,7 +9,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Progress tracking granularity levels
  */
-export const ProgressGranularity = {};
+export let ProgressGranularity = {};
 (function (ProgressGranularity) {
   ProgressGranularity['TASK'] = 'task';
   ProgressGranularity['SUBTASK'] = 'subtask';
@@ -19,7 +19,7 @@ export const ProgressGranularity = {};
 /**
  * Progress tracking event types
  */
-export const ProgressEventType = {};
+export let ProgressEventType = {};
 (function (ProgressEventType) {
   ProgressEventType['CHECKPOINT_ADDED'] = 'checkpoint:added';
   ProgressEventType['PROGRESS_UPDATED'] = 'progress:updated';
@@ -368,7 +368,7 @@ export class ProgressTracker extends EventEmitter {
     };
   }
   // Private methods
-  async updateTaskMetrics(taskId, checkpoint) {
+  async updateTaskMetrics(taskId, _checkpoint) {
     const config = this.taskConfigs.get(taskId);
     const metrics = this.taskMetrics.get(taskId);
     if (!config || !metrics) return;

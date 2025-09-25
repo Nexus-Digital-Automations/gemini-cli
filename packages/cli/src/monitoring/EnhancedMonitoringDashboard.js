@@ -334,7 +334,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   /**
    * Get widget performance statistics
    */
-  getWidgetPerformanceStats(widgetId) {
+  getWidgetPerformanceStats(_widgetId) {
     // This would track widget performance metrics
     // For now, return mock data
     return {
@@ -507,7 +507,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       });
     }
   }
-  getSystemHealthData(widget) {
+  getSystemHealthData(_widget) {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
     return {
       overall: snapshot.systemHealth.overall,
@@ -565,7 +565,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       },
     };
   }
-  getAlertHistoryData(widget) {
+  getAlertHistoryData(_widget) {
     const activeAlerts = realTimeMonitoringSystem.getActiveAlerts();
     return {
       activeAlerts: activeAlerts.map((alert) => ({
@@ -586,7 +586,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       },
     };
   }
-  getPredictiveInsightsData(widget) {
+  getPredictiveInsightsData(_widget) {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
     return {
       insights: insights.slice(0, 10).map((insight) => ({
@@ -639,7 +639,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     }
     return 'ok';
   }
-  generateSystemHealthChart(snapshots, widget) {
+  generateSystemHealthChart(snapshots, _widget) {
     const labels = snapshots
       .slice(-20)
       .map((s) => s.timestamp.toLocaleTimeString())
@@ -680,7 +680,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       },
     };
   }
-  generateTaskMetricsChart(snapshots, widget) {
+  generateTaskMetricsChart(snapshots, _widget) {
     const labels = snapshots
       .slice(-20)
       .map((s) => s.timestamp.toLocaleTimeString())
@@ -729,7 +729,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       },
     };
   }
-  generateAgentPerformanceChart(snapshots, widget) {
+  generateAgentPerformanceChart(snapshots, _widget) {
     const labels = snapshots
       .slice(-20)
       .map((s) => s.timestamp.toLocaleTimeString())
@@ -768,7 +768,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       },
     };
   }
-  generateAlertHistoryChart(snapshots, widget) {
+  generateAlertHistoryChart(snapshots, _widget) {
     const labels = snapshots
       .slice(-10)
       .map((s) => s.timestamp.toLocaleTimeString())
@@ -796,7 +796,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       },
     };
   }
-  generatePredictiveInsightsChart(widget) {
+  generatePredictiveInsightsChart(_widget) {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
     const confidenceData = insights.slice(0, 10).map((insight) => ({
       x: insight.title.substring(0, 20),
@@ -892,7 +892,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.logger.info('Persisted layouts loaded', {
         count: this.layouts.size,
       });
-    } catch (error) {
+    } catch (_error) {
       // File doesn't exist or is corrupted - start fresh
       this.logger.info('No persisted layouts found, starting fresh');
     }

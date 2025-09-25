@@ -6,14 +6,11 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  SubAgentScope,
   ContextState,
-  SubagentTerminateMode,
 } from '../../../packages/core/src/core/subagent.js';
 import {
   MockAgentFactory,
   MockAgentState,
-  type MockAgentConfig,
 } from '../utils/MockAgentFactory.js';
 import {
   TaskBuilder,
@@ -135,8 +132,8 @@ interface SessionData {
   lastUpdated: number;
   taskIds: string[];
   contextSnapshots: string[];
-  agentStates: Record<string, any>;
-  metadata: Record<string, any>;
+  agentStates: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 }
 
 interface TaskState {
@@ -148,7 +145,7 @@ interface TaskState {
   lastUpdated: number;
   checkpoints: Checkpoint[];
   agentId?: string;
-  outputs: Record<string, any>;
+  outputs: Record<string, unknown>;
   errors: string[];
   retryCount: number;
   maxRetries: number;
@@ -159,15 +156,15 @@ interface Checkpoint {
   timestamp: number;
   step: string;
   progress: number;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 interface ContextSnapshot {
   snapshotId: string;
   sessionId: string;
   timestamp: number;
-  contextData: Record<string, any>;
-  metadata: Record<string, any>;
+  contextData: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -221,7 +218,7 @@ class CrossSessionPersistenceManager {
     taskId: string,
     step: string,
     progress: number,
-    data: Record<string, any>,
+    data: Record<string, unknown>,
   ): Promise<string> {
     const checkpointId = `checkpoint_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const checkpoint: Checkpoint = {
@@ -263,7 +260,7 @@ class CrossSessionPersistenceManager {
 
   async saveContextSnapshot(
     context: ContextState,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ): Promise<string> {
     if (!this.activeSession) {
       throw new Error('No active session for context snapshot');
@@ -271,7 +268,7 @@ class CrossSessionPersistenceManager {
 
     const snapshotId = `snapshot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const contextKeys = context.get_keys();
-    const contextData: Record<string, any> = {};
+    const contextData: Record<string, unknown> = {};
 
     contextKeys.forEach((key) => {
       contextData[key] = context.get(key);
@@ -804,7 +801,7 @@ describe('Cross-Session Task Persistence Tests', () => {
         modifiedContext.set('shared_counter', i + 1);
         const operations = modifiedContext.get(
           'concurrent_operations',
-        ) as any[];
+        ) as unknown[];
         operations.push(`operation_${i}`);
         modifiedContext.set('concurrent_operations', operations);
         modifiedContext.set(`operation_${i}_data`, {
@@ -1138,8 +1135,8 @@ describe('Cross-Session Task Persistence Tests', () => {
       expect(restoredContext!.get('large_dataset')).toHaveLength(1000);
       expect(restoredContext!.get('processing_history')).toHaveLength(500);
 
-      const originalDataset = largeContext.get('large_dataset') as any[];
-      const restoredDataset = restoredContext!.get('large_dataset') as any[];
+      const originalDataset = largeContext.get('large_dataset') as unknown[];
+      const restoredDataset = restoredContext!.get('large_dataset') as unknown[];
 
       expect(restoredDataset[0]).toEqual(originalDataset[0]);
       expect(restoredDataset[999]).toEqual(originalDataset[999]);

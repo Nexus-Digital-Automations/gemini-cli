@@ -504,7 +504,7 @@ describe('TaskSequencer', () => {
       let totalDuration = 0;
 
       for (const [taskId, task] of sampleTasks) {
-        const duration = 60000 * (parseInt(taskId.slice(-1)) || 1); // 1-5 minutes
+        const duration = 60000 * (parseInt(taskId.slice(-1), 10) || 1); // 1-5 minutes
         const updatedTask = {
           ...task,
           metadata: {

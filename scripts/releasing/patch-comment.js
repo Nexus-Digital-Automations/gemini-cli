@@ -204,7 +204,7 @@ Multiple patch releases can't run simultaneously. When they do, the second one i
     await github.rest.issues.createComment({
       owner: repo.owner,
       repo: repo.repo,
-      issue_number: parseInt(originalPr),
+      issue_number: parseInt(originalPr, 10),
       body: commentBody,
     });
 

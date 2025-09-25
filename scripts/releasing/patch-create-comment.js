@@ -72,7 +72,7 @@ async function main() {
   const exitCode =
     argv.exitCode !== undefined
       ? argv.exitCode
-      : parseInt(process.env.EXIT_CODE || '1');
+      : parseInt(process.env.EXIT_CODE || '1', 10);
   const commit = argv.commit || process.env.COMMIT;
   const channel = argv.channel || process.env.CHANNEL;
   const repository =

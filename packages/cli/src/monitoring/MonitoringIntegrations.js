@@ -7,23 +7,23 @@
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
 import {
-  TaskStatusMonitor,
+  TaskStatusMonitor as _TaskStatusMonitor,
   TaskStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
-  StatusUpdateBroker,
+  StatusUpdateBroker as _StatusUpdateBroker,
   StatusEventType,
   statusUpdateBroker,
 } from './StatusUpdateBroker.js';
 import {
-  NotificationSystem,
-  NotificationPreferences,
-  notificationSystem,
+  NotificationSystem as _NotificationSystem,
+  NotificationPreferences as _NotificationPreferences,
+  notificationSystem as _notificationSystem,
 } from './NotificationSystem.js';
 import {
-  StatusHistoryAnalytics,
-  statusHistoryAnalytics,
+  StatusHistoryAnalytics as _StatusHistoryAnalytics,
+  statusHistoryAnalytics as _statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
 /**
  * Monitoring Integrations System
@@ -158,7 +158,7 @@ export class MonitoringIntegrations extends EventEmitter {
   /**
    * Export monitoring data for external analysis
    */
-  async exportMonitoringData(format = 'json', timeframe) {
+  async exportMonitoringData(format = 'json', _timeframe) {
     const exportData = {
       timestamp: new Date().toISOString(),
       system: {
@@ -507,14 +507,18 @@ export class MonitoringIntegrations extends EventEmitter {
         case 'bearer':
           headers.Authorization = `Bearer ${config.authentication.credentials.token}`;
           break;
-        case 'basic':
+        case 'basic': {
           const encoded = Buffer.from(
             `${config.authentication.credentials.username}:${config.authentication.credentials.password}`,
           ).toString('base64');
           headers.Authorization = `Basic ${encoded}`;
           break;
+        }
         case 'api_key':
           headers['X-API-Key'] = config.authentication.credentials.apiKey;
+          break;
+        default:
+          // No authentication headers needed for other types
           break;
       }
     } else if (config.apiKey) {
