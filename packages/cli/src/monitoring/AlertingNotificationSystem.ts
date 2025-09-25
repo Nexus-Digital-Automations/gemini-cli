@@ -11,7 +11,10 @@ import type {
   AnalyticsInsight,
 } from './PerformanceAnalyticsDashboard.js';
 import type { AuditEvent } from './AuditTrailAnalytics.js';
-import type { TaskMetadata, AgentStatus } from './TaskStatusMonitor.js';
+import type {
+  TaskMetadata as _TaskMetadata,
+  AgentStatus as _AgentStatus,
+} from './TaskStatusMonitor.js';
 
 /**
  * Alert severity levels
@@ -916,8 +919,8 @@ Please take appropriate action.
   }
 
   private evaluateEventCondition(
-    condition: AlertCondition,
-    event: AuditEvent,
+    _condition: AlertCondition,
+    _event: AuditEvent,
   ): boolean {
     // Implementation would depend on the specific condition structure
     // For now, return false as a placeholder
@@ -1010,7 +1013,10 @@ Please take appropriate action.
     this.emit('alert:triggered', { alert });
   }
 
-  private triggerTrendAlert(metric: PerformanceMetric, trendChange: any): void {
+  private triggerTrendAlert(
+    metric: PerformanceMetric,
+    trendChange: Record<string, unknown>,
+  ): void {
     // Create trend alert (simplified implementation)
     const alertId = this.generateAlertId();
     const alert: Alert = {
@@ -1232,6 +1238,10 @@ Please take appropriate action.
           );
         }
         break;
+      default:
+        // Handle unknown action types
+        console.warn(`Unknown alert action type: ${action.type}`);
+        break;
     }
   }
 
@@ -1416,7 +1426,15 @@ Please take appropriate action.
     critical: number;
     resolved: number;
   }> {
-    const dailyData: Record<string, any> = {};
+    const dailyData: Record<
+      string,
+      {
+        date: string;
+        count: number;
+        critical: number;
+        resolved: number;
+      }
+    > = {};
 
     for (const alert of alerts) {
       const dateKey = alert.triggeredAt.toISOString().split('T')[0];
@@ -1441,7 +1459,7 @@ Please take appropriate action.
       }
     }
 
-    return Object.values(dailyData).sort((a: any, b: any) =>
+    return Object.values(dailyData).sort((a, b) =>
       a.date.localeCompare(b.date),
     );
   }
@@ -1452,7 +1470,16 @@ Please take appropriate action.
     triggers: number;
     avgResolutionTime: number;
   }> {
-    const ruleMetrics: Record<string, any> = {};
+    const ruleMetrics: Record<
+      string,
+      {
+        ruleId: string;
+        name: string;
+        triggers: number;
+        totalResolutionTime: number;
+        resolvedCount: number;
+      }
+    > = {};
 
     for (const alert of alerts) {
       if (!ruleMetrics[alert.ruleId]) {
@@ -1476,7 +1503,7 @@ Please take appropriate action.
     }
 
     return Object.values(ruleMetrics)
-      .map((metrics: any) => ({
+      .map((metrics) => ({
         ruleId: metrics.ruleId,
         name: metrics.name,
         triggers: metrics.triggers,
@@ -1494,7 +1521,7 @@ Please take appropriate action.
     escalationRate: number;
     falsePositiveRate: number;
   } {
-    const resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
+    const _resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
     const escalatedAlerts = alerts.filter(
       (a) => a.escalationLevel && a.escalationLevel > 0,
     );
