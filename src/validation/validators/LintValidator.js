@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Lint validation implementation for code quality validation
  * Executes linting rules and validates code quality standards
@@ -12,8 +11,8 @@
  * @version 1.0.0
  */
 import { spawn } from 'node:child_process';
-import { promises as fs } from 'node:fs';
-import { join } from 'node:path';
+import { promises as _fs } from 'node:fs';
+import { join as _join } from 'node:path';
 import { Logger } from '../../utils/logger.js';
 /**
  * Comprehensive lint validation system
@@ -144,7 +143,7 @@ export class LintValidator {
             try {
                 await this.runCommand(tool, ['--version']);
             }
-            catch (error) {
+            catch (_error) {
                 throw new Error(`Linting tool '${tool}' is not available. Please install it: npm install -D ${tool}`);
             }
         }
@@ -381,7 +380,7 @@ export class LintValidator {
     /**
      * Generate lint improvement suggestions
      */
-    generateLintSuggestions(summary, eslintResults) {
+    generateLintSuggestions(summary, _eslintResults) {
         const suggestions = [];
         if (summary.errorCount > 0) {
             suggestions.push('Fix all ESLint errors to improve code quality');

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Build validation implementation for project compilation validation
  * Executes build processes and validates successful compilation
@@ -373,8 +372,8 @@ export class BuildValidator {
         while ((match = tsErrorPattern.exec(output)) !== null) {
             errors.push({
                 file: match[1],
-                line: parseInt(match[2], 10),
-                column: parseInt(match[3], 10),
+                line: parseInt(match[2]),
+                column: parseInt(match[3]),
                 code: match[4],
                 message: match[5],
                 severity: 'error',
@@ -409,8 +408,8 @@ export class BuildValidator {
         while ((match = tsWarningPattern.exec(output)) !== null) {
             warnings.push({
                 file: match[1],
-                line: parseInt(match[2], 10),
-                column: parseInt(match[3], 10),
+                line: parseInt(match[2]),
+                column: parseInt(match[3]),
                 code: match[4],
                 message: match[5],
             });
@@ -458,7 +457,7 @@ export class BuildValidator {
         for (const pattern of patterns) {
             const match = pattern.exec(stdout);
             if (match) {
-                return parseInt(match[1], 10);
+                return parseInt(match[1]);
             }
         }
         return 0;
@@ -471,7 +470,7 @@ export class BuildValidator {
         for (const pattern of patterns) {
             const match = pattern.exec(stdout);
             if (match) {
-                return parseInt(match[1], 10);
+                return parseInt(match[1]);
             }
         }
         return 0;

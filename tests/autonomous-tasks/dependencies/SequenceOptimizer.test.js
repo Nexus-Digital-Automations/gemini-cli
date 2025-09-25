@@ -3,24 +3,23 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach } from 'vitest';
-import { ParallelOptimizer as SequenceOptimizer } from '../../../packages/core/src/decision/ParallelOptimizer.js';
+import { Task, TaskDependency, ResourceConstraint } from '../../../packages/core/src/task-management/types.js';
+import { ParallelOptimizer as SequenceOptimizer, ParallelOptimizationConfig, ParallelStrategy } from '../../../packages/core/src/decision/ParallelOptimizer.js';
 describe('SequenceOptimizer', () => {
     let optimizer;
     let sampleTasks;
     let sampleDependencies;
     beforeEach(() => {
         const config = {
-            strategy: 'hybrid',
-            maxParallelism: 3,
-            priorityWeights: {
-                low: 1,
-                normal: 2,
-                high: 3,
-                critical: 5,
-            },
-            loadBalancingEnabled: true,
+            strategy: ParallelStrategy.ADAPTIVE_DYNAMIC,
+            maxConcurrency: 3,
+            resourcePools: new Map(),
+            enableDynamicRebalancing: true,
+            targetResourceUtilization: 0.8,
+            minTaskDurationForParallelization: 1000,
+            enablePredictiveAllocation: false,
+            learningRate: 0.1
         };
         optimizer = new SequenceOptimizer(config);
         // Create sample tasks
@@ -29,106 +28,103 @@ describe('SequenceOptimizer', () => {
                 id: 'task-1',
                 title: 'Setup Database',
                 description: 'Initialize database schema',
-                type: 'implementation',
+                category: 'implementation',
                 priority: 'high',
-                status: 'queued',
-                feature_id: 'feature-1',
-                dependencies: [],
-                estimated_effort: 3,
-                required_capabilities: ['database', 'backend'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z',
-                created_by: 'system',
+                status: 'pending',
+                metadata: {
+                    createdAt: new Date('2024-01-01T00:00:00Z'),
+                    updatedAt: new Date('2024-01-01T00:00:00Z'),
+                    createdBy: 'system',
+                    estimatedDuration: 3000,
+                    tags: ['database', 'backend']
+                }
             },
             {
                 id: 'task-2',
                 title: 'Create API',
                 description: 'Build REST API endpoints',
-                type: 'implementation',
+                category: 'implementation',
                 priority: 'high',
-                status: 'queued',
-                feature_id: 'feature-1',
-                dependencies: ['task-1'],
-                estimated_effort: 5,
-                required_capabilities: ['backend', 'api'],
-                created_at: '2024-01-01T01:00:00Z',
-                updated_at: '2024-01-01T01:00:00Z',
-                created_by: 'system',
+                status: 'pending',
+                metadata: {
+                    createdAt: new Date('2024-01-01T01:00:00Z'),
+                    updatedAt: new Date('2024-01-01T01:00:00Z'),
+                    createdBy: 'system',
+                    estimatedDuration: 5000,
+                    tags: ['backend', 'api']
+                }
             },
             {
                 id: 'task-3',
                 title: 'Build Frontend',
                 description: 'Create user interface',
-                type: 'implementation',
-                priority: 'normal',
-                status: 'queued',
-                feature_id: 'feature-1',
-                dependencies: ['task-2'],
-                estimated_effort: 4,
-                required_capabilities: ['frontend', 'ui'],
-                created_at: '2024-01-01T02:00:00Z',
-                updated_at: '2024-01-01T02:00:00Z',
-                created_by: 'system',
+                category: 'implementation',
+                priority: 'medium',
+                status: 'pending',
+                metadata: {
+                    createdAt: new Date('2024-01-01T02:00:00Z'),
+                    updatedAt: new Date('2024-01-01T02:00:00Z'),
+                    createdBy: 'system',
+                    estimatedDuration: 4000,
+                    tags: ['frontend', 'ui']
+                }
             },
             {
                 id: 'task-4',
                 title: 'Test System',
                 description: 'End-to-end testing',
-                type: 'testing',
-                priority: 'normal',
-                status: 'queued',
-                feature_id: 'feature-1',
-                dependencies: ['task-3'],
-                estimated_effort: 2,
-                required_capabilities: ['testing'],
-                created_at: '2024-01-01T03:00:00Z',
-                updated_at: '2024-01-01T03:00:00Z',
-                created_by: 'system',
+                category: 'testing',
+                priority: 'medium',
+                status: 'pending',
+                metadata: {
+                    createdAt: new Date('2024-01-01T03:00:00Z'),
+                    updatedAt: new Date('2024-01-01T03:00:00Z'),
+                    createdBy: 'system',
+                    estimatedDuration: 2000,
+                    tags: ['testing']
+                }
             },
             {
                 id: 'task-5',
                 title: 'Write Documentation',
                 description: 'Create user documentation',
-                type: 'documentation',
+                category: 'documentation',
                 priority: 'low',
-                status: 'queued',
-                feature_id: 'feature-1',
-                dependencies: [],
-                estimated_effort: 3,
-                required_capabilities: ['documentation'],
-                created_at: '2024-01-01T04:00:00Z',
-                updated_at: '2024-01-01T04:00:00Z',
-                created_by: 'system',
+                status: 'pending',
+                metadata: {
+                    createdAt: new Date('2024-01-01T04:00:00Z'),
+                    updatedAt: new Date('2024-01-01T04:00:00Z'),
+                    createdBy: 'system',
+                    estimatedDuration: 3000,
+                    tags: ['documentation']
+                }
             },
         ];
         // Create sample dependencies
         sampleDependencies = [
             {
-                from: 'task-1',
-                to: 'task-2',
-                type: 'explicit',
-                confidence: 1.0,
+                dependentTaskId: 'task-2',
+                dependsOnTaskId: 'task-1',
+                type: 'hard',
                 reason: 'API depends on database',
-                blocking: true,
-                estimatedDelay: 3,
+                parallelizable: false,
+                minDelay: 3,
             },
             {
-                from: 'task-2',
-                to: 'task-3',
-                type: 'explicit',
-                confidence: 1.0,
+                dependentTaskId: 'task-3',
+                dependsOnTaskId: 'task-2',
+                type: 'hard',
                 reason: 'Frontend depends on API',
-                blocking: true,
-                estimatedDelay: 5,
+                parallelizable: false,
+                minDelay: 5,
             },
             {
-                from: 'task-3',
-                to: 'task-4',
-                type: 'explicit',
-                confidence: 1.0,
+                dependentTaskId: 'task-4',
+                dependsOnTaskId: 'task-3',
+                type: 'hard',
                 reason: 'Testing depends on frontend',
-                blocking: true,
-                estimatedDelay: 4,
+                parallelizable: false,
+                minDelay: 4,
             },
         ];
     });

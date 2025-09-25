@@ -465,7 +465,7 @@ Focus on creating a practical, executable breakdown that enables efficient auton
   private parseSubtasks(subtasksJson: string): Task[] {
     try {
       const subtaskData = JSON.parse(subtasksJson);
-      return subtaskData.map((data: any) => this.createTaskFromData(data));
+      return subtaskData.map((data: Record<string, unknown>) => this.createTaskFromData(data));
     } catch (error) {
       console.error('Error parsing subtasks JSON:', error);
       return [];
@@ -487,7 +487,7 @@ Focus on creating a practical, executable breakdown that enables efficient auton
   /**
    * Creates a Task object from parsed data
    */
-  private createTaskFromData(data: any): Task {
+  private createTaskFromData(data: Record<string, unknown>): Task {
     const now = new Date();
     return {
       id:

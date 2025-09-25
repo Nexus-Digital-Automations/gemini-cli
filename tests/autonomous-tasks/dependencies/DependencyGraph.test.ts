@@ -23,13 +23,13 @@ interface TestGraphNode {
   inEdges: unknown[];
 }
 
-interface _TestGraphEdge {
+interface TestGraphEdge {
   from: string;
   to: string;
   dependency: DetectedDependency;
 }
 
-interface _TestValidationResult {
+interface TestValidationResult {
   isValid: boolean;
   issues: Array<{
     type: string;

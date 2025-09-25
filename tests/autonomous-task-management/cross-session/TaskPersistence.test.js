@@ -3,9 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { SubAgentScope, ContextState, SubagentTerminateMode, } from '../../../packages/core/src/core/subagent.js';
+import { ContextState, } from '../../../packages/core/src/core/subagent.js';
 import { MockAgentFactory, MockAgentState, } from '../utils/MockAgentFactory.js';
 import { TaskBuilder, TaskComplexity, TaskCategory, } from '../utils/TaskBuilder.js';
 /**

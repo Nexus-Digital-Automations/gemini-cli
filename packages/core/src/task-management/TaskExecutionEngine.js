@@ -3,15 +3,14 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { TaskComplexity } from './types.js';
 import { SubAgentScope, ContextState, SubagentTerminateMode, } from '../core/subagent.js';
-import { CoreToolScheduler } from '../core/coreToolScheduler.js';
-import { Turn } from '../core/turn.js';
-import { GeminiChat } from '../core/geminiChat.js';
-import { getEnvironmentContext } from '../utils/environmentContext.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import { CoreToolScheduler as _CoreToolScheduler } from '../core/coreToolScheduler.js';
+import { Turn as _Turn } from '../core/turn.js';
+import { GeminiChat as _GeminiChat } from '../core/geminiChat.js';
+import { getEnvironmentContext as _getEnvironmentContext } from '../utils/environmentContext.js';
+import * as _fs from 'node:fs/promises';
+import * as _path from 'node:path';
 /**
  * @fileoverview Comprehensive Task Execution Engine with Intelligent Breakdown
  *
@@ -31,7 +30,7 @@ import * as path from 'node:path';
 /**
  * Task types for specialized handling and agent assignment
  */
-export const TaskType = {};
+export var TaskType;
 (function (TaskType) {
     TaskType["IMPLEMENTATION"] = "implementation";
     TaskType["TESTING"] = "testing";
@@ -45,7 +44,7 @@ export const TaskType = {};
 /**
  * Dependency types for task orchestration
  */
-export const DependencyType = {};
+export var DependencyType;
 (function (DependencyType) {
     DependencyType["HARD"] = "hard";
     DependencyType["SOFT"] = "soft";
@@ -56,7 +55,7 @@ export const DependencyType = {};
 /**
  * Agent capabilities for task assignment
  */
-export const AgentCapability = {};
+export var AgentCapability;
 (function (AgentCapability) {
     AgentCapability["FRONTEND"] = "frontend";
     AgentCapability["BACKEND"] = "backend";
@@ -138,7 +137,7 @@ export class TaskBreakdownAnalyzer {
         // Score based on keyword matches
         const scores = Object.entries(complexityKeywords).map(([complexity, keywords]) => {
             const matches = keywords.filter((keyword) => text.includes(keyword.toLowerCase())).length;
-            return { complexity, score: matches };
+            return { complexity: complexity, score: matches };
         });
         // Length-based heuristics
         const descriptionLength = description.length;
@@ -276,6 +275,8 @@ Focus on creating a practical, executable breakdown that enables efficient auton
                 return 'Create 8-12 subtasks, complex dependency chains, extensive validation and monitoring';
             case TaskComplexity.ENTERPRISE:
                 return 'Create 10-15+ subtasks, multi-phase execution, comprehensive quality gates and monitoring';
+            default:
+                throw new Error(`Unsupported task complexity: ${complexity}`);
         }
     }
     /**
@@ -299,6 +300,8 @@ Focus on creating a practical, executable breakdown that enables efficient auton
                 return 'Include security assessment, vulnerability identification, remediation, and validation';
             case TaskType.PERFORMANCE:
                 return 'Include profiling, optimization, testing, and performance validation';
+            default:
+                throw new Error(`Unsupported task type: ${type}`);
         }
     }
     /**
@@ -625,6 +628,8 @@ export class TaskExecutionEngine {
                 return 120;
             case TaskComplexity.ENTERPRISE:
                 return 300;
+            default:
+                return 60; // Default to moderate complexity time
         }
     }
     /**

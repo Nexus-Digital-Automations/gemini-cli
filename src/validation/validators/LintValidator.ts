@@ -13,8 +13,8 @@
  */
 
 import { spawn } from 'node:child_process';
-import { promises as fs } from 'node:fs';
-import { join } from 'node:path';
+import { promises as _fs } from 'node:fs';
+import { join as _join } from 'node:path';
 import { Logger } from '../../utils/logger.js';
 import type {
   ValidationContext,
@@ -31,6 +31,15 @@ export interface BuildArtifact {
 }
 
 /**
+ * Error with stdout property (from child process)
+ */
+export interface ChildProcessError extends Error {
+  stdout?: string;
+  stderr?: string;
+  code?: number;
+}
+
+/**
  * Lint validation configuration
  */
 export interface LintValidationConfig {
@@ -39,7 +48,7 @@ export interface LintValidationConfig {
   ignorePatterns?: string[];
   maxWarnings?: number;
   enableTypeCheck?: boolean;
-  customRules?: Record<string, any>;
+  customRules?: Record<string, unknown>;
 }
 
 /**
@@ -239,7 +248,7 @@ export class LintValidator {
     for (const tool of toolsToCheck) {
       try {
         await this.runCommand(tool, ['--version']);
-      } catch (error) {
+      } catch (_error) {
         throw new Error(
           `Linting tool '${tool}' is not available. Please install it: npm install -D ${tool}`,
         );
@@ -312,7 +321,7 @@ export class LintValidator {
       // ESLint exits with non-zero code when issues are found
       if (error instanceof Error && 'stdout' in error) {
         try {
-          const results = JSON.parse((error as any).stdout);
+          const results = JSON.parse((error as ChildProcessError).stdout!);
           return results as ESLintResult[];
         } catch (parseError) {
           throw new Error(`Failed to parse ESLint output: ${parseError}`);
@@ -532,7 +541,7 @@ export class LintValidator {
    */
   private generateLintSuggestions(
     summary: LintSummary,
-    eslintResults: ESLintResult[],
+    _eslintResults: ESLintResult[],
   ): string[] {
     const suggestions: string[] = [];
 
@@ -597,7 +606,7 @@ export class LintValidator {
         } else {
           const error = new Error(
             `Command '${command}' exited with code ${code}: ${stderr}`,
-          ) as any;
+          ) as ChildProcessError;
           error.stdout = stdout;
           error.stderr = stderr;
           error.code = code;

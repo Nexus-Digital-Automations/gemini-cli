@@ -23,7 +23,7 @@ interface TestParallelGroup {
   bottlenecks: string[];
 }
 
-interface _TestOptimizationResult {
+interface TestOptimizationResult {
   executionOrder: TestExecutionBatch[];
   parallelGroups: TestParallelGroup[];
 }

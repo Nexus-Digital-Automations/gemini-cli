@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Performance Validator for comprehensive performance benchmarking
  * Validates application performance, bundle size, and runtime efficiency
@@ -11,7 +10,7 @@
  * @author Claude Code - Validation Expert
  * @version 1.0.0
  */
-import { execSync, exec } from 'node:child_process';
+import { execSync as _execSync, exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';

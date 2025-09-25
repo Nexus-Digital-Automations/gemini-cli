@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { execSync, exec } from 'node:child_process';
+import { execSync as _execSync, exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
@@ -613,11 +613,11 @@ export class PerformanceValidator {
    * Run webpack bundle analyzer if available
    */
   private async runWebpackBundleAnalyzer(
-    result: BundleAnalysisResult,
+    _result: BundleAnalysisResult,
   ): Promise<void> {
     try {
       // Try to run webpack-bundle-analyzer
-      const { stdout } = await execAsync('npx webpack-bundle-analyzer --help', {
+      const { stdout: _stdout } = await execAsync('npx webpack-bundle-analyzer --help', {
         timeout: 10000,
       });
 
@@ -792,7 +792,7 @@ export class PerformanceValidator {
       /\bcatch\b/g,
       /\?\s*:/g, // Ternary operator
       /\|\|/g, // Logical OR
-      /\&\&/g, // Logical AND
+      /&&/g, // Logical AND
     ];
 
     for (const pattern of decisionPatterns) {

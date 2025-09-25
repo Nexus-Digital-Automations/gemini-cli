@@ -136,7 +136,7 @@ export interface SchedulingEvent {
     | 'resource_allocated';
   taskId?: string;
   timestamp: Date;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   impact: 'low' | 'medium' | 'high' | 'critical';
 }
 
@@ -1192,7 +1192,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
   private emitSchedulingEvent(
     type: SchedulingEvent['type'],
     taskId?: string,
-    data: Record<string, any> = {},
+    data: Record<string, unknown> = {},
   ): void {
     const event: SchedulingEvent = {
       type,
@@ -1212,7 +1212,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
   private determineEventImpact(
     type: SchedulingEvent['type'],
-    data: Record<string, any>,
+    data: Record<string, unknown>,
   ): SchedulingEvent['impact'] {
     switch (type) {
       case 'task_failed':

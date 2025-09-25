@@ -3,8 +3,22 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { ValidationContext, ValidationResult } from '../core/ValidationEngine.js';
+/**
+ * Build artifact interface
+ */
+export interface BuildArtifact {
+    type: string;
+    path: string;
+}
+/**
+ * Error with stdout property (from child process)
+ */
+export interface ChildProcessError extends Error {
+    stdout?: string;
+    stderr?: string;
+    code?: number;
+}
 /**
  * Lint validation configuration
  */
@@ -14,7 +28,7 @@ export interface LintValidationConfig {
     ignorePatterns?: string[];
     maxWarnings?: number;
     enableTypeCheck?: boolean;
-    customRules?: Record<string, any>;
+    customRules?: Record<string, unknown>;
 }
 /**
  * Comprehensive lint validation system

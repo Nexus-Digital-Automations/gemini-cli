@@ -18,7 +18,7 @@ import { useKeypress } from '../hooks/useKeypress.js';
 import * as process from 'node:process';
 import * as path from 'node:path';
 import { relaunchApp } from '../../utils/processUtils.js';
-export const FolderTrustChoice = {};
+export let FolderTrustChoice = {};
 (function (FolderTrustChoice) {
   FolderTrustChoice['TRUST_FOLDER'] = 'trust_folder';
   FolderTrustChoice['TRUST_PARENT'] = 'trust_parent';
