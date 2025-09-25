@@ -64,7 +64,7 @@ describe('Monitoring System Integration Tests', () => {
     tempDir = path.join(process.cwd(), '.tmp', 'test-monitoring');
     try {
       await fs.mkdir(tempDir, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Directory might already exist
     }
   });
@@ -72,7 +72,7 @@ describe('Monitoring System Integration Tests', () => {
     // Cleanup temporary directory
     try {
       await fs.rmdir(tempDir, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Directory might not exist or have permissions issues
     }
   });
@@ -159,14 +159,14 @@ describe('Monitoring System Integration Tests', () => {
     });
     it('should synchronize data across monitoring systems', async () => {
       // Register some test data
-      const taskId = taskStatusMonitor.registerTask('sync-test-task', {
+      const _taskId = taskStatusMonitor.registerTask('sync-test-task', {
         title: 'Sync Test Task',
         description: 'Task for testing data synchronization',
         type: TaskType.TESTING,
         priority: TaskPriority.HIGH,
         estimatedDuration: 60000,
       });
-      const agentId = taskStatusMonitor.registerAgent('test-agent-1', {
+      const _agentId = taskStatusMonitor.registerAgent('test-agent-1', {
         capabilities: ['testing', 'validation'],
         maxConcurrentTasks: 3,
       });
@@ -680,7 +680,7 @@ describe('Monitoring System Integration Tests', () => {
         'Export Test Layout',
         'Layout for export testing',
       );
-      const widgetId = dashboard.addWidget(layoutId, {
+      const _widgetId = dashboard.addWidget(layoutId, {
         type: 'gauge',
         title: 'Export Test Widget',
         position: { x: 0, y: 0, width: 4, height: 3 },

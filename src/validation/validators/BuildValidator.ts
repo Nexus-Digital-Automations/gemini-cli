@@ -616,7 +616,7 @@ export class BuildValidator {
     for (const pattern of patterns) {
       const match = pattern.exec(stdout);
       if (match) {
-        return parseInt(match[1]);
+        return parseInt(match[1], 10);
       }
     }
 
@@ -632,7 +632,7 @@ export class BuildValidator {
     for (const pattern of patterns) {
       const match = pattern.exec(stdout);
       if (match) {
-        return parseInt(match[1]);
+        return parseInt(match[1], 10);
       }
     }
 

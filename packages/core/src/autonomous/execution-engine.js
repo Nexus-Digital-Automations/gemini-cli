@@ -6,6 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { randomUUID as _randomUUID } from 'node:crypto';
+import { TaskStatus } from './task-breakdown-engine.js';
+import { TaskPriority, TaskCategory } from '../task-management/TaskQueue.js';
 /**
  * Types of execution errors
  */

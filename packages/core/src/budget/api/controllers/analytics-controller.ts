@@ -291,7 +291,7 @@ export class AnalyticsController {
       const forecast = await mlAPI.generateForecast({
         projectRoot: process.cwd(),
         settings: await budgetTracker.getSettings(),
-        forecastHours: parseInt(forecastHours as string),
+        forecastHours: parseInt(forecastHours as string, 10),
       });
 
       // Generate optimization recommendations
@@ -321,7 +321,7 @@ export class AnalyticsController {
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
-            forecastHorizon: parseInt(forecastHours as string),
+            forecastHorizon: parseInt(forecastHours as string, 10),
           },
         },
       };

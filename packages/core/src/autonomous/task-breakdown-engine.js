@@ -522,7 +522,7 @@ export class TaskBreakdownEngine {
     return Math.round(baseDuration * lengthMultiplier * factorMultiplier);
   }
   // Strategy and rule management methods (to be implemented)
-  findApplicableStrategies(task, complexityResult) {
+  findApplicableStrategies(task, _complexityResult) {
     const strategies = Array.from(this.breakdownStrategies.values())
       .filter(
         (strategy) =>
@@ -535,7 +535,7 @@ export class TaskBreakdownEngine {
       ); // Prefer more comprehensive strategies
     return strategies;
   }
-  async applyBreakdownStrategy(task, strategy, context, depth) {
+  async applyBreakdownStrategy(task, strategy, context, _depth) {
     const subtasks = [];
     for (const rule of strategy.decompositionRules) {
       if (rule.condition(task, context)) {

@@ -693,7 +693,7 @@ export const StatusDashboard: React.FC<{
 
   // Keyboard navigation
   useEffect(() => {
-    const handleKeypress = (str: string, key: any) => {
+    const handleKeypress = (_str: string, key: { ctrl?: boolean; name?: string }) => {
       if (key.ctrl && key.name === 'c') {
         exit();
         return;

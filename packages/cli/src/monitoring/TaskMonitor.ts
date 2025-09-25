@@ -632,7 +632,7 @@ export class TaskMonitor extends EventEmitter {
 
   private generateSystemRecommendations(
     tasks: IntegratedTaskStatus[],
-    alerts: any[],
+    alerts: TaskAlert[],
   ): string[] {
     const recommendations: string[] = [];
 

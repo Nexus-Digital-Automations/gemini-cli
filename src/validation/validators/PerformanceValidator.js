@@ -11,7 +11,7 @@
  * @author Claude Code - Validation Expert
  * @version 1.0.0
  */
-import { execSync as _execSync, exec } from 'node:child_process';
+import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
@@ -205,7 +205,7 @@ export class PerformanceValidator {
       // Enhanced analysis if webpack-bundle-analyzer is available
       try {
         await this.runWebpackBundleAnalyzer(result);
-      } catch (analyzerError) {
+      } catch (_analyzerError) {
         this.logger.debug(
           'Webpack bundle analyzer not available, using basic analysis',
         );
@@ -445,7 +445,7 @@ export class PerformanceValidator {
       /\bcatch\b/g,
       /\?\s*:/g, // Ternary operator
       /\|\|/g, // Logical OR
-      /\&\&/g, // Logical AND
+      /&&/g, // Logical AND
     ];
     for (const pattern of decisionPatterns) {
       const matches = content.match(pattern);
@@ -571,7 +571,7 @@ export class PerformanceValidator {
             });
           }
           return dependencies;
-        } catch (parseError) {
+        } catch (_parseError) {
           return [];
         }
       }

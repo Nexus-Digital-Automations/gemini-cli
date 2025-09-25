@@ -13,7 +13,7 @@
 /**
  * Types of context items in the system
  */
-export var ContextType;
+export let ContextType;
 (function (ContextType) {
 <<<<<<< Updated upstream
     ContextType["CONVERSATION"] = "conversation";
@@ -36,7 +36,7 @@ export var ContextType;
 /**
  * Priority levels for context items
  */
-export var ContextPriority;
+export let ContextPriority;
 (function (ContextPriority) {
 <<<<<<< Updated upstream
     ContextPriority["CRITICAL"] = "critical";
@@ -55,7 +55,7 @@ export var ContextPriority;
 /**
  * Compression strategies
  */
-export var CompressionStrategy;
+export let CompressionStrategy;
 (function (CompressionStrategy) {
 <<<<<<< Updated upstream
     CompressionStrategy["SUMMARIZATION"] = "summarization";

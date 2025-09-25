@@ -116,86 +116,6 @@ export interface HistoryQuery {
  * - Cross-session persistence and correlation
  */
 export declare class StatusHistoryAnalytics {
-<<<<<<< Updated upstream
-    private readonly logger;
-    private statusHistory;
-    private correlationIndex;
-    private objectIndex;
-    private agentIndex;
-    private eventTypeIndex;
-    private analyticsCache;
-    private persistenceInterval?;
-    constructor();
-    /**
-     * Record a status history entry
-     */
-    recordHistoryEntry(eventType: StatusEventType, objectType: 'task' | 'agent' | 'system', objectId: string, options?: {
-        previousState?: unknown;
-        newState?: unknown;
-        metadata?: Record<string, unknown>;
-        agentId?: string;
-        sessionId?: string;
-        correlationId?: string;
-    }): Promise<string>;
-    /**
-     * Query status history with flexible filtering
-     */
-    queryHistory(query: HistoryQuery): StatusHistoryEntry[];
-    /**
-     * Get comprehensive task analytics
-     */
-    getTaskAnalytics(timeframe: AnalyticsTimeframe): Promise<TaskAnalytics>;
-    /**
-     * Get comprehensive agent analytics
-     */
-    getAgentAnalytics(timeframe: AnalyticsTimeframe): Promise<AgentAnalytics>;
-    /**
-     * Get comprehensive system analytics
-     */
-    getSystemAnalytics(timeframe: AnalyticsTimeframe): Promise<SystemAnalytics>;
-    /**
-     * Detect system bottlenecks and performance issues
-     */
-    detectBottlenecks(timeframe: AnalyticsTimeframe): Promise<SystemAnalytics['bottlenecks']>;
-    /**
-     * Get correlation chain for a specific event
-     */
-    getCorrelationChain(correlationId: string): StatusHistoryEntry[];
-    /**
-     * Get object timeline (all events for a specific object)
-     */
-    getObjectTimeline(objectId: string): StatusHistoryEntry[];
-    /**
-     * Get agent activity history
-     */
-    getAgentActivity(agentId: string, timeframe?: AnalyticsTimeframe): StatusHistoryEntry[];
-    /**
-     * Export history data for external analysis
-     */
-    exportHistoryData(query: HistoryQuery, format?: 'json' | 'csv' | 'tsv'): string;
-    private setupEventListeners;
-    private setupPeriodicAnalytics;
-    private calculateTaskMetrics;
-    private calculateAgentMetrics;
-    private calculateSystemMetrics;
-    private generateTimeSeriesData;
-    private getBucketKey;
-    private parseBucketKey;
-    private advanceDate;
-    private updateIndices;
-    private getFromCache;
-    private setCache;
-    private invalidateAnalyticsCache;
-    private convertToCSV;
-    private convertToTSV;
-    private performMaintenanceTasks;
-    private rebuildIndices;
-    private generateEntryId;
-    /**
-     * Cleanup resources
-     */
-    destroy(): void;
-=======
   private readonly logger;
   private statusHistory;
   private correlationIndex;
@@ -287,7 +207,6 @@ export declare class StatusHistoryAnalytics {
    * Cleanup resources
    */
   destroy(): void;
->>>>>>> Stashed changes
 }
 /**
  * Singleton instance for global access

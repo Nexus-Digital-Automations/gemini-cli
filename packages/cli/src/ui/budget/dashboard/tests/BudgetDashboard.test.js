@@ -60,8 +60,9 @@ vi.mock('../components/BudgetControlsPanel.js', () => ({
 // Import the mocked hook
 import { useBudgetDashboard } from '../hooks/useBudgetDashboard.js';
 const mockUseBudgetDashboard = useBudgetDashboard;
-describe('BudgetDashboard', () => {
-  const defaultProps = {
+
+// Shared test data - available to all describe blocks
+const defaultProps = {
     projectRoot: '/test/project',
     budgetSettings: { enabled: true, dailyLimit: 1000 },
     initialView: 'overview',
