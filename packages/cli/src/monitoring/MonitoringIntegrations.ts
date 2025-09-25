@@ -531,7 +531,7 @@ export class MonitoringIntegrations extends EventEmitter {
   }
 
   private async updateTodoWriteFromTask(
-    task: TaskMetadata,
+    task: _TaskMetadata,
     update: Record<string, unknown>,
   ): Promise<void> {
     // Only update if task originated from TodoWrite
@@ -738,7 +738,7 @@ export class MonitoringIntegrations extends EventEmitter {
       'progress',
       'lastUpdate',
     ];
-    const rows = tasks.map((task: TaskMetadata) => [
+    const rows = tasks.map((task: _TaskMetadata) => [
       task.id,
       task.title.replace(/,/g, ';'),
       task.status,

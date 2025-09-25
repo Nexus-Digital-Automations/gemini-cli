@@ -306,7 +306,7 @@ describe('AlertSystem', () => {
       expect(success).toBe(true);
       expect(alert.status).toBe('resolved');
       expect(alert.resolvedAt).toBeDefined();
-      expect(alert.context.resolution).toBe('Fixed the issue');
+      expect(alert.context['resolution']).toBe('Fixed the issue');
     });
 
     it('should suppress alerts based on patterns', () => {

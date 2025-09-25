@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 // Mock node:crypto for Vitest in jsdom environment
 import { vi } from 'vitest';
 vi.mock('node:crypto', () => ({

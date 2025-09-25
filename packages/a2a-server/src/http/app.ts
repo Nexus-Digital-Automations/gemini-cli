@@ -14,7 +14,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import type { AgentSettings } from '../types.js';
 import { GCSTaskStore, NoOpTaskStore } from '../persistence/index.js';
-import { CoderAgentExecutor, TaskWrapper } from '../agent/executor.js';
+import type { TaskWrapper } from '../agent/executor.js';
+import { CoderAgentExecutor } from '../agent/executor.js';
 import { requestStorage } from './requestStorage.js';
 
 const coderAgentCard: AgentCard = {

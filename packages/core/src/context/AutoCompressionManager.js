@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Auto-Compression Management System
  * Automatically handles context compression when approaching token limits
@@ -178,7 +179,7 @@ export class AutoCompressionManager extends EventEmitter {
             minCompressionInterval: systemConfig.performance.rateLimiting.minInterval,
             maxCompressionAttempts: systemConfig.fallback.maxAttempts,
             compressionStrategies: Object.entries(systemConfig.algorithms.primaryStrategies).map(([strategy, priority]) => ({
-                strategy: strategy,
+                strategy,
                 priority,
                 tokenThreshold: systemConfig.algorithms.selectionRules.tokenThresholds[strategy] || 0,
             })),
@@ -869,7 +870,7 @@ export class AutoCompressionManager extends EventEmitter {
                 compressionRatio: 1.0,
                 strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
                 duration: performance.now() - startTime,
-                error: error,
+                error,
                 itemsCompressed: 0,
                 itemsRemoved: 0,
             };
@@ -997,7 +998,7 @@ export class AutoCompressionManager extends EventEmitter {
                 compressionRatio: 1.0,
                 strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
                 duration,
-                error: error,
+                error,
                 itemsCompressed: 0,
                 itemsRemoved: 0,
             };

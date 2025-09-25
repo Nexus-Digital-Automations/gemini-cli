@@ -10,7 +10,7 @@ import {
   TaskPriority,
   TaskCategory,
   TaskType,
-} from '@google/gemini-cli-core/dist/src/task-management/types.js';
+} from '@google/gemini-cli-core/src/task-management/types.js';
 import {
   suggestFeature,
   convertTaskToFeature,
@@ -19,7 +19,7 @@ import {
   initializeAgent,
 } from '../taskManagerApi.js';
 
-interface AddTaskOptions {
+interface _AddTaskOptions {
   priority: string;
   category: string;
   type: string;
@@ -30,7 +30,7 @@ interface AddTaskOptions {
   'expected-outputs': string;
 }
 
-export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
+export const addTaskCommand: CommandModule = {
   command: 'add <description>',
   describe: 'Add a new task to the autonomous system',
   builder: (yargs) =>
@@ -187,9 +187,10 @@ export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
         console.log(`   Type: ${chalk.magenta(newTask.type)}`);
         console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
 
-        if ((apiResponse.data as any)?.feature_id) {
+        const responseData = apiResponse.data as { feature_id?: string };
+        if (responseData?.feature_id) {
           console.log(
-            `   TaskManager Feature ID: ${chalk.green((apiResponse.data as any).feature_id)}`,
+            `   TaskManager Feature ID: ${chalk.green(responseData.feature_id)}`,
           );
         }
       } else {

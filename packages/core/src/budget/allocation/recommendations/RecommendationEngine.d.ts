@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { AllocationLogger } from '../algorithms/BaseAllocationAlgorithm.js';
 import type { AllocationCandidate, AllocationRecommendation, AllocationOptimizationResult, AllocationStrategy, AllocationScenario } from '../types.js';
 /**

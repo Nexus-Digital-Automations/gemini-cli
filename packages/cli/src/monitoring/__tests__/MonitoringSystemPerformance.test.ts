@@ -170,7 +170,7 @@ describe('Monitoring System Performance Tests', () => {
           name: `Performance Test Rule ${i}`,
           description: 'Alert rule for performance testing',
           condition: (data: Record<string, unknown>) =>
-            (data.taskMetrics as { total: number }).total > i,
+            (data['taskMetrics'] as { total: number }).total > i,
           severity: 'medium' as const,
           cooldownMs: 100,
           enabled: true,

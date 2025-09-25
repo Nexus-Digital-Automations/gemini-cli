@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AsyncLocalStorage } from 'node:async_hooks';
-import express from 'express';
+import type { AsyncLocalStorage } from 'node:async_hooks';
+import type express from 'express';
 
 export declare const requestStorage: AsyncLocalStorage<any>;
 

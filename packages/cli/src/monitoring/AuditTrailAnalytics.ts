@@ -703,8 +703,8 @@ export class AuditTrailAnalytics extends EventEmitter {
         if (event.type === AuditEventType.TASK_CREATED) {
           // Ensure task has proper tracking
           return (
-            event.details.taskType !== undefined &&
-            event.details.priority !== undefined
+            event.details['taskType'] !== undefined &&
+            event.details['priority'] !== undefined
           );
         }
         return true;
@@ -716,7 +716,7 @@ export class AuditTrailAnalytics extends EventEmitter {
       (event: AuditEvent) => {
         if (event.type === AuditEventType.AGENT_HEARTBEAT) {
           // Ensure heartbeats are frequent enough
-          const lastHeartbeat = event.details.lastHeartbeat as Date;
+          const lastHeartbeat = event.details['lastHeartbeat'] as Date;
           if (lastHeartbeat) {
             const timeSinceLastHeartbeat = Date.now() - lastHeartbeat.getTime();
             return timeSinceLastHeartbeat <= 5 * 60 * 1000; // 5 minutes max

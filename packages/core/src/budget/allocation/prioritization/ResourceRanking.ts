@@ -622,9 +622,6 @@ export class ResourceRanking {
     }
 
     return Math.min(100, Math.max(0, score));
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**
@@ -658,9 +655,6 @@ export class ResourceRanking {
     }
 
     return Math.min(100, Math.max(0, score));
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**

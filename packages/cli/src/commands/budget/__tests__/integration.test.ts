@@ -824,7 +824,7 @@ describe('Budget CLI Integration Tests', () => {
       );
 
       // Execute multiple get commands concurrently
-      const promises = contexts.map((context) => getCommand(context));
+      const promises = contexts.map((context) => getCommand.handler(context));
       await Promise.all(promises);
 
       // Should not cause any errors or race conditions
@@ -849,7 +849,7 @@ describe('Budget CLI Integration Tests', () => {
           args: ['--help'],
         });
 
-        await command(context);
+        await command.handler(context);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           expect.stringContaining('Usage:'),

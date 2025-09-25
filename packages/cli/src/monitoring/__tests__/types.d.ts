@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Type definitions for monitoring test utilities
  * These types replace explicit 'any' types in test files

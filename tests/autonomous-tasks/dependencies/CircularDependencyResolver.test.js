@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, test, expect, beforeEach } from 'vitest';
 import {} from '../../../test-types.js';
 // Mock CircularDependencyResolver for testing purposes

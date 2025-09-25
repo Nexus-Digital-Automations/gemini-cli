@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Resource ranking and priority assignment system
  * Provides intelligent resource ranking based on multiple criteria and business priorities

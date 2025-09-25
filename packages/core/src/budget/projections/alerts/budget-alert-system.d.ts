@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { BudgetAlertConfig, BudgetAlert, CostDataPoint } from '../types.js';
 /**
  * Comprehensive budget alert system with threshold monitoring and proactive alerting

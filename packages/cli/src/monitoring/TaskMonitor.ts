@@ -44,6 +44,23 @@ export interface TaskMonitoringConfig {
   };
 }
 
+export interface TaskAlert {
+  id: string;
+  taskId: string;
+  type: 'warning' | 'error' | 'critical';
+  message: string;
+  timestamp: Date;
+  resolved: boolean;
+}
+
+export interface ProgressMetrics {
+  taskId: string;
+  percentage: number;
+  estimatedTimeRemaining: number;
+  lastUpdateTime: Date;
+  progressRate: number;
+}
+
 export interface IntegratedTaskStatus {
   // Core status
   task: TaskMetadata;

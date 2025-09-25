@@ -391,8 +391,8 @@ export class AlertSystem extends EventEmitter {
     alert.status = 'resolved';
     alert.resolvedAt = new Date();
     if (resolution) {
-      alert.context.resolution = resolution;
-      alert.context.resolvedBy = resolvedBy;
+      alert.context['resolution'] = resolution;
+      alert.context['resolvedBy'] = resolvedBy;
     }
 
     // Move to history and remove from active alerts

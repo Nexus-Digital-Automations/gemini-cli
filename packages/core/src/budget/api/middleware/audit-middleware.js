@@ -3,13 +3,14 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { Logger } from '../../../../../src/utils/logger.js';
 import { BudgetEventType, EventSeverity } from '../../types.js';
 const logger = new Logger('AuditMiddleware');
 /**
  * Audit event types
  */
-var AuditEventType;
+let AuditEventType;
 (function (AuditEventType) {
     AuditEventType["API_REQUEST"] = "api_request";
     AuditEventType["AUTHENTICATION"] = "authentication";

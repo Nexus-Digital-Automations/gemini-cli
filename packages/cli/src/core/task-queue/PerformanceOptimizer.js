@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
 import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
@@ -238,7 +239,7 @@ export class PerformanceOptimizer extends EventEmitter {
         // Initialize performance history for different intervals
         ['minute', 'hour', 'day', 'week'].forEach((interval) => {
             this.performanceHistory.set(interval, {
-                interval: interval,
+                interval,
                 dataPoints: [],
                 trends: {
                     throughput: 'stable',

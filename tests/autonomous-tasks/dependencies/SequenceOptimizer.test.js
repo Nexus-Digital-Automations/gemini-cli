@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, test, expect, beforeEach } from 'vitest';
 import { Task, TaskDependency, ResourceConstraint } from '../../../packages/core/src/task-management/types.js';
 import { ParallelOptimizer as SequenceOptimizer, ParallelOptimizationConfig, ParallelStrategy } from '../../../packages/core/src/decision/ParallelOptimizer.js';

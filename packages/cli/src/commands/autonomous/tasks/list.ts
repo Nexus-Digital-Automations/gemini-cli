@@ -45,7 +45,7 @@ interface DisplayTask {
   description?: string;
 }
 
-interface ListTasksOptions {
+interface _ListTasksOptions {
   status?: string;
   priority?: string;
   category?: string;
@@ -54,7 +54,7 @@ interface ListTasksOptions {
   'show-completed': boolean;
 }
 
-export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
+export const listTasksCommand: CommandModule = {
   command: 'list',
   describe: 'List tasks in the autonomous system',
   builder: (yargs) =>
@@ -132,8 +132,9 @@ export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
 
       if (handleApiResponse(apiResponse, 'Task list retrieval')) {
         // Convert TaskManager features to task format
-        if ((apiResponse.data as any)?.features) {
-          tasks = (apiResponse.data as any).features.map(
+        const responseData = apiResponse.data as { features?: TaskFeature[] };
+        if (responseData?.features) {
+          tasks = responseData.features.map(
             (feature: TaskFeature, index: number) => ({
               id: feature.id || `feature_${index}`,
               title: feature.title,

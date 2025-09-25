@@ -949,7 +949,7 @@ Please take appropriate action.
         type: sourceType,
         id:
           sourceType === 'metric'
-            ? (sourceData.metric as PerformanceMetric).id
+            ? (sourceData['metric'] as PerformanceMetric).id
             : 'unknown',
         data: sourceData,
       },
@@ -1026,7 +1026,7 @@ Please take appropriate action.
       type: AlertType.TREND_CHANGE,
       severity: AlertSeverity.INFO,
       title: `Significant trend change in ${metric.name}`,
-      description: `Trend direction: ${trendChange.direction}, strength: ${trendChange.strength}`,
+      description: `Trend direction: ${trendChange['direction']}, strength: ${trendChange['strength']}`,
       triggeredAt: new Date(),
       status: 'active',
       source: {
@@ -1358,8 +1358,8 @@ Please take appropriate action.
     sourceData: Record<string, unknown>,
   ): Record<string, unknown> {
     // Extract relevant values from source data for context
-    if (sourceData.metric) {
-      const metric = sourceData.metric as PerformanceMetric;
+    if (sourceData['metric']) {
+      const metric = sourceData['metric'] as PerformanceMetric;
       return {
         value: metric.value,
         unit: metric.unit,
@@ -1373,8 +1373,8 @@ Please take appropriate action.
     sourceData: Record<string, unknown>,
   ): string[] {
     // Identify resources affected by the alert
-    if (sourceData.metric) {
-      const metric = sourceData.metric as PerformanceMetric;
+    if (sourceData['metric']) {
+      const metric = sourceData['metric'] as PerformanceMetric;
       return [metric.name];
     }
     return [];

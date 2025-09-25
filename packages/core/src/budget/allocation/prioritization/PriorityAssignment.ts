@@ -1012,6 +1012,7 @@ export class PriorityAssignment {
       minAllocation,
       maxAllocation,
     };
+  }
 
   /**
    * Calculate next review date
@@ -1036,9 +1037,6 @@ export class PriorityAssignment {
     }
 
     return now;
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**
@@ -1135,9 +1133,6 @@ export class PriorityAssignment {
       }
 
       conflict.status = 'resolved';
-        default:
-          // Handle unexpected values
-          break;
     }
   }
 
