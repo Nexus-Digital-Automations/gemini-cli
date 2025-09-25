@@ -543,6 +543,10 @@ export default tseslint.config(
         ...globals.es2021,
         console: 'readonly',
         process: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
       },
     },
     rules: {
@@ -567,6 +571,39 @@ export default tseslint.config(
       },
     },
     rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // settings for test files in tests directory
+  {
+    files: ['tests/**/*.{js,ts,jsx,tsx}'],
+    plugins: {
+      vitest,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+        ...vitest.environments.env.globals,
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+      },
+    },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      'vitest/expect-expect': 'off',
+      'vitest/no-commented-out-tests': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

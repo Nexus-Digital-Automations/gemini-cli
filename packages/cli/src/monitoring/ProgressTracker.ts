@@ -6,7 +6,7 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type { TaskMetadata, TaskStatus } from './TaskStatusMonitor.js';
+import type { TaskMetadata as _TaskMetadata, TaskStatus as _TaskStatus } from './TaskStatusMonitor.js';
 
 /**
  * Progress tracking granularity levels
@@ -530,7 +530,7 @@ export class ProgressTracker extends EventEmitter {
 
   private async updateTaskMetrics(
     taskId: string,
-    checkpoint: ProgressCheckpoint,
+    _checkpoint: ProgressCheckpoint,
   ): Promise<void> {
     const config = this.taskConfigs.get(taskId);
     const metrics = this.taskMetrics.get(taskId);

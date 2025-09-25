@@ -112,7 +112,7 @@ export interface Alert {
     action: string;
     timestamp: Date;
     status: 'pending' | 'running' | 'completed' | 'failed';
-    result?: unknown;
+    result?: Record<string, unknown> | string | number | boolean;
     error?: string;
   }>;
 }

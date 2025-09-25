@@ -622,6 +622,9 @@ export class AnomalyDetectionEngine {
         break;
       // medium is default - no changes
     }
+      default:
+        // Handle unexpected values
+        break;
   }
 
   createEmptyResults() {
@@ -702,6 +705,9 @@ export class AnomalyDetectionEngine {
     }
 
     return Math.min(1, score);
+      default:
+        // Handle unexpected values
+        break;
   }
 
   async generateAnomalyRecommendations(anomalies) {
@@ -724,6 +730,9 @@ export class AnomalyDetectionEngine {
           recommendations.push(this.createTrendAnomalyRecommendation(anomaly));
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
 
     return recommendations.filter((rec) => rec !== null);

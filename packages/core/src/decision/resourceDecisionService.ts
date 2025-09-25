@@ -612,6 +612,9 @@ export class ResourceDecisionService extends EventEmitter {
     }
 
     this.emit('optimization-applied', { recommendation });
+      default:
+        // Handle unexpected values
+        break;
   }
 
   private addToHistory(taskId: string, decision: ResourceDecision): void {

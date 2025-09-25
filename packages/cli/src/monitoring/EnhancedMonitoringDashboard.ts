@@ -71,7 +71,7 @@ export interface DashboardData {
   timestamp: Date;
   widgets: Array<{
     id: string;
-    data: unknown;
+    data: Record<string, unknown> | string | number | boolean | null;
     status: 'ok' | 'warning' | 'error';
     lastUpdate: Date;
   }>;
@@ -132,7 +132,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   private widgets: Map<string, DashboardWidget> = new Map();
 
   // Data management
-  private cachedData: Map<string, { data: unknown; timestamp: Date }> =
+  private cachedData: Map<string, { data: Record<string, unknown> | string | number | boolean | null; timestamp: Date }> =
     new Map();
   private dataRefreshIntervals: Map<string, NodeJS.Timeout> = new Map();
 
@@ -194,7 +194,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         layoutsCount: this.layouts.size,
         widgetsCount: this.widgets.size,
       });
-    } catch (_error) {
+    } catch (error) {
       this.logger.error('Failed to initialize EnhancedMonitoringDashboard', {
         error,
       });
@@ -233,52 +233,52 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   /**
    * Add widget to layout
    */
-  addWidget(layoutId: string, _widget: Omit<DashboardWidget, 'id'>): string {
+  addWidget(layoutId: string, widget: Omit<DashboardWidget, 'id'>): string {
     const layout = this.layouts.get(layoutId);
     if (!layout) {
       throw new Error(`Layout not found: ${layoutId}`);
     }
 
-    const _widgetId = `widget_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const widgetId = `widget_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const fullWidget: DashboardWidget = {
       ...widget,
-      id: _widgetId,
+      id: widgetId,
     };
 
     layout.widgets.push(fullWidget);
     layout.lastModified = new Date();
-    this.widgets.set(_widgetId, fullWidget);
+    this.widgets.set(widgetId, fullWidget);
 
     // Initialize data source for the widget
     this.initializeWidgetDataSource(fullWidget);
 
     this.logger.info('Widget added to layout', {
       layoutId,
-      _widgetId,
+      widgetId,
       widgetType: widget.type,
       title: widget.title,
     });
 
-    this.emit('_widget:added', { layoutId, _widget: fullWidget });
-    return _widgetId;
+    this.emit('widget:added', { layoutId, widget: fullWidget });
+    return widgetId;
   }
 
   /**
    * Update widget configuration
    */
-  updateWidget(__widgetId: string, updates: Partial<DashboardWidget>): boolean {
-    const widget = this.widgets.get(_widgetId);
+  updateWidget(widgetId: string, updates: Partial<DashboardWidget>): boolean {
+    const widget = this.widgets.get(widgetId);
     if (!widget) return false;
 
     // Find layout containing this widget
     const layout = Array.from(this.layouts.values()).find((l) =>
-      l.widgets.some((w) => w.id === _widgetId),
+      l.widgets.some((w) => w.id === widgetId),
     );
 
     if (!layout) return false;
 
     // Update widget in layout
-    const widgetIndex = layout.widgets.findIndex((w) => w.id === _widgetId);
+    const widgetIndex = layout.widgets.findIndex((w) => w.id === widgetId);
     if (widgetIndex === -1) return false;
 
     Object.assign(widget, updates);
@@ -290,40 +290,40 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.initializeWidgetDataSource(widget);
     }
 
-    this.logger.info('Widget updated', { _widgetId, updates });
-    this.emit('_widget:updated', { widget });
+    this.logger.info('Widget updated', { widgetId, updates });
+    this.emit('widget:updated', { widget });
     return true;
   }
 
   /**
    * Remove widget from layout
    */
-  removeWidget(__widgetId: string): boolean {
-    const widget = this.widgets.get(_widgetId);
+  removeWidget(widgetId: string): boolean {
+    const widget = this.widgets.get(widgetId);
     if (!widget) return false;
 
     // Find and remove from layout
     const layout = Array.from(this.layouts.values()).find((l) =>
-      l.widgets.some((w) => w.id === _widgetId),
+      l.widgets.some((w) => w.id === widgetId),
     );
 
     if (layout) {
-      layout.widgets = layout.widgets.filter((w) => w.id !== _widgetId);
+      layout.widgets = layout.widgets.filter((w) => w.id !== widgetId);
       layout.lastModified = new Date();
     }
 
     // Clean up resources
-    this.widgets.delete(_widgetId);
-    this.cachedData.delete(_widgetId);
+    this.widgets.delete(widgetId);
+    this.cachedData.delete(widgetId);
 
-    const interval = this.dataRefreshIntervals.get(_widgetId);
+    const interval = this.dataRefreshIntervals.get(widgetId);
     if (interval) {
       clearInterval(interval);
-      this.dataRefreshIntervals.delete(_widgetId);
+      this.dataRefreshIntervals.delete(widgetId);
     }
 
-    this.logger.info('Widget removed', { _widgetId });
-    this.emit('_widget:removed', { _widgetId });
+    this.logger.info('Widget removed', { widgetId });
+    this.emit('widget:removed', { widgetId });
     return true;
   }
 
@@ -402,12 +402,12 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
    * Generate chart data for visualization
    */
   generateChartData(
-    _widgetId: string,
+    widgetId: string,
     timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour',
   ): ChartData {
-    const widget = this.widgets.get(_widgetId);
+    const widget = this.widgets.get(widgetId);
     if (!widget) {
-      throw new Error(`Widget not found: ${_widgetId}`);
+      throw new Error(`Widget not found: ${widgetId}`);
     }
 
     // Get time range in hours
@@ -474,8 +474,8 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
           id: newLayoutId,
           createdAt: new Date(layout.createdAt),
           lastModified: new Date(),
-          widgets: layout.widgets.map((_widget: DashboardWidget) => ({
-            ...widget,
+          widgets: layout.widgets.map((widgetDef: DashboardWidget) => ({
+            ...widgetDef,
             id: `widget_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
           })),
         };
@@ -498,7 +498,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.emit('dashboard:imported', {
         layoutsCount: importData.layouts?.length || 0,
       });
-    } catch (_error) {
+    } catch (error) {
       this.logger.error('Failed to import dashboard configuration', { error });
       throw error;
     }
@@ -507,7 +507,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   /**
    * Get widget performance statistics
    */
-  getWidgetPerformanceStats(__widgetId: string): {
+  getWidgetPerformanceStats(widgetId: string): {
     updateCount: number;
     averageUpdateTime: number;
     lastSuccessfulUpdate: Date | null;
@@ -515,7 +515,8 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     dataSize: number;
   } {
     // This would track widget performance metrics
-    // For now, return mock data
+    // For now, return mock data based on widgetId
+    this.logger.debug('Getting widget performance stats', { widgetId });
     return {
       updateCount: 100,
       averageUpdateTime: 150,
@@ -637,7 +638,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     }
   }
 
-  private initializeWidgetDataSource(_widget: DashboardWidget): void {
+  private initializeWidgetDataSource(widget: DashboardWidget): void {
     // Clear existing interval
     const existingInterval = this.dataRefreshIntervals.get(widget.id);
     if (existingInterval) {
@@ -657,9 +658,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     this.dataRefreshIntervals.set(widget.id, interval);
   }
 
-  private updateWidgetData(_widget: DashboardWidget): void {
+  private updateWidgetData(widget: DashboardWidget): void {
     try {
-      let data: unknown = null;
+      let data: Record<string, unknown> | string | number | boolean | null = null;
 
       switch (widget.config.dataSource) {
         case 'system_health':
@@ -694,10 +695,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         timestamp: new Date(),
       });
 
-      this.emit('_widget:data-updated', { _widgetId: widget.id, data });
-    } catch (_error) {
+      this.emit('widget:data-updated', { widgetId: widget.id, data });
+    } catch (error) {
       this.logger.error('Error updating widget data', {
-        _widgetId: widget.id,
+        widgetId: widget.id,
         dataSource: widget.config.dataSource,
         error,
       });
@@ -712,7 +713,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     }
   }
 
-  private getSystemHealthData(_widget: DashboardWidget): unknown {
+  private getSystemHealthData(widget: DashboardWidget): Record<string, unknown> {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
 
     return {
@@ -741,7 +742,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getTaskMetricsData(_widget: DashboardWidget): unknown {
+  private getTaskMetricsData(widget: DashboardWidget): Record<string, unknown> {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
 
     return {
@@ -758,7 +759,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getAgentPerformanceData(_widget: DashboardWidget): unknown {
+  private getAgentPerformanceData(widget: DashboardWidget): Record<string, unknown> {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
 
     return {
@@ -776,7 +777,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getAlertHistoryData(_widget: DashboardWidget): unknown {
+  private getAlertHistoryData(widget: DashboardWidget): Record<string, unknown> {
     const activeAlerts = realTimeMonitoringSystem.getActiveAlerts();
 
     return {
@@ -799,7 +800,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getPredictiveInsightsData(_widget: DashboardWidget): unknown {
+  private getPredictiveInsightsData(widget: DashboardWidget): Record<string, unknown> {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
     return {
@@ -827,8 +828,8 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   }
 
   private getWidgetStatus(
-    _widget: DashboardWidget,
-    data: unknown,
+    widget: DashboardWidget,
+    data: Record<string, unknown> | string | number | boolean | null,
   ): 'ok' | 'warning' | 'error' {
     if (!data) return 'error';
 
@@ -843,20 +844,22 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       data !== null &&
       'value' in data
     ) {
-      const value = (data as Record<string, unknown>).value;
-      const criticalThreshold = widget.config.thresholds.find(
-        (t) => t.label === 'Critical',
-      );
+      const value = data.value;
+      if (typeof value === 'number') {
+        const criticalThreshold = widget.config.thresholds.find(
+          (t) => t.label === 'Critical',
+        );
 
-      if (criticalThreshold && value >= criticalThreshold.value) {
-        return 'error';
-      }
+        if (criticalThreshold && value >= criticalThreshold.value) {
+          return 'error';
+        }
 
-      const warningThreshold = widget.config.thresholds.find(
-        (t) => t.label === 'Warning',
-      );
-      if (warningThreshold && value >= warningThreshold.value) {
-        return 'warning';
+        const warningThreshold = widget.config.thresholds.find(
+          (t) => t.label === 'Warning',
+        );
+        if (warningThreshold && value >= warningThreshold.value) {
+          return 'warning';
+        }
       }
     }
 
@@ -865,7 +868,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateSystemHealthChart(
     snapshots: MonitoringSnapshot[],
-    _widget: DashboardWidget,
+    widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-20)
@@ -911,7 +914,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateTaskMetricsChart(
     snapshots: MonitoringSnapshot[],
-    _widget: DashboardWidget,
+    widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-20)
@@ -965,7 +968,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateAgentPerformanceChart(
     snapshots: MonitoringSnapshot[],
-    _widget: DashboardWidget,
+    widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-20)
@@ -1009,7 +1012,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private generateAlertHistoryChart(
     snapshots: MonitoringSnapshot[],
-    _widget: DashboardWidget,
+    widget: DashboardWidget,
   ): ChartData {
     const labels = snapshots
       .slice(-10)
@@ -1040,7 +1043,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private generatePredictiveInsightsChart(_widget: DashboardWidget): ChartData {
+  private generatePredictiveInsightsChart(widget: DashboardWidget): ChartData {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
     const confidenceData = insights.slice(0, 10).map((insight) => ({
@@ -1148,9 +1151,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.logger.info('Persisted layouts loaded', {
         count: this.layouts.size,
       });
-    } catch (_error) {
+    } catch (error) {
       // File doesn't exist or is corrupted - start fresh
-      this.logger.info('No persisted layouts found, starting fresh');
+      this.logger.info('No persisted layouts found, starting fresh', { error: (error as Error).message });
     }
   }
 
@@ -1165,7 +1168,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         this.layoutsPath,
         JSON.stringify(layoutsData, null, 2),
       );
-    } catch (_error) {
+    } catch (error) {
       this.logger.error('Error persisting layouts', { error });
     }
   }

@@ -573,6 +573,9 @@ function setValidationData(
       // Headers are read-only, skip setting
       break;
   }
+    default:
+      // Handle unexpected values
+      break;
 }
 
 /**

@@ -418,6 +418,9 @@ export class DependencyResolver extends EventEmitter {
           this.resolveConflictParallelOptimized(cycle);
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
   }
   /**

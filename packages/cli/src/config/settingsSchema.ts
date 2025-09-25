@@ -204,7 +204,7 @@ const SETTINGS_SCHEMA = {
     label: 'MCP Servers',
     category: 'Advanced',
     requiresRestart: true,
-    default: {} as Record<string, MCPServerConfig>,
+    default: Object.create(null) as Record<string, MCPServerConfig>,
     description: 'Configuration for MCP servers.',
     showInDialog: false,
     mergeStrategy: MergeStrategy.SHALLOW_MERGE,
@@ -215,7 +215,7 @@ const SETTINGS_SCHEMA = {
     label: 'General',
     category: 'General',
     requiresRestart: false,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'General application settings.',
     showInDialog: false,
     properties: {
@@ -260,7 +260,7 @@ const SETTINGS_SCHEMA = {
         label: 'Checkpointing',
         category: 'General',
         requiresRestart: true,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Session checkpointing settings.',
         showInDialog: false,
         properties: {
@@ -301,7 +301,7 @@ const SETTINGS_SCHEMA = {
     label: 'Output',
     category: 'General',
     requiresRestart: false,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Settings for the CLI output.',
     showInDialog: false,
     properties: {
@@ -326,7 +326,7 @@ const SETTINGS_SCHEMA = {
     label: 'UI',
     category: 'UI',
     requiresRestart: false,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'User interface settings.',
     showInDialog: false,
     properties: {
@@ -344,7 +344,7 @@ const SETTINGS_SCHEMA = {
         label: 'Custom Themes',
         category: 'UI',
         requiresRestart: false,
-        default: {} as Record<string, CustomTheme>,
+        default: Object.create(null) as Record<string, CustomTheme>,
         description: 'Custom theme definitions.',
         showInDialog: false,
       },
@@ -390,7 +390,7 @@ const SETTINGS_SCHEMA = {
         label: 'Footer',
         category: 'UI',
         requiresRestart: false,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Settings for the footer.',
         showInDialog: false,
         properties: {
@@ -474,7 +474,7 @@ const SETTINGS_SCHEMA = {
         label: 'Accessibility',
         category: 'UI',
         requiresRestart: true,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Accessibility settings.',
         showInDialog: false,
         properties: {
@@ -507,7 +507,7 @@ const SETTINGS_SCHEMA = {
     label: 'IDE',
     category: 'IDE',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'IDE integration settings.',
     showInDialog: false,
     properties: {
@@ -537,7 +537,7 @@ const SETTINGS_SCHEMA = {
     label: 'Privacy',
     category: 'Privacy',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Privacy-related settings.',
     showInDialog: false,
     properties: {

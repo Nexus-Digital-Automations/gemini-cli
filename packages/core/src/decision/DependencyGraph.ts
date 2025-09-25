@@ -496,6 +496,9 @@ export class DecisionDependencyGraph {
           });
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
 
     // Analyze weak dependencies for removal
@@ -632,6 +635,9 @@ export class DecisionDependencyGraph {
           );
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
 
     // Calculate projected metrics

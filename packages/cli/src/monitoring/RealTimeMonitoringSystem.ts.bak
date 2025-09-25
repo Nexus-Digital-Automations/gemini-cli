@@ -9,6 +9,7 @@ import { Logger } from '../utils/logger.js';
 import {
   taskStatusMonitor,
   type TaskMetadata,
+  type TaskStatusUpdate,
   type AgentStatus,
   TaskStatus,
 } from './TaskStatusMonitor.js';
@@ -77,12 +78,15 @@ export interface SerializedAlertData {
  */
 export interface SerializedPredictiveInsight {
   id: string;
+<<<<<<< Updated upstream
+  type: 'capacity_prediction' | 'failure_prediction' | 'bottleneck_prediction' | 'trend_analysis';
+=======
   type:
     | 'capacity_prediction'
     | 'failure_prediction'
     | 'bottleneck_prediction'
     | 'trend_analysis';
-
+>>>>>>> Stashed changes
   title: string;
   description: string;
   confidence: number;
@@ -1046,9 +1050,6 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         case TaskStatus.CANCELLED:
           counts.cancelled++;
           break;
-        default:
-          // Handle unexpected values
-          break;
       }
     }
 
@@ -1077,9 +1078,6 @@ export class RealTimeMonitoringSystem extends EventEmitter {
           break;
         case 'offline':
           counts.offline++;
-          break;
-        default:
-          // Handle unexpected values
           break;
       }
     }
@@ -1320,7 +1318,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         this.logger.info('Loaded persisted monitoring snapshots', {
           count: this.monitoringSnapshots.length,
         });
-      } catch (_error) {
+      } catch (error) {
         // File doesn't exist or is corrupted - start fresh
       }
 
@@ -1337,7 +1335,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
             lastTriggered: new Date(data.lastTriggered),
           });
         }
-      } catch (_error) {
+      } catch (error) {
         // File doesn't exist - start fresh
       }
 
@@ -1355,7 +1353,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
             })),
           }),
         );
-      } catch (_error) {
+      } catch (error) {
         // File doesn't exist - start fresh
       }
     } catch (error) {

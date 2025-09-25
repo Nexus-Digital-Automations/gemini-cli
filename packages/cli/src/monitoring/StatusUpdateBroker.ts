@@ -404,6 +404,14 @@ export class StatusUpdateBroker extends EventEmitter {
         case 'webhook':
           this.queueWebhookEvent(subscriberId, event);
           break;
+
+        default:
+          // Handle unknown delivery methods
+          this.logger.warn(
+            `Unknown delivery method: ${config.deliveryMethod}`,
+            { subscriberId, eventType: event.type },
+          );
+          break;
       }
     }
 

@@ -207,6 +207,9 @@ export class QueueOptimizer extends EventEmitter {
     this.emit('optimizationCompleted', { strategy, recommendations });
 
     return recommendations;
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**

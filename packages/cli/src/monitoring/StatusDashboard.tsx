@@ -238,7 +238,7 @@ const OverviewDashboard: React.FC<{
 const TaskDashboard: React.FC<{
   tasks: TaskMetadata[];
   agents: AgentStatus[];
-}> = ({ tasks, agents }) => {
+}> = ({ tasks, agents: _agents }) => {
   const [_selectedTask, _setSelectedTask] = useState<TaskMetadata | null>(null);
   const [_sortBy, _setSortBy] = useState<'priority' | 'status' | 'created'>(
     'priority',
@@ -714,6 +714,9 @@ export const StatusDashboard: React.FC<{
           break;
         case 'r':
           refreshData();
+          break;
+        default:
+          // Handle unknown keys
           break;
       }
     };

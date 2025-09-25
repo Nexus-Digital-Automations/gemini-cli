@@ -417,6 +417,9 @@ function setValidationData(req, location, data) {
       // Headers are read-only, skip setting
       break;
   }
+    default:
+      // Handle unexpected values
+      break;
 }
 /**
  * Get nested property from object

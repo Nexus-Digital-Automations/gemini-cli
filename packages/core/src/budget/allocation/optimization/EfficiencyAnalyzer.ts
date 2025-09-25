@@ -761,6 +761,9 @@ export class EfficiencyAnalyzer {
           });
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
 
     return improvements;

@@ -11,6 +11,10 @@
   "bin": {
     "gemini": "dist/index.js"
   },
+  "exports": {
+    ".": "./dist/index.js",
+    "./src/utils/logger.js": "./dist/src/utils/logger.js"
+  },
   "scripts": {
     "build": "node ../../scripts/build_package.js",
     "start": "node dist/index.js",

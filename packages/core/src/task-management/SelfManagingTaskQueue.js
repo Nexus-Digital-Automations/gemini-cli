@@ -816,6 +816,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
             this.realTimeMetrics.totalTasks > 0
                 ? this.realTimeMetrics.completedTasks / this.realTimeMetrics.totalTasks
                 : 0;
+            default:
+              // Handle unexpected values
+              break;
     }
     handleTaskCompletion(task, record, result) {
         // Release reserved resources

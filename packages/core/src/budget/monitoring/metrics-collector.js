@@ -297,6 +297,9 @@ export class MetricsCollector extends EventEmitter {
       averageTokensPerRequest:
         totalRequests > 0 ? totalTokens / totalRequests : 0,
     };
+      default:
+        // Handle unexpected values
+        break;
   }
   /**
    * Calculate trend analysis

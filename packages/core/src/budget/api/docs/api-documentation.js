@@ -1038,6 +1038,9 @@ ws.on('message', (data) => {
       console.log('Budget alert:', message.data);
       break;
   }
+    default:
+      // Handle unexpected values
+      break;
 });
       `,
     },

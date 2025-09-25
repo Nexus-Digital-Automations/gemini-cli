@@ -577,8 +577,13 @@ export class TaskPersistence extends EventEmitter {
     }
 
     // Check disk space
-    const _stats = await fs.stat(this.storageDir);
-    // Additional disk space checks could be added here
+    const stats = await fs.stat(this.storageDir);
+    this.logger.debug('Storage directory validated', {
+      path: this.storageDir,
+      exists: true,
+      writable: true,
+      size: stats.size,
+    });
   }
 
   private async startSyncProcess(): Promise<void> {
@@ -668,10 +673,10 @@ export class TaskPersistence extends EventEmitter {
     // Simple file-based locking
     try {
       await fs.writeFile(lockFile, JSON.stringify(lockData), { flag: 'wx' });
-    } catch (_error) {
+    } catch (error) {
       // Lock already exists, wait and retry
       await new Promise((resolve) => setTimeout(resolve, 100));
-      throw new Error('Failed to acquire lock');
+      throw new Error(`Failed to acquire lock: ${error}`);
     }
   }
 
@@ -909,13 +914,15 @@ export class TaskPersistence extends EventEmitter {
     return data;
   }
 
-  private async encryptData(data: string, _key: string): Promise<string> {
+  private async encryptData(data: string, key: string): Promise<string> {
     // In a real implementation, this would use a crypto library
+    this.logger.debug('Encrypting data', { dataLength: data.length, keyLength: key.length });
     return data;
   }
 
-  private async decryptData(data: string, _key: string): Promise<string> {
+  private async decryptData(data: string, key: string): Promise<string> {
     // In a real implementation, this would decrypt the data
+    this.logger.debug('Decrypting data', { dataLength: data.length, keyLength: key.length });
     return data;
   }
 

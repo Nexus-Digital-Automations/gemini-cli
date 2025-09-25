@@ -12,6 +12,16 @@ import { existsSync, mkdirSync } from 'node:fs';
  */
 export let LogLevel;
 (function (LogLevel) {
+<<<<<<< Updated upstream
+    /** Detailed debugging information for development */
+    LogLevel["DEBUG"] = "debug";
+    /** General information about application flow */
+    LogLevel["INFO"] = "info";
+    /** Warning conditions that should be noted */
+    LogLevel["WARN"] = "warn";
+    /** Error conditions that require attention */
+    LogLevel["ERROR"] = "error";
+=======
   /** Detailed debugging information for development */
   LogLevel['DEBUG'] = 'debug';
   /** General information about application flow */
@@ -20,6 +30,7 @@ export let LogLevel;
   LogLevel['WARN'] = 'warn';
   /** Error conditions that require attention */
   LogLevel['ERROR'] = 'error';
+>>>>>>> Stashed changes
 })(LogLevel || (LogLevel = {}));
 /**
  * Default configuration values for the logger.

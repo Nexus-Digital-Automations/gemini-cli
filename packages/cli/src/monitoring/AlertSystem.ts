@@ -119,7 +119,7 @@ export interface Alert {
     action: string;
     timestamp: Date;
     status: 'pending' | 'running' | 'completed' | 'failed';
-    result?: unknown;
+    result?: Record<string, unknown> | string | number | boolean;
     error?: string;
   }>;
 }
@@ -725,6 +725,7 @@ export class AlertSystem extends EventEmitter {
     const value = this.getValueFromContext(context, metric);
 
     if (value === null || value === undefined) return false;
+    if (typeof value !== 'number' || typeof threshold !== 'number') return false;
 
     switch (operator) {
       case '>':
@@ -751,7 +752,7 @@ export class AlertSystem extends EventEmitter {
     const { field, pattern } = params;
     const value = this.getValueFromContext(context, field);
 
-    if (typeof value !== 'string') return false;
+    if (typeof value !== 'string' || typeof pattern !== 'string') return false;
 
     const regex = new RegExp(pattern, 'i');
     return regex.test(value);
@@ -762,13 +763,19 @@ export class AlertSystem extends EventEmitter {
     context: Record<string, unknown>,
   ): boolean {
     // Simplified anomaly detection - in practice, this would use statistical methods
-    const { metric, _deviationThreshold = 2 } = params;
+    const { metric, deviationThreshold = 2 } = params;
     const value = this.getValueFromContext(context, metric);
 
-    if (typeof value !== 'number') return false;
+    if (typeof value !== 'number' || typeof deviationThreshold !== 'number') return false;
 
     // This would typically compare against historical data and calculate z-score
-    return false; // Placeholder
+    // For now, return false as this is a placeholder implementation
+    this.logger.debug('Anomaly detection placeholder', {
+      metric,
+      value,
+      deviationThreshold,
+    });
+    return false;
   }
 
   private evaluateCombinationCondition(
@@ -777,7 +784,13 @@ export class AlertSystem extends EventEmitter {
   ): boolean {
     const { operator, conditions } = params;
 
-    const results = conditions.map((condition: unknown) => {
+    interface ConditionParams {
+      type: 'threshold' | 'pattern' | 'anomaly';
+      [key: string]: unknown;
+    }
+
+    const conditionsArray = conditions as ConditionParams[];
+    const results = conditionsArray.map((condition: ConditionParams) => {
       switch (condition.type) {
         case 'threshold':
           return this.evaluateThresholdCondition(condition, context);
@@ -802,14 +815,18 @@ export class AlertSystem extends EventEmitter {
 
   private getValueFromContext(
     context: Record<string, unknown>,
-    path: string,
+    path: string | unknown,
   ): unknown {
+    if (typeof path !== 'string') {
+      return null;
+    }
+
     const keys = path.split('.');
-    let value = context;
+    let value: unknown = context;
 
     for (const key of keys) {
-      if (value && typeof value === 'object' && key in value) {
-        value = value[key];
+      if (value && typeof value === 'object' && value !== null && key in value) {
+        value = (value as Record<string, unknown>)[key];
       } else {
         return null;
       }
@@ -845,7 +862,7 @@ export class AlertSystem extends EventEmitter {
     // Check for suppression
     if (this.isAlertSuppressed(alertData.title)) {
       this.logger.debug('Alert suppressed', { title: alertData.title });
-      return null as unknown as Alert; // Suppressed alerts don't get created
+      throw new Error('Alert was suppressed'); // Suppressed alerts should not be created
     }
 
     const alert: Alert = {
@@ -1010,10 +1027,16 @@ export class AlertSystem extends EventEmitter {
 
   private async executeRemediationAction(
     action: string,
-    _alert: Alert,
+    alert: Alert,
   ): Promise<{ action: string; success: boolean }> {
     // Placeholder for remediation action execution
     // In practice, this would map to specific remediation strategies
+    this.logger.info('Executing remediation action', {
+      action,
+      alertId: alert.id,
+      category: alert.category,
+    });
+
     switch (action) {
       case 'restart_agent':
         // Implementation would restart the failing agent

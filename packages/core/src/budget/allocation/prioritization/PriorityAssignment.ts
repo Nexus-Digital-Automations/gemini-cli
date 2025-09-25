@@ -1012,6 +1012,9 @@ export class PriorityAssignment {
       minAllocation,
       maxAllocation,
     };
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**
@@ -1037,6 +1040,9 @@ export class PriorityAssignment {
     }
 
     return now;
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**
@@ -1133,6 +1139,9 @@ export class PriorityAssignment {
       }
 
       conflict.status = 'resolved';
+        default:
+          // Handle unexpected values
+          break;
     }
   }
 

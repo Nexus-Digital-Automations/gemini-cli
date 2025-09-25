@@ -640,6 +640,9 @@ class TaskHistoryManager extends EventEmitter {
           const endTime = new Date(metrics.completedAt || metrics.failedAt);
           metrics.duration = endTime.getTime() - startTime.getTime();
         }
+        default:
+          // Handle unexpected values
+          break;
       }
 
       const completedTasks = Array.from(taskMetrics.values()).filter(
@@ -716,6 +719,9 @@ class TaskHistoryManager extends EventEmitter {
             metrics.tasksFailed++;
             break;
         }
+        default:
+          // Handle unexpected values
+          break;
       }
 
       // Calculate productivity scores

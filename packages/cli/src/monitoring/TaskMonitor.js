@@ -94,7 +94,7 @@ export class TaskMonitor extends EventEmitter {
     const progressMetrics = progressTracker.getTaskProgressMetrics(taskId);
     const progressEstimate = progressTracker.predictCompletionTime(taskId);
     // Get performance data
-    const dashboardData = performanceAnalyticsDashboard.getDashboardData();
+    const _dashboardData = performanceAnalyticsDashboard.getDashboardData();
     // Get agent data
     const agent = task.assignedAgent
       ? taskStatusMonitor.getAgentStatus(task.assignedAgent)

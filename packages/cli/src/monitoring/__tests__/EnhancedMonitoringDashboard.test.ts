@@ -10,6 +10,7 @@ import {
   type DashboardWidget,
 } from '../EnhancedMonitoringDashboard.js';
 import { realTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
+import { type MockRealTimeMonitoring } from './types.js';
 
 // Mock dependencies
 vi.mock('../RealTimeMonitoringSystem.js', () => ({
@@ -29,11 +30,11 @@ vi.mock('node:fs/promises', () => ({
 
 describe('EnhancedMonitoringDashboard', () => {
   let dashboard: EnhancedMonitoringDashboard;
-  let mockRealTimeMonitoring: any;
+  let mockRealTimeMonitoring: MockRealTimeMonitoring;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    mockRealTimeMonitoring = realTimeMonitoringSystem as any;
+    mockRealTimeMonitoring = realTimeMonitoringSystem as unknown as MockRealTimeMonitoring;
 
     // Setup default mock responses
     mockRealTimeMonitoring.getCurrentSnapshot.mockReturnValue({

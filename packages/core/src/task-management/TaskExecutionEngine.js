@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TaskComplexity } from './types.js';
+import { TaskComplexity, TaskStatus, TaskPriority } from './types.js';
 import {
   SubAgentScope,
   ContextState,
@@ -76,161 +76,6 @@ export let AgentCapability;
  * Intelligent Task Breakdown Algorithms
  */
 export class TaskBreakdownAnalyzer {
-<<<<<<< Updated upstream
-    config;
-    toolRegistry;
-    constructor(config) {
-        this.config = config;
-        this.toolRegistry = config.getToolRegistry();
-    }
-    /**
-     * Analyzes task complexity using multiple heuristics
-     */
-    async analyzeComplexity(title, description) {
-        // Keyword-based complexity analysis
-        const complexityKeywords = {
-            [TaskComplexity.ENTERPRISE]: [
-                'multi-agent',
-                'distributed',
-                'enterprise',
-                'scalable architecture',
-                'microservices',
-                'orchestration',
-                'comprehensive system',
-            ],
-            [TaskComplexity.COMPLEX]: [
-                'framework',
-                'architecture',
-                'integration',
-                'algorithm',
-                'optimization',
-                'real-time',
-                'concurrent',
-                'multi-threading',
-                'distributed',
-            ],
-            [TaskComplexity.MODERATE]: [
-                'feature',
-                'component',
-                'service',
-                'api',
-                'database',
-                'frontend',
-                'backend',
-                'testing',
-                'validation',
-                'monitoring',
-            ],
-            [TaskComplexity.SIMPLE]: [
-                'fix',
-                'update',
-                'modify',
-                'enhance',
-                'improve',
-                'refactor',
-                'cleanup',
-            ],
-            [TaskComplexity.TRIVIAL]: [
-                'typo',
-                'comment',
-                'documentation',
-                'format',
-                'style',
-                'lint',
-            ],
-        };
-        const text = `${title} ${description}`.toLowerCase();
-        // Score based on keyword matches
-        const scores = Object.entries(complexityKeywords).map(([complexity, keywords]) => {
-            const matches = keywords.filter((keyword) => text.includes(keyword.toLowerCase())).length;
-            return { complexity, score: matches };
-        });
-        // Length-based heuristics
-        const descriptionLength = description.length;
-        let lengthComplexity = TaskComplexity.SIMPLE;
-        if (descriptionLength > 2000)
-            lengthComplexity = TaskComplexity.ENTERPRISE;
-        else if (descriptionLength > 1000)
-            lengthComplexity = TaskComplexity.COMPLEX;
-        else if (descriptionLength > 500)
-            lengthComplexity = TaskComplexity.MODERATE;
-        else if (descriptionLength > 100)
-            lengthComplexity = TaskComplexity.SIMPLE;
-        else
-            lengthComplexity = TaskComplexity.TRIVIAL;
-        // Get highest scoring complexity or use length-based fallback
-        const topScore = scores.reduce((max, curr) => curr.score > max.score ? curr : max);
-        return topScore.score > 0 ? topScore.complexity : lengthComplexity;
-    }
-    /**
-     * Breaks down complex tasks into manageable subtasks using AI-assisted analysis
-     */
-    async breakdownTask(task) {
-        const { title, description, type, complexity } = task;
-        // Create breakdown context
-        const context = new ContextState();
-        context.set('task_title', title);
-        context.set('task_description', description);
-        context.set('task_type', type);
-        context.set('task_complexity', complexity);
-        // Determine breakdown strategy based on complexity
-        const breakdownPrompt = this.generateBreakdownPrompt(complexity, type);
-        // Use SubAgentScope for intelligent breakdown
-        const breakdownAgent = await SubAgentScope.create('task-breakdown-analyzer', this.config, {
-            systemPrompt: breakdownPrompt,
-        }, {
-            model: this.config.getModel(),
-            temp: 0.3, // Lower temperature for more structured output
-            top_p: 0.9,
-        }, {
-            max_time_minutes: 5, // Quick analysis
-            max_turns: 10,
-        }, {
-            toolConfig: {
-                tools: ['AnalyzeComplexity', 'CreateSubtask', 'IdentifyDependencies'],
-            },
-            outputConfig: {
-                outputs: {
-                    subtasks_json: 'JSON array of subtask objects with id, title, description, type, complexity, estimated_duration_minutes',
-                    dependencies_json: 'JSON array of dependency objects with taskId, dependsOnTaskId, type, description',
-                    total_duration: 'Total estimated duration in minutes for all subtasks',
-                    required_capabilities: 'JSON array of required agent capabilities',
-                    risks: 'JSON array of potential risks and mitigation strategies',
-                },
-            },
-        });
-        await breakdownAgent.runNonInteractive(context);
-        // Parse breakdown results
-        const outputs = breakdownAgent.output.emitted_vars;
-        const subtasks = this.parseSubtasks(outputs.subtasks_json || '[]');
-        const dependencies = this.parseDependencies(outputs.dependencies_json || '[]');
-        const estimatedDurationMinutes = parseInt(outputs.total_duration || '60', 10);
-        const requiredCapabilities = JSON.parse(outputs.required_capabilities || '[]');
-        const risksAndMitigation = JSON.parse(outputs.risks || '[]');
-        return {
-            subtasks,
-            dependencies,
-            estimatedDurationMinutes,
-            requiredCapabilities,
-            risksAndMitigation,
-        };
-    }
-    /**
-     * Identifies task dependencies using graph analysis
-     */
-    async identifyDependencies(tasks) {
-        const dependencies = [];
-        // Analyze task relationships
-        for (const task of tasks) {
-            for (const otherTask of tasks) {
-                if (task.id === otherTask.id)
-                    continue;
-                const dependency = this.analyzeDependency(task, otherTask);
-                if (dependency) {
-                    dependencies.push(dependency);
-                }
-            }
-=======
   config;
   toolRegistry;
   constructor(config) {
@@ -401,7 +246,7 @@ export class TaskBreakdownAnalyzer {
         const dependency = this.analyzeDependency(task, otherTask);
         if (dependency) {
           dependencies.push(dependency);
->>>>>>> Stashed changes
+
         }
       }
     }

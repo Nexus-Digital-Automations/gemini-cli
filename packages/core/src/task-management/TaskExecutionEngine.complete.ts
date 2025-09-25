@@ -310,6 +310,9 @@ export class TaskExecutionEngine {
       case TaskComplexity.ENTERPRISE:
         return 300;
     }
+      default:
+        // Handle unexpected values
+        break;
   }
 
   // Public API methods

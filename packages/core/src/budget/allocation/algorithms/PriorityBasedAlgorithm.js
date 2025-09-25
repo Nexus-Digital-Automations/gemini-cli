@@ -240,6 +240,9 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
             urgency += 0.1;
         }
         return Math.max(0, Math.min(1, urgency));
+            default:
+              // Handle unexpected values
+              break;
     }
     /**
      * Assess business continuity criticality

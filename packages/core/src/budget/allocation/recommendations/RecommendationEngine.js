@@ -292,6 +292,9 @@ export class RecommendationEngine {
       baseWeights.risk -= 0.05;
     }
     return baseWeights;
+      default:
+        // Handle unexpected values
+        break;
   }
   /**
    * Get strategy-specific optimization objectives

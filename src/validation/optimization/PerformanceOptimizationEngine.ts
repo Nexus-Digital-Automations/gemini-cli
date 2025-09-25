@@ -834,6 +834,9 @@ export class PerformanceOptimizationEngine extends EventEmitter {
           );
           break;
       }
+      default:
+        // Handle unexpected values
+        break;
     }
 
     // General system optimizations

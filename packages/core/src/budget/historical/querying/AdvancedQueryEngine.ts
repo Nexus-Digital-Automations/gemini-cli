@@ -697,6 +697,9 @@ export class AdvancedQueryEngine implements QueryEngine {
               values.length > 0 ? Math.max(...values) : 0;
             break;
         }
+          default:
+            // Handle unexpected values
+            break;
       }
 
       results.push(result);

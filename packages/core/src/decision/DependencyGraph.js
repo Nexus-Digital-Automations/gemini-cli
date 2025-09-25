@@ -301,6 +301,9 @@ export class DecisionDependencyGraph {
           });
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
     // Analyze weak dependencies for removal
     const weakDependencies = this.findWeakDependencies();
@@ -405,6 +408,9 @@ export class DecisionDependencyGraph {
           );
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
     // Calculate projected metrics
     const projectedMetrics = this.calculateGraphMetrics();

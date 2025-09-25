@@ -266,6 +266,9 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     return Math.max(0.1, Math.min(1.0, stability));
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**

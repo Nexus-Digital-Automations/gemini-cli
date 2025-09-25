@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+<<<<<<< Updated upstream
+import type { ValidationContext, ValidationResult } from '../core/ValidationEngine.js';
+=======
 import type {
   ValidationContext,
   ValidationResult,
 } from '../core/ValidationEngine.js';
-
+>>>>>>> Stashed changes
 /**
  * Build artifact interface
  */

@@ -557,7 +557,8 @@ export class TaskQueue extends EventEmitter {
 
     statusUpdateBroker.on('task:failed', (event) => {
       const taskId = event.data.taskId as string;
-      this.handleTaskFailure(taskId, event.data.error as string);
+      const error = event.data.error || 'Unknown error';
+      this.handleTaskFailure(taskId, error);
     });
   }
 
@@ -929,7 +930,7 @@ export class TaskQueue extends EventEmitter {
     if (update.newStatus === TaskStatus.COMPLETED) {
       this.updateTaskCompletion(task.id);
     } else if (update.newStatus === TaskStatus.FAILED) {
-      this.handleTaskFailure(task.id, update.error);
+      this.handleTaskFailure(task.id, update.error?.message || 'Unknown error');
     }
   }
 
@@ -958,7 +959,8 @@ export class TaskQueue extends EventEmitter {
     setImmediate(() => this.processQueue());
   }
 
-  private handleTaskFailure(taskId: string, error: string): void {
+  private handleTaskFailure(taskId: string, error: unknown): void {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const currentFailures = this.failedTasks.get(taskId) || 0;
     this.failedTasks.set(taskId, currentFailures + 1);
 
@@ -989,7 +991,7 @@ export class TaskQueue extends EventEmitter {
           taskId,
           failureCount: currentFailures + 1,
           maxRetries,
-          error,
+          error: errorMessage,
         });
       }
     } else {
@@ -998,7 +1000,7 @@ export class TaskQueue extends EventEmitter {
         taskId,
         failureCount: currentFailures + 1,
         maxRetries,
-        error,
+        error: errorMessage,
       });
     }
 

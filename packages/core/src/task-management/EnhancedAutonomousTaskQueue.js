@@ -545,6 +545,9 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         // Sync with base queue metrics
         const baseMetrics = this.baseQueue.getMetrics();
         Object.assign(this.autonomousMetrics, baseMetrics);
+            default:
+              // Handle unexpected values
+              break;
     }
     /**
      * Setup component integration event handlers

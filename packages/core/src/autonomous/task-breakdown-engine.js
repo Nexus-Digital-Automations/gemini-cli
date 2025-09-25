@@ -499,6 +499,9 @@ export class TaskBreakdownEngine {
     // Adjust based on high-impact factors
     const highImpactFactors = factors.filter((f) => f.impact === 'high').length;
     return baseCount + Math.floor(highImpactFactors / 2);
+      default:
+        // Handle unexpected values
+        break;
   }
   estimateDuration(complexity, factors, request) {
     let baseDuration = 5; // minutes
@@ -520,6 +523,9 @@ export class TaskBreakdownEngine {
     const lengthMultiplier = Math.min(request.length / 100, 2);
     const factorMultiplier = 1 + factors.length * 0.1;
     return Math.round(baseDuration * lengthMultiplier * factorMultiplier);
+      default:
+        // Handle unexpected values
+        break;
   }
   // Strategy and rule management methods (to be implemented)
   findApplicableStrategies(task, _complexityResult) {

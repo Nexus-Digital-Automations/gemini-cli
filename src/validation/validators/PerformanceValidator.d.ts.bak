@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+<<<<<<< Updated upstream
+import { ValidationContext, ValidationResult } from '../core/ValidationEngine.js';
+=======
 import {
   ValidationContext,
   ValidationResult,
 } from '../core/ValidationEngine.js';
-
+>>>>>>> Stashed changes
 /**
  * Performance validation configuration
  */

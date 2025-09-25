@@ -108,6 +108,9 @@ export class QueueOptimizer extends EventEmitter {
     });
     this.emit('optimizationCompleted', { strategy, recommendations });
     return recommendations;
+      default:
+        // Handle unexpected values
+        break;
   }
   /**
    * Optimize task batching for parallel execution

@@ -932,7 +932,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         this.logger.info('Loaded persisted monitoring snapshots', {
           count: this.monitoringSnapshots.length,
         });
-      } catch (error) {
+      } catch (_error) {
         // File doesn't exist or is corrupted - start fresh
       }
       // Load active alerts
@@ -948,7 +948,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
             lastTriggered: new Date(data.lastTriggered),
           });
         }
-      } catch (error) {
+      } catch (_error) {
         // File doesn't exist - start fresh
       }
       // Load predictive insights
@@ -963,7 +963,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
             timestamp: new Date(dp.timestamp),
           })),
         }));
-      } catch (error) {
+      } catch (_error) {
         // File doesn't exist - start fresh
       }
     } catch (error) {

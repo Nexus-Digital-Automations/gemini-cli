@@ -868,6 +868,9 @@ export class HistoricalBudgetService {
     }
 
     return now.toISOString();
+      default:
+        // Handle unexpected values
+        break;
   }
 
   private async saveSchedule(schedule: AnalysisSchedule): Promise<void> {

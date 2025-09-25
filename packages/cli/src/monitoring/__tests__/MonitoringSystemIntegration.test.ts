@@ -28,6 +28,7 @@ import {
   TaskType,
 } from '../TaskStatusMonitor.js';
 import { PerformanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
+import { type AlertEvent, type CorrelatedEvent, type SyncEvent, type HealthEvent, type TestEventData, type MonitoringSnapshot } from './types.js';
 
 // Mock node modules
 vi.mock('node:fs/promises', () => ({
@@ -310,7 +311,7 @@ describe('Monitoring System Integration Tests', () => {
     });
 
     it('should handle alert lifecycle properly', async () => {
-      const alertEvents: any[] = [];
+      const alertEvents: AlertEvent[] = [];
 
       // Listen for alert events
       realTimeMonitoring.on('alert:triggered', (data) => {
@@ -328,7 +329,7 @@ describe('Monitoring System Integration Tests', () => {
         id: 'integration-test-alert',
         name: 'Integration Test Alert',
         description: 'Alert for integration testing',
-        condition: (data: any) => data.taskMetrics.total > 0, // Should trigger with any tasks
+        condition: (data: MonitoringSnapshot) => data.taskMetrics.total > 0, // Should trigger with any tasks
         severity: 'medium' as const,
         cooldownMs: 500,
         enabled: true,
@@ -541,7 +542,7 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should correlate events across systems', async () => {
       const correlationId = `test-correlation-${Date.now()}`;
-      const correlatedEvents: any[] = [];
+      const correlatedEvents: CorrelatedEvent[] = [];
 
       integrationHub.on('events:correlated', (data) => {
         correlatedEvents.push(data);
@@ -847,7 +848,7 @@ describe('Monitoring System Integration Tests', () => {
     });
 
     it('should recover from data synchronization failures', async () => {
-      const syncEvents: any[] = [];
+      const syncEvents: SyncEvent[] = [];
 
       integrationHub.on('sync:completed', (data) => {
         syncEvents.push(data);
@@ -948,7 +949,7 @@ describe('Monitoring System Integration Tests', () => {
 
   describe('Monitoring System Health', () => {
     it('should continuously monitor system health', async () => {
-      const healthEvents: any[] = [];
+      const healthEvents: HealthEvent[] = [];
 
       integrationHub.on('health:checked', (data) => {
         healthEvents.push(data);

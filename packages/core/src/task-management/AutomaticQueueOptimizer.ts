@@ -1193,6 +1193,9 @@ export class AutomaticQueueOptimizer extends EventEmitter {
       successCriteria: this.getSuccessCriteria(opportunity, analysis),
       monitoringDuration: 300000, // 5 minutes
     };
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**

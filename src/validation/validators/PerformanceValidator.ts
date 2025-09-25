@@ -1145,6 +1145,9 @@ export class PerformanceValidator {
           score -= 5;
           break;
       }
+      default:
+        // Handle unexpected values
+        break;
     }
 
     return Math.max(0, Math.min(100, score));

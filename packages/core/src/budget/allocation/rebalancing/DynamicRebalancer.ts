@@ -642,6 +642,9 @@ export class DynamicRebalancer {
       issues.push(
         error instanceof Error ? error.message : 'Unknown execution error',
       );
+        default:
+          // Handle unexpected values
+          break;
     }
 
     const executionTime = Date.now() - executionStart;
@@ -1039,6 +1042,9 @@ export class DynamicRebalancer {
         priority === 'immediate' ? '5m' : priority === 'high' ? '15m' : '1h',
       prerequisites: [],
     };
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**

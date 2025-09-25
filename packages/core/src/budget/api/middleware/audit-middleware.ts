@@ -212,6 +212,9 @@ class AuditStore {
         logger.error(`Audit: ${event.eventType}`, logData);
         break;
     }
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**

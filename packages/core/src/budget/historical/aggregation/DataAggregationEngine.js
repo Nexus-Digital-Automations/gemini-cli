@@ -668,6 +668,9 @@ export class DataAggregationEngine {
       case 'hybrid':
         await this.executeHybridRollup(strategy.hybrid);
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
     console.log('[DataAggregationEngine] Rollup strategy completed');
   }

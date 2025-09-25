@@ -297,7 +297,7 @@ describe('AlertSystem', () => {
     it('should register custom notification channels', () => {
       const testChannel = {
         channel: NotificationChannel.EMAIL,
-        async send(alert) {
+        async send(_alert) {
           return true;
         },
       };

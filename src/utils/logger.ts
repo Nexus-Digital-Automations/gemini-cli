@@ -132,6 +132,10 @@ export class Logger {
           console.error(error.stack);
         }
         break;
+      default:
+        // Fallback for unknown log levels
+        console.log(logMessage);
+        break;
     }
   }
 

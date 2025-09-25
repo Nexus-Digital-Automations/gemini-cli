@@ -620,6 +620,9 @@ export class QuotaManager extends EventEmitter {
             Math.random() * (config.maxDelay - config.minDelay);
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
 
     delay = Math.min(delay, config.maxDelay);
@@ -682,6 +685,9 @@ export class QuotaManager extends EventEmitter {
       usage: usage.currentUsage,
       limit: limit.maxValue,
     });
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**
@@ -718,6 +724,9 @@ export class QuotaManager extends EventEmitter {
         break;
       // Add other strategies as needed
     }
+      default:
+        // Handle unexpected values
+        break;
   }
 
   /**

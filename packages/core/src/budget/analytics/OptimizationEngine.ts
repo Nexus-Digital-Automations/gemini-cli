@@ -378,6 +378,9 @@ export class OptimizationEngine {
           );
           break;
       }
+        default:
+          // Handle unexpected values
+          break;
     }
 
     return recommendations;

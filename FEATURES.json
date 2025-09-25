@@ -328,12 +328,12 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 237,
+      "total_reinitializations": 246,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 30
+          "reinit": 39
         },
         "14:00-18:59": {
           "init": 0,
@@ -409,7 +409,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T18:50:46.008Z"
+      "last_updated": "2025-09-25T18:59:18.697Z"
     }
   },
   "workflow_config": {
@@ -503,6 +503,69 @@
       "status": "active",
       "reinitialized": "2025-09-25T18:12:32.337Z",
       "sessionId": "4a55a119e82310f4",
+      "previousSessions": []
+    },
+    "eslint-fix-agent": {
+      "lastHeartbeat": "2025-09-25T18:52:36.877Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:52:36.877Z",
+      "sessionId": "be014b6ca55b6a34",
+      "previousSessions": []
+    },
+    "LINTING_AGENT_001": {
+      "lastHeartbeat": "2025-09-25T18:52:37.849Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:52:37.849Z",
+      "sessionId": "225d356d66b04f8a",
+      "previousSessions": []
+    },
+    "default-case-fixer": {
+      "lastHeartbeat": "2025-09-25T18:53:20.407Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:53:20.407Z",
+      "sessionId": "b0bc3884c21f9c93",
+      "previousSessions": []
+    },
+    "agent-eslint-type-imports": {
+      "lastHeartbeat": "2025-09-25T18:58:27.570Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:58:27.570Z",
+      "sessionId": "f4cdc45b6c00b58e",
+      "previousSessions": []
+    },
+    "AGENT_1": {
+      "lastHeartbeat": "2025-09-25T18:58:29.162Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:58:29.162Z",
+      "sessionId": "3fc5c91c5068e281",
+      "previousSessions": []
+    },
+    "LINTER_AGENT_BUDGET_TASK": {
+      "lastHeartbeat": "2025-09-25T18:58:31.035Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:58:31.035Z",
+      "sessionId": "e65757d1dad47592",
+      "previousSessions": []
+    },
+    "TYPESCRIPT_ESLINT_FIX_AGENT": {
+      "lastHeartbeat": "2025-09-25T18:58:31.376Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:58:31.376Z",
+      "sessionId": "168f0af6d29f4213",
+      "previousSessions": []
+    },
+    "agent_fix_unused_vars": {
+      "lastHeartbeat": "2025-09-25T18:58:32.739Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:58:32.739Z",
+      "sessionId": "c4aadf7e3b6d3f2d",
+      "previousSessions": []
+    },
+    "import-export-fixer": {
+      "lastHeartbeat": "2025-09-25T18:59:18.659Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T18:59:18.659Z",
+      "sessionId": "b5b182cf56b441b2",
       "previousSessions": []
     }
   },
