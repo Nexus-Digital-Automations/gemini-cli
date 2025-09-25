@@ -13,4 +13,58 @@ export {
   type BudgetWarning,
   type BudgetEnforcementOptions,
 } from './budget-enforcement.js';
+
+// Analytics exports
+export {
+  AnalyticsEngine,
+  createAnalyticsEngine,
+} from './analytics/AnalyticsEngine.js';
+export { PatternDetector } from './analytics/PatternDetector.js';
+export { AnomalyDetector } from './analytics/AnomalyDetector.js';
+export { OptimizationEngine } from './analytics/OptimizationEngine.js';
+
+// ML exports
+export {
+  MLCostPredictor,
+  createMLCostPredictor,
+  type HistoricalUsagePoint,
+  type ForecastResult,
+  type TrendAnalysis,
+  type BudgetPrediction,
+  type ModelMetrics,
+} from './ml-cost-predictor.js';
+export {
+  MLEnhancedBudgetTracker,
+  createMLEnhancedBudgetTracker,
+} from './ml-enhanced-tracker.js';
+export {
+  MLBudgetAPI,
+  mlBudgetAPI,
+  mlBudgetHandlers,
+  type ForecastRequest,
+  type ForecastResponse,
+  type OptimizationResponse,
+  type AnomalyDetectionResponse,
+  type ModelMetricsResponse,
+  type UsageStatsResponse,
+} from './api/ml-budget-api.js';
+export {
+  MLBudgetCLI,
+  createMLBudgetCLI,
+  mlBudgetCLI,
+} from './cli/ml-budget-cli.js';
+
+// Type exports
 export type { BudgetSettings, BudgetUsageData } from './types.js';
+export type {
+  AnalyticsDimension,
+  UsagePattern,
+  OptimizationType,
+  UsageMetrics,
+  FeatureCostAnalysis,
+  OptimizationRecommendation,
+  PatternAnalysis,
+  AnomalyDetection,
+  AnalyticsReport,
+  AnalyticsConfig,
+} from './analytics/AnalyticsEngine.js';

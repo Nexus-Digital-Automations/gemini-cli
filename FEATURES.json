@@ -325,7 +325,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 11,
-      "total_reinitializations": 146,
+      "total_reinitializations": 148,
       "current_day": "2025-09-25",
       "time_buckets": {
         "08:00-12:59": {
@@ -342,7 +342,7 @@
         },
         "23:00-03:59": {
           "init": 0,
-          "reinit": 10
+          "reinit": 12
         },
         "04:00-08:59": {
           "init": 0,
@@ -406,7 +406,7 @@
         }
       ],
       "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T04:22:04.076Z"
+      "last_updated": "2025-09-25T04:36:13.010Z"
     }
   },
   "workflow_config": {
@@ -448,14 +448,15 @@
       ]
     },
     "MAIN_AGENT": {
-      "lastHeartbeat": "2025-09-25T04:19:40.888Z",
+      "lastHeartbeat": "2025-09-25T04:33:25.561Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:19:40.888Z",
-      "sessionId": "89735d2a5ea9891e",
+      "reinitialized": "2025-09-25T04:33:25.561Z",
+      "sessionId": "efd1407cb275ca31",
       "previousSessions": [
         "44d7ddf32f6732da",
         "398f76e8dd289208",
-        "dbed6ec9be8606e3"
+        "dbed6ec9be8606e3",
+        "89735d2a5ea9891e"
       ]
     },
     "status-monitor-system-architect": {
@@ -558,11 +559,13 @@
       "previousSessions": []
     },
     "ANALYTICS_ENGINE_DEVELOPER": {
-      "lastHeartbeat": "2025-09-25T04:21:47.853Z",
+      "lastHeartbeat": "2025-09-25T04:36:13.009Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:21:47.853Z",
-      "sessionId": "140320ec8159086b",
-      "previousSessions": []
+      "reinitialized": "2025-09-25T04:36:13.009Z",
+      "sessionId": "06d73943a1c648c3",
+      "previousSessions": [
+        "140320ec8159086b"
+      ]
     },
     "CLI_INTEGRATION_SPECIALIST": {
       "lastHeartbeat": "2025-09-25T04:21:49.426Z",

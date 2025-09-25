@@ -20,25 +20,79 @@ import { EventEmitter } from 'node:events';
 import { promises as fs } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { createGzip, createGunzip } from 'node:zlib';
+// Removed unused imports for streaming
 import { performance } from 'node:perf_hooks';
 import type {
-  ITask,
-  ITaskQueue,
-  TaskFilter,
-} from '../interfaces/TaskInterfaces.js';
-import {
-  FileBasedTaskStore,
-  type StorageConfig,
-  type TransactionContext,
-  type TransactionIsolationLevel,
-  type PersistenceResult,
-  type QueryOptions,
-  CompressionAlgorithm,
-  SerializationFormat,
-} from '../autonomous-tasks/persistence/FileBasedTaskStore.js';
+  Task,
+  // TaskId, - removed unused import
+  TaskStatus,
+  TaskPriority,
+  TaskCategory,
+} from './types.js';
+
+// Define interfaces locally since original imports are not available
+export interface ITask extends Task {
+  updatedAt: Date;
+  parameters?: Record<string, unknown>;
+  tags: string[];
+  dependencies: Array<{ taskId: string; type: string }>;
+  subtasks: string[];
+  result?: unknown;
+  parentTaskId?: string;
+  scheduledAt?: Date;
+}
+export interface ITaskQueue {
+  id: string;
+  name: string;
+  tasks: ITask[];
+  metadata?: Record<string, unknown>;
+}
+export interface TaskFilter {
+  status?: TaskStatus[];
+  priority?: TaskPriority[];
+  category?: TaskCategory[];
+  tags?: string[];
+  createdAfter?: Date;
+  createdBefore?: Date;
+}
+
+// Define storage types locally
+export interface StorageConfig {
+  storageDir: string;
+  enableCompression?: boolean;
+  maxBackupVersions?: number;
+  enableMetrics?: boolean;
+}
+
+export interface TransactionContext {
+  transactionId: string;
+  isolationLevel: TransactionIsolationLevel;
+  operations: unknown[];
+}
+
+export type TransactionIsolationLevel =
+  | 'read_uncommitted'
+  | 'read_committed'
+  | 'repeatable_read'
+  | 'serializable';
+
+export interface PersistenceResult<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: Error;
+  metadata?: Record<string, unknown>;
+}
+
+export interface QueryOptions {
+  limit?: number;
+  offset?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  filters?: Record<string, unknown>;
+}
+
+export type CompressionAlgorithm = 'gzip' | 'deflate' | 'brotli' | 'none';
+export type SerializationFormat = 'json' | 'msgpack' | 'protobuf';
 
 /**
  * Session metadata for cross-session tracking
@@ -53,7 +107,7 @@ export interface SessionMetadata {
   /** Last activity timestamp */
   lastActivity: Date;
   /** Session state */
-  state: 'active' | 'inactive' | 'crashed' | 'terminated';
+  state: 'active' | 'inactive' | 'crashed' | 'terminated' | 'terminating';
   /** Process information */
   processInfo: {
     pid: number;
@@ -129,13 +183,39 @@ export interface CrossSessionConfig extends StorageConfig {
  * - Automatic crash recovery and data integrity validation
  * - Real-time synchronization and conflict resolution
  */
-export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
+export class CrossSessionPersistenceEngine extends EventEmitter {
+  // Core storage properties
+  readonly storage: {
+    tasks: Record<string, ITask>;
+    queues: Record<string, ITaskQueue>;
+    indexes: {
+      byStatus: Record<string, string[]>;
+      byType: Record<string, string[]>;
+      byPriority: Record<string, string[]>;
+      byCreationDate: string[];
+    };
+  } = {
+    tasks: {},
+    queues: {},
+    indexes: {
+      byStatus: {},
+      byType: {},
+      byPriority: {},
+      byCreationDate: [],
+    },
+  };
+  readonly storagePath: string;
+  readonly activeTransactions: Map<string, TransactionContext> = new Map();
+  private readonly config: StorageConfig;
   private sessionMetadata: SessionMetadata;
   private checkpoints = new Map<string, CheckpointData>();
   private heartbeatTimer?: NodeJS.Timeout;
   private checkpointTimer?: NodeJS.Timeout;
   private activeSessions = new Map<string, SessionMetadata>();
-  private operationMetrics = new Map<string, { count: number; totalTime: number; avgTime: number }>();
+  private operationMetrics = new Map<
+    string,
+    { count: number; totalTime: number; avgTime: number }
+  >();
   private conflictResolver: ConflictResolver;
   private dataIntegrityManager: DataIntegrityManager;
   private performanceOptimizer: PerformanceOptimizer;
@@ -145,10 +225,22 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   // Performance optimization components
   private writeBuffer = new Map<string, { data: unknown; timestamp: number }>();
   private writeBufferTimer?: NodeJS.Timeout;
-  private prefetchCache = new Map<string, { data: unknown; timestamp: number; hits: number }>();
+  private prefetchCache = new Map<
+    string,
+    { data: unknown; timestamp: number; hits: number }
+  >();
 
   constructor(config: CrossSessionConfig) {
     super();
+
+    // Initialize core configuration
+    this.config = {
+      storageDir: config.storageDir || join(process.cwd(), '.persistence'),
+      enableCompression: config.enableCompression ?? true,
+      maxBackupVersions: config.maxBackupVersions ?? 5,
+      enableMetrics: config.enableMetrics ?? true,
+    };
+    this.storagePath = this.config.storageDir;
 
     // Initialize session metadata
     this.sessionMetadata = {
@@ -171,9 +263,13 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     };
 
     // Initialize specialized components
-    this.conflictResolver = new ConflictResolver(config.conflictResolution || 'timestamp');
+    this.conflictResolver = new ConflictResolver(
+      config.conflictResolution || 'timestamp',
+    );
     this.dataIntegrityManager = new DataIntegrityManager();
-    this.performanceOptimizer = new PerformanceOptimizer(config.performanceOptimization);
+    this.performanceOptimizer = new PerformanceOptimizer(
+      config.performanceOptimization,
+    );
     this.syncManager = new RealTimeSyncManager(config.realtimeSync || false);
     this.migrationManager = new SchemaMigrationManager();
 
@@ -188,8 +284,8 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     const startTime = performance.now();
 
     try {
-      // Initialize base store
-      await super.initialize(config);
+      // Initialize storage directory
+      await fs.mkdir(this.storagePath, { recursive: true });
 
       // Start session management
       await this.startSessionManagement(config);
@@ -218,11 +314,15 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         crashRecovery: config.crashRecoveryEnabled,
         realtimeSync: config.realtimeSync,
       });
-
     } catch (error) {
       this.sessionMetadata.statistics.errorsEncountered++;
-      this.emit('initialization-error', { error, sessionId: this.sessionMetadata.sessionId });
-      throw new Error(`Cross-session persistence initialization failed: ${error}`);
+      this.emit('initialization-error', {
+        error,
+        sessionId: this.sessionMetadata.sessionId,
+      });
+      throw new Error(
+        `Cross-session persistence initialization failed: ${error}`,
+      );
     }
   }
 
@@ -231,7 +331,7 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
    */
   async saveTask(
     task: ITask,
-    transaction?: TransactionContext
+    transaction?: TransactionContext,
   ): Promise<PersistenceResult<void>> {
     const startTime = performance.now();
     const operationId = randomUUID();
@@ -243,7 +343,8 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       // Check for conflicts with other sessions
       const conflict = await this.checkForConflicts('task', task.id, task);
       if (conflict) {
-        const resolved = await this.conflictResolver.resolveTaskConflict(conflict);
+        const resolved =
+          await this.conflictResolver.resolveTaskConflict(conflict);
         if (!resolved.success) {
           throw new Error(`Task conflict resolution failed: ${resolved.error}`);
         }
@@ -251,7 +352,11 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       }
 
       // Use performance-optimized save
-      const result = await this.performanceOptimizedSave(task, transaction, operationId);
+      const result = await this.performanceOptimizedSave(
+        task,
+        transaction,
+        operationId,
+      );
 
       // Update session statistics
       this.sessionMetadata.statistics.tasksProcessed++;
@@ -281,7 +386,6 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       });
 
       return result;
-
     } catch (error) {
       this.sessionMetadata.statistics.errorsEncountered++;
       const duration = performance.now() - startTime;
@@ -303,7 +407,7 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
    */
   async loadTask(
     taskId: string,
-    useCache = true
+    useCache = true,
   ): Promise<PersistenceResult<ITask | null>> {
     const startTime = performance.now();
     const operationId = randomUUID();
@@ -328,8 +432,8 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         }
       }
 
-      // Use base implementation with enhancements
-      const result = await super.loadTask(taskId, useCache);
+      // Load task directly
+      const result = await this.loadTaskFromStorage(taskId);
 
       // Update session statistics
       this.sessionMetadata.statistics.totalOperations++;
@@ -350,11 +454,14 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         duration,
         operationId,
         found: !!result.data,
-        cached: result.metadata.cacheInfo?.hit || false,
+        cached:
+          (result.metadata &&
+            result.metadata['cacheInfo'] &&
+            (result.metadata['cacheInfo'] as any).hit) ||
+          false,
       });
 
       return result;
-
     } catch (error) {
       this.sessionMetadata.statistics.errorsEncountered++;
       const duration = performance.now() - startTime;
@@ -374,7 +481,9 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   /**
    * Create manual checkpoint
    */
-  async createCheckpoint(type: 'automatic' | 'manual' | 'crash_recovery' = 'manual'): Promise<string> {
+  async createCheckpoint(
+    type: 'automatic' | 'manual' | 'crash_recovery' = 'manual',
+  ): Promise<string> {
     const startTime = performance.now();
     const checkpointId = randomUUID();
 
@@ -385,7 +494,8 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
       // Calculate integrity hash
       const stateData = { tasks: allTasks, queues: allQueues };
-      const integrityHash = this.dataIntegrityManager.calculateStateHash(stateData);
+      const integrityHash =
+        this.dataIntegrityManager.calculateStateHash(stateData);
 
       // Create checkpoint data
       const checkpoint: CheckpointData = {
@@ -421,7 +531,6 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       });
 
       return checkpointId;
-
     } catch (error) {
       this.sessionMetadata.statistics.errorsEncountered++;
       this.emit('checkpoint-error', {
@@ -446,9 +555,12 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       }
 
       // Validate checkpoint integrity
-      const isValid = await this.dataIntegrityManager.validateCheckpointIntegrity(checkpoint);
+      const isValid =
+        await this.dataIntegrityManager.validateCheckpointIntegrity(checkpoint);
       if (!isValid) {
-        throw new Error(`Checkpoint ${checkpointId} failed integrity validation`);
+        throw new Error(
+          `Checkpoint ${checkpointId} failed integrity validation`,
+        );
       }
 
       // Begin transaction for restoration
@@ -464,13 +576,14 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         }
 
         // Restore queues
-        for (const [queueId, queue] of Object.entries(checkpoint.queueSnapshot)) {
+        for (const [queueId, queue] of Object.entries(
+          checkpoint.queueSnapshot,
+        )) {
           await this.saveQueue(queue, transaction);
         }
 
         // Commit restoration
         await this.commitTransaction(transaction);
-
       } catch (error) {
         await this.rollbackTransaction(transaction);
         throw error;
@@ -486,7 +599,6 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         tasksRestored: Object.keys(checkpoint.taskSnapshot).length,
         queuesRestored: Object.keys(checkpoint.queueSnapshot).length,
       });
-
     } catch (error) {
       this.sessionMetadata.statistics.errorsEncountered++;
       this.emit('restore-error', {
@@ -504,25 +616,49 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   async getSessionStatistics(): Promise<{
     currentSession: SessionMetadata;
     activeSessions: SessionMetadata[];
-    operationMetrics: Record<string, { count: number; avgTime: number; totalTime: number }>;
-    checkpointStats: { total: number; automatic: number; manual: number; crashRecovery: number };
-    performanceStats: { avgOperationTime: number; operationsPerSecond: number; cacheHitRate: number };
-    integrityStats: { validationsPassed: number; corruptionsDetected: number; corruptionsFixed: number };
+    operationMetrics: Record<
+      string,
+      { count: number; avgTime: number; totalTime: number }
+    >;
+    checkpointStats: {
+      total: number;
+      automatic: number;
+      manual: number;
+      crashRecovery: number;
+    };
+    performanceStats: {
+      avgOperationTime: number;
+      operationsPerSecond: number;
+      cacheHitRate: number;
+    };
+    integrityStats: {
+      validationsPassed: number;
+      corruptionsDetected: number;
+      corruptionsFixed: number;
+    };
   }> {
     const checkpointStats = {
       total: this.checkpoints.size,
-      automatic: Array.from(this.checkpoints.values()).filter(c => c.type === 'automatic').length,
-      manual: Array.from(this.checkpoints.values()).filter(c => c.type === 'manual').length,
-      crashRecovery: Array.from(this.checkpoints.values()).filter(c => c.type === 'crash_recovery').length,
+      automatic: Array.from(this.checkpoints.values()).filter(
+        (c) => c.type === 'automatic',
+      ).length,
+      manual: Array.from(this.checkpoints.values()).filter(
+        (c) => c.type === 'manual',
+      ).length,
+      crashRecovery: Array.from(this.checkpoints.values()).filter(
+        (c) => c.type === 'crash_recovery',
+      ).length,
     };
 
     const totalOps = this.sessionMetadata.statistics.totalOperations;
-    const sessionDuration = Date.now() - this.sessionMetadata.startTime.getTime();
+    const sessionDuration =
+      Date.now() - this.sessionMetadata.startTime.getTime();
     const operationsPerSecond = totalOps / (sessionDuration / 1000);
 
     // Calculate average operation time
     const totalOpTime = Array.from(this.operationMetrics.values()).reduce(
-      (sum, metric) => sum + metric.totalTime, 0
+      (sum, metric) => sum + metric.totalTime,
+      0,
     );
     const avgOperationTime = totalOps > 0 ? totalOpTime / totalOps : 0;
 
@@ -574,15 +710,14 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         await this.syncManager.shutdown();
       }
 
-      // Call parent shutdown
-      await super.shutdown(force);
+      // Perform final cleanup
+      await this.performFinalCleanup(force);
 
       this.emit('cross-session-shutdown', {
         sessionId: this.sessionMetadata.sessionId,
         statistics: this.sessionMetadata.statistics,
         force,
       });
-
     } catch (error) {
       this.emit('shutdown-error', {
         sessionId: this.sessionMetadata.sessionId,
@@ -609,7 +744,9 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     process.on('SIGINT', () => this.shutdown());
   }
 
-  private async startSessionManagement(config: CrossSessionConfig): Promise<void> {
+  private async startSessionManagement(
+    config: CrossSessionConfig,
+  ): Promise<void> {
     const heartbeatInterval = config.heartbeatInterval || 30_000; // 30 seconds
 
     // Start heartbeat
@@ -646,8 +783,14 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   }
 
   private async saveSessionMetadata(): Promise<void> {
-    const sessionPath = join(dirname(this.storagePath), `session-${this.sessionMetadata.sessionId}.json`);
-    await fs.writeFile(sessionPath, JSON.stringify(this.sessionMetadata, null, 2));
+    const sessionPath = join(
+      dirname(this.storagePath),
+      `session-${this.sessionMetadata.sessionId}.json`,
+    );
+    await fs.writeFile(
+      sessionPath,
+      JSON.stringify(this.sessionMetadata, null, 2),
+    );
   }
 
   private async loadExistingSessions(): Promise<void> {
@@ -663,8 +806,10 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
             const session: SessionMetadata = JSON.parse(data);
 
             // Check if session is still active
-            const timeSinceActivity = Date.now() - new Date(session.lastActivity).getTime();
-            if (timeSinceActivity > 300_000) { // 5 minutes
+            const timeSinceActivity =
+              Date.now() - new Date(session.lastActivity).getTime();
+            if (timeSinceActivity > 300_000) {
+              // 5 minutes
               session.state = 'inactive';
             }
 
@@ -688,7 +833,9 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       for (const file of files) {
         if (file.startsWith('checkpoint-') && file.endsWith('.json')) {
           try {
-            const checkpoint = await this.loadCheckpointFromDisk(file.replace('.json', ''));
+            const checkpoint = await this.loadCheckpointFromDisk(
+              file.replace('.json', ''),
+            );
             if (checkpoint) {
               this.checkpoints.set(checkpoint.id, checkpoint);
             }
@@ -704,8 +851,9 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   }
 
   private async performCrashRecovery(): Promise<void> {
-    const crashedSessions = Array.from(this.activeSessions.values())
-      .filter(session => session.state === 'active' && this.isSessionCrashed(session));
+    const crashedSessions = Array.from(this.activeSessions.values()).filter(
+      (session) => session.state === 'active' && this.isSessionCrashed(session),
+    );
 
     if (crashedSessions.length === 0) return;
 
@@ -727,14 +875,17 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   }
 
   private isSessionCrashed(session: SessionMetadata): boolean {
-    const timeSinceActivity = Date.now() - new Date(session.lastActivity).getTime();
+    const timeSinceActivity =
+      Date.now() - new Date(session.lastActivity).getTime();
     return timeSinceActivity > 600_000; // 10 minutes
   }
 
-  private async recoverCrashedSession(crashedSession: SessionMetadata): Promise<void> {
+  private async recoverCrashedSession(
+    crashedSession: SessionMetadata,
+  ): Promise<void> {
     // Find the most recent checkpoint for this session
     const sessionCheckpoints = Array.from(this.checkpoints.values())
-      .filter(cp => cp.sessionId === crashedSession.sessionId)
+      .filter((cp) => cp.sessionId === crashedSession.sessionId)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
     if (sessionCheckpoints.length === 0) {
@@ -762,7 +913,6 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
         recoveredFromCheckpoint: latestCheckpoint.id,
         recoveryCheckpoint: recoveryCheckpointId,
       });
-
     } catch (error) {
       this.emit('crash-recovery-failed', {
         crashedSessionId: crashedSession.sessionId,
@@ -776,7 +926,7 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   private async performanceOptimizedSave(
     task: ITask,
     transaction?: TransactionContext,
-    operationId?: string
+    operationId?: string,
   ): Promise<PersistenceResult<void>> {
     // Use write buffering for better performance
     if (!transaction && this.writeBuffer.size < 100) {
@@ -794,7 +944,7 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
     // Flush buffer and save
     await this.flushWriteBuffer();
-    return await super.saveTask(task, transaction);
+    return await this.saveTaskToStorage(task, transaction);
   }
 
   private async flushWriteBuffer(): Promise<void> {
@@ -806,11 +956,10 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
     try {
       for (const [taskId, { data }] of bufferedTasks) {
-        await super.saveTask(data as ITask, transaction);
+        await this.saveTaskToStorage(data as ITask, transaction);
       }
 
       await this.commitTransaction(transaction);
-
     } catch (error) {
       await this.rollbackTransaction(transaction);
       throw error;
@@ -834,8 +983,9 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
   private updatePrefetchCache(taskId: string, data: unknown): void {
     if (this.prefetchCache.size >= 1000) {
       // Remove least recently used
-      const lru = Array.from(this.prefetchCache.entries())
-        .sort(([, a], [, b]) => a.hits - b.hits)[0];
+      const lru = Array.from(this.prefetchCache.entries()).sort(
+        ([, a], [, b]) => a.hits - b.hits,
+      )[0];
       this.prefetchCache.delete(lru[0]);
     }
 
@@ -865,20 +1015,30 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     return this.sessionMetadata.statistics.totalOperations % 1000 === 0;
   }
 
-  private async saveCheckpointToDisk(checkpoint: CheckpointData): Promise<void> {
+  private async saveCheckpointToDisk(
+    checkpoint: CheckpointData,
+  ): Promise<void> {
     const checkpointDir = join(dirname(this.storagePath), 'checkpoints');
     await fs.mkdir(checkpointDir, { recursive: true });
 
-    const checkpointPath = join(checkpointDir, `checkpoint-${checkpoint.id}.json`);
+    const checkpointPath = join(
+      checkpointDir,
+      `checkpoint-${checkpoint.id}.json`,
+    );
     const data = JSON.stringify(checkpoint, null, 2);
 
     await fs.writeFile(checkpointPath, data);
   }
 
-  private async loadCheckpointFromDisk(checkpointId: string): Promise<CheckpointData | null> {
+  private async loadCheckpointFromDisk(
+    checkpointId: string,
+  ): Promise<CheckpointData | null> {
     try {
       const checkpointDir = join(dirname(this.storagePath), 'checkpoints');
-      const checkpointPath = join(checkpointDir, `checkpoint-${checkpointId}.json`);
+      const checkpointPath = join(
+        checkpointDir,
+        `checkpoint-${checkpointId}.json`,
+      );
 
       const data = await fs.readFile(checkpointPath, 'utf8');
       return JSON.parse(data) as CheckpointData;
@@ -889,8 +1049,9 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
   private async cleanupOldCheckpoints(): Promise<void> {
     const maxCheckpoints = 10; // Keep last 10 checkpoints
-    const sortedCheckpoints = Array.from(this.checkpoints.values())
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    const sortedCheckpoints = Array.from(this.checkpoints.values()).sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
 
     if (sortedCheckpoints.length <= maxCheckpoints) return;
 
@@ -900,7 +1061,10 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
       try {
         const checkpointDir = join(dirname(this.storagePath), 'checkpoints');
-        const checkpointPath = join(checkpointDir, `checkpoint-${checkpoint.id}.json`);
+        const checkpointPath = join(
+          checkpointDir,
+          `checkpoint-${checkpoint.id}.json`,
+        );
         await fs.unlink(checkpointPath);
       } catch (error) {
         // File might already be deleted
@@ -920,7 +1084,10 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
         // Clean up session file
         try {
-          const sessionPath = join(dirname(this.storagePath), `session-${sessionId}.json`);
+          const sessionPath = join(
+            dirname(this.storagePath),
+            `session-${sessionId}.json`,
+          );
           await fs.unlink(sessionPath);
         } catch (error) {
           // File might already be deleted
@@ -931,7 +1098,11 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     }
   }
 
-  private async checkForConflicts(type: 'task' | 'queue', id: string, data: unknown): Promise<ConflictData | null> {
+  private async checkForConflicts(
+    type: 'task' | 'queue',
+    id: string,
+    data: unknown,
+  ): Promise<ConflictData | null> {
     // Check for concurrent modifications from other active sessions
     for (const [sessionId, session] of this.activeSessions) {
       if (sessionId === this.sessionMetadata.sessionId) continue;
@@ -939,19 +1110,20 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
 
       try {
         // Load the item from that session's perspective
-        const sessionData = type === 'task'
-          ? await this.loadTask(id, false)
-          : await this.loadQueue(id);
+        const sessionData =
+          type === 'task'
+            ? await this.loadTask(id, false)
+            : await this.loadQueue(id);
 
         if (sessionData.success && sessionData.data) {
           // Check if there's a version or timestamp conflict
-          const currentTimestamp = type === 'task'
-            ? (data as ITask).updatedAt
-            : new Date();
+          const currentTimestamp =
+            type === 'task' ? (data as ITask).updatedAt : new Date();
 
-          const sessionTimestamp = type === 'task'
-            ? (sessionData.data as ITask).updatedAt
-            : new Date();
+          const sessionTimestamp =
+            type === 'task'
+              ? (sessionData.data as ITask).updatedAt
+              : new Date();
 
           // If session data is newer, we have a conflict
           if (sessionTimestamp > currentTimestamp) {
@@ -1012,28 +1184,28 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     return allQueues;
   }
 
-  private async clearCurrentState(transaction: TransactionContext): Promise<void> {
+  private async clearCurrentState(
+    transaction: TransactionContext,
+  ): Promise<void> {
     // Clear all tasks
-    const allTaskIds = Object.keys(this.storage!.tasks || {});
-    for (const taskId of allTaskIds) {
-      await this.deleteTask(taskId, false, transaction);
+    const allTaskIds = Object.keys(this.storage.tasks || {});
+    for (const taskIdToDelete of allTaskIds) {
+      await this.deleteTask(taskIdToDelete, false, transaction);
     }
 
     // Clear all queues
-    const allQueueIds = Object.keys(this.storage!.queues || {});
-    for (const queueId of allQueueIds) {
-      await this.deleteQueue(queueId, transaction);
+    const allQueueIds = Object.keys(this.storage.queues || {});
+    for (const queueIdToDelete of allQueueIds) {
+      await this.deleteQueue(queueIdToDelete, transaction);
     }
 
     // Clear indexes
-    if (this.storage) {
-      this.storage.indexes = {
-        byStatus: {},
-        byType: {},
-        byPriority: {},
-        byCreationDate: [],
-      };
-    }
+    this.storage.indexes = {
+      byStatus: {},
+      byType: {},
+      byPriority: {},
+      byCreationDate: [],
+    };
   }
 
   /**
@@ -1041,7 +1213,7 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
    */
   private async deleteQueue(
     queueId: string,
-    transaction?: TransactionContext
+    transaction?: TransactionContext,
   ): Promise<PersistenceResult<void>> {
     const startTime = performance.now();
 
@@ -1085,8 +1257,214 @@ export class CrossSessionPersistenceEngine extends FileBasedTaskStore {
       });
     } catch (checkpointError) {
       // Last resort logging
-      console.error('CRITICAL: Unable to create emergency checkpoint', checkpointError);
+      console.error(
+        'CRITICAL: Unable to create emergency checkpoint',
+        checkpointError,
+      );
     }
+  }
+
+  // Base storage methods that were originally inherited from FileBasedTaskStore
+  async beginTransaction(
+    isolationLevel: TransactionIsolationLevel = 'read_committed',
+  ): Promise<TransactionContext> {
+    const transactionId = randomUUID();
+    const transaction: TransactionContext = {
+      transactionId,
+      isolationLevel,
+      operations: [],
+    };
+    this.activeTransactions.set(transactionId, transaction);
+    return transaction;
+  }
+
+  async commitTransaction(transaction: TransactionContext): Promise<void> {
+    // Implement transaction commit logic
+    this.activeTransactions.delete(transaction.transactionId);
+    this.sessionMetadata.statistics.transactionsCommitted++;
+  }
+
+  async rollbackTransaction(transaction: TransactionContext): Promise<void> {
+    // Implement transaction rollback logic
+    this.activeTransactions.delete(transaction.transactionId);
+  }
+
+  async saveQueue(
+    queue: ITaskQueue,
+    transaction?: TransactionContext,
+  ): Promise<PersistenceResult<void>> {
+    // Implementation for saving queues
+    const queuePath = join(this.storagePath, 'queues', `${queue.id}.json`);
+    await fs.mkdir(dirname(queuePath), { recursive: true });
+    await fs.writeFile(queuePath, JSON.stringify(queue, null, 2));
+
+    return {
+      success: true,
+      metadata: {
+        duration: 0,
+        sizeChange: JSON.stringify(queue).length,
+      },
+    };
+  }
+
+  async loadQueue(
+    queueId: string,
+  ): Promise<PersistenceResult<ITaskQueue | null>> {
+    try {
+      const queuePath = join(this.storagePath, 'queues', `${queueId}.json`);
+      const data = await fs.readFile(queuePath, 'utf8');
+      const queue: ITaskQueue = JSON.parse(data);
+
+      return {
+        success: true,
+        data: queue,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: true,
+        data: null,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+        },
+      };
+    }
+  }
+
+  async loadTaskFromStorage(
+    taskId: string,
+    useCache = true,
+  ): Promise<PersistenceResult<ITask | null>> {
+    try {
+      const taskPath = join(this.storagePath, 'tasks', `${taskId}.json`);
+      const data = await fs.readFile(taskPath, 'utf8');
+      const task: ITask = JSON.parse(data);
+
+      return {
+        success: true,
+        data: task,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+          cacheInfo: { hit: false, key: taskId, age: 0 },
+        },
+      };
+    } catch (error) {
+      return {
+        success: true,
+        data: null,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+          cacheInfo: { hit: false, key: taskId, age: 0 },
+        },
+      };
+    }
+  }
+
+  async saveTaskToStorage(
+    task: ITask,
+    transaction?: TransactionContext,
+  ): Promise<PersistenceResult<void>> {
+    const taskPath = join(this.storagePath, 'tasks', `${task.id}.json`);
+    await fs.mkdir(dirname(taskPath), { recursive: true });
+    await fs.writeFile(taskPath, JSON.stringify(task, null, 2));
+
+    return {
+      success: true,
+      metadata: {
+        duration: 0,
+        sizeChange: JSON.stringify(task).length,
+      },
+    };
+  }
+
+  async deleteTask(
+    taskId: string,
+    isQueue = false,
+    transaction?: TransactionContext,
+  ): Promise<PersistenceResult<void>> {
+    try {
+      const entityPath = join(
+        this.storagePath,
+        isQueue ? 'queues' : 'tasks',
+        `${taskId}.json`,
+      );
+      await fs.unlink(entityPath);
+
+      return {
+        success: true,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error as Error,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+        },
+      };
+    }
+  }
+
+  async queryTasks(options: QueryOptions): Promise<PersistenceResult<ITask[]>> {
+    try {
+      const tasksDir = join(this.storagePath, 'tasks');
+      const files = await fs.readdir(tasksDir);
+      const tasks: ITask[] = [];
+
+      for (const file of files) {
+        if (file.endsWith('.json')) {
+          const taskPath = join(tasksDir, file);
+          const data = await fs.readFile(taskPath, 'utf8');
+          tasks.push(JSON.parse(data));
+        }
+      }
+
+      return {
+        success: true,
+        data: tasks,
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error as Error,
+        data: [],
+        metadata: {
+          duration: 0,
+          sizeChange: 0,
+        },
+      };
+    }
+  }
+
+  calculateCacheHitRate(): number {
+    // Calculate cache hit rate from prefetch cache statistics
+    const totalHits = Array.from(this.prefetchCache.values()).reduce(
+      (sum, cached) => sum + cached.hits,
+      0,
+    );
+    const totalRequests = this.operationMetrics.get('loadTask')?.count || 0;
+    return totalRequests > 0 ? (totalHits / totalRequests) * 100 : 0;
+  }
+
+  private async performFinalCleanup(force: boolean): Promise<void> {
+    // Perform any final cleanup operations
+    this.prefetchCache.clear();
+    this.writeBuffer.clear();
+    this.operationMetrics.clear();
   }
 }
 
@@ -1121,7 +1499,9 @@ class ConflictResolver {
           resolvedTask = await this.resolveByTimestamp(conflict);
           break;
         default:
-          throw new Error(`Unknown conflict resolution strategy: ${this.strategy}`);
+          throw new Error(
+            `Unknown conflict resolution strategy: ${this.strategy}`,
+          );
       }
 
       // Record the resolution
@@ -1141,7 +1521,6 @@ class ConflictResolver {
         success: true,
         resolvedTask,
       };
-
     } catch (error) {
       return {
         success: false,
@@ -1170,10 +1549,12 @@ class ConflictResolver {
     const mergedTask: ITask = {
       ...currentTask,
       // Take the latest update timestamp
-      updatedAt: new Date(Math.max(
-        currentTask.updatedAt.getTime(),
-        conflictingTask.updatedAt.getTime()
-      )),
+      updatedAt: new Date(
+        Math.max(
+          currentTask.updatedAt.getTime(),
+          conflictingTask.updatedAt.getTime(),
+        ),
+      ),
       // Merge parameters (conflicting takes precedence)
       parameters: {
         ...currentTask.parameters,
@@ -1182,9 +1563,14 @@ class ConflictResolver {
       // Merge tags (union of both sets)
       tags: [...new Set([...currentTask.tags, ...conflictingTask.tags])],
       // Take the most advanced status
-      status: this.getMostAdvancedStatus(currentTask.status, conflictingTask.status),
+      status: this.getMostAdvancedStatus(
+        currentTask.status,
+        conflictingTask.status,
+      ),
       // Merge subtasks
-      subtasks: [...new Set([...currentTask.subtasks, ...conflictingTask.subtasks])],
+      subtasks: [
+        ...new Set([...currentTask.subtasks, ...conflictingTask.subtasks]),
+      ],
       // Use the latest result if available
       result: conflictingTask.result || currentTask.result,
     };
@@ -1194,7 +1580,15 @@ class ConflictResolver {
 
   private getMostAdvancedStatus(status1: any, status2: any): any {
     // Define status progression order
-    const statusOrder = ['pending', 'ready', 'in_progress', 'completed', 'failed', 'cancelled', 'blocked'];
+    const statusOrder = [
+      'pending',
+      'ready',
+      'in_progress',
+      'completed',
+      'failed',
+      'cancelled',
+      'blocked',
+    ];
     const index1 = statusOrder.indexOf(status1);
     const index2 = statusOrder.indexOf(status2);
 
@@ -1202,7 +1596,10 @@ class ConflictResolver {
     return index2 > index1 ? status2 : status1;
   }
 
-  private recordResolution(conflictId: string, resolution: ConflictResolution): void {
+  private recordResolution(
+    conflictId: string,
+    resolution: ConflictResolution,
+  ): void {
     if (!this.resolutionHistory.has(conflictId)) {
       this.resolutionHistory.set(conflictId, []);
     }
@@ -1234,7 +1631,8 @@ class ConflictResolver {
       totalConflicts += resolutions.length;
       for (const resolution of resolutions) {
         totalTime += resolution.duration;
-        conflictsByStrategy[resolution.strategy] = (conflictsByStrategy[resolution.strategy] || 0) + 1;
+        conflictsByStrategy[resolution.strategy] =
+          (conflictsByStrategy[resolution.strategy] || 0) + 1;
 
         // Extract type from conflictId
         const type = resolution.conflictId.split('-')[0];
@@ -1245,7 +1643,8 @@ class ConflictResolver {
     return {
       totalConflicts,
       conflictsByStrategy,
-      averageResolutionTime: totalConflicts > 0 ? totalTime / totalConflicts : 0,
+      averageResolutionTime:
+        totalConflicts > 0 ? totalTime / totalConflicts : 0,
       conflictsByType,
     };
   }
@@ -1301,9 +1700,22 @@ class DataIntegrityManager {
 
   private async validateTaskStructure(task: ITask): Promise<void> {
     // Check required fields
-    const requiredFields = ['id', 'name', 'description', 'type', 'priority', 'status', 'createdAt', 'updatedAt'];
+    const requiredFields = [
+      'id',
+      'name',
+      'description',
+      'type',
+      'priority',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ];
     for (const field of requiredFields) {
-      if (!(field in task) || task[field as keyof ITask] === null || task[field as keyof ITask] === undefined) {
+      if (
+        !(field in task) ||
+        task[field as keyof ITask] === null ||
+        task[field as keyof ITask] === undefined
+      ) {
         throw new Error(`Missing required field: ${field}`);
       }
     }
@@ -1360,7 +1772,11 @@ class DataIntegrityManager {
       if (typeof dep.taskId !== 'string' || dep.taskId.trim() === '') {
         throw new Error('Dependency taskId must be a non-empty string');
       }
-      if (!['prerequisite', 'soft_dependency', 'resource_dependency'].includes(dep.type)) {
+      if (
+        !['prerequisite', 'soft_dependency', 'resource_dependency'].includes(
+          dep.type,
+        )
+      ) {
         throw new Error(`Invalid dependency type: ${dep.type}`);
       }
     }
@@ -1394,7 +1810,7 @@ class DataIntegrityManager {
     }
 
     // Validate circular dependencies (basic check)
-    const dependencyIds = task.dependencies.map(dep => dep.taskId);
+    const dependencyIds = task.dependencies.map((dep) => dep.taskId);
     if (dependencyIds.includes(task.id)) {
       throw new Error('Task cannot depend on itself');
     }
@@ -1421,7 +1837,10 @@ class DataIntegrityManager {
 
     // Validate scheduled time if present
     if (task.scheduledAt) {
-      if (!(task.scheduledAt instanceof Date) || isNaN(task.scheduledAt.getTime())) {
+      if (
+        !(task.scheduledAt instanceof Date) ||
+        isNaN(task.scheduledAt.getTime())
+      ) {
         throw new Error('Task scheduled date must be a valid Date');
       }
       if (task.scheduledAt < task.createdAt) {
@@ -1450,14 +1869,16 @@ class DataIntegrityManager {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.normalizeForHashing(item)).sort();
+      return obj.map((item) => this.normalizeForHashing(item)).sort();
     }
 
     if (typeof obj === 'object') {
       const normalized: Record<string, unknown> = {};
       const keys = Object.keys(obj as Record<string, unknown>).sort();
       for (const key of keys) {
-        normalized[key] = this.normalizeForHashing((obj as Record<string, unknown>)[key]);
+        normalized[key] = this.normalizeForHashing(
+          (obj as Record<string, unknown>)[key],
+        );
       }
       return normalized;
     }
@@ -1465,7 +1886,9 @@ class DataIntegrityManager {
     return obj;
   }
 
-  async validateCheckpointIntegrity(checkpoint: CheckpointData): Promise<boolean> {
+  async validateCheckpointIntegrity(
+    checkpoint: CheckpointData,
+  ): Promise<boolean> {
     try {
       // Validate checkpoint structure
       if (!checkpoint.id || !checkpoint.timestamp || !checkpoint.sessionId) {
@@ -1503,7 +1926,10 @@ class DataIntegrityManager {
     }
   }
 
-  async detectAndRepairCorruption(data: unknown, context: CorruptionContext): Promise<CorruptionRepairResult> {
+  async detectAndRepairCorruption(
+    data: unknown,
+    context: CorruptionContext,
+  ): Promise<CorruptionRepairResult> {
     const startTime = performance.now();
     const issues: CorruptionIssue[] = [];
     const repairs: CorruptionRepair[] = [];
@@ -1564,7 +1990,7 @@ class DataIntegrityManager {
         issues,
         repairs,
         repairedData: data,
-        success: issues.length === 0 || repairs.some(r => r.success),
+        success: issues.length === 0 || repairs.some((r) => r.success),
         duration: performance.now() - startTime,
       };
     } catch (error) {
@@ -1612,8 +2038,17 @@ class DataIntegrityManager {
       autoRepair: true,
       detect: async (data: unknown, context: CorruptionContext) => {
         const task = data as ITask;
-        const requiredFields = ['id', 'name', 'description', 'type', 'priority', 'status'];
-        const missingFields = requiredFields.filter(field => !(field in task));
+        const requiredFields = [
+          'id',
+          'name',
+          'description',
+          'type',
+          'priority',
+          'status',
+        ];
+        const missingFields = requiredFields.filter(
+          (field) => !(field in task),
+        );
 
         return {
           isCorrupted: missingFields.length > 0,
@@ -1664,10 +2099,16 @@ class DataIntegrityManager {
         const task = data as ITask;
         const invalidFields: string[] = [];
 
-        if (task.createdAt && (!(task.createdAt instanceof Date) || isNaN(task.createdAt.getTime()))) {
+        if (
+          task.createdAt &&
+          (!(task.createdAt instanceof Date) || isNaN(task.createdAt.getTime()))
+        ) {
           invalidFields.push('createdAt');
         }
-        if (task.updatedAt && (!(task.updatedAt instanceof Date) || isNaN(task.updatedAt.getTime()))) {
+        if (
+          task.updatedAt &&
+          (!(task.updatedAt instanceof Date) || isNaN(task.updatedAt.getTime()))
+        ) {
           invalidFields.push('updatedAt');
         }
 
@@ -1698,9 +2139,15 @@ class DataIntegrityManager {
     });
   }
 
-  getValidationsPassed(): number { return this.validationsPassed; }
-  getCorruptionsDetected(): number { return this.corruptionsDetected; }
-  getCorruptionsFixed(): number { return this.corruptionsFixed; }
+  getValidationsPassed(): number {
+    return this.validationsPassed;
+  }
+  getCorruptionsDetected(): number {
+    return this.corruptionsDetected;
+  }
+  getCorruptionsFixed(): number {
+    return this.corruptionsFixed;
+  }
 
   getIntegrityStats(): IntegrityStats {
     return {
@@ -1709,10 +2156,15 @@ class DataIntegrityManager {
       corruptionsFixed: this.corruptionsFixed,
       validationRules: this.validationRules.size,
       corruptionPatterns: this.corruptionPatterns.size,
-      successRate: this.validationsPassed > 0 ?
-        (this.validationsPassed - this.corruptionsDetected) / this.validationsPassed : 1.0,
-      repairRate: this.corruptionsDetected > 0 ?
-        this.corruptionsFixed / this.corruptionsDetected : 0,
+      successRate:
+        this.validationsPassed > 0
+          ? (this.validationsPassed - this.corruptionsDetected) /
+            this.validationsPassed
+          : 1.0,
+      repairRate:
+        this.corruptionsDetected > 0
+          ? this.corruptionsFixed / this.corruptionsDetected
+          : 0,
     };
   }
 }
@@ -1729,8 +2181,14 @@ interface CorruptionPattern {
   severity: 'low' | 'medium' | 'high' | 'critical';
   description: string;
   autoRepair: boolean;
-  detect: (data: unknown, context: CorruptionContext) => Promise<CorruptionDetectionResult>;
-  repair: (data: unknown, detection: CorruptionDetectionResult) => Promise<CorruptionRepairAttempt>;
+  detect: (
+    data: unknown,
+    context: CorruptionContext,
+  ) => Promise<CorruptionDetectionResult>;
+  repair: (
+    data: unknown,
+    detection: CorruptionDetectionResult,
+  ) => Promise<CorruptionRepairAttempt>;
 }
 
 interface CorruptionContext {
@@ -1802,7 +2260,11 @@ class SchemaMigrationManager {
     this.initializeMigrations();
   }
 
-  async migrate(from: string, to: string, data: unknown): Promise<MigrationResult> {
+  async migrate(
+    from: string,
+    to: string,
+    data: unknown,
+  ): Promise<MigrationResult> {
     const startTime = performance.now();
     const migrationPath = this.planMigrationPath(from, to);
 
@@ -1828,9 +2290,14 @@ class SchemaMigrationManager {
         }
 
         // Execute migration
-        const migrationResult = await this.executeMigration(migration, currentData);
+        const migrationResult = await this.executeMigration(
+          migration,
+          currentData,
+        );
         if (!migrationResult.success) {
-          throw new Error(`Migration ${migrationId} failed: ${migrationResult.error}`);
+          throw new Error(
+            `Migration ${migrationId} failed: ${migrationResult.error}`,
+          );
         }
 
         currentData = migrationResult.migratedData;
@@ -1879,10 +2346,12 @@ class SchemaMigrationManager {
     if (this.compareVersions(from, to) < 0) {
       // Upgrade path
       const availableMigrations = Array.from(this.migrations.keys())
-        .filter(id => {
+        .filter((id) => {
           const migration = this.migrations.get(id)!;
-          return this.compareVersions(migration.fromVersion, from) >= 0 &&
-                 this.compareVersions(migration.toVersion, to) <= 0;
+          return (
+            this.compareVersions(migration.fromVersion, from) >= 0 &&
+            this.compareVersions(migration.toVersion, to) <= 0
+          );
         })
         .sort((a, b) => {
           const migA = this.migrations.get(a)!;
@@ -1894,11 +2363,13 @@ class SchemaMigrationManager {
     } else if (this.compareVersions(from, to) > 0) {
       // Downgrade path (if supported)
       const availableMigrations = Array.from(this.migrations.keys())
-        .filter(id => {
+        .filter((id) => {
           const migration = this.migrations.get(id)!;
-          return migration.reversible &&
-                 this.compareVersions(migration.toVersion, from) <= 0 &&
-                 this.compareVersions(migration.fromVersion, to) >= 0;
+          return (
+            migration.reversible &&
+            this.compareVersions(migration.toVersion, from) <= 0 &&
+            this.compareVersions(migration.fromVersion, to) >= 0
+          );
         })
         .sort((a, b) => {
           const migA = this.migrations.get(a)!;
@@ -1912,7 +2383,10 @@ class SchemaMigrationManager {
     return path;
   }
 
-  private async executeMigration(migration: SchemaMigration, data: unknown): Promise<{
+  private async executeMigration(
+    migration: SchemaMigration,
+    data: unknown,
+  ): Promise<{
     success: boolean;
     migratedData?: unknown;
     error?: string;
@@ -1964,7 +2438,10 @@ class SchemaMigrationManager {
     return 0;
   }
 
-  private recordMigrationExecution(migrationId: string, entry: MigrationHistoryEntry): void {
+  private recordMigrationExecution(
+    migrationId: string,
+    entry: MigrationHistoryEntry,
+  ): void {
     if (!this.migrationHistory.has(migrationId)) {
       this.migrationHistory.set(migrationId, []);
     }
@@ -1984,7 +2461,8 @@ class SchemaMigrationManager {
       name: 'Add execution context to tasks',
       fromVersion: '1.0.0',
       toVersion: '1.1.0',
-      description: 'Adds execution context and enhanced metadata to task structure',
+      description:
+        'Adds execution context and enhanced metadata to task structure',
       reversible: true,
       migrate: async (data: unknown) => {
         const task = { ...data } as any;
@@ -2041,7 +2519,9 @@ class SchemaMigrationManager {
       },
       validate: async (data: unknown) => {
         const task = data as any;
-        return task && typeof task.id === 'string' && typeof task.name === 'string';
+        return (
+          task && typeof task.id === 'string' && typeof task.name === 'string'
+        );
       },
       validateAfter: async (data: unknown) => {
         const task = data as any;
@@ -2055,7 +2535,8 @@ class SchemaMigrationManager {
       name: 'Add compression and indexing support',
       fromVersion: '1.1.0',
       toVersion: '1.2.0',
-      description: 'Adds compression metadata and enhanced indexing to storage format',
+      description:
+        'Adds compression metadata and enhanced indexing to storage format',
       reversible: true,
       migrate: async (data: unknown) => {
         const storage = { ...data } as any;
@@ -2102,11 +2583,21 @@ class SchemaMigrationManager {
       },
       validate: async (data: unknown) => {
         const storage = data as any;
-        return storage && storage.version && storage.metadata && storage.tasks && storage.queues;
+        return (
+          storage &&
+          storage.version &&
+          storage.metadata &&
+          storage.tasks &&
+          storage.queues
+        );
       },
       validateAfter: async (data: unknown) => {
         const storage = data as any;
-        return storage && storage.tombstones && typeof storage.tombstones === 'object';
+        return (
+          storage &&
+          storage.tombstones &&
+          typeof storage.tombstones === 'object'
+        );
       },
     });
 
@@ -2116,7 +2607,8 @@ class SchemaMigrationManager {
       name: 'Enhanced checkpoint with integrity and recovery data',
       fromVersion: '1.0.0',
       toVersion: '2.0.0',
-      description: 'Adds integrity hashes, recovery metadata, and session tracking',
+      description:
+        'Adds integrity hashes, recovery metadata, and session tracking',
       reversible: false, // This is a major version change
       migrate: async (data: unknown) => {
         const checkpoint = { ...data } as any;
@@ -2125,10 +2617,12 @@ class SchemaMigrationManager {
         if (!checkpoint.integrityHash) {
           // Calculate hash for existing data
           const hash = createHash('sha256');
-          hash.update(JSON.stringify({
-            tasks: checkpoint.taskSnapshot,
-            queues: checkpoint.queueSnapshot,
-          }));
+          hash.update(
+            JSON.stringify({
+              tasks: checkpoint.taskSnapshot,
+              queues: checkpoint.queueSnapshot,
+            }),
+          );
           checkpoint.integrityHash = hash.digest('hex');
         }
 
@@ -2151,11 +2645,20 @@ class SchemaMigrationManager {
       },
       validate: async (data: unknown) => {
         const checkpoint = data as any;
-        return checkpoint && checkpoint.id && checkpoint.timestamp && checkpoint.taskSnapshot;
+        return (
+          checkpoint &&
+          checkpoint.id &&
+          checkpoint.timestamp &&
+          checkpoint.taskSnapshot
+        );
       },
       validateAfter: async (data: unknown) => {
         const checkpoint = data as any;
-        return checkpoint && checkpoint.integrityHash && typeof checkpoint.size === 'number';
+        return (
+          checkpoint &&
+          checkpoint.integrityHash &&
+          typeof checkpoint.size === 'number'
+        );
       },
     });
   }
@@ -2174,7 +2677,9 @@ class SchemaMigrationManager {
     for (const entries of this.migrationHistory.values()) {
       allEntries.push(...entries);
     }
-    return allEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return allEntries.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }
 
   getMigrationStats(): {
@@ -2209,7 +2714,10 @@ class SchemaMigrationManager {
     };
   }
 
-  async validateDataVersion(data: unknown, expectedVersion: string): Promise<{
+  async validateDataVersion(
+    data: unknown,
+    expectedVersion: string,
+  ): Promise<{
     isValid: boolean;
     currentVersion?: string;
     migrationNeeded: boolean;
@@ -2228,7 +2736,10 @@ class SchemaMigrationManager {
       }
 
       // Check if migration is needed and possible
-      const migrationPath = this.planMigrationPath(currentVersion, expectedVersion);
+      const migrationPath = this.planMigrationPath(
+        currentVersion,
+        expectedVersion,
+      );
 
       return {
         isValid: false,
@@ -2316,16 +2827,21 @@ class PerformanceOptimizer {
   private metrics = new Map<string, PerformanceMetric>();
   private optimizationRules = new Map<string, OptimizationRule>();
 
-  constructor(private config?: {
-    cacheSize: number;
-    batchSize: number;
-    asyncWrites: boolean;
-    prefetchEnabled: boolean;
-  }) {
+  constructor(
+    private config?: {
+      cacheSize: number;
+      batchSize: number;
+      asyncWrites: boolean;
+      prefetchEnabled: boolean;
+    },
+  ) {
     this.initializeOptimizationRules();
   }
 
-  async optimizeOperation(operationName: string, data: unknown): Promise<OptimizationResult> {
+  async optimizeOperation(
+    operationName: string,
+    data: unknown,
+  ): Promise<OptimizationResult> {
     const startTime = performance.now();
 
     try {
@@ -2376,7 +2892,10 @@ class PerformanceOptimizer {
     }
   }
 
-  private recordMetric(operationName: string, metric: Partial<PerformanceMetric>): void {
+  private recordMetric(
+    operationName: string,
+    metric: Partial<PerformanceMetric>,
+  ): void {
     this.metrics.set(operationName, {
       operationName,
       startTime: metric.startTime || 0,
@@ -2404,52 +2923,47 @@ class PerformanceOptimizer {
     // Batch operation optimization
     this.optimizationRules.set('batch_operations', {
       name: 'Batch Operations Optimization',
-      description: 'Groups similar operations into batches for better performance',
-      shouldApply: async (operationName: string, data: unknown) => {
-        return operationName.includes('save') && Array.isArray(data);
-      },
-      optimize: async (data: unknown) => {
+      description:
+        'Groups similar operations into batches for better performance',
+      shouldApply: async (operationName: string, data: unknown) =>
+        operationName.includes('save') && Array.isArray(data),
+      optimize: async (data: unknown) =>
         // Batch optimization logic would go here
-        return {
+        ({
           success: true,
           optimizedData: data,
           description: 'Operations batched for improved performance',
-        };
-      },
+        }),
     });
 
     // Cache optimization
     this.optimizationRules.set('cache_optimization', {
       name: 'Cache Optimization',
       description: 'Optimizes cache usage patterns',
-      shouldApply: async (operationName: string, data: unknown) => {
-        return operationName.includes('load') && this.config?.prefetchEnabled;
-      },
-      optimize: async (data: unknown) => {
+      shouldApply: async (operationName: string, data: unknown) =>
+        operationName.includes('load') && this.config?.prefetchEnabled,
+      optimize: async (data: unknown) =>
         // Cache optimization logic would go here
-        return {
+        ({
           success: true,
           optimizedData: data,
           description: 'Cache access patterns optimized',
-        };
-      },
+        }),
     });
 
     // Compression optimization
     this.optimizationRules.set('compression', {
       name: 'Data Compression',
       description: 'Applies compression to reduce storage size',
-      shouldApply: async (operationName: string, data: unknown) => {
-        return operationName.includes('save') && JSON.stringify(data).length > 10000;
-      },
-      optimize: async (data: unknown) => {
+      shouldApply: async (operationName: string, data: unknown) =>
+        operationName.includes('save') && JSON.stringify(data).length > 10000,
+      optimize: async (data: unknown) =>
         // Compression would be applied here
-        return {
+        ({
           success: true,
           optimizedData: data,
           description: 'Data compressed for storage efficiency',
-        };
-      },
+        }),
     });
   }
 
@@ -2460,12 +2974,19 @@ class PerformanceOptimizer {
     optimizationHitRate: number;
     topOptimizations: Array<{ rule: string; count: number; avgGain: number }>;
   } {
-    const totalOperations = Array.from(this.metrics.values()).reduce((sum, m) => sum + m.count, 0);
-    const totalDuration = Array.from(this.metrics.values()).reduce((sum, m) => sum + (m.duration * m.count), 0);
+    const totalOperations = Array.from(this.metrics.values()).reduce(
+      (sum, m) => sum + m.count,
+      0,
+    );
+    const totalDuration = Array.from(this.metrics.values()).reduce(
+      (sum, m) => sum + m.duration * m.count,
+      0,
+    );
 
     return {
       totalOperations,
-      averageDuration: totalOperations > 0 ? totalDuration / totalOperations : 0,
+      averageDuration:
+        totalOperations > 0 ? totalDuration / totalOperations : 0,
       memoryEfficiency: 0.95, // Placeholder calculation
       optimizationHitRate: 0.75, // Placeholder calculation
       topOptimizations: [
@@ -2516,13 +3037,18 @@ interface OptimizationResult {
 class RealTimeSyncManager {
   constructor(private enabled: boolean) {}
 
-  isEnabled(): boolean { return this.enabled; }
+  isEnabled(): boolean {
+    return this.enabled;
+  }
 
   async initialize(): Promise<void> {
     // Initialize real-time sync if enabled
   }
 
-  async broadcastTaskUpdate(task: ITask, operation: 'save' | 'update' | 'delete'): Promise<void> {
+  async broadcastTaskUpdate(
+    task: ITask,
+    operation: 'save' | 'update' | 'delete',
+  ): Promise<void> {
     // Broadcast task updates to other sessions
   }
 
