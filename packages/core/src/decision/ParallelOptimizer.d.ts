@@ -306,8 +306,8 @@ export declare const ParallelOptimizationConfigSchema: z.ZodObject<
   'strip',
   z.ZodTypeAny,
   {
-    maxConcurrency: number;
     strategy: ParallelStrategy;
+    maxConcurrency: number;
     resourcePools: Map<
       string,
       {
@@ -327,8 +327,8 @@ export declare const ParallelOptimizationConfigSchema: z.ZodObject<
     learningRate: number;
   },
   {
-    maxConcurrency: number;
     strategy: ParallelStrategy;
+    maxConcurrency: number;
     resourcePools: Map<
       string,
       {
@@ -355,30 +355,30 @@ export declare const ParallelExecutionGroupSchema: z.ZodObject<
     resourceAllocations: z.ZodMap<z.ZodString, z.ZodNumber>;
     estimatedDuration: z.ZodNumber;
     priority: z.ZodNumber;
-    satisfiesDependencies: z.ZodArray<z.ZodAny, 'many'>;
+    satisfiesDependencies: z.ZodArray<z.ZodType<TaskDependency>, 'many'>;
     confidence: z.ZodNumber;
     risks: z.ZodArray<z.ZodString, 'many'>;
   },
   'strip',
   z.ZodTypeAny,
   {
-    id: string;
-    priority: number;
     tasks: string[];
+    priority: number;
+    id: string;
     estimatedDuration: number;
     confidence: number;
     resourceAllocations: Map<string, number>;
-    satisfiesDependencies: any[];
+    satisfiesDependencies: TaskDependency[];
     risks: string[];
   },
   {
-    id: string;
-    priority: number;
     tasks: string[];
+    priority: number;
+    id: string;
     estimatedDuration: number;
     confidence: number;
     resourceAllocations: Map<string, number>;
-    satisfiesDependencies: any[];
+    satisfiesDependencies: TaskDependency[];
     risks: string[];
   }
 >;

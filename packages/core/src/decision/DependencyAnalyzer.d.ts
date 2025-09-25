@@ -215,14 +215,14 @@ export declare const DependencyAnalysisConfigSchema: z.ZodObject<
       'strip',
       z.ZodTypeAny,
       {
-        resource: number;
         pattern: number;
+        resource: number;
         temporal: number;
         semantic: number;
       },
       {
-        resource: number;
         pattern: number;
+        resource: number;
         temporal: number;
         semantic: number;
       }
@@ -234,24 +234,24 @@ export declare const DependencyAnalysisConfigSchema: z.ZodObject<
   'strip',
   z.ZodTypeAny,
   {
-    maxAnalysisDepth: number;
     cacheSize: number;
+    maxAnalysisDepth: number;
     enableAutoLearning: boolean;
     detectionWeights: {
-      resource: number;
       pattern: number;
+      resource: number;
       temporal: number;
       semantic: number;
     };
     autoCreateThreshold: number;
   },
   {
-    maxAnalysisDepth: number;
     cacheSize: number;
+    maxAnalysisDepth: number;
     enableAutoLearning: boolean;
     detectionWeights: {
-      resource: number;
       pattern: number;
+      resource: number;
       temporal: number;
       semantic: number;
     };
@@ -260,62 +260,85 @@ export declare const DependencyAnalysisConfigSchema: z.ZodObject<
 >;
 export declare const DependencyAnalysisResultSchema: z.ZodObject<
   {
-    suggestedDependencies: z.ZodArray<z.ZodAny, 'many'>;
+    suggestedDependencies: z.ZodArray<z.ZodType<TaskDependency>, 'many'>;
     confidenceScores: z.ZodMap<z.ZodString, z.ZodNumber>;
-    conflicts: z.ZodArray<z.ZodAny, 'many'>;
+    conflicts: z.ZodArray<z.ZodType<DependencyConflict>, 'many'>;
     performanceImpact: z.ZodObject<
       {
         criticalPathLength: z.ZodNumber;
         totalExecutionTime: z.ZodNumber;
         parallelizationPotential: z.ZodNumber;
         resourceUtilization: z.ZodNumber;
-        bottlenecks: z.ZodArray<z.ZodAny, 'many'>;
+        bottlenecks: z.ZodArray<
+          z.ZodObject<{
+            taskId: z.ZodType<TaskId>;
+            type: z.ZodEnum<['dependency', 'resource', 'duration']>;
+            impact: z.ZodNumber;
+          }>,
+          'many'
+        >;
       },
       'strip',
       z.ZodTypeAny,
       {
-        bottlenecks: any[];
+        bottlenecks: Array<{
+          taskId: TaskId;
+          type: 'dependency' | 'resource' | 'duration';
+          impact: number;
+        }>;
+        resourceUtilization: number;
         criticalPathLength: number;
         totalExecutionTime: number;
         parallelizationPotential: number;
-        resourceUtilization: number;
       },
       {
-        bottlenecks: any[];
+        bottlenecks: Array<{
+          taskId: TaskId;
+          type: 'dependency' | 'resource' | 'duration';
+          impact: number;
+        }>;
+        resourceUtilization: number;
         criticalPathLength: number;
         totalExecutionTime: number;
         parallelizationPotential: number;
-        resourceUtilization: number;
       }
     >;
-    optimizations: z.ZodArray<z.ZodAny, 'many'>;
+    optimizations: z.ZodArray<z.ZodType<DependencyOptimization>, 'many'>;
   },
   'strip',
   z.ZodTypeAny,
   {
-    conflicts: any[];
-    optimizations: any[];
+    conflicts: DependencyConflict[];
     performanceImpact: {
-      bottlenecks: any[];
+      bottlenecks: Array<{
+        taskId: TaskId;
+        type: 'dependency' | 'resource' | 'duration';
+        impact: number;
+      }>;
+      resourceUtilization: number;
       criticalPathLength: number;
       totalExecutionTime: number;
       parallelizationPotential: number;
-      resourceUtilization: number;
     };
-    suggestedDependencies: any[];
+    optimizations: DependencyOptimization[];
+    suggestedDependencies: TaskDependency[];
     confidenceScores: Map<string, number>;
   },
   {
-    conflicts: any[];
-    optimizations: any[];
+    conflicts: DependencyConflict[];
     performanceImpact: {
-      bottlenecks: any[];
+      bottlenecks: Array<{
+        taskId: TaskId;
+        type: 'dependency' | 'resource' | 'duration';
+        impact: number;
+      }>;
+      resourceUtilization: number;
       criticalPathLength: number;
       totalExecutionTime: number;
       parallelizationPotential: number;
-      resourceUtilization: number;
     };
-    suggestedDependencies: any[];
+    optimizations: DependencyOptimization[];
+    suggestedDependencies: TaskDependency[];
     confidenceScores: Map<string, number>;
   }
 >;
