@@ -301,6 +301,9 @@ export class DecisionDependencyGraph {
             confidence: 0.6,
           });
           break;
+        default:
+          // Unknown bottleneck type, skip
+          break;
       }
     }
     // Analyze weak dependencies for removal
@@ -356,7 +359,7 @@ export class DecisionDependencyGraph {
     if (this.graph.nodes.size === 0) return 1;
     let totalFlexibility = 0;
     let nodeCount = 0;
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [_taskId, node] of this.graph.nodes) {
       const flexibility = node.decisionMetadata.flexibility;
       totalFlexibility += flexibility;
       nodeCount++;
@@ -404,6 +407,9 @@ export class DecisionDependencyGraph {
             change.dependency,
             change.newConfidence || 1.0,
           );
+          break;
+        default:
+          // Unknown change type, skip
           break;
       }
     }
@@ -642,7 +648,7 @@ export class DecisionDependencyGraph {
     }
     // Check for high-degree nodes
     let highDegreeNodes = 0;
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [_taskId, node] of this.graph.nodes) {
       const degree = node.dependencies.length + node.dependents.length;
       if (degree > 5) {
         highDegreeNodes++;
@@ -657,8 +663,8 @@ export class DecisionDependencyGraph {
     }
     // Check for low-confidence dependencies
     let lowConfidenceDeps = 0;
-    for (const [taskId, node] of this.graph.nodes) {
-      for (const [depId, confidence] of node.decisionMetadata
+    for (const [_taskId, node] of this.graph.nodes) {
+      for (const [_depId, confidence] of node.decisionMetadata
         .dependencyConfidence) {
         if (confidence < 0.6) {
           lowConfidenceDeps++;
@@ -710,11 +716,11 @@ export class DecisionDependencyGraph {
       typeRisk: dependency.type === 'hard' ? 0.3 : 0.1,
     };
   }
-  findAlternativeDependencies(dependency) {
+  findAlternativeDependencies(_dependency) {
     // Simplified - would implement more sophisticated alternative finding
     return [];
   }
-  generateDependencyAlternatives(dependency) {
+  generateDependencyAlternatives(_dependency) {
     return [
       {
         choice: 'Make dependency soft instead of hard',
@@ -923,7 +929,7 @@ export class DecisionDependencyGraph {
       tasksByCategory.get(category).push(taskId);
     }
     // Find small tasks in same category that could be merged
-    for (const [category, taskIds] of tasksByCategory) {
+    for (const [_category, taskIds] of tasksByCategory) {
       if (taskIds.length >= 2) {
         const smallTasks = taskIds.filter((id) => {
           const task = this.tasks.get(id);
@@ -959,7 +965,7 @@ export class DecisionDependencyGraph {
   restoreGraph(graph) {
     this.graph = graph;
   }
-  generateWhatIfRecommendations(impact, changes) {
+  generateWhatIfRecommendations(impact, _changes) {
     const recommendations = [];
     if (impact.timeChange < -60000) {
       // More than 1 minute improvement
@@ -1112,8 +1118,8 @@ export class DecisionDependencyGraph {
   getStatistics() {
     let totalConfidence = 0;
     let confidenceCount = 0;
-    for (const [taskId, node] of this.graph.nodes) {
-      for (const [depId, confidence] of node.decisionMetadata
+    for (const [_taskId, node] of this.graph.nodes) {
+      for (const [_depId, confidence] of node.decisionMetadata
         .dependencyConfidence) {
         totalConfidence += confidence;
         confidenceCount++;

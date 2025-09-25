@@ -5,7 +5,12 @@
  */
 
 import type { z } from 'zod';
-import type { TaskId, Task, TaskDependency } from '../task-management/types.js';
+import type {
+  TaskId,
+  Task,
+  TaskDependency,
+  DependencyEdge,
+} from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
 /**
  * Advanced dependency node with decision-making capabilities
@@ -305,7 +310,7 @@ export declare const DecisionDependencyNodeSchema: z.ZodObject<
     taskId: string;
     dependencies: string[];
     dependents: string[];
-    dependencyRelations: any[];
+    dependencyRelations: TaskDependency[];
     decisionMetadata: {
       impactScore: number;
       criticality: 'high' | 'critical' | 'low' | 'medium';
@@ -326,7 +331,7 @@ export declare const DecisionDependencyNodeSchema: z.ZodObject<
     taskId: string;
     dependencies: string[];
     dependents: string[];
-    dependencyRelations: any[];
+    dependencyRelations: TaskDependency[];
     decisionMetadata: {
       impactScore: number;
       criticality: 'high' | 'critical' | 'low' | 'medium';
@@ -365,11 +370,11 @@ export declare const GraphOptimizationSchema: z.ZodObject<
       z.ZodTypeAny,
       {
         tasks?: string[] | undefined;
-        edges?: any[] | undefined;
+        edges?: DependencyEdge[] | undefined;
       },
       {
         tasks?: string[] | undefined;
-        edges?: any[] | undefined;
+        edges?: DependencyEdge[] | undefined;
       }
     >;
     benefits: z.ZodObject<
@@ -411,7 +416,7 @@ export declare const GraphOptimizationSchema: z.ZodObject<
     confidence: number;
     targets: {
       tasks?: string[] | undefined;
-      edges?: any[] | undefined;
+      edges?: DependencyEdge[] | undefined;
     };
     benefits: {
       timeReduction: number;
@@ -432,7 +437,7 @@ export declare const GraphOptimizationSchema: z.ZodObject<
     confidence: number;
     targets: {
       tasks?: string[] | undefined;
-      edges?: any[] | undefined;
+      edges?: DependencyEdge[] | undefined;
     };
     benefits: {
       timeReduction: number;
