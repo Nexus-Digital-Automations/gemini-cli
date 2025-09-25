@@ -39,6 +39,7 @@ export interface Task {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  category?: string; // Task category for grouping and analysis
   dueDate?: string; // ISO date string
   assignee?: string;
   dependencies: string[]; // Array of task IDs
@@ -46,4 +47,19 @@ export interface Task {
   metadata: TaskMetadata;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  // Execution results and error handling
+  results?: Record<string, unknown>;
+  lastError?: string;
+  metrics?: {
+    startTime: Date;
+    endTime?: Date;
+    durationMs?: number;
+    tokenUsage?: number;
+    toolCallsCount?: number;
+    subAgentCount?: number;
+    errorCount?: number;
+    retryCount?: number;
+    memoryUsage?: number;
+    cpuUsage?: number;
+  };
 }

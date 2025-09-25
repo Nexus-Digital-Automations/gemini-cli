@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { DependencyGraph, DependencyNode, DependencyEdge, DependencyNodeId, DependencyEdgeId, CircularDependency, DependencyAnalysisResult, CriticalPath, ParallelGroup, OptimizationOpportunity, GraphValidationStatus, GraphValidationError, GraphValidationWarning, ViolationType, ViolationSeverity, NodeExecutionStatus, DependencyStatus, GraphErrorType, GraphWarningType, OptimizationType, OptimizationComplexity, Bottleneck, BreakingPoint } from '../types/Dependency';
+import { DependencyGraph, DependencyNode, DependencyEdge, DependencyNodeId, DependencyEdgeId, CircularDependency, DependencyAnalysisResult, CriticalPath, ParallelGroup, OptimizationOpportunity, GraphValidationStatus, GraphValidationError, GraphValidationWarning, ViolationType, ViolationSeverity, NodeExecutionStatus, DependencyStatus, GraphErrorType, GraphWarningType, OptimizationType, OptimizationComplexity, Bottleneck, BreakingPoint } from '../types/Dependency.js';
 /**
  * Advanced dependency analysis engine with intelligent graph processing
  */

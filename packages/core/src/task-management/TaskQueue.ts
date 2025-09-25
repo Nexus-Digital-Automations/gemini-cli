@@ -159,6 +159,22 @@ export interface Task {
   preConditions: string[];
   postConditions: string[];
 
+  // Execution results and error handling
+  results?: Record<string, unknown>;
+  lastError?: string;
+  metrics?: {
+    startTime: Date;
+    endTime?: Date;
+    durationMs?: number;
+    tokenUsage?: number;
+    toolCallsCount?: number;
+    subAgentCount?: number;
+    errorCount?: number;
+    retryCount?: number;
+    memoryUsage?: number;
+    cpuUsage?: number;
+  };
+
   // Monitoring
   progressCallback?: (progress: number, message: string) => void;
 

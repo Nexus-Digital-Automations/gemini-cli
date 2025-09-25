@@ -4,16 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority } from '../TaskStatusMonitor.js';
 // Mock logger
-jest.mock('../utils/logger.js', () => ({
-    Logger: jest.fn(() => ({
-        info: jest.fn(),
-        error: jest.fn(),
-        warning: jest.fn(),
-        debug: jest.fn(),
+vi.mock('../utils/logger.js', () => ({
+    Logger: vi.fn(() => ({
+        info: vi.fn(),
+        error: vi.fn(),
+        warning: vi.fn(),
+        debug: vi.fn(),
     })),
 }));
 describe('TaskStatusMonitor', () => {
@@ -45,7 +45,7 @@ describe('TaskStatusMonitor', () => {
             expect(task?.progress).toBe(0);
         });
         it('should emit task:registered event', async () => {
-            const eventListener = jest.fn();
+            const eventListener = vi.fn();
             monitor.on('task:registered', eventListener);
             const taskData = {
                 title: 'Event Test Task',
@@ -122,8 +122,8 @@ describe('TaskStatusMonitor', () => {
             expect(result).toBe(false);
         });
         it('should emit appropriate events on status change', async () => {
-            const statusChangeListener = jest.fn();
-            const completedListener = jest.fn();
+            const statusChangeListener = vi.fn();
+            const completedListener = vi.fn();
             monitor.on('task:status-changed', statusChangeListener);
             monitor.on('task:completed', completedListener);
             await monitor.updateTaskStatus(taskId, TaskStatus.COMPLETED);

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, jest } from 'vitest';
 import { SystemInitializer, SystemConfig } from '@google/gemini-cli-core/autonomous-tasks/SystemInitializer.js';
 import { TaskExecutionEngine, TaskType, TaskPriority } from '@google/gemini-cli-core/task-management/TaskExecutionEngine.js';
 import * as fs from 'node:fs/promises';
@@ -37,10 +37,10 @@ describe('Autonomous Task Management System E2E', () => {
     beforeEach(async () => {
         // Mock Config
         mockConfig = {
-            getModel: jest.fn().mockReturnValue('gemini-pro'),
-            getToolRegistry: jest.fn().mockReturnValue({}),
-            getDebugMode: jest.fn().mockReturnValue(false),
-            getSessionId: jest.fn().mockReturnValue('e2e-test-session'),
+            getModel: vi.fn().mockReturnValue('gemini-pro'),
+            getToolRegistry: vi.fn().mockReturnValue({}),
+            getDebugMode: vi.fn().mockReturnValue(false),
+            getSessionId: vi.fn().mockReturnValue('e2e-test-session'),
             storage: {},
         };
         // System configuration for E2E testing

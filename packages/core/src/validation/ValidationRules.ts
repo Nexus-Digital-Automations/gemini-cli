@@ -15,8 +15,8 @@ import {
   ValidationSeverity,
   ValidationCategory
 } from './ValidationFramework.js';
-import type { Task} from '../task-management/types.js';
-import { TaskResult, TaskStatus } from '../task-management/types.js';
+import type { Task, TaskResult } from '../task-management/types.js';
+import { TaskStatus } from '../task-management/TaskQueue.js';
 import type { TaskExecutionMetrics } from './TaskValidator.js';
 
 /**
@@ -605,7 +605,7 @@ export class ValidationRules {
       }];
     }
 
-    const validExecutionStatuses = [TaskStatus.PENDING, TaskStatus.READY, TaskStatus.IN_PROGRESS];
+    const validExecutionStatuses = [TaskStatus.PENDING, TaskStatus.QUEUED, TaskStatus.RUNNING];
     const invalidStatuses = [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED];
 
     if (invalidStatuses.includes(task.status)) {

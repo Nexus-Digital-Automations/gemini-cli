@@ -17,7 +17,8 @@ import { RollbackManager, RollbackTrigger, RollbackType } from './RollbackManage
 
 // Import task management types (using our types as they are compatible)
 import type { Task, TaskResult } from '../task-management/types.js';
-import { TaskStatus, TaskPriority } from '../task-management/types.js';
+import { TaskStatus } from '../task-management/TaskQueue.js';
+import { TaskPriority } from '../task-management/types.js';
 
 // Import existing task execution engine types
 import type { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';
@@ -517,7 +518,7 @@ export class ValidationIntegration extends EventEmitter {
     }
 
     // Phase 2: During execution monitoring (if task is running)
-    if (this.config.phases.duringExecution.enabled && task.status === TaskStatus.IN_PROGRESS) {
+    if (this.config.phases.duringExecution.enabled && task.status === TaskStatus.RUNNING) {
       result.duringExecution = await this.executeDuringExecutionMonitoring(task, executionMetrics);
       // Note: During execution doesn't affect overall pass/fail, just monitoring
     }

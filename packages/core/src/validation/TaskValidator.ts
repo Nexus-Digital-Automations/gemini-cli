@@ -9,7 +9,8 @@ import { Logger } from '../logger/Logger.js';
 import type { ValidationFramework, ValidationContext, ValidationResult} from './ValidationFramework.js';
 import { ValidationStatus, ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
 import type { Task, TaskResult} from '../task-management/types.js';
-import { TaskStatus, TaskPriority, DependencyType } from '../task-management/types.js';
+import { TaskStatus } from '../task-management/TaskQueue.js';
+import { TaskPriority, DependencyType } from '../task-management/types.js';
 
 /**
  * Task validation events for comprehensive monitoring

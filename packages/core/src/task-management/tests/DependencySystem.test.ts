@@ -5,18 +5,18 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { DependencyAnalysisEngine } from '../core/DependencyAnalysisEngine';
-import { DependencyGraphManager } from '../core/DependencyGraphManager';
+import { DependencyAnalysisEngine } from '../core/DependencyAnalysisEngine.js';
+import { DependencyGraphManager } from '../core/DependencyGraphManager.js';
 import {
   DependencyVisualizer,
   VisualizationFormat,
-} from '../visualization/DependencyVisualizer';
+} from '../visualization/DependencyVisualizer.js';
 import {
   ResourceAwareScheduler,
   ResourcePool,
   ResourceType,
-} from '../scheduling/ResourceAwareScheduler';
-import type { DependencyGraph } from '../types/Dependency';
+} from '../scheduling/ResourceAwareScheduler.js';
+import type { DependencyGraph } from '../types/Dependency.js';
 import {
   DependencyType,
   DependencyStrength,
@@ -24,14 +24,14 @@ import {
   GraphComplexity,
   ViolationType,
   ViolationSeverity,
-} from '../types/Dependency';
+} from '../types/Dependency.js';
 import type {
   Task,
   TaskPriority,
   TaskStatus,
   TaskCategory,
   TaskComplexity,
-} from '../types/Task';
+} from '../types/Task.js';
 
 /**
  * Test utilities for creating mock tasks and dependencies

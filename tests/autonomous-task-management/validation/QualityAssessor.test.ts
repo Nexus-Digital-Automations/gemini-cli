@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, beforeEach, afterEach, expect, jest } from '@jest/globals';
+import { describe, it, beforeEach, afterEach, expect, jest } from 'vitest';
 import { QualityAssessor, QualityAssessmentLevel, QualityAssessmentContext, QualityMetrics } from '../../../packages/core/src/validation/QualityAssessor.js';
 import { ValidationFramework, ValidationStatus } from '../../../packages/core/src/validation/ValidationFramework.js';
 import { Task, TaskResult, TaskStatus, TaskPriority } from '../../../packages/core/src/task-management/types.js';
 
 // Mock dependencies
-jest.mock('../../../packages/core/src/logger/Logger.js');
+vi.mock('../../../packages/core/src/logger/Logger.js');
 
 describe('QualityAssessor', () => {
   let qualityAssessor: QualityAssessor;
@@ -22,14 +22,14 @@ describe('QualityAssessor', () => {
   beforeEach(() => {
     // Create mock validation framework
     mockValidationFramework = {
-      validateTask: jest.fn(),
-      registerRule: jest.fn(),
-      unregisterRule: jest.fn(),
-      getRules: jest.fn(),
-      getRulesByCategory: jest.fn(),
-      isValidationRunning: jest.fn(),
-      cancelValidation: jest.fn(),
-      getStatistics: jest.fn(),
+      validateTask: vi.fn(),
+      registerRule: vi.fn(),
+      unregisterRule: vi.fn(),
+      getRules: vi.fn(),
+      getRulesByCategory: vi.fn(),
+      isValidationRunning: vi.fn(),
+      cancelValidation: vi.fn(),
+      getStatistics: vi.fn(),
     } as any;
 
     // Create sample task
@@ -103,7 +103,7 @@ describe('QualityAssessor', () => {
 
   afterEach(async () => {
     await qualityAssessor.cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Constructor and Initialization', () => {
@@ -188,8 +188,8 @@ describe('QualityAssessor', () => {
     });
 
     it('should emit assessment events', async () => {
-      const startedSpy = jest.fn();
-      const completedSpy = jest.fn();
+      const startedSpy = vi.fn();
+      const completedSpy = vi.fn();
 
       qualityAssessor.on('assessmentStarted', startedSpy);
       qualityAssessor.on('assessmentCompleted', completedSpy);
@@ -217,7 +217,7 @@ describe('QualityAssessor', () => {
         task: { ...sampleTask, id: '' }, // Invalid task ID
       };
 
-      const failedSpy = jest.fn();
+      const failedSpy = vi.fn();
       qualityAssessor.on('assessmentFailed', failedSpy);
 
       await expect(qualityAssessor.assessQuality(problematicContext, QualityAssessmentLevel.STANDARD))
@@ -626,7 +626,7 @@ describe('QualityAssessor', () => {
 
   describe('Custom Quality Assessors', () => {
     it('should register custom assessor', () => {
-      const customAssessor = jest.fn().mockResolvedValue({
+      const customAssessor = vi.fn().mockResolvedValue({
         customMetric: 0.85
       });
 
@@ -637,7 +637,7 @@ describe('QualityAssessor', () => {
     });
 
     it('should call custom assessor during assessment', async () => {
-      const customAssessor = jest.fn().mockResolvedValue({
+      const customAssessor = vi.fn().mockResolvedValue({
         functionalScore: 0.9
       });
 
@@ -649,7 +649,7 @@ describe('QualityAssessor', () => {
     });
 
     it('should handle custom assessor errors gracefully', async () => {
-      const failingAssessor = jest.fn().mockRejectedValue(new Error('Custom assessor failed'));
+      const failingAssessor = vi.fn().mockRejectedValue(new Error('Custom assessor failed'));
 
       qualityAssessor.registerCustomAssessor('failing-assessor', failingAssessor);
 
@@ -719,7 +719,7 @@ describe('QualityAssessor', () => {
     });
 
     it('should emit quality improvement events', async () => {
-      const improvementSpy = jest.fn();
+      const improvementSpy = vi.fn();
       qualityAssessor.on('qualityImproved', improvementSpy);
 
       // First assessment
@@ -780,7 +780,7 @@ describe('QualityAssessor', () => {
     it('should cleanup resources properly', async () => {
       // Create some state
       await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
-      qualityAssessor.registerCustomAssessor('cleanup-test', jest.fn());
+      qualityAssessor.registerCustomAssessor('cleanup-test', vi.fn());
 
       await qualityAssessor.cleanup();
 

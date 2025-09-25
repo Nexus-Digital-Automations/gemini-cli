@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { StructuredLogger, getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
 import type { TaskStatusUpdate, AgentStatus, TaskMetadata } from './TaskStatusMonitor.js';
 
 /**
@@ -57,7 +57,7 @@ export interface NotificationConfig {
  * with comprehensive filtering, batching, and delivery mechanisms.
  */
 export class StatusUpdateBroker extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private subscribers: Map<string, NotificationConfig>;
   private eventQueue: StatusEvent[];
   private batchedEvents: Map<string, StatusEvent[]>;
@@ -73,7 +73,7 @@ export class StatusUpdateBroker extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('StatusUpdateBroker');
+    this.logger = getComponentLogger('StatusUpdateBroker');
     this.subscribers = new Map();
     this.eventQueue = [];
     this.batchedEvents = new Map();

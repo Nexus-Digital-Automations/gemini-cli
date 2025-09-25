@@ -14,7 +14,7 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SelfManagingTaskQueue } from '../SelfManagingTaskQueue.js';
 import {
   RealtimeQueueMonitor,

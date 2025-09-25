@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import type {
   QualityAssuranceResult,
@@ -18,13 +18,14 @@ import {
 import { ValidationFramework, ValidationSeverity } from '../ValidationFramework.js';
 import type { TaskExecutionMetrics } from '../TaskValidator.js';
 import { TaskValidator } from '../TaskValidator.js';
-import type { Task, TaskResult} from '../../task-management/types.js';
-import { TaskStatus, TaskPriority } from '../../task-management/types.js';
+import type { Task, TaskResult } from '../../task-management/types.js';
+import { TaskStatus } from '../../task-management/TaskQueue.js';
+import { TaskPriority } from '../../task-management/types.js';
 
 // Mock dependencies
-jest.mock('../ValidationFramework.js');
-jest.mock('../TaskValidator.js');
-jest.mock('../../logger/Logger.js');
+vi.mock('../ValidationFramework.js');
+vi.mock('../TaskValidator.js');
+vi.mock('../../logger/Logger.js');
 
 describe('QualityAssurance', () => {
   let qualityAssurance: QualityAssurance;
@@ -35,9 +36,9 @@ describe('QualityAssurance', () => {
   beforeEach(() => {
     // Create mock validation framework
     mockValidationFramework = {
-      registerRule: jest.fn(),
-      validateTask: jest.fn(),
-      getStatistics: jest.fn().mockReturnValue({
+      registerRule: vi.fn(),
+      validateTask: vi.fn(),
+      getStatistics: vi.fn().mockReturnValue({
         registeredRules: 8,
         activeValidations: 1,
         enabledCategories: []
@@ -46,8 +47,8 @@ describe('QualityAssurance', () => {
 
     // Create mock task validator
     mockTaskValidator = {
-      validateTask: jest.fn(),
-      getValidationStatistics: jest.fn().mockReturnValue({
+      validateTask: vi.fn(),
+      getValidationStatistics: vi.fn().mockReturnValue({
         activeValidations: 0,
         totalSnapshots: 5,
         configuredThresholds: {},
@@ -78,7 +79,7 @@ describe('QualityAssurance', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Initialization', () => {
@@ -250,7 +251,7 @@ describe('QualityAssurance', () => {
         }, 100);
       });
 
-      const performQualityAssuranceSpy = jest.spyOn(qualityAssurance as any, 'executeComprehensiveQualityCheck')
+      const performQualityAssuranceSpy = vi.spyOn(qualityAssurance as any, 'executeComprehensiveQualityCheck')
         .mockReturnValue(slowCheck);
 
       // Start two quality checks simultaneously
@@ -265,8 +266,8 @@ describe('QualityAssurance', () => {
     });
 
     it('should emit quality assurance events', async () => {
-      const startedSpy = jest.fn();
-      const completedSpy = jest.fn();
+      const startedSpy = vi.fn();
+      const completedSpy = vi.fn();
 
       qualityAssurance.on('qualityCheckStarted', startedSpy);
       qualityAssurance.on('qualityCheckCompleted', completedSpy);
@@ -555,7 +556,7 @@ describe('QualityAssurance', () => {
 
   describe('Custom Quality Checks', () => {
     it('should support custom quality checks', () => {
-      const customCheck = jest.fn().mockResolvedValue([
+      const customCheck = vi.fn().mockResolvedValue([
         {
           id: 'custom-business-rule',
           category: 'business' as any,
@@ -591,7 +592,7 @@ describe('QualityAssurance', () => {
 
   describe('Alert Generation', () => {
     it('should trigger alerts for critical violations', async () => {
-      const alertSpy = jest.fn();
+      const alertSpy = vi.fn();
       qualityAssurance.on('qualityAlertTriggered', alertSpy);
 
       const criticalExecutionMetrics: TaskExecutionMetrics = {
@@ -642,7 +643,7 @@ describe('QualityAssurance', () => {
 
   describe('Cleanup', () => {
     it('should cleanup resources', async () => {
-      const removeAllListenersSpy = jest.spyOn(qualityAssurance, 'removeAllListeners');
+      const removeAllListenersSpy = vi.spyOn(qualityAssurance, 'removeAllListeners');
 
       await qualityAssurance.cleanup();
 

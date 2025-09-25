@@ -4,16 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AlertSystem, AlertSeverity, AlertCategory, NotificationChannel } from '../AlertSystem.js';
 import { TaskStatus, TaskType, TaskPriority } from '../TaskStatusMonitor.js';
 // Mock logger
-jest.mock('../utils/logger.js', () => ({
-    Logger: jest.fn(() => ({
-        info: jest.fn(),
-        error: jest.fn(),
-        warning: jest.fn(),
-        debug: jest.fn(),
+vi.mock('../utils/logger.js', () => ({
+    Logger: vi.fn(() => ({
+        info: vi.fn(),
+        error: vi.fn(),
+        warning: vi.fn(),
+        debug: vi.fn(),
     })),
 }));
 describe('AlertSystem', () => {
@@ -130,7 +130,7 @@ describe('AlertSystem', () => {
                 agentId: 'agent-1',
                 error: 'Task execution failed'
             };
-            const eventSpy = jest.fn();
+            const eventSpy = vi.fn();
             alertSystem.on('alert:created', eventSpy);
             await alertSystem.processTaskStatusUpdate(task, update);
             expect(eventSpy).toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe('AlertSystem', () => {
                 timestamp: new Date(),
                 agentId: 'agent-1'
             };
-            const eventSpy = jest.fn();
+            const eventSpy = vi.fn();
             alertSystem.on('alert:created', eventSpy);
             await alertSystem.processTaskStatusUpdate(task, update);
             expect(eventSpy).toHaveBeenCalled();
@@ -191,7 +191,7 @@ describe('AlertSystem', () => {
                     taskThroughput: 8
                 }
             };
-            const eventSpy = jest.fn();
+            const eventSpy = vi.fn();
             alertSystem.on('alert:created', eventSpy);
             await alertSystem.processAgentStatusUpdate(agent);
             expect(eventSpy).toHaveBeenCalled();
@@ -214,7 +214,7 @@ describe('AlertSystem', () => {
                     taskThroughput: 2
                 }
             };
-            const eventSpy = jest.fn();
+            const eventSpy = vi.fn();
             alertSystem.on('alert:created', eventSpy);
             await alertSystem.processAgentStatusUpdate(agent);
             expect(eventSpy).toHaveBeenCalled();

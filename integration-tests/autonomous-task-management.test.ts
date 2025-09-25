@@ -5,10 +5,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { TestRig, validateModelOutput } from './test-helper.js';
-import { execSync, spawn, ChildProcess } from 'node:child_process';
-import { writeFileSync, readFileSync, existsSync, unlinkSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { TestRig } from './test-helper.js';
+import { execSync, spawn } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 /**
@@ -65,7 +65,7 @@ describe('Autonomous Task Management Integration Tests', () => {
               try {
                 const result = JSON.parse(stdout);
                 resolve({ agentId, result, stdout, stderr });
-              } catch (error) {
+              } catch (_error) {
                 reject({ agentId, error: 'Failed to parse JSON', stdout, stderr });
               }
             } else {

@@ -25,12 +25,12 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Task, TaskPriority, TaskStatus } from './TaskQueue';
+import { Task, TaskPriority, TaskStatus } from './TaskQueue.js';
 import {
   QueueMetrics,
   AutonomousQueueMetrics,
-} from './EnhancedAutonomousTaskQueue';
-import { RealtimeQueueSnapshot } from './RealtimeQueueMonitor';
+} from './EnhancedAutonomousTaskQueue.js';
+import { RealtimeQueueSnapshot } from './RealtimeQueueMonitor.js';
 
 /**
  * Comprehensive optimization configuration for queue tuning

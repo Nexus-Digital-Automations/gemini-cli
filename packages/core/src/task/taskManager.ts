@@ -7,7 +7,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Task, TaskMetadata } from './types';
 import { TaskStatus, TaskPriority } from './types';
-import type { TaskStore } from './taskStore';
+import type { TaskStore } from './taskStore.js';
 
 export class TaskManager {
   private taskStore: TaskStore;

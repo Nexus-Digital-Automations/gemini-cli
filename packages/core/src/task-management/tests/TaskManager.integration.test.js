@@ -9,7 +9,7 @@
  * This test suite validates the complete integration of all task management
  * components working together as an autonomous system.
  */
-import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { TaskManager, createTaskManager } from '../TaskManager.js';
 import {
   AutonomousExecutionEngine,
@@ -387,11 +387,11 @@ describe('TaskStateManager Integration Tests', () => {
   let stateManager;
   beforeEach(() => {
     const mockStorage = {
-      save: jest.fn().mockResolvedValue(undefined),
-      load: jest.fn().mockResolvedValue(null),
-      loadHistory: jest.fn().mockResolvedValue([]),
-      delete: jest.fn().mockResolvedValue(undefined),
-      cleanup: jest.fn().mockResolvedValue(0),
+      save: vi.fn().mockResolvedValue(undefined),
+      load: vi.fn().mockResolvedValue(null),
+      loadHistory: vi.fn().mockResolvedValue([]),
+      delete: vi.fn().mockResolvedValue(undefined),
+      cleanup: vi.fn().mockResolvedValue(0),
     };
     stateManager = new TaskStateManager(mockStorage, {
       enableHistory: true,

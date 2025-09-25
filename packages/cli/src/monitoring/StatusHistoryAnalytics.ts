@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Logger } from '../utils/logger.js';
+import { StructuredLogger, getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
 import {
   TaskStatusMonitor,
   TaskMetadata,
@@ -130,7 +130,7 @@ export interface HistoryQuery {
  * - Cross-session persistence and correlation
  */
 export class StatusHistoryAnalytics {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private statusHistory: Map<string, StatusHistoryEntry>;
   private correlationIndex: Map<string, string[]>; // correlationId -> entry IDs
   private objectIndex: Map<string, string[]>; // objectId -> entry IDs
@@ -140,7 +140,7 @@ export class StatusHistoryAnalytics {
   private persistenceInterval?: NodeJS.Timeout;
 
   constructor() {
-    this.logger = new Logger('StatusHistoryAnalytics');
+    this.logger = getComponentLogger('StatusHistoryAnalytics');
     this.statusHistory = new Map();
     this.correlationIndex = new Map();
     this.objectIndex = new Map();
@@ -402,9 +402,9 @@ export class StatusHistoryAnalytics {
    */
   getCorrelationChain(correlationId: string): StatusHistoryEntry[] {
     const entryIds = this.correlationIndex.get(correlationId) || [];
-    return entryIds
+    return (entryIds
       .map(id => this.statusHistory.get(id))
-      .filter(entry => entry !== undefined) as StatusHistoryEntry[]
+      .filter(entry => entry !== undefined) as StatusHistoryEntry[])
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 
@@ -413,9 +413,9 @@ export class StatusHistoryAnalytics {
    */
   getObjectTimeline(objectId: string): StatusHistoryEntry[] {
     const entryIds = this.objectIndex.get(objectId) || [];
-    return entryIds
+    return (entryIds
       .map(id => this.statusHistory.get(id))
-      .filter(entry => entry !== undefined) as StatusHistoryEntry[]
+      .filter(entry => entry !== undefined) as StatusHistoryEntry[])
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 
@@ -825,7 +825,7 @@ export class StatusHistoryAnalytics {
   }
 
   private invalidateAnalyticsCache(tags: string[]): void {
-    for (const [key] of this.analyticsCache) {
+    for (const [key] of Array.from(this.analyticsCache.entries())) {
       if (tags.some(tag => key.includes(tag))) {
         this.analyticsCache.delete(key);
       }
@@ -871,7 +871,7 @@ export class StatusHistoryAnalytics {
     const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     let removedCount = 0;
 
-    for (const [id, entry] of this.statusHistory) {
+    for (const [id, entry] of Array.from(this.statusHistory.entries())) {
       if (entry.timestamp < cutoffDate) {
         this.statusHistory.delete(id);
         removedCount++;
@@ -883,7 +883,7 @@ export class StatusHistoryAnalytics {
 
     // Clear expired cache entries
     const now = Date.now();
-    for (const [key, cached] of this.analyticsCache) {
+    for (const [key, cached] of Array.from(this.analyticsCache.entries())) {
       if (now - cached.timestamp.getTime() > cached.ttl) {
         this.analyticsCache.delete(key);
       }
@@ -904,7 +904,7 @@ export class StatusHistoryAnalytics {
     this.agentIndex.clear();
     this.eventTypeIndex.clear();
 
-    for (const entry of this.statusHistory.values()) {
+    for (const entry of Array.from(this.statusHistory.values())) {
       this.updateIndices(entry);
     }
   }

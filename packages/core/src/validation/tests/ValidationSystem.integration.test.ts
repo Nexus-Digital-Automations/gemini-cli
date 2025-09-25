@@ -4,17 +4,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { ValidationFramework } from '../ValidationFramework.js';
 import { ValidationRules, RuleExecutionContext } from '../ValidationRules.js';
 import { TaskValidator, TaskValidationType, TaskValidationLevel } from '../TaskValidator.js';
 import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
 import { RollbackManager, RollbackTrigger, RollbackType } from '../RollbackManager.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
-import { TaskStatus, TaskPriority } from '../../task-management/types.js';
+import { TaskStatus } from '../../task-management/TaskQueue.js';
+import { TaskPriority } from '../../task-management/types.js';
 
 // Mock logger to avoid console output during tests
-jest.mock('../../logger/Logger.js');
+vi.mock('../../logger/Logger.js');
 
 describe('ValidationSystem Integration', () => {
   let validationFramework: ValidationFramework;
@@ -696,7 +697,7 @@ describe('ValidationSystem Integration', () => {
     it('should recover gracefully from component failures', async () => {
       // Simulate validation framework failure
       const originalValidateTask = validationFramework.validateTask.bind(validationFramework);
-      const frameworkFailureSpy = jest.spyOn(validationFramework, 'validateTask')
+      const frameworkFailureSpy = vi.spyOn(validationFramework, 'validateTask')
         .mockRejectedValueOnce(new Error('Validation framework temporary failure'))
         .mockImplementation(originalValidateTask);
 

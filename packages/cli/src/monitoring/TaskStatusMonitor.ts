@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { StructuredLogger, getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
 
 /**
  * Task status definitions for comprehensive monitoring
@@ -97,7 +97,7 @@ export interface AgentStatus {
  * - Cross-session persistence
  */
 export class TaskStatusMonitor extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private tasks: Map<string, TaskMetadata>;
   private agents: Map<string, AgentStatus>;
   private statusHistory: TaskStatusUpdate[];
@@ -114,7 +114,7 @@ export class TaskStatusMonitor extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('TaskStatusMonitor');
+    this.logger = getComponentLogger('TaskStatusMonitor');
     this.tasks = new Map();
     this.agents = new Map();
     this.statusHistory = [];

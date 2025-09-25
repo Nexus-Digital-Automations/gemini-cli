@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AutomaticValidationSystem, ValidationIntegration, TaskType, ValidationContext, validateTaskCompletion, isProjectReadyForCompletion, getStopAuthorizationStatus } from './index';
+import { AutomaticValidationSystem, ValidationIntegration, TaskType, ValidationContext, validateTaskCompletion, isProjectReadyForCompletion, getStopAuthorizationStatus } from './index.js';
 /**
  * Comprehensive examples demonstrating the Automatic Validation System usage.
  *

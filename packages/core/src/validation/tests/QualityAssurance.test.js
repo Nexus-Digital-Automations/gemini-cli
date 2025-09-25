@@ -4,16 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { QualityAssurance, QualityCheckType, QualityThresholds, QualityViolation } from '../QualityAssurance.js';
 import { ValidationFramework, ValidationSeverity } from '../ValidationFramework.js';
 import { TaskValidator } from '../TaskValidator.js';
 import { TaskStatus, TaskPriority } from '../../task-management/types.js';
 // Mock dependencies
-jest.mock('../ValidationFramework.js');
-jest.mock('../TaskValidator.js');
-jest.mock('../../logger/Logger.js');
+vi.mock('../ValidationFramework.js');
+vi.mock('../TaskValidator.js');
+vi.mock('../../logger/Logger.js');
 describe('QualityAssurance', () => {
     let qualityAssurance;
     let mockValidationFramework;
@@ -22,9 +22,9 @@ describe('QualityAssurance', () => {
     beforeEach(() => {
         // Create mock validation framework
         mockValidationFramework = {
-            registerRule: jest.fn(),
-            validateTask: jest.fn(),
-            getStatistics: jest.fn().mockReturnValue({
+            registerRule: vi.fn(),
+            validateTask: vi.fn(),
+            getStatistics: vi.fn().mockReturnValue({
                 registeredRules: 8,
                 activeValidations: 1,
                 enabledCategories: []
@@ -32,8 +32,8 @@ describe('QualityAssurance', () => {
         };
         // Create mock task validator
         mockTaskValidator = {
-            validateTask: jest.fn(),
-            getValidationStatistics: jest.fn().mockReturnValue({
+            validateTask: vi.fn(),
+            getValidationStatistics: vi.fn().mockReturnValue({
                 activeValidations: 0,
                 totalSnapshots: 5,
                 configuredThresholds: {},
@@ -58,7 +58,7 @@ describe('QualityAssurance', () => {
         };
     });
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
     describe('Initialization', () => {
         it('should initialize with default configuration', () => {
@@ -202,7 +202,7 @@ describe('QualityAssurance', () => {
                     });
                 }, 100);
             });
-            const performQualityAssuranceSpy = jest.spyOn(qualityAssurance, 'executeComprehensiveQualityCheck')
+            const performQualityAssuranceSpy = vi.spyOn(qualityAssurance, 'executeComprehensiveQualityCheck')
                 .mockReturnValue(slowCheck);
             // Start two quality checks simultaneously
             const check1 = qualityAssurance.performQualityAssurance(mockTask);
@@ -213,8 +213,8 @@ describe('QualityAssurance', () => {
             expect(performQualityAssuranceSpy).toHaveBeenCalledTimes(1);
         });
         it('should emit quality assurance events', async () => {
-            const startedSpy = jest.fn();
-            const completedSpy = jest.fn();
+            const startedSpy = vi.fn();
+            const completedSpy = vi.fn();
             qualityAssurance.on('qualityCheckStarted', startedSpy);
             qualityAssurance.on('qualityCheckCompleted', completedSpy);
             await qualityAssurance.performQualityAssurance(mockTask);
@@ -452,7 +452,7 @@ describe('QualityAssurance', () => {
     });
     describe('Custom Quality Checks', () => {
         it('should support custom quality checks', () => {
-            const customCheck = jest.fn().mockResolvedValue([
+            const customCheck = vi.fn().mockResolvedValue([
                 {
                     id: 'custom-business-rule',
                     category: 'business',
@@ -482,7 +482,7 @@ describe('QualityAssurance', () => {
     });
     describe('Alert Generation', () => {
         it('should trigger alerts for critical violations', async () => {
-            const alertSpy = jest.fn();
+            const alertSpy = vi.fn();
             qualityAssurance.on('qualityAlertTriggered', alertSpy);
             const criticalExecutionMetrics = {
                 startTime: new Date(Date.now() - 70000),
@@ -522,7 +522,7 @@ describe('QualityAssurance', () => {
     });
     describe('Cleanup', () => {
         it('should cleanup resources', async () => {
-            const removeAllListenersSpy = jest.spyOn(qualityAssurance, 'removeAllListeners');
+            const removeAllListenersSpy = vi.spyOn(qualityAssurance, 'removeAllListeners');
             await qualityAssurance.cleanup();
             expect(removeAllListenersSpy).toHaveBeenCalled();
         });

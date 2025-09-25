@@ -132,6 +132,20 @@ export interface Task {
     progressCallback?: (progress: number, message: string) => void;
     batchCompatible: boolean;
     batchGroup?: string;
+    results?: Record<string, unknown>;
+    lastError?: string;
+    metrics?: {
+        startTime: Date;
+        endTime?: Date;
+        durationMs?: number;
+        tokenUsage?: number;
+        toolCallsCount?: number;
+        subAgentCount?: number;
+        errorCount?: number;
+        retryCount?: number;
+        memoryUsage?: number;
+        cpuUsage?: number;
+    };
 }
 /**
  * Task execution result

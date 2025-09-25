@@ -5,18 +5,18 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { DecisionEngine } from './decisionEngine';
+import type { DecisionEngine } from './decisionEngine.js';
 import type {
   ResourceInfo,
   AllocationRequest,
-  AllocationResult} from './resourceAllocator';
+  AllocationResult} from './resourceAllocator.js';
 import {
   ResourceAllocator,
   ResourceType,
   AllocationStrategies,
   type AllocationStrategy,
   type ResourceRequirement,
-} from './resourceAllocator';
+} from './resourceAllocator.js';
 import type {
   DecisionContext,
   Decision,

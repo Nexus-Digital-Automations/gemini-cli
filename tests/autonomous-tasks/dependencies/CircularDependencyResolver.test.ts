@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, test, expect, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/autonomous-tasks/types/TaskTypes';
 import { DetectedDependency } from '../../../packages/core/src/autonomous-tasks/dependencies/DependencyAnalyzer';
 import {

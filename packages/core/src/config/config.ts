@@ -762,10 +762,9 @@ export class Config {
       this.promptRegistry = new PromptRegistry();
 
       // Initialize tool registry (can be resource intensive)
-      const toolRegistryPromise = this.createToolRegistry().then((registry) => {
+      await this.createToolRegistry().then((registry) => {
         this.toolRegistry = registry;
       });
-      phase2Promises.push(toolRegistryPromise);
 
       // Initialize Gemini client (can run in parallel with tool registry)
       phase2Promises.push(this.geminiClient.initialize());

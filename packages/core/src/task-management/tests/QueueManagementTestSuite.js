@@ -29,8 +29,8 @@ import {
   afterEach,
   beforeAll,
   afterAll,
-  jest,
-} from '@jest/globals';
+  vi,
+} from 'vitest';
 import { EventEmitter } from 'node:events';
 // Import all components to test
 import { SelfManagingTaskQueue } from '../SelfManagingTaskQueue.js';

@@ -7,6 +7,7 @@
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { ContextState } from '../core/subagent.js';
+import type { TaskCategory } from './types.js';
 /**
  * @fileoverview Comprehensive Task Execution Engine with Intelligent Breakdown
  *
@@ -123,6 +124,7 @@ export interface Task {
     title: string;
     description: string;
     type: TaskType;
+    category: TaskCategory;
     complexity: TaskComplexity;
     priority: TaskPriority;
     status: TaskStatus;

@@ -16,7 +16,7 @@ import {
   beforeEach,
   afterEach,
   jest,
-} from '@jest/globals';
+} from 'vitest';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -54,7 +54,7 @@ describe('Task Management System Integration Tests', () => {
       // Add other required Config properties as needed
     };
     // Setup clean environment
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   afterEach(async () => {
     // Cleanup integrator

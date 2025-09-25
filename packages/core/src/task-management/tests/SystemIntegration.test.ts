@@ -11,7 +11,7 @@
  * configurations, error handling, and real-world usage scenarios.
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import type { Config } from '../../config/config.js';
@@ -49,7 +49,7 @@ describe('Task Management System Integration Tests', () => {
     } as Config;
 
     // Setup clean environment
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(async () => {

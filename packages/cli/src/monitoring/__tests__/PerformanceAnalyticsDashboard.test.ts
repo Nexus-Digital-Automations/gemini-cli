@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PerformanceAnalyticsDashboard, type PerformanceMetric } from '../PerformanceAnalyticsDashboard.js';
 import { TaskType, TaskPriority, TaskStatus } from '../TaskStatusMonitor.js';
 
 // Mock logger
-jest.mock('../utils/logger.js', () => ({
-  Logger: jest.fn(() => ({
-    info: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    debug: jest.fn(),
+vi.mock('../utils/logger.js', () => ({
+  Logger: vi.fn(() => ({
+    info: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    debug: vi.fn(),
   })),
 }));
 
@@ -365,7 +365,7 @@ describe('PerformanceAnalyticsDashboard', () => {
 
   describe('Resource Management', () => {
     it('should clean up resources on destroy', () => {
-      const consoleSpy = jest.spyOn(dashboard['logger'], 'info');
+      const consoleSpy = vi.spyOn(dashboard['logger'], 'info');
 
       dashboard.destroy();
 

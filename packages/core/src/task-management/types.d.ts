@@ -85,6 +85,34 @@ export interface TaskMetadata {
 /**
  * Core task definition
  */
+/**
+ * Task execution metrics
+ */
+export interface TaskExecutionMetrics {
+    /** When task execution started */
+    startTime: Date;
+    /** When task execution ended */
+    endTime?: Date;
+    /** Execution duration in milliseconds */
+    durationMs?: number;
+    /** Token usage during execution */
+    tokenUsage?: number;
+    /** Number of tool calls made */
+    toolCallsCount?: number;
+    /** Number of sub-agents used */
+    subAgentCount?: number;
+    /** Error count during execution */
+    errorCount?: number;
+    /** Retry count during execution */
+    retryCount?: number;
+    /** Memory usage in bytes */
+    memoryUsage?: number;
+    /** CPU usage percentage */
+    cpuUsage?: number;
+}
+/**
+ * Core task definition
+ */
 export interface Task {
     /** Unique task identifier */
     id: TaskId;
@@ -108,6 +136,12 @@ export interface Task {
     expectedOutput?: Record<string, unknown>;
     /** Validation criteria */
     validationCriteria?: string[];
+    /** Task execution results */
+    results?: Record<string, unknown>;
+    /** Last error encountered during execution */
+    lastError?: string;
+    /** Execution metrics */
+    metrics?: TaskExecutionMetrics;
 }
 /**
  * Task execution result

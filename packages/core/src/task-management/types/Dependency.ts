@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { TaskId, Task } from './Task';
+import type { TaskId, Task } from './Task.js';
 
 /**
  * Unique identifier for dependency nodes

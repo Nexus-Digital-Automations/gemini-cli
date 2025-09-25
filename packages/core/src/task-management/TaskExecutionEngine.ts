@@ -7,6 +7,7 @@
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
+import type { TaskCategory } from './types.js';
 import { SubAgentScope, ContextState, SubagentTerminateMode } from '../core/subagent.js';
 import { CoreToolScheduler } from '../core/coreToolScheduler.js';
 import { Turn, type ToolCallRequestInfo } from '../core/turn.js';
@@ -144,6 +145,7 @@ export interface Task {
 
   // Classification
   type: TaskType;
+  category: TaskCategory;
   complexity: TaskComplexity;
   priority: TaskPriority;
 

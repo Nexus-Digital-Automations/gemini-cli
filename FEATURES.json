@@ -325,26 +325,26 @@
     ],
     "initialization_stats": {
       "total_initializations": 16,
-      "total_reinitializations": 149,
+      "total_reinitializations": 154,
       "current_day": "2025-09-25",
       "time_buckets": {
-        "08:00-12:59": {
+        "09:00-13:59": {
           "init": 0,
           "reinit": 0
         },
-        "13:00-17:59": {
+        "14:00-18:59": {
           "init": 0,
           "reinit": 0
         },
-        "18:00-22:59": {
-          "init": 11,
-          "reinit": 73
+        "19:00-23:59": {
+          "init": 0,
+          "reinit": 0
         },
-        "23:00-03:59": {
-          "init": 5,
-          "reinit": 13
+        "00:00-04:59": {
+          "init": 0,
+          "reinit": 5
         },
-        "04:00-08:59": {
+        "05:00-09:59": {
           "init": 0,
           "reinit": 0
         }
@@ -405,203 +405,61 @@
           }
         }
       ],
-      "last_reset": "2025-09-25T00:25:25.727Z",
-      "last_updated": "2025-09-25T04:37:22.983Z"
+      "last_reset": "2025-09-25T06:52:16.230Z",
+      "last_updated": "2025-09-25T07:00:53.017Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {
-    "ARCHITECTURE_ANALYSIS_AGENT": {
-      "lastHeartbeat": "2025-09-25T03:59:23.808Z",
+    "AGENT_001": {
+      "lastHeartbeat": "2025-09-25T06:52:16.215Z",
       "status": "active",
-      "reinitialized": "2025-09-25T03:59:23.808Z",
-      "sessionId": "d5650c41111c0632",
-      "previousSessions": ["35a53c16bb9372e6", "c7e981fbf0498479"]
-    },
-    "TESTING_AGENT": {
-      "lastHeartbeat": "2025-09-25T03:48:59.156Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:48:59.156Z",
-      "sessionId": "dc21ca877db79621",
-      "previousSessions": [
-        "f75ac3bfaabbb21b",
-        "71dd99ab12d0d680",
-        "8cc0ceab24c017ad"
-      ]
-    },
-    "MAIN_AGENT": {
-      "lastHeartbeat": "2025-09-25T04:33:25.561Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T04:33:25.561Z",
-      "sessionId": "efd1407cb275ca31",
-      "previousSessions": [
-        "44d7ddf32f6732da",
-        "398f76e8dd289208",
-        "dbed6ec9be8606e3",
-        "89735d2a5ea9891e"
-      ]
-    },
-    "status-monitor-system-architect": {
-      "lastHeartbeat": "2025-09-25T03:59:18.288Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:59:18.288Z",
-      "sessionId": "069374e0a3913b6a",
-      "previousSessions": ["6b26306da1043ba0"]
-    },
-    "TASK_ENGINE_DEV_001": {
-      "lastHeartbeat": "2025-09-25T03:59:17.866Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:59:17.866Z",
-      "sessionId": "9c7e901e61d39fc8",
-      "previousSessions": ["f6cc822c6270c4f5"]
-    },
-    "TASK_QUEUE_DESIGNER_01": {
-      "lastHeartbeat": "2025-09-25T04:08:19.625Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T04:08:19.625Z",
-      "sessionId": "8114ee0bc2dc9fa7",
-      "previousSessions": [
-        "0a201a25eba209c9",
-        "a0d6c8451da07634",
-        "183b09eebe1fb0b9"
-      ]
-    },
-    "PERSISTENCE_STORAGE_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T04:08:54.215Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T04:08:54.215Z",
-      "sessionId": "3effa89d43f741bb",
-      "previousSessions": ["3979f13b28814dec", "159eaf1766f985ff"]
-    },
-    "DEPENDENCY_ANALYSIS_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T03:59:19.740Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:59:19.740Z",
-      "sessionId": "f74eb9e130c161f1",
-      "previousSessions": ["d1e90192839f9de5"]
-    },
-    "VALIDATION_TESTING_LEAD": {
-      "lastHeartbeat": "2025-09-25T04:16:51.106Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.662Z",
-      "sessionId": "e8cb3335ec3b5768",
-      "reinitialized": "2025-09-25T04:16:51.106Z",
-      "previousSessions": ["0acea578b0118832", "cd4f98b83c71adb9"]
-    },
-    "INTEGRATION_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T03:59:18.707Z",
-      "status": "active",
-      "initialized": "2025-09-25T00:29:22.670Z",
-      "sessionId": "378c037811bee4cb",
-      "reinitialized": "2025-09-25T03:59:18.707Z",
-      "previousSessions": [
-        "aa4ae74a8e5a203a",
-        "a92b9b3f1a177e4c",
-        "72d0499775eded9d"
-      ]
-    },
-    "MONITORING_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T03:52:30.170Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:52:30.170Z",
-      "sessionId": "43876e7f63612f59",
-      "previousSessions": [
-        "edbc24d184b3a864",
-        "1d08baaee63b457e",
-        "2d3c10fb655d1893",
-        "b1deb5a47d8b6aff"
-      ]
-    },
-    "PERSISTENCE_ENGINE_DEVELOPER": {
-      "lastHeartbeat": "2025-09-25T03:42:26.738Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:42:26.738Z",
-      "sessionId": "5f90c420aa0af4da",
-      "previousSessions": ["887eba4846d7c117"]
-    },
-    "COMPATIBILITY_VALIDATOR_001": {
-      "lastHeartbeat": "2025-09-25T03:42:06.527Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T03:42:06.527Z",
-      "sessionId": "8958268f82235a01",
+      "reinitialized": "2025-09-25T06:52:16.215Z",
+      "sessionId": "cd22d817b3dac28e",
       "previousSessions": []
     },
-    "ANALYTICS_ENGINE_DEVELOPER": {
-      "lastHeartbeat": "2025-09-25T04:37:04.336Z",
+    "claude-agent-001": {
+      "lastHeartbeat": "2025-09-25T06:52:23.323Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:37:04.336Z",
-      "sessionId": "ccebc8f542dc10d2",
-      "previousSessions": ["140320ec8159086b", "06d73943a1c648c3"]
-    },
-    "CLI_INTEGRATION_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T04:21:49.426Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T04:21:49.426Z",
-      "sessionId": "2f38af8f40fc8cf7",
+      "reinitialized": "2025-09-25T06:52:23.323Z",
+      "sessionId": "7af33e0ad17bbf27",
       "previousSessions": []
     },
-    "ML_PREDICTION_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T04:21:49.991Z",
+    "IMPORT_FIX_AGENT": {
+      "lastHeartbeat": "2025-09-25T07:00:45.344Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:21:49.991Z",
-      "sessionId": "3656474d7778608c",
+      "reinitialized": "2025-09-25T07:00:45.344Z",
+      "sessionId": "a2bb62d1a02514fb",
       "previousSessions": []
     },
-    "REALTIME_TRACKING_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T04:21:51.798Z",
+    "agent-typescript-fix": {
+      "lastHeartbeat": "2025-09-25T07:00:45.364Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:21:51.798Z",
-      "sessionId": "7f527cf401d98a0a",
+      "reinitialized": "2025-09-25T07:00:45.364Z",
+      "sessionId": "864da2ef251e1da2",
       "previousSessions": []
     },
-    "VISUALIZATION_SPECIALIST": {
-      "lastHeartbeat": "2025-09-25T04:21:52.487Z",
+    "ts-error-fix-agent": {
+      "lastHeartbeat": "2025-09-25T07:00:53.014Z",
       "status": "active",
-      "reinitialized": "2025-09-25T04:21:52.487Z",
-      "sessionId": "64212fb3de6faa70",
+      "reinitialized": "2025-09-25T07:00:53.014Z",
+      "sessionId": "32b43ac33bea7109",
       "previousSessions": []
-    },
-    "TESTING_VALIDATION_ENGINEER": {
-      "lastHeartbeat": "2025-09-25T04:22:04.065Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T04:22:04.065Z",
-      "sessionId": "a57dc4fcf6c7f6fc",
-      "previousSessions": []
-    },
-    "CODEBASE_ANALYST": {
-      "lastHeartbeat": "2025-09-25T04:36:39.413Z",
-      "status": "active",
-      "initialized": "2025-09-25T04:36:39.413Z",
-      "sessionId": "1380f10ac67413e1"
-    },
-    "ARCHITECTURE_DESIGNER": {
-      "lastHeartbeat": "2025-09-25T04:36:50.247Z",
-      "status": "active",
-      "initialized": "2025-09-25T04:36:50.247Z",
-      "sessionId": "14a96bee84da7eab"
-    },
-    "DATA_MODELER": {
-      "lastHeartbeat": "2025-09-25T04:37:01.182Z",
-      "status": "active",
-      "initialized": "2025-09-25T04:37:01.182Z",
-      "sessionId": "fb82b809eaed4c6f"
-    },
-    "INTEGRATION_STRATEGIST": {
-      "lastHeartbeat": "2025-09-25T04:37:12.069Z",
-      "status": "active",
-      "initialized": "2025-09-25T04:37:12.069Z",
-      "sessionId": "bf6cf85acc3de3d8"
-    },
-    "ANALYTICS_FRAMEWORK_DESIGNER": {
-      "lastHeartbeat": "2025-09-25T04:37:22.981Z",
-      "status": "active",
-      "initialized": "2025-09-25T04:37:22.981Z",
-      "sessionId": "654493a8bd6a864f"
     }
   },
   "tasks": [],
