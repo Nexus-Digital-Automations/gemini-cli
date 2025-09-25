@@ -53,7 +53,7 @@ export {
   TaskMetadata,
   TaskStatusUpdate,
   AgentStatus,
-  taskStatusMonitor
+  taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 
 export {
@@ -61,7 +61,7 @@ export {
   StatusEventType,
   StatusEvent,
   NotificationConfig,
-  statusUpdateBroker
+  statusUpdateBroker,
 } from './StatusUpdateBroker.js';
 
 export {
@@ -69,7 +69,7 @@ export {
   NotificationPreferences,
   NotificationTemplate,
   DeliveredNotification,
-  notificationSystem
+  notificationSystem,
 } from './NotificationSystem.js';
 
 export {
@@ -80,7 +80,7 @@ export {
   SystemAnalytics,
   StatusHistoryEntry,
   HistoryQuery,
-  statusHistoryAnalytics
+  statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
 
 export {
@@ -89,7 +89,7 @@ export {
   TodoWriteState,
   ExternalSystemConfig,
   WebhookPayload,
-  monitoringIntegrations
+  monitoringIntegrations,
 } from './MonitoringIntegrations.js';
 
 // Dashboard and visualization
@@ -110,40 +110,46 @@ export { StatusDashboard } from './StatusDashboard.js';
  * });
  * ```
  */
-export async function initializeMonitoringSystem(options: {
-  enableDashboard?: boolean;
-  enableNotifications?: boolean;
-  enableAnalytics?: boolean;
-  enableIntegrations?: boolean;
-  dashboardConfig?: {
-    autoRefresh?: boolean;
-    refreshInterval?: number;
-    initialView?: 'overview' | 'tasks' | 'agents' | 'analytics';
-  };
-} = {}) {
+export async function initializeMonitoringSystem(
+  options: {
+    enableDashboard?: boolean;
+    enableNotifications?: boolean;
+    enableAnalytics?: boolean;
+    enableIntegrations?: boolean;
+    dashboardConfig?: {
+      autoRefresh?: boolean;
+      refreshInterval?: number;
+      initialView?: 'overview' | 'tasks' | 'agents' | 'analytics';
+    };
+  } = {},
+) {
   const {
     enableDashboard = false,
     enableNotifications = true,
     enableAnalytics = true,
     enableIntegrations = true,
-    dashboardConfig = {}
+    dashboardConfig = {},
   } = options;
 
   // Import singleton instances
   const { taskStatusMonitor } = await import('./TaskStatusMonitor.js');
   const { statusUpdateBroker } = await import('./StatusUpdateBroker.js');
   const { notificationSystem } = await import('./NotificationSystem.js');
-  const { statusHistoryAnalytics } = await import('./StatusHistoryAnalytics.js');
-  const { monitoringIntegrations } = await import('./MonitoringIntegrations.js');
+  const { statusHistoryAnalytics } = await import(
+    './StatusHistoryAnalytics.js'
+  );
+  const { monitoringIntegrations } = await import(
+    './MonitoringIntegrations.js'
+  );
 
-  let dashboard: any = null;
+  let dashboard: unknown = null;
 
   if (enableDashboard) {
     const { StatusDashboard } = await import('./StatusDashboard.js');
     dashboard = new StatusDashboard({
       autoRefresh: dashboardConfig.autoRefresh ?? true,
       refreshInterval: dashboardConfig.refreshInterval ?? 5000,
-      initialView: dashboardConfig.initialView ?? 'overview'
+      initialView: dashboardConfig.initialView ?? 'overview',
     });
   }
 
@@ -164,7 +170,7 @@ export async function initializeMonitoringSystem(options: {
       if (enableNotifications) notificationSystem.destroy();
       if (enableAnalytics) statusHistoryAnalytics.destroy();
       if (enableIntegrations) monitoringIntegrations.destroy();
-    }
+    },
   };
 }
 
@@ -175,52 +181,56 @@ export const MonitoringPresets = {
   /**
    * Minimal monitoring for basic task tracking
    */
-  minimal: () => initializeMonitoringSystem({
-    enableDashboard: false,
-    enableNotifications: false,
-    enableAnalytics: false,
-    enableIntegrations: false
-  }),
+  minimal: () =>
+    initializeMonitoringSystem({
+      enableDashboard: false,
+      enableNotifications: false,
+      enableAnalytics: false,
+      enableIntegrations: false,
+    }),
 
   /**
    * Development monitoring with dashboard and basic analytics
    */
-  development: () => initializeMonitoringSystem({
-    enableDashboard: true,
-    enableNotifications: true,
-    enableAnalytics: true,
-    enableIntegrations: false,
-    dashboardConfig: {
-      autoRefresh: true,
-      refreshInterval: 3000,
-      initialView: 'overview'
-    }
-  }),
+  development: () =>
+    initializeMonitoringSystem({
+      enableDashboard: true,
+      enableNotifications: true,
+      enableAnalytics: true,
+      enableIntegrations: false,
+      dashboardConfig: {
+        autoRefresh: true,
+        refreshInterval: 3000,
+        initialView: 'overview',
+      },
+    }),
 
   /**
    * Production monitoring with full feature set
    */
-  production: () => initializeMonitoringSystem({
-    enableDashboard: false,
-    enableNotifications: true,
-    enableAnalytics: true,
-    enableIntegrations: true
-  }),
+  production: () =>
+    initializeMonitoringSystem({
+      enableDashboard: false,
+      enableNotifications: true,
+      enableAnalytics: true,
+      enableIntegrations: true,
+    }),
 
   /**
    * Full monitoring with dashboard for debugging and analysis
    */
-  full: () => initializeMonitoringSystem({
-    enableDashboard: true,
-    enableNotifications: true,
-    enableAnalytics: true,
-    enableIntegrations: true,
-    dashboardConfig: {
-      autoRefresh: true,
-      refreshInterval: 5000,
-      initialView: 'overview'
-    }
-  })
+  full: () =>
+    initializeMonitoringSystem({
+      enableDashboard: true,
+      enableNotifications: true,
+      enableAnalytics: true,
+      enableIntegrations: true,
+      dashboardConfig: {
+        autoRefresh: true,
+        refreshInterval: 5000,
+        initialView: 'overview',
+      },
+    }),
 };
 
 /**
@@ -238,7 +248,7 @@ export const MonitoringUtils = {
       priority?: TaskPriority;
       assignedAgent?: string;
       tags?: string[];
-    } = {}
+    } = {},
   ) {
     const { taskStatusMonitor } = await import('./TaskStatusMonitor.js');
     const { TaskType, TaskPriority } = await import('./TaskStatusMonitor.js');
@@ -251,22 +261,24 @@ export const MonitoringUtils = {
       assignedAgent: options.assignedAgent,
       dependencies: [],
       tags: options.tags ?? [],
-      metadata: { source: 'monitoring_utils' }
+      metadata: { source: 'monitoring_utils' },
     });
   },
 
   /**
    * Subscribe to all important status events with a simple callback
    */
-  async subscribeToAllEvents(callback: (event: any) => void) {
-    const { statusUpdateBroker, StatusEventType } = await import('./StatusUpdateBroker.js');
+  async subscribeToAllEvents(callback: (event: unknown) => void) {
+    const { statusUpdateBroker, StatusEventType } = await import(
+      './StatusUpdateBroker.js'
+    );
 
     const subscriberId = `utils_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     statusUpdateBroker.subscribe({
       subscriberId,
       eventTypes: Object.values(StatusEventType),
-      deliveryMethod: 'realtime'
+      deliveryMethod: 'realtime',
     });
 
     statusUpdateBroker.on(`delivery:${subscriberId}`, ({ event }) => {
@@ -290,16 +302,16 @@ export const MonitoringUtils = {
       timestamp: new Date().toISOString(),
       summary: {
         totalTasks: tasks.length,
-        activeTasks: tasks.filter(t => t.status === 'in_progress').length,
-        completedTasks: tasks.filter(t => t.status === 'completed').length,
-        failedTasks: tasks.filter(t => t.status === 'failed').length,
+        activeTasks: tasks.filter((t) => t.status === 'in_progress').length,
+        completedTasks: tasks.filter((t) => t.status === 'completed').length,
+        failedTasks: tasks.filter((t) => t.status === 'failed').length,
         totalAgents: agents.length,
-        activeAgents: agents.filter(a => a.status !== 'offline').length,
-        systemEfficiency: metrics.systemEfficiency
+        activeAgents: agents.filter((a) => a.status !== 'offline').length,
+        systemEfficiency: metrics.systemEfficiency,
       },
       tasks,
       agents,
-      metrics
+      metrics,
     };
   },
 
@@ -307,15 +319,47 @@ export const MonitoringUtils = {
    * Export current monitoring data for analysis
    */
   async exportData(format: 'json' | 'csv' = 'json') {
-    const { monitoringIntegrations } = await import('./MonitoringIntegrations.js');
+    const { monitoringIntegrations } = await import(
+      './MonitoringIntegrations.js'
+    );
 
     return monitoringIntegrations.exportMonitoringData(format);
-  }
+  },
 };
 
-// Default export for convenience
-export default {
+// Advanced Monitoring Components
+export {
+  RealTimeMonitoringSystem,
+  type MonitoringSnapshot,
+  type MonitoringEvent,
+  type AlertRule,
+  type PredictiveInsight,
+  realTimeMonitoringSystem,
+} from './RealTimeMonitoringSystem.js';
+
+export {
+  EnhancedMonitoringDashboard,
+  type DashboardWidget,
+  type DashboardLayout,
+  type DashboardData,
+  type ChartData,
+  enhancedMonitoringDashboard,
+} from './EnhancedMonitoringDashboard.js';
+
+export {
+  MonitoringIntegrationHub,
+  type MonitoringIntegrationConfig,
+  type CrossSystemEvent,
+  type HealthCheckResult,
+  monitoringIntegrationHub,
+} from './MonitoringIntegrationHub.js';
+
+// Note: MonitoringDeploymentManager available in deployment/MonitoringDeploymentGuide.js
+// Import directly when needed to avoid ESLint import restrictions
+
+// Named exports for convenience (avoiding default export lint warning)
+export const MonitoringSystemExports = {
   initializeMonitoringSystem,
   MonitoringPresets,
-  MonitoringUtils
+  MonitoringUtils,
 };
