@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 16,
+      "total_reinitializations": 28,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
@@ -30,12 +30,12 @@
         },
         "05:00-09:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 12
         }
       },
       "daily_history": [],
       "last_reset": "2025-09-25T05:16:31.163Z",
-      "last_updated": "2025-09-25T07:49:16.063Z"
+      "last_updated": "2025-09-25T11:50:52.047Z"
     }
   },
   "workflow_config": {
@@ -56,10 +56,10 @@
   },
   "agents": {
     "test-agent": {
-      "lastHeartbeat": "2025-09-25T07:49:16.058Z",
+      "lastHeartbeat": "2025-09-25T11:50:52.041Z",
       "status": "active",
-      "reinitialized": "2025-09-25T07:49:16.058Z",
-      "sessionId": "7f8561abb7c46869",
+      "reinitialized": "2025-09-25T11:50:52.041Z",
+      "sessionId": "2bb28ace493ed513",
       "previousSessions": [
         "8fa9d77a8dbf5e6c",
         "45d75c0ceb400ea6",
@@ -75,7 +75,19 @@
         "20e3e36ceef06b48",
         "b2ffe6b49cc60cd7",
         "1495aaed10b1d6a9",
-        "86ed8fd91249f054"
+        "86ed8fd91249f054",
+        "7f8561abb7c46869",
+        "2cc1cef8566285cc",
+        "f227bb21b4998557",
+        "34982a065b58204e",
+        "4dffde32fbbfc78d",
+        "18cab21acc23f2df",
+        "dd3ad1d2246a5340",
+        "fb0895a7bf43efd3",
+        "39595e282924a7fa",
+        "14fa84da7207919f",
+        "db0e229b005e795d",
+        "a5640ecb0648af91"
       ]
     }
   }

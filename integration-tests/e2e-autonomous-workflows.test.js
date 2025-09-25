@@ -5,17 +5,18 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { TestRig, validateModelOutput } from './test-helper.js';
-import { spawn, ChildProcess } from 'node:child_process';
+import { TestRig, validateModelOutput as _validateModelOutput } from './test-helper.js';
+import { spawn } from 'node:child_process';
 import {
   writeFileSync,
   readFileSync,
   existsSync,
-  unlinkSync,
+  unlinkSync as _unlinkSync,
   mkdirSync,
 } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { performance } from 'node:perf_hooks';
+
 /**
  * End-to-End Testing Scenarios for Autonomous Workflows
  *
@@ -746,7 +747,7 @@ describe('End-to-End Autonomous Workflows', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          } catch (_error) {
             reject(
               new Error(
                 `Failed to parse JSON response: ${stdout.substring(0, 300)}...`,

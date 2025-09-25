@@ -317,7 +317,7 @@ export async function validateTestEnvironment() {
   try {
     const fs = await import('node:fs');
     await fs.promises.access(taskManagerPath);
-  } catch (error) {
+  } catch (_error) {
     console.error(`Task Manager API not found at: ${taskManagerPath}`);
     return false;
   }
@@ -326,7 +326,7 @@ export async function validateTestEnvironment() {
   try {
     const fs = await import('node:fs');
     await fs.promises.mkdir(testDir, { recursive: true });
-  } catch (error) {
+  } catch (_error) {
     console.error(`Cannot create test directory: ${testDir}`);
     return false;
   }

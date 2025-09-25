@@ -26,7 +26,7 @@ export default async function globalSetup() {
     try {
       await fs.access(TASK_MANAGER_API);
       console.log('✅ Task Manager API validated');
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Task Manager API not found at: ${TASK_MANAGER_API}`);
     }
     // 2. Create and prepare test directories
@@ -52,7 +52,7 @@ export default async function globalSetup() {
       if (file.startsWith('test-') || file.endsWith('.temp')) {
         try {
           await fs.unlink(join(TEST_DIR, file));
-        } catch (error) {
+        } catch (_error) {
           // Ignore cleanup errors
         }
       }
@@ -110,11 +110,11 @@ export async function globalTeardown() {
   try {
     // Read setup info
     const setupInfoPath = join(TEST_DIR, 'setup-info.json');
-    let setupInfo = {};
+    let _setupInfo = {};
     try {
       const setupData = await fs.readFile(setupInfoPath, 'utf8');
-      setupInfo = JSON.parse(setupData);
-    } catch (error) {
+      _setupInfo = JSON.parse(setupData);
+    } catch (_error) {
       console.log('ℹ️ No setup info found, proceeding with default cleanup');
     }
     // Clean up test directories (but preserve results)
@@ -130,8 +130,8 @@ export async function globalTeardown() {
           } else {
             await fs.unlink(dirPath);
           }
-        } catch (error) {
-          console.log(`⚠️ Could not clean up ${dirPath}:`, error.message);
+        } catch (_error) {
+          console.log(`⚠️ Could not clean up ${dirPath}:`, _error.message);
         }
       }
     }

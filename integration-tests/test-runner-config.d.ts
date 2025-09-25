@@ -62,7 +62,7 @@ export interface TestResult {
   status: 'passed' | 'failed' | 'skipped';
   duration: number;
   error?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 export interface TestSummary {
   total: number;
@@ -90,7 +90,7 @@ export interface PerformanceMetric {
   duration: number;
   memoryUsage?: number;
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 export interface SuitePerformanceReport {
   testCount: number;

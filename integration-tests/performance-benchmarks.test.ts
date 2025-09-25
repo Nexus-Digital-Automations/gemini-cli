@@ -6,17 +6,25 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestRig } from './test-helper.js';
-import { spawn, ChildProcess } from 'node:child_process';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { spawn, ChildProcess as _ChildProcess } from 'node:child_process';
 import {
-  writeFileSync,
-  readFileSync,
-  existsSync,
-  unlinkSync,
-  statSync,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  writeFileSync as _writeFileSync,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  readFileSync as _readFileSync,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  existsSync as _existsSync,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  unlinkSync as _unlinkSync,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  statSync as _statSync,
 } from 'node:fs';
-import { join } from 'node:path';
-import { performance, PerformanceObserver } from 'node:perf_hooks';
-import { promisify } from 'node:util';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { join as _join } from 'node:path';
+import { performance } from 'node:perf_hooks';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { promisify as _promisify } from 'node:util';
 
 /**
  * Performance Benchmarking and Optimization Testing Suite
@@ -228,20 +236,21 @@ describe('Performance Benchmarks & Optimization', () => {
     async function performOperation(
       operation: string,
       iteration: number,
-    ): Promise<any> {
+    ): Promise<unknown> {
       switch (operation) {
         case 'initialize':
           return execTaskManagerCommand('initialize', [
             `PERF_AGENT_${iteration}_${Date.now()}`,
           ]);
 
-        case 'reinitialize':
+        case 'reinitialize': {
           // First initialize, then reinitialize
           const agentId = `PERF_REINIT_AGENT_${iteration}`;
           await execTaskManagerCommand('initialize', [agentId]);
           return execTaskManagerCommand('reinitialize', [agentId]);
+        }
 
-        case 'suggest-feature':
+        case 'suggest-feature': {
           const featureData = {
             title: `Performance Test Feature ${iteration}`,
             description: `Performance testing feature number ${iteration} for latency measurement and system optimization validation`,
@@ -251,8 +260,9 @@ describe('Performance Benchmarks & Optimization', () => {
           return execTaskManagerCommand('suggest-feature', [
             JSON.stringify(featureData),
           ]);
+        }
 
-        case 'approve-feature':
+        case 'approve-feature': {
           // Create feature first, then approve
           const feature = await execTaskManagerCommand('suggest-feature', [
             JSON.stringify({
@@ -268,8 +278,9 @@ describe('Performance Benchmarks & Optimization', () => {
             ]);
           }
           throw new Error('Failed to create feature for approval test');
+        }
 
-        case 'create-task-from-feature':
+        case 'create-task-from-feature': {
           // Create and approve feature first, then create task
           const taskFeature = await execTaskManagerCommand('suggest-feature', [
             JSON.stringify({
@@ -288,6 +299,7 @@ describe('Performance Benchmarks & Optimization', () => {
             ]);
           }
           throw new Error('Failed to create feature for task creation test');
+        }
 
         default:
           return execTaskManagerCommand(operation, []);
@@ -321,7 +333,8 @@ describe('Performance Benchmarks & Optimization', () => {
           latency: number;
           timestamp: number;
         }> = [];
-        let requestCount = 0;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _requestCount = 0; // Unused variable for consistency
 
         while (Date.now() - startTime < test.duration) {
           const intervalStart = Date.now();
@@ -331,19 +344,21 @@ describe('Performance Benchmarks & Optimization', () => {
           for (let i = 0; i < test.targetRPS; i++) {
             const requestStart = performance.now();
             const promise = execTaskManagerCommand(test.operation, [])
-              .then((result) => ({
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              .then((_result) => ({
                 success: true,
                 latency: performance.now() - requestStart,
                 timestamp: Date.now(),
               }))
-              .catch((error) => ({
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              .catch((_error) => ({
                 success: false,
                 latency: performance.now() - requestStart,
                 timestamp: Date.now(),
               }));
 
             batchPromises.push(promise);
-            requestCount++;
+            // requestCount++;
           }
 
           // Wait for all requests in this batch
@@ -634,7 +649,7 @@ describe('Performance Benchmarks & Optimization', () => {
 
           const batchResults = await Promise.allSettled(promises);
           const successCount = batchResults.filter(
-            (r) => r.status === 'fulfilled' && (r.value as any).success,
+            (r) => r.status === 'fulfilled' && (r.value as { success: boolean }).success,
           ).length;
 
           console.log(
@@ -673,14 +688,14 @@ describe('Performance Benchmarks & Optimization', () => {
     async function performMemoryTestOperation(
       operation: string,
       iteration: number,
-    ): Promise<any> {
+    ): Promise<unknown> {
       switch (operation) {
         case 'initialize':
           return execTaskManagerCommand('initialize', [
             `MEMORY_AGENT_${iteration}`,
           ]);
 
-        case 'suggest-feature':
+        case 'suggest-feature': {
           const featureData = {
             title: `Memory Test Feature ${iteration}`,
             description: `Memory usage testing feature number ${iteration} for resource management validation`,
@@ -690,8 +705,9 @@ describe('Performance Benchmarks & Optimization', () => {
           return execTaskManagerCommand('suggest-feature', [
             JSON.stringify(featureData),
           ]);
+        }
 
-        case 'approve-feature':
+        case 'approve-feature': {
           // Get existing features to approve
           const featuresResult = await execTaskManagerCommand('list-features', [
             JSON.stringify({ status: 'suggested' }),
@@ -706,6 +722,7 @@ describe('Performance Benchmarks & Optimization', () => {
             ]);
           }
           return { success: false, error: 'No features to approve' };
+        }
 
         default:
           return execTaskManagerCommand(operation, []);
@@ -828,7 +845,7 @@ describe('Performance Benchmarks & Optimization', () => {
   async function execTaskManagerCommand(
     command: string,
     args: string[] = [],
-  ): Promise<any> {
+  ): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const child = spawn(
         'timeout',
@@ -855,7 +872,8 @@ describe('Performance Benchmarks & Optimization', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (_error) {
             reject(
               new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
             );
@@ -875,7 +893,7 @@ describe('Performance Benchmarks & Optimization', () => {
   }
 
   function generatePerformanceReport(
-    benchmarkResults: Record<string, any>,
+    benchmarkResults: Record<string, unknown>,
   ): void {
     console.log('\n📊 PERFORMANCE BENCHMARK REPORT');
     console.log('================================');
@@ -914,7 +932,7 @@ describe('Performance Benchmarks & Optimization', () => {
   }
 
   function generateRegressionReport(
-    regressionResults: Record<string, any>,
+    regressionResults: Record<string, unknown>,
   ): void {
     console.log('\n🔍 PERFORMANCE REGRESSION REPORT');
     console.log('=================================');

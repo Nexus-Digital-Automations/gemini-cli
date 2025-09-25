@@ -5,11 +5,39 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { randomUUID } from 'node:crypto';
+
+// Define constants locally to avoid cross-module imports
+const TaskStatus = {
+  QUEUED: 'queued',
+  ASSIGNED: 'assigned',
+  IN_PROGRESS: 'in_progress',
+  BLOCKED: 'blocked',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  CANCELLED: 'cancelled',
+};
+
+const TaskPriority = {
+  CRITICAL: 'critical',
+  HIGH: 'high',
+  NORMAL: 'normal',
+  LOW: 'low',
+};
+
+const TaskCategory = {
+  FEATURE: 'feature',
+  BUG_FIX: 'bug_fix',
+  TEST: 'test',
+  DOCUMENTATION: 'documentation',
+  REFACTOR: 'refactor',
+  SECURITY: 'security',
+  PERFORMANCE: 'performance',
+  INFRASTRUCTURE: 'infrastructure',
+};
 /**
  * Types of execution errors
  */
-export var ExecutionErrorType;
+export let ExecutionErrorType;
 (function (ExecutionErrorType) {
   ExecutionErrorType['VALIDATION_FAILED'] = 'validation_failed';
   ExecutionErrorType['TOOL_NOT_FOUND'] = 'tool_not_found';
@@ -583,7 +611,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
  * Default execution strategy selector
  */
 export class DefaultExecutionStrategySelector {
-  selectStrategy(task, context) {
+  selectStrategy(task, _context) {
     // Return the task's configured strategy or generate a default one
     if (task.executionStrategy) {
       return task.executionStrategy;

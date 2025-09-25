@@ -469,28 +469,6 @@ describe('Autonomous Task Management Integration Tests', () => {
       expect(statsTimeRatio).toBeLessThan(sizeRatio * 0.5);
     }, 120000);
 
-    async function createBulkFeatures(count: number): Promise<void> {
-      const batchSize = 10;
-      for (let batch = 0; batch < Math.ceil(count / batchSize); batch++) {
-        const promises = [];
-        const batchStart = batch * batchSize;
-        const batchEnd = Math.min(batchStart + batchSize, count);
-
-        for (let i = batchStart; i < batchEnd; i++) {
-          const featureData = {
-            title: `Bulk Feature ${i + 1}`,
-            description: `Performance testing feature number ${i + 1} created for scaling analysis`,
-            business_value: `Validates system performance under load feature ${i + 1}`,
-            category: 'performance',
-          };
-          promises.push(
-            execCommand('suggest-feature', [JSON.stringify(featureData)]),
-          );
-        }
-
-        await Promise.all(promises);
-      }
-    }
   });
 
   /**
@@ -878,5 +856,31 @@ describe('Autonomous Task Management Integration Tests', () => {
         reject(new Error('Command timeout after 15 seconds'));
       }, 15000);
     });
+  }
+
+  /**
+   * Utility function to create bulk features for testing
+   */
+  async function createBulkFeatures(count: number): Promise<void> {
+    const batchSize = 10;
+    for (let batch = 0; batch < Math.ceil(count / batchSize); batch++) {
+      const promises = [];
+      const batchStart = batch * batchSize;
+      const batchEnd = Math.min(batchStart + batchSize, count);
+
+      for (let i = batchStart; i < batchEnd; i++) {
+        const featureData = {
+          title: `Bulk Feature ${i + 1}`,
+          description: `Performance testing feature number ${i + 1} created for scaling analysis`,
+          business_value: `Validates system performance under load feature ${i + 1}`,
+          category: 'performance',
+        };
+        promises.push(
+          execCommand('suggest-feature', [JSON.stringify(featureData)]),
+        );
+      }
+
+      await Promise.all(promises);
+    }
   }
 });

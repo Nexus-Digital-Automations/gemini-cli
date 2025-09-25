@@ -354,7 +354,7 @@ export interface TestResult {
   status: 'passed' | 'failed' | 'skipped';
   duration: number;
   error?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export interface TestSummary {
@@ -388,7 +388,7 @@ export async function validateTestEnvironment(): Promise<boolean> {
   try {
     const fs = await import('node:fs');
     await fs.promises.access(taskManagerPath);
-  } catch (error) {
+  } catch {
     console.error(`Task Manager API not found at: ${taskManagerPath}`);
     return false;
   }
@@ -398,7 +398,7 @@ export async function validateTestEnvironment(): Promise<boolean> {
   try {
     const fs = await import('node:fs');
     await fs.promises.mkdir(testDir, { recursive: true });
-  } catch (error) {
+  } catch {
     console.error(`Cannot create test directory: ${testDir}`);
     return false;
   }
@@ -464,7 +464,7 @@ export interface PerformanceMetric {
   duration: number;
   memoryUsage?: number;
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SuitePerformanceReport {

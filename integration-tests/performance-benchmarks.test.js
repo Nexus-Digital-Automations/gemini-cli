@@ -6,17 +6,18 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestRig } from './test-helper.js';
-import { spawn, ChildProcess } from 'node:child_process';
+import { spawn, ChildProcess as _ChildProcess } from 'node:child_process';
 import {
-  writeFileSync,
-  readFileSync,
-  existsSync,
-  unlinkSync,
-  statSync,
+  writeFileSync as _writeFileSync,
+  readFileSync as _readFileSync,
+  existsSync as _existsSync,
+  unlinkSync as _unlinkSync,
+  statSync as _statSync,
 } from 'node:fs';
-import { join } from 'node:path';
-import { performance, PerformanceObserver } from 'node:perf_hooks';
-import { promisify } from 'node:util';
+import { join as _join } from 'node:path';
+import { performance, PerformanceObserver as _PerformanceObserver } from 'node:perf_hooks';
+import { promisify as _promisify } from 'node:util';
+
 /**
  * Performance Benchmarking and Optimization Testing Suite
  *
@@ -182,12 +183,13 @@ describe('Performance Benchmarks & Optimization', () => {
           return execTaskManagerCommand('initialize', [
             `PERF_AGENT_${iteration}_${Date.now()}`,
           ]);
-        case 'reinitialize':
+        case 'reinitialize': {
           // First initialize, then reinitialize
           const agentId = `PERF_REINIT_AGENT_${iteration}`;
           await execTaskManagerCommand('initialize', [agentId]);
           return execTaskManagerCommand('reinitialize', [agentId]);
-        case 'suggest-feature':
+        }
+        case 'suggest-feature': {
           const featureData = {
             title: `Performance Test Feature ${iteration}`,
             description: `Performance testing feature number ${iteration} for latency measurement and system optimization validation`,
@@ -197,7 +199,8 @@ describe('Performance Benchmarks & Optimization', () => {
           return execTaskManagerCommand('suggest-feature', [
             JSON.stringify(featureData),
           ]);
-        case 'approve-feature':
+        }
+        case 'approve-feature': {
           // Create feature first, then approve
           const feature = await execTaskManagerCommand('suggest-feature', [
             JSON.stringify({
@@ -213,7 +216,8 @@ describe('Performance Benchmarks & Optimization', () => {
             ]);
           }
           throw new Error('Failed to create feature for approval test');
-        case 'create-task-from-feature':
+        }
+        case 'create-task-from-feature': {
           // Create and approve feature first, then create task
           const taskFeature = await execTaskManagerCommand('suggest-feature', [
             JSON.stringify({
@@ -232,6 +236,7 @@ describe('Performance Benchmarks & Optimization', () => {
             ]);
           }
           throw new Error('Failed to create feature for task creation test');
+        }
         default:
           return execTaskManagerCommand(operation, []);
       }
@@ -257,7 +262,7 @@ describe('Performance Benchmarks & Optimization', () => {
         );
         const startTime = Date.now();
         const results = [];
-        let requestCount = 0;
+        let _requestCount = 0;
         while (Date.now() - startTime < test.duration) {
           const intervalStart = Date.now();
           const batchPromises = [];
@@ -265,18 +270,18 @@ describe('Performance Benchmarks & Optimization', () => {
           for (let i = 0; i < test.targetRPS; i++) {
             const requestStart = performance.now();
             const promise = execTaskManagerCommand(test.operation, [])
-              .then((result) => ({
+              .then((_result) => ({
                 success: true,
                 latency: performance.now() - requestStart,
                 timestamp: Date.now(),
               }))
-              .catch((error) => ({
+              .catch((_error) => ({
                 success: false,
                 latency: performance.now() - requestStart,
                 timestamp: Date.now(),
               }));
             batchPromises.push(promise);
-            requestCount++;
+            // requestCount++;
           }
           // Wait for all requests in this batch
           const batchResults = await Promise.all(batchPromises);
@@ -544,7 +549,7 @@ describe('Performance Benchmarks & Optimization', () => {
           return execTaskManagerCommand('initialize', [
             `MEMORY_AGENT_${iteration}`,
           ]);
-        case 'suggest-feature':
+        case 'suggest-feature': {
           const featureData = {
             title: `Memory Test Feature ${iteration}`,
             description: `Memory usage testing feature number ${iteration} for resource management validation`,
@@ -554,7 +559,8 @@ describe('Performance Benchmarks & Optimization', () => {
           return execTaskManagerCommand('suggest-feature', [
             JSON.stringify(featureData),
           ]);
-        case 'approve-feature':
+        }
+        case 'approve-feature': {
           // Get existing features to approve
           const featuresResult = await execTaskManagerCommand('list-features', [
             JSON.stringify({ status: 'suggested' }),
@@ -569,6 +575,7 @@ describe('Performance Benchmarks & Optimization', () => {
             ]);
           }
           return { success: false, error: 'No features to approve' };
+        }
         default:
           return execTaskManagerCommand(operation, []);
       }
@@ -680,7 +687,7 @@ describe('Performance Benchmarks & Optimization', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          } catch (_error) {
             reject(
               new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
             );

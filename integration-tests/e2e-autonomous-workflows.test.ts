@@ -5,13 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { TestRig, validateModelOutput } from './test-helper.js';
-import { spawn, ChildProcess } from 'node:child_process';
+import { TestRig } from './test-helper.js';
+import { spawn } from 'node:child_process';
 import {
   writeFileSync,
   readFileSync,
   existsSync,
-  unlinkSync,
   mkdirSync,
 } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -225,7 +224,7 @@ describe('End-to-End Autonomous Workflows', () => {
       ]);
       expect(recoveryFeatures.success).toBe(true);
       expect(
-        recoveryFeatures.features.some((f: any) => f.id === featureId),
+        recoveryFeatures.features.some((f: { id: string }) => f.id === featureId),
       ).toBe(true);
     });
 
@@ -255,7 +254,7 @@ describe('End-to-End Autonomous Workflows', () => {
       expect(bulkFeatures.length).toBe(bulkSize);
 
       // Bulk approve features
-      const featureIds = bulkFeatures.map((f: any) => f.id);
+      const featureIds = bulkFeatures.map((f: { id: string }) => f.id);
       const bulkApproveResult = await execTaskManagerCommand(
         'bulk-approve-features',
         [
@@ -719,7 +718,7 @@ describe('End-to-End Autonomous Workflows', () => {
       expect(features.success).toBe(true);
 
       const externalFeatures = features.features.filter(
-        (f: any) => f.metadata && f.metadata.external_source,
+        (f: { metadata?: { external_source?: unknown } }) => f.metadata && f.metadata.external_source,
       );
       expect(externalFeatures.length).toBe(webhookPayloads.length);
 
@@ -820,7 +819,7 @@ describe('End-to-End Autonomous Workflows', () => {
 
       // At least one should succeed
       const successful = stopResults.filter(
-        (r) => r.status === 'fulfilled' && (r.value as any).success,
+        (r) => r.status === 'fulfilled' && (r.value as { success: boolean }).success,
       );
       expect(successful.length).toBeGreaterThan(0);
 
@@ -840,7 +839,7 @@ describe('End-to-End Autonomous Workflows', () => {
   async function execTaskManagerCommand(
     command: string,
     args: string[] = [],
-  ): Promise<any> {
+  ): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const child = spawn(
         'timeout',
@@ -867,7 +866,7 @@ describe('End-to-End Autonomous Workflows', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-          } catch (error) {
+          } catch {
             reject(
               new Error(
                 `Failed to parse JSON response: ${stdout.substring(0, 300)}...`,

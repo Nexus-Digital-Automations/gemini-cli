@@ -7,6 +7,7 @@
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { EOL } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { env } from 'node:process';
 import fs from 'node:fs';

@@ -64,7 +64,7 @@ afterAll(async () => {
         stdio: 'ignore',
         timeout: 5000,
       });
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
   }
@@ -72,7 +72,7 @@ afterAll(async () => {
   for (const filePath of testResources.tempFiles) {
     try {
       await fs.unlink(filePath);
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
   }
@@ -80,7 +80,7 @@ afterAll(async () => {
   for (const dirPath of testResources.tempDirs) {
     try {
       await fs.rmdir(dirPath, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
   }
@@ -88,7 +88,7 @@ afterAll(async () => {
   for (const pid of testResources.processes) {
     try {
       process.kill(pid, 'SIGTERM');
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
   }

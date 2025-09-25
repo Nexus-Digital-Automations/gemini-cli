@@ -397,26 +397,6 @@ describe('Autonomous Task Management Integration Tests', () => {
       expect(listTimeRatio).toBeLessThan(sizeRatio * 0.5);
       expect(statsTimeRatio).toBeLessThan(sizeRatio * 0.5);
     }, 120000);
-    async function createBulkFeatures(count) {
-      const batchSize = 10;
-      for (let batch = 0; batch < Math.ceil(count / batchSize); batch++) {
-        const promises = [];
-        const batchStart = batch * batchSize;
-        const batchEnd = Math.min(batchStart + batchSize, count);
-        for (let i = batchStart; i < batchEnd; i++) {
-          const featureData = {
-            title: `Bulk Feature ${i + 1}`,
-            description: `Performance testing feature number ${i + 1} created for scaling analysis`,
-            business_value: `Validates system performance under load feature ${i + 1}`,
-            category: 'performance',
-          };
-          promises.push(
-            execCommand('suggest-feature', [JSON.stringify(featureData)]),
-          );
-        }
-        await Promise.all(promises);
-      }
-    }
   });
   /**
    * Error Handling and Recovery Testing

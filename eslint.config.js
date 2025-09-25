@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 // --- ---
 
 // Determine the monorepo root (assuming eslint.config.js is at the root)
-const projectRoot = __dirname;
+const _projectRoot = __dirname;
 
 export default tseslint.config(
   {
@@ -70,8 +70,8 @@ export default tseslint.config(
     },
   },
   {
-    // General overrides and rules for the project (TS/TSX files)
-    files: ['packages/*/src/**/*.{ts,tsx}'], // Target only TS/TSX in the cli package
+    // General overrides and rules for the project (TS/TSX/JS files)
+    files: ['packages/*/src/**/*.{ts,tsx,js}'], // Target TS/TSX/JS in packages
     plugins: {
       import: importPlugin,
     },
@@ -84,6 +84,8 @@ export default tseslint.config(
       globals: {
         ...globals.node,
         ...globals.es2021,
+        console: 'readonly',
+        process: 'readonly',
       },
     },
     rules: {
@@ -130,6 +132,7 @@ export default tseslint.config(
             '**/config/**',
             '**/themes/**',
             '**/utils/**',
+            '**/core/**',
           ],
         },
       ],
