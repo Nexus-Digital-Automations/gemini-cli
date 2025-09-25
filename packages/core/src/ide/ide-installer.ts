@@ -32,8 +32,9 @@ async function findVsCodeCommand(
   const vscodeCommand = getVsCodeCommand(platform);
   try {
     if (platform === 'win32') {
+      // SECURITY: Use execFileSync instead of execSync to prevent command injection
       const result = child_process
-        .execSync(`where.exe ${vscodeCommand}`)
+        .execFileSync('where.exe', [vscodeCommand], { encoding: 'utf8' })
         .toString()
         .trim();
       // `where.exe` can return multiple paths. Return the first one.
@@ -42,7 +43,8 @@ async function findVsCodeCommand(
         return firstPath;
       }
     } else {
-      child_process.execSync(`command -v ${vscodeCommand}`, {
+      // SECURITY: Use execFileSync with array arguments to prevent command injection
+      child_process.execFileSync('which', [vscodeCommand], {
         stdio: 'ignore',
       });
       return vscodeCommand;

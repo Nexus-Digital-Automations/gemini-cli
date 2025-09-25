@@ -6,6 +6,7 @@
 
 // Export config
 export * from './config/config.js';
+export * from './config/autonomousTaskConfig.js';
 export * from './output/types.js';
 export * from './output/json-formatter.js';
 export * from './policy/types.js';
@@ -69,6 +70,9 @@ export * from './services/fileDiscoveryService.js';
 export * from './services/gitService.js';
 export * from './services/chatRecordingService.js';
 export * from './services/fileSystemService.js';
+export * from './services/autonomousTaskIntegrator.js';
+export * from './services/integrationBridge.js';
+export * from './services/autonomousTaskApi.js';
 
 // Export IDE specific logic
 export * from './ide/ide-client.js';

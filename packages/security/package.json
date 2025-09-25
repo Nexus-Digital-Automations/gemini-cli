@@ -1,0 +1,87 @@
+{
+  "name": "@gemini-cli/security",
+  "version": "1.0.0",
+  "description": "Comprehensive security system for Gemini CLI with enterprise-grade protection, compliance, and monitoring",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "security:scan": "semgrep --config=p/security-audit src/",
+    "security:validate": "node dist/cli/security-validator.js",
+    "security:audit": "node dist/cli/security-auditor.js"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "security",
+    "encryption",
+    "access-control",
+    "audit",
+    "compliance",
+    "monitoring",
+    "threat-detection",
+    "data-protection",
+    "privacy",
+    "enterprise"
+  ],
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./validation": {
+      "import": "./dist/validation/index.js",
+      "types": "./dist/validation/index.d.ts"
+    },
+    "./audit": {
+      "import": "./dist/audit/index.js",
+      "types": "./dist/audit/index.d.ts"
+    },
+    "./access": {
+      "import": "./dist/access/index.js",
+      "types": "./dist/access/index.d.ts"
+    },
+    "./encryption": {
+      "import": "./dist/encryption/index.js",
+      "types": "./dist/encryption/index.d.ts"
+    },
+    "./monitoring": {
+      "import": "./dist/monitoring/index.js",
+      "types": "./dist/monitoring/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/google-gemini/gemini-cli.git",
+    "directory": "packages/security"
+  },
+  "bugs": {
+    "url": "https://github.com/google-gemini/gemini-cli/issues"
+  },
+  "homepage": "https://github.com/google-gemini/gemini-cli/tree/main/packages/security"
+}
