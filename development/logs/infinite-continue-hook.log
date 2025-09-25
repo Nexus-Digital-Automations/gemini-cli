@@ -1,23 +1,23 @@
 {
   "execution": {
-    "timestamp": "2025-09-25T17:56:23.102Z",
+    "timestamp": "2025-09-25T19:28:41.024Z",
     "projectRoot": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
     "hookVersion": "1.0.0",
     "nodeVersion": "v22.20.0",
     "platform": "darwin",
     "arch": "arm64",
-    "pid": 80162,
+    "pid": 65960,
     "cwd": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
-    "endTimestamp": "2025-09-25T17:56:23.109Z",
-    "durationMs": 7
+    "endTimestamp": "2025-09-25T19:28:41.033Z",
+    "durationMs": 9
   },
   "input": {
-    "sessionId": "6bc36577-80ac-45a9-8a51-a320905f5be0",
-    "transcriptPath": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/6bc36577-80ac-45a9-8a51-a320905f5be0.jsonl",
+    "sessionId": "80873b9e-647a-497b-8533-7489802114b5",
+    "transcriptPath": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/80873b9e-647a-497b-8533-7489802114b5.jsonl",
     "stopHookActive": false,
     "rawInput": {
-      "session_id": "6bc36577-80ac-45a9-8a51-a320905f5be0",
-      "transcript_path": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/6bc36577-80ac-45a9-8a51-a320905f5be0.jsonl",
+      "session_id": "80873b9e-647a-497b-8533-7489802114b5",
+      "transcript_path": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/80873b9e-647a-497b-8533-7489802114b5.jsonl",
       "cwd": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
       "permission_mode": "default",
       "hook_event_name": "Stop",
@@ -28,41 +28,225 @@
   "decisions": [],
   "flow": [
     {
-      "timestamp": "2025-09-25T17:56:23.103Z",
-      "message": "Raw input data: \"{\"session_id\":\"6bc36577-80ac-45a9-8a51-a320905f5be0\",\"transcript_path\":\"/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/6bc36577-80ac-45a9-8a51-a320905f5be0.jsonl\",\"cwd\":\"/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli\",\"permission_mode\":\"default\",\"hook_event_name\":\"Stop\",\"stop_hook_active\":false}\""
+      "timestamp": "2025-09-25T19:28:41.024Z",
+      "message": "Raw input data: \"{\"session_id\":\"80873b9e-647a-497b-8533-7489802114b5\",\"transcript_path\":\"/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/80873b9e-647a-497b-8533-7489802114b5.jsonl\",\"cwd\":\"/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli\",\"permission_mode\":\"default\",\"hook_event_name\":\"Stop\",\"stop_hook_active\":false}\""
     },
     {
-      "timestamp": "2025-09-25T17:56:23.103Z",
+      "timestamp": "2025-09-25T19:28:41.024Z",
       "message": "Input data length: 363"
     },
     {
-      "timestamp": "2025-09-25T17:56:23.103Z",
+      "timestamp": "2025-09-25T19:28:41.024Z",
       "message": "Received input from Claude Code"
     },
     {
-      "timestamp": "2025-09-25T17:56:23.103Z",
+      "timestamp": "2025-09-25T19:28:41.024Z",
       "message": "Received Stop event from Claude Code"
     },
     {
-      "timestamp": "2025-09-25T17:56:23.109Z",
-      "message": "ERROR in stop-hook-main: Expected double-quoted property name in JSON at position 25647 (line 427 column 1)"
+      "timestamp": "2025-09-25T19:28:41.028Z",
+      "message": "Found 19 total agents in TODO.json"
     },
     {
-      "timestamp": "2025-09-25T17:56:23.109Z",
-      "message": "Exiting with code 2: Error handled - continuing infinite mode: Expected double-quoted property name in JSON at position 25647 (line 427 column 1)"
+      "timestamp": "2025-09-25T19:28:41.028Z",
+      "message": "🧹 Starting multi-project stale agent cleanup across 2 projects..."
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.028Z",
+      "message": "No FEATURES.json found in /Users/jeremyparker/Desktop/Claude Coding Projects/AIgent/bytebot - skipping"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.029Z",
+      "message": "Removed stale agent from /Users/jeremyparker/infinite-continue-stop-hook: claude-agent-fresh"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Updated /Users/jeremyparker/infinite-continue-stop-hook/FEATURES.json with cleanup results"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "🧹 Multi-project cleanup complete: 1 agents removed, 0 tasks unassigned, 0 orphaned tasks reset"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "✅ Multi-project cleanup: 1 stale agents removed, 0 tasks unassigned, 0 orphaned tasks reset across 2 projects"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent LINTER_FIX_AGENT: heartbeat=2025-09-25T17:42:24.300Z, timeSince=6377s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent LINTING_COMPLETION_MAXIMUM_AGENTS: heartbeat=2025-09-25T17:42:43.345Z, timeSince=6358s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent gemini-cli-agent: heartbeat=2025-09-25T17:57:31.374Z, timeSince=5470s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent CLAUDE_AGENT_001: heartbeat=2025-09-25T17:44:11.861Z, timeSince=6269s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent var-fixer-agent: heartbeat=2025-09-25T17:44:18.423Z, timeSince=6263s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent AGENT_001: heartbeat=2025-09-25T18:50:46.005Z, timeSince=2275s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent fix-unused-vars: heartbeat=2025-09-25T17:47:05.324Z, timeSince=6096s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent core-eslint-fixer: heartbeat=2025-09-25T17:47:06.025Z, timeSince=6095s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent misc-linter-agent: heartbeat=2025-09-25T17:47:09.017Z, timeSince=6092s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent AGENT_LINTER_FINAL: heartbeat=2025-09-25T18:12:32.337Z, timeSince=4569s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent eslint-fix-agent: heartbeat=2025-09-25T18:52:36.877Z, timeSince=2164s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent LINTING_AGENT_001: heartbeat=2025-09-25T18:52:37.849Z, timeSince=2163s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent default-case-fixer: heartbeat=2025-09-25T18:53:20.407Z, timeSince=2121s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent agent-eslint-type-imports: heartbeat=2025-09-25T18:58:27.570Z, timeSince=1813s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent AGENT_1: heartbeat=2025-09-25T18:58:29.162Z, timeSince=1812s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent LINTER_AGENT_BUDGET_TASK: heartbeat=2025-09-25T18:58:31.035Z, timeSince=1810s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent TYPESCRIPT_ESLINT_FIX_AGENT: heartbeat=2025-09-25T18:58:31.376Z, timeSince=1810s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent agent_fix_unused_vars: heartbeat=2025-09-25T18:58:32.739Z, timeSince=1808s, isActive=false"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Agent import-export-fixer: heartbeat=2025-09-25T18:59:18.659Z, timeSince=1762s, isActive=true"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: LINTER_FIX_AGENT"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: LINTING_COMPLETION_MAXIMUM_AGENTS"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: gemini-cli-agent"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: CLAUDE_AGENT_001"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: var-fixer-agent"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: AGENT_001"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: fix-unused-vars"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: core-eslint-fixer"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: misc-linter-agent"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: AGENT_LINTER_FINAL"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: eslint-fix-agent"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: LINTING_AGENT_001"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: default-case-fixer"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: agent-eslint-type-imports"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: AGENT_1"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: LINTER_AGENT_BUDGET_TASK"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: TYPESCRIPT_ESLINT_FIX_AGENT"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.030Z",
+      "message": "Removed stale agent: agent_fix_unused_vars"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.033Z",
+      "message": "Removed 18 stale agents from TODO.json"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.033Z",
+      "message": "Running automatic task sorting and test error reclassification"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.033Z",
+      "message": "Task sorting completed - no reclassification needed"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.033Z",
+      "message": "Active agents found: 1, Stale agents removed: 18, Tasks unassigned: 0, Stale tasks reset: 0"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.033Z",
+      "message": "Stop endpoint triggered - allowing ONE stop, then returning to infinite mode"
+    },
+    {
+      "timestamp": "2025-09-25T19:28:41.033Z",
+      "message": "Exiting with code 0: Endpoint-triggered stop (single use)"
     }
   ],
   "output": {
-    "exitCode": 2,
-    "exitReason": "Error handled - continuing infinite mode: Expected double-quoted property name in JSON at position 25647 (line 427 column 1)"
+    "exitCode": 0,
+    "exitReason": "Endpoint-triggered stop (single use)"
   },
-  "errors": [
-    {
-      "timestamp": "2025-09-25T17:56:23.109Z",
-      "context": "stop-hook-main",
-      "message": "Expected double-quoted property name in JSON at position 25647 (line 427 column 1)",
-      "stack": "SyntaxError: Expected double-quoted property name in JSON at position 25647 (line 427 column 1)\n    at JSON.parse (<anonymous>)\n    at TaskStorage.readTodoSync (/Users/jeremyparker/infinite-continue-stop-hook/lib/modules/TaskStorage.js:74:19)\n    at TaskStorage.readTodoFast (/Users/jeremyparker/infinite-continue-stop-hook/lib/modules/TaskStorage.js:122:17)\n    at TaskStorage.readTodo (/Users/jeremyparker/infinite-continue-stop-hook/lib/modules/TaskStorage.js:150:22)\n    at TaskManager.readTodo (/Users/jeremyparker/infinite-continue-stop-hook/lib/taskManager.js:179:37)\n    at Socket.<anonymous> (/Users/jeremyparker/infinite-continue-stop-hook/stop-hook.js:699:40)",
-      "name": "SyntaxError"
-    }
-  ]
+  "errors": []
 }
