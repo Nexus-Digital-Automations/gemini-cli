@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import React from 'react';
+import _React from 'react';
 import { render, act } from '@testing-library/react';
 import { BudgetDisplay, type BudgetDisplayProps } from '../BudgetDisplay.js';
 import { createBudgetTracker } from '@google/gemini-cli-core';

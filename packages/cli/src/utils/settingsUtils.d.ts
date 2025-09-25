@@ -22,7 +22,7 @@ type FlattenedSchema = Record<
 >;
 /** Returns a flattened schema, the first call is memoized for future requests. */
 export declare function getFlattenedSchema(): FlattenedSchema;
-declare function clearFlattenedSchema(): void;
+declare function _clearFlattenedSchema(): void;
 /**
  * Get all settings grouped by category
  */

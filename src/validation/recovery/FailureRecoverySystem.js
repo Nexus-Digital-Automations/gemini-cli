@@ -13,6 +13,7 @@
  */
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
+import os from 'node:os';
 /**
  * Recovery strategy types
  */
@@ -242,7 +243,7 @@ export class FailureRecoverySystem extends EventEmitter {
      */
     async getSystemState() {
         const memoryUsage = process.memoryUsage();
-        const totalMemory = require('node:os').totalmem();
+        const totalMemory = os.totalmem();
         return {
             resources: {
                 cpu: process.cpuUsage().user / 1000000, // Convert to percentage approximation

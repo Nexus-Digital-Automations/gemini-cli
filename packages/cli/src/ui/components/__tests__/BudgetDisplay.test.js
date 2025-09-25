@@ -11,7 +11,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
  * SPDX-License-Identifier: Apache-2.0
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import React from 'react';
+import _React from 'react';
 import { render, act } from '@testing-library/react';
 import { BudgetDisplay } from '../BudgetDisplay.js';
 import { createBudgetTracker } from '@google/gemini-cli-core';

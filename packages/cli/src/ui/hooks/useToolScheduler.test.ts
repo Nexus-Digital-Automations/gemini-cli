@@ -255,7 +255,7 @@ describe('useReactToolScheduler', () => {
           fileDiff: 'Mock tool requires confirmation',
           type: 'edit',
           title: 'Mock Tool Requires Confirmation',
-        }) as any,
+        }),
     );
 
     vi.useFakeTimers();
@@ -295,7 +295,7 @@ describe('useReactToolScheduler', () => {
       callId: 'call1',
       name: 'mockTool',
       args: { param: 'value' },
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -344,7 +344,7 @@ describe('useReactToolScheduler', () => {
       callId: 'call1',
       name: 'nonexistentTool',
       args: {},
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -387,7 +387,7 @@ describe('useReactToolScheduler', () => {
       callId: 'call1',
       name: 'mockTool',
       args: {},
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -423,7 +423,7 @@ describe('useReactToolScheduler', () => {
       callId: 'call1',
       name: 'mockTool',
       args: {},
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -464,7 +464,7 @@ describe('useReactToolScheduler', () => {
       callId: 'callConfirm',
       name: 'mockToolRequiresConfirmation',
       args: { data: 'sensitive' },
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -520,7 +520,7 @@ describe('useReactToolScheduler', () => {
       callId: 'callConfirmCancel',
       name: 'mockToolRequiresConfirmation',
       args: {},
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -592,7 +592,7 @@ describe('useReactToolScheduler', () => {
       callId: 'liveCall',
       name: 'mockToolWithLiveOutput',
       args: {},
-    } as any;
+    };
 
     act(() => {
       schedule(request, new AbortController().signal);
@@ -678,8 +678,8 @@ describe('useReactToolScheduler', () => {
     const { result } = renderScheduler();
     const schedule = result.current[1];
     const requests: ToolCallRequestInfo[] = [
-      { callId: 'multi1', name: 'tool1', args: { p: 1 } } as any,
-      { callId: 'multi2', name: 'tool2', args: { p: 2 } } as any,
+      { callId: 'multi1', name: 'tool1', args: { p: 1 } },
+      { callId: 'multi2', name: 'tool2', args: { p: 2 } },
     ];
 
     act(() => {
@@ -765,12 +765,12 @@ describe('useReactToolScheduler', () => {
       callId: 'run1',
       name: 'mockTool',
       args: {},
-    } as any;
+    };
     const request2: ToolCallRequestInfo = {
       callId: 'run2',
       name: 'mockTool',
       args: {},
-    } as any;
+    };
 
     act(() => {
       schedule(request1, new AbortController().signal);
@@ -806,7 +806,7 @@ describe('mapToDisplay', () => {
     callId: 'testCallId',
     name: 'testTool',
     args: { foo: 'bar' },
-  } as any;
+  };
 
   const baseTool = new MockTool({
     name: 'testTool',
@@ -828,7 +828,7 @@ describe('mapToDisplay', () => {
     ],
     resultDisplay: 'Test display output',
     error: undefined,
-  } as any;
+  };
 
   // Define a more specific type for extraProps for these tests
   // This helps ensure that tool and confirmationDetails are only accessed when they are expected to exist.
@@ -938,7 +938,7 @@ describe('mapToDisplay', () => {
         response: baseResponse,
       },
       expectedStatus: ToolCallStatus.Success,
-      expectedResultDisplay: baseResponse.resultDisplay as any,
+      expectedResultDisplay: baseResponse.resultDisplay,
       expectedName: baseTool.displayName,
       expectedDescription: baseInvocation.getDescription(),
     },
