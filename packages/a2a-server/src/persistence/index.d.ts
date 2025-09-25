@@ -37,13 +37,36 @@
  * ```
  */
 export { PersistenceStorageAPI } from './PersistenceStorageAPI.js';
-export type { PersistenceConfig, StorageStatistics, StorageOperationResult, } from './PersistenceStorageAPI.js';
+export type {
+  PersistenceConfig,
+  StorageStatistics,
+  StorageOperationResult,
+} from './PersistenceStorageAPI.js';
 export { FileBasedTaskStore } from './FileBasedTaskStore.js';
-export type { FileBasedStorageConfig, TaskSessionMetadata, StorageMetrics, } from './FileBasedTaskStore.js';
+export type {
+  FileBasedStorageConfig,
+  TaskSessionMetadata,
+  StorageMetrics,
+} from './FileBasedTaskStore.js';
 export { SessionManager } from './SessionManager.js';
-export type { SessionOwnership, TaskCorrelation, SessionHandoff, } from './SessionManager.js';
+export type {
+  SessionOwnership,
+  TaskCorrelation,
+  SessionHandoff,
+} from './SessionManager.js';
 export { ConflictResolver } from './ConflictResolver.js';
-export type { ConflictType, ResolutionStrategy, ConflictAnalysis, ConflictResolution, ResourceLock, } from './ConflictResolver.js';
+export type {
+  ConflictType,
+  ResolutionStrategy,
+  ConflictAnalysis,
+  ConflictResolution,
+  ResourceLock,
+} from './ConflictResolver.js';
 export { DataIntegrityManager } from './DataIntegrityManager.js';
-export type { IntegrityCheckResult, BackupMetadata, RecoveryOperation, IntegrityConfig, } from './DataIntegrityManager.js';
+export type {
+  IntegrityCheckResult,
+  BackupMetadata,
+  RecoveryOperation,
+  IntegrityConfig,
+} from './DataIntegrityManager.js';
 export { GCSTaskStore, NoOpTaskStore } from './gcs.js';

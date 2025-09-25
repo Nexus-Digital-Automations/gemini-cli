@@ -7,6 +7,9 @@
 import { BaseDeclarativeTool, BaseToolInvocation, Kind, ToolConfirmationOutcome, } from './tools.js';
 import { ToolErrorType } from './tool-error.js';
 import { getErrorMessage } from '../utils/errors.js';
+import { getComponentLogger } from '../utils/logger.js';
+
+const logger = getComponentLogger('web-fetch');
 import { ApprovalMode, DEFAULT_GEMINI_FLASH_MODEL } from '../config/config.js';
 import { getResponseText } from '../utils/partUtils.js';
 import { fetchWithTimeout, isPrivateIp } from '../utils/fetch.js';
@@ -122,7 +125,7 @@ ${textContent}
         try {
             const response = await geminiClient.generateContent([{ role: 'user', parts: [{ text: userPrompt }] }], { tools: [{ urlContext: {} }] }, signal, // Pass signal
             DEFAULT_GEMINI_FLASH_MODEL);
-            console.debug(`[WebFetchTool] Full response for prompt "${userPrompt.substring(0, 50)}...":`, JSON.stringify(response, null, 2));
+            logger.debug('Full response for prompt', { prompt: userPrompt.substring(0, 50), response: JSON.stringify(response, null, 2) });
             let responseText = getResponseText(response) || '';
             const urlContextMeta = response.candidates?.[0]?.urlContextMetadata;
             const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
@@ -185,7 +188,7 @@ ${sourceListFormatted.join('\n')}`;
                 }
             }
             const llmContent = responseText;
-            console.debug(`[WebFetchTool] Formatted tool response for prompt "${userPrompt}:\n\n":`, llmContent);
+            logger.debug('Formatted tool response for prompt', { prompt: userPrompt, llmContent });
             return {
                 llmContent,
                 returnDisplay: `Content processed from prompt.`,
@@ -193,7 +196,7 @@ ${sourceListFormatted.join('\n')}`;
         }
         catch (error) {
             const errorMessage = `Error processing web content for prompt "${userPrompt.substring(0, 50)}...": ${getErrorMessage(error)}`;
-            console.error(errorMessage, error);
+            logger.error(errorMessage, { error });
             return {
                 llmContent: `Error: ${errorMessage}`,
                 returnDisplay: `Error: ${errorMessage}`,

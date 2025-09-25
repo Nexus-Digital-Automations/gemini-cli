@@ -9,33 +9,32 @@ import { expect } from 'vitest';
 // eslint-disable-next-line no-control-regex
 const invalidCharsRegex = /[\b\x1b]/;
 function toHaveOnlyValidCharacters(buffer) {
-     
-    const { isNot } = this;
-    let pass = true;
-    const invalidLines = [];
-    for (let i = 0; i < buffer.lines.length; i++) {
-        const line = buffer.lines[i];
-        if (line.includes('\n')) {
-            pass = false;
-            invalidLines.push({ line: i, content: line });
-            break; // Fail fast on newlines
-        }
-        if (invalidCharsRegex.test(line)) {
-            pass = false;
-            invalidLines.push({ line: i, content: line });
-        }
+  const { isNot } = this;
+  let pass = true;
+  const invalidLines = [];
+  for (let i = 0; i < buffer.lines.length; i++) {
+    const line = buffer.lines[i];
+    if (line.includes('\n')) {
+      pass = false;
+      invalidLines.push({ line: i, content: line });
+      break; // Fail fast on newlines
     }
-    return {
-        pass,
-        message: () => `Expected buffer ${isNot ? 'not ' : ''}to have only valid characters, but found invalid characters in lines:\n${invalidLines
-            .map((l) => `  [${l.line}]: "${l.content}"`) /* This line was changed */
-            .join('\n')}`,
-        actual: buffer.lines,
-        expected: 'Lines with no line breaks, backspaces, or escape codes.',
-    };
+    if (invalidCharsRegex.test(line)) {
+      pass = false;
+      invalidLines.push({ line: i, content: line });
+    }
+  }
+  return {
+    pass,
+    message: () =>
+      `Expected buffer ${isNot ? 'not ' : ''}to have only valid characters, but found invalid characters in lines:\n${invalidLines
+        .map((l) => `  [${l.line}]: "${l.content}"`) /* This line was changed */
+        .join('\n')}`,
+    actual: buffer.lines,
+    expected: 'Lines with no line breaks, backspaces, or escape codes.',
+  };
 }
 expect.extend({
-    toHaveOnlyValidCharacters,
-     
+  toHaveOnlyValidCharacters,
 });
 //# sourceMappingURL=customMatchers.js.map

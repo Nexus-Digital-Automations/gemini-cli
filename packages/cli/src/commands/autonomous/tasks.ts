@@ -10,7 +10,7 @@ import {
   addTaskCommand,
   cancelTaskCommand,
   showTaskCommand,
-  retryTaskCommand
+  retryTaskCommand,
 } from './tasks/index.js';
 
 export const tasksCommand: CommandModule = {

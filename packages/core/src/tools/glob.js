@@ -11,6 +11,9 @@ import { BaseDeclarativeTool, BaseToolInvocation, Kind } from './tools.js';
 import { shortenPath, makeRelative } from '../utils/paths.js';
 import { DEFAULT_FILE_FILTERING_OPTIONS, } from '../config/config.js';
 import { ToolErrorType } from './tool-error.js';
+import { getComponentLogger } from '../utils/logger.js';
+
+const logger = getComponentLogger('glob');
 /**
  * Sorts file entries based on recency and then alphabetically.
  * Recent files (modified within recencyThresholdMs) are listed first, newest to oldest.
@@ -160,7 +163,7 @@ class GlobToolInvocation extends BaseToolInvocation {
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error(`GlobLogic execute Error: ${errorMessage}`, error);
+            logger.error('GlobLogic execute Error', { message: errorMessage, error });
             const rawError = `Error during glob search operation: ${errorMessage}`;
             return {
                 llmContent: rawError,

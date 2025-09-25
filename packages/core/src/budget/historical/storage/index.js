@@ -5,5 +5,8 @@
  */
 
 // Export storage implementations
-export { FileBasedTimeSeriesStorage, createFileBasedTimeSeriesStorage, } from './FileBasedTimeSeriesStorage.js';
+export {
+  FileBasedTimeSeriesStorage,
+  createFileBasedTimeSeriesStorage,
+} from './FileBasedTimeSeriesStorage.js';
 //# sourceMappingURL=index.js.map

@@ -218,6 +218,10 @@ export class ResourceRanking {
                 if (candidate.metadata.category === 'strategic')
                     score *= 1.25;
                 break;
+            default:
+                // Handle unexpected business phases
+                console.warn(`Unknown business phase: ${this.config.businessContext.phase}`);
+                break;
         }
         // Adjust based on strategic focus
         for (const focus of this.config.businessContext.strategicFocus) {
@@ -274,6 +278,10 @@ export class ResourceRanking {
             case 'deferred':
                 score -= 20;
                 break;
+            default:
+                // Handle unexpected priority levels
+                console.warn(`Unknown priority level: ${candidate.priority}`);
+                break;
         }
         return Math.min(100, Math.max(0, score));
     }
@@ -300,6 +308,10 @@ export class ResourceRanking {
             case 'low':
                 if (candidate.metadata.category === 'experimental')
                     score += 10;
+                break;
+            default:
+                // Handle unexpected competitive pressure levels
+                console.warn(`Unknown competitive pressure level: ${this.config.businessContext.competitivePressure}`);
                 break;
         }
         // Factor in market conditions

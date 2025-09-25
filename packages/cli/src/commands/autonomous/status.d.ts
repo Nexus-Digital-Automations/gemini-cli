@@ -6,9 +6,9 @@
 
 import type { CommandModule } from 'yargs';
 interface StatusOptions {
-    json?: boolean;
-    watch?: boolean;
-    interval?: number;
+  json?: boolean;
+  watch?: boolean;
+  interval?: number;
 }
 export declare const statusCommand: CommandModule<object, StatusOptions>;
 export {};

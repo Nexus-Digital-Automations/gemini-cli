@@ -6,11 +6,11 @@
 
 import type { CommandModule } from 'yargs';
 interface ShowTaskOptions {
-    taskId: string;
-    verbose?: boolean;
-    logs?: boolean;
-    'show-subtasks'?: boolean;
-    'show-dependencies'?: boolean;
+  taskId: string;
+  verbose?: boolean;
+  logs?: boolean;
+  'show-subtasks'?: boolean;
+  'show-dependencies'?: boolean;
 }
 export declare const showTaskCommand: CommandModule<object, ShowTaskOptions>;
 export {};

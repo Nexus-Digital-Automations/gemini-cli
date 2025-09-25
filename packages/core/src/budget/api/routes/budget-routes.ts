@@ -329,21 +329,23 @@ export function createBudgetRouter(): Router {
   );
 
   // Error handling middleware
-  router.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-    logger.error('Budget API route error', {
-      error: error.message,
-      path: req.path,
-      method: req.method,
-      timestamp: new Date().toISOString(),
-    });
+  router.use(
+    (error: Error, req: Request, res: Response, next: NextFunction) => {
+      logger.error('Budget API route error', {
+        error: error.message,
+        path: req.path,
+        method: req.method,
+        timestamp: new Date().toISOString(),
+      });
 
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      timestamp: new Date().toISOString(),
-      path: req.path,
-    });
-  });
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        timestamp: new Date().toISOString(),
+        path: req.path,
+      });
+    },
+  );
 
   logger.info('Budget API routes initialized successfully', {
     routesCount: router.stack.length,

@@ -985,7 +985,9 @@ export class DecisionDependencyGraph {
     return `Adding ${dependency.type} dependency between "${dependsOnTask?.title || dependency.dependsOnTaskId}" and "${dependentTask?.title || dependency.dependentTaskId}" with ${Math.round(confidence * 100)}% confidence. ${dependency.reason || 'No specific reason provided.'}`;
   }
 
-  private analyzeDependencyImpact(dependency: TaskDependency): Record<string, unknown> {
+  private analyzeDependencyImpact(
+    dependency: TaskDependency,
+  ): Record<string, unknown> {
     const dependentNode = this.graph.nodes.get(dependency.dependentTaskId);
     const dependencyNode = this.graph.nodes.get(dependency.dependsOnTaskId);
 
@@ -997,7 +999,9 @@ export class DecisionDependencyGraph {
     };
   }
 
-  private assessDependencyRisk(dependency: TaskDependency): Record<string, unknown> {
+  private assessDependencyRisk(
+    dependency: TaskDependency,
+  ): Record<string, unknown> {
     return {
       cycleRisk: this.wouldCreateCycle(dependency) ? 1 : 0,
       confidenceRisk:

@@ -30,641 +30,658 @@ import { getComponentLogger } from '../../utils/logger.js';
  * - Memory-efficient sliding window management
  */
 export class TokenDataAggregator extends EventEmitter {
-    logger = getComponentLogger('TokenDataAggregator');
-    aggregationConfigs = new Map();
-    timeBuckets = new Map();
-    aggregationResults = new Map();
-    updateTimers = new Map();
-    // Predefined time windows
-    standardTimeWindows = [
-        {
-            id: 'minute',
-            name: 'Per Minute',
-            durationMs: 60 * 1000,
-            intervalMs: 60 * 1000,
-            alignment: 'tumbling',
+  logger = getComponentLogger('TokenDataAggregator');
+  aggregationConfigs = new Map();
+  timeBuckets = new Map();
+  aggregationResults = new Map();
+  updateTimers = new Map();
+  // Predefined time windows
+  standardTimeWindows = [
+    {
+      id: 'minute',
+      name: 'Per Minute',
+      durationMs: 60 * 1000,
+      intervalMs: 60 * 1000,
+      alignment: 'tumbling',
+    },
+    {
+      id: 'hour',
+      name: 'Per Hour',
+      durationMs: 60 * 60 * 1000,
+      intervalMs: 60 * 60 * 1000,
+      alignment: 'calendar',
+    },
+    {
+      id: 'day',
+      name: 'Per Day',
+      durationMs: 24 * 60 * 60 * 1000,
+      intervalMs: 24 * 60 * 60 * 1000,
+      alignment: 'calendar',
+    },
+    {
+      id: 'week',
+      name: 'Per Week',
+      durationMs: 7 * 24 * 60 * 60 * 1000,
+      intervalMs: 24 * 60 * 60 * 1000,
+      alignment: 'calendar',
+    },
+    {
+      id: 'sliding_hour',
+      name: 'Sliding Hour',
+      durationMs: 60 * 60 * 1000,
+      intervalMs: 5 * 60 * 1000,
+      alignment: 'sliding',
+    },
+  ];
+  constructor() {
+    super();
+    this.logger.info('TokenDataAggregator initialized', {
+      standardTimeWindows: this.standardTimeWindows.length,
+    });
+    this.setupDefaultAggregations();
+  }
+  /**
+   * Add aggregation configuration
+   */
+  addAggregation(config) {
+    this.aggregationConfigs.set(config.id, config);
+    // Initialize time buckets for this aggregation
+    this.initializeTimeBuckets(config);
+    // Start update timer if enabled
+    if (config.enabled) {
+      this.startUpdateTimer(config);
+    }
+    this.logger.info('Aggregation configuration added', {
+      configId: config.id,
+      name: config.name,
+      timeWindows: config.timeWindows.length,
+      functions: config.functions.length,
+      enabled: config.enabled,
+    });
+  }
+  /**
+   * Remove aggregation configuration
+   */
+  removeAggregation(configId) {
+    const config = this.aggregationConfigs.get(configId);
+    if (!config) return false;
+    this.aggregationConfigs.delete(configId);
+    this.timeBuckets.delete(configId);
+    this.aggregationResults.delete(configId);
+    // Stop update timer
+    const timer = this.updateTimers.get(configId);
+    if (timer) {
+      clearInterval(timer);
+      this.updateTimers.delete(configId);
+    }
+    this.logger.info('Aggregation configuration removed', { configId });
+    return true;
+  }
+  /**
+   * Process new metrics data point
+   */
+  addDataPoint(dataPoint) {
+    // Add to all active aggregations
+    for (const config of this.aggregationConfigs.values()) {
+      if (!config.enabled) continue;
+      this.addDataPointToAggregation(config.id, dataPoint);
+    }
+    this.emit('data_point_added', { dataPoint, timestamp: new Date() });
+  }
+  /**
+   * Process batch of metrics data points
+   */
+  addDataPoints(dataPoints) {
+    for (const dataPoint of dataPoints) {
+      this.addDataPoint(dataPoint);
+    }
+    this.emit('batch_processed', {
+      count: dataPoints.length,
+      timestamp: new Date(),
+    });
+  }
+  /**
+   * Get aggregation results
+   */
+  getAggregationResults(configId) {
+    if (configId) {
+      const result = this.aggregationResults.get(configId);
+      return result ? { [configId]: result } : {};
+    }
+    const results = {};
+    for (const [id, result] of this.aggregationResults.entries()) {
+      results[id] = result;
+    }
+    return results;
+  }
+  /**
+   * Perform statistical analysis on data
+   */
+  analyzeStatistics(dataPoints, field = 'totalCost') {
+    const values = dataPoints
+      .map((dp) => dp[field])
+      .filter((v) => typeof v === 'number' && !isNaN(v));
+    if (values.length === 0) {
+      return this.createEmptyStatistics();
+    }
+    const sortedValues = [...values].sort((a, b) => a - b);
+    const n = values.length;
+    // Calculate basic statistics
+    const mean = values.reduce((sum, v) => sum + v, 0) / n;
+    const median = this.calculatePercentile(sortedValues, 0.5);
+    const variance =
+      values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (n - 1);
+    const standardDeviation = Math.sqrt(variance);
+    // Calculate skewness and kurtosis
+    const skewness = this.calculateSkewness(values, mean, standardDeviation);
+    const kurtosis = this.calculateKurtosis(values, mean, standardDeviation);
+    // Calculate percentiles
+    const percentiles = {
+      p10: this.calculatePercentile(sortedValues, 0.1),
+      p25: this.calculatePercentile(sortedValues, 0.25),
+      p50: median,
+      p75: this.calculatePercentile(sortedValues, 0.75),
+      p90: this.calculatePercentile(sortedValues, 0.9),
+      p95: this.calculatePercentile(sortedValues, 0.95),
+      p99: this.calculatePercentile(sortedValues, 0.99),
+    };
+    // Calculate trend
+    const trend = this.calculateTrend(
+      dataPoints.map((dp) => ({
+        timestamp: dp.timestamp,
+        value: dp[field],
+      })),
+    );
+    return {
+      mean,
+      median,
+      standardDeviation,
+      variance,
+      skewness,
+      kurtosis,
+      percentiles,
+      trend,
+    };
+  }
+  /**
+   * Get time-windowed data
+   */
+  getWindowedData(window, endTime, maxWindows) {
+    const end = endTime || new Date();
+    const maxCount = maxWindows || 100;
+    const results = [];
+    for (let i = 0; i < maxCount; i++) {
+      const windowEnd = new Date(end.getTime() - i * window.durationMs);
+      const windowStart = new Date(windowEnd.getTime() - window.durationMs);
+      // Find data points in this window (this would need actual data source)
+      const windowData = []; // Placeholder
+      results.unshift({
+        window,
+        dataPoints: windowData,
+        startTime: windowStart,
+        endTime: windowEnd,
+      });
+    }
+    return results;
+  }
+  /**
+   * Enable/disable aggregation
+   */
+  setAggregationEnabled(configId, enabled) {
+    const config = this.aggregationConfigs.get(configId);
+    if (!config) return false;
+    config.enabled = enabled;
+    if (enabled) {
+      this.startUpdateTimer(config);
+    } else {
+      const timer = this.updateTimers.get(configId);
+      if (timer) {
+        clearInterval(timer);
+        this.updateTimers.delete(configId);
+      }
+    }
+    this.logger.info('Aggregation enabled state changed', {
+      configId,
+      enabled,
+    });
+    return true;
+  }
+  /**
+   * Clear all aggregation data
+   */
+  clearAll() {
+    this.timeBuckets.clear();
+    this.aggregationResults.clear();
+    for (const timer of this.updateTimers.values()) {
+      clearInterval(timer);
+    }
+    this.updateTimers.clear();
+    this.logger.info('All aggregation data cleared');
+  }
+  /**
+   * Initialize time buckets for aggregation
+   */
+  initializeTimeBuckets(config) {
+    this.timeBuckets.set(config.id, []);
+  }
+  /**
+   * Add data point to specific aggregation
+   */
+  addDataPointToAggregation(configId, dataPoint) {
+    const config = this.aggregationConfigs.get(configId);
+    if (!config) return;
+    // Filter data point if needed
+    if (!this.matchesFilter(dataPoint, config.filters)) {
+      return;
+    }
+    const buckets = this.timeBuckets.get(configId) || [];
+    // Add to appropriate time buckets
+    for (const window of config.timeWindows) {
+      const bucket = this.findOrCreateBucket(
+        buckets,
+        dataPoint.timestamp,
+        window,
+      );
+      bucket.dataPoints.push(dataPoint);
+    }
+    // Maintain bucket limits (keep only recent buckets)
+    this.cleanupOldBuckets(buckets);
+  }
+  /**
+   * Find or create time bucket for data point
+   */
+  findOrCreateBucket(buckets, timestamp, window) {
+    const bucketStart = this.calculateBucketStart(timestamp, window);
+    const bucketEnd = new Date(bucketStart.getTime() + window.durationMs);
+    // Look for existing bucket
+    let bucket = buckets.find(
+      (b) =>
+        b.startTime.getTime() === bucketStart.getTime() &&
+        b.endTime.getTime() === bucketEnd.getTime(),
+    );
+    if (!bucket) {
+      bucket = {
+        startTime: bucketStart,
+        endTime: bucketEnd,
+        dataPoints: [],
+        aggregatedValues: new Map(),
+      };
+      buckets.push(bucket);
+    }
+    return bucket;
+  }
+  /**
+   * Calculate bucket start time based on window alignment
+   */
+  calculateBucketStart(timestamp, window) {
+    switch (window.alignment) {
+      case 'calendar':
+        // Align to calendar boundaries (hour, day, etc.)
+        const date = new Date(timestamp);
+        if (window.durationMs === 60 * 60 * 1000) {
+          // 1 hour
+          date.setMinutes(0, 0, 0);
+        } else if (window.durationMs === 24 * 60 * 60 * 1000) {
+          // 1 day
+          date.setHours(0, 0, 0, 0);
+        }
+        return date;
+      case 'tumbling':
+        // Fixed-size non-overlapping windows
+        const epochTime = timestamp.getTime();
+        const windowStart =
+          Math.floor(epochTime / window.durationMs) * window.durationMs;
+        return new Date(windowStart);
+      case 'sliding':
+      default:
+        // Sliding window - just use timestamp
+        return new Date(timestamp.getTime() - window.durationMs);
+    }
+  }
+  /**
+   * Check if data point matches filters
+   */
+  matchesFilter(dataPoint, filters) {
+    if (!filters) return true;
+    // This would need access to additional metadata about models, features, etc.
+    // For now, just check cost filters
+    if (filters.minCost !== undefined && dataPoint.totalCost < filters.minCost)
+      return false;
+    if (filters.maxCost !== undefined && dataPoint.totalCost > filters.maxCost)
+      return false;
+    return true;
+  }
+  /**
+   * Clean up old time buckets
+   */
+  cleanupOldBuckets(buckets) {
+    const now = new Date();
+    const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+    buckets.splice(
+      0,
+      buckets.length,
+      ...buckets.filter(
+        (bucket) => now.getTime() - bucket.endTime.getTime() < maxAge,
+      ),
+    );
+    // Limit total number of buckets
+    if (buckets.length > 1000) {
+      buckets.splice(0, buckets.length - 1000);
+    }
+  }
+  /**
+   * Start update timer for aggregation
+   */
+  startUpdateTimer(config) {
+    const existingTimer = this.updateTimers.get(config.id);
+    if (existingTimer) {
+      clearInterval(existingTimer);
+    }
+    const timer = setInterval(() => {
+      this.updateAggregation(config);
+    }, config.updateFrequencyMs);
+    this.updateTimers.set(config.id, timer);
+  }
+  /**
+   * Update aggregation results
+   */
+  updateAggregation(config) {
+    try {
+      const buckets = this.timeBuckets.get(config.id) || [];
+      const dataPoints = [];
+      const now = new Date();
+      // Process each time window
+      for (const window of config.timeWindows) {
+        const windowBuckets = buckets.filter(
+          (bucket) =>
+            now.getTime() - bucket.endTime.getTime() < window.durationMs * 2,
+        );
+        // Apply aggregation functions
+        for (const func of config.functions) {
+          for (const bucket of windowBuckets) {
+            const aggregatedValue = this.applyAggregationFunction(
+              bucket.dataPoints,
+              func,
+            );
+            dataPoints.push({
+              timestamp: bucket.endTime,
+              window,
+              function: func,
+              value: aggregatedValue.value,
+              count: aggregatedValue.count,
+              metadata: aggregatedValue.metadata,
+            });
+          }
+        }
+      }
+      // Create aggregation result
+      const result = {
+        configId: config.id,
+        timestamp: now,
+        dataPoints,
+        summary: {
+          totalDataPoints: dataPoints.length,
+          timeRange: {
+            start:
+              dataPoints.length > 0
+                ? dataPoints.reduce(
+                    (min, dp) => (dp.timestamp < min ? dp.timestamp : min),
+                    dataPoints[0].timestamp,
+                  )
+                : now,
+            end: now,
+          },
+          coverage: 1.0, // Simplified - would need actual coverage calculation
         },
-        {
-            id: 'hour',
-            name: 'Per Hour',
-            durationMs: 60 * 60 * 1000,
-            intervalMs: 60 * 60 * 1000,
-            alignment: 'calendar',
-        },
-        {
-            id: 'day',
-            name: 'Per Day',
-            durationMs: 24 * 60 * 60 * 1000,
-            intervalMs: 24 * 60 * 60 * 1000,
-            alignment: 'calendar',
-        },
-        {
-            id: 'week',
-            name: 'Per Week',
-            durationMs: 7 * 24 * 60 * 60 * 1000,
-            intervalMs: 24 * 60 * 60 * 1000,
-            alignment: 'calendar',
-        },
-        {
-            id: 'sliding_hour',
-            name: 'Sliding Hour',
-            durationMs: 60 * 60 * 1000,
-            intervalMs: 5 * 60 * 1000,
-            alignment: 'sliding',
-        },
-    ];
-    constructor() {
-        super();
-        this.logger.info('TokenDataAggregator initialized', {
-            standardTimeWindows: this.standardTimeWindows.length,
-        });
-        this.setupDefaultAggregations();
+      };
+      this.aggregationResults.set(config.id, result);
+      this.emit('aggregation_updated', {
+        configId: config.id,
+        result,
+        timestamp: now,
+      });
+    } catch (error) {
+      this.logger.error('Failed to update aggregation', {
+        configId: config.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
-    /**
-     * Add aggregation configuration
-     */
-    addAggregation(config) {
-        this.aggregationConfigs.set(config.id, config);
-        // Initialize time buckets for this aggregation
-        this.initializeTimeBuckets(config);
-        // Start update timer if enabled
-        if (config.enabled) {
-            this.startUpdateTimer(config);
-        }
-        this.logger.info('Aggregation configuration added', {
-            configId: config.id,
-            name: config.name,
-            timeWindows: config.timeWindows.length,
-            functions: config.functions.length,
-            enabled: config.enabled,
-        });
+  }
+  /**
+   * Apply aggregation function to data points
+   */
+  applyAggregationFunction(dataPoints, func) {
+    if (dataPoints.length === 0) {
+      return { value: 0, count: 0, metadata: {} };
     }
-    /**
-     * Remove aggregation configuration
-     */
-    removeAggregation(configId) {
-        const config = this.aggregationConfigs.get(configId);
-        if (!config)
-            return false;
-        this.aggregationConfigs.delete(configId);
-        this.timeBuckets.delete(configId);
-        this.aggregationResults.delete(configId);
-        // Stop update timer
-        const timer = this.updateTimers.get(configId);
-        if (timer) {
-            clearInterval(timer);
-            this.updateTimers.delete(configId);
-        }
-        this.logger.info('Aggregation configuration removed', { configId });
-        return true;
+    const values = dataPoints
+      .map((dp) => dp[func.field])
+      .filter((v) => typeof v === 'number' && !isNaN(v));
+    if (values.length === 0) {
+      return { value: 0, count: 0, metadata: {} };
     }
-    /**
-     * Process new metrics data point
-     */
-    addDataPoint(dataPoint) {
-        // Add to all active aggregations
-        for (const config of this.aggregationConfigs.values()) {
-            if (!config.enabled)
-                continue;
-            this.addDataPointToAggregation(config.id, dataPoint);
-        }
-        this.emit('data_point_added', { dataPoint, timestamp: new Date() });
-    }
-    /**
-     * Process batch of metrics data points
-     */
-    addDataPoints(dataPoints) {
-        for (const dataPoint of dataPoints) {
-            this.addDataPoint(dataPoint);
-        }
-        this.emit('batch_processed', {
-            count: dataPoints.length,
-            timestamp: new Date(),
-        });
-    }
-    /**
-     * Get aggregation results
-     */
-    getAggregationResults(configId) {
-        if (configId) {
-            const result = this.aggregationResults.get(configId);
-            return result ? { [configId]: result } : {};
-        }
-        const results = {};
-        for (const [id, result] of this.aggregationResults.entries()) {
-            results[id] = result;
-        }
-        return results;
-    }
-    /**
-     * Perform statistical analysis on data
-     */
-    analyzeStatistics(dataPoints, field = 'totalCost') {
-        const values = dataPoints
-            .map((dp) => dp[field])
-            .filter((v) => typeof v === 'number' && !isNaN(v));
-        if (values.length === 0) {
-            return this.createEmptyStatistics();
-        }
+    let result;
+    const metadata = {
+      min: Math.min(...values),
+      max: Math.max(...values),
+    };
+    switch (func.type) {
+      case 'sum':
+        result = values.reduce((sum, v) => sum + v, 0);
+        break;
+      case 'avg':
+        result = values.reduce((sum, v) => sum + v, 0) / values.length;
+        break;
+      case 'min':
+        result = Math.min(...values);
+        break;
+      case 'max':
+        result = Math.max(...values);
+        break;
+      case 'count':
+        result = values.length;
+        break;
+      case 'percentile':
         const sortedValues = [...values].sort((a, b) => a - b);
-        const n = values.length;
-        // Calculate basic statistics
-        const mean = values.reduce((sum, v) => sum + v, 0) / n;
-        const median = this.calculatePercentile(sortedValues, 0.5);
-        const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (n - 1);
-        const standardDeviation = Math.sqrt(variance);
-        // Calculate skewness and kurtosis
-        const skewness = this.calculateSkewness(values, mean, standardDeviation);
-        const kurtosis = this.calculateKurtosis(values, mean, standardDeviation);
-        // Calculate percentiles
-        const percentiles = {
-            p10: this.calculatePercentile(sortedValues, 0.1),
-            p25: this.calculatePercentile(sortedValues, 0.25),
-            p50: median,
-            p75: this.calculatePercentile(sortedValues, 0.75),
-            p90: this.calculatePercentile(sortedValues, 0.9),
-            p95: this.calculatePercentile(sortedValues, 0.95),
-            p99: this.calculatePercentile(sortedValues, 0.99),
-        };
-        // Calculate trend
-        const trend = this.calculateTrend(dataPoints.map((dp) => ({
-            timestamp: dp.timestamp,
-            value: dp[field],
-        })));
-        return {
-            mean,
-            median,
-            standardDeviation,
-            variance,
-            skewness,
-            kurtosis,
-            percentiles,
-            trend,
-        };
+        result = this.calculatePercentile(sortedValues, func.percentile || 0.5);
+        break;
+      case 'variance':
+        const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+        result =
+          values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) /
+          values.length;
+        metadata.standardDeviation = Math.sqrt(result);
+        break;
+      case 'custom':
+        result = func.customFunction ? func.customFunction(values) : 0;
+        break;
+      default:
+        result = 0;
     }
-    /**
-     * Get time-windowed data
-     */
-    getWindowedData(window, endTime, maxWindows) {
-        const end = endTime || new Date();
-        const maxCount = maxWindows || 100;
-        const results = [];
-        for (let i = 0; i < maxCount; i++) {
-            const windowEnd = new Date(end.getTime() - i * window.durationMs);
-            const windowStart = new Date(windowEnd.getTime() - window.durationMs);
-            // Find data points in this window (this would need actual data source)
-            const windowData = []; // Placeholder
-            results.unshift({
-                window,
-                dataPoints: windowData,
-                startTime: windowStart,
-                endTime: windowEnd,
-            });
-        }
-        return results;
+    return {
+      value: result,
+      count: values.length,
+      metadata,
+    };
+  }
+  /**
+   * Calculate percentile
+   */
+  calculatePercentile(sortedValues, percentile) {
+    if (sortedValues.length === 0) return 0;
+    const index = Math.ceil(sortedValues.length * percentile) - 1;
+    return sortedValues[Math.max(0, index)];
+  }
+  /**
+   * Calculate skewness
+   */
+  calculateSkewness(values, mean, standardDeviation) {
+    if (standardDeviation === 0) return 0;
+    const n = values.length;
+    const skewnessSum = values.reduce(
+      (sum, v) => sum + Math.pow((v - mean) / standardDeviation, 3),
+      0,
+    );
+    return skewnessSum / n;
+  }
+  /**
+   * Calculate kurtosis
+   */
+  calculateKurtosis(values, mean, standardDeviation) {
+    if (standardDeviation === 0) return 0;
+    const n = values.length;
+    const kurtosisSum = values.reduce(
+      (sum, v) => sum + Math.pow((v - mean) / standardDeviation, 4),
+      0,
+    );
+    return kurtosisSum / n - 3; // Subtract 3 for excess kurtosis
+  }
+  /**
+   * Calculate trend analysis
+   */
+  calculateTrend(data) {
+    if (data.length < 2) {
+      return {
+        slope: 0,
+        correlation: 0,
+        strength: 'none',
+        direction: 'stable',
+      };
     }
-    /**
-     * Enable/disable aggregation
-     */
-    setAggregationEnabled(configId, enabled) {
-        const config = this.aggregationConfigs.get(configId);
-        if (!config)
-            return false;
-        config.enabled = enabled;
-        if (enabled) {
-            this.startUpdateTimer(config);
-        }
-        else {
-            const timer = this.updateTimers.get(configId);
-            if (timer) {
-                clearInterval(timer);
-                this.updateTimers.delete(configId);
-            }
-        }
-        this.logger.info('Aggregation enabled state changed', {
-            configId,
-            enabled,
-        });
-        return true;
-    }
-    /**
-     * Clear all aggregation data
-     */
-    clearAll() {
-        this.timeBuckets.clear();
-        this.aggregationResults.clear();
-        for (const timer of this.updateTimers.values()) {
-            clearInterval(timer);
-        }
-        this.updateTimers.clear();
-        this.logger.info('All aggregation data cleared');
-    }
-    /**
-     * Initialize time buckets for aggregation
-     */
-    initializeTimeBuckets(config) {
-        this.timeBuckets.set(config.id, []);
-    }
-    /**
-     * Add data point to specific aggregation
-     */
-    addDataPointToAggregation(configId, dataPoint) {
-        const config = this.aggregationConfigs.get(configId);
-        if (!config)
-            return;
-        // Filter data point if needed
-        if (!this.matchesFilter(dataPoint, config.filters)) {
-            return;
-        }
-        const buckets = this.timeBuckets.get(configId) || [];
-        // Add to appropriate time buckets
-        for (const window of config.timeWindows) {
-            const bucket = this.findOrCreateBucket(buckets, dataPoint.timestamp, window);
-            bucket.dataPoints.push(dataPoint);
-        }
-        // Maintain bucket limits (keep only recent buckets)
-        this.cleanupOldBuckets(buckets);
-    }
-    /**
-     * Find or create time bucket for data point
-     */
-    findOrCreateBucket(buckets, timestamp, window) {
-        const bucketStart = this.calculateBucketStart(timestamp, window);
-        const bucketEnd = new Date(bucketStart.getTime() + window.durationMs);
-        // Look for existing bucket
-        let bucket = buckets.find((b) => b.startTime.getTime() === bucketStart.getTime() &&
-            b.endTime.getTime() === bucketEnd.getTime());
-        if (!bucket) {
-            bucket = {
-                startTime: bucketStart,
-                endTime: bucketEnd,
-                dataPoints: [],
-                aggregatedValues: new Map(),
-            };
-            buckets.push(bucket);
-        }
-        return bucket;
-    }
-    /**
-     * Calculate bucket start time based on window alignment
-     */
-    calculateBucketStart(timestamp, window) {
-        switch (window.alignment) {
-            case 'calendar':
-                // Align to calendar boundaries (hour, day, etc.)
-                const date = new Date(timestamp);
-                if (window.durationMs === 60 * 60 * 1000) {
-                    // 1 hour
-                    date.setMinutes(0, 0, 0);
-                }
-                else if (window.durationMs === 24 * 60 * 60 * 1000) {
-                    // 1 day
-                    date.setHours(0, 0, 0, 0);
-                }
-                return date;
-            case 'tumbling':
-                // Fixed-size non-overlapping windows
-                const epochTime = timestamp.getTime();
-                const windowStart = Math.floor(epochTime / window.durationMs) * window.durationMs;
-                return new Date(windowStart);
-            case 'sliding':
-            default:
-                // Sliding window - just use timestamp
-                return new Date(timestamp.getTime() - window.durationMs);
-        }
-    }
-    /**
-     * Check if data point matches filters
-     */
-    matchesFilter(dataPoint, filters) {
-        if (!filters)
-            return true;
-        // This would need access to additional metadata about models, features, etc.
-        // For now, just check cost filters
-        if (filters.minCost !== undefined && dataPoint.totalCost < filters.minCost)
-            return false;
-        if (filters.maxCost !== undefined && dataPoint.totalCost > filters.maxCost)
-            return false;
-        return true;
-    }
-    /**
-     * Clean up old time buckets
-     */
-    cleanupOldBuckets(buckets) {
-        const now = new Date();
-        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
-        buckets.splice(0, buckets.length, ...buckets.filter((bucket) => now.getTime() - bucket.endTime.getTime() < maxAge));
-        // Limit total number of buckets
-        if (buckets.length > 1000) {
-            buckets.splice(0, buckets.length - 1000);
-        }
-    }
-    /**
-     * Start update timer for aggregation
-     */
-    startUpdateTimer(config) {
-        const existingTimer = this.updateTimers.get(config.id);
-        if (existingTimer) {
-            clearInterval(existingTimer);
-        }
-        const timer = setInterval(() => {
-            this.updateAggregation(config);
-        }, config.updateFrequencyMs);
-        this.updateTimers.set(config.id, timer);
-    }
-    /**
-     * Update aggregation results
-     */
-    updateAggregation(config) {
-        try {
-            const buckets = this.timeBuckets.get(config.id) || [];
-            const dataPoints = [];
-            const now = new Date();
-            // Process each time window
-            for (const window of config.timeWindows) {
-                const windowBuckets = buckets.filter((bucket) => now.getTime() - bucket.endTime.getTime() < window.durationMs * 2);
-                // Apply aggregation functions
-                for (const func of config.functions) {
-                    for (const bucket of windowBuckets) {
-                        const aggregatedValue = this.applyAggregationFunction(bucket.dataPoints, func);
-                        dataPoints.push({
-                            timestamp: bucket.endTime,
-                            window,
-                            function: func,
-                            value: aggregatedValue.value,
-                            count: aggregatedValue.count,
-                            metadata: aggregatedValue.metadata,
-                        });
-                    }
-                }
-            }
-            // Create aggregation result
-            const result = {
-                configId: config.id,
-                timestamp: now,
-                dataPoints,
-                summary: {
-                    totalDataPoints: dataPoints.length,
-                    timeRange: {
-                        start: dataPoints.length > 0
-                            ? dataPoints.reduce((min, dp) => (dp.timestamp < min ? dp.timestamp : min), dataPoints[0].timestamp)
-                            : now,
-                        end: now,
-                    },
-                    coverage: 1.0, // Simplified - would need actual coverage calculation
-                },
-            };
-            this.aggregationResults.set(config.id, result);
-            this.emit('aggregation_updated', {
-                configId: config.id,
-                result,
-                timestamp: now,
-            });
-        }
-        catch (error) {
-            this.logger.error('Failed to update aggregation', {
-                configId: config.id,
-                error: error instanceof Error ? error.message : String(error),
-            });
-        }
-    }
-    /**
-     * Apply aggregation function to data points
-     */
-    applyAggregationFunction(dataPoints, func) {
-        if (dataPoints.length === 0) {
-            return { value: 0, count: 0, metadata: {} };
-        }
-        const values = dataPoints
-            .map((dp) => dp[func.field])
-            .filter((v) => typeof v === 'number' && !isNaN(v));
-        if (values.length === 0) {
-            return { value: 0, count: 0, metadata: {} };
-        }
-        let result;
-        const metadata = {
-            min: Math.min(...values),
-            max: Math.max(...values),
-        };
-        switch (func.type) {
-            case 'sum':
-                result = values.reduce((sum, v) => sum + v, 0);
-                break;
-            case 'avg':
-                result = values.reduce((sum, v) => sum + v, 0) / values.length;
-                break;
-            case 'min':
-                result = Math.min(...values);
-                break;
-            case 'max':
-                result = Math.max(...values);
-                break;
-            case 'count':
-                result = values.length;
-                break;
-            case 'percentile':
-                const sortedValues = [...values].sort((a, b) => a - b);
-                result = this.calculatePercentile(sortedValues, func.percentile || 0.5);
-                break;
-            case 'variance':
-                const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-                result =
-                    values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) /
-                        values.length;
-                metadata.standardDeviation = Math.sqrt(result);
-                break;
-            case 'custom':
-                result = func.customFunction ? func.customFunction(values) : 0;
-                break;
-            default:
-                result = 0;
-        }
-        return {
-            value: result,
-            count: values.length,
-            metadata,
-        };
-    }
-    /**
-     * Calculate percentile
-     */
-    calculatePercentile(sortedValues, percentile) {
-        if (sortedValues.length === 0)
-            return 0;
-        const index = Math.ceil(sortedValues.length * percentile) - 1;
-        return sortedValues[Math.max(0, index)];
-    }
-    /**
-     * Calculate skewness
-     */
-    calculateSkewness(values, mean, standardDeviation) {
-        if (standardDeviation === 0)
-            return 0;
-        const n = values.length;
-        const skewnessSum = values.reduce((sum, v) => sum + Math.pow((v - mean) / standardDeviation, 3), 0);
-        return skewnessSum / n;
-    }
-    /**
-     * Calculate kurtosis
-     */
-    calculateKurtosis(values, mean, standardDeviation) {
-        if (standardDeviation === 0)
-            return 0;
-        const n = values.length;
-        const kurtosisSum = values.reduce((sum, v) => sum + Math.pow((v - mean) / standardDeviation, 4), 0);
-        return kurtosisSum / n - 3; // Subtract 3 for excess kurtosis
-    }
-    /**
-     * Calculate trend analysis
-     */
-    calculateTrend(data) {
-        if (data.length < 2) {
-            return {
-                slope: 0,
-                correlation: 0,
-                strength: 'none',
-                direction: 'stable',
-            };
-        }
-        // Convert to x,y pairs for linear regression
-        const baseTime = data[0].timestamp.getTime();
-        const pairs = data.map((d, i) => ({
-            x: (d.timestamp.getTime() - baseTime) / 1000, // Convert to seconds
-            y: d.value,
-        }));
-        // Calculate linear regression
-        const n = pairs.length;
-        const sumX = pairs.reduce((sum, p) => sum + p.x, 0);
-        const sumY = pairs.reduce((sum, p) => sum + p.y, 0);
-        const sumXY = pairs.reduce((sum, p) => sum + p.x * p.y, 0);
-        const sumX2 = pairs.reduce((sum, p) => sum + p.x * p.x, 0);
-        const sumY2 = pairs.reduce((sum, p) => sum + p.y * p.y, 0);
-        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-        // Calculate correlation coefficient
-        const numerator = n * sumXY - sumX * sumY;
-        const denominatorX = Math.sqrt(n * sumX2 - sumX * sumX);
-        const denominatorY = Math.sqrt(n * sumY2 - sumY * sumY);
-        const correlation = denominatorX && denominatorY
-            ? numerator / (denominatorX * denominatorY)
-            : 0;
-        // Determine strength and direction
-        const absCorrelation = Math.abs(correlation);
-        let strength;
-        if (absCorrelation > 0.7)
-            strength = 'strong';
-        else if (absCorrelation > 0.4)
-            strength = 'moderate';
-        else if (absCorrelation > 0.1)
-            strength = 'weak';
-        else
-            strength = 'none';
-        let direction;
-        if (Math.abs(slope) < 0.01)
-            direction = 'stable';
-        else
-            direction = slope > 0 ? 'up' : 'down';
-        return {
-            slope,
-            correlation,
-            strength,
-            direction,
-        };
-    }
-    /**
-     * Create empty statistics
-     */
-    createEmptyStatistics() {
-        return {
-            mean: 0,
-            median: 0,
-            standardDeviation: 0,
-            variance: 0,
-            skewness: 0,
-            kurtosis: 0,
-            percentiles: {
-                p10: 0,
-                p25: 0,
-                p50: 0,
-                p75: 0,
-                p90: 0,
-                p95: 0,
-                p99: 0,
-            },
-            trend: {
-                slope: 0,
-                correlation: 0,
-                strength: 'none',
-                direction: 'stable',
-            },
-        };
-    }
-    /**
-     * Setup default aggregation configurations
-     */
-    setupDefaultAggregations() {
-        // Cost aggregation
-        this.addAggregation({
-            id: 'cost_aggregation',
-            name: 'Cost Analysis',
-            timeWindows: [
-                this.standardTimeWindows.find((w) => w.id === 'hour'),
-                this.standardTimeWindows.find((w) => w.id === 'day'),
-            ],
-            functions: [
-                { name: 'total_cost', field: 'totalCost', type: 'sum' },
-                { name: 'avg_cost', field: 'totalCost', type: 'avg' },
-                { name: 'max_cost', field: 'totalCost', type: 'max' },
-            ],
-            enabled: true,
-            updateFrequencyMs: 60 * 1000, // 1 minute
-        });
-        // Token usage aggregation
-        this.addAggregation({
-            id: 'token_usage_aggregation',
-            name: 'Token Usage Analysis',
-            timeWindows: [
-                this.standardTimeWindows.find((w) => w.id === 'minute'),
-                this.standardTimeWindows.find((w) => w.id === 'hour'),
-            ],
-            functions: [
-                { name: 'total_tokens', field: 'totalTokens', type: 'sum' },
-                { name: 'avg_tokens', field: 'totalTokens', type: 'avg' },
-                { name: 'token_rate', field: 'tokenRate', type: 'avg' },
-            ],
-            enabled: true,
-            updateFrequencyMs: 30 * 1000, // 30 seconds
-        });
-        // Performance aggregation
-        this.addAggregation({
-            id: 'performance_aggregation',
-            name: 'Performance Analysis',
-            timeWindows: [
-                this.standardTimeWindows.find((w) => w.id === 'sliding_hour'),
-            ],
-            functions: [
-                {
-                    name: 'avg_response_time',
-                    field: 'averageResponseTime',
-                    type: 'avg',
-                },
-                {
-                    name: 'p95_response_time',
-                    field: 'averageResponseTime',
-                    type: 'percentile',
-                    percentile: 0.95,
-                },
-                { name: 'error_rate', field: 'errorRate', type: 'avg' },
-            ],
-            enabled: true,
-            updateFrequencyMs: 2 * 60 * 1000, // 2 minutes
-        });
-    }
+    // Convert to x,y pairs for linear regression
+    const baseTime = data[0].timestamp.getTime();
+    const pairs = data.map((d, i) => ({
+      x: (d.timestamp.getTime() - baseTime) / 1000, // Convert to seconds
+      y: d.value,
+    }));
+    // Calculate linear regression
+    const n = pairs.length;
+    const sumX = pairs.reduce((sum, p) => sum + p.x, 0);
+    const sumY = pairs.reduce((sum, p) => sum + p.y, 0);
+    const sumXY = pairs.reduce((sum, p) => sum + p.x * p.y, 0);
+    const sumX2 = pairs.reduce((sum, p) => sum + p.x * p.x, 0);
+    const sumY2 = pairs.reduce((sum, p) => sum + p.y * p.y, 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    // Calculate correlation coefficient
+    const numerator = n * sumXY - sumX * sumY;
+    const denominatorX = Math.sqrt(n * sumX2 - sumX * sumX);
+    const denominatorY = Math.sqrt(n * sumY2 - sumY * sumY);
+    const correlation =
+      denominatorX && denominatorY
+        ? numerator / (denominatorX * denominatorY)
+        : 0;
+    // Determine strength and direction
+    const absCorrelation = Math.abs(correlation);
+    let strength;
+    if (absCorrelation > 0.7) strength = 'strong';
+    else if (absCorrelation > 0.4) strength = 'moderate';
+    else if (absCorrelation > 0.1) strength = 'weak';
+    else strength = 'none';
+    let direction;
+    if (Math.abs(slope) < 0.01) direction = 'stable';
+    else direction = slope > 0 ? 'up' : 'down';
+    return {
+      slope,
+      correlation,
+      strength,
+      direction,
+    };
+  }
+  /**
+   * Create empty statistics
+   */
+  createEmptyStatistics() {
+    return {
+      mean: 0,
+      median: 0,
+      standardDeviation: 0,
+      variance: 0,
+      skewness: 0,
+      kurtosis: 0,
+      percentiles: {
+        p10: 0,
+        p25: 0,
+        p50: 0,
+        p75: 0,
+        p90: 0,
+        p95: 0,
+        p99: 0,
+      },
+      trend: {
+        slope: 0,
+        correlation: 0,
+        strength: 'none',
+        direction: 'stable',
+      },
+    };
+  }
+  /**
+   * Setup default aggregation configurations
+   */
+  setupDefaultAggregations() {
+    // Cost aggregation
+    this.addAggregation({
+      id: 'cost_aggregation',
+      name: 'Cost Analysis',
+      timeWindows: [
+        this.standardTimeWindows.find((w) => w.id === 'hour'),
+        this.standardTimeWindows.find((w) => w.id === 'day'),
+      ],
+      functions: [
+        { name: 'total_cost', field: 'totalCost', type: 'sum' },
+        { name: 'avg_cost', field: 'totalCost', type: 'avg' },
+        { name: 'max_cost', field: 'totalCost', type: 'max' },
+      ],
+      enabled: true,
+      updateFrequencyMs: 60 * 1000, // 1 minute
+    });
+    // Token usage aggregation
+    this.addAggregation({
+      id: 'token_usage_aggregation',
+      name: 'Token Usage Analysis',
+      timeWindows: [
+        this.standardTimeWindows.find((w) => w.id === 'minute'),
+        this.standardTimeWindows.find((w) => w.id === 'hour'),
+      ],
+      functions: [
+        { name: 'total_tokens', field: 'totalTokens', type: 'sum' },
+        { name: 'avg_tokens', field: 'totalTokens', type: 'avg' },
+        { name: 'token_rate', field: 'tokenRate', type: 'avg' },
+      ],
+      enabled: true,
+      updateFrequencyMs: 30 * 1000, // 30 seconds
+    });
+    // Performance aggregation
+    this.addAggregation({
+      id: 'performance_aggregation',
+      name: 'Performance Analysis',
+      timeWindows: [
+        this.standardTimeWindows.find((w) => w.id === 'sliding_hour'),
+      ],
+      functions: [
+        {
+          name: 'avg_response_time',
+          field: 'averageResponseTime',
+          type: 'avg',
+        },
+        {
+          name: 'p95_response_time',
+          field: 'averageResponseTime',
+          type: 'percentile',
+          percentile: 0.95,
+        },
+        { name: 'error_rate', field: 'errorRate', type: 'avg' },
+      ],
+      enabled: true,
+      updateFrequencyMs: 2 * 60 * 1000, // 2 minutes
+    });
+  }
 }
 /**
  * Create a new TokenDataAggregator instance
  */
 export function createTokenDataAggregator() {
-    return new TokenDataAggregator();
+  return new TokenDataAggregator();
 }
 /**
  * Global aggregator instance
@@ -674,18 +691,18 @@ let globalAggregator = null;
  * Get or create the global aggregator instance
  */
 export function getGlobalTokenAggregator() {
-    if (!globalAggregator) {
-        globalAggregator = createTokenDataAggregator();
-    }
-    return globalAggregator;
+  if (!globalAggregator) {
+    globalAggregator = createTokenDataAggregator();
+  }
+  return globalAggregator;
 }
 /**
  * Reset the global aggregator instance
  */
 export function resetGlobalTokenAggregator() {
-    if (globalAggregator) {
-        globalAggregator.clearAll();
-        globalAggregator = null;
-    }
+  if (globalAggregator) {
+    globalAggregator.clearAll();
+    globalAggregator = null;
+  }
 }
 //# sourceMappingURL=aggregator.js.map

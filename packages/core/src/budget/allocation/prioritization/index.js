@@ -12,7 +12,15 @@
  * @version 1.0.0
  */
 // Resource ranking exports
-export { ResourceRanking, createResourceRanking, DEFAULT_RANKING_CONFIG, } from './ResourceRanking.js';
+export {
+  ResourceRanking,
+  createResourceRanking,
+  DEFAULT_RANKING_CONFIG,
+} from './ResourceRanking.js';
 // Priority assignment exports
-export { PriorityAssignment, createPriorityAssignment, DEFAULT_PRIORITY_CONFIG, } from './PriorityAssignment.js';
+export {
+  PriorityAssignment,
+  createPriorityAssignment,
+  DEFAULT_PRIORITY_CONFIG,
+} from './PriorityAssignment.js';
 //# sourceMappingURL=index.js.map

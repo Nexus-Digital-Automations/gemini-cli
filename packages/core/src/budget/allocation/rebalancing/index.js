@@ -12,5 +12,9 @@
  * @version 1.0.0
  */
 // Dynamic rebalancer exports
-export { DynamicRebalancer, createDynamicRebalancer, DEFAULT_REBALANCING_CONFIG, } from './DynamicRebalancer.js';
+export {
+  DynamicRebalancer,
+  createDynamicRebalancer,
+  DEFAULT_REBALANCING_CONFIG,
+} from './DynamicRebalancer.js';
 //# sourceMappingURL=index.js.map

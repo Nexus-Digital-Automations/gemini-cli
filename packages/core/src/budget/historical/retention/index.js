@@ -5,5 +5,8 @@
  */
 
 // Export retention manager implementation
-export { DataRetentionManager, createDataRetentionManager, } from './DataRetentionManager.js';
+export {
+  DataRetentionManager,
+  createDataRetentionManager,
+} from './DataRetentionManager.js';
 //# sourceMappingURL=index.js.map

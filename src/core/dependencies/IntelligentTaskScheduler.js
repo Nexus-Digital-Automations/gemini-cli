@@ -30,7 +30,7 @@
  */
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import { DependencyAnalyzer, TaskNode, TaskDependency, DependencyType, ExecutionReadiness, SchedulingResult, DependencyAnalysisResult, } from './DependencyAnalyzer.js';
+// DependencyAnalyzer is passed as a constructor parameter, no direct import needed
 /**
  * Intelligent Task Scheduler Implementation
  */

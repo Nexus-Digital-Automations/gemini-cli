@@ -13,7 +13,7 @@ import {
   disableCommand,
   enableCommand,
   linkCommand,
-  newCommand
+  newCommand,
 } from './extensions/index.js';
 
 export const extensionsCommand: CommandModule = {

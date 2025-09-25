@@ -266,6 +266,27 @@ export default tseslint.config(
   },
   // Prettier config must be last
   prettierConfig,
+  // settings for test-setup files in packages root directories
+  {
+    files: ['packages/*/test-setup.{js,ts}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        console: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
   // extra settings for scripts that we run directly with node
   {
     files: ['./integration-tests/**/*.js'],

@@ -4,5 +4,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './src/index.js';
-//# sourceMappingURL=index.js.map
+let x = 5; console.log(x);

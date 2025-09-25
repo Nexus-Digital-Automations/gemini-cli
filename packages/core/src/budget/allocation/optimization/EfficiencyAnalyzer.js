@@ -438,6 +438,10 @@ export class EfficiencyAnalyzer {
                         successMetrics: ['response_time', 'throughput', 'performance_score'],
                     });
                     break;
+                default:
+                    // Handle unexpected issue types
+                    console.warn(`Unknown issue type: ${issue.type}`);
+                    break;
             }
         }
         return improvements;

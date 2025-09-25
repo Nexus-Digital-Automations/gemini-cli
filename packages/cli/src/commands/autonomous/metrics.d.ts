@@ -6,10 +6,10 @@
 
 import type { CommandModule } from 'yargs';
 interface MetricsOptions {
-    json?: boolean;
-    watch?: boolean;
-    interval?: number;
-    'time-range'?: string;
+  json?: boolean;
+  watch?: boolean;
+  interval?: number;
+  'time-range'?: string;
 }
 export declare const metricsCommand: CommandModule<object, MetricsOptions>;
 export {};

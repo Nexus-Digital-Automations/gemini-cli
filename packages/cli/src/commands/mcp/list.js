@@ -26,21 +26,23 @@ const RESET_COLOR = '\u001b[0m';
  * @returns Promise resolving to a record of server names to configurations
  */
 async function getMcpServersFromConfig() {
-    const settings = loadSettings();
-    const extensions = loadExtensions();
-    const mcpServers = { ...(settings.merged.mcpServers || {}) };
-    for (const extension of extensions) {
-        Object.entries(extension.config.mcpServers || {}).forEach(([key, server]) => {
-            if (mcpServers[key]) {
-                return;
-            }
-            mcpServers[key] = {
-                ...server,
-                extensionName: extension.config.name,
-            };
-        });
-    }
-    return mcpServers;
+  const settings = loadSettings();
+  const extensions = loadExtensions();
+  const mcpServers = { ...(settings.merged.mcpServers || {}) };
+  for (const extension of extensions) {
+    Object.entries(extension.config.mcpServers || {}).forEach(
+      ([key, server]) => {
+        if (mcpServers[key]) {
+          return;
+        }
+        mcpServers[key] = {
+          ...server,
+          extensionName: extension.config.name,
+        };
+      },
+    );
+  }
+  return mcpServers;
 }
 /**
  * Tests connectivity to an MCP server
@@ -54,31 +56,29 @@ async function getMcpServersFromConfig() {
  * @returns Promise resolving to the server's connection status
  */
 async function testMCPConnection(serverName, config) {
-    const client = new Client({
-        name: 'mcp-test-client',
-        version: '0.0.1',
-    });
-    let transport;
-    try {
-        // Use the same transport creation logic as core
-        transport = await createTransport(serverName, config, false);
-    }
-    catch (_error) {
-        await client.close();
-        return MCPServerStatus.DISCONNECTED;
-    }
-    try {
-        // Attempt actual MCP connection with short timeout
-        await client.connect(transport, { timeout: 5000 }); // 5s timeout
-        // Test basic MCP protocol by pinging the server
-        await client.ping();
-        await client.close();
-        return MCPServerStatus.CONNECTED;
-    }
-    catch (_error) {
-        await transport.close();
-        return MCPServerStatus.DISCONNECTED;
-    }
+  const client = new Client({
+    name: 'mcp-test-client',
+    version: '0.0.1',
+  });
+  let transport;
+  try {
+    // Use the same transport creation logic as core
+    transport = await createTransport(serverName, config, false);
+  } catch (_error) {
+    await client.close();
+    return MCPServerStatus.DISCONNECTED;
+  }
+  try {
+    // Attempt actual MCP connection with short timeout
+    await client.connect(transport, { timeout: 5000 }); // 5s timeout
+    // Test basic MCP protocol by pinging the server
+    await client.ping();
+    await client.close();
+    return MCPServerStatus.CONNECTED;
+  } catch (_error) {
+    await transport.close();
+    return MCPServerStatus.DISCONNECTED;
+  }
 }
 /**
  * Gets the current status of an MCP server
@@ -92,8 +92,8 @@ async function testMCPConnection(serverName, config) {
  * @returns Promise resolving to the server's current status
  */
 async function getServerStatus(serverName, server) {
-    // Test all server types by attempting actual connection
-    return await testMCPConnection(serverName, server);
+  // Test all server types by attempting actual connection
+  return await testMCPConnection(serverName, server);
 }
 /**
  * Lists all configured MCP servers with their connection status
@@ -115,45 +115,43 @@ async function getServerStatus(serverName, server) {
  * ```
  */
 export async function listMcpServers() {
-    const mcpServers = await getMcpServersFromConfig();
-    const serverNames = Object.keys(mcpServers);
-    if (serverNames.length === 0) {
-        console.log('No MCP servers configured.');
-        return;
+  const mcpServers = await getMcpServersFromConfig();
+  const serverNames = Object.keys(mcpServers);
+  if (serverNames.length === 0) {
+    console.log('No MCP servers configured.');
+    return;
+  }
+  console.log('Configured MCP servers:\n');
+  for (const serverName of serverNames) {
+    const server = mcpServers[serverName];
+    const status = await getServerStatus(serverName, server);
+    let statusIndicator = '';
+    let statusText = '';
+    switch (status) {
+      case MCPServerStatus.CONNECTED:
+        statusIndicator = COLOR_GREEN + '✓' + RESET_COLOR;
+        statusText = 'Connected';
+        break;
+      case MCPServerStatus.CONNECTING:
+        statusIndicator = COLOR_YELLOW + '…' + RESET_COLOR;
+        statusText = 'Connecting';
+        break;
+      case MCPServerStatus.DISCONNECTED:
+      default:
+        statusIndicator = COLOR_RED + '✗' + RESET_COLOR;
+        statusText = 'Disconnected';
+        break;
     }
-    console.log('Configured MCP servers:\n');
-    for (const serverName of serverNames) {
-        const server = mcpServers[serverName];
-        const status = await getServerStatus(serverName, server);
-        let statusIndicator = '';
-        let statusText = '';
-        switch (status) {
-            case MCPServerStatus.CONNECTED:
-                statusIndicator = COLOR_GREEN + '✓' + RESET_COLOR;
-                statusText = 'Connected';
-                break;
-            case MCPServerStatus.CONNECTING:
-                statusIndicator = COLOR_YELLOW + '…' + RESET_COLOR;
-                statusText = 'Connecting';
-                break;
-            case MCPServerStatus.DISCONNECTED:
-            default:
-                statusIndicator = COLOR_RED + '✗' + RESET_COLOR;
-                statusText = 'Disconnected';
-                break;
-        }
-        let serverInfo = `${serverName}: `;
-        if (server.httpUrl) {
-            serverInfo += `${server.httpUrl} (http)`;
-        }
-        else if (server.url) {
-            serverInfo += `${server.url} (sse)`;
-        }
-        else if (server.command) {
-            serverInfo += `${server.command} ${server.args?.join(' ') || ''} (stdio)`;
-        }
-        console.log(`${statusIndicator} ${serverInfo} - ${statusText}`);
+    let serverInfo = `${serverName}: `;
+    if (server.httpUrl) {
+      serverInfo += `${server.httpUrl} (http)`;
+    } else if (server.url) {
+      serverInfo += `${server.url} (sse)`;
+    } else if (server.command) {
+      serverInfo += `${server.command} ${server.args?.join(' ') || ''} (stdio)`;
     }
+    console.log(`${statusIndicator} ${serverInfo} - ${statusText}`);
+  }
 }
 /**
  * Yargs command module for listing MCP servers
@@ -164,10 +162,10 @@ export async function listMcpServers() {
  * quick assessment of server availability.
  */
 export const listCommand = {
-    command: 'list',
-    describe: 'List all configured MCP servers',
-    handler: async () => {
-        await listMcpServers();
-    },
+  command: 'list',
+  describe: 'List all configured MCP servers',
+  handler: async () => {
+    await listMcpServers();
+  },
 };
 //# sourceMappingURL=list.js.map

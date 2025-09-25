@@ -455,7 +455,11 @@ export const DEFAULT_REBALANCING_CONFIG: DynamicRebalancingConfig = {
     riskTolerance: 'moderate',
     riskMetrics: ['performance_risk', 'cost_risk', 'availability_risk'],
     maxRiskScore: 70,
-    mitigationStrategies: ['gradual_rollout', 'canary_testing', 'automatic_rollback'],
+    mitigationStrategies: [
+      'gradual_rollout',
+      'canary_testing',
+      'automatic_rollback',
+    ],
     rollback: {
       enabled: true,
       conditions: ['performance_degradation > 30%', 'error_rate > 10%'],
@@ -498,7 +502,7 @@ export class DynamicRebalancer {
    */
   constructor(
     config: Partial<DynamicRebalancingConfig> = {},
-    logger: AllocationLogger
+    logger: AllocationLogger,
   ) {
     this.config = { ...DEFAULT_REBALANCING_CONFIG, ...config };
     this.logger = logger;
@@ -513,7 +517,7 @@ export class DynamicRebalancer {
    */
   analyzeRebalancingNeeds(
     candidates: AllocationCandidate[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): RebalancingAnalysis {
     this.logger.info('Starting rebalancing analysis', {
       resourceCount: candidates.length,
@@ -523,7 +527,10 @@ export class DynamicRebalancer {
     const timestamp = new Date();
 
     // Evaluate current resource states
-    const resourceStates = this.evaluateResourceStates(candidates, historicalData);
+    const resourceStates = this.evaluateResourceStates(
+      candidates,
+      historicalData,
+    );
 
     // Check for triggered conditions
     const triggeredConditions = this.evaluateTriggers(resourceStates);
@@ -532,17 +539,30 @@ export class DynamicRebalancer {
 
     // Generate rebalancing recommendations if needed
     const recommendedActions = rebalancingRequired
-      ? this.generateRebalancingActions(candidates, resourceStates, triggeredConditions)
+      ? this.generateRebalancingActions(
+          candidates,
+          resourceStates,
+          triggeredConditions,
+        )
       : [];
 
     // Assess risks
-    const riskAssessment = this.assessRebalancingRisks(recommendedActions, resourceStates);
+    const riskAssessment = this.assessRebalancingRisks(
+      recommendedActions,
+      resourceStates,
+    );
 
     // Predict outcomes
-    const expectedOutcomes = this.predictRebalancingOutcomes(recommendedActions, resourceStates);
+    const expectedOutcomes = this.predictRebalancingOutcomes(
+      recommendedActions,
+      resourceStates,
+    );
 
     // Calculate analysis confidence
-    const confidence = this.calculateAnalysisConfidence(resourceStates, historicalData);
+    const confidence = this.calculateAnalysisConfidence(
+      resourceStates,
+      historicalData,
+    );
 
     const analysis: RebalancingAnalysis = {
       timestamp,
@@ -572,7 +592,9 @@ export class DynamicRebalancer {
    * @param analysis - Rebalancing analysis with recommended actions
    * @returns Execution result
    */
-  async executeRebalancing(analysis: RebalancingAnalysis): Promise<RebalancingExecutionResult> {
+  async executeRebalancing(
+    analysis: RebalancingAnalysis,
+  ): Promise<RebalancingExecutionResult> {
     if (!analysis.rebalancingRequired) {
       throw new Error('No rebalancing required based on analysis');
     }
@@ -614,11 +636,12 @@ export class DynamicRebalancer {
 
       // Update counters (simplified - would track actual execution results)
       successfulActions = analysis.recommendedActions.length;
-
     } catch (error) {
       this.logger.error('Rebalancing execution failed', { error });
       failedActions = analysis.recommendedActions.length;
-      issues.push(error instanceof Error ? error.message : 'Unknown execution error');
+      issues.push(
+        error instanceof Error ? error.message : 'Unknown execution error',
+      );
     }
 
     const executionTime = Date.now() - executionStart;
@@ -627,7 +650,8 @@ export class DynamicRebalancer {
     const actualOutcomes = await this.measureActualOutcomes(analysis);
 
     // Determine overall status
-    let status: 'successful' | 'partial' | 'failed' | 'rolled_back' = 'successful';
+    let status: 'successful' | 'partial' | 'failed' | 'rolled_back' =
+      'successful';
     if (failedActions > 0) {
       status = successfulActions > 0 ? 'partial' : 'failed';
     }
@@ -674,11 +698,13 @@ export class DynamicRebalancer {
    */
   getRebalancingRecommendations(
     candidates: AllocationCandidate[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): AllocationRecommendation[] {
     const analysis = this.analyzeRebalancingNeeds(candidates, historicalData);
 
-    return analysis.recommendedActions.map(action => this.convertToAllocationRecommendation(action, candidates));
+    return analysis.recommendedActions.map((action) =>
+      this.convertToAllocationRecommendation(action, candidates),
+    );
   }
 
   /**
@@ -686,19 +712,23 @@ export class DynamicRebalancer {
    */
   private evaluateResourceStates(
     candidates: AllocationCandidate[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): ResourceState[] {
-    return candidates.map(candidate => {
+    return candidates.map((candidate) => {
       const resourceData = historicalData[candidate.resourceId] || [];
       const recentData = resourceData.slice(-5); // Last 5 data points
 
       // Calculate current metrics
-      const currentUtilization = recentData.length > 0
-        ? recentData[recentData.length - 1].utilizationRate
-        : 0.5;
+      const currentUtilization =
+        recentData.length > 0
+          ? recentData[recentData.length - 1].utilizationRate
+          : 0.5;
 
       const performanceMetrics = {
-        performance: recentData.length > 0 ? recentData[recentData.length - 1].performance || 80 : 80,
+        performance:
+          recentData.length > 0
+            ? recentData[recentData.length - 1].performance || 80
+            : 80,
         availability: 99.5, // Simplified
         errorRate: 0.01, // Simplified
       };
@@ -707,7 +737,10 @@ export class DynamicRebalancer {
       const trends = this.calculateResourceTrends(recentData);
 
       // Determine health
-      const health = this.determineResourceHealth(currentUtilization, performanceMetrics);
+      const health = this.determineResourceHealth(
+        currentUtilization,
+        performanceMetrics,
+      );
 
       return {
         resourceId: candidate.resourceId,
@@ -737,13 +770,27 @@ export class DynamicRebalancer {
       };
     }
 
-    const utilizationTrend = this.calculateTrend(recentData.map(d => d.utilizationRate));
-    const performanceTrend = this.calculateTrend(recentData.map(d => d.performance || 80));
+    const utilizationTrend = this.calculateTrend(
+      recentData.map((d) => d.utilizationRate),
+    );
+    const performanceTrend = this.calculateTrend(
+      recentData.map((d) => d.performance || 80),
+    );
 
     return {
       allocation: 'stable', // Simplified
-      utilization: utilizationTrend > 0.1 ? 'increasing' : utilizationTrend < -0.1 ? 'decreasing' : 'stable',
-      performance: performanceTrend > 0.1 ? 'improving' : performanceTrend < -0.1 ? 'degrading' : 'stable',
+      utilization:
+        utilizationTrend > 0.1
+          ? 'increasing'
+          : utilizationTrend < -0.1
+            ? 'decreasing'
+            : 'stable',
+      performance:
+        performanceTrend > 0.1
+          ? 'improving'
+          : performanceTrend < -0.1
+            ? 'degrading'
+            : 'stable',
     };
   }
 
@@ -756,8 +803,8 @@ export class DynamicRebalancer {
     const n = values.length;
     const sumX = values.reduce((sum, _, index) => sum + index, 0);
     const sumY = values.reduce((sum, value) => sum + value, 0);
-    const sumXY = values.reduce((sum, value, index) => sum + (index * value), 0);
-    const sumX2 = values.reduce((sum, _, index) => sum + (index * index), 0);
+    const sumXY = values.reduce((sum, value, index) => sum + index * value, 0);
+    const sumX2 = values.reduce((sum, _, index) => sum + index * index, 0);
 
     return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
   }
@@ -767,7 +814,7 @@ export class DynamicRebalancer {
    */
   private determineResourceHealth(
     utilization: number,
-    metrics: Record<string, number>
+    metrics: Record<string, number>,
   ): 'healthy' | 'warning' | 'critical' {
     const performance = metrics.performance;
 
@@ -785,7 +832,9 @@ export class DynamicRebalancer {
   /**
    * Evaluate rebalancing triggers
    */
-  private evaluateTriggers(resourceStates: ResourceState[]): RebalancingTrigger[] {
+  private evaluateTriggers(
+    resourceStates: ResourceState[],
+  ): RebalancingTrigger[] {
     const triggeredConditions: RebalancingTrigger[] = [];
 
     for (const trigger of this.config.triggers) {
@@ -805,7 +854,7 @@ export class DynamicRebalancer {
    */
   private evaluateTriggerCondition(
     trigger: RebalancingTrigger,
-    resourceStates: ResourceState[]
+    resourceStates: ResourceState[],
   ): boolean {
     const condition = trigger.condition;
 
@@ -823,7 +872,13 @@ export class DynamicRebalancer {
           continue;
       }
 
-      if (this.checkCondition(metricValue, condition.operator, condition.threshold)) {
+      if (
+        this.checkCondition(
+          metricValue,
+          condition.operator,
+          condition.threshold,
+        )
+      ) {
         return true;
       }
     }
@@ -834,15 +889,26 @@ export class DynamicRebalancer {
   /**
    * Check condition operator
    */
-  private checkCondition(value: number, operator: string, threshold: number): boolean {
+  private checkCondition(
+    value: number,
+    operator: string,
+    threshold: number,
+  ): boolean {
     switch (operator) {
-      case '>': return value > threshold;
-      case '<': return value < threshold;
-      case '>=': return value >= threshold;
-      case '<=': return value <= threshold;
-      case '==': return value === threshold;
-      case '!=': return value !== threshold;
-      default: return false;
+      case '>':
+        return value > threshold;
+      case '<':
+        return value < threshold;
+      case '>=':
+        return value >= threshold;
+      case '<=':
+        return value <= threshold;
+      case '==':
+        return value === threshold;
+      case '!=':
+        return value !== threshold;
+      default:
+        return false;
     }
   }
 
@@ -852,15 +918,21 @@ export class DynamicRebalancer {
   private generateRebalancingActions(
     candidates: AllocationCandidate[],
     resourceStates: ResourceState[],
-    triggeredConditions: RebalancingTrigger[]
+    triggeredConditions: RebalancingTrigger[],
   ): RebalancingAction[] {
     const actions: RebalancingAction[] = [];
 
     for (const state of resourceStates) {
-      const candidate = candidates.find(c => c.resourceId === state.resourceId);
+      const candidate = candidates.find(
+        (c) => c.resourceId === state.resourceId,
+      );
       if (!candidate) continue;
 
-      const action = this.determineAction(state, candidate, triggeredConditions);
+      const action = this.determineAction(
+        state,
+        candidate,
+        triggeredConditions,
+      );
       if (action) {
         actions.push(action);
       }
@@ -881,10 +953,11 @@ export class DynamicRebalancer {
   private determineAction(
     state: ResourceState,
     candidate: AllocationCandidate,
-    triggeredConditions: RebalancingTrigger[]
+    triggeredConditions: RebalancingTrigger[],
   ): RebalancingAction | null {
     // Determine if action is needed based on state
-    let actionType: 'increase' | 'decrease' | 'maintain' | 'redistribute' = 'maintain';
+    let actionType: 'increase' | 'decrease' | 'maintain' | 'redistribute' =
+      'maintain';
     let priority: 'immediate' | 'high' | 'medium' | 'low' = 'medium';
     let rationale = 'No action required';
 
@@ -892,23 +965,30 @@ export class DynamicRebalancer {
       if (state.currentUtilization > 0.9) {
         actionType = 'increase';
         priority = 'immediate';
-        rationale = 'Critical utilization levels require immediate resource increase';
+        rationale =
+          'Critical utilization levels require immediate resource increase';
       } else if (state.performanceMetrics.performance < 60) {
         actionType = 'increase';
         priority = 'immediate';
-        rationale = 'Critical performance degradation requires resource increase';
+        rationale =
+          'Critical performance degradation requires resource increase';
       }
     } else if (state.health === 'warning') {
       if (state.trends.utilization === 'increasing') {
         actionType = 'increase';
         priority = 'high';
-        rationale = 'Rising utilization trend suggests need for resource increase';
+        rationale =
+          'Rising utilization trend suggests need for resource increase';
       }
     } else if (state.health === 'healthy') {
-      if (state.currentUtilization < 0.3 && state.trends.utilization === 'decreasing') {
+      if (
+        state.currentUtilization < 0.3 &&
+        state.trends.utilization === 'decreasing'
+      ) {
         actionType = 'decrease';
         priority = 'low';
-        rationale = 'Low and decreasing utilization suggests resource optimization opportunity';
+        rationale =
+          'Low and decreasing utilization suggests resource optimization opportunity';
       }
     }
 
@@ -922,7 +1002,8 @@ export class DynamicRebalancer {
 
     switch (actionType) {
       case 'increase':
-        changeAmount = currentAllocation * (state.health === 'critical' ? 0.3 : 0.2);
+        changeAmount =
+          currentAllocation * (state.health === 'critical' ? 0.3 : 0.2);
         break;
       case 'decrease':
         changeAmount = -currentAllocation * 0.15;
@@ -931,7 +1012,10 @@ export class DynamicRebalancer {
 
     const recommendedAllocation = Math.max(
       candidate.constraints.minAllocation,
-      Math.min(candidate.constraints.maxAllocation, currentAllocation + changeAmount)
+      Math.min(
+        candidate.constraints.maxAllocation,
+        currentAllocation + changeAmount,
+      ),
     );
 
     changeAmount = recommendedAllocation - currentAllocation;
@@ -949,9 +1033,10 @@ export class DynamicRebalancer {
       expectedImpact: {
         performance: actionType === 'increase' ? 15 : -5,
         cost: changeAmount,
-        risk: Math.abs(changeAmount) / currentAllocation * 50,
+        risk: (Math.abs(changeAmount) / currentAllocation) * 50,
       },
-      timeline: priority === 'immediate' ? '5m' : priority === 'high' ? '15m' : '1h',
+      timeline:
+        priority === 'immediate' ? '5m' : priority === 'high' ? '15m' : '1h',
       prerequisites: [],
     };
   }
@@ -961,7 +1046,7 @@ export class DynamicRebalancer {
    */
   private assessRebalancingRisks(
     actions: RebalancingAction[],
-    resourceStates: ResourceState[]
+    resourceStates: ResourceState[],
   ): RebalancingRiskAssessment {
     const riskFactors: RiskFactor[] = [];
 
@@ -991,9 +1076,13 @@ export class DynamicRebalancer {
     }
 
     // Calculate overall risk score
-    const riskScore = riskFactors.length > 0
-      ? riskFactors.reduce((sum, factor) => sum + (factor.probability * factor.impact * 100), 0) / riskFactors.length
-      : 0;
+    const riskScore =
+      riskFactors.length > 0
+        ? riskFactors.reduce(
+            (sum, factor) => sum + factor.probability * factor.impact * 100,
+            0,
+          ) / riskFactors.length
+        : 0;
 
     let overallRisk: 'low' | 'medium' | 'high' | 'critical' = 'low';
     if (riskScore > 80) overallRisk = 'critical';
@@ -1013,7 +1102,11 @@ export class DynamicRebalancer {
       mitigationRecommendations,
       rollbackPlan: {
         feasible: true,
-        steps: ['Revert allocation changes', 'Restore previous configuration', 'Validate system stability'],
+        steps: [
+          'Revert allocation changes',
+          'Restore previous configuration',
+          'Validate system stability',
+        ],
         timeline: '5-10 minutes',
       },
     };
@@ -1024,26 +1117,36 @@ export class DynamicRebalancer {
    */
   private predictRebalancingOutcomes(
     actions: RebalancingAction[],
-    resourceStates: ResourceState[]
+    resourceStates: ResourceState[],
   ): RebalancingOutcome {
-    const performanceImprovement = actions.reduce(
-      (sum, action) => sum + action.expectedImpact.performance, 0
-    ) / actions.length;
+    const performanceImprovement =
+      actions.reduce(
+        (sum, action) => sum + action.expectedImpact.performance,
+        0,
+      ) / actions.length;
 
     const costSavings = actions.reduce(
-      (sum, action) => sum + (action.changeAmount < 0 ? Math.abs(action.changeAmount) : 0), 0
+      (sum, action) =>
+        sum + (action.changeAmount < 0 ? Math.abs(action.changeAmount) : 0),
+      0,
     );
 
-    const efficiencyGain = Math.max(0, performanceImprovement + (costSavings > 0 ? 10 : 0));
+    const efficiencyGain = Math.max(
+      0,
+      performanceImprovement + (costSavings > 0 ? 10 : 0),
+    );
 
     const utilizationChanges: Record<string, number> = {};
-    actions.forEach(action => {
-      utilizationChanges[action.resourceId] = action.expectedImpact.performance * 0.5;
+    actions.forEach((action) => {
+      utilizationChanges[action.resourceId] =
+        action.expectedImpact.performance * 0.5;
     });
 
     // Calculate success probability based on risk assessment
-    const avgRisk = actions.reduce((sum, action) => sum + action.expectedImpact.risk, 0) / actions.length;
-    const successProbability = Math.max(0.3, Math.min(0.95, 1 - (avgRisk / 100)));
+    const avgRisk =
+      actions.reduce((sum, action) => sum + action.expectedImpact.risk, 0) /
+      actions.length;
+    const successProbability = Math.max(0.3, Math.min(0.95, 1 - avgRisk / 100));
 
     return {
       performanceImprovement,
@@ -1060,14 +1163,16 @@ export class DynamicRebalancer {
    */
   private calculateAnalysisConfidence(
     resourceStates: ResourceState[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): number {
     let confidence = 80; // Base confidence
 
     // Reduce confidence for insufficient data
-    const avgDataPoints = Object.values(historicalData).reduce(
-      (sum, data) => sum + data.length, 0
-    ) / Object.keys(historicalData).length;
+    const avgDataPoints =
+      Object.values(historicalData).reduce(
+        (sum, data) => sum + data.length,
+        0,
+      ) / Object.keys(historicalData).length;
 
     if (avgDataPoints < 5) {
       confidence -= 20;
@@ -1076,7 +1181,9 @@ export class DynamicRebalancer {
     }
 
     // Increase confidence for consistent states
-    const healthyStates = resourceStates.filter(s => s.health === 'healthy').length;
+    const healthyStates = resourceStates.filter(
+      (s) => s.health === 'healthy',
+    ).length;
     const healthyRatio = healthyStates / resourceStates.length;
     if (healthyRatio > 0.8) {
       confidence += 10;
@@ -1091,14 +1198,20 @@ export class DynamicRebalancer {
   private requiresApproval(actions: RebalancingAction[]): boolean {
     if (!this.config.automation.approvalRequired) return false;
 
-    const maxChange = Math.max(...actions.map(a => Math.abs(a.changePercentage)));
-    return maxChange > this.config.automation.scope.maxChangeWithoutApproval * 100;
+    const maxChange = Math.max(
+      ...actions.map((a) => Math.abs(a.changePercentage)),
+    );
+    return (
+      maxChange > this.config.automation.scope.maxChangeWithoutApproval * 100
+    );
   }
 
   /**
    * Request approval for rebalancing
    */
-  private async requestApproval(analysis: RebalancingAnalysis): Promise<boolean> {
+  private async requestApproval(
+    analysis: RebalancingAnalysis,
+  ): Promise<boolean> {
     // Simplified implementation - would integrate with approval system
     this.logger.info('Requesting approval for rebalancing', {
       actionCount: analysis.recommendedActions.length,
@@ -1123,12 +1236,13 @@ export class DynamicRebalancer {
    */
   private async executeStaged(actions: RebalancingAction[]): Promise<void> {
     const staging = this.config.automation.execution.staging;
-    if (!staging) throw new Error('Staging configuration required for staged execution');
+    if (!staging)
+      throw new Error('Staging configuration required for staged execution');
 
     const stages = this.groupActionsIntoStages(actions, staging.stages);
 
     for (let i = 0; i < stages.length; i++) {
-      await Promise.all(stages[i].map(action => this.executeAction(action)));
+      await Promise.all(stages[i].map((action) => this.executeAction(action)));
 
       if (i < stages.length - 1) {
         await this.delay(this.parseTimeString(staging.stageDelay));
@@ -1141,7 +1255,8 @@ export class DynamicRebalancer {
    */
   private async executeGradual(actions: RebalancingAction[]): Promise<void> {
     const gradual = this.config.automation.execution.gradual;
-    if (!gradual) throw new Error('Gradual configuration required for gradual execution');
+    if (!gradual)
+      throw new Error('Gradual configuration required for gradual execution');
 
     for (const action of actions) {
       await this.executeGradualAction(action, gradual);
@@ -1166,18 +1281,22 @@ export class DynamicRebalancer {
    */
   private async executeGradualAction(
     action: RebalancingAction,
-    config: { changeRatePerPeriod: number; periodDuration: string }
+    config: { changeRatePerPeriod: number; periodDuration: string },
   ): Promise<void> {
     const totalChange = action.changeAmount;
     const periodDuration = this.parseTimeString(config.periodDuration);
     const changePerPeriod = totalChange * config.changeRatePerPeriod;
-    const periods = Math.ceil(Math.abs(totalChange) / Math.abs(changePerPeriod));
+    const periods = Math.ceil(
+      Math.abs(totalChange) / Math.abs(changePerPeriod),
+    );
 
     let appliedChange = 0;
 
     for (let i = 0; i < periods; i++) {
       const remainingChange = totalChange - appliedChange;
-      const currentPeriodChange = Math.sign(totalChange) * Math.min(Math.abs(changePerPeriod), Math.abs(remainingChange));
+      const currentPeriodChange =
+        Math.sign(totalChange) *
+        Math.min(Math.abs(changePerPeriod), Math.abs(remainingChange));
 
       this.logger.debug(`Applying gradual change period ${i + 1}/${periods}`, {
         resourceId: action.resourceId,
@@ -1199,8 +1318,14 @@ export class DynamicRebalancer {
   /**
    * Group actions into stages
    */
-  private groupActionsIntoStages(actions: RebalancingAction[], stageCount: number): RebalancingAction[][] {
-    const stages: RebalancingAction[][] = Array.from({ length: stageCount }, () => []);
+  private groupActionsIntoStages(
+    actions: RebalancingAction[],
+    stageCount: number,
+  ): RebalancingAction[][] {
+    const stages: RebalancingAction[][] = Array.from(
+      { length: stageCount },
+      () => [],
+    );
 
     // Distribute actions across stages based on priority
     const sortedActions = [...actions].sort((a, b) => {
@@ -1250,7 +1375,9 @@ export class DynamicRebalancer {
   /**
    * Execute rollback
    */
-  private async executeRollback(executedActions: RebalancingAction[]): Promise<void> {
+  private async executeRollback(
+    executedActions: RebalancingAction[],
+  ): Promise<void> {
     this.logger.warn('Executing rollback due to poor outcomes');
 
     // Reverse all executed actions
@@ -1271,7 +1398,11 @@ export class DynamicRebalancer {
    */
   private extractLessonsLearned(
     issues: string[],
-    outcomes: { performanceChange: number; costChange: number; efficiencyChange: number }
+    outcomes: {
+      performanceChange: number;
+      costChange: number;
+      efficiencyChange: number;
+    },
   ): string[] {
     const lessons: string[] = [];
 
@@ -1280,7 +1411,9 @@ export class DynamicRebalancer {
     }
 
     if (outcomes.performanceChange < 0) {
-      lessons.push('Consider more conservative allocation changes for performance-sensitive resources');
+      lessons.push(
+        'Consider more conservative allocation changes for performance-sensitive resources',
+      );
     }
 
     if (outcomes.costChange < 0) {
@@ -1295,9 +1428,11 @@ export class DynamicRebalancer {
    */
   private convertToAllocationRecommendation(
     action: RebalancingAction,
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): AllocationRecommendation {
-    const candidate = candidates.find(c => c.resourceId === action.resourceId);
+    const candidate = candidates.find(
+      (c) => c.resourceId === action.resourceId,
+    );
     if (!candidate) {
       throw new Error(`Candidate not found for resource ${action.resourceId}`);
     }
@@ -1314,11 +1449,19 @@ export class DynamicRebalancer {
         performanceImpact: action.expectedImpact.performance,
         utilizationImpact: 10, // Simplified
         businessValueImpact: action.expectedImpact.performance * 0.5,
-        roiImpact: action.changeAmount !== 0 ? action.expectedImpact.performance / Math.abs(action.changeAmount) : 0,
+        roiImpact:
+          action.changeAmount !== 0
+            ? action.expectedImpact.performance / Math.abs(action.changeAmount)
+            : 0,
         impactTimeline: 'short_term',
       },
       riskAssessment: {
-        riskLevel: action.expectedImpact.risk > 70 ? 'high' : action.expectedImpact.risk > 40 ? 'medium' : 'low',
+        riskLevel:
+          action.expectedImpact.risk > 70
+            ? 'high'
+            : action.expectedImpact.risk > 40
+              ? 'medium'
+              : 'low',
         riskFactors: ['Allocation change risk'],
         mitigationStrategies: ['Monitor closely', 'Gradual implementation'],
         maxNegativeImpact: action.expectedImpact.risk,
@@ -1331,7 +1474,11 @@ export class DynamicRebalancer {
       description: action.rationale,
       expectedSavings: Math.max(0, -action.changeAmount),
       implementationComplexity: 'medium',
-      validationCriteria: ['Performance metrics', 'Utilization rates', 'Cost efficiency'],
+      validationCriteria: [
+        'Performance metrics',
+        'Utilization rates',
+        'Cost efficiency',
+      ],
       rollbackPlan: 'Revert allocation to previous values',
     };
   }
@@ -1347,11 +1494,16 @@ export class DynamicRebalancer {
     const unit = match[2];
 
     switch (unit) {
-      case 's': return value * 1000;
-      case 'm': return value * 60 * 1000;
-      case 'h': return value * 60 * 60 * 1000;
-      case 'd': return value * 24 * 60 * 60 * 1000;
-      default: return 60000;
+      case 's':
+        return value * 1000;
+      case 'm':
+        return value * 60 * 1000;
+      case 'h':
+        return value * 60 * 60 * 1000;
+      case 'd':
+        return value * 24 * 60 * 60 * 1000;
+      default:
+        return 60000;
     }
   }
 
@@ -1359,7 +1511,7 @@ export class DynamicRebalancer {
    * Delay execution
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -1367,7 +1519,10 @@ export class DynamicRebalancer {
    */
   private validateConfiguration(): void {
     // Validate constraints
-    if (this.config.constraints.maxAllocationChange <= 0 || this.config.constraints.maxAllocationChange > 1) {
+    if (
+      this.config.constraints.maxAllocationChange <= 0 ||
+      this.config.constraints.maxAllocationChange > 1
+    ) {
       throw new Error('Maximum allocation change must be between 0 and 1');
     }
 
@@ -1391,7 +1546,7 @@ export class DynamicRebalancer {
  */
 export function createDynamicRebalancer(
   config?: Partial<DynamicRebalancingConfig>,
-  logger?: AllocationLogger
+  logger?: AllocationLogger,
 ): DynamicRebalancer {
   const defaultLogger: AllocationLogger = {
     info: () => {},

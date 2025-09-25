@@ -12,7 +12,7 @@ import {
   extendCommand,
   enableCommand,
   disableCommand,
-  visualizeCommand
+  visualizeCommand,
 } from './budget/index.js';
 
 export const budgetCommand: CommandModule = {

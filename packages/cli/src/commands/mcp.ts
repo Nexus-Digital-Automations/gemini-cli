@@ -6,11 +6,7 @@
 
 // File for 'gemini mcp' command
 import type { CommandModule, Argv } from 'yargs';
-import {
-  addCommand,
-  removeCommand,
-  listCommand
-} from './mcp/index.js';
+import { addCommand, removeCommand, listCommand } from './mcp/index.js';
 
 export const mcpCommand: CommandModule = {
   command: 'mcp',
