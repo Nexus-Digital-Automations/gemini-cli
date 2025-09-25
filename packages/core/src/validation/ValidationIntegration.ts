@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../../../../src/utils/logger.js';
 
 // Import validation system components
 import { ValidationFramework } from './ValidationFramework.js';

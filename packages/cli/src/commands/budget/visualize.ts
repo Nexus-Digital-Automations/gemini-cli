@@ -5,8 +5,13 @@
  */
 
 import { loadSettings } from '../../config/settings.js';
-import { createBudgetTracker } from '@google/gemini-cli-core';
-import { createAnalyticsEngine } from '@google/gemini-cli-core';
+import {
+  createBudgetTracker,
+  createAnalyticsEngine,
+  createBudgetDashboard,
+  type DashboardConfig,
+  type DashboardSections
+} from '@google/gemini-cli-core';
 import type { Arguments, CommandBuilder } from 'yargs';
 
 interface VisualizeArgs {
@@ -110,9 +115,9 @@ export const visualizeCommand = {
           args.period || 'week',
         );
       } else {
-        await displayInteractiveVisualization(
-          stats,
-          mockMetrics,
+        // Use the new BudgetDashboard system for interactive mode
+        await displayInteractiveDashboard(
+          tracker,
           analyticsEngine,
           args.period || 'week',
           args.analytics,
@@ -127,9 +132,67 @@ export const visualizeCommand = {
 };
 
 /**
- * Display interactive budget visualization with comprehensive analytics
+ * Display interactive dashboard using the new BudgetDashboard system
  */
-async function displayInteractiveVisualization(
+async function displayInteractiveDashboard(
+  tracker: any,
+  analyticsEngine: any,
+  period: string,
+  includeAnalytics?: boolean,
+  includeRecommendations?: boolean,
+): Promise<void> {
+  try {
+    // Create dashboard configuration
+    const dashboardConfig: DashboardConfig = {
+      refreshInterval: 5000,
+      theme: 'auto' as const,
+      enableInteractivity: false, // Set to false for one-shot display
+      showRealTime: false, // Set to false for static display
+      autoRefresh: false,
+    };
+
+    // Create sections configuration
+    const sections: DashboardSections = {
+      summary: true,
+      realTimeUsage: false, // Disable real-time for static display
+      budgetAlerts: true,
+      costProjections: true,
+      historicalTrends: true,
+      featureAnalysis: includeAnalytics ?? true,
+      optimizationRecommendations: includeRecommendations ?? true,
+    };
+
+    // Create the dashboard instance
+    const dashboard = createBudgetDashboard(process.cwd(), tracker, analyticsEngine, dashboardConfig);
+
+    console.log('🚀 Launching Budget Usage Visualizer & Analytics Dashboard');
+    console.log('═'.repeat(80));
+    console.log('');
+
+    // Display the dashboard (one-shot mode)
+    await dashboard.refreshDashboard(sections);
+
+    console.log('');
+    console.log('✅ Dashboard display complete!');
+    console.log('💡 Tip: Use "gemini budget visualize ascii" for simpler charts');
+    console.log('📄 Tip: Use "gemini budget visualize json" for programmatic data');
+
+  } catch (error) {
+    console.error('❌ Dashboard Error:', error);
+    console.log('');
+    console.log('⚠️  Falling back to legacy visualization...');
+
+    // Fallback to legacy display
+    const stats = await tracker.getUsageStats();
+    const mockMetrics = await generateMockUsageData(period);
+    await displayLegacyVisualization(stats, mockMetrics, analyticsEngine, period, includeAnalytics, includeRecommendations);
+  }
+}
+
+/**
+ * Legacy display function (fallback)
+ */
+async function displayLegacyVisualization(
   stats: any,
   mockMetrics: any[],
   analyticsEngine: any,
@@ -137,7 +200,7 @@ async function displayInteractiveVisualization(
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
 ): Promise<void> {
-  console.log('📊 Budget Analytics Dashboard');
+  console.log('📊 Budget Analytics Dashboard (Legacy Mode)');
   console.log('═══════════════════════════════════════════════════════════');
 
   // Current status overview

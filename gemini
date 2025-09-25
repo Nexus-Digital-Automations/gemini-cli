@@ -1,0 +1,12 @@
+#!/bin/bash
+# Temporary gemini CLI wrapper script
+# This provides a working gemini command while the build system is being fixed
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Change to the gemini-cli directory
+cd "$SCRIPT_DIR"
+
+# Run npm start with all provided arguments
+npm run start -- "$@"

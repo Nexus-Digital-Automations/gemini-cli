@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { loadSettings, SettingScope } from '../../config/settings.js';
 /**
  * Removes an MCP (Model Context Protocol) server configuration
@@ -26,19 +25,18 @@ import { loadSettings, SettingScope } from '../../config/settings.js';
  * ```
  */
 async function removeMcpServer(name, options) {
-  const { scope } = options;
-  const settingsScope =
-    scope === 'user' ? SettingScope.User : SettingScope.Workspace;
-  const settings = loadSettings();
-  const existingSettings = settings.forScope(settingsScope).settings;
-  const mcpServers = existingSettings.mcpServers || {};
-  if (!mcpServers[name]) {
-    console.log(`Server "${name}" not found in ${scope} settings.`);
-    return;
-  }
-  delete mcpServers[name];
-  settings.setValue(settingsScope, 'mcpServers', mcpServers);
-  console.log(`Server "${name}" removed from ${scope} settings.`);
+    const { scope } = options;
+    const settingsScope = scope === 'user' ? SettingScope.User : SettingScope.Workspace;
+    const settings = loadSettings();
+    const existingSettings = settings.forScope(settingsScope).settings;
+    const mcpServers = existingSettings.mcpServers || {};
+    if (!mcpServers[name]) {
+        console.log(`Server "${name}" not found in ${scope} settings.`);
+        return;
+    }
+    delete mcpServers[name];
+    settings.setValue(settingsScope, 'mcpServers', mcpServers);
+    console.log(`Server "${name}" removed from ${scope} settings.`);
 }
 /**
  * Yargs command module for removing MCP servers
@@ -48,27 +46,26 @@ async function removeMcpServer(name, options) {
  * exists before attempting removal and provides clear feedback about the operation.
  */
 export const removeCommand = {
-  command: 'remove <name>',
-  describe: 'Remove a server',
-  builder: (yargs) =>
-    yargs
-      .usage('Usage: gemini mcp remove [options] <name>')
-      .positional('name', {
+    command: 'remove <name>',
+    describe: 'Remove a server',
+    builder: (yargs) => yargs
+        .usage('Usage: gemini mcp remove [options] <name>')
+        .positional('name', {
         describe: 'Name of the server',
         type: 'string',
         demandOption: true,
-      })
-      .option('scope', {
+    })
+        .option('scope', {
         alias: 's',
         describe: 'Configuration scope (user or project)',
         type: 'string',
         default: 'project',
         choices: ['user', 'project'],
-      }),
-  handler: async (argv) => {
-    await removeMcpServer(argv['name'], {
-      scope: argv['scope'],
-    });
-  },
+    }),
+    handler: async (argv) => {
+        await removeMcpServer(argv['name'], {
+            scope: argv['scope'],
+        });
+    },
 };
 //# sourceMappingURL=remove.js.map

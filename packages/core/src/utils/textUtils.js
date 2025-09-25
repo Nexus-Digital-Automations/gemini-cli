@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Safely replaces text with literal strings, avoiding ECMAScript GetSubstitution issues.
  *
@@ -26,14 +25,14 @@
  * ```
  */
 export function safeLiteralReplace(str, oldString, newString) {
-  if (oldString === '' || !str.includes(oldString)) {
-    return str;
-  }
-  if (!newString.includes('$')) {
-    return str.replaceAll(oldString, newString);
-  }
-  const escapedNewString = newString.replaceAll('$', '$$$$');
-  return str.replaceAll(oldString, escapedNewString);
+    if (oldString === '' || !str.includes(oldString)) {
+        return str;
+    }
+    if (!newString.includes('$')) {
+        return str.replaceAll(oldString, newString);
+    }
+    const escapedNewString = newString.replaceAll('$', '$$$$');
+    return str.replaceAll(oldString, escapedNewString);
 }
 /**
  * Checks if a Buffer contains binary data by testing for the presence of NULL bytes.
@@ -59,18 +58,18 @@ export function safeLiteralReplace(str, oldString, newString) {
  * ```
  */
 export function isBinary(data, sampleSize = 512) {
-  if (!data) {
-    return false;
-  }
-  const sample = data.length > sampleSize ? data.subarray(0, sampleSize) : data;
-  for (const byte of sample) {
-    // The presence of a NULL byte (0x00) is one of the most reliable
-    // indicators of a binary file. Text files should not contain them.
-    if (byte === 0) {
-      return true;
+    if (!data) {
+        return false;
     }
-  }
-  // If no NULL bytes were found in the sample, we assume it's text.
-  return false;
+    const sample = data.length > sampleSize ? data.subarray(0, sampleSize) : data;
+    for (const byte of sample) {
+        // The presence of a NULL byte (0x00) is one of the most reliable
+        // indicators of a binary file. Text files should not contain them.
+        if (byte === 0) {
+            return true;
+        }
+    }
+    // If no NULL bytes were found in the sample, we assume it's text.
+    return false;
 }
 //# sourceMappingURL=textUtils.js.map

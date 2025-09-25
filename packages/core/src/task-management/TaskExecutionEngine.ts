@@ -7,7 +7,8 @@
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
-import type { TaskCategory } from './types.js';
+import type { TaskCategory, TaskStatus, TaskId, TaskPriority, TaskMetadata, Task as BaseTask } from './types.js';
+import { TaskComplexity } from './types.js';
 import {
   SubAgentScope,
   ContextState,
@@ -29,39 +30,16 @@ import * as path from 'node:path';
 
 /**
  * Task complexity levels determine breakdown strategy and resource allocation
+ * (using TaskComplexity enum from types.ts)
  */
-export enum TaskComplexity {
-  TRIVIAL = 'trivial', // Single-step, minimal resources
-  SIMPLE = 'simple', // Few steps, basic validation
-  MODERATE = 'moderate', // Multi-step, some dependencies
-  COMPLEX = 'complex', // Many steps, complex dependencies
-  ENTERPRISE = 'enterprise', // Highly complex, extensive coordination
-}
 
 /**
- * Task execution status lifecycle
+ * Task execution status lifecycle (using canonical TaskStatus from types.ts)
  */
-export enum TaskStatus {
-  QUEUED = 'queued', // Task created, waiting for analysis
-  ANALYZED = 'analyzed', // Breakdown complete, dependencies identified
-  ASSIGNED = 'assigned', // Assigned to execution engine/agent
-  IN_PROGRESS = 'in_progress', // Actively executing
-  BLOCKED = 'blocked', // Waiting for dependencies or resources
-  VALIDATION = 'validation', // Executing validation steps
-  COMPLETED = 'completed', // Successfully completed
-  FAILED = 'failed', // Failed execution
-  CANCELLED = 'cancelled', // Cancelled by user or system
-}
 
 /**
- * Task priority levels for execution scheduling
+ * Task priority levels for execution scheduling (using canonical TaskPriority from types.ts)
  */
-export enum TaskPriority {
-  CRITICAL = 'critical', // Emergency fixes, blocking issues
-  HIGH = 'high', // Important features, major bugs
-  NORMAL = 'normal', // Standard development work
-  LOW = 'low', // Nice-to-have, cleanup tasks
-}
 
 /**
  * Task types for specialized handling and agent assignment
@@ -139,22 +117,14 @@ export interface TaskMetrics {
 }
 
 /**
- * Core Task interface with comprehensive metadata
+ * Executable Task interface extending the canonical Task with execution-specific properties
  */
-export interface Task {
-  // Core identification
-  id: string;
-  title: string;
-  description: string;
-
-  // Classification
+export interface Task extends BaseTask {
+  // Classification specific to execution engine
   type: TaskType;
-  category: TaskCategory;
   complexity: TaskComplexity;
-  priority: TaskPriority;
 
   // Execution state
-  status: TaskStatus;
   progress: number; // 0-100 completion percentage
 
   // Assignment and capabilities
@@ -174,20 +144,16 @@ export interface Task {
   context: Record<string, unknown>;
   expectedOutputs: Record<string, string>;
 
-  // Timing and metrics
-  createdAt: Date;
-  updatedAt: Date;
+  // Additional timing fields
   scheduledAt?: Date;
   startedAt?: Date;
   completedAt?: Date;
   metrics?: TaskMetrics;
 
   // Error handling
-  lastError?: string;
   retryCount: number;
 
   // Results
-  results?: Record<string, unknown>;
   outputs?: Record<string, string>;
 }
 

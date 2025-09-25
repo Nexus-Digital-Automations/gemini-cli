@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 // Export config
 export * from './config/config.js';
 export * from './config/autonomousTaskConfig.js';

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * This test verifies we can match maximum schema depth errors from Gemini
  * and then detect and warn about the potential tools that caused the error.
@@ -151,37 +150,35 @@ rpc.send({
 });
 `;
 describe('mcp server with cyclic tool schema is detected', () => {
-  const rig = new TestRig();
-  beforeAll(async () => {
-    // Setup test directory with MCP server configuration
-    await rig.setup('cyclic-schema-mcp-server', {
-      settings: {
-        mcpServers: {
-          'cyclic-schema-server': {
-            command: 'node',
-            args: ['mcp-server.cjs'],
-          },
-        },
-      },
+    const rig = new TestRig();
+    beforeAll(async () => {
+        // Setup test directory with MCP server configuration
+        await rig.setup('cyclic-schema-mcp-server', {
+            settings: {
+                mcpServers: {
+                    'cyclic-schema-server': {
+                        command: 'node',
+                        args: ['mcp-server.cjs'],
+                    },
+                },
+            },
+        });
+        // Create server script in the test directory
+        const testServerPath = join(rig.testDir, 'mcp-server.cjs');
+        writeFileSync(testServerPath, serverScript);
+        // Make the script executable (though running with 'node' should work anyway)
+        if (process.platform !== 'win32') {
+            const { chmodSync } = await import('node:fs');
+            chmodSync(testServerPath, 0o755);
+        }
     });
-    // Create server script in the test directory
-    const testServerPath = join(rig.testDir, 'mcp-server.cjs');
-    writeFileSync(testServerPath, serverScript);
-    // Make the script executable (though running with 'node' should work anyway)
-    if (process.platform !== 'win32') {
-      const { chmodSync } = await import('node:fs');
-      chmodSync(testServerPath, 0o755);
-    }
-  });
-  it('should error and suggest disabling the cyclic tool', async () => {
-    // Just run any command to trigger the schema depth error.
-    // If this test starts failing, check `isSchemaDepthError` from
-    // geminiChat.ts to see if it needs to be updated.
-    // Or, possibly it could mean that gemini has fixed the issue.
-    const output = await rig.run('hello');
-    expect(output).toMatch(
-      /Skipping tool 'tool_with_cyclic_schema' from MCP server 'cyclic-schema-server' because it has missing types in its parameter schema/,
-    );
-  });
+    it('should error and suggest disabling the cyclic tool', async () => {
+        // Just run any command to trigger the schema depth error.
+        // If this test starts failing, check `isSchemaDepthError` from
+        // geminiChat.ts to see if it needs to be updated.
+        // Or, possibly it could mean that gemini has fixed the issue.
+        const output = await rig.run('hello');
+        expect(output).toMatch(/Skipping tool 'tool_with_cyclic_schema' from MCP server 'cyclic-schema-server' because it has missing types in its parameter schema/);
+    });
 });
 //# sourceMappingURL=mcp_server_cyclic_schema.test.js.map

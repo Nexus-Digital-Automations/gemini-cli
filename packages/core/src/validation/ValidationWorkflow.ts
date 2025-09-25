@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../../../../src/utils/logger.js';
 import type {
   ValidationContext,
   ValidationReport,

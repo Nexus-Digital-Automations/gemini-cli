@@ -27,6 +27,14 @@ export type TaskCategory =
   | 'refactoring'
   | 'deployment';
 
+export enum TaskComplexity {
+  TRIVIAL = 'trivial',
+  SIMPLE = 'simple',
+  MODERATE = 'moderate',
+  COMPLEX = 'complex',
+  ENTERPRISE = 'enterprise',
+}
+
 /**
  * Represents a task dependency relationship
  */

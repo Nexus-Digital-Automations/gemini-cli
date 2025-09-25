@@ -3,8 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import { BaseDeclarativeTool, BaseToolInvocation, Kind } from './tools.js';
+import { BaseDeclarativeTool, BaseToolInvocation, Kind, } from './tools.js';
 // Insprired by langchain/deepagents.
 export const WRITE_TODOS_DESCRIPTION = `This tool can help you list out the current subtasks that are required to be completed for a given user request. The list of subtasks helps you keep track of the current task, organize complex queries and help ensure that you don't miss any steps. With this list, the user can also see the current progress you are making in executing a given task.
 
@@ -71,93 +70,81 @@ The agent did not use the todo list because this task could be completed by a ti
 </example>
 `;
 class WriteTodosToolInvocation extends BaseToolInvocation {
-  getDescription() {
-    const count = this.params.todos?.length ?? 0;
-    if (count === 0) {
-      return 'Cleared todo list';
+    getDescription() {
+        const count = this.params.todos?.length ?? 0;
+        if (count === 0) {
+            return 'Cleared todo list';
+        }
+        return `Set ${count} todo(s)`;
     }
-    return `Set ${count} todo(s)`;
-  }
-  async execute(_signal, _updateOutput) {
-    const todos = this.params.todos ?? [];
-    const todoListString = todos
-      .map(
-        (todo, index) => `${index + 1}. [${todo.status}] ${todo.description}`,
-      )
-      .join('\n');
-    const llmContent =
-      todos.length > 0
-        ? `Successfully updated the todo list. The current list is now:\n${todoListString}`
-        : 'Successfully cleared the todo list.';
-    return {
-      llmContent,
-      returnDisplay: llmContent,
-    };
-  }
+    async execute(_signal, _updateOutput) {
+        const todos = this.params.todos ?? [];
+        const todoListString = todos
+            .map((todo, index) => `${index + 1}. [${todo.status}] ${todo.description}`)
+            .join('\n');
+        const llmContent = todos.length > 0
+            ? `Successfully updated the todo list. The current list is now:\n${todoListString}`
+            : 'Successfully cleared the todo list.';
+        return {
+            llmContent,
+            returnDisplay: llmContent,
+        };
+    }
 }
 export class WriteTodosTool extends BaseDeclarativeTool {
-  static Name = 'write_todos_list';
-  constructor() {
-    super(
-      WriteTodosTool.Name,
-      'Write Todos',
-      WRITE_TODOS_DESCRIPTION,
-      Kind.Other,
-      {
-        type: 'object',
-        properties: {
-          todos: {
-            type: 'array',
-            description:
-              'The complete list of todo items. This will replace the existing list.',
-            items: {
-              type: 'object',
-              description: 'A single todo item.',
-              properties: {
-                description: {
-                  type: 'string',
-                  description: 'The description of the task.',
+    static Name = 'write_todos_list';
+    constructor() {
+        super(WriteTodosTool.Name, 'Write Todos', WRITE_TODOS_DESCRIPTION, Kind.Other, {
+            type: 'object',
+            properties: {
+                todos: {
+                    type: 'array',
+                    description: 'The complete list of todo items. This will replace the existing list.',
+                    items: {
+                        type: 'object',
+                        description: 'A single todo item.',
+                        properties: {
+                            description: {
+                                type: 'string',
+                                description: 'The description of the task.',
+                            },
+                            status: {
+                                type: 'string',
+                                description: 'The current status of the task.',
+                                enum: ['pending', 'in_progress', 'completed'],
+                            },
+                        },
+                        required: ['description', 'status'],
+                    },
                 },
-                status: {
-                  type: 'string',
-                  description: 'The current status of the task.',
-                  enum: ['pending', 'in_progress', 'completed'],
-                },
-              },
-              required: ['description', 'status'],
             },
-          },
-        },
-        required: ['todos'],
-      },
-    );
-  }
-  validateToolParamValues(params) {
-    const todos = params?.todos;
-    if (!params || !Array.isArray(todos)) {
-      return '`todos` parameter must be an array';
+            required: ['todos'],
+        });
     }
-    for (const todo of todos) {
-      if (typeof todo !== 'object' || todo === null) {
-        return 'Each todo item must be an object';
-      }
-      if (typeof todo.description !== 'string' || !todo.description.trim()) {
-        return 'Each todo must have a non-empty description string';
-      }
-      if (!['pending', 'in_progress', 'completed'].includes(todo.status)) {
-        return 'Each todo must have a valid status (pending, in_progress, or completed)';
-      }
+    validateToolParamValues(params) {
+        const todos = params?.todos;
+        if (!params || !Array.isArray(todos)) {
+            return '`todos` parameter must be an array';
+        }
+        for (const todo of todos) {
+            if (typeof todo !== 'object' || todo === null) {
+                return 'Each todo item must be an object';
+            }
+            if (typeof todo.description !== 'string' || !todo.description.trim()) {
+                return 'Each todo must have a non-empty description string';
+            }
+            if (!['pending', 'in_progress', 'completed'].includes(todo.status)) {
+                return 'Each todo must have a valid status (pending, in_progress, or completed)';
+            }
+        }
+        const inProgressCount = todos.filter((todo) => todo.status === 'in_progress').length;
+        if (inProgressCount > 1) {
+            return 'Invalid parameters: Only one task can be "in_progress" at a time.';
+        }
+        return null;
     }
-    const inProgressCount = todos.filter(
-      (todo) => todo.status === 'in_progress',
-    ).length;
-    if (inProgressCount > 1) {
-      return 'Invalid parameters: Only one task can be "in_progress" at a time.';
+    createInvocation(params) {
+        return new WriteTodosToolInvocation(params);
     }
-    return null;
-  }
-  createInvocation(params) {
-    return new WriteTodosToolInvocation(params);
-  }
 }
 //# sourceMappingURL=write-todos.js.map

@@ -6,47 +6,15 @@
 
 import { randomUUID } from 'node:crypto';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
+import { TaskComplexity } from '../task-management/types.js';
+import type { TaskCategory, TaskPriority } from '../task-management/types.js';
 
 /**
- * Represents the complexity level of a task for breakdown analysis
+ * Using canonical enums from types.ts:
+ * - TaskComplexity: TRIVIAL, SIMPLE, MODERATE, COMPLEX, ENTERPRISE
+ * - TaskCategory: implementation, testing, documentation, analysis, refactoring, deployment
+ * - TaskPriority: critical, high, medium, low
  */
-export enum TaskComplexity {
-  SIMPLE = 'simple', // Single operation, straightforward
-  MODERATE = 'moderate', // Multiple related operations
-  COMPLEX = 'complex', // Multi-step with dependencies
-  HIGHLY_COMPLEX = 'highly_complex', // Requires extensive breakdown
-}
-
-/**
- * Task categories for intelligent processing
- */
-export enum TaskCategory {
-  READ = 'read',
-  EDIT = 'edit',
-  CREATE = 'create',
-  DELETE = 'delete',
-  SEARCH = 'search',
-  ANALYZE = 'analyze',
-  EXECUTE = 'execute',
-  REFACTOR = 'refactor',
-  TEST = 'test',
-  DEPLOY = 'deploy',
-  VALIDATE = 'validate',
-  OPTIMIZE = 'optimize',
-  DEBUG = 'debug',
-  DOCUMENT = 'document',
-}
-
-/**
- * Task priority levels for execution ordering
- */
-export enum TaskPriority {
-  LOW = 1,
-  NORMAL = 2,
-  HIGH = 3,
-  CRITICAL = 4,
-  BLOCKING = 5,
-}
 
 /**
  * Task execution status

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Comprehensive Persistence Storage System
  *
@@ -46,8 +45,6 @@ export { SessionManager } from './SessionManager.js';
 export { ConflictResolver } from './ConflictResolver.js';
 // Data Integrity Management
 export { DataIntegrityManager } from './DataIntegrityManager.js';
-// Performance Optimization
-export { PerformanceOptimizer } from './PerformanceOptimizer.js';
-// Utilities and Helpers
-export * from './types.js';
+// Performance Optimization - TODO: Add PerformanceOptimizer when implemented
+// Utilities and Helpers - TODO: Add types when implemented
 //# sourceMappingURL=index.js.map

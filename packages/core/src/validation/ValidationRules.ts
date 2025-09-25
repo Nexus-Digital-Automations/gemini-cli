@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../../../../src/utils/logger.js';
+import { TaskStatus } from '../task-management/types.js';
 import type {
   ValidationRule,
   ValidationExecutor,

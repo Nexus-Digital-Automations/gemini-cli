@@ -1,16 +1,10 @@
 #!/usr/bin/env node
-
 /**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import {
-  ValidationCLI,
-  ValidationCommand,
-  ValidationCommandArgs,
-} from './ValidationIntegration.js';
+import { ValidationCLI, ValidationCommand, ValidationCommandArgs, } from './ValidationIntegration.js';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 /**
@@ -23,91 +17,94 @@ import { cwd } from 'node:process';
  *   validation-cli validate-commit --commit-message "feat: add user authentication"
  */
 async function main() {
-  const args = process.argv.slice(2);
-  if (args.length === 0) {
-    displayUsage();
-    process.exit(1);
-  }
-  const command = args[0];
-  const commandArgs = parseArgs(args.slice(1));
-  // Determine project root
-  const projectRoot = commandArgs.root || findProjectRoot() || cwd();
-  try {
-    const cli = new ValidationCLI(projectRoot);
-    await cli.executeCommand(command, commandArgs);
-  } catch (error) {
-    console.error('❌ Validation CLI Error:', error.message);
-    process.exit(1);
-  }
+    const args = process.argv.slice(2);
+    if (args.length === 0) {
+        displayUsage();
+        process.exit(1);
+    }
+    const command = args[0];
+    const commandArgs = parseArgs(args.slice(1));
+    // Determine project root
+    const projectRoot = commandArgs.root || findProjectRoot() || cwd();
+    try {
+        const cli = new ValidationCLI(projectRoot);
+        await cli.executeCommand(command, commandArgs);
+    }
+    catch (error) {
+        console.error('❌ Validation CLI Error:', error.message);
+        process.exit(1);
+    }
 }
 /**
  * Parse command-line arguments into structured format.
  */
 function parseArgs(args) {
-  const parsed = {};
-  for (let i = 0; i < args.length; i += 2) {
-    const key = args[i];
-    const value = args[i + 1];
-    if (!key?.startsWith('--') || !value) {
-      continue;
+    const parsed = {};
+    for (let i = 0; i < args.length; i += 2) {
+        const key = args[i];
+        const value = args[i + 1];
+        if (!key?.startsWith('--') || !value) {
+            continue;
+        }
+        const cleanKey = key.replace('--', '').replace('-', '');
+        switch (cleanKey) {
+            case 'description':
+            case 'desc':
+                parsed.description = value;
+                break;
+            case 'category':
+            case 'cat':
+                parsed.category = value;
+                break;
+            case 'featureid':
+            case 'feature':
+                parsed.featureId = value;
+                break;
+            case 'commitmessage':
+            case 'message':
+                parsed.commitMessage = value;
+                break;
+            case 'root':
+            case 'projectroot':
+                parsed.root = value;
+                break;
+            default:
+                parsed[cleanKey] = value;
+        }
     }
-    const cleanKey = key.replace('--', '').replace('-', '');
-    switch (cleanKey) {
-      case 'description':
-      case 'desc':
-        parsed.description = value;
-        break;
-      case 'category':
-      case 'cat':
-        parsed.category = value;
-        break;
-      case 'featureid':
-      case 'feature':
-        parsed.featureId = value;
-        break;
-      case 'commitmessage':
-      case 'message':
-        parsed.commitMessage = value;
-        break;
-      case 'root':
-      case 'projectroot':
-        parsed.root = value;
-        break;
-      default:
-        parsed[cleanKey] = value;
-    }
-  }
-  return parsed;
+    return parsed;
 }
 /**
  * Find project root by looking for package.json or git repository.
  */
 function findProjectRoot() {
-  let currentDir = cwd();
-  while (currentDir !== '/') {
-    try {
-      // Check for package.json
-      require.resolve(resolve(currentDir, 'package.json'));
-      return currentDir;
-    } catch {
-      // Check for .git directory
-      try {
-        const fs = require('node:fs');
-        fs.accessSync(resolve(currentDir, '.git'));
-        return currentDir;
-      } catch {
-        // Move up one directory
-        currentDir = resolve(currentDir, '..');
-      }
+    let currentDir = cwd();
+    while (currentDir !== '/') {
+        try {
+            // Check for package.json
+            require.resolve(resolve(currentDir, 'package.json'));
+            return currentDir;
+        }
+        catch {
+            // Check for .git directory
+            try {
+                const fs = require('node:fs');
+                fs.accessSync(resolve(currentDir, '.git'));
+                return currentDir;
+            }
+            catch {
+                // Move up one directory
+                currentDir = resolve(currentDir, '..');
+            }
+        }
     }
-  }
-  return null;
+    return null;
 }
 /**
  * Display usage information.
  */
 function displayUsage() {
-  console.log(`
+    console.log(`
 🚀 Automatic Validation System CLI
 
 USAGE:
@@ -204,18 +201,18 @@ For more information, see the project documentation.
 }
 // Handle uncaught exceptions gracefully
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error.message);
-  process.exit(1);
+    console.error('❌ Uncaught Exception:', error.message);
+    process.exit(1);
 });
 process.on('unhandledRejection', (reason) => {
-  console.error('❌ Unhandled Rejection:', reason);
-  process.exit(1);
+    console.error('❌ Unhandled Rejection:', reason);
+    process.exit(1);
 });
 // Execute main function
 if (require.main === module) {
-  main().catch((error) => {
-    console.error('❌ CLI Error:', error.message);
-    process.exit(1);
-  });
+    main().catch((error) => {
+        console.error('❌ CLI Error:', error.message);
+        process.exit(1);
+    });
 }
 //# sourceMappingURL=cli.js.map

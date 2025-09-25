@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { vi } from 'vitest';
 /**
  * Creates a mock WorkspaceContext for testing
@@ -12,16 +11,14 @@ import { vi } from 'vitest';
  * @returns A mock WorkspaceContext instance
  */
 export function createMockWorkspaceContext(rootDir, additionalDirs = []) {
-  const allDirs = [rootDir, ...additionalDirs];
-  const mockWorkspaceContext = {
-    addDirectory: vi.fn(),
-    getDirectories: vi.fn().mockReturnValue(allDirs),
-    isPathWithinWorkspace: vi
-      .fn()
-      .mockImplementation((path) =>
-        allDirs.some((dir) => path.startsWith(dir)),
-      ),
-  };
-  return mockWorkspaceContext;
+    const allDirs = [rootDir, ...additionalDirs];
+    const mockWorkspaceContext = {
+        addDirectory: vi.fn(),
+        getDirectories: vi.fn().mockReturnValue(allDirs),
+        isPathWithinWorkspace: vi
+            .fn()
+            .mockImplementation((path) => allDirs.some((dir) => path.startsWith(dir))),
+    };
+    return mockWorkspaceContext;
 }
 //# sourceMappingURL=mockWorkspaceContext.js.map

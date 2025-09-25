@@ -3,239 +3,212 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import chalk from 'chalk';
-import {
-  TaskPriority,
-  TaskCategory,
-  TaskType,
-} from '@google/gemini-cli-core/task-management/types.js';
-import {
-  suggestFeature,
-  convertTaskToFeature,
-  handleApiResponse,
-  handleApiFallback,
-  initializeAgent,
-} from '../taskManagerApi.js';
+import { TaskPriority, TaskCategory, TaskType, } from '@google/gemini-cli-core/task-management/types.js';
+import { suggestFeature, convertTaskToFeature, handleApiResponse, handleApiFallback, initializeAgent, } from '../taskManagerApi.js';
 export const addTaskCommand = {
-  command: 'add <description>',
-  describe: 'Add a new task to the autonomous system',
-  builder: (yargs) =>
-    yargs
-      .positional('description', {
+    command: 'add <description>',
+    describe: 'Add a new task to the autonomous system',
+    builder: (yargs) => yargs
+        .positional('description', {
         type: 'string',
         describe: 'Task description',
         demandOption: true,
-      })
-      .option('priority', {
+    })
+        .option('priority', {
         type: 'string',
         describe: 'Task priority level',
         choices: ['critical', 'high', 'medium', 'low', 'background'],
         default: 'medium',
         alias: 'p',
-      })
-      .option('category', {
+    })
+        .option('category', {
         type: 'string',
         describe: 'Task category',
         choices: Object.values(TaskCategory),
         default: TaskCategory.FEATURE,
         alias: 'c',
-      })
-      .option('type', {
+    })
+        .option('type', {
         type: 'string',
         describe: 'Task type for specialized handling',
         choices: [
-          'implementation',
-          'testing',
-          'validation',
-          'documentation',
-          'analysis',
-          'deployment',
-          'security',
-          'performance',
+            'implementation',
+            'testing',
+            'validation',
+            'documentation',
+            'analysis',
+            'deployment',
+            'security',
+            'performance',
         ],
         default: 'implementation',
         alias: 't',
-      })
-      .option('max-time', {
+    })
+        .option('max-time', {
         type: 'number',
         describe: 'Maximum execution time in minutes',
         default: 60,
         alias: 'm',
-      })
-      .option('dependencies', {
+    })
+        .option('dependencies', {
         type: 'array',
         describe: 'Task IDs this task depends on',
         default: [],
         alias: 'd',
-      })
-      .option('context', {
+    })
+        .option('context', {
         type: 'string',
         describe: 'Additional context as JSON string',
-      })
-      .option('expected-outputs', {
+    })
+        .option('expected-outputs', {
         type: 'string',
         describe: 'Expected outputs as JSON string',
-      })
-      .example(
-        'gemini autonomous tasks add "Implement user authentication"',
-        'Add a basic task',
-      )
-      .example(
-        'gemini autonomous tasks add "Fix critical bug" --priority critical --category bug_fix',
-        'Add a critical bug fix',
-      )
-      .example(
-        'gemini autonomous tasks add "Update docs" --type documentation --max-time 30',
-        'Add documentation task with 30 min limit',
-      ),
-  handler: async (argv) => {
-    try {
-      console.log(chalk.cyan('➕ Adding new task to autonomous system...'));
-      // Validate and parse input
-      const priorityMap = {
-        critical: TaskPriority.CRITICAL,
-        high: TaskPriority.HIGH,
-        medium: TaskPriority.MEDIUM,
-        low: TaskPriority.LOW,
-        background: TaskPriority.BACKGROUND,
-      };
-      const typeMap = {
-        implementation: TaskType.IMPLEMENTATION,
-        testing: TaskType.TESTING,
-        validation: TaskType.VALIDATION,
-        documentation: TaskType.DOCUMENTATION,
-        analysis: TaskType.ANALYSIS,
-        deployment: TaskType.DEPLOYMENT,
-        security: TaskType.SECURITY,
-        performance: TaskType.PERFORMANCE,
-      };
-      let parsedContext = {};
-      if (argv.context) {
+    })
+        .example('gemini autonomous tasks add "Implement user authentication"', 'Add a basic task')
+        .example('gemini autonomous tasks add "Fix critical bug" --priority critical --category bug_fix', 'Add a critical bug fix')
+        .example('gemini autonomous tasks add "Update docs" --type documentation --max-time 30', 'Add documentation task with 30 min limit'),
+    handler: async (argv) => {
         try {
-          parsedContext = JSON.parse(argv.context);
-        } catch (error) {
-          console.error(chalk.red('❌ Invalid JSON format for context'));
-          process.exit(1);
+            console.log(chalk.cyan('➕ Adding new task to autonomous system...'));
+            // Validate and parse input
+            const priorityMap = {
+                critical: TaskPriority.CRITICAL,
+                high: TaskPriority.HIGH,
+                medium: TaskPriority.MEDIUM,
+                low: TaskPriority.LOW,
+                background: TaskPriority.BACKGROUND,
+            };
+            const typeMap = {
+                implementation: TaskType.IMPLEMENTATION,
+                testing: TaskType.TESTING,
+                validation: TaskType.VALIDATION,
+                documentation: TaskType.DOCUMENTATION,
+                analysis: TaskType.ANALYSIS,
+                deployment: TaskType.DEPLOYMENT,
+                security: TaskType.SECURITY,
+                performance: TaskType.PERFORMANCE,
+            };
+            let parsedContext = {};
+            if (argv.context) {
+                try {
+                    parsedContext = JSON.parse(argv.context);
+                }
+                catch (error) {
+                    console.error(chalk.red('❌ Invalid JSON format for context'));
+                    process.exit(1);
+                }
+            }
+            let parsedExpectedOutputs = {};
+            if (argv['expected-outputs']) {
+                try {
+                    parsedExpectedOutputs = JSON.parse(argv['expected-outputs']);
+                }
+                catch (error) {
+                    console.error(chalk.red('❌ Invalid JSON format for expected-outputs'));
+                    process.exit(1);
+                }
+            }
+            // Generate task ID
+            const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            // Create task object
+            const newTask = {
+                title: generateTaskTitle(argv.description),
+                description: argv.description,
+                type: typeMap[argv.type || 'implementation'],
+                priority: priorityMap[argv.priority || 'medium'],
+                category: argv.category,
+                maxExecutionTimeMinutes: argv['max-time'] || 60,
+                dependencies: argv.dependencies || [],
+                context: parsedContext,
+                expectedOutputs: parsedExpectedOutputs,
+            };
+            // Initialize agent for task management
+            const agentId = `TASK_MANAGER_${Date.now()}`;
+            await initializeAgent(agentId);
+            // Convert autonomous task to TaskManager feature
+            const feature = convertTaskToFeature(newTask);
+            // Send task to TaskManager API
+            const apiResponse = await suggestFeature(feature);
+            if (handleApiResponse(apiResponse, 'Task submission')) {
+                console.log(chalk.blue('📋 Task Details:'));
+                console.log(`   ID: ${chalk.bold(taskId)}`);
+                console.log(`   Title: ${chalk.bold(newTask.title)}`);
+                console.log(`   Description: ${newTask.description}`);
+                console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
+                console.log(`   Category: ${chalk.cyan(newTask.category)}`);
+                console.log(`   Type: ${chalk.magenta(newTask.type)}`);
+                console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
+                if (apiResponse.data?.feature_id) {
+                    console.log(`   TaskManager Feature ID: ${chalk.green(apiResponse.data.feature_id)}`);
+                }
+            }
+            else {
+                // Fallback to local simulation
+                handleApiFallback('task submission', () => {
+                    console.log(chalk.green('✅ Task added to local queue!'));
+                    console.log(chalk.blue('📋 Task Details:'));
+                    console.log(`   ID: ${chalk.bold(taskId)}`);
+                    console.log(`   Title: ${chalk.bold(newTask.title)}`);
+                    console.log(`   Description: ${newTask.description}`);
+                    console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
+                    console.log(`   Category: ${chalk.cyan(newTask.category)}`);
+                    console.log(`   Type: ${chalk.magenta(newTask.type)}`);
+                    console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
+                });
+            }
+            if (newTask.dependencies.length > 0) {
+                console.log(`   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`);
+            }
+            console.log(chalk.blue('\n🔄 Next Steps:'));
+            console.log('   • The task will be analyzed and broken down automatically');
+            console.log('   • Check status: gemini autonomous status');
+            console.log(`   • Monitor progress: gemini autonomous tasks show ${taskId}`);
+            // Simulate task analysis
+            console.log(chalk.gray('\n🤖 Autonomous system is analyzing task...'));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            console.log(chalk.green('✅ Task analysis complete'));
+            console.log(chalk.blue('   • Complexity: MODERATE'));
+            console.log(chalk.blue('   • Estimated subtasks: 3-5'));
+            console.log(chalk.blue('   • Required capabilities: frontend, testing'));
+            console.log(chalk.blue('   • Estimated duration: 45-75 minutes'));
         }
-      }
-      let parsedExpectedOutputs = {};
-      if (argv['expected-outputs']) {
-        try {
-          parsedExpectedOutputs = JSON.parse(argv['expected-outputs']);
-        } catch (error) {
-          console.error(
-            chalk.red('❌ Invalid JSON format for expected-outputs'),
-          );
-          process.exit(1);
+        catch (error) {
+            console.error(chalk.red('❌ Failed to add task:'));
+            console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+            process.exit(1);
         }
-      }
-      // Generate task ID
-      const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      // Create task object
-      const newTask = {
-        title: generateTaskTitle(argv.description),
-        description: argv.description,
-        type: typeMap[argv.type || 'implementation'],
-        priority: priorityMap[argv.priority || 'medium'],
-        category: argv.category,
-        maxExecutionTimeMinutes: argv['max-time'] || 60,
-        dependencies: argv.dependencies || [],
-        context: parsedContext,
-        expectedOutputs: parsedExpectedOutputs,
-      };
-      // Initialize agent for task management
-      const agentId = `TASK_MANAGER_${Date.now()}`;
-      await initializeAgent(agentId);
-      // Convert autonomous task to TaskManager feature
-      const feature = convertTaskToFeature(newTask);
-      // Send task to TaskManager API
-      const apiResponse = await suggestFeature(feature);
-      if (handleApiResponse(apiResponse, 'Task submission')) {
-        console.log(chalk.blue('📋 Task Details:'));
-        console.log(`   ID: ${chalk.bold(taskId)}`);
-        console.log(`   Title: ${chalk.bold(newTask.title)}`);
-        console.log(`   Description: ${newTask.description}`);
-        console.log(
-          `   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`,
-        );
-        console.log(`   Category: ${chalk.cyan(newTask.category)}`);
-        console.log(`   Type: ${chalk.magenta(newTask.type)}`);
-        console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
-        if (apiResponse.data?.feature_id) {
-          console.log(
-            `   TaskManager Feature ID: ${chalk.green(apiResponse.data.feature_id)}`,
-          );
-        }
-      } else {
-        // Fallback to local simulation
-        handleApiFallback('task submission', () => {
-          console.log(chalk.green('✅ Task added to local queue!'));
-          console.log(chalk.blue('📋 Task Details:'));
-          console.log(`   ID: ${chalk.bold(taskId)}`);
-          console.log(`   Title: ${chalk.bold(newTask.title)}`);
-          console.log(`   Description: ${newTask.description}`);
-          console.log(
-            `   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`,
-          );
-          console.log(`   Category: ${chalk.cyan(newTask.category)}`);
-          console.log(`   Type: ${chalk.magenta(newTask.type)}`);
-          console.log(
-            `   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`,
-          );
-        });
-      }
-      if (newTask.dependencies.length > 0) {
-        console.log(
-          `   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`,
-        );
-      }
-      console.log(chalk.blue('\n🔄 Next Steps:'));
-      console.log(
-        '   • The task will be analyzed and broken down automatically',
-      );
-      console.log('   • Check status: gemini autonomous status');
-      console.log(
-        `   • Monitor progress: gemini autonomous tasks show ${taskId}`,
-      );
-      // Simulate task analysis
-      console.log(chalk.gray('\n🤖 Autonomous system is analyzing task...'));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(chalk.green('✅ Task analysis complete'));
-      console.log(chalk.blue('   • Complexity: MODERATE'));
-      console.log(chalk.blue('   • Estimated subtasks: 3-5'));
-      console.log(chalk.blue('   • Required capabilities: frontend, testing'));
-      console.log(chalk.blue('   • Estimated duration: 45-75 minutes'));
-    } catch (error) {
-      console.error(chalk.red('❌ Failed to add task:'));
-      console.error(
-        chalk.red(error instanceof Error ? error.message : String(error)),
-      );
-      process.exit(1);
-    }
-  },
+    },
 };
 function generateTaskTitle(description) {
-  // Extract meaningful title from description
-  const words = description.split(' ');
-  if (words.length <= 6) {
-    return description;
-  }
-  // Take first 6 words and add ellipsis if needed
-  return words.slice(0, 6).join(' ') + '...';
+    // Extract meaningful title from description
+    const words = description.split(' ');
+    if (words.length <= 6) {
+        return description;
+    }
+    // Take first 6 words and add ellipsis if needed
+    return words.slice(0, 6).join(' ') + '...';
 }
 function getPriorityColor(priority) {
-  if (priority >= TaskPriority.CRITICAL) return chalk.red.bold;
-  if (priority >= TaskPriority.HIGH) return chalk.red;
-  if (priority >= TaskPriority.MEDIUM) return chalk.yellow;
-  if (priority >= TaskPriority.LOW) return chalk.blue;
-  return chalk.gray;
+    if (priority >= TaskPriority.CRITICAL)
+        return chalk.red.bold;
+    if (priority >= TaskPriority.HIGH)
+        return chalk.red;
+    if (priority >= TaskPriority.MEDIUM)
+        return chalk.yellow;
+    if (priority >= TaskPriority.LOW)
+        return chalk.blue;
+    return chalk.gray;
 }
 function getPriorityName(priority) {
-  if (priority >= TaskPriority.CRITICAL) return 'CRITICAL';
-  if (priority >= TaskPriority.HIGH) return 'HIGH';
-  if (priority >= TaskPriority.MEDIUM) return 'MEDIUM';
-  if (priority >= TaskPriority.LOW) return 'LOW';
-  return 'BACKGROUND';
+    if (priority >= TaskPriority.CRITICAL)
+        return 'CRITICAL';
+    if (priority >= TaskPriority.HIGH)
+        return 'HIGH';
+    if (priority >= TaskPriority.MEDIUM)
+        return 'MEDIUM';
+    if (priority >= TaskPriority.LOW)
+        return 'LOW';
+    return 'BACKGROUND';
 }
 //# sourceMappingURL=add.js.map

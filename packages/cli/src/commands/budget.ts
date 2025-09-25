@@ -11,6 +11,7 @@ import { resetCommand } from './budget/reset.js';
 import { extendCommand } from './budget/extend.js';
 import { enableCommand } from './budget/enable.js';
 import { disableCommand } from './budget/disable.js';
+import { visualizeCommand } from './budget/visualize.js';
 
 export const budgetCommand: CommandModule = {
   command: 'budget',
@@ -23,6 +24,7 @@ export const budgetCommand: CommandModule = {
       .command(extendCommand)
       .command(enableCommand)
       .command(disableCommand)
+      .command(visualizeCommand)
       .demandCommand(1, 'You need at least one command before continuing.')
       .version(false)
       .example(
@@ -35,6 +37,7 @@ export const budgetCommand: CommandModule = {
         'gemini budget extend 50',
         "Temporarily add 50 requests to today's limit",
       )
+      .example('gemini budget visualize', 'Show budget analytics dashboard')
       .example('gemini budget disable', 'Disable budget tracking')
       .epilog(
         'Budget tracking helps you manage your daily API usage and avoid unexpected costs.',

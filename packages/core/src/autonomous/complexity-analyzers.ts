@@ -8,9 +8,9 @@ import type {
   ComplexityAnalyzer,
   ComplexityAnalysisResult,
   ComplexityFactor,
-  TaskComplexity,
   TaskBreakdownContext,
 } from './task-breakdown-engine.js';
+import { TaskComplexity } from '../task-management/types.js';
 
 /**
  * Analyzes task complexity based on linguistic patterns and keywords

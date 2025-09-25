@@ -1,290 +1,122 @@
 {
   "execution": {
-    "timestamp": "2025-09-25T06:53:02.705Z",
+    "timestamp": "2025-09-25T10:30:46.024Z",
     "projectRoot": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
     "hookVersion": "1.0.0",
     "nodeVersion": "v22.20.0",
     "platform": "darwin",
     "arch": "arm64",
-    "pid": 30851,
+    "pid": 24022,
     "cwd": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
-    "endTimestamp": "2025-09-25T06:53:02.717Z",
-    "durationMs": 12
+    "endTimestamp": "2025-09-25T10:30:46.030Z",
+    "durationMs": 6
   },
   "input": {
-    "sessionId": "11422b45-01f1-4808-9e5e-2d1dfff35cb7",
-    "transcriptPath": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/11422b45-01f1-4808-9e5e-2d1dfff35cb7.jsonl",
-    "stopHookActive": false,
+    "sessionId": "80873b9e-647a-497b-8533-7489802114b5",
+    "transcriptPath": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/80873b9e-647a-497b-8533-7489802114b5.jsonl",
+    "stopHookActive": true,
     "rawInput": {
-      "session_id": "11422b45-01f1-4808-9e5e-2d1dfff35cb7",
-      "transcript_path": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/11422b45-01f1-4808-9e5e-2d1dfff35cb7.jsonl",
+      "session_id": "80873b9e-647a-497b-8533-7489802114b5",
+      "transcript_path": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/80873b9e-647a-497b-8533-7489802114b5.jsonl",
       "cwd": "/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli",
       "permission_mode": "default",
       "hook_event_name": "Stop",
-      "stop_hook_active": false
+      "stop_hook_active": true
     }
   },
   "projectState": {},
   "decisions": [],
   "flow": [
     {
-      "timestamp": "2025-09-25T06:53:02.706Z",
-      "message": "Raw input data: \"{\"session_id\":\"11422b45-01f1-4808-9e5e-2d1dfff35cb7\",\"transcript_path\":\"/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/11422b45-01f1-4808-9e5e-2d1dfff35cb7.jsonl\",\"cwd\":\"/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli\",\"permission_mode\":\"default\",\"hook_event_name\":\"Stop\",\"stop_hook_active\":false}\""
+      "timestamp": "2025-09-25T10:30:46.024Z",
+      "message": "Raw input data: \"{\"session_id\":\"80873b9e-647a-497b-8533-7489802114b5\",\"transcript_path\":\"/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-gemini-cli/80873b9e-647a-497b-8533-7489802114b5.jsonl\",\"cwd\":\"/Users/jeremyparker/Desktop/Claude Coding Projects/gemini-cli\",\"permission_mode\":\"default\",\"hook_event_name\":\"Stop\",\"stop_hook_active\":true}\""
     },
     {
-      "timestamp": "2025-09-25T06:53:02.706Z",
-      "message": "Input data length: 363"
+      "timestamp": "2025-09-25T10:30:46.024Z",
+      "message": "Input data length: 362"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.706Z",
+      "timestamp": "2025-09-25T10:30:46.024Z",
       "message": "Received input from Claude Code"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.706Z",
+      "timestamp": "2025-09-25T10:30:46.024Z",
       "message": "Received Stop event from Claude Code"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.712Z",
-      "message": "Found 26 total agents in TODO.json"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Found 9 total agents in TODO.json"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.712Z",
+      "timestamp": "2025-09-25T10:30:46.029Z",
       "message": "🧹 Starting multi-project stale agent cleanup across 2 projects..."
     },
     {
-      "timestamp": "2025-09-25T06:53:02.713Z",
+      "timestamp": "2025-09-25T10:30:46.029Z",
       "message": "No FEATURES.json found in /Users/jeremyparker/Desktop/Claude Coding Projects/AIgent/bytebot - skipping"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
+      "timestamp": "2025-09-25T10:30:46.029Z",
       "message": "No agents found in /Users/jeremyparker/infinite-continue-stop-hook - skipping"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
+      "timestamp": "2025-09-25T10:30:46.029Z",
       "message": "🧹 Multi-project cleanup complete: 0 agents removed, 0 tasks unassigned, 0 orphaned tasks reset"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent ARCHITECTURE_ANALYSIS_AGENT: heartbeat=2025-09-25T03:59:23.808Z, timeSince=10419s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent MAIN_AGENT: heartbeat=2025-09-25T10:20:20.145Z, timeSince=626s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent TESTING_AGENT: heartbeat=2025-09-25T03:48:59.156Z, timeSince=11044s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent claude-agent: heartbeat=2025-09-25T10:27:32.923Z, timeSince=193s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent MAIN_AGENT: heartbeat=2025-09-25T04:33:25.561Z, timeSince=8377s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent budget-core-infrastructure-agent: heartbeat=2025-09-25T10:23:31.553Z, timeSince=434s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent status-monitor-system-architect: heartbeat=2025-09-25T03:59:18.288Z, timeSince=10424s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent cost-analysis-agent: heartbeat=2025-09-25T10:23:31.639Z, timeSince=434s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent TASK_ENGINE_DEV_001: heartbeat=2025-09-25T03:59:17.866Z, timeSince=10425s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent TESTING_AGENT: heartbeat=2025-09-25T10:23:32.626Z, timeSince=433s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent TASK_QUEUE_DESIGNER_01: heartbeat=2025-09-25T04:08:19.625Z, timeSince=9883s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent budget_allocation_agent: heartbeat=2025-09-25T10:23:32.947Z, timeSince=433s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent PERSISTENCE_STORAGE_ENGINEER: heartbeat=2025-09-25T04:08:54.215Z, timeSince=9848s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent usage-analytics-agent: heartbeat=2025-09-25T10:23:33.118Z, timeSince=433s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent DEPENDENCY_ANALYSIS_SPECIALIST: heartbeat=2025-09-25T03:59:19.740Z, timeSince=10423s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent BUDGET_API_AGENT_001: heartbeat=2025-09-25T10:23:37.451Z, timeSince=429s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent VALIDATION_TESTING_LEAD: heartbeat=2025-09-25T04:16:51.106Z, timeSince=9372s, isActive=false"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Agent cost-projection-agent: heartbeat=2025-09-25T10:23:44.148Z, timeSince=422s, isActive=true"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent INTEGRATION_SPECIALIST: heartbeat=2025-09-25T03:59:18.707Z, timeSince=10424s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent MONITORING_ENGINEER: heartbeat=2025-09-25T03:52:30.170Z, timeSince=10833s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent PERSISTENCE_ENGINE_DEVELOPER: heartbeat=2025-09-25T03:42:26.738Z, timeSince=11436s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent COMPATIBILITY_VALIDATOR_001: heartbeat=2025-09-25T03:42:06.527Z, timeSince=11456s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent ANALYTICS_ENGINE_DEVELOPER: heartbeat=2025-09-25T04:37:04.336Z, timeSince=8158s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent CLI_INTEGRATION_SPECIALIST: heartbeat=2025-09-25T04:21:49.426Z, timeSince=9073s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent ML_PREDICTION_ENGINEER: heartbeat=2025-09-25T04:21:49.991Z, timeSince=9073s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent REALTIME_TRACKING_ENGINEER: heartbeat=2025-09-25T04:21:51.798Z, timeSince=9071s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent VISUALIZATION_SPECIALIST: heartbeat=2025-09-25T04:21:52.487Z, timeSince=9070s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent TESTING_VALIDATION_ENGINEER: heartbeat=2025-09-25T04:22:04.065Z, timeSince=9059s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent CODEBASE_ANALYST: heartbeat=2025-09-25T04:36:39.413Z, timeSince=8183s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent ARCHITECTURE_DESIGNER: heartbeat=2025-09-25T04:36:50.247Z, timeSince=8172s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent DATA_MODELER: heartbeat=2025-09-25T04:37:01.182Z, timeSince=8162s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent INTEGRATION_STRATEGIST: heartbeat=2025-09-25T04:37:12.069Z, timeSince=8151s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent ANALYTICS_FRAMEWORK_DESIGNER: heartbeat=2025-09-25T04:37:22.981Z, timeSince=8140s, isActive=false"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent AGENT_001: heartbeat=2025-09-25T06:52:16.215Z, timeSince=46s, isActive=true"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Agent claude-agent-001: heartbeat=2025-09-25T06:52:23.323Z, timeSince=39s, isActive=true"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: ARCHITECTURE_ANALYSIS_AGENT"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: TESTING_AGENT"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: MAIN_AGENT"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: status-monitor-system-architect"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: TASK_ENGINE_DEV_001"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: TASK_QUEUE_DESIGNER_01"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: PERSISTENCE_STORAGE_ENGINEER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: DEPENDENCY_ANALYSIS_SPECIALIST"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: VALIDATION_TESTING_LEAD"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: INTEGRATION_SPECIALIST"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: MONITORING_ENGINEER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: PERSISTENCE_ENGINE_DEVELOPER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: COMPATIBILITY_VALIDATOR_001"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: ANALYTICS_ENGINE_DEVELOPER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: CLI_INTEGRATION_SPECIALIST"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: ML_PREDICTION_ENGINEER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: REALTIME_TRACKING_ENGINEER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: VISUALIZATION_SPECIALIST"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: TESTING_VALIDATION_ENGINEER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: CODEBASE_ANALYST"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: ARCHITECTURE_DESIGNER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: DATA_MODELER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: INTEGRATION_STRATEGIST"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.714Z",
-      "message": "Removed stale agent: ANALYTICS_FRAMEWORK_DESIGNER"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.716Z",
-      "message": "Removed 24 stale agents from TODO.json"
-    },
-    {
-      "timestamp": "2025-09-25T06:53:02.716Z",
+      "timestamp": "2025-09-25T10:30:46.029Z",
       "message": "Running automatic task sorting and test error reclassification"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.716Z",
+      "timestamp": "2025-09-25T10:30:46.029Z",
       "message": "Task sorting completed - no reclassification needed"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.716Z",
-      "message": "Active agents found: 2, Stale agents removed: 24, Tasks unassigned: 0, Stale tasks reset: 0"
+      "timestamp": "2025-09-25T10:30:46.029Z",
+      "message": "Active agents found: 9, Stale agents removed: 0, Tasks unassigned: 0, Stale tasks reset: 0"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.717Z",
+      "timestamp": "2025-09-25T10:30:46.030Z",
       "message": "Stop endpoint triggered - allowing ONE stop, then returning to infinite mode"
     },
     {
-      "timestamp": "2025-09-25T06:53:02.717Z",
+      "timestamp": "2025-09-25T10:30:46.030Z",
       "message": "Exiting with code 0: Endpoint-triggered stop (single use)"
     }
   ],

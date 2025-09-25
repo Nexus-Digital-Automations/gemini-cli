@@ -152,6 +152,7 @@ export class BudgetTracker {
     const usageData: BudgetUsageData = {
       date: today,
       requestCount: 0,
+      totalCost: 0,
       lastResetTime: resetTime,
       warningsShown: [],
     };
@@ -220,6 +221,7 @@ export class BudgetTracker {
     return {
       date: today,
       requestCount: 0,
+      totalCost: 0,
       lastResetTime: now,
       warningsShown: [],
     };
@@ -276,6 +278,51 @@ export class BudgetTracker {
       return `${minutes}m`;
     }
   }
+
+  /**
+   * Get today's usage data (required by dashboard)
+   */
+  async getTodayUsage(): Promise<{ requestCount: number; totalCost: number }> {
+    const usageData = await this.getCurrentUsageData();
+    const today = this.getTodayDateString();
+
+    // Reset if it's a new day
+    if (usageData.date !== today) {
+      await this.resetDailyUsage();
+      return { requestCount: 0, totalCost: 0 };
+    }
+
+    return {
+      requestCount: usageData.requestCount,
+      totalCost: usageData.totalCost || 0
+    };
+  }
+
+  /**
+   * Record a new API request with cost in the budget tracking
+   */
+  async recordRequestWithCost(cost: number = 0): Promise<void> {
+    if (!this.isEnabled()) {
+      return;
+    }
+
+    const usageData = await this.getCurrentUsageData();
+    const today = this.getTodayDateString();
+
+    // Reset if it's a new day or past reset time
+    if (usageData.date !== today || this.shouldReset(usageData)) {
+      await this.resetDailyUsage();
+      // Re-fetch after reset
+      const resetUsageData = await this.getCurrentUsageData();
+      resetUsageData.requestCount += 1;
+      resetUsageData.totalCost = (resetUsageData.totalCost || 0) + cost;
+      await this.saveUsageData(resetUsageData);
+    } else {
+      usageData.requestCount += 1;
+      usageData.totalCost = (usageData.totalCost || 0) + cost;
+      await this.saveUsageData(usageData);
+    }
+  }
 }
 
 /**
@@ -283,7 +330,14 @@ export class BudgetTracker {
  */
 export function createBudgetTracker(
   projectRoot: string,
-  settings: BudgetSettings,
+  settings?: BudgetSettings,
 ): BudgetTracker {
-  return new BudgetTracker(projectRoot, settings);
+  const defaultSettings: BudgetSettings = {
+    enabled: false,
+    dailyLimit: 1000,
+    resetTime: '00:00',
+    warningThresholds: [50, 75, 90]
+  };
+
+  return new BudgetTracker(projectRoot, settings || defaultSettings);
 }

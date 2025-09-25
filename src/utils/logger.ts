@@ -83,7 +83,7 @@ export class Logger {
         error = contextOrError;
       } else {
         context = contextOrError;
-        error = context?.error as Error;
+        error = context?.['error'] as Error;
       }
 
       this.log(LogLevel.ERROR, message, context, error);

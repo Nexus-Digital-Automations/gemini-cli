@@ -3,95 +3,93 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { FatalSandboxError } from '@google/gemini-cli-core';
 import commandExists from 'command-exists';
 import * as os from 'node:os';
 import { getPackageJson } from '../utils/package.js';
-const VALID_SANDBOX_COMMANDS = ['docker', 'podman', 'sandbox-exec'];
+const VALID_SANDBOX_COMMANDS = [
+    'docker',
+    'podman',
+    'sandbox-exec',
+];
 function isSandboxCommand(value) {
-  return VALID_SANDBOX_COMMANDS.includes(value);
+    return VALID_SANDBOX_COMMANDS.includes(value);
 }
 function getSandboxCommand(sandbox) {
-  // If the SANDBOX env var is set, we're already inside the sandbox.
-  if (process.env['SANDBOX']) {
-    return '';
-  }
-  // note environment variable takes precedence over argument (from command line or settings)
-  const environmentConfiguredSandbox =
-    process.env['GEMINI_SANDBOX']?.toLowerCase().trim() ?? '';
-  sandbox =
-    environmentConfiguredSandbox?.length > 0
-      ? environmentConfiguredSandbox
-      : sandbox;
-  if (sandbox === '1' || sandbox === 'true') sandbox = true;
-  else if (sandbox === '0' || sandbox === 'false' || !sandbox) sandbox = false;
-  if (sandbox === false) {
-    return '';
-  }
-  if (typeof sandbox === 'string' && sandbox) {
-    if (!isSandboxCommand(sandbox)) {
-      throw new FatalSandboxError(
-        `Invalid sandbox command '${sandbox}'. Must be one of ${VALID_SANDBOX_COMMANDS.join(', ')}`,
-      );
+    // If the SANDBOX env var is set, we're already inside the sandbox.
+    if (process.env['SANDBOX']) {
+        return '';
     }
-    // confirm that specified command exists
-    if (commandExists.sync(sandbox)) {
-      return sandbox;
+    // note environment variable takes precedence over argument (from command line or settings)
+    const environmentConfiguredSandbox = process.env['GEMINI_SANDBOX']?.toLowerCase().trim() ?? '';
+    sandbox =
+        environmentConfiguredSandbox?.length > 0
+            ? environmentConfiguredSandbox
+            : sandbox;
+    if (sandbox === '1' || sandbox === 'true')
+        sandbox = true;
+    else if (sandbox === '0' || sandbox === 'false' || !sandbox)
+        sandbox = false;
+    if (sandbox === false) {
+        return '';
     }
-    throw new FatalSandboxError(
-      `Missing sandbox command '${sandbox}' (from GEMINI_SANDBOX)`,
-    );
-  }
-  // look for seatbelt, docker, or podman, in that order
-  // for container-based sandboxing, require sandbox to be enabled explicitly
-  if (os.platform() === 'darwin' && commandExists.sync('sandbox-exec')) {
-    return 'sandbox-exec';
-  } else if (commandExists.sync('docker') && sandbox === true) {
-    return 'docker';
-  } else if (commandExists.sync('podman') && sandbox === true) {
-    return 'podman';
-  }
-  // throw an error if user requested sandbox but no command was found
-  if (sandbox === true) {
-    throw new FatalSandboxError(
-      'GEMINI_SANDBOX is true but failed to determine command for sandbox; ' +
-        'install docker or podman or specify command in GEMINI_SANDBOX',
-    );
-  }
-  return '';
+    if (typeof sandbox === 'string' && sandbox) {
+        if (!isSandboxCommand(sandbox)) {
+            throw new FatalSandboxError(`Invalid sandbox command '${sandbox}'. Must be one of ${VALID_SANDBOX_COMMANDS.join(', ')}`);
+        }
+        // confirm that specified command exists
+        if (commandExists.sync(sandbox)) {
+            return sandbox;
+        }
+        throw new FatalSandboxError(`Missing sandbox command '${sandbox}' (from GEMINI_SANDBOX)`);
+    }
+    // look for seatbelt, docker, or podman, in that order
+    // for container-based sandboxing, require sandbox to be enabled explicitly
+    if (os.platform() === 'darwin' && commandExists.sync('sandbox-exec')) {
+        return 'sandbox-exec';
+    }
+    else if (commandExists.sync('docker') && sandbox === true) {
+        return 'docker';
+    }
+    else if (commandExists.sync('podman') && sandbox === true) {
+        return 'podman';
+    }
+    // throw an error if user requested sandbox but no command was found
+    if (sandbox === true) {
+        throw new FatalSandboxError('GEMINI_SANDBOX is true but failed to determine command for sandbox; ' +
+            'install docker or podman or specify command in GEMINI_SANDBOX');
+    }
+    return '';
 }
 export async function loadSandboxConfig(settings, argv) {
-  const sandboxOption = argv.sandbox ?? settings.tools?.sandbox;
-  const command = getSandboxCommand(sandboxOption);
-  // If we're already inside a sandbox, create a config based on the environment
-  if (process.env['SANDBOX']) {
-    const sandboxEnv = process.env['SANDBOX'];
-    const command =
-      sandboxEnv === 'sandbox-exec'
-        ? 'sandbox-exec'
-        : isSandboxCommand(sandboxEnv)
-          ? sandboxEnv
-          : 'docker'; // fallback to docker if invalid command
-    const result = {
-      command,
-      image: command === 'sandbox-exec' ? undefined : sandboxEnv,
-    };
-    return result;
-  }
-  if (!command) {
-    return undefined;
-  }
-  // sandbox-exec doesn't need a container image
-  if (command === 'sandbox-exec') {
-    return { command, image: undefined };
-  }
-  // Container-based sandboxing requires an image
-  const packageJson = await getPackageJson();
-  const image =
-    argv.sandboxImage ??
-    process.env['GEMINI_SANDBOX_IMAGE'] ??
-    packageJson?.config?.sandboxImageUri;
-  return command && image ? { command, image } : undefined;
+    const sandboxOption = argv.sandbox ?? settings.tools?.sandbox;
+    const command = getSandboxCommand(sandboxOption);
+    // If we're already inside a sandbox, create a config based on the environment
+    if (process.env['SANDBOX']) {
+        const sandboxEnv = process.env['SANDBOX'];
+        const command = sandboxEnv === 'sandbox-exec'
+            ? 'sandbox-exec'
+            : isSandboxCommand(sandboxEnv)
+                ? sandboxEnv
+                : 'docker'; // fallback to docker if invalid command
+        const result = {
+            command,
+            image: command === 'sandbox-exec' ? undefined : sandboxEnv,
+        };
+        return result;
+    }
+    if (!command) {
+        return undefined;
+    }
+    // sandbox-exec doesn't need a container image
+    if (command === 'sandbox-exec') {
+        return { command, image: undefined };
+    }
+    // Container-based sandboxing requires an image
+    const packageJson = await getPackageJson();
+    const image = argv.sandboxImage ??
+        process.env['GEMINI_SANDBOX_IMAGE'] ??
+        packageJson?.config?.sandboxImageUri;
+    return command && image ? { command, image } : undefined;
 }
 //# sourceMappingURL=sandboxConfig.js.map
