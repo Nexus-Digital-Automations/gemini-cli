@@ -7,7 +7,9 @@
 import type { AsyncLocalStorage } from 'node:async_hooks';
 import type express from 'express';
 
-export declare const requestStorage: AsyncLocalStorage<any>;
+export declare const requestStorage: AsyncLocalStorage<{
+  req: express.Request;
+}>;
 
 export declare function updateCoderAgentCardUrl(port: number): void;
 
