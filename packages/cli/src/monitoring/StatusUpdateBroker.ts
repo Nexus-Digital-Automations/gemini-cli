@@ -464,7 +464,7 @@ export class StatusUpdateBroker extends EventEmitter {
       this.logger.error('Realtime delivery failed', {
         subscriberId,
         eventId: event.id,
-        error,
+        error: error as Error,
       });
     }
   }
@@ -496,7 +496,7 @@ export class StatusUpdateBroker extends EventEmitter {
       this.logger.error('Batched delivery failed', {
         subscriberId,
         eventCount: events.length,
-        error,
+        error: error as Error,
       });
     }
   }

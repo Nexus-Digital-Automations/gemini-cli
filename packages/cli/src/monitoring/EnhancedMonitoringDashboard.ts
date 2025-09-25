@@ -703,7 +703,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       });
 
       this.cachedData.set(widget.id, {
-        data: { error: 'Data update failed', message: error.message },
+        data: { error: 'Data update failed', message: (error as Error).message },
         timestamp: new Date(),
       });
     }

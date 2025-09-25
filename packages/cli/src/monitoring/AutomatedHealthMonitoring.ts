@@ -798,10 +798,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         status: 'unknown',
         value: -1,
         threshold: config.thresholds.warning,
-        message: `Health check failed: ${error.message}`,
+        message: `Health check failed: ${(error as Error).message}`,
         duration: performance.now() - startTime,
         timestamp: new Date(),
-        metadata: { error: error.message },
+        metadata: { error: (error as Error).message },
         trend: 'unknown',
         severity: 'error',
       };
@@ -1224,13 +1224,13 @@ export class AutomatedHealthMonitoring extends EventEmitter {
           executedActions.push({
             type: actionConfig.type,
             status: 'failure',
-            message: error.message,
+            message: (error as Error).message,
             duration: actionEnd - actionStart,
           });
 
           if (!actionConfig.retryable) {
             overallStatus = 'failure';
-            overallMessage = `Non-retryable action failed: ${error.message}`;
+            overallMessage = `Non-retryable action failed: ${(error as Error).message}`;
             break;
           }
         }
@@ -1249,7 +1249,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       }
     } catch (error) {
       overallStatus = 'failure';
-      overallMessage = `Action execution failed: ${error.message}`;
+      overallMessage = `Action execution failed: ${(error as Error).message}`;
     }
 
     const endTime = new Date();

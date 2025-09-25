@@ -541,7 +541,7 @@ export class TaskStatusMonitor extends EventEmitter {
       // For now, we'll emit an event that can be handled by external systems
       this.emit('status:persisted', { statusData });
     } catch (error) {
-      this.logger.error('Failed to persist status data', { error });
+      this.logger.error('Failed to persist status data', { error: error as Error });
     }
   }
 

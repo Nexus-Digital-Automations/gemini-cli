@@ -994,7 +994,7 @@ export class AlertSystem extends EventEmitter {
         });
       } catch (error) {
         remediationAction.status = 'failed';
-        remediationAction.error = error.message;
+        remediationAction.error = (error as Error).message;
 
         this.logger.error('Auto-remediation failed', {
           alertId: alert.id,
