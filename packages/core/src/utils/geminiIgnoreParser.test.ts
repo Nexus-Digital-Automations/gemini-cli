@@ -48,8 +48,9 @@ describe('GeminiIgnoreParser', () => {
       );
     });
 
-    it('should ignore files specified in .geminiignore', () => {
+    it('should ignore files specified in .geminiignore', async () => {
       const parser = new GeminiIgnoreParser(projectRoot);
+      await parser.initialize();
       expect(parser.getPatterns()).toEqual(['ignored.txt', '/ignored_dir/']);
       expect(parser.isIgnored('ignored.txt')).toBe(true);
       expect(parser.isIgnored('not_ignored.txt')).toBe(false);
