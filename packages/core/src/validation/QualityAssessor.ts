@@ -6,8 +6,10 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../logger/Logger.js';
-import { ValidationFramework, ValidationContext, ValidationResult, ValidationStatus, ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
-import { Task, TaskResult, TaskStatus, TaskPriority } from '../task-management/types.js';
+import type { ValidationFramework, ValidationResult} from './ValidationFramework.js';
+import { ValidationContext, ValidationStatus, ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
+import type { Task, TaskResult} from '../task-management/types.js';
+import { TaskStatus, TaskPriority } from '../task-management/types.js';
 
 /**
  * Quality assessment levels for different validation strictness

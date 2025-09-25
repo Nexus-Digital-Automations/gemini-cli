@@ -1,17 +1,12 @@
 /**
- * @fileoverview Monitoring System - Monitoring Types and Interfaces
- *
- * Type definitions for the autonomous task management monitoring system,
- * providing comprehensive real-time monitoring and alerting capabilities.
- *
- * @version 3.0.0
- * @author Google Gemini CLI Team
- * @license Apache-2.0
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TaskId } from './Task';
-import { AgentId } from './Agent';
-import { ExecutionId } from './Execution';
+import type { TaskId } from './Task';
+import type { AgentId } from './Agent';
+import type { ExecutionId } from './Execution';
 
 /**
  * Unique identifier for monitoring sessions

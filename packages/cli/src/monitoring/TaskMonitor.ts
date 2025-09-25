@@ -6,7 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import { taskStatusMonitor, TaskMetadata, TaskStatus, TaskStatusUpdate, AgentStatus } from './TaskStatusMonitor.js';
+import type { TaskMetadata, TaskStatus, AgentStatus } from './TaskStatusMonitor.js';
+import { taskStatusMonitor, TaskStatusUpdate } from './TaskStatusMonitor.js';
 import { progressTracker, ProgressGranularity } from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
 import { statusUpdateBroker } from './StatusUpdateBroker.js';
@@ -376,7 +377,7 @@ export class TaskMonitor extends EventEmitter {
       performanceAnalyticsDashboard.onTaskEvent(
         result === 'success' ? 'completed' : 'failed',
         {
-          task: task,
+          task,
           agent: task.assignedAgent ? taskStatusMonitor.getAgentStatus(task.assignedAgent) : undefined,
         }
       );

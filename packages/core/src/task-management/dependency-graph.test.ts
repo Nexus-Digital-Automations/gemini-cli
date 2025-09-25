@@ -6,7 +6,7 @@
 
 import { describe, test, expect, beforeEach } from 'vitest';
 import { DependencyGraphManager } from './dependency-graph.js';
-import { Task, TaskDependency, TaskPriority, TaskCategory } from './types.js';
+import type { Task, TaskDependency, TaskPriority, TaskCategory } from './types.js';
 
 describe('DependencyGraphManager', () => {
   let graphManager: DependencyGraphManager;

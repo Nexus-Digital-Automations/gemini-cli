@@ -9,7 +9,7 @@ import { mkdtemp, rm, writeFile, readFile, access } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import winston from 'winston';
-import { TaskContext } from './interfaces/TaskInterfaces.js';
+import type { TaskContext } from './interfaces/TaskInterfaces.js';
 
 /**
  * Execution context configuration
@@ -189,7 +189,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Initialize the execution context
    */
-  public async initialize(): Promise<void> {
+  async initialize(): Promise<void> {
     if (this.isInitialized) {
       this.logger.warn('Context already initialized');
       return;
@@ -242,7 +242,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Get the isolated task context
    */
-  public getTaskContext(): TaskContext {
+  getTaskContext(): TaskContext {
     if (!this.isInitialized || !this.isolatedContext) {
       throw new Error('Context not initialized');
     }
@@ -253,7 +253,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Start execution monitoring
    */
-  public startExecution(): void {
+  startExecution(): void {
     if (!this.isInitialized) {
       throw new Error('Context not initialized');
     }
@@ -269,7 +269,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Create a file within the isolated context
    */
-  public async createFile(relativePath: string, content: string): Promise<string> {
+  async createFile(relativePath: string, content: string): Promise<string> {
     if (!this.isInitialized || !this.tempWorkingDir) {
       throw new Error('Context not initialized');
     }
@@ -306,7 +306,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Read a file from the isolated context
    */
-  public async readFile(relativePath: string): Promise<string> {
+  async readFile(relativePath: string): Promise<string> {
     if (!this.isInitialized || !this.tempWorkingDir) {
       throw new Error('Context not initialized');
     }
@@ -336,7 +336,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Check if file exists in isolated context
    */
-  public async fileExists(relativePath: string): Promise<boolean> {
+  async fileExists(relativePath: string): Promise<boolean> {
     if (!this.isInitialized || !this.tempWorkingDir) {
       throw new Error('Context not initialized');
     }
@@ -355,7 +355,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Set environment variable in isolated context
    */
-  public setEnvironmentVariable(key: string, value: string): void {
+  setEnvironmentVariable(key: string, value: string): void {
     if (!this.isInitialized || !this.isolatedContext) {
       throw new Error('Context not initialized');
     }
@@ -371,14 +371,14 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Get environment variable from isolated context
    */
-  public getEnvironmentVariable(key: string): string | undefined {
+  getEnvironmentVariable(key: string): string | undefined {
     return this.isolatedEnvironment[key];
   }
 
   /**
    * Get current resource usage
    */
-  public getResourceUsage(): ResourceUsage {
+  getResourceUsage(): ResourceUsage {
     this.updateResourceUsage();
     return { ...this.resourceUsage };
   }
@@ -386,7 +386,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Check if resource limits are exceeded
    */
-  public checkResourceLimits(): { exceeded: boolean; limits: string[] } {
+  checkResourceLimits(): { exceeded: boolean; limits: string[] } {
     const exceeded: string[] = [];
     const limits = this.config.resourceLimits;
 
@@ -417,7 +417,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Get execution statistics
    */
-  public getStats(): {
+  getStats(): {
     executionTime: number;
     resourceUsage: ResourceUsage;
     fileOperations: number;
@@ -442,7 +442,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Clean up the execution context
    */
-  public async cleanup(): Promise<void> {
+  async cleanup(): Promise<void> {
     if (this.isCleanedUp) {
       this.logger.debug('Context already cleaned up');
       return;
@@ -610,7 +610,7 @@ export class ExecutionContext extends EventEmitter {
   /**
    * Get debug information about the context
    */
-  public getDebugInfo(): Record<string, unknown> {
+  getDebugInfo(): Record<string, unknown> {
     return {
       taskId: this.config.taskId,
       engineId: this.config.engineId,

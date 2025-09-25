@@ -6,9 +6,10 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
+import type {
+  TaskMetadata} from './TaskStatusMonitor.js';
 import {
   TaskStatusMonitor,
-  TaskMetadata,
   TaskStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';

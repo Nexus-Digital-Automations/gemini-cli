@@ -789,8 +789,8 @@ export class QueueOptimizer extends EventEmitter {
   /**
    * Identify batch groups for optimization
    */
-  private identifyBatchGroups(tasks: Task[]): Array<Task[]> {
-    const groups: Array<Task[]> = [];
+  private identifyBatchGroups(tasks: Task[]): Task[][] {
+    const groups: Task[][] = [];
     const processed = new Set<string>();
 
     for (const task of tasks) {
@@ -841,7 +841,7 @@ export class QueueOptimizer extends EventEmitter {
    * Optimize batch order
    */
   private optimizeBatchOrder(
-    batchGroups: Array<Task[]>,
+    batchGroups: Task[][],
     dependencyAnalysis: DependencyAnalysis
   ): Array<{
     taskIds: string[];
@@ -871,9 +871,7 @@ export class QueueOptimizer extends EventEmitter {
    */
   private calculateBatchSpeedup(batches: Array<{ estimatedDuration: number; parallelizable: boolean }>): number {
     const totalSequentialTime = batches.reduce((sum, batch) => sum + batch.estimatedDuration, 0);
-    const totalParallelTime = batches.reduce((sum, batch) => {
-      return sum + (batch.parallelizable ? batch.estimatedDuration * 0.3 : batch.estimatedDuration);
-    }, 0);
+    const totalParallelTime = batches.reduce((sum, batch) => sum + (batch.parallelizable ? batch.estimatedDuration * 0.3 : batch.estimatedDuration), 0);
 
     return Math.max(0, (totalSequentialTime - totalParallelTime) / totalSequentialTime);
   }

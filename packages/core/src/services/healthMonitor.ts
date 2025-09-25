@@ -15,7 +15,7 @@
  * - Service level agreement (SLA) monitoring and reporting
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type { RegisteredAgent, AgentCapability } from './autonomousTaskIntegrator.js';
 import type { AgentMetrics } from './agentCoordinator.js';
 import type { AgentRegistry } from './agentRegistry.js';

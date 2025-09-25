@@ -246,7 +246,7 @@ export class DataProtectionManager extends EventEmitter {
 
     // Determine classification level
     let level: DataClassification['level'] = 'public';
-    let categories: string[] = [];
+    const categories: string[] = [];
     let requiresEncryption = false;
 
     if (piiResult.hasPII) {

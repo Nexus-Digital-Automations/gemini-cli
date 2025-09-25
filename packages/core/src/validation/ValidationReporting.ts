@@ -375,14 +375,12 @@ export class ValidationReporting extends EventEmitter {
    * Generate XML report
    */
   private async generateXMLReport(templateData: ReportTemplateData): Promise<string> {
-    const escapeXml = (str: string): string => {
-      return str
+    const escapeXml = (str: string): string => str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&apos;');
-    };
 
     const report = templateData.report;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -549,13 +547,11 @@ export class ValidationReporting extends EventEmitter {
    */
   private async generateJUnitReport(templateData: ReportTemplateData): Promise<string> {
     const report = templateData.report;
-    const escapeXml = (str: string): string => {
-      return str
+    const escapeXml = (str: string): string => str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
-    };
 
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
 

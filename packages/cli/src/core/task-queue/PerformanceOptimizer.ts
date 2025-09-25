@@ -6,7 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import { TaskStatus, TaskPriority, TaskType } from '../../monitoring/TaskStatusMonitor.js';
+import type { TaskPriority, TaskType } from '../../monitoring/TaskStatusMonitor.js';
+import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 import type { TaskQueue } from './TaskQueue.js';
 
 /**
@@ -66,14 +67,14 @@ export interface PerformanceMetrics {
   };
 
   // Bottleneck analysis
-  bottlenecks: {
+  bottlenecks: Array<{
     type: 'queue' | 'agent' | 'dependency' | 'resource' | 'system';
     severity: 'low' | 'medium' | 'high' | 'critical';
     description: string;
     affectedTasks: number;
     estimatedImpact: string;
     suggestedActions: string[];
-  }[];
+  }>;
 }
 
 /**
@@ -95,10 +96,10 @@ export interface OptimizationRecommendation {
     automatic: boolean;
     estimatedEffort: string;
     prerequisites: string[];
-    actions: {
+    actions: Array<{
       description: string;
       parameters?: Record<string, unknown>;
-    }[];
+    }>;
   };
   validityPeriod: number; // milliseconds
   confidence: number; // 0-100

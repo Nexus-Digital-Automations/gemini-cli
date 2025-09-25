@@ -5,7 +5,8 @@
  */
 
 import type { Config } from '../config/config.js';
-import { TaskExecutionEngine, TaskComplexity, TaskStatus, TaskType } from '../task-management/TaskExecutionEngine.js';
+import type { TaskType } from '../task-management/TaskExecutionEngine.js';
+import { TaskExecutionEngine, TaskComplexity, TaskStatus } from '../task-management/TaskExecutionEngine.js';
 import { TaskQueue } from '../task-management/TaskQueue.js';
 import { logger } from '../utils/logger.js';
 import { EventEmitter } from 'node:events';

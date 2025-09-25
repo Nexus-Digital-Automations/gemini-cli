@@ -108,20 +108,20 @@ export interface Alert {
   acknowledgedAt?: Date;
   resolvedAt?: Date;
   escalationLevel: number;
-  notifications: {
+  notifications: Array<{
     channel: NotificationChannel;
     timestamp: Date;
     status: 'pending' | 'sent' | 'failed';
     recipientId?: string;
     error?: string;
-  }[];
-  remediationActions: {
+  }>;
+  remediationActions: Array<{
     action: string;
     timestamp: Date;
     status: 'pending' | 'running' | 'completed' | 'failed';
     result?: any;
     error?: string;
-  }[];
+  }>;
 }
 
 /**
@@ -140,7 +140,7 @@ export interface AlertAnalytics {
   };
   trends: {
     alertsPerHour: number[];
-    topCategories: { category: AlertCategory; count: number }[];
+    topCategories: Array<{ category: AlertCategory; count: number }>;
     resolutionTimes: number[]; // milliseconds
     escalationRates: number[];
   };
@@ -1115,7 +1115,7 @@ export class AlertSystem extends EventEmitter {
     return trends;
   }
 
-  private calculateTopCategories(alerts: Alert[]): { category: AlertCategory; count: number }[] {
+  private calculateTopCategories(alerts: Alert[]): Array<{ category: AlertCategory; count: number }> {
     const categoryCounts = this.calculateCountsByCategory(alerts);
     return Object.entries(categoryCounts)
       .map(([category, count]) => ({ category: category as AlertCategory, count }))

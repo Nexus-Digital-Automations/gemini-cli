@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { Logger } from '../logger/Logger.js';
 import { TaskSnapshot } from './TaskValidator.js';
-import { Task, TaskStatus } from '../task-management/types.js';
+import type { Task, TaskStatus } from '../task-management/types.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 

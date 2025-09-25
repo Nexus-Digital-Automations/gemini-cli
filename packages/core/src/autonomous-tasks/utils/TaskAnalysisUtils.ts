@@ -5,11 +5,12 @@
  */
 
 import crypto from 'node:crypto';
-import {
+import type {
   ITask,
+  TaskDependency} from '../interfaces/TaskInterfaces.js';
+import {
   TaskType,
   TaskPriority,
-  TaskDependency,
   TaskContext,
 } from '../interfaces/TaskInterfaces.js';
 
@@ -159,7 +160,7 @@ export class TaskAnalysisUtils {
   /**
    * Perform comprehensive task analysis
    */
-  public static analyzeTask(task: ITask): TaskAnalysisMetrics {
+  static analyzeTask(task: ITask): TaskAnalysisMetrics {
     const textualComplexity = this.analyzeTextualComplexity(task);
     const structuralComplexity = this.analyzeStructuralComplexity(task);
     const contextualComplexity = this.analyzeContextualComplexity(task);
@@ -190,7 +191,7 @@ export class TaskAnalysisUtils {
   /**
    * Analyze textual complexity of task description and name
    */
-  public static analyzeTextualComplexity(task: ITask): TextualComplexity {
+  static analyzeTextualComplexity(task: ITask): TextualComplexity {
     const text = `${task.name} ${task.description}`.toLowerCase();
 
     const characterCount = text.length;
@@ -227,7 +228,7 @@ export class TaskAnalysisUtils {
   /**
    * Analyze structural complexity of task elements
    */
-  public static analyzeStructuralComplexity(task: ITask): StructuralComplexity {
+  static analyzeStructuralComplexity(task: ITask): StructuralComplexity {
     const parameterCount = Object.keys(task.parameters).length;
     const dependencyCount = task.dependencies.length;
     const tagCount = task.tags.length;
@@ -250,7 +251,7 @@ export class TaskAnalysisUtils {
   /**
    * Analyze contextual complexity from task context
    */
-  public static analyzeContextualComplexity(task: ITask): ContextualComplexity {
+  static analyzeContextualComplexity(task: ITask): ContextualComplexity {
     const context = task.context;
 
     const environmentVariablesCount = Object.keys(context?.environment || {}).length;
@@ -433,7 +434,7 @@ export class TaskAnalysisUtils {
   /**
    * Compare two tasks for similarity
    */
-  public static calculateTaskSimilarity(taskA: ITask, taskB: ITask): TaskSimilarity {
+  static calculateTaskSimilarity(taskA: ITask, taskB: ITask): TaskSimilarity {
     const breakdown: SimilarityBreakdown = {
       nameSimilarity: this.calculateStringSimilarity(taskA.name, taskB.name),
       typeSimilarity: taskA.type === taskB.type ? 1.0 : 0.0,
@@ -474,7 +475,7 @@ export class TaskAnalysisUtils {
   /**
    * Analyze relationship between two tasks
    */
-  public static analyzeTaskRelationship(taskA: ITask, taskB: ITask): TaskRelationship {
+  static analyzeTaskRelationship(taskA: ITask, taskB: ITask): TaskRelationship {
     const evidence: string[] = [];
 
     // Check for parent-child relationship
@@ -545,7 +546,7 @@ export class TaskAnalysisUtils {
   /**
    * Detect patterns in a collection of tasks
    */
-  public static detectTaskPatterns(tasks: ITask[]): TaskPattern[] {
+  static detectTaskPatterns(tasks: ITask[]): TaskPattern[] {
     const patterns: TaskPattern[] = [];
 
     // Detect common type patterns
@@ -586,7 +587,7 @@ export class TaskAnalysisUtils {
   /**
    * Generate task hash for deduplication
    */
-  public static generateTaskHash(task: ITask): string {
+  static generateTaskHash(task: ITask): string {
     const hashData = {
       name: task.name.toLowerCase().trim(),
       type: task.type,
@@ -601,7 +602,7 @@ export class TaskAnalysisUtils {
   /**
    * Check if two tasks are duplicates
    */
-  public static areTasksDuplicates(taskA: ITask, taskB: ITask): boolean {
+  static areTasksDuplicates(taskA: ITask, taskB: ITask): boolean {
     const hashA = this.generateTaskHash(taskA);
     const hashB = this.generateTaskHash(taskB);
     return hashA === hashB;

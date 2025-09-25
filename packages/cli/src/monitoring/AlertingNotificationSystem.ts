@@ -626,7 +626,7 @@ Please take appropriate action.
   }
 
   private initializeDefaultRules(): void {
-    const defaultRules: Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>[] = [
+    const defaultRules: Array<Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>> = [
       {
         name: 'High CPU Usage',
         description: 'Alert when CPU usage exceeds 80%',

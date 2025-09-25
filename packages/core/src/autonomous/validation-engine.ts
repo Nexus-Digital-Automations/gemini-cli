@@ -157,7 +157,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       details: {
         rulesApplied: ruleCount,
         averageScore,
-        result: result
+        result
       }
     };
   }

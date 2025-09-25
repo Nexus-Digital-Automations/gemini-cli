@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * @fileoverview Real-time Dependency Visualization and Monitoring Engine
  * Advanced visualization system for dependency graphs, real-time status monitoring,
  * and interactive dependency relationship exploration
@@ -25,7 +31,7 @@
  * @since 2025-09-25
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
 import {
   DependencyAnalyzer,

@@ -190,7 +190,7 @@ export class AutonomousTaskManagementService extends EventEmitter {
     }
 
     // Get current metrics
-    let metrics: SystemMetrics | null = null;
+    const metrics: SystemMetrics | null = null;
     try {
       // Use async getCurrentMetrics if available, otherwise return null
       // In practice, this would be handled differently to avoid sync/async issues

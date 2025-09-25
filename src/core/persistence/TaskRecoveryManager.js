@@ -1,5 +1,11 @@
 #!/usr/bin/env node
-/* eslint-disable no-console -- Recovery manager requires comprehensive logging for debugging */
+
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ 
 /**
  * Task Recovery Manager - Advanced Task State Recovery and Resumption System
  *
@@ -28,11 +34,11 @@
  * @since 2025-09-25
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const crypto = require('crypto');
-const EventEmitter = require('events');
-const { performance } = require('perf_hooks');
+const fs = require('node:fs').promises;
+const path = require('node:path');
+const crypto = require('node:crypto');
+const EventEmitter = require('node:events');
+const { performance } = require('node:perf_hooks');
 
 /**
  * Recovery strategies in order of preference

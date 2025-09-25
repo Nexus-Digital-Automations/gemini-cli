@@ -7,7 +7,7 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { TaskSequencer } from './task-sequencer.js';
 import { DependencyGraphManager } from './dependency-graph.js';
-import {
+import type {
   Task,
   TaskQueueConfig,
   TaskPriority,
