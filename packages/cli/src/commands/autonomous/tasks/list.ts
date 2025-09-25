@@ -13,7 +13,6 @@ import {
 } from '@google/gemini-cli-core/task-management/types.js';
 import {
   listFeatures,
-  getFeatureStats,
   handleApiResponse,
   handleApiFallback,
   initializeAgent,
@@ -28,7 +27,7 @@ interface ListTasksOptions {
   'show-completed'?: boolean;
 }
 
-export const listTasksCommand: CommandModule<{}, ListTasksOptions> = {
+export const listTasksCommand: CommandModule<object, ListTasksOptions> = {
   command: 'list',
   describe: 'List tasks in the autonomous system',
   builder: (yargs) =>

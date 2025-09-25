@@ -5,17 +5,13 @@
  */
 
 export function isFunctionResponse(content) {
-  return (
-    content.role === 'user' &&
-    !!content.parts &&
-    content.parts.every((part) => !!part.functionResponse)
-  );
+    return (content.role === 'user' &&
+        !!content.parts &&
+        content.parts.every((part) => !!part.functionResponse));
 }
 export function isFunctionCall(content) {
-  return (
-    content.role === 'model' &&
-    !!content.parts &&
-    content.parts.every((part) => !!part.functionCall)
-  );
+    return (content.role === 'model' &&
+        !!content.parts &&
+        content.parts.every((part) => !!part.functionCall));
 }
 //# sourceMappingURL=messageInspectors.js.map

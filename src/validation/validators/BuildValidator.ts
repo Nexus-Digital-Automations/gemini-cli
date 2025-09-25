@@ -242,7 +242,7 @@ export class BuildValidator {
   /**
    * Detect build configuration from project files
    */
-  private async detectBuildConfiguration(): Promise<any> {
+  private async detectBuildConfiguration(): Promise<Record<string, unknown>> {
     const configFiles = [
       'package.json',
       'tsconfig.json',
@@ -252,7 +252,7 @@ export class BuildValidator {
       'esbuild.config.js',
     ];
 
-    const config: any = {};
+    const config: Record<string, unknown> = {};
 
     for (const file of configFiles) {
       try {
@@ -282,7 +282,7 @@ export class BuildValidator {
   /**
    * Check if build is required based on artifacts
    */
-  private async checkIfBuildRequired(artifacts: any[]): Promise<boolean> {
+  private async checkIfBuildRequired(artifacts: unknown[]): Promise<boolean> {
     // Check for package.json with build script
     try {
       const packageJsonPath = join(
@@ -397,15 +397,15 @@ export class BuildValidator {
         success: false,
         exitCode:
           error && typeof error === 'object' && 'code' in error
-            ? (error as any).code
+            ? (error as { code?: string }).code
             : 1,
         stdout:
           error && typeof error === 'object' && 'stdout' in error
-            ? (error as any).stdout
+            ? (error as { stdout?: string }).stdout
             : '',
         stderr:
           error && typeof error === 'object' && 'stderr' in error
-            ? (error as any).stderr
+            ? (error as { stderr?: string }).stderr
             : String(error),
         duration,
         outputFiles: [],
@@ -589,7 +589,7 @@ export class BuildValidator {
    */
   private analyzeBuildResults(
     buildResult: BuildResult,
-    outputValidation: any,
+    outputValidation: Record<string, unknown>,
   ): BuildSummary {
     return {
       success: buildResult.success,

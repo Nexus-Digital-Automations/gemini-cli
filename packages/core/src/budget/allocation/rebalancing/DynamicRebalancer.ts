@@ -1327,7 +1327,7 @@ export class DynamicRebalancer {
       dependencies: [],
       // Additional fields from OptimizationRecommendation
       type: 'rebalancing',
-      priority: action.priority as any,
+      priority: action.priority as 'high' | 'medium' | 'low',
       description: action.rationale,
       expectedSavings: Math.max(0, -action.changeAmount),
       implementationComplexity: 'medium',

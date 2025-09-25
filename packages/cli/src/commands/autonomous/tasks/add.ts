@@ -30,7 +30,7 @@ interface AddTaskOptions {
   'expected-outputs'?: string;
 }
 
-export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
+export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
   command: 'add <description>',
   describe: 'Add a new task to the autonomous system',
   builder: (yargs) =>
@@ -131,7 +131,7 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
       if (argv.context) {
         try {
           parsedContext = JSON.parse(argv.context);
-        } catch (error) {
+        } catch (_error) {
           console.error(chalk.red('❌ Invalid JSON format for context'));
           process.exit(1);
         }
@@ -141,7 +141,7 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
       if (argv['expected-outputs']) {
         try {
           parsedExpectedOutputs = JSON.parse(argv['expected-outputs']);
-        } catch (error) {
+        } catch (_error) {
           console.error(
             chalk.red('❌ Invalid JSON format for expected-outputs'),
           );
@@ -256,7 +256,7 @@ function generateTaskTitle(description: string): string {
   return words.slice(0, 6).join(' ') + '...';
 }
 
-function getPriorityColor(priority: TaskPriority) {
+function getPriorityColor(priority: TaskPriority): (text: string) => string {
   if (priority >= TaskPriority.CRITICAL) return chalk.red.bold;
   if (priority >= TaskPriority.HIGH) return chalk.red;
   if (priority >= TaskPriority.MEDIUM) return chalk.yellow;

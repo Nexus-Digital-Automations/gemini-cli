@@ -1578,7 +1578,7 @@ class ConflictResolver {
     return mergedTask;
   }
 
-  private getMostAdvancedStatus(status1: any, status2: any): any {
+  private getMostAdvancedStatus(status1: TaskStatus, status2: TaskStatus): TaskStatus {
     // Define status progression order
     const statusOrder = [
       'pending',
@@ -2057,7 +2057,7 @@ class DataIntegrityManager {
           affectedData: missingFields,
         };
       },
-      repair: async (data: unknown, detection: any) => {
+      repair: async (data: unknown, detection: Record<string, unknown>) => {
         const task = { ...data } as any;
         const missingFields = detection.affectedData as string[];
 
@@ -2119,7 +2119,7 @@ class DataIntegrityManager {
           affectedData: invalidFields,
         };
       },
-      repair: async (data: unknown, detection: any) => {
+      repair: async (data: unknown, detection: Record<string, unknown>) => {
         const task = { ...data } as any;
         const invalidFields = detection.affectedData as string[];
         const now = new Date();

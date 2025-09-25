@@ -1284,7 +1284,7 @@ export class OptimizationEngine {
   }
 
   private async createModelOptimizationRecommendation(
-    modelUsage: any,
+    modelUsage: Record<string, unknown>,
     costAnalysis: CostAnalysis,
   ): Promise<OptimizationRecommendation> {
     return {

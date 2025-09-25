@@ -329,7 +329,7 @@ export function createBudgetRouter(): Router {
   );
 
   // Error handling middleware
-  router.use((error: Error, req: any, res: any, next: any) => {
+  router.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     logger.error('Budget API route error', {
       error: error.message,
       path: req.path,

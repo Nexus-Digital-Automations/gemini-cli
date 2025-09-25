@@ -5,10 +5,10 @@
  */
 
 export function getMCPServerPrompts(config, serverName) {
-  const promptRegistry = config.getPromptRegistry();
-  if (!promptRegistry) {
-    return [];
-  }
-  return promptRegistry.getPromptsByServer(serverName);
+    const promptRegistry = config.getPromptRegistry();
+    if (!promptRegistry) {
+        return [];
+    }
+    return promptRegistry.getPromptsByServer(serverName);
 }
 //# sourceMappingURL=mcp-prompts.js.map

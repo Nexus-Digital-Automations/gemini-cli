@@ -128,8 +128,8 @@ export declare class TaskManagementSystemFactory {
     options?: {
       enableMonitoring?: boolean;
       enableHookIntegration?: boolean;
-      hookIntegrationConfig?: any;
-      monitoringConfig?: any;
+      hookIntegrationConfig?: Record<string, unknown>;
+      monitoringConfig?: Record<string, unknown>;
     },
   ): Promise<{
     taskEngine: TaskExecutionEngine;
@@ -160,8 +160,8 @@ export declare class TaskManagementSystemFactory {
     options?: {
       enableMonitoring?: boolean;
       enableHookIntegration?: boolean;
-      hookIntegrationConfig?: any;
-      monitoringConfig?: any;
+      hookIntegrationConfig?: Record<string, unknown>;
+      monitoringConfig?: Record<string, unknown>;
     },
   ): Promise<{
     taskEngine: TaskExecutionEngine;

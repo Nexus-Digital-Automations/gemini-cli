@@ -351,9 +351,9 @@ export class SecurityValidator {
       };
     } catch (error) {
       // npm audit returns non-zero exit code when vulnerabilities found
-      if ((error as any).stdout) {
+      if ((error as { stdout?: string }).stdout) {
         try {
-          const auditResult = JSON.parse((error as any).stdout);
+          const auditResult = JSON.parse((error as { stdout: string }).stdout);
           const vulnerabilities = this.parseNpmAuditResults(auditResult);
 
           return {

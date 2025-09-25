@@ -11,6 +11,7 @@ import * as crypto from 'node:crypto';
 import {
   SecurityValidator,
   type SecurityValidationResult,
+  type SecurityIssue,
 } from '../validation/SecurityValidator.js';
 
 export interface SecurityAuditResult {
@@ -284,7 +285,7 @@ export class SecurityAuditor extends EventEmitter {
    */
   private async createSecurityFinding(
     target: string,
-    issue: any,
+    issue: SecurityIssue,
   ): Promise<SecurityFinding> {
     const riskScore = this.calculateRiskScore(issue.severity, 'medium');
 
@@ -366,7 +367,7 @@ export class SecurityAuditor extends EventEmitter {
           findings.push(...vulns);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // package.json not found or invalid - this is a finding itself
       findings.push({
         id: crypto.randomUUID(),
@@ -435,7 +436,7 @@ export class SecurityAuditor extends EventEmitter {
    * Analyze data protection measures.
    */
   private async analyzeDataProtection(
-    target: string,
+    _target: string,
   ): Promise<SecurityFinding[]> {
     const findings: SecurityFinding[] = [];
 
@@ -456,34 +457,34 @@ export class SecurityAuditor extends EventEmitter {
    */
 
   private async analyzeArchitecture(
-    target: string,
+    _target: string,
   ): Promise<SecurityFinding[]> {
     // Architecture security analysis implementation
     return [];
   }
 
   private async analyzeAccessControls(
-    target: string,
+    _target: string,
   ): Promise<SecurityFinding[]> {
     // Access control analysis implementation
     return [];
   }
 
-  private async analyzeDataFlow(target: string): Promise<SecurityFinding[]> {
+  private async analyzeDataFlow(_target: string): Promise<SecurityFinding[]> {
     // Data flow analysis implementation
     return [];
   }
 
   private async analyzeThirdPartyIntegrations(
-    target: string,
+    _target: string,
   ): Promise<SecurityFinding[]> {
     // Third-party integration analysis implementation
     return [];
   }
 
   private async checkDependencyVulnerabilities(
-    name: string,
-    version: string,
+    _name: string,
+    _version: string,
   ): Promise<SecurityFinding[]> {
     // Dependency vulnerability checking implementation
     // In production, this would integrate with vulnerability databases
@@ -491,7 +492,7 @@ export class SecurityAuditor extends EventEmitter {
   }
 
   private async analyzeConfigurationFile(
-    configPath: string,
+    _configPath: string,
   ): Promise<SecurityFinding[]> {
     // Configuration file security analysis implementation
     return [];
@@ -501,11 +502,11 @@ export class SecurityAuditor extends EventEmitter {
    * Utility methods for finding analysis and scoring.
    */
 
-  private generateFindingTitle(issue: any): string {
+  private generateFindingTitle(issue: SecurityIssue): string {
     return `${issue.category.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}: ${issue.message}`;
   }
 
-  private generateImpactDescription(issue: any): string {
+  private generateImpactDescription(issue: SecurityIssue): string {
     const impacts: Record<string, string> = {
       critical:
         'Critical security vulnerability that could lead to complete system compromise',
@@ -519,7 +520,7 @@ export class SecurityAuditor extends EventEmitter {
     return impacts[issue.severity] || 'Security issue requiring evaluation';
   }
 
-  private determineLikelihood(issue: any): Likelihood {
+  private determineLikelihood(issue: SecurityIssue): Likelihood {
     // Simplified likelihood determination
     // In production, this would use more sophisticated analysis
     const likelihoodMap: Record<string, Likelihood> = {
@@ -558,7 +559,7 @@ export class SecurityAuditor extends EventEmitter {
 
   private async gatherEvidence(
     target: string,
-    issue: any,
+    issue: SecurityIssue,
   ): Promise<Evidence[]> {
     const evidence: Evidence[] = [];
 
@@ -575,7 +576,7 @@ export class SecurityAuditor extends EventEmitter {
     return evidence;
   }
 
-  private createRemediationPlan(issue: any): RemediationPlan {
+  private createRemediationPlan(issue: SecurityIssue): RemediationPlan {
     const priorityMap: Record<string, 'immediate' | 'high' | 'medium' | 'low'> =
       {
         critical: 'immediate',
@@ -597,7 +598,7 @@ export class SecurityAuditor extends EventEmitter {
     };
   }
 
-  private mapToComplianceFrameworks(issue: any): ComplianceMapping[] {
+  private mapToComplianceFrameworks(issue: SecurityIssue): ComplianceMapping[] {
     const mappings: ComplianceMapping[] = [];
 
     // OWASP ASVS mapping

@@ -4,319 +4,278 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ContextItem,
-  ContextSuggestion,
-  ContextAnalysis,
-  CodeContextSnapshot,
-} from './types.js';
-import type { CrossSessionStorage } from './CrossSessionStorage.js';
+import type { ContextSuggestion, CodeContextSnapshot, SessionContext } from './types.js';
 /**
  * Configuration for suggestion engine
  */
-export interface SuggestionEngineConfig {
-  /** Minimum confidence threshold for suggestions */
-  minConfidenceThreshold: number;
-  /** Maximum number of suggestions to return */
-  maxSuggestions: number;
-  /** Enable pattern learning from user interactions */
-  enablePatternLearning: boolean;
-  /** Weight for historical patterns in suggestions */
-  historicalPatternWeight: number;
-  /** Weight for current context in suggestions */
-  currentContextWeight: number;
-  /** Enable workflow optimization suggestions */
-  enableWorkflowOptimization: boolean;
-  /** Minimum pattern frequency for learning */
-  minPatternFrequency: number;
-  /** Cache size for suggestion patterns */
-  patternCacheSize: number;
+export interface SuggestionConfig {
+    /** Minimum confidence threshold for suggestions */
+    minConfidenceThreshold: number;
+    /** Maximum suggestions to return */
+    maxSuggestions: number;
+    /** Enable pattern recognition learning */
+    enablePatternLearning: boolean;
+    /** Enable workflow optimization suggestions */
+    enableWorkflowOptimization: boolean;
+    /** Enable error prevention suggestions */
+    enableErrorPrevention: boolean;
+    /** Weight for historical context in scoring */
+    historicalWeight: number;
+    /** Weight for current context relevance */
+    currentContextWeight: number;
+    /** Weight for user interaction patterns */
+    userPatternWeight: number;
 }
 /**
  * Default configuration for suggestion engine
  */
-export declare const DEFAULT_SUGGESTION_ENGINE_CONFIG: SuggestionEngineConfig;
+export declare const DEFAULT_SUGGESTION_CONFIG: SuggestionConfig;
 /**
- * User interaction tracking
+ * User interaction pattern
  */
-export interface UserInteraction {
-  /** Interaction timestamp */
-  timestamp: Date;
-  /** Type of interaction */
-  type:
-    | 'command'
-    | 'code_edit'
-    | 'file_open'
-    | 'search'
-    | 'debug'
-    | 'suggestion_accepted'
-    | 'suggestion_rejected';
-  /** Context at time of interaction */
-  context: string;
-  /** Action taken by user */
-  action: string;
-  /** Files involved in interaction */
-  files?: string[];
-  /** Success/failure of interaction */
-  success: boolean;
-  /** Time taken for interaction */
-  duration?: number;
-  /** Additional metadata */
-  metadata: Record<string, unknown>;
+export interface InteractionPattern {
+    /** Pattern identifier */
+    id: string;
+    /** Pattern description */
+    description: string;
+    /** Commands or actions in the pattern */
+    actions: string[];
+    /** Frequency of occurrence */
+    frequency: number;
+    /** Success rate when followed */
+    successRate: number;
+    /** Context conditions for this pattern */
+    contextConditions: string[];
+    /** Last observed occurrence */
+    lastObserved: Date;
 }
 /**
- * Learned pattern from user behavior
- */
-export interface LearnedPattern {
-  /** Pattern identifier */
-  id: string;
-  /** Pattern description */
-  description: string;
-  /** Context triggers for this pattern */
-  triggers: string[];
-  /** Suggested action or sequence */
-  suggestion: string;
-  /** Confidence in pattern (0-1) */
-  confidence: number;
-  /** Frequency of occurrence */
-  frequency: number;
-  /** Last seen timestamp */
-  lastSeen: Date;
-  /** Success rate when suggested */
-  successRate: number;
-  /** User feedback on pattern */
-  userFeedback: 'positive' | 'negative' | 'neutral';
-}
-/**
- * Workflow optimization recommendation
+ * Workflow optimization opportunity
  */
 export interface WorkflowOptimization {
-  /** Optimization type */
-  type:
-    | 'sequence_optimization'
-    | 'shortcut_suggestion'
-    | 'automation_opportunity'
-    | 'efficiency_improvement';
-  /** Current workflow description */
-  currentWorkflow: string;
-  /** Optimized workflow suggestion */
-  optimizedWorkflow: string;
-  /** Estimated time savings */
-  timeSavings: number;
-  /** Effort required to implement */
-  implementationEffort: 'low' | 'medium' | 'high';
-  /** Supporting evidence */
-  evidence: string[];
-  /** Risk assessment */
-  risks: string[];
+    /** Optimization identifier */
+    id: string;
+    /** Description of the optimization */
+    description: string;
+    /** Current inefficient workflow */
+    currentWorkflow: string[];
+    /** Optimized workflow suggestion */
+    optimizedWorkflow: string[];
+    /** Estimated time savings */
+    timeSavings: string;
+    /** Confidence in the optimization */
+    confidence: number;
+}
+/**
+ * Error pattern for prevention
+ */
+export interface ErrorPattern {
+    /** Error pattern identifier */
+    id: string;
+    /** Error description */
+    description: string;
+    /** Common causes */
+    causes: string[];
+    /** Context that leads to this error */
+    errorContext: string[];
+    /** Prevention suggestions */
+    prevention: string[];
+    /** Frequency of occurrence */
+    frequency: number;
+}
+/**
+ * Learning statistics
+ */
+export interface LearningStats {
+    /** Total patterns learned */
+    totalPatterns: number;
+    /** Successful suggestions made */
+    successfulSuggestions: number;
+    /** Total suggestions made */
+    totalSuggestions: number;
+    /** Success rate */
+    successRate: number;
+    /** Active optimization opportunities */
+    activeOptimizations: number;
+    /** Prevented errors */
+    preventedErrors: number;
 }
 /**
  * Context-Aware Suggestion Engine
  *
  * The SuggestionEngine leverages historical context to provide intelligent suggestions
- * and workflow optimizations. It learns from user interactions, recognizes patterns,
- * and provides contextual recommendations to improve productivity.
+ * for workflow optimization, error prevention, and task completion. It learns from
+ * user interaction patterns and provides contextually relevant recommendations.
  *
  * Key Features:
- * - Pattern Recognition: Learns from past user interactions and behaviors
+ * - Pattern Recognition: Learns from past user interactions and workflows
  * - Contextual Completions: Provides suggestions based on current project context
- * - Workflow Optimization: Identifies opportunities to streamline common tasks
+ * - Workflow Optimization: Identifies and suggests more efficient task sequences
  * - Error Prevention: Warns about potential issues based on historical context
- * - Learning from Mistakes: Remembers and helps avoid repeated errors
+ * - Adaptive Learning: Continuously improves suggestions based on user feedback
  *
  * @example
  * ```typescript
  * const suggestionEngine = new SuggestionEngine();
- * await suggestionEngine.trackInteraction(userInteraction);
- * const suggestions = await suggestionEngine.generateSuggestions(currentContext);
+ * await suggestionEngine.learnFromSession(sessionContext);
+ * const suggestions = await suggestionEngine.getSuggestions(currentContext, 'code');
  * console.log(`Generated ${suggestions.length} suggestions`);
  * ```
  */
 export declare class SuggestionEngine {
-  private config;
-  private prioritizer;
-  private storage;
-  private interactionHistory;
-  private learnedPatterns;
-  private suggestionCache;
-  private workflowPatterns;
-  constructor(
-    storage: CrossSessionStorage,
-    config?: Partial<SuggestionEngineConfig>,
-  );
-  /**
-   * Initialize the suggestion engine with historical data
-   */
-  initialize(projectPath: string): Promise<void>;
-  /**
-   * Generate contextual suggestions based on current state
-   */
-  generateSuggestions(
-    currentContext: string,
-    codeContext?: CodeContextSnapshot,
-    recentInteractions?: UserInteraction[],
-  ): Promise<ContextSuggestion[]>;
-  /**
-   * Generate suggestions based on learned patterns
-   */
-  private generatePatternBasedSuggestions;
-  /**
-   * Generate code-specific suggestions
-   */
-  private generateCodeContextSuggestions;
-  /**
-   * Generate workflow optimization suggestions
-   */
-  private generateWorkflowSuggestions;
-  /**
-   * Generate error prevention suggestions
-   */
-  private generateErrorPreventionSuggestions;
-  /**
-   * Generate optimization suggestions
-   */
-  private generateOptimizationSuggestions;
-  /**
-   * Track user interaction for pattern learning
-   */
-  trackInteraction(interaction: UserInteraction): Promise<void>;
-  /**
-   * Learn patterns from successful interactions
-   */
-  private learnFromInteraction;
-  /**
-   * Extract patterns from a single interaction
-   */
-  private extractPatternsFromInteraction;
-  /**
-   * Extract patterns from historical sessions
-   */
-  private extractPatternsFromSessions;
-  /**
-   * Analyze conversation patterns from sessions
-   */
-  private analyzeConversationPatterns;
-  /**
-   * Analyze code patterns from code context
-   */
-  private analyzeCodePatterns;
-  /**
-   * Analyze workflow patterns from context items
-   */
-  private analyzeWorkflowPatterns;
-  /**
-   * Identify workflow sequences from context items
-   */
-  private identifyWorkflowSequences;
-  /**
-   * Calculate confidence for a learned pattern
-   */
-  private calculatePatternConfidence;
-  /**
-   * Generate cache key for suggestions
-   */
-  private generateCacheKey;
-  /**
-   * Simple hash function for cache keys
-   */
-  private simpleHash;
-  /**
-   * Find repeated command sequences
-   */
-  private findRepeatedSequences;
-  /**
-   * Calculate file access frequency
-   */
-  private calculateFileFrequency;
-  /**
-   * Group errors by similar patterns
-   */
-  private groupErrorsByPattern;
-  /**
-   * Clean up old or unused patterns
-   */
-  private cleanupOldPatterns;
-  /**
-   * Load learned patterns from storage
-   */
-  private loadLearnedPatterns;
-  /**
-   * Analyze context for patterns and anomalies
-   */
-  analyzeContext(contextItems: ContextItem[]): Promise<ContextAnalysis>;
-  /**
-   * Identify patterns in context items
-   */
-  private identifyContextPatterns;
-  /**
-   * Detect anomalies in context
-   */
-  private detectContextAnomalies;
-  /**
-   * Find optimization opportunities
-   */
-  private findContextOptimizations;
-  /**
-   * Calculate context usage statistics
-   */
-  private calculateContextStats;
-  /**
-   * Group context items by type
-   */
-  private groupItemsByType;
-  /**
-   * Calculate time spans between items
-   */
-  private calculateTimeSpans;
-  /**
-   * Find items with similar content
-   */
-  private findSimilarContent;
-  /**
-   * Find duplicate content items
-   */
-  private findDuplicateContent;
-  /**
-   * Calculate content similarity between two strings
-   */
-  private calculateContentSimilarity;
-  /**
-   * Provide feedback on a suggestion
-   */
-  provideFeedback(
-    suggestionId: string,
-    feedback: 'positive' | 'negative' | 'neutral',
-  ): Promise<void>;
-  /**
-   * Get learned patterns for debugging/analysis
-   */
-  getLearnedPatterns(): LearnedPattern[];
-  /**
-   * Get interaction statistics
-   */
-  getInteractionStats(): {
-    totalInteractions: number;
-    byType: Record<string, number>;
-    successRate: number;
-    averageDuration: number;
-  };
-  /**
-   * Update configuration
-   */
-  updateConfig(newConfig: Partial<SuggestionEngineConfig>): void;
-  /**
-   * Get current configuration
-   */
-  getConfig(): SuggestionEngineConfig;
-  /**
-   * Clear all caches and reset patterns
-   */
-  clearAllData(): void;
+    private config;
+    private interactionPatterns;
+    private workflowOptimizations;
+    private errorPatterns;
+    private userFeedback;
+    private contextPrioritizer;
+    constructor(config?: Partial<SuggestionConfig>);
+    /**
+     * Generate contextual suggestions based on current state
+     */
+    getSuggestions(currentContext: string, contextType?: 'command' | 'code' | 'workflow' | 'optimization' | 'debug', codeContext?: CodeContextSnapshot): Promise<ContextSuggestion[]>;
+    /**
+     * Generate command suggestions based on current context
+     */
+    private generateCommandSuggestions;
+    /**
+     * Generate code suggestions based on current context
+     */
+    private generateCodeSuggestions;
+    /**
+     * Generate workflow optimization suggestions
+     */
+    private generateWorkflowSuggestions;
+    /**
+     * Generate optimization suggestions
+     */
+    private generateOptimizationSuggestions;
+    /**
+     * Generate debug suggestions
+     */
+    private generateDebugSuggestions;
+    /**
+     * Learn from user session to improve future suggestions
+     */
+    learnFromSession(session: SessionContext): Promise<void>;
+    /**
+     * Record user feedback on suggestions to improve future recommendations
+     */
+    recordFeedback(suggestionId: string, suggestion: ContextSuggestion, accepted: boolean): void;
+    /**
+     * Extract interaction patterns from session
+     */
+    private extractInteractionPatterns;
+    /**
+     * Extract command sequences from conversation summary
+     */
+    private extractCommandSequences;
+    /**
+     * Estimate session success based on conversation content
+     */
+    private estimateSessionSuccess;
+    /**
+     * Extract context conditions from session
+     */
+    private extractContextConditions;
+    /**
+     * Identify workflow optimizations from session
+     */
+    private identifyWorkflowOptimizations;
+    /**
+     * Suggest workflow optimization based on command sequence
+     */
+    private suggestWorkflowOptimization;
+    /**
+     * Extract error patterns from session
+     */
+    private extractErrorPatterns;
+    /**
+     * Generate pattern-based command suggestions
+     */
+    private generatePatternBasedCommandSuggestions;
+    /**
+     * Calculate pattern relevance to current context
+     */
+    private calculatePatternRelevance;
+    /**
+     * Predict next command in a pattern
+     */
+    private predictNextCommand;
+    /**
+     * Calculate context relevance for optimization
+     */
+    private calculateContextRelevance;
+    /**
+     * Get command success rate from historical data
+     */
+    private getCommandSuccessRate;
+    /**
+     * Get related historical commands
+     */
+    private getRelatedHistoricalCommands;
+    /**
+     * Estimate command benefit
+     */
+    private estimateCommandBenefit;
+    /**
+     * Generate performance suggestions
+     */
+    private generatePerformanceSuggestions;
+    /**
+     * Generate security suggestions
+     */
+    private generateSecuritySuggestions;
+    /**
+     * Identify development workflow optimizations
+     */
+    private identifyDevelopmentWorkflowOptimizations;
+    /**
+     * Identify testing workflow optimizations
+     */
+    private identifyTestingWorkflowOptimizations;
+    /**
+     * Identify deployment workflow optimizations
+     */
+    private identifyDeploymentWorkflowOptimizations;
+    /**
+     * Identify duplicated code patterns
+     */
+    private identifyDuplicatedCode;
+    /**
+     * Reinforce positive patterns based on user acceptance
+     */
+    private reinforcePositivePattern;
+    /**
+     * Reduce negative patterns based on user rejection
+     */
+    private reduceNegativePattern;
+    /**
+     * Get learning statistics
+     */
+    getLearningStats(): LearningStats;
+    /**
+     * Update configuration
+     */
+    updateConfig(newConfig: Partial<SuggestionConfig>): void;
+    /**
+     * Get current configuration
+     */
+    getConfig(): SuggestionConfig;
+    /**
+     * Clear all learned data (useful for testing or reset)
+     */
+    clearLearning(): void;
+    /**
+     * Export learning data for backup or analysis
+     */
+    exportLearningData(): Record<string, unknown>;
+    /**
+     * Import learning data from backup
+     */
+    importLearningData(data: Record<string, unknown>): void;
 }
 /**
- * Create a suggestion engine instance
+ * Create a suggestion engine instance with optional configuration
  */
-export declare function createSuggestionEngine(
-  storage: CrossSessionStorage,
-  config?: Partial<SuggestionEngineConfig>,
-): SuggestionEngine;
+export declare function createSuggestionEngine(config?: Partial<SuggestionConfig>): SuggestionEngine;

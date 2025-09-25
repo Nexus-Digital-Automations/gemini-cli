@@ -5,13 +5,15 @@
  */
 
 import type { CommandModule, Argv } from 'yargs';
-import { setCommand } from './budget/set.js';
-import { getCommand } from './budget/get.js';
-import { resetCommand } from './budget/reset.js';
-import { extendCommand } from './budget/extend.js';
-import { enableCommand } from './budget/enable.js';
-import { disableCommand } from './budget/disable.js';
-import { visualizeCommand } from './budget/visualize.js';
+import {
+  setCommand,
+  getCommand,
+  resetCommand,
+  extendCommand,
+  enableCommand,
+  disableCommand,
+  visualizeCommand
+} from './budget/index.js';
 
 export const budgetCommand: CommandModule = {
   command: 'budget',

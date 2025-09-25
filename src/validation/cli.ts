@@ -14,6 +14,10 @@ import {
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 
+function isValidationCommand(command: string): command is ValidationCommand {
+  return ['validate-task', 'validate-feature', 'validate-project', 'validate-commit'].includes(command);
+}
+
 /**
  * Command-line interface for the Automatic Validation System.
  *
@@ -32,7 +36,12 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const command = args[0] as ValidationCommand;
+  const command = args[0];
+  if (!isValidationCommand(command)) {
+    console.error(`❌ Invalid command: ${command}`);
+    displayUsage();
+    process.exit(1);
+  }
   const commandArgs = parseArgs(args.slice(1));
 
   // Determine project root
@@ -42,7 +51,7 @@ async function main(): Promise<void> {
     const cli = new ValidationCLI(projectRoot);
     await cli.executeCommand(command, commandArgs);
   } catch (error) {
-    console.error('❌ Validation CLI Error:', (error as Error).message);
+    console.error('❌ Validation CLI Error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }

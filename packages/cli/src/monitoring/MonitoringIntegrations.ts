@@ -532,7 +532,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private async updateTodoWriteFromTask(
     task: TaskMetadata,
-    update: any,
+    update: Record<string, unknown>,
   ): Promise<void> {
     // Only update if task originated from TodoWrite
     if (task.metadata?.source !== 'todowrite') return;
@@ -602,7 +602,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private shouldSendToSystem(
     config: ExternalSystemConfig,
-    event: any,
+    event: Record<string, unknown>,
   ): boolean {
     // Check event type filter
     if (
@@ -720,7 +720,7 @@ export class MonitoringIntegrations extends EventEmitter {
     return headers;
   }
 
-  private convertToCSV(data: any): string {
+  private convertToCSV(data: Record<string, unknown>): string {
     // Simple CSV conversion for tasks
     const tasks = data.tasks || [];
     if (tasks.length === 0) return 'No tasks available';
@@ -749,7 +749,7 @@ export class MonitoringIntegrations extends EventEmitter {
     return [headers, ...rows].map((row) => row.join(',')).join('\n');
   }
 
-  private convertToPrometheusFormat(data: any): string {
+  private convertToPrometheusFormat(data: Record<string, unknown>): string {
     const timestamp = Date.now();
     const metrics = data.performanceMetrics || {};
 
@@ -764,16 +764,16 @@ export class MonitoringIntegrations extends EventEmitter {
       '',
       `# HELP gemini_agents_active Number of active agents`,
       `# TYPE gemini_agents_active gauge`,
-      `gemini_agents_active ${data.agents?.filter((a: any) => a.status === 'active').length || 0} ${timestamp}`,
+      `gemini_agents_active ${(data.agents as Array<{ status: string }>)?.filter((a) => a.status === 'active').length || 0} ${timestamp}`,
     ].join('\n');
   }
 
-  private convertToInfluxDBFormat(data: any): string {
+  private convertToInfluxDBFormat(data: Record<string, unknown>): string {
     const timestamp = Date.now() * 1000000; // InfluxDB uses nanoseconds
 
     return [
       `gemini_tasks,environment=${data.system.environment} total=${data.performanceMetrics.totalTasks || 0},completed=${data.performanceMetrics.completedTasks || 0} ${timestamp}`,
-      `gemini_agents,environment=${data.system.environment} active=${data.agents?.filter((a: any) => a.status === 'active').length || 0} ${timestamp}`,
+      `gemini_agents,environment=${(data.system as { environment: string }).environment} active=${(data.agents as Array<{ status: string }>)?.filter((a) => a.status === 'active').length || 0} ${timestamp}`,
     ].join('\n');
   }
 

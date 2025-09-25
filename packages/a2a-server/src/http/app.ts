@@ -13,8 +13,8 @@ import { A2AExpressApp } from '@a2a-js/sdk/server/express'; // Import server com
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import type { AgentSettings } from '../types.js';
-import { GCSTaskStore, NoOpTaskStore } from '../persistence/gcs.js';
-import { CoderAgentExecutor } from '../agent/executor.js';
+import { GCSTaskStore, NoOpTaskStore } from '../persistence/index.js';
+import { CoderAgentExecutor } from '../agent/index.js';
 import { requestStorage } from './requestStorage.js';
 
 const coderAgentCard: AgentCard = {

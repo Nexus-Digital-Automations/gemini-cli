@@ -6,7 +6,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import { mockCommandContext } from '../../../test-utils/mockCommandContext.js';
 import { budgetCommand } from '../../../commands/budget.js';
 import { getCommand } from '../get.js';
@@ -39,7 +38,7 @@ const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 describe('Budget CLI Integration Tests', () => {
-  let testProjectRoot: string;
+  let _testProjectRoot: string;
   let mockBudgetSettings: BudgetSettings;
   let mockUsageData: any;
 

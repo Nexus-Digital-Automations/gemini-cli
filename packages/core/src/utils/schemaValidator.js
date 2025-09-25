@@ -17,23 +17,23 @@ addFormatsFunc(ajValidator);
  * Simple utility to validate objects against JSON Schemas
  */
 export class SchemaValidator {
-  /**
-   * Returns null if the data confroms to the schema described by schema (or if schema
-   *  is null). Otherwise, returns a string describing the error.
-   */
-  static validate(schema, data) {
-    if (!schema) {
-      return null;
+    /**
+     * Returns null if the data confroms to the schema described by schema (or if schema
+     *  is null). Otherwise, returns a string describing the error.
+     */
+    static validate(schema, data) {
+        if (!schema) {
+            return null;
+        }
+        if (typeof data !== 'object' || data === null) {
+            return 'Value of params must be an object';
+        }
+        const validate = ajValidator.compile(schema);
+        const valid = validate(data);
+        if (!valid && validate.errors) {
+            return ajValidator.errorsText(validate.errors, { dataVar: 'params' });
+        }
+        return null;
     }
-    if (typeof data !== 'object' || data === null) {
-      return 'Value of params must be an object';
-    }
-    const validate = ajValidator.compile(schema);
-    const valid = validate(data);
-    if (!valid && validate.errors) {
-      return ajValidator.errorsText(validate.errors, { dataVar: 'params' });
-    }
-    return null;
-  }
 }
 //# sourceMappingURL=schemaValidator.js.map

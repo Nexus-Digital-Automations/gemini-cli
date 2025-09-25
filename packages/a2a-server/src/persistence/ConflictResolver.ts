@@ -703,7 +703,7 @@ export class ConflictResolver {
    */
   private async executeMergeChanges(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis,
+    _analysis: ConflictAnalysis,
   ): Promise<void> {
     // This would involve complex data merging logic
     // For now, we'll mark it as requiring manual intervention
@@ -769,7 +769,7 @@ export class ConflictResolver {
    */
   private async executeRollbackState(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis,
+    _analysis: ConflictAnalysis,
   ): Promise<void> {
     resolution.actions.push({
       action: 'rollback_to_safe_state',

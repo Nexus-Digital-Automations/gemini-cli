@@ -14,22 +14,15 @@
 
 import { getComponentLogger } from '../utils/logger.js';
 import type {
-  ErrorMonitorConfig,
   ErrorEvent,
   ErrorMetrics,
-  ErrorThreshold,
   MonitoringAlert,
-  ErrorPattern,
   HealthStatus,
   MonitoredApplication,
   ErrorSubscriber,
-  ErrorFilter,
   AlertRule,
-  TrendAnalysis,
   SystemHealth,
   PerformanceMetrics,
-  ErrorAnalysis,
-  LanguageSupport,
 } from './types.js';
 
 import {
@@ -706,6 +699,10 @@ export class RealTimeErrorMonitor {
       case 'critical':
         this.currentMetrics.errorsBySeverity.critical++;
         break;
+      default:
+        // Unknown severity, count as medium
+        this.currentMetrics.errorsBySeverity.medium++;
+        break;
     }
 
     // Update application-specific metrics
@@ -742,14 +739,15 @@ export class RealTimeErrorMonitor {
       let description = '';
 
       switch (patternId) {
-        case 'rapidFireErrors':
+        case 'rapidFireErrors': {
           if (relevantErrors.length >= patternConfig.threshold) {
             patternDetected = true;
             description = `${relevantErrors.length} errors in ${patternConfig.timeWindow / 1000}s`;
           }
           break;
+        }
 
-        case 'errorSpike':
+        case 'errorSpike': {
           const baselineWindow = windowStart - patternConfig.timeWindow;
           const baselineErrors = this.errorHistory.filter(
             (error) =>
@@ -763,8 +761,9 @@ export class RealTimeErrorMonitor {
             description = `${relevantErrors.length} vs baseline ${baselineRate} errors`;
           }
           break;
+        }
 
-        case 'cascadingFailures':
+        case 'cascadingFailures': {
           const uniqueApps = new Set(
             relevantErrors.map((error) => error.applicationId),
           );
@@ -773,8 +772,9 @@ export class RealTimeErrorMonitor {
             description = `Errors across ${uniqueApps.size} applications`;
           }
           break;
+        }
 
-        case 'memoryLeakIndicator':
+        case 'memoryLeakIndicator': {
           const memoryErrors = relevantErrors.filter(
             (error) =>
               error.message.toLowerCase().includes('memory') ||
@@ -785,8 +785,9 @@ export class RealTimeErrorMonitor {
             description = `${memoryErrors.length} memory-related errors`;
           }
           break;
+        }
 
-        case 'infiniteLoop':
+        case 'infiniteLoop': {
           const similarErrors = relevantErrors.filter(
             (error) => error.message === errorEvent.message,
           );
@@ -794,6 +795,11 @@ export class RealTimeErrorMonitor {
             patternDetected = true;
             description = `${similarErrors.length} identical errors - possible infinite loop`;
           }
+          break;
+        }
+
+        default:
+          // Unknown pattern type, skip detection
           break;
       }
 

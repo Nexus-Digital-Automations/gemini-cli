@@ -139,8 +139,8 @@ export declare enum OptimizationType {
  */
 export interface ConfigurationChange {
   parameter: string;
-  currentValue: any;
-  newValue: any;
+  currentValue: unknown;
+  newValue: unknown;
   changeType: 'increase' | 'decrease' | 'replace' | 'add' | 'remove';
   impact: string;
   validation: string;

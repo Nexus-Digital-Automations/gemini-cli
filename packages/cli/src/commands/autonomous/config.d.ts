@@ -6,11 +6,11 @@
 
 import type { CommandModule } from 'yargs';
 interface ConfigOptions {
-  get?: string;
-  set?: string;
-  list?: boolean;
-  reset?: string;
-  value?: string;
+    get?: string;
+    set?: string;
+    list?: boolean;
+    reset?: string;
+    value?: string;
 }
-export declare const configCommand: CommandModule<{}, ConfigOptions>;
+export declare const configCommand: CommandModule<object, ConfigOptions>;
 export {};

@@ -5,8 +5,5 @@
  */
 
 // Export query engine implementation
-export {
-  AdvancedQueryEngine,
-  createAdvancedQueryEngine,
-} from './AdvancedQueryEngine.js';
+export { AdvancedQueryEngine, createAdvancedQueryEngine, } from './AdvancedQueryEngine.js';
 //# sourceMappingURL=index.js.map

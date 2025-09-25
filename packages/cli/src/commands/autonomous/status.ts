@@ -31,7 +31,7 @@ interface SystemStatus {
   cpuUsage?: NodeJS.CpuUsage;
 }
 
-export const statusCommand: CommandModule<{}, StatusOptions> = {
+export const statusCommand: CommandModule<object, StatusOptions> = {
   command: 'status',
   describe: 'Show autonomous system status and metrics',
   builder: (yargs) =>
@@ -151,11 +151,11 @@ async function getSystemStatus(): Promise<SystemStatus> {
       status.isRunning = true;
       status.pid = systemPid;
       status.systemHealth = 'healthy';
-    } catch (error) {
+    } catch (_error) {
       // Process not running, clean up stale PID file
       await fs.unlink(pidFile).catch(() => {});
     }
-  } catch (error) {
+  } catch (_error) {
     // No PID file exists
   }
 
@@ -193,14 +193,14 @@ async function getSystemStatus(): Promise<SystemStatus> {
         status.systemHealth = 'healthy';
       }
     }
-  } catch (error) {
+  } catch (_error) {
     // No state file or invalid JSON
   }
 
   return status;
 }
 
-function displaySystemStatus(status: SystemStatus, showHeader: boolean) {
+function displaySystemStatus(status: SystemStatus, showHeader: boolean): void {
   if (showHeader) {
     console.log(chalk.cyan('📊 Autonomous Task Management System Status'));
     console.log(chalk.gray('─'.repeat(50)));

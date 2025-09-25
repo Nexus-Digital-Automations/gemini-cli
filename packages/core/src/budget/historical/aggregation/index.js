@@ -7,8 +7,5 @@
 // Export statistical utilities
 export { StatisticalUtils } from './StatisticalUtils.js';
 // Export aggregation engine
-export {
-  DataAggregationEngine,
-  createDataAggregationEngine,
-} from './DataAggregationEngine.js';
+export { DataAggregationEngine, createDataAggregationEngine, } from './DataAggregationEngine.js';
 //# sourceMappingURL=index.js.map

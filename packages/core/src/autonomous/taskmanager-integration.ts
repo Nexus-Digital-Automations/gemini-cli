@@ -12,6 +12,7 @@ import type {
   TaskStatus,
   TaskPriority,
 } from './task-breakdown-engine.js';
+import { TaskComplexity } from '../task-management/types.js';
 import type {
   TaskExecutionContext,
   TaskExecutionResult,
@@ -49,7 +50,7 @@ export interface TaskManagerClient {
  */
 export interface TaskManagerResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   message?: string;
 }
@@ -561,7 +562,7 @@ export class AutonomousTaskManagerIntegration {
     return 'general';
   }
 
-  private reconstructTaskFromState(state: any): AutonomousTask | null {
+  private reconstructTaskFromState(state: Record<string, unknown>): AutonomousTask | null {
     // Reconstruct task from execution state
     // This is a simplified implementation
     return {
@@ -569,7 +570,7 @@ export class AutonomousTaskManagerIntegration {
       title: `Recovered: ${state.currentStep}`,
       description: state.currentStep,
       category: TaskCategory.EXECUTE,
-      complexity: 'moderate' as any,
+      complexity: TaskComplexity.MODERATE,
       priority: TaskPriority.NORMAL,
       status: state.status as TaskStatus,
       createdAt: new Date(state.lastUpdate),

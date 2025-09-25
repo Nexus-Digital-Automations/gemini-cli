@@ -21,18 +21,7 @@ import type {
   LanguageSupport,
   DebugCodeType,
   TestCaseGeneration,
-  LoggingInstrumentation,
-  PerformanceInstrumentation,
-  ErrorHandlingCode,
-  ValidationCode,
-  DebugCodeMetadata,
-  CodeContext,
   ErrorAnalysis,
-  ErrorAnalysisContext,
-  StackTraceFrame,
-  VariableInspection,
-  ConditionalBreakpoint,
-  WatchExpression,
 } from './types.js';
 
 const logger = getComponentLogger('debug-code-generator');
@@ -1142,7 +1131,7 @@ export class DebugCodeGenerator {
    */
   private generateUsageInstructions(
     template: DebugCodeTemplate,
-    options: DebugGenerationOptions,
+    _options: DebugGenerationOptions,
   ): string[] {
     const instructions: string[] = [];
 
@@ -1179,6 +1168,9 @@ export class DebugCodeGenerator {
           '2. Place the validation code before using the variable',
         );
         instructions.push('3. Handle validation failures appropriately');
+        break;
+      default:
+        instructions.push('2. Follow the standard implementation instructions');
         break;
     }
 
@@ -1317,6 +1309,9 @@ export class DebugCodeGenerator {
         if (expectedType === 'bool') return 'isinstance(value, bool)';
         if (expectedType === 'list') return 'isinstance(value, list)';
         if (expectedType === 'dict') return 'isinstance(value, dict)';
+        break;
+
+      default:
         break;
     }
 

@@ -29,7 +29,7 @@ const fs = require('fs');
 
 // Debug logging to stderr (only when MCP_DEBUG or VERBOSE is set)
 const debugEnabled = process.env['MCP_DEBUG'] === 'true' || process.env['VERBOSE'] === 'true';
-function debug(msg) {
+function debug(msg: string): void {
   if (debugEnabled) {
     fs.writeSync(2, \`[MCP-DEBUG] \${msg}\\n\`);
   }

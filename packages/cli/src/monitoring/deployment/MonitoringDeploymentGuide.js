@@ -5,7 +5,7 @@
  */
 
 import { Logger } from '../../utils/logger.js';
-import { monitoringIntegrationHub } from '../MonitoringIntegrationHub.js';
+import { monitoringIntegrationHub, } from '../MonitoringIntegrationHub.js';
 import { realTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { enhancedMonitoringDashboard } from '../EnhancedMonitoringDashboard.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
@@ -25,127 +25,128 @@ import * as path from 'node:path';
  * - Disaster recovery and backup procedures
  */
 export class MonitoringDeploymentManager {
-  logger;
-  deploymentConfig;
-  healthCheckConfig;
-  operationalProcedures;
-  isDeployed = false;
-  deploymentPath;
-  constructor() {
-    this.logger = new Logger('MonitoringDeploymentManager');
-    this.deploymentPath = path.join(process.cwd(), '.tmp', 'deployment');
-  }
-  /**
-   * Deploy monitoring system with comprehensive configuration
-   */
-  async deployMonitoringSystem(config = {}, healthChecks = {}) {
-    try {
-      this.logger.info('Starting monitoring system deployment', {
-        environment: config.environment || 'development',
-        timestamp: new Date().toISOString(),
-      });
-      // Create deployment directory
-      await fs.mkdir(this.deploymentPath, { recursive: true });
-      // Generate deployment configuration
-      this.deploymentConfig = this.generateDeploymentConfig(config);
-      this.healthCheckConfig = this.generateHealthCheckConfig(healthChecks);
-      this.operationalProcedures = this.generateOperationalProcedures();
-      // Save configuration files
-      await this.saveConfigurationFiles();
-      // Execute preflight checks
-      await this.executePreflightChecks();
-      // Initialize monitoring components
-      await this.initializeMonitoringComponents();
-      // Setup infrastructure
-      await this.setupInfrastructure();
-      // Deploy dashboards
-      await this.deployDashboards();
-      // Configure alerting and notifications
-      await this.configureAlerting();
-      // Execute post-deployment validation
-      await this.executePostDeploymentValidation();
-      this.isDeployed = true;
-      this.logger.info('Monitoring system deployment completed successfully', {
-        environment: this.deploymentConfig.environment,
-        enabledComponents: this.deploymentConfig.enabledComponents,
-        deploymentPath: this.deploymentPath,
-      });
-    } catch (error) {
-      this.logger.error('Monitoring system deployment failed', { error });
-      await this.rollbackDeployment();
-      throw error;
+    logger;
+    deploymentConfig;
+    healthCheckConfig;
+    operationalProcedures;
+    isDeployed = false;
+    deploymentPath;
+    constructor() {
+        this.logger = new Logger('MonitoringDeploymentManager');
+        this.deploymentPath = path.join(process.cwd(), '.tmp', 'deployment');
     }
-  }
-  /**
-   * Get deployment status and health information
-   */
-  getDeploymentStatus() {
-    if (!this.deploymentConfig || !this.isDeployed) {
-      return {
-        isDeployed: false,
-        environment: 'unknown',
-        components: [],
-        infrastructure: {
-          websocketServer: false,
-          dataExport: false,
-          alerting: false,
-        },
-        performance: {
-          updateInterval: 0,
-          retentionHours: 0,
-          activeConnections: 0,
-        },
-        lastHealthCheck: new Date(),
-      };
+    /**
+     * Deploy monitoring system with comprehensive configuration
+     */
+    async deployMonitoringSystem(config = {}, healthChecks = {}) {
+        try {
+            this.logger.info('Starting monitoring system deployment', {
+                environment: config.environment || 'development',
+                timestamp: new Date().toISOString(),
+            });
+            // Create deployment directory
+            await fs.mkdir(this.deploymentPath, { recursive: true });
+            // Generate deployment configuration
+            this.deploymentConfig = this.generateDeploymentConfig(config);
+            this.healthCheckConfig = this.generateHealthCheckConfig(healthChecks);
+            this.operationalProcedures = this.generateOperationalProcedures();
+            // Save configuration files
+            await this.saveConfigurationFiles();
+            // Execute preflight checks
+            await this.executePreflightChecks();
+            // Initialize monitoring components
+            await this.initializeMonitoringComponents();
+            // Setup infrastructure
+            await this.setupInfrastructure();
+            // Deploy dashboards
+            await this.deployDashboards();
+            // Configure alerting and notifications
+            await this.configureAlerting();
+            // Execute post-deployment validation
+            await this.executePostDeploymentValidation();
+            this.isDeployed = true;
+            this.logger.info('Monitoring system deployment completed successfully', {
+                environment: this.deploymentConfig.environment,
+                enabledComponents: this.deploymentConfig.enabledComponents,
+                deploymentPath: this.deploymentPath,
+            });
+        }
+        catch (error) {
+            this.logger.error('Monitoring system deployment failed', { error });
+            await this.rollbackDeployment();
+            throw error;
+        }
     }
-    const systemStatus = monitoringIntegrationHub.getSystemStatus();
-    return {
-      isDeployed: true,
-      environment: this.deploymentConfig.environment,
-      components: [
-        {
-          name: 'RealTimeMonitoring',
-          enabled: this.deploymentConfig.enabledComponents.realTimeMonitoring,
-          status: systemStatus.components.realTimeMonitoring.status,
-          uptime: systemStatus.components.realTimeMonitoring.responseTime,
-        },
-        {
-          name: 'Dashboard',
-          enabled: this.deploymentConfig.enabledComponents.dashboards,
-          status: systemStatus.components.dashboard.status,
-          uptime: systemStatus.components.dashboard.responseTime,
-        },
-        {
-          name: 'PerformanceAnalytics',
-          enabled: this.deploymentConfig.enabledComponents.performanceAnalytics,
-          status: systemStatus.components.performanceAnalytics.status,
-          uptime: systemStatus.components.performanceAnalytics.responseTime,
-        },
-        {
-          name: 'TaskStatusMonitor',
-          enabled: true, // Always enabled
-          status: systemStatus.components.taskStatusMonitor.status,
-          uptime: systemStatus.components.taskStatusMonitor.responseTime,
-        },
-      ],
-      infrastructure: {
-        websocketServer: this.deploymentConfig.infrastructure.websocketPort > 0,
-        dataExport: this.deploymentConfig.enabledComponents.dataExport,
-        alerting: this.deploymentConfig.enabledComponents.alerting,
-      },
-      performance: {
-        updateInterval: this.deploymentConfig.performance.updateIntervalMs,
-        retentionHours: this.deploymentConfig.performance.retentionHours,
-        activeConnections: 0, // Would be retrieved from WebSocket server
-      },
-      lastHealthCheck: systemStatus.integration.lastSync || new Date(),
-    };
-  }
-  /**
-   * Generate deployment guide documentation
-   */
-  async generateDeploymentGuide() {
-    const guide = `
+    /**
+     * Get deployment status and health information
+     */
+    getDeploymentStatus() {
+        if (!this.deploymentConfig || !this.isDeployed) {
+            return {
+                isDeployed: false,
+                environment: 'unknown',
+                components: [],
+                infrastructure: {
+                    websocketServer: false,
+                    dataExport: false,
+                    alerting: false,
+                },
+                performance: {
+                    updateInterval: 0,
+                    retentionHours: 0,
+                    activeConnections: 0,
+                },
+                lastHealthCheck: new Date(),
+            };
+        }
+        const systemStatus = monitoringIntegrationHub.getSystemStatus();
+        return {
+            isDeployed: true,
+            environment: this.deploymentConfig.environment,
+            components: [
+                {
+                    name: 'RealTimeMonitoring',
+                    enabled: this.deploymentConfig.enabledComponents.realTimeMonitoring,
+                    status: systemStatus.components.realTimeMonitoring.status,
+                    uptime: systemStatus.components.realTimeMonitoring.responseTime,
+                },
+                {
+                    name: 'Dashboard',
+                    enabled: this.deploymentConfig.enabledComponents.dashboards,
+                    status: systemStatus.components.dashboard.status,
+                    uptime: systemStatus.components.dashboard.responseTime,
+                },
+                {
+                    name: 'PerformanceAnalytics',
+                    enabled: this.deploymentConfig.enabledComponents.performanceAnalytics,
+                    status: systemStatus.components.performanceAnalytics.status,
+                    uptime: systemStatus.components.performanceAnalytics.responseTime,
+                },
+                {
+                    name: 'TaskStatusMonitor',
+                    enabled: true, // Always enabled
+                    status: systemStatus.components.taskStatusMonitor.status,
+                    uptime: systemStatus.components.taskStatusMonitor.responseTime,
+                },
+            ],
+            infrastructure: {
+                websocketServer: this.deploymentConfig.infrastructure.websocketPort > 0,
+                dataExport: this.deploymentConfig.enabledComponents.dataExport,
+                alerting: this.deploymentConfig.enabledComponents.alerting,
+            },
+            performance: {
+                updateInterval: this.deploymentConfig.performance.updateIntervalMs,
+                retentionHours: this.deploymentConfig.performance.retentionHours,
+                activeConnections: 0, // Would be retrieved from WebSocket server
+            },
+            lastHealthCheck: systemStatus.integration.lastSync || new Date(),
+        };
+    }
+    /**
+     * Generate deployment guide documentation
+     */
+    async generateDeploymentGuide() {
+        const guide = `
 # Comprehensive Real-Time Monitoring System Deployment Guide
 
 ## Overview
@@ -343,380 +344,360 @@ Generated on: ${new Date().toISOString()}
 Version: 1.0.0
 Environment: ${this.deploymentConfig?.environment || 'unknown'}
 `;
-    return guide;
-  }
-  /**
-   * Execute system health check
-   */
-  async executeHealthCheck() {
-    const systemStatus = monitoringIntegrationHub.getSystemStatus();
-    return {
-      overall: systemStatus.overall,
-      components: Object.fromEntries(
-        Object.entries(systemStatus.components).map(([name, component]) => [
-          name,
-          {
-            status: component.status,
-            responseTime: component.responseTime,
-            checks: component.checks,
-          },
-        ]),
-      ),
-      timestamp: new Date(),
-    };
-  }
-  // Private methods for deployment implementation
-  generateDeploymentConfig(config) {
-    const environment = config.environment || 'development';
-    const defaults = {
-      environment,
-      enabledComponents: {
-        realTimeMonitoring: true,
-        dashboards: true,
-        performanceAnalytics: true,
-        alerting: true,
-        dataExport: environment !== 'development',
-        webhookIntegration: environment === 'production',
-      },
-      performance: {
-        updateIntervalMs: environment === 'production' ? 1000 : 500,
-        retentionHours: environment === 'production' ? 168 : 24, // 7 days vs 1 day
-        maxConcurrentConnections: environment === 'production' ? 100 : 10,
-        alertCooldownMs: environment === 'production' ? 300000 : 60000, // 5 min vs 1 min
-      },
-      infrastructure: {
-        websocketPort: 8080,
-        enableHttps: environment === 'production',
-        enableCors: true,
-        corsOrigins:
-          environment === 'production'
-            ? ['https://monitoring.company.com']
-            : ['http://localhost:3000', 'http://localhost:8080'],
-      },
-      observability: {
-        enableMetricsExport: environment !== 'development',
-        logLevel: environment === 'production' ? 'info' : 'debug',
-        enableTracing: environment !== 'development',
-      },
-      security: {
-        enableAuthentication: environment === 'production',
-        allowedApiKeys: [],
-        rateLimit: {
-          windowMs: 60000, // 1 minute
-          maxRequests: environment === 'production' ? 100 : 1000,
-        },
-      },
-    };
-    return { ...defaults, ...config };
-  }
-  generateHealthCheckConfig(config) {
-    const defaults = {
-      endpoints: [
-        {
-          name: 'monitoring_api',
-          path: '/api/monitoring/health',
-          timeout: 5000,
-          interval: 30000,
-          healthyThreshold: 2,
-          unhealthyThreshold: 3,
-        },
-        {
-          name: 'websocket_server',
-          path: '/ws/health',
-          timeout: 3000,
-          interval: 15000,
-          healthyThreshold: 1,
-          unhealthyThreshold: 2,
-        },
-      ],
-      dependencies: [
-        {
-          name: 'filesystem',
-          type: 'filesystem',
-          config: { path: this.deploymentPath, permissions: ['read', 'write'] },
-        },
-        {
-          name: 'memory',
-          type: 'system',
-          config: { maxUsagePercent: 80 },
-        },
-      ],
-    };
-    return { ...defaults, ...config };
-  }
-  generateOperationalProcedures() {
-    return {
-      startup: {
-        preflightChecks: [
-          'Verify Node.js version >= 18.x',
-          'Check available memory >= 512MB',
-          'Validate filesystem permissions',
-          'Test network connectivity',
-          'Verify configuration files',
-        ],
-        initializationOrder: [
-          'Initialize TaskStatusMonitor',
-          'Start RealTimeMonitoringSystem',
-          'Initialize PerformanceAnalyticsDashboard',
-          'Deploy EnhancedMonitoringDashboard',
-          'Start MonitoringIntegrationHub',
-          'Configure alerting and webhooks',
-        ],
-        healthChecks: [
-          'Component initialization status',
-          'WebSocket server availability',
-          'Database connectivity',
-          'Alert system functionality',
-          'Data export capabilities',
-        ],
-      },
-      monitoring: {
-        keyMetrics: [
-          'system_memory_usage',
-          'task_completion_rate',
-          'alert_response_time',
-          'dashboard_load_time',
-          'websocket_connection_count',
-        ],
-        alertThresholds: {
-          memory_usage_mb: 1024,
-          task_failure_rate: 0.15,
-          response_time_ms: 5000,
-          error_rate: 0.05,
-        },
-        escalationPaths: [
-          {
-            severity: 'critical',
-            contacts: ['ops-team@company.com', 'tech-lead@company.com'],
-            timeoutMinutes: 5,
-          },
-          {
-            severity: 'high',
-            contacts: ['ops-team@company.com'],
-            timeoutMinutes: 15,
-          },
-        ],
-      },
-      maintenance: {
-        dailyTasks: [
-          'Review system health status',
-          'Check alert configurations',
-          'Verify data retention policies',
-          'Monitor performance metrics',
-        ],
-        weeklyTasks: [
-          'Analyze performance trends',
-          'Update dashboard configurations',
-          'Review and optimize alert rules',
-          'Backup configuration files',
-        ],
-        monthlyTasks: [
-          'Capacity planning analysis',
-          'Performance optimization review',
-          'Security audit and updates',
-          'Documentation updates',
-        ],
-        backupProcedures: [
-          'Export monitoring configurations',
-          'Backup dashboard layouts',
-          'Archive historical metrics data',
-          'Save alert rule configurations',
-        ],
-      },
-      troubleshooting: {
-        commonIssues: [
-          {
-            issue: 'High memory usage',
-            symptoms: [
-              'Memory alerts triggering',
-              'Slow response times',
-              'System degradation',
-            ],
-            resolution: [
-              'Check data retention settings',
-              'Review active dashboard count',
-              'Analyze memory leaks in widgets',
-              'Consider scaling resources',
-            ],
-          },
-          {
-            issue: 'Dashboard not loading',
-            symptoms: [
-              'Dashboard shows errors',
-              'Widget data missing',
-              'Slow load times',
-            ],
-            resolution: [
-              'Check WebSocket connectivity',
-              'Verify data source availability',
-              'Review browser console errors',
-              'Restart dashboard service',
-            ],
-          },
-        ],
-        diagnosticCommands: {
-          check_system_health:
-            'curl http://localhost:8080/api/monitoring/health',
-          view_active_alerts:
-            'curl http://localhost:8080/api/monitoring/alerts',
-          export_metrics: 'curl http://localhost:8080/api/monitoring/export',
-          check_websocket: 'netstat -an | grep 8080',
-        },
-      },
-    };
-  }
-  async saveConfigurationFiles() {
-    const configs = {
-      deployment: this.deploymentConfig,
-      healthChecks: this.healthCheckConfig,
-      procedures: this.operationalProcedures,
-    };
-    for (const [name, config] of Object.entries(configs)) {
-      const filepath = path.join(this.deploymentPath, `${name}-config.json`);
-      await fs.writeFile(filepath, JSON.stringify(config, null, 2));
+        return guide;
     }
-    this.logger.info('Configuration files saved', {
-      path: this.deploymentPath,
-      files: Object.keys(configs).map((name) => `${name}-config.json`),
-    });
-  }
-  async executePreflightChecks() {
-    const checks = this.operationalProcedures.startup.preflightChecks;
-    for (const check of checks) {
-      await this.executePreflightCheck(check);
+    /**
+     * Execute system health check
+     */
+    async executeHealthCheck() {
+        const systemStatus = monitoringIntegrationHub.getSystemStatus();
+        return {
+            overall: systemStatus.overall,
+            components: Object.fromEntries(Object.entries(systemStatus.components).map(([name, component]) => [
+                name,
+                {
+                    status: component.status,
+                    responseTime: component.responseTime,
+                    checks: component.checks,
+                },
+            ])),
+            timestamp: new Date(),
+        };
     }
-    this.logger.info('All preflight checks passed');
-  }
-  async executePreflightCheck(check) {
-    this.logger.debug('Executing preflight check', { check });
-    switch (check) {
-      case 'Verify Node.js version >= 18.x':
-        const nodeVersion = process.version;
-        const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0]);
-        if (majorVersion < 18) {
-          throw new Error(
-            `Node.js version ${nodeVersion} is not supported. Requires >= 18.x`,
-          );
+    // Private methods for deployment implementation
+    generateDeploymentConfig(config) {
+        const environment = config.environment || 'development';
+        const defaults = {
+            environment,
+            enabledComponents: {
+                realTimeMonitoring: true,
+                dashboards: true,
+                performanceAnalytics: true,
+                alerting: true,
+                dataExport: environment !== 'development',
+                webhookIntegration: environment === 'production',
+            },
+            performance: {
+                updateIntervalMs: environment === 'production' ? 1000 : 500,
+                retentionHours: environment === 'production' ? 168 : 24, // 7 days vs 1 day
+                maxConcurrentConnections: environment === 'production' ? 100 : 10,
+                alertCooldownMs: environment === 'production' ? 300000 : 60000, // 5 min vs 1 min
+            },
+            infrastructure: {
+                websocketPort: 8080,
+                enableHttps: environment === 'production',
+                enableCors: true,
+                corsOrigins: environment === 'production'
+                    ? ['https://monitoring.company.com']
+                    : ['http://localhost:3000', 'http://localhost:8080'],
+            },
+            observability: {
+                enableMetricsExport: environment !== 'development',
+                logLevel: environment === 'production' ? 'info' : 'debug',
+                enableTracing: environment !== 'development',
+            },
+            security: {
+                enableAuthentication: environment === 'production',
+                allowedApiKeys: [],
+                rateLimit: {
+                    windowMs: 60000, // 1 minute
+                    maxRequests: environment === 'production' ? 100 : 1000,
+                },
+            },
+        };
+        return { ...defaults, ...config };
+    }
+    generateHealthCheckConfig(config) {
+        const defaults = {
+            endpoints: [
+                {
+                    name: 'monitoring_api',
+                    path: '/api/monitoring/health',
+                    timeout: 5000,
+                    interval: 30000,
+                    healthyThreshold: 2,
+                    unhealthyThreshold: 3,
+                },
+                {
+                    name: 'websocket_server',
+                    path: '/ws/health',
+                    timeout: 3000,
+                    interval: 15000,
+                    healthyThreshold: 1,
+                    unhealthyThreshold: 2,
+                },
+            ],
+            dependencies: [
+                {
+                    name: 'filesystem',
+                    type: 'filesystem',
+                    config: { path: this.deploymentPath, permissions: ['read', 'write'] },
+                },
+                {
+                    name: 'memory',
+                    type: 'system',
+                    config: { maxUsagePercent: 80 },
+                },
+            ],
+        };
+        return { ...defaults, ...config };
+    }
+    generateOperationalProcedures() {
+        return {
+            startup: {
+                preflightChecks: [
+                    'Verify Node.js version >= 18.x',
+                    'Check available memory >= 512MB',
+                    'Validate filesystem permissions',
+                    'Test network connectivity',
+                    'Verify configuration files',
+                ],
+                initializationOrder: [
+                    'Initialize TaskStatusMonitor',
+                    'Start RealTimeMonitoringSystem',
+                    'Initialize PerformanceAnalyticsDashboard',
+                    'Deploy EnhancedMonitoringDashboard',
+                    'Start MonitoringIntegrationHub',
+                    'Configure alerting and webhooks',
+                ],
+                healthChecks: [
+                    'Component initialization status',
+                    'WebSocket server availability',
+                    'Database connectivity',
+                    'Alert system functionality',
+                    'Data export capabilities',
+                ],
+            },
+            monitoring: {
+                keyMetrics: [
+                    'system_memory_usage',
+                    'task_completion_rate',
+                    'alert_response_time',
+                    'dashboard_load_time',
+                    'websocket_connection_count',
+                ],
+                alertThresholds: {
+                    memory_usage_mb: 1024,
+                    task_failure_rate: 0.15,
+                    response_time_ms: 5000,
+                    error_rate: 0.05,
+                },
+                escalationPaths: [
+                    {
+                        severity: 'critical',
+                        contacts: ['ops-team@company.com', 'tech-lead@company.com'],
+                        timeoutMinutes: 5,
+                    },
+                    {
+                        severity: 'high',
+                        contacts: ['ops-team@company.com'],
+                        timeoutMinutes: 15,
+                    },
+                ],
+            },
+            maintenance: {
+                dailyTasks: [
+                    'Review system health status',
+                    'Check alert configurations',
+                    'Verify data retention policies',
+                    'Monitor performance metrics',
+                ],
+                weeklyTasks: [
+                    'Analyze performance trends',
+                    'Update dashboard configurations',
+                    'Review and optimize alert rules',
+                    'Backup configuration files',
+                ],
+                monthlyTasks: [
+                    'Capacity planning analysis',
+                    'Performance optimization review',
+                    'Security audit and updates',
+                    'Documentation updates',
+                ],
+                backupProcedures: [
+                    'Export monitoring configurations',
+                    'Backup dashboard layouts',
+                    'Archive historical metrics data',
+                    'Save alert rule configurations',
+                ],
+            },
+            troubleshooting: {
+                commonIssues: [
+                    {
+                        issue: 'High memory usage',
+                        symptoms: [
+                            'Memory alerts triggering',
+                            'Slow response times',
+                            'System degradation',
+                        ],
+                        resolution: [
+                            'Check data retention settings',
+                            'Review active dashboard count',
+                            'Analyze memory leaks in widgets',
+                            'Consider scaling resources',
+                        ],
+                    },
+                    {
+                        issue: 'Dashboard not loading',
+                        symptoms: [
+                            'Dashboard shows errors',
+                            'Widget data missing',
+                            'Slow load times',
+                        ],
+                        resolution: [
+                            'Check WebSocket connectivity',
+                            'Verify data source availability',
+                            'Review browser console errors',
+                            'Restart dashboard service',
+                        ],
+                    },
+                ],
+                diagnosticCommands: {
+                    check_system_health: 'curl http://localhost:8080/api/monitoring/health',
+                    view_active_alerts: 'curl http://localhost:8080/api/monitoring/alerts',
+                    export_metrics: 'curl http://localhost:8080/api/monitoring/export',
+                    check_websocket: 'netstat -an | grep 8080',
+                },
+            },
+        };
+    }
+    async saveConfigurationFiles() {
+        const configs = {
+            deployment: this.deploymentConfig,
+            healthChecks: this.healthCheckConfig,
+            procedures: this.operationalProcedures,
+        };
+        for (const [name, config] of Object.entries(configs)) {
+            const filepath = path.join(this.deploymentPath, `${name}-config.json`);
+            await fs.writeFile(filepath, JSON.stringify(config, null, 2));
         }
-        break;
-      case 'Check available memory >= 512MB':
-        const memoryUsage = process.memoryUsage();
-        const availableMemory = memoryUsage.heapTotal - memoryUsage.heapUsed;
-        if (availableMemory < 512 * 1024 * 1024) {
-          this.logger.warning('Low available memory detected', {
-            available: Math.round(availableMemory / 1024 / 1024),
-            recommended: 512,
-          });
+        this.logger.info('Configuration files saved', {
+            path: this.deploymentPath,
+            files: Object.keys(configs).map((name) => `${name}-config.json`),
+        });
+    }
+    async executePreflightChecks() {
+        const checks = this.operationalProcedures.startup.preflightChecks;
+        for (const check of checks) {
+            await this.executePreflightCheck(check);
         }
-        break;
-      case 'Validate filesystem permissions':
+        this.logger.info('All preflight checks passed');
+    }
+    async executePreflightCheck(check) {
+        this.logger.debug('Executing preflight check', { check });
+        switch (check) {
+            case 'Verify Node.js version >= 18.x':
+                const nodeVersion = process.version;
+                const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0]);
+                if (majorVersion < 18) {
+                    throw new Error(`Node.js version ${nodeVersion} is not supported. Requires >= 18.x`);
+                }
+                break;
+            case 'Check available memory >= 512MB':
+                const memoryUsage = process.memoryUsage();
+                const availableMemory = memoryUsage.heapTotal - memoryUsage.heapUsed;
+                if (availableMemory < 512 * 1024 * 1024) {
+                    this.logger.warning('Low available memory detected', {
+                        available: Math.round(availableMemory / 1024 / 1024),
+                        recommended: 512,
+                    });
+                }
+                break;
+            case 'Validate filesystem permissions':
+                try {
+                    await fs.access(this.deploymentPath, fs.constants.R_OK | fs.constants.W_OK);
+                }
+                catch (error) {
+                    throw new Error(`Insufficient filesystem permissions for ${this.deploymentPath}`);
+                }
+                break;
+            default:
+                this.logger.debug('Preflight check passed', { check });
+        }
+    }
+    async initializeMonitoringComponents() {
+        const initOrder = this.operationalProcedures.startup.initializationOrder;
+        for (const component of initOrder) {
+            await this.initializeComponent(component);
+        }
+        this.logger.info('All monitoring components initialized');
+    }
+    async initializeComponent(component) {
+        this.logger.debug('Initializing component', { component });
+        switch (component) {
+            case 'Start RealTimeMonitoringSystem':
+                if (this.deploymentConfig.enabledComponents.realTimeMonitoring) {
+                    realTimeMonitoringSystem.startMonitoring();
+                }
+                break;
+            case 'Start MonitoringIntegrationHub':
+                // Integration hub is automatically initialized
+                break;
+            default:
+                this.logger.debug('Component initialization complete', { component });
+        }
+        // Add small delay between component initializations
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    async setupInfrastructure() {
+        const infraConfig = this.deploymentConfig.infrastructure;
+        this.logger.info('Setting up monitoring infrastructure', {
+            websocketPort: infraConfig.websocketPort,
+            enableHttps: infraConfig.enableHttps,
+            enableCors: infraConfig.enableCors,
+        });
+        // Infrastructure setup would happen here
+        // For now, we'll just log the configuration
+    }
+    async deployDashboards() {
+        if (!this.deploymentConfig.enabledComponents.dashboards) {
+            this.logger.info('Dashboard deployment skipped (disabled in configuration)');
+            return;
+        }
+        this.logger.info('Deploying monitoring dashboards');
+        // Dashboard deployment is handled by the EnhancedMonitoringDashboard
+        // which automatically creates a default layout with comprehensive widgets
+    }
+    async configureAlerting() {
+        if (!this.deploymentConfig.enabledComponents.alerting) {
+            this.logger.info('Alerting configuration skipped (disabled in configuration)');
+            return;
+        }
+        this.logger.info('Configuring alerting system');
+        // Alert configuration is handled by the RealTimeMonitoringSystem
+        // which automatically sets up default alert rules
+    }
+    async executePostDeploymentValidation() {
+        const healthCheck = await this.executeHealthCheck();
+        if (healthCheck.overall === 'critical' ||
+            healthCheck.overall === 'unhealthy') {
+            throw new Error(`Deployment validation failed: System health is ${healthCheck.overall}`);
+        }
+        this.logger.info('Post-deployment validation passed', {
+            overall: healthCheck.overall,
+            componentCount: Object.keys(healthCheck.components).length,
+        });
+    }
+    async rollbackDeployment() {
+        this.logger.warning('Rolling back monitoring system deployment');
         try {
-          await fs.access(
-            this.deploymentPath,
-            fs.constants.R_OK | fs.constants.W_OK,
-          );
-        } catch (error) {
-          throw new Error(
-            `Insufficient filesystem permissions for ${this.deploymentPath}`,
-          );
+            // Stop monitoring systems
+            realTimeMonitoringSystem.stopMonitoring();
+            // Clean up resources
+            await monitoringIntegrationHub.shutdown();
+            this.isDeployed = false;
+            this.logger.info('Deployment rollback completed');
         }
-        break;
-      default:
-        this.logger.debug('Preflight check passed', { check });
-    }
-  }
-  async initializeMonitoringComponents() {
-    const initOrder = this.operationalProcedures.startup.initializationOrder;
-    for (const component of initOrder) {
-      await this.initializeComponent(component);
-    }
-    this.logger.info('All monitoring components initialized');
-  }
-  async initializeComponent(component) {
-    this.logger.debug('Initializing component', { component });
-    switch (component) {
-      case 'Start RealTimeMonitoringSystem':
-        if (this.deploymentConfig.enabledComponents.realTimeMonitoring) {
-          realTimeMonitoringSystem.startMonitoring();
+        catch (error) {
+            this.logger.error('Error during deployment rollback', { error });
         }
-        break;
-      case 'Start MonitoringIntegrationHub':
-        // Integration hub is automatically initialized
-        break;
-      default:
-        this.logger.debug('Component initialization complete', { component });
     }
-    // Add small delay between component initializations
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  async setupInfrastructure() {
-    const infraConfig = this.deploymentConfig.infrastructure;
-    this.logger.info('Setting up monitoring infrastructure', {
-      websocketPort: infraConfig.websocketPort,
-      enableHttps: infraConfig.enableHttps,
-      enableCors: infraConfig.enableCors,
-    });
-    // Infrastructure setup would happen here
-    // For now, we'll just log the configuration
-  }
-  async deployDashboards() {
-    if (!this.deploymentConfig.enabledComponents.dashboards) {
-      this.logger.info(
-        'Dashboard deployment skipped (disabled in configuration)',
-      );
-      return;
+    // Documentation generation methods
+    generatePreDeploymentChecklist() {
+        return this.operationalProcedures.startup.preflightChecks.map((check) => `- [ ] ${check}`).join('\n');
     }
-    this.logger.info('Deploying monitoring dashboards');
-    // Dashboard deployment is handled by the EnhancedMonitoringDashboard
-    // which automatically creates a default layout with comprehensive widgets
-  }
-  async configureAlerting() {
-    if (!this.deploymentConfig.enabledComponents.alerting) {
-      this.logger.info(
-        'Alerting configuration skipped (disabled in configuration)',
-      );
-      return;
-    }
-    this.logger.info('Configuring alerting system');
-    // Alert configuration is handled by the RealTimeMonitoringSystem
-    // which automatically sets up default alert rules
-  }
-  async executePostDeploymentValidation() {
-    const healthCheck = await this.executeHealthCheck();
-    if (
-      healthCheck.overall === 'critical' ||
-      healthCheck.overall === 'unhealthy'
-    ) {
-      throw new Error(
-        `Deployment validation failed: System health is ${healthCheck.overall}`,
-      );
-    }
-    this.logger.info('Post-deployment validation passed', {
-      overall: healthCheck.overall,
-      componentCount: Object.keys(healthCheck.components).length,
-    });
-  }
-  async rollbackDeployment() {
-    this.logger.warning('Rolling back monitoring system deployment');
-    try {
-      // Stop monitoring systems
-      realTimeMonitoringSystem.stopMonitoring();
-      // Clean up resources
-      await monitoringIntegrationHub.shutdown();
-      this.isDeployed = false;
-      this.logger.info('Deployment rollback completed');
-    } catch (error) {
-      this.logger.error('Error during deployment rollback', { error });
-    }
-  }
-  // Documentation generation methods
-  generatePreDeploymentChecklist() {
-    return this.operationalProcedures.startup.preflightChecks
-      .map((check) => `- [ ] ${check}`)
-      .join('\n');
-  }
-  generateEnvironmentConfiguration() {
-    return `
+    generateEnvironmentConfiguration() {
+        return `
 Configuration varies by environment:
 
 **Development:**
@@ -731,14 +712,12 @@ Configuration varies by environment:
 - Authentication: Required
 - HTTPS: Mandatory
 `;
-  }
-  generateComponentInitialization() {
-    return this.operationalProcedures.startup.initializationOrder
-      .map((step, index) => `${index + 1}. ${step}`)
-      .join('\n');
-  }
-  generateDashboardDeployment() {
-    return `
+    }
+    generateComponentInitialization() {
+        return this.operationalProcedures.startup.initializationOrder.map((step, index) => `${index + 1}. ${step}`).join('\n');
+    }
+    generateDashboardDeployment() {
+        return `
 Dashboard deployment includes:
 - Default monitoring layout with 5 core widgets
 - System health overview panel
@@ -747,9 +726,9 @@ Dashboard deployment includes:
 - Active alerts panel
 - Predictive insights table
 `;
-  }
-  generateAlertingConfiguration() {
-    return `
+    }
+    generateAlertingConfiguration() {
+        return `
 Default alert rules configured:
 - High task failure rate (>15%)
 - Critical memory usage (>512MB)
@@ -757,9 +736,9 @@ Default alert rules configured:
 - System health critical/unhealthy
 - No active agents with queued tasks
 `;
-  }
-  generatePerformanceOptimization() {
-    return `
+    }
+    generatePerformanceOptimization() {
+        return `
 Performance optimizations:
 - Sub-second monitoring updates (500ms-1000ms)
 - Efficient data structures with automatic cleanup
@@ -767,61 +746,43 @@ Performance optimizations:
 - WebSocket connection pooling
 - Data retention policies to prevent bloat
 `;
-  }
-  generateDailyOperations() {
-    return this.operationalProcedures.maintenance.dailyTasks
-      .map((task) => `- ${task}`)
-      .join('\n');
-  }
-  generateWeeklyMaintenance() {
-    return this.operationalProcedures.maintenance.weeklyTasks
-      .map((task) => `- ${task}`)
-      .join('\n');
-  }
-  generateMonthlyTasks() {
-    return this.operationalProcedures.maintenance.monthlyTasks
-      .map((task) => `- ${task}`)
-      .join('\n');
-  }
-  generateKeyMetrics() {
-    return this.operationalProcedures.monitoring.keyMetrics
-      .map((metric) => `- ${metric}`)
-      .join('\n');
-  }
-  generateAlertConfiguration() {
-    const thresholds = this.operationalProcedures.monitoring.alertThresholds;
-    return Object.entries(thresholds)
-      .map(([metric, threshold]) => `- ${metric}: ${threshold}`)
-      .join('\n');
-  }
-  generateEscalationProcedures() {
-    return this.operationalProcedures.monitoring.escalationPaths
-      .map(
-        (path) =>
-          `- ${path.severity}: ${path.contacts.join(', ')} (${path.timeoutMinutes}min timeout)`,
-      )
-      .join('\n');
-  }
-  generateTroubleshootingGuide() {
-    return this.operationalProcedures.troubleshooting.commonIssues
-      .map(
-        (issue) => `
+    }
+    generateDailyOperations() {
+        return this.operationalProcedures.maintenance.dailyTasks.map((task) => `- ${task}`).join('\n');
+    }
+    generateWeeklyMaintenance() {
+        return this.operationalProcedures.maintenance.weeklyTasks.map((task) => `- ${task}`).join('\n');
+    }
+    generateMonthlyTasks() {
+        return this.operationalProcedures.maintenance.monthlyTasks.map((task) => `- ${task}`).join('\n');
+    }
+    generateKeyMetrics() {
+        return this.operationalProcedures.monitoring.keyMetrics.map((metric) => `- ${metric}`).join('\n');
+    }
+    generateAlertConfiguration() {
+        const thresholds = this.operationalProcedures.monitoring.alertThresholds;
+        return Object.entries(thresholds)
+            .map(([metric, threshold]) => `- ${metric}: ${threshold}`)
+            .join('\n');
+    }
+    generateEscalationProcedures() {
+        return this.operationalProcedures.monitoring.escalationPaths.map((path) => `- ${path.severity}: ${path.contacts.join(', ')} (${path.timeoutMinutes}min timeout)`).join('\n');
+    }
+    generateTroubleshootingGuide() {
+        return this.operationalProcedures.troubleshooting.commonIssues.map((issue) => `
 **${issue.issue}**
 Symptoms: ${issue.symptoms.join(', ')}
 Resolution: ${issue.resolution.map((step) => `\n  - ${step}`).join('')}
-`,
-      )
-      .join('\n');
-  }
-  generateDiagnosticCommands() {
-    const commands =
-      this.operationalProcedures.troubleshooting.diagnosticCommands;
-    return Object.entries(commands)
-      .map(([name, command]) => `- ${name}: \`${command}\``)
-      .join('\n');
-  }
-  generatePerformanceDebugging() {
-    return `
+`).join('\n');
+    }
+    generateDiagnosticCommands() {
+        const commands = this.operationalProcedures.troubleshooting.diagnosticCommands;
+        return Object.entries(commands)
+            .map(([name, command]) => `- ${name}: \`${command}\``)
+            .join('\n');
+    }
+    generatePerformanceDebugging() {
+        return `
 Performance debugging steps:
 1. Check system resource usage
 2. Analyze WebSocket connection count
@@ -830,9 +791,9 @@ Performance debugging steps:
 5. Validate alert rule efficiency
 6. Test dashboard load times
 `;
-  }
-  generateSecurityConfiguration() {
-    return `
+    }
+    generateSecurityConfiguration() {
+        return `
 Security configuration:
 - JWT-based authentication for production
 - Rate limiting: ${this.deploymentConfig.security.rateLimit.maxRequests} requests per minute
@@ -840,9 +801,9 @@ Security configuration:
 - HTTPS enforcement in production
 - API key validation for external integrations
 `;
-  }
-  generateApiSecurityConfiguration() {
-    return `
+    }
+    generateApiSecurityConfiguration() {
+        return `
 API security measures:
 - Request rate limiting
 - Input validation and sanitization
@@ -850,9 +811,9 @@ API security measures:
 - CORS policy enforcement
 - Request/response logging for audit trails
 `;
-  }
-  generateDataProtectionConfiguration() {
-    return `
+    }
+    generateDataProtectionConfiguration() {
+        return `
 Data protection measures:
 - Sensitive data encryption at rest
 - Secure transmission over HTTPS/WSS
@@ -860,14 +821,12 @@ Data protection measures:
 - Access logging and monitoring
 - Regular security audits
 `;
-  }
-  generateBackupProcedures() {
-    return this.operationalProcedures.maintenance.backupProcedures
-      .map((procedure) => `- ${procedure}`)
-      .join('\n');
-  }
-  generateDisasterRecoveryProcedures() {
-    return `
+    }
+    generateBackupProcedures() {
+        return this.operationalProcedures.maintenance.backupProcedures.map((procedure) => `- ${procedure}`).join('\n');
+    }
+    generateDisasterRecoveryProcedures() {
+        return `
 Disaster recovery steps:
 1. Assess system damage and data loss
 2. Restore from latest configuration backup
@@ -876,9 +835,9 @@ Disaster recovery steps:
 5. Resume normal monitoring operations
 6. Document incident and lessons learned
 `;
-  }
-  generateSystemRestoreProcedures() {
-    return `
+    }
+    generateSystemRestoreProcedures() {
+        return `
 System restore procedures:
 1. Stop all monitoring services
 2. Restore configuration files from backup
@@ -888,9 +847,9 @@ System restore procedures:
 6. Verify dashboard functionality
 7. Resume monitoring operations
 `;
-  }
-  generateScalingGuidelines() {
-    return `
+    }
+    generateScalingGuidelines() {
+        return `
 Horizontal scaling:
 - Deploy multiple dashboard instances behind load balancer
 - Use shared data store for cross-instance synchronization
@@ -907,7 +866,7 @@ Performance tuning:
 - Optimize dashboard refresh rates
 - Implement efficient data pagination
 `;
-  }
+    }
 }
 /**
  * Singleton deployment manager instance

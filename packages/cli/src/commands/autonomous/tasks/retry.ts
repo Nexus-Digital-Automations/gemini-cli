@@ -16,7 +16,7 @@ interface RetryTaskOptions {
   'wait-for-dependencies'?: boolean;
 }
 
-export const retryTaskCommand: CommandModule<{}, RetryTaskOptions> = {
+export const retryTaskCommand: CommandModule<object, RetryTaskOptions> = {
   command: 'retry <taskId>',
   describe: 'Retry a failed or cancelled task',
   builder: (yargs) =>

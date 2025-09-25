@@ -762,7 +762,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
     }
   }
 
-  private convertToCSV(data: any): string {
+  private convertToCSV(data: Record<string, unknown>): string {
     // Convert aggregated data to CSV format
     const lines: string[] = [];
 
@@ -811,7 +811,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
     return lines.join('\n');
   }
 
-  private convertToPrometheus(data: any): string {
+  private convertToPrometheus(data: Record<string, unknown>): string {
     // Convert aggregated data to Prometheus format
     const timestamp = data.timestamp.getTime();
     const lines: string[] = [];

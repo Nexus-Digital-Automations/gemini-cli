@@ -190,7 +190,7 @@ function printConfigTree(obj: any, prefix = ''): void {
   }
 }
 
-export const configCommand: CommandModule<{}, ConfigOptions> = {
+export const configCommand: CommandModule<object, ConfigOptions> = {
   command: 'config',
   describe: 'Configure autonomous task management system settings',
   builder: (yargs) =>

@@ -6,13 +6,10 @@
 
 import type { CommandModule } from 'yargs';
 interface CompatibilityCheckOptions {
-  quick?: boolean;
-  json?: boolean;
-  'fix-issues'?: boolean;
-  verbose?: boolean;
+    quick?: boolean;
+    json?: boolean;
+    'fix-issues'?: boolean;
+    verbose?: boolean;
 }
-export declare const compatibilityCheckCommand: CommandModule<
-  {},
-  CompatibilityCheckOptions
->;
+export declare const compatibilityCheckCommand: CommandModule<Record<string, unknown>, CompatibilityCheckOptions>;
 export {};

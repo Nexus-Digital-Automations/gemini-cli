@@ -5,13 +5,15 @@
  */
 
 import type { CommandModule, Argv } from 'yargs';
-import { startCommand } from './autonomous/start.js';
-import { stopCommand } from './autonomous/stop.js';
-import { statusCommand } from './autonomous/status.js';
-import { tasksCommand } from './autonomous/tasks.js';
-import { metricsCommand } from './autonomous/metrics.js';
-import { configCommand } from './autonomous/config.js';
-import { compatibilityCheckCommand } from './autonomous/compatibility-check.js';
+import {
+  startCommand,
+  stopCommand,
+  statusCommand,
+  tasksCommand,
+  metricsCommand,
+  configCommand,
+  compatibilityCheckCommand,
+} from './autonomous/index.js';
 
 /**
  * Autonomous Task Management CLI Command Interface

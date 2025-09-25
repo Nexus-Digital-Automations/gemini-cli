@@ -12,8 +12,5 @@
  * @version 1.0.0
  */
 // Recommendation engine exports
-export {
-  RecommendationEngine,
-  createRecommendationEngine,
-} from './RecommendationEngine.js';
+export { RecommendationEngine, createRecommendationEngine, } from './RecommendationEngine.js';
 //# sourceMappingURL=index.js.map

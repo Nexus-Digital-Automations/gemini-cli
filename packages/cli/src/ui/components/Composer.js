@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -58,165 +58,47 @@ import { ConfigInitDisplay } from '../components/ConfigInitDisplay.js';
  * ```
  */
 export const Composer = () => {
-  const config = useConfig();
-  const settings = useSettings();
-  const uiState = useUIState();
-  const uiActions = useUIActions();
-  const { vimEnabled, vimMode } = useVimMode();
-  const { primaryOperation, isProgressPanelExpanded, toggleProgressPanel } =
-    useProgress();
-  const terminalWidth = process.stdout.columns;
-  const isNarrow = isNarrowWidth(terminalWidth);
-  const debugConsoleMaxHeight = Math.floor(Math.max(terminalWidth * 0.2, 5));
-  const { contextFileNames, showAutoAcceptIndicator } = uiState;
-  // Use the container width of InputPrompt for width of DetailedMessagesDisplay
-  const { containerWidth } = useMemo(
-    () => calculatePromptWidths(uiState.terminalWidth),
-    [uiState.terminalWidth],
-  );
-  // Build footer props from context values
-  const footerProps = {
-    model: config.getModel(),
-    targetDir: config.getTargetDir(),
-    debugMode: config.getDebugMode(),
-    branchName: uiState.branchName,
-    debugMessage: uiState.debugMessage,
-    corgiMode: uiState.corgiMode,
-    errorCount: uiState.errorCount,
-    showErrorDetails: uiState.showErrorDetails,
-    showMemoryUsage:
-      config.getDebugMode() || settings.merged.ui?.showMemoryUsage || false,
-    promptTokenCount: uiState.sessionStats.lastPromptTokenCount,
-    nightly: uiState.nightly,
-    isTrustedFolder: uiState.isTrustedFolder,
-    hideCWD: settings.merged.ui?.footer?.hideCWD || false,
-    hideSandboxStatus: settings.merged.ui?.footer?.hideSandboxStatus || false,
-    hideModelInfo: settings.merged.ui?.footer?.hideModelInfo || false,
-    sandboxConfig: config.getSandbox(),
-  };
-  return _jsxs(Box, {
-    flexDirection: 'column',
-    children: [
-      !uiState.embeddedShellFocused &&
-        _jsx(LoadingIndicator, {
-          thought:
-            uiState.streamingState === StreamingState.WaitingForConfirmation ||
-            config.getAccessibility()?.disableLoadingPhrases
-              ? undefined
-              : uiState.thought,
-          currentLoadingPhrase: config.getAccessibility()?.disableLoadingPhrases
-            ? undefined
-            : uiState.currentLoadingPhrase,
-          elapsedTime: uiState.elapsedTime,
-        }),
-      !uiState.isConfigInitialized && _jsx(ConfigInitDisplay, {}),
-      _jsx(QueuedMessageDisplay, { messageQueue: uiState.messageQueue }),
-      _jsxs(Box, {
-        marginTop: 1,
-        justifyContent: settings.merged.ui?.hideContextSummary
-          ? 'flex-start'
-          : 'space-between',
-        width: '100%',
-        flexDirection: isNarrow ? 'column' : 'row',
-        alignItems: isNarrow ? 'flex-start' : 'center',
-        children: [
-          _jsxs(Box, {
-            marginRight: 1,
-            children: [
-              process.env['GEMINI_SYSTEM_MD'] &&
-                _jsx(Text, {
-                  color: theme.status.error,
-                  children: '|\u2310\u25A0_\u25A0| ',
-                }),
-              uiState.ctrlCPressedOnce
-                ? _jsx(Text, {
-                    color: theme.status.warning,
-                    children: 'Press Ctrl+C again to exit.',
-                  })
-                : uiState.ctrlDPressedOnce
-                  ? _jsx(Text, {
-                      color: theme.status.warning,
-                      children: 'Press Ctrl+D again to exit.',
-                    })
-                  : uiState.showEscapePrompt
-                    ? _jsx(Text, {
-                        color: theme.text.secondary,
-                        children: 'Press Esc again to clear.',
-                      })
-                    : !settings.merged.ui?.hideContextSummary &&
-                      _jsx(ContextSummaryDisplay, {
-                        ideContext: uiState.ideContextState,
-                        geminiMdFileCount: uiState.geminiMdFileCount,
-                        contextFileNames,
-                        mcpServers: config.getMcpServers(),
-                        blockedMcpServers: config.getBlockedMcpServers(),
-                        showToolDescriptions: uiState.showToolDescriptions,
-                      }),
-            ],
-          }),
-          _jsxs(Box, {
-            paddingTop: isNarrow ? 1 : 0,
-            children: [
-              showAutoAcceptIndicator !== ApprovalMode.DEFAULT &&
-                !uiState.shellModeActive &&
-                _jsx(AutoAcceptIndicator, {
-                  approvalMode: showAutoAcceptIndicator,
-                }),
-              uiState.shellModeActive && _jsx(ShellModeIndicator, {}),
-            ],
-          }),
-        ],
-      }),
-      uiState.showErrorDetails &&
-        _jsx(OverflowProvider, {
-          children: _jsxs(Box, {
-            flexDirection: 'column',
-            children: [
-              _jsx(DetailedMessagesDisplay, {
-                messages: uiState.filteredConsoleMessages,
-                maxHeight: uiState.constrainHeight
-                  ? debugConsoleMaxHeight
-                  : undefined,
-                width: containerWidth,
-              }),
-              _jsx(ShowMoreLines, { constrainHeight: uiState.constrainHeight }),
-            ],
-          }),
-        }),
-      uiState.isInputActive &&
-        _jsx(InputPrompt, {
-          buffer: uiState.buffer,
-          inputWidth: uiState.inputWidth,
-          suggestionsWidth: uiState.suggestionsWidth,
-          onSubmit: uiActions.handleFinalSubmit,
-          userMessages: uiState.userMessages,
-          onClearScreen: uiActions.handleClearScreen,
-          config,
-          slashCommands: uiState.slashCommands,
-          commandContext: uiState.commandContext,
-          shellModeActive: uiState.shellModeActive,
-          setShellModeActive: uiActions.setShellModeActive,
-          approvalMode: showAutoAcceptIndicator,
-          onEscapePromptChange: uiActions.onEscapePromptChange,
-          focus: true,
-          vimHandleInput: uiActions.vimHandleInput,
-          isEmbeddedShellFocused: uiState.embeddedShellFocused,
-          placeholder: vimEnabled
-            ? "  Press 'i' for INSERT mode and 'Esc' for NORMAL mode."
-            : '  Type your message or @path/to/file',
-        }),
-      primaryOperation &&
-        _jsx(ProgressPanel, {
-          isExpanded: isProgressPanelExpanded,
-          onToggle: toggleProgressPanel,
-          maxHeight: Math.floor(terminalWidth * 0.3),
-        }),
-      !settings.merged.ui?.hideFooter &&
-        _jsx(Footer, {
-          ...footerProps,
-          vimMode: vimEnabled ? vimMode : undefined,
-        }),
-    ],
-  });
+    const config = useConfig();
+    const settings = useSettings();
+    const uiState = useUIState();
+    const uiActions = useUIActions();
+    const { vimEnabled, vimMode } = useVimMode();
+    const { primaryOperation, isProgressPanelExpanded, toggleProgressPanel } = useProgress();
+    const terminalWidth = process.stdout.columns;
+    const isNarrow = isNarrowWidth(terminalWidth);
+    const debugConsoleMaxHeight = Math.floor(Math.max(terminalWidth * 0.2, 5));
+    const { contextFileNames, showAutoAcceptIndicator } = uiState;
+    // Use the container width of InputPrompt for width of DetailedMessagesDisplay
+    const { containerWidth } = useMemo(() => calculatePromptWidths(uiState.terminalWidth), [uiState.terminalWidth]);
+    // Build footer props from context values
+    const footerProps = {
+        model: config.getModel(),
+        targetDir: config.getTargetDir(),
+        debugMode: config.getDebugMode(),
+        branchName: uiState.branchName,
+        debugMessage: uiState.debugMessage,
+        corgiMode: uiState.corgiMode,
+        errorCount: uiState.errorCount,
+        showErrorDetails: uiState.showErrorDetails,
+        showMemoryUsage: config.getDebugMode() || settings.merged.ui?.showMemoryUsage || false,
+        promptTokenCount: uiState.sessionStats.lastPromptTokenCount,
+        nightly: uiState.nightly,
+        isTrustedFolder: uiState.isTrustedFolder,
+        hideCWD: settings.merged.ui?.footer?.hideCWD || false,
+        hideSandboxStatus: settings.merged.ui?.footer?.hideSandboxStatus || false,
+        hideModelInfo: settings.merged.ui?.footer?.hideModelInfo || false,
+        sandboxConfig: config.getSandbox(),
+    };
+    return (_jsxs(Box, { flexDirection: "column", children: [!uiState.embeddedShellFocused && (_jsx(LoadingIndicator, { thought: uiState.streamingState === StreamingState.WaitingForConfirmation ||
+                    config.getAccessibility()?.disableLoadingPhrases
+                    ? undefined
+                    : uiState.thought, currentLoadingPhrase: config.getAccessibility()?.disableLoadingPhrases
+                    ? undefined
+                    : uiState.currentLoadingPhrase, elapsedTime: uiState.elapsedTime })), !uiState.isConfigInitialized && _jsx(ConfigInitDisplay, {}), _jsx(QueuedMessageDisplay, { messageQueue: uiState.messageQueue }), _jsxs(Box, { marginTop: 1, justifyContent: settings.merged.ui?.hideContextSummary
+                    ? 'flex-start'
+                    : 'space-between', width: "100%", flexDirection: isNarrow ? 'column' : 'row', alignItems: isNarrow ? 'flex-start' : 'center', children: [_jsxs(Box, { marginRight: 1, children: [process.env['GEMINI_SYSTEM_MD'] && (_jsx(Text, { color: theme.status.error, children: "|\u2310\u25A0_\u25A0| " })), uiState.ctrlCPressedOnce ? (_jsx(Text, { color: theme.status.warning, children: "Press Ctrl+C again to exit." })) : uiState.ctrlDPressedOnce ? (_jsx(Text, { color: theme.status.warning, children: "Press Ctrl+D again to exit." })) : uiState.showEscapePrompt ? (_jsx(Text, { color: theme.text.secondary, children: "Press Esc again to clear." })) : (!settings.merged.ui?.hideContextSummary && (_jsx(ContextSummaryDisplay, { ideContext: uiState.ideContextState, geminiMdFileCount: uiState.geminiMdFileCount, contextFileNames, mcpServers: config.getMcpServers(), blockedMcpServers: config.getBlockedMcpServers(), showToolDescriptions: uiState.showToolDescriptions })))] }), _jsxs(Box, { paddingTop: isNarrow ? 1 : 0, children: [showAutoAcceptIndicator !== ApprovalMode.DEFAULT &&
+                                !uiState.shellModeActive && (_jsx(AutoAcceptIndicator, { approvalMode: showAutoAcceptIndicator })), uiState.shellModeActive && _jsx(ShellModeIndicator, {})] })] }), uiState.showErrorDetails && (_jsx(OverflowProvider, { children: _jsxs(Box, { flexDirection: "column", children: [_jsx(DetailedMessagesDisplay, { messages: uiState.filteredConsoleMessages, maxHeight: uiState.constrainHeight ? debugConsoleMaxHeight : undefined, width: containerWidth }), _jsx(ShowMoreLines, { constrainHeight: uiState.constrainHeight })] }) })), uiState.isInputActive && (_jsx(InputPrompt, { buffer: uiState.buffer, inputWidth: uiState.inputWidth, suggestionsWidth: uiState.suggestionsWidth, onSubmit: uiActions.handleFinalSubmit, userMessages: uiState.userMessages, onClearScreen: uiActions.handleClearScreen, config, slashCommands: uiState.slashCommands, commandContext: uiState.commandContext, shellModeActive: uiState.shellModeActive, setShellModeActive: uiActions.setShellModeActive, approvalMode: showAutoAcceptIndicator, onEscapePromptChange: uiActions.onEscapePromptChange, focus: true, vimHandleInput: uiActions.vimHandleInput, isEmbeddedShellFocused: uiState.embeddedShellFocused, placeholder: vimEnabled
+                    ? "  Press 'i' for INSERT mode and 'Esc' for NORMAL mode."
+                    : '  Type your message or @path/to/file' })), primaryOperation && (_jsx(ProgressPanel, { isExpanded: isProgressPanelExpanded, onToggle: toggleProgressPanel, maxHeight: Math.floor(terminalWidth * 0.3) })), !settings.merged.ui?.hideFooter && (_jsx(Footer, { ...footerProps, vimMode: vimEnabled ? vimMode : undefined }))] }));
 };
 //# sourceMappingURL=Composer.js.map

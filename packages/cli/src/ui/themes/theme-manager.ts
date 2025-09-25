@@ -24,7 +24,7 @@ import type { SemanticColors } from './semantic-tokens.js';
 import { ANSI } from './ansi.js';
 import { ANSILight } from './ansi-light.js';
 import { NoColorTheme } from './no-color.js';
-import process from 'node:process';
+import * as process from 'node:process';
 
 export interface ThemeDisplay {
   name: string;
@@ -131,7 +131,7 @@ class ThemeManager {
       const isBuiltIn = this.availableThemes.some(
         (t) => t.name === this.activeTheme.name,
       );
-      const isCustom = [...this.customThemes.values()].includes(
+      const isCustom = Array.from(this.customThemes.values()).includes(
         this.activeTheme,
       );
 

@@ -14,12 +14,12 @@ export const CACHE_EFFICIENCY_HIGH = 40;
 export const CACHE_EFFICIENCY_MEDIUM = 15;
 // --- Color Logic ---
 export const getStatusColor = (value, thresholds, options = {}) => {
-  if (value >= thresholds.green) {
-    return theme.status.success;
-  }
-  if (value >= thresholds.yellow) {
-    return theme.status.warning;
-  }
-  return options.defaultColor || theme.status.error;
+    if (value >= thresholds.green) {
+        return theme.status.success;
+    }
+    if (value >= thresholds.yellow) {
+        return theme.status.warning;
+    }
+    return options.defaultColor || theme.status.error;
 };
 //# sourceMappingURL=displayUtils.js.map

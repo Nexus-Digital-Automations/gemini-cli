@@ -13,7 +13,7 @@ interface CancelTaskOptions {
   reason?: string;
 }
 
-export const cancelTaskCommand: CommandModule<{}, CancelTaskOptions> = {
+export const cancelTaskCommand: CommandModule<object, CancelTaskOptions> = {
   command: 'cancel <taskId>',
   describe: 'Cancel a running or queued task',
   builder: (yargs) =>

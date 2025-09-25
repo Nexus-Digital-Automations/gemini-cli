@@ -6,12 +6,12 @@
 
 import type { CommandModule } from 'yargs';
 interface RetryTaskOptions {
-  taskId: string;
-  'reset-progress'?: boolean;
-  'new-priority'?: string;
-  'max-retries'?: number;
-  reason?: string;
-  'wait-for-dependencies'?: boolean;
+    taskId: string;
+    'reset-progress'?: boolean;
+    'new-priority'?: string;
+    'max-retries'?: number;
+    reason?: string;
+    'wait-for-dependencies'?: boolean;
 }
-export declare const retryTaskCommand: CommandModule<{}, RetryTaskOptions>;
+export declare const retryTaskCommand: CommandModule<object, RetryTaskOptions>;
 export {};

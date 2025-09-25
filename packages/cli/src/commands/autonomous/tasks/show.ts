@@ -15,7 +15,7 @@ interface ShowTaskOptions {
   'show-dependencies'?: boolean;
 }
 
-export const showTaskCommand: CommandModule<{}, ShowTaskOptions> = {
+export const showTaskCommand: CommandModule<object, ShowTaskOptions> = {
   command: 'show <taskId>',
   describe: 'Show detailed information about a specific task',
   builder: (yargs) =>

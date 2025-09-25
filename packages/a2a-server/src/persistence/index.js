@@ -47,5 +47,7 @@ export { ConflictResolver } from './ConflictResolver.js';
 // Data Integrity Management
 export { DataIntegrityManager } from './DataIntegrityManager.js';
 // Performance Optimization - TODO: Add PerformanceOptimizer when implemented
+// GCS Task Store implementation
+export { GCSTaskStore, NoOpTaskStore } from './gcs.js';
 // Utilities and Helpers - TODO: Add types when implemented
 //# sourceMappingURL=index.js.map

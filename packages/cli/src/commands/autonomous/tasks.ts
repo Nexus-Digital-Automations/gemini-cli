@@ -5,11 +5,13 @@
  */
 
 import type { CommandModule, Argv } from 'yargs';
-import { listTasksCommand } from './tasks/list.js';
-import { addTaskCommand } from './tasks/add.js';
-import { cancelTaskCommand } from './tasks/cancel.js';
-import { showTaskCommand } from './tasks/show.js';
-import { retryTaskCommand } from './tasks/retry.js';
+import {
+  listTasksCommand,
+  addTaskCommand,
+  cancelTaskCommand,
+  showTaskCommand,
+  retryTaskCommand
+} from './tasks/index.js';
 
 export const tasksCommand: CommandModule = {
   command: 'tasks',

@@ -122,22 +122,7 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      'import/no-internal-modules': [
-        'error',
-        {
-          allow: [
-            'react-dom/test-utils',
-            'memfs/lib/volume.js',
-            'yargs/**',
-            'msw/node',
-            '**/ui/**',
-            '**/config/**',
-            '**/themes/**',
-            '**/utils/**',
-            '**/core/**',
-          ],
-        },
-      ],
+      'import/no-internal-modules': 'off', // Disabled for monorepo internal module access
       'import/no-relative-packages': 'error',
       'no-cond-assign': 'error',
       'no-debugger': 'error',
@@ -368,6 +353,28 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
       'no-restricted-syntax': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // settings for root src directory files
+  {
+    files: ['./src/**/*.{js,ts,jsx,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
+    rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

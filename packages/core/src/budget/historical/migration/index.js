@@ -5,8 +5,5 @@
  */
 
 // Export migration engine implementation
-export {
-  MigrationEngineImpl,
-  createMigrationEngine,
-} from './MigrationEngine.js';
+export { MigrationEngineImpl, createMigrationEngine, } from './MigrationEngine.js';
 //# sourceMappingURL=index.js.map

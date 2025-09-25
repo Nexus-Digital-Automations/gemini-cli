@@ -12,31 +12,29 @@ import { IdeClient, ideContextStore } from '@google/gemini-cli-core';
  * if a restart is needed because the trust state has changed.
  */
 export function useIdeTrustListener() {
-  const subscribe = useCallback((onStoreChange) => {
-    (async () => {
-      const ideClient = await IdeClient.getInstance();
-      ideClient.addTrustChangeListener(onStoreChange);
-    })();
-    return () => {
-      (async () => {
-        const ideClient = await IdeClient.getInstance();
-        ideClient.removeTrustChangeListener(onStoreChange);
-      })();
-    };
-  }, []);
-  const getSnapshot = () => ideContextStore.get()?.workspaceState?.isTrusted;
-  const isIdeTrusted = useSyncExternalStore(subscribe, getSnapshot);
-  const [needsRestart, setNeedsRestart] = useState(false);
-  const [initialTrustValue] = useState(isIdeTrusted);
-  useEffect(() => {
-    if (
-      !needsRestart &&
-      initialTrustValue !== undefined &&
-      initialTrustValue !== isIdeTrusted
-    ) {
-      setNeedsRestart(true);
-    }
-  }, [isIdeTrusted, initialTrustValue, needsRestart]);
-  return { isIdeTrusted, needsRestart };
+    const subscribe = useCallback((onStoreChange) => {
+        (async () => {
+            const ideClient = await IdeClient.getInstance();
+            ideClient.addTrustChangeListener(onStoreChange);
+        })();
+        return () => {
+            (async () => {
+                const ideClient = await IdeClient.getInstance();
+                ideClient.removeTrustChangeListener(onStoreChange);
+            })();
+        };
+    }, []);
+    const getSnapshot = () => ideContextStore.get()?.workspaceState?.isTrusted;
+    const isIdeTrusted = useSyncExternalStore(subscribe, getSnapshot);
+    const [needsRestart, setNeedsRestart] = useState(false);
+    const [initialTrustValue] = useState(isIdeTrusted);
+    useEffect(() => {
+        if (!needsRestart &&
+            initialTrustValue !== undefined &&
+            initialTrustValue !== isIdeTrusted) {
+            setNeedsRestart(true);
+        }
+    }, [isIdeTrusted, initialTrustValue, needsRestart]);
+    return { isIdeTrusted, needsRestart };
 }
 //# sourceMappingURL=useIdeTrustListener.js.map

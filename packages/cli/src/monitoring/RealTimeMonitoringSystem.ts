@@ -923,7 +923,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   }
 
   private calculateSystemHealth(
-    taskMetrics: any,
+    taskMetrics: Record<string, unknown>,
     allTasks: TaskMetadata[],
     allAgents: AgentStatus[],
   ): 'healthy' | 'degraded' | 'unhealthy' | 'critical' {

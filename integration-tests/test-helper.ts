@@ -13,7 +13,7 @@ import fs from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function sanitizeTestName(name: string) {
+function sanitizeTestName(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '-')
@@ -25,7 +25,7 @@ export function createToolCallErrorMessage(
   expectedTools: string | string[],
   foundTools: string[],
   result: string,
-) {
+): string {
   const expectedStr = Array.isArray(expectedTools)
     ? expectedTools.join(' or ')
     : expectedTools;

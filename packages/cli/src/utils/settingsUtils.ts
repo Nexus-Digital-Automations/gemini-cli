@@ -39,14 +39,14 @@ function flattenSchema(schema: SettingsSchema, prefix = ''): FlattenedSchema {
 let _FLATTENED_SCHEMA: FlattenedSchema | undefined;
 
 /** Returns a flattened schema, the first call is memoized for future requests. */
-export function getFlattenedSchema() {
+export function getFlattenedSchema(): FlattenedSchema {
   return (
     _FLATTENED_SCHEMA ??
     (_FLATTENED_SCHEMA = flattenSchema(getSettingsSchema()))
   );
 }
 
-function clearFlattenedSchema() {
+function clearFlattenedSchema(): void {
   _FLATTENED_SCHEMA = undefined;
 }
 

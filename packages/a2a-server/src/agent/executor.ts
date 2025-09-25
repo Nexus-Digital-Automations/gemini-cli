@@ -35,7 +35,7 @@ import { loadConfig, loadEnvironment, setTargetDir } from '../config/config.js';
 import { loadSettings } from '../config/settings.js';
 import { loadExtensions } from '../config/extension.js';
 import { Task } from './task.js';
-import { requestStorage } from '../http/requestStorage.js';
+import { requestStorage } from '../http/index.js';
 import { pushTaskStateFailed } from '../utils/executor_utils.js';
 
 /**
