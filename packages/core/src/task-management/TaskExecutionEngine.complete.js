@@ -224,11 +224,12 @@ export class TaskExecutionEngine {
                 return 120;
             case TaskComplexity.ENTERPRISE:
                 return 300;
-        }
-            default:
+        default:
               // Handle unexpected values
               break;
-    }
+    
+
+        }
     // Public API methods
     /**
      * Queues a new task for execution with intelligent breakdown

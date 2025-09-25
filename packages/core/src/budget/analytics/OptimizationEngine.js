@@ -283,11 +283,12 @@ export class OptimizationEngine {
             ),
           );
           break;
-      }
-        default:
+      default:
           // Handle unexpected values
           break;
-    }
+    
+
+      }
     return recommendations;
   }
   /**

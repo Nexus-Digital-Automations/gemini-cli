@@ -572,11 +572,12 @@ function setValidationData(
     case 'headers':
       // Headers are read-only, skip setting
       break;
-  }
-    default:
+  default:
       // Handle unexpected values
       break;
-}
+
+
+  }
 
 /**
  * Get nested property from object

@@ -10,7 +10,5 @@
 // This is safe because `ink` (and thus `is-in-ci`) is only used in the
 // interactive code path of the CLI.
 // See issue #1563 for more details.
-const isInCi = false;
-
-export default isInCi;
+export const isInCi = false;
 //# sourceMappingURL=is-in-ci.js.map

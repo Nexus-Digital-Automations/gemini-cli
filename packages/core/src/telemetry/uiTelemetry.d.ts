@@ -74,7 +74,7 @@ export interface SessionMetrics {
   };
 }
 export declare class UiTelemetryService extends EventEmitter {
-  #private;
+  #_private;
   addEvent(event: UiEvent): void;
   getMetrics(): SessionMetrics;
   getLastPromptTokenCount(): number;

@@ -18,6 +18,7 @@ import {
   SystemInitializer,
   SystemConfig,
 } from '@google/gemini-cli-core/autonomous-tasks/SystemInitializer.js';
+import { type MetricEvent, type AlertEvent } from '../../../test-types.js';
 import {
   TaskExecutionEngine,
   TaskType,
@@ -442,7 +443,7 @@ describe('Autonomous Task Management System E2E', () => {
 
   describe('monitoring and alerting', () => {
     it('should collect and report metrics', async () => {
-      const metricsEvents: any[] = [];
+      const metricsEvents: MetricEvent[] = [];
       systemInitializer.on('metricsCollected', (metrics) =>
         metricsEvents.push(metrics),
       );
@@ -462,7 +463,7 @@ describe('Autonomous Task Management System E2E', () => {
     }, 5000);
 
     it('should trigger alerts on threshold breaches', async () => {
-      const alertEvents: any[] = [];
+      const alertEvents: AlertEvent[] = [];
       systemInitializer.on('alert', (type, current, threshold) => {
         alertEvents.push({ type, current, threshold });
       });

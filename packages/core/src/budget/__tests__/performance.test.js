@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as _path from 'node:path';
 import { BudgetTracker } from '../budget-tracker.js';
 import { BudgetEnforcement } from '../budget-enforcement.js';
 import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
@@ -127,7 +127,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
             // Mock minimal usage data
             const usageData = PerformanceTestUtils.createLargeUsageData(0);
             vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(usageData));
-            const { result, duration } = await PerformanceTestUtils.measureOperation('Single Request Record', () => tracker.recordRequest(), PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'));
+            const { result: _result, duration } = await PerformanceTestUtils.measureOperation('Single Request Record', () => tracker.recordRequest(), PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'));
             expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'));
             expect(fs.writeFile).toHaveBeenCalledOnce();
         });

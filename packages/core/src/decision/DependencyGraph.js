@@ -300,11 +300,12 @@ export class DecisionDependencyGraph {
             confidence: 0.6,
           });
           break;
-      }
-        default:
+      default:
           // Handle unexpected values
           break;
-    }
+    
+
+      }
     // Analyze weak dependencies for removal
     const weakDependencies = this.findWeakDependencies();
     for (const weakDep of weakDependencies.slice(0, 3)) {
@@ -407,11 +408,12 @@ export class DecisionDependencyGraph {
             change.newConfidence || 1.0,
           );
           break;
-      }
-        default:
+      default:
           // Handle unexpected values
           break;
-    }
+    
+
+      }
     // Calculate projected metrics
     const projectedMetrics = this.calculateGraphMetrics();
     // Calculate impact

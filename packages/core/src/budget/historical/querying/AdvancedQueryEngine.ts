@@ -696,11 +696,12 @@ export class AdvancedQueryEngine implements QueryEngine {
             result[`${spec.field}_max`] =
               values.length > 0 ? Math.max(...values) : 0;
             break;
-        }
-          default:
+        default:
             // Handle unexpected values
             break;
-      }
+      
+
+        }
 
       results.push(result);
     }

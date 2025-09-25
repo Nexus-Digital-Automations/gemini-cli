@@ -568,7 +568,7 @@ const SETTINGS_SCHEMA = {
     label: 'Model',
     category: 'Model',
     requiresRestart: false,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Settings related to the generative model.',
     showInDialog: false,
     properties: {
@@ -632,7 +632,7 @@ const SETTINGS_SCHEMA = {
         label: 'Flash-First Smart Routing',
         category: 'Model',
         requiresRestart: false,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description:
           'Settings for Flash-first smart model routing that defaults to cost-effective Flash model and escalates to Pro only when necessary.',
         showInDialog: false,
@@ -705,7 +705,7 @@ const SETTINGS_SCHEMA = {
     label: 'Context',
     category: 'Context',
     requiresRestart: false,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Settings for managing context provided to the model.',
     showInDialog: false,
     properties: {
@@ -761,7 +761,7 @@ const SETTINGS_SCHEMA = {
         label: 'File Filtering',
         category: 'Context',
         requiresRestart: true,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Settings for git-aware file filtering.',
         showInDialog: false,
         properties: {
@@ -811,7 +811,7 @@ const SETTINGS_SCHEMA = {
     label: 'Tools',
     category: 'Tools',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Settings for built-in and custom tools.',
     showInDialog: false,
     properties: {
@@ -830,7 +830,7 @@ const SETTINGS_SCHEMA = {
         label: 'Shell',
         category: 'Tools',
         requiresRestart: false,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Settings for shell execution.',
         showInDialog: false,
         properties: {
@@ -978,7 +978,7 @@ const SETTINGS_SCHEMA = {
     label: 'MCP',
     category: 'MCP',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Settings for Model Context Protocol (MCP) servers.',
     showInDialog: false,
     properties: {
@@ -1034,7 +1034,7 @@ const SETTINGS_SCHEMA = {
     label: 'Security',
     category: 'Security',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Security-related settings.',
     showInDialog: false,
     properties: {
@@ -1043,7 +1043,7 @@ const SETTINGS_SCHEMA = {
         label: 'Folder Trust',
         category: 'Security',
         requiresRestart: false,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Settings for folder trust.',
         showInDialog: false,
         properties: {
@@ -1063,7 +1063,7 @@ const SETTINGS_SCHEMA = {
         label: 'Authentication',
         category: 'Security',
         requiresRestart: true,
-        default: {} as Record<string, unknown>,
+        default: Object.create(null) as Record<string, unknown>,
         description: 'Authentication settings.',
         showInDialog: false,
         properties: {
@@ -1105,7 +1105,7 @@ const SETTINGS_SCHEMA = {
     label: 'Advanced',
     category: 'Advanced',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Advanced settings for power users.',
     showInDialog: false,
     properties: {
@@ -1154,7 +1154,7 @@ const SETTINGS_SCHEMA = {
     label: 'Experimental',
     category: 'Experimental',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Setting to enable experimental features',
     showInDialog: false,
     properties: {
@@ -1185,7 +1185,7 @@ const SETTINGS_SCHEMA = {
     label: 'Budget',
     category: 'Budget',
     requiresRestart: false,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Daily usage budget settings for API requests.',
     showInDialog: true,
     properties: {
@@ -1234,7 +1234,7 @@ const SETTINGS_SCHEMA = {
     label: 'Extensions',
     category: 'Extensions',
     requiresRestart: true,
-    default: {} as Record<string, unknown>,
+    default: Object.create(null) as Record<string, unknown>,
     description: 'Settings for extensions.',
     showInDialog: false,
     properties: {

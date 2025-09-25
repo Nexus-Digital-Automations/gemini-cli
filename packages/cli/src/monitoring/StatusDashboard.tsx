@@ -805,4 +805,3 @@ export const StatusDashboard: React.FC<{
   );
 };
 
-export default StatusDashboard;

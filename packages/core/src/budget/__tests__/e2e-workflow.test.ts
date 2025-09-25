@@ -16,7 +16,7 @@ import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
 import type {
   BudgetSettings,
   BudgetUsageData,
-  BudgetWarning,
+  BudgetWarning as _BudgetWarning,
 } from '../types.js';
 import type {
   ContentGenerator,
@@ -58,10 +58,10 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
 
     mockConfig = {
       getProjectRoot: vi.fn().mockReturnValue(projectRoot),
-    } as any;
+    } as Config;
 
     mockContentGenerator = {
-      userTier: 'paid' as any,
+      userTier: 'paid' as ContentGenerator['userTier'],
       generateContent: vi.fn(),
       generateContentStream: vi.fn(),
       countTokens: vi.fn(),

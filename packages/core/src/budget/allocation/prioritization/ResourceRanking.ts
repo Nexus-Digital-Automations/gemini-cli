@@ -118,7 +118,7 @@ export interface RankingAlgorithmConfig {
 /**
  * Resource ranking result
  */
-export interface ResourceRanking {
+export interface ResourceRankingResult {
   /** Resource identifier */
   resourceId: string;
   /** Resource name */
@@ -218,13 +218,13 @@ export interface SensitivityAnalysis {
  */
 export interface PortfolioRanking {
   /** Individual resource rankings */
-  rankings: ResourceRanking[];
+  rankings: ResourceRankingResult[];
   /** Portfolio-level insights */
   insights: PortfolioInsights;
   /** Ranking summary statistics */
   statistics: RankingStatistics;
   /** Resource groupings by priority */
-  priorityGroups: Record<AllocationPriority, ResourceRanking[]>;
+  priorityGroups: Record<AllocationPriority, ResourceRankingResult[]>;
   /** Recommended allocation strategy */
   recommendedStrategy: AllocationStrategy;
 }
@@ -938,8 +938,8 @@ export class ResourceRanking {
   /**
    * Group rankings by priority
    */
-  private groupByPriority(rankings: ResourceRanking[]): Record<AllocationPriority, ResourceRanking[]> {
-    const groups: Record<AllocationPriority, ResourceRanking[]> = {
+  private groupByPriority(rankings: ResourceRankingResult[]): Record<AllocationPriority, ResourceRankingResult[]> {
+    const groups: Record<AllocationPriority, ResourceRankingResult[]> = {
       critical: [],
       high: [],
       medium: [],
@@ -958,7 +958,7 @@ export class ResourceRanking {
    * Generate portfolio insights
    */
   private generatePortfolioInsights(
-    rankings: ResourceRanking[],
+    rankings: ResourceRankingResult[],
     candidates: AllocationCandidate[]
   ): PortfolioInsights {
     // Calculate priority distribution
@@ -1022,7 +1022,7 @@ export class ResourceRanking {
   /**
    * Calculate ranking statistics
    */
-  private calculateRankingStatistics(rankings: ResourceRanking[]): RankingStatistics {
+  private calculateRankingStatistics(rankings: ResourceRankingResult[]): RankingStatistics {
     const scores = rankings.map(r => r.score);
 
     const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
@@ -1072,7 +1072,7 @@ export class ResourceRanking {
    * Recommend allocation strategy based on rankings
    */
   private recommendAllocationStrategy(
-    rankings: ResourceRanking[],
+    rankings: ResourceRankingResult[],
     insights: PortfolioInsights
   ): AllocationStrategy {
     const highPriorityCount = insights.balance.priorityDistribution.critical +

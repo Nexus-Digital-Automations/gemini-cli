@@ -111,7 +111,7 @@ export interface RankingAlgorithmConfig {
 /**
  * Resource ranking result
  */
-export interface ResourceRanking {
+export interface ResourceRankingResult {
   /** Resource identifier */
   resourceId: string;
   /** Resource name */

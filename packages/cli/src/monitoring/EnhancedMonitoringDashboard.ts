@@ -713,7 +713,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     }
   }
 
-  private getSystemHealthData(widget: DashboardWidget): Record<string, unknown> {
+  private getSystemHealthData(_widget: DashboardWidget): Record<string, unknown> {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
 
     return {

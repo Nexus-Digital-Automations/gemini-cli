@@ -1522,9 +1522,6 @@ export class RealtimeQueueMonitor extends EventEmitter {
         `[RealtimeQueueMonitor] Failed to send alert via ${channel.type}:`,
         error,
       );
-        default:
-          // Handle unexpected values
-          break;
     }
   }
 

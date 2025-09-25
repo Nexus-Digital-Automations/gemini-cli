@@ -6,6 +6,7 @@
 
 import { describe, test, expect, beforeEach } from 'vitest';
 import type { Task, TaskDependency } from '../../../packages/core/src/task-management/types.js';
+import { type TaskCycle, type DependencyChange } from '../../../test-types.js';
 
 // Create mock types for test purposes since CircularDependencyResolver doesn't exist yet
 type DetectedDependency = TaskDependency & {
@@ -38,9 +39,9 @@ type ResolutionAttempt = {
 };
 
 type CircularResolutionResult = {
-  originalCycles: any[];
+  originalCycles: TaskCycle[];
   resolved: boolean;
-  remainingCycles: any[];
+  remainingCycles: TaskCycle[];
   resolutionAttempts: ResolutionAttempt[];
   resolvedTasks: Task[];
   resolvedDependencies: DetectedDependency[];
@@ -290,7 +291,7 @@ describe('CircularDependencyResolver', () => {
 
         if (removalAttempt && removalAttempt.success) {
           const removedDep = removalAttempt.changes.find(
-            (change: any) => change.type === 'remove_dependency',
+            (change: DependencyChange) => change.type === 'remove_dependency',
           );
           expect(removedDep).toBeDefined();
         }
@@ -345,7 +346,7 @@ describe('CircularDependencyResolver', () => {
           );
 
           const addedTaskChange = intermediateAttempt.changes.find(
-            (change: any) => change.type === 'add_task',
+            (change: DependencyChange) => change.type === 'add_task',
           );
           expect(addedTaskChange).toBeDefined();
         }
@@ -370,14 +371,14 @@ describe('CircularDependencyResolver', () => {
         if (splitAttempt && splitAttempt.success) {
           // Should have modified task structure
           const removedTaskChange = splitAttempt.changes.find(
-            (change: any) =>
+            (change: DependencyChange) =>
               change.type === 'remove_dependency' &&
-              change.description.includes('original task'),
+              change.description?.includes('original task'),
           );
           const addedTaskChange = splitAttempt.changes.find(
-            (change: any) =>
+            (change: DependencyChange) =>
               change.type === 'add_task' &&
-              change.description.includes('split tasks'),
+              change.description?.includes('split tasks'),
           );
 
           expect(removedTaskChange || addedTaskChange).toBeDefined();
@@ -453,7 +454,7 @@ describe('CircularDependencyResolver', () => {
 
         if (mergeAttempt && mergeAttempt.success) {
           const mergeChange = mergeAttempt.changes.find(
-            (change: any) => change.type === 'merge_tasks',
+            (change: DependencyChange) => change.type === 'merge_tasks',
           );
           expect(mergeChange).toBeDefined();
         }

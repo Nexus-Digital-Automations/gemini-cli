@@ -334,9 +334,6 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     }
 
     return Math.max(0, Math.min(1, urgency));
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**

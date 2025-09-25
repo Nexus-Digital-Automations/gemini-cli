@@ -285,7 +285,7 @@ export class BaseAllocationAlgorithm {
      * @param resourceId - Resource identifier
      * @returns Matching candidate or undefined
      */
-    findCandidateById(resourceId) {
+    findCandidateById(_resourceId) {
         // This would be set during optimization - simplified for base class
         return undefined;
     }

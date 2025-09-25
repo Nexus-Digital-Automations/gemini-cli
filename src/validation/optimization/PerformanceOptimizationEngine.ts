@@ -833,11 +833,12 @@ export class PerformanceOptimizationEngine extends EventEmitter {
             ...this.generateIoOptimizations(bottleneck, metrics),
           );
           break;
-      }
       default:
         // Handle unexpected values
         break;
-    }
+    
+
+      }
 
     // General system optimizations
     recommendations.push(...this.generateSystemOptimizations(metrics));

@@ -230,6 +230,10 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
             case 'deferred':
                 urgency = 0.1;
                 break;
+            default:
+                // Handle unexpected priority values, fallback to base urgency
+                urgency = 0.5;
+                break;
         }
         // High utilization suggests urgency
         if (candidate.costAnalysis.utilizationRate > 0.8) {
@@ -240,9 +244,6 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
             urgency += 0.1;
         }
         return Math.max(0, Math.min(1, urgency));
-            default:
-              // Handle unexpected values
-              break;
     }
     /**
      * Assess business continuity criticality

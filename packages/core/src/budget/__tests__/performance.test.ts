@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as _path from 'node:path';
 import { BudgetTracker } from '../budget-tracker.js';
 import { BudgetEnforcement } from '../budget-enforcement.js';
 import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
@@ -128,10 +128,10 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
     mockConfig = {
       getProjectRoot: vi.fn().mockReturnValue(projectRoot),
-    } as any;
+    } as Config;
 
     mockContentGenerator = {
-      userTier: 'paid' as any,
+      userTier: 'paid' as ContentGenerator['userTier'],
       generateContent: vi.fn().mockResolvedValue({
         candidates: [
           {
@@ -166,7 +166,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const usageData = PerformanceTestUtils.createLargeUsageData(0);
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(usageData));
 
-      const { result, duration } = await PerformanceTestUtils.measureOperation(
+      const { result: _result, duration } = await PerformanceTestUtils.measureOperation(
         'Single Request Record',
         () => tracker.recordRequest(),
         PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),

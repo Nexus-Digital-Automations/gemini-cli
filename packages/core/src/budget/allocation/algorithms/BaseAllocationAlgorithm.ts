@@ -470,7 +470,7 @@ export abstract class BaseAllocationAlgorithm {
    * @returns Matching candidate or undefined
    */
   protected findCandidateById(
-    resourceId: string,
+    _resourceId: string,
   ): AllocationCandidate | undefined {
     // This would be set during optimization - simplified for base class
     return undefined;

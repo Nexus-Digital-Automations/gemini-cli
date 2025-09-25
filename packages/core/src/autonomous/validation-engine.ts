@@ -367,9 +367,6 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       tools.push('write-file');
 
     return [...new Set(tools)]; // Remove duplicates
-    default:
-      // Handle unexpected values
-      break;
   }
 
   private async validateStep(

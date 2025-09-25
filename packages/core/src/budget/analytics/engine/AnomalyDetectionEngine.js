@@ -621,11 +621,12 @@ export class AnomalyDetectionEngine {
         );
         break;
       // medium is default - no changes
-    }
-      default:
+    default:
         // Handle unexpected values
         break;
-  }
+  
+
+    }
 
   createEmptyResults() {
     return {
@@ -729,11 +730,12 @@ export class AnomalyDetectionEngine {
         case 'trend_anomaly':
           recommendations.push(this.createTrendAnomalyRecommendation(anomaly));
           break;
-      }
-        default:
+      default:
           // Handle unexpected values
           break;
-    }
+    
+
+      }
 
     return recommendations.filter((rec) => rec !== null);
   }

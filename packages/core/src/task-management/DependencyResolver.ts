@@ -534,11 +534,12 @@ export class DependencyResolver extends EventEmitter {
         case ResolutionStrategy.PARALLEL_OPTIMIZED:
           this.resolveConflictParallelOptimized(cycle);
           break;
-      }
-        default:
+      default:
           // Handle unexpected values
           break;
-    }
+    
+
+      }
   }
 
   /**

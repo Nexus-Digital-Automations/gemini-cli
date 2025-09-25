@@ -20,4 +20,3 @@ export declare const StatusDashboard: React.FC<{
   refreshInterval?: number;
   initialView?: DashboardState['currentView'];
 }>;
-export default StatusDashboard;

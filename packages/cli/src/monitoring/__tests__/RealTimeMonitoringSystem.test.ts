@@ -11,12 +11,12 @@ import {
   it,
   expect,
   vi,
-  type MockedFunction,
 } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
 import { performanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
+import { type MockTaskStatusMonitor, type MockPerformanceAnalytics, type MonitoringSnapshot } from './types.js';
 
 // Mock dependencies
 vi.mock('../TaskStatusMonitor.js', () => ({
@@ -49,13 +49,13 @@ vi.mock('ws', () => ({
 
 describe('RealTimeMonitoringSystem', () => {
   let monitoringSystem: RealTimeMonitoringSystem;
-  let mockTaskStatusMonitor: any;
-  let mockPerformanceAnalytics: any;
+  let mockTaskStatusMonitor: MockTaskStatusMonitor;
+  let _mockPerformanceAnalytics: MockPerformanceAnalytics;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTaskStatusMonitor = taskStatusMonitor as any;
-    mockPerformanceAnalytics = performanceAnalyticsDashboard as any;
+    mockTaskStatusMonitor = taskStatusMonitor as unknown as MockTaskStatusMonitor;
+    _mockPerformanceAnalytics = performanceAnalyticsDashboard as unknown as MockPerformanceAnalytics;
 
     // Setup default mock responses
     mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({
@@ -219,7 +219,7 @@ describe('RealTimeMonitoringSystem', () => {
         id: 'custom-test-rule',
         name: 'Test Alert',
         description: 'Test alert for unit testing',
-        condition: (data: any) => data.taskMetrics.failed > 5,
+        condition: (data: MonitoringSnapshot) => data.taskMetrics.failed > 5,
         severity: 'medium' as const,
         cooldownMs: 30000,
         enabled: true,
@@ -401,7 +401,7 @@ describe('RealTimeMonitoringSystem', () => {
 
     it('should throw error for unsupported export format', async () => {
       await expect(
-        monitoringSystem.exportMonitoringData('xml' as any),
+        monitoringSystem.exportMonitoringData('xml' as 'json' | 'csv'),
       ).rejects.toThrow('Unsupported export format: xml');
     });
   });
@@ -500,7 +500,7 @@ describe('RealTimeMonitoringSystem', () => {
     });
 
     it('should maintain accuracy with concurrent operations', async () => {
-      const promises: Array<Promise<any>> = [];
+      const promises: Array<Promise<void>> = [];
 
       // Start multiple concurrent operations
       for (let i = 0; i < 10; i++) {

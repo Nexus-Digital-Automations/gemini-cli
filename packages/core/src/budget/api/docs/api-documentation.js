@@ -1037,11 +1037,12 @@ ws.on('message', (data) => {
     case 'alert':
       console.log('Budget alert:', message.data);
       break;
-  }
-    default:
+  default:
       // Handle unexpected values
       break;
-});
+
+
+  });
       `,
     },
   },

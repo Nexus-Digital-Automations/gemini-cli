@@ -718,14 +718,14 @@ export class TaskBreakdownEngine {
       case TaskComplexity.HIGHLY_COMPLEX:
         baseCount = 12;
         break;
+      default:
+        baseCount = 1;
+        break;
     }
 
     // Adjust based on high-impact factors
     const highImpactFactors = factors.filter((f) => f.impact === 'high').length;
     return baseCount + Math.floor(highImpactFactors / 2);
-    default:
-      // Handle unexpected values
-      break;
   }
 
   private estimateDuration(
@@ -748,6 +748,9 @@ export class TaskBreakdownEngine {
       case TaskComplexity.HIGHLY_COMPLEX:
         baseDuration = 120;
         break;
+      default:
+        baseDuration = 5;
+        break;
     }
 
     // Adjust based on request length and factors
@@ -755,15 +758,12 @@ export class TaskBreakdownEngine {
     const factorMultiplier = 1 + factors.length * 0.1;
 
     return Math.round(baseDuration * lengthMultiplier * factorMultiplier);
-    default:
-      // Handle unexpected values
-      break;
   }
 
   // Strategy and rule management methods (to be implemented)
   private findApplicableStrategies(
     task: AutonomousTask,
-    complexityResult: ComplexityAnalysisResult,
+    _complexityResult: ComplexityAnalysisResult,
   ): BreakdownStrategy[] {
     const strategies = Array.from(this.breakdownStrategies.values())
       .filter(
@@ -783,7 +783,7 @@ export class TaskBreakdownEngine {
     task: AutonomousTask,
     strategy: BreakdownStrategy,
     context: TaskBreakdownContext,
-    depth: number,
+    _depth: number,
   ): Promise<AutonomousTask[]> {
     const subtasks: AutonomousTask[] = [];
 
