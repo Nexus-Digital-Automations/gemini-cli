@@ -16,9 +16,7 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
-import { TokenEstimator } from './utils/contextUtils.js';
-import { ContextWindowManager } from './ContextWindowManager.js';
-import { ContextItem } from './types.js';
+import type { ContextWindowManager } from './ContextWindowManager.js';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
 
@@ -59,17 +57,17 @@ export interface TokenThresholds {
 
   /** Warning levels and their thresholds (as ratios of maxTokens) */
   warnings: {
-    info: number;      // 0.7 = 70%
-    warning: number;   // 0.8 = 80%
-    critical: number;  // 0.9 = 90%
+    info: number; // 0.7 = 70%
+    warning: number; // 0.8 = 80%
+    critical: number; // 0.9 = 90%
     emergency: number; // 0.95 = 95%
   };
 
   /** Compression trigger points */
   compressionTriggers: {
-    soft: number;      // 0.75 = 75%
+    soft: number; // 0.75 = 75%
     aggressive: number; // 0.85 = 85%
-    emergency: number;  // 0.95 = 95%
+    emergency: number; // 0.95 = 95%
   };
 }
 
@@ -210,7 +208,7 @@ export interface TokenMonitorEvent {
   snapshot: TokenUsageSnapshot;
 
   /** Event-specific data */
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 
   /** Event severity level */
   severity: 'info' | 'warning' | 'critical' | 'emergency';
@@ -230,7 +228,7 @@ export enum TokenEventType {
   LIMIT_APPROACHING = 'limit_approaching',
   CRITICAL_USAGE = 'critical_usage',
   EMERGENCY_STATE = 'emergency_state',
-  OPTIMIZATION_OPPORTUNITY = 'optimization_opportunity'
+  OPTIMIZATION_OPPORTUNITY = 'optimization_opportunity',
 }
 
 /**
@@ -247,21 +245,21 @@ export const DEFAULT_TOKEN_MONITOR_CONFIG: TokenMonitorConfig = {
       info: 0.7,
       warning: 0.8,
       critical: 0.9,
-      emergency: 0.95
+      emergency: 0.95,
     },
     compressionTriggers: {
       soft: 0.75,
       aggressive: 0.85,
-      emergency: 0.95
-    }
+      emergency: 0.95,
+    },
   },
   enableDetailedTracking: true,
   retention: {
     detailedSnapshotRetention: 60 * 60 * 1000, // 1 hour
     summaryRetention: 24 * 60 * 60 * 1000, // 24 hours
     maxSnapshots: 1000,
-    maxEvents: 500
-  }
+    maxEvents: 500,
+  },
 };
 
 /**
@@ -303,7 +301,7 @@ export class TokenMonitorService extends EventEmitter {
     totalChecks: 0,
     totalEvents: 0,
     lastCheckDuration: 0,
-    averageCheckDuration: 0
+    averageCheckDuration: 0,
   };
 
   constructor(config: Partial<TokenMonitorConfig> = {}) {
@@ -314,14 +312,14 @@ export class TokenMonitorService extends EventEmitter {
     logger.info('TokenMonitorService initialized', {
       checkInterval: this.config.checkInterval,
       maxTokens: this.config.thresholds.maxTokens,
-      enableDetailedTracking: this.config.enableDetailedTracking
+      enableDetailedTracking: this.config.enableDetailedTracking,
     });
   }
 
   /**
    * Start token monitoring
    */
-  public start(): void {
+  start(): void {
     if (this.monitoringTimer) {
       logger.warn('TokenMonitorService already started');
       return;
@@ -337,7 +335,7 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Stop token monitoring
    */
-  public stop(): void {
+  stop(): void {
     if (this.monitoringTimer) {
       clearTimeout(this.monitoringTimer);
       this.monitoringTimer = null;
@@ -348,7 +346,10 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Register a context manager for monitoring
    */
-  public registerContextManager(id: string, manager: ContextWindowManager): void {
+  registerContextManager(
+    id: string,
+    manager: ContextWindowManager,
+  ): void {
     this.contextManagers.set(id, manager);
     logger.debug(`Registered context manager for monitoring: ${id}`);
 
@@ -361,7 +362,7 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Unregister a context manager
    */
-  public unregisterContextManager(id: string): void {
+  unregisterContextManager(id: string): void {
     this.contextManagers.delete(id);
     logger.debug(`Unregistered context manager: ${id}`);
   }
@@ -369,28 +370,28 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Get current token usage snapshot
    */
-  public getCurrentUsage(): TokenUsageSnapshot {
+  getCurrentUsage(): TokenUsageSnapshot {
     return this.captureUsageSnapshot();
   }
 
   /**
    * Get usage history
    */
-  public getUsageHistory(limit = 100): TokenUsageSnapshot[] {
+  getUsageHistory(limit = 100): TokenUsageSnapshot[] {
     return this.usageHistory.slice(-limit);
   }
 
   /**
    * Get event history
    */
-  public getEventHistory(limit = 50): TokenMonitorEvent[] {
+  getEventHistory(limit = 50): TokenMonitorEvent[] {
     return this.eventHistory.slice(-limit);
   }
 
   /**
    * Get monitoring statistics
    */
-  public getMonitoringStats(): {
+  getMonitoringStats(): {
     totalChecks: number;
     totalEvents: number;
     averageCheckDuration: number;
@@ -406,27 +407,27 @@ export class TokenMonitorService extends EventEmitter {
       lastThresholdLevel: this.lastThresholdLevel,
       managersCount: this.contextManagers.size,
       snapshotsCount: this.usageHistory.length,
-      eventsCount: this.eventHistory.length
+      eventsCount: this.eventHistory.length,
     };
   }
 
   /**
    * Manually trigger a monitoring check
    */
-  public triggerCheck(): TokenUsageSnapshot {
+  triggerCheck(): TokenUsageSnapshot {
     return this.performMonitoringCheck();
   }
 
   /**
    * Update monitoring configuration
    */
-  public updateConfig(newConfig: Partial<TokenMonitorConfig>): void {
+  updateConfig(newConfig: Partial<TokenMonitorConfig>): void {
     const oldConfig = { ...this.config };
     this.config = { ...this.config, ...newConfig };
 
     logger.info('TokenMonitorService configuration updated', {
       oldConfig,
-      newConfig: this.config
+      newConfig: this.config,
     });
 
     // Restart monitoring if interval changed
@@ -455,7 +456,7 @@ export class TokenMonitorService extends EventEmitter {
         totalTokens: snapshot.totalTokens,
         utilizationRatio: snapshot.utilizationRatio,
         growthRate: snapshot.growthRate,
-        checkDuration: duration.toFixed(2)
+        checkDuration: duration.toFixed(2),
       });
 
       return snapshot;
@@ -486,7 +487,7 @@ export class TokenMonitorService extends EventEmitter {
       byManager[managerId] = managerUsage;
 
       // Aggregate by type and priority
-      for (const [sectionName, section] of Object.entries(window.sections)) {
+      for (const [_sectionName, section] of Object.entries(window.sections)) {
         for (const item of section.items) {
           const type = String(item.type);
           const priority = String(item.priority);
@@ -499,9 +500,10 @@ export class TokenMonitorService extends EventEmitter {
 
     const utilizationRatio = totalTokens / this.config.thresholds.maxTokens;
     const growthRate = this.calculateGrowthRate();
-    const timeUntilLimit = growthRate > 0
-      ? (this.config.thresholds.maxTokens - totalTokens) / growthRate
-      : Infinity;
+    const timeUntilLimit =
+      growthRate > 0
+        ? (this.config.thresholds.maxTokens - totalTokens) / growthRate
+        : Infinity;
     const efficiency = this.calculateEfficiencyMetrics(byManager, totalTokens);
 
     return {
@@ -513,25 +515,26 @@ export class TokenMonitorService extends EventEmitter {
       utilizationRatio,
       growthRate,
       timeUntilLimit,
-      efficiency
+      efficiency,
     };
   }
 
   /**
    * Analyze usage for a specific context manager
    */
-  private analyzeManagerUsage(managerId: string, manager: ContextWindowManager): ManagerTokenUsage {
+  private analyzeManagerUsage(
+    managerId: string,
+    manager: ContextWindowManager,
+  ): ManagerTokenUsage {
     const window = manager.getCurrentWindow();
     const sections: Record<string, SectionTokenUsage> = {};
 
     for (const [sectionName, section] of Object.entries(window.sections)) {
-      const avgTokensPerItem = section.items.length > 0
-        ? section.tokens / section.items.length
-        : 0;
+      const avgTokensPerItem =
+        section.items.length > 0 ? section.tokens / section.items.length : 0;
 
-      const utilization = section.maxTokens > 0
-        ? section.tokens / section.maxTokens
-        : 0;
+      const utilization =
+        section.maxTokens > 0 ? section.tokens / section.maxTokens : 0;
 
       // Estimate compression potential based on content type and current usage
       const compressionPotential = this.estimateCompressionPotential(section);
@@ -543,7 +546,7 @@ export class TokenMonitorService extends EventEmitter {
         itemCount: section.items.length,
         avgTokensPerItem,
         utilization,
-        compressionPotential
+        compressionPotential,
       };
     }
 
@@ -554,20 +557,24 @@ export class TokenMonitorService extends EventEmitter {
       windowConfig: {
         maxTokens: window.totalTokens,
         usedTokens: window.usedTokens,
-        availableTokens: window.availableTokens
+        availableTokens: window.availableTokens,
       },
       performance: {
         compressionRatio: this.calculateCompressionRatio(window),
         accessFrequency: this.calculateAccessFrequency(window),
-        lastOptimization: null // Would track from manager if available
-      }
+        lastOptimization: null, // Would track from manager if available
+      },
     };
   }
 
   /**
    * Estimate compression potential for a section
    */
-  private estimateCompressionPotential(section: any): number {
+  private estimateCompressionPotential(section: {
+    name: string;
+    items: unknown[];
+    tokens: number;
+  }): number {
     if (section.items.length === 0) return 0;
 
     let potential = 0.3; // Base potential
@@ -598,7 +605,7 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Calculate compression ratio for a window
    */
-  private calculateCompressionRatio(window: any): number {
+  private calculateCompressionRatio(_window: unknown): number {
     // This would ideally track actual compression history
     // For now, estimate based on utilization and content types
     return 0.7; // Default assumption of 70% compression ratio
@@ -607,7 +614,7 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Calculate access frequency for a window
    */
-  private calculateAccessFrequency(window: any): number {
+  private calculateAccessFrequency(_window: unknown): number {
     // This would ideally track actual access patterns
     // For now, estimate based on recent activity
     return 1.0; // Default assumption of recent activity
@@ -627,7 +634,8 @@ export class TokenMonitorService extends EventEmitter {
 
     for (let i = 1; i < recent.length; i++) {
       const tokenDelta = recent[i].totalTokens - recent[i - 1].totalTokens;
-      const timeDelta = recent[i].timestamp.getTime() - recent[i - 1].timestamp.getTime();
+      const timeDelta =
+        recent[i].timestamp.getTime() - recent[i - 1].timestamp.getTime();
 
       if (timeDelta > 0) {
         totalGrowth += tokenDelta;
@@ -644,29 +652,37 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Calculate efficiency metrics
    */
-  private calculateEfficiencyMetrics(byManager: Record<string, ManagerTokenUsage>, totalTokens: number): EfficiencyMetrics {
+  private calculateEfficiencyMetrics(
+    byManager: Record<string, ManagerTokenUsage>,
+    _totalTokens: number,
+  ): EfficiencyMetrics {
     let totalUtilization = 0;
     let wastedTokens = 0;
     let managerCount = 0;
 
     for (const manager of Object.values(byManager)) {
-      const utilization = manager.windowConfig.maxTokens > 0
-        ? manager.windowConfig.usedTokens / manager.windowConfig.maxTokens
-        : 0;
+      const utilization =
+        manager.windowConfig.maxTokens > 0
+          ? manager.windowConfig.usedTokens / manager.windowConfig.maxTokens
+          : 0;
 
       totalUtilization += utilization;
-      wastedTokens += Math.max(0, manager.windowConfig.maxTokens - manager.windowConfig.usedTokens);
+      wastedTokens += Math.max(
+        0,
+        manager.windowConfig.maxTokens - manager.windowConfig.usedTokens,
+      );
       managerCount++;
     }
 
-    const overallUtilization = managerCount > 0 ? totalUtilization / managerCount : 0;
+    const overallUtilization =
+      managerCount > 0 ? totalUtilization / managerCount : 0;
 
     return {
       overallUtilization,
       wastedTokens,
       compressionEffectiveness: 0.7, // Would track from actual compression history
       relevanceScore: 0.8, // Would calculate from context relevance
-      accessEfficiency: 0.9 // Would calculate from access patterns
+      accessEfficiency: 0.9, // Would calculate from access patterns
     };
   }
 
@@ -718,10 +734,13 @@ export class TokenMonitorService extends EventEmitter {
         data: {
           oldLevel: this.lastThresholdLevel,
           newLevel: currentLevel,
-          threshold: thresholds.warnings[currentLevel as keyof typeof thresholds.warnings]
+          threshold:
+            thresholds.warnings[
+              currentLevel as keyof typeof thresholds.warnings
+            ],
         },
         severity,
-        message: `Token usage crossed ${currentLevel} threshold: ${(snapshot.utilizationRatio * 100).toFixed(1)}%`
+        message: `Token usage crossed ${currentLevel} threshold: ${(snapshot.utilizationRatio * 100).toFixed(1)}%`,
       });
 
       this.lastThresholdLevel = currentLevel;
@@ -733,27 +752,40 @@ export class TokenMonitorService extends EventEmitter {
         type: TokenEventType.COMPRESSION_NEEDED,
         timestamp: new Date(),
         snapshot,
-        data: { compressionType: 'emergency', threshold: thresholds.compressionTriggers.emergency },
+        data: {
+          compressionType: 'emergency',
+          threshold: thresholds.compressionTriggers.emergency,
+        },
         severity: 'emergency',
-        message: 'Emergency compression needed immediately'
+        message: 'Emergency compression needed immediately',
       });
-    } else if (snapshot.utilizationRatio >= thresholds.compressionTriggers.aggressive) {
+    } else if (
+      snapshot.utilizationRatio >= thresholds.compressionTriggers.aggressive
+    ) {
       this.emitEvent({
         type: TokenEventType.COMPRESSION_NEEDED,
         timestamp: new Date(),
         snapshot,
-        data: { compressionType: 'aggressive', threshold: thresholds.compressionTriggers.aggressive },
+        data: {
+          compressionType: 'aggressive',
+          threshold: thresholds.compressionTriggers.aggressive,
+        },
         severity: 'critical',
-        message: 'Aggressive compression recommended'
+        message: 'Aggressive compression recommended',
       });
-    } else if (snapshot.utilizationRatio >= thresholds.compressionTriggers.soft) {
+    } else if (
+      snapshot.utilizationRatio >= thresholds.compressionTriggers.soft
+    ) {
       this.emitEvent({
         type: TokenEventType.COMPRESSION_NEEDED,
         timestamp: new Date(),
         snapshot,
-        data: { compressionType: 'soft', threshold: thresholds.compressionTriggers.soft },
+        data: {
+          compressionType: 'soft',
+          threshold: thresholds.compressionTriggers.soft,
+        },
         severity: 'warning',
-        message: 'Soft compression recommended'
+        message: 'Soft compression recommended',
       });
     }
   }
@@ -762,29 +794,31 @@ export class TokenMonitorService extends EventEmitter {
    * Check for growth rate spikes
    */
   private checkGrowthSpikes(snapshot: TokenUsageSnapshot): void {
-    if (snapshot.growthRate > 10000) { // More than 10K tokens per minute
+    if (snapshot.growthRate > 10000) {
+      // More than 10K tokens per minute
       this.emitEvent({
         type: TokenEventType.GROWTH_SPIKE,
         timestamp: new Date(),
         snapshot,
         data: { growthRate: snapshot.growthRate },
         severity: 'warning',
-        message: `High token growth rate detected: ${snapshot.growthRate.toFixed(0)} tokens/minute`
+        message: `High token growth rate detected: ${snapshot.growthRate.toFixed(0)} tokens/minute`,
       });
     }
 
     // Check time until limit
-    if (snapshot.timeUntilLimit < 30 && snapshot.timeUntilLimit > 0) { // Less than 30 minutes
+    if (snapshot.timeUntilLimit < 30 && snapshot.timeUntilLimit > 0) {
+      // Less than 30 minutes
       this.emitEvent({
         type: TokenEventType.LIMIT_APPROACHING,
         timestamp: new Date(),
         snapshot,
         data: {
           timeUntilLimit: snapshot.timeUntilLimit,
-          growthRate: snapshot.growthRate
+          growthRate: snapshot.growthRate,
         },
         severity: 'critical',
-        message: `Token limit will be reached in ${snapshot.timeUntilLimit.toFixed(1)} minutes`
+        message: `Token limit will be reached in ${snapshot.timeUntilLimit.toFixed(1)} minutes`,
       });
     }
   }
@@ -793,17 +827,18 @@ export class TokenMonitorService extends EventEmitter {
    * Check for efficiency drops
    */
   private checkEfficiencyDrops(snapshot: TokenUsageSnapshot): void {
-    if (snapshot.efficiency.overallUtilization < 0.5) { // Less than 50% efficiency
+    if (snapshot.efficiency.overallUtilization < 0.5) {
+      // Less than 50% efficiency
       this.emitEvent({
         type: TokenEventType.EFFICIENCY_DROP,
         timestamp: new Date(),
         snapshot,
         data: {
           utilization: snapshot.efficiency.overallUtilization,
-          wastedTokens: snapshot.efficiency.wastedTokens
+          wastedTokens: snapshot.efficiency.wastedTokens,
         },
         severity: 'info',
-        message: `Context window efficiency is low: ${(snapshot.efficiency.overallUtilization * 100).toFixed(1)}%`
+        message: `Context window efficiency is low: ${(snapshot.efficiency.overallUtilization * 100).toFixed(1)}%`,
       });
     }
   }
@@ -818,7 +853,8 @@ export class TokenMonitorService extends EventEmitter {
     for (const manager of Object.values(snapshot.byManager)) {
       for (const section of Object.values(manager.sections)) {
         if (section.compressionPotential > 0.4 && section.tokens > 5000) {
-          totalCompressionPotential += section.tokens * section.compressionPotential;
+          totalCompressionPotential +=
+            section.tokens * section.compressionPotential;
           opportunitiesFound++;
         }
       }
@@ -831,10 +867,10 @@ export class TokenMonitorService extends EventEmitter {
         snapshot,
         data: {
           potentialSavings: totalCompressionPotential,
-          opportunities: opportunitiesFound
+          opportunities: opportunitiesFound,
         },
         severity: 'info',
-        message: `Found ${opportunitiesFound} optimization opportunities with potential savings of ${totalCompressionPotential.toFixed(0)} tokens`
+        message: `Found ${opportunitiesFound} optimization opportunities with potential savings of ${totalCompressionPotential.toFixed(0)} tokens`,
       });
     }
   }
@@ -843,19 +879,20 @@ export class TokenMonitorService extends EventEmitter {
    * Update monitoring mode based on current usage
    */
   private updateMonitoringMode(snapshot: TokenUsageSnapshot): void {
-    const shouldBeHighFrequency = this.config.enableHighFrequencyMode &&
+    const shouldBeHighFrequency =
+      this.config.enableHighFrequencyMode &&
       snapshot.utilizationRatio >= this.config.highFrequencyThreshold;
 
     if (shouldBeHighFrequency && !this.isHighFrequencyMode) {
       this.isHighFrequencyMode = true;
       logger.info('Switching to high-frequency monitoring mode', {
         utilizationRatio: snapshot.utilizationRatio,
-        threshold: this.config.highFrequencyThreshold
+        threshold: this.config.highFrequencyThreshold,
       });
     } else if (!shouldBeHighFrequency && this.isHighFrequencyMode) {
       this.isHighFrequencyMode = false;
       logger.info('Switching to normal monitoring mode', {
-        utilizationRatio: snapshot.utilizationRatio
+        utilizationRatio: snapshot.utilizationRatio,
       });
     }
   }
@@ -880,14 +917,17 @@ export class TokenMonitorService extends EventEmitter {
     this.usageHistory.push(snapshot);
 
     // Cleanup old snapshots
-    const cutoffTime = Date.now() - this.config.retention.detailedSnapshotRetention;
+    const cutoffTime =
+      Date.now() - this.config.retention.detailedSnapshotRetention;
     this.usageHistory = this.usageHistory.filter(
-      s => s.timestamp.getTime() > cutoffTime
+      (s) => s.timestamp.getTime() > cutoffTime,
     );
 
     // Limit by count
     if (this.usageHistory.length > this.config.retention.maxSnapshots) {
-      this.usageHistory = this.usageHistory.slice(-this.config.retention.maxSnapshots);
+      this.usageHistory = this.usageHistory.slice(
+        -this.config.retention.maxSnapshots,
+      );
     }
   }
 
@@ -900,7 +940,9 @@ export class TokenMonitorService extends EventEmitter {
 
     // Cleanup old events
     if (this.eventHistory.length > this.config.retention.maxEvents) {
-      this.eventHistory = this.eventHistory.slice(-this.config.retention.maxEvents);
+      this.eventHistory = this.eventHistory.slice(
+        -this.config.retention.maxEvents,
+      );
     }
 
     this.emit(event.type, event);
@@ -911,7 +953,7 @@ export class TokenMonitorService extends EventEmitter {
       severity: event.severity,
       message: event.message,
       totalTokens: event.snapshot.totalTokens,
-      utilizationRatio: event.snapshot.utilizationRatio
+      utilizationRatio: event.snapshot.utilizationRatio,
     });
   }
 
@@ -928,7 +970,8 @@ export class TokenMonitorService extends EventEmitter {
       this.performanceCounters.averageCheckDuration = duration;
     } else {
       this.performanceCounters.averageCheckDuration =
-        alpha * duration + (1 - alpha) * this.performanceCounters.averageCheckDuration;
+        alpha * duration +
+        (1 - alpha) * this.performanceCounters.averageCheckDuration;
     }
   }
 }
@@ -942,7 +985,7 @@ let globalTokenMonitorService: TokenMonitorService | null = null;
  * Get or create the global TokenMonitorService instance
  */
 export function getGlobalTokenMonitorService(
-  config?: Partial<TokenMonitorConfig>
+  config?: Partial<TokenMonitorConfig>,
 ): TokenMonitorService {
   if (!globalTokenMonitorService) {
     globalTokenMonitorService = new TokenMonitorService(config);

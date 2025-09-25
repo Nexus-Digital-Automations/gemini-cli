@@ -17,7 +17,7 @@
 
 import { getComponentLogger } from '../utils/logger.js';
 import { SemanticCompressor } from './SemanticCompressor.js';
-import { ContextWindowManager } from './ContextWindowManager.js';
+import type { ContextWindowManager } from './ContextWindowManager.js';
 import { CompressionStrategy } from './types.js';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
@@ -78,7 +78,7 @@ export enum AutoCompressionEvent {
   COMPRESSION_FAILED = 'compression_failed',
   EMERGENCY_COMPRESSION = 'emergency_compression',
   TOKEN_LIMIT_WARNING = 'token_limit_warning',
-  TOKEN_LIMIT_EXCEEDED = 'token_limit_exceeded'
+  TOKEN_LIMIT_EXCEEDED = 'token_limit_exceeded',
 }
 
 /**
@@ -133,11 +133,27 @@ export const DEFAULT_AUTO_COMPRESSION_CONFIG: AutoCompressionConfig = {
   minCompressionInterval: 60000, // 1 minute between attempts
   maxCompressionAttempts: 5,
   compressionStrategies: [
-    { strategy: CompressionStrategy.PROGRESSIVE_DETAIL, priority: 10, tokenThreshold: 0 },
-    { strategy: CompressionStrategy.SEMANTIC_CLUSTERING, priority: 8, tokenThreshold: 100000 },
-    { strategy: CompressionStrategy.SUMMARIZATION, priority: 6, tokenThreshold: 200000 },
-    { strategy: CompressionStrategy.KEYWORD_EXTRACTION, priority: 4, tokenThreshold: 500000 }
-  ]
+    {
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
+      priority: 10,
+      tokenThreshold: 0,
+    },
+    {
+      strategy: CompressionStrategy.SEMANTIC_CLUSTERING,
+      priority: 8,
+      tokenThreshold: 100000,
+    },
+    {
+      strategy: CompressionStrategy.SUMMARIZATION,
+      priority: 6,
+      tokenThreshold: 200000,
+    },
+    {
+      strategy: CompressionStrategy.KEYWORD_EXTRACTION,
+      priority: 4,
+      tokenThreshold: 500000,
+    },
+  ],
 };
 
 /**
@@ -188,14 +204,14 @@ export class AutoCompressionManager extends EventEmitter {
     logger.info('AutoCompressionManager initialized', {
       maxTokenLimit: this.config.maxTokenLimit,
       compressionThreshold: this.config.compressionThreshold,
-      enableAutoCompression: this.config.enableAutoCompression
+      enableAutoCompression: this.config.enableAutoCompression,
     });
   }
 
   /**
    * Start automatic compression monitoring
    */
-  public start(): void {
+  start(): void {
     if (this.monitoringTimer) {
       logger.warn('AutoCompressionManager already started');
       return;
@@ -208,12 +224,12 @@ export class AutoCompressionManager extends EventEmitter {
 
     logger.info('Starting auto-compression monitoring', {
       interval: this.config.monitoringInterval,
-      threshold: this.config.compressionThreshold
+      threshold: this.config.compressionThreshold,
     });
 
     this.monitoringTimer = setInterval(
       () => this.checkTokenUsage(),
-      this.config.monitoringInterval
+      this.config.monitoringInterval,
     );
 
     // Initial check
@@ -223,7 +239,7 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Stop automatic compression monitoring
    */
-  public stop(): void {
+  stop(): void {
     if (this.monitoringTimer) {
       clearInterval(this.monitoringTimer);
       this.monitoringTimer = null;
@@ -234,7 +250,10 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Register a context window manager for monitoring
    */
-  public registerContextManager(id: string, manager: ContextWindowManager): void {
+  registerContextManager(
+    id: string,
+    manager: ContextWindowManager,
+  ): void {
     this.contextManagers.set(id, manager);
     logger.debug(`Registered context manager: ${id}`);
   }
@@ -242,7 +261,7 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Unregister a context window manager
    */
-  public unregisterContextManager(id: string): void {
+  unregisterContextManager(id: string): void {
     this.contextManagers.delete(id);
     logger.debug(`Unregistered context manager: ${id}`);
   }
@@ -250,7 +269,7 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Manually trigger compression
    */
-  public async triggerCompression(force = false): Promise<CompressionResult> {
+  async triggerCompression(force = false): Promise<CompressionResult> {
     const snapshot = this.captureTokenUsageSnapshot();
 
     if (!force && !this.shouldCompress(snapshot)) {
@@ -263,7 +282,7 @@ export class AutoCompressionManager extends EventEmitter {
         duration: 0,
         error: new Error('Compression not needed'),
         itemsCompressed: 0,
-        itemsRemoved: 0
+        itemsRemoved: 0,
       };
     }
 
@@ -273,14 +292,14 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Get current token usage statistics
    */
-  public getTokenUsage(): TokenUsageSnapshot {
+  getTokenUsage(): TokenUsageSnapshot {
     return this.captureTokenUsageSnapshot();
   }
 
   /**
    * Get compression history and statistics
    */
-  public getCompressionHistory(): {
+  getCompressionHistory(): {
     attempts: number;
     lastCompressionTime: Date | null;
     averageCompressionRatio: number;
@@ -288,13 +307,15 @@ export class AutoCompressionManager extends EventEmitter {
     history: TokenUsageSnapshot[];
   } {
     const history = this.tokenUsageHistory;
-    const compressionEvents = history.filter(s =>
-      s.timestamp.getTime() > this.lastCompressionTime
+    const compressionEvents = history.filter(
+      (s) => s.timestamp.getTime() > this.lastCompressionTime,
     );
 
-    const averageRatio = compressionEvents.length > 0
-      ? compressionEvents.reduce((sum, s) => sum + s.utilizationRatio, 0) / compressionEvents.length
-      : 1.0;
+    const averageRatio =
+      compressionEvents.length > 0
+        ? compressionEvents.reduce((sum, s) => sum + s.utilizationRatio, 0) /
+          compressionEvents.length
+        : 1.0;
 
     const totalSaved = compressionEvents.reduce((sum, s, idx, arr) => {
       if (idx > 0) {
@@ -305,12 +326,13 @@ export class AutoCompressionManager extends EventEmitter {
 
     return {
       attempts: this.compressionAttempts,
-      lastCompressionTime: this.lastCompressionTime > 0
-        ? new Date(this.lastCompressionTime)
-        : null,
+      lastCompressionTime:
+        this.lastCompressionTime > 0
+          ? new Date(this.lastCompressionTime)
+          : null,
       averageCompressionRatio: averageRatio,
       totalTokensSaved: totalSaved,
-      history: history.slice(-50) // Keep last 50 snapshots
+      history: history.slice(-50), // Keep last 50 snapshots
     };
   }
 
@@ -328,14 +350,16 @@ export class AutoCompressionManager extends EventEmitter {
           level: 'critical',
           totalTokens: snapshot.totalTokens,
           utilizationRatio: snapshot.utilizationRatio,
-          threshold: this.config.emergencyThreshold
+          threshold: this.config.emergencyThreshold,
         });
-      } else if (snapshot.utilizationRatio >= this.config.compressionThreshold) {
+      } else if (
+        snapshot.utilizationRatio >= this.config.compressionThreshold
+      ) {
         this.emit(AutoCompressionEvent.TOKEN_LIMIT_WARNING, {
           level: 'warning',
           totalTokens: snapshot.totalTokens,
           utilizationRatio: snapshot.utilizationRatio,
-          threshold: this.config.compressionThreshold
+          threshold: this.config.compressionThreshold,
         });
       }
 
@@ -343,7 +367,7 @@ export class AutoCompressionManager extends EventEmitter {
       if (this.shouldCompress(snapshot)) {
         await this.performCompression(
           snapshot,
-          snapshot.utilizationRatio >= this.config.emergencyThreshold
+          snapshot.utilizationRatio >= this.config.emergencyThreshold,
         );
       }
     } catch (error) {
@@ -359,14 +383,15 @@ export class AutoCompressionManager extends EventEmitter {
 
     // Use cache if recent enough (< 5 seconds old)
     if (now - this.lastCacheUpdate < 5000 && this.totalTokensCache > 0) {
-      const utilizationRatio = this.totalTokensCache / this.config.maxTokenLimit;
+      const utilizationRatio =
+        this.totalTokensCache / this.config.maxTokenLimit;
       return {
         timestamp: new Date(),
         totalTokens: this.totalTokensCache,
         utilizationRatio,
         sectionsBreakdown: {},
         compressionOpportunities: [],
-        projectedGrowth: this.calculateGrowthRate()
+        projectedGrowth: this.calculateGrowthRate(),
       };
     }
 
@@ -384,13 +409,14 @@ export class AutoCompressionManager extends EventEmitter {
         sectionsBreakdown[key] = section.tokens;
 
         // Analyze compression opportunities
-        if (section.tokens > 1000) { // Worth compressing if > 1K tokens
+        if (section.tokens > 1000) {
+          // Worth compressing if > 1K tokens
           compressionOpportunities.push({
             section: key,
             currentTokens: section.tokens,
             estimatedSavings: Math.floor(section.tokens * 0.4), // Estimate 40% savings
             recommendedStrategy: this.selectOptimalStrategy(section),
-            confidence: this.calculateCompressionConfidence(section)
+            confidence: this.calculateCompressionConfidence(section),
           });
         }
       }
@@ -408,7 +434,7 @@ export class AutoCompressionManager extends EventEmitter {
       utilizationRatio,
       sectionsBreakdown,
       compressionOpportunities,
-      projectedGrowth
+      projectedGrowth,
     };
   }
 
@@ -426,7 +452,8 @@ export class AutoCompressionManager extends EventEmitter {
 
     for (let i = 1; i < recent.length; i++) {
       const tokenDelta = recent[i].totalTokens - recent[i - 1].totalTokens;
-      const timeDelta = recent[i].timestamp.getTime() - recent[i - 1].timestamp.getTime();
+      const timeDelta =
+        recent[i].timestamp.getTime() - recent[i - 1].timestamp.getTime();
 
       if (timeDelta > 0) {
         totalGrowth += tokenDelta;
@@ -459,7 +486,7 @@ export class AutoCompressionManager extends EventEmitter {
     if (this.compressionAttempts >= this.config.maxCompressionAttempts) {
       logger.warn('Maximum compression attempts reached', {
         attempts: this.compressionAttempts,
-        maxAttempts: this.config.maxCompressionAttempts
+        maxAttempts: this.config.maxCompressionAttempts,
       });
       return false;
     }
@@ -468,22 +495,25 @@ export class AutoCompressionManager extends EventEmitter {
     if (snapshot.utilizationRatio >= this.config.emergencyThreshold) {
       logger.warn('Emergency compression threshold reached', {
         utilizationRatio: snapshot.utilizationRatio,
-        threshold: this.config.emergencyThreshold
+        threshold: this.config.emergencyThreshold,
       });
       return true;
     }
 
     if (snapshot.utilizationRatio >= this.config.compressionThreshold) {
       // Also consider growth rate for predictive compression
-      const minutesUntilLimit = snapshot.projectedGrowth > 0
-        ? (this.config.maxTokenLimit - snapshot.totalTokens) / snapshot.projectedGrowth
-        : Infinity;
+      const minutesUntilLimit =
+        snapshot.projectedGrowth > 0
+          ? (this.config.maxTokenLimit - snapshot.totalTokens) /
+            snapshot.projectedGrowth
+          : Infinity;
 
-      if (minutesUntilLimit <= 30) { // Will hit limit in 30 minutes
+      if (minutesUntilLimit <= 30) {
+        // Will hit limit in 30 minutes
         logger.info('Predictive compression triggered', {
           currentTokens: snapshot.totalTokens,
           projectedGrowth: snapshot.projectedGrowth,
-          minutesUntilLimit
+          minutesUntilLimit,
         });
         return true;
       }
@@ -499,7 +529,7 @@ export class AutoCompressionManager extends EventEmitter {
    */
   private async performCompression(
     snapshot: TokenUsageSnapshot,
-    isEmergency: boolean
+    isEmergency: boolean,
   ): Promise<CompressionResult> {
     const startTime = performance.now();
     this.isCompressing = true;
@@ -513,7 +543,7 @@ export class AutoCompressionManager extends EventEmitter {
       totalTokens: snapshot.totalTokens,
       utilizationRatio: snapshot.utilizationRatio,
       isEmergency,
-      attempt: this.compressionAttempts
+      attempt: this.compressionAttempts,
     });
 
     try {
@@ -524,7 +554,7 @@ export class AutoCompressionManager extends EventEmitter {
 
       // Sort compression opportunities by potential savings
       const opportunities = snapshot.compressionOpportunities.sort(
-        (a, b) => b.estimatedSavings - a.estimatedSavings
+        (a, b) => b.estimatedSavings - a.estimatedSavings,
       );
 
       // Determine target compression ratio (more aggressive for emergency)
@@ -547,12 +577,14 @@ export class AutoCompressionManager extends EventEmitter {
         // Apply compression to this section
         const compressionResult = await this.compressor.batchCompress(
           section.items,
-          targetRatio
+          targetRatio,
         );
 
         // Update section with compressed items
         for (const [itemId, result] of compressionResult.entries()) {
-          const itemIndex = section.items.findIndex(item => item.id === itemId);
+          const itemIndex = section.items.findIndex(
+            (item) => item.id === itemId,
+          );
           if (itemIndex !== -1) {
             const originalItem = section.items[itemIndex];
             totalOriginalTokens += originalItem.tokenCount;
@@ -562,7 +594,7 @@ export class AutoCompressionManager extends EventEmitter {
               section.items[itemIndex] = {
                 ...originalItem,
                 content: result.compressed,
-                tokenCount: result.compressedTokens
+                tokenCount: result.compressedTokens,
               };
               totalCompressedTokens += result.compressedTokens;
               itemsCompressed++;
@@ -579,17 +611,21 @@ export class AutoCompressionManager extends EventEmitter {
         }
 
         // Recalculate section totals
-        section.tokens = section.items.reduce((sum, item) => sum + item.tokenCount, 0);
-        section.content = section.items.map(item => item.content).join('\n');
+        section.tokens = section.items.reduce(
+          (sum, item) => sum + item.tokenCount,
+          0,
+        );
+        section.content = section.items.map((item) => item.content).join('\n');
 
         // Update manager totals
         manager['updateContextWindowTotals'](); // Call private method
       }
 
       const duration = performance.now() - startTime;
-      const compressionRatio = totalOriginalTokens > 0
-        ? totalCompressedTokens / totalOriginalTokens
-        : 1.0;
+      const compressionRatio =
+        totalOriginalTokens > 0
+          ? totalCompressedTokens / totalOriginalTokens
+          : 1.0;
 
       const result: CompressionResult = {
         success: true,
@@ -599,7 +635,7 @@ export class AutoCompressionManager extends EventEmitter {
         strategy: CompressionStrategy.PROGRESSIVE_DETAIL, // Mixed strategy not defined in enum
         duration,
         itemsCompressed,
-        itemsRemoved
+        itemsRemoved,
       };
 
       this.lastCompressionTime = Date.now();
@@ -607,7 +643,7 @@ export class AutoCompressionManager extends EventEmitter {
 
       this.emit(AutoCompressionEvent.COMPRESSION_COMPLETED, {
         ...result,
-        newTotalTokens: this.captureTokenUsageSnapshot().totalTokens
+        newTotalTokens: this.captureTokenUsageSnapshot().totalTokens,
       });
 
       logger.info('Compression completed successfully', {
@@ -617,11 +653,10 @@ export class AutoCompressionManager extends EventEmitter {
         duration: duration.toFixed(2),
         itemsCompressed,
         itemsRemoved,
-        isEmergency
+        isEmergency,
       });
 
       return result;
-
     } catch (error) {
       const duration = performance.now() - startTime;
       const result: CompressionResult = {
@@ -633,23 +668,22 @@ export class AutoCompressionManager extends EventEmitter {
         duration,
         error: error as Error,
         itemsCompressed: 0,
-        itemsRemoved: 0
+        itemsRemoved: 0,
       };
 
       this.emit(AutoCompressionEvent.COMPRESSION_FAILED, {
         ...result,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       logger.error('Compression failed', {
         error,
         totalTokens: snapshot.totalTokens,
         duration: duration.toFixed(2),
-        isEmergency
+        isEmergency,
       });
 
       return result;
-
     } finally {
       this.isCompressing = false;
     }
@@ -658,18 +692,27 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Select optimal compression strategy for a section
    */
-  private selectOptimalStrategy(section: any): CompressionStrategy {
+  private selectOptimalStrategy(section: {
+    tokens: number;
+    name?: string;
+  }): CompressionStrategy {
     const strategies = this.config.compressionStrategies
-      .filter(s => section.tokens >= s.tokenThreshold)
+      .filter((s) => section.tokens >= s.tokenThreshold)
       .sort((a, b) => b.priority - a.priority);
 
-    return strategies.length > 0 ? strategies[0].strategy : CompressionStrategy.PROGRESSIVE_DETAIL;
+    return strategies.length > 0
+      ? strategies[0].strategy
+      : CompressionStrategy.PROGRESSIVE_DETAIL;
   }
 
   /**
    * Calculate confidence score for compression potential
    */
-  private calculateCompressionConfidence(section: any): number {
+  private calculateCompressionConfidence(section: {
+    tokens: number;
+    items?: unknown[];
+    name?: string;
+  }): number {
     let confidence = 0.5; // Base confidence
 
     // Higher confidence for sections with repetitive content
@@ -705,13 +748,13 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Update configuration
    */
-  public updateConfig(newConfig: Partial<AutoCompressionConfig>): void {
+  updateConfig(newConfig: Partial<AutoCompressionConfig>): void {
     const oldConfig = { ...this.config };
     this.config = { ...this.config, ...newConfig };
 
     logger.info('AutoCompressionManager configuration updated', {
       oldConfig,
-      newConfig: this.config
+      newConfig: this.config,
     });
 
     // Restart monitoring if interval changed
@@ -724,7 +767,7 @@ export class AutoCompressionManager extends EventEmitter {
   /**
    * Get current configuration
    */
-  public getConfig(): AutoCompressionConfig {
+  getConfig(): AutoCompressionConfig {
     return { ...this.config };
   }
 }
@@ -738,7 +781,7 @@ let globalAutoCompressionManager: AutoCompressionManager | null = null;
  * Get or create the global AutoCompressionManager instance
  */
 export function getGlobalAutoCompressionManager(
-  config?: Partial<AutoCompressionConfig>
+  config?: Partial<AutoCompressionConfig>,
 ): AutoCompressionManager {
   if (!globalAutoCompressionManager) {
     globalAutoCompressionManager = new AutoCompressionManager(config);
