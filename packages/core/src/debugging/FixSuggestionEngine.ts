@@ -1188,7 +1188,7 @@ export class FixSuggestionEngine {
    * Extract parameters for template substitution
    */
   private extractTemplateParameters(
-    pattern: any,
+    pattern: Record<string, unknown>,
     errorAnalysis: ErrorAnalysis,
   ): Record<string, string> {
     const params: Record<string, string> = {};
@@ -1399,7 +1399,7 @@ export class FixSuggestionEngine {
    */
   private generateFixCacheKey(
     errorAnalysis: ErrorAnalysis,
-    options: any,
+    options: Record<string, unknown>,
   ): string {
     const key = JSON.stringify({
       signature: errorAnalysis.signature.id,

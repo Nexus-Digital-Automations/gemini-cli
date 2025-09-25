@@ -718,7 +718,7 @@ export class ErrorPatternRecognition {
               context: matchResult.context,
             },
             suggestions: this.generateSuggestions(pattern, matchResult),
-            severity: (pattern.metadata?.severity as any) || 'medium',
+            severity: (pattern.metadata?.severity as ErrorSeverity) || 'medium',
             category: pattern.category,
           };
 
@@ -896,7 +896,7 @@ export class ErrorPatternRecognition {
    */
   private generateSuggestions(
     pattern: ErrorPattern,
-    matchResult: any,
+    matchResult: Record<string, unknown>,
   ): string[] {
     const suggestions: string[] = [];
 

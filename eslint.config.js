@@ -32,6 +32,8 @@ export default tseslint.config(
       '.integration-tests/**',
       'eslint.config.js',
       'packages/**/dist/**',
+      'packages/**/coverage/**',
+      '**/coverage/**',
       'bundle/**',
       'package/bundle/**',
       '.integration-tests/**',
@@ -254,6 +256,27 @@ export default tseslint.config(
     rules: {
       'no-restricted-syntax': 'off',
       '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  // settings for packages/cli/index.js Node.js entry point
+  {
+    files: ['packages/cli/index.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        console: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
   // Prettier config must be last

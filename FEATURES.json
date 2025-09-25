@@ -328,7 +328,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 16,
-      "total_reinitializations": 187,
+      "total_reinitializations": 195,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
@@ -349,7 +349,7 @@
         },
         "05:00-09:59": {
           "init": 0,
-          "reinit": 30
+          "reinit": 38
         }
       },
       "daily_history": [
@@ -409,24 +409,14 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T11:53:13.826Z"
+      "last_updated": "2025-09-25T12:05:32.862Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "MAIN_AGENT": {
@@ -488,6 +478,62 @@
       "status": "active",
       "reinitialized": "2025-09-25T11:53:13.814Z",
       "sessionId": "49c72d09b87aad4e",
+      "previousSessions": []
+    },
+    "unused-vars-agent": {
+      "lastHeartbeat": "2025-09-25T11:57:39.950Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T11:57:39.950Z",
+      "sessionId": "8189262f71ae42cb",
+      "previousSessions": []
+    },
+    "agent-no-undef-fixer": {
+      "lastHeartbeat": "2025-09-25T11:57:40.181Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T11:57:40.181Z",
+      "sessionId": "fa022bb172b386f8",
+      "previousSessions": []
+    },
+    "import-modules-agent": {
+      "lastHeartbeat": "2025-09-25T11:57:40.669Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T11:57:40.669Z",
+      "sessionId": "32b2ba4f92a65eb1",
+      "previousSessions": []
+    },
+    "no-var-agent": {
+      "lastHeartbeat": "2025-09-25T11:57:42.675Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T11:57:42.675Z",
+      "sessionId": "d9ae7d757fad708f",
+      "previousSessions": []
+    },
+    "typescript-any-agent": {
+      "lastHeartbeat": "2025-09-25T11:57:46.024Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T11:57:46.024Z",
+      "sessionId": "2c0bbf970f3a8389",
+      "previousSessions": []
+    },
+    "linting-agent": {
+      "lastHeartbeat": "2025-09-25T12:05:30.363Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T12:05:30.363Z",
+      "sessionId": "516e7daa54e830bb",
+      "previousSessions": []
+    },
+    "linting-fix-agent": {
+      "lastHeartbeat": "2025-09-25T12:05:31.722Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T12:05:31.722Z",
+      "sessionId": "d1f41da3314ef345",
+      "previousSessions": []
+    },
+    "verification-agent": {
+      "lastHeartbeat": "2025-09-25T12:05:32.858Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T12:05:32.858Z",
+      "sessionId": "42be692733721954",
       "previousSessions": []
     }
   },

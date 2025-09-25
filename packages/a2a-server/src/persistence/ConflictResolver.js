@@ -12,7 +12,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Conflict types for task access scenarios
  */
-export var ConflictType;
+export let ConflictType;
 (function (ConflictType) {
   /** Multiple sessions accessing the same task simultaneously */
   ConflictType['CONCURRENT_ACCESS'] = 'concurrent_access';
@@ -30,7 +30,7 @@ export var ConflictType;
 /**
  * Conflict resolution strategies
  */
-export var ResolutionStrategy;
+export let ResolutionStrategy;
 (function (ResolutionStrategy) {
   /** Transfer task to the most recent session */
   ResolutionStrategy['TRANSFER_TO_LATEST'] = 'transfer_to_latest';
@@ -503,7 +503,7 @@ export class ConflictResolver {
   /**
    * Execute merge changes strategy
    */
-  async executeMergeChanges(resolution, analysis) {
+  async executeMergeChanges(resolution, _analysis) {
     // This would involve complex data merging logic
     // For now, we'll mark it as requiring manual intervention
     resolution.actions.push({
@@ -553,7 +553,7 @@ export class ConflictResolver {
   /**
    * Execute rollback state strategy
    */
-  async executeRollbackState(resolution, analysis) {
+  async executeRollbackState(resolution, _analysis) {
     resolution.actions.push({
       action: 'rollback_to_safe_state',
       timestamp: new Date().toISOString(),

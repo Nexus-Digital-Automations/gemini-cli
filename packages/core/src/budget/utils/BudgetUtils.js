@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { BudgetEnforcementLevel, NotificationFrequency } from '../types.js';
+
 /**
  * Budget utilities class with comprehensive helper functions
  */

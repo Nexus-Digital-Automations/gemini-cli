@@ -277,7 +277,7 @@ if (!validate${'{TypeName}'}(${'{variable}'})) {
         name: 'Typed Logging Function',
         description: 'Type-safe logging with generics',
         template: `
-function debugLog<T>(label: string, value: T, context?: Record<string, any>): T {
+function debugLog<T>(label: string, value: T, context?: Record<string, unknown>): T {
   console.log(\`🔍 \${label}:\`, value);
   if (context) {
     console.log('📋 Context:', context);
@@ -325,10 +325,10 @@ function ${'{functionName}'}(): Result<${'{ReturnType}'}, ${'{ErrorType}'}> {
         name: 'Performance Decorator',
         description: 'TypeScript decorator for performance measurement',
         template: `
-function measurePerformance(target: any, propertyName: string, descriptor: PropertyDescriptor) {
+function measurePerformance(target: object, propertyName: string, descriptor: PropertyDescriptor) {
   const method = descriptor.value;
 
-  descriptor.value = function(...args: any[]) {
+  descriptor.value = function(...args: unknown[]) {
     const start = performance.now();
     const result = method.apply(this, args);
     const end = performance.now();
@@ -359,7 +359,7 @@ class ${'{ClassName}'} {
         description: 'Type-safe mock objects for testing',
         template: `
 type MockOf<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any
+  [K in keyof T]: T[K] extends (...args: unknown[]) => unknown
     ? jest.MockedFunction<T[K]>
     : T[K];
 };
@@ -420,7 +420,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def debug_log(message: str, data: any = None, level: int = logging.DEBUG):
+def debug_log(message: str, data: object = None, level: int = logging.DEBUG):
     if data is not None:
         logger.log(level, f"🔍 {message}: %s", data)
     else:

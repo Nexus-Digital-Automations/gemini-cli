@@ -221,7 +221,7 @@ const COMMON_ERROR_PATTERNS = {
  */
 export class StackTraceAnalyzer {
   private config: StackTraceAnalyzerConfig;
-  private sourceMapCache: Map<string, { data: any; timestamp: number }> =
+  private sourceMapCache: Map<string, { data: unknown; timestamp: number }> =
     new Map();
   private contextCache: Map<
     string,
@@ -717,7 +717,11 @@ export class StackTraceAnalyzer {
     )) {
       if (patternInfo.pattern.test(stackTraceText)) {
         patterns.push({
-          type: patternName as any,
+          type: patternName as
+            | 'recursion'
+            | 'asyncUnhandled'
+            | 'memoryLeak'
+            | 'typeError',
           confidence: 0.9,
           description: patternInfo.description,
           evidence: stackTraceText.match(patternInfo.pattern)?.[0] || '',
@@ -1040,8 +1044,8 @@ export class StackTraceAnalyzer {
    */
   private identifyCriticalPath(frames: StackTraceFrame[]): StackTraceFrame[] {
     // Critical path is user code frames leading to the error
-    return frames.filter((frame, index) => 
-       frame.isUserCode || index === 0 // Include error origin and user code
+    return frames.filter(
+      (frame, index) => frame.isUserCode || index === 0, // Include error origin and user code
     );
   }
 
@@ -1138,7 +1142,7 @@ export class StackTraceAnalyzer {
   /**
    * Get source map data for a file
    */
-  private async getSourceMapData(filePath: string): Promise<any | null> {
+  private async getSourceMapData(filePath: string): Promise<unknown | null> {
     const cacheKey = filePath;
     const cached = this.sourceMapCache.get(cacheKey);
 

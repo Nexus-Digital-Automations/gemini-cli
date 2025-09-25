@@ -44,6 +44,16 @@ import {
 const logger = getComponentLogger('error-analysis-engine');
 
 /**
+ * Pattern match result interface
+ */
+export interface PatternMatch {
+  category: ErrorCategory;
+  confidence: number;
+  pattern: ErrorPattern;
+  matchData: Record<string, unknown>;
+}
+
+/**
  * Configuration for error analysis engine
  */
 export interface ErrorAnalysisEngineConfig {
@@ -499,7 +509,7 @@ export class ErrorAnalysisEngine {
    * Determine the primary error category
    */
   private determineCategory(
-    patternMatches: any[],
+    patternMatches: ErrorPattern[],
     errorText: string,
   ): ErrorCategory {
     if (patternMatches.length > 0) {
@@ -537,7 +547,7 @@ export class ErrorAnalysisEngine {
    * Calculate error severity based on patterns and context
    */
   private calculateSeverity(
-    patternMatches: any[],
+    patternMatches: ErrorPattern[],
     errorText: string,
     context: ErrorAnalysisContext,
   ): ErrorSeverity {
@@ -573,7 +583,7 @@ export class ErrorAnalysisEngine {
   /**
    * Calculate overall confidence score
    */
-  private calculateOverallConfidence(patternMatches: any[]): number {
+  private calculateOverallConfidence(patternMatches: ErrorPattern[]): number {
     if (patternMatches.length === 0) {
       return 0.3; // Low confidence without patterns
     }
@@ -593,7 +603,7 @@ export class ErrorAnalysisEngine {
    */
   private async identifyRootCause(
     errorText: string,
-    patternMatches: any[],
+    patternMatches: ErrorPattern[],
     context: ErrorAnalysisContext,
   ): Promise<string> {
     // Use pattern-based root cause if available
@@ -627,7 +637,7 @@ export class ErrorAnalysisEngine {
    * Generate fix suggestions based on analysis
    */
   private async generateFixSuggestions(
-    patternMatches: any[],
+    patternMatches: ErrorPattern[],
     context: ErrorAnalysisContext,
   ): Promise<string[]> {
     const suggestions: string[] = [];
@@ -663,7 +673,7 @@ export class ErrorAnalysisEngine {
    */
   private async generateInsights(
     errorText: string,
-    patternMatches: any[],
+    patternMatches: ErrorPattern[],
     context: ErrorAnalysisContext,
   ): Promise<ErrorInsight[]> {
     if (!this.config.enableMLInsights) {
@@ -841,7 +851,7 @@ export class ErrorAnalysisEngine {
   ): Promise<PerformanceMetrics | undefined> {
     const errorLower = errorText.toLowerCase();
     let impact = 'low' as 'low' | 'medium' | 'high';
-    const metrics: any = {
+    const metrics: Record<string, unknown> = {
       cpuUsage: 'normal',
       memoryUsage: 'normal',
       responseTime: 'normal',

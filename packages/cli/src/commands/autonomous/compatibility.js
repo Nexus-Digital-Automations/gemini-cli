@@ -34,7 +34,9 @@ export class CompatibilityValidator {
           // TODO: Re-enable when ./index.js is available
           // const autonomousModule = await import('./index.js').catch(() => null);
           // return autonomousModule !== null;
-          return false; // Temporary: return false until index.js is implemented
+
+          // Temporary: return false until index.js is implemented
+          return false;
         } catch {
           return false;
         }

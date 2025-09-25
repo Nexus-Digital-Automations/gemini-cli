@@ -14,7 +14,7 @@ interface MetricsOptions {
   'time-range'?: string;
 }
 
-export const metricsCommand: CommandModule<{}, MetricsOptions> = {
+export const metricsCommand: CommandModule<object, MetricsOptions> = {
   command: 'metrics',
   describe: 'Show autonomous system performance metrics',
   builder: (yargs) =>

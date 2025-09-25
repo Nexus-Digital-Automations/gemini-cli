@@ -503,7 +503,7 @@ export class SecurityMonitor extends EventEmitter {
   ): boolean {
     const getValue = (field: string): unknown => {
       const fields = field.split('.');
-      let value: any = event;
+      let value: unknown = event;
 
       for (const f of fields) {
         if (value && typeof value === 'object') {

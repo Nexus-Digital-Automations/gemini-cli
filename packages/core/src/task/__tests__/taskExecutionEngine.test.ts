@@ -18,10 +18,14 @@ const mockDefaultApi = {
   // Add other tools as needed for testing
 };
 
+// Define interface for default_api structure
+interface DefaultApi {
+  [toolName: string]: (args: unknown) => Promise<{ output: string }>;
+}
+
 // Declare globalThis.default_api for TypeScript
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  var default_api: any;
+  let default_api: DefaultApi;
 }
 
 describe('TaskExecutionEngine', () => {
@@ -47,7 +51,12 @@ describe('TaskExecutionEngine', () => {
     delete globalThis.default_api; // Clean up globalThis
   });
 
-  const createMockTask = (id: string, status: TaskStatus, toolCalls: ToolCall[] = [], dependencies: string[] = []): Task => ({
+  const createMockTask = (
+    id: string,
+    status: TaskStatus,
+    toolCalls: ToolCall[] = [],
+    dependencies: string[] = [],
+  ): Task => ({
     id,
     name: `Task ${id}`,
     description: `Description for ${id}`,
@@ -85,8 +94,12 @@ describe('TaskExecutionEngine', () => {
       TaskStatus.Done,
     );
     expect(resultTask.status).toBe(TaskStatus.Done);
-    expect(resultTask.metadata.toolCalls[0].result).toEqual({ output: 'tool1_result' });
-    expect(resultTask.metadata.toolCalls[1].result).toEqual({ output: 'tool2_result' });
+    expect(resultTask.metadata.toolCalls[0].result).toEqual({
+      output: 'tool1_result',
+    });
+    expect(resultTask.metadata.toolCalls[1].result).toEqual({
+      output: 'tool2_result',
+    });
   });
 
   it('should mark task as failed if a tool call fails', async () => {
@@ -113,7 +126,12 @@ describe('TaskExecutionEngine', () => {
   });
 
   it('should mark task as blocked if dependencies are not done', async () => {
-    const mockTask = createMockTask('task-3', TaskStatus.Todo, [], ['dep-task-1']);
+    const mockTask = createMockTask(
+      'task-3',
+      TaskStatus.Todo,
+      [],
+      ['dep-task-1'],
+    );
     const depTask = createMockTask('dep-task-1', TaskStatus.InProgress);
 
     mockTaskManager.getTask.mockResolvedValueOnce(mockTask);
@@ -130,10 +148,10 @@ describe('TaskExecutionEngine', () => {
   });
 
   it('should execute task if all dependencies are done', async () => {
-    const toolCalls: ToolCall[] = [
-      { toolName: 'tool1', args: { a: 1 } },
-    ];
-    const mockTask = createMockTask('task-4', TaskStatus.Todo, toolCalls, ['dep-task-2']);
+    const toolCalls: ToolCall[] = [{ toolName: 'tool1', args: { a: 1 } }];
+    const mockTask = createMockTask('task-4', TaskStatus.Todo, toolCalls, [
+      'dep-task-2',
+    ]);
     const depTask = createMockTask('dep-task-2', TaskStatus.Done);
 
     mockTaskManager.getTask.mockResolvedValueOnce(mockTask);
@@ -151,16 +169,31 @@ describe('TaskExecutionEngine', () => {
   });
 
   it('should find and execute runnable tasks', async () => {
-    const task1 = createMockTask('task-5', TaskStatus.Todo, [{ toolName: 'tool1', args: {} }]);
-    const task2 = createMockTask('task-6', TaskStatus.Todo, [{ toolName: 'tool2', args: {} }], ['task-5']);
-    const task3 = createMockTask('task-7', TaskStatus.Todo, [{ toolName: 'tool3', args: {} }], ['task-6']);
+    const task1 = createMockTask('task-5', TaskStatus.Todo, [
+      { toolName: 'tool1', args: {} },
+    ]);
+    const task2 = createMockTask(
+      'task-6',
+      TaskStatus.Todo,
+      [{ toolName: 'tool2', args: {} }],
+      ['task-5'],
+    );
+    const task3 = createMockTask(
+      'task-7',
+      TaskStatus.Todo,
+      [{ toolName: 'tool3', args: {} }],
+      ['task-6'],
+    );
 
     mockTaskManager.listTasks.mockResolvedValueOnce([task1, task2, task3]);
     mockTaskManager.getRunnableTasks.mockResolvedValueOnce([task1]); // Mock this to return task1 as runnable
     mockTaskManager.getTask.mockImplementation((id) => {
-      if (id === 'task-5') return Promise.resolve(createMockTask('task-5', TaskStatus.Done));
-      if (id === 'task-6') return Promise.resolve(createMockTask('task-6', TaskStatus.Done));
-      if (id === 'task-7') return Promise.resolve(createMockTask('task-7', TaskStatus.Todo));
+      if (id === 'task-5')
+        return Promise.resolve(createMockTask('task-5', TaskStatus.Done));
+      if (id === 'task-6')
+        return Promise.resolve(createMockTask('task-6', TaskStatus.Done));
+      if (id === 'task-7')
+        return Promise.resolve(createMockTask('task-7', TaskStatus.Todo));
       return Promise.resolve(undefined);
     });
     mockDefaultApi.tool1.mockResolvedValue({ output: 'tool1_result' });
@@ -204,9 +237,7 @@ describe('TaskExecutionEngine', () => {
   });
 
   it('should handle non-existent tool gracefully', async () => {
-    const toolCalls: ToolCall[] = [
-      { toolName: 'nonExistentTool', args: {} },
-    ];
+    const toolCalls: ToolCall[] = [{ toolName: 'nonExistentTool', args: {} }];
     const mockTask = createMockTask('task-8', TaskStatus.Todo, toolCalls);
 
     mockTaskManager.getTask.mockResolvedValue(mockTask); // Ensure mock returns the task
@@ -218,6 +249,8 @@ describe('TaskExecutionEngine', () => {
       TaskStatus.Failed,
     );
     expect(resultTask.status).toBe(TaskStatus.Failed);
-    expect(resultTask.metadata.toolCalls[0].error).toContain('Tool \'nonExistentTool\' not found');
+    expect(resultTask.metadata.toolCalls[0].error).toContain(
+      "Tool 'nonExistentTool' not found",
+    );
   });
 });

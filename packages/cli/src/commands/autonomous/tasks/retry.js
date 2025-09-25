@@ -119,6 +119,7 @@ export const retryTaskCommand = {
         `   Wait for Dependencies: ${argv['wait-for-dependencies'] ? chalk.green('Yes') : chalk.yellow('No')}`,
       );
       // Check dependencies if required
+      let allDepsComplete = true;
       if (argv['wait-for-dependencies']) {
         console.log(chalk.blue('\n🔗 Checking Dependencies:'));
         // Mock dependency check
@@ -129,7 +130,6 @@ export const retryTaskCommand = {
             Math.floor(Math.random() * 3)
           ],
         }));
-        let allDepsComplete = true;
         mockDepStatuses.forEach((dep) => {
           const statusColor =
             dep.status === 'completed'

@@ -5,10 +5,11 @@
  */
 
 import { EventEmitter } from 'node:events';
+import { DecisionPriority } from './types.js';
 /**
  * Types of conflicts that can occur in the system
  */
-export var ConflictType;
+export let ConflictType;
 (function (ConflictType) {
   ConflictType['RESOURCE_CONTENTION'] = 'resource_contention';
   ConflictType['PRIORITY_CONFLICT'] = 'priority_conflict';
@@ -22,7 +23,7 @@ export var ConflictType;
 /**
  * Severity levels for conflicts
  */
-export var ConflictSeverity;
+export let ConflictSeverity;
 (function (ConflictSeverity) {
   ConflictSeverity[(ConflictSeverity['LOW'] = 1)] = 'LOW';
   ConflictSeverity[(ConflictSeverity['MEDIUM'] = 2)] = 'MEDIUM';
@@ -33,7 +34,7 @@ export var ConflictSeverity;
 /**
  * Conflict resolution strategies
  */
-export var ResolutionStrategy;
+export let ResolutionStrategy;
 (function (ResolutionStrategy) {
   ResolutionStrategy['PRIORITY_BASED'] = 'priority_based';
   ResolutionStrategy['ROUND_ROBIN'] = 'round_robin';

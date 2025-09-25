@@ -82,4 +82,7 @@ export type {
 
 // Performance Optimization - TODO: Add PerformanceOptimizer when implemented
 
+// GCS Task Store implementation
+export { GCSTaskStore, NoOpTaskStore } from './gcs.js';
+
 // Utilities and Helpers - TODO: Add types when implemented

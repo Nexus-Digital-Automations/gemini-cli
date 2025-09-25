@@ -635,6 +635,8 @@ export class BudgetValidator {
         return `Budget validation passed with warnings: ${summary.warningRules} warning(s)`;
       case 'passed':
         return `Budget validation passed: ${summary.passedRules}/${summary.totalRules} rules passed`;
+      default:
+        return `Budget validation status unknown: ${status}`;
     }
   }
 

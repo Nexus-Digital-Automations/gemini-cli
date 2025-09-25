@@ -78,28 +78,29 @@ export interface RealTimeErrorMonitorConfig {
 /**
  * Default configuration for real-time error monitor
  */
-export const DEFAULT_REAL_TIME_ERROR_MONITOR_CONFIG: RealTimeErrorMonitorConfig = {
-  errorAnalysis: {
-    enableDeepAnalysis: false, // Disabled for performance in real-time
-    enableMLInsights: true,
-  },
-  enableRealTimeMonitoring: true,
-  enablePatternDetection: true,
-  enableTrendAnalysis: true,
-  enableAutoAlerting: true,
-  monitoringInterval: 5000, // 5 seconds
-  maxErrorHistory: 1000,
-  errorRateThreshold: 10, // errors per minute
-  memoryThreshold: 85, // percentage
-  cpuThreshold: 80, // percentage
-  enableHealthMonitoring: true,
-  healthCheckInterval: 30000, // 30 seconds
-  severityThresholds: {
-    warning: 1, // errors per minute
-    error: 5, // errors per minute
-    critical: 10, // errors per minute
-  },
-};
+export const DEFAULT_REAL_TIME_ERROR_MONITOR_CONFIG: RealTimeErrorMonitorConfig =
+  {
+    errorAnalysis: {
+      enableDeepAnalysis: false, // Disabled for performance in real-time
+      enableMLInsights: true,
+    },
+    enableRealTimeMonitoring: true,
+    enablePatternDetection: true,
+    enableTrendAnalysis: true,
+    enableAutoAlerting: true,
+    monitoringInterval: 5000, // 5 seconds
+    maxErrorHistory: 1000,
+    errorRateThreshold: 10, // errors per minute
+    memoryThreshold: 85, // percentage
+    cpuThreshold: 80, // percentage
+    enableHealthMonitoring: true,
+    healthCheckInterval: 30000, // 30 seconds
+    severityThresholds: {
+      warning: 1, // errors per minute
+      error: 5, // errors per minute
+      critical: 10, // errors per minute
+    },
+  };
 
 /**
  * Built-in error patterns for real-time detection
@@ -213,7 +214,9 @@ export class RealTimeErrorMonitor {
 
     try {
       // Initialize error analysis engine
-      this.errorAnalysisEngine = new ErrorAnalysisEngine(this.config.errorAnalysis);
+      this.errorAnalysisEngine = new ErrorAnalysisEngine(
+        this.config.errorAnalysis,
+      );
       await this.errorAnalysisEngine.initialize();
 
       // Initialize built-in alert rules
@@ -222,10 +225,13 @@ export class RealTimeErrorMonitor {
       this.isInitialized = true;
       const duration = performance.now() - startTime;
 
-      logger.info(`Real-Time Error Monitor initialized in ${duration.toFixed(2)}ms`, {
-        alertRules: this.alertRules.size,
-        enableHealthMonitoring: this.config.enableHealthMonitoring,
-      });
+      logger.info(
+        `Real-Time Error Monitor initialized in ${duration.toFixed(2)}ms`,
+        {
+          alertRules: this.alertRules.size,
+          enableHealthMonitoring: this.config.enableHealthMonitoring,
+        },
+      );
     } catch (error) {
       logger.error('Failed to initialize Real-Time Error Monitor', { error });
       throw error;
@@ -235,9 +241,13 @@ export class RealTimeErrorMonitor {
   /**
    * Add an application to monitor
    */
-  async addApplication(application: Omit<MonitoredApplication, 'status' | 'lastSeen'>): Promise<void> {
+  async addApplication(
+    application: Omit<MonitoredApplication, 'status' | 'lastSeen'>,
+  ): Promise<void> {
     if (!this.isInitialized) {
-      throw new Error('RealTimeErrorMonitor not initialized. Call initialize() first.');
+      throw new Error(
+        'RealTimeErrorMonitor not initialized. Call initialize() first.',
+      );
     }
 
     const monitoredApp: MonitoredApplication = {
@@ -262,9 +272,13 @@ export class RealTimeErrorMonitor {
     const removed = this.monitoredApps.delete(applicationId);
 
     if (removed) {
-      logger.info('Removed application from monitoring', { appId: applicationId });
+      logger.info('Removed application from monitoring', {
+        appId: applicationId,
+      });
     } else {
-      logger.warn('Application not found for removal', { appId: applicationId });
+      logger.warn('Application not found for removal', {
+        appId: applicationId,
+      });
     }
   }
 
@@ -286,8 +300,10 @@ export class RealTimeErrorMonitor {
     // Start error monitoring timer
     if (this.config.enableRealTimeMonitoring) {
       this.monitoringTimer = setInterval(
-        () => this.performMonitoringCycle().catch(error =>
-          logger.error('Monitoring cycle failed', { error })),
+        () =>
+          this.performMonitoringCycle().catch((error) =>
+            logger.error('Monitoring cycle failed', { error }),
+          ),
         this.config.monitoringInterval,
       );
     }
@@ -295,8 +311,10 @@ export class RealTimeErrorMonitor {
     // Start health monitoring timer
     if (this.config.enableHealthMonitoring) {
       this.healthCheckTimer = setInterval(
-        () => this.performHealthCheck().catch(error =>
-          logger.error('Health check failed', { error })),
+        () =>
+          this.performHealthCheck().catch((error) =>
+            logger.error('Health check failed', { error }),
+          ),
         this.config.healthCheckInterval,
       );
     }
@@ -364,16 +382,21 @@ export class RealTimeErrorMonitor {
     if (this.errorAnalysisEngine) {
       try {
         const app = this.monitoredApps.get(error.applicationId);
-        const analysis = await this.errorAnalysisEngine.analyzeError(error.message, {
-          language: app?.language,
-          applicationId: error.applicationId,
-          timestamp: errorEvent.timestamp,
-        });
+        const analysis = await this.errorAnalysisEngine.analyzeError(
+          error.message,
+          {
+            language: app?.language,
+            applicationId: error.applicationId,
+            timestamp: errorEvent.timestamp,
+          },
+        );
 
         errorEvent.analysis = analysis;
         errorEvent.analyzed = true;
       } catch (analysisError) {
-        logger.debug('Failed to analyze error in real-time', { error: analysisError });
+        logger.debug('Failed to analyze error in real-time', {
+          error: analysisError,
+        });
       }
     }
 
@@ -395,23 +418,34 @@ export class RealTimeErrorMonitor {
   /**
    * Subscribe to error events and alerts
    */
-  subscribe(eventType: string, callback: (alert: MonitoringAlert) => void): void {
+  subscribe(
+    eventType: string,
+    callback: (alert: MonitoringAlert) => void,
+  ): void {
     if (!this.subscribers.has(eventType)) {
       this.subscribers.set(eventType, []);
     }
 
     this.subscribers.get(eventType)!.push({ callback });
 
-    logger.debug('Added subscriber', { eventType, totalSubscribers: this.subscribers.size });
+    logger.debug('Added subscriber', {
+      eventType,
+      totalSubscribers: this.subscribers.size,
+    });
   }
 
   /**
    * Unsubscribe from error events
    */
-  unsubscribe(eventType: string, callback: (alert: MonitoringAlert) => void): void {
+  unsubscribe(
+    eventType: string,
+    callback: (alert: MonitoringAlert) => void,
+  ): void {
     const eventSubscribers = this.subscribers.get(eventType);
     if (eventSubscribers) {
-      const index = eventSubscribers.findIndex(sub => sub.callback === callback);
+      const index = eventSubscribers.findIndex(
+        (sub) => sub.callback === callback,
+      );
       if (index !== -1) {
         eventSubscribers.splice(index, 1);
         logger.debug('Removed subscriber', { eventType });
@@ -424,7 +458,10 @@ export class RealTimeErrorMonitor {
    */
   addAlertRule(rule: AlertRule): void {
     this.alertRules.set(rule.id, rule);
-    logger.info('Added custom alert rule', { ruleId: rule.id, ruleName: rule.name });
+    logger.info('Added custom alert rule', {
+      ruleId: rule.id,
+      ruleName: rule.name,
+    });
   }
 
   /**
@@ -452,7 +489,9 @@ export class RealTimeErrorMonitor {
     let history = this.errorHistory;
 
     if (applicationId) {
-      history = history.filter(error => error.applicationId === applicationId);
+      history = history.filter(
+        (error) => error.applicationId === applicationId,
+      );
     }
 
     if (limit) {
@@ -469,7 +508,9 @@ export class RealTimeErrorMonitor {
     const now = new Date();
     const oneMinuteAgo = new Date(now.getTime() - 60000);
 
-    const recentErrors = this.errorHistory.filter(error => error.timestamp >= oneMinuteAgo);
+    const recentErrors = this.errorHistory.filter(
+      (error) => error.timestamp >= oneMinuteAgo,
+    );
     const errorRate = recentErrors.length;
 
     let overallStatus: HealthStatus = 'healthy';
@@ -502,7 +543,7 @@ export class RealTimeErrorMonitor {
       errorRate,
       activeAlerts: [], // Would track active alerts
       systemMetrics: this.getSystemMetrics(),
-      applicationHealth: Array.from(this.monitoredApps.values()).map(app => ({
+      applicationHealth: Array.from(this.monitoredApps.values()).map((app) => ({
         applicationId: app.id,
         status: app.status,
         lastSeen: app.lastSeen,
@@ -528,7 +569,10 @@ export class RealTimeErrorMonitor {
       monitoredApplications: this.monitoredApps.size,
       totalErrorsRecorded: this.errorHistory.length,
       activeAlertRules: this.alertRules.size,
-      subscribers: Array.from(this.subscribers.values()).reduce((sum, subs) => sum + subs.length, 0),
+      subscribers: Array.from(this.subscribers.values()).reduce(
+        (sum, subs) => sum + subs.length,
+        0,
+      ),
       uptime: this.isInitialized ? Date.now() - Date.now() : 0, // Would track actual uptime
     };
   }
@@ -549,7 +593,10 @@ export class RealTimeErrorMonitor {
     this.config = { ...this.config, ...newConfig };
 
     // Restart timers if intervals changed
-    if (this.isMonitoring && (newConfig.monitoringInterval || newConfig.healthCheckInterval)) {
+    if (
+      this.isMonitoring &&
+      (newConfig.monitoringInterval || newConfig.healthCheckInterval)
+    ) {
       this.stopMonitoring().then(() => this.startMonitoring());
     }
 
@@ -669,7 +716,9 @@ export class RealTimeErrorMonitor {
 
     // Calculate error rate (errors per minute)
     const oneMinuteAgo = new Date(Date.now() - 60000);
-    const recentErrors = this.errorHistory.filter(error => error.timestamp >= oneMinuteAgo);
+    const recentErrors = this.errorHistory.filter(
+      (error) => error.timestamp >= oneMinuteAgo,
+    );
     this.currentMetrics.errorRate = recentErrors.length;
 
     this.currentMetrics.lastUpdated = new Date();
@@ -681,10 +730,12 @@ export class RealTimeErrorMonitor {
   private async checkErrorPatterns(errorEvent: ErrorEvent): Promise<void> {
     const now = errorEvent.timestamp.getTime();
 
-    for (const [patternId, patternConfig] of Object.entries(REAL_TIME_ERROR_PATTERNS)) {
+    for (const [patternId, patternConfig] of Object.entries(
+      REAL_TIME_ERROR_PATTERNS,
+    )) {
       const windowStart = now - patternConfig.timeWindow;
       const relevantErrors = this.errorHistory.filter(
-        error => error.timestamp.getTime() >= windowStart,
+        (error) => error.timestamp.getTime() >= windowStart,
       );
 
       let patternDetected = false;
@@ -701,7 +752,9 @@ export class RealTimeErrorMonitor {
         case 'errorSpike':
           const baselineWindow = windowStart - patternConfig.timeWindow;
           const baselineErrors = this.errorHistory.filter(
-            error => error.timestamp.getTime() >= baselineWindow && error.timestamp.getTime() < windowStart,
+            (error) =>
+              error.timestamp.getTime() >= baselineWindow &&
+              error.timestamp.getTime() < windowStart,
           );
           const baselineRate = baselineErrors.length || 1;
 
@@ -712,7 +765,9 @@ export class RealTimeErrorMonitor {
           break;
 
         case 'cascadingFailures':
-          const uniqueApps = new Set(relevantErrors.map(error => error.applicationId));
+          const uniqueApps = new Set(
+            relevantErrors.map((error) => error.applicationId),
+          );
           if (uniqueApps.size >= patternConfig.threshold) {
             patternDetected = true;
             description = `Errors across ${uniqueApps.size} applications`;
@@ -721,8 +776,9 @@ export class RealTimeErrorMonitor {
 
         case 'memoryLeakIndicator':
           const memoryErrors = relevantErrors.filter(
-            error => error.message.toLowerCase().includes('memory') ||
-                    error.message.toLowerCase().includes('heap'),
+            (error) =>
+              error.message.toLowerCase().includes('memory') ||
+              error.message.toLowerCase().includes('heap'),
           );
           if (memoryErrors.length >= patternConfig.threshold) {
             patternDetected = true;
@@ -732,7 +788,7 @@ export class RealTimeErrorMonitor {
 
         case 'infiniteLoop':
           const similarErrors = relevantErrors.filter(
-            error => error.message === errorEvent.message,
+            (error) => error.message === errorEvent.message,
           );
           if (similarErrors.length >= patternConfig.threshold) {
             patternDetected = true;
@@ -742,7 +798,12 @@ export class RealTimeErrorMonitor {
       }
 
       if (patternDetected) {
-        await this.triggerPatternAlert(patternId, patternConfig, description, errorEvent);
+        await this.triggerPatternAlert(
+          patternId,
+          patternConfig,
+          description,
+          errorEvent,
+        );
       }
     }
   }
@@ -758,9 +819,14 @@ export class RealTimeErrorMonitor {
         const alert: MonitoringAlert = {
           id: `alert-${errorEvent.id}`,
           type: 'error',
-          severity: errorEvent.severity === 'low' ? 'info' :
-                   errorEvent.severity === 'medium' ? 'warning' :
-                   errorEvent.severity === 'high' ? 'error' : 'critical',
+          severity:
+            errorEvent.severity === 'low'
+              ? 'info'
+              : errorEvent.severity === 'medium'
+                ? 'warning'
+                : errorEvent.severity === 'high'
+                  ? 'error'
+                  : 'critical',
           title: 'New Error Detected',
           description: errorEvent.message,
           timestamp: errorEvent.timestamp,
@@ -784,7 +850,7 @@ export class RealTimeErrorMonitor {
    */
   private async triggerPatternAlert(
     patternId: string,
-    patternConfig: any,
+    patternConfig: Record<string, unknown>,
     description: string,
     triggerEvent: ErrorEvent,
   ): Promise<void> {
@@ -847,7 +913,8 @@ export class RealTimeErrorMonitor {
 
     for (const [appId, app] of this.monitoredApps.entries()) {
       const appErrors = this.errorHistory.filter(
-        error => error.applicationId === appId && error.timestamp >= fiveMinutesAgo,
+        (error) =>
+          error.applicationId === appId && error.timestamp >= fiveMinutesAgo,
       );
 
       let status: HealthStatus = 'healthy';
@@ -898,7 +965,9 @@ export class RealTimeErrorMonitor {
     const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
     const initialLength = this.errorHistory.length;
 
-    this.errorHistory = this.errorHistory.filter(error => error.timestamp >= cutoffTime);
+    this.errorHistory = this.errorHistory.filter(
+      (error) => error.timestamp >= cutoffTime,
+    );
 
     if (this.errorHistory.length < initialLength) {
       logger.debug('Cleaned up old error history', {
@@ -913,7 +982,9 @@ export class RealTimeErrorMonitor {
    */
   private initializeAlertRules(): void {
     // Initialize with built-in patterns
-    for (const [patternId, patternConfig] of Object.entries(REAL_TIME_ERROR_PATTERNS)) {
+    for (const [patternId, patternConfig] of Object.entries(
+      REAL_TIME_ERROR_PATTERNS,
+    )) {
       const rule: AlertRule = {
         id: `builtin-${patternId}`,
         name: patternConfig.name,
@@ -931,7 +1002,9 @@ export class RealTimeErrorMonitor {
       this.alertRules.set(rule.id, rule);
     }
 
-    logger.debug('Initialized built-in alert rules', { count: this.alertRules.size });
+    logger.debug('Initialized built-in alert rules', {
+      count: this.alertRules.size,
+    });
   }
 
   /**
@@ -960,7 +1033,9 @@ export class RealTimeErrorMonitor {
     const memoryUsage = process.memoryUsage();
 
     return {
-      memoryUsage: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100),
+      memoryUsage: Math.round(
+        (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100,
+      ),
       cpuUsage: 25, // Placeholder - would use actual CPU monitoring
       responseTime: 150, // Placeholder
       throughput: 100, // Placeholder
