@@ -6,7 +6,7 @@
 
 import type { CommandModule } from 'yargs';
 interface ResetCommandArgs {
-    confirm?: boolean;
+  confirm?: boolean;
 }
 export declare const resetCommand: CommandModule<object, ResetCommandArgs>;
 export {};

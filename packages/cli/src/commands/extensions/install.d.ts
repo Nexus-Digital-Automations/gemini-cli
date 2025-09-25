@@ -9,14 +9,14 @@ import type { CommandModule } from 'yargs';
  * Arguments interface for the install extension command
  */
 interface InstallArgs {
-    /** Git URL of the extension to install */
-    source?: string;
-    /** Local file system path to the extension directory */
-    path?: string;
-    /** Git reference (branch, tag, commit) to install from */
-    ref?: string;
-    /** Whether to enable auto-update for this extension */
-    autoUpdate?: boolean;
+  /** Git URL of the extension to install */
+  source?: string;
+  /** Local file system path to the extension directory */
+  path?: string;
+  /** Git reference (branch, tag, commit) to install from */
+  ref?: string;
+  /** Whether to enable auto-update for this extension */
+  autoUpdate?: boolean;
 }
 /**
  * Handles the install extension command execution

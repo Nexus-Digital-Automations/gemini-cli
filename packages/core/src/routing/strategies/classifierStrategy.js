@@ -6,16 +6,23 @@
 
 import { z } from 'zod';
 import { promptIdContext } from '../../utils/promptIdContext.js';
-import { DEFAULT_GEMINI_FLASH_MODEL, DEFAULT_GEMINI_FLASH_LITE_MODEL, DEFAULT_GEMINI_MODEL, } from '../../config/models.js';
-import { createUserContent, Type, } from '@google/genai';
-import { isFunctionCall, isFunctionResponse, } from '../../utils/messageInspectors.js';
+import {
+  DEFAULT_GEMINI_FLASH_MODEL,
+  DEFAULT_GEMINI_FLASH_LITE_MODEL,
+  DEFAULT_GEMINI_MODEL,
+} from '../../config/models.js';
+import { createUserContent, Type } from '@google/genai';
+import {
+  isFunctionCall,
+  isFunctionResponse,
+} from '../../utils/messageInspectors.js';
 import { getComponentLogger } from '../../utils/logger.js';
 const CLASSIFIER_GENERATION_CONFIG = {
-    temperature: 0,
-    maxOutputTokens: 1024,
-    thinkingConfig: {
-        thinkingBudget: 512, // This counts towards output max, so we don't want -1.
-    },
+  temperature: 0,
+  maxOutputTokens: 1024,
+  thinkingConfig: {
+    thinkingBudget: 512, // This counts towards output max, so we don't want -1.
+  },
 };
 // The number of recent history turns to provide to the router for context.
 const HISTORY_TURNS_FOR_CONTEXT = 4;
@@ -103,22 +110,23 @@ Respond *only* in JSON format according to the following schema. Do not include 
 }
 `;
 const RESPONSE_SCHEMA = {
-    type: Type.OBJECT,
-    properties: {
-        reasoning: {
-            type: Type.STRING,
-            description: 'A brief, step-by-step explanation for the model choice, referencing the rubric.',
-        },
-        model_choice: {
-            type: Type.STRING,
-            enum: [FLASH_MODEL, PRO_MODEL],
-        },
+  type: Type.OBJECT,
+  properties: {
+    reasoning: {
+      type: Type.STRING,
+      description:
+        'A brief, step-by-step explanation for the model choice, referencing the rubric.',
     },
-    required: ['reasoning', 'model_choice'],
+    model_choice: {
+      type: Type.STRING,
+      enum: [FLASH_MODEL, PRO_MODEL],
+    },
+  },
+  required: ['reasoning', 'model_choice'],
 };
 const ClassifierResponseSchema = z.object({
-    reasoning: z.string(),
-    model_choice: z.enum([FLASH_MODEL, PRO_MODEL]),
+  reasoning: z.string(),
+  model_choice: z.enum([FLASH_MODEL, PRO_MODEL]),
 });
 /**
  * AI-powered routing strategy that classifies requests by complexity.
@@ -148,85 +156,88 @@ const ClassifierResponseSchema = z.object({
  * ```
  */
 export class ClassifierStrategy {
-    name = 'classifier';
-    /**
-     * Route the request by classifying its complexity using AI.
-     *
-     * Analyzes the user request and conversation history to determine appropriate
-     * model selection. Uses a structured JSON response with reasoning to ensure
-     * transparent and debuggable routing decisions.
-     *
-     * The method:
-     * 1. Extracts recent conversation history for context
-     * 2. Filters out tool calls to focus on user intent
-     * 3. Sends request to classifier model with structured schema
-     * 4. Parses response and maps to appropriate model
-     * 5. Returns null on failure to allow fallback strategies
-     *
-     * @param context - Routing context with request and conversation history
-     * @param _config - Application configuration (unused)
-     * @param baseLlmClient - LLM client for classification requests
-     * @returns Promise resolving to routing decision or null if classification fails
-     */
-    async route(context, _config, baseLlmClient) {
-        const startTime = Date.now();
-        try {
-            let promptId = promptIdContext.getStore();
-            if (!promptId) {
-                promptId = `classifier-router-fallback-${Date.now()}-${Math.random()
-                    .toString(16)
-                    .slice(2)}`;
-                const logger = getComponentLogger('ClassifierStrategy');
-                logger.warn(`Could not find promptId in context. This is unexpected. Using a fallback ID: ${promptId}`, { promptId });
-            }
-            const historySlice = context.history.slice(-HISTORY_SEARCH_WINDOW);
-            // Filter out tool-related turns.
-            // TODO - Consider using function req/res if they help accuracy.
-            const cleanHistory = historySlice.filter((content) => !isFunctionCall(content) && !isFunctionResponse(content));
-            // Take the last N turns from the *cleaned* history.
-            const finalHistory = cleanHistory.slice(-HISTORY_TURNS_FOR_CONTEXT);
-            const jsonResponse = await baseLlmClient.generateJson({
-                contents: [...finalHistory, createUserContent(context.request)],
-                schema: RESPONSE_SCHEMA,
-                model: DEFAULT_GEMINI_FLASH_LITE_MODEL,
-                systemInstruction: CLASSIFIER_SYSTEM_PROMPT,
-                config: CLASSIFIER_GENERATION_CONFIG,
-                abortSignal: context.signal,
-                promptId,
-            });
-            const routerResponse = ClassifierResponseSchema.parse(jsonResponse);
-            const reasoning = routerResponse.reasoning;
-            const latencyMs = Date.now() - startTime;
-            if (routerResponse.model_choice === FLASH_MODEL) {
-                return {
-                    model: DEFAULT_GEMINI_FLASH_MODEL,
-                    metadata: {
-                        source: 'Classifier',
-                        latencyMs,
-                        reasoning,
-                    },
-                };
-            }
-            else {
-                return {
-                    model: DEFAULT_GEMINI_MODEL,
-                    metadata: {
-                        source: 'Classifier',
-                        reasoning,
-                        latencyMs,
-                    },
-                };
-            }
-        }
-        catch (error) {
-            // If the classifier fails for any reason (API error, parsing error, etc.),
-            // we log it and return null to allow the composite strategy to proceed.
-            const logger = getComponentLogger('ClassifierStrategy');
-            logger.warn('ClassifierStrategy failed', {
-                error: error instanceof Error ? error : new Error(String(error)),
-            });
-            return null;
-        }
+  name = 'classifier';
+  /**
+   * Route the request by classifying its complexity using AI.
+   *
+   * Analyzes the user request and conversation history to determine appropriate
+   * model selection. Uses a structured JSON response with reasoning to ensure
+   * transparent and debuggable routing decisions.
+   *
+   * The method:
+   * 1. Extracts recent conversation history for context
+   * 2. Filters out tool calls to focus on user intent
+   * 3. Sends request to classifier model with structured schema
+   * 4. Parses response and maps to appropriate model
+   * 5. Returns null on failure to allow fallback strategies
+   *
+   * @param context - Routing context with request and conversation history
+   * @param _config - Application configuration (unused)
+   * @param baseLlmClient - LLM client for classification requests
+   * @returns Promise resolving to routing decision or null if classification fails
+   */
+  async route(context, _config, baseLlmClient) {
+    const startTime = Date.now();
+    try {
+      let promptId = promptIdContext.getStore();
+      if (!promptId) {
+        promptId = `classifier-router-fallback-${Date.now()}-${Math.random()
+          .toString(16)
+          .slice(2)}`;
+        const logger = getComponentLogger('ClassifierStrategy');
+        logger.warn(
+          `Could not find promptId in context. This is unexpected. Using a fallback ID: ${promptId}`,
+          { promptId },
+        );
+      }
+      const historySlice = context.history.slice(-HISTORY_SEARCH_WINDOW);
+      // Filter out tool-related turns.
+      // TODO - Consider using function req/res if they help accuracy.
+      const cleanHistory = historySlice.filter(
+        (content) => !isFunctionCall(content) && !isFunctionResponse(content),
+      );
+      // Take the last N turns from the *cleaned* history.
+      const finalHistory = cleanHistory.slice(-HISTORY_TURNS_FOR_CONTEXT);
+      const jsonResponse = await baseLlmClient.generateJson({
+        contents: [...finalHistory, createUserContent(context.request)],
+        schema: RESPONSE_SCHEMA,
+        model: DEFAULT_GEMINI_FLASH_LITE_MODEL,
+        systemInstruction: CLASSIFIER_SYSTEM_PROMPT,
+        config: CLASSIFIER_GENERATION_CONFIG,
+        abortSignal: context.signal,
+        promptId,
+      });
+      const routerResponse = ClassifierResponseSchema.parse(jsonResponse);
+      const reasoning = routerResponse.reasoning;
+      const latencyMs = Date.now() - startTime;
+      if (routerResponse.model_choice === FLASH_MODEL) {
+        return {
+          model: DEFAULT_GEMINI_FLASH_MODEL,
+          metadata: {
+            source: 'Classifier',
+            latencyMs,
+            reasoning,
+          },
+        };
+      } else {
+        return {
+          model: DEFAULT_GEMINI_MODEL,
+          metadata: {
+            source: 'Classifier',
+            reasoning,
+            latencyMs,
+          },
+        };
+      }
+    } catch (error) {
+      // If the classifier fails for any reason (API error, parsing error, etc.),
+      // we log it and return null to allow the composite strategy to proceed.
+      const logger = getComponentLogger('ClassifierStrategy');
+      logger.warn('ClassifierStrategy failed', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+      return null;
     }
+  }
 }
 //# sourceMappingURL=classifierStrategy.js.map

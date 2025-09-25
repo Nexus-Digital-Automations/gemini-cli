@@ -19,7 +19,11 @@ import { EventEmitter } from 'node:events';
 import { promisify } from 'node:util';
 import { exec } from 'node:child_process';
 import type { Config } from '../index.js';
-import type { AutonomousTaskIntegrator, AutonomousTask, RegisteredAgent } from './autonomousTaskIntegrator.js';
+import type {
+  AutonomousTaskIntegrator,
+  AutonomousTask,
+  RegisteredAgent,
+} from './autonomousTaskIntegrator.js';
 import type { IntegrationBridge } from './integrationBridge.js';
 
 const execAsync = promisify(exec);
@@ -81,7 +85,12 @@ export interface SystemMetrics {
 export interface Alert {
   id: string;
   severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
-  category: 'performance' | 'availability' | 'capacity' | 'security' | 'integration';
+  category:
+    | 'performance'
+    | 'availability'
+    | 'capacity'
+    | 'security'
+    | 'integration';
   title: string;
   description: string;
   metrics: Record<string, number>;
@@ -146,10 +155,7 @@ export class SystemMonitor extends EventEmitter {
   private metricsCache: SystemMetrics | null = null;
   private cacheTTL = 5000; // 5 seconds
 
-  constructor(
-    config: Config,
-    monitoringConfig?: Partial<MonitoringConfig>
-  ) {
+  constructor(config: Config, monitoringConfig?: Partial<MonitoringConfig>) {
     super();
     this.config = config;
     this.monitoringConfig = {
@@ -178,7 +184,7 @@ export class SystemMonitor extends EventEmitter {
    */
   async initialize(
     taskIntegrator?: AutonomousTaskIntegrator,
-    integrationBridge?: IntegrationBridge
+    integrationBridge?: IntegrationBridge,
   ): Promise<void> {
     this.taskIntegrator = taskIntegrator;
     this.integrationBridge = integrationBridge;
@@ -248,7 +254,10 @@ export class SystemMonitor extends EventEmitter {
    */
   async getCurrentMetrics(): Promise<SystemMetrics> {
     // Use cached metrics if within TTL
-    if (this.metricsCache && Date.now() - this.metricsCache.timestamp.getTime() < this.cacheTTL) {
+    if (
+      this.metricsCache &&
+      Date.now() - this.metricsCache.timestamp.getTime() < this.cacheTTL
+    ) {
       return this.metricsCache;
     }
 
@@ -261,8 +270,10 @@ export class SystemMonitor extends EventEmitter {
    * Get historical metrics for dashboard
    */
   getHistoricalMetrics(period?: number): SystemMetrics[] {
-    const since = Date.now() - (period || this.monitoringConfig.dashboardConfig.historyPeriod);
-    return this.metricsHistory.filter(m => m.timestamp.getTime() >= since);
+    const since =
+      Date.now() -
+      (period || this.monitoringConfig.dashboardConfig.historyPeriod);
+    return this.metricsHistory.filter((m) => m.timestamp.getTime() >= since);
   }
 
   /**
@@ -292,8 +303,12 @@ export class SystemMonitor extends EventEmitter {
     lastCheck: Date;
   } {
     const activeAlerts = this.getActiveAlerts();
-    const criticalAlerts = activeAlerts.filter(a => a.severity === 'critical');
-    const warningAlerts = activeAlerts.filter(a => a.severity === 'high' || a.severity === 'medium');
+    const criticalAlerts = activeAlerts.filter(
+      (a) => a.severity === 'critical',
+    );
+    const warningAlerts = activeAlerts.filter(
+      (a) => a.severity === 'high' || a.severity === 'medium',
+    );
 
     let status: 'healthy' | 'warning' | 'critical' = 'healthy';
     let score = 100;
@@ -400,7 +415,8 @@ export class SystemMonitor extends EventEmitter {
 
       // Get CPU usage (simplified approach)
       const cpuUsage = process.cpuUsage();
-      const cpuPercentage = ((cpuUsage.user + cpuUsage.system) / 1000000) / uptime * 100;
+      const cpuPercentage =
+        ((cpuUsage.user + cpuUsage.system) / 1000000 / uptime) * 100;
 
       // Get memory usage
       const memUsage = process.memoryUsage();
@@ -454,12 +470,14 @@ export class SystemMonitor extends EventEmitter {
 
     // Calculate averages from recent metrics
     const recentMetrics = this.metricsHistory.slice(-12); // Last 6 minutes
-    const avgWaitTime = recentMetrics.length > 0
-      ? recentMetrics.reduce((sum, m) => sum + m.tasks.avgWaitTime, 0) / recentMetrics.length
-      : status.queue.avgWaitTime;
+    const avgWaitTime =
+      recentMetrics.length > 0
+        ? recentMetrics.reduce((sum, m) => sum + m.tasks.avgWaitTime, 0) /
+          recentMetrics.length
+        : status.queue.avgWaitTime;
 
     const completedInLastHour = this.metricsHistory
-      .filter(m => Date.now() - m.timestamp.getTime() < 3600000)
+      .filter((m) => Date.now() - m.timestamp.getTime() < 3600000)
       .reduce((sum, m) => sum + m.tasks.completed, 0);
 
     return {
@@ -497,7 +515,8 @@ export class SystemMonitor extends EventEmitter {
       busy: status.agents.busy,
       idle: status.agents.idle,
       offline: status.agents.offline,
-      avgLoadPerAgent: status.agents.total > 0 ? status.tasks.total / status.agents.total : 0,
+      avgLoadPerAgent:
+        status.agents.total > 0 ? status.tasks.total / status.agents.total : 0,
       responseTime: 0, // Would be calculated from agent response times
     };
   }
@@ -630,9 +649,12 @@ export class SystemMonitor extends EventEmitter {
     }
 
     // Agent Availability Alerts
-    const agentAvailability = metrics.agents.total > 0
-      ? ((metrics.agents.active + metrics.agents.idle) / metrics.agents.total) * 100
-      : 100;
+    const agentAvailability =
+      metrics.agents.total > 0
+        ? ((metrics.agents.active + metrics.agents.idle) /
+            metrics.agents.total) *
+          100
+        : 100;
 
     if (agentAvailability <= thresholds.agentAvailability.critical) {
       this.createAlert({
@@ -649,13 +671,18 @@ export class SystemMonitor extends EventEmitter {
   }
 
   private async cleanupOldData(): Promise<void> {
-    const cutoff = Date.now() - (this.monitoringConfig.retentionDays * 24 * 60 * 60 * 1000);
+    const cutoff =
+      Date.now() - this.monitoringConfig.retentionDays * 24 * 60 * 60 * 1000;
 
     // Clean old metrics
-    this.metricsHistory = this.metricsHistory.filter(m => m.timestamp.getTime() >= cutoff);
+    this.metricsHistory = this.metricsHistory.filter(
+      (m) => m.timestamp.getTime() >= cutoff,
+    );
 
     // Clean old alert history
-    this.alertHistory = this.alertHistory.filter(a => a.timestamp.getTime() >= cutoff);
+    this.alertHistory = this.alertHistory.filter(
+      (a) => a.timestamp.getTime() >= cutoff,
+    );
   }
 
   private generateAlertId(): string {

@@ -16,7 +16,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 export interface LogContext {
@@ -93,14 +93,19 @@ export class Logger {
   /**
    * Internal log method
    */
-  private log(level: LogLevel, message: string, context?: LogContext, error?: Error): void {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: LogContext,
+    error?: Error,
+  ): void {
     const entry: LogEntry = {
       timestamp: new Date(),
       level,
       component: this.component,
       message,
       context,
-      error
+      error,
     };
 
     // Format and output log entry

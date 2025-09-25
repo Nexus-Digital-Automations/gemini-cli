@@ -20,12 +20,12 @@ import {
   SystemConfigFactory,
   createIntegratedTaskManagementSystem,
   type IntegratedSystemConfig,
-  type SystemHealth
+  type SystemHealth,
 } from '../TaskManagementSystemIntegrator.js';
 import {
   TaskManagementConfigManager,
   ConfigUtils,
-  type TaskManagementConfiguration
+  type TaskManagementConfiguration,
 } from '../TaskManagementConfig.js';
 
 describe('Task Management System Integration Tests', () => {
@@ -36,7 +36,15 @@ describe('Task Management System Integration Tests', () => {
 
   beforeEach(async () => {
     // Create temporary test directory
-    testDir = join(__dirname, '..', '..', '..', '..', '.test-data', `integration-${Date.now()}`);
+    testDir = join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      '.test-data',
+      `integration-${Date.now()}`,
+    );
     await fs.mkdir(testDir, { recursive: true });
 
     // Mock core configuration
@@ -160,9 +168,9 @@ describe('Task Management System Integration Tests', () => {
           type: 'implementation',
           priority: 'high',
           expectedOutputs: {
-            result: 'Integration test completed'
-          }
-        }
+            result: 'Integration test completed',
+          },
+        },
       );
 
       expect(result.success).toBe(true);
@@ -183,7 +191,7 @@ describe('Task Management System Integration Tests', () => {
           complexity: 'high',
           useAutonomousQueue: true,
           estimatedDuration: 4 * 60 * 60 * 1000, // 4 hours - should trigger breakdown
-        }
+        },
       );
 
       expect(result.success).toBe(true);
@@ -202,13 +210,13 @@ describe('Task Management System Integration Tests', () => {
           `Test task ${i + 1} for metrics collection`,
           {
             type: 'implementation',
-            priority: 'normal'
-          }
+            priority: 'normal',
+          },
         );
         tasks.push(result);
       }
 
-      expect(tasks.every(t => t.success)).toBe(true);
+      expect(tasks.every((t) => t.success)).toBe(true);
 
       const health = integrator!.getSystemHealth();
       expect(health.metrics).toBeTruthy();
@@ -230,13 +238,17 @@ describe('Task Management System Integration Tests', () => {
       expect(config.core).toEqual(coreConfig);
 
       // Verify file was created
-      const fileExists = await fs.access(configPath).then(() => true).catch(() => false);
+      const fileExists = await fs
+        .access(configPath)
+        .then(() => true)
+        .catch(() => false);
       expect(fileExists).toBe(true);
     });
 
     it('should validate configuration and provide feedback', async () => {
       configManager = new TaskManagementConfigManager();
-      const config = TaskManagementConfigManager.createDefaultConfig('development');
+      const config =
+        TaskManagementConfigManager.createDefaultConfig('development');
 
       // Test invalid configuration
       config.taskEngine.maxConcurrentTasks = -1; // Invalid
@@ -245,8 +257,12 @@ describe('Task Management System Integration Tests', () => {
       const validation = configManager.validateConfig(config);
 
       expect(validation.isValid).toBe(false);
-      expect(validation.errors).toContain('Task engine maxConcurrentTasks must be at least 1');
-      expect(validation.errors).toContain('Dashboard port must be between 1024 and 65535');
+      expect(validation.errors).toContain(
+        'Task engine maxConcurrentTasks must be at least 1',
+      );
+      expect(validation.errors).toContain(
+        'Dashboard port must be between 1024 and 65535',
+      );
     });
 
     it('should handle configuration updates at runtime', async () => {
@@ -260,8 +276,8 @@ describe('Task Management System Integration Tests', () => {
       await configManager.updateConfig({
         taskEngine: {
           ...config.taskEngine,
-          maxConcurrentTasks: 8
-        }
+          maxConcurrentTasks: 8,
+        },
       });
 
       const updatedConfig = configManager.getConfig();
@@ -269,10 +285,16 @@ describe('Task Management System Integration Tests', () => {
     });
 
     it('should generate and validate different configuration templates', async () => {
-      const templates = ['minimal', 'development', 'production', 'enterprise'] as const;
+      const templates = [
+        'minimal',
+        'development',
+        'production',
+        'enterprise',
+      ] as const;
 
       for (const templateType of templates) {
-        const config = TaskManagementConfigManager.generateTemplate(templateType);
+        const config =
+          TaskManagementConfigManager.generateTemplate(templateType);
 
         expect(config).toBeTruthy();
         expect(config.environment).toBeTruthy();
@@ -377,8 +399,8 @@ describe('Task Management System Integration Tests', () => {
         '', // Invalid empty title
         '', // Invalid empty description
         {
-          invalidProperty: 'invalid-value'
-        }
+          invalidProperty: 'invalid-value',
+        },
       );
 
       // Should handle error gracefully
@@ -408,7 +430,8 @@ describe('Task Management System Integration Tests', () => {
 
   describe('Configuration Export and Import Integration', () => {
     it('should export configuration to different formats', async () => {
-      const config = TaskManagementConfigManager.createDefaultConfig('development');
+      const config =
+        TaskManagementConfigManager.createDefaultConfig('development');
 
       const jsonExport = ConfigUtils.exportConfig(config, 'json');
       expect(jsonExport).toBeTruthy();
@@ -420,7 +443,8 @@ describe('Task Management System Integration Tests', () => {
     });
 
     it('should validate configuration schema', async () => {
-      const validConfig = TaskManagementConfigManager.createDefaultConfig('development');
+      const validConfig =
+        TaskManagementConfigManager.createDefaultConfig('development');
       expect(ConfigUtils.validateSchema(validConfig)).toBe(true);
 
       const invalidConfig = { environment: 'test' }; // Missing required fields
@@ -441,23 +465,36 @@ describe('Task Management System Integration Tests', () => {
 
       // 2. Queue multiple related tasks
       const tasks = [
-        { title: 'Analyze Requirements', description: 'Analyze project requirements' },
-        { title: 'Design Architecture', description: 'Design system architecture' },
-        { title: 'Implement Core Features', description: 'Implement main functionality' },
+        {
+          title: 'Analyze Requirements',
+          description: 'Analyze project requirements',
+        },
+        {
+          title: 'Design Architecture',
+          description: 'Design system architecture',
+        },
+        {
+          title: 'Implement Core Features',
+          description: 'Implement main functionality',
+        },
         { title: 'Write Tests', description: 'Create test suite' },
-        { title: 'Documentation', description: 'Write documentation' }
+        { title: 'Documentation', description: 'Write documentation' },
       ];
 
       const queueResults = [];
       for (const task of tasks) {
-        const result = await integrator.queueTask(task.title, task.description, {
-          type: 'implementation',
-          priority: 'normal'
-        });
+        const result = await integrator.queueTask(
+          task.title,
+          task.description,
+          {
+            type: 'implementation',
+            priority: 'normal',
+          },
+        );
         queueResults.push(result);
       }
 
-      expect(queueResults.every(r => r.success)).toBe(true);
+      expect(queueResults.every((r) => r.success)).toBe(true);
 
       // 3. Monitor system status
       const status = integrator.getSystemStatus();
@@ -495,24 +532,28 @@ describe('Task Management System Integration Tests', () => {
           title: 'Security Audit',
           description: 'Perform comprehensive security audit',
           priority: 'critical',
-          type: 'security'
+          type: 'security',
         },
         {
           title: 'Performance Optimization',
           description: 'Optimize system performance',
           priority: 'high',
-          type: 'performance'
+          type: 'performance',
         },
         {
           title: 'Compliance Check',
           description: 'Ensure regulatory compliance',
           priority: 'high',
-          type: 'compliance'
-        }
+          type: 'compliance',
+        },
       ];
 
       for (const task of enterpriseTasks) {
-        const result = await integrator.queueTask(task.title, task.description, task);
+        const result = await integrator.queueTask(
+          task.title,
+          task.description,
+          task,
+        );
         expect(result.success).toBe(true);
       }
 
@@ -532,14 +573,17 @@ function createMockConfig(): Config {
     projectPath: __dirname,
     apiKey: 'test-key',
     model: 'gemini-pro',
-    debug: true
+    debug: true,
   } as Config;
 }
 
-async function waitFor(condition: () => boolean, timeoutMs: number = 5000): Promise<void> {
+async function waitFor(
+  condition: () => boolean,
+  timeoutMs: number = 5000,
+): Promise<void> {
   const start = Date.now();
   while (!condition() && Date.now() - start < timeoutMs) {
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
   if (!condition()) {
     throw new Error(`Condition not met within ${timeoutMs}ms`);

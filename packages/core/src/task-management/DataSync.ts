@@ -50,7 +50,12 @@ export type ConflictResolutionStrategy =
 /**
  * Change operation types
  */
-export type ChangeType = 'create' | 'update' | 'delete' | 'status_change' | 'dependency_change';
+export type ChangeType =
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'status_change'
+  | 'dependency_change';
 
 /**
  * Data change record for tracking modifications
@@ -175,7 +180,7 @@ export class DataSync extends EventEmitter {
   constructor(
     persistence: TaskPersistence,
     sessionManager: SessionManager,
-    config: DataSyncConfig = {}
+    config: DataSyncConfig = {},
   ) {
     super();
 
@@ -250,7 +255,7 @@ export class DataSync extends EventEmitter {
     agentId: string,
     beforeData?: unknown,
     afterData?: unknown,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ): Promise<string> {
     if (!this.config.enableChangeTracking) {
       return '';
@@ -306,7 +311,12 @@ export class DataSync extends EventEmitter {
   async syncChanges(force = false): Promise<SyncResult> {
     if (this.isSyncing && !force) {
       logger.debug('Sync already in progress, skipping');
-      return { success: true, changesSynced: 0, conflictsFound: 0, duration: 0 };
+      return {
+        success: true,
+        changesSynced: 0,
+        conflictsFound: 0,
+        duration: 0,
+      };
     }
 
     this.isSyncing = true;
@@ -314,15 +324,22 @@ export class DataSync extends EventEmitter {
 
     try {
       const pendingChanges = Array.from(this.changeBuffer.values())
-        .filter(change => !change.synchronized)
+        .filter((change) => !change.synchronized)
         .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
       if (pendingChanges.length === 0) {
         logger.debug('No pending changes to synchronize');
-        return { success: true, changesSynced: 0, conflictsFound: 0, duration: 0 };
+        return {
+          success: true,
+          changesSynced: 0,
+          conflictsFound: 0,
+          duration: 0,
+        };
       }
 
-      logger.info(`Starting synchronization of ${pendingChanges.length} changes`);
+      logger.info(
+        `Starting synchronization of ${pendingChanges.length} changes`,
+      );
 
       let changesSynced = 0;
       let conflictsFound = 0;
@@ -354,7 +371,9 @@ export class DataSync extends EventEmitter {
         duration,
       };
 
-      logger.info(`Synchronization completed: ${changesSynced} changes synced, ${conflictsFound} conflicts found`);
+      logger.info(
+        `Synchronization completed: ${changesSynced} changes synced, ${conflictsFound} conflicts found`,
+      );
       this.emit('sync-completed', result);
 
       return result;
@@ -383,7 +402,7 @@ export class DataSync extends EventEmitter {
   async resolveConflict(
     conflictId: string,
     strategy?: ConflictResolutionStrategy,
-    manualResolution?: unknown
+    manualResolution?: unknown,
   ): Promise<void> {
     const conflict = this.conflicts.get(conflictId);
     if (!conflict) {
@@ -419,13 +438,17 @@ export class DataSync extends EventEmitter {
 
         case 'manual':
           if (!manualResolution) {
-            throw new Error('Manual resolution data required for manual conflict resolution');
+            throw new Error(
+              'Manual resolution data required for manual conflict resolution',
+            );
           }
           resolution = this.resolveManual(conflict, manualResolution);
           break;
 
         default:
-          throw new Error(`Unknown conflict resolution strategy: ${resolveStrategy}`);
+          throw new Error(
+            `Unknown conflict resolution strategy: ${resolveStrategy}`,
+          );
       }
 
       // Apply resolution
@@ -440,7 +463,9 @@ export class DataSync extends EventEmitter {
       this.syncState.activeConflicts--;
       this.syncState.stats.conflictsResolved++;
 
-      logger.info(`Resolved conflict ${conflictId} using ${resolveStrategy} strategy`);
+      logger.info(
+        `Resolved conflict ${conflictId} using ${resolveStrategy} strategy`,
+      );
       this.emit('conflict-resolved', conflict);
     } catch (error) {
       logger.error(`Failed to resolve conflict ${conflictId}:`, error);
@@ -464,14 +489,15 @@ export class DataSync extends EventEmitter {
     sessionId?: string;
     changeType?: ChangeType;
   }): DataChange[] {
-    const changes = Array.from(this.changeBuffer.values())
-      .filter(change => !change.synchronized);
+    const changes = Array.from(this.changeBuffer.values()).filter(
+      (change) => !change.synchronized,
+    );
 
     if (!filter) {
       return changes;
     }
 
-    return changes.filter(change => {
+    return changes.filter((change) => {
       if (filter.entityType && change.entityType !== filter.entityType) {
         return false;
       }
@@ -496,13 +522,18 @@ export class DataSync extends EventEmitter {
    * Get active conflicts
    */
   getActiveConflicts(): SyncConflict[] {
-    return Array.from(this.conflicts.values()).filter(conflict => !conflict.resolved);
+    return Array.from(this.conflicts.values()).filter(
+      (conflict) => !conflict.resolved,
+    );
   }
 
   /**
    * Force synchronization of specific entity
    */
-  async forceSync(entityType: 'task' | 'dependency', entityId: string): Promise<void> {
+  async forceSync(
+    entityType: 'task' | 'dependency',
+    entityId: string,
+  ): Promise<void> {
     try {
       switch (entityType) {
         case 'task':
@@ -512,7 +543,9 @@ export class DataSync extends EventEmitter {
           await this.syncDependency(entityId);
           break;
         default:
-          throw new Error(`Unsupported entity type for force sync: ${entityType}`);
+          throw new Error(
+            `Unsupported entity type for force sync: ${entityType}`,
+          );
       }
 
       logger.info(`Force synchronized ${entityType} ${entityId}`);
@@ -537,7 +570,7 @@ export class DataSync extends EventEmitter {
         'system', // TODO: get actual agent ID
         undefined,
         event,
-        { source: 'task-saved' }
+        { source: 'task-saved' },
       );
     });
 
@@ -555,7 +588,7 @@ export class DataSync extends EventEmitter {
         session.agentId,
         undefined,
         session,
-        { source: 'session-created' }
+        { source: 'session-created' },
       );
     });
 
@@ -568,7 +601,7 @@ export class DataSync extends EventEmitter {
         event.session.agentId,
         { status: 'active' },
         { status: event.session.status },
-        { source: 'session-terminated', reason: event.reason }
+        { source: 'session-terminated', reason: event.reason },
       );
     });
 
@@ -582,7 +615,7 @@ export class DataSync extends EventEmitter {
         ownership.agentId,
         undefined,
         ownership,
-        { source: 'task-locked' }
+        { source: 'task-locked' },
       );
     });
 
@@ -595,7 +628,7 @@ export class DataSync extends EventEmitter {
         'unknown', // Agent ID not available in unlock event
         event,
         undefined,
-        { source: 'task-unlocked' }
+        { source: 'task-unlocked' },
       );
     });
 
@@ -618,7 +651,9 @@ export class DataSync extends EventEmitter {
       }
     }, this.config.syncInterval);
 
-    logger.debug(`Started real-time sync with interval ${this.config.syncInterval}ms`);
+    logger.debug(
+      `Started real-time sync with interval ${this.config.syncInterval}ms`,
+    );
   }
 
   /**
@@ -644,8 +679,9 @@ export class DataSync extends EventEmitter {
    * Trim change buffer to maintain size limit
    */
   private trimChangeBuffer(): void {
-    const changes = Array.from(this.changeBuffer.entries())
-      .sort(([, a], [, b]) => a.timestamp.getTime() - b.timestamp.getTime());
+    const changes = Array.from(this.changeBuffer.entries()).sort(
+      ([, a], [, b]) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
 
     // Keep only the most recent changes, prioritizing unsynchronized ones
     const toKeep = changes
@@ -654,7 +690,7 @@ export class DataSync extends EventEmitter {
       .concat(
         changes
           .filter(([, change]) => change.synchronized)
-          .slice(-Math.floor(this.config.changeBufferSize * 0.2))
+          .slice(-Math.floor(this.config.changeBufferSize * 0.2)),
       );
 
     this.changeBuffer.clear();
@@ -692,8 +728,12 @@ export class DataSync extends EventEmitter {
   /**
    * Process a single batch of changes
    */
-  private async processBatch(batch: SyncBatch): Promise<{ changesSynced: number; conflictsFound: number }> {
-    logger.debug(`Processing batch ${batch.id} with ${batch.changes.length} changes`);
+  private async processBatch(
+    batch: SyncBatch,
+  ): Promise<{ changesSynced: number; conflictsFound: number }> {
+    logger.debug(
+      `Processing batch ${batch.id} with ${batch.changes.length} changes`,
+    );
 
     let changesSynced = 0;
     let conflictsFound = 0;
@@ -724,7 +764,9 @@ export class DataSync extends EventEmitter {
         // Remove failed changes after max retries
         if (change.syncAttempts >= this.config.maxRetries) {
           this.changeBuffer.delete(change.id);
-          logger.warn(`Removing change ${change.id} after ${change.syncAttempts} failed attempts`);
+          logger.warn(
+            `Removing change ${change.id} after ${change.syncAttempts} failed attempts`,
+          );
         }
       }
     }
@@ -735,16 +777,19 @@ export class DataSync extends EventEmitter {
   /**
    * Detect conflicts for a change
    */
-  private async detectConflict(change: DataChange): Promise<SyncConflict | null> {
+  private async detectConflict(
+    change: DataChange,
+  ): Promise<SyncConflict | null> {
     // Check for conflicting changes to the same entity
     const conflictingChanges = Array.from(this.changeBuffer.values()).filter(
-      otherChange =>
+      (otherChange) =>
         otherChange.id !== change.id &&
         otherChange.entityType === change.entityType &&
         otherChange.entityId === change.entityId &&
         otherChange.sessionId !== change.sessionId &&
         !otherChange.synchronized &&
-        Math.abs(otherChange.timestamp.getTime() - change.timestamp.getTime()) < 5000 // 5 second window
+        Math.abs(otherChange.timestamp.getTime() - change.timestamp.getTime()) <
+          5000, // 5 second window
     );
 
     if (conflictingChanges.length === 0) {
@@ -761,7 +806,9 @@ export class DataSync extends EventEmitter {
       resolved: false,
     };
 
-    logger.warn(`Detected conflict ${conflictId} for ${change.entityType} ${change.entityId}`);
+    logger.warn(
+      `Detected conflict ${conflictId} for ${change.entityType} ${change.entityId}`,
+    );
     return conflict;
   }
 
@@ -800,21 +847,27 @@ export class DataSync extends EventEmitter {
    * Apply dependency-related change
    */
   private async applyDependencyChange(change: DataChange): Promise<void> {
-    logger.debug(`Applied dependency change ${change.id} to dependency ${change.entityId}`);
+    logger.debug(
+      `Applied dependency change ${change.id} to dependency ${change.entityId}`,
+    );
   }
 
   /**
    * Apply session-related change
    */
   private async applySessionChange(change: DataChange): Promise<void> {
-    logger.debug(`Applied session change ${change.id} to session ${change.entityId}`);
+    logger.debug(
+      `Applied session change ${change.id} to session ${change.entityId}`,
+    );
   }
 
   /**
    * Apply ownership-related change
    */
   private async applyOwnershipChange(change: DataChange): Promise<void> {
-    logger.debug(`Applied ownership change ${change.id} to ownership ${change.entityId}`);
+    logger.debug(
+      `Applied ownership change ${change.id} to ownership ${change.entityId}`,
+    );
   }
 
   /**
@@ -839,29 +892,35 @@ export class DataSync extends EventEmitter {
   /**
    * Conflict resolution strategies
    */
-  private resolveLastWriteWins(conflict: SyncConflict): SyncConflict['resolution'] {
+  private resolveLastWriteWins(
+    conflict: SyncConflict,
+  ): SyncConflict['resolution'] {
     const winner = conflict.conflicts.reduce((latest, current) =>
-      current.timestamp > latest.timestamp ? current : latest
+      current.timestamp > latest.timestamp ? current : latest,
     );
 
     return {
       winner,
-      discarded: conflict.conflicts.filter(change => change.id !== winner.id),
+      discarded: conflict.conflicts.filter((change) => change.id !== winner.id),
     };
   }
 
-  private resolveFirstWriteWins(conflict: SyncConflict): SyncConflict['resolution'] {
+  private resolveFirstWriteWins(
+    conflict: SyncConflict,
+  ): SyncConflict['resolution'] {
     const winner = conflict.conflicts.reduce((earliest, current) =>
-      current.timestamp < earliest.timestamp ? current : earliest
+      current.timestamp < earliest.timestamp ? current : earliest,
     );
 
     return {
       winner,
-      discarded: conflict.conflicts.filter(change => change.id !== winner.id),
+      discarded: conflict.conflicts.filter((change) => change.id !== winner.id),
     };
   }
 
-  private async resolveVersionBased(conflict: SyncConflict): Promise<SyncConflict['resolution']> {
+  private async resolveVersionBased(
+    conflict: SyncConflict,
+  ): Promise<SyncConflict['resolution']> {
     // In a real implementation, this would check entity versions
     // For now, fall back to last-write-wins
     return this.resolveLastWriteWins(conflict);
@@ -870,12 +929,12 @@ export class DataSync extends EventEmitter {
   private resolveMerge(conflict: SyncConflict): SyncConflict['resolution'] {
     // Simple merge strategy - use the latest change but merge metadata
     const winner = conflict.conflicts.reduce((latest, current) =>
-      current.timestamp > latest.timestamp ? current : latest
+      current.timestamp > latest.timestamp ? current : latest,
     );
 
     const mergedMetadata = conflict.conflicts.reduce(
       (merged, change) => ({ ...merged, ...change.data.metadata }),
-      {}
+      {},
     );
 
     const merged = {
@@ -885,12 +944,15 @@ export class DataSync extends EventEmitter {
 
     return {
       winner,
-      discarded: conflict.conflicts.filter(change => change.id !== winner.id),
+      discarded: conflict.conflicts.filter((change) => change.id !== winner.id),
       merged,
     };
   }
 
-  private resolveManual(conflict: SyncConflict, resolution: unknown): SyncConflict['resolution'] {
+  private resolveManual(
+    conflict: SyncConflict,
+    resolution: unknown,
+  ): SyncConflict['resolution'] {
     // Use the first conflict as the winner but with manual resolution data
     const winner = conflict.conflicts[0];
 
@@ -910,7 +972,10 @@ export class DataSync extends EventEmitter {
   /**
    * Apply conflict resolution
    */
-  private async applyResolution(conflict: SyncConflict, resolution: SyncConflict['resolution']): Promise<void> {
+  private async applyResolution(
+    conflict: SyncConflict,
+    resolution: SyncConflict['resolution'],
+  ): Promise<void> {
     // Apply the winning change
     await this.applyChange(resolution.winner);
 
@@ -935,8 +1000,12 @@ export class DataSync extends EventEmitter {
     }
 
     // Update average sync time
-    const totalTime = this.syncState.stats.averageSyncTime * (this.syncState.stats.totalSyncs - 1) + duration;
-    this.syncState.stats.averageSyncTime = totalTime / this.syncState.stats.totalSyncs;
+    const totalTime =
+      this.syncState.stats.averageSyncTime *
+        (this.syncState.stats.totalSyncs - 1) +
+      duration;
+    this.syncState.stats.averageSyncTime =
+      totalTime / this.syncState.stats.totalSyncs;
   }
 
   /**

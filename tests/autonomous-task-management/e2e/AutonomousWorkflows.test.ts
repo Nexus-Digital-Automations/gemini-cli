@@ -10,8 +10,17 @@ import {
   ContextState,
   SubagentTerminateMode,
 } from '../../../packages/core/src/core/subagent.js';
-import { MockAgentFactory, MockAgentState, type MockAgentConfig } from '../utils/MockAgentFactory.js';
-import { TaskBuilder, TaskComplexity, TaskCategory, TaskPriority } from '../utils/TaskBuilder.js';
+import {
+  MockAgentFactory,
+  MockAgentState,
+  type MockAgentConfig,
+} from '../utils/MockAgentFactory.js';
+import {
+  TaskBuilder,
+  TaskComplexity,
+  TaskCategory,
+  TaskPriority,
+} from '../utils/TaskBuilder.js';
 import type { Config } from '../../../packages/core/src/config/config.js';
 
 /**
@@ -29,7 +38,10 @@ class AutonomousWorkflowOrchestra {
     return workflowId;
   }
 
-  async executeWorkflow(workflowId: string, initialContext?: ContextState): Promise<WorkflowResult> {
+  async executeWorkflow(
+    workflowId: string,
+    initialContext?: ContextState,
+  ): Promise<WorkflowResult> {
     const definition = this.workflows.get(workflowId);
     if (!definition) {
       throw new Error(`Workflow ${workflowId} not found`);
@@ -52,7 +64,10 @@ class AutonomousWorkflowOrchestra {
         execution.currentStep = i;
         const step = definition.steps[i];
 
-        const stepResult = await this.executeWorkflowStep(step, execution.context);
+        const stepResult = await this.executeWorkflowStep(
+          step,
+          execution.context,
+        );
         execution.completedSteps.push(stepResult);
 
         if (stepResult.success) {
@@ -141,12 +156,14 @@ class AutonomousWorkflowOrchestra {
     }
   }
 
-  private extractWorkflowOutputs(execution: WorkflowExecution): Record<string, string> {
+  private extractWorkflowOutputs(
+    execution: WorkflowExecution,
+  ): Record<string, string> {
     const outputs: Record<string, string> = {};
 
     // Extract final outputs based on workflow definition
     if (execution.definition.expectedOutputs) {
-      Object.keys(execution.definition.expectedOutputs).forEach(key => {
+      Object.keys(execution.definition.expectedOutputs).forEach((key) => {
         const value = execution.context.get(key);
         if (value !== undefined) {
           outputs[key] = String(value);
@@ -267,8 +284,10 @@ describe('Autonomous Workflow End-to-End Tests', () => {
               executionTime: 500,
               outputVars: {
                 requirements_doc: 'User authentication requirements analyzed',
-                technical_specs: 'REST API endpoints and database schema defined',
-                acceptance_criteria: 'Login, logout, registration workflows specified',
+                technical_specs:
+                  'REST API endpoints and database schema defined',
+                acceptance_criteria:
+                  'Login, logout, registration workflows specified',
               },
             },
             runtimeConfig: mockConfig,
@@ -290,7 +309,8 @@ describe('Autonomous Workflow End-to-End Tests', () => {
               state: MockAgentState.SUCCESS,
               executionTime: 800,
               outputVars: {
-                architecture_design: 'Microservice architecture with auth service',
+                architecture_design:
+                  'Microservice architecture with auth service',
                 api_design: 'RESTful API design with JWT authentication',
                 database_schema: 'User and session tables designed',
               },
@@ -316,7 +336,8 @@ describe('Autonomous Workflow End-to-End Tests', () => {
               toolCalls: ['write_file', 'execute_command', 'read_file'],
               outputVars: {
                 implementation_status: 'Authentication service implemented',
-                files_created: 'auth.ts, user.model.ts, auth.routes.ts, auth.middleware.ts',
+                files_created:
+                  'auth.ts, user.model.ts, auth.routes.ts, auth.middleware.ts',
                 code_quality_score: '95%',
               },
             },
@@ -343,7 +364,8 @@ describe('Autonomous Workflow End-to-End Tests', () => {
               outputVars: {
                 test_results: 'All 47 tests passed',
                 coverage_report: '98% code coverage achieved',
-                performance_metrics: 'Response time < 100ms, throughput 1000 req/s',
+                performance_metrics:
+                  'Response time < 100ms, throughput 1000 req/s',
               },
             },
             runtimeConfig: mockConfig,
@@ -399,7 +421,10 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       initialContext.set('feature_name', 'User Authentication');
       initialContext.set('target_environment', 'production');
 
-      const result = await orchestra.executeWorkflow(workflowId, initialContext);
+      const result = await orchestra.executeWorkflow(
+        workflowId,
+        initialContext,
+      );
 
       expect(result.success).toBe(true);
       expect(result.steps).toHaveLength(5);
@@ -412,11 +437,19 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       });
 
       // Verify specific outputs from each step
-      expect(result.steps[0].outputs.requirements_doc).toContain('authentication requirements');
-      expect(result.steps[1].outputs.architecture_design).toContain('Microservice architecture');
-      expect(result.steps[2].outputs.implementation_status).toContain('implemented');
+      expect(result.steps[0].outputs.requirements_doc).toContain(
+        'authentication requirements',
+      );
+      expect(result.steps[1].outputs.architecture_design).toContain(
+        'Microservice architecture',
+      );
+      expect(result.steps[2].outputs.implementation_status).toContain(
+        'implemented',
+      );
       expect(result.steps[3].outputs.test_results).toContain('tests passed');
-      expect(result.steps[4].outputs.api_documentation).toContain('documentation generated');
+      expect(result.steps[4].outputs.api_documentation).toContain(
+        'documentation generated',
+      );
     });
 
     it('should handle workflow failures gracefully', async () => {
@@ -482,7 +515,8 @@ describe('Autonomous Workflow End-to-End Tests', () => {
     it('should coordinate multiple agents for complex data processing', async () => {
       const dataProcessingWorkflow: WorkflowDefinition = {
         name: 'Data Processing Pipeline',
-        description: 'Complete data processing workflow with multiple specialized agents',
+        description:
+          'Complete data processing workflow with multiple specialized agents',
         steps: [
           {
             name: 'Data Ingestion',
@@ -615,14 +649,20 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       const workflowId = await orchestra.defineWorkflow(dataProcessingWorkflow);
 
       const initialContext = new ContextState();
-      initialContext.set('data_source_urls', JSON.stringify([
-        'https://api.example.com/data',
-        '/data/input.csv',
-        'postgresql://localhost/db',
-      ]));
+      initialContext.set(
+        'data_source_urls',
+        JSON.stringify([
+          'https://api.example.com/data',
+          '/data/input.csv',
+          'postgresql://localhost/db',
+        ]),
+      );
       initialContext.set('processing_target', 'monthly_analytics');
 
-      const result = await orchestra.executeWorkflow(workflowId, initialContext);
+      const result = await orchestra.executeWorkflow(
+        workflowId,
+        initialContext,
+      );
 
       expect(result.success).toBe(true);
       expect(result.steps).toHaveLength(5);
@@ -632,7 +672,9 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       expect(result.steps[1].outputs.quality_score).toBe('98.76%');
       expect(result.steps[2].outputs.transformed_records).toBe('9876');
       expect(result.steps[3].outputs.insights).toContain('25 key insights');
-      expect(result.steps[4].outputs.dashboard_url).toContain('dashboard.example.com');
+      expect(result.steps[4].outputs.dashboard_url).toContain(
+        'dashboard.example.com',
+      );
 
       // Verify execution time progresses as expected
       expect(result.executionTime).toBeGreaterThan(0);
@@ -733,10 +775,18 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       expect(result.steps).toHaveLength(5);
 
       // Verify all parallel processes completed
-      expect(result.steps[1].outputs.result_a).toContain('Processing A completed');
-      expect(result.steps[2].outputs.result_b).toContain('Processing B completed');
-      expect(result.steps[3].outputs.result_c).toContain('Processing C completed');
-      expect(result.steps[4].outputs.consolidated_result).toContain('consolidated successfully');
+      expect(result.steps[1].outputs.result_a).toContain(
+        'Processing A completed',
+      );
+      expect(result.steps[2].outputs.result_b).toContain(
+        'Processing B completed',
+      );
+      expect(result.steps[3].outputs.result_c).toContain(
+        'Processing C completed',
+      );
+      expect(result.steps[4].outputs.consolidated_result).toContain(
+        'consolidated successfully',
+      );
     });
   });
 
@@ -783,7 +833,9 @@ describe('Autonomous Workflow End-to-End Tests', () => {
             runtimeConfig: mockConfig,
             task: new TaskBuilder()
               .withName('resume-analysis')
-              .withCustomPrompt('Resume analysis from checkpoint ${checkpoint} for analysis ${analysis_id}')
+              .withCustomPrompt(
+                'Resume analysis from checkpoint ${checkpoint} for analysis ${analysis_id}',
+              )
               .withOutputs({
                 resumed_from: 'Checkpoint resumed from',
                 progress: 'Analysis progress',
@@ -823,7 +875,10 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       persistentContext.set('project_id', 'proj_456');
       persistentContext.set('analysis_type', 'comprehensive');
 
-      const result = await orchestra.executeWorkflow(workflowId, persistentContext);
+      const result = await orchestra.executeWorkflow(
+        workflowId,
+        persistentContext,
+      );
 
       expect(result.success).toBe(true);
       expect(result.steps).toHaveLength(3);
@@ -832,7 +887,9 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       expect(result.steps[0].outputs.analysis_id).toBe('analysis_12345');
       expect(result.steps[1].outputs.resumed_from).toBe('phase_1_complete');
       expect(result.steps[1].outputs.progress).toBe('75%');
-      expect(result.steps[2].outputs.final_results).toContain('completed successfully');
+      expect(result.steps[2].outputs.final_results).toContain(
+        'completed successfully',
+      );
 
       // Verify the context was maintained and used
       const workflowLogs = MockAgentFactory.getAllExecutionLogs();
@@ -849,7 +906,10 @@ describe('Autonomous Workflow End-to-End Tests', () => {
             agentConfig: {
               name: 'processor-initial',
               state: MockAgentState.SUCCESS,
-              outputVars: { processed_items: '1000', checkpoint: 'initial_complete' },
+              outputVars: {
+                processed_items: '1000',
+                checkpoint: 'initial_complete',
+              },
             },
             runtimeConfig: mockConfig,
             task: new TaskBuilder()
@@ -916,7 +976,9 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       };
 
       // Second execution with fixed workflow - should succeed
-      const recoveryWorkflowId = await orchestra.defineWorkflow(recoveryWorkflowFixed);
+      const recoveryWorkflowId = await orchestra.defineWorkflow(
+        recoveryWorkflowFixed,
+      );
 
       // Simulate resuming from checkpoint
       const recoveryContext = new ContextState();
@@ -924,11 +986,16 @@ describe('Autonomous Workflow End-to-End Tests', () => {
       recoveryContext.set('checkpoint', 'initial_complete');
       recoveryContext.set('recovery_mode', 'true');
 
-      const recoveryResult = await orchestra.executeWorkflow(recoveryWorkflowId, recoveryContext);
+      const recoveryResult = await orchestra.executeWorkflow(
+        recoveryWorkflowId,
+        recoveryContext,
+      );
 
       expect(recoveryResult.success).toBe(true);
       expect(recoveryResult.steps).toHaveLength(2);
-      expect(recoveryResult.steps[1].outputs.recovery_status).toContain('Successfully recovered');
+      expect(recoveryResult.steps[1].outputs.recovery_status).toContain(
+        'Successfully recovered',
+      );
       expect(recoveryResult.steps[1].outputs.final_total).toBe('1500');
     });
   });
@@ -943,7 +1010,7 @@ describe('Autonomous Workflow End-to-End Tests', () => {
           agentConfig: {
             name: `agent-${i + 1}`,
             state: MockAgentState.SUCCESS,
-            executionTime: 100 + (i * 50), // Varying execution times
+            executionTime: 100 + i * 50, // Varying execution times
             outputVars: {
               step_result: `Step ${i + 1} completed`,
               step_number: (i + 1).toString(),
@@ -1059,7 +1126,9 @@ describe('Autonomous Workflow End-to-End Tests', () => {
 
       allLogs.forEach((logs, agentName) => {
         expect(logs.length).toBeGreaterThan(0);
-        expect(logs.some(log => log.includes('execution completed'))).toBe(true);
+        expect(logs.some((log) => log.includes('execution completed'))).toBe(
+          true,
+        );
       });
     });
   });

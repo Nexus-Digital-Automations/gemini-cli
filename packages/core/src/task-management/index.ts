@@ -19,7 +19,7 @@ export {
   type TaskManagerConfig,
   type AutonomousContext,
   type TaskExecutionStrategy,
-  type AutonomousDecision
+  type AutonomousDecision,
 } from './TaskManager.js';
 
 // Core exports
@@ -42,16 +42,12 @@ export {
 
   // Core classes
   TaskBreakdownAnalyzer,
-  ContextState
+  ContextState,
 } from './TaskExecutionEngine.js';
 
-export {
-  TaskExecutionEngine
-} from './TaskExecutionEngine.complete.js';
+export { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 
-export {
-  TaskExecutionUtils
-} from './TaskExecutionEngine.utils.js';
+export { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 
 // Enhanced Autonomous Task Management
 export {
@@ -59,7 +55,7 @@ export {
   TaskPriority as QueueTaskPriority,
   TaskStatus as QueueTaskStatus,
   TaskCategory,
-  DependencyType as QueueDependencyType
+  DependencyType as QueueDependencyType,
 } from './TaskQueue.js';
 
 // Unified System Integration
@@ -69,7 +65,7 @@ export {
   createIntegratedTaskManagementSystem,
   type IntegratedSystemConfig,
   type SystemHealth,
-  type SystemOperationResult
+  type SystemOperationResult,
 } from './TaskManagementSystemIntegrator.js';
 
 export {
@@ -84,21 +80,21 @@ export {
   type DependencyConfig,
   type SecurityConfig,
   type DevelopmentConfig,
-  type ConfigValidationResult
+  type ConfigValidationResult,
 } from './TaskManagementConfig.js';
 
 export {
   PriorityScheduler,
   SchedulingAlgorithm,
   type SchedulingContext,
-  type SchedulingDecision
+  type SchedulingDecision,
 } from './PriorityScheduler.js';
 
 export {
   QueueOptimizer,
   OptimizationStrategy,
   type OptimizationRecommendation,
-  type BatchOptimization
+  type BatchOptimization,
 } from './QueueOptimizer.js';
 
 export {
@@ -106,14 +102,14 @@ export {
   BreakdownStrategy,
   type TaskBreakdownResult,
   type ComplexityMetrics,
-  type SubTask
+  type SubTask,
 } from './AutonomousTaskBreakdown.js';
 
 export {
   EnhancedAutonomousTaskQueue,
   type EnhancedQueueConfig,
   type AutonomousExecutionContext,
-  type AutonomousQueueMetrics
+  type AutonomousQueueMetrics,
 } from './EnhancedAutonomousTaskQueue.js';
 
 export {
@@ -122,20 +118,23 @@ export {
   TaskExecutionEvent,
   AlertConfig,
   BottleneckAnalysis,
-  SystemHealthStatus
+  SystemHealthStatus,
 } from './ExecutionMonitoringSystem.js';
 
 export {
   InfiniteHookIntegration,
   TaskManagerAPI,
-  HookIntegrationConfig
+  HookIntegrationConfig,
 } from './InfiniteHookIntegration.js';
 
 import type { Config } from '../config/config.js';
 import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
+import {
+  EnhancedAutonomousTaskQueue,
+  type EnhancedQueueConfig,
+} from './EnhancedAutonomousTaskQueue.js';
 import type { Task } from './TaskExecutionEngine.js';
 
 /**
@@ -145,7 +144,6 @@ import type { Task } from './TaskExecutionEngine.js';
  * properly integrated and ready for autonomous operation.
  */
 export class TaskManagementSystemFactory {
-
   /**
    * Creates a complete task management system with all components integrated
    */
@@ -156,7 +154,7 @@ export class TaskManagementSystemFactory {
       enableHookIntegration?: boolean;
       hookIntegrationConfig?: any;
       monitoringConfig?: any;
-    }
+    },
   ): Promise<{
     taskEngine: TaskExecutionEngine;
     monitoring?: ExecutionMonitoringSystem;
@@ -179,21 +177,28 @@ export class TaskManagementSystemFactory {
     console.log('⚡ Initializing task execution engine...');
     const taskEngine = new TaskExecutionEngine(config, {
       onTaskStatusChange: (task: Task) => {
-        console.log(`📋 Task ${task.id} status changed: ${task.status} (${task.progress}%)`);
+        console.log(
+          `📋 Task ${task.id} status changed: ${task.status} (${task.progress}%)`,
+        );
         if (monitoring) {
           monitoring.recordEvent({
             taskId: task.id,
-            eventType: task.status === 'in_progress' ? 'started' :
-                     task.status === 'completed' ? 'completed' :
-                     task.status === 'failed' ? 'failed' : 'progress',
+            eventType:
+              task.status === 'in_progress'
+                ? 'started'
+                : task.status === 'completed'
+                  ? 'completed'
+                  : task.status === 'failed'
+                    ? 'failed'
+                    : 'progress',
             timestamp: new Date(),
             metadata: {
               title: task.title,
               type: task.type,
               complexity: task.complexity,
               priority: task.priority,
-              progress: task.progress
-            }
+              progress: task.progress,
+            },
           });
         }
       },
@@ -207,9 +212,9 @@ export class TaskManagementSystemFactory {
             metadata: {
               title: task.title,
               duration: task.metrics?.durationMs,
-              outputs: task.outputs
+              outputs: task.outputs,
             },
-            duration: task.metrics?.durationMs
+            duration: task.metrics?.durationMs,
           });
         }
       },
@@ -223,12 +228,12 @@ export class TaskManagementSystemFactory {
             metadata: {
               title: task.title,
               error: task.lastError,
-              retryCount: task.retryCount
+              retryCount: task.retryCount,
             },
-            error
+            error,
           });
         }
-      }
+      },
     });
 
     // Initialize hook integration
@@ -239,14 +244,17 @@ export class TaskManagementSystemFactory {
         config,
         taskEngine,
         monitoring!,
-        options?.hookIntegrationConfig
+        options?.hookIntegrationConfig,
       );
 
       try {
         await hookIntegration.initialize();
         console.log('✅ Hook integration initialized successfully');
       } catch (error) {
-        console.warn('⚠️  Hook integration failed, continuing without it:', error);
+        console.warn(
+          '⚠️  Hook integration failed, continuing without it:',
+          error,
+        );
         hookIntegration = undefined;
       }
     }
@@ -270,13 +278,15 @@ export class TaskManagementSystemFactory {
 
     console.log('🎉 Task Management System initialized successfully!');
     console.log(`📊 Monitoring: ${enableMonitoring ? 'Enabled' : 'Disabled'}`);
-    console.log(`🔗 Hook Integration: ${hookIntegration ? 'Enabled' : 'Disabled'}`);
+    console.log(
+      `🔗 Hook Integration: ${hookIntegration ? 'Enabled' : 'Disabled'}`,
+    );
 
     return {
       taskEngine,
       monitoring,
       hookIntegration,
-      shutdown
+      shutdown,
     };
   }
 
@@ -286,14 +296,16 @@ export class TaskManagementSystemFactory {
   static createStandalone(config: Config): TaskExecutionEngine {
     return new TaskExecutionEngine(config, {
       onTaskStatusChange: (task: Task) => {
-        console.log(`Task ${task.id} (${task.title}): ${task.status} - ${task.progress}%`);
+        console.log(
+          `Task ${task.id} (${task.title}): ${task.status} - ${task.progress}%`,
+        );
       },
       onTaskComplete: (task: Task) => {
         console.log(`✅ Completed: ${task.title}`);
       },
       onTaskFailed: (task: Task, error: string) => {
         console.error(`❌ Failed: ${task.title} - ${error}`);
-      }
+      },
     });
   }
 
@@ -308,7 +320,7 @@ export class TaskManagementSystemFactory {
    * Creates an autonomous task queue with intelligent breakdown and optimization
    */
   static createAutonomousQueue(
-    config?: Partial<EnhancedQueueConfig>
+    config?: Partial<EnhancedQueueConfig>,
   ): EnhancedAutonomousTaskQueue {
     console.log('🤖 Creating Enhanced Autonomous Task Queue...');
 
@@ -320,15 +332,17 @@ export class TaskManagementSystemFactory {
       enableAdaptiveScheduling: true,
       performanceOptimization: true,
       learningEnabled: true,
-      metricsEnabled: true
+      metricsEnabled: true,
     };
 
     const queue = new EnhancedAutonomousTaskQueue({
       ...defaultConfig,
-      ...config
+      ...config,
     });
 
-    console.log('✅ Autonomous Task Queue created with intelligent breakdown and optimization');
+    console.log(
+      '✅ Autonomous Task Queue created with intelligent breakdown and optimization',
+    );
     return queue;
   }
 
@@ -343,7 +357,7 @@ export class TaskManagementSystemFactory {
       enableHookIntegration?: boolean;
       hookIntegrationConfig?: any;
       monitoringConfig?: any;
-    }
+    },
   ): Promise<{
     taskEngine: TaskExecutionEngine;
     autonomousQueue: EnhancedAutonomousTaskQueue;
@@ -354,10 +368,13 @@ export class TaskManagementSystemFactory {
     const enableMonitoring = options?.enableMonitoring !== false;
     const enableHookIntegration = options?.enableHookIntegration !== false;
 
-    console.log('🚀 Initializing Complete System with Autonomous Task Queue...');
+    console.log(
+      '🚀 Initializing Complete System with Autonomous Task Queue...',
+    );
 
     // Create autonomous task queue
-    const autonomousQueue = TaskManagementSystemFactory.createAutonomousQueue(queueConfig);
+    const autonomousQueue =
+      TaskManagementSystemFactory.createAutonomousQueue(queueConfig);
 
     // Initialize monitoring system
     let monitoring: ExecutionMonitoringSystem | undefined;
@@ -367,16 +384,25 @@ export class TaskManagementSystemFactory {
     }
 
     // Initialize task execution engine
-    console.log('⚡ Initializing task execution engine with autonomous integration...');
+    console.log(
+      '⚡ Initializing task execution engine with autonomous integration...',
+    );
     const taskEngine = new TaskExecutionEngine(config, {
       onTaskStatusChange: (task: Task) => {
-        console.log(`📋 Task ${task.id} status changed: ${task.status} (${task.progress}%)`);
+        console.log(
+          `📋 Task ${task.id} status changed: ${task.status} (${task.progress}%)`,
+        );
         if (monitoring) {
           monitoring.recordEvent({
             taskId: task.id,
-            eventType: task.status === 'in_progress' ? 'started' :
-                     task.status === 'completed' ? 'completed' :
-                     task.status === 'failed' ? 'failed' : 'progress',
+            eventType:
+              task.status === 'in_progress'
+                ? 'started'
+                : task.status === 'completed'
+                  ? 'completed'
+                  : task.status === 'failed'
+                    ? 'failed'
+                    : 'progress',
             timestamp: new Date(),
             metadata: {
               title: task.title,
@@ -384,8 +410,8 @@ export class TaskManagementSystemFactory {
               complexity: task.complexity,
               priority: task.priority,
               progress: task.progress,
-              autonomouslyProcessed: true
-            }
+              autonomouslyProcessed: true,
+            },
           });
         }
       },
@@ -400,9 +426,9 @@ export class TaskManagementSystemFactory {
               title: task.title,
               duration: task.metrics?.durationMs,
               outputs: task.outputs,
-              autonomouslyProcessed: true
+              autonomouslyProcessed: true,
             },
-            duration: task.metrics?.durationMs
+            duration: task.metrics?.durationMs,
           });
         }
       },
@@ -417,12 +443,12 @@ export class TaskManagementSystemFactory {
               title: task.title,
               error: task.lastError,
               retryCount: task.retryCount,
-              autonomouslyProcessed: true
+              autonomouslyProcessed: true,
             },
-            error
+            error,
           });
         }
-      }
+      },
     });
 
     // Initialize hook integration
@@ -433,14 +459,17 @@ export class TaskManagementSystemFactory {
         config,
         taskEngine,
         monitoring!,
-        options?.hookIntegrationConfig
+        options?.hookIntegrationConfig,
       );
 
       try {
         await hookIntegration.initialize();
         console.log('✅ Hook integration initialized successfully');
       } catch (error) {
-        console.warn('⚠️  Hook integration failed, continuing without it:', error);
+        console.warn(
+          '⚠️  Hook integration failed, continuing without it:',
+          error,
+        );
         hookIntegration = undefined;
       }
     }
@@ -460,20 +489,26 @@ export class TaskManagementSystemFactory {
       await autonomousQueue.shutdown();
       await taskEngine.shutdown();
 
-      console.log('✅ Complete System with Autonomous Queue shut down gracefully');
+      console.log(
+        '✅ Complete System with Autonomous Queue shut down gracefully',
+      );
     };
 
-    console.log('🎉 Complete System with Autonomous Task Queue initialized successfully!');
+    console.log(
+      '🎉 Complete System with Autonomous Task Queue initialized successfully!',
+    );
     console.log(`🤖 Autonomous Queue: Enabled with breakdown and optimization`);
     console.log(`📊 Monitoring: ${enableMonitoring ? 'Enabled' : 'Disabled'}`);
-    console.log(`🔗 Hook Integration: ${hookIntegration ? 'Enabled' : 'Disabled'}`);
+    console.log(
+      `🔗 Hook Integration: ${hookIntegration ? 'Enabled' : 'Disabled'}`,
+    );
 
     return {
       taskEngine,
       autonomousQueue,
       monitoring,
       hookIntegration,
-      shutdown
+      shutdown,
     };
   }
 }
@@ -484,7 +519,7 @@ export class TaskManagementSystemFactory {
  */
 export async function createTaskManagementSystem(
   config: Config,
-  options?: any
+  options?: any,
 ) {
   return createTaskManager({
     config,
@@ -494,7 +529,7 @@ export async function createTaskManagementSystem(
     enableMonitoring: true,
     enableHookIntegration: true,
     enablePersistence: true,
-    ...options
+    ...options,
   });
 }
 
@@ -508,7 +543,9 @@ export function createTaskEngine(config: Config) {
 /**
  * Convenience function to create autonomous task queue
  */
-export function createAutonomousTaskQueue(config?: Partial<EnhancedQueueConfig>) {
+export function createAutonomousTaskQueue(
+  config?: Partial<EnhancedQueueConfig>,
+) {
   return TaskManagementSystemFactory.createAutonomousQueue(config);
 }
 
@@ -518,16 +555,19 @@ export function createAutonomousTaskQueue(config?: Partial<EnhancedQueueConfig>)
 export async function createCompleteWithAutonomousQueue(
   config: Config,
   queueConfig?: Partial<EnhancedQueueConfig>,
-  options?: any
+  options?: any,
 ) {
-  return TaskManagementSystemFactory.createCompleteWithAutonomousQueue(config, queueConfig, options);
+  return TaskManagementSystemFactory.createCompleteWithAutonomousQueue(
+    config,
+    queueConfig,
+    options,
+  );
 }
 
 /**
  * Example usage patterns and integration guides
  */
 export const INTEGRATION_EXAMPLES = {
-
   /**
    * Basic usage example
    */
@@ -708,12 +748,18 @@ console.log('Recent Adaptations:', adaptationHistory);
 
 // Graceful shutdown of all components
 await system.shutdown();
-`
+`,
 };
 
 // Log successful module initialization
 console.log('📦 Enhanced Task Management System module loaded successfully');
-console.log('🔧 Available components: TaskExecutionEngine, ExecutionMonitoringSystem, InfiniteHookIntegration');
-console.log('🤖 Autonomous components: EnhancedAutonomousTaskQueue, AutonomousTaskBreakdown, PriorityScheduler, QueueOptimizer');
+console.log(
+  '🔧 Available components: TaskExecutionEngine, ExecutionMonitoringSystem, InfiniteHookIntegration',
+);
+console.log(
+  '🤖 Autonomous components: EnhancedAutonomousTaskQueue, AutonomousTaskBreakdown, PriorityScheduler, QueueOptimizer',
+);
 console.log('🚀 Use createTaskManagementSystem() for traditional integration');
-console.log('🚀 Use createCompleteWithAutonomousQueue() for autonomous task breakdown and optimization');
+console.log(
+  '🚀 Use createCompleteWithAutonomousQueue() for autonomous task breakdown and optimization',
+);

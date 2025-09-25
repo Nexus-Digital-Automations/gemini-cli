@@ -33,13 +33,13 @@ describe('Task Management End-to-End Workflows', () => {
         getTool: vi.fn(),
         getAllTools: vi.fn(() => []),
         getAllToolNames: vi.fn(() => []),
-        getFunctionDeclarationsFiltered: vi.fn(() => [])
+        getFunctionDeclarationsFiltered: vi.fn(() => []),
       })),
       storage: {
         getProjectTempDir: vi.fn(() => '/tmp/e2e-project'),
-        ensureProjectTempDir: vi.fn()
+        ensureProjectTempDir: vi.fn(),
       } as any,
-      getSessionId: vi.fn(() => 'e2e-test-session')
+      getSessionId: vi.fn(() => 'e2e-test-session'),
     };
 
     // Mock file system operations for persistent storage
@@ -49,13 +49,16 @@ describe('Task Management End-to-End Workflows', () => {
       mkdir: vi.fn(),
       access: vi.fn(),
       unlink: vi.fn(),
-      readdir: vi.fn(() => Promise.resolve([]))
+      readdir: vi.fn(() => Promise.resolve([])),
     }));
 
-    system = await TaskManagementSystemFactory.createComplete(config as Config, {
-      enableMonitoring: true,
-      enableHookIntegration: false
-    });
+    system = await TaskManagementSystemFactory.createComplete(
+      config as Config,
+      {
+        enableMonitoring: true,
+        enableHookIntegration: false,
+      },
+    );
   });
 
   afterEach(async () => {
@@ -78,11 +81,11 @@ describe('Task Management End-to-End Workflows', () => {
           type: 'analysis',
           priority: 'high',
           expectedOutputs: {
-            'requirements_doc': 'Comprehensive requirements document',
-            'user_stories': 'User stories and acceptance criteria',
-            'technical_specs': 'Technical specifications'
-          }
-        }
+            requirements_doc: 'Comprehensive requirements document',
+            user_stories: 'User stories and acceptance criteria',
+            technical_specs: 'Technical specifications',
+          },
+        },
       );
       tasks.push(analysisTaskId);
 
@@ -94,11 +97,11 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'high',
           dependencies: [analysisTaskId],
           expectedOutputs: {
-            'architecture_diagram': 'System architecture diagram',
-            'api_design': 'REST API specifications',
-            'database_schema': 'Database design schema'
-          }
-        }
+            architecture_diagram: 'System architecture diagram',
+            api_design: 'REST API specifications',
+            database_schema: 'Database design schema',
+          },
+        },
       );
       tasks.push(architectureTaskId);
 
@@ -111,11 +114,11 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'high',
           dependencies: [architectureTaskId],
           expectedOutputs: {
-            'auth_service': 'Authentication service implementation',
-            'user_management': 'User management APIs',
-            'security_layer': 'Security and encryption layer'
-          }
-        }
+            auth_service: 'Authentication service implementation',
+            user_management: 'User management APIs',
+            security_layer: 'Security and encryption layer',
+          },
+        },
       );
       tasks.push(backendTaskId);
 
@@ -127,11 +130,11 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'high',
           dependencies: [architectureTaskId], // Can start after architecture
           expectedOutputs: {
-            'login_components': 'Login/logout UI components',
-            'registration_forms': 'User registration forms',
-            'auth_guards': 'Route authentication guards'
-          }
-        }
+            login_components: 'Login/logout UI components',
+            registration_forms: 'User registration forms',
+            auth_guards: 'Route authentication guards',
+          },
+        },
       );
       tasks.push(frontendTaskId);
 
@@ -144,11 +147,11 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'medium',
           dependencies: [backendTaskId, frontendTaskId],
           expectedOutputs: {
-            'backend_tests': 'Backend unit tests with >90% coverage',
-            'frontend_tests': 'Frontend component tests',
-            'test_reports': 'Test execution reports'
-          }
-        }
+            backend_tests: 'Backend unit tests with >90% coverage',
+            frontend_tests: 'Frontend component tests',
+            test_reports: 'Test execution reports',
+          },
+        },
       );
       tasks.push(unitTestTaskId);
 
@@ -160,11 +163,11 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'medium',
           dependencies: [unitTestTaskId],
           expectedOutputs: {
-            'e2e_tests': 'End-to-end test scenarios',
-            'api_integration_tests': 'API integration tests',
-            'security_tests': 'Security vulnerability tests'
-          }
-        }
+            e2e_tests: 'End-to-end test scenarios',
+            api_integration_tests: 'API integration tests',
+            security_tests: 'Security vulnerability tests',
+          },
+        },
       );
       tasks.push(integrationTestTaskId);
 
@@ -177,11 +180,11 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'high',
           dependencies: [integrationTestTaskId],
           expectedOutputs: {
-            'deployed_services': 'Live authentication services',
-            'monitoring_setup': 'Production monitoring configuration',
-            'deployment_docs': 'Deployment documentation'
-          }
-        }
+            deployed_services: 'Live authentication services',
+            monitoring_setup: 'Production monitoring configuration',
+            deployment_docs: 'Deployment documentation',
+          },
+        },
       );
       tasks.push(deploymentTaskId);
 
@@ -202,33 +205,33 @@ describe('Task Management End-to-End Workflows', () => {
       task.status = 'completed';
       task.completedAt = new Date();
       task.outputs = {
-        'requirements_doc': 'JWT-based authentication with OAuth2 support',
-        'user_stories': '15 user stories with acceptance criteria',
-        'technical_specs': 'RESTful API with PostgreSQL backend'
+        requirements_doc: 'JWT-based authentication with OAuth2 support',
+        user_stories: '15 user stories with acceptance criteria',
+        technical_specs: 'RESTful API with PostgreSQL backend',
       };
       executionResults.push({
         taskId: analysisTaskId,
         success: true,
-        output: task.outputs
+        output: task.outputs,
       });
 
       // Execute architecture task
       task = system.taskEngine.getTask(architectureTaskId)!;
       task.status = 'in_progress';
       task.startedAt = new Date();
-      await new Promise(resolve => setTimeout(resolve, 10)); // Simulate work
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Simulate work
       task.progress = 100;
       task.status = 'completed';
       task.completedAt = new Date();
       task.outputs = {
-        'architecture_diagram': 'Microservices architecture with API gateway',
-        'api_design': 'OpenAPI 3.0 specifications',
-        'database_schema': 'Normalized PostgreSQL schema'
+        architecture_diagram: 'Microservices architecture with API gateway',
+        api_design: 'OpenAPI 3.0 specifications',
+        database_schema: 'Normalized PostgreSQL schema',
       };
       executionResults.push({
         taskId: architectureTaskId,
         success: true,
-        output: task.outputs
+        output: task.outputs,
       });
 
       // Execute backend and frontend in parallel
@@ -241,16 +244,16 @@ describe('Task Management End-to-End Workflows', () => {
       frontendTask.status = 'in_progress';
       frontendTask.startedAt = new Date();
 
-      await new Promise(resolve => setTimeout(resolve, 20)); // Simulate parallel work
+      await new Promise((resolve) => setTimeout(resolve, 20)); // Simulate parallel work
 
       // Complete backend
       backendTask.progress = 100;
       backendTask.status = 'completed';
       backendTask.completedAt = new Date();
       backendTask.outputs = {
-        'auth_service': 'Express.js authentication service',
-        'user_management': 'CRUD operations for user management',
-        'security_layer': 'JWT tokens with refresh token rotation'
+        auth_service: 'Express.js authentication service',
+        user_management: 'CRUD operations for user management',
+        security_layer: 'JWT tokens with refresh token rotation',
       };
 
       // Complete frontend
@@ -258,72 +261,74 @@ describe('Task Management End-to-End Workflows', () => {
       frontendTask.status = 'completed';
       frontendTask.completedAt = new Date();
       frontendTask.outputs = {
-        'login_components': 'React login/logout components',
-        'registration_forms': 'Formik-based registration forms',
-        'auth_guards': 'React Router auth guards'
+        login_components: 'React login/logout components',
+        registration_forms: 'Formik-based registration forms',
+        auth_guards: 'React Router auth guards',
       };
 
       executionResults.push({
         taskId: backendTaskId,
         success: true,
-        output: backendTask.outputs
+        output: backendTask.outputs,
       });
       executionResults.push({
         taskId: frontendTaskId,
         success: true,
-        output: frontendTask.outputs
+        output: frontendTask.outputs,
       });
 
       // Execute testing tasks
       task = system.taskEngine.getTask(unitTestTaskId)!;
       task.status = 'in_progress';
       task.startedAt = new Date();
-      await new Promise(resolve => setTimeout(resolve, 15));
+      await new Promise((resolve) => setTimeout(resolve, 15));
       task.progress = 100;
       task.status = 'completed';
       task.completedAt = new Date();
       task.outputs = {
-        'backend_tests': '95% code coverage with Jest',
-        'frontend_tests': 'React Testing Library test suite',
-        'test_reports': 'Comprehensive test execution reports'
+        backend_tests: '95% code coverage with Jest',
+        frontend_tests: 'React Testing Library test suite',
+        test_reports: 'Comprehensive test execution reports',
       };
 
       task = system.taskEngine.getTask(integrationTestTaskId)!;
       task.status = 'in_progress';
       task.startedAt = new Date();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       task.progress = 100;
       task.status = 'completed';
       task.completedAt = new Date();
       task.outputs = {
-        'e2e_tests': 'Playwright E2E test suite',
-        'api_integration_tests': 'Postman API test collection',
-        'security_tests': 'OWASP security vulnerability assessment'
+        e2e_tests: 'Playwright E2E test suite',
+        api_integration_tests: 'Postman API test collection',
+        security_tests: 'OWASP security vulnerability assessment',
       };
 
       // Execute deployment
       task = system.taskEngine.getTask(deploymentTaskId)!;
       task.status = 'in_progress';
       task.startedAt = new Date();
-      await new Promise(resolve => setTimeout(resolve, 25));
+      await new Promise((resolve) => setTimeout(resolve, 25));
       task.progress = 100;
       task.status = 'completed';
       task.completedAt = new Date();
       task.outputs = {
-        'deployed_services': 'Kubernetes deployment on AWS EKS',
-        'monitoring_setup': 'Prometheus and Grafana monitoring',
-        'deployment_docs': 'Deployment runbooks and troubleshooting guides'
+        deployed_services: 'Kubernetes deployment on AWS EKS',
+        monitoring_setup: 'Prometheus and Grafana monitoring',
+        deployment_docs: 'Deployment runbooks and troubleshooting guides',
       };
 
       executionResults.push({
         taskId: deploymentTaskId,
         success: true,
-        output: task.outputs
+        output: task.outputs,
       });
 
       // Verify workflow completion
       expect(executionResults).toHaveLength(6);
-      const completedTasks = system.taskEngine.getAllTasks({ status: 'completed' });
+      const completedTasks = system.taskEngine.getAllTasks({
+        status: 'completed',
+      });
       expect(completedTasks).toHaveLength(6);
 
       // Verify monitoring tracked the entire workflow
@@ -349,7 +354,7 @@ describe('Task Management End-to-End Workflows', () => {
       const task1Id = await system.taskEngine.queueTask(
         'Database Setup',
         'Set up production database',
-        { type: 'implementation', priority: 'critical' }
+        { type: 'implementation', priority: 'critical' },
       );
 
       const task2Id = await system.taskEngine.queueTask(
@@ -358,8 +363,8 @@ describe('Task Management End-to-End Workflows', () => {
         {
           type: 'deployment',
           priority: 'critical',
-          dependencies: [task1Id]
-        }
+          dependencies: [task1Id],
+        },
       );
 
       const task3Id = await system.taskEngine.queueTask(
@@ -368,8 +373,8 @@ describe('Task Management End-to-End Workflows', () => {
         {
           type: 'deployment',
           priority: 'high',
-          dependencies: [task2Id]
-        }
+          dependencies: [task2Id],
+        },
       );
 
       const task4Id = await system.taskEngine.queueTask(
@@ -378,8 +383,8 @@ describe('Task Management End-to-End Workflows', () => {
         {
           type: 'testing',
           priority: 'high',
-          dependencies: [task3Id]
-        }
+          dependencies: [task3Id],
+        },
       );
 
       // Execute first task successfully
@@ -434,12 +439,14 @@ describe('Task Management End-to-End Workflows', () => {
       task.completedAt = new Date();
 
       // Verify final state
-      const completedTasks = system.taskEngine.getAllTasks({ status: 'completed' });
+      const completedTasks = system.taskEngine.getAllTasks({
+        status: 'completed',
+      });
       expect(completedTasks).toHaveLength(4);
 
       if (system.monitoring) {
         const finalMetrics = await system.monitoring.collectMetrics(
-          system.taskEngine.getAllTasks()
+          system.taskEngine.getAllTasks(),
         );
         expect(finalMetrics.completedTasks).toBe(4);
         expect(finalMetrics.successRate).toBe(100); // After retry
@@ -461,10 +468,10 @@ describe('Task Management End-to-End Workflows', () => {
           type: 'analysis',
           priority: 'high',
           expectedOutputs: {
-            'cleaned_data': 'Preprocessed data files',
-            'validation_report': 'Data quality validation'
-          }
-        }
+            cleaned_data: 'Preprocessed data files',
+            validation_report: 'Data quality validation',
+          },
+        },
       );
 
       // Create batch processing tasks
@@ -477,9 +484,9 @@ describe('Task Management End-to-End Workflows', () => {
             priority: 'medium',
             dependencies: [prepTaskId],
             expectedOutputs: {
-              [`batch_${i + 1}_results`]: `Processed results for batch ${i + 1}`
-            }
-          }
+              [`batch_${i + 1}_results`]: `Processed results for batch ${i + 1}`,
+            },
+          },
         );
         processingTasks.push(taskId);
       }
@@ -493,10 +500,10 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'high',
           dependencies: processingTasks,
           expectedOutputs: {
-            'final_report': 'Comprehensive processing report',
-            'summary_statistics': 'Statistical analysis summary'
-          }
-        }
+            final_report: 'Comprehensive processing report',
+            summary_statistics: 'Statistical analysis summary',
+          },
+        },
       );
 
       const totalTasks = 1 + batchSize + 1; // prep + batch + aggregation
@@ -511,23 +518,27 @@ describe('Task Management End-to-End Workflows', () => {
       task.completedAt = new Date();
 
       // Execute batch processing tasks in parallel simulation
-      const batchExecutionPromises = processingTasks.map(async (taskId, index) => {
-        const task = system.taskEngine.getTask(taskId)!;
-        task.status = 'in_progress';
-        task.startedAt = new Date();
+      const batchExecutionPromises = processingTasks.map(
+        async (taskId, index) => {
+          const task = system.taskEngine.getTask(taskId)!;
+          task.status = 'in_progress';
+          task.startedAt = new Date();
 
-        // Simulate varying processing times
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 50 + 10));
+          // Simulate varying processing times
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.random() * 50 + 10),
+          );
 
-        task.progress = 100;
-        task.status = 'completed';
-        task.completedAt = new Date();
-        task.outputs = {
-          [`batch_${index + 1}_results`]: `Results from batch ${index + 1}`
-        };
+          task.progress = 100;
+          task.status = 'completed';
+          task.completedAt = new Date();
+          task.outputs = {
+            [`batch_${index + 1}_results`]: `Results from batch ${index + 1}`,
+          };
 
-        return task;
-      });
+          return task;
+        },
+      );
 
       const completedBatchTasks = await Promise.all(batchExecutionPromises);
       expect(completedBatchTasks).toHaveLength(batchSize);
@@ -536,23 +547,25 @@ describe('Task Management End-to-End Workflows', () => {
       task = system.taskEngine.getTask(aggregationTaskId)!;
       task.status = 'in_progress';
       task.startedAt = new Date();
-      await new Promise(resolve => setTimeout(resolve, 30)); // Aggregation takes time
+      await new Promise((resolve) => setTimeout(resolve, 30)); // Aggregation takes time
       task.progress = 100;
       task.status = 'completed';
       task.completedAt = new Date();
       task.outputs = {
-        'final_report': 'All batches processed successfully',
-        'summary_statistics': `Processed ${batchSize} batches in parallel`
+        final_report: 'All batches processed successfully',
+        summary_statistics: `Processed ${batchSize} batches in parallel`,
       };
 
       // Verify completion
-      const allCompletedTasks = system.taskEngine.getAllTasks({ status: 'completed' });
+      const allCompletedTasks = system.taskEngine.getAllTasks({
+        status: 'completed',
+      });
       expect(allCompletedTasks).toHaveLength(totalTasks);
 
       // Verify performance metrics
       if (system.monitoring) {
         const metrics = await system.monitoring.collectMetrics(
-          system.taskEngine.getAllTasks()
+          system.taskEngine.getAllTasks(),
         );
         expect(metrics.totalTasks).toBe(totalTasks);
         expect(metrics.successRate).toBe(100);
@@ -576,9 +589,9 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'medium',
           resourceConstraints: [
             { resourceType: 'cpu', maxUnits: 1 },
-            { resourceType: 'memory', maxUnits: 2 }
-          ]
-        }
+            { resourceType: 'memory', maxUnits: 2 },
+          ],
+        },
       );
 
       const mediumResourceTaskId = await system.taskEngine.queueTask(
@@ -589,9 +602,9 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'medium',
           resourceConstraints: [
             { resourceType: 'cpu', maxUnits: 2 },
-            { resourceType: 'memory', maxUnits: 4 }
-          ]
-        }
+            { resourceType: 'memory', maxUnits: 4 },
+          ],
+        },
       );
 
       const highResourceTaskId = await system.taskEngine.queueTask(
@@ -603,16 +616,16 @@ describe('Task Management End-to-End Workflows', () => {
           resourceConstraints: [
             { resourceType: 'cpu', maxUnits: 4 },
             { resourceType: 'memory', maxUnits: 8 },
-            { resourceType: 'gpu', maxUnits: 1 }
-          ]
-        }
+            { resourceType: 'gpu', maxUnits: 1 },
+          ],
+        },
       );
 
       // Simulate system under different load conditions
       const tasks = [
         system.taskEngine.getTask(lowResourceTaskId)!,
         system.taskEngine.getTask(mediumResourceTaskId)!,
-        system.taskEngine.getTask(highResourceTaskId)!
+        system.taskEngine.getTask(highResourceTaskId)!,
       ];
 
       // Scenario 1: Normal load - all tasks should proceed
@@ -631,7 +644,7 @@ describe('Task Management End-to-End Workflows', () => {
       tasks[2].status = 'in_progress';
       tasks[2].startedAt = new Date();
 
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Complete tasks in order of completion
       tasks[0].status = 'completed';
@@ -643,7 +656,7 @@ describe('Task Management End-to-End Workflows', () => {
       tasks[1].progress = 100;
 
       // High resource task takes longer
-      await new Promise(resolve => setTimeout(resolve, 30));
+      await new Promise((resolve) => setTimeout(resolve, 30));
       tasks[2].status = 'completed';
       tasks[2].completedAt = new Date();
       tasks[2].progress = 100;
@@ -656,13 +669,16 @@ describe('Task Management End-to-End Workflows', () => {
 
         // Check for resource contention patterns
         const executionEvents = system.monitoring.getExecutionEvents();
-        const resourceEvents = executionEvents.filter(e =>
-          e.metadata?.resourceConstraints || e.metadata?.resourceAvailability
+        const resourceEvents = executionEvents.filter(
+          (e) =>
+            e.metadata?.resourceConstraints || e.metadata?.resourceAvailability,
         );
         expect(resourceEvents.length).toBeGreaterThanOrEqual(0);
       }
 
-      const completedTasks = system.taskEngine.getAllTasks({ status: 'completed' });
+      const completedTasks = system.taskEngine.getAllTasks({
+        status: 'completed',
+      });
       expect(completedTasks).toHaveLength(3);
     });
   });
@@ -677,10 +693,10 @@ describe('Task Management End-to-End Workflows', () => {
           priority: 'high',
           maxExecutionTimeMinutes: 240, // 4 hours
           expectedOutputs: {
-            'partial_results': 'Incremental analysis results',
-            'final_report': 'Complete analysis report'
-          }
-        }
+            partial_results: 'Incremental analysis results',
+            final_report: 'Complete analysis report',
+          },
+        },
       );
 
       const task = system.taskEngine.getTask(persistentTaskId)!;
@@ -696,17 +712,20 @@ describe('Task Management End-to-End Workflows', () => {
         status: task.status,
         progress: task.progress,
         startedAt: task.startedAt,
-        outputs: task.outputs || {}
+        outputs: task.outputs || {},
       };
 
       // Shutdown current system
       await system.shutdown();
 
       // Create new system instance (simulating restart)
-      system = await TaskManagementSystemFactory.createComplete(config as Config, {
-        enableMonitoring: true,
-        enableHookIntegration: false
-      });
+      system = await TaskManagementSystemFactory.createComplete(
+        config as Config,
+        {
+          enableMonitoring: true,
+          enableHookIntegration: false,
+        },
+      );
 
       // Verify task state persistence (would be loaded from storage in real implementation)
       const restoredTaskId = await system.taskEngine.queueTask(
@@ -715,8 +734,8 @@ describe('Task Management End-to-End Workflows', () => {
         {
           type: 'analysis',
           priority: 'high',
-          maxExecutionTimeMinutes: 240
-        }
+          maxExecutionTimeMinutes: 240,
+        },
       );
 
       const restoredTask = system.taskEngine.getTask(restoredTaskId)!;
@@ -728,14 +747,14 @@ describe('Task Management End-to-End Workflows', () => {
 
       // Continue execution from where it left off
       restoredTask.progress = 75; // Made more progress
-      await new Promise(resolve => setTimeout(resolve, 20));
+      await new Promise((resolve) => setTimeout(resolve, 20));
 
       restoredTask.progress = 100;
       restoredTask.status = 'completed';
       restoredTask.completedAt = new Date();
       restoredTask.outputs = {
-        'partial_results': 'Restored from session state',
-        'final_report': 'Analysis completed after system restart'
+        partial_results: 'Restored from session state',
+        final_report: 'Analysis completed after system restart',
       };
 
       expect(restoredTask.status).toBe('completed');
@@ -763,8 +782,8 @@ describe('Task Management End-to-End Workflows', () => {
           {
             type: i % 2 === 0 ? 'implementation' : 'testing',
             priority: ['low', 'medium', 'high'][i % 3] as any,
-            maxExecutionTimeMinutes: 30 + i * 10
-          }
+            maxExecutionTimeMinutes: 30 + i * 10,
+          },
         );
         monitoredTasks.push(taskId);
       }
@@ -790,24 +809,24 @@ describe('Task Management End-to-End Workflows', () => {
           metadata: {
             title: task.title,
             priority: task.priority,
-            estimatedDuration: task.maxExecutionTimeMinutes! * 60 * 1000
-          }
+            estimatedDuration: task.maxExecutionTimeMinutes! * 60 * 1000,
+          },
         });
 
         // Simulate different execution patterns
         if (i === 0) {
           // Fast completion
-          await new Promise(resolve => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 10));
           task.status = 'completed';
           task.progress = 100;
         } else if (i === 1) {
           // Slow progress
-          await new Promise(resolve => setTimeout(resolve, 30));
+          await new Promise((resolve) => setTimeout(resolve, 30));
           task.progress = 30;
           // Task continues running
         } else if (i === 2) {
           // Failure scenario
-          await new Promise(resolve => setTimeout(resolve, 20));
+          await new Promise((resolve) => setTimeout(resolve, 20));
           task.status = 'failed';
           task.lastError = 'Simulated failure for monitoring test';
 
@@ -816,11 +835,11 @@ describe('Task Management End-to-End Workflows', () => {
             eventType: 'failed',
             timestamp: new Date(),
             error: task.lastError,
-            metadata: { retryCount: 0 }
+            metadata: { retryCount: 0 },
           });
         } else {
           // Normal completion
-          await new Promise(resolve => setTimeout(resolve, 25));
+          await new Promise((resolve) => setTimeout(resolve, 25));
           task.status = 'completed';
           task.progress = 100;
         }
@@ -832,7 +851,7 @@ describe('Task Management End-to-End Workflows', () => {
             eventType: 'completed',
             timestamp: new Date(),
             duration: task.completedAt.getTime() - task.startedAt!.getTime(),
-            metadata: { finalProgress: task.progress }
+            metadata: { finalProgress: task.progress },
           });
         }
       }
@@ -869,7 +888,9 @@ describe('Task Management End-to-End Workflows', () => {
 
       // Verify alert generation for failures
       const executionEvents = monitoring.getExecutionEvents();
-      const failureEvents = executionEvents.filter(e => e.eventType === 'failed');
+      const failureEvents = executionEvents.filter(
+        (e) => e.eventType === 'failed',
+      );
       expect(failureEvents).toHaveLength(1);
 
       console.log('Monitoring System Performance:');

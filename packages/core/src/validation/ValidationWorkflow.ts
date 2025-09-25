@@ -6,8 +6,17 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../logger/Logger.js';
-import type { ValidationContext, ValidationReport, ValidationResult} from './ValidationFramework.js';
-import { ValidationFramework, ValidationSeverity, ValidationStatus, ValidationCategory } from './ValidationFramework.js';
+import type {
+  ValidationContext,
+  ValidationReport,
+  ValidationResult,
+} from './ValidationFramework.js';
+import {
+  ValidationFramework,
+  ValidationSeverity,
+  ValidationStatus,
+  ValidationCategory,
+} from './ValidationFramework.js';
 import type { CodeQualityConfig } from './CodeQualityValidator.js';
 import { CodeQualityValidator } from './CodeQualityValidator.js';
 import type { FunctionalValidationConfig } from './FunctionalValidator.js';
@@ -23,7 +32,7 @@ export enum TaskExecutionStage {
   POST_EXECUTION = 'post-execution',
   ON_FAILURE = 'on-failure',
   ON_SUCCESS = 'on-success',
-  CONTINUOUS = 'continuous'
+  CONTINUOUS = 'continuous',
 }
 
 /**
@@ -133,7 +142,10 @@ export class ValidationWorkflow extends EventEmitter {
   private readonly functionalValidator: FunctionalValidator;
   private readonly integrationValidator: IntegrationValidator;
   private readonly config: ValidationWorkflowConfig;
-  private readonly activeWorkflows: Map<string, Promise<WorkflowExecutionResult>> = new Map();
+  private readonly activeWorkflows: Map<
+    string,
+    Promise<WorkflowExecutionResult>
+  > = new Map();
 
   constructor(config: ValidationWorkflowConfig) {
     super();
@@ -145,137 +157,151 @@ export class ValidationWorkflow extends EventEmitter {
           enabled: true,
           validators: ['codeQuality'],
           continueOnFailure: false,
-          timeout: 300000
+          timeout: 300000,
         },
         [TaskExecutionStage.POST_EXECUTION]: {
           enabled: true,
           validators: ['functional', 'integration'],
           continueOnFailure: true,
-          timeout: 600000
+          timeout: 600000,
         },
         [TaskExecutionStage.ON_FAILURE]: {
           enabled: true,
           validators: ['codeQuality'],
           continueOnFailure: true,
-          timeout: 180000
+          timeout: 180000,
         },
         [TaskExecutionStage.ON_SUCCESS]: {
           enabled: true,
           validators: ['functional'],
           continueOnFailure: true,
-          timeout: 300000
+          timeout: 300000,
         },
         [TaskExecutionStage.CONTINUOUS]: {
           enabled: false,
           validators: ['codeQuality', 'functional'],
           continueOnFailure: true,
-          timeout: 120000
-        }
+          timeout: 120000,
+        },
       },
       globalConfig: {
         parallelExecution: true,
         maxParallelValidators: 3,
         retryOnFailure: true,
         maxRetries: 2,
-        retryDelay: 1000
+        retryDelay: 1000,
       },
       reporting: {
         aggregateReports: true,
         persistReports: true,
-        reportFormat: 'json'
+        reportFormat: 'json',
       },
       notifications: {
         onSuccess: false,
         onFailure: true,
-        onWarning: false
+        onWarning: false,
       },
-      ...config
+      ...config,
     };
 
     // Initialize validation framework and validators
     this.validationFramework = new ValidationFramework({
-      enabledCategories: Object.values(ValidationCategory)
+      enabledCategories: Object.values(ValidationCategory),
     });
 
-    this.codeQualityValidator = new CodeQualityValidator(this.config.validatorConfigs.codeQuality || {
-      enabledLinters: ['eslint', 'prettier', 'typescript'],
-      securityScanners: ['semgrep']
-    });
+    this.codeQualityValidator = new CodeQualityValidator(
+      this.config.validatorConfigs.codeQuality || {
+        enabledLinters: ['eslint', 'prettier', 'typescript'],
+        securityScanners: ['semgrep'],
+      },
+    );
 
-    this.functionalValidator = new FunctionalValidator(this.config.validatorConfigs.functional || {
-      testFrameworks: ['vitest'],
-      coverageThreshold: {
-        lines: 80,
-        functions: 80,
-        branches: 70,
-        statements: 80
+    this.functionalValidator = new FunctionalValidator(
+      this.config.validatorConfigs.functional || {
+        testFrameworks: ['vitest'],
+        coverageThreshold: {
+          lines: 80,
+          functions: 80,
+          branches: 70,
+          statements: 80,
+        },
+        testPatterns: ['**/*.test.ts', '**/*.spec.ts'],
+        behaviorValidation: {
+          enabled: true,
+          scenarios: [],
+        },
+        performanceThresholds: {
+          maxExecutionTime: 30000,
+          maxMemoryUsage: 512 * 1024 * 1024,
+        },
       },
-      testPatterns: ['**/*.test.ts', '**/*.spec.ts'],
-      behaviorValidation: {
-        enabled: true,
-        scenarios: []
-      },
-      performanceThresholds: {
-        maxExecutionTime: 30000,
-        maxMemoryUsage: 512 * 1024 * 1024
-      }
-    });
+    );
 
-    this.integrationValidator = new IntegrationValidator(this.config.validatorConfigs.integration || {
-      systemCompatibility: {
-        nodeVersions: ['18.x', '20.x', '22.x'],
-        operatingSystems: ['linux', 'darwin', 'win32'],
-        architectures: ['x64', 'arm64'],
-        dependencies: []
+    this.integrationValidator = new IntegrationValidator(
+      this.config.validatorConfigs.integration || {
+        systemCompatibility: {
+          nodeVersions: ['18.x', '20.x', '22.x'],
+          operatingSystems: ['linux', 'darwin', 'win32'],
+          architectures: ['x64', 'arm64'],
+          dependencies: [],
+        },
+        performanceBenchmarks: [],
+        integrationTests: {
+          enabled: true,
+          testCommand: 'npm run test:integration',
+          timeout: 300000,
+        },
+        e2eTests: {
+          enabled: true,
+          testCommand: 'npm run test:e2e',
+          timeout: 600000,
+        },
+        loadTesting: {
+          enabled: false,
+          concurrent: 10,
+          duration: 60000,
+          targetRps: 100,
+        },
+        monitoringChecks: {
+          healthEndpoints: [],
+          resourceLimits: {
+            maxMemory: 1024 * 1024 * 1024,
+            maxCpu: 80,
+            maxDiskUsage: 90,
+          },
+        },
       },
-      performanceBenchmarks: [],
-      integrationTests: {
-        enabled: true,
-        testCommand: 'npm run test:integration',
-        timeout: 300000
-      },
-      e2eTests: {
-        enabled: true,
-        testCommand: 'npm run test:e2e',
-        timeout: 600000
-      },
-      loadTesting: {
-        enabled: false,
-        concurrent: 10,
-        duration: 60000,
-        targetRps: 100
-      },
-      monitoringChecks: {
-        healthEndpoints: [],
-        resourceLimits: {
-          maxMemory: 1024 * 1024 * 1024,
-          maxCpu: 80,
-          maxDiskUsage: 90
-        }
-      }
-    });
+    );
 
     // Register validation rules
     this.registerValidationRules();
 
     this.logger.info('ValidationWorkflow initialized', {
-      stages: Object.keys(this.config.stages).filter(stage => this.config.stages[stage as TaskExecutionStage].enabled),
-      parallelExecution: this.config.globalConfig.parallelExecution
+      stages: Object.keys(this.config.stages).filter(
+        (stage) => this.config.stages[stage as TaskExecutionStage].enabled,
+      ),
+      parallelExecution: this.config.globalConfig.parallelExecution,
     });
   }
 
   /**
    * Execute validation workflow for a task execution stage
    */
-  async executeValidationWorkflow(context: TaskExecutionContext): Promise<WorkflowExecutionResult> {
+  async executeValidationWorkflow(
+    context: TaskExecutionContext,
+  ): Promise<WorkflowExecutionResult> {
     const startTime = Date.now();
     const workflowKey = `${context.taskId}-${context.stage}`;
 
-    this.logger.info(`Starting validation workflow for task: ${context.taskId} at stage: ${context.stage}`);
+    this.logger.info(
+      `Starting validation workflow for task: ${context.taskId} at stage: ${context.stage}`,
+    );
 
     // Check if workflow is already running
     if (this.activeWorkflows.has(workflowKey)) {
-      this.logger.warn(`Workflow already running for task: ${context.taskId} at stage: ${context.stage}`);
+      this.logger.warn(
+        `Workflow already running for task: ${context.taskId} at stage: ${context.stage}`,
+      );
       return await this.activeWorkflows.get(workflowKey)!;
     }
 
@@ -288,7 +314,10 @@ export class ValidationWorkflow extends EventEmitter {
       this.emit('workflowCompleted', result);
       return result;
     } catch (error) {
-      this.logger.error(`Validation workflow failed for task: ${context.taskId}`, { error });
+      this.logger.error(
+        `Validation workflow failed for task: ${context.taskId}`,
+        { error },
+      );
       this.emit('workflowFailed', context.taskId, context.stage, error);
       throw error;
     } finally {
@@ -299,7 +328,10 @@ export class ValidationWorkflow extends EventEmitter {
   /**
    * Execute validation workflow stage
    */
-  private async executeWorkflowStage(context: TaskExecutionContext, startTime: number): Promise<WorkflowExecutionResult> {
+  private async executeWorkflowStage(
+    context: TaskExecutionContext,
+    startTime: number,
+  ): Promise<WorkflowExecutionResult> {
     const stageConfig = this.config.stages[context.stage];
 
     if (!stageConfig.enabled) {
@@ -309,31 +341,48 @@ export class ValidationWorkflow extends EventEmitter {
     const validationReports: ValidationReport[] = [];
     const validators = stageConfig.validators;
 
-    this.logger.debug(`Executing ${validators.length} validators for stage: ${context.stage}`);
+    this.logger.debug(
+      `Executing ${validators.length} validators for stage: ${context.stage}`,
+    );
 
     try {
       // Execute validators
       if (this.config.globalConfig.parallelExecution) {
-        const reports = await this.executeValidatorsInParallel(validators, context, stageConfig);
+        const reports = await this.executeValidatorsInParallel(
+          validators,
+          context,
+          stageConfig,
+        );
         validationReports.push(...reports);
       } else {
-        const reports = await this.executeValidatorsSequentially(validators, context, stageConfig);
+        const reports = await this.executeValidatorsSequentially(
+          validators,
+          context,
+          stageConfig,
+        );
         validationReports.push(...reports);
       }
 
       // Generate workflow execution result
-      const result = this.generateWorkflowResult(context, startTime, validationReports);
+      const result = this.generateWorkflowResult(
+        context,
+        startTime,
+        validationReports,
+      );
 
       // Handle notifications and reporting
       await this.handleWorkflowCompletion(result);
 
       return result;
-
     } catch (error) {
       this.logger.error(`Workflow stage ${context.stage} failed`, { error });
 
       // Create error result
-      const errorResult = this.createErrorResult(context, startTime, error as Error);
+      const errorResult = this.createErrorResult(
+        context,
+        startTime,
+        error as Error,
+      );
 
       // Handle failure notifications
       await this.handleWorkflowFailure(errorResult, error as Error);
@@ -352,15 +401,18 @@ export class ValidationWorkflow extends EventEmitter {
   private async executeValidatorsInParallel(
     validators: string[],
     context: TaskExecutionContext,
-    stageConfig: ValidationWorkflowConfig['stages'][TaskExecutionStage]
+    stageConfig: ValidationWorkflowConfig['stages'][TaskExecutionStage],
   ): Promise<ValidationReport[]> {
-    const maxParallel = Math.min(validators.length, this.config.globalConfig.maxParallelValidators);
+    const maxParallel = Math.min(
+      validators.length,
+      this.config.globalConfig.maxParallelValidators,
+    );
     const batches = this.createBatches(validators, maxParallel);
     const reports: ValidationReport[] = [];
 
     for (const batch of batches) {
-      const batchPromises = batch.map(validator =>
-        this.executeValidator(validator, context, stageConfig.timeout)
+      const batchPromises = batch.map((validator) =>
+        this.executeValidator(validator, context, stageConfig.timeout),
       );
 
       const batchReports = await Promise.allSettled(batchPromises);
@@ -369,7 +421,9 @@ export class ValidationWorkflow extends EventEmitter {
         if (result.status === 'fulfilled') {
           reports.push(result.value);
         } else {
-          this.logger.error('Validator execution failed', { error: result.reason });
+          this.logger.error('Validator execution failed', {
+            error: result.reason,
+          });
           // Create error report
           reports.push(this.createValidatorErrorReport(context, result.reason));
         }
@@ -385,13 +439,17 @@ export class ValidationWorkflow extends EventEmitter {
   private async executeValidatorsSequentially(
     validators: string[],
     context: TaskExecutionContext,
-    stageConfig: ValidationWorkflowConfig['stages'][TaskExecutionStage]
+    stageConfig: ValidationWorkflowConfig['stages'][TaskExecutionStage],
   ): Promise<ValidationReport[]> {
     const reports: ValidationReport[] = [];
 
     for (const validator of validators) {
       try {
-        const report = await this.executeValidator(validator, context, stageConfig.timeout);
+        const report = await this.executeValidator(
+          validator,
+          context,
+          stageConfig.timeout,
+        );
         reports.push(report);
 
         // Stop on failure if configured
@@ -417,7 +475,7 @@ export class ValidationWorkflow extends EventEmitter {
   private async executeValidator(
     validatorName: string,
     context: TaskExecutionContext,
-    timeout?: number
+    timeout?: number,
   ): Promise<ValidationReport> {
     const validationContext: ValidationContext = {
       taskId: context.taskId,
@@ -425,13 +483,17 @@ export class ValidationWorkflow extends EventEmitter {
       metadata: {
         stage: context.stage,
         executionMetadata: context.executionMetadata,
-        taskDetails: context.taskDetails
+        taskDetails: context.taskDetails,
       },
-      previousResults: context.previousResults?.flatMap(report => report.results)
+      previousResults: context.previousResults?.flatMap(
+        (report) => report.results,
+      ),
     };
 
     // Create timeout promise if specified
-    const executeWithTimeout = async (validatorPromise: Promise<ValidationResult[]>): Promise<ValidationResult[]> => {
+    const executeWithTimeout = async (
+      validatorPromise: Promise<ValidationResult[]>,
+    ): Promise<ValidationResult[]> => {
       if (!timeout) {
         return await validatorPromise;
       }
@@ -439,8 +501,16 @@ export class ValidationWorkflow extends EventEmitter {
       return await Promise.race([
         validatorPromise,
         new Promise<ValidationResult[]>((_, reject) => {
-          setTimeout(() => reject(new Error(`Validator ${validatorName} timed out after ${timeout}ms`)), timeout);
-        })
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  `Validator ${validatorName} timed out after ${timeout}ms`,
+                ),
+              ),
+            timeout,
+          );
+        }),
       ]);
     };
 
@@ -448,13 +518,19 @@ export class ValidationWorkflow extends EventEmitter {
 
     switch (validatorName) {
       case 'codeQuality':
-        results = await executeWithTimeout(this.codeQualityValidator.validateCodeQuality(validationContext));
+        results = await executeWithTimeout(
+          this.codeQualityValidator.validateCodeQuality(validationContext),
+        );
         break;
       case 'functional':
-        results = await executeWithTimeout(this.functionalValidator.validateFunctionality(validationContext));
+        results = await executeWithTimeout(
+          this.functionalValidator.validateFunctionality(validationContext),
+        );
         break;
       case 'integration':
-        results = await executeWithTimeout(this.integrationValidator.validateIntegration(validationContext));
+        results = await executeWithTimeout(
+          this.integrationValidator.validateIntegration(validationContext),
+        );
         break;
       default:
         throw new Error(`Unknown validator: ${validatorName}`);
@@ -467,15 +543,18 @@ export class ValidationWorkflow extends EventEmitter {
       timestamp: new Date(),
       duration: 0, // Will be calculated by framework
       totalRules: results.length,
-      passedRules: results.filter(r => r.status === ValidationStatus.PASSED).length,
-      failedRules: results.filter(r => r.status === ValidationStatus.FAILED).length,
-      skippedRules: results.filter(r => r.status === ValidationStatus.SKIPPED).length,
+      passedRules: results.filter((r) => r.status === ValidationStatus.PASSED)
+        .length,
+      failedRules: results.filter((r) => r.status === ValidationStatus.FAILED)
+        .length,
+      skippedRules: results.filter((r) => r.status === ValidationStatus.SKIPPED)
+        .length,
       results,
       summary: this.generateSummary(results),
       metadata: {
         validator: validatorName,
-        stage: context.stage
-      }
+        stage: context.stage,
+      },
     };
   }
 
@@ -491,9 +570,10 @@ export class ValidationWorkflow extends EventEmitter {
       severity: ValidationSeverity.ERROR,
       enabled: true,
       description: 'Validates code quality using linters and security scanners',
-      validator: async (context) => this.codeQualityValidator.validateCodeQuality(context),
+      validator: async (context) =>
+        this.codeQualityValidator.validateCodeQuality(context),
       timeout: 300000,
-      retries: 2
+      retries: 2,
     });
 
     // Register functional validation rule
@@ -503,11 +583,13 @@ export class ValidationWorkflow extends EventEmitter {
       category: ValidationCategory.FUNCTIONAL,
       severity: ValidationSeverity.ERROR,
       enabled: true,
-      description: 'Validates functionality using tests and behavior verification',
-      validator: async (context) => this.functionalValidator.validateFunctionality(context),
+      description:
+        'Validates functionality using tests and behavior verification',
+      validator: async (context) =>
+        this.functionalValidator.validateFunctionality(context),
       dependencies: ['code-quality-validation'],
       timeout: 600000,
-      retries: 1
+      retries: 1,
     });
 
     // Register integration validation rule
@@ -518,27 +600,36 @@ export class ValidationWorkflow extends EventEmitter {
       severity: ValidationSeverity.WARNING,
       enabled: true,
       description: 'Validates system integration and compatibility',
-      validator: async (context) => this.integrationValidator.validateIntegration(context),
+      validator: async (context) =>
+        this.integrationValidator.validateIntegration(context),
       dependencies: ['functional-validation'],
       timeout: 900000,
-      retries: 1
+      retries: 1,
     });
   }
 
   /**
    * Generate validation summary
    */
-  private generateSummary(results: ValidationResult[]): ValidationReport['summary'] {
+  private generateSummary(
+    results: ValidationResult[],
+  ): ValidationReport['summary'] {
     const summary: ValidationReport['summary'] = {};
 
     for (const category of Object.values(ValidationCategory)) {
-      const categoryResults = results.filter(r => r.category === category);
+      const categoryResults = results.filter((r) => r.category === category);
       if (categoryResults.length > 0) {
         summary[category] = {
           total: categoryResults.length,
-          passed: categoryResults.filter(r => r.status === ValidationStatus.PASSED).length,
-          failed: categoryResults.filter(r => r.status === ValidationStatus.FAILED).length,
-          skipped: categoryResults.filter(r => r.status === ValidationStatus.SKIPPED).length
+          passed: categoryResults.filter(
+            (r) => r.status === ValidationStatus.PASSED,
+          ).length,
+          failed: categoryResults.filter(
+            (r) => r.status === ValidationStatus.FAILED,
+          ).length,
+          skipped: categoryResults.filter(
+            (r) => r.status === ValidationStatus.SKIPPED,
+          ).length,
         };
       }
     }
@@ -552,25 +643,40 @@ export class ValidationWorkflow extends EventEmitter {
   private generateWorkflowResult(
     context: TaskExecutionContext,
     startTime: number,
-    validationReports: ValidationReport[]
+    validationReports: ValidationReport[],
   ): WorkflowExecutionResult {
-    const allResults = validationReports.flatMap(report => report.results);
+    const allResults = validationReports.flatMap((report) => report.results);
     const duration = Date.now() - startTime;
 
     const summary = {
       totalValidators: validationReports.length,
-      passedValidators: validationReports.filter(r => r.failedRules === 0).length,
-      failedValidators: validationReports.filter(r => r.failedRules > 0).length,
-      skippedValidators: validationReports.filter(r => r.totalRules === r.skippedRules).length,
-      totalIssues: allResults.filter(r => r.status === ValidationStatus.FAILED).length,
-      criticalIssues: allResults.filter(r => r.severity === ValidationSeverity.CRITICAL).length,
-      errorIssues: allResults.filter(r => r.severity === ValidationSeverity.ERROR).length,
-      warningIssues: allResults.filter(r => r.severity === ValidationSeverity.WARNING).length
+      passedValidators: validationReports.filter((r) => r.failedRules === 0)
+        .length,
+      failedValidators: validationReports.filter((r) => r.failedRules > 0)
+        .length,
+      skippedValidators: validationReports.filter(
+        (r) => r.totalRules === r.skippedRules,
+      ).length,
+      totalIssues: allResults.filter(
+        (r) => r.status === ValidationStatus.FAILED,
+      ).length,
+      criticalIssues: allResults.filter(
+        (r) => r.severity === ValidationSeverity.CRITICAL,
+      ).length,
+      errorIssues: allResults.filter(
+        (r) => r.severity === ValidationSeverity.ERROR,
+      ).length,
+      warningIssues: allResults.filter(
+        (r) => r.severity === ValidationSeverity.WARNING,
+      ).length,
     };
 
-    const overallStatus = summary.criticalIssues > 0 || summary.errorIssues > 0 ?
-      ValidationStatus.FAILED :
-      summary.warningIssues > 0 ? ValidationStatus.PASSED : ValidationStatus.PASSED;
+    const overallStatus =
+      summary.criticalIssues > 0 || summary.errorIssues > 0
+        ? ValidationStatus.FAILED
+        : summary.warningIssues > 0
+          ? ValidationStatus.PASSED
+          : ValidationStatus.PASSED;
 
     return {
       taskId: context.taskId,
@@ -582,8 +688,8 @@ export class ValidationWorkflow extends EventEmitter {
       summary,
       metadata: {
         executionContext: context,
-        configuration: this.config.stages[context.stage]
-      }
+        configuration: this.config.stages[context.stage],
+      },
     };
   }
 
@@ -602,15 +708,23 @@ export class ValidationWorkflow extends EventEmitter {
    * Check if validation report has failures
    */
   private hasFailures(report: ValidationReport): boolean {
-    return report.failedRules > 0 || report.results.some(r =>
-      r.severity === ValidationSeverity.CRITICAL || r.severity === ValidationSeverity.ERROR
+    return (
+      report.failedRules > 0 ||
+      report.results.some(
+        (r) =>
+          r.severity === ValidationSeverity.CRITICAL ||
+          r.severity === ValidationSeverity.ERROR,
+      )
     );
   }
 
   /**
    * Create skipped workflow result
    */
-  private createSkippedResult(context: TaskExecutionContext, startTime: number): WorkflowExecutionResult {
+  private createSkippedResult(
+    context: TaskExecutionContext,
+    startTime: number,
+  ): WorkflowExecutionResult {
     return {
       taskId: context.taskId,
       stage: context.stage,
@@ -626,19 +740,23 @@ export class ValidationWorkflow extends EventEmitter {
         totalIssues: 0,
         criticalIssues: 0,
         errorIssues: 0,
-        warningIssues: 0
+        warningIssues: 0,
       },
       metadata: {
         reason: 'Stage disabled',
-        stage: context.stage
-      }
+        stage: context.stage,
+      },
     };
   }
 
   /**
    * Create error workflow result
    */
-  private createErrorResult(context: TaskExecutionContext, startTime: number, error: Error): WorkflowExecutionResult {
+  private createErrorResult(
+    context: TaskExecutionContext,
+    startTime: number,
+    error: Error,
+  ): WorkflowExecutionResult {
     return {
       taskId: context.taskId,
       stage: context.stage,
@@ -654,20 +772,23 @@ export class ValidationWorkflow extends EventEmitter {
         totalIssues: 1,
         criticalIssues: 1,
         errorIssues: 1,
-        warningIssues: 0
+        warningIssues: 0,
       },
       metadata: {
         error: error.message,
         stack: error.stack,
-        stage: context.stage
-      }
+        stage: context.stage,
+      },
     };
   }
 
   /**
    * Create validator error report
    */
-  private createValidatorErrorReport(context: TaskExecutionContext, error: Error): ValidationReport {
+  private createValidatorErrorReport(
+    context: TaskExecutionContext,
+    error: Error,
+  ): ValidationReport {
     return {
       id: `error-${context.taskId}-${Date.now()}`,
       taskId: context.taskId,
@@ -677,24 +798,28 @@ export class ValidationWorkflow extends EventEmitter {
       passedRules: 0,
       failedRules: 1,
       skippedRules: 0,
-      results: [{
-        id: `validator-error-${Date.now()}`,
-        category: ValidationCategory.LOGIC,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Validator execution failed: ${error.message}`,
-        timestamp: new Date(),
-        metadata: { error: error.stack }
-      }],
+      results: [
+        {
+          id: `validator-error-${Date.now()}`,
+          category: ValidationCategory.LOGIC,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Validator execution failed: ${error.message}`,
+          timestamp: new Date(),
+          metadata: { error: error.stack },
+        },
+      ],
       summary: {},
-      metadata: { validatorError: true }
+      metadata: { validatorError: true },
     };
   }
 
   /**
    * Handle workflow completion
    */
-  private async handleWorkflowCompletion(result: WorkflowExecutionResult): Promise<void> {
+  private async handleWorkflowCompletion(
+    result: WorkflowExecutionResult,
+  ): Promise<void> {
     // Persist reports if enabled
     if (this.config.reporting.persistReports) {
       await this.persistWorkflowResult(result);
@@ -709,14 +834,17 @@ export class ValidationWorkflow extends EventEmitter {
       stage: result.stage,
       overallStatus: result.overallStatus,
       duration: result.duration,
-      summary: result.summary
+      summary: result.summary,
     });
   }
 
   /**
    * Handle workflow failure
    */
-  private async handleWorkflowFailure(result: WorkflowExecutionResult, error: Error): Promise<void> {
+  private async handleWorkflowFailure(
+    result: WorkflowExecutionResult,
+    error: Error,
+  ): Promise<void> {
     // Always notify on failure if enabled
     if (this.config.notifications.onFailure) {
       await this.sendFailureNotifications(result, error);
@@ -725,7 +853,7 @@ export class ValidationWorkflow extends EventEmitter {
     this.logger.error(`Workflow failed for task: ${result.taskId}`, {
       stage: result.stage,
       error: error.message,
-      duration: result.duration
+      duration: result.duration,
     });
   }
 
@@ -733,13 +861,22 @@ export class ValidationWorkflow extends EventEmitter {
    * Determine if notifications should be sent
    */
   private shouldNotify(result: WorkflowExecutionResult): boolean {
-    if (result.overallStatus === ValidationStatus.FAILED && this.config.notifications.onFailure) {
+    if (
+      result.overallStatus === ValidationStatus.FAILED &&
+      this.config.notifications.onFailure
+    ) {
       return true;
     }
-    if (result.overallStatus === ValidationStatus.PASSED && this.config.notifications.onSuccess) {
+    if (
+      result.overallStatus === ValidationStatus.PASSED &&
+      this.config.notifications.onSuccess
+    ) {
       return true;
     }
-    if (result.summary.warningIssues > 0 && this.config.notifications.onWarning) {
+    if (
+      result.summary.warningIssues > 0 &&
+      this.config.notifications.onWarning
+    ) {
       return true;
     }
     return false;
@@ -748,23 +885,35 @@ export class ValidationWorkflow extends EventEmitter {
   /**
    * Send notifications (placeholder implementation)
    */
-  private async sendNotifications(result: WorkflowExecutionResult): Promise<void> {
-    this.logger.info(`Sending notifications for workflow result: ${result.taskId}`);
+  private async sendNotifications(
+    result: WorkflowExecutionResult,
+  ): Promise<void> {
+    this.logger.info(
+      `Sending notifications for workflow result: ${result.taskId}`,
+    );
     // Implementation would send actual notifications via webhooks, email, etc.
   }
 
   /**
    * Send failure notifications (placeholder implementation)
    */
-  private async sendFailureNotifications(result: WorkflowExecutionResult, error: Error): Promise<void> {
-    this.logger.error(`Sending failure notifications for workflow: ${result.taskId}`, { error });
+  private async sendFailureNotifications(
+    result: WorkflowExecutionResult,
+    error: Error,
+  ): Promise<void> {
+    this.logger.error(
+      `Sending failure notifications for workflow: ${result.taskId}`,
+      { error },
+    );
     // Implementation would send actual failure notifications
   }
 
   /**
    * Persist workflow result (placeholder implementation)
    */
-  private async persistWorkflowResult(result: WorkflowExecutionResult): Promise<void> {
+  private async persistWorkflowResult(
+    result: WorkflowExecutionResult,
+  ): Promise<void> {
     this.logger.debug(`Persisting workflow result: ${result.taskId}`);
     // Implementation would persist to database or file system
   }
@@ -779,11 +928,16 @@ export class ValidationWorkflow extends EventEmitter {
   /**
    * Cancel running workflow
    */
-  async cancelWorkflow(taskId: string, stage: TaskExecutionStage): Promise<boolean> {
+  async cancelWorkflow(
+    taskId: string,
+    stage: TaskExecutionStage,
+  ): Promise<boolean> {
     const workflowKey = `${taskId}-${stage}`;
     if (this.activeWorkflows.has(workflowKey)) {
       this.activeWorkflows.delete(workflowKey);
-      this.logger.info(`Cancelled workflow for task: ${taskId} at stage: ${stage}`);
+      this.logger.info(
+        `Cancelled workflow for task: ${taskId} at stage: ${stage}`,
+      );
       return true;
     }
     return false;
@@ -800,7 +954,7 @@ export class ValidationWorkflow extends EventEmitter {
     return {
       activeWorkflows: this.activeWorkflows.size,
       supportedStages: Object.values(TaskExecutionStage),
-      supportedValidators: ['codeQuality', 'functional', 'integration']
+      supportedValidators: ['codeQuality', 'functional', 'integration'],
     };
   }
 }

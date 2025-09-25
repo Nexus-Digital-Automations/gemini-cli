@@ -6,9 +6,9 @@
 
 import type { CommandModule } from 'yargs';
 interface CancelTaskOptions {
-    taskId: string;
-    force?: boolean;
-    reason?: string;
+  taskId: string;
+  force?: boolean;
+  reason?: string;
 }
 export declare const cancelTaskCommand: CommandModule<{}, CancelTaskOptions>;
 export {};

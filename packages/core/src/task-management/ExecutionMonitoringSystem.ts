@@ -12,7 +12,7 @@ import type {
   TaskComplexity,
   TaskPriority,
   TaskMetrics,
-  AgentCapability
+  AgentCapability,
 } from './TaskExecutionEngine.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -69,7 +69,14 @@ export interface ExecutionMetrics {
  */
 export interface TaskExecutionEvent {
   taskId: string;
-  eventType: 'queued' | 'started' | 'progress' | 'completed' | 'failed' | 'cancelled' | 'retry';
+  eventType:
+    | 'queued'
+    | 'started'
+    | 'progress'
+    | 'completed'
+    | 'failed'
+    | 'cancelled'
+    | 'retry';
   timestamp: Date;
   metadata: Record<string, unknown>;
   agentId?: string;
@@ -93,7 +100,12 @@ export interface AlertConfig {
  * Performance bottleneck analysis
  */
 export interface BottleneckAnalysis {
-  bottleneckType: 'resource_limit' | 'dependency_chain' | 'agent_capacity' | 'task_complexity' | 'system_load';
+  bottleneckType:
+    | 'resource_limit'
+    | 'dependency_chain'
+    | 'agent_capacity'
+    | 'task_complexity'
+    | 'system_load';
   severity: 'low' | 'medium' | 'high' | 'critical';
   description: string;
   recommendation: string;
@@ -220,36 +232,41 @@ export class ExecutionMonitoringSystem {
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     // Basic task counts
-    const runningTasks = tasks.filter(t => t.status === 'in_progress').length;
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
-    const failedTasks = tasks.filter(t => t.status === 'failed').length;
-    const cancelledTasks = tasks.filter(t => t.status === 'cancelled').length;
+    const runningTasks = tasks.filter((t) => t.status === 'in_progress').length;
+    const completedTasks = tasks.filter((t) => t.status === 'completed').length;
+    const failedTasks = tasks.filter((t) => t.status === 'failed').length;
+    const cancelledTasks = tasks.filter((t) => t.status === 'cancelled').length;
 
     // Execution time analysis
-    const completedTasksWithTiming = tasks.filter(t =>
-      t.status === 'completed' && t.startedAt && t.completedAt
+    const completedTasksWithTiming = tasks.filter(
+      (t) => t.status === 'completed' && t.startedAt && t.completedAt,
     );
 
-    const executionTimes = completedTasksWithTiming.map(t =>
-      t.completedAt!.getTime() - t.startedAt!.getTime()
+    const executionTimes = completedTasksWithTiming.map(
+      (t) => t.completedAt!.getTime() - t.startedAt!.getTime(),
     );
 
-    const averageExecutionTimeMs = executionTimes.length > 0
-      ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
-      : 0;
+    const averageExecutionTimeMs =
+      executionTimes.length > 0
+        ? executionTimes.reduce((sum, time) => sum + time, 0) /
+          executionTimes.length
+        : 0;
 
     const sortedTimes = [...executionTimes].sort((a, b) => a - b);
-    const medianExecutionTimeMs = sortedTimes.length > 0
-      ? sortedTimes[Math.floor(sortedTimes.length / 2)]
-      : 0;
+    const medianExecutionTimeMs =
+      sortedTimes.length > 0
+        ? sortedTimes[Math.floor(sortedTimes.length / 2)]
+        : 0;
 
-    const p95ExecutionTimeMs = sortedTimes.length > 0
-      ? sortedTimes[Math.floor(sortedTimes.length * 0.95)]
-      : 0;
+    const p95ExecutionTimeMs =
+      sortedTimes.length > 0
+        ? sortedTimes[Math.floor(sortedTimes.length * 0.95)]
+        : 0;
 
-    const successRate = (completedTasks + failedTasks) > 0
-      ? (completedTasks / (completedTasks + failedTasks)) * 100
-      : 0;
+    const successRate =
+      completedTasks + failedTasks > 0
+        ? (completedTasks / (completedTasks + failedTasks)) * 100
+        : 0;
 
     // Task type breakdown
     const tasksByType = {} as Record<TaskType, number>;
@@ -258,33 +275,38 @@ export class ExecutionMonitoringSystem {
 
     for (const task of tasks) {
       tasksByType[task.type] = (tasksByType[task.type] || 0) + 1;
-      tasksByComplexity[task.complexity] = (tasksByComplexity[task.complexity] || 0) + 1;
-      tasksByPriority[task.priority] = (tasksByPriority[task.priority] || 0) + 1;
+      tasksByComplexity[task.complexity] =
+        (tasksByComplexity[task.complexity] || 0) + 1;
+      tasksByPriority[task.priority] =
+        (tasksByPriority[task.priority] || 0) + 1;
     }
 
     // Temporal metrics
-    const recentCompletedEvents = this.eventLog.filter(e =>
-      e.eventType === 'completed' && e.timestamp >= oneHourAgo
+    const recentCompletedEvents = this.eventLog.filter(
+      (e) => e.eventType === 'completed' && e.timestamp >= oneHourAgo,
     );
     const tasksCompletedLastHour = recentCompletedEvents.length;
 
-    const dailyCompletedEvents = this.eventLog.filter(e =>
-      e.eventType === 'completed' && e.timestamp >= oneDayAgo
+    const dailyCompletedEvents = this.eventLog.filter(
+      (e) => e.eventType === 'completed' && e.timestamp >= oneDayAgo,
     );
     const tasksCompletedLast24Hours = dailyCompletedEvents.length;
     const averageTasksPerHour = tasksCompletedLast24Hours / 24;
 
     // Quality metrics
-    const retriedEvents = this.eventLog.filter(e => e.eventType === 'retry');
-    const totalTaskEvents = this.eventLog.filter(e =>
-      ['queued', 'completed', 'failed'].includes(e.eventType)
+    const retriedEvents = this.eventLog.filter((e) => e.eventType === 'retry');
+    const totalTaskEvents = this.eventLog.filter((e) =>
+      ['queued', 'completed', 'failed'].includes(e.eventType),
     ).length;
 
-    const retryRate = totalTaskEvents > 0 ? (retriedEvents.length / totalTaskEvents) * 100 : 0;
-    const averageRetries = tasks.reduce((sum, task) => sum + task.retryCount, 0) / tasks.length;
+    const retryRate =
+      totalTaskEvents > 0 ? (retriedEvents.length / totalTaskEvents) * 100 : 0;
+    const averageRetries =
+      tasks.reduce((sum, task) => sum + task.retryCount, 0) / tasks.length;
 
-    const blockedTasks = tasks.filter(t => t.status === 'blocked').length;
-    const blockageRate = tasks.length > 0 ? (blockedTasks / tasks.length) * 100 : 0;
+    const blockedTasks = tasks.filter((t) => t.status === 'blocked').length;
+    const blockageRate =
+      tasks.length > 0 ? (blockedTasks / tasks.length) * 100 : 0;
 
     // System resource metrics (simplified for now)
     const memoryUsageMB = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -313,7 +335,7 @@ export class ExecutionMonitoringSystem {
       retryRate,
       averageRetries,
       blockageRate,
-      timestamp: now
+      timestamp: now,
     };
 
     // Store metrics history
@@ -330,20 +352,29 @@ export class ExecutionMonitoringSystem {
   /**
    * Analyzes performance bottlenecks
    */
-  analyzeBottlenecks(metrics: ExecutionMetrics, tasks: Task[]): BottleneckAnalysis[] {
+  analyzeBottlenecks(
+    metrics: ExecutionMetrics,
+    tasks: Task[],
+  ): BottleneckAnalysis[] {
     const bottlenecks: BottleneckAnalysis[] = [];
     const now = new Date();
 
     // Resource limit bottleneck
-    if (metrics.concurrentAgentCount >= 10 && metrics.runningTasks === metrics.concurrentAgentCount) {
+    if (
+      metrics.concurrentAgentCount >= 10 &&
+      metrics.runningTasks === metrics.concurrentAgentCount
+    ) {
       bottlenecks.push({
         bottleneckType: 'resource_limit',
         severity: 'high',
         description: 'Maximum concurrent task limit reached',
-        recommendation: 'Consider increasing max concurrent tasks or optimizing task execution',
-        impactedTasks: tasks.filter(t => t.status === 'queued').map(t => t.id),
+        recommendation:
+          'Consider increasing max concurrent tasks or optimizing task execution',
+        impactedTasks: tasks
+          .filter((t) => t.status === 'queued')
+          .map((t) => t.id),
         estimatedDelayMs: 300000, // 5 minutes
-        identifiedAt: now
+        identifiedAt: now,
       });
     }
 
@@ -354,17 +385,20 @@ export class ExecutionMonitoringSystem {
         severity: 'medium',
         description: `High retry rate detected (${metrics.retryRate.toFixed(1)}%)`,
         recommendation: 'Review task complexity and error handling mechanisms',
-        impactedTasks: tasks.filter(t => t.retryCount > 0).map(t => t.id),
-        estimatedDelayMs: metrics.averageExecutionTimeMs * metrics.averageRetries,
-        identifiedAt: now
+        impactedTasks: tasks.filter((t) => t.retryCount > 0).map((t) => t.id),
+        estimatedDelayMs:
+          metrics.averageExecutionTimeMs * metrics.averageRetries,
+        identifiedAt: now,
       });
     }
 
     // Long-running tasks
-    const longRunningTasks = tasks.filter(t =>
-      t.status === 'in_progress' &&
-      t.startedAt &&
-      (now.getTime() - t.startedAt.getTime()) > (t.maxExecutionTimeMinutes * 60 * 1000 * 0.8)
+    const longRunningTasks = tasks.filter(
+      (t) =>
+        t.status === 'in_progress' &&
+        t.startedAt &&
+        now.getTime() - t.startedAt.getTime() >
+          t.maxExecutionTimeMinutes * 60 * 1000 * 0.8,
     );
 
     if (longRunningTasks.length > 0) {
@@ -372,24 +406,26 @@ export class ExecutionMonitoringSystem {
         bottleneckType: 'task_complexity',
         severity: 'medium',
         description: `${longRunningTasks.length} tasks approaching timeout`,
-        recommendation: 'Monitor task progress and consider increasing timeouts for complex tasks',
-        impactedTasks: longRunningTasks.map(t => t.id),
+        recommendation:
+          'Monitor task progress and consider increasing timeouts for complex tasks',
+        impactedTasks: longRunningTasks.map((t) => t.id),
         estimatedDelayMs: 0,
-        identifiedAt: now
+        identifiedAt: now,
       });
     }
 
     // Dependency chain bottleneck
-    const blockedTasks = tasks.filter(t => t.status === 'blocked');
+    const blockedTasks = tasks.filter((t) => t.status === 'blocked');
     if (blockedTasks.length > 5) {
       bottlenecks.push({
         bottleneckType: 'dependency_chain',
         severity: 'medium',
         description: `${blockedTasks.length} tasks blocked by dependencies`,
-        recommendation: 'Review task dependencies and consider parallelization opportunities',
-        impactedTasks: blockedTasks.map(t => t.id),
+        recommendation:
+          'Review task dependencies and consider parallelization opportunities',
+        impactedTasks: blockedTasks.map((t) => t.id),
         estimatedDelayMs: metrics.averageExecutionTimeMs,
-        identifiedAt: now
+        identifiedAt: now,
       });
     }
 
@@ -399,10 +435,13 @@ export class ExecutionMonitoringSystem {
         bottleneckType: 'system_load',
         severity: 'high',
         description: `High memory usage detected (${metrics.memoryUsageMB.toFixed(1)}MB)`,
-        recommendation: 'Consider reducing concurrent tasks or optimizing memory usage',
-        impactedTasks: tasks.filter(t => t.status === 'in_progress').map(t => t.id),
+        recommendation:
+          'Consider reducing concurrent tasks or optimizing memory usage',
+        impactedTasks: tasks
+          .filter((t) => t.status === 'in_progress')
+          .map((t) => t.id),
         estimatedDelayMs: 0,
-        identifiedAt: now
+        identifiedAt: now,
       });
     }
 
@@ -424,7 +463,7 @@ export class ExecutionMonitoringSystem {
       taskQueue: 'healthy' as const,
       executionEngine: 'healthy' as const,
       monitoring: 'healthy' as const,
-      persistence: 'healthy' as const
+      persistence: 'healthy' as const,
     };
 
     // Task queue health
@@ -462,7 +501,7 @@ export class ExecutionMonitoringSystem {
       overall = 'degraded';
     }
 
-    if (this.currentBottlenecks.some(b => b.severity === 'critical')) {
+    if (this.currentBottlenecks.some((b) => b.severity === 'critical')) {
       overall = 'critical';
     }
 
@@ -471,14 +510,17 @@ export class ExecutionMonitoringSystem {
       components,
       lastHealthCheck: new Date(),
       issues,
-      recommendations
+      recommendations,
     };
   }
 
   /**
    * Gets real-time dashboard data
    */
-  getDashboardData(metrics: ExecutionMetrics, tasks: Task[]): {
+  getDashboardData(
+    metrics: ExecutionMetrics,
+    tasks: Task[],
+  ): {
     metrics: ExecutionMetrics;
     bottlenecks: BottleneckAnalysis[];
     health: SystemHealthStatus;
@@ -496,9 +538,13 @@ export class ExecutionMonitoringSystem {
     // Calculate trends from metrics history
     const recentMetrics = this.metricsHistory.slice(-24); // Last 24 data points
 
-    const executionTimesTrend = recentMetrics.map(m => m.averageExecutionTimeMs);
-    const successRateTrend = recentMetrics.map(m => m.successRate);
-    const taskCompletionTrend = recentMetrics.map(m => m.tasksCompletedLastHour);
+    const executionTimesTrend = recentMetrics.map(
+      (m) => m.averageExecutionTimeMs,
+    );
+    const successRateTrend = recentMetrics.map((m) => m.successRate);
+    const taskCompletionTrend = recentMetrics.map(
+      (m) => m.tasksCompletedLastHour,
+    );
 
     return {
       metrics,
@@ -508,8 +554,8 @@ export class ExecutionMonitoringSystem {
       trends: {
         executionTimesTrend,
         successRateTrend,
-        taskCompletionTrend
-      }
+        taskCompletionTrend,
+      },
     };
   }
 
@@ -523,36 +569,37 @@ export class ExecutionMonitoringSystem {
         condition: (metrics) => metrics.memoryUsageMB > 512,
         severity: 'high',
         message: 'Memory usage exceeds 512MB',
-        cooldownMinutes: 15
+        cooldownMinutes: 15,
       },
       {
         name: 'Low Success Rate',
         condition: (metrics) => metrics.successRate < 70,
         severity: 'high',
         message: 'Task success rate below 70%',
-        cooldownMinutes: 30
+        cooldownMinutes: 30,
       },
       {
         name: 'High Retry Rate',
         condition: (metrics) => metrics.retryRate > 25,
         severity: 'medium',
         message: 'Task retry rate exceeds 25%',
-        cooldownMinutes: 20
+        cooldownMinutes: 20,
       },
       {
         name: 'Resource Saturation',
         condition: (metrics) => metrics.runningTasks >= 10,
         severity: 'medium',
         message: 'Maximum concurrent tasks reached',
-        cooldownMinutes: 10
+        cooldownMinutes: 10,
       },
       {
         name: 'Task Queue Stagnation',
-        condition: (metrics) => metrics.totalTasks > 0 && metrics.runningTasks === 0,
+        condition: (metrics) =>
+          metrics.totalTasks > 0 && metrics.runningTasks === 0,
         severity: 'high',
         message: 'No tasks running despite queued tasks',
-        cooldownMinutes: 5
-      }
+        cooldownMinutes: 5,
+      },
     );
   }
 
@@ -570,7 +617,7 @@ export class ExecutionMonitoringSystem {
       const cooldownMs = (alertConfig.cooldownMinutes || 10) * 60 * 1000;
 
       // Check if alert is in cooldown
-      if (lastAlert && (now.getTime() - lastAlert.getTime()) < cooldownMs) {
+      if (lastAlert && now.getTime() - lastAlert.getTime() < cooldownMs) {
         continue;
       }
 
@@ -585,8 +632,13 @@ export class ExecutionMonitoringSystem {
   /**
    * Triggers an alert
    */
-  private triggerAlert(alertConfig: AlertConfig, metrics: ExecutionMetrics): void {
-    console.warn(`[ALERT] ${alertConfig.severity.toUpperCase()}: ${alertConfig.name} - ${alertConfig.message}`);
+  private triggerAlert(
+    alertConfig: AlertConfig,
+    metrics: ExecutionMetrics,
+  ): void {
+    console.warn(
+      `[ALERT] ${alertConfig.severity.toUpperCase()}: ${alertConfig.name} - ${alertConfig.message}`,
+    );
 
     // Here you could integrate with external alerting systems
     // e.g., send to Slack, PagerDuty, etc.
@@ -597,9 +649,12 @@ export class ExecutionMonitoringSystem {
    */
   private startPeriodicMonitoring(): void {
     // Collect metrics every 5 minutes
-    setInterval(() => {
-      this.persistMetrics();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.persistMetrics();
+      },
+      5 * 60 * 1000,
+    );
   }
 
   /**
@@ -609,7 +664,7 @@ export class ExecutionMonitoringSystem {
     try {
       const data = {
         metricsHistory: this.metricsHistory.slice(-100), // Keep last 100 entries
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
       await fs.writeFile(this.metricsPath, JSON.stringify(data, null, 2));
     } catch (error) {
@@ -624,7 +679,7 @@ export class ExecutionMonitoringSystem {
     try {
       const data = {
         events: this.eventLog.slice(-1000), // Keep last 1000 events
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
       await fs.writeFile(this.eventsPath, JSON.stringify(data, null, 2));
     } catch (error) {

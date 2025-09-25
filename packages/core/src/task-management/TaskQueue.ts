@@ -12,11 +12,11 @@ import { logger } from '../utils/logger.js';
  * Task priority levels with intelligent scoring system
  */
 export enum TaskPriority {
-  CRITICAL = 1000,    // Security, critical bugs, system failures
-  HIGH = 800,         // User-blocking issues, major features
-  MEDIUM = 500,       // Regular features, enhancements
-  LOW = 200,          // Nice-to-have, optimizations
-  BACKGROUND = 50     // Cleanup, documentation
+  CRITICAL = 1000, // Security, critical bugs, system failures
+  HIGH = 800, // User-blocking issues, major features
+  MEDIUM = 500, // Regular features, enhancements
+  LOW = 200, // Nice-to-have, optimizations
+  BACKGROUND = 50, // Cleanup, documentation
 }
 
 /**
@@ -29,7 +29,7 @@ export enum TaskStatus {
   BLOCKED = 'blocked',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 /**
@@ -43,17 +43,17 @@ export enum TaskCategory {
   REFACTOR = 'refactor',
   SECURITY = 'security',
   PERFORMANCE = 'performance',
-  INFRASTRUCTURE = 'infrastructure'
+  INFRASTRUCTURE = 'infrastructure',
 }
 
 /**
  * Dependency relationship types
  */
 export enum DependencyType {
-  BLOCKS = 'blocks',          // Hard dependency - must complete first
-  ENABLES = 'enables',        // Soft dependency - improves efficiency
-  CONFLICTS = 'conflicts',    // Cannot run simultaneously
-  ENHANCES = 'enhances'       // Better to run together
+  BLOCKS = 'blocks', // Hard dependency - must complete first
+  ENABLES = 'enables', // Soft dependency - improves efficiency
+  CONFLICTS = 'conflicts', // Cannot run simultaneously
+  ENHANCES = 'enhances', // Better to run together
 }
 
 /**
@@ -98,8 +98,8 @@ export interface TaskDependency {
  * Priority adjustment factors for dynamic scheduling
  */
 export interface PriorityFactors {
-  age: number;              // How long task has been waiting
-  userImportance: number;   // User-defined importance
+  age: number; // How long task has been waiting
+  userImportance: number; // User-defined importance
   systemCriticality: number; // System-determined criticality
   dependencyWeight: number; // Weight from dependencies
   resourceAvailability: number; // Available resources
@@ -132,7 +132,7 @@ export interface Task {
 
   // Dependencies and relationships
   dependencies: string[]; // Task IDs this task depends on
-  dependents: string[];   // Task IDs that depend on this task
+  dependents: string[]; // Task IDs that depend on this task
 
   // Execution context
   context: TaskContext;
@@ -143,7 +143,10 @@ export interface Task {
   priorityFactors: PriorityFactors;
 
   // Autonomous execution
-  executeFunction: (task: Task, context: TaskContext) => Promise<TaskExecutionResult>;
+  executeFunction: (
+    task: Task,
+    context: TaskContext,
+  ) => Promise<TaskExecutionResult>;
   validateFunction?: (task: Task, context: TaskContext) => Promise<boolean>;
   rollbackFunction?: (task: Task, context: TaskContext) => Promise<void>;
 
@@ -255,7 +258,7 @@ export class TaskQueue extends EventEmitter {
     throughputPerHour: 0,
     successRate: 0,
     priorityDistribution: {} as Record<TaskPriority, number>,
-    categoryDistribution: {} as Record<TaskCategory, number>
+    categoryDistribution: {} as Record<TaskCategory, number>,
   };
 
   constructor(options: Partial<TaskQueueOptions> = {}) {
@@ -272,20 +275,26 @@ export class TaskQueue extends EventEmitter {
       enableQueueOptimization: options.enableQueueOptimization ?? true,
       persistenceEnabled: options.persistenceEnabled ?? true,
       metricsEnabled: options.metricsEnabled ?? true,
-      ...options
+      ...options,
     };
 
     this.startPeriodicOptimization();
 
-    logger.info('TaskQueue initialized with autonomous scheduling capabilities', {
-      options: this.options
-    });
+    logger.info(
+      'TaskQueue initialized with autonomous scheduling capabilities',
+      {
+        options: this.options,
+      },
+    );
   }
 
   /**
    * Add a new task to the queue with intelligent priority assignment
    */
-  async addTask(taskDefinition: Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>): Promise<string> {
+  async addTask(
+    taskDefinition: Partial<Task> &
+      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+  ): Promise<string> {
     const task: Task = {
       id: taskDefinition.id ?? uuidv4(),
       title: taskDefinition.title,
@@ -313,7 +322,7 @@ export class TaskQueue extends EventEmitter {
         systemCriticality: 1.0,
         dependencyWeight: 1.0,
         resourceAvailability: 1.0,
-        executionHistory: 1.0
+        executionHistory: 1.0,
       },
 
       executeFunction: taskDefinition.executeFunction,
@@ -332,7 +341,7 @@ export class TaskQueue extends EventEmitter {
       progressCallback: taskDefinition.progressCallback,
 
       batchCompatible: taskDefinition.batchCompatible ?? false,
-      batchGroup: taskDefinition.batchGroup
+      batchGroup: taskDefinition.batchGroup,
     };
 
     // Add reverse dependency references
@@ -350,7 +359,7 @@ export class TaskQueue extends EventEmitter {
       taskId: task.id,
       priority: task.priority,
       category: task.category,
-      dependencies: task.dependencies
+      dependencies: task.dependencies,
     });
 
     this.emit('taskAdded', task);
@@ -364,13 +373,18 @@ export class TaskQueue extends EventEmitter {
   /**
    * Add a dependency between two tasks
    */
-  addDependency(dependentId: string, dependsOnId: string, type: DependencyType = DependencyType.BLOCKS, isOptional = false): void {
+  addDependency(
+    dependentId: string,
+    dependsOnId: string,
+    type: DependencyType = DependencyType.BLOCKS,
+    isOptional = false,
+  ): void {
     const dependency: TaskDependency = {
       id: uuidv4(),
       dependentTaskId: dependentId,
       dependsOnTaskId: dependsOnId,
       type,
-      isOptional
+      isOptional,
     };
 
     this.dependencies.set(dependency.id, dependency);
@@ -389,7 +403,7 @@ export class TaskQueue extends EventEmitter {
 
     logger.info(`Dependency added: ${dependentId} depends on ${dependsOnId}`, {
       type,
-      isOptional
+      isOptional,
     });
 
     this.emit('dependencyAdded', dependency);
@@ -403,7 +417,8 @@ export class TaskQueue extends EventEmitter {
       return; // At capacity
     }
 
-    const availableSlots = this.options.maxConcurrentTasks - this.runningTasks.size;
+    const availableSlots =
+      this.options.maxConcurrentTasks - this.runningTasks.size;
     const eligibleTasks = this.getEligibleTasks();
 
     if (eligibleTasks.length === 0) {
@@ -411,7 +426,10 @@ export class TaskQueue extends EventEmitter {
     }
 
     // Smart scheduling: consider batching, parallel execution, and optimization
-    const scheduledTasks = await this.selectOptimalTasks(eligibleTasks, availableSlots);
+    const scheduledTasks = await this.selectOptimalTasks(
+      eligibleTasks,
+      availableSlots,
+    );
 
     for (const task of scheduledTasks) {
       await this.executeTask(task);
@@ -430,7 +448,7 @@ export class TaskQueue extends EventEmitter {
       }
 
       // Check if all blocking dependencies are satisfied
-      const blockingDeps = task.dependencies.filter(depId => {
+      const blockingDeps = task.dependencies.filter((depId) => {
         const depTask = this.tasks.get(depId);
         return depTask?.status !== TaskStatus.COMPLETED;
       });
@@ -452,7 +470,10 @@ export class TaskQueue extends EventEmitter {
   /**
    * Select optimal tasks for execution using advanced algorithms
    */
-  private async selectOptimalTasks(eligibleTasks: Task[], availableSlots: number): Promise<Task[]> {
+  private async selectOptimalTasks(
+    eligibleTasks: Task[],
+    availableSlots: number,
+  ): Promise<Task[]> {
     if (!this.options.enableSmartScheduling) {
       return eligibleTasks.slice(0, availableSlots);
     }
@@ -483,7 +504,9 @@ export class TaskQueue extends EventEmitter {
         // Check for batch opportunities
         if (this.options.enableBatching && bestTask.batchCompatible) {
           const batchTasks = this.findBatchableTasks(bestTask, remaining);
-          selected.push(...batchTasks.slice(0, availableSlots - selected.length));
+          selected.push(
+            ...batchTasks.slice(0, availableSlots - selected.length),
+          );
 
           // Remove batched tasks from remaining
           for (const batchTask of batchTasks) {
@@ -513,7 +536,10 @@ export class TaskQueue extends EventEmitter {
     // Deadline pressure
     if (task.deadline) {
       const timeToDeadline = task.deadline.getTime() - Date.now();
-      const deadlinePressure = Math.max(0, 1 - (timeToDeadline / (7 * 24 * 60 * 60 * 1000))); // Week scale
+      const deadlinePressure = Math.max(
+        0,
+        1 - timeToDeadline / (7 * 24 * 60 * 60 * 1000),
+      ); // Week scale
       score += deadlinePressure * 200;
     }
 
@@ -527,7 +553,7 @@ export class TaskQueue extends EventEmitter {
     // Parallel execution bonus
     if (this.options.enableParallelExecution) {
       const conflictCount = this.countResourceConflicts(task, alreadySelected);
-      score *= Math.max(0.1, 1 - (conflictCount * 0.2));
+      score *= Math.max(0.1, 1 - conflictCount * 0.2);
     }
 
     return score;
@@ -541,10 +567,11 @@ export class TaskQueue extends EventEmitter {
       return [];
     }
 
-    return candidates.filter(task =>
-      task.batchCompatible &&
-      task.batchGroup === baseTask.batchGroup &&
-      task.category === baseTask.category
+    return candidates.filter(
+      (task) =>
+        task.batchCompatible &&
+        task.batchGroup === baseTask.batchGroup &&
+        task.category === baseTask.category,
     );
   }
 
@@ -563,14 +590,14 @@ export class TaskQueue extends EventEmitter {
       status: TaskStatus.RUNNING,
       metadata: {
         attempt: task.currentRetries + 1,
-        maxRetries: task.maxRetries
-      }
+        maxRetries: task.maxRetries,
+      },
     };
 
     logger.info(`Executing task: ${task.title}`, {
       taskId: task.id,
       attempt: task.currentRetries + 1,
-      estimatedDuration: task.estimatedDuration
+      estimatedDuration: task.estimatedDuration,
     });
 
     this.emit('taskStarted', task, executionRecord);
@@ -578,7 +605,10 @@ export class TaskQueue extends EventEmitter {
     try {
       // Execute with timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Task execution timeout')), this.options.defaultTimeout);
+        setTimeout(
+          () => reject(new Error('Task execution timeout')),
+          this.options.defaultTimeout,
+        );
       });
 
       const executionPromise = task.executeFunction(task, task.context);
@@ -588,7 +618,8 @@ export class TaskQueue extends EventEmitter {
       // Task completed successfully
       executionRecord.endTime = new Date();
       executionRecord.status = TaskStatus.COMPLETED;
-      executionRecord.duration = executionRecord.endTime.getTime() - executionRecord.startTime.getTime();
+      executionRecord.duration =
+        executionRecord.endTime.getTime() - executionRecord.startTime.getTime();
 
       task.status = TaskStatus.COMPLETED;
       task.completedAt = new Date();
@@ -600,7 +631,7 @@ export class TaskQueue extends EventEmitter {
       logger.info(`Task completed successfully: ${task.title}`, {
         taskId: task.id,
         duration: executionRecord.duration,
-        result: result.success
+        result: result.success,
       });
 
       this.emit('taskCompleted', task, executionRecord, result);
@@ -612,20 +643,21 @@ export class TaskQueue extends EventEmitter {
             ...nextTaskDef,
             title: nextTaskDef.title!,
             description: nextTaskDef.description!,
-            executeFunction: nextTaskDef.executeFunction!
+            executeFunction: nextTaskDef.executeFunction!,
           });
         }
       }
 
       // Schedule dependent tasks
       this.scheduleNextTasks();
-
     } catch (error) {
       // Task failed
       executionRecord.endTime = new Date();
       executionRecord.status = TaskStatus.FAILED;
-      executionRecord.duration = executionRecord.endTime.getTime() - executionRecord.startTime.getTime();
-      executionRecord.error = error instanceof Error ? error.message : String(error);
+      executionRecord.duration =
+        executionRecord.endTime.getTime() - executionRecord.startTime.getTime();
+      executionRecord.error =
+        error instanceof Error ? error.message : String(error);
 
       task.currentRetries++;
       this.runningTasks.delete(task.id);
@@ -639,15 +671,17 @@ export class TaskQueue extends EventEmitter {
           taskId: task.id,
           error: executionRecord.error,
           attempt: task.currentRetries,
-          maxRetries: task.maxRetries
+          maxRetries: task.maxRetries,
         });
 
         this.emit('taskRetrying', task, executionRecord, error);
 
         // Exponential backoff before retry
-        const backoffMs = Math.min(1000 * Math.pow(2, task.currentRetries - 1), 30000);
+        const backoffMs = Math.min(
+          1000 * Math.pow(2, task.currentRetries - 1),
+          30000,
+        );
         setTimeout(() => this.scheduleNextTasks(), backoffMs);
-
       } else {
         task.status = TaskStatus.FAILED;
         this.failedTasks.set(task.id, executionRecord);
@@ -655,7 +689,7 @@ export class TaskQueue extends EventEmitter {
         logger.error(`Task failed permanently: ${task.title}`, {
           taskId: task.id,
           error: executionRecord.error,
-          totalAttempts: task.currentRetries
+          totalAttempts: task.currentRetries,
         });
 
         this.emit('taskFailed', task, executionRecord, error);
@@ -664,11 +698,16 @@ export class TaskQueue extends EventEmitter {
         if (task.rollbackFunction) {
           try {
             await task.rollbackFunction(task, task.context);
-            logger.info(`Task rollback completed: ${task.title}`, { taskId: task.id });
+            logger.info(`Task rollback completed: ${task.title}`, {
+              taskId: task.id,
+            });
           } catch (rollbackError) {
             logger.error(`Task rollback failed: ${task.title}`, {
               taskId: task.id,
-              rollbackError: rollbackError instanceof Error ? rollbackError.message : String(rollbackError)
+              rollbackError:
+                rollbackError instanceof Error
+                  ? rollbackError.message
+                  : String(rollbackError),
             });
           }
         }
@@ -685,38 +724,49 @@ export class TaskQueue extends EventEmitter {
     const now = Date.now();
 
     for (const task of this.tasks.values()) {
-      if (task.status === TaskStatus.COMPLETED || task.status === TaskStatus.FAILED) {
+      if (
+        task.status === TaskStatus.COMPLETED ||
+        task.status === TaskStatus.FAILED
+      ) {
         continue;
       }
 
       // Age factor
       const ageMs = now - task.createdAt.getTime();
       const ageHours = ageMs / (1000 * 60 * 60);
-      task.priorityFactors.age = Math.min(2.0, 1 + (ageHours / 24)); // Max 2x boost after 24 hours
+      task.priorityFactors.age = Math.min(2.0, 1 + ageHours / 24); // Max 2x boost after 24 hours
 
       // Deadline pressure
       if (task.deadline) {
         const timeToDeadline = task.deadline.getTime() - now;
-        const deadlinePressure = Math.max(0.5, 1 - (timeToDeadline / (7 * 24 * 60 * 60 * 1000)));
+        const deadlinePressure = Math.max(
+          0.5,
+          1 - timeToDeadline / (7 * 24 * 60 * 60 * 1000),
+        );
         task.priorityFactors.systemCriticality = deadlinePressure;
       }
 
       // Dependency weight - tasks blocking others get higher priority
-      const blockedTasksCount = task.dependents.filter(depId => {
+      const blockedTasksCount = task.dependents.filter((depId) => {
         const depTask = this.tasks.get(depId);
         return depTask?.status === TaskStatus.PENDING;
       }).length;
-      task.priorityFactors.dependencyWeight = 1 + (blockedTasksCount * 0.1);
+      task.priorityFactors.dependencyWeight = 1 + blockedTasksCount * 0.1;
 
       // Historical success rate
       const similarTasks = this.findSimilarCompletedTasks(task);
       if (similarTasks.length > 0) {
-        const successRate = similarTasks.filter(t => t.status === TaskStatus.COMPLETED).length / similarTasks.length;
-        task.priorityFactors.executionHistory = 0.5 + (successRate * 0.5);
+        const successRate =
+          similarTasks.filter((t) => t.status === TaskStatus.COMPLETED).length /
+          similarTasks.length;
+        task.priorityFactors.executionHistory = 0.5 + successRate * 0.5;
       }
 
       // Calculate new dynamic priority
-      const factorProduct = Object.values(task.priorityFactors).reduce((acc, factor) => acc * factor, 1);
+      const factorProduct = Object.values(task.priorityFactors).reduce(
+        (acc, factor) => acc * factor,
+        1,
+      );
       task.dynamicPriority = task.basePriority * factorProduct;
 
       // Ensure reasonable bounds
@@ -725,7 +775,7 @@ export class TaskQueue extends EventEmitter {
 
     logger.debug('Task priorities adjusted', {
       totalTasks: this.tasks.size,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -743,13 +793,15 @@ export class TaskQueue extends EventEmitter {
       try {
         const isValid = this.evaluateCondition(condition, task.context);
         if (!isValid) {
-          logger.debug(`Task pre-condition failed: ${condition}`, { taskId: task.id });
+          logger.debug(`Task pre-condition failed: ${condition}`, {
+            taskId: task.id,
+          });
           return false;
         }
       } catch (error) {
         logger.warn(`Error evaluating pre-condition: ${condition}`, {
           taskId: task.id,
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
         return false;
       }
@@ -797,8 +849,8 @@ export class TaskQueue extends EventEmitter {
     let conflicts = 0;
 
     for (const selectedTask of selectedTasks) {
-      const sharedResources = task.requiredResources.filter(r =>
-        selectedTask.requiredResources.includes(r)
+      const sharedResources = task.requiredResources.filter((r) =>
+        selectedTask.requiredResources.includes(r),
       );
       conflicts += sharedResources.length;
     }
@@ -812,11 +864,16 @@ export class TaskQueue extends EventEmitter {
   private findSimilarCompletedTasks(task: Task): TaskExecutionRecord[] {
     const similar: TaskExecutionRecord[] = [];
 
-    for (const record of [...this.completedTasks.values(), ...this.failedTasks.values()]) {
+    for (const record of [
+      ...this.completedTasks.values(),
+      ...this.failedTasks.values(),
+    ]) {
       const recordTask = this.tasks.get(record.taskId);
-      if (recordTask &&
-          recordTask.category === task.category &&
-          recordTask.tags.some(tag => task.tags.includes(tag))) {
+      if (
+        recordTask &&
+        recordTask.category === task.category &&
+        recordTask.tags.some((tag) => task.tags.includes(tag))
+      ) {
         similar.push(record);
       }
     }
@@ -831,7 +888,9 @@ export class TaskQueue extends EventEmitter {
     if (!this.options.metricsEnabled) return;
 
     this.metrics.totalTasks = this.tasks.size;
-    this.metrics.pendingTasks = Array.from(this.tasks.values()).filter(t => t.status === TaskStatus.PENDING).length;
+    this.metrics.pendingTasks = Array.from(this.tasks.values()).filter(
+      (t) => t.status === TaskStatus.PENDING,
+    ).length;
     this.metrics.runningTasks = this.runningTasks.size;
     this.metrics.completedTasks = this.completedTasks.size;
     this.metrics.failedTasks = this.failedTasks.size;
@@ -839,8 +898,12 @@ export class TaskQueue extends EventEmitter {
     // Calculate averages
     const completedRecords = Array.from(this.completedTasks.values());
     if (completedRecords.length > 0) {
-      const totalExecutionTime = completedRecords.reduce((sum, record) => sum + (record.duration || 0), 0);
-      this.metrics.averageExecutionTime = totalExecutionTime / completedRecords.length;
+      const totalExecutionTime = completedRecords.reduce(
+        (sum, record) => sum + (record.duration || 0),
+        0,
+      );
+      this.metrics.averageExecutionTime =
+        totalExecutionTime / completedRecords.length;
 
       const totalWaitTime = completedRecords.reduce((sum, record) => {
         const task = this.tasks.get(record.taskId);
@@ -853,12 +916,16 @@ export class TaskQueue extends EventEmitter {
     }
 
     // Calculate success rate
-    const totalCompleted = this.metrics.completedTasks + this.metrics.failedTasks;
-    this.metrics.successRate = totalCompleted > 0 ? this.metrics.completedTasks / totalCompleted : 0;
+    const totalCompleted =
+      this.metrics.completedTasks + this.metrics.failedTasks;
+    this.metrics.successRate =
+      totalCompleted > 0 ? this.metrics.completedTasks / totalCompleted : 0;
 
     // Calculate throughput (tasks per hour)
-    const hourAgo = Date.now() - (60 * 60 * 1000);
-    const recentCompletions = completedRecords.filter(r => r.endTime && r.endTime.getTime() > hourAgo);
+    const hourAgo = Date.now() - 60 * 60 * 1000;
+    const recentCompletions = completedRecords.filter(
+      (r) => r.endTime && r.endTime.getTime() > hourAgo,
+    );
     this.metrics.throughputPerHour = recentCompletions.length;
 
     // Distribution metrics
@@ -866,8 +933,10 @@ export class TaskQueue extends EventEmitter {
     this.metrics.categoryDistribution = {};
 
     for (const task of this.tasks.values()) {
-      this.metrics.priorityDistribution[task.priority] = (this.metrics.priorityDistribution[task.priority] || 0) + 1;
-      this.metrics.categoryDistribution[task.category] = (this.metrics.categoryDistribution[task.category] || 0) + 1;
+      this.metrics.priorityDistribution[task.priority] =
+        (this.metrics.priorityDistribution[task.priority] || 0) + 1;
+      this.metrics.categoryDistribution[task.category] =
+        (this.metrics.categoryDistribution[task.category] || 0) + 1;
     }
   }
 
@@ -895,7 +964,9 @@ export class TaskQueue extends EventEmitter {
    * Optimize queue order for better throughput
    */
   private optimizeQueueOrder(): void {
-    const pendingTasks = Array.from(this.tasks.values()).filter(t => t.status === TaskStatus.PENDING);
+    const pendingTasks = Array.from(this.tasks.values()).filter(
+      (t) => t.status === TaskStatus.PENDING,
+    );
 
     // Detect and resolve potential deadlocks
     this.detectAndResolveDeadlocks(pendingTasks);
@@ -905,7 +976,7 @@ export class TaskQueue extends EventEmitter {
 
     logger.debug('Queue optimization completed', {
       pendingTasks: pendingTasks.length,
-      runningTasks: this.runningTasks.size
+      runningTasks: this.runningTasks.size,
     });
   }
 
@@ -936,13 +1007,17 @@ export class TaskQueue extends EventEmitter {
 
     for (const task of tasks) {
       if (hasCycle(task.id)) {
-        logger.warn(`Circular dependency detected for task: ${task.title}`, { taskId: task.id });
+        logger.warn(`Circular dependency detected for task: ${task.title}`, {
+          taskId: task.id,
+        });
         this.emit('deadlockDetected', task);
 
         // Simple resolution: remove the last dependency
         if (task.dependencies.length > 0) {
           const removedDep = task.dependencies.pop()!;
-          logger.info(`Removed dependency to resolve deadlock: ${task.id} -> ${removedDep}`);
+          logger.info(
+            `Removed dependency to resolve deadlock: ${task.id} -> ${removedDep}`,
+          );
         }
       }
     }
@@ -955,11 +1030,13 @@ export class TaskQueue extends EventEmitter {
     // Identify independent task groups that can run in parallel
     const taskGroups = this.identifyIndependentGroups();
 
-    logger.debug(`Identified ${taskGroups.length} independent task groups for parallel execution`);
+    logger.debug(
+      `Identified ${taskGroups.length} independent task groups for parallel execution`,
+    );
 
     this.emit('queueOptimized', {
       independentGroups: taskGroups.length,
-      optimizationTime: new Date()
+      optimizationTime: new Date(),
     });
   }
 
@@ -971,7 +1048,8 @@ export class TaskQueue extends EventEmitter {
     const processed = new Set<string>();
 
     for (const task of this.tasks.values()) {
-      if (processed.has(task.id) || task.status !== TaskStatus.PENDING) continue;
+      if (processed.has(task.id) || task.status !== TaskStatus.PENDING)
+        continue;
 
       const group = this.getConnectedTasks(task.id, processed);
       if (group.length > 0) {
@@ -1020,11 +1098,17 @@ export class TaskQueue extends EventEmitter {
   /**
    * Cancel a task
    */
-  async cancelTask(taskId: string, reason = 'User cancelled'): Promise<boolean> {
+  async cancelTask(
+    taskId: string,
+    reason = 'User cancelled',
+  ): Promise<boolean> {
     const task = this.tasks.get(taskId);
     if (!task) return false;
 
-    if (task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED) {
+    if (
+      task.status === TaskStatus.COMPLETED ||
+      task.status === TaskStatus.CANCELLED
+    ) {
       return false;
     }
 
@@ -1050,13 +1134,18 @@ export class TaskQueue extends EventEmitter {
   /**
    * Clear completed and failed tasks
    */
-  cleanup(olderThanMs = 24 * 60 * 60 * 1000): void { // Default 24 hours
+  cleanup(olderThanMs = 24 * 60 * 60 * 1000): void {
+    // Default 24 hours
     const cutoff = Date.now() - olderThanMs;
 
     const toRemove: string[] = [];
     for (const [taskId, task] of this.tasks.entries()) {
-      if ((task.status === TaskStatus.COMPLETED || task.status === TaskStatus.FAILED) &&
-          task.completedAt && task.completedAt.getTime() < cutoff) {
+      if (
+        (task.status === TaskStatus.COMPLETED ||
+          task.status === TaskStatus.FAILED) &&
+        task.completedAt &&
+        task.completedAt.getTime() < cutoff
+      ) {
         toRemove.push(taskId);
       }
     }
@@ -1067,7 +1156,9 @@ export class TaskQueue extends EventEmitter {
       this.failedTasks.delete(taskId);
     }
 
-    logger.info(`Cleaned up ${toRemove.length} old tasks`, { cutoffTime: new Date(cutoff) });
+    logger.info(`Cleaned up ${toRemove.length} old tasks`, {
+      cutoffTime: new Date(cutoff),
+    });
     this.updateMetrics();
   }
 
@@ -1110,8 +1201,11 @@ export class TaskQueue extends EventEmitter {
 
     // Wait for running tasks to complete
     const shutdownStart = Date.now();
-    while (this.runningTasks.size > 0 && (Date.now() - shutdownStart) < timeoutMs) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    while (
+      this.runningTasks.size > 0 &&
+      Date.now() - shutdownStart < timeoutMs
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     // Cancel any remaining tasks

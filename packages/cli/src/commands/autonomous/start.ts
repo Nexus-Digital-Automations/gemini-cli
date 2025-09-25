@@ -50,12 +50,20 @@ export const startCommand: CommandModule<{}, StartOptions> = {
         alias: 'v',
       })
       .example('gemini autonomous start', 'Start with default configuration')
-      .example('gemini autonomous start --max-agents 15 --verbose', 'Start with 15 max agents and verbose logging')
-      .example('gemini autonomous start --config ./custom.json', 'Start with custom configuration file'),
+      .example(
+        'gemini autonomous start --max-agents 15 --verbose',
+        'Start with 15 max agents and verbose logging',
+      )
+      .example(
+        'gemini autonomous start --config ./custom.json',
+        'Start with custom configuration file',
+      ),
 
   handler: async (argv) => {
     try {
-      console.log(chalk.cyan('🚀 Starting Autonomous Task Management System...'));
+      console.log(
+        chalk.cyan('🚀 Starting Autonomous Task Management System...'),
+      );
 
       const config = await getConfig();
 
@@ -63,27 +71,27 @@ export const startCommand: CommandModule<{}, StartOptions> = {
       const systemConfig = {
         persistenceConfig: {
           type: 'file' as const,
-          path: './data/autonomous-tasks.json'
+          path: './data/autonomous-tasks.json',
         },
         logging: {
-          level: argv.verbose ? 'debug' as const : 'info' as const,
-          output: 'console' as const
+          level: argv.verbose ? ('debug' as const) : ('info' as const),
+          output: 'console' as const,
         },
         agentConfig: {
           maxConcurrentAgents: argv.maxAgents || 10,
           heartbeatInterval: 30000, // 30 seconds
-          sessionTimeout: 300000 // 5 minutes
+          sessionTimeout: 300000, // 5 minutes
         },
         qualityConfig: {
           enableLinting: true,
           enableTesting: true,
           enableSecurity: true,
-          enablePerformance: true
+          enablePerformance: true,
         },
         featureConfig: {
           featuresFilePath: './FEATURES.json',
           requireApproval: true,
-          autoRejectTimeout: 604800000 // 7 days
+          autoRejectTimeout: 604800000, // 7 days
         },
         monitoring: {
           enableMetrics: argv.enableMetrics ?? true,
@@ -91,9 +99,9 @@ export const startCommand: CommandModule<{}, StartOptions> = {
           alertThresholds: {
             taskQueueSize: 100,
             avgExecutionTime: 300000, // 5 minutes
-            failureRate: 0.1 // 10%
-          }
-        }
+            failureRate: 0.1, // 10%
+          },
+        },
       };
 
       const systemInitializer = new SystemInitializer(config, systemConfig);
@@ -101,16 +109,26 @@ export const startCommand: CommandModule<{}, StartOptions> = {
       // Start the system
       await systemInitializer.initialize();
 
-      console.log(chalk.green('✅ Autonomous Task Management System started successfully!'));
+      console.log(
+        chalk.green(
+          '✅ Autonomous Task Management System started successfully!',
+        ),
+      );
       console.log(chalk.blue('📊 System Status:'));
       console.log(`   • Max Concurrent Agents: ${argv.maxAgents || 10}`);
-      console.log(`   • Metrics Collection: ${argv.enableMetrics ? 'Enabled' : 'Disabled'}`);
-      console.log(`   • Task Persistence: ${argv.enablePersistence ? 'Enabled' : 'Disabled'}`);
+      console.log(
+        `   • Metrics Collection: ${argv.enableMetrics ? 'Enabled' : 'Disabled'}`,
+      );
+      console.log(
+        `   • Task Persistence: ${argv.enablePersistence ? 'Enabled' : 'Disabled'}`,
+      );
       console.log(`   • Logging Level: ${argv.verbose ? 'Debug' : 'Info'}`);
 
       console.log(chalk.yellow('\n💡 Next steps:'));
       console.log('   • Check system status: gemini autonomous status');
-      console.log('   • Add tasks: gemini autonomous tasks add "Your task description"');
+      console.log(
+        '   • Add tasks: gemini autonomous tasks add "Your task description"',
+      );
       console.log('   • Monitor metrics: gemini autonomous metrics');
 
       // Keep the process running
@@ -125,10 +143,11 @@ export const startCommand: CommandModule<{}, StartOptions> = {
         await systemInitializer.shutdown();
         process.exit(0);
       });
-
     } catch (error) {
       console.error(chalk.red('❌ Failed to start autonomous system:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },

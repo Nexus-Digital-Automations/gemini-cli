@@ -80,6 +80,7 @@ code .
 ```
 
 **Recommended Extensions** (see `.vscode/extensions.json`):
+
 - TypeScript and JavaScript Language Features
 - ESLint
 - Prettier
@@ -89,6 +90,7 @@ code .
 #### IntelliJ IDEA / WebStorm
 
 Import the project as a Node.js project and install the following plugins:
+
 - TypeScript
 - ESLint
 - Prettier
@@ -313,7 +315,7 @@ describe('GeminiApiClient', () => {
     const client = new GeminiApiClient({ apiKey: 'test' });
     const response = await client.sendMessage({
       content: 'Hello',
-      role: 'user'
+      role: 'user',
     });
 
     expect(response.content).toBeDefined();
@@ -348,7 +350,7 @@ import {
   mockGeminiApi,
   createTestExtension,
   mockFileSystem,
-  createMockCommandContext
+  createMockCommandContext,
 } from '@google/gemini-cli-test-utils';
 ```
 
@@ -505,7 +507,7 @@ npm run start -- --show-config
  */
 async function processInput(
   input: string,
-  context: ConversationContext
+  context: ConversationContext,
 ): Promise<ProcessedResponse> {
   // Implementation
 }
@@ -522,7 +524,7 @@ try {
   return {
     success: false,
     error: error.message,
-    code: 'OPERATION_FAILED'
+    code: 'OPERATION_FAILED',
   };
 }
 ```
@@ -542,6 +544,7 @@ footer (optional)
 **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 **Examples**:
+
 ```
 feat(cli): add new search command
 fix(core): resolve authentication token refresh
@@ -587,8 +590,8 @@ export class MyExtension extends ExtensionBase {
       {
         name: 'my-command',
         description: 'My custom command',
-        handler: this.handleCommand.bind(this)
-      }
+        handler: this.handleCommand.bind(this),
+      },
     ];
   }
 
@@ -610,16 +613,16 @@ export class MyCustomTool extends BaseTool {
   parameters = {
     type: 'object' as const,
     properties: {
-      input: { type: 'string', description: 'Input parameter' }
+      input: { type: 'string', description: 'Input parameter' },
     },
-    required: ['input']
+    required: ['input'],
   };
 
   async execute(args: { input: string }): Promise<ToolResult> {
     // Tool implementation
     return {
       success: true,
-      content: `Processed: ${args.input}`
+      content: `Processed: ${args.input}`,
     };
   }
 }
@@ -653,7 +656,7 @@ import { sanitizeInput } from '../utils/security';
 
 const cleanInput = sanitizeInput(userInput, {
   allowHtml: false,
-  maxLength: 1000
+  maxLength: 1000,
 });
 ```
 

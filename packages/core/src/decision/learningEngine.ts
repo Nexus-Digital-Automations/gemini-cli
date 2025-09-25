@@ -5,7 +5,12 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
-import type { Decision, DecisionContext, DecisionOutcome, DecisionType } from './types.js';
+import type {
+  Decision,
+  DecisionContext,
+  DecisionOutcome,
+  DecisionType,
+} from './types.js';
 
 const logger = getComponentLogger('decision-learning-engine');
 
@@ -176,13 +181,16 @@ export class DecisionLearningEngine {
   private isInitialized = false;
 
   // Simple online learning accumulators
-  private readonly featureStats = new Map<string, {
-    sum: number;
-    sumSquared: number;
-    count: number;
-    mean: number;
-    variance: number;
-  }>();
+  private readonly featureStats = new Map<
+    string,
+    {
+      sum: number;
+      sumSquared: number;
+      count: number;
+      mean: number;
+      variance: number;
+    }
+  >();
 
   constructor(config: LearningEngineConfig) {
     this.config = {
@@ -254,14 +262,17 @@ export class DecisionLearningEngine {
   async recommend<T = Record<string, unknown>>(
     type: DecisionType,
     input: T,
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<Decision | null> {
     if (!this.config.enabled || !this.isInitialized) {
       return null;
     }
 
     const model = this.models.get(type);
-    if (!model || model.performance.totalSamples < this.config.minSamplesForLearning) {
+    if (
+      !model ||
+      model.performance.totalSamples < this.config.minSamplesForLearning
+    ) {
       logger.debug('Insufficient training data for ML recommendation', {
         type,
         samples: model?.performance.totalSamples || 0,
@@ -294,7 +305,8 @@ export class DecisionLearningEngine {
         choice: prediction.choice,
         priority: prediction.priority,
         confidence: prediction.confidence,
-        reasoning: `ML recommendation based on ${model.performance.totalSamples} training samples. ` +
+        reasoning:
+          `ML recommendation based on ${model.performance.totalSamples} training samples. ` +
           `Model accuracy: ${(model.performance.accuracy * 100).toFixed(1)}%. ` +
           `Key factors: ${this.getTopFeatures(model, 3).join(', ')}`,
         evidence: {
@@ -322,7 +334,6 @@ export class DecisionLearningEngine {
       });
 
       return recommendation;
-
     } catch (error) {
       logger.error('Failed to generate ML recommendation', { error, type });
       return null;
@@ -342,7 +353,7 @@ export class DecisionLearningEngine {
 
     // Find the decision in our training samples
     const sampleIndex = this.trainingSamples.findIndex(
-      sample => sample.outcome.decisionId === decisionId
+      (sample) => sample.outcome.decisionId === decisionId,
     );
 
     if (sampleIndex !== -1) {
@@ -455,7 +466,10 @@ export class DecisionLearningEngine {
   /**
    * Extract features from decision input and context.
    */
-  private extractFeatures<T>(input: T, context: DecisionContext): FeatureVector {
+  private extractFeatures<T>(
+    input: T,
+    context: DecisionContext,
+  ): FeatureVector {
     const now = new Date();
 
     return {
@@ -464,70 +478,93 @@ export class DecisionLearningEngine {
         memory: context.systemLoad.memory,
         diskIO: context.systemLoad.diskIO,
         networkIO: context.systemLoad.networkIO,
-        combinedLoad: (
+        combinedLoad:
           context.systemLoad.cpu * 0.4 +
           context.systemLoad.memory * 0.3 +
           context.systemLoad.diskIO * 0.2 +
-          context.systemLoad.networkIO * 0.1
-        ),
+          context.systemLoad.networkIO * 0.1,
       },
 
       taskQueue: {
         totalTasks: Math.min(context.taskQueueState.totalTasks / 100, 1), // Normalize
-        queueDepth: context.taskQueueState.totalTasks > 0
-          ? context.taskQueueState.pendingTasks / context.taskQueueState.totalTasks
-          : 0,
-        processingRate: context.taskQueueState.avgProcessingTime > 0
-          ? 1 / (context.taskQueueState.avgProcessingTime / 1000) // Convert to per-second
-          : 0,
-        failureRate: context.taskQueueState.totalTasks > 0
-          ? context.taskQueueState.failedTasks / context.taskQueueState.totalTasks
-          : 0,
+        queueDepth:
+          context.taskQueueState.totalTasks > 0
+            ? context.taskQueueState.pendingTasks /
+              context.taskQueueState.totalTasks
+            : 0,
+        processingRate:
+          context.taskQueueState.avgProcessingTime > 0
+            ? 1 / (context.taskQueueState.avgProcessingTime / 1000) // Convert to per-second
+            : 0,
+        failureRate:
+          context.taskQueueState.totalTasks > 0
+            ? context.taskQueueState.failedTasks /
+              context.taskQueueState.totalTasks
+            : 0,
       },
 
       agent: {
-        utilization: context.agentContext.maxConcurrentAgents > 0
-          ? context.agentContext.activeAgents / context.agentContext.maxConcurrentAgents
-          : 0,
-        avgWorkload: Object.values(context.agentContext.agentWorkloads).length > 0
-          ? Object.values(context.agentContext.agentWorkloads).reduce((a, b) => a + b, 0) /
-            Object.values(context.agentContext.agentWorkloads).length
-          : 0,
-        capabilities: Object.keys(context.agentContext.agentCapabilities).length,
+        utilization:
+          context.agentContext.maxConcurrentAgents > 0
+            ? context.agentContext.activeAgents /
+              context.agentContext.maxConcurrentAgents
+            : 0,
+        avgWorkload:
+          Object.values(context.agentContext.agentWorkloads).length > 0
+            ? Object.values(context.agentContext.agentWorkloads).reduce(
+                (a, b) => a + b,
+                0,
+              ) / Object.values(context.agentContext.agentWorkloads).length
+            : 0,
+        capabilities: Object.keys(context.agentContext.agentCapabilities)
+          .length,
       },
 
       project: {
         stability: this.calculateStabilityScore(context.projectState),
         changeRate: context.projectState.lastBuildTime
-          ? Math.exp(-(Date.now() - context.projectState.lastBuildTime) / 3600000) // Hours since last build
+          ? Math.exp(
+              -(Date.now() - context.projectState.lastBuildTime) / 3600000,
+            ) // Hours since last build
           : 0,
       },
 
       budget: {
         utilization: context.budgetContext.dailyLimit
-          ? context.budgetContext.currentUsage / context.budgetContext.dailyLimit
+          ? context.budgetContext.currentUsage /
+            context.budgetContext.dailyLimit
           : 0,
-        efficiency: context.budgetContext.costPerToken > 0
-          ? 1 / context.budgetContext.costPerToken // Inverse cost as efficiency
-          : 0,
+        efficiency:
+          context.budgetContext.costPerToken > 0
+            ? 1 / context.budgetContext.costPerToken // Inverse cost as efficiency
+            : 0,
         remainingRatio: context.budgetContext.remainingTokens
-          ? context.budgetContext.remainingTokens / (context.budgetContext.remainingTokens + context.budgetContext.currentUsage)
+          ? context.budgetContext.remainingTokens /
+            (context.budgetContext.remainingTokens +
+              context.budgetContext.currentUsage)
           : 0,
       },
 
       performance: {
         successRate: context.performanceHistory.avgSuccessRate,
-        avgCompletionTime: Math.min(context.performanceHistory.avgCompletionTime / 60000, 1), // Normalize to minutes, max 1
-        consistency: context.performanceHistory.commonFailureReasons.length > 0
-          ? 1 / (1 + context.performanceHistory.commonFailureReasons.length)
-          : 1,
+        avgCompletionTime: Math.min(
+          context.performanceHistory.avgCompletionTime / 60000,
+          1,
+        ), // Normalize to minutes, max 1
+        consistency:
+          context.performanceHistory.commonFailureReasons.length > 0
+            ? 1 / (1 + context.performanceHistory.commonFailureReasons.length)
+            : 1,
       },
 
       temporal: {
         hourOfDay: now.getHours() / 23,
         dayOfWeek: now.getDay() / 6,
         workingHours: context.userPreferences.preferredWorkingHours
-          ? this.isWithinWorkingHours(now, context.userPreferences.preferredWorkingHours)
+          ? this.isWithinWorkingHours(
+              now,
+              context.userPreferences.preferredWorkingHours,
+            )
           : 1,
         timeUntilDeadline: 0.5, // Would need deadline information
       },
@@ -537,7 +574,10 @@ export class DecisionLearningEngine {
   /**
    * Make a prediction using a trained model.
    */
-  private predict(model: PredictiveModel, features: FeatureVector): {
+  private predict(
+    model: PredictiveModel,
+    features: FeatureVector,
+  ): {
     choice: string;
     confidence: number;
     priority: number;
@@ -575,11 +615,13 @@ export class DecisionLearningEngine {
       successProbability: normalizedScore,
       estimatedDuration: (1 - normalizedScore) * 10000 + 1000, // 1-11 seconds
       requiredResources: normalizedScore > 0.7 ? ['cpu', 'memory'] : ['cpu'],
-      alternatives: choices.filter(c => c !== choice).map(c => ({
-        choice: c,
-        score: Math.random() * normalizedScore,
-        reasoning: `Alternative choice with lower confidence`,
-      })),
+      alternatives: choices
+        .filter((c) => c !== choice)
+        .map((c) => ({
+          choice: c,
+          score: Math.random() * normalizedScore,
+          reasoning: `Alternative choice with lower confidence`,
+        })),
     };
   }
 
@@ -589,7 +631,7 @@ export class DecisionLearningEngine {
   private updateModels(outcome: DecisionOutcome): void {
     // Find the training sample for this outcome
     const sample = this.trainingSamples.find(
-      s => s.outcome.decisionId === outcome.decisionId
+      (s) => s.outcome.decisionId === outcome.decisionId,
     );
 
     if (!sample) {
@@ -607,7 +649,9 @@ export class DecisionLearningEngine {
     const totalSamples = model.performance.totalSamples;
 
     // Incremental accuracy update
-    const newAccuracy = (oldAccuracy * totalSamples + (wasSuccessful ? 1 : 0)) / (totalSamples + 1);
+    const newAccuracy =
+      (oldAccuracy * totalSamples + (wasSuccessful ? 1 : 0)) /
+      (totalSamples + 1);
 
     model.performance.accuracy = newAccuracy;
     model.performance.totalSamples = totalSamples + 1;
@@ -617,8 +661,13 @@ export class DecisionLearningEngine {
     const features = this.flattenFeatures(sample.features);
     for (const [featureName, value] of Object.entries(features)) {
       const currentWeight = model.featureWeights[featureName] || 0;
-      const adjustment = wasSuccessful ? this.config.adaptationRate * value : -this.config.adaptationRate * value;
-      model.featureWeights[featureName] = Math.max(-1, Math.min(1, currentWeight + adjustment));
+      const adjustment = wasSuccessful
+        ? this.config.adaptationRate * value
+        : -this.config.adaptationRate * value;
+      model.featureWeights[featureName] = Math.max(
+        -1,
+        Math.min(1, currentWeight + adjustment),
+      );
     }
 
     logger.debug('Updated model incrementally', {
@@ -632,13 +681,16 @@ export class DecisionLearningEngine {
   /**
    * Train a new model for a specific decision type.
    */
-  private async trainModel(type: DecisionType, samples: TrainingSample[]): Promise<void> {
+  private async trainModel(
+    type: DecisionType,
+    samples: TrainingSample[],
+  ): Promise<void> {
     logger.info(`Training model for ${type}`, { samples: samples.length });
 
     // Calculate feature weights based on correlation with success
     const featureWeights: Record<string, number> = {};
-    const successfulSamples = samples.filter(s => s.outcome.success);
-    const failedSamples = samples.filter(s => !s.outcome.success);
+    const successfulSamples = samples.filter((s) => s.outcome.success);
+    const failedSamples = samples.filter((s) => !s.outcome.success);
 
     if (successfulSamples.length > 0 && failedSamples.length > 0) {
       // Calculate mean feature values for successful vs failed samples
@@ -688,7 +740,9 @@ export class DecisionLearningEngine {
   /**
    * Calculate feature means for a set of samples.
    */
-  private calculateFeatureMeans(samples: TrainingSample[]): Record<string, number> {
+  private calculateFeatureMeans(
+    samples: TrainingSample[],
+  ): Record<string, number> {
     const means: Record<string, number> = {};
     const counts: Record<string, number> = {};
 
@@ -745,7 +799,8 @@ export class DecisionLearningEngine {
       stats.mean = stats.sum / stats.count;
 
       if (stats.count > 1) {
-        stats.variance = (stats.sumSquared - stats.sum * stats.mean) / (stats.count - 1);
+        stats.variance =
+          (stats.sumSquared - stats.sum * stats.mean) / (stats.count - 1);
       }
     }
   }
@@ -763,40 +818,72 @@ export class DecisionLearningEngine {
   /**
    * Calculate project stability score from project state.
    */
-  private calculateStabilityScore(projectState: DecisionContext['projectState']): number {
+  private calculateStabilityScore(
+    projectState: DecisionContext['projectState'],
+  ): number {
     let score = 0;
 
     // Build status
     switch (projectState.buildStatus) {
-      case 'success': score += 0.3; break;
-      case 'in-progress': score += 0.15; break;
-      case 'failed': score -= 0.1; break;
-      default: score += 0; // unknown
+      case 'success':
+        score += 0.3;
+        break;
+      case 'in-progress':
+        score += 0.15;
+        break;
+      case 'failed':
+        score -= 0.1;
+        break;
+      default:
+        score += 0; // unknown
     }
 
     // Test status
     switch (projectState.testStatus) {
-      case 'passing': score += 0.3; break;
-      case 'in-progress': score += 0.15; break;
-      case 'failing': score -= 0.1; break;
-      default: score += 0; // unknown
+      case 'passing':
+        score += 0.3;
+        break;
+      case 'in-progress':
+        score += 0.15;
+        break;
+      case 'failing':
+        score -= 0.1;
+        break;
+      default:
+        score += 0; // unknown
     }
 
     // Lint status
     switch (projectState.lintStatus) {
-      case 'clean': score += 0.2; break;
-      case 'warnings': score += 0.1; break;
-      case 'errors': score -= 0.05; break;
-      case 'in-progress': score += 0.1; break;
-      default: score += 0; // unknown
+      case 'clean':
+        score += 0.2;
+        break;
+      case 'warnings':
+        score += 0.1;
+        break;
+      case 'errors':
+        score -= 0.05;
+        break;
+      case 'in-progress':
+        score += 0.1;
+        break;
+      default:
+        score += 0; // unknown
     }
 
     // Git status
     switch (projectState.gitStatus) {
-      case 'clean': score += 0.2; break;
-      case 'modified': score += 0.1; break;
-      case 'conflicted': score -= 0.1; break;
-      default: score += 0; // unknown
+      case 'clean':
+        score += 0.2;
+        break;
+      case 'modified':
+        score += 0.1;
+        break;
+      case 'conflicted':
+        score -= 0.1;
+        break;
+      default:
+        score += 0; // unknown
     }
 
     return Math.max(0, Math.min(1, score + 0.5)); // Normalize to 0-1
@@ -807,14 +894,20 @@ export class DecisionLearningEngine {
    */
   private isWithinWorkingHours(
     now: Date,
-    workingHours: { start: number; end: number }
+    workingHours: { start: number; end: number },
   ): number {
     const currentHour = now.getHours();
     if (workingHours.start <= workingHours.end) {
-      return (currentHour >= workingHours.start && currentHour <= workingHours.end) ? 1 : 0;
+      return currentHour >= workingHours.start &&
+        currentHour <= workingHours.end
+        ? 1
+        : 0;
     } else {
       // Working hours span midnight
-      return (currentHour >= workingHours.start || currentHour <= workingHours.end) ? 1 : 0;
+      return currentHour >= workingHours.start ||
+        currentHour <= workingHours.end
+        ? 1
+        : 0;
     }
   }
 

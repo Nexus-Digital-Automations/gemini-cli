@@ -10,8 +10,16 @@ import {
   ContextState,
   SubagentTerminateMode,
 } from '../../../packages/core/src/core/subagent.js';
-import { MockAgentFactory, MockAgentState, type MockAgentConfig } from '../utils/MockAgentFactory.js';
-import { TaskBuilder, TaskComplexity, TaskCategory } from '../utils/TaskBuilder.js';
+import {
+  MockAgentFactory,
+  MockAgentState,
+  type MockAgentConfig,
+} from '../utils/MockAgentFactory.js';
+import {
+  TaskBuilder,
+  TaskComplexity,
+  TaskCategory,
+} from '../utils/TaskBuilder.js';
 import type { Config } from '../../../packages/core/src/config/config.js';
 
 /**
@@ -44,11 +52,16 @@ class MockSessionStorage {
     return this.taskStates.get(taskId) || null;
   }
 
-  async saveContextSnapshot(snapshotId: string, snapshot: ContextSnapshot): Promise<void> {
+  async saveContextSnapshot(
+    snapshotId: string,
+    snapshot: ContextSnapshot,
+  ): Promise<void> {
     this.contextSnapshots.set(snapshotId, snapshot);
   }
 
-  async loadContextSnapshot(snapshotId: string): Promise<ContextSnapshot | null> {
+  async loadContextSnapshot(
+    snapshotId: string,
+  ): Promise<ContextSnapshot | null> {
     return this.contextSnapshots.get(snapshotId) || null;
   }
 
@@ -57,7 +70,7 @@ class MockSessionStorage {
     const activeThreshold = 24 * 60 * 60 * 1000; // 24 hours
 
     return Array.from(this.sessions.values()).filter(
-      session => (now - session.lastUpdated) < activeThreshold
+      (session) => now - session.lastUpdated < activeThreshold,
     );
   }
 
@@ -71,14 +84,14 @@ class MockSessionStorage {
 
     // Clean old sessions
     for (const [sessionId, session] of this.sessions.entries()) {
-      if ((now - session.lastUpdated) > cleanupThreshold) {
+      if (now - session.lastUpdated > cleanupThreshold) {
         this.sessions.delete(sessionId);
       }
     }
 
     // Clean old task states
     for (const [taskId, taskState] of this.taskStates.entries()) {
-      if ((now - taskState.lastUpdated) > cleanupThreshold) {
+      if (now - taskState.lastUpdated > cleanupThreshold) {
         this.taskStates.delete(taskId);
       }
     }
@@ -86,8 +99,8 @@ class MockSessionStorage {
     // Clean old context snapshots
     for (const [snapshotId] of this.contextSnapshots.entries()) {
       // Check if any active sessions reference this snapshot
-      const referenced = Array.from(this.sessions.values()).some(
-        session => session.contextSnapshots.includes(snapshotId)
+      const referenced = Array.from(this.sessions.values()).some((session) =>
+        session.contextSnapshots.includes(snapshotId),
       );
 
       if (!referenced) {
@@ -198,14 +211,17 @@ class CrossSessionPersistenceManager {
     }
 
     this.activeSession.lastUpdated = Date.now();
-    await this.storage.saveSession(this.activeSession.sessionId, this.activeSession);
+    await this.storage.saveSession(
+      this.activeSession.sessionId,
+      this.activeSession,
+    );
   }
 
   async createTaskCheckpoint(
     taskId: string,
     step: string,
     progress: number,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<string> {
     const checkpointId = `checkpoint_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const checkpoint: Checkpoint = {
@@ -216,7 +232,9 @@ class CrossSessionPersistenceManager {
       data,
     };
 
-    const taskState = await this.storage.loadTaskState(taskId) || this.createDefaultTaskState(taskId);
+    const taskState =
+      (await this.storage.loadTaskState(taskId)) ||
+      this.createDefaultTaskState(taskId);
     taskState.checkpoints.push(checkpoint);
     taskState.progress = progress;
     taskState.lastUpdated = Date.now();
@@ -226,21 +244,27 @@ class CrossSessionPersistenceManager {
     return checkpointId;
   }
 
-  async restoreFromCheckpoint(taskId: string, checkpointId?: string): Promise<Checkpoint | null> {
+  async restoreFromCheckpoint(
+    taskId: string,
+    checkpointId?: string,
+  ): Promise<Checkpoint | null> {
     const taskState = await this.storage.loadTaskState(taskId);
     if (!taskState || taskState.checkpoints.length === 0) {
       return null;
     }
 
     if (checkpointId) {
-      return taskState.checkpoints.find(cp => cp.id === checkpointId) || null;
+      return taskState.checkpoints.find((cp) => cp.id === checkpointId) || null;
     }
 
     // Return the latest checkpoint
     return taskState.checkpoints[taskState.checkpoints.length - 1];
   }
 
-  async saveContextSnapshot(context: ContextState, metadata?: Record<string, any>): Promise<string> {
+  async saveContextSnapshot(
+    context: ContextState,
+    metadata?: Record<string, any>,
+  ): Promise<string> {
     if (!this.activeSession) {
       throw new Error('No active session for context snapshot');
     }
@@ -249,7 +273,7 @@ class CrossSessionPersistenceManager {
     const contextKeys = context.get_keys();
     const contextData: Record<string, any> = {};
 
-    contextKeys.forEach(key => {
+    contextKeys.forEach((key) => {
       contextData[key] = context.get(key);
     });
 
@@ -264,12 +288,17 @@ class CrossSessionPersistenceManager {
     await this.storage.saveContextSnapshot(snapshotId, snapshot);
 
     this.activeSession.contextSnapshots.push(snapshotId);
-    await this.storage.saveSession(this.activeSession.sessionId, this.activeSession);
+    await this.storage.saveSession(
+      this.activeSession.sessionId,
+      this.activeSession,
+    );
 
     return snapshotId;
   }
 
-  async restoreContextSnapshot(snapshotId: string): Promise<ContextState | null> {
+  async restoreContextSnapshot(
+    snapshotId: string,
+  ): Promise<ContextState | null> {
     const snapshot = await this.storage.loadContextSnapshot(snapshotId);
     if (!snapshot) {
       return null;
@@ -283,7 +312,10 @@ class CrossSessionPersistenceManager {
     return context;
   }
 
-  async migrateTaskToNewSession(taskId: string, newSessionId: string): Promise<boolean> {
+  async migrateTaskToNewSession(
+    taskId: string,
+    newSessionId: string,
+  ): Promise<boolean> {
     const taskState = await this.storage.loadTaskState(taskId);
     if (!taskState) {
       return false;
@@ -336,19 +368,31 @@ class CrossSessionPersistenceManager {
     }
 
     const allTaskStates = await Promise.all(
-      this.activeSession.taskIds.map(taskId => this.storage.loadTaskState(taskId))
+      this.activeSession.taskIds.map((taskId) =>
+        this.storage.loadTaskState(taskId),
+      ),
     );
 
-    const validTaskStates = allTaskStates.filter(ts => ts !== null) as TaskState[];
+    const validTaskStates = allTaskStates.filter(
+      (ts) => ts !== null,
+    ) as TaskState[];
 
     const totalTasks = validTaskStates.length;
-    const completedTasks = validTaskStates.filter(ts => ts.status === 'completed').length;
-    const failedTasks = validTaskStates.filter(ts => ts.status === 'failed').length;
-    const averageProgress = totalTasks > 0
-      ? validTaskStates.reduce((sum, ts) => sum + ts.progress, 0) / totalTasks
-      : 0;
+    const completedTasks = validTaskStates.filter(
+      (ts) => ts.status === 'completed',
+    ).length;
+    const failedTasks = validTaskStates.filter(
+      (ts) => ts.status === 'failed',
+    ).length;
+    const averageProgress =
+      totalTasks > 0
+        ? validTaskStates.reduce((sum, ts) => sum + ts.progress, 0) / totalTasks
+        : 0;
 
-    const totalCheckpoints = validTaskStates.reduce((sum, ts) => sum + ts.checkpoints.length, 0);
+    const totalCheckpoints = validTaskStates.reduce(
+      (sum, ts) => sum + ts.checkpoints.length,
+      0,
+    );
 
     return {
       sessionId: this.activeSession.sessionId,
@@ -420,14 +464,18 @@ describe('Cross-Session Task Persistence Tests', () => {
       // Pause and resume session
       await persistenceManager.pauseSession();
       const pausedSession = await sessionStorage.loadSession(sessionId);
-      expect(pausedSession!.lastUpdated).toBeGreaterThan(pausedSession!.startTime);
+      expect(pausedSession!.lastUpdated).toBeGreaterThan(
+        pausedSession!.startTime,
+      );
 
       const resumed = await persistenceManager.resumeSession(sessionId);
       expect(resumed).toBe(true);
     });
 
     it('should handle session resume for non-existent sessions', async () => {
-      const resumed = await persistenceManager.resumeSession('non-existent-session');
+      const resumed = await persistenceManager.resumeSession(
+        'non-existent-session',
+      );
       expect(resumed).toBe(false);
     });
 
@@ -442,7 +490,7 @@ describe('Cross-Session Task Persistence Tests', () => {
       const activeSessions = await sessionStorage.getAllActiveSessions();
       expect(activeSessions).toHaveLength(3);
 
-      activeSessions.forEach(session => {
+      activeSessions.forEach((session) => {
         expect(sessionIds).toContain(session.sessionId);
       });
     });
@@ -460,21 +508,21 @@ describe('Cross-Session Task Persistence Tests', () => {
         taskId,
         'initialization',
         0.1,
-        { initialized: true, config: 'loaded' }
+        { initialized: true, config: 'loaded' },
       );
 
       const checkpoint2 = await persistenceManager.createTaskCheckpoint(
         taskId,
         'data_processing',
         0.5,
-        { processed_items: 50, total_items: 100 }
+        { processed_items: 50, total_items: 100 },
       );
 
       const checkpoint3 = await persistenceManager.createTaskCheckpoint(
         taskId,
         'finalization',
         0.9,
-        { results: 'generated', cleanup: 'completed' }
+        { results: 'generated', cleanup: 'completed' },
       );
 
       expect(checkpoint1).toBeTruthy();
@@ -482,14 +530,16 @@ describe('Cross-Session Task Persistence Tests', () => {
       expect(checkpoint3).toBeTruthy();
 
       // Restore specific checkpoint
-      const restoredCheckpoint2 = await persistenceManager.restoreFromCheckpoint(taskId, checkpoint2);
+      const restoredCheckpoint2 =
+        await persistenceManager.restoreFromCheckpoint(taskId, checkpoint2);
       expect(restoredCheckpoint2).toBeDefined();
       expect(restoredCheckpoint2!.step).toBe('data_processing');
       expect(restoredCheckpoint2!.progress).toBe(0.5);
       expect(restoredCheckpoint2!.data.processed_items).toBe(50);
 
       // Restore latest checkpoint
-      const latestCheckpoint = await persistenceManager.restoreFromCheckpoint(taskId);
+      const latestCheckpoint =
+        await persistenceManager.restoreFromCheckpoint(taskId);
       expect(latestCheckpoint).toBeDefined();
       expect(latestCheckpoint!.step).toBe('finalization');
       expect(latestCheckpoint!.progress).toBe(0.9);
@@ -537,10 +587,15 @@ describe('Cross-Session Task Persistence Tests', () => {
         dependencies: ['typescript', 'jest'],
       });
 
-      await persistenceManager.createTaskCheckpoint(taskId, 'code_generation', 0.6, {
-        files_created: ['example.ts', 'example.test.ts'],
-        lines_of_code: 250,
-      });
+      await persistenceManager.createTaskCheckpoint(
+        taskId,
+        'code_generation',
+        0.6,
+        {
+          files_created: ['example.ts', 'example.test.ts'],
+          lines_of_code: 250,
+        },
+      );
 
       await persistenceManager.createTaskCheckpoint(taskId, 'testing', 0.8, {
         tests_written: 15,
@@ -567,9 +622,12 @@ describe('Cross-Session Task Persistence Tests', () => {
       expect(taskState!.progress).toBe(1.0);
 
       // Test checkpoint restoration
-      const codeGenCheckpoint = await persistenceManager.restoreFromCheckpoint(taskId);
+      const codeGenCheckpoint =
+        await persistenceManager.restoreFromCheckpoint(taskId);
       expect(codeGenCheckpoint!.data.status).toBe('completed');
-      expect(codeGenCheckpoint!.data.outputs).toEqual(agent.output.emitted_vars);
+      expect(codeGenCheckpoint!.data.outputs).toEqual(
+        agent.output.emitted_vars,
+      );
     });
 
     it('should handle task migration between sessions', async () => {
@@ -590,7 +648,10 @@ describe('Cross-Session Task Persistence Tests', () => {
       await persistenceManager.startSession(newSessionId);
 
       // Migrate task to new session
-      const migrated = await persistenceManager.migrateTaskToNewSession(taskId, newSessionId);
+      const migrated = await persistenceManager.migrateTaskToNewSession(
+        taskId,
+        newSessionId,
+      );
       expect(migrated).toBe(true);
 
       // Continue task in new session
@@ -628,22 +689,33 @@ describe('Cross-Session Task Persistence Tests', () => {
       });
 
       // Save context snapshot
-      const snapshotId = await persistenceManager.saveContextSnapshot(originalContext, {
-        phase: 'mid-development',
-        importance: 'high',
-      });
+      const snapshotId = await persistenceManager.saveContextSnapshot(
+        originalContext,
+        {
+          phase: 'mid-development',
+          importance: 'high',
+        },
+      );
 
       expect(snapshotId).toBeTruthy();
 
       // Restore context from snapshot
-      const restoredContext = await persistenceManager.restoreContextSnapshot(snapshotId);
+      const restoredContext =
+        await persistenceManager.restoreContextSnapshot(snapshotId);
       expect(restoredContext).toBeDefined();
 
       // Verify all data was restored correctly
       expect(restoredContext!.get('project_name')).toBe('Gemini CLI');
       expect(restoredContext!.get('current_phase')).toBe('development');
-      expect(restoredContext!.get('team_members')).toEqual(['alice', 'bob', 'charlie']);
-      expect(restoredContext!.get('progress')).toEqual({ completed: 60, total: 100 });
+      expect(restoredContext!.get('team_members')).toEqual([
+        'alice',
+        'bob',
+        'charlie',
+      ]);
+      expect(restoredContext!.get('progress')).toEqual({
+        completed: 60,
+        total: 100,
+      });
       expect(restoredContext!.get('settings')).toEqual({
         debug: true,
         verbose: false,
@@ -667,16 +739,20 @@ describe('Cross-Session Task Persistence Tests', () => {
       initialContext.set('features', ['basic', 'auth']);
       initialContext.set('status', 'in_progress');
 
-      const snapshot1 = await persistenceManager.saveContextSnapshot(initialContext, {
-        session: session1Id,
-        version: '1.0.0',
-      });
+      const snapshot1 = await persistenceManager.saveContextSnapshot(
+        initialContext,
+        {
+          session: session1Id,
+          version: '1.0.0',
+        },
+      );
 
       await persistenceManager.pauseSession();
 
       // Session 2: Evolved context
       await persistenceManager.startSession(session2Id);
-      const evolvedContext = await persistenceManager.restoreContextSnapshot(snapshot1);
+      const evolvedContext =
+        await persistenceManager.restoreContextSnapshot(snapshot1);
 
       // Modify context
       evolvedContext!.set('version', '1.1.0');
@@ -684,20 +760,25 @@ describe('Cross-Session Task Persistence Tests', () => {
       evolvedContext!.set('status', 'testing');
       evolvedContext!.set('new_field', 'added_in_session_2');
 
-      const snapshot2 = await persistenceManager.saveContextSnapshot(evolvedContext!, {
-        session: session2Id,
-        version: '1.1.0',
-      });
+      const snapshot2 = await persistenceManager.saveContextSnapshot(
+        evolvedContext!,
+        {
+          session: session2Id,
+          version: '1.1.0',
+        },
+      );
 
       // Verify evolution
-      const finalContext = await persistenceManager.restoreContextSnapshot(snapshot2);
+      const finalContext =
+        await persistenceManager.restoreContextSnapshot(snapshot2);
       expect(finalContext!.get('version')).toBe('1.1.0');
       expect(finalContext!.get('features')).toEqual(['basic', 'auth', 'admin']);
       expect(finalContext!.get('status')).toBe('testing');
       expect(finalContext!.get('new_field')).toBe('added_in_session_2');
 
       // Verify we can still access original snapshot
-      const originalContext = await persistenceManager.restoreContextSnapshot(snapshot1);
+      const originalContext =
+        await persistenceManager.restoreContextSnapshot(snapshot1);
       expect(originalContext!.get('version')).toBe('1.0.0');
       expect(originalContext!.get('features')).toEqual(['basic', 'auth']);
     });
@@ -715,13 +796,15 @@ describe('Cross-Session Task Persistence Tests', () => {
         const modifiedContext = new ContextState();
 
         // Copy base context
-        baseContext.get_keys().forEach(key => {
+        baseContext.get_keys().forEach((key) => {
           modifiedContext.set(key, baseContext.get(key));
         });
 
         // Make modifications
         modifiedContext.set('shared_counter', i + 1);
-        const operations = modifiedContext.get('concurrent_operations') as any[];
+        const operations = modifiedContext.get(
+          'concurrent_operations',
+        ) as any[];
         operations.push(`operation_${i}`);
         modifiedContext.set('concurrent_operations', operations);
         modifiedContext.set(`operation_${i}_data`, {
@@ -739,11 +822,13 @@ describe('Cross-Session Task Persistence Tests', () => {
 
       // Verify all snapshots were saved
       expect(snapshotIds).toHaveLength(5);
-      snapshotIds.forEach(id => expect(id).toBeTruthy());
+      snapshotIds.forEach((id) => expect(id).toBeTruthy());
 
       // Restore and verify each snapshot
       for (let i = 0; i < snapshotIds.length; i++) {
-        const context = await persistenceManager.restoreContextSnapshot(snapshotIds[i]);
+        const context = await persistenceManager.restoreContextSnapshot(
+          snapshotIds[i],
+        );
         expect(context).toBeDefined();
         expect(context!.get('shared_counter')).toBe(i + 1);
         expect(context!.get(`operation_${i}_data`)).toBeDefined();
@@ -789,12 +874,18 @@ describe('Cross-Session Task Persistence Tests', () => {
       workflowContext.set('completed_steps', completedSteps);
       workflowContext.set('step1_output', step1Agent.output.emitted_vars);
 
-      await persistenceManager.createTaskCheckpoint('workflow-task', 'step1_completed', 0.2, {
-        completed_steps: completedSteps,
-        step1_output: step1Agent.output.emitted_vars,
-      });
+      await persistenceManager.createTaskCheckpoint(
+        'workflow-task',
+        'step1_completed',
+        0.2,
+        {
+          completed_steps: completedSteps,
+          step1_output: step1Agent.output.emitted_vars,
+        },
+      );
 
-      const contextSnapshot1 = await persistenceManager.saveContextSnapshot(workflowContext);
+      const contextSnapshot1 =
+        await persistenceManager.saveContextSnapshot(workflowContext);
 
       // Pause session (simulate interruption)
       await persistenceManager.pauseSession();
@@ -804,8 +895,10 @@ describe('Cross-Session Task Persistence Tests', () => {
       await persistenceManager.startSession(session2Id);
 
       // Restore context and checkpoint
-      const restoredContext = await persistenceManager.restoreContextSnapshot(contextSnapshot1);
-      const checkpoint = await persistenceManager.restoreFromCheckpoint('workflow-task');
+      const restoredContext =
+        await persistenceManager.restoreContextSnapshot(contextSnapshot1);
+      const checkpoint =
+        await persistenceManager.restoreFromCheckpoint('workflow-task');
 
       expect(restoredContext).toBeDefined();
       expect(checkpoint).toBeDefined();
@@ -839,21 +932,32 @@ describe('Cross-Session Task Persistence Tests', () => {
       });
 
       // Update progress
-      const updatedCompletedSteps = restoredContext!.get('completed_steps') as string[];
+      const updatedCompletedSteps = restoredContext!.get(
+        'completed_steps',
+      ) as string[];
       updatedCompletedSteps.push('step2');
       restoredContext!.set('completed_steps', updatedCompletedSteps);
 
-      await persistenceManager.createTaskCheckpoint('workflow-task', 'step2_completed', 0.4, {
-        completed_steps: updatedCompletedSteps,
-        step2_output: step2Agent.output.emitted_vars,
-      });
+      await persistenceManager.createTaskCheckpoint(
+        'workflow-task',
+        'step2_completed',
+        0.4,
+        {
+          completed_steps: updatedCompletedSteps,
+          step2_output: step2Agent.output.emitted_vars,
+        },
+      );
 
       // Migrate task to ensure continuity
-      const migrated = await persistenceManager.migrateTaskToNewSession('workflow-task', session2Id);
+      const migrated = await persistenceManager.migrateTaskToNewSession(
+        'workflow-task',
+        session2Id,
+      );
       expect(migrated).toBe(true);
 
       // Verify workflow state
-      const finalTaskState = await sessionStorage.loadTaskState('workflow-task');
+      const finalTaskState =
+        await sessionStorage.loadTaskState('workflow-task');
       expect(finalTaskState!.checkpoints).toHaveLength(2);
       expect(finalTaskState!.progress).toBe(0.4);
     });
@@ -869,10 +973,15 @@ describe('Cross-Session Task Persistence Tests', () => {
       workflowContext.set('max_retries', 3);
 
       // Create successful initial task
-      await persistenceManager.createTaskCheckpoint('recovery-task', 'initialization', 0.1, {
-        status: 'success',
-        message: 'Workflow initialized successfully',
-      });
+      await persistenceManager.createTaskCheckpoint(
+        'recovery-task',
+        'initialization',
+        0.1,
+        {
+          status: 'success',
+          message: 'Workflow initialized successfully',
+        },
+      );
 
       // Create failing task
       const failingAgent = await MockAgentFactory.createMockAgent(
@@ -897,21 +1006,29 @@ describe('Cross-Session Task Persistence Tests', () => {
       expect(caughtError).toBeDefined();
 
       // Create failure checkpoint
-      await persistenceManager.createTaskCheckpoint('recovery-task', 'processing_failed', 0.3, {
-        status: 'failed',
-        error: (caughtError as Error).message,
-        retry_needed: true,
-      });
+      await persistenceManager.createTaskCheckpoint(
+        'recovery-task',
+        'processing_failed',
+        0.3,
+        {
+          status: 'failed',
+          error: (caughtError as Error).message,
+          retry_needed: true,
+        },
+      );
 
-      const failureSnapshot = await persistenceManager.saveContextSnapshot(workflowContext);
+      const failureSnapshot =
+        await persistenceManager.saveContextSnapshot(workflowContext);
       await persistenceManager.pauseSession();
 
       // Session 2: Recover from failure
       const session2Id = 'failure-recovery-session-2';
       await persistenceManager.startSession(session2Id);
 
-      const recoveryContext = await persistenceManager.restoreContextSnapshot(failureSnapshot);
-      const failureCheckpoint = await persistenceManager.restoreFromCheckpoint('recovery-task');
+      const recoveryContext =
+        await persistenceManager.restoreContextSnapshot(failureSnapshot);
+      const failureCheckpoint =
+        await persistenceManager.restoreFromCheckpoint('recovery-task');
 
       expect(failureCheckpoint!.data.status).toBe('failed');
       expect(failureCheckpoint!.data.retry_needed).toBe(true);
@@ -936,18 +1053,26 @@ describe('Cross-Session Task Persistence Tests', () => {
       await recoveryAgent.runNonInteractive(recoveryContext!);
 
       // Create recovery checkpoint
-      await persistenceManager.createTaskCheckpoint('recovery-task', 'recovery_complete', 1.0, {
-        status: 'completed',
-        recovery_successful: true,
-        original_error: 'network_timeout',
-        final_outputs: recoveryAgent.output.emitted_vars,
-      });
+      await persistenceManager.createTaskCheckpoint(
+        'recovery-task',
+        'recovery_complete',
+        1.0,
+        {
+          status: 'completed',
+          recovery_successful: true,
+          original_error: 'network_timeout',
+          final_outputs: recoveryAgent.output.emitted_vars,
+        },
+      );
 
       // Verify recovery workflow
-      const finalTaskState = await sessionStorage.loadTaskState('recovery-task');
+      const finalTaskState =
+        await sessionStorage.loadTaskState('recovery-task');
       expect(finalTaskState!.checkpoints).toHaveLength(3);
       expect(finalTaskState!.progress).toBe(1.0);
-      expect(finalTaskState!.checkpoints[2].data.recovery_successful).toBe(true);
+      expect(finalTaskState!.checkpoints[2].data.recovery_successful).toBe(
+        true,
+      );
     });
   });
 
@@ -958,22 +1083,28 @@ describe('Cross-Session Task Persistence Tests', () => {
 
       // Create large context with realistic data sizes
       const largeContext = new ContextState();
-      largeContext.set('large_dataset', Array.from({ length: 1000 }, (_, i) => ({
-        id: i,
-        name: `item_${i}`,
-        data: `data_${i}`.repeat(100), // Simulate larger data
-        metadata: {
-          created: Date.now(),
-          tags: [`tag_${i % 10}`, `category_${i % 5}`],
-        },
-      })));
+      largeContext.set(
+        'large_dataset',
+        Array.from({ length: 1000 }, (_, i) => ({
+          id: i,
+          name: `item_${i}`,
+          data: `data_${i}`.repeat(100), // Simulate larger data
+          metadata: {
+            created: Date.now(),
+            tags: [`tag_${i % 10}`, `category_${i % 5}`],
+          },
+        })),
+      );
 
-      largeContext.set('processing_history', Array.from({ length: 500 }, (_, i) => ({
-        step: i,
-        timestamp: Date.now() - (i * 1000),
-        operation: `operation_${i}`,
-        result: `result_${i}`,
-      })));
+      largeContext.set(
+        'processing_history',
+        Array.from({ length: 500 }, (_, i) => ({
+          step: i,
+          timestamp: Date.now() - i * 1000,
+          operation: `operation_${i}`,
+          result: `result_${i}`,
+        })),
+      );
 
       largeContext.set('configuration', {
         deeply: {
@@ -989,11 +1120,13 @@ describe('Cross-Session Task Persistence Tests', () => {
       });
 
       const startTime = Date.now();
-      const snapshotId = await persistenceManager.saveContextSnapshot(largeContext);
+      const snapshotId =
+        await persistenceManager.saveContextSnapshot(largeContext);
       const saveTime = Date.now() - startTime;
 
       const restoreStartTime = Date.now();
-      const restoredContext = await persistenceManager.restoreContextSnapshot(snapshotId);
+      const restoredContext =
+        await persistenceManager.restoreContextSnapshot(snapshotId);
       const restoreTime = Date.now() - restoreStartTime;
 
       // Performance checks
@@ -1020,10 +1153,15 @@ describe('Cross-Session Task Persistence Tests', () => {
       for (const sessionId of sessionIds) {
         await persistenceManager.startSession(sessionId);
         for (const taskId of taskIds) {
-          await persistenceManager.createTaskCheckpoint(taskId, 'test_step', 0.5, {
-            session: sessionId,
-            data: 'test_data',
-          });
+          await persistenceManager.createTaskCheckpoint(
+            taskId,
+            'test_step',
+            0.5,
+            {
+              session: sessionId,
+              data: 'test_data',
+            },
+          );
         }
         await persistenceManager.pauseSession();
       }
@@ -1047,15 +1185,25 @@ describe('Cross-Session Task Persistence Tests', () => {
       const taskIds = ['metrics-task-1', 'metrics-task-2', 'metrics-task-3'];
 
       // Create tasks with different states
-      await persistenceManager.createTaskCheckpoint(taskIds[0], 'completed', 1.0, {
-        status: 'completed',
-        result: 'success',
-      });
+      await persistenceManager.createTaskCheckpoint(
+        taskIds[0],
+        'completed',
+        1.0,
+        {
+          status: 'completed',
+          result: 'success',
+        },
+      );
 
-      await persistenceManager.createTaskCheckpoint(taskIds[1], 'in_progress', 0.6, {
-        status: 'in_progress',
-        current_step: 'processing',
-      });
+      await persistenceManager.createTaskCheckpoint(
+        taskIds[1],
+        'in_progress',
+        0.6,
+        {
+          status: 'in_progress',
+          current_step: 'processing',
+        },
+      );
 
       await persistenceManager.createTaskCheckpoint(taskIds[2], 'failed', 0.3, {
         status: 'failed',
@@ -1085,7 +1233,9 @@ describe('Cross-Session Task Persistence Tests', () => {
       expect(metrics.contextSnapshotCount).toBe(2);
 
       // The specific counts may vary due to mock implementation
-      expect(metrics.completedTasks + metrics.failedTasks).toBeLessThanOrEqual(metrics.totalTasks);
+      expect(metrics.completedTasks + metrics.failedTasks).toBeLessThanOrEqual(
+        metrics.totalTasks,
+      );
       expect(metrics.averageProgress).toBeGreaterThan(0);
       expect(metrics.averageProgress).toBeLessThanOrEqual(1);
     });

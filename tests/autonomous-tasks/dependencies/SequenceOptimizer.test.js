@@ -6,7 +6,7 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/autonomous-tasks/types/TaskTypes';
 import { DetectedDependency } from '../../../packages/core/src/autonomous-tasks/dependencies/DependencyAnalyzer';
-import { SequenceOptimizer, SequenceOptimizationConfig, OptimizedSequence, ResourceConstraint } from '../../../packages/core/src/autonomous-tasks/dependencies/SequenceOptimizer';
+import { SequenceOptimizer, SequenceOptimizationConfig, OptimizedSequence, ResourceConstraint, } from '../../../packages/core/src/autonomous-tasks/dependencies/SequenceOptimizer';
 describe('SequenceOptimizer', () => {
     let optimizer;
     let sampleTasks;
@@ -16,10 +16,10 @@ describe('SequenceOptimizer', () => {
             strategy: 'hybrid',
             maxParallelism: 3,
             priorityWeights: {
-                'low': 1,
-                'normal': 2,
-                'high': 3,
-                'critical': 5,
+                low: 1,
+                normal: 2,
+                high: 3,
+                critical: 5,
             },
             loadBalancingEnabled: true,
         };
@@ -178,7 +178,7 @@ describe('SequenceOptimizer', () => {
             // Should identify parallel execution groups
             expect(result.parallelGroups.length).toBeGreaterThan(0);
             // At least one parallel group should have multiple tasks
-            const multiTaskGroups = result.parallelGroups.filter(group => group.parallelTasks.length > 1);
+            const multiTaskGroups = result.parallelGroups.filter((group) => group.parallelTasks.length > 1);
             expect(multiTaskGroups.length).toBeGreaterThan(0);
         });
         test('should calculate meaningful metrics', async () => {
@@ -221,25 +221,25 @@ describe('SequenceOptimizer', () => {
             expect(result.criticalPath.length).toBeGreaterThan(0);
             // Critical path tasks should be prioritized in execution order
             const firstBatch = result.executionOrder[0];
-            const criticalTaskInFirstBatch = firstBatch.tasks.some(taskId => result.criticalPath.includes(taskId));
+            const criticalTaskInFirstBatch = firstBatch.tasks.some((taskId) => result.criticalPath.includes(taskId));
             expect(criticalTaskInFirstBatch).toBe(true);
         });
         test('should apply priority weighted strategy correctly', async () => {
             const priorityOptimizer = new SequenceOptimizer({
                 strategy: 'priority_weighted',
                 priorityWeights: {
-                    'low': 1,
-                    'normal': 2,
-                    'high': 4,
-                    'critical': 8,
+                    low: 1,
+                    normal: 2,
+                    high: 4,
+                    critical: 8,
                 },
             });
             const result = await priorityOptimizer.optimizeSequence(sampleTasks, sampleDependencies);
             // High priority tasks should be scheduled earlier
             const firstBatch = result.executionOrder[0];
-            const firstBatchTasks = firstBatch.tasks.map(taskId => sampleTasks.find(t => t.id === taskId));
+            const firstBatchTasks = firstBatch.tasks.map((taskId) => sampleTasks.find((t) => t.id === taskId));
             // Check if high priority tasks are in early batches
-            const hasHighPriorityFirst = firstBatchTasks.some(task => task && (task.priority === 'high' || task.priority === 'critical'));
+            const hasHighPriorityFirst = firstBatchTasks.some((task) => task && (task.priority === 'high' || task.priority === 'critical'));
             expect(hasHighPriorityFirst).toBe(true);
         });
         test('should apply resource balanced strategy correctly', async () => {
@@ -255,9 +255,9 @@ describe('SequenceOptimizer', () => {
             const result = await resourceOptimizer.optimizeSequence(sampleTasks, sampleDependencies);
             expect(result).toBeDefined();
             // Should respect resource constraints
-            result.executionOrder.forEach(batch => {
-                const backendTasks = batch.tasks.filter(taskId => {
-                    const task = sampleTasks.find(t => t.id === taskId);
+            result.executionOrder.forEach((batch) => {
+                const backendTasks = batch.tasks.filter((taskId) => {
+                    const task = sampleTasks.find((t) => t.id === taskId);
                     return task?.required_capabilities?.includes('backend');
                 });
                 // Should not exceed backend resource constraint
@@ -277,9 +277,9 @@ describe('SequenceOptimizer', () => {
             });
             const result = await constrainedOptimizer.optimizeSequence(sampleTasks, sampleDependencies);
             // Check that no batch has more than 1 backend task
-            result.executionOrder.forEach(batch => {
-                const backendTaskCount = batch.tasks.filter(taskId => {
-                    const task = sampleTasks.find(t => t.id === taskId);
+            result.executionOrder.forEach((batch) => {
+                const backendTaskCount = batch.tasks.filter((taskId) => {
+                    const task = sampleTasks.find((t) => t.id === taskId);
                     return task?.required_capabilities?.includes('backend');
                 }).length;
                 expect(backendTaskCount).toBeLessThanOrEqual(1);
@@ -287,10 +287,10 @@ describe('SequenceOptimizer', () => {
         });
         test('should calculate resource utilization in parallel groups', async () => {
             const result = await optimizer.optimizeSequence(sampleTasks, sampleDependencies);
-            result.parallelGroups.forEach(group => {
+            result.parallelGroups.forEach((group) => {
                 expect(group.resourceUtilization).toBeDefined();
                 // Resource utilization should be a valid object
-                Object.values(group.resourceUtilization).forEach(utilization => {
+                Object.values(group.resourceUtilization).forEach((utilization) => {
                     expect(typeof utilization).toBe('number');
                     expect(utilization).toBeGreaterThanOrEqual(0);
                 });
@@ -337,18 +337,18 @@ describe('SequenceOptimizer', () => {
             // Should identify parallel groups
             expect(result.parallelGroups.length).toBeGreaterThan(0);
             // At least one group should contain independent tasks
-            const independentGroup = result.parallelGroups.find(group => group.parallelTasks.includes('independent-1') &&
+            const independentGroup = result.parallelGroups.find((group) => group.parallelTasks.includes('independent-1') &&
                 group.parallelTasks.includes('independent-2'));
             expect(independentGroup).toBeDefined();
         });
         test('should identify bottleneck tasks in parallel groups', async () => {
             const result = await optimizer.optimizeSequence(sampleTasks, sampleDependencies);
-            result.parallelGroups.forEach(group => {
+            result.parallelGroups.forEach((group) => {
                 if (group.parallelTasks.length > 1) {
                     expect(group.bottlenecks).toBeDefined();
                     expect(Array.isArray(group.bottlenecks)).toBe(true);
                     // Bottlenecks should be tasks with highest effort in the group
-                    group.bottlenecks.forEach(bottleneckId => {
+                    group.bottlenecks.forEach((bottleneckId) => {
                         expect(group.parallelTasks).toContain(bottleneckId);
                     });
                 }
@@ -356,11 +356,13 @@ describe('SequenceOptimizer', () => {
         });
         test('should calculate group completion times correctly', async () => {
             const result = await optimizer.optimizeSequence(sampleTasks, sampleDependencies);
-            result.parallelGroups.forEach(group => {
+            result.parallelGroups.forEach((group) => {
                 expect(group.estimatedCompletion).toBeGreaterThan(0);
                 // Completion time should be at least as long as the longest task
-                const groupTasks = group.parallelTasks.map(taskId => sampleTasks.find(t => t.id === taskId)).filter(t => t !== undefined);
-                const maxEffort = Math.max(...groupTasks.map(t => t.estimated_effort || 1));
+                const groupTasks = group.parallelTasks
+                    .map((taskId) => sampleTasks.find((t) => t.id === taskId))
+                    .filter((t) => t !== undefined);
+                const maxEffort = Math.max(...groupTasks.map((t) => t.estimated_effort || 1));
                 expect(group.estimatedCompletion).toBeGreaterThanOrEqual(maxEffort);
             });
         });
@@ -375,7 +377,7 @@ describe('SequenceOptimizer', () => {
             expect(result.metrics.totalCompletionTime).toBe(0);
         });
         test('should handle tasks with no dependencies', async () => {
-            const independentTasks = sampleTasks.map(task => ({
+            const independentTasks = sampleTasks.map((task) => ({
                 ...task,
                 dependencies: [],
             }));
@@ -413,7 +415,7 @@ describe('SequenceOptimizer', () => {
             expect(result.executionOrder.length).toBeGreaterThan(0);
         });
         test('should handle tasks with invalid effort values', async () => {
-            const tasksWithInvalidEffort = sampleTasks.map(task => ({
+            const tasksWithInvalidEffort = sampleTasks.map((task) => ({
                 ...task,
                 estimated_effort: undefined, // Invalid effort
             }));
@@ -472,7 +474,7 @@ describe('SequenceOptimizer', () => {
             });
             const result = await limitedParallelismOptimizer.optimizeSequence(sampleTasks, sampleDependencies);
             // Each batch should not exceed max parallelism
-            result.executionOrder.forEach(batch => {
+            result.executionOrder.forEach((batch) => {
                 expect(batch.tasks.length).toBeLessThanOrEqual(2);
             });
         });
@@ -480,17 +482,17 @@ describe('SequenceOptimizer', () => {
             const customWeightOptimizer = new SequenceOptimizer({
                 strategy: 'priority_weighted',
                 priorityWeights: {
-                    'low': 1,
-                    'normal': 10, // Very high weight for normal priority
-                    'high': 2,
-                    'critical': 3,
+                    low: 1,
+                    normal: 10, // Very high weight for normal priority
+                    high: 2,
+                    critical: 3,
                 },
             });
             const result = await customWeightOptimizer.optimizeSequence(sampleTasks, sampleDependencies);
             // Normal priority tasks should be scheduled prominently due to high weight
             const firstBatch = result.executionOrder[0];
-            const normalPriorityInFirst = firstBatch.tasks.some(taskId => {
-                const task = sampleTasks.find(t => t.id === taskId);
+            const normalPriorityInFirst = firstBatch.tasks.some((taskId) => {
+                const task = sampleTasks.find((t) => t.id === taskId);
                 return task?.priority === 'normal';
             });
             // Should find normal priority tasks early in the sequence

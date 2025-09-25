@@ -8,17 +8,17 @@
  * Budget configuration settings
  */
 export interface BudgetSettings {
-    enabled?: boolean;
-    dailyLimit?: number;
-    resetTime?: string;
-    warningThresholds?: number[];
+  enabled?: boolean;
+  dailyLimit?: number;
+  resetTime?: string;
+  warningThresholds?: number[];
 }
 /**
  * Budget usage data stored in file system
  */
 export interface BudgetUsageData {
-    date: string;
-    requestCount: number;
-    lastResetTime: string;
-    warningsShown: number[];
+  date: string;
+  requestCount: number;
+  lastResetTime: string;
+  warningsShown: number[];
 }

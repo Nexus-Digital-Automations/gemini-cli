@@ -33,12 +33,12 @@ class SecurityPerformanceMonitor {
       memoryUsage: 100 * 1024 * 1024, // 100MB
       cpuUsage: 80, // 80%
       responseTime: 1000, // 1 second
-      errorRate: 5 // 5%
+      errorRate: 5, // 5%
     };
     this.securityThresholds = {
       failedAuthAttempts: 5,
       suspiciousFileAccess: 3,
-      unusualNetworkActivity: 10
+      unusualNetworkActivity: 10,
     };
     this.alertCallbacks = new Set();
     this.isMonitoring = false;
@@ -96,8 +96,8 @@ class SecurityPerformanceMonitor {
       systemInfo: {
         platform: process.platform,
         nodeVersion: process.version,
-        architecture: process.arch
-      }
+        architecture: process.arch,
+      },
     };
 
     await this.writeMetricsFile('baseline.json', baseline);
@@ -114,7 +114,7 @@ class SecurityPerformanceMonitor {
       memory: process.memoryUsage(),
       cpu: this.getCPUUsage(),
       uptime: process.uptime(),
-      pid: process.pid
+      pid: process.pid,
     };
 
     this.metricsHistory.set(timestamp, metrics);
@@ -136,7 +136,7 @@ class SecurityPerformanceMonitor {
     return {
       user: cpuUsage.user,
       system: cpuUsage.system,
-      total: cpuUsage.user + cpuUsage.system
+      total: cpuUsage.user + cpuUsage.system,
     };
   }
 
@@ -150,7 +150,7 @@ class SecurityPerformanceMonitor {
       type,
       severity, // 'low', 'medium', 'high', 'critical'
       details,
-      source: 'autonomous-task-system'
+      source: 'autonomous-task-system',
     };
 
     this.securityEvents.push(event);
@@ -173,12 +173,12 @@ class SecurityPerformanceMonitor {
    */
   analyzeSecurityEvents() {
     const recentEvents = this.securityEvents.filter(
-      event => Date.now() - new Date(event.timestamp).getTime() < 60000 // Last minute
+      (event) => Date.now() - new Date(event.timestamp).getTime() < 60000, // Last minute
     );
 
     // Check for suspicious patterns
     const eventTypes = {};
-    recentEvents.forEach(event => {
+    recentEvents.forEach((event) => {
       eventTypes[event.type] = (eventTypes[event.type] || 0) + 1;
     });
 
@@ -190,7 +190,7 @@ class SecurityPerformanceMonitor {
           type: `Unusual ${type} activity`,
           count,
           threshold,
-          timeframe: '1 minute'
+          timeframe: '1 minute',
         });
       }
     });
@@ -209,23 +209,24 @@ class SecurityPerformanceMonitor {
         type: 'memory_high',
         severity: 'medium',
         value: currentMetrics.memory.rss,
-        threshold: this.performanceThresholds.memoryUsage
+        threshold: this.performanceThresholds.memoryUsage,
       });
     }
 
     // Heap usage check
-    const heapUsagePercent = (currentMetrics.memory.heapUsed / currentMetrics.memory.heapTotal) * 100;
+    const heapUsagePercent =
+      (currentMetrics.memory.heapUsed / currentMetrics.memory.heapTotal) * 100;
     if (heapUsagePercent > 90) {
       alerts.push({
         type: 'heap_usage_critical',
         severity: 'high',
         value: heapUsagePercent,
-        threshold: 90
+        threshold: 90,
       });
     }
 
     // Trigger alerts
-    alerts.forEach(alert => this.triggerAlert('performance', alert));
+    alerts.forEach((alert) => this.triggerAlert('performance', alert));
   }
 
   /**
@@ -237,12 +238,15 @@ class SecurityPerformanceMonitor {
       timestamp: new Date().toISOString(),
       category,
       data,
-      level: data.severity || 'medium'
+      level: data.severity || 'medium',
     };
 
-    console.warn(`🚨 ALERT [${category.toUpperCase()}]:`, JSON.stringify(alert, null, 2));
+    console.warn(
+      `🚨 ALERT [${category.toUpperCase()}]:`,
+      JSON.stringify(alert, null, 2),
+    );
 
-    this.alertCallbacks.forEach(callback => {
+    this.alertCallbacks.forEach((callback) => {
       try {
         callback(alert);
       } catch (error) {
@@ -267,9 +271,9 @@ class SecurityPerformanceMonitor {
     const recentAlerts = this.getRecentAlerts();
 
     let status = 'healthy';
-    if (recentAlerts.filter(a => a.level === 'critical').length > 0) {
+    if (recentAlerts.filter((a) => a.level === 'critical').length > 0) {
       status = 'critical';
-    } else if (recentAlerts.filter(a => a.level === 'high').length > 0) {
+    } else if (recentAlerts.filter((a) => a.level === 'high').length > 0) {
       status = 'warning';
     } else if (recentAlerts.length > 0) {
       status = 'caution';
@@ -280,7 +284,7 @@ class SecurityPerformanceMonitor {
       timestamp: new Date().toISOString(),
       metrics: currentMetrics,
       recentAlerts: recentAlerts.length,
-      uptime: process.uptime()
+      uptime: process.uptime(),
     };
   }
 
@@ -288,9 +292,9 @@ class SecurityPerformanceMonitor {
    * Get recent alerts (last 10 minutes)
    */
   getRecentAlerts() {
-    const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+    const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
     return this.securityEvents.filter(
-      event => new Date(event.timestamp).getTime() > tenMinutesAgo
+      (event) => new Date(event.timestamp).getTime() > tenMinutesAgo,
     );
   }
 
@@ -306,20 +310,20 @@ class SecurityPerformanceMonitor {
         totalMetricsCollected: this.metricsHistory.size,
         totalSecurityEvents: this.securityEvents.length,
         healthStatus: this.getHealthStatus(),
-        alertsSummary: this.generateAlertsSummary()
+        alertsSummary: this.generateAlertsSummary(),
       },
       performance: {
         averageMemoryUsage: this.calculateAverageMemoryUsage(),
         peakMemoryUsage: this.calculatePeakMemoryUsage(),
         memoryTrend: this.analyzeMemoryTrend(),
-        cpuAnalysis: this.analyzeCPUUsage()
+        cpuAnalysis: this.analyzeCPUUsage(),
       },
       security: {
         eventsByType: this.groupSecurityEventsByType(),
         severityDistribution: this.calculateSeverityDistribution(),
-        topSecurityConcerns: this.identifyTopSecurityConcerns()
+        topSecurityConcerns: this.identifyTopSecurityConcerns(),
       },
-      recommendations: this.generateRecommendations()
+      recommendations: this.generateRecommendations(),
     };
 
     await this.writeReportFile('security-performance-report.json', report);
@@ -332,8 +336,10 @@ class SecurityPerformanceMonitor {
   calculateAverageMemoryUsage() {
     if (this.metricsHistory.size === 0) return 0;
 
-    const totalMemory = Array.from(this.metricsHistory.values())
-      .reduce((sum, metrics) => sum + metrics.memory.rss, 0);
+    const totalMemory = Array.from(this.metricsHistory.values()).reduce(
+      (sum, metrics) => sum + metrics.memory.rss,
+      0,
+    );
 
     return Math.round(totalMemory / this.metricsHistory.size);
   }
@@ -345,8 +351,9 @@ class SecurityPerformanceMonitor {
     if (this.metricsHistory.size === 0) return 0;
 
     return Math.max(
-      ...Array.from(this.metricsHistory.values())
-        .map(metrics => metrics.memory.rss)
+      ...Array.from(this.metricsHistory.values()).map(
+        (metrics) => metrics.memory.rss,
+      ),
     );
   }
 
@@ -375,14 +382,15 @@ class SecurityPerformanceMonitor {
     const metrics = Array.from(this.metricsHistory.values());
     if (metrics.length === 0) return { average: 0, peak: 0, trend: 'stable' };
 
-    const cpuValues = metrics.map(m => m.cpu.total);
-    const average = cpuValues.reduce((sum, val) => sum + val, 0) / cpuValues.length;
+    const cpuValues = metrics.map((m) => m.cpu.total);
+    const average =
+      cpuValues.reduce((sum, val) => sum + val, 0) / cpuValues.length;
     const peak = Math.max(...cpuValues);
 
     return {
       average: Math.round(average),
       peak,
-      trend: this.analyzeTrend(cpuValues)
+      trend: this.analyzeTrend(cpuValues),
     };
   }
 
@@ -408,7 +416,7 @@ class SecurityPerformanceMonitor {
    */
   groupSecurityEventsByType() {
     const groups = {};
-    this.securityEvents.forEach(event => {
+    this.securityEvents.forEach((event) => {
       groups[event.type] = (groups[event.type] || 0) + 1;
     });
     return groups;
@@ -419,7 +427,7 @@ class SecurityPerformanceMonitor {
    */
   calculateSeverityDistribution() {
     const distribution = { low: 0, medium: 0, high: 0, critical: 0 };
-    this.securityEvents.forEach(event => {
+    this.securityEvents.forEach((event) => {
       distribution[event.severity] = (distribution[event.severity] || 0) + 1;
     });
     return distribution;
@@ -433,7 +441,7 @@ class SecurityPerformanceMonitor {
     const eventsByType = this.groupSecurityEventsByType();
 
     Object.entries(eventsByType)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .forEach(([type, count]) => {
         concerns.push({ type, count });
@@ -449,7 +457,7 @@ class SecurityPerformanceMonitor {
     const recentAlerts = this.getRecentAlerts();
     const distribution = {};
 
-    recentAlerts.forEach(alert => {
+    recentAlerts.forEach((alert) => {
       const level = alert.severity || 'medium';
       distribution[level] = (distribution[level] || 0) + 1;
     });
@@ -457,7 +465,8 @@ class SecurityPerformanceMonitor {
     return {
       total: recentAlerts.length,
       distribution,
-      lastAlert: recentAlerts.length > 0 ? recentAlerts[recentAlerts.length - 1] : null
+      lastAlert:
+        recentAlerts.length > 0 ? recentAlerts[recentAlerts.length - 1] : null,
     };
   }
 
@@ -476,13 +485,14 @@ class SecurityPerformanceMonitor {
         category: 'performance',
         priority: 'high',
         title: 'Memory Usage Optimization',
-        description: 'Memory usage is increasing significantly. Implement memory leak detection and optimize data structures.',
+        description:
+          'Memory usage is increasing significantly. Implement memory leak detection and optimize data structures.',
         actions: [
           'Enable garbage collection monitoring',
           'Implement object pooling for frequently created objects',
           'Add memory profiling in development',
-          'Set up automated memory alerts'
-        ]
+          'Set up automated memory alerts',
+        ],
       });
     }
 
@@ -492,13 +502,14 @@ class SecurityPerformanceMonitor {
         category: 'security',
         priority: 'critical',
         title: 'Security Event Response',
-        description: 'High or critical security events detected. Immediate investigation required.',
+        description:
+          'High or critical security events detected. Immediate investigation required.',
         actions: [
           'Review security event logs immediately',
           'Check for unauthorized access attempts',
           'Verify system integrity',
-          'Update security policies if needed'
-        ]
+          'Update security policies if needed',
+        ],
       });
     }
 
@@ -512,8 +523,8 @@ class SecurityPerformanceMonitor {
         'Implement task queue persistence',
         'Add task retry mechanisms',
         'Monitor task execution times',
-        'Set up task failure notifications'
-      ]
+        'Set up task failure notifications',
+      ],
     });
 
     // File locking recommendations
@@ -526,8 +537,8 @@ class SecurityPerformanceMonitor {
         'Add deadlock detection',
         'Implement lock timeout mechanisms',
         'Monitor lock contention',
-        'Optimize lock granularity'
-      ]
+        'Optimize lock granularity',
+      ],
     });
 
     return recommendations;
@@ -587,7 +598,9 @@ async function main() {
         break;
 
       default:
-        console.log('Usage: node security-performance-monitor.js [start|status|report]');
+        console.log(
+          'Usage: node security-performance-monitor.js [start|status|report]',
+        );
     }
   } catch (error) {
     console.error('Monitor error:', error);

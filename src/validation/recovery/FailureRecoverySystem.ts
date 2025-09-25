@@ -14,7 +14,11 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import type { ValidationReport, ValidationResult, ValidationContext } from '../core/ValidationEngine.js';
+import type {
+  ValidationReport,
+  ValidationResult,
+  ValidationContext,
+} from '../core/ValidationEngine.js';
 
 /**
  * Recovery strategy types
@@ -25,7 +29,7 @@ export enum RecoveryStrategy {
   AUTOFIX = 'autofix',
   ROLLBACK = 'rollback',
   DEFER = 'defer',
-  SKIP = 'skip'
+  SKIP = 'skip',
 }
 
 /**
@@ -37,7 +41,10 @@ export interface RecoveryAction {
   name: string;
   description: string;
   condition: (failure: ValidationFailure) => boolean;
-  execute: (failure: ValidationFailure, context: RecoveryContext) => Promise<RecoveryResult>;
+  execute: (
+    failure: ValidationFailure,
+    context: RecoveryContext,
+  ) => Promise<RecoveryResult>;
   priority: number;
   maxAttempts: number;
   timeout: number;
@@ -166,15 +173,19 @@ export class FailureRecoverySystem extends EventEmitter {
    * Process validation failure and attempt recovery
    */
   public async handleValidationFailure(
-    validationReport: ValidationReport
+    validationReport: ValidationReport,
   ): Promise<RecoveryResult[]> {
-    this.logger.info(`Processing validation failures for task: ${validationReport.taskId}`);
+    this.logger.info(
+      `Processing validation failures for task: ${validationReport.taskId}`,
+    );
 
     const failures = this.extractFailures(validationReport);
     const recoveryResults: RecoveryResult[] = [];
 
     if (failures.length === 0) {
-      this.logger.debug(`No recoverable failures found for task: ${validationReport.taskId}`);
+      this.logger.debug(
+        `No recoverable failures found for task: ${validationReport.taskId}`,
+      );
       return recoveryResults;
     }
 
@@ -189,7 +200,10 @@ export class FailureRecoverySystem extends EventEmitter {
 
         this.emit('recoveryAttempted', failure, recoveryResult);
       } catch (error) {
-        this.logger.error(`Recovery failed for failure: ${failure.criteriaId}`, { error });
+        this.logger.error(
+          `Recovery failed for failure: ${failure.criteriaId}`,
+          { error },
+        );
 
         recoveryResults.push({
           success: false,
@@ -201,16 +215,19 @@ export class FailureRecoverySystem extends EventEmitter {
           metrics: {
             duration: 0,
             resourcesUsed: {},
-            costEstimate: 0
-          }
+            costEstimate: 0,
+          },
         });
       }
     }
 
-    this.logger.info(`Recovery completed for task: ${validationReport.taskId}`, {
-      totalFailures: failures.length,
-      recoveredCount: recoveryResults.filter(r => r.success).length
-    });
+    this.logger.info(
+      `Recovery completed for task: ${validationReport.taskId}`,
+      {
+        totalFailures: failures.length,
+        recoveredCount: recoveryResults.filter((r) => r.success).length,
+      },
+    );
 
     return recoveryResults;
   }
@@ -221,7 +238,7 @@ export class FailureRecoverySystem extends EventEmitter {
   public registerRecoveryAction(action: RecoveryAction): void {
     this.logger.info(`Registering recovery action: ${action.name}`, {
       strategy: action.strategy,
-      priority: action.priority
+      priority: action.priority,
     });
 
     this.recoveryActions.set(action.id, action);
@@ -246,7 +263,7 @@ export class FailureRecoverySystem extends EventEmitter {
             artifacts: [], // Would need to be passed from context
             metadata: {},
             timestamp: report.timestamp,
-            agent: 'validation-system'
+            agent: 'validation-system',
           },
           failureTime: new Date(),
           attemptCount: 1,
@@ -255,15 +272,17 @@ export class FailureRecoverySystem extends EventEmitter {
           errorType: this.classifyErrorType(result),
           metadata: {
             originalScore: result.score,
-            suggestions: result.suggestions
-          }
+            suggestions: result.suggestions,
+          },
         };
 
         // Check if this is a recurring failure
-        const existingFailures = this.failureHistory.get(result.criteriaId) || [];
-        const recentFailure = existingFailures.find(f =>
-          f.taskId === report.taskId &&
-          Date.now() - f.failureTime.getTime() < 60 * 60 * 1000 // Within 1 hour
+        const existingFailures =
+          this.failureHistory.get(result.criteriaId) || [];
+        const recentFailure = existingFailures.find(
+          (f) =>
+            f.taskId === report.taskId &&
+            Date.now() - f.failureTime.getTime() < 60 * 60 * 1000, // Within 1 hour
         );
 
         if (recentFailure) {
@@ -282,11 +301,13 @@ export class FailureRecoverySystem extends EventEmitter {
   /**
    * Attempt recovery from specific failure
    */
-  private async recoverFromFailure(failure: ValidationFailure): Promise<RecoveryResult> {
+  private async recoverFromFailure(
+    failure: ValidationFailure,
+  ): Promise<RecoveryResult> {
     this.logger.info(`Attempting recovery for failure: ${failure.criteriaId}`, {
       taskId: failure.taskId,
       severity: failure.severity,
-      attemptCount: failure.attemptCount
+      attemptCount: failure.attemptCount,
     });
 
     // Build recovery context
@@ -306,8 +327,8 @@ export class FailureRecoverySystem extends EventEmitter {
         metrics: {
           duration: 0,
           resourcesUsed: {},
-          costEstimate: 0
-        }
+          costEstimate: 0,
+        },
       };
     }
 
@@ -316,15 +337,18 @@ export class FailureRecoverySystem extends EventEmitter {
       try {
         this.logger.debug(`Executing recovery action: ${action.name}`, {
           strategy: action.strategy,
-          priority: action.priority
+          priority: action.priority,
         });
 
         const startTime = Date.now();
         const result = await Promise.race([
           action.execute(failure, recoveryContext),
           new Promise<RecoveryResult>((_, reject) =>
-            setTimeout(() => reject(new Error('Recovery timeout')), action.timeout)
-          )
+            setTimeout(
+              () => reject(new Error('Recovery timeout')),
+              action.timeout,
+            ),
+          ),
         ]);
 
         result.metrics.duration = Date.now() - startTime;
@@ -332,7 +356,7 @@ export class FailureRecoverySystem extends EventEmitter {
         if (result.success) {
           this.logger.info(`Recovery successful using action: ${action.name}`, {
             strategy: result.strategy,
-            duration: result.metrics.duration
+            duration: result.metrics.duration,
           });
 
           return result;
@@ -340,7 +364,6 @@ export class FailureRecoverySystem extends EventEmitter {
           // Don't try other actions if this failure is marked as permanent
           return result;
         }
-
       } catch (error) {
         this.logger.warn(`Recovery action failed: ${action.name}`, { error });
         continue;
@@ -358,15 +381,17 @@ export class FailureRecoverySystem extends EventEmitter {
       metrics: {
         duration: Date.now() - Date.now(),
         resourcesUsed: {},
-        costEstimate: applicableActions.length * 10
-      }
+        costEstimate: applicableActions.length * 10,
+      },
     };
   }
 
   /**
    * Build recovery context
    */
-  private async buildRecoveryContext(failure: ValidationFailure): Promise<RecoveryContext> {
+  private async buildRecoveryContext(
+    failure: ValidationFailure,
+  ): Promise<RecoveryContext> {
     const failureHistory = this.failureHistory.get(failure.criteriaId) || [];
 
     return {
@@ -376,7 +401,7 @@ export class FailureRecoverySystem extends EventEmitter {
       systemState: await this.getSystemState(),
       retryCount: failure.attemptCount - 1,
       maxRetries: 3,
-      timeRemaining: 300000 // 5 minutes
+      timeRemaining: 300000, // 5 minutes
     };
   }
 
@@ -391,26 +416,28 @@ export class FailureRecoverySystem extends EventEmitter {
       resources: {
         cpu: process.cpuUsage().user / 1000000, // Convert to percentage approximation
         memory: (memoryUsage.rss / totalMemory) * 100,
-        disk: 85 // Placeholder - would need actual disk usage
+        disk: 85, // Placeholder - would need actual disk usage
       },
       network: {
         available: true, // Placeholder - would need actual network check
-        latency: 50 // Placeholder
+        latency: 50, // Placeholder
       },
       dependencies: {
         available: ['node', 'npm'], // Placeholder - would detect available tools
-        unavailable: []
-      }
+        unavailable: [],
+      },
     };
   }
 
   /**
    * Get applicable recovery actions for failure
    */
-  private getApplicableRecoveryActions(failure: ValidationFailure): RecoveryAction[] {
+  private getApplicableRecoveryActions(
+    failure: ValidationFailure,
+  ): RecoveryAction[] {
     const actions = Array.from(this.recoveryActions.values())
-      .filter(action => action.condition(failure))
-      .filter(action => failure.attemptCount <= action.maxAttempts)
+      .filter((action) => action.condition(failure))
+      .filter((action) => failure.attemptCount <= action.maxAttempts)
       .sort((a, b) => b.priority - a.priority); // Higher priority first
 
     return actions;
@@ -419,7 +446,9 @@ export class FailureRecoverySystem extends EventEmitter {
   /**
    * Classify failure severity
    */
-  private classifyFailureSeverity(result: ValidationResult): 'critical' | 'high' | 'medium' | 'low' {
+  private classifyFailureSeverity(
+    result: ValidationResult,
+  ): 'critical' | 'high' | 'medium' | 'low' {
     if (result.severity === 'critical') return 'critical';
     if (result.severity === 'high') return 'high';
     if (result.severity === 'medium') return 'medium';
@@ -429,7 +458,9 @@ export class FailureRecoverySystem extends EventEmitter {
   /**
    * Classify failure category
    */
-  private classifyFailureCategory(result: ValidationResult): 'build' | 'test' | 'lint' | 'security' | 'performance' | 'other' {
+  private classifyFailureCategory(
+    result: ValidationResult,
+  ): 'build' | 'test' | 'lint' | 'security' | 'performance' | 'other' {
     const criteriaId = result.criteriaId.toLowerCase();
 
     if (criteriaId.includes('build')) return 'build';
@@ -444,22 +475,36 @@ export class FailureRecoverySystem extends EventEmitter {
   /**
    * Classify error type
    */
-  private classifyErrorType(result: ValidationResult): 'transient' | 'persistent' | 'configuration' | 'environmental' {
+  private classifyErrorType(
+    result: ValidationResult,
+  ): 'transient' | 'persistent' | 'configuration' | 'environmental' {
     const message = result.message.toLowerCase();
     const details = result.details.toLowerCase();
 
     // Transient errors
-    if (message.includes('timeout') || message.includes('connection') || details.includes('network')) {
+    if (
+      message.includes('timeout') ||
+      message.includes('connection') ||
+      details.includes('network')
+    ) {
       return 'transient';
     }
 
     // Configuration errors
-    if (message.includes('config') || message.includes('setting') || details.includes('configuration')) {
+    if (
+      message.includes('config') ||
+      message.includes('setting') ||
+      details.includes('configuration')
+    ) {
       return 'configuration';
     }
 
     // Environmental errors
-    if (message.includes('permission') || message.includes('access') || details.includes('environment')) {
+    if (
+      message.includes('permission') ||
+      message.includes('access') ||
+      details.includes('environment')
+    ) {
       return 'environmental';
     }
 
@@ -484,7 +529,10 @@ export class FailureRecoverySystem extends EventEmitter {
   /**
    * Store recovery result for analysis
    */
-  private storeRecoveryResult(failure: ValidationFailure, result: RecoveryResult): void {
+  private storeRecoveryResult(
+    failure: ValidationFailure,
+    result: RecoveryResult,
+  ): void {
     const existingResults = this.recoveryHistory.get(failure.criteriaId) || [];
     existingResults.push(result);
 
@@ -505,36 +553,44 @@ export class FailureRecoverySystem extends EventEmitter {
       id: 'retry_transient',
       strategy: RecoveryStrategy.RETRY,
       name: 'Retry Transient Failures',
-      description: 'Retry validation for transient errors with exponential backoff',
-      condition: (failure) => failure.errorType === 'transient' && failure.attemptCount <= 3,
+      description:
+        'Retry validation for transient errors with exponential backoff',
+      condition: (failure) =>
+        failure.errorType === 'transient' && failure.attemptCount <= 3,
       execute: async (failure, context) => {
         // Wait with exponential backoff
-        const backoffMs = Math.min(1000 * Math.pow(2, failure.attemptCount - 1), 30000);
-        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        const backoffMs = Math.min(
+          1000 * Math.pow(2, failure.attemptCount - 1),
+          30000,
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
 
         return {
           success: true,
           strategy: RecoveryStrategy.RETRY,
           action: 'exponential_backoff_retry',
           message: `Retrying after ${backoffMs}ms backoff`,
-          details: 'Transient error detected, retrying with exponential backoff',
+          details:
+            'Transient error detected, retrying with exponential backoff',
           retryAfter: backoffMs,
-          evidence: [{
-            type: 'retry_log',
-            content: `Retry attempt ${failure.attemptCount} after ${backoffMs}ms`,
-            metadata: { backoffMs, attemptCount: failure.attemptCount }
-          }],
+          evidence: [
+            {
+              type: 'retry_log',
+              content: `Retry attempt ${failure.attemptCount} after ${backoffMs}ms`,
+              metadata: { backoffMs, attemptCount: failure.attemptCount },
+            },
+          ],
           metrics: {
             duration: backoffMs,
             resourcesUsed: { time: backoffMs },
-            costEstimate: 1
-          }
+            costEstimate: 1,
+          },
         };
       },
       priority: 80,
       maxAttempts: 3,
       timeout: 60000,
-      cooldownPeriod: 5000
+      cooldownPeriod: 5000,
     });
 
     // Auto-fix for lint errors
@@ -543,7 +599,8 @@ export class FailureRecoverySystem extends EventEmitter {
       strategy: RecoveryStrategy.AUTOFIX,
       name: 'Auto-fix Lint Errors',
       description: 'Automatically fix common lint errors using eslint --fix',
-      condition: (failure) => failure.category === 'lint' && failure.severity !== 'critical',
+      condition: (failure) =>
+        failure.category === 'lint' && failure.severity !== 'critical',
       execute: async (failure, context) => {
         // This would run eslint --fix in a real implementation
         return {
@@ -552,22 +609,24 @@ export class FailureRecoverySystem extends EventEmitter {
           action: 'eslint_autofix',
           message: 'Applied automatic lint fixes',
           details: 'Successfully fixed common lint errors automatically',
-          evidence: [{
-            type: 'fix_log',
-            content: 'Ran eslint --fix on affected files',
-            metadata: { tool: 'eslint', action: 'autofix' }
-          }],
+          evidence: [
+            {
+              type: 'fix_log',
+              content: 'Ran eslint --fix on affected files',
+              metadata: { tool: 'eslint', action: 'autofix' },
+            },
+          ],
           metrics: {
             duration: 5000,
             resourcesUsed: { cpu: 10, memory: 50 },
-            costEstimate: 2
-          }
+            costEstimate: 2,
+          },
         };
       },
       priority: 70,
       maxAttempts: 1,
       timeout: 30000,
-      cooldownPeriod: 0
+      cooldownPeriod: 0,
     });
 
     // Escalate critical failures
@@ -576,7 +635,8 @@ export class FailureRecoverySystem extends EventEmitter {
       strategy: RecoveryStrategy.ESCALATE,
       name: 'Escalate Critical Failures',
       description: 'Escalate critical failures to human review',
-      condition: (failure) => failure.severity === 'critical' || failure.attemptCount > 3,
+      condition: (failure) =>
+        failure.severity === 'critical' || failure.attemptCount > 3,
       execute: async (failure, context) => {
         return {
           success: true,
@@ -585,27 +645,29 @@ export class FailureRecoverySystem extends EventEmitter {
           message: 'Escalated to human review',
           details: `Critical failure requires human intervention: ${failure.validationResult.message}`,
           permanent: true,
-          evidence: [{
-            type: 'escalation_ticket',
-            content: JSON.stringify({
-              taskId: failure.taskId,
-              criteriaId: failure.criteriaId,
-              severity: failure.severity,
-              attempts: failure.attemptCount
-            }),
-            metadata: { escalationReason: 'critical_failure_threshold' }
-          }],
+          evidence: [
+            {
+              type: 'escalation_ticket',
+              content: JSON.stringify({
+                taskId: failure.taskId,
+                criteriaId: failure.criteriaId,
+                severity: failure.severity,
+                attempts: failure.attemptCount,
+              }),
+              metadata: { escalationReason: 'critical_failure_threshold' },
+            },
+          ],
           metrics: {
             duration: 100,
             resourcesUsed: { human_time: 1 },
-            costEstimate: 100
-          }
+            costEstimate: 100,
+          },
         };
       },
       priority: 100,
       maxAttempts: 1,
       timeout: 5000,
-      cooldownPeriod: 0
+      cooldownPeriod: 0,
     });
 
     // Skip non-critical failures after too many attempts
@@ -614,7 +676,8 @@ export class FailureRecoverySystem extends EventEmitter {
       strategy: RecoveryStrategy.SKIP,
       name: 'Skip After Excessive Retries',
       description: 'Skip validation after too many failed attempts',
-      condition: (failure) => failure.attemptCount > 5 && failure.severity !== 'critical',
+      condition: (failure) =>
+        failure.attemptCount > 5 && failure.severity !== 'critical',
       execute: async (failure, context) => {
         return {
           success: true,
@@ -623,22 +686,27 @@ export class FailureRecoverySystem extends EventEmitter {
           message: 'Skipping validation after excessive retries',
           details: `Validation skipped after ${failure.attemptCount} failed attempts`,
           permanent: true,
-          evidence: [{
-            type: 'skip_log',
-            content: `Skipped ${failure.criteriaId} after ${failure.attemptCount} attempts`,
-            metadata: { reason: 'excessive_retries', attemptCount: failure.attemptCount }
-          }],
+          evidence: [
+            {
+              type: 'skip_log',
+              content: `Skipped ${failure.criteriaId} after ${failure.attemptCount} attempts`,
+              metadata: {
+                reason: 'excessive_retries',
+                attemptCount: failure.attemptCount,
+              },
+            },
+          ],
           metrics: {
             duration: 10,
             resourcesUsed: {},
-            costEstimate: 0
-          }
+            costEstimate: 0,
+          },
         };
       },
       priority: 10,
       maxAttempts: 1,
       timeout: 1000,
-      cooldownPeriod: 0
+      cooldownPeriod: 0,
     });
   }
 
@@ -650,28 +718,38 @@ export class FailureRecoverySystem extends EventEmitter {
     const allRecoveries = Array.from(this.recoveryHistory.values()).flat();
 
     const totalFailures = allFailures.length;
-    const recoveredFailures = allRecoveries.filter(r => r.success).length;
-    const recoveryRate = totalFailures > 0 ? (recoveredFailures / totalFailures) * 100 : 0;
+    const recoveredFailures = allRecoveries.filter((r) => r.success).length;
+    const recoveryRate =
+      totalFailures > 0 ? (recoveredFailures / totalFailures) * 100 : 0;
 
-    const averageRecoveryTime = allRecoveries.length > 0 ?
-      allRecoveries.reduce((sum, r) => sum + r.metrics.duration, 0) / allRecoveries.length : 0;
+    const averageRecoveryTime =
+      allRecoveries.length > 0
+        ? allRecoveries.reduce((sum, r) => sum + r.metrics.duration, 0) /
+          allRecoveries.length
+        : 0;
 
-    const strategiesUsed = allRecoveries.reduce((acc, recovery) => {
-      acc[recovery.strategy] = (acc[recovery.strategy] || 0) + 1;
-      return acc;
-    }, {} as Record<RecoveryStrategy, number>);
+    const strategiesUsed = allRecoveries.reduce(
+      (acc, recovery) => {
+        acc[recovery.strategy] = (acc[recovery.strategy] || 0) + 1;
+        return acc;
+      },
+      {} as Record<RecoveryStrategy, number>,
+    );
 
-    const failureTypeCounts = allFailures.reduce((acc, failure) => {
-      const key = `${failure.category}_${failure.errorType}`;
-      acc[key] = (acc[key] || { count: 0, recovered: 0 });
-      acc[key].count++;
-      return acc;
-    }, {} as Record<string, { count: number; recovered: number }>);
+    const failureTypeCounts = allFailures.reduce(
+      (acc, failure) => {
+        const key = `${failure.category}_${failure.errorType}`;
+        acc[key] = acc[key] || { count: 0, recovered: 0 };
+        acc[key].count++;
+        return acc;
+      },
+      {} as Record<string, { count: number; recovered: number }>,
+    );
 
     // Count recoveries for each failure type
-    allRecoveries.forEach(recovery => {
+    allRecoveries.forEach((recovery) => {
       // This would need better tracking in a real implementation
-      Object.keys(failureTypeCounts).forEach(key => {
+      Object.keys(failureTypeCounts).forEach((key) => {
         if (recovery.success) {
           failureTypeCounts[key].recovered++;
         }
@@ -682,7 +760,7 @@ export class FailureRecoverySystem extends EventEmitter {
       .map(([type, data]) => ({
         type,
         count: data.count,
-        recoveryRate: (data.recovered / data.count) * 100
+        recoveryRate: (data.recovered / data.count) * 100,
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
@@ -696,8 +774,8 @@ export class FailureRecoverySystem extends EventEmitter {
       commonFailureTypes,
       trends: {
         failureRate: 'stable', // Would need historical analysis
-        recoveryEffectiveness: 'stable'
-      }
+        recoveryEffectiveness: 'stable',
+      },
     };
   }
 

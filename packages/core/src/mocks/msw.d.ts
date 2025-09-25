@@ -4,4 +4,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export declare const server: import("msw/node").SetupServerApi;
+export declare const server: import('msw/node').SetupServerApi;

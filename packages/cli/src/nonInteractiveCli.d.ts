@@ -6,4 +6,9 @@
 
 import type { Config } from '@google/gemini-cli-core';
 import type { LoadedSettings } from './config/settings.js';
-export declare function runNonInteractive(config: Config, settings: LoadedSettings, input: string, prompt_id: string): Promise<void>;
+export declare function runNonInteractive(
+  config: Config,
+  settings: LoadedSettings,
+  input: string,
+  prompt_id: string,
+): Promise<void>;

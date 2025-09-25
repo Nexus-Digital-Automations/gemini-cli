@@ -17,6 +17,6 @@
  * @returns A promise that resolves to the PID and command of the IDE process.
  */
 export declare function getIdeProcessInfo(): Promise<{
-    pid: number;
-    command: string;
+  pid: number;
+  command: string;
 }>;

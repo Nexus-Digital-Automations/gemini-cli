@@ -121,7 +121,12 @@ export interface ConflictResolution {
   timestamp: number;
 
   // Resolution details
-  outcome: 'all_satisfied' | 'partial_satisfaction' | 'winner_takes_all' | 'compromise' | 'deferred';
+  outcome:
+    | 'all_satisfied'
+    | 'partial_satisfaction'
+    | 'winner_takes_all'
+    | 'compromise'
+    | 'deferred';
   allocations: Array<{
     participantId: string;
     awarded: Record<string, unknown>;
@@ -210,7 +215,7 @@ export class ConflictResolver extends EventEmitter {
     type: ConflictType,
     participants: ConflictParticipant[],
     context: DecisionContext,
-    constraints: ConflictConstraint[] = []
+    constraints: ConflictConstraint[] = [],
   ): Promise<Conflict> {
     const conflict: Conflict = {
       id: this.generateConflictId(),
@@ -236,7 +241,7 @@ export class ConflictResolver extends EventEmitter {
     // Start resolution process if severity is high enough
     if (conflict.severity >= ConflictSeverity.MEDIUM) {
       setImmediate(() => {
-        this.resolveConflict(conflict.id).catch(error => {
+        this.resolveConflict(conflict.id).catch((error) => {
           this.emit('resolution-error', { conflictId: conflict.id, error });
         });
       });
@@ -255,7 +260,9 @@ export class ConflictResolver extends EventEmitter {
     }
 
     if (conflict.status !== 'open') {
-      throw new Error(`Conflict ${conflictId} is not in open state: ${conflict.status}`);
+      throw new Error(
+        `Conflict ${conflictId} is not in open state: ${conflict.status}`,
+      );
     }
 
     conflict.status = 'resolving';
@@ -271,12 +278,20 @@ export class ConflictResolver extends EventEmitter {
       let resolution = await this.applyResolutionStrategy(conflict, strategy);
 
       // If initial strategy fails or produces poor results, try alternatives
-      if (resolution.metrics.satisfactionScore < this.config.minSatisfactionScore ||
-          resolution.metrics.fairnessScore < this.config.minFairnessScore) {
-
-        const alternativeStrategy = await this.selectAlternativeStrategy(conflict, strategy);
+      if (
+        resolution.metrics.satisfactionScore <
+          this.config.minSatisfactionScore ||
+        resolution.metrics.fairnessScore < this.config.minFairnessScore
+      ) {
+        const alternativeStrategy = await this.selectAlternativeStrategy(
+          conflict,
+          strategy,
+        );
         if (alternativeStrategy !== strategy) {
-          const alternativeResolution = await this.applyResolutionStrategy(conflict, alternativeStrategy);
+          const alternativeResolution = await this.applyResolutionStrategy(
+            conflict,
+            alternativeStrategy,
+          );
 
           if (this.compareResolutions(alternativeResolution, resolution) > 0) {
             resolution = alternativeResolution;
@@ -296,7 +311,6 @@ export class ConflictResolver extends EventEmitter {
       this.emit('conflict-resolved', { conflict, resolution });
 
       return resolution;
-
     } catch (error) {
       // Handle resolution failure
       conflict.status = 'escalated';
@@ -309,7 +323,6 @@ export class ConflictResolver extends EventEmitter {
       }
 
       throw error;
-
     } finally {
       const duration = Date.now() - startTime;
       this.emit('resolution-timing', { conflictId, duration });
@@ -356,11 +369,18 @@ export class ConflictResolver extends EventEmitter {
       stability: number;
     };
   } {
-    const totalConflicts = this.activeConflicts.size + this.resolutionHistory.size;
+    const totalConflicts =
+      this.activeConflicts.size + this.resolutionHistory.size;
     const resolutions = Array.from(this.resolutionHistory.values());
 
-    const strategyUsage: Record<ResolutionStrategy, number> = {} as Record<ResolutionStrategy, number>;
-    const severityDistribution: Record<ConflictSeverity, number> = {} as Record<ConflictSeverity, number>;
+    const strategyUsage: Record<ResolutionStrategy, number> = {} as Record<
+      ResolutionStrategy,
+      number
+    >;
+    const severityDistribution: Record<ConflictSeverity, number> = {} as Record<
+      ConflictSeverity,
+      number
+    >;
     const totalResolutionTime = 0;
     let totalFairness = 0;
     let totalEfficiency = 0;
@@ -368,7 +388,8 @@ export class ConflictResolver extends EventEmitter {
     let totalStability = 0;
 
     for (const resolution of resolutions) {
-      strategyUsage[resolution.strategy] = (strategyUsage[resolution.strategy] || 0) + 1;
+      strategyUsage[resolution.strategy] =
+        (strategyUsage[resolution.strategy] || 0) + 1;
       totalFairness += resolution.metrics.fairnessScore;
       totalEfficiency += resolution.metrics.efficiencyScore;
       totalSatisfaction += resolution.metrics.satisfactionScore;
@@ -377,7 +398,8 @@ export class ConflictResolver extends EventEmitter {
 
     // Calculate severity distribution from active conflicts
     for (const conflict of this.activeConflicts.values()) {
-      severityDistribution[conflict.severity] = (severityDistribution[conflict.severity] || 0) + 1;
+      severityDistribution[conflict.severity] =
+        (severityDistribution[conflict.severity] || 0) + 1;
     }
 
     const resolutionCount = resolutions.length;
@@ -392,16 +414,22 @@ export class ConflictResolver extends EventEmitter {
       averageMetrics: {
         fairness: resolutionCount > 0 ? totalFairness / resolutionCount : 0,
         efficiency: resolutionCount > 0 ? totalEfficiency / resolutionCount : 0,
-        satisfaction: resolutionCount > 0 ? totalSatisfaction / resolutionCount : 0,
+        satisfaction:
+          resolutionCount > 0 ? totalSatisfaction / resolutionCount : 0,
         stability: resolutionCount > 0 ? totalStability / resolutionCount : 0,
       },
     };
   }
 
-  private async selectResolutionStrategy(conflict: Conflict): Promise<ResolutionStrategy> {
+  private async selectResolutionStrategy(
+    conflict: Conflict,
+  ): Promise<ResolutionStrategy> {
     // Use multi-criteria decision analysis to select strategy
     const strategies = Object.values(ResolutionStrategy);
-    const scores: Record<ResolutionStrategy, number> = {} as Record<ResolutionStrategy, number>;
+    const scores: Record<ResolutionStrategy, number> = {} as Record<
+      ResolutionStrategy,
+      number
+    >;
 
     for (const strategy of strategies) {
       let score = this.config.strategyWeights[strategy] || 1.0;
@@ -409,7 +437,11 @@ export class ConflictResolver extends EventEmitter {
       // Adjust score based on conflict characteristics
       switch (strategy) {
         case ResolutionStrategy.PRIORITY_BASED:
-          if (conflict.participants.some(p => p.priority >= DecisionPriority.HIGH)) {
+          if (
+            conflict.participants.some(
+              (p) => p.priority >= DecisionPriority.HIGH,
+            )
+          ) {
             score *= 1.5;
           }
           break;
@@ -433,8 +465,12 @@ export class ConflictResolver extends EventEmitter {
           break;
 
         case ResolutionStrategy.NEGOTIATION:
-          if (this.config.allowNegotiation &&
-              conflict.participants.every(p => p.negotiationCapability !== 'none')) {
+          if (
+            this.config.allowNegotiation &&
+            conflict.participants.every(
+              (p) => p.negotiationCapability !== 'none',
+            )
+          ) {
             score *= 1.3;
           } else {
             score *= 0.1;
@@ -461,9 +497,11 @@ export class ConflictResolver extends EventEmitter {
 
   private async selectAlternativeStrategy(
     conflict: Conflict,
-    excludeStrategy: ResolutionStrategy
+    excludeStrategy: ResolutionStrategy,
   ): Promise<ResolutionStrategy> {
-    const alternatives = Object.values(ResolutionStrategy).filter(s => s !== excludeStrategy);
+    const alternatives = Object.values(ResolutionStrategy).filter(
+      (s) => s !== excludeStrategy,
+    );
 
     // Simple fallback: use weighted fair if available, otherwise round robin
     if (alternatives.includes(ResolutionStrategy.WEIGHTED_FAIR)) {
@@ -475,7 +513,7 @@ export class ConflictResolver extends EventEmitter {
 
   private async applyResolutionStrategy(
     conflict: Conflict,
-    strategy: ResolutionStrategy
+    strategy: ResolutionStrategy,
   ): Promise<ConflictResolution> {
     switch (strategy) {
       case ResolutionStrategy.PRIORITY_BASED:
@@ -510,9 +548,13 @@ export class ConflictResolver extends EventEmitter {
     }
   }
 
-  private async resolvePriorityBased(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolvePriorityBased(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Sort participants by priority
-    const sortedParticipants = [...conflict.participants].sort((a, b) => b.priority - a.priority);
+    const sortedParticipants = [...conflict.participants].sort(
+      (a, b) => b.priority - a.priority,
+    );
 
     const allocations = sortedParticipants.map((participant, index) => ({
       participantId: participant.id,
@@ -520,23 +562,42 @@ export class ConflictResolver extends EventEmitter {
       denied: index === 0 ? {} : participant.requirements,
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.PRIORITY_BASED, 'winner_takes_all', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.PRIORITY_BASED,
+      'winner_takes_all',
+      allocations,
+    );
   }
 
-  private async resolveRoundRobin(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveRoundRobin(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Distribute resources evenly among participants
-    const allocations = conflict.participants.map(participant => ({
+    const allocations = conflict.participants.map((participant) => ({
       participantId: participant.id,
-      awarded: this.distributeEvenly(participant.requirements, conflict.participants.length),
+      awarded: this.distributeEvenly(
+        participant.requirements,
+        conflict.participants.length,
+      ),
       denied: {},
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.ROUND_ROBIN, 'compromise', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.ROUND_ROBIN,
+      'compromise',
+      allocations,
+    );
   }
 
-  private async resolveWeightedFair(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveWeightedFair(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Weight distribution based on priority and business value
-    const weights = conflict.participants.map(p => p.priority / DecisionPriority.URGENT);
+    const weights = conflict.participants.map(
+      (p) => p.priority / DecisionPriority.URGENT,
+    );
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);
 
     const allocations = conflict.participants.map((participant, index) => {
@@ -548,10 +609,17 @@ export class ConflictResolver extends EventEmitter {
       };
     });
 
-    return this.createResolution(conflict, ResolutionStrategy.WEIGHTED_FAIR, 'compromise', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.WEIGHTED_FAIR,
+      'compromise',
+      allocations,
+    );
   }
 
-  private async resolveFirstComeFirstServed(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveFirstComeFirstServed(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Award based on timestamp (assuming participants have timestamps)
     const sortedParticipants = [...conflict.participants].sort((a, b) => {
       const timeA = (a as any).timestamp || 0;
@@ -565,10 +633,17 @@ export class ConflictResolver extends EventEmitter {
       denied: index === 0 ? {} : participant.requirements,
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.FIRST_COME_FIRST_SERVED, 'winner_takes_all', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.FIRST_COME_FIRST_SERVED,
+      'winner_takes_all',
+      allocations,
+    );
   }
 
-  private async resolveDeadlineEarliest(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveDeadlineEarliest(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Award based on earliest deadline
     const sortedParticipants = [...conflict.participants].sort((a, b) => {
       const deadlineA = (a.constraints as any).deadline || Infinity;
@@ -582,12 +657,19 @@ export class ConflictResolver extends EventEmitter {
       denied: index === 0 ? {} : participant.requirements,
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.DEADLINE_EARLIEST, 'winner_takes_all', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.DEADLINE_EARLIEST,
+      'winner_takes_all',
+      allocations,
+    );
   }
 
-  private async resolveCostOptimal(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveCostOptimal(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Award based on cost efficiency
-    const costEfficiency = conflict.participants.map(p => {
+    const costEfficiency = conflict.participants.map((p) => {
       const cost = (p.constraints as any).cost || 1;
       const value = p.priority / DecisionPriority.URGENT;
       return { participant: p, efficiency: value / cost };
@@ -601,23 +683,45 @@ export class ConflictResolver extends EventEmitter {
       denied: index === 0 ? {} : item.participant.requirements,
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.COST_OPTIMAL, 'winner_takes_all', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.COST_OPTIMAL,
+      'winner_takes_all',
+      allocations,
+    );
   }
 
-  private async resolvePreemption(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolvePreemption(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Preempt lower priority participants for higher priority ones
-    const highestPriority = Math.max(...conflict.participants.map(p => p.priority));
+    const highestPriority = Math.max(
+      ...conflict.participants.map((p) => p.priority),
+    );
 
-    const allocations = conflict.participants.map(participant => ({
+    const allocations = conflict.participants.map((participant) => ({
       participantId: participant.id,
-      awarded: participant.priority === highestPriority ? participant.requirements : {},
-      denied: participant.priority === highestPriority ? {} : participant.requirements,
+      awarded:
+        participant.priority === highestPriority
+          ? participant.requirements
+          : {},
+      denied:
+        participant.priority === highestPriority
+          ? {}
+          : participant.requirements,
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.PREEMPTION, 'winner_takes_all', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.PREEMPTION,
+      'winner_takes_all',
+      allocations,
+    );
   }
 
-  private async resolveNegotiation(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveNegotiation(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     if (!this.config.allowNegotiation) {
       throw new Error('Negotiation not allowed by configuration');
     }
@@ -633,26 +737,38 @@ export class ConflictResolver extends EventEmitter {
     // Run negotiation rounds
     const result = await this.runNegotiation(session);
 
-    return this.createResolution(conflict, ResolutionStrategy.NEGOTIATION, result.outcome, result.allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.NEGOTIATION,
+      result.outcome,
+      result.allocations,
+    );
   }
 
-  private async resolveEscalation(conflict: Conflict): Promise<ConflictResolution> {
+  private async resolveEscalation(
+    conflict: Conflict,
+  ): Promise<ConflictResolution> {
     // Mark for escalation - typically would involve human intervention
-    const allocations = conflict.participants.map(participant => ({
+    const allocations = conflict.participants.map((participant) => ({
       participantId: participant.id,
       awarded: {},
       denied: participant.requirements,
       alternatives: { escalated: true },
     }));
 
-    return this.createResolution(conflict, ResolutionStrategy.ESCALATION, 'deferred', allocations);
+    return this.createResolution(
+      conflict,
+      ResolutionStrategy.ESCALATION,
+      'deferred',
+      allocations,
+    );
   }
 
   private createResolution(
     conflict: Conflict,
     strategy: ResolutionStrategy,
     outcome: ConflictResolution['outcome'],
-    allocations: ConflictResolution['allocations']
+    allocations: ConflictResolution['allocations'],
   ): ConflictResolution {
     const metrics = this.calculateResolutionMetrics(conflict, allocations);
 
@@ -672,11 +788,13 @@ export class ConflictResolver extends EventEmitter {
 
   private calculateResolutionMetrics(
     conflict: Conflict,
-    allocations: ConflictResolution['allocations']
+    allocations: ConflictResolution['allocations'],
   ): ConflictResolution['metrics'] {
     // Calculate fairness using Jain's fairness index
-    const satisfactions = allocations.map(alloc => {
-      const participant = conflict.participants.find(p => p.id === alloc.participantId);
+    const satisfactions = allocations.map((alloc) => {
+      const participant = conflict.participants.find(
+        (p) => p.id === alloc.participantId,
+      );
       if (!participant) return 0;
 
       const awardedCount = Object.keys(alloc.awarded).length;
@@ -686,15 +804,26 @@ export class ConflictResolver extends EventEmitter {
 
     const sum = satisfactions.reduce((a, b) => a + b, 0);
     const sumSquares = satisfactions.reduce((a, b) => a + b * b, 0);
-    const fairnessScore = satisfactions.length > 0 ? (sum * sum) / (satisfactions.length * sumSquares) : 1.0;
+    const fairnessScore =
+      satisfactions.length > 0
+        ? (sum * sum) / (satisfactions.length * sumSquares)
+        : 1.0;
 
     // Calculate efficiency (resource utilization)
-    const totalAwarded = allocations.reduce((sum, alloc) => sum + Object.keys(alloc.awarded).length, 0);
-    const totalRequested = conflict.participants.reduce((sum, p) => sum + Object.keys(p.requirements).length, 0);
-    const efficiencyScore = totalRequested > 0 ? totalAwarded / totalRequested : 0;
+    const totalAwarded = allocations.reduce(
+      (sum, alloc) => sum + Object.keys(alloc.awarded).length,
+      0,
+    );
+    const totalRequested = conflict.participants.reduce(
+      (sum, p) => sum + Object.keys(p.requirements).length,
+      0,
+    );
+    const efficiencyScore =
+      totalRequested > 0 ? totalAwarded / totalRequested : 0;
 
     // Calculate average satisfaction
-    const satisfactionScore = satisfactions.reduce((a, b) => a + b, 0) / satisfactions.length || 0;
+    const satisfactionScore =
+      satisfactions.reduce((a, b) => a + b, 0) / satisfactions.length || 0;
 
     // Calculate stability (rough estimate based on fairness and satisfaction)
     const stabilityScore = (fairnessScore + satisfactionScore) / 2;
@@ -710,7 +839,7 @@ export class ConflictResolver extends EventEmitter {
   private calculateConflictSeverity(
     type: ConflictType,
     participants: ConflictParticipant[],
-    constraints: ConflictConstraint[]
+    constraints: ConflictConstraint[],
   ): ConflictSeverity {
     let severity = ConflictSeverity.LOW;
 
@@ -729,7 +858,7 @@ export class ConflictResolver extends EventEmitter {
     severity = typeSeverity[type] || ConflictSeverity.LOW;
 
     // Increase severity based on participant priorities
-    const maxPriority = Math.max(...participants.map(p => p.priority));
+    const maxPriority = Math.max(...participants.map((p) => p.priority));
     if (maxPriority >= DecisionPriority.CRITICAL) {
       severity = Math.max(severity, ConflictSeverity.CRITICAL);
     } else if (maxPriority >= DecisionPriority.HIGH) {
@@ -737,7 +866,7 @@ export class ConflictResolver extends EventEmitter {
     }
 
     // Increase severity based on hard constraints
-    const hardConstraints = constraints.filter(c => c.type === 'hard');
+    const hardConstraints = constraints.filter((c) => c.type === 'hard');
     if (hardConstraints.length > 0) {
       severity = Math.max(severity, ConflictSeverity.MEDIUM);
     }
@@ -745,8 +874,11 @@ export class ConflictResolver extends EventEmitter {
     return severity;
   }
 
-  private generateConflictDescription(type: ConflictType, participants: ConflictParticipant[]): string {
-    const participantTypes = participants.map(p => p.type).join(', ');
+  private generateConflictDescription(
+    type: ConflictType,
+    participants: ConflictParticipant[],
+  ): string {
+    const participantTypes = participants.map((p) => p.type).join(', ');
     const participantCount = participants.length;
 
     switch (type) {
@@ -771,35 +903,43 @@ export class ConflictResolver extends EventEmitter {
 
   private inferDomain(participants: ConflictParticipant[]): string {
     // Infer domain from participant types
-    if (participants.some(p => p.type === 'task')) return 'task_management';
-    if (participants.some(p => p.type === 'agent')) return 'agent_coordination';
-    if (participants.some(p => p.type === 'user')) return 'user_interaction';
+    if (participants.some((p) => p.type === 'task')) return 'task_management';
+    if (participants.some((p) => p.type === 'agent'))
+      return 'agent_coordination';
+    if (participants.some((p) => p.type === 'user')) return 'user_interaction';
     return 'system';
   }
 
-  private generateTags(type: ConflictType, participants: ConflictParticipant[]): string[] {
+  private generateTags(
+    type: ConflictType,
+    participants: ConflictParticipant[],
+  ): string[] {
     const tags = [type];
-    tags.push(...participants.map(p => p.type));
+    tags.push(...participants.map((p) => p.type));
     return [...new Set(tags)]; // Remove duplicates
   }
 
   private generateResolutionReasoning(
     conflict: Conflict,
     strategy: ResolutionStrategy,
-    outcome: ConflictResolution['outcome']
+    outcome: ConflictResolution['outcome'],
   ): string {
     return `Applied ${strategy} strategy to resolve ${conflict.type} conflict, resulting in ${outcome}`;
   }
 
   private calculateTradeoffs(
     conflict: Conflict,
-    allocations: ConflictResolution['allocations']
+    allocations: ConflictResolution['allocations'],
   ): ConflictResolution['tradeoffs'] {
-    return allocations.map(alloc => {
-      const participant = conflict.participants.find(p => p.id === alloc.participantId);
+    return allocations.map((alloc) => {
+      const participant = conflict.participants.find(
+        (p) => p.id === alloc.participantId,
+      );
       const awardedCount = Object.keys(alloc.awarded).length;
       const deniedCount = Object.keys(alloc.denied).length;
-      const totalCount = participant ? Object.keys(participant.requirements).length : 0;
+      const totalCount = participant
+        ? Object.keys(participant.requirements).length
+        : 0;
 
       return {
         participant: alloc.participantId,
@@ -812,7 +952,7 @@ export class ConflictResolver extends EventEmitter {
 
   private generateFollowUpActions(
     conflict: Conflict,
-    allocations: ConflictResolution['allocations']
+    allocations: ConflictResolution['allocations'],
   ): ConflictResolution['followUpActions'] {
     const actions: ConflictResolution['followUpActions'] = [];
 
@@ -820,17 +960,19 @@ export class ConflictResolver extends EventEmitter {
     actions.push({
       action: 'Monitor resolution stability',
       responsible: 'system',
-      deadline: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+      deadline: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
       priority: DecisionPriority.LOW,
     });
 
     // Add feedback collection
-    const deniedParticipants = allocations.filter(alloc => Object.keys(alloc.denied).length > 0);
+    const deniedParticipants = allocations.filter(
+      (alloc) => Object.keys(alloc.denied).length > 0,
+    );
     if (deniedParticipants.length > 0) {
       actions.push({
         action: 'Collect satisfaction feedback from affected participants',
         responsible: 'system',
-        deadline: Date.now() + (2 * 60 * 60 * 1000), // 2 hours
+        deadline: Date.now() + 2 * 60 * 60 * 1000, // 2 hours
         priority: DecisionPriority.NORMAL,
       });
     }
@@ -838,7 +980,10 @@ export class ConflictResolver extends EventEmitter {
     return actions;
   }
 
-  private distributeEvenly(requirements: Record<string, unknown>, participantCount: number): Record<string, unknown> {
+  private distributeEvenly(
+    requirements: Record<string, unknown>,
+    participantCount: number,
+  ): Record<string, unknown> {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(requirements)) {
       if (typeof value === 'number') {
@@ -850,7 +995,10 @@ export class ConflictResolver extends EventEmitter {
     return result;
   }
 
-  private distributeByWeight(requirements: Record<string, unknown>, weight: number): Record<string, unknown> {
+  private distributeByWeight(
+    requirements: Record<string, unknown>,
+    weight: number,
+  ): Record<string, unknown> {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(requirements)) {
       if (typeof value === 'number') {
@@ -862,17 +1010,29 @@ export class ConflictResolver extends EventEmitter {
     return result;
   }
 
-  private compareResolutions(a: ConflictResolution, b: ConflictResolution): number {
+  private compareResolutions(
+    a: ConflictResolution,
+    b: ConflictResolution,
+  ): number {
     // Simple scoring: weighted sum of metrics
-    const scoreA = a.metrics.satisfactionScore * 0.4 + a.metrics.fairnessScore * 0.3 +
-                  a.metrics.efficiencyScore * 0.2 + a.metrics.stabilityScore * 0.1;
-    const scoreB = b.metrics.satisfactionScore * 0.4 + b.metrics.fairnessScore * 0.3 +
-                  b.metrics.efficiencyScore * 0.2 + b.metrics.stabilityScore * 0.1;
+    const scoreA =
+      a.metrics.satisfactionScore * 0.4 +
+      a.metrics.fairnessScore * 0.3 +
+      a.metrics.efficiencyScore * 0.2 +
+      a.metrics.stabilityScore * 0.1;
+    const scoreB =
+      b.metrics.satisfactionScore * 0.4 +
+      b.metrics.fairnessScore * 0.3 +
+      b.metrics.efficiencyScore * 0.2 +
+      b.metrics.stabilityScore * 0.1;
 
     return scoreA - scoreB;
   }
 
-  private async applyResolution(conflict: Conflict, resolution: ConflictResolution): Promise<void> {
+  private async applyResolution(
+    conflict: Conflict,
+    resolution: ConflictResolution,
+  ): Promise<void> {
     // Apply the resolution (implementation would depend on specific system)
     this.emit('resolution-applied', { conflict, resolution });
   }
@@ -889,7 +1049,7 @@ export class ConflictResolver extends EventEmitter {
     const session: NegotiationSession = {
       id: sessionId,
       conflictId: conflict.id,
-      participants: conflict.participants.map(p => p.id),
+      participants: conflict.participants.map((p) => p.id),
       maxRounds: this.config.maxNegotiationRounds,
       currentRound: 0,
       offers: [],
@@ -907,7 +1067,7 @@ export class ConflictResolver extends EventEmitter {
     // Simplified negotiation logic
     // In practice, this would involve multiple rounds of offers and counter-offers
 
-    const allocations = session.participants.map(participantId => ({
+    const allocations = session.participants.map((participantId) => ({
       participantId,
       awarded: { negotiated: true },
       denied: {},
@@ -921,8 +1081,9 @@ export class ConflictResolver extends EventEmitter {
 
   private trimHistory(): void {
     if (this.resolutionHistory.size > this.maxHistorySize) {
-      const entries = Array.from(this.resolutionHistory.entries())
-        .sort(([, a], [, b]) => a.timestamp - b.timestamp);
+      const entries = Array.from(this.resolutionHistory.entries()).sort(
+        ([, a], [, b]) => a.timestamp - b.timestamp,
+      );
 
       const toDelete = entries.slice(0, entries.length - this.maxHistorySize);
       for (const [id] of toDelete) {

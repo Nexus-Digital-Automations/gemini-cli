@@ -10,9 +10,9 @@ import type React from 'react';
  * Configures the progress panel's behavior and display options.
  */
 export interface ProgressPanelProps {
-    isExpanded: boolean;
-    onToggle: () => void;
-    maxHeight?: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  maxHeight?: number;
 }
 /**
  * ProgressPanel displays ongoing operation progress with expandable detail view.

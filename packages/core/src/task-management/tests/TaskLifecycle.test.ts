@@ -11,7 +11,7 @@ import type {
   TaskStatus,
   TaskResult,
   TaskMetadata,
-  TaskId
+  TaskId,
 } from '../types.js';
 
 /**
@@ -36,14 +36,14 @@ describe('TaskLifecycle', () => {
       onStatusChange: vi.fn(),
       onValidation: vi.fn(),
       onError: vi.fn(),
-      onComplete: vi.fn()
+      onComplete: vi.fn(),
     };
 
     lifecycle = new TaskLifecycle({
       onStatusChange: mockEventHandlers.onStatusChange,
       onValidation: mockEventHandlers.onValidation,
       onError: mockEventHandlers.onError,
-      onComplete: mockEventHandlers.onComplete
+      onComplete: mockEventHandlers.onComplete,
     });
 
     mockTask = createMockTask('test-task-123');
@@ -59,7 +59,7 @@ describe('TaskLifecycle', () => {
         title: 'New Task',
         description: 'Task description',
         priority: 'medium',
-        category: 'implementation'
+        category: 'implementation',
       });
 
       expect(task.status).toBe('pending');
@@ -76,7 +76,7 @@ describe('TaskLifecycle', () => {
       expect(mockEventHandlers.onStatusChange).toHaveBeenCalledWith(
         mockTask,
         'pending',
-        'ready'
+        'ready',
       );
     });
 
@@ -107,12 +107,19 @@ describe('TaskLifecycle', () => {
       mockTask.status = 'in_progress';
       mockTask.metadata.startTime = new Date();
 
-      const result = await lifecycle.transitionTo(mockTask, 'failed', 'Task execution error');
+      const result = await lifecycle.transitionTo(
+        mockTask,
+        'failed',
+        'Task execution error',
+      );
 
       expect(result.success).toBe(true);
       expect(mockTask.status).toBe('failed');
       expect(mockTask.metadata.endTime).toBeInstanceOf(Date);
-      expect(mockEventHandlers.onError).toHaveBeenCalledWith(mockTask, 'Task execution error');
+      expect(mockEventHandlers.onError).toHaveBeenCalledWith(
+        mockTask,
+        'Task execution error',
+      );
     });
 
     it('should block invalid state transitions', async () => {
@@ -126,7 +133,12 @@ describe('TaskLifecycle', () => {
     });
 
     it('should allow transition to cancelled from any state', async () => {
-      const states: TaskStatus[] = ['pending', 'ready', 'in_progress', 'blocked'];
+      const states: TaskStatus[] = [
+        'pending',
+        'ready',
+        'in_progress',
+        'blocked',
+      ];
 
       for (const state of states) {
         const task = createMockTask(`task-${state}`);
@@ -140,7 +152,11 @@ describe('TaskLifecycle', () => {
 
     it('should handle blocked to ready transition', async () => {
       mockTask.status = 'blocked';
-      const result = await lifecycle.transitionTo(mockTask, 'ready', 'Dependencies resolved');
+      const result = await lifecycle.transitionTo(
+        mockTask,
+        'ready',
+        'Dependencies resolved',
+      );
 
       expect(result.success).toBe(true);
       expect(mockTask.status).toBe('ready');
@@ -164,8 +180,8 @@ describe('TaskLifecycle', () => {
       expect(validationResult.isValid).toBe(false);
       expect(validationResult.issues).toEqual(
         expect.arrayContaining([
-          expect.stringMatching(/title.*required|empty/i)
-        ])
+          expect.stringMatching(/title.*required|empty/i),
+        ]),
       );
     });
 
@@ -173,8 +189,8 @@ describe('TaskLifecycle', () => {
       mockTask.status = 'ready';
       mockTask.executionContext = {
         resourceConstraints: [
-          { resourceType: 'cpu', maxUnits: 100 } // Unrealistic constraint
-        ]
+          { resourceType: 'cpu', maxUnits: 100 }, // Unrealistic constraint
+        ],
       };
 
       const validationResult = await lifecycle.validateState(mockTask);
@@ -182,8 +198,8 @@ describe('TaskLifecycle', () => {
       expect(validationResult.isValid).toBe(false);
       expect(validationResult.issues).toEqual(
         expect.arrayContaining([
-          expect.stringMatching(/resource.*constraint/i)
-        ])
+          expect.stringMatching(/resource.*constraint/i),
+        ]),
       );
     });
 
@@ -196,8 +212,8 @@ describe('TaskLifecycle', () => {
       expect(validationResult.isValid).toBe(false);
       expect(validationResult.issues).toEqual(
         expect.arrayContaining([
-          expect.stringMatching(/dependency.*not.*found/i)
-        ])
+          expect.stringMatching(/dependency.*not.*found/i),
+        ]),
       );
     });
 
@@ -210,8 +226,8 @@ describe('TaskLifecycle', () => {
       expect(validationResult.isValid).toBe(false);
       expect(validationResult.issues).toEqual(
         expect.arrayContaining([
-          expect.stringMatching(/start.*time.*required/i)
-        ])
+          expect.stringMatching(/start.*time.*required/i),
+        ]),
       );
     });
   });
@@ -221,7 +237,7 @@ describe('TaskLifecycle', () => {
       const transitions = [
         { from: 'pending', to: 'ready' as TaskStatus },
         { from: 'ready', to: 'in_progress' as TaskStatus },
-        { from: 'in_progress', to: 'completed' as TaskStatus }
+        { from: 'in_progress', to: 'completed' as TaskStatus },
       ];
 
       for (let i = 0; i < transitions.length; i++) {
@@ -239,18 +255,22 @@ describe('TaskLifecycle', () => {
         mockTask,
         expect.objectContaining({
           isValid: expect.any(Boolean),
-          issues: expect.any(Array)
-        })
+          issues: expect.any(Array),
+        }),
       );
     });
 
     it('should emit error events on failures', async () => {
       mockTask.status = 'in_progress';
-      await lifecycle.transitionTo(mockTask, 'failed', 'Critical error occurred');
+      await lifecycle.transitionTo(
+        mockTask,
+        'failed',
+        'Critical error occurred',
+      );
 
       expect(mockEventHandlers.onError).toHaveBeenCalledWith(
         mockTask,
-        'Critical error occurred'
+        'Critical error occurred',
       );
     });
 
@@ -321,7 +341,7 @@ describe('TaskLifecycle', () => {
       expect(mockTask.status).toBe('failed');
       expect(mockEventHandlers.onError).toHaveBeenCalledWith(
         mockTask,
-        expect.stringMatching(/timeout|stalled/i)
+        expect.stringMatching(/timeout|stalled/i),
       );
     });
 
@@ -371,8 +391,8 @@ describe('TaskLifecycle', () => {
         expect.objectContaining({
           from: 'pending',
           to: 'ready',
-          timestamp: expect.any(Date)
-        })
+          timestamp: expect.any(Date),
+        }),
       );
     });
 
@@ -388,8 +408,8 @@ describe('TaskLifecycle', () => {
           duration: expect.any(Number),
           retryCount: expect.any(Number),
           statusChanges: expect.any(Number),
-          successRate: expect.any(Number)
-        })
+          successRate: expect.any(Number),
+        }),
       );
     });
 
@@ -401,7 +421,7 @@ describe('TaskLifecycle', () => {
       lifecycle.recordTaskResult(taskId, { success: true });
 
       const metrics = lifecycle.getTaskMetrics(mockTask);
-      expect(metrics.successRate).toBe(2/3); // 2 successes out of 3 attempts
+      expect(metrics.successRate).toBe(2 / 3); // 2 successes out of 3 attempts
     });
   });
 
@@ -410,14 +430,14 @@ describe('TaskLifecycle', () => {
       const tasks = [
         createMockTask('task1'),
         createMockTask('task2'),
-        createMockTask('task3')
+        createMockTask('task3'),
       ];
 
       const results = await lifecycle.batchTransition(tasks, 'ready');
 
       expect(results.successful).toHaveLength(3);
       expect(results.failed).toHaveLength(0);
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         expect(task.status).toBe('ready');
       });
     });
@@ -426,7 +446,7 @@ describe('TaskLifecycle', () => {
       const tasks = [
         createMockTask('valid-task'),
         { ...createMockTask('invalid-task'), title: '' }, // Invalid
-        createMockTask('another-valid-task')
+        createMockTask('another-valid-task'),
       ] as Task[];
 
       const results = await lifecycle.batchTransition(tasks, 'ready');
@@ -440,7 +460,7 @@ describe('TaskLifecycle', () => {
       const tasks = [
         createMockTask('task1'),
         { ...createMockTask('task2'), description: '' }, // Invalid
-        createMockTask('task3')
+        createMockTask('task3'),
       ] as Task[];
 
       const results = await lifecycle.batchValidation(tasks);
@@ -462,9 +482,9 @@ describe('TaskLifecycle', () => {
           title: mockTask.title,
           metadata: expect.objectContaining({
             createdAt: mockTask.metadata.createdAt,
-            updatedAt: mockTask.metadata.updatedAt
-          })
-        })
+            updatedAt: mockTask.metadata.updatedAt,
+          }),
+        }),
       );
     });
 
@@ -498,13 +518,13 @@ describe('TaskLifecycle', () => {
       const promises = [
         lifecycle.transitionTo(mockTask, 'ready'),
         lifecycle.transitionTo(mockTask, 'ready'),
-        lifecycle.transitionTo(mockTask, 'ready')
+        lifecycle.transitionTo(mockTask, 'ready'),
       ];
 
       const results = await Promise.all(promises);
 
       // Only one should succeed, others should be handled gracefully
-      const successful = results.filter(r => r.success);
+      const successful = results.filter((r) => r.success);
       expect(successful).toHaveLength(1);
       expect(mockTask.status).toBe('ready');
     });
@@ -514,7 +534,7 @@ describe('TaskLifecycle', () => {
         id: 'incomplete',
         status: 'pending' as TaskStatus,
         priority: 'medium' as any,
-        category: 'implementation' as any
+        category: 'implementation' as any,
         // Missing required fields
       } as Task;
 
@@ -534,7 +554,10 @@ describe('TaskLifecycle', () => {
     });
 
     it('should handle invalid status values', async () => {
-      const result = await lifecycle.transitionTo(mockTask, 'invalid-status' as TaskStatus);
+      const result = await lifecycle.transitionTo(
+        mockTask,
+        'invalid-status' as TaskStatus,
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('invalid status');
@@ -568,12 +591,12 @@ function createMockTask(id: string): Task {
       createdBy: 'test',
       estimatedDuration: 60000,
       retryCount: 0,
-      tags: ['test']
+      tags: ['test'],
     },
     executionContext: {
       timeout: 300000,
-      maxRetries: 3
+      maxRetries: 3,
     },
-    maxRetries: 3
+    maxRetries: 3,
   };
 }

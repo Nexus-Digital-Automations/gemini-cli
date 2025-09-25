@@ -112,7 +112,7 @@ export class ValidationReporter extends EventEmitter {
       compressionEnabled: true,
       backupEnabled: true,
       exportFormats: ['json', 'csv', 'html'],
-      ...config
+      ...config,
     };
 
     this.reports = new Map();
@@ -123,7 +123,7 @@ export class ValidationReporter extends EventEmitter {
     this.logger.info('ValidationReporter initialized', {
       maxReports: this.config.maxReports,
       retentionDays: this.config.retentionDays,
-      compressionEnabled: this.config.compressionEnabled
+      compressionEnabled: this.config.compressionEnabled,
     });
   }
 
@@ -136,7 +136,7 @@ export class ValidationReporter extends EventEmitter {
     this.logger.debug(`Storing validation report: ${reportId}`, {
       taskId: report.taskId,
       score: report.overallScore,
-      status: report.overallStatus
+      status: report.overallStatus,
     });
 
     try {
@@ -146,7 +146,7 @@ export class ValidationReporter extends EventEmitter {
         storedAt: new Date(),
         compressed: this.config.compressionEnabled,
         version: '1.0.0',
-        checksum: this.generateChecksum(report)
+        checksum: this.generateChecksum(report),
       };
 
       // Store report
@@ -187,41 +187,43 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Query reports with filters
    */
-  public async queryReports(filters: ReportFilters = {}): Promise<StoredReport[]> {
+  public async queryReports(
+    filters: ReportFilters = {},
+  ): Promise<StoredReport[]> {
     this.logger.debug('Querying reports', { filters });
 
     let results = Array.from(this.reports.values());
 
     // Apply filters
     if (filters.taskId) {
-      results = results.filter(r => r.taskId === filters.taskId);
+      results = results.filter((r) => r.taskId === filters.taskId);
     }
 
     if (filters.dateFrom) {
-      results = results.filter(r => r.timestamp >= filters.dateFrom!);
+      results = results.filter((r) => r.timestamp >= filters.dateFrom!);
     }
 
     if (filters.dateTo) {
-      results = results.filter(r => r.timestamp <= filters.dateTo!);
+      results = results.filter((r) => r.timestamp <= filters.dateTo!);
     }
 
     if (filters.status) {
-      results = results.filter(r => r.overallStatus === filters.status);
+      results = results.filter((r) => r.overallStatus === filters.status);
     }
 
     if (filters.minScore !== undefined) {
-      results = results.filter(r => r.overallScore >= filters.minScore!);
+      results = results.filter((r) => r.overallScore >= filters.minScore!);
     }
 
     if (filters.maxScore !== undefined) {
-      results = results.filter(r => r.overallScore <= filters.maxScore!);
+      results = results.filter((r) => r.overallScore <= filters.maxScore!);
     }
 
     if (filters.categories && filters.categories.length > 0) {
-      results = results.filter(r =>
-        r.results.some(result =>
-          filters.categories!.some(cat => result.criteriaId.includes(cat))
-        )
+      results = results.filter((r) =>
+        r.results.some((result) =>
+          filters.categories!.some((cat) => result.criteriaId.includes(cat)),
+        ),
       );
     }
 
@@ -238,7 +240,7 @@ export class ValidationReporter extends EventEmitter {
     }
 
     this.logger.debug(`Query returned ${results.length} reports`);
-    return results.map(r => ({ ...r })); // Return copies
+    return results.map((r) => ({ ...r })); // Return copies
   }
 
   /**
@@ -264,7 +266,9 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Generate comprehensive analytics
    */
-  public async generateAnalytics(filters: ReportFilters = {}): Promise<ReportAnalytics> {
+  public async generateAnalytics(
+    filters: ReportFilters = {},
+  ): Promise<ReportAnalytics> {
     const reports = await this.queryReports(filters);
 
     if (reports.length === 0) {
@@ -281,7 +285,7 @@ export class ValidationReporter extends EventEmitter {
       trends: this.calculateTrends(reports),
       distribution: this.calculateDistribution(reports),
       insights: this.generateInsights(reports),
-      recommendations: this.generateRecommendations(reports)
+      recommendations: this.generateRecommendations(reports),
     };
 
     this.emit('analyticsGenerated', analytics);
@@ -294,7 +298,9 @@ export class ValidationReporter extends EventEmitter {
   public async exportReports(options: ReportExportOptions): Promise<string> {
     const reports = await this.queryReports(options.filters);
 
-    this.logger.info(`Exporting ${reports.length} reports as ${options.format}`);
+    this.logger.info(
+      `Exporting ${reports.length} reports as ${options.format}`,
+    );
 
     let exportData: string;
 
@@ -318,7 +324,7 @@ export class ValidationReporter extends EventEmitter {
     this.emit('reportsExported', {
       format: options.format,
       reportCount: reports.length,
-      size: exportData.length
+      size: exportData.length,
     });
 
     return exportData;
@@ -329,20 +335,22 @@ export class ValidationReporter extends EventEmitter {
    */
   public getStorageStats() {
     const totalReports = this.reports.size;
-    const totalSize = Array.from(this.reports.values())
-      .reduce((sum, report) => sum + JSON.stringify(report).length, 0);
+    const totalSize = Array.from(this.reports.values()).reduce(
+      (sum, report) => sum + JSON.stringify(report).length,
+      0,
+    );
 
-    const oldestReport = Array.from(this.reports.values())
-      .reduce((oldest, report) =>
+    const oldestReport = Array.from(this.reports.values()).reduce(
+      (oldest, report) =>
         !oldest || report.timestamp < oldest.timestamp ? report : oldest,
-        null as StoredReport | null
-      );
+      null as StoredReport | null,
+    );
 
-    const newestReport = Array.from(this.reports.values())
-      .reduce((newest, report) =>
+    const newestReport = Array.from(this.reports.values()).reduce(
+      (newest, report) =>
         !newest || report.timestamp > newest.timestamp ? report : newest,
-        null as StoredReport | null
-      );
+      null as StoredReport | null,
+    );
 
     return {
       totalReports,
@@ -354,8 +362,8 @@ export class ValidationReporter extends EventEmitter {
       memoryUsage: {
         reports: totalReports,
         indexEntries: this.reportIndex.size,
-        estimatedBytes: totalSize
-      }
+        estimatedBytes: totalSize,
+      },
     };
   }
 
@@ -379,14 +387,14 @@ export class ValidationReporter extends EventEmitter {
       taskId: report.taskId,
       timestamp: report.timestamp,
       overallScore: report.overallScore,
-      results: report.results.length
+      results: report.results.length,
     });
 
     // Simple hash function (in production, use proper crypto hash)
     let hash = 0;
     for (let i = 0; i < reportString.length; i++) {
       const char = reportString.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
 
@@ -399,7 +407,10 @@ export class ValidationReporter extends EventEmitter {
   private calculateAverageScore(reports: StoredReport[]): number {
     if (reports.length === 0) return 0;
 
-    const totalScore = reports.reduce((sum, report) => sum + report.overallScore, 0);
+    const totalScore = reports.reduce(
+      (sum, report) => sum + report.overallScore,
+      0,
+    );
     return Math.round((totalScore / reports.length) * 100) / 100;
   }
 
@@ -409,7 +420,9 @@ export class ValidationReporter extends EventEmitter {
   private calculateSuccessRate(reports: StoredReport[]): number {
     if (reports.length === 0) return 0;
 
-    const successfulReports = reports.filter(r => r.overallStatus === 'passed').length;
+    const successfulReports = reports.filter(
+      (r) => r.overallStatus === 'passed',
+    ).length;
     return Math.round((successfulReports / reports.length) * 100 * 100) / 100;
   }
 
@@ -419,7 +432,9 @@ export class ValidationReporter extends EventEmitter {
   private calculateFailureRate(reports: StoredReport[]): number {
     if (reports.length === 0) return 0;
 
-    const failedReports = reports.filter(r => r.overallStatus === 'failed').length;
+    const failedReports = reports.filter(
+      (r) => r.overallStatus === 'failed',
+    ).length;
     return Math.round((failedReports / reports.length) * 100 * 100) / 100;
   }
 
@@ -432,15 +447,24 @@ export class ValidationReporter extends EventEmitter {
 
     return {
       scoresTrend: this.calculateScoreTrend(recentReports, olderReports),
-      performanceTrend: this.calculatePerformanceTrend(recentReports, olderReports),
-      reliabilityTrend: this.calculateReliabilityTrend(recentReports, olderReports)
+      performanceTrend: this.calculatePerformanceTrend(
+        recentReports,
+        olderReports,
+      ),
+      reliabilityTrend: this.calculateReliabilityTrend(
+        recentReports,
+        olderReports,
+      ),
     };
   }
 
   /**
    * Calculate score trend
    */
-  private calculateScoreTrend(recent: StoredReport[], older: StoredReport[]): 'improving' | 'stable' | 'declining' {
+  private calculateScoreTrend(
+    recent: StoredReport[],
+    older: StoredReport[],
+  ): 'improving' | 'stable' | 'declining' {
     if (recent.length === 0 || older.length === 0) return 'stable';
 
     const recentAvg = this.calculateAverageScore(recent);
@@ -456,11 +480,18 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Calculate performance trend
    */
-  private calculatePerformanceTrend(recent: StoredReport[], older: StoredReport[]): 'improving' | 'stable' | 'declining' {
+  private calculatePerformanceTrend(
+    recent: StoredReport[],
+    older: StoredReport[],
+  ): 'improving' | 'stable' | 'declining' {
     if (recent.length === 0 || older.length === 0) return 'stable';
 
-    const recentAvgDuration = recent.reduce((sum, r) => sum + r.performance.totalDuration, 0) / recent.length;
-    const olderAvgDuration = older.reduce((sum, r) => sum + r.performance.totalDuration, 0) / older.length;
+    const recentAvgDuration =
+      recent.reduce((sum, r) => sum + r.performance.totalDuration, 0) /
+      recent.length;
+    const olderAvgDuration =
+      older.reduce((sum, r) => sum + r.performance.totalDuration, 0) /
+      older.length;
 
     const difference = recentAvgDuration - olderAvgDuration;
 
@@ -472,7 +503,10 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Calculate reliability trend
    */
-  private calculateReliabilityTrend(recent: StoredReport[], older: StoredReport[]): 'improving' | 'stable' | 'declining' {
+  private calculateReliabilityTrend(
+    recent: StoredReport[],
+    older: StoredReport[],
+  ): 'improving' | 'stable' | 'declining' {
     if (recent.length === 0 || older.length === 0) return 'stable';
 
     const recentSuccessRate = this.calculateSuccessRate(recent);
@@ -492,23 +526,25 @@ export class ValidationReporter extends EventEmitter {
     return {
       scoreRanges: this.calculateScoreDistribution(reports),
       categories: this.calculateCategoryDistribution(reports),
-      statuses: this.calculateStatusDistribution(reports)
+      statuses: this.calculateStatusDistribution(reports),
     };
   }
 
   /**
    * Calculate score distribution
    */
-  private calculateScoreDistribution(reports: StoredReport[]): Record<string, number> {
+  private calculateScoreDistribution(
+    reports: StoredReport[],
+  ): Record<string, number> {
     const distribution = {
       '90-100': 0,
       '80-89': 0,
       '70-79': 0,
       '60-69': 0,
-      '0-59': 0
+      '0-59': 0,
     };
 
-    reports.forEach(report => {
+    reports.forEach((report) => {
       const score = report.overallScore;
       if (score >= 90) distribution['90-100']++;
       else if (score >= 80) distribution['80-89']++;
@@ -523,11 +559,13 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Calculate category distribution
    */
-  private calculateCategoryDistribution(reports: StoredReport[]): Record<string, number> {
+  private calculateCategoryDistribution(
+    reports: StoredReport[],
+  ): Record<string, number> {
     const distribution: Record<string, number> = {};
 
-    reports.forEach(report => {
-      report.results.forEach(result => {
+    reports.forEach((report) => {
+      report.results.forEach((result) => {
         const category = result.criteriaId || 'unknown';
         distribution[category] = (distribution[category] || 0) + 1;
       });
@@ -539,10 +577,12 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Calculate status distribution
    */
-  private calculateStatusDistribution(reports: StoredReport[]): Record<string, number> {
+  private calculateStatusDistribution(
+    reports: StoredReport[],
+  ): Record<string, number> {
     const distribution: Record<string, number> = {};
 
-    reports.forEach(report => {
+    reports.forEach((report) => {
       const status = report.overallStatus;
       distribution[status] = (distribution[status] || 0) + 1;
     });
@@ -593,20 +633,28 @@ export class ValidationReporter extends EventEmitter {
     const failureRate = this.calculateFailureRate(reports);
 
     if (avgScore < 70) {
-      recommendations.push('Implement stricter quality gates to improve overall scores');
+      recommendations.push(
+        'Implement stricter quality gates to improve overall scores',
+      );
     }
 
     if (failureRate > 30) {
-      recommendations.push('High failure rate suggests need for better error prevention');
+      recommendations.push(
+        'High failure rate suggests need for better error prevention',
+      );
     }
 
     const trends = this.calculateTrends(reports);
     if (trends.performanceTrend === 'declining') {
-      recommendations.push('Performance is declining - optimize validation processes');
+      recommendations.push(
+        'Performance is declining - optimize validation processes',
+      );
     }
 
     if (trends.reliabilityTrend === 'declining') {
-      recommendations.push('Reliability issues increasing - review validation criteria');
+      recommendations.push(
+        'Reliability issues increasing - review validation criteria',
+      );
     }
 
     return recommendations;
@@ -615,21 +663,26 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Export reports as JSON
    */
-  private exportAsJson(reports: StoredReport[], options: ReportExportOptions): string {
+  private exportAsJson(
+    reports: StoredReport[],
+    options: ReportExportOptions,
+  ): string {
     const exportData = {
       metadata: {
         exportedAt: new Date().toISOString(),
         format: 'json',
         reportCount: reports.length,
-        version: '1.0.0'
+        version: '1.0.0',
       },
-      reports: options.includeAnalytics ? reports : reports.map(r => ({
-        taskId: r.taskId,
-        timestamp: r.timestamp,
-        overallScore: r.overallScore,
-        overallStatus: r.overallStatus,
-        summary: r.summary
-      }))
+      reports: options.includeAnalytics
+        ? reports
+        : reports.map((r) => ({
+            taskId: r.taskId,
+            timestamp: r.timestamp,
+            overallScore: r.overallScore,
+            overallStatus: r.overallStatus,
+            summary: r.summary,
+          })),
     };
 
     return JSON.stringify(exportData, null, 2);
@@ -638,7 +691,10 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Export reports as CSV
    */
-  private exportAsCsv(reports: StoredReport[], options: ReportExportOptions): string {
+  private exportAsCsv(
+    reports: StoredReport[],
+    options: ReportExportOptions,
+  ): string {
     const headers = [
       'Task ID',
       'Timestamp',
@@ -647,19 +703,21 @@ export class ValidationReporter extends EventEmitter {
       'Total Validations',
       'Passed',
       'Failed',
-      'Duration (ms)'
+      'Duration (ms)',
     ].join(',');
 
-    const rows = reports.map(report => [
-      report.taskId,
-      report.timestamp.toISOString(),
-      report.overallScore.toString(),
-      report.overallStatus,
-      report.summary.total.toString(),
-      report.summary.passed.toString(),
-      report.summary.failed.toString(),
-      report.performance.totalDuration.toString()
-    ].join(','));
+    const rows = reports.map((report) =>
+      [
+        report.taskId,
+        report.timestamp.toISOString(),
+        report.overallScore.toString(),
+        report.overallStatus,
+        report.summary.total.toString(),
+        report.summary.passed.toString(),
+        report.summary.failed.toString(),
+        report.performance.totalDuration.toString(),
+      ].join(','),
+    );
 
     return [headers, ...rows].join('\n');
   }
@@ -667,8 +725,13 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Export reports as HTML
    */
-  private async exportAsHtml(reports: StoredReport[], options: ReportExportOptions): Promise<string> {
-    const analytics = options.includeAnalytics ? await this.generateAnalytics() : null;
+  private async exportAsHtml(
+    reports: StoredReport[],
+    options: ReportExportOptions,
+  ): Promise<string> {
+    const analytics = options.includeAnalytics
+      ? await this.generateAnalytics()
+      : null;
 
     let html = `
 <!DOCTYPE html>
@@ -720,10 +783,15 @@ export class ValidationReporter extends EventEmitter {
         <tbody>
 `;
 
-    reports.forEach(report => {
-      const scoreClass = report.overallScore >= 80 ? 'score-excellent' :
-                        report.overallScore >= 60 ? 'score-good' : 'score-poor';
-      const statusClass = report.overallStatus === 'passed' ? 'status-passed' : 'status-failed';
+    reports.forEach((report) => {
+      const scoreClass =
+        report.overallScore >= 80
+          ? 'score-excellent'
+          : report.overallScore >= 60
+            ? 'score-good'
+            : 'score-poor';
+      const statusClass =
+        report.overallStatus === 'passed' ? 'status-passed' : 'status-failed';
 
       html += `
             <tr>
@@ -750,9 +818,14 @@ export class ValidationReporter extends EventEmitter {
   /**
    * Export reports as PDF (placeholder - would need PDF library)
    */
-  private async exportAsPdf(reports: StoredReport[], options: ReportExportOptions): Promise<string> {
+  private async exportAsPdf(
+    reports: StoredReport[],
+    options: ReportExportOptions,
+  ): Promise<string> {
     // Placeholder - in real implementation would use PDF generation library
-    throw new Error('PDF export not yet implemented - would require PDF library');
+    throw new Error(
+      'PDF export not yet implemented - would require PDF library',
+    );
   }
 
   /**
@@ -767,15 +840,15 @@ export class ValidationReporter extends EventEmitter {
       trends: {
         scoresTrend: 'stable',
         performanceTrend: 'stable',
-        reliabilityTrend: 'stable'
+        reliabilityTrend: 'stable',
       },
       distribution: {
         scoreRanges: {},
         categories: {},
-        statuses: {}
+        statuses: {},
       },
       insights: ['No data available'],
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -784,11 +857,14 @@ export class ValidationReporter extends EventEmitter {
    */
   private setupCleanupInterval(): void {
     // Run cleanup every hour
-    setInterval(() => {
-      this.performCleanup().catch(error => {
-        this.logger.error('Cleanup failed', { error });
-      });
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.performCleanup().catch((error) => {
+          this.logger.error('Cleanup failed', { error });
+        });
+      },
+      60 * 60 * 1000,
+    );
   }
 
   /**
@@ -807,7 +883,7 @@ export class ValidationReporter extends EventEmitter {
 
         // Update index
         const taskReports = this.reportIndex.get(report.taskId) || [];
-        const updatedReports = taskReports.filter(id => id !== reportId);
+        const updatedReports = taskReports.filter((id) => id !== reportId);
         if (updatedReports.length === 0) {
           this.reportIndex.delete(report.taskId);
         } else {
@@ -820,8 +896,9 @@ export class ValidationReporter extends EventEmitter {
 
     // Clean up if too many reports
     if (this.reports.size > this.config.maxReports) {
-      const sortedReports = Array.from(this.reports.entries())
-        .sort(([, a], [, b]) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedReports = Array.from(this.reports.entries()).sort(
+        ([, a], [, b]) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
 
       const excessCount = this.reports.size - this.config.maxReports;
       const toDelete = sortedReports.slice(0, excessCount);
@@ -831,7 +908,7 @@ export class ValidationReporter extends EventEmitter {
 
         // Update index
         const taskReports = this.reportIndex.get(report.taskId) || [];
-        const updatedReports = taskReports.filter(id => id !== reportId);
+        const updatedReports = taskReports.filter((id) => id !== reportId);
         if (updatedReports.length === 0) {
           this.reportIndex.delete(report.taskId);
         } else {

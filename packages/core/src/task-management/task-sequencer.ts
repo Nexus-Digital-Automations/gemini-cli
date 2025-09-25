@@ -10,12 +10,9 @@ import type {
   SchedulingFactors,
   ExecutionSequence,
   ResourceAllocation,
-  TaskQueueConfig} from './types.js';
-import {
-  TaskPriority,
-  TaskStatus,
-  ResourceConstraint
+  TaskQueueConfig,
 } from './types.js';
+import { TaskPriority, TaskStatus, ResourceConstraint } from './types.js';
 import type { DependencyGraphManager } from './dependency-graph.js';
 import { getComponentLogger } from '../utils/logger.js';
 
@@ -29,7 +26,10 @@ export class TaskSequencer {
   private resourcePools: Map<string, number>;
   private config: TaskQueueConfig;
 
-  constructor(dependencyGraph: DependencyGraphManager, config: TaskQueueConfig) {
+  constructor(
+    dependencyGraph: DependencyGraphManager,
+    config: TaskQueueConfig,
+  ) {
     this.dependencyGraph = dependencyGraph;
     this.resourcePools = new Map(config.resourcePools);
     this.config = config;
@@ -40,11 +40,15 @@ export class TaskSequencer {
    */
   generateExecutionSequence(
     tasks: Map<TaskId, Task>,
-    algorithm: 'priority' | 'dependency_aware' | 'resource_optimal' | 'hybrid' = 'hybrid'
+    algorithm:
+      | 'priority'
+      | 'dependency_aware'
+      | 'resource_optimal'
+      | 'hybrid' = 'hybrid',
   ): ExecutionSequence {
     logger.debug('Generating execution sequence', {
       algorithm,
-      taskCount: tasks.size
+      taskCount: tasks.size,
     });
 
     switch (algorithm) {
@@ -64,7 +68,9 @@ export class TaskSequencer {
   /**
    * Priority-based sequencing algorithm
    */
-  private generatePriorityBasedSequence(tasks: Map<TaskId, Task>): ExecutionSequence {
+  private generatePriorityBasedSequence(
+    tasks: Map<TaskId, Task>,
+  ): ExecutionSequence {
     logger.debug('Using priority-based sequencing');
 
     const taskArray = Array.from(tasks.values());
@@ -82,7 +88,7 @@ export class TaskSequencer {
       return a.metadata.createdAt.getTime() - b.metadata.createdAt.getTime();
     });
 
-    const sequence = taskArray.map(task => task.id);
+    const sequence = taskArray.map((task) => task.id);
     const parallelGroups = this.identifyParallelGroups(sequence, tasks);
     const criticalPath = this.dependencyGraph.calculateCriticalPath();
     const estimatedDuration = this.calculateEstimatedDuration(sequence, tasks);
@@ -104,30 +110,42 @@ export class TaskSequencer {
   /**
    * Dependency-aware sequencing algorithm
    */
-  private generateDependencyAwareSequence(tasks: Map<TaskId, Task>): ExecutionSequence {
+  private generateDependencyAwareSequence(
+    tasks: Map<TaskId, Task>,
+  ): ExecutionSequence {
     logger.debug('Using dependency-aware sequencing');
 
     const topologicalOrder = this.dependencyGraph.getTopologicalOrder();
     if (!topologicalOrder) {
-      logger.error('Cannot generate dependency-aware sequence: circular dependencies detected');
+      logger.error(
+        'Cannot generate dependency-aware sequence: circular dependencies detected',
+      );
       // Fallback to priority-based for tasks with circular dependencies
       return this.generatePriorityBasedSequence(tasks);
     }
 
     // Filter to only include tasks that are in our task set
-    const sequence = topologicalOrder.filter(taskId => tasks.has(taskId));
+    const sequence = topologicalOrder.filter((taskId) => tasks.has(taskId));
 
     // Optimize within dependency constraints using priority
-    const optimizedSequence = this.optimizeWithinDependencyConstraints(sequence, tasks);
+    const optimizedSequence = this.optimizeWithinDependencyConstraints(
+      sequence,
+      tasks,
+    );
 
-    const parallelGroups = this.dependencyGraph.getParallelizableTasks()
-      .filter(group => group.some(taskId => tasks.has(taskId)))
-      .map(group => group.filter(taskId => tasks.has(taskId)));
+    const parallelGroups = this.dependencyGraph
+      .getParallelizableTasks()
+      .filter((group) => group.some((taskId) => tasks.has(taskId)))
+      .map((group) => group.filter((taskId) => tasks.has(taskId)));
 
-    const criticalPath = this.dependencyGraph.calculateCriticalPath()
-      .filter(taskId => tasks.has(taskId));
+    const criticalPath = this.dependencyGraph
+      .calculateCriticalPath()
+      .filter((taskId) => tasks.has(taskId));
 
-    const estimatedDuration = this.calculateEstimatedDuration(optimizedSequence, tasks);
+    const estimatedDuration = this.calculateEstimatedDuration(
+      optimizedSequence,
+      tasks,
+    );
 
     return {
       sequence: optimizedSequence,
@@ -146,7 +164,9 @@ export class TaskSequencer {
   /**
    * Resource-optimal sequencing algorithm
    */
-  private generateResourceOptimalSequence(tasks: Map<TaskId, Task>): ExecutionSequence {
+  private generateResourceOptimalSequence(
+    tasks: Map<TaskId, Task>,
+  ): ExecutionSequence {
     logger.debug('Using resource-optimal sequencing');
 
     const taskArray = Array.from(tasks.values());
@@ -193,7 +213,10 @@ export class TaskSequencer {
         }
       }
 
-      if (canExecuteNow && this.canExecuteInParallel(task, currentGroup, tasks)) {
+      if (
+        canExecuteNow &&
+        this.canExecuteInParallel(task, currentGroup, tasks)
+      ) {
         currentGroup.push(task.id);
 
         // Update resource allocations
@@ -228,13 +251,12 @@ export class TaskSequencer {
       sequence.push(...currentGroup);
     }
 
-    const criticalPath = this.dependencyGraph.calculateCriticalPath()
-      .filter(taskId => tasks.has(taskId));
+    const criticalPath = this.dependencyGraph
+      .calculateCriticalPath()
+      .filter((taskId) => tasks.has(taskId));
 
-    const estimatedDuration = this.calculateEstimatedDurationWithParallelization(
-      parallelGroups,
-      tasks
-    );
+    const estimatedDuration =
+      this.calculateEstimatedDurationWithParallelization(parallelGroups, tasks);
 
     return {
       sequence,
@@ -244,7 +266,11 @@ export class TaskSequencer {
       metadata: {
         algorithm: 'resource_optimal',
         generatedAt: new Date(),
-        factors: ['resource_efficiency', 'resource_availability', 'parallelization'],
+        factors: [
+          'resource_efficiency',
+          'resource_availability',
+          'parallelization',
+        ],
         constraints: ['resource_limits', 'dependencies'],
       },
     };
@@ -264,9 +290,10 @@ export class TaskSequencer {
     }
 
     // Get dependency constraints
-    const dependencyGroups = this.dependencyGraph.getParallelizableTasks()
-      .filter(group => group.some(taskId => tasks.has(taskId)))
-      .map(group => group.filter(taskId => tasks.has(taskId)));
+    const dependencyGroups = this.dependencyGraph
+      .getParallelizableTasks()
+      .filter((group) => group.some((taskId) => tasks.has(taskId)))
+      .map((group) => group.filter((taskId) => tasks.has(taskId)));
 
     // Generate sequence respecting dependencies and optimizing for multiple factors
     const sequence: TaskId[] = [];
@@ -278,8 +305,12 @@ export class TaskSequencer {
 
       // Sort tasks within this dependency group by hybrid score
       const groupTasks = dependencyGroup
-        .map(taskId => ({ taskId, task: tasks.get(taskId)!, factors: schedulingFactors.get(taskId)! }))
-        .filter(item => !processedTasks.has(item.taskId));
+        .map((taskId) => ({
+          taskId,
+          task: tasks.get(taskId)!,
+          factors: schedulingFactors.get(taskId)!,
+        }))
+        .filter((item) => !processedTasks.has(item.taskId));
 
       groupTasks.sort((a, b) => {
         const aScore = this.calculateHybridScore(a.factors);
@@ -289,24 +320,23 @@ export class TaskSequencer {
 
       // Apply resource-aware parallelization within the group
       const resourceOptimizedGroups = this.optimizeGroupForResources(
-        groupTasks.map(item => item.task)
+        groupTasks.map((item) => item.task),
       );
 
       for (const resourceGroup of resourceOptimizedGroups) {
-        const groupIds = resourceGroup.map(task => task.id);
+        const groupIds = resourceGroup.map((task) => task.id);
         parallelGroups.push(groupIds);
         sequence.push(...groupIds);
-        groupIds.forEach(id => processedTasks.add(id));
+        groupIds.forEach((id) => processedTasks.add(id));
       }
     }
 
-    const criticalPath = this.dependencyGraph.calculateCriticalPath()
-      .filter(taskId => tasks.has(taskId));
+    const criticalPath = this.dependencyGraph
+      .calculateCriticalPath()
+      .filter((taskId) => tasks.has(taskId));
 
-    const estimatedDuration = this.calculateEstimatedDurationWithParallelization(
-      parallelGroups,
-      tasks
-    );
+    const estimatedDuration =
+      this.calculateEstimatedDurationWithParallelization(parallelGroups, tasks);
 
     return {
       sequence,
@@ -322,7 +352,7 @@ export class TaskSequencer {
           'resource_efficiency',
           'impact_factor',
           'urgency',
-          'success_rate'
+          'success_rate',
         ],
         constraints: ['dependencies', 'resources', 'parallelization'],
       },
@@ -345,7 +375,9 @@ export class TaskSequencer {
     const impact = Math.min(dependencyImpact.totalImpact / 10, 1); // Normalize
 
     // Calculate dependency weight
-    const dependencyWeight = dependencyImpact.totalImpact + (dependencyImpact.criticalPathImpact ? 5 : 0);
+    const dependencyWeight =
+      dependencyImpact.totalImpact +
+      (dependencyImpact.criticalPathImpact ? 5 : 0);
 
     // Resource availability factor (simplified)
     const resourceRequirements = this.getTaskResourceRequirements(task);
@@ -353,13 +385,19 @@ export class TaskSequencer {
     for (const [resourceType, required] of resourceRequirements) {
       const available = this.resourcePools.get(resourceType) || 0;
       if (available > 0) {
-        resourceAvailability = Math.min(resourceAvailability, available / (available + required));
+        resourceAvailability = Math.min(
+          resourceAvailability,
+          available / (available + required),
+        );
       }
     }
 
     // Duration factor (prefer shorter tasks for quick wins)
     const estimatedDuration = task.metadata.estimatedDuration || 60000; // Default 1 minute
-    const durationFactor = Math.max(0.1, 1 - (estimatedDuration / (60 * 60 * 1000))); // Penalize tasks longer than 1 hour
+    const durationFactor = Math.max(
+      0.1,
+      1 - estimatedDuration / (60 * 60 * 1000),
+    ); // Penalize tasks longer than 1 hour
 
     return {
       basePriority,
@@ -404,14 +442,20 @@ export class TaskSequencer {
   /**
    * Optimize task sequence within dependency constraints
    */
-  private optimizeWithinDependencyConstraints(sequence: TaskId[], tasks: Map<TaskId, Task>): TaskId[] {
+  private optimizeWithinDependencyConstraints(
+    sequence: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): TaskId[] {
     // Group tasks that can be reordered without violating dependencies
     const reorderableGroups: TaskId[][] = [];
     let currentGroup: TaskId[] = [];
 
     for (let i = 0; i < sequence.length; i++) {
       const taskId = sequence[i];
-      const canMoveWithinGroup = this.canReorderWithinGroup(taskId, currentGroup);
+      const canMoveWithinGroup = this.canReorderWithinGroup(
+        taskId,
+        currentGroup,
+      );
 
       if (canMoveWithinGroup && currentGroup.length > 0) {
         currentGroup.push(taskId);
@@ -430,9 +474,9 @@ export class TaskSequencer {
     // Optimize each reorderable group
     const optimizedSequence: TaskId[] = [];
     for (const group of reorderableGroups) {
-      const groupTasks = group.map(id => tasks.get(id)!).filter(Boolean);
+      const groupTasks = group.map((id) => tasks.get(id)!).filter(Boolean);
       const optimizedGroup = this.optimizeTaskGroup(groupTasks);
-      optimizedSequence.push(...optimizedGroup.map(task => task.id));
+      optimizedSequence.push(...optimizedGroup.map((task) => task.id));
     }
 
     return optimizedSequence;
@@ -446,8 +490,10 @@ export class TaskSequencer {
 
     // Check if any task in the group depends on this task
     for (const groupTaskId of group) {
-      if (dependencyImpact.directDependents.includes(groupTaskId) ||
-          dependencyImpact.indirectDependents.includes(groupTaskId)) {
+      if (
+        dependencyImpact.directDependents.includes(groupTaskId) ||
+        dependencyImpact.indirectDependents.includes(groupTaskId)
+      ) {
         return false;
       }
     }
@@ -483,7 +529,8 @@ export class TaskSequencer {
       const aDuration = a.metadata.estimatedDuration || 60000;
       const bDuration = b.metadata.estimatedDuration || 60000;
 
-      if (Math.abs(aDuration - bDuration) > 30000) { // 30 second threshold
+      if (Math.abs(aDuration - bDuration) > 30000) {
+        // 30 second threshold
         return aDuration - bDuration;
       }
 
@@ -495,7 +542,10 @@ export class TaskSequencer {
   /**
    * Identify parallel execution groups from a sequence
    */
-  private identifyParallelGroups(sequence: TaskId[], tasks: Map<TaskId, Task>): TaskId[][] {
+  private identifyParallelGroups(
+    sequence: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): TaskId[][] {
     const groups: TaskId[][] = [];
     let currentGroup: TaskId[] = [];
 
@@ -503,7 +553,10 @@ export class TaskSequencer {
       const task = tasks.get(taskId);
       if (!task) continue;
 
-      if (currentGroup.length === 0 || this.canExecuteInParallel(task, currentGroup, tasks)) {
+      if (
+        currentGroup.length === 0 ||
+        this.canExecuteInParallel(task, currentGroup, tasks)
+      ) {
         currentGroup.push(taskId);
       } else {
         if (currentGroup.length > 0) {
@@ -523,7 +576,11 @@ export class TaskSequencer {
   /**
    * Check if a task can execute in parallel with other tasks in a group
    */
-  private canExecuteInParallel(task: Task, groupTaskIds: TaskId[], tasks: Map<TaskId, Task>): boolean {
+  private canExecuteInParallel(
+    task: Task,
+    groupTaskIds: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): boolean {
     // Check dependency constraints
     const node = this.dependencyGraph.getGraph().nodes.get(task.id);
     if (node) {
@@ -567,7 +624,9 @@ export class TaskSequencer {
   private calculateResourceEfficiency(task: Task): number {
     const resourceRequirements = this.getTaskResourceRequirements(task);
     const estimatedDuration = task.metadata.estimatedDuration || 60000;
-    const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[task.priority];
+    const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[
+      task.priority
+    ];
 
     let totalResourceCost = 0;
     for (const [, amount] of resourceRequirements) {
@@ -575,9 +634,10 @@ export class TaskSequencer {
     }
 
     // Higher efficiency = higher priority per unit resource per unit time
-    const efficiency = totalResourceCost > 0
-      ? (priorityScore * 1000) / (totalResourceCost * estimatedDuration)
-      : priorityScore;
+    const efficiency =
+      totalResourceCost > 0
+        ? (priorityScore * 1000) / (totalResourceCost * estimatedDuration)
+        : priorityScore;
 
     return efficiency;
   }
@@ -595,15 +655,37 @@ export class TaskSequencer {
     } else {
       // Default resource requirements based on task category
       const defaultRequirements = {
-        'implementation': [['cpu', 2], ['memory', 512]],
-        'testing': [['cpu', 1], ['memory', 256]],
-        'documentation': [['cpu', 1], ['memory', 128]],
-        'analysis': [['cpu', 3], ['memory', 1024]],
-        'refactoring': [['cpu', 2], ['memory', 512]],
-        'deployment': [['cpu', 1], ['memory', 256], ['network', 1]],
+        implementation: [
+          ['cpu', 2],
+          ['memory', 512],
+        ],
+        testing: [
+          ['cpu', 1],
+          ['memory', 256],
+        ],
+        documentation: [
+          ['cpu', 1],
+          ['memory', 128],
+        ],
+        analysis: [
+          ['cpu', 3],
+          ['memory', 1024],
+        ],
+        refactoring: [
+          ['cpu', 2],
+          ['memory', 512],
+        ],
+        deployment: [
+          ['cpu', 1],
+          ['memory', 256],
+          ['network', 1],
+        ],
       };
 
-      const taskDefaults = defaultRequirements[task.category] || [['cpu', 1], ['memory', 256]];
+      const taskDefaults = defaultRequirements[task.category] || [
+        ['cpu', 1],
+        ['memory', 256],
+      ];
       for (const [resourceType, amount] of taskDefaults) {
         requirements.set(resourceType, amount as number);
       }
@@ -687,7 +769,10 @@ export class TaskSequencer {
   /**
    * Calculate estimated duration for a task sequence
    */
-  private calculateEstimatedDuration(sequence: TaskId[], tasks: Map<TaskId, Task>): number {
+  private calculateEstimatedDuration(
+    sequence: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): number {
     let totalDuration = 0;
     for (const taskId of sequence) {
       const task = tasks.get(taskId);
@@ -703,7 +788,7 @@ export class TaskSequencer {
    */
   private calculateEstimatedDurationWithParallelization(
     parallelGroups: TaskId[][],
-    tasks: Map<TaskId, Task>
+    tasks: Map<TaskId, Task>,
   ): number {
     let totalDuration = 0;
 
@@ -727,7 +812,7 @@ export class TaskSequencer {
    */
   generateResourceAllocations(
     sequence: ExecutionSequence,
-    tasks: Map<TaskId, Task>
+    tasks: Map<TaskId, Task>,
   ): ResourceAllocation[] {
     const allocations: ResourceAllocation[] = [];
     const resourceUsage = new Map<string, number>();
@@ -779,14 +864,17 @@ export class TaskSequencer {
   updateResourcePools(newPools: Map<string, number>): void {
     this.resourcePools = new Map(newPools);
     logger.debug('Resource pools updated', {
-      pools: Object.fromEntries(this.resourcePools)
+      pools: Object.fromEntries(this.resourcePools),
     });
   }
 
   /**
    * Get current resource utilization
    */
-  getResourceUtilization(): Map<string, { total: number; used: number; available: number }> {
+  getResourceUtilization(): Map<
+    string,
+    { total: number; used: number; available: number }
+  > {
     const utilization = new Map();
 
     for (const [resourceType, total] of this.resourcePools) {

@@ -13,7 +13,7 @@ import type {
   ValidationReport,
   ValidationSeverity,
   ValidationStatus,
-  ValidationCategory
+  ValidationCategory,
 } from './ValidationFramework.js';
 import type { WorkflowExecutionResult } from './ValidationWorkflow.js';
 
@@ -26,7 +26,7 @@ export enum ReportFormat {
   HTML = 'html',
   CSV = 'csv',
   JUNIT = 'junit',
-  SARIF = 'sarif'
+  SARIF = 'sarif',
 }
 
 /**
@@ -37,7 +37,7 @@ export enum AnalyticsPeriod {
   DAY = 'day',
   WEEK = 'week',
   MONTH = 'month',
-  YEAR = 'year'
+  YEAR = 'year',
 }
 
 /**
@@ -166,7 +166,9 @@ export class ValidationReporting extends EventEmitter {
   private readonly logger: Logger;
   private readonly config: ValidationReportingConfig;
   private readonly metricsStore: Map<string, ValidationMetrics> = new Map();
-  private readonly reportHistory: Array<ValidationReport | WorkflowExecutionResult> = [];
+  private readonly reportHistory: Array<
+    ValidationReport | WorkflowExecutionResult
+  > = [];
   private readonly dashboardWidgets: Map<string, DashboardWidget> = new Map();
   private dashboardServer?: any; // HTTP server for dashboard
   private metricsCollectionInterval?: NodeJS.Timeout;
@@ -190,20 +192,20 @@ export class ValidationReporting extends EventEmitter {
         alertThresholds: {
           failureRate: 0.1,
           avgDuration: 5000,
-          errorCount: 10
-        }
+          errorCount: 10,
+        },
       },
       dashboard: {
         enabled: false,
         port: 8080,
         updateInterval: 30000,
-        widgets: ['metrics', 'trends', 'alerts', 'failures']
+        widgets: ['metrics', 'trends', 'alerts', 'failures'],
       },
       notifications: {
         enabled: false,
-        channels: []
+        channels: [],
       },
-      ...config
+      ...config,
     };
 
     this.initializeReporting();
@@ -231,9 +233,8 @@ export class ValidationReporting extends EventEmitter {
         outputDirectory: this.config.outputDirectory,
         formats: this.config.formats,
         analyticsEnabled: this.config.analytics.enabled,
-        dashboardEnabled: this.config.dashboard.enabled
+        dashboardEnabled: this.config.dashboard.enabled,
       });
-
     } catch (error) {
       this.logger.error('Failed to initialize validation reporting', { error });
       throw error;
@@ -245,14 +246,14 @@ export class ValidationReporting extends EventEmitter {
    */
   async generateReport(
     data: ValidationReport | WorkflowExecutionResult,
-    customMetadata?: Record<string, unknown>
+    customMetadata?: Record<string, unknown>,
   ): Promise<{ [format: string]: string }> {
     const reportId = `report-${data.taskId}-${Date.now()}`;
     const generatedPaths: { [format: string]: string } = {};
 
     this.logger.info(`Generating validation report: ${reportId}`, {
       taskId: data.taskId,
-      formats: this.config.formats
+      formats: this.config.formats,
     });
 
     try {
@@ -270,10 +271,16 @@ export class ValidationReporting extends EventEmitter {
       // Generate reports in all configured formats
       for (const format of this.config.formats) {
         try {
-          const filePath = await this.generateReportFormat(reportId, format, templateData);
+          const filePath = await this.generateReportFormat(
+            reportId,
+            format,
+            templateData,
+          );
           generatedPaths[format] = filePath;
         } catch (formatError) {
-          this.logger.error(`Failed to generate ${format} report`, { error: formatError });
+          this.logger.error(`Failed to generate ${format} report`, {
+            error: formatError,
+          });
         }
       }
 
@@ -296,17 +303,16 @@ export class ValidationReporting extends EventEmitter {
         reportId,
         taskId: data.taskId,
         paths: generatedPaths,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       return generatedPaths;
-
     } catch (error) {
       this.logger.error(`Failed to generate report: ${reportId}`, { error });
       this.emit('reportGenerationFailed', {
         reportId,
         taskId: data.taskId,
-        error: (error as Error).message
+        error: (error as Error).message,
       });
       throw error;
     }
@@ -318,7 +324,7 @@ export class ValidationReporting extends EventEmitter {
   private async generateReportFormat(
     reportId: string,
     format: ReportFormat,
-    templateData: ReportTemplateData
+    templateData: ReportTemplateData,
   ): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `${reportId}-${timestamp}.${format}`;
@@ -358,14 +364,16 @@ export class ValidationReporting extends EventEmitter {
   /**
    * Generate JSON report
    */
-  private async generateJSONReport(templateData: ReportTemplateData): Promise<string> {
+  private async generateJSONReport(
+    templateData: ReportTemplateData,
+  ): Promise<string> {
     const jsonReport = {
       version: '1.0.0',
       generatedAt: templateData.generatedAt.toISOString(),
       report: templateData.report,
       summary: templateData.summary,
       ...(this.config.includeMetadata && { metadata: templateData.metadata }),
-      ...(this.config.analytics.enabled && { metrics: templateData.metrics })
+      ...(this.config.analytics.enabled && { metrics: templateData.metrics }),
     };
 
     return JSON.stringify(jsonReport, null, 2);
@@ -374,8 +382,11 @@ export class ValidationReporting extends EventEmitter {
   /**
    * Generate XML report
    */
-  private async generateXMLReport(templateData: ReportTemplateData): Promise<string> {
-    const escapeXml = (str: string): string => str
+  private async generateXMLReport(
+    templateData: ReportTemplateData,
+  ): Promise<string> {
+    const escapeXml = (str: string): string =>
+      str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -409,7 +420,8 @@ export class ValidationReporting extends EventEmitter {
         xml += `      <Severity>${escapeXml(result.severity)}</Severity>\n`;
         xml += `      <Status>${escapeXml(result.status)}</Status>\n`;
         xml += `      <Message>${escapeXml(result.message)}</Message>\n`;
-        if (result.file) xml += `      <File>${escapeXml(result.file)}</File>\n`;
+        if (result.file)
+          xml += `      <File>${escapeXml(result.file)}</File>\n`;
         if (result.line) xml += `      <Line>${result.line}</Line>\n`;
         xml += '    </Result>\n';
       }
@@ -423,7 +435,9 @@ export class ValidationReporting extends EventEmitter {
   /**
    * Generate HTML report
    */
-  private async generateHTMLReport(templateData: ReportTemplateData): Promise<string> {
+  private async generateHTMLReport(
+    templateData: ReportTemplateData,
+  ): Promise<string> {
     const report = templateData.report;
     const summary = templateData.summary;
 
@@ -481,12 +495,20 @@ export class ValidationReporting extends EventEmitter {
     </div>`;
 
     // Add results if available
-    if ('results' in report && this.config.includeDetails && report.results.length > 0) {
+    if (
+      'results' in report &&
+      this.config.includeDetails &&
+      report.results.length > 0
+    ) {
       html += '<div class="results"><h2>Validation Results</h2>';
 
       for (const result of report.results) {
-        const statusClass = result.status === 'passed' ? 'passed' :
-                          result.status === 'failed' ? 'error' : 'warning';
+        const statusClass =
+          result.status === 'passed'
+            ? 'passed'
+            : result.status === 'failed'
+              ? 'error'
+              : 'warning';
 
         html += `
         <div class="result ${statusClass}">
@@ -515,7 +537,9 @@ export class ValidationReporting extends EventEmitter {
   /**
    * Generate CSV report
    */
-  private async generateCSVReport(templateData: ReportTemplateData): Promise<string> {
+  private async generateCSVReport(
+    templateData: ReportTemplateData,
+  ): Promise<string> {
     const report = templateData.report;
     let csv = 'ID,Category,Severity,Status,Message,File,Line,Timestamp\n';
 
@@ -526,16 +550,17 @@ export class ValidationReporting extends EventEmitter {
           return `"${str.replace(/"/g, '""')}"`;
         };
 
-        csv += [
-          escapeCsv(result.id),
-          escapeCsv(result.category),
-          escapeCsv(result.severity),
-          escapeCsv(result.status),
-          escapeCsv(result.message),
-          escapeCsv(result.file),
-          result.line || '',
-          result.timestamp.toISOString()
-        ].join(',') + '\n';
+        csv +=
+          [
+            escapeCsv(result.id),
+            escapeCsv(result.category),
+            escapeCsv(result.severity),
+            escapeCsv(result.status),
+            escapeCsv(result.message),
+            escapeCsv(result.file),
+            result.line || '',
+            result.timestamp.toISOString(),
+          ].join(',') + '\n';
       }
     }
 
@@ -545,9 +570,12 @@ export class ValidationReporting extends EventEmitter {
   /**
    * Generate JUnit XML report
    */
-  private async generateJUnitReport(templateData: ReportTemplateData): Promise<string> {
+  private async generateJUnitReport(
+    templateData: ReportTemplateData,
+  ): Promise<string> {
     const report = templateData.report;
-    const escapeXml = (str: string): string => str
+    const escapeXml = (str: string): string =>
+      str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -557,8 +585,12 @@ export class ValidationReporting extends EventEmitter {
 
     if ('results' in report) {
       const totalTests = report.results.length;
-      const failures = report.results.filter(r => r.status === 'failed').length;
-      const errors = report.results.filter(r => r.severity === 'error' || r.severity === 'critical').length;
+      const failures = report.results.filter(
+        (r) => r.status === 'failed',
+      ).length;
+      const errors = report.results.filter(
+        (r) => r.severity === 'error' || r.severity === 'critical',
+      ).length;
 
       xml += `<testsuite name="${escapeXml(report.taskId)}" `;
       xml += `tests="${totalTests}" failures="${failures}" errors="${errors}" `;
@@ -583,7 +615,8 @@ export class ValidationReporting extends EventEmitter {
 
       xml += '</testsuite>\n';
     } else {
-      xml += '<testsuite name="ValidationWorkflow" tests="0" failures="0" errors="0" time="0"/>\n';
+      xml +=
+        '<testsuite name="ValidationWorkflow" tests="0" failures="0" errors="0" time="0"/>\n';
     }
 
     return xml;
@@ -592,23 +625,26 @@ export class ValidationReporting extends EventEmitter {
   /**
    * Generate SARIF report for security findings
    */
-  private async generateSARIFReport(templateData: ReportTemplateData): Promise<string> {
+  private async generateSARIFReport(
+    templateData: ReportTemplateData,
+  ): Promise<string> {
     const report = templateData.report;
     const sarif = {
       version: '2.1.0',
-      $schema: 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
+      $schema:
+        'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
       runs: [
         {
           tool: {
             driver: {
               name: 'GeminiCLI Validation',
               version: '1.0.0',
-              informationUri: 'https://github.com/google-gemini/gemini-cli'
-            }
+              informationUri: 'https://github.com/google-gemini/gemini-cli',
+            },
           },
-          results: [] as any[]
-        }
-      ]
+          results: [] as any[],
+        },
+      ],
     };
 
     if ('results' in report) {
@@ -616,23 +652,34 @@ export class ValidationReporting extends EventEmitter {
         if (result.category === 'security') {
           sarif.runs[0].results.push({
             ruleId: result.rule || result.id,
-            level: result.severity === 'critical' ? 'error' :
-                   result.severity === 'error' ? 'error' :
-                   result.severity === 'warning' ? 'warning' : 'note',
+            level:
+              result.severity === 'critical'
+                ? 'error'
+                : result.severity === 'error'
+                  ? 'error'
+                  : result.severity === 'warning'
+                    ? 'warning'
+                    : 'note',
             message: {
-              text: result.message
+              text: result.message,
             },
-            locations: result.file ? [{
-              physicalLocation: {
-                artifactLocation: {
-                  uri: result.file
-                },
-                region: result.line ? {
-                  startLine: result.line,
-                  startColumn: result.column || 1
-                } : undefined
-              }
-            }] : undefined
+            locations: result.file
+              ? [
+                  {
+                    physicalLocation: {
+                      artifactLocation: {
+                        uri: result.file,
+                      },
+                      region: result.line
+                        ? {
+                            startLine: result.line,
+                            startColumn: result.column || 1,
+                          }
+                        : undefined,
+                    },
+                  },
+                ]
+              : undefined,
           });
         }
       }
@@ -646,7 +693,7 @@ export class ValidationReporting extends EventEmitter {
    */
   private async prepareTemplateData(
     data: ValidationReport | WorkflowExecutionResult,
-    customMetadata?: Record<string, unknown>
+    customMetadata?: Record<string, unknown>,
   ): Promise<ReportTemplateData> {
     let totalIssues = 0;
     let criticalIssues = 0;
@@ -654,10 +701,14 @@ export class ValidationReporting extends EventEmitter {
     let warningIssues = 0;
 
     if ('results' in data) {
-      totalIssues = data.results.filter(r => r.status === 'failed').length;
-      criticalIssues = data.results.filter(r => r.severity === 'critical').length;
-      errorIssues = data.results.filter(r => r.severity === 'error').length;
-      warningIssues = data.results.filter(r => r.severity === 'warning').length;
+      totalIssues = data.results.filter((r) => r.status === 'failed').length;
+      criticalIssues = data.results.filter(
+        (r) => r.severity === 'critical',
+      ).length;
+      errorIssues = data.results.filter((r) => r.severity === 'error').length;
+      warningIssues = data.results.filter(
+        (r) => r.severity === 'warning',
+      ).length;
     } else {
       totalIssues = data.summary.totalIssues;
       criticalIssues = data.summary.criticalIssues;
@@ -665,10 +716,13 @@ export class ValidationReporting extends EventEmitter {
       warningIssues = data.summary.warningIssues;
     }
 
-    const totalValidations = 'totalRules' in data ? data.totalRules : data.summary.totalValidators;
-    const passedValidations = 'passedRules' in data ? data.passedRules : data.summary.passedValidators;
+    const totalValidations =
+      'totalRules' in data ? data.totalRules : data.summary.totalValidators;
+    const passedValidations =
+      'passedRules' in data ? data.passedRules : data.summary.passedValidators;
 
-    const passRate = totalValidations > 0 ? (passedValidations / totalValidations) * 100 : 0;
+    const passRate =
+      totalValidations > 0 ? (passedValidations / totalValidations) * 100 : 0;
     const failureRate = 100 - passRate;
 
     return {
@@ -679,7 +733,7 @@ export class ValidationReporting extends EventEmitter {
         errorIssues,
         warningIssues,
         passRate,
-        failureRate
+        failureRate,
       },
       metrics: await this.getCurrentMetrics(),
       generatedAt: new Date(),
@@ -688,9 +742,9 @@ export class ValidationReporting extends EventEmitter {
         ...customMetadata,
         reportingConfig: {
           formats: this.config.formats,
-          includeDetails: this.config.includeDetails
-        }
-      }
+          includeDetails: this.config.includeDetails,
+        },
+      },
     };
   }
 
@@ -725,7 +779,7 @@ export class ValidationReporting extends EventEmitter {
       title: 'Validation Metrics',
       type: 'metric',
       data: {},
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     });
 
     this.dashboardWidgets.set('trends', {
@@ -733,14 +787,16 @@ export class ValidationReporting extends EventEmitter {
       title: 'Validation Trends',
       type: 'chart',
       data: {},
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     });
   }
 
   /**
    * Update analytics with new data
    */
-  private async updateAnalytics(data: ValidationReport | WorkflowExecutionResult): Promise<void> {
+  private async updateAnalytics(
+    data: ValidationReport | WorkflowExecutionResult,
+  ): Promise<void> {
     // This would update analytics database or storage
     // For now, just update in-memory metrics
     await this.collectMetrics();
@@ -773,8 +829,8 @@ export class ValidationReporting extends EventEmitter {
         p50Duration: 0,
         p90Duration: 0,
         p99Duration: 0,
-        slowestValidations: []
-      }
+        slowestValidations: [],
+      },
     };
   }
 
@@ -791,7 +847,7 @@ export class ValidationReporting extends EventEmitter {
    */
   private async sendReportNotifications(
     data: ValidationReport | WorkflowExecutionResult,
-    paths: { [format: string]: string }
+    paths: { [format: string]: string },
   ): Promise<void> {
     // Implementation would send notifications via configured channels
     this.logger.debug('Sending report notifications');
@@ -832,14 +888,14 @@ export class ValidationReporting extends EventEmitter {
     supportedFormats: ReportFormat[];
   } {
     const recentReports = this.reportHistory.filter(
-      report => Date.now() - report.timestamp.getTime() < 24 * 60 * 60 * 1000
+      (report) => Date.now() - report.timestamp.getTime() < 24 * 60 * 60 * 1000,
     ).length;
 
     return {
       totalReports: this.reportHistory.length,
       recentReports,
       activeWidgets: this.dashboardWidgets.size,
-      supportedFormats: Object.values(ReportFormat)
+      supportedFormats: Object.values(ReportFormat),
     };
   }
 

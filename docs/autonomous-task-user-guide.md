@@ -83,14 +83,14 @@ The system deploys specialized agents based on task requirements:
 
 ### Task Categories
 
-| Category | Description | Typical Duration | Agent Types |
-|----------|-------------|------------------|-------------|
-| `analysis` | Code analysis, architecture review | 5-15 minutes | Analysis, Documentation |
-| `feature` | New feature implementation | 15-45 minutes | Implementation, Testing |
-| `bug-fix` | Issue resolution | 10-30 minutes | Analysis, Implementation |
-| `security` | Security improvements | 10-25 minutes | Security, Testing |
-| `performance` | Optimization tasks | 15-35 minutes | Performance, Testing |
-| `refactor` | Code restructuring | 20-60 minutes | Implementation, Testing |
+| Category      | Description                        | Typical Duration | Agent Types              |
+| ------------- | ---------------------------------- | ---------------- | ------------------------ |
+| `analysis`    | Code analysis, architecture review | 5-15 minutes     | Analysis, Documentation  |
+| `feature`     | New feature implementation         | 15-45 minutes    | Implementation, Testing  |
+| `bug-fix`     | Issue resolution                   | 10-30 minutes    | Analysis, Implementation |
+| `security`    | Security improvements              | 10-25 minutes    | Security, Testing        |
+| `performance` | Optimization tasks                 | 15-35 minutes    | Performance, Testing     |
+| `refactor`    | Code restructuring                 | 20-60 minutes    | Implementation, Testing  |
 
 ## Common Usage Patterns
 
@@ -114,6 +114,7 @@ The system deploys specialized agents based on task requirements:
 ```
 
 **Expected Outputs**:
+
 - Security vulnerability report
 - Performance bottleneck analysis
 - Code quality metrics
@@ -138,6 +139,7 @@ The system deploys specialized agents based on task requirements:
 ```
 
 **What Happens Automatically**:
+
 1. Requirements analysis and task breakdown
 2. Implementation planning and architecture design
 3. Code generation with best practices
@@ -164,6 +166,7 @@ The system deploys specialized agents based on task requirements:
 ```
 
 **Agent Workflow**:
+
 1. **Analysis Agent**: Examines logs, reproduces issue
 2. **Implementation Agent**: Develops and tests fix
 3. **Validation Agent**: Confirms resolution, runs regression tests
@@ -248,12 +251,12 @@ Control resource usage and costs:
 # Resource management
 resource_limits:
   max_concurrent_tasks: 5
-  max_agent_memory: "2GB"
-  max_execution_time: "60 minutes"
+  max_agent_memory: '2GB'
+  max_execution_time: '60 minutes'
 
 budget_controls:
   daily_token_limit: 100000
-  monthly_budget: "$50"
+  monthly_budget: '$50'
   cost_alerts: true
   high_cost_approval: true
 
@@ -350,6 +353,7 @@ Track autonomous system performance:
 **Problem**: Tasks fail with timeout errors
 
 **Solutions**:
+
 ```bash
 # Increase time limits
 > /configure-task feature_1234567890 --max-time 60
@@ -364,6 +368,7 @@ Track autonomous system performance:
 **Problem**: Agents get stuck or hang
 
 **Solutions**:
+
 ```bash
 # Force restart stuck agent
 > /restart-agent agent_12345 --force
@@ -380,6 +385,7 @@ Track autonomous system performance:
 **Problem**: High memory usage or system slowdown
 
 **Solutions**:
+
 ```bash
 # Reduce concurrent agents
 > /configure --max-concurrent-agents 3
@@ -396,6 +402,7 @@ Track autonomous system performance:
 **Problem**: Tasks complete but with poor quality results
 
 **Solutions**:
+
 ```bash
 # Increase validation requirements
 > /configure --validation-level strict
@@ -417,7 +424,7 @@ name: Autonomous Development Tasks
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
+    - cron: '0 2 * * *' # Daily at 2 AM
   workflow_dispatch:
 
 jobs:
@@ -453,7 +460,7 @@ class AutonomousTaskProvider {
       title: `Refactor selected code: ${intention}`,
       context: { selectedCode: code },
       category: 'refactor',
-      autoApprove: true
+      autoApprove: true,
     });
 
     return this.monitorTaskProgress(task.id);
@@ -505,6 +512,7 @@ gemini create-task "Pre-commit validation" \
 ### Professional Support
 
 For enterprise users and complex implementations:
+
 - **Technical Support**: support@gemini-cli.dev
 - **Training Services**: Available for teams and organizations
 - **Custom Integration**: Consulting services for specialized use cases

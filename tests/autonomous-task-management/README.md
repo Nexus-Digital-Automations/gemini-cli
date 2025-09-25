@@ -7,7 +7,9 @@ This directory contains comprehensive tests for the autonomous task management s
 ## Test Architecture
 
 ### 1. Unit Tests (`unit/`)
+
 Tests for individual components and functions in isolation:
+
 - **TaskManager**: Task creation, validation, state management
 - **ContextState**: Context management and templating
 - **SubAgentScope**: Agent lifecycle and execution logic
@@ -16,7 +18,9 @@ Tests for individual components and functions in isolation:
 - **Dependency Manager**: Task dependency resolution
 
 ### 2. Integration Tests (`integration/`)
+
 Tests for system integration points:
+
 - **Agent-TaskManager Integration**: Communication between agents and task management
 - **Cross-Agent Communication**: Message passing and coordination
 - **Tool Integration**: Tool execution and response handling
@@ -25,7 +29,9 @@ Tests for system integration points:
 - **Configuration Management**: Settings and preferences
 
 ### 3. End-to-End Tests (`e2e/`)
+
 Tests for complete autonomous workflows:
+
 - **Autonomous Code Generation**: Complete feature implementation workflows
 - **Multi-Agent Coordination**: Complex tasks requiring multiple agents
 - **Cross-Session Workflows**: Tasks spanning multiple sessions
@@ -34,7 +40,9 @@ Tests for complete autonomous workflows:
 - **User Interaction Flows**: Request processing and response generation
 
 ### 4. Performance Tests (`performance/`)
+
 Tests for system performance under load:
+
 - **Concurrent Agent Load**: Multiple agents running simultaneously
 - **Memory Usage**: Memory consumption under various conditions
 - **Response Time**: Task execution speed and latency
@@ -43,7 +51,9 @@ Tests for system performance under load:
 - **Scalability**: Performance with increasing task complexity
 
 ### 5. Reliability Tests (`reliability/`)
+
 Tests for system reliability and error handling:
+
 - **Agent Failure Recovery**: Recovery from agent crashes
 - **Network Failure Handling**: Resilience to network issues
 - **Resource Exhaustion**: Behavior under resource constraints
@@ -52,7 +62,9 @@ Tests for system reliability and error handling:
 - **Edge Case Scenarios**: Unusual input and error conditions
 
 ### 6. Cross-Session Tests (`cross-session/`)
+
 Tests for task persistence across sessions:
+
 - **Task State Persistence**: Maintaining task state between sessions
 - **Context Continuity**: Preserving context across restarts
 - **Progress Tracking**: Resuming interrupted tasks
@@ -63,6 +75,7 @@ Tests for task persistence across sessions:
 ## Test Infrastructure
 
 ### Test Utilities (`utils/`)
+
 - **MockAgentFactory**: Creates mock agents for testing
 - **TaskBuilder**: Builds test tasks with various configurations
 - **TestDataGenerator**: Generates realistic test data
@@ -71,6 +84,7 @@ Tests for task persistence across sessions:
 - **PerformanceProfiler**: Performance measurement utilities
 
 ### Test Data (`fixtures/`)
+
 - **SampleTasks**: Pre-defined tasks for testing
 - **MockResponses**: Simulated API and service responses
 - **TestConfigurations**: Various system configurations
@@ -80,11 +94,13 @@ Tests for task persistence across sessions:
 ## Running Tests
 
 ### All Tests
+
 ```bash
 npm run test:autonomous-task-management
 ```
 
 ### Specific Test Categories
+
 ```bash
 npm run test:unit-task-management
 npm run test:integration-task-management
@@ -95,11 +111,13 @@ npm run test:cross-session-task-management
 ```
 
 ### Coverage Reports
+
 ```bash
 npm run test:coverage-task-management
 ```
 
 ### Performance Benchmarking
+
 ```bash
 npm run test:benchmark-task-management
 ```
@@ -107,12 +125,14 @@ npm run test:benchmark-task-management
 ## Test Requirements
 
 ### Minimum Coverage Targets
+
 - **Unit Tests**: 95% code coverage
 - **Integration Tests**: 90% integration point coverage
 - **End-to-End Tests**: 85% workflow coverage
 - **Error Scenarios**: 90% error path coverage
 
 ### Performance Benchmarks
+
 - **Agent Startup**: < 500ms
 - **Task Creation**: < 100ms
 - **Task Execution**: < 5s for simple tasks
@@ -121,6 +141,7 @@ npm run test:benchmark-task-management
 - **Concurrent Agents**: Support 10+ agents simultaneously
 
 ### Reliability Standards
+
 - **99.9% Uptime**: System should handle failures gracefully
 - **Zero Data Loss**: Task state should never be lost
 - **Automatic Recovery**: System should recover from failures without intervention
@@ -129,12 +150,14 @@ npm run test:benchmark-task-management
 ## Test Data Management
 
 ### Test Database
+
 - **Isolated Environment**: Tests run in isolated database
 - **Data Reset**: Database is reset between test runs
 - **Seed Data**: Consistent test data for reproducible results
 - **Cleanup**: Automatic cleanup of test artifacts
 
 ### Mock Services
+
 - **External APIs**: Mocked external service responses
 - **File System**: Virtual file system for testing
 - **Network**: Simulated network conditions
@@ -143,17 +166,20 @@ npm run test:benchmark-task-management
 ## Continuous Integration
 
 ### Pre-commit Hooks
+
 - **Linting**: Code quality checks
 - **Unit Tests**: Fast unit tests on every commit
 - **Type Checking**: TypeScript compilation validation
 
 ### CI Pipeline
+
 - **Full Test Suite**: Complete test execution on PRs
 - **Performance Regression**: Automated performance comparison
 - **Coverage Validation**: Ensuring coverage thresholds are met
 - **Integration Validation**: Testing against real services in staging
 
 ### Quality Gates
+
 - **All Tests Pass**: No failing tests allowed
 - **Coverage Threshold**: Minimum coverage requirements met
 - **Performance Baseline**: No significant performance regression
@@ -162,12 +188,14 @@ npm run test:benchmark-task-management
 ## Maintenance and Updates
 
 ### Test Maintenance
+
 - **Regular Review**: Monthly review of test effectiveness
 - **Flaky Test Monitoring**: Identification and fixing of unstable tests
 - **Test Data Updates**: Keeping test data current and relevant
 - **Performance Baseline Updates**: Updating benchmarks as system improves
 
 ### Documentation
+
 - **Test Case Documentation**: Clear description of what each test validates
 - **Failure Investigation**: Guidelines for investigating test failures
 - **Performance Analysis**: Tools and techniques for performance analysis

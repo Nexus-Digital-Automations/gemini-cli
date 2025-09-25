@@ -6,10 +6,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type {
-  BudgetSettings,
-  BudgetUsageData,
-} from './types.js';
+import type { BudgetSettings, BudgetUsageData } from './types.js';
 
 /**
  * Core budget tracking functionality for managing daily API request limits.
@@ -23,7 +20,11 @@ export class BudgetTracker {
   constructor(projectRoot: string, settings: BudgetSettings) {
     this.projectRoot = projectRoot;
     this.settings = settings;
-    this.usageFilePath = path.join(this.projectRoot, '.gemini', 'budget-usage.json');
+    this.usageFilePath = path.join(
+      this.projectRoot,
+      '.gemini',
+      'budget-usage.json',
+    );
   }
 
   /**

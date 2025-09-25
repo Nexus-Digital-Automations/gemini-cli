@@ -13,7 +13,7 @@ import type {
   TaskCategory,
   ExecutionStrategy,
   RetryPolicy,
-  TaskBreakdownContext
+  TaskBreakdownContext,
 } from './task-breakdown-engine.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
@@ -71,7 +71,7 @@ export enum ExecutionErrorType {
   PERMISSION_DENIED = 'permission_denied',
   RESOURCE_UNAVAILABLE = 'resource_unavailable',
   USER_CANCELLED = 'user_cancelled',
-  SYSTEM_ERROR = 'system_error'
+  SYSTEM_ERROR = 'system_error',
 }
 
 /**
@@ -109,7 +109,11 @@ export interface ExecutionLogger {
   debug(message: string, context?: Record<string, unknown>): void;
   info(message: string, context?: Record<string, unknown>): void;
   warn(message: string, context?: Record<string, unknown>): void;
-  error(message: string, error?: Error, context?: Record<string, unknown>): void;
+  error(
+    message: string,
+    error?: Error,
+    context?: Record<string, unknown>,
+  ): void;
   metric(name: string, value: number, labels?: Record<string, string>): void;
 }
 
@@ -127,9 +131,18 @@ export interface ExecutionStateManager {
  * Validation engine for success criteria checking
  */
 export interface ValidationEngine {
-  validateTask(task: AutonomousTask, result: TaskExecutionResult): Promise<ValidationResult>;
-  validatePreConditions(task: AutonomousTask, context: TaskExecutionContext): Promise<ValidationResult>;
-  validatePostConditions(task: AutonomousTask, result: TaskExecutionResult): Promise<ValidationResult>;
+  validateTask(
+    task: AutonomousTask,
+    result: TaskExecutionResult,
+  ): Promise<ValidationResult>;
+  validatePreConditions(
+    task: AutonomousTask,
+    context: TaskExecutionContext,
+  ): Promise<ValidationResult>;
+  validatePostConditions(
+    task: AutonomousTask,
+    result: TaskExecutionResult,
+  ): Promise<ValidationResult>;
 }
 
 /**
@@ -147,9 +160,15 @@ export interface ValidationResult {
  * Execution strategy selector
  */
 export interface ExecutionStrategySelector {
-  selectStrategy(task: AutonomousTask, context: TaskExecutionContext): ExecutionStrategy;
+  selectStrategy(
+    task: AutonomousTask,
+    context: TaskExecutionContext,
+  ): ExecutionStrategy;
   canExecuteConcurrently(tasks: AutonomousTask[]): boolean;
-  estimateExecutionTime(task: AutonomousTask, strategy: ExecutionStrategy): number;
+  estimateExecutionTime(
+    task: AutonomousTask,
+    strategy: ExecutionStrategy,
+  ): number;
 }
 
 /**
@@ -160,14 +179,18 @@ export interface ExecutionStrategySelector {
  */
 export class AutonomousExecutionEngine extends EventEmitter {
   private readonly strategySelector: ExecutionStrategySelector;
-  private readonly runningTasks = new Map<string, Promise<TaskExecutionResult>>();
+  private readonly runningTasks = new Map<
+    string,
+    Promise<TaskExecutionResult>
+  >();
   private readonly taskStates = new Map<string, ExecutionState>();
   private readonly executionQueue: AutonomousTask[] = [];
   private isProcessing = false;
 
   constructor(strategySelector?: ExecutionStrategySelector) {
     super();
-    this.strategySelector = strategySelector || new DefaultExecutionStrategySelector();
+    this.strategySelector =
+      strategySelector || new DefaultExecutionStrategySelector();
 
     // Set up event listeners for lifecycle management
     this.setupEventHandlers();
@@ -178,24 +201,30 @@ export class AutonomousExecutionEngine extends EventEmitter {
    */
   async executeTask(
     task: AutonomousTask,
-    context: TaskExecutionContext
+    context: TaskExecutionContext,
   ): Promise<TaskExecutionResult> {
     const startTime = new Date();
     const logger = context.logger;
     const metrics: ExecutionMetrics = {
       toolInvocations: 0,
       retryAttempts: 0,
-      validationChecks: 0
+      validationChecks: 0,
     };
 
-    logger.info(`Starting task execution: ${task.title}`, { taskId: task.id, category: task.category });
+    logger.info(`Starting task execution: ${task.title}`, {
+      taskId: task.id,
+      category: task.category,
+    });
 
     try {
       // Pre-execution validation
       metrics.validationChecks++;
-      const preValidation = await context.validationEngine.validatePreConditions(task, context);
+      const preValidation =
+        await context.validationEngine.validatePreConditions(task, context);
       if (!preValidation.passed) {
-        throw new Error(`Pre-condition validation failed: ${preValidation.errors.join(', ')}`);
+        throw new Error(
+          `Pre-condition validation failed: ${preValidation.errors.join(', ')}`,
+        );
       }
 
       // Select execution strategy
@@ -203,7 +232,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
       logger.debug(`Selected execution strategy: ${strategy.type}`, {
         taskId: task.id,
         strategy: strategy.type,
-        maxConcurrency: strategy.maxConcurrency
+        maxConcurrency: strategy.maxConcurrency,
       });
 
       // Execute task with strategy
@@ -217,21 +246,24 @@ export class AutonomousExecutionEngine extends EventEmitter {
 
       // Post-execution validation
       metrics.validationChecks++;
-      const postValidation = await context.validationEngine.validatePostConditions(task, result);
+      const postValidation =
+        await context.validationEngine.validatePostConditions(task, result);
       if (!postValidation.passed) {
-        logger.warn(`Post-condition validation failed: ${postValidation.warnings.join(', ')}`, { taskId: task.id });
+        logger.warn(
+          `Post-condition validation failed: ${postValidation.warnings.join(', ')}`,
+          { taskId: task.id },
+        );
       }
 
       result.metrics = metrics;
       logger.info(`Task execution completed successfully: ${task.title}`, {
         taskId: task.id,
         duration: result.duration,
-        status: result.status
+        status: result.status,
       });
 
       this.emit('taskCompleted', result);
       return result;
-
     } catch (error) {
       const endTime = new Date();
       const executionError = this.createExecutionError(error, task);
@@ -245,10 +277,12 @@ export class AutonomousExecutionEngine extends EventEmitter {
         error: executionError,
         metrics,
         rollbackRequired: this.shouldRollback(task, executionError),
-        rollbackSteps: task.rollbackSteps || []
+        rollbackSteps: task.rollbackSteps || [],
       };
 
-      logger.error(`Task execution failed: ${task.title}`, error, { taskId: task.id });
+      logger.error(`Task execution failed: ${task.title}`, error, {
+        taskId: task.id,
+      });
       this.emit('taskFailed', result);
       return result;
     }
@@ -259,7 +293,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
    */
   async executeTasks(
     tasks: AutonomousTask[],
-    context: TaskExecutionContext
+    context: TaskExecutionContext,
   ): Promise<TaskExecutionResult[]> {
     context.logger.info(`Starting batch execution of ${tasks.length} tasks`);
 
@@ -272,7 +306,10 @@ export class AutonomousExecutionEngine extends EventEmitter {
 
     for (const task of sortedTasks) {
       const strategy = this.strategySelector.selectStrategy(task, context);
-      if (strategy.type === 'parallel' && this.strategySelector.canExecuteConcurrently([task])) {
+      if (
+        strategy.type === 'parallel' &&
+        this.strategySelector.canExecuteConcurrently([task])
+      ) {
         parallelTasks.push(task);
       } else {
         sequentialTasks.push(task);
@@ -281,16 +318,23 @@ export class AutonomousExecutionEngine extends EventEmitter {
 
     // Execute parallel tasks concurrently
     if (parallelTasks.length > 0) {
-      const parallelPromises = parallelTasks.map(task =>
-        this.executeTask(task, context).catch(error => ({
-          taskId: task.id,
-          status: TaskStatus.FAILED,
-          startTime: new Date(),
-          endTime: new Date(),
-          duration: 0,
-          error: this.createExecutionError(error, task),
-          metrics: { toolInvocations: 0, retryAttempts: 0, validationChecks: 0 }
-        } as TaskExecutionResult))
+      const parallelPromises = parallelTasks.map((task) =>
+        this.executeTask(task, context).catch(
+          (error) =>
+            ({
+              taskId: task.id,
+              status: TaskStatus.FAILED,
+              startTime: new Date(),
+              endTime: new Date(),
+              duration: 0,
+              error: this.createExecutionError(error, task),
+              metrics: {
+                toolInvocations: 0,
+                retryAttempts: 0,
+                validationChecks: 0,
+              },
+            }) as TaskExecutionResult,
+        ),
       );
 
       const parallelResults = await Promise.all(parallelPromises);
@@ -304,8 +348,13 @@ export class AutonomousExecutionEngine extends EventEmitter {
         results.push(result);
 
         // Stop on critical failures
-        if (result.status === TaskStatus.FAILED && task.priority >= TaskPriority.HIGH) {
-          context.logger.warn(`Stopping batch execution due to high-priority task failure: ${task.title}`);
+        if (
+          result.status === TaskStatus.FAILED &&
+          task.priority >= TaskPriority.HIGH
+        ) {
+          context.logger.warn(
+            `Stopping batch execution due to high-priority task failure: ${task.title}`,
+          );
           break;
         }
       } catch (error) {
@@ -316,13 +365,19 @@ export class AutonomousExecutionEngine extends EventEmitter {
           endTime: new Date(),
           duration: 0,
           error: this.createExecutionError(error, task),
-          metrics: { toolInvocations: 0, retryAttempts: 0, validationChecks: 0 }
+          metrics: {
+            toolInvocations: 0,
+            retryAttempts: 0,
+            validationChecks: 0,
+          },
         };
         results.push(errorResult);
       }
     }
 
-    context.logger.info(`Batch execution completed: ${results.length} tasks processed`);
+    context.logger.info(
+      `Batch execution completed: ${results.length} tasks processed`,
+    );
     this.emit('batchCompleted', results);
     return results;
   }
@@ -333,13 +388,18 @@ export class AutonomousExecutionEngine extends EventEmitter {
   private async executeAtomicTask(
     task: AutonomousTask,
     context: TaskExecutionContext,
-    strategy: ExecutionStrategy
+    strategy: ExecutionStrategy,
   ): Promise<TaskExecutionResult> {
     const startTime = new Date();
     const logger = context.logger;
 
     // Update task state
-    await this.updateTaskState(task.id, TaskStatus.IN_PROGRESS, 'Executing atomic task', context);
+    await this.updateTaskState(
+      task.id,
+      TaskStatus.IN_PROGRESS,
+      'Executing atomic task',
+      context,
+    );
 
     // Find appropriate tool for task
     const toolName = this.selectToolForTask(task, context);
@@ -357,12 +417,19 @@ export class AutonomousExecutionEngine extends EventEmitter {
     while (attempt < maxAttempts) {
       try {
         attempt++;
-        logger.debug(`Attempting task execution (attempt ${attempt}/${maxAttempts})`, { taskId: task.id });
+        logger.debug(
+          `Attempting task execution (attempt ${attempt}/${maxAttempts})`,
+          { taskId: task.id },
+        );
 
         // Execute tool with timeout
         const toolResult = await this.executeWithTimeout(
-          () => tool.validateBuildAndExecute(this.prepareToolParams(task), context.abortSignal),
-          (strategy.timeoutMinutes || 15) * 60 * 1000
+          () =>
+            tool.validateBuildAndExecute(
+              this.prepareToolParams(task),
+              context.abortSignal,
+            ),
+          (strategy.timeoutMinutes || 15) * 60 * 1000,
         );
 
         const endTime = new Date();
@@ -373,34 +440,52 @@ export class AutonomousExecutionEngine extends EventEmitter {
           endTime,
           duration: endTime.getTime() - startTime.getTime(),
           output: toolResult.returnDisplay?.toString(),
-          error: toolResult.error ? this.createExecutionErrorFromToolError(toolResult.error) : undefined,
+          error: toolResult.error
+            ? this.createExecutionErrorFromToolError(toolResult.error)
+            : undefined,
           metrics: {
             toolInvocations: 1,
             retryAttempts: attempt - 1,
-            validationChecks: 0
-          }
+            validationChecks: 0,
+          },
         };
 
         if (!toolResult.error) {
-          await this.updateTaskState(task.id, TaskStatus.COMPLETED, 'Task completed successfully', context);
+          await this.updateTaskState(
+            task.id,
+            TaskStatus.COMPLETED,
+            'Task completed successfully',
+            context,
+          );
           break;
         }
 
         if (attempt < maxAttempts) {
           const delay = this.calculateRetryDelay(attempt, strategy.retryPolicy);
-          logger.warn(`Task execution failed, retrying in ${delay}ms`, { taskId: task.id, attempt });
+          logger.warn(`Task execution failed, retrying in ${delay}ms`, {
+            taskId: task.id,
+            attempt,
+          });
           await this.sleep(delay);
         } else {
-          await this.updateTaskState(task.id, TaskStatus.FAILED, 'Task failed after all retries', context);
+          await this.updateTaskState(
+            task.id,
+            TaskStatus.FAILED,
+            'Task failed after all retries',
+            context,
+          );
         }
-
       } catch (error) {
         if (attempt >= maxAttempts) {
           throw error;
         }
 
         const delay = this.calculateRetryDelay(attempt, strategy.retryPolicy);
-        logger.warn(`Task execution error, retrying in ${delay}ms`, { taskId: task.id, attempt, error });
+        logger.warn(`Task execution error, retrying in ${delay}ms`, {
+          taskId: task.id,
+          attempt,
+          error,
+        });
         await this.sleep(delay);
       }
     }
@@ -414,34 +499,60 @@ export class AutonomousExecutionEngine extends EventEmitter {
   private async executeCompositeTask(
     task: AutonomousTask,
     context: TaskExecutionContext,
-    strategy: ExecutionStrategy
+    strategy: ExecutionStrategy,
   ): Promise<TaskExecutionResult> {
     const startTime = new Date();
     const logger = context.logger;
 
-    logger.info(`Executing composite task with ${task.childTaskIds?.length || 0} children`, { taskId: task.id });
+    logger.info(
+      `Executing composite task with ${task.childTaskIds?.length || 0} children`,
+      { taskId: task.id },
+    );
 
-    await this.updateTaskState(task.id, TaskStatus.IN_PROGRESS, 'Executing composite task', context);
+    await this.updateTaskState(
+      task.id,
+      TaskStatus.IN_PROGRESS,
+      'Executing composite task',
+      context,
+    );
 
     // Load child tasks (would need to be provided by the caller or loaded from storage)
-    const childTasks = await this.loadChildTasks(task.childTaskIds || [], context);
+    const childTasks = await this.loadChildTasks(
+      task.childTaskIds || [],
+      context,
+    );
 
     // Execute child tasks based on strategy
     let subResults: TaskExecutionResult[] = [];
 
     if (strategy.type === 'parallel') {
-      subResults = await this.executeChildTasksInParallel(childTasks, context, strategy);
+      subResults = await this.executeChildTasksInParallel(
+        childTasks,
+        context,
+        strategy,
+      );
     } else {
-      subResults = await this.executeChildTasksSequentially(childTasks, context);
+      subResults = await this.executeChildTasksSequentially(
+        childTasks,
+        context,
+      );
     }
 
     const endTime = new Date();
-    const failedTasks = subResults.filter(r => r.status === TaskStatus.FAILED);
-    const status = failedTasks.length > 0 ? TaskStatus.FAILED : TaskStatus.COMPLETED;
+    const failedTasks = subResults.filter(
+      (r) => r.status === TaskStatus.FAILED,
+    );
+    const status =
+      failedTasks.length > 0 ? TaskStatus.FAILED : TaskStatus.COMPLETED;
 
-    await this.updateTaskState(task.id, status,
-      status === TaskStatus.COMPLETED ? 'All child tasks completed' : 'Some child tasks failed',
-      context);
+    await this.updateTaskState(
+      task.id,
+      status,
+      status === TaskStatus.COMPLETED
+        ? 'All child tasks completed'
+        : 'Some child tasks failed',
+      context,
+    );
 
     return {
       taskId: task.id,
@@ -452,7 +563,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
       subResults,
       metrics: this.aggregateMetrics(subResults),
       rollbackRequired: failedTasks.length > 0,
-      rollbackSteps: task.rollbackSteps || []
+      rollbackSteps: task.rollbackSteps || [],
     };
   }
 
@@ -462,7 +573,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
   private async executeChildTasksInParallel(
     childTasks: AutonomousTask[],
     context: TaskExecutionContext,
-    strategy: ExecutionStrategy
+    strategy: ExecutionStrategy,
   ): Promise<TaskExecutionResult[]> {
     const maxConcurrency = strategy.maxConcurrency || 3;
     const results: TaskExecutionResult[] = [];
@@ -475,7 +586,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
           Array.from(executing.entries()).map(async ([id, promise]) => {
             await promise;
             return [id];
-          })
+          }),
         );
         const result = await executing.get(completedTaskId)!;
         results.push(result);
@@ -499,7 +610,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
    */
   private async executeChildTasksSequentially(
     childTasks: AutonomousTask[],
-    context: TaskExecutionContext
+    context: TaskExecutionContext,
   ): Promise<TaskExecutionResult[]> {
     const results: TaskExecutionResult[] = [];
 
@@ -508,8 +619,13 @@ export class AutonomousExecutionEngine extends EventEmitter {
       results.push(result);
 
       // Stop on failure if task is critical
-      if (result.status === TaskStatus.FAILED && task.priority >= TaskPriority.HIGH) {
-        context.logger.warn(`Stopping sequential execution due to critical task failure: ${task.title}`);
+      if (
+        result.status === TaskStatus.FAILED &&
+        task.priority >= TaskPriority.HIGH
+      ) {
+        context.logger.warn(
+          `Stopping sequential execution due to critical task failure: ${task.title}`,
+        );
         break;
       }
     }
@@ -522,7 +638,10 @@ export class AutonomousExecutionEngine extends EventEmitter {
     return [...tasks].sort((a, b) => b.priority - a.priority);
   }
 
-  private selectToolForTask(task: AutonomousTask, context: TaskExecutionContext): string {
+  private selectToolForTask(
+    task: AutonomousTask,
+    context: TaskExecutionContext,
+  ): string {
     // Simple tool selection based on task category
     const toolMapping: Record<TaskCategory, string[]> = {
       [TaskCategory.READ]: ['read-file', 'read-many-files', 'ls'],
@@ -538,7 +657,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
       [TaskCategory.VALIDATE]: ['shell', 'read-file'],
       [TaskCategory.OPTIMIZE]: ['edit', 'smart-edit'],
       [TaskCategory.DEBUG]: ['read-file', 'shell'],
-      [TaskCategory.DOCUMENT]: ['edit', 'write-file']
+      [TaskCategory.DOCUMENT]: ['edit', 'write-file'],
     };
 
     const possibleTools = toolMapping[task.category] || ['shell'];
@@ -550,7 +669,9 @@ export class AutonomousExecutionEngine extends EventEmitter {
       }
     }
 
-    throw new Error(`No suitable tool found for task category: ${task.category}`);
+    throw new Error(
+      `No suitable tool found for task category: ${task.category}`,
+    );
   }
 
   private prepareToolParams(task: AutonomousTask): Record<string, unknown> {
@@ -559,7 +680,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
     return {
       description: task.description,
       workspacePath: task.workspacePath,
-      targetFiles: task.targetFiles || []
+      targetFiles: task.targetFiles || [],
     };
   }
 
@@ -567,16 +688,21 @@ export class AutonomousExecutionEngine extends EventEmitter {
     taskId: string,
     status: TaskStatus,
     message: string,
-    context: TaskExecutionContext
+    context: TaskExecutionContext,
   ): Promise<void> {
     const state: ExecutionState = {
       taskId,
       status,
-      progress: status === TaskStatus.COMPLETED ? 100 : status === TaskStatus.IN_PROGRESS ? 50 : 0,
+      progress:
+        status === TaskStatus.COMPLETED
+          ? 100
+          : status === TaskStatus.IN_PROGRESS
+            ? 50
+            : 0,
       currentStep: message,
       completedSteps: this.taskStates.get(taskId)?.completedSteps || [],
       failedSteps: this.taskStates.get(taskId)?.failedSteps || [],
-      lastUpdate: new Date()
+      lastUpdate: new Date(),
     };
 
     if (status === TaskStatus.COMPLETED) {
@@ -590,14 +716,22 @@ export class AutonomousExecutionEngine extends EventEmitter {
     this.emit('stateChanged', state);
   }
 
-  private async loadChildTasks(childIds: string[], context: TaskExecutionContext): Promise<AutonomousTask[]> {
+  private async loadChildTasks(
+    childIds: string[],
+    context: TaskExecutionContext,
+  ): Promise<AutonomousTask[]> {
     // This would load child tasks from storage or a task registry
     // For now, return empty array - implementation depends on task storage strategy
-    context.logger.debug(`Loading ${childIds.length} child tasks`, { childIds });
+    context.logger.debug(`Loading ${childIds.length} child tasks`, {
+      childIds,
+    });
     return [];
   }
 
-  private calculateRetryDelay(attempt: number, retryPolicy?: RetryPolicy): number {
+  private calculateRetryDelay(
+    attempt: number,
+    retryPolicy?: RetryPolicy,
+  ): number {
     if (!retryPolicy) return 1000;
 
     const baseDelay = retryPolicy.baseDelayMs;
@@ -616,21 +750,24 @@ export class AutonomousExecutionEngine extends EventEmitter {
 
   private async executeWithTimeout<T>(
     operation: () => Promise<T>,
-    timeoutMs: number
+    timeoutMs: number,
   ): Promise<T> {
     return Promise.race([
       operation(),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
-      )
+        setTimeout(() => reject(new Error('Operation timed out')), timeoutMs),
+      ),
     ]);
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private createExecutionError(error: unknown, task: AutonomousTask): ExecutionError {
+  private createExecutionError(
+    error: unknown,
+    task: AutonomousTask,
+  ): ExecutionError {
     const message = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack : undefined;
 
@@ -643,27 +780,34 @@ export class AutonomousExecutionEngine extends EventEmitter {
       context: {
         taskId: task.id,
         taskCategory: task.category,
-        taskTitle: task.title
-      }
+        taskTitle: task.title,
+      },
     };
   }
 
-  private createExecutionErrorFromToolError(toolError: { message: string; type?: string }): ExecutionError {
+  private createExecutionErrorFromToolError(toolError: {
+    message: string;
+    type?: string;
+  }): ExecutionError {
     return {
       message: toolError.message,
       code: toolError.type || 'TOOL_ERROR',
       type: ExecutionErrorType.TOOL_EXECUTION_FAILED,
-      recoverable: true
+      recoverable: true,
     };
   }
 
   private classifyError(error: unknown): ExecutionErrorType {
     if (error instanceof Error) {
       if (error.message.includes('timeout')) return ExecutionErrorType.TIMEOUT;
-      if (error.message.includes('permission')) return ExecutionErrorType.PERMISSION_DENIED;
-      if (error.message.includes('not found')) return ExecutionErrorType.TOOL_NOT_FOUND;
-      if (error.message.includes('validation')) return ExecutionErrorType.VALIDATION_FAILED;
-      if (error.message.includes('cancelled')) return ExecutionErrorType.USER_CANCELLED;
+      if (error.message.includes('permission'))
+        return ExecutionErrorType.PERMISSION_DENIED;
+      if (error.message.includes('not found'))
+        return ExecutionErrorType.TOOL_NOT_FOUND;
+      if (error.message.includes('validation'))
+        return ExecutionErrorType.VALIDATION_FAILED;
+      if (error.message.includes('cancelled'))
+        return ExecutionErrorType.USER_CANCELLED;
     }
     return ExecutionErrorType.SYSTEM_ERROR;
   }
@@ -673,24 +817,30 @@ export class AutonomousExecutionEngine extends EventEmitter {
     return ![
       ExecutionErrorType.PERMISSION_DENIED,
       ExecutionErrorType.USER_CANCELLED,
-      ExecutionErrorType.SYSTEM_ERROR
+      ExecutionErrorType.SYSTEM_ERROR,
     ].includes(errorType);
   }
 
   private shouldRollback(task: AutonomousTask, error: ExecutionError): boolean {
-    return error.recoverable &&
-           task.category !== TaskCategory.READ &&
-           task.category !== TaskCategory.SEARCH &&
-           task.category !== TaskCategory.ANALYZE;
+    return (
+      error.recoverable &&
+      task.category !== TaskCategory.READ &&
+      task.category !== TaskCategory.SEARCH &&
+      task.category !== TaskCategory.ANALYZE
+    );
   }
 
   private aggregateMetrics(results: TaskExecutionResult[]): ExecutionMetrics {
-    return results.reduce((acc, result) => ({
-      toolInvocations: acc.toolInvocations + result.metrics.toolInvocations,
-      retryAttempts: acc.retryAttempts + result.metrics.retryAttempts,
-      validationChecks: acc.validationChecks + result.metrics.validationChecks,
-      cacheHits: (acc.cacheHits || 0) + (result.metrics.cacheHits || 0)
-    }), { toolInvocations: 0, retryAttempts: 0, validationChecks: 0 });
+    return results.reduce(
+      (acc, result) => ({
+        toolInvocations: acc.toolInvocations + result.metrics.toolInvocations,
+        retryAttempts: acc.retryAttempts + result.metrics.retryAttempts,
+        validationChecks:
+          acc.validationChecks + result.metrics.validationChecks,
+        cacheHits: (acc.cacheHits || 0) + (result.metrics.cacheHits || 0),
+      }),
+      { toolInvocations: 0, retryAttempts: 0, validationChecks: 0 },
+    );
   }
 
   private setupEventHandlers(): void {
@@ -709,8 +859,13 @@ export class AutonomousExecutionEngine extends EventEmitter {
 /**
  * Default execution strategy selector
  */
-export class DefaultExecutionStrategySelector implements ExecutionStrategySelector {
-  selectStrategy(task: AutonomousTask, context: TaskExecutionContext): ExecutionStrategy {
+export class DefaultExecutionStrategySelector
+  implements ExecutionStrategySelector
+{
+  selectStrategy(
+    task: AutonomousTask,
+    context: TaskExecutionContext,
+  ): ExecutionStrategy {
     // Return the task's configured strategy or generate a default one
     if (task.executionStrategy) {
       return task.executionStrategy;
@@ -724,12 +879,12 @@ export class DefaultExecutionStrategySelector implements ExecutionStrategySelect
         maxRetries: task.maxRetries || 2,
         backoffStrategy: 'exponential',
         baseDelayMs: 1000,
-        maxDelayMs: 30000
+        maxDelayMs: 30000,
       },
       timeoutMinutes: 15,
       requiresConfirmation: this.requiresConfirmation(task),
       preExecutionChecks: ['validate_params', 'check_permissions'],
-      postExecutionValidation: ['verify_result', 'check_side_effects']
+      postExecutionValidation: ['verify_result', 'check_side_effects'],
     };
 
     // Adjust for parallelizable tasks
@@ -748,8 +903,11 @@ export class DefaultExecutionStrategySelector implements ExecutionStrategySelect
     for (const task of tasks) {
       if (task.targetFiles) {
         for (const file of task.targetFiles) {
-          if (filePaths.has(file) &&
-              (task.category === TaskCategory.EDIT || task.category === TaskCategory.DELETE)) {
+          if (
+            filePaths.has(file) &&
+            (task.category === TaskCategory.EDIT ||
+              task.category === TaskCategory.DELETE)
+          ) {
             return false; // Conflicting file access
           }
           filePaths.add(file);
@@ -760,7 +918,10 @@ export class DefaultExecutionStrategySelector implements ExecutionStrategySelect
     return true;
   }
 
-  estimateExecutionTime(task: AutonomousTask, strategy: ExecutionStrategy): number {
+  estimateExecutionTime(
+    task: AutonomousTask,
+    strategy: ExecutionStrategy,
+  ): number {
     const baseTime = task.estimatedDuration || 10; // minutes
 
     // Adjust for strategy overhead
@@ -776,10 +937,18 @@ export class DefaultExecutionStrategySelector implements ExecutionStrategySelect
   }
 
   private requiresConfirmation(task: AutonomousTask): boolean {
-    return [TaskCategory.DELETE, TaskCategory.EXECUTE, TaskCategory.DEPLOY].includes(task.category);
+    return [
+      TaskCategory.DELETE,
+      TaskCategory.EXECUTE,
+      TaskCategory.DEPLOY,
+    ].includes(task.category);
   }
 
   private isParallelizable(task: AutonomousTask): boolean {
-    return [TaskCategory.READ, TaskCategory.SEARCH, TaskCategory.ANALYZE].includes(task.category);
+    return [
+      TaskCategory.READ,
+      TaskCategory.SEARCH,
+      TaskCategory.ANALYZE,
+    ].includes(task.category);
   }
 }

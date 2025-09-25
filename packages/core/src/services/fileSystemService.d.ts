@@ -18,39 +18,39 @@
  * error handling, and path resolution according to their specific requirements.
  */
 export interface FileSystemService {
-    /**
-     * Read text content from a file using UTF-8 encoding.
-     *
-     * @param filePath - The absolute or relative path to the file to read
-     * @returns A promise that resolves to the file content as a string
-     * @throws Error if the file cannot be read or does not exist
-     *
-     * @example
-     * ```typescript
-     * const content = await fileService.readTextFile('./config.json');
-     * const config = JSON.parse(content);
-     * ```
-     */
-    readTextFile(filePath: string): Promise<string>;
-    /**
-     * Write text content to a file using UTF-8 encoding.
-     *
-     * @param filePath - The absolute or relative path to the file to write
-     * @param content - The text content to write to the file
-     * @returns A promise that resolves when the write operation completes
-     * @throws Error if the file cannot be written or the directory does not exist
-     *
-     * @remarks
-     * This method will create the file if it doesn't exist and overwrite
-     * existing content. Parent directories must exist prior to writing.
-     *
-     * @example
-     * ```typescript
-     * const config = { setting: 'value' };
-     * await fileService.writeTextFile('./config.json', JSON.stringify(config, null, 2));
-     * ```
-     */
-    writeTextFile(filePath: string, content: string): Promise<void>;
+  /**
+   * Read text content from a file using UTF-8 encoding.
+   *
+   * @param filePath - The absolute or relative path to the file to read
+   * @returns A promise that resolves to the file content as a string
+   * @throws Error if the file cannot be read or does not exist
+   *
+   * @example
+   * ```typescript
+   * const content = await fileService.readTextFile('./config.json');
+   * const config = JSON.parse(content);
+   * ```
+   */
+  readTextFile(filePath: string): Promise<string>;
+  /**
+   * Write text content to a file using UTF-8 encoding.
+   *
+   * @param filePath - The absolute or relative path to the file to write
+   * @param content - The text content to write to the file
+   * @returns A promise that resolves when the write operation completes
+   * @throws Error if the file cannot be written or the directory does not exist
+   *
+   * @remarks
+   * This method will create the file if it doesn't exist and overwrite
+   * existing content. Parent directories must exist prior to writing.
+   *
+   * @example
+   * ```typescript
+   * const config = { setting: 'value' };
+   * await fileService.writeTextFile('./config.json', JSON.stringify(config, null, 2));
+   * ```
+   */
+  writeTextFile(filePath: string, content: string): Promise<void>;
 }
 /**
  * Standard file system implementation using Node.js fs/promises API.
@@ -72,12 +72,12 @@ export interface FileSystemService {
  * using a mock implementation that implements the FileSystemService interface.
  */
 export declare class StandardFileSystemService implements FileSystemService {
-    /**
-     * {@inheritDoc FileSystemService.readTextFile}
-     */
-    readTextFile(filePath: string): Promise<string>;
-    /**
-     * {@inheritDoc FileSystemService.writeTextFile}
-     */
-    writeTextFile(filePath: string, content: string): Promise<void>;
+  /**
+   * {@inheritDoc FileSystemService.readTextFile}
+   */
+  readTextFile(filePath: string): Promise<string>;
+  /**
+   * {@inheritDoc FileSystemService.writeTextFile}
+   */
+  writeTextFile(filePath: string, content: string): Promise<void>;
 }

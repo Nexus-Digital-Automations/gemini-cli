@@ -19,7 +19,12 @@ export interface HealthCheckConfig {
   id: string;
   name: string;
   description: string;
-  checkType: 'system' | 'service' | 'resource' | 'performance' | 'data_integrity';
+  checkType:
+    | 'system'
+    | 'service'
+    | 'resource'
+    | 'performance'
+    | 'data_integrity';
   interval: number; // milliseconds
   timeout: number; // milliseconds
   retryAttempts: number;
@@ -46,7 +51,13 @@ export interface SelfHealingAction {
     consecutiveFailures?: number;
   }>;
   actions: Array<{
-    type: 'restart_service' | 'clear_cache' | 'scale_resources' | 'redistribute_load' | 'notify_admin' | 'custom_script';
+    type:
+      | 'restart_service'
+      | 'clear_cache'
+      | 'scale_resources'
+      | 'redistribute_load'
+      | 'notify_admin'
+      | 'custom_script';
     config: Record<string, unknown>;
     timeout: number;
     retryable: boolean;
@@ -110,11 +121,14 @@ export interface SystemHealthSummary {
     timeout: number;
     unknown: number;
   };
-  categories: Record<string, {
-    status: 'healthy' | 'warning' | 'unhealthy';
-    count: number;
-    issues: string[];
-  }>;
+  categories: Record<
+    string,
+    {
+      status: 'healthy' | 'warning' | 'unhealthy';
+      count: number;
+      issues: string[];
+    }
+  >;
   trends: {
     shortTerm: 'improving' | 'stable' | 'degrading'; // last 5 minutes
     mediumTerm: 'improving' | 'stable' | 'degrading'; // last 30 minutes
@@ -160,7 +174,8 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   // Monitoring state
   private healthCheckResults: Map<string, HealthMonitoringResult[]> = new Map();
   private healthCheckIntervals: Map<string, NodeJS.Timeout> = new Map();
-  private actionExecutionHistory: Map<string, SelfHealingExecutionResult[]> = new Map();
+  private actionExecutionHistory: Map<string, SelfHealingExecutionResult[]> =
+    new Map();
   private actionCooldowns: Map<string, Date> = new Map();
 
   // System health tracking
@@ -240,9 +255,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         checksCount: this.healthChecks.size,
         actionsCount: this.selfHealingActions.size,
       });
-
     } catch (error) {
-      this.logger.error('Failed to initialize AutomatedHealthMonitoring', { error });
+      this.logger.error('Failed to initialize AutomatedHealthMonitoring', {
+        error,
+      });
       throw error;
     }
   }
@@ -314,7 +330,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       allResults.push(...results);
     }
 
-    return allResults.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return allResults.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }
 
   /**
@@ -331,7 +349,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       allHistory.push(...history);
     }
 
-    return allHistory.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
+    return allHistory.sort(
+      (a, b) => b.startTime.getTime() - a.startTime.getTime(),
+    );
   }
 
   /**
@@ -349,7 +369,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   /**
    * Force self-healing action execution
    */
-  async executeSelfHealingAction(actionId: string, reason?: string): Promise<SelfHealingExecutionResult> {
+  async executeSelfHealingAction(
+    actionId: string,
+    reason?: string,
+  ): Promise<SelfHealingExecutionResult> {
     const action = this.selfHealingActions.get(actionId);
     if (!action) {
       throw new Error(`Self-healing action not found: ${actionId}`);
@@ -384,27 +407,44 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     };
   } {
     // Calculate health check stats
-    const activeChecks = Array.from(this.healthChecks.values()).filter(c => c.enabled);
+    const activeChecks = Array.from(this.healthChecks.values()).filter(
+      (c) => c.enabled,
+    );
     const allResults = this.getHealthCheckResults();
-    const recentResults = allResults.filter(r =>
-      r.timestamp.getTime() > Date.now() - 5 * 60 * 1000 // Last 5 minutes
+    const recentResults = allResults.filter(
+      (r) => r.timestamp.getTime() > Date.now() - 5 * 60 * 1000, // Last 5 minutes
     );
 
-    const passingChecks = recentResults.filter(r => r.status === 'healthy').length;
-    const failingChecks = recentResults.filter(r => r.status === 'unhealthy').length;
-    const avgExecutionTime = recentResults.length > 0 ?
-      recentResults.reduce((sum, r) => sum + r.duration, 0) / recentResults.length : 0;
+    const passingChecks = recentResults.filter(
+      (r) => r.status === 'healthy',
+    ).length;
+    const failingChecks = recentResults.filter(
+      (r) => r.status === 'unhealthy',
+    ).length;
+    const avgExecutionTime =
+      recentResults.length > 0
+        ? recentResults.reduce((sum, r) => sum + r.duration, 0) /
+          recentResults.length
+        : 0;
 
     // Calculate self-healing stats
-    const enabledActions = Array.from(this.selfHealingActions.values()).filter(a => a.enabled);
-    const last24hHistory = this.getSelfHealingHistory()
-      .filter(h => h.startTime.getTime() > Date.now() - 24 * 60 * 60 * 1000);
+    const enabledActions = Array.from(this.selfHealingActions.values()).filter(
+      (a) => a.enabled,
+    );
+    const last24hHistory = this.getSelfHealingHistory().filter(
+      (h) => h.startTime.getTime() > Date.now() - 24 * 60 * 60 * 1000,
+    );
 
-    const successfulActions = last24hHistory.filter(h => h.status === 'success').length;
+    const successfulActions = last24hHistory.filter(
+      (h) => h.status === 'success',
+    ).length;
     const totalActions = last24hHistory.length;
-    const successRate = totalActions > 0 ? (successfulActions / totalActions) * 100 : 0;
-    const avgActionTime = totalActions > 0 ?
-      last24hHistory.reduce((sum, h) => sum + h.duration, 0) / totalActions : 0;
+    const successRate =
+      totalActions > 0 ? (successfulActions / totalActions) * 100 : 0;
+    const avgActionTime =
+      totalActions > 0
+        ? last24hHistory.reduce((sum, h) => sum + h.duration, 0) / totalActions
+        : 0;
 
     // System health stats
     const currentHealth = this.getCurrentSystemHealth();
@@ -427,7 +467,8 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       systemHealth: {
         currentScore: currentHealth.score,
         trend: currentHealth.trends.shortTerm,
-        criticalIssues: currentHealth.checks.unhealthy + currentHealth.checks.timeout,
+        criticalIssues:
+          currentHealth.checks.unhealthy + currentHealth.checks.timeout,
         recommendations: currentHealth.recommendations.length,
       },
     };
@@ -550,7 +591,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
             type: 'custom_script',
             config: {
               action: 'force_gc',
-              description: 'Force garbage collection'
+              description: 'Force garbage collection',
             },
             timeout: 10000,
             retryable: false,
@@ -611,7 +652,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
             type: 'custom_script',
             config: {
               action: 'reconnect_agents',
-              description: 'Attempt to reconnect offline agents'
+              description: 'Attempt to reconnect offline agents',
             },
             timeout: 45000,
             retryable: true,
@@ -646,7 +687,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
             type: 'custom_script',
             config: {
               action: 'data_validation_repair',
-              description: 'Validate and repair data inconsistencies'
+              description: 'Validate and repair data inconsistencies',
             },
             timeout: 180000,
             retryable: true,
@@ -655,7 +696,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
             type: 'notify_admin',
             config: {
               severity: 'critical',
-              message: 'Data integrity issue detected and repair attempted'
+              message: 'Data integrity issue detected and repair attempted',
             },
             timeout: 5000,
             retryable: false,
@@ -698,7 +739,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     setImmediate(() => this.performHealthCheck(config));
   }
 
-  private async performHealthCheck(config: HealthCheckConfig): Promise<HealthMonitoringResult> {
+  private async performHealthCheck(
+    config: HealthCheckConfig,
+  ): Promise<HealthMonitoringResult> {
     const startTime = performance.now();
     let result: HealthMonitoringResult;
 
@@ -716,12 +759,18 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
       // Calculate trend
       const previousResults = this.healthCheckResults.get(config.id) || [];
-      const trend = this.calculateHealthTrend(checkResult.value, previousResults.slice(-5));
+      const trend = this.calculateHealthTrend(
+        checkResult.value,
+        previousResults.slice(-5),
+      );
 
       // Determine severity
       let severity: HealthMonitoringResult['severity'] = 'info';
       if (status === 'unhealthy') {
-        severity = checkResult.value >= this.config.escalationThresholds.emergency ? 'critical' : 'error';
+        severity =
+          checkResult.value >= this.config.escalationThresholds.emergency
+            ? 'critical'
+            : 'error';
       } else if (status === 'warning') {
         severity = 'warning';
       }
@@ -731,7 +780,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         name: config.name,
         status,
         value: checkResult.value,
-        threshold: status === 'unhealthy' ? config.thresholds.critical : config.thresholds.warning,
+        threshold:
+          status === 'unhealthy'
+            ? config.thresholds.critical
+            : config.thresholds.warning,
         message: checkResult.message,
         duration: performance.now() - startTime,
         timestamp: new Date(),
@@ -739,7 +791,6 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         trend,
         severity,
       };
-
     } catch (error) {
       result = {
         checkId: config.id,
@@ -813,7 +864,8 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   }> {
     const memoryUsage = process.memoryUsage();
     const memoryUsageMB = memoryUsage.heapUsed / 1024 / 1024;
-    const memoryUsagePercent = (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
+    const memoryUsagePercent =
+      (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
 
     return {
       value: memoryUsagePercent,
@@ -843,13 +895,12 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     // Normalize metrics to 0-100 scale (higher is better)
     const normalizedSuccessRate = successRate;
     const normalizedThroughput = Math.min(throughput / 10, 100); // Assume 10/hour is good
-    const normalizedResponseTime = Math.max(0, 100 - (responseTime / 100)); // Lower is better
+    const normalizedResponseTime = Math.max(0, 100 - responseTime / 100); // Lower is better
 
-    const performanceScore = (
+    const performanceScore =
       normalizedSuccessRate * 0.5 +
       normalizedThroughput * 0.3 +
-      normalizedResponseTime * 0.2
-    );
+      normalizedResponseTime * 0.2;
 
     return {
       value: performanceScore,
@@ -872,9 +923,12 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   }> {
     const agents = taskStatusMonitor.getAllAgents();
     const totalAgents = agents.length;
-    const activeAgents = agents.filter(a => a.status === 'active' || a.status === 'busy').length;
+    const activeAgents = agents.filter(
+      (a) => a.status === 'active' || a.status === 'busy',
+    ).length;
 
-    const connectivityPercent = totalAgents > 0 ? (activeAgents / totalAgents) * 100 : 100;
+    const connectivityPercent =
+      totalAgents > 0 ? (activeAgents / totalAgents) * 100 : 100;
 
     return {
       value: connectivityPercent,
@@ -882,10 +936,13 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       metadata: {
         totalAgents,
         activeAgents,
-        agentStatuses: agents.reduce((acc, agent) => {
-          acc[agent.status] = (acc[agent.status] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
+        agentStatuses: agents.reduce(
+          (acc, agent) => {
+            acc[agent.status] = (acc[agent.status] || 0) + 1;
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
       },
     };
   }
@@ -901,7 +958,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     let healthScore = 100;
 
     // Penalize based on component status
-    Object.values(systemStatus.components).forEach(component => {
+    Object.values(systemStatus.components).forEach((component) => {
       switch (component.status) {
         case 'unhealthy':
           healthScore -= 25;
@@ -927,7 +984,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         overallStatus: systemStatus.overall,
         componentCount: Object.keys(systemStatus.components).length,
         componentStatuses: Object.fromEntries(
-          Object.entries(systemStatus.components).map(([name, comp]) => [name, comp.status])
+          Object.entries(systemStatus.components).map(([name, comp]) => [
+            name,
+            comp.status,
+          ]),
         ),
         integrationStatus: systemStatus.integration.initialized,
       },
@@ -948,8 +1008,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     // Check for data consistency issues
 
     // 1. Orphaned tasks (assigned to non-existent agents)
-    const orphanedTasks = tasks.filter(task =>
-      task.assignedAgent && !agents.some(agent => agent.id === task.assignedAgent)
+    const orphanedTasks = tasks.filter(
+      (task) =>
+        task.assignedAgent &&
+        !agents.some((agent) => agent.id === task.assignedAgent),
     );
 
     if (orphanedTasks.length > 0) {
@@ -958,28 +1020,35 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     }
 
     // 2. Agent task assignment consistency
-    const agentTaskMismatch = agents.filter(agent => {
-      const assignedTasks = tasks.filter(task => task.assignedAgent === agent.id);
+    const agentTaskMismatch = agents.filter((agent) => {
+      const assignedTasks = tasks.filter(
+        (task) => task.assignedAgent === agent.id,
+      );
       const currentTasks = agent.currentTasks || [];
       return assignedTasks.length !== currentTasks.length;
     });
 
     if (agentTaskMismatch.length > 0) {
       integrityScore -= Math.min(agentTaskMismatch.length * 5, 25);
-      issues.push(`${agentTaskMismatch.length} agents with task assignment mismatches`);
+      issues.push(
+        `${agentTaskMismatch.length} agents with task assignment mismatches`,
+      );
     }
 
     // 3. Task status consistency
-    const inconsistentTasks = tasks.filter(task => {
+    const inconsistentTasks = tasks.filter((task) => {
       if (task.status === TaskStatus.COMPLETED && !task.endTime) return true;
-      if (task.status === TaskStatus.IN_PROGRESS && !task.startTime) return true;
+      if (task.status === TaskStatus.IN_PROGRESS && !task.startTime)
+        return true;
       if (task.status === TaskStatus.FAILED && !task.endTime) return true;
       return false;
     });
 
     if (inconsistentTasks.length > 0) {
       integrityScore -= Math.min(inconsistentTasks.length * 3, 20);
-      issues.push(`${inconsistentTasks.length} tasks with status inconsistencies`);
+      issues.push(
+        `${inconsistentTasks.length} tasks with status inconsistencies`,
+      );
     }
 
     integrityScore = Math.max(0, integrityScore);
@@ -998,13 +1067,17 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     };
   }
 
-  private calculateHealthTrend(currentValue: number, previousResults: HealthMonitoringResult[]): HealthMonitoringResult['trend'] {
+  private calculateHealthTrend(
+    currentValue: number,
+    previousResults: HealthMonitoringResult[],
+  ): HealthMonitoringResult['trend'] {
     if (previousResults.length < 3) {
       return 'unknown';
     }
 
-    const recentValues = previousResults.map(r => r.value).slice(-3);
-    const averageRecent = recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length;
+    const recentValues = previousResults.map((r) => r.value).slice(-3);
+    const averageRecent =
+      recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length;
 
     const difference = currentValue - averageRecent;
     const threshold = 5; // 5% threshold
@@ -1018,14 +1091,21 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     }
   }
 
-  private async checkSelfHealingTriggers(checkId: string, result: HealthMonitoringResult): Promise<void> {
+  private async checkSelfHealingTriggers(
+    checkId: string,
+    result: HealthMonitoringResult,
+  ): Promise<void> {
     // Find actions triggered by this health check
-    const triggeredActions = Array.from(this.selfHealingActions.values()).filter(action =>
-      action.enabled && action.triggers.some(trigger => trigger.healthCheckId === checkId)
+    const triggeredActions = Array.from(
+      this.selfHealingActions.values(),
+    ).filter(
+      (action) =>
+        action.enabled &&
+        action.triggers.some((trigger) => trigger.healthCheckId === checkId),
     );
 
     for (const action of triggeredActions) {
-      const trigger = action.triggers.find(t => t.healthCheckId === checkId);
+      const trigger = action.triggers.find((t) => t.healthCheckId === checkId);
       if (!trigger) continue;
 
       // Check if trigger condition is met
@@ -1045,17 +1125,24 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     }
   }
 
-  private shouldTriggerAction(action: SelfHealingAction, trigger: SelfHealingAction['triggers'][0], result: HealthMonitoringResult): boolean {
+  private shouldTriggerAction(
+    action: SelfHealingAction,
+    trigger: SelfHealingAction['triggers'][0],
+    result: HealthMonitoringResult,
+  ): boolean {
     // Check cooldown
     const lastExecution = this.actionCooldowns.get(action.id);
-    if (lastExecution && Date.now() - lastExecution.getTime() < action.cooldown) {
+    if (
+      lastExecution &&
+      Date.now() - lastExecution.getTime() < action.cooldown
+    ) {
       return false;
     }
 
     // Check execution limits
     const recentExecutions = this.actionExecutionHistory.get(action.id) || [];
     const lastHourExecutions = recentExecutions.filter(
-      exec => exec.startTime.getTime() > Date.now() - 60 * 60 * 1000
+      (exec) => exec.startTime.getTime() > Date.now() - 60 * 60 * 1000,
     ).length;
 
     if (lastHourExecutions >= action.maxExecutions) {
@@ -1067,23 +1154,29 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       return false;
     }
 
-    if (trigger.condition === 'degraded' && !['unhealthy', 'warning'].includes(result.status)) {
+    if (
+      trigger.condition === 'degraded' &&
+      !['unhealthy', 'warning'].includes(result.status)
+    ) {
       return false;
     }
 
     // Check consecutive failures if required
     if (trigger.consecutiveFailures) {
-      const recentResults = this.healthCheckResults.get(trigger.healthCheckId) || [];
+      const recentResults =
+        this.healthCheckResults.get(trigger.healthCheckId) || [];
       const lastResults = recentResults.slice(-trigger.consecutiveFailures);
 
       if (lastResults.length < trigger.consecutiveFailures) {
         return false;
       }
 
-      const allFailing = lastResults.every(r =>
-        trigger.condition === 'unhealthy' ? r.status === 'unhealthy' :
-        trigger.condition === 'degraded' ? ['unhealthy', 'warning'].includes(r.status) :
-        false
+      const allFailing = lastResults.every((r) =>
+        trigger.condition === 'unhealthy'
+          ? r.status === 'unhealthy'
+          : trigger.condition === 'degraded'
+            ? ['unhealthy', 'warning'].includes(r.status)
+            : false,
       );
 
       if (!allFailing) {
@@ -1094,7 +1187,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     return true;
   }
 
-  private async executeAction(action: SelfHealingAction, triggers: string[]): Promise<SelfHealingExecutionResult> {
+  private async executeAction(
+    action: SelfHealingAction,
+    triggers: string[],
+  ): Promise<SelfHealingExecutionResult> {
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const startTime = new Date();
 
@@ -1122,7 +1218,6 @@ export class AutomatedHealthMonitoring extends EventEmitter {
             message: result.message,
             duration: actionEnd - actionStart,
           });
-
         } catch (error) {
           const actionEnd = performance.now();
 
@@ -1142,14 +1237,16 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       }
 
       // Determine overall result
-      const failedActions = executedActions.filter(a => a.status === 'failure').length;
+      const failedActions = executedActions.filter(
+        (a) => a.status === 'failure',
+      ).length;
       if (failedActions > 0 && overallStatus !== 'failure') {
-        overallStatus = failedActions === executedActions.length ? 'failure' : 'success';
+        overallStatus =
+          failedActions === executedActions.length ? 'failure' : 'success';
         overallMessage = `${executedActions.length - failedActions}/${executedActions.length} actions succeeded`;
       } else if (overallStatus === 'success') {
         overallMessage = `All ${executedActions.length} actions completed successfully`;
       }
-
     } catch (error) {
       overallStatus = 'failure';
       overallMessage = `Action execution failed: ${error.message}`;
@@ -1202,7 +1299,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     return result;
   }
 
-  private async executeSingleAction(actionConfig: SelfHealingAction['actions'][0]): Promise<{ message: string }> {
+  private async executeSingleAction(
+    actionConfig: SelfHealingAction['actions'][0],
+  ): Promise<{ message: string }> {
     const timeout = actionConfig.timeout;
 
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -1239,8 +1338,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     return Promise.race([actionPromise, timeoutPromise]);
   }
 
-  private async executeClearCache(config: Record<string, unknown>): Promise<{ message: string }> {
-    const cacheTypes = config.cacheTypes as string[] || [];
+  private async executeClearCache(
+    config: Record<string, unknown>,
+  ): Promise<{ message: string }> {
+    const cacheTypes = (config.cacheTypes as string[]) || [];
     const clearedCaches: string[] = [];
 
     // Force garbage collection
@@ -1270,37 +1371,49 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     };
   }
 
-  private async executeRestartService(config: Record<string, unknown>): Promise<{ message: string }> {
+  private async executeRestartService(
+    config: Record<string, unknown>,
+  ): Promise<{ message: string }> {
     const service = config.service as string;
 
     // Simulate service restart
     this.logger.info('Simulating service restart', { service });
 
     // In a real implementation, this would restart the actual service
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate restart time
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate restart time
 
     return {
       message: `Service '${service}' restarted successfully`,
     };
   }
 
-  private async executeRedistributeLoad(config: Record<string, unknown>): Promise<{ message: string }> {
+  private async executeRedistributeLoad(
+    config: Record<string, unknown>,
+  ): Promise<{ message: string }> {
     const strategy = config.strategy as string;
 
     switch (strategy) {
       case 'rebalance_tasks': {
         // Rebalance tasks across agents
         const agents = taskStatusMonitor.getAllAgents();
-        const activeTasks = taskStatusMonitor.getAllTasks().filter(t => t.status === TaskStatus.IN_PROGRESS);
+        const activeTasks = taskStatusMonitor
+          .getAllTasks()
+          .filter((t) => t.status === TaskStatus.IN_PROGRESS);
 
         // Simple load balancing simulation
         let rebalancedCount = 0;
         for (const task of activeTasks) {
           if (task.assignedAgent) {
-            const currentAgent = agents.find(a => a.id === task.assignedAgent);
-            const idleAgents = agents.filter(a => a.status === 'idle');
+            const currentAgent = agents.find(
+              (a) => a.id === task.assignedAgent,
+            );
+            const idleAgents = agents.filter((a) => a.status === 'idle');
 
-            if (currentAgent && currentAgent.currentTasks.length > 2 && idleAgents.length > 0) {
+            if (
+              currentAgent &&
+              currentAgent.currentTasks.length > 2 &&
+              idleAgents.length > 0
+            ) {
               // Would reassign task to idle agent
               rebalancedCount++;
             }
@@ -1313,7 +1426,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       }
 
       case 'exclude_offline_agents': {
-        const offlineAgents = taskStatusMonitor.getAllAgents().filter(a => a.status === 'offline');
+        const offlineAgents = taskStatusMonitor
+          .getAllAgents()
+          .filter((a) => a.status === 'offline');
 
         return {
           message: `Excluded ${offlineAgents.length} offline agents from load distribution`,
@@ -1325,21 +1440,29 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     }
   }
 
-  private async executeScaleResources(config: Record<string, unknown>): Promise<{ message: string }> {
+  private async executeScaleResources(
+    config: Record<string, unknown>,
+  ): Promise<{ message: string }> {
     // Simulate resource scaling
-    const resourceType = config.resourceType as string || 'agents';
-    const scaleDirection = config.direction as string || 'up';
+    const resourceType = (config.resourceType as string) || 'agents';
+    const scaleDirection = (config.direction as string) || 'up';
 
-    this.logger.info('Simulating resource scaling', { resourceType, scaleDirection });
+    this.logger.info('Simulating resource scaling', {
+      resourceType,
+      scaleDirection,
+    });
 
     return {
       message: `Scaled ${resourceType} ${scaleDirection} successfully`,
     };
   }
 
-  private async executeNotifyAdmin(config: Record<string, unknown>): Promise<{ message: string }> {
-    const severity = config.severity as string || 'info';
-    const message = config.message as string || 'Health monitoring notification';
+  private async executeNotifyAdmin(
+    config: Record<string, unknown>,
+  ): Promise<{ message: string }> {
+    const severity = (config.severity as string) || 'info';
+    const message =
+      (config.message as string) || 'Health monitoring notification';
 
     this.logger.warn('Admin notification', { severity, message });
 
@@ -1349,7 +1472,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     };
   }
 
-  private async executeCustomScript(config: Record<string, unknown>): Promise<{ message: string }> {
+  private async executeCustomScript(
+    config: Record<string, unknown>,
+  ): Promise<{ message: string }> {
     const action = config.action as string;
 
     switch (action) {
@@ -1362,7 +1487,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
       case 'reconnect_agents': {
         // Simulate agent reconnection
-        const offlineAgents = taskStatusMonitor.getAllAgents().filter(a => a.status === 'offline');
+        const offlineAgents = taskStatusMonitor
+          .getAllAgents()
+          .filter((a) => a.status === 'offline');
         const reconnected = Math.floor(offlineAgents.length * 0.7); // 70% success rate
 
         return {
@@ -1372,7 +1499,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
       case 'data_validation_repair': {
         // Simulate data validation and repair
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate processing time
 
         return {
           message: 'Data validation completed and inconsistencies repaired',
@@ -1386,18 +1513,18 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
   private generateSystemHealthSummary(): SystemHealthSummary {
     const allResults = this.getHealthCheckResults();
-    const recentResults = allResults.filter(r =>
-      r.timestamp.getTime() > Date.now() - 5 * 60 * 1000 // Last 5 minutes
+    const recentResults = allResults.filter(
+      (r) => r.timestamp.getTime() > Date.now() - 5 * 60 * 1000, // Last 5 minutes
     );
 
     // Calculate check counts
     const checks = {
       total: this.healthChecks.size,
-      healthy: recentResults.filter(r => r.status === 'healthy').length,
-      warning: recentResults.filter(r => r.status === 'warning').length,
-      unhealthy: recentResults.filter(r => r.status === 'unhealthy').length,
-      timeout: recentResults.filter(r => r.status === 'timeout').length,
-      unknown: recentResults.filter(r => r.status === 'unknown').length,
+      healthy: recentResults.filter((r) => r.status === 'healthy').length,
+      warning: recentResults.filter((r) => r.status === 'warning').length,
+      unhealthy: recentResults.filter((r) => r.status === 'unhealthy').length,
+      timeout: recentResults.filter((r) => r.status === 'timeout').length,
+      unknown: recentResults.filter((r) => r.status === 'unknown').length,
     };
 
     // Calculate overall status and score
@@ -1419,7 +1546,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
     // Group by categories
     const categories: SystemHealthSummary['categories'] = {};
-    Array.from(this.healthChecks.values()).forEach(check => {
+    Array.from(this.healthChecks.values()).forEach((check) => {
       const category = check.checkType;
       if (!categories[category]) {
         categories[category] = {
@@ -1431,14 +1558,20 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
       categories[category].count++;
 
-      const checkResults = recentResults.filter(r => r.checkId === check.id);
+      const checkResults = recentResults.filter((r) => r.checkId === check.id);
       const latestResult = checkResults[checkResults.length - 1];
 
       if (latestResult && latestResult.status !== 'healthy') {
-        categories[category].issues.push(`${check.name}: ${latestResult.message}`);
+        categories[category].issues.push(
+          `${check.name}: ${latestResult.message}`,
+        );
 
-        if (latestResult.status === 'unhealthy' || categories[category].status === 'healthy') {
-          categories[category].status = latestResult.status === 'unhealthy' ? 'unhealthy' : 'warning';
+        if (
+          latestResult.status === 'unhealthy' ||
+          categories[category].status === 'healthy'
+        ) {
+          categories[category].status =
+            latestResult.status === 'unhealthy' ? 'unhealthy' : 'warning';
         }
       }
     });
@@ -1448,18 +1581,23 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
     // Get auto-healing stats
     const recentExecutions = this.getSelfHealingHistory().filter(
-      exec => exec.startTime.getTime() > Date.now() - 24 * 60 * 60 * 1000
+      (exec) => exec.startTime.getTime() > Date.now() - 24 * 60 * 60 * 1000,
     );
 
     const autoHealingActions = {
       executed: recentExecutions.length,
-      successful: recentExecutions.filter(e => e.status === 'success').length,
-      failed: recentExecutions.filter(e => e.status === 'failure').length,
-      lastExecution: recentExecutions.length > 0 ? recentExecutions[0].startTime : undefined,
+      successful: recentExecutions.filter((e) => e.status === 'success').length,
+      failed: recentExecutions.filter((e) => e.status === 'failure').length,
+      lastExecution:
+        recentExecutions.length > 0 ? recentExecutions[0].startTime : undefined,
     };
 
     // Generate recommendations
-    const recommendations = this.generateHealthRecommendations(checks, categories, trends);
+    const recommendations = this.generateHealthRecommendations(
+      checks,
+      categories,
+      trends,
+    );
 
     return {
       overall,
@@ -1481,27 +1619,41 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
     const allResults = this.getHealthCheckResults();
 
-    const calculateTrendForWindow = (windowMs: number): 'improving' | 'stable' | 'degrading' => {
-      const windowResults = allResults.filter(r =>
-        r.timestamp.getTime() > now - windowMs
+    const calculateTrendForWindow = (
+      windowMs: number,
+    ): 'improving' | 'stable' | 'degrading' => {
+      const windowResults = allResults.filter(
+        (r) => r.timestamp.getTime() > now - windowMs,
       );
 
       if (windowResults.length < 5) return 'stable';
 
       // Calculate average health score for first and second half of window
       const midpoint = now - windowMs / 2;
-      const firstHalf = windowResults.filter(r => r.timestamp.getTime() < midpoint);
-      const secondHalf = windowResults.filter(r => r.timestamp.getTime() >= midpoint);
+      const firstHalf = windowResults.filter(
+        (r) => r.timestamp.getTime() < midpoint,
+      );
+      const secondHalf = windowResults.filter(
+        (r) => r.timestamp.getTime() >= midpoint,
+      );
 
       if (firstHalf.length === 0 || secondHalf.length === 0) return 'stable';
 
-      const firstHalfScore = firstHalf.reduce((sum, r) =>
-        sum + (r.status === 'healthy' ? 100 : r.status === 'warning' ? 50 : 0)
-      , 0) / firstHalf.length;
+      const firstHalfScore =
+        firstHalf.reduce(
+          (sum, r) =>
+            sum +
+            (r.status === 'healthy' ? 100 : r.status === 'warning' ? 50 : 0),
+          0,
+        ) / firstHalf.length;
 
-      const secondHalfScore = secondHalf.reduce((sum, r) =>
-        sum + (r.status === 'healthy' ? 100 : r.status === 'warning' ? 50 : 0)
-      , 0) / secondHalf.length;
+      const secondHalfScore =
+        secondHalf.reduce(
+          (sum, r) =>
+            sum +
+            (r.status === 'healthy' ? 100 : r.status === 'warning' ? 50 : 0),
+          0,
+        ) / secondHalf.length;
 
       const difference = secondHalfScore - firstHalfScore;
 
@@ -1520,7 +1672,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   private generateHealthRecommendations(
     checks: SystemHealthSummary['checks'],
     categories: SystemHealthSummary['categories'],
-    trends: SystemHealthSummary['trends']
+    trends: SystemHealthSummary['trends'],
   ): SystemHealthSummary['recommendations'] {
     const recommendations: SystemHealthSummary['recommendations'] = [];
 
@@ -1540,7 +1692,8 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     }
 
     // Warning issues
-    if (checks.warning > checks.total * 0.3) { // More than 30% warnings
+    if (checks.warning > checks.total * 0.3) {
+      // More than 30% warnings
       recommendations.push({
         type: 'immediate',
         priority: 'high',
@@ -1587,7 +1740,8 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     });
 
     // Preventive recommendations
-    if (checks.healthy / checks.total > 0.9) { // System is mostly healthy
+    if (checks.healthy / checks.total > 0.9) {
+      // System is mostly healthy
       recommendations.push({
         type: 'preventive',
         priority: 'normal',
@@ -1616,7 +1770,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       // Store in history
       this.systemHealthHistory.push(summary);
       if (this.systemHealthHistory.length > this.healthTrendWindow) {
-        this.systemHealthHistory = this.systemHealthHistory.slice(-this.healthTrendWindow);
+        this.systemHealthHistory = this.systemHealthHistory.slice(
+          -this.healthTrendWindow,
+        );
       }
 
       this.emit('health:system:summary', { summary });
@@ -1627,7 +1783,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
           overall: summary.overall,
           score: summary.score,
           unhealthyChecks: summary.checks.unhealthy,
-          criticalIssues: summary.recommendations.filter(r => r.priority === 'critical').length,
+          criticalIssues: summary.recommendations.filter(
+            (r) => r.priority === 'critical',
+          ).length,
         });
       }
     }, this.config.globalHealthCheckInterval);
@@ -1644,7 +1802,10 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
     monitoringIntegrationHub.on('cross-system:event', (event) => {
       // Track cross-system events for health assessment
-      if (event.eventType.includes('fail') || event.eventType.includes('error')) {
+      if (
+        event.eventType.includes('fail') ||
+        event.eventType.includes('error')
+      ) {
         this.emit('health:external:event', event);
       }
     });
@@ -1658,19 +1819,22 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
       // Restore system health history
       if (parsedState.systemHealthHistory) {
-        this.systemHealthHistory = parsedState.systemHealthHistory.map((item: { timestamp: string; summary: SystemHealthSummary }) => ({
-          ...item,
-          timestamp: new Date(item.timestamp),
-        }));
+        this.systemHealthHistory = parsedState.systemHealthHistory.map(
+          (item: { timestamp: string; summary: SystemHealthSummary }) => ({
+            ...item,
+            timestamp: new Date(item.timestamp),
+          }),
+        );
       }
 
       this.logger.info('Health monitoring state loaded', {
         historyEntries: this.systemHealthHistory.length,
       });
-
     } catch (_error) {
       // File doesn't exist or is corrupted - start fresh
-      this.logger.info('No persisted health monitoring state found, starting fresh');
+      this.logger.info(
+        'No persisted health monitoring state found, starting fresh',
+      );
     }
 
     try {
@@ -1679,21 +1843,27 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       const parsedHistory = JSON.parse(historyData);
 
       // Restore execution history
-      Object.entries(parsedHistory.actionHistory || {}).forEach(([actionId, history]) => {
-        this.actionExecutionHistory.set(
-          actionId,
-          (history as Array<{ timestamp: string; result: SelfHealingExecutionResult }>).map(item => ({
-            ...item,
-            startTime: new Date(item.startTime),
-            endTime: new Date(item.endTime),
-          }))
-        );
-      });
+      Object.entries(parsedHistory.actionHistory || {}).forEach(
+        ([actionId, history]) => {
+          this.actionExecutionHistory.set(
+            actionId,
+            (
+              history as Array<{
+                timestamp: string;
+                result: SelfHealingExecutionResult;
+              }>
+            ).map((item) => ({
+              ...item,
+              startTime: new Date(item.startTime),
+              endTime: new Date(item.endTime),
+            })),
+          );
+        },
+      );
 
       this.logger.info('Self-healing execution history loaded', {
         actions: Object.keys(parsedHistory.actionHistory || {}).length,
       });
-
     } catch (_error) {
       // File doesn't exist - start fresh
       this.logger.info('No persisted execution history found, starting fresh');
@@ -1708,21 +1878,28 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         lastPersisted: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.persistencePath, JSON.stringify(stateData, null, 2));
+      await fs.writeFile(
+        this.persistencePath,
+        JSON.stringify(stateData, null, 2),
+      );
 
       // Persist execution history
       const historyData = {
         actionHistory: Object.fromEntries(
-          Array.from(this.actionExecutionHistory.entries()).map(([id, history]) => [
-            id,
-            history.slice(-20), // Last 20 executions per action
-          ])
+          Array.from(this.actionExecutionHistory.entries()).map(
+            ([id, history]) => [
+              id,
+              history.slice(-20), // Last 20 executions per action
+            ],
+          ),
         ),
         lastPersisted: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.executionHistoryPath, JSON.stringify(historyData, null, 2));
-
+      await fs.writeFile(
+        this.executionHistoryPath,
+        JSON.stringify(historyData, null, 2),
+      );
     } catch (error) {
       this.logger.error('Failed to persist health monitoring state', { error });
     }

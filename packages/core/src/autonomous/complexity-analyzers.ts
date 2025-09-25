@@ -9,7 +9,7 @@ import type {
   ComplexityAnalysisResult,
   ComplexityFactor,
   TaskComplexity,
-  TaskBreakdownContext
+  TaskBreakdownContext,
 } from './task-breakdown-engine.js';
 
 /**
@@ -18,7 +18,10 @@ import type {
 export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
   name = 'LinguisticComplexityAnalyzer';
 
-  async analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult> {
+  async analyze(
+    request: string,
+    context: TaskBreakdownContext,
+  ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
 
@@ -28,27 +31,38 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Long request',
         impact: 'medium',
         description: `Request length: ${request.length} characters`,
-        weight: 0.3
+        weight: 0.3,
       });
       complexity = TaskComplexity.MODERATE;
     }
 
     // Analyze sentence complexity
-    const sentences = request.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentences = request
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 0);
     if (sentences.length > 3) {
       factors.push({
         factor: 'Multiple sentences',
         impact: 'medium',
         description: `${sentences.length} sentences detected`,
-        weight: 0.4
+        weight: 0.4,
       });
       complexity = TaskComplexity.MODERATE;
     }
 
     // Detect coordination words (and, or, also, then, etc.)
-    const coordinationWords = ['and', 'or', 'also', 'then', 'additionally', 'furthermore', 'moreover', 'besides'];
-    const coordinationCount = coordinationWords.filter(word =>
-      request.toLowerCase().includes(` ${word} `)
+    const coordinationWords = [
+      'and',
+      'or',
+      'also',
+      'then',
+      'additionally',
+      'furthermore',
+      'moreover',
+      'besides',
+    ];
+    const coordinationCount = coordinationWords.filter((word) =>
+      request.toLowerCase().includes(` ${word} `),
     ).length;
 
     if (coordinationCount > 2) {
@@ -56,15 +70,22 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Multiple coordination words',
         impact: 'high',
         description: `${coordinationCount} coordination words found`,
-        weight: 0.5
+        weight: 0.5,
       });
       complexity = TaskComplexity.COMPLEX;
     }
 
     // Detect conditional language
-    const conditionalWords = ['if', 'when', 'unless', 'depending', 'based on', 'in case'];
-    const conditionalCount = conditionalWords.filter(word =>
-      request.toLowerCase().includes(word)
+    const conditionalWords = [
+      'if',
+      'when',
+      'unless',
+      'depending',
+      'based on',
+      'in case',
+    ];
+    const conditionalCount = conditionalWords.filter((word) =>
+      request.toLowerCase().includes(word),
     ).length;
 
     if (conditionalCount > 0) {
@@ -72,19 +93,31 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Conditional logic',
         impact: 'high',
         description: `${conditionalCount} conditional expressions found`,
-        weight: 0.6
+        weight: 0.6,
       });
       complexity = TaskComplexity.COMPLEX;
     }
 
     // Detect technical terminology density
     const technicalWords = [
-      'algorithm', 'architecture', 'framework', 'database', 'optimization',
-      'refactor', 'integration', 'deployment', 'configuration', 'implementation',
-      'validation', 'authentication', 'authorization', 'middleware', 'api'
+      'algorithm',
+      'architecture',
+      'framework',
+      'database',
+      'optimization',
+      'refactor',
+      'integration',
+      'deployment',
+      'configuration',
+      'implementation',
+      'validation',
+      'authentication',
+      'authorization',
+      'middleware',
+      'api',
     ];
-    const techWordCount = technicalWords.filter(word =>
-      request.toLowerCase().includes(word)
+    const techWordCount = technicalWords.filter((word) =>
+      request.toLowerCase().includes(word),
     ).length;
 
     if (techWordCount > 3) {
@@ -92,7 +125,7 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'High technical density',
         impact: 'medium',
         description: `${techWordCount} technical terms found`,
-        weight: 0.4
+        weight: 0.4,
       });
     }
 
@@ -102,11 +135,17 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
       factors,
       recommendedBreakdown: complexity !== TaskComplexity.SIMPLE,
       estimatedSubtasks: Math.max(1, Math.floor(coordinationCount * 1.5)),
-      estimatedDuration: this.estimateDurationFromLinguistics(request, complexity)
+      estimatedDuration: this.estimateDurationFromLinguistics(
+        request,
+        complexity,
+      ),
     };
   }
 
-  private estimateDurationFromLinguistics(request: string, complexity: TaskComplexity): number {
+  private estimateDurationFromLinguistics(
+    request: string,
+    complexity: TaskComplexity,
+  ): number {
     const wordCount = request.split(/\s+/).length;
     const baseDuration = Math.max(5, wordCount / 10); // 10 words per minute reading
 
@@ -129,7 +168,10 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
 export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
   name = 'WorkspaceComplexityAnalyzer';
 
-  async analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult> {
+  async analyze(
+    request: string,
+    context: TaskBreakdownContext,
+  ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
 
@@ -140,17 +182,17 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Multiple workspace directories',
         impact: 'medium',
         description: `${directories.length} directories in workspace`,
-        weight: 0.3
+        weight: 0.3,
       });
       complexity = TaskComplexity.MODERATE;
     }
 
     // Detect file pattern references
     const filePatterns = [
-      /\*\.\w+/g,           // *.js, *.ts, etc.
-      /\*\*\/\*\.\w+/g,     // **/*.js
-      /\{[^}]+\}/g,         // {src,test}/**
-      /\[[^\]]+\]/g         // [0-9]*.txt
+      /\*\.\w+/g, // *.js, *.ts, etc.
+      /\*\*\/\*\.\w+/g, // **/*.js
+      /\{[^}]+\}/g, // {src,test}/**
+      /\[[^\]]+\]/g, // [0-9]*.txt
     ];
 
     let patternCount = 0;
@@ -166,15 +208,30 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'File pattern matching',
         impact: 'medium',
         description: `${patternCount} file patterns detected`,
-        weight: 0.4
+        weight: 0.4,
       });
       complexity = TaskComplexity.MODERATE;
     }
 
     // Detect multiple file references
-    const fileExtensions = ['.js', '.ts', '.tsx', '.jsx', '.py', '.java', '.cpp', '.c', '.h', '.css', '.html', '.json', '.yaml', '.yml'];
+    const fileExtensions = [
+      '.js',
+      '.ts',
+      '.tsx',
+      '.jsx',
+      '.py',
+      '.java',
+      '.cpp',
+      '.c',
+      '.h',
+      '.css',
+      '.html',
+      '.json',
+      '.yaml',
+      '.yml',
+    ];
     const extensionCount = new Set(
-      fileExtensions.filter(ext => request.toLowerCase().includes(ext))
+      fileExtensions.filter((ext) => request.toLowerCase().includes(ext)),
     ).size;
 
     if (extensionCount > 2) {
@@ -182,15 +239,21 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Multiple file types',
         impact: 'high',
         description: `${extensionCount} different file types referenced`,
-        weight: 0.5
+        weight: 0.5,
       });
       complexity = TaskComplexity.COMPLEX;
     }
 
     // Detect directory traversal indicators
-    const traversalIndicators = ['recursive', 'subdirectory', 'nested', 'deep', 'hierarchy'];
-    const traversalCount = traversalIndicators.filter(indicator =>
-      request.toLowerCase().includes(indicator)
+    const traversalIndicators = [
+      'recursive',
+      'subdirectory',
+      'nested',
+      'deep',
+      'hierarchy',
+    ];
+    const traversalCount = traversalIndicators.filter((indicator) =>
+      request.toLowerCase().includes(indicator),
     ).length;
 
     if (traversalCount > 0) {
@@ -198,7 +261,7 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Directory traversal',
         impact: 'medium',
         description: `${traversalCount} traversal indicators found`,
-        weight: 0.4
+        weight: 0.4,
       });
     }
 
@@ -208,11 +271,19 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
       factors,
       recommendedBreakdown: complexity !== TaskComplexity.SIMPLE,
       estimatedSubtasks: Math.max(1, directories.length + extensionCount),
-      estimatedDuration: this.estimateDurationFromWorkspace(directories.length, extensionCount, complexity)
+      estimatedDuration: this.estimateDurationFromWorkspace(
+        directories.length,
+        extensionCount,
+        complexity,
+      ),
     };
   }
 
-  private estimateDurationFromWorkspace(dirCount: number, fileTypeCount: number, complexity: TaskComplexity): number {
+  private estimateDurationFromWorkspace(
+    dirCount: number,
+    fileTypeCount: number,
+    complexity: TaskComplexity,
+  ): number {
     const baseComplexity = dirCount * 5 + fileTypeCount * 3;
 
     switch (complexity) {
@@ -234,12 +305,18 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
 export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
   name = 'ToolComplexityAnalyzer';
 
-  async analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult> {
+  async analyze(
+    request: string,
+    context: TaskBreakdownContext,
+  ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
 
     // Analyze tool requirements
-    const toolIndicators = new Map<string, { impact: 'low' | 'medium' | 'high', weight: number }>([
+    const toolIndicators = new Map<
+      string,
+      { impact: 'low' | 'medium' | 'high'; weight: number }
+    >([
       ['read', { impact: 'low', weight: 0.1 }],
       ['write', { impact: 'medium', weight: 0.3 }],
       ['edit', { impact: 'medium', weight: 0.4 }],
@@ -252,7 +329,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
       ['compile', { impact: 'high', weight: 0.8 }],
       ['test', { impact: 'medium', weight: 0.5 }],
       ['deploy', { impact: 'high', weight: 0.9 }],
-      ['install', { impact: 'high', weight: 0.6 }]
+      ['install', { impact: 'high', weight: 0.6 }],
     ]);
 
     const requiredTools = new Set<string>();
@@ -267,7 +344,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
           factor: `Requires ${tool} operation`,
           impact: config.impact,
           description: `Tool operation: ${tool}`,
-          weight: config.weight
+          weight: config.weight,
         });
       }
     }
@@ -288,7 +365,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
       ['delete', 'execute'],
       ['build', 'deploy'],
       ['edit', 'execute'],
-      ['write', 'execute']
+      ['write', 'execute'],
     ];
 
     for (const [tool1, tool2] of dangerousCombinations) {
@@ -297,7 +374,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
           factor: `Dangerous tool combination: ${tool1} + ${tool2}`,
           impact: 'high',
           description: `Combination of ${tool1} and ${tool2} requires careful execution`,
-          weight: 0.8
+          weight: 0.8,
         });
         complexity = TaskComplexity.COMPLEX;
       }
@@ -305,14 +382,16 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
 
     // Check for missing tool availability
     const availableTools = new Set(context.availableTools);
-    const missingTools = Array.from(requiredTools).filter(tool => !availableTools.has(tool));
+    const missingTools = Array.from(requiredTools).filter(
+      (tool) => !availableTools.has(tool),
+    );
 
     if (missingTools.length > 0) {
       factors.push({
         factor: 'Missing required tools',
         impact: 'high',
         description: `Missing tools: ${missingTools.join(', ')}`,
-        weight: 0.9
+        weight: 0.9,
       });
       complexity = TaskComplexity.HIGHLY_COMPLEX;
     }
@@ -323,11 +402,17 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
       factors,
       recommendedBreakdown: complexity !== TaskComplexity.SIMPLE,
       estimatedSubtasks: Math.max(1, requiredTools.size),
-      estimatedDuration: this.estimateDurationFromTools(Array.from(requiredTools), complexity)
+      estimatedDuration: this.estimateDurationFromTools(
+        Array.from(requiredTools),
+        complexity,
+      ),
     };
   }
 
-  private estimateDurationFromTools(tools: string[], complexity: TaskComplexity): number {
+  private estimateDurationFromTools(
+    tools: string[],
+    complexity: TaskComplexity,
+  ): number {
     // Base time per tool operation
     const toolTimes: Record<string, number> = {
       read: 2,
@@ -342,10 +427,13 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
       compile: 25,
       test: 15,
       deploy: 45,
-      install: 20
+      install: 20,
     };
 
-    const baseDuration = tools.reduce((total, tool) => total + (toolTimes[tool] || 5), 0);
+    const baseDuration = tools.reduce(
+      (total, tool) => total + (toolTimes[tool] || 5),
+      0,
+    );
 
     switch (complexity) {
       case TaskComplexity.SIMPLE:
@@ -366,14 +454,26 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
 export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
   name = 'DependencyComplexityAnalyzer';
 
-  async analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult> {
+  async analyze(
+    request: string,
+    context: TaskBreakdownContext,
+  ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
 
     // Analyze sequential dependency indicators
-    const sequentialIndicators = ['first', 'then', 'after', 'before', 'once', 'following', 'subsequent', 'next'];
-    const sequentialCount = sequentialIndicators.filter(indicator =>
-      request.toLowerCase().includes(indicator)
+    const sequentialIndicators = [
+      'first',
+      'then',
+      'after',
+      'before',
+      'once',
+      'following',
+      'subsequent',
+      'next',
+    ];
+    const sequentialCount = sequentialIndicators.filter((indicator) =>
+      request.toLowerCase().includes(indicator),
     ).length;
 
     if (sequentialCount > 0) {
@@ -381,15 +481,21 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Sequential dependencies',
         impact: 'medium',
         description: `${sequentialCount} sequential indicators found`,
-        weight: 0.4
+        weight: 0.4,
       });
       complexity = TaskComplexity.MODERATE;
     }
 
     // Analyze parallel dependency indicators
-    const parallelIndicators = ['simultaneously', 'concurrently', 'at the same time', 'parallel', 'together'];
-    const parallelCount = parallelIndicators.filter(indicator =>
-      request.toLowerCase().includes(indicator)
+    const parallelIndicators = [
+      'simultaneously',
+      'concurrently',
+      'at the same time',
+      'parallel',
+      'together',
+    ];
+    const parallelCount = parallelIndicators.filter((indicator) =>
+      request.toLowerCase().includes(indicator),
     ).length;
 
     if (parallelCount > 0) {
@@ -397,7 +503,7 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Parallel dependencies',
         impact: 'high',
         description: `${parallelCount} parallel indicators found`,
-        weight: 0.6
+        weight: 0.6,
       });
       complexity = TaskComplexity.COMPLEX;
     }
@@ -409,15 +515,22 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'External constraints',
         impact: 'high',
         description: `${constraints.length} constraints specified`,
-        weight: 0.5
+        weight: 0.5,
       });
       complexity = TaskComplexity.COMPLEX;
     }
 
     // Detect error handling requirements
-    const errorHandlingIndicators = ['error', 'exception', 'failure', 'fallback', 'retry', 'rollback'];
-    const errorHandlingCount = errorHandlingIndicators.filter(indicator =>
-      request.toLowerCase().includes(indicator)
+    const errorHandlingIndicators = [
+      'error',
+      'exception',
+      'failure',
+      'fallback',
+      'retry',
+      'rollback',
+    ];
+    const errorHandlingCount = errorHandlingIndicators.filter((indicator) =>
+      request.toLowerCase().includes(indicator),
     ).length;
 
     if (errorHandlingCount > 0) {
@@ -425,15 +538,22 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Error handling requirements',
         impact: 'high',
         description: `${errorHandlingCount} error handling indicators found`,
-        weight: 0.7
+        weight: 0.7,
       });
       complexity = TaskComplexity.COMPLEX;
     }
 
     // Detect validation requirements
-    const validationIndicators = ['verify', 'validate', 'check', 'ensure', 'confirm', 'test'];
-    const validationCount = validationIndicators.filter(indicator =>
-      request.toLowerCase().includes(indicator)
+    const validationIndicators = [
+      'verify',
+      'validate',
+      'check',
+      'ensure',
+      'confirm',
+      'test',
+    ];
+    const validationCount = validationIndicators.filter((indicator) =>
+      request.toLowerCase().includes(indicator),
     ).length;
 
     if (validationCount > 2) {
@@ -441,7 +561,7 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Complex validation requirements',
         impact: 'medium',
         description: `${validationCount} validation indicators found`,
-        weight: 0.4
+        weight: 0.4,
       });
     }
 
@@ -455,7 +575,10 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
     if (preferences.maxParallelTasks && preferences.maxParallelTasks > 5) {
       preferenceComplexity += 1;
     }
-    if (preferences.preferredExecutionTime && preferences.preferredExecutionTime > 60) {
+    if (
+      preferences.preferredExecutionTime &&
+      preferences.preferredExecutionTime > 60
+    ) {
       preferenceComplexity += 1;
     }
 
@@ -464,7 +587,7 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         factor: 'Complex preferences',
         impact: 'medium',
         description: `${preferenceComplexity} complex preferences set`,
-        weight: 0.3
+        weight: 0.3,
       });
     }
 
@@ -473,13 +596,16 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
       confidence: factors.length > 0 ? 0.8 : 0.4,
       factors,
       recommendedBreakdown: complexity !== TaskComplexity.SIMPLE,
-      estimatedSubtasks: Math.max(1, sequentialCount + parallelCount + errorHandlingCount),
+      estimatedSubtasks: Math.max(
+        1,
+        sequentialCount + parallelCount + errorHandlingCount,
+      ),
       estimatedDuration: this.estimateDurationFromDependencies(
         sequentialCount,
         parallelCount,
         errorHandlingCount,
-        complexity
-      )
+        complexity,
+      ),
     };
   }
 
@@ -487,9 +613,10 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
     sequential: number,
     parallel: number,
     errorHandling: number,
-    complexity: TaskComplexity
+    complexity: TaskComplexity,
   ): number {
-    const dependencyComplexity = (sequential * 5) + (parallel * 10) + (errorHandling * 8);
+    const dependencyComplexity =
+      sequential * 5 + parallel * 10 + errorHandling * 8;
 
     switch (complexity) {
       case TaskComplexity.SIMPLE:
@@ -512,6 +639,6 @@ export function createDefaultComplexityAnalyzers(): ComplexityAnalyzer[] {
     new LinguisticComplexityAnalyzer(),
     new WorkspaceComplexityAnalyzer(),
     new ToolComplexityAnalyzer(),
-    new DependencyComplexityAnalyzer()
+    new DependencyComplexityAnalyzer(),
   ];
 }

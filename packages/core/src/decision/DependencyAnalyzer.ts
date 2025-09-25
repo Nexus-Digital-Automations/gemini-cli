@@ -116,7 +116,11 @@ export interface PerformanceImpact {
  */
 export interface DependencyOptimization {
   /** Type of optimization */
-  type: 'parallel_execution' | 'dependency_removal' | 'resource_allocation' | 'task_splitting';
+  type:
+    | 'parallel_execution'
+    | 'dependency_removal'
+    | 'resource_allocation'
+    | 'task_splitting';
   /** Target tasks */
   targetTasks: TaskId[];
   /** Description of the optimization */
@@ -156,7 +160,10 @@ export class DependencyAnalyzer {
   private config: DependencyAnalysisConfig;
   private dependencyPatterns: Map<string, DependencyPattern>;
   private analysisCache: Map<string, DependencyAnalysisResult>;
-  private learningHistory: Map<string, Array<{ pattern: string; confidence: number; timestamp: number }>>;
+  private learningHistory: Map<
+    string,
+    Array<{ pattern: string; confidence: number; timestamp: number }>
+  >;
 
   constructor(config: Partial<DependencyAnalysisConfig> = {}) {
     this.config = {
@@ -186,7 +193,7 @@ export class DependencyAnalyzer {
   async analyzeDependencies(
     tasks: Map<TaskId, Task>,
     existingDependencies: TaskDependency[] = [],
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<DependencyAnalysisResult> {
     logger.debug('Starting dependency analysis', {
       taskCount: tasks.size,
@@ -204,19 +211,27 @@ export class DependencyAnalyzer {
 
     // Step 1: Semantic dependency analysis
     const semanticDependencies = await this.analyzeSemanticDependencies(tasks);
-    logger.debug('Semantic analysis complete', { found: semanticDependencies.length });
+    logger.debug('Semantic analysis complete', {
+      found: semanticDependencies.length,
+    });
 
     // Step 2: Temporal dependency analysis
     const temporalDependencies = await this.analyzeTemporalDependencies(tasks);
-    logger.debug('Temporal analysis complete', { found: temporalDependencies.length });
+    logger.debug('Temporal analysis complete', {
+      found: temporalDependencies.length,
+    });
 
     // Step 3: Resource dependency analysis
     const resourceDependencies = await this.analyzeResourceDependencies(tasks);
-    logger.debug('Resource analysis complete', { found: resourceDependencies.length });
+    logger.debug('Resource analysis complete', {
+      found: resourceDependencies.length,
+    });
 
     // Step 4: Pattern-based dependency analysis
     const patternDependencies = await this.analyzePatternDependencies(tasks);
-    logger.debug('Pattern analysis complete', { found: patternDependencies.length });
+    logger.debug('Pattern analysis complete', {
+      found: patternDependencies.length,
+    });
 
     // Step 5: Merge and score dependencies
     const allSuggestions = this.mergeDependencySuggestions([
@@ -226,21 +241,36 @@ export class DependencyAnalyzer {
       ...patternDependencies,
     ]);
 
-    const confidenceScores = this.calculateConfidenceScores(allSuggestions, tasks);
+    const confidenceScores = this.calculateConfidenceScores(
+      allSuggestions,
+      tasks,
+    );
 
     // Step 6: Filter by confidence threshold
     const suggestedDependencies = allSuggestions.filter(
-      dep => (confidenceScores.get(this.getDependencyKey(dep)) ?? 0) >= this.config.autoCreateThreshold
+      (dep) =>
+        (confidenceScores.get(this.getDependencyKey(dep)) ?? 0) >=
+        this.config.autoCreateThreshold,
     );
 
     // Step 7: Conflict analysis
-    const conflicts = await this.analyzeConflicts(tasks, [...existingDependencies, ...suggestedDependencies]);
+    const conflicts = await this.analyzeConflicts(tasks, [
+      ...existingDependencies,
+      ...suggestedDependencies,
+    ]);
 
     // Step 8: Performance impact analysis
-    const performanceImpact = await this.analyzePerformanceImpact(tasks, [...existingDependencies, ...suggestedDependencies]);
+    const performanceImpact = await this.analyzePerformanceImpact(tasks, [
+      ...existingDependencies,
+      ...suggestedDependencies,
+    ]);
 
     // Step 9: Generate optimizations
-    const optimizations = await this.generateOptimizations(tasks, [...existingDependencies, ...suggestedDependencies], performanceImpact);
+    const optimizations = await this.generateOptimizations(
+      tasks,
+      [...existingDependencies, ...suggestedDependencies],
+      performanceImpact,
+    );
 
     const result: DependencyAnalysisResult = {
       suggestedDependencies,
@@ -272,7 +302,9 @@ export class DependencyAnalyzer {
   /**
    * Analyze semantic dependencies based on task content and descriptions
    */
-  private async analyzeSemanticDependencies(tasks: Map<TaskId, Task>): Promise<TaskDependency[]> {
+  private async analyzeSemanticDependencies(
+    tasks: Map<TaskId, Task>,
+  ): Promise<TaskDependency[]> {
     const dependencies: TaskDependency[] = [];
     const taskArray = Array.from(tasks.values());
 
@@ -283,8 +315,14 @@ export class DependencyAnalyzer {
         const task1 = taskArray[i];
         const task2 = taskArray[j];
 
-        const semanticSimilarity = this.calculateSemanticSimilarity(task1, task2);
-        const dependencyStrength = this.calculateDependencyStrength(task1, task2);
+        const semanticSimilarity = this.calculateSemanticSimilarity(
+          task1,
+          task2,
+        );
+        const dependencyStrength = this.calculateDependencyStrength(
+          task1,
+          task2,
+        );
 
         if (semanticSimilarity > 0.6 && dependencyStrength > 0.5) {
           const dependencyType = this.inferDependencyType(task1, task2);
@@ -305,24 +343,29 @@ export class DependencyAnalyzer {
   /**
    * Analyze temporal dependencies based on task timing and urgency
    */
-  private async analyzeTemporalDependencies(tasks: Map<TaskId, Task>): Promise<TaskDependency[]> {
+  private async analyzeTemporalDependencies(
+    tasks: Map<TaskId, Task>,
+  ): Promise<TaskDependency[]> {
     const dependencies: TaskDependency[] = [];
     const taskArray = Array.from(tasks.values()).sort(
-      (a, b) => a.metadata.createdAt.getTime() - b.metadata.createdAt.getTime()
+      (a, b) => a.metadata.createdAt.getTime() - b.metadata.createdAt.getTime(),
     );
 
     for (let i = 0; i < taskArray.length - 1; i++) {
       const earlierTask = taskArray[i];
       const laterTask = taskArray[i + 1];
 
-      const timeDiff = laterTask.metadata.createdAt.getTime() - earlierTask.metadata.createdAt.getTime();
+      const timeDiff =
+        laterTask.metadata.createdAt.getTime() -
+        earlierTask.metadata.createdAt.getTime();
       const urgencyFactor = this.calculateUrgencyFactor(earlierTask, laterTask);
 
       // If tasks were created close together and have related categories
-      if (timeDiff < 5 * 60 * 1000 && // Within 5 minutes
-          this.areRelatedCategories(earlierTask.category, laterTask.category) &&
-          urgencyFactor > 0.4) {
-
+      if (
+        timeDiff < 5 * 60 * 1000 && // Within 5 minutes
+        this.areRelatedCategories(earlierTask.category, laterTask.category) &&
+        urgencyFactor > 0.4
+      ) {
         dependencies.push({
           dependentTaskId: laterTask.id,
           dependsOnTaskId: earlierTask.id,
@@ -340,7 +383,9 @@ export class DependencyAnalyzer {
   /**
    * Analyze resource dependencies based on resource constraints
    */
-  private async analyzeResourceDependencies(tasks: Map<TaskId, Task>): Promise<TaskDependency[]> {
+  private async analyzeResourceDependencies(
+    tasks: Map<TaskId, Task>,
+  ): Promise<TaskDependency[]> {
     const dependencies: TaskDependency[] = [];
     const taskArray = Array.from(tasks.values());
 
@@ -386,7 +431,9 @@ export class DependencyAnalyzer {
   /**
    * Analyze pattern-based dependencies using learned patterns
    */
-  private async analyzePatternDependencies(tasks: Map<TaskId, Task>): Promise<TaskDependency[]> {
+  private async analyzePatternDependencies(
+    tasks: Map<TaskId, Task>,
+  ): Promise<TaskDependency[]> {
     const dependencies: TaskDependency[] = [];
     const taskArray = Array.from(tasks.values());
 
@@ -424,10 +471,10 @@ export class DependencyAnalyzer {
     const text2 = `${task2.title} ${task2.description}`.toLowerCase();
 
     // Simple word overlap similarity
-    const words1 = new Set(text1.split(/\s+/).filter(w => w.length > 2));
-    const words2 = new Set(text2.split(/\s+/).filter(w => w.length > 2));
+    const words1 = new Set(text1.split(/\s+/).filter((w) => w.length > 2));
+    const words2 = new Set(text2.split(/\s+/).filter((w) => w.length > 2));
 
-    const intersection = new Set([...words1].filter(x => words2.has(x)));
+    const intersection = new Set([...words1].filter((x) => words2.has(x)));
     const union = new Set([...words1, ...words2]);
 
     return union.size > 0 ? intersection.size / union.size : 0;
@@ -440,7 +487,10 @@ export class DependencyAnalyzer {
     let strength = 0;
 
     // Category relationship
-    const categoryStrength = this.getCategoryRelationshipStrength(task1.category, task2.category);
+    const categoryStrength = this.getCategoryRelationshipStrength(
+      task1.category,
+      task2.category,
+    );
     strength += categoryStrength * 0.4;
 
     // Priority relationship (higher priority tasks often come before lower priority)
@@ -451,7 +501,15 @@ export class DependencyAnalyzer {
     }
 
     // Description keywords that suggest dependency
-    const dependencyKeywords = ['after', 'before', 'requires', 'depends', 'needs', 'following', 'once'];
+    const dependencyKeywords = [
+      'after',
+      'before',
+      'requires',
+      'depends',
+      'needs',
+      'following',
+      'once',
+    ];
     const text2 = task2.description.toLowerCase();
 
     for (const keyword of dependencyKeywords) {
@@ -481,9 +539,10 @@ export class DependencyAnalyzer {
     }
 
     const timeDiff = Math.abs(
-      task2.metadata.createdAt.getTime() - task1.metadata.createdAt.getTime()
+      task2.metadata.createdAt.getTime() - task1.metadata.createdAt.getTime(),
     );
-    if (timeDiff < 5 * 60 * 1000) { // Within 5 minutes
+    if (timeDiff < 5 * 60 * 1000) {
+      // Within 5 minutes
       return 'temporal';
     }
 
@@ -503,7 +562,9 @@ export class DependencyAnalyzer {
   /**
    * Merge dependency suggestions and remove duplicates
    */
-  private mergeDependencySuggestions(suggestions: TaskDependency[]): TaskDependency[] {
+  private mergeDependencySuggestions(
+    suggestions: TaskDependency[],
+  ): TaskDependency[] {
     const dependencyMap = new Map<string, TaskDependency>();
 
     for (const dependency of suggestions) {
@@ -534,7 +595,7 @@ export class DependencyAnalyzer {
    */
   private calculateConfidenceScores(
     dependencies: TaskDependency[],
-    tasks: Map<TaskId, Task>
+    tasks: Map<TaskId, Task>,
   ): Map<string, number> {
     const scores = new Map<string, number>();
 
@@ -555,7 +616,9 @@ export class DependencyAnalyzer {
       if (reason.includes('Semantic')) {
         const semanticMatch = reason.match(/(\d+\.\d+) similarity/);
         if (semanticMatch) {
-          confidence += parseFloat(semanticMatch[1]) * this.config.detectionWeights.semantic;
+          confidence +=
+            parseFloat(semanticMatch[1]) *
+            this.config.detectionWeights.semantic;
         }
       }
 
@@ -570,12 +633,18 @@ export class DependencyAnalyzer {
       if (reason.includes('Pattern')) {
         const patternMatch = reason.match(/confidence: (\d+\.\d+)/);
         if (patternMatch) {
-          confidence += parseFloat(patternMatch[1]) * this.config.detectionWeights.pattern;
+          confidence +=
+            parseFloat(patternMatch[1]) * this.config.detectionWeights.pattern;
         }
       }
 
       // Adjust confidence based on dependency type
-      const typeMultipliers = { hard: 1.0, soft: 0.8, resource: 0.9, temporal: 0.7 };
+      const typeMultipliers = {
+        hard: 1.0,
+        soft: 0.8,
+        resource: 0.9,
+        temporal: 0.7,
+      };
       confidence *= typeMultipliers[dependency.type] || 0.5;
 
       scores.set(key, Math.min(confidence, 1));
@@ -589,7 +658,7 @@ export class DependencyAnalyzer {
    */
   private async analyzeConflicts(
     tasks: Map<TaskId, Task>,
-    dependencies: TaskDependency[]
+    dependencies: TaskDependency[],
   ): Promise<DependencyConflict[]> {
     const conflicts: DependencyConflict[] = [];
 
@@ -617,19 +686,25 @@ export class DependencyAnalyzer {
    */
   private async analyzePerformanceImpact(
     tasks: Map<TaskId, Task>,
-    dependencies: TaskDependency[]
+    dependencies: TaskDependency[],
   ): Promise<PerformanceImpact> {
     const taskArray = Array.from(tasks.values());
     const totalDuration = taskArray.reduce(
       (sum, task) => sum + (task.metadata.estimatedDuration || 60000),
-      0
+      0,
     );
 
     // Calculate critical path (simplified)
-    const criticalPathLength = this.calculateCriticalPathLength(tasks, dependencies);
+    const criticalPathLength = this.calculateCriticalPathLength(
+      tasks,
+      dependencies,
+    );
 
     // Calculate parallelization potential
-    const parallelizationPotential = this.calculateParallelizationPotential(tasks, dependencies);
+    const parallelizationPotential = this.calculateParallelizationPotential(
+      tasks,
+      dependencies,
+    );
 
     // Calculate resource utilization
     const resourceUtilization = this.calculateResourceUtilization(tasks);
@@ -652,7 +727,7 @@ export class DependencyAnalyzer {
   private async generateOptimizations(
     tasks: Map<TaskId, Task>,
     dependencies: TaskDependency[],
-    performanceImpact: PerformanceImpact
+    performanceImpact: PerformanceImpact,
   ): Promise<DependencyOptimization[]> {
     const optimizations: DependencyOptimization[] = [];
 
@@ -663,7 +738,9 @@ export class DependencyAnalyzer {
         targetTasks: Array.from(tasks.keys()),
         description: `Parallelize tasks to reduce execution time by ~${Math.round(performanceImpact.parallelizationPotential * 100)}%`,
         expectedBenefit: {
-          timeReduction: performanceImpact.totalExecutionTime * performanceImpact.parallelizationPotential,
+          timeReduction:
+            performanceImpact.totalExecutionTime *
+            performanceImpact.parallelizationPotential,
           resourceEfficiency: 0.8,
           riskLevel: 'low',
         },
@@ -676,11 +753,11 @@ export class DependencyAnalyzer {
     }
 
     // Dependency removal opportunities
-    const softDependencies = dependencies.filter(d => d.type === 'soft');
+    const softDependencies = dependencies.filter((d) => d.type === 'soft');
     if (softDependencies.length > 0) {
       optimizations.push({
         type: 'dependency_removal',
-        targetTasks: softDependencies.map(d => d.dependentTaskId),
+        targetTasks: softDependencies.map((d) => d.dependentTaskId),
         description: `Remove ${softDependencies.length} soft dependencies to increase parallelization`,
         expectedBenefit: {
           timeReduction: softDependencies.length * 30000, // 30s per dependency
@@ -729,7 +806,10 @@ export class DependencyAnalyzer {
       confidence: 0.9,
       occurrences: 0,
       matcher: (task1: Task, task2: Task) => {
-        if (task1.category === 'implementation' && task2.category === 'testing') {
+        if (
+          task1.category === 'implementation' &&
+          task2.category === 'testing'
+        ) {
           const semanticSim = this.calculateSemanticSimilarity(task1, task2);
           return semanticSim > 0.3 ? 0.8 + semanticSim * 0.2 : 0;
         }
@@ -745,7 +825,10 @@ export class DependencyAnalyzer {
       confidence: 0.85,
       occurrences: 0,
       matcher: (task1: Task, task2: Task) => {
-        if (task1.category === 'analysis' && task2.category === 'implementation') {
+        if (
+          task1.category === 'analysis' &&
+          task2.category === 'implementation'
+        ) {
           return 0.8;
         }
         return 0;
@@ -760,7 +843,10 @@ export class DependencyAnalyzer {
       confidence: 0.7,
       occurrences: 0,
       matcher: (task1: Task, task2: Task) => {
-        if (task1.category === 'implementation' && task2.category === 'documentation') {
+        if (
+          task1.category === 'implementation' &&
+          task2.category === 'documentation'
+        ) {
           return 0.6; // Soft dependency
         }
         return 0;
@@ -769,9 +855,15 @@ export class DependencyAnalyzer {
   }
 
   // Helper methods
-  private generateCacheKey(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): string {
+  private generateCacheKey(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): string {
     const taskIds = Array.from(tasks.keys()).sort().join(',');
-    const depIds = dependencies.map(d => `${d.dependentTaskId}->${d.dependsOnTaskId}`).sort().join(',');
+    const depIds = dependencies
+      .map((d) => `${d.dependentTaskId}->${d.dependsOnTaskId}`)
+      .sort()
+      .join(',');
     return `${taskIds}|${depIds}`;
   }
 
@@ -793,7 +885,10 @@ export class DependencyAnalyzer {
     return (priority1 + priority2) / 8; // Normalize to 0-1
   }
 
-  private areRelatedCategories(cat1: TaskCategory, cat2: TaskCategory): boolean {
+  private areRelatedCategories(
+    cat1: TaskCategory,
+    cat2: TaskCategory,
+  ): boolean {
     const related = {
       implementation: ['testing', 'documentation'],
       analysis: ['implementation', 'documentation'],
@@ -802,7 +897,9 @@ export class DependencyAnalyzer {
       refactoring: ['testing'],
       deployment: ['implementation', 'testing'],
     };
-    return related[cat1]?.includes(cat2) || related[cat2]?.includes(cat1) || false;
+    return (
+      related[cat1]?.includes(cat2) || related[cat2]?.includes(cat1) || false
+    );
   }
 
   private findResourceConflicts(task1: Task, task2: Task): string[] {
@@ -813,7 +910,10 @@ export class DependencyAnalyzer {
 
     for (const r1 of resources1) {
       for (const r2 of resources2) {
-        if (r1.resourceType === r2.resourceType && (r1.exclusive || r2.exclusive)) {
+        if (
+          r1.resourceType === r2.resourceType &&
+          (r1.exclusive || r2.exclusive)
+        ) {
           conflicts.push(r1.resourceType);
         }
       }
@@ -827,13 +927,18 @@ export class DependencyAnalyzer {
     return scores[priority];
   }
 
-  private getCategoryRelationshipStrength(cat1: TaskCategory, cat2: TaskCategory): number {
+  private getCategoryRelationshipStrength(
+    cat1: TaskCategory,
+    cat2: TaskCategory,
+  ): number {
     if (cat1 === cat2) return 0.8;
     if (this.areRelatedCategories(cat1, cat2)) return 0.6;
     return 0.1;
   }
 
-  private detectCircularConflicts(dependencies: TaskDependency[]): DependencyConflict[] {
+  private detectCircularConflicts(
+    dependencies: TaskDependency[],
+  ): DependencyConflict[] {
     // Simplified circular dependency detection
     const conflicts: DependencyConflict[] = [];
     const graph = new Map<TaskId, TaskId[]>();
@@ -894,29 +999,45 @@ export class DependencyAnalyzer {
     return conflicts;
   }
 
-  private detectResourceConflicts(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): DependencyConflict[] {
+  private detectResourceConflicts(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): DependencyConflict[] {
     // Simplified resource conflict detection
     return [];
   }
 
-  private detectTemporalConflicts(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): DependencyConflict[] {
+  private detectTemporalConflicts(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): DependencyConflict[] {
     // Simplified temporal conflict detection
     return [];
   }
 
-  private detectLogicalConflicts(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): DependencyConflict[] {
+  private detectLogicalConflicts(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): DependencyConflict[] {
     // Simplified logical conflict detection
     return [];
   }
 
-  private calculateCriticalPathLength(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): number {
+  private calculateCriticalPathLength(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): number {
     // Simplified critical path calculation
     return Array.from(tasks.values()).length;
   }
 
-  private calculateParallelizationPotential(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): number {
+  private calculateParallelizationPotential(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): number {
     const totalTasks = tasks.size;
-    const dependentTasks = new Set(dependencies.map(d => d.dependentTaskId)).size;
+    const dependentTasks = new Set(dependencies.map((d) => d.dependentTaskId))
+      .size;
     return totalTasks > 0 ? (totalTasks - dependentTasks) / totalTasks : 0;
   }
 
@@ -925,7 +1046,10 @@ export class DependencyAnalyzer {
     return 0.7; // Mock value
   }
 
-  private identifyBottlenecks(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): Array<{
+  private identifyBottlenecks(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): Array<{
     taskId: TaskId;
     type: 'dependency' | 'resource' | 'duration';
     impact: number;
@@ -934,7 +1058,10 @@ export class DependencyAnalyzer {
     return [];
   }
 
-  private updateLearningPatterns(tasks: Map<TaskId, Task>, result: DependencyAnalysisResult): void {
+  private updateLearningPatterns(
+    tasks: Map<TaskId, Task>,
+    result: DependencyAnalysisResult,
+  ): void {
     // Update learning patterns based on analysis results
     for (const dependency of result.suggestedDependencies) {
       const task1 = tasks.get(dependency.dependsOnTaskId);
@@ -947,7 +1074,8 @@ export class DependencyAnalyzer {
           this.learningHistory.set(patternId, []);
         }
 
-        const confidence = result.confidenceScores.get(this.getDependencyKey(dependency)) || 0;
+        const confidence =
+          result.confidenceScores.get(this.getDependencyKey(dependency)) || 0;
         this.learningHistory.get(patternId)!.push({
           pattern: patternId,
           confidence,

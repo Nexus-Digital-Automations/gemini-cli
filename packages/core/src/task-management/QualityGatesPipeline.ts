@@ -17,7 +17,7 @@ import type {
   TaskId,
   TaskResult,
   TaskCategory,
-  TaskPriority
+  TaskPriority,
 } from './types.js';
 import type {
   ValidationEngine,
@@ -28,7 +28,7 @@ import type {
   ValidationSeverity,
   ValidationStatus,
   PerformanceBenchmark,
-  SecurityScanConfig
+  SecurityScanConfig,
 } from './ValidationEngine.js';
 import type { ExecutionMetrics } from './ExecutionMonitoringSystem.js';
 import { spawn } from 'node:child_process';
@@ -77,7 +77,7 @@ export class QualityGatesPipeline {
   constructor(
     config: Config,
     validationEngine: ValidationEngine,
-    pipelineConfig: PipelineConfig
+    pipelineConfig: PipelineConfig,
   ) {
     this.config = config;
     this.validationEngine = validationEngine;
@@ -132,41 +132,53 @@ export class QualityGatesPipeline {
         try {
           // Check if linting is configured
           const packageJsonPath = path.join(process.cwd(), 'package.json');
-          const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+          const packageJson = JSON.parse(
+            await fs.readFile(packageJsonPath, 'utf-8'),
+          );
 
-          if (!packageJson.scripts?.lint && !packageJson.devDependencies?.eslint) {
+          if (
+            !packageJson.scripts?.lint &&
+            !packageJson.devDependencies?.eslint
+          ) {
             return {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'No linting configuration found',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           // Run linting
-          const lintResult = await this.runCommand('npm run lint', { timeout: 60000 });
+          const lintResult = await this.runCommand('npm run lint', {
+            timeout: 60000,
+          });
 
           return {
             passed: lintResult.exitCode === 0,
             status: lintResult.exitCode === 0 ? 'passed' : 'failed',
-            message: lintResult.exitCode === 0
-              ? 'All linting checks passed'
-              : 'Linting violations detected',
+            message:
+              lintResult.exitCode === 0
+                ? 'All linting checks passed'
+                : 'Linting violations detected',
             details: lintResult.output,
-            suggestions: lintResult.exitCode !== 0
-              ? ['Run "npm run lint -- --fix" to auto-fix issues', 'Review linting errors in detail']
-              : undefined,
-            executionTimeMs: Date.now() - startTime
+            suggestions:
+              lintResult.exitCode !== 0
+                ? [
+                    'Run "npm run lint -- --fix" to auto-fix issues',
+                    'Review linting errors in detail',
+                  ]
+                : undefined,
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Linting validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
 
     // Type Checking Rule
@@ -190,34 +202,41 @@ export class QualityGatesPipeline {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'No TypeScript configuration found',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           // Run type checking
-          const typeCheckResult = await this.runCommand('npx tsc --noEmit', { timeout: 120000 });
+          const typeCheckResult = await this.runCommand('npx tsc --noEmit', {
+            timeout: 120000,
+          });
 
           return {
             passed: typeCheckResult.exitCode === 0,
             status: typeCheckResult.exitCode === 0 ? 'passed' : 'failed',
-            message: typeCheckResult.exitCode === 0
-              ? 'Type checking passed'
-              : 'Type checking errors detected',
+            message:
+              typeCheckResult.exitCode === 0
+                ? 'Type checking passed'
+                : 'Type checking errors detected',
             details: typeCheckResult.output,
-            suggestions: typeCheckResult.exitCode !== 0
-              ? ['Fix type errors shown in output', 'Review TypeScript configuration']
-              : undefined,
-            executionTimeMs: Date.now() - startTime
+            suggestions:
+              typeCheckResult.exitCode !== 0
+                ? [
+                    'Fix type errors shown in output',
+                    'Review TypeScript configuration',
+                  ]
+                : undefined,
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Type checking validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
 
     // Code Complexity Rule
@@ -248,34 +267,45 @@ export class QualityGatesPipeline {
             }
           }
 
-          const averageComplexity = files.length > 0 ? totalComplexity / files.length : 0;
+          const averageComplexity =
+            files.length > 0 ? totalComplexity / files.length : 0;
           const complexityThreshold = 8;
 
           return {
-            passed: averageComplexity <= complexityThreshold && highComplexityFiles === 0,
-            status: averageComplexity <= complexityThreshold && highComplexityFiles === 0 ? 'passed' : 'warning',
+            passed:
+              averageComplexity <= complexityThreshold &&
+              highComplexityFiles === 0,
+            status:
+              averageComplexity <= complexityThreshold &&
+              highComplexityFiles === 0
+                ? 'passed'
+                : 'warning',
             message: `Average complexity: ${averageComplexity.toFixed(2)}, High complexity files: ${highComplexityFiles}`,
             details: `Complexity threshold: ${complexityThreshold}`,
             metrics: {
               averageComplexity,
               totalComplexity,
               highComplexityFiles,
-              fileCount: files.length
+              fileCount: files.length,
             },
-            suggestions: highComplexityFiles > 0
-              ? ['Refactor high complexity functions', 'Break down complex logic into smaller functions']
-              : undefined,
-            executionTimeMs: Date.now() - startTime
+            suggestions:
+              highComplexityFiles > 0
+                ? [
+                    'Refactor high complexity functions',
+                    'Break down complex logic into smaller functions',
+                  ]
+                : undefined,
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Code complexity validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -296,49 +326,60 @@ export class QualityGatesPipeline {
         try {
           // Check if testing is configured
           const packageJsonPath = path.join(process.cwd(), 'package.json');
-          const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+          const packageJson = JSON.parse(
+            await fs.readFile(packageJsonPath, 'utf-8'),
+          );
 
           if (!packageJson.scripts?.test) {
             return {
               passed: false,
               status: 'failed',
               message: 'No test script configured',
-              suggestions: ['Add test script to package.json', 'Set up unit testing framework'],
-              executionTimeMs: Date.now() - startTime
+              suggestions: [
+                'Add test script to package.json',
+                'Set up unit testing framework',
+              ],
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           // Run tests
-          const testResult = await this.runCommand('npm test', { timeout: 300000 });
+          const testResult = await this.runCommand('npm test', {
+            timeout: 300000,
+          });
 
           // Parse test output for coverage information if available
-          const coverageMatch = testResult.output.match(/All files\s+\|\s+(\d+\.?\d*)/);
+          const coverageMatch = testResult.output.match(
+            /All files\s+\|\s+(\d+\.?\d*)/,
+          );
           const coverage = coverageMatch ? parseFloat(coverageMatch[1]) : null;
 
           return {
             passed: testResult.exitCode === 0,
             status: testResult.exitCode === 0 ? 'passed' : 'failed',
-            message: testResult.exitCode === 0
-              ? `All tests passed${coverage ? ` (Coverage: ${coverage}%)` : ''}`
-              : 'Some tests failed',
+            message:
+              testResult.exitCode === 0
+                ? `All tests passed${coverage ? ` (Coverage: ${coverage}%)` : ''}`
+                : 'Some tests failed',
             details: testResult.output,
             metrics: coverage ? { coverage } : undefined,
-            suggestions: testResult.exitCode !== 0
-              ? ['Fix failing tests', 'Review test output for details']
-              : coverage && coverage < 80
-              ? ['Improve test coverage to at least 80%']
-              : undefined,
-            executionTimeMs: Date.now() - startTime
+            suggestions:
+              testResult.exitCode !== 0
+                ? ['Fix failing tests', 'Review test output for details']
+                : coverage && coverage < 80
+                  ? ['Improve test coverage to at least 80%']
+                  : undefined,
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Unit tests validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
 
     // Integration Tests Rule
@@ -353,40 +394,49 @@ export class QualityGatesPipeline {
 
         try {
           const packageJsonPath = path.join(process.cwd(), 'package.json');
-          const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+          const packageJson = JSON.parse(
+            await fs.readFile(packageJsonPath, 'utf-8'),
+          );
 
           if (!packageJson.scripts?.['test:integration']) {
             return {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'No integration test script configured',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
-          const testResult = await this.runCommand('npm run test:integration', { timeout: 600000 });
+          const testResult = await this.runCommand('npm run test:integration', {
+            timeout: 600000,
+          });
 
           return {
             passed: testResult.exitCode === 0,
             status: testResult.exitCode === 0 ? 'passed' : 'failed',
-            message: testResult.exitCode === 0
-              ? 'All integration tests passed'
-              : 'Some integration tests failed',
+            message:
+              testResult.exitCode === 0
+                ? 'All integration tests passed'
+                : 'Some integration tests failed',
             details: testResult.output,
-            suggestions: testResult.exitCode !== 0
-              ? ['Fix failing integration tests', 'Check external dependencies']
-              : undefined,
-            executionTimeMs: Date.now() - startTime
+            suggestions:
+              testResult.exitCode !== 0
+                ? [
+                    'Fix failing integration tests',
+                    'Check external dependencies',
+                  ]
+                : undefined,
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Integration tests validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -406,19 +456,23 @@ export class QualityGatesPipeline {
 
         try {
           const packageJsonPath = path.join(process.cwd(), 'package.json');
-          const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+          const packageJson = JSON.parse(
+            await fs.readFile(packageJsonPath, 'utf-8'),
+          );
 
           if (!packageJson.scripts?.build) {
             return {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'No build script configured',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           const buildStartTime = Date.now();
-          const buildResult = await this.runCommand('npm run build', { timeout: 600000 });
+          const buildResult = await this.runCommand('npm run build', {
+            timeout: 600000,
+          });
           const buildDuration = Date.now() - buildStartTime;
 
           if (buildResult.exitCode !== 0) {
@@ -427,7 +481,7 @@ export class QualityGatesPipeline {
               status: 'failed',
               message: 'Build failed',
               details: buildResult.output,
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
@@ -436,7 +490,8 @@ export class QualityGatesPipeline {
           const buildTimeThreshold = 300000; // 5 minutes
           const sizeThreshold = 50; // 50MB
 
-          const passed = buildDuration <= buildTimeThreshold && buildSizeMB <= sizeThreshold;
+          const passed =
+            buildDuration <= buildTimeThreshold && buildSizeMB <= sizeThreshold;
 
           return {
             passed,
@@ -446,22 +501,26 @@ export class QualityGatesPipeline {
               buildDurationMs: buildDuration,
               buildSizeMB,
               buildTimeThresholdMs: buildTimeThreshold,
-              sizeThresholdMB: sizeThreshold
+              sizeThresholdMB: sizeThreshold,
             },
             suggestions: !passed
-              ? ['Optimize build performance', 'Consider code splitting', 'Review bundle size']
+              ? [
+                  'Optimize build performance',
+                  'Consider code splitting',
+                  'Review bundle size',
+                ]
               : undefined,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Build performance validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
 
     // Memory Usage Rule
@@ -486,22 +545,26 @@ export class QualityGatesPipeline {
             message: `Current memory usage: ${currentMemoryMB.toFixed(1)}MB`,
             metrics: {
               memoryUsageMB: currentMemoryMB,
-              memoryThresholdMB: memoryThreshold
+              memoryThresholdMB: memoryThreshold,
             },
             suggestions: !passed
-              ? ['Optimize memory usage', 'Check for memory leaks', 'Reduce concurrent operations']
+              ? [
+                  'Optimize memory usage',
+                  'Check for memory leaks',
+                  'Reduce concurrent operations',
+                ]
               : undefined,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Memory usage validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -523,7 +586,7 @@ export class QualityGatesPipeline {
           // Run npm audit
           const auditResult = await this.runCommand('npm audit --json', {
             timeout: 120000,
-            ignoreExitCode: true
+            ignoreExitCode: true,
           });
 
           let auditData;
@@ -534,17 +597,17 @@ export class QualityGatesPipeline {
               passed: true,
               status: 'passed',
               message: 'Dependency security check completed (no JSON output)',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           const vulnerabilities = auditData.vulnerabilities || {};
           const vulnCount = Object.keys(vulnerabilities).length;
           const criticalVulns = Object.values(vulnerabilities).filter(
-            (v: any) => v.severity === 'critical'
+            (v: any) => v.severity === 'critical',
           ).length;
           const highVulns = Object.values(vulnerabilities).filter(
-            (v: any) => v.severity === 'high'
+            (v: any) => v.severity === 'high',
           ).length;
 
           const passed = criticalVulns === 0 && highVulns === 0;
@@ -558,22 +621,25 @@ export class QualityGatesPipeline {
             metrics: {
               totalVulnerabilities: vulnCount,
               criticalVulnerabilities: criticalVulns,
-              highVulnerabilities: highVulns
+              highVulnerabilities: highVulns,
             },
             suggestions: !passed
-              ? ['Run "npm audit fix" to resolve vulnerabilities', 'Review and update vulnerable dependencies']
+              ? [
+                  'Run "npm audit fix" to resolve vulnerabilities',
+                  'Review and update vulnerable dependencies',
+                ]
               : undefined,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Dependency security validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
 
     // SAST Security Scan Rule
@@ -595,15 +661,17 @@ export class QualityGatesPipeline {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'Semgrep not installed, SAST scan skipped',
-              suggestions: ['Install semgrep for security scanning: pip install semgrep'],
-              executionTimeMs: Date.now() - startTime
+              suggestions: [
+                'Install semgrep for security scanning: pip install semgrep',
+              ],
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           // Run semgrep security scan
           const semgrepResult = await this.runCommand(
             'semgrep --config=p/security-audit --json .',
-            { timeout: 300000, ignoreExitCode: true }
+            { timeout: 300000, ignoreExitCode: true },
           );
 
           let findings;
@@ -615,12 +683,16 @@ export class QualityGatesPipeline {
               passed: true,
               status: 'warning',
               message: 'SAST scan completed but could not parse results',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
-          const criticalFindings = findings.filter((f: any) => f.extra?.severity === 'ERROR').length;
-          const highFindings = findings.filter((f: any) => f.extra?.severity === 'WARNING').length;
+          const criticalFindings = findings.filter(
+            (f: any) => f.extra?.severity === 'ERROR',
+          ).length;
+          const highFindings = findings.filter(
+            (f: any) => f.extra?.severity === 'WARNING',
+          ).length;
 
           const passed = criticalFindings === 0 && highFindings === 0;
 
@@ -633,22 +705,25 @@ export class QualityGatesPipeline {
             metrics: {
               totalFindings: findings.length,
               criticalFindings,
-              highFindings
+              highFindings,
             },
             suggestions: !passed
-              ? ['Review and fix security issues found in scan', 'Consider security code review']
+              ? [
+                  'Review and fix security issues found in scan',
+                  'Consider security code review',
+                ]
               : undefined,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `SAST scan validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -668,40 +743,46 @@ export class QualityGatesPipeline {
 
         try {
           const packageJsonPath = path.join(process.cwd(), 'package.json');
-          const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+          const packageJson = JSON.parse(
+            await fs.readFile(packageJsonPath, 'utf-8'),
+          );
 
           if (!packageJson.scripts?.build) {
             return {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'No build script configured',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
-          const buildResult = await this.runCommand('npm run build', { timeout: 600000 });
+          const buildResult = await this.runCommand('npm run build', {
+            timeout: 600000,
+          });
 
           return {
             passed: buildResult.exitCode === 0,
             status: buildResult.exitCode === 0 ? 'passed' : 'failed',
-            message: buildResult.exitCode === 0
-              ? 'Build completed successfully'
-              : 'Build failed',
+            message:
+              buildResult.exitCode === 0
+                ? 'Build completed successfully'
+                : 'Build failed',
             details: buildResult.output,
-            suggestions: buildResult.exitCode !== 0
-              ? ['Fix build errors', 'Check dependencies and configuration']
-              : undefined,
-            executionTimeMs: Date.now() - startTime
+            suggestions:
+              buildResult.exitCode !== 0
+                ? ['Fix build errors', 'Check dependencies and configuration']
+                : undefined,
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Build validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -721,24 +802,33 @@ export class QualityGatesPipeline {
 
         try {
           // Check if task has validation criteria defined
-          if (!task.validationCriteria || task.validationCriteria.length === 0) {
+          if (
+            !task.validationCriteria ||
+            task.validationCriteria.length === 0
+          ) {
             return {
               passed: true,
               status: 'skipped' as ValidationStatus,
               message: 'No validation criteria defined for task',
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
 
           // Validate each criterion
-          const criteriaResults = task.validationCriteria.map(criterion => {
+          const criteriaResults = task.validationCriteria.map((criterion) => {
             // Simple criterion validation - in production this would be more sophisticated
-            const met = this.evaluateCompletionCriterion(criterion, task, result);
+            const met = this.evaluateCompletionCriterion(
+              criterion,
+              task,
+              result,
+            );
             return { criterion, met };
           });
 
-          const allCriteriaMet = criteriaResults.every(r => r.met);
-          const unmetCriteria = criteriaResults.filter(r => !r.met).map(r => r.criterion);
+          const allCriteriaMet = criteriaResults.every((r) => r.met);
+          const unmetCriteria = criteriaResults
+            .filter((r) => !r.met)
+            .map((r) => r.criterion);
 
           return {
             passed: allCriteriaMet,
@@ -750,17 +840,17 @@ export class QualityGatesPipeline {
             suggestions: !allCriteriaMet
               ? [`Address unmet criteria: ${unmetCriteria.join(', ')}`]
               : undefined,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Completion criteria validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -783,7 +873,7 @@ export class QualityGatesPipeline {
           const requiredConfigs = [
             { file: '.eslintrc.js', name: 'ESLint configuration' },
             { file: '.prettierrc', name: 'Prettier configuration' },
-            { file: 'tsconfig.json', name: 'TypeScript configuration' }
+            { file: 'tsconfig.json', name: 'TypeScript configuration' },
           ];
 
           const missingConfigs = [];
@@ -804,19 +894,21 @@ export class QualityGatesPipeline {
               ? 'All required configuration files present'
               : `Missing configurations: ${missingConfigs.join(', ')}`,
             suggestions: !passed
-              ? [`Add missing configuration files: ${missingConfigs.join(', ')}`]
+              ? [
+                  `Add missing configuration files: ${missingConfigs.join(', ')}`,
+                ]
               : undefined,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         } catch (error) {
           return {
             passed: false,
             status: 'error',
             message: `Code standards validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -846,18 +938,23 @@ export class QualityGatesPipeline {
             const hasUsageInstructions = /usage|example/i.test(readmeContent);
             const minLength = readmeContent.length > 200;
 
-            const qualityScore = [hasTitle, hasInstallInstructions, hasUsageInstructions, minLength]
-              .filter(Boolean).length;
+            const qualityScore = [
+              hasTitle,
+              hasInstallInstructions,
+              hasUsageInstructions,
+              minLength,
+            ].filter(Boolean).length;
 
             return {
               passed: qualityScore >= 3,
               status: qualityScore >= 3 ? 'passed' : 'warning',
               message: `README quality score: ${qualityScore}/4`,
               details: `Title: ${hasTitle}, Install: ${hasInstallInstructions}, Usage: ${hasUsageInstructions}, Length: ${minLength}`,
-              suggestions: qualityScore < 3
-                ? ['Improve README documentation with missing sections']
-                : undefined,
-              executionTimeMs: Date.now() - startTime
+              suggestions:
+                qualityScore < 3
+                  ? ['Improve README documentation with missing sections']
+                  : undefined,
+              executionTimeMs: Date.now() - startTime,
             };
           } catch {
             return {
@@ -865,7 +962,7 @@ export class QualityGatesPipeline {
               status: 'warning',
               message: 'README.md file not found',
               suggestions: ['Create README.md file with project documentation'],
-              executionTimeMs: Date.now() - startTime
+              executionTimeMs: Date.now() - startTime,
             };
           }
         } catch (error) {
@@ -873,10 +970,10 @@ export class QualityGatesPipeline {
             passed: false,
             status: 'error',
             message: `README documentation validation failed: ${error}`,
-            executionTimeMs: Date.now() - startTime
+            executionTimeMs: Date.now() - startTime,
           };
         }
-      }
+      },
     });
   }
 
@@ -885,13 +982,13 @@ export class QualityGatesPipeline {
    */
   private async runCommand(
     command: string,
-    options: { timeout?: number; ignoreExitCode?: boolean } = {}
+    options: { timeout?: number; ignoreExitCode?: boolean } = {},
   ): Promise<{ exitCode: number; output: string }> {
     return new Promise((resolve, reject) => {
       const [cmd, ...args] = command.split(' ');
       const child = spawn(cmd, args, {
         stdio: 'pipe',
-        shell: true
+        shell: true,
       });
 
       let output = '';
@@ -908,7 +1005,7 @@ export class QualityGatesPipeline {
       child.on('close', (code) => {
         resolve({
           exitCode: code || 0,
-          output: output + errorOutput
+          output: output + errorOutput,
         });
       });
 
@@ -916,7 +1013,7 @@ export class QualityGatesPipeline {
         if (options.ignoreExitCode) {
           resolve({
             exitCode: 1,
-            output: error.message
+            output: error.message,
           });
         } else {
           reject(error);
@@ -951,7 +1048,10 @@ export class QualityGatesPipeline {
           const fullPath = path.join(dirPath, item);
           const stat = await fs.stat(fullPath);
 
-          if (stat.isFile() && sourceExtensions.some(ext => item.endsWith(ext))) {
+          if (
+            stat.isFile() &&
+            sourceExtensions.some((ext) => item.endsWith(ext))
+          ) {
             files.push(fullPath);
           }
         }
@@ -1045,7 +1145,7 @@ export class QualityGatesPipeline {
   private evaluateCompletionCriterion(
     criterion: string,
     task: Task,
-    result: TaskResult
+    result: TaskResult,
   ): boolean {
     // Simple criterion evaluation - in production this would be more sophisticated
     const lowerCriterion = criterion.toLowerCase();
@@ -1079,17 +1179,19 @@ export class QualityGatesPipeline {
   getRulesByType(checkpointType: string): ValidationRule[] {
     // This mapping would be more sophisticated in production
     const typeToRules: Record<string, string[]> = {
-      'code_quality': ['code_linting', 'type_checking', 'code_complexity'],
-      'functional_testing': ['unit_tests', 'integration_tests'],
-      'performance': ['build_performance', 'memory_usage'],
-      'security': ['dependency_security', 'sast_scan'],
-      'integration': ['build_success'],
-      'business_rules': ['completion_criteria'],
-      'compliance': ['code_standards'],
-      'documentation': ['readme_documentation']
+      code_quality: ['code_linting', 'type_checking', 'code_complexity'],
+      functional_testing: ['unit_tests', 'integration_tests'],
+      performance: ['build_performance', 'memory_usage'],
+      security: ['dependency_security', 'sast_scan'],
+      integration: ['build_success'],
+      business_rules: ['completion_criteria'],
+      compliance: ['code_standards'],
+      documentation: ['readme_documentation'],
     };
 
     const ruleIds = typeToRules[checkpointType] || [];
-    return ruleIds.map(id => this.builtInRules.get(id)).filter(Boolean) as ValidationRule[];
+    return ruleIds
+      .map((id) => this.builtInRules.get(id))
+      .filter(Boolean) as ValidationRule[];
   }
 }

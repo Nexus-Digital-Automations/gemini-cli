@@ -6,7 +6,10 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import type { TaskPriority, TaskType } from '../../monitoring/TaskStatusMonitor.js';
+import type {
+  TaskPriority,
+  TaskType,
+} from '../../monitoring/TaskStatusMonitor.js';
 import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 import type { TaskQueue } from './TaskQueue.js';
 
@@ -258,7 +261,7 @@ export class PerformanceOptimizer extends EventEmitter {
    */
   getPerformanceHistory(
     interval: 'minute' | 'hour' | 'day' | 'week',
-    limit?: number
+    limit?: number,
   ): PerformanceHistory | undefined {
     const history = this.performanceHistory.get(interval);
     if (!history || !limit) return history;
@@ -272,7 +275,9 @@ export class PerformanceOptimizer extends EventEmitter {
   /**
    * Get active optimization recommendations
    */
-  async getOptimizationRecommendations(): Promise<OptimizationRecommendation[]> {
+  async getOptimizationRecommendations(): Promise<
+    OptimizationRecommendation[]
+  > {
     if (!this.currentMetrics) {
       await this.collectMetrics();
     }
@@ -283,12 +288,18 @@ export class PerformanceOptimizer extends EventEmitter {
   /**
    * Apply specific optimization recommendation
    */
-  async applyOptimization(recommendationId: string): Promise<OptimizationResult> {
+  async applyOptimization(
+    recommendationId: string,
+  ): Promise<OptimizationResult> {
     const recommendations = await this.getOptimizationRecommendations();
-    const recommendation = recommendations.find(r => r.id === recommendationId);
+    const recommendation = recommendations.find(
+      (r) => r.id === recommendationId,
+    );
 
     if (!recommendation) {
-      throw new Error(`Optimization recommendation not found: ${recommendationId}`);
+      throw new Error(
+        `Optimization recommendation not found: ${recommendationId}`,
+      );
     }
 
     this.logger.info('Applying optimization', {
@@ -315,7 +326,6 @@ export class PerformanceOptimizer extends EventEmitter {
       });
 
       return result;
-
     } catch (error) {
       const result: OptimizationResult = {
         recommendationId,
@@ -339,16 +349,22 @@ export class PerformanceOptimizer extends EventEmitter {
     const result = this.appliedOptimizations.get(recommendationId);
 
     if (!result || !result.applied) {
-      this.logger.warning('Cannot revert optimization - not found or not applied', {
-        recommendationId,
-      });
+      this.logger.warning(
+        'Cannot revert optimization - not found or not applied',
+        {
+          recommendationId,
+        },
+      );
       return false;
     }
 
     if (!result.revertAction) {
-      this.logger.warning('Cannot revert optimization - no revert action available', {
-        recommendationId,
-      });
+      this.logger.warning(
+        'Cannot revert optimization - no revert action available',
+        {
+          recommendationId,
+        },
+      );
       return false;
     }
 
@@ -361,7 +377,10 @@ export class PerformanceOptimizer extends EventEmitter {
 
       return true;
     } catch (error) {
-      this.logger.error('Failed to revert optimization', { recommendationId, error });
+      this.logger.error('Failed to revert optimization', {
+        recommendationId,
+        error,
+      });
       return false;
     }
   }
@@ -383,14 +402,19 @@ export class PerformanceOptimizer extends EventEmitter {
       efficiencyGain: number;
     };
   } {
-    const totalRecommendations = this.optimizationState.totalOptimizationsApplied;
-    const successRate = totalRecommendations > 0
-      ? (this.optimizationState.successfulOptimizations / totalRecommendations) * 100
-      : 100;
+    const totalRecommendations =
+      this.optimizationState.totalOptimizationsApplied;
+    const successRate =
+      totalRecommendations > 0
+        ? (this.optimizationState.successfulOptimizations /
+            totalRecommendations) *
+          100
+        : 100;
 
     // Calculate average impact from applied optimizations
-    const successfulOptimizations = Array.from(this.appliedOptimizations.values())
-      .filter(r => r.success && r.measuredImpact);
+    const successfulOptimizations = Array.from(
+      this.appliedOptimizations.values(),
+    ).filter((r) => r.success && r.measuredImpact);
 
     const averageImpact = {
       throughputImprovement: 0,
@@ -399,14 +423,23 @@ export class PerformanceOptimizer extends EventEmitter {
     };
 
     if (successfulOptimizations.length > 0) {
-      averageImpact.throughputImprovement = successfulOptimizations
-        .reduce((sum, r) => sum + (r.measuredImpact?.throughputChange || 0), 0) / successfulOptimizations.length;
+      averageImpact.throughputImprovement =
+        successfulOptimizations.reduce(
+          (sum, r) => sum + (r.measuredImpact?.throughputChange || 0),
+          0,
+        ) / successfulOptimizations.length;
 
-      averageImpact.latencyReduction = successfulOptimizations
-        .reduce((sum, r) => sum + Math.abs(r.measuredImpact?.latencyChange || 0), 0) / successfulOptimizations.length;
+      averageImpact.latencyReduction =
+        successfulOptimizations.reduce(
+          (sum, r) => sum + Math.abs(r.measuredImpact?.latencyChange || 0),
+          0,
+        ) / successfulOptimizations.length;
 
-      averageImpact.efficiencyGain = successfulOptimizations
-        .reduce((sum, r) => sum + (r.measuredImpact?.efficiencyChange || 0), 0) / successfulOptimizations.length;
+      averageImpact.efficiencyGain =
+        successfulOptimizations.reduce(
+          (sum, r) => sum + (r.measuredImpact?.efficiencyChange || 0),
+          0,
+        ) / successfulOptimizations.length;
     }
 
     return {
@@ -425,7 +458,7 @@ export class PerformanceOptimizer extends EventEmitter {
 
   private setupMonitoring(): void {
     // Initialize performance history for different intervals
-    ['minute', 'hour', 'day', 'week'].forEach(interval => {
+    ['minute', 'hour', 'day', 'week'].forEach((interval) => {
       this.performanceHistory.set(interval as any, {
         interval: interval as any,
         dataPoints: [],
@@ -447,7 +480,8 @@ export class PerformanceOptimizer extends EventEmitter {
 
     this.taskQueue.on('task:completed', (event) => {
       if (event.task.endTime && event.task.startTime) {
-        const executionTime = event.task.endTime.getTime() - event.task.startTime.getTime();
+        const executionTime =
+          event.task.endTime.getTime() - event.task.startTime.getTime();
         this.recordLatency(new Date(executionTime));
       }
     });
@@ -497,7 +531,8 @@ export class PerformanceOptimizer extends EventEmitter {
           activeAgents: queueStatus.busyAgents,
           averageAgentLoad: this.calculateAverageAgentLoad(queueStatus),
           agentUtilization: this.calculateAgentUtilization(queueStatus),
-          loadBalanceEfficiency: this.calculateLoadBalanceEfficiency(queueStatus),
+          loadBalanceEfficiency:
+            this.calculateLoadBalanceEfficiency(queueStatus),
           agentPerformanceVariance: 0, // Would be calculated from agent data
         },
 
@@ -531,7 +566,6 @@ export class PerformanceOptimizer extends EventEmitter {
         throughput: metrics.queueMetrics.queueThroughput,
         efficiency: metrics.queueMetrics.queueEfficiency,
       });
-
     } catch (error) {
       this.logger.error('Failed to collect performance metrics', { error });
     }
@@ -540,7 +574,10 @@ export class PerformanceOptimizer extends EventEmitter {
   private async runOptimizationCycle(): Promise<void> {
     if (!this.optimizationState.enabled) return;
 
-    if (this.optimizationState.currentOptimizations >= this.optimizationState.maxConcurrentOptimizations) {
+    if (
+      this.optimizationState.currentOptimizations >=
+      this.optimizationState.maxConcurrentOptimizations
+    ) {
       this.logger.debug('Max concurrent optimizations reached, skipping cycle');
       return;
     }
@@ -548,8 +585,12 @@ export class PerformanceOptimizer extends EventEmitter {
     try {
       const recommendations = await this.getOptimizationRecommendations();
       const highPriorityRecommendations = recommendations
-        .filter(r => r.priority === 'high' || r.priority === 'critical')
-        .slice(0, this.optimizationState.maxConcurrentOptimizations - this.optimizationState.currentOptimizations);
+        .filter((r) => r.priority === 'high' || r.priority === 'critical')
+        .slice(
+          0,
+          this.optimizationState.maxConcurrentOptimizations -
+            this.optimizationState.currentOptimizations,
+        );
 
       if (highPriorityRecommendations.length === 0) {
         this.logger.debug('No high-priority optimization recommendations');
@@ -558,8 +599,9 @@ export class PerformanceOptimizer extends EventEmitter {
 
       // Apply automatic optimizations
       if (this.optimizationState.autoApplyRecommendations) {
-        const automaticRecommendations = highPriorityRecommendations
-          .filter(r => r.implementation.automatic);
+        const automaticRecommendations = highPriorityRecommendations.filter(
+          (r) => r.implementation.automatic,
+        );
 
         for (const recommendation of automaticRecommendations) {
           try {
@@ -575,12 +617,13 @@ export class PerformanceOptimizer extends EventEmitter {
       this.emit('optimization:recommendations', {
         recommendations: highPriorityRecommendations,
         autoAppliedCount: this.optimizationState.autoApplyRecommendations
-          ? highPriorityRecommendations.filter(r => r.implementation.automatic).length
+          ? highPriorityRecommendations.filter(
+              (r) => r.implementation.automatic,
+            ).length
           : 0,
       });
 
       this.optimizationState.lastOptimizationRun = new Date();
-
     } catch (error) {
       this.logger.error('Optimization cycle failed', { error });
     }
@@ -629,10 +672,12 @@ export class PerformanceOptimizer extends EventEmitter {
           automatic: true,
           estimatedEffort: '5 minutes',
           prerequisites: [],
-          actions: [{
-            description: 'Rebalance queue priorities and optimize scheduling',
-            parameters: { rebalanceThreshold: 0.8 },
-          }],
+          actions: [
+            {
+              description: 'Rebalance queue priorities and optimize scheduling',
+              parameters: { rebalanceThreshold: 0.8 },
+            },
+          ],
         },
         validityPeriod: 600000, // 10 minutes
         confidence: 85,
@@ -654,9 +699,12 @@ export class PerformanceOptimizer extends EventEmitter {
           automatic: false,
           estimatedEffort: '15 minutes',
           prerequisites: ['Agent availability analysis'],
-          actions: [{
-            description: 'Optimize task assignment algorithm for higher throughput',
-          }],
+          actions: [
+            {
+              description:
+                'Optimize task assignment algorithm for higher throughput',
+            },
+          ],
         },
         validityPeriod: 1800000, // 30 minutes
         confidence: 70,
@@ -686,10 +734,12 @@ export class PerformanceOptimizer extends EventEmitter {
           automatic: true,
           estimatedEffort: '2 minutes',
           prerequisites: [],
-          actions: [{
-            description: 'Optimize agent load balancing',
-            parameters: { targetUtilization: 0.8 },
-          }],
+          actions: [
+            {
+              description: 'Optimize agent load balancing',
+              parameters: { targetUtilization: 0.8 },
+            },
+          ],
         },
         validityPeriod: 900000, // 15 minutes
         confidence: 80,
@@ -712,9 +762,11 @@ export class PerformanceOptimizer extends EventEmitter {
           automatic: true,
           estimatedEffort: '3 minutes',
           prerequisites: [],
-          actions: [{
-            description: 'Rebalance task assignments across agents',
-          }],
+          actions: [
+            {
+              description: 'Rebalance task assignments across agents',
+            },
+          ],
         },
         validityPeriod: 600000, // 10 minutes
         confidence: 90,
@@ -729,7 +781,11 @@ export class PerformanceOptimizer extends EventEmitter {
     const metrics = this.currentMetrics!;
 
     // Memory usage optimization
-    if (metrics.systemMetrics.memoryUsage.heapUsed / metrics.systemMetrics.memoryUsage.heapTotal > 0.9) {
+    if (
+      metrics.systemMetrics.memoryUsage.heapUsed /
+        metrics.systemMetrics.memoryUsage.heapTotal >
+      0.9
+    ) {
       recommendations.push({
         id: `memory-optimization-${Date.now()}`,
         type: 'system',
@@ -744,9 +800,12 @@ export class PerformanceOptimizer extends EventEmitter {
           automatic: true,
           estimatedEffort: '1 minute',
           prerequisites: [],
-          actions: [{
-            description: 'Force garbage collection and cleanup unused resources',
-          }],
+          actions: [
+            {
+              description:
+                'Force garbage collection and cleanup unused resources',
+            },
+          ],
         },
         validityPeriod: 300000, // 5 minutes
         confidence: 95,
@@ -768,9 +827,11 @@ export class PerformanceOptimizer extends EventEmitter {
           automatic: false,
           estimatedEffort: '10 minutes',
           prerequisites: ['System profiling', 'Performance analysis'],
-          actions: [{
-            description: 'Optimize critical processing paths',
-          }],
+          actions: [
+            {
+              description: 'Optimize critical processing paths',
+            },
+          ],
         },
         validityPeriod: 1200000, // 20 minutes
         confidence: 75,
@@ -789,7 +850,9 @@ export class PerformanceOptimizer extends EventEmitter {
     return recommendations;
   }
 
-  private async executeOptimization(recommendation: OptimizationRecommendation): Promise<OptimizationResult> {
+  private async executeOptimization(
+    recommendation: OptimizationRecommendation,
+  ): Promise<OptimizationResult> {
     const startTime = Date.now();
     let revertAction: (() => Promise<void>) | undefined;
 
@@ -813,8 +876,9 @@ export class PerformanceOptimizer extends EventEmitter {
       }
 
       // Measure impact after a short delay
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      const measuredImpact = await this.measureOptimizationImpact(recommendation);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const measuredImpact =
+        await this.measureOptimizationImpact(recommendation);
 
       return {
         recommendationId: recommendation.id,
@@ -825,7 +889,6 @@ export class PerformanceOptimizer extends EventEmitter {
         sideEffects: [],
         revertAction,
       };
-
     } catch (error) {
       return {
         recommendationId: recommendation.id,
@@ -838,12 +901,16 @@ export class PerformanceOptimizer extends EventEmitter {
     }
   }
 
-  private async executeSchedulingOptimization(recommendation: OptimizationRecommendation): Promise<void> {
+  private async executeSchedulingOptimization(
+    recommendation: OptimizationRecommendation,
+  ): Promise<void> {
     // Trigger queue rebalancing
     await this.taskQueue.rebalanceQueue();
   }
 
-  private async executeAgentOptimization(recommendation: OptimizationRecommendation): Promise<() => Promise<void>> {
+  private async executeAgentOptimization(
+    recommendation: OptimizationRecommendation,
+  ): Promise<() => Promise<void>> {
     // Agent optimization logic would be implemented here
     // Return a revert function
     return async () => {
@@ -851,7 +918,9 @@ export class PerformanceOptimizer extends EventEmitter {
     };
   }
 
-  private async executeSystemOptimization(recommendation: OptimizationRecommendation): Promise<() => Promise<void>> {
+  private async executeSystemOptimization(
+    recommendation: OptimizationRecommendation,
+  ): Promise<() => Promise<void>> {
     // System optimization logic (e.g., garbage collection)
     if (global.gc) {
       global.gc();
@@ -862,14 +931,18 @@ export class PerformanceOptimizer extends EventEmitter {
     };
   }
 
-  private async executeResourceOptimization(recommendation: OptimizationRecommendation): Promise<() => Promise<void>> {
+  private async executeResourceOptimization(
+    recommendation: OptimizationRecommendation,
+  ): Promise<() => Promise<void>> {
     // Resource optimization logic would be implemented here
     return async () => {
       // Revert resource optimizations
     };
   }
 
-  private async measureOptimizationImpact(recommendation: OptimizationRecommendation): Promise<{
+  private async measureOptimizationImpact(
+    recommendation: OptimizationRecommendation,
+  ): Promise<{
     throughputChange: number;
     latencyChange: number;
     efficiencyChange: number;
@@ -891,7 +964,10 @@ export class PerformanceOptimizer extends EventEmitter {
   }
 
   private calculateQueueEfficiency(queueStatus: any): number {
-    const total = queueStatus.totalQueued + queueStatus.totalActive + queueStatus.totalCompleted;
+    const total =
+      queueStatus.totalQueued +
+      queueStatus.totalActive +
+      queueStatus.totalCompleted;
     if (total === 0) return 100;
     return (queueStatus.totalCompleted / total) * 100;
   }
@@ -929,7 +1005,11 @@ export class PerformanceOptimizer extends EventEmitter {
     return (queueStatus.totalFailed / total) * 100;
   }
 
-  private calculateLatencyPercentiles(): { p50: number; p95: number; p99: number } {
+  private calculateLatencyPercentiles(): {
+    p50: number;
+    p95: number;
+    p99: number;
+  } {
     if (this.latencyBuffer.length === 0) {
       return { p50: 0, p95: 0, p99: 0 };
     }
@@ -953,7 +1033,9 @@ export class PerformanceOptimizer extends EventEmitter {
     }
   }
 
-  private async detectBottlenecks(queueStatus: any): Promise<PerformanceMetrics['bottlenecks']> {
+  private async detectBottlenecks(
+    queueStatus: any,
+  ): Promise<PerformanceMetrics['bottlenecks']> {
     const bottlenecks: PerformanceMetrics['bottlenecks'] = [];
 
     // Queue bottleneck detection
@@ -1012,11 +1094,16 @@ export class PerformanceOptimizer extends EventEmitter {
 
   private getMaxPointsForInterval(interval: string): number {
     switch (interval) {
-      case 'minute': return 60; // 1 hour of minute data
-      case 'hour': return 24; // 24 hours of hourly data
-      case 'day': return 30; // 30 days of daily data
-      case 'week': return 52; // 52 weeks of weekly data
-      default: return 100;
+      case 'minute':
+        return 60; // 1 hour of minute data
+      case 'hour':
+        return 24; // 24 hours of hourly data
+      case 'day':
+        return 30; // 30 days of daily data
+      case 'week':
+        return 52; // 52 weeks of weekly data
+      default:
+        return 100;
     }
   }
 
@@ -1035,26 +1122,28 @@ export class PerformanceOptimizer extends EventEmitter {
     // Update trends based on comparison
     history.trends.throughput = this.determineTrend(
       recentAvg.queueMetrics.queueThroughput,
-      olderAvg.queueMetrics.queueThroughput
+      olderAvg.queueMetrics.queueThroughput,
     );
 
     history.trends.latency = this.determineTrend(
       olderAvg.systemMetrics.latency.p95, // Inverted - lower latency is better
-      recentAvg.systemMetrics.latency.p95
+      recentAvg.systemMetrics.latency.p95,
     );
 
     history.trends.efficiency = this.determineTrend(
       recentAvg.queueMetrics.queueEfficiency,
-      olderAvg.queueMetrics.queueEfficiency
+      olderAvg.queueMetrics.queueEfficiency,
     );
 
     history.trends.errorRate = this.determineTrend(
       olderAvg.systemMetrics.errorRate, // Inverted - lower error rate is better
-      recentAvg.systemMetrics.errorRate
+      recentAvg.systemMetrics.errorRate,
     );
   }
 
-  private calculateAverageMetrics(dataPoints: Array<{ metrics: PerformanceMetrics }>): PerformanceMetrics {
+  private calculateAverageMetrics(
+    dataPoints: Array<{ metrics: PerformanceMetrics }>,
+  ): PerformanceMetrics {
     // Calculate average metrics across data points
     // This is a simplified implementation
     const first = dataPoints[0].metrics;
@@ -1062,22 +1151,49 @@ export class PerformanceOptimizer extends EventEmitter {
       ...first,
       queueMetrics: {
         ...first.queueMetrics,
-        queueThroughput: dataPoints.reduce((sum, dp) => sum + dp.metrics.queueMetrics.queueThroughput, 0) / dataPoints.length,
-        queueEfficiency: dataPoints.reduce((sum, dp) => sum + dp.metrics.queueMetrics.queueEfficiency, 0) / dataPoints.length,
+        queueThroughput:
+          dataPoints.reduce(
+            (sum, dp) => sum + dp.metrics.queueMetrics.queueThroughput,
+            0,
+          ) / dataPoints.length,
+        queueEfficiency:
+          dataPoints.reduce(
+            (sum, dp) => sum + dp.metrics.queueMetrics.queueEfficiency,
+            0,
+          ) / dataPoints.length,
       },
       systemMetrics: {
         ...first.systemMetrics,
-        errorRate: dataPoints.reduce((sum, dp) => sum + dp.metrics.systemMetrics.errorRate, 0) / dataPoints.length,
+        errorRate:
+          dataPoints.reduce(
+            (sum, dp) => sum + dp.metrics.systemMetrics.errorRate,
+            0,
+          ) / dataPoints.length,
         latency: {
-          p50: dataPoints.reduce((sum, dp) => sum + dp.metrics.systemMetrics.latency.p50, 0) / dataPoints.length,
-          p95: dataPoints.reduce((sum, dp) => sum + dp.metrics.systemMetrics.latency.p95, 0) / dataPoints.length,
-          p99: dataPoints.reduce((sum, dp) => sum + dp.metrics.systemMetrics.latency.p99, 0) / dataPoints.length,
+          p50:
+            dataPoints.reduce(
+              (sum, dp) => sum + dp.metrics.systemMetrics.latency.p50,
+              0,
+            ) / dataPoints.length,
+          p95:
+            dataPoints.reduce(
+              (sum, dp) => sum + dp.metrics.systemMetrics.latency.p95,
+              0,
+            ) / dataPoints.length,
+          p99:
+            dataPoints.reduce(
+              (sum, dp) => sum + dp.metrics.systemMetrics.latency.p99,
+              0,
+            ) / dataPoints.length,
         },
       },
     };
   }
 
-  private determineTrend(current: number, previous: number): 'increasing' | 'decreasing' | 'stable' {
+  private determineTrend(
+    current: number,
+    previous: number,
+  ): 'increasing' | 'decreasing' | 'stable' {
     const threshold = 0.05; // 5% threshold for trend detection
     const change = (current - previous) / previous;
 
@@ -1102,6 +1218,8 @@ export class PerformanceOptimizer extends EventEmitter {
 /**
  * Factory function to create performance optimizer for a task queue
  */
-export function createPerformanceOptimizer(taskQueue: TaskQueue): PerformanceOptimizer {
+export function createPerformanceOptimizer(
+  taskQueue: TaskQueue,
+): PerformanceOptimizer {
   return new PerformanceOptimizer(taskQueue);
 }

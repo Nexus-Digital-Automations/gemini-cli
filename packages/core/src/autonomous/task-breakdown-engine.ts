@@ -11,10 +11,10 @@ import type { WorkspaceContext } from '../utils/workspaceContext.js';
  * Represents the complexity level of a task for breakdown analysis
  */
 export enum TaskComplexity {
-  SIMPLE = 'simple',           // Single operation, straightforward
-  MODERATE = 'moderate',       // Multiple related operations
-  COMPLEX = 'complex',         // Multi-step with dependencies
-  HIGHLY_COMPLEX = 'highly_complex' // Requires extensive breakdown
+  SIMPLE = 'simple', // Single operation, straightforward
+  MODERATE = 'moderate', // Multiple related operations
+  COMPLEX = 'complex', // Multi-step with dependencies
+  HIGHLY_COMPLEX = 'highly_complex', // Requires extensive breakdown
 }
 
 /**
@@ -34,7 +34,7 @@ export enum TaskCategory {
   VALIDATE = 'validate',
   OPTIMIZE = 'optimize',
   DEBUG = 'debug',
-  DOCUMENT = 'document'
+  DOCUMENT = 'document',
 }
 
 /**
@@ -45,7 +45,7 @@ export enum TaskPriority {
   NORMAL = 2,
   HIGH = 3,
   CRITICAL = 4,
-  BLOCKING = 5
+  BLOCKING = 5,
 }
 
 /**
@@ -57,7 +57,7 @@ export enum TaskStatus {
   BLOCKED = 'blocked',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 /**
@@ -181,7 +181,10 @@ export interface BreakdownStrategy {
 export interface DecompositionRule {
   name: string;
   condition: (task: AutonomousTask, context: TaskBreakdownContext) => boolean;
-  decompose: (task: AutonomousTask, context: TaskBreakdownContext) => AutonomousTask[];
+  decompose: (
+    task: AutonomousTask,
+    context: TaskBreakdownContext,
+  ) => AutonomousTask[];
   priority: number;
 }
 
@@ -207,7 +210,7 @@ export class TaskBreakdownEngine {
    */
   async analyzeComplexity(
     request: string,
-    context: TaskBreakdownContext
+    context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let totalWeight = 0;
@@ -220,11 +223,13 @@ export class TaskBreakdownEngine {
 
       for (const factor of result.factors) {
         totalWeight += factor.weight;
-        weightedComplexity += this.getComplexityScore(result.complexity) * factor.weight;
+        weightedComplexity +=
+          this.getComplexityScore(result.complexity) * factor.weight;
       }
     }
 
-    const averageComplexity = totalWeight > 0 ? weightedComplexity / totalWeight : 1;
+    const averageComplexity =
+      totalWeight > 0 ? weightedComplexity / totalWeight : 1;
     const complexity = this.scoreToComplexity(averageComplexity);
 
     // Calculate confidence based on factor agreement
@@ -234,9 +239,10 @@ export class TaskBreakdownEngine {
       complexity,
       confidence,
       factors,
-      recommendedBreakdown: complexity !== TaskComplexity.SIMPLE || factors.length > 3,
+      recommendedBreakdown:
+        complexity !== TaskComplexity.SIMPLE || factors.length > 3,
       estimatedSubtasks: this.estimateSubtasks(complexity, factors),
-      estimatedDuration: this.estimateDuration(complexity, factors, request)
+      estimatedDuration: this.estimateDuration(complexity, factors, request),
     };
   }
 
@@ -247,12 +253,14 @@ export class TaskBreakdownEngine {
     request: string,
     context: TaskBreakdownContext,
     parentTaskId?: string,
-    depth: number = 0
+    depth: number = 0,
   ): Promise<AutonomousTask[]> {
     const maxDepth = context.preferences?.maxTaskDepth ?? 4;
 
     if (depth >= maxDepth) {
-      console.warn(`[TaskBreakdownEngine] Maximum depth ${maxDepth} reached, stopping breakdown`);
+      console.warn(
+        `[TaskBreakdownEngine] Maximum depth ${maxDepth} reached, stopping breakdown`,
+      );
       return [];
     }
 
@@ -260,7 +268,12 @@ export class TaskBreakdownEngine {
     const complexityResult = await this.analyzeComplexity(request, context);
 
     // Create root task
-    const rootTask = this.createTask(request, context, complexityResult, parentTaskId);
+    const rootTask = this.createTask(
+      request,
+      context,
+      complexityResult,
+      parentTaskId,
+    );
 
     // If simple enough, return as single task
     if (!complexityResult.recommendedBreakdown) {
@@ -268,20 +281,30 @@ export class TaskBreakdownEngine {
     }
 
     // Find applicable breakdown strategies
-    const strategies = this.findApplicableStrategies(rootTask, complexityResult);
+    const strategies = this.findApplicableStrategies(
+      rootTask,
+      complexityResult,
+    );
 
     if (strategies.length === 0) {
-      console.warn(`[TaskBreakdownEngine] No applicable strategies found for task: ${request}`);
+      console.warn(
+        `[TaskBreakdownEngine] No applicable strategies found for task: ${request}`,
+      );
       return [rootTask];
     }
 
     // Use the best strategy to decompose
     const bestStrategy = strategies[0]; // Strategies are sorted by priority
-    const subtasks = await this.applyBreakdownStrategy(rootTask, bestStrategy, context, depth + 1);
+    const subtasks = await this.applyBreakdownStrategy(
+      rootTask,
+      bestStrategy,
+      context,
+      depth + 1,
+    );
 
     // Set up parent-child relationships
-    rootTask.childTaskIds = subtasks.map(task => task.id);
-    subtasks.forEach(task => {
+    rootTask.childTaskIds = subtasks.map((task) => task.id);
+    subtasks.forEach((task) => {
       task.parentTaskId = rootTask.id;
     });
 
@@ -293,7 +316,7 @@ export class TaskBreakdownEngine {
           subtask.description,
           context,
           subtask.id,
-          depth + 1
+          depth + 1,
         );
         allTasks.push(...nestedTasks);
       } else {
@@ -311,7 +334,7 @@ export class TaskBreakdownEngine {
     request: string,
     context: TaskBreakdownContext,
     complexityResult: ComplexityAnalysisResult,
-    parentTaskId?: string
+    parentTaskId?: string,
   ): AutonomousTask {
     const category = this.categorizeTask(request);
     const priority = this.determinePriority(category, complexityResult);
@@ -333,8 +356,11 @@ export class TaskBreakdownEngine {
       validationSteps: this.generateValidationSteps(request, category),
       maxRetries: this.getDefaultRetries(complexityResult.complexity),
       currentRetries: 0,
-      executionStrategy: this.selectExecutionStrategy(category, complexityResult.complexity),
-      rollbackSteps: this.generateRollbackSteps(request, category)
+      executionStrategy: this.selectExecutionStrategy(
+        category,
+        complexityResult.complexity,
+      ),
+      rollbackSteps: this.generateRollbackSteps(request, category),
     };
   }
 
@@ -345,28 +371,55 @@ export class TaskBreakdownEngine {
     const lowerRequest = request.toLowerCase();
 
     // Pattern matching for task categorization
-    if (lowerRequest.includes('read') || lowerRequest.includes('view') || lowerRequest.includes('show')) {
+    if (
+      lowerRequest.includes('read') ||
+      lowerRequest.includes('view') ||
+      lowerRequest.includes('show')
+    ) {
       return TaskCategory.READ;
     }
-    if (lowerRequest.includes('edit') || lowerRequest.includes('modify') || lowerRequest.includes('change')) {
+    if (
+      lowerRequest.includes('edit') ||
+      lowerRequest.includes('modify') ||
+      lowerRequest.includes('change')
+    ) {
       return TaskCategory.EDIT;
     }
-    if (lowerRequest.includes('create') || lowerRequest.includes('add') || lowerRequest.includes('new')) {
+    if (
+      lowerRequest.includes('create') ||
+      lowerRequest.includes('add') ||
+      lowerRequest.includes('new')
+    ) {
       return TaskCategory.CREATE;
     }
     if (lowerRequest.includes('delete') || lowerRequest.includes('remove')) {
       return TaskCategory.DELETE;
     }
-    if (lowerRequest.includes('search') || lowerRequest.includes('find') || lowerRequest.includes('grep')) {
+    if (
+      lowerRequest.includes('search') ||
+      lowerRequest.includes('find') ||
+      lowerRequest.includes('grep')
+    ) {
       return TaskCategory.SEARCH;
     }
-    if (lowerRequest.includes('analyze') || lowerRequest.includes('review') || lowerRequest.includes('inspect')) {
+    if (
+      lowerRequest.includes('analyze') ||
+      lowerRequest.includes('review') ||
+      lowerRequest.includes('inspect')
+    ) {
       return TaskCategory.ANALYZE;
     }
-    if (lowerRequest.includes('run') || lowerRequest.includes('execute') || lowerRequest.includes('build')) {
+    if (
+      lowerRequest.includes('run') ||
+      lowerRequest.includes('execute') ||
+      lowerRequest.includes('build')
+    ) {
       return TaskCategory.EXECUTE;
     }
-    if (lowerRequest.includes('refactor') || lowerRequest.includes('restructure')) {
+    if (
+      lowerRequest.includes('refactor') ||
+      lowerRequest.includes('restructure')
+    ) {
       return TaskCategory.REFACTOR;
     }
     if (lowerRequest.includes('test') || lowerRequest.includes('verify')) {
@@ -378,13 +431,25 @@ export class TaskBreakdownEngine {
     if (lowerRequest.includes('validate') || lowerRequest.includes('check')) {
       return TaskCategory.VALIDATE;
     }
-    if (lowerRequest.includes('optimize') || lowerRequest.includes('improve') || lowerRequest.includes('enhance')) {
+    if (
+      lowerRequest.includes('optimize') ||
+      lowerRequest.includes('improve') ||
+      lowerRequest.includes('enhance')
+    ) {
       return TaskCategory.OPTIMIZE;
     }
-    if (lowerRequest.includes('debug') || lowerRequest.includes('fix') || lowerRequest.includes('troubleshoot')) {
+    if (
+      lowerRequest.includes('debug') ||
+      lowerRequest.includes('fix') ||
+      lowerRequest.includes('troubleshoot')
+    ) {
       return TaskCategory.DEBUG;
     }
-    if (lowerRequest.includes('document') || lowerRequest.includes('comment') || lowerRequest.includes('explain')) {
+    if (
+      lowerRequest.includes('document') ||
+      lowerRequest.includes('comment') ||
+      lowerRequest.includes('explain')
+    ) {
       return TaskCategory.DOCUMENT;
     }
 
@@ -395,7 +460,10 @@ export class TaskBreakdownEngine {
   /**
    * Determines task priority based on category and complexity
    */
-  private determinePriority(category: TaskCategory, complexityResult: ComplexityAnalysisResult): TaskPriority {
+  private determinePriority(
+    category: TaskCategory,
+    complexityResult: ComplexityAnalysisResult,
+  ): TaskPriority {
     // Critical categories get higher priority
     if (category === TaskCategory.DEBUG || category === TaskCategory.VALIDATE) {
       return TaskPriority.HIGH;
@@ -419,13 +487,18 @@ export class TaskBreakdownEngine {
   private extractTitle(request: string): string {
     // Take first sentence or first 50 characters
     const firstSentence = request.split(/[.!?]/)[0];
-    return firstSentence.length > 50 ? firstSentence.substring(0, 50) + '...' : firstSentence;
+    return firstSentence.length > 50
+      ? firstSentence.substring(0, 50) + '...'
+      : firstSentence;
   }
 
   /**
    * Generates success criteria for task validation
    */
-  private generateSuccessCriteria(request: string, category: TaskCategory): string[] {
+  private generateSuccessCriteria(
+    request: string,
+    category: TaskCategory,
+  ): string[] {
     const criteria: string[] = [];
 
     switch (category) {
@@ -458,7 +531,10 @@ export class TaskBreakdownEngine {
   /**
    * Generates validation steps for task completion
    */
-  private generateValidationSteps(request: string, category: TaskCategory): string[] {
+  private generateValidationSteps(
+    request: string,
+    category: TaskCategory,
+  ): string[] {
     const steps: string[] = [];
 
     switch (category) {
@@ -507,7 +583,10 @@ export class TaskBreakdownEngine {
   /**
    * Selects appropriate execution strategy based on task characteristics
    */
-  private selectExecutionStrategy(category: TaskCategory, complexity: TaskComplexity): ExecutionStrategy {
+  private selectExecutionStrategy(
+    category: TaskCategory,
+    complexity: TaskComplexity,
+  ): ExecutionStrategy {
     const baseStrategy: ExecutionStrategy = {
       type: 'sequential',
       maxConcurrency: 1,
@@ -515,12 +594,12 @@ export class TaskBreakdownEngine {
         maxRetries: this.getDefaultRetries(complexity),
         backoffStrategy: 'exponential',
         baseDelayMs: 1000,
-        maxDelayMs: 30000
+        maxDelayMs: 30000,
       },
       timeoutMinutes: this.getTimeoutMinutes(complexity),
       requiresConfirmation: this.requiresConfirmation(category),
       preExecutionChecks: this.getPreExecutionChecks(category),
-      postExecutionValidation: this.getPostExecutionValidation(category)
+      postExecutionValidation: this.getPostExecutionValidation(category),
     };
 
     // Adjust strategy based on category
@@ -539,7 +618,10 @@ export class TaskBreakdownEngine {
   /**
    * Generates rollback steps for error recovery
    */
-  private generateRollbackSteps(request: string, category: TaskCategory): string[] {
+  private generateRollbackSteps(
+    request: string,
+    category: TaskCategory,
+  ): string[] {
     const steps: string[] = [];
 
     switch (category) {
@@ -568,20 +650,32 @@ export class TaskBreakdownEngine {
   // Helper methods for execution strategy configuration
   private getTimeoutMinutes(complexity: TaskComplexity): number {
     switch (complexity) {
-      case TaskComplexity.SIMPLE: return 5;
-      case TaskComplexity.MODERATE: return 15;
-      case TaskComplexity.COMPLEX: return 30;
-      case TaskComplexity.HIGHLY_COMPLEX: return 60;
-      default: return 15;
+      case TaskComplexity.SIMPLE:
+        return 5;
+      case TaskComplexity.MODERATE:
+        return 15;
+      case TaskComplexity.COMPLEX:
+        return 30;
+      case TaskComplexity.HIGHLY_COMPLEX:
+        return 60;
+      default:
+        return 15;
     }
   }
 
   private requiresConfirmation(category: TaskCategory): boolean {
-    return [TaskCategory.DELETE, TaskCategory.EXECUTE, TaskCategory.DEPLOY].includes(category);
+    return [
+      TaskCategory.DELETE,
+      TaskCategory.EXECUTE,
+      TaskCategory.DEPLOY,
+    ].includes(category);
   }
 
   private getPreExecutionChecks(category: TaskCategory): string[] {
-    const checks: string[] = ['Verify workspace context', 'Check file permissions'];
+    const checks: string[] = [
+      'Verify workspace context',
+      'Check file permissions',
+    ];
 
     if (category === TaskCategory.EDIT) {
       checks.push('Backup original files');
@@ -607,11 +701,16 @@ export class TaskBreakdownEngine {
   // Complexity analysis helper methods
   private getComplexityScore(complexity: TaskComplexity): number {
     switch (complexity) {
-      case TaskComplexity.SIMPLE: return 1;
-      case TaskComplexity.MODERATE: return 2;
-      case TaskComplexity.COMPLEX: return 3;
-      case TaskComplexity.HIGHLY_COMPLEX: return 4;
-      default: return 1;
+      case TaskComplexity.SIMPLE:
+        return 1;
+      case TaskComplexity.MODERATE:
+        return 2;
+      case TaskComplexity.COMPLEX:
+        return 3;
+      case TaskComplexity.HIGHLY_COMPLEX:
+        return 4;
+      default:
+        return 1;
     }
   }
 
@@ -632,46 +731,76 @@ export class TaskBreakdownEngine {
     return Math.min(averageWeight, 1.0);
   }
 
-  private estimateSubtasks(complexity: TaskComplexity, factors: ComplexityFactor[]): number {
+  private estimateSubtasks(
+    complexity: TaskComplexity,
+    factors: ComplexityFactor[],
+  ): number {
     let baseCount = 1;
 
     switch (complexity) {
-      case TaskComplexity.SIMPLE: baseCount = 1; break;
-      case TaskComplexity.MODERATE: baseCount = 3; break;
-      case TaskComplexity.COMPLEX: baseCount = 6; break;
-      case TaskComplexity.HIGHLY_COMPLEX: baseCount = 12; break;
+      case TaskComplexity.SIMPLE:
+        baseCount = 1;
+        break;
+      case TaskComplexity.MODERATE:
+        baseCount = 3;
+        break;
+      case TaskComplexity.COMPLEX:
+        baseCount = 6;
+        break;
+      case TaskComplexity.HIGHLY_COMPLEX:
+        baseCount = 12;
+        break;
     }
 
     // Adjust based on high-impact factors
-    const highImpactFactors = factors.filter(f => f.impact === 'high').length;
+    const highImpactFactors = factors.filter((f) => f.impact === 'high').length;
     return baseCount + Math.floor(highImpactFactors / 2);
   }
 
-  private estimateDuration(complexity: TaskComplexity, factors: ComplexityFactor[], request: string): number {
+  private estimateDuration(
+    complexity: TaskComplexity,
+    factors: ComplexityFactor[],
+    request: string,
+  ): number {
     let baseDuration = 5; // minutes
 
     switch (complexity) {
-      case TaskComplexity.SIMPLE: baseDuration = 5; break;
-      case TaskComplexity.MODERATE: baseDuration = 15; break;
-      case TaskComplexity.COMPLEX: baseDuration = 45; break;
-      case TaskComplexity.HIGHLY_COMPLEX: baseDuration = 120; break;
+      case TaskComplexity.SIMPLE:
+        baseDuration = 5;
+        break;
+      case TaskComplexity.MODERATE:
+        baseDuration = 15;
+        break;
+      case TaskComplexity.COMPLEX:
+        baseDuration = 45;
+        break;
+      case TaskComplexity.HIGHLY_COMPLEX:
+        baseDuration = 120;
+        break;
     }
 
     // Adjust based on request length and factors
     const lengthMultiplier = Math.min(request.length / 100, 2);
-    const factorMultiplier = 1 + (factors.length * 0.1);
+    const factorMultiplier = 1 + factors.length * 0.1;
 
     return Math.round(baseDuration * lengthMultiplier * factorMultiplier);
   }
 
   // Strategy and rule management methods (to be implemented)
-  private findApplicableStrategies(task: AutonomousTask, complexityResult: ComplexityAnalysisResult): BreakdownStrategy[] {
+  private findApplicableStrategies(
+    task: AutonomousTask,
+    complexityResult: ComplexityAnalysisResult,
+  ): BreakdownStrategy[] {
     const strategies = Array.from(this.breakdownStrategies.values())
-      .filter(strategy =>
-        strategy.applicableCategories.includes(task.category) &&
-        this.getComplexityScore(strategy.minComplexity) <= this.getComplexityScore(task.complexity)
+      .filter(
+        (strategy) =>
+          strategy.applicableCategories.includes(task.category) &&
+          this.getComplexityScore(strategy.minComplexity) <=
+            this.getComplexityScore(task.complexity),
       )
-      .sort((a, b) => b.decompositionRules.length - a.decompositionRules.length); // Prefer more comprehensive strategies
+      .sort(
+        (a, b) => b.decompositionRules.length - a.decompositionRules.length,
+      ); // Prefer more comprehensive strategies
 
     return strategies;
   }
@@ -680,7 +809,7 @@ export class TaskBreakdownEngine {
     task: AutonomousTask,
     strategy: BreakdownStrategy,
     context: TaskBreakdownContext,
-    depth: number
+    depth: number,
   ): Promise<AutonomousTask[]> {
     const subtasks: AutonomousTask[] = [];
 
@@ -713,5 +842,8 @@ export class TaskBreakdownEngine {
  */
 export interface ComplexityAnalyzer {
   name: string;
-  analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
+  analyze(
+    request: string,
+    context: TaskBreakdownContext,
+  ): Promise<ComplexityAnalysisResult>;
 }

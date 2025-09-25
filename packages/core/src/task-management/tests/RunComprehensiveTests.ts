@@ -25,7 +25,11 @@
  * - All performance benchmarks met
  */
 
-import { TestSuiteOrchestrator, testSuiteCategories, qualityGates } from './TestSuiteConfiguration';
+import {
+  TestSuiteOrchestrator,
+  testSuiteCategories,
+  qualityGates,
+} from './TestSuiteConfiguration';
 import { CoverageTestUtilities } from './CoverageReporting.test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -43,11 +47,17 @@ class ComprehensiveTestRunner {
    * Main test execution entry point
    */
   async run(): Promise<void> {
-    console.log(chalk.blue.bold('\n🚀 COMPREHENSIVE AUTONOMOUS TASK MANAGEMENT TEST SUITE'));
-    console.log(chalk.blue('=' .repeat(70)));
-    console.log(chalk.cyan('Target: >95% Coverage | Enterprise Quality Standards'));
+    console.log(
+      chalk.blue.bold(
+        '\n🚀 COMPREHENSIVE AUTONOMOUS TASK MANAGEMENT TEST SUITE',
+      ),
+    );
+    console.log(chalk.blue('='.repeat(70)));
+    console.log(
+      chalk.cyan('Target: >95% Coverage | Enterprise Quality Standards'),
+    );
     console.log(chalk.cyan('Framework: Vitest | TypeScript | Node.js'));
-    console.log(chalk.blue('=' .repeat(70)));
+    console.log(chalk.blue('='.repeat(70)));
 
     this.startTime = Date.now();
 
@@ -72,7 +82,6 @@ class ComprehensiveTestRunner {
 
       // Success Summary
       await this.displaySuccessSummary();
-
     } catch (error) {
       await this.handleTestFailure(error);
       process.exit(1);
@@ -114,18 +123,29 @@ class ComprehensiveTestRunner {
       await this.executeTestCategory(category);
     }
 
-    console.log(chalk.green(`✅ All test suites executed: ${this.passedTests}/${this.totalTests} passed`));
+    console.log(
+      chalk.green(
+        `✅ All test suites executed: ${this.passedTests}/${this.totalTests} passed`,
+      ),
+    );
   }
 
   /**
    * Execute tests for a specific category
    */
   private async executeTestCategory(category: string): Promise<void> {
-    const config = testSuiteCategories[category as keyof typeof testSuiteCategories];
+    const config =
+      testSuiteCategories[category as keyof typeof testSuiteCategories];
 
-    console.log(chalk.cyan(`\n  📁 ${category.toUpperCase()}: ${config.description}`));
+    console.log(
+      chalk.cyan(`\n  📁 ${category.toUpperCase()}: ${config.description}`),
+    );
     console.log(chalk.gray(`     Target Coverage: ${config.coverageTarget}%`));
-    console.log(chalk.gray(`     Max Critical Failures: ${config.criticalFailureThreshold}`));
+    console.log(
+      chalk.gray(
+        `     Max Critical Failures: ${config.criticalFailureThreshold}`,
+      ),
+    );
 
     const categoryStartTime = Date.now();
 
@@ -144,11 +164,21 @@ class ComprehensiveTestRunner {
 
     // Display results
     if (categoryResults.failedTests === 0) {
-      console.log(chalk.green(`     ✅ ${categoryResults.passedTests}/${categoryResults.totalTests} tests passed`));
-      console.log(chalk.green(`     📊 Coverage: ${categoryResults.coveragePercentage}%`));
+      console.log(
+        chalk.green(
+          `     ✅ ${categoryResults.passedTests}/${categoryResults.totalTests} tests passed`,
+        ),
+      );
+      console.log(
+        chalk.green(`     📊 Coverage: ${categoryResults.coveragePercentage}%`),
+      );
       console.log(chalk.gray(`     ⏱️  Execution time: ${executionTime}ms`));
     } else {
-      console.log(chalk.red(`     ❌ ${categoryResults.failedTests}/${categoryResults.totalTests} tests failed`));
+      console.log(
+        chalk.red(
+          `     ❌ ${categoryResults.failedTests}/${categoryResults.totalTests} tests failed`,
+        ),
+      );
       if (categoryResults.criticalFailures > config.criticalFailureThreshold) {
         throw new Error(`Critical failures in ${category} exceed threshold`);
       }
@@ -188,25 +218,33 @@ class ComprehensiveTestRunner {
 
     try {
       // Use the actual coverage validation utility
-      const coverageValid = await CoverageTestUtilities.validateMinimumCoverageRequirements();
+      const coverageValid =
+        await CoverageTestUtilities.validateMinimumCoverageRequirements();
 
       if (coverageValid) {
         console.log(chalk.green('✅ Coverage requirements met'));
 
         // Calculate overall coverage from category results
-        const overallCoverage = Object.values(this.coverageResults)
-          .reduce((sum, coverage) => sum + coverage, 0) / Object.keys(this.coverageResults).length;
+        const overallCoverage =
+          Object.values(this.coverageResults).reduce(
+            (sum, coverage) => sum + coverage,
+            0,
+          ) / Object.keys(this.coverageResults).length;
 
-        console.log(chalk.green(`📈 Overall Coverage: ${overallCoverage.toFixed(2)}%`));
+        console.log(
+          chalk.green(`📈 Overall Coverage: ${overallCoverage.toFixed(2)}%`),
+        );
 
         // Display category breakdown
         Object.entries(this.coverageResults).forEach(([category, coverage]) => {
-          const status = coverage >= testSuiteCategories[category as keyof typeof testSuiteCategories].coverageTarget
-            ? chalk.green('✅')
-            : chalk.yellow('⚠️');
+          const status =
+            coverage >=
+            testSuiteCategories[category as keyof typeof testSuiteCategories]
+              .coverageTarget
+              ? chalk.green('✅')
+              : chalk.yellow('⚠️');
           console.log(`     ${status} ${category}: ${coverage.toFixed(2)}%`);
         });
-
       } else {
         throw new Error('Coverage requirements not met');
       }
@@ -246,7 +284,9 @@ class ComprehensiveTestRunner {
       }
     }
 
-    const allGatesPassed = Object.values(this.qualityGateResults).every(Boolean);
+    const allGatesPassed = Object.values(this.qualityGateResults).every(
+      Boolean,
+    );
 
     if (allGatesPassed) {
       console.log(chalk.green('🎉 All quality gates passed!'));
@@ -263,7 +303,8 @@ class ComprehensiveTestRunner {
 
     try {
       // Generate final coverage report
-      const coverageReportPath = await CoverageTestUtilities.generateFinalCoverageReport();
+      const coverageReportPath =
+        await CoverageTestUtilities.generateFinalCoverageReport();
       console.log(chalk.green(`  📊 Coverage report: ${coverageReportPath}`));
 
       // Generate executive summary
@@ -275,7 +316,6 @@ class ComprehensiveTestRunner {
       console.log(chalk.green(`  📝 Detailed report: ${detailedReport}`));
 
       console.log(chalk.green('✅ All reports generated successfully'));
-
     } catch (error) {
       console.error(chalk.red('❌ Report generation failed:'), error);
       throw error;
@@ -286,22 +326,25 @@ class ComprehensiveTestRunner {
    * Perform final production readiness validation
    */
   private async performFinalValidation(): Promise<void> {
-    console.log(chalk.yellow('\n🔬 Performing final production readiness validation...'));
+    console.log(
+      chalk.yellow('\n🔬 Performing final production readiness validation...'),
+    );
 
     try {
-      const readinessCheck = await CoverageTestUtilities.validateProductionReadiness();
+      const readinessCheck =
+        await CoverageTestUtilities.validateProductionReadiness();
 
       if (readinessCheck.ready) {
         console.log(chalk.green('🚀 System is production ready!'));
       } else {
         console.log(chalk.red('❌ Production readiness blockers found:'));
-        readinessCheck.blockers.forEach(blocker => {
+        readinessCheck.blockers.forEach((blocker) => {
           console.log(chalk.red(`  • ${blocker}`));
         });
 
         if (readinessCheck.recommendations.length > 0) {
           console.log(chalk.yellow('\n💡 Recommendations:'));
-          readinessCheck.recommendations.forEach(rec => {
+          readinessCheck.recommendations.forEach((rec) => {
             console.log(chalk.yellow(`  • ${rec}`));
           });
         }
@@ -321,19 +364,41 @@ class ComprehensiveTestRunner {
     const executionTime = Date.now() - this.startTime;
     const executionTimeFormatted = this.formatDuration(executionTime);
 
-    console.log(chalk.green.bold('\n🎉 COMPREHENSIVE TEST SUITE COMPLETED SUCCESSFULLY!'));
-    console.log(chalk.green('=' .repeat(70)));
-    console.log(chalk.white(`📊 Tests: ${chalk.green.bold(`${this.passedTests}/${this.totalTests} passed`)}`));
-    console.log(chalk.white(`📈 Coverage: ${chalk.green.bold('>95%')} (Enterprise Grade)`));
-    console.log(chalk.white(`🔒 Security: ${chalk.green.bold('100% validated')}`));
-    console.log(chalk.white(`⚡ Performance: ${chalk.green.bold('All benchmarks met')}`));
-    console.log(chalk.white(`⏱️  Execution time: ${chalk.cyan(executionTimeFormatted)}`));
-    console.log(chalk.green('=' .repeat(70)));
-    console.log(chalk.blue.bold('🚀 AUTONOMOUS TASK MANAGEMENT SYSTEM READY FOR PRODUCTION'));
+    console.log(
+      chalk.green.bold('\n🎉 COMPREHENSIVE TEST SUITE COMPLETED SUCCESSFULLY!'),
+    );
+    console.log(chalk.green('='.repeat(70)));
+    console.log(
+      chalk.white(
+        `📊 Tests: ${chalk.green.bold(`${this.passedTests}/${this.totalTests} passed`)}`,
+      ),
+    );
+    console.log(
+      chalk.white(
+        `📈 Coverage: ${chalk.green.bold('>95%')} (Enterprise Grade)`,
+      ),
+    );
+    console.log(
+      chalk.white(`🔒 Security: ${chalk.green.bold('100% validated')}`),
+    );
+    console.log(
+      chalk.white(`⚡ Performance: ${chalk.green.bold('All benchmarks met')}`),
+    );
+    console.log(
+      chalk.white(`⏱️  Execution time: ${chalk.cyan(executionTimeFormatted)}`),
+    );
+    console.log(chalk.green('='.repeat(70)));
+    console.log(
+      chalk.blue.bold(
+        '🚀 AUTONOMOUS TASK MANAGEMENT SYSTEM READY FOR PRODUCTION',
+      ),
+    );
     console.log(chalk.gray('   Enterprise-grade quality standards achieved'));
-    console.log(chalk.gray('   75%+ improvement in defect detection validated'));
+    console.log(
+      chalk.gray('   75%+ improvement in defect detection validated'),
+    );
     console.log(chalk.gray('   >95% test coverage confirmed'));
-    console.log(chalk.green('=' .repeat(70)));
+    console.log(chalk.green('='.repeat(70)));
   }
 
   /**
@@ -343,16 +408,22 @@ class ComprehensiveTestRunner {
     const executionTime = Date.now() - this.startTime;
 
     console.log(chalk.red.bold('\n❌ COMPREHENSIVE TEST SUITE FAILED'));
-    console.log(chalk.red('=' .repeat(70)));
-    console.log(chalk.white(`⏱️  Execution time: ${this.formatDuration(executionTime)}`));
-    console.log(chalk.white(`🧪 Tests completed: ${this.passedTests + this.failedTests}/${this.totalTests}`));
+    console.log(chalk.red('='.repeat(70)));
+    console.log(
+      chalk.white(`⏱️  Execution time: ${this.formatDuration(executionTime)}`),
+    );
+    console.log(
+      chalk.white(
+        `🧪 Tests completed: ${this.passedTests + this.failedTests}/${this.totalTests}`,
+      ),
+    );
     console.log(chalk.white(`❌ Failed tests: ${this.failedTests}`));
 
     if (error instanceof Error) {
       console.log(chalk.red(`💥 Failure reason: ${error.message}`));
     }
 
-    console.log(chalk.red('=' .repeat(70)));
+    console.log(chalk.red('='.repeat(70)));
 
     // Generate failure report
     await this.generateFailureReport(error);
@@ -373,7 +444,9 @@ class ComprehensiveTestRunner {
   private async verifyTestDependencies(): Promise<void> {
     // Mock dependency verification
     const dependencies = ['vitest', 'typescript', '@vitest/coverage-v8'];
-    console.log(chalk.gray(`  Verifying dependencies: ${dependencies.join(', ')}`));
+    console.log(
+      chalk.gray(`  Verifying dependencies: ${dependencies.join(', ')}`),
+    );
   }
 
   private async initializeTestUtilities(): Promise<void> {
@@ -382,8 +455,11 @@ class ComprehensiveTestRunner {
   }
 
   private async checkCoverageGates(): Promise<boolean> {
-    const overallCoverage = Object.values(this.coverageResults)
-      .reduce((sum, coverage) => sum + coverage, 0) / Object.keys(this.coverageResults).length;
+    const overallCoverage =
+      Object.values(this.coverageResults).reduce(
+        (sum, coverage) => sum + coverage,
+        0,
+      ) / Object.keys(this.coverageResults).length;
 
     return overallCoverage >= qualityGates.coverage.line.minimum;
   }
@@ -400,7 +476,10 @@ class ComprehensiveTestRunner {
 
   private async checkPerformanceGates(): Promise<boolean> {
     // Mock performance validation - benchmarks met
-    return this.coverageResults.performance >= qualityGates.performance.performance.minimum;
+    return (
+      this.coverageResults.performance >=
+      qualityGates.performance.performance.minimum
+    );
   }
 
   private async checkDocumentationGates(): Promise<boolean> {
@@ -488,7 +567,7 @@ class ComprehensiveTestRunner {
 // Execute the comprehensive test suite
 if (require.main === module) {
   const runner = new ComprehensiveTestRunner();
-  runner.run().catch(error => {
+  runner.run().catch((error) => {
     console.error('Test suite execution failed:', error);
     process.exit(1);
   });

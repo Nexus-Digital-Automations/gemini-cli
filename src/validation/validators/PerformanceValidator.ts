@@ -21,7 +21,7 @@ import {
   ValidationContext,
   ValidationResult,
   ValidationStatus,
-  ValidationSeverity
+  ValidationSeverity,
 } from '../core/ValidationEngine.js';
 
 const execAsync = promisify(exec);
@@ -308,24 +308,24 @@ export class PerformanceValidator {
       thresholds: {
         bundleSize: {
           maxSizeKB: 1024, // 1MB
-          warningSizeKB: 512 // 512KB
+          warningSizeKB: 512, // 512KB
         },
         buildTime: {
           maxDurationMs: 300000, // 5 minutes
-          warningDurationMs: 120000 // 2 minutes
+          warningDurationMs: 120000, // 2 minutes
         },
         testExecution: {
           maxDurationMs: 180000, // 3 minutes
-          warningDurationMs: 60000 // 1 minute
+          warningDurationMs: 60000, // 1 minute
         },
         memoryUsage: {
           maxMB: 512,
-          warningMB: 256
+          warningMB: 256,
         },
         codeComplexity: {
           maxCyclomaticComplexity: 20,
-          warningCyclomaticComplexity: 10
-        }
+          warningCyclomaticComplexity: 10,
+        },
       },
       enabledMetrics: {
         bundleAnalysis: true,
@@ -333,15 +333,15 @@ export class PerformanceValidator {
         testPerformance: true,
         memoryProfiling: false, // Requires special setup
         codeComplexity: true,
-        dependencyAnalysis: true
+        dependencyAnalysis: true,
       },
       bundleAnalyzer: {
         enabled: true,
-        outputPath: 'dist'
+        outputPath: 'dist',
       },
       benchmarkSuites: [],
       timeout: 600000, // 10 minutes
-      ...config
+      ...config,
     };
   }
 
@@ -350,7 +350,9 @@ export class PerformanceValidator {
    */
   public async validate(context: ValidationContext): Promise<ValidationResult> {
     const startTime = Date.now();
-    this.logger.info(`Starting performance validation for task: ${context.taskId}`);
+    this.logger.info(
+      `Starting performance validation for task: ${context.taskId}`,
+    );
 
     try {
       // Execute performance analysis based on enabled metrics
@@ -369,7 +371,7 @@ export class PerformanceValidator {
         overallScore: summary.overallScore,
         issues: summary.issues.length,
         recommendations: summary.recommendations.length,
-        duration
+        duration,
       });
 
       return {
@@ -382,12 +384,14 @@ export class PerformanceValidator {
         suggestions: this.generatePerformanceSuggestions(summary),
         evidence: this.createPerformanceEvidence(summary),
         timestamp: new Date(),
-        duration
+        duration,
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
-      this.logger.error('Performance validation failed', { error, taskId: context.taskId });
+      this.logger.error('Performance validation failed', {
+        error,
+        taskId: context.taskId,
+      });
 
       return {
         criteriaId: 'performance_check',
@@ -400,11 +404,11 @@ export class PerformanceValidator {
           'Check build configuration and output directories',
           'Verify performance analysis tools are available',
           'Ensure sufficient system resources for analysis',
-          'Review project structure and dependencies'
+          'Review project structure and dependencies',
         ],
         evidence: [],
         timestamp: new Date(),
-        duration
+        duration,
       };
     }
   }
@@ -412,7 +416,9 @@ export class PerformanceValidator {
   /**
    * Gather performance metrics based on enabled metrics
    */
-  private async gatherPerformanceMetrics(context: ValidationContext): Promise<any> {
+  private async gatherPerformanceMetrics(
+    context: ValidationContext,
+  ): Promise<any> {
     const metrics: any = {};
 
     // Bundle analysis
@@ -470,26 +476,27 @@ export class PerformanceValidator {
           name: path.basename(file),
           size: fs.statSync(file).size,
           modules: [],
-          initial: index === 0
+          initial: index === 0,
         })),
-        assets: bundleFiles.map(file => ({
+        assets: bundleFiles.map((file) => ({
           name: path.basename(file),
           size: fs.statSync(file).size,
-          type: path.extname(file)
+          type: path.extname(file),
         })),
         duplicates: [],
-        treeShakingOpportunities: []
+        treeShakingOpportunities: [],
       };
 
       // Enhanced analysis if webpack-bundle-analyzer is available
       try {
         await this.runWebpackBundleAnalyzer(result);
       } catch (analyzerError) {
-        this.logger.debug('Webpack bundle analyzer not available, using basic analysis');
+        this.logger.debug(
+          'Webpack bundle analyzer not available, using basic analysis',
+        );
       }
 
       return result;
-
     } catch (error) {
       this.logger.warn('Bundle analysis failed', { error });
       return null;
@@ -504,7 +511,7 @@ export class PerformanceValidator {
       const buildCommand = this.detectBuildCommand();
       await execAsync(buildCommand, {
         timeout: this.config.thresholds.buildTime.maxDurationMs,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
     } catch (error) {
       throw new Error(`Build failed: ${error}`);
@@ -578,11 +585,13 @@ export class PerformanceValidator {
   /**
    * Run webpack bundle analyzer if available
    */
-  private async runWebpackBundleAnalyzer(result: BundleAnalysisResult): Promise<void> {
+  private async runWebpackBundleAnalyzer(
+    result: BundleAnalysisResult,
+  ): Promise<void> {
     try {
       // Try to run webpack-bundle-analyzer
       const { stdout } = await execAsync('npx webpack-bundle-analyzer --help', {
-        timeout: 10000
+        timeout: 10000,
       });
 
       // If available, run analysis
@@ -607,7 +616,7 @@ export class PerformanceValidator {
       // Run build with timing
       await execAsync(buildCommand, {
         timeout: this.config.thresholds.buildTime.maxDurationMs,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       const totalDuration = Date.now() - buildStartTime;
@@ -619,12 +628,12 @@ export class PerformanceValidator {
           {
             name: 'Build',
             duration: totalDuration,
-            percentage: 100
-          }
+            percentage: 100,
+          },
         ],
         parallelization: 1,
         cacheHitRate: 0,
-        bottlenecks: []
+        bottlenecks: [],
       };
 
       // Identify potential bottlenecks
@@ -632,13 +641,16 @@ export class PerformanceValidator {
         metrics.bottlenecks.push({
           phase: 'Build',
           description: 'Build time exceeds recommended threshold',
-          impact: totalDuration > this.config.thresholds.buildTime.maxDurationMs ? 'high' : 'medium',
-          recommendation: 'Consider optimizing build configuration, enabling caching, or using parallel builds'
+          impact:
+            totalDuration > this.config.thresholds.buildTime.maxDurationMs
+              ? 'high'
+              : 'medium',
+          recommendation:
+            'Consider optimizing build configuration, enabling caching, or using parallel builds',
         });
       }
 
       return metrics;
-
     } catch (error) {
       this.logger.warn('Build performance analysis failed', { error });
       return null;
@@ -659,7 +671,8 @@ export class PerformanceValidator {
       const functions: FunctionComplexity[] = [];
       const hotspots: ComplexityHotspot[] = [];
 
-      for (const file of sourceFiles.slice(0, 50)) { // Limit for performance
+      for (const file of sourceFiles.slice(0, 50)) {
+        // Limit for performance
         try {
           const content = fs.readFileSync(file, 'utf8');
           const lines = content.split('\n').length;
@@ -674,7 +687,10 @@ export class PerformanceValidator {
           functions.push(...fileFunctions);
 
           // Check if file is a hotspot
-          if (complexity > this.config.thresholds.codeComplexity.warningCyclomaticComplexity) {
+          if (
+            complexity >
+            this.config.thresholds.codeComplexity.warningCyclomaticComplexity
+          ) {
             hotspots.push({
               file,
               complexity,
@@ -682,25 +698,31 @@ export class PerformanceValidator {
               recommendations: [
                 'Consider breaking down complex functions',
                 'Extract reusable components',
-                'Improve code organization'
-              ]
+                'Improve code organization',
+              ],
             });
           }
         } catch (fileError) {
-          this.logger.warn('Error analyzing file complexity', { file, error: fileError });
+          this.logger.warn('Error analyzing file complexity', {
+            file,
+            error: fileError,
+          });
         }
       }
 
-      const avgComplexity = sourceFiles.length > 0 ? totalComplexity / sourceFiles.length : 0;
+      const avgComplexity =
+        sourceFiles.length > 0 ? totalComplexity / sourceFiles.length : 0;
 
       return {
         cyclomaticComplexity: Math.round(avgComplexity),
-        maintainabilityIndex: Math.max(0, Math.min(100, 100 - avgComplexity * 2)),
+        maintainabilityIndex: Math.max(
+          0,
+          Math.min(100, 100 - avgComplexity * 2),
+        ),
         linesOfCode: totalLines,
         functions: functions.slice(0, 20), // Top 20 most complex functions
-        hotspots: hotspots.slice(0, 10) // Top 10 hotspots
+        hotspots: hotspots.slice(0, 10), // Top 10 hotspots
       };
-
     } catch (error) {
       this.logger.warn('Code complexity analysis failed', { error });
       return null;
@@ -712,12 +734,15 @@ export class PerformanceValidator {
    */
   private async getSourceFiles(): Promise<string[]> {
     try {
-      const { stdout } = await execAsync('find . -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" | grep -v node_modules | grep -v dist | grep -v build | head -100', {
-        timeout: 30000,
-        cwd: process.cwd()
-      });
+      const { stdout } = await execAsync(
+        'find . -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" | grep -v node_modules | grep -v dist | grep -v build | head -100',
+        {
+          timeout: 30000,
+          cwd: process.cwd(),
+        },
+      );
 
-      return stdout.split('\n').filter(line => line.trim());
+      return stdout.split('\n').filter((line) => line.trim());
     } catch (error) {
       return [];
     }
@@ -739,8 +764,8 @@ export class PerformanceValidator {
       /\bcase\b/g,
       /\bcatch\b/g,
       /\?\s*:/g, // Ternary operator
-      /\|\|/g,   // Logical OR
-      /\&\&/g    // Logical AND
+      /\|\|/g, // Logical OR
+      /\&\&/g, // Logical AND
     ];
 
     for (const pattern of decisionPatterns) {
@@ -756,7 +781,10 @@ export class PerformanceValidator {
   /**
    * Extract functions from file content
    */
-  private extractFunctions(content: string, filePath: string): FunctionComplexity[] {
+  private extractFunctions(
+    content: string,
+    filePath: string,
+  ): FunctionComplexity[] {
     const functions: FunctionComplexity[] = [];
 
     // Simple function detection
@@ -764,7 +792,7 @@ export class PerformanceValidator {
       /function\s+(\w+)\s*\(/g,
       /(\w+)\s*=\s*function/g,
       /(\w+)\s*=\s*\(/g,
-      /(\w+)\s*:\s*function/g
+      /(\w+)\s*:\s*function/g,
     ];
 
     const lines = content.split('\n');
@@ -778,14 +806,17 @@ export class PerformanceValidator {
         const lineNumber = content.substring(0, match.index).split('\n').length;
 
         // Calculate function-specific complexity
-        const functionComplexity = this.calculateFunctionComplexity(content, match.index);
+        const functionComplexity = this.calculateFunctionComplexity(
+          content,
+          match.index,
+        );
 
         functions.push({
           name: functionName,
           file: filePath,
           line: lineNumber,
           complexity: functionComplexity,
-          maintainability: Math.max(0, 100 - functionComplexity * 3)
+          maintainability: Math.max(0, 100 - functionComplexity * 3),
         });
       }
     }
@@ -796,9 +827,15 @@ export class PerformanceValidator {
   /**
    * Calculate function-specific complexity
    */
-  private calculateFunctionComplexity(content: string, functionStart: number): number {
+  private calculateFunctionComplexity(
+    content: string,
+    functionStart: number,
+  ): number {
     // Simple heuristic: analyze next 500 characters after function declaration
-    const functionContent = content.substring(functionStart, functionStart + 500);
+    const functionContent = content.substring(
+      functionStart,
+      functionStart + 500,
+    );
     return this.calculateFileComplexity(functionContent);
   }
 
@@ -827,9 +864,8 @@ export class PerformanceValidator {
         outdatedDependencies,
         securityVulnerabilities: 0, // Would require audit
         licensesIssues: [],
-        bundleImpact: [] // Would require bundle analysis
+        bundleImpact: [], // Would require bundle analysis
       };
-
     } catch (error) {
       this.logger.warn('Dependency analysis failed', { error });
       return null;
@@ -843,7 +879,7 @@ export class PerformanceValidator {
     try {
       const { stdout } = await execAsync('npm outdated --json', {
         timeout: 60000,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       const outdated = JSON.parse(stdout);
@@ -856,12 +892,11 @@ export class PerformanceValidator {
           current: depInfo.current,
           wanted: depInfo.wanted,
           latest: depInfo.latest,
-          impactLevel: this.assessUpdateImpact(depInfo.current, depInfo.latest)
+          impactLevel: this.assessUpdateImpact(depInfo.current, depInfo.latest),
         });
       }
 
       return dependencies;
-
     } catch (error) {
       // npm outdated returns non-zero when outdated packages found
       if ((error as any).stdout) {
@@ -876,7 +911,10 @@ export class PerformanceValidator {
               current: depInfo.current,
               wanted: depInfo.wanted,
               latest: depInfo.latest,
-              impactLevel: this.assessUpdateImpact(depInfo.current, depInfo.latest)
+              impactLevel: this.assessUpdateImpact(
+                depInfo.current,
+                depInfo.latest,
+              ),
             });
           }
 
@@ -893,7 +931,10 @@ export class PerformanceValidator {
   /**
    * Assess impact of dependency update
    */
-  private assessUpdateImpact(current: string, latest: string): 'high' | 'medium' | 'low' {
+  private assessUpdateImpact(
+    current: string,
+    latest: string,
+  ): 'high' | 'medium' | 'low' {
     try {
       const currentParts = current.split('.').map(Number);
       const latestParts = latest.split('.').map(Number);
@@ -932,10 +973,9 @@ export class PerformanceValidator {
         gcPressure: 0,
         recommendations: [
           'Monitor memory usage in production',
-          'Consider using memory profiling tools for detailed analysis'
-        ]
+          'Consider using memory profiling tools for detailed analysis',
+        ],
       };
-
     } catch (error) {
       this.logger.warn('Memory profiling failed', { error });
       return null;
@@ -963,7 +1003,8 @@ export class PerformanceValidator {
           metric: 'bundleSize',
           value: sizeKB,
           threshold: this.config.thresholds.bundleSize.maxSizeKB,
-          recommendation: 'Consider code splitting, tree shaking, and dependency optimization'
+          recommendation:
+            'Consider code splitting, tree shaking, and dependency optimization',
         });
       } else if (sizeKB > this.config.thresholds.bundleSize.warningSizeKB) {
         issues.push({
@@ -974,7 +1015,8 @@ export class PerformanceValidator {
           metric: 'bundleSize',
           value: sizeKB,
           threshold: this.config.thresholds.bundleSize.warningSizeKB,
-          recommendation: 'Monitor bundle growth and consider optimization strategies'
+          recommendation:
+            'Monitor bundle growth and consider optimization strategies',
         });
       }
 
@@ -985,7 +1027,7 @@ export class PerformanceValidator {
         title: 'Bundle Optimization',
         description: 'Implement bundle optimization strategies',
         estimatedImpact: `Potential ${(sizeKB * 0.2).toFixed(0)}KB reduction`,
-        effort: 'medium'
+        effort: 'medium',
       });
     }
 
@@ -993,7 +1035,9 @@ export class PerformanceValidator {
     if (metrics.buildPerformance) {
       const build = metrics.buildPerformance as BuildPerformanceMetrics;
 
-      if (build.totalDuration > this.config.thresholds.buildTime.maxDurationMs) {
+      if (
+        build.totalDuration > this.config.thresholds.buildTime.maxDurationMs
+      ) {
         issues.push({
           category: 'build',
           severity: 'high',
@@ -1002,7 +1046,8 @@ export class PerformanceValidator {
           metric: 'buildTime',
           value: build.totalDuration,
           threshold: this.config.thresholds.buildTime.maxDurationMs,
-          recommendation: 'Optimize build configuration and consider parallel builds'
+          recommendation:
+            'Optimize build configuration and consider parallel builds',
         });
       }
     }
@@ -1011,7 +1056,10 @@ export class PerformanceValidator {
     if (metrics.codeComplexity) {
       const complexity = metrics.codeComplexity as CodeComplexityMetrics;
 
-      if (complexity.cyclomaticComplexity > this.config.thresholds.codeComplexity.maxCyclomaticComplexity) {
+      if (
+        complexity.cyclomaticComplexity >
+        this.config.thresholds.codeComplexity.maxCyclomaticComplexity
+      ) {
         issues.push({
           category: 'complexity',
           severity: 'medium',
@@ -1019,8 +1067,10 @@ export class PerformanceValidator {
           description: `Average cyclomatic complexity is ${complexity.cyclomaticComplexity}, exceeding the ${this.config.thresholds.codeComplexity.maxCyclomaticComplexity} threshold`,
           metric: 'cyclomaticComplexity',
           value: complexity.cyclomaticComplexity,
-          threshold: this.config.thresholds.codeComplexity.maxCyclomaticComplexity,
-          recommendation: 'Refactor complex functions and improve code organization'
+          threshold:
+            this.config.thresholds.codeComplexity.maxCyclomaticComplexity,
+          recommendation:
+            'Refactor complex functions and improve code organization',
         });
       }
 
@@ -1032,7 +1082,7 @@ export class PerformanceValidator {
           title: 'Code Refactoring',
           description: `Refactor ${complexity.hotspots.length} complexity hotspots`,
           estimatedImpact: 'Improved maintainability and reduced bug risk',
-          effort: 'medium'
+          effort: 'medium',
         });
       }
     }
@@ -1048,7 +1098,7 @@ export class PerformanceValidator {
       codeComplexity: metrics.codeComplexity,
       dependencyAnalysis: metrics.dependencyAnalysis,
       issues,
-      recommendations
+      recommendations,
     };
   }
 
@@ -1088,9 +1138,15 @@ export class PerformanceValidator {
   /**
    * Determine performance validation status
    */
-  private determinePerformanceStatus(summary: PerformanceSummary): ValidationStatus {
-    const criticalIssues = summary.issues.filter(issue => issue.severity === 'critical').length;
-    const highIssues = summary.issues.filter(issue => issue.severity === 'high').length;
+  private determinePerformanceStatus(
+    summary: PerformanceSummary,
+  ): ValidationStatus {
+    const criticalIssues = summary.issues.filter(
+      (issue) => issue.severity === 'critical',
+    ).length;
+    const highIssues = summary.issues.filter(
+      (issue) => issue.severity === 'high',
+    ).length;
 
     if (criticalIssues > 0) {
       return ValidationStatus.FAILED;
@@ -1104,9 +1160,15 @@ export class PerformanceValidator {
   /**
    * Determine performance validation severity
    */
-  private determinePerformanceSeverity(summary: PerformanceSummary): ValidationSeverity {
-    const criticalIssues = summary.issues.filter(issue => issue.severity === 'critical').length;
-    const highIssues = summary.issues.filter(issue => issue.severity === 'high').length;
+  private determinePerformanceSeverity(
+    summary: PerformanceSummary,
+  ): ValidationSeverity {
+    const criticalIssues = summary.issues.filter(
+      (issue) => issue.severity === 'critical',
+    ).length;
+    const highIssues = summary.issues.filter(
+      (issue) => issue.severity === 'high',
+    ).length;
 
     if (criticalIssues > 0) {
       return ValidationSeverity.CRITICAL;
@@ -1127,8 +1189,12 @@ export class PerformanceValidator {
       return `Performance validation passed with score ${summary.overallScore}/100`;
     }
 
-    const criticalCount = summary.issues.filter(issue => issue.severity === 'critical').length;
-    const highCount = summary.issues.filter(issue => issue.severity === 'high').length;
+    const criticalCount = summary.issues.filter(
+      (issue) => issue.severity === 'critical',
+    ).length;
+    const highCount = summary.issues.filter(
+      (issue) => issue.severity === 'high',
+    ).length;
 
     if (criticalCount > 0) {
       return `Performance validation failed with ${criticalCount} critical issues (score: ${summary.overallScore}/100)`;
@@ -1209,30 +1275,49 @@ export class PerformanceValidator {
   /**
    * Generate performance improvement suggestions
    */
-  private generatePerformanceSuggestions(summary: PerformanceSummary): string[] {
+  private generatePerformanceSuggestions(
+    summary: PerformanceSummary,
+  ): string[] {
     const suggestions: string[] = [];
 
     // Extract recommendations from summary
     for (const recommendation of summary.recommendations.slice(0, 5)) {
-      suggestions.push(`${recommendation.title}: ${recommendation.description}`);
+      suggestions.push(
+        `${recommendation.title}: ${recommendation.description}`,
+      );
     }
 
     // Add issue-specific suggestions
-    const criticalIssues = summary.issues.filter(issue => issue.severity === 'critical');
+    const criticalIssues = summary.issues.filter(
+      (issue) => issue.severity === 'critical',
+    );
     for (const issue of criticalIssues.slice(0, 3)) {
-      suggestions.push(`Address critical ${issue.category} issue: ${issue.recommendation}`);
+      suggestions.push(
+        `Address critical ${issue.category} issue: ${issue.recommendation}`,
+      );
     }
 
     // General performance suggestions
-    if (summary.bundleAnalysis && summary.bundleAnalysis.totalSize > 500 * 1024) {
-      suggestions.push('Implement code splitting to reduce initial bundle size');
+    if (
+      summary.bundleAnalysis &&
+      summary.bundleAnalysis.totalSize > 500 * 1024
+    ) {
+      suggestions.push(
+        'Implement code splitting to reduce initial bundle size',
+      );
     }
 
-    if (summary.buildPerformance && summary.buildPerformance.totalDuration > 60000) {
+    if (
+      summary.buildPerformance &&
+      summary.buildPerformance.totalDuration > 60000
+    ) {
       suggestions.push('Enable build caching and parallel processing');
     }
 
-    if (summary.codeComplexity && summary.codeComplexity.cyclomaticComplexity > 15) {
+    if (
+      summary.codeComplexity &&
+      summary.codeComplexity.cyclomaticComplexity > 15
+    ) {
       suggestions.push('Refactor complex functions to improve maintainability');
     }
 
@@ -1253,24 +1338,32 @@ export class PerformanceValidator {
     evidence.push({
       type: 'report' as const,
       path: 'performance-validation-report.json',
-      content: JSON.stringify({
-        timestamp: new Date().toISOString(),
-        overallScore: summary.overallScore,
-        summary: {
-          issues: summary.issues.length,
-          recommendations: summary.recommendations.length,
-          bundleSize: summary.bundleAnalysis ? Math.round(summary.bundleAnalysis.totalSize / 1024) : null,
-          buildTime: summary.buildPerformance ? Math.round(summary.buildPerformance.totalDuration / 1000) : null,
-          complexity: summary.codeComplexity?.cyclomaticComplexity || null
+      content: JSON.stringify(
+        {
+          timestamp: new Date().toISOString(),
+          overallScore: summary.overallScore,
+          summary: {
+            issues: summary.issues.length,
+            recommendations: summary.recommendations.length,
+            bundleSize: summary.bundleAnalysis
+              ? Math.round(summary.bundleAnalysis.totalSize / 1024)
+              : null,
+            buildTime: summary.buildPerformance
+              ? Math.round(summary.buildPerformance.totalDuration / 1000)
+              : null,
+            complexity: summary.codeComplexity?.cyclomaticComplexity || null,
+          },
+          issues: summary.issues,
+          recommendations: summary.recommendations,
         },
-        issues: summary.issues,
-        recommendations: summary.recommendations
-      }, null, 2),
+        null,
+        2,
+      ),
       metadata: {
         type: 'performance_report',
         format: 'json',
-        score: summary.overallScore
-      }
+        score: summary.overallScore,
+      },
     });
 
     // Bundle analysis report (if available)
@@ -1282,8 +1375,8 @@ export class PerformanceValidator {
         metadata: {
           type: 'bundle_analysis',
           format: 'json',
-          totalSizeKB: Math.round(summary.bundleAnalysis.totalSize / 1024)
-        }
+          totalSizeKB: Math.round(summary.bundleAnalysis.totalSize / 1024),
+        },
       });
     }
 

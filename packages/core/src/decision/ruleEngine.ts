@@ -91,12 +91,15 @@ export class RuleEngine {
   private isInitialized = false;
 
   // Performance tracking
-  private readonly ruleStats = new Map<string, {
-    evaluations: number;
-    matches: number;
-    avgEvaluationTime: number;
-    lastUsed: number;
-  }>();
+  private readonly ruleStats = new Map<
+    string,
+    {
+      evaluations: number;
+      matches: number;
+      avgEvaluationTime: number;
+      lastUsed: number;
+    }
+  >();
 
   /**
    * Initialize the rule engine.
@@ -154,7 +157,7 @@ export class RuleEngine {
   async evaluate<T = Record<string, unknown>>(
     type: DecisionType,
     input: T,
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<RuleEvaluationResult[]> {
     if (!this.isInitialized) {
       throw new Error('RuleEngine not initialized');
@@ -166,9 +169,9 @@ export class RuleEngine {
       // Get applicable rules for this decision type
       const applicableRuleIds = this.rulesByType.get(type) || new Set();
       const applicableRules = Array.from(applicableRuleIds)
-        .map(id => this.rules.get(id))
-        .filter((rule): rule is DecisionRule =>
-          rule !== undefined && rule.enabled
+        .map((id) => this.rules.get(id))
+        .filter(
+          (rule): rule is DecisionRule => rule !== undefined && rule.enabled,
         )
         .sort((a, b) => b.weight - a.weight); // Higher weight first
 
@@ -183,7 +186,11 @@ export class RuleEngine {
           results.push(result);
 
           // Update rule statistics
-          this.updateRuleStats(rule.id, performance.now() - ruleStartTime, result.matched);
+          this.updateRuleStats(
+            rule.id,
+            performance.now() - ruleStartTime,
+            result.matched,
+          );
 
           logger.debug('Evaluated rule', {
             ruleId: rule.id,
@@ -191,7 +198,6 @@ export class RuleEngine {
             confidence: result.confidence,
             actions: result.actions.length,
           });
-
         } catch (error) {
           logger.warn(`Failed to evaluate rule ${rule.id}`, { error });
           // Continue with other rules
@@ -199,13 +205,15 @@ export class RuleEngine {
       }
 
       const duration = performance.now() - startTime;
-      logger.debug(`Evaluated ${applicableRules.length} rules in ${duration.toFixed(2)}ms`, {
-        type,
-        matches: results.filter(r => r.matched).length,
-      });
+      logger.debug(
+        `Evaluated ${applicableRules.length} rules in ${duration.toFixed(2)}ms`,
+        {
+          type,
+          matches: results.filter((r) => r.matched).length,
+        },
+      );
 
       return results;
-
     } catch (error) {
       logger.error('Failed to evaluate rules', { error, type });
       throw error;
@@ -282,7 +290,7 @@ export class RuleEngine {
    */
   async updateRule(
     ruleId: string,
-    updates: Partial<DecisionRule>
+    updates: Partial<DecisionRule>,
   ): Promise<void> {
     const existingRule = this.rules.get(ruleId);
     if (!existingRule) {
@@ -319,7 +327,7 @@ export class RuleEngine {
     if (type) {
       const ruleIds = this.rulesByType.get(type) || new Set();
       return Array.from(ruleIds)
-        .map(id => this.rules.get(id))
+        .map((id) => this.rules.get(id))
         .filter((rule): rule is DecisionRule => rule !== undefined);
     }
 
@@ -329,20 +337,26 @@ export class RuleEngine {
   /**
    * Get rule performance statistics.
    */
-  getRuleStatistics(): Record<string, {
-    evaluations: number;
-    matches: number;
-    matchRate: number;
-    avgEvaluationTime: number;
-    lastUsed: Date;
-  }> {
+  getRuleStatistics(): Record<
+    string,
+    {
+      evaluations: number;
+      matches: number;
+      matchRate: number;
+      avgEvaluationTime: number;
+      lastUsed: Date;
+    }
+  > {
     const stats: Record<string, any> = {};
 
     for (const [ruleId, ruleStat] of this.ruleStats) {
       stats[ruleId] = {
         evaluations: ruleStat.evaluations,
         matches: ruleStat.matches,
-        matchRate: ruleStat.evaluations > 0 ? ruleStat.matches / ruleStat.evaluations : 0,
+        matchRate:
+          ruleStat.evaluations > 0
+            ? ruleStat.matches / ruleStat.evaluations
+            : 0,
         avgEvaluationTime: ruleStat.avgEvaluationTime,
         lastUsed: new Date(ruleStat.lastUsed),
       };
@@ -357,7 +371,7 @@ export class RuleEngine {
   private async evaluateRule<T>(
     rule: DecisionRule,
     input: T,
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<RuleEvaluationResult> {
     const evaluationContext = {
       input,
@@ -367,27 +381,30 @@ export class RuleEngine {
     };
 
     // Evaluate all conditions
-    const conditionResults = rule.conditions.map(condition =>
-      this.evaluateCondition(condition, evaluationContext)
+    const conditionResults = rule.conditions.map((condition) =>
+      this.evaluateCondition(condition, evaluationContext),
     );
 
     // Determine if rule matches based on condition requirements
-    const requiredConditions = conditionResults.filter((result, index) =>
-      rule.conditions[index].required
+    const requiredConditions = conditionResults.filter(
+      (result, index) => rule.conditions[index].required,
     );
-    const optionalConditions = conditionResults.filter((result, index) =>
-      !rule.conditions[index].required
+    const optionalConditions = conditionResults.filter(
+      (result, index) => !rule.conditions[index].required,
     );
 
-    const requiredMet = requiredConditions.length === 0 || requiredConditions.every(r => r);
-    const hasOptionalMatch = optionalConditions.length === 0 || optionalConditions.some(r => r);
+    const requiredMet =
+      requiredConditions.length === 0 || requiredConditions.every((r) => r);
+    const hasOptionalMatch =
+      optionalConditions.length === 0 || optionalConditions.some((r) => r);
 
     const matched = requiredMet && hasOptionalMatch;
 
     // Calculate confidence based on how many conditions matched
     const totalConditions = conditionResults.length;
-    const matchedConditions = conditionResults.filter(r => r).length;
-    const conditionConfidence = totalConditions > 0 ? matchedConditions / totalConditions : 1;
+    const matchedConditions = conditionResults.filter((r) => r).length;
+    const conditionConfidence =
+      totalConditions > 0 ? matchedConditions / totalConditions : 1;
 
     // Apply rule weight to confidence
     const confidence = matched ? conditionConfidence * rule.weight : 0;
@@ -411,7 +428,7 @@ export class RuleEngine {
    */
   private evaluateCondition(
     condition: DecisionCondition,
-    evaluationContext: Record<string, unknown>
+    evaluationContext: Record<string, unknown>,
   ): boolean {
     try {
       const fieldValue = this.getFieldValue(condition.field, evaluationContext);
@@ -425,27 +442,38 @@ export class RuleEngine {
           return fieldValue !== conditionValue;
 
         case 'gt':
-          return typeof fieldValue === 'number' &&
-                 typeof conditionValue === 'number' &&
-                 fieldValue > conditionValue;
+          return (
+            typeof fieldValue === 'number' &&
+            typeof conditionValue === 'number' &&
+            fieldValue > conditionValue
+          );
 
         case 'gte':
-          return typeof fieldValue === 'number' &&
-                 typeof conditionValue === 'number' &&
-                 fieldValue >= conditionValue;
+          return (
+            typeof fieldValue === 'number' &&
+            typeof conditionValue === 'number' &&
+            fieldValue >= conditionValue
+          );
 
         case 'lt':
-          return typeof fieldValue === 'number' &&
-                 typeof conditionValue === 'number' &&
-                 fieldValue < conditionValue;
+          return (
+            typeof fieldValue === 'number' &&
+            typeof conditionValue === 'number' &&
+            fieldValue < conditionValue
+          );
 
         case 'lte':
-          return typeof fieldValue === 'number' &&
-                 typeof conditionValue === 'number' &&
-                 fieldValue <= conditionValue;
+          return (
+            typeof fieldValue === 'number' &&
+            typeof conditionValue === 'number' &&
+            fieldValue <= conditionValue
+          );
 
         case 'contains':
-          if (typeof fieldValue === 'string' && typeof conditionValue === 'string') {
+          if (
+            typeof fieldValue === 'string' &&
+            typeof conditionValue === 'string'
+          ) {
             return fieldValue.includes(conditionValue);
           }
           if (Array.isArray(fieldValue)) {
@@ -460,7 +488,10 @@ export class RuleEngine {
           return false;
 
         case 'regex':
-          if (typeof fieldValue === 'string' && typeof conditionValue === 'string') {
+          if (
+            typeof fieldValue === 'string' &&
+            typeof conditionValue === 'string'
+          ) {
             const regex = new RegExp(conditionValue);
             return regex.test(fieldValue);
           }
@@ -483,7 +514,10 @@ export class RuleEngine {
   /**
    * Get a field value from the evaluation context using dot notation.
    */
-  private getFieldValue(fieldPath: string, context: Record<string, unknown>): unknown {
+  private getFieldValue(
+    fieldPath: string,
+    context: Record<string, unknown>,
+  ): unknown {
     const pathParts = fieldPath.split('.');
     let value: any = context;
 
@@ -501,14 +535,20 @@ export class RuleEngine {
   /**
    * Flatten a nested object for easier field access.
    */
-  private flattenObject(obj: Record<string, unknown>, prefix = ''): Record<string, unknown> {
+  private flattenObject(
+    obj: Record<string, unknown>,
+    prefix = '',
+  ): Record<string, unknown> {
     const flattened: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(obj)) {
       const newKey = prefix ? `${prefix}.${key}` : key;
 
       if (value && typeof value === 'object' && !Array.isArray(value)) {
-        Object.assign(flattened, this.flattenObject(value as Record<string, unknown>, newKey));
+        Object.assign(
+          flattened,
+          this.flattenObject(value as Record<string, unknown>, newKey),
+        );
       } else {
         flattened[newKey] = value;
       }
@@ -523,9 +563,9 @@ export class RuleEngine {
   private generateReasoning(
     rule: DecisionRule,
     conditionResults: boolean[],
-    matched: boolean
+    matched: boolean,
   ): string {
-    const matchedCount = conditionResults.filter(r => r).length;
+    const matchedCount = conditionResults.filter((r) => r).length;
     const totalCount = conditionResults.length;
 
     if (matched) {
@@ -547,7 +587,10 @@ export class RuleEngine {
       throw new Error('Rule must have a valid name');
     }
 
-    if (!Array.isArray(rule.applicableTypes) || rule.applicableTypes.length === 0) {
+    if (
+      !Array.isArray(rule.applicableTypes) ||
+      rule.applicableTypes.length === 0
+    ) {
       throw new Error('Rule must have at least one applicable decision type');
     }
 
@@ -569,7 +612,17 @@ export class RuleEngine {
         throw new Error('Condition must have a valid field path');
       }
 
-      const validOperators = ['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'contains', 'in', 'regex'];
+      const validOperators = [
+        'eq',
+        'ne',
+        'gt',
+        'gte',
+        'lt',
+        'lte',
+        'contains',
+        'in',
+        'regex',
+      ];
       if (!validOperators.includes(condition.operator)) {
         throw new Error(`Invalid condition operator: ${condition.operator}`);
       }
@@ -578,8 +631,12 @@ export class RuleEngine {
     // Validate actions
     for (const action of rule.actions) {
       const validActionTypes = [
-        'set_priority', 'assign_agent', 'allocate_resource',
-        'escalate', 'defer', 'reject'
+        'set_priority',
+        'assign_agent',
+        'allocate_resource',
+        'escalate',
+        'defer',
+        'reject',
       ];
       if (!validActionTypes.includes(action.type)) {
         throw new Error(`Invalid action type: ${action.type}`);
@@ -590,7 +647,11 @@ export class RuleEngine {
   /**
    * Update performance statistics for a rule.
    */
-  private updateRuleStats(ruleId: string, evaluationTime: number, matched: boolean): void {
+  private updateRuleStats(
+    ruleId: string,
+    evaluationTime: number,
+    matched: boolean,
+  ): void {
     let stats = this.ruleStats.get(ruleId);
     if (!stats) {
       stats = {
@@ -608,9 +669,9 @@ export class RuleEngine {
     }
 
     // Update moving average of evaluation time
-    stats.avgEvaluationTime = (
-      (stats.avgEvaluationTime * (stats.evaluations - 1)) + evaluationTime
-    ) / stats.evaluations;
+    stats.avgEvaluationTime =
+      (stats.avgEvaluationTime * (stats.evaluations - 1) + evaluationTime) /
+      stats.evaluations;
 
     stats.lastUsed = Date.now();
   }
@@ -624,7 +685,10 @@ export class RuleEngine {
         id: 'high-system-load',
         name: 'High System Load Priority',
         description: 'Increase priority when system load is high',
-        applicableTypes: [DecisionType.TASK_PRIORITIZATION, DecisionType.RESOURCE_ALLOCATION],
+        applicableTypes: [
+          DecisionType.TASK_PRIORITIZATION,
+          DecisionType.RESOURCE_ALLOCATION,
+        ],
         conditions: [
           {
             field: 'systemLoad.cpu',
@@ -690,7 +754,10 @@ export class RuleEngine {
         id: 'working-hours-priority',
         name: 'Working Hours Adjustment',
         description: 'Adjust priority based on working hours',
-        applicableTypes: [DecisionType.TASK_PRIORITIZATION, DecisionType.SCHEDULING],
+        applicableTypes: [
+          DecisionType.TASK_PRIORITIZATION,
+          DecisionType.SCHEDULING,
+        ],
         conditions: [
           {
             field: 'temporal.workingHours',

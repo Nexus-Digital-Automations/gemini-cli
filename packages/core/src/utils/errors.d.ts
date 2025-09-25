@@ -22,7 +22,9 @@
  * }
  * ```
  */
-export declare function isNodeError(error: unknown): error is NodeJS.ErrnoException;
+export declare function isNodeError(
+  error: unknown,
+): error is NodeJS.ErrnoException;
 /**
  * Safely extracts a human-readable error message from any error object.
  * Handles various error types and provides fallback for non-Error objects.
@@ -53,14 +55,14 @@ export declare function getErrorMessage(error: unknown): string;
  * ```
  */
 export declare class FatalError extends Error {
-    readonly exitCode: number;
-    /**
-     * Creates a new FatalError instance.
-     *
-     * @param message - The error message describing what went wrong
-     * @param exitCode - The exit code that should be used when the process terminates
-     */
-    constructor(message: string, exitCode: number);
+  readonly exitCode: number;
+  /**
+   * Creates a new FatalError instance.
+   *
+   * @param message - The error message describing what went wrong
+   * @param exitCode - The exit code that should be used when the process terminates
+   */
+  constructor(message: string, exitCode: number);
 }
 /**
  * Fatal error for authentication failures that prevent the application from functioning.
@@ -72,12 +74,12 @@ export declare class FatalError extends Error {
  * ```
  */
 export declare class FatalAuthenticationError extends FatalError {
-    /**
-     * Creates a new FatalAuthenticationError instance.
-     *
-     * @param message - The error message describing the authentication failure
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalAuthenticationError instance.
+   *
+   * @param message - The error message describing the authentication failure
+   */
+  constructor(message: string);
 }
 /**
  * Fatal error for invalid input that prevents the application from proceeding.
@@ -89,12 +91,12 @@ export declare class FatalAuthenticationError extends FatalError {
  * ```
  */
 export declare class FatalInputError extends FatalError {
-    /**
-     * Creates a new FatalInputError instance.
-     *
-     * @param message - The error message describing the input validation failure
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalInputError instance.
+   *
+   * @param message - The error message describing the input validation failure
+   */
+  constructor(message: string);
 }
 /**
  * Fatal error for sandbox environment failures that prevent secure execution.
@@ -106,12 +108,12 @@ export declare class FatalInputError extends FatalError {
  * ```
  */
 export declare class FatalSandboxError extends FatalError {
-    /**
-     * Creates a new FatalSandboxError instance.
-     *
-     * @param message - The error message describing the sandbox failure
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalSandboxError instance.
+   *
+   * @param message - The error message describing the sandbox failure
+   */
+  constructor(message: string);
 }
 /**
  * Fatal error for configuration problems that prevent the application from starting.
@@ -123,12 +125,12 @@ export declare class FatalSandboxError extends FatalError {
  * ```
  */
 export declare class FatalConfigError extends FatalError {
-    /**
-     * Creates a new FatalConfigError instance.
-     *
-     * @param message - The error message describing the configuration failure
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalConfigError instance.
+   *
+   * @param message - The error message describing the configuration failure
+   */
+  constructor(message: string);
 }
 /**
  * Fatal error for when conversation turn limits are exceeded.
@@ -140,12 +142,12 @@ export declare class FatalConfigError extends FatalError {
  * ```
  */
 export declare class FatalTurnLimitedError extends FatalError {
-    /**
-     * Creates a new FatalTurnLimitedError instance.
-     *
-     * @param message - The error message describing the turn limit violation
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalTurnLimitedError instance.
+   *
+   * @param message - The error message describing the turn limit violation
+   */
+  constructor(message: string);
 }
 /**
  * Fatal error for tool execution failures that cannot be recovered from.
@@ -157,12 +159,12 @@ export declare class FatalTurnLimitedError extends FatalError {
  * ```
  */
 export declare class FatalToolExecutionError extends FatalError {
-    /**
-     * Creates a new FatalToolExecutionError instance.
-     *
-     * @param message - The error message describing the tool execution failure
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalToolExecutionError instance.
+   *
+   * @param message - The error message describing the tool execution failure
+   */
+  constructor(message: string);
 }
 /**
  * Fatal error for operation cancellations (e.g., user interruption via Ctrl+C).
@@ -174,12 +176,12 @@ export declare class FatalToolExecutionError extends FatalError {
  * ```
  */
 export declare class FatalCancellationError extends FatalError {
-    /**
-     * Creates a new FatalCancellationError instance.
-     *
-     * @param message - The error message describing the cancellation
-     */
-    constructor(message: string);
+  /**
+   * Creates a new FatalCancellationError instance.
+   *
+   * @param message - The error message describing the cancellation
+   */
+  constructor(message: string);
 }
 /**
  * Error for HTTP 403 Forbidden responses.
@@ -190,8 +192,7 @@ export declare class FatalCancellationError extends FatalError {
  * throw new ForbiddenError('Access denied to this resource');
  * ```
  */
-export declare class ForbiddenError extends Error {
-}
+export declare class ForbiddenError extends Error {}
 /**
  * Error for HTTP 401 Unauthorized responses.
  * Indicates that the request has not been applied because it lacks valid authentication credentials.
@@ -201,8 +202,7 @@ export declare class ForbiddenError extends Error {
  * throw new UnauthorizedError('Authentication required');
  * ```
  */
-export declare class UnauthorizedError extends Error {
-}
+export declare class UnauthorizedError extends Error {}
 /**
  * Error for HTTP 400 Bad Request responses.
  * Indicates that the server cannot or will not process the request due to client error.
@@ -212,8 +212,7 @@ export declare class UnauthorizedError extends Error {
  * throw new BadRequestError('Invalid request parameters');
  * ```
  */
-export declare class BadRequestError extends Error {
-}
+export declare class BadRequestError extends Error {}
 /**
  * Converts HTTP errors to user-friendly error types based on status codes.
  * Transforms generic HTTP errors into specific error classes that provide better context.

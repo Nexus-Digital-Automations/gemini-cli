@@ -5,4 +5,7 @@
  */
 
 import type * as vscode from 'vscode';
-export declare function createLogger(context: vscode.ExtensionContext, logger: vscode.OutputChannel): (message: string) => void;
+export declare function createLogger(
+  context: vscode.ExtensionContext,
+  logger: vscode.OutputChannel,
+): (message: string) => void;

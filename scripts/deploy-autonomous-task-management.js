@@ -29,18 +29,15 @@ const DEPLOYMENT_CONFIG = {
     'packages/core/src/tools/write-todos.ts',
     'packages/a2a-server/src/agent/task.ts',
   ],
-  taskManagerApiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+  taskManagerApiPath:
+    '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
   testSuites: [
     'packages/core/src/services/__tests__/autonomousTaskIntegration.test.ts',
   ],
   requiredFeatures: [
     'feature_1758759978605_6e8058fb2015', // Autonomous Task Management System
   ],
-  healthCheckEndpoints: [
-    'getTaskQueue',
-    'feature-stats',
-    'agent-status',
-  ],
+  healthCheckEndpoints: ['getTaskQueue', 'feature-stats', 'agent-status'],
   productionChecks: [
     'validateComponents',
     'runTests',
@@ -90,13 +87,18 @@ class AutonomousTaskManagementDeployment {
         duration: Date.now() - parseInt(this.deploymentId.split('_')[1]),
       };
 
-      console.log('🎉 Autonomous Task Management System Deployment SUCCESSFUL!');
+      console.log(
+        '🎉 Autonomous Task Management System Deployment SUCCESSFUL!',
+      );
       console.log('📊 Deployment Summary:');
-      console.log(`   ✅ Checks Passed: ${this.results.summary.passedChecks}/${this.results.summary.totalChecks}`);
+      console.log(
+        `   ✅ Checks Passed: ${this.results.summary.passedChecks}/${this.results.summary.totalChecks}`,
+      );
       console.log(`   ⚠️  Warnings: ${this.results.summary.warnings}`);
       console.log(`   ❌ Errors: ${this.results.summary.errors}`);
-      console.log(`   ⏱️  Duration: ${Math.round(this.results.summary.duration / 1000)}s`);
-
+      console.log(
+        `   ⏱️  Duration: ${Math.round(this.results.summary.duration / 1000)}s`,
+      );
     } catch (error) {
       this.results.status = 'failed';
       this.results.errors.push({
@@ -133,7 +135,11 @@ class AutonomousTaskManagementDeployment {
 
         // Validate TypeScript syntax (basic check)
         const content = await fs.readFile(fullPath, 'utf8');
-        if (content.includes('export class') || content.includes('export interface') || content.includes('export type')) {
+        if (
+          content.includes('export class') ||
+          content.includes('export interface') ||
+          content.includes('export type')
+        ) {
           results.valid.push(component);
         } else {
           this.results.warnings.push({
@@ -142,7 +148,6 @@ class AutonomousTaskManagementDeployment {
             component,
           });
         }
-
       } catch (error) {
         results.missing.push(component);
         this.results.errors.push({
@@ -156,10 +161,14 @@ class AutonomousTaskManagementDeployment {
     this.results.checks.validateComponents = results;
 
     if (results.missing.length > 0) {
-      throw new Error(`Missing required components: ${results.missing.join(', ')}`);
+      throw new Error(
+        `Missing required components: ${results.missing.join(', ')}`,
+      );
     }
 
-    console.log(`   ✅ ${results.valid.length}/${results.checked.length} components validated`);
+    console.log(
+      `   ✅ ${results.valid.length}/${results.checked.length} components validated`,
+    );
   }
 
   /**
@@ -184,7 +193,11 @@ class AutonomousTaskManagementDeployment {
         // Note: In a real deployment, we would run the actual tests here
         // For now, we just validate the test file exists and is structured correctly
         const content = await fs.readFile(testPath, 'utf8');
-        if (content.includes('describe') && content.includes('it') && content.includes('expect')) {
+        if (
+          content.includes('describe') &&
+          content.includes('it') &&
+          content.includes('expect')
+        ) {
           results.passed++;
           console.log(`   ✅ Test suite validated: ${testSuite}`);
         } else {
@@ -195,7 +208,6 @@ class AutonomousTaskManagementDeployment {
             testSuite,
           });
         }
-
       } catch (error) {
         results.failed++;
         this.results.errors.push({
@@ -247,7 +259,6 @@ class AutonomousTaskManagementDeployment {
               endpoint,
             });
           }
-
         } catch (error) {
           results.endpoints[endpoint] = {
             status: 'error',
@@ -262,7 +273,6 @@ class AutonomousTaskManagementDeployment {
           });
         }
       }
-
     } catch (error) {
       this.results.errors.push({
         check: 'validateTaskManagerAPI',
@@ -274,8 +284,12 @@ class AutonomousTaskManagementDeployment {
 
     this.results.checks.validateTaskManagerAPI = results;
 
-    const healthyEndpoints = Object.values(results.endpoints).filter(e => e.status === 'healthy').length;
-    console.log(`   ✅ TaskManager API accessible with ${healthyEndpoints}/${DEPLOYMENT_CONFIG.healthCheckEndpoints.length} healthy endpoints`);
+    const healthyEndpoints = Object.values(results.endpoints).filter(
+      (e) => e.status === 'healthy',
+    ).length;
+    console.log(
+      `   ✅ TaskManager API accessible with ${healthyEndpoints}/${DEPLOYMENT_CONFIG.healthCheckEndpoints.length} healthy endpoints`,
+    );
   }
 
   /**
@@ -301,7 +315,7 @@ class AutonomousTaskManagementDeployment {
       for (const requiredFeatureId of DEPLOYMENT_CONFIG.requiredFeatures) {
         results.featuresChecked.push(requiredFeatureId);
 
-        const feature = features.find(f => f.id === requiredFeatureId);
+        const feature = features.find((f) => f.id === requiredFeatureId);
 
         if (!feature) {
           results.missingFeatures.push(requiredFeatureId);
@@ -322,7 +336,6 @@ class AutonomousTaskManagementDeployment {
           });
         }
       }
-
     } catch (error) {
       this.results.errors.push({
         check: 'checkFeatureApprovals',
@@ -334,12 +347,18 @@ class AutonomousTaskManagementDeployment {
     this.results.checks.checkFeatureApprovals = results;
 
     if (results.missingFeatures.length > 0) {
-      throw new Error(`Missing required features: ${results.missingFeatures.join(', ')}`);
+      throw new Error(
+        `Missing required features: ${results.missingFeatures.join(', ')}`,
+      );
     }
 
-    console.log(`   ✅ ${results.approvedFeatures.length}/${results.featuresChecked.length} required features approved`);
+    console.log(
+      `   ✅ ${results.approvedFeatures.length}/${results.featuresChecked.length} required features approved`,
+    );
     if (results.pendingFeatures.length > 0) {
-      console.log(`   ⚠️  ${results.pendingFeatures.length} features pending approval`);
+      console.log(
+        `   ⚠️  ${results.pendingFeatures.length} features pending approval`,
+      );
     }
   }
 
@@ -361,7 +380,9 @@ class AutonomousTaskManagementDeployment {
         results.taskQueueHealth = {
           status: 'healthy',
           totalTasks: queueResponse.tasks?.length || 0,
-          queueDepth: queueResponse.tasks?.filter(t => t.status === 'queued').length || 0,
+          queueDepth:
+            queueResponse.tasks?.filter((t) => t.status === 'queued').length ||
+            0,
         };
       } else {
         results.taskQueueHealth = {
@@ -376,7 +397,9 @@ class AutonomousTaskManagementDeployment {
         results.agentStatus = {
           status: 'healthy',
           totalAgents: Object.keys(agentResponse.agents || {}).length,
-          activeAgents: Object.values(agentResponse.agents || {}).filter(a => a.status === 'active').length,
+          activeAgents: Object.values(agentResponse.agents || {}).filter(
+            (a) => a.status === 'active',
+          ).length,
         };
       } else {
         results.agentStatus = {
@@ -386,8 +409,10 @@ class AutonomousTaskManagementDeployment {
       }
 
       // Overall health assessment
-      const healthyComponents = Object.values([results.taskQueueHealth, results.agentStatus])
-        .filter(component => component.status === 'healthy').length;
+      const healthyComponents = Object.values([
+        results.taskQueueHealth,
+        results.agentStatus,
+      ]).filter((component) => component.status === 'healthy').length;
 
       if (healthyComponents === 2) {
         results.overall = 'healthy';
@@ -395,9 +420,10 @@ class AutonomousTaskManagementDeployment {
         results.overall = 'degraded';
       } else {
         results.overall = 'unhealthy';
-        throw new Error('System health check failed - multiple components unhealthy');
+        throw new Error(
+          'System health check failed - multiple components unhealthy',
+        );
       }
-
     } catch (error) {
       results.overall = 'unhealthy';
       this.results.errors.push({
@@ -410,8 +436,12 @@ class AutonomousTaskManagementDeployment {
     this.results.checks.performHealthChecks = results;
 
     console.log(`   ✅ System health: ${results.overall}`);
-    console.log(`   📊 Task queue: ${results.taskQueueHealth.totalTasks || 0} tasks, ${results.taskQueueHealth.queueDepth || 0} queued`);
-    console.log(`   🤖 Agents: ${results.agentStatus.activeAgents || 0}/${results.agentStatus.totalAgents || 0} active`);
+    console.log(
+      `   📊 Task queue: ${results.taskQueueHealth.totalTasks || 0} tasks, ${results.taskQueueHealth.queueDepth || 0} queued`,
+    );
+    console.log(
+      `   🤖 Agents: ${results.agentStatus.activeAgents || 0}/${results.agentStatus.totalAgents || 0} active`,
+    );
   }
 
   /**
@@ -427,7 +457,8 @@ class AutonomousTaskManagementDeployment {
     // Test 1: Feature to Task Creation Flow
     try {
       const features = await this.callTaskManagerAPI('feature-stats');
-      const approvedFeatures = features.stats?.features?.filter(f => f.status === 'approved') || [];
+      const approvedFeatures =
+        features.stats?.features?.filter((f) => f.status === 'approved') || [];
 
       results.integrationTests.push({
         name: 'Feature to Task Creation Flow',
@@ -438,7 +469,6 @@ class AutonomousTaskManagementDeployment {
       if (approvedFeatures.length > 0) {
         results.passedTests++;
       }
-
     } catch (error) {
       results.integrationTests.push({
         name: 'Feature to Task Creation Flow',
@@ -462,7 +492,6 @@ class AutonomousTaskManagementDeployment {
       if (totalAgents > 0) {
         results.passedTests++;
       }
-
     } catch (error) {
       results.integrationTests.push({
         name: 'Agent Registration and Capability Matching',
@@ -487,7 +516,6 @@ class AutonomousTaskManagementDeployment {
       } else {
         results.failedTests++;
       }
-
     } catch (error) {
       results.integrationTests.push({
         name: 'Task Queue Operations',
@@ -506,7 +534,9 @@ class AutonomousTaskManagementDeployment {
       });
     }
 
-    console.log(`   ✅ Integration validation: ${results.passedTests}/${results.integrationTests.length} tests passed`);
+    console.log(
+      `   ✅ Integration validation: ${results.passedTests}/${results.integrationTests.length} tests passed`,
+    );
   }
 
   /**
@@ -515,7 +545,8 @@ class AutonomousTaskManagementDeployment {
   async callTaskManagerAPI(command, args = []) {
     return new Promise((resolve, reject) => {
       const cmdArgs = [
-        '10s', 'node',
+        '10s',
+        'node',
         DEPLOYMENT_CONFIG.taskManagerApiPath,
         command,
         ...args,
@@ -547,7 +578,9 @@ class AutonomousTaskManagementDeployment {
             reject(new Error(`Failed to parse API response: ${stdout}`));
           }
         } else {
-          reject(new Error(`API call failed (code ${code}): ${stderr || stdout}`));
+          reject(
+            new Error(`API call failed (code ${code}): ${stderr || stdout}`),
+          );
         }
       });
 
@@ -561,7 +594,12 @@ class AutonomousTaskManagementDeployment {
    * Save deployment results to file
    */
   async saveDeploymentResults() {
-    const resultsPath = path.join(DEPLOYMENT_CONFIG.projectRoot, 'deployment', 'results', `${this.deploymentId}.json`);
+    const resultsPath = path.join(
+      DEPLOYMENT_CONFIG.projectRoot,
+      'deployment',
+      'results',
+      `${this.deploymentId}.json`,
+    );
 
     try {
       await fs.mkdir(path.dirname(resultsPath), { recursive: true });

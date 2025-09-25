@@ -5,9 +5,16 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { LoadBalancer, type LoadBalancingStrategy, type AgentLoad } from '../loadBalancer.js';
+import {
+  LoadBalancer,
+  type LoadBalancingStrategy,
+  type AgentLoad,
+} from '../loadBalancer.js';
 import type { Config } from '../../index.js';
-import type { RegisteredAgent, AutonomousTask } from '../autonomousTaskIntegrator.js';
+import type {
+  RegisteredAgent,
+  AutonomousTask,
+} from '../autonomousTaskIntegrator.js';
 
 // Mock Config
 const mockConfig: Config = {
@@ -15,7 +22,11 @@ const mockConfig: Config = {
 } as any;
 
 // Mock agents
-const createMockAgent = (id: string, currentLoad = 0, maxCapacity = 10): RegisteredAgent => ({
+const createMockAgent = (
+  id: string,
+  currentLoad = 0,
+  maxCapacity = 10,
+): RegisteredAgent => ({
   id,
   capabilities: ['frontend', 'testing'],
   sessionId: 'session-1',
@@ -117,8 +128,14 @@ describe('LoadBalancer', () => {
 
       // Should cycle through all agents twice
       expect(selectedAgents).toEqual([
-        'agent-1', 'agent-2', 'agent-3', 'agent-4',
-        'agent-1', 'agent-2', 'agent-3', 'agent-4'
+        'agent-1',
+        'agent-2',
+        'agent-3',
+        'agent-4',
+        'agent-1',
+        'agent-2',
+        'agent-3',
+        'agent-4',
       ]);
     });
 
@@ -133,7 +150,10 @@ describe('LoadBalancer', () => {
       expect(agent?.id).toBe('agent-1');
 
       // Select with different agent list
-      agent = await loadBalancer.selectAgent([mockAgents[2], mockAgents[3]], mockTask);
+      agent = await loadBalancer.selectAgent(
+        [mockAgents[2], mockAgents[3]],
+        mockTask,
+      );
       expect(agent?.id).toBe('agent-3'); // Should start from beginning
     });
   });
@@ -181,10 +201,26 @@ describe('LoadBalancer', () => {
       loadBalancer.setStrategy('performance-based');
 
       // Set specific performance metrics
-      mockAgents[0].performance = { completedTasks: 100, averageCompletionTime: 2000, successRate: 0.95 };
-      mockAgents[1].performance = { completedTasks: 80, averageCompletionTime: 3000, successRate: 0.90 };
-      mockAgents[2].performance = { completedTasks: 120, averageCompletionTime: 1500, successRate: 0.98 };
-      mockAgents[3].performance = { completedTasks: 60, averageCompletionTime: 4000, successRate: 0.85 };
+      mockAgents[0].performance = {
+        completedTasks: 100,
+        averageCompletionTime: 2000,
+        successRate: 0.95,
+      };
+      mockAgents[1].performance = {
+        completedTasks: 80,
+        averageCompletionTime: 3000,
+        successRate: 0.9,
+      };
+      mockAgents[2].performance = {
+        completedTasks: 120,
+        averageCompletionTime: 1500,
+        successRate: 0.98,
+      };
+      mockAgents[3].performance = {
+        completedTasks: 60,
+        averageCompletionTime: 4000,
+        successRate: 0.85,
+      };
     });
 
     it('should select agent with best performance score', async () => {
@@ -199,7 +235,7 @@ describe('LoadBalancer', () => {
       mockAgents[1].performance = {
         completedTasks: 80,
         averageCompletionTime: 8000, // Very slow
-        successRate: 0.99 // Very high success rate
+        successRate: 0.99, // Very high success rate
       };
 
       const agent = await loadBalancer.selectAgent(mockAgents, mockTask);
@@ -215,7 +251,10 @@ describe('LoadBalancer', () => {
     });
 
     it('should use performance-based for high priority tasks', async () => {
-      const agent = await loadBalancer.selectAgent(mockAgents, mockHighPriorityTask);
+      const agent = await loadBalancer.selectAgent(
+        mockAgents,
+        mockHighPriorityTask,
+      );
 
       expect(agent).not.toBeNull();
       // Should prioritize performance for high-priority tasks
@@ -229,7 +268,7 @@ describe('LoadBalancer', () => {
 
     it('should adapt based on system load', async () => {
       // Simulate high system load
-      const highLoadAgents = mockAgents.map(agent => ({
+      const highLoadAgents = mockAgents.map((agent) => ({
         ...agent,
         currentTasks: Array.from({ length: 8 }, (_, i) => `task-${i}`), // High load
       }));
@@ -249,9 +288,9 @@ describe('LoadBalancer', () => {
     it('should respect agent capacity weights', async () => {
       // Agents with different max capacities
       const weightedAgents = [
-        createMockAgent('small-agent', 1, 5),   // 20% load, small capacity
+        createMockAgent('small-agent', 1, 5), // 20% load, small capacity
         createMockAgent('medium-agent', 3, 10), // 30% load, medium capacity
-        createMockAgent('large-agent', 5, 20),  // 25% load, large capacity
+        createMockAgent('large-agent', 5, 20), // 25% load, large capacity
       ];
 
       const agent = await loadBalancer.selectAgent(weightedAgents, mockTask);
@@ -275,7 +314,10 @@ describe('LoadBalancer', () => {
   describe('Circuit Breaker Pattern', () => {
     it('should exclude failed agents from selection', async () => {
       // Simulate agent failure
-      await loadBalancer.recordAgentFailure('agent-2', new Error('Test failure'));
+      await loadBalancer.recordAgentFailure(
+        'agent-2',
+        new Error('Test failure'),
+      );
 
       const agent = await loadBalancer.selectAgent(mockAgents, mockTask);
 
@@ -287,7 +329,10 @@ describe('LoadBalancer', () => {
 
       // Record multiple failures
       for (let i = 0; i < 3; i++) {
-        await loadBalancer.recordAgentFailure(agentId, new Error(`Failure ${i + 1}`));
+        await loadBalancer.recordAgentFailure(
+          agentId,
+          new Error(`Failure ${i + 1}`),
+        );
       }
 
       const status = loadBalancer.getLoadBalancerStatus();
@@ -300,7 +345,10 @@ describe('LoadBalancer', () => {
 
       // Trigger circuit breaker
       for (let i = 0; i < 5; i++) {
-        await loadBalancer.recordAgentFailure(agentId, new Error(`Failure ${i + 1}`));
+        await loadBalancer.recordAgentFailure(
+          agentId,
+          new Error(`Failure ${i + 1}`),
+        );
       }
 
       // Mock time passage for recovery
@@ -331,21 +379,26 @@ describe('LoadBalancer', () => {
 
   describe('Load Rebalancing', () => {
     it('should identify overloaded agents', async () => {
-      const overloadedAgents = await loadBalancer.identifyOverloadedAgents(mockAgents);
+      const overloadedAgents =
+        await loadBalancer.identifyOverloadedAgents(mockAgents);
 
       expect(overloadedAgents).toHaveLength(1);
       expect(overloadedAgents[0].id).toBe('agent-3'); // 80% load
     });
 
     it('should identify underutilized agents', async () => {
-      const underutilizedAgents = await loadBalancer.identifyUnderutilizedAgents(mockAgents);
+      const underutilizedAgents =
+        await loadBalancer.identifyUnderutilizedAgents(mockAgents);
 
       expect(underutilizedAgents.length).toBeGreaterThan(0);
-      expect(underutilizedAgents.some(agent => agent.id === 'agent-4')).toBe(true); // 10% load
+      expect(underutilizedAgents.some((agent) => agent.id === 'agent-4')).toBe(
+        true,
+      ); // 10% load
     });
 
     it('should suggest task redistribution', async () => {
-      const suggestions = await loadBalancer.suggestTaskRedistribution(mockAgents);
+      const suggestions =
+        await loadBalancer.suggestTaskRedistribution(mockAgents);
 
       expect(suggestions).toHaveLength(1);
       expect(suggestions[0].sourceAgent).toBe('agent-3');
@@ -368,7 +421,10 @@ describe('LoadBalancer', () => {
         await loadBalancer.recordTaskCompletion('agent-2', mockTask, 4000);
       }
 
-      const predictions = await loadBalancer.predictAgentLoad(mockAgents, [mockTask, mockHighPriorityTask]);
+      const predictions = await loadBalancer.predictAgentLoad(mockAgents, [
+        mockTask,
+        mockHighPriorityTask,
+      ]);
 
       expect(predictions['agent-1']).toBeDefined();
       expect(predictions['agent-2']).toBeDefined();
@@ -382,7 +438,7 @@ describe('LoadBalancer', () => {
 
       const recommendation = await loadBalancer.getOptimalAgentRecommendation(
         mockAgents,
-        mockHighPriorityTask
+        mockHighPriorityTask,
       );
 
       expect(recommendation).not.toBeNull();
@@ -425,7 +481,9 @@ describe('LoadBalancer', () => {
 
       const status = loadBalancer.getLoadBalancerStatus();
       expect(status.totalRequests).toBe(10);
-      expect(Object.keys(status.agentRequestCounts)).toHaveLength(mockAgents.length);
+      expect(Object.keys(status.agentRequestCounts)).toHaveLength(
+        mockAgents.length,
+      );
     });
   });
 
@@ -441,7 +499,7 @@ describe('LoadBalancer', () => {
     });
 
     it('should handle agents with no performance data', async () => {
-      const agentsWithoutPerf = mockAgents.map(agent => ({
+      const agentsWithoutPerf = mockAgents.map((agent) => ({
         ...agent,
         performance: undefined as any,
       }));
@@ -493,10 +551,15 @@ describe('LoadBalancer', () => {
         { ...mockTask, id: 'batch-3' },
       ];
 
-      const assignments = await loadBalancer.assignBatchTasks(mockAgents, tasks);
+      const assignments = await loadBalancer.assignBatchTasks(
+        mockAgents,
+        tasks,
+      );
 
       expect(assignments).toHaveLength(3);
-      expect(assignments.every(assignment => assignment.agent && assignment.task)).toBe(true);
+      expect(
+        assignments.every((assignment) => assignment.agent && assignment.task),
+      ).toBe(true);
     });
 
     it('should optimize for batch processing efficiency', async () => {
@@ -505,14 +568,20 @@ describe('LoadBalancer', () => {
         id: `batch-task-${i}`,
       }));
 
-      const assignments = await loadBalancer.assignBatchTasks(mockAgents, batchTasks);
+      const assignments = await loadBalancer.assignBatchTasks(
+        mockAgents,
+        batchTasks,
+      );
 
       // Should distribute tasks efficiently across all agents
-      const agentTaskCounts = assignments.reduce((acc, assignment) => {
-        const agentId = assignment.agent?.id || 'unknown';
-        acc[agentId] = (acc[agentId] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const agentTaskCounts = assignments.reduce(
+        (acc, assignment) => {
+          const agentId = assignment.agent?.id || 'unknown';
+          acc[agentId] = (acc[agentId] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       // All agents should get some tasks (assuming they're capable)
       expect(Object.keys(agentTaskCounts).length).toBeGreaterThan(1);

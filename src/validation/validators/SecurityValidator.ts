@@ -21,7 +21,7 @@ import {
   ValidationContext,
   ValidationResult,
   ValidationStatus,
-  ValidationSeverity
+  ValidationSeverity,
 } from '../core/ValidationEngine.js';
 
 const execAsync = promisify(exec);
@@ -137,7 +137,7 @@ export class SecurityValidator {
         staticCodeAnalysis: true,
         secretsDetection: true,
         licenseCompliance: true,
-        dockerSecurity: true
+        dockerSecurity: true,
       },
       scanTools: {
         npm: true,
@@ -146,21 +146,33 @@ export class SecurityValidator {
         bandit: false, // Python projects only
         eslintSecurity: true,
         gitSecrets: false, // Requires installation
-        truffleHog: false // Requires installation
+        truffleHog: false, // Requires installation
       },
       severityThresholds: {
         critical: 0,
         high: 5,
         medium: 20,
-        low: 50
+        low: 50,
       },
       allowedLicenses: [
-        'MIT', 'Apache-2.0', 'BSD-3-Clause', 'BSD-2-Clause', 'ISC',
-        'GPL-3.0', 'LGPL-3.0', 'MPL-2.0'
+        'MIT',
+        'Apache-2.0',
+        'BSD-3-Clause',
+        'BSD-2-Clause',
+        'ISC',
+        'GPL-3.0',
+        'LGPL-3.0',
+        'MPL-2.0',
       ],
       secretPatterns: [
-        'password', 'secret', 'key', 'token', 'api_key',
-        'private_key', 'access_token', 'refresh_token'
+        'password',
+        'secret',
+        'key',
+        'token',
+        'api_key',
+        'private_key',
+        'access_token',
+        'refresh_token',
       ],
       excludePaths: [
         'node_modules/**',
@@ -168,10 +180,10 @@ export class SecurityValidator {
         'build/**',
         '.git/**',
         'coverage/**',
-        '*.min.js'
+        '*.min.js',
       ],
       timeout: 300000, // 5 minutes
-      ...config
+      ...config,
     };
   }
 
@@ -180,7 +192,9 @@ export class SecurityValidator {
    */
   public async validate(context: ValidationContext): Promise<ValidationResult> {
     const startTime = Date.now();
-    this.logger.info(`Starting security validation for task: ${context.taskId}`);
+    this.logger.info(
+      `Starting security validation for task: ${context.taskId}`,
+    );
 
     try {
       // Execute enabled security scans
@@ -201,7 +215,7 @@ export class SecurityValidator {
         highCount: summary.highCount,
         riskScore: summary.riskScore,
         score,
-        duration
+        duration,
       });
 
       return {
@@ -214,12 +228,14 @@ export class SecurityValidator {
         suggestions: this.generateSecuritySuggestions(summary),
         evidence: this.createSecurityEvidence(summary),
         timestamp: new Date(),
-        duration
+        duration,
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
-      this.logger.error('Security validation failed', { error, taskId: context.taskId });
+      this.logger.error('Security validation failed', {
+        error,
+        taskId: context.taskId,
+      });
 
       return {
         criteriaId: 'security_scan',
@@ -232,11 +248,11 @@ export class SecurityValidator {
           'Check that security scanning tools are properly installed',
           'Verify network connectivity for vulnerability databases',
           'Ensure proper permissions for file scanning',
-          'Review security tool configurations'
+          'Review security tool configurations',
         ],
         evidence: [],
         timestamp: new Date(),
-        duration
+        duration,
       };
     }
   }
@@ -244,7 +260,9 @@ export class SecurityValidator {
   /**
    * Execute enabled security scans
    */
-  private async executeSecurityScans(context: ValidationContext): Promise<SecurityScanResult[]> {
+  private async executeSecurityScans(
+    context: ValidationContext,
+  ): Promise<SecurityScanResult[]> {
     const scanResults: SecurityScanResult[] = [];
 
     // Dependency vulnerability scanning
@@ -291,7 +309,9 @@ export class SecurityValidator {
       scanResults.push(await this.runDockerSecurity());
     }
 
-    return scanResults.filter(result => result !== null) as SecurityScanResult[];
+    return scanResults.filter(
+      (result) => result !== null,
+    ) as SecurityScanResult[];
   }
 
   /**
@@ -310,13 +330,13 @@ export class SecurityValidator {
           duration: Date.now() - startTime,
           vulnerabilities: [],
           summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-          error: 'No package.json found'
+          error: 'No package.json found',
         };
       }
 
       const { stdout } = await execAsync('npm audit --json', {
         timeout: this.config.timeout,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       const auditResult = JSON.parse(stdout);
@@ -327,9 +347,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       // npm audit returns non-zero exit code when vulnerabilities found
       if ((error as any).stdout) {
@@ -342,7 +361,7 @@ export class SecurityValidator {
             success: true,
             duration: Date.now() - startTime,
             vulnerabilities,
-            summary: this.summarizeVulnerabilities(vulnerabilities)
+            summary: this.summarizeVulnerabilities(vulnerabilities),
           };
         } catch (parseError) {
           // Fall through to error case
@@ -355,7 +374,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: error instanceof Error ? error.message : 'npm audit failed'
+        error: error instanceof Error ? error.message : 'npm audit failed',
       };
     }
   }
@@ -381,13 +400,16 @@ export class SecurityValidator {
           cwe: adv.cwe ? [adv.cwe] : undefined,
           cvss: adv.cvss?.score,
           evidence: `Package: ${adv.module_name}, Versions: ${adv.vulnerable_versions}`,
-          recommendation: adv.recommendation || 'Update to a non-vulnerable version',
+          recommendation:
+            adv.recommendation || 'Update to a non-vulnerable version',
           references: adv.references ? [adv.url] : [],
-          tool: 'npm-audit'
+          tool: 'npm-audit',
         });
       }
     } catch (parseError) {
-      this.logger.warn('Failed to parse npm audit results', { error: parseError });
+      this.logger.warn('Failed to parse npm audit results', {
+        error: parseError,
+      });
     }
 
     return vulnerabilities;
@@ -407,13 +429,13 @@ export class SecurityValidator {
           duration: Date.now() - startTime,
           vulnerabilities: [],
           summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-          error: 'No yarn.lock found'
+          error: 'No yarn.lock found',
         };
       }
 
       const { stdout } = await execAsync('yarn audit --json', {
         timeout: this.config.timeout,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       const vulnerabilities = this.parseYarnAuditResults(stdout);
@@ -423,9 +445,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'yarn-audit',
@@ -433,7 +454,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: error instanceof Error ? error.message : 'yarn audit failed'
+        error: error instanceof Error ? error.message : 'yarn audit failed',
       };
     }
   }
@@ -445,7 +466,7 @@ export class SecurityValidator {
     const vulnerabilities: SecurityVulnerability[] = [];
 
     try {
-      const lines = jsonOutput.split('\n').filter(line => line.trim());
+      const lines = jsonOutput.split('\n').filter((line) => line.trim());
 
       for (const line of lines) {
         try {
@@ -464,7 +485,7 @@ export class SecurityValidator {
               evidence: `Package: ${advisory.module_name}`,
               recommendation: advisory.recommendation,
               references: advisory.references ? [advisory.url] : [],
-              tool: 'yarn-audit'
+              tool: 'yarn-audit',
             });
           }
         } catch (parseLineError) {
@@ -472,7 +493,9 @@ export class SecurityValidator {
         }
       }
     } catch (parseError) {
-      this.logger.warn('Failed to parse yarn audit results', { error: parseError });
+      this.logger.warn('Failed to parse yarn audit results', {
+        error: parseError,
+      });
     }
 
     return vulnerabilities;
@@ -485,10 +508,13 @@ export class SecurityValidator {
     const startTime = Date.now();
 
     try {
-      const { stdout } = await execAsync('npx eslint . --ext .js,.ts,.jsx,.tsx --format json --config .eslintrc.security.json', {
-        timeout: this.config.timeout,
-        cwd: process.cwd()
-      });
+      const { stdout } = await execAsync(
+        'npx eslint . --ext .js,.ts,.jsx,.tsx --format json --config .eslintrc.security.json',
+        {
+          timeout: this.config.timeout,
+          cwd: process.cwd(),
+        },
+      );
 
       const eslintResults = JSON.parse(stdout);
       const vulnerabilities = this.parseESLintSecurityResults(eslintResults);
@@ -498,16 +524,18 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       // Try with default ESLint config if security config doesn't exist
       try {
-        const { stdout } = await execAsync('npx eslint . --ext .js,.ts,.jsx,.tsx --format json', {
-          timeout: this.config.timeout,
-          cwd: process.cwd()
-        });
+        const { stdout } = await execAsync(
+          'npx eslint . --ext .js,.ts,.jsx,.tsx --format json',
+          {
+            timeout: this.config.timeout,
+            cwd: process.cwd(),
+          },
+        );
 
         const eslintResults = JSON.parse(stdout);
         const vulnerabilities = this.parseESLintSecurityResults(eslintResults);
@@ -517,9 +545,8 @@ export class SecurityValidator {
           success: true,
           duration: Date.now() - startTime,
           vulnerabilities,
-          summary: this.summarizeVulnerabilities(vulnerabilities)
+          summary: this.summarizeVulnerabilities(vulnerabilities),
         };
-
       } catch (fallbackError) {
         return {
           tool: 'eslint-security',
@@ -527,7 +554,7 @@ export class SecurityValidator {
           duration: Date.now() - startTime,
           vulnerabilities: [],
           summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-          error: 'ESLint security scan failed'
+          error: 'ESLint security scan failed',
         };
       }
     }
@@ -536,7 +563,9 @@ export class SecurityValidator {
   /**
    * Parse ESLint security results
    */
-  private parseESLintSecurityResults(eslintResults: any[]): SecurityVulnerability[] {
+  private parseESLintSecurityResults(
+    eslintResults: any[],
+  ): SecurityVulnerability[] {
     const vulnerabilities: SecurityVulnerability[] = [];
 
     for (const fileResult of eslintResults) {
@@ -555,7 +584,7 @@ export class SecurityValidator {
             evidence: `Line ${message.line}: ${message.message}`,
             recommendation: `Fix the ${message.ruleId} violation`,
             references: [],
-            tool: 'eslint-security'
+            tool: 'eslint-security',
           });
         }
       }
@@ -575,10 +604,10 @@ export class SecurityValidator {
       'no-eval',
       'no-implied-eval',
       'no-script-url',
-      'no-unsafe-innerHTML'
+      'no-unsafe-innerHTML',
     ];
 
-    return securityRules.some(rule => ruleId.includes(rule));
+    return securityRules.some((rule) => ruleId.includes(rule));
   }
 
   /**
@@ -588,10 +617,13 @@ export class SecurityValidator {
     const startTime = Date.now();
 
     try {
-      const { stdout } = await execAsync('semgrep --config=p/security-audit --json .', {
-        timeout: this.config.timeout,
-        cwd: process.cwd()
-      });
+      const { stdout } = await execAsync(
+        'semgrep --config=p/security-audit --json .',
+        {
+          timeout: this.config.timeout,
+          cwd: process.cwd(),
+        },
+      );
 
       const semgrepResult = JSON.parse(stdout);
       const vulnerabilities = this.parseSemgrepResults(semgrepResult);
@@ -601,9 +633,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'semgrep',
@@ -611,7 +642,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: 'Semgrep not available or failed'
+        error: 'Semgrep not available or failed',
       };
     }
   }
@@ -634,13 +665,16 @@ export class SecurityValidator {
           line: result.start.line,
           column: result.start.col,
           evidence: result.extra.lines || '',
-          recommendation: result.extra.fix || 'Review and fix the security issue',
+          recommendation:
+            result.extra.fix || 'Review and fix the security issue',
           references: result.extra.references || [],
-          tool: 'semgrep'
+          tool: 'semgrep',
         });
       }
     } catch (parseError) {
-      this.logger.warn('Failed to parse Semgrep results', { error: parseError });
+      this.logger.warn('Failed to parse Semgrep results', {
+        error: parseError,
+      });
     }
 
     return vulnerabilities;
@@ -662,13 +696,13 @@ export class SecurityValidator {
           duration: Date.now() - startTime,
           vulnerabilities: [],
           summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-          error: 'No Python files found'
+          error: 'No Python files found',
         };
       }
 
       const { stdout } = await execAsync('bandit -r . -f json', {
         timeout: this.config.timeout,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       const banditResult = JSON.parse(stdout);
@@ -679,9 +713,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'bandit',
@@ -689,7 +722,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: 'Bandit not available or failed'
+        error: 'Bandit not available or failed',
       };
     }
   }
@@ -702,10 +735,10 @@ export class SecurityValidator {
     try {
       const { stdout } = await execAsync('find . -name "*.py" | head -10', {
         timeout: 10000,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
-      return stdout.split('\n').filter(line => line.trim());
+      return stdout.split('\n').filter((line) => line.trim());
     } catch {
       return [];
     }
@@ -729,9 +762,10 @@ export class SecurityValidator {
           file: result.filename,
           line: result.line_number,
           evidence: result.code,
-          recommendation: 'Review and fix the security issue identified by Bandit',
+          recommendation:
+            'Review and fix the security issue identified by Bandit',
           references: result.more_info ? [result.more_info] : [],
-          tool: 'bandit'
+          tool: 'bandit',
         });
       }
     } catch (parseError) {
@@ -753,7 +787,8 @@ export class SecurityValidator {
       // Scan source files for secrets
       const sourceFiles = await this.getSourceFiles();
 
-      for (const file of sourceFiles.slice(0, 100)) { // Limit to 100 files for performance
+      for (const file of sourceFiles.slice(0, 100)) {
+        // Limit to 100 files for performance
         const secrets = await this.scanFileForSecrets(file);
         vulnerabilities.push(...secrets);
       }
@@ -763,9 +798,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'secrets-detection',
@@ -773,7 +807,8 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: error instanceof Error ? error.message : 'Secrets detection failed'
+        error:
+          error instanceof Error ? error.message : 'Secrets detection failed',
       };
     }
   }
@@ -783,15 +818,28 @@ export class SecurityValidator {
    */
   private async getSourceFiles(): Promise<string[]> {
     const files: string[] = [];
-    const extensions = ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.go', '.rb', '.php'];
+    const extensions = [
+      '.js',
+      '.ts',
+      '.jsx',
+      '.tsx',
+      '.py',
+      '.java',
+      '.go',
+      '.rb',
+      '.php',
+    ];
 
     try {
-      const { stdout } = await execAsync('find . -type f \\( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.py" -o -name "*.java" -o -name "*.go" -o -name "*.rb" -o -name "*.php" \\) | grep -v node_modules | grep -v dist | grep -v build', {
-        timeout: 30000,
-        cwd: process.cwd()
-      });
+      const { stdout } = await execAsync(
+        'find . -type f \\( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.py" -o -name "*.java" -o -name "*.go" -o -name "*.rb" -o -name "*.php" \\) | grep -v node_modules | grep -v dist | grep -v build',
+        {
+          timeout: 30000,
+          cwd: process.cwd(),
+        },
+      );
 
-      return stdout.split('\n').filter(line => line.trim());
+      return stdout.split('\n').filter((line) => line.trim());
     } catch {
       return [];
     }
@@ -800,7 +848,9 @@ export class SecurityValidator {
   /**
    * Scan file for secrets
    */
-  private async scanFileForSecrets(filePath: string): Promise<SecurityVulnerability[]> {
+  private async scanFileForSecrets(
+    filePath: string,
+  ): Promise<SecurityVulnerability[]> {
     const vulnerabilities: SecurityVulnerability[] = [];
 
     try {
@@ -822,9 +872,12 @@ export class SecurityValidator {
               file: filePath,
               line: lineNum + 1,
               evidence: line.trim(),
-              recommendation: 'Move secrets to environment variables or secure configuration',
-              references: ['https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure'],
-              tool: 'secrets-detection'
+              recommendation:
+                'Move secrets to environment variables or secure configuration',
+              references: [
+                'https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure',
+              ],
+              tool: 'secrets-detection',
             });
           }
         }
@@ -841,10 +894,10 @@ export class SecurityValidator {
    */
   private detectSecret(line: string, pattern: string): boolean {
     const secretPatterns = {
-      'password': /password\s*[:=]\s*['"][^'"]{8,}['"]/i,
-      'secret': /secret\s*[:=]\s*['"][^'"]{16,}['"]/i,
-      'key': /(api_?key|private_?key)\s*[:=]\s*['"][^'"]{16,}['"]/i,
-      'token': /token\s*[:=]\s*['"][^'"]{16,}['"]/i
+      password: /password\s*[:=]\s*['"][^'"]{8,}['"]/i,
+      secret: /secret\s*[:=]\s*['"][^'"]{16,}['"]/i,
+      key: /(api_?key|private_?key)\s*[:=]\s*['"][^'"]{16,}['"]/i,
+      token: /token\s*[:=]\s*['"][^'"]{16,}['"]/i,
     };
 
     const regex = secretPatterns[pattern as keyof typeof secretPatterns];
@@ -860,7 +913,7 @@ export class SecurityValidator {
     try {
       const { stdout } = await execAsync('git secrets --scan', {
         timeout: this.config.timeout,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       return {
@@ -868,9 +921,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities: [],
-        summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 }
+        summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
       };
-
     } catch (error) {
       return {
         tool: 'git-secrets',
@@ -878,7 +930,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: 'Git secrets not available or failed'
+        error: 'Git secrets not available or failed',
       };
     }
   }
@@ -892,7 +944,7 @@ export class SecurityValidator {
     try {
       const { stdout } = await execAsync('trufflehog --json .', {
         timeout: this.config.timeout,
-        cwd: process.cwd()
+        cwd: process.cwd(),
       });
 
       const vulnerabilities = this.parseTruffleHogResults(stdout);
@@ -902,9 +954,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'trufflehog',
@@ -912,7 +963,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: 'TruffleHog not available or failed'
+        error: 'TruffleHog not available or failed',
       };
     }
   }
@@ -924,7 +975,7 @@ export class SecurityValidator {
     const vulnerabilities: SecurityVulnerability[] = [];
 
     try {
-      const lines = jsonOutput.split('\n').filter(line => line.trim());
+      const lines = jsonOutput.split('\n').filter((line) => line.trim());
 
       for (const line of lines) {
         try {
@@ -938,16 +989,19 @@ export class SecurityValidator {
             category: 'secret',
             file: finding.file,
             evidence: finding.raw.substring(0, 100) + '...',
-            recommendation: 'Remove secret from repository and rotate if necessary',
+            recommendation:
+              'Remove secret from repository and rotate if necessary',
             references: [],
-            tool: 'trufflehog'
+            tool: 'trufflehog',
           });
         } catch (parseLineError) {
           // Skip malformed lines
         }
       }
     } catch (parseError) {
-      this.logger.warn('Failed to parse TruffleHog results', { error: parseError });
+      this.logger.warn('Failed to parse TruffleHog results', {
+        error: parseError,
+      });
     }
 
     return vulnerabilities;
@@ -968,7 +1022,7 @@ export class SecurityValidator {
           duration: Date.now() - startTime,
           vulnerabilities: [],
           summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-          error: 'No package.json found'
+          error: 'No package.json found',
         };
       }
 
@@ -978,17 +1032,21 @@ export class SecurityValidator {
       try {
         const { stdout } = await execAsync('npm ls --json --depth=0', {
           timeout: 30000,
-          cwd: process.cwd()
+          cwd: process.cwd(),
         });
 
         const npmData = JSON.parse(stdout);
-        const licenseViolations = this.checkLicenseCompliance(npmData.dependencies || {});
+        const licenseViolations = this.checkLicenseCompliance(
+          npmData.dependencies || {},
+        );
         vulnerabilities.push(...licenseViolations);
-
       } catch (npmError) {
         // Try alternative approach with package.json
         const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-        if (packageJson.license && !this.config.allowedLicenses.includes(packageJson.license)) {
+        if (
+          packageJson.license &&
+          !this.config.allowedLicenses.includes(packageJson.license)
+        ) {
           vulnerabilities.push({
             id: 'license-main-package',
             title: 'Non-compliant license',
@@ -998,7 +1056,7 @@ export class SecurityValidator {
             evidence: `License: ${packageJson.license}`,
             recommendation: 'Review license compliance with legal team',
             references: [],
-            tool: 'license-check'
+            tool: 'license-check',
           });
         }
       }
@@ -1008,9 +1066,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'license-check',
@@ -1018,7 +1075,7 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: error instanceof Error ? error.message : 'License check failed'
+        error: error instanceof Error ? error.message : 'License check failed',
       };
     }
   }
@@ -1034,7 +1091,10 @@ export class SecurityValidator {
 
       // This is a simplified check - real implementation would parse license info
       // For now, just check for commonly problematic licenses
-      if (name.toLowerCase().includes('gpl') && !this.config.allowedLicenses.includes('GPL-3.0')) {
+      if (
+        name.toLowerCase().includes('gpl') &&
+        !this.config.allowedLicenses.includes('GPL-3.0')
+      ) {
         violations.push({
           id: `license-${name}`,
           title: 'Potential license compliance issue',
@@ -1044,7 +1104,7 @@ export class SecurityValidator {
           evidence: `Dependency: ${name}`,
           recommendation: 'Review dependency licenses for compliance',
           references: [],
-          tool: 'license-check'
+          tool: 'license-check',
         });
       }
     }
@@ -1056,8 +1116,12 @@ export class SecurityValidator {
    * Check if Dockerfiles exist
    */
   private hasDockerfiles(): boolean {
-    const dockerFiles = ['Dockerfile', 'docker-compose.yml', 'docker-compose.yaml'];
-    return dockerFiles.some(file => fs.existsSync(file));
+    const dockerFiles = [
+      'Dockerfile',
+      'docker-compose.yml',
+      'docker-compose.yaml',
+    ];
+    return dockerFiles.some((file) => fs.existsSync(file));
   }
 
   /**
@@ -1080,9 +1144,8 @@ export class SecurityValidator {
         success: true,
         duration: Date.now() - startTime,
         vulnerabilities,
-        summary: this.summarizeVulnerabilities(vulnerabilities)
+        summary: this.summarizeVulnerabilities(vulnerabilities),
       };
-
     } catch (error) {
       return {
         tool: 'docker-security',
@@ -1090,7 +1153,10 @@ export class SecurityValidator {
         duration: Date.now() - startTime,
         vulnerabilities: [],
         summary: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
-        error: error instanceof Error ? error.message : 'Docker security scan failed'
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Docker security scan failed',
       };
     }
   }
@@ -1098,7 +1164,9 @@ export class SecurityValidator {
   /**
    * Scan Dockerfile for security issues
    */
-  private async scanDockerfile(filePath: string): Promise<SecurityVulnerability[]> {
+  private async scanDockerfile(
+    filePath: string,
+  ): Promise<SecurityVulnerability[]> {
     const vulnerabilities: SecurityVulnerability[] = [];
 
     try {
@@ -1121,7 +1189,7 @@ export class SecurityValidator {
             evidence: line,
             recommendation: 'Use specific version tags instead of :latest',
             references: ['https://docs.docker.com/develop/dev-best-practices/'],
-            tool: 'docker-security'
+            tool: 'docker-security',
           });
         }
 
@@ -1137,7 +1205,7 @@ export class SecurityValidator {
             evidence: line,
             recommendation: 'Create and use a non-root user',
             references: [],
-            tool: 'docker-security'
+            tool: 'docker-security',
           });
         }
       }
@@ -1151,34 +1219,55 @@ export class SecurityValidator {
   /**
    * Analyze security results and generate summary
    */
-  private analyzeSecurityResults(scanResults: SecurityScanResult[]): SecuritySummary {
-    const allVulnerabilities = scanResults.flatMap(result => result.vulnerabilities);
+  private analyzeSecurityResults(
+    scanResults: SecurityScanResult[],
+  ): SecuritySummary {
+    const allVulnerabilities = scanResults.flatMap(
+      (result) => result.vulnerabilities,
+    );
 
-    const criticalCount = allVulnerabilities.filter(v => v.severity === 'critical').length;
-    const highCount = allVulnerabilities.filter(v => v.severity === 'high').length;
-    const mediumCount = allVulnerabilities.filter(v => v.severity === 'medium').length;
-    const lowCount = allVulnerabilities.filter(v => v.severity === 'low').length;
-    const infoCount = allVulnerabilities.filter(v => v.severity === 'info').length;
+    const criticalCount = allVulnerabilities.filter(
+      (v) => v.severity === 'critical',
+    ).length;
+    const highCount = allVulnerabilities.filter(
+      (v) => v.severity === 'high',
+    ).length;
+    const mediumCount = allVulnerabilities.filter(
+      (v) => v.severity === 'medium',
+    ).length;
+    const lowCount = allVulnerabilities.filter(
+      (v) => v.severity === 'low',
+    ).length;
+    const infoCount = allVulnerabilities.filter(
+      (v) => v.severity === 'info',
+    ).length;
 
     // Calculate risk score (0-100)
-    const riskScore = Math.min(100,
-      criticalCount * 20 +
-      highCount * 10 +
-      mediumCount * 5 +
-      lowCount * 1
+    const riskScore = Math.min(
+      100,
+      criticalCount * 20 + highCount * 10 + mediumCount * 5 + lowCount * 1,
     );
 
     // Determine compliance status
-    let complianceStatus: 'compliant' | 'non-compliant' | 'unknown' = 'compliant';
-    if (criticalCount > this.config.severityThresholds.critical ||
-        highCount > this.config.severityThresholds.high) {
+    let complianceStatus: 'compliant' | 'non-compliant' | 'unknown' =
+      'compliant';
+    if (
+      criticalCount > this.config.severityThresholds.critical ||
+      highCount > this.config.severityThresholds.high
+    ) {
       complianceStatus = 'non-compliant';
     }
 
     // Get top vulnerabilities by severity
     const topVulnerabilities = allVulnerabilities
       .sort((a, b) => {
-        const severityOrder = { critical: 4, high: 3, medium: 2, low: 1, info: 0 };
+        const severityOrder = {
+          critical: 4,
+          high: 3,
+          medium: 2,
+          low: 1,
+          info: 0,
+        };
         return severityOrder[b.severity] - severityOrder[a.severity];
       })
       .slice(0, 10);
@@ -1193,7 +1282,7 @@ export class SecurityValidator {
       scanResults,
       topVulnerabilities,
       riskScore,
-      complianceStatus
+      complianceStatus,
     };
   }
 
@@ -1225,8 +1314,10 @@ export class SecurityValidator {
   private determineSecurityStatus(summary: SecuritySummary): ValidationStatus {
     if (summary.criticalCount > this.config.severityThresholds.critical) {
       return ValidationStatus.FAILED;
-    } else if (summary.highCount > this.config.severityThresholds.high ||
-               summary.mediumCount > this.config.severityThresholds.medium) {
+    } else if (
+      summary.highCount > this.config.severityThresholds.high ||
+      summary.mediumCount > this.config.severityThresholds.medium
+    ) {
       return ValidationStatus.REQUIRES_REVIEW;
     } else {
       return ValidationStatus.PASSED;
@@ -1236,7 +1327,9 @@ export class SecurityValidator {
   /**
    * Determine security validation severity
    */
-  private determineSecuritySeverity(summary: SecuritySummary): ValidationSeverity {
+  private determineSecuritySeverity(
+    summary: SecuritySummary,
+  ): ValidationSeverity {
     if (summary.criticalCount > 0) {
       return ValidationSeverity.CRITICAL;
     } else if (summary.highCount > 5) {
@@ -1257,7 +1350,8 @@ export class SecurityValidator {
     }
 
     const parts: string[] = [];
-    if (summary.criticalCount > 0) parts.push(`${summary.criticalCount} critical`);
+    if (summary.criticalCount > 0)
+      parts.push(`${summary.criticalCount} critical`);
     if (summary.highCount > 0) parts.push(`${summary.highCount} high`);
     if (summary.mediumCount > 0) parts.push(`${summary.mediumCount} medium`);
     if (summary.lowCount > 0) parts.push(`${summary.lowCount} low`);
@@ -1313,7 +1407,9 @@ export class SecurityValidator {
     const suggestions: string[] = [];
 
     if (summary.criticalCount > 0) {
-      suggestions.push('Immediately address all critical security vulnerabilities');
+      suggestions.push(
+        'Immediately address all critical security vulnerabilities',
+      );
     }
 
     if (summary.highCount > 0) {
@@ -1321,17 +1417,25 @@ export class SecurityValidator {
     }
 
     // Tool-specific suggestions
-    const dependencyVulns = summary.scanResults.find(r => r.tool.includes('audit'));
+    const dependencyVulns = summary.scanResults.find((r) =>
+      r.tool.includes('audit'),
+    );
     if (dependencyVulns && dependencyVulns.vulnerabilities.length > 0) {
       suggestions.push('Update vulnerable dependencies to secure versions');
     }
 
-    const secretVulns = summary.scanResults.find(r => r.tool.includes('secret'));
+    const secretVulns = summary.scanResults.find((r) =>
+      r.tool.includes('secret'),
+    );
     if (secretVulns && secretVulns.vulnerabilities.length > 0) {
-      suggestions.push('Remove hardcoded secrets and use environment variables');
+      suggestions.push(
+        'Remove hardcoded secrets and use environment variables',
+      );
     }
 
-    const codeVulns = summary.scanResults.find(r => r.tool.includes('eslint') || r.tool.includes('semgrep'));
+    const codeVulns = summary.scanResults.find(
+      (r) => r.tool.includes('eslint') || r.tool.includes('semgrep'),
+    );
     if (codeVulns && codeVulns.vulnerabilities.length > 0) {
       suggestions.push('Fix static code analysis security findings');
     }
@@ -1343,7 +1447,9 @@ export class SecurityValidator {
 
     if (suggestions.length === 0) {
       suggestions.push('Continue maintaining good security practices');
-      suggestions.push('Consider regular security audits and penetration testing');
+      suggestions.push(
+        'Consider regular security audits and penetration testing',
+      );
     }
 
     return suggestions.slice(0, 8);
@@ -1359,34 +1465,38 @@ export class SecurityValidator {
     evidence.push({
       type: 'report' as const,
       path: 'security-validation-report.json',
-      content: JSON.stringify({
-        timestamp: new Date().toISOString(),
-        summary: {
-          totalVulnerabilities: summary.totalVulnerabilities,
-          severity: {
-            critical: summary.criticalCount,
-            high: summary.highCount,
-            medium: summary.mediumCount,
-            low: summary.lowCount,
-            info: summary.infoCount
+      content: JSON.stringify(
+        {
+          timestamp: new Date().toISOString(),
+          summary: {
+            totalVulnerabilities: summary.totalVulnerabilities,
+            severity: {
+              critical: summary.criticalCount,
+              high: summary.highCount,
+              medium: summary.mediumCount,
+              low: summary.lowCount,
+              info: summary.infoCount,
+            },
+            riskScore: summary.riskScore,
+            complianceStatus: summary.complianceStatus,
           },
-          riskScore: summary.riskScore,
-          complianceStatus: summary.complianceStatus
+          scanResults: summary.scanResults.map((result) => ({
+            tool: result.tool,
+            success: result.success,
+            duration: result.duration,
+            vulnerabilityCount: result.vulnerabilities.length,
+            summary: result.summary,
+          })),
+          topVulnerabilities: summary.topVulnerabilities.slice(0, 10),
         },
-        scanResults: summary.scanResults.map(result => ({
-          tool: result.tool,
-          success: result.success,
-          duration: result.duration,
-          vulnerabilityCount: result.vulnerabilities.length,
-          summary: result.summary
-        })),
-        topVulnerabilities: summary.topVulnerabilities.slice(0, 10)
-      }, null, 2),
+        null,
+        2,
+      ),
       metadata: {
         type: 'security_report',
         format: 'json',
-        vulnerabilities: summary.totalVulnerabilities
-      }
+        vulnerabilities: summary.totalVulnerabilities,
+      },
     });
 
     // Detailed vulnerabilities list
@@ -1396,8 +1506,8 @@ export class SecurityValidator {
       content: JSON.stringify(summary.topVulnerabilities, null, 2),
       metadata: {
         type: 'vulnerability_list',
-        format: 'json'
-      }
+        format: 'json',
+      },
     });
 
     return evidence;
@@ -1408,23 +1518,27 @@ export class SecurityValidator {
    */
   private mapSeverity(severity: string): SecurityVulnerability['severity'] {
     const severityMap: Record<string, SecurityVulnerability['severity']> = {
-      'critical': 'critical',
-      'high': 'high',
-      'moderate': 'medium',
-      'medium': 'medium',
-      'low': 'low',
-      'info': 'info',
-      'warning': 'medium'
+      critical: 'critical',
+      high: 'high',
+      moderate: 'medium',
+      medium: 'medium',
+      low: 'low',
+      info: 'info',
+      warning: 'medium',
     };
 
     return severityMap[severity.toLowerCase()] || 'medium';
   }
 
-  private mapSemgrepSeverity(severity: string): SecurityVulnerability['severity'] {
+  private mapSemgrepSeverity(
+    severity: string,
+  ): SecurityVulnerability['severity'] {
     return this.mapSeverity(severity);
   }
 
-  private mapBanditSeverity(severity: string): SecurityVulnerability['severity'] {
+  private mapBanditSeverity(
+    severity: string,
+  ): SecurityVulnerability['severity'] {
     return this.mapSeverity(severity);
   }
 
@@ -1433,11 +1547,11 @@ export class SecurityValidator {
    */
   private summarizeVulnerabilities(vulnerabilities: SecurityVulnerability[]) {
     return {
-      critical: vulnerabilities.filter(v => v.severity === 'critical').length,
-      high: vulnerabilities.filter(v => v.severity === 'high').length,
-      medium: vulnerabilities.filter(v => v.severity === 'medium').length,
-      low: vulnerabilities.filter(v => v.severity === 'low').length,
-      info: vulnerabilities.filter(v => v.severity === 'info').length
+      critical: vulnerabilities.filter((v) => v.severity === 'critical').length,
+      high: vulnerabilities.filter((v) => v.severity === 'high').length,
+      medium: vulnerabilities.filter((v) => v.severity === 'medium').length,
+      low: vulnerabilities.filter((v) => v.severity === 'low').length,
+      info: vulnerabilities.filter((v) => v.severity === 'info').length,
     };
   }
 }

@@ -16,7 +16,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { RegisteredAgent, AgentCapability } from './autonomousTaskIntegrator.js';
+import type {
+  RegisteredAgent,
+  AgentCapability,
+} from './autonomousTaskIntegrator.js';
 import type { AgentMetrics } from './agentCoordinator.js';
 
 // Agent registry types
@@ -63,7 +66,12 @@ export interface AgentServiceInfo {
 }
 
 export interface RegistryEvent {
-  type: 'agent_registered' | 'agent_updated' | 'agent_removed' | 'capability_changed' | 'discovery_query';
+  type:
+    | 'agent_registered'
+    | 'agent_updated'
+    | 'agent_removed'
+    | 'capability_changed'
+    | 'discovery_query';
   timestamp: Date;
   agentId?: string;
   data: Record<string, unknown>;
@@ -77,8 +85,13 @@ export class AgentRegistry extends EventEmitter {
   private agentMetrics: Map<string, AgentMetrics> = new Map();
   private capabilityIndex: Map<AgentCapability, Set<string>> = new Map();
   private tagIndex: Map<string, Set<string>> = new Map();
-  private serviceEndpoints: Map<string, { health: string; status: string }> = new Map();
-  private registrationHistory: Array<{ agentId: string; action: string; timestamp: Date }> = [];
+  private serviceEndpoints: Map<string, { health: string; status: string }> =
+    new Map();
+  private registrationHistory: Array<{
+    agentId: string;
+    action: string;
+    timestamp: Date;
+  }> = [];
   private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
@@ -90,7 +103,9 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Register a new agent in the registry
    */
-  async registerAgent(registration: Omit<AgentRegistration, 'registeredAt' | 'lastSeen'>): Promise<void> {
+  async registerAgent(
+    registration: Omit<AgentRegistration, 'registeredAt' | 'lastSeen'>,
+  ): Promise<void> {
     const agent: AgentRegistration = {
       ...registration,
       registeredAt: new Date(),
@@ -142,13 +157,18 @@ export class AgentRegistry extends EventEmitter {
     };
 
     this.emit('agent_registered', event);
-    console.log(`📋 Agent ${agent.id} registered in registry with capabilities: ${agent.capabilities.join(', ')}`);
+    console.log(
+      `📋 Agent ${agent.id} registered in registry with capabilities: ${agent.capabilities.join(', ')}`,
+    );
   }
 
   /**
    * Update an existing agent's registration
    */
-  async updateAgent(agentId: string, updates: Partial<AgentRegistration>): Promise<void> {
+  async updateAgent(
+    agentId: string,
+    updates: Partial<AgentRegistration>,
+  ): Promise<void> {
     const existing = this.agents.get(agentId);
     if (!existing) {
       throw new Error(`Agent ${agentId} not found in registry`);
@@ -167,7 +187,11 @@ export class AgentRegistry extends EventEmitter {
 
     // Update indices if capabilities or tags changed
     if (updates.capabilities) {
-      this.updateCapabilityIndex(agentId, oldCapabilities, updates.capabilities);
+      this.updateCapabilityIndex(
+        agentId,
+        oldCapabilities,
+        updates.capabilities,
+      );
     }
 
     if (updates.tags) {
@@ -244,20 +268,27 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Discover agents based on requirements
    */
-  async discoverAgents(query: AgentDiscoveryQuery): Promise<AgentServiceInfo[]> {
+  async discoverAgents(
+    query: AgentDiscoveryQuery,
+  ): Promise<AgentServiceInfo[]> {
     const candidates = new Set<string>();
 
     // Find agents by capabilities
     if (query.capabilities && query.capabilities.length > 0) {
-      const requiredCapabilities = query.capabilities.filter(req => req.required);
-      const optionalCapabilities = query.capabilities.filter(req => !req.required);
+      const requiredCapabilities = query.capabilities.filter(
+        (req) => req.required,
+      );
+      const optionalCapabilities = query.capabilities.filter(
+        (req) => !req.required,
+      );
 
       // All required capabilities must be satisfied
       for (const req of requiredCapabilities) {
-        const agentsWithCapability = this.capabilityIndex.get(req.capability) || new Set();
+        const agentsWithCapability =
+          this.capabilityIndex.get(req.capability) || new Set();
         if (candidates.size === 0) {
           // First required capability - start with all agents that have it
-          agentsWithCapability.forEach(agentId => candidates.add(agentId));
+          agentsWithCapability.forEach((agentId) => candidates.add(agentId));
         } else {
           // Intersect with previous results
           const intersection = new Set<string>();
@@ -267,7 +298,7 @@ export class AgentRegistry extends EventEmitter {
             }
           }
           candidates.clear();
-          intersection.forEach(agentId => candidates.add(agentId));
+          intersection.forEach((agentId) => candidates.add(agentId));
         }
       }
 
@@ -285,7 +316,7 @@ export class AgentRegistry extends EventEmitter {
       const tagMatches = new Set<string>();
       for (const tag of query.tags) {
         const agentsWithTag = this.tagIndex.get(tag) || new Set();
-        agentsWithTag.forEach(agentId => tagMatches.add(agentId));
+        agentsWithTag.forEach((agentId) => tagMatches.add(agentId));
       }
 
       // Keep only agents that match at least one tag
@@ -296,7 +327,7 @@ export class AgentRegistry extends EventEmitter {
         }
       }
       candidates.clear();
-      intersection.forEach(agentId => candidates.add(agentId));
+      intersection.forEach((agentId) => candidates.add(agentId));
     }
 
     // Filter excluded agents
@@ -342,8 +373,12 @@ export class AgentRegistry extends EventEmitter {
 
     // Prioritize preferred agents
     if (query.preferredAgents && query.preferredAgents.length > 0) {
-      const preferred = results.filter(info => query.preferredAgents!.includes(info.agent.id));
-      const others = results.filter(info => !query.preferredAgents!.includes(info.agent.id));
+      const preferred = results.filter((info) =>
+        query.preferredAgents!.includes(info.agent.id),
+      );
+      const others = results.filter(
+        (info) => !query.preferredAgents!.includes(info.agent.id),
+      );
       results.splice(0, results.length, ...preferred, ...others);
     }
 
@@ -360,7 +395,9 @@ export class AgentRegistry extends EventEmitter {
 
     this.emit('discovery_query', event);
 
-    console.log(`🔍 Agent discovery: ${results.length} agents found matching criteria`);
+    console.log(
+      `🔍 Agent discovery: ${results.length} agents found matching criteria`,
+    );
     return results;
   }
 
@@ -420,7 +457,12 @@ export class AgentRegistry extends EventEmitter {
     const agents = this.getAllAgents();
 
     const agentsByCapability = {} as Record<AgentCapability, number>;
-    const agentsByStatus = { available: 0, busy: 0, offline: 0, maintenance: 0 };
+    const agentsByStatus = {
+      available: 0,
+      busy: 0,
+      offline: 0,
+      maintenance: 0,
+    };
 
     let totalLoad = 0;
     let healthyCount = 0;
@@ -428,7 +470,8 @@ export class AgentRegistry extends EventEmitter {
     for (const info of agents) {
       // Count by capability
       for (const capability of info.agent.capabilities) {
-        agentsByCapability[capability] = (agentsByCapability[capability] || 0) + 1;
+        agentsByCapability[capability] =
+          (agentsByCapability[capability] || 0) + 1;
       }
 
       // Count by status
@@ -473,8 +516,14 @@ export class AgentRegistry extends EventEmitter {
 
   private initializeCapabilityIndex(): void {
     const capabilities: AgentCapability[] = [
-      'frontend', 'backend', 'testing', 'documentation',
-      'security', 'performance', 'analysis', 'validation'
+      'frontend',
+      'backend',
+      'testing',
+      'documentation',
+      'security',
+      'performance',
+      'analysis',
+      'validation',
     ];
 
     for (const capability of capabilities) {
@@ -482,7 +531,11 @@ export class AgentRegistry extends EventEmitter {
     }
   }
 
-  private updateCapabilityIndex(agentId: string, oldCapabilities: AgentCapability[], newCapabilities: AgentCapability[]): void {
+  private updateCapabilityIndex(
+    agentId: string,
+    oldCapabilities: AgentCapability[],
+    newCapabilities: AgentCapability[],
+  ): void {
     // Remove from old capabilities
     for (const capability of oldCapabilities) {
       const agentSet = this.capabilityIndex.get(capability);
@@ -502,7 +555,11 @@ export class AgentRegistry extends EventEmitter {
     }
   }
 
-  private updateTagIndex(agentId: string, oldTags: string[], newTags: string[]): void {
+  private updateTagIndex(
+    agentId: string,
+    oldTags: string[],
+    newTags: string[],
+  ): void {
     // Remove from old tags
     for (const tag of oldTags) {
       const agentSet = this.tagIndex.get(tag);
@@ -522,7 +579,10 @@ export class AgentRegistry extends EventEmitter {
     }
   }
 
-  private determineAgentStatus(agent: AgentRegistration, metrics: AgentMetrics): 'available' | 'busy' | 'offline' | 'maintenance' {
+  private determineAgentStatus(
+    agent: AgentRegistration,
+    metrics: AgentMetrics,
+  ): 'available' | 'busy' | 'offline' | 'maintenance' {
     const now = new Date();
     const timeSinceLastSeen = now.getTime() - agent.lastSeen.getTime();
 
@@ -544,7 +604,11 @@ export class AgentRegistry extends EventEmitter {
     return 'available';
   }
 
-  private calculateDiscoveryScore(agent: AgentRegistration, metrics: AgentMetrics, query: AgentDiscoveryQuery): number {
+  private calculateDiscoveryScore(
+    agent: AgentRegistration,
+    metrics: AgentMetrics,
+    query: AgentDiscoveryQuery,
+  ): number {
     let score = 0;
 
     // Base performance score (0-40 points)
@@ -556,8 +620,8 @@ export class AgentRegistry extends EventEmitter {
     // Capability match score (0-20 points)
     if (query.capabilities) {
       const totalCapabilities = query.capabilities.length;
-      const matchedCapabilities = query.capabilities.filter(req =>
-        agent.capabilities.includes(req.capability)
+      const matchedCapabilities = query.capabilities.filter((req) =>
+        agent.capabilities.includes(req.capability),
       ).length;
 
       if (totalCapabilities > 0) {
@@ -569,13 +633,19 @@ export class AgentRegistry extends EventEmitter {
 
     // Response time score (0-10 points)
     const maxResponseTime = 5000; // 5 seconds
-    const responseScore = Math.max(0, (maxResponseTime - metrics.averageExecutionTime) / maxResponseTime);
+    const responseScore = Math.max(
+      0,
+      (maxResponseTime - metrics.averageExecutionTime) / maxResponseTime,
+    );
     score += responseScore * 10;
 
     return score;
   }
 
-  private sortDiscoveryResults(results: AgentServiceInfo[], sortBy: string): void {
+  private sortDiscoveryResults(
+    results: AgentServiceInfo[],
+    sortBy: string,
+  ): void {
     switch (sortBy) {
       case 'performance':
         results.sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -623,7 +693,7 @@ export class AgentRegistry extends EventEmitter {
 
     // Remove stale agents
     for (const agentId of toRemove) {
-      this.removeAgent(agentId).catch(error => {
+      this.removeAgent(agentId).catch((error) => {
         console.error(`Error removing stale agent ${agentId}:`, error);
       });
     }
@@ -634,7 +704,9 @@ export class AgentRegistry extends EventEmitter {
     }
 
     if (toRemove.length > 0) {
-      console.log(`🧹 Registry cleanup: removed ${toRemove.length} stale agents`);
+      console.log(
+        `🧹 Registry cleanup: removed ${toRemove.length} stale agents`,
+      );
     }
   }
 }

@@ -177,7 +177,10 @@ export class AlertSystem extends EventEmitter {
   private activeAlerts: Map<string, Alert>;
   private alertHistory: Alert[];
   private ruleLastTriggered: Map<string, Date>;
-  private notificationDeliveries: Map<NotificationChannel, NotificationDelivery>;
+  private notificationDeliveries: Map<
+    NotificationChannel,
+    NotificationDelivery
+  >;
   private escalationTimers: Map<string, NodeJS.Timeout>;
   private suppressionRules: Map<string, { pattern: RegExp; duration: number }>;
 
@@ -257,7 +260,7 @@ export class AlertSystem extends EventEmitter {
    */
   async processTaskStatusUpdate(
     task: TaskMetadata,
-    update: TaskStatusUpdate
+    update: TaskStatusUpdate,
   ): Promise<void> {
     const context = {
       taskId: task.id,
@@ -281,7 +284,8 @@ export class AlertSystem extends EventEmitter {
 
     // Check for task delay alerts
     if (task.estimatedDuration && task.actualDuration) {
-      if (task.actualDuration > task.estimatedDuration * 1.5) { // 50% over estimate
+      if (task.actualDuration > task.estimatedDuration * 1.5) {
+        // 50% over estimate
         await this.evaluateTaskDelayAlerts(task, update, context);
       }
     }
@@ -311,12 +315,14 @@ export class AlertSystem extends EventEmitter {
 
     // Check for agent offline alerts
     const timeSinceHeartbeat = Date.now() - agent.lastHeartbeat.getTime();
-    if (timeSinceHeartbeat > 300000 && agent.status !== 'offline') { // 5 minutes
+    if (timeSinceHeartbeat > 300000 && agent.status !== 'offline') {
+      // 5 minutes
       await this.evaluateAgentOfflineAlerts(agent, context);
     }
 
     // Check for agent performance alerts
-    if (agent.performance.successRate < 70) { // Less than 70% success rate
+    if (agent.performance.successRate < 70) {
+      // Less than 70% success rate
       await this.evaluateAgentPerformanceAlerts(agent, context);
     }
 
@@ -327,7 +333,9 @@ export class AlertSystem extends EventEmitter {
   /**
    * Process performance bottleneck for alert evaluation
    */
-  async processPerformanceBottleneck(bottleneck: BottleneckAnalysis): Promise<void> {
+  async processPerformanceBottleneck(
+    bottleneck: BottleneckAnalysis,
+  ): Promise<void> {
     const context = {
       bottleneckType: bottleneck.type,
       severity: bottleneck.severity,
@@ -345,7 +353,10 @@ export class AlertSystem extends EventEmitter {
   /**
    * Acknowledge an alert
    */
-  async acknowledgeAlert(alertId: string, acknowledgedBy: string): Promise<boolean> {
+  async acknowledgeAlert(
+    alertId: string,
+    acknowledgedBy: string,
+  ): Promise<boolean> {
     const alert = this.activeAlerts.get(alertId);
     if (!alert || alert.status !== 'active') return false;
 
@@ -372,7 +383,7 @@ export class AlertSystem extends EventEmitter {
   async resolveAlert(
     alertId: string,
     resolvedBy: string,
-    resolution?: string
+    resolution?: string,
   ): Promise<boolean> {
     const alert = this.activeAlerts.get(alertId);
     if (!alert) return false;
@@ -419,7 +430,11 @@ export class AlertSystem extends EventEmitter {
       this.logger.info('Alert suppression expired', { suppressionId, pattern });
     }, durationMs);
 
-    this.logger.info('Alert suppression created', { suppressionId, pattern, durationMs });
+    this.logger.info('Alert suppression created', {
+      suppressionId,
+      pattern,
+      durationMs,
+    });
   }
 
   /**
@@ -434,21 +449,24 @@ export class AlertSystem extends EventEmitter {
 
     if (filters) {
       if (filters.category) {
-        alerts = alerts.filter(alert => alert.category === filters.category);
+        alerts = alerts.filter((alert) => alert.category === filters.category);
       }
       if (filters.severity) {
-        alerts = alerts.filter(alert => alert.severity === filters.severity);
+        alerts = alerts.filter((alert) => alert.severity === filters.severity);
       }
       if (filters.source) {
-        alerts = alerts.filter(alert => alert.source === filters.source);
+        alerts = alerts.filter((alert) => alert.source === filters.source);
       }
     }
 
     return alerts.sort((a, b) => {
       // Sort by severity (critical first), then by timestamp
       const severityOrder = { critical: 4, error: 3, warning: 2, info: 1 };
-      const severityDiff = severityOrder[b.severity] - severityOrder[a.severity];
-      return severityDiff !== 0 ? severityDiff : b.timestamp.getTime() - a.timestamp.getTime();
+      const severityDiff =
+        severityOrder[b.severity] - severityOrder[a.severity];
+      return severityDiff !== 0
+        ? severityDiff
+        : b.timestamp.getTime() - a.timestamp.getTime();
     });
   }
 
@@ -460,7 +478,7 @@ export class AlertSystem extends EventEmitter {
     const periodEnd = new Date();
 
     const periodAlerts = this.alertHistory
-      .filter(alert => alert.timestamp >= periodStart)
+      .filter((alert) => alert.timestamp >= periodStart)
       .concat(Array.from(this.activeAlerts.values()));
 
     const analytics: AlertAnalytics = {
@@ -478,10 +496,12 @@ export class AlertSystem extends EventEmitter {
         escalationRates: this.calculateEscalationRates(periodAlerts),
       },
       performance: {
-        averageResolutionTime: this.calculateAverageResolutionTime(periodAlerts),
+        averageResolutionTime:
+          this.calculateAverageResolutionTime(periodAlerts),
         alertResolutionRate: this.calculateResolutionRate(periodAlerts),
         escalationRate: this.calculateEscalationRate(periodAlerts),
-        autoRemediationSuccessRate: this.calculateAutoRemediationSuccessRate(periodAlerts),
+        autoRemediationSuccessRate:
+          this.calculateAutoRemediationSuccessRate(periodAlerts),
       },
     };
 
@@ -493,7 +513,7 @@ export class AlertSystem extends EventEmitter {
    */
   registerNotificationChannel(
     channel: NotificationChannel,
-    delivery: NotificationDelivery
+    delivery: NotificationDelivery,
   ): void {
     this.notificationDeliveries.set(channel, delivery);
     this.logger.info('Notification channel registered', { channel });
@@ -504,14 +524,17 @@ export class AlertSystem extends EventEmitter {
   private async evaluateTaskFailureAlerts(
     task: TaskMetadata,
     update: TaskStatusUpdate,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<void> {
     // High priority task failure
     if (task.priority === 'critical' || task.priority === 'high') {
       await this.createAlert({
         ruleId: 'high_priority_task_failure',
         category: AlertCategory.TASK_FAILURE,
-        severity: task.priority === 'critical' ? AlertSeverity.CRITICAL : AlertSeverity.ERROR,
+        severity:
+          task.priority === 'critical'
+            ? AlertSeverity.CRITICAL
+            : AlertSeverity.ERROR,
         title: `High Priority Task Failed: ${task.title}`,
         description: `Task ${task.id} (${task.title}) with ${task.priority} priority has failed`,
         source: `task_${task.id}`,
@@ -536,14 +559,16 @@ export class AlertSystem extends EventEmitter {
   private async evaluateTaskDelayAlerts(
     task: TaskMetadata,
     update: TaskStatusUpdate,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<void> {
-    const overrunPercent = task.actualDuration! / task.estimatedDuration! * 100 - 100;
+    const overrunPercent =
+      (task.actualDuration! / task.estimatedDuration!) * 100 - 100;
 
     await this.createAlert({
       ruleId: 'task_delay',
       category: AlertCategory.TASK_DELAY,
-      severity: overrunPercent > 100 ? AlertSeverity.ERROR : AlertSeverity.WARNING,
+      severity:
+        overrunPercent > 100 ? AlertSeverity.ERROR : AlertSeverity.WARNING,
       title: `Task Delayed: ${task.title}`,
       description: `Task ${task.id} is ${overrunPercent.toFixed(1)}% over estimated duration`,
       source: `task_${task.id}`,
@@ -554,12 +579,15 @@ export class AlertSystem extends EventEmitter {
   private async evaluateTaskBlockingAlerts(
     task: TaskMetadata,
     update: TaskStatusUpdate,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<void> {
     await this.createAlert({
       ruleId: 'task_blocked',
       category: AlertCategory.TASK_DELAY,
-      severity: task.priority === 'critical' ? AlertSeverity.ERROR : AlertSeverity.WARNING,
+      severity:
+        task.priority === 'critical'
+          ? AlertSeverity.ERROR
+          : AlertSeverity.WARNING,
       title: `Task Blocked: ${task.title}`,
       description: `Task ${task.id} is blocked: ${update.message || 'No reason provided'}`,
       source: `task_${task.id}`,
@@ -569,7 +597,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateAgentOfflineAlerts(
     agent: AgentStatus,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<void> {
     const timeSinceHeartbeat = Date.now() - agent.lastHeartbeat.getTime();
     const minutesOffline = Math.round(timeSinceHeartbeat / 60000);
@@ -577,7 +605,8 @@ export class AlertSystem extends EventEmitter {
     await this.createAlert({
       ruleId: 'agent_offline',
       category: AlertCategory.AGENT_OFFLINE,
-      severity: minutesOffline > 15 ? AlertSeverity.ERROR : AlertSeverity.WARNING,
+      severity:
+        minutesOffline > 15 ? AlertSeverity.ERROR : AlertSeverity.WARNING,
       title: `Agent Offline: ${agent.id}`,
       description: `Agent ${agent.id} has been offline for ${minutesOffline} minutes`,
       source: `agent_${agent.id}`,
@@ -587,12 +616,15 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateAgentPerformanceAlerts(
     agent: AgentStatus,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<void> {
     await this.createAlert({
       ruleId: 'agent_performance_degradation',
       category: AlertCategory.PERFORMANCE_DEGRADATION,
-      severity: agent.performance.successRate < 50 ? AlertSeverity.ERROR : AlertSeverity.WARNING,
+      severity:
+        agent.performance.successRate < 50
+          ? AlertSeverity.ERROR
+          : AlertSeverity.WARNING,
       title: `Agent Performance Degradation: ${agent.id}`,
       description: `Agent ${agent.id} success rate dropped to ${agent.performance.successRate.toFixed(1)}%`,
       source: `agent_${agent.id}`,
@@ -602,7 +634,7 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateBottleneckAlerts(
     bottleneck: BottleneckAnalysis,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<void> {
     const severityMap: Record<BottleneckAnalysis['severity'], AlertSeverity> = {
       low: AlertSeverity.INFO,
@@ -622,7 +654,10 @@ export class AlertSystem extends EventEmitter {
     });
   }
 
-  private async evaluateRules(eventType: string, context: Record<string, any>): Promise<void> {
+  private async evaluateRules(
+    eventType: string,
+    context: Record<string, any>,
+  ): Promise<void> {
     for (const [ruleId, rule] of this.alertRules) {
       if (!rule.enabled) continue;
 
@@ -646,30 +681,45 @@ export class AlertSystem extends EventEmitter {
 
   private async evaluateRuleCondition(
     rule: AlertRule,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<boolean> {
     try {
       switch (rule.condition.type) {
         case 'threshold':
-          return this.evaluateThresholdCondition(rule.condition.parameters, context);
+          return this.evaluateThresholdCondition(
+            rule.condition.parameters,
+            context,
+          );
         case 'pattern':
-          return this.evaluatePatternCondition(rule.condition.parameters, context);
+          return this.evaluatePatternCondition(
+            rule.condition.parameters,
+            context,
+          );
         case 'anomaly':
-          return this.evaluateAnomalyCondition(rule.condition.parameters, context);
+          return this.evaluateAnomalyCondition(
+            rule.condition.parameters,
+            context,
+          );
         case 'combination':
-          return this.evaluateCombinationCondition(rule.condition.parameters, context);
+          return this.evaluateCombinationCondition(
+            rule.condition.parameters,
+            context,
+          );
         default:
           return false;
       }
     } catch (error) {
-      this.logger.error('Rule condition evaluation failed', { ruleId: rule.id, error });
+      this.logger.error('Rule condition evaluation failed', {
+        ruleId: rule.id,
+        error,
+      });
       return false;
     }
   }
 
   private evaluateThresholdCondition(
     params: Record<string, any>,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): boolean {
     const { metric, operator, threshold } = params;
     const value = this.getValueFromContext(context, metric);
@@ -677,19 +727,26 @@ export class AlertSystem extends EventEmitter {
     if (value === null || value === undefined) return false;
 
     switch (operator) {
-      case '>': return value > threshold;
-      case '<': return value < threshold;
-      case '>=': return value >= threshold;
-      case '<=': return value <= threshold;
-      case '==': return value === threshold;
-      case '!=': return value !== threshold;
-      default: return false;
+      case '>':
+        return value > threshold;
+      case '<':
+        return value < threshold;
+      case '>=':
+        return value >= threshold;
+      case '<=':
+        return value <= threshold;
+      case '==':
+        return value === threshold;
+      case '!=':
+        return value !== threshold;
+      default:
+        return false;
     }
   }
 
   private evaluatePatternCondition(
     params: Record<string, any>,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): boolean {
     const { field, pattern } = params;
     const value = this.getValueFromContext(context, field);
@@ -702,7 +759,7 @@ export class AlertSystem extends EventEmitter {
 
   private evaluateAnomalyCondition(
     params: Record<string, any>,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): boolean {
     // Simplified anomaly detection - in practice, this would use statistical methods
     const { metric, deviationThreshold = 2 } = params;
@@ -716,7 +773,7 @@ export class AlertSystem extends EventEmitter {
 
   private evaluateCombinationCondition(
     params: Record<string, any>,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): boolean {
     const { operator, conditions } = params;
 
@@ -758,7 +815,10 @@ export class AlertSystem extends EventEmitter {
     return value;
   }
 
-  private async triggerRule(rule: AlertRule, context: Record<string, any>): Promise<void> {
+  private async triggerRule(
+    rule: AlertRule,
+    context: Record<string, any>,
+  ): Promise<void> {
     await this.createAlert({
       ruleId: rule.id,
       category: rule.category,
@@ -835,13 +895,15 @@ export class AlertSystem extends EventEmitter {
 
   private async sendNotifications(
     alert: Alert,
-    config: AlertRule['actions']['notifications']
+    config: AlertRule['actions']['notifications'],
   ): Promise<void> {
     for (const channel of config.channels) {
       try {
         const delivery = this.notificationDeliveries.get(channel);
         if (!delivery) {
-          this.logger.warning('Notification channel not configured', { channel });
+          this.logger.warning('Notification channel not configured', {
+            channel,
+          });
           continue;
         }
 
@@ -856,7 +918,7 @@ export class AlertSystem extends EventEmitter {
         const success = await delivery.send(
           alert,
           config.recipients || [],
-          config.template
+          config.template,
         );
 
         notification.status = success ? 'sent' : 'failed';
@@ -864,7 +926,10 @@ export class AlertSystem extends EventEmitter {
         if (success) {
           this.logger.info('Notification sent', { alertId: alert.id, channel });
         } else {
-          this.logger.error('Notification failed', { alertId: alert.id, channel });
+          this.logger.error('Notification failed', {
+            alertId: alert.id,
+            channel,
+          });
         }
       } catch (error) {
         this.logger.error('Notification delivery failed', {
@@ -878,12 +943,15 @@ export class AlertSystem extends EventEmitter {
 
   private setupEscalation(
     alert: Alert,
-    config: AlertRule['actions']['escalation']
+    config: AlertRule['actions']['escalation'],
   ): void {
     const timer = setTimeout(async () => {
       if (alert.status === 'active') {
         alert.escalationLevel++;
-        this.emit('alert:escalated', { alert, escalationLevel: alert.escalationLevel });
+        this.emit('alert:escalated', {
+          alert,
+          escalationLevel: alert.escalationLevel,
+        });
 
         this.logger.warning('Alert escalated', {
           alertId: alert.id,
@@ -900,7 +968,7 @@ export class AlertSystem extends EventEmitter {
 
   private async attemptAutoRemediation(
     alert: Alert,
-    config: AlertRule['actions']['remediation']
+    config: AlertRule['actions']['remediation'],
   ): Promise<void> {
     for (const action of config.actions) {
       const remediationAction = {
@@ -937,7 +1005,10 @@ export class AlertSystem extends EventEmitter {
     }
   }
 
-  private async executeRemediationAction(action: string, alert: Alert): Promise<any> {
+  private async executeRemediationAction(
+    action: string,
+    alert: Alert,
+  ): Promise<any> {
     // Placeholder for remediation action execution
     // In practice, this would map to specific remediation strategies
     switch (action) {
@@ -966,8 +1037,18 @@ export class AlertSystem extends EventEmitter {
           parameters: {
             operator: 'AND',
             conditions: [
-              { type: 'threshold', metric: 'taskPriority', operator: '==', threshold: 'critical' },
-              { type: 'threshold', metric: 'newStatus', operator: '==', threshold: 'failed' },
+              {
+                type: 'threshold',
+                metric: 'taskPriority',
+                operator: '==',
+                threshold: 'critical',
+              },
+              {
+                type: 'threshold',
+                metric: 'newStatus',
+                operator: '==',
+                threshold: 'failed',
+              },
             ],
           },
         },
@@ -976,7 +1057,10 @@ export class AlertSystem extends EventEmitter {
         },
         actions: {
           notifications: {
-            channels: [NotificationChannel.CONSOLE, NotificationChannel.DASHBOARD],
+            channels: [
+              NotificationChannel.CONSOLE,
+              NotificationChannel.DASHBOARD,
+            ],
           },
           escalation: {
             escalateAfter: 300000, // 5 minutes
@@ -1012,7 +1096,7 @@ export class AlertSystem extends EventEmitter {
       },
     ];
 
-    defaultRules.forEach(rule => this.registerRule(rule));
+    defaultRules.forEach((rule) => this.registerRule(rule));
   }
 
   private setupDefaultNotificationChannels(): void {
@@ -1020,7 +1104,9 @@ export class AlertSystem extends EventEmitter {
     this.registerNotificationChannel(NotificationChannel.CONSOLE, {
       channel: NotificationChannel.CONSOLE,
       async send(alert: Alert): Promise<boolean> {
-        console.log(`🚨 ALERT [${alert.severity.toUpperCase()}]: ${alert.title}`);
+        console.log(
+          `🚨 ALERT [${alert.severity.toUpperCase()}]: ${alert.title}`,
+        );
         console.log(`   Description: ${alert.description}`);
         console.log(`   Time: ${alert.timestamp.toISOString()}`);
         console.log(`   Source: ${alert.source}`);
@@ -1040,9 +1126,12 @@ export class AlertSystem extends EventEmitter {
 
   private setupPeriodicMaintenance(): void {
     // Clean up old alert history every hour
-    setInterval(() => {
-      this.cleanupAlertHistory();
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupAlertHistory();
+      },
+      60 * 60 * 1000,
+    );
   }
 
   private cleanupAlertHistory(): void {
@@ -1065,23 +1154,33 @@ export class AlertSystem extends EventEmitter {
 
   // Analytics calculation methods
 
-  private calculateCountsByCategory(alerts: Alert[]): Record<AlertCategory, number> {
+  private calculateCountsByCategory(
+    alerts: Alert[],
+  ): Record<AlertCategory, number> {
     const counts = {} as Record<AlertCategory, number>;
-    Object.values(AlertCategory).forEach(category => {
-      counts[category] = alerts.filter(alert => alert.category === category).length;
+    Object.values(AlertCategory).forEach((category) => {
+      counts[category] = alerts.filter(
+        (alert) => alert.category === category,
+      ).length;
     });
     return counts;
   }
 
-  private calculateCountsBySeverity(alerts: Alert[]): Record<AlertSeverity, number> {
+  private calculateCountsBySeverity(
+    alerts: Alert[],
+  ): Record<AlertSeverity, number> {
     const counts = {} as Record<AlertSeverity, number>;
-    Object.values(AlertSeverity).forEach(severity => {
-      counts[severity] = alerts.filter(alert => alert.severity === severity).length;
+    Object.values(AlertSeverity).forEach((severity) => {
+      counts[severity] = alerts.filter(
+        (alert) => alert.severity === severity,
+      ).length;
     });
     return counts;
   }
 
-  private calculateCountsByStatus(alerts: Alert[]): Record<Alert['status'], number> {
+  private calculateCountsByStatus(
+    alerts: Alert[],
+  ): Record<Alert['status'], number> {
     const counts = {
       active: 0,
       acknowledged: 0,
@@ -1089,7 +1188,7 @@ export class AlertSystem extends EventEmitter {
       suppressed: 0,
     };
 
-    alerts.forEach(alert => {
+    alerts.forEach((alert) => {
       counts[alert.status]++;
     });
 
@@ -1105,8 +1204,9 @@ export class AlertSystem extends EventEmitter {
       const hourEnd = now - i * 60 * 60 * 1000;
 
       const hourAlerts = alerts.filter(
-        alert => alert.timestamp.getTime() >= hourStart &&
-                 alert.timestamp.getTime() < hourEnd
+        (alert) =>
+          alert.timestamp.getTime() >= hourStart &&
+          alert.timestamp.getTime() < hourEnd,
       );
 
       trends.push(hourAlerts.length);
@@ -1115,18 +1215,23 @@ export class AlertSystem extends EventEmitter {
     return trends;
   }
 
-  private calculateTopCategories(alerts: Alert[]): Array<{ category: AlertCategory; count: number }> {
+  private calculateTopCategories(
+    alerts: Alert[],
+  ): Array<{ category: AlertCategory; count: number }> {
     const categoryCounts = this.calculateCountsByCategory(alerts);
     return Object.entries(categoryCounts)
-      .map(([category, count]) => ({ category: category as AlertCategory, count }))
+      .map(([category, count]) => ({
+        category: category as AlertCategory,
+        count,
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
   }
 
   private calculateResolutionTimes(alerts: Alert[]): number[] {
     return alerts
-      .filter(alert => alert.resolvedAt && alert.timestamp)
-      .map(alert => alert.resolvedAt!.getTime() - alert.timestamp.getTime());
+      .filter((alert) => alert.resolvedAt && alert.timestamp)
+      .map((alert) => alert.resolvedAt!.getTime() - alert.timestamp.getTime());
   }
 
   private calculateEscalationRates(alerts: Alert[]): number[] {
@@ -1142,25 +1247,30 @@ export class AlertSystem extends EventEmitter {
   }
 
   private calculateResolutionRate(alerts: Alert[]): number {
-    const resolvedAlerts = alerts.filter(alert => alert.status === 'resolved').length;
+    const resolvedAlerts = alerts.filter(
+      (alert) => alert.status === 'resolved',
+    ).length;
     return alerts.length > 0 ? (resolvedAlerts / alerts.length) * 100 : 100;
   }
 
   private calculateEscalationRate(alerts: Alert[]): number {
-    const escalatedAlerts = alerts.filter(alert => alert.escalationLevel > 0).length;
+    const escalatedAlerts = alerts.filter(
+      (alert) => alert.escalationLevel > 0,
+    ).length;
     return alerts.length > 0 ? (escalatedAlerts / alerts.length) * 100 : 0;
   }
 
   private calculateAutoRemediationSuccessRate(alerts: Alert[]): number {
-    const autoRemediatedAlerts = alerts.filter(alert =>
-      alert.remediationActions.some(action => action.status === 'completed')
+    const autoRemediatedAlerts = alerts.filter((alert) =>
+      alert.remediationActions.some((action) => action.status === 'completed'),
     );
-    const attemptedAutoRemediationAlerts = alerts.filter(alert =>
-      alert.remediationActions.length > 0
+    const attemptedAutoRemediationAlerts = alerts.filter(
+      (alert) => alert.remediationActions.length > 0,
     );
 
     return attemptedAutoRemediationAlerts.length > 0
-      ? (autoRemediatedAlerts.length / attemptedAutoRemediationAlerts.length) * 100
+      ? (autoRemediatedAlerts.length / attemptedAutoRemediationAlerts.length) *
+          100
       : 100;
   }
 

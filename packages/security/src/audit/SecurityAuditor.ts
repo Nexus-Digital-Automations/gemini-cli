@@ -8,7 +8,10 @@ import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import { SecurityValidator, type SecurityValidationResult } from '../validation/SecurityValidator.js';
+import {
+  SecurityValidator,
+  type SecurityValidationResult,
+} from '../validation/SecurityValidator.js';
 
 export interface SecurityAuditResult {
   readonly auditId: string;
@@ -105,7 +108,11 @@ export type ComplianceFramework =
   | 'HIPAA'
   | 'PCI-DSS';
 
-export type ComplianceStatus = 'compliant' | 'non-compliant' | 'partial' | 'unknown';
+export type ComplianceStatus =
+  | 'compliant'
+  | 'non-compliant'
+  | 'partial'
+  | 'unknown';
 
 export interface SecurityAuditOptions {
   readonly auditType: AuditType;
@@ -141,10 +148,13 @@ export class SecurityAuditor extends EventEmitter {
       auditType: options.auditType,
       includeCategories: options.includeCategories ?? [],
       excludeCategories: options.excludeCategories ?? [],
-      complianceFrameworks: options.complianceFrameworks ?? ['OWASP-ASVS', 'NIST-CSF'],
+      complianceFrameworks: options.complianceFrameworks ?? [
+        'OWASP-ASVS',
+        'NIST-CSF',
+      ],
       outputDirectory: options.outputDirectory ?? './security-audit',
       includeRemediation: options.includeRemediation ?? true,
-      generateReport: options.generateReport ?? true
+      generateReport: options.generateReport ?? true,
     };
 
     this.validator = new SecurityValidator();
@@ -162,10 +172,14 @@ export class SecurityAuditor extends EventEmitter {
       auditId,
       target,
       auditType: this.options.auditType,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
-    this.emit('audit:start', { auditId, target, auditType: this.options.auditType });
+    this.emit('audit:start', {
+      auditId,
+      target,
+      auditType: this.options.auditType,
+    });
 
     try {
       // Phase 1: Initial Assessment
@@ -197,7 +211,7 @@ export class SecurityAuditor extends EventEmitter {
         riskLevel,
         complianceStatus,
         recommendations,
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       };
 
       // Log audit completion
@@ -213,18 +227,17 @@ export class SecurityAuditor extends EventEmitter {
         target,
         riskLevel,
         findingsCount: findings.length,
-        executionTimeMs: result.executionTimeMs
+        executionTimeMs: result.executionTimeMs,
       });
 
       this.emit('audit:complete', result);
       return result;
-
     } catch (error) {
       this.auditLogger.error(`Security audit failed`, {
         auditId,
         target,
         error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
 
       this.emit('audit:error', { auditId, target, error });
@@ -235,7 +248,10 @@ export class SecurityAuditor extends EventEmitter {
   /**
    * Analyze security posture and generate detailed findings.
    */
-  private async analyzeSecurity(target: string, validationResult: SecurityValidationResult): Promise<SecurityFinding[]> {
+  private async analyzeSecurity(
+    target: string,
+    validationResult: SecurityValidationResult,
+  ): Promise<SecurityFinding[]> {
     const findings: SecurityFinding[] = [];
 
     // Convert validation issues to detailed findings
@@ -247,16 +263,16 @@ export class SecurityAuditor extends EventEmitter {
     // Additional analysis based on audit type
     switch (this.options.auditType) {
       case 'comprehensive':
-        findings.push(...await this.conductComprehensiveAnalysis(target));
+        findings.push(...(await this.conductComprehensiveAnalysis(target)));
         break;
       case 'dependency':
-        findings.push(...await this.analyzeDependencies(target));
+        findings.push(...(await this.analyzeDependencies(target)));
         break;
       case 'configuration':
-        findings.push(...await this.analyzeConfiguration(target));
+        findings.push(...(await this.analyzeConfiguration(target)));
         break;
       case 'data-protection':
-        findings.push(...await this.analyzeDataProtection(target));
+        findings.push(...(await this.analyzeDataProtection(target)));
         break;
     }
 
@@ -266,7 +282,10 @@ export class SecurityAuditor extends EventEmitter {
   /**
    * Create a detailed security finding from a validation issue.
    */
-  private async createSecurityFinding(target: string, issue: any): Promise<SecurityFinding> {
+  private async createSecurityFinding(
+    target: string,
+    issue: any,
+  ): Promise<SecurityFinding> {
     const riskScore = this.calculateRiskScore(issue.severity, 'medium');
 
     const finding: SecurityFinding = {
@@ -280,7 +299,7 @@ export class SecurityAuditor extends EventEmitter {
       riskScore,
       evidence: await this.gatherEvidence(target, issue),
       remediation: this.createRemediationPlan(issue),
-      compliance: this.mapToComplianceFrameworks(issue)
+      compliance: this.mapToComplianceFrameworks(issue),
     };
 
     return finding;
@@ -289,20 +308,22 @@ export class SecurityAuditor extends EventEmitter {
   /**
    * Conduct comprehensive security analysis.
    */
-  private async conductComprehensiveAnalysis(target: string): Promise<SecurityFinding[]> {
+  private async conductComprehensiveAnalysis(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     const findings: SecurityFinding[] = [];
 
     // Architecture security analysis
-    findings.push(...await this.analyzeArchitecture(target));
+    findings.push(...(await this.analyzeArchitecture(target)));
 
     // Access control analysis
-    findings.push(...await this.analyzeAccessControls(target));
+    findings.push(...(await this.analyzeAccessControls(target)));
 
     // Data flow analysis
-    findings.push(...await this.analyzeDataFlow(target));
+    findings.push(...(await this.analyzeDataFlow(target)));
 
     // Third-party integration analysis
-    findings.push(...await this.analyzeThirdPartyIntegrations(target));
+    findings.push(...(await this.analyzeThirdPartyIntegrations(target)));
 
     return findings;
   }
@@ -310,7 +331,9 @@ export class SecurityAuditor extends EventEmitter {
   /**
    * Analyze dependency security.
    */
-  private async analyzeDependencies(target: string): Promise<SecurityFinding[]> {
+  private async analyzeDependencies(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     const findings: SecurityFinding[] = [];
 
     try {
@@ -320,20 +343,29 @@ export class SecurityAuditor extends EventEmitter {
 
       // Analyze direct dependencies
       if (packageData.dependencies) {
-        for (const [name, version] of Object.entries(packageData.dependencies)) {
-          const vulns = await this.checkDependencyVulnerabilities(name, version as string);
+        for (const [name, version] of Object.entries(
+          packageData.dependencies,
+        )) {
+          const vulns = await this.checkDependencyVulnerabilities(
+            name,
+            version as string,
+          );
           findings.push(...vulns);
         }
       }
 
       // Analyze dev dependencies
       if (packageData.devDependencies) {
-        for (const [name, version] of Object.entries(packageData.devDependencies)) {
-          const vulns = await this.checkDependencyVulnerabilities(name, version as string);
+        for (const [name, version] of Object.entries(
+          packageData.devDependencies,
+        )) {
+          const vulns = await this.checkDependencyVulnerabilities(
+            name,
+            version as string,
+          );
           findings.push(...vulns);
         }
       }
-
     } catch (error) {
       // package.json not found or invalid - this is a finding itself
       findings.push({
@@ -341,7 +373,8 @@ export class SecurityAuditor extends EventEmitter {
         category: 'configuration',
         severity: 'medium',
         title: 'Package.json Analysis Failed',
-        description: 'Unable to analyze dependencies due to missing or invalid package.json',
+        description:
+          'Unable to analyze dependencies due to missing or invalid package.json',
         impact: 'Cannot assess dependency-related security risks',
         likelihood: 'high',
         riskScore: 6.0,
@@ -349,11 +382,14 @@ export class SecurityAuditor extends EventEmitter {
         remediation: {
           priority: 'medium',
           effort: 'low',
-          steps: ['Ensure package.json exists and is valid', 'Run dependency security analysis'],
+          steps: [
+            'Ensure package.json exists and is valid',
+            'Run dependency security analysis',
+          ],
           timeline: '1 day',
-          resources: ['Package management documentation']
+          resources: ['Package management documentation'],
         },
-        compliance: []
+        compliance: [],
       });
     }
 
@@ -363,7 +399,9 @@ export class SecurityAuditor extends EventEmitter {
   /**
    * Analyze configuration security.
    */
-  private async analyzeConfiguration(target: string): Promise<SecurityFinding[]> {
+  private async analyzeConfiguration(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     const findings: SecurityFinding[] = [];
 
     // Check for configuration files
@@ -375,7 +413,7 @@ export class SecurityAuditor extends EventEmitter {
       'app.config.js',
       'next.config.js',
       'nuxt.config.js',
-      'webpack.config.js'
+      'webpack.config.js',
     ];
 
     for (const configFile of configFiles) {
@@ -396,7 +434,9 @@ export class SecurityAuditor extends EventEmitter {
   /**
    * Analyze data protection measures.
    */
-  private async analyzeDataProtection(target: string): Promise<SecurityFinding[]> {
+  private async analyzeDataProtection(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     const findings: SecurityFinding[] = [];
 
     // Analyze for PII handling patterns
@@ -415,12 +455,16 @@ export class SecurityAuditor extends EventEmitter {
    * In a production system, these would contain sophisticated security analysis logic.
    */
 
-  private async analyzeArchitecture(target: string): Promise<SecurityFinding[]> {
+  private async analyzeArchitecture(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     // Architecture security analysis implementation
     return [];
   }
 
-  private async analyzeAccessControls(target: string): Promise<SecurityFinding[]> {
+  private async analyzeAccessControls(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     // Access control analysis implementation
     return [];
   }
@@ -430,18 +474,25 @@ export class SecurityAuditor extends EventEmitter {
     return [];
   }
 
-  private async analyzeThirdPartyIntegrations(target: string): Promise<SecurityFinding[]> {
+  private async analyzeThirdPartyIntegrations(
+    target: string,
+  ): Promise<SecurityFinding[]> {
     // Third-party integration analysis implementation
     return [];
   }
 
-  private async checkDependencyVulnerabilities(name: string, version: string): Promise<SecurityFinding[]> {
+  private async checkDependencyVulnerabilities(
+    name: string,
+    version: string,
+  ): Promise<SecurityFinding[]> {
     // Dependency vulnerability checking implementation
     // In production, this would integrate with vulnerability databases
     return [];
   }
 
-  private async analyzeConfigurationFile(configPath: string): Promise<SecurityFinding[]> {
+  private async analyzeConfigurationFile(
+    configPath: string,
+  ): Promise<SecurityFinding[]> {
     // Configuration file security analysis implementation
     return [];
   }
@@ -456,11 +507,13 @@ export class SecurityAuditor extends EventEmitter {
 
   private generateImpactDescription(issue: any): string {
     const impacts: Record<string, string> = {
-      'critical': 'Critical security vulnerability that could lead to complete system compromise',
-      'high': 'High-impact security issue that could lead to significant data breach or system compromise',
-      'medium': 'Moderate security concern that could be exploited under certain conditions',
-      'low': 'Low-impact security issue that poses minimal direct risk',
-      'info': 'Informational security observation for awareness'
+      critical:
+        'Critical security vulnerability that could lead to complete system compromise',
+      high: 'High-impact security issue that could lead to significant data breach or system compromise',
+      medium:
+        'Moderate security concern that could be exploited under certain conditions',
+      low: 'Low-impact security issue that poses minimal direct risk',
+      info: 'Informational security observation for awareness',
     };
 
     return impacts[issue.severity] || 'Security issue requiring evaluation';
@@ -470,27 +523,43 @@ export class SecurityAuditor extends EventEmitter {
     // Simplified likelihood determination
     // In production, this would use more sophisticated analysis
     const likelihoodMap: Record<string, Likelihood> = {
-      'critical': 'high',
-      'high': 'medium',
-      'medium': 'medium',
-      'low': 'low',
-      'info': 'very-low'
+      critical: 'high',
+      high: 'medium',
+      medium: 'medium',
+      low: 'low',
+      info: 'very-low',
     };
 
     return likelihoodMap[issue.severity] || 'medium';
   }
 
   private calculateRiskScore(severity: string, likelihood: Likelihood): number {
-    const severityScores = { critical: 10, high: 7, medium: 5, low: 3, info: 1 };
-    const likelihoodScores = { 'very-high': 5, high: 4, medium: 3, low: 2, 'very-low': 1 };
+    const severityScores = {
+      critical: 10,
+      high: 7,
+      medium: 5,
+      low: 3,
+      info: 1,
+    };
+    const likelihoodScores = {
+      'very-high': 5,
+      high: 4,
+      medium: 3,
+      low: 2,
+      'very-low': 1,
+    };
 
-    const severityScore = severityScores[severity as keyof typeof severityScores] || 5;
+    const severityScore =
+      severityScores[severity as keyof typeof severityScores] || 5;
     const likelihoodScore = likelihoodScores[likelihood] || 3;
 
     return (severityScore * likelihoodScore) / 5;
   }
 
-  private async gatherEvidence(target: string, issue: any): Promise<Evidence[]> {
+  private async gatherEvidence(
+    target: string,
+    issue: any,
+  ): Promise<Evidence[]> {
     const evidence: Evidence[] = [];
 
     if (issue.file) {
@@ -499,7 +568,7 @@ export class SecurityAuditor extends EventEmitter {
         source: issue.file,
         description: `Security issue found in file at line ${issue.line || 'unknown'}`,
         data: `File: ${issue.file}, Line: ${issue.line || 'unknown'}, Column: ${issue.column || 'unknown'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
@@ -507,20 +576,24 @@ export class SecurityAuditor extends EventEmitter {
   }
 
   private createRemediationPlan(issue: any): RemediationPlan {
-    const priorityMap: Record<string, 'immediate' | 'high' | 'medium' | 'low'> = {
-      'critical': 'immediate',
-      'high': 'high',
-      'medium': 'medium',
-      'low': 'low',
-      'info': 'low'
-    };
+    const priorityMap: Record<string, 'immediate' | 'high' | 'medium' | 'low'> =
+      {
+        critical: 'immediate',
+        high: 'high',
+        medium: 'medium',
+        low: 'low',
+        info: 'low',
+      };
 
     return {
       priority: priorityMap[issue.severity] || 'medium',
       effort: 'medium',
-      steps: issue.remediation ? [issue.remediation] : ['Review and remediate security issue'],
-      timeline: priorityMap[issue.severity] === 'immediate' ? '24 hours' : '1-2 weeks',
-      resources: ['Security team', 'Development team']
+      steps: issue.remediation
+        ? [issue.remediation]
+        : ['Review and remediate security issue'],
+      timeline:
+        priorityMap[issue.severity] === 'immediate' ? '24 hours' : '1-2 weeks',
+      resources: ['Security team', 'Development team'],
     };
   }
 
@@ -532,7 +605,7 @@ export class SecurityAuditor extends EventEmitter {
       mappings.push({
         framework: 'OWASP-ASVS',
         controls: issue.owasp,
-        status: 'non-compliant'
+        status: 'non-compliant',
       });
     }
 
@@ -541,29 +614,37 @@ export class SecurityAuditor extends EventEmitter {
   }
 
   private calculateOverallRisk(findings: SecurityFinding[]): RiskLevel {
-    if (findings.some(f => f.severity === 'critical')) return 'critical';
-    if (findings.some(f => f.severity === 'high')) return 'high';
-    if (findings.some(f => f.severity === 'medium')) return 'medium';
+    if (findings.some((f) => f.severity === 'critical')) return 'critical';
+    if (findings.some((f) => f.severity === 'high')) return 'high';
+    if (findings.some((f) => f.severity === 'medium')) return 'medium';
     return 'low';
   }
 
-  private async assessCompliance(findings: SecurityFinding[]): Promise<ComplianceStatus> {
-    const criticalFindings = findings.filter(f => f.severity === 'critical' || f.severity === 'high');
+  private async assessCompliance(
+    findings: SecurityFinding[],
+  ): Promise<ComplianceStatus> {
+    const criticalFindings = findings.filter(
+      (f) => f.severity === 'critical' || f.severity === 'high',
+    );
 
     if (criticalFindings.length === 0) return 'compliant';
     if (criticalFindings.length <= 3) return 'partial';
     return 'non-compliant';
   }
 
-  private async generateRecommendations(findings: SecurityFinding[]): Promise<AuditRecommendation[]> {
+  private async generateRecommendations(
+    findings: SecurityFinding[],
+  ): Promise<AuditRecommendation[]> {
     const recommendations: AuditRecommendation[] = [];
 
     // Generate strategic recommendations based on findings
-    const categories = new Set(findings.map(f => f.category));
+    const categories = new Set(findings.map((f) => f.category));
 
     for (const category of categories) {
-      const categoryFindings = findings.filter(f => f.category === category);
-      const highPriorityCount = categoryFindings.filter(f => f.severity === 'critical' || f.severity === 'high').length;
+      const categoryFindings = findings.filter((f) => f.category === category);
+      const highPriorityCount = categoryFindings.filter(
+        (f) => f.severity === 'critical' || f.severity === 'high',
+      ).length;
 
       if (highPriorityCount > 0) {
         recommendations.push({
@@ -573,7 +654,7 @@ export class SecurityAuditor extends EventEmitter {
           title: `Address ${category} Security Issues`,
           description: `Found ${categoryFindings.length} ${category} issues, ${highPriorityCount} high priority`,
           implementation: `Implement comprehensive ${category} security controls and validation`,
-          businessJustification: `Addressing ${category} issues will reduce security risk and ensure compliance`
+          businessJustification: `Addressing ${category} issues will reduce security risk and ensure compliance`,
         });
       }
     }
@@ -581,14 +662,22 @@ export class SecurityAuditor extends EventEmitter {
     return recommendations;
   }
 
-  private async generateAuditReport(result: SecurityAuditResult): Promise<void> {
+  private async generateAuditReport(
+    result: SecurityAuditResult,
+  ): Promise<void> {
     // Generate comprehensive audit report
     // This would create detailed HTML/PDF reports in a production system
-    const reportPath = path.join(this.options.outputDirectory, `audit-report-${result.auditId}.json`);
+    const reportPath = path.join(
+      this.options.outputDirectory,
+      `audit-report-${result.auditId}.json`,
+    );
     await fs.mkdir(this.options.outputDirectory, { recursive: true });
     await fs.writeFile(reportPath, JSON.stringify(result, null, 2));
 
-    this.auditLogger.info(`Audit report generated`, { reportPath, auditId: result.auditId });
+    this.auditLogger.info(`Audit report generated`, {
+      reportPath,
+      auditId: result.auditId,
+    });
   }
 
   private generateAuditId(): string {
@@ -604,15 +693,24 @@ export class SecurityAuditor extends EventEmitter {
 class AuditLogger {
   constructor(private outputDirectory: string) {}
 
-  async info(message: string, context?: Record<string, unknown>): Promise<void> {
+  async info(
+    message: string,
+    context?: Record<string, unknown>,
+  ): Promise<void> {
     await this.log('INFO', message, context);
   }
 
-  async warn(message: string, context?: Record<string, unknown>): Promise<void> {
+  async warn(
+    message: string,
+    context?: Record<string, unknown>,
+  ): Promise<void> {
     await this.log('WARN', message, context);
   }
 
-  async error(message: string, context?: Record<string, unknown>): Promise<void> {
+  async error(
+    message: string,
+    context?: Record<string, unknown>,
+  ): Promise<void> {
     await this.log('ERROR', message, context);
   }
 
@@ -622,17 +720,24 @@ class AuditLogger {
       target: result.target,
       riskLevel: result.riskLevel,
       findingsCount: result.findings.length,
-      complianceStatus: result.complianceStatus
+      complianceStatus: result.complianceStatus,
     });
   }
 
-  private async log(level: string, message: string, context?: Record<string, unknown>): Promise<void> {
+  private async log(
+    level: string,
+    message: string,
+    context?: Record<string, unknown>,
+  ): Promise<void> {
     const logEntry = {
       timestamp: new Date().toISOString(),
       level,
       message,
       context,
-      checksum: crypto.createHash('sha256').update(`${Date.now()}-${message}`).digest('hex')
+      checksum: crypto
+        .createHash('sha256')
+        .update(`${Date.now()}-${message}`)
+        .digest('hex'),
     };
 
     const logLine = JSON.stringify(logEntry) + '\n';
@@ -646,6 +751,9 @@ class AuditLogger {
     }
 
     // Also output to console for immediate visibility
-    console.log(`[SECURITY-AUDIT-${level}] ${message}`, context ? JSON.stringify(context, null, 2) : '');
+    console.log(
+      `[SECURITY-AUDIT-${level}] ${message}`,
+      context ? JSON.stringify(context, null, 2) : '',
+    );
   }
 }

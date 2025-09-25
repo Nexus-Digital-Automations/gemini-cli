@@ -5,7 +5,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
- 
+
 /**
  * Task Recovery Manager - Advanced Task State Recovery and Resumption System
  *
@@ -47,7 +47,7 @@ const RECOVERY_STRATEGIES = {
   HOT: 'hot_recovery',
   WARM: 'warm_recovery',
   COLD: 'cold_recovery',
-  EMERGENCY: 'emergency_recovery'
+  EMERGENCY: 'emergency_recovery',
 };
 
 /**
@@ -59,7 +59,7 @@ const RECOVERY_STATUS = {
   SUCCEEDED: 'succeeded',
   FAILED: 'failed',
   PARTIAL: 'partial',
-  ABORTED: 'aborted'
+  ABORTED: 'aborted',
 };
 
 /**
@@ -69,7 +69,7 @@ const VALIDATION_LEVELS = {
   MINIMAL: 'minimal',
   STANDARD: 'standard',
   COMPREHENSIVE: 'comprehensive',
-  FORENSIC: 'forensic'
+  FORENSIC: 'forensic',
 };
 
 /**
@@ -88,7 +88,7 @@ class TaskRecoveryManager extends EventEmitter {
       enableForensicMode: options.enableForensicMode || false,
       autoRecovery: options.autoRecovery !== false, // default true
       parallelRecovery: options.parallelRecovery !== false, // default true
-      ...options
+      ...options,
     };
 
     // Recovery state management
@@ -99,7 +99,7 @@ class TaskRecoveryManager extends EventEmitter {
       attempts: 0,
       recoveredTasks: [],
       failedTasks: [],
-      corruptedTasks: []
+      corruptedTasks: [],
     };
 
     // Recovery strategies registry
@@ -111,7 +111,7 @@ class TaskRecoveryManager extends EventEmitter {
       partialRecoveries: 0,
       failedRecoveries: 0,
       averageRecoveryTime: 0,
-      strategiesUsed: {}
+      strategiesUsed: {},
     };
 
     // Initialize recovery system
@@ -132,7 +132,7 @@ class TaskRecoveryManager extends EventEmitter {
       timeout: 10000,
       validator: this.validateHotRecovery.bind(this),
       executor: this.executeHotRecovery.bind(this),
-      description: 'Direct restoration from clean state with full integrity'
+      description: 'Direct restoration from clean state with full integrity',
     });
 
     // Warm Recovery: Partial reconstruction with validation
@@ -141,7 +141,7 @@ class TaskRecoveryManager extends EventEmitter {
       timeout: 20000,
       validator: this.validateWarmRecovery.bind(this),
       executor: this.executeWarmRecovery.bind(this),
-      description: 'Partial state reconstruction with integrity validation'
+      description: 'Partial state reconstruction with integrity validation',
     });
 
     // Cold Recovery: Full rebuild from transaction logs
@@ -150,7 +150,7 @@ class TaskRecoveryManager extends EventEmitter {
       timeout: 45000,
       validator: this.validateColdRecovery.bind(this),
       executor: this.executeColdRecovery.bind(this),
-      description: 'Complete rebuild from transaction history'
+      description: 'Complete rebuild from transaction history',
     });
 
     // Emergency Recovery: Minimal viable state
@@ -159,10 +159,12 @@ class TaskRecoveryManager extends EventEmitter {
       timeout: 5000,
       validator: this.validateEmergencyRecovery.bind(this),
       executor: this.executeEmergencyRecovery.bind(this),
-      description: 'Minimal viable state restoration for system continuity'
+      description: 'Minimal viable state restoration for system continuity',
     });
 
-    console.log(`TaskRecoveryManager: Initialized ${this.recoveryStrategies.size} recovery strategies`);
+    console.log(
+      `TaskRecoveryManager: Initialized ${this.recoveryStrategies.size} recovery strategies`,
+    );
   }
 
   /**
@@ -172,12 +174,15 @@ class TaskRecoveryManager extends EventEmitter {
     // Task structure validator
     this.registerValidator('task_structure', async (task) => {
       const requiredFields = ['id', 'status', 'created_at'];
-      const missing = requiredFields.filter(field => !(field in task));
+      const missing = requiredFields.filter((field) => !(field in task));
 
       return {
         valid: missing.length === 0,
-        issues: missing.length > 0 ? [`Missing required fields: ${missing.join(', ')}`] : [],
-        severity: missing.length > 0 ? 'critical' : 'ok'
+        issues:
+          missing.length > 0
+            ? [`Missing required fields: ${missing.join(', ')}`]
+            : [],
+        severity: missing.length > 0 ? 'critical' : 'ok',
       };
     });
 
@@ -191,7 +196,7 @@ class TaskRecoveryManager extends EventEmitter {
       const allTasks = context.allTasks || [];
 
       for (const depId of task.dependencies) {
-        const dependency = allTasks.find(t => t.id === depId);
+        const dependency = allTasks.find((t) => t.id === depId);
         if (!dependency) {
           issues.push(`Missing dependency: ${depId}`);
         } else if (dependency.status === 'failed') {
@@ -202,7 +207,7 @@ class TaskRecoveryManager extends EventEmitter {
       return {
         valid: issues.length === 0,
         issues,
-        severity: issues.length > 0 ? 'warning' : 'ok'
+        severity: issues.length > 0 ? 'warning' : 'ok',
       };
     });
 
@@ -231,7 +236,12 @@ class TaskRecoveryManager extends EventEmitter {
       if (task.metadata?.checksum) {
         const calculatedChecksum = crypto
           .createHash('sha256')
-          .update(JSON.stringify({ ...task, metadata: { ...task.metadata, checksum: undefined } }))
+          .update(
+            JSON.stringify({
+              ...task,
+              metadata: { ...task.metadata, checksum: undefined },
+            }),
+          )
           .digest('hex');
 
         if (calculatedChecksum !== task.metadata.checksum) {
@@ -242,11 +252,13 @@ class TaskRecoveryManager extends EventEmitter {
       return {
         valid: issues.length === 0,
         issues,
-        severity: issues.length > 0 ? 'error' : 'ok'
+        severity: issues.length > 0 ? 'error' : 'ok',
       };
     });
 
-    console.log(`TaskRecoveryManager: Initialized ${this.recoveryValidators.size} recovery validators`);
+    console.log(
+      `TaskRecoveryManager: Initialized ${this.recoveryValidators.size} recovery validators`,
+    );
   }
 
   /**
@@ -254,15 +266,21 @@ class TaskRecoveryManager extends EventEmitter {
    */
   setupEventHandlers() {
     this.on('recoveryStarted', (context) => {
-      console.log(`Recovery started: ${context.strategy} (Attempt ${context.attempt}/${this.options.maxRecoveryAttempts})`);
+      console.log(
+        `Recovery started: ${context.strategy} (Attempt ${context.attempt}/${this.options.maxRecoveryAttempts})`,
+      );
     });
 
     this.on('recoveryProgress', (progress) => {
-      console.log(`Recovery progress: ${progress.completed}/${progress.total} tasks processed (${progress.percentage.toFixed(1)}%)`);
+      console.log(
+        `Recovery progress: ${progress.completed}/${progress.total} tasks processed (${progress.percentage.toFixed(1)}%)`,
+      );
     });
 
     this.on('recoveryCompleted', (result) => {
-      console.log(`Recovery completed: ${result.status} - ${result.recoveredTasks} tasks recovered, ${result.failedTasks} failed`);
+      console.log(
+        `Recovery completed: ${result.status} - ${result.recoveredTasks} tasks recovered, ${result.failedTasks} failed`,
+      );
     });
 
     this.on('recoveryFailed', (error) => {
@@ -290,24 +308,37 @@ class TaskRecoveryManager extends EventEmitter {
         attempts: 0,
         recoveredTasks: [],
         failedTasks: [],
-        corruptedTasks: []
+        corruptedTasks: [],
       };
 
-      console.log('TaskRecoveryManager: Starting comprehensive task recovery...');
+      console.log(
+        'TaskRecoveryManager: Starting comprehensive task recovery...',
+      );
 
       // Analyze system state
       const systemAnalysis = await this.analyzeSystemState();
-      console.log(`System analysis complete: ${systemAnalysis.totalTasks} tasks found, ${systemAnalysis.corruptedTasks} corrupted`);
+      console.log(
+        `System analysis complete: ${systemAnalysis.totalTasks} tasks found, ${systemAnalysis.corruptedTasks} corrupted`,
+      );
 
       // Select optimal recovery strategy
-      const strategy = await this.selectRecoveryStrategy(systemAnalysis, recoveryOptions);
-      console.log(`Selected recovery strategy: ${strategy.name} (Priority: ${strategy.priority})`);
+      const strategy = await this.selectRecoveryStrategy(
+        systemAnalysis,
+        recoveryOptions,
+      );
+      console.log(
+        `Selected recovery strategy: ${strategy.name} (Priority: ${strategy.priority})`,
+      );
 
       // Execute recovery
-      const recoveryResult = await this.executeRecoveryStrategy(strategy, systemAnalysis);
+      const recoveryResult = await this.executeRecoveryStrategy(
+        strategy,
+        systemAnalysis,
+      );
 
       // Validate recovery results
-      const validationResult = await this.validateRecoveryResult(recoveryResult);
+      const validationResult =
+        await this.validateRecoveryResult(recoveryResult);
 
       // Update metrics
       this.updateRecoveryMetrics(recoveryResult, performance.now() - startTime);
@@ -318,16 +349,14 @@ class TaskRecoveryManager extends EventEmitter {
         strategy: strategy.name,
         duration: performance.now() - startTime,
         systemAnalysis,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       this.emit('recoveryCompleted', finalResult);
       return finalResult;
-
     } catch (error) {
       this.emit('recoveryFailed', error);
       throw new Error(`Task recovery failed: ${error.message}`);
-
     } finally {
       this.recoveryState.isRecovering = false;
     }
@@ -340,18 +369,22 @@ class TaskRecoveryManager extends EventEmitter {
     const startTime = performance.now();
 
     try {
-      console.log(`TaskRecoveryManager: Resuming tasks from session: ${sessionId}`);
+      console.log(
+        `TaskRecoveryManager: Resuming tasks from session: ${sessionId}`,
+      );
 
       // Load session context
       const sessionTasks = await this.loadSessionTasks(sessionId);
-      console.log(`Found ${sessionTasks.length} tasks from session ${sessionId}`);
+      console.log(
+        `Found ${sessionTasks.length} tasks from session ${sessionId}`,
+      );
 
       if (sessionTasks.length === 0) {
         return {
           resumedTasks: 0,
           skippedTasks: 0,
           failedTasks: 0,
-          duration: performance.now() - startTime
+          duration: performance.now() - startTime,
         };
       }
 
@@ -360,7 +393,10 @@ class TaskRecoveryManager extends EventEmitter {
       console.log(`${eligibleTasks.length} tasks eligible for resumption`);
 
       // Resume tasks with dependency resolution
-      const resumptionResult = await this.executeTaskResumption(eligibleTasks, resumeOptions);
+      const resumptionResult = await this.executeTaskResumption(
+        eligibleTasks,
+        resumeOptions,
+      );
 
       const result = {
         ...resumptionResult,
@@ -368,14 +404,16 @@ class TaskRecoveryManager extends EventEmitter {
         totalTasksFound: sessionTasks.length,
         eligibleTasks: eligibleTasks.length,
         duration: performance.now() - startTime,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       this.emit('sessionTasksResumed', result);
       return result;
-
     } catch (error) {
-      console.error(`Session task resumption failed for ${sessionId}:`, error.message);
+      console.error(
+        `Session task resumption failed for ${sessionId}:`,
+        error.message,
+      );
       throw error;
     }
   }
@@ -412,12 +450,11 @@ class TaskRecoveryManager extends EventEmitter {
         bestSource: bestTask.source,
         repairActions: repairedTask.repairActions || [],
         duration: performance.now() - startTime,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       this.emit('taskRecovered', result);
       return result;
-
     } catch (error) {
       console.error(`Task recovery failed for ${taskId}:`, error.message);
       throw error;
@@ -436,7 +473,7 @@ class TaskRecoveryManager extends EventEmitter {
       status: RECOVERY_STATUS.IN_PROGRESS,
       recoveredTasks: [],
       failedTasks: [],
-      strategy: RECOVERY_STRATEGIES.HOT
+      strategy: RECOVERY_STRATEGIES.HOT,
     };
 
     // Load from most recent clean backup
@@ -451,20 +488,22 @@ class TaskRecoveryManager extends EventEmitter {
     for (const task of backupData.tasks || []) {
       try {
         // Validate task integrity
-        const validation = await this.validateTask(task, { level: VALIDATION_LEVELS.STANDARD });
+        const validation = await this.validateTask(task, {
+          level: VALIDATION_LEVELS.STANDARD,
+        });
 
         if (validation.valid) {
           await this.persistenceEngine.createTask(task);
           results.recoveredTasks.push({
             id: task.id,
             method: 'backup_restore',
-            source: cleanBackup.path
+            source: cleanBackup.path,
           });
         } else {
           results.failedTasks.push({
             id: task.id,
             reason: 'validation_failed',
-            issues: validation.issues
+            issues: validation.issues,
           });
         }
 
@@ -472,19 +511,24 @@ class TaskRecoveryManager extends EventEmitter {
         this.emit('recoveryProgress', {
           completed: results.recoveredTasks.length + results.failedTasks.length,
           total: backupData.tasks.length,
-          percentage: ((results.recoveredTasks.length + results.failedTasks.length) / backupData.tasks.length) * 100
+          percentage:
+            ((results.recoveredTasks.length + results.failedTasks.length) /
+              backupData.tasks.length) *
+            100,
         });
-
       } catch (error) {
         results.failedTasks.push({
           id: task.id,
           reason: 'recovery_error',
-          error: error.message
+          error: error.message,
         });
       }
     }
 
-    results.status = results.failedTasks.length === 0 ? RECOVERY_STATUS.SUCCEEDED : RECOVERY_STATUS.PARTIAL;
+    results.status =
+      results.failedTasks.length === 0
+        ? RECOVERY_STATUS.SUCCEEDED
+        : RECOVERY_STATUS.PARTIAL;
     return results;
   }
 
@@ -499,7 +543,7 @@ class TaskRecoveryManager extends EventEmitter {
       recoveredTasks: [],
       failedTasks: [],
       repairedTasks: [],
-      strategy: RECOVERY_STRATEGIES.WARM
+      strategy: RECOVERY_STRATEGIES.WARM,
     };
 
     // Load available task data from multiple sources
@@ -511,48 +555,54 @@ class TaskRecoveryManager extends EventEmitter {
         const repairedTask = await this.repairTask(taskData);
 
         // Validate repaired task
-        const validation = await this.validateTask(repairedTask, { level: VALIDATION_LEVELS.COMPREHENSIVE });
+        const validation = await this.validateTask(repairedTask, {
+          level: VALIDATION_LEVELS.COMPREHENSIVE,
+        });
 
         if (validation.valid) {
           await this.persistenceEngine.createTask(repairedTask);
           results.recoveredTasks.push({
             id: repairedTask.id,
             method: 'repair_and_restore',
-            repairActions: repairedTask.repairActions
+            repairActions: repairedTask.repairActions,
           });
 
           if (repairedTask.repairActions?.length > 0) {
             results.repairedTasks.push(repairedTask.id);
           }
         } else {
-          const criticalIssues = validation.issues.filter(i => i.severity === 'critical');
+          const criticalIssues = validation.issues.filter(
+            (i) => i.severity === 'critical',
+          );
           if (criticalIssues.length === 0) {
             // Accept with warnings
             await this.persistenceEngine.createTask(repairedTask);
             results.recoveredTasks.push({
               id: repairedTask.id,
               method: 'repair_with_warnings',
-              warnings: validation.issues
+              warnings: validation.issues,
             });
           } else {
             results.failedTasks.push({
               id: taskData.id,
               reason: 'critical_validation_failures',
-              issues: criticalIssues
+              issues: criticalIssues,
             });
           }
         }
-
       } catch (error) {
         results.failedTasks.push({
           id: taskData.id,
           reason: 'recovery_error',
-          error: error.message
+          error: error.message,
         });
       }
     }
 
-    results.status = results.failedTasks.length === 0 ? RECOVERY_STATUS.SUCCEEDED : RECOVERY_STATUS.PARTIAL;
+    results.status =
+      results.failedTasks.length === 0
+        ? RECOVERY_STATUS.SUCCEEDED
+        : RECOVERY_STATUS.PARTIAL;
     return results;
   }
 
@@ -567,7 +617,7 @@ class TaskRecoveryManager extends EventEmitter {
       recoveredTasks: [],
       failedTasks: [],
       rebuiltTasks: [],
-      strategy: RECOVERY_STRATEGIES.COLD
+      strategy: RECOVERY_STRATEGIES.COLD,
     };
 
     // Load and replay transaction log
@@ -580,45 +630,55 @@ class TaskRecoveryManager extends EventEmitter {
     for (const [taskId, taskTxns] of taskTransactions.entries()) {
       try {
         // Rebuild task state from transactions
-        const rebuiltTask = await this.rebuildTaskFromTransactions(taskId, taskTxns);
+        const rebuiltTask = await this.rebuildTaskFromTransactions(
+          taskId,
+          taskTxns,
+        );
 
         if (rebuiltTask) {
           // Validate rebuilt task
-          const validation = await this.validateTask(rebuiltTask, { level: VALIDATION_LEVELS.COMPREHENSIVE });
+          const validation = await this.validateTask(rebuiltTask, {
+            level: VALIDATION_LEVELS.COMPREHENSIVE,
+          });
 
-          if (validation.valid || validation.issues.every(i => i.severity !== 'critical')) {
+          if (
+            validation.valid ||
+            validation.issues.every((i) => i.severity !== 'critical')
+          ) {
             await this.persistenceEngine.createTask(rebuiltTask);
             results.recoveredTasks.push({
               id: rebuiltTask.id,
               method: 'transaction_rebuild',
-              transactionCount: taskTxns.length
+              transactionCount: taskTxns.length,
             });
             results.rebuiltTasks.push(taskId);
           } else {
             results.failedTasks.push({
               id: taskId,
               reason: 'rebuild_validation_failed',
-              issues: validation.issues
+              issues: validation.issues,
             });
           }
         } else {
           results.failedTasks.push({
             id: taskId,
             reason: 'rebuild_failed',
-            transactionCount: taskTxns.length
+            transactionCount: taskTxns.length,
           });
         }
-
       } catch (error) {
         results.failedTasks.push({
           id: taskId,
           reason: 'rebuild_error',
-          error: error.message
+          error: error.message,
         });
       }
     }
 
-    results.status = results.failedTasks.length === 0 ? RECOVERY_STATUS.SUCCEEDED : RECOVERY_STATUS.PARTIAL;
+    results.status =
+      results.failedTasks.length === 0
+        ? RECOVERY_STATUS.SUCCEEDED
+        : RECOVERY_STATUS.PARTIAL;
     return results;
   }
 
@@ -633,7 +693,7 @@ class TaskRecoveryManager extends EventEmitter {
       recoveredTasks: [],
       failedTasks: [],
       minimalTasks: [],
-      strategy: RECOVERY_STRATEGIES.EMERGENCY
+      strategy: RECOVERY_STRATEGIES.EMERGENCY,
     };
 
     // Create minimal viable tasks from any available data
@@ -648,15 +708,14 @@ class TaskRecoveryManager extends EventEmitter {
         results.recoveredTasks.push({
           id: minimalTask.id,
           method: 'minimal_viable',
-          source: fragment.source
+          source: fragment.source,
         });
         results.minimalTasks.push(minimalTask.id);
-
       } catch (error) {
         results.failedTasks.push({
           id: fragment.id || 'unknown',
           reason: 'minimal_creation_failed',
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -668,7 +727,7 @@ class TaskRecoveryManager extends EventEmitter {
       results.recoveredTasks.push({
         id: systemTask.id,
         method: 'system_continuity',
-        source: 'generated'
+        source: 'generated',
       });
     }
 
@@ -684,7 +743,7 @@ class TaskRecoveryManager extends EventEmitter {
   registerRecoveryStrategy(name, strategy) {
     this.recoveryStrategies.set(name, {
       name,
-      ...strategy
+      ...strategy,
     });
   }
 
@@ -705,7 +764,7 @@ class TaskRecoveryManager extends EventEmitter {
       corruptedTasks: 0,
       availableBackups: 0,
       transactionLogSize: 0,
-      lastKnownGoodState: null
+      lastKnownGoodState: null,
     };
   }
 
@@ -713,8 +772,9 @@ class TaskRecoveryManager extends EventEmitter {
    * Select optimal recovery strategy based on system state
    */
   async selectRecoveryStrategy(systemAnalysis, options) {
-    const strategies = Array.from(this.recoveryStrategies.values())
-      .sort((a, b) => a.priority - b.priority);
+    const strategies = Array.from(this.recoveryStrategies.values()).sort(
+      (a, b) => a.priority - b.priority,
+    );
 
     for (const strategy of strategies) {
       const canUse = await strategy.validator(systemAnalysis);
@@ -734,7 +794,7 @@ class TaskRecoveryManager extends EventEmitter {
     this.recoveryState.currentStrategy = strategy.name;
     this.emit('recoveryStarted', {
       strategy: strategy.name,
-      attempt: ++this.recoveryState.attempts
+      attempt: ++this.recoveryState.attempts,
     });
 
     return await strategy.executor(systemAnalysis);
@@ -747,7 +807,7 @@ class TaskRecoveryManager extends EventEmitter {
     const results = {
       valid: true,
       issues: [],
-      warnings: []
+      warnings: [],
     };
 
     for (const [name, validator] of this.recoveryValidators.entries()) {
@@ -756,27 +816,30 @@ class TaskRecoveryManager extends EventEmitter {
 
         if (!result.valid) {
           results.valid = false;
-          results.issues.push(...result.issues.map(issue => ({
-            validator: name,
-            severity: result.severity || 'error',
-            message: issue
-          })));
+          results.issues.push(
+            ...result.issues.map((issue) => ({
+              validator: name,
+              severity: result.severity || 'error',
+              message: issue,
+            })),
+          );
         }
 
         if (result.warnings?.length > 0) {
-          results.warnings.push(...result.warnings.map(warning => ({
-            validator: name,
-            severity: 'warning',
-            message: warning
-          })));
+          results.warnings.push(
+            ...result.warnings.map((warning) => ({
+              validator: name,
+              severity: 'warning',
+              message: warning,
+            })),
+          );
         }
-
       } catch (error) {
         results.valid = false;
         results.issues.push({
           validator: name,
           severity: 'critical',
-          message: `Validator execution failed: ${error.message}`
+          message: `Validator execution failed: ${error.message}`,
         });
       }
     }
@@ -825,7 +888,12 @@ class TaskRecoveryManager extends EventEmitter {
     // Recalculate checksum
     repairedTask.metadata.checksum = crypto
       .createHash('sha256')
-      .update(JSON.stringify({ ...repairedTask, metadata: { ...repairedTask.metadata, checksum: undefined } }))
+      .update(
+        JSON.stringify({
+          ...repairedTask,
+          metadata: { ...repairedTask.metadata, checksum: undefined },
+        }),
+      )
       .digest('hex');
 
     return repairedTask;
@@ -838,7 +906,8 @@ class TaskRecoveryManager extends EventEmitter {
     return {
       id: fragment.id || crypto.randomBytes(8).toString('hex'),
       title: fragment.title || 'Recovered Task',
-      description: fragment.description || 'Task recovered during emergency recovery',
+      description:
+        fragment.description || 'Task recovered during emergency recovery',
       status: 'recovered',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -846,8 +915,8 @@ class TaskRecoveryManager extends EventEmitter {
         recovered: true,
         emergencyRecovery: true,
         recoveryTimestamp: new Date().toISOString(),
-        originalData: fragment
-      }
+        originalData: fragment,
+      },
     };
   }
 
@@ -858,7 +927,8 @@ class TaskRecoveryManager extends EventEmitter {
     return {
       id: `system_continuity_${Date.now()}`,
       title: 'System Continuity Task',
-      description: 'Generated task to ensure system continuity during emergency recovery',
+      description:
+        'Generated task to ensure system continuity during emergency recovery',
       status: 'pending',
       priority: 'low',
       created_at: new Date().toISOString(),
@@ -866,8 +936,8 @@ class TaskRecoveryManager extends EventEmitter {
       metadata: {
         systemGenerated: true,
         continuityTask: true,
-        purpose: 'emergency_recovery_continuity'
-      }
+        purpose: 'emergency_recovery_continuity',
+      },
     };
   }
 
@@ -888,7 +958,8 @@ class TaskRecoveryManager extends EventEmitter {
     // Update average recovery time
     const currentAvg = this.recoveryMetrics.averageRecoveryTime;
     const totalRecoveries = this.recoveryMetrics.totalRecoveries;
-    this.recoveryMetrics.averageRecoveryTime = (currentAvg * (totalRecoveries - 1) + duration) / totalRecoveries;
+    this.recoveryMetrics.averageRecoveryTime =
+      (currentAvg * (totalRecoveries - 1) + duration) / totalRecoveries;
 
     // Track strategy usage
     if (!this.recoveryMetrics.strategiesUsed[result.strategy]) {
@@ -907,7 +978,7 @@ class TaskRecoveryManager extends EventEmitter {
       recoveryMetrics: this.recoveryMetrics,
       availableStrategies: Array.from(this.recoveryStrategies.keys()),
       availableValidators: Array.from(this.recoveryValidators.keys()),
-      options: this.options
+      options: this.options,
     };
   }
 
@@ -919,7 +990,9 @@ class TaskRecoveryManager extends EventEmitter {
   }
 
   async validateWarmRecovery(systemAnalysis) {
-    return systemAnalysis.totalTasks > 0 || systemAnalysis.transactionLogSize > 0;
+    return (
+      systemAnalysis.totalTasks > 0 || systemAnalysis.transactionLogSize > 0
+    );
   }
 
   async validateColdRecovery(systemAnalysis) {
@@ -957,8 +1030,8 @@ class TaskRecoveryManager extends EventEmitter {
 
   async filterResumableTasks(tasks) {
     // Implementation to filter resumable tasks
-    return tasks.filter(task =>
-      ['pending', 'in_progress', 'paused'].includes(task.status)
+    return tasks.filter((task) =>
+      ['pending', 'in_progress', 'paused'].includes(task.status),
     );
   }
 
@@ -967,7 +1040,7 @@ class TaskRecoveryManager extends EventEmitter {
     return {
       resumedTasks: tasks.length,
       skippedTasks: 0,
-      failedTasks: 0
+      failedTasks: 0,
     };
   }
 
@@ -1006,5 +1079,5 @@ module.exports = {
   TaskRecoveryManager,
   RECOVERY_STRATEGIES,
   RECOVERY_STATUS,
-  VALIDATION_LEVELS
+  VALIDATION_LEVELS,
 };

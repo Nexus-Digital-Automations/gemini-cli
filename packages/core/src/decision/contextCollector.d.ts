@@ -36,78 +36,78 @@ import type { DecisionContext } from './types.js';
  * ```
  */
 export declare class ContextCollector {
-    private isInitialized;
-    private lastSystemMetrics?;
-    private lastCollectionTime;
-    private readonly COLLECTION_CACHE_MS;
-    private cachedContext?;
-    /**
-     * Initialize the context collector.
-     */
-    initialize(): Promise<void>;
-    /**
-     * Shutdown the context collector gracefully.
-     */
-    shutdown(): Promise<void>;
-    /**
-     * Collect comprehensive decision context.
-     *
-     * Gathers all available system state information for decision-making.
-     * Results are cached briefly to avoid repeated expensive operations.
-     *
-     * @returns Promise resolving to complete decision context
-     */
-    collect(): Promise<DecisionContext>;
-    /**
-     * Collect current system load metrics.
-     */
-    private collectSystemLoad;
-    /**
-     * Collect task queue state information.
-     */
-    private collectTaskQueueState;
-    /**
-     * Collect agent context information.
-     */
-    private collectAgentContext;
-    /**
-     * Collect project state information.
-     */
-    private collectProjectState;
-    /**
-     * Collect budget context information.
-     */
-    private collectBudgetContext;
-    /**
-     * Collect performance history.
-     */
-    private collectPerformanceHistory;
-    /**
-     * Collect user preferences.
-     */
-    private collectUserPreferences;
-    /**
-     * Collect detailed system metrics.
-     */
-    private collectSystemMetrics;
-    /**
-     * Read FEATURES.json file for project context.
-     */
-    private readFeaturesJson;
-    /**
-     * Derive agent capabilities from agent ID.
-     */
-    private deriveAgentCapabilities;
-    /**
-     * Check if a file exists.
-     */
-    private fileExists;
-    /**
-     * Check if a directory exists.
-     */
-    private directoryExists;
-    /**
-     * Check git status (simplified).
-     */
-    private checkGitStatus;
+  private isInitialized;
+  private lastSystemMetrics?;
+  private lastCollectionTime;
+  private readonly COLLECTION_CACHE_MS;
+  private cachedContext?;
+  /**
+   * Initialize the context collector.
+   */
+  initialize(): Promise<void>;
+  /**
+   * Shutdown the context collector gracefully.
+   */
+  shutdown(): Promise<void>;
+  /**
+   * Collect comprehensive decision context.
+   *
+   * Gathers all available system state information for decision-making.
+   * Results are cached briefly to avoid repeated expensive operations.
+   *
+   * @returns Promise resolving to complete decision context
+   */
+  collect(): Promise<DecisionContext>;
+  /**
+   * Collect current system load metrics.
+   */
+  private collectSystemLoad;
+  /**
+   * Collect task queue state information.
+   */
+  private collectTaskQueueState;
+  /**
+   * Collect agent context information.
+   */
+  private collectAgentContext;
+  /**
+   * Collect project state information.
+   */
+  private collectProjectState;
+  /**
+   * Collect budget context information.
+   */
+  private collectBudgetContext;
+  /**
+   * Collect performance history.
+   */
+  private collectPerformanceHistory;
+  /**
+   * Collect user preferences.
+   */
+  private collectUserPreferences;
+  /**
+   * Collect detailed system metrics.
+   */
+  private collectSystemMetrics;
+  /**
+   * Read FEATURES.json file for project context.
+   */
+  private readFeaturesJson;
+  /**
+   * Derive agent capabilities from agent ID.
+   */
+  private deriveAgentCapabilities;
+  /**
+   * Check if a file exists.
+   */
+  private fileExists;
+  /**
+   * Check if a directory exists.
+   */
+  private directoryExists;
+  /**
+   * Check git status (simplified).
+   */
+  private checkGitStatus;
 }

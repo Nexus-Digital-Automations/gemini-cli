@@ -30,6 +30,7 @@ graph TB
 **Purpose**: User-facing interface and interaction management
 
 **Key Responsibilities**:
+
 - Input processing and command parsing
 - Output formatting and display rendering
 - User authentication and session management
@@ -39,6 +40,7 @@ graph TB
 - Extension loading and management
 
 **Key Files**:
+
 - `src/ui/` - User interface components
 - `src/commands/` - Built-in slash commands
 - `src/config/` - Configuration management
@@ -49,6 +51,7 @@ graph TB
 **Purpose**: Backend engine and API orchestration
 
 **Key Responsibilities**:
+
 - Gemini API client and communication
 - Prompt construction and context management
 - Tool registration and execution coordination
@@ -58,6 +61,7 @@ graph TB
 - Error handling and retry logic
 
 **Key Components**:
+
 - API Client layer for Gemini communication
 - Tool execution framework
 - Context management system
@@ -69,6 +73,7 @@ graph TB
 **Purpose**: Extensible capability framework
 
 **Built-in Tools**:
+
 - **File System Tools**: Read, write, search files and directories
 - **Shell Tools**: Execute system commands with safety controls
 - **Web Tools**: Fetch web content and perform searches
@@ -76,6 +81,7 @@ graph TB
 - **Memory Tools**: Context persistence and retrieval
 
 **Tool Architecture**:
+
 - Base tool interface with standardized execution flow
 - Permission system for secure operations
 - Result validation and error handling
@@ -86,6 +92,7 @@ graph TB
 **Purpose**: Plugin architecture for custom functionality
 
 **Components**:
+
 - Extension loader and manager
 - Custom command registration
 - Variable substitution system
@@ -97,6 +104,7 @@ graph TB
 **Purpose**: Self-managing task orchestration system
 
 **Key Features**:
+
 - **Task Queue Management**: Priority-based task scheduling
 - **Autonomous Breakdown**: Complex task decomposition
 - **Cross-session Persistence**: Task state preservation
@@ -105,6 +113,7 @@ graph TB
 - **Progress Monitoring**: Real-time status tracking
 
 **Components**:
+
 - Task Queue Engine
 - Validation Framework
 - Persistence Layer
@@ -116,16 +125,19 @@ graph TB
 ### Request Processing Flow
 
 1. **Input Stage**:
+
    ```
    User Input → CLI Parser → Command Router → Prompt Processor
    ```
 
 2. **Processing Stage**:
+
    ```
    Core Engine → Context Builder → API Request → Gemini API
    ```
 
 3. **Tool Execution Stage**:
+
    ```
    Tool Request → Permission Check → Tool Execution → Result Validation
    ```
@@ -358,6 +370,7 @@ Local Development → Build System → Testing Pipeline → Package Distribution
 ---
 
 This architecture is designed for:
+
 - **Modularity**: Clean separation of concerns
 - **Extensibility**: Support for community contributions
 - **Scalability**: Growth from individual to enterprise use

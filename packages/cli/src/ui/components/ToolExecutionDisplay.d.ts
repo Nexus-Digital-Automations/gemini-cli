@@ -11,11 +11,11 @@ import type { OperationProgress, ToolCallStatus } from '../types.js';
  * Configures how tool execution progress and status are displayed.
  */
 export interface ToolExecutionDisplayProps {
-    operation: OperationProgress;
-    toolCallStatus: ToolCallStatus;
-    compact?: boolean;
-    showSteps?: boolean;
-    showIntermediateResults?: boolean;
+  operation: OperationProgress;
+  toolCallStatus: ToolCallStatus;
+  compact?: boolean;
+  showSteps?: boolean;
+  showIntermediateResults?: boolean;
 }
 /**
  * ToolExecutionDisplay shows the progress and status of tool executions.

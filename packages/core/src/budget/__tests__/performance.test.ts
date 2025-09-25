@@ -10,10 +10,7 @@ import * as path from 'node:path';
 import { BudgetTracker } from '../budget-tracker.js';
 import { BudgetEnforcement } from '../budget-enforcement.js';
 import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
-import type {
-  BudgetSettings,
-  BudgetUsageData,
-} from '../types.js';
+import type { BudgetSettings, BudgetUsageData } from '../types.js';
 import type { ContentGenerator } from '../core/contentGenerator.js';
 import type { Config } from '../config/config.js';
 
@@ -26,14 +23,18 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-const performanceMarkSpy = vi.spyOn(performance, 'mark').mockImplementation(() => {});
-const performanceMeasureSpy = vi.spyOn(performance, 'measure').mockImplementation(() => ({
-  duration: 0,
-  name: 'test',
-  entryType: 'measure',
-  startTime: 0,
-  toJSON: () => ({}),
-}));
+const performanceMarkSpy = vi
+  .spyOn(performance, 'mark')
+  .mockImplementation(() => {});
+const performanceMeasureSpy = vi
+  .spyOn(performance, 'measure')
+  .mockImplementation(() => ({
+    duration: 0,
+    name: 'test',
+    entryType: 'measure',
+    startTime: 0,
+    toJSON: () => ({}),
+  }));
 
 /**
  * Performance testing utilities for budget analytics system
@@ -41,20 +42,20 @@ const performanceMeasureSpy = vi.spyOn(performance, 'measure').mockImplementatio
 class PerformanceTestUtils {
   private static readonly PERFORMANCE_THRESHOLDS = {
     // Maximum acceptable times in milliseconds
-    SINGLE_REQUEST_RECORD: 50,     // 50ms per request recording
-    BATCH_REQUEST_RECORD: 2000,    // 2s for 100 requests
-    USAGE_STATS_READ: 20,          // 20ms per stats read
-    BUDGET_CHECK: 10,              // 10ms per budget check
-    WARNING_CHECK: 15,             // 15ms per warning check
-    ENFORCEMENT_CHECK: 25,         // 25ms per enforcement check
-    CONCURRENT_OPERATIONS: 5000,   // 5s for 50 concurrent operations
-    LARGE_DATA_PROCESSING: 1000,   // 1s for large usage data
+    SINGLE_REQUEST_RECORD: 50, // 50ms per request recording
+    BATCH_REQUEST_RECORD: 2000, // 2s for 100 requests
+    USAGE_STATS_READ: 20, // 20ms per stats read
+    BUDGET_CHECK: 10, // 10ms per budget check
+    WARNING_CHECK: 15, // 15ms per warning check
+    ENFORCEMENT_CHECK: 25, // 25ms per enforcement check
+    CONCURRENT_OPERATIONS: 5000, // 5s for 50 concurrent operations
+    LARGE_DATA_PROCESSING: 1000, // 1s for large usage data
   };
 
   static async measureOperation<T>(
     operationName: string,
     operation: () => Promise<T>,
-    threshold?: number
+    threshold?: number,
   ): Promise<{ result: T; duration: number }> {
     const startTime = performance.now();
     const result = await operation();
@@ -62,7 +63,9 @@ class PerformanceTestUtils {
     const duration = endTime - startTime;
 
     if (threshold && duration > threshold) {
-      console.warn(`Performance warning: ${operationName} took ${duration.toFixed(2)}ms, expected <${threshold}ms`);
+      console.warn(
+        `Performance warning: ${operationName} took ${duration.toFixed(2)}ms, expected <${threshold}ms`,
+      );
     }
 
     return { result, duration };
@@ -71,17 +74,19 @@ class PerformanceTestUtils {
   static async measureBatchOperations<T>(
     operationName: string,
     operations: (() => Promise<T>)[],
-    threshold?: number
+    threshold?: number,
   ): Promise<{ results: T[]; totalDuration: number; averageDuration: number }> {
     const startTime = performance.now();
-    const results = await Promise.all(operations.map(op => op()));
+    const results = await Promise.all(operations.map((op) => op()));
     const endTime = performance.now();
 
     const totalDuration = endTime - startTime;
     const averageDuration = totalDuration / operations.length;
 
     if (threshold && totalDuration > threshold) {
-      console.warn(`Performance warning: Batch ${operationName} took ${totalDuration.toFixed(2)}ms, expected <${threshold}ms`);
+      console.warn(
+        `Performance warning: Batch ${operationName} took ${totalDuration.toFixed(2)}ms, expected <${threshold}ms`,
+      );
     }
 
     return { results, totalDuration, averageDuration };
@@ -96,7 +101,9 @@ class PerformanceTestUtils {
     };
   }
 
-  static getThreshold(operation: keyof typeof PerformanceTestUtils.PERFORMANCE_THRESHOLDS): number {
+  static getThreshold(
+    operation: keyof typeof PerformanceTestUtils.PERFORMANCE_THRESHOLDS,
+  ): number {
     return PerformanceTestUtils.PERFORMANCE_THRESHOLDS[operation];
   }
 }
@@ -162,10 +169,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Single Request Record',
         () => tracker.recordRequest(),
-        PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD')
+        PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),
       );
 
-      expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'));
+      expect(duration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),
+      );
       expect(fs.writeFile).toHaveBeenCalledOnce();
     });
 
@@ -179,10 +188,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Usage Stats Read',
         () => tracker.getUsageStats(),
-        PerformanceTestUtils.getThreshold('USAGE_STATS_READ')
+        PerformanceTestUtils.getThreshold('USAGE_STATS_READ'),
       );
 
-      expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('USAGE_STATS_READ'));
+      expect(duration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('USAGE_STATS_READ'),
+      );
       expect(result.requestCount).toBe(1000);
       expect(result.usagePercentage).toBe(10); // 1000/10000
     });
@@ -196,10 +207,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Budget Check',
         () => tracker.isOverBudget(),
-        PerformanceTestUtils.getThreshold('BUDGET_CHECK')
+        PerformanceTestUtils.getThreshold('BUDGET_CHECK'),
       );
 
-      expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('BUDGET_CHECK'));
+      expect(duration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('BUDGET_CHECK'),
+      );
       expect(result).toBe(false); // 5000 < 10000
     });
 
@@ -212,10 +225,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Warning Check',
         () => tracker.shouldShowWarning(),
-        PerformanceTestUtils.getThreshold('WARNING_CHECK')
+        PerformanceTestUtils.getThreshold('WARNING_CHECK'),
       );
 
-      expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('WARNING_CHECK'));
+      expect(duration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('WARNING_CHECK'),
+      );
       expect(result.show).toBe(true);
       expect(result.threshold).toBe(50);
     });
@@ -229,10 +244,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Enforcement Check',
         () => enforcement.checkRequestAllowed(),
-        PerformanceTestUtils.getThreshold('ENFORCEMENT_CHECK')
+        PerformanceTestUtils.getThreshold('ENFORCEMENT_CHECK'),
       );
 
-      expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('ENFORCEMENT_CHECK'));
+      expect(duration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('ENFORCEMENT_CHECK'),
+      );
       expect(result.allowed).toBe(true);
     });
   });
@@ -243,24 +260,31 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       let currentCount = 0;
       vi.mocked(fs.readFile).mockImplementation(() => {
-        const usageData = PerformanceTestUtils.createLargeUsageData(currentCount);
+        const usageData =
+          PerformanceTestUtils.createLargeUsageData(currentCount);
         currentCount++; // Simulate incrementing count
         return Promise.resolve(JSON.stringify(usageData));
       });
 
       // Create 100 request recording operations
-      const batchOperations = Array.from({ length: 100 }, () =>
-        () => tracker.recordRequest()
+      const batchOperations = Array.from(
+        { length: 100 },
+        () => () => tracker.recordRequest(),
       );
 
-      const { results, totalDuration, averageDuration } = await PerformanceTestUtils.measureBatchOperations(
-        'Batch Request Recording',
-        batchOperations,
-        PerformanceTestUtils.getThreshold('BATCH_REQUEST_RECORD')
-      );
+      const { results, totalDuration, averageDuration } =
+        await PerformanceTestUtils.measureBatchOperations(
+          'Batch Request Recording',
+          batchOperations,
+          PerformanceTestUtils.getThreshold('BATCH_REQUEST_RECORD'),
+        );
 
-      expect(totalDuration).toBeLessThan(PerformanceTestUtils.getThreshold('BATCH_REQUEST_RECORD'));
-      expect(averageDuration).toBeLessThan(PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'));
+      expect(totalDuration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('BATCH_REQUEST_RECORD'),
+      );
+      expect(averageDuration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),
+      );
       expect(results).toHaveLength(100);
       expect(fs.writeFile).toHaveBeenCalledTimes(100);
     });
@@ -272,19 +296,21 @@ describe('Budget Analytics Performance and Load Tests', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(usageData));
 
       // Create 50 concurrent stats read operations
-      const batchOperations = Array.from({ length: 50 }, () =>
-        () => tracker.getUsageStats()
+      const batchOperations = Array.from(
+        { length: 50 },
+        () => () => tracker.getUsageStats(),
       );
 
-      const { results, totalDuration } = await PerformanceTestUtils.measureBatchOperations(
-        'Concurrent Stats Reads',
-        batchOperations,
-        1000 // 1 second for 50 concurrent reads
-      );
+      const { results, totalDuration } =
+        await PerformanceTestUtils.measureBatchOperations(
+          'Concurrent Stats Reads',
+          batchOperations,
+          1000, // 1 second for 50 concurrent reads
+        );
 
       expect(totalDuration).toBeLessThan(1000);
       expect(results).toHaveLength(50);
-      results.forEach(stats => {
+      results.forEach((stats) => {
         expect(stats.requestCount).toBe(3000);
         expect(stats.usagePercentage).toBe(30);
       });
@@ -296,7 +322,8 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       let requestCount = 0;
       vi.mocked(fs.readFile).mockImplementation(() => {
-        const usageData = PerformanceTestUtils.createLargeUsageData(requestCount);
+        const usageData =
+          PerformanceTestUtils.createLargeUsageData(requestCount);
         return Promise.resolve(JSON.stringify(usageData));
       });
 
@@ -304,21 +331,32 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const mixedOperations = Array.from({ length: 50 }, (_, i) => {
         const opType = i % 4;
         switch (opType) {
-          case 0: return () => tracker.recordRequest().then(() => { requestCount++; });
-          case 1: return () => tracker.isOverBudget();
-          case 2: return () => tracker.getUsageStats();
-          case 3: return () => enforcement.checkRequestAllowed();
-          default: return () => Promise.resolve();
+          case 0:
+            return () =>
+              tracker.recordRequest().then(() => {
+                requestCount++;
+              });
+          case 1:
+            return () => tracker.isOverBudget();
+          case 2:
+            return () => tracker.getUsageStats();
+          case 3:
+            return () => enforcement.checkRequestAllowed();
+          default:
+            return () => Promise.resolve();
         }
       });
 
-      const { results, totalDuration } = await PerformanceTestUtils.measureBatchOperations(
-        'Mixed Operation Workload',
-        mixedOperations,
-        PerformanceTestUtils.getThreshold('CONCURRENT_OPERATIONS')
-      );
+      const { results, totalDuration } =
+        await PerformanceTestUtils.measureBatchOperations(
+          'Mixed Operation Workload',
+          mixedOperations,
+          PerformanceTestUtils.getThreshold('CONCURRENT_OPERATIONS'),
+        );
 
-      expect(totalDuration).toBeLessThan(PerformanceTestUtils.getThreshold('CONCURRENT_OPERATIONS'));
+      expect(totalDuration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('CONCURRENT_OPERATIONS'),
+      );
       expect(results).toHaveLength(50);
     });
   });
@@ -339,10 +377,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Large Data Processing',
         () => tracker.getUsageStats(),
-        PerformanceTestUtils.getThreshold('LARGE_DATA_PROCESSING')
+        PerformanceTestUtils.getThreshold('LARGE_DATA_PROCESSING'),
       );
 
-      expect(duration).toBeLessThan(PerformanceTestUtils.getThreshold('LARGE_DATA_PROCESSING'));
+      expect(duration).toBeLessThan(
+        PerformanceTestUtils.getThreshold('LARGE_DATA_PROCESSING'),
+      );
       expect(result.requestCount).toBe(100000);
       expect(result.usagePercentage).toBe(1000); // 100000/10000 = over budget
     });
@@ -351,8 +391,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const tracker = new BudgetTracker(projectRoot, budgetSettings);
 
       // Use maximum safe integer
-      const extremeUsageData = PerformanceTestUtils.createLargeUsageData(Number.MAX_SAFE_INTEGER);
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(extremeUsageData));
+      const extremeUsageData = PerformanceTestUtils.createLargeUsageData(
+        Number.MAX_SAFE_INTEGER,
+      );
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(extremeUsageData),
+      );
 
       const operations = [
         () => tracker.getUsageStats(),
@@ -364,7 +408,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
         const { duration } = await PerformanceTestUtils.measureOperation(
           'Extreme Value Processing',
           operation,
-          100 // 100ms threshold for extreme values
+          100, // 100ms threshold for extreme values
         );
 
         expect(duration).toBeLessThan(100);
@@ -375,7 +419,10 @@ describe('Budget Analytics Performance and Load Tests', () => {
       // Settings with many warning thresholds
       const complexSettings: BudgetSettings = {
         ...budgetSettings,
-        warningThresholds: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95],
+        warningThresholds: [
+          5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90,
+          95,
+        ],
       };
 
       const tracker = new BudgetTracker(projectRoot, complexSettings);
@@ -386,7 +433,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const { result, duration } = await PerformanceTestUtils.measureOperation(
         'Complex Threshold Processing',
         () => tracker.shouldShowWarning(),
-        50 // 50ms threshold for complex processing
+        50, // 50ms threshold for complex processing
       );
 
       expect(duration).toBeLessThan(50);
@@ -404,7 +451,8 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       let operationCount = 0;
       vi.mocked(fs.readFile).mockImplementation(() => {
-        const usageData = PerformanceTestUtils.createLargeUsageData(operationCount);
+        const usageData =
+          PerformanceTestUtils.createLargeUsageData(operationCount);
         operationCount++;
         return Promise.resolve(JSON.stringify(usageData));
       });
@@ -431,12 +479,13 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const budgetContentGenerator = new BudgetContentGenerator(
         mockContentGenerator,
         mockConfig,
-        budgetSettings
+        budgetSettings,
       );
 
       let requestCount = 0;
       vi.mocked(fs.readFile).mockImplementation(() => {
-        const usageData = PerformanceTestUtils.createLargeUsageData(requestCount);
+        const usageData =
+          PerformanceTestUtils.createLargeUsageData(requestCount);
         requestCount++;
         return Promise.resolve(JSON.stringify(usageData));
       });
@@ -446,15 +495,18 @@ describe('Budget Analytics Performance and Load Tests', () => {
       };
 
       // Test integrated API call performance
-      const apiCallOperations = Array.from({ length: 100 }, (_, i) =>
-        () => budgetContentGenerator.generateContent(mockRequest, `prompt-${i}`)
+      const apiCallOperations = Array.from(
+        { length: 100 },
+        (_, i) => () =>
+          budgetContentGenerator.generateContent(mockRequest, `prompt-${i}`),
       );
 
-      const { results, totalDuration, averageDuration } = await PerformanceTestUtils.measureBatchOperations(
-        'Integrated API Calls',
-        apiCallOperations,
-        5000 // 5 seconds for 100 integrated calls
-      );
+      const { results, totalDuration, averageDuration } =
+        await PerformanceTestUtils.measureBatchOperations(
+          'Integrated API Calls',
+          apiCallOperations,
+          5000, // 5 seconds for 100 integrated calls
+        );
 
       expect(totalDuration).toBeLessThan(5000);
       expect(averageDuration).toBeLessThan(50); // 50ms per integrated call
@@ -468,16 +520,21 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const tracker = new BudgetTracker(projectRoot, budgetSettings);
 
       // Simulate slow file system operations
-      vi.mocked(fs.readFile).mockImplementation(() =>
-        new Promise(resolve =>
-          setTimeout(() => resolve(JSON.stringify(PerformanceTestUtils.createLargeUsageData(10))), 50)
-        )
+      vi.mocked(fs.readFile).mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () =>
+                resolve(
+                  JSON.stringify(PerformanceTestUtils.createLargeUsageData(10)),
+                ),
+              50,
+            ),
+          ),
       );
 
-      vi.mocked(fs.writeFile).mockImplementation(() =>
-        new Promise<void>(resolve =>
-          setTimeout(() => resolve(), 30)
-        )
+      vi.mocked(fs.writeFile).mockImplementation(
+        () => new Promise<void>((resolve) => setTimeout(() => resolve(), 30)),
       );
 
       const operations = [
@@ -490,7 +547,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
         const { duration } = await PerformanceTestUtils.measureOperation(
           'Slow FileSystem Operation',
           operation,
-          200 // 200ms threshold accounting for artificial delay
+          200, // 200ms threshold accounting for artificial delay
         );
 
         expect(duration).toBeLessThan(200);
@@ -502,7 +559,8 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       let sharedRequestCount = 0;
       vi.mocked(fs.readFile).mockImplementation(() => {
-        const usageData = PerformanceTestUtils.createLargeUsageData(sharedRequestCount);
+        const usageData =
+          PerformanceTestUtils.createLargeUsageData(sharedRequestCount);
         return Promise.resolve(JSON.stringify(usageData));
       });
 
@@ -511,15 +569,22 @@ describe('Budget Analytics Performance and Load Tests', () => {
         // Mix different operation types
         const opType = i % 3;
         switch (opType) {
-          case 0: return () => tracker.recordRequest().then(() => { sharedRequestCount++; });
-          case 1: return () => tracker.getUsageStats();
-          case 2: return () => tracker.isOverBudget();
-          default: return () => Promise.resolve();
+          case 0:
+            return () =>
+              tracker.recordRequest().then(() => {
+                sharedRequestCount++;
+              });
+          case 1:
+            return () => tracker.getUsageStats();
+          case 2:
+            return () => tracker.isOverBudget();
+          default:
+            return () => Promise.resolve();
         }
       });
 
       const startTime = performance.now();
-      const results = await Promise.all(concurrentOperations.map(op => op()));
+      const results = await Promise.all(concurrentOperations.map((op) => op()));
       const endTime = performance.now();
 
       const totalDuration = endTime - startTime;
@@ -532,15 +597,17 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const tracker = new BudgetTracker(projectRoot, budgetSettings);
 
       // Test repeated reset performance
-      const resetOperations = Array.from({ length: 50 }, () =>
-        () => tracker.resetDailyUsage()
+      const resetOperations = Array.from(
+        { length: 50 },
+        () => () => tracker.resetDailyUsage(),
       );
 
-      const { results, totalDuration } = await PerformanceTestUtils.measureBatchOperations(
-        'Repeated Reset Operations',
-        resetOperations,
-        2000 // 2 seconds for 50 resets
-      );
+      const { results, totalDuration } =
+        await PerformanceTestUtils.measureBatchOperations(
+          'Repeated Reset Operations',
+          resetOperations,
+          2000, // 2 seconds for 50 resets
+        );
 
       expect(totalDuration).toBeLessThan(2000);
       expect(results).toHaveLength(50);
@@ -553,17 +620,18 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       // Test rapid settings updates
       const updateOperations = Array.from({ length: 100 }, (_, i) => () => {
-        const newLimit = 1000 + (i * 10);
+        const newLimit = 1000 + i * 10;
         tracker.updateSettings({ dailyLimit: newLimit });
         enforcement.updateSettings({ dailyLimit: newLimit });
         return Promise.resolve();
       });
 
-      const { totalDuration } = await PerformanceTestUtils.measureBatchOperations(
-        'Rapid Settings Updates',
-        updateOperations,
-        1000 // 1 second for 100 updates
-      );
+      const { totalDuration } =
+        await PerformanceTestUtils.measureBatchOperations(
+          'Rapid Settings Updates',
+          updateOperations,
+          1000, // 1 second for 100 updates
+        );
 
       expect(totalDuration).toBeLessThan(1000);
 
@@ -590,10 +658,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       const baseline: Record<string, number> = {};
 
-      for (const [operationName, operation] of Object.entries(baselineOperations)) {
+      for (const [operationName, operation] of Object.entries(
+        baselineOperations,
+      )) {
         const { duration } = await PerformanceTestUtils.measureOperation(
           operationName,
-          operation
+          operation,
         );
         baseline[operationName] = duration;
       }
@@ -617,7 +687,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const contentGenerator = new BudgetContentGenerator(
         mockContentGenerator,
         mockConfig,
-        budgetSettings
+        budgetSettings,
       );
 
       vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('File not found'));
@@ -657,7 +727,9 @@ describe('Budget Analytics Performance and Load Tests', () => {
       // End-to-end workflow should complete within 2 seconds
       expect(workflowDuration).toBeLessThan(2000);
 
-      console.log(`End-to-end workflow completed in ${workflowDuration.toFixed(2)}ms`);
+      console.log(
+        `End-to-end workflow completed in ${workflowDuration.toFixed(2)}ms`,
+      );
     });
   });
 });

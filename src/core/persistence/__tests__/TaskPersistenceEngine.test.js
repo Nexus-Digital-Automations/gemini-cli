@@ -42,14 +42,27 @@ describe('TaskPersistenceEngine', () => {
       const persistenceDir = path.join(testDir, '.gemini-tasks');
 
       // Check main directories exist
-      await expect(fs.access(path.join(persistenceDir, 'tasks'))).resolves.not.toThrow();
-      await expect(fs.access(path.join(persistenceDir, 'sessions'))).resolves.not.toThrow();
-      await expect(fs.access(path.join(persistenceDir, 'agents'))).resolves.not.toThrow();
-      await expect(fs.access(path.join(persistenceDir, 'metadata'))).resolves.not.toThrow();
+      await expect(
+        fs.access(path.join(persistenceDir, 'tasks')),
+      ).resolves.not.toThrow();
+      await expect(
+        fs.access(path.join(persistenceDir, 'sessions')),
+      ).resolves.not.toThrow();
+      await expect(
+        fs.access(path.join(persistenceDir, 'agents')),
+      ).resolves.not.toThrow();
+      await expect(
+        fs.access(path.join(persistenceDir, 'metadata')),
+      ).resolves.not.toThrow();
     });
 
     test('should create initial metadata files', async () => {
-      const metadataPath = path.join(testDir, '.gemini-tasks', 'metadata', 'persistence-metadata.json');
+      const metadataPath = path.join(
+        testDir,
+        '.gemini-tasks',
+        'metadata',
+        'persistence-metadata.json',
+      );
       const metadata = JSON.parse(await fs.readFile(metadataPath, 'utf-8'));
 
       expect(metadata).toHaveProperty('version');
@@ -60,7 +73,7 @@ describe('TaskPersistenceEngine', () => {
 
     test('should emit initialization events', async () => {
       const newEngine = new TaskPersistenceEngine(testDir);
-      const initPromise = new Promise(resolve => {
+      const initPromise = new Promise((resolve) => {
         newEngine.once('initialized', resolve);
       });
 
@@ -77,7 +90,7 @@ describe('TaskPersistenceEngine', () => {
         title: 'Test Task',
         description: 'Test task description',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       };
 
       const task = await engine.createTask(taskData);
@@ -98,7 +111,7 @@ describe('TaskPersistenceEngine', () => {
         title: 'Retrieve Test',
         description: 'Test task retrieval',
         type: 'test',
-        status: 'pending'
+        status: 'pending',
       };
 
       const createdTask = await engine.createTask(taskData);
@@ -112,14 +125,14 @@ describe('TaskPersistenceEngine', () => {
         title: 'Update Test',
         description: 'Test task update',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       };
 
       const task = await engine.createTask(taskData);
       const originalUpdatedAt = task.updatedAt;
 
       // Wait a moment to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const updates = { status: 'in_progress', title: 'Updated Title' };
       const updatedTask = await engine.updateTask(task.id, updates);
@@ -127,7 +140,9 @@ describe('TaskPersistenceEngine', () => {
       expect(updatedTask.status).toBe('in_progress');
       expect(updatedTask.title).toBe('Updated Title');
       expect(updatedTask.description).toBe(taskData.description); // Unchanged
-      expect(new Date(updatedTask.updatedAt).getTime()).toBeGreaterThan(new Date(originalUpdatedAt).getTime());
+      expect(new Date(updatedTask.updatedAt).getTime()).toBeGreaterThan(
+        new Date(originalUpdatedAt).getTime(),
+      );
     });
 
     test('should delete task', async () => {
@@ -135,7 +150,7 @@ describe('TaskPersistenceEngine', () => {
         title: 'Delete Test',
         description: 'Test task deletion',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       };
 
       const task = await engine.createTask(taskData);
@@ -147,10 +162,22 @@ describe('TaskPersistenceEngine', () => {
     test('should list tasks with filtering', async () => {
       // Create multiple tasks
       const tasks = await Promise.all([
-        engine.createTask({ title: 'Task 1', type: 'feature', status: 'pending' }),
-        engine.createTask({ title: 'Task 2', type: 'test', status: 'in_progress' }),
-        engine.createTask({ title: 'Task 3', type: 'feature', status: 'completed' }),
-        engine.createTask({ title: 'Task 4', type: 'bug', status: 'pending' })
+        engine.createTask({
+          title: 'Task 1',
+          type: 'feature',
+          status: 'pending',
+        }),
+        engine.createTask({
+          title: 'Task 2',
+          type: 'test',
+          status: 'in_progress',
+        }),
+        engine.createTask({
+          title: 'Task 3',
+          type: 'feature',
+          status: 'completed',
+        }),
+        engine.createTask({ title: 'Task 4', type: 'bug', status: 'pending' }),
       ]);
 
       // Test various filters
@@ -163,7 +190,10 @@ describe('TaskPersistenceEngine', () => {
       const pendingTasks = await engine.listTasks({ status: 'pending' });
       expect(pendingTasks).toHaveLength(2);
 
-      const completedFeatures = await engine.listTasks({ type: 'feature', status: 'completed' });
+      const completedFeatures = await engine.listTasks({
+        type: 'feature',
+        status: 'completed',
+      });
       expect(completedFeatures).toHaveLength(1);
     });
   });
@@ -174,7 +204,7 @@ describe('TaskPersistenceEngine', () => {
         title: 'Persistence Test',
         description: 'Test cross-session persistence',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       };
 
       const task = await engine.createTask(taskData);
@@ -192,7 +222,9 @@ describe('TaskPersistenceEngine', () => {
 
     test('should maintain session continuity', async () => {
       const sessionId = 'test-session-123';
-      await engine.createSession(sessionId, { startedAt: new Date().toISOString() });
+      await engine.createSession(sessionId, {
+        startedAt: new Date().toISOString(),
+      });
 
       const session = await engine.getSession(sessionId);
       expect(session.id).toBe(sessionId);
@@ -216,20 +248,20 @@ describe('TaskPersistenceEngine', () => {
           title: `Concurrent Task ${i}`,
           description: `Task ${i} for concurrency testing`,
           type: 'test',
-          status: 'pending'
-        })
+          status: 'pending',
+        }),
       );
 
       const tasks = await Promise.all(taskPromises);
 
       // Verify all tasks were created with unique IDs
-      const taskIds = tasks.map(task => task.id);
+      const taskIds = tasks.map((task) => task.id);
       const uniqueIds = new Set(taskIds);
       expect(uniqueIds.size).toBe(taskIds.length);
 
       // Verify all tasks are retrievable
       const retrievedTasks = await Promise.all(
-        taskIds.map(id => engine.getTask(id))
+        taskIds.map((id) => engine.getTask(id)),
       );
       expect(retrievedTasks).toHaveLength(10);
     });
@@ -238,7 +270,7 @@ describe('TaskPersistenceEngine', () => {
       // Mock file lock to simulate timeout
       const originalAcquireLock = engine.fileLock.acquireLock;
       engine.fileLock.acquireLock = jest.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         throw new Error('Lock timeout');
       });
 
@@ -251,24 +283,36 @@ describe('TaskPersistenceEngine', () => {
 
   describe('Data Validation', () => {
     test('should validate required task fields', async () => {
-      await expect(engine.createTask({})).rejects.toThrow('Task title is required');
-      await expect(engine.createTask({ title: '' })).rejects.toThrow('Task title is required');
-      await expect(engine.createTask({ title: 'Test', type: 'invalid' })).rejects.toThrow('Invalid task type');
+      await expect(engine.createTask({})).rejects.toThrow(
+        'Task title is required',
+      );
+      await expect(engine.createTask({ title: '' })).rejects.toThrow(
+        'Task title is required',
+      );
+      await expect(
+        engine.createTask({ title: 'Test', type: 'invalid' }),
+      ).rejects.toThrow('Invalid task type');
     });
 
     test('should validate task status transitions', async () => {
       const task = await engine.createTask({
         title: 'Status Test',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       });
 
       // Valid transitions
-      await expect(engine.updateTask(task.id, { status: 'in_progress' })).resolves.toBeDefined();
-      await expect(engine.updateTask(task.id, { status: 'completed' })).resolves.toBeDefined();
+      await expect(
+        engine.updateTask(task.id, { status: 'in_progress' }),
+      ).resolves.toBeDefined();
+      await expect(
+        engine.updateTask(task.id, { status: 'completed' }),
+      ).resolves.toBeDefined();
 
       // Invalid transition (completed -> pending should be allowed for flexibility)
-      await expect(engine.updateTask(task.id, { status: 'pending' })).resolves.toBeDefined();
+      await expect(
+        engine.updateTask(task.id, { status: 'pending' }),
+      ).resolves.toBeDefined();
     });
 
     test('should sanitize and validate input data', async () => {
@@ -277,7 +321,7 @@ describe('TaskPersistenceEngine', () => {
         description: '  Task description  ',
         type: 'FEATURE',
         status: 'PENDING',
-        customField: '<script>alert("xss")</script>'
+        customField: '<script>alert("xss")</script>',
       };
 
       const task = await engine.createTask(taskData);
@@ -300,8 +344,8 @@ describe('TaskPersistenceEngine', () => {
           title: `Performance Test ${i}`,
           description: `Task ${i} for performance testing`,
           type: 'test',
-          status: 'pending'
-        })
+          status: 'pending',
+        }),
       );
 
       const tasks = await Promise.all(taskPromises);
@@ -323,7 +367,7 @@ describe('TaskPersistenceEngine', () => {
       const task = await engine.createTask({
         title: 'Cache Test',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       });
 
       // First retrieval (from disk)
@@ -346,11 +390,16 @@ describe('TaskPersistenceEngine', () => {
       const task = await engine.createTask({
         title: 'Corruption Test',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       });
 
       // Corrupt the task file
-      const taskPath = path.join(testDir, '.gemini-tasks', 'tasks', `${task.id}.json`);
+      const taskPath = path.join(
+        testDir,
+        '.gemini-tasks',
+        'tasks',
+        `${task.id}.json`,
+      );
       await fs.writeFile(taskPath, 'invalid json content');
 
       // Should handle corruption and attempt recovery
@@ -361,7 +410,7 @@ describe('TaskPersistenceEngine', () => {
       const task = await engine.createTask({
         title: 'Consistency Test',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       });
 
       // Simulate error during update
@@ -376,7 +425,9 @@ describe('TaskPersistenceEngine', () => {
       });
 
       // First update should fail
-      await expect(engine.updateTask(task.id, { status: 'in_progress' })).rejects.toThrow();
+      await expect(
+        engine.updateTask(task.id, { status: 'in_progress' }),
+      ).rejects.toThrow();
 
       // Restore original function
       fs.writeFile = originalWriteFile;
@@ -391,14 +442,20 @@ describe('TaskPersistenceEngine', () => {
     test('should emit task lifecycle events', async () => {
       const events = [];
 
-      engine.on('taskCreated', (data) => events.push({ type: 'created', data }));
-      engine.on('taskUpdated', (data) => events.push({ type: 'updated', data }));
-      engine.on('taskDeleted', (data) => events.push({ type: 'deleted', data }));
+      engine.on('taskCreated', (data) =>
+        events.push({ type: 'created', data }),
+      );
+      engine.on('taskUpdated', (data) =>
+        events.push({ type: 'updated', data }),
+      );
+      engine.on('taskDeleted', (data) =>
+        events.push({ type: 'deleted', data }),
+      );
 
       const task = await engine.createTask({
         title: 'Event Test',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       });
 
       await engine.updateTask(task.id, { status: 'in_progress' });
@@ -412,12 +469,14 @@ describe('TaskPersistenceEngine', () => {
 
     test('should provide detailed event data', async () => {
       let eventData;
-      engine.once('taskCreated', (data) => { eventData = data; });
+      engine.once('taskCreated', (data) => {
+        eventData = data;
+      });
 
       const task = await engine.createTask({
         title: 'Event Data Test',
         type: 'feature',
-        status: 'pending'
+        status: 'pending',
       });
 
       expect(eventData).toHaveProperty('task');

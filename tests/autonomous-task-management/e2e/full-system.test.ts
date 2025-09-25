@@ -4,9 +4,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, jest } from 'vitest';
-import { SystemInitializer, SystemConfig } from '@google/gemini-cli-core/autonomous-tasks/SystemInitializer.js';
-import { TaskExecutionEngine, TaskType, TaskPriority } from '@google/gemini-cli-core/task-management/TaskExecutionEngine.js';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach,
+  jest,
+} from 'vitest';
+import {
+  SystemInitializer,
+  SystemConfig,
+} from '@google/gemini-cli-core/autonomous-tasks/SystemInitializer.js';
+import {
+  TaskExecutionEngine,
+  TaskType,
+  TaskPriority,
+} from '@google/gemini-cli-core/task-management/TaskExecutionEngine.js';
 import type { Config } from '@google/gemini-cli-core';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -24,7 +40,9 @@ describe('Autonomous Task Management System E2E', () => {
 
   beforeAll(async () => {
     // Create test workspace
-    testWorkspace = await fs.mkdtemp(path.join(process.cwd(), 'e2e-test-workspace-'));
+    testWorkspace = await fs.mkdtemp(
+      path.join(process.cwd(), 'e2e-test-workspace-'),
+    );
     process.chdir(testWorkspace);
   });
 
@@ -115,12 +133,18 @@ describe('Autonomous Task Management System E2E', () => {
       // Track system events
       const events: string[] = [];
 
-      systemInitializer.on('systemInitialized', () => events.push('systemInitialized'));
-      systemInitializer.on('agentRegistered', () => events.push('agentRegistered'));
+      systemInitializer.on('systemInitialized', () =>
+        events.push('systemInitialized'),
+      );
+      systemInitializer.on('agentRegistered', () =>
+        events.push('agentRegistered'),
+      );
       systemInitializer.on('taskQueued', () => events.push('taskQueued'));
       systemInitializer.on('taskStarted', () => events.push('taskStarted'));
       systemInitializer.on('taskCompleted', () => events.push('taskCompleted'));
-      systemInitializer.on('systemShutdown', (phase) => events.push(`systemShutdown-${phase}`));
+      systemInitializer.on('systemShutdown', (phase) =>
+        events.push(`systemShutdown-${phase}`),
+      );
 
       // 1. Initialize the system
       await systemInitializer.initialize();
@@ -132,8 +156,18 @@ describe('Autonomous Task Management System E2E', () => {
       expect(initialStatus.pid).toBe(process.pid);
 
       // 2. Register agents
-      await systemInitializer.registerAgent('test-agent-001', 'feature', ['frontend', 'testing'], 'session-001');
-      await systemInitializer.registerAgent('test-agent-002', 'security', ['security', 'validation'], 'session-002');
+      await systemInitializer.registerAgent(
+        'test-agent-001',
+        'feature',
+        ['frontend', 'testing'],
+        'session-001',
+      );
+      await systemInitializer.registerAgent(
+        'test-agent-002',
+        'security',
+        ['security', 'validation'],
+        'session-002',
+      );
 
       expect(events).toContain('agentRegistered');
       expect(systemInitializer.getActiveAgents()).toHaveLength(2);
@@ -147,10 +181,10 @@ describe('Autonomous Task Management System E2E', () => {
           context: { priority: 'high', component: 'auth' },
           maxExecutionTimeMinutes: 30,
           expectedOutputs: {
-            'implementation_complete': 'Authentication system implemented',
-            'tests_passed': 'Unit and integration tests passing'
-          }
-        }
+            implementation_complete: 'Authentication system implemented',
+            tests_passed: 'Unit and integration tests passing',
+          },
+        },
       );
 
       const task2Id = await systemInitializer.queueTask(
@@ -161,10 +195,10 @@ describe('Autonomous Task Management System E2E', () => {
           context: { depends_on: task1Id },
           maxExecutionTimeMinutes: 20,
           expectedOutputs: {
-            'audit_report': 'Security audit report with findings',
-            'recommendations': 'Security improvement recommendations'
-          }
-        }
+            audit_report: 'Security audit report with findings',
+            recommendations: 'Security improvement recommendations',
+          },
+        },
       );
 
       expect(events).toContain('taskQueued');
@@ -180,27 +214,35 @@ describe('Autonomous Task Management System E2E', () => {
       await systemInitializer.agentHeartbeat('test-agent-002', 'idle');
 
       const agents = systemInitializer.getActiveAgents();
-      const agent1 = agents.find(a => a.id === 'test-agent-001');
-      const agent2 = agents.find(a => a.id === 'test-agent-002');
+      const agent1 = agents.find((a) => a.id === 'test-agent-001');
+      const agent2 = agents.find((a) => a.id === 'test-agent-002');
 
       expect(agent1?.status).toBe('busy');
       expect(agent1?.currentTask).toBe(task1Id);
       expect(agent2?.status).toBe('idle');
 
       // 6. Wait for some processing time
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // 7. Verify persistence
-      const persistenceFileExists = await fs.access(systemConfig.persistenceConfig.path!).then(() => true).catch(() => false);
+      const persistenceFileExists = await fs
+        .access(systemConfig.persistenceConfig.path!)
+        .then(() => true)
+        .catch(() => false);
       expect(persistenceFileExists).toBe(true);
 
-      const persistedData = JSON.parse(await fs.readFile(systemConfig.persistenceConfig.path!, 'utf-8'));
+      const persistedData = JSON.parse(
+        await fs.readFile(systemConfig.persistenceConfig.path!, 'utf-8'),
+      );
       expect(persistedData).toHaveProperty('tasks');
       expect(persistedData).toHaveProperty('lastSaved');
 
       // 8. Test metrics collection
       // Trigger metrics collection manually
-      systemInitializer.emit('metricsCollected', systemInitializer.getSystemStatus());
+      systemInitializer.emit(
+        'metricsCollected',
+        systemInitializer.getSystemStatus(),
+      );
 
       // 9. Graceful shutdown
       await systemInitializer.shutdown();
@@ -220,11 +262,16 @@ describe('Autonomous Task Management System E2E', () => {
       await systemInitializer.initialize();
 
       // Register agent
-      await systemInitializer.registerAgent('timeout-test-agent', 'feature', ['frontend'], 'session-timeout');
+      await systemInitializer.registerAgent(
+        'timeout-test-agent',
+        'feature',
+        ['frontend'],
+        'session-timeout',
+      );
       expect(systemInitializer.getActiveAgents()).toHaveLength(1);
 
       // Wait for timeout (configured to 15 seconds in test config)
-      await new Promise(resolve => setTimeout(resolve, 16000));
+      await new Promise((resolve) => setTimeout(resolve, 16000));
 
       // Agent should be automatically removed due to timeout
       expect(systemInitializer.getActiveAgents()).toHaveLength(0);
@@ -234,14 +281,25 @@ describe('Autonomous Task Management System E2E', () => {
       // First session - initialize and add tasks
       await systemInitializer.initialize();
 
-      const taskId = await systemInitializer.queueTask('Persistent task', 'This task should survive restart');
-      await systemInitializer.registerAgent('persistent-agent', 'feature', ['frontend'], 'persistent-session');
+      const taskId = await systemInitializer.queueTask(
+        'Persistent task',
+        'This task should survive restart',
+      );
+      await systemInitializer.registerAgent(
+        'persistent-agent',
+        'feature',
+        ['frontend'],
+        'persistent-session',
+      );
 
       // Save state and shutdown
       await systemInitializer.shutdown();
 
       // Create new system instance (simulating restart)
-      const newSystemInitializer = new SystemInitializer(mockConfig, systemConfig);
+      const newSystemInitializer = new SystemInitializer(
+        mockConfig,
+        systemConfig,
+      );
 
       // Initialize new instance - should load persisted state
       await newSystemInitializer.initialize();
@@ -259,15 +317,25 @@ describe('Autonomous Task Management System E2E', () => {
 
       // Register maximum number of agents
       for (let i = 0; i < systemConfig.agentConfig!.maxConcurrentAgents; i++) {
-        await systemInitializer.registerAgent(`agent-${i}`, 'feature', ['frontend'], `session-${i}`);
+        await systemInitializer.registerAgent(
+          `agent-${i}`,
+          'feature',
+          ['frontend'],
+          `session-${i}`,
+        );
       }
 
-      expect(systemInitializer.getActiveAgents()).toHaveLength(systemConfig.agentConfig!.maxConcurrentAgents);
+      expect(systemInitializer.getActiveAgents()).toHaveLength(
+        systemConfig.agentConfig!.maxConcurrentAgents,
+      );
 
       // Queue many tasks to trigger overload conditions
       const taskIds: string[] = [];
       for (let i = 0; i < 15; i++) {
-        const taskId = await systemInitializer.queueTask(`Overload task ${i}`, `Task ${i} for overload testing`);
+        const taskId = await systemInitializer.queueTask(
+          `Overload task ${i}`,
+          `Task ${i} for overload testing`,
+        );
         taskIds.push(taskId);
       }
 
@@ -286,15 +354,29 @@ describe('Autonomous Task Management System E2E', () => {
       await systemInitializer.initialize();
 
       // Register agent
-      await systemInitializer.registerAgent('error-test-agent', 'feature', ['frontend'], 'error-session');
+      await systemInitializer.registerAgent(
+        'error-test-agent',
+        'feature',
+        ['frontend'],
+        'error-session',
+      );
 
       // Simulate error by corrupting persistence file
-      if (systemConfig.persistenceConfig.type === 'file' && systemConfig.persistenceConfig.path) {
-        await fs.writeFile(systemConfig.persistenceConfig.path, 'invalid-json-content');
+      if (
+        systemConfig.persistenceConfig.type === 'file' &&
+        systemConfig.persistenceConfig.path
+      ) {
+        await fs.writeFile(
+          systemConfig.persistenceConfig.path,
+          'invalid-json-content',
+        );
       }
 
       // System should continue operating despite persistence errors
-      const taskId = await systemInitializer.queueTask('Error recovery task', 'Testing error recovery');
+      const taskId = await systemInitializer.queueTask(
+        'Error recovery task',
+        'Testing error recovery',
+      );
       expect(taskId).toBeDefined();
 
       const status = systemInitializer.getSystemStatus();
@@ -315,14 +397,14 @@ describe('Autonomous Task Management System E2E', () => {
           maxExecutionTimeMinutes: 60,
           context: {
             complexity: 'high',
-            requires: ['frontend', 'backend', 'testing', 'documentation']
+            requires: ['frontend', 'backend', 'testing', 'documentation'],
           },
           expectedOutputs: {
-            'feature_implemented': 'Complete feature implementation',
-            'tests_written': 'Comprehensive test suite',
-            'documentation_updated': 'Updated documentation'
-          }
-        }
+            feature_implemented: 'Complete feature implementation',
+            tests_written: 'Comprehensive test suite',
+            documentation_updated: 'Updated documentation',
+          },
+        },
       );
 
       expect(taskId).toBeDefined();
@@ -344,9 +426,9 @@ describe('Autonomous Task Management System E2E', () => {
           type: TaskType.IMPLEMENTATION,
           context: {
             enableQualityGates: true,
-            requiredChecks: ['linting', 'testing', 'security', 'performance']
-          }
-        }
+            requiredChecks: ['linting', 'testing', 'security', 'performance'],
+          },
+        },
       );
 
       expect(taskId).toBeDefined();
@@ -361,12 +443,14 @@ describe('Autonomous Task Management System E2E', () => {
   describe('monitoring and alerting', () => {
     it('should collect and report metrics', async () => {
       const metricsEvents: any[] = [];
-      systemInitializer.on('metricsCollected', (metrics) => metricsEvents.push(metrics));
+      systemInitializer.on('metricsCollected', (metrics) =>
+        metricsEvents.push(metrics),
+      );
 
       await systemInitializer.initialize();
 
       // Wait for metrics collection
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       expect(metricsEvents.length).toBeGreaterThan(0);
 
@@ -386,18 +470,23 @@ describe('Autonomous Task Management System E2E', () => {
       await systemInitializer.initialize();
 
       // Queue many tasks to exceed threshold
-      for (let i = 0; i < 12; i++) { // Exceeds taskQueueSize threshold of 10
+      for (let i = 0; i < 12; i++) {
+        // Exceeds taskQueueSize threshold of 10
         await systemInitializer.queueTask(`Alert test task ${i}`, `Task ${i}`);
       }
 
       // Wait for alert processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Should have triggered taskQueueSize alert
-      const queueSizeAlert = alertEvents.find(alert => alert.type === 'taskQueueSize');
+      const queueSizeAlert = alertEvents.find(
+        (alert) => alert.type === 'taskQueueSize',
+      );
       expect(queueSizeAlert).toBeDefined();
       if (queueSizeAlert) {
-        expect(queueSizeAlert.current).toBeGreaterThan(queueSizeAlert.threshold);
+        expect(queueSizeAlert.current).toBeGreaterThan(
+          queueSizeAlert.threshold,
+        );
       }
     });
   });
@@ -410,18 +499,26 @@ describe('Autonomous Task Management System E2E', () => {
       const promises = [
         // Agent registrations
         ...Array.from({ length: 3 }, (_, i) =>
-          systemInitializer.registerAgent(`concurrent-agent-${i}`, 'feature', ['frontend'], `session-${i}`)
+          systemInitializer.registerAgent(
+            `concurrent-agent-${i}`,
+            'feature',
+            ['frontend'],
+            `session-${i}`,
+          ),
         ),
 
         // Task queuing
         ...Array.from({ length: 5 }, (_, i) =>
-          systemInitializer.queueTask(`Concurrent task ${i}`, `Task ${i} description`)
+          systemInitializer.queueTask(
+            `Concurrent task ${i}`,
+            `Task ${i} description`,
+          ),
         ),
 
         // Status checks
         ...Array.from({ length: 3 }, () =>
-          Promise.resolve(systemInitializer.getSystemStatus())
-        )
+          Promise.resolve(systemInitializer.getSystemStatus()),
+        ),
       ];
 
       // All operations should complete successfully
@@ -438,20 +535,31 @@ describe('Autonomous Task Management System E2E', () => {
 
 // Helper functions for E2E tests
 
-function createMockTaskExecution(taskId: string, success: boolean = true): Promise<any> {
+function createMockTaskExecution(
+  taskId: string,
+  success: boolean = true,
+): Promise<any> {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        taskId,
-        success,
-        duration: Math.random() * 5000 + 1000, // 1-6 seconds
-        result: success ? 'Task completed successfully' : 'Task failed with error'
-      });
-    }, Math.random() * 2000 + 500); // 0.5-2.5 seconds
+    setTimeout(
+      () => {
+        resolve({
+          taskId,
+          success,
+          duration: Math.random() * 5000 + 1000, // 1-6 seconds
+          result: success
+            ? 'Task completed successfully'
+            : 'Task failed with error',
+        });
+      },
+      Math.random() * 2000 + 500,
+    ); // 0.5-2.5 seconds
   });
 }
 
-function simulateNetworkDelay(minMs: number = 100, maxMs: number = 500): Promise<void> {
+function simulateNetworkDelay(
+  minMs: number = 100,
+  maxMs: number = 500,
+): Promise<void> {
   const delay = Math.random() * (maxMs - minMs) + minMs;
-  return new Promise(resolve => setTimeout(resolve, delay));
+  return new Promise((resolve) => setTimeout(resolve, delay));
 }

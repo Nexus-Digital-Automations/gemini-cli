@@ -11,7 +11,7 @@ import type {
   TaskPriority,
   SchedulingFactors,
   ExecutionSequence,
-  TaskId
+  TaskId,
 } from '../types.js';
 
 /**
@@ -33,17 +33,17 @@ describe('TaskPriorityScheduler', () => {
       resourcePools: new Map([
         ['cpu', 4],
         ['memory', 8],
-        ['network', 2]
+        ['network', 2],
       ]),
       priorityThresholds: {
         critical: 90,
         high: 70,
         medium: 50,
-        low: 30
+        low: 30,
       },
       schedulingAlgorithm: 'dependency_aware',
       autoDependencyLearning: true,
-      performanceMonitoring: true
+      performanceMonitoring: true,
     });
 
     mockTasks = createMockTasks();
@@ -55,17 +55,19 @@ describe('TaskPriorityScheduler', () => {
 
   describe('Priority Calculation', () => {
     it('should calculate base priority correctly', () => {
-      const criticalTask = mockTasks.find(t => t.priority === 'critical')!;
-      const highTask = mockTasks.find(t => t.priority === 'high')!;
-      const mediumTask = mockTasks.find(t => t.priority === 'medium')!;
-      const lowTask = mockTasks.find(t => t.priority === 'low')!;
+      const criticalTask = mockTasks.find((t) => t.priority === 'critical')!;
+      const highTask = mockTasks.find((t) => t.priority === 'high')!;
+      const mediumTask = mockTasks.find((t) => t.priority === 'medium')!;
+      const lowTask = mockTasks.find((t) => t.priority === 'low')!;
 
       const criticalScore = scheduler.calculatePriority(criticalTask);
       const highScore = scheduler.calculatePriority(highTask);
       const mediumScore = scheduler.calculatePriority(mediumTask);
       const lowScore = scheduler.calculatePriority(lowTask);
 
-      expect(criticalScore.basePriority).toBeGreaterThan(highScore.basePriority);
+      expect(criticalScore.basePriority).toBeGreaterThan(
+        highScore.basePriority,
+      );
       expect(highScore.basePriority).toBeGreaterThan(mediumScore.basePriority);
       expect(mediumScore.basePriority).toBeGreaterThan(lowScore.basePriority);
     });
@@ -93,7 +95,9 @@ describe('TaskPriorityScheduler', () => {
       const independentScore = scheduler.calculatePriority(independentTask);
       const dependencyScore = scheduler.calculatePriority(dependencyTask);
 
-      expect(dependencyScore.dependencyWeight).toBeGreaterThan(independentScore.dependencyWeight);
+      expect(dependencyScore.dependencyWeight).toBeGreaterThan(
+        independentScore.dependencyWeight,
+      );
       expect(dependencyScore.impact).toBeGreaterThan(independentScore.impact);
     });
 
@@ -115,15 +119,15 @@ describe('TaskPriorityScheduler', () => {
       const cpuTask = createMockTask('cpu-intensive', 'medium');
       cpuTask.executionContext = {
         resourceConstraints: [
-          { resourceType: 'cpu', maxUnits: 2, exclusive: false }
-        ]
+          { resourceType: 'cpu', maxUnits: 2, exclusive: false },
+        ],
       };
 
       const memoryTask = createMockTask('memory-intensive', 'medium');
       memoryTask.executionContext = {
         resourceConstraints: [
-          { resourceType: 'memory', maxUnits: 6, exclusive: false }
-        ]
+          { resourceType: 'memory', maxUnits: 6, exclusive: false },
+        ],
       };
 
       // Simulate CPU being more constrained
@@ -133,7 +137,9 @@ describe('TaskPriorityScheduler', () => {
       const cpuScore = scheduler.calculatePriority(cpuTask);
       const memoryScore = scheduler.calculatePriority(memoryTask);
 
-      expect(memoryScore.resourceAvailability).toBeGreaterThan(cpuScore.resourceAvailability);
+      expect(memoryScore.resourceAvailability).toBeGreaterThan(
+        cpuScore.resourceAvailability,
+      );
     });
 
     it('should include historical success rate', () => {
@@ -156,7 +162,7 @@ describe('TaskPriorityScheduler', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
           ...scheduler['config'],
-          schedulingAlgorithm: 'fifo'
+          schedulingAlgorithm: 'fifo',
         });
       });
 
@@ -168,7 +174,11 @@ describe('TaskPriorityScheduler', () => {
 
         const sequence = scheduler.scheduleSequence(tasks);
 
-        expect(sequence.sequence).toEqual([tasks[0].id, tasks[1].id, tasks[2].id]);
+        expect(sequence.sequence).toEqual([
+          tasks[0].id,
+          tasks[1].id,
+          tasks[2].id,
+        ]);
       });
     });
 
@@ -176,7 +186,7 @@ describe('TaskPriorityScheduler', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
           ...scheduler['config'],
-          schedulingAlgorithm: 'priority'
+          schedulingAlgorithm: 'priority',
         });
       });
 
@@ -185,7 +195,7 @@ describe('TaskPriorityScheduler', () => {
           createMockTask('low', 'low'),
           createMockTask('critical', 'critical'),
           createMockTask('medium', 'medium'),
-          createMockTask('high', 'high')
+          createMockTask('high', 'high'),
         ];
 
         const sequence = scheduler.scheduleSequence(tasks);
@@ -201,7 +211,7 @@ describe('TaskPriorityScheduler', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
           ...scheduler['config'],
-          schedulingAlgorithm: 'dependency_aware'
+          schedulingAlgorithm: 'dependency_aware',
         });
       });
 
@@ -214,10 +224,12 @@ describe('TaskPriorityScheduler', () => {
 
         const sequence = scheduler.scheduleSequence(tasks);
 
-        expect(sequence.sequence.indexOf(tasks[0].id))
-          .toBeLessThan(sequence.sequence.indexOf(tasks[1].id));
-        expect(sequence.sequence.indexOf(tasks[1].id))
-          .toBeLessThan(sequence.sequence.indexOf(tasks[2].id));
+        expect(sequence.sequence.indexOf(tasks[0].id)).toBeLessThan(
+          sequence.sequence.indexOf(tasks[1].id),
+        );
+        expect(sequence.sequence.indexOf(tasks[1].id)).toBeLessThan(
+          sequence.sequence.indexOf(tasks[2].id),
+        );
       });
 
       it('should identify parallel execution groups', () => {
@@ -234,7 +246,7 @@ describe('TaskPriorityScheduler', () => {
         expect(sequence.parallelGroups.length).toBeGreaterThanOrEqual(3);
         expect(sequence.parallelGroups[0]).toEqual([tasks[0].id]);
         expect(sequence.parallelGroups[1]).toEqual(
-          expect.arrayContaining([tasks[1].id, tasks[2].id])
+          expect.arrayContaining([tasks[1].id, tasks[2].id]),
         );
         expect(sequence.parallelGroups[2]).toEqual([tasks[3].id]);
       });
@@ -250,7 +262,11 @@ describe('TaskPriorityScheduler', () => {
 
         const sequence = scheduler.scheduleSequence(tasks);
 
-        expect(sequence.criticalPath).toEqual([tasks[0].id, tasks[1].id, tasks[2].id]);
+        expect(sequence.criticalPath).toEqual([
+          tasks[0].id,
+          tasks[1].id,
+          tasks[2].id,
+        ]);
         expect(sequence.estimatedDuration).toBe(270000); // Sum of all durations
       });
     });
@@ -259,7 +275,7 @@ describe('TaskPriorityScheduler', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
           ...scheduler['config'],
-          schedulingAlgorithm: 'resource_optimal'
+          schedulingAlgorithm: 'resource_optimal',
         });
       });
 
@@ -267,22 +283,22 @@ describe('TaskPriorityScheduler', () => {
         const cpuTask = createMockTask('cpu', 'medium');
         cpuTask.executionContext = {
           resourceConstraints: [
-            { resourceType: 'cpu', maxUnits: 3, exclusive: false }
-          ]
+            { resourceType: 'cpu', maxUnits: 3, exclusive: false },
+          ],
         };
 
         const memoryTask = createMockTask('memory', 'medium');
         memoryTask.executionContext = {
           resourceConstraints: [
-            { resourceType: 'memory', maxUnits: 4, exclusive: false }
-          ]
+            { resourceType: 'memory', maxUnits: 4, exclusive: false },
+          ],
         };
 
         const networkTask = createMockTask('network', 'medium');
         networkTask.executionContext = {
           resourceConstraints: [
-            { resourceType: 'network', maxUnits: 1, exclusive: false }
-          ]
+            { resourceType: 'network', maxUnits: 1, exclusive: false },
+          ],
         };
 
         const tasks = [cpuTask, memoryTask, networkTask];
@@ -296,15 +312,15 @@ describe('TaskPriorityScheduler', () => {
         const exclusive1 = createMockTask('exclusive1', 'high');
         exclusive1.executionContext = {
           resourceConstraints: [
-            { resourceType: 'gpu', maxUnits: 1, exclusive: true }
-          ]
+            { resourceType: 'gpu', maxUnits: 1, exclusive: true },
+          ],
         };
 
         const exclusive2 = createMockTask('exclusive2', 'high');
         exclusive2.executionContext = {
           resourceConstraints: [
-            { resourceType: 'gpu', maxUnits: 1, exclusive: true }
-          ]
+            { resourceType: 'gpu', maxUnits: 1, exclusive: true },
+          ],
         };
 
         scheduler.updateResourceAvailability('gpu', 1);
@@ -312,8 +328,12 @@ describe('TaskPriorityScheduler', () => {
         const sequence = scheduler.scheduleSequence(tasks);
 
         // Should not be in the same parallel group
-        const parallel1 = sequence.parallelGroups.find(group => group.includes(exclusive1.id));
-        const parallel2 = sequence.parallelGroups.find(group => group.includes(exclusive2.id));
+        const parallel1 = sequence.parallelGroups.find((group) =>
+          group.includes(exclusive1.id),
+        );
+        const parallel2 = sequence.parallelGroups.find((group) =>
+          group.includes(exclusive2.id),
+        );
 
         expect(parallel1).not.toBe(parallel2);
       });
@@ -326,8 +346,8 @@ describe('TaskPriorityScheduler', () => {
       task.executionContext = {
         resourceConstraints: [
           { resourceType: 'cpu', maxUnits: 2 },
-          { resourceType: 'memory', maxUnits: 3 }
-        ]
+          { resourceType: 'memory', maxUnits: 3 },
+        ],
       };
 
       const allocated = scheduler.allocateResources(task);
@@ -343,8 +363,8 @@ describe('TaskPriorityScheduler', () => {
       const task = createMockTask('big-task', 'high');
       task.executionContext = {
         resourceConstraints: [
-          { resourceType: 'cpu', maxUnits: 10 } // More than available
-        ]
+          { resourceType: 'cpu', maxUnits: 10 }, // More than available
+        ],
       };
 
       const allocated = scheduler.allocateResources(task);
@@ -357,9 +377,7 @@ describe('TaskPriorityScheduler', () => {
     it('should release resources correctly', () => {
       const task = createMockTask('resource-task', 'medium');
       task.executionContext = {
-        resourceConstraints: [
-          { resourceType: 'cpu', maxUnits: 2 }
-        ]
+        resourceConstraints: [{ resourceType: 'cpu', maxUnits: 2 }],
       };
 
       const allocated = scheduler.allocateResources(task);
@@ -377,9 +395,9 @@ describe('TaskPriorityScheduler', () => {
           {
             resourceType: 'cpu',
             maxUnits: 1,
-            tags: ['compute-intensive', 'batch']
-          }
-        ]
+            tags: ['compute-intensive', 'batch'],
+          },
+        ],
       };
 
       const allocated = scheduler.allocateResources(task);
@@ -414,7 +432,9 @@ describe('TaskPriorityScheduler', () => {
       const lowLoadScore = scheduler.calculatePriority(task);
 
       // Under high load, resource availability should affect priority calculation
-      expect(lowLoadScore.resourceAvailability).toBeGreaterThan(highLoadScore.resourceAvailability);
+      expect(lowLoadScore.resourceAvailability).toBeGreaterThan(
+        highLoadScore.resourceAvailability,
+      );
     });
 
     it('should learn from execution patterns', () => {
@@ -426,7 +446,7 @@ describe('TaskPriorityScheduler', () => {
       scheduler.recordExecution(task.id, { success: false, duration: 60000 });
 
       const score = scheduler.calculatePriority(task);
-      expect(score.successRate).toBe(2/3); // 2 successes out of 3 attempts
+      expect(score.successRate).toBe(2 / 3); // 2 successes out of 3 attempts
 
       // Should update estimated duration based on history
       const updatedTask = scheduler.getTaskWithLearnedEstimates(task);
@@ -498,12 +518,17 @@ describe('TaskPriorityScheduler', () => {
 
       // Should detect cycle and provide fallback scheduling
       expect(sequence.sequence).toHaveLength(2);
-      expect(sequence.metadata.constraints).toContain('circular_dependencies_detected');
+      expect(sequence.metadata.constraints).toContain(
+        'circular_dependencies_detected',
+      );
     });
 
     it('should scale efficiently with large task sets', () => {
       const largeTasks = Array.from({ length: 1000 }, (_, i) =>
-        createMockTask(`task-${i}`, ['critical', 'high', 'medium', 'low'][i % 4] as TaskPriority)
+        createMockTask(
+          `task-${i}`,
+          ['critical', 'high', 'medium', 'low'][i % 4] as TaskPriority,
+        ),
       );
 
       const startTime = Date.now();
@@ -554,7 +579,7 @@ function createMockTasks(): Task[] {
     createMockTask('task-high', 'high'),
     createMockTask('task-medium', 'medium'),
     createMockTask('task-low', 'low'),
-    createMockTask('task-another', 'medium')
+    createMockTask('task-another', 'medium'),
   ];
 }
 
@@ -571,11 +596,11 @@ function createMockTask(id: string, priority: TaskPriority = 'medium'): Task {
       updatedAt: new Date(),
       createdBy: 'test',
       estimatedDuration: 60000, // 1 minute default
-      tags: ['test']
+      tags: ['test'],
     },
     executionContext: {
       timeout: 300000,
-      maxRetries: 3
-    }
+      maxRetries: 3,
+    },
   };
 }

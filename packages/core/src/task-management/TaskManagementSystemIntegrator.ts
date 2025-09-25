@@ -12,7 +12,10 @@
  */
 
 import type { Config } from '../config/config.js';
-import { TaskExecutionEngine, type Task } from './TaskExecutionEngine.complete.js';
+import {
+  TaskExecutionEngine,
+  type Task,
+} from './TaskExecutionEngine.complete.js';
 import { EnhancedAutonomousTaskQueue } from './EnhancedAutonomousTaskQueue.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
@@ -151,10 +154,12 @@ export class TaskManagementSystemIntegrator {
         this.persistence = new CrossSessionPersistenceEngine(
           this.config.persistence?.storageLocation || '.task-management-data',
           {
-            compressionEnabled: this.config.persistence?.compressionEnabled ?? true,
-            encryptionEnabled: this.config.persistence?.encryptionEnabled ?? false,
+            compressionEnabled:
+              this.config.persistence?.compressionEnabled ?? true,
+            encryptionEnabled:
+              this.config.persistence?.encryptionEnabled ?? false,
             retentionDays: this.config.persistence?.retentionDays ?? 30,
-          }
+          },
         );
         await this.persistence.initialize();
         this.shutdownHandlers.push(() => this.persistence!.shutdown());
@@ -171,8 +176,10 @@ export class TaskManagementSystemIntegrator {
       if (this.config.dependencies?.enableAnalysis !== false) {
         console.log('🔗 Initializing dependency resolver...');
         this.dependencyResolver = new DependencyResolver({
-          maxResolutionDepth: this.config.dependencies?.maxResolutionDepth ?? 10,
-          allowCircularDependencies: this.config.dependencies?.allowCircularDependencies ?? false,
+          maxResolutionDepth:
+            this.config.dependencies?.maxResolutionDepth ?? 10,
+          allowCircularDependencies:
+            this.config.dependencies?.allowCircularDependencies ?? false,
         });
       }
 
@@ -191,12 +198,17 @@ export class TaskManagementSystemIntegrator {
       if (this.config.autonomousQueue) {
         console.log('🤖 Initializing autonomous task queue...');
         this.autonomousQueue = new EnhancedAutonomousTaskQueue({
-          maxConcurrentTasks: this.config.autonomousQueue.maxConcurrentTasks ?? 8,
-          enableAutonomousBreakdown: this.config.autonomousQueue.enableAutonomousBreakdown ?? true,
-          breakdownThreshold: this.config.autonomousQueue.breakdownThreshold ?? 0.7,
+          maxConcurrentTasks:
+            this.config.autonomousQueue.maxConcurrentTasks ?? 8,
+          enableAutonomousBreakdown:
+            this.config.autonomousQueue.enableAutonomousBreakdown ?? true,
+          breakdownThreshold:
+            this.config.autonomousQueue.breakdownThreshold ?? 0.7,
           maxBreakdownDepth: this.config.autonomousQueue.maxBreakdownDepth ?? 3,
-          enableAdaptiveScheduling: this.config.autonomousQueue.enableAdaptiveScheduling ?? true,
-          performanceOptimization: this.config.autonomousQueue.performanceOptimization ?? true,
+          enableAdaptiveScheduling:
+            this.config.autonomousQueue.enableAdaptiveScheduling ?? true,
+          performanceOptimization:
+            this.config.autonomousQueue.performanceOptimization ?? true,
           learningEnabled: this.config.autonomousQueue.learningEnabled ?? true,
           metricsEnabled: true,
         });
@@ -205,36 +217,59 @@ export class TaskManagementSystemIntegrator {
 
       // Initialize hook integration (if enabled)
       if (this.config.hookIntegration?.enabled !== false) {
-        console.log('🔗 Initializing infinite-continue-stop-hook integration...');
+        console.log(
+          '🔗 Initializing infinite-continue-stop-hook integration...',
+        );
         try {
           this.hookIntegration = new InfiniteHookIntegration(
             this.config.core,
             this.taskEngine,
             this.monitoring!,
             {
-              agentId: this.config.hookIntegration?.agentId || 'INTEGRATED_SYSTEM',
-              capabilities: this.config.hookIntegration?.capabilities || ['autonomous_execution'],
-              progressReportingIntervalMs: this.config.hookIntegration?.progressReportingIntervalMs ?? 30000,
-              autoStopEnabled: this.config.hookIntegration?.autoStopEnabled ?? true,
-            }
+              agentId:
+                this.config.hookIntegration?.agentId || 'INTEGRATED_SYSTEM',
+              capabilities: this.config.hookIntegration?.capabilities || [
+                'autonomous_execution',
+              ],
+              progressReportingIntervalMs:
+                this.config.hookIntegration?.progressReportingIntervalMs ??
+                30000,
+              autoStopEnabled:
+                this.config.hookIntegration?.autoStopEnabled ?? true,
+            },
           );
           await this.hookIntegration.initialize();
           this.shutdownHandlers.push(() => this.hookIntegration!.shutdown());
         } catch (error) {
-          console.warn('⚠️ Hook integration initialization failed, continuing without it:', error);
+          console.warn(
+            '⚠️ Hook integration initialization failed, continuing without it:',
+            error,
+          );
           this.hookIntegration = undefined;
         }
       }
 
       this.isInitialized = true;
 
-      console.log('✅ Integrated Task Management System initialized successfully!');
-      console.log(`📋 Task Engine: ${this.taskEngine ? 'Enabled' : 'Disabled'}`);
-      console.log(`🤖 Autonomous Queue: ${this.autonomousQueue ? 'Enabled' : 'Disabled'}`);
+      console.log(
+        '✅ Integrated Task Management System initialized successfully!',
+      );
+      console.log(
+        `📋 Task Engine: ${this.taskEngine ? 'Enabled' : 'Disabled'}`,
+      );
+      console.log(
+        `🤖 Autonomous Queue: ${this.autonomousQueue ? 'Enabled' : 'Disabled'}`,
+      );
       console.log(`📊 Monitoring: ${this.monitoring ? 'Enabled' : 'Disabled'}`);
-      console.log(`💾 Persistence: ${this.persistence ? 'Enabled' : 'Disabled'}`);
-      console.log(`🔗 Hook Integration: ${this.hookIntegration ? 'Enabled' : 'Disabled'}`);
-      console.log(`🔗 Dependency Resolution: ${this.dependencyResolver ? 'Enabled' : 'Disabled'}`);
+      console.log(
+        `💾 Persistence: ${this.persistence ? 'Enabled' : 'Disabled'}`,
+      );
+      console.log(
+        `🔗 Hook Integration: ${this.hookIntegration ? 'Enabled' : 'Disabled'}`,
+      );
+      console.log(
+        `🔗 Dependency Resolution: ${this.dependencyResolver ? 'Enabled' : 'Disabled'}`,
+      );
 
       return {
         success: true,
@@ -252,7 +287,10 @@ export class TaskManagementSystemIntegrator {
         timestamp: new Date(),
       };
     } catch (error) {
-      console.error('❌ Failed to initialize Integrated Task Management System:', error);
+      console.error(
+        '❌ Failed to initialize Integrated Task Management System:',
+        error,
+      );
       return {
         success: false,
         message: `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -295,7 +333,7 @@ export class TaskManagementSystemIntegrator {
       persistenceHealth,
       hookIntegrationHealth,
       dependenciesHealth,
-    ].filter(status => status === 'healthy').length;
+    ].filter((status) => status === 'healthy').length;
 
     const totalComponents = 6;
     let overall: 'healthy' | 'warning' | 'critical';
@@ -327,7 +365,9 @@ export class TaskManagementSystemIntegrator {
         memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024, // MB
         cpuUsage: process.cpuUsage().user / 1000000, // seconds
         avgTaskDuration: metrics.averageExecutionTime,
-        taskThroughput: metrics.completedTasks / Math.max(metrics.systemUptime / 1000 / 60, 1), // tasks per minute
+        taskThroughput:
+          metrics.completedTasks /
+          Math.max(metrics.systemUptime / 1000 / 60, 1), // tasks per minute
       },
       lastHealthCheck: new Date(),
     };
@@ -339,7 +379,7 @@ export class TaskManagementSystemIntegrator {
   async queueTask(
     title: string,
     description: string,
-    options: any = {}
+    options: any = {},
   ): Promise<SystemOperationResult> {
     if (!this.isInitialized) {
       throw new Error('System not initialized. Call initialize() first.');
@@ -401,7 +441,8 @@ export class TaskManagementSystemIntegrator {
 
     const health = this.getSystemHealth();
     const taskEngineStats = this.taskEngine?.getExecutionStats();
-    const autonomousQueueStatus = this.autonomousQueue?.getAutonomousQueueStatus();
+    const autonomousQueueStatus =
+      this.autonomousQueue?.getAutonomousQueueStatus();
     const monitoringMetrics = this.monitoring?.getSystemHealth(
       this.monitoring.collectMetrics(this.taskEngine?.getAllTasks() || []),
     );
@@ -472,15 +513,22 @@ export class TaskManagementSystemIntegrator {
 
   // Private event handlers
   private async handleTaskStatusChange(task: Task) {
-    console.log(`📋 Task ${task.id} status changed: ${task.status} (${task.progress}%)`);
+    console.log(
+      `📋 Task ${task.id} status changed: ${task.status} (${task.progress}%)`,
+    );
 
     // Record monitoring event
     if (this.monitoring) {
       this.monitoring.recordEvent({
         taskId: task.id,
-        eventType: task.status === 'in_progress' ? 'started' :
-                   task.status === 'completed' ? 'completed' :
-                   task.status === 'failed' ? 'failed' : 'progress',
+        eventType:
+          task.status === 'in_progress'
+            ? 'started'
+            : task.status === 'completed'
+              ? 'completed'
+              : task.status === 'failed'
+                ? 'failed'
+                : 'progress',
         timestamp: new Date(),
         metadata: {
           title: task.title,
@@ -679,7 +727,12 @@ export class SystemConfigFactory {
       hookIntegration: {
         enabled: true,
         agentId: 'PROD_INTEGRATED_SYSTEM',
-        capabilities: ['autonomous_execution', 'monitoring', 'persistence', 'security'],
+        capabilities: [
+          'autonomous_execution',
+          'monitoring',
+          'persistence',
+          'security',
+        ],
         progressReportingIntervalMs: 60000,
         autoStopEnabled: true,
       },
@@ -697,7 +750,7 @@ export class SystemConfigFactory {
  * Convenience function to create and initialize the integrated system
  */
 export async function createIntegratedTaskManagementSystem(
-  config: IntegratedSystemConfig
+  config: IntegratedSystemConfig,
 ): Promise<{
   system: TaskManagementSystemIntegrator;
   result: SystemOperationResult;

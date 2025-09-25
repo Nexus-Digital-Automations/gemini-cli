@@ -9,14 +9,14 @@ import type {
   ValidationRule,
   ValidationExecutor,
   ValidationContext,
-  ValidationResult} from './ValidationFramework.js';
+  ValidationResult,
+} from './ValidationFramework.js';
 import {
   ValidationStatus,
   ValidationSeverity,
-  ValidationCategory
+  ValidationCategory,
 } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
-import { TaskStatus } from '../task-management/TaskQueue.js';
 import type { TaskExecutionMetrics } from './TaskValidator.js';
 
 /**
@@ -32,7 +32,7 @@ export enum RuleCategory {
   QUALITY_ASSURANCE = 'quality_assurance',
   BUSINESS_RULES = 'business_rules',
   DATA_VALIDATION = 'data_validation',
-  INTEGRATION_VALIDATION = 'integration_validation'
+  INTEGRATION_VALIDATION = 'integration_validation',
 }
 
 /**
@@ -43,7 +43,7 @@ export enum RuleExecutionContext {
   DURING_EXECUTION = 'during_execution',
   POST_EXECUTION = 'post_execution',
   ROLLBACK = 'rollback',
-  CONTINUOUS = 'continuous'
+  CONTINUOUS = 'continuous',
 }
 
 /**
@@ -123,7 +123,7 @@ export class ValidationRules {
       rulesByCategory: new Map(),
       rulesByContext: new Map(),
       enabledRules: new Set(),
-      disabledRules: new Set()
+      disabledRules: new Set(),
     };
 
     this.logger.info('ValidationRules system initialized');
@@ -146,9 +146,9 @@ export class ValidationRules {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.PRE_EXECUTION],
-        priority: 1
+        priority: 1,
       },
-      executor: this.validateTaskRequiredFields.bind(this)
+      executor: this.validateTaskRequiredFields.bind(this),
     });
 
     this.registerRule({
@@ -160,9 +160,9 @@ export class ValidationRules {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.PRE_EXECUTION],
-        priority: 1
+        priority: 1,
       },
-      executor: this.validateTaskStatusForExecution.bind(this)
+      executor: this.validateTaskStatusForExecution.bind(this),
     });
 
     this.registerRule({
@@ -174,24 +174,28 @@ export class ValidationRules {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.PRE_EXECUTION],
-        priority: 2
+        priority: 2,
       },
-      executor: this.validateTaskDependencies.bind(this)
+      executor: this.validateTaskDependencies.bind(this),
     });
 
     // Task Execution Rules
     this.registerRule({
       id: 'task-execution-timeout',
       name: 'Task Execution Timeout',
-      description: 'Validates that task execution does not exceed timeout limits',
+      description:
+        'Validates that task execution does not exceed timeout limits',
       category: RuleCategory.TASK_EXECUTION,
       config: {
         enabled: true,
         severity: ValidationSeverity.WARNING,
-        contexts: [RuleExecutionContext.DURING_EXECUTION, RuleExecutionContext.CONTINUOUS],
-        priority: 3
+        contexts: [
+          RuleExecutionContext.DURING_EXECUTION,
+          RuleExecutionContext.CONTINUOUS,
+        ],
+        priority: 3,
       },
-      executor: this.validateExecutionTimeout.bind(this)
+      executor: this.validateExecutionTimeout.bind(this),
     });
 
     this.registerRule({
@@ -202,10 +206,13 @@ export class ValidationRules {
       config: {
         enabled: true,
         severity: ValidationSeverity.WARNING,
-        contexts: [RuleExecutionContext.DURING_EXECUTION, RuleExecutionContext.CONTINUOUS],
-        priority: 4
+        contexts: [
+          RuleExecutionContext.DURING_EXECUTION,
+          RuleExecutionContext.CONTINUOUS,
+        ],
+        priority: 4,
       },
-      executor: this.validateResourceConsumption.bind(this)
+      executor: this.validateResourceConsumption.bind(this),
     });
 
     // Task Completion Rules
@@ -218,23 +225,24 @@ export class ValidationRules {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.POST_EXECUTION],
-        priority: 1
+        priority: 1,
       },
-      executor: this.validateTaskCompletionCriteria.bind(this)
+      executor: this.validateTaskCompletionCriteria.bind(this),
     });
 
     this.registerRule({
       id: 'task-outputs-validation',
       name: 'Task Outputs Validation',
-      description: 'Validates that task outputs match expected schema and quality',
+      description:
+        'Validates that task outputs match expected schema and quality',
       category: RuleCategory.QUALITY_ASSURANCE,
       config: {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.POST_EXECUTION],
-        priority: 2
+        priority: 2,
       },
-      executor: this.validateTaskOutputs.bind(this)
+      executor: this.validateTaskOutputs.bind(this),
     });
 
     // Security Compliance Rules
@@ -246,10 +254,13 @@ export class ValidationRules {
       config: {
         enabled: true,
         severity: ValidationSeverity.CRITICAL,
-        contexts: [RuleExecutionContext.PRE_EXECUTION, RuleExecutionContext.DURING_EXECUTION],
-        priority: 1
+        contexts: [
+          RuleExecutionContext.PRE_EXECUTION,
+          RuleExecutionContext.DURING_EXECUTION,
+        ],
+        priority: 1,
       },
-      executor: this.validateSensitiveDataHandling.bind(this)
+      executor: this.validateSensitiveDataHandling.bind(this),
     });
 
     this.registerRule({
@@ -261,9 +272,9 @@ export class ValidationRules {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.PRE_EXECUTION],
-        priority: 2
+        priority: 2,
       },
-      executor: this.validateAccessControls.bind(this)
+      executor: this.validateAccessControls.bind(this),
     });
 
     // Performance Validation Rules
@@ -275,10 +286,13 @@ export class ValidationRules {
       config: {
         enabled: true,
         severity: ValidationSeverity.WARNING,
-        contexts: [RuleExecutionContext.DURING_EXECUTION, RuleExecutionContext.POST_EXECUTION],
-        priority: 3
+        contexts: [
+          RuleExecutionContext.DURING_EXECUTION,
+          RuleExecutionContext.POST_EXECUTION,
+        ],
+        priority: 3,
       },
-      executor: this.validateMemoryUsage.bind(this)
+      executor: this.validateMemoryUsage.bind(this),
     });
 
     this.registerRule({
@@ -289,10 +303,13 @@ export class ValidationRules {
       config: {
         enabled: true,
         severity: ValidationSeverity.WARNING,
-        contexts: [RuleExecutionContext.DURING_EXECUTION, RuleExecutionContext.POST_EXECUTION],
-        priority: 3
+        contexts: [
+          RuleExecutionContext.DURING_EXECUTION,
+          RuleExecutionContext.POST_EXECUTION,
+        ],
+        priority: 3,
       },
-      executor: this.validateCpuUsage.bind(this)
+      executor: this.validateCpuUsage.bind(this),
     });
 
     // Quality Assurance Rules
@@ -306,9 +323,9 @@ export class ValidationRules {
         severity: ValidationSeverity.WARNING,
         contexts: [RuleExecutionContext.POST_EXECUTION],
         priority: 4,
-        taskTypes: ['implementation', 'refactoring']
+        taskTypes: ['implementation', 'refactoring'],
       },
-      executor: this.validateCodeStandards.bind(this)
+      executor: this.validateCodeStandards.bind(this),
     });
 
     this.registerRule({
@@ -321,24 +338,25 @@ export class ValidationRules {
         severity: ValidationSeverity.WARNING,
         contexts: [RuleExecutionContext.POST_EXECUTION],
         priority: 4,
-        taskTypes: ['implementation', 'testing']
+        taskTypes: ['implementation', 'testing'],
       },
-      executor: this.validateTestCoverage.bind(this)
+      executor: this.validateTestCoverage.bind(this),
     });
 
     // Business Rules
     this.registerRule({
       id: 'business-requirements-compliance',
       name: 'Business Requirements Compliance',
-      description: 'Validates that task implementation meets business requirements',
+      description:
+        'Validates that task implementation meets business requirements',
       category: RuleCategory.BUSINESS_RULES,
       config: {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.POST_EXECUTION],
-        priority: 2
+        priority: 2,
       },
-      executor: this.validateBusinessRequirements.bind(this)
+      executor: this.validateBusinessRequirements.bind(this),
     });
 
     // Data Validation Rules
@@ -351,9 +369,9 @@ export class ValidationRules {
         enabled: true,
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.POST_EXECUTION],
-        priority: 2
+        priority: 2,
       },
-      executor: this.validateDataIntegrity.bind(this)
+      executor: this.validateDataIntegrity.bind(this),
     });
 
     // Integration Validation Rules
@@ -367,12 +385,14 @@ export class ValidationRules {
         severity: ValidationSeverity.ERROR,
         contexts: [RuleExecutionContext.POST_EXECUTION],
         priority: 2,
-        taskTypes: ['implementation', 'deployment']
+        taskTypes: ['implementation', 'deployment'],
       },
-      executor: this.validateApiContracts.bind(this)
+      executor: this.validateApiContracts.bind(this),
     });
 
-    this.logger.info(`Initialized ${this.registry.rules.size} default validation rules`);
+    this.logger.info(
+      `Initialized ${this.registry.rules.size} default validation rules`,
+    );
   }
 
   /**
@@ -382,19 +402,20 @@ export class ValidationRules {
     this.logger.info(`Registering validation rule: ${definition.id}`, {
       name: definition.name,
       category: definition.category,
-      enabled: definition.config.enabled
+      enabled: definition.config.enabled,
     });
 
     // Store rule definition
     this.registry.rules.set(definition.id, definition);
 
     // Update category index
-    const categoryRules = this.registry.rulesByCategory.get(definition.category) || [];
+    const categoryRules =
+      this.registry.rulesByCategory.get(definition.category) || [];
     categoryRules.push(definition.id);
     this.registry.rulesByCategory.set(definition.category, categoryRules);
 
     // Update context index
-    definition.config.contexts.forEach(context => {
+    definition.config.contexts.forEach((context) => {
       const contextRules = this.registry.rulesByContext.get(context) || [];
       contextRules.push(definition.id);
       this.registry.rulesByContext.set(context, contextRules);
@@ -417,7 +438,7 @@ export class ValidationRules {
     context: RuleExecutionContext,
     taskType?: string,
     taskStatus?: TaskStatus,
-    category?: RuleCategory
+    category?: RuleCategory,
   ): ValidationRule[] {
     const contextRuleIds = this.registry.rulesByContext.get(context) || [];
     const applicableRules: ValidationRule[] = [];
@@ -434,12 +455,20 @@ export class ValidationRules {
       }
 
       // Check task type filter
-      if (taskType && definition.config.taskTypes && !definition.config.taskTypes.includes(taskType)) {
+      if (
+        taskType &&
+        definition.config.taskTypes &&
+        !definition.config.taskTypes.includes(taskType)
+      ) {
         continue;
       }
 
       // Check task status filter
-      if (taskStatus && definition.config.taskStatuses && !definition.config.taskStatuses.includes(taskStatus)) {
+      if (
+        taskStatus &&
+        definition.config.taskStatuses &&
+        !definition.config.taskStatuses.includes(taskStatus)
+      ) {
         continue;
       }
 
@@ -459,8 +488,8 @@ export class ValidationRules {
           ruleCategory: definition.category,
           contexts: definition.config.contexts,
           priority: definition.config.priority,
-          ...definition.metadata
-        }
+          ...definition.metadata,
+        },
       });
     }
 
@@ -475,7 +504,9 @@ export class ValidationRules {
   /**
    * Map rule category to validation category
    */
-  private mapRuleCategoryToValidationCategory(ruleCategory: RuleCategory): ValidationCategory {
+  private mapRuleCategoryToValidationCategory(
+    ruleCategory: RuleCategory,
+  ): ValidationCategory {
     switch (ruleCategory) {
       case RuleCategory.SECURITY_COMPLIANCE:
         return ValidationCategory.SECURITY;
@@ -522,7 +553,10 @@ export class ValidationRules {
   /**
    * Update rule configuration
    */
-  updateRuleConfig(ruleId: string, configUpdates: Partial<RuleConfig>): boolean {
+  updateRuleConfig(
+    ruleId: string,
+    configUpdates: Partial<RuleConfig>,
+  ): boolean {
     const definition = this.registry.rules.get(ruleId);
     if (!definition) {
       this.logger.warn(`Attempted to update non-existent rule: ${ruleId}`);
@@ -541,26 +575,34 @@ export class ValidationRules {
   /**
    * Validate that task has all required fields
    */
-  private async validateTaskRequiredFields(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskRequiredFields(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const task = context.metadata?.task as Task;
     if (!task) {
-      return [{
-        id: 'task-required-fields-no-task',
-        category: ValidationCategory.LOGIC,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: 'No task provided for required fields validation',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'task-required-fields-no-task',
+          category: ValidationCategory.LOGIC,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: 'No task provided for required fields validation',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     const results: ValidationResult[] = [];
     const requiredFields = ['id', 'title', 'description', 'type'];
     const missingFields: string[] = [];
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       const value = (task as any)[field];
-      if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+      if (
+        value === undefined ||
+        value === null ||
+        (typeof value === 'string' && value.trim() === '')
+      ) {
         missingFields.push(field);
       }
     });
@@ -573,7 +615,7 @@ export class ValidationRules {
         status: ValidationStatus.FAILED,
         message: `Task is missing required fields: ${missingFields.join(', ')}`,
         details: `Required fields: ${requiredFields.join(', ')}. Missing: ${missingFields.join(', ')}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     } else {
       results.push({
@@ -582,7 +624,7 @@ export class ValidationRules {
         severity: ValidationSeverity.INFO,
         status: ValidationStatus.PASSED,
         message: 'All required task fields are present',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
@@ -592,113 +634,146 @@ export class ValidationRules {
   /**
    * Validate that task status is valid for execution
    */
-  private async validateTaskStatusForExecution(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskStatusForExecution(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const task = context.metadata?.task as Task;
     if (!task) {
-      return [{
-        id: 'task-status-validation-no-task',
-        category: ValidationCategory.LOGIC,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: 'No task provided for status validation',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'task-status-validation-no-task',
+          category: ValidationCategory.LOGIC,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: 'No task provided for status validation',
+          timestamp: new Date(),
+        },
+      ];
     }
 
-    const validExecutionStatuses = [TaskStatus.PENDING, TaskStatus.QUEUED, TaskStatus.RUNNING];
-    const invalidStatuses = [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED];
+    const validExecutionStatuses = [
+      'pending',
+      'ready',
+      'in_progress',
+    ];
+    const invalidStatuses = [
+      'completed',
+      'failed',
+      'cancelled',
+    ];
 
     if (invalidStatuses.includes(task.status)) {
-      return [{
-        id: 'task-status-invalid-for-execution',
-        category: ValidationCategory.LOGIC,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Task status '${task.status}' is not valid for execution`,
-        details: `Valid statuses for execution: ${validExecutionStatuses.join(', ')}`,
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'task-status-invalid-for-execution',
+          category: ValidationCategory.LOGIC,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Task status '${task.status}' is not valid for execution`,
+          details: `Valid statuses for execution: ${validExecutionStatuses.join(', ')}`,
+          timestamp: new Date(),
+        },
+      ];
     }
 
-    return [{
-      id: 'task-status-valid-for-execution',
-      category: ValidationCategory.LOGIC,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: `Task status '${task.status}' is valid for execution`,
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'task-status-valid-for-execution',
+        category: ValidationCategory.LOGIC,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: `Task status '${task.status}' is valid for execution`,
+        timestamp: new Date(),
+      },
+    ];
   }
 
   /**
    * Validate that all task dependencies are satisfied
    */
-  private async validateTaskDependencies(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskDependencies(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const task = context.metadata?.task as Task;
     if (!task) {
-      return [{
-        id: 'task-dependencies-no-task',
-        category: ValidationCategory.LOGIC,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: 'No task provided for dependency validation',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'task-dependencies-no-task',
+          category: ValidationCategory.LOGIC,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: 'No task provided for dependency validation',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     // TODO: Implement actual dependency checking
     // This would require access to dependency information and their statuses
 
-    return [{
-      id: 'task-dependencies-validation-placeholder',
-      category: ValidationCategory.LOGIC,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Dependency validation placeholder - TODO: Implement actual dependency checking',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'task-dependencies-validation-placeholder',
+        category: ValidationCategory.LOGIC,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message:
+          'Dependency validation placeholder - TODO: Implement actual dependency checking',
+        timestamp: new Date(),
+      },
+    ];
   }
 
   /**
    * Validate execution timeout limits
    */
-  private async validateExecutionTimeout(context: ValidationContext): Promise<ValidationResult[]> {
-    const executionMetrics = context.metadata?.executionMetrics as TaskExecutionMetrics;
+  private async validateExecutionTimeout(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
+    const executionMetrics = context.metadata
+      ?.executionMetrics as TaskExecutionMetrics;
     const task = context.metadata?.task as Task;
 
     if (!executionMetrics || !task) {
-      return [{
-        id: 'execution-timeout-no-metrics',
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.WARNING,
-        status: ValidationStatus.SKIPPED,
-        message: 'No execution metrics available for timeout validation',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'execution-timeout-no-metrics',
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.WARNING,
+          status: ValidationStatus.SKIPPED,
+          message: 'No execution metrics available for timeout validation',
+          timestamp: new Date(),
+        },
+      ];
     }
 
-    const maxExecutionTime = (task as any).maxExecutionTimeMinutes * 60 * 1000 || 3600000; // 1 hour default
+    const maxExecutionTime =
+      (task as any).maxExecutionTimeMinutes * 60 * 1000 || 3600000; // 1 hour default
     const actualExecutionTime = executionMetrics.duration || 0;
 
     if (actualExecutionTime > maxExecutionTime) {
-      return [{
-        id: 'execution-timeout-exceeded',
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Execution time ${actualExecutionTime}ms exceeds timeout limit ${maxExecutionTime}ms`,
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'execution-timeout-exceeded',
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Execution time ${actualExecutionTime}ms exceeds timeout limit ${maxExecutionTime}ms`,
+          timestamp: new Date(),
+        },
+      ];
     }
 
-    return [{
-      id: 'execution-timeout-within-limits',
-      category: ValidationCategory.PERFORMANCE,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: `Execution time ${actualExecutionTime}ms is within timeout limit ${maxExecutionTime}ms`,
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'execution-timeout-within-limits',
+        category: ValidationCategory.PERFORMANCE,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: `Execution time ${actualExecutionTime}ms is within timeout limit ${maxExecutionTime}ms`,
+        timestamp: new Date(),
+      },
+    ];
   }
 
   /**
@@ -706,174 +781,227 @@ export class ValidationRules {
    * Each rule follows the same pattern: extract context, validate conditions, return results
    */
 
-  private async validateResourceConsumption(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateResourceConsumption(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement resource consumption validation
-    return [{
-      id: 'resource-consumption-placeholder',
-      category: ValidationCategory.PERFORMANCE,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Resource consumption validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'resource-consumption-placeholder',
+        category: ValidationCategory.PERFORMANCE,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Resource consumption validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateTaskCompletionCriteria(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskCompletionCriteria(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement completion criteria validation
-    return [{
-      id: 'completion-criteria-placeholder',
-      category: ValidationCategory.FUNCTIONAL,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Task completion criteria validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'completion-criteria-placeholder',
+        category: ValidationCategory.FUNCTIONAL,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Task completion criteria validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateTaskOutputs(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskOutputs(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement output validation
-    return [{
-      id: 'task-outputs-placeholder',
-      category: ValidationCategory.FUNCTIONAL,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Task outputs validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'task-outputs-placeholder',
+        category: ValidationCategory.FUNCTIONAL,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Task outputs validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateSensitiveDataHandling(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateSensitiveDataHandling(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement sensitive data handling validation
-    return [{
-      id: 'sensitive-data-placeholder',
-      category: ValidationCategory.SECURITY,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Sensitive data handling validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'sensitive-data-placeholder',
+        category: ValidationCategory.SECURITY,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Sensitive data handling validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateAccessControls(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateAccessControls(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement access controls validation
-    return [{
-      id: 'access-controls-placeholder',
-      category: ValidationCategory.SECURITY,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Access controls validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'access-controls-placeholder',
+        category: ValidationCategory.SECURITY,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Access controls validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateMemoryUsage(context: ValidationContext): Promise<ValidationResult[]> {
-    const executionMetrics = context.metadata?.executionMetrics as TaskExecutionMetrics;
+  private async validateMemoryUsage(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
+    const executionMetrics = context.metadata
+      ?.executionMetrics as TaskExecutionMetrics;
 
     if (!executionMetrics?.memoryUsage) {
-      return [{
-        id: 'memory-usage-no-metrics',
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.WARNING,
-        status: ValidationStatus.SKIPPED,
-        message: 'No memory usage metrics available',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'memory-usage-no-metrics',
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.WARNING,
+          status: ValidationStatus.SKIPPED,
+          message: 'No memory usage metrics available',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     const maxMemoryMB = 1024; // 1GB default limit
     const peakMemoryMB = executionMetrics.memoryUsage.peak / (1024 * 1024);
 
     if (peakMemoryMB > maxMemoryMB) {
-      return [{
-        id: 'memory-usage-exceeded',
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.WARNING,
-        status: ValidationStatus.FAILED,
-        message: `Peak memory usage ${peakMemoryMB.toFixed(2)}MB exceeds limit ${maxMemoryMB}MB`,
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'memory-usage-exceeded',
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.WARNING,
+          status: ValidationStatus.FAILED,
+          message: `Peak memory usage ${peakMemoryMB.toFixed(2)}MB exceeds limit ${maxMemoryMB}MB`,
+          timestamp: new Date(),
+        },
+      ];
     }
 
-    return [{
-      id: 'memory-usage-within-limits',
-      category: ValidationCategory.PERFORMANCE,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: `Peak memory usage ${peakMemoryMB.toFixed(2)}MB is within limit ${maxMemoryMB}MB`,
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'memory-usage-within-limits',
+        category: ValidationCategory.PERFORMANCE,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: `Peak memory usage ${peakMemoryMB.toFixed(2)}MB is within limit ${maxMemoryMB}MB`,
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateCpuUsage(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateCpuUsage(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement CPU usage validation similar to memory validation
-    return [{
-      id: 'cpu-usage-placeholder',
-      category: ValidationCategory.PERFORMANCE,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'CPU usage validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'cpu-usage-placeholder',
+        category: ValidationCategory.PERFORMANCE,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'CPU usage validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateCodeStandards(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateCodeStandards(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement code standards validation
-    return [{
-      id: 'code-standards-placeholder',
-      category: ValidationCategory.BUSINESS,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Code standards validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'code-standards-placeholder',
+        category: ValidationCategory.BUSINESS,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Code standards validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateTestCoverage(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTestCoverage(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement test coverage validation
-    return [{
-      id: 'test-coverage-placeholder',
-      category: ValidationCategory.BUSINESS,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Test coverage validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'test-coverage-placeholder',
+        category: ValidationCategory.BUSINESS,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Test coverage validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateBusinessRequirements(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateBusinessRequirements(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement business requirements validation
-    return [{
-      id: 'business-requirements-placeholder',
-      category: ValidationCategory.BUSINESS,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Business requirements validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'business-requirements-placeholder',
+        category: ValidationCategory.BUSINESS,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Business requirements validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateDataIntegrity(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateDataIntegrity(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement data integrity validation
-    return [{
-      id: 'data-integrity-placeholder',
-      category: ValidationCategory.FUNCTIONAL,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Data integrity validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'data-integrity-placeholder',
+        category: ValidationCategory.FUNCTIONAL,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'Data integrity validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
-  private async validateApiContracts(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateApiContracts(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     // TODO: Implement API contract validation
-    return [{
-      id: 'api-contracts-placeholder',
-      category: ValidationCategory.INTEGRATION,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'API contracts validation placeholder',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'api-contracts-placeholder',
+        category: ValidationCategory.INTEGRATION,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message: 'API contracts validation placeholder',
+        timestamp: new Date(),
+      },
+    ];
   }
 
   /**
@@ -892,7 +1020,9 @@ export class ValidationRules {
    */
   getRulesByCategory(category: RuleCategory): ValidationRuleDefinition[] {
     const ruleIds = this.registry.rulesByCategory.get(category) || [];
-    return ruleIds.map(id => this.registry.rules.get(id)).filter(Boolean) as ValidationRuleDefinition[];
+    return ruleIds
+      .map((id) => this.registry.rules.get(id))
+      .filter(Boolean) as ValidationRuleDefinition[];
   }
 
   /**
@@ -900,7 +1030,7 @@ export class ValidationRules {
    */
   getEnabledRules(): ValidationRuleDefinition[] {
     return Array.from(this.registry.enabledRules)
-      .map(id => this.registry.rules.get(id))
+      .map((id) => this.registry.rules.get(id))
       .filter(Boolean) as ValidationRuleDefinition[];
   }
 
@@ -915,13 +1045,15 @@ export class ValidationRules {
     rulesByContext: Record<string, number>;
   } {
     const rulesByCategory: Record<string, number> = {};
-    Object.values(RuleCategory).forEach(category => {
-      rulesByCategory[category] = this.registry.rulesByCategory.get(category)?.length || 0;
+    Object.values(RuleCategory).forEach((category) => {
+      rulesByCategory[category] =
+        this.registry.rulesByCategory.get(category)?.length || 0;
     });
 
     const rulesByContext: Record<string, number> = {};
-    Object.values(RuleExecutionContext).forEach(context => {
-      rulesByContext[context] = this.registry.rulesByContext.get(context)?.length || 0;
+    Object.values(RuleExecutionContext).forEach((context) => {
+      rulesByContext[context] =
+        this.registry.rulesByContext.get(context)?.length || 0;
     });
 
     return {
@@ -929,7 +1061,7 @@ export class ValidationRules {
       enabledRules: this.registry.enabledRules.size,
       disabledRules: this.registry.disabledRules.size,
       rulesByCategory,
-      rulesByContext
+      rulesByContext,
     };
   }
 
@@ -946,7 +1078,8 @@ export class ValidationRules {
     this.registry.rules.delete(ruleId);
 
     // Remove from category index
-    const categoryRules = this.registry.rulesByCategory.get(definition.category) || [];
+    const categoryRules =
+      this.registry.rulesByCategory.get(definition.category) || [];
     const categoryIndex = categoryRules.indexOf(ruleId);
     if (categoryIndex > -1) {
       categoryRules.splice(categoryIndex, 1);
@@ -954,7 +1087,7 @@ export class ValidationRules {
     }
 
     // Remove from context indices
-    definition.config.contexts.forEach(context => {
+    definition.config.contexts.forEach((context) => {
       const contextRules = this.registry.rulesByContext.get(context) || [];
       const contextIndex = contextRules.indexOf(ruleId);
       if (contextIndex > -1) {

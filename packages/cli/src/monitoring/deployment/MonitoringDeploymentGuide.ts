@@ -5,7 +5,10 @@
  */
 
 import { Logger } from '../../utils/logger.js';
-import { monitoringIntegrationHub, type MonitoringIntegrationConfig } from '../MonitoringIntegrationHub.js';
+import {
+  monitoringIntegrationHub,
+  type MonitoringIntegrationConfig,
+} from '../MonitoringIntegrationHub.js';
 import { realTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { enhancedMonitoringDashboard } from '../EnhancedMonitoringDashboard.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
@@ -140,7 +143,7 @@ export class MonitoringDeploymentManager {
    */
   async deployMonitoringSystem(
     config: Partial<DeploymentConfig> = {},
-    healthChecks: Partial<HealthCheckConfig> = {}
+    healthChecks: Partial<HealthCheckConfig> = {},
   ): Promise<void> {
     try {
       this.logger.info('Starting monitoring system deployment', {
@@ -184,7 +187,6 @@ export class MonitoringDeploymentManager {
         enabledComponents: this.deploymentConfig.enabledComponents,
         deploymentPath: this.deploymentPath,
       });
-
     } catch (error) {
       this.logger.error('Monitoring system deployment failed', { error });
       await this.rollbackDeployment();
@@ -491,11 +493,14 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
    */
   async executeHealthCheck(): Promise<{
     overall: 'healthy' | 'degraded' | 'unhealthy' | 'critical';
-    components: Record<string, {
-      status: string;
-      responseTime: number;
-      checks: Array<{ name: string; status: string; message?: string }>;
-    }>;
+    components: Record<
+      string,
+      {
+        status: string;
+        responseTime: number;
+        checks: Array<{ name: string; status: string; message?: string }>;
+      }
+    >;
     timestamp: Date;
   }> {
     const systemStatus = monitoringIntegrationHub.getSystemStatus();
@@ -510,7 +515,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
             responseTime: component.responseTime,
             checks: component.checks,
           },
-        ])
+        ]),
       ),
       timestamp: new Date(),
     };
@@ -518,7 +523,9 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
 
   // Private methods for deployment implementation
 
-  private generateDeploymentConfig(config: Partial<DeploymentConfig>): DeploymentConfig {
+  private generateDeploymentConfig(
+    config: Partial<DeploymentConfig>,
+  ): DeploymentConfig {
     const environment = config.environment || 'development';
 
     const defaults: DeploymentConfig = {
@@ -541,9 +548,10 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
         websocketPort: 8080,
         enableHttps: environment === 'production',
         enableCors: true,
-        corsOrigins: environment === 'production'
-          ? ['https://monitoring.company.com']
-          : ['http://localhost:3000', 'http://localhost:8080'],
+        corsOrigins:
+          environment === 'production'
+            ? ['https://monitoring.company.com']
+            : ['http://localhost:3000', 'http://localhost:8080'],
       },
       observability: {
         enableMetricsExport: environment !== 'development',
@@ -563,7 +571,9 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
     return { ...defaults, ...config };
   }
 
-  private generateHealthCheckConfig(config: Partial<HealthCheckConfig>): HealthCheckConfig {
+  private generateHealthCheckConfig(
+    config: Partial<HealthCheckConfig>,
+  ): HealthCheckConfig {
     const defaults: HealthCheckConfig = {
       endpoints: [
         {
@@ -683,7 +693,11 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
         commonIssues: [
           {
             issue: 'High memory usage',
-            symptoms: ['Memory alerts triggering', 'Slow response times', 'System degradation'],
+            symptoms: [
+              'Memory alerts triggering',
+              'Slow response times',
+              'System degradation',
+            ],
             resolution: [
               'Check data retention settings',
               'Review active dashboard count',
@@ -693,7 +707,11 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
           },
           {
             issue: 'Dashboard not loading',
-            symptoms: ['Dashboard shows errors', 'Widget data missing', 'Slow load times'],
+            symptoms: [
+              'Dashboard shows errors',
+              'Widget data missing',
+              'Slow load times',
+            ],
             resolution: [
               'Check WebSocket connectivity',
               'Verify data source availability',
@@ -703,8 +721,10 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
           },
         ],
         diagnosticCommands: {
-          check_system_health: 'curl http://localhost:8080/api/monitoring/health',
-          view_active_alerts: 'curl http://localhost:8080/api/monitoring/alerts',
+          check_system_health:
+            'curl http://localhost:8080/api/monitoring/health',
+          view_active_alerts:
+            'curl http://localhost:8080/api/monitoring/alerts',
           export_metrics: 'curl http://localhost:8080/api/monitoring/export',
           check_websocket: 'netstat -an | grep 8080',
         },
@@ -726,7 +746,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
 
     this.logger.info('Configuration files saved', {
       path: this.deploymentPath,
-      files: Object.keys(configs).map(name => `${name}-config.json`),
+      files: Object.keys(configs).map((name) => `${name}-config.json`),
     });
   }
 
@@ -748,7 +768,9 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
         const nodeVersion = process.version;
         const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0]);
         if (majorVersion < 18) {
-          throw new Error(`Node.js version ${nodeVersion} is not supported. Requires >= 18.x`);
+          throw new Error(
+            `Node.js version ${nodeVersion} is not supported. Requires >= 18.x`,
+          );
         }
         break;
 
@@ -765,9 +787,14 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
 
       case 'Validate filesystem permissions':
         try {
-          await fs.access(this.deploymentPath, fs.constants.R_OK | fs.constants.W_OK);
+          await fs.access(
+            this.deploymentPath,
+            fs.constants.R_OK | fs.constants.W_OK,
+          );
         } catch (error) {
-          throw new Error(`Insufficient filesystem permissions for ${this.deploymentPath}`);
+          throw new Error(
+            `Insufficient filesystem permissions for ${this.deploymentPath}`,
+          );
         }
         break;
 
@@ -805,7 +832,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
     }
 
     // Add small delay between component initializations
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   private async setupInfrastructure(): Promise<void> {
@@ -823,7 +850,9 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
 
   private async deployDashboards(): Promise<void> {
     if (!this.deploymentConfig!.enabledComponents.dashboards) {
-      this.logger.info('Dashboard deployment skipped (disabled in configuration)');
+      this.logger.info(
+        'Dashboard deployment skipped (disabled in configuration)',
+      );
       return;
     }
 
@@ -835,7 +864,9 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
 
   private async configureAlerting(): Promise<void> {
     if (!this.deploymentConfig!.enabledComponents.alerting) {
-      this.logger.info('Alerting configuration skipped (disabled in configuration)');
+      this.logger.info(
+        'Alerting configuration skipped (disabled in configuration)',
+      );
       return;
     }
 
@@ -848,8 +879,13 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
   private async executePostDeploymentValidation(): Promise<void> {
     const healthCheck = await this.executeHealthCheck();
 
-    if (healthCheck.overall === 'critical' || healthCheck.overall === 'unhealthy') {
-      throw new Error(`Deployment validation failed: System health is ${healthCheck.overall}`);
+    if (
+      healthCheck.overall === 'critical' ||
+      healthCheck.overall === 'unhealthy'
+    ) {
+      throw new Error(
+        `Deployment validation failed: System health is ${healthCheck.overall}`,
+      );
     }
 
     this.logger.info('Post-deployment validation passed', {
@@ -879,9 +915,9 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
   // Documentation generation methods
 
   private generatePreDeploymentChecklist(): string {
-    return this.operationalProcedures!.startup.preflightChecks
-      .map(check => `- [ ] ${check}`)
-      .join('\n');
+    return this.operationalProcedures!.startup.preflightChecks.map(
+      (check) => `- [ ] ${check}`,
+    ).join('\n');
   }
 
   private generateEnvironmentConfiguration(): string {
@@ -903,9 +939,9 @@ Configuration varies by environment:
   }
 
   private generateComponentInitialization(): string {
-    return this.operationalProcedures!.startup.initializationOrder
-      .map((step, index) => `${index + 1}. ${step}`)
-      .join('\n');
+    return this.operationalProcedures!.startup.initializationOrder.map(
+      (step, index) => `${index + 1}. ${step}`,
+    ).join('\n');
   }
 
   private generateDashboardDeployment(): string {
@@ -943,27 +979,27 @@ Performance optimizations:
   }
 
   private generateDailyOperations(): string {
-    return this.operationalProcedures!.maintenance.dailyTasks
-      .map(task => `- ${task}`)
-      .join('\n');
+    return this.operationalProcedures!.maintenance.dailyTasks.map(
+      (task) => `- ${task}`,
+    ).join('\n');
   }
 
   private generateWeeklyMaintenance(): string {
-    return this.operationalProcedures!.maintenance.weeklyTasks
-      .map(task => `- ${task}`)
-      .join('\n');
+    return this.operationalProcedures!.maintenance.weeklyTasks.map(
+      (task) => `- ${task}`,
+    ).join('\n');
   }
 
   private generateMonthlyTasks(): string {
-    return this.operationalProcedures!.maintenance.monthlyTasks
-      .map(task => `- ${task}`)
-      .join('\n');
+    return this.operationalProcedures!.maintenance.monthlyTasks.map(
+      (task) => `- ${task}`,
+    ).join('\n');
   }
 
   private generateKeyMetrics(): string {
-    return this.operationalProcedures!.monitoring.keyMetrics
-      .map(metric => `- ${metric}`)
-      .join('\n');
+    return this.operationalProcedures!.monitoring.keyMetrics.map(
+      (metric) => `- ${metric}`,
+    ).join('\n');
   }
 
   private generateAlertConfiguration(): string {
@@ -974,22 +1010,25 @@ Performance optimizations:
   }
 
   private generateEscalationProcedures(): string {
-    return this.operationalProcedures!.monitoring.escalationPaths
-      .map(path => `- ${path.severity}: ${path.contacts.join(', ')} (${path.timeoutMinutes}min timeout)`)
-      .join('\n');
+    return this.operationalProcedures!.monitoring.escalationPaths.map(
+      (path) =>
+        `- ${path.severity}: ${path.contacts.join(', ')} (${path.timeoutMinutes}min timeout)`,
+    ).join('\n');
   }
 
   private generateTroubleshootingGuide(): string {
-    return this.operationalProcedures!.troubleshooting.commonIssues
-      .map(issue => `
+    return this.operationalProcedures!.troubleshooting.commonIssues.map(
+      (issue) => `
 **${issue.issue}**
 Symptoms: ${issue.symptoms.join(', ')}
-Resolution: ${issue.resolution.map(step => `\n  - ${step}`).join('')}
-`).join('\n');
+Resolution: ${issue.resolution.map((step) => `\n  - ${step}`).join('')}
+`,
+    ).join('\n');
   }
 
   private generateDiagnosticCommands(): string {
-    const commands = this.operationalProcedures!.troubleshooting.diagnosticCommands;
+    const commands =
+      this.operationalProcedures!.troubleshooting.diagnosticCommands;
     return Object.entries(commands)
       .map(([name, command]) => `- ${name}: \`${command}\``)
       .join('\n');
@@ -1041,9 +1080,9 @@ Data protection measures:
   }
 
   private generateBackupProcedures(): string {
-    return this.operationalProcedures!.maintenance.backupProcedures
-      .map(procedure => `- ${procedure}`)
-      .join('\n');
+    return this.operationalProcedures!.maintenance.backupProcedures.map(
+      (procedure) => `- ${procedure}`,
+    ).join('\n');
   }
 
   private generateDisasterRecoveryProcedures(): string {

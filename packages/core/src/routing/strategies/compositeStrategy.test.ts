@@ -140,7 +140,7 @@ describe('CompositeStrategy', () => {
       "Strategy 'strategy1' failed. Continuing to next strategy.",
       expect.objectContaining({
         error: testError,
-        strategyName: 'strategy1'
+        strategyName: 'strategy1',
       }),
     );
     expect(result.model).toBe('terminal-model');
@@ -160,7 +160,7 @@ describe('CompositeStrategy', () => {
       "Critical Error: Terminal strategy 'terminal' failed. Routing cannot proceed.",
       expect.objectContaining({
         error: terminalError,
-        terminalStrategyName: 'terminal'
+        terminalStrategyName: 'terminal',
       }),
     );
   });

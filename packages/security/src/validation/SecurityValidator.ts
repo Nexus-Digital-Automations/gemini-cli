@@ -96,13 +96,13 @@ export class SecurityValidator extends EventEmitter {
         'dependencies',
         'secrets',
         'input-validation',
-        'output-encoding'
+        'output-encoding',
       ],
       excludeCategories: options.excludeCategories ?? [],
       minSeverity: options.minSeverity ?? 'info',
       includeTests: options.includeTests ?? false,
       includeDependencies: options.includeDependencies ?? true,
-      customRules: options.customRules ?? []
+      customRules: options.customRules ?? [],
     };
 
     this.builtinRules = this.createBuiltinRules();
@@ -139,28 +139,29 @@ export class SecurityValidator extends EventEmitter {
       const recommendations = this.generateRecommendations(filteredIssues);
 
       const result: SecurityValidationResult = {
-        passed: filteredIssues.length === 0 || !filteredIssues.some(i => i.severity === 'critical'),
+        passed:
+          filteredIssues.length === 0 ||
+          !filteredIssues.some((i) => i.severity === 'critical'),
         score,
         issues: filteredIssues,
         recommendations,
         timestamp: new Date(),
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       };
 
       this.logger.info(`Security validation completed`, {
         path: targetPath,
         score,
         issueCount: filteredIssues.length,
-        executionTimeMs: result.executionTimeMs
+        executionTimeMs: result.executionTimeMs,
       });
 
       this.emit('validation:complete', result);
       return result;
-
     } catch (error) {
       this.logger.error(`Security validation failed`, {
         path: targetPath,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       this.emit('validation:error', { path: targetPath, error });
       throw error;
@@ -215,11 +216,10 @@ export class SecurityValidator extends EventEmitter {
         const packageIssues = await this.validatePackageJson(filePath, content);
         issues.push(...packageIssues);
       }
-
     } catch (error) {
       this.logger.warn(`Failed to read file for security validation`, {
         file: filePath,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
 
@@ -233,7 +233,7 @@ export class SecurityValidator extends EventEmitter {
     rule: SecurityRule,
     filePath: string,
     content: string,
-    lines: string[]
+    lines: string[],
   ): Promise<SecurityIssue[]> {
     const issues: SecurityIssue[] = [];
     let match;
@@ -255,7 +255,7 @@ export class SecurityValidator extends EventEmitter {
         column: columnNumber,
         cwe: rule.cwe,
         owasp: rule.owasp,
-        remediation: rule.remediation
+        remediation: rule.remediation,
       };
 
       issues.push(issue);
@@ -272,7 +272,10 @@ export class SecurityValidator extends EventEmitter {
   /**
    * Validate package.json for security issues.
    */
-  private async validatePackageJson(filePath: string, content: string): Promise<SecurityIssue[]> {
+  private async validatePackageJson(
+    filePath: string,
+    content: string,
+  ): Promise<SecurityIssue[]> {
     const issues: SecurityIssue[] = [];
 
     try {
@@ -280,7 +283,9 @@ export class SecurityValidator extends EventEmitter {
 
       // Check for suspicious scripts
       if (packageData.scripts) {
-        for (const [scriptName, scriptCommand] of Object.entries(packageData.scripts)) {
+        for (const [scriptName, scriptCommand] of Object.entries(
+          packageData.scripts,
+        )) {
           if (typeof scriptCommand === 'string') {
             // Check for potentially dangerous script commands
             if (this.isDangerousScript(scriptCommand)) {
@@ -292,13 +297,13 @@ export class SecurityValidator extends EventEmitter {
                 file: filePath,
                 cwe: ['CWE-78'],
                 owasp: ['A03:2021 - Injection'],
-                remediation: 'Review script command for potential security risks. Avoid using user input directly in shell commands.'
+                remediation:
+                  'Review script command for potential security risks. Avoid using user input directly in shell commands.',
               });
             }
           }
         }
       }
-
     } catch (error) {
       issues.push({
         id: crypto.randomUUID(),
@@ -306,7 +311,7 @@ export class SecurityValidator extends EventEmitter {
         category: 'configuration',
         message: `Failed to parse package.json: ${error instanceof Error ? error.message : String(error)}`,
         file: filePath,
-        remediation: 'Fix JSON syntax errors in package.json'
+        remediation: 'Fix JSON syntax errors in package.json',
       });
     }
 
@@ -324,10 +329,10 @@ export class SecurityValidator extends EventEmitter {
       /\$\([^)]*\)/,
       /curl.*\|\s*sh/,
       /wget.*\|\s*sh/,
-      />\s*\/dev\/null\s*2>&1/
+      />\s*\/dev\/null\s*2>&1/,
     ];
 
-    return dangerousPatterns.some(pattern => pattern.test(command));
+    return dangerousPatterns.some((pattern) => pattern.test(command));
   }
 
   /**
@@ -340,22 +345,25 @@ export class SecurityValidator extends EventEmitter {
         name: 'Hardcoded Secrets Detection',
         category: 'secrets',
         severity: 'critical',
-        pattern: /(password|pwd|secret|key|token|api_key)\s*[:=]\s*['"][\w\-\/+=]{8,}/gi,
+        pattern:
+          /(password|pwd|secret|key|token|api_key)\s*[:=]\s*['"][\w\-\/+=]{8,}/gi,
         message: 'Potential hardcoded secret detected',
-        remediation: 'Move secrets to environment variables or secure configuration files',
+        remediation:
+          'Move secrets to environment variables or secure configuration files',
         cwe: ['CWE-798'],
-        owasp: ['A02:2021 - Cryptographic Failures']
+        owasp: ['A02:2021 - Cryptographic Failures'],
       },
       {
         id: 'sql-injection',
         name: 'SQL Injection Vulnerability',
         category: 'injection',
         severity: 'critical',
-        pattern: /(['"]?\s*\+\s*['"]?.*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER).*\+|query\s*\+|execute\(.*\+)/gi,
+        pattern:
+          /(['"]?\s*\+\s*['"]?.*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER).*\+|query\s*\+|execute\(.*\+)/gi,
         message: 'Potential SQL injection vulnerability detected',
         remediation: 'Use parameterized queries or prepared statements',
         cwe: ['CWE-89'],
-        owasp: ['A03:2021 - Injection']
+        owasp: ['A03:2021 - Injection'],
       },
       {
         id: 'command-injection',
@@ -364,9 +372,10 @@ export class SecurityValidator extends EventEmitter {
         severity: 'critical',
         pattern: /(exec\(|execSync\(|spawn\(|execFile\().*\+|`.*\$\{.*\}.*`/g,
         message: 'Potential command injection vulnerability detected',
-        remediation: 'Use parameterized command execution and validate all input',
+        remediation:
+          'Use parameterized command execution and validate all input',
         cwe: ['CWE-78'],
-        owasp: ['A03:2021 - Injection']
+        owasp: ['A03:2021 - Injection'],
       },
       {
         id: 'weak-crypto',
@@ -375,9 +384,10 @@ export class SecurityValidator extends EventEmitter {
         severity: 'high',
         pattern: /(md5|sha1|des|rc4|3des)[\s(]/gi,
         message: 'Weak cryptographic algorithm detected',
-        remediation: 'Use strong cryptographic algorithms like AES-256, SHA-256, or better',
+        remediation:
+          'Use strong cryptographic algorithms like AES-256, SHA-256, or better',
         cwe: ['CWE-326'],
-        owasp: ['A02:2021 - Cryptographic Failures']
+        owasp: ['A02:2021 - Cryptographic Failures'],
       },
       {
         id: 'unsafe-eval',
@@ -386,9 +396,10 @@ export class SecurityValidator extends EventEmitter {
         severity: 'high',
         pattern: /\beval\s*\(/g,
         message: 'Unsafe use of eval() detected',
-        remediation: 'Avoid using eval(). Use JSON.parse() for JSON data or implement safer alternatives',
+        remediation:
+          'Avoid using eval(). Use JSON.parse() for JSON data or implement safer alternatives',
         cwe: ['CWE-95'],
-        owasp: ['A03:2021 - Injection']
+        owasp: ['A03:2021 - Injection'],
       },
       {
         id: 'insecure-random',
@@ -397,9 +408,10 @@ export class SecurityValidator extends EventEmitter {
         severity: 'medium',
         pattern: /Math\.random\(\)/g,
         message: 'Insecure random number generation detected',
-        remediation: 'Use crypto.randomBytes() or crypto.randomUUID() for cryptographic purposes',
+        remediation:
+          'Use crypto.randomBytes() or crypto.randomUUID() for cryptographic purposes',
         cwe: ['CWE-338'],
-        owasp: ['A02:2021 - Cryptographic Failures']
+        owasp: ['A02:2021 - Cryptographic Failures'],
       },
       {
         id: 'debug-info',
@@ -408,10 +420,11 @@ export class SecurityValidator extends EventEmitter {
         severity: 'low',
         pattern: /console\.(log|debug|info|warn|error)\(/g,
         message: 'Debug output detected - may leak sensitive information',
-        remediation: 'Remove debug statements or use proper logging framework with level controls',
+        remediation:
+          'Remove debug statements or use proper logging framework with level controls',
         cwe: ['CWE-532'],
-        owasp: ['A09:2021 - Security Logging and Monitoring Failures']
-      }
+        owasp: ['A09:2021 - Security Logging and Monitoring Failures'],
+      },
     ];
   }
 
@@ -422,14 +435,16 @@ export class SecurityValidator extends EventEmitter {
     const allRules = [...this.builtinRules, ...this.options.customRules];
     const fileExtension = path.extname(filePath);
 
-    return allRules.filter(rule => {
+    return allRules.filter((rule) => {
       // Apply category filters
       if (this.options.excludeCategories.includes(rule.category)) {
         return false;
       }
 
-      if (this.options.includeCategories.length > 0 &&
-          !this.options.includeCategories.includes(rule.category)) {
+      if (
+        this.options.includeCategories.length > 0 &&
+        !this.options.includeCategories.includes(rule.category)
+      ) {
         return false;
       }
 
@@ -451,15 +466,26 @@ export class SecurityValidator extends EventEmitter {
     const severityOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
     const minSeverityLevel = severityOrder[this.options.minSeverity];
 
-    return issues.filter(issue => severityOrder[issue.severity] <= minSeverityLevel);
+    return issues.filter(
+      (issue) => severityOrder[issue.severity] <= minSeverityLevel,
+    );
   }
 
   /**
    * Calculate security score based on issues found.
    */
   private calculateSecurityScore(issues: SecurityIssue[]): number {
-    const weights = { critical: -50, high: -25, medium: -10, low: -5, info: -1 };
-    const totalDeduction = issues.reduce((sum, issue) => sum + weights[issue.severity], 0);
+    const weights = {
+      critical: -50,
+      high: -25,
+      medium: -10,
+      low: -5,
+      info: -1,
+    };
+    const totalDeduction = issues.reduce(
+      (sum, issue) => sum + weights[issue.severity],
+      0,
+    );
     return Math.max(0, 100 + totalDeduction);
   }
 
@@ -472,7 +498,10 @@ export class SecurityValidator extends EventEmitter {
 
     // Count issues by category
     for (const issue of issues) {
-      categoryCount.set(issue.category, (categoryCount.get(issue.category) || 0) + 1);
+      categoryCount.set(
+        issue.category,
+        (categoryCount.get(issue.category) || 0) + 1,
+      );
     }
 
     // Generate category-based recommendations
@@ -487,7 +516,7 @@ export class SecurityValidator extends EventEmitter {
       'Implement regular security scans in your CI/CD pipeline',
       'Consider using security-focused linting rules and plugins',
       'Keep all dependencies updated to their latest secure versions',
-      'Implement proper logging and monitoring for security events'
+      'Implement proper logging and monitoring for security events',
     );
 
     return recommendations;
@@ -496,7 +525,10 @@ export class SecurityValidator extends EventEmitter {
   /**
    * Get recommendation for a specific security category.
    */
-  private getCategoryRecommendation(category: SecurityCategory, count: number): string {
+  private getCategoryRecommendation(
+    category: SecurityCategory,
+    count: number,
+  ): string {
     const recommendations = {
       injection: `Found ${count} injection vulnerability${count > 1 ? 's' : ''}. Implement input validation and use parameterized queries.`,
       authentication: `Found ${count} authentication issue${count > 1 ? 's' : ''}. Review authentication mechanisms and implement multi-factor authentication.`,
@@ -507,10 +539,13 @@ export class SecurityValidator extends EventEmitter {
       dependencies: `Found ${count} dependency issue${count > 1 ? 's' : ''}. Update vulnerable dependencies and implement dependency scanning.`,
       secrets: `Found ${count} secret${count > 1 ? 's' : ''} exposure. Move secrets to secure storage and implement secret scanning.`,
       'input-validation': `Found ${count} input validation issue${count > 1 ? 's' : ''}. Implement comprehensive input validation and sanitization.`,
-      'output-encoding': `Found ${count} output encoding issue${count > 1 ? 's' : ''}. Implement proper output encoding to prevent XSS attacks.`
+      'output-encoding': `Found ${count} output encoding issue${count > 1 ? 's' : ''}. Implement proper output encoding to prevent XSS attacks.`,
     };
 
-    return recommendations[category] || `Found ${count} ${category} issue${count > 1 ? 's' : ''}. Please review and remediate.`;
+    return (
+      recommendations[category] ||
+      `Found ${count} ${category} issue${count > 1 ? 's' : ''}. Please review and remediate.`
+    );
   }
 
   /**
@@ -527,11 +562,11 @@ export class SecurityValidator extends EventEmitter {
       /\.next/,
       /\.nuxt/,
       /\.vscode/,
-      /\.idea/
+      /\.idea/,
     ];
 
     const normalizedPath = path.normalize(filePath);
-    return skipPatterns.some(pattern => pattern.test(normalizedPath));
+    return skipPatterns.some((pattern) => pattern.test(normalizedPath));
   }
 
   /**
@@ -544,10 +579,10 @@ export class SecurityValidator extends EventEmitter {
       /__tests__/,
       /__test__/,
       /\/tests?\//,
-      /\/spec\//
+      /\/spec\//,
     ];
 
-    return testPatterns.some(pattern => pattern.test(filePath));
+    return testPatterns.some((pattern) => pattern.test(filePath));
   }
 }
 
@@ -556,14 +591,23 @@ export class SecurityValidator extends EventEmitter {
  */
 class SecurityLogger {
   info(message: string, context?: Record<string, unknown>): void {
-    console.log(`[SECURITY-INFO] ${message}`, context ? JSON.stringify(context, null, 2) : '');
+    console.log(
+      `[SECURITY-INFO] ${message}`,
+      context ? JSON.stringify(context, null, 2) : '',
+    );
   }
 
   warn(message: string, context?: Record<string, unknown>): void {
-    console.warn(`[SECURITY-WARN] ${message}`, context ? JSON.stringify(context, null, 2) : '');
+    console.warn(
+      `[SECURITY-WARN] ${message}`,
+      context ? JSON.stringify(context, null, 2) : '',
+    );
   }
 
   error(message: string, context?: Record<string, unknown>): void {
-    console.error(`[SECURITY-ERROR] ${message}`, context ? JSON.stringify(context, null, 2) : '');
+    console.error(
+      `[SECURITY-ERROR] ${message}`,
+      context ? JSON.stringify(context, null, 2) : '',
+    );
   }
 }

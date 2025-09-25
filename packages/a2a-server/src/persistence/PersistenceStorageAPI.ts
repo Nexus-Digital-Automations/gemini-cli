@@ -11,10 +11,26 @@ import type { Task as SDKTask } from '@a2a-js/sdk';
 import type { TaskStore } from '@a2a-js/sdk/server';
 import { logger } from '../utils/logger.js';
 
-import { FileBasedTaskStore, type FileBasedStorageConfig } from './FileBasedTaskStore.js';
-import { SessionManager, type SessionOwnership, type TaskCorrelation } from './SessionManager.js';
-import { ConflictResolver, type ConflictAnalysis, type ResolutionStrategy } from './ConflictResolver.js';
-import { DataIntegrityManager, type IntegrityCheckResult, type BackupMetadata, type RecoveryOperation } from './DataIntegrityManager.js';
+import {
+  FileBasedTaskStore,
+  type FileBasedStorageConfig,
+} from './FileBasedTaskStore.js';
+import {
+  SessionManager,
+  type SessionOwnership,
+  type TaskCorrelation,
+} from './SessionManager.js';
+import {
+  ConflictResolver,
+  type ConflictAnalysis,
+  type ResolutionStrategy,
+} from './ConflictResolver.js';
+import {
+  DataIntegrityManager,
+  type IntegrityCheckResult,
+  type BackupMetadata,
+  type RecoveryOperation,
+} from './DataIntegrityManager.js';
 
 /**
  * Comprehensive storage statistics
@@ -172,7 +188,10 @@ export class PersistenceStorageAPI implements TaskStore {
     this.config = {
       baseDir: config.baseDir || join(homedir(), '.gemini-cli', 'persistence'),
       fileStorage: {
-        storageDir: join(config.baseDir || join(homedir(), '.gemini-cli', 'persistence'), 'tasks'),
+        storageDir: join(
+          config.baseDir || join(homedir(), '.gemini-cli', 'persistence'),
+          'tasks',
+        ),
         compressMetadata: true,
         compressWorkspace: true,
         maxBackupVersions: 10,
@@ -184,7 +203,8 @@ export class PersistenceStorageAPI implements TaskStore {
       enableSessionManagement: config.enableSessionManagement ?? true,
       enableConflictResolution: config.enableConflictResolution ?? true,
       enableDataIntegrity: config.enableDataIntegrity ?? true,
-      ownerId: config.ownerId || process.env.USER || process.env.USERNAME || 'unknown',
+      ownerId:
+        config.ownerId || process.env.USER || process.env.USERNAME || 'unknown',
       performance: {
         enableCaching: config.performance?.enableCaching ?? true,
         cacheSize: config.performance?.cacheSize ?? 100,
@@ -196,7 +216,8 @@ export class PersistenceStorageAPI implements TaskStore {
         alertThresholds: {
           diskUsage: config.monitoring?.alertThresholds?.diskUsage ?? 80,
           failureRate: config.monitoring?.alertThresholds?.failureRate ?? 5,
-          responseTime: config.monitoring?.alertThresholds?.responseTime ?? 5000,
+          responseTime:
+            config.monitoring?.alertThresholds?.responseTime ?? 5000,
         },
       },
     };
@@ -224,13 +245,13 @@ export class PersistenceStorageAPI implements TaskStore {
       if (this.config.enableSessionManagement) {
         this.sessionManager = new SessionManager(
           join(this.config.baseDir, 'sessions'),
-          this.config.ownerId
+          this.config.ownerId,
         );
       }
 
       if (this.config.enableConflictResolution) {
         this.conflictResolver = new ConflictResolver(
-          join(this.config.baseDir, 'conflicts')
+          join(this.config.baseDir, 'conflicts'),
         );
       }
 
@@ -280,7 +301,8 @@ export class PersistenceStorageAPI implements TaskStore {
 
       // Update session correlation if session management is enabled
       if (this.sessionManager) {
-        const existingCorrelation = await this.sessionManager.getTaskCorrelation(task.id);
+        const existingCorrelation =
+          await this.sessionManager.getTaskCorrelation(task.id);
 
         if (existingCorrelation) {
           // Update existing correlation
@@ -302,18 +324,24 @@ export class PersistenceStorageAPI implements TaskStore {
       if (this.conflictResolver && this.sessionManager) {
         const currentSession = this.sessionManager.getCurrentSession();
         const activeSessions = await this.sessionManager.getActiveSessions();
-        const taskCorrelation = await this.sessionManager.getTaskCorrelation(task.id);
-
-        const conflictAnalysis = await this.conflictResolver.analyzeTaskConflicts(
+        const taskCorrelation = await this.sessionManager.getTaskCorrelation(
           task.id,
-          currentSession,
-          activeSessions,
-          taskCorrelation
         );
+
+        const conflictAnalysis =
+          await this.conflictResolver.analyzeTaskConflicts(
+            task.id,
+            currentSession,
+            activeSessions,
+            taskCorrelation,
+          );
 
         if (conflictAnalysis.hasConflict && conflictAnalysis.canAutoResolve) {
           logger.info(`Auto-resolving conflicts for task ${task.id}`);
-          await this.conflictResolver.resolveConflicts(task.id, conflictAnalysis);
+          await this.conflictResolver.resolveConflicts(
+            task.id,
+            conflictAnalysis,
+          );
         }
       }
 
@@ -323,7 +351,8 @@ export class PersistenceStorageAPI implements TaskStore {
       // Verify integrity after save
       if (this.dataIntegrity) {
         const taskPath = this.getTaskMetadataPath(task.id);
-        const integrityResult = await this.dataIntegrity.verifyFileIntegrity(taskPath);
+        const integrityResult =
+          await this.dataIntegrity.verifyFileIntegrity(taskPath);
 
         if (!integrityResult.isValid) {
           logger.warn(`Integrity check failed after saving task ${task.id}`);
@@ -335,11 +364,15 @@ export class PersistenceStorageAPI implements TaskStore {
       // Record metrics
       this.recordOperationMetrics(operation, Date.now() - startTime);
 
-      logger.info(`Task ${task.id} saved successfully in ${Date.now() - startTime}ms`);
-
+      logger.info(
+        `Task ${task.id} saved successfully in ${Date.now() - startTime}ms`,
+      );
     } catch (error) {
       logger.error(`Failed to save task ${task.id}:`, error);
-      this.recordOperationMetrics(`${operation}_failed`, Date.now() - startTime);
+      this.recordOperationMetrics(
+        `${operation}_failed`,
+        Date.now() - startTime,
+      );
       throw error;
     }
   }
@@ -358,21 +391,28 @@ export class PersistenceStorageAPI implements TaskStore {
       if (this.conflictResolver && this.sessionManager) {
         const currentSession = this.sessionManager.getCurrentSession();
         const activeSessions = await this.sessionManager.getActiveSessions();
-        const taskCorrelation = await this.sessionManager.getTaskCorrelation(taskId);
+        const taskCorrelation =
+          await this.sessionManager.getTaskCorrelation(taskId);
 
-        const conflictAnalysis = await this.conflictResolver.analyzeTaskConflicts(
-          taskId,
-          currentSession,
-          activeSessions,
-          taskCorrelation
-        );
+        const conflictAnalysis =
+          await this.conflictResolver.analyzeTaskConflicts(
+            taskId,
+            currentSession,
+            activeSessions,
+            taskCorrelation,
+          );
 
         if (conflictAnalysis.hasConflict) {
           if (conflictAnalysis.canAutoResolve) {
             logger.info(`Auto-resolving conflicts for task ${taskId}`);
-            await this.conflictResolver.resolveConflicts(taskId, conflictAnalysis);
+            await this.conflictResolver.resolveConflicts(
+              taskId,
+              conflictAnalysis,
+            );
           } else {
-            logger.warn(`Manual conflict resolution required for task ${taskId}`);
+            logger.warn(
+              `Manual conflict resolution required for task ${taskId}`,
+            );
           }
         }
       }
@@ -381,14 +421,20 @@ export class PersistenceStorageAPI implements TaskStore {
       if (this.dataIntegrity) {
         const taskPath = this.getTaskMetadataPath(taskId);
         if (await fse.pathExists(taskPath)) {
-          const integrityResult = await this.dataIntegrity.verifyFileIntegrity(taskPath);
+          const integrityResult =
+            await this.dataIntegrity.verifyFileIntegrity(taskPath);
 
           if (!integrityResult.isValid) {
-            logger.warn(`Integrity check failed for task ${taskId}, attempting recovery`);
-            const recovery = await this.dataIntegrity.performAutoRecovery(taskPath);
+            logger.warn(
+              `Integrity check failed for task ${taskId}, attempting recovery`,
+            );
+            const recovery =
+              await this.dataIntegrity.performAutoRecovery(taskPath);
 
             if (!recovery || !recovery.outcome?.success) {
-              throw new Error(`Task ${taskId} failed integrity check and recovery failed`);
+              throw new Error(
+                `Task ${taskId} failed integrity check and recovery failed`,
+              );
             }
           }
         }
@@ -401,7 +447,7 @@ export class PersistenceStorageAPI implements TaskStore {
         // Resume task in current session
         await this.sessionManager.resumeTask(
           taskId,
-          `Task resumed in session ${this.sessionManager.getCurrentSession().sessionId}`
+          `Task resumed in session ${this.sessionManager.getCurrentSession().sessionId}`,
         );
       }
 
@@ -409,16 +455,20 @@ export class PersistenceStorageAPI implements TaskStore {
       this.recordOperationMetrics(operation, Date.now() - startTime);
 
       if (task) {
-        logger.info(`Task ${taskId} loaded successfully in ${Date.now() - startTime}ms`);
+        logger.info(
+          `Task ${taskId} loaded successfully in ${Date.now() - startTime}ms`,
+        );
       } else {
         logger.debug(`Task ${taskId} not found`);
       }
 
       return task;
-
     } catch (error) {
       logger.error(`Failed to load task ${taskId}:`, error);
-      this.recordOperationMetrics(`${operation}_failed`, Date.now() - startTime);
+      this.recordOperationMetrics(
+        `${operation}_failed`,
+        Date.now() - startTime,
+      );
       throw error;
     }
   }
@@ -429,7 +479,7 @@ export class PersistenceStorageAPI implements TaskStore {
   async completeTask(
     taskId: string,
     completionSummary: string,
-    preservedState?: Record<string, unknown>
+    preservedState?: Record<string, unknown>,
   ): Promise<StorageOperationResult<TaskCorrelation>> {
     const startTime = Date.now();
 
@@ -443,7 +493,7 @@ export class PersistenceStorageAPI implements TaskStore {
         correlation = await this.sessionManager.completeTask(
           taskId,
           completionSummary,
-          preservedState
+          preservedState,
         );
       }
 
@@ -476,7 +526,6 @@ export class PersistenceStorageAPI implements TaskStore {
           sessionId: this.sessionManager?.getCurrentSession().sessionId,
         },
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
       this.recordOperationMetrics('complete_failed', duration);
@@ -499,7 +548,7 @@ export class PersistenceStorageAPI implements TaskStore {
   async transferTask(
     taskId: string,
     targetSessionId: string,
-    reason: string = 'Manual transfer'
+    reason: string = 'Manual transfer',
   ): Promise<StorageOperationResult> {
     const startTime = Date.now();
 
@@ -508,7 +557,11 @@ export class PersistenceStorageAPI implements TaskStore {
         throw new Error('Session management is not enabled');
       }
 
-      const handoff = await this.sessionManager.transferTaskOwnership(taskId, targetSessionId, reason);
+      const handoff = await this.sessionManager.transferTaskOwnership(
+        taskId,
+        targetSessionId,
+        reason,
+      );
       const duration = Date.now() - startTime;
 
       return {
@@ -521,7 +574,6 @@ export class PersistenceStorageAPI implements TaskStore {
           sessionId: this.sessionManager.getCurrentSession().sessionId,
         },
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
 
@@ -542,32 +594,39 @@ export class PersistenceStorageAPI implements TaskStore {
    */
   async resolveTaskConflicts(
     taskId: string,
-    strategy?: ResolutionStrategy
+    strategy?: ResolutionStrategy,
   ): Promise<StorageOperationResult<ConflictAnalysis>> {
     const startTime = Date.now();
 
     try {
       if (!this.conflictResolver || !this.sessionManager) {
-        throw new Error('Conflict resolution or session management is not enabled');
+        throw new Error(
+          'Conflict resolution or session management is not enabled',
+        );
       }
 
       const currentSession = this.sessionManager.getCurrentSession();
       const activeSessions = await this.sessionManager.getActiveSessions();
-      const taskCorrelation = await this.sessionManager.getTaskCorrelation(taskId);
+      const taskCorrelation =
+        await this.sessionManager.getTaskCorrelation(taskId);
 
       // Analyze conflicts
       const analysis = await this.conflictResolver.analyzeTaskConflicts(
         taskId,
         currentSession,
         activeSessions,
-        taskCorrelation
+        taskCorrelation,
       );
 
       let conflictsResolved = 0;
 
       // Resolve if conflicts exist
       if (analysis.hasConflict) {
-        const resolution = await this.conflictResolver.resolveConflicts(taskId, analysis, strategy);
+        const resolution = await this.conflictResolver.resolveConflicts(
+          taskId,
+          analysis,
+          strategy,
+        );
         conflictsResolved = resolution.outcome.success ? 1 : 0;
       }
 
@@ -584,7 +643,6 @@ export class PersistenceStorageAPI implements TaskStore {
           conflictsResolved,
         },
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
 
@@ -603,7 +661,10 @@ export class PersistenceStorageAPI implements TaskStore {
   /**
    * Perform data recovery for a task
    */
-  async recoverTask(taskId: string, backupId?: string): Promise<StorageOperationResult<RecoveryOperation>> {
+  async recoverTask(
+    taskId: string,
+    backupId?: string,
+  ): Promise<StorageOperationResult<RecoveryOperation>> {
     const startTime = Date.now();
 
     try {
@@ -619,7 +680,8 @@ export class PersistenceStorageAPI implements TaskStore {
       } else {
         // Attempt auto-recovery
         const taskPath = this.getTaskMetadataPath(taskId);
-        const autoRecovery = await this.dataIntegrity.performAutoRecovery(taskPath);
+        const autoRecovery =
+          await this.dataIntegrity.performAutoRecovery(taskPath);
 
         if (!autoRecovery) {
           throw new Error('No suitable backup found for auto-recovery');
@@ -639,7 +701,6 @@ export class PersistenceStorageAPI implements TaskStore {
           timestamp: new Date().toISOString(),
         },
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
 
@@ -660,39 +721,53 @@ export class PersistenceStorageAPI implements TaskStore {
    */
   async getStorageStatistics(): Promise<StorageStatistics> {
     const fileStats = await this.fileStorage.getMetrics();
-    const sessionStats = this.sessionManager ? await this.sessionManager.getSessionStatistics() : {
-      totalSessions: 0,
-      activeSessions: 0,
-      completedSessions: 0,
-      totalTasks: 0,
-      activeTasks: 0,
-      completedTasks: 0,
-      averageSessionDuration: 0,
-    };
+    const sessionStats = this.sessionManager
+      ? await this.sessionManager.getSessionStatistics()
+      : {
+          totalSessions: 0,
+          activeSessions: 0,
+          completedSessions: 0,
+          totalTasks: 0,
+          activeTasks: 0,
+          completedTasks: 0,
+          averageSessionDuration: 0,
+        };
 
-    const integrityStats = this.dataIntegrity ? await this.dataIntegrity.getStatistics() : {
-      totalBackups: 0,
-      totalBackupSize: 0,
-      backupsByType: {},
-      recentRecoveries: 0,
-      failedIntegrityChecks: 0,
-      storageUtilization: { backups: 0, integrity: 0, recovery: 0 },
-    };
+    const integrityStats = this.dataIntegrity
+      ? await this.dataIntegrity.getStatistics()
+      : {
+          totalBackups: 0,
+          totalBackupSize: 0,
+          backupsByType: {},
+          recentRecoveries: 0,
+          failedIntegrityChecks: 0,
+          storageUtilization: { backups: 0, integrity: 0, recovery: 0 },
+        };
 
     // Calculate performance metrics
-    const saveMetrics = this.operationMetrics.get('save') || { count: 0, totalTime: 0 };
-    const loadMetrics = this.operationMetrics.get('load') || { count: 0, totalTime: 0 };
+    const saveMetrics = this.operationMetrics.get('save') || {
+      count: 0,
+      totalTime: 0,
+    };
+    const loadMetrics = this.operationMetrics.get('load') || {
+      count: 0,
+      totalTime: 0,
+    };
 
-    const avgSaveTime = saveMetrics.count > 0 ? saveMetrics.totalTime / saveMetrics.count : 0;
-    const avgLoadTime = loadMetrics.count > 0 ? loadMetrics.totalTime / loadMetrics.count : 0;
+    const avgSaveTime =
+      saveMetrics.count > 0 ? saveMetrics.totalTime / saveMetrics.count : 0;
+    const avgLoadTime =
+      loadMetrics.count > 0 ? loadMetrics.totalTime / loadMetrics.count : 0;
 
     // Determine health status
     const failureRate = this.calculateFailureRate();
     const diskUsage = await this.calculateDiskUsage();
 
     let healthStatus: 'healthy' | 'warning' | 'critical' = 'healthy';
-    if (failureRate > this.config.monitoring.alertThresholds.failureRate ||
-        diskUsage > this.config.monitoring.alertThresholds.diskUsage) {
+    if (
+      failureRate > this.config.monitoring.alertThresholds.failureRate ||
+      diskUsage > this.config.monitoring.alertThresholds.diskUsage
+    ) {
       healthStatus = 'warning';
     }
     if (failureRate > 15 || diskUsage > 95) {
@@ -743,11 +818,13 @@ export class PersistenceStorageAPI implements TaskStore {
   /**
    * Perform comprehensive maintenance
    */
-  async performMaintenance(): Promise<StorageOperationResult<{
-    cleanupResults: unknown;
-    integrityResults?: unknown;
-    sessionResults?: unknown;
-  }>> {
+  async performMaintenance(): Promise<
+    StorageOperationResult<{
+      cleanupResults: unknown;
+      integrityResults?: unknown;
+      sessionResults?: unknown;
+    }>
+  > {
     const startTime = Date.now();
 
     try {
@@ -783,7 +860,6 @@ export class PersistenceStorageAPI implements TaskStore {
           timestamp: new Date().toISOString(),
         },
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
 
@@ -855,7 +931,11 @@ export class PersistenceStorageAPI implements TaskStore {
 
   private getTaskMetadataPath(taskId: string): string {
     const compress = this.config.fileStorage.compressMetadata;
-    return join(this.config.fileStorage.storageDir!, 'tasks', `${taskId}.json${compress ? '.gz' : ''}`);
+    return join(
+      this.config.fileStorage.storageDir!,
+      'tasks',
+      `${taskId}.json${compress ? '.gz' : ''}`,
+    );
   }
 
   private recordOperationMetrics(operation: string, duration: number): void {
@@ -863,7 +943,10 @@ export class PersistenceStorageAPI implements TaskStore {
       return;
     }
 
-    const existing = this.operationMetrics.get(operation) || { count: 0, totalTime: 0 };
+    const existing = this.operationMetrics.get(operation) || {
+      count: 0,
+      totalTime: 0,
+    };
     existing.count++;
     existing.totalTime += duration;
     this.operationMetrics.set(operation, existing);
@@ -902,6 +985,6 @@ export class PersistenceStorageAPI implements TaskStore {
       recentOps += metrics.count;
     }
 
-    return recentOps / (3600); // ops per second
+    return recentOps / 3600; // ops per second
   }
 }

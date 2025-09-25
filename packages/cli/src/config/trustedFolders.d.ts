@@ -6,9 +6,9 @@
 
 import type { Settings } from './settings.js';
 /** Filename for the trusted folders configuration file */
-export declare const TRUSTED_FOLDERS_FILENAME = "trustedFolders.json";
+export declare const TRUSTED_FOLDERS_FILENAME = 'trustedFolders.json';
 /** Directory name for Gemini CLI configuration files */
-export declare const SETTINGS_DIRECTORY_NAME = ".gemini";
+export declare const SETTINGS_DIRECTORY_NAME = '.gemini';
 /** Directory path for user-specific Gemini CLI settings */
 export declare const USER_SETTINGS_DIR: string;
 /**
@@ -38,12 +38,12 @@ export declare function getTrustedFoldersPath(): string;
  * ```
  */
 export declare enum TrustLevel {
-    /** Trust the exact folder path specified */
-    TRUST_FOLDER = "TRUST_FOLDER",
-    /** Trust the parent directory of the specified path */
-    TRUST_PARENT = "TRUST_PARENT",
-    /** Explicitly mark the folder as untrusted */
-    DO_NOT_TRUST = "DO_NOT_TRUST"
+  /** Trust the exact folder path specified */
+  TRUST_FOLDER = 'TRUST_FOLDER',
+  /** Trust the parent directory of the specified path */
+  TRUST_PARENT = 'TRUST_PARENT',
+  /** Explicitly mark the folder as untrusted */
+  DO_NOT_TRUST = 'DO_NOT_TRUST',
 }
 /**
  * A trust rule associating a file system path with a trust level.
@@ -58,20 +58,20 @@ export declare enum TrustLevel {
  * ```
  */
 export interface TrustRule {
-    /** Absolute path to the folder this rule applies to */
-    path: string;
-    /** Trust level to apply to this folder */
-    trustLevel: TrustLevel;
+  /** Absolute path to the folder this rule applies to */
+  path: string;
+  /** Trust level to apply to this folder */
+  trustLevel: TrustLevel;
 }
 /**
  * Error information for trusted folders configuration file issues.
  * Provides detailed feedback about configuration parsing problems.
  */
 export interface TrustedFoldersError {
-    /** Descriptive error message explaining the problem */
-    message: string;
-    /** File path where the error occurred */
-    path: string;
+  /** Descriptive error message explaining the problem */
+  message: string;
+  /** File path where the error occurred */
+  path: string;
 }
 /**
  * Represents a loaded trusted folders configuration file.
@@ -89,10 +89,10 @@ export interface TrustedFoldersError {
  * ```
  */
 export interface TrustedFoldersFile {
-    /** Mapping of folder paths to their assigned trust levels */
-    config: Record<string, TrustLevel>;
-    /** Absolute path to the configuration file */
-    path: string;
+  /** Mapping of folder paths to their assigned trust levels */
+  config: Record<string, TrustLevel>;
+  /** Absolute path to the configuration file */
+  path: string;
 }
 /**
  * Result of a workspace trust evaluation indicating trust status and source.
@@ -107,10 +107,10 @@ export interface TrustedFoldersFile {
  * ```
  */
 export interface TrustResult {
-    /** Whether the workspace is trusted (true), untrusted (false), or unknown (undefined) */
-    isTrusted: boolean | undefined;
-    /** Source of the trust decision: 'ide' for IDE integration, 'file' for local config */
-    source: 'ide' | 'file' | undefined;
+  /** Whether the workspace is trusted (true), untrusted (false), or unknown (undefined) */
+  isTrusted: boolean | undefined;
+  /** Source of the trust decision: 'ide' for IDE integration, 'file' for local config */
+  source: 'ide' | 'file' | undefined;
 }
 /**
  * Manages loaded trusted folders configuration with trust evaluation capabilities.
@@ -128,67 +128,67 @@ export interface TrustResult {
  * ```
  */
 export declare class LoadedTrustedFolders {
-    readonly user: TrustedFoldersFile;
-    readonly errors: TrustedFoldersError[];
-    constructor(user: TrustedFoldersFile, errors: TrustedFoldersError[]);
-    /**
-     * Returns all trust rules as an array of TrustRule objects.
-     * Converts the internal key-value configuration to a more structured format.
-     *
-     * @returns Array of trust rules with path and trust level
-     *
-     * @example
-     * ```typescript
-     * const rules = trustedFolders.rules;
-     * rules.forEach(rule => {
-     *   console.log(`${rule.path}: ${rule.trustLevel}`);
-     * });
-     * ```
-     */
-    get rules(): TrustRule[];
-    /**
-     * Evaluates whether a given path should be trusted based on configured trust rules.
-     * Should only be called when the folder trust feature is active.
-     *
-     * Trust Evaluation Logic:
-     * 1. TRUST_FOLDER: Trusts the exact path and any subdirectories
-     * 2. TRUST_PARENT: Trusts the parent directory and any subdirectories
-     * 3. DO_NOT_TRUST: Explicitly marks the exact path as untrusted
-     * 4. If no rules match, returns undefined (unknown trust status)
-     *
-     * @param location - Absolute path to evaluate for trust status
-     * @returns true if trusted, false if explicitly untrusted, undefined if no rule applies
-     *
-     * @example
-     * ```typescript
-     * const isProjectTrusted = trustedFolders.isPathTrusted('/workspace/my-project');
-     * if (isProjectTrusted === true) {
-     *   // Enable full functionality
-     * } else if (isProjectTrusted === false) {
-     *   // Restrict operations
-     * } else {
-     *   // Prompt user for trust decision
-     * }
-     * ```
-     */
-    isPathTrusted(location: string): boolean | undefined;
-    /**
-     * Sets the trust level for a specific path and persists the change to disk.
-     * Updates the trust configuration and immediately saves to the trusted folders file.
-     *
-     * @param path - Absolute path to set trust level for
-     * @param trustLevel - Trust level to assign to the path
-     *
-     * @example
-     * ```typescript
-     * // Trust a new project folder
-     * trustedFolders.setValue('/workspace/new-project', TrustLevel.TRUST_FOLDER);
-     *
-     * // Mark a folder as untrusted
-     * trustedFolders.setValue('/unsafe/folder', TrustLevel.DO_NOT_TRUST);
-     * ```
-     */
-    setValue(path: string, trustLevel: TrustLevel): void;
+  readonly user: TrustedFoldersFile;
+  readonly errors: TrustedFoldersError[];
+  constructor(user: TrustedFoldersFile, errors: TrustedFoldersError[]);
+  /**
+   * Returns all trust rules as an array of TrustRule objects.
+   * Converts the internal key-value configuration to a more structured format.
+   *
+   * @returns Array of trust rules with path and trust level
+   *
+   * @example
+   * ```typescript
+   * const rules = trustedFolders.rules;
+   * rules.forEach(rule => {
+   *   console.log(`${rule.path}: ${rule.trustLevel}`);
+   * });
+   * ```
+   */
+  get rules(): TrustRule[];
+  /**
+   * Evaluates whether a given path should be trusted based on configured trust rules.
+   * Should only be called when the folder trust feature is active.
+   *
+   * Trust Evaluation Logic:
+   * 1. TRUST_FOLDER: Trusts the exact path and any subdirectories
+   * 2. TRUST_PARENT: Trusts the parent directory and any subdirectories
+   * 3. DO_NOT_TRUST: Explicitly marks the exact path as untrusted
+   * 4. If no rules match, returns undefined (unknown trust status)
+   *
+   * @param location - Absolute path to evaluate for trust status
+   * @returns true if trusted, false if explicitly untrusted, undefined if no rule applies
+   *
+   * @example
+   * ```typescript
+   * const isProjectTrusted = trustedFolders.isPathTrusted('/workspace/my-project');
+   * if (isProjectTrusted === true) {
+   *   // Enable full functionality
+   * } else if (isProjectTrusted === false) {
+   *   // Restrict operations
+   * } else {
+   *   // Prompt user for trust decision
+   * }
+   * ```
+   */
+  isPathTrusted(location: string): boolean | undefined;
+  /**
+   * Sets the trust level for a specific path and persists the change to disk.
+   * Updates the trust configuration and immediately saves to the trusted folders file.
+   *
+   * @param path - Absolute path to set trust level for
+   * @param trustLevel - Trust level to assign to the path
+   *
+   * @example
+   * ```typescript
+   * // Trust a new project folder
+   * trustedFolders.setValue('/workspace/new-project', TrustLevel.TRUST_FOLDER);
+   *
+   * // Mark a folder as untrusted
+   * trustedFolders.setValue('/unsafe/folder', TrustLevel.DO_NOT_TRUST);
+   * ```
+   */
+  setValue(path: string, trustLevel: TrustLevel): void;
 }
 /**
  * FOR TESTING PURPOSES ONLY.
@@ -237,7 +237,9 @@ export declare function loadTrustedFolders(): LoadedTrustedFolders;
  * saveTrustedFolders(trustedFolders.user);
  * ```
  */
-export declare function saveTrustedFolders(trustedFoldersFile: TrustedFoldersFile): void;
+export declare function saveTrustedFolders(
+  trustedFoldersFile: TrustedFoldersFile,
+): void;
 /**
  * Determines if the folder trust feature is enabled based on current settings.
  * The folder trust feature provides workspace-level security by requiring
@@ -286,4 +288,7 @@ export declare function isFolderTrustEnabled(settings: Settings): boolean;
  * }
  * ```
  */
-export declare function isWorkspaceTrusted(settings: Settings, trustConfig?: Record<string, TrustLevel>): TrustResult;
+export declare function isWorkspaceTrusted(
+  settings: Settings,
+  trustConfig?: Record<string, TrustLevel>,
+): TrustResult;

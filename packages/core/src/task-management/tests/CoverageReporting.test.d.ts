@@ -14,11 +14,11 @@
  * - Documentation coverage
  */
 export declare class CoverageTestUtilities {
-    static validateMinimumCoverageRequirements(): Promise<boolean>;
-    static generateFinalCoverageReport(): Promise<string>;
-    static validateProductionReadiness(): Promise<{
-        ready: boolean;
-        blockers: string[];
-        recommendations: string[];
-    }>;
+  static validateMinimumCoverageRequirements(): Promise<boolean>;
+  static generateFinalCoverageReport(): Promise<string>;
+  static validateProductionReadiness(): Promise<{
+    ready: boolean;
+    blockers: string[];
+    recommendations: string[];
+  }>;
 }

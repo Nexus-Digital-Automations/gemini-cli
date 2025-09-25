@@ -88,7 +88,13 @@ export interface AlertRule {
 
 export interface AlertCondition {
   readonly field: string;
-  readonly operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'regex';
+  readonly operator:
+    | 'equals'
+    | 'not_equals'
+    | 'greater_than'
+    | 'less_than'
+    | 'contains'
+    | 'regex';
   readonly value: unknown;
 }
 
@@ -122,7 +128,11 @@ export class SecurityMonitor extends EventEmitter {
   private events: SecurityEvent[] = [];
   private alerts: SecurityAlert[] = [];
   private alertRules: AlertRule[] = [];
-  private threatIntelligence: ThreatIntelligence = { indicators: [], campaigns: [], lastUpdated: new Date() };
+  private threatIntelligence: ThreatIntelligence = {
+    indicators: [],
+    campaigns: [],
+    lastUpdated: new Date(),
+  };
   private readonly anomalyDetector: AnomalyDetector;
   private readonly incidentResponse: IncidentResponseEngine;
   private readonly auditLogger: SecurityAuditLogger;
@@ -155,12 +165,14 @@ export class SecurityMonitor extends EventEmitter {
   /**
    * Process and analyze a security event.
    */
-  async processSecurityEvent(event: Omit<SecurityEvent, 'id' | 'timestamp' | 'riskScore'>): Promise<SecurityEvent> {
+  async processSecurityEvent(
+    event: Omit<SecurityEvent, 'id' | 'timestamp' | 'riskScore'>,
+  ): Promise<SecurityEvent> {
     const fullEvent: SecurityEvent = {
       id: crypto.randomUUID(),
       timestamp: new Date(),
       riskScore: await this.calculateRiskScore(event),
-      ...event
+      ...event,
     };
 
     // Store event
@@ -173,7 +185,10 @@ export class SecurityMonitor extends EventEmitter {
     const threatMatches = await this.matchThreatIntelligence(fullEvent);
     if (threatMatches.length > 0) {
       fullEvent.metadata.threatMatches = threatMatches;
-      this.emit('threat:detected', { event: fullEvent, matches: threatMatches });
+      this.emit('threat:detected', {
+        event: fullEvent,
+        matches: threatMatches,
+      });
     }
 
     // Check for anomalies
@@ -202,7 +217,7 @@ export class SecurityMonitor extends EventEmitter {
   async createAlertRule(rule: Omit<AlertRule, 'id'>): Promise<AlertRule> {
     const alertRule: AlertRule = {
       id: crypto.randomUUID(),
-      ...rule
+      ...rule,
     };
 
     this.alertRules.push(alertRule);
@@ -215,26 +230,31 @@ export class SecurityMonitor extends EventEmitter {
   /**
    * Get security events with filtering options.
    */
-  getSecurityEvents(options: {
-    type?: SecurityEventType;
-    severity?: SecuritySeverity;
-    timeRange?: { start: Date; end: Date };
-    limit?: number;
-  } = {}): SecurityEvent[] {
+  getSecurityEvents(
+    options: {
+      type?: SecurityEventType;
+      severity?: SecuritySeverity;
+      timeRange?: { start: Date; end: Date };
+      limit?: number;
+    } = {},
+  ): SecurityEvent[] {
     let filtered = this.events;
 
     if (options.type) {
-      filtered = filtered.filter(event => event.type === options.type);
+      filtered = filtered.filter((event) => event.type === options.type);
     }
 
     if (options.severity) {
-      filtered = filtered.filter(event => event.severity === options.severity);
+      filtered = filtered.filter(
+        (event) => event.severity === options.severity,
+      );
     }
 
     if (options.timeRange) {
-      filtered = filtered.filter(event =>
-        event.timestamp >= options.timeRange!.start &&
-        event.timestamp <= options.timeRange!.end
+      filtered = filtered.filter(
+        (event) =>
+          event.timestamp >= options.timeRange!.start &&
+          event.timestamp <= options.timeRange!.end,
       );
     }
 
@@ -252,14 +272,19 @@ export class SecurityMonitor extends EventEmitter {
    * Get active security alerts.
    */
   getActiveAlerts(): SecurityAlert[] {
-    return this.alerts.filter(alert => alert.status === 'open' || alert.status === 'investigating');
+    return this.alerts.filter(
+      (alert) => alert.status === 'open' || alert.status === 'investigating',
+    );
   }
 
   /**
    * Update alert status.
    */
-  async updateAlertStatus(alertId: string, status: SecurityAlert['status']): Promise<void> {
-    const alert = this.alerts.find(a => a.id === alertId);
+  async updateAlertStatus(
+    alertId: string,
+    status: SecurityAlert['status'],
+  ): Promise<void> {
+    const alert = this.alerts.find((a) => a.id === alertId);
     if (!alert) {
       throw new Error(`Alert not found: ${alertId}`);
     }
@@ -280,7 +305,7 @@ export class SecurityMonitor extends EventEmitter {
    * Perform security incident investigation.
    */
   async investigateIncident(eventIds: string[]): Promise<InvestigationResult> {
-    const events = this.events.filter(event => eventIds.includes(event.id));
+    const events = this.events.filter((event) => eventIds.includes(event.id));
     if (events.length === 0) {
       throw new Error('No events found for investigation');
     }
@@ -299,23 +324,31 @@ export class SecurityMonitor extends EventEmitter {
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    const recentEvents = this.getSecurityEvents({ timeRange: { start: last24Hours, end: now } });
-    const weeklyEvents = this.getSecurityEvents({ timeRange: { start: last7Days, end: now } });
+    const recentEvents = this.getSecurityEvents({
+      timeRange: { start: last24Hours, end: now },
+    });
+    const weeklyEvents = this.getSecurityEvents({
+      timeRange: { start: last7Days, end: now },
+    });
 
     return {
       timestamp: now,
       summary: {
         totalEventsToday: recentEvents.length,
-        criticalEventsToday: recentEvents.filter(e => e.severity === 'critical').length,
+        criticalEventsToday: recentEvents.filter(
+          (e) => e.severity === 'critical',
+        ).length,
         activeAlerts: this.getActiveAlerts().length,
-        averageRiskScore: recentEvents.reduce((sum, e) => sum + e.riskScore, 0) / recentEvents.length || 0
+        averageRiskScore:
+          recentEvents.reduce((sum, e) => sum + e.riskScore, 0) /
+            recentEvents.length || 0,
       },
       eventTrends: {
         daily: this.calculateDailyTrends(weeklyEvents),
-        hourly: this.calculateHourlyTrends(recentEvents)
+        hourly: this.calculateHourlyTrends(recentEvents),
       },
       topThreats: await this.getTopThreats(weeklyEvents),
-      systemHealth: await this.getSystemHealthMetrics()
+      systemHealth: await this.getSystemHealthMetrics(),
     };
   }
 
@@ -323,29 +356,37 @@ export class SecurityMonitor extends EventEmitter {
    * Private implementation methods
    */
 
-  private async calculateRiskScore(event: Omit<SecurityEvent, 'id' | 'timestamp' | 'riskScore'>): Promise<number> {
+  private async calculateRiskScore(
+    event: Omit<SecurityEvent, 'id' | 'timestamp' | 'riskScore'>,
+  ): Promise<number> {
     let score = 0;
 
     // Base severity score
-    const severityScores = { critical: 1.0, high: 0.8, medium: 0.6, low: 0.4, info: 0.2 };
+    const severityScores = {
+      critical: 1.0,
+      high: 0.8,
+      medium: 0.6,
+      low: 0.4,
+      info: 0.2,
+    };
     score += severityScores[event.severity];
 
     // Event type risk multiplier
     const typeMultipliers: Record<SecurityEventType, number> = {
-      'system_compromise': 1.0,
-      'data_exfiltration': 0.95,
-      'privilege_escalation': 0.9,
-      'malware_detected': 0.85,
-      'vulnerability_exploit': 0.8,
-      'brute_force_attack': 0.75,
-      'injection_attempt': 0.7,
-      'data_breach_attempt': 0.9,
-      'suspicious_access': 0.6,
-      'authentication_failure': 0.5,
-      'authorization_denied': 0.4,
-      'policy_violation': 0.3,
-      'anomalous_behavior': 0.5,
-      'file_integrity_violation': 0.6
+      system_compromise: 1.0,
+      data_exfiltration: 0.95,
+      privilege_escalation: 0.9,
+      malware_detected: 0.85,
+      vulnerability_exploit: 0.8,
+      brute_force_attack: 0.75,
+      injection_attempt: 0.7,
+      data_breach_attempt: 0.9,
+      suspicious_access: 0.6,
+      authentication_failure: 0.5,
+      authorization_denied: 0.4,
+      policy_violation: 0.3,
+      anomalous_behavior: 0.5,
+      file_integrity_violation: 0.6,
     };
 
     score *= typeMultipliers[event.type] || 0.5;
@@ -358,7 +399,9 @@ export class SecurityMonitor extends EventEmitter {
     return Math.min(score, 1.0);
   }
 
-  private async matchThreatIntelligence(event: SecurityEvent): Promise<ThreatIndicator[]> {
+  private async matchThreatIntelligence(
+    event: SecurityEvent,
+  ): Promise<ThreatIndicator[]> {
     const matches: ThreatIndicator[] = [];
 
     for (const indicator of this.threatIntelligence.indicators) {
@@ -370,7 +413,10 @@ export class SecurityMonitor extends EventEmitter {
     return matches;
   }
 
-  private matchesIndicator(event: SecurityEvent, indicator: ThreatIndicator): boolean {
+  private matchesIndicator(
+    event: SecurityEvent,
+    indicator: ThreatIndicator,
+  ): boolean {
     switch (indicator.type) {
       case 'ip':
         return this.containsIP(event, indicator.value);
@@ -417,15 +463,17 @@ export class SecurityMonitor extends EventEmitter {
     return event.description.toLowerCase().includes(signature.toLowerCase());
   }
 
-  private async evaluateAlertRules(event: SecurityEvent): Promise<SecurityAlert[]> {
+  private async evaluateAlertRules(
+    event: SecurityEvent,
+  ): Promise<SecurityAlert[]> {
     const triggeredAlerts: SecurityAlert[] = [];
 
     for (const rule of this.alertRules) {
       if (!rule.isActive) continue;
 
       if (rule.eventTypes.includes(event.type)) {
-        const conditionsMet = rule.conditions.every(condition =>
-          this.evaluateAlertCondition(condition, event)
+        const conditionsMet = rule.conditions.every((condition) =>
+          this.evaluateAlertCondition(condition, event),
         );
 
         if (conditionsMet) {
@@ -438,7 +486,7 @@ export class SecurityMonitor extends EventEmitter {
             description: rule.description,
             events: [event],
             recommendations: this.generateRecommendations(event, rule),
-            status: 'open'
+            status: 'open',
           };
 
           triggeredAlerts.push(alert);
@@ -449,7 +497,10 @@ export class SecurityMonitor extends EventEmitter {
     return triggeredAlerts;
   }
 
-  private evaluateAlertCondition(condition: AlertCondition, event: SecurityEvent): boolean {
+  private evaluateAlertCondition(
+    condition: AlertCondition,
+    event: SecurityEvent,
+  ): boolean {
     const getValue = (field: string): unknown => {
       const fields = field.split('.');
       let value: any = event;
@@ -473,24 +524,41 @@ export class SecurityMonitor extends EventEmitter {
       case 'not_equals':
         return fieldValue !== condition.value;
       case 'greater_than':
-        return typeof fieldValue === 'number' && fieldValue > (condition.value as number);
+        return (
+          typeof fieldValue === 'number' &&
+          fieldValue > (condition.value as number)
+        );
       case 'less_than':
-        return typeof fieldValue === 'number' && fieldValue < (condition.value as number);
+        return (
+          typeof fieldValue === 'number' &&
+          fieldValue < (condition.value as number)
+        );
       case 'contains':
-        return typeof fieldValue === 'string' && fieldValue.includes(condition.value as string);
+        return (
+          typeof fieldValue === 'string' &&
+          fieldValue.includes(condition.value as string)
+        );
       case 'regex':
-        return typeof fieldValue === 'string' && new RegExp(condition.value as string).test(fieldValue);
+        return (
+          typeof fieldValue === 'string' &&
+          new RegExp(condition.value as string).test(fieldValue)
+        );
       default:
         return false;
     }
   }
 
-  private generateRecommendations(event: SecurityEvent, rule: AlertRule): string[] {
+  private generateRecommendations(
+    event: SecurityEvent,
+    rule: AlertRule,
+  ): string[] {
     const recommendations: string[] = [];
 
     switch (event.type) {
       case 'authentication_failure':
-        recommendations.push('Review authentication logs for brute force patterns');
+        recommendations.push(
+          'Review authentication logs for brute force patterns',
+        );
         recommendations.push('Consider implementing account lockout policies');
         break;
       case 'malware_detected':
@@ -525,7 +593,9 @@ export class SecurityMonitor extends EventEmitter {
     this.emit('alert:created', alert);
   }
 
-  private async performInvestigation(events: SecurityEvent[]): Promise<InvestigationResult> {
+  private async performInvestigation(
+    events: SecurityEvent[],
+  ): Promise<InvestigationResult> {
     const investigationId = crypto.randomUUID();
 
     // Correlate events
@@ -542,7 +612,10 @@ export class SecurityMonitor extends EventEmitter {
     const impact = await this.assessImpact(correlatedEvents);
 
     // Generate recommendations
-    const recommendations = this.generateInvestigationRecommendations(correlatedEvents, attackPatterns);
+    const recommendations = this.generateInvestigationRecommendations(
+      correlatedEvents,
+      attackPatterns,
+    );
 
     return {
       id: investigationId,
@@ -552,11 +625,13 @@ export class SecurityMonitor extends EventEmitter {
       timeline,
       impact,
       recommendations,
-      status: 'active'
+      status: 'active',
     };
   }
 
-  private async correlateEvents(events: SecurityEvent[]): Promise<SecurityEvent[]> {
+  private async correlateEvents(
+    events: SecurityEvent[],
+  ): Promise<SecurityEvent[]> {
     // Simple correlation based on timestamp proximity and source similarity
     // In production, this would use sophisticated correlation algorithms
     return events.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -566,14 +641,17 @@ export class SecurityMonitor extends EventEmitter {
     const patterns: AttackPattern[] = [];
 
     // Detect common attack patterns
-    if (events.some(e => e.type === 'authentication_failure') &&
-        events.some(e => e.type === 'privilege_escalation')) {
+    if (
+      events.some((e) => e.type === 'authentication_failure') &&
+      events.some((e) => e.type === 'privilege_escalation')
+    ) {
       patterns.push({
         id: crypto.randomUUID(),
         name: 'Credential Stuffing to Privilege Escalation',
         confidence: 0.8,
         tactics: ['Initial Access', 'Privilege Escalation'],
-        description: 'Detected potential credential stuffing followed by privilege escalation attempt'
+        description:
+          'Detected potential credential stuffing followed by privilege escalation attempt',
       });
     }
 
@@ -581,59 +659,91 @@ export class SecurityMonitor extends EventEmitter {
   }
 
   private generateTimeline(events: SecurityEvent[]): TimelineEntry[] {
-    return events.map(event => ({
+    return events.map((event) => ({
       timestamp: event.timestamp,
       event: event.type,
       description: event.description,
-      severity: event.severity
+      severity: event.severity,
     }));
   }
 
-  private async assessImpact(events: SecurityEvent[]): Promise<ImpactAssessment> {
-    const highSeverityCount = events.filter(e => e.severity === 'critical' || e.severity === 'high').length;
-    const systemsAffected = new Set(events.map(e => e.source)).size;
+  private async assessImpact(
+    events: SecurityEvent[],
+  ): Promise<ImpactAssessment> {
+    const highSeverityCount = events.filter(
+      (e) => e.severity === 'critical' || e.severity === 'high',
+    ).length;
+    const systemsAffected = new Set(events.map((e) => e.source)).size;
 
     return {
       riskLevel: highSeverityCount > 0 ? 'high' : 'medium',
       systemsAffected,
-      dataAtRisk: events.some(e => e.type === 'data_exfiltration' || e.type === 'data_breach_attempt'),
+      dataAtRisk: events.some(
+        (e) =>
+          e.type === 'data_exfiltration' || e.type === 'data_breach_attempt',
+      ),
       estimatedCost: this.estimateIncidentCost(events),
-      complianceImpact: this.assessComplianceImpact(events)
+      complianceImpact: this.assessComplianceImpact(events),
     };
   }
 
-  private generateInvestigationRecommendations(events: SecurityEvent[], patterns: AttackPattern[]): string[] {
+  private generateInvestigationRecommendations(
+    events: SecurityEvent[],
+    patterns: AttackPattern[],
+  ): string[] {
     const recommendations: string[] = [];
 
     if (patterns.length > 0) {
-      recommendations.push(`Detected ${patterns.length} attack pattern(s) - implement corresponding mitigations`);
+      recommendations.push(
+        `Detected ${patterns.length} attack pattern(s) - implement corresponding mitigations`,
+      );
     }
 
-    if (events.some(e => e.severity === 'critical')) {
-      recommendations.push('Activate incident response team for critical security events');
+    if (events.some((e) => e.severity === 'critical')) {
+      recommendations.push(
+        'Activate incident response team for critical security events',
+      );
     }
 
-    recommendations.push('Review and update security controls based on identified weaknesses');
-    recommendations.push('Conduct post-incident review and lessons learned session');
+    recommendations.push(
+      'Review and update security controls based on identified weaknesses',
+    );
+    recommendations.push(
+      'Conduct post-incident review and lessons learned session',
+    );
 
     return recommendations;
   }
 
   private estimateIncidentCost(events: SecurityEvent[]): number {
     // Simplified cost estimation based on event severity and type
-    const baseCosts = { critical: 10000, high: 5000, medium: 1000, low: 100, info: 10 };
-    return events.reduce((total, event) => total + baseCosts[event.severity], 0);
+    const baseCosts = {
+      critical: 10000,
+      high: 5000,
+      medium: 1000,
+      low: 100,
+      info: 10,
+    };
+    return events.reduce(
+      (total, event) => total + baseCosts[event.severity],
+      0,
+    );
   }
 
   private assessComplianceImpact(events: SecurityEvent[]): string[] {
     const impacts: string[] = [];
 
-    if (events.some(e => e.type === 'data_breach_attempt' || e.type === 'data_exfiltration')) {
+    if (
+      events.some(
+        (e) =>
+          e.type === 'data_breach_attempt' || e.type === 'data_exfiltration',
+      )
+    ) {
       impacts.push('GDPR breach notification may be required');
       impacts.push('CCPA disclosure requirements may apply');
     }
 
-    if (events.some(e => e.metadata.containsPII)) {
+    if (events.some((e) => e.metadata.containsPII)) {
       impacts.push('Personal data involved - enhanced reporting required');
     }
 
@@ -650,7 +760,9 @@ export class SecurityMonitor extends EventEmitter {
       const dayStart = new Date(date.setHours(0, 0, 0, 0));
       const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
-      const count = events.filter(e => e.timestamp >= dayStart && e.timestamp <= dayEnd).length;
+      const count = events.filter(
+        (e) => e.timestamp >= dayStart && e.timestamp <= dayEnd,
+      ).length;
       trends.set(dateKey, count);
     }
 
@@ -666,19 +778,25 @@ export class SecurityMonitor extends EventEmitter {
       const hourStart = new Date(hour.setMinutes(0, 0, 0));
       const hourEnd = new Date(hour.setMinutes(59, 59, 999));
 
-      const count = events.filter(e => e.timestamp >= hourStart && e.timestamp <= hourEnd).length;
+      const count = events.filter(
+        (e) => e.timestamp >= hourStart && e.timestamp <= hourEnd,
+      ).length;
       trends.set(hourKey, count);
     }
 
     return trends;
   }
 
-  private async getTopThreats(events: SecurityEvent[]): Promise<ThreatIndicator[]> {
+  private async getTopThreats(
+    events: SecurityEvent[],
+  ): Promise<ThreatIndicator[]> {
     // Count threat indicator matches
     const threatCounts = new Map<string, number>();
 
     for (const event of events) {
-      const matches = event.metadata.threatMatches as ThreatIndicator[] | undefined;
+      const matches = event.metadata.threatMatches as
+        | ThreatIndicator[]
+        | undefined;
       if (matches) {
         for (const match of matches) {
           threatCounts.set(match.id, (threatCounts.get(match.id) || 0) + 1);
@@ -690,8 +808,12 @@ export class SecurityMonitor extends EventEmitter {
     const sortedThreats = Array.from(threatCounts.entries())
       .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
-      .map(([threatId]) => this.threatIntelligence.indicators.find(i => i.id === threatId))
-      .filter((indicator): indicator is ThreatIndicator => indicator !== undefined);
+      .map(([threatId]) =>
+        this.threatIntelligence.indicators.find((i) => i.id === threatId),
+      )
+      .filter(
+        (indicator): indicator is ThreatIndicator => indicator !== undefined,
+      );
 
     return sortedThreats;
   }
@@ -701,7 +823,7 @@ export class SecurityMonitor extends EventEmitter {
       monitoringUptime: '99.9%',
       eventProcessingLatency: '15ms',
       alertResponseTime: '2min',
-      systemLoad: 'normal'
+      systemLoad: 'normal',
     };
   }
 
@@ -712,11 +834,9 @@ export class SecurityMonitor extends EventEmitter {
         name: 'Multiple Authentication Failures',
         description: 'Multiple authentication failures from same source',
         eventTypes: ['authentication_failure'],
-        conditions: [
-          { field: 'severity', operator: 'equals', value: 'high' }
-        ],
+        conditions: [{ field: 'severity', operator: 'equals', value: 'high' }],
         severity: 'high',
-        isActive: true
+        isActive: true,
       },
       {
         id: 'malware-detection',
@@ -725,8 +845,8 @@ export class SecurityMonitor extends EventEmitter {
         eventTypes: ['malware_detected'],
         conditions: [],
         severity: 'critical',
-        isActive: true
-      }
+        isActive: true,
+      },
     ];
   }
 
@@ -765,11 +885,11 @@ export class SecurityMonitor extends EventEmitter {
           description: 'Known malicious IP address',
           source: 'threat-feed-1',
           firstSeen: new Date('2024-01-01'),
-          lastSeen: new Date()
-        }
+          lastSeen: new Date(),
+        },
       ],
       campaigns: [],
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     };
   }
 
@@ -780,16 +900,22 @@ export class SecurityMonitor extends EventEmitter {
 
   private startPeriodicTasks(): void {
     // Clean up old events (keep last 30 days)
-    setInterval(() => {
-      const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      this.events = this.events.filter(event => event.timestamp > cutoff);
-      this.alerts = this.alerts.filter(alert => alert.timestamp > cutoff);
-    }, 24 * 60 * 60 * 1000);
+    setInterval(
+      () => {
+        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        this.events = this.events.filter((event) => event.timestamp > cutoff);
+        this.alerts = this.alerts.filter((alert) => alert.timestamp > cutoff);
+      },
+      24 * 60 * 60 * 1000,
+    );
 
     // Update threat intelligence (daily)
-    setInterval(async () => {
-      await this.loadThreatIntelligence();
-    }, 24 * 60 * 60 * 1000);
+    setInterval(
+      async () => {
+        await this.loadThreatIntelligence();
+      },
+      24 * 60 * 60 * 1000,
+    );
   }
 }
 
@@ -813,7 +939,11 @@ class AnomalyDetector {
     }
 
     // Check for rare event types
-    const rareEvents = ['system_compromise', 'data_exfiltration', 'privilege_escalation'];
+    const rareEvents = [
+      'system_compromise',
+      'data_exfiltration',
+      'privilege_escalation',
+    ];
     if (rareEvents.includes(event.type)) {
       return true;
     }
@@ -847,16 +977,27 @@ class SecurityMetricsCollector {
   private riskScores: number[] = [];
 
   async recordEvent(event: SecurityEvent): Promise<void> {
-    this.eventCounts.set(event.type, (this.eventCounts.get(event.type) || 0) + 1);
-    this.severityCounts.set(event.severity, (this.severityCounts.get(event.severity) || 0) + 1);
+    this.eventCounts.set(
+      event.type,
+      (this.eventCounts.get(event.type) || 0) + 1,
+    );
+    this.severityCounts.set(
+      event.severity,
+      (this.severityCounts.get(event.severity) || 0) + 1,
+    );
     this.riskScores.push(event.riskScore);
   }
 
   async getMetrics(): Promise<SecurityMetrics> {
-    const totalEvents = Array.from(this.eventCounts.values()).reduce((sum, count) => sum + count, 0);
-    const averageRiskScore = this.riskScores.length > 0
-      ? this.riskScores.reduce((sum, score) => sum + score, 0) / this.riskScores.length
-      : 0;
+    const totalEvents = Array.from(this.eventCounts.values()).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
+    const averageRiskScore =
+      this.riskScores.length > 0
+        ? this.riskScores.reduce((sum, score) => sum + score, 0) /
+          this.riskScores.length
+        : 0;
 
     return {
       totalEvents,
@@ -865,7 +1006,7 @@ class SecurityMetricsCollector {
       averageRiskScore,
       falsePositiveRate: 0.05, // Would be calculated from feedback
       responseTime: 120, // seconds
-      topThreats: [] // Would be populated from threat analysis
+      topThreats: [], // Would be populated from threat analysis
     };
   }
 }
@@ -884,7 +1025,7 @@ class SecurityAuditLogger {
     await this.log('ALERT_CREATED', {
       alertId: alert.id,
       severity: alert.severity,
-      title: alert.title
+      title: alert.title,
     });
   }
 
@@ -896,16 +1037,22 @@ class SecurityAuditLogger {
     await this.log('INVESTIGATION', {
       investigationId: investigation.id,
       eventCount: investigation.events.length,
-      patternsFound: investigation.attackPatterns.length
+      patternsFound: investigation.attackPatterns.length,
     });
   }
 
-  private async log(event: string, data: Record<string, unknown>): Promise<void> {
+  private async log(
+    event: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
     const logEntry = {
       timestamp: new Date().toISOString(),
       event,
       data,
-      checksum: crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex')
+      checksum: crypto
+        .createHash('sha256')
+        .update(JSON.stringify(data))
+        .digest('hex'),
     };
 
     console.log(`[SECURITY-MONITOR-${event}]`, data);

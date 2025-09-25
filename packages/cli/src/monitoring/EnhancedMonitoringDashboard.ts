@@ -6,7 +6,12 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import { realTimeMonitoringSystem, type MonitoringSnapshot, type PredictiveInsight, type AlertRule } from './RealTimeMonitoringSystem.js';
+import {
+  realTimeMonitoringSystem,
+  type MonitoringSnapshot,
+  type PredictiveInsight,
+  type AlertRule,
+} from './RealTimeMonitoringSystem.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
@@ -15,7 +20,14 @@ import * as path from 'node:path';
  */
 export interface DashboardWidget {
   id: string;
-  type: 'metric' | 'chart' | 'table' | 'alert_panel' | 'trend' | 'gauge' | 'heatmap';
+  type:
+    | 'metric'
+    | 'chart'
+    | 'table'
+    | 'alert_panel'
+    | 'trend'
+    | 'gauge'
+    | 'heatmap';
   title: string;
   description?: string;
   position: { x: number; y: number; width: number; height: number };
@@ -120,7 +132,8 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   private widgets: Map<string, DashboardWidget> = new Map();
 
   // Data management
-  private cachedData: Map<string, { data: unknown; timestamp: Date }> = new Map();
+  private cachedData: Map<string, { data: unknown; timestamp: Date }> =
+    new Map();
   private dataRefreshIntervals: Map<string, NodeJS.Timeout> = new Map();
 
   // Visualization data
@@ -181,9 +194,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         layoutsCount: this.layouts.size,
         widgetsCount: this.widgets.size,
       });
-
     } catch (error) {
-      this.logger.error('Failed to initialize EnhancedMonitoringDashboard', { error });
+      this.logger.error('Failed to initialize EnhancedMonitoringDashboard', {
+        error,
+      });
       throw error;
     }
   }
@@ -257,14 +271,14 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     if (!widget) return false;
 
     // Find layout containing this widget
-    const layout = Array.from(this.layouts.values()).find(l =>
-      l.widgets.some(w => w.id === widgetId)
+    const layout = Array.from(this.layouts.values()).find((l) =>
+      l.widgets.some((w) => w.id === widgetId),
     );
 
     if (!layout) return false;
 
     // Update widget in layout
-    const widgetIndex = layout.widgets.findIndex(w => w.id === widgetId);
+    const widgetIndex = layout.widgets.findIndex((w) => w.id === widgetId);
     if (widgetIndex === -1) return false;
 
     Object.assign(widget, updates);
@@ -289,12 +303,12 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     if (!widget) return false;
 
     // Find and remove from layout
-    const layout = Array.from(this.layouts.values()).find(l =>
-      l.widgets.some(w => w.id === widgetId)
+    const layout = Array.from(this.layouts.values()).find((l) =>
+      l.widgets.some((w) => w.id === widgetId),
     );
 
     if (layout) {
-      layout.widgets = layout.widgets.filter(w => w.id !== widgetId);
+      layout.widgets = layout.widgets.filter((w) => w.id !== widgetId);
       layout.lastModified = new Date();
     }
 
@@ -342,7 +356,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
     const dashboardData: DashboardData = {
       timestamp: new Date(),
-      widgets: this.currentLayout.widgets.map(widget => {
+      widgets: this.currentLayout.widgets.map((widget) => {
         const cachedData = this.cachedData.get(widget.id);
         return {
           id: widget.id,
@@ -372,8 +386,8 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
    * Get all available layouts
    */
   getLayouts(): DashboardLayout[] {
-    return Array.from(this.layouts.values()).sort((a, b) =>
-      b.lastModified.getTime() - a.lastModified.getTime()
+    return Array.from(this.layouts.values()).sort(
+      (a, b) => b.lastModified.getTime() - a.lastModified.getTime(),
     );
   }
 
@@ -387,15 +401,18 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   /**
    * Generate chart data for visualization
    */
-  generateChartData(widgetId: string, timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour'): ChartData {
+  generateChartData(
+    widgetId: string,
+    timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour',
+  ): ChartData {
     const widget = this.widgets.get(widgetId);
     if (!widget) {
       throw new Error(`Widget not found: ${widgetId}`);
     }
 
     // Get time range in hours
-    const hours = timeRange === 'last_hour' ? 1 :
-                  timeRange === 'last_day' ? 24 : 168;
+    const hours =
+      timeRange === 'last_hour' ? 1 : timeRange === 'last_day' ? 24 : 168;
 
     const snapshots = realTimeMonitoringSystem.getMonitoringHistory(hours);
 
@@ -481,7 +498,6 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.emit('dashboard:imported', {
         layoutsCount: importData.layouts?.length || 0,
       });
-
     } catch (error) {
       this.logger.error('Failed to import dashboard configuration', { error });
       throw error;
@@ -512,7 +528,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   // Private methods
 
   private createDefaultLayout(): void {
-    const defaultLayoutId = this.createLayout('Default Monitoring', 'Comprehensive system monitoring dashboard');
+    const defaultLayoutId = this.createLayout(
+      'Default Monitoring',
+      'Comprehensive system monitoring dashboard',
+    );
 
     // System overview widget
     this.addWidget(defaultLayoutId, {
@@ -664,7 +683,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
           break;
 
         default:
-          data = { error: 'Unknown data source', dataSource: widget.config.dataSource };
+          data = {
+            error: 'Unknown data source',
+            dataSource: widget.config.dataSource,
+          };
       }
 
       this.cachedData.set(widget.id, {
@@ -673,7 +695,6 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       });
 
       this.emit('widget:data-updated', { widgetId: widget.id, data });
-
     } catch (error) {
       this.logger.error('Error updating widget data', {
         widgetId: widget.id,
@@ -697,9 +718,21 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       memoryUsage: Math.round(snapshot.systemHealth.memoryUsageMB),
       cpuUsage: snapshot.systemHealth.cpuUsagePercent,
       metrics: [
-        { label: 'Memory Usage', value: snapshot.systemHealth.memoryUsageMB, unit: 'MB' },
-        { label: 'CPU Usage', value: snapshot.systemHealth.cpuUsagePercent, unit: '%' },
-        { label: 'Uptime', value: Math.floor(snapshot.systemHealth.uptime / 1000 / 60 / 60), unit: 'hours' },
+        {
+          label: 'Memory Usage',
+          value: snapshot.systemHealth.memoryUsageMB,
+          unit: 'MB',
+        },
+        {
+          label: 'CPU Usage',
+          value: snapshot.systemHealth.cpuUsagePercent,
+          unit: '%',
+        },
+        {
+          label: 'Uptime',
+          value: Math.floor(snapshot.systemHealth.uptime / 1000 / 60 / 60),
+          unit: 'hours',
+        },
         { label: 'Status', value: snapshot.systemHealth.overall, unit: '' },
       ],
     };
@@ -715,7 +748,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       inProgress: snapshot.taskMetrics.inProgress,
       successRate: snapshot.taskMetrics.successRate,
       throughputPerHour: snapshot.taskMetrics.throughputPerHour,
-      chartData: this.generateChartData(widget.id, widget.config.timeRange || 'last_hour'),
+      chartData: this.generateChartData(
+        widget.id,
+        widget.config.timeRange || 'last_hour',
+      ),
     };
   }
 
@@ -741,7 +777,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     const activeAlerts = realTimeMonitoringSystem.getActiveAlerts();
 
     return {
-      activeAlerts: activeAlerts.map(alert => ({
+      activeAlerts: activeAlerts.map((alert) => ({
         id: alert.rule.id,
         name: alert.rule.name,
         severity: alert.rule.severity,
@@ -751,10 +787,11 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       })),
       alertCount: activeAlerts.length,
       severityCounts: {
-        critical: activeAlerts.filter(a => a.rule.severity === 'critical').length,
-        high: activeAlerts.filter(a => a.rule.severity === 'high').length,
-        medium: activeAlerts.filter(a => a.rule.severity === 'medium').length,
-        low: activeAlerts.filter(a => a.rule.severity === 'low').length,
+        critical: activeAlerts.filter((a) => a.rule.severity === 'critical')
+          .length,
+        high: activeAlerts.filter((a) => a.rule.severity === 'high').length,
+        medium: activeAlerts.filter((a) => a.rule.severity === 'medium').length,
+        low: activeAlerts.filter((a) => a.rule.severity === 'low').length,
       },
     };
   }
@@ -763,7 +800,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
     return {
-      insights: insights.slice(0, 10).map(insight => ({
+      insights: insights.slice(0, 10).map((insight) => ({
         id: insight.id,
         title: insight.title,
         description: insight.description,
@@ -776,15 +813,20 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       })),
       totalInsights: insights.length,
       categories: {
-        capacity: insights.filter(i => i.type === 'capacity_prediction').length,
-        failure: insights.filter(i => i.type === 'failure_prediction').length,
-        bottleneck: insights.filter(i => i.type === 'bottleneck_prediction').length,
-        trend: insights.filter(i => i.type === 'trend_analysis').length,
+        capacity: insights.filter((i) => i.type === 'capacity_prediction')
+          .length,
+        failure: insights.filter((i) => i.type === 'failure_prediction').length,
+        bottleneck: insights.filter((i) => i.type === 'bottleneck_prediction')
+          .length,
+        trend: insights.filter((i) => i.type === 'trend_analysis').length,
       },
     };
   }
 
-  private getWidgetStatus(widget: DashboardWidget, data: unknown): 'ok' | 'warning' | 'error' {
+  private getWidgetStatus(
+    widget: DashboardWidget,
+    data: unknown,
+  ): 'ok' | 'warning' | 'error' {
     if (!data) return 'error';
 
     if (typeof data === 'object' && data !== null && 'error' in data) {
@@ -792,15 +834,24 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     }
 
     // Additional status logic based on widget type and thresholds
-    if (widget.config.thresholds && typeof data === 'object' && data !== null && 'value' in data) {
+    if (
+      widget.config.thresholds &&
+      typeof data === 'object' &&
+      data !== null &&
+      'value' in data
+    ) {
       const value = (data as any).value;
-      const criticalThreshold = widget.config.thresholds.find(t => t.label === 'Critical');
+      const criticalThreshold = widget.config.thresholds.find(
+        (t) => t.label === 'Critical',
+      );
 
       if (criticalThreshold && value >= criticalThreshold.value) {
         return 'error';
       }
 
-      const warningThreshold = widget.config.thresholds.find(t => t.label === 'Warning');
+      const warningThreshold = widget.config.thresholds.find(
+        (t) => t.label === 'Warning',
+      );
       if (warningThreshold && value >= warningThreshold.value) {
         return 'warning';
       }
@@ -809,17 +860,24 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     return 'ok';
   }
 
-  private generateSystemHealthChart(snapshots: MonitoringSnapshot[], widget: DashboardWidget): ChartData {
-    const labels = snapshots.slice(-20).map(s =>
-      s.timestamp.toLocaleTimeString()
-    ).reverse();
+  private generateSystemHealthChart(
+    snapshots: MonitoringSnapshot[],
+    widget: DashboardWidget,
+  ): ChartData {
+    const labels = snapshots
+      .slice(-20)
+      .map((s) => s.timestamp.toLocaleTimeString())
+      .reverse();
 
     return {
       labels,
       datasets: [
         {
           label: 'Memory Usage (MB)',
-          data: snapshots.slice(-20).map(s => s.systemHealth.memoryUsageMB).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.systemHealth.memoryUsageMB)
+            .reverse(),
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.4,
@@ -827,7 +885,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         },
         {
           label: 'CPU Usage (%)',
-          data: snapshots.slice(-20).map(s => s.systemHealth.cpuUsagePercent).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.systemHealth.cpuUsagePercent)
+            .reverse(),
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           tension: 0.4,
@@ -845,31 +906,44 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private generateTaskMetricsChart(snapshots: MonitoringSnapshot[], widget: DashboardWidget): ChartData {
-    const labels = snapshots.slice(-20).map(s =>
-      s.timestamp.toLocaleTimeString()
-    ).reverse();
+  private generateTaskMetricsChart(
+    snapshots: MonitoringSnapshot[],
+    widget: DashboardWidget,
+  ): ChartData {
+    const labels = snapshots
+      .slice(-20)
+      .map((s) => s.timestamp.toLocaleTimeString())
+      .reverse();
 
     return {
       labels,
       datasets: [
         {
           label: 'Completed Tasks',
-          data: snapshots.slice(-20).map(s => s.taskMetrics.completed).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.taskMetrics.completed)
+            .reverse(),
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.2)',
           fill: true,
         },
         {
           label: 'Failed Tasks',
-          data: snapshots.slice(-20).map(s => s.taskMetrics.failed).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.taskMetrics.failed)
+            .reverse(),
           borderColor: '#ef4444',
           backgroundColor: 'rgba(239, 68, 68, 0.2)',
           fill: true,
         },
         {
           label: 'In Progress',
-          data: snapshots.slice(-20).map(s => s.taskMetrics.inProgress).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.taskMetrics.inProgress)
+            .reverse(),
           borderColor: '#f59e0b',
           backgroundColor: 'rgba(245, 158, 11, 0.2)',
           fill: false,
@@ -886,24 +960,34 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private generateAgentPerformanceChart(snapshots: MonitoringSnapshot[], widget: DashboardWidget): ChartData {
-    const labels = snapshots.slice(-20).map(s =>
-      s.timestamp.toLocaleTimeString()
-    ).reverse();
+  private generateAgentPerformanceChart(
+    snapshots: MonitoringSnapshot[],
+    widget: DashboardWidget,
+  ): ChartData {
+    const labels = snapshots
+      .slice(-20)
+      .map((s) => s.timestamp.toLocaleTimeString())
+      .reverse();
 
     return {
       labels,
       datasets: [
         {
           label: 'Active Agents',
-          data: snapshots.slice(-20).map(s => s.agentMetrics.active).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.agentMetrics.active)
+            .reverse(),
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.2)',
           fill: true,
         },
         {
           label: 'Agent Utilization (%)',
-          data: snapshots.slice(-20).map(s => s.agentMetrics.averageUtilization).reverse(),
+          data: snapshots
+            .slice(-20)
+            .map((s) => s.agentMetrics.averageUtilization)
+            .reverse(),
           borderColor: '#8b5cf6',
           backgroundColor: 'rgba(139, 92, 246, 0.2)',
           fill: false,
@@ -920,17 +1004,24 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private generateAlertHistoryChart(snapshots: MonitoringSnapshot[], widget: DashboardWidget): ChartData {
-    const labels = snapshots.slice(-10).map(s =>
-      s.timestamp.toLocaleTimeString()
-    ).reverse();
+  private generateAlertHistoryChart(
+    snapshots: MonitoringSnapshot[],
+    widget: DashboardWidget,
+  ): ChartData {
+    const labels = snapshots
+      .slice(-10)
+      .map((s) => s.timestamp.toLocaleTimeString())
+      .reverse();
 
     return {
       labels,
       datasets: [
         {
           label: 'Active Alerts',
-          data: snapshots.slice(-10).map(s => s.activeAlerts.length).reverse(),
+          data: snapshots
+            .slice(-10)
+            .map((s) => s.activeAlerts.length)
+            .reverse(),
           backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'],
           borderWidth: 1,
         },
@@ -949,21 +1040,24 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   private generatePredictiveInsightsChart(widget: DashboardWidget): ChartData {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
-    const confidenceData = insights.slice(0, 10).map(insight => ({
+    const confidenceData = insights.slice(0, 10).map((insight) => ({
       x: insight.title.substring(0, 20),
       y: insight.confidence * 100,
       impact: insight.impact,
     }));
 
     return {
-      labels: confidenceData.map(d => d.x),
+      labels: confidenceData.map((d) => d.x),
       datasets: [
         {
           label: 'Confidence (%)',
-          data: confidenceData.map(d => d.y),
-          backgroundColor: confidenceData.map(d =>
-            d.impact === 'high' ? '#ef4444' :
-            d.impact === 'medium' ? '#f59e0b' : '#10b981'
+          data: confidenceData.map((d) => d.y),
+          backgroundColor: confidenceData.map((d) =>
+            d.impact === 'high'
+              ? '#ef4444'
+              : d.impact === 'medium'
+                ? '#f59e0b'
+                : '#10b981',
           ),
           borderWidth: 1,
         },
@@ -1051,7 +1145,6 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.logger.info('Persisted layouts loaded', {
         count: this.layouts.size,
       });
-
     } catch (error) {
       // File doesn't exist or is corrupted - start fresh
       this.logger.info('No persisted layouts found, starting fresh');
@@ -1065,8 +1158,10 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         lastPersisted: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.layoutsPath, JSON.stringify(layoutsData, null, 2));
-
+      await fs.writeFile(
+        this.layoutsPath,
+        JSON.stringify(layoutsData, null, 2),
+      );
     } catch (error) {
       this.logger.error('Error persisting layouts', { error });
     }

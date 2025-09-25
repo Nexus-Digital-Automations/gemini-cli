@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { AgentCommunicationHub, type AgentMessage, type MessageHandler, type SynchronizationBarrier } from '../agentCommunicationHub.js';
+import {
+  AgentCommunicationHub,
+  type AgentMessage,
+  type MessageHandler,
+  type SynchronizationBarrier,
+} from '../agentCommunicationHub.js';
 import type { Config } from '../../index.js';
 
 // Mock Config
@@ -41,7 +46,7 @@ describe('AgentCommunicationHub', () => {
       communicationHub.registerAgent('agent-1');
 
       const registeredAgents = communicationHub.getRegisteredAgents();
-      expect(registeredAgents.filter(id => id === 'agent-1')).toHaveLength(1);
+      expect(registeredAgents.filter((id) => id === 'agent-1')).toHaveLength(1);
     });
 
     it('should unregister an agent', () => {
@@ -160,17 +165,27 @@ describe('AgentCommunicationHub', () => {
     });
 
     it('should subscribe agent to channel', () => {
-      communicationHub.subscribe('agent-1', 'system_events', mockMessageHandler);
+      communicationHub.subscribe(
+        'agent-1',
+        'system_events',
+        mockMessageHandler,
+      );
 
-      const subscribers = communicationHub.getChannelSubscribers('system_events');
+      const subscribers =
+        communicationHub.getChannelSubscribers('system_events');
       expect(subscribers).toContain('agent-1');
     });
 
     it('should unsubscribe agent from channel', () => {
-      communicationHub.subscribe('agent-1', 'system_events', mockMessageHandler);
+      communicationHub.subscribe(
+        'agent-1',
+        'system_events',
+        mockMessageHandler,
+      );
       communicationHub.unsubscribe('agent-1', 'system_events');
 
-      const subscribers = communicationHub.getChannelSubscribers('system_events');
+      const subscribers =
+        communicationHub.getChannelSubscribers('system_events');
       expect(subscribers).not.toContain('agent-1');
     });
 
@@ -199,7 +214,9 @@ describe('AgentCommunicationHub', () => {
     });
 
     it('should handle subscriber errors gracefully', async () => {
-      const failingHandler = vi.fn().mockRejectedValue(new Error('Handler failed'));
+      const failingHandler = vi
+        .fn()
+        .mockRejectedValue(new Error('Handler failed'));
       const workingHandler = vi.fn().mockResolvedValue(true);
 
       communicationHub.subscribe('agent-1', 'error_test', failingHandler);
@@ -216,7 +233,9 @@ describe('AgentCommunicationHub', () => {
         channel: 'error_test',
       };
 
-      await expect(communicationHub.publish('error_test', message)).resolves.not.toThrow();
+      await expect(
+        communicationHub.publish('error_test', message),
+      ).resolves.not.toThrow();
       expect(workingHandler).toHaveBeenCalled();
     });
 
@@ -251,7 +270,7 @@ describe('AgentCommunicationHub', () => {
     it('should create synchronization barrier', async () => {
       const barrier = await communicationHub.createSynchronizationBarrier(
         'test-barrier',
-        ['agent-1', 'agent-2', 'agent-3']
+        ['agent-1', 'agent-2', 'agent-3'],
       );
 
       expect(barrier.id).toBe('test-barrier');
@@ -260,10 +279,10 @@ describe('AgentCommunicationHub', () => {
     });
 
     it('should wait for all agents to reach barrier', async () => {
-      await communicationHub.createSynchronizationBarrier(
-        'sync-test',
-        ['agent-1', 'agent-2']
-      );
+      await communicationHub.createSynchronizationBarrier('sync-test', [
+        'agent-1',
+        'agent-2',
+      ]);
 
       // First agent reaches barrier
       const promise1 = communicationHub.waitForBarrier('agent-1', 'sync-test');
@@ -287,21 +306,24 @@ describe('AgentCommunicationHub', () => {
       await communicationHub.createSynchronizationBarrier(
         'timeout-barrier',
         ['agent-1', 'agent-2'],
-        1000 // 1 second timeout
+        1000, // 1 second timeout
       );
 
       // Only one agent reaches barrier
-      const barrierPromise = communicationHub.waitForBarrier('agent-1', 'timeout-barrier');
+      const barrierPromise = communicationHub.waitForBarrier(
+        'agent-1',
+        'timeout-barrier',
+      );
 
       // Should timeout
       await expect(barrierPromise).rejects.toThrow('Barrier timeout');
     });
 
     it('should release barrier when all agents arrive', async () => {
-      await communicationHub.createSynchronizationBarrier(
-        'release-test',
-        ['agent-1', 'agent-2']
-      );
+      await communicationHub.createSynchronizationBarrier('release-test', [
+        'agent-1',
+        'agent-2',
+      ]);
 
       const promises = [
         communicationHub.waitForBarrier('agent-1', 'release-test'),
@@ -316,18 +338,18 @@ describe('AgentCommunicationHub', () => {
 
     it('should handle non-existent barrier gracefully', async () => {
       await expect(
-        communicationHub.waitForBarrier('agent-1', 'non-existent')
+        communicationHub.waitForBarrier('agent-1', 'non-existent'),
       ).rejects.toThrow('Barrier not found');
     });
 
     it('should handle agent not in barrier participants', async () => {
-      await communicationHub.createSynchronizationBarrier(
-        'exclusive-barrier',
-        ['agent-1', 'agent-2']
-      );
+      await communicationHub.createSynchronizationBarrier('exclusive-barrier', [
+        'agent-1',
+        'agent-2',
+      ]);
 
       await expect(
-        communicationHub.waitForBarrier('agent-3', 'exclusive-barrier')
+        communicationHub.waitForBarrier('agent-3', 'exclusive-barrier'),
       ).rejects.toThrow('not a participant');
     });
   });
@@ -343,27 +365,40 @@ describe('AgentCommunicationHub', () => {
       const consensusId = await communicationHub.startConsensusOperation(
         'leader-election',
         ['agent-1', 'agent-2', 'agent-3'],
-        { candidates: ['agent-1', 'agent-2'] }
+        { candidates: ['agent-1', 'agent-2'] },
       );
 
       expect(consensusId).toBeDefined();
 
       const consensus = communicationHub.getConsensusOperation(consensusId);
       expect(consensus?.type).toBe('leader-election');
-      expect(consensus?.participants).toEqual(['agent-1', 'agent-2', 'agent-3']);
+      expect(consensus?.participants).toEqual([
+        'agent-1',
+        'agent-2',
+        'agent-3',
+      ]);
     });
 
     it('should handle consensus voting', async () => {
       const consensusId = await communicationHub.startConsensusOperation(
         'configuration-change',
         ['agent-1', 'agent-2', 'agent-3'],
-        { newConfig: { maxLoad: 0.8 } }
+        { newConfig: { maxLoad: 0.8 } },
       );
 
       // Agents vote
-      await communicationHub.submitConsensusVote(consensusId, 'agent-1', { vote: 'approve', reason: 'Good change' });
-      await communicationHub.submitConsensusVote(consensusId, 'agent-2', { vote: 'approve', reason: 'Agree' });
-      await communicationHub.submitConsensusVote(consensusId, 'agent-3', { vote: 'reject', reason: 'Too restrictive' });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-1', {
+        vote: 'approve',
+        reason: 'Good change',
+      });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-2', {
+        vote: 'approve',
+        reason: 'Agree',
+      });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-3', {
+        vote: 'reject',
+        reason: 'Too restrictive',
+      });
 
       const consensus = communicationHub.getConsensusOperation(consensusId);
       expect(consensus?.votes).toHaveProperty('agent-1');
@@ -375,13 +410,19 @@ describe('AgentCommunicationHub', () => {
       const consensusId = await communicationHub.startConsensusOperation(
         'task-priority',
         ['agent-1', 'agent-2', 'agent-3'],
-        { taskId: 'task-1', newPriority: 'high' }
+        { taskId: 'task-1', newPriority: 'high' },
       );
 
       // Majority approval
-      await communicationHub.submitConsensusVote(consensusId, 'agent-1', { vote: 'approve' });
-      await communicationHub.submitConsensusVote(consensusId, 'agent-2', { vote: 'approve' });
-      await communicationHub.submitConsensusVote(consensusId, 'agent-3', { vote: 'reject' });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-1', {
+        vote: 'approve',
+      });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-2', {
+        vote: 'approve',
+      });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-3', {
+        vote: 'reject',
+      });
 
       const result = await communicationHub.getConsensusResult(consensusId);
       expect(result.decision).toBe('approved');
@@ -394,14 +435,16 @@ describe('AgentCommunicationHub', () => {
         'slow-consensus',
         ['agent-1', 'agent-2', 'agent-3'],
         { timeout: 500 }, // Short timeout
-        500
+        500,
       );
 
       // Only partial votes
-      await communicationHub.submitConsensusVote(consensusId, 'agent-1', { vote: 'approve' });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-1', {
+        vote: 'approve',
+      });
 
       // Wait for timeout
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
       const result = await communicationHub.getConsensusResult(consensusId);
       expect(result.status).toBe('timeout');
@@ -411,11 +454,15 @@ describe('AgentCommunicationHub', () => {
       const consensusId = await communicationHub.startConsensusOperation(
         'critical-change',
         ['agent-1', 'agent-2'],
-        { requireUnanimous: true }
+        { requireUnanimous: true },
       );
 
-      await communicationHub.submitConsensusVote(consensusId, 'agent-1', { vote: 'approve' });
-      await communicationHub.submitConsensusVote(consensusId, 'agent-2', { vote: 'reject' });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-1', {
+        vote: 'approve',
+      });
+      await communicationHub.submitConsensusVote(consensusId, 'agent-2', {
+        vote: 'reject',
+      });
 
       const result = await communicationHub.getConsensusResult(consensusId);
       expect(result.decision).toBe('rejected'); // Not unanimous
@@ -431,8 +478,14 @@ describe('AgentCommunicationHub', () => {
 
     it('should route messages based on agent capabilities', async () => {
       // Set up capability-based routing
-      communicationHub.setAgentCapabilities('frontend-agent', ['frontend', 'ui']);
-      communicationHub.setAgentCapabilities('backend-agent', ['backend', 'database']);
+      communicationHub.setAgentCapabilities('frontend-agent', [
+        'frontend',
+        'ui',
+      ]);
+      communicationHub.setAgentCapabilities('backend-agent', [
+        'backend',
+        'database',
+      ]);
 
       const frontendMessage: AgentMessage = {
         id: 'fe-msg',
@@ -473,7 +526,9 @@ describe('AgentCommunicationHub', () => {
         priority: 'normal',
       };
 
-      expect(communicationHub.shouldMessagePass(highPriorityMessage)).toBe(true);
+      expect(communicationHub.shouldMessagePass(highPriorityMessage)).toBe(
+        true,
+      );
       expect(communicationHub.shouldMessagePass(normalMessage)).toBe(true); // Filters don't block by default
     });
 
@@ -600,7 +655,7 @@ describe('AgentCommunicationHub', () => {
 
       // Message should be queued for retry
       const failedMessages = communicationHub.getFailedMessages();
-      expect(failedMessages.some(msg => msg.id === 'failed-msg')).toBe(true);
+      expect(failedMessages.some((msg) => msg.id === 'failed-msg')).toBe(true);
     });
 
     it('should retry failed messages when agent comes back online', async () => {
@@ -626,7 +681,7 @@ describe('AgentCommunicationHub', () => {
       await communicationHub.retryFailedMessages();
 
       const failedMessages = communicationHub.getFailedMessages();
-      expect(failedMessages.some(msg => msg.id === 'retry-msg')).toBe(false);
+      expect(failedMessages.some((msg) => msg.id === 'retry-msg')).toBe(false);
     });
 
     it('should handle corrupted messages gracefully', async () => {
@@ -659,7 +714,8 @@ describe('AgentCommunicationHub', () => {
         await communicationHub.sendMessage(message);
       }
 
-      const circuitBreakerStatus = communicationHub.getCircuitBreakerStatus(unreliableRecipient);
+      const circuitBreakerStatus =
+        communicationHub.getCircuitBreakerStatus(unreliableRecipient);
       expect(circuitBreakerStatus.state).toBe('open');
     });
   });
@@ -677,7 +733,7 @@ describe('AgentCommunicationHub', () => {
       }));
 
       const results = await communicationHub.sendMessageBatch(messages);
-      expect(results.every(result => result.success)).toBe(true);
+      expect(results.every((result) => result.success)).toBe(true);
       expect(results).toHaveLength(10);
     });
 
@@ -697,25 +753,29 @@ describe('AgentCommunicationHub', () => {
     });
 
     it('should maintain message ordering', async () => {
-      const orderedMessages: AgentMessage[] = Array.from({ length: 5 }, (_, i) => ({
-        id: `ordered-${i}`,
-        senderId: 'agent-1',
-        recipientId: 'agent-2',
-        type: 'sequential_task',
-        data: { sequence: i },
-        timestamp: new Date(),
-        priority: 'normal',
-        requiresOrdering: true,
-      }));
+      const orderedMessages: AgentMessage[] = Array.from(
+        { length: 5 },
+        (_, i) => ({
+          id: `ordered-${i}`,
+          senderId: 'agent-1',
+          recipientId: 'agent-2',
+          type: 'sequential_task',
+          data: { sequence: i },
+          timestamp: new Date(),
+          priority: 'normal',
+          requiresOrdering: true,
+        }),
+      );
 
       for (const message of orderedMessages) {
         await communicationHub.sendMessage(message);
       }
 
-      const deliveredMessages = communicationHub.getDeliveredMessages('agent-2');
+      const deliveredMessages =
+        communicationHub.getDeliveredMessages('agent-2');
       const sequences = deliveredMessages
-        .filter(msg => msg.type === 'sequential_task')
-        .map(msg => msg.data.sequence);
+        .filter((msg) => msg.type === 'sequential_task')
+        .map((msg) => msg.data.sequence);
 
       expect(sequences).toEqual([0, 1, 2, 3, 4]);
     });

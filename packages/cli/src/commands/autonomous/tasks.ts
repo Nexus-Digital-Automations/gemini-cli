@@ -24,7 +24,10 @@ export const tasksCommand: CommandModule = {
       .demandCommand(1, 'You need at least one command before continuing.')
       .version(false)
       .example('gemini autonomous tasks list', 'List all tasks')
-      .example('gemini autonomous tasks add "Fix bug in authentication"', 'Add new task')
+      .example(
+        'gemini autonomous tasks add "Fix bug in authentication"',
+        'Add new task',
+      )
       .example('gemini autonomous tasks show task_123', 'Show task details')
       .example('gemini autonomous tasks cancel task_123', 'Cancel a task')
       .epilog('Task management commands for the autonomous system'),

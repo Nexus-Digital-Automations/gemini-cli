@@ -6,7 +6,9 @@
 
 import { type UseHistoryManagerReturn } from '../hooks/useHistoryManager.js';
 interface DialogManagerProps {
-    addItem: UseHistoryManagerReturn['addItem'];
+  addItem: UseHistoryManagerReturn['addItem'];
 }
-export declare const DialogManager: ({ addItem }: DialogManagerProps) => import("react/jsx-runtime").JSX.Element | null;
+export declare const DialogManager: ({
+  addItem,
+}: DialogManagerProps) => import('react/jsx-runtime').JSX.Element | null;
 export {};

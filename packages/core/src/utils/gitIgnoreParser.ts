@@ -48,22 +48,31 @@ export class GitIgnoreParser implements GitIgnoreFilter {
 
     try {
       // Pre-load global patterns from .git/info/exclude
-      const excludeFile = path.join(this.projectRoot, '.git', 'info', 'exclude');
+      const excludeFile = path.join(
+        this.projectRoot,
+        '.git',
+        'info',
+        'exclude',
+      );
       this.globalPatterns = await this.loadPatternsForFileAsync(excludeFile);
 
       logger.debug('Initialized GitIgnoreParser', {
         projectRoot: this.projectRoot,
-        globalPatternCount: this.globalPatterns.length
+        globalPatternCount: this.globalPatterns.length,
       });
     } catch (error) {
-      logger.warn('Failed to initialize GitIgnoreParser', { error: error as Error });
+      logger.warn('Failed to initialize GitIgnoreParser', {
+        error: error as Error,
+      });
       this.globalPatterns = [];
     } finally {
       endTimer();
     }
   }
 
-  private async loadPatternsForFileAsync(patternsFilePath: string): Promise<string[]> {
+  private async loadPatternsForFileAsync(
+    patternsFilePath: string,
+  ): Promise<string[]> {
     // Check file cache first
     let content: string;
     if (this.fileCache.has(patternsFilePath)) {

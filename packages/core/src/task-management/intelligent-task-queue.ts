@@ -70,7 +70,7 @@ export class IntelligentTaskQueue {
   constructor(
     coreScheduler: CoreToolScheduler,
     config: TaskQueueConfig,
-    dependencyManager?: DependencyManager
+    dependencyManager?: DependencyManager,
   ) {
     this.coreScheduler = coreScheduler;
     this.config = config;
@@ -116,7 +116,7 @@ export class IntelligentTaskQueue {
       taskId: task.id,
       task: { ...task, status: 'pending' },
       startTime: new Date(),
-      dependencies: dependencies.map(dep => dep.dependsOnTaskId),
+      dependencies: dependencies.map((dep) => dep.dependsOnTaskId),
       dependents,
       retryCount: 0,
     };
@@ -203,13 +203,18 @@ export class IntelligentTaskQueue {
     resourceUtilization: Record<string, { used: number; total: number }>;
     currentExecutionPlan?: ExecutionPlan;
   } {
-    const failedTasks = Array.from(this.completedTasks.values()).filter(result => !result.success).length;
-    const successfulTasks = Array.from(this.completedTasks.values()).filter(result => result.success).length;
-    const blockedTasks = Array.from(this.executionQueue.values()).filter(context =>
-      this.getBlockingDependencies(context.taskId).length > 0
+    const failedTasks = Array.from(this.completedTasks.values()).filter(
+      (result) => !result.success,
+    ).length;
+    const successfulTasks = Array.from(this.completedTasks.values()).filter(
+      (result) => result.success,
+    ).length;
+    const blockedTasks = Array.from(this.executionQueue.values()).filter(
+      (context) => this.getBlockingDependencies(context.taskId).length > 0,
     ).length;
 
-    const resourceUtilization: Record<string, { used: number; total: number }> = {};
+    const resourceUtilization: Record<string, { used: number; total: number }> =
+      {};
     for (const [resourceType, capacity] of this.config.resourcePools) {
       resourceUtilization[resourceType] = {
         used: this.resourceAllocations.get(resourceType) || 0,
@@ -218,7 +223,10 @@ export class IntelligentTaskQueue {
     }
 
     return {
-      totalTasks: this.executionQueue.size + this.activeExecutions.size + this.completedTasks.size,
+      totalTasks:
+        this.executionQueue.size +
+        this.activeExecutions.size +
+        this.completedTasks.size,
       pendingTasks: this.executionQueue.size,
       activeTasks: this.activeExecutions.size,
       completedTasks: successfulTasks,
@@ -243,7 +251,9 @@ export class IntelligentTaskQueue {
     try {
       await this.processingPromise;
     } catch (error) {
-      logger.error('Queue processing failed', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Queue processing failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       this.isProcessing = false;
       this.processingPromise = undefined;
@@ -260,11 +270,14 @@ export class IntelligentTaskQueue {
       // Generate fresh execution plan
       const queuedTaskIds = Array.from(this.executionQueue.keys());
       if (queuedTaskIds.length > 0) {
-        this.currentExecutionPlan = this.dependencyManager.generateExecutionPlan(queuedTaskIds);
+        this.currentExecutionPlan =
+          this.dependencyManager.generateExecutionPlan(queuedTaskIds);
         logger.debug('Generated new execution plan', {
           sequenceLength: this.currentExecutionPlan.sequence.sequence.length,
-          parallelGroups: this.currentExecutionPlan.sequence.parallelGroups.length,
-          criticalPathLength: this.currentExecutionPlan.sequence.criticalPath.length,
+          parallelGroups:
+            this.currentExecutionPlan.sequence.parallelGroups.length,
+          criticalPathLength:
+            this.currentExecutionPlan.sequence.criticalPath.length,
         });
       }
 
@@ -274,7 +287,7 @@ export class IntelligentTaskQueue {
       // If no tasks were executed and we have queued tasks, wait briefly
       if (executedCount === 0 && this.executionQueue.size > 0) {
         logger.debug('No tasks ready for execution, waiting');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       // If no queued tasks and no active executions, we're done
@@ -303,7 +316,9 @@ export class IntelligentTaskQueue {
         break; // Reached concurrency limit
       }
 
-      const readyTasks = group.filter(taskId => this.executionQueue.has(taskId) && this.isTaskReady(taskId));
+      const readyTasks = group.filter(
+        (taskId) => this.executionQueue.has(taskId) && this.isTaskReady(taskId),
+      );
 
       for (const taskId of readyTasks) {
         if (this.activeExecutions.size >= maxConcurrent) {
@@ -315,7 +330,10 @@ export class IntelligentTaskQueue {
 
         // Check resource availability
         if (!this.areResourcesAvailable(context.task)) {
-          logger.debug('Task waiting for resources', { taskId, task: context.task.title });
+          logger.debug('Task waiting for resources', {
+            taskId,
+            task: context.task.title,
+          });
           continue;
         }
 
@@ -379,8 +397,10 @@ export class IntelligentTaskQueue {
     }
 
     for (const constraint of task.executionContext.resourceConstraints) {
-      const totalCapacity = this.config.resourcePools.get(constraint.resourceType) || 0;
-      const currentUsage = this.resourceAllocations.get(constraint.resourceType) || 0;
+      const totalCapacity =
+        this.config.resourcePools.get(constraint.resourceType) || 0;
+      const currentUsage =
+        this.resourceAllocations.get(constraint.resourceType) || 0;
 
       if (currentUsage + constraint.maxUnits > totalCapacity) {
         return false; // Insufficient resources
@@ -393,7 +413,9 @@ export class IntelligentTaskQueue {
   /**
    * Start execution of a task
    */
-  private async startTaskExecution(context: TaskExecutionContext): Promise<void> {
+  private async startTaskExecution(
+    context: TaskExecutionContext,
+  ): Promise<void> {
     logger.debug('Starting task execution', {
       taskId: context.taskId,
       title: context.task.title,
@@ -421,9 +443,11 @@ export class IntelligentTaskQueue {
 
       // Handle completion (this would typically be done via callbacks)
       await this.handleTaskCompletion(context, { success: true });
-
     } catch (error) {
-      await this.handleTaskFailure(context, error instanceof Error ? error : new Error(String(error)));
+      await this.handleTaskFailure(
+        context,
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
@@ -446,12 +470,12 @@ export class IntelligentTaskQueue {
    */
   private getToolNameForTask(task: Task): string {
     const toolMapping = {
-      'implementation': 'write_file',
-      'testing': 'shell',
-      'documentation': 'write_file',
-      'analysis': 'read_file',
-      'refactoring': 'edit',
-      'deployment': 'shell',
+      implementation: 'write_file',
+      testing: 'shell',
+      documentation: 'write_file',
+      analysis: 'read_file',
+      refactoring: 'edit',
+      deployment: 'shell',
     };
 
     return toolMapping[task.category] || 'shell';
@@ -463,8 +487,12 @@ export class IntelligentTaskQueue {
   private allocateResources(task: Task): void {
     if (task.executionContext?.resourceConstraints) {
       for (const constraint of task.executionContext.resourceConstraints) {
-        const currentUsage = this.resourceAllocations.get(constraint.resourceType) || 0;
-        this.resourceAllocations.set(constraint.resourceType, currentUsage + constraint.maxUnits);
+        const currentUsage =
+          this.resourceAllocations.get(constraint.resourceType) || 0;
+        this.resourceAllocations.set(
+          constraint.resourceType,
+          currentUsage + constraint.maxUnits,
+        );
       }
 
       logger.debug('Resources allocated for task', {
@@ -480,10 +508,11 @@ export class IntelligentTaskQueue {
   private releaseResources(task: Task): void {
     if (task.executionContext?.resourceConstraints) {
       for (const constraint of task.executionContext.resourceConstraints) {
-        const currentUsage = this.resourceAllocations.get(constraint.resourceType) || 0;
+        const currentUsage =
+          this.resourceAllocations.get(constraint.resourceType) || 0;
         this.resourceAllocations.set(
           constraint.resourceType,
-          Math.max(0, currentUsage - constraint.maxUnits)
+          Math.max(0, currentUsage - constraint.maxUnits),
         );
       }
 
@@ -499,7 +528,7 @@ export class IntelligentTaskQueue {
    */
   private async handleTaskCompletion(
     context: TaskExecutionContext,
-    result: { success: boolean; output?: any }
+    result: { success: boolean; output?: any },
   ): Promise<void> {
     const endTime = new Date();
     const duration = endTime.getTime() - context.startTime.getTime();
@@ -527,7 +556,7 @@ export class IntelligentTaskQueue {
       context.taskId,
       context.startTime,
       endTime,
-      result.success
+      result.success,
     );
 
     logger.info('Task completed successfully', {
@@ -544,7 +573,10 @@ export class IntelligentTaskQueue {
   /**
    * Handle task execution failure
    */
-  private async handleTaskFailure(context: TaskExecutionContext, error: Error): Promise<void> {
+  private async handleTaskFailure(
+    context: TaskExecutionContext,
+    error: Error,
+  ): Promise<void> {
     logger.warn('Task execution failed', {
       taskId: context.taskId,
       title: context.task.title,
@@ -553,7 +585,9 @@ export class IntelligentTaskQueue {
     });
 
     // Check if we should retry
-    const maxRetries = context.task.executionContext?.maxRetries || this.config.defaultMaxRetries;
+    const maxRetries =
+      context.task.executionContext?.maxRetries ||
+      this.config.defaultMaxRetries;
     const shouldRetry = context.retryCount < maxRetries;
 
     if (shouldRetry) {
@@ -594,7 +628,7 @@ export class IntelligentTaskQueue {
         context.taskId,
         context.startTime,
         endTime,
-        false
+        false,
       );
 
       logger.error('Task failed permanently', {
@@ -621,10 +655,14 @@ export class IntelligentTaskQueue {
     const baseDelay = 60000; // 1 minute base delay
 
     // Add delay based on queue position and dependencies
-    const queuePosition = Array.from(this.executionQueue.keys()).indexOf(taskId);
+    const queuePosition = Array.from(this.executionQueue.keys()).indexOf(
+      taskId,
+    );
     const dependencyDelay = this.getBlockingDependencies(taskId).length * 30000; // 30s per blocking dependency
 
-    return new Date(now.getTime() + baseDelay + (queuePosition * 10000) + dependencyDelay);
+    return new Date(
+      now.getTime() + baseDelay + queuePosition * 10000 + dependencyDelay,
+    );
   }
 
   /**
@@ -638,12 +676,16 @@ export class IntelligentTaskQueue {
    * Wait for all tasks to complete
    */
   async waitForCompletion(): Promise<void> {
-    while (this.executionQueue.size > 0 || this.activeExecutions.size > 0 || this.isProcessing) {
+    while (
+      this.executionQueue.size > 0 ||
+      this.activeExecutions.size > 0 ||
+      this.isProcessing
+    ) {
       if (this.processingPromise) {
         await this.processingPromise;
       }
       // Small delay to prevent busy waiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 

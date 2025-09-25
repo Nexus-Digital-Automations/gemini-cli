@@ -29,9 +29,34 @@
  * const isReady = await isProjectReadyForCompletion('/path/to/project');
  * ```
  */
-export { AutomaticValidationSystem, TaskType, ValidationStatus, GateType, GateSeverity, ValidationContext, ValidationConfig, ValidationResult, ValidationReport, ValidationEvidence, EvidenceType, ValidationLogger } from './AutomaticValidationSystem';
-export { ValidationIntegration, ValidationCLI, ValidationCommand, ValidationCommandArgs, CICDReport, StopAuthorizationRecommendation, createValidationIntegration, createValidationCLI, validateTaskCompletion, isProjectReadyForCompletion, getStopAuthorizationStatus } from './ValidationIntegration';
-export { examples } from './examples';
+export {
+  AutomaticValidationSystem,
+  TaskType,
+  ValidationStatus,
+  GateType,
+  GateSeverity,
+  ValidationContext,
+  ValidationConfig,
+  ValidationResult,
+  ValidationReport,
+  ValidationEvidence,
+  EvidenceType,
+  ValidationLogger,
+} from './AutomaticValidationSystem.js';
+export {
+  ValidationIntegration,
+  ValidationCLI,
+  ValidationCommand,
+  ValidationCommandArgs,
+  CICDReport,
+  StopAuthorizationRecommendation,
+  createValidationIntegration,
+  createValidationCLI,
+  validateTaskCompletion,
+  isProjectReadyForCompletion,
+  getStopAuthorizationStatus,
+} from './ValidationIntegration.js';
+export { examples } from './examples.js';
 /**
  * Factory function to create a fully configured validation system.
  *
@@ -52,7 +77,10 @@ export { examples } from './examples';
  * );
  * ```
  */
-export declare function createValidationSystem(projectRoot: string, config?: Partial<import('./AutomaticValidationSystem').ValidationConfig>): AutomaticValidationSystem;
+export declare function createValidationSystem(
+  projectRoot: string,
+  config?: Partial<import('./AutomaticValidationSystem').ValidationConfig>,
+): AutomaticValidationSystem;
 /**
  * Quick validation utility for common use cases.
  *
@@ -71,14 +99,17 @@ export declare function createValidationSystem(projectRoot: string, config?: Par
  * console.log(result.passed ? 'Ready!' : 'Issues found');
  * ```
  */
-export declare function quickValidate(projectRoot: string, options: {
+export declare function quickValidate(
+  projectRoot: string,
+  options: {
     type: 'feature' | 'bug-fix' | 'refactoring' | 'testing' | 'documentation';
     description: string;
     context?: Record<string, unknown>;
-}): Promise<{
-    passed: boolean;
-    summary: string;
-    issues: string[];
+  },
+): Promise<{
+  passed: boolean;
+  summary: string;
+  issues: string[];
 }>;
 /**
  * Validation system health check utility.
@@ -94,55 +125,55 @@ export declare function quickValidate(projectRoot: string, options: {
  * ```
  */
 export declare function validateSystemHealth(projectRoot: string): Promise<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    availableTools: string[];
-    missingTools: string[];
-    recommendations: string[];
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  availableTools: string[];
+  missingTools: string[];
+  recommendations: string[];
 }>;
 /**
  * Default validation configuration for common project types.
  */
 export declare const DEFAULT_CONFIGS: {
-    /**
-     * Configuration optimized for small to medium projects.
-     */
-    readonly STANDARD: {
-        readonly maxConcurrentGates: 3;
-        readonly defaultGateTimeoutMs: 60000;
-        readonly slowGateThresholdMs: 30000;
-        readonly enableEvidence: true;
-        readonly evidenceRetentionDays: 7;
-    };
-    /**
-     * Configuration optimized for large, complex projects.
-     */
-    readonly ENTERPRISE: {
-        readonly maxConcurrentGates: 8;
-        readonly defaultGateTimeoutMs: 180000;
-        readonly slowGateThresholdMs: 60000;
-        readonly enableEvidence: true;
-        readonly evidenceRetentionDays: 30;
-    };
-    /**
-     * Configuration optimized for CI/CD environments.
-     */
-    readonly CI_CD: {
-        readonly maxConcurrentGates: 10;
-        readonly defaultGateTimeoutMs: 300000;
-        readonly slowGateThresholdMs: 120000;
-        readonly enableEvidence: true;
-        readonly evidenceRetentionDays: 14;
-    };
-    /**
-     * Configuration for development/testing environments.
-     */
-    readonly DEVELOPMENT: {
-        readonly maxConcurrentGates: 2;
-        readonly defaultGateTimeoutMs: 30000;
-        readonly slowGateThresholdMs: 15000;
-        readonly enableEvidence: false;
-        readonly evidenceRetentionDays: 1;
-    };
+  /**
+   * Configuration optimized for small to medium projects.
+   */
+  readonly STANDARD: {
+    readonly maxConcurrentGates: 3;
+    readonly defaultGateTimeoutMs: 60000;
+    readonly slowGateThresholdMs: 30000;
+    readonly enableEvidence: true;
+    readonly evidenceRetentionDays: 7;
+  };
+  /**
+   * Configuration optimized for large, complex projects.
+   */
+  readonly ENTERPRISE: {
+    readonly maxConcurrentGates: 8;
+    readonly defaultGateTimeoutMs: 180000;
+    readonly slowGateThresholdMs: 60000;
+    readonly enableEvidence: true;
+    readonly evidenceRetentionDays: 30;
+  };
+  /**
+   * Configuration optimized for CI/CD environments.
+   */
+  readonly CI_CD: {
+    readonly maxConcurrentGates: 10;
+    readonly defaultGateTimeoutMs: 300000;
+    readonly slowGateThresholdMs: 120000;
+    readonly enableEvidence: true;
+    readonly evidenceRetentionDays: 14;
+  };
+  /**
+   * Configuration for development/testing environments.
+   */
+  readonly DEVELOPMENT: {
+    readonly maxConcurrentGates: 2;
+    readonly defaultGateTimeoutMs: 30000;
+    readonly slowGateThresholdMs: 15000;
+    readonly enableEvidence: false;
+    readonly evidenceRetentionDays: 1;
+  };
 };
 /**
  * Utility to get recommended configuration based on project characteristics.
@@ -150,21 +181,30 @@ export declare const DEFAULT_CONFIGS: {
  * @param projectRoot - Root directory of the project
  * @returns Recommended configuration
  */
-export declare function getRecommendedConfig(projectRoot: string): Promise<typeof DEFAULT_CONFIGS.STANDARD>;
+export declare function getRecommendedConfig(
+  projectRoot: string,
+): Promise<typeof DEFAULT_CONFIGS.STANDARD>;
 /**
  * Version information for the validation system.
  */
-export declare const VERSION = "1.0.0";
+export declare const VERSION = '1.0.0';
 /**
  * Build information and metadata.
  */
 export declare const BUILD_INFO: {
-    readonly version: "1.0.0";
-    readonly built: string;
-    readonly features: readonly ["Multi-task-type validation", "Comprehensive quality gates", "Evidence collection", "CI/CD integration", "TodoWrite integration", "Performance analytics"];
-    readonly compatibility: {
-        readonly node: ">=20.0.0";
-        readonly npm: ">=8.0.0";
-        readonly typescript: ">=4.5.0";
-    };
+  readonly version: '1.0.0';
+  readonly built: string;
+  readonly features: readonly [
+    'Multi-task-type validation',
+    'Comprehensive quality gates',
+    'Evidence collection',
+    'CI/CD integration',
+    'TodoWrite integration',
+    'Performance analytics',
+  ];
+  readonly compatibility: {
+    readonly node: '>=20.0.0';
+    readonly npm: '>=8.0.0';
+    readonly typescript: '>=4.5.0';
+  };
 };

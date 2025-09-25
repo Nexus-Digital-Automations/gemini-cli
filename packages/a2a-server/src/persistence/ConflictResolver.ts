@@ -157,7 +157,8 @@ export class ConflictResolver {
   private conflictDetectionInterval?: NodeJS.Timeout;
 
   constructor(storageDir?: string) {
-    this.storageDir = storageDir || join(homedir(), '.gemini-cli', 'persistence', 'conflicts');
+    this.storageDir =
+      storageDir || join(homedir(), '.gemini-cli', 'persistence', 'conflicts');
     this.resolutionHistory = new Map();
     this.activeLocks = new Map();
 
@@ -194,7 +195,7 @@ export class ConflictResolver {
     taskId: string,
     currentSession: SessionOwnership,
     allSessions: SessionOwnership[],
-    taskCorrelation?: TaskCorrelation
+    taskCorrelation?: TaskCorrelation,
   ): Promise<ConflictAnalysis> {
     logger.debug(`Analyzing conflicts for task ${taskId}`);
 
@@ -209,7 +210,11 @@ export class ConflictResolver {
     };
 
     // Check for concurrent access patterns
-    const concurrentSessions = await this.detectConcurrentAccess(taskId, currentSession, allSessions);
+    const concurrentSessions = await this.detectConcurrentAccess(
+      taskId,
+      currentSession,
+      allSessions,
+    );
     if (concurrentSessions.length > 0) {
       analysis.hasConflict = true;
       analysis.conflictType = ConflictType.CONCURRENT_ACCESS;
@@ -218,7 +223,10 @@ export class ConflictResolver {
       analysis.description = `${concurrentSessions.length} sessions detected accessing task concurrently`;
       analysis.evidence.push({
         type: 'concurrent_access',
-        data: { sessionCount: concurrentSessions.length, sessions: concurrentSessions },
+        data: {
+          sessionCount: concurrentSessions.length,
+          sessions: concurrentSessions,
+        },
         timestamp: new Date().toISOString(),
       });
     }
@@ -229,7 +237,9 @@ export class ConflictResolver {
       analysis.hasConflict = true;
       analysis.conflictType = ConflictType.RESOURCE_LOCK;
       analysis.severity = 'high';
-      analysis.involvedSessions.push(...lockConflicts.map(lock => lock.holderSession));
+      analysis.involvedSessions.push(
+        ...lockConflicts.map((lock) => lock.holderSession),
+      );
       analysis.description = `Resource lock conflicts detected (${lockConflicts.length} locks)`;
       analysis.canAutoResolve = false;
       analysis.evidence.push({
@@ -241,7 +251,11 @@ export class ConflictResolver {
 
     // Check for ownership disputes
     if (taskCorrelation) {
-      const ownershipConflicts = await this.detectOwnershipConflicts(taskCorrelation, currentSession, allSessions);
+      const ownershipConflicts = await this.detectOwnershipConflicts(
+        taskCorrelation,
+        currentSession,
+        allSessions,
+      );
       if (ownershipConflicts.length > 0) {
         analysis.hasConflict = true;
         analysis.conflictType = ConflictType.OWNERSHIP_CONFLICT;
@@ -257,7 +271,10 @@ export class ConflictResolver {
     }
 
     // Check for stale sessions
-    const staleSessions = await this.detectStaleSessionConflicts(taskId, allSessions);
+    const staleSessions = await this.detectStaleSessionConflicts(
+      taskId,
+      allSessions,
+    );
     if (staleSessions.length > 0) {
       analysis.hasConflict = true;
       analysis.conflictType = ConflictType.SESSION_TIMEOUT;
@@ -277,7 +294,9 @@ export class ConflictResolver {
       analysis.recommendedStrategy = this.determineResolutionStrategy(analysis);
     }
 
-    logger.debug(`Conflict analysis completed for task ${taskId}: ${analysis.hasConflict ? 'CONFLICT' : 'NO_CONFLICT'}`);
+    logger.debug(
+      `Conflict analysis completed for task ${taskId}: ${analysis.hasConflict ? 'CONFLICT' : 'NO_CONFLICT'}`,
+    );
     return analysis;
   }
 
@@ -288,11 +307,13 @@ export class ConflictResolver {
     taskId: string,
     analysis: ConflictAnalysis,
     strategy?: ResolutionStrategy,
-    manualOverrides?: Record<string, unknown>
+    manualOverrides?: Record<string, unknown>,
   ): Promise<ConflictResolution> {
     const resolutionStrategy = strategy || analysis.recommendedStrategy;
 
-    logger.info(`Resolving conflicts for task ${taskId} using strategy: ${resolutionStrategy}`);
+    logger.info(
+      `Resolving conflicts for task ${taskId} using strategy: ${resolutionStrategy}`,
+    );
 
     const resolution: ConflictResolution = {
       resolutionId: uuidv4(),
@@ -340,7 +361,11 @@ export class ConflictResolver {
           break;
 
         case ResolutionStrategy.MANUAL_RESOLUTION:
-          await this.executeManualResolution(resolution, analysis, manualOverrides);
+          await this.executeManualResolution(
+            resolution,
+            analysis,
+            manualOverrides,
+          );
           break;
 
         default:
@@ -377,14 +402,18 @@ export class ConflictResolver {
       priority?: number;
       canInterrupt?: boolean;
       reason?: string;
-    } = {}
+    } = {},
   ): Promise<ResourceLock | null> {
     const existing = this.findResourceLock(resourceId);
     if (existing) {
       // Check if we can interrupt existing lock
-      if (!existing.metadata.canInterrupt ||
-          (options.priority || 0) <= existing.metadata.priority) {
-        logger.warn(`Cannot acquire lock for ${resourceId}: already locked by ${existing.holderSession.sessionId}`);
+      if (
+        !existing.metadata.canInterrupt ||
+        (options.priority || 0) <= existing.metadata.priority
+      ) {
+        logger.warn(
+          `Cannot acquire lock for ${resourceId}: already locked by ${existing.holderSession.sessionId}`,
+        );
         return null;
       }
 
@@ -398,7 +427,9 @@ export class ConflictResolver {
       resourceType,
       holderSession,
       acquiredAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + (options.duration || 300000)).toISOString(), // Default 5 minutes
+      expiresAt: new Date(
+        Date.now() + (options.duration || 300000),
+      ).toISOString(), // Default 5 minutes
       metadata: {
         lockReason: options.reason || 'Resource access required',
         priority: options.priority || 0,
@@ -458,8 +489,12 @@ export class ConflictResolver {
    */
   getTaskResolutionHistory(taskId: string): ConflictResolution[] {
     return Array.from(this.resolutionHistory.values())
-      .filter(resolution => resolution.taskId === taskId)
-      .sort((a, b) => new Date(b.metadata.detectedAt).getTime() - new Date(a.metadata.detectedAt).getTime());
+      .filter((resolution) => resolution.taskId === taskId)
+      .sort(
+        (a, b) =>
+          new Date(b.metadata.detectedAt).getTime() -
+          new Date(a.metadata.detectedAt).getTime(),
+      );
   }
 
   /**
@@ -469,8 +504,9 @@ export class ConflictResolver {
     const now = Date.now();
     let cleanedCount = 0;
 
-    const expiredLocks = Array.from(this.activeLocks.values())
-      .filter(lock => new Date(lock.expiresAt).getTime() < now);
+    const expiredLocks = Array.from(this.activeLocks.values()).filter(
+      (lock) => new Date(lock.expiresAt).getTime() < now,
+    );
 
     for (const lock of expiredLocks) {
       await this.releaseResourceLock(lock.lockId);
@@ -491,7 +527,7 @@ export class ConflictResolver {
   private async detectConcurrentAccess(
     taskId: string,
     currentSession: SessionOwnership,
-    allSessions: SessionOwnership[]
+    allSessions: SessionOwnership[],
   ): Promise<SessionOwnership[]> {
     const concurrentSessions: SessionOwnership[] = [];
     const now = Date.now();
@@ -515,7 +551,9 @@ export class ConflictResolver {
   /**
    * Detect resource lock conflicts
    */
-  private async detectResourceLockConflicts(taskId: string): Promise<ResourceLock[]> {
+  private async detectResourceLockConflicts(
+    taskId: string,
+  ): Promise<ResourceLock[]> {
     const conflicts: ResourceLock[] = [];
 
     for (const lock of this.activeLocks.values()) {
@@ -533,13 +571,15 @@ export class ConflictResolver {
   private async detectOwnershipConflicts(
     correlation: TaskCorrelation,
     currentSession: SessionOwnership,
-    allSessions: SessionOwnership[]
+    allSessions: SessionOwnership[],
   ): Promise<SessionOwnership[]> {
     const conflicts: SessionOwnership[] = [];
 
     // Check if task correlation shows ownership disputes
     if (correlation.currentOwner.sessionId !== currentSession.sessionId) {
-      const ownerSession = allSessions.find(s => s.sessionId === correlation.currentOwner.sessionId);
+      const ownerSession = allSessions.find(
+        (s) => s.sessionId === correlation.currentOwner.sessionId,
+      );
       if (ownerSession && ownerSession.status === 'active') {
         conflicts.push(ownerSession);
       }
@@ -553,7 +593,7 @@ export class ConflictResolver {
    */
   private async detectStaleSessionConflicts(
     taskId: string,
-    allSessions: SessionOwnership[]
+    allSessions: SessionOwnership[],
   ): Promise<SessionOwnership[]> {
     const staleSessions: SessionOwnership[] = [];
     const now = Date.now();
@@ -561,7 +601,10 @@ export class ConflictResolver {
 
     for (const session of allSessions) {
       const lastActivity = new Date(session.lastActivityAt).getTime();
-      if (now - lastActivity > staleThreshold && session.status !== 'completed') {
+      if (
+        now - lastActivity > staleThreshold &&
+        session.status !== 'completed'
+      ) {
         staleSessions.push(session);
       }
     }
@@ -572,7 +615,9 @@ export class ConflictResolver {
   /**
    * Determine appropriate resolution strategy
    */
-  private determineResolutionStrategy(analysis: ConflictAnalysis): ResolutionStrategy {
+  private determineResolutionStrategy(
+    analysis: ConflictAnalysis,
+  ): ResolutionStrategy {
     switch (analysis.conflictType) {
       case ConflictType.CONCURRENT_ACCESS:
         return analysis.involvedSessions.length > 2
@@ -604,11 +649,14 @@ export class ConflictResolver {
    */
   private async executeTransferToLatest(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis
+    analysis: ConflictAnalysis,
   ): Promise<void> {
     // Find the most recent session
-    const latestSession = analysis.involvedSessions
-      .sort((a, b) => new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime())[0];
+    const latestSession = analysis.involvedSessions.sort(
+      (a, b) =>
+        new Date(b.lastActivityAt).getTime() -
+        new Date(a.lastActivityAt).getTime(),
+    )[0];
 
     if (!latestSession) {
       throw new Error('No sessions available for transfer');
@@ -630,7 +678,7 @@ export class ConflictResolver {
    */
   private async executeDuplicateTask(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis
+    analysis: ConflictAnalysis,
   ): Promise<void> {
     const createdTasks: string[] = [];
 
@@ -655,7 +703,7 @@ export class ConflictResolver {
    */
   private async executeMergeChanges(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis
+    analysis: ConflictAnalysis,
   ): Promise<void> {
     // This would involve complex data merging logic
     // For now, we'll mark it as requiring manual intervention
@@ -665,7 +713,8 @@ export class ConflictResolver {
       details: { reason: 'Complex merge requires manual intervention' },
     });
 
-    resolution.outcome.message = 'Merge operation flagged for manual completion';
+    resolution.outcome.message =
+      'Merge operation flagged for manual completion';
   }
 
   /**
@@ -673,7 +722,7 @@ export class ConflictResolver {
    */
   private async executeAbortConflict(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis
+    analysis: ConflictAnalysis,
   ): Promise<void> {
     for (const session of analysis.involvedSessions) {
       if (session.status !== 'active') {
@@ -694,11 +743,14 @@ export class ConflictResolver {
    */
   private async executeQueueSequential(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis
+    analysis: ConflictAnalysis,
   ): Promise<void> {
     // Create a queue for sequential execution
-    const queue = analysis.involvedSessions
-      .sort((a, b) => new Date(a.lastActivityAt).getTime() - new Date(b.lastActivityAt).getTime());
+    const queue = analysis.involvedSessions.sort(
+      (a, b) =>
+        new Date(a.lastActivityAt).getTime() -
+        new Date(b.lastActivityAt).getTime(),
+    );
 
     for (let i = 0; i < queue.length; i++) {
       resolution.actions.push({
@@ -717,7 +769,7 @@ export class ConflictResolver {
    */
   private async executeRollbackState(
     resolution: ConflictResolution,
-    analysis: ConflictAnalysis
+    analysis: ConflictAnalysis,
   ): Promise<void> {
     resolution.actions.push({
       action: 'rollback_to_safe_state',
@@ -725,7 +777,8 @@ export class ConflictResolver {
       details: { reason: 'Data integrity conflict detected' },
     });
 
-    resolution.outcome.message = 'Task state rolled back to last known good state';
+    resolution.outcome.message =
+      'Task state rolled back to last known good state';
   }
 
   /**
@@ -734,7 +787,7 @@ export class ConflictResolver {
   private async executeManualResolution(
     resolution: ConflictResolution,
     analysis: ConflictAnalysis,
-    overrides?: Record<string, unknown>
+    overrides?: Record<string, unknown>,
   ): Promise<void> {
     resolution.actions.push({
       action: 'flag_for_manual_resolution',
@@ -763,12 +816,18 @@ export class ConflictResolver {
   /**
    * Get priority level from severity
    */
-  private getPriorityFromSeverity(severity: string): 'low' | 'medium' | 'high' | 'critical' {
+  private getPriorityFromSeverity(
+    severity: string,
+  ): 'low' | 'medium' | 'high' | 'critical' {
     switch (severity) {
-      case 'critical': return 'critical';
-      case 'high': return 'high';
-      case 'medium': return 'medium';
-      default: return 'low';
+      case 'critical':
+        return 'critical';
+      case 'high':
+        return 'high';
+      case 'medium':
+        return 'medium';
+      default:
+        return 'low';
     }
   }
 
@@ -776,7 +835,11 @@ export class ConflictResolver {
    * Save resolution record to disk
    */
   private async saveResolution(resolution: ConflictResolution): Promise<void> {
-    const resolutionPath = join(this.storageDir, 'resolutions', `${resolution.resolutionId}.json`);
+    const resolutionPath = join(
+      this.storageDir,
+      'resolutions',
+      `${resolution.resolutionId}.json`,
+    );
     await fse.writeJSON(resolutionPath, resolution, { spaces: 2 });
   }
 
@@ -810,7 +873,7 @@ export class ConflictResolver {
 
     const files = await fse.readdir(resolutionsDir);
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const resolution = await fse.readJSON(join(resolutionsDir, file));
         this.resolutionHistory.set(resolution.resolutionId, resolution);
@@ -835,7 +898,7 @@ export class ConflictResolver {
     const files = await fse.readdir(locksDir);
     const now = Date.now();
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const lock = await fse.readJSON(join(locksDir, file));
 

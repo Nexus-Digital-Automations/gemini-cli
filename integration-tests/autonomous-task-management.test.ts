@@ -19,7 +19,8 @@ import { performance } from 'node:perf_hooks';
  */
 describe('Autonomous Task Management Integration Tests', () => {
   let rig: TestRig;
-  const taskManagerPath = '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
+  const taskManagerPath =
+    '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
 
   beforeEach(async () => {
     rig = new TestRig();
@@ -44,10 +45,14 @@ describe('Autonomous Task Management Integration Tests', () => {
       for (let i = 0; i < numAgents; i++) {
         const agentId = `CONCURRENT_AGENT_${i}`;
         const promise = new Promise((resolve, reject) => {
-          const child = spawn('timeout', ['10s', 'node', taskManagerPath, 'initialize', agentId], {
-            cwd: rig.testDir!,
-            stdio: 'pipe',
-          });
+          const child = spawn(
+            'timeout',
+            ['10s', 'node', taskManagerPath, 'initialize', agentId],
+            {
+              cwd: rig.testDir!,
+              stdio: 'pipe',
+            },
+          );
 
           let stdout = '';
           let stderr = '';
@@ -66,7 +71,12 @@ describe('Autonomous Task Management Integration Tests', () => {
                 const result = JSON.parse(stdout);
                 resolve({ agentId, result, stdout, stderr });
               } catch (_error) {
-                reject({ agentId, error: 'Failed to parse JSON', stdout, stderr });
+                reject({
+                  agentId,
+                  error: 'Failed to parse JSON',
+                  stdout,
+                  stderr,
+                });
               }
             } else {
               reject({ agentId, code, stdout, stderr });
@@ -88,10 +98,12 @@ describe('Autonomous Task Management Integration Tests', () => {
       const duration = performance.now() - startTime;
 
       // Analyze results
-      const successful = results.filter(r => r.status === 'fulfilled');
-      const failed = results.filter(r => r.status === 'rejected');
+      const successful = results.filter((r) => r.status === 'fulfilled');
+      const failed = results.filter((r) => r.status === 'rejected');
 
-      console.log(`Concurrent initialization completed in ${duration.toFixed(2)}ms`);
+      console.log(
+        `Concurrent initialization completed in ${duration.toFixed(2)}ms`,
+      );
       console.log(`Successful: ${successful.length}, Failed: ${failed.length}`);
 
       // All agents should initialize successfully
@@ -122,7 +134,7 @@ describe('Autonomous Task Management Integration Tests', () => {
           title: `Concurrent Feature ${i + 1}`,
           description: `This is a test feature created concurrently to test race condition handling feature ${i + 1}`,
           business_value: `Validates concurrent processing capability for feature ${i + 1}`,
-          category: 'enhancement'
+          category: 'enhancement',
         });
 
         const promise = execConcurrentCommand('suggest-feature', [featureData]);
@@ -130,10 +142,12 @@ describe('Autonomous Task Management Integration Tests', () => {
       }
 
       const results = await Promise.allSettled(featurePromises);
-      const successful = results.filter(r => r.status === 'fulfilled');
-      const failed = results.filter(r => r.status === 'rejected');
+      const successful = results.filter((r) => r.status === 'fulfilled');
+      const failed = results.filter((r) => r.status === 'rejected');
 
-      console.log(`Concurrent feature creation: ${successful.length} successful, ${failed.length} failed`);
+      console.log(
+        `Concurrent feature creation: ${successful.length} successful, ${failed.length} failed`,
+      );
 
       // At least 80% should succeed (allowing for some race condition failures)
       expect(successful.length).toBeGreaterThanOrEqual(numFeatures * 0.8);
@@ -158,7 +172,7 @@ describe('Autonomous Task Management Integration Tests', () => {
         { id: 'FRONTEND_AGENT', capabilities: ['frontend', 'testing'] },
         { id: 'BACKEND_AGENT', capabilities: ['backend', 'database'] },
         { id: 'TESTING_AGENT', capabilities: ['testing', 'validation'] },
-        { id: 'GENERAL_AGENT', capabilities: ['general'] }
+        { id: 'GENERAL_AGENT', capabilities: ['general'] },
       ];
 
       // Initialize agents
@@ -174,13 +188,20 @@ describe('Autonomous Task Management Integration Tests', () => {
       expect(statsResult.stats).toBeTruthy();
     });
 
-    async function execConcurrentCommand(command: string, args: string[]): Promise<{ result: any, duration: number }> {
+    async function execConcurrentCommand(
+      command: string,
+      args: string[],
+    ): Promise<{ result: any; duration: number }> {
       return new Promise((resolve, reject) => {
         const startTime = performance.now();
-        const child = spawn('timeout', ['10s', 'node', taskManagerPath, command, ...args], {
-          cwd: rig.testDir!,
-          stdio: 'pipe',
-        });
+        const child = spawn(
+          'timeout',
+          ['10s', 'node', taskManagerPath, command, ...args],
+          {
+            cwd: rig.testDir!,
+            stdio: 'pipe',
+          },
+        );
 
         let stdout = '';
         let stderr = '';
@@ -200,7 +221,12 @@ describe('Autonomous Task Management Integration Tests', () => {
               const result = JSON.parse(stdout);
               resolve({ result, duration });
             } catch (error) {
-              reject({ error: 'Failed to parse JSON', stdout, stderr, duration });
+              reject({
+                error: 'Failed to parse JSON',
+                stdout,
+                stderr,
+                duration,
+              });
             }
           } else {
             reject({ code, stdout, stderr, duration });
@@ -220,10 +246,12 @@ describe('Autonomous Task Management Integration Tests', () => {
           title: `Test Feature ${i + 1}`,
           description: `Integration test feature number ${i + 1} for coordination testing`,
           business_value: `Enables testing of coordination mechanisms feature ${i + 1}`,
-          category: 'enhancement'
+          category: 'enhancement',
         };
 
-        const result = await execCommand('suggest-feature', [JSON.stringify(featureData)]);
+        const result = await execCommand('suggest-feature', [
+          JSON.stringify(featureData),
+        ]);
         if (result.success && result.feature) {
           // Auto-approve for testing
           await execCommand('approve-feature', [result.feature.id]);
@@ -289,7 +317,7 @@ describe('Autonomous Task Management Integration Tests', () => {
       }
 
       const results = await Promise.allSettled(promises);
-      const successful = results.filter(r => r.status === 'fulfilled');
+      const successful = results.filter((r) => r.status === 'fulfilled');
 
       // At least 90% should succeed without file corruption
       expect(successful.length / concurrentOps).toBeGreaterThan(0.9);
@@ -309,10 +337,18 @@ describe('Autonomous Task Management Integration Tests', () => {
         initialize: { maxTime: 1000, iterations: 10 },
         'feature-stats': { maxTime: 500, iterations: 20 },
         'list-features': { maxTime: 500, iterations: 20 },
-        'get-initialization-stats': { maxTime: 800, iterations: 15 }
+        'get-initialization-stats': { maxTime: 800, iterations: 15 },
       };
 
-      const results: Record<string, { avgTime: number, maxTime: number, minTime: number, iterations: number }> = {};
+      const results: Record<
+        string,
+        {
+          avgTime: number;
+          maxTime: number;
+          minTime: number;
+          iterations: number;
+        }
+      > = {};
 
       for (const [command, benchmark] of Object.entries(benchmarks)) {
         const times: number[] = [];
@@ -334,9 +370,16 @@ describe('Autonomous Task Management Integration Tests', () => {
         const maxTime = Math.max(...times);
         const minTime = Math.min(...times);
 
-        results[command] = { avgTime, maxTime, minTime, iterations: benchmark.iterations };
+        results[command] = {
+          avgTime,
+          maxTime,
+          minTime,
+          iterations: benchmark.iterations,
+        };
 
-        console.log(`${command}: avg=${avgTime.toFixed(2)}ms, max=${maxTime.toFixed(2)}ms, min=${minTime.toFixed(2)}ms`);
+        console.log(
+          `${command}: avg=${avgTime.toFixed(2)}ms, max=${maxTime.toFixed(2)}ms, min=${minTime.toFixed(2)}ms`,
+        );
 
         // Performance assertions
         expect(avgTime).toBeLessThan(benchmark.maxTime);
@@ -344,14 +387,20 @@ describe('Autonomous Task Management Integration Tests', () => {
       }
 
       // Overall system should be responsive
-      const overallAvg = Object.values(results).reduce((sum, r) => sum + r.avgTime, 0) / Object.keys(results).length;
+      const overallAvg =
+        Object.values(results).reduce((sum, r) => sum + r.avgTime, 0) /
+        Object.keys(results).length;
       expect(overallAvg).toBeLessThan(750); // Average operation under 750ms
     }, 60000);
 
     it('should scale performance with increased data volume', async () => {
       // Create increasing numbers of features and measure performance
       const dataSizes = [10, 50, 100, 200];
-      const performanceResults: Array<{ size: number, listTime: number, statsTime: number }> = [];
+      const performanceResults: Array<{
+        size: number;
+        listTime: number;
+        statsTime: number;
+      }> = [];
 
       for (const size of dataSizes) {
         // Create features
@@ -368,7 +417,9 @@ describe('Autonomous Task Management Integration Tests', () => {
         const statsTime = performance.now() - statsStart;
 
         performanceResults.push({ size, listTime, statsTime });
-        console.log(`Size ${size}: list=${listTime.toFixed(2)}ms, stats=${statsTime.toFixed(2)}ms`);
+        console.log(
+          `Size ${size}: list=${listTime.toFixed(2)}ms, stats=${statsTime.toFixed(2)}ms`,
+        );
       }
 
       // Performance should scale reasonably (not exponentially)
@@ -396,9 +447,11 @@ describe('Autonomous Task Management Integration Tests', () => {
             title: `Bulk Feature ${i + 1}`,
             description: `Performance testing feature number ${i + 1} created for scaling analysis`,
             business_value: `Validates system performance under load feature ${i + 1}`,
-            category: 'performance'
+            category: 'performance',
           };
-          promises.push(execCommand('suggest-feature', [JSON.stringify(featureData)]));
+          promises.push(
+            execCommand('suggest-feature', [JSON.stringify(featureData)]),
+          );
         }
 
         await Promise.all(promises);
@@ -416,7 +469,7 @@ describe('Autonomous Task Management Integration Tests', () => {
         '{"title":""}', // Empty title
         '{"title":"Valid","description":"Valid","business_value":"Valid","category":"invalid"}', // Invalid category
         'invalid json', // Malformed JSON
-        '{"title":"' + 'x'.repeat(300) + '"}' // Oversized title
+        '{"title":"' + 'x'.repeat(300) + '"}', // Oversized title
       ];
 
       for (const invalidData of invalidFeatures) {
@@ -447,8 +500,8 @@ describe('Autonomous Task Management Integration Tests', () => {
             title: 'Test Feature After Readonly',
             description: 'Testing error handling when file is read-only',
             business_value: 'Validates error recovery mechanisms',
-            category: 'enhancement'
-          })
+            category: 'enhancement',
+          }),
         ]);
 
         // Should fail gracefully with meaningful error
@@ -473,7 +526,7 @@ describe('Autonomous Task Management Integration Tests', () => {
       const veryShortTimeoutCommands = [
         ['feature-stats'],
         ['list-features'],
-        ['get-initialization-stats']
+        ['get-initialization-stats'],
       ];
 
       // Note: The 10s timeout in the API should handle this
@@ -494,25 +547,32 @@ describe('Autonomous Task Management Integration Tests', () => {
   describe('System Reliability & Stress Testing', () => {
     it('should maintain data integrity under stress conditions', async () => {
       const stressIterations = 50;
-      const operations = ['feature-stats', 'list-features', 'get-initialization-stats'];
+      const operations = [
+        'feature-stats',
+        'list-features',
+        'get-initialization-stats',
+      ];
 
       // Generate random stress operations
       const promises = [];
       for (let i = 0; i < stressIterations; i++) {
-        const operation = operations[Math.floor(Math.random() * operations.length)];
+        const operation =
+          operations[Math.floor(Math.random() * operations.length)];
         promises.push(execCommand(operation, []));
 
         // Add random delay to create more realistic load
         if (i % 10 === 0) {
-          await new Promise(resolve => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 10));
         }
       }
 
       const results = await Promise.allSettled(promises);
-      const successful = results.filter(r => r.status === 'fulfilled');
-      const failed = results.filter(r => r.status === 'rejected');
+      const successful = results.filter((r) => r.status === 'fulfilled');
+      const failed = results.filter((r) => r.status === 'rejected');
 
-      console.log(`Stress test: ${successful.length}/${stressIterations} successful`);
+      console.log(
+        `Stress test: ${successful.length}/${stressIterations} successful`,
+      );
 
       // Should maintain high success rate under stress
       expect(successful.length / stressIterations).toBeGreaterThan(0.85);
@@ -526,14 +586,16 @@ describe('Autonomous Task Management Integration Tests', () => {
       // Create large number of features to test memory usage
       const largeDataSet = 500;
 
-      console.log(`Creating ${largeDataSet} features for memory stress test...`);
+      console.log(
+        `Creating ${largeDataSet} features for memory stress test...`,
+      );
       await createBulkFeatures(largeDataSet);
 
       // Perform memory-intensive operations
       const memoryIntensiveOps = [
         () => execCommand('list-features', []),
         () => execCommand('feature-stats', []),
-        () => execCommand('get-initialization-stats', [])
+        () => execCommand('get-initialization-stats', []),
       ];
 
       for (const operation of memoryIntensiveOps) {
@@ -542,7 +604,9 @@ describe('Autonomous Task Management Integration Tests', () => {
         const duration = performance.now() - startTime;
 
         expect(result.success).toBe(true);
-        console.log(`Memory stress operation completed in ${duration.toFixed(2)}ms`);
+        console.log(
+          `Memory stress operation completed in ${duration.toFixed(2)}ms`,
+        );
 
         // Should complete within reasonable time even with large dataset
         expect(duration).toBeLessThan(5000); // 5 seconds max
@@ -554,13 +618,18 @@ describe('Autonomous Task Management Integration Tests', () => {
       const operationInterval = 100; // 100ms between operations
 
       const startTime = Date.now();
-      const results: Array<{ success: boolean, duration: number, operation: string }> = [];
+      const results: Array<{
+        success: boolean;
+        duration: number;
+        operation: string;
+      }> = [];
 
       console.log('Starting prolonged stability test...');
 
       while (Date.now() - startTime < prolongedTestDuration) {
         const operations = ['feature-stats', 'get-initialization-stats'];
-        const operation = operations[Math.floor(Math.random() * operations.length)];
+        const operation =
+          operations[Math.floor(Math.random() * operations.length)];
 
         const opStart = performance.now();
         try {
@@ -572,14 +641,17 @@ describe('Autonomous Task Management Integration Tests', () => {
           results.push({ success: false, duration, operation });
         }
 
-        await new Promise(resolve => setTimeout(resolve, operationInterval));
+        await new Promise((resolve) => setTimeout(resolve, operationInterval));
       }
 
       const totalOps = results.length;
-      const successfulOps = results.filter(r => r.success).length;
-      const avgDuration = results.reduce((sum, r) => sum + r.duration, 0) / totalOps;
+      const successfulOps = results.filter((r) => r.success).length;
+      const avgDuration =
+        results.reduce((sum, r) => sum + r.duration, 0) / totalOps;
 
-      console.log(`Prolonged test: ${successfulOps}/${totalOps} successful, avg duration: ${avgDuration.toFixed(2)}ms`);
+      console.log(
+        `Prolonged test: ${successfulOps}/${totalOps} successful, avg duration: ${avgDuration.toFixed(2)}ms`,
+      );
 
       // Should maintain stability over prolonged operation
       expect(successfulOps / totalOps).toBeGreaterThan(0.95);
@@ -595,7 +667,9 @@ describe('Autonomous Task Management Integration Tests', () => {
       const concurrentUsers = 10;
       const operationsPerUser = 5;
 
-      console.log(`Simulating ${concurrentUsers} concurrent users with ${operationsPerUser} operations each`);
+      console.log(
+        `Simulating ${concurrentUsers} concurrent users with ${operationsPerUser} operations each`,
+      );
 
       const userPromises = [];
       for (let user = 0; user < concurrentUsers; user++) {
@@ -604,11 +678,17 @@ describe('Autonomous Task Management Integration Tests', () => {
       }
 
       const userResults = await Promise.allSettled(userPromises);
-      const successfulUsers = userResults.filter(r => r.status === 'fulfilled');
+      const successfulUsers = userResults.filter(
+        (r) => r.status === 'fulfilled',
+      );
 
-      console.log(`User simulation: ${successfulUsers.length}/${concurrentUsers} users completed successfully`);
+      console.log(
+        `User simulation: ${successfulUsers.length}/${concurrentUsers} users completed successfully`,
+      );
 
-      expect(successfulUsers.length).toBeGreaterThanOrEqual(concurrentUsers * 0.8);
+      expect(successfulUsers.length).toBeGreaterThanOrEqual(
+        concurrentUsers * 0.8,
+      );
     }, 60000);
 
     it('should maintain response time SLAs under load', async () => {
@@ -631,7 +711,7 @@ describe('Autonomous Task Management Integration Tests', () => {
         }
 
         const responses = await Promise.allSettled(promises);
-        responses.forEach(response => {
+        responses.forEach((response) => {
           if (response.status === 'fulfilled') {
             responseTimeResults.push(response.value);
           }
@@ -641,15 +721,21 @@ describe('Autonomous Task Management Integration Tests', () => {
         const intervalDuration = Date.now() - intervalStart;
         const remainingTime = 1000 - intervalDuration;
         if (remainingTime > 0) {
-          await new Promise(resolve => setTimeout(resolve, remainingTime));
+          await new Promise((resolve) => setTimeout(resolve, remainingTime));
         }
       }
 
-      const avgResponseTime = responseTimeResults.reduce((a, b) => a + b, 0) / responseTimeResults.length;
+      const avgResponseTime =
+        responseTimeResults.reduce((a, b) => a + b, 0) /
+        responseTimeResults.length;
       const maxRecordedTime = Math.max(...responseTimeResults);
-      const p95ResponseTime = responseTimeResults.sort((a, b) => a - b)[Math.floor(responseTimeResults.length * 0.95)];
+      const p95ResponseTime = responseTimeResults.sort((a, b) => a - b)[
+        Math.floor(responseTimeResults.length * 0.95)
+      ];
 
-      console.log(`Load test results: avg=${avgResponseTime.toFixed(2)}ms, max=${maxRecordedTime.toFixed(2)}ms, p95=${p95ResponseTime.toFixed(2)}ms`);
+      console.log(
+        `Load test results: avg=${avgResponseTime.toFixed(2)}ms, max=${maxRecordedTime.toFixed(2)}ms, p95=${p95ResponseTime.toFixed(2)}ms`,
+      );
 
       // SLA assertions
       expect(avgResponseTime).toBeLessThan(maxResponseTime / 2);
@@ -657,7 +743,10 @@ describe('Autonomous Task Management Integration Tests', () => {
       expect(responseTimeResults.length).toBeGreaterThan(0);
     }, 35000);
 
-    async function simulateUser(userId: number, operations: number): Promise<{ userId: number, completedOps: number }> {
+    async function simulateUser(
+      userId: number,
+      operations: number,
+    ): Promise<{ userId: number; completedOps: number }> {
       let completedOps = 0;
 
       // Initialize agent for user
@@ -671,8 +760,13 @@ describe('Autonomous Task Management Integration Tests', () => {
       // Perform user operations
       for (let op = 0; op < operations - 1; op++) {
         try {
-          const operations = ['feature-stats', 'list-features', 'get-initialization-stats'];
-          const randomOp = operations[Math.floor(Math.random() * operations.length)];
+          const operations = [
+            'feature-stats',
+            'list-features',
+            'get-initialization-stats',
+          ];
+          const randomOp =
+            operations[Math.floor(Math.random() * operations.length)];
           await execCommand(randomOp, []);
           completedOps++;
         } catch (error) {
@@ -680,13 +774,18 @@ describe('Autonomous Task Management Integration Tests', () => {
         }
 
         // Random delay between operations (50-200ms)
-        await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 150));
+        await new Promise((resolve) =>
+          setTimeout(resolve, 50 + Math.random() * 150),
+        );
       }
 
       return { userId, completedOps };
     }
 
-    async function measureResponseTime(command: string, args: string[]): Promise<number> {
+    async function measureResponseTime(
+      command: string,
+      args: string[],
+    ): Promise<number> {
       const startTime = performance.now();
       await execCommand(command, args);
       return performance.now() - startTime;
@@ -698,10 +797,14 @@ describe('Autonomous Task Management Integration Tests', () => {
    */
   async function execCommand(command: string, args: string[]): Promise<any> {
     return new Promise((resolve, reject) => {
-      const child = spawn('timeout', ['10s', 'node', taskManagerPath, command, ...args], {
-        cwd: rig.testDir!,
-        stdio: 'pipe',
-      });
+      const child = spawn(
+        'timeout',
+        ['10s', 'node', taskManagerPath, command, ...args],
+        {
+          cwd: rig.testDir!,
+          stdio: 'pipe',
+        },
+      );
 
       let stdout = '';
       let stderr = '';
@@ -720,10 +823,14 @@ describe('Autonomous Task Management Integration Tests', () => {
             const result = JSON.parse(stdout);
             resolve(result);
           } catch (error) {
-            reject(new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`));
+            reject(
+              new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
+            );
           }
         } else {
-          reject(new Error(`Command failed with code ${code}: ${stderr || stdout}`));
+          reject(
+            new Error(`Command failed with code ${code}: ${stderr || stdout}`),
+          );
         }
       });
 

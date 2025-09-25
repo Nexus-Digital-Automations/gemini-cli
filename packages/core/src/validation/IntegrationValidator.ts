@@ -8,12 +8,12 @@ import { execAsync } from '../utils/ProcessUtils.js';
 import { Logger } from '../logger/Logger.js';
 import type {
   ValidationContext,
-  ValidationResult
+  ValidationResult,
 } from './ValidationFramework.js';
 import {
   ValidationSeverity,
   ValidationStatus,
-  ValidationCategory
+  ValidationCategory,
 } from './ValidationFramework.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -126,55 +126,58 @@ export class IntegrationValidator {
         nodeVersions: ['18.x', '20.x', '22.x'],
         operatingSystems: ['linux', 'darwin', 'win32'],
         architectures: ['x64', 'arm64'],
-        dependencies: []
+        dependencies: [],
       },
       performanceBenchmarks: [],
       integrationTests: {
         enabled: true,
         testCommand: 'npm run test:integration',
-        timeout: 300000
+        timeout: 300000,
       },
       e2eTests: {
         enabled: true,
         testCommand: 'npm run test:e2e',
-        timeout: 600000
+        timeout: 600000,
       },
       loadTesting: {
         enabled: false,
         concurrent: 10,
         duration: 60000,
-        targetRps: 100
+        targetRps: 100,
       },
       monitoringChecks: {
         healthEndpoints: [],
         resourceLimits: {
           maxMemory: 1024 * 1024 * 1024, // 1GB
           maxCpu: 80, // 80%
-          maxDiskUsage: 90 // 90%
-        }
+          maxDiskUsage: 90, // 90%
+        },
       },
-      ...config
+      ...config,
     };
 
     this.logger.info('IntegrationValidator initialized', {
       systemCompatibility: this.config.systemCompatibility,
-      performanceBenchmarks: this.config.performanceBenchmarks.length
+      performanceBenchmarks: this.config.performanceBenchmarks.length,
     });
   }
 
   /**
    * Main validation executor for integration testing
    */
-  async validateIntegration(context: ValidationContext): Promise<ValidationResult[]> {
+  async validateIntegration(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
 
     this.logger.info('Starting integration validation', {
-      taskId: context.taskId
+      taskId: context.taskId,
     });
 
     try {
       // System compatibility validation
-      const compatibilityResults = await this.validateSystemCompatibility(context);
+      const compatibilityResults =
+        await this.validateSystemCompatibility(context);
       results.push(...compatibilityResults);
 
       // Performance benchmarks
@@ -206,29 +209,36 @@ export class IntegrationValidator {
       this.logger.info('Integration validation completed', {
         taskId: context.taskId,
         totalResults: results.length,
-        errors: results.filter(r => r.severity === ValidationSeverity.ERROR).length
+        errors: results.filter((r) => r.severity === ValidationSeverity.ERROR)
+          .length,
       });
 
       return results;
-
     } catch (error) {
-      this.logger.error('Integration validation failed', { error, taskId: context.taskId });
-      return [{
-        id: `integration-validation-error-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Integration validation failed: ${(error as Error).message}`,
-        timestamp: new Date(),
-        metadata: { error: (error as Error).stack }
-      }];
+      this.logger.error('Integration validation failed', {
+        error,
+        taskId: context.taskId,
+      });
+      return [
+        {
+          id: `integration-validation-error-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Integration validation failed: ${(error as Error).message}`,
+          timestamp: new Date(),
+          metadata: { error: (error as Error).stack },
+        },
+      ];
     }
   }
 
   /**
    * Validate system compatibility
    */
-  private async validateSystemCompatibility(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateSystemCompatibility(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const startTime = Date.now();
     const results: ValidationResult[] = [];
 
@@ -247,45 +257,52 @@ export class IntegrationValidator {
       results.push(platformResult);
 
       // Check architecture compatibility
-      const architectureResult = this.checkArchitectureCompatibility(systemInfo);
+      const architectureResult =
+        this.checkArchitectureCompatibility(systemInfo);
       results.push(architectureResult);
 
       // Check dependency compatibility
-      const dependencyResults = await this.checkDependencyCompatibility(context);
+      const dependencyResults =
+        await this.checkDependencyCompatibility(context);
       results.push(...dependencyResults);
 
-      return results.map(result => ({
+      return results.map((result) => ({
         ...result,
-        duration: result.duration || (Date.now() - startTime)
+        duration: result.duration || Date.now() - startTime,
       }));
-
     } catch (error) {
       this.logger.error('System compatibility check failed', { error });
-      return [{
-        id: `compatibility-error-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `System compatibility check failed: ${(error as Error).message}`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime
-      }];
+      return [
+        {
+          id: `compatibility-error-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `System compatibility check failed: ${(error as Error).message}`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+        },
+      ];
     }
   }
 
   /**
    * Run performance benchmarks
    */
-  private async runPerformanceBenchmarks(context: ValidationContext): Promise<ValidationResult[]> {
+  private async runPerformanceBenchmarks(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     if (this.config.performanceBenchmarks.length === 0) {
-      return [{
-        id: `performance-no-benchmarks-${Date.now()}`,
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.INFO,
-        status: ValidationStatus.SKIPPED,
-        message: 'No performance benchmarks configured',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: `performance-no-benchmarks-${Date.now()}`,
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.INFO,
+          status: ValidationStatus.SKIPPED,
+          message: 'No performance benchmarks configured',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     const results: ValidationResult[] = [];
@@ -300,12 +317,16 @@ export class IntegrationValidator {
         const metrics = await this.executeBenchmark(benchmark, context);
 
         // Validate against thresholds
-        const benchmarkResults = this.validateBenchmarkMetrics(benchmark, metrics);
-        results.push(...benchmarkResults.map(result => ({
-          ...result,
-          duration: Date.now() - startTime
-        })));
-
+        const benchmarkResults = this.validateBenchmarkMetrics(
+          benchmark,
+          metrics,
+        );
+        results.push(
+          ...benchmarkResults.map((result) => ({
+            ...result,
+            duration: Date.now() - startTime,
+          })),
+        );
       } catch (error) {
         results.push({
           id: `benchmark-${benchmark.id}-error-${Date.now()}`,
@@ -317,8 +338,8 @@ export class IntegrationValidator {
           duration: Date.now() - startTime,
           metadata: {
             benchmarkId: benchmark.id,
-            benchmarkName: benchmark.name
-          }
+            benchmarkName: benchmark.name,
+          },
         });
       }
     }
@@ -329,7 +350,9 @@ export class IntegrationValidator {
   /**
    * Run integration tests
    */
-  private async runIntegrationTests(context: ValidationContext): Promise<ValidationResult[]> {
+  private async runIntegrationTests(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
     try {
@@ -338,44 +361,55 @@ export class IntegrationValidator {
       const command = this.config.integrationTests.testCommand;
       const { stdout, stderr } = await execAsync(command, {
         timeout: this.config.integrationTests.timeout,
-        env: { ...process.env, ...this.config.integrationTests.environment }
+        env: { ...process.env, ...this.config.integrationTests.environment },
       });
 
       // Parse test results
       const testResults = this.parseTestOutput(stdout, stderr);
 
-      return [{
-        id: `integration-tests-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: testResults.failed > 0 ? ValidationSeverity.ERROR : ValidationSeverity.INFO,
-        status: testResults.failed > 0 ? ValidationStatus.FAILED : ValidationStatus.PASSED,
-        message: `Integration tests: ${testResults.passed} passed, ${testResults.failed} failed, ${testResults.skipped} skipped`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime,
-        metadata: {
-          testResults,
-          command
-        }
-      }];
-
+      return [
+        {
+          id: `integration-tests-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity:
+            testResults.failed > 0
+              ? ValidationSeverity.ERROR
+              : ValidationSeverity.INFO,
+          status:
+            testResults.failed > 0
+              ? ValidationStatus.FAILED
+              : ValidationStatus.PASSED,
+          message: `Integration tests: ${testResults.passed} passed, ${testResults.failed} failed, ${testResults.skipped} skipped`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+          metadata: {
+            testResults,
+            command,
+          },
+        },
+      ];
     } catch (error) {
       this.logger.error('Integration tests failed', { error });
-      return [{
-        id: `integration-tests-error-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Integration tests failed: ${(error as Error).message}`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime
-      }];
+      return [
+        {
+          id: `integration-tests-error-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Integration tests failed: ${(error as Error).message}`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+        },
+      ];
     }
   }
 
   /**
    * Run end-to-end tests
    */
-  private async runE2ETests(context: ValidationContext): Promise<ValidationResult[]> {
+  private async runE2ETests(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
     try {
@@ -384,44 +418,55 @@ export class IntegrationValidator {
       const command = this.config.e2eTests.testCommand;
       const { stdout, stderr } = await execAsync(command, {
         timeout: this.config.e2eTests.timeout,
-        env: { ...process.env, ...this.config.e2eTests.environment }
+        env: { ...process.env, ...this.config.e2eTests.environment },
       });
 
       // Parse test results
       const testResults = this.parseTestOutput(stdout, stderr);
 
-      return [{
-        id: `e2e-tests-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: testResults.failed > 0 ? ValidationSeverity.ERROR : ValidationSeverity.INFO,
-        status: testResults.failed > 0 ? ValidationStatus.FAILED : ValidationStatus.PASSED,
-        message: `E2E tests: ${testResults.passed} passed, ${testResults.failed} failed, ${testResults.skipped} skipped`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime,
-        metadata: {
-          testResults,
-          command
-        }
-      }];
-
+      return [
+        {
+          id: `e2e-tests-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity:
+            testResults.failed > 0
+              ? ValidationSeverity.ERROR
+              : ValidationSeverity.INFO,
+          status:
+            testResults.failed > 0
+              ? ValidationStatus.FAILED
+              : ValidationStatus.PASSED,
+          message: `E2E tests: ${testResults.passed} passed, ${testResults.failed} failed, ${testResults.skipped} skipped`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+          metadata: {
+            testResults,
+            command,
+          },
+        },
+      ];
     } catch (error) {
       this.logger.error('E2E tests failed', { error });
-      return [{
-        id: `e2e-tests-error-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `E2E tests failed: ${(error as Error).message}`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime
-      }];
+      return [
+        {
+          id: `e2e-tests-error-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `E2E tests failed: ${(error as Error).message}`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+        },
+      ];
     }
   }
 
   /**
    * Run load tests
    */
-  private async runLoadTests(context: ValidationContext): Promise<ValidationResult[]> {
+  private async runLoadTests(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
     try {
@@ -430,40 +475,50 @@ export class IntegrationValidator {
       // Simulate load testing - in practice, this would use tools like Artillery, k6, etc.
       const loadMetrics = await this.simulateLoadTest();
 
-      const rpsThresholdMet = loadMetrics.actualRps >= this.config.loadTesting.targetRps;
+      const rpsThresholdMet =
+        loadMetrics.actualRps >= this.config.loadTesting.targetRps;
 
-      return [{
-        id: `load-tests-${Date.now()}`,
-        category: ValidationCategory.PERFORMANCE,
-        severity: rpsThresholdMet ? ValidationSeverity.INFO : ValidationSeverity.WARNING,
-        status: rpsThresholdMet ? ValidationStatus.PASSED : ValidationStatus.FAILED,
-        message: `Load test: ${loadMetrics.actualRps} RPS (target: ${this.config.loadTesting.targetRps} RPS)`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime,
-        metadata: {
-          loadMetrics,
-          config: this.config.loadTesting
-        }
-      }];
-
+      return [
+        {
+          id: `load-tests-${Date.now()}`,
+          category: ValidationCategory.PERFORMANCE,
+          severity: rpsThresholdMet
+            ? ValidationSeverity.INFO
+            : ValidationSeverity.WARNING,
+          status: rpsThresholdMet
+            ? ValidationStatus.PASSED
+            : ValidationStatus.FAILED,
+          message: `Load test: ${loadMetrics.actualRps} RPS (target: ${this.config.loadTesting.targetRps} RPS)`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+          metadata: {
+            loadMetrics,
+            config: this.config.loadTesting,
+          },
+        },
+      ];
     } catch (error) {
       this.logger.error('Load tests failed', { error });
-      return [{
-        id: `load-tests-error-${Date.now()}`,
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Load tests failed: ${(error as Error).message}`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime
-      }];
+      return [
+        {
+          id: `load-tests-error-${Date.now()}`,
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Load tests failed: ${(error as Error).message}`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+        },
+      ];
     }
   }
 
   /**
    * Run monitoring and health checks
    */
-  private async runMonitoringChecks(context: ValidationContext): Promise<ValidationResult[]> {
+  private async runMonitoringChecks(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
     const startTime = Date.now();
 
@@ -478,22 +533,23 @@ export class IntegrationValidator {
       const healthResults = await this.checkHealthEndpoints();
       results.push(...healthResults);
 
-      return results.map(result => ({
+      return results.map((result) => ({
         ...result,
-        duration: result.duration || (Date.now() - startTime)
+        duration: result.duration || Date.now() - startTime,
       }));
-
     } catch (error) {
       this.logger.error('Monitoring checks failed', { error });
-      return [{
-        id: `monitoring-error-${Date.now()}`,
-        category: ValidationCategory.INTEGRATION,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: `Monitoring checks failed: ${(error as Error).message}`,
-        timestamp: new Date(),
-        duration: Date.now() - startTime
-      }];
+      return [
+        {
+          id: `monitoring-error-${Date.now()}`,
+          category: ValidationCategory.INTEGRATION,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: `Monitoring checks failed: ${(error as Error).message}`,
+          timestamp: new Date(),
+          duration: Date.now() - startTime,
+        },
+      ];
     }
   }
 
@@ -508,38 +564,46 @@ export class IntegrationValidator {
       memory: {
         total: os.totalmem(),
         free: os.freemem(),
-        used: os.totalmem() - os.freemem()
+        used: os.totalmem() - os.freemem(),
       },
       cpu: {
         cores: os.cpus().length,
-        model: os.cpus()[0]?.model || 'Unknown'
-      }
+        model: os.cpus()[0]?.model || 'Unknown',
+      },
     };
   }
 
   /**
    * Check Node.js version compatibility
    */
-  private checkNodeVersionCompatibility(systemInfo: SystemInfo): ValidationResult {
+  private checkNodeVersionCompatibility(
+    systemInfo: SystemInfo,
+  ): ValidationResult {
     const currentVersion = systemInfo.nodeVersion;
-    const majorVersion = parseInt(currentVersion.replace('v', '').split('.')[0]);
+    const majorVersion = parseInt(
+      currentVersion.replace('v', '').split('.')[0],
+    );
 
-    const isCompatible = this.config.systemCompatibility.nodeVersions.some(version => {
-      const targetMajor = parseInt(version.replace('x', '').replace('.', ''));
-      return majorVersion === targetMajor;
-    });
+    const isCompatible = this.config.systemCompatibility.nodeVersions.some(
+      (version) => {
+        const targetMajor = parseInt(version.replace('x', '').replace('.', ''));
+        return majorVersion === targetMajor;
+      },
+    );
 
     return {
       id: `node-version-compatibility-${Date.now()}`,
       category: ValidationCategory.INTEGRATION,
-      severity: isCompatible ? ValidationSeverity.INFO : ValidationSeverity.ERROR,
+      severity: isCompatible
+        ? ValidationSeverity.INFO
+        : ValidationSeverity.ERROR,
       status: isCompatible ? ValidationStatus.PASSED : ValidationStatus.FAILED,
       message: `Node.js version ${currentVersion} ${isCompatible ? 'is compatible' : 'is not compatible'}`,
       timestamp: new Date(),
       metadata: {
         currentVersion,
-        supportedVersions: this.config.systemCompatibility.nodeVersions
-      }
+        supportedVersions: this.config.systemCompatibility.nodeVersions,
+      },
     };
   }
 
@@ -547,46 +611,59 @@ export class IntegrationValidator {
    * Check platform compatibility
    */
   private checkPlatformCompatibility(systemInfo: SystemInfo): ValidationResult {
-    const isCompatible = this.config.systemCompatibility.operatingSystems.includes(systemInfo.platform);
+    const isCompatible =
+      this.config.systemCompatibility.operatingSystems.includes(
+        systemInfo.platform,
+      );
 
     return {
       id: `platform-compatibility-${Date.now()}`,
       category: ValidationCategory.INTEGRATION,
-      severity: isCompatible ? ValidationSeverity.INFO : ValidationSeverity.ERROR,
+      severity: isCompatible
+        ? ValidationSeverity.INFO
+        : ValidationSeverity.ERROR,
       status: isCompatible ? ValidationStatus.PASSED : ValidationStatus.FAILED,
       message: `Platform ${systemInfo.platform} ${isCompatible ? 'is supported' : 'is not supported'}`,
       timestamp: new Date(),
       metadata: {
         currentPlatform: systemInfo.platform,
-        supportedPlatforms: this.config.systemCompatibility.operatingSystems
-      }
+        supportedPlatforms: this.config.systemCompatibility.operatingSystems,
+      },
     };
   }
 
   /**
    * Check architecture compatibility
    */
-  private checkArchitectureCompatibility(systemInfo: SystemInfo): ValidationResult {
-    const isCompatible = this.config.systemCompatibility.architectures.includes(systemInfo.architecture);
+  private checkArchitectureCompatibility(
+    systemInfo: SystemInfo,
+  ): ValidationResult {
+    const isCompatible = this.config.systemCompatibility.architectures.includes(
+      systemInfo.architecture,
+    );
 
     return {
       id: `architecture-compatibility-${Date.now()}`,
       category: ValidationCategory.INTEGRATION,
-      severity: isCompatible ? ValidationSeverity.INFO : ValidationSeverity.ERROR,
+      severity: isCompatible
+        ? ValidationSeverity.INFO
+        : ValidationSeverity.ERROR,
       status: isCompatible ? ValidationStatus.PASSED : ValidationStatus.FAILED,
       message: `Architecture ${systemInfo.architecture} ${isCompatible ? 'is supported' : 'is not supported'}`,
       timestamp: new Date(),
       metadata: {
         currentArchitecture: systemInfo.architecture,
-        supportedArchitectures: this.config.systemCompatibility.architectures
-      }
+        supportedArchitectures: this.config.systemCompatibility.architectures,
+      },
     };
   }
 
   /**
    * Check dependency compatibility
    */
-  private async checkDependencyCompatibility(context: ValidationContext): Promise<ValidationResult[]> {
+  private async checkDependencyCompatibility(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
 
     for (const dependency of this.config.systemCompatibility.dependencies) {
@@ -601,12 +678,15 @@ export class IntegrationValidator {
           status: ValidationStatus.PASSED,
           message: `Dependency ${dependency.name}@${dependency.version} is available`,
           timestamp: new Date(),
-          metadata: { dependency }
+          metadata: { dependency },
         });
-
       } catch (error) {
-        const severity = dependency.optional ? ValidationSeverity.WARNING : ValidationSeverity.ERROR;
-        const status = dependency.optional ? ValidationStatus.PASSED : ValidationStatus.FAILED;
+        const severity = dependency.optional
+          ? ValidationSeverity.WARNING
+          : ValidationSeverity.ERROR;
+        const status = dependency.optional
+          ? ValidationStatus.PASSED
+          : ValidationStatus.FAILED;
 
         results.push({
           id: `dependency-${dependency.name}-${Date.now()}`,
@@ -615,7 +695,7 @@ export class IntegrationValidator {
           status,
           message: `Dependency ${dependency.name}@${dependency.version} is ${dependency.optional ? 'optionally' : ''} missing`,
           timestamp: new Date(),
-          metadata: { dependency, error: (error as Error).message }
+          metadata: { dependency, error: (error as Error).message },
         });
       }
     }
@@ -626,7 +706,10 @@ export class IntegrationValidator {
   /**
    * Execute performance benchmark
    */
-  private async executeBenchmark(benchmark: PerformanceBenchmark, context: ValidationContext): Promise<PerformanceMetrics> {
+  private async executeBenchmark(
+    benchmark: PerformanceBenchmark,
+    context: ValidationContext,
+  ): Promise<PerformanceMetrics> {
     const startTime = Date.now();
 
     if (benchmark.testCommand) {
@@ -643,14 +726,17 @@ export class IntegrationValidator {
       throughput: 1000 / (endTime - startTime), // Simplified calculation
       memoryUsage: memoryUsage.heapUsed,
       cpuUsage: 0, // Would need additional monitoring for accurate CPU usage
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
   /**
    * Validate benchmark metrics against thresholds
    */
-  private validateBenchmarkMetrics(benchmark: PerformanceBenchmark, metrics: PerformanceMetrics): ValidationResult[] {
+  private validateBenchmarkMetrics(
+    benchmark: PerformanceBenchmark,
+    metrics: PerformanceMetrics,
+  ): ValidationResult[] {
     const results: ValidationResult[] = [];
 
     // Check response time threshold
@@ -667,8 +753,8 @@ export class IntegrationValidator {
           benchmarkId: benchmark.id,
           metric: 'responseTime',
           actual: metrics.responseTime,
-          threshold: benchmark.threshold.responseTime
-        }
+          threshold: benchmark.threshold.responseTime,
+        },
       });
     }
 
@@ -686,8 +772,8 @@ export class IntegrationValidator {
           benchmarkId: benchmark.id,
           metric: 'memoryUsage',
           actual: metrics.memoryUsage,
-          threshold: benchmark.threshold.memoryUsage
-        }
+          threshold: benchmark.threshold.memoryUsage,
+        },
       });
     }
 
@@ -697,7 +783,10 @@ export class IntegrationValidator {
   /**
    * Parse test output to extract results
    */
-  private parseTestOutput(stdout: string, stderr: string): { passed: number; failed: number; skipped: number } {
+  private parseTestOutput(
+    stdout: string,
+    stderr: string,
+  ): { passed: number; failed: number; skipped: number } {
     // Generic test result parsing - would need to be adapted for specific test runners
     const output = stdout + stderr;
 
@@ -708,24 +797,31 @@ export class IntegrationValidator {
     return {
       passed: passedMatch ? parseInt(passedMatch[1]) : 0,
       failed: failedMatch ? parseInt(failedMatch[1]) : 0,
-      skipped: skippedMatch ? parseInt(skippedMatch[1]) : 0
+      skipped: skippedMatch ? parseInt(skippedMatch[1]) : 0,
     };
   }
 
   /**
    * Simulate load test (placeholder implementation)
    */
-  private async simulateLoadTest(): Promise<{ actualRps: number; averageResponseTime: number }> {
+  private async simulateLoadTest(): Promise<{
+    actualRps: number;
+    averageResponseTime: number;
+  }> {
     // This is a simplified simulation - real implementation would use load testing tools
     const duration = this.config.loadTesting.duration;
     const concurrent = this.config.loadTesting.concurrent;
 
     // Simulate some load
-    await new Promise(resolve => setTimeout(resolve, Math.min(duration, 5000)));
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(duration, 5000)),
+    );
 
     return {
-      actualRps: Math.floor(Math.random() * this.config.loadTesting.targetRps * 1.2),
-      averageResponseTime: Math.floor(Math.random() * 200) + 50
+      actualRps: Math.floor(
+        Math.random() * this.config.loadTesting.targetRps * 1.2,
+      ),
+      averageResponseTime: Math.floor(Math.random() * 200) + 50,
     };
   }
 
@@ -744,15 +840,19 @@ export class IntegrationValidator {
     results.push({
       id: `resource-memory-${Date.now()}`,
       category: ValidationCategory.INTEGRATION,
-      severity: memoryExceeded ? ValidationSeverity.WARNING : ValidationSeverity.INFO,
-      status: memoryExceeded ? ValidationStatus.FAILED : ValidationStatus.PASSED,
+      severity: memoryExceeded
+        ? ValidationSeverity.WARNING
+        : ValidationSeverity.INFO,
+      status: memoryExceeded
+        ? ValidationStatus.FAILED
+        : ValidationStatus.PASSED,
       message: `Memory usage: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB (${memoryPercentage.toFixed(2)}%)`,
       timestamp: new Date(),
       metadata: {
         memoryUsage: memoryUsage.heapUsed,
         limit: limits.maxMemory,
-        percentage: memoryPercentage
-      }
+        percentage: memoryPercentage,
+      },
     });
 
     return results;
@@ -773,17 +873,18 @@ export class IntegrationValidator {
         results.push({
           id: `health-${endpoint.replace(/[^a-zA-Z0-9]/g, '-')}-${Date.now()}`,
           category: ValidationCategory.INTEGRATION,
-          severity: isHealthy ? ValidationSeverity.INFO : ValidationSeverity.ERROR,
+          severity: isHealthy
+            ? ValidationSeverity.INFO
+            : ValidationSeverity.ERROR,
           status: isHealthy ? ValidationStatus.PASSED : ValidationStatus.FAILED,
           message: `Health endpoint ${endpoint}: ${isHealthy ? 'healthy' : 'unhealthy'}`,
           timestamp: new Date(),
           metadata: {
             endpoint,
             statusCode: response.status,
-            statusText: response.statusText
-          }
+            statusText: response.statusText,
+          },
         });
-
       } catch (error) {
         results.push({
           id: `health-${endpoint.replace(/[^a-zA-Z0-9]/g, '-')}-error-${Date.now()}`,
@@ -794,8 +895,8 @@ export class IntegrationValidator {
           timestamp: new Date(),
           metadata: {
             endpoint,
-            error: (error as Error).message
-          }
+            error: (error as Error).message,
+          },
         });
       }
     }
@@ -821,7 +922,7 @@ export class IntegrationValidator {
       'integration-tests',
       'e2e-tests',
       'load-testing',
-      'monitoring-checks'
+      'monitoring-checks',
     ];
   }
 }

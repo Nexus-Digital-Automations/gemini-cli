@@ -27,4 +27,4 @@
  * <Composer />
  * ```
  */
-export declare const Composer: () => import("react/jsx-runtime").JSX.Element;
+export declare const Composer: () => import('react/jsx-runtime').JSX.Element;

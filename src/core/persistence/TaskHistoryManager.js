@@ -60,7 +60,7 @@ class TaskHistoryManager extends EventEmitter {
       auditLevel: 'detailed', // basic, detailed, comprehensive
       archivalEnabled: true,
       tamperDetection: true,
-      ...options
+      ...options,
     };
 
     // Storage paths
@@ -70,7 +70,7 @@ class TaskHistoryManager extends EventEmitter {
       analyticsCache: path.join(this.historyDir, 'analytics-cache.json'),
       eventIndex: path.join(this.historyDir, 'event-index.json'),
       archiveDir: path.join(this.historyDir, 'archives'),
-      integrityHashes: path.join(this.historyDir, 'integrity-hashes.json')
+      integrityHashes: path.join(this.historyDir, 'integrity-hashes.json'),
     };
 
     // History state
@@ -81,19 +81,34 @@ class TaskHistoryManager extends EventEmitter {
       eventIndex: new Map(),
       analyticsCache: {},
       integrityChain: [],
-      snapshotInterval: null
+      snapshotInterval: null,
     };
 
     // Event types and their audit levels
     this.auditLevels = {
       // Critical events - always logged regardless of audit level
-      critical: ['task_created', 'task_completed', 'task_failed', 'agent_assigned', 'system_failure'],
+      critical: [
+        'task_created',
+        'task_completed',
+        'task_failed',
+        'agent_assigned',
+        'system_failure',
+      ],
 
       // Detailed events - logged in detailed and comprehensive modes
-      detailed: ['task_updated', 'status_changed', 'dependency_modified', 'agent_updated'],
+      detailed: [
+        'task_updated',
+        'status_changed',
+        'dependency_modified',
+        'agent_updated',
+      ],
 
       // Comprehensive events - logged only in comprehensive mode
-      comprehensive: ['heartbeat_received', 'validation_performed', 'metrics_collected']
+      comprehensive: [
+        'heartbeat_received',
+        'validation_performed',
+        'metrics_collected',
+      ],
     };
 
     // Initialize history system
@@ -112,7 +127,9 @@ class TaskHistoryManager extends EventEmitter {
       console.log('TaskHistoryManager: System initialized successfully');
     } catch (error) {
       console.error('TaskHistoryManager: Initialization failed:', error);
-      throw new Error(`Task history system initialization failed: ${error.message}`);
+      throw new Error(
+        `Task history system initialization failed: ${error.message}`,
+      );
     }
   }
 
@@ -125,16 +142,20 @@ class TaskHistoryManager extends EventEmitter {
     const initialFiles = [
       {
         path: this.paths.analyticsCache,
-        data: { cache: {}, lastUpdate: new Date().toISOString() }
+        data: { cache: {}, lastUpdate: new Date().toISOString() },
       },
       {
         path: this.paths.eventIndex,
-        data: { index: {}, totalEvents: 0, lastUpdate: new Date().toISOString() }
+        data: {
+          index: {},
+          totalEvents: 0,
+          lastUpdate: new Date().toISOString(),
+        },
       },
       {
         path: this.paths.integrityHashes,
-        data: { hashes: [], lastHash: null, chainValid: true }
-      }
+        data: { hashes: [], lastHash: null, chainValid: true },
+      },
     ];
 
     for (const file of initialFiles) {
@@ -151,9 +172,12 @@ class TaskHistoryManager extends EventEmitter {
     } catch {
       const initialEntry = this._createAuditEntry('system_initialized', {
         timestamp: new Date().toISOString(),
-        config: this.config
+        config: this.config,
       });
-      await fs.writeFile(this.paths.auditLog, JSON.stringify(initialEntry) + '\n');
+      await fs.writeFile(
+        this.paths.auditLog,
+        JSON.stringify(initialEntry) + '\n',
+      );
     }
   }
 
@@ -174,9 +198,11 @@ class TaskHistoryManager extends EventEmitter {
       const hashData = await fs.readFile(this.paths.integrityHashes, 'utf8');
       const hashInfo = JSON.parse(hashData);
       this.state.integrityChain = hashInfo.hashes || [];
-
     } catch (error) {
-      console.warn('TaskHistoryManager: Could not load previous state:', error.message);
+      console.warn(
+        'TaskHistoryManager: Could not load previous state:',
+        error.message,
+      );
     }
   }
 
@@ -213,8 +239,8 @@ class TaskHistoryManager extends EventEmitter {
         context: {
           sessionId: process.env.SESSION_ID || 'unknown',
           agentId: process.env.AGENT_ID || 'system',
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
 
       // Write to audit log
@@ -230,7 +256,6 @@ class TaskHistoryManager extends EventEmitter {
       this.emit('auditEventLogged', auditEntry);
 
       return auditEntry;
-
     } catch (error) {
       console.error('TaskHistoryManager: Failed to log task event:', error);
       throw new Error(`Task event logging failed: ${error.message}`);
@@ -248,8 +273,8 @@ class TaskHistoryManager extends EventEmitter {
         context: {
           sessionId: process.env.SESSION_ID || 'unknown',
           agentId: process.env.AGENT_ID || 'system',
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
 
       await this._appendToAuditLog(auditEntry);
@@ -258,7 +283,6 @@ class TaskHistoryManager extends EventEmitter {
       this.emit('systemEventLogged', auditEntry);
 
       return auditEntry;
-
     } catch (error) {
       console.error('TaskHistoryManager: Failed to log system event:', error);
       throw new Error(`System event logging failed: ${error.message}`);
@@ -269,8 +293,10 @@ class TaskHistoryManager extends EventEmitter {
     // Calculate integrity hash
     if (this.config.tamperDetection) {
       auditEntry.integrityHash = this._calculateIntegrityHash(auditEntry);
-      auditEntry.previousHash = this.state.integrityChain.length > 0 ?
-        this.state.integrityChain[this.state.integrityChain.length - 1].hash : null;
+      auditEntry.previousHash =
+        this.state.integrityChain.length > 0
+          ? this.state.integrityChain[this.state.integrityChain.length - 1].hash
+          : null;
     }
 
     // Append to audit log file
@@ -281,7 +307,7 @@ class TaskHistoryManager extends EventEmitter {
       this.state.integrityChain.push({
         entryId: auditEntry.id,
         hash: auditEntry.integrityHash,
-        timestamp: auditEntry.timestamp
+        timestamp: auditEntry.timestamp,
       });
 
       // Keep only last 10000 integrity hashes in memory
@@ -301,7 +327,8 @@ class TaskHistoryManager extends EventEmitter {
   async createSystemSnapshot(snapshotName) {
     try {
       const timestamp = new Date().toISOString();
-      const snapshotId = snapshotName || `snapshot-${timestamp.replace(/[:.]/g, '-')}`;
+      const snapshotId =
+        snapshotName || `snapshot-${timestamp.replace(/[:.]/g, '-')}`;
 
       const snapshotData = {
         id: snapshotId,
@@ -311,18 +338,25 @@ class TaskHistoryManager extends EventEmitter {
         statistics: await this._calculateSnapshotStatistics(),
         metadata: {
           totalEvents: this.state.totalEvents,
-          lastEventId: this.state.integrityChain.length > 0 ?
-            this.state.integrityChain[this.state.integrityChain.length - 1].entryId : null,
-          snapshotSize: 0 // Will be calculated after serialization
-        }
+          lastEventId:
+            this.state.integrityChain.length > 0
+              ? this.state.integrityChain[this.state.integrityChain.length - 1]
+                  .entryId
+              : null,
+          snapshotSize: 0, // Will be calculated after serialization
+        },
       };
 
       // Serialize and calculate size
       const serializedSnapshot = JSON.stringify(snapshotData, null, 2);
-      snapshotData.metadata.snapshotSize = Buffer.byteLength(serializedSnapshot);
+      snapshotData.metadata.snapshotSize =
+        Buffer.byteLength(serializedSnapshot);
 
       // Save snapshot
-      const snapshotPath = path.join(this.paths.stateSnapshots, `${snapshotId}.json`);
+      const snapshotPath = path.join(
+        this.paths.stateSnapshots,
+        `${snapshotId}.json`,
+      );
       await fs.writeFile(snapshotPath, serializedSnapshot);
 
       // Update state
@@ -332,16 +366,15 @@ class TaskHistoryManager extends EventEmitter {
       await this._logAuditEvent('snapshot_created', {
         snapshotId,
         snapshotPath,
-        metadata: snapshotData.metadata
+        metadata: snapshotData.metadata,
       });
 
       return {
         success: true,
         snapshotId,
         snapshotPath,
-        metadata: snapshotData.metadata
+        metadata: snapshotData.metadata,
       };
-
     } catch (error) {
       throw new Error(`System snapshot creation failed: ${error.message}`);
     }
@@ -358,30 +391,40 @@ class TaskHistoryManager extends EventEmitter {
         features: {
           total: features.features ? features.features.length : 0,
           byStatus: this._countByField(features.features || [], 'status'),
-          byCategory: this._countByField(features.features || [], 'category')
+          byCategory: this._countByField(features.features || [], 'category'),
         },
         tasks: {
           total: features.tasks ? features.tasks.length : 0,
           byStatus: this._countByField(features.tasks || [], 'status'),
           byPriority: this._countByField(features.tasks || [], 'priority'),
-          byType: this._countByField(features.tasks || [], 'type')
+          byType: this._countByField(features.tasks || [], 'type'),
         },
         agents: {
           total: features.agents ? Object.keys(features.agents).length : 0,
-          active: features.agents ? Object.values(features.agents).filter(a => a.status === 'active').length : 0,
-          withTasks: features.agents ? Object.values(features.agents).filter(a => a.assigned_tasks && a.assigned_tasks.length > 0).length : 0
+          active: features.agents
+            ? Object.values(features.agents).filter(
+                (a) => a.status === 'active',
+              ).length
+            : 0,
+          withTasks: features.agents
+            ? Object.values(features.agents).filter(
+                (a) => a.assigned_tasks && a.assigned_tasks.length > 0,
+              ).length
+            : 0,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
-      console.warn('TaskHistoryManager: Could not capture system state:', error.message);
+      console.warn(
+        'TaskHistoryManager: Could not capture system state:',
+        error.message,
+      );
       return {
         features: { total: 0, byStatus: {}, byCategory: {} },
         tasks: { total: 0, byStatus: {}, byPriority: {}, byType: {} },
         agents: { total: 0, active: 0, withTasks: 0 },
         timestamp: new Date().toISOString(),
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -398,7 +441,7 @@ class TaskHistoryManager extends EventEmitter {
         results: [],
         totalFound: 0,
         executionTime: 0,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const startTime = Date.now();
@@ -408,15 +451,14 @@ class TaskHistoryManager extends EventEmitter {
       const auditEntries = auditData
         .trim()
         .split('\n')
-        .map(line => JSON.parse(line))
-        .filter(entry => this._matchesQuery(entry, query));
+        .map((line) => JSON.parse(line))
+        .filter((entry) => this._matchesQuery(entry, query));
 
       results.results = this._processQueryResults(auditEntries, query);
       results.totalFound = results.results.length;
       results.executionTime = Date.now() - startTime;
 
       return results;
-
     } catch (error) {
       throw new Error(`Task history query failed: ${error.message}`);
     }
@@ -430,7 +472,12 @@ class TaskHistoryManager extends EventEmitter {
       const query = {
         taskId,
         timeRange: { end: new Date(pointInTime).toISOString() },
-        eventTypes: ['task_created', 'task_updated', 'status_changed', 'agent_assigned']
+        eventTypes: [
+          'task_created',
+          'task_updated',
+          'status_changed',
+          'agent_assigned',
+        ],
       };
 
       const historyResults = await this.queryTaskHistory(query);
@@ -451,9 +498,8 @@ class TaskHistoryManager extends EventEmitter {
         pointInTime,
         reconstructedState: taskState,
         eventsApplied: historyResults.results.length,
-        lastEvent: historyResults.results[historyResults.results.length - 1]
+        lastEvent: historyResults.results[historyResults.results.length - 1],
       };
-
     } catch (error) {
       throw new Error(`Task state reconstruction failed: ${error.message}`);
     }
@@ -467,7 +513,7 @@ class TaskHistoryManager extends EventEmitter {
       const query = {
         taskId,
         timeRange: options.timeRange,
-        includeRelated: options.includeRelated || false
+        includeRelated: options.includeRelated || false,
       };
 
       const historyResults = await this.queryTaskHistory(query);
@@ -476,20 +522,19 @@ class TaskHistoryManager extends EventEmitter {
         taskId,
         totalEvents: historyResults.totalFound,
         timeSpan: this._calculateTimeSpan(historyResults.results),
-        events: historyResults.results.map(event => ({
+        events: historyResults.results.map((event) => ({
           timestamp: event.timestamp,
           eventType: event.eventType,
           description: this._generateEventDescription(event),
           agent: event.data?.context?.agentId || 'system',
           changes: this._extractEventChanges(event),
-          metadata: event.data?.metadata || {}
+          metadata: event.data?.metadata || {},
         })),
         milestones: this._identifyMilestones(historyResults.results),
-        performance: this._calculateTimelinePerformance(historyResults.results)
+        performance: this._calculateTimelinePerformance(historyResults.results),
       };
 
       return timeline;
-
     } catch (error) {
       throw new Error(`Timeline generation failed: ${error.message}`);
     }
@@ -506,17 +551,20 @@ class TaskHistoryManager extends EventEmitter {
         reportType,
         timeRange,
         generatedAt: new Date().toISOString(),
-        sections: {}
+        sections: {},
       };
 
       // Task performance analytics
-      report.sections.taskPerformance = await this._analyzeTaskPerformance(timeRange);
+      report.sections.taskPerformance =
+        await this._analyzeTaskPerformance(timeRange);
 
       // Agent productivity analytics
-      report.sections.agentProductivity = await this._analyzeAgentProductivity(timeRange);
+      report.sections.agentProductivity =
+        await this._analyzeAgentProductivity(timeRange);
 
       // System health trends
-      report.sections.systemHealth = await this._analyzeSystemHealthTrends(timeRange);
+      report.sections.systemHealth =
+        await this._analyzeSystemHealthTrends(timeRange);
 
       // Bottleneck analysis
       report.sections.bottlenecks = await this._analyzeBottlenecks(timeRange);
@@ -526,15 +574,17 @@ class TaskHistoryManager extends EventEmitter {
 
       if (reportType === 'comprehensive') {
         // Additional comprehensive analytics
-        report.sections.predictions = await this._generatePredictiveAnalytics(timeRange);
-        report.sections.recommendations = await this._generateRecommendations(report.sections);
+        report.sections.predictions =
+          await this._generatePredictiveAnalytics(timeRange);
+        report.sections.recommendations = await this._generateRecommendations(
+          report.sections,
+        );
       }
 
       // Cache report for future use
       await this._cacheAnalyticsReport(report);
 
       return report;
-
     } catch (error) {
       throw new Error(`Analytics report generation failed: ${error.message}`);
     }
@@ -544,7 +594,7 @@ class TaskHistoryManager extends EventEmitter {
     try {
       const query = {
         eventTypes: ['task_created', 'task_completed', 'task_failed'],
-        timeRange
+        timeRange,
       };
 
       const results = await this.queryTaskHistory(query);
@@ -564,7 +614,7 @@ class TaskHistoryManager extends EventEmitter {
             status: 'unknown',
             duration: null,
             category: event.data?.task?.category,
-            priority: event.data?.task?.priority
+            priority: event.data?.task?.priority,
           });
         }
 
@@ -592,21 +642,36 @@ class TaskHistoryManager extends EventEmitter {
         }
       }
 
-      const completedTasks = Array.from(taskMetrics.values()).filter(m => m.status === 'completed');
-      const failedTasks = Array.from(taskMetrics.values()).filter(m => m.status === 'failed');
+      const completedTasks = Array.from(taskMetrics.values()).filter(
+        (m) => m.status === 'completed',
+      );
+      const failedTasks = Array.from(taskMetrics.values()).filter(
+        (m) => m.status === 'failed',
+      );
 
       return {
         totalTasks: taskMetrics.size,
         completedTasks: completedTasks.length,
         failedTasks: failedTasks.length,
-        successRate: taskMetrics.size > 0 ? completedTasks.length / taskMetrics.size : 0,
-        averageCompletionTime: completedTasks.length > 0 ?
-          completedTasks.reduce((sum, t) => sum + (t.duration || 0), 0) / completedTasks.length : 0,
-        performanceByCategory: this._groupPerformanceByField(completedTasks, 'category'),
-        performanceByPriority: this._groupPerformanceByField(completedTasks, 'priority'),
-        trends: this._calculatePerformanceTrends(Array.from(taskMetrics.values()))
+        successRate:
+          taskMetrics.size > 0 ? completedTasks.length / taskMetrics.size : 0,
+        averageCompletionTime:
+          completedTasks.length > 0
+            ? completedTasks.reduce((sum, t) => sum + (t.duration || 0), 0) /
+              completedTasks.length
+            : 0,
+        performanceByCategory: this._groupPerformanceByField(
+          completedTasks,
+          'category',
+        ),
+        performanceByPriority: this._groupPerformanceByField(
+          completedTasks,
+          'priority',
+        ),
+        trends: this._calculatePerformanceTrends(
+          Array.from(taskMetrics.values()),
+        ),
       };
-
     } catch (error) {
       return { error: error.message };
     }
@@ -616,14 +681,15 @@ class TaskHistoryManager extends EventEmitter {
     try {
       const query = {
         eventTypes: ['agent_assigned', 'task_completed', 'task_failed'],
-        timeRange
+        timeRange,
       };
 
       const results = await this.queryTaskHistory(query);
       const agentMetrics = new Map();
 
       for (const event of results.results) {
-        const agentId = event.data?.context?.agentId || event.data?.task?.assigned_to;
+        const agentId =
+          event.data?.context?.agentId || event.data?.task?.assigned_to;
         if (!agentId || agentId === 'system') continue;
 
         if (!agentMetrics.has(agentId)) {
@@ -633,7 +699,7 @@ class TaskHistoryManager extends EventEmitter {
             tasksCompleted: 0,
             tasksFailed: 0,
             totalDuration: 0,
-            averageDuration: 0
+            averageDuration: 0,
           });
         }
 
@@ -653,10 +719,13 @@ class TaskHistoryManager extends EventEmitter {
       }
 
       // Calculate productivity scores
-      Array.from(agentMetrics.values()).forEach(metrics => {
-        metrics.successRate = metrics.tasksAssigned > 0 ?
-          metrics.tasksCompleted / metrics.tasksAssigned : 0;
-        metrics.productivityScore = (metrics.tasksCompleted * 2) - metrics.tasksFailed;
+      Array.from(agentMetrics.values()).forEach((metrics) => {
+        metrics.successRate =
+          metrics.tasksAssigned > 0
+            ? metrics.tasksCompleted / metrics.tasksAssigned
+            : 0;
+        metrics.productivityScore =
+          metrics.tasksCompleted * 2 - metrics.tasksFailed;
       });
 
       return {
@@ -665,10 +734,14 @@ class TaskHistoryManager extends EventEmitter {
         topPerformers: Array.from(agentMetrics.values())
           .sort((a, b) => b.productivityScore - a.productivityScore)
           .slice(0, 5),
-        averageSuccessRate: agentMetrics.size > 0 ?
-          Array.from(agentMetrics.values()).reduce((sum, a) => sum + a.successRate, 0) / agentMetrics.size : 0
+        averageSuccessRate:
+          agentMetrics.size > 0
+            ? Array.from(agentMetrics.values()).reduce(
+                (sum, a) => sum + a.successRate,
+                0,
+              ) / agentMetrics.size
+            : 0,
       };
-
     } catch (error) {
       return { error: error.message };
     }
@@ -682,7 +755,7 @@ class TaskHistoryManager extends EventEmitter {
       timestamp: new Date().toISOString(),
       eventType,
       data,
-      version: '1.0.0'
+      version: '1.0.0',
     };
 
     return entry;
@@ -694,8 +767,10 @@ class TaskHistoryManager extends EventEmitter {
     if (this.auditLevels.critical.includes(eventType)) return true;
     if (auditLevel === 'basic') return false;
 
-    if (this.auditLevels.detailed.includes(eventType)) return auditLevel !== 'basic';
-    if (this.auditLevels.comprehensive.includes(eventType)) return auditLevel === 'comprehensive';
+    if (this.auditLevels.detailed.includes(eventType))
+      return auditLevel !== 'basic';
+    if (this.auditLevels.comprehensive.includes(eventType))
+      return auditLevel === 'comprehensive';
 
     return true; // Log unknown event types by default
   }
@@ -715,7 +790,7 @@ class TaskHistoryManager extends EventEmitter {
       timestamp: entry.timestamp,
       eventType: entry.eventType,
       data: entry.data,
-      previousHash: entry.previousHash
+      previousHash: entry.previousHash,
     });
 
     return crypto.createHash('sha256').update(hashInput).digest('hex');
@@ -731,7 +806,7 @@ class TaskHistoryManager extends EventEmitter {
     this.state.eventIndex.get(indexKey).push({
       id: auditEntry.id,
       timestamp: auditEntry.timestamp,
-      taskId: auditEntry.data?.task?.id
+      taskId: auditEntry.data?.task?.id,
     });
 
     // Periodically persist index
@@ -747,7 +822,7 @@ class TaskHistoryManager extends EventEmitter {
       this.state.analyticsCache[cacheKey] = {
         count: 0,
         firstSeen: new Date().toISOString(),
-        lastSeen: new Date().toISOString()
+        lastSeen: new Date().toISOString(),
       };
     }
 
@@ -759,18 +834,22 @@ class TaskHistoryManager extends EventEmitter {
     // Time range filtering
     if (query.timeRange) {
       const entryTime = new Date(entry.timestamp);
-      if (query.timeRange.start && entryTime < new Date(query.timeRange.start)) return false;
-      if (query.timeRange.end && entryTime > new Date(query.timeRange.end)) return false;
+      if (query.timeRange.start && entryTime < new Date(query.timeRange.start))
+        return false;
+      if (query.timeRange.end && entryTime > new Date(query.timeRange.end))
+        return false;
     }
 
     // Event type filtering
-    if (query.eventTypes && !query.eventTypes.includes(entry.eventType)) return false;
+    if (query.eventTypes && !query.eventTypes.includes(entry.eventType))
+      return false;
 
     // Task ID filtering
     if (query.taskId && entry.data?.task?.id !== query.taskId) return false;
 
     // Agent ID filtering
-    if (query.agentId && entry.data?.context?.agentId !== query.agentId) return false;
+    if (query.agentId && entry.data?.context?.agentId !== query.agentId)
+      return false;
 
     return true;
   }
@@ -799,14 +878,14 @@ class TaskHistoryManager extends EventEmitter {
         return {
           ...currentState,
           ...event.data.task,
-          updated_at: event.timestamp
+          updated_at: event.timestamp,
         };
 
       case 'agent_assigned':
         return {
           ...currentState,
           assigned_to: event.data.context.agentId,
-          assigned_at: event.timestamp
+          assigned_at: event.timestamp,
         };
 
       default:
@@ -816,7 +895,7 @@ class TaskHistoryManager extends EventEmitter {
 
   _countByField(items, field) {
     const counts = {};
-    items.forEach(item => {
+    items.forEach((item) => {
       const value = item[field] || 'unknown';
       counts[value] = (counts[value] || 0) + 1;
     });
@@ -826,21 +905,24 @@ class TaskHistoryManager extends EventEmitter {
   _calculateTimeSpan(events) {
     if (events.length === 0) return null;
 
-    const timestamps = events.map(e => new Date(e.timestamp)).sort((a, b) => a - b);
+    const timestamps = events
+      .map((e) => new Date(e.timestamp))
+      .sort((a, b) => a - b);
     return {
       start: timestamps[0].toISOString(),
       end: timestamps[timestamps.length - 1].toISOString(),
-      duration: timestamps[timestamps.length - 1].getTime() - timestamps[0].getTime()
+      duration:
+        timestamps[timestamps.length - 1].getTime() - timestamps[0].getTime(),
     };
   }
 
   _generateEventDescription(event) {
     const descriptions = {
-      'task_created': `Task "${event.data?.task?.title || 'Unknown'}" was created`,
-      'task_completed': `Task "${event.data?.task?.title || 'Unknown'}" was completed`,
-      'task_failed': `Task "${event.data?.task?.title || 'Unknown'}" failed`,
-      'status_changed': `Task status changed to "${event.data?.task?.status || 'unknown'}"`,
-      'agent_assigned': `Task assigned to agent "${event.data?.context?.agentId || 'unknown'}"`
+      task_created: `Task "${event.data?.task?.title || 'Unknown'}" was created`,
+      task_completed: `Task "${event.data?.task?.title || 'Unknown'}" was completed`,
+      task_failed: `Task "${event.data?.task?.title || 'Unknown'}" failed`,
+      status_changed: `Task status changed to "${event.data?.task?.status || 'unknown'}"`,
+      agent_assigned: `Task assigned to agent "${event.data?.context?.agentId || 'unknown'}"`,
     };
 
     return descriptions[event.eventType] || `${event.eventType} occurred`;
@@ -852,15 +934,20 @@ class TaskHistoryManager extends EventEmitter {
 
   _identifyMilestones(events) {
     const milestones = [];
-    const milestoneEvents = ['task_created', 'agent_assigned', 'task_completed', 'task_failed'];
+    const milestoneEvents = [
+      'task_created',
+      'agent_assigned',
+      'task_completed',
+      'task_failed',
+    ];
 
     events
-      .filter(e => milestoneEvents.includes(e.eventType))
-      .forEach(event => {
+      .filter((e) => milestoneEvents.includes(e.eventType))
+      .forEach((event) => {
         milestones.push({
           timestamp: event.timestamp,
           type: event.eventType,
-          description: this._generateEventDescription(event)
+          description: this._generateEventDescription(event),
         });
       });
 
@@ -871,11 +958,12 @@ class TaskHistoryManager extends EventEmitter {
     const performance = {
       totalEvents: events.length,
       timeSpan: this._calculateTimeSpan(events),
-      eventFrequency: 0
+      eventFrequency: 0,
     };
 
     if (performance.timeSpan && performance.timeSpan.duration > 0) {
-      performance.eventFrequency = events.length / (performance.timeSpan.duration / 3600000); // events per hour
+      performance.eventFrequency =
+        events.length / (performance.timeSpan.duration / 3600000); // events per hour
     }
 
     return performance;
@@ -887,19 +975,19 @@ class TaskHistoryManager extends EventEmitter {
       cacheSize: Object.keys(this.state.analyticsCache).length,
       indexSize: this.state.eventIndex.size,
       integrityChainLength: this.state.integrityChain.length,
-      lastSnapshot: this.state.lastSnapshot
+      lastSnapshot: this.state.lastSnapshot,
     };
   }
 
   _groupPerformanceByField(tasks, field) {
     const groups = {};
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       const value = task[field] || 'unknown';
       if (!groups[value]) {
         groups[value] = {
           count: 0,
           totalDuration: 0,
-          averageDuration: 0
+          averageDuration: 0,
         };
       }
       groups[value].count++;
@@ -909,8 +997,9 @@ class TaskHistoryManager extends EventEmitter {
     });
 
     // Calculate averages
-    Object.values(groups).forEach(group => {
-      group.averageDuration = group.count > 0 ? group.totalDuration / group.count : 0;
+    Object.values(groups).forEach((group) => {
+      group.averageDuration =
+        group.count > 0 ? group.totalDuration / group.count : 0;
     });
 
     return groups;
@@ -918,25 +1007,32 @@ class TaskHistoryManager extends EventEmitter {
 
   _calculatePerformanceTrends(tasks) {
     // Simple trend calculation - could be enhanced with more sophisticated analysis
-    const completedTasks = tasks.filter(t => t.status === 'completed' && t.duration);
+    const completedTasks = tasks.filter(
+      (t) => t.status === 'completed' && t.duration,
+    );
     if (completedTasks.length < 2) return { trend: 'insufficient_data' };
 
-    const sortedTasks = completedTasks.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const sortedTasks = completedTasks.sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    );
     const midpoint = Math.floor(sortedTasks.length / 2);
 
-    const firstHalfAvg = sortedTasks.slice(0, midpoint)
-      .reduce((sum, t) => sum + t.duration, 0) / midpoint;
+    const firstHalfAvg =
+      sortedTasks.slice(0, midpoint).reduce((sum, t) => sum + t.duration, 0) /
+      midpoint;
 
-    const secondHalfAvg = sortedTasks.slice(midpoint)
-      .reduce((sum, t) => sum + t.duration, 0) / (sortedTasks.length - midpoint);
+    const secondHalfAvg =
+      sortedTasks.slice(midpoint).reduce((sum, t) => sum + t.duration, 0) /
+      (sortedTasks.length - midpoint);
 
     const change = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100;
 
     return {
-      trend: change > 5 ? 'deteriorating' : change < -5 ? 'improving' : 'stable',
+      trend:
+        change > 5 ? 'deteriorating' : change < -5 ? 'improving' : 'stable',
       changePercentage: change,
       firstHalfAverage: firstHalfAvg,
-      secondHalfAverage: secondHalfAvg
+      secondHalfAverage: secondHalfAvg,
     };
   }
 
@@ -945,7 +1041,7 @@ class TaskHistoryManager extends EventEmitter {
     return {
       overallHealth: 'healthy',
       trends: [],
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -953,7 +1049,7 @@ class TaskHistoryManager extends EventEmitter {
     // Placeholder for bottleneck analysis
     return {
       identifiedBottlenecks: [],
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -962,7 +1058,7 @@ class TaskHistoryManager extends EventEmitter {
     return {
       successPatterns: [],
       failurePatterns: [],
-      insights: []
+      insights: [],
     };
   }
 
@@ -971,7 +1067,7 @@ class TaskHistoryManager extends EventEmitter {
     return {
       predictions: [],
       confidence: 0,
-      methodology: 'statistical_analysis'
+      methodology: 'statistical_analysis',
     };
   }
 
@@ -980,7 +1076,7 @@ class TaskHistoryManager extends EventEmitter {
     return {
       recommendations: [],
       priority: 'medium',
-      expectedImpact: 'moderate'
+      expectedImpact: 'moderate',
     };
   }
 
@@ -990,13 +1086,16 @@ class TaskHistoryManager extends EventEmitter {
       this.state.analyticsCache[cacheKey] = {
         report,
         generatedAt: report.generatedAt,
-        size: JSON.stringify(report).length
+        size: JSON.stringify(report).length,
       };
 
       // Persist cache periodically
       await this._persistAnalyticsCache();
     } catch (error) {
-      console.warn('TaskHistoryManager: Could not cache analytics report:', error.message);
+      console.warn(
+        'TaskHistoryManager: Could not cache analytics report:',
+        error.message,
+      );
     }
   }
 
@@ -1005,12 +1104,18 @@ class TaskHistoryManager extends EventEmitter {
       const indexData = {
         index: Object.fromEntries(this.state.eventIndex),
         totalEvents: this.state.totalEvents,
-        lastUpdate: new Date().toISOString()
+        lastUpdate: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.paths.eventIndex, JSON.stringify(indexData, null, 2));
+      await fs.writeFile(
+        this.paths.eventIndex,
+        JSON.stringify(indexData, null, 2),
+      );
     } catch (error) {
-      console.error('TaskHistoryManager: Failed to persist event index:', error);
+      console.error(
+        'TaskHistoryManager: Failed to persist event index:',
+        error,
+      );
     }
   }
 
@@ -1018,12 +1123,18 @@ class TaskHistoryManager extends EventEmitter {
     try {
       const cacheData = {
         cache: this.state.analyticsCache,
-        lastUpdate: new Date().toISOString()
+        lastUpdate: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.paths.analyticsCache, JSON.stringify(cacheData, null, 2));
+      await fs.writeFile(
+        this.paths.analyticsCache,
+        JSON.stringify(cacheData, null, 2),
+      );
     } catch (error) {
-      console.error('TaskHistoryManager: Failed to persist analytics cache:', error);
+      console.error(
+        'TaskHistoryManager: Failed to persist analytics cache:',
+        error,
+      );
     }
   }
 
@@ -1040,7 +1151,7 @@ class TaskHistoryManager extends EventEmitter {
           await this._logAuditEvent('integrity_violation', {
             entryId: current.entryId,
             expectedHash: previous.hash,
-            actualHash: current.previousHash
+            actualHash: current.previousHash,
           });
           return false;
         }
@@ -1071,7 +1182,7 @@ class TaskHistoryManager extends EventEmitter {
       integrityChainLength: this.state.integrityChain.length,
       auditLevel: this.config.auditLevel,
       retentionPeriod: this.config.retentionPeriodDays,
-      tamperDetectionEnabled: this.config.tamperDetection
+      tamperDetectionEnabled: this.config.tamperDetection,
     };
   }
 
@@ -1085,7 +1196,7 @@ class TaskHistoryManager extends EventEmitter {
         .trim()
         .split('\n')
         .slice(-limit)
-        .map(line => JSON.parse(line));
+        .map((line) => JSON.parse(line));
 
       return events.reverse(); // Most recent first
     } catch (error) {
@@ -1101,7 +1212,7 @@ class TaskHistoryManager extends EventEmitter {
       const files = await fs.readdir(this.paths.stateSnapshots);
       const snapshots = [];
 
-      for (const file of files.filter(f => f.endsWith('.json'))) {
+      for (const file of files.filter((f) => f.endsWith('.json'))) {
         try {
           const snapshotPath = path.join(this.paths.stateSnapshots, file);
           const stats = await fs.stat(snapshotPath);
@@ -1109,14 +1220,16 @@ class TaskHistoryManager extends EventEmitter {
             name: file.replace('.json', ''),
             path: snapshotPath,
             size: stats.size,
-            created: stats.ctime.toISOString()
+            created: stats.ctime.toISOString(),
           });
         } catch (error) {
           // Skip invalid snapshots
         }
       }
 
-      return snapshots.sort((a, b) => new Date(b.created) - new Date(a.created));
+      return snapshots.sort(
+        (a, b) => new Date(b.created) - new Date(a.created),
+      );
     } catch (error) {
       return [];
     }

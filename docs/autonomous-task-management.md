@@ -62,22 +62,25 @@ The SubAgent system is the foundation of autonomous task execution, enabling ind
 #### Key Classes:
 
 **SubAgentScope**
+
 - Manages individual agent execution environments
 - Handles tool access and resource constraints
 - Provides isolated execution contexts
 
 **ContextState**
+
 - Maintains runtime context for task execution
 - Enables variable sharing between agents
 - Supports template string interpolation
 
 #### Termination Modes:
+
 ```typescript
 enum SubagentTerminateMode {
-  ERROR = 'ERROR',        // Unrecoverable error
-  TIMEOUT = 'TIMEOUT',    // Maximum execution time exceeded
-  GOAL = 'GOAL',          // Successfully completed objectives
-  MAX_TURNS = 'MAX_TURNS' // Maximum conversation turns reached
+  ERROR = 'ERROR', // Unrecoverable error
+  TIMEOUT = 'TIMEOUT', // Maximum execution time exceeded
+  GOAL = 'GOAL', // Successfully completed objectives
+  MAX_TURNS = 'MAX_TURNS', // Maximum conversation turns reached
 }
 ```
 
@@ -86,6 +89,7 @@ enum SubagentTerminateMode {
 The system uses a centralized task registry for managing autonomous operations:
 
 #### Task Structure:
+
 ```json
 {
   "id": "feature_unique_id",
@@ -101,6 +105,7 @@ The system uses a centralized task registry for managing autonomous operations:
 ```
 
 #### Agent Tracking:
+
 - **Active Agents**: Real-time agent status monitoring
 - **Session Management**: Cross-session agent persistence
 - **Heartbeat System**: Agent health monitoring
@@ -111,6 +116,7 @@ The system uses a centralized task registry for managing autonomous operations:
 The autonomous system leverages multiple configuration layers:
 
 #### Workflow Configuration:
+
 ```json
 {
   "require_approval": true,
@@ -121,6 +127,7 @@ The autonomous system leverages multiple configuration layers:
 ```
 
 #### Agent Configuration:
+
 - **Model Selection**: Intelligent model routing (Flash-first approach)
 - **Resource Limits**: Memory, time, and token budgets
 - **Tool Access**: Granular permission management
@@ -133,6 +140,7 @@ The autonomous system leverages multiple configuration layers:
 ### SubAgent Creation and Management
 
 #### `SubAgentScope.create()`
+
 ```typescript
 static async create(
   name: string,
@@ -145,6 +153,7 @@ static async create(
 ```
 
 **Parameters:**
+
 - `name`: Unique identifier for the subagent
 - `runtimeContext`: Shared runtime configuration
 - `promptConfig`: Agent prompt and behavior configuration
@@ -155,6 +164,7 @@ static async create(
 **Returns:** Promise resolving to configured SubAgentScope instance
 
 #### `runNonInteractive()`
+
 ```typescript
 async runNonInteractive(context: ContextState): Promise<void>
 ```
@@ -164,31 +174,35 @@ Executes the subagent in autonomous mode with the provided context.
 ### Configuration Interfaces
 
 #### `PromptConfig`
+
 ```typescript
 interface PromptConfig {
-  systemPrompt?: string;           // System-level instructions
-  initialMessages?: Content[];     // Few-shot examples
+  systemPrompt?: string; // System-level instructions
+  initialMessages?: Content[]; // Few-shot examples
 }
 ```
 
 #### `ModelConfig`
+
 ```typescript
 interface ModelConfig {
-  model: string;      // Model identifier (e.g., 'gemini-2.5-pro')
-  temp: number;       // Temperature for randomness (0.0-1.0)
-  top_p: number;      // Top-p for nucleus sampling (0.0-1.0)
+  model: string; // Model identifier (e.g., 'gemini-2.5-pro')
+  temp: number; // Temperature for randomness (0.0-1.0)
+  top_p: number; // Top-p for nucleus sampling (0.0-1.0)
 }
 ```
 
 #### `RunConfig`
+
 ```typescript
 interface RunConfig {
-  max_time_minutes: number;  // Maximum execution time
-  max_turns?: number;        // Optional conversation turn limit
+  max_time_minutes: number; // Maximum execution time
+  max_turns?: number; // Optional conversation turn limit
 }
 ```
 
 #### `ToolConfig`
+
 ```typescript
 interface ToolConfig {
   tools: Array<string | FunctionDeclaration | AnyDeclarativeTool>;
@@ -196,15 +210,17 @@ interface ToolConfig {
 ```
 
 #### `OutputConfig`
+
 ```typescript
 interface OutputConfig {
-  outputs: Record<string, string>;  // Expected output variables
+  outputs: Record<string, string>; // Expected output variables
 }
 ```
 
 ### Context Management
 
 #### `ContextState` Methods
+
 ```typescript
 class ContextState {
   get(key: string): unknown;
@@ -220,43 +236,47 @@ class ContextState {
 ### System Settings
 
 #### Model Configuration
+
 Configure intelligent model selection for different task types:
 
 ```typescript
 const modelConfig: ModelConfig = {
-  model: 'gemini-2.5-flash',  // Flash-first approach for efficiency
-  temp: 0.3,                  // Balanced creativity
-  top_p: 0.8                  // Focused sampling
+  model: 'gemini-2.5-flash', // Flash-first approach for efficiency
+  temp: 0.3, // Balanced creativity
+  top_p: 0.8, // Focused sampling
 };
 ```
 
 #### Runtime Constraints
+
 Set appropriate limits for autonomous execution:
 
 ```typescript
 const runConfig: RunConfig = {
-  max_time_minutes: 30,       // 30-minute execution limit
-  max_turns: 50              // Maximum 50 conversation turns
+  max_time_minutes: 30, // 30-minute execution limit
+  max_turns: 50, // Maximum 50 conversation turns
 };
 ```
 
 #### Tool Permissions
+
 Configure tool access for different agent types:
 
 ```typescript
 const toolConfig: ToolConfig = {
   tools: [
-    'Read',                    // File reading capability
-    'Write',                   // File writing capability
-    'Bash',                    // Shell command execution
-    'Grep'                     // Search functionality
-  ]
+    'Read', // File reading capability
+    'Write', // File writing capability
+    'Bash', // Shell command execution
+    'Grep', // Search functionality
+  ],
 };
 ```
 
 ### Security Configuration
 
 #### Tool Validation
+
 All tools undergo automatic validation for non-interactive use:
 
 ```typescript
@@ -270,6 +290,7 @@ if (requiredParams.length > 0) {
 ```
 
 #### Resource Isolation
+
 Each SubAgent operates in an isolated environment:
 
 - Separate context states prevent cross-contamination
@@ -298,27 +319,28 @@ const analysisAgent = await SubAgentScope.create(
   'code-analyzer',
   runtimeContext,
   {
-    systemPrompt: 'Analyze the codebase for security vulnerabilities and performance issues.'
+    systemPrompt:
+      'Analyze the codebase for security vulnerabilities and performance issues.',
   },
   {
     model: 'gemini-2.5-pro',
     temp: 0.2,
-    top_p: 0.8
+    top_p: 0.8,
   },
   {
-    max_time_minutes: 20
+    max_time_minutes: 20,
   },
   {
     toolConfig: {
-      tools: ['Read', 'Grep', 'Bash']
+      tools: ['Read', 'Grep', 'Bash'],
     },
     outputConfig: {
       outputs: {
-        'security_report': 'Detailed security vulnerability analysis',
-        'performance_report': 'Performance optimization recommendations'
-      }
-    }
-  }
+        security_report: 'Detailed security vulnerability analysis',
+        performance_report: 'Performance optimization recommendations',
+      },
+    },
+  },
 );
 
 // Execute analysis
@@ -332,6 +354,7 @@ console.log('Analysis Results:', analysisAgent.output);
 ### Task Management Workflow
 
 #### 1. Task Creation
+
 Tasks are automatically created based on system analysis or user requests:
 
 ```json
@@ -345,6 +368,7 @@ Tasks are automatically created based on system analysis or user requests:
 ```
 
 #### 2. Approval Process
+
 Tasks require approval before autonomous execution:
 
 ```bash
@@ -353,6 +377,7 @@ gemini approve-task feature_unique_id "Approved for security enhancement"
 ```
 
 #### 3. Autonomous Execution
+
 Once approved, tasks are automatically processed:
 
 - **Intelligent Breakdown**: Complex tasks are decomposed into subtasks
@@ -361,6 +386,7 @@ Once approved, tasks are automatically processed:
 - **Concurrent Processing**: Multiple SubAgents work simultaneously when possible
 
 #### 4. Progress Monitoring
+
 Real-time status updates provide visibility into execution:
 
 ```json
@@ -376,6 +402,7 @@ Real-time status updates provide visibility into execution:
 ### Advanced Features
 
 #### Multi-Agent Coordination
+
 The system supports sophisticated multi-agent workflows:
 
 - **Parallel Execution**: Independent tasks run simultaneously
@@ -384,6 +411,7 @@ The system supports sophisticated multi-agent workflows:
 - **Conflict Resolution**: Automatic handling of resource conflicts
 
 #### Cross-Session Persistence
+
 Tasks persist across CLI sessions:
 
 - **Session Recovery**: Interrupted tasks resume automatically
@@ -409,10 +437,10 @@ class CustomAnalysisTool extends DeclarativeTool {
       type: 'object',
       properties: {
         target: { type: 'string', description: 'Analysis target' },
-        depth: { type: 'number', description: 'Analysis depth level' }
+        depth: { type: 'number', description: 'Analysis depth level' },
       },
-      required: ['target']
-    }
+      required: ['target'],
+    },
   };
 
   async build(params: { target: string; depth?: number }) {
@@ -423,7 +451,7 @@ class CustomAnalysisTool extends DeclarativeTool {
       },
       async shouldConfirmExecute() {
         return null; // No confirmation required
-      }
+      },
     };
   }
 }
@@ -443,8 +471,8 @@ class CustomTaskManager {
       this.getRunConfig(task),
       {
         toolConfig: { tools: this.getRequiredTools(task) },
-        outputConfig: { outputs: task.expected_outputs }
-      }
+        outputConfig: { outputs: task.expected_outputs },
+      },
     );
 
     const context = this.buildContext(task);
@@ -453,7 +481,7 @@ class CustomTaskManager {
     return {
       taskId: task.id,
       result: agent.output,
-      success: agent.output.terminate_reason === SubagentTerminateMode.GOAL
+      success: agent.output.terminate_reason === SubagentTerminateMode.GOAL,
     };
   }
 }
@@ -487,6 +515,7 @@ Prioritize measurable performance improvements while maintaining code readabilit
 ### Integration Patterns
 
 #### Event-Driven Architecture
+
 ```typescript
 interface TaskEvent {
   type: 'TASK_CREATED' | 'TASK_STARTED' | 'TASK_COMPLETED' | 'TASK_FAILED';
@@ -507,12 +536,13 @@ class TaskEventEmitter {
 
   emit(event: TaskEvent): void {
     const handlers = this.handlers.get(event.type) || [];
-    handlers.forEach(handler => handler(event));
+    handlers.forEach((handler) => handler(event));
   }
 }
 ```
 
 #### Plugin System Integration
+
 ```typescript
 interface AutonomousPlugin {
   name: string;
@@ -553,12 +583,15 @@ class PluginManager {
 
 **Problem**: SubAgent terminates with ERROR status
 **Symptoms**:
+
 ```
 Error during subagent execution: Tool "example_tool" requires user confirmation
 ```
 
 **Solutions**:
+
 1. **Validate Tool Compatibility**:
+
    ```typescript
    // Check if tool requires confirmation
    const invocation = tool.build({});
@@ -572,7 +605,7 @@ Error during subagent execution: Tool "example_tool" requires user confirmation
    ```typescript
    // Replace interactive tools with non-interactive versions
    const toolConfig: ToolConfig = {
-     tools: ['Read', 'Grep', 'Bash'] // Avoid interactive tools like 'DeleteFile'
+     tools: ['Read', 'Grep', 'Bash'], // Avoid interactive tools like 'DeleteFile'
    };
    ```
 
@@ -580,6 +613,7 @@ Error during subagent execution: Tool "example_tool" requires user confirmation
 
 **Problem**: SubAgents exceed maximum execution time
 **Symptoms**:
+
 ```json
 {
   "terminate_reason": "TIMEOUT",
@@ -588,11 +622,13 @@ Error during subagent execution: Tool "example_tool" requires user confirmation
 ```
 
 **Solutions**:
+
 1. **Adjust Time Limits**:
+
    ```typescript
    const runConfig: RunConfig = {
      max_time_minutes: 60, // Increase from default 30
-     max_turns: 100       // Allow more conversation turns
+     max_turns: 100, // Allow more conversation turns
    };
    ```
 
@@ -609,7 +645,9 @@ Error during subagent execution: Tool "example_tool" requires user confirmation
 
 **Problem**: System performance degrades with multiple concurrent agents
 **Solutions**:
+
 1. **Resource Management**:
+
    ```typescript
    // Limit concurrent agent count
    const MAX_CONCURRENT_AGENTS = 5;
@@ -633,10 +671,14 @@ Error during subagent execution: Tool "example_tool" requires user confirmation
 ### Debugging Tools
 
 #### Agent Execution Tracing
+
 ```typescript
 class AgentTracer {
   trace(agentId: string, event: string, data: unknown): void {
-    console.log(`[${new Date().toISOString()}] Agent ${agentId}: ${event}`, data);
+    console.log(
+      `[${new Date().toISOString()}] Agent ${agentId}: ${event}`,
+      data,
+    );
   }
 
   startTrace(agentId: string): void {
@@ -646,13 +688,14 @@ class AgentTracer {
   endTrace(agentId: string, result: OutputObject): void {
     this.trace(agentId, 'COMPLETED', {
       result,
-      duration: Date.now() - this.startTimes.get(agentId)
+      duration: Date.now() - this.startTimes.get(agentId),
     });
   }
 }
 ```
 
 #### Performance Monitoring
+
 ```typescript
 class PerformanceMonitor {
   private metrics: Map<string, PerformanceMetric> = new Map();
@@ -660,7 +703,7 @@ class PerformanceMonitor {
   startMeasure(name: string): void {
     this.metrics.set(name, {
       startTime: performance.now(),
-      memoryUsage: process.memoryUsage()
+      memoryUsage: process.memoryUsage(),
     });
   }
 
@@ -671,7 +714,7 @@ class PerformanceMonitor {
     return {
       duration: performance.now() - metric.startTime,
       memoryDelta: this.calculateMemoryDelta(metric.memoryUsage),
-      name
+      name,
     };
   }
 }
@@ -680,6 +723,7 @@ class PerformanceMonitor {
 ### Error Recovery
 
 #### Automatic Recovery Strategies
+
 ```typescript
 class ErrorRecoveryManager {
   async handleAgentError(agentId: string, error: Error): Promise<boolean> {
@@ -715,12 +759,14 @@ class ErrorRecoveryManager {
 #### Phase 1: Assessment
 
 1. **Identify Automation Candidates**:
+
    ```typescript
    // Analyze existing workflows for automation potential
-   const automationCandidates = workflows.filter(workflow =>
-     workflow.isRepeatable &&
-     workflow.hasDefinedInputsOutputs &&
-     !workflow.requiresHumanJudgment
+   const automationCandidates = workflows.filter(
+     (workflow) =>
+       workflow.isRepeatable &&
+       workflow.hasDefinedInputsOutputs &&
+       !workflow.requiresHumanJudgment,
    );
    ```
 
@@ -728,15 +774,16 @@ class ErrorRecoveryManager {
    ```typescript
    // Evaluate risks and dependencies
    const riskAnalysis = {
-     dataIntegrity: 'LOW',    // Autonomous agents use read-only operations primarily
-     systemSafety: 'MEDIUM',  // Tool validation prevents dangerous operations
-     resultQuality: 'HIGH'    // Consistent execution reduces human error
+     dataIntegrity: 'LOW', // Autonomous agents use read-only operations primarily
+     systemSafety: 'MEDIUM', // Tool validation prevents dangerous operations
+     resultQuality: 'HIGH', // Consistent execution reduces human error
    };
    ```
 
 #### Phase 2: Incremental Migration
 
 1. **Start with Read-Only Tasks**:
+
    ```json
    {
      "title": "Automated Code Analysis",
@@ -747,6 +794,7 @@ class ErrorRecoveryManager {
    ```
 
 2. **Progress to Low-Risk Modifications**:
+
    ```json
    {
      "title": "Documentation Generation",
@@ -771,9 +819,12 @@ class ErrorRecoveryManager {
 #### Phase 3: Full Autonomous Integration
 
 1. **Workflow Orchestration**:
+
    ```typescript
    class MigrationOrchestrator {
-     async migrateWorkflow(workflow: LegacyWorkflow): Promise<AutonomousWorkflow> {
+     async migrateWorkflow(
+       workflow: LegacyWorkflow,
+     ): Promise<AutonomousWorkflow> {
        // Convert manual steps to autonomous tasks
        const tasks = await this.convertToTasks(workflow.steps);
 
@@ -789,7 +840,10 @@ class ErrorRecoveryManager {
 2. **Quality Assurance**:
    ```typescript
    class MigrationValidator {
-     async validateMigration(original: LegacyWorkflow, autonomous: AutonomousWorkflow): Promise<boolean> {
+     async validateMigration(
+       original: LegacyWorkflow,
+       autonomous: AutonomousWorkflow,
+     ): Promise<boolean> {
        const results = await this.runComparison(original, autonomous);
        return results.accuracy > 0.95 && results.efficiency > 1.0;
      }
@@ -799,12 +853,14 @@ class ErrorRecoveryManager {
 ### Best Practices for Migration
 
 #### Gradual Automation
+
 - Start with low-risk, high-value tasks
 - Maintain human oversight during transition
 - Implement comprehensive logging and monitoring
 - Create rollback procedures for each migration phase
 
 #### Validation Strategies
+
 ```typescript
 interface MigrationValidation {
   // Functional validation
@@ -820,6 +876,7 @@ interface MigrationValidation {
 ```
 
 #### Monitoring and Rollback
+
 ```typescript
 class MigrationMonitor {
   async monitorMigration(workflowId: string): Promise<MigrationStatus> {
@@ -830,7 +887,9 @@ class MigrationMonitor {
       return MigrationStatus.ROLLED_BACK;
     }
 
-    return status.isStable ? MigrationStatus.SUCCESS : MigrationStatus.MONITORING;
+    return status.isStable
+      ? MigrationStatus.SUCCESS
+      : MigrationStatus.MONITORING;
   }
 }
 ```

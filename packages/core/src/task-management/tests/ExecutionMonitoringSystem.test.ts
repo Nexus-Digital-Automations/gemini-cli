@@ -10,7 +10,7 @@ import type {
   ExecutionMetrics,
   TaskExecutionEvent,
   BottleneckAnalysis,
-  SystemHealthStatus
+  SystemHealthStatus,
 } from '../ExecutionMonitoringSystem.js';
 import type { Task } from '../TaskExecutionEngine.js';
 import type { Config } from '../../config/config.js';
@@ -29,8 +29,8 @@ const mockConfig: Partial<Config> = {
     ensureProjectTempDir: vi.fn(() => Promise.resolve()),
     writeFile: vi.fn(() => Promise.resolve()),
     readFile: vi.fn(() => Promise.resolve('{"events": [], "metrics": []}')),
-    fileExists: vi.fn(() => Promise.resolve(false))
-  } as any
+    fileExists: vi.fn(() => Promise.resolve(false)),
+  } as any,
 };
 
 describe('ExecutionMonitoringSystem', () => {
@@ -54,8 +54,8 @@ describe('ExecutionMonitoringSystem', () => {
         metadata: {
           title: 'Test Task',
           type: 'implementation',
-          priority: 'normal'
-        }
+          priority: 'normal',
+        },
       };
 
       monitoring.recordEvent(event);
@@ -70,8 +70,8 @@ describe('ExecutionMonitoringSystem', () => {
         duration: 300000, // 5 minutes
         metadata: {
           title: 'Test Task',
-          outputs: { result: 'success' }
-        }
+          outputs: { result: 'success' },
+        },
       };
 
       const failedEvent: TaskExecutionEvent = {
@@ -81,8 +81,8 @@ describe('ExecutionMonitoringSystem', () => {
         error: 'Task execution failed due to timeout',
         metadata: {
           title: 'Failed Task',
-          retryCount: 2
-        }
+          retryCount: 2,
+        },
       };
 
       monitoring.recordEvent(completedEvent);
@@ -116,11 +116,14 @@ describe('ExecutionMonitoringSystem', () => {
     it('should calculate correct success rate', async () => {
       const metrics = await monitoring.collectMetrics(mockTasks);
 
-      const completedCount = mockTasks.filter(t => t.status === 'completed').length;
-      const failedCount = mockTasks.filter(t => t.status === 'failed').length;
+      const completedCount = mockTasks.filter(
+        (t) => t.status === 'completed',
+      ).length;
+      const failedCount = mockTasks.filter((t) => t.status === 'failed').length;
       const finishedCount = completedCount + failedCount;
 
-      const expectedSuccessRate = finishedCount > 0 ? (completedCount / finishedCount) * 100 : 0;
+      const expectedSuccessRate =
+        finishedCount > 0 ? (completedCount / finishedCount) * 100 : 0;
       expect(metrics.successRate).toBe(expectedSuccessRate);
     });
 
@@ -149,7 +152,7 @@ describe('ExecutionMonitoringSystem', () => {
         tasksByComplexity: { simple: 4, moderate: 4, complex: 2 },
         tasksByPriority: { normal: 6, high: 3, low: 1 },
         memoryUsageMB: 600, // High memory usage
-        totalRetries: 15
+        totalRetries: 15,
       };
 
       const tasks = createMockTasksForTesting();
@@ -158,7 +161,9 @@ describe('ExecutionMonitoringSystem', () => {
       expect(Array.isArray(bottlenecks)).toBe(true);
       expect(bottlenecks.length).toBeGreaterThan(0);
 
-      const slowExecutionBottleneck = bottlenecks.find(b => b.type === 'slow_execution');
+      const slowExecutionBottleneck = bottlenecks.find(
+        (b) => b.type === 'slow_execution',
+      );
       expect(slowExecutionBottleneck).toBeDefined();
       expect(slowExecutionBottleneck?.severity).toBe('high');
     });
@@ -177,7 +182,7 @@ describe('ExecutionMonitoringSystem', () => {
         tasksByComplexity: { simple: 4, moderate: 4, complex: 2 },
         tasksByPriority: { normal: 6, high: 3, low: 1 },
         memoryUsageMB: 200, // Under limit
-        totalRetries: 3
+        totalRetries: 3,
       };
 
       const health = monitoring.getSystemHealth(healthyMetrics);
@@ -200,7 +205,7 @@ describe('ExecutionMonitoringSystem', () => {
         tasksByComplexity: { simple: 4, moderate: 4, complex: 2 },
         tasksByPriority: { normal: 6, high: 3, low: 1 },
         memoryUsageMB: 600, // Over limit
-        totalRetries: 50 // Very high retry count
+        totalRetries: 50, // Very high retry count
       };
 
       const health = monitoring.getSystemHealth(criticalMetrics);
@@ -225,7 +230,7 @@ describe('ExecutionMonitoringSystem', () => {
         tasksByComplexity: { simple: 4, moderate: 4, complex: 2 },
         tasksByPriority: { normal: 6, high: 3, low: 1 },
         memoryUsageMB: 250,
-        totalRetries: 5
+        totalRetries: 5,
       };
 
       const mockTasks = createMockTasksForTesting();
@@ -266,7 +271,7 @@ function createMockTasksForTesting(): Task[] {
       updatedAt: new Date(now.getTime() - 300000),
       startedAt: new Date(now.getTime() - 600000),
       completedAt: new Date(now.getTime() - 300000),
-      retryCount: 0
+      retryCount: 0,
     },
     {
       id: 'task-2',
@@ -288,7 +293,7 @@ function createMockTasksForTesting(): Task[] {
       updatedAt: new Date(now.getTime() - 120000),
       startedAt: new Date(now.getTime() - 480000),
       lastError: 'Test execution failed',
-      retryCount: 3
+      retryCount: 3,
     },
     {
       id: 'task-3',
@@ -309,7 +314,7 @@ function createMockTasksForTesting(): Task[] {
       createdAt: new Date(now.getTime() - 240000),
       updatedAt: new Date(now.getTime() - 60000),
       startedAt: new Date(now.getTime() - 240000),
-      retryCount: 1
-    }
+      retryCount: 1,
+    },
   ];
 }

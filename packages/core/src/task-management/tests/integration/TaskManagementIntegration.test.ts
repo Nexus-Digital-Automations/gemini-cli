@@ -38,11 +38,11 @@ describe('Task Management System Integration', () => {
         getTool: vi.fn(),
         getAllTools: vi.fn(() => []),
         getAllToolNames: vi.fn(() => []),
-        getFunctionDeclarationsFiltered: vi.fn(() => [])
+        getFunctionDeclarationsFiltered: vi.fn(() => []),
       })),
       storage: {
         getProjectTempDir: vi.fn(() => '/tmp/test-project'),
-        ensureProjectTempDir: vi.fn()
+        ensureProjectTempDir: vi.fn(),
       } as any,
       getSessionId: vi.fn(() => 'integration-test-session'),
       settings: {
@@ -50,8 +50,8 @@ describe('Task Management System Integration', () => {
           if (key === 'taskManagement.maxConcurrentTasks') return 5;
           if (key === 'taskManagement.defaultTimeout') return 300000;
           return undefined;
-        })
-      }
+        }),
+      },
     };
 
     // Mock file system operations
@@ -60,13 +60,16 @@ describe('Task Management System Integration', () => {
       readFile: vi.fn(),
       mkdir: vi.fn(),
       access: vi.fn(),
-      unlink: vi.fn()
+      unlink: vi.fn(),
     }));
 
-    system = await TaskManagementSystemFactory.createComplete(config as Config, {
-      enableMonitoring: true,
-      enableHookIntegration: false // Disable for testing
-    });
+    system = await TaskManagementSystemFactory.createComplete(
+      config as Config,
+      {
+        enableMonitoring: true,
+        enableHookIntegration: false, // Disable for testing
+      },
+    );
   });
 
   afterEach(async () => {
@@ -85,10 +88,10 @@ describe('Task Management System Integration', () => {
           type: 'testing',
           priority: 'high',
           expectedOutputs: {
-            'test_results': 'Comprehensive test results',
-            'coverage_report': 'Test coverage metrics'
-          }
-        }
+            test_results: 'Comprehensive test results',
+            coverage_report: 'Test coverage metrics',
+          },
+        },
       );
 
       expect(taskId).toBeTruthy();
@@ -124,8 +127,8 @@ describe('Task Management System Integration', () => {
       updatedTask.completedAt = new Date();
       updatedTask.progress = 100;
       updatedTask.outputs = {
-        'test_results': 'All tests passed',
-        'coverage_report': '95% coverage achieved'
+        test_results: 'All tests passed',
+        coverage_report: '95% coverage achieved',
       };
 
       if (system.monitoring) {
@@ -140,7 +143,7 @@ describe('Task Management System Integration', () => {
       const task1Id = await system.taskEngine.queueTask(
         'Foundation Task',
         'Set up project foundation',
-        { type: 'implementation', priority: 'high' }
+        { type: 'implementation', priority: 'high' },
       );
 
       const task2Id = await system.taskEngine.queueTask(
@@ -149,8 +152,8 @@ describe('Task Management System Integration', () => {
         {
           type: 'implementation',
           priority: 'high',
-          dependencies: [task1Id]
-        }
+          dependencies: [task1Id],
+        },
       );
 
       const task3Id = await system.taskEngine.queueTask(
@@ -159,8 +162,8 @@ describe('Task Management System Integration', () => {
         {
           type: 'testing',
           priority: 'medium',
-          dependencies: [task2Id]
-        }
+          dependencies: [task2Id],
+        },
       );
 
       const allTasks = system.taskEngine.getAllTasks();
@@ -170,7 +173,7 @@ describe('Task Management System Integration', () => {
       const resolver = new DependencyResolver();
       const dependencies: TaskDependency[] = [
         { dependentTaskId: task2Id, dependsOnTaskId: task1Id, type: 'hard' },
-        { dependentTaskId: task3Id, dependsOnTaskId: task2Id, type: 'hard' }
+        { dependentTaskId: task3Id, dependsOnTaskId: task2Id, type: 'hard' },
       ];
 
       const graph = resolver.buildDependencyGraph(allTasks, dependencies);
@@ -189,11 +192,14 @@ describe('Task Management System Integration', () => {
         maxConcurrentTasks: 3,
         defaultTimeout: 300000,
         defaultMaxRetries: 3,
-        resourcePools: new Map([['cpu', 4], ['memory', 8]]),
+        resourcePools: new Map([
+          ['cpu', 4],
+          ['memory', 8],
+        ]),
         priorityThresholds: { critical: 90, high: 70, medium: 50, low: 30 },
         schedulingAlgorithm: 'priority',
         autoDependencyLearning: true,
-        performanceMonitoring: true
+        performanceMonitoring: true,
       });
 
       // Create tasks with different priorities
@@ -204,7 +210,7 @@ describe('Task Management System Integration', () => {
         const taskId = await system.taskEngine.queueTask(
           `Task Priority ${priorities[i]}`,
           `Task with ${priorities[i]} priority`,
-          { priority: priorities[i] }
+          { priority: priorities[i] },
         );
         const task = system.taskEngine.getTask(taskId)!;
         tasks.push(task);
@@ -234,7 +240,7 @@ describe('Task Management System Integration', () => {
       const taskId = await system.taskEngine.queueTask(
         'Failing Task',
         'Task designed to fail for testing',
-        { type: 'testing', priority: 'high', maxRetries: 2 }
+        { type: 'testing', priority: 'high', maxRetries: 2 },
       );
 
       const task = system.taskEngine.getTask(taskId)!;
@@ -254,7 +260,7 @@ describe('Task Management System Integration', () => {
           eventType: 'failed',
           timestamp: new Date(),
           error: task.lastError,
-          metadata: { retryCount: task.retryCount }
+          metadata: { retryCount: task.retryCount },
         });
 
         const metrics = await system.monitoring.collectMetrics([task]);
@@ -284,7 +290,7 @@ describe('Task Management System Integration', () => {
       const taskId = await system.taskEngine.queueTask(
         'Stalled Task',
         'Task that will become stalled',
-        { type: 'implementation', priority: 'medium' }
+        { type: 'implementation', priority: 'medium' },
       );
 
       const task = system.taskEngine.getTask(taskId)!;
@@ -321,9 +327,9 @@ describe('Task Management System Integration', () => {
           `Bulk processing task number ${i}`,
           {
             type: i % 2 === 0 ? 'implementation' : 'testing',
-            priority: ['low', 'medium', 'high'][i % 3] as any
-          }
-        )
+            priority: ['low', 'medium', 'high'][i % 3] as any,
+          },
+        ),
       );
 
       const taskIds = await Promise.all(taskPromises);
@@ -348,7 +354,9 @@ describe('Task Management System Integration', () => {
 
       // Test filtering performance
       const filterStartTime = Date.now();
-      const highPriorityTasks = system.taskEngine.getAllTasks({ priority: 'high' });
+      const highPriorityTasks = system.taskEngine.getAllTasks({
+        priority: 'high',
+      });
       const filterTime = Date.now() - filterStartTime;
 
       expect(highPriorityTasks.length).toBeGreaterThan(0);
@@ -364,7 +372,7 @@ describe('Task Management System Integration', () => {
         const taskId = await system.taskEngine.queueTask(
           `Complex Task ${i}`,
           `Task ${i} in complex dependency graph`,
-          { type: 'implementation', priority: 'medium' }
+          { type: 'implementation', priority: 'medium' },
         );
         const task = system.taskEngine.getTask(taskId)!;
         tasks.push(task);
@@ -378,7 +386,7 @@ describe('Task Management System Integration', () => {
           dependencies.push({
             dependentTaskId: tasks[i].id,
             dependsOnTaskId: tasks[i - 1].id,
-            type: 'hard'
+            type: 'hard',
           });
         } else {
           // Second half has more complex dependencies
@@ -386,7 +394,7 @@ describe('Task Management System Integration', () => {
           dependencies.push({
             dependentTaskId: tasks[i].id,
             dependsOnTaskId: tasks[depIndex].id,
-            type: 'soft'
+            type: 'soft',
           });
         }
       }
@@ -417,7 +425,7 @@ describe('Task Management System Integration', () => {
         priorityThresholds: { critical: 90, high: 70, medium: 50, low: 30 },
         schedulingAlgorithm: 'dependency_aware',
         autoDependencyLearning: true,
-        performanceMonitoring: true
+        performanceMonitoring: true,
       });
 
       const scheduleStartTime = Date.now();
@@ -438,17 +446,18 @@ describe('Task Management System Integration', () => {
           if (key === 'taskManagement.maxConcurrentTasks') return 1;
           if (key === 'taskManagement.defaultTimeout') return 60000; // 1 minute
           return undefined;
-        })
+        }),
       };
 
-      const lowConcurrencySystem = await TaskManagementSystemFactory.createComplete(
-        lowConcurrencyConfig as Config,
-        { enableMonitoring: true, enableHookIntegration: false }
-      );
+      const lowConcurrencySystem =
+        await TaskManagementSystemFactory.createComplete(
+          lowConcurrencyConfig as Config,
+          { enableMonitoring: true, enableHookIntegration: false },
+        );
 
       const taskId = await lowConcurrencySystem.taskEngine.queueTask(
         'Config Test Task',
-        'Test with low concurrency config'
+        'Test with low concurrency config',
       );
 
       const task = lowConcurrencySystem.taskEngine.getTask(taskId)!;
@@ -462,11 +471,14 @@ describe('Task Management System Integration', () => {
         maxConcurrentTasks: 3,
         defaultTimeout: 300000,
         defaultMaxRetries: 3,
-        resourcePools: new Map([['cpu', 2], ['memory', 4]]),
+        resourcePools: new Map([
+          ['cpu', 2],
+          ['memory', 4],
+        ]),
         priorityThresholds: { critical: 90, high: 70, medium: 50, low: 30 },
         schedulingAlgorithm: 'resource_optimal',
         autoDependencyLearning: true,
-        performanceMonitoring: true
+        performanceMonitoring: true,
       });
 
       const taskId = await system.taskEngine.queueTask(
@@ -477,9 +489,9 @@ describe('Task Management System Integration', () => {
           priority: 'high',
           resourceConstraints: [
             { resourceType: 'cpu', maxUnits: 2 },
-            { resourceType: 'memory', maxUnits: 3 }
-          ]
-        }
+            { resourceType: 'memory', maxUnits: 3 },
+          ],
+        },
       );
 
       const task = system.taskEngine.getTask(taskId)!;
@@ -499,9 +511,9 @@ describe('Task Management System Integration', () => {
         'Task requiring more resources than available',
         {
           resourceConstraints: [
-            { resourceType: 'cpu', maxUnits: 2 } // Not enough CPU available
-          ]
-        }
+            { resourceType: 'cpu', maxUnits: 2 }, // Not enough CPU available
+          ],
+        },
       );
 
       const highResourceTask = system.taskEngine.getTask(highResourceTaskId)!;
@@ -515,7 +527,7 @@ describe('Task Management System Integration', () => {
       const taskId = await system.taskEngine.queueTask(
         'Consistency Test Task',
         'Test data consistency across components',
-        { type: 'testing', priority: 'high' }
+        { type: 'testing', priority: 'high' },
       );
 
       let task = system.taskEngine.getTask(taskId)!;
@@ -529,7 +541,9 @@ describe('Task Management System Integration', () => {
       await lifecycle.transitionTo(task, 'ready');
       task = system.taskEngine.getTask(taskId)!; // Refresh task reference
       expect(task.status).toBe('ready');
-      expect(task.metadata.updatedAt.getTime()).toBeGreaterThan(originalUpdatedAt.getTime());
+      expect(task.metadata.updatedAt.getTime()).toBeGreaterThan(
+        originalUpdatedAt.getTime(),
+      );
       expect(task.metadata.createdAt).toEqual(originalCreatedAt); // Should not change
 
       await lifecycle.transitionTo(task, 'in_progress');
@@ -561,7 +575,7 @@ describe('Task Management System Integration', () => {
     it('should handle concurrent modifications safely', async () => {
       const taskId = await system.taskEngine.queueTask(
         'Concurrency Test Task',
-        'Test concurrent modifications'
+        'Test concurrent modifications',
       );
 
       const task = system.taskEngine.getTask(taskId)!;
@@ -571,15 +585,13 @@ describe('Task Management System Integration', () => {
       const operations = [
         () => lifecycle.transitionTo(task, 'ready'),
         () => system.taskEngine.cancelTask(taskId),
-        () => lifecycle.validateState(task)
+        () => lifecycle.validateState(task),
       ];
 
-      const results = await Promise.allSettled(
-        operations.map(op => op())
-      );
+      const results = await Promise.allSettled(operations.map((op) => op()));
 
       // At least some operations should complete successfully
-      const successful = results.filter(r => r.status === 'fulfilled');
+      const successful = results.filter((r) => r.status === 'fulfilled');
       expect(successful.length).toBeGreaterThan(0);
 
       // Final state should be consistent
@@ -605,18 +617,21 @@ describe('Task Management Performance Benchmarks', () => {
         getTool: vi.fn(),
         getAllTools: vi.fn(() => []),
         getAllToolNames: vi.fn(() => []),
-        getFunctionDeclarationsFiltered: vi.fn(() => [])
+        getFunctionDeclarationsFiltered: vi.fn(() => []),
       })),
       storage: {
-        getProjectTempDir: vi.fn(() => '/tmp/benchmark-project')
+        getProjectTempDir: vi.fn(() => '/tmp/benchmark-project'),
       } as any,
-      getSessionId: vi.fn(() => 'benchmark-session')
+      getSessionId: vi.fn(() => 'benchmark-session'),
     };
 
-    system = await TaskManagementSystemFactory.createComplete(config as Config, {
-      enableMonitoring: true,
-      enableHookIntegration: false
-    });
+    system = await TaskManagementSystemFactory.createComplete(
+      config as Config,
+      {
+        enableMonitoring: true,
+        enableHookIntegration: false,
+      },
+    );
   });
 
   afterEach(async () => {
@@ -626,9 +641,9 @@ describe('Task Management Performance Benchmarks', () => {
   it('should meet performance benchmarks for task operations', async () => {
     const benchmarks = {
       taskCreation: { limit: 100, timeLimit: 1000 }, // 100 tasks in 1 second
-      taskRetrieval: { limit: 1000, timeLimit: 500 },  // 1000 retrievals in 0.5 seconds
-      taskFiltering: { limit: 500, timeLimit: 200 },   // 500 filter operations in 0.2 seconds
-      metricsCollection: { limit: 100, timeLimit: 1000 } // 100 tasks metrics in 1 second
+      taskRetrieval: { limit: 1000, timeLimit: 500 }, // 1000 retrievals in 0.5 seconds
+      taskFiltering: { limit: 500, timeLimit: 200 }, // 500 filter operations in 0.2 seconds
+      metricsCollection: { limit: 100, timeLimit: 1000 }, // 100 tasks metrics in 1 second
     };
 
     // Benchmark task creation
@@ -638,13 +653,15 @@ describe('Task Management Performance Benchmarks', () => {
       const taskId = await system.taskEngine.queueTask(
         `Benchmark Task ${i}`,
         `Performance benchmark task ${i}`,
-        { priority: ['low', 'medium', 'high'][i % 3] as any }
+        { priority: ['low', 'medium', 'high'][i % 3] as any },
       );
       taskIds.push(taskId);
     }
     let elapsed = Date.now() - startTime;
     expect(elapsed).toBeLessThan(benchmarks.taskCreation.timeLimit);
-    console.log(`Task creation: ${benchmarks.taskCreation.limit} tasks in ${elapsed}ms`);
+    console.log(
+      `Task creation: ${benchmarks.taskCreation.limit} tasks in ${elapsed}ms`,
+    );
 
     // Benchmark task retrieval
     startTime = Date.now();
@@ -655,7 +672,9 @@ describe('Task Management Performance Benchmarks', () => {
     }
     elapsed = Date.now() - startTime;
     expect(elapsed).toBeLessThan(benchmarks.taskRetrieval.timeLimit);
-    console.log(`Task retrieval: ${benchmarks.taskRetrieval.limit} retrievals in ${elapsed}ms`);
+    console.log(
+      `Task retrieval: ${benchmarks.taskRetrieval.limit} retrievals in ${elapsed}ms`,
+    );
 
     // Benchmark task filtering
     startTime = Date.now();
@@ -666,7 +685,9 @@ describe('Task Management Performance Benchmarks', () => {
     }
     elapsed = Date.now() - startTime;
     expect(elapsed).toBeLessThan(benchmarks.taskFiltering.timeLimit);
-    console.log(`Task filtering: ${benchmarks.taskFiltering.limit} filters in ${elapsed}ms`);
+    console.log(
+      `Task filtering: ${benchmarks.taskFiltering.limit} filters in ${elapsed}ms`,
+    );
 
     // Benchmark metrics collection
     if (system.monitoring) {
@@ -678,7 +699,9 @@ describe('Task Management Performance Benchmarks', () => {
       }
       elapsed = Date.now() - startTime;
       expect(elapsed).toBeLessThan(benchmarks.metricsCollection.timeLimit);
-      console.log(`Metrics collection: ${benchmarks.metricsCollection.limit} collections in ${elapsed}ms`);
+      console.log(
+        `Metrics collection: ${benchmarks.metricsCollection.limit} collections in ${elapsed}ms`,
+      );
     }
   });
 });

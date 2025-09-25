@@ -9,14 +9,17 @@ import { Logger } from '../logger/Logger.js';
 import type {
   ValidationResult,
   ValidationReport,
-  ValidationContext
+  ValidationContext,
 } from './ValidationFramework.js';
 import {
   ValidationSeverity,
   ValidationStatus,
-  ValidationCategory
+  ValidationCategory,
 } from './ValidationFramework.js';
-import type { WorkflowExecutionResult, TaskExecutionContext } from './ValidationWorkflow.js';
+import type {
+  WorkflowExecutionResult,
+  TaskExecutionContext,
+} from './ValidationWorkflow.js';
 
 /**
  * Failure handling strategy types
@@ -28,7 +31,7 @@ export enum FailureHandlingStrategy {
   CIRCUIT_BREAKER = 'circuit-breaker',
   FALLBACK = 'fallback',
   ESCALATION = 'escalation',
-  IGNORE = 'ignore'
+  IGNORE = 'ignore',
 }
 
 /**
@@ -88,8 +91,12 @@ export interface FallbackConfig {
  */
 export interface ValidationFailureHandlerConfig {
   globalStrategy: FailureHandlingStrategy;
-  categoryStrategies: Partial<Record<ValidationCategory, FailureHandlingStrategy>>;
-  severityStrategies: Partial<Record<ValidationSeverity, FailureHandlingStrategy>>;
+  categoryStrategies: Partial<
+    Record<ValidationCategory, FailureHandlingStrategy>
+  >;
+  severityStrategies: Partial<
+    Record<ValidationSeverity, FailureHandlingStrategy>
+  >;
   retryConfig: RetryConfig;
   circuitBreakerConfig: CircuitBreakerConfig;
   escalationConfig: EscalationConfig;
@@ -115,7 +122,7 @@ export interface ValidationFailureHandlerConfig {
 enum CircuitBreakerState {
   CLOSED = 'closed',
   OPEN = 'open',
-  HALF_OPEN = 'half-open'
+  HALF_OPEN = 'half-open',
 }
 
 /**
@@ -164,7 +171,10 @@ interface RetryAttemptResult {
 interface RecoveryOperation {
   id: string;
   name: string;
-  execute: (context: ValidationContext | TaskExecutionContext, error: Error) => Promise<boolean>;
+  execute: (
+    context: ValidationContext | TaskExecutionContext,
+    error: Error,
+  ) => Promise<boolean>;
   timeout: number;
 }
 
@@ -176,14 +186,15 @@ export class ValidationFailureHandler extends EventEmitter {
   private readonly config: ValidationFailureHandlerConfig;
   private readonly circuitBreakers: Map<string, CircuitBreaker> = new Map();
   private readonly failureRecords: Map<string, FailureRecord> = new Map();
-  private readonly recoveryOperations: Map<string, RecoveryOperation> = new Map();
+  private readonly recoveryOperations: Map<string, RecoveryOperation> =
+    new Map();
   private readonly metrics = {
     totalFailures: 0,
     totalRetries: 0,
     totalRecoveries: 0,
     avgRecoveryTime: 0,
     failuresByCategory: new Map<ValidationCategory, number>(),
-    failuresBySeverity: new Map<ValidationSeverity, number>()
+    failuresBySeverity: new Map<ValidationSeverity, number>(),
   };
 
   constructor(config: Partial<ValidationFailureHandlerConfig> = {}) {
@@ -195,12 +206,13 @@ export class ValidationFailureHandler extends EventEmitter {
       categoryStrategies: {
         [ValidationCategory.SYNTAX]: FailureHandlingStrategy.IMMEDIATE_RETRY,
         [ValidationCategory.SECURITY]: FailureHandlingStrategy.ESCALATION,
-        [ValidationCategory.PERFORMANCE]: FailureHandlingStrategy.CIRCUIT_BREAKER
+        [ValidationCategory.PERFORMANCE]:
+          FailureHandlingStrategy.CIRCUIT_BREAKER,
       },
       severityStrategies: {
         [ValidationSeverity.CRITICAL]: FailureHandlingStrategy.ESCALATION,
         [ValidationSeverity.ERROR]: FailureHandlingStrategy.EXPONENTIAL_BACKOFF,
-        [ValidationSeverity.WARNING]: FailureHandlingStrategy.FALLBACK
+        [ValidationSeverity.WARNING]: FailureHandlingStrategy.FALLBACK,
       },
       retryConfig: {
         maxAttempts: 3,
@@ -209,13 +221,17 @@ export class ValidationFailureHandler extends EventEmitter {
         backoffMultiplier: 2,
         jitter: true,
         retryableErrors: ['TIMEOUT', 'NETWORK_ERROR', 'TEMPORARY_FAILURE'],
-        nonRetryableErrors: ['INVALID_INPUT', 'AUTHENTICATION_ERROR', 'PERMISSION_DENIED']
+        nonRetryableErrors: [
+          'INVALID_INPUT',
+          'AUTHENTICATION_ERROR',
+          'PERMISSION_DENIED',
+        ],
       },
       circuitBreakerConfig: {
         failureThreshold: 5,
         recoveryTimeout: 60000,
         halfOpenMaxAttempts: 3,
-        monitoringWindow: 300000
+        monitoringWindow: 300000,
       },
       escalationConfig: {
         levels: [
@@ -223,41 +239,44 @@ export class ValidationFailureHandler extends EventEmitter {
             threshold: 3,
             actions: ['notify', 'log'],
             notify: ['team-lead'],
-            timeout: 300000
+            timeout: 300000,
           },
           {
             threshold: 5,
             actions: ['notify', 'fallback'],
             notify: ['team-lead', 'manager'],
-            timeout: 600000
-          }
+            timeout: 600000,
+          },
         ],
         autoEscalation: true,
-        escalationDelay: 60000
+        escalationDelay: 60000,
       },
       fallbackConfig: {
         strategies: [
           { type: 'skip' },
-          { type: 'default', config: { defaultValue: 'passed' } }
+          { type: 'default', config: { defaultValue: 'passed' } },
         ],
         conditions: [
-          { severity: ValidationSeverity.WARNING, category: ValidationCategory.PERFORMANCE }
-        ]
+          {
+            severity: ValidationSeverity.WARNING,
+            category: ValidationCategory.PERFORMANCE,
+          },
+        ],
       },
       recovery: {
         autoRecovery: true,
         recoveryAttempts: 3,
-        recoveryStrategies: ['restart', 'reset', 'cleanup']
+        recoveryStrategies: ['restart', 'reset', 'cleanup'],
       },
       monitoring: {
         trackMetrics: true,
         alertThresholds: {
           failureRate: 0.1, // 10%
           errorRate: 0.05, // 5%
-          responseTime: 5000 // 5 seconds
-        }
+          responseTime: 5000, // 5 seconds
+        },
       },
-      ...config
+      ...config,
     };
 
     // Register default recovery operations
@@ -266,23 +285,25 @@ export class ValidationFailureHandler extends EventEmitter {
     this.logger.info('ValidationFailureHandler initialized', {
       globalStrategy: this.config.globalStrategy,
       retryConfig: this.config.retryConfig,
-      circuitBreakerConfig: this.config.circuitBreakerConfig
+      circuitBreakerConfig: this.config.circuitBreakerConfig,
     });
   }
 
   /**
    * Handle validation failure with appropriate strategy
    */
-  async handleValidationFailure<T = ValidationResult[] | WorkflowExecutionResult>(
+  async handleValidationFailure<
+    T = ValidationResult[] | WorkflowExecutionResult,
+  >(
     error: Error,
     context: ValidationContext | TaskExecutionContext,
-    originalOperation: () => Promise<T>
+    originalOperation: () => Promise<T>,
   ): Promise<T> {
     const failureId = `failure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     this.logger.warn(`Handling validation failure: ${failureId}`, {
       error: error.message,
-      taskId: this.getTaskId(context)
+      taskId: this.getTaskId(context),
     });
 
     // Record failure
@@ -302,25 +323,25 @@ export class ValidationFailureHandler extends EventEmitter {
         error,
         context,
         originalOperation,
-        failureRecord
+        failureRecord,
       );
 
       // Mark as resolved
       failureRecord.resolved = true;
-      failureRecord.recoveryTime = Date.now() - failureRecord.timestamp.getTime();
+      failureRecord.recoveryTime =
+        Date.now() - failureRecord.timestamp.getTime();
 
       this.emit('failureResolved', failureRecord);
       this.logger.info(`Validation failure resolved: ${failureId}`, {
         strategy,
-        recoveryTime: failureRecord.recoveryTime
+        recoveryTime: failureRecord.recoveryTime,
       });
 
       return result;
-
     } catch (handlingError) {
       this.logger.error(`Failed to handle validation failure: ${failureId}`, {
         originalError: error.message,
-        handlingError: (handlingError as Error).message
+        handlingError: (handlingError as Error).message,
       });
 
       failureRecord.metadata.handlingError = (handlingError as Error).message;
@@ -338,26 +359,49 @@ export class ValidationFailureHandler extends EventEmitter {
     error: Error,
     context: ValidationContext | TaskExecutionContext,
     originalOperation: () => Promise<T>,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
     switch (strategy) {
       case FailureHandlingStrategy.IMMEDIATE_RETRY:
-        return await this.executeImmediateRetry(originalOperation, failureRecord);
+        return await this.executeImmediateRetry(
+          originalOperation,
+          failureRecord,
+        );
 
       case FailureHandlingStrategy.EXPONENTIAL_BACKOFF:
-        return await this.executeExponentialBackoff(originalOperation, failureRecord);
+        return await this.executeExponentialBackoff(
+          originalOperation,
+          failureRecord,
+        );
 
       case FailureHandlingStrategy.LINEAR_BACKOFF:
-        return await this.executeLinearBackoff(originalOperation, failureRecord);
+        return await this.executeLinearBackoff(
+          originalOperation,
+          failureRecord,
+        );
 
       case FailureHandlingStrategy.CIRCUIT_BREAKER:
-        return await this.executeCircuitBreaker(originalOperation, context, failureRecord);
+        return await this.executeCircuitBreaker(
+          originalOperation,
+          context,
+          failureRecord,
+        );
 
       case FailureHandlingStrategy.FALLBACK:
-        return await this.executeFallback(error, context, originalOperation, failureRecord);
+        return await this.executeFallback(
+          error,
+          context,
+          originalOperation,
+          failureRecord,
+        );
 
       case FailureHandlingStrategy.ESCALATION:
-        return await this.executeEscalation(error, context, originalOperation, failureRecord);
+        return await this.executeEscalation(
+          error,
+          context,
+          originalOperation,
+          failureRecord,
+        );
 
       case FailureHandlingStrategy.IGNORE:
         throw error; // Re-throw original error
@@ -372,7 +416,7 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private async executeImmediateRetry<T>(
     operation: () => Promise<T>,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
     const maxAttempts = this.config.retryConfig.maxAttempts;
 
@@ -384,11 +428,10 @@ export class ValidationFailureHandler extends EventEmitter {
         this.emit('retrySuccess', {
           failureId: failureRecord.id,
           attempt,
-          duration: Date.now() - startTime
+          duration: Date.now() - startTime,
         });
 
         return result;
-
       } catch (error) {
         failureRecord.attempts = attempt;
 
@@ -403,7 +446,7 @@ export class ValidationFailureHandler extends EventEmitter {
         this.emit('retryAttempt', {
           failureId: failureRecord.id,
           attempt,
-          error: (error as Error).message
+          error: (error as Error).message,
         });
       }
     }
@@ -416,9 +459,10 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private async executeExponentialBackoff<T>(
     operation: () => Promise<T>,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
-    const { maxAttempts, initialDelay, maxDelay, backoffMultiplier, jitter } = this.config.retryConfig;
+    const { maxAttempts, initialDelay, maxDelay, backoffMultiplier, jitter } =
+      this.config.retryConfig;
     let delay = initialDelay;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -429,11 +473,10 @@ export class ValidationFailureHandler extends EventEmitter {
         this.emit('retrySuccess', {
           failureId: failureRecord.id,
           attempt,
-          duration: Date.now() - startTime
+          duration: Date.now() - startTime,
         });
 
         return result;
-
       } catch (error) {
         failureRecord.attempts = attempt;
 
@@ -446,13 +489,15 @@ export class ValidationFailureHandler extends EventEmitter {
         }
 
         // Calculate next delay
-        const actualDelay = jitter ? delay + Math.random() * delay * 0.1 : delay;
+        const actualDelay = jitter
+          ? delay + Math.random() * delay * 0.1
+          : delay;
 
         this.emit('retryAttempt', {
           failureId: failureRecord.id,
           attempt,
           error: (error as Error).message,
-          nextDelay: actualDelay
+          nextDelay: actualDelay,
         });
 
         await this.sleep(actualDelay);
@@ -468,7 +513,7 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private async executeLinearBackoff<T>(
     operation: () => Promise<T>,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
     const { maxAttempts, initialDelay } = this.config.retryConfig;
 
@@ -480,11 +525,10 @@ export class ValidationFailureHandler extends EventEmitter {
         this.emit('retrySuccess', {
           failureId: failureRecord.id,
           attempt,
-          duration: Date.now() - startTime
+          duration: Date.now() - startTime,
         });
 
         return result;
-
       } catch (error) {
         failureRecord.attempts = attempt;
 
@@ -502,7 +546,7 @@ export class ValidationFailureHandler extends EventEmitter {
           failureId: failureRecord.id,
           attempt,
           error: (error as Error).message,
-          nextDelay: delay
+          nextDelay: delay,
         });
 
         await this.sleep(delay);
@@ -518,14 +562,17 @@ export class ValidationFailureHandler extends EventEmitter {
   private async executeCircuitBreaker<T>(
     operation: () => Promise<T>,
     context: ValidationContext | TaskExecutionContext,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
     const circuitKey = this.getCircuitBreakerKey(context);
     const circuitBreaker = this.getOrCreateCircuitBreaker(circuitKey);
 
     // Check circuit breaker state
     if (circuitBreaker.state === CircuitBreakerState.OPEN) {
-      if (Date.now() - circuitBreaker.lastFailureTime.getTime() < this.config.circuitBreakerConfig.recoveryTimeout) {
+      if (
+        Date.now() - circuitBreaker.lastFailureTime.getTime() <
+        this.config.circuitBreakerConfig.recoveryTimeout
+      ) {
         throw new Error('Circuit breaker is OPEN - operation blocked');
       } else {
         // Transition to half-open
@@ -544,7 +591,6 @@ export class ValidationFailureHandler extends EventEmitter {
       }
 
       return result;
-
     } catch (error) {
       circuitBreaker.failures++;
       circuitBreaker.lastFailureTime = new Date();
@@ -554,15 +600,27 @@ export class ValidationFailureHandler extends EventEmitter {
 
       // Check if should open circuit
       if (circuitBreaker.state === CircuitBreakerState.CLOSED) {
-        if (circuitBreaker.windowFailures >= this.config.circuitBreakerConfig.failureThreshold) {
+        if (
+          circuitBreaker.windowFailures >=
+          this.config.circuitBreakerConfig.failureThreshold
+        ) {
           circuitBreaker.state = CircuitBreakerState.OPEN;
-          this.emit('circuitBreakerOpened', { circuitKey, failures: circuitBreaker.failures });
+          this.emit('circuitBreakerOpened', {
+            circuitKey,
+            failures: circuitBreaker.failures,
+          });
         }
       } else if (circuitBreaker.state === CircuitBreakerState.HALF_OPEN) {
         circuitBreaker.halfOpenAttempts++;
-        if (circuitBreaker.halfOpenAttempts >= this.config.circuitBreakerConfig.halfOpenMaxAttempts) {
+        if (
+          circuitBreaker.halfOpenAttempts >=
+          this.config.circuitBreakerConfig.halfOpenMaxAttempts
+        ) {
           circuitBreaker.state = CircuitBreakerState.OPEN;
-          this.emit('circuitBreakerOpened', { circuitKey, failures: circuitBreaker.failures });
+          this.emit('circuitBreakerOpened', {
+            circuitKey,
+            failures: circuitBreaker.failures,
+          });
         }
       }
 
@@ -577,7 +635,7 @@ export class ValidationFailureHandler extends EventEmitter {
     error: Error,
     context: ValidationContext | TaskExecutionContext,
     originalOperation: () => Promise<T>,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
     // Check if fallback conditions are met
     const shouldFallback = this.shouldUseFallback(error, context);
@@ -590,7 +648,7 @@ export class ValidationFailureHandler extends EventEmitter {
       try {
         this.emit('fallbackAttempt', {
           failureId: failureRecord.id,
-          strategy: strategy.type
+          strategy: strategy.type,
         });
 
         switch (strategy.type) {
@@ -605,7 +663,7 @@ export class ValidationFailureHandler extends EventEmitter {
         }
       } catch (fallbackError) {
         this.logger.warn(`Fallback strategy ${strategy.type} failed`, {
-          error: (fallbackError as Error).message
+          error: (fallbackError as Error).message,
         });
       }
     }
@@ -620,27 +678,32 @@ export class ValidationFailureHandler extends EventEmitter {
     error: Error,
     context: ValidationContext | TaskExecutionContext,
     originalOperation: () => Promise<T>,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<T> {
     const taskId = this.getTaskId(context);
-    const existingFailures = Array.from(this.failureRecords.values())
-      .filter(record => this.getTaskId(record.context) === taskId && !record.resolved)
-      .length;
+    const existingFailures = Array.from(this.failureRecords.values()).filter(
+      (record) => this.getTaskId(record.context) === taskId && !record.resolved,
+    ).length;
 
     // Find appropriate escalation level
     const escalationLevel = this.config.escalationConfig.levels
       .reverse()
-      .find(level => existingFailures >= level.threshold);
+      .find((level) => existingFailures >= level.threshold);
 
     if (escalationLevel) {
       this.emit('escalationTriggered', {
         failureId: failureRecord.id,
         level: escalationLevel,
-        existingFailures
+        existingFailures,
       });
 
       // Execute escalation actions
-      await this.executeEscalationActions(escalationLevel, error, context, failureRecord);
+      await this.executeEscalationActions(
+        escalationLevel,
+        error,
+        context,
+        failureRecord,
+      );
     }
 
     // Try original operation one more time after escalation
@@ -648,7 +711,10 @@ export class ValidationFailureHandler extends EventEmitter {
       return await originalOperation();
     } catch (escalationError) {
       // If escalation doesn't resolve, continue with exponential backoff
-      return await this.executeExponentialBackoff(originalOperation, failureRecord);
+      return await this.executeExponentialBackoff(
+        originalOperation,
+        failureRecord,
+      );
     }
   }
 
@@ -657,11 +723,12 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private determineHandlingStrategy(
     error: Error,
-    context: ValidationContext | TaskExecutionContext
+    context: ValidationContext | TaskExecutionContext,
   ): FailureHandlingStrategy {
     // Check severity-based strategy
     if ('severity' in error && error.severity) {
-      const severityStrategy = this.config.severityStrategies[error.severity as ValidationSeverity];
+      const severityStrategy =
+        this.config.severityStrategies[error.severity as ValidationSeverity];
       if (severityStrategy) {
         return severityStrategy;
       }
@@ -669,7 +736,8 @@ export class ValidationFailureHandler extends EventEmitter {
 
     // Check category-based strategy
     if ('category' in error && error.category) {
-      const categoryStrategy = this.config.categoryStrategies[error.category as ValidationCategory];
+      const categoryStrategy =
+        this.config.categoryStrategies[error.category as ValidationCategory];
       if (categoryStrategy) {
         return categoryStrategy;
       }
@@ -696,7 +764,11 @@ export class ValidationFailureHandler extends EventEmitter {
     }
 
     // Default retryable errors
-    const defaultRetryableErrors = ['TimeoutError', 'NetworkError', 'ConnectionError'];
+    const defaultRetryableErrors = [
+      'TimeoutError',
+      'NetworkError',
+      'ConnectionError',
+    ];
     return defaultRetryableErrors.includes(errorType);
   }
 
@@ -706,7 +778,7 @@ export class ValidationFailureHandler extends EventEmitter {
   private recordFailure(
     failureId: string,
     error: Error,
-    context: ValidationContext | TaskExecutionContext
+    context: ValidationContext | TaskExecutionContext,
   ): FailureRecord {
     const record: FailureRecord = {
       id: failureId,
@@ -717,7 +789,7 @@ export class ValidationFailureHandler extends EventEmitter {
       strategy: this.config.globalStrategy, // Will be updated
       attempts: 0,
       resolved: false,
-      metadata: {}
+      metadata: {},
     };
 
     this.failureRecords.set(failureId, record);
@@ -727,7 +799,10 @@ export class ValidationFailureHandler extends EventEmitter {
   /**
    * Update failure metrics
    */
-  private updateMetrics(error: Error, context: ValidationContext | TaskExecutionContext): void {
+  private updateMetrics(
+    error: Error,
+    context: ValidationContext | TaskExecutionContext,
+  ): void {
     if (!this.config.monitoring.trackMetrics) {
       return;
     }
@@ -739,7 +814,7 @@ export class ValidationFailureHandler extends EventEmitter {
       const category = error.category as ValidationCategory;
       this.metrics.failuresByCategory.set(
         category,
-        (this.metrics.failuresByCategory.get(category) || 0) + 1
+        (this.metrics.failuresByCategory.get(category) || 0) + 1,
       );
     }
 
@@ -748,7 +823,7 @@ export class ValidationFailureHandler extends EventEmitter {
       const severity = error.severity as ValidationSeverity;
       this.metrics.failuresBySeverity.set(
         severity,
-        (this.metrics.failuresBySeverity.get(severity) || 0) + 1
+        (this.metrics.failuresBySeverity.get(severity) || 0) + 1,
       );
     }
   }
@@ -764,7 +839,7 @@ export class ValidationFailureHandler extends EventEmitter {
         lastFailureTime: new Date(),
         halfOpenAttempts: 0,
         windowStart: new Date(),
-        windowFailures: 0
+        windowFailures: 0,
       });
     }
     return this.circuitBreakers.get(key)!;
@@ -773,7 +848,9 @@ export class ValidationFailureHandler extends EventEmitter {
   /**
    * Get circuit breaker key from context
    */
-  private getCircuitBreakerKey(context: ValidationContext | TaskExecutionContext): string {
+  private getCircuitBreakerKey(
+    context: ValidationContext | TaskExecutionContext,
+  ): string {
     const taskId = this.getTaskId(context);
     return `circuit-${taskId}`;
   }
@@ -797,15 +874,21 @@ export class ValidationFailureHandler extends EventEmitter {
   /**
    * Check if fallback should be used
    */
-  private shouldUseFallback(error: Error, context: ValidationContext | TaskExecutionContext): boolean {
-    return this.config.fallbackConfig.conditions.some(condition => {
+  private shouldUseFallback(
+    error: Error,
+    context: ValidationContext | TaskExecutionContext,
+  ): boolean {
+    return this.config.fallbackConfig.conditions.some((condition) => {
       if ('severity' in error && error.severity !== condition.severity) {
         return false;
       }
       if ('category' in error && error.category !== condition.category) {
         return false;
       }
-      if (condition.pattern && !new RegExp(condition.pattern).test(error.message)) {
+      if (
+        condition.pattern &&
+        !new RegExp(condition.pattern).test(error.message)
+      ) {
         return false;
       }
       return true;
@@ -819,7 +902,7 @@ export class ValidationFailureHandler extends EventEmitter {
     // This is a placeholder - actual implementation would depend on result type
     return {
       status: ValidationStatus.SKIPPED,
-      message: 'Validation skipped due to fallback strategy'
+      message: 'Validation skipped due to fallback strategy',
     } as unknown as T;
   }
 
@@ -830,7 +913,7 @@ export class ValidationFailureHandler extends EventEmitter {
     const defaultValue = config?.defaultValue || 'passed';
     return {
       status: ValidationStatus.PASSED,
-      message: `Default result applied: ${defaultValue}`
+      message: `Default result applied: ${defaultValue}`,
     } as unknown as T;
   }
 
@@ -839,7 +922,7 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private async executeAlternative<T>(
     context: ValidationContext | TaskExecutionContext,
-    config?: Record<string, unknown>
+    config?: Record<string, unknown>,
   ): Promise<T> {
     // This would execute an alternative validation method
     throw new Error('Alternative execution not implemented');
@@ -852,19 +935,24 @@ export class ValidationFailureHandler extends EventEmitter {
     level: EscalationConfig['levels'][0],
     error: Error,
     context: ValidationContext | TaskExecutionContext,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<void> {
     for (const action of level.actions) {
       try {
         switch (action) {
           case 'notify':
-            await this.sendNotifications(level.notify, error, context, failureRecord);
+            await this.sendNotifications(
+              level.notify,
+              error,
+              context,
+              failureRecord,
+            );
             break;
           case 'log':
             this.logger.error('Escalation triggered', {
               level,
               error: error.message,
-              failureRecord
+              failureRecord,
             });
             break;
           case 'fallback':
@@ -873,7 +961,7 @@ export class ValidationFailureHandler extends EventEmitter {
         }
       } catch (actionError) {
         this.logger.error(`Escalation action ${action} failed`, {
-          error: (actionError as Error).message
+          error: (actionError as Error).message,
         });
       }
     }
@@ -886,12 +974,12 @@ export class ValidationFailureHandler extends EventEmitter {
     recipients: string[],
     error: Error,
     context: ValidationContext | TaskExecutionContext,
-    failureRecord: FailureRecord
+    failureRecord: FailureRecord,
   ): Promise<void> {
     this.logger.info('Sending escalation notifications', {
       recipients,
       failureId: failureRecord.id,
-      error: error.message
+      error: error.message,
     });
     // Implementation would send actual notifications
   }
@@ -908,7 +996,7 @@ export class ValidationFailureHandler extends EventEmitter {
         // Implementation would restart the operation
         return true;
       },
-      timeout: 30000
+      timeout: 30000,
     });
 
     this.recoveryOperations.set('reset', {
@@ -919,7 +1007,7 @@ export class ValidationFailureHandler extends EventEmitter {
         // Implementation would reset validation state
         return true;
       },
-      timeout: 10000
+      timeout: 10000,
     });
 
     this.recoveryOperations.set('cleanup', {
@@ -930,7 +1018,7 @@ export class ValidationFailureHandler extends EventEmitter {
         // Implementation would cleanup resources
         return true;
       },
-      timeout: 15000
+      timeout: 15000,
     });
   }
 
@@ -945,7 +1033,7 @@ export class ValidationFailureHandler extends EventEmitter {
    * Sleep utility
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -975,7 +1063,7 @@ export class ValidationFailureHandler extends EventEmitter {
       ...this.metrics,
       activeCircuitBreakers: this.circuitBreakers.size,
       failuresByCategory,
-      failuresBySeverity
+      failuresBySeverity,
     };
   }
 

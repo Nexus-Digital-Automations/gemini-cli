@@ -11,9 +11,9 @@ import type { BudgetSettings } from '../../config/settingsSchema.js';
  * Configures how budget information is displayed and tracked.
  */
 export interface BudgetDisplayProps {
-    budgetSettings?: BudgetSettings;
-    projectRoot: string;
-    compact?: boolean;
+  budgetSettings?: BudgetSettings;
+  projectRoot: string;
+  compact?: boolean;
 }
 /**
  * BudgetDisplay shows current API usage against configured limits.

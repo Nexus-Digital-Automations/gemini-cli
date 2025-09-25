@@ -6,8 +6,15 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import type { TaskType, TaskMetadata } from '../../monitoring/TaskStatusMonitor.js';
-import { TaskStatus, TaskPriority , taskStatusMonitor } from '../../monitoring/TaskStatusMonitor.js';
+import type {
+  TaskType,
+  TaskMetadata,
+} from '../../monitoring/TaskStatusMonitor.js';
+import {
+  TaskStatus,
+  TaskPriority,
+  taskStatusMonitor,
+} from '../../monitoring/TaskStatusMonitor.js';
 import { statusUpdateBroker } from '../../monitoring/StatusUpdateBroker.js';
 
 /**
@@ -87,7 +94,7 @@ class PriorityQueueNode {
   constructor(
     public task: TaskMetadata,
     public priority: number,
-    public insertionTime: number
+    public insertionTime: number,
   ) {}
 }
 
@@ -150,17 +157,20 @@ export class TaskQueue extends EventEmitter {
     this.failedTasks = new Map();
 
     // Initialize priority queues
-    Object.values(TaskPriority).forEach(priority => {
+    Object.values(TaskPriority).forEach((priority) => {
       this.queuesByPriority.set(priority, []);
     });
 
     this.setupProcessingPipeline();
     this.setupRealtimeIntegration();
 
-    this.logger.info('TaskQueue initialized with intelligent priority scheduling', {
-      priorityLevels: Object.values(TaskPriority),
-      timestamp: new Date().toISOString(),
-    });
+    this.logger.info(
+      'TaskQueue initialized with intelligent priority scheduling',
+      {
+        priorityLevels: Object.values(TaskPriority),
+        timestamp: new Date().toISOString(),
+      },
+    );
   }
 
   /**
@@ -200,11 +210,18 @@ export class TaskQueue extends EventEmitter {
     }
 
     // Calculate scheduling priority with multiple factors
-    const schedulingPriority = this.calculateSchedulingPriority(task, definition.options);
+    const schedulingPriority = this.calculateSchedulingPriority(
+      task,
+      definition.options,
+    );
 
     // Add to appropriate priority queue
     const priorityQueue = this.queuesByPriority.get(task.priority) || [];
-    const queueNode = new PriorityQueueNode(task, schedulingPriority, Date.now());
+    const queueNode = new PriorityQueueNode(
+      task,
+      schedulingPriority,
+      Date.now(),
+    );
 
     // Insert in priority order
     this.insertInPriorityOrder(priorityQueue, queueNode);
@@ -242,7 +259,7 @@ export class TaskQueue extends EventEmitter {
     // Register with monitoring system
     await taskStatusMonitor.registerAgent(
       agentCapability.agentId,
-      agentCapability.capabilities
+      agentCapability.capabilities,
     );
 
     this.emit('agent:registered', { agent: agentCapability });
@@ -261,7 +278,10 @@ export class TaskQueue extends EventEmitter {
   /**
    * Update agent status and capabilities
    */
-  async updateAgentStatus(agentId: string, updates: Partial<AgentCapability>): Promise<void> {
+  async updateAgentStatus(
+    agentId: string,
+    updates: Partial<AgentCapability>,
+  ): Promise<void> {
     const agent = this.agentRegistry.get(agentId);
     if (!agent) {
       this.logger.warning('Attempted to update unknown agent', { agentId });
@@ -311,15 +331,22 @@ export class TaskQueue extends EventEmitter {
       totalQueued += queue.length;
     }
 
-    const availableAgents = Array.from(this.agentRegistry.values())
-      .filter(agent => agent.status === 'available').length;
+    const availableAgents = Array.from(this.agentRegistry.values()).filter(
+      (agent) => agent.status === 'available',
+    ).length;
 
-    const busyAgents = Array.from(this.agentRegistry.values())
-      .filter(agent => agent.status === 'busy').length;
+    const busyAgents = Array.from(this.agentRegistry.values()).filter(
+      (agent) => agent.status === 'busy',
+    ).length;
 
     // Find next scheduled task
     let nextScheduledTask: any = undefined;
-    for (const priority of [TaskPriority.CRITICAL, TaskPriority.HIGH, TaskPriority.NORMAL, TaskPriority.LOW]) {
+    for (const priority of [
+      TaskPriority.CRITICAL,
+      TaskPriority.HIGH,
+      TaskPriority.NORMAL,
+      TaskPriority.LOW,
+    ]) {
       const queue = this.queuesByPriority.get(priority);
       if (queue && queue.length > 0) {
         const nextTask = queue[0].task;
@@ -372,7 +399,7 @@ export class TaskQueue extends EventEmitter {
     let queuePosition: number | undefined = undefined;
     if (task) {
       for (const [priority, queue] of this.queuesByPriority) {
-        const position = queue.findIndex(node => node.task.id === taskId);
+        const position = queue.findIndex((node) => node.task.id === taskId);
         if (position !== -1) {
           queuePosition = position + 1; // 1-based indexing
           break;
@@ -400,7 +427,7 @@ export class TaskQueue extends EventEmitter {
 
     // Remove from queue if present
     for (const [priority, queue] of this.queuesByPriority) {
-      const index = queue.findIndex(node => node.task.id === taskId);
+      const index = queue.findIndex((node) => node.task.id === taskId);
       if (index !== -1) {
         queue.splice(index, 1);
         break;
@@ -529,7 +556,12 @@ export class TaskQueue extends EventEmitter {
 
   private async processQueue(): Promise<void> {
     // Process tasks in priority order
-    for (const priority of [TaskPriority.CRITICAL, TaskPriority.HIGH, TaskPriority.NORMAL, TaskPriority.LOW]) {
+    for (const priority of [
+      TaskPriority.CRITICAL,
+      TaskPriority.HIGH,
+      TaskPriority.NORMAL,
+      TaskPriority.LOW,
+    ]) {
       const queue = this.queuesByPriority.get(priority);
       if (!queue || queue.length === 0) continue;
 
@@ -545,7 +577,9 @@ export class TaskQueue extends EventEmitter {
     }
   }
 
-  private async assignTasksFromQueue(queue: PriorityQueueNode[]): Promise<number> {
+  private async assignTasksFromQueue(
+    queue: PriorityQueueNode[],
+  ): Promise<number> {
     let assignedCount = 0;
     const availableAgents = this.getAvailableAgents();
 
@@ -575,7 +609,9 @@ export class TaskQueue extends EventEmitter {
         assignedCount++;
 
         // Remove agent from available list
-        const agentIndex = availableAgents.findIndex(a => a.agentId === bestAgent.agentId);
+        const agentIndex = availableAgents.findIndex(
+          (a) => a.agentId === bestAgent.agentId,
+        );
         if (agentIndex !== -1) {
           availableAgents.splice(agentIndex, 1);
         }
@@ -585,7 +621,10 @@ export class TaskQueue extends EventEmitter {
     return assignedCount;
   }
 
-  private calculateSchedulingPriority(task: TaskMetadata, options?: TaskSchedulingOptions): number {
+  private calculateSchedulingPriority(
+    task: TaskMetadata,
+    options?: TaskSchedulingOptions,
+  ): number {
     let priority = this.priorityWeights[task.priority];
 
     // Age factor - older tasks get higher priority
@@ -594,7 +633,8 @@ export class TaskQueue extends EventEmitter {
 
     // Deadline urgency
     if (options?.scheduling?.deadline) {
-      const deadlineMinutes = (options.scheduling.deadline.getTime() - Date.now()) / (1000 * 60);
+      const deadlineMinutes =
+        (options.scheduling.deadline.getTime() - Date.now()) / (1000 * 60);
       if (deadlineMinutes > 0) {
         priority += Math.max(0, (60 - deadlineMinutes) * 2); // Higher priority as deadline approaches
       } else {
@@ -608,7 +648,9 @@ export class TaskQueue extends EventEmitter {
 
     // Resource efficiency factor
     if (options?.constraints?.resourceRequirements) {
-      const resourceScore = this.calculateResourceEfficiencyScore(options.constraints.resourceRequirements);
+      const resourceScore = this.calculateResourceEfficiencyScore(
+        options.constraints.resourceRequirements,
+      );
       priority += resourceScore;
     }
 
@@ -619,7 +661,10 @@ export class TaskQueue extends EventEmitter {
     return Math.max(0, priority);
   }
 
-  private insertInPriorityOrder(queue: PriorityQueueNode[], node: PriorityQueueNode): void {
+  private insertInPriorityOrder(
+    queue: PriorityQueueNode[],
+    node: PriorityQueueNode,
+  ): void {
     // Binary search for insertion point
     let left = 0;
     let right = queue.length;
@@ -649,38 +694,43 @@ export class TaskQueue extends EventEmitter {
   }
 
   private getAvailableAgents(): AgentCapability[] {
-    return Array.from(this.agentRegistry.values())
-      .filter(agent =>
+    return Array.from(this.agentRegistry.values()).filter(
+      (agent) =>
         agent.status === 'available' &&
-        agent.performance.currentLoad < agent.performance.maxConcurrentTasks
-      );
+        agent.performance.currentLoad < agent.performance.maxConcurrentTasks,
+    );
   }
 
-  private findBestAgentForTask(task: TaskMetadata, availableAgents: AgentCapability[]): AgentCapability | null {
+  private findBestAgentForTask(
+    task: TaskMetadata,
+    availableAgents: AgentCapability[],
+  ): AgentCapability | null {
     if (availableAgents.length === 0) return null;
 
     const options = task.metadata.options as TaskSchedulingOptions;
 
     // Filter by required agent if specified
     if (options?.constraints?.requiresAgent) {
-      const specificAgent = availableAgents.find(a => a.agentId === options.constraints!.requiresAgent);
+      const specificAgent = availableAgents.find(
+        (a) => a.agentId === options.constraints!.requiresAgent,
+      );
       return specificAgent || null;
     }
 
     // Filter by required capabilities
     let candidateAgents = availableAgents;
     if (options?.constraints?.requiresCapabilities) {
-      candidateAgents = availableAgents.filter(agent =>
-        options.constraints!.requiresCapabilities!.every(cap =>
-          agent.capabilities.includes(cap)
-        )
+      candidateAgents = availableAgents.filter((agent) =>
+        options.constraints!.requiresCapabilities!.every((cap) =>
+          agent.capabilities.includes(cap),
+        ),
       );
     }
 
     if (candidateAgents.length === 0) return null;
 
     // Score agents based on multiple factors
-    const agentScores = candidateAgents.map(agent => ({
+    const agentScores = candidateAgents.map((agent) => ({
       agent,
       score: this.calculateAgentScore(agent, task, options),
     }));
@@ -690,14 +740,19 @@ export class TaskQueue extends EventEmitter {
     return agentScores[0].agent;
   }
 
-  private calculateAgentScore(agent: AgentCapability, task: TaskMetadata, options?: TaskSchedulingOptions): number {
+  private calculateAgentScore(
+    agent: AgentCapability,
+    task: TaskMetadata,
+    options?: TaskSchedulingOptions,
+  ): number {
     let score = 0;
 
     // Success rate factor (0-100)
     score += agent.performance.successRate;
 
     // Load balancing factor
-    const loadFactor = 1 - (agent.performance.currentLoad / agent.performance.maxConcurrentTasks);
+    const loadFactor =
+      1 - agent.performance.currentLoad / agent.performance.maxConcurrentTasks;
     score += loadFactor * 50;
 
     // Performance factor (faster agents get higher scores)
@@ -707,27 +762,40 @@ export class TaskQueue extends EventEmitter {
 
     // Resource availability factor
     if (options?.constraints?.resourceRequirements) {
-      const resourceAvailability = this.calculateResourceAvailability(agent, options.constraints.resourceRequirements);
+      const resourceAvailability = this.calculateResourceAvailability(
+        agent,
+        options.constraints.resourceRequirements,
+      );
       score += resourceAvailability * 20;
     }
 
     // Capability match factor
     const requiredCaps = options?.constraints?.requiresCapabilities || [];
-    const capabilityMatch = requiredCaps.length === 0 ? 10 :
-      (requiredCaps.filter(cap => agent.capabilities.includes(cap)).length / requiredCaps.length) * 30;
+    const capabilityMatch =
+      requiredCaps.length === 0
+        ? 10
+        : (requiredCaps.filter((cap) => agent.capabilities.includes(cap))
+            .length /
+            requiredCaps.length) *
+          30;
     score += capabilityMatch;
 
     return score;
   }
 
-  private async assignTaskToAgent(task: TaskMetadata, agent: AgentCapability): Promise<TaskAssignment | null> {
+  private async assignTaskToAgent(
+    task: TaskMetadata,
+    agent: AgentCapability,
+  ): Promise<TaskAssignment | null> {
     try {
       // Create assignment
       const assignment: TaskAssignment = {
         taskId: task.id,
         agentId: agent.agentId,
         assignedAt: new Date(),
-        estimatedCompletion: new Date(Date.now() + (agent.performance.averageCompletionTime || 60000)),
+        estimatedCompletion: new Date(
+          Date.now() + (agent.performance.averageCompletionTime || 60000),
+        ),
         priority: task.priority,
       };
 
@@ -743,7 +811,9 @@ export class TaskQueue extends EventEmitter {
 
       // Update agent state
       agent.performance.currentLoad++;
-      if (agent.performance.currentLoad >= agent.performance.maxConcurrentTasks) {
+      if (
+        agent.performance.currentLoad >= agent.performance.maxConcurrentTasks
+      ) {
         agent.status = 'busy';
       }
 
@@ -759,7 +829,6 @@ export class TaskQueue extends EventEmitter {
       });
 
       return assignment;
-
     } catch (error) {
       this.logger.error('Failed to assign task to agent', {
         taskId: task.id,
@@ -784,7 +853,11 @@ export class TaskQueue extends EventEmitter {
     return dependents;
   }
 
-  private calculateResourceEfficiencyScore(requirements: { memory?: number; cpu?: number; disk?: number }): number {
+  private calculateResourceEfficiencyScore(requirements: {
+    memory?: number;
+    cpu?: number;
+    disk?: number;
+  }): number {
     // Simple scoring based on resource requirements
     // Lower requirements get higher scores for better scheduling
     let score = 0;
@@ -794,17 +867,29 @@ export class TaskQueue extends EventEmitter {
     return score;
   }
 
-  private calculateResourceAvailability(agent: AgentCapability, requirements: { memory?: number; cpu?: number; disk?: number }): number {
+  private calculateResourceAvailability(
+    agent: AgentCapability,
+    requirements: { memory?: number; cpu?: number; disk?: number },
+  ): number {
     let availability = 1.0;
 
     if (requirements.memory && agent.resourceCapacity.memory > 0) {
-      availability *= Math.min(1, agent.resourceCapacity.memory / requirements.memory);
+      availability *= Math.min(
+        1,
+        agent.resourceCapacity.memory / requirements.memory,
+      );
     }
     if (requirements.cpu && agent.resourceCapacity.cpu > 0) {
-      availability *= Math.min(1, agent.resourceCapacity.cpu / requirements.cpu);
+      availability *= Math.min(
+        1,
+        agent.resourceCapacity.cpu / requirements.cpu,
+      );
     }
     if (requirements.disk && agent.resourceCapacity.disk > 0) {
-      availability *= Math.min(1, agent.resourceCapacity.disk / requirements.disk);
+      availability *= Math.min(
+        1,
+        agent.resourceCapacity.disk / requirements.disk,
+      );
     }
 
     return availability;
@@ -841,7 +926,10 @@ export class TaskQueue extends EventEmitter {
       // Update agent status
       const agent = this.agentRegistry.get(assignment.agentId);
       if (agent) {
-        agent.performance.currentLoad = Math.max(0, agent.performance.currentLoad - 1);
+        agent.performance.currentLoad = Math.max(
+          0,
+          agent.performance.currentLoad - 1,
+        );
         if (agent.performance.currentLoad === 0 && agent.status === 'busy') {
           agent.status = 'available';
         }
@@ -868,9 +956,16 @@ export class TaskQueue extends EventEmitter {
     if (currentFailures < maxRetries) {
       // Retry task - add back to appropriate queue
       if (task) {
-        const schedulingPriority = this.calculateSchedulingPriority(task, options);
+        const schedulingPriority = this.calculateSchedulingPriority(
+          task,
+          options,
+        );
         const priorityQueue = this.queuesByPriority.get(task.priority) || [];
-        const queueNode = new PriorityQueueNode(task, schedulingPriority, Date.now());
+        const queueNode = new PriorityQueueNode(
+          task,
+          schedulingPriority,
+          Date.now(),
+        );
 
         // Insert with lower priority due to failure
         queueNode.priority -= 50;
@@ -899,7 +994,10 @@ export class TaskQueue extends EventEmitter {
     if (assignment) {
       const agent = this.agentRegistry.get(assignment.agentId);
       if (agent) {
-        agent.performance.currentLoad = Math.max(0, agent.performance.currentLoad - 1);
+        agent.performance.currentLoad = Math.max(
+          0,
+          agent.performance.currentLoad - 1,
+        );
         if (agent.performance.currentLoad === 0 && agent.status === 'busy') {
           agent.status = 'available';
         }
@@ -925,7 +1023,6 @@ export class TaskQueue extends EventEmitter {
 
       // Emit persistence event for external systems to handle
       this.emit('queue:state-persisted', { queueState });
-
     } catch (error) {
       this.logger.error('Failed to persist queue state', { error });
     }

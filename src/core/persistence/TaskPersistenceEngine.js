@@ -5,7 +5,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
- 
+
 /**
  * Task Persistence Engine - Cross-Session Task State Management
  *
@@ -67,7 +67,9 @@ class AdvancedFileLock {
 
     for (let attempt = 0; attempt < this.maxRetries; attempt++) {
       if (Date.now() - startTime > this.maxWaitTime) {
-        throw new Error(`Lock acquisition timeout for ${filePath} after ${this.maxWaitTime}ms`);
+        throw new Error(
+          `Lock acquisition timeout for ${filePath} after ${this.maxWaitTime}ms`,
+        );
       }
 
       try {
@@ -77,7 +79,7 @@ class AdvancedFileLock {
           lockId,
           operation,
           timestamp: Date.now(),
-          nodeVersion: process.version
+          nodeVersion: process.version,
         };
 
         await fs.writeFile(lockPath, JSON.stringify(lockData), { flag: 'wx' });
@@ -92,10 +94,11 @@ class AdvancedFileLock {
             this.activeLocks.delete(filePath);
           } catch (error) {
             // Lock file already removed or doesn't exist
-            console.warn(`Warning: Could not release lock ${lockPath}: ${error.message}`);
+            console.warn(
+              `Warning: Could not release lock ${lockPath}: ${error.message}`,
+            );
           }
         };
-
       } catch (error) {
         if (error.code === 'EEXIST') {
           // Lock file exists, check if process is still alive
@@ -139,17 +142,21 @@ class AdvancedFileLock {
 
         // Wait before retry with exponential backoff
         const delay = this.retryDelay * Math.pow(1.1, attempt);
-        await new Promise(resolve => setTimeout(resolve, Math.min(delay, 100)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(delay, 100)),
+        );
       }
     }
 
-    throw new Error(`Could not acquire ${operation} lock for ${filePath} after ${this.maxRetries} attempts`);
+    throw new Error(
+      `Could not acquire ${operation} lock for ${filePath} after ${this.maxRetries} attempts`,
+    );
   }
 
   async _waitForLockRelease(filePath, maxWait = 5000) {
     const startTime = Date.now();
     while (this.activeLocks.has(filePath) && Date.now() - startTime < maxWait) {
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     }
   }
 }
@@ -169,10 +176,13 @@ class TaskPersistenceEngine extends EventEmitter {
     this.paths = {
       taskState: path.join(this.persistenceDir, 'task-state.json'),
       transactionLog: path.join(this.persistenceDir, 'transaction.log'),
-      performanceMetrics: path.join(this.persistenceDir, 'performance-metrics.json'),
+      performanceMetrics: path.join(
+        this.persistenceDir,
+        'performance-metrics.json',
+      ),
       sessionData: path.join(this.persistenceDir, 'session-data.json'),
       backupDir: path.join(this.persistenceDir, 'backups'),
-      auditTrail: path.join(this.persistenceDir, 'audit-trail.json')
+      auditTrail: path.join(this.persistenceDir, 'audit-trail.json'),
     };
 
     // Advanced file locking system
@@ -184,7 +194,7 @@ class TaskPersistenceEngine extends EventEmitter {
       errorCount: 0,
       avgResponseTime: 0,
       lastOperationTime: null,
-      systemHealth: 'healthy'
+      systemHealth: 'healthy',
     };
 
     // Task state cache for performance
@@ -197,7 +207,7 @@ class TaskPersistenceEngine extends EventEmitter {
       activeTasks: new Map(),
       completedTasks: new Map(),
       failedTasks: new Map(),
-      performanceData: []
+      performanceData: [],
     };
 
     // Initialize system
@@ -216,7 +226,9 @@ class TaskPersistenceEngine extends EventEmitter {
       console.log('TaskPersistenceEngine: System initialized successfully');
     } catch (error) {
       console.error('TaskPersistenceEngine: Initialization failed:', error);
-      throw new Error(`Persistence engine initialization failed: ${error.message}`);
+      throw new Error(
+        `Persistence engine initialization failed: ${error.message}`,
+      );
     }
   }
 
@@ -227,10 +239,22 @@ class TaskPersistenceEngine extends EventEmitter {
 
       // Initialize storage files if they don't exist
       const initializations = [
-        { path: this.paths.taskState, data: { tasks: [], metadata: { created: new Date().toISOString() } } },
-        { path: this.paths.performanceMetrics, data: { metrics: [], systemHealth: 'healthy' } },
-        { path: this.paths.sessionData, data: { sessions: {}, currentSession: null } },
-        { path: this.paths.auditTrail, data: { events: [], lastAudit: new Date().toISOString() } }
+        {
+          path: this.paths.taskState,
+          data: { tasks: [], metadata: { created: new Date().toISOString() } },
+        },
+        {
+          path: this.paths.performanceMetrics,
+          data: { metrics: [], systemHealth: 'healthy' },
+        },
+        {
+          path: this.paths.sessionData,
+          data: { sessions: {}, currentSession: null },
+        },
+        {
+          path: this.paths.auditTrail,
+          data: { events: [], lastAudit: new Date().toISOString() },
+        },
       ];
 
       for (const init of initializations) {
@@ -240,9 +264,10 @@ class TaskPersistenceEngine extends EventEmitter {
           await fs.writeFile(init.path, JSON.stringify(init.data, null, 2));
         }
       }
-
     } catch (error) {
-      throw new Error(`Directory structure initialization failed: ${error.message}`);
+      throw new Error(
+        `Directory structure initialization failed: ${error.message}`,
+      );
     }
   }
 
@@ -261,7 +286,7 @@ class TaskPersistenceEngine extends EventEmitter {
         validationResults.push({
           file: name,
           status: 'invalid',
-          error: error.message
+          error: error.message,
         });
 
         // Attempt recovery from backup
@@ -280,11 +305,11 @@ class TaskPersistenceEngine extends EventEmitter {
       // Load task state
       const taskState = await this._safeReadJSON(this.paths.taskState);
       if (taskState?.tasks) {
-        taskState.tasks.forEach(task => {
+        taskState.tasks.forEach((task) => {
           this.taskCache.set(task.id, task);
           this.statusMonitor.activeTasks.set(task.id, {
             ...task,
-            lastUpdate: new Date().toISOString()
+            lastUpdate: new Date().toISOString(),
           });
         });
       }
@@ -296,9 +321,11 @@ class TaskPersistenceEngine extends EventEmitter {
       }
 
       this.cacheTimestamp = Date.now();
-
     } catch (error) {
-      console.warn('TaskPersistenceEngine: State loading failed, starting fresh:', error.message);
+      console.warn(
+        'TaskPersistenceEngine: State loading failed, starting fresh:',
+        error.message,
+      );
     }
   }
 
@@ -320,8 +347,8 @@ class TaskPersistenceEngine extends EventEmitter {
         metadata: {
           ...taskData.metadata,
           version: 1,
-          checksum: this._calculateChecksum(taskData)
-        }
+          checksum: this._calculateChecksum(taskData),
+        },
       };
 
       // Atomic operation with transaction logging
@@ -339,11 +366,14 @@ class TaskPersistenceEngine extends EventEmitter {
         this.taskCache.set(task.id, task);
         this.statusMonitor.activeTasks.set(task.id, {
           ...task,
-          lastUpdate: new Date().toISOString()
+          lastUpdate: new Date().toISOString(),
         });
 
         // Log transaction
-        await this._logTransaction('create_task', { taskId: task.id, taskData });
+        await this._logTransaction('create_task', {
+          taskId: task.id,
+          taskData,
+        });
 
         // Emit real-time event
         this.emit('taskCreated', task);
@@ -352,12 +382,19 @@ class TaskPersistenceEngine extends EventEmitter {
       });
 
       // Record performance metrics
-      await this._recordPerformanceMetric('create_task', Date.now() - startTime, true);
+      await this._recordPerformanceMetric(
+        'create_task',
+        Date.now() - startTime,
+        true,
+      );
 
       return task;
-
     } catch (error) {
-      await this._recordPerformanceMetric('create_task', Date.now() - startTime, false);
+      await this._recordPerformanceMetric(
+        'create_task',
+        Date.now() - startTime,
+        false,
+      );
       throw new Error(`Task creation failed: ${error.message}`);
     }
   }
@@ -371,7 +408,7 @@ class TaskPersistenceEngine extends EventEmitter {
     try {
       return await this._executeAtomicOperation('update_task', async () => {
         const taskState = await this._safeReadJSON(this.paths.taskState);
-        const taskIndex = taskState.tasks.findIndex(t => t.id === taskId);
+        const taskIndex = taskState.tasks.findIndex((t) => t.id === taskId);
 
         if (taskIndex === -1) {
           throw new Error(`Task ${taskId} not found`);
@@ -392,10 +429,10 @@ class TaskPersistenceEngine extends EventEmitter {
               {
                 timestamp: new Date().toISOString(),
                 changes: updates,
-                checksum: this._calculateChecksum(oldTask)
-              }
-            ].slice(-10) // Keep last 10 updates
-          }
+                checksum: this._calculateChecksum(oldTask),
+              },
+            ].slice(-10), // Keep last 10 updates
+          },
         };
 
         // Update checksum
@@ -419,7 +456,7 @@ class TaskPersistenceEngine extends EventEmitter {
         } else {
           this.statusMonitor.activeTasks.set(taskId, {
             ...updatedTask,
-            lastUpdate: new Date().toISOString()
+            lastUpdate: new Date().toISOString(),
           });
         }
 
@@ -427,7 +464,7 @@ class TaskPersistenceEngine extends EventEmitter {
         await this._logTransaction('update_task', {
           taskId,
           updates,
-          previousVersion: oldTask.metadata?.version
+          previousVersion: oldTask.metadata?.version,
         });
 
         // Emit real-time event
@@ -435,12 +472,19 @@ class TaskPersistenceEngine extends EventEmitter {
 
         return updatedTask;
       });
-
     } catch (error) {
-      await this._recordPerformanceMetric('update_task', Date.now() - startTime, false);
+      await this._recordPerformanceMetric(
+        'update_task',
+        Date.now() - startTime,
+        false,
+      );
       throw error;
     } finally {
-      await this._recordPerformanceMetric('update_task', Date.now() - startTime, true);
+      await this._recordPerformanceMetric(
+        'update_task',
+        Date.now() - startTime,
+        true,
+      );
     }
   }
 
@@ -452,23 +496,33 @@ class TaskPersistenceEngine extends EventEmitter {
 
     try {
       // Check cache first
-      if (this.taskCache.has(taskId) && Date.now() - this.cacheTimestamp < this.cacheTimeout) {
+      if (
+        this.taskCache.has(taskId) &&
+        Date.now() - this.cacheTimestamp < this.cacheTimeout
+      ) {
         return this.taskCache.get(taskId);
       }
 
       // Load from storage
       const taskState = await this._safeReadJSON(this.paths.taskState);
-      const task = taskState.tasks?.find(t => t.id === taskId);
+      const task = taskState.tasks?.find((t) => t.id === taskId);
 
       if (task) {
         this.taskCache.set(taskId, task);
       }
 
-      await this._recordPerformanceMetric('get_task', Date.now() - startTime, true);
+      await this._recordPerformanceMetric(
+        'get_task',
+        Date.now() - startTime,
+        true,
+      );
       return task || null;
-
     } catch (error) {
-      await this._recordPerformanceMetric('get_task', Date.now() - startTime, false);
+      await this._recordPerformanceMetric(
+        'get_task',
+        Date.now() - startTime,
+        false,
+      );
       throw new Error(`Task retrieval failed: ${error.message}`);
     }
   }
@@ -485,17 +539,17 @@ class TaskPersistenceEngine extends EventEmitter {
 
       // Apply filters
       if (filter.status) {
-        tasks = tasks.filter(t => t.status === filter.status);
+        tasks = tasks.filter((t) => t.status === filter.status);
       }
       if (filter.priority) {
-        tasks = tasks.filter(t => t.priority === filter.priority);
+        tasks = tasks.filter((t) => t.priority === filter.priority);
       }
       if (filter.agent) {
-        tasks = tasks.filter(t => t.assignedAgent === filter.agent);
+        tasks = tasks.filter((t) => t.assignedAgent === filter.agent);
       }
       if (filter.dateRange) {
         const { start, end } = filter.dateRange;
-        tasks = tasks.filter(t => {
+        tasks = tasks.filter((t) => {
           const taskDate = new Date(t.created_at);
           return taskDate >= new Date(start) && taskDate <= new Date(end);
         });
@@ -519,17 +573,24 @@ class TaskPersistenceEngine extends EventEmitter {
         tasks = tasks.slice(startIndex, startIndex + limit);
       }
 
-      await this._recordPerformanceMetric('list_tasks', Date.now() - startTime, true);
+      await this._recordPerformanceMetric(
+        'list_tasks',
+        Date.now() - startTime,
+        true,
+      );
 
       return {
         tasks,
         totalCount: taskState.tasks?.length || 0,
         filteredCount: tasks.length,
-        metadata: taskState.metadata
+        metadata: taskState.metadata,
       };
-
     } catch (error) {
-      await this._recordPerformanceMetric('list_tasks', Date.now() - startTime, false);
+      await this._recordPerformanceMetric(
+        'list_tasks',
+        Date.now() - startTime,
+        false,
+      );
       throw new Error(`Task listing failed: ${error.message}`);
     }
   }
@@ -549,13 +610,13 @@ class TaskPersistenceEngine extends EventEmitter {
         operationCount: this.metrics.operationCount,
         errorCount: this.metrics.errorCount,
         avgResponseTime: this.metrics.avgResponseTime,
-        lastOperationTime: this.metrics.lastOperationTime
+        lastOperationTime: this.metrics.lastOperationTime,
       },
       cacheStats: {
         size: this.taskCache.size,
         lastUpdate: this.cacheTimestamp,
-        hitRate: this._calculateCacheHitRate()
-      }
+        hitRate: this._calculateCacheHitRate(),
+      },
     };
   }
 
@@ -568,21 +629,21 @@ class TaskPersistenceEngine extends EventEmitter {
       if (!task) return null;
 
       const auditTrail = await this._safeReadJSON(this.paths.auditTrail);
-      const taskEvents = auditTrail.events?.filter(e =>
-        e.data?.taskId === taskId || e.data?.tasks?.includes?.(taskId)
-      ) || [];
+      const taskEvents =
+        auditTrail.events?.filter(
+          (e) => e.data?.taskId === taskId || e.data?.tasks?.includes?.(taskId),
+        ) || [];
 
       return {
         task,
-        timeline: taskEvents.map(event => ({
+        timeline: taskEvents.map((event) => ({
           timestamp: event.timestamp,
           action: event.action,
           data: event.data,
-          agent: event.agent
+          agent: event.agent,
         })),
-        performance: this._getTaskPerformanceData(taskId)
+        performance: this._getTaskPerformanceData(taskId),
       };
-
     } catch (error) {
       throw new Error(`Timeline retrieval failed: ${error.message}`);
     }
@@ -599,7 +660,7 @@ class TaskPersistenceEngine extends EventEmitter {
         timestamp: new Date().toISOString(),
         checks: {},
         issues: [],
-        recommendations: []
+        recommendations: [],
       };
 
       // Validate task state
@@ -610,8 +671,11 @@ class TaskPersistenceEngine extends EventEmitter {
       results.checks.transactionLog = await this._validateTransactionLog();
 
       // Validate performance metrics
-      const perfMetrics = await this._safeReadJSON(this.paths.performanceMetrics);
-      results.checks.performanceMetrics = this._validatePerformanceMetrics(perfMetrics);
+      const perfMetrics = await this._safeReadJSON(
+        this.paths.performanceMetrics,
+      );
+      results.checks.performanceMetrics =
+        this._validatePerformanceMetrics(perfMetrics);
 
       // Cross-reference validation
       results.checks.crossReference = await this._validateCrossReferences();
@@ -622,7 +686,7 @@ class TaskPersistenceEngine extends EventEmitter {
           results.issues.push({
             check,
             issues: result.issues,
-            severity: result.severity || 'warning'
+            severity: result.severity || 'warning',
           });
 
           if (result.recommendations) {
@@ -635,7 +699,6 @@ class TaskPersistenceEngine extends EventEmitter {
       await this._logAuditEvent('integrity_validation', results);
 
       return results;
-
     } catch (error) {
       throw new Error(`Data validation failed: ${error.message}`);
     }
@@ -647,7 +710,10 @@ class TaskPersistenceEngine extends EventEmitter {
   async createBackup(backupName) {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const backupDir = path.join(this.paths.backupDir, backupName || `backup-${timestamp}`);
+      const backupDir = path.join(
+        this.paths.backupDir,
+        backupName || `backup-${timestamp}`,
+      );
 
       await fs.mkdir(backupDir, { recursive: true });
 
@@ -657,7 +723,7 @@ class TaskPersistenceEngine extends EventEmitter {
         this.paths.performanceMetrics,
         this.paths.sessionData,
         this.paths.auditTrail,
-        this.featuresPath
+        this.featuresPath,
       ];
 
       for (const filePath of filesToBackup) {
@@ -666,7 +732,9 @@ class TaskPersistenceEngine extends EventEmitter {
           const backupPath = path.join(backupDir, fileName);
           await fs.copyFile(filePath, backupPath);
         } catch (error) {
-          console.warn(`Backup warning: Could not backup ${filePath}: ${error.message}`);
+          console.warn(
+            `Backup warning: Could not backup ${filePath}: ${error.message}`,
+          );
         }
       }
 
@@ -674,23 +742,25 @@ class TaskPersistenceEngine extends EventEmitter {
       const manifest = {
         timestamp: new Date().toISOString(),
         backupName: backupName || `backup-${timestamp}`,
-        files: filesToBackup.map(f => path.basename(f)),
-        systemStatus: this.getSystemStatus()
+        files: filesToBackup.map((f) => path.basename(f)),
+        systemStatus: this.getSystemStatus(),
       };
 
       await fs.writeFile(
         path.join(backupDir, 'manifest.json'),
-        JSON.stringify(manifest, null, 2)
+        JSON.stringify(manifest, null, 2),
       );
 
-      await this._logAuditEvent('backup_created', { backupName: manifest.backupName, backupDir });
+      await this._logAuditEvent('backup_created', {
+        backupName: manifest.backupName,
+        backupDir,
+      });
 
       return {
         backupName: manifest.backupName,
         backupPath: backupDir,
-        manifest
+        manifest,
       };
-
     } catch (error) {
       throw new Error(`Backup creation failed: ${error.message}`);
     }
@@ -699,14 +769,17 @@ class TaskPersistenceEngine extends EventEmitter {
   // =================== UTILITY METHODS ===================
 
   async _executeAtomicOperation(operationType, operation) {
-    const releaseTaskLock = await this.fileLock.acquire(this.paths.taskState, 'write');
+    const releaseTaskLock = await this.fileLock.acquire(
+      this.paths.taskState,
+      'write',
+    );
 
     try {
       const result = await operation();
       await this._logAuditEvent('atomic_operation', {
         type: operationType,
         success: true,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       return result;
     } catch (error) {
@@ -714,7 +787,7 @@ class TaskPersistenceEngine extends EventEmitter {
         type: operationType,
         success: false,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       throw error;
     } finally {
@@ -751,13 +824,13 @@ class TaskPersistenceEngine extends EventEmitter {
       timestamp: new Date().toISOString(),
       action,
       data,
-      agent: process.env.AGENT_ID || 'system'
+      agent: process.env.AGENT_ID || 'system',
     };
 
     try {
       await fs.appendFile(
         this.paths.transactionLog,
-        JSON.stringify(logEntry) + '\n'
+        JSON.stringify(logEntry) + '\n',
       );
     } catch (error) {
       console.warn('Transaction logging failed:', error.message);
@@ -773,7 +846,7 @@ class TaskPersistenceEngine extends EventEmitter {
         timestamp: new Date().toISOString(),
         action,
         data,
-        agent: process.env.AGENT_ID || 'system'
+        agent: process.env.AGENT_ID || 'system',
       });
 
       // Keep only last 10000 events
@@ -796,7 +869,9 @@ class TaskPersistenceEngine extends EventEmitter {
 
     // Update average response time
     const prevAvg = this.metrics.avgResponseTime;
-    this.metrics.avgResponseTime = (prevAvg * (this.metrics.operationCount - 1) + duration) / this.metrics.operationCount;
+    this.metrics.avgResponseTime =
+      (prevAvg * (this.metrics.operationCount - 1) + duration) /
+      this.metrics.operationCount;
 
     // Store detailed performance data
     const perfData = {
@@ -805,20 +880,23 @@ class TaskPersistenceEngine extends EventEmitter {
       duration,
       success,
       memoryUsage: process.memoryUsage(),
-      cpuUsage: process.cpuUsage()
+      cpuUsage: process.cpuUsage(),
     };
 
     this.statusMonitor.performanceData.push(perfData);
 
     // Keep only last 1000 entries
     if (this.statusMonitor.performanceData.length > 1000) {
-      this.statusMonitor.performanceData = this.statusMonitor.performanceData.slice(-1000);
+      this.statusMonitor.performanceData =
+        this.statusMonitor.performanceData.slice(-1000);
     }
 
     // Persist performance metrics periodically
     if (this.metrics.operationCount % 100 === 0) {
       try {
-        const perfMetrics = await this._safeReadJSON(this.paths.performanceMetrics);
+        const perfMetrics = await this._safeReadJSON(
+          this.paths.performanceMetrics,
+        );
         perfMetrics.metrics = this.statusMonitor.performanceData;
         perfMetrics.systemMetrics = this.metrics;
         perfMetrics.lastUpdate = new Date().toISOString();
@@ -846,7 +924,11 @@ class TaskPersistenceEngine extends EventEmitter {
     const issues = [];
 
     if (!taskState || typeof taskState !== 'object') {
-      return { valid: false, issues: ['Invalid task state structure'], severity: 'critical' };
+      return {
+        valid: false,
+        issues: ['Invalid task state structure'],
+        severity: 'critical',
+      };
     }
 
     if (!Array.isArray(taskState.tasks)) {
@@ -862,7 +944,7 @@ class TaskPersistenceEngine extends EventEmitter {
     return {
       valid: issues.length === 0,
       issues,
-      severity: issues.length > 0 ? 'warning' : 'ok'
+      severity: issues.length > 0 ? 'warning' : 'ok',
     };
   }
 
@@ -871,19 +953,23 @@ class TaskPersistenceEngine extends EventEmitter {
       try {
         // Check system health metrics
         const memUsage = process.memoryUsage();
-        const errorRate = this.metrics.errorCount / Math.max(this.metrics.operationCount, 1);
+        const errorRate =
+          this.metrics.errorCount / Math.max(this.metrics.operationCount, 1);
 
         let health = 'healthy';
 
-        if (memUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
+        if (memUsage.heapUsed > 500 * 1024 * 1024) {
+          // 500MB
           health = 'warning';
         }
 
-        if (errorRate > 0.1) { // 10% error rate
+        if (errorRate > 0.1) {
+          // 10% error rate
           health = 'degraded';
         }
 
-        if (errorRate > 0.3) { // 30% error rate
+        if (errorRate > 0.3) {
+          // 30% error rate
           health = 'critical';
         }
 
@@ -894,9 +980,8 @@ class TaskPersistenceEngine extends EventEmitter {
           health,
           memoryUsage: memUsage,
           errorRate,
-          operationCount: this.metrics.operationCount
+          operationCount: this.metrics.operationCount,
         });
-
       } catch (error) {
         console.warn('Health monitoring error:', error.message);
       }
@@ -909,8 +994,8 @@ class TaskPersistenceEngine extends EventEmitter {
   }
 
   _getTaskPerformanceData(taskId) {
-    return this.statusMonitor.performanceData.filter(p =>
-      p.operation.includes(taskId)
+    return this.statusMonitor.performanceData.filter((p) =>
+      p.operation.includes(taskId),
     );
   }
 
@@ -931,7 +1016,9 @@ class TaskPersistenceEngine extends EventEmitter {
 
   async _recoverFromBackup(filePath) {
     // Implementation for backup recovery
-    console.warn(`Recovery needed for ${filePath} - implementing recovery logic`);
+    console.warn(
+      `Recovery needed for ${filePath} - implementing recovery logic`,
+    );
   }
 
   // Cleanup resources

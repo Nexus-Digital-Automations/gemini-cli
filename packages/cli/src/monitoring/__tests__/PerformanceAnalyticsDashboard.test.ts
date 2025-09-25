@@ -5,7 +5,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { PerformanceAnalyticsDashboard, type PerformanceMetric } from '../PerformanceAnalyticsDashboard.js';
+import {
+  PerformanceAnalyticsDashboard,
+  type PerformanceMetric,
+} from '../PerformanceAnalyticsDashboard.js';
 import { TaskType, TaskPriority, TaskStatus } from '../TaskStatusMonitor.js';
 
 // Mock logger
@@ -25,7 +28,7 @@ describe('PerformanceAnalyticsDashboard', () => {
     dashboard = new PerformanceAnalyticsDashboard({
       retentionDays: 7,
       metricsIntervalMs: 5000,
-      insightsIntervalMs: 10000
+      insightsIntervalMs: 10000,
     });
   });
 
@@ -41,17 +44,28 @@ describe('PerformanceAnalyticsDashboard', () => {
         'milliseconds',
         'latency',
         { taskType: 'implementation', priority: 'high' },
-        { agentId: 'agent-1' }
+        { agentId: 'agent-1' },
       );
 
       const dashboardData = dashboard.getDashboardData();
-      expect(dashboardData.realTimeMetrics['task_completion_time']).toBeDefined();
-      expect(dashboardData.realTimeMetrics['task_completion_time'].value).toBe(1500);
-      expect(dashboardData.realTimeMetrics['task_completion_time'].unit).toBe('milliseconds');
+      expect(
+        dashboardData.realTimeMetrics['task_completion_time'],
+      ).toBeDefined();
+      expect(dashboardData.realTimeMetrics['task_completion_time'].value).toBe(
+        1500,
+      );
+      expect(dashboardData.realTimeMetrics['task_completion_time'].unit).toBe(
+        'milliseconds',
+      );
     });
 
     it('should categorize metrics properly', () => {
-      dashboard.recordMetric('throughput_metric', 100, 'tasks/hour', 'throughput');
+      dashboard.recordMetric(
+        'throughput_metric',
+        100,
+        'tasks/hour',
+        'throughput',
+      );
       dashboard.recordMetric('latency_metric', 500, 'ms', 'latency');
       dashboard.recordMetric('success_metric', 0.95, 'ratio', 'success_rate');
 
@@ -64,19 +78,18 @@ describe('PerformanceAnalyticsDashboard', () => {
     it('should maintain metric history within retention limits', () => {
       // Record multiple metrics over time
       for (let i = 0; i < 10; i++) {
-        dashboard.recordMetric(
-          'test_metric',
-          i * 10,
-          'units',
-          'throughput',
-          { iteration: i.toString() }
-        );
+        dashboard.recordMetric('test_metric', i * 10, 'units', 'throughput', {
+          iteration: i.toString(),
+        });
       }
 
-      const analytics = dashboard.getAnalytics({
-        start: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        end: new Date()
-      }, ['test_metric']);
+      const analytics = dashboard.getAnalytics(
+        {
+          start: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          end: new Date(),
+        },
+        ['test_metric'],
+      );
 
       expect(analytics.metrics['test_metric']).toBeDefined();
       expect(analytics.metrics['test_metric'].length).toBe(10);
@@ -99,7 +112,7 @@ describe('PerformanceAnalyticsDashboard', () => {
         errorCount: 0,
         retryCount: 0,
         tags: ['test'],
-        metadata: {}
+        metadata: {},
       };
 
       dashboard.onTaskEvent('started', { task });
@@ -126,7 +139,7 @@ describe('PerformanceAnalyticsDashboard', () => {
         errorCount: 0,
         retryCount: 0,
         tags: ['test'],
-        metadata: {}
+        metadata: {},
       };
 
       const agent = {
@@ -141,8 +154,8 @@ describe('PerformanceAnalyticsDashboard', () => {
         performance: {
           successRate: 100,
           averageCompletionTime: 30000,
-          taskThroughput: 2
-        }
+          taskThroughput: 2,
+        },
       };
 
       // Simulate task started first
@@ -151,8 +164,12 @@ describe('PerformanceAnalyticsDashboard', () => {
       dashboard.onTaskEvent('completed', { task, agent });
 
       const dashboardData = dashboard.getDashboardData();
-      expect(dashboardData.realTimeMetrics['task_execution_time']).toBeDefined();
-      expect(dashboardData.realTimeMetrics['task_completion_rate']).toBeDefined();
+      expect(
+        dashboardData.realTimeMetrics['task_execution_time'],
+      ).toBeDefined();
+      expect(
+        dashboardData.realTimeMetrics['task_completion_rate'],
+      ).toBeDefined();
     });
 
     it('should process task failure events', () => {
@@ -172,7 +189,7 @@ describe('PerformanceAnalyticsDashboard', () => {
         errorCount: 1,
         retryCount: 2,
         tags: ['test'],
-        metadata: {}
+        metadata: {},
       };
 
       const update = {
@@ -180,7 +197,7 @@ describe('PerformanceAnalyticsDashboard', () => {
         previousStatus: TaskStatus.IN_PROGRESS,
         newStatus: TaskStatus.FAILED,
         timestamp: new Date(),
-        error: 'Test error'
+        error: 'Test error',
       };
 
       // Simulate task started first
@@ -208,8 +225,8 @@ describe('PerformanceAnalyticsDashboard', () => {
         performance: {
           successRate: 83.3,
           averageCompletionTime: 45000,
-          taskThroughput: 4
-        }
+          taskThroughput: 4,
+        },
       };
 
       dashboard.onAgentEvent('heartbeat', { agent });
@@ -232,14 +249,16 @@ describe('PerformanceAnalyticsDashboard', () => {
         performance: {
           successRate: 100,
           averageCompletionTime: 30000,
-          taskThroughput: 6
-        }
+          taskThroughput: 6,
+        },
       };
 
       dashboard.onAgentEvent('status_changed', { agent });
 
       const dashboardData = dashboard.getDashboardData();
-      expect(dashboardData.realTimeMetrics['agent_status_change']).toBeDefined();
+      expect(
+        dashboardData.realTimeMetrics['agent_status_change'],
+      ).toBeDefined();
     });
   });
 
@@ -258,21 +277,40 @@ describe('PerformanceAnalyticsDashboard', () => {
       expect(dashboardData).toHaveProperty('benchmarkStatus');
       expect(dashboardData).toHaveProperty('systemOverview');
 
-      expect(typeof dashboardData.systemOverview.systemEfficiency).toBe('number');
-      expect(typeof dashboardData.systemOverview.agentUtilization).toBe('number');
+      expect(typeof dashboardData.systemOverview.systemEfficiency).toBe(
+        'number',
+      );
+      expect(typeof dashboardData.systemOverview.agentUtilization).toBe(
+        'number',
+      );
     });
 
     it('should calculate benchmark status correctly', () => {
       // Record metrics that should trigger different benchmark statuses
-      dashboard.recordMetric('task_completion_rate', 0.98, 'ratio', 'success_rate');
-      dashboard.recordMetric('average_execution_time', 25000, 'milliseconds', 'latency');
-      dashboard.recordMetric('agent_utilization', 0.85, 'ratio', 'resource_usage');
+      dashboard.recordMetric(
+        'task_completion_rate',
+        0.98,
+        'ratio',
+        'success_rate',
+      );
+      dashboard.recordMetric(
+        'average_execution_time',
+        25000,
+        'milliseconds',
+        'latency',
+      );
+      dashboard.recordMetric(
+        'agent_utilization',
+        0.85,
+        'ratio',
+        'resource_usage',
+      );
 
       const dashboardData = dashboard.getDashboardData();
       const benchmarkStatuses = dashboardData.benchmarkStatus;
 
       expect(benchmarkStatuses.length).toBeGreaterThan(0);
-      benchmarkStatuses.forEach(status => {
+      benchmarkStatuses.forEach((status) => {
         expect(status).toHaveProperty('metric');
         expect(status).toHaveProperty('current');
         expect(status).toHaveProperty('target');
@@ -289,27 +327,37 @@ describe('PerformanceAnalyticsDashboard', () => {
       dashboard.recordMetric('analysis_metric', 150, 'units', 'throughput');
       dashboard.recordMetric('analysis_metric', 125, 'units', 'throughput');
 
-      const analytics = dashboard.getAnalytics({
-        start: new Date(Date.now() - 60 * 60 * 1000),
-        end: new Date()
-      }, ['analysis_metric']);
+      const analytics = dashboard.getAnalytics(
+        {
+          start: new Date(Date.now() - 60 * 60 * 1000),
+          end: new Date(),
+        },
+        ['analysis_metric'],
+      );
 
       expect(analytics.metrics['analysis_metric']).toBeDefined();
       expect(analytics.aggregations['analysis_metric']).toBeDefined();
-      expect(analytics.aggregations['analysis_metric'].average).toBeCloseTo(125);
+      expect(analytics.aggregations['analysis_metric'].average).toBeCloseTo(
+        125,
+      );
       expect(analytics.aggregations['analysis_metric'].min).toBe(100);
       expect(analytics.aggregations['analysis_metric'].max).toBe(150);
     });
 
     it('should generate optimization recommendations', () => {
       // Set up conditions that should trigger recommendations
-      dashboard.recordMetric('task_completion_rate', 0.6, 'ratio', 'success_rate'); // Below warning
+      dashboard.recordMetric(
+        'task_completion_rate',
+        0.6,
+        'ratio',
+        'success_rate',
+      ); // Below warning
       dashboard.recordMetric('task_failure_rate', 0.15, 'ratio', 'quality'); // High failure rate
 
       const recommendations = dashboard.generateOptimizationRecommendations();
 
       expect(Array.isArray(recommendations)).toBe(true);
-      recommendations.forEach(recommendation => {
+      recommendations.forEach((recommendation) => {
         expect(recommendation).toHaveProperty('id');
         expect(recommendation).toHaveProperty('title');
         expect(recommendation).toHaveProperty('description');
@@ -328,12 +376,14 @@ describe('PerformanceAnalyticsDashboard', () => {
           'trend_test_metric',
           100 + i * 10, // Increasing trend
           'units',
-          'throughput'
+          'throughput',
         );
       }
 
       const dashboardData = dashboard.getDashboardData();
-      const trendData = dashboardData.trends.find(t => t.metric === 'trend_test_metric');
+      const trendData = dashboardData.trends.find(
+        (t) => t.metric === 'trend_test_metric',
+      );
 
       if (trendData) {
         expect(trendData.trendDirection).toBe('up');
@@ -369,19 +419,28 @@ describe('PerformanceAnalyticsDashboard', () => {
 
       dashboard.destroy();
 
-      expect(consoleSpy).toHaveBeenCalledWith('PerformanceAnalyticsDashboard destroyed');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'PerformanceAnalyticsDashboard destroyed',
+      );
     });
 
     it('should handle memory management for large datasets', () => {
       // Record many metrics to test memory management
       for (let i = 0; i < 150; i++) {
-        dashboard.recordMetric(`memory_test_${i % 10}`, i, 'units', 'throughput');
+        dashboard.recordMetric(
+          `memory_test_${i % 10}`,
+          i,
+          'units',
+          'throughput',
+        );
       }
 
       // System should still be responsive
       const dashboardData = dashboard.getDashboardData();
       expect(dashboardData).toBeDefined();
-      expect(Object.keys(dashboardData.realTimeMetrics).length).toBeLessThanOrEqual(10);
+      expect(
+        Object.keys(dashboardData.realTimeMetrics).length,
+      ).toBeLessThanOrEqual(10);
     });
   });
 });

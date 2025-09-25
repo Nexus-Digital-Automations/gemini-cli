@@ -40,13 +40,13 @@ import {
   DependencyType,
   DependencyStatus,
   ExecutionReadiness,
-  DependencyConflict
+  DependencyConflict,
 } from './DependencyAnalyzer.js';
 import {
   IntelligentTaskScheduler,
   ExecutionContext,
   SystemMetrics,
-  SchedulingEvent
+  SchedulingEvent,
 } from './IntelligentTaskScheduler.js';
 
 /**
@@ -114,7 +114,12 @@ export interface VisualizationEdge {
  * Visualization layout configuration
  */
 export interface LayoutConfiguration {
-  algorithm: 'force_directed' | 'hierarchical' | 'circular' | 'grid' | 'layered';
+  algorithm:
+    | 'force_directed'
+    | 'hierarchical'
+    | 'circular'
+    | 'grid'
+    | 'layered';
   dimensions: '2d' | '3d';
   spacing: {
     nodeDistance: number;
@@ -162,7 +167,12 @@ export interface HeatmapData {
 export interface TimelineEvent {
   id: string;
   timestamp: Date;
-  type: 'task_started' | 'task_completed' | 'task_failed' | 'dependency_satisfied' | 'conflict_detected';
+  type:
+    | 'task_started'
+    | 'task_completed'
+    | 'task_failed'
+    | 'dependency_satisfied'
+    | 'conflict_detected';
   taskId?: string;
   dependencyId?: string;
   description: string;
@@ -230,7 +240,7 @@ export class DependencyVisualizationEngine extends EventEmitter {
 
   constructor(
     dependencyAnalyzer: DependencyAnalyzer,
-    taskScheduler: IntelligentTaskScheduler
+    taskScheduler: IntelligentTaskScheduler,
   ) {
     super();
 
@@ -243,19 +253,21 @@ export class DependencyVisualizationEngine extends EventEmitter {
       nodes: new Map(),
       edges: new Map(),
       layout: this.getDefaultLayoutConfiguration(),
-      lastUpdate: new Date()
+      lastUpdate: new Date(),
     };
 
     this.performanceData = {
       heatmap: new Map(),
       timeline: [],
-      metrics: []
+      metrics: [],
     };
 
     this.alerts = new Map();
     this.subscribers = new Set();
 
-    this.logger.info('DependencyVisualizationEngine initialized with real-time monitoring');
+    this.logger.info(
+      'DependencyVisualizationEngine initialized with real-time monitoring',
+    );
 
     this.initializeEventHandlers();
     this.startRealTimeUpdates();
@@ -280,8 +292,8 @@ export class DependencyVisualizationEngine extends EventEmitter {
     const edges = Array.from(this.visualizationData.edges.values());
 
     const criticalPath = this.extractCriticalPathFromNodes(nodes);
-    const conflicts = Array.from(this.alerts.values()).filter(alert =>
-      alert.type === 'conflict' && !alert.resolved
+    const conflicts = Array.from(this.alerts.values()).filter(
+      (alert) => alert.type === 'conflict' && !alert.resolved,
     ).length;
 
     return {
@@ -293,8 +305,8 @@ export class DependencyVisualizationEngine extends EventEmitter {
         edgeCount: edges.length,
         lastUpdate: this.visualizationData.lastUpdate,
         criticalPath,
-        conflicts
-      }
+        conflicts,
+      },
     };
   }
 
@@ -308,26 +320,37 @@ export class DependencyVisualizationEngine extends EventEmitter {
   /**
    * Get execution timeline data
    */
-  public getTimelineData(timeRange?: { start: Date; end: Date }): TimelineEvent[] {
+  public getTimelineData(timeRange?: {
+    start: Date;
+    end: Date;
+  }): TimelineEvent[] {
     let timeline = this.performanceData.timeline;
 
     if (timeRange) {
-      timeline = timeline.filter(event =>
-        event.timestamp >= timeRange.start && event.timestamp <= timeRange.end
+      timeline = timeline.filter(
+        (event) =>
+          event.timestamp >= timeRange.start &&
+          event.timestamp <= timeRange.end,
       );
     }
 
-    return timeline.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return timeline.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
   }
 
   /**
    * Get current alerts
    */
-  public getAlerts(severity?: VisualizationAlert['severity']): VisualizationAlert[] {
-    let alerts = Array.from(this.alerts.values()).filter(alert => !alert.resolved);
+  public getAlerts(
+    severity?: VisualizationAlert['severity'],
+  ): VisualizationAlert[] {
+    let alerts = Array.from(this.alerts.values()).filter(
+      (alert) => !alert.resolved,
+    );
 
     if (severity) {
-      alerts = alerts.filter(alert => alert.severity === severity);
+      alerts = alerts.filter((alert) => alert.severity === severity);
     }
 
     return alerts.sort((a, b) => {
@@ -340,15 +363,19 @@ export class DependencyVisualizationEngine extends EventEmitter {
    * Update layout configuration
    */
   public updateLayout(layoutConfig: Partial<LayoutConfiguration>): void {
-    this.logger.info('Updating visualization layout', { changes: layoutConfig });
+    this.logger.info('Updating visualization layout', {
+      changes: layoutConfig,
+    });
 
     this.visualizationData.layout = {
       ...this.visualizationData.layout,
-      ...layoutConfig
+      ...layoutConfig,
     };
 
     this.recalculateNodePositions();
-    this.notifySubscribers('layout_updated', { layout: this.visualizationData.layout });
+    this.notifySubscribers('layout_updated', {
+      layout: this.visualizationData.layout,
+    });
   }
 
   /**
@@ -370,7 +397,7 @@ export class DependencyVisualizationEngine extends EventEmitter {
         node.animation = {
           type: 'glow',
           duration: 2000,
-          iteration: 'infinite'
+          iteration: 'infinite',
         };
       }
     }
@@ -381,7 +408,7 @@ export class DependencyVisualizationEngine extends EventEmitter {
         edge.animation = {
           direction: 'forward',
           speed: 1,
-          particles: true
+          particles: true,
         };
       }
     }
@@ -416,7 +443,11 @@ export class DependencyVisualizationEngine extends EventEmitter {
       }
     }
 
-    this.notifySubscribers('focus_updated', { taskId, depth, focusNodes: Array.from(focusNodes) });
+    this.notifySubscribers('focus_updated', {
+      taskId,
+      depth,
+      focusNodes: Array.from(focusNodes),
+    });
   }
 
   /**
@@ -477,39 +508,45 @@ export class DependencyVisualizationEngine extends EventEmitter {
 
     const summary = {
       totalTasks: nodes.length,
-      activeTasks: nodes.filter(n => n.status === 'running').length,
-      completedTasks: nodes.filter(n => n.status === 'completed').length,
-      failedTasks: nodes.filter(n => n.status === 'failed').length,
+      activeTasks: nodes.filter((n) => n.status === 'running').length,
+      completedTasks: nodes.filter((n) => n.status === 'completed').length,
+      failedTasks: nodes.filter((n) => n.status === 'failed').length,
       criticalPathLength: this.extractCriticalPathFromNodes(nodes).length,
       averageExecutionTime: this.calculateAverageExecutionTime(nodes),
-      bottlenecks: nodes.filter(n => n.metadata.bottleneck).length
+      bottlenecks: nodes.filter((n) => n.metadata.bottleneck).length,
     };
 
     const performance = {
       resourceUtilization: schedulerStatus.resourceUtilization,
       throughput: schedulerStatus.systemMetrics.taskThroughput,
       successRate: schedulerStatus.systemMetrics.successRate,
-      trends: this.calculatePerformanceTrends()
+      trends: this.calculatePerformanceTrends(),
     };
 
     const dependencies = {
       totalDependencies: edges.length,
-      hardDependencies: edges.filter(e => e.type === DependencyType.HARD).length,
-      softDependencies: edges.filter(e => e.type === DependencyType.SOFT).length,
+      hardDependencies: edges.filter((e) => e.type === DependencyType.HARD)
+        .length,
+      softDependencies: edges.filter((e) => e.type === DependencyType.SOFT)
+        .length,
       conflicts: healthMetrics.conflictCount,
-      circularDependencies: healthMetrics.cyclicDependencies
+      circularDependencies: healthMetrics.cyclicDependencies,
     };
 
     const recommendations = [
       ...healthMetrics.recommendations,
-      ...this.generateVisualizationRecommendations(summary, performance, dependencies)
+      ...this.generateVisualizationRecommendations(
+        summary,
+        performance,
+        dependencies,
+      ),
     ];
 
     return {
       summary,
       performance,
       dependencies,
-      recommendations
+      recommendations,
     };
   }
 
@@ -524,17 +561,26 @@ export class DependencyVisualizationEngine extends EventEmitter {
       this.addOrUpdateVisualizationNode(task);
     });
 
-    this.dependencyAnalyzer.on('dependencyAdded', (dependency: TaskDependency) => {
-      this.addOrUpdateVisualizationEdge(dependency);
-    });
+    this.dependencyAnalyzer.on(
+      'dependencyAdded',
+      (dependency: TaskDependency) => {
+        this.addOrUpdateVisualizationEdge(dependency);
+      },
+    );
 
-    this.dependencyAnalyzer.on('dependencyRemoved', (dependency: TaskDependency) => {
-      this.removeVisualizationEdge(dependency.id);
-    });
+    this.dependencyAnalyzer.on(
+      'dependencyRemoved',
+      (dependency: TaskDependency) => {
+        this.removeVisualizationEdge(dependency.id);
+      },
+    );
 
-    this.dependencyAnalyzer.on('conflictsDetected', (conflicts: DependencyConflict[]) => {
-      this.handleDependencyConflicts(conflicts);
-    });
+    this.dependencyAnalyzer.on(
+      'conflictsDetected',
+      (conflicts: DependencyConflict[]) => {
+        this.handleDependencyConflicts(conflicts);
+      },
+    );
 
     // Listen to task scheduler events
     this.taskScheduler.on('task_started', (event: SchedulingEvent) => {
@@ -586,7 +632,6 @@ export class DependencyVisualizationEngine extends EventEmitter {
       }
 
       this.visualizationData.lastUpdate = new Date();
-
     } catch (error) {
       this.logger.error('Failed to update visualization data', { error });
     }
@@ -613,13 +658,15 @@ export class DependencyVisualizationEngine extends EventEmitter {
           metrics: {
             executionTime: taskStatus.metrics.executionTime,
             queueTime: taskStatus.metrics.queueTime,
-            resourceUtilization: this.calculateResourceUtilizationScore(taskStatus.metrics.resourceUtilization),
+            resourceUtilization: this.calculateResourceUtilizationScore(
+              taskStatus.metrics.resourceUtilization,
+            ),
             errorRate: taskStatus.status === 'failed' ? 1 : 0,
-            throughput: 1 / Math.max(taskStatus.metrics.executionTime, 1)
+            throughput: 1 / Math.max(taskStatus.metrics.executionTime, 1),
           },
           color: this.calculateHeatmapColor(taskStatus),
           intensity: this.calculateHeatmapIntensity(taskStatus),
-          tooltip: this.generateHeatmapTooltip(taskStatus)
+          tooltip: this.generateHeatmapTooltip(taskStatus),
         };
 
         this.performanceData.heatmap.set(nodeId, heatmapData);
@@ -650,7 +697,9 @@ export class DependencyVisualizationEngine extends EventEmitter {
   /**
    * Create visualization node from task data
    */
-  private async createVisualizationNode(nodeData: any): Promise<VisualizationNode> {
+  private async createVisualizationNode(
+    nodeData: any,
+  ): Promise<VisualizationNode> {
     const taskAnalysis = await this.dependencyAnalyzer.analyzeTask(nodeData.id);
 
     return {
@@ -670,8 +719,8 @@ export class DependencyVisualizationEngine extends EventEmitter {
         dependencies: taskAnalysis.dependsOn.length,
         dependents: taskAnalysis.enables.length,
         criticalPath: taskAnalysis.criticalPath.includes(nodeData.id),
-        bottleneck: taskAnalysis.enables.length > 5
-      }
+        bottleneck: taskAnalysis.enables.length > 5,
+      },
     };
   }
 
@@ -694,15 +743,19 @@ export class DependencyVisualizationEngine extends EventEmitter {
         lastUpdate: new Date(),
         satisfaction: edgeData.status === DependencyStatus.SATISFIED,
         criticality: edgeData.weight,
-        conflicts: []
-      }
+        conflicts: [],
+      },
     };
   }
 
   /**
    * Calculate node position based on layout algorithm
    */
-  private calculateNodePosition(nodeData: any): { x: number; y: number; z?: number } {
+  private calculateNodePosition(nodeData: any): {
+    x: number;
+    y: number;
+    z?: number;
+  } {
     // Simplified positioning - would implement actual layout algorithms
     const angle = Math.random() * 2 * Math.PI;
     const radius = 200 + Math.random() * 300;
@@ -710,14 +763,20 @@ export class DependencyVisualizationEngine extends EventEmitter {
     return {
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius,
-      z: this.visualizationData.layout.dimensions === '3d' ? Math.random() * 100 : undefined
+      z:
+        this.visualizationData.layout.dimensions === '3d'
+          ? Math.random() * 100
+          : undefined,
     };
   }
 
   /**
    * Calculate node size based on importance and dependencies
    */
-  private calculateNodeSize(nodeData: any, analysis: DependencyAnalysisResult): number {
+  private calculateNodeSize(
+    nodeData: any,
+    analysis: DependencyAnalysisResult,
+  ): number {
     let size = 20; // Base size
 
     // Increase size for high priority tasks
@@ -737,15 +796,24 @@ export class DependencyVisualizationEngine extends EventEmitter {
   /**
    * Calculate node color based on status and readiness
    */
-  private calculateNodeColor(nodeData: any, analysis: DependencyAnalysisResult): string {
+  private calculateNodeColor(
+    nodeData: any,
+    analysis: DependencyAnalysisResult,
+  ): string {
     // Status-based coloring
     switch (nodeData.status) {
-      case 'completed': return '#4CAF50'; // Green
-      case 'running': return '#2196F3'; // Blue
-      case 'failed': return '#F44336'; // Red
-      case 'paused': return '#FF9800'; // Orange
-      case 'queued': return '#9E9E9E'; // Grey
-      default: return '#607D8B'; // Blue Grey
+      case 'completed':
+        return '#4CAF50'; // Green
+      case 'running':
+        return '#2196F3'; // Blue
+      case 'failed':
+        return '#F44336'; // Red
+      case 'paused':
+        return '#FF9800'; // Orange
+      case 'queued':
+        return '#9E9E9E'; // Grey
+      default:
+        return '#607D8B'; // Blue Grey
     }
   }
 
@@ -754,10 +822,14 @@ export class DependencyVisualizationEngine extends EventEmitter {
    */
   private calculateNodeShape(nodeData: any): VisualizationNode['shape'] {
     switch (nodeData.type) {
-      case 'critical': return 'diamond';
-      case 'parallel': return 'hexagon';
-      case 'sequential': return 'rectangle';
-      default: return 'circle';
+      case 'critical':
+        return 'diamond';
+      case 'parallel':
+        return 'hexagon';
+      case 'sequential':
+        return 'rectangle';
+      default:
+        return 'circle';
     }
   }
 
@@ -784,12 +856,18 @@ export class DependencyVisualizationEngine extends EventEmitter {
   private calculateEdgeColor(edgeData: any): string {
     // Type-based coloring
     switch (edgeData.type) {
-      case DependencyType.HARD: return '#F44336'; // Red
-      case DependencyType.SOFT: return '#2196F3'; // Blue
-      case DependencyType.RESOURCE: return '#FF9800'; // Orange
-      case DependencyType.DATA: return '#4CAF50'; // Green
-      case DependencyType.CONDITIONAL: return '#9C27B0'; // Purple
-      default: return '#607D8B'; // Blue Grey
+      case DependencyType.HARD:
+        return '#F44336'; // Red
+      case DependencyType.SOFT:
+        return '#2196F3'; // Blue
+      case DependencyType.RESOURCE:
+        return '#FF9800'; // Orange
+      case DependencyType.DATA:
+        return '#4CAF50'; // Green
+      case DependencyType.CONDITIONAL:
+        return '#9C27B0'; // Purple
+      default:
+        return '#607D8B'; // Blue Grey
     }
   }
 
@@ -806,7 +884,7 @@ export class DependencyVisualizationEngine extends EventEmitter {
   // =================== EVENT HANDLERS ===================
 
   private addOrUpdateVisualizationNode(task: TaskNode): void {
-    this.createVisualizationNode(task).then(node => {
+    this.createVisualizationNode(task).then((node) => {
       this.visualizationData.nodes.set(node.id, node);
       this.notifySubscribers('node_updated', node);
     });
@@ -833,19 +911,19 @@ export class DependencyVisualizationEngine extends EventEmitter {
         title: `Dependency Conflict: ${conflict.type}`,
         description: `Conflict affecting ${conflict.affectedTasks.length} tasks`,
         affectedNodes: conflict.affectedTasks,
-        affectedEdges: conflict.dependencies.map(dep => dep.id),
+        affectedEdges: conflict.dependencies.map((dep) => dep.id),
         timestamp: conflict.detectedAt,
         resolved: false,
-        actions: conflict.suggestedResolutions.map(res => ({
+        actions: conflict.suggestedResolutions.map((res) => ({
           label: res.action,
           action: res.action,
-          priority: res.confidence
+          priority: res.confidence,
         })),
         visualization: {
           highlight: true,
           overlay: true,
-          animation: true
-        }
+          animation: true,
+        },
       };
 
       this.alerts.set(alert.id, alert);
@@ -863,7 +941,11 @@ export class DependencyVisualizationEngine extends EventEmitter {
       switch (event.type) {
         case 'task_started':
           node.status = 'running';
-          node.animation = { type: 'pulse', duration: 1000, iteration: 'infinite' };
+          node.animation = {
+            type: 'pulse',
+            duration: 1000,
+            iteration: 'infinite',
+          };
           break;
         case 'task_completed':
           node.status = 'completed';
@@ -875,7 +957,9 @@ export class DependencyVisualizationEngine extends EventEmitter {
           break;
       }
 
-      node.color = this.calculateNodeColor({ status: node.status }, { readiness: node.readiness } as any);
+      node.color = this.calculateNodeColor({ status: node.status }, {
+        readiness: node.readiness,
+      } as any);
     }
 
     // Add to timeline
@@ -891,8 +975,8 @@ export class DependencyVisualizationEngine extends EventEmitter {
         position: Date.now() / (Date.now() + 86400000), // Normalized position
         color: this.getEventColor(event.type),
         size: this.getEventSize(event.impact),
-        shape: this.getEventShape(event.type)
-      }
+        shape: this.getEventShape(event.type),
+      },
     };
 
     this.performanceData.timeline.push(timelineEvent);
@@ -915,8 +999,8 @@ export class DependencyVisualizationEngine extends EventEmitter {
         position: Date.now() / (Date.now() + 86400000),
         color: '#9C27B0',
         size: 8,
-        shape: 'diamond'
-      }
+        shape: 'diamond',
+      },
     };
 
     this.performanceData.timeline.push(timelineEvent);
@@ -932,42 +1016,43 @@ export class DependencyVisualizationEngine extends EventEmitter {
       spacing: {
         nodeDistance: 100,
         levelDistance: 150,
-        edgeLength: 80
+        edgeLength: 80,
       },
       forces: {
         repulsion: 100,
         attraction: 10,
         gravity: 0.1,
-        friction: 0.9
+        friction: 0.9,
       },
       constraints: {
         boundaryBox: { width: 800, height: 600 },
         fixedNodes: [],
-        grouping: {}
+        grouping: {},
       },
       animation: {
         enabled: true,
         duration: 1000,
-        easing: 'ease-out'
-      }
+        easing: 'ease-out',
+      },
     };
   }
 
   private extractCriticalPathFromNodes(nodes: VisualizationNode[]): string[] {
     return nodes
-      .filter(node => node.metadata.criticalPath)
-      .map(node => node.id);
+      .filter((node) => node.metadata.criticalPath)
+      .map((node) => node.id);
   }
 
   private calculateAverageExecutionTime(nodes: VisualizationNode[]): number {
-    const executedNodes = nodes.filter(node =>
-      node.metadata.actualDuration !== undefined
+    const executedNodes = nodes.filter(
+      (node) => node.metadata.actualDuration !== undefined,
     );
 
     if (executedNodes.length === 0) return 0;
 
-    const totalTime = executedNodes.reduce((sum, node) =>
-      sum + (node.metadata.actualDuration || 0), 0
+    const totalTime = executedNodes.reduce(
+      (sum, node) => sum + (node.metadata.actualDuration || 0),
+      0,
     );
 
     return totalTime / executedNodes.length;
@@ -982,45 +1067,64 @@ export class DependencyVisualizationEngine extends EventEmitter {
     const older = this.performanceData.metrics.slice(-20, -10);
 
     const recentAvg = {
-      throughput: recent.reduce((sum, m) => sum + m.taskThroughput, 0) / recent.length,
-      successRate: recent.reduce((sum, m) => sum + m.successRate, 0) / recent.length,
-      resourceUtilization: recent.reduce((sum, m) => sum + m.resourceEfficiency, 0) / recent.length
+      throughput:
+        recent.reduce((sum, m) => sum + m.taskThroughput, 0) / recent.length,
+      successRate:
+        recent.reduce((sum, m) => sum + m.successRate, 0) / recent.length,
+      resourceUtilization:
+        recent.reduce((sum, m) => sum + m.resourceEfficiency, 0) /
+        recent.length,
     };
 
     const olderAvg = {
-      throughput: older.reduce((sum, m) => sum + m.taskThroughput, 0) / Math.max(older.length, 1),
-      successRate: older.reduce((sum, m) => sum + m.successRate, 0) / Math.max(older.length, 1),
-      resourceUtilization: older.reduce((sum, m) => sum + m.resourceEfficiency, 0) / Math.max(older.length, 1)
+      throughput:
+        older.reduce((sum, m) => sum + m.taskThroughput, 0) /
+        Math.max(older.length, 1),
+      successRate:
+        older.reduce((sum, m) => sum + m.successRate, 0) /
+        Math.max(older.length, 1),
+      resourceUtilization:
+        older.reduce((sum, m) => sum + m.resourceEfficiency, 0) /
+        Math.max(older.length, 1),
     };
 
     return {
       throughput: recentAvg.throughput - olderAvg.throughput,
       successRate: recentAvg.successRate - olderAvg.successRate,
-      resourceUtilization: recentAvg.resourceUtilization - olderAvg.resourceUtilization
+      resourceUtilization:
+        recentAvg.resourceUtilization - olderAvg.resourceUtilization,
     };
   }
 
   private generateVisualizationRecommendations(
     summary: any,
     performance: any,
-    dependencies: any
+    dependencies: any,
   ): string[] {
     const recommendations: string[] = [];
 
     if (summary.bottlenecks > 0) {
-      recommendations.push('Consider parallelizing bottleneck tasks to improve throughput');
+      recommendations.push(
+        'Consider parallelizing bottleneck tasks to improve throughput',
+      );
     }
 
     if (dependencies.circularDependencies > 0) {
-      recommendations.push('Resolve circular dependencies to prevent deadlocks');
+      recommendations.push(
+        'Resolve circular dependencies to prevent deadlocks',
+      );
     }
 
     if (performance.successRate < 0.9) {
-      recommendations.push('Investigate failed tasks and improve error handling');
+      recommendations.push(
+        'Investigate failed tasks and improve error handling',
+      );
     }
 
     if (summary.criticalPathLength > 10) {
-      recommendations.push('Long critical path detected - consider task decomposition');
+      recommendations.push(
+        'Long critical path detected - consider task decomposition',
+      );
     }
 
     return recommendations;
@@ -1041,7 +1145,7 @@ export class DependencyVisualizationEngine extends EventEmitter {
     nodeId: string,
     remainingDepth: number,
     nodeSet: Set<string>,
-    edgeSet: Set<string>
+    edgeSet: Set<string>,
   ): void {
     if (remainingDepth <= 0) return;
 
@@ -1049,10 +1153,16 @@ export class DependencyVisualizationEngine extends EventEmitter {
       if (edge.source === nodeId || edge.target === nodeId) {
         edgeSet.add(edgeId);
 
-        const connectedNodeId = edge.source === nodeId ? edge.target : edge.source;
+        const connectedNodeId =
+          edge.source === nodeId ? edge.target : edge.source;
         if (!nodeSet.has(connectedNodeId)) {
           nodeSet.add(connectedNodeId);
-          this.addConnectedNodes(connectedNodeId, remainingDepth - 1, nodeSet, edgeSet);
+          this.addConnectedNodes(
+            connectedNodeId,
+            remainingDepth - 1,
+            nodeSet,
+            edgeSet,
+          );
         }
       }
     }
@@ -1061,7 +1171,9 @@ export class DependencyVisualizationEngine extends EventEmitter {
   private adjustColorOpacity(color: string, opacity: number): string {
     // Simple color opacity adjustment
     if (color.startsWith('#')) {
-      const alpha = Math.round(opacity * 255).toString(16).padStart(2, '0');
+      const alpha = Math.round(opacity * 255)
+        .toString(16)
+        .padStart(2, '0');
       return color + alpha;
     }
     return color;
@@ -1079,15 +1191,21 @@ export class DependencyVisualizationEngine extends EventEmitter {
   }
 
   // Performance and alert helper methods...
-  private calculateResourceUtilizationScore(resourceUtilization: Record<string, number>): number {
+  private calculateResourceUtilizationScore(
+    resourceUtilization: Record<string, number>,
+  ): number {
     const values = Object.values(resourceUtilization);
-    return values.length > 0 ? values.reduce((sum, val) => sum + val, 0) / values.length : 0;
+    return values.length > 0
+      ? values.reduce((sum, val) => sum + val, 0) / values.length
+      : 0;
   }
 
   private calculateHeatmapColor(taskStatus: ExecutionContext): string {
     // Color based on performance
-    const efficiency = taskStatus.metrics.executionTime > 0 ?
-      1 / (taskStatus.metrics.executionTime / 1000) : 1;
+    const efficiency =
+      taskStatus.metrics.executionTime > 0
+        ? 1 / (taskStatus.metrics.executionTime / 1000)
+        : 1;
 
     if (efficiency > 0.8) return '#4CAF50'; // Green
     if (efficiency > 0.5) return '#FFEB3B'; // Yellow
@@ -1128,10 +1246,18 @@ Retries: ${taskStatus.retryCount}`;
         timestamp: new Date(),
         resolved: false,
         actions: [
-          { label: 'Increase Parallelization', action: 'increase_parallel', priority: 3 },
-          { label: 'Optimize Resources', action: 'optimize_resources', priority: 2 }
+          {
+            label: 'Increase Parallelization',
+            action: 'increase_parallel',
+            priority: 3,
+          },
+          {
+            label: 'Optimize Resources',
+            action: 'optimize_resources',
+            priority: 2,
+          },
         ],
-        visualization: { highlight: false, overlay: true, animation: false }
+        visualization: { highlight: false, overlay: true, animation: false },
       };
 
       this.alerts.set(alert.id, alert);
@@ -1151,9 +1277,9 @@ Retries: ${taskStatus.retryCount}`;
         timestamp: new Date(),
         resolved: false,
         actions: [
-          { label: 'Resolve Cycles', action: 'resolve_cycles', priority: 5 }
+          { label: 'Resolve Cycles', action: 'resolve_cycles', priority: 5 },
         ],
-        visualization: { highlight: true, overlay: true, animation: true }
+        visualization: { highlight: true, overlay: true, animation: true },
       };
 
       this.alerts.set(alert.id, alert);
@@ -1176,50 +1302,72 @@ Retries: ${taskStatus.retryCount}`;
         resolved: false,
         actions: [
           { label: 'Scale Memory', action: 'scale_memory', priority: 4 },
-          { label: 'Optimize Tasks', action: 'optimize_memory', priority: 3 }
+          { label: 'Optimize Tasks', action: 'optimize_memory', priority: 3 },
         ],
-        visualization: { highlight: false, overlay: true, animation: true }
+        visualization: { highlight: false, overlay: true, animation: true },
       };
 
       this.alerts.set(alert.id, alert);
     }
   }
 
-  private mapConflictSeverity(severity: DependencyConflict['severity']): VisualizationAlert['severity'] {
+  private mapConflictSeverity(
+    severity: DependencyConflict['severity'],
+  ): VisualizationAlert['severity'] {
     switch (severity) {
-      case 'critical': return 'critical';
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'info';
-      default: return 'warning';
+      case 'critical':
+        return 'critical';
+      case 'high':
+        return 'error';
+      case 'medium':
+        return 'warning';
+      case 'low':
+        return 'info';
+      default:
+        return 'warning';
     }
   }
 
   private getEventColor(eventType: string): string {
     switch (eventType) {
-      case 'task_started': return '#2196F3';
-      case 'task_completed': return '#4CAF50';
-      case 'task_failed': return '#F44336';
-      default: return '#9E9E9E';
+      case 'task_started':
+        return '#2196F3';
+      case 'task_completed':
+        return '#4CAF50';
+      case 'task_failed':
+        return '#F44336';
+      default:
+        return '#9E9E9E';
     }
   }
 
   private getEventSize(impact: string): number {
     switch (impact) {
-      case 'critical': return 12;
-      case 'high': return 10;
-      case 'medium': return 8;
-      case 'low': return 6;
-      default: return 6;
+      case 'critical':
+        return 12;
+      case 'high':
+        return 10;
+      case 'medium':
+        return 8;
+      case 'low':
+        return 6;
+      default:
+        return 6;
     }
   }
 
-  private getEventShape(eventType: string): TimelineEvent['visualization']['shape'] {
+  private getEventShape(
+    eventType: string,
+  ): TimelineEvent['visualization']['shape'] {
     switch (eventType) {
-      case 'task_started': return 'triangle';
-      case 'task_completed': return 'dot';
-      case 'task_failed': return 'square';
-      default: return 'dot';
+      case 'task_started':
+        return 'triangle';
+      case 'task_completed':
+        return 'dot';
+      case 'task_failed':
+        return 'square';
+      default:
+        return 'dot';
     }
   }
 

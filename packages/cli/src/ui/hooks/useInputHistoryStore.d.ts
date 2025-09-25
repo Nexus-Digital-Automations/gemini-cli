@@ -5,12 +5,12 @@
  */
 
 interface Logger {
-    getPreviousUserMessages(): Promise<string[]>;
+  getPreviousUserMessages(): Promise<string[]>;
 }
 export interface UseInputHistoryStoreReturn {
-    inputHistory: string[];
-    addInput: (input: string) => void;
-    initializeFromLogger: (logger: Logger | null) => Promise<void>;
+  inputHistory: string[];
+  addInput: (input: string) => void;
+  initializeFromLogger: (logger: Logger | null) => Promise<void>;
 }
 /**
  * Hook for independently managing input history.

@@ -67,6 +67,7 @@ graph TB
 **Location**: `/packages/autonomous-task-management/src/core/TaskManager.ts`
 
 **Responsibilities:**
+
 - Task lifecycle management (create, update, execute, complete)
 - Coordination between all subsystems
 - Event-driven architecture for loose coupling
@@ -74,6 +75,7 @@ graph TB
 - Statistics and health monitoring
 
 **Key Features:**
+
 - Autonomous task creation from features
 - Priority-based task scheduling
 - Cross-session task persistence
@@ -81,6 +83,7 @@ graph TB
 - Intelligent task breakdown
 
 **Architecture Patterns:**
+
 - **Event Sourcing**: All task state changes are events
 - **CQRS**: Separate read/write models for performance
 - **Observer Pattern**: Event-driven subsystem coordination
@@ -91,6 +94,7 @@ graph TB
 **Location**: `/packages/autonomous-task-management/src/core/TaskQueue.ts`
 
 **Responsibilities:**
+
 - Priority-based task scheduling
 - Dependency resolution and management
 - Queue processing with multiple strategies
@@ -98,6 +102,7 @@ graph TB
 - Queue statistics and monitoring
 
 **Key Features:**
+
 - Multiple queue types (priority, FIFO, dependency-based)
 - Priority aging to prevent starvation
 - Intelligent dependency resolution
@@ -105,6 +110,7 @@ graph TB
 - Queue health monitoring and alerts
 
 **Algorithms Implemented:**
+
 - **Priority Scheduling**: Higher priority tasks execute first
 - **Dependency Resolution**: Topological sorting for task dependencies
 - **Priority Aging**: Time-based priority boost to prevent starvation
@@ -115,6 +121,7 @@ graph TB
 **Location**: `/packages/autonomous-task-management/src/core/TaskExecutionEngine.ts`
 
 **Responsibilities:**
+
 - Task execution coordination
 - Agent assignment and management
 - Execution monitoring and validation
@@ -122,6 +129,7 @@ graph TB
 - Performance metrics collection
 
 **Key Features:**
+
 - Multi-agent task execution
 - Real-time execution monitoring
 - Automatic error recovery
@@ -129,6 +137,7 @@ graph TB
 - Execution validation and quality gates
 
 **Execution Patterns:**
+
 - **Command Pattern**: Encapsulated task execution
 - **Strategy Pattern**: Different execution strategies
 - **Circuit Breaker**: Fault tolerance and recovery
@@ -139,6 +148,7 @@ graph TB
 **Location**: `/packages/autonomous-task-management/src/core/AgentCoordinator.ts`
 
 **Responsibilities:**
+
 - Agent lifecycle management
 - Capability matching and assignment
 - Session management and heartbeats
@@ -146,6 +156,7 @@ graph TB
 - Agent health monitoring
 
 **Key Features:**
+
 - Dynamic agent registration
 - Capability-based task assignment
 - Session persistence and recovery
@@ -153,6 +164,7 @@ graph TB
 - Agent health monitoring and alerting
 
 **Coordination Patterns:**
+
 - **Registry Pattern**: Centralized agent management
 - **Publish-Subscribe**: Event-driven agent communication
 - **Load Balancer**: Intelligent task distribution
@@ -163,6 +175,7 @@ graph TB
 **Location**: `/packages/autonomous-task-management/src/core/QualityGateway.ts`
 
 **Responsibilities:**
+
 - Automated quality validation
 - Linting and code style enforcement
 - Testing and coverage validation
@@ -170,6 +183,7 @@ graph TB
 - Performance benchmarking
 
 **Key Features:**
+
 - Configurable quality gates
 - Multiple validation strategies
 - Parallel validation execution
@@ -177,6 +191,7 @@ graph TB
 - Automated reporting
 
 **Quality Patterns:**
+
 - **Chain of Responsibility**: Sequential validation pipeline
 - **Template Method**: Standardized validation process
 - **Decorator Pattern**: Composable validation rules
@@ -187,6 +202,7 @@ graph TB
 **Location**: `/packages/autonomous-task-management/src/core/FeatureIntegrator.ts`
 
 **Responsibilities:**
+
 - Feature management system integration
 - Automated task generation from features
 - Feature lifecycle synchronization
@@ -194,6 +210,7 @@ graph TB
 - Integration monitoring
 
 **Key Features:**
+
 - TaskManager API integration
 - Feature-to-task mapping
 - Bidirectional synchronization
@@ -201,6 +218,7 @@ graph TB
 - Configurable integration strategies
 
 **Integration Patterns:**
+
 - **Adapter Pattern**: External system integration
 - **Facade Pattern**: Simplified integration interface
 - **Proxy Pattern**: Remote system communication
@@ -415,7 +433,10 @@ interface SystemConfig {
 ### Basic Usage
 
 ```typescript
-import { initializeATMS, DEFAULT_CONFIG } from '@google/autonomous-task-management';
+import {
+  initializeATMS,
+  DEFAULT_CONFIG,
+} from '@google/autonomous-task-management';
 
 // Initialize the system
 const taskManager = await initializeATMS(DEFAULT_CONFIG);
@@ -426,13 +447,13 @@ const task = await taskManager.createTask({
   description: 'Add complete user auth system with JWT tokens',
   category: 'feature',
   priority: 'high',
-  businessValue: 'Enables user-specific features and security'
+  businessValue: 'Enables user-specific features and security',
 });
 
 // Query tasks
 const activeTasks = await taskManager.queryTasks({
   status: ['in_progress', 'queued'],
-  priority: ['high', 'critical']
+  priority: ['high', 'critical'],
 });
 
 // Get system statistics
@@ -446,24 +467,24 @@ console.log('System Stats:', stats);
 const customConfig: SystemConfig = {
   persistenceConfig: {
     type: 'database',
-    connectionString: 'postgresql://localhost:5432/atms'
+    connectionString: 'postgresql://localhost:5432/atms',
   },
   logging: {
     level: 'info',
     output: 'file',
-    filePath: './logs/atms.log'
+    filePath: './logs/atms.log',
   },
   agentConfig: {
     maxConcurrentAgents: 10,
     heartbeatInterval: 30000,
-    sessionTimeout: 300000
+    sessionTimeout: 300000,
   },
   qualityConfig: {
     enableLinting: true,
     enableTesting: true,
     enableSecurity: true,
-    enablePerformance: true
-  }
+    enablePerformance: true,
+  },
 };
 
 const taskManager = await initializeATMS(customConfig);

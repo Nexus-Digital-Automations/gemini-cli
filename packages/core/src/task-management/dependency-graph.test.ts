@@ -6,7 +6,12 @@
 
 import { describe, test, expect, beforeEach } from 'vitest';
 import { DependencyGraphManager } from './dependency-graph.js';
-import type { Task, TaskDependency, TaskPriority, TaskCategory } from './types.js';
+import type {
+  Task,
+  TaskDependency,
+  TaskPriority,
+  TaskCategory,
+} from './types.js';
 
 describe('DependencyGraphManager', () => {
   let graphManager: DependencyGraphManager;
@@ -19,13 +24,18 @@ describe('DependencyGraphManager', () => {
     sampleTasks = [
       createTestTask('task1', 'Setup Database', 'implementation', 'high'),
       createTestTask('task2', 'Create User Model', 'implementation', 'medium'),
-      createTestTask('task3', 'Implement Authentication', 'implementation', 'high'),
+      createTestTask(
+        'task3',
+        'Implement Authentication',
+        'implementation',
+        'high',
+      ),
       createTestTask('task4', 'Write Tests', 'testing', 'medium'),
       createTestTask('task5', 'Deploy Application', 'deployment', 'low'),
     ];
 
     // Add tasks to graph
-    sampleTasks.forEach(task => graphManager.addTask(task));
+    sampleTasks.forEach((task) => graphManager.addTask(task));
   });
 
   describe('Task Management', () => {
@@ -45,7 +55,12 @@ describe('DependencyGraphManager', () => {
     });
 
     test('should handle duplicate task addition', () => {
-      const duplicateTask = createTestTask('task1', 'Duplicate Task', 'documentation', 'low');
+      const duplicateTask = createTestTask(
+        'task1',
+        'Duplicate Task',
+        'documentation',
+        'low',
+      );
 
       // Adding duplicate should not increase count
       graphManager.addTask(duplicateTask);
@@ -192,7 +207,7 @@ describe('DependencyGraphManager', () => {
 
       // Should suggest removing soft dependency first
       const softRemovalStrategy = cycles[0].resolutionStrategies.find(
-        s => s.strategy === 'remove_edge' && s.impact === 'low'
+        (s) => s.strategy === 'remove_edge' && s.impact === 'low',
       );
       expect(softRemovalStrategy).toBeDefined();
     });
@@ -276,7 +291,7 @@ describe('DependencyGraphManager', () => {
 
       // Re-create graph with duration tasks
       graphManager = new DependencyGraphManager();
-      tasksWithDurations.forEach(task => graphManager.addTask(task));
+      tasksWithDurations.forEach((task) => graphManager.addTask(task));
 
       // Create dependency chain
       graphManager.addDependency({
@@ -348,7 +363,8 @@ describe('DependencyGraphManager', () => {
 
       // Each group should have only one task from the chain
       parallelGroups.forEach((group, index) => {
-        if (index < 3) { // First three groups contain chain tasks
+        if (index < 3) {
+          // First three groups contain chain tasks
           expect(group.length).toBe(1);
         }
       });
@@ -485,7 +501,7 @@ function createTestTask(
   title: string,
   category: TaskCategory,
   priority: TaskPriority,
-  estimatedDuration?: number
+  estimatedDuration?: number,
 ): Task {
   const now = new Date();
 

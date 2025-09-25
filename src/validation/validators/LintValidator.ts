@@ -16,7 +16,11 @@ import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { Logger } from '../../utils/logger.js';
-import type { ValidationContext, ValidationResult, ValidationStatus } from '../core/ValidationEngine.js';
+import type {
+  ValidationContext,
+  ValidationResult,
+  ValidationStatus,
+} from '../core/ValidationEngine.js';
 
 /**
  * Lint validation configuration
@@ -100,7 +104,7 @@ export class LintValidator {
       maxWarnings: 0,
       enableTypeCheck: true,
       ignorePatterns: ['node_modules/**', 'dist/**', 'build/**', '*.d.ts'],
-      ...config
+      ...config,
     };
   }
 
@@ -129,7 +133,7 @@ export class LintValidator {
           suggestions: ['Add lintable files to enable code quality validation'],
           evidence: [],
           timestamp: new Date(),
-          duration: Date.now() - startTime
+          duration: Date.now() - startTime,
         };
       }
 
@@ -148,26 +152,35 @@ export class LintValidator {
         criteriaId: 'lint_check',
         status,
         score,
-        severity: summary.errorCount > 0 ? 'high' : summary.warningCount > (this.config.maxWarnings || 0) ? 'medium' : 'info',
+        severity:
+          summary.errorCount > 0
+            ? 'high'
+            : summary.warningCount > (this.config.maxWarnings || 0)
+              ? 'medium'
+              : 'info',
         message: this.generateLintMessage(summary),
-        details: this.generateLintDetails(summary, eslintResults, prettierResults),
+        details: this.generateLintDetails(
+          summary,
+          eslintResults,
+          prettierResults,
+        ),
         suggestions: this.generateLintSuggestions(summary, eslintResults),
         evidence: [
           {
             type: 'report',
             path: 'eslint-results.json',
             content: JSON.stringify(eslintResults, null, 2),
-            metadata: { tool: 'eslint', fileCount: filesToLint.length }
+            metadata: { tool: 'eslint', fileCount: filesToLint.length },
           },
           {
             type: 'report',
             path: 'prettier-results.json',
             content: JSON.stringify(prettierResults, null, 2),
-            metadata: { tool: 'prettier', fileCount: filesToLint.length }
-          }
+            metadata: { tool: 'prettier', fileCount: filesToLint.length },
+          },
         ],
         timestamp: new Date(),
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
 
       this.logger.info(`Lint validation completed`, {
@@ -176,15 +189,19 @@ export class LintValidator {
         status,
         errors: summary.errorCount,
         warnings: summary.warningCount,
-        duration: result.duration
+        duration: result.duration,
       });
 
       return result;
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown lint validation error';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Unknown lint validation error';
 
-      this.logger.error(`Lint validation failed for task: ${context.taskId}`, { error });
+      this.logger.error(`Lint validation failed for task: ${context.taskId}`, {
+        error,
+      });
 
       return {
         criteriaId: 'lint_check',
@@ -196,11 +213,11 @@ export class LintValidator {
         suggestions: [
           'Check that ESLint and Prettier are properly installed',
           'Verify lint configuration files are valid',
-          'Ensure target files are accessible'
+          'Ensure target files are accessible',
         ],
         evidence: [],
         timestamp: new Date(),
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
   }
@@ -215,7 +232,9 @@ export class LintValidator {
       try {
         await this.runCommand(tool, ['--version']);
       } catch (error) {
-        throw new Error(`Linting tool '${tool}' is not available. Please install it: npm install -D ${tool}`);
+        throw new Error(
+          `Linting tool '${tool}' is not available. Please install it: npm install -D ${tool}`,
+        );
       }
     }
   }
@@ -227,10 +246,10 @@ export class LintValidator {
     const lintableExtensions = ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'];
 
     return artifacts
-      .filter(artifact => artifact.type === 'file')
-      .map(artifact => artifact.path)
-      .filter(path => lintableExtensions.some(ext => path.endsWith(ext)))
-      .filter(path => !this.isIgnored(path));
+      .filter((artifact) => artifact.type === 'file')
+      .map((artifact) => artifact.path)
+      .filter((path) => lintableExtensions.some((ext) => path.endsWith(ext)))
+      .filter((path) => !this.isIgnored(path));
   }
 
   /**
@@ -239,13 +258,13 @@ export class LintValidator {
   private isIgnored(filePath: string): boolean {
     const ignorePatterns = this.config.ignorePatterns || [];
 
-    return ignorePatterns.some(pattern => {
+    return ignorePatterns.some((pattern) => {
       // Simple glob pattern matching
       const regex = new RegExp(
         pattern
           .replace(/\*\*/g, '.*')
           .replace(/\*/g, '[^/]*')
-          .replace(/\?/g, '[^/]')
+          .replace(/\?/g, '[^/]'),
       );
       return regex.test(filePath);
     });
@@ -258,9 +277,11 @@ export class LintValidator {
     this.logger.debug(`Running ESLint on ${filePaths.length} files`);
 
     const eslintArgs = [
-      '--format', 'json',
+      '--format',
+      'json',
       '--no-eslintrc', // Use only provided config
-      '--max-warnings', String(this.config.maxWarnings || 0)
+      '--max-warnings',
+      String(this.config.maxWarnings || 0),
     ];
 
     // Add config file if specified
@@ -296,8 +317,12 @@ export class LintValidator {
   /**
    * Run Prettier validation on specified files
    */
-  private async runPrettier(filePaths: string[]): Promise<{ formatted: boolean; errors: string[] }> {
-    this.logger.debug(`Running Prettier validation on ${filePaths.length} files`);
+  private async runPrettier(
+    filePaths: string[],
+  ): Promise<{ formatted: boolean; errors: string[] }> {
+    this.logger.debug(
+      `Running Prettier validation on ${filePaths.length} files`,
+    );
 
     const prettierArgs = ['--check'];
 
@@ -314,10 +339,11 @@ export class LintValidator {
       return { formatted: true, errors: [] };
     } catch (error) {
       // Prettier exits with non-zero code when files need formatting
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       return {
         formatted: false,
-        errors: [errorMessage]
+        errors: [errorMessage],
       };
     }
   }
@@ -334,10 +360,13 @@ export class LintValidator {
       fixableWarningCount: 0,
       passedFiles: 0,
       failedFiles: 0,
-      topIssues: []
+      topIssues: [],
     };
 
-    const ruleIssues = new Map<string, { count: number; severity: 'error' | 'warning' }>();
+    const ruleIssues = new Map<
+      string,
+      { count: number; severity: 'error' | 'warning' }
+    >();
 
     for (const result of eslintResults) {
       summary.errorCount += result.errorCount;
@@ -355,7 +384,10 @@ export class LintValidator {
       for (const message of result.messages) {
         if (message.ruleId) {
           const severity = message.severity === 2 ? 'error' : 'warning';
-          const existing = ruleIssues.get(message.ruleId) || { count: 0, severity };
+          const existing = ruleIssues.get(message.ruleId) || {
+            count: 0,
+            severity,
+          };
           existing.count++;
           // Upgrade severity if we encounter an error
           if (severity === 'error') {
@@ -373,7 +405,7 @@ export class LintValidator {
       .map(([rule, data]) => ({
         rule,
         count: data.count,
-        severity: data.severity
+        severity: data.severity,
       }));
 
     return summary;
@@ -388,15 +420,16 @@ export class LintValidator {
     let score = 100;
 
     // Deduct points for errors (critical)
-    score -= (summary.errorCount * 10);
+    score -= summary.errorCount * 10;
 
     // Deduct points for warnings (less critical)
-    score -= (summary.warningCount * 2);
+    score -= summary.warningCount * 2;
 
     // Bonus for fixable issues (easier to resolve)
-    const fixableRatio = (summary.fixableErrorCount + summary.fixableWarningCount) /
+    const fixableRatio =
+      (summary.fixableErrorCount + summary.fixableWarningCount) /
       Math.max(1, summary.errorCount + summary.warningCount);
-    score += (fixableRatio * 5);
+    score += fixableRatio * 5;
 
     // File-based scoring
     const passedRatio = summary.passedFiles / summary.totalFiles;
@@ -426,8 +459,10 @@ export class LintValidator {
       return `All ${summary.totalFiles} files passed lint validation`;
     }
 
-    const errorMsg = summary.errorCount > 0 ? `${summary.errorCount} errors` : '';
-    const warningMsg = summary.warningCount > 0 ? `${summary.warningCount} warnings` : '';
+    const errorMsg =
+      summary.errorCount > 0 ? `${summary.errorCount} errors` : '';
+    const warningMsg =
+      summary.warningCount > 0 ? `${summary.warningCount} warnings` : '';
 
     const issues = [errorMsg, warningMsg].filter(Boolean).join(', ');
     return `Lint validation found ${issues} across ${summary.totalFiles} files`;
@@ -439,7 +474,7 @@ export class LintValidator {
   private generateLintDetails(
     summary: LintSummary,
     eslintResults: ESLintResult[],
-    prettierResults: { formatted: boolean; errors: string[] }
+    prettierResults: { formatted: boolean; errors: string[] },
   ): string {
     let details = `## Lint Validation Report\n\n`;
 
@@ -470,10 +505,13 @@ export class LintValidator {
     }
 
     // Add file-specific details for files with errors
-    const filesWithErrors = eslintResults.filter(result => result.errorCount > 0);
+    const filesWithErrors = eslintResults.filter(
+      (result) => result.errorCount > 0,
+    );
     if (filesWithErrors.length > 0) {
       details += `### Files with Errors\n`;
-      for (const result of filesWithErrors.slice(0, 10)) { // Limit to top 10
+      for (const result of filesWithErrors.slice(0, 10)) {
+        // Limit to top 10
         details += `**${result.filePath}**: ${result.errorCount} errors, ${result.warningCount} warnings\n`;
       }
     }
@@ -484,7 +522,10 @@ export class LintValidator {
   /**
    * Generate lint improvement suggestions
    */
-  private generateLintSuggestions(summary: LintSummary, eslintResults: ESLintResult[]): string[] {
+  private generateLintSuggestions(
+    summary: LintSummary,
+    eslintResults: ESLintResult[],
+  ): string[] {
     const suggestions: string[] = [];
 
     if (summary.errorCount > 0) {
@@ -492,7 +533,9 @@ export class LintValidator {
     }
 
     if (summary.fixableErrorCount > 0 || summary.fixableWarningCount > 0) {
-      suggestions.push('Run `eslint --fix` to automatically fix fixable issues');
+      suggestions.push(
+        'Run `eslint --fix` to automatically fix fixable issues',
+      );
     }
 
     if (summary.warningCount > 0) {
@@ -502,11 +545,15 @@ export class LintValidator {
     // Suggest specific improvements based on common issues
     const topRules = summary.topIssues.slice(0, 3);
     for (const issue of topRules) {
-      suggestions.push(`Focus on resolving '${issue.rule}' issues (${issue.count} occurrences)`);
+      suggestions.push(
+        `Focus on resolving '${issue.rule}' issues (${issue.count} occurrences)`,
+      );
     }
 
     if (summary.failedFiles > summary.totalFiles * 0.5) {
-      suggestions.push('Consider updating ESLint configuration for better project fit');
+      suggestions.push(
+        'Consider updating ESLint configuration for better project fit',
+      );
     }
 
     if (suggestions.length === 0) {
@@ -522,7 +569,7 @@ export class LintValidator {
   private runCommand(command: string, args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
 
       let stdout = '';
@@ -540,7 +587,9 @@ export class LintValidator {
         if (code === 0) {
           resolve(stdout);
         } else {
-          const error = new Error(`Command '${command}' exited with code ${code}: ${stderr}`) as any;
+          const error = new Error(
+            `Command '${command}' exited with code ${code}: ${stderr}`,
+          ) as any;
           error.stdout = stdout;
           error.stderr = stderr;
           error.code = code;
@@ -549,7 +598,9 @@ export class LintValidator {
       });
 
       child.on('error', (error) => {
-        reject(new Error(`Failed to start command '${command}': ${error.message}`));
+        reject(
+          new Error(`Failed to start command '${command}': ${error.message}`),
+        );
       });
     });
   }

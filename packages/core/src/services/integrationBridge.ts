@@ -19,7 +19,12 @@ import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import type { Config } from '../index.js';
-import { AutonomousTaskIntegrator, type AutonomousTask, type RegisteredAgent, type TaskEvent } from './autonomousTaskIntegrator.js';
+import {
+  AutonomousTaskIntegrator,
+  type AutonomousTask,
+  type RegisteredAgent,
+  type TaskEvent,
+} from './autonomousTaskIntegrator.js';
 
 export interface TaskManagerApiResponse {
   success: boolean;
@@ -54,7 +59,8 @@ export class IntegrationBridge extends EventEmitter {
     super();
     this.config = config;
     this.integrationConfig = {
-      taskManagerApiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      taskManagerApiPath:
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
       projectRoot: process.cwd(),
       enableCrossSessionPersistence: true,
       enableRealTimeUpdates: true,
@@ -75,7 +81,9 @@ export class IntegrationBridge extends EventEmitter {
    */
   async initialize(): Promise<void> {
     try {
-      console.log('🚀 Initializing Autonomous Task Management Integration Bridge...');
+      console.log(
+        '🚀 Initializing Autonomous Task Management Integration Bridge...',
+      );
 
       // Initialize the core task integrator
       await this.taskIntegrator.initialize();
@@ -94,7 +102,10 @@ export class IntegrationBridge extends EventEmitter {
       console.log('✅ Integration Bridge initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize Integration Bridge:', error);
-      this.emit('bridge_initialization_failed', { error, timestamp: new Date() });
+      this.emit('bridge_initialization_failed', {
+        error,
+        timestamp: new Date(),
+      });
       throw error;
     }
   }
@@ -102,17 +113,25 @@ export class IntegrationBridge extends EventEmitter {
   /**
    * Create task from approved feature in FEATURES.json
    */
-  async createTaskFromFeature(featureId: string, options: any = {}): Promise<AutonomousTask> {
+  async createTaskFromFeature(
+    featureId: string,
+    options: any = {},
+  ): Promise<AutonomousTask> {
     if (!this.isInitialized) {
       throw new Error('Integration Bridge not initialized');
     }
 
     try {
       // Call TaskManager API to create task from feature
-      const apiResponse = await this.callTaskManagerAPI('createTaskFromFeature', [featureId, options]);
+      const apiResponse = await this.callTaskManagerAPI(
+        'createTaskFromFeature',
+        [featureId, options],
+      );
 
       if (!apiResponse.success) {
-        throw new Error(apiResponse.error || 'Failed to create task from feature');
+        throw new Error(
+          apiResponse.error || 'Failed to create task from feature',
+        );
       }
 
       // Convert API response to AutonomousTask and add to integrator
@@ -133,7 +152,10 @@ export class IntegrationBridge extends EventEmitter {
       console.log(`✅ Created task ${task.id} from feature ${featureId}`);
       return task;
     } catch (error) {
-      console.error(`❌ Failed to create task from feature ${featureId}:`, error);
+      console.error(
+        `❌ Failed to create task from feature ${featureId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -150,10 +172,15 @@ export class IntegrationBridge extends EventEmitter {
       console.log('🔄 Generating tasks from approved features...');
 
       // Call TaskManager API to generate tasks
-      const apiResponse = await this.callTaskManagerAPI('generateTasksFromApprovedFeatures');
+      const apiResponse = await this.callTaskManagerAPI(
+        'generateTasksFromApprovedFeatures',
+      );
 
       if (!apiResponse.success) {
-        throw new Error(apiResponse.error || 'Failed to generate tasks from approved features');
+        throw new Error(
+          apiResponse.error ||
+            'Failed to generate tasks from approved features',
+        );
       }
 
       const generatedTasks: AutonomousTask[] = [];
@@ -177,10 +204,15 @@ export class IntegrationBridge extends EventEmitter {
         generatedTasks.push(task);
       }
 
-      console.log(`✅ Generated ${generatedTasks.length} tasks from approved features`);
+      console.log(
+        `✅ Generated ${generatedTasks.length} tasks from approved features`,
+      );
       return generatedTasks;
     } catch (error) {
-      console.error('❌ Failed to generate tasks from approved features:', error);
+      console.error(
+        '❌ Failed to generate tasks from approved features:',
+        error,
+      );
       throw error;
     }
   }
@@ -201,7 +233,10 @@ export class IntegrationBridge extends EventEmitter {
       console.log(`🤖 Registering agent ${agentConfig.id}...`);
 
       // Register with TaskManager API first
-      await this.callTaskManagerAPI('registerAgentCapabilities', [agentConfig.id, agentConfig.capabilities]);
+      await this.callTaskManagerAPI('registerAgentCapabilities', [
+        agentConfig.id,
+        agentConfig.capabilities,
+      ]);
 
       // Register with the task integrator
       await this.taskIntegrator.registerAgent(agentConfig);
@@ -216,13 +251,16 @@ export class IntegrationBridge extends EventEmitter {
   /**
    * Update task progress across all systems
    */
-  async updateTaskProgress(taskId: string, progressUpdate: {
-    status?: string;
-    progress_percentage?: number;
-    notes?: string;
-    updated_by?: string;
-    metadata?: Record<string, unknown>;
-  }): Promise<void> {
+  async updateTaskProgress(
+    taskId: string,
+    progressUpdate: {
+      status?: string;
+      progress_percentage?: number;
+      notes?: string;
+      updated_by?: string;
+      metadata?: Record<string, unknown>;
+    },
+  ): Promise<void> {
     if (!this.isInitialized) {
       throw new Error('Integration Bridge not initialized');
     }
@@ -238,7 +276,10 @@ export class IntegrationBridge extends EventEmitter {
 
       // Update in TaskManager API if external task exists
       if (externalTaskId) {
-        await this.callTaskManagerAPI('updateTaskProgress', [externalTaskId, progressUpdate]);
+        await this.callTaskManagerAPI('updateTaskProgress', [
+          externalTaskId,
+          progressUpdate,
+        ]);
       }
 
       // Update task status in integrator (this would be enhanced)
@@ -300,10 +341,14 @@ export class IntegrationBridge extends EventEmitter {
   /**
    * Execute CLI command with task context
    */
-  async executeCliCommand(command: string, args: string[] = [], taskContext?: {
-    taskId: string;
-    agentId: string;
-  }): Promise<{ success: boolean; output: string; error?: string }> {
+  async executeCliCommand(
+    command: string,
+    args: string[] = [],
+    taskContext?: {
+      taskId: string;
+      agentId: string;
+    },
+  ): Promise<{ success: boolean; output: string; error?: string }> {
     if (!this.isInitialized) {
       throw new Error('Integration Bridge not initialized');
     }
@@ -313,7 +358,13 @@ export class IntegrationBridge extends EventEmitter {
 
       // Enhance command execution with task context
       const enhancedArgs = taskContext
-        ? ['--task-id', taskContext.taskId, '--agent-id', taskContext.agentId, ...args]
+        ? [
+            '--task-id',
+            taskContext.taskId,
+            '--agent-id',
+            taskContext.agentId,
+            ...args,
+          ]
         : args;
 
       // Execute command using spawn
@@ -322,7 +373,7 @@ export class IntegrationBridge extends EventEmitter {
       if (taskContext) {
         await this.updateTaskProgress(taskContext.taskId, {
           notes: `CLI command executed: ${command}`,
-          metadata: { command, args, output: result.output }
+          metadata: { command, args, output: result.output },
         });
       }
 
@@ -348,16 +399,21 @@ export class IntegrationBridge extends EventEmitter {
         'gemini-task-list',
         'gemini-task-status',
         'gemini-agent-register',
-        'gemini-system-status'
+        'gemini-system-status',
       ],
-      integrationMode: this.integrationConfig.autoStartTaskProcessing ? 'automatic' : 'manual'
+      integrationMode: this.integrationConfig.autoStartTaskProcessing
+        ? 'automatic'
+        : 'manual',
     };
   }
 
   /**
    * Handle API requests directly from external tools
    */
-  async handleExternalApiRequest(endpoint: string, params: any[] = []): Promise<any> {
+  async handleExternalApiRequest(
+    endpoint: string,
+    params: any[] = [],
+  ): Promise<any> {
     if (!this.isInitialized) {
       throw new Error('Integration Bridge not initialized');
     }
@@ -430,7 +486,10 @@ export class IntegrationBridge extends EventEmitter {
       // Restore any in-progress tasks (implementation would be more sophisticated)
       if (taskQueue.success && taskQueue.tasks) {
         for (const apiTask of taskQueue.tasks) {
-          if (apiTask.status === 'in_progress' || apiTask.status === 'assigned') {
+          if (
+            apiTask.status === 'in_progress' ||
+            apiTask.status === 'assigned'
+          ) {
             // Recreate task in integrator
             await this.taskIntegrator.createTask({
               title: apiTask.title,
@@ -496,7 +555,10 @@ export class IntegrationBridge extends EventEmitter {
     }
   }
 
-  private async spawnCommand(command: string, args: string[]): Promise<{ success: boolean; output: string; error?: string }> {
+  private async spawnCommand(
+    command: string,
+    args: string[],
+  ): Promise<{ success: boolean; output: string; error?: string }> {
     return new Promise((resolve) => {
       const child: ChildProcess = spawn(command, args, {
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -528,15 +590,28 @@ export class IntegrationBridge extends EventEmitter {
     });
   }
 
-  private async callTaskManagerAPI(command: string, args: any[] = []): Promise<TaskManagerApiResponse> {
+  private async callTaskManagerAPI(
+    command: string,
+    args: any[] = [],
+  ): Promise<TaskManagerApiResponse> {
     return new Promise((resolve, reject) => {
-      const cmdArgs = [this.integrationConfig.taskManagerApiPath, command, ...args.map(arg =>
-        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-      ), '--project-root', this.integrationConfig.projectRoot];
+      const cmdArgs = [
+        this.integrationConfig.taskManagerApiPath,
+        command,
+        ...args.map((arg) =>
+          typeof arg === 'object' ? JSON.stringify(arg) : String(arg),
+        ),
+        '--project-root',
+        this.integrationConfig.projectRoot,
+      ];
 
-      const child: ChildProcess = spawn('timeout', ['10s', 'node', ...cmdArgs], {
-        stdio: ['pipe', 'pipe', 'pipe'],
-      });
+      const child: ChildProcess = spawn(
+        'timeout',
+        ['10s', 'node', ...cmdArgs],
+        {
+          stdio: ['pipe', 'pipe', 'pipe'],
+        },
+      );
 
       let stdout = '';
       let stderr = '';
@@ -563,7 +638,9 @@ export class IntegrationBridge extends EventEmitter {
       });
 
       child.on('error', (error) => {
-        reject(new Error(`Failed to execute TaskManager API: ${error.message}`));
+        reject(
+          new Error(`Failed to execute TaskManager API: ${error.message}`),
+        );
       });
     });
   }

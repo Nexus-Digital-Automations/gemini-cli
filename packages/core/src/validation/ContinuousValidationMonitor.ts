@@ -6,8 +6,17 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../logger/Logger.js';
-import type { ValidationFramework, ValidationContext, ValidationReport } from './ValidationFramework.js';
-import type { ValidationWorkflow, TaskExecutionStage, TaskExecutionContext, WorkflowExecutionResult } from './ValidationWorkflow.js';
+import type {
+  ValidationFramework,
+  ValidationContext,
+  ValidationReport,
+} from './ValidationFramework.js';
+import type {
+  ValidationWorkflow,
+  TaskExecutionStage,
+  TaskExecutionContext,
+  WorkflowExecutionResult,
+} from './ValidationWorkflow.js';
 import type { ValidationFailureHandler } from './ValidationFailureHandler.js';
 import type { ValidationReporting } from './ValidationReporting.js';
 
@@ -21,7 +30,7 @@ export enum MonitoringTrigger {
   EXTERNAL_EVENT = 'external-event',
   MANUAL = 'manual',
   GIT_HOOK = 'git-hook',
-  CI_CD_PIPELINE = 'ci-cd-pipeline'
+  CI_CD_PIPELINE = 'ci-cd-pipeline',
 }
 
 /**
@@ -32,7 +41,7 @@ export enum MonitoringScope {
   WORKSPACE = 'workspace',
   FILE = 'file',
   DIRECTORY = 'directory',
-  DEPENDENCY = 'dependency'
+  DEPENDENCY = 'dependency',
 }
 
 /**
@@ -42,7 +51,7 @@ export enum HealthStatus {
   HEALTHY = 'healthy',
   DEGRADED = 'degraded',
   UNHEALTHY = 'unhealthy',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 /**
@@ -180,11 +189,13 @@ export class ContinuousValidationMonitor extends EventEmitter {
     validationFramework: ValidationFramework,
     validationWorkflow: ValidationWorkflow,
     failureHandler: ValidationFailureHandler,
-    reporting: ValidationReporting
+    reporting: ValidationReporting,
   ) {
     super();
     this.logger = new Logger('ContinuousValidationMonitor');
-    this.logger.info('ContinuousValidationMonitor initialized (stub implementation)');
+    this.logger.info(
+      'ContinuousValidationMonitor initialized (stub implementation)',
+    );
   }
 
   async startMonitoring(): Promise<void> {
@@ -198,12 +209,14 @@ export class ContinuousValidationMonitor extends EventEmitter {
   queueValidation(
     context: ValidationContext | TaskExecutionContext,
     trigger: MonitoringTrigger,
-    priority: number = 0
+    priority: number = 0,
   ): string {
     return `validation-${Date.now()}`;
   }
 
-  async triggerValidation(context: ValidationContext | TaskExecutionContext): Promise<string> {
+  async triggerValidation(
+    context: ValidationContext | TaskExecutionContext,
+  ): Promise<string> {
     return `validation-${Date.now()}`;
   }
 
@@ -215,7 +228,7 @@ export class ContinuousValidationMonitor extends EventEmitter {
         validation: HealthStatus.HEALTHY,
         workflow: HealthStatus.HEALTHY,
         reporting: HealthStatus.HEALTHY,
-        fileSystem: HealthStatus.HEALTHY
+        fileSystem: HealthStatus.HEALTHY,
       },
       metrics: {
         validationsPerHour: 0,
@@ -223,10 +236,10 @@ export class ContinuousValidationMonitor extends EventEmitter {
         errorRate: 0,
         queueSize: 0,
         memoryUsage: 0,
-        diskUsage: 0
+        diskUsage: 0,
       },
       alerts: [],
-      uptime: 0
+      uptime: 0,
     };
   }
 
@@ -242,7 +255,10 @@ export class ContinuousValidationMonitor extends EventEmitter {
     return false;
   }
 
-  async cancelWorkflow(taskId: string, stage: TaskExecutionStage): Promise<boolean> {
+  async cancelWorkflow(
+    taskId: string,
+    stage: TaskExecutionStage,
+  ): Promise<boolean> {
     return false;
   }
 
@@ -264,7 +280,7 @@ export class ContinuousValidationMonitor extends EventEmitter {
       unresolvedAlerts: 0,
       monitoringRules: 0,
       healthChecks: 0,
-      systemHealth: HealthStatus.HEALTHY
+      systemHealth: HealthStatus.HEALTHY,
     };
   }
 }

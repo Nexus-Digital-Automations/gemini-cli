@@ -71,9 +71,11 @@ export class MockAgentFactory {
       name: config.name,
       runtimeContext,
       output: this.createMockOutput(config),
-      runNonInteractive: vi.fn().mockImplementation(async (context: ContextState) => {
-        return this.simulateExecution(config, context);
-      }),
+      runNonInteractive: vi
+        .fn()
+        .mockImplementation(async (context: ContextState) => {
+          return this.simulateExecution(config, context);
+        }),
     } as unknown as SubAgentScope;
 
     // Override the static create method temporarily
@@ -91,11 +93,15 @@ export class MockAgentFactory {
     runtimeContext: Config,
   ): Promise<SubAgentScope[]> {
     const defaultPromptConfig: PromptConfig = { systemPrompt: 'Test agent' };
-    const defaultModelConfig: ModelConfig = { model: 'gemini-1.5-flash', temp: 0.5, top_p: 1 };
+    const defaultModelConfig: ModelConfig = {
+      model: 'gemini-1.5-flash',
+      temp: 0.5,
+      top_p: 1,
+    };
     const defaultRunConfig: RunConfig = { max_time_minutes: 5, max_turns: 10 };
 
     return Promise.all(
-      configs.map(config =>
+      configs.map((config) =>
         this.createMockAgent(
           config,
           runtimeContext,
@@ -115,22 +121,28 @@ export class MockAgentFactory {
     context: ContextState,
   ): Promise<void> {
     const startTime = Date.now();
-    this.logMessage(config.name, `Starting execution with state: ${config.state}`);
+    this.logMessage(
+      config.name,
+      `Starting execution with state: ${config.state}`,
+    );
 
     // Simulate execution time
     if (config.executionTime) {
-      await new Promise(resolve => setTimeout(resolve, config.executionTime));
+      await new Promise((resolve) => setTimeout(resolve, config.executionTime));
     }
 
     // Log context variables
     const contextVars = context.get_keys();
-    this.logMessage(config.name, `Context variables: ${contextVars.join(', ')}`);
+    this.logMessage(
+      config.name,
+      `Context variables: ${contextVars.join(', ')}`,
+    );
 
     // Simulate tool calls
     if (config.toolCalls) {
       for (const tool of config.toolCalls) {
         this.logMessage(config.name, `Calling tool: ${tool}`);
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay per tool
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay per tool
       }
     }
 
@@ -302,7 +314,7 @@ export class MockAgentFactory {
         outputVars: {
           completed_tasks: '3',
           failed_tasks: '1',
-          result: 'partial_success'
+          result: 'partial_success',
         },
       },
     };

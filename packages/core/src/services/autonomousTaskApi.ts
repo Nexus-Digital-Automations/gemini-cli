@@ -13,8 +13,17 @@
 
 import { EventEmitter } from 'node:events';
 import type { Config } from '../index.js';
-import { IntegrationBridge, type IntegrationConfig } from './integrationBridge.js';
-import type { AutonomousTask, RegisteredAgent, TaskType, TaskPriority, AgentCapability } from './autonomousTaskIntegrator.js';
+import {
+  IntegrationBridge,
+  type IntegrationConfig,
+} from './integrationBridge.js';
+import type {
+  AutonomousTask,
+  RegisteredAgent,
+  TaskType,
+  TaskPriority,
+  AgentCapability,
+} from './autonomousTaskIntegrator.js';
 
 export interface ApiRequest {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -79,7 +88,9 @@ export class AutonomousTaskApi extends EventEmitter {
     const startTime = Date.now();
 
     try {
-      console.log(`📥 API Request [${requestId}]: ${request.method} ${request.endpoint}`);
+      console.log(
+        `📥 API Request [${requestId}]: ${request.method} ${request.endpoint}`,
+      );
 
       // Route request based on method and endpoint
       const result = await this.routeRequest(request);
@@ -104,7 +115,9 @@ export class AutonomousTaskApi extends EventEmitter {
       };
 
       const duration = Date.now() - startTime;
-      console.error(`❌ API Error [${requestId}]: ${duration}ms - ${response.error}`);
+      console.error(
+        `❌ API Error [${requestId}]: ${duration}ms - ${response.error}`,
+      );
 
       return response;
     }
@@ -114,7 +127,9 @@ export class AutonomousTaskApi extends EventEmitter {
    * Task management endpoints
    */
   async createTask(taskRequest: TaskCreationRequest): Promise<AutonomousTask> {
-    return await this.bridge.handleExternalApiRequest('createTask', [taskRequest]);
+    return await this.bridge.handleExternalApiRequest('createTask', [
+      taskRequest,
+    ]);
   }
 
   async getTask(taskId: string): Promise<AutonomousTask | null> {
@@ -158,7 +173,10 @@ export class AutonomousTaskApi extends EventEmitter {
   /**
    * Feature integration endpoints
    */
-  async createTaskFromFeature(featureId: string, options: any = {}): Promise<AutonomousTask> {
+  async createTaskFromFeature(
+    featureId: string,
+    options: any = {},
+  ): Promise<AutonomousTask> {
     return await this.bridge.createTaskFromFeature(featureId, options);
   }
 
@@ -169,7 +187,11 @@ export class AutonomousTaskApi extends EventEmitter {
   /**
    * CLI integration endpoints
    */
-  async executeCliCommand(command: string, args: string[] = [], taskContext?: any): Promise<any> {
+  async executeCliCommand(
+    command: string,
+    args: string[] = [],
+    taskContext?: any,
+  ): Promise<any> {
     return await this.bridge.executeCliCommand(command, args, taskContext);
   }
 
@@ -198,26 +220,62 @@ export class AutonomousTaskApi extends EventEmitter {
 
     switch (resource) {
       case 'tasks':
-        return await this.routeTaskRequest(method, resourceId, action, params, body);
+        return await this.routeTaskRequest(
+          method,
+          resourceId,
+          action,
+          params,
+          body,
+        );
 
       case 'agents':
-        return await this.routeAgentRequest(method, resourceId, action, params, body);
+        return await this.routeAgentRequest(
+          method,
+          resourceId,
+          action,
+          params,
+          body,
+        );
 
       case 'system':
-        return await this.routeSystemRequest(method, resourceId, action, params, body);
+        return await this.routeSystemRequest(
+          method,
+          resourceId,
+          action,
+          params,
+          body,
+        );
 
       case 'features':
-        return await this.routeFeatureRequest(method, resourceId, action, params, body);
+        return await this.routeFeatureRequest(
+          method,
+          resourceId,
+          action,
+          params,
+          body,
+        );
 
       case 'cli':
-        return await this.routeCliRequest(method, resourceId, action, params, body);
+        return await this.routeCliRequest(
+          method,
+          resourceId,
+          action,
+          params,
+          body,
+        );
 
       default:
         throw new Error(`Unknown resource: ${resource}`);
     }
   }
 
-  private async routeTaskRequest(method: string, resourceId?: string, action?: string, params?: any, body?: any): Promise<any> {
+  private async routeTaskRequest(
+    method: string,
+    resourceId?: string,
+    action?: string,
+    params?: any,
+    body?: any,
+  ): Promise<any> {
     switch (method) {
       case 'GET':
         if (!resourceId) {
@@ -243,7 +301,13 @@ export class AutonomousTaskApi extends EventEmitter {
     }
   }
 
-  private async routeAgentRequest(method: string, resourceId?: string, action?: string, params?: any, body?: any): Promise<any> {
+  private async routeAgentRequest(
+    method: string,
+    resourceId?: string,
+    action?: string,
+    params?: any,
+    body?: any,
+  ): Promise<any> {
     switch (method) {
       case 'GET':
         if (!resourceId) {
@@ -263,7 +327,13 @@ export class AutonomousTaskApi extends EventEmitter {
     }
   }
 
-  private async routeSystemRequest(method: string, resourceId?: string, action?: string, params?: any, body?: any): Promise<any> {
+  private async routeSystemRequest(
+    method: string,
+    resourceId?: string,
+    action?: string,
+    params?: any,
+    body?: any,
+  ): Promise<any> {
     switch (method) {
       case 'GET':
         if (resourceId === 'status') {
@@ -279,7 +349,13 @@ export class AutonomousTaskApi extends EventEmitter {
     }
   }
 
-  private async routeFeatureRequest(method: string, resourceId?: string, action?: string, params?: any, body?: any): Promise<any> {
+  private async routeFeatureRequest(
+    method: string,
+    resourceId?: string,
+    action?: string,
+    params?: any,
+    body?: any,
+  ): Promise<any> {
     switch (method) {
       case 'POST':
         if (action === 'generate-tasks') {
@@ -295,7 +371,13 @@ export class AutonomousTaskApi extends EventEmitter {
     }
   }
 
-  private async routeCliRequest(method: string, resourceId?: string, action?: string, params?: any, body?: any): Promise<any> {
+  private async routeCliRequest(
+    method: string,
+    resourceId?: string,
+    action?: string,
+    params?: any,
+    body?: any,
+  ): Promise<any> {
     switch (method) {
       case 'GET':
         if (resourceId === 'status') {
@@ -346,7 +428,10 @@ export class AutonomousTaskApi extends EventEmitter {
 /**
  * Convenience function to create and initialize the API
  */
-export async function createAutonomousTaskApi(config: Config, integrationConfig?: Partial<IntegrationConfig>): Promise<AutonomousTaskApi> {
+export async function createAutonomousTaskApi(
+  config: Config,
+  integrationConfig?: Partial<IntegrationConfig>,
+): Promise<AutonomousTaskApi> {
   const api = new AutonomousTaskApi(config, integrationConfig);
   await api.initialize();
   return api;

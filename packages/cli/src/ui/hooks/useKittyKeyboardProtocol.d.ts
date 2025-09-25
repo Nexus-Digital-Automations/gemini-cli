@@ -5,9 +5,9 @@
  */
 
 export interface KittyProtocolStatus {
-    supported: boolean;
-    enabled: boolean;
-    checking: boolean;
+  supported: boolean;
+  enabled: boolean;
+  checking: boolean;
 }
 /**
  * Hook that returns the cached Kitty keyboard protocol status.

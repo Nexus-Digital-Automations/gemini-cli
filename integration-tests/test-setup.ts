@@ -17,10 +17,12 @@ import { execSync } from 'node:child_process';
  * resource management, and environment preparation.
  */
 
-const TASK_MANAGER_API = process.env.TASK_MANAGER_API_PATH ||
+const TASK_MANAGER_API =
+  process.env.TASK_MANAGER_API_PATH ||
   '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
 
-const TEST_DIR = process.env.INTEGRATION_TEST_FILE_DIR || '/tmp/autonomous-tests';
+const TEST_DIR =
+  process.env.INTEGRATION_TEST_FILE_DIR || '/tmp/autonomous-tests';
 
 // Test isolation and cleanup utilities
 let testStartTime: number;
@@ -37,7 +39,7 @@ const testResources: {
   agentIds: new Set(),
   tempFiles: new Set(),
   tempDirs: new Set(),
-  processes: new Set()
+  processes: new Set(),
 };
 
 /**
@@ -52,7 +54,10 @@ beforeAll(async () => {
   console.log(`🧪 Setting up test file: ${currentTestFile}`);
 
   // Create test-specific directory
-  const testSpecificDir = join(TEST_DIR, currentTestFile.replace('.test.ts', ''));
+  const testSpecificDir = join(
+    TEST_DIR,
+    currentTestFile.replace('.test.ts', ''),
+  );
   await fs.mkdir(testSpecificDir, { recursive: true });
   testResources.tempDirs.add(testSpecificDir);
 
@@ -72,10 +77,10 @@ afterAll(async () => {
   // Clean up any lingering agents
   for (const agentId of testResources.agentIds) {
     try {
-      execSync(
-        `timeout 5s node "${TASK_MANAGER_API}" terminate ${agentId}`,
-        { stdio: 'ignore', timeout: 5000 }
-      );
+      execSync(`timeout 5s node "${TASK_MANAGER_API}" terminate ${agentId}`, {
+        stdio: 'ignore',
+        timeout: 5000,
+      });
     } catch (error) {
       // Ignore cleanup errors
     }
@@ -131,7 +136,7 @@ beforeEach(async () => {
   }
 
   // Brief pause for system stability
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 });
 
 /**
@@ -144,7 +149,7 @@ afterEach(async () => {
   const memoryDelta = {
     heap: finalMemory.heapUsed - testMemoryBaseline.heapUsed,
     external: finalMemory.external - testMemoryBaseline.external,
-    rss: finalMemory.rss - testMemoryBaseline.rss
+    rss: finalMemory.rss - testMemoryBaseline.rss,
   };
 
   // Log test performance metrics
@@ -153,8 +158,8 @@ afterEach(async () => {
     memoryDelta: {
       heap: Math.round(memoryDelta.heap / 1024 / 1024),
       external: Math.round(memoryDelta.external / 1024 / 1024),
-      rss: Math.round(memoryDelta.rss / 1024 / 1024)
-    }
+      rss: Math.round(memoryDelta.rss / 1024 / 1024),
+    },
   };
 
   if (process.env.VERBOSE === 'true') {
@@ -162,12 +167,15 @@ afterEach(async () => {
   }
 
   // Check for potential memory leaks
-  if (memoryDelta.heap > 50 * 1024 * 1024) { // 50MB threshold
-    console.warn(`⚠️ High memory delta detected: ${metrics.memoryDelta.heap}MB heap increase`);
+  if (memoryDelta.heap > 50 * 1024 * 1024) {
+    // 50MB threshold
+    console.warn(
+      `⚠️ High memory delta detected: ${metrics.memoryDelta.heap}MB heap increase`,
+    );
   }
 
   // Brief pause for system cleanup
-  await new Promise(resolve => setTimeout(resolve, 50));
+  await new Promise((resolve) => setTimeout(resolve, 50));
 });
 
 /**
@@ -208,7 +216,10 @@ export function registerTestProcess(pid: number): void {
 export function createTestId(testName: string): string {
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 1000);
-  return `${currentTestFile}_${testName}_${timestamp}_${random}`.replace(/[^a-zA-Z0-9_]/g, '_');
+  return `${currentTestFile}_${testName}_${timestamp}_${random}`.replace(
+    /[^a-zA-Z0-9_]/g,
+    '_',
+  );
 }
 
 /**
@@ -224,7 +235,7 @@ export function getTestDirectory(): string {
 export async function executeTaskManagerCommand(
   command: string,
   args: string[] = [],
-  options: { timeout?: number; registerAgent?: boolean } = {}
+  options: { timeout?: number; registerAgent?: boolean } = {},
 ): Promise<{ success: boolean; output: string; error?: Error }> {
   const timeout = options.timeout || 10000;
 
@@ -234,17 +245,20 @@ export async function executeTaskManagerCommand(
       {
         encoding: 'utf8',
         timeout,
-        stdio: 'pipe'
-      }
+        stdio: 'pipe',
+      },
     );
 
     // Auto-register agents for cleanup
-    if (options.registerAgent && (command === 'initialize' || command === 'reinitialize') && args[0]) {
+    if (
+      options.registerAgent &&
+      (command === 'initialize' || command === 'reinitialize') &&
+      args[0]
+    ) {
       registerTestAgent(args[0]);
     }
 
     return { success: true, output };
-
   } catch (error) {
     return { success: false, output: '', error: error as Error };
   }
@@ -253,7 +267,10 @@ export async function executeTaskManagerCommand(
 /**
  * Create temporary test file with automatic registration
  */
-export async function createTestFile(fileName: string, content: string): Promise<string> {
+export async function createTestFile(
+  fileName: string,
+  content: string,
+): Promise<string> {
   const testDir = getTestDirectory();
   const filePath = join(testDir, fileName);
 
@@ -291,16 +308,22 @@ export class TestPerformanceMonitor {
   checkpoint(name: string): void {
     this.checkpoints.push({
       name,
-      time: performance.now() - this.startTime
+      time: performance.now() - this.startTime,
     });
   }
 
-  getResults(): { totalTime: number; checkpoints: Array<{ name: string; time: number; delta: number }> } {
+  getResults(): {
+    totalTime: number;
+    checkpoints: Array<{ name: string; time: number; delta: number }>;
+  } {
     const totalTime = performance.now() - this.startTime;
     const enhancedCheckpoints = this.checkpoints.map((checkpoint, index) => ({
       name: checkpoint.name,
       time: checkpoint.time,
-      delta: index > 0 ? checkpoint.time - this.checkpoints[index - 1].time : checkpoint.time
+      delta:
+        index > 0
+          ? checkpoint.time - this.checkpoints[index - 1].time
+          : checkpoint.time,
     }));
 
     return { totalTime, checkpoints: enhancedCheckpoints };
@@ -316,13 +339,13 @@ export const TEST_CONSTANTS = {
     latency: {
       avg: 1000,
       p95: 2000,
-      p99: 5000
+      p99: 5000,
     },
     memory: {
       maxHeapMB: 500,
-      maxRSSMB: 1000
-    }
-  }
+      maxRSSMB: 1000,
+    },
+  },
 };
 
 console.log('⚙️ Integration test setup configured');

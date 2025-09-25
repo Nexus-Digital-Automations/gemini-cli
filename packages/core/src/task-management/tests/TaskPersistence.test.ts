@@ -19,11 +19,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import type { PersistedQueueState} from '../TaskPersistence.js';
+import type { PersistedQueueState } from '../TaskPersistence.js';
 import { TaskPersistence, SerializedTask } from '../TaskPersistence.js';
-import type { Task} from '../TaskQueue.js';
+import type { Task } from '../TaskQueue.js';
 import { TaskStatus, TaskPriority } from '../TaskQueue.js';
-import type { TaskDependency} from '../DependencyResolver.js';
+import type { TaskDependency } from '../DependencyResolver.js';
 import { DependencyType } from '../DependencyResolver.js';
 
 // Mock filesystem operations
@@ -154,7 +154,7 @@ describe('TaskPersistence', () => {
         mockTasks,
         mockDependencies,
         new Map([['metric1', 100]]),
-        { version: '1.0.0', lastSave: new Date() }
+        { version: '1.0.0', lastSave: new Date() },
       );
 
       expect(mockMkdir).toHaveBeenCalled();
@@ -209,13 +209,16 @@ describe('TaskPersistence', () => {
         taskWithCustomFunction,
         new Map(),
         new Map(),
-        {}
+        {},
       );
 
       const writeCall = mockWriteFile.mock.calls[0];
       const serializedData = JSON.parse(writeCall[1] as string);
 
-      expect(serializedData.tasks[0]).toHaveProperty('functionName', 'customExecute');
+      expect(serializedData.tasks[0]).toHaveProperty(
+        'functionName',
+        'customExecute',
+      );
       expect(serializedData.tasks[0]).not.toHaveProperty('executeFunction');
     });
 
@@ -235,7 +238,7 @@ describe('TaskPersistence', () => {
         mockTasks,
         mockDependencies,
         new Map(),
-        {}
+        {},
       );
 
       // Verify that compression was applied (data should not be plain JSON)
@@ -358,7 +361,7 @@ describe('TaskPersistence', () => {
           dependencies: [],
           queueMetrics: {},
           metadata: {},
-        })
+        }),
       );
 
       const restored = await compressionPersistence.loadQueueState();
@@ -380,13 +383,20 @@ describe('TaskPersistence', () => {
       mockWriteFile.mockResolvedValue();
       mockReaddir.mockResolvedValue([]);
 
-      await persistence.createBackup(mockTasks, mockDependencies, new Map(), {});
+      await persistence.createBackup(
+        mockTasks,
+        mockDependencies,
+        new Map(),
+        {},
+      );
 
       // Should create both main file and backup
       expect(mockWriteFile).toHaveBeenCalledTimes(2);
 
       const calls = mockWriteFile.mock.calls;
-      expect(calls.some(call => (call[0] as string).includes('backup'))).toBe(true);
+      expect(calls.some((call) => (call[0] as string).includes('backup'))).toBe(
+        true,
+      );
     });
 
     it('should clean old backups based on retention policy', async () => {
@@ -406,7 +416,8 @@ describe('TaskPersistence', () => {
       // Mock file stats to make first two files old
       mockStat.mockImplementation(async (path) => {
         const filename = path.toString().split('/').pop();
-        const isOld = filename?.includes('01-01') || filename?.includes('01-02');
+        const isOld =
+          filename?.includes('01-01') || filename?.includes('01-02');
 
         return {
           mtime: new Date(isOld ? '2024-01-01' : '2024-01-10'),
@@ -600,10 +611,18 @@ describe('TaskPersistence', () => {
       mockWriteFile.mockResolvedValue();
 
       // Spy on streaming method
-      const streamingSpy = vi.spyOn(streamingPersistence as any, 'saveWithStreaming');
+      const streamingSpy = vi.spyOn(
+        streamingPersistence as any,
+        'saveWithStreaming',
+      );
       streamingSpy.mockResolvedValue();
 
-      await streamingPersistence.saveQueueState(largeTasks, new Map(), new Map(), {});
+      await streamingPersistence.saveQueueState(
+        largeTasks,
+        new Map(),
+        new Map(),
+        {},
+      );
 
       expect(streamingSpy).toHaveBeenCalled();
 
@@ -622,14 +641,19 @@ describe('TaskPersistence', () => {
       mockMkdir.mockResolvedValue(undefined);
       mockWriteFile.mockResolvedValue();
 
-      await persistence.saveQueueState(mockTasks, mockDependencies, new Map(), {});
+      await persistence.saveQueueState(
+        mockTasks,
+        mockDependencies,
+        new Map(),
+        {},
+      );
 
       expect(saveSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           taskCount: 2,
           dependencyCount: 1,
           timestamp: expect.any(Date),
-        })
+        }),
       );
     });
 
@@ -659,7 +683,7 @@ describe('TaskPersistence', () => {
           taskCount: 0,
           dependencyCount: 0,
           source: 'main',
-        })
+        }),
       );
     });
 
@@ -674,14 +698,14 @@ describe('TaskPersistence', () => {
       mockWriteFile.mockRejectedValue(new Error('Disk full'));
 
       await expect(
-        persistence.saveQueueState(mockTasks, mockDependencies, new Map(), {})
+        persistence.saveQueueState(mockTasks, mockDependencies, new Map(), {}),
       ).rejects.toThrow();
 
       expect(errorSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           operation: 'save',
           error: expect.any(Error),
-        })
+        }),
       );
     });
   });

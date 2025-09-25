@@ -9,14 +9,14 @@ import * as path from 'node:path';
 import type {
   AutonomousTask,
   TaskCategory,
-  TaskComplexity
+  TaskComplexity,
 } from './task-breakdown-engine.js';
 import type {
   ValidationEngine,
   ValidationResult,
   TaskExecutionContext,
   TaskExecutionResult,
-  ExecutionLogger
+  ExecutionLogger,
 } from './execution-engine.js';
 
 /**
@@ -27,7 +27,10 @@ export interface ValidationRule {
   description: string;
   category: TaskCategory[];
   priority: ValidationPriority;
-  validate(task: AutonomousTask, context: ValidationContext): Promise<ValidationRuleResult>;
+  validate(
+    task: AutonomousTask,
+    context: ValidationContext,
+  ): Promise<ValidationRuleResult>;
 }
 
 /**
@@ -37,7 +40,7 @@ export enum ValidationPriority {
   LOW = 1,
   MEDIUM = 2,
   HIGH = 3,
-  CRITICAL = 4
+  CRITICAL = 4,
 }
 
 /**
@@ -79,7 +82,7 @@ export interface SuccessCriteriaValidator {
   validateCriteria(
     criteria: string[],
     task: AutonomousTask,
-    result?: TaskExecutionResult
+    result?: TaskExecutionResult,
   ): Promise<ValidationResult>;
 }
 
@@ -100,19 +103,23 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
   /**
    * Validates a task after completion
    */
-  async validateTask(task: AutonomousTask, result: TaskExecutionResult): Promise<ValidationResult> {
+  async validateTask(
+    task: AutonomousTask,
+    result: TaskExecutionResult,
+  ): Promise<ValidationResult> {
     const context: ValidationContext = {
       executionResult: result,
       fileSystem: this.fileSystemValidator,
-      logger: console // Simplified logger
+      logger: console, // Simplified logger
     };
 
     // Validate success criteria
-    const successValidation = await this.successCriteriaValidator.validateCriteria(
-      task.successCriteria || [],
-      task,
-      result
-    );
+    const successValidation =
+      await this.successCriteriaValidator.validateCriteria(
+        task.successCriteria || [],
+        task,
+        result,
+      );
 
     if (!successValidation.passed) {
       return successValidation;
@@ -120,7 +127,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
 
     // Run category-specific validation rules
     const applicableRules = Array.from(this.validationRules.values())
-      .filter(rule => rule.category.includes(task.category))
+      .filter((rule) => rule.category.includes(task.category))
       .sort((a, b) => b.priority - a.priority);
 
     const errors: string[] = [];
@@ -157,8 +164,8 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       details: {
         rulesApplied: ruleCount,
         averageScore,
-        result
-      }
+        result,
+      },
     };
   }
 
@@ -167,12 +174,12 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
    */
   async validatePreConditions(
     task: AutonomousTask,
-    context: TaskExecutionContext
+    context: TaskExecutionContext,
   ): Promise<ValidationResult> {
     const validationContext: ValidationContext = {
       executionContext: context,
       fileSystem: this.fileSystemValidator,
-      logger: context.logger
+      logger: context.logger,
     };
 
     const errors: string[] = [];
@@ -199,8 +206,11 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
               errors.push(`Cannot read target file: ${file}`);
             }
 
-            if ([TaskCategory.EDIT, TaskCategory.DELETE].includes(task.category)) {
-              const isWritable = await this.fileSystemValidator.isWritable(file);
+            if (
+              [TaskCategory.EDIT, TaskCategory.DELETE].includes(task.category)
+            ) {
+              const isWritable =
+                await this.fileSystemValidator.isWritable(file);
               if (!isWritable) {
                 errors.push(`Cannot write to target file: ${file}`);
               }
@@ -214,9 +224,13 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
 
     // Validate workspace path constraints
     if (task.workspacePath) {
-      const isWithinWorkspace = context.workspaceContext.isPathWithinWorkspace(task.workspacePath);
+      const isWithinWorkspace = context.workspaceContext.isPathWithinWorkspace(
+        task.workspacePath,
+      );
       if (!isWithinWorkspace) {
-        errors.push(`Task workspace path is outside allowed workspace: ${task.workspacePath}`);
+        errors.push(
+          `Task workspace path is outside allowed workspace: ${task.workspacePath}`,
+        );
       }
     }
 
@@ -232,7 +246,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       passed: errors.length === 0,
       errors,
       warnings,
-      score: errors.length === 0 ? (warnings.length === 0 ? 100 : 80) : 0
+      score: errors.length === 0 ? (warnings.length === 0 ? 100 : 80) : 0,
     };
   }
 
@@ -241,12 +255,12 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
    */
   async validatePostConditions(
     task: AutonomousTask,
-    result: TaskExecutionResult
+    result: TaskExecutionResult,
   ): Promise<ValidationResult> {
     const context: ValidationContext = {
       executionResult: result,
       fileSystem: this.fileSystemValidator,
-      logger: console
+      logger: console,
     };
 
     const errors: string[] = [];
@@ -265,7 +279,9 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
     const actualDuration = result.duration / (1000 * 60); // convert to minutes
 
     if (actualDuration > expectedDuration * 3) {
-      warnings.push(`Task took longer than expected: ${actualDuration}min vs ${expectedDuration}min`);
+      warnings.push(
+        `Task took longer than expected: ${actualDuration}min vs ${expectedDuration}min`,
+      );
     }
 
     // Validate created/modified files
@@ -296,7 +312,11 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       passed: errors.length === 0,
       errors,
       warnings,
-      score: this.calculateValidationScore(errors.length, warnings.length, result)
+      score: this.calculateValidationScore(
+        errors.length,
+        warnings.length,
+        result,
+      ),
     };
   }
 
@@ -340,9 +360,11 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
     // Parse description for tool mentions
     const description = task.description.toLowerCase();
     if (description.includes('grep')) tools.push('grep');
-    if (description.includes('shell') || description.includes('command')) tools.push('shell');
+    if (description.includes('shell') || description.includes('command'))
+      tools.push('shell');
     if (description.includes('edit')) tools.push('edit');
-    if (description.includes('write') || description.includes('create')) tools.push('write-file');
+    if (description.includes('write') || description.includes('create'))
+      tools.push('write-file');
 
     return [...new Set(tools)]; // Remove duplicates
   }
@@ -350,7 +372,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
   private async validateStep(
     step: string,
     task: AutonomousTask,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<ValidationRuleResult> {
     const stepLower = step.toLowerCase();
 
@@ -361,13 +383,21 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
           if (stepLower.includes('exists')) {
             const exists = await this.fileSystemValidator.fileExists(file);
             if (!exists) {
-              return { passed: false, message: `File does not exist: ${file}`, score: 0 };
+              return {
+                passed: false,
+                message: `File does not exist: ${file}`,
+                score: 0,
+              };
             }
           }
           if (stepLower.includes('readable')) {
             const readable = await this.fileSystemValidator.isReadable(file);
             if (!readable) {
-              return { passed: false, message: `File is not readable: ${file}`, score: 0 };
+              return {
+                passed: false,
+                message: `File is not readable: ${file}`,
+                score: 0,
+              };
             }
           }
         }
@@ -383,22 +413,30 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
         return await this.validateTests(task, context);
       }
 
-      return { passed: true, message: `Validation step passed: ${step}`, score: 100 };
+      return {
+        passed: true,
+        message: `Validation step passed: ${step}`,
+        score: 100,
+      };
     } catch (error) {
       return {
         passed: false,
         message: `Validation step failed: ${step} - ${error}`,
-        score: 0
+        score: 0,
       };
     }
   }
 
   private async validateSyntax(
     task: AutonomousTask,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<ValidationRuleResult> {
     if (!task.targetFiles) {
-      return { passed: true, message: 'No files to validate syntax', score: 100 };
+      return {
+        passed: true,
+        message: 'No files to validate syntax',
+        score: 100,
+      };
     }
 
     for (const file of task.targetFiles) {
@@ -413,11 +451,19 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
           // This is a simplified implementation
           const stats = await this.fileSystemValidator.getFileStats(file);
           if (stats.size === 0) {
-            return { passed: false, message: `File is empty: ${file}`, score: 0 };
+            return {
+              passed: false,
+              message: `File is empty: ${file}`,
+              score: 0,
+            };
           }
         }
       } catch (error) {
-        return { passed: false, message: `Syntax validation failed for ${file}: ${error}`, score: 0 };
+        return {
+          passed: false,
+          message: `Syntax validation failed for ${file}: ${error}`,
+          score: 0,
+        };
       }
     }
 
@@ -426,7 +472,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
 
   private async validateTests(
     task: AutonomousTask,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<ValidationRuleResult> {
     // This would run relevant tests for the task
     // Simplified implementation for now
@@ -437,7 +483,11 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
     return { passed: false, message: 'Test validation failed', score: 0 };
   }
 
-  private calculateValidationScore(errors: number, warnings: number, result: TaskExecutionResult): number {
+  private calculateValidationScore(
+    errors: number,
+    warnings: number,
+    result: TaskExecutionResult,
+  ): number {
     let score = 100;
 
     // Deduct for errors
@@ -469,7 +519,11 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       priority: ValidationPriority.HIGH,
       validate: async (task, context) => {
         if (!task.targetFiles) {
-          return { passed: true, message: 'No target files specified', score: 100 };
+          return {
+            passed: true,
+            message: 'No target files specified',
+            score: 100,
+          };
         }
 
         for (const file of task.targetFiles) {
@@ -478,13 +532,17 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
             return {
               passed: false,
               message: `Required file does not exist: ${file}`,
-              score: 0
+              score: 0,
             };
           }
         }
 
-        return { passed: true, message: 'All required files exist', score: 100 };
-      }
+        return {
+          passed: true,
+          message: 'All required files exist',
+          score: 100,
+        };
+      },
     });
 
     // File permissions validation rule
@@ -495,27 +553,38 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       priority: ValidationPriority.HIGH,
       validate: async (task, context) => {
         if (!task.targetFiles) {
-          return { passed: true, message: 'No target files to check permissions', score: 100 };
+          return {
+            passed: true,
+            message: 'No target files to check permissions',
+            score: 100,
+          };
         }
 
         for (const file of task.targetFiles) {
           const exists = await context.fileSystem.fileExists(file);
           if (!exists) continue;
 
-          if (task.category === TaskCategory.EDIT || task.category === TaskCategory.DELETE) {
+          if (
+            task.category === TaskCategory.EDIT ||
+            task.category === TaskCategory.DELETE
+          ) {
             const writable = await context.fileSystem.isWritable(file);
             if (!writable) {
               return {
                 passed: false,
                 message: `File is not writable: ${file}`,
-                score: 0
+                score: 0,
               };
             }
           }
         }
 
-        return { passed: true, message: 'File permissions are adequate', score: 100 };
-      }
+        return {
+          passed: true,
+          message: 'File permissions are adequate',
+          score: 100,
+        };
+      },
     });
 
     // Execution time validation rule
@@ -526,7 +595,11 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
       priority: ValidationPriority.MEDIUM,
       validate: async (task, context) => {
         if (!context.executionResult) {
-          return { passed: true, message: 'No execution result to validate', score: 100 };
+          return {
+            passed: true,
+            message: 'No execution result to validate',
+            score: 100,
+          };
         }
 
         const expectedDuration = task.estimatedDuration || 10; // minutes
@@ -536,7 +609,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
           return {
             passed: false,
             message: `Task took too long: ${actualDuration}min vs expected ${expectedDuration}min`,
-            score: 30
+            score: 30,
           };
         }
 
@@ -544,12 +617,16 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
           return {
             passed: true,
             message: `Task took longer than expected but within acceptable range`,
-            score: 70
+            score: 70,
           };
         }
 
-        return { passed: true, message: 'Execution time is reasonable', score: 100 };
-      }
+        return {
+          passed: true,
+          message: 'Execution time is reasonable',
+          score: 100,
+        };
+      },
     });
   }
 }
@@ -594,7 +671,10 @@ export class DefaultFileSystemValidator implements FileSystemValidator {
     return fs.stat(filePath);
   }
 
-  async validatePath(filePath: string, workspaceRoot: string): Promise<boolean> {
+  async validatePath(
+    filePath: string,
+    workspaceRoot: string,
+  ): Promise<boolean> {
     try {
       const resolvedPath = path.resolve(filePath);
       const resolvedRoot = path.resolve(workspaceRoot);
@@ -608,11 +688,13 @@ export class DefaultFileSystemValidator implements FileSystemValidator {
 /**
  * Default success criteria validator implementation
  */
-export class DefaultSuccessCriteriaValidator implements SuccessCriteriaValidator {
+export class DefaultSuccessCriteriaValidator
+  implements SuccessCriteriaValidator
+{
   async validateCriteria(
     criteria: string[],
     task: AutonomousTask,
-    result?: TaskExecutionResult
+    result?: TaskExecutionResult,
   ): Promise<ValidationResult> {
     if (criteria.length === 0) {
       return { passed: true, errors: [], warnings: [], score: 100 };
@@ -644,7 +726,7 @@ export class DefaultSuccessCriteriaValidator implements SuccessCriteriaValidator
   private async evaluateCriterion(
     criterion: string,
     task: AutonomousTask,
-    result?: TaskExecutionResult
+    result?: TaskExecutionResult,
   ): Promise<boolean> {
     const lower = criterion.toLowerCase();
 
@@ -675,9 +757,11 @@ export class DefaultSuccessCriteriaValidator implements SuccessCriteriaValidator
 
   private isCritical(criterion: string): boolean {
     const lower = criterion.toLowerCase();
-    return lower.includes('critical') ||
-           lower.includes('must') ||
-           lower.includes('required') ||
-           lower.includes('error');
+    return (
+      lower.includes('critical') ||
+      lower.includes('must') ||
+      lower.includes('required') ||
+      lower.includes('error')
+    );
   }
 }

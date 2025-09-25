@@ -7,11 +7,11 @@
 import type { UserTierId } from './types.js';
 import type { OAuth2Client } from 'google-auth-library';
 export declare class ProjectIdRequiredError extends Error {
-    constructor();
+  constructor();
 }
 export interface UserData {
-    projectId: string;
-    userTier: UserTierId;
+  projectId: string;
+  userTier: UserTierId;
 }
 /**
  *

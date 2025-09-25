@@ -26,7 +26,7 @@ export enum ValidationSeverity {
   HIGH = 'high',
   MEDIUM = 'medium',
   LOW = 'low',
-  INFO = 'info'
+  INFO = 'info',
 }
 
 /**
@@ -38,7 +38,7 @@ export enum ValidationStatus {
   PASSED = 'passed',
   FAILED = 'failed',
   REQUIRES_REVIEW = 'requires_review',
-  SKIPPED = 'skipped'
+  SKIPPED = 'skipped',
 }
 
 /**
@@ -48,7 +48,12 @@ export interface ValidationCriteria {
   id: string;
   name: string;
   description: string;
-  category: 'code_quality' | 'performance' | 'security' | 'functionality' | 'documentation';
+  category:
+    | 'code_quality'
+    | 'performance'
+    | 'security'
+    | 'functionality'
+    | 'documentation';
   severity: ValidationSeverity;
   enabled: boolean;
   timeout: number;
@@ -156,7 +161,7 @@ export class ValidationEngine extends EventEmitter {
     this.logger.info(`Registering validation criteria: ${criteria.name}`, {
       criteriaId: criteria.id,
       category: criteria.category,
-      severity: criteria.severity
+      severity: criteria.severity,
     });
 
     this.criteria.set(criteria.id, criteria);
@@ -166,17 +171,21 @@ export class ValidationEngine extends EventEmitter {
   /**
    * Validate task completion comprehensively
    */
-  public async validateTask(context: ValidationContext): Promise<ValidationReport> {
+  public async validateTask(
+    context: ValidationContext,
+  ): Promise<ValidationReport> {
     const startTime = Date.now();
     this.logger.info(`Starting validation for task: ${context.taskId}`, {
       taskType: context.taskType,
       agent: context.agent,
-      artifactsCount: context.artifacts.length
+      artifactsCount: context.artifacts.length,
     });
 
     // Check for concurrent validation
     if (this.activeValidations.has(context.taskId)) {
-      this.logger.warn(`Validation already in progress for task: ${context.taskId}`);
+      this.logger.warn(
+        `Validation already in progress for task: ${context.taskId}`,
+      );
       return await this.activeValidations.get(context.taskId)!;
     }
 
@@ -188,13 +197,15 @@ export class ValidationEngine extends EventEmitter {
       this.logger.info(`Validation completed for task: ${context.taskId}`, {
         status: report.overallStatus,
         score: report.overallScore,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       });
 
       this.emit('validationCompleted', report);
       return report;
     } catch (error) {
-      this.logger.error(`Validation failed for task: ${context.taskId}`, { error });
+      this.logger.error(`Validation failed for task: ${context.taskId}`, {
+        error,
+      });
       throw error;
     } finally {
       this.activeValidations.delete(context.taskId);
@@ -204,7 +215,9 @@ export class ValidationEngine extends EventEmitter {
   /**
    * Execute comprehensive validation process
    */
-  private async executeValidation(context: ValidationContext): Promise<ValidationReport> {
+  private async executeValidation(
+    context: ValidationContext,
+  ): Promise<ValidationReport> {
     const results: ValidationResult[] = [];
     const startTime = Date.now();
 
@@ -213,17 +226,20 @@ export class ValidationEngine extends EventEmitter {
     // Get applicable criteria for this task type
     const applicableCriteria = this.getApplicableCriteria(context.taskType);
 
-    this.logger.info(`Executing ${applicableCriteria.length} validation criteria`, {
-      taskId: context.taskId,
-      criteria: applicableCriteria.map(c => c.name)
-    });
+    this.logger.info(
+      `Executing ${applicableCriteria.length} validation criteria`,
+      {
+        taskId: context.taskId,
+        criteria: applicableCriteria.map((c) => c.name),
+      },
+    );
 
     // Execute validation criteria in parallel with concurrency control
     const batchSize = 5; // Prevent overwhelming the system
     for (let i = 0; i < applicableCriteria.length; i += batchSize) {
       const batch = applicableCriteria.slice(i, i + batchSize);
       const batchResults = await Promise.allSettled(
-        batch.map(criteria => this.executeCriteria(criteria, context))
+        batch.map((criteria) => this.executeCriteria(criteria, context)),
       );
 
       for (const result of batchResults) {
@@ -241,14 +257,18 @@ export class ValidationEngine extends EventEmitter {
             suggestions: ['Review validation criteria implementation'],
             evidence: [],
             timestamp: new Date(),
-            duration: 0
+            duration: 0,
           });
         }
       }
     }
 
     // Generate comprehensive report
-    const report = this.generateValidationReport(context, results, Date.now() - startTime);
+    const report = this.generateValidationReport(
+      context,
+      results,
+      Date.now() - startTime,
+    );
 
     // Store report for analysis and monitoring
     await this.reporter.storeReport(report);
@@ -261,13 +281,13 @@ export class ValidationEngine extends EventEmitter {
    */
   private async executeCriteria(
     criteria: ValidationCriteria,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<ValidationResult> {
     const startTime = Date.now();
 
     this.logger.debug(`Executing validation criteria: ${criteria.name}`, {
       taskId: context.taskId,
-      criteriaId: criteria.id
+      criteriaId: criteria.id,
     });
 
     try {
@@ -276,7 +296,7 @@ export class ValidationEngine extends EventEmitter {
         criteria.validator,
         context,
         criteria.retryCount,
-        criteria.timeout
+        criteria.timeout,
       );
 
       const duration = Date.now() - startTime;
@@ -286,13 +306,13 @@ export class ValidationEngine extends EventEmitter {
         ...result,
         criteriaId: criteria.id,
         timestamp: new Date(),
-        duration
+        duration,
       };
     } catch (error) {
       this.logger.error(`Validation criteria failed: ${criteria.name}`, {
         taskId: context.taskId,
         criteriaId: criteria.id,
-        error
+        error,
       });
 
       return {
@@ -302,10 +322,13 @@ export class ValidationEngine extends EventEmitter {
         severity: criteria.severity,
         message: `Validation criteria execution failed: ${criteria.name}`,
         details: error instanceof Error ? error.message : 'Unknown error',
-        suggestions: ['Review validation criteria implementation', 'Check system resources'],
+        suggestions: [
+          'Review validation criteria implementation',
+          'Check system resources',
+        ],
         evidence: [],
         timestamp: new Date(),
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
   }
@@ -317,7 +340,7 @@ export class ValidationEngine extends EventEmitter {
     validator: (context: ValidationContext) => Promise<ValidationResult>,
     context: ValidationContext,
     retryCount: number,
-    timeout: number
+    timeout: number,
   ): Promise<ValidationResult> {
     let lastError: Error | null = null;
 
@@ -327,22 +350,30 @@ export class ValidationEngine extends EventEmitter {
         const result = await Promise.race([
           validator(context),
           new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Validation timeout')), timeout)
-          )
+            setTimeout(() => reject(new Error('Validation timeout')), timeout),
+          ),
         ]);
 
         return result;
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown validation error');
+        lastError =
+          error instanceof Error
+            ? error
+            : new Error('Unknown validation error');
 
         if (attempt < retryCount) {
-          this.logger.warn(`Validation attempt ${attempt + 1} failed, retrying...`, {
-            taskId: context.taskId,
-            error: lastError.message
-          });
+          this.logger.warn(
+            `Validation attempt ${attempt + 1} failed, retrying...`,
+            {
+              taskId: context.taskId,
+              error: lastError.message,
+            },
+          );
 
           // Exponential backoff
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.pow(2, attempt) * 1000),
+          );
         }
       }
     }
@@ -356,7 +387,7 @@ export class ValidationEngine extends EventEmitter {
   private generateValidationReport(
     context: ValidationContext,
     results: ValidationResult[],
-    totalDuration: number
+    totalDuration: number,
   ): ValidationReport {
     const summary = this.calculateSummary(results);
     const overallScore = this.qualityScorer.calculateOverallScore(results);
@@ -372,7 +403,7 @@ export class ValidationEngine extends EventEmitter {
       summary,
       performance,
       recommendations,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -382,28 +413,37 @@ export class ValidationEngine extends EventEmitter {
   private calculateSummary(results: ValidationResult[]) {
     return {
       total: results.length,
-      passed: results.filter(r => r.status === ValidationStatus.PASSED).length,
-      failed: results.filter(r => r.status === ValidationStatus.FAILED).length,
-      critical: results.filter(r => r.severity === ValidationSeverity.CRITICAL).length,
-      warnings: results.filter(r =>
-        r.severity === ValidationSeverity.HIGH ||
-        r.severity === ValidationSeverity.MEDIUM
-      ).length
+      passed: results.filter((r) => r.status === ValidationStatus.PASSED)
+        .length,
+      failed: results.filter((r) => r.status === ValidationStatus.FAILED)
+        .length,
+      critical: results.filter(
+        (r) => r.severity === ValidationSeverity.CRITICAL,
+      ).length,
+      warnings: results.filter(
+        (r) =>
+          r.severity === ValidationSeverity.HIGH ||
+          r.severity === ValidationSeverity.MEDIUM,
+      ).length,
     };
   }
 
   /**
    * Determine overall validation status
    */
-  private determineOverallStatus(results: ValidationResult[]): ValidationStatus {
-    const failed = results.filter(r => r.status === ValidationStatus.FAILED);
-    const critical = failed.filter(r => r.severity === ValidationSeverity.CRITICAL);
+  private determineOverallStatus(
+    results: ValidationResult[],
+  ): ValidationStatus {
+    const failed = results.filter((r) => r.status === ValidationStatus.FAILED);
+    const critical = failed.filter(
+      (r) => r.severity === ValidationSeverity.CRITICAL,
+    );
 
     if (critical.length > 0) {
       return ValidationStatus.FAILED;
     } else if (failed.length > 0) {
       return ValidationStatus.REQUIRES_REVIEW;
-    } else if (results.some(r => r.status === ValidationStatus.VALIDATING)) {
+    } else if (results.some((r) => r.status === ValidationStatus.VALIDATING)) {
       return ValidationStatus.VALIDATING;
     } else {
       return ValidationStatus.PASSED;
@@ -418,13 +458,17 @@ export class ValidationEngine extends EventEmitter {
 
     // Collect all suggestions from failed validations
     results
-      .filter(r => r.status === ValidationStatus.FAILED)
-      .forEach(r => recommendations.push(...r.suggestions));
+      .filter((r) => r.status === ValidationStatus.FAILED)
+      .forEach((r) => recommendations.push(...r.suggestions));
 
     // Add system-level recommendations
-    const failureRate = results.filter(r => r.status === ValidationStatus.FAILED).length / results.length;
+    const failureRate =
+      results.filter((r) => r.status === ValidationStatus.FAILED).length /
+      results.length;
     if (failureRate > 0.3) {
-      recommendations.push('High failure rate detected - review task complexity and resource allocation');
+      recommendations.push(
+        'High failure rate detected - review task complexity and resource allocation',
+      );
     }
 
     return [...new Set(recommendations)]; // Remove duplicates
@@ -433,17 +477,21 @@ export class ValidationEngine extends EventEmitter {
   /**
    * Analyze validation performance
    */
-  private analyzePerformance(results: ValidationResult[], totalDuration: number) {
-    const averageScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
+  private analyzePerformance(
+    results: ValidationResult[],
+    totalDuration: number,
+  ) {
+    const averageScore =
+      results.reduce((sum, r) => sum + r.score, 0) / results.length;
     const bottlenecks = results
-      .filter(r => r.duration > 10000) // > 10 seconds
-      .map(r => `${r.criteriaId}: ${r.duration}ms`)
+      .filter((r) => r.duration > 10000) // > 10 seconds
+      .map((r) => `${r.criteriaId}: ${r.duration}ms`)
       .slice(0, 5); // Top 5 slowest
 
     return {
       totalDuration,
       averageScore,
-      bottlenecks
+      bottlenecks,
     };
   }
 
@@ -453,18 +501,23 @@ export class ValidationEngine extends EventEmitter {
   private getApplicableCriteria(taskType: string): ValidationCriteria[] {
     // Filter criteria based on task type and enabled status
     return Array.from(this.criteria.values())
-      .filter(criteria => criteria.enabled)
-      .filter(criteria => this.isApplicableForTaskType(criteria, taskType));
+      .filter((criteria) => criteria.enabled)
+      .filter((criteria) => this.isApplicableForTaskType(criteria, taskType));
   }
 
   /**
    * Check if criteria is applicable for task type
    */
-  private isApplicableForTaskType(criteria: ValidationCriteria, taskType: string): boolean {
+  private isApplicableForTaskType(
+    criteria: ValidationCriteria,
+    taskType: string,
+  ): boolean {
     // Basic implementation - can be enhanced with more sophisticated rules
     switch (taskType) {
       case 'code_implementation':
-        return ['code_quality', 'security', 'performance'].includes(criteria.category);
+        return ['code_quality', 'security', 'performance'].includes(
+          criteria.category,
+        );
       case 'testing':
         return ['functionality', 'code_quality'].includes(criteria.category);
       case 'documentation':
@@ -491,7 +544,7 @@ export class ValidationEngine extends EventEmitter {
       validator: async (context) => {
         // Implementation in separate validator classes
         throw new Error('Not implemented - delegate to LintValidator');
-      }
+      },
     });
 
     this.registerCriteria({
@@ -505,7 +558,7 @@ export class ValidationEngine extends EventEmitter {
       retryCount: 1,
       validator: async (context) => {
         throw new Error('Not implemented - delegate to BuildValidator');
-      }
+      },
     });
 
     this.registerCriteria({
@@ -519,7 +572,7 @@ export class ValidationEngine extends EventEmitter {
       retryCount: 1,
       validator: async (context) => {
         throw new Error('Not implemented - delegate to TestValidator');
-      }
+      },
     });
 
     this.registerCriteria({
@@ -533,7 +586,7 @@ export class ValidationEngine extends EventEmitter {
       retryCount: 1,
       validator: async (context) => {
         throw new Error('Not implemented - delegate to SecurityValidator');
-      }
+      },
     });
 
     this.registerCriteria({
@@ -547,7 +600,7 @@ export class ValidationEngine extends EventEmitter {
       retryCount: 1,
       validator: async (context) => {
         throw new Error('Not implemented - delegate to PerformanceValidator');
-      }
+      },
     });
   }
 
@@ -567,7 +620,7 @@ export class ValidationEngine extends EventEmitter {
       this.logger.error(`Validation failed for task: ${report.taskId}`, {
         score: report.overallScore,
         criticalIssues: report.summary.critical,
-        recommendations: report.recommendations
+        recommendations: report.recommendations,
       });
     });
   }
@@ -579,9 +632,11 @@ export class ValidationEngine extends EventEmitter {
     return {
       activeValidations: this.activeValidations.size,
       registeredCriteria: this.criteria.size,
-      enabledCriteria: Array.from(this.criteria.values()).filter(c => c.enabled).length,
+      enabledCriteria: Array.from(this.criteria.values()).filter(
+        (c) => c.enabled,
+      ).length,
       performanceMetrics: this.performanceMonitor.getMetrics(),
-      memoryUsage: process.memoryUsage()
+      memoryUsage: process.memoryUsage(),
     };
   }
 
@@ -594,7 +649,9 @@ export class ValidationEngine extends EventEmitter {
     // Wait for active validations to complete
     const activeValidations = Array.from(this.activeValidations.values());
     if (activeValidations.length > 0) {
-      this.logger.info(`Waiting for ${activeValidations.length} active validations to complete...`);
+      this.logger.info(
+        `Waiting for ${activeValidations.length} active validations to complete...`,
+      );
       await Promise.allSettled(activeValidations);
     }
 

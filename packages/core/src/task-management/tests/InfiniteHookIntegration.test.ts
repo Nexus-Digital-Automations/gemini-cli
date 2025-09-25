@@ -24,9 +24,9 @@ const mockConfig: Partial<Config> = {
     ensureProjectTempDir: vi.fn(() => Promise.resolve()),
     writeFile: vi.fn(() => Promise.resolve()),
     readFile: vi.fn(() => Promise.resolve('{"features": []}')),
-    fileExists: vi.fn(() => Promise.resolve(true))
+    fileExists: vi.fn(() => Promise.resolve(true)),
   } as any,
-  getSessionId: vi.fn(() => 'test-session')
+  getSessionId: vi.fn(() => 'test-session'),
 };
 
 // Mock HTTP fetch for TaskManager API calls
@@ -50,14 +50,14 @@ describe('InfiniteHookIntegration', () => {
         completed: 0,
         failed: 0,
         inProgress: 0,
-        successRate: 0
-      }))
+        successRate: 0,
+      })),
     } as any;
 
     // Create mock monitoring system
     monitoring = {
       collectMetrics: vi.fn(() => Promise.resolve({})),
-      recordEvent: vi.fn()
+      recordEvent: vi.fn(),
     } as any;
 
     integration = new InfiniteHookIntegration(
@@ -67,8 +67,8 @@ describe('InfiniteHookIntegration', () => {
       {
         agentId: 'test-agent',
         capabilities: ['frontend', 'backend', 'testing'],
-        maxConcurrentTasks: 3
-      }
+        maxConcurrentTasks: 3,
+      },
     );
   });
 
@@ -80,7 +80,8 @@ describe('InfiniteHookIntegration', () => {
     it('should initialize successfully with valid configuration', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ status: 'success', agentId: 'test-agent' })
+        json: () =>
+          Promise.resolve({ status: 'success', agentId: 'test-agent' }),
       });
 
       await integration.initialize();
@@ -90,8 +91,8 @@ describe('InfiniteHookIntegration', () => {
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: expect.stringContaining('"agentId":"test-agent"')
-        })
+          body: expect.stringContaining('"agentId":"test-agent"'),
+        }),
       );
     });
 
@@ -112,20 +113,20 @@ describe('InfiniteHookIntegration', () => {
             description: 'Implement secure login system',
             status: 'approved',
             category: 'new-feature',
-            business_value: 'Essential for security'
+            business_value: 'Essential for security',
           },
           {
             id: 'feature-2',
             title: 'Dashboard UI',
             description: 'Create user dashboard interface',
             status: 'suggested',
-            category: 'enhancement'
-          }
-        ]
+            category: 'enhancement',
+          },
+        ],
       };
 
       (mockConfig.storage!.readFile as any).mockResolvedValueOnce(
-        JSON.stringify(mockFeatures)
+        JSON.stringify(mockFeatures),
       );
 
       await integration.checkAndCreateTasksFromFeatures();
@@ -140,9 +141,9 @@ describe('InfiniteHookIntegration', () => {
           priority: 'high',
           context: {
             featureId: 'feature-1',
-            category: 'new-feature'
-          }
-        })
+            category: 'new-feature',
+          },
+        }),
       );
     });
 
@@ -155,7 +156,9 @@ describe('InfiniteHookIntegration', () => {
     });
 
     it('should handle malformed FEATURES.json gracefully', async () => {
-      (mockConfig.storage!.readFile as any).mockResolvedValueOnce('invalid json');
+      (mockConfig.storage!.readFile as any).mockResolvedValueOnce(
+        'invalid json',
+      );
 
       await integration.checkAndCreateTasksFromFeatures();
 
@@ -168,14 +171,14 @@ describe('InfiniteHookIntegration', () => {
       const mockTasks = [
         { id: 'task-1', status: 'completed', progress: 100 },
         { id: 'task-2', status: 'in_progress', progress: 50 },
-        { id: 'task-3', status: 'queued', progress: 0 }
+        { id: 'task-3', status: 'queued', progress: 0 },
       ];
 
       (taskEngine.getAllTasks as any).mockReturnValueOnce(mockTasks);
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ status: 'success' })
+        json: () => Promise.resolve({ status: 'success' }),
       });
 
       await integration.reportProgress();
@@ -185,8 +188,8 @@ describe('InfiniteHookIntegration', () => {
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: expect.stringContaining('"totalTasks":3')
-        })
+          body: expect.stringContaining('"totalTasks":3'),
+        }),
       );
     });
 
@@ -203,14 +206,14 @@ describe('InfiniteHookIntegration', () => {
     it('should authorize stop when all tasks are complete', async () => {
       const completedTasks = [
         { id: 'task-1', status: 'completed', progress: 100 },
-        { id: 'task-2', status: 'completed', progress: 100 }
+        { id: 'task-2', status: 'completed', progress: 100 },
       ];
 
       (taskEngine.getAllTasks as any).mockReturnValueOnce(completedTasks);
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ status: 'success' })
+        json: () => Promise.resolve({ status: 'success' }),
       });
 
       await integration.checkAndAuthorizeStop();
@@ -220,15 +223,17 @@ describe('InfiniteHookIntegration', () => {
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: expect.stringContaining('"reason":"All tasks completed successfully"')
-        })
+          body: expect.stringContaining(
+            '"reason":"All tasks completed successfully"',
+          ),
+        }),
       );
     });
 
     it('should not authorize stop when tasks are pending', async () => {
       const mixedTasks = [
         { id: 'task-1', status: 'completed', progress: 100 },
-        { id: 'task-2', status: 'in_progress', progress: 50 }
+        { id: 'task-2', status: 'in_progress', progress: 50 },
       ];
 
       (taskEngine.getAllTasks as any).mockReturnValueOnce(mixedTasks);
@@ -237,13 +242,13 @@ describe('InfiniteHookIntegration', () => {
 
       expect(mockFetch).not.toHaveBeenCalledWith(
         expect.stringContaining('/authorize-stop'),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     it('should handle stop authorization failure gracefully', async () => {
       const completedTasks = [
-        { id: 'task-1', status: 'completed', progress: 100 }
+        { id: 'task-1', status: 'completed', progress: 100 },
       ];
 
       (taskEngine.getAllTasks as any).mockReturnValueOnce(completedTasks);
@@ -264,7 +269,7 @@ describe('InfiniteHookIntegration', () => {
         { category: 'documentation', expectedType: 'documentation' },
         { category: 'security', expectedType: 'security' },
         { category: 'performance', expectedType: 'performance' },
-        { category: 'unknown-category', expectedType: 'implementation' } // Default
+        { category: 'unknown-category', expectedType: 'implementation' }, // Default
       ];
 
       for (const testCase of testCases) {
@@ -275,13 +280,13 @@ describe('InfiniteHookIntegration', () => {
               title: 'Test Feature',
               description: 'Test description',
               status: 'approved',
-              category: testCase.category
-            }
-          ]
+              category: testCase.category,
+            },
+          ],
         };
 
         (mockConfig.storage!.readFile as any).mockResolvedValueOnce(
-          JSON.stringify(mockFeatures)
+          JSON.stringify(mockFeatures),
         );
 
         await integration.checkAndCreateTasksFromFeatures();
@@ -290,8 +295,8 @@ describe('InfiniteHookIntegration', () => {
           expect.any(String),
           expect.any(String),
           expect.objectContaining({
-            type: testCase.expectedType
-          })
+            type: testCase.expectedType,
+          }),
         );
 
         vi.clearAllMocks();
@@ -312,7 +317,7 @@ describe('InfiniteHookIntegration', () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
-        statusText: 'Internal Server Error'
+        statusText: 'Internal Server Error',
       });
 
       await expect(integration.reportProgress()).resolves.not.toThrow();

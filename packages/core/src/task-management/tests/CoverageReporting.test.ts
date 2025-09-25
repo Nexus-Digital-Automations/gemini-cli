@@ -21,7 +21,7 @@ import {
   TestUtilities,
   PerformanceMetrics,
   CoverageAnalyzer,
-  ReportGenerator
+  ReportGenerator,
 } from './utils/TestFactories';
 import fs from 'fs/promises';
 import path from 'path';
@@ -56,16 +56,18 @@ describe('Test Coverage Reporting and Validation', () => {
       ];
 
       const coverageResults = await Promise.all(
-        coreComponents.map(component =>
-          coverageAnalyzer.analyzeLineCoverage(component)
-        )
+        coreComponents.map((component) =>
+          coverageAnalyzer.analyzeLineCoverage(component),
+        ),
       );
 
       coverageResults.forEach((coverage, index) => {
         const component = coreComponents[index];
 
         expect(coverage.lineCoverage).toBeGreaterThan(95);
-        expect(coverage.uncoveredLines.length).toBeLessThan(coverage.totalLines * 0.05);
+        expect(coverage.uncoveredLines.length).toBeLessThan(
+          coverage.totalLines * 0.05,
+        );
 
         // Log coverage details for manual review
         console.log(`${component} Line Coverage:`, {
@@ -77,29 +79,31 @@ describe('Test Coverage Reporting and Validation', () => {
     });
 
     it('should achieve >90% branch coverage for decision points', async () => {
-      const branchCoverageAnalysis = await coverageAnalyzer.analyzeBranchCoverage({
-        components: ['TaskExecutionEngine', 'DependencyResolver'],
-        includeErrorPaths: true,
-        includeEdgeCases: true,
-      });
+      const branchCoverageAnalysis =
+        await coverageAnalyzer.analyzeBranchCoverage({
+          components: ['TaskExecutionEngine', 'DependencyResolver'],
+          includeErrorPaths: true,
+          includeEdgeCases: true,
+        });
 
       expect(branchCoverageAnalysis.overallBranchCoverage).toBeGreaterThan(90);
 
-      branchCoverageAnalysis.componentCoverage.forEach(component => {
+      branchCoverageAnalysis.componentCoverage.forEach((component) => {
         expect(component.branchCoverage).toBeGreaterThan(85);
         expect(component.uncoveredBranches.length).toBeLessThan(
-          component.totalBranches * 0.15
+          component.totalBranches * 0.15,
         );
 
         // Verify critical decision points are covered
-        component.criticalBranches.forEach(branch => {
+        component.criticalBranches.forEach((branch) => {
           expect(branch.covered).toBe(true);
         });
       });
     });
 
     it('should achieve 100% function coverage for public APIs', async () => {
-      const publicApiFunctions = await coverageAnalyzer.identifyPublicApiFunctions();
+      const publicApiFunctions =
+        await coverageAnalyzer.identifyPublicApiFunctions();
 
       const functionCoverage = await coverageAnalyzer.analyzeFunctionCoverage({
         functions: publicApiFunctions,
@@ -108,9 +112,11 @@ describe('Test Coverage Reporting and Validation', () => {
 
       expect(functionCoverage.overallCoverage).toBe(100);
 
-      functionCoverage.uncoveredFunctions.forEach(func => {
+      functionCoverage.uncoveredFunctions.forEach((func) => {
         // All uncovered functions should be documented exceptions
-        expect(func.isDeprecated || func.isInternal || func.isTesting).toBe(true);
+        expect(func.isDeprecated || func.isInternal || func.isTesting).toBe(
+          true,
+        );
       });
     });
 
@@ -122,14 +128,18 @@ describe('Test Coverage Reporting and Validation', () => {
         'ErrorRecoveryMechanisms',
       ];
 
-      const statementCoverage = await coverageAnalyzer.analyzeStatementCoverage({
-        operations: complexOperations,
-        includeAsyncPaths: true,
-        includeErrorHandling: true,
-      });
+      const statementCoverage = await coverageAnalyzer.analyzeStatementCoverage(
+        {
+          operations: complexOperations,
+          includeAsyncPaths: true,
+          includeErrorHandling: true,
+        },
+      );
 
-      complexOperations.forEach(operation => {
-        const coverage = statementCoverage.find(c => c.operation === operation);
+      complexOperations.forEach((operation) => {
+        const coverage = statementCoverage.find(
+          (c) => c.operation === operation,
+        );
 
         expect(coverage!.statementCoverage).toBeGreaterThan(92);
         expect(coverage!.asyncPathsCovered).toBeGreaterThan(85);
@@ -154,15 +164,15 @@ describe('Test Coverage Reporting and Validation', () => {
         validateEndToEnd: true,
       });
 
-      criticalPaths.forEach(path => {
-        const coverage = pathCoverage.find(p => p.path === path);
+      criticalPaths.forEach((path) => {
+        const coverage = pathCoverage.find((p) => p.path === path);
 
         expect(coverage!.covered).toBe(true);
         expect(coverage!.testCases.length).toBeGreaterThan(0);
         expect(coverage!.endToEndValidation).toBe(true);
 
         // Verify exception paths are also covered
-        coverage!.exceptionPaths.forEach(exceptionPath => {
+        coverage!.exceptionPaths.forEach((exceptionPath) => {
           expect(exceptionPath.covered).toBe(true);
         });
       });
@@ -178,7 +188,9 @@ describe('Test Coverage Reporting and Validation', () => {
       expect(rarePathAnalysis.identifiedPaths.length).toBeGreaterThan(0);
 
       for (const rarePath of rarePathAnalysis.identifiedPaths) {
-        const pathTestResult = await coverageAnalyzer.testRarePath(rarePath.pathId);
+        const pathTestResult = await coverageAnalyzer.testRarePath(
+          rarePath.pathId,
+        );
 
         expect(pathTestResult.tested).toBe(true);
         expect(pathTestResult.testCases.length).toBeGreaterThan(0);
@@ -199,15 +211,16 @@ describe('Test Coverage Reporting and Validation', () => {
         { from: 'completed', to: 'archived' },
       ];
 
-      const transitionCoverage = await coverageAnalyzer.analyzeStateTransitionCoverage({
-        transitions: stateTransitions,
-        includeInvalidTransitions: true,
-        validateTransitionConditions: true,
-      });
+      const transitionCoverage =
+        await coverageAnalyzer.analyzeStateTransitionCoverage({
+          transitions: stateTransitions,
+          includeInvalidTransitions: true,
+          validateTransitionConditions: true,
+        });
 
-      stateTransitions.forEach(transition => {
+      stateTransitions.forEach((transition) => {
         const coverage = transitionCoverage.validTransitions.find(
-          t => t.from === transition.from && t.to === transition.to
+          (t) => t.from === transition.from && t.to === transition.to,
         );
 
         expect(coverage).toBeDefined();
@@ -217,7 +230,7 @@ describe('Test Coverage Reporting and Validation', () => {
 
       // Verify invalid transitions are also tested
       expect(transitionCoverage.invalidTransitions.length).toBeGreaterThan(0);
-      transitionCoverage.invalidTransitions.forEach(invalidTransition => {
+      transitionCoverage.invalidTransitions.forEach((invalidTransition) => {
         expect(invalidTransition.tested).toBe(true);
         expect(invalidTransition.properlyRejected).toBe(true);
       });
@@ -239,14 +252,16 @@ describe('Test Coverage Reporting and Validation', () => {
         'invalid_task_configuration',
       ];
 
-      const errorCoverage = await coverageAnalyzer.analyzeErrorScenarioCoverage({
-        scenarios: errorScenarios,
-        includeRecoveryMechanisms: true,
-        validateErrorMessages: true,
-      });
+      const errorCoverage = await coverageAnalyzer.analyzeErrorScenarioCoverage(
+        {
+          scenarios: errorScenarios,
+          includeRecoveryMechanisms: true,
+          validateErrorMessages: true,
+        },
+      );
 
-      errorScenarios.forEach(scenario => {
-        const coverage = errorCoverage.find(c => c.scenario === scenario);
+      errorScenarios.forEach((scenario) => {
+        const coverage = errorCoverage.find((c) => c.scenario === scenario);
 
         expect(coverage!.tested).toBe(true);
         expect(coverage!.testCases.length).toBeGreaterThan(0);
@@ -256,7 +271,7 @@ describe('Test Coverage Reporting and Validation', () => {
 
       // Overall error coverage should be comprehensive
       expect(errorCoverage.length).toBe(errorScenarios.length);
-      expect(errorCoverage.every(c => c.tested)).toBe(true);
+      expect(errorCoverage.every((c) => c.tested)).toBe(true);
     });
 
     it('should validate exception handling coverage', async () => {
@@ -271,14 +286,18 @@ describe('Test Coverage Reporting and Validation', () => {
         'ConfigurationError',
       ];
 
-      const exceptionCoverage = await coverageAnalyzer.analyzeExceptionHandling({
-        exceptionTypes,
-        includeNestedExceptions: true,
-        validateCleanup: true,
-      });
+      const exceptionCoverage = await coverageAnalyzer.analyzeExceptionHandling(
+        {
+          exceptionTypes,
+          includeNestedExceptions: true,
+          validateCleanup: true,
+        },
+      );
 
-      exceptionTypes.forEach(exceptionType => {
-        const coverage = exceptionCoverage.find(c => c.type === exceptionType);
+      exceptionTypes.forEach((exceptionType) => {
+        const coverage = exceptionCoverage.find(
+          (c) => c.type === exceptionType,
+        );
 
         expect(coverage!.caught).toBe(true);
         expect(coverage!.handledGracefully).toBe(true);
@@ -295,14 +314,15 @@ describe('Test Coverage Reporting and Validation', () => {
         ['circular_dependency', 'invalid_configuration'],
       ];
 
-      const combinationCoverage = await coverageAnalyzer.analyzeErrorCombinations({
-        combinations: errorCombinations,
-        simulateRealWorldScenarios: true,
-      });
+      const combinationCoverage =
+        await coverageAnalyzer.analyzeErrorCombinations({
+          combinations: errorCombinations,
+          simulateRealWorldScenarios: true,
+        });
 
-      errorCombinations.forEach(combination => {
-        const coverage = combinationCoverage.find(c =>
-          c.combination.every(error => combination.includes(error))
+      errorCombinations.forEach((combination) => {
+        const coverage = combinationCoverage.find((c) =>
+          c.combination.every((error) => combination.includes(error)),
         );
 
         expect(coverage!.tested).toBe(true);
@@ -324,14 +344,17 @@ describe('Test Coverage Reporting and Validation', () => {
         'io_throughput_benchmarks',
       ];
 
-      const performanceCoverage = await coverageAnalyzer.analyzePerformanceTestCoverage({
-        scenarios: performanceScenarios,
-        requireBenchmarks: true,
-        requireOptimizationTests: true,
-      });
+      const performanceCoverage =
+        await coverageAnalyzer.analyzePerformanceTestCoverage({
+          scenarios: performanceScenarios,
+          requireBenchmarks: true,
+          requireOptimizationTests: true,
+        });
 
-      performanceScenarios.forEach(scenario => {
-        const coverage = performanceCoverage.find(c => c.scenario === scenario);
+      performanceScenarios.forEach((scenario) => {
+        const coverage = performanceCoverage.find(
+          (c) => c.scenario === scenario,
+        );
 
         expect(coverage!.benchmarked).toBe(true);
         expect(coverage!.optimizationTested).toBe(true);
@@ -350,14 +373,17 @@ describe('Test Coverage Reporting and Validation', () => {
         'resource_exhaustion',
       ];
 
-      const stressTestCoverage = await coverageAnalyzer.analyzeStressTestCoverage({
-        scenarios: stressTestScenarios,
-        requireBreakingPoints: true,
-        requireRecoveryTests: true,
-      });
+      const stressTestCoverage =
+        await coverageAnalyzer.analyzeStressTestCoverage({
+          scenarios: stressTestScenarios,
+          requireBreakingPoints: true,
+          requireRecoveryTests: true,
+        });
 
-      stressTestScenarios.forEach(scenario => {
-        const coverage = stressTestCoverage.find(c => c.scenario === scenario);
+      stressTestScenarios.forEach((scenario) => {
+        const coverage = stressTestCoverage.find(
+          (c) => c.scenario === scenario,
+        );
 
         expect(coverage!.breakingPointFound).toBe(true);
         expect(coverage!.recoveryTested).toBe(true);
@@ -379,14 +405,17 @@ describe('Test Coverage Reporting and Validation', () => {
         'unauthorized_access',
       ];
 
-      const securityCoverage = await coverageAnalyzer.analyzeSecurityTestCoverage({
-        vulnerabilities: securityVulnerabilities,
-        includeDefenseMechanisms: true,
-        validateSecurityControls: true,
-      });
+      const securityCoverage =
+        await coverageAnalyzer.analyzeSecurityTestCoverage({
+          vulnerabilities: securityVulnerabilities,
+          includeDefenseMechanisms: true,
+          validateSecurityControls: true,
+        });
 
-      securityVulnerabilities.forEach(vulnerability => {
-        const coverage = securityCoverage.find(c => c.vulnerability === vulnerability);
+      securityVulnerabilities.forEach((vulnerability) => {
+        const coverage = securityCoverage.find(
+          (c) => c.vulnerability === vulnerability,
+        );
 
         expect(coverage!.tested).toBe(true);
         expect(coverage!.defenseMechanismValidated).toBe(true);
@@ -404,14 +433,17 @@ describe('Test Coverage Reporting and Validation', () => {
         'session_management_attacks',
       ];
 
-      const accessControlCoverage = await coverageAnalyzer.analyzeAccessControlCoverage({
-        scenarios: accessControlScenarios,
-        includeRoleBasedTests: true,
-        validatePermissionBoundaries: true,
-      });
+      const accessControlCoverage =
+        await coverageAnalyzer.analyzeAccessControlCoverage({
+          scenarios: accessControlScenarios,
+          includeRoleBasedTests: true,
+          validatePermissionBoundaries: true,
+        });
 
-      accessControlScenarios.forEach(scenario => {
-        const coverage = accessControlCoverage.find(c => c.scenario === scenario);
+      accessControlScenarios.forEach((scenario) => {
+        const coverage = accessControlCoverage.find(
+          (c) => c.scenario === scenario,
+        );
 
         expect(coverage!.tested).toBe(true);
         expect(coverage!.properlyBlocked).toBe(true);
@@ -423,18 +455,20 @@ describe('Test Coverage Reporting and Validation', () => {
 
   describe('Documentation Coverage', () => {
     it('should validate API documentation coverage', async () => {
-      const publicApiFunctions = await coverageAnalyzer.identifyPublicApiFunctions();
+      const publicApiFunctions =
+        await coverageAnalyzer.identifyPublicApiFunctions();
 
-      const documentationCoverage = await coverageAnalyzer.analyzeDocumentationCoverage({
-        functions: publicApiFunctions,
-        requireExamples: true,
-        requireParameterDocs: true,
-        requireReturnValueDocs: true,
-      });
+      const documentationCoverage =
+        await coverageAnalyzer.analyzeDocumentationCoverage({
+          functions: publicApiFunctions,
+          requireExamples: true,
+          requireParameterDocs: true,
+          requireReturnValueDocs: true,
+        });
 
       expect(documentationCoverage.overallCoverage).toBeGreaterThan(95);
 
-      documentationCoverage.functions.forEach(func => {
+      documentationCoverage.functions.forEach((func) => {
         expect(func.documented).toBe(true);
         expect(func.hasExamples).toBe(true);
         expect(func.parametersDocumented).toBe(true);
@@ -458,8 +492,8 @@ describe('Test Coverage Reporting and Validation', () => {
         requireAssertionExplanations: true,
       });
 
-      testSuites.forEach(suite => {
-        const coverage = testDocCoverage.find(c => c.suite === suite);
+      testSuites.forEach((suite) => {
+        const coverage = testDocCoverage.find((c) => c.suite === suite);
 
         expect(coverage!.testDescriptionsComplete).toBe(true);
         expect(coverage!.setupDocumented).toBe(true);
@@ -506,7 +540,7 @@ describe('Test Coverage Reporting and Validation', () => {
 
       // Verify report structure
       const reportData = JSON.parse(
-        await fs.readFile(jsonReport.filePath, 'utf-8')
+        await fs.readFile(jsonReport.filePath, 'utf-8'),
       );
 
       expect(reportData).toHaveProperty('metadata');
@@ -583,7 +617,9 @@ describe('Test Coverage Reporting and Validation', () => {
       });
 
       Object.entries(coverageThresholds).forEach(([type, threshold]) => {
-        const validation = thresholdValidation.results.find(r => r.type === type);
+        const validation = thresholdValidation.results.find(
+          (r) => r.type === type,
+        );
 
         expect(validation!.currentCoverage).toBeGreaterThanOrEqual(threshold);
         expect(validation!.thresholdMet).toBe(true);
@@ -605,7 +641,7 @@ describe('Test Coverage Reporting and Validation', () => {
       expect(gapAnalysis.completed).toBe(true);
 
       if (gapAnalysis.gaps.length > 0) {
-        gapAnalysis.gaps.forEach(gap => {
+        gapAnalysis.gaps.forEach((gap) => {
           expect(gap).toHaveProperty('location');
           expect(gap).toHaveProperty('riskLevel');
           expect(gap).toHaveProperty('suggestedTests');
@@ -671,7 +707,7 @@ describe('Test Coverage Reporting and Validation', () => {
       expect(coverageGates.allBlockingGatesPassed).toBe(true);
       expect(coverageGates.deploymentApproved).toBe(true);
 
-      coverageGates.results.forEach(gate => {
+      coverageGates.results.forEach((gate) => {
         if (gate.blocking) {
           expect(gate.passed).toBe(true);
         }
@@ -682,12 +718,12 @@ describe('Test Coverage Reporting and Validation', () => {
       const formats = ['json', 'xml', 'html', 'lcov', 'cobertura'];
 
       const multiFormatReports = await Promise.all(
-        formats.map(format =>
+        formats.map((format) =>
           reportGenerator.generateReport({
             format,
             outputPath: `coverage/report.${format}`,
-          })
-        )
+          }),
+        ),
       );
 
       multiFormatReports.forEach((report, index) => {
@@ -699,7 +735,9 @@ describe('Test Coverage Reporting and Validation', () => {
       });
 
       // Verify all formats contain equivalent coverage data
-      const coverageValues = multiFormatReports.map(r => r.data.overallCoverage);
+      const coverageValues = multiFormatReports.map(
+        (r) => r.data.overallCoverage,
+      );
       const uniqueValues = [...new Set(coverageValues)];
       expect(uniqueValues.length).toBe(1); // All should have same coverage value
     });

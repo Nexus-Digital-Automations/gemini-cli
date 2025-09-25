@@ -77,7 +77,11 @@ export interface RecoveryOperation {
   /** Unique recovery operation ID */
   recoveryId: string;
   /** Recovery operation type */
-  type: 'restore_from_backup' | 'repair_corruption' | 'rollback_state' | 'merge_duplicates';
+  type:
+    | 'restore_from_backup'
+    | 'repair_corruption'
+    | 'rollback_state'
+    | 'merge_duplicates';
   /** Files involved in recovery */
   affectedFiles: string[];
   /** Backup used for recovery */
@@ -152,19 +156,25 @@ export class DataIntegrityManager {
   constructor(config: IntegrityConfig = {}) {
     this.config = {
       enablePeriodicChecks: config.enablePeriodicChecks ?? true,
-      checkInterval: config.checkInterval ?? (60 * 60 * 1000), // 1 hour
+      checkInterval: config.checkInterval ?? 60 * 60 * 1000, // 1 hour
       enableAutoBackup: config.enableAutoBackup ?? true,
       retentionPolicy: {
         maxVersions: config.retentionPolicy?.maxVersions ?? 10,
-        maxAge: config.retentionPolicy?.maxAge ?? (7 * 24 * 60 * 60 * 1000), // 7 days
+        maxAge: config.retentionPolicy?.maxAge ?? 7 * 24 * 60 * 60 * 1000, // 7 days
         compressionEnabled: config.retentionPolicy?.compressionEnabled ?? true,
       },
       enableAutoRecovery: config.enableAutoRecovery ?? true,
       checksumAlgorithm: config.checksumAlgorithm ?? 'sha256',
       paths: {
-        backups: config.paths?.backups || join(homedir(), '.gemini-cli', 'persistence', 'backups'),
-        integrity: config.paths?.integrity || join(homedir(), '.gemini-cli', 'persistence', 'integrity'),
-        recovery: config.paths?.recovery || join(homedir(), '.gemini-cli', 'persistence', 'recovery'),
+        backups:
+          config.paths?.backups ||
+          join(homedir(), '.gemini-cli', 'persistence', 'backups'),
+        integrity:
+          config.paths?.integrity ||
+          join(homedir(), '.gemini-cli', 'persistence', 'integrity'),
+        recovery:
+          config.paths?.recovery ||
+          join(homedir(), '.gemini-cli', 'persistence', 'recovery'),
       },
     };
 
@@ -211,7 +221,7 @@ export class DataIntegrityManager {
    */
   async verifyFileIntegrity(
     filePath: string,
-    expectedChecksum?: string
+    expectedChecksum?: string,
   ): Promise<IntegrityCheckResult> {
     logger.debug(`Verifying integrity of ${filePath}`);
 
@@ -241,8 +251,12 @@ export class DataIntegrityManager {
         result.isValid = actualChecksum === expectedChecksum;
 
         if (!result.isValid) {
-          result.errors.push(`Checksum mismatch: expected ${expectedChecksum}, got ${actualChecksum}`);
-          result.recommendations.push('File may be corrupted, consider restoring from backup');
+          result.errors.push(
+            `Checksum mismatch: expected ${expectedChecksum}, got ${actualChecksum}`,
+          );
+          result.recommendations.push(
+            'File may be corrupted, consider restoring from backup',
+          );
         }
       } else {
         // If no expected checksum provided, perform basic file validation
@@ -261,7 +275,9 @@ export class DataIntegrityManager {
             result.isValid = true;
           } catch (parseError) {
             result.errors.push(`Invalid JSON format: ${parseError}`);
-            result.recommendations.push('Restore from backup or repair JSON structure');
+            result.recommendations.push(
+              'Restore from backup or repair JSON structure',
+            );
           }
         } else {
           // Basic file readability check
@@ -270,20 +286,23 @@ export class DataIntegrityManager {
             result.isValid = true;
           } catch (accessError) {
             result.errors.push(`File not readable: ${accessError}`);
-            result.recommendations.push('Check file permissions or restore from backup');
+            result.recommendations.push(
+              'Check file permissions or restore from backup',
+            );
           }
         }
       }
 
       // Save integrity check result
       await this.saveIntegrityCheckResult(result);
-
     } catch (error) {
       result.errors.push(`Integrity check failed: ${error}`);
       result.recommendations.push('Investigate file system issues');
     }
 
-    logger.debug(`Integrity check for ${filePath}: ${result.isValid ? 'PASS' : 'FAIL'}`);
+    logger.debug(
+      `Integrity check for ${filePath}: ${result.isValid ? 'PASS' : 'FAIL'}`,
+    );
     return result;
   }
 
@@ -297,7 +316,7 @@ export class DataIntegrityManager {
       compress?: boolean;
       metadata?: Record<string, unknown>;
       priority?: 'low' | 'medium' | 'high' | 'critical';
-    } = {}
+    } = {},
   ): Promise<BackupMetadata> {
     logger.info(`Creating backup of ${originalPath}`);
 
@@ -315,7 +334,8 @@ export class DataIntegrityManager {
 
       // Create backup
       let finalBackupPath = backupPath;
-      const shouldCompress = options.compress ?? this.config.retentionPolicy.compressionEnabled;
+      const shouldCompress =
+        options.compress ?? this.config.retentionPolicy.compressionEnabled;
 
       if (shouldCompress) {
         finalBackupPath = `${backupPath}.gz`;
@@ -355,7 +375,6 @@ export class DataIntegrityManager {
 
       logger.info(`Backup created successfully: ${backupId}`);
       return metadata;
-
     } catch (error) {
       logger.error(`Failed to create backup of ${originalPath}:`, error);
       throw error;
@@ -371,7 +390,7 @@ export class DataIntegrityManager {
     options: {
       verifyIntegrity?: boolean;
       createRecoveryPoint?: boolean;
-    } = {}
+    } = {},
   ): Promise<RecoveryOperation> {
     const backup = this.backupRegistry.get(backupId);
     if (!backup) {
@@ -403,7 +422,10 @@ export class DataIntegrityManager {
       recovery.status = 'in_progress';
 
       // Create recovery point if requested
-      if (options.createRecoveryPoint && await fse.pathExists(restoreTarget)) {
+      if (
+        options.createRecoveryPoint &&
+        (await fse.pathExists(restoreTarget))
+      ) {
         await this.createBackup(restoreTarget, {
           type: 'recovery',
           metadata: { recoveryId, originalBackupId: backupId },
@@ -413,9 +435,14 @@ export class DataIntegrityManager {
 
       // Verify backup integrity first
       if (options.verifyIntegrity !== false) {
-        const integrityResult = await this.verifyFileIntegrity(backup.backupPath, backup.checksum);
+        const integrityResult = await this.verifyFileIntegrity(
+          backup.backupPath,
+          backup.checksum,
+        );
         if (!integrityResult.isValid) {
-          throw new Error(`Backup integrity check failed: ${integrityResult.errors.join(', ')}`);
+          throw new Error(
+            `Backup integrity check failed: ${integrityResult.errors.join(', ')}`,
+          );
         }
       }
 
@@ -448,8 +475,9 @@ export class DataIntegrityManager {
         failedFiles: [],
       };
 
-      logger.info(`Successfully restored ${restoreTarget} from backup ${backupId}`);
-
+      logger.info(
+        `Successfully restored ${restoreTarget} from backup ${backupId}`,
+      );
     } catch (error) {
       recovery.status = 'failed';
       recovery.timestamps.completed = new Date().toISOString();
@@ -462,7 +490,6 @@ export class DataIntegrityManager {
 
       logger.error(`Failed to restore from backup ${backupId}:`, error);
       throw error;
-
     } finally {
       // Save recovery operation
       this.recoveryHistory.set(recoveryId, recovery);
@@ -475,7 +502,9 @@ export class DataIntegrityManager {
   /**
    * Perform automatic recovery for corrupted files
    */
-  async performAutoRecovery(filePath: string): Promise<RecoveryOperation | null> {
+  async performAutoRecovery(
+    filePath: string,
+  ): Promise<RecoveryOperation | null> {
     if (!this.config.enableAutoRecovery) {
       logger.debug('Auto recovery is disabled');
       return null;
@@ -484,8 +513,10 @@ export class DataIntegrityManager {
     logger.info(`Attempting auto recovery for ${filePath}`);
 
     // Find the most recent backup
-    const backups = this.getFileBackups(filePath)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const backups = this.getFileBackups(filePath).sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
     if (backups.length === 0) {
       logger.warn(`No backups available for auto recovery of ${filePath}`);
@@ -495,17 +526,21 @@ export class DataIntegrityManager {
     const mostRecentBackup = backups[0];
 
     try {
-      const recovery = await this.restoreFromBackup(mostRecentBackup.backupId, filePath, {
-        verifyIntegrity: true,
-        createRecoveryPoint: true,
-      });
+      const recovery = await this.restoreFromBackup(
+        mostRecentBackup.backupId,
+        filePath,
+        {
+          verifyIntegrity: true,
+          createRecoveryPoint: true,
+        },
+      );
 
       recovery.metadata.triggeredBy = 'auto';
-      recovery.metadata.reason = 'Automatic recovery due to corruption detection';
+      recovery.metadata.reason =
+        'Automatic recovery due to corruption detection';
 
       logger.info(`Auto recovery successful for ${filePath}`);
       return recovery;
-
     } catch (error) {
       logger.error(`Auto recovery failed for ${filePath}:`, error);
       return null;
@@ -517,8 +552,11 @@ export class DataIntegrityManager {
    */
   getFileBackups(filePath: string): BackupMetadata[] {
     return Array.from(this.backupRegistry.values())
-      .filter(backup => backup.originalPath === filePath)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .filter((backup) => backup.originalPath === filePath)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
   }
 
   /**
@@ -531,38 +569,45 @@ export class DataIntegrityManager {
   /**
    * List all backups with filtering options
    */
-  listBackups(options: {
-    type?: 'auto' | 'manual' | 'recovery';
-    priority?: 'low' | 'medium' | 'high' | 'critical';
-    olderThan?: Date;
-    newerThan?: Date;
-    limit?: number;
-  } = {}): BackupMetadata[] {
+  listBackups(
+    options: {
+      type?: 'auto' | 'manual' | 'recovery';
+      priority?: 'low' | 'medium' | 'high' | 'critical';
+      olderThan?: Date;
+      newerThan?: Date;
+      limit?: number;
+    } = {},
+  ): BackupMetadata[] {
     let backups = Array.from(this.backupRegistry.values());
 
     // Apply filters
     if (options.type) {
-      backups = backups.filter(backup => backup.type === options.type);
+      backups = backups.filter((backup) => backup.type === options.type);
     }
 
     if (options.priority) {
-      backups = backups.filter(backup => backup.retentionPolicy.priority === options.priority);
+      backups = backups.filter(
+        (backup) => backup.retentionPolicy.priority === options.priority,
+      );
     }
 
     if (options.olderThan) {
-      backups = backups.filter(backup =>
-        new Date(backup.createdAt) < options.olderThan!
+      backups = backups.filter(
+        (backup) => new Date(backup.createdAt) < options.olderThan!,
       );
     }
 
     if (options.newerThan) {
-      backups = backups.filter(backup =>
-        new Date(backup.createdAt) > options.newerThan!
+      backups = backups.filter(
+        (backup) => new Date(backup.createdAt) > options.newerThan!,
       );
     }
 
     // Sort by creation date (newest first)
-    backups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    backups.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
     // Apply limit
     if (options.limit) {
@@ -575,25 +620,29 @@ export class DataIntegrityManager {
   /**
    * Get recovery operation history
    */
-  getRecoveryHistory(options: {
-    type?: RecoveryOperation['type'];
-    status?: RecoveryOperation['status'];
-    limit?: number;
-  } = {}): RecoveryOperation[] {
+  getRecoveryHistory(
+    options: {
+      type?: RecoveryOperation['type'];
+      status?: RecoveryOperation['status'];
+      limit?: number;
+    } = {},
+  ): RecoveryOperation[] {
     let operations = Array.from(this.recoveryHistory.values());
 
     // Apply filters
     if (options.type) {
-      operations = operations.filter(op => op.type === options.type);
+      operations = operations.filter((op) => op.type === options.type);
     }
 
     if (options.status) {
-      operations = operations.filter(op => op.status === options.status);
+      operations = operations.filter((op) => op.status === options.status);
     }
 
     // Sort by initiation date (newest first)
-    operations.sort((a, b) =>
-      new Date(b.timestamps.initiated).getTime() - new Date(a.timestamps.initiated).getTime()
+    operations.sort(
+      (a, b) =>
+        new Date(b.timestamps.initiated).getTime() -
+        new Date(a.timestamps.initiated).getTime(),
     );
 
     // Apply limit
@@ -634,20 +683,29 @@ export class DataIntegrityManager {
     // Apply retention policies
     for (const [filePath, backups] of backupGroups) {
       // Sort by creation date (newest first)
-      backups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      backups.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
 
       for (let i = 0; i < backups.length; i++) {
         const backup = backups[i];
         const age = now - new Date(backup.createdAt).getTime();
 
         // Apply age policy
-        if (backup.retentionPolicy.maxAge && age > backup.retentionPolicy.maxAge) {
+        if (
+          backup.retentionPolicy.maxAge &&
+          age > backup.retentionPolicy.maxAge
+        ) {
           backupsToDelete.push(backup);
           continue;
         }
 
         // Apply max versions policy (keep only the newest N versions)
-        if (backup.retentionPolicy.maxVersions && i >= backup.retentionPolicy.maxVersions) {
+        if (
+          backup.retentionPolicy.maxVersions &&
+          i >= backup.retentionPolicy.maxVersions
+        ) {
           // Don't delete critical priority backups
           if (backup.retentionPolicy.priority !== 'critical') {
             backupsToDelete.push(backup);
@@ -669,12 +727,16 @@ export class DataIntegrityManager {
 
         logger.debug(`Deleted backup ${backup.backupId}`);
       } catch (error) {
-        result.errors.push(`Failed to delete backup ${backup.backupId}: ${error}`);
+        result.errors.push(
+          `Failed to delete backup ${backup.backupId}: ${error}`,
+        );
       }
     }
 
     if (result.deletedCount > 0) {
-      logger.info(`Cleanup completed: deleted ${result.deletedCount} backups, freed ${Math.round(result.freedSpace / 1024 / 1024)}MB`);
+      logger.info(
+        `Cleanup completed: deleted ${result.deletedCount} backups, freed ${Math.round(result.freedSpace / 1024 / 1024)}MB`,
+      );
     }
 
     return result;
@@ -693,7 +755,9 @@ export class DataIntegrityManager {
   /**
    * Calculate original checksum from backup metadata
    */
-  private async calculateOriginalChecksum(backup: BackupMetadata): Promise<string> {
+  private async calculateOriginalChecksum(
+    backup: BackupMetadata,
+  ): Promise<string> {
     if (!backup.compressed) {
       return backup.checksum;
     }
@@ -709,7 +773,10 @@ export class DataIntegrityManager {
   /**
    * Create compressed backup
    */
-  private async createCompressedBackup(sourcePath: string, targetPath: string): Promise<void> {
+  private async createCompressedBackup(
+    sourcePath: string,
+    targetPath: string,
+  ): Promise<void> {
     const sourceData = await fsPromises.readFile(sourcePath);
     const compressedData = gzipSync(sourceData);
     await fsPromises.writeFile(targetPath, compressedData);
@@ -718,7 +785,10 @@ export class DataIntegrityManager {
   /**
    * Restore from compressed backup
    */
-  private async restoreCompressedBackup(backupPath: string, targetPath: string): Promise<void> {
+  private async restoreCompressedBackup(
+    backupPath: string,
+    targetPath: string,
+  ): Promise<void> {
     const compressedData = await fsPromises.readFile(backupPath);
     const originalData = gunzipSync(compressedData);
     await fsPromises.writeFile(targetPath, originalData);
@@ -727,7 +797,9 @@ export class DataIntegrityManager {
   /**
    * Save integrity check result
    */
-  private async saveIntegrityCheckResult(result: IntegrityCheckResult): Promise<void> {
+  private async saveIntegrityCheckResult(
+    result: IntegrityCheckResult,
+  ): Promise<void> {
     const filename = `integrity-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`;
     const filePath = join(this.config.paths.integrity, filename);
     await fse.writeJSON(filePath, result, { spaces: 2 });
@@ -737,7 +809,11 @@ export class DataIntegrityManager {
    * Save backup metadata
    */
   private async saveBackupMetadata(metadata: BackupMetadata): Promise<void> {
-    const metadataPath = join(this.config.paths.backups, 'metadata', `${metadata.backupId}.json`);
+    const metadataPath = join(
+      this.config.paths.backups,
+      'metadata',
+      `${metadata.backupId}.json`,
+    );
     await fse.writeJSON(metadataPath, metadata, { spaces: 2 });
   }
 
@@ -745,7 +821,11 @@ export class DataIntegrityManager {
    * Remove backup metadata
    */
   private async removeBackupMetadata(backupId: string): Promise<void> {
-    const metadataPath = join(this.config.paths.backups, 'metadata', `${backupId}.json`);
+    const metadataPath = join(
+      this.config.paths.backups,
+      'metadata',
+      `${backupId}.json`,
+    );
     if (await fse.pathExists(metadataPath)) {
       await fse.remove(metadataPath);
     }
@@ -754,8 +834,13 @@ export class DataIntegrityManager {
   /**
    * Save recovery operation
    */
-  private async saveRecoveryOperation(operation: RecoveryOperation): Promise<void> {
-    const operationPath = join(this.config.paths.recovery, `${operation.recoveryId}.json`);
+  private async saveRecoveryOperation(
+    operation: RecoveryOperation,
+  ): Promise<void> {
+    const operationPath = join(
+      this.config.paths.recovery,
+      `${operation.recoveryId}.json`,
+    );
     await fse.writeJSON(operationPath, operation, { spaces: 2 });
   }
 
@@ -771,7 +856,7 @@ export class DataIntegrityManager {
 
     const files = await fsPromises.readdir(metadataDir);
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const metadata = await fse.readJSON(join(metadataDir, file));
         this.backupRegistry.set(metadata.backupId, metadata);
@@ -795,7 +880,7 @@ export class DataIntegrityManager {
 
     const files = await fsPromises.readdir(recoveryDir);
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const operation = await fse.readJSON(join(recoveryDir, file));
         this.recoveryHistory.set(operation.recoveryId, operation);
@@ -829,7 +914,9 @@ export class DataIntegrityManager {
     logger.debug('Performing periodic integrity check');
 
     const uniqueFiles = new Set(
-      Array.from(this.backupRegistry.values()).map(backup => backup.originalPath)
+      Array.from(this.backupRegistry.values()).map(
+        (backup) => backup.originalPath,
+      ),
     );
 
     let checkedCount = 0;
@@ -843,7 +930,9 @@ export class DataIntegrityManager {
 
           if (!result.isValid) {
             failedCount++;
-            logger.warn(`Integrity check failed for ${filePath}: ${result.errors.join(', ')}`);
+            logger.warn(
+              `Integrity check failed for ${filePath}: ${result.errors.join(', ')}`,
+            );
 
             // Attempt auto recovery if enabled
             if (this.config.enableAutoRecovery) {
@@ -857,7 +946,9 @@ export class DataIntegrityManager {
     }
 
     if (checkedCount > 0) {
-      logger.debug(`Periodic integrity check completed: ${checkedCount} files checked, ${failedCount} failed`);
+      logger.debug(
+        `Periodic integrity check completed: ${checkedCount} files checked, ${failedCount} failed`,
+      );
     }
 
     // Perform backup cleanup
@@ -885,18 +976,28 @@ export class DataIntegrityManager {
     // Calculate statistics
     const stats = {
       totalBackups: backups.length,
-      totalBackupSize: backups.reduce((total, backup) => total + backup.fileSize, 0),
-      backupsByType: backups.reduce((counts, backup) => {
-        counts[backup.type] = (counts[backup.type] || 0) + 1;
-        return counts;
-      }, {} as Record<string, number>),
-      recentRecoveries: recoveries.filter(recovery =>
-        new Date(recovery.timestamps.initiated).getTime() > Date.now() - (24 * 60 * 60 * 1000)
+      totalBackupSize: backups.reduce(
+        (total, backup) => total + backup.fileSize,
+        0,
+      ),
+      backupsByType: backups.reduce(
+        (counts, backup) => {
+          counts[backup.type] = (counts[backup.type] || 0) + 1;
+          return counts;
+        },
+        {} as Record<string, number>,
+      ),
+      recentRecoveries: recoveries.filter(
+        (recovery) =>
+          new Date(recovery.timestamps.initiated).getTime() >
+          Date.now() - 24 * 60 * 60 * 1000,
       ).length,
       failedIntegrityChecks: 0, // Would need to scan integrity check files
       storageUtilization: {
         backups: await this.calculateDirectorySize(this.config.paths.backups),
-        integrity: await this.calculateDirectorySize(this.config.paths.integrity),
+        integrity: await this.calculateDirectorySize(
+          this.config.paths.integrity,
+        ),
         recovery: await this.calculateDirectorySize(this.config.paths.recovery),
       },
     };

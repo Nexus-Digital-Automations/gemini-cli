@@ -90,12 +90,13 @@ export class FileBasedTaskStore implements TaskStore {
   constructor(config: FileBasedStorageConfig = {}) {
     // Initialize configuration with defaults
     this.config = {
-      storageDir: config.storageDir || join(homedir(), '.gemini-cli', 'persistence'),
+      storageDir:
+        config.storageDir || join(homedir(), '.gemini-cli', 'persistence'),
       compressMetadata: config.compressMetadata ?? true,
       compressWorkspace: config.compressWorkspace ?? true,
       maxBackupVersions: config.maxBackupVersions ?? 5,
       enableAutoCleanup: config.enableAutoCleanup ?? true,
-      maxSessionAge: config.maxSessionAge ?? (7 * 24 * 60 * 60 * 1000), // 7 days
+      maxSessionAge: config.maxSessionAge ?? 7 * 24 * 60 * 60 * 1000, // 7 days
       enableMetrics: config.enableMetrics ?? true,
     };
 
@@ -113,7 +114,9 @@ export class FileBasedTaskStore implements TaskStore {
     // Initialize concurrency control
     this.activeLocks = new Map();
 
-    logger.info(`FileBasedTaskStore initialized with storage dir: ${this.config.storageDir}`);
+    logger.info(
+      `FileBasedTaskStore initialized with storage dir: ${this.config.storageDir}`,
+    );
     this.initializeStorage();
   }
 
@@ -179,11 +182,16 @@ export class FileBasedTaskStore implements TaskStore {
         logger.debug(`Acquired lock for task ${taskId}`);
         return;
       } catch (error) {
-        if (error instanceof Error && 'code' in error && error.code === 'EEXIST') {
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          error.code === 'EEXIST'
+        ) {
           // Lock file exists, check if it's stale
           try {
             const existingLock = await fse.readJSON(lockFile);
-            const lockAge = Date.now() - new Date(existingLock.timestamp).getTime();
+            const lockAge =
+              Date.now() - new Date(existingLock.timestamp).getTime();
 
             // If lock is older than 5 minutes, consider it stale
             if (lockAge > 5 * 60 * 1000) {
@@ -198,7 +206,7 @@ export class FileBasedTaskStore implements TaskStore {
           }
 
           // Wait and retry
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           retries--;
         } else {
           throw error;
@@ -206,7 +214,9 @@ export class FileBasedTaskStore implements TaskStore {
       }
     }
 
-    throw new Error(`Failed to acquire lock for task ${taskId} after multiple retries`);
+    throw new Error(
+      `Failed to acquire lock for task ${taskId} after multiple retries`,
+    );
   }
 
   /**
@@ -234,7 +244,11 @@ export class FileBasedTaskStore implements TaskStore {
   } {
     const baseDir = this.config.storageDir;
     return {
-      metadataPath: join(baseDir, 'tasks', `${taskId}.json${this.config.compressMetadata ? '.gz' : ''}`),
+      metadataPath: join(
+        baseDir,
+        'tasks',
+        `${taskId}.json${this.config.compressMetadata ? '.gz' : ''}`,
+      ),
       workspacePath: join(baseDir, 'workspaces', `${taskId}.tar.gz`),
       sessionPath: join(baseDir, 'sessions', `${taskId}-session.json`),
       backupDir: join(baseDir, 'backups', taskId),
@@ -254,9 +268,13 @@ export class FileBasedTaskStore implements TaskStore {
       // Acquire exclusive lock
       await this.acquireTaskLock(taskId);
 
-      const persistedState = getPersistedState(task.metadata as PersistedTaskMetadata);
+      const persistedState = getPersistedState(
+        task.metadata as PersistedTaskMetadata,
+      );
       if (!persistedState) {
-        throw new Error(`Task ${taskId} is missing persisted state in metadata.`);
+        throw new Error(
+          `Task ${taskId} is missing persisted state in metadata.`,
+        );
       }
 
       const paths = this.getTaskPaths(taskId);
@@ -267,7 +285,8 @@ export class FileBasedTaskStore implements TaskStore {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         ownerId: process.env.USER || process.env.USERNAME || 'unknown',
-        isComplete: task.status.state === 'completed' || task.status.state === 'failed',
+        isComplete:
+          task.status.state === 'completed' || task.status.state === 'failed',
         version: '1.0.0',
         properties: {
           taskState: persistedState._taskState,
@@ -290,7 +309,9 @@ export class FileBasedTaskStore implements TaskStore {
       // Update metrics
       await this.updateMetrics(taskId, Date.now() - startTime, 'save');
 
-      logger.info(`Successfully saved task ${taskId} in ${Date.now() - startTime}ms`);
+      logger.info(
+        `Successfully saved task ${taskId} in ${Date.now() - startTime}ms`,
+      );
     } catch (error) {
       logger.error(`Failed to save task ${taskId}:`, error);
       throw error;
@@ -305,7 +326,7 @@ export class FileBasedTaskStore implements TaskStore {
   private async saveMetadata(
     task: SDKTask,
     metadataPath: string,
-    sessionMetadata: TaskSessionMetadata
+    sessionMetadata: TaskSessionMetadata,
   ): Promise<void> {
     const dataToStore = {
       ...task.metadata,
@@ -333,24 +354,31 @@ export class FileBasedTaskStore implements TaskStore {
   private async saveWorkspace(
     taskId: string,
     persistedState: any,
-    workspacePath: string
+    workspacePath: string,
   ): Promise<void> {
     const workDir = process.cwd();
 
     if (!(await fse.pathExists(workDir))) {
-      logger.debug(`Workspace directory ${workDir} not found, skipping workspace save`);
+      logger.debug(
+        `Workspace directory ${workDir} not found, skipping workspace save`,
+      );
       return;
     }
 
     const entries = await fsPromises.readdir(workDir);
     if (entries.length === 0) {
-      logger.debug(`Workspace directory ${workDir} is empty, skipping workspace save`);
+      logger.debug(
+        `Workspace directory ${workDir} is empty, skipping workspace save`,
+      );
       return;
     }
 
     await fse.ensureDir(dirname(workspacePath));
 
-    const tmpArchiveFile = join(tmpdir(), `task-${taskId}-workspace-${uuidv4()}.tar.gz`);
+    const tmpArchiveFile = join(
+      tmpdir(),
+      `task-${taskId}-workspace-${uuidv4()}.tar.gz`,
+    );
 
     try {
       // Create compressed workspace archive
@@ -414,7 +442,9 @@ export class FileBasedTaskStore implements TaskStore {
       // Update metrics
       await this.updateMetrics(taskId, Date.now() - startTime, 'load');
 
-      logger.info(`Successfully loaded task ${taskId} in ${Date.now() - startTime}ms`);
+      logger.info(
+        `Successfully loaded task ${taskId} in ${Date.now() - startTime}ms`,
+      );
       return task;
     } catch (error) {
       logger.error(`Failed to load task ${taskId}:`, error);
@@ -438,13 +468,18 @@ export class FileBasedTaskStore implements TaskStore {
   /**
    * Load session metadata
    */
-  private async loadSessionMetadata(sessionPath: string): Promise<TaskSessionMetadata | undefined> {
+  private async loadSessionMetadata(
+    sessionPath: string,
+  ): Promise<TaskSessionMetadata | undefined> {
     try {
       if (await fse.pathExists(sessionPath)) {
         return await fse.readJSON(sessionPath);
       }
     } catch (error) {
-      logger.warn(`Failed to load session metadata from ${sessionPath}:`, error);
+      logger.warn(
+        `Failed to load session metadata from ${sessionPath}:`,
+        error,
+      );
     }
     return undefined;
   }
@@ -455,11 +490,13 @@ export class FileBasedTaskStore implements TaskStore {
   private async restoreWorkspace(
     taskId: string,
     loadedMetadata: any,
-    workspacePath: string
+    workspacePath: string,
   ): Promise<void> {
     const persistedState = getPersistedState(loadedMetadata);
     if (!persistedState) {
-      throw new Error(`Loaded metadata for task ${taskId} is missing persisted state`);
+      throw new Error(
+        `Loaded metadata for task ${taskId} is missing persisted state`,
+      );
     }
 
     const workDir = setTargetDir(persistedState._agentSettings);
@@ -470,7 +507,10 @@ export class FileBasedTaskStore implements TaskStore {
       return;
     }
 
-    const tmpArchiveFile = join(tmpdir(), `task-${taskId}-restore-${uuidv4()}.tar.gz`);
+    const tmpArchiveFile = join(
+      tmpdir(),
+      `task-${taskId}-restore-${uuidv4()}.tar.gz`,
+    );
 
     try {
       // Copy archive to temp location
@@ -497,7 +537,7 @@ export class FileBasedTaskStore implements TaskStore {
   private createSDKTask(
     taskId: string,
     loadedMetadata: any,
-    sessionMetadata?: TaskSessionMetadata
+    sessionMetadata?: TaskSessionMetadata,
   ): SDKTask {
     const persistedState = getPersistedState(loadedMetadata);
     if (!persistedState) {
@@ -534,9 +574,21 @@ export class FileBasedTaskStore implements TaskStore {
 
     // Backup existing files if they exist
     const filesToBackup = [
-      { source: paths.metadataPath, target: join(backupDir, `metadata${backupSuffix}.json${this.config.compressMetadata ? '.gz' : ''}`) },
-      { source: paths.workspacePath, target: join(backupDir, `workspace${backupSuffix}.tar.gz`) },
-      { source: paths.sessionPath, target: join(backupDir, `session${backupSuffix}.json`) },
+      {
+        source: paths.metadataPath,
+        target: join(
+          backupDir,
+          `metadata${backupSuffix}.json${this.config.compressMetadata ? '.gz' : ''}`,
+        ),
+      },
+      {
+        source: paths.workspacePath,
+        target: join(backupDir, `workspace${backupSuffix}.tar.gz`),
+      },
+      {
+        source: paths.sessionPath,
+        target: join(backupDir, `session${backupSuffix}.json`),
+      },
     ];
 
     for (const file of filesToBackup) {
@@ -561,8 +613,8 @@ export class FileBasedTaskStore implements TaskStore {
     try {
       const files = await fsPromises.readdir(backupDir);
       const backupFiles = files
-        .filter(f => f.includes('.backup-'))
-        .map(f => ({
+        .filter((f) => f.includes('.backup-'))
+        .map((f) => ({
           name: f,
           path: join(backupDir, f),
           timestamp: f.match(/\.backup-(.+)\./)?.[1] || '',
@@ -584,7 +636,11 @@ export class FileBasedTaskStore implements TaskStore {
   /**
    * Update storage metrics
    */
-  private async updateMetrics(taskId: string, operationTime: number, operation: 'save' | 'load'): Promise<void> {
+  private async updateMetrics(
+    taskId: string,
+    operationTime: number,
+    operation: 'save' | 'load',
+  ): Promise<void> {
     if (!this.config.enableMetrics) {
       return;
     }
@@ -592,18 +648,22 @@ export class FileBasedTaskStore implements TaskStore {
     try {
       // Update operation-specific metrics
       if (operation === 'save') {
-        this.metrics.averageSaveTime = (this.metrics.averageSaveTime + operationTime) / 2;
+        this.metrics.averageSaveTime =
+          (this.metrics.averageSaveTime + operationTime) / 2;
       } else {
-        this.metrics.averageLoadTime = (this.metrics.averageLoadTime + operationTime) / 2;
+        this.metrics.averageLoadTime =
+          (this.metrics.averageLoadTime + operationTime) / 2;
       }
 
       // Update general metrics periodically
-      if (Math.random() < 0.1) { // 10% chance to update general metrics
+      if (Math.random() < 0.1) {
+        // 10% chance to update general metrics
         await this.refreshMetrics();
       }
 
       // Save metrics to disk periodically
-      if (Math.random() < 0.05) { // 5% chance to save metrics
+      if (Math.random() < 0.05) {
+        // 5% chance to save metrics
         await this.saveMetrics();
       }
     } catch (error) {
@@ -624,19 +684,25 @@ export class FileBasedTaskStore implements TaskStore {
       }
 
       const taskFiles = await fsPromises.readdir(tasksDir);
-      const sessionFiles = await fse.pathExists(sessionsDir)
+      const sessionFiles = (await fse.pathExists(sessionsDir))
         ? await fsPromises.readdir(sessionsDir)
         : [];
 
-      this.metrics.totalTasks = taskFiles.filter(f => f.endsWith('.json') || f.endsWith('.json.gz')).length;
+      this.metrics.totalTasks = taskFiles.filter(
+        (f) => f.endsWith('.json') || f.endsWith('.json.gz'),
+      ).length;
 
       // Count active vs completed tasks
       let activeTasks = 0;
       let completedTasks = 0;
 
-      for (const sessionFile of sessionFiles.filter(f => f.endsWith('.json'))) {
+      for (const sessionFile of sessionFiles.filter((f) =>
+        f.endsWith('.json'),
+      )) {
         try {
-          const sessionMetadata = await fse.readJSON(join(sessionsDir, sessionFile));
+          const sessionMetadata = await fse.readJSON(
+            join(sessionsDir, sessionFile),
+          );
           if (sessionMetadata.isComplete) {
             completedTasks++;
           } else {
@@ -652,7 +718,6 @@ export class FileBasedTaskStore implements TaskStore {
 
       // Calculate storage size
       this.metrics.storageSize = await this.calculateStorageSize();
-
     } catch (error) {
       logger.warn('Failed to refresh metrics:', error);
     }
@@ -695,7 +760,11 @@ export class FileBasedTaskStore implements TaskStore {
    * Load metrics from disk
    */
   private async loadMetrics(): Promise<void> {
-    const metricsPath = join(this.config.storageDir, 'metrics', 'storage-metrics.json');
+    const metricsPath = join(
+      this.config.storageDir,
+      'metrics',
+      'storage-metrics.json',
+    );
 
     try {
       if (await fse.pathExists(metricsPath)) {
@@ -712,7 +781,11 @@ export class FileBasedTaskStore implements TaskStore {
    * Save metrics to disk
    */
   private async saveMetrics(): Promise<void> {
-    const metricsPath = join(this.config.storageDir, 'metrics', 'storage-metrics.json');
+    const metricsPath = join(
+      this.config.storageDir,
+      'metrics',
+      'storage-metrics.json',
+    );
 
     try {
       await fse.ensureDir(dirname(metricsPath));
@@ -744,15 +817,21 @@ export class FileBasedTaskStore implements TaskStore {
       const now = Date.now();
       let cleanedCount = 0;
 
-      for (const sessionFile of sessionFiles.filter(f => f.endsWith('.json'))) {
+      for (const sessionFile of sessionFiles.filter((f) =>
+        f.endsWith('.json'),
+      )) {
         try {
           const sessionPath = join(sessionsDir, sessionFile);
           const sessionMetadata = await fse.readJSON(sessionPath);
 
-          const sessionAge = now - new Date(sessionMetadata.updatedAt).getTime();
+          const sessionAge =
+            now - new Date(sessionMetadata.updatedAt).getTime();
 
           // Clean up old completed sessions
-          if (sessionMetadata.isComplete && sessionAge > this.config.maxSessionAge) {
+          if (
+            sessionMetadata.isComplete &&
+            sessionAge > this.config.maxSessionAge
+          ) {
             const taskId = sessionFile.replace('-session.json', '');
             await this.cleanupTaskFiles(taskId);
             cleanedCount++;
@@ -818,7 +897,7 @@ export class FileBasedTaskStore implements TaskStore {
     const sessionFiles = await fsPromises.readdir(sessionsDir);
     const sessions: TaskSessionMetadata[] = [];
 
-    for (const sessionFile of sessionFiles.filter(f => f.endsWith('.json'))) {
+    for (const sessionFile of sessionFiles.filter((f) => f.endsWith('.json'))) {
       try {
         const sessionPath = join(sessionsDir, sessionFile);
         const sessionMetadata = await fse.readJSON(sessionPath);
@@ -831,7 +910,10 @@ export class FileBasedTaskStore implements TaskStore {
       }
     }
 
-    return sessions.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    return sessions.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
   }
 
   /**

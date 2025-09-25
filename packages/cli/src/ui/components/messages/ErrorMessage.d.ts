@@ -6,7 +6,7 @@
 
 import type React from 'react';
 interface ErrorMessageProps {
-    text: string;
+  text: string;
 }
 export declare const ErrorMessage: React.FC<ErrorMessageProps>;
 export {};

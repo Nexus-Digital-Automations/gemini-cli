@@ -15,7 +15,7 @@ import type {
   QueueMetrics,
   TaskDependency,
 } from './TaskQueue.js';
-import type { TaskId} from './types.js';
+import type { TaskId } from './types.js';
 import { TaskResult } from './types.js';
 import type { LifecycleContext, LifecycleEvent } from './TaskLifecycle.js';
 

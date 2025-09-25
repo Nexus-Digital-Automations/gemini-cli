@@ -11,16 +11,20 @@ import {
   IntelligentDependencyManager,
   SequencingStrategy,
   createIntelligentDependencySystem,
-  DependencyConfigurations
+  DependencyConfigurations,
 } from '../../autonomous-tasks/dependencies/index.js';
 import type {
   ITask,
   TaskPriority,
   TaskStatus,
   TaskType,
-  TaskContext
+  TaskContext,
 } from '../../autonomous-tasks/interfaces/TaskInterfaces.js';
-import { TaskPriority as Priority, TaskStatus as Status, TaskType as Type } from '../../autonomous-tasks/interfaces/TaskInterfaces.js';
+import {
+  TaskPriority as Priority,
+  TaskStatus as Status,
+  TaskType as Type,
+} from '../../autonomous-tasks/interfaces/TaskInterfaces.js';
 
 // Mock task factory for testing
 function createMockTask(
@@ -29,7 +33,7 @@ function createMockTask(
   type: TaskType = Type.FEATURE,
   priority: TaskPriority = Priority.MEDIUM,
   dependencies: string[] = [],
-  description = `Test task: ${name}`
+  description = `Test task: ${name}`,
 ): ITask {
   const mockContext: TaskContext = {
     sessionId: 'test-session',
@@ -38,7 +42,7 @@ function createMockTask(
     config: {},
     timeout: 300000,
     maxRetries: 3,
-    userPreferences: {}
+    userPreferences: {},
   };
 
   return {
@@ -48,10 +52,10 @@ function createMockTask(
     type,
     priority,
     status: Status.PENDING,
-    dependencies: dependencies.map(depId => ({
+    dependencies: dependencies.map((depId) => ({
       taskId: depId,
       type: 'prerequisite' as const,
-      optional: false
+      optional: false,
     })),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -70,9 +74,9 @@ function createMockTask(
           memoryUsage: 1000000,
           cpuUsage: 50,
           retryCount: 0,
-          performanceScore: 85
+          performanceScore: 85,
         },
-        messages: [`Executed task ${this.name}`]
+        messages: [`Executed task ${this.name}`],
       };
     },
 
@@ -95,7 +99,7 @@ function createMockTask(
 
     getEstimatedCompletion(): number {
       return 3600000; // 1 hour
-    }
+    },
   };
 }
 
@@ -110,8 +114,16 @@ describe('DependencyAnalyzer', () => {
     it('should analyze explicit dependencies correctly', async () => {
       const tasks = [
         createMockTask('task1', 'Setup Database'),
-        createMockTask('task2', 'Create Schema', Type.FEATURE, Priority.MEDIUM, ['task1']),
-        createMockTask('task3', 'Insert Data', Type.FEATURE, Priority.MEDIUM, ['task2'])
+        createMockTask(
+          'task2',
+          'Create Schema',
+          Type.FEATURE,
+          Priority.MEDIUM,
+          ['task1'],
+        ),
+        createMockTask('task3', 'Insert Data', Type.FEATURE, Priority.MEDIUM, [
+          'task2',
+        ]),
       ];
 
       const result = await analyzer.analyzeDependencies(tasks);
@@ -127,7 +139,7 @@ describe('DependencyAnalyzer', () => {
       const tasks = [
         createMockTask('task1', 'Setup Database'),
         createMockTask('task2', 'Setup Web Server'),
-        createMockTask('task3', 'Configure Logging')
+        createMockTask('task3', 'Configure Logging'),
       ];
 
       const result = await analyzer.analyzeDependencies(tasks);
@@ -141,9 +153,27 @@ describe('DependencyAnalyzer', () => {
     it('should identify critical tasks', async () => {
       const tasks = [
         createMockTask('critical', 'Setup Foundation'),
-        createMockTask('task1', 'Build Feature A', Type.FEATURE, Priority.MEDIUM, ['critical']),
-        createMockTask('task2', 'Build Feature B', Type.FEATURE, Priority.MEDIUM, ['critical']),
-        createMockTask('task3', 'Test Features', Type.TESTING, Priority.MEDIUM, ['task1', 'task2'])
+        createMockTask(
+          'task1',
+          'Build Feature A',
+          Type.FEATURE,
+          Priority.MEDIUM,
+          ['critical'],
+        ),
+        createMockTask(
+          'task2',
+          'Build Feature B',
+          Type.FEATURE,
+          Priority.MEDIUM,
+          ['critical'],
+        ),
+        createMockTask(
+          'task3',
+          'Test Features',
+          Type.TESTING,
+          Priority.MEDIUM,
+          ['task1', 'task2'],
+        ),
       ];
 
       const result = await analyzer.analyzeDependencies(tasks);
@@ -156,13 +186,15 @@ describe('DependencyAnalyzer', () => {
     it('should detect keyword-based implicit dependencies', async () => {
       const tasks = [
         createMockTask('setup', 'Initialize database setup'),
-        createMockTask('migrate', 'Run database migration setup')
+        createMockTask('migrate', 'Run database migration setup'),
       ];
 
       const result = await analyzer.analyzeDependencies(tasks);
 
       // Should detect implicit dependency based on 'setup' keyword
-      const implicitDeps = result.dependencies.filter(d => d.type === 'implicit');
+      const implicitDeps = result.dependencies.filter(
+        (d) => d.type === 'implicit',
+      );
       expect(implicitDeps.length).toBeGreaterThan(0);
     });
 
@@ -171,13 +203,15 @@ describe('DependencyAnalyzer', () => {
         createMockTask('analyze', 'Analyze requirements', Type.CODE_ANALYSIS),
         createMockTask('implement', 'Implement feature', Type.FEATURE),
         createMockTask('test', 'Test implementation', Type.TESTING),
-        createMockTask('deploy', 'Deploy to production', Type.DEPLOYMENT)
+        createMockTask('deploy', 'Deploy to production', Type.DEPLOYMENT),
       ];
 
       const result = await analyzer.analyzeDependencies(tasks);
 
       // Should detect structural dependencies based on type ordering
-      const structuralDeps = result.dependencies.filter(d => d.type === 'implicit');
+      const structuralDeps = result.dependencies.filter(
+        (d) => d.type === 'implicit',
+      );
       expect(structuralDeps.length).toBeGreaterThanOrEqual(2);
     });
   });
@@ -187,7 +221,7 @@ describe('DependencyAnalyzer', () => {
       const tasks = [
         createMockTask('db1', 'Database Task 1'),
         createMockTask('db2', 'Database Task 2'),
-        createMockTask('web1', 'Web Task 1')
+        createMockTask('web1', 'Web Task 1'),
       ];
 
       // Mock required capabilities to simulate resource usage
@@ -197,7 +231,9 @@ describe('DependencyAnalyzer', () => {
 
       const result = await analyzer.analyzeDependencies(tasks);
 
-      const resourceDeps = result.dependencies.filter(d => d.type === 'resource');
+      const resourceDeps = result.dependencies.filter(
+        (d) => d.type === 'resource',
+      );
       // Should create resource dependencies for tasks using same resource
       expect(resourceDeps.length).toBeGreaterThanOrEqual(1);
     });
@@ -206,16 +242,22 @@ describe('DependencyAnalyzer', () => {
       const now = new Date();
       const tasks = [
         createMockTask('early', 'Early Task'),
-        createMockTask('close', 'Close Task')
+        createMockTask('close', 'Close Task'),
       ];
 
       // Set close deadlines
       tasks[0].parameters = { metadata: { deadline: now.toISOString() } };
-      tasks[1].parameters = { metadata: { deadline: new Date(now.getTime() + 1000 * 60 * 30).toISOString() } }; // 30 min later
+      tasks[1].parameters = {
+        metadata: {
+          deadline: new Date(now.getTime() + 1000 * 60 * 30).toISOString(),
+        },
+      }; // 30 min later
 
       const result = await analyzer.analyzeDependencies(tasks);
 
-      const temporalDeps = result.dependencies.filter(d => d.type === 'temporal');
+      const temporalDeps = result.dependencies.filter(
+        (d) => d.type === 'temporal',
+      );
       expect(temporalDeps.length).toBeGreaterThanOrEqual(1);
     });
   });
@@ -223,15 +265,26 @@ describe('DependencyAnalyzer', () => {
   describe('Circular dependency detection', () => {
     it('should detect circular dependencies', async () => {
       const tasks = [
-        createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, ['task3']),
-        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, ['task1']),
-        createMockTask('task3', 'Task 3', Type.FEATURE, Priority.MEDIUM, ['task2'])
+        createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, [
+          'task3',
+        ]),
+        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, [
+          'task1',
+        ]),
+        createMockTask('task3', 'Task 3', Type.FEATURE, Priority.MEDIUM, [
+          'task2',
+        ]),
       ];
 
       const result = await analyzer.analyzeDependencies(tasks);
 
       expect(result.potentialCircular).toHaveLength(1);
-      expect(result.potentialCircular[0]).toEqual(['task1', 'task2', 'task3', 'task1']);
+      expect(result.potentialCircular[0]).toEqual([
+        'task1',
+        'task2',
+        'task3',
+        'task1',
+      ]);
     });
   });
 });
@@ -250,9 +303,13 @@ describe('DependencySequencer', () => {
   describe('Execution order resolution', () => {
     it('should resolve simple linear dependencies', async () => {
       const tasks = [
-        createMockTask('task3', 'Task 3', Type.FEATURE, Priority.MEDIUM, ['task2']),
+        createMockTask('task3', 'Task 3', Type.FEATURE, Priority.MEDIUM, [
+          'task2',
+        ]),
         createMockTask('task1', 'Task 1'),
-        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, ['task1'])
+        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, [
+          'task1',
+        ]),
       ];
 
       const orderedTasks = await sequencer.resolveExecutionOrder(tasks);
@@ -265,9 +322,24 @@ describe('DependencySequencer', () => {
     it('should handle parallel execution opportunities', async () => {
       const tasks = [
         createMockTask('base', 'Base Task'),
-        createMockTask('parallel1', 'Parallel Task 1', Type.FEATURE, Priority.MEDIUM, ['base']),
-        createMockTask('parallel2', 'Parallel Task 2', Type.FEATURE, Priority.MEDIUM, ['base']),
-        createMockTask('final', 'Final Task', Type.FEATURE, Priority.MEDIUM, ['parallel1', 'parallel2'])
+        createMockTask(
+          'parallel1',
+          'Parallel Task 1',
+          Type.FEATURE,
+          Priority.MEDIUM,
+          ['base'],
+        ),
+        createMockTask(
+          'parallel2',
+          'Parallel Task 2',
+          Type.FEATURE,
+          Priority.MEDIUM,
+          ['base'],
+        ),
+        createMockTask('final', 'Final Task', Type.FEATURE, Priority.MEDIUM, [
+          'parallel1',
+          'parallel2',
+        ]),
       ];
 
       const groups = await sequencer.getParallelExecutionGroups(tasks);
@@ -282,13 +354,18 @@ describe('DependencySequencer', () => {
   describe('Sequencing strategies', () => {
     it('should apply priority-first strategy', async () => {
       const sequencer = new DependencySequencer({
-        strategy: SequencingStrategy.PRIORITY_FIRST
+        strategy: SequencingStrategy.PRIORITY_FIRST,
       });
 
       const tasks = [
         createMockTask('low', 'Low Priority', Type.FEATURE, Priority.LOW),
-        createMockTask('critical', 'Critical Priority', Type.FEATURE, Priority.CRITICAL),
-        createMockTask('high', 'High Priority', Type.FEATURE, Priority.HIGH)
+        createMockTask(
+          'critical',
+          'Critical Priority',
+          Type.FEATURE,
+          Priority.CRITICAL,
+        ),
+        createMockTask('high', 'High Priority', Type.FEATURE, Priority.HIGH),
       ];
 
       const sequence = await sequencer.generateExecutionSequence(tasks);
@@ -296,8 +373,8 @@ describe('DependencySequencer', () => {
       expect(sequence.strategy).toBe(SequencingStrategy.PRIORITY_FIRST);
 
       // Critical should come first in the sequence
-      const criticalGroup = sequence.groups.find(g =>
-        g.tasks.some(t => t.id === 'critical')
+      const criticalGroup = sequence.groups.find((g) =>
+        g.tasks.some((t) => t.id === 'critical'),
       );
       expect(criticalGroup?.priority).toBe(Priority.CRITICAL);
 
@@ -306,13 +383,19 @@ describe('DependencySequencer', () => {
 
     it('should apply critical path strategy', async () => {
       const sequencer = new DependencySequencer({
-        strategy: SequencingStrategy.CRITICAL_PATH
+        strategy: SequencingStrategy.CRITICAL_PATH,
       });
 
       const tasks = [
         createMockTask('critical1', 'Critical Path 1'),
-        createMockTask('critical2', 'Critical Path 2', Type.FEATURE, Priority.MEDIUM, ['critical1']),
-        createMockTask('side', 'Side Task', Type.FEATURE, Priority.HIGH) // High priority but not on critical path
+        createMockTask(
+          'critical2',
+          'Critical Path 2',
+          Type.FEATURE,
+          Priority.MEDIUM,
+          ['critical1'],
+        ),
+        createMockTask('side', 'Side Task', Type.FEATURE, Priority.HIGH), // High priority but not on critical path
       ];
 
       const sequence = await sequencer.generateExecutionSequence(tasks);
@@ -329,16 +412,18 @@ describe('DependencySequencer', () => {
     it('should detect resource contention conflicts', async () => {
       const tasks = [
         createMockTask('db1', 'Database Operation 1'),
-        createMockTask('db2', 'Database Operation 2')
+        createMockTask('db2', 'Database Operation 2'),
       ];
 
       // Simulate both tasks requiring the same resource
-      vi.spyOn(sequencer as any, 'extractTaskResources').mockImplementation((task) => {
-        if (task.id.startsWith('db')) {
-          return ['database'];
-        }
-        return ['cpu'];
-      });
+      vi.spyOn(sequencer as any, 'extractTaskResources').mockImplementation(
+        (task) => {
+          if (task.id.startsWith('db')) {
+            return ['database'];
+          }
+          return ['cpu'];
+        },
+      );
 
       const conflicts = await (sequencer as any).detectConflicts(tasks);
 
@@ -350,13 +435,26 @@ describe('DependencySequencer', () => {
 
     it('should detect priority inversion conflicts', async () => {
       const tasks = [
-        createMockTask('low', 'Low Priority Blocking', Type.FEATURE, Priority.LOW),
-        createMockTask('high', 'High Priority Blocked', Type.FEATURE, Priority.HIGH, ['low'])
+        createMockTask(
+          'low',
+          'Low Priority Blocking',
+          Type.FEATURE,
+          Priority.LOW,
+        ),
+        createMockTask(
+          'high',
+          'High Priority Blocked',
+          Type.FEATURE,
+          Priority.HIGH,
+          ['low'],
+        ),
       ];
 
       const conflicts = await (sequencer as any).detectConflicts(tasks);
 
-      const priorityInversions = conflicts.filter(c => c.type === 'priority_inversion');
+      const priorityInversions = conflicts.filter(
+        (c) => c.type === 'priority_inversion',
+      );
       expect(priorityInversions).toHaveLength(1);
       expect(priorityInversions[0].taskIds).toContain('low');
       expect(priorityInversions[0].taskIds).toContain('high');
@@ -367,7 +465,9 @@ describe('DependencySequencer', () => {
     it('should validate correct dependencies', async () => {
       const tasks = [
         createMockTask('task1', 'Task 1'),
-        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, ['task1'])
+        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, [
+          'task1',
+        ]),
       ];
 
       const validation = await sequencer.validateDependencies(tasks);
@@ -378,7 +478,9 @@ describe('DependencySequencer', () => {
 
     it('should detect missing dependencies', async () => {
       const tasks = [
-        createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, ['missing-task'])
+        createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, [
+          'missing-task',
+        ]),
       ];
 
       const validation = await sequencer.validateDependencies(tasks);
@@ -391,14 +493,20 @@ describe('DependencySequencer', () => {
 
     it('should detect circular dependencies', async () => {
       const tasks = [
-        createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, ['task2']),
-        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, ['task1'])
+        createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, [
+          'task2',
+        ]),
+        createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, [
+          'task1',
+        ]),
       ];
 
       const validation = await sequencer.validateDependencies(tasks);
 
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(e => e.type === 'circular_dependency')).toBe(true);
+      expect(
+        validation.errors.some((e) => e.type === 'circular_dependency'),
+      ).toBe(true);
       expect(validation.circularDependencies).toHaveLength(1);
     });
   });
@@ -419,9 +527,23 @@ describe('IntelligentDependencyManager', () => {
     it('should provide comprehensive dependency analysis', async () => {
       const tasks = [
         createMockTask('setup', 'Setup Environment'),
-        createMockTask('build', 'Build Application', Type.BUILD, Priority.MEDIUM, ['setup']),
-        createMockTask('test', 'Run Tests', Type.TESTING, Priority.MEDIUM, ['build']),
-        createMockTask('deploy', 'Deploy Application', Type.DEPLOYMENT, Priority.CRITICAL, ['test'])
+        createMockTask(
+          'build',
+          'Build Application',
+          Type.BUILD,
+          Priority.MEDIUM,
+          ['setup'],
+        ),
+        createMockTask('test', 'Run Tests', Type.TESTING, Priority.MEDIUM, [
+          'build',
+        ]),
+        createMockTask(
+          'deploy',
+          'Deploy Application',
+          Type.DEPLOYMENT,
+          Priority.CRITICAL,
+          ['test'],
+        ),
       ];
 
       const graph = await manager.analyzeDependencies(tasks);
@@ -436,7 +558,10 @@ describe('IntelligentDependencyManager', () => {
       const tasks = [
         createMockTask('parallel1', 'Parallel Task 1'),
         createMockTask('parallel2', 'Parallel Task 2'),
-        createMockTask('final', 'Final Task', Type.FEATURE, Priority.MEDIUM, ['parallel1', 'parallel2'])
+        createMockTask('final', 'Final Task', Type.FEATURE, Priority.MEDIUM, [
+          'parallel1',
+          'parallel2',
+        ]),
       ];
 
       const sequence = await manager.generateIntelligentSequence(tasks);
@@ -450,7 +575,7 @@ describe('IntelligentDependencyManager', () => {
     it('should cache analysis results for performance', async () => {
       const tasks = [
         createMockTask('task1', 'Task 1'),
-        createMockTask('task2', 'Task 2')
+        createMockTask('task2', 'Task 2'),
       ];
 
       // First analysis
@@ -471,10 +596,13 @@ describe('IntelligentDependencyManager', () => {
   describe('Real-time monitoring and updates', () => {
     it('should handle dependency updates', async () => {
       const taskId = 'test-task';
-      const newDependencies = [{ taskId: 'new-dep', type: 'prerequisite', optional: false }];
+      const newDependencies = [
+        { taskId: 'new-dep', type: 'prerequisite', optional: false },
+      ];
 
-      await expect(manager.updateTaskDependencies(taskId, newDependencies))
-        .resolves.not.toThrow();
+      await expect(
+        manager.updateTaskDependencies(taskId, newDependencies),
+      ).resolves.not.toThrow();
     });
 
     it('should provide comprehensive metrics', () => {
@@ -509,7 +637,7 @@ describe('IntelligentDependencyManager', () => {
 
       // Optimization should maintain or improve metrics
       expect(optimizedMetrics.optimizationSuccessRate).toBeGreaterThanOrEqual(
-        initialMetrics.optimizationSuccessRate
+        initialMetrics.optimizationSuccessRate,
       );
     });
   });
@@ -525,10 +653,18 @@ describe('Factory functions and configurations', () => {
   });
 
   it('should apply predefined configurations correctly', () => {
-    const highPerf = createIntelligentDependencySystem(DependencyConfigurations.HIGH_PERFORMANCE);
-    const comprehensive = createIntelligentDependencySystem(DependencyConfigurations.COMPREHENSIVE);
-    const resourceOpt = createIntelligentDependencySystem(DependencyConfigurations.RESOURCE_OPTIMIZED);
-    const qualityFocused = createIntelligentDependencySystem(DependencyConfigurations.QUALITY_FOCUSED);
+    const highPerf = createIntelligentDependencySystem(
+      DependencyConfigurations.HIGH_PERFORMANCE,
+    );
+    const comprehensive = createIntelligentDependencySystem(
+      DependencyConfigurations.COMPREHENSIVE,
+    );
+    const resourceOpt = createIntelligentDependencySystem(
+      DependencyConfigurations.RESOURCE_OPTIMIZED,
+    );
+    const qualityFocused = createIntelligentDependencySystem(
+      DependencyConfigurations.QUALITY_FOCUSED,
+    );
 
     expect(highPerf).toBeInstanceOf(IntelligentDependencyManager);
     expect(comprehensive).toBeInstanceOf(IntelligentDependencyManager);
@@ -536,7 +672,7 @@ describe('Factory functions and configurations', () => {
     expect(qualityFocused).toBeInstanceOf(IntelligentDependencyManager);
 
     // Cleanup
-    [highPerf, comprehensive, resourceOpt, qualityFocused].forEach(system => {
+    [highPerf, comprehensive, resourceOpt, qualityFocused].forEach((system) => {
       system.dispose();
     });
   });
@@ -544,13 +680,23 @@ describe('Factory functions and configurations', () => {
 
 describe('Performance and scalability', () => {
   it('should handle large numbers of tasks efficiently', async () => {
-    const manager = createIntelligentDependencySystem(DependencyConfigurations.HIGH_PERFORMANCE);
+    const manager = createIntelligentDependencySystem(
+      DependencyConfigurations.HIGH_PERFORMANCE,
+    );
 
     // Create 100 tasks with random dependencies
     const tasks: ITask[] = [];
     for (let i = 0; i < 100; i++) {
       const deps = i > 0 ? [`task${Math.floor(Math.random() * i)}`] : [];
-      tasks.push(createMockTask(`task${i}`, `Task ${i}`, Type.FEATURE, Priority.MEDIUM, deps));
+      tasks.push(
+        createMockTask(
+          `task${i}`,
+          `Task ${i}`,
+          Type.FEATURE,
+          Priority.MEDIUM,
+          deps,
+        ),
+      );
     }
 
     const startTime = Date.now();
@@ -574,8 +720,12 @@ describe('Performance and scalability', () => {
     const manager = createIntelligentDependencySystem();
     const tasks = [
       createMockTask('task1', 'Task 1'),
-      createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, ['task1']),
-      createMockTask('task3', 'Task 3', Type.FEATURE, Priority.MEDIUM, ['task2'])
+      createMockTask('task2', 'Task 2', Type.FEATURE, Priority.MEDIUM, [
+        'task1',
+      ]),
+      createMockTask('task3', 'Task 3', Type.FEATURE, Priority.MEDIUM, [
+        'task2',
+      ]),
     ];
 
     const times: number[] = [];
@@ -614,7 +764,9 @@ describe('Error handling and edge cases', () => {
   it('should handle invalid dependencies gracefully', async () => {
     const manager = createIntelligentDependencySystem();
     const tasks = [
-      createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, ['nonexistent'])
+      createMockTask('task1', 'Task 1', Type.FEATURE, Priority.MEDIUM, [
+        'nonexistent',
+      ]),
     ];
 
     const validation = await manager.validateDependencies(tasks);
@@ -632,10 +784,7 @@ describe('Error handling and edge cases', () => {
     const badTask = createMockTask('bad', 'Bad Task');
     (badTask as any).dependencies = null; // Malform the dependencies
 
-    const tasks = [
-      createMockTask('good', 'Good Task'),
-      badTask
-    ];
+    const tasks = [createMockTask('good', 'Good Task'), badTask];
 
     // Should not throw, but handle gracefully
     await expect(manager.analyzeDependencies(tasks)).resolves.not.toThrow();

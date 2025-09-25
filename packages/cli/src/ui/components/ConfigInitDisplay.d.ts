@@ -4,4 +4,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export declare const ConfigInitDisplay: () => import("react/jsx-runtime").JSX.Element;
+export declare const ConfigInitDisplay: () => import('react/jsx-runtime').JSX.Element;

@@ -117,7 +117,10 @@ export class ContextCollector {
     const now = Date.now();
 
     // Return cached context if recent enough
-    if (this.cachedContext && (now - this.cachedContext.timestamp) < this.COLLECTION_CACHE_MS) {
+    if (
+      this.cachedContext &&
+      now - this.cachedContext.timestamp < this.COLLECTION_CACHE_MS
+    ) {
       logger.debug('Returning cached decision context');
       return this.cachedContext.context;
     }
@@ -165,7 +168,6 @@ export class ContextCollector {
       logger.debug(`Collected decision context in ${duration.toFixed(2)}ms`);
 
       return context;
-
     } catch (error) {
       logger.error('Failed to collect decision context', { error });
       throw error;
@@ -199,7 +201,9 @@ export class ContextCollector {
   /**
    * Collect task queue state information.
    */
-  private async collectTaskQueueState(): Promise<DecisionContext['taskQueueState']> {
+  private async collectTaskQueueState(): Promise<
+    DecisionContext['taskQueueState']
+  > {
     try {
       // This would integrate with the actual task queue system
       // For now, provide simulated values based on system state
@@ -207,13 +211,19 @@ export class ContextCollector {
       // Read from FEATURES.json to get some task metrics
       const features = await this.readFeaturesJson();
       const totalFeatures = features.features?.length || 0;
-      const approvedFeatures = features.features?.filter(f => f.status === 'approved').length || 0;
-      const implementedFeatures = features.features?.filter(f => f.status === 'implemented').length || 0;
+      const approvedFeatures =
+        features.features?.filter((f) => f.status === 'approved').length || 0;
+      const implementedFeatures =
+        features.features?.filter((f) => f.status === 'implemented').length ||
+        0;
 
       return {
         totalTasks: totalFeatures,
         pendingTasks: approvedFeatures,
-        runningTasks: Math.max(0, totalFeatures - approvedFeatures - implementedFeatures),
+        runningTasks: Math.max(
+          0,
+          totalFeatures - approvedFeatures - implementedFeatures,
+        ),
         failedTasks: 0, // Would need error tracking
         avgProcessingTime: 5000, // 5 seconds average
       };
@@ -232,7 +242,9 @@ export class ContextCollector {
   /**
    * Collect agent context information.
    */
-  private async collectAgentContext(): Promise<DecisionContext['agentContext']> {
+  private async collectAgentContext(): Promise<
+    DecisionContext['agentContext']
+  > {
     try {
       // Read from FEATURES.json to get agent information
       const features = await this.readFeaturesJson();
@@ -274,22 +286,28 @@ export class ContextCollector {
   /**
    * Collect project state information.
    */
-  private async collectProjectState(): Promise<DecisionContext['projectState']> {
+  private async collectProjectState(): Promise<
+    DecisionContext['projectState']
+  > {
     try {
       // Check for common project artifacts to determine state
       const projectRoot = process.cwd();
 
       // Check if package.json exists (Node.js project)
-      const hasPackageJson = await this.fileExists(join(projectRoot, 'package.json'));
+      const hasPackageJson = await this.fileExists(
+        join(projectRoot, 'package.json'),
+      );
 
       // Check build artifacts
-      const hasBuildDir = await this.directoryExists(join(projectRoot, 'dist')) ||
-                          await this.directoryExists(join(projectRoot, 'build'));
+      const hasBuildDir =
+        (await this.directoryExists(join(projectRoot, 'dist'))) ||
+        (await this.directoryExists(join(projectRoot, 'build')));
 
       // Check for test directories
-      const hasTests = await this.directoryExists(join(projectRoot, 'tests')) ||
-                       await this.directoryExists(join(projectRoot, 'test')) ||
-                       await this.directoryExists(join(projectRoot, '__tests__'));
+      const hasTests =
+        (await this.directoryExists(join(projectRoot, 'tests'))) ||
+        (await this.directoryExists(join(projectRoot, 'test'))) ||
+        (await this.directoryExists(join(projectRoot, '__tests__')));
 
       // Simulate project state based on artifacts
       const buildStatus = hasBuildDir ? 'success' : 'unknown';
@@ -300,7 +318,9 @@ export class ContextCollector {
       const gitStatus = await this.checkGitStatus();
 
       return {
-        lastBuildTime: hasBuildDir ? Date.now() - Math.random() * 3600000 : undefined, // Last hour
+        lastBuildTime: hasBuildDir
+          ? Date.now() - Math.random() * 3600000
+          : undefined, // Last hour
         buildStatus: buildStatus as any,
         testStatus: testStatus as any,
         lintStatus: lintStatus as any,
@@ -321,7 +341,9 @@ export class ContextCollector {
   /**
    * Collect budget context information.
    */
-  private async collectBudgetContext(): Promise<DecisionContext['budgetContext']> {
+  private async collectBudgetContext(): Promise<
+    DecisionContext['budgetContext']
+  > {
     try {
       // This would integrate with actual budget tracking systems
       // For now, provide reasonable defaults
@@ -331,7 +353,7 @@ export class ContextCollector {
         dailyLimit: 500000, // Daily token limit
         currentUsage: 50000, // Current usage
         costPerToken: 0.000002, // $0.000002 per token
-        estimatedCostForTask: 0.10, // $0.10 estimated cost
+        estimatedCostForTask: 0.1, // $0.10 estimated cost
       };
     } catch (error) {
       logger.warn('Failed to collect budget context', { error });
@@ -348,7 +370,9 @@ export class ContextCollector {
   /**
    * Collect performance history.
    */
-  private async collectPerformanceHistory(): Promise<DecisionContext['performanceHistory']> {
+  private async collectPerformanceHistory(): Promise<
+    DecisionContext['performanceHistory']
+  > {
     try {
       // This would read from actual performance tracking systems
       // For now, provide simulated reasonable values
@@ -356,11 +380,7 @@ export class ContextCollector {
       return {
         avgSuccessRate: 0.85, // 85% success rate
         avgCompletionTime: 30000, // 30 seconds average
-        commonFailureReasons: [
-          'timeout',
-          'resource_limit',
-          'validation_error',
-        ],
+        commonFailureReasons: ['timeout', 'resource_limit', 'validation_error'],
         peakUsageHours: [9, 10, 11, 14, 15, 16], // Business hours
       };
     } catch (error) {
@@ -377,7 +397,9 @@ export class ContextCollector {
   /**
    * Collect user preferences.
    */
-  private async collectUserPreferences(): Promise<DecisionContext['userPreferences']> {
+  private async collectUserPreferences(): Promise<
+    DecisionContext['userPreferences']
+  > {
     try {
       // This would read from user configuration files
       // For now, provide reasonable defaults
@@ -410,7 +432,7 @@ export class ContextCollector {
     const memUsage = memoryUsage();
 
     // Wait a brief moment to get CPU usage delta
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
     const endCpuUsage = cpuUsage(startCpuUsage);
 
     // Calculate CPU usage percentage
@@ -469,7 +491,10 @@ export class ContextCollector {
     if (agentId.toLowerCase().includes('doc')) {
       capabilities.push('documentation', 'analysis');
     }
-    if (agentId.toLowerCase().includes('engine') || agentId.toLowerCase().includes('dev')) {
+    if (
+      agentId.toLowerCase().includes('engine') ||
+      agentId.toLowerCase().includes('dev')
+    ) {
       capabilities.push('development', 'implementation');
     }
     if (agentId.toLowerCase().includes('monitor')) {
@@ -511,7 +536,9 @@ export class ContextCollector {
   /**
    * Check git status (simplified).
    */
-  private async checkGitStatus(): Promise<'clean' | 'modified' | 'conflicted' | 'unknown'> {
+  private async checkGitStatus(): Promise<
+    'clean' | 'modified' | 'conflicted' | 'unknown'
+  > {
     try {
       // Check if .git directory exists
       const gitDir = join(process.cwd(), '.git');
@@ -523,7 +550,9 @@ export class ContextCollector {
 
       // In a real implementation, this would run `git status --porcelain`
       // For now, simulate based on project activity
-      const hasFeatures = await this.fileExists(join(process.cwd(), 'FEATURES.json'));
+      const hasFeatures = await this.fileExists(
+        join(process.cwd(), 'FEATURES.json'),
+      );
       return hasFeatures ? 'modified' : 'clean';
     } catch {
       return 'unknown';

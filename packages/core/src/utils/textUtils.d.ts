@@ -25,7 +25,11 @@
  * safeLiteralReplace('hello world', 'world', '$& again'); // 'hello $& again'
  * ```
  */
-export declare function safeLiteralReplace(str: string, oldString: string, newString: string): string;
+export declare function safeLiteralReplace(
+  str: string,
+  oldString: string,
+  newString: string,
+): string;
 /**
  * Checks if a Buffer contains binary data by testing for the presence of NULL bytes.
  *
@@ -49,4 +53,7 @@ export declare function safeLiteralReplace(str: string, oldString: string, newSt
  * console.log(isBinary(largeBuffer, 100));
  * ```
  */
-export declare function isBinary(data: Buffer | null | undefined, sampleSize?: number): boolean;
+export declare function isBinary(
+  data: Buffer | null | undefined,
+  sampleSize?: number,
+): boolean;

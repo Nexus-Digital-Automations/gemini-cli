@@ -18,10 +18,25 @@
 
 import { EventEmitter } from 'node:events';
 import type { Config } from '../index.js';
-import { AutonomousTaskIntegrator, type AutonomousTask, type RegisteredAgent } from './autonomousTaskIntegrator.js';
-import { IntegrationBridge, type IntegrationConfig } from './integrationBridge.js';
-import { SystemMonitor, type SystemMetrics, type Alert, type MonitoringConfig } from './systemMonitor.js';
-import { SystemValidator, type SystemReadinessReport } from './systemValidator.js';
+import {
+  AutonomousTaskIntegrator,
+  type AutonomousTask,
+  type RegisteredAgent,
+} from './autonomousTaskIntegrator.js';
+import {
+  IntegrationBridge,
+  type IntegrationConfig,
+} from './integrationBridge.js';
+import {
+  SystemMonitor,
+  type SystemMetrics,
+  type Alert,
+  type MonitoringConfig,
+} from './systemMonitor.js';
+import {
+  SystemValidator,
+  type SystemReadinessReport,
+} from './systemValidator.js';
 
 export interface AutonomousTaskManagementConfig {
   integration?: Partial<IntegrationConfig>;
@@ -60,7 +75,10 @@ export class AutonomousTaskManagementService extends EventEmitter {
   private startTime = Date.now();
   private lastValidationReport?: SystemReadinessReport;
 
-  constructor(config: Config, serviceConfig: AutonomousTaskManagementConfig = {}) {
+  constructor(
+    config: Config,
+    serviceConfig: AutonomousTaskManagementConfig = {},
+  ) {
     super();
     this.config = config;
     this.serviceConfig = {
@@ -72,7 +90,10 @@ export class AutonomousTaskManagementService extends EventEmitter {
 
     // Initialize core components
     this.taskIntegrator = new AutonomousTaskIntegrator(config);
-    this.integrationBridge = new IntegrationBridge(config, serviceConfig.integration);
+    this.integrationBridge = new IntegrationBridge(
+      config,
+      serviceConfig.integration,
+    );
     this.systemMonitor = new SystemMonitor(config, serviceConfig.monitoring);
     this.systemValidator = new SystemValidator(config);
 
@@ -98,13 +119,16 @@ export class AutonomousTaskManagementService extends EventEmitter {
       await this.integrationBridge.initialize();
 
       console.log('  📊 Initializing System Monitor...');
-      await this.systemMonitor.initialize(this.taskIntegrator, this.integrationBridge);
+      await this.systemMonitor.initialize(
+        this.taskIntegrator,
+        this.integrationBridge,
+      );
 
       console.log('  🔧 Initializing System Validator...');
       await this.systemValidator.initialize(
         this.taskIntegrator,
         this.integrationBridge,
-        this.systemMonitor
+        this.systemMonitor,
       );
 
       // Run initial validation if enabled
@@ -112,25 +136,43 @@ export class AutonomousTaskManagementService extends EventEmitter {
         console.log('  🔍 Running initial system validation...');
         this.lastValidationReport = await this.systemValidator.validateSystem();
 
-        if (this.lastValidationReport.overallStatus === 'not_ready' && this.serviceConfig.productionMode) {
-          throw new Error('System validation failed - not ready for production');
+        if (
+          this.lastValidationReport.overallStatus === 'not_ready' &&
+          this.serviceConfig.productionMode
+        ) {
+          throw new Error(
+            'System validation failed - not ready for production',
+          );
         }
       }
 
       this.isInitialized = true;
       this.emit('system_initialized', { timestamp: new Date() });
 
-      console.log('✅ Autonomous Task Management System initialized successfully');
-      console.log(`🎯 System Status: ${this.getSystemStatus().status.toUpperCase()}`);
+      console.log(
+        '✅ Autonomous Task Management System initialized successfully',
+      );
+      console.log(
+        `🎯 System Status: ${this.getSystemStatus().status.toUpperCase()}`,
+      );
 
       if (this.lastValidationReport) {
-        console.log(`📊 Readiness Score: ${this.lastValidationReport.overallScore}/100`);
-        console.log(`🏭 Readiness Level: ${this.lastValidationReport.readinessLevel.toUpperCase()}`);
+        console.log(
+          `📊 Readiness Score: ${this.lastValidationReport.overallScore}/100`,
+        );
+        console.log(
+          `🏭 Readiness Level: ${this.lastValidationReport.readinessLevel.toUpperCase()}`,
+        );
       }
-
     } catch (error) {
-      console.error('❌ Failed to initialize Autonomous Task Management System:', error);
-      this.emit('system_initialization_failed', { error, timestamp: new Date() });
+      console.error(
+        '❌ Failed to initialize Autonomous Task Management System:',
+        error,
+      );
+      this.emit('system_initialization_failed', {
+        error,
+        timestamp: new Date(),
+      });
       throw error;
     }
   }
@@ -176,14 +218,14 @@ export class AutonomousTaskManagementService extends EventEmitter {
 
     if (!this.isInitialized) {
       status = 'initializing';
-      Object.keys(components).forEach(key => {
+      Object.keys(components).forEach((key) => {
         components[key as keyof typeof components] = 'inactive';
       });
     }
 
     // Check for active critical alerts
     const alerts = this.systemMonitor.getActiveAlerts();
-    const criticalAlerts = alerts.filter(a => a.severity === 'critical');
+    const criticalAlerts = alerts.filter((a) => a.severity === 'critical');
 
     if (criticalAlerts.length > 0) {
       status = 'degraded';
@@ -215,7 +257,13 @@ export class AutonomousTaskManagementService extends EventEmitter {
   async createTask(taskConfig: {
     title: string;
     description: string;
-    type: 'implementation' | 'testing' | 'documentation' | 'validation' | 'deployment' | 'analysis';
+    type:
+      | 'implementation'
+      | 'testing'
+      | 'documentation'
+      | 'validation'
+      | 'deployment'
+      | 'analysis';
     priority: 'critical' | 'high' | 'normal' | 'low';
     dependencies?: string[];
     requiredCapabilities?: string[];
@@ -262,8 +310,12 @@ export class AutonomousTaskManagementService extends EventEmitter {
 
     console.log('🔄 Generating tasks from approved features...');
 
-    const tasks = await this.integrationBridge.generateTasksFromApprovedFeatures();
-    this.emit('tasks_generated', { count: tasks.length, timestamp: new Date() });
+    const tasks =
+      await this.integrationBridge.generateTasksFromApprovedFeatures();
+    this.emit('tasks_generated', {
+      count: tasks.length,
+      timestamp: new Date(),
+    });
 
     return tasks;
   }
@@ -279,7 +331,10 @@ export class AutonomousTaskManagementService extends EventEmitter {
     console.log('🔍 Running comprehensive system validation...');
 
     this.lastValidationReport = await this.systemValidator.validateSystem();
-    this.emit('system_validated', { report: this.lastValidationReport, timestamp: new Date() });
+    this.emit('system_validated', {
+      report: this.lastValidationReport,
+      timestamp: new Date(),
+    });
 
     return this.lastValidationReport;
   }
@@ -345,13 +400,17 @@ export class AutonomousTaskManagementService extends EventEmitter {
   async executeCommand(
     command: string,
     args: string[] = [],
-    taskContext?: { taskId: string; agentId: string }
+    taskContext?: { taskId: string; agentId: string },
   ): Promise<{ success: boolean; output: string; error?: string }> {
     if (!this.isInitialized) {
       throw new Error('System not initialized');
     }
 
-    return await this.integrationBridge.executeCliCommand(command, args, taskContext);
+    return await this.integrationBridge.executeCliCommand(
+      command,
+      args,
+      taskContext,
+    );
   }
 
   /**
@@ -362,7 +421,10 @@ export class AutonomousTaskManagementService extends EventEmitter {
       throw new Error('System not initialized');
     }
 
-    return await this.integrationBridge.handleExternalApiRequest(endpoint, params);
+    return await this.integrationBridge.handleExternalApiRequest(
+      endpoint,
+      params,
+    );
   }
 
   /**
@@ -424,7 +486,12 @@ export class AutonomousTaskManagementService extends EventEmitter {
 
     // System Monitor events
     this.systemMonitor.on('alert_created', (alert) => {
-      const severity = alert.severity === 'critical' ? '🚨' : alert.severity === 'high' ? '⚠️' : 'ℹ️';
+      const severity =
+        alert.severity === 'critical'
+          ? '🚨'
+          : alert.severity === 'high'
+            ? '⚠️'
+            : 'ℹ️';
       console.log(`${severity} Alert: ${alert.title}`);
       this.emit('alert_created', alert);
     });

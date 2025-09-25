@@ -14,10 +14,26 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import { DependencyAnalyzer, TaskNode, TaskDependency, DependencyAnalysisResult } from './DependencyAnalyzer.js';
-import { IntelligentTaskScheduler, SchedulingResult, ExecutionContext } from './IntelligentTaskScheduler.js';
-import { DependencyVisualizationEngine, VisualizationNode, TimelineEvent } from './DependencyVisualizationEngine.js';
-import { DependencyPersistenceIntegration, DependencySystemSnapshot } from './DependencyPersistenceIntegration.js';
+import {
+  DependencyAnalyzer,
+  TaskNode,
+  TaskDependency,
+  DependencyAnalysisResult,
+} from './DependencyAnalyzer.js';
+import {
+  IntelligentTaskScheduler,
+  SchedulingResult,
+  ExecutionContext,
+} from './IntelligentTaskScheduler.js';
+import {
+  DependencyVisualizationEngine,
+  VisualizationNode,
+  TimelineEvent,
+} from './DependencyVisualizationEngine.js';
+import {
+  DependencyPersistenceIntegration,
+  DependencySystemSnapshot,
+} from './DependencyPersistenceIntegration.js';
 
 /**
  * Orchestrator configuration interface
@@ -39,7 +55,11 @@ export interface OrchestratorConfiguration {
       cpuThreshold: number;
     };
     strategy: {
-      algorithm: 'critical_path' | 'shortest_processing' | 'earliest_deadline' | 'adaptive';
+      algorithm:
+        | 'critical_path'
+        | 'shortest_processing'
+        | 'earliest_deadline'
+        | 'adaptive';
       parallelizationEnabled: boolean;
       resourceOptimization: boolean;
       loadBalancing: boolean;
@@ -91,7 +111,7 @@ export enum SystemHealthStatus {
   DEGRADED = 'degraded',
   CRITICAL = 'critical',
   FAILED = 'failed',
-  RECOVERING = 'recovering'
+  RECOVERING = 'recovering',
 }
 
 /**
@@ -102,7 +122,7 @@ export enum RecoveryAction {
   CLEAR_CACHE = 'clear_cache',
   RESET_CONFIGURATION = 'reset_configuration',
   EMERGENCY_SHUTDOWN = 'emergency_shutdown',
-  ESCALATE_TO_ADMIN = 'escalate_to_admin'
+  ESCALATE_TO_ADMIN = 'escalate_to_admin',
 }
 
 /**
@@ -177,7 +197,7 @@ export class DependencyOrchestrator extends EventEmitter {
       startTime: new Date(),
       tasksProcessed: 0,
       errors: 0,
-      lastHealthCheck: new Date()
+      lastHealthCheck: new Date(),
     };
 
     // Initialize core components
@@ -188,7 +208,7 @@ export class DependencyOrchestrator extends EventEmitter {
 
     this.setupEventHandlers();
     this.logger.info('DependencyOrchestrator initialized', {
-      config: this.summarizeConfig()
+      config: this.summarizeConfig(),
     });
   }
 
@@ -226,7 +246,9 @@ export class DependencyOrchestrator extends EventEmitter {
 
       this.logger.info('DependencyOrchestrator initialization complete');
     } catch (error) {
-      this.logger.error('Failed to initialize DependencyOrchestrator', { error });
+      this.logger.error('Failed to initialize DependencyOrchestrator', {
+        error,
+      });
       throw error;
     }
   }
@@ -236,7 +258,7 @@ export class DependencyOrchestrator extends EventEmitter {
    */
   public async submitTask(
     taskNode: TaskNode,
-    dependencies: TaskDependency[] = []
+    dependencies: TaskDependency[] = [],
   ): Promise<{
     analysis: DependencyAnalysisResult;
     scheduling: SchedulingResult;
@@ -249,7 +271,7 @@ export class DependencyOrchestrator extends EventEmitter {
     const taskId = taskNode.id;
     this.logger.info(`Submitting task for orchestration: ${taskId}`, {
       taskType: taskNode.type,
-      dependencyCount: dependencies.length
+      dependencyCount: dependencies.length,
     });
 
     try {
@@ -259,7 +281,7 @@ export class DependencyOrchestrator extends EventEmitter {
       const analysis = await this.analyzer.analyzeTask(taskNode, dependencies);
       this.logger.debug(`Dependency analysis complete for ${taskId}`, {
         readiness: analysis.readiness,
-        conflicts: analysis.conflicts.length
+        conflicts: analysis.conflicts.length,
       });
 
       // Step 2: Intelligent Scheduling
@@ -270,13 +292,13 @@ export class DependencyOrchestrator extends EventEmitter {
         resourceRequirements: taskNode.resourceRequirements || {},
         dependencies: analysis.prerequisiteChain,
         constraints: {},
-        metadata: taskNode.metadata || {}
+        metadata: taskNode.metadata || {},
       };
 
       const scheduling = await this.scheduler.scheduleTask(executionContext);
       this.logger.debug(`Task scheduling complete for ${taskId}`, {
         scheduledTime: scheduling.scheduledTime,
-        expectedCompletion: scheduling.expectedCompletion
+        expectedCompletion: scheduling.expectedCompletion,
       });
 
       // Step 3: Visualization Update
@@ -289,14 +311,14 @@ export class DependencyOrchestrator extends EventEmitter {
         style: {
           color: this.getStatusColor(taskNode.status),
           size: this.calculateNodeSize(taskNode),
-          shape: this.getNodeShape(taskNode.type)
+          shape: this.getNodeShape(taskNode.type),
         },
         metadata: {
           priority: taskNode.priority,
           estimatedDuration: taskNode.estimatedDuration,
           scheduledTime: scheduling.scheduledTime,
-          ...taskNode.metadata
-        }
+          ...taskNode.metadata,
+        },
       };
 
       if (this.config.visualization.enableVisualization) {
@@ -311,14 +333,18 @@ export class DependencyOrchestrator extends EventEmitter {
           dependencies,
           analysis,
           scheduling,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
 
-      this.emit('taskSubmitted', { taskId, analysis, scheduling, visualization: visualizationNode });
+      this.emit('taskSubmitted', {
+        taskId,
+        analysis,
+        scheduling,
+        visualization: visualizationNode,
+      });
 
       return { analysis, scheduling, visualization: visualizationNode };
-
     } catch (error) {
       this.systemMetrics.errors++;
       this.logger.error(`Failed to orchestrate task ${taskId}`, { error });
@@ -343,18 +369,26 @@ export class DependencyOrchestrator extends EventEmitter {
       this.getComponentHealth('analyzer'),
       this.getComponentHealth('scheduler'),
       this.getComponentHealth('visualization'),
-      this.getComponentHealth('persistence')
+      this.getComponentHealth('persistence'),
     ]);
 
     const components = {
-      analyzer: componentStatuses[0].status === 'fulfilled' ?
-        componentStatuses[0].value : SystemHealthStatus.FAILED,
-      scheduler: componentStatuses[1].status === 'fulfilled' ?
-        componentStatuses[1].value : SystemHealthStatus.FAILED,
-      visualization: componentStatuses[2].status === 'fulfilled' ?
-        componentStatuses[2].value : SystemHealthStatus.FAILED,
-      persistence: componentStatuses[3].status === 'fulfilled' ?
-        componentStatuses[3].value : SystemHealthStatus.FAILED
+      analyzer:
+        componentStatuses[0].status === 'fulfilled'
+          ? componentStatuses[0].value
+          : SystemHealthStatus.FAILED,
+      scheduler:
+        componentStatuses[1].status === 'fulfilled'
+          ? componentStatuses[1].value
+          : SystemHealthStatus.FAILED,
+      visualization:
+        componentStatuses[2].status === 'fulfilled'
+          ? componentStatuses[2].value
+          : SystemHealthStatus.FAILED,
+      persistence:
+        componentStatuses[3].status === 'fulfilled'
+          ? componentStatuses[3].value
+          : SystemHealthStatus.FAILED,
     };
 
     // Calculate overall status
@@ -368,9 +402,11 @@ export class DependencyOrchestrator extends EventEmitter {
       activeConnections: this.listenerCount('taskSubmitted'),
       memoryUsage: memoryUsage.heapUsed / memoryUsage.heapTotal,
       cpuUsage: await this.getCpuUsage(),
-      errorRate: this.systemMetrics.tasksProcessed > 0 ?
-        this.systemMetrics.errors / this.systemMetrics.tasksProcessed : 0,
-      averageResponseTime: await this.getAverageResponseTime()
+      errorRate:
+        this.systemMetrics.tasksProcessed > 0
+          ? this.systemMetrics.errors / this.systemMetrics.tasksProcessed
+          : 0,
+      averageResponseTime: await this.getAverageResponseTime(),
     };
 
     // Get active alerts
@@ -383,7 +419,7 @@ export class DependencyOrchestrator extends EventEmitter {
       components,
       metrics,
       alerts,
-      lastHealthCheck: now
+      lastHealthCheck: now,
     };
   }
 
@@ -417,7 +453,8 @@ export class DependencyOrchestrator extends EventEmitter {
 
       // Optimize visualization rendering
       if (this.config.visualization.enableVisualization) {
-        const visualizationOptimized = await this.visualization.optimizeRendering();
+        const visualizationOptimized =
+          await this.visualization.optimizeRendering();
         if (visualizationOptimized.applied) {
           optimizations.push('Visualization rendering optimization');
           performanceGain += visualizationOptimized.performanceGain;
@@ -430,11 +467,10 @@ export class DependencyOrchestrator extends EventEmitter {
       this.logger.info('Performance optimization complete', {
         optimizations: optimizations.length,
         performanceGain,
-        recommendations: recommendations.length
+        recommendations: recommendations.length,
       });
 
       return { optimizations, performanceGain, recommendations };
-
     } catch (error) {
       this.logger.error('Performance optimization failed', { error });
       throw error;
@@ -457,16 +493,17 @@ export class DependencyOrchestrator extends EventEmitter {
         systemStatus,
         configuration: this.config,
         taskData: await this.persistence.getAllTaskData(),
-        visualizationState: this.config.visualization.enableVisualization ?
-          await this.visualization.exportState() : null,
+        visualizationState: this.config.visualization.enableVisualization
+          ? await this.visualization.exportState()
+          : null,
         schedulerState: await this.scheduler.getSchedulerStatus(),
         analyzerMetrics: this.analyzer.getMetrics(),
         metadata: {
           uptime: systemStatus.metrics.uptime,
           tasksProcessed: systemStatus.metrics.tasksProcessed,
           memoryUsage: systemStatus.metrics.memoryUsage,
-          errorRate: systemStatus.metrics.errorRate
-        }
+          errorRate: systemStatus.metrics.errorRate,
+        },
       };
 
       if (this.config.persistence.enablePersistence) {
@@ -475,11 +512,10 @@ export class DependencyOrchestrator extends EventEmitter {
 
       this.emit('snapshotCreated', snapshot);
       this.logger.info('System snapshot created successfully', {
-        snapshotId: snapshot.id
+        snapshotId: snapshot.id,
       });
 
       return snapshot;
-
     } catch (error) {
       this.logger.error('Failed to create system snapshot', { error });
       throw error;
@@ -513,14 +549,13 @@ export class DependencyOrchestrator extends EventEmitter {
       await Promise.allSettled([
         this.scheduler.shutdown(),
         this.visualization.shutdown(),
-        this.persistence.shutdown()
+        this.persistence.shutdown(),
       ]);
 
       this.isInitialized = false;
       this.emit('orchestratorShutdown');
 
       this.logger.info('DependencyOrchestrator shutdown complete');
-
     } catch (error) {
       this.logger.error('Error during shutdown', { error });
       throw error;
@@ -535,16 +570,21 @@ export class DependencyOrchestrator extends EventEmitter {
       this.analyzer.initialize(),
       this.scheduler.initialize(),
       this.visualization.initialize(),
-      this.persistence.initialize()
+      this.persistence.initialize(),
     ];
 
     const results = await Promise.allSettled(componentInitializations);
 
     for (let i = 0; i < results.length; i++) {
       if (results[i].status === 'rejected') {
-        const componentNames = ['analyzer', 'scheduler', 'visualization', 'persistence'];
+        const componentNames = [
+          'analyzer',
+          'scheduler',
+          'visualization',
+          'persistence',
+        ];
         this.logger.error(`Failed to initialize ${componentNames[i]}`, {
-          error: (results[i] as PromiseRejectedResult).reason
+          error: (results[i] as PromiseRejectedResult).reason,
         });
       }
     }
@@ -560,7 +600,7 @@ export class DependencyOrchestrator extends EventEmitter {
       this.emit('systemAlert', {
         severity: 'high',
         message: `Dependency violation: ${event.message}`,
-        component: 'analyzer'
+        component: 'analyzer',
       });
     });
 
@@ -570,7 +610,7 @@ export class DependencyOrchestrator extends EventEmitter {
       this.emit('systemAlert', {
         severity: 'high',
         message: `Resource constraint: ${event.message}`,
-        component: 'scheduler'
+        component: 'scheduler',
       });
     });
 
@@ -580,7 +620,7 @@ export class DependencyOrchestrator extends EventEmitter {
       this.emit('systemAlert', {
         severity: 'medium',
         message: `Visualization error: ${event.message}`,
-        component: 'visualization'
+        component: 'visualization',
       });
     });
 
@@ -590,7 +630,7 @@ export class DependencyOrchestrator extends EventEmitter {
       this.emit('systemAlert', {
         severity: 'critical',
         message: `Data integrity: ${event.message}`,
-        component: 'persistence'
+        component: 'persistence',
       });
     });
   }
@@ -603,12 +643,17 @@ export class DependencyOrchestrator extends EventEmitter {
       try {
         const status = await this.getSystemStatus();
 
-        if (status.overall === SystemHealthStatus.CRITICAL ||
-            status.overall === SystemHealthStatus.FAILED) {
+        if (
+          status.overall === SystemHealthStatus.CRITICAL ||
+          status.overall === SystemHealthStatus.FAILED
+        ) {
           this.logger.error('System health critical', { status });
 
           if (this.config.recovery.enableAutoRecovery) {
-            await this.attemptRecovery('health_check', new Error('System health critical'));
+            await this.attemptRecovery(
+              'health_check',
+              new Error('System health critical'),
+            );
           }
         }
 
@@ -627,7 +672,9 @@ export class DependencyOrchestrator extends EventEmitter {
       try {
         await this.optimizePerformance();
       } catch (error) {
-        this.logger.error('Automatic performance optimization failed', { error });
+        this.logger.error('Automatic performance optimization failed', {
+          error,
+        });
       }
     }, this.config.system.performanceOptimizationInterval);
   }
@@ -641,7 +688,7 @@ export class DependencyOrchestrator extends EventEmitter {
     if (attempts >= this.config.recovery.maxRecoveryAttempts) {
       this.logger.error(`Maximum recovery attempts reached for ${context}`, {
         attempts,
-        error
+        error,
       });
       this.emit('recoveryFailed', { context, error, attempts });
       return;
@@ -651,7 +698,7 @@ export class DependencyOrchestrator extends EventEmitter {
 
     this.logger.info(`Attempting recovery for ${context}`, {
       attempt: attempts + 1,
-      maxAttempts: this.config.recovery.maxRecoveryAttempts
+      maxAttempts: this.config.recovery.maxRecoveryAttempts,
     });
 
     try {
@@ -669,17 +716,19 @@ export class DependencyOrchestrator extends EventEmitter {
 
       this.recoveryAttempts.delete(context);
       this.emit('recoverySuccessful', { context, attempts: attempts + 1 });
-
     } catch (recoveryError) {
       this.logger.error(`Recovery attempt failed for ${context}`, {
         recoveryError,
-        originalError: error
+        originalError: error,
       });
 
       // Try again with exponential backoff
-      setTimeout(() => {
-        this.attemptRecovery(context, error);
-      }, Math.pow(2, attempts) * 1000);
+      setTimeout(
+        () => {
+          this.attemptRecovery(context, error);
+        },
+        Math.pow(2, attempts) * 1000,
+      );
     }
   }
 
@@ -712,56 +761,66 @@ export class DependencyOrchestrator extends EventEmitter {
       autoStart: this.config.system.enableAutoStart,
       healthMonitoring: this.config.system.enableHealthMonitoring,
       performanceOptimization: this.config.system.enablePerformanceOptimization,
-      maxConcurrentTasks: this.config.scheduler.resourceConstraints.maxConcurrentTasks,
+      maxConcurrentTasks:
+        this.config.scheduler.resourceConstraints.maxConcurrentTasks,
       schedulingAlgorithm: this.config.scheduler.strategy.algorithm,
       visualizationEnabled: this.config.visualization.enableVisualization,
-      persistenceEnabled: this.config.persistence.enablePersistence
+      persistenceEnabled: this.config.persistence.enablePersistence,
     };
   }
 
   private getStatusColor(status: string): string {
     const colorMap = {
-      'pending': '#FFA500',
-      'running': '#0000FF',
-      'completed': '#008000',
-      'failed': '#FF0000',
-      'blocked': '#800080'
+      pending: '#FFA500',
+      running: '#0000FF',
+      completed: '#008000',
+      failed: '#FF0000',
+      blocked: '#800080',
     };
     return colorMap[status] || '#808080';
   }
 
   private calculateNodeSize(taskNode: TaskNode): number {
     const baseSize = 20;
-    const priorityMultiplier = taskNode.priority === 'high' ? 1.5 :
-                              taskNode.priority === 'medium' ? 1.2 : 1.0;
+    const priorityMultiplier =
+      taskNode.priority === 'high'
+        ? 1.5
+        : taskNode.priority === 'medium'
+          ? 1.2
+          : 1.0;
     return baseSize * priorityMultiplier;
   }
 
   private getNodeShape(taskType: string): string {
     const shapeMap = {
-      'computation': 'circle',
-      'io': 'rectangle',
-      'network': 'diamond',
-      'database': 'hexagon'
+      computation: 'circle',
+      io: 'rectangle',
+      network: 'diamond',
+      database: 'hexagon',
     };
     return shapeMap[taskType] || 'circle';
   }
 
-  private async getComponentHealth(component: string): Promise<SystemHealthStatus> {
+  private async getComponentHealth(
+    component: string,
+  ): Promise<SystemHealthStatus> {
     try {
       switch (component) {
         case 'analyzer':
-          return this.analyzer.isHealthy() ?
-            SystemHealthStatus.OPTIMAL : SystemHealthStatus.DEGRADED;
+          return this.analyzer.isHealthy()
+            ? SystemHealthStatus.OPTIMAL
+            : SystemHealthStatus.DEGRADED;
         case 'scheduler':
           const schedulerStatus = await this.scheduler.getSchedulerStatus();
           return schedulerStatus.health;
         case 'visualization':
-          return this.visualization.isHealthy() ?
-            SystemHealthStatus.OPTIMAL : SystemHealthStatus.DEGRADED;
+          return this.visualization.isHealthy()
+            ? SystemHealthStatus.OPTIMAL
+            : SystemHealthStatus.DEGRADED;
         case 'persistence':
-          return await this.persistence.checkHealth() ?
-            SystemHealthStatus.OPTIMAL : SystemHealthStatus.DEGRADED;
+          return (await this.persistence.checkHealth())
+            ? SystemHealthStatus.OPTIMAL
+            : SystemHealthStatus.DEGRADED;
         default:
           return SystemHealthStatus.FAILED;
       }
@@ -821,7 +880,7 @@ export class DependencyOrchestrator extends EventEmitter {
     if (freed > 0) {
       this.logger.info('Memory optimization completed', {
         freedBytes: freed,
-        freedMB: (freed / 1024 / 1024).toFixed(2)
+        freedMB: (freed / 1024 / 1024).toFixed(2),
       });
     }
 
@@ -833,15 +892,21 @@ export class DependencyOrchestrator extends EventEmitter {
     const status = await this.getSystemStatus();
 
     if (status.metrics.memoryUsage > 0.8) {
-      recommendations.push('High memory usage detected - consider increasing memory allocation');
+      recommendations.push(
+        'High memory usage detected - consider increasing memory allocation',
+      );
     }
 
     if (status.metrics.cpuUsage > 0.8) {
-      recommendations.push('High CPU usage detected - consider load balancing or scaling');
+      recommendations.push(
+        'High CPU usage detected - consider load balancing or scaling',
+      );
     }
 
     if (status.metrics.errorRate > 0.05) {
-      recommendations.push('High error rate detected - review error handling and system stability');
+      recommendations.push(
+        'High error rate detected - review error handling and system stability',
+      );
     }
 
     return recommendations;
@@ -852,7 +917,7 @@ export class DependencyOrchestrator extends EventEmitter {
  * Factory function to create and initialize a DependencyOrchestrator
  */
 export async function createDependencyOrchestrator(
-  config: Partial<OrchestratorConfiguration> = {}
+  config: Partial<OrchestratorConfiguration> = {},
 ): Promise<DependencyOrchestrator> {
   const defaultConfig: OrchestratorConfiguration = {
     system: {
@@ -862,25 +927,25 @@ export async function createDependencyOrchestrator(
       enableConflictResolution: true,
       healthCheckInterval: 30000,
       performanceOptimizationInterval: 300000,
-      maxRecoveryAttempts: 3
+      maxRecoveryAttempts: 3,
     },
     scheduler: {
       resourceConstraints: {
         maxConcurrentTasks: 10,
         memoryThreshold: 0.8,
-        cpuThreshold: 0.8
+        cpuThreshold: 0.8,
       },
       strategy: {
         algorithm: 'adaptive',
         parallelizationEnabled: true,
         resourceOptimization: true,
-        loadBalancing: true
+        loadBalancing: true,
       },
       performance: {
         enablePredictiveOptimization: true,
         learningEnabled: true,
-        adaptiveThreshold: 0.1
-      }
+        adaptiveThreshold: 0.1,
+      },
     },
     visualization: {
       enableVisualization: true,
@@ -889,12 +954,12 @@ export async function createDependencyOrchestrator(
       layoutConfiguration: {
         algorithm: 'force_directed',
         nodeSpacing: 50,
-        edgeStyle: 'curved'
+        edgeStyle: 'curved',
       },
       alerts: {
         enableAutomaticAlerts: true,
-        severityThreshold: 'medium'
-      }
+        severityThreshold: 'medium',
+      },
     },
     persistence: {
       enablePersistence: true,
@@ -904,15 +969,15 @@ export async function createDependencyOrchestrator(
       backupConfiguration: {
         enableBackups: true,
         backupInterval: 3600000,
-        maxBackups: 24
-      }
+        maxBackups: 24,
+      },
     },
     recovery: {
       enableAutoRecovery: true,
       maxRecoveryAttempts: 3,
       recoveryTimeout: 30000,
-      escalationPolicy: 'exponential'
-    }
+      escalationPolicy: 'exponential',
+    },
   };
 
   const mergedConfig = {
@@ -922,38 +987,38 @@ export async function createDependencyOrchestrator(
       ...config.scheduler,
       resourceConstraints: {
         ...defaultConfig.scheduler.resourceConstraints,
-        ...config.scheduler?.resourceConstraints
+        ...config.scheduler?.resourceConstraints,
       },
       strategy: {
         ...defaultConfig.scheduler.strategy,
-        ...config.scheduler?.strategy
+        ...config.scheduler?.strategy,
       },
       performance: {
         ...defaultConfig.scheduler.performance,
-        ...config.scheduler?.performance
-      }
+        ...config.scheduler?.performance,
+      },
     },
     visualization: {
       ...defaultConfig.visualization,
       ...config.visualization,
       layoutConfiguration: {
         ...defaultConfig.visualization.layoutConfiguration,
-        ...config.visualization?.layoutConfiguration
+        ...config.visualization?.layoutConfiguration,
       },
       alerts: {
         ...defaultConfig.visualization.alerts,
-        ...config.visualization?.alerts
-      }
+        ...config.visualization?.alerts,
+      },
     },
     persistence: {
       ...defaultConfig.persistence,
       ...config.persistence,
       backupConfiguration: {
         ...defaultConfig.persistence.backupConfiguration,
-        ...config.persistence?.backupConfiguration
-      }
+        ...config.persistence?.backupConfiguration,
+      },
     },
-    recovery: { ...defaultConfig.recovery, ...config.recovery }
+    recovery: { ...defaultConfig.recovery, ...config.recovery },
   };
 
   const orchestrator = new DependencyOrchestrator(mergedConfig);

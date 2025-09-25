@@ -10,17 +10,20 @@ import type {
   TaskBreakdownContext,
   TaskCategory,
   TaskStatus,
-  TaskPriority
+  TaskPriority,
 } from './task-breakdown-engine.js';
 import type {
   TaskExecutionContext,
   TaskExecutionResult,
-  ExecutionLogger
+  ExecutionLogger,
 } from './execution-engine.js';
 import { TaskBreakdownEngine } from './task-breakdown-engine.js';
 import { AutonomousExecutionEngine } from './execution-engine.js';
 import { ComprehensiveValidationEngine } from './validation-engine.js';
-import { ComprehensiveStateManager, FileStateStorageBackend } from './state-manager.js';
+import {
+  ComprehensiveStateManager,
+  FileStateStorageBackend,
+} from './state-manager.js';
 import { createDefaultComplexityAnalyzers } from './complexity-analyzers.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
@@ -31,7 +34,10 @@ import type { AnyDeclarativeTool } from '../tools/tools.js';
 export interface TaskManagerClient {
   reinitialize(agentId: string): Promise<TaskManagerResponse>;
   createTask(task: TaskManagerTaskData): Promise<TaskManagerResponse>;
-  updateTask(taskId: string, update: Partial<TaskManagerTaskData>): Promise<TaskManagerResponse>;
+  updateTask(
+    taskId: string,
+    update: Partial<TaskManagerTaskData>,
+  ): Promise<TaskManagerResponse>;
   getTask(taskId: string): Promise<TaskManagerResponse>;
   listTasks(): Promise<TaskManagerResponse>;
   deleteTask(taskId: string): Promise<TaskManagerResponse>;
@@ -93,7 +99,11 @@ export class TaskManagerAPIClient implements TaskManagerClient {
   private readonly timeout: number;
   private readonly logger: ExecutionLogger;
 
-  constructor(apiPath: string, timeout: number = 10000, logger?: ExecutionLogger) {
+  constructor(
+    apiPath: string,
+    timeout: number = 10000,
+    logger?: ExecutionLogger,
+  ) {
     this.apiPath = apiPath;
     this.timeout = timeout;
     this.logger = logger || this.createDefaultLogger();
@@ -108,7 +118,10 @@ export class TaskManagerAPIClient implements TaskManagerClient {
     return this.executeCommand(['create-task', taskJson]);
   }
 
-  async updateTask(taskId: string, update: Partial<TaskManagerTaskData>): Promise<TaskManagerResponse> {
+  async updateTask(
+    taskId: string,
+    update: Partial<TaskManagerTaskData>,
+  ): Promise<TaskManagerResponse> {
     const updateJson = JSON.stringify(update);
     return this.executeCommand(['update-task', taskId, updateJson]);
   }
@@ -125,15 +138,22 @@ export class TaskManagerAPIClient implements TaskManagerClient {
     return this.executeCommand(['delete-task', taskId]);
   }
 
-  async authorizeStop(agentId: string, reason: string): Promise<TaskManagerResponse> {
+  async authorizeStop(
+    agentId: string,
+    reason: string,
+  ): Promise<TaskManagerResponse> {
     return this.executeCommand(['authorize-stop', agentId, `"${reason}"`]);
   }
 
   private async executeCommand(args: string[]): Promise<TaskManagerResponse> {
     return new Promise((resolve) => {
-      const child = spawn('timeout', [`${this.timeout / 1000}s`, 'node', this.apiPath, ...args], {
-        stdio: 'pipe'
-      });
+      const child = spawn(
+        'timeout',
+        [`${this.timeout / 1000}s`, 'node', this.apiPath, ...args],
+        {
+          stdio: 'pipe',
+        },
+      );
 
       let stdout = '';
       let stderr = '';
@@ -155,14 +175,14 @@ export class TaskManagerAPIClient implements TaskManagerClient {
             resolve({
               success: false,
               error: stderr || `Command failed with code ${code}`,
-              message: stdout || 'No output'
+              message: stdout || 'No output',
             });
           }
         } catch (error) {
           resolve({
             success: false,
             error: `Failed to parse response: ${error}`,
-            message: stdout
+            message: stdout,
           });
         }
       });
@@ -170,7 +190,7 @@ export class TaskManagerAPIClient implements TaskManagerClient {
       child.on('error', (error) => {
         resolve({
           success: false,
-          error: error.message
+          error: error.message,
         });
       });
     });
@@ -181,8 +201,10 @@ export class TaskManagerAPIClient implements TaskManagerClient {
       debug: (msg, ctx) => console.debug(`[TaskManagerClient] ${msg}`, ctx),
       info: (msg, ctx) => console.info(`[TaskManagerClient] ${msg}`, ctx),
       warn: (msg, ctx) => console.warn(`[TaskManagerClient] ${msg}`, ctx),
-      error: (msg, err, ctx) => console.error(`[TaskManagerClient] ${msg}`, err, ctx),
-      metric: (name, value, labels) => console.log(`[TaskManagerClient] ${name}: ${value}`, labels)
+      error: (msg, err, ctx) =>
+        console.error(`[TaskManagerClient] ${msg}`, err, ctx),
+      metric: (name, value, labels) =>
+        console.log(`[TaskManagerClient] ${name}: ${value}`, labels),
     };
   }
 }
@@ -205,28 +227,33 @@ export class AutonomousTaskManagerIntegration {
   constructor(
     workspaceContext: WorkspaceContext,
     availableTools: Map<string, AnyDeclarativeTool>,
-    config: AutonomousIntegrationConfig
+    config: AutonomousIntegrationConfig,
   ) {
     this.config = config;
     this.logger = this.createLogger();
 
     // Initialize components
     this.breakdownEngine = new TaskBreakdownEngine();
-    this.breakdownEngine.complexityAnalyzers = createDefaultComplexityAnalyzers();
+    this.breakdownEngine.complexityAnalyzers =
+      createDefaultComplexityAnalyzers();
 
     this.validationEngine = new ComprehensiveValidationEngine();
 
     const storageBackend = new FileStateStorageBackend(
-      config.statePersistencePath || '.autonomous-state'
+      config.statePersistencePath || '.autonomous-state',
     );
-    this.stateManager = new ComprehensiveStateManager(storageBackend, {}, this.logger);
+    this.stateManager = new ComprehensiveStateManager(
+      storageBackend,
+      {},
+      this.logger,
+    );
 
     this.executionEngine = new AutonomousExecutionEngine();
 
     this.taskManagerClient = new TaskManagerAPIClient(
       config.taskManagerApiPath,
       config.timeout,
-      this.logger
+      this.logger,
     );
 
     this.setupEventHandlers();
@@ -238,13 +265,15 @@ export class AutonomousTaskManagerIntegration {
   async processRequest(
     request: string,
     workspaceContext: WorkspaceContext,
-    availableTools: string[]
+    availableTools: string[],
   ): Promise<{
     tasks: AutonomousTask[];
     results: TaskExecutionResult[];
   }> {
     try {
-      this.logger.info(`Processing autonomous request: ${request.substring(0, 100)}...`);
+      this.logger.info(
+        `Processing autonomous request: ${request.substring(0, 100)}...`,
+      );
 
       // Reinitialize with TaskManager
       await this.taskManagerClient.reinitialize(this.config.agentId);
@@ -258,12 +287,15 @@ export class AutonomousTaskManagerIntegration {
         preferences: {
           maxTaskDepth: 4,
           maxParallelTasks: this.config.maxConcurrentTasks || 5,
-          preferredExecutionTime: 30 // minutes
-        }
+          preferredExecutionTime: 30, // minutes
+        },
       };
 
       // Break down the request into manageable tasks
-      const tasks = await this.breakdownEngine.breakdownTask(request, breakdownContext);
+      const tasks = await this.breakdownEngine.breakdownTask(
+        request,
+        breakdownContext,
+      );
 
       this.logger.info(`Request broken down into ${tasks.length} tasks`);
 
@@ -280,7 +312,6 @@ export class AutonomousTaskManagerIntegration {
       await this.checkCompletionAndAuthorizeStop(tasks, results);
 
       return { tasks, results };
-
     } catch (error) {
       this.logger.error('Failed to process autonomous request', error as Error);
       throw error;
@@ -296,14 +327,16 @@ export class AutonomousTaskManagerIntegration {
 
       // Get incomplete states
       const states = await this.stateManager.listStates();
-      const incompleteStates = states.filter(state =>
-        ['in_progress', 'pending'].includes(state.status as TaskStatus)
+      const incompleteStates = states.filter((state) =>
+        ['in_progress', 'pending'].includes(state.status as TaskStatus),
       );
 
       for (const state of incompleteStates) {
         try {
           // Restore task from checkpoint
-          const restoredState = await this.stateManager.restoreFromCheckpoint(state.taskId);
+          const restoredState = await this.stateManager.restoreFromCheckpoint(
+            state.taskId,
+          );
           if (restoredState) {
             this.logger.info(`Restored task from checkpoint: ${state.taskId}`);
 
@@ -315,7 +348,10 @@ export class AutonomousTaskManagerIntegration {
             }
           }
         } catch (error) {
-          this.logger.error(`Failed to recover task ${state.taskId}`, error as Error);
+          this.logger.error(
+            `Failed to recover task ${state.taskId}`,
+            error as Error,
+          );
         }
       }
     } catch (error) {
@@ -336,8 +372,8 @@ export class AutonomousTaskManagerIntegration {
 
     return {
       active,
-      completed: allResults.filter(r => r.status === TaskStatus.COMPLETED),
-      failed: allResults.filter(r => r.status === TaskStatus.FAILED)
+      completed: allResults.filter((r) => r.status === TaskStatus.COMPLETED),
+      failed: allResults.filter((r) => r.status === TaskStatus.FAILED),
     };
   }
 
@@ -357,25 +393,32 @@ export class AutonomousTaskManagerIntegration {
             complexity: task.complexity,
             estimatedDuration: task.estimatedDuration,
             parentTaskId: task.parentTaskId,
-            childTaskIds: task.childTaskIds
-          }
+            childTaskIds: task.childTaskIds,
+          },
         };
 
-        const response = await this.taskManagerClient.createTask(taskManagerData);
+        const response =
+          await this.taskManagerClient.createTask(taskManagerData);
         if (!response.success) {
-          this.logger.warn(`Failed to register task with TaskManager: ${task.title}`, { error: response.error });
+          this.logger.warn(
+            `Failed to register task with TaskManager: ${task.title}`,
+            { error: response.error },
+          );
         }
 
         this.activeTasks.set(task.id, task);
       } catch (error) {
-        this.logger.error(`Failed to register task: ${task.title}`, error as Error);
+        this.logger.error(
+          `Failed to register task: ${task.title}`,
+          error as Error,
+        );
       }
     }
   }
 
   private async executeTasks(
     tasks: AutonomousTask[],
-    breakdownContext: TaskBreakdownContext
+    breakdownContext: TaskBreakdownContext,
   ): Promise<TaskExecutionResult[]> {
     const executionContext: TaskExecutionContext = {
       workspaceContext: breakdownContext.workspaceContext,
@@ -383,10 +426,13 @@ export class AutonomousTaskManagerIntegration {
       abortSignal: new AbortController().signal,
       logger: this.logger,
       stateManager: this.stateManager,
-      validationEngine: this.validationEngine
+      validationEngine: this.validationEngine,
     };
 
-    const results = await this.executionEngine.executeTasks(tasks, executionContext);
+    const results = await this.executionEngine.executeTasks(
+      tasks,
+      executionContext,
+    );
 
     // Store results
     for (const result of results) {
@@ -398,7 +444,7 @@ export class AutonomousTaskManagerIntegration {
 
   private async updateTaskResults(
     tasks: AutonomousTask[],
-    results: TaskExecutionResult[]
+    results: TaskExecutionResult[],
   ): Promise<void> {
     for (const result of results) {
       try {
@@ -407,46 +453,68 @@ export class AutonomousTaskManagerIntegration {
           metadata: {
             duration: result.duration,
             completed: result.endTime,
-            error: result.error?.message
-          }
+            error: result.error?.message,
+          },
         };
 
-        const response = await this.taskManagerClient.updateTask(result.taskId, update);
+        const response = await this.taskManagerClient.updateTask(
+          result.taskId,
+          update,
+        );
         if (!response.success) {
-          this.logger.warn(`Failed to update task in TaskManager: ${result.taskId}`, { error: response.error });
+          this.logger.warn(
+            `Failed to update task in TaskManager: ${result.taskId}`,
+            { error: response.error },
+          );
         }
       } catch (error) {
-        this.logger.error(`Failed to update task result: ${result.taskId}`, error as Error);
+        this.logger.error(
+          `Failed to update task result: ${result.taskId}`,
+          error as Error,
+        );
       }
     }
   }
 
   private async checkCompletionAndAuthorizeStop(
     tasks: AutonomousTask[],
-    results: TaskExecutionResult[]
+    results: TaskExecutionResult[],
   ): Promise<void> {
-    const completedCount = results.filter(r => r.status === TaskStatus.COMPLETED).length;
-    const failedCount = results.filter(r => r.status === TaskStatus.FAILED).length;
+    const completedCount = results.filter(
+      (r) => r.status === TaskStatus.COMPLETED,
+    ).length;
+    const failedCount = results.filter(
+      (r) => r.status === TaskStatus.FAILED,
+    ).length;
 
     // Determine if we should authorize stop
     const allTasksProcessed = tasks.length === results.length;
-    const majoritySuccessful = completedCount >= (tasks.length * 0.8); // 80% success rate
+    const majoritySuccessful = completedCount >= tasks.length * 0.8; // 80% success rate
 
     if (allTasksProcessed && majoritySuccessful) {
       const reason = `Autonomous task processing completed: ${completedCount}/${tasks.length} tasks successful`;
 
       try {
-        const response = await this.taskManagerClient.authorizeStop(this.config.agentId, reason);
+        const response = await this.taskManagerClient.authorizeStop(
+          this.config.agentId,
+          reason,
+        );
         if (response.success) {
-          this.logger.info('Successfully authorized stop after task completion');
+          this.logger.info(
+            'Successfully authorized stop after task completion',
+          );
         } else {
-          this.logger.warn('Failed to authorize stop', { error: response.error });
+          this.logger.warn('Failed to authorize stop', {
+            error: response.error,
+          });
         }
       } catch (error) {
         this.logger.error('Error authorizing stop', error as Error);
       }
     } else if (allTasksProcessed && failedCount > completedCount) {
-      this.logger.warn(`High failure rate: ${failedCount}/${tasks.length} tasks failed`);
+      this.logger.warn(
+        `High failure rate: ${failedCount}/${tasks.length} tasks failed`,
+      );
     }
   }
 
@@ -454,19 +522,39 @@ export class AutonomousTaskManagerIntegration {
     // Simple intent extraction - could be enhanced with NLP
     const lowerRequest = request.toLowerCase();
 
-    if (lowerRequest.includes('create') || lowerRequest.includes('add') || lowerRequest.includes('new')) {
+    if (
+      lowerRequest.includes('create') ||
+      lowerRequest.includes('add') ||
+      lowerRequest.includes('new')
+    ) {
       return 'create';
     }
-    if (lowerRequest.includes('fix') || lowerRequest.includes('debug') || lowerRequest.includes('resolve')) {
+    if (
+      lowerRequest.includes('fix') ||
+      lowerRequest.includes('debug') ||
+      lowerRequest.includes('resolve')
+    ) {
       return 'fix';
     }
-    if (lowerRequest.includes('analyze') || lowerRequest.includes('review') || lowerRequest.includes('investigate')) {
+    if (
+      lowerRequest.includes('analyze') ||
+      lowerRequest.includes('review') ||
+      lowerRequest.includes('investigate')
+    ) {
       return 'analyze';
     }
-    if (lowerRequest.includes('refactor') || lowerRequest.includes('improve') || lowerRequest.includes('optimize')) {
+    if (
+      lowerRequest.includes('refactor') ||
+      lowerRequest.includes('improve') ||
+      lowerRequest.includes('optimize')
+    ) {
       return 'improve';
     }
-    if (lowerRequest.includes('test') || lowerRequest.includes('verify') || lowerRequest.includes('validate')) {
+    if (
+      lowerRequest.includes('test') ||
+      lowerRequest.includes('verify') ||
+      lowerRequest.includes('validate')
+    ) {
       return 'test';
     }
 
@@ -485,7 +573,7 @@ export class AutonomousTaskManagerIntegration {
       priority: TaskPriority.NORMAL,
       status: state.status as TaskStatus,
       createdAt: new Date(state.lastUpdate),
-      updatedAt: new Date(state.lastUpdate)
+      updatedAt: new Date(state.lastUpdate),
     };
   }
 
@@ -496,7 +584,9 @@ export class AutonomousTaskManagerIntegration {
     });
 
     this.executionEngine.on('taskFailed', (result: TaskExecutionResult) => {
-      this.logger.warn(`Task failed: ${result.taskId}`, { error: result.error?.message });
+      this.logger.warn(`Task failed: ${result.taskId}`, {
+        error: result.error?.message,
+      });
       this.activeTasks.delete(result.taskId);
     });
   }
@@ -508,7 +598,7 @@ export class AutonomousTaskManagerIntegration {
         info: () => {},
         warn: () => {},
         error: () => {},
-        metric: () => {}
+        metric: () => {},
       };
     }
 
@@ -516,8 +606,10 @@ export class AutonomousTaskManagerIntegration {
       debug: (msg, ctx) => console.debug(`[AutonomousIntegration] ${msg}`, ctx),
       info: (msg, ctx) => console.info(`[AutonomousIntegration] ${msg}`, ctx),
       warn: (msg, ctx) => console.warn(`[AutonomousIntegration] ${msg}`, ctx),
-      error: (msg, err, ctx) => console.error(`[AutonomousIntegration] ${msg}`, err, ctx),
-      metric: (name, value, labels) => console.log(`[AutonomousIntegration] ${name}: ${value}`, labels)
+      error: (msg, err, ctx) =>
+        console.error(`[AutonomousIntegration] ${msg}`, err, ctx),
+      metric: (name, value, labels) =>
+        console.log(`[AutonomousIntegration] ${name}: ${value}`, labels),
     };
   }
 }
@@ -528,17 +620,22 @@ export class AutonomousTaskManagerIntegration {
 export function createAutonomousIntegration(
   workspaceContext: WorkspaceContext,
   availableTools: Map<string, AnyDeclarativeTool>,
-  config: Partial<AutonomousIntegrationConfig>
+  config: Partial<AutonomousIntegrationConfig>,
 ): AutonomousTaskManagerIntegration {
   const defaultConfig: AutonomousIntegrationConfig = {
-    taskManagerApiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+    taskManagerApiPath:
+      '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
     agentId: 'AUTONOMOUS_EXECUTION_ENGINE',
     timeout: 10000,
     enableLogging: true,
-    maxConcurrentTasks: 5
+    maxConcurrentTasks: 5,
   };
 
   const mergedConfig = { ...defaultConfig, ...config };
 
-  return new AutonomousTaskManagerIntegration(workspaceContext, availableTools, mergedConfig);
+  return new AutonomousTaskManagerIntegration(
+    workspaceContext,
+    availableTools,
+    mergedConfig,
+  );
 }

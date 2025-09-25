@@ -13,8 +13,17 @@ import {
   type ModelConfig,
   type RunConfig,
 } from '../../../packages/core/src/core/subagent.js';
-import { MockAgentFactory, MockAgentState, type MockAgentConfig } from '../utils/MockAgentFactory.js';
-import { TaskBuilder, TaskComplexity, TaskCategory, TaskPriority } from '../utils/TaskBuilder.js';
+import {
+  MockAgentFactory,
+  MockAgentState,
+  type MockAgentConfig,
+} from '../utils/MockAgentFactory.js';
+import {
+  TaskBuilder,
+  TaskComplexity,
+  TaskCategory,
+  TaskPriority,
+} from '../utils/TaskBuilder.js';
 import type { Config } from '../../../packages/core/src/config/config.js';
 
 /**
@@ -94,7 +103,7 @@ class MockTaskManager {
         // Wait for one to complete before starting the next
         const completed = await Promise.race(executing);
         results.push(completed);
-        const index = executing.findIndex(p => p === completed);
+        const index = executing.findIndex((p) => p === completed);
         executing.splice(index, 1);
       }
 
@@ -222,7 +231,9 @@ describe('Agent-TaskManager Integration Tests', () => {
 
       await taskManager.assignAgentToTask(taskId, agent);
 
-      await expect(taskManager.executeTask(taskId)).rejects.toThrow('Intentional failure for testing');
+      await expect(taskManager.executeTask(taskId)).rejects.toThrow(
+        'Intentional failure for testing',
+      );
       expect(taskManager.getTaskStatus(taskId)).toBe('failed');
       expect(taskManager.getFailedTasks()).toContain(taskId);
     });
@@ -262,7 +273,9 @@ describe('Agent-TaskManager Integration Tests', () => {
     it('should pass context between TaskManager and Agent', async () => {
       const taskConfig = new TaskBuilder()
         .withName('context-flow-task')
-        .withCustomPrompt('Process the project ${project_name} with priority ${priority_level}')
+        .withCustomPrompt(
+          'Process the project ${project_name} with priority ${priority_level}',
+        )
         .withOutputs({
           processed_project: 'Name of processed project',
           priority_used: 'Priority level that was used',
@@ -416,7 +429,7 @@ describe('Agent-TaskManager Integration Tests', () => {
     });
 
     it('should handle concurrent task execution', async () => {
-      const taskConfigs = ['task1', 'task2', 'task3', 'task4'].map(name =>
+      const taskConfigs = ['task1', 'task2', 'task3', 'task4'].map((name) =>
         new TaskBuilder()
           .withName(name)
           .withComplexity(TaskComplexity.SIMPLE)
@@ -424,7 +437,7 @@ describe('Agent-TaskManager Integration Tests', () => {
           .build(),
       );
 
-      const agentConfigs: MockAgentConfig[] = taskConfigs.map(config => ({
+      const agentConfigs: MockAgentConfig[] = taskConfigs.map((config) => ({
         name: `${config.name}-agent`,
         state: MockAgentState.SUCCESS,
         executionTime: Math.random() * 500 + 200, // Random execution time
@@ -456,7 +469,7 @@ describe('Agent-TaskManager Integration Tests', () => {
 
       // All tasks should complete successfully
       expect(results).toHaveLength(4);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.status).toBe('completed');
       });
 
@@ -519,7 +532,9 @@ describe('Agent-TaskManager Integration Tests', () => {
 
       // Execute both tasks
       const successResult = await taskManager.executeTask(successTaskId);
-      await expect(taskManager.executeTask(failureTaskId)).rejects.toThrow('Simulated agent failure');
+      await expect(taskManager.executeTask(failureTaskId)).rejects.toThrow(
+        'Simulated agent failure',
+      );
 
       // Verify partial success
       expect(successResult.status).toBe('completed');
@@ -544,7 +559,8 @@ describe('Agent-TaskManager Integration Tests', () => {
       const failureAgent: MockAgentConfig = {
         name: 'complex-failure-agent',
         state: MockAgentState.FAILURE,
-        errorMessage: 'Code generation failed: syntax error in generated TypeScript',
+        errorMessage:
+          'Code generation failed: syntax error in generated TypeScript',
         toolCalls: ['write_file', 'execute_command'], // Simulate some tools were called
       };
 
@@ -568,7 +584,9 @@ describe('Agent-TaskManager Integration Tests', () => {
       }
 
       expect(caughtError).toBeDefined();
-      expect(caughtError.message).toContain('syntax error in generated TypeScript');
+      expect(caughtError.message).toContain(
+        'syntax error in generated TypeScript',
+      );
 
       const task = taskManager.getAllTasks().get(taskId);
       expect(task.status).toBe('failed');
@@ -578,8 +596,8 @@ describe('Agent-TaskManager Integration Tests', () => {
 
       // Verify execution logs contain tool calls
       const logs = MockAgentFactory.getExecutionLogs('complex-failure-agent');
-      expect(logs.some(log => log.includes('write_file'))).toBe(true);
-      expect(logs.some(log => log.includes('execute_command'))).toBe(true);
+      expect(logs.some((log) => log.includes('write_file'))).toBe(true);
+      expect(logs.some((log) => log.includes('execute_command'))).toBe(true);
     });
   });
 
@@ -637,7 +655,7 @@ describe('Agent-TaskManager Integration Tests', () => {
       const agentConfigs: MockAgentConfig[] = intensiveTasks.map((task, i) => ({
         name: `intensive-agent-${i}`,
         state: MockAgentState.SUCCESS,
-        executionTime: 400 + (i * 50), // Staggered execution times
+        executionTime: 400 + i * 50, // Staggered execution times
         outputVars: { result: `intensive_task_${i}_completed` },
       }));
 

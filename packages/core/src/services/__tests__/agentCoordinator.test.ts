@@ -4,10 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type MockedFunction,
+} from 'vitest';
 import { AgentCoordinator, type AgentMetrics } from '../agentCoordinator.js';
 import type { Config } from '../../index.js';
-import type { AutonomousTask, RegisteredAgent } from '../autonomousTaskIntegrator.js';
+import type {
+  AutonomousTask,
+  RegisteredAgent,
+} from '../autonomousTaskIntegrator.js';
 
 // Mock Config
 const mockConfig: Config = {
@@ -103,7 +114,9 @@ describe('AgentCoordinator', () => {
 
       await coordinator.registerAgent(mockAgent);
 
-      const optimalAgent = await coordinator.findOptimalAgent(taskWithSpecificCapabilities);
+      const optimalAgent = await coordinator.findOptimalAgent(
+        taskWithSpecificCapabilities,
+      );
       expect(optimalAgent).toBeNull();
     });
 
@@ -210,8 +223,14 @@ describe('AgentCoordinator', () => {
       };
 
       // Update metrics manually (in real scenario this would be done by the system)
-      (coordinator as any).agentMetrics.set('overloaded-agent', overloadedMetrics);
-      (coordinator as any).agentMetrics.set('underloaded-agent', underloadedMetrics);
+      (coordinator as any).agentMetrics.set(
+        'overloaded-agent',
+        overloadedMetrics,
+      );
+      (coordinator as any).agentMetrics.set(
+        'underloaded-agent',
+        underloadedMetrics,
+      );
 
       await coordinator.rebalanceWorkload();
 
@@ -247,7 +266,11 @@ describe('AgentCoordinator', () => {
       await coordinator.establishCommunication('agent-1', 'agent-2');
 
       const messageData = { type: 'status_update', data: 'test message' };
-      const success = await coordinator.sendAgentMessage('agent-1', 'agent-2', messageData);
+      const success = await coordinator.sendAgentMessage(
+        'agent-1',
+        'agent-2',
+        messageData,
+      );
 
       expect(success).toBe(true);
     });
@@ -260,7 +283,11 @@ describe('AgentCoordinator', () => {
       });
 
       const messageData = { type: 'status_update', data: 'test message' };
-      const success = await coordinator.sendAgentMessage('agent-1', 'agent-2', messageData);
+      const success = await coordinator.sendAgentMessage(
+        'agent-1',
+        'agent-2',
+        messageData,
+      );
 
       expect(success).toBe(false);
     });
@@ -320,7 +347,7 @@ describe('AgentCoordinator', () => {
       };
 
       await expect(
-        coordinator.assignTaskToAgent(mockTask, nonExistentAgent)
+        coordinator.assignTaskToAgent(mockTask, nonExistentAgent),
       ).resolves.not.toThrow();
     });
   });

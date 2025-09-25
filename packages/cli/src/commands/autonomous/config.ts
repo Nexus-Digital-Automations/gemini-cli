@@ -56,27 +56,27 @@ interface SystemConfig {
 const DEFAULT_CONFIG: SystemConfig = {
   persistenceConfig: {
     type: 'file',
-    path: './data/autonomous-tasks.json'
+    path: './data/autonomous-tasks.json',
   },
   logging: {
     level: 'info',
-    output: 'console'
+    output: 'console',
   },
   agentConfig: {
     maxConcurrentAgents: 10,
     heartbeatInterval: 30000,
-    sessionTimeout: 300000
+    sessionTimeout: 300000,
   },
   qualityConfig: {
     enableLinting: true,
     enableTesting: true,
     enableSecurity: true,
-    enablePerformance: true
+    enablePerformance: true,
   },
   featureConfig: {
     featuresFilePath: './FEATURES.json',
     requireApproval: true,
-    autoRejectTimeout: 604800000
+    autoRejectTimeout: 604800000,
   },
   monitoring: {
     enableMetrics: true,
@@ -84,12 +84,15 @@ const DEFAULT_CONFIG: SystemConfig = {
     alertThresholds: {
       taskQueueSize: 100,
       avgExecutionTime: 300000,
-      failureRate: 0.1
-    }
-  }
+      failureRate: 0.1,
+    },
+  },
 };
 
-const CONFIG_FILE_PATH = path.join(process.cwd(), '.gemini-autonomous-config.json');
+const CONFIG_FILE_PATH = path.join(
+  process.cwd(),
+  '.gemini-autonomous-config.json',
+);
 
 function loadConfig(): SystemConfig {
   try {
@@ -99,7 +102,11 @@ function loadConfig(): SystemConfig {
     }
     return DEFAULT_CONFIG;
   } catch (error) {
-    console.warn(chalk.yellow(`Warning: Could not load config file. Using defaults. Error: ${error}`));
+    console.warn(
+      chalk.yellow(
+        `Warning: Could not load config file. Using defaults. Error: ${error}`,
+      ),
+    );
     return DEFAULT_CONFIG;
   }
 }
@@ -110,7 +117,9 @@ function saveConfig(config: SystemConfig): void {
     console.log(chalk.green('✅ Configuration saved successfully!'));
   } catch (error) {
     console.error(chalk.red('❌ Failed to save configuration:'));
-    console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : String(error)),
+    );
     process.exit(1);
   }
 }
@@ -130,7 +139,11 @@ function getConfigValue(config: SystemConfig, key: string): any {
   return value;
 }
 
-function setConfigValue(config: SystemConfig, key: string, value: string): SystemConfig {
+function setConfigValue(
+  config: SystemConfig,
+  key: string,
+  value: string,
+): SystemConfig {
   const keys = key.split('.');
   const newConfig = JSON.parse(JSON.stringify(config));
   let current: any = newConfig;
@@ -184,7 +197,8 @@ export const configCommand: CommandModule<{}, ConfigOptions> = {
     yargs
       .option('get', {
         type: 'string',
-        describe: 'Get a configuration value by key (e.g., "agentConfig.maxConcurrentAgents")',
+        describe:
+          'Get a configuration value by key (e.g., "agentConfig.maxConcurrentAgents")',
         alias: 'g',
       })
       .option('set', {
@@ -207,10 +221,22 @@ export const configCommand: CommandModule<{}, ConfigOptions> = {
         describe: 'Reset a configuration key to default value',
         alias: 'r',
       })
-      .example('gemini autonomous config --list', 'Show all configuration settings')
-      .example('gemini autonomous config --get agentConfig.maxConcurrentAgents', 'Get max agents setting')
-      .example('gemini autonomous config --set agentConfig.maxConcurrentAgents --value 20', 'Set max agents to 20')
-      .example('gemini autonomous config --reset agentConfig.maxConcurrentAgents', 'Reset max agents to default')
+      .example(
+        'gemini autonomous config --list',
+        'Show all configuration settings',
+      )
+      .example(
+        'gemini autonomous config --get agentConfig.maxConcurrentAgents',
+        'Get max agents setting',
+      )
+      .example(
+        'gemini autonomous config --set agentConfig.maxConcurrentAgents --value 20',
+        'Set max agents to 20',
+      )
+      .example(
+        'gemini autonomous config --reset agentConfig.maxConcurrentAgents',
+        'Reset max agents to default',
+      )
       .check((argv) => {
         if (argv.set && !argv.value) {
           throw new Error('--value is required when using --set');
@@ -223,7 +249,9 @@ export const configCommand: CommandModule<{}, ConfigOptions> = {
       const config = loadConfig();
 
       if (argv.list) {
-        console.log(chalk.cyan('🔧 Autonomous Task Management System Configuration:'));
+        console.log(
+          chalk.cyan('🔧 Autonomous Task Management System Configuration:'),
+        );
         console.log('');
         printConfigTree(config);
         console.log('');
@@ -234,9 +262,13 @@ export const configCommand: CommandModule<{}, ConfigOptions> = {
       if (argv.get) {
         const value = getConfigValue(config, argv.get);
         if (value !== undefined) {
-          console.log(chalk.green(`${argv.get}: ${JSON.stringify(value, null, 2)}`));
+          console.log(
+            chalk.green(`${argv.get}: ${JSON.stringify(value, null, 2)}`),
+          );
         } else {
-          console.error(chalk.red(`❌ Configuration key "${argv.get}" not found.`));
+          console.error(
+            chalk.red(`❌ Configuration key "${argv.get}" not found.`),
+          );
           process.exit(1);
         }
         return;
@@ -246,10 +278,16 @@ export const configCommand: CommandModule<{}, ConfigOptions> = {
         try {
           const newConfig = setConfigValue(config, argv.set, argv.value);
           saveConfig(newConfig);
-          console.log(chalk.green(`✅ Set ${argv.set} = ${JSON.stringify(JSON.parse(argv.value))}`));
+          console.log(
+            chalk.green(
+              `✅ Set ${argv.set} = ${JSON.stringify(JSON.parse(argv.value))}`,
+            ),
+          );
         } catch (error) {
           console.error(chalk.red('❌ Failed to set configuration:'));
-          console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+          console.error(
+            chalk.red(error instanceof Error ? error.message : String(error)),
+          );
           process.exit(1);
         }
         return;
@@ -260,27 +298,46 @@ export const configCommand: CommandModule<{}, ConfigOptions> = {
           const newConfig = resetConfigValue(config, argv.reset);
           saveConfig(newConfig);
           const resetValue = getConfigValue(newConfig, argv.reset);
-          console.log(chalk.green(`✅ Reset ${argv.reset} to default: ${JSON.stringify(resetValue)}`));
+          console.log(
+            chalk.green(
+              `✅ Reset ${argv.reset} to default: ${JSON.stringify(resetValue)}`,
+            ),
+          );
         } catch (error) {
           console.error(chalk.red('❌ Failed to reset configuration:'));
-          console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+          console.error(
+            chalk.red(error instanceof Error ? error.message : String(error)),
+          );
           process.exit(1);
         }
         return;
       }
 
       // If no specific option provided, show help
-      console.log(chalk.yellow('Please specify an action. Use --help for available options.'));
+      console.log(
+        chalk.yellow(
+          'Please specify an action. Use --help for available options.',
+        ),
+      );
       console.log('');
       console.log(chalk.cyan('Common commands:'));
-      console.log('  gemini autonomous config --list                    # List all settings');
-      console.log('  gemini autonomous config --get <key>               # Get a setting');
-      console.log('  gemini autonomous config --set <key> --value <val> # Set a setting');
-      console.log('  gemini autonomous config --reset <key>             # Reset to default');
-
+      console.log(
+        '  gemini autonomous config --list                    # List all settings',
+      );
+      console.log(
+        '  gemini autonomous config --get <key>               # Get a setting',
+      );
+      console.log(
+        '  gemini autonomous config --set <key> --value <val> # Set a setting',
+      );
+      console.log(
+        '  gemini autonomous config --reset <key>             # Reset to default',
+      );
     } catch (error) {
       console.error(chalk.red('❌ Configuration command failed:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },

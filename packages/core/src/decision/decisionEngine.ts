@@ -34,7 +34,10 @@ export interface DecisionEngineEvents {
   'decision-failed': (decisionId: string, error: Error) => void;
   'rule-triggered': (ruleId: string, decision: Decision) => void;
   'escalation-required': (decision: Decision, reason: string) => void;
-  'learning-update': (performance: { accuracy: number; confidence: number }) => void;
+  'learning-update': (performance: {
+    accuracy: number;
+    confidence: number;
+  }) => void;
 }
 
 /**
@@ -74,11 +77,14 @@ export class DecisionEngine extends EventEmitter {
   private readonly ruleEngine: RuleEngine;
 
   private readonly pendingDecisions = new Map<string, Decision>();
-  private readonly executingDecisions = new Map<string, {
-    decision: Decision;
-    startTime: number;
-    abortController: AbortController;
-  }>();
+  private readonly executingDecisions = new Map<
+    string,
+    {
+      decision: Decision;
+      startTime: number;
+      abortController: AbortController;
+    }
+  >();
 
   private isShuttingDown = false;
   private decisionCounter = 0;
@@ -153,7 +159,7 @@ export class DecisionEngine extends EventEmitter {
     }, 5000);
 
     while (this.executingDecisions.size > 0) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     clearTimeout(timeout);
@@ -193,7 +199,7 @@ export class DecisionEngine extends EventEmitter {
       urgency?: DecisionPriority;
       timeoutMs?: number;
       bypassRateLimit?: boolean;
-    } = {}
+    } = {},
   ): Promise<Decision> {
     if (this.isShuttingDown) {
       throw new Error('DecisionEngine is shutting down');
@@ -220,7 +226,11 @@ export class DecisionEngine extends EventEmitter {
       // Get ML recommendations if learning is enabled
       let mlRecommendation: Decision | null = null;
       if (this.config.learning.enabled) {
-        mlRecommendation = await this.learningEngine.recommend(type, input, context);
+        mlRecommendation = await this.learningEngine.recommend(
+          type,
+          input,
+          context,
+        );
       }
 
       // Combine rule results and ML recommendations
@@ -231,7 +241,7 @@ export class DecisionEngine extends EventEmitter {
         context,
         ruleResults,
         mlRecommendation,
-        options
+        options,
       );
 
       // Validate the generated decision
@@ -252,14 +262,20 @@ export class DecisionEngine extends EventEmitter {
       });
 
       return decision;
-
     } catch (error) {
       const duration = performance.now() - startTime;
-      logger.error(`Failed to make decision ${decisionId} after ${duration.toFixed(2)}ms`, {
-        error: error instanceof Error ? error.message : String(error),
-      });
+      logger.error(
+        `Failed to make decision ${decisionId} after ${duration.toFixed(2)}ms`,
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
 
-      this.emit('decision-failed', decisionId, error instanceof Error ? error : new Error(String(error)));
+      this.emit(
+        'decision-failed',
+        decisionId,
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw error;
     }
   }
@@ -273,7 +289,7 @@ export class DecisionEngine extends EventEmitter {
    */
   async executeDecision(
     decisionId: string,
-    approvedBy?: string
+    approvedBy?: string,
   ): Promise<DecisionOutcome> {
     const decision = this.pendingDecisions.get(decisionId);
     if (!decision) {
@@ -281,12 +297,14 @@ export class DecisionEngine extends EventEmitter {
     }
 
     if (decision.requiresApproval && !approvedBy) {
-      throw new Error(`Decision ${decisionId} requires approval but none provided`);
+      throw new Error(
+        `Decision ${decisionId} requires approval but none provided`,
+      );
     }
 
     logger.info(`Executing decision ${decisionId}`, {
       choice: decision.choice,
-      approvedBy
+      approvedBy,
     });
 
     const startTime = performance.now();
@@ -304,7 +322,7 @@ export class DecisionEngine extends EventEmitter {
       // Execute the decision based on its type and choice
       const outcome = await this.performExecution(
         decision,
-        abortController.signal
+        abortController.signal,
       );
 
       // Record the outcome
@@ -315,13 +333,15 @@ export class DecisionEngine extends EventEmitter {
       this.emit('decision-executed', decisionId, outcome);
 
       const duration = performance.now() - startTime;
-      logger.info(`Decision ${decisionId} executed successfully in ${duration.toFixed(2)}ms`, {
-        success: outcome.success,
-        actualDuration: outcome.actualDuration,
-      });
+      logger.info(
+        `Decision ${decisionId} executed successfully in ${duration.toFixed(2)}ms`,
+        {
+          success: outcome.success,
+          actualDuration: outcome.actualDuration,
+        },
+      );
 
       return outcome;
-
     } catch (error) {
       const duration = performance.now() - startTime;
       const outcome: DecisionOutcome = {
@@ -336,14 +356,20 @@ export class DecisionEngine extends EventEmitter {
       };
 
       this.auditTrail.recordOutcome(outcome);
-      this.emit('decision-failed', decisionId, error instanceof Error ? error : new Error(String(error)));
+      this.emit(
+        'decision-failed',
+        decisionId,
+        error instanceof Error ? error : new Error(String(error)),
+      );
 
-      logger.error(`Decision ${decisionId} execution failed after ${duration.toFixed(2)}ms`, {
-        error: error instanceof Error ? error.message : String(error),
-      });
+      logger.error(
+        `Decision ${decisionId} execution failed after ${duration.toFixed(2)}ms`,
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
 
       return outcome;
-
     } finally {
       this.executingDecisions.delete(decisionId);
     }
@@ -432,9 +458,13 @@ export class DecisionEngine extends EventEmitter {
     type: DecisionType,
     input: T,
     context: DecisionContext,
-    ruleResults: Array<{ rule: DecisionRule; actions: DecisionAction[]; confidence: number }>,
+    ruleResults: Array<{
+      rule: DecisionRule;
+      actions: DecisionAction[];
+      confidence: number;
+    }>,
     mlRecommendation: Decision | null,
-    options: { urgency?: DecisionPriority; timeoutMs?: number }
+    options: { urgency?: DecisionPriority; timeoutMs?: number },
   ): Promise<Decision> {
     // Calculate base confidence from rules
     let confidence = 0.5; // Base confidence
@@ -443,7 +473,11 @@ export class DecisionEngine extends EventEmitter {
     let priority = options.urgency || DecisionPriority.NORMAL;
     let requiresApproval = this.config.requireApprovalFor.includes(type);
 
-    const alternatives: Array<{ choice: string; score: number; reasoning: string }> = [];
+    const alternatives: Array<{
+      choice: string;
+      score: number;
+      reasoning: string;
+    }> = [];
     const evidence: Record<string, unknown> = {
       ruleCount: ruleResults.length,
       mlRecommendation: !!mlRecommendation,
@@ -469,7 +503,8 @@ export class DecisionEngine extends EventEmitter {
         // Apply highest priority action
         for (const action of result.actions) {
           if (action.type === 'set_priority' && action.parameters.priority) {
-            const actionPriority = action.parameters.priority as DecisionPriority;
+            const actionPriority = action.parameters
+              .priority as DecisionPriority;
             if (actionPriority > priority) {
               priority = actionPriority;
             }
@@ -487,7 +522,8 @@ export class DecisionEngine extends EventEmitter {
     // Incorporate ML recommendation if available
     if (mlRecommendation && this.config.learning.enabled) {
       const mlWeight = Math.min(mlRecommendation.confidence * 2, 1); // ML gets up to 2x weight
-      const combinedConfidence = (confidence + mlRecommendation.confidence * mlWeight) / (1 + mlWeight);
+      const combinedConfidence =
+        (confidence + mlRecommendation.confidence * mlWeight) / (1 + mlWeight);
 
       alternatives.push({
         choice: mlRecommendation.choice,
@@ -516,14 +552,18 @@ export class DecisionEngine extends EventEmitter {
     if (priority >= DecisionPriority.CRITICAL) {
       if (context.userPreferences.criticalTaskNotification) {
         // This would trigger notifications to users
-        this.emit('escalation-required', {
-          id: decisionId,
-          type,
-          choice,
-          priority,
-          confidence,
-          reasoning,
-        } as Decision, 'Critical priority task detected');
+        this.emit(
+          'escalation-required',
+          {
+            id: decisionId,
+            type,
+            choice,
+            priority,
+            confidence,
+            reasoning,
+          } as Decision,
+          'Critical priority task detected',
+        );
       }
     }
 
@@ -550,7 +590,11 @@ export class DecisionEngine extends EventEmitter {
   /**
    * Estimate the duration for executing a decision.
    */
-  private estimateDuration<T>(type: DecisionType, input: T, context: DecisionContext): number {
+  private estimateDuration<T>(
+    type: DecisionType,
+    input: T,
+    context: DecisionContext,
+  ): number {
     // Use historical data if available
     if (context.performanceHistory.avgCompletionTime > 0) {
       return context.performanceHistory.avgCompletionTime;
@@ -576,31 +620,37 @@ export class DecisionEngine extends EventEmitter {
   /**
    * Estimate the resources required for executing a decision.
    */
-  private estimateResources<T>(type: DecisionType, input: T, context: DecisionContext): string[] {
+  private estimateResources<T>(
+    type: DecisionType,
+    input: T,
+    context: DecisionContext,
+  ): string[] {
     const resources: string[] = [];
 
     // CPU intensive operations
-    if ([
-      DecisionType.OPTIMIZATION,
-      DecisionType.CAPACITY_PLANNING,
-      DecisionType.CONFLICT_RESOLUTION,
-    ].includes(type)) {
+    if (
+      [
+        DecisionType.OPTIMIZATION,
+        DecisionType.CAPACITY_PLANNING,
+        DecisionType.CONFLICT_RESOLUTION,
+      ].includes(type)
+    ) {
       resources.push('cpu');
     }
 
     // Memory intensive operations
-    if ([
-      DecisionType.RESOURCE_ALLOCATION,
-      DecisionType.LOAD_BALANCING,
-    ].includes(type)) {
+    if (
+      [DecisionType.RESOURCE_ALLOCATION, DecisionType.LOAD_BALANCING].includes(
+        type,
+      )
+    ) {
       resources.push('memory');
     }
 
     // Network intensive operations
-    if ([
-      DecisionType.AGENT_ASSIGNMENT,
-      DecisionType.ESCALATION,
-    ].includes(type)) {
+    if (
+      [DecisionType.AGENT_ASSIGNMENT, DecisionType.ESCALATION].includes(type)
+    ) {
       resources.push('network');
     }
 
@@ -612,14 +662,17 @@ export class DecisionEngine extends EventEmitter {
    */
   private async performExecution(
     decision: Decision,
-    abortSignal: AbortSignal
+    abortSignal: AbortSignal,
   ): Promise<DecisionOutcome> {
     const startTime = performance.now();
 
     // This is a placeholder - in a real implementation, this would
     // delegate to specific execution handlers based on the decision type
-    await new Promise(resolve => {
-      const timeout = setTimeout(resolve, Math.min(decision.expectedOutcome.estimatedDuration, 100));
+    await new Promise((resolve) => {
+      const timeout = setTimeout(
+        resolve,
+        Math.min(decision.expectedOutcome.estimatedDuration, 100),
+      );
       abortSignal.addEventListener('abort', () => {
         clearTimeout(timeout);
         resolve(undefined);
@@ -645,7 +698,9 @@ export class DecisionEngine extends EventEmitter {
         executionTime: actualDuration,
         confidence: decision.confidence,
       },
-      insights: [`Decision executed with ${decision.confidence.toFixed(3)} confidence`],
+      insights: [
+        `Decision executed with ${decision.confidence.toFixed(3)} confidence`,
+      ],
       errors: [],
     };
   }
@@ -653,6 +708,12 @@ export class DecisionEngine extends EventEmitter {
 
 // Type augmentation for EventEmitter to provide proper typing
 declare interface DecisionEngine {
-  on<K extends keyof DecisionEngineEvents>(event: K, listener: DecisionEngineEvents[K]): this;
-  emit<K extends keyof DecisionEngineEvents>(event: K, ...args: Parameters<DecisionEngineEvents[K]>): boolean;
+  on<K extends keyof DecisionEngineEvents>(
+    event: K,
+    listener: DecisionEngineEvents[K],
+  ): this;
+  emit<K extends keyof DecisionEngineEvents>(
+    event: K,
+    ...args: Parameters<DecisionEngineEvents[K]>
+  ): boolean;
 }

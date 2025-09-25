@@ -18,7 +18,10 @@ import type {
   DecisionType,
   DecisionPriority,
 } from './types.js';
-import { DependencyAnalyzer, type DependencyAnalysisResult } from './DependencyAnalyzer.js';
+import {
+  DependencyAnalyzer,
+  type DependencyAnalysisResult,
+} from './DependencyAnalyzer.js';
 import { DecisionDependencyGraph } from './DependencyGraph.js';
 import { getComponentLogger } from '../utils/logger.js';
 
@@ -107,7 +110,15 @@ export interface ParallelOptimizationResult {
   /** Optimized execution groups */
   executionGroups: ParallelExecutionGroup[];
   /** Resource allocation plan */
-  resourcePlan: Map<string, Array<{ taskId: TaskId; amount: number; startTime: number; duration: number }>>;
+  resourcePlan: Map<
+    string,
+    Array<{
+      taskId: TaskId;
+      amount: number;
+      startTime: number;
+      duration: number;
+    }>
+  >;
   /** Performance projections */
   projections: {
     totalExecutionTime: number;
@@ -131,7 +142,11 @@ export interface ParallelOptimizationResult {
  */
 export interface OptimizationRecommendation {
   /** Type of recommendation */
-  type: 'resource_adjustment' | 'task_reordering' | 'dependency_modification' | 'strategy_change';
+  type:
+    | 'resource_adjustment'
+    | 'task_reordering'
+    | 'dependency_modification'
+    | 'strategy_change';
   /** Description of the recommendation */
   description: string;
   /** Expected impact */
@@ -189,16 +204,56 @@ export class ParallelOptimizer {
   constructor(
     config: Partial<ParallelOptimizationConfig> = {},
     dependencyAnalyzer?: DependencyAnalyzer,
-    dependencyGraph?: DecisionDependencyGraph
+    dependencyGraph?: DecisionDependencyGraph,
   ) {
     this.config = {
       strategy: ParallelStrategy.ADAPTIVE_DYNAMIC,
       maxConcurrency: 8,
       resourcePools: new Map([
-        ['cpu', { name: 'cpu', capacity: 8, allocated: 0, tags: ['compute'], shareable: true, priorityMultiplier: 1.0 }],
-        ['memory', { name: 'memory', capacity: 16384, allocated: 0, tags: ['storage'], shareable: true, priorityMultiplier: 0.8 }],
-        ['network', { name: 'network', capacity: 4, allocated: 0, tags: ['io'], shareable: false, priorityMultiplier: 0.6 }],
-        ['disk', { name: 'disk', capacity: 2, allocated: 0, tags: ['io'], shareable: false, priorityMultiplier: 0.4 }],
+        [
+          'cpu',
+          {
+            name: 'cpu',
+            capacity: 8,
+            allocated: 0,
+            tags: ['compute'],
+            shareable: true,
+            priorityMultiplier: 1.0,
+          },
+        ],
+        [
+          'memory',
+          {
+            name: 'memory',
+            capacity: 16384,
+            allocated: 0,
+            tags: ['storage'],
+            shareable: true,
+            priorityMultiplier: 0.8,
+          },
+        ],
+        [
+          'network',
+          {
+            name: 'network',
+            capacity: 4,
+            allocated: 0,
+            tags: ['io'],
+            shareable: false,
+            priorityMultiplier: 0.6,
+          },
+        ],
+        [
+          'disk',
+          {
+            name: 'disk',
+            capacity: 2,
+            allocated: 0,
+            tags: ['io'],
+            shareable: false,
+            priorityMultiplier: 0.4,
+          },
+        ],
       ]),
       enableDynamicRebalancing: true,
       targetResourceUtilization: 0.85,
@@ -221,7 +276,7 @@ export class ParallelOptimizer {
   async optimizeParallelExecution(
     tasks: Map<TaskId, Task>,
     dependencies: TaskDependency[] = [],
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<Decision> {
     logger.info('Starting parallel execution optimization', {
       taskCount: tasks.size,
@@ -232,32 +287,40 @@ export class ParallelOptimizer {
     const startTime = Date.now();
 
     // Step 1: Analyze dependencies
-    const dependencyAnalysis = await this.dependencyAnalyzer.analyzeDependencies(
-      tasks,
-      dependencies,
-      context
-    );
+    const dependencyAnalysis =
+      await this.dependencyAnalyzer.analyzeDependencies(
+        tasks,
+        dependencies,
+        context,
+      );
 
     // Step 2: Analyze resource contentions
-    const resourceContentions = this.analyzeResourceContentions(tasks, dependencyAnalysis);
+    const resourceContentions = this.analyzeResourceContentions(
+      tasks,
+      dependencyAnalysis,
+    );
 
     // Step 3: Generate parallel execution groups
     const optimizationResult = await this.generateOptimalParallelGroups(
       tasks,
       dependencyAnalysis,
       resourceContentions,
-      context
+      context,
     );
 
     // Step 4: Validate the optimization
-    const validation = this.validateOptimization(optimizationResult, tasks, dependencyAnalysis);
+    const validation = this.validateOptimization(
+      optimizationResult,
+      tasks,
+      dependencyAnalysis,
+    );
 
     // Step 5: Generate alternative strategies
     const alternatives = await this.generateAlternativeStrategies(
       tasks,
       dependencyAnalysis,
       resourceContentions,
-      context
+      context,
     );
 
     // Step 6: Create decision
@@ -267,8 +330,14 @@ export class ParallelOptimizer {
       type: DecisionType.RESOURCE_ALLOCATION,
       choice: `Use ${this.config.strategy} strategy for parallel execution with ${optimizationResult.executionGroups.length} groups`,
       priority: DecisionPriority.HIGH,
-      confidence: this.calculateOptimizationConfidence(optimizationResult, validation),
-      reasoning: this.generateOptimizationReasoning(optimizationResult, alternatives),
+      confidence: this.calculateOptimizationConfidence(
+        optimizationResult,
+        validation,
+      ),
+      reasoning: this.generateOptimizationReasoning(
+        optimizationResult,
+        alternatives,
+      ),
       evidence: {
         optimizationResult,
         resourceContentions,
@@ -276,13 +345,14 @@ export class ParallelOptimizer {
         analysisTime: Date.now() - startTime,
       },
       expectedOutcome: {
-        successProbability: optimizationResult.projections.parallelizationFactor,
+        successProbability:
+          optimizationResult.projections.parallelizationFactor,
         estimatedDuration: optimizationResult.projections.totalExecutionTime,
         requiredResources: Array.from(this.config.resourcePools.keys()),
       },
       context: context || this.createDefaultContext(),
       requiresApproval: false,
-      alternatives: alternatives.map(alt => ({
+      alternatives: alternatives.map((alt) => ({
         choice: `Use ${alt.strategy} strategy`,
         score: alt.score,
         reasoning: `Alternative approach: ${alt.tradeoffs.join(', ')}`,
@@ -296,7 +366,8 @@ export class ParallelOptimizer {
 
     logger.info('Parallel optimization complete', {
       executionGroups: optimizationResult.executionGroups.length,
-      parallelizationFactor: optimizationResult.projections.parallelizationFactor,
+      parallelizationFactor:
+        optimizationResult.projections.parallelizationFactor,
       totalTime: Date.now() - startTime,
       confidence: decision.confidence,
     });
@@ -309,7 +380,7 @@ export class ParallelOptimizer {
    */
   private analyzeResourceContentions(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): ResourceContention[] {
     logger.debug('Analyzing resource contentions');
 
@@ -334,7 +405,11 @@ export class ParallelOptimizer {
         const pool = this.config.resourcePools.get(resourceType);
         if (pool && !pool.shareable) {
           // Resource contention for exclusive resources
-          const totalDemand = this.calculateTotalResourceDemand(taskIds, tasks, resourceType);
+          const totalDemand = this.calculateTotalResourceDemand(
+            taskIds,
+            tasks,
+            resourceType,
+          );
           const severity = Math.min(totalDemand / pool.capacity, 1);
 
           contentions.push({
@@ -373,7 +448,7 @@ export class ParallelOptimizer {
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
     resourceContentions: ResourceContention[],
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<ParallelOptimizationResult> {
     logger.debug('Generating optimal parallel groups');
 
@@ -382,7 +457,11 @@ export class ParallelOptimizer {
         return this.generateMaxParallelismGroups(tasks, dependencyAnalysis);
 
       case ParallelStrategy.RESOURCE_BALANCED:
-        return this.generateResourceBalancedGroups(tasks, dependencyAnalysis, resourceContentions);
+        return this.generateResourceBalancedGroups(
+          tasks,
+          dependencyAnalysis,
+          resourceContentions,
+        );
 
       case ParallelStrategy.DEPENDENCY_AWARE:
         return this.generateDependencyAwareGroups(tasks, dependencyAnalysis);
@@ -391,14 +470,30 @@ export class ParallelOptimizer {
         return this.generatePriorityGroupedGroups(tasks, dependencyAnalysis);
 
       case ParallelStrategy.ADAPTIVE_DYNAMIC:
-        return this.generateAdaptiveDynamicGroups(tasks, dependencyAnalysis, resourceContentions, context);
+        return this.generateAdaptiveDynamicGroups(
+          tasks,
+          dependencyAnalysis,
+          resourceContentions,
+          context,
+        );
 
       case ParallelStrategy.MACHINE_LEARNING:
-        return this.generateMLBasedGroups(tasks, dependencyAnalysis, resourceContentions);
+        return this.generateMLBasedGroups(
+          tasks,
+          dependencyAnalysis,
+          resourceContentions,
+        );
 
       default:
-        logger.warn(`Unknown strategy ${this.config.strategy}, falling back to adaptive`);
-        return this.generateAdaptiveDynamicGroups(tasks, dependencyAnalysis, resourceContentions, context);
+        logger.warn(
+          `Unknown strategy ${this.config.strategy}, falling back to adaptive`,
+        );
+        return this.generateAdaptiveDynamicGroups(
+          tasks,
+          dependencyAnalysis,
+          resourceContentions,
+          context,
+        );
     }
   }
 
@@ -407,29 +502,32 @@ export class ParallelOptimizer {
    */
   private async generateMaxParallelismGroups(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ParallelOptimizationResult> {
     const groups: ParallelExecutionGroup[] = [];
     const processedTasks = new Set<TaskId>();
     let groupCounter = 0;
 
     while (processedTasks.size < tasks.size) {
-      const availableTasks = Array.from(tasks.keys()).filter(taskId => {
+      const availableTasks = Array.from(tasks.keys()).filter((taskId) => {
         if (processedTasks.has(taskId)) return false;
 
         // Check if all dependencies are satisfied
         const taskDependencies = dependencyAnalysis.suggestedDependencies
-          .filter(dep => dep.dependentTaskId === taskId)
-          .map(dep => dep.dependsOnTaskId);
+          .filter((dep) => dep.dependentTaskId === taskId)
+          .map((dep) => dep.dependsOnTaskId);
 
-        return taskDependencies.every(depId => processedTasks.has(depId));
+        return taskDependencies.every((depId) => processedTasks.has(depId));
       });
 
       if (availableTasks.length === 0) break;
 
       // Take as many tasks as possible up to max concurrency
       const groupTasks = availableTasks.slice(0, this.config.maxConcurrency);
-      const resourceAllocations = this.allocateResourcesForGroup(groupTasks, tasks);
+      const resourceAllocations = this.allocateResourcesForGroup(
+        groupTasks,
+        tasks,
+      );
       const estimatedDuration = this.calculateGroupDuration(groupTasks, tasks);
 
       groups.push({
@@ -438,12 +536,15 @@ export class ParallelOptimizer {
         resourceAllocations,
         estimatedDuration,
         priority: this.calculateGroupPriority(groupTasks, tasks),
-        satisfiesDependencies: this.findSatisfiedDependencies(groupTasks, dependencyAnalysis),
+        satisfiesDependencies: this.findSatisfiedDependencies(
+          groupTasks,
+          dependencyAnalysis,
+        ),
         confidence: 0.8, // High confidence for max parallelism
         risks: this.assessGroupRisks(groupTasks, tasks, resourceAllocations),
       });
 
-      groupTasks.forEach(taskId => processedTasks.add(taskId));
+      groupTasks.forEach((taskId) => processedTasks.add(taskId));
     }
 
     return this.buildOptimizationResult(groups, tasks);
@@ -455,26 +556,32 @@ export class ParallelOptimizer {
   private async generateResourceBalancedGroups(
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
-    resourceContentions: ResourceContention[]
+    resourceContentions: ResourceContention[],
   ): Promise<ParallelOptimizationResult> {
     const groups: ParallelExecutionGroup[] = [];
     const processedTasks = new Set<TaskId>();
     let groupCounter = 0;
 
     while (processedTasks.size < tasks.size) {
-      const availableTasks = Array.from(tasks.keys()).filter(taskId => {
+      const availableTasks = Array.from(tasks.keys()).filter((taskId) => {
         if (processedTasks.has(taskId)) return false;
         const taskDeps = dependencyAnalysis.suggestedDependencies
-          .filter(dep => dep.dependentTaskId === taskId)
-          .map(dep => dep.dependsOnTaskId);
-        return taskDeps.every(depId => processedTasks.has(depId));
+          .filter((dep) => dep.dependentTaskId === taskId)
+          .map((dep) => dep.dependsOnTaskId);
+        return taskDeps.every((depId) => processedTasks.has(depId));
       });
 
       if (availableTasks.length === 0) break;
 
       // Select tasks that balance resource usage
-      const groupTasks = this.selectResourceBalancedTasks(availableTasks, tasks);
-      const resourceAllocations = this.allocateResourcesForGroup(groupTasks, tasks);
+      const groupTasks = this.selectResourceBalancedTasks(
+        availableTasks,
+        tasks,
+      );
+      const resourceAllocations = this.allocateResourcesForGroup(
+        groupTasks,
+        tasks,
+      );
       const estimatedDuration = this.calculateGroupDuration(groupTasks, tasks);
 
       groups.push({
@@ -483,12 +590,15 @@ export class ParallelOptimizer {
         resourceAllocations,
         estimatedDuration,
         priority: this.calculateGroupPriority(groupTasks, tasks),
-        satisfiesDependencies: this.findSatisfiedDependencies(groupTasks, dependencyAnalysis),
+        satisfiesDependencies: this.findSatisfiedDependencies(
+          groupTasks,
+          dependencyAnalysis,
+        ),
         confidence: 0.85, // High confidence for balanced approach
         risks: this.assessGroupRisks(groupTasks, tasks, resourceAllocations),
       });
 
-      groupTasks.forEach(taskId => processedTasks.add(taskId));
+      groupTasks.forEach((taskId) => processedTasks.add(taskId));
     }
 
     return this.buildOptimizationResult(groups, tasks);
@@ -499,23 +609,43 @@ export class ParallelOptimizer {
    */
   private async generateDependencyAwareGroups(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ParallelOptimizationResult> {
     const groups: ParallelExecutionGroup[] = [];
 
     // Build dependency layers
-    const dependencyLayers = this.buildDependencyLayers(tasks, dependencyAnalysis.suggestedDependencies);
+    const dependencyLayers = this.buildDependencyLayers(
+      tasks,
+      dependencyAnalysis.suggestedDependencies,
+    );
 
-    for (let layerIndex = 0; layerIndex < dependencyLayers.length; layerIndex++) {
+    for (
+      let layerIndex = 0;
+      layerIndex < dependencyLayers.length;
+      layerIndex++
+    ) {
       const layer = dependencyLayers[layerIndex];
 
       // Group tasks in this layer by resource compatibility
-      const resourceGroups = this.groupTasksByResourceCompatibility(layer, tasks);
+      const resourceGroups = this.groupTasksByResourceCompatibility(
+        layer,
+        tasks,
+      );
 
-      for (let groupIndex = 0; groupIndex < resourceGroups.length; groupIndex++) {
+      for (
+        let groupIndex = 0;
+        groupIndex < resourceGroups.length;
+        groupIndex++
+      ) {
         const groupTasks = resourceGroups[groupIndex];
-        const resourceAllocations = this.allocateResourcesForGroup(groupTasks, tasks);
-        const estimatedDuration = this.calculateGroupDuration(groupTasks, tasks);
+        const resourceAllocations = this.allocateResourcesForGroup(
+          groupTasks,
+          tasks,
+        );
+        const estimatedDuration = this.calculateGroupDuration(
+          groupTasks,
+          tasks,
+        );
 
         groups.push({
           id: `layer_${layerIndex}_group_${groupIndex}`,
@@ -523,7 +653,10 @@ export class ParallelOptimizer {
           resourceAllocations,
           estimatedDuration,
           priority: this.calculateGroupPriority(groupTasks, tasks),
-          satisfiesDependencies: this.findSatisfiedDependencies(groupTasks, dependencyAnalysis),
+          satisfiesDependencies: this.findSatisfiedDependencies(
+            groupTasks,
+            dependencyAnalysis,
+          ),
           confidence: 0.9, // Very high confidence due to dependency respect
           risks: this.assessGroupRisks(groupTasks, tasks, resourceAllocations),
         });
@@ -538,7 +671,7 @@ export class ParallelOptimizer {
    */
   private async generatePriorityGroupedGroups(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ParallelOptimizationResult> {
     const groups: ParallelExecutionGroup[] = [];
 
@@ -553,7 +686,12 @@ export class ParallelOptimizer {
     }
 
     // Process in priority order
-    const priorityOrder: Array<keyof typeof priorityGroups> = ['critical', 'high', 'medium', 'low'];
+    const priorityOrder: Array<keyof typeof priorityGroups> = [
+      'critical',
+      'high',
+      'medium',
+      'low',
+    ];
     let groupCounter = 0;
 
     for (const priority of priorityOrder) {
@@ -564,19 +702,29 @@ export class ParallelOptimizer {
       const processedInPriority = new Set<TaskId>();
 
       while (processedInPriority.size < taskIds.length) {
-        const availableTasks = taskIds.filter(taskId => {
+        const availableTasks = taskIds.filter((taskId) => {
           if (processedInPriority.has(taskId)) return false;
           const taskDeps = dependencyAnalysis.suggestedDependencies
-            .filter(dep => dep.dependentTaskId === taskId && taskIds.includes(dep.dependsOnTaskId))
-            .map(dep => dep.dependsOnTaskId);
-          return taskDeps.every(depId => processedInPriority.has(depId));
+            .filter(
+              (dep) =>
+                dep.dependentTaskId === taskId &&
+                taskIds.includes(dep.dependsOnTaskId),
+            )
+            .map((dep) => dep.dependsOnTaskId);
+          return taskDeps.every((depId) => processedInPriority.has(depId));
         });
 
         if (availableTasks.length === 0) break;
 
         const groupTasks = availableTasks.slice(0, this.config.maxConcurrency);
-        const resourceAllocations = this.allocateResourcesForGroup(groupTasks, tasks);
-        const estimatedDuration = this.calculateGroupDuration(groupTasks, tasks);
+        const resourceAllocations = this.allocateResourcesForGroup(
+          groupTasks,
+          tasks,
+        );
+        const estimatedDuration = this.calculateGroupDuration(
+          groupTasks,
+          tasks,
+        );
 
         groups.push({
           id: `priority_${priority}_group_${groupCounter++}`,
@@ -584,12 +732,15 @@ export class ParallelOptimizer {
           resourceAllocations,
           estimatedDuration,
           priority: this.calculateGroupPriority(groupTasks, tasks),
-          satisfiesDependencies: this.findSatisfiedDependencies(groupTasks, dependencyAnalysis),
+          satisfiesDependencies: this.findSatisfiedDependencies(
+            groupTasks,
+            dependencyAnalysis,
+          ),
           confidence: 0.75, // Good confidence for priority grouping
           risks: this.assessGroupRisks(groupTasks, tasks, resourceAllocations),
         });
 
-        groupTasks.forEach(taskId => processedInPriority.add(taskId));
+        groupTasks.forEach((taskId) => processedInPriority.add(taskId));
       }
     }
 
@@ -603,7 +754,7 @@ export class ParallelOptimizer {
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
     resourceContentions: ResourceContention[],
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<ParallelOptimizationResult> {
     // Combine multiple strategies based on context
     const strategies = [
@@ -616,10 +767,14 @@ export class ParallelOptimizer {
     // Adjust weights based on context
     if (context) {
       if (context.systemLoad.cpu > 0.8) {
-        strategies.find(s => s.strategy === ParallelStrategy.RESOURCE_BALANCED)!.weight = 0.5;
+        strategies.find(
+          (s) => s.strategy === ParallelStrategy.RESOURCE_BALANCED,
+        )!.weight = 0.5;
       }
       if (context.taskQueueState.pendingTasks > 20) {
-        strategies.find(s => s.strategy === ParallelStrategy.MAX_PARALLELISM)!.weight = 0.3;
+        strategies.find(
+          (s) => s.strategy === ParallelStrategy.MAX_PARALLELISM,
+        )!.weight = 0.3;
       }
     }
 
@@ -635,11 +790,13 @@ export class ParallelOptimizer {
           tasks,
           dependencyAnalysis,
           resourceContentions,
-          context
+          context,
         );
         allResults.push(result);
       } catch (error) {
-        logger.warn(`Failed to generate groups with strategy ${strategy}`, { error });
+        logger.warn(`Failed to generate groups with strategy ${strategy}`, {
+          error,
+        });
       }
 
       this.config.strategy = originalStrategy;
@@ -655,20 +812,32 @@ export class ParallelOptimizer {
   private async generateMLBasedGroups(
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
-    resourceContentions: ResourceContention[]
+    resourceContentions: ResourceContention[],
   ): Promise<ParallelOptimizationResult> {
     if (this.executionHistory.size < 5) {
-      logger.warn('Insufficient historical data for ML, falling back to adaptive');
-      return this.generateAdaptiveDynamicGroups(tasks, dependencyAnalysis, resourceContentions);
+      logger.warn(
+        'Insufficient historical data for ML, falling back to adaptive',
+      );
+      return this.generateAdaptiveDynamicGroups(
+        tasks,
+        dependencyAnalysis,
+        resourceContentions,
+      );
     }
 
     // Use ML model to predict optimal grouping
-    const predictedGroups = this.predictOptimalGrouping(tasks, dependencyAnalysis);
+    const predictedGroups = this.predictOptimalGrouping(
+      tasks,
+      dependencyAnalysis,
+    );
 
     const groups: ParallelExecutionGroup[] = [];
     for (let i = 0; i < predictedGroups.length; i++) {
       const groupTasks = predictedGroups[i];
-      const resourceAllocations = this.allocateResourcesForGroup(groupTasks, tasks);
+      const resourceAllocations = this.allocateResourcesForGroup(
+        groupTasks,
+        tasks,
+      );
       const estimatedDuration = this.calculateGroupDuration(groupTasks, tasks);
 
       groups.push({
@@ -677,7 +846,10 @@ export class ParallelOptimizer {
         resourceAllocations,
         estimatedDuration,
         priority: this.calculateGroupPriority(groupTasks, tasks),
-        satisfiesDependencies: this.findSatisfiedDependencies(groupTasks, dependencyAnalysis),
+        satisfiesDependencies: this.findSatisfiedDependencies(
+          groupTasks,
+          dependencyAnalysis,
+        ),
         confidence: this.predictGroupConfidence(groupTasks),
         risks: this.assessGroupRisks(groupTasks, tasks, resourceAllocations),
       });
@@ -698,15 +870,37 @@ export class ParallelOptimizer {
     } else {
       // Default requirements based on task category
       const defaults: Record<string, Array<[string, number]>> = {
-        implementation: [['cpu', 2], ['memory', 1024]],
-        testing: [['cpu', 1], ['memory', 512]],
-        documentation: [['cpu', 1], ['memory', 256]],
-        analysis: [['cpu', 3], ['memory', 2048]],
-        refactoring: [['cpu', 2], ['memory', 1024]],
-        deployment: [['cpu', 1], ['memory', 512], ['network', 1]],
+        implementation: [
+          ['cpu', 2],
+          ['memory', 1024],
+        ],
+        testing: [
+          ['cpu', 1],
+          ['memory', 512],
+        ],
+        documentation: [
+          ['cpu', 1],
+          ['memory', 256],
+        ],
+        analysis: [
+          ['cpu', 3],
+          ['memory', 2048],
+        ],
+        refactoring: [
+          ['cpu', 2],
+          ['memory', 1024],
+        ],
+        deployment: [
+          ['cpu', 1],
+          ['memory', 512],
+          ['network', 1],
+        ],
       };
 
-      const taskDefaults = defaults[task.category] || [['cpu', 1], ['memory', 512]];
+      const taskDefaults = defaults[task.category] || [
+        ['cpu', 1],
+        ['memory', 512],
+      ];
       for (const [resourceType, amount] of taskDefaults) {
         requirements.set(resourceType, amount);
       }
@@ -715,7 +909,11 @@ export class ParallelOptimizer {
     return requirements;
   }
 
-  private calculateTotalResourceDemand(taskIds: TaskId[], tasks: Map<TaskId, Task>, resourceType: string): number {
+  private calculateTotalResourceDemand(
+    taskIds: TaskId[],
+    tasks: Map<TaskId, Task>,
+    resourceType: string,
+  ): number {
     let total = 0;
     for (const taskId of taskIds) {
       const task = tasks.get(taskId);
@@ -727,7 +925,10 @@ export class ParallelOptimizer {
     return total;
   }
 
-  private selectResourceBalancedTasks(availableTasks: TaskId[], tasks: Map<TaskId, Task>): TaskId[] {
+  private selectResourceBalancedTasks(
+    availableTasks: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): TaskId[] {
     // Simple resource balancing - select tasks that don't exceed resource limits
     const selected: TaskId[] = [];
     const resourceUsage = new Map<string, number>();
@@ -750,7 +951,10 @@ export class ParallelOptimizer {
         const pool = this.config.resourcePools.get(resourceType);
         if (pool) {
           const currentUsage = resourceUsage.get(resourceType) || 0;
-          if (currentUsage + required > pool.capacity * this.config.targetResourceUtilization) {
+          if (
+            currentUsage + required >
+            pool.capacity * this.config.targetResourceUtilization
+          ) {
             canAdd = false;
             break;
           }
@@ -769,7 +973,10 @@ export class ParallelOptimizer {
     return selected;
   }
 
-  private buildDependencyLayers(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): TaskId[][] {
+  private buildDependencyLayers(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): TaskId[][] {
     const layers: TaskId[][] = [];
     const processed = new Set<TaskId>();
     const taskIds = Array.from(tasks.keys());
@@ -782,10 +989,12 @@ export class ParallelOptimizer {
 
         // Check if all dependencies are in previous layers
         const taskDeps = dependencies
-          .filter(dep => dep.dependentTaskId === taskId)
-          .map(dep => dep.dependsOnTaskId);
+          .filter((dep) => dep.dependentTaskId === taskId)
+          .map((dep) => dep.dependsOnTaskId);
 
-        const allDepsSatisfied = taskDeps.every(depId => processed.has(depId));
+        const allDepsSatisfied = taskDeps.every((depId) =>
+          processed.has(depId),
+        );
 
         if (allDepsSatisfied) {
           currentLayer.push(taskId);
@@ -795,13 +1004,16 @@ export class ParallelOptimizer {
       if (currentLayer.length === 0) break; // Avoid infinite loop
 
       layers.push(currentLayer);
-      currentLayer.forEach(taskId => processed.add(taskId));
+      currentLayer.forEach((taskId) => processed.add(taskId));
     }
 
     return layers;
   }
 
-  private groupTasksByResourceCompatibility(taskIds: TaskId[], tasks: Map<TaskId, Task>): TaskId[][] {
+  private groupTasksByResourceCompatibility(
+    taskIds: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): TaskId[][] {
     const groups: TaskId[][] = [];
     const processed = new Set<TaskId>();
 
@@ -827,7 +1039,10 @@ export class ParallelOptimizer {
           const pool = this.config.resourcePools.get(resourceType);
           if (pool) {
             const currentUsage = resourceUsage.get(resourceType) || 0;
-            if (currentUsage + required > pool.capacity * this.config.targetResourceUtilization) {
+            if (
+              currentUsage + required >
+              pool.capacity * this.config.targetResourceUtilization
+            ) {
               compatible = false;
               break;
             }
@@ -854,7 +1069,10 @@ export class ParallelOptimizer {
     return groups;
   }
 
-  private allocateResourcesForGroup(taskIds: TaskId[], tasks: Map<TaskId, Task>): Map<string, number> {
+  private allocateResourcesForGroup(
+    taskIds: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): Map<string, number> {
     const allocations = new Map<string, number>();
 
     for (const taskId of taskIds) {
@@ -871,7 +1089,10 @@ export class ParallelOptimizer {
     return allocations;
   }
 
-  private calculateGroupDuration(taskIds: TaskId[], tasks: Map<TaskId, Task>): number {
+  private calculateGroupDuration(
+    taskIds: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): number {
     let maxDuration = 0;
     for (const taskId of taskIds) {
       const task = tasks.get(taskId);
@@ -883,7 +1104,10 @@ export class ParallelOptimizer {
     return maxDuration;
   }
 
-  private calculateGroupPriority(taskIds: TaskId[], tasks: Map<TaskId, Task>): number {
+  private calculateGroupPriority(
+    taskIds: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): number {
     const priorities = { critical: 4, high: 3, medium: 2, low: 1 };
     let totalPriority = 0;
 
@@ -897,16 +1121,19 @@ export class ParallelOptimizer {
     return taskIds.length > 0 ? totalPriority / taskIds.length : 0;
   }
 
-  private findSatisfiedDependencies(taskIds: TaskId[], dependencyAnalysis: DependencyAnalysisResult): TaskDependency[] {
-    return dependencyAnalysis.suggestedDependencies.filter(dep =>
-      taskIds.includes(dep.dependsOnTaskId)
+  private findSatisfiedDependencies(
+    taskIds: TaskId[],
+    dependencyAnalysis: DependencyAnalysisResult,
+  ): TaskDependency[] {
+    return dependencyAnalysis.suggestedDependencies.filter((dep) =>
+      taskIds.includes(dep.dependsOnTaskId),
     );
   }
 
   private assessGroupRisks(
     taskIds: TaskId[],
     tasks: Map<TaskId, Task>,
-    resourceAllocations: Map<string, number>
+    resourceAllocations: Map<string, number>,
   ): string[] {
     const risks: string[] = [];
 
@@ -914,12 +1141,14 @@ export class ParallelOptimizer {
     for (const [resourceType, allocated] of resourceAllocations) {
       const pool = this.config.resourcePools.get(resourceType);
       if (pool && allocated > pool.capacity * 0.9) {
-        risks.push(`High ${resourceType} utilization (${Math.round(allocated / pool.capacity * 100)}%)`);
+        risks.push(
+          `High ${resourceType} utilization (${Math.round((allocated / pool.capacity) * 100)}%)`,
+        );
       }
     }
 
     // Check for task duration variance
-    const durations = taskIds.map(id => {
+    const durations = taskIds.map((id) => {
       const task = tasks.get(id);
       return task?.metadata.estimatedDuration || 60000;
     });
@@ -931,7 +1160,7 @@ export class ParallelOptimizer {
     }
 
     // Check for critical tasks
-    const criticalTasks = taskIds.filter(id => {
+    const criticalTasks = taskIds.filter((id) => {
       const task = tasks.get(id);
       return task?.priority === 'critical';
     });
@@ -943,9 +1172,20 @@ export class ParallelOptimizer {
     return risks;
   }
 
-  private buildOptimizationResult(groups: ParallelExecutionGroup[], tasks: Map<TaskId, Task>): ParallelOptimizationResult {
+  private buildOptimizationResult(
+    groups: ParallelExecutionGroup[],
+    tasks: Map<TaskId, Task>,
+  ): ParallelOptimizationResult {
     // Build resource allocation plan
-    const resourcePlan = new Map<string, Array<{ taskId: TaskId; amount: number; startTime: number; duration: number }>>();
+    const resourcePlan = new Map<
+      string,
+      Array<{
+        taskId: TaskId;
+        amount: number;
+        startTime: number;
+        duration: number;
+      }>
+    >();
 
     let currentTime = 0;
     for (const group of groups) {
@@ -970,22 +1210,33 @@ export class ParallelOptimizer {
     }
 
     // Calculate projections
-    const totalExecutionTime = groups.reduce((sum, group) => sum + group.estimatedDuration, 0);
+    const totalExecutionTime = groups.reduce(
+      (sum, group) => sum + group.estimatedDuration,
+      0,
+    );
     const resourceUtilization = new Map<string, number>();
 
     for (const [resourceType, pool] of this.config.resourcePools) {
       const allocations = resourcePlan.get(resourceType) || [];
-      const avgUtilization = allocations.length > 0
-        ? allocations.reduce((sum, alloc) => sum + alloc.amount, 0) / (allocations.length * pool.capacity)
-        : 0;
+      const avgUtilization =
+        allocations.length > 0
+          ? allocations.reduce((sum, alloc) => sum + alloc.amount, 0) /
+            (allocations.length * pool.capacity)
+          : 0;
       resourceUtilization.set(resourceType, Math.min(avgUtilization, 1));
     }
 
-    const parallelizationFactor = Math.min(groups.length > 0 ? tasks.size / groups.length : 0, 1);
+    const parallelizationFactor = Math.min(
+      groups.length > 0 ? tasks.size / groups.length : 0,
+      1,
+    );
     const costOptimization = this.calculateCostOptimization(groups, tasks);
 
     // Generate recommendations
-    const recommendations = this.generateOptimizationRecommendations(groups, resourceUtilization);
+    const recommendations = this.generateOptimizationRecommendations(
+      groups,
+      resourceUtilization,
+    );
 
     return {
       executionGroups: groups,
@@ -1001,14 +1252,17 @@ export class ParallelOptimizer {
     };
   }
 
-  private calculateCostOptimization(groups: ParallelExecutionGroup[], tasks: Map<TaskId, Task>): number {
+  private calculateCostOptimization(
+    groups: ParallelExecutionGroup[],
+    tasks: Map<TaskId, Task>,
+  ): number {
     // Simplified cost calculation - would be more sophisticated in practice
     return 0.2; // 20% cost optimization
   }
 
   private generateOptimizationRecommendations(
     groups: ParallelExecutionGroup[],
-    resourceUtilization: Map<string, number>
+    resourceUtilization: Map<string, number>,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
@@ -1030,7 +1284,7 @@ export class ParallelOptimizer {
     }
 
     // Check for groups with high risk
-    const highRiskGroups = groups.filter(g => g.risks.length > 2);
+    const highRiskGroups = groups.filter((g) => g.risks.length > 2);
     if (highRiskGroups.length > 0) {
       recommendations.push({
         type: 'task_reordering',
@@ -1050,7 +1304,7 @@ export class ParallelOptimizer {
 
   private mergeOptimizationResults(
     results: ParallelOptimizationResult[],
-    strategies: Array<{ strategy: ParallelStrategy; weight: number }>
+    strategies: Array<{ strategy: ParallelStrategy; weight: number }>,
   ): ParallelOptimizationResult {
     if (results.length === 0) {
       throw new Error('No optimization results to merge');
@@ -1067,11 +1321,16 @@ export class ParallelOptimizer {
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       const weight = strategies[i]?.weight || 0;
-      const score = weight * (
-        result.projections.parallelizationFactor * 0.4 +
-        (1 - result.projections.totalExecutionTime / 3600000) * 0.3 + // Prefer shorter execution
-        Array.from(result.projections.resourceUtilization.values()).reduce((a, b) => a + b, 0) / result.projections.resourceUtilization.size * 0.3
-      );
+      const score =
+        weight *
+        (result.projections.parallelizationFactor * 0.4 +
+          (1 - result.projections.totalExecutionTime / 3600000) * 0.3 + // Prefer shorter execution
+          (Array.from(result.projections.resourceUtilization.values()).reduce(
+            (a, b) => a + b,
+            0,
+          ) /
+            result.projections.resourceUtilization.size) *
+            0.3);
 
       if (score > bestScore) {
         bestScore = score;
@@ -1082,7 +1341,10 @@ export class ParallelOptimizer {
     return bestResult;
   }
 
-  private predictOptimalGrouping(tasks: Map<TaskId, Task>, dependencyAnalysis: DependencyAnalysisResult): TaskId[][] {
+  private predictOptimalGrouping(
+    tasks: Map<TaskId, Task>,
+    dependencyAnalysis: DependencyAnalysisResult,
+  ): TaskId[][] {
     // Simplified ML prediction - would use more sophisticated model
     const taskIds = Array.from(tasks.keys());
     const groups: TaskId[][] = [];
@@ -1099,7 +1361,10 @@ export class ParallelOptimizer {
 
         // Simple similarity: same category
         const task = tasks.get(taskId);
-        if (currentGroup.length === 0 || this.areSimilarTasks(currentGroup[0], taskId, tasks)) {
+        if (
+          currentGroup.length === 0 ||
+          this.areSimilarTasks(currentGroup[0], taskId, tasks)
+        ) {
           currentGroup.push(taskId);
           grouped.add(taskId);
         }
@@ -1122,13 +1387,19 @@ export class ParallelOptimizer {
     return groups;
   }
 
-  private areSimilarTasks(taskId1: TaskId, taskId2: TaskId, tasks: Map<TaskId, Task>): boolean {
+  private areSimilarTasks(
+    taskId1: TaskId,
+    taskId2: TaskId,
+    tasks: Map<TaskId, Task>,
+  ): boolean {
     const task1 = tasks.get(taskId1);
     const task2 = tasks.get(taskId2);
 
     if (!task1 || !task2) return false;
 
-    return task1.category === task2.category && task1.priority === task2.priority;
+    return (
+      task1.category === task2.category && task1.priority === task2.priority
+    );
   }
 
   private predictGroupConfidence(taskIds: TaskId[]): number {
@@ -1148,16 +1419,20 @@ export class ParallelOptimizer {
   private validateOptimization(
     result: ParallelOptimizationResult,
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): { valid: boolean; issues: string[] } {
     const issues: string[] = [];
 
     // Check that all tasks are included
     const allTasks = new Set(Array.from(tasks.keys()));
-    const groupedTasks = new Set(result.executionGroups.flatMap(g => g.tasks));
+    const groupedTasks = new Set(
+      result.executionGroups.flatMap((g) => g.tasks),
+    );
 
     if (allTasks.size !== groupedTasks.size) {
-      issues.push(`Task count mismatch: ${allTasks.size} tasks, ${groupedTasks.size} grouped`);
+      issues.push(
+        `Task count mismatch: ${allTasks.size} tasks, ${groupedTasks.size} grouped`,
+      );
     }
 
     // Check resource constraints
@@ -1165,7 +1440,9 @@ export class ParallelOptimizer {
       for (const [resourceType, amount] of group.resourceAllocations) {
         const pool = this.config.resourcePools.get(resourceType);
         if (pool && amount > pool.capacity) {
-          issues.push(`Group ${group.id} exceeds ${resourceType} capacity: ${amount} > ${pool.capacity}`);
+          issues.push(
+            `Group ${group.id} exceeds ${resourceType} capacity: ${amount} > ${pool.capacity}`,
+          );
         }
       }
     }
@@ -1178,7 +1455,7 @@ export class ParallelOptimizer {
 
   private calculateOptimizationConfidence(
     result: ParallelOptimizationResult,
-    validation: { valid: boolean; issues: string[] }
+    validation: { valid: boolean; issues: string[] },
   ): number {
     if (!validation.valid) {
       return 0.3; // Low confidence for invalid optimizations
@@ -1190,15 +1467,21 @@ export class ParallelOptimizer {
     confidence += result.projections.parallelizationFactor * 0.1;
 
     // Adjust based on resource utilization
-    const avgUtilization = Array.from(result.projections.resourceUtilization.values())
-      .reduce((sum, util) => sum + util, 0) / result.projections.resourceUtilization.size;
+    const avgUtilization =
+      Array.from(result.projections.resourceUtilization.values()).reduce(
+        (sum, util) => sum + util,
+        0,
+      ) / result.projections.resourceUtilization.size;
 
     if (avgUtilization > 0.6 && avgUtilization < 0.9) {
       confidence += 0.1; // Good utilization range
     }
 
     // Adjust based on group risks
-    const totalRisks = result.executionGroups.reduce((sum, g) => sum + g.risks.length, 0);
+    const totalRisks = result.executionGroups.reduce(
+      (sum, g) => sum + g.risks.length,
+      0,
+    );
     confidence -= Math.min(totalRisks * 0.02, 0.2);
 
     return Math.max(0, Math.min(confidence, 1));
@@ -1206,38 +1489,50 @@ export class ParallelOptimizer {
 
   private generateOptimizationReasoning(
     result: ParallelOptimizationResult,
-    alternatives: any[]
+    alternatives: any[],
   ): string {
     const groupCount = result.executionGroups.length;
-    const totalTasks = result.executionGroups.reduce((sum, g) => sum + g.tasks.length, 0);
-    const parallelFactor = Math.round(result.projections.parallelizationFactor * 100);
-    const executionTime = Math.round(result.projections.totalExecutionTime / 1000);
+    const totalTasks = result.executionGroups.reduce(
+      (sum, g) => sum + g.tasks.length,
+      0,
+    );
+    const parallelFactor = Math.round(
+      result.projections.parallelizationFactor * 100,
+    );
+    const executionTime = Math.round(
+      result.projections.totalExecutionTime / 1000,
+    );
 
-    return `Generated ${groupCount} parallel execution groups for ${totalTasks} tasks using ${this.config.strategy} strategy. ` +
+    return (
+      `Generated ${groupCount} parallel execution groups for ${totalTasks} tasks using ${this.config.strategy} strategy. ` +
       `Achieved ${parallelFactor}% parallelization factor with estimated ${executionTime}s total execution time. ` +
       `Resource utilization optimized across ${result.projections.resourceUtilization.size} resource types. ` +
-      `${result.recommendations.length} optimization recommendations identified.`;
+      `${result.recommendations.length} optimization recommendations identified.`
+    );
   }
 
   private async generateAlternativeStrategies(
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
     resourceContentions: ResourceContention[],
-    context?: DecisionContext
-  ): Promise<Array<{
-    strategy: ParallelStrategy;
-    groups: ParallelExecutionGroup[];
-    score: number;
-    tradeoffs: string[];
-  }>> {
+    context?: DecisionContext,
+  ): Promise<
+    Array<{
+      strategy: ParallelStrategy;
+      groups: ParallelExecutionGroup[];
+      score: number;
+      tradeoffs: string[];
+    }>
+  > {
     const alternatives = [];
     const strategies = [
       ParallelStrategy.MAX_PARALLELISM,
       ParallelStrategy.RESOURCE_BALANCED,
       ParallelStrategy.DEPENDENCY_AWARE,
-    ].filter(s => s !== this.config.strategy);
+    ].filter((s) => s !== this.config.strategy);
 
-    for (const strategy of strategies.slice(0, 2)) { // Limit to 2 alternatives
+    for (const strategy of strategies.slice(0, 2)) {
+      // Limit to 2 alternatives
       try {
         const originalStrategy = this.config.strategy;
         this.config.strategy = strategy;
@@ -1246,7 +1541,7 @@ export class ParallelOptimizer {
           tasks,
           dependencyAnalysis,
           resourceContentions,
-          context
+          context,
         );
 
         alternatives.push({
@@ -1258,7 +1553,10 @@ export class ParallelOptimizer {
 
         this.config.strategy = originalStrategy;
       } catch (error) {
-        logger.warn(`Failed to generate alternative with strategy ${strategy}`, { error });
+        logger.warn(
+          `Failed to generate alternative with strategy ${strategy}`,
+          { error },
+        );
       }
     }
 
@@ -1296,7 +1594,10 @@ export class ParallelOptimizer {
     return tradeoffs[strategy] || ['Unknown tradeoffs'];
   }
 
-  private updatePredictiveModel(tasks: Map<TaskId, Task>, result: ParallelOptimizationResult): void {
+  private updatePredictiveModel(
+    tasks: Map<TaskId, Task>,
+    result: ParallelOptimizationResult,
+  ): void {
     // Update learning model with optimization results
     for (const group of result.executionGroups) {
       const features = this.extractGroupFeatures(group, tasks);
@@ -1306,8 +1607,12 @@ export class ParallelOptimizer {
       for (let i = 0; i < features.length; i++) {
         const featureKey = `group_feature_${i}`;
         const currentWeight = this.learningModel.get(featureKey) || 0.5;
-        const newWeight = currentWeight + this.config.learningRate * (performance - 0.5);
-        this.learningModel.set(featureKey, Math.max(0.1, Math.min(newWeight, 2.0)));
+        const newWeight =
+          currentWeight + this.config.learningRate * (performance - 0.5);
+        this.learningModel.set(
+          featureKey,
+          Math.max(0.1, Math.min(newWeight, 2.0)),
+        );
       }
     }
 
@@ -1317,7 +1622,10 @@ export class ParallelOptimizer {
     });
   }
 
-  private extractGroupFeatures(group: ParallelExecutionGroup, tasks: Map<TaskId, Task>): number[] {
+  private extractGroupFeatures(
+    group: ParallelExecutionGroup,
+    tasks: Map<TaskId, Task>,
+  ): number[] {
     const features: number[] = [];
 
     // Feature 1: Group size
@@ -1332,19 +1640,21 @@ export class ParallelOptimizer {
         avgPriority += priorities[task.priority];
       }
     }
-    features.push((avgPriority / group.tasks.length) / 4);
+    features.push(avgPriority / group.tasks.length / 4);
 
     // Feature 3: Resource diversity
     const resourceTypes = Array.from(group.resourceAllocations.keys()).length;
     features.push(resourceTypes / this.config.resourcePools.size);
 
     // Feature 4: Duration variance
-    const durations = group.tasks.map(id => {
+    const durations = group.tasks.map((id) => {
       const task = tasks.get(id);
       return task?.metadata.estimatedDuration || 60000;
     });
     const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
-    const variance = durations.reduce((sum, d) => sum + Math.pow(d - avgDuration, 2), 0) / durations.length;
+    const variance =
+      durations.reduce((sum, d) => sum + Math.pow(d - avgDuration, 2), 0) /
+      durations.length;
     features.push(Math.min(Math.sqrt(variance) / avgDuration, 1));
 
     return features;
@@ -1360,12 +1670,41 @@ export class ParallelOptimizer {
   private createDefaultContext(): DecisionContext {
     return {
       systemLoad: { cpu: 0.6, memory: 0.7, diskIO: 0.4, networkIO: 0.3 },
-      taskQueueState: { totalTasks: 0, pendingTasks: 0, runningTasks: 0, failedTasks: 0, avgProcessingTime: 90000 },
-      agentContext: { activeAgents: 1, maxConcurrentAgents: 8, agentCapabilities: {}, agentWorkloads: {} },
-      projectState: { buildStatus: 'unknown', testStatus: 'unknown', lintStatus: 'unknown', gitStatus: 'unknown' },
-      budgetContext: { currentUsage: 0, costPerToken: 0.001, estimatedCostForTask: 0.15 },
-      performanceHistory: { avgSuccessRate: 0.85, avgCompletionTime: 180000, commonFailureReasons: [], peakUsageHours: [] },
-      userPreferences: { allowAutonomousDecisions: true, maxConcurrentTasks: 8, criticalTaskNotification: true },
+      taskQueueState: {
+        totalTasks: 0,
+        pendingTasks: 0,
+        runningTasks: 0,
+        failedTasks: 0,
+        avgProcessingTime: 90000,
+      },
+      agentContext: {
+        activeAgents: 1,
+        maxConcurrentAgents: 8,
+        agentCapabilities: {},
+        agentWorkloads: {},
+      },
+      projectState: {
+        buildStatus: 'unknown',
+        testStatus: 'unknown',
+        lintStatus: 'unknown',
+        gitStatus: 'unknown',
+      },
+      budgetContext: {
+        currentUsage: 0,
+        costPerToken: 0.001,
+        estimatedCostForTask: 0.15,
+      },
+      performanceHistory: {
+        avgSuccessRate: 0.85,
+        avgCompletionTime: 180000,
+        commonFailureReasons: [],
+        peakUsageHours: [],
+      },
+      userPreferences: {
+        allowAutonomousDecisions: true,
+        maxConcurrentTasks: 8,
+        criticalTaskNotification: true,
+      },
       timestamp: Date.now(),
     };
   }
@@ -1380,9 +1719,12 @@ export class ParallelOptimizer {
     actualDuration: number,
     estimatedDuration: number,
     success: boolean,
-    bottlenecks: string[] = []
+    bottlenecks: string[] = [],
   ): void {
-    const efficiency = estimatedDuration > 0 ? Math.min(actualDuration / estimatedDuration, 2) : 1;
+    const efficiency =
+      estimatedDuration > 0
+        ? Math.min(actualDuration / estimatedDuration, 2)
+        : 1;
 
     const history: ParallelExecutionHistory = {
       groupId,
@@ -1434,8 +1776,10 @@ export class ParallelOptimizer {
 
     return {
       totalOptimizations: count,
-      averageParallelizationFactor: count > 0 ? avgParallelization / count / this.config.maxConcurrency : 0,
-      resourceUtilizationEfficiency: count > 0 ? avgResourceEfficiency / count : 0,
+      averageParallelizationFactor:
+        count > 0 ? avgParallelization / count / this.config.maxConcurrency : 0,
+      resourceUtilizationEfficiency:
+        count > 0 ? avgResourceEfficiency / count : 0,
       learningModelSize: this.learningModel.size,
       executionHistorySize: this.executionHistory.size,
     };
@@ -1448,23 +1792,30 @@ export class ParallelOptimizer {
     this.config.resourcePools = new Map(pools);
     logger.info('Resource pools updated', {
       poolCount: pools.size,
-      totalCapacity: Array.from(pools.values()).reduce((sum, p) => sum + p.capacity, 0),
+      totalCapacity: Array.from(pools.values()).reduce(
+        (sum, p) => sum + p.capacity,
+        0,
+      ),
     });
   }
 
   /**
    * Get current resource utilization
    */
-  getCurrentResourceUtilization(): Map<string, {
-    pool: ResourcePool;
-    utilization: number;
-    predictions: number;
-  }> {
+  getCurrentResourceUtilization(): Map<
+    string,
+    {
+      pool: ResourcePool;
+      utilization: number;
+      predictions: number;
+    }
+  > {
     const utilization = new Map();
 
     for (const [name, pool] of this.config.resourcePools) {
       const currentUtilization = pool.allocated / pool.capacity;
-      const prediction = this.resourcePredictions.get(name) || currentUtilization;
+      const prediction =
+        this.resourcePredictions.get(name) || currentUtilization;
 
       utilization.set(name, {
         pool: { ...pool },
@@ -1483,15 +1834,18 @@ export class ParallelOptimizer {
 export const ParallelOptimizationConfigSchema = z.object({
   strategy: z.nativeEnum(ParallelStrategy),
   maxConcurrency: z.number().min(1).max(32),
-  resourcePools: z.map(z.string(), z.object({
-    name: z.string(),
-    capacity: z.number().min(0),
-    allocated: z.number().min(0),
-    tags: z.array(z.string()),
-    shareable: z.boolean(),
-    costPerUnit: z.number().min(0).optional(),
-    priorityMultiplier: z.number().min(0).max(2),
-  })),
+  resourcePools: z.map(
+    z.string(),
+    z.object({
+      name: z.string(),
+      capacity: z.number().min(0),
+      allocated: z.number().min(0),
+      tags: z.array(z.string()),
+      shareable: z.boolean(),
+      costPerUnit: z.number().min(0).optional(),
+      priorityMultiplier: z.number().min(0).max(2),
+    }),
+  ),
   enableDynamicRebalancing: z.boolean(),
   targetResourceUtilization: z.number().min(0).max(1),
   minTaskDurationForParallelization: z.number().min(0),

@@ -231,7 +231,16 @@ export interface DecisionCondition {
   field: string;
 
   /** Operator for comparison */
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'in' | 'regex';
+  operator:
+    | 'eq'
+    | 'ne'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'contains'
+    | 'in'
+    | 'regex';
 
   /** Value to compare against */
   value: unknown;
@@ -245,7 +254,13 @@ export interface DecisionCondition {
  */
 export interface DecisionAction {
   /** Type of action to perform */
-  type: 'set_priority' | 'assign_agent' | 'allocate_resource' | 'escalate' | 'defer' | 'reject';
+  type:
+    | 'set_priority'
+    | 'assign_agent'
+    | 'allocate_resource'
+    | 'escalate'
+    | 'defer'
+    | 'reject';
 
   /** Parameters for the action */
   parameters: Record<string, unknown>;
@@ -321,7 +336,13 @@ export const DecisionContextSchema = z.object({
     lastBuildTime: z.number().optional(),
     buildStatus: z.enum(['success', 'failed', 'in-progress', 'unknown']),
     testStatus: z.enum(['passing', 'failing', 'in-progress', 'unknown']),
-    lintStatus: z.enum(['clean', 'warnings', 'errors', 'in-progress', 'unknown']),
+    lintStatus: z.enum([
+      'clean',
+      'warnings',
+      'errors',
+      'in-progress',
+      'unknown',
+    ]),
     gitStatus: z.enum(['clean', 'modified', 'conflicted', 'unknown']),
   }),
   budgetContext: z.object({
@@ -340,10 +361,12 @@ export const DecisionContextSchema = z.object({
   userPreferences: z.object({
     allowAutonomousDecisions: z.boolean(),
     maxConcurrentTasks: z.number().min(1),
-    preferredWorkingHours: z.object({
-      start: z.number().min(0).max(23),
-      end: z.number().min(0).max(23),
-    }).optional(),
+    preferredWorkingHours: z
+      .object({
+        start: z.number().min(0).max(23),
+        end: z.number().min(0).max(23),
+      })
+      .optional(),
     criticalTaskNotification: z.boolean(),
   }),
   timestamp: z.number(),
@@ -365,11 +388,13 @@ export const DecisionSchema = z.object({
   }),
   context: DecisionContextSchema,
   requiresApproval: z.boolean(),
-  alternatives: z.array(z.object({
-    choice: z.string(),
-    score: z.number(),
-    reasoning: z.string(),
-  })),
+  alternatives: z.array(
+    z.object({
+      choice: z.string(),
+      score: z.number(),
+      reasoning: z.string(),
+    }),
+  ),
 });
 
 export const DecisionOutcomeSchema = z.object({

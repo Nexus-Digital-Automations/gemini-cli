@@ -61,12 +61,14 @@ ping -c 3 generativelanguage.googleapis.com
 ### Issue: "Command not found: gemini"
 
 **Symptoms:**
+
 - `gemini: command not found` error
 - CLI installed but not accessible
 
 **Solutions:**
 
 1. **Global Installation Check**
+
    ```bash
    # Check if globally installed
    npm list -g @google/gemini-cli
@@ -79,6 +81,7 @@ ping -c 3 generativelanguage.googleapis.com
    ```
 
 2. **PATH Configuration**
+
    ```bash
    # Add npm global bin to PATH (bash/zsh)
    echo 'export PATH="$(npm config get prefix)/bin:$PATH"' >> ~/.bashrc
@@ -102,6 +105,7 @@ ping -c 3 generativelanguage.googleapis.com
 **Solutions:**
 
 1. **Clear cached credentials**
+
    ```bash
    rm -rf ~/.gemini/credentials/
    gemini --auth --force-reauth
@@ -118,6 +122,7 @@ ping -c 3 generativelanguage.googleapis.com
 **Solutions:**
 
 1. **API Key Validation**
+
    ```bash
    # Verify API key format
    echo $GEMINI_API_KEY | wc -c  # Should be 40+ characters
@@ -134,6 +139,7 @@ ping -c 3 generativelanguage.googleapis.com
 **Solutions:**
 
 1. **Clean Build Process**
+
    ```bash
    # Clean everything
    npm run clean
@@ -153,6 +159,7 @@ ping -c 3 generativelanguage.googleapis.com
 **Solutions:**
 
 1. **Permission Fixes**
+
    ```bash
    # Check file permissions
    ls -la path/to/file

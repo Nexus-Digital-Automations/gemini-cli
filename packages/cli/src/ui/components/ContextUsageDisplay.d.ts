@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export declare const ContextUsageDisplay: ({ promptTokenCount, model, }: {
-    promptTokenCount: number;
-    model: string;
-}) => import("react/jsx-runtime").JSX.Element;
+export declare const ContextUsageDisplay: ({
+  promptTokenCount,
+  model,
+}: {
+  promptTokenCount: number;
+  model: string;
+}) => import('react/jsx-runtime').JSX.Element;

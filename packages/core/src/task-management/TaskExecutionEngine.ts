@@ -8,7 +8,11 @@ import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
 import type { TaskCategory } from './types.js';
-import { SubAgentScope, ContextState, SubagentTerminateMode } from '../core/subagent.js';
+import {
+  SubAgentScope,
+  ContextState,
+  SubagentTerminateMode,
+} from '../core/subagent.js';
 import { CoreToolScheduler } from '../core/coreToolScheduler.js';
 import { Turn, type ToolCallRequestInfo } from '../core/turn.js';
 import { GeminiChat } from '../core/geminiChat.js';
@@ -27,61 +31,61 @@ import * as path from 'node:path';
  * Task complexity levels determine breakdown strategy and resource allocation
  */
 export enum TaskComplexity {
-  TRIVIAL = 'trivial',           // Single-step, minimal resources
-  SIMPLE = 'simple',             // Few steps, basic validation
-  MODERATE = 'moderate',         // Multi-step, some dependencies
-  COMPLEX = 'complex',           // Many steps, complex dependencies
-  ENTERPRISE = 'enterprise'      // Highly complex, extensive coordination
+  TRIVIAL = 'trivial', // Single-step, minimal resources
+  SIMPLE = 'simple', // Few steps, basic validation
+  MODERATE = 'moderate', // Multi-step, some dependencies
+  COMPLEX = 'complex', // Many steps, complex dependencies
+  ENTERPRISE = 'enterprise', // Highly complex, extensive coordination
 }
 
 /**
  * Task execution status lifecycle
  */
 export enum TaskStatus {
-  QUEUED = 'queued',             // Task created, waiting for analysis
-  ANALYZED = 'analyzed',         // Breakdown complete, dependencies identified
-  ASSIGNED = 'assigned',         // Assigned to execution engine/agent
-  IN_PROGRESS = 'in_progress',   // Actively executing
-  BLOCKED = 'blocked',           // Waiting for dependencies or resources
-  VALIDATION = 'validation',     // Executing validation steps
-  COMPLETED = 'completed',       // Successfully completed
-  FAILED = 'failed',             // Failed execution
-  CANCELLED = 'cancelled'        // Cancelled by user or system
+  QUEUED = 'queued', // Task created, waiting for analysis
+  ANALYZED = 'analyzed', // Breakdown complete, dependencies identified
+  ASSIGNED = 'assigned', // Assigned to execution engine/agent
+  IN_PROGRESS = 'in_progress', // Actively executing
+  BLOCKED = 'blocked', // Waiting for dependencies or resources
+  VALIDATION = 'validation', // Executing validation steps
+  COMPLETED = 'completed', // Successfully completed
+  FAILED = 'failed', // Failed execution
+  CANCELLED = 'cancelled', // Cancelled by user or system
 }
 
 /**
  * Task priority levels for execution scheduling
  */
 export enum TaskPriority {
-  CRITICAL = 'critical',         // Emergency fixes, blocking issues
-  HIGH = 'high',                 // Important features, major bugs
-  NORMAL = 'normal',             // Standard development work
-  LOW = 'low'                    // Nice-to-have, cleanup tasks
+  CRITICAL = 'critical', // Emergency fixes, blocking issues
+  HIGH = 'high', // Important features, major bugs
+  NORMAL = 'normal', // Standard development work
+  LOW = 'low', // Nice-to-have, cleanup tasks
 }
 
 /**
  * Task types for specialized handling and agent assignment
  */
 export enum TaskType {
-  IMPLEMENTATION = 'implementation',  // Code implementation
-  TESTING = 'testing',               // Test creation/execution
-  VALIDATION = 'validation',         // Quality assurance
-  DOCUMENTATION = 'documentation',   // Documentation creation
-  ANALYSIS = 'analysis',             // Research and analysis
-  DEPLOYMENT = 'deployment',         // Deployment and operations
-  SECURITY = 'security',             // Security assessment/fixes
-  PERFORMANCE = 'performance'        // Performance optimization
+  IMPLEMENTATION = 'implementation', // Code implementation
+  TESTING = 'testing', // Test creation/execution
+  VALIDATION = 'validation', // Quality assurance
+  DOCUMENTATION = 'documentation', // Documentation creation
+  ANALYSIS = 'analysis', // Research and analysis
+  DEPLOYMENT = 'deployment', // Deployment and operations
+  SECURITY = 'security', // Security assessment/fixes
+  PERFORMANCE = 'performance', // Performance optimization
 }
 
 /**
  * Dependency types for task orchestration
  */
 export enum DependencyType {
-  HARD = 'hard',                 // Must complete before dependent task starts
-  SOFT = 'soft',                 // Preferred order, can run in parallel if needed
-  RESOURCE = 'resource',         // Shared resource dependency
-  DATA = 'data',                 // Data flow dependency
-  VALIDATION = 'validation'      // Validation dependency
+  HARD = 'hard', // Must complete before dependent task starts
+  SOFT = 'soft', // Preferred order, can run in parallel if needed
+  RESOURCE = 'resource', // Shared resource dependency
+  DATA = 'data', // Data flow dependency
+  VALIDATION = 'validation', // Validation dependency
 }
 
 /**
@@ -96,7 +100,7 @@ export enum AgentCapability {
   PERFORMANCE = 'performance',
   ANALYSIS = 'analysis',
   VALIDATION = 'validation',
-  DEPLOYMENT = 'deployment'
+  DEPLOYMENT = 'deployment',
 }
 
 /**
@@ -151,7 +155,7 @@ export interface Task {
 
   // Execution state
   status: TaskStatus;
-  progress: number;                    // 0-100 completion percentage
+  progress: number; // 0-100 completion percentage
 
   // Assignment and capabilities
   assignedAgent?: string;
@@ -160,7 +164,7 @@ export interface Task {
   // Breakdown and dependencies
   parentTaskId?: string;
   subtaskIds: string[];
-  dependencies: string[];              // Task IDs this depends on
+  dependencies: string[]; // Task IDs this depends on
 
   // Execution configuration
   maxExecutionTimeMinutes: number;
@@ -214,49 +218,91 @@ export class TaskBreakdownAnalyzer {
   /**
    * Analyzes task complexity using multiple heuristics
    */
-  async analyzeComplexity(title: string, description: string): Promise<TaskComplexity> {
+  async analyzeComplexity(
+    title: string,
+    description: string,
+  ): Promise<TaskComplexity> {
     // Keyword-based complexity analysis
     const complexityKeywords = {
       [TaskComplexity.ENTERPRISE]: [
-        'multi-agent', 'distributed', 'enterprise', 'scalable architecture',
-        'microservices', 'orchestration', 'comprehensive system'
+        'multi-agent',
+        'distributed',
+        'enterprise',
+        'scalable architecture',
+        'microservices',
+        'orchestration',
+        'comprehensive system',
       ],
       [TaskComplexity.COMPLEX]: [
-        'framework', 'architecture', 'integration', 'algorithm', 'optimization',
-        'real-time', 'concurrent', 'multi-threading', 'distributed'
+        'framework',
+        'architecture',
+        'integration',
+        'algorithm',
+        'optimization',
+        'real-time',
+        'concurrent',
+        'multi-threading',
+        'distributed',
       ],
       [TaskComplexity.MODERATE]: [
-        'feature', 'component', 'service', 'api', 'database', 'frontend',
-        'backend', 'testing', 'validation', 'monitoring'
+        'feature',
+        'component',
+        'service',
+        'api',
+        'database',
+        'frontend',
+        'backend',
+        'testing',
+        'validation',
+        'monitoring',
       ],
       [TaskComplexity.SIMPLE]: [
-        'fix', 'update', 'modify', 'enhance', 'improve', 'refactor', 'cleanup'
+        'fix',
+        'update',
+        'modify',
+        'enhance',
+        'improve',
+        'refactor',
+        'cleanup',
       ],
       [TaskComplexity.TRIVIAL]: [
-        'typo', 'comment', 'documentation', 'format', 'style', 'lint'
-      ]
+        'typo',
+        'comment',
+        'documentation',
+        'format',
+        'style',
+        'lint',
+      ],
     };
 
     const text = `${title} ${description}`.toLowerCase();
 
     // Score based on keyword matches
-    const scores = Object.entries(complexityKeywords).map(([complexity, keywords]) => {
-      const matches = keywords.filter(keyword => text.includes(keyword.toLowerCase())).length;
-      return { complexity: complexity as TaskComplexity, score: matches };
-    });
+    const scores = Object.entries(complexityKeywords).map(
+      ([complexity, keywords]) => {
+        const matches = keywords.filter((keyword) =>
+          text.includes(keyword.toLowerCase()),
+        ).length;
+        return { complexity: complexity as TaskComplexity, score: matches };
+      },
+    );
 
     // Length-based heuristics
     const descriptionLength = description.length;
     let lengthComplexity = TaskComplexity.SIMPLE;
 
     if (descriptionLength > 2000) lengthComplexity = TaskComplexity.ENTERPRISE;
-    else if (descriptionLength > 1000) lengthComplexity = TaskComplexity.COMPLEX;
-    else if (descriptionLength > 500) lengthComplexity = TaskComplexity.MODERATE;
+    else if (descriptionLength > 1000)
+      lengthComplexity = TaskComplexity.COMPLEX;
+    else if (descriptionLength > 500)
+      lengthComplexity = TaskComplexity.MODERATE;
     else if (descriptionLength > 100) lengthComplexity = TaskComplexity.SIMPLE;
     else lengthComplexity = TaskComplexity.TRIVIAL;
 
     // Get highest scoring complexity or use length-based fallback
-    const topScore = scores.reduce((max, curr) => curr.score > max.score ? curr : max);
+    const topScore = scores.reduce((max, curr) =>
+      curr.score > max.score ? curr : max,
+    );
 
     return topScore.score > 0 ? topScore.complexity : lengthComplexity;
   }
@@ -282,31 +328,34 @@ export class TaskBreakdownAnalyzer {
       'task-breakdown-analyzer',
       this.config,
       {
-        systemPrompt: breakdownPrompt
+        systemPrompt: breakdownPrompt,
       },
       {
         model: this.config.getModel(),
-        temp: 0.3,  // Lower temperature for more structured output
-        top_p: 0.9
+        temp: 0.3, // Lower temperature for more structured output
+        top_p: 0.9,
       },
       {
-        max_time_minutes: 5,  // Quick analysis
-        max_turns: 10
+        max_time_minutes: 5, // Quick analysis
+        max_turns: 10,
       },
       {
         toolConfig: {
-          tools: ['AnalyzeComplexity', 'CreateSubtask', 'IdentifyDependencies']
+          tools: ['AnalyzeComplexity', 'CreateSubtask', 'IdentifyDependencies'],
         },
         outputConfig: {
           outputs: {
-            'subtasks_json': 'JSON array of subtask objects with id, title, description, type, complexity, estimated_duration_minutes',
-            'dependencies_json': 'JSON array of dependency objects with taskId, dependsOnTaskId, type, description',
-            'total_duration': 'Total estimated duration in minutes for all subtasks',
-            'required_capabilities': 'JSON array of required agent capabilities',
-            'risks': 'JSON array of potential risks and mitigation strategies'
-          }
-        }
-      }
+            subtasks_json:
+              'JSON array of subtask objects with id, title, description, type, complexity, estimated_duration_minutes',
+            dependencies_json:
+              'JSON array of dependency objects with taskId, dependsOnTaskId, type, description',
+            total_duration:
+              'Total estimated duration in minutes for all subtasks',
+            required_capabilities: 'JSON array of required agent capabilities',
+            risks: 'JSON array of potential risks and mitigation strategies',
+          },
+        },
+      },
     );
 
     await breakdownAgent.runNonInteractive(context);
@@ -315,9 +364,13 @@ export class TaskBreakdownAnalyzer {
     const outputs = breakdownAgent.output.emitted_vars;
 
     const subtasks = this.parseSubtasks(outputs.subtasks_json || '[]');
-    const dependencies = this.parseDependencies(outputs.dependencies_json || '[]');
+    const dependencies = this.parseDependencies(
+      outputs.dependencies_json || '[]',
+    );
     const estimatedDurationMinutes = parseInt(outputs.total_duration || '60');
-    const requiredCapabilities = JSON.parse(outputs.required_capabilities || '[]');
+    const requiredCapabilities = JSON.parse(
+      outputs.required_capabilities || '[]',
+    );
     const risksAndMitigation = JSON.parse(outputs.risks || '[]');
 
     return {
@@ -325,7 +378,7 @@ export class TaskBreakdownAnalyzer {
       dependencies,
       estimatedDurationMinutes,
       requiredCapabilities,
-      risksAndMitigation
+      risksAndMitigation,
     };
   }
 
@@ -353,7 +406,10 @@ export class TaskBreakdownAnalyzer {
   /**
    * Generates AI prompt for task breakdown based on complexity and type
    */
-  private generateBreakdownPrompt(complexity: TaskComplexity, type: TaskType): string {
+  private generateBreakdownPrompt(
+    complexity: TaskComplexity,
+    type: TaskType,
+  ): string {
     return `You are an expert task breakdown analyst specializing in software development project management.
 
 Your task is to analyze the given task (complexity: ${complexity}, type: ${type}) and break it down into manageable subtasks.
@@ -457,7 +513,9 @@ Focus on creating a practical, executable breakdown that enables efficient auton
   private createTaskFromData(data: any): Task {
     const now = new Date();
     return {
-      id: data.id || `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id:
+        data.id ||
+        `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       title: data.title || 'Untitled Task',
       description: data.description || '',
       type: data.type || TaskType.IMPLEMENTATION,
@@ -474,7 +532,7 @@ Focus on creating a practical, executable breakdown that enables efficient auton
       expectedOutputs: data.expected_outputs || {},
       createdAt: now,
       updatedAt: now,
-      retryCount: 0
+      retryCount: 0,
     };
   }
 
@@ -494,16 +552,19 @@ Focus on creating a practical, executable breakdown that enables efficient auton
         taskId: task1.id,
         dependsOnTaskId: task2.id,
         type: DependencyType.HARD,
-        description: 'Testing depends on implementation completion'
+        description: 'Testing depends on implementation completion',
       };
     }
 
-    if (task1Text.includes('deploy') && (task2Text.includes('test') || task2Text.includes('validate'))) {
+    if (
+      task1Text.includes('deploy') &&
+      (task2Text.includes('test') || task2Text.includes('validate'))
+    ) {
       return {
         taskId: task1.id,
         dependsOnTaskId: task2.id,
         type: DependencyType.HARD,
-        description: 'Deployment depends on testing/validation'
+        description: 'Deployment depends on testing/validation',
       };
     }
 
@@ -512,7 +573,7 @@ Focus on creating a practical, executable breakdown that enables efficient auton
         taskId: task1.id,
         dependsOnTaskId: task2.id,
         type: DependencyType.SOFT,
-        description: 'Documentation should follow implementation'
+        description: 'Documentation should follow implementation',
       };
     }
 
@@ -543,7 +604,7 @@ export class TaskExecutionEngine {
       onTaskStatusChange?: (task: Task) => void;
       onTaskComplete?: (task: Task) => void;
       onTaskFailed?: (task: Task, error: string) => void;
-    }
+    },
   ) {
     this.config = config;
     this.toolRegistry = config.getToolRegistry();
@@ -567,13 +628,16 @@ export class TaskExecutionEngine {
       expectedOutputs: Record<string, string>;
       context: Record<string, unknown>;
       maxExecutionTimeMinutes: number;
-    }> = {}
+    }> = {},
   ): Promise<string> {
     // Create initial task
     const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date();
 
-    const complexity = await this.breakdownAnalyzer.analyzeComplexity(title, description);
+    const complexity = await this.breakdownAnalyzer.analyzeComplexity(
+      title,
+      description,
+    );
 
     const task: Task = {
       id: taskId,
@@ -587,13 +651,15 @@ export class TaskExecutionEngine {
       requiredCapabilities: [], // Will be determined during breakdown
       subtaskIds: [],
       dependencies: [],
-      maxExecutionTimeMinutes: options.maxExecutionTimeMinutes || this.getDefaultExecutionTime(complexity),
+      maxExecutionTimeMinutes:
+        options.maxExecutionTimeMinutes ||
+        this.getDefaultExecutionTime(complexity),
       maxRetries: 3,
       context: options.context || {},
       expectedOutputs: options.expectedOutputs || {},
       createdAt: now,
       updatedAt: now,
-      retryCount: 0
+      retryCount: 0,
     };
 
     this.taskQueue.set(taskId, task);
@@ -630,15 +696,18 @@ export class TaskExecutionEngine {
 
       // Update task with breakdown results
       task.requiredCapabilities = breakdown.requiredCapabilities;
-      task.maxExecutionTimeMinutes = Math.max(task.maxExecutionTimeMinutes, breakdown.estimatedDurationMinutes);
+      task.maxExecutionTimeMinutes = Math.max(
+        task.maxExecutionTimeMinutes,
+        breakdown.estimatedDurationMinutes,
+      );
 
       this.updateTaskStatus(task, TaskStatus.ASSIGNED);
 
       // Schedule for execution
       await this.scheduleTaskExecution(taskId);
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.handleTaskError(task, `Breakdown analysis failed: ${errorMessage}`);
     }
   }
@@ -684,7 +753,7 @@ export class TaskExecutionEngine {
         toolCallsCount: 0,
         subAgentCount: 1,
         errorCount: 0,
-        retryCount: task.retryCount
+        retryCount: task.retryCount,
       };
 
       // Create execution context
@@ -696,29 +765,29 @@ export class TaskExecutionEngine {
         `task-executor-${task.type}`,
         this.config,
         {
-          systemPrompt: this.generateExecutionPrompt(task)
+          systemPrompt: this.generateExecutionPrompt(task),
         },
         {
           model: this.config.getModel(),
           temp: 0.7,
-          top_p: 0.9
+          top_p: 0.9,
         },
         {
           max_time_minutes: task.maxExecutionTimeMinutes,
-          max_turns: 50
+          max_turns: 50,
         },
         {
           toolConfig: {
-            tools: this.getToolsForTask(task)
+            tools: this.getToolsForTask(task),
           },
           outputConfig: {
-            outputs: task.expectedOutputs
+            outputs: task.expectedOutputs,
           },
           onMessage: (message) => {
             // Update progress based on message analysis
             this.updateTaskProgress(task, message);
-          }
-        }
+          },
+        },
       );
 
       const executionContext: TaskExecutionContext = {
@@ -727,7 +796,7 @@ export class TaskExecutionEngine {
         config: this.config,
         parentContext: context,
         dependencies: this.getDependencyTasks(taskId),
-        availableAgents: []  // TODO: Implement agent discovery
+        availableAgents: [], // TODO: Implement agent discovery
       };
 
       this.runningTasks.set(taskId, executionContext);
@@ -757,15 +826,14 @@ export class TaskExecutionEngine {
 
         // Schedule dependent tasks
         await this.scheduleDependentTasks(taskId);
-
       } else {
         // Task failed or timed out
         const errorMessage = `Task terminated with reason: ${result.terminate_reason}`;
         await this.handleTaskFailure(task, errorMessage);
       }
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       await this.handleTaskFailure(task, errorMessage);
     }
   }
@@ -773,7 +841,10 @@ export class TaskExecutionEngine {
   /**
    * Handles task execution failures with retry logic
    */
-  private async handleTaskFailure(task: Task, errorMessage: string): Promise<void> {
+  private async handleTaskFailure(
+    task: Task,
+    errorMessage: string,
+  ): Promise<void> {
     task.lastError = errorMessage;
     task.retryCount++;
 
@@ -806,11 +877,16 @@ export class TaskExecutionEngine {
    */
   private getDefaultExecutionTime(complexity: TaskComplexity): number {
     switch (complexity) {
-      case TaskComplexity.TRIVIAL: return 10;
-      case TaskComplexity.SIMPLE: return 30;
-      case TaskComplexity.MODERATE: return 60;
-      case TaskComplexity.COMPLEX: return 120;
-      case TaskComplexity.ENTERPRISE: return 300;
+      case TaskComplexity.TRIVIAL:
+        return 10;
+      case TaskComplexity.SIMPLE:
+        return 30;
+      case TaskComplexity.MODERATE:
+        return 60;
+      case TaskComplexity.COMPLEX:
+        return 120;
+      case TaskComplexity.ENTERPRISE:
+        return 300;
     }
   }
 

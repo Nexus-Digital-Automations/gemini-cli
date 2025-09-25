@@ -18,7 +18,7 @@ import type {
   ResourceConstraint,
   TaskExecutionContext,
   TaskMetadata,
-  ResourceAllocation
+  ResourceAllocation,
 } from '../../types.js';
 import type { Config } from '../../../config/config.js';
 
@@ -55,12 +55,12 @@ export class TestFactories {
         updatedAt: createdAt,
         createdBy: 'test-factory',
         estimatedDuration: 60000, // 1 minute
-        tags: ['test', 'generated']
+        tags: ['test', 'generated'],
       },
       executionContext: {
         timeout: 300000,
-        maxRetries: 3
-      }
+        maxRetries: 3,
+      },
     };
 
     // Recursively merge overrides
@@ -70,17 +70,36 @@ export class TestFactories {
   /**
    * Creates multiple mock tasks with varied properties
    */
-  static createMockTasks(count: number, baseOverrides: Partial<Task> = {}): Task[] {
+  static createMockTasks(
+    count: number,
+    baseOverrides: Partial<Task> = {},
+  ): Task[] {
     const tasks: Task[] = [];
     const priorities: TaskPriority[] = ['low', 'medium', 'high', 'critical'];
-    const categories: TaskCategory[] = ['implementation', 'testing', 'documentation', 'analysis', 'refactoring', 'deployment'];
-    const statuses: TaskStatus[] = ['pending', 'ready', 'in_progress', 'completed', 'failed', 'blocked'];
+    const categories: TaskCategory[] = [
+      'implementation',
+      'testing',
+      'documentation',
+      'analysis',
+      'refactoring',
+      'deployment',
+    ];
+    const statuses: TaskStatus[] = [
+      'pending',
+      'ready',
+      'in_progress',
+      'completed',
+      'failed',
+      'blocked',
+    ];
 
     for (let i = 0; i < count; i++) {
       const overrides = {
         ...baseOverrides,
         title: baseOverrides.title || `Generated Task ${i + 1}`,
-        description: baseOverrides.description || `Generated task number ${i + 1} for testing purposes`,
+        description:
+          baseOverrides.description ||
+          `Generated task number ${i + 1} for testing purposes`,
         priority: baseOverrides.priority || priorities[i % priorities.length],
         category: baseOverrides.category || categories[i % categories.length],
         status: baseOverrides.status || statuses[i % statuses.length],
@@ -88,8 +107,11 @@ export class TestFactories {
           ...baseOverrides.metadata,
           createdAt: new Date(Date.now() - Math.random() * 86400000), // Random time in last 24 hours
           estimatedDuration: (30 + Math.random() * 300) * 1000, // 30 seconds to 5 minutes
-          tags: baseOverrides.metadata?.tags || [`batch-${Math.floor(i / 10)}`, 'generated']
-        }
+          tags: baseOverrides.metadata?.tags || [
+            `batch-${Math.floor(i / 10)}`,
+            'generated',
+          ],
+        },
       };
 
       tasks.push(this.createMockTask(overrides));
@@ -104,7 +126,7 @@ export class TestFactories {
   static createMockDependency(
     dependentTaskId: string,
     dependsOnTaskId: string,
-    overrides: Partial<TaskDependency> = {}
+    overrides: Partial<TaskDependency> = {},
   ): TaskDependency {
     return {
       dependentTaskId,
@@ -112,7 +134,7 @@ export class TestFactories {
       type: 'hard',
       reason: 'Generated test dependency',
       parallelizable: false,
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -122,7 +144,7 @@ export class TestFactories {
   static createMockDependencyGraph(
     tasks: Task[],
     dependencies: TaskDependency[],
-    overrides: Partial<DependencyGraph> = {}
+    overrides: Partial<DependencyGraph> = {},
   ): DependencyGraph {
     const nodes = new Map();
 
@@ -131,14 +153,15 @@ export class TestFactories {
       nodes.set(task.id, {
         taskId: task.id,
         dependencies: dependencies
-          .filter(dep => dep.dependentTaskId === task.id)
-          .map(dep => dep.dependsOnTaskId),
+          .filter((dep) => dep.dependentTaskId === task.id)
+          .map((dep) => dep.dependsOnTaskId),
         dependents: dependencies
-          .filter(dep => dep.dependsOnTaskId === task.id)
-          .map(dep => dep.dependentTaskId),
+          .filter((dep) => dep.dependsOnTaskId === task.id)
+          .map((dep) => dep.dependentTaskId),
         dependencyRelations: dependencies.filter(
-          dep => dep.dependentTaskId === task.id || dep.dependsOnTaskId === task.id
-        )
+          (dep) =>
+            dep.dependentTaskId === task.id || dep.dependsOnTaskId === task.id,
+        ),
       });
     }
 
@@ -151,8 +174,8 @@ export class TestFactories {
         hasCycles: false, // Would need actual cycle detection
         maxDepth: 0, // Would need actual depth calculation
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     };
 
     return this.deepMerge(baseGraph, overrides);
@@ -164,7 +187,7 @@ export class TestFactories {
   static createMockTaskResult(
     taskId: string,
     success: boolean = true,
-    overrides: Partial<TaskResult> = {}
+    overrides: Partial<TaskResult> = {},
   ): TaskResult {
     const now = new Date();
     const startTime = new Date(now.getTime() - 60000); // 1 minute ago
@@ -172,26 +195,36 @@ export class TestFactories {
     const baseResult: TaskResult = {
       taskId,
       success,
-      output: success ? { result: 'Task completed successfully', data: 'mock output' } : undefined,
-      error: success ? undefined : {
-        message: 'Mock task failure',
-        code: 'MOCK_ERROR',
-        details: { reason: 'Simulated failure for testing' }
-      },
+      output: success
+        ? { result: 'Task completed successfully', data: 'mock output' }
+        : undefined,
+      error: success
+        ? undefined
+        : {
+            message: 'Mock task failure',
+            code: 'MOCK_ERROR',
+            details: { reason: 'Simulated failure for testing' },
+          },
       metrics: {
         startTime,
         endTime: now,
         duration: now.getTime() - startTime.getTime(),
         memoryUsage: Math.floor(Math.random() * 50) + 10, // 10-60 MB
-        cpuUsage: Math.floor(Math.random() * 80) + 5 // 5-85%
+        cpuUsage: Math.floor(Math.random() * 80) + 5, // 5-85%
       },
       artifacts: success ? [`output_${taskId}.json`, `log_${taskId}.txt`] : [],
-      validationResults: success ? [
-        { criterion: 'output_format', passed: true },
-        { criterion: 'execution_time', passed: true }
-      ] : [
-        { criterion: 'basic_validation', passed: false, message: 'Task failed validation' }
-      ]
+      validationResults: success
+        ? [
+            { criterion: 'output_format', passed: true },
+            { criterion: 'execution_time', passed: true },
+          ]
+        : [
+            {
+              criterion: 'basic_validation',
+              passed: false,
+              message: 'Task failed validation',
+            },
+          ],
     };
 
     return this.deepMerge(baseResult, overrides);
@@ -200,7 +233,9 @@ export class TestFactories {
   /**
    * Creates mock resource constraints
    */
-  static createMockResourceConstraints(count: number = 3): ResourceConstraint[] {
+  static createMockResourceConstraints(
+    count: number = 3,
+  ): ResourceConstraint[] {
     const resourceTypes = ['cpu', 'memory', 'network', 'disk', 'gpu'];
     const constraints: ResourceConstraint[] = [];
 
@@ -210,7 +245,7 @@ export class TestFactories {
         resourceType,
         maxUnits: Math.floor(Math.random() * 8) + 1, // 1-8 units
         exclusive: Math.random() > 0.8, // 20% chance of being exclusive
-        tags: [`pool-${Math.floor(Math.random() * 3)}`, resourceType]
+        tags: [`pool-${Math.floor(Math.random() * 3)}`, resourceType],
       });
     }
 
@@ -222,9 +257,9 @@ export class TestFactories {
    */
   static createMockExecutionSequence(
     tasks: Task[],
-    overrides: Partial<ExecutionSequence> = {}
+    overrides: Partial<ExecutionSequence> = {},
   ): ExecutionSequence {
-    const sequence = tasks.map(t => t.id);
+    const sequence = tasks.map((t) => t.id);
     const parallelGroups = this.createRandomParallelGroups(sequence);
     const criticalPath = sequence.slice(0, Math.min(3, sequence.length));
 
@@ -232,14 +267,16 @@ export class TestFactories {
       sequence,
       parallelGroups,
       criticalPath,
-      estimatedDuration: tasks.reduce((sum, task) =>
-        sum + (task.metadata.estimatedDuration || 60000), 0),
+      estimatedDuration: tasks.reduce(
+        (sum, task) => sum + (task.metadata.estimatedDuration || 60000),
+        0,
+      ),
       metadata: {
         algorithm: 'mock_scheduler',
         generatedAt: new Date(),
         factors: ['priority', 'dependencies', 'resources'],
-        constraints: ['resource_limits', 'deadlines']
-      }
+        constraints: ['resource_limits', 'deadlines'],
+      },
     };
 
     return this.deepMerge(baseSequence, overrides);
@@ -251,7 +288,7 @@ export class TestFactories {
   static createMockResourceAllocation(
     taskId: string,
     resources: ResourceConstraint[],
-    overrides: Partial<ResourceAllocation> = {}
+    overrides: Partial<ResourceAllocation> = {},
   ): ResourceAllocation {
     const allocatedResources = new Map<string, number>();
     const poolAssignments: string[] = [];
@@ -266,7 +303,7 @@ export class TestFactories {
       allocatedResources,
       poolAssignments,
       allocatedAt: new Date(),
-      expectedReleaseAt: new Date(Date.now() + 300000) // 5 minutes from now
+      expectedReleaseAt: new Date(Date.now() + 300000), // 5 minutes from now
     };
 
     return this.deepMerge(baseAllocation, overrides);
@@ -282,11 +319,11 @@ export class TestFactories {
         getTool: vi.fn(),
         getAllTools: vi.fn(() => []),
         getAllToolNames: vi.fn(() => []),
-        getFunctionDeclarationsFiltered: vi.fn(() => [])
+        getFunctionDeclarationsFiltered: vi.fn(() => []),
       })),
       storage: {
         getProjectTempDir: vi.fn(() => '/tmp/test-project'),
-        ensureProjectTempDir: vi.fn()
+        ensureProjectTempDir: vi.fn(),
       } as any,
       getSessionId: vi.fn(() => 'test-session-id'),
       settings: {
@@ -295,11 +332,11 @@ export class TestFactories {
             'taskManagement.maxConcurrentTasks': 5,
             'taskManagement.defaultTimeout': 300000,
             'taskManagement.maxRetries': 3,
-            'monitoring.enabled': true
+            'monitoring.enabled': true,
           };
           return defaults[key];
-        })
-      }
+        }),
+      },
     };
 
     return this.deepMerge(baseConfig, overrides);
@@ -318,7 +355,7 @@ export class TestFactories {
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[1].id),
-          this.createMockDependency(tasks[3].id, tasks[2].id)
+          this.createMockDependency(tasks[3].id, tasks[2].id),
         ];
         return { tasks, dependencies };
       },
@@ -331,7 +368,7 @@ export class TestFactories {
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[0].id),
-          this.createMockDependency(tasks[3].id, tasks[0].id)
+          this.createMockDependency(tasks[3].id, tasks[0].id),
         ];
         return { tasks, dependencies };
       },
@@ -344,7 +381,7 @@ export class TestFactories {
         const dependencies = [
           this.createMockDependency(tasks[3].id, tasks[0].id),
           this.createMockDependency(tasks[3].id, tasks[1].id),
-          this.createMockDependency(tasks[3].id, tasks[2].id)
+          this.createMockDependency(tasks[3].id, tasks[2].id),
         ];
         return { tasks, dependencies };
       },
@@ -358,7 +395,7 @@ export class TestFactories {
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[0].id),
           this.createMockDependency(tasks[3].id, tasks[1].id),
-          this.createMockDependency(tasks[3].id, tasks[2].id)
+          this.createMockDependency(tasks[3].id, tasks[2].id),
         ];
         return { tasks, dependencies };
       },
@@ -380,7 +417,7 @@ export class TestFactories {
           this.createMockDependency(tasks[6].id, tasks[4].id),
           // Layer 3 -> Layer 4
           this.createMockDependency(tasks[7].id, tasks[5].id),
-          this.createMockDependency(tasks[7].id, tasks[6].id)
+          this.createMockDependency(tasks[7].id, tasks[6].id),
         ];
         return { tasks, dependencies };
       },
@@ -393,10 +430,10 @@ export class TestFactories {
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[1].id),
-          this.createMockDependency(tasks[0].id, tasks[2].id) // Creates cycle
+          this.createMockDependency(tasks[0].id, tasks[2].id), // Creates cycle
         ];
         return { tasks, dependencies };
-      }
+      },
     };
   }
 
@@ -408,60 +445,73 @@ export class TestFactories {
       /**
        * High-volume task creation scenario
        */
-      highVolume: (count: number = 1000) => this.createMockTasks(count, {
+      highVolume: (count: number = 1000) =>
+        this.createMockTasks(count, {
           category: 'implementation',
           priority: 'medium',
           metadata: {
             estimatedDuration: 60000, // 1 minute each
-            tags: ['performance-test', 'high-volume']
-          }
+            tags: ['performance-test', 'high-volume'],
+          },
         }),
 
       /**
        * Resource-intensive tasks
        */
-      resourceIntensive: (count: number = 50) => this.createMockTasks(count).map(task => ({
+      resourceIntensive: (count: number = 50) =>
+        this.createMockTasks(count).map((task) => ({
           ...task,
           executionContext: {
             ...task.executionContext,
             resourceConstraints: this.createMockResourceConstraints(5),
-            timeout: 600000 // 10 minutes
-          }
+            timeout: 600000, // 10 minutes
+          },
         })),
 
       /**
        * Mixed priority workload
        */
       mixedPriority: (count: number = 200) => {
-        const priorities: TaskPriority[] = ['critical', 'high', 'medium', 'low'];
+        const priorities: TaskPriority[] = [
+          'critical',
+          'high',
+          'medium',
+          'low',
+        ];
         return this.createMockTasks(count).map((task, index) => ({
           ...task,
           priority: priorities[index % priorities.length],
           metadata: {
             ...task.metadata,
-            estimatedDuration: task.priority === 'critical' ? 30000 :
-                             task.priority === 'high' ? 120000 :
-                             task.priority === 'medium' ? 300000 : 600000
-          }
+            estimatedDuration:
+              task.priority === 'critical'
+                ? 30000
+                : task.priority === 'high'
+                  ? 120000
+                  : task.priority === 'medium'
+                    ? 300000
+                    : 600000,
+          },
         }));
       },
 
       /**
        * Long-running tasks
        */
-      longRunning: (count: number = 20) => this.createMockTasks(count).map(task => ({
+      longRunning: (count: number = 20) =>
+        this.createMockTasks(count).map((task) => ({
           ...task,
           category: 'analysis' as TaskCategory,
           metadata: {
             ...task.metadata,
-            estimatedDuration: (60 + Math.random() * 300) * 60 * 1000 // 1-6 hours
+            estimatedDuration: (60 + Math.random() * 300) * 60 * 1000, // 1-6 hours
           },
           executionContext: {
             ...task.executionContext,
             timeout: 8 * 60 * 60 * 1000, // 8 hours
-            maxRetries: 1
-          }
-        }))
+            maxRetries: 1,
+          },
+        })),
     };
   }
 
@@ -481,17 +531,17 @@ export class TestFactories {
           description: 'Invalid resource constraints',
           executionContext: {
             resourceConstraints: [
-              { resourceType: '', maxUnits: -1 } // Invalid constraint
-            ]
-          }
+              { resourceType: '', maxUnits: -1 }, // Invalid constraint
+            ],
+          },
         }),
         this.createMockTask({
           title: 'Timeout error',
           description: 'Invalid timeout',
           executionContext: {
-            timeout: -1000 // Negative timeout
-          }
-        })
+            timeout: -1000, // Negative timeout
+          },
+        }),
       ],
 
       /**
@@ -502,7 +552,7 @@ export class TestFactories {
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[1].id),
-          this.createMockDependency(tasks[0].id, tasks[2].id)
+          this.createMockDependency(tasks[0].id, tasks[2].id),
         ];
         return { tasks, dependencies };
       },
@@ -510,16 +560,17 @@ export class TestFactories {
       /**
        * Tasks that will timeout during execution
        */
-      timeoutTasks: () => this.createMockTasks(5).map(task => ({
+      timeoutTasks: () =>
+        this.createMockTasks(5).map((task) => ({
           ...task,
           executionContext: {
             ...task.executionContext,
-            timeout: 100 // Very short timeout
+            timeout: 100, // Very short timeout
           },
           metadata: {
             ...task.metadata,
-            estimatedDuration: 10000 // Much longer than timeout
-          }
+            estimatedDuration: 10000, // Much longer than timeout
+          },
         })),
 
       /**
@@ -529,10 +580,10 @@ export class TestFactories {
         const tasks = this.createMockTasks(3);
         const dependencies = [
           this.createMockDependency(tasks[0].id, 'non-existent-task-id'),
-          this.createMockDependency('another-non-existent-id', tasks[1].id)
+          this.createMockDependency('another-non-existent-id', tasks[1].id),
         ];
         return { tasks, dependencies };
-      }
+      },
     };
   }
 
@@ -553,7 +604,7 @@ export class TestFactories {
       }
     }
 
-    return groups.filter(group => group.length > 0);
+    return groups.filter((group) => group.length > 0);
   }
 
   /**
@@ -582,7 +633,12 @@ export class TestFactories {
    * Check if value is a plain object
    */
   private static isObject(value: any): value is Record<string, any> {
-    return value !== null && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date);
+    return (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      !(value instanceof Date)
+    );
   }
 }
 
@@ -596,7 +652,7 @@ export class TestUtils {
   static async waitFor(
     condition: () => boolean | Promise<boolean>,
     timeoutMs: number = 5000,
-    intervalMs: number = 100
+    intervalMs: number = 100,
   ): Promise<void> {
     const startTime = Date.now();
 
@@ -614,14 +670,15 @@ export class TestUtils {
    * Sleep for specified milliseconds
    */
   static async sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
    * Generate random string of specified length
    */
   static randomString(length: number = 10): string {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -659,7 +716,8 @@ export class TestUtils {
    */
   static createMockTimer() {
     let currentTime = Date.now();
-    const timers: Array<{ callback: () => void; time: number; id: number }> = [];
+    const timers: Array<{ callback: () => void; time: number; id: number }> =
+      [];
     let nextId = 1;
 
     return {
@@ -670,15 +728,15 @@ export class TestUtils {
         return id;
       },
       clearTimeout: (id: number) => {
-        const index = timers.findIndex(timer => timer.id === id);
+        const index = timers.findIndex((timer) => timer.id === id);
         if (index !== -1) {
           timers.splice(index, 1);
         }
       },
       tick: (ms: number) => {
         currentTime += ms;
-        const readyTimers = timers.filter(timer => timer.time <= currentTime);
-        readyTimers.forEach(timer => {
+        const readyTimers = timers.filter((timer) => timer.time <= currentTime);
+        readyTimers.forEach((timer) => {
           timer.callback();
           const index = timers.indexOf(timer);
           if (index !== -1) {
@@ -687,7 +745,7 @@ export class TestUtils {
         });
       },
       hasTimers: () => timers.length > 0,
-      getTimerCount: () => timers.length
+      getTimerCount: () => timers.length,
     };
   }
 
@@ -695,7 +753,10 @@ export class TestUtils {
    * Create a performance measurement utility
    */
   static createPerformanceMeasurer() {
-    const measurements: Record<string, { start: number; end?: number; duration?: number }> = {};
+    const measurements: Record<
+      string,
+      { start: number; end?: number; duration?: number }
+    > = {};
 
     return {
       start: (name: string) => {
@@ -711,8 +772,8 @@ export class TestUtils {
       getDuration: (name: string) => measurements[name]?.duration,
       getAllMeasurements: () => ({ ...measurements }),
       clear: () => {
-        Object.keys(measurements).forEach(key => delete measurements[key]);
-      }
+        Object.keys(measurements).forEach((key) => delete measurements[key]);
+      },
     };
   }
 
@@ -720,37 +781,42 @@ export class TestUtils {
    * Memory usage tracker
    */
   static createMemoryTracker() {
-    const snapshots: Array<{ timestamp: number; usage: NodeJS.MemoryUsage; label?: string }> = [];
+    const snapshots: Array<{
+      timestamp: number;
+      usage: NodeJS.MemoryUsage;
+      label?: string;
+    }> = [];
 
     return {
       snapshot: (label?: string) => {
         snapshots.push({
           timestamp: Date.now(),
           usage: process.memoryUsage(),
-          label
+          label,
         });
       },
       getSnapshots: () => snapshots,
       getMemoryIncrease: (fromLabel?: string, toLabel?: string) => {
-        const fromSnapshot = fromLabel ?
-          snapshots.find(s => s.label === fromLabel) :
-          snapshots[0];
-        const toSnapshot = toLabel ?
-          snapshots.find(s => s.label === toLabel) :
-          snapshots[snapshots.length - 1];
+        const fromSnapshot = fromLabel
+          ? snapshots.find((s) => s.label === fromLabel)
+          : snapshots[0];
+        const toSnapshot = toLabel
+          ? snapshots.find((s) => s.label === toLabel)
+          : snapshots[snapshots.length - 1];
 
         if (fromSnapshot && toSnapshot) {
           return {
             heapUsed: toSnapshot.usage.heapUsed - fromSnapshot.usage.heapUsed,
-            heapTotal: toSnapshot.usage.heapTotal - fromSnapshot.usage.heapTotal,
-            rss: toSnapshot.usage.rss - fromSnapshot.usage.rss
+            heapTotal:
+              toSnapshot.usage.heapTotal - fromSnapshot.usage.heapTotal,
+            rss: toSnapshot.usage.rss - fromSnapshot.usage.rss,
           };
         }
         return null;
       },
       clear: () => {
         snapshots.length = 0;
-      }
+      },
     };
   }
 }
@@ -763,9 +829,33 @@ export class MockDataGenerators {
    * Generate realistic task titles
    */
   static generateTaskTitles(count: number): string[] {
-    const prefixes = ['Implement', 'Fix', 'Update', 'Create', 'Refactor', 'Test', 'Deploy', 'Optimize'];
-    const subjects = ['authentication', 'database', 'API', 'UI component', 'validation', 'caching', 'monitoring'];
-    const suffixes = ['system', 'functionality', 'integration', 'service', 'module', 'interface'];
+    const prefixes = [
+      'Implement',
+      'Fix',
+      'Update',
+      'Create',
+      'Refactor',
+      'Test',
+      'Deploy',
+      'Optimize',
+    ];
+    const subjects = [
+      'authentication',
+      'database',
+      'API',
+      'UI component',
+      'validation',
+      'caching',
+      'monitoring',
+    ];
+    const suffixes = [
+      'system',
+      'functionality',
+      'integration',
+      'service',
+      'module',
+      'interface',
+    ];
 
     const titles: string[] = [];
     for (let i = 0; i < count; i++) {
@@ -786,27 +876,89 @@ export class MockDataGenerators {
       'This task involves {action} the {component} to {outcome}. Priority: {priority}',
       'Need to {action} {component} for {reason}. Expected completion: {timeline}',
       '{component} requires {action} to address {issue}. Dependencies: {deps}',
-      'Implement {feature} in {component} to support {requirement}'
+      'Implement {feature} in {component} to support {requirement}',
     ];
 
-    const actions = ['implementing', 'updating', 'refactoring', 'testing', 'deploying'];
-    const components = ['user management', 'payment system', 'notification service', 'data pipeline'];
-    const outcomes = ['better performance', 'enhanced security', 'improved usability', 'bug fixes'];
-    const reasons = ['compliance requirements', 'user feedback', 'security audit', 'performance issues'];
+    const actions = [
+      'implementing',
+      'updating',
+      'refactoring',
+      'testing',
+      'deploying',
+    ];
+    const components = [
+      'user management',
+      'payment system',
+      'notification service',
+      'data pipeline',
+    ];
+    const outcomes = [
+      'better performance',
+      'enhanced security',
+      'improved usability',
+      'bug fixes',
+    ];
+    const reasons = [
+      'compliance requirements',
+      'user feedback',
+      'security audit',
+      'performance issues',
+    ];
 
     const descriptions: string[] = [];
     for (let i = 0; i < count; i++) {
       let template = TestUtils.randomElement(templates);
       template = template.replace('{action}', TestUtils.randomElement(actions));
-      template = template.replace('{component}', TestUtils.randomElement(components));
-      template = template.replace('{outcome}', TestUtils.randomElement(outcomes));
+      template = template.replace(
+        '{component}',
+        TestUtils.randomElement(components),
+      );
+      template = template.replace(
+        '{outcome}',
+        TestUtils.randomElement(outcomes),
+      );
       template = template.replace('{reason}', TestUtils.randomElement(reasons));
-      template = template.replace('{priority}', TestUtils.randomElement(['high', 'medium', 'low']));
-      template = template.replace('{timeline}', TestUtils.randomElement(['this week', 'next sprint', 'end of month']));
-      template = template.replace('{issue}', TestUtils.randomElement(['performance bottleneck', 'security vulnerability', 'user complaints']));
-      template = template.replace('{deps}', TestUtils.randomElement(['database migration', 'API changes', 'frontend updates']));
-      template = template.replace('{feature}', TestUtils.randomElement(['authentication', 'search', 'reporting', 'analytics']));
-      template = template.replace('{requirement}', TestUtils.randomElement(['mobile support', 'real-time updates', 'batch processing']));
+      template = template.replace(
+        '{priority}',
+        TestUtils.randomElement(['high', 'medium', 'low']),
+      );
+      template = template.replace(
+        '{timeline}',
+        TestUtils.randomElement(['this week', 'next sprint', 'end of month']),
+      );
+      template = template.replace(
+        '{issue}',
+        TestUtils.randomElement([
+          'performance bottleneck',
+          'security vulnerability',
+          'user complaints',
+        ]),
+      );
+      template = template.replace(
+        '{deps}',
+        TestUtils.randomElement([
+          'database migration',
+          'API changes',
+          'frontend updates',
+        ]),
+      );
+      template = template.replace(
+        '{feature}',
+        TestUtils.randomElement([
+          'authentication',
+          'search',
+          'reporting',
+          'analytics',
+        ]),
+      );
+      template = template.replace(
+        '{requirement}',
+        TestUtils.randomElement([
+          'mobile support',
+          'real-time updates',
+          'batch processing',
+        ]),
+      );
 
       descriptions.push(template);
     }
@@ -824,13 +976,24 @@ export class MockDataGenerators {
       contexts.push({
         workingDirectory: `/tmp/task-${i}`,
         environment: {
-          NODE_ENV: TestUtils.randomElement(['development', 'staging', 'production']),
-          LOG_LEVEL: TestUtils.randomElement(['debug', 'info', 'warn', 'error']),
-          DATABASE_URL: `postgres://localhost:5432/test_${i}`
+          NODE_ENV: TestUtils.randomElement([
+            'development',
+            'staging',
+            'production',
+          ]),
+          LOG_LEVEL: TestUtils.randomElement([
+            'debug',
+            'info',
+            'warn',
+            'error',
+          ]),
+          DATABASE_URL: `postgres://localhost:5432/test_${i}`,
         },
         timeout: TestUtils.randomInt(30000, 600000), // 30 seconds to 10 minutes
         maxRetries: TestUtils.randomInt(1, 5),
-        resourceConstraints: TestFactories.createMockResourceConstraints(TestUtils.randomInt(1, 4))
+        resourceConstraints: TestFactories.createMockResourceConstraints(
+          TestUtils.randomInt(1, 4),
+        ),
       });
     }
 

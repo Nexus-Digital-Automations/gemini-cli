@@ -6,7 +6,11 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type { TaskStatusUpdate, AgentStatus, TaskMetadata } from './TaskStatusMonitor.js';
+import type {
+  TaskStatusUpdate,
+  AgentStatus,
+  TaskMetadata,
+} from './TaskStatusMonitor.js';
 
 /**
  * Audit event types for comprehensive tracking
@@ -51,7 +55,12 @@ export interface AuditEvent {
   details: Record<string, unknown>;
   outcome: 'success' | 'failure' | 'pending';
   severity: 'info' | 'warning' | 'error' | 'critical';
-  category: 'operational' | 'security' | 'performance' | 'business' | 'compliance';
+  category:
+    | 'operational'
+    | 'security'
+    | 'performance'
+    | 'business'
+    | 'compliance';
   tags: string[];
   correlationId?: string;
   sessionId?: string;
@@ -68,7 +77,9 @@ export interface AuditQuery {
   targets?: Array<{ type?: string; id?: string }>;
   outcomes?: Array<'success' | 'failure' | 'pending'>;
   severities?: Array<'info' | 'warning' | 'error' | 'critical'>;
-  categories?: Array<'operational' | 'security' | 'performance' | 'business' | 'compliance'>;
+  categories?: Array<
+    'operational' | 'security' | 'performance' | 'business' | 'compliance'
+  >;
   tags?: string[];
   timeRange?: { start: Date; end: Date };
   correlationId?: string;
@@ -132,20 +143,25 @@ export class AuditTrailAnalytics extends EventEmitter {
   private persistenceInterval?: NodeJS.Timeout;
 
   // Analytics tracking
-  private dailyStats: Map<string, {
-    date: string;
-    totalEvents: number;
-    eventsByType: Record<AuditEventType, number>;
-    eventsBySeverity: Record<string, number>;
-    securityEvents: number;
-    errors: number;
-  }>;
+  private dailyStats: Map<
+    string,
+    {
+      date: string;
+      totalEvents: number;
+      eventsByType: Record<AuditEventType, number>;
+      eventsBySeverity: Record<string, number>;
+      securityEvents: number;
+      errors: number;
+    }
+  >;
 
-  constructor(options: {
-    retentionDays?: number;
-    archiveThreshold?: number;
-    persistenceIntervalMs?: number;
-  } = {}) {
+  constructor(
+    options: {
+      retentionDays?: number;
+      archiveThreshold?: number;
+      persistenceIntervalMs?: number;
+    } = {},
+  ) {
     super();
     this.logger = new Logger('AuditTrailAnalytics');
     this.events = [];
@@ -187,7 +203,7 @@ export class AuditTrailAnalytics extends EventEmitter {
       beforeState?: Record<string, unknown>;
       afterState?: Record<string, unknown>;
       context?: Record<string, unknown>;
-    }
+    },
   ): Promise<void> {
     const event: AuditEvent = {
       id: this.generateEventId(),
@@ -251,62 +267,79 @@ export class AuditTrailAnalytics extends EventEmitter {
 
     // Apply filters
     if (query.types) {
-      filteredEvents = filteredEvents.filter(event => query.types!.includes(event.type));
+      filteredEvents = filteredEvents.filter((event) =>
+        query.types!.includes(event.type),
+      );
     }
 
     if (query.sources) {
-      filteredEvents = filteredEvents.filter(event => query.sources!.includes(event.source));
+      filteredEvents = filteredEvents.filter((event) =>
+        query.sources!.includes(event.source),
+      );
     }
 
     if (query.actors) {
-      filteredEvents = filteredEvents.filter(event =>
-        query.actors!.some(actor =>
-          (!actor.type || event.actor.type === actor.type) &&
-          (!actor.id || event.actor.id === actor.id)
-        )
+      filteredEvents = filteredEvents.filter((event) =>
+        query.actors!.some(
+          (actor) =>
+            (!actor.type || event.actor.type === actor.type) &&
+            (!actor.id || event.actor.id === actor.id),
+        ),
       );
     }
 
     if (query.targets) {
-      filteredEvents = filteredEvents.filter(event =>
-        query.targets!.some(target =>
-          (!target.type || event.target.type === target.type) &&
-          (!target.id || event.target.id === target.id)
-        )
+      filteredEvents = filteredEvents.filter((event) =>
+        query.targets!.some(
+          (target) =>
+            (!target.type || event.target.type === target.type) &&
+            (!target.id || event.target.id === target.id),
+        ),
       );
     }
 
     if (query.outcomes) {
-      filteredEvents = filteredEvents.filter(event => query.outcomes!.includes(event.outcome));
+      filteredEvents = filteredEvents.filter((event) =>
+        query.outcomes!.includes(event.outcome),
+      );
     }
 
     if (query.severities) {
-      filteredEvents = filteredEvents.filter(event => query.severities!.includes(event.severity));
+      filteredEvents = filteredEvents.filter((event) =>
+        query.severities!.includes(event.severity),
+      );
     }
 
     if (query.categories) {
-      filteredEvents = filteredEvents.filter(event => query.categories!.includes(event.category));
+      filteredEvents = filteredEvents.filter((event) =>
+        query.categories!.includes(event.category),
+      );
     }
 
     if (query.tags && query.tags.length > 0) {
-      filteredEvents = filteredEvents.filter(event =>
-        query.tags!.some(tag => event.tags.includes(tag))
+      filteredEvents = filteredEvents.filter((event) =>
+        query.tags!.some((tag) => event.tags.includes(tag)),
       );
     }
 
     if (query.timeRange) {
-      filteredEvents = filteredEvents.filter(event =>
-        event.timestamp >= query.timeRange!.start &&
-        event.timestamp <= query.timeRange!.end
+      filteredEvents = filteredEvents.filter(
+        (event) =>
+          event.timestamp >= query.timeRange!.start &&
+          event.timestamp <= query.timeRange!.end,
       );
     }
 
     if (query.correlationId) {
-      filteredEvents = filteredEvents.filter(event => event.correlationId === query.correlationId);
+      filteredEvents = filteredEvents.filter(
+        (event) => event.correlationId === query.correlationId,
+      );
     }
 
     if (query.sessionId) {
-      filteredEvents = filteredEvents.filter(event => event.sessionId === query.sessionId);
+      filteredEvents = filteredEvents.filter(
+        (event) => event.sessionId === query.sessionId,
+      );
     }
 
     // Sort results
@@ -344,7 +377,7 @@ export class AuditTrailAnalytics extends EventEmitter {
    */
   async generateComplianceReport(
     reportType: 'security' | 'operational' | 'performance' | 'full',
-    period: { start: Date; end: Date }
+    period: { start: Date; end: Date },
   ): Promise<ComplianceReport> {
     const events = this.queryEvents({
       timeRange: period,
@@ -355,8 +388,10 @@ export class AuditTrailAnalytics extends EventEmitter {
     const summary = this.calculateReportSummary(events);
 
     // Identify security events
-    const securityEvents = events.filter(event =>
-      event.category === 'security' || event.type === AuditEventType.SECURITY_EVENT
+    const securityEvents = events.filter(
+      (event) =>
+        event.category === 'security' ||
+        event.type === AuditEventType.SECURITY_EVENT,
     );
 
     // Check compliance violations
@@ -366,7 +401,10 @@ export class AuditTrailAnalytics extends EventEmitter {
     const performanceInsights = this.generatePerformanceInsights(events);
 
     // Generate recommendations
-    const recommendations = this.generateRecommendations(events, complianceViolations);
+    const recommendations = this.generateRecommendations(
+      events,
+      complianceViolations,
+    );
 
     const report: ComplianceReport = {
       reportId: this.generateReportId(),
@@ -423,10 +461,12 @@ export class AuditTrailAnalytics extends EventEmitter {
       eventsBySeverity: this.groupEventsByProperty(events, 'severity'),
       eventsByCategory: this.groupEventsByProperty(events, 'category'),
       eventsByOutcome: this.groupEventsByProperty(events, 'outcome'),
-      securityEvents: events.filter(e => e.category === 'security').length,
+      securityEvents: events.filter((e) => e.category === 'security').length,
       complianceScore: this.calculateComplianceScore(events),
       dailyActivity: this.calculateDailyActivity(events),
-      recentCriticalEvents: events.filter(e => e.severity === 'critical').slice(0, 10),
+      recentCriticalEvents: events
+        .filter((e) => e.severity === 'critical')
+        .slice(0, 10),
       topSources: this.getTopValues(events, 'source', 10),
       topActors: this.getTopValues(events, 'actor.id', 10),
     };
@@ -437,19 +477,26 @@ export class AuditTrailAnalytics extends EventEmitter {
   /**
    * Export audit data for external systems
    */
-  exportAuditData(query: AuditQuery, format: 'json' | 'csv' | 'xml' = 'json'): string {
+  exportAuditData(
+    query: AuditQuery,
+    format: 'json' | 'csv' | 'xml' = 'json',
+  ): string {
     const events = this.queryEvents(query);
 
     switch (format) {
       case 'json':
-        return JSON.stringify({
-          metadata: {
-            exportedAt: new Date().toISOString(),
-            totalEvents: events.length,
-            query,
+        return JSON.stringify(
+          {
+            metadata: {
+              exportedAt: new Date().toISOString(),
+              totalEvents: events.length,
+              query,
+            },
+            events,
           },
-          events,
-        }, null, 2);
+          null,
+          2,
+        );
 
       case 'csv':
         return this.exportToCSV(events);
@@ -465,16 +512,21 @@ export class AuditTrailAnalytics extends EventEmitter {
   /**
    * Task lifecycle event handlers
    */
-  onTaskEvent(event: 'created' | 'assigned' | 'status-changed' | 'completed' | 'failed', data: {
-    task: TaskMetadata;
-    update?: TaskStatusUpdate;
-    agent?: AgentStatus;
-    correlationId?: string;
-    sessionId?: string;
-  }): void {
+  onTaskEvent(
+    event: 'created' | 'assigned' | 'status-changed' | 'completed' | 'failed',
+    data: {
+      task: TaskMetadata;
+      update?: TaskStatusUpdate;
+      agent?: AgentStatus;
+      correlationId?: string;
+      sessionId?: string;
+    },
+  ): void {
     const { task, update, agent, correlationId, sessionId } = data;
 
-    const beforeState = update ? { previousStatus: update.previousStatus } : undefined;
+    const beforeState = update
+      ? { previousStatus: update.previousStatus }
+      : undefined;
     const afterState = { status: task.status, progress: task.progress };
 
     let auditType: AuditEventType;
@@ -546,11 +598,14 @@ export class AuditTrailAnalytics extends EventEmitter {
   /**
    * Agent lifecycle event handlers
    */
-  onAgentEvent(event: 'registered' | 'heartbeat' | 'status-changed', data: {
-    agent: AgentStatus;
-    correlationId?: string;
-    sessionId?: string;
-  }): void {
+  onAgentEvent(
+    event: 'registered' | 'heartbeat' | 'status-changed',
+    data: {
+      agent: AgentStatus;
+      correlationId?: string;
+      sessionId?: string;
+    },
+  ): void {
     const { agent, correlationId, sessionId } = data;
 
     let auditType: AuditEventType;
@@ -613,27 +668,41 @@ export class AuditTrailAnalytics extends EventEmitter {
 
   private initializeComplianceRules(): void {
     // Security compliance rules
-    this.complianceRules.set('no_unauthorized_access', (event: AuditEvent) => event.type !== AuditEventType.SECURITY_EVENT || event.outcome === 'success');
+    this.complianceRules.set(
+      'no_unauthorized_access',
+      (event: AuditEvent) =>
+        event.type !== AuditEventType.SECURITY_EVENT ||
+        event.outcome === 'success',
+    );
 
-    this.complianceRules.set('task_completion_tracking', (event: AuditEvent) => {
-      if (event.type === AuditEventType.TASK_CREATED) {
-        // Ensure task has proper tracking
-        return event.details.taskType !== undefined && event.details.priority !== undefined;
-      }
-      return true;
-    });
-
-    this.complianceRules.set('agent_heartbeat_frequency', (event: AuditEvent) => {
-      if (event.type === AuditEventType.AGENT_HEARTBEAT) {
-        // Ensure heartbeats are frequent enough
-        const lastHeartbeat = event.details.lastHeartbeat as Date;
-        if (lastHeartbeat) {
-          const timeSinceLastHeartbeat = Date.now() - lastHeartbeat.getTime();
-          return timeSinceLastHeartbeat <= 5 * 60 * 1000; // 5 minutes max
+    this.complianceRules.set(
+      'task_completion_tracking',
+      (event: AuditEvent) => {
+        if (event.type === AuditEventType.TASK_CREATED) {
+          // Ensure task has proper tracking
+          return (
+            event.details.taskType !== undefined &&
+            event.details.priority !== undefined
+          );
         }
-      }
-      return true;
-    });
+        return true;
+      },
+    );
+
+    this.complianceRules.set(
+      'agent_heartbeat_frequency',
+      (event: AuditEvent) => {
+        if (event.type === AuditEventType.AGENT_HEARTBEAT) {
+          // Ensure heartbeats are frequent enough
+          const lastHeartbeat = event.details.lastHeartbeat as Date;
+          if (lastHeartbeat) {
+            const timeSinceLastHeartbeat = Date.now() - lastHeartbeat.getTime();
+            return timeSinceLastHeartbeat <= 5 * 60 * 1000; // 5 minutes max
+          }
+        }
+        return true;
+      },
+    );
   }
 
   private setupPeriodicPersistence(intervalMs: number): void {
@@ -713,7 +782,9 @@ export class AuditTrailAnalytics extends EventEmitter {
     return violations;
   }
 
-  private calculateReportSummary(events: AuditEvent[]): ComplianceReport['summary'] {
+  private calculateReportSummary(
+    events: AuditEvent[],
+  ): ComplianceReport['summary'] {
     const eventsByType = this.groupEventsByProperty(events, 'type');
     const eventsBySeverity = this.groupEventsByProperty(events, 'severity');
     const eventsByCategory = this.groupEventsByProperty(events, 'category');
@@ -724,16 +795,22 @@ export class AuditTrailAnalytics extends EventEmitter {
       eventsBySeverity,
       eventsByCategory,
       complianceScore: this.calculateComplianceScore(events),
-      issuesFound: events.filter(e => e.severity === 'error' || e.severity === 'critical').length,
+      issuesFound: events.filter(
+        (e) => e.severity === 'error' || e.severity === 'critical',
+      ).length,
       recommendationsCount: 0, // Will be calculated by generateRecommendations
     };
   }
 
-  private identifyComplianceViolations(events: AuditEvent[]): ComplianceReport['complianceViolations'] {
+  private identifyComplianceViolations(
+    events: AuditEvent[],
+  ): ComplianceReport['complianceViolations'] {
     const violations: ComplianceReport['complianceViolations'] = [];
 
     // Security violations
-    const securityEvents = events.filter(e => e.category === 'security' && e.outcome === 'failure');
+    const securityEvents = events.filter(
+      (e) => e.category === 'security' && e.outcome === 'failure',
+    );
     if (securityEvents.length > 0) {
       violations.push({
         rule: 'security_events',
@@ -747,7 +824,9 @@ export class AuditTrailAnalytics extends EventEmitter {
     return violations;
   }
 
-  private generatePerformanceInsights(events: AuditEvent[]): ComplianceReport['performanceInsights'] {
+  private generatePerformanceInsights(
+    events: AuditEvent[],
+  ): ComplianceReport['performanceInsights'] {
     return [
       {
         metric: 'task_completion_rate',
@@ -760,7 +839,7 @@ export class AuditTrailAnalytics extends EventEmitter {
 
   private generateRecommendations(
     events: AuditEvent[],
-    violations: ComplianceReport['complianceViolations']
+    violations: ComplianceReport['complianceViolations'],
   ): ComplianceReport['recommendations'] {
     const recommendations: ComplianceReport['recommendations'] = [];
 
@@ -781,18 +860,27 @@ export class AuditTrailAnalytics extends EventEmitter {
   private calculateComplianceScore(events: AuditEvent[]): number {
     if (events.length === 0) return 100;
 
-    const criticalEvents = events.filter(e => e.severity === 'critical').length;
-    const errorEvents = events.filter(e => e.severity === 'error').length;
-    const warningEvents = events.filter(e => e.severity === 'warning').length;
+    const criticalEvents = events.filter(
+      (e) => e.severity === 'critical',
+    ).length;
+    const errorEvents = events.filter((e) => e.severity === 'error').length;
+    const warningEvents = events.filter((e) => e.severity === 'warning').length;
 
-    const totalPenalty = (criticalEvents * 10) + (errorEvents * 5) + (warningEvents * 1);
+    const totalPenalty =
+      criticalEvents * 10 + errorEvents * 5 + warningEvents * 1;
     const maxScore = 100;
-    const penaltyPercentage = Math.min((totalPenalty / events.length) * 100, maxScore);
+    const penaltyPercentage = Math.min(
+      (totalPenalty / events.length) * 100,
+      maxScore,
+    );
 
     return Math.max(0, maxScore - penaltyPercentage);
   }
 
-  private groupEventsByProperty(events: AuditEvent[], property: keyof AuditEvent): Record<string, number> {
+  private groupEventsByProperty(
+    events: AuditEvent[],
+    property: keyof AuditEvent,
+  ): Record<string, number> {
     const grouped: Record<string, number> = {};
 
     for (const event of events) {
@@ -835,10 +923,16 @@ export class AuditTrailAnalytics extends EventEmitter {
       }
     }
 
-    return Object.values(dailyActivity).sort((a: any, b: any) => a.date.localeCompare(b.date));
+    return Object.values(dailyActivity).sort((a: any, b: any) =>
+      a.date.localeCompare(b.date),
+    );
   }
 
-  private getTopValues(events: AuditEvent[], path: string, limit: number): Array<{ [key: string]: string | number }> {
+  private getTopValues(
+    events: AuditEvent[],
+    path: string,
+    limit: number,
+  ): Array<{ [key: string]: string | number }> {
     const counts: Record<string, number> = {};
 
     for (const event of events) {
@@ -884,7 +978,7 @@ export class AuditTrailAnalytics extends EventEmitter {
       'Tags',
     ];
 
-    const rows = events.map(event => [
+    const rows = events.map((event) => [
       event.id,
       event.type,
       event.timestamp.toISOString(),
@@ -901,7 +995,11 @@ export class AuditTrailAnalytics extends EventEmitter {
       event.tags.join(';'),
     ]);
 
-    return [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    return [headers, ...rows]
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','),
+      )
+      .join('\n');
   }
 
   private exportToXML(events: AuditEvent[]): string {
@@ -931,8 +1029,12 @@ export class AuditTrailAnalytics extends EventEmitter {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.retentionDays);
 
-    const eventsToArchive = this.events.filter(event => event.timestamp < cutoffDate);
-    const remainingEvents = this.events.filter(event => event.timestamp >= cutoffDate);
+    const eventsToArchive = this.events.filter(
+      (event) => event.timestamp < cutoffDate,
+    );
+    const remainingEvents = this.events.filter(
+      (event) => event.timestamp >= cutoffDate,
+    );
 
     if (eventsToArchive.length > 0) {
       // In a real implementation, these would be archived to long-term storage
@@ -985,7 +1087,7 @@ export class AuditTrailAnalytics extends EventEmitter {
     cutoffDate.setDate(cutoffDate.getDate() - this.retentionDays);
 
     const originalCount = this.events.length;
-    this.events = this.events.filter(event => event.timestamp >= cutoffDate);
+    this.events = this.events.filter((event) => event.timestamp >= cutoffDate);
 
     if (this.events.length < originalCount) {
       this.rebuildIndexes();

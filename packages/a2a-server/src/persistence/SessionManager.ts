@@ -125,7 +125,8 @@ export class SessionManager {
   private healthCheckInterval?: NodeJS.Timeout;
 
   constructor(storageDir?: string, ownerId?: string) {
-    this.storageDir = storageDir || join(homedir(), '.gemini-cli', 'persistence', 'sessions');
+    this.storageDir =
+      storageDir || join(homedir(), '.gemini-cli', 'persistence', 'sessions');
     this.activeSessions = new Map();
     this.taskCorrelations = new Map();
 
@@ -176,7 +177,9 @@ export class SessionManager {
       // Clean up stale sessions
       await this.cleanupStaleSessions();
 
-      logger.info(`SessionManager initialized with session ${this.currentSession.sessionId}`);
+      logger.info(
+        `SessionManager initialized with session ${this.currentSession.sessionId}`,
+      );
     } catch (error) {
       logger.error('Failed to initialize SessionManager:', error);
       throw error;
@@ -187,7 +190,11 @@ export class SessionManager {
    * Register a new session
    */
   private async registerSession(session: SessionOwnership): Promise<void> {
-    const sessionPath = join(this.storageDir, 'active', `${session.sessionId}.json`);
+    const sessionPath = join(
+      this.storageDir,
+      'active',
+      `${session.sessionId}.json`,
+    );
 
     await fse.writeJSON(sessionPath, session, { spaces: 2 });
     this.activeSessions.set(session.sessionId, session);
@@ -205,7 +212,11 @@ export class SessionManager {
 
     session.lastActivityAt = new Date().toISOString();
 
-    const sessionPath = join(this.storageDir, 'active', `${session.sessionId}.json`);
+    const sessionPath = join(
+      this.storageDir,
+      'active',
+      `${session.sessionId}.json`,
+    );
     await fse.writeJSON(sessionPath, session, { spaces: 2 });
 
     if (session.sessionId === this.currentSession.sessionId) {
@@ -221,18 +232,20 @@ export class SessionManager {
   async createTaskCorrelation(
     taskId: string,
     parentTaskId?: string,
-    relatedTaskIds: string[] = []
+    relatedTaskIds: string[] = [],
   ): Promise<TaskCorrelation> {
     const correlation: TaskCorrelation = {
       taskId,
       parentTaskId,
       relatedTaskIds,
-      sessionChain: [{
-        sessionId: this.currentSession.sessionId,
-        ownerId: this.currentSession.ownerId,
-        startedAt: new Date().toISOString(),
-        action: 'created',
-      }],
+      sessionChain: [
+        {
+          sessionId: this.currentSession.sessionId,
+          ownerId: this.currentSession.ownerId,
+          startedAt: new Date().toISOString(),
+          action: 'created',
+        },
+      ],
       currentOwner: { ...this.currentSession },
       dependencies: {
         dependsOn: [],
@@ -251,7 +264,9 @@ export class SessionManager {
     await this.saveTaskCorrelation(correlation);
     this.taskCorrelations.set(taskId, correlation);
 
-    logger.info(`Created task correlation for task ${taskId} in session ${this.currentSession.sessionId}`);
+    logger.info(
+      `Created task correlation for task ${taskId} in session ${this.currentSession.sessionId}`,
+    );
     return correlation;
   }
 
@@ -260,7 +275,7 @@ export class SessionManager {
    */
   async updateTaskCorrelation(
     taskId: string,
-    updates: Partial<TaskCorrelation>
+    updates: Partial<TaskCorrelation>,
   ): Promise<TaskCorrelation> {
     const correlation = this.taskCorrelations.get(taskId);
     if (!correlation) {
@@ -287,7 +302,7 @@ export class SessionManager {
   async transferTaskOwnership(
     taskId: string,
     targetSessionId: string,
-    reason: string = 'Manual transfer'
+    reason: string = 'Manual transfer',
   ): Promise<SessionHandoff> {
     const correlation = this.taskCorrelations.get(taskId);
     if (!correlation) {
@@ -296,7 +311,9 @@ export class SessionManager {
 
     const targetSession = this.activeSessions.get(targetSessionId);
     if (!targetSession) {
-      throw new Error(`Target session ${targetSessionId} not found or inactive`);
+      throw new Error(
+        `Target session ${targetSessionId} not found or inactive`,
+      );
     }
 
     // Create handoff record
@@ -328,7 +345,8 @@ export class SessionManager {
     correlation.sessionChain.push({
       sessionId: this.currentSession.sessionId,
       ownerId: this.currentSession.ownerId,
-      startedAt: correlation.sessionChain[correlation.sessionChain.length - 1].startedAt,
+      startedAt:
+        correlation.sessionChain[correlation.sessionChain.length - 1].startedAt,
       endedAt: new Date().toISOString(),
       action: 'transferred',
       reason,
@@ -351,14 +369,19 @@ export class SessionManager {
     await this.saveTaskCorrelation(correlation);
     this.taskCorrelations.set(taskId, correlation);
 
-    logger.info(`Transferred task ${taskId} from session ${this.currentSession.sessionId} to ${targetSessionId}`);
+    logger.info(
+      `Transferred task ${taskId} from session ${this.currentSession.sessionId} to ${targetSessionId}`,
+    );
     return handoff;
   }
 
   /**
    * Resume task from previous session
    */
-  async resumeTask(taskId: string, contextSummary?: string): Promise<TaskCorrelation> {
+  async resumeTask(
+    taskId: string,
+    contextSummary?: string,
+  ): Promise<TaskCorrelation> {
     const correlation = this.taskCorrelations.get(taskId);
     if (!correlation) {
       throw new Error(`Task correlation not found for task ${taskId}`);
@@ -386,7 +409,9 @@ export class SessionManager {
     await this.saveTaskCorrelation(correlation);
     this.taskCorrelations.set(taskId, correlation);
 
-    logger.info(`Resumed task ${taskId} in session ${this.currentSession.sessionId}`);
+    logger.info(
+      `Resumed task ${taskId} in session ${this.currentSession.sessionId}`,
+    );
     return correlation;
   }
 
@@ -396,7 +421,7 @@ export class SessionManager {
   async completeTask(
     taskId: string,
     completionSummary: string,
-    preservedState?: Record<string, unknown>
+    preservedState?: Record<string, unknown>,
   ): Promise<TaskCorrelation> {
     const correlation = this.taskCorrelations.get(taskId);
     if (!correlation) {
@@ -404,7 +429,8 @@ export class SessionManager {
     }
 
     // Update session chain
-    const currentEntry = correlation.sessionChain[correlation.sessionChain.length - 1];
+    const currentEntry =
+      correlation.sessionChain[correlation.sessionChain.length - 1];
     currentEntry.endedAt = new Date().toISOString();
     currentEntry.action = 'completed';
 
@@ -421,14 +447,18 @@ export class SessionManager {
     // Move to completed correlations
     await this.archiveTaskCorrelation(taskId);
 
-    logger.info(`Completed task ${taskId} in session ${this.currentSession.sessionId}`);
+    logger.info(
+      `Completed task ${taskId} in session ${this.currentSession.sessionId}`,
+    );
     return correlation;
   }
 
   /**
    * Get task correlation information
    */
-  async getTaskCorrelation(taskId: string): Promise<TaskCorrelation | undefined> {
+  async getTaskCorrelation(
+    taskId: string,
+  ): Promise<TaskCorrelation | undefined> {
     let correlation = this.taskCorrelations.get(taskId);
 
     if (!correlation) {
@@ -452,8 +482,10 @@ export class SessionManager {
       }
     }
 
-    return tasks.sort((a, b) =>
-      new Date(b.sessionChain[0].startedAt).getTime() - new Date(a.sessionChain[0].startedAt).getTime()
+    return tasks.sort(
+      (a, b) =>
+        new Date(b.sessionChain[0].startedAt).getTime() -
+        new Date(a.sessionChain[0].startedAt).getTime(),
     );
   }
 
@@ -463,8 +495,12 @@ export class SessionManager {
   async getActiveSessions(): Promise<SessionOwnership[]> {
     await this.loadActiveSessions();
     return Array.from(this.activeSessions.values())
-      .filter(session => session.status === 'active')
-      .sort((a, b) => new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime());
+      .filter((session) => session.status === 'active')
+      .sort(
+        (a, b) =>
+          new Date(b.lastActivityAt).getTime() -
+          new Date(a.lastActivityAt).getTime(),
+      );
   }
 
   /**
@@ -493,7 +529,7 @@ export class SessionManager {
         // Check if this session has any recent activity on this task
         const recentActivity = new Date(session.lastActivityAt).getTime();
         const now = Date.now();
-        const fiveMinutesAgo = now - (5 * 60 * 1000);
+        const fiveMinutesAgo = now - 5 * 60 * 1000;
 
         if (recentActivity > fiveMinutesAgo) {
           // This session might be working on the same task
@@ -522,7 +558,7 @@ export class SessionManager {
       await this.transferTaskOwnership(
         taskId,
         this.currentSession.sessionId,
-        'Conflict resolution: automatic transfer'
+        'Conflict resolution: automatic transfer',
       );
     } else {
       resolution = 'abort';
@@ -540,16 +576,28 @@ export class SessionManager {
   /**
    * Save task correlation to disk
    */
-  private async saveTaskCorrelation(correlation: TaskCorrelation): Promise<void> {
-    const correlationPath = join(this.storageDir, 'correlations', `${correlation.taskId}.json`);
+  private async saveTaskCorrelation(
+    correlation: TaskCorrelation,
+  ): Promise<void> {
+    const correlationPath = join(
+      this.storageDir,
+      'correlations',
+      `${correlation.taskId}.json`,
+    );
     await fse.writeJSON(correlationPath, correlation, { spaces: 2 });
   }
 
   /**
    * Load task correlation from disk
    */
-  private async loadTaskCorrelationFromDisk(taskId: string): Promise<TaskCorrelation | undefined> {
-    const correlationPath = join(this.storageDir, 'correlations', `${taskId}.json`);
+  private async loadTaskCorrelationFromDisk(
+    taskId: string,
+  ): Promise<TaskCorrelation | undefined> {
+    const correlationPath = join(
+      this.storageDir,
+      'correlations',
+      `${taskId}.json`,
+    );
 
     try {
       if (await fse.pathExists(correlationPath)) {
@@ -574,7 +622,7 @@ export class SessionManager {
 
     const files = await fsPromises.readdir(correlationsDir);
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const taskId = file.replace('.json', '');
         const correlation = await fse.readJSON(join(correlationsDir, file));
@@ -599,7 +647,7 @@ export class SessionManager {
 
     const files = await fsPromises.readdir(activeDir);
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const session = await fse.readJSON(join(activeDir, file));
         if (session.sessionId !== this.currentSession.sessionId) {
@@ -617,7 +665,11 @@ export class SessionManager {
    * Save session handoff record
    */
   private async saveSessionHandoff(handoff: SessionHandoff): Promise<void> {
-    const handoffPath = join(this.storageDir, 'handoffs', `${handoff.handoffId}.json`);
+    const handoffPath = join(
+      this.storageDir,
+      'handoffs',
+      `${handoff.handoffId}.json`,
+    );
     await fse.writeJSON(handoffPath, handoff, { spaces: 2 });
   }
 
@@ -664,10 +716,16 @@ export class SessionManager {
         // Mark session as inactive
         session.status = 'inactive';
 
-        const sessionPath = join(this.storageDir, 'active', `${sessionId}.json`);
+        const sessionPath = join(
+          this.storageDir,
+          'active',
+          `${sessionId}.json`,
+        );
         await fse.writeJSON(sessionPath, session, { spaces: 2 });
 
-        logger.debug(`Marked session ${sessionId} as inactive due to inactivity`);
+        logger.debug(
+          `Marked session ${sessionId} as inactive due to inactivity`,
+        );
       }
     }
 
@@ -694,14 +752,17 @@ export class SessionManager {
 
     let cleanedCount = 0;
 
-    for (const file of files.filter(f => f.endsWith('.json'))) {
+    for (const file of files.filter((f) => f.endsWith('.json'))) {
       try {
         const sessionPath = join(activeDir, file);
         const session = await fse.readJSON(sessionPath);
 
         const lastActivity = new Date(session.lastActivityAt).getTime();
 
-        if (now - lastActivity > staleThreshold && session.sessionId !== this.currentSession.sessionId) {
+        if (
+          now - lastActivity > staleThreshold &&
+          session.sessionId !== this.currentSession.sessionId
+        ) {
           // Move to completed directory
           session.status = 'completed';
           const completedPath = join(completedDir, file);
@@ -714,7 +775,10 @@ export class SessionManager {
           logger.debug(`Cleaned up stale session ${session.sessionId}`);
         }
       } catch (error) {
-        logger.warn(`Failed to process session file ${file} during cleanup:`, error);
+        logger.warn(
+          `Failed to process session file ${file} during cleanup:`,
+          error,
+        );
       }
     }
 
@@ -735,8 +799,16 @@ export class SessionManager {
     this.currentSession.status = 'completed';
     this.currentSession.lastActivityAt = new Date().toISOString();
 
-    const sessionPath = join(this.storageDir, 'active', `${this.currentSession.sessionId}.json`);
-    const completedPath = join(this.storageDir, 'completed', `${this.currentSession.sessionId}.json`);
+    const sessionPath = join(
+      this.storageDir,
+      'active',
+      `${this.currentSession.sessionId}.json`,
+    );
+    const completedPath = join(
+      this.storageDir,
+      'completed',
+      `${this.currentSession.sessionId}.json`,
+    );
 
     await fse.writeJSON(completedPath, this.currentSession, { spaces: 2 });
 
@@ -744,7 +816,9 @@ export class SessionManager {
       await fse.remove(sessionPath);
     }
 
-    logger.info(`Session ${this.currentSession.sessionId} shut down gracefully`);
+    logger.info(
+      `Session ${this.currentSession.sessionId} shut down gracefully`,
+    );
   }
 
   /**
@@ -771,16 +845,24 @@ export class SessionManager {
     const completedDir = join(this.storageDir, 'completed');
     const correlationsDir = join(this.storageDir, 'correlations');
 
-    const completedSessionsCount = await fse.pathExists(completedDir)
-      ? (await fsPromises.readdir(completedDir)).filter(f => f.endsWith('.json')).length
+    const completedSessionsCount = (await fse.pathExists(completedDir))
+      ? (await fsPromises.readdir(completedDir)).filter((f) =>
+          f.endsWith('.json'),
+        ).length
       : 0;
 
-    const totalTasksCount = await fse.pathExists(correlationsDir)
-      ? (await fsPromises.readdir(correlationsDir)).filter(f => f.endsWith('.json')).length
+    const totalTasksCount = (await fse.pathExists(correlationsDir))
+      ? (await fsPromises.readdir(correlationsDir)).filter((f) =>
+          f.endsWith('.json'),
+        ).length
       : 0;
 
-    const completedTasksCount = await fse.pathExists(join(this.storageDir, 'completed'))
-      ? (await fsPromises.readdir(join(this.storageDir, 'completed'))).filter(f => f.endsWith('.json')).length
+    const completedTasksCount = (await fse.pathExists(
+      join(this.storageDir, 'completed'),
+    ))
+      ? (await fsPromises.readdir(join(this.storageDir, 'completed'))).filter(
+          (f) => f.endsWith('.json'),
+        ).length
       : 0;
 
     return {

@@ -75,6 +75,7 @@ The Automatic Validation System is an enterprise-grade quality assurance framewo
 ## Quality Gates
 
 ### Feature Implementation Gates
+
 1. **Linting Validation** (ERROR) - ESLint with zero warnings tolerance
 2. **Type Checking** (ERROR) - TypeScript strict type validation
 3. **Build Validation** (ERROR) - Project builds successfully
@@ -85,6 +86,7 @@ The Automatic Validation System is an enterprise-grade quality assurance framewo
 8. **File Integrity** (WARNING) - File system integrity validation
 
 ### Bug Fix Gates
+
 1. **Linting Validation** (ERROR)
 2. **Type Checking** (ERROR)
 3. **Regression Testing** (ERROR) - Prevent regression issues
@@ -92,6 +94,7 @@ The Automatic Validation System is an enterprise-grade quality assurance framewo
 5. **Git Status Check** (ERROR)
 
 ### Refactoring Gates
+
 1. **Comprehensive Linting** (ERROR)
 2. **Full Type Checking** (ERROR)
 3. **Complete Test Suite** (ERROR) - All tests must pass
@@ -99,12 +102,14 @@ The Automatic Validation System is an enterprise-grade quality assurance framewo
 5. **Git Status Check** (ERROR)
 
 ### Testing Gates
+
 1. **Test Syntax Validation** (ERROR)
 2. **Test Execution** (ERROR)
 3. **Coverage Validation** (WARNING)
 4. **Git Status Check** (ERROR)
 
 ### Documentation Gates
+
 1. **Markdown Validation** (WARNING)
 2. **Link Validation** (WARNING)
 3. **Spell Checking** (WARNING)
@@ -137,14 +142,14 @@ validation-cli validate-commit --commit-message "feat: add user authentication"
 import {
   validateTaskCompletion,
   isProjectReadyForCompletion,
-  getStopAuthorizationStatus
+  getStopAuthorizationStatus,
 } from '@google/gemini-validation';
 
 // Basic task validation
 const result = await validateTaskCompletion(
   '/path/to/project',
   'Implement user authentication',
-  'feature'
+  'feature',
 );
 
 if (result.passed) {
@@ -173,7 +178,7 @@ const integration = new ValidationIntegration('/path/to/project');
 // Before marking TodoWrite task as complete
 const result = await integration.validateTaskCompletion(
   'Fix authentication bug in login flow',
-  'bug-fix'
+  'bug-fix',
 );
 
 if (result.passed) {
@@ -182,7 +187,7 @@ if (result.passed) {
 } else {
   // Block completion, show required actions
   console.log('Cannot complete task:', result.summary);
-  result.report.recommendations.forEach(rec => {
+  result.report.recommendations.forEach((rec) => {
     console.log(`• ${rec.title}: ${rec.description}`);
   });
 }
@@ -194,11 +199,11 @@ if (result.passed) {
 
 ```typescript
 const config = {
-  maxConcurrentGates: 5,        // Parallel gate execution
-  defaultGateTimeoutMs: 60000,  // 1 minute timeout
-  slowGateThresholdMs: 30000,   // 30 second slow gate threshold
-  enableEvidence: true,         // Evidence collection
-  evidenceRetentionDays: 30     // Evidence retention period
+  maxConcurrentGates: 5, // Parallel gate execution
+  defaultGateTimeoutMs: 60000, // 1 minute timeout
+  slowGateThresholdMs: 30000, // 30 second slow gate threshold
+  enableEvidence: true, // Evidence collection
+  evidenceRetentionDays: 30, // Evidence retention period
 };
 ```
 
@@ -330,23 +335,25 @@ interface ValidationReport {
 
 ### Common Issues and Solutions
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `VALIDATION_TIMEOUT` | Gate exceeded timeout | Increase timeout or optimize slow operations |
-| `LINTING_FAILED` | ESLint errors | Run `npm run lint:fix` and fix remaining issues |
-| `BUILD_FAILED` | Compilation errors | Fix TypeScript/build errors |
-| `TESTS_FAILED` | Test failures | Fix failing tests or update expectations |
-| `SECURITY_ISSUES` | Vulnerabilities found | Update dependencies, fix security issues |
-| `GIT_DIRTY` | Uncommitted changes | Commit or stash changes before validation |
+| Error                | Cause                 | Solution                                        |
+| -------------------- | --------------------- | ----------------------------------------------- |
+| `VALIDATION_TIMEOUT` | Gate exceeded timeout | Increase timeout or optimize slow operations    |
+| `LINTING_FAILED`     | ESLint errors         | Run `npm run lint:fix` and fix remaining issues |
+| `BUILD_FAILED`       | Compilation errors    | Fix TypeScript/build errors                     |
+| `TESTS_FAILED`       | Test failures         | Fix failing tests or update expectations        |
+| `SECURITY_ISSUES`    | Vulnerabilities found | Update dependencies, fix security issues        |
+| `GIT_DIRTY`          | Uncommitted changes   | Commit or stash changes before validation       |
 
 ### Debugging Validation Issues
 
 1. **Enable Verbose Logging**
+
    ```bash
    DEBUG=validation* validation-cli validate-task --description "task"
    ```
 
 2. **Check Individual Gates**
+
    ```bash
    npm run lint        # Check linting
    npm run typecheck   # Check types
@@ -436,6 +443,7 @@ validation-cli --health-check
 ### Support and Debugging
 
 1. **Enable Debug Mode**
+
    ```bash
    NODE_ENV=development DEBUG=validation* validation-cli validate-task
    ```
@@ -461,11 +469,15 @@ Main validation engine with comprehensive quality gates.
 
 ```typescript
 class AutomaticValidationSystem {
-  constructor(projectRoot: string, config?: ValidationConfig, logger?: ValidationLogger);
+  constructor(
+    projectRoot: string,
+    config?: ValidationConfig,
+    logger?: ValidationLogger,
+  );
 
   async validateTaskCompletion(
     taskType: TaskType,
-    context?: ValidationContext
+    context?: ValidationContext,
   ): Promise<ValidationResult>;
 }
 ```
@@ -480,12 +492,14 @@ class ValidationIntegration {
 
   async validateTaskCompletion(
     taskDescription: string,
-    taskCategory: TaskCategory
+    taskCategory: TaskCategory,
   ): Promise<ValidationResult>;
 
   async validateFeatureCompletion(featureId: string): Promise<ValidationResult>;
   async validateProjectCompletion(): Promise<ValidationResult>;
-  async validateCommitReadiness(commitMessage: string): Promise<ValidationResult>;
+  async validateCommitReadiness(
+    commitMessage: string,
+  ): Promise<ValidationResult>;
 }
 ```
 
@@ -499,7 +513,7 @@ class ValidationCLI {
 
   async executeCommand(
     command: ValidationCommand,
-    args: ValidationCommandArgs
+    args: ValidationCommandArgs,
   ): Promise<void>;
 }
 ```
@@ -514,7 +528,7 @@ Quick validation utility for common use cases.
 async function validateTaskCompletion(
   projectRoot: string,
   taskDescription: string,
-  taskCategory: TaskCategory
+  taskCategory: TaskCategory,
 ): Promise<ValidationResult>;
 ```
 
@@ -524,7 +538,7 @@ Check if project meets completion criteria.
 
 ```typescript
 async function isProjectReadyForCompletion(
-  projectRoot: string
+  projectRoot: string,
 ): Promise<boolean>;
 ```
 
@@ -535,7 +549,7 @@ Get stop authorization recommendation with detailed analysis.
 ```typescript
 async function getStopAuthorizationStatus(
   projectRoot: string,
-  taskDescription?: string
+  taskDescription?: string,
 ): Promise<StopAuthorizationRecommendation>;
 ```
 

@@ -38,10 +38,31 @@ export interface AutonomousTask {
   metadata: Record<string, unknown>;
 }
 
-export type TaskType = 'implementation' | 'testing' | 'documentation' | 'validation' | 'deployment' | 'analysis';
+export type TaskType =
+  | 'implementation'
+  | 'testing'
+  | 'documentation'
+  | 'validation'
+  | 'deployment'
+  | 'analysis';
 export type TaskPriority = 'critical' | 'high' | 'normal' | 'low';
-export type TaskStatus = 'queued' | 'assigned' | 'in_progress' | 'blocked' | 'completed' | 'failed' | 'cancelled';
-export type AgentCapability = 'frontend' | 'backend' | 'testing' | 'documentation' | 'security' | 'performance' | 'analysis' | 'validation';
+export type TaskStatus =
+  | 'queued'
+  | 'assigned'
+  | 'in_progress'
+  | 'blocked'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+export type AgentCapability =
+  | 'frontend'
+  | 'backend'
+  | 'testing'
+  | 'documentation'
+  | 'security'
+  | 'performance'
+  | 'analysis'
+  | 'validation';
 
 export interface RegisteredAgent {
   id: string;
@@ -59,7 +80,14 @@ export interface RegisteredAgent {
 }
 
 export interface TaskEvent {
-  type: 'task_created' | 'task_assigned' | 'task_started' | 'task_completed' | 'task_failed' | 'agent_registered' | 'agent_disconnected';
+  type:
+    | 'task_created'
+    | 'task_assigned'
+    | 'task_started'
+    | 'task_completed'
+    | 'task_failed'
+    | 'agent_registered'
+    | 'agent_disconnected';
   taskId?: string;
   agentId?: string;
   timestamp: Date;
@@ -205,7 +233,7 @@ export class AutonomousTaskIntegrator extends EventEmitter {
    */
   private async processQueuedTasks(): Promise<void> {
     const queuedTasks = Array.from(this.taskQueue.values())
-      .filter(task => task.status === 'queued')
+      .filter((task) => task.status === 'queued')
       .sort((a, b) => this.comparePriority(a.priority, b.priority));
 
     for (const task of queuedTasks) {
@@ -228,13 +256,17 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   /**
    * Assign a task to an agent
    */
-  private async assignTask(task: AutonomousTask, agent: RegisteredAgent): Promise<void> {
+  private async assignTask(
+    task: AutonomousTask,
+    agent: RegisteredAgent,
+  ): Promise<void> {
     task.status = 'assigned';
     task.assignedAgent = agent.id;
     task.updatedAt = new Date();
 
     agent.currentTasks.push(task.id);
-    agent.status = agent.currentTasks.length >= agent.maxConcurrentTasks ? 'busy' : 'active';
+    agent.status =
+      agent.currentTasks.length >= agent.maxConcurrentTasks ? 'busy' : 'active';
 
     this.taskQueue.set(task.id, task);
     this.agentRegistry.set(agent.id, agent);
@@ -257,7 +289,10 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   /**
    * Execute a task using CoreToolScheduler
    */
-  private async executeTask(task: AutonomousTask, agent: RegisteredAgent): Promise<void> {
+  private async executeTask(
+    task: AutonomousTask,
+    agent: RegisteredAgent,
+  ): Promise<void> {
     task.status = 'in_progress';
     task.startedAt = new Date();
     task.updatedAt = new Date();
@@ -291,18 +326,24 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   /**
    * Handle task completion
    */
-  private async handleTaskCompletion(task: AutonomousTask, agent: RegisteredAgent): Promise<void> {
+  private async handleTaskCompletion(
+    task: AutonomousTask,
+    agent: RegisteredAgent,
+  ): Promise<void> {
     task.status = 'completed';
     task.completedAt = new Date();
     task.updatedAt = new Date();
 
     // Update agent metrics
-    agent.currentTasks = agent.currentTasks.filter(taskId => taskId !== task.id);
+    agent.currentTasks = agent.currentTasks.filter(
+      (taskId) => taskId !== task.id,
+    );
     agent.status = agent.currentTasks.length === 0 ? 'idle' : 'active';
     agent.performance.completedTasks++;
 
     if (task.startedAt) {
-      const completionTime = task.completedAt.getTime() - task.startedAt.getTime();
+      const completionTime =
+        task.completedAt.getTime() - task.startedAt.getTime();
       agent.performance.averageCompletionTime =
         (agent.performance.averageCompletionTime + completionTime) / 2;
     }
@@ -315,7 +356,11 @@ export class AutonomousTaskIntegrator extends EventEmitter {
       taskId: task.id,
       agentId: agent.id,
       timestamp: new Date(),
-      data: { task, completionTime: task.completedAt.getTime() - (task.startedAt?.getTime() || 0) },
+      data: {
+        task,
+        completionTime:
+          task.completedAt.getTime() - (task.startedAt?.getTime() || 0),
+      },
     };
 
     this.emit('task_completed', event);
@@ -327,17 +372,24 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   /**
    * Handle task failure
    */
-  private async handleTaskFailure(task: AutonomousTask, agent: RegisteredAgent, error: Error): Promise<void> {
+  private async handleTaskFailure(
+    task: AutonomousTask,
+    agent: RegisteredAgent,
+    error: Error,
+  ): Promise<void> {
     task.status = 'failed';
     task.updatedAt = new Date();
     task.metadata.error = error.message;
 
     // Update agent metrics
-    agent.currentTasks = agent.currentTasks.filter(taskId => taskId !== task.id);
+    agent.currentTasks = agent.currentTasks.filter(
+      (taskId) => taskId !== task.id,
+    );
     agent.status = agent.currentTasks.length === 0 ? 'idle' : 'active';
 
     const totalTasks = agent.performance.completedTasks + 1;
-    agent.performance.successRate = agent.performance.completedTasks / totalTasks;
+    agent.performance.successRate =
+      agent.performance.completedTasks / totalTasks;
 
     this.taskQueue.set(task.id, task);
     this.agentRegistry.set(agent.id, agent);
@@ -430,30 +482,46 @@ export class AutonomousTaskIntegrator extends EventEmitter {
     const tasks = Array.from(this.taskQueue.values());
     const agents = Array.from(this.agentRegistry.values());
 
-    const tasksByStatus = tasks.reduce((acc, task) => {
-      acc[task.status] = (acc[task.status] || 0) + 1;
-      return acc;
-    }, {} as Record<TaskStatus, number>);
+    const tasksByStatus = tasks.reduce(
+      (acc, task) => {
+        acc[task.status] = (acc[task.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<TaskStatus, number>,
+    );
 
-    const tasksByType = tasks.reduce((acc, task) => {
-      acc[task.type] = (acc[task.type] || 0) + 1;
-      return acc;
-    }, {} as Record<TaskType, number>);
+    const tasksByType = tasks.reduce(
+      (acc, task) => {
+        acc[task.type] = (acc[task.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<TaskType, number>,
+    );
 
-    const tasksByPriority = tasks.reduce((acc, task) => {
-      acc[task.priority] = (acc[task.priority] || 0) + 1;
-      return acc;
-    }, {} as Record<TaskPriority, number>);
+    const tasksByPriority = tasks.reduce(
+      (acc, task) => {
+        acc[task.priority] = (acc[task.priority] || 0) + 1;
+        return acc;
+      },
+      {} as Record<TaskPriority, number>,
+    );
 
-    const agentsByStatus = agents.reduce((acc, agent) => {
-      acc[agent.status] = (acc[agent.status] || 0) + 1;
-      return acc;
-    }, { active: 0, busy: 0, idle: 0, offline: 0 });
+    const agentsByStatus = agents.reduce(
+      (acc, agent) => {
+        acc[agent.status] = (acc[agent.status] || 0) + 1;
+        return acc;
+      },
+      { active: 0, busy: 0, idle: 0, offline: 0 },
+    );
 
-    const queuedTasks = tasks.filter(task => task.status === 'queued');
-    const avgWaitTime = queuedTasks.length > 0
-      ? queuedTasks.reduce((sum, task) => sum + (Date.now() - task.createdAt.getTime()), 0) / queuedTasks.length
-      : 0;
+    const queuedTasks = tasks.filter((task) => task.status === 'queued');
+    const avgWaitTime =
+      queuedTasks.length > 0
+        ? queuedTasks.reduce(
+            (sum, task) => sum + (Date.now() - task.createdAt.getTime()),
+            0,
+          ) / queuedTasks.length
+        : 0;
 
     return {
       tasks: {
@@ -477,7 +545,9 @@ export class AutonomousTaskIntegrator extends EventEmitter {
 
   private setupEventHandlers(): void {
     this.on('task_completed', (event: TaskEvent) => {
-      console.log(`✅ Task ${event.taskId} completed by agent ${event.agentId}`);
+      console.log(
+        `✅ Task ${event.taskId} completed by agent ${event.agentId}`,
+      );
     });
 
     this.on('task_failed', (event: TaskEvent) => {
@@ -485,7 +555,9 @@ export class AutonomousTaskIntegrator extends EventEmitter {
     });
 
     this.on('agent_registered', (event: TaskEvent) => {
-      console.log(`🤖 Agent ${event.agentId} registered with capabilities: ${event.data.capabilities}`);
+      console.log(
+        `🤖 Agent ${event.agentId} registered with capabilities: ${event.data.capabilities}`,
+      );
     });
   }
 
@@ -509,7 +581,7 @@ export class AutonomousTaskIntegrator extends EventEmitter {
       status: 'healthy',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     }));
 
     console.log(`🔌 Registered ${this.apiEndpoints.size} API endpoints`);
@@ -524,8 +596,10 @@ export class AutonomousTaskIntegrator extends EventEmitter {
     setInterval(() => {
       const now = new Date();
       for (const [agentId, agent] of this.agentRegistry) {
-        const timeSinceHeartbeat = now.getTime() - agent.lastHeartbeat.getTime();
-        if (timeSinceHeartbeat > 60000) { // 1 minute timeout
+        const timeSinceHeartbeat =
+          now.getTime() - agent.lastHeartbeat.getTime();
+        if (timeSinceHeartbeat > 60000) {
+          // 1 minute timeout
           agent.status = 'offline';
           this.agentRegistry.set(agentId, agent);
 
@@ -542,7 +616,10 @@ export class AutonomousTaskIntegrator extends EventEmitter {
     }, 30000); // Check every 30 seconds
   }
 
-  private handleToolOutput(toolCallId: string, outputChunk: string | any): void {
+  private handleToolOutput(
+    toolCallId: string,
+    outputChunk: string | any,
+  ): void {
     // Handle real-time tool output updates
     this.emit('tool_output', { toolCallId, output: outputChunk });
   }
@@ -563,10 +640,12 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   }
 
   private isComplexTask(task: AutonomousTask): boolean {
-    return task.description.length > 200 ||
-           task.dependencies.length > 0 ||
-           task.type === 'implementation' ||
-           task.requiredCapabilities.length > 2;
+    return (
+      task.description.length > 200 ||
+      task.dependencies.length > 0 ||
+      task.type === 'implementation' ||
+      task.requiredCapabilities.length > 2
+    );
   }
 
   private async createTodoBreakdown(task: AutonomousTask): Promise<void> {
@@ -597,7 +676,7 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   private areDependenciesSatisfied(task: AutonomousTask): boolean {
     if (task.dependencies.length === 0) return true;
 
-    return task.dependencies.every(depId => {
+    return task.dependencies.every((depId) => {
       const depTask = this.taskQueue.get(depId);
       return depTask?.status === 'completed';
     });
@@ -605,27 +684,39 @@ export class AutonomousTaskIntegrator extends EventEmitter {
 
   private findSuitableAgent(task: AutonomousTask): RegisteredAgent | null {
     const availableAgents = Array.from(this.agentRegistry.values())
-      .filter(agent =>
-        agent.status !== 'offline' &&
-        agent.currentTasks.length < agent.maxConcurrentTasks &&
-        this.agentHasRequiredCapabilities(agent, task.requiredCapabilities)
+      .filter(
+        (agent) =>
+          agent.status !== 'offline' &&
+          agent.currentTasks.length < agent.maxConcurrentTasks &&
+          this.agentHasRequiredCapabilities(agent, task.requiredCapabilities),
       )
       .sort((a, b) => {
         // Sort by performance and availability
-        const aScore = a.performance.successRate * (1 - a.currentTasks.length / a.maxConcurrentTasks);
-        const bScore = b.performance.successRate * (1 - b.currentTasks.length / b.maxConcurrentTasks);
+        const aScore =
+          a.performance.successRate *
+          (1 - a.currentTasks.length / a.maxConcurrentTasks);
+        const bScore =
+          b.performance.successRate *
+          (1 - b.currentTasks.length / b.maxConcurrentTasks);
         return bScore - aScore;
       });
 
     return availableAgents[0] || null;
   }
 
-  private agentHasRequiredCapabilities(agent: RegisteredAgent, required: AgentCapability[]): boolean {
+  private agentHasRequiredCapabilities(
+    agent: RegisteredAgent,
+    required: AgentCapability[],
+  ): boolean {
     if (required.length === 0) return true;
-    return required.every(capability => agent.capabilities.includes(capability));
+    return required.every((capability) =>
+      agent.capabilities.includes(capability),
+    );
   }
 
-  private async convertTaskToToolRequests(task: AutonomousTask): Promise<ToolCallRequestInfo[]> {
+  private async convertTaskToToolRequests(
+    task: AutonomousTask,
+  ): Promise<ToolCallRequestInfo[]> {
     // Convert autonomous task to CoreToolScheduler tool requests
     // This is a simplified example - would be enhanced based on task type
     const requests: ToolCallRequestInfo[] = [];
@@ -636,9 +727,7 @@ export class AutonomousTaskIntegrator extends EventEmitter {
         callId: `task_${task.id}_impl`,
         name: 'write_todos_list',
         args: {
-          todos: [
-            { description: task.description, status: 'in_progress' }
-          ]
+          todos: [{ description: task.description, status: 'in_progress' }],
         },
       });
     }

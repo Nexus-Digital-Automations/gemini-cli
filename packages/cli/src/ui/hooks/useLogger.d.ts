@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Storage , Logger } from '@google/gemini-cli-core';
+import type { Storage, Logger } from '@google/gemini-cli-core';
 /**
  * Hook to manage the logger instance.
  */

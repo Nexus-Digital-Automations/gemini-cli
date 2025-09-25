@@ -6,10 +6,10 @@
 
 import * as vscode from 'vscode';
 export function createLogger(context, logger) {
-    return (message) => {
-        if (context.extensionMode === vscode.ExtensionMode.Development) {
-            logger.appendLine(message);
-        }
-    };
+  return (message) => {
+    if (context.extensionMode === vscode.ExtensionMode.Development) {
+      logger.appendLine(message);
+    }
+  };
 }
 //# sourceMappingURL=logger.js.map

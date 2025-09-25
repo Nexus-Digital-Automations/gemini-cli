@@ -6,9 +6,9 @@
 
 import type { CommandModule } from 'yargs';
 interface StopOptions {
-    force?: boolean;
-    timeout?: number;
-    'save-state'?: boolean;
+  force?: boolean;
+  timeout?: number;
+  'save-state'?: boolean;
 }
 export declare const stopCommand: CommandModule<{}, StopOptions>;
 export {};

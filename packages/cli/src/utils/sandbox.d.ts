@@ -5,4 +5,9 @@
  */
 
 import type { Config, SandboxConfig } from '@google/gemini-cli-core';
-export declare function start_sandbox(config: SandboxConfig, nodeArgs?: string[], cliConfig?: Config, cliArgs?: string[]): Promise<number>;
+export declare function start_sandbox(
+  config: SandboxConfig,
+  nodeArgs?: string[],
+  cliConfig?: Config,
+  cliArgs?: string[],
+): Promise<number>;

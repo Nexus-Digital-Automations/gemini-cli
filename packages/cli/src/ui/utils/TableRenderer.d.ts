@@ -6,9 +6,9 @@
 
 import type React from 'react';
 interface TableRendererProps {
-    headers: string[];
-    rows: string[][];
-    terminalWidth: number;
+  headers: string[];
+  rows: string[][];
+  terminalWidth: number;
 }
 /**
  * Custom table renderer for markdown tables

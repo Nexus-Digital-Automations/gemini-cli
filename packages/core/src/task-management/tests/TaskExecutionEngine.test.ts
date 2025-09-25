@@ -14,7 +14,7 @@ import type {
   TaskStatus,
   TaskType,
   TaskPriority,
-  TaskComplexity
+  TaskComplexity,
 } from '../TaskExecutionEngine.js';
 import type { Config } from '../../config/config.js';
 
@@ -32,12 +32,12 @@ const mockConfig: Partial<Config> = {
     getTool: vi.fn(),
     getAllTools: vi.fn(() => []),
     getAllToolNames: vi.fn(() => []),
-    getFunctionDeclarationsFiltered: vi.fn(() => [])
+    getFunctionDeclarationsFiltered: vi.fn(() => []),
   })),
   storage: {
-    getProjectTempDir: vi.fn(() => '/tmp/test-project')
+    getProjectTempDir: vi.fn(() => '/tmp/test-project'),
   } as any,
-  getSessionId: vi.fn(() => 'test-session')
+  getSessionId: vi.fn(() => 'test-session'),
 };
 
 // Mock SubAgentScope
@@ -48,22 +48,22 @@ vi.mock('../core/subagent.js', () => ({
       output: {
         terminate_reason: 'GOAL',
         emitted_vars: {
-          'test_output': 'test_value'
-        }
-      }
-    }))
+          test_output: 'test_value',
+        },
+      },
+    })),
   },
   ContextState: vi.fn(() => ({
     set: vi.fn(),
     get: vi.fn(),
-    get_keys: vi.fn(() => [])
+    get_keys: vi.fn(() => []),
   })),
   SubagentTerminateMode: {
     GOAL: 'GOAL',
     ERROR: 'ERROR',
     TIMEOUT: 'TIMEOUT',
-    MAX_TURNS: 'MAX_TURNS'
-  }
+    MAX_TURNS: 'MAX_TURNS',
+  },
 }));
 
 describe('TaskExecutionEngine', () => {
@@ -75,13 +75,13 @@ describe('TaskExecutionEngine', () => {
     mockEvents = {
       onStatusChange: vi.fn(),
       onComplete: vi.fn(),
-      onFailed: vi.fn()
+      onFailed: vi.fn(),
     };
 
     taskEngine = new TaskExecutionEngine(mockConfig as Config, {
       onTaskStatusChange: mockEvents.onStatusChange,
       onTaskComplete: mockEvents.onComplete,
-      onTaskFailed: mockEvents.onFailed
+      onTaskFailed: mockEvents.onFailed,
     });
   });
 
@@ -94,7 +94,7 @@ describe('TaskExecutionEngine', () => {
     it('should queue a task with default parameters', async () => {
       const taskId = await taskEngine.queueTask(
         'Test Task',
-        'A simple test task description'
+        'A simple test task description',
       );
 
       expect(taskId).toBeTruthy();
@@ -115,15 +115,15 @@ describe('TaskExecutionEngine', () => {
           type: 'implementation',
           priority: 'high',
           expectedOutputs: {
-            'auth_system': 'Complete authentication implementation',
-            'tests': 'Comprehensive test suite'
+            auth_system: 'Complete authentication implementation',
+            tests: 'Comprehensive test suite',
           },
           context: {
             featureId: 'auth-feature-123',
-            requirements: ['JWT', 'OAuth', '2FA']
+            requirements: ['JWT', 'OAuth', '2FA'],
           },
-          maxExecutionTimeMinutes: 120
-        }
+          maxExecutionTimeMinutes: 120,
+        },
       );
 
       const task = taskEngine.getTask(taskId);
@@ -132,12 +132,12 @@ describe('TaskExecutionEngine', () => {
       expect(task?.priority).toBe('high');
       expect(task?.maxExecutionTimeMinutes).toBe(120);
       expect(task?.expectedOutputs).toEqual({
-        'auth_system': 'Complete authentication implementation',
-        'tests': 'Comprehensive test suite'
+        auth_system: 'Complete authentication implementation',
+        tests: 'Comprehensive test suite',
       });
       expect(task?.context).toEqual({
         featureId: 'auth-feature-123',
-        requirements: ['JWT', 'OAuth', '2FA']
+        requirements: ['JWT', 'OAuth', '2FA'],
       });
     });
 
@@ -145,7 +145,7 @@ describe('TaskExecutionEngine', () => {
       // Simple task
       const simpleTaskId = await taskEngine.queueTask(
         'Fix typo',
-        'Fix a typo in documentation'
+        'Fix a typo in documentation',
       );
       const simpleTask = taskEngine.getTask(simpleTaskId);
       expect(simpleTask?.complexity).toBe('trivial');
@@ -153,7 +153,7 @@ describe('TaskExecutionEngine', () => {
       // Complex task
       const complexTaskId = await taskEngine.queueTask(
         'Implement Multi-Agent Distributed System',
-        'Build a comprehensive distributed system with microservices architecture, real-time monitoring, scalable message queues, automated failover mechanisms, comprehensive security framework, performance optimization, and enterprise-grade logging and analytics platform.'
+        'Build a comprehensive distributed system with microservices architecture, real-time monitoring, scalable message queues, automated failover mechanisms, comprehensive security framework, performance optimization, and enterprise-grade logging and analytics platform.',
       );
       const complexTask = taskEngine.getTask(complexTaskId);
       expect(['complex', 'enterprise']).toContain(complexTask?.complexity);
@@ -163,27 +163,38 @@ describe('TaskExecutionEngine', () => {
   describe('Task Retrieval and Filtering', () => {
     beforeEach(async () => {
       // Set up test tasks
-      await taskEngine.queueTask('Task 1', 'Description 1', { type: 'implementation', priority: 'high' });
-      await taskEngine.queueTask('Task 2', 'Description 2', { type: 'testing', priority: 'normal' });
-      await taskEngine.queueTask('Task 3', 'Description 3', { type: 'documentation', priority: 'low' });
+      await taskEngine.queueTask('Task 1', 'Description 1', {
+        type: 'implementation',
+        priority: 'high',
+      });
+      await taskEngine.queueTask('Task 2', 'Description 2', {
+        type: 'testing',
+        priority: 'normal',
+      });
+      await taskEngine.queueTask('Task 3', 'Description 3', {
+        type: 'documentation',
+        priority: 'low',
+      });
     });
 
     it('should retrieve all tasks', () => {
       const allTasks = taskEngine.getAllTasks();
       expect(allTasks).toHaveLength(3);
-      expect(allTasks.map(t => t.title)).toEqual(
-        expect.arrayContaining(['Task 1', 'Task 2', 'Task 3'])
+      expect(allTasks.map((t) => t.title)).toEqual(
+        expect.arrayContaining(['Task 1', 'Task 2', 'Task 3']),
       );
     });
 
     it('should filter tasks by status', () => {
       const queuedTasks = taskEngine.getAllTasks({ status: 'queued' });
       expect(queuedTasks).toHaveLength(3);
-      expect(queuedTasks.every(t => t.status === 'queued')).toBe(true);
+      expect(queuedTasks.every((t) => t.status === 'queued')).toBe(true);
     });
 
     it('should filter tasks by type', () => {
-      const implementationTasks = taskEngine.getAllTasks({ type: 'implementation' });
+      const implementationTasks = taskEngine.getAllTasks({
+        type: 'implementation',
+      });
       expect(implementationTasks).toHaveLength(1);
       expect(implementationTasks[0].title).toBe('Task 1');
       expect(implementationTasks[0].type).toBe('implementation');
@@ -200,7 +211,7 @@ describe('TaskExecutionEngine', () => {
       const filteredTasks = taskEngine.getAllTasks({
         type: 'implementation',
         priority: 'high',
-        status: 'queued'
+        status: 'queued',
       });
       expect(filteredTasks).toHaveLength(1);
       expect(filteredTasks[0].title).toBe('Task 1');
@@ -210,7 +221,10 @@ describe('TaskExecutionEngine', () => {
   describe('Task Execution Statistics', () => {
     beforeEach(async () => {
       // Create tasks with different statuses for testing
-      const task1Id = await taskEngine.queueTask('Completed Task', 'Description');
+      const task1Id = await taskEngine.queueTask(
+        'Completed Task',
+        'Description',
+      );
       const task2Id = await taskEngine.queueTask('Failed Task', 'Description');
       const task3Id = await taskEngine.queueTask('Running Task', 'Description');
 
@@ -248,7 +262,10 @@ describe('TaskExecutionEngine', () => {
 
   describe('Task Cancellation', () => {
     it('should cancel a queued task', async () => {
-      const taskId = await taskEngine.queueTask('Cancelable Task', 'Description');
+      const taskId = await taskEngine.queueTask(
+        'Cancelable Task',
+        'Description',
+      );
 
       const cancelled = await taskEngine.cancelTask(taskId);
       expect(cancelled).toBe(true);
@@ -266,7 +283,10 @@ describe('TaskExecutionEngine', () => {
   describe('Task Persistence', () => {
     it('should clear completed tasks', async () => {
       // Add a completed task
-      const taskId = await taskEngine.queueTask('Completed Task', 'Description');
+      const taskId = await taskEngine.queueTask(
+        'Completed Task',
+        'Description',
+      );
       const task = taskEngine.getTask(taskId);
       if (task) {
         task.status = 'completed';
@@ -280,7 +300,10 @@ describe('TaskExecutionEngine', () => {
 
   describe('Event Handlers', () => {
     it('should call event handlers when task status changes', async () => {
-      const taskId = await taskEngine.queueTask('Event Test Task', 'Description');
+      const taskId = await taskEngine.queueTask(
+        'Event Test Task',
+        'Description',
+      );
       const task = taskEngine.getTask(taskId);
 
       // Manually trigger status change for testing
@@ -292,7 +315,10 @@ describe('TaskExecutionEngine', () => {
     });
 
     it('should call completion handler when task completes', async () => {
-      const taskId = await taskEngine.queueTask('Completion Test Task', 'Description');
+      const taskId = await taskEngine.queueTask(
+        'Completion Test Task',
+        'Description',
+      );
       const task = taskEngine.getTask(taskId);
 
       if (task) {
@@ -303,7 +329,10 @@ describe('TaskExecutionEngine', () => {
     });
 
     it('should call failure handler when task fails', async () => {
-      const taskId = await taskEngine.queueTask('Failure Test Task', 'Description');
+      const taskId = await taskEngine.queueTask(
+        'Failure Test Task',
+        'Description',
+      );
       const task = taskEngine.getTask(taskId);
       const errorMessage = 'Test error message';
 
@@ -328,7 +357,7 @@ describe('TaskBreakdownAnalyzer', () => {
     it('should identify trivial complexity', async () => {
       const complexity = await analyzer.analyzeComplexity(
         'Fix typo',
-        'Fix a typo in the documentation'
+        'Fix a typo in the documentation',
       );
       expect(complexity).toBe('trivial');
     });
@@ -336,7 +365,7 @@ describe('TaskBreakdownAnalyzer', () => {
     it('should identify simple complexity', async () => {
       const complexity = await analyzer.analyzeComplexity(
         'Update button color',
-        'Change the primary button color from blue to green'
+        'Change the primary button color from blue to green',
       );
       expect(complexity).toBe('simple');
     });
@@ -344,7 +373,7 @@ describe('TaskBreakdownAnalyzer', () => {
     it('should identify moderate complexity', async () => {
       const complexity = await analyzer.analyzeComplexity(
         'Add user validation',
-        'Implement comprehensive user input validation for the registration form including email format validation, password strength checks, and duplicate email detection'
+        'Implement comprehensive user input validation for the registration form including email format validation, password strength checks, and duplicate email detection',
       );
       expect(['moderate', 'simple']).toContain(complexity);
     });
@@ -352,7 +381,7 @@ describe('TaskBreakdownAnalyzer', () => {
     it('should identify complex/enterprise complexity', async () => {
       const complexity = await analyzer.analyzeComplexity(
         'Build distributed microservices architecture',
-        'Design and implement a comprehensive distributed system with microservices architecture, including service discovery, load balancing, circuit breakers, distributed tracing, centralized logging, metrics collection, automated deployment pipelines, security authentication and authorization, data consistency patterns, and fault tolerance mechanisms.'
+        'Design and implement a comprehensive distributed system with microservices architecture, including service discovery, load balancing, circuit breakers, distributed tracing, centralized logging, metrics collection, automated deployment pipelines, security authentication and authorization, data consistency patterns, and fault tolerance mechanisms.',
       );
       expect(['complex', 'enterprise']).toContain(complexity);
     });
@@ -369,7 +398,7 @@ describe('TaskBreakdownAnalyzer', () => {
       // Long title with short description
       const complexity3 = await analyzer.analyzeComplexity(
         'This is a very long task title that describes a complex feature implementation',
-        'Do it'
+        'Do it',
       );
       expect(['trivial', 'simple']).toContain(complexity3);
     });
@@ -384,7 +413,7 @@ describe('TaskExecutionUtils', () => {
         description: 'Valid description',
         maxExecutionTimeMinutes: 60,
         maxRetries: 3,
-        priority: 'normal'
+        priority: 'normal',
       };
 
       const errors = TaskExecutionUtils.validateTask(task);
@@ -393,7 +422,7 @@ describe('TaskExecutionUtils', () => {
 
     it('should identify missing title', () => {
       const task = {
-        description: 'Valid description'
+        description: 'Valid description',
       };
 
       const errors = TaskExecutionUtils.validateTask(task);
@@ -402,7 +431,7 @@ describe('TaskExecutionUtils', () => {
 
     it('should identify missing description', () => {
       const task = {
-        title: 'Valid Task'
+        title: 'Valid Task',
       };
 
       const errors = TaskExecutionUtils.validateTask(task);
@@ -413,7 +442,7 @@ describe('TaskExecutionUtils', () => {
       const task = {
         title: 'Valid Task',
         description: 'Valid description',
-        maxExecutionTimeMinutes: -5
+        maxExecutionTimeMinutes: -5,
       };
 
       const errors = TaskExecutionUtils.validateTask(task);
@@ -424,7 +453,7 @@ describe('TaskExecutionUtils', () => {
       const task = {
         title: 'Valid Task',
         description: 'Valid description',
-        maxRetries: -1
+        maxRetries: -1,
       };
 
       const errors = TaskExecutionUtils.validateTask(task);
@@ -434,14 +463,18 @@ describe('TaskExecutionUtils', () => {
 
   describe('Status Descriptions', () => {
     it('should provide human-readable status descriptions', () => {
-      expect(TaskExecutionUtils.getStatusDescription('queued'))
-        .toBe('Waiting in queue for analysis');
-      expect(TaskExecutionUtils.getStatusDescription('in_progress'))
-        .toBe('Currently executing');
-      expect(TaskExecutionUtils.getStatusDescription('completed'))
-        .toBe('Successfully completed');
-      expect(TaskExecutionUtils.getStatusDescription('failed'))
-        .toBe('Failed execution');
+      expect(TaskExecutionUtils.getStatusDescription('queued')).toBe(
+        'Waiting in queue for analysis',
+      );
+      expect(TaskExecutionUtils.getStatusDescription('in_progress')).toBe(
+        'Currently executing',
+      );
+      expect(TaskExecutionUtils.getStatusDescription('completed')).toBe(
+        'Successfully completed',
+      );
+      expect(TaskExecutionUtils.getStatusDescription('failed')).toBe(
+        'Failed execution',
+      );
     });
   });
 
@@ -467,7 +500,7 @@ describe('TaskExecutionUtils', () => {
         updatedAt: new Date('2025-01-01T00:05:00Z'),
         startedAt: new Date('2025-01-01T00:01:00Z'),
         completedAt: new Date('2025-01-01T00:05:00Z'),
-        retryCount: 1
+        retryCount: 1,
       };
 
       const summary = TaskExecutionUtils.generateTaskSummary(task);
@@ -500,7 +533,7 @@ describe('TaskExecutionUtils', () => {
         createMockTask('task2', 'completed', 120000), // 2 minutes
         createMockTask('task3', 'failed'),
         createMockTask('task4', 'in_progress'),
-        createMockTask('task5', 'queued')
+        createMockTask('task5', 'queued'),
       ];
 
       const stats = TaskExecutionUtils.calculateExecutionStats(tasks);
@@ -518,7 +551,7 @@ describe('TaskExecutionUtils', () => {
 function createMockTask(
   id: string,
   status: TaskStatus,
-  durationMs?: number
+  durationMs?: number,
 ): Task {
   const now = new Date();
   const startTime = new Date(now.getTime() - (durationMs || 0));
@@ -543,6 +576,6 @@ function createMockTask(
     updatedAt: now,
     startedAt: status !== 'queued' ? startTime : undefined,
     completedAt: status === 'completed' ? now : undefined,
-    retryCount: 0
+    retryCount: 0,
   };
 }

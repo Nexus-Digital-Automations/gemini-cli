@@ -13,7 +13,10 @@
  */
 
 import { Logger } from '../../utils/logger.js';
-import type { ValidationResult, ValidationSeverity } from '../core/ValidationEngine.js';
+import type {
+  ValidationResult,
+  ValidationSeverity,
+} from '../core/ValidationEngine.js';
 
 /**
  * Quality scoring weights configuration
@@ -108,7 +111,9 @@ export class QualityScorer {
   public calculateOverallScore(results: ValidationResult[]): number {
     if (results.length === 0) return 0;
 
-    this.logger.debug(`Calculating quality score for ${results.length} validation results`);
+    this.logger.debug(
+      `Calculating quality score for ${results.length} validation results`,
+    );
 
     // Multi-factor scoring approach
     const baseScore = this.calculateBaseScore(results);
@@ -117,9 +122,15 @@ export class QualityScorer {
     const completenessBonus = this.calculateCompletenessBonus(results);
     const trendAdjustment = this.calculateTrendAdjustment(results);
 
-    const totalScore = Math.max(0, Math.min(100,
-      baseScore * severityAdjustment * categoryBalance + completenessBonus + trendAdjustment
-    ));
+    const totalScore = Math.max(
+      0,
+      Math.min(
+        100,
+        baseScore * severityAdjustment * categoryBalance +
+          completenessBonus +
+          trendAdjustment,
+      ),
+    );
 
     this.logger.debug('Quality score calculation breakdown', {
       baseScore: baseScore.toFixed(2),
@@ -127,7 +138,7 @@ export class QualityScorer {
       categoryBalance: categoryBalance.toFixed(2),
       completenessBonus: completenessBonus.toFixed(2),
       trendAdjustment: trendAdjustment.toFixed(2),
-      totalScore: totalScore.toFixed(2)
+      totalScore: totalScore.toFixed(2),
     });
 
     return Math.round(totalScore * 100) / 100; // Round to 2 decimal places
@@ -139,7 +150,7 @@ export class QualityScorer {
   public assessQuality(
     results: ValidationResult[],
     taskId: string,
-    context: Record<string, any> = {}
+    context: Record<string, any> = {},
   ): QualityAssessment {
     this.logger.info(`Generating quality assessment for task: ${taskId}`);
 
@@ -155,7 +166,7 @@ export class QualityScorer {
       taskId,
       score: overallScore,
       results,
-      context
+      context,
     });
 
     const assessment: QualityAssessment = {
@@ -167,15 +178,15 @@ export class QualityScorer {
       metadata: {
         assessmentTimestamp: new Date(),
         dataPoints: results.length,
-        confidenceLevel: this.calculateConfidenceLevel(results)
-      }
+        confidenceLevel: this.calculateConfidenceLevel(results),
+      },
     };
 
     this.logger.info(`Quality assessment completed`, {
       taskId,
       overallScore: overallScore.toFixed(2),
       recommendations: recommendations.length,
-      confidence: assessment.metadata.confidenceLevel
+      confidence: assessment.metadata.confidenceLevel,
     });
 
     return assessment;
@@ -191,14 +202,14 @@ export class QualityScorer {
       const statusWeight = this.scoringWeights.status[result.status] || 0;
       const severityWeight = this.scoringWeights.severity[result.severity] || 1;
 
-      return sum + (result.score * statusWeight * severityWeight);
+      return sum + result.score * statusWeight * severityWeight;
     }, 0);
 
     const totalWeight = results.reduce((sum, result) => {
       const statusWeight = this.scoringWeights.status[result.status] || 0;
       const severityWeight = this.scoringWeights.severity[result.severity] || 1;
 
-      return sum + (statusWeight * severityWeight);
+      return sum + statusWeight * severityWeight;
     }, 0);
 
     return totalWeight > 0 ? weightedSum / totalWeight : 0;
@@ -209,17 +220,17 @@ export class QualityScorer {
    */
   private calculateSeverityAdjustment(results: ValidationResult[]): number {
     const criticalFailures = results.filter(
-      r => r.status === 'failed' && r.severity === 'critical'
+      (r) => r.status === 'failed' && r.severity === 'critical',
     ).length;
 
     const highSeverityFailures = results.filter(
-      r => r.status === 'failed' && r.severity === 'high'
+      (r) => r.status === 'failed' && r.severity === 'high',
     ).length;
 
     // Heavy penalty for critical failures
     let adjustment = 1.0;
-    adjustment -= (criticalFailures * 0.3);
-    adjustment -= (highSeverityFailures * 0.15);
+    adjustment -= criticalFailures * 0.3;
+    adjustment -= highSeverityFailures * 0.15;
 
     return Math.max(0.1, adjustment); // Never go below 10%
   }
@@ -228,12 +239,12 @@ export class QualityScorer {
    * Calculate category balance factor
    */
   private calculateCategoryBalance(results: ValidationResult[]): number {
-    const categories = [...new Set(results.map(r => r.criteriaId))];
+    const categories = [...new Set(results.map((r) => r.criteriaId))];
 
     if (categories.length === 0) return 1.0;
 
-    const categoryPerformance = categories.map(category => {
-      const categoryResults = results.filter(r => r.criteriaId === category);
+    const categoryPerformance = categories.map((category) => {
+      const categoryResults = results.filter((r) => r.criteriaId === category);
       const categoryScore = this.calculateBaseScore(categoryResults);
       const categoryWeight = this.scoringWeights.category[category] || 1;
 
@@ -241,11 +252,17 @@ export class QualityScorer {
     });
 
     // Balance factor rewards consistent performance across categories
-    const avgPerformance = categoryPerformance.reduce((sum, perf) => sum + perf, 0) / categoryPerformance.length;
-    const variance = categoryPerformance.reduce((sum, perf) => sum + Math.pow(perf - avgPerformance, 2), 0) / categoryPerformance.length;
+    const avgPerformance =
+      categoryPerformance.reduce((sum, perf) => sum + perf, 0) /
+      categoryPerformance.length;
+    const variance =
+      categoryPerformance.reduce(
+        (sum, perf) => sum + Math.pow(perf - avgPerformance, 2),
+        0,
+      ) / categoryPerformance.length;
 
     // Lower variance = better balance
-    const balanceFactor = 1 + (Math.max(0, 30 - Math.sqrt(variance)) / 100);
+    const balanceFactor = 1 + Math.max(0, 30 - Math.sqrt(variance)) / 100;
 
     return Math.min(1.2, balanceFactor); // Cap at 20% bonus
   }
@@ -275,7 +292,7 @@ export class QualityScorer {
 
     if (recentHistory.length < 3) return 0; // Not enough data
 
-    const scores = recentHistory.map(h => h.score);
+    const scores = recentHistory.map((h) => h.score);
     const trend = this.calculateTrendSlope(scores);
 
     if (trend > 0.5) return 3; // Improving trend bonus
@@ -287,12 +304,14 @@ export class QualityScorer {
   /**
    * Calculate category-specific scores
    */
-  private calculateCategoryScores(results: ValidationResult[]): Record<string, number> {
-    const categories = [...new Set(results.map(r => r.criteriaId))];
+  private calculateCategoryScores(
+    results: ValidationResult[],
+  ): Record<string, number> {
+    const categories = [...new Set(results.map((r) => r.criteriaId))];
     const categoryScores: Record<string, number> = {};
 
     for (const category of categories) {
-      const categoryResults = results.filter(r => r.criteriaId === category);
+      const categoryResults = results.filter((r) => r.criteriaId === category);
       categoryScores[category] = this.calculateBaseScore(categoryResults);
     }
 
@@ -302,16 +321,18 @@ export class QualityScorer {
   /**
    * Calculate severity breakdown
    */
-  private calculateSeverityBreakdown(results: ValidationResult[]): Record<ValidationSeverity, number> {
+  private calculateSeverityBreakdown(
+    results: ValidationResult[],
+  ): Record<ValidationSeverity, number> {
     const breakdown: Record<ValidationSeverity, number> = {
       critical: 0,
       high: 0,
       medium: 0,
       low: 0,
-      info: 0
+      info: 0,
     };
 
-    results.forEach(result => {
+    results.forEach((result) => {
       breakdown[result.severity] = (breakdown[result.severity] || 0) + 1;
     });
 
@@ -329,11 +350,11 @@ export class QualityScorer {
         improving: false,
         stable: true,
         degrading: false,
-        confidence: 0.1
+        confidence: 0.1,
       };
     }
 
-    const scores = recentHistory.map(h => h.score);
+    const scores = recentHistory.map((h) => h.score);
     const trendSlope = this.calculateTrendSlope(scores);
     const variance = this.calculateVariance(scores);
 
@@ -347,7 +368,7 @@ export class QualityScorer {
       improving,
       stable,
       degrading,
-      confidence
+      confidence,
     };
   }
 
@@ -356,13 +377,13 @@ export class QualityScorer {
    */
   private generateRecommendations(
     results: ValidationResult[],
-    overallScore: number
+    overallScore: number,
   ): QualityRecommendation[] {
     const recommendations: QualityRecommendation[] = [];
 
     // Critical failure recommendations
     const criticalFailures = results.filter(
-      r => r.status === 'failed' && r.severity === 'critical'
+      (r) => r.status === 'failed' && r.severity === 'critical',
     );
 
     if (criticalFailures.length > 0) {
@@ -375,33 +396,36 @@ export class QualityScorer {
         impact: {
           estimated: criticalFailures.length * 15,
           confidence: 95,
-          effort: 'high'
+          effort: 'high',
         },
-        actionItems: criticalFailures.map(f => `Fix: ${f.message}`).slice(0, 5),
-        category: 'critical_fixes'
+        actionItems: criticalFailures
+          .map((f) => `Fix: ${f.message}`)
+          .slice(0, 5),
+        category: 'critical_fixes',
       });
     }
 
     // Performance optimization recommendations
-    const slowValidations = results.filter(r => r.duration > 30000);
+    const slowValidations = results.filter((r) => r.duration > 30000);
     if (slowValidations.length > results.length * 0.3) {
       recommendations.push({
         id: 'optimize_performance',
         type: 'optimization',
         priority: 'medium',
         title: 'Optimize Validation Performance',
-        description: 'Multiple slow validations detected - consider optimization',
+        description:
+          'Multiple slow validations detected - consider optimization',
         impact: {
           estimated: 8,
           confidence: 70,
-          effort: 'medium'
+          effort: 'medium',
         },
         actionItems: [
           'Identify bottleneck validation criteria',
           'Implement parallel execution where possible',
-          'Optimize resource-intensive validations'
+          'Optimize resource-intensive validations',
         ],
-        category: 'performance'
+        category: 'performance',
       });
     }
 
@@ -417,10 +441,10 @@ export class QualityScorer {
         impact: {
           estimated: missingCategories.length * 3,
           confidence: 60,
-          effort: 'medium'
+          effort: 'medium',
         },
-        actionItems: missingCategories.map(cat => `Add ${cat} validation`),
-        category: 'coverage'
+        actionItems: missingCategories.map((cat) => `Add ${cat} validation`),
+        category: 'coverage',
       });
     }
 
@@ -435,14 +459,14 @@ export class QualityScorer {
         impact: {
           estimated: Math.min(20, 90 - overallScore),
           confidence: 80,
-          effort: 'medium'
+          effort: 'medium',
         },
         actionItems: [
           'Focus on failed validation criteria',
           'Improve code quality practices',
-          'Implement automated quality checks'
+          'Implement automated quality checks',
         ],
-        category: 'quality'
+        category: 'quality',
       });
     }
 
@@ -462,7 +486,7 @@ export class QualityScorer {
     confidence += Math.min(50, results.length * 5);
 
     // Varied categories = higher confidence
-    const categories = new Set(results.map(r => r.criteriaId));
+    const categories = new Set(results.map((r) => r.criteriaId));
     confidence += Math.min(30, categories.size * 10);
 
     // Historical data availability
@@ -511,7 +535,9 @@ export class QualityScorer {
     if (values.length === 0) return 0;
 
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    const variance =
+      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      values.length;
 
     return variance;
   }
@@ -520,10 +546,15 @@ export class QualityScorer {
    * Identify missing validation categories
    */
   private identifyMissingCategories(results: ValidationResult[]): string[] {
-    const expectedCategories = ['code_quality', 'security', 'performance', 'functionality'];
-    const presentCategories = new Set(results.map(r => r.criteriaId));
+    const expectedCategories = [
+      'code_quality',
+      'security',
+      'performance',
+      'functionality',
+    ];
+    const presentCategories = new Set(results.map((r) => r.criteriaId));
 
-    return expectedCategories.filter(cat => !presentCategories.has(cat));
+    return expectedCategories.filter((cat) => !presentCategories.has(cat));
   }
 
   /**
@@ -536,14 +567,14 @@ export class QualityScorer {
         high: 1.5,
         medium: 1.2,
         low: 1.0,
-        info: 0.8
+        info: 0.8,
       },
       category: {
         code_quality: 1.2,
         security: 2.0,
         performance: 1.1,
         functionality: 1.5,
-        documentation: 0.8
+        documentation: 0.8,
       },
       status: {
         passed: 1.0,
@@ -551,13 +582,13 @@ export class QualityScorer {
         requires_review: 0.5,
         skipped: 0.1,
         pending: 0.0,
-        validating: 0.0
+        validating: 0.0,
       },
       temporal: {
         recentFailures: 0.8,
         improvementTrend: 1.2,
-        stabilityBonus: 1.1
-      }
+        stabilityBonus: 1.1,
+      },
     };
   }
 
@@ -594,33 +625,39 @@ export class QualityScorer {
         averageScore: 0,
         trend: 'unknown',
         distribution: {},
-        insights: []
+        insights: [],
       };
     }
 
-    const scores = this.qualityHistory.map(h => h.score);
-    const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const scores = this.qualityHistory.map((h) => h.score);
+    const averageScore =
+      scores.reduce((sum, score) => sum + score, 0) / scores.length;
     const trendSlope = this.calculateTrendSlope(scores);
 
     const distribution = {
-      excellent: scores.filter(s => s >= 90).length,
-      good: scores.filter(s => s >= 70 && s < 90).length,
-      fair: scores.filter(s => s >= 50 && s < 70).length,
-      poor: scores.filter(s => s < 50).length
+      excellent: scores.filter((s) => s >= 90).length,
+      good: scores.filter((s) => s >= 70 && s < 90).length,
+      fair: scores.filter((s) => s >= 50 && s < 70).length,
+      poor: scores.filter((s) => s < 50).length,
     };
 
     const insights = [
       `Average quality score: ${averageScore.toFixed(1)}`,
       `Quality trend: ${trendSlope > 0.5 ? 'improving' : trendSlope < -0.5 ? 'declining' : 'stable'}`,
-      `Total assessments: ${this.qualityHistory.length}`
+      `Total assessments: ${this.qualityHistory.length}`,
     ];
 
     return {
       totalAssessments: this.qualityHistory.length,
       averageScore: Math.round(averageScore * 100) / 100,
-      trend: trendSlope > 0.5 ? 'improving' : trendSlope < -0.5 ? 'declining' : 'stable',
+      trend:
+        trendSlope > 0.5
+          ? 'improving'
+          : trendSlope < -0.5
+            ? 'declining'
+            : 'stable',
       distribution,
-      insights
+      insights,
     };
   }
 

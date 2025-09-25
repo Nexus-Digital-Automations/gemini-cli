@@ -35,7 +35,7 @@ export enum DependencyType {
   /** Control dependency - conditional execution */
   CONTROL = 'control',
   /** Anti-dependency - false dependency for optimization */
-  ANTI = 'anti'
+  ANTI = 'anti',
 }
 
 /**
@@ -49,7 +49,7 @@ export enum DependencyStrength {
   /** Optimization hint that can be ignored */
   HINT = 'hint',
   /** User-defined custom strength */
-  CUSTOM = 'custom'
+  CUSTOM = 'custom',
 }
 
 /**
@@ -65,7 +65,7 @@ export enum ViolationResolution {
   /** Attempt automatic resolution */
   AUTO_RESOLVE = 'auto_resolve',
   /** Request manual intervention */
-  MANUAL_RESOLVE = 'manual_resolve'
+  MANUAL_RESOLVE = 'manual_resolve',
 }
 
 /**
@@ -241,7 +241,7 @@ export enum DependencyStatus {
   /** Dependency is disabled */
   DISABLED = 'disabled',
   /** Dependency is pending evaluation */
-  PENDING = 'pending'
+  PENDING = 'pending',
 }
 
 /**
@@ -308,7 +308,7 @@ export enum ViolationType {
   /** Control condition not met */
   CONTROL_VIOLATION = 'control_violation',
   /** Custom violation */
-  CUSTOM = 'custom'
+  CUSTOM = 'custom',
 }
 
 /**
@@ -324,7 +324,7 @@ export enum ViolationSeverity {
   /** Low severity violation */
   LOW = 'low',
   /** Informational violation */
-  INFO = 'info'
+  INFO = 'info',
 }
 
 /**
@@ -413,7 +413,7 @@ export enum NodeExecutionStatus {
   /** Execution cancelled */
   CANCELLED = 'cancelled',
   /** Blocked by violation */
-  BLOCKED = 'blocked'
+  BLOCKED = 'blocked',
 }
 
 /**
@@ -528,7 +528,7 @@ export enum GraphComplexity {
   /** Complex with multiple paths */
   COMPLEX = 'complex',
   /** Highly complex with optimization challenges */
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 /**
@@ -609,7 +609,7 @@ export enum GraphErrorType {
   /** Timing inconsistency */
   TIMING_INCONSISTENCY = 'timing_inconsistency',
   /** Data flow violation */
-  DATA_FLOW_VIOLATION = 'data_flow_violation'
+  DATA_FLOW_VIOLATION = 'data_flow_violation',
 }
 
 /**
@@ -623,7 +623,7 @@ export enum GraphWarningType {
   /** Inefficient structure */
   INEFFICIENT_STRUCTURE = 'inefficient_structure',
   /** Resource underutilization */
-  UNDERUTILIZATION = 'underutilization'
+  UNDERUTILIZATION = 'underutilization',
 }
 
 /**
@@ -816,7 +816,7 @@ export enum OptimizationType {
   /** Caching opportunity */
   CACHING = 'caching',
   /** Pipeline optimization */
-  PIPELINE_OPTIMIZATION = 'pipeline_optimization'
+  PIPELINE_OPTIMIZATION = 'pipeline_optimization',
 }
 
 /**
@@ -830,7 +830,7 @@ export enum OptimizationComplexity {
   /** Complex implementation */
   HIGH = 'high',
   /** Very complex, may not be worth it */
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 /**
@@ -920,5 +920,5 @@ export enum RecommendationType {
   /** Dependency modification */
   DEPENDENCY_MODIFICATION = 'dependency_modification',
   /** Agent assignment change */
-  AGENT_REASSIGNMENT = 'agent_reassignment'
+  AGENT_REASSIGNMENT = 'agent_reassignment',
 }

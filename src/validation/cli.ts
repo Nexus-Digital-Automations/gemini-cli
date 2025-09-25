@@ -6,7 +6,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ValidationCLI, ValidationCommand, ValidationCommandArgs } from './ValidationIntegration';
+import {
+  ValidationCLI,
+  ValidationCommand,
+  ValidationCommandArgs,
+} from './ValidationIntegration.js';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 

@@ -12,10 +12,9 @@ import type {
   CircularDependency,
   ExecutionSequence,
   ExecutionPlan,
-  TaskQueueConfig} from './types.js';
-import {
-  ResourceAllocation
+  TaskQueueConfig,
 } from './types.js';
+import { ResourceAllocation } from './types.js';
 import { DependencyGraphManager } from './dependency-graph.js';
 import { TaskSequencer } from './task-sequencer.js';
 import { getComponentLogger } from '../utils/logger.js';
@@ -59,10 +58,16 @@ export class DependencyManager {
   private tasks: Map<TaskId, Task>;
   private config: TaskQueueConfig;
   private autoConfig: AutoDependencyConfig;
-  private executionHistory: Map<TaskId, Array<{ startTime: Date; endTime: Date; success: boolean }>>;
+  private executionHistory: Map<
+    TaskId,
+    Array<{ startTime: Date; endTime: Date; success: boolean }>
+  >;
   private dependencyLearningData: Map<string, number>; // pattern -> confidence score
 
-  constructor(config: TaskQueueConfig, autoConfig?: Partial<AutoDependencyConfig>) {
+  constructor(
+    config: TaskQueueConfig,
+    autoConfig?: Partial<AutoDependencyConfig>,
+  ) {
     this.graph = new DependencyGraphManager();
     this.sequencer = new TaskSequencer(this.graph, config);
     this.tasks = new Map();
@@ -127,7 +132,7 @@ export class DependencyManager {
       reason?: string;
       parallelizable?: boolean;
       minDelay?: number;
-    }
+    },
   ): void {
     const dependency: TaskDependency = {
       dependentTaskId,
@@ -165,7 +170,10 @@ export class DependencyManager {
    * Remove a dependency relationship
    */
   removeDependency(dependentTaskId: TaskId, dependsOnTaskId: TaskId): void {
-    logger.debug('Removing dependency relationship', { dependentTaskId, dependsOnTaskId });
+    logger.debug('Removing dependency relationship', {
+      dependentTaskId,
+      dependsOnTaskId,
+    });
     this.graph.removeDependency(dependentTaskId, dependsOnTaskId);
   }
 
@@ -188,7 +196,10 @@ export class DependencyManager {
   /**
    * Check if adding a dependency would create a circular dependency
    */
-  wouldCreateCircularDependency(dependentTaskId: TaskId, dependsOnTaskId: TaskId): boolean {
+  wouldCreateCircularDependency(
+    dependentTaskId: TaskId,
+    dependsOnTaskId: TaskId,
+  ): boolean {
     // Check if dependsOnTaskId transitively depends on dependentTaskId
     const visited = new Set<TaskId>();
     const stack: TaskId[] = [dependsOnTaskId];
@@ -257,7 +268,10 @@ export class DependencyManager {
   /**
    * Attempt to resolve a single circular dependency
    */
-  private attemptCycleResolution(cycle: CircularDependency, interactive: boolean): boolean {
+  private attemptCycleResolution(
+    cycle: CircularDependency,
+    interactive: boolean,
+  ): boolean {
     // Sort resolution strategies by impact (low impact first)
     const sortedStrategies = [...cycle.resolutionStrategies].sort((a, b) => {
       const impactOrder = { low: 0, medium: 1, high: 2 };
@@ -276,7 +290,10 @@ export class DependencyManager {
           case 'remove_edge':
             if (strategy.edges && strategy.edges.length > 0) {
               const edge = strategy.edges[0];
-              this.graph.removeDependency(edge.dependentTaskId, edge.dependsOnTaskId);
+              this.graph.removeDependency(
+                edge.dependentTaskId,
+                edge.dependsOnTaskId,
+              );
               logger.info('Resolved circular dependency by removing edge', {
                 dependent: edge.dependentTaskId,
                 dependsOn: edge.dependsOnTaskId,
@@ -304,15 +321,21 @@ export class DependencyManager {
             if (strategy.edges) {
               for (const edge of strategy.edges) {
                 if (edge.type === 'temporal') {
-                  this.graph.removeDependency(edge.dependentTaskId, edge.dependsOnTaskId);
+                  this.graph.removeDependency(
+                    edge.dependentTaskId,
+                    edge.dependsOnTaskId,
+                  );
                   this.graph.addDependency({
                     ...edge,
                     type: 'soft',
-                    reason: 'Converted from temporal to resolve circular dependency',
+                    reason:
+                      'Converted from temporal to resolve circular dependency',
                   });
                 }
               }
-              logger.info('Resolved circular dependency by converting temporal to soft dependencies');
+              logger.info(
+                'Resolved circular dependency by converting temporal to soft dependencies',
+              );
               return true;
             }
             break;
@@ -339,7 +362,7 @@ export class DependencyManager {
    * Generate optimal execution sequence for all tasks
    */
   generateExecutionSequence(
-    algorithm?: 'priority' | 'dependency_aware' | 'resource_optimal' | 'hybrid'
+    algorithm?: 'priority' | 'dependency_aware' | 'resource_optimal' | 'hybrid',
   ): ExecutionSequence {
     logger.debug('Generating execution sequence for all tasks', {
       taskCount: this.tasks.size,
@@ -347,7 +370,10 @@ export class DependencyManager {
     });
 
     const selectedAlgorithm = algorithm || this.config.schedulingAlgorithm;
-    return this.sequencer.generateExecutionSequence(this.tasks, selectedAlgorithm);
+    return this.sequencer.generateExecutionSequence(
+      this.tasks,
+      selectedAlgorithm,
+    );
   }
 
   /**
@@ -355,7 +381,7 @@ export class DependencyManager {
    */
   generateExecutionSequenceForTasks(
     taskIds: TaskId[],
-    algorithm?: 'priority' | 'dependency_aware' | 'resource_optimal' | 'hybrid'
+    algorithm?: 'priority' | 'dependency_aware' | 'resource_optimal' | 'hybrid',
   ): ExecutionSequence {
     const filteredTasks = new Map<TaskId, Task>();
     for (const taskId of taskIds) {
@@ -372,7 +398,10 @@ export class DependencyManager {
     });
 
     const selectedAlgorithm = algorithm || this.config.schedulingAlgorithm;
-    return this.sequencer.generateExecutionSequence(filteredTasks, selectedAlgorithm);
+    return this.sequencer.generateExecutionSequence(
+      filteredTasks,
+      selectedAlgorithm,
+    );
   }
 
   /**
@@ -382,26 +411,34 @@ export class DependencyManager {
     logger.debug('Generating comprehensive execution plan');
 
     const tasks = taskIds
-      ? new Map(taskIds.map(id => [id, this.tasks.get(id)]).filter(([, task]) => task) as Array<[TaskId, Task]>)
+      ? new Map(
+          taskIds
+            .map((id) => [id, this.tasks.get(id)])
+            .filter(([, task]) => task) as Array<[TaskId, Task]>,
+        )
       : this.tasks;
 
     // Detect and resolve circular dependencies
     const circularDependencies = this.graph.detectCircularDependencies();
-    let resolutionActions: ExecutionPlan['dependencyResolution']['resolutionActions'] = [];
+    let resolutionActions: ExecutionPlan['dependencyResolution']['resolutionActions'] =
+      [];
 
     if (circularDependencies.length > 0) {
       const { resolved } = this.resolveCircularDependencies('automatic');
-      resolutionActions = resolved.flatMap(cycle =>
+      resolutionActions = resolved.flatMap((cycle) =>
         cycle.resolutionStrategies
-          .filter(strategy => strategy.impact !== 'high')
-          .map(strategy => ({
-            type: strategy.strategy === 'remove_edge' ? 'remove_dependency' as const :
-                  strategy.strategy === 'split_task' ? 'split_task' as const :
-                  'merge_tasks' as const,
+          .filter((strategy) => strategy.impact !== 'high')
+          .map((strategy) => ({
+            type:
+              strategy.strategy === 'remove_edge'
+                ? ('remove_dependency' as const)
+                : strategy.strategy === 'split_task'
+                  ? ('split_task' as const)
+                  : ('merge_tasks' as const),
             taskIds: strategy.tasks || [],
             dependencies: strategy.edges || [],
             reason: strategy.description,
-          }))
+          })),
       );
     }
 
@@ -409,7 +446,10 @@ export class DependencyManager {
     const sequence = this.sequencer.generateExecutionSequence(tasks);
 
     // Generate resource allocations
-    const resourceAllocations = this.sequencer.generateResourceAllocations(sequence, tasks);
+    const resourceAllocations = this.sequencer.generateResourceAllocations(
+      sequence,
+      tasks,
+    );
 
     const plan: ExecutionPlan = {
       sequence,
@@ -432,7 +472,9 @@ export class DependencyManager {
           'no_external_dependencies',
         ],
         riskFactors: [
-          ...(circularDependencies.length > 0 ? ['circular_dependencies_detected'] : []),
+          ...(circularDependencies.length > 0
+            ? ['circular_dependencies_detected']
+            : []),
           'task_duration_variance',
           'resource_contention',
         ],
@@ -490,11 +532,15 @@ export class DependencyManager {
       if (otherTaskId === task.id) continue;
 
       const otherPattern = this.generateTaskPattern(otherTask);
-      const confidence = this.calculatePatternSimilarity(taskPattern, otherPattern);
+      const confidence = this.calculatePatternSimilarity(
+        taskPattern,
+        otherPattern,
+      );
 
       if (confidence >= this.autoConfig.confidenceThreshold) {
         const dependencyKey = `${otherPattern}->${taskPattern}`;
-        const learningScore = this.dependencyLearningData.get(dependencyKey) || 0;
+        const learningScore =
+          this.dependencyLearningData.get(dependencyKey) || 0;
 
         if (learningScore >= this.autoConfig.confidenceThreshold) {
           suggestions.push({
@@ -534,7 +580,10 @@ export class DependencyManager {
   /**
    * Calculate similarity between two task patterns
    */
-  private calculatePatternSimilarity(pattern1: string, pattern2: string): number {
+  private calculatePatternSimilarity(
+    pattern1: string,
+    pattern2: string,
+  ): number {
     const parts1 = pattern1.split(':');
     const parts2 = pattern2.split(':');
 
@@ -553,9 +602,14 @@ export class DependencyManager {
     // Title similarity (simple keyword matching)
     const title1Words = parts1[2].split('_');
     const title2Words = parts2[2].split('_');
-    const commonWords = title1Words.filter(word => title2Words.includes(word));
+    const commonWords = title1Words.filter((word) =>
+      title2Words.includes(word),
+    );
     if (commonWords.length > 0) {
-      similarityScore += Math.min(commonWords.length / Math.max(title1Words.length, title2Words.length), 1.5);
+      similarityScore += Math.min(
+        commonWords.length / Math.max(title1Words.length, title2Words.length),
+        1.5,
+      );
     }
 
     return similarityScore / maxScore;
@@ -567,7 +621,7 @@ export class DependencyManager {
   private updateDependencyLearning(
     dependentTaskId: TaskId,
     dependsOnTaskId: TaskId,
-    type: DependencyType
+    type: DependencyType,
   ): void {
     const dependentTask = this.tasks.get(dependentTaskId);
     const dependsOnTask = this.tasks.get(dependsOnTaskId);
@@ -579,7 +633,10 @@ export class DependencyManager {
 
       const currentScore = this.dependencyLearningData.get(dependencyKey) || 0;
       const increment = type === 'hard' ? 0.3 : 0.1; // Hard dependencies get more weight
-      this.dependencyLearningData.set(dependencyKey, Math.min(currentScore + increment, 1.0));
+      this.dependencyLearningData.set(
+        dependencyKey,
+        Math.min(currentScore + increment, 1.0),
+      );
 
       logger.debug('Updated dependency learning data', {
         key: dependencyKey,
@@ -592,13 +649,22 @@ export class DependencyManager {
   /**
    * Record task execution for learning
    */
-  recordTaskExecution(taskId: TaskId, startTime: Date, endTime: Date, success: boolean): void {
+  recordTaskExecution(
+    taskId: TaskId,
+    startTime: Date,
+    endTime: Date,
+    success: boolean,
+  ): void {
     const history = this.executionHistory.get(taskId) || [];
     history.push({ startTime, endTime, success });
 
     // Keep only recent history within the configured window
-    const cutoffDate = new Date(Date.now() - this.autoConfig.historicalWindow * 24 * 60 * 60 * 1000);
-    const recentHistory = history.filter(record => record.startTime >= cutoffDate);
+    const cutoffDate = new Date(
+      Date.now() - this.autoConfig.historicalWindow * 24 * 60 * 60 * 1000,
+    );
+    const recentHistory = history.filter(
+      (record) => record.startTime >= cutoffDate,
+    );
 
     this.executionHistory.set(taskId, recentHistory);
 
@@ -629,10 +695,11 @@ export class DependencyManager {
       };
     }
 
-    const successCount = history.filter(record => record.success).length;
+    const successCount = history.filter((record) => record.success).length;
     const totalDuration = history.reduce(
-      (sum, record) => sum + (record.endTime.getTime() - record.startTime.getTime()),
-      0
+      (sum, record) =>
+        sum + (record.endTime.getTime() - record.startTime.getTime()),
+      0,
     );
 
     return {
@@ -697,7 +764,9 @@ export class DependencyManager {
       circularDependencies: circularDeps.length,
       averageDependenciesPerTask: graphStats.avgDependencies,
       criticalPathLength: graphStats.criticalPathLength,
-      maxParallelization: Math.max(...this.graph.getParallelizableTasks().map(group => group.length)),
+      maxParallelization: Math.max(
+        ...this.graph.getParallelizableTasks().map((group) => group.length),
+      ),
       riskMetrics: {
         highRiskTasks,
         blockedTasks,
@@ -711,15 +780,21 @@ export class DependencyManager {
    */
   updateConfiguration(config: Partial<TaskQueueConfig>): void {
     this.config = { ...this.config, ...config };
-    this.sequencer.updateResourcePools(config.resourcePools || this.config.resourcePools);
+    this.sequencer.updateResourcePools(
+      config.resourcePools || this.config.resourcePools,
+    );
 
-    logger.info('Configuration updated', { updatedFields: Object.keys(config) });
+    logger.info('Configuration updated', {
+      updatedFields: Object.keys(config),
+    });
   }
 
   /**
    * Update auto-dependency configuration
    */
-  updateAutoDependencyConfiguration(config: Partial<AutoDependencyConfig>): void {
+  updateAutoDependencyConfiguration(
+    config: Partial<AutoDependencyConfig>,
+  ): void {
     this.autoConfig = { ...this.autoConfig, ...config };
 
     logger.info('Auto-dependency configuration updated', {

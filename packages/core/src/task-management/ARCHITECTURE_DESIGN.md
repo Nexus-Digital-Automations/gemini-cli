@@ -21,6 +21,7 @@ This document presents a detailed architecture design for a comprehensive autono
 The Gemini CLI currently consists of:
 
 **Package Structure:**
+
 - `packages/cli/` - Interactive CLI interface with React-based UI
 - `packages/core/` - Core functionality, tools, and configuration
 - `packages/a2a-server/` - Agent-to-agent communication server
@@ -28,6 +29,7 @@ The Gemini CLI currently consists of:
 - `packages/vscode-ide-companion/` - IDE integration
 
 **Key Integration Points:**
+
 1. **Configuration System** - Centralized config in `packages/core/src/config/`
 2. **Task Management Foundation** - Partial implementation in `packages/core/src/task-management/`
 3. **Monitoring Infrastructure** - Real-time monitoring in `packages/cli/src/monitoring/`
@@ -35,6 +37,7 @@ The Gemini CLI currently consists of:
 5. **Infinite Hook Integration** - External task manager API at `/Users/jeremyparker/infinite-continue-stop-hook/`
 
 **Current Capabilities:**
+
 - Basic task execution via SubAgent framework
 - Real-time monitoring and status tracking
 - Cross-session configuration persistence
@@ -44,6 +47,7 @@ The Gemini CLI currently consists of:
 ### Gaps and Opportunities
 
 **Missing Components:**
+
 1. **Autonomous Task Breakdown** - Intelligent decomposition of complex tasks
 2. **Dependency Resolution** - Automatic dependency graph management
 3. **Self-Managing Queue** - Priority-based autonomous task scheduling
@@ -128,6 +132,7 @@ Task Completion → Persistence → Analytics → User Feedback
 **Purpose:** Intelligently decomposes complex tasks into manageable subtasks with dependency awareness.
 
 **Key Features:**
+
 - **Complexity Analysis:** AI-powered assessment of task complexity levels
 - **Intelligent Decomposition:** Breaks complex tasks into logical subtasks
 - **Dependency Detection:** Automatically identifies relationships between subtasks
@@ -135,6 +140,7 @@ Task Completion → Persistence → Analytics → User Feedback
 - **Validation Planning:** Generates validation criteria for each subtask
 
 **Architecture:**
+
 ```typescript
 interface TaskBreakdownEngine {
   analyzeComplexity(task: Task): TaskComplexity;
@@ -154,6 +160,7 @@ interface TaskBreakdownResult {
 ```
 
 **Implementation Strategy:**
+
 - Leverage existing SubAgent framework for execution intelligence
 - Integrate with current task type system
 - Use AI-powered prompt engineering for breakdown decisions
@@ -164,6 +171,7 @@ interface TaskBreakdownResult {
 **Purpose:** Autonomous priority-based task scheduling with intelligent resource management.
 
 **Key Features:**
+
 - **Priority Scheduling:** Multi-factor priority calculation system
 - **Dependency-Aware Queuing:** Respects task dependencies and prerequisites
 - **Resource Optimization:** Balances workload across available agents
@@ -171,6 +179,7 @@ interface TaskBreakdownResult {
 - **Load Balancing:** Distributes tasks based on agent capabilities and load
 
 **Architecture:**
+
 ```typescript
 interface SelfManagingQueue {
   enqueue(task: Task): Promise<TaskId>;
@@ -191,6 +200,7 @@ interface QueueStatus {
 ```
 
 **Implementation Strategy:**
+
 - Extend existing TaskQueue implementation
 - Integrate with real-time monitoring system
 - Use priority weighting algorithms for fair scheduling
@@ -201,6 +211,7 @@ interface QueueStatus {
 **Purpose:** Maintains task state and progress across application restarts and sessions.
 
 **Key Features:**
+
 - **State Serialization:** Complete task state preservation
 - **Session Recovery:** Automatic state restoration on startup
 - **Change Tracking:** Incremental state updates and synchronization
@@ -208,6 +219,7 @@ interface QueueStatus {
 - **Data Integrity:** Ensures consistency across persistence layers
 
 **Architecture:**
+
 ```typescript
 interface CrossSessionPersistence {
   saveTaskState(taskId: TaskId, state: TaskState): Promise<void>;
@@ -227,6 +239,7 @@ interface TaskState {
 ```
 
 **Implementation Strategy:**
+
 - Build on existing Storage and configuration system
 - Use SQLite for structured data storage
 - Implement file system backup for redundancy
@@ -237,6 +250,7 @@ interface TaskState {
 **Purpose:** Coordinates multiple agents for complex task execution with capability-based assignment.
 
 **Key Features:**
+
 - **Capability Matching:** Assigns tasks based on agent specializations
 - **Load Distribution:** Balances workload across agent pool
 - **Coordination Logic:** Manages inter-agent communication and handoffs
@@ -244,6 +258,7 @@ interface TaskState {
 - **Dynamic Scaling:** Adjusts agent pool based on workload
 
 **Architecture:**
+
 ```typescript
 interface AgentOrchestrator {
   assignTask(task: Task): Promise<AgentAssignment>;
@@ -263,6 +278,7 @@ interface AgentAssignment {
 ```
 
 **Implementation Strategy:**
+
 - Leverage existing SubAgentScope infrastructure
 - Integrate with infinite-continue-stop-hook system
 - Use agent capability registry for smart matching
@@ -273,6 +289,7 @@ interface AgentAssignment {
 **Purpose:** Comprehensive monitoring and analytics for task execution and system performance.
 
 **Key Features:**
+
 - **Live Progress Tracking:** Real-time task and agent status updates
 - **Performance Metrics:** Execution statistics and bottleneck analysis
 - **Alert System:** Configurable alerts for performance and reliability issues
@@ -280,6 +297,7 @@ interface AgentAssignment {
 - **Predictive Insights:** Forecasting and optimization recommendations
 
 **Architecture:**
+
 ```typescript
 interface ProgressMonitor {
   trackTaskProgress(taskId: TaskId, progress: TaskProgress): void;
@@ -298,6 +316,7 @@ interface SystemInsights {
 ```
 
 **Implementation Strategy:**
+
 - Build on existing monitoring infrastructure
 - Use event-driven architecture for real-time updates
 - Implement time-series data storage for analytics
@@ -308,6 +327,7 @@ interface SystemInsights {
 **Purpose:** Automated quality assurance and validation throughout task execution lifecycle.
 
 **Key Features:**
+
 - **Automated Validation:** Runs validation checks at task completion
 - **Quality Gates:** Enforces quality standards before task progression
 - **Rollback Mechanisms:** Reverts changes on validation failures
@@ -315,6 +335,7 @@ interface SystemInsights {
 - **Continuous Validation:** Ongoing quality monitoring during execution
 
 **Architecture:**
+
 ```typescript
 interface ValidationEngine {
   validateTask(taskId: TaskId): Promise<ValidationResult>;
@@ -334,6 +355,7 @@ interface ValidationResult {
 ```
 
 **Implementation Strategy:**
+
 - Integrate with existing linting and testing infrastructure
 - Use plugin architecture for extensible validation rules
 - Implement automated rollback using git integration
@@ -344,6 +366,7 @@ interface ValidationResult {
 ### Seamless CLI Integration
 
 **Command Extensions:**
+
 - `gemini task queue` - View and manage task queue
 - `gemini task create <description>` - Create new autonomous task
 - `gemini task status [taskId]` - Check task status and progress
@@ -351,12 +374,14 @@ interface ValidationResult {
 - `gemini agent status` - View agent pool status and capabilities
 
 **Context Preservation:**
+
 - Maintain current working directory and git context
 - Preserve user preferences and configuration
 - Pass through existing tool access and permissions
 - Maintain session continuity across task handoffs
 
 **Non-Breaking Integration:**
+
 - Preserve existing CLI command structure
 - Maintain backward compatibility with current workflows
 - Optional autonomous mode activation
@@ -365,6 +390,7 @@ interface ValidationResult {
 ### External System Bridges
 
 **TaskManager API Integration:**
+
 ```typescript
 interface TaskManagerBridge {
   syncWithExternal(): Promise<void>;
@@ -375,6 +401,7 @@ interface TaskManagerBridge {
 ```
 
 **FEATURES.json Integration:**
+
 ```typescript
 interface FeatureIntegration {
   scanForNewFeatures(): Promise<Feature[]>;
@@ -385,6 +412,7 @@ interface FeatureIntegration {
 ```
 
 **Monitoring System Bridge:**
+
 ```typescript
 interface MonitoringBridge {
   publishTaskEvents(events: TaskEvent[]): Promise<void>;
@@ -397,6 +425,7 @@ interface MonitoringBridge {
 ### Configuration Integration
 
 **Settings Expansion:**
+
 ```typescript
 interface AutonomousTaskSettings extends ExistingSettings {
   autonomousMode: boolean;
@@ -409,6 +438,7 @@ interface AutonomousTaskSettings extends ExistingSettings {
 ```
 
 **Environment Configuration:**
+
 - `GEMINI_AUTONOMOUS_TASKS_ENABLED` - Enable/disable autonomous task management
 - `GEMINI_MAX_CONCURRENT_TASKS` - Maximum concurrent task execution limit
 - `GEMINI_TASK_PERSISTENCE_PATH` - Custom path for task state persistence
@@ -419,12 +449,14 @@ interface AutonomousTaskSettings extends ExistingSettings {
 ### Multi-Session Project Handling
 
 **Session Management:**
+
 - **Session Isolation:** Separate task contexts for different projects
 - **Cross-Session Dependencies:** Handle tasks spanning multiple sessions
 - **Session Handoff:** Smooth transition of task ownership between sessions
 - **Resource Sharing:** Efficient sharing of agents across sessions
 
 **Project Context Preservation:**
+
 ```typescript
 interface ProjectContext {
   projectId: string;
@@ -446,12 +478,14 @@ interface SessionManager {
 ### Horizontal Scaling Architecture
 
 **Agent Pool Scaling:**
+
 - **Dynamic Agent Creation:** Spawn agents based on workload demand
 - **Capability-Based Distribution:** Route tasks to specialized agent pools
 - **Load-Based Scaling:** Scale agent count based on queue depth and complexity
 - **Resource-Aware Scaling:** Consider system resources for scaling decisions
 
 **Task Distribution:**
+
 ```typescript
 interface TaskDistributor {
   distributeTask(task: Task): Promise<AgentAssignment>;
@@ -471,12 +505,14 @@ interface WorkloadMetrics {
 ### Performance Optimization
 
 **Memory Management:**
+
 - **Task State Compression:** Compress historical task data for storage efficiency
 - **Selective Loading:** Load task details on-demand to reduce memory footprint
 - **Garbage Collection:** Automatic cleanup of completed tasks and old events
 - **Cache Optimization:** Intelligent caching of frequently accessed data
 
 **Execution Optimization:**
+
 ```typescript
 interface PerformanceOptimizer {
   optimizeTaskScheduling(): Promise<SchedulingOptimization>;
@@ -496,6 +532,7 @@ interface SchedulingOptimization {
 ### Database Design for Scale
 
 **Schema Optimization:**
+
 ```sql
 -- Optimized for high-volume task operations
 CREATE TABLE tasks (
@@ -537,6 +574,7 @@ CREATE TABLE task_events (
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Weeks 1-2)
+
 1. **Core Infrastructure Setup**
    - Extend autonomous task configuration system
    - Implement basic task breakdown engine
@@ -550,6 +588,7 @@ CREATE TABLE task_events (
    - Develop task assignment logic
 
 ### Phase 2: Intelligence (Weeks 3-4)
+
 1. **Autonomous Task Breakdown**
    - Implement AI-powered complexity analysis
    - Create intelligent task decomposition
@@ -563,6 +602,7 @@ CREATE TABLE task_events (
    - Add dynamic scaling mechanisms
 
 ### Phase 3: Integration (Weeks 5-6)
+
 1. **CLI Integration**
    - Add autonomous task management commands
    - Implement context preservation mechanisms
@@ -576,6 +616,7 @@ CREATE TABLE task_events (
    - Add external event publishing
 
 ### Phase 4: Advanced Features (Weeks 7-8)
+
 1. **Cross-Session Persistence**
    - Implement state serialization system
    - Create session recovery mechanisms
@@ -589,6 +630,7 @@ CREATE TABLE task_events (
    - Add intelligent alerting system
 
 ### Phase 5: Optimization (Weeks 9-10)
+
 1. **Performance Tuning**
    - Optimize database queries and indexes
    - Implement caching strategies
@@ -602,6 +644,7 @@ CREATE TABLE task_events (
    - Documentation and user guides
 
 ### Phase 6: Production Readiness (Weeks 11-12)
+
 1. **Deployment Preparation**
    - Production configuration optimization
    - Monitoring and alerting setup
@@ -619,18 +662,21 @@ CREATE TABLE task_events (
 ### Performance Requirements
 
 **Throughput:**
+
 - Handle 1000+ tasks in queue simultaneously
 - Process 50+ concurrent task executions
 - Support 10+ concurrent project sessions
 - Maintain sub-second response times for status queries
 
 **Scalability:**
+
 - Linear scaling with agent pool size
 - Efficient memory usage under 512MB for typical workloads
 - Database growth handling up to 1M tasks
 - Graceful degradation under resource constraints
 
 **Reliability:**
+
 - 99.9% uptime for task management operations
 - Automatic recovery from system crashes
 - Data consistency across persistence layers
@@ -639,12 +685,14 @@ CREATE TABLE task_events (
 ### Security Considerations
 
 **Data Protection:**
+
 - Encryption at rest for sensitive task data
 - Secure transmission of task information
 - Access control for task management operations
 - Audit logging for all task modifications
 
 **Isolation:**
+
 - Task execution sandboxing
 - Agent capability restrictions
 - Resource access controls
@@ -653,18 +701,21 @@ CREATE TABLE task_events (
 ### Monitoring and Observability
 
 **Metrics Collection:**
+
 - Task execution metrics and timing
 - Agent performance and utilization
 - System resource consumption
 - Error rates and failure patterns
 
 **Alerting:**
+
 - Task failure notifications
 - Performance degradation alerts
 - Resource exhaustion warnings
 - Security event notifications
 
 **Logging:**
+
 - Structured logging with correlation IDs
 - Configurable log levels and filtering
 - Log aggregation and analysis
@@ -673,6 +724,7 @@ CREATE TABLE task_events (
 ### Configuration Management
 
 **Environment-Specific Settings:**
+
 ```typescript
 interface EnvironmentConfig {
   development: {
@@ -691,6 +743,7 @@ interface EnvironmentConfig {
 ```
 
 **Runtime Configuration:**
+
 - Dynamic configuration updates without restart
 - Configuration validation and error handling
 - Default value management and inheritance

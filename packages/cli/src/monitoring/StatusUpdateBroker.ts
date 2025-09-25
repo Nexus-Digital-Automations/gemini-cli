@@ -5,8 +5,12 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { StructuredLogger, getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
-import type { TaskStatusUpdate, AgentStatus, TaskMetadata } from './TaskStatusMonitor.js';
+import { StructuredLogger, getComponentLogger } from '../../../../packages/core/src/utils/logger.js';
+import type {
+  TaskStatusUpdate,
+  AgentStatus,
+  TaskMetadata,
+} from './TaskStatusMonitor.js';
 
 /**
  * Event types for the status update system
@@ -141,7 +145,7 @@ export class StatusUpdateBroker extends EventEmitter {
       source?: string;
       priority?: 'low' | 'normal' | 'high' | 'critical';
       tags?: string[];
-    } = {}
+    } = {},
   ): Promise<void> {
     const startTime = Date.now();
 
@@ -183,11 +187,13 @@ export class StatusUpdateBroker extends EventEmitter {
     batchedSubscribers: number;
     webhookSubscribers: number;
   } {
-    const batchedSubscribers = Array.from(this.subscribers.values())
-      .filter(config => config.deliveryMethod === 'batched').length;
+    const batchedSubscribers = Array.from(this.subscribers.values()).filter(
+      (config) => config.deliveryMethod === 'batched',
+    ).length;
 
-    const webhookSubscribers = Array.from(this.subscribers.values())
-      .filter(config => config.deliveryMethod === 'webhook').length;
+    const webhookSubscribers = Array.from(this.subscribers.values()).filter(
+      (config) => config.deliveryMethod === 'webhook',
+    ).length;
 
     return {
       ...this.performanceMetrics,
@@ -208,27 +214,29 @@ export class StatusUpdateBroker extends EventEmitter {
       tags?: string[];
       since?: Date;
     },
-    limit = 100
+    limit = 100,
   ): StatusEvent[] {
     let events = [...this.eventQueue];
 
     if (filters) {
       if (filters.eventTypes) {
-        events = events.filter(event => filters.eventTypes!.includes(event.type));
+        events = events.filter((event) =>
+          filters.eventTypes!.includes(event.type),
+        );
       }
       if (filters.source) {
-        events = events.filter(event => event.source === filters.source);
+        events = events.filter((event) => event.source === filters.source);
       }
       if (filters.priority) {
-        events = events.filter(event => event.priority === filters.priority);
+        events = events.filter((event) => event.priority === filters.priority);
       }
       if (filters.tags && filters.tags.length > 0) {
-        events = events.filter(event =>
-          filters.tags!.some(tag => event.tags.includes(tag))
+        events = events.filter((event) =>
+          filters.tags!.some((tag) => event.tags.includes(tag)),
         );
       }
       if (filters.since) {
-        events = events.filter(event => event.timestamp >= filters.since!);
+        events = events.filter((event) => event.timestamp >= filters.since!);
       }
     }
 
@@ -261,44 +269,68 @@ export class StatusUpdateBroker extends EventEmitter {
   createTaskEventPublisher(taskId: string, agentId?: string) {
     return {
       registered: (task: TaskMetadata) =>
-        this.publishEvent(StatusEventType.TASK_REGISTERED, { task, taskId }, {
-          source: agentId || 'system',
-          tags: ['task', taskId],
-        }),
+        this.publishEvent(
+          StatusEventType.TASK_REGISTERED,
+          { task, taskId },
+          {
+            source: agentId || 'system',
+            tags: ['task', taskId],
+          },
+        ),
 
       statusChanged: (task: TaskMetadata, update: TaskStatusUpdate) =>
-        this.publishEvent(StatusEventType.TASK_STATUS_CHANGED, { task, update, taskId }, {
-          source: agentId || update.agentId || 'system',
-          priority: update.error ? 'high' : 'normal',
-          tags: ['task', taskId, task.type],
-        }),
+        this.publishEvent(
+          StatusEventType.TASK_STATUS_CHANGED,
+          { task, update, taskId },
+          {
+            source: agentId || update.agentId || 'system',
+            priority: update.error ? 'high' : 'normal',
+            tags: ['task', taskId, task.type],
+          },
+        ),
 
       progressUpdated: (task: TaskMetadata, progress: number) =>
-        this.publishEvent(StatusEventType.TASK_PROGRESS_UPDATED, { task, taskId, progress }, {
-          source: agentId || 'system',
-          tags: ['task', taskId, 'progress'],
-        }),
+        this.publishEvent(
+          StatusEventType.TASK_PROGRESS_UPDATED,
+          { task, taskId, progress },
+          {
+            source: agentId || 'system',
+            tags: ['task', taskId, 'progress'],
+          },
+        ),
 
       completed: (task: TaskMetadata, duration?: number) =>
-        this.publishEvent(StatusEventType.TASK_COMPLETED, { task, taskId, duration }, {
-          source: agentId || 'system',
-          priority: 'normal',
-          tags: ['task', taskId, 'completed'],
-        }),
+        this.publishEvent(
+          StatusEventType.TASK_COMPLETED,
+          { task, taskId, duration },
+          {
+            source: agentId || 'system',
+            priority: 'normal',
+            tags: ['task', taskId, 'completed'],
+          },
+        ),
 
       failed: (task: TaskMetadata, error: string) =>
-        this.publishEvent(StatusEventType.TASK_FAILED, { task, taskId, error }, {
-          source: agentId || 'system',
-          priority: 'high',
-          tags: ['task', taskId, 'failed', 'error'],
-        }),
+        this.publishEvent(
+          StatusEventType.TASK_FAILED,
+          { task, taskId, error },
+          {
+            source: agentId || 'system',
+            priority: 'high',
+            tags: ['task', taskId, 'failed', 'error'],
+          },
+        ),
 
       blocked: (task: TaskMetadata, reason: string, blockedBy?: string[]) =>
-        this.publishEvent(StatusEventType.TASK_BLOCKED, { task, taskId, reason, blockedBy }, {
-          source: agentId || 'system',
-          priority: 'high',
-          tags: ['task', taskId, 'blocked'],
-        }),
+        this.publishEvent(
+          StatusEventType.TASK_BLOCKED,
+          { task, taskId, reason, blockedBy },
+          {
+            source: agentId || 'system',
+            priority: 'high',
+            tags: ['task', taskId, 'blocked'],
+          },
+        ),
     };
   }
 
@@ -308,30 +340,46 @@ export class StatusUpdateBroker extends EventEmitter {
   createAgentEventPublisher(agentId: string) {
     return {
       registered: (agent: AgentStatus) =>
-        this.publishEvent(StatusEventType.AGENT_REGISTERED, { agent, agentId }, {
-          source: agentId,
-          tags: ['agent', agentId],
-        }),
+        this.publishEvent(
+          StatusEventType.AGENT_REGISTERED,
+          { agent, agentId },
+          {
+            source: agentId,
+            tags: ['agent', agentId],
+          },
+        ),
 
       statusChanged: (agent: AgentStatus) =>
-        this.publishEvent(StatusEventType.AGENT_STATUS_CHANGED, { agent, agentId }, {
-          source: agentId,
-          tags: ['agent', agentId, agent.status],
-        }),
+        this.publishEvent(
+          StatusEventType.AGENT_STATUS_CHANGED,
+          { agent, agentId },
+          {
+            source: agentId,
+            tags: ['agent', agentId, agent.status],
+          },
+        ),
 
       heartbeat: (agent: AgentStatus) =>
-        this.publishEvent(StatusEventType.AGENT_HEARTBEAT, { agent, agentId }, {
-          source: agentId,
-          priority: 'low',
-          tags: ['agent', agentId, 'heartbeat'],
-        }),
+        this.publishEvent(
+          StatusEventType.AGENT_HEARTBEAT,
+          { agent, agentId },
+          {
+            source: agentId,
+            priority: 'low',
+            tags: ['agent', agentId, 'heartbeat'],
+          },
+        ),
 
       offline: (agent: AgentStatus, reason?: string) =>
-        this.publishEvent(StatusEventType.AGENT_OFFLINE, { agent, agentId, reason }, {
-          source: agentId,
-          priority: 'high',
-          tags: ['agent', agentId, 'offline'],
-        }),
+        this.publishEvent(
+          StatusEventType.AGENT_OFFLINE,
+          { agent, agentId, reason },
+          {
+            source: agentId,
+            priority: 'high',
+            tags: ['agent', agentId, 'offline'],
+          },
+        ),
     };
   }
 
@@ -340,7 +388,7 @@ export class StatusUpdateBroker extends EventEmitter {
   private async processEvent(event: StatusEvent): Promise<void> {
     const relevantSubscribers = this.getRelevantSubscribers(event);
 
-    for (const [subscriberId, config] of relevantSubscribers) {
+    for (const [subscriberId, config] of Array.from(relevantSubscribers.entries())) {
       switch (config.deliveryMethod) {
         case 'realtime':
           await this.deliverRealtimeEvent(subscriberId, event, config);
@@ -359,10 +407,12 @@ export class StatusUpdateBroker extends EventEmitter {
     this.performanceMetrics.eventsProcessed++;
   }
 
-  private getRelevantSubscribers(event: StatusEvent): Map<string, NotificationConfig> {
+  private getRelevantSubscribers(
+    event: StatusEvent,
+  ): Map<string, NotificationConfig> {
     const relevantSubscribers = new Map<string, NotificationConfig>();
 
-    for (const [subscriberId, config] of this.subscribers) {
+    for (const [subscriberId, config] of Array.from(this.subscribers.entries())) {
       // Check if event type matches
       if (!config.eventTypes.includes(event.type)) continue;
 
@@ -371,20 +421,25 @@ export class StatusUpdateBroker extends EventEmitter {
         // Priority filter
         if (config.filters.priorityThreshold) {
           const priorityLevels = ['low', 'normal', 'high', 'critical'];
-          const requiredLevel = priorityLevels.indexOf(config.filters.priorityThreshold);
+          const requiredLevel = priorityLevels.indexOf(
+            config.filters.priorityThreshold,
+          );
           const eventLevel = priorityLevels.indexOf(event.priority);
           if (eventLevel < requiredLevel) continue;
         }
 
         // Tags filter
         if (config.filters.tags && config.filters.tags.length > 0) {
-          const hasMatchingTag = config.filters.tags.some(tag => event.tags.includes(tag));
+          const hasMatchingTag = config.filters.tags.some((tag) =>
+            event.tags.includes(tag),
+          );
           if (!hasMatchingTag) continue;
         }
 
         // Agent ID filter (if present in event data)
         if (config.filters.agentIds && event.data.agentId) {
-          if (!config.filters.agentIds.includes(event.data.agentId as string)) continue;
+          if (!config.filters.agentIds.includes(event.data.agentId as string))
+            continue;
         }
       }
 
@@ -397,13 +452,20 @@ export class StatusUpdateBroker extends EventEmitter {
   private async deliverRealtimeEvent(
     subscriberId: string,
     event: StatusEvent,
-    config: NotificationConfig
+    config: NotificationConfig,
   ): Promise<void> {
     try {
       this.emit(`delivery:${subscriberId}`, { event, config });
-      this.logger.debug('Realtime event delivered', { subscriberId, eventId: event.id });
+      this.logger.debug('Realtime event delivered', {
+        subscriberId,
+        eventId: event.id,
+      });
     } catch (error) {
-      this.logger.error('Realtime delivery failed', { subscriberId, eventId: event.id, error });
+      this.logger.error('Realtime delivery failed', {
+        subscriberId,
+        eventId: event.id,
+        error,
+      });
     }
   }
 
@@ -422,7 +484,7 @@ export class StatusUpdateBroker extends EventEmitter {
   private async deliverBatchedEvents(
     subscriberId: string,
     events: StatusEvent[],
-    config: NotificationConfig
+    config: NotificationConfig,
   ): Promise<void> {
     try {
       this.emit(`batch:${subscriberId}`, { events, config });
@@ -449,7 +511,7 @@ export class StatusUpdateBroker extends EventEmitter {
   }
 
   private async processBatchedEvents(): Promise<void> {
-    for (const [subscriberId, config] of this.subscribers) {
+    for (const [subscriberId, config] of Array.from(this.subscribers.entries())) {
       if (config.deliveryMethod !== 'batched') continue;
 
       const events = this.batchedEvents.get(subscriberId);
@@ -469,7 +531,7 @@ export class StatusUpdateBroker extends EventEmitter {
   private async processWebhookEvents(): Promise<void> {
     // Webhook processing would be implemented here
     // For now, we'll just emit events that can be handled by external webhook delivery systems
-    for (const [subscriberId, events] of this.webhookQueue) {
+    for (const [subscriberId, events] of Array.from(this.webhookQueue.entries())) {
       if (events.length === 0) continue;
 
       const config = this.subscribers.get(subscriberId);
@@ -494,10 +556,12 @@ export class StatusUpdateBroker extends EventEmitter {
   }
 
   private updateProcessingMetrics(processingTime: number): void {
-    const totalProcessingTime = this.performanceMetrics.averageProcessingTime *
-      this.performanceMetrics.eventsProcessed + processingTime;
-    this.performanceMetrics.averageProcessingTime = totalProcessingTime /
-      (this.performanceMetrics.eventsProcessed + 1);
+    const totalProcessingTime =
+      this.performanceMetrics.averageProcessingTime *
+        this.performanceMetrics.eventsProcessed +
+      processingTime;
+    this.performanceMetrics.averageProcessingTime =
+      totalProcessingTime / (this.performanceMetrics.eventsProcessed + 1);
   }
 
   /**

@@ -4,7 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi, type MockedFunction } from 'vitest';
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type MockedFunction,
+} from 'vitest';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -136,7 +144,9 @@ describe('PersistenceStorageAPI', () => {
       mockFse.pathExists.mockResolvedValue(true);
       mockFse.readJSON.mockRejectedValue(new Error('Read failed'));
 
-      await expect(storageAPI.load('test-task-id')).rejects.toThrow('Read failed');
+      await expect(storageAPI.load('test-task-id')).rejects.toThrow(
+        'Read failed',
+      );
     });
   });
 
@@ -145,7 +155,7 @@ describe('PersistenceStorageAPI', () => {
       const result = await storageAPI.completeTask(
         'test-task-id',
         'Task completed successfully',
-        { finalState: 'success' }
+        { finalState: 'success' },
       );
 
       expect(result.success).toBe(true);
@@ -157,7 +167,7 @@ describe('PersistenceStorageAPI', () => {
       // Mock session manager to throw error
       const result = await storageAPI.completeTask(
         'non-existent-task',
-        'Task completion failed'
+        'Task completion failed',
       );
 
       // Should return error result instead of throwing
@@ -171,7 +181,7 @@ describe('PersistenceStorageAPI', () => {
       const result = await storageAPI.transferTask(
         'test-task-id',
         'target-session-id',
-        'Manual transfer'
+        'Manual transfer',
       );
 
       expect(result.metadata.operation).toBe('transfer');
@@ -186,7 +196,7 @@ describe('PersistenceStorageAPI', () => {
 
       const result = await storageWithoutSessions.transferTask(
         'test-task-id',
-        'target-session-id'
+        'target-session-id',
       );
 
       expect(result.success).toBe(false);
@@ -209,7 +219,8 @@ describe('PersistenceStorageAPI', () => {
         enableConflictResolution: false,
       });
 
-      const result = await storageWithoutConflicts.resolveTaskConflicts('test-task-id');
+      const result =
+        await storageWithoutConflicts.resolveTaskConflicts('test-task-id');
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Conflict resolution');
@@ -234,7 +245,9 @@ describe('PersistenceStorageAPI', () => {
       const result = await storageWithoutIntegrity.recoverTask('test-task-id');
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Data integrity management is not enabled');
+      expect(result.error).toContain(
+        'Data integrity management is not enabled',
+      );
 
       await storageWithoutIntegrity.shutdown();
     });
@@ -379,7 +392,7 @@ describe('PersistenceStorageAPI', () => {
       mockFse.ensureDir.mockRejectedValue(new Error('Permission denied'));
 
       await expect(
-        () => new PersistenceStorageAPI({ baseDir: '/invalid/path' })
+        () => new PersistenceStorageAPI({ baseDir: '/invalid/path' }),
       ).not.toThrow(); // Should not throw during construction
     });
 
@@ -406,14 +419,14 @@ describe('PersistenceStorageAPI', () => {
         storageAPI.save({
           ...mockTask,
           id: `task-${i}`,
-        })
+        }),
       );
 
       // Should not throw errors
       await Promise.allSettled(operations);
 
       const results = await Promise.allSettled(operations);
-      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const successful = results.filter((r) => r.status === 'fulfilled').length;
 
       expect(successful).toBeGreaterThan(0);
     });
@@ -439,7 +452,7 @@ describe('PersistenceStorageAPI', () => {
   describe('Integration', () => {
     test('should maintain data consistency across save/load cycle', async () => {
       mockFse.pathExists.mockResolvedValueOnce(false); // For save
-      mockFse.pathExists.mockResolvedValueOnce(true);  // For load
+      mockFse.pathExists.mockResolvedValueOnce(true); // For load
 
       // Set up mock return value for load
       const expectedMetadata = {
@@ -475,13 +488,13 @@ describe('PersistenceStorageAPI', () => {
       const transferResult = await storageAPI.transferTask(
         mockTask.id,
         'target-session',
-        'Test transfer'
+        'Test transfer',
       );
 
       // Complete task
       const completeResult = await storageAPI.completeTask(
         mockTask.id,
-        'Task completed in test'
+        'Task completed in test',
       );
 
       expect(completeResult.success).toBe(true);

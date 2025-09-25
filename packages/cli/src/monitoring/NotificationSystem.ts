@@ -6,15 +6,14 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type {
-  StatusEvent,
-  NotificationConfig
-} from './StatusUpdateBroker.js';
+import type { StatusEvent, NotificationConfig } from './StatusUpdateBroker.js';
+import { statusUpdateBroker, StatusEventType } from './StatusUpdateBroker.js';
 import {
-  statusUpdateBroker,
-  StatusEventType
-} from './StatusUpdateBroker.js';
-import { taskStatusMonitor, TaskMetadata, TaskStatus, AgentStatus } from './TaskStatusMonitor.js';
+  taskStatusMonitor,
+  TaskMetadata,
+  TaskStatus,
+  AgentStatus,
+} from './TaskStatusMonitor.js';
 
 export interface NotificationPreferences {
   userId: string;
@@ -24,7 +23,7 @@ export interface NotificationPreferences {
   webhookNotifications: boolean;
   quietHours?: {
     start: string; // HH:mm format
-    end: string;   // HH:mm format
+    end: string; // HH:mm format
     timezone: string;
   };
   priorityThreshold: 'low' | 'normal' | 'high' | 'critical';
@@ -121,13 +120,18 @@ export class NotificationSystem extends EventEmitter {
         agentIds: preferences.eventFilters.agentIds,
         tags: preferences.eventFilters.keywords,
       },
-      deliveryMethod: preferences.realTimeNotifications ? 'realtime' : 'batched',
+      deliveryMethod: preferences.realTimeNotifications
+        ? 'realtime'
+        : 'batched',
       batchInterval: 300000, // 5 minutes
     };
 
     statusUpdateBroker.subscribe(config);
 
-    this.emit('user:preferences-registered', { userId: preferences.userId, preferences });
+    this.emit('user:preferences-registered', {
+      userId: preferences.userId,
+      preferences,
+    });
 
     this.logger.info('User preferences registered', {
       userId: preferences.userId,
@@ -138,10 +142,15 @@ export class NotificationSystem extends EventEmitter {
   /**
    * Update user notification preferences
    */
-  updateUserPreferences(userId: string, updates: Partial<NotificationPreferences>): void {
+  updateUserPreferences(
+    userId: string,
+    updates: Partial<NotificationPreferences>,
+  ): void {
     const existing = this.userPreferences.get(userId);
     if (!existing) {
-      this.logger.warning('Attempt to update preferences for unknown user', { userId });
+      this.logger.warning('Attempt to update preferences for unknown user', {
+        userId,
+      });
       return;
     }
 
@@ -167,11 +176,13 @@ export class NotificationSystem extends EventEmitter {
       channels?: Array<'realtime' | 'email' | 'slack' | 'webhook'>;
       priority?: 'low' | 'normal' | 'high' | 'critical';
       customMessage?: string;
-    } = {}
+    } = {},
   ): Promise<void> {
     const preferences = this.userPreferences.get(userId);
     if (!preferences) {
-      this.logger.warning('Cannot send notification to unknown user', { userId });
+      this.logger.warning('Cannot send notification to unknown user', {
+        userId,
+      });
       return;
     }
 
@@ -196,7 +207,7 @@ export class NotificationSystem extends EventEmitter {
     options: {
       minimumPriority?: 'low' | 'normal' | 'high' | 'critical';
       channels?: Array<'realtime' | 'email' | 'slack' | 'webhook'>;
-    } = {}
+    } = {},
   ): Promise<void> {
     const minimumPriority = options.minimumPriority || 'normal';
     const priorityLevels = ['low', 'normal', 'high', 'critical'];
@@ -206,7 +217,9 @@ export class NotificationSystem extends EventEmitter {
       const userLevel = priorityLevels.indexOf(preferences.priorityThreshold);
 
       // Only send if event priority meets user's threshold
-      if (priorityLevels.indexOf(event.priority) >= Math.max(minLevel, userLevel)) {
+      if (
+        priorityLevels.indexOf(event.priority) >= Math.max(minLevel, userLevel)
+      ) {
         if (this.isInQuietHours(preferences)) {
           // Queue for later delivery
           this.queueForBatch(userId, event);
@@ -225,11 +238,14 @@ export class NotificationSystem extends EventEmitter {
   acknowledgeNotification(
     notificationId: string,
     userId: string,
-    actionTaken?: string
+    actionTaken?: string,
   ): void {
     const notification = this.deliveredNotifications.get(notificationId);
     if (!notification || notification.userId !== userId) {
-      this.logger.warning('Invalid notification acknowledgment', { notificationId, userId });
+      this.logger.warning('Invalid notification acknowledgment', {
+        notificationId,
+        userId,
+      });
       return;
     }
 
@@ -255,23 +271,26 @@ export class NotificationSystem extends EventEmitter {
       since?: Date;
       acknowledged?: boolean;
     },
-    limit = 50
+    limit = 50,
   ): DeliveredNotification[] {
-    let notifications = Array.from(this.deliveredNotifications.values())
-      .filter(n => n.userId === userId);
+    let notifications = Array.from(this.deliveredNotifications.values()).filter(
+      (n) => n.userId === userId,
+    );
 
     if (filters) {
       if (filters.eventTypes) {
-        notifications = notifications.filter(n =>
-          filters.eventTypes!.includes(n.eventType)
+        notifications = notifications.filter((n) =>
+          filters.eventTypes!.includes(n.eventType),
         );
       }
       if (filters.since) {
-        notifications = notifications.filter(n => n.deliveredAt >= filters.since!);
+        notifications = notifications.filter(
+          (n) => n.deliveredAt >= filters.since!,
+        );
       }
       if (filters.acknowledged !== undefined) {
-        notifications = notifications.filter(n =>
-          filters.acknowledged ? !!n.acknowledged : !n.acknowledged
+        notifications = notifications.filter((n) =>
+          filters.acknowledged ? !!n.acknowledged : !n.acknowledged,
         );
       }
     }
@@ -290,16 +309,21 @@ export class NotificationSystem extends EventEmitter {
     templateCount: number;
     averageNotificationsPerUser: number;
   } {
-    const totalNotificationsPerUser = Array.from(this.deliveredNotifications.values())
-      .reduce((acc, n) => {
+    const totalNotificationsPerUser = Array.from(
+      this.deliveredNotifications.values(),
+    ).reduce(
+      (acc, n) => {
         acc[n.userId] = (acc[n.userId] || 0) + 1;
         return acc;
-      }, {} as Record<string, number>);
+      },
+      {} as Record<string, number>,
+    );
 
     const activeUsers = Object.keys(totalNotificationsPerUser).length;
-    const averageNotificationsPerUser = activeUsers > 0
-      ? this.deliveryMetrics.totalNotifications / activeUsers
-      : 0;
+    const averageNotificationsPerUser =
+      activeUsers > 0
+        ? this.deliveryMetrics.totalNotifications / activeUsers
+        : 0;
 
     return {
       ...this.deliveryMetrics,
@@ -318,39 +342,66 @@ export class NotificationSystem extends EventEmitter {
         id: 'task_registered',
         eventType: StatusEventType.TASK_REGISTERED,
         subject: 'New Task: {{task.title}}',
-        message: 'Task "{{task.title}}" has been registered and added to the queue.\n\nType: {{task.type}}\nPriority: {{task.priority}}\nDescription: {{task.description}}',
+        message:
+          'Task "{{task.title}}" has been registered and added to the queue.\n\nType: {{task.type}}\nPriority: {{task.priority}}\nDescription: {{task.description}}',
         format: 'text',
-        variables: ['task.title', 'task.type', 'task.priority', 'task.description'],
+        variables: [
+          'task.title',
+          'task.type',
+          'task.priority',
+          'task.description',
+        ],
       },
       {
         id: 'task_status_changed',
         eventType: StatusEventType.TASK_STATUS_CHANGED,
         subject: 'Task Status Update: {{task.title}}',
-        message: 'Task "{{task.title}}" status changed from {{update.previousStatus}} to {{update.newStatus}}.\n\n{{#if update.message}}Note: {{update.message}}\n{{/if}}{{#if update.error}}Error: {{update.error}}\n{{/if}}Progress: {{task.progress}}%',
+        message:
+          'Task "{{task.title}}" status changed from {{update.previousStatus}} to {{update.newStatus}}.\n\n{{#if update.message}}Note: {{update.message}}\n{{/if}}{{#if update.error}}Error: {{update.error}}\n{{/if}}Progress: {{task.progress}}%',
         format: 'text',
-        variables: ['task.title', 'update.previousStatus', 'update.newStatus', 'update.message', 'update.error', 'task.progress'],
+        variables: [
+          'task.title',
+          'update.previousStatus',
+          'update.newStatus',
+          'update.message',
+          'update.error',
+          'task.progress',
+        ],
       },
       {
         id: 'task_completed',
         eventType: StatusEventType.TASK_COMPLETED,
         subject: 'Task Completed: {{task.title}}',
-        message: 'Task "{{task.title}}" has been successfully completed!\n\nType: {{task.type}}\nAssigned to: {{task.assignedAgent}}\n{{#if duration}}Duration: {{duration}}ms{{/if}}',
+        message:
+          'Task "{{task.title}}" has been successfully completed!\n\nType: {{task.type}}\nAssigned to: {{task.assignedAgent}}\n{{#if duration}}Duration: {{duration}}ms{{/if}}',
         format: 'text',
-        variables: ['task.title', 'task.type', 'task.assignedAgent', 'duration'],
+        variables: [
+          'task.title',
+          'task.type',
+          'task.assignedAgent',
+          'duration',
+        ],
       },
       {
         id: 'task_failed',
         eventType: StatusEventType.TASK_FAILED,
         subject: 'Task Failed: {{task.title}}',
-        message: 'Task "{{task.title}}" has failed.\n\nError: {{error}}\nAssigned to: {{task.assignedAgent}}\nRetry count: {{task.retryCount}}',
+        message:
+          'Task "{{task.title}}" has failed.\n\nError: {{error}}\nAssigned to: {{task.assignedAgent}}\nRetry count: {{task.retryCount}}',
         format: 'text',
-        variables: ['task.title', 'error', 'task.assignedAgent', 'task.retryCount'],
+        variables: [
+          'task.title',
+          'error',
+          'task.assignedAgent',
+          'task.retryCount',
+        ],
       },
       {
         id: 'agent_registered',
         eventType: StatusEventType.AGENT_REGISTERED,
         subject: 'New Agent Online: {{agent.id}}',
-        message: 'Agent "{{agent.id}}" has come online and is ready for task assignment.\n\nCapabilities: {{agent.capabilities}}',
+        message:
+          'Agent "{{agent.id}}" has come online and is ready for task assignment.\n\nCapabilities: {{agent.capabilities}}',
         format: 'text',
         variables: ['agent.id', 'agent.capabilities'],
       },
@@ -358,7 +409,8 @@ export class NotificationSystem extends EventEmitter {
         id: 'agent_offline',
         eventType: StatusEventType.AGENT_OFFLINE,
         subject: 'Agent Offline: {{agent.id}}',
-        message: 'Agent "{{agent.id}}" has gone offline.\n\n{{#if reason}}Reason: {{reason}}{{/if}}',
+        message:
+          'Agent "{{agent.id}}" has gone offline.\n\n{{#if reason}}Reason: {{reason}}{{/if}}',
         format: 'text',
         variables: ['agent.id', 'reason'],
       },
@@ -366,9 +418,15 @@ export class NotificationSystem extends EventEmitter {
         id: 'system_alert',
         eventType: StatusEventType.SYSTEM_ALERT,
         subject: 'System Alert: {{alert.type}}',
-        message: 'System alert triggered: {{alert.message}}\n\nSeverity: {{alert.severity}}\nTime: {{timestamp}}',
+        message:
+          'System alert triggered: {{alert.message}}\n\nSeverity: {{alert.severity}}\nTime: {{timestamp}}',
         format: 'text',
-        variables: ['alert.type', 'alert.message', 'alert.severity', 'timestamp'],
+        variables: [
+          'alert.type',
+          'alert.message',
+          'alert.severity',
+          'timestamp',
+        ],
       },
     ];
 
@@ -396,7 +454,10 @@ export class NotificationSystem extends EventEmitter {
     });
   }
 
-  private async handleStatusEvent(userId: string, event: StatusEvent): Promise<void> {
+  private async handleStatusEvent(
+    userId: string,
+    event: StatusEvent,
+  ): Promise<void> {
     const preferences = this.userPreferences.get(userId);
     if (!preferences) return;
 
@@ -413,7 +474,9 @@ export class NotificationSystem extends EventEmitter {
     }
   }
 
-  private getRelevantEventTypes(preferences: NotificationPreferences): StatusEventType[] {
+  private getRelevantEventTypes(
+    preferences: NotificationPreferences,
+  ): StatusEventType[] {
     // Return all event types that match user's interests
     // This could be more sophisticated based on user preferences
     return [
@@ -429,7 +492,9 @@ export class NotificationSystem extends EventEmitter {
     ];
   }
 
-  private getEnabledChannels(preferences: NotificationPreferences): Array<'realtime' | 'email' | 'slack' | 'webhook'> {
+  private getEnabledChannels(
+    preferences: NotificationPreferences,
+  ): Array<'realtime' | 'email' | 'slack' | 'webhook'> {
     const channels: Array<'realtime' | 'email' | 'slack' | 'webhook'> = [];
 
     if (preferences.realTimeNotifications) channels.push('realtime');
@@ -446,7 +511,7 @@ export class NotificationSystem extends EventEmitter {
     options: {
       customMessage?: string;
       priority?: string;
-    } = {}
+    } = {},
   ): Promise<{ subject: string; message: string; priority: string }> {
     if (options.customMessage) {
       return {
@@ -472,7 +537,10 @@ export class NotificationSystem extends EventEmitter {
     return { subject, message, priority: event.priority };
   }
 
-  private substituteVariables(template: string, data: Record<string, unknown>): string {
+  private substituteVariables(
+    template: string,
+    data: Record<string, unknown>,
+  ): string {
     return template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
       const value = this.getNestedValue(data, path.trim());
       return value !== undefined ? String(value) : match;
@@ -480,14 +548,20 @@ export class NotificationSystem extends EventEmitter {
   }
 
   private getNestedValue(obj: any, path: string): unknown {
-    return path.split('.').reduce((current, key) => current && typeof current === 'object' ? current[key] : undefined, obj);
+    return path
+      .split('.')
+      .reduce(
+        (current, key) =>
+          current && typeof current === 'object' ? current[key] : undefined,
+        obj,
+      );
   }
 
   private async deliverNotification(
     userId: string,
     notification: { subject: string; message: string; priority: string },
     channel: 'realtime' | 'email' | 'slack' | 'webhook',
-    event: StatusEvent
+    event: StatusEvent,
   ): Promise<void> {
     const startTime = Date.now();
 
@@ -529,7 +603,6 @@ export class NotificationSystem extends EventEmitter {
         channel,
         deliveryTime,
       });
-
     } catch (error) {
       this.deliveryMetrics.failedDeliveries++;
       this.logger.error('Notification delivery failed', {
@@ -585,26 +658,41 @@ export class NotificationSystem extends EventEmitter {
     // Create batch notification
     const batchNotification = {
       subject: `Batch Notification: ${events.length} updates`,
-      message: `You have ${events.length} pending notifications:\n\n` +
-        events.map(event => `• ${event.type}: ${JSON.stringify(event.data)}`).join('\n'),
+      message:
+        `You have ${events.length} pending notifications:\n\n` +
+        events
+          .map((event) => `• ${event.type}: ${JSON.stringify(event.data)}`)
+          .join('\n'),
       priority: 'normal',
     };
 
-    const channels = this.getEnabledChannels(preferences).filter(c => c !== 'realtime');
+    const channels = this.getEnabledChannels(preferences).filter(
+      (c) => c !== 'realtime',
+    );
 
     for (const channel of channels) {
-      await this.deliverNotification(userId, batchNotification, channel, events[0]);
+      await this.deliverNotification(
+        userId,
+        batchNotification,
+        channel,
+        events[0],
+      );
     }
 
     this.pendingBatches.delete(userId);
-    this.logger.info('Batch notifications flushed', { userId, eventCount: events.length });
+    this.logger.info('Batch notifications flushed', {
+      userId,
+      eventCount: events.length,
+    });
   }
 
   private updateDeliveryTimeMetrics(deliveryTime: number): void {
-    const totalTime = this.deliveryMetrics.averageDeliveryTime *
-      this.deliveryMetrics.deliveredNotifications + deliveryTime;
-    this.deliveryMetrics.averageDeliveryTime = totalTime /
-      (this.deliveryMetrics.deliveredNotifications + 1);
+    const totalTime =
+      this.deliveryMetrics.averageDeliveryTime *
+        this.deliveryMetrics.deliveredNotifications +
+      deliveryTime;
+    this.deliveryMetrics.averageDeliveryTime =
+      totalTime / (this.deliveryMetrics.deliveredNotifications + 1);
   }
 
   private generateNotificationId(): string {

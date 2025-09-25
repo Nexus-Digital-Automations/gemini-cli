@@ -32,30 +32,35 @@ The Cross-Session Persistence System is a comprehensive, enterprise-grade task m
 ## Key Features
 
 ### 1. Atomic Operations with ACID Guarantees
+
 - **Transaction-safe operations**: All data modifications are atomic with rollback capability
 - **File locking**: Advanced deadlock prevention and timeout handling
 - **Consistency**: Cross-references validated across all operations
 - **Durability**: Write-ahead logging with transaction replay capability
 
 ### 2. Advanced Data Integrity Management
+
 - **Multi-level validation**: Structural, semantic, and business rule validation
 - **Corruption detection**: Real-time integrity monitoring with checksum validation
 - **Self-healing**: Automatic corruption recovery with multiple strategies
 - **Forensic capabilities**: Complete audit trails for investigation
 
 ### 3. Intelligent Multi-Level Caching
+
 - **Performance optimization**: Sub-10ms response times for cached operations
 - **LRU eviction**: Memory-efficient caching with intelligent eviction
 - **Cache coherence**: Automatic invalidation and consistency guarantees
 - **Hit rate optimization**: >90% hit rates under normal operation
 
 ### 4. Cross-Session Continuity
+
 - **Session management**: Seamless session tracking and restoration
 - **Task resumption**: Automatic task state recovery across restarts
 - **Agent coordination**: Multi-agent session coordination and conflict resolution
 - **State persistence**: Complete system state preservation
 
 ### 5. Comprehensive Recovery System
+
 - **Hot Recovery**: Direct restoration from clean backups (<10s)
 - **Warm Recovery**: Partial reconstruction with validation (<30s)
 - **Cold Recovery**: Complete rebuild from transaction logs (<60s)
@@ -76,7 +81,9 @@ npm test src/core/persistence/__tests__/CrossSessionPersistenceEngine.test.js
 ### Basic Usage
 
 ```javascript
-const { CrossSessionPersistenceEngine } = require('./src/core/persistence/CrossSessionPersistenceEngine');
+const {
+  CrossSessionPersistenceEngine,
+} = require('./src/core/persistence/CrossSessionPersistenceEngine');
 
 // Initialize persistence engine
 const engine = new CrossSessionPersistenceEngine('/path/to/project');
@@ -87,20 +94,20 @@ const task = await engine.createTask({
   title: 'Example Task',
   description: 'Task with cross-session persistence',
   status: 'pending',
-  priority: 'high'
+  priority: 'high',
 });
 
 // Update task with version control
 const updatedTask = await engine.updateTask(task.id, {
   status: 'in_progress',
-  assignedAgent: 'AGENT_001'
+  assignedAgent: 'AGENT_001',
 });
 
 // List tasks with advanced filtering
 const results = await engine.listTasks({
   filter: { status: 'in_progress' },
   sort: { field: 'priority', order: 'desc' },
-  pagination: { page: 1, limit: 50 }
+  pagination: { page: 1, limit: 50 },
 });
 
 // Create backup for recovery
@@ -113,7 +120,10 @@ await engine.shutdown();
 ### Recovery Operations
 
 ```javascript
-const { TaskRecoveryManager, RECOVERY_STRATEGIES } = require('./src/core/persistence/TaskRecoveryManager');
+const {
+  TaskRecoveryManager,
+  RECOVERY_STRATEGIES,
+} = require('./src/core/persistence/TaskRecoveryManager');
 
 // Initialize recovery manager
 const recoveryManager = new TaskRecoveryManager(engine);
@@ -121,7 +131,7 @@ const recoveryManager = new TaskRecoveryManager(engine);
 // Perform comprehensive recovery
 const recoveryResult = await recoveryManager.recoverTasks({
   strategy: RECOVERY_STRATEGIES.WARM,
-  validationLevel: 'comprehensive'
+  validationLevel: 'comprehensive',
 });
 
 // Resume tasks from previous session
@@ -139,28 +149,28 @@ const taskRecovery = await recoveryManager.recoverTask('task-id-to-recover');
 ```javascript
 const options = {
   // Cache configuration
-  cacheSize: 50000,           // Maximum cache entries
-  cacheTTL: 600000,          // Cache TTL in milliseconds (10 minutes)
+  cacheSize: 50000, // Maximum cache entries
+  cacheTTL: 600000, // Cache TTL in milliseconds (10 minutes)
 
   // Performance settings
-  operationTimeout: 30000,    // Operation timeout (30 seconds)
-  maxRetries: 1000,          // Maximum retry attempts
-  retryDelay: 5,             // Base retry delay in milliseconds
+  operationTimeout: 30000, // Operation timeout (30 seconds)
+  maxRetries: 1000, // Maximum retry attempts
+  retryDelay: 5, // Base retry delay in milliseconds
 
   // Backup configuration
-  autoBackup: true,          // Enable automatic backups
-  backupInterval: 3600000,   // Backup interval (1 hour)
-  backupRetention: 30,       // Days to retain backups
+  autoBackup: true, // Enable automatic backups
+  backupInterval: 3600000, // Backup interval (1 hour)
+  backupRetention: 30, // Days to retain backups
 
   // Recovery settings
-  recoveryTimeout: 30000,    // Recovery operation timeout
-  maxRecoveryAttempts: 3,    // Maximum recovery attempts
+  recoveryTimeout: 30000, // Recovery operation timeout
+  maxRecoveryAttempts: 3, // Maximum recovery attempts
   validationLevel: 'standard', // Validation strictness
 
   // Monitoring settings
   healthCheckInterval: 60000, // Health check interval (1 minute)
-  performanceLogging: true,   // Enable performance metrics
-  auditTrail: true           // Enable audit logging
+  performanceLogging: true, // Enable performance metrics
+  auditTrail: true, // Enable audit logging
 };
 
 const engine = new CrossSessionPersistenceEngine('/project/path', options);
@@ -195,7 +205,9 @@ AGENT_SESSION_ID=auto-generated
 
 ```javascript
 // taskmanager-api.js integration
-const { CrossSessionPersistenceEngine } = require('./src/core/persistence/CrossSessionPersistenceEngine');
+const {
+  CrossSessionPersistenceEngine,
+} = require('./src/core/persistence/CrossSessionPersistenceEngine');
 
 class AutonomousTaskManagerAPI {
   constructor() {
@@ -210,7 +222,7 @@ class AutonomousTaskManagerAPI {
     // Create task using persistence engine
     const task = await this.persistenceEngine.createTask({
       feature_id: featureId,
-      ...taskOptions
+      ...taskOptions,
     });
 
     return task;
@@ -241,14 +253,14 @@ class EnhancedValidationEngine extends ValidationEngine {
     // Perform validation
     const report = await super.validateTask({
       ...context,
-      task
+      task,
     });
 
     // Update task with validation results
     await this.persistenceEngine.updateTask(context.taskId, {
       validation_status: report.overallStatus,
       validation_score: report.overallScore,
-      last_validated: new Date().toISOString()
+      last_validated: new Date().toISOString(),
     });
 
     return report;
@@ -261,82 +273,106 @@ class EnhancedValidationEngine extends ValidationEngine {
 ### CrossSessionPersistenceEngine
 
 #### Constructor
+
 ```javascript
-new CrossSessionPersistenceEngine(projectRoot, options)
+new CrossSessionPersistenceEngine(projectRoot, options);
 ```
 
 #### Core Methods
 
 ##### `initialize()`
+
 Initialize the persistence system with all subsystems.
 
 ##### `createTask(taskData)`
+
 Create a new task with full persistence and validation.
+
 - **Parameters**: `taskData` - Task data object
 - **Returns**: Created task with metadata
 - **Throws**: Validation errors, persistence errors
 
 ##### `getTask(taskId)`
+
 Retrieve task by ID with intelligent caching.
+
 - **Parameters**: `taskId` - Unique task identifier
 - **Returns**: Task object or null if not found
 
 ##### `updateTask(taskId, updates)`
+
 Update task with version control and audit trail.
+
 - **Parameters**:
   - `taskId` - Task identifier
   - `updates` - Object with updates
 - **Returns**: Updated task with incremented version
 
 ##### `listTasks(options)`
+
 List tasks with advanced filtering, sorting, and pagination.
+
 - **Parameters**: `options` - Query options object
 - **Returns**: Paginated task results with metadata
 
 ##### `createBackup(backupName, options)`
+
 Create comprehensive system backup.
+
 - **Parameters**:
   - `backupName` - Backup identifier
   - `options` - Backup configuration
 - **Returns**: Backup manifest with integrity data
 
 ##### `restoreFromBackup(backupId, options)`
+
 Restore system state from backup.
+
 - **Parameters**:
   - `backupId` - Backup identifier
   - `options` - Restoration options
 - **Returns**: Restoration results and status
 
 ##### `getSystemStatus()`
+
 Get comprehensive system status and metrics.
+
 - **Returns**: System health, performance, and operational metrics
 
 ##### `shutdown()`
+
 Gracefully shut down with state preservation.
 
 ### TaskRecoveryManager
 
 #### Constructor
+
 ```javascript
-new TaskRecoveryManager(persistenceEngine, options)
+new TaskRecoveryManager(persistenceEngine, options);
 ```
 
 #### Recovery Methods
 
 ##### `recoverTasks(recoveryOptions)`
+
 Perform comprehensive task recovery using optimal strategy.
+
 - **Parameters**: `recoveryOptions` - Recovery configuration
 - **Returns**: Recovery results with statistics and status
 
 ##### `resumeSessionTasks(sessionId, resumeOptions)`
+
 Resume tasks from previous session with dependency resolution.
+
 - **Parameters**:
   - `sessionId` - Previous session identifier
   - `resumeOptions` - Resume configuration
 - **Returns**: Resumption results and statistics
 
 ##### `recoverTask(taskId, recoveryOptions)`
+
 Recover specific task from all available sources.
+
 - **Parameters**:
   - `taskId` - Task identifier to recover
   - `recoveryOptions` - Recovery configuration
@@ -346,14 +382,14 @@ Recover specific task from all available sources.
 
 ### Benchmarks
 
-| Operation | Average Time | 99th Percentile | Throughput |
-|-----------|--------------|-----------------|------------|
-| Task Creation | 15ms | 45ms | 65 tasks/sec |
-| Task Retrieval (cached) | 2ms | 5ms | 500 ops/sec |
-| Task Update | 20ms | 60ms | 50 updates/sec |
-| Backup Creation | 2.5s | 8s | N/A |
-| Hot Recovery | 8s | 15s | N/A |
-| Cache Hit Rate | 92% | N/A | N/A |
+| Operation               | Average Time | 99th Percentile | Throughput     |
+| ----------------------- | ------------ | --------------- | -------------- |
+| Task Creation           | 15ms         | 45ms            | 65 tasks/sec   |
+| Task Retrieval (cached) | 2ms          | 5ms             | 500 ops/sec    |
+| Task Update             | 20ms         | 60ms            | 50 updates/sec |
+| Backup Creation         | 2.5s         | 8s              | N/A            |
+| Hot Recovery            | 8s           | 15s             | N/A            |
+| Cache Hit Rate          | 92%          | N/A             | N/A            |
 
 ### Memory Usage
 
@@ -430,44 +466,52 @@ engine.on('healthStatusChanged', (status) => {
 ### Common Issues
 
 #### 1. Lock Acquisition Timeout
+
 ```
 Error: Lock acquisition timeout for /path/to/file.json after 30000ms
 ```
 
 **Solution**:
+
 - Check for hung processes holding locks
 - Increase `lockTimeout` configuration
 - Verify file system permissions
 - Clean up stale lock files manually if needed
 
 #### 2. Cache Memory Issues
+
 ```
 Warning: Cache memory usage exceeding limits
 ```
 
 **Solution**:
+
 - Reduce `cacheSize` configuration
 - Implement more aggressive cache eviction
 - Monitor memory usage patterns
 - Consider cache partitioning for large datasets
 
 #### 3. Recovery Failures
+
 ```
 Error: Task recovery failed: No clean backup available for hot recovery
 ```
 
 **Solution**:
+
 - Enable automatic backup creation
 - Verify backup integrity regularly
 - Use warm or cold recovery strategies as fallback
 - Check transaction log completeness
 
 #### 4. Performance Degradation
+
 ```
 Warning: Average operation time exceeding 100ms threshold
 ```
 
 **Solution**:
+
 - Enable performance profiling
 - Check disk I/O performance
 - Optimize cache hit rates
@@ -485,7 +529,7 @@ process.env.PERSISTENCE_DEBUG = 'true';
 const engine = new CrossSessionPersistenceEngine('/project', {
   debugMode: true,
   verboseLogging: true,
-  performanceLogging: true
+  performanceLogging: true,
 });
 ```
 
@@ -508,26 +552,31 @@ grep "RECOVERY" .gemini-persistence/logs/persistence.log
 ## Best Practices
 
 ### 1. Initialization and Shutdown
+
 - Always call `initialize()` before using the engine
 - Always call `shutdown()` for graceful cleanup
 - Handle initialization failures with appropriate fallbacks
 
 ### 2. Error Handling
+
 - Wrap all persistence operations in try-catch blocks
 - Implement retry logic for transient failures
 - Log all errors with sufficient context for debugging
 
 ### 3. Performance Optimization
+
 - Use appropriate batch sizes for bulk operations
 - Monitor cache hit rates and adjust cache size accordingly
 - Implement connection pooling for high-concurrency scenarios
 
 ### 4. Data Integrity
+
 - Regular backup creation and validation
 - Periodic integrity checks during maintenance windows
 - Monitor transaction log growth and implement rotation
 
 ### 5. Recovery Planning
+
 - Test recovery procedures regularly
 - Document recovery scenarios and procedures
 - Implement monitoring for recovery trigger conditions
@@ -561,7 +610,9 @@ process.env.PERSISTENCE_LOG_LEVEL = 'warn';
 ### Custom Test Scenarios
 
 ```javascript
-const { CrossSessionPersistenceEngineTestSuite } = require('./src/core/persistence/__tests__/CrossSessionPersistenceEngine.test.js');
+const {
+  CrossSessionPersistenceEngineTestSuite,
+} = require('./src/core/persistence/__tests__/CrossSessionPersistenceEngine.test.js');
 
 // Create custom test suite
 const customTests = new CrossSessionPersistenceEngineTestSuite();
@@ -617,6 +668,7 @@ Copyright 2025 Google LLC. Licensed under the Apache License, Version 2.0.
 ## Support
 
 For issues, questions, or contributions:
+
 - Create GitHub issues for bugs and feature requests
 - Join discussions for usage questions
 - Review documentation and examples

@@ -14,12 +14,12 @@ import type { Task, TaskDependency, DependencyType } from './TaskQueue.js';
 export interface DependencyNode {
   taskId: string;
   task: Task;
-  dependencies: Set<string>;      // Tasks this depends on
-  dependents: Set<string>;        // Tasks that depend on this
-  inDegree: number;              // Number of unresolved dependencies
-  outDegree: number;             // Number of tasks depending on this
-  level: number;                 // Execution level in the dependency graph
-  criticalPath: boolean;         // Whether this task is on the critical path
+  dependencies: Set<string>; // Tasks this depends on
+  dependents: Set<string>; // Tasks that depend on this
+  inDegree: number; // Number of unresolved dependencies
+  outDegree: number; // Number of tasks depending on this
+  level: number; // Execution level in the dependency graph
+  criticalPath: boolean; // Whether this task is on the critical path
 }
 
 /**
@@ -27,23 +27,23 @@ export interface DependencyNode {
  */
 export interface DependencyAnalysis {
   hasCycles: boolean;
-  cycles: string[][];            // Array of task ID cycles
-  criticalPath: string[];        // Longest dependency chain
+  cycles: string[][]; // Array of task ID cycles
+  criticalPath: string[]; // Longest dependency chain
   executionLevels: Map<number, string[]>; // Tasks grouped by execution level
   parallelizableGroups: string[][]; // Groups that can run in parallel
-  blockedTasks: string[];        // Tasks currently blocked by dependencies
-  readyTasks: string[];          // Tasks ready to execute
-  totalLevels: number;           // Maximum execution depth
-  estimatedDuration: number;     // Total estimated execution time
+  blockedTasks: string[]; // Tasks currently blocked by dependencies
+  readyTasks: string[]; // Tasks ready to execute
+  totalLevels: number; // Maximum execution depth
+  estimatedDuration: number; // Total estimated execution time
 }
 
 /**
  * Dependency resolution strategy
  */
 export enum ResolutionStrategy {
-  STRICT = 'strict',           // All dependencies must be satisfied
+  STRICT = 'strict', // All dependencies must be satisfied
   BEST_EFFORT = 'best_effort', // Try to satisfy dependencies, continue if possible
-  PARALLEL_OPTIMIZED = 'parallel_optimized' // Optimize for maximum parallelization
+  PARALLEL_OPTIMIZED = 'parallel_optimized', // Optimize for maximum parallelization
 }
 
 /**
@@ -60,7 +60,10 @@ export class DependencyResolver extends EventEmitter {
   /**
    * Build dependency graph from tasks and dependencies
    */
-  buildDependencyGraph(tasks: Map<string, Task>, dependencies: Map<string, TaskDependency>): void {
+  buildDependencyGraph(
+    tasks: Map<string, Task>,
+    dependencies: Map<string, TaskDependency>,
+  ): void {
     this.dependencyGraph.clear();
     this.taskDependencies.clear();
 
@@ -74,7 +77,7 @@ export class DependencyResolver extends EventEmitter {
         inDegree: 0,
         outDegree: 0,
         level: 0,
-        criticalPath: false
+        criticalPath: false,
       });
     }
 
@@ -87,8 +90,12 @@ export class DependencyResolver extends EventEmitter {
 
     // Build edges
     for (const dependency of dependencies.values()) {
-      const dependentNode = this.dependencyGraph.get(dependency.dependentTaskId);
-      const dependsOnNode = this.dependencyGraph.get(dependency.dependsOnTaskId);
+      const dependentNode = this.dependencyGraph.get(
+        dependency.dependentTaskId,
+      );
+      const dependsOnNode = this.dependencyGraph.get(
+        dependency.dependsOnTaskId,
+      );
 
       if (dependentNode && dependsOnNode) {
         // Only add blocking dependencies to the graph structure
@@ -107,14 +114,16 @@ export class DependencyResolver extends EventEmitter {
 
     logger.info('Dependency graph built', {
       totalNodes: this.dependencyGraph.size,
-      totalEdges: dependencies.size
+      totalEdges: dependencies.size,
     });
   }
 
   /**
    * Perform comprehensive dependency analysis
    */
-  analyzeDependencies(strategy: ResolutionStrategy = ResolutionStrategy.STRICT): DependencyAnalysis {
+  analyzeDependencies(
+    strategy: ResolutionStrategy = ResolutionStrategy.STRICT,
+  ): DependencyAnalysis {
     const cycles = this.detectCycles();
     const hasCycles = cycles.length > 0;
 
@@ -139,7 +148,7 @@ export class DependencyResolver extends EventEmitter {
       blockedTasks,
       readyTasks,
       totalLevels,
-      estimatedDuration
+      estimatedDuration,
     };
 
     logger.info('Dependency analysis completed', {
@@ -149,7 +158,7 @@ export class DependencyResolver extends EventEmitter {
       totalLevels,
       parallelGroups: parallelizableGroups.length,
       readyTasks: readyTasks.length,
-      blockedTasks: blockedTasks.length
+      blockedTasks: blockedTasks.length,
     });
 
     this.emit('analysisCompleted', analysis);
@@ -252,7 +261,12 @@ export class DependencyResolver extends EventEmitter {
     let longestPath: string[] = [];
     let maxDuration = 0;
 
-    const calculatePath = (taskId: string, visited: Set<string>, path: string[], totalDuration: number): void => {
+    const calculatePath = (
+      taskId: string,
+      visited: Set<string>,
+      path: string[],
+      totalDuration: number,
+    ): void => {
       if (visited.has(taskId)) return; // Avoid infinite loops
 
       visited.add(taskId);
@@ -270,7 +284,12 @@ export class DependencyResolver extends EventEmitter {
       } else {
         // Continue exploring dependent tasks
         for (const dependentId of node.dependents) {
-          calculatePath(dependentId, new Set(visited), [...path], currentDuration);
+          calculatePath(
+            dependentId,
+            new Set(visited),
+            [...path],
+            currentDuration,
+          );
         }
       }
 
@@ -294,7 +313,7 @@ export class DependencyResolver extends EventEmitter {
 
     logger.info('Critical path identified', {
       path: longestPath,
-      estimatedDuration: maxDuration
+      estimatedDuration: maxDuration,
     });
   }
 
@@ -379,8 +398,8 @@ export class DependencyResolver extends EventEmitter {
    */
   private areTasksCompatible(task1: Task, task2: Task): boolean {
     // Check for resource conflicts
-    const sharedResources = task1.requiredResources.filter(r =>
-      task2.requiredResources.includes(r)
+    const sharedResources = task1.requiredResources.filter((r) =>
+      task2.requiredResources.includes(r),
     );
 
     if (sharedResources.length > 0) {
@@ -391,13 +410,19 @@ export class DependencyResolver extends EventEmitter {
     const task1Dependencies = this.taskDependencies.get(task1.id) || [];
     const task2Dependencies = this.taskDependencies.get(task2.id) || [];
 
-    const hasConflict = task1Dependencies.some(dep =>
-      (dep.dependsOnTaskId === task2.id || dep.dependentTaskId === task2.id) &&
-      dep.type === 'conflicts'
-    ) || task2Dependencies.some(dep =>
-      (dep.dependsOnTaskId === task1.id || dep.dependentTaskId === task1.id) &&
-      dep.type === 'conflicts'
-    );
+    const hasConflict =
+      task1Dependencies.some(
+        (dep) =>
+          (dep.dependsOnTaskId === task2.id ||
+            dep.dependentTaskId === task2.id) &&
+          dep.type === 'conflicts',
+      ) ||
+      task2Dependencies.some(
+        (dep) =>
+          (dep.dependsOnTaskId === task1.id ||
+            dep.dependentTaskId === task1.id) &&
+          dep.type === 'conflicts',
+      );
 
     return !hasConflict;
   }
@@ -411,10 +436,12 @@ export class DependencyResolver extends EventEmitter {
     for (const [taskId, node] of this.dependencyGraph) {
       if (node.task.status === 'pending' && node.dependencies.size > 0) {
         // Check if any dependencies are not completed
-        const hasUncompletedDeps = Array.from(node.dependencies).some(depId => {
-          const depNode = this.dependencyGraph.get(depId);
-          return depNode?.task.status !== 'completed';
-        });
+        const hasUncompletedDeps = Array.from(node.dependencies).some(
+          (depId) => {
+            const depNode = this.dependencyGraph.get(depId);
+            return depNode?.task.status !== 'completed';
+          },
+        );
 
         if (hasUncompletedDeps) {
           blocked.push(taskId);
@@ -434,7 +461,7 @@ export class DependencyResolver extends EventEmitter {
     for (const [taskId, node] of this.dependencyGraph) {
       if (node.task.status === 'pending') {
         // Check if all blocking dependencies are satisfied
-        const hasBlockingDeps = Array.from(node.dependencies).some(depId => {
+        const hasBlockingDeps = Array.from(node.dependencies).some((depId) => {
           const depNode = this.dependencyGraph.get(depId);
           return depNode?.task.status !== 'completed';
         });
@@ -473,7 +500,9 @@ export class DependencyResolver extends EventEmitter {
       // For each level, the duration is the maximum duration of tasks in that level
       // (since they can run in parallel)
       const levelDuration = Math.max(
-        ...tasks.map(taskId => this.dependencyGraph.get(taskId)!.task.estimatedDuration)
+        ...tasks.map(
+          (taskId) => this.dependencyGraph.get(taskId)!.task.estimatedDuration,
+        ),
       );
       totalDuration += levelDuration;
     }
@@ -486,13 +515,17 @@ export class DependencyResolver extends EventEmitter {
    */
   resolveDependencyConflicts(
     conflicts: string[][],
-    strategy: ResolutionStrategy = ResolutionStrategy.BEST_EFFORT
+    strategy: ResolutionStrategy = ResolutionStrategy.BEST_EFFORT,
   ): void {
     for (const cycle of conflicts) {
       switch (strategy) {
         case ResolutionStrategy.STRICT:
-          logger.error(`Cannot resolve circular dependency in strict mode: ${cycle.join(' -> ')}`);
-          throw new Error(`Circular dependency detected: ${cycle.join(' -> ')}`);
+          logger.error(
+            `Cannot resolve circular dependency in strict mode: ${cycle.join(' -> ')}`,
+          );
+          throw new Error(
+            `Circular dependency detected: ${cycle.join(' -> ')}`,
+          );
 
         case ResolutionStrategy.BEST_EFFORT:
           this.resolveConflictBestEffort(cycle);
@@ -518,7 +551,7 @@ export class DependencyResolver extends EventEmitter {
       const toTaskId = cycle[i + 1];
 
       const deps = this.taskDependencies.get(toTaskId) || [];
-      const dependency = deps.find(d => d.dependsOnTaskId === fromTaskId);
+      const dependency = deps.find((d) => d.dependsOnTaskId === fromTaskId);
 
       if (dependency) {
         const fromTask = this.dependencyGraph.get(fromTaskId)?.task;
@@ -536,7 +569,9 @@ export class DependencyResolver extends EventEmitter {
 
     if (targetDependency) {
       this.removeDependency(targetDependency);
-      logger.info(`Removed dependency to resolve cycle: ${targetDependency.dependsOnTaskId} -> ${targetDependency.dependentTaskId}`);
+      logger.info(
+        `Removed dependency to resolve cycle: ${targetDependency.dependsOnTaskId} -> ${targetDependency.dependentTaskId}`,
+      );
     }
   }
 
@@ -550,7 +585,7 @@ export class DependencyResolver extends EventEmitter {
       const toTaskId = cycle[i + 1];
 
       const deps = this.taskDependencies.get(toTaskId) || [];
-      const dependency = deps.find(d => d.dependsOnTaskId === fromTaskId);
+      const dependency = deps.find((d) => d.dependsOnTaskId === fromTaskId);
 
       if (dependency && dependency.type === 'blocks') {
         // Convert to enabling dependency if safe
@@ -558,7 +593,9 @@ export class DependencyResolver extends EventEmitter {
           dependency.type = 'enables' as DependencyType;
           dependency.isOptional = true;
 
-          logger.info(`Converted blocking dependency to enabling: ${fromTaskId} -> ${toTaskId}`);
+          logger.info(
+            `Converted blocking dependency to enabling: ${fromTaskId} -> ${toTaskId}`,
+          );
         }
       }
     }
@@ -576,8 +613,12 @@ export class DependencyResolver extends EventEmitter {
     const dependsOnNode = this.dependencyGraph.get(dependency.dependsOnTaskId);
 
     if (dependentNode && dependsOnNode) {
-      const sameCategory = dependentNode.task.category === dependsOnNode.task.category;
-      const noResourceConflict = this.areTasksCompatible(dependentNode.task, dependsOnNode.task);
+      const sameCategory =
+        dependentNode.task.category === dependsOnNode.task.category;
+      const noResourceConflict = this.areTasksCompatible(
+        dependentNode.task,
+        dependsOnNode.task,
+      );
 
       return sameCategory && noResourceConflict;
     }
@@ -630,7 +671,9 @@ export class DependencyResolver extends EventEmitter {
     const executionLevels = this.getExecutionLevels();
 
     // Sort levels by key (execution order)
-    const sortedLevels = Array.from(executionLevels.entries()).sort((a, b) => a[0] - b[0]);
+    const sortedLevels = Array.from(executionLevels.entries()).sort(
+      (a, b) => a[0] - b[0],
+    );
 
     for (const [level, tasks] of sortedLevels) {
       // Within each level, sort by priority and critical path
@@ -676,7 +719,7 @@ export class DependencyResolver extends EventEmitter {
       level: node.level,
       isOnCriticalPath: node.criticalPath,
       isReady: readyTasks.includes(taskId),
-      isBlocked: blockedTasks.includes(taskId)
+      isBlocked: blockedTasks.includes(taskId),
     };
   }
 
@@ -716,7 +759,7 @@ export class DependencyResolver extends EventEmitter {
 
     return {
       isValid: issues.length === 0,
-      issues
+      issues,
     };
   }
 
@@ -738,13 +781,13 @@ export class DependencyResolver extends EventEmitter {
       type: string;
     }>;
   } {
-    const nodes = Array.from(this.dependencyGraph.values()).map(node => ({
+    const nodes = Array.from(this.dependencyGraph.values()).map((node) => ({
       id: node.taskId,
       title: node.task.title,
       level: node.level,
       priority: node.task.priority,
       status: node.task.status,
-      criticalPath: node.criticalPath
+      criticalPath: node.criticalPath,
     }));
 
     const edges: Array<{ from: string; to: string; type: string }> = [];
@@ -753,7 +796,7 @@ export class DependencyResolver extends EventEmitter {
         edges.push({
           from: dep.dependsOnTaskId,
           to: dep.dependentTaskId,
-          type: dep.type
+          type: dep.type,
         });
       }
     }

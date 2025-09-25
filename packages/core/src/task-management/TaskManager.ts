@@ -18,7 +18,10 @@
 
 import type { Config } from '../config/config.js';
 import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
-import { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
+import {
+  EnhancedAutonomousTaskQueue,
+  type EnhancedQueueConfig,
+} from './EnhancedAutonomousTaskQueue.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
 import { TaskQueue, TaskPriority } from './TaskQueue.js';
@@ -32,7 +35,7 @@ import {
   TaskExecutionContext,
   TaskQueueConfig,
   ExecutionPlan,
-  DependencyGraph
+  DependencyGraph,
 } from './types.js';
 
 /**
@@ -122,7 +125,13 @@ export interface TaskExecutionStrategy {
  */
 export interface AutonomousDecision {
   /** Decision type */
-  decision: 'breakdown' | 'schedule' | 'execute' | 'pause' | 'optimize' | 'escalate';
+  decision:
+    | 'breakdown'
+    | 'schedule'
+    | 'execute'
+    | 'pause'
+    | 'optimize'
+    | 'escalate';
   /** Confidence level (0.0-1.0) */
   confidence: number;
   /** Reasoning for the decision */
@@ -169,7 +178,8 @@ export class TaskManager {
     console.log('🚀 Initializing TaskManager with autonomous capabilities...');
 
     this.config = options.config;
-    this.enableAutonomousBreakdown = options.enableAutonomousBreakdown !== false;
+    this.enableAutonomousBreakdown =
+      options.enableAutonomousBreakdown !== false;
     this.enableAdaptiveScheduling = options.enableAdaptiveScheduling !== false;
     this.enableLearning = options.enableLearning !== false;
     this.agentId = options.agentId || 'TASK_MANAGER_AUTONOMOUS_AGENT';
@@ -179,7 +189,7 @@ export class TaskManager {
     this.taskEngine = new TaskExecutionEngine(this.config, {
       onTaskStatusChange: this.handleTaskStatusChange.bind(this),
       onTaskComplete: this.handleTaskComplete.bind(this),
-      onTaskFailed: this.handleTaskFailed.bind(this)
+      onTaskFailed: this.handleTaskFailed.bind(this),
     });
 
     // Initialize autonomous task queue
@@ -193,7 +203,7 @@ export class TaskManager {
       performanceOptimization: options.enablePerformanceOptimization !== false,
       learningEnabled: this.enableLearning,
       metricsEnabled: options.enableMonitoring !== false,
-      ...options.queueConfig
+      ...options.queueConfig,
     };
     this.autonomousQueue = new EnhancedAutonomousTaskQueue(queueConfig);
 
@@ -206,17 +216,17 @@ export class TaskManager {
       resourcePools: new Map([
         ['cpu', 8],
         ['memory', 16],
-        ['network', 4]
+        ['network', 4],
       ]),
       priorityThresholds: {
         critical: 1000,
         high: 750,
         medium: 500,
-        low: 250
+        low: 250,
       },
       schedulingAlgorithm: 'dependency_aware',
       autoDependencyLearning: this.enableLearning,
-      performanceMonitoring: options.enableMonitoring !== false
+      performanceMonitoring: options.enableMonitoring !== false,
     });
 
     // Initialize priority scheduler
@@ -228,13 +238,16 @@ export class TaskManager {
       adaptiveLearning: this.enableLearning,
       performanceTracking: options.enableMonitoring !== false,
       resourceAware: true,
-      dependencyAware: true
+      dependencyAware: true,
     });
 
     // Initialize monitoring system
     if (options.enableMonitoring !== false) {
       console.log('📊 Initializing ExecutionMonitoringSystem...');
-      this.monitoring = new ExecutionMonitoringSystem(this.config, options.monitoringConfig);
+      this.monitoring = new ExecutionMonitoringSystem(
+        this.config,
+        options.monitoringConfig,
+      );
     }
 
     // Initialize hook integration
@@ -246,9 +259,13 @@ export class TaskManager {
         this.monitoring!,
         {
           agentId: this.agentId,
-          capabilities: ['autonomous_task_management', 'intelligent_breakdown', 'adaptive_scheduling'],
-          ...options.hookIntegrationConfig
-        }
+          capabilities: [
+            'autonomous_task_management',
+            'intelligent_breakdown',
+            'adaptive_scheduling',
+          ],
+          ...options.hookIntegrationConfig,
+        },
       );
     }
 
@@ -258,10 +275,12 @@ export class TaskManager {
       enableCompression: true,
       encryptionEnabled: true,
       maxSessionHistory: 100,
-      autoCleanupIntervalMs: 24 * 60 * 60 * 1000 // 24 hours
+      autoCleanupIntervalMs: 24 * 60 * 60 * 1000, // 24 hours
     });
 
-    console.log('✅ TaskManager initialized successfully with autonomous capabilities');
+    console.log(
+      '✅ TaskManager initialized successfully with autonomous capabilities',
+    );
   }
 
   /**
@@ -289,7 +308,6 @@ export class TaskManager {
 
       this.isRunning = true;
       console.log('🎉 TaskManager fully initialized and running autonomously');
-
     } catch (error) {
       console.error('❌ TaskManager initialization failed:', error);
       throw new Error(`TaskManager initialization failed: ${error}`);
@@ -311,7 +329,7 @@ export class TaskManager {
       dependencies?: TaskId[];
       forceBreakdown?: boolean;
       useAutonomousQueue?: boolean;
-    }
+    },
   ): Promise<TaskId> {
     console.log(`📥 Adding new task: ${title}`);
 
@@ -321,22 +339,29 @@ export class TaskManager {
       title,
       description,
       options,
-      context
+      context,
     });
 
-    console.log(`🧠 Autonomous decision: ${decision.decision} (confidence: ${Math.round(decision.confidence * 100)}%)`);
+    console.log(
+      `🧠 Autonomous decision: ${decision.decision} (confidence: ${Math.round(decision.confidence * 100)}%)`,
+    );
     console.log(`🔍 Reasoning: ${decision.reasoning}`);
 
     let taskId: TaskId;
 
     // Use autonomous queue if recommended or requested
-    if (decision.decision === 'breakdown' || options?.useAutonomousQueue !== false) {
-      console.log('🤖 Using autonomous task queue for intelligent processing...');
+    if (
+      decision.decision === 'breakdown' ||
+      options?.useAutonomousQueue !== false
+    ) {
+      console.log(
+        '🤖 Using autonomous task queue for intelligent processing...',
+      );
 
       taskId = await this.autonomousQueue.addTask({
         title,
         description,
-        category: options?.category as any || 'implementation',
+        category: (options?.category as any) || 'implementation',
         priority: options?.priority || TaskPriority.MEDIUM,
         estimatedDuration: this.estimateTaskDuration(title, description),
         executeFunction: async (task, executionContext) => {
@@ -346,9 +371,9 @@ export class TaskManager {
         executionContext: options?.executionContext,
         parameters: options?.parameters,
         expectedOutputs: options?.expectedOutputs,
-        forceBreakdown: options?.forceBreakdown || decision.decision === 'breakdown'
+        forceBreakdown:
+          options?.forceBreakdown || decision.decision === 'breakdown',
       });
-
     } else {
       console.log('📋 Using traditional task queue for standard processing...');
 
@@ -359,17 +384,17 @@ export class TaskManager {
         description,
         status: 'pending',
         priority: options?.priority || 'medium',
-        category: options?.category as any || 'implementation',
+        category: (options?.category as any) || 'implementation',
         executionContext: options?.executionContext,
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),
           createdBy: this.agentId,
           estimatedDuration: this.estimateTaskDuration(title, description),
-          tags: ['traditional_queue']
+          tags: ['traditional_queue'],
         },
         parameters: options?.parameters,
-        expectedOutput: options?.expectedOutputs
+        expectedOutput: options?.expectedOutputs,
       };
 
       taskId = await this.priorityQueue.enqueue(task);
@@ -387,7 +412,7 @@ export class TaskManager {
    */
   private async executeTaskWithQualityGates(
     task: any,
-    executionContext: any
+    executionContext: any,
   ): Promise<{ success: boolean; result?: any; error?: string }> {
     console.log(`🔄 Executing task with quality gates: ${task.title}`);
 
@@ -401,10 +426,15 @@ export class TaskManager {
       // Execute task using main engine
       const result = await this.taskEngine.executeTask(task.id, {
         ...executionContext,
-        qualityGates: ['linting', 'type_checking', 'security_scan', 'build_validation'],
+        qualityGates: [
+          'linting',
+          'type_checking',
+          'security_scan',
+          'build_validation',
+        ],
         onProgress: (progress) => {
           console.log(`📈 Task ${task.id} progress: ${progress}%`);
-        }
+        },
       });
 
       // Post-execution quality gates
@@ -413,9 +443,10 @@ export class TaskManager {
         throw new Error(`Post-execution checks failed: ${postChecks.reason}`);
       }
 
-      console.log(`✅ Task executed successfully with quality gates: ${task.title}`);
+      console.log(
+        `✅ Task executed successfully with quality gates: ${task.title}`,
+      );
       return { success: true, result: result.output };
-
     } catch (error) {
       console.error(`❌ Task execution failed: ${task.title}`, error);
       return { success: false, error: error.message };
@@ -440,7 +471,7 @@ export class TaskManager {
         progress: autonomousStatus.progress || 0,
         result: autonomousStatus.result as TaskResult,
         breakdown: autonomousStatus.breakdown,
-        metrics: autonomousStatus.metrics
+        metrics: autonomousStatus.metrics,
       };
     }
 
@@ -450,7 +481,7 @@ export class TaskManager {
       return {
         status: task.status,
         progress: this.calculateTaskProgress(task),
-        metrics: this.calculateTaskMetrics(task)
+        metrics: this.calculateTaskMetrics(task),
       };
     }
 
@@ -477,15 +508,17 @@ export class TaskManager {
         autonomous: autonomousStatus.totalTasks,
         traditional: traditionalStatus.totalTasks,
         pending: autonomousStatus.pendingTasks + traditionalStatus.pendingTasks,
-        inProgress: autonomousStatus.runningTasks + traditionalStatus.runningTasks,
-        completed: autonomousStatus.completedTasks + traditionalStatus.completedTasks,
-        failed: autonomousStatus.failedTasks + traditionalStatus.failedTasks
+        inProgress:
+          autonomousStatus.runningTasks + traditionalStatus.runningTasks,
+        completed:
+          autonomousStatus.completedTasks + traditionalStatus.completedTasks,
+        failed: autonomousStatus.failedTasks + traditionalStatus.failedTasks,
       },
       systemHealth: this.monitoring?.getSystemHealth(),
       performance: {
         autonomous: this.autonomousQueue.getPerformanceMetrics(),
-        traditional: traditionalStatus.performance
-      }
+        traditional: traditionalStatus.performance,
+      },
     };
   }
 
@@ -494,12 +527,15 @@ export class TaskManager {
    */
   private async makeAutonomousDecision(
     decisionType: string,
-    context: any
+    context: any,
   ): Promise<AutonomousDecision> {
     const autonomousContext = await this.getAutonomousContext();
 
     // Analyze task complexity and system state
-    const complexity = this.analyzeTaskComplexity(context.title, context.description);
+    const complexity = this.analyzeTaskComplexity(
+      context.title,
+      context.description,
+    );
     const systemLoad = autonomousContext.systemLoad;
     const availableResources = autonomousContext.availableResources;
 
@@ -516,7 +552,9 @@ export class TaskManager {
       decision = 'schedule';
       confidence = 0.7;
       reasoning = `High system load (${Math.round(systemLoad * 100)}%) - scheduled execution recommended`;
-    } else if (Object.values(availableResources).some(resource => resource < 0.2)) {
+    } else if (
+      Object.values(availableResources).some((resource) => resource < 0.2)
+    ) {
       decision = 'pause';
       confidence = 0.9;
       reasoning = 'Low resource availability - execution pause recommended';
@@ -530,14 +568,18 @@ export class TaskManager {
         {
           action: decision,
           parameters: { taskComplexity: complexity, systemLoad },
-          priority: 1
-        }
+          priority: 1,
+        },
       ],
       expectedOutcomes: {
         successProbability: confidence,
-        estimatedDuration: this.estimateTaskDuration(context.title, context.description),
-        riskLevel: complexity > 0.8 ? 'high' : complexity > 0.5 ? 'medium' : 'low'
-      }
+        estimatedDuration: this.estimateTaskDuration(
+          context.title,
+          context.description,
+        ),
+        riskLevel:
+          complexity > 0.8 ? 'high' : complexity > 0.5 ? 'medium' : 'low',
+      },
     };
   }
 
@@ -548,19 +590,20 @@ export class TaskManager {
     const queueState = this.getSystemStatus().taskCounts;
 
     return {
-      systemLoad: (queueState.inProgress / (this.autonomousQueue.maxConcurrentTasks || 8)),
+      systemLoad:
+        queueState.inProgress / (this.autonomousQueue.maxConcurrentTasks || 8),
       availableResources: {
         cpu: 0.7, // Mock values - would be real system metrics
         memory: 0.8,
-        network: 0.9
+        network: 0.9,
       },
       performanceHistory: [], // Would be loaded from persistence
       queueState: {
         pending: queueState.pending,
         inProgress: queueState.inProgress,
         completed: queueState.completed,
-        failed: queueState.failed
-      }
+        failed: queueState.failed,
+      },
     };
   }
 
@@ -607,12 +650,21 @@ export class TaskManager {
 
     // Check for complex keywords
     const complexKeywords = [
-      'refactor', 'architecture', 'integration', 'migration', 'optimization',
-      'comprehensive', 'complete', 'entire', 'full', 'system', 'framework'
+      'refactor',
+      'architecture',
+      'integration',
+      'migration',
+      'optimization',
+      'comprehensive',
+      'complete',
+      'entire',
+      'full',
+      'system',
+      'framework',
     ];
 
     const text = (title + ' ' + description).toLowerCase();
-    complexKeywords.forEach(keyword => {
+    complexKeywords.forEach((keyword) => {
       if (text.includes(keyword)) complexity += 0.1;
     });
 
@@ -640,14 +692,22 @@ export class TaskManager {
   private calculateTaskProgress(task: Task): number {
     // Mock implementation - would calculate based on actual task state
     switch (task.status) {
-      case 'pending': return 0;
-      case 'ready': return 10;
-      case 'in_progress': return 50;
-      case 'completed': return 100;
-      case 'failed': return 0;
-      case 'blocked': return 25;
-      case 'cancelled': return 0;
-      default: return 0;
+      case 'pending':
+        return 0;
+      case 'ready':
+        return 10;
+      case 'in_progress':
+        return 50;
+      case 'completed':
+        return 100;
+      case 'failed':
+        return 0;
+      case 'blocked':
+        return 25;
+      case 'cancelled':
+        return 0;
+      default:
+        return 0;
     }
   }
 
@@ -656,20 +716,25 @@ export class TaskManager {
       estimatedDuration: task.metadata.estimatedDuration,
       actualDuration: task.metadata.actualDuration,
       retryCount: task.metadata.retryCount || 0,
-      complexity: this.analyzeTaskComplexity(task.title, task.description)
+      complexity: this.analyzeTaskComplexity(task.title, task.description),
     };
   }
 
   /**
    * Quality gate implementations
    */
-  private async runPreExecutionChecks(task: any): Promise<{ passed: boolean; reason?: string }> {
+  private async runPreExecutionChecks(
+    task: any,
+  ): Promise<{ passed: boolean; reason?: string }> {
     // Implementation would include actual checks
     console.log(`🔍 Running pre-execution checks for: ${task.title}`);
     return { passed: true };
   }
 
-  private async runPostExecutionChecks(task: any, result: any): Promise<{ passed: boolean; reason?: string }> {
+  private async runPostExecutionChecks(
+    task: any,
+    result: any,
+  ): Promise<{ passed: boolean; reason?: string }> {
     // Implementation would include actual validation
     console.log(`✅ Running post-execution checks for: ${task.title}`);
     return { passed: true };
@@ -683,7 +748,9 @@ export class TaskManager {
     try {
       const persistedData = await this.persistence.loadSession(this.agentId);
       if (persistedData) {
-        console.log(`✅ Loaded ${persistedData.tasks?.length || 0} persisted tasks`);
+        console.log(
+          `✅ Loaded ${persistedData.tasks?.length || 0} persisted tasks`,
+        );
       }
     } catch (error) {
       console.warn('⚠️ Could not load persisted state:', error);
@@ -695,7 +762,7 @@ export class TaskManager {
       await this.persistence.saveTaskState(taskId, {
         timestamp: new Date(),
         status: 'queued',
-        agentId: this.agentId
+        agentId: this.agentId,
       });
     } catch (error) {
       console.warn(`⚠️ Could not persist task state for ${taskId}:`, error);
@@ -708,7 +775,7 @@ export class TaskManager {
         agentId: this.agentId,
         timestamp: new Date(),
         systemStatus: this.getSystemStatus(),
-        tasks: this.getAllTasks()
+        tasks: this.getAllTasks(),
       };
 
       await this.persistence.saveSession(this.agentId, currentState);
@@ -737,8 +804,8 @@ export class TaskManager {
       metadata: {
         totalTasks: allTasks.length,
         systemStatus: this.getSystemStatus(),
-        performanceMetrics: metrics
-      }
+        performanceMetrics: metrics,
+      },
     });
   }
 
@@ -756,8 +823,8 @@ export class TaskManager {
         metadata: {
           oldStatus: task.status,
           newStatus: task.status,
-          title: task.title
-        }
+          title: task.title,
+        },
       });
     }
 
@@ -775,8 +842,8 @@ export class TaskManager {
         metadata: {
           title: task.title,
           duration: task.metadata.actualDuration,
-          success: true
-        }
+          success: true,
+        },
       });
     }
 
@@ -794,9 +861,9 @@ export class TaskManager {
         metadata: {
           title: task.title,
           error,
-          retryCount: task.metadata.retryCount || 0
+          retryCount: task.metadata.retryCount || 0,
         },
-        error
+        error,
       });
     }
 
@@ -840,7 +907,9 @@ export class TaskManager {
 /**
  * Factory function for creating TaskManager instances
  */
-export async function createTaskManager(options: TaskManagerConfig): Promise<TaskManager> {
+export async function createTaskManager(
+  options: TaskManagerConfig,
+): Promise<TaskManager> {
   const taskManager = new TaskManager(options);
   await taskManager.initialize();
   return taskManager;
@@ -853,5 +922,5 @@ export type {
   TaskManagerConfig,
   AutonomousContext,
   TaskExecutionStrategy,
-  AutonomousDecision
+  AutonomousDecision,
 };

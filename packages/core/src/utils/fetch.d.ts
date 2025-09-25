@@ -14,14 +14,14 @@
  * ```
  */
 export declare class FetchError extends Error {
-    code?: string | undefined;
-    /**
-     * Creates a new FetchError instance.
-     *
-     * @param message - Human-readable error description
-     * @param code - Optional error code for programmatic error handling
-     */
-    constructor(message: string, code?: string | undefined);
+  code?: string | undefined;
+  /**
+   * Creates a new FetchError instance.
+   *
+   * @param message - Human-readable error description
+   * @param code - Optional error code for programmatic error handling
+   */
+  constructor(message: string, code?: string | undefined);
 }
 /**
  * Checks if a URL points to a private IP address or localhost.
@@ -69,4 +69,7 @@ export declare function isPrivateIp(url: string): boolean;
  * }
  * ```
  */
-export declare function fetchWithTimeout(url: string, timeout: number): Promise<Response>;
+export declare function fetchWithTimeout(
+  url: string,
+  timeout: number,
+): Promise<Response>;

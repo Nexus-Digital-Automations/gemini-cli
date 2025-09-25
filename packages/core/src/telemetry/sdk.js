@@ -15,16 +15,33 @@ import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { BatchSpanProcessor, ConsoleSpanExporter, } from '@opentelemetry/sdk-trace-node';
-import { BatchLogRecordProcessor, ConsoleLogRecordExporter, } from '@opentelemetry/sdk-logs';
-import { ConsoleMetricExporter, PeriodicExportingMetricReader, } from '@opentelemetry/sdk-metrics';
+import {
+  BatchSpanProcessor,
+  ConsoleSpanExporter,
+} from '@opentelemetry/sdk-trace-node';
+import {
+  BatchLogRecordProcessor,
+  ConsoleLogRecordExporter,
+} from '@opentelemetry/sdk-logs';
+import {
+  ConsoleMetricExporter,
+  PeriodicExportingMetricReader,
+} from '@opentelemetry/sdk-metrics';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { SERVICE_NAME } from './constants.js';
 import { initializeMetrics } from './metrics.js';
 import { ClearcutLogger } from './clearcut-logger/clearcut-logger.js';
 import { getComponentLogger } from '../utils/logger.js';
-import { FileLogExporter, FileMetricExporter, FileSpanExporter, } from './file-exporters.js';
-import { GcpTraceExporter, GcpMetricExporter, GcpLogExporter, } from './gcp-exporters.js';
+import {
+  FileLogExporter,
+  FileMetricExporter,
+  FileSpanExporter,
+} from './file-exporters.js';
+import {
+  GcpTraceExporter,
+  GcpMetricExporter,
+  GcpLogExporter,
+} from './gcp-exporters.js';
 import { TelemetryTarget } from './index.js';
 // For troubleshooting, set the log level to DiagLogLevel.DEBUG
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
@@ -36,7 +53,7 @@ let telemetryInitialized = false;
  * @returns True if telemetry SDK is initialized and ready for use
  */
 export function isTelemetrySdkInitialized() {
-    return telemetryInitialized;
+  return telemetryInitialized;
 }
 /**
  * Parse and validate OTLP endpoint configuration.
@@ -50,25 +67,24 @@ export function isTelemetrySdkInitialized() {
  * @private
  */
 function parseOtlpEndpoint(otlpEndpointSetting, protocol) {
-    if (!otlpEndpointSetting) {
-        return undefined;
+  if (!otlpEndpointSetting) {
+    return undefined;
+  }
+  // Trim leading/trailing quotes that might come from env variables
+  const trimmedEndpoint = otlpEndpointSetting.replace(/^["']|["']$/g, '');
+  try {
+    const url = new URL(trimmedEndpoint);
+    if (protocol === 'grpc') {
+      // OTLP gRPC exporters expect an endpoint in the format scheme://host:port
+      // The `origin` property provides this, stripping any path, query, or hash.
+      return url.origin;
     }
-    // Trim leading/trailing quotes that might come from env variables
-    const trimmedEndpoint = otlpEndpointSetting.replace(/^["']|["']$/g, '');
-    try {
-        const url = new URL(trimmedEndpoint);
-        if (protocol === 'grpc') {
-            // OTLP gRPC exporters expect an endpoint in the format scheme://host:port
-            // The `origin` property provides this, stripping any path, query, or hash.
-            return url.origin;
-        }
-        // For http, use the full href.
-        return url.href;
-    }
-    catch (error) {
-        diag.error('Invalid OTLP endpoint URL provided:', trimmedEndpoint, error);
-        return undefined;
-    }
+    // For http, use the full href.
+    return url.href;
+  } catch (error) {
+    diag.error('Invalid OTLP endpoint URL provided:', trimmedEndpoint, error);
+    return undefined;
+  }
 }
 /**
  * Initialize the OpenTelemetry SDK with the provided configuration.
@@ -97,114 +113,111 @@ function parseOtlpEndpoint(otlpEndpointSetting, protocol) {
  * ```
  */
 export function initializeTelemetry(config) {
-    if (telemetryInitialized || !config.getTelemetryEnabled()) {
-        return;
-    }
-    const resource = resourceFromAttributes({
-        [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-        [SemanticResourceAttributes.SERVICE_VERSION]: process.version,
-        'session.id': config.getSessionId(),
+  if (telemetryInitialized || !config.getTelemetryEnabled()) {
+    return;
+  }
+  const resource = resourceFromAttributes({
+    [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
+    [SemanticResourceAttributes.SERVICE_VERSION]: process.version,
+    'session.id': config.getSessionId(),
+  });
+  const otlpEndpoint = config.getTelemetryOtlpEndpoint();
+  const otlpProtocol = config.getTelemetryOtlpProtocol();
+  const telemetryTarget = config.getTelemetryTarget();
+  const useCollector = config.getTelemetryUseCollector();
+  const parsedEndpoint = parseOtlpEndpoint(otlpEndpoint, otlpProtocol);
+  const telemetryOutfile = config.getTelemetryOutfile();
+  const useOtlp = !!parsedEndpoint && !telemetryOutfile;
+  const gcpProjectId =
+    process.env['OTLP_GOOGLE_CLOUD_PROJECT'] ||
+    process.env['GOOGLE_CLOUD_PROJECT'];
+  const useDirectGcpExport =
+    telemetryTarget === TelemetryTarget.GCP && !!gcpProjectId && !useCollector;
+  let spanExporter;
+  let logExporter;
+  let metricReader;
+  if (useDirectGcpExport) {
+    spanExporter = new GcpTraceExporter(gcpProjectId);
+    logExporter = new GcpLogExporter(gcpProjectId);
+    metricReader = new PeriodicExportingMetricReader({
+      exporter: new GcpMetricExporter(gcpProjectId),
+      exportIntervalMillis: 30000,
     });
-    const otlpEndpoint = config.getTelemetryOtlpEndpoint();
-    const otlpProtocol = config.getTelemetryOtlpProtocol();
-    const telemetryTarget = config.getTelemetryTarget();
-    const useCollector = config.getTelemetryUseCollector();
-    const parsedEndpoint = parseOtlpEndpoint(otlpEndpoint, otlpProtocol);
-    const telemetryOutfile = config.getTelemetryOutfile();
-    const useOtlp = !!parsedEndpoint && !telemetryOutfile;
-    const gcpProjectId = process.env['OTLP_GOOGLE_CLOUD_PROJECT'] ||
-        process.env['GOOGLE_CLOUD_PROJECT'];
-    const useDirectGcpExport = telemetryTarget === TelemetryTarget.GCP && !!gcpProjectId && !useCollector;
-    let spanExporter;
-    let logExporter;
-    let metricReader;
-    if (useDirectGcpExport) {
-        spanExporter = new GcpTraceExporter(gcpProjectId);
-        logExporter = new GcpLogExporter(gcpProjectId);
-        metricReader = new PeriodicExportingMetricReader({
-            exporter: new GcpMetricExporter(gcpProjectId),
-            exportIntervalMillis: 30000,
-        });
+  } else if (useOtlp) {
+    if (otlpProtocol === 'http') {
+      spanExporter = new OTLPTraceExporterHttp({
+        url: parsedEndpoint,
+      });
+      logExporter = new OTLPLogExporterHttp({
+        url: parsedEndpoint,
+      });
+      metricReader = new PeriodicExportingMetricReader({
+        exporter: new OTLPMetricExporterHttp({
+          url: parsedEndpoint,
+        }),
+        exportIntervalMillis: 10000,
+      });
+    } else {
+      // grpc
+      spanExporter = new OTLPTraceExporter({
+        url: parsedEndpoint,
+        compression: CompressionAlgorithm.GZIP,
+      });
+      logExporter = new OTLPLogExporter({
+        url: parsedEndpoint,
+        compression: CompressionAlgorithm.GZIP,
+      });
+      metricReader = new PeriodicExportingMetricReader({
+        exporter: new OTLPMetricExporter({
+          url: parsedEndpoint,
+          compression: CompressionAlgorithm.GZIP,
+        }),
+        exportIntervalMillis: 10000,
+      });
     }
-    else if (useOtlp) {
-        if (otlpProtocol === 'http') {
-            spanExporter = new OTLPTraceExporterHttp({
-                url: parsedEndpoint,
-            });
-            logExporter = new OTLPLogExporterHttp({
-                url: parsedEndpoint,
-            });
-            metricReader = new PeriodicExportingMetricReader({
-                exporter: new OTLPMetricExporterHttp({
-                    url: parsedEndpoint,
-                }),
-                exportIntervalMillis: 10000,
-            });
-        }
-        else {
-            // grpc
-            spanExporter = new OTLPTraceExporter({
-                url: parsedEndpoint,
-                compression: CompressionAlgorithm.GZIP,
-            });
-            logExporter = new OTLPLogExporter({
-                url: parsedEndpoint,
-                compression: CompressionAlgorithm.GZIP,
-            });
-            metricReader = new PeriodicExportingMetricReader({
-                exporter: new OTLPMetricExporter({
-                    url: parsedEndpoint,
-                    compression: CompressionAlgorithm.GZIP,
-                }),
-                exportIntervalMillis: 10000,
-            });
-        }
-    }
-    else if (telemetryOutfile) {
-        spanExporter = new FileSpanExporter(telemetryOutfile);
-        logExporter = new FileLogExporter(telemetryOutfile);
-        metricReader = new PeriodicExportingMetricReader({
-            exporter: new FileMetricExporter(telemetryOutfile),
-            exportIntervalMillis: 10000,
-        });
-    }
-    else {
-        spanExporter = new ConsoleSpanExporter();
-        logExporter = new ConsoleLogRecordExporter();
-        metricReader = new PeriodicExportingMetricReader({
-            exporter: new ConsoleMetricExporter(),
-            exportIntervalMillis: 10000,
-        });
-    }
-    sdk = new NodeSDK({
-        resource,
-        spanProcessors: [new BatchSpanProcessor(spanExporter)],
-        logRecordProcessors: [new BatchLogRecordProcessor(logExporter)],
-        metricReader,
-        instrumentations: [new HttpInstrumentation()],
+  } else if (telemetryOutfile) {
+    spanExporter = new FileSpanExporter(telemetryOutfile);
+    logExporter = new FileLogExporter(telemetryOutfile);
+    metricReader = new PeriodicExportingMetricReader({
+      exporter: new FileMetricExporter(telemetryOutfile),
+      exportIntervalMillis: 10000,
     });
-    try {
-        sdk.start();
-        if (config.getDebugMode()) {
-            const logger = getComponentLogger('TelemetrySDK');
-            logger.info('OpenTelemetry SDK started successfully.');
-        }
-        telemetryInitialized = true;
-        initializeMetrics(config);
+  } else {
+    spanExporter = new ConsoleSpanExporter();
+    logExporter = new ConsoleLogRecordExporter();
+    metricReader = new PeriodicExportingMetricReader({
+      exporter: new ConsoleMetricExporter(),
+      exportIntervalMillis: 10000,
+    });
+  }
+  sdk = new NodeSDK({
+    resource,
+    spanProcessors: [new BatchSpanProcessor(spanExporter)],
+    logRecordProcessors: [new BatchLogRecordProcessor(logExporter)],
+    metricReader,
+    instrumentations: [new HttpInstrumentation()],
+  });
+  try {
+    sdk.start();
+    if (config.getDebugMode()) {
+      const logger = getComponentLogger('TelemetrySDK');
+      logger.info('OpenTelemetry SDK started successfully.');
     }
-    catch (error) {
-        const logger = getComponentLogger('TelemetrySDK');
-        logger.error('Error starting OpenTelemetry SDK', { error: error });
-    }
-    process.on('SIGTERM', () => {
-        shutdownTelemetry(config);
-    });
-    process.on('SIGINT', () => {
-        shutdownTelemetry(config);
-    });
-    process.on('exit', () => {
-        shutdownTelemetry(config);
-    });
+    telemetryInitialized = true;
+    initializeMetrics(config);
+  } catch (error) {
+    const logger = getComponentLogger('TelemetrySDK');
+    logger.error('Error starting OpenTelemetry SDK', { error: error });
+  }
+  process.on('SIGTERM', () => {
+    shutdownTelemetry(config);
+  });
+  process.on('SIGINT', () => {
+    shutdownTelemetry(config);
+  });
+  process.on('exit', () => {
+    shutdownTelemetry(config);
+  });
 }
 /**
  * Gracefully shutdown the OpenTelemetry SDK and flush pending telemetry data.
@@ -230,23 +243,21 @@ export function initializeTelemetry(config) {
  * ```
  */
 export async function shutdownTelemetry(config) {
-    if (!telemetryInitialized || !sdk) {
-        return;
+  if (!telemetryInitialized || !sdk) {
+    return;
+  }
+  try {
+    ClearcutLogger.getInstance()?.shutdown();
+    await sdk.shutdown();
+    if (config.getDebugMode()) {
+      const logger = getComponentLogger('TelemetrySDK');
+      logger.info('OpenTelemetry SDK shut down successfully.');
     }
-    try {
-        ClearcutLogger.getInstance()?.shutdown();
-        await sdk.shutdown();
-        if (config.getDebugMode()) {
-            const logger = getComponentLogger('TelemetrySDK');
-            logger.info('OpenTelemetry SDK shut down successfully.');
-        }
-    }
-    catch (error) {
-        const logger = getComponentLogger('TelemetrySDK');
-        logger.error('Error shutting down SDK', { error: error });
-    }
-    finally {
-        telemetryInitialized = false;
-    }
+  } catch (error) {
+    const logger = getComponentLogger('TelemetrySDK');
+    logger.error('Error shutting down SDK', { error: error });
+  } finally {
+    telemetryInitialized = false;
+  }
 }
 //# sourceMappingURL=sdk.js.map

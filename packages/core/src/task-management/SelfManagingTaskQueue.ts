@@ -23,11 +23,35 @@ import { logger as createLogger } from '../utils/logger.js';
 const logger = createLogger();
 
 // Import existing components to build upon
-import { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig, type AutonomousQueueMetrics } from './EnhancedAutonomousTaskQueue.js';
-import { PriorityScheduler, SchedulingAlgorithm, type SchedulingDecision, type SchedulingContext } from './PriorityScheduler.js';
-import { QueueOptimizer, OptimizationStrategy, type OptimizationRecommendation } from './QueueOptimizer.js';
-import { AutonomousTaskBreakdown, BreakdownStrategy } from './AutonomousTaskBreakdown.js';
-import { TaskQueue, type Task, TaskPriority, TaskStatus, TaskCategory, type TaskContext, type QueueMetrics } from './TaskQueue.js';
+import {
+  EnhancedAutonomousTaskQueue,
+  type EnhancedQueueConfig,
+  type AutonomousQueueMetrics,
+} from './EnhancedAutonomousTaskQueue.js';
+import {
+  PriorityScheduler,
+  SchedulingAlgorithm,
+  type SchedulingDecision,
+  type SchedulingContext,
+} from './PriorityScheduler.js';
+import {
+  QueueOptimizer,
+  OptimizationStrategy,
+  type OptimizationRecommendation,
+} from './QueueOptimizer.js';
+import {
+  AutonomousTaskBreakdown,
+  BreakdownStrategy,
+} from './AutonomousTaskBreakdown.js';
+import {
+  TaskQueue,
+  type Task,
+  TaskPriority,
+  TaskStatus,
+  TaskCategory,
+  type TaskContext,
+  type QueueMetrics,
+} from './TaskQueue.js';
 import type { TaskId } from './types.js';
 
 /**
@@ -130,7 +154,10 @@ export class SelfManagingTaskQueue extends EventEmitter {
   // Advanced tracking and intelligence
   private realTimeMetrics: RealTimeQueueMetrics;
   private executionPredictions = new Map<string, TaskPrediction>();
-  private resourceAllocation = new Map<string, { allocated: number; available: number; reserved: number }>();
+  private resourceAllocation = new Map<
+    string,
+    { allocated: number; available: number; reserved: number }
+  >();
   private performanceBaselines = new Map<string, number>();
 
   // Machine learning components
@@ -165,7 +192,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         BreakdownStrategy.FUNCTIONAL,
         BreakdownStrategy.TEMPORAL,
         BreakdownStrategy.DEPENDENCY,
-        BreakdownStrategy.HYBRID
+        BreakdownStrategy.HYBRID,
       ],
 
       // Enhanced scheduling
@@ -208,11 +235,11 @@ export class SelfManagingTaskQueue extends EventEmitter {
         ['memory', 16],
         ['network', 10],
         ['disk', 6],
-        ['ai_tokens', 100000]
+        ['ai_tokens', 100000],
       ]),
       enableResourceOptimization: true,
 
-      ...config
+      ...config,
     };
 
     // Initialize base autonomous queue with enhanced configuration
@@ -231,31 +258,28 @@ export class SelfManagingTaskQueue extends EventEmitter {
       performanceOptimization: this.config.performanceOptimization,
       learningEnabled: this.config.learningEnabled,
       resourcePools: this.config.resourcePools,
-      enableResourceOptimization: this.config.enableResourceOptimization
+      enableResourceOptimization: this.config.enableResourceOptimization,
     });
 
     // Initialize enhanced components
-    this.scheduler = new PriorityScheduler(
-      this.config.schedulingAlgorithm,
-      {
-        enableMachineLearning: this.config.enableMLBasedPredictions,
-        adaptiveThreshold: 0.1, // More sensitive adaptation
-        maxLearningHistory: 2000,
-        performanceWindow: 200
-      }
-    );
+    this.scheduler = new PriorityScheduler(this.config.schedulingAlgorithm, {
+      enableMachineLearning: this.config.enableMLBasedPredictions,
+      adaptiveThreshold: 0.1, // More sensitive adaptation
+      maxLearningHistory: 2000,
+      performanceWindow: 200,
+    });
 
     this.optimizer = new QueueOptimizer();
 
     this.breakdown = new AutonomousTaskBreakdown({
       maxSubtasks: 15,
-      minSubtaskDuration: 15000,  // 15 seconds
+      minSubtaskDuration: 15000, // 15 seconds
       maxSubtaskDuration: 300000, // 5 minutes
       complexityThreshold: this.config.breakdownThreshold,
       parallelizationPreference: 0.9,
       riskTolerance: 0.7,
       enableSmartBreakdown: true,
-      strategies: this.config.breakdownStrategies
+      strategies: this.config.breakdownStrategies,
     });
 
     // Initialize resource allocation
@@ -286,62 +310,73 @@ export class SelfManagingTaskQueue extends EventEmitter {
         schedulingAlgorithm: this.config.schedulingAlgorithm,
         enablePredictiveScheduling: this.config.enablePredictiveScheduling,
         enableMLBasedPredictions: this.config.enableMLBasedPredictions,
-        optimizationInterval: this.config.optimizationIntervalMs
+        optimizationInterval: this.config.optimizationIntervalMs,
       },
       resourcePools: Array.from(this.config.resourcePools.entries()),
       features: {
         intelligentPreemption: this.config.enableIntelligentPreemption,
         dynamicResourceAllocation: this.config.enableDynamicResourceAllocation,
         predictiveScheduling: this.config.enablePredictiveScheduling,
-        continuousOptimization: this.config.enableContinuousOptimization
-      }
+        continuousOptimization: this.config.enableContinuousOptimization,
+      },
     });
   }
 
   /**
    * Add task with advanced intelligence and prediction
    */
-  async addTask(taskDefinition: Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>): Promise<string> {
+  async addTask(
+    taskDefinition: Partial<Task> &
+      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+  ): Promise<string> {
     const startTime = Date.now();
 
     logger.debug('Adding task with advanced intelligence', {
       title: taskDefinition.title,
       category: taskDefinition.category,
-      estimatedDuration: taskDefinition.estimatedDuration
+      estimatedDuration: taskDefinition.estimatedDuration,
     });
 
     try {
       // Pre-analyze task with ML predictions if available
       let enhancedTaskDefinition = taskDefinition;
       if (this.config.enableMLBasedPredictions && this.mlModel) {
-        enhancedTaskDefinition = await this.enhanceTaskWithPredictions(taskDefinition);
+        enhancedTaskDefinition =
+          await this.enhanceTaskWithPredictions(taskDefinition);
       }
 
       // Check resource availability and reserve resources if needed
       if (this.config.enableDynamicResourceAllocation) {
-        const resourceCheck = await this.checkAndReserveResources(enhancedTaskDefinition);
+        const resourceCheck = await this.checkAndReserveResources(
+          enhancedTaskDefinition,
+        );
         if (!resourceCheck.success) {
           logger.warn('Task queued but resources unavailable', {
             title: taskDefinition.title,
             requiredResources: enhancedTaskDefinition.requiredResources,
-            reason: resourceCheck.reason
+            reason: resourceCheck.reason,
           });
 
           // Queue for later execution when resources become available
-          return this.queueForLaterExecution(enhancedTaskDefinition, resourceCheck.reason);
+          return this.queueForLaterExecution(
+            enhancedTaskDefinition,
+            resourceCheck.reason,
+          );
         }
       }
 
       // Generate execution prediction
       if (this.config.enablePredictiveScheduling) {
-        const prediction = await this.generateTaskPrediction(enhancedTaskDefinition);
+        const prediction = await this.generateTaskPrediction(
+          enhancedTaskDefinition,
+        );
         this.executionPredictions.set(prediction.taskId, prediction);
 
         logger.debug('Task execution prediction generated', {
           taskId: prediction.taskId,
           estimatedStartTime: prediction.estimatedStartTime,
           estimatedDuration: prediction.estimatedDuration,
-          confidence: prediction.confidenceLevel
+          confidence: prediction.confidenceLevel,
         });
       }
 
@@ -353,7 +388,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         taskId,
         category: taskDefinition.category,
         priority: taskDefinition.priority,
-        analysisTime: Date.now() - startTime
+        analysisTime: Date.now() - startTime,
       });
 
       logger.info('Task added with advanced intelligence', {
@@ -362,22 +397,21 @@ export class SelfManagingTaskQueue extends EventEmitter {
         category: taskDefinition.category,
         analysisTime: Date.now() - startTime,
         predictiveAnalysisEnabled: this.config.enablePredictiveScheduling,
-        resourceReservationEnabled: this.config.enableDynamicResourceAllocation
+        resourceReservationEnabled: this.config.enableDynamicResourceAllocation,
       });
 
       this.emit('taskAddedWithIntelligence', {
         taskId,
         prediction: this.executionPredictions.get(taskId),
         resourceAllocation: this.resourceAllocation,
-        analysisTime: Date.now() - startTime
+        analysisTime: Date.now() - startTime,
       });
 
       return taskId;
-
     } catch (error) {
       logger.error('Failed to add task with advanced intelligence', {
         title: taskDefinition.title,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       throw error;
@@ -387,23 +421,32 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Enhance task definition with ML predictions
    */
-  private async enhanceTaskWithPredictions(taskDefinition: Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>): Promise<Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>> {
+  private async enhanceTaskWithPredictions(
+    taskDefinition: Partial<Task> &
+      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+  ): Promise<
+    Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>
+  > {
     if (!this.mlModel) {
       return taskDefinition;
     }
 
     try {
       // Predict task complexity
-      const complexityPrediction = await this.predictTaskComplexity(taskDefinition);
+      const complexityPrediction =
+        await this.predictTaskComplexity(taskDefinition);
 
       // Predict execution time
-      const durationPrediction = await this.predictExecutionTime(taskDefinition);
+      const durationPrediction =
+        await this.predictExecutionTime(taskDefinition);
 
       // Predict resource usage
-      const resourcePrediction = await this.predictResourceUsage(taskDefinition);
+      const resourcePrediction =
+        await this.predictResourceUsage(taskDefinition);
 
       // Predict failure probability
-      const failurePrediction = await this.predictTaskFailureProbability(taskDefinition);
+      const failurePrediction =
+        await this.predictTaskFailureProbability(taskDefinition);
 
       return {
         ...taskDefinition,
@@ -417,22 +460,26 @@ export class SelfManagingTaskQueue extends EventEmitter {
             resources: resourcePrediction,
             failureRisk: failurePrediction,
             predictionTimestamp: new Date(),
-            modelVersion: '1.0'
-          }
+            modelVersion: '1.0',
+          },
         },
         priorityFactors: {
-          ...taskDefinition.priorityFactors || {},
-          systemCriticality: 1.0 - (failurePrediction.probability * 0.5),
-          resourceAvailability: this.calculateResourceAvailability(resourcePrediction.resources),
-          executionHistory: complexityPrediction.historicalSuccessRate
-        }
+          ...(taskDefinition.priorityFactors || {}),
+          systemCriticality: 1.0 - failurePrediction.probability * 0.5,
+          resourceAvailability: this.calculateResourceAvailability(
+            resourcePrediction.resources,
+          ),
+          executionHistory: complexityPrediction.historicalSuccessRate,
+        },
       };
-
     } catch (error) {
-      logger.warn('ML prediction enhancement failed, using original task definition', {
-        title: taskDefinition.title,
-        error: error instanceof Error ? error.message : String(error)
-      });
+      logger.warn(
+        'ML prediction enhancement failed, using original task definition',
+        {
+          title: taskDefinition.title,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
 
       return taskDefinition;
     }
@@ -441,7 +488,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Check and reserve resources for task execution
    */
-  private async checkAndReserveResources(taskDefinition: Partial<Task>): Promise<{ success: boolean; reason?: string; reservationId?: string }> {
+  private async checkAndReserveResources(
+    taskDefinition: Partial<Task>,
+  ): Promise<{ success: boolean; reason?: string; reservationId?: string }> {
     const requiredResources = taskDefinition.requiredResources || ['cpu'];
     const reservationId = uuidv4();
 
@@ -452,16 +501,19 @@ export class SelfManagingTaskQueue extends EventEmitter {
       if (!allocation) {
         return {
           success: false,
-          reason: `Resource type '${resourceType}' not available in resource pool`
+          reason: `Resource type '${resourceType}' not available in resource pool`,
         };
       }
 
-      const requiredAmount = this.estimateResourceRequirement(taskDefinition, resourceType);
+      const requiredAmount = this.estimateResourceRequirement(
+        taskDefinition,
+        resourceType,
+      );
 
       if (allocation.available < requiredAmount) {
         return {
           success: false,
-          reason: `Insufficient ${resourceType} resources: need ${requiredAmount}, available ${allocation.available}`
+          reason: `Insufficient ${resourceType} resources: need ${requiredAmount}, available ${allocation.available}`,
         };
       }
 
@@ -474,7 +526,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
       taskTitle: taskDefinition.title,
       reservationId,
       requiredResources,
-      currentAllocation: Array.from(this.resourceAllocation.entries())
+      currentAllocation: Array.from(this.resourceAllocation.entries()),
     });
 
     return { success: true, reservationId };
@@ -483,11 +535,15 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Queue task for later execution when resources become available
    */
-  private async queueForLaterExecution(taskDefinition: Partial<Task>, reason: string): Promise<string> {
+  private async queueForLaterExecution(
+    taskDefinition: Partial<Task>,
+    reason: string,
+  ): Promise<string> {
     const taskId = taskDefinition.id || uuidv4();
 
     // Create a deferred execution wrapper
-    const deferredTask: Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'> = {
+    const deferredTask: Partial<Task> &
+      Pick<Task, 'title' | 'description' | 'executeFunction'> = {
       ...taskDefinition,
       id: taskId,
       priority: TaskPriority.BACKGROUND, // Lower priority for deferred tasks
@@ -495,8 +551,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
         ...taskDefinition.metadata,
         deferred: true,
         deferralReason: reason,
-        deferredAt: new Date()
-      }
+        deferredAt: new Date(),
+      },
     };
 
     // Add to base queue with deferred status
@@ -505,7 +561,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.emit('taskDeferred', {
       taskId,
       reason,
-      title: taskDefinition.title
+      title: taskDefinition.title,
     });
 
     return taskId;
@@ -514,7 +570,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Generate execution prediction for a task
    */
-  private async generateTaskPrediction(taskDefinition: Partial<Task>): Promise<TaskPrediction> {
+  private async generateTaskPrediction(
+    taskDefinition: Partial<Task>,
+  ): Promise<TaskPrediction> {
     const taskId = taskDefinition.id || uuidv4();
     const currentTime = new Date();
 
@@ -523,7 +581,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
     // Enhance with ML predictions if available
     if (this.config.enableMLBasedPredictions && this.mlModel) {
-      const durationPrediction = await this.predictExecutionTime(taskDefinition);
+      const durationPrediction =
+        await this.predictExecutionTime(taskDefinition);
       estimatedDuration = durationPrediction.duration;
     }
 
@@ -531,8 +590,12 @@ export class SelfManagingTaskQueue extends EventEmitter {
     const queuePosition = this.calculateQueuePosition(taskDefinition);
     const dependencyDelay = await this.calculateDependencyDelay(taskDefinition);
 
-    const estimatedStartTime = new Date(currentTime.getTime() + queuePosition * 1000 + dependencyDelay);
-    const estimatedCompletionTime = new Date(estimatedStartTime.getTime() + estimatedDuration);
+    const estimatedStartTime = new Date(
+      currentTime.getTime() + queuePosition * 1000 + dependencyDelay,
+    );
+    const estimatedCompletionTime = new Date(
+      estimatedStartTime.getTime() + estimatedDuration,
+    );
 
     // Assess confidence level
     const confidenceLevel = this.calculatePredictionConfidence(taskDefinition);
@@ -541,7 +604,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
     const riskFactors = this.identifyTaskRiskFactors(taskDefinition);
 
     // Get resource requirements
-    const resourceRequirements = this.calculateResourceRequirements(taskDefinition);
+    const resourceRequirements =
+      this.calculateResourceRequirements(taskDefinition);
 
     return {
       taskId,
@@ -551,7 +615,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
       confidenceLevel,
       resourceRequirements,
       riskFactors,
-      dependencies: taskDefinition.dependencies || []
+      dependencies: taskDefinition.dependencies || [],
     };
   }
 
@@ -563,13 +627,13 @@ export class SelfManagingTaskQueue extends EventEmitter {
       this.resourceAllocation.set(resourceType, {
         allocated: 0,
         available: capacity,
-        reserved: 0
+        reserved: 0,
       });
     });
 
     logger.debug('Resource allocation initialized', {
       resourcePools: Array.from(this.config.resourcePools.entries()),
-      initialAllocation: Array.from(this.resourceAllocation.entries())
+      initialAllocation: Array.from(this.resourceAllocation.entries()),
     });
   }
 
@@ -602,7 +666,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
       systemHealth: 'good',
       alertLevel: 'none',
       bottleneckAnalysis: [],
-      recommendedActions: []
+      recommendedActions: [],
     };
 
     logger.debug('Real-time metrics initialized');
@@ -616,15 +680,15 @@ export class SelfManagingTaskQueue extends EventEmitter {
       // In a real implementation, these would load pre-trained models or initialize training
       this.mlModel = {
         taskComplexityPredictor: null, // Would be actual ML model
-        executionTimePredictor: null,  // Would be actual ML model
-        resourceUsagePredictor: null,  // Would be actual ML model
-        failurePredictionModel: null   // Would be actual ML model
+        executionTimePredictor: null, // Would be actual ML model
+        resourceUsagePredictor: null, // Would be actual ML model
+        failurePredictionModel: null, // Would be actual ML model
       };
 
       logger.info('ML models initialized for predictions');
     } catch (error) {
       logger.warn('Failed to initialize ML models', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       this.config.enableMLBasedPredictions = false;
@@ -679,7 +743,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
           await this.performIntelligentOptimization();
         } catch (error) {
           logger.warn('Continuous optimization failed', {
-            error: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error),
           });
         }
       }, this.config.optimizationIntervalMs);
@@ -692,7 +756,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
           await this.persistQueueState();
         } catch (error) {
           logger.warn('State persistence failed', {
-            error: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error),
           });
         }
       }, this.config.persistenceIntervalMs);
@@ -705,7 +769,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
           await this.performAdaptiveLoadBalancing();
         } catch (error) {
           logger.warn('Adaptive load balancing failed', {
-            error: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error),
           });
         }
       }, 45000); // Every 45 seconds
@@ -717,7 +781,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         await this.performHealthCheck();
       } catch (error) {
         logger.warn('Health check failed', {
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }, 30000); // Every 30 seconds
@@ -728,8 +792,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
       adaptiveLoadBalancing: this.config.enableAdaptiveLoadBalancing,
       intervals: {
         optimization: this.config.optimizationIntervalMs,
-        persistence: this.config.persistenceIntervalMs
-      }
+        persistence: this.config.persistenceIntervalMs,
+      },
     });
   }
 
@@ -759,16 +823,25 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Get current resource allocation status
    */
-  getResourceAllocationStatus(): Map<string, { allocated: number; available: number; reserved: number; utilization: number }> {
+  getResourceAllocationStatus(): Map<
+    string,
+    {
+      allocated: number;
+      available: number;
+      reserved: number;
+      utilization: number;
+    }
+  > {
     const status = new Map();
 
     this.resourceAllocation.forEach((allocation, resourceType) => {
       const capacity = this.config.resourcePools.get(resourceType) || 1;
-      const utilization = (allocation.allocated + allocation.reserved) / capacity;
+      const utilization =
+        (allocation.allocated + allocation.reserved) / capacity;
 
       status.set(resourceType, {
         ...allocation,
-        utilization
+        utilization,
       });
     });
 
@@ -778,7 +851,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Manual optimization trigger with specific strategy
    */
-  async optimizeNow(strategy?: OptimizationStrategy): Promise<OptimizationRecommendation[]> {
+  async optimizeNow(
+    strategy?: OptimizationStrategy,
+  ): Promise<OptimizationRecommendation[]> {
     logger.info('Manual optimization triggered', { strategy });
 
     return this.performIntelligentOptimization(strategy);
@@ -807,7 +882,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         logger.info('Final state persisted successfully');
       } catch (error) {
         logger.warn('Failed to persist final state', {
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -827,7 +902,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return {
       score: 0.7,
       factors: ['description_length', 'dependencies', 'category'],
-      historicalSuccessRate: 0.85
+      historicalSuccessRate: 0.85,
     };
   }
 
@@ -836,7 +911,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return {
       duration: taskDefinition.estimatedDuration || 60000,
       confidence: 0.8,
-      factors: ['category', 'description', 'historical_data']
+      factors: ['category', 'description', 'historical_data'],
     };
   }
 
@@ -844,17 +919,22 @@ export class SelfManagingTaskQueue extends EventEmitter {
     // Placeholder for ML-based resource prediction
     return {
       resources: taskDefinition.requiredResources || ['cpu'],
-      estimatedUsage: new Map([['cpu', 0.3], ['memory', 0.2]]),
-      confidence: 0.75
+      estimatedUsage: new Map([
+        ['cpu', 0.3],
+        ['memory', 0.2],
+      ]),
+      confidence: 0.75,
     };
   }
 
-  private async predictTaskFailureProbability(taskDefinition: any): Promise<any> {
+  private async predictTaskFailureProbability(
+    taskDefinition: any,
+  ): Promise<any> {
     // Placeholder for ML-based failure prediction
     return {
       probability: 0.1,
       factors: ['complexity', 'dependencies', 'resource_constraints'],
-      confidence: 0.7
+      confidence: 0.7,
     };
   }
 
@@ -874,25 +954,86 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return resourceCount > 0 ? totalAvailability / resourceCount : 1.0;
   }
 
-  private estimateResourceRequirement(taskDefinition: any, resourceType: string): number {
+  private estimateResourceRequirement(
+    taskDefinition: any,
+    resourceType: string,
+  ): number {
     // Simple estimation based on task complexity and category
     const baseRequirement = 1;
-    const categoryMultiplier = this.getCategoryResourceMultiplier(taskDefinition.category, resourceType);
-    const complexityFactor = (taskDefinition.estimatedDuration || 60000) / 60000; // Normalize to minutes
+    const categoryMultiplier = this.getCategoryResourceMultiplier(
+      taskDefinition.category,
+      resourceType,
+    );
+    const complexityFactor =
+      (taskDefinition.estimatedDuration || 60000) / 60000; // Normalize to minutes
 
-    return Math.max(1, Math.ceil(baseRequirement * categoryMultiplier * complexityFactor));
+    return Math.max(
+      1,
+      Math.ceil(baseRequirement * categoryMultiplier * complexityFactor),
+    );
   }
 
-  private getCategoryResourceMultiplier(category: TaskCategory | undefined, resourceType: string): number {
+  private getCategoryResourceMultiplier(
+    category: TaskCategory | undefined,
+    resourceType: string,
+  ): number {
     const multipliers: Record<TaskCategory, Record<string, number>> = {
-      [TaskCategory.FEATURE]: { cpu: 1.5, memory: 1.2, network: 1.0, disk: 1.0, ai_tokens: 2.0 },
-      [TaskCategory.BUG_FIX]: { cpu: 1.0, memory: 1.0, network: 0.8, disk: 0.8, ai_tokens: 1.0 },
-      [TaskCategory.TEST]: { cpu: 2.0, memory: 1.5, network: 1.2, disk: 1.0, ai_tokens: 1.5 },
-      [TaskCategory.DOCUMENTATION]: { cpu: 0.5, memory: 0.8, network: 0.5, disk: 1.5, ai_tokens: 1.8 },
-      [TaskCategory.REFACTOR]: { cpu: 1.8, memory: 1.5, network: 1.0, disk: 1.2, ai_tokens: 2.5 },
-      [TaskCategory.SECURITY]: { cpu: 2.0, memory: 1.8, network: 1.5, disk: 1.0, ai_tokens: 2.0 },
-      [TaskCategory.PERFORMANCE]: { cpu: 2.5, memory: 2.0, network: 1.2, disk: 1.0, ai_tokens: 1.5 },
-      [TaskCategory.INFRASTRUCTURE]: { cpu: 1.2, memory: 1.0, network: 2.0, disk: 2.0, ai_tokens: 1.0 }
+      [TaskCategory.FEATURE]: {
+        cpu: 1.5,
+        memory: 1.2,
+        network: 1.0,
+        disk: 1.0,
+        ai_tokens: 2.0,
+      },
+      [TaskCategory.BUG_FIX]: {
+        cpu: 1.0,
+        memory: 1.0,
+        network: 0.8,
+        disk: 0.8,
+        ai_tokens: 1.0,
+      },
+      [TaskCategory.TEST]: {
+        cpu: 2.0,
+        memory: 1.5,
+        network: 1.2,
+        disk: 1.0,
+        ai_tokens: 1.5,
+      },
+      [TaskCategory.DOCUMENTATION]: {
+        cpu: 0.5,
+        memory: 0.8,
+        network: 0.5,
+        disk: 1.5,
+        ai_tokens: 1.8,
+      },
+      [TaskCategory.REFACTOR]: {
+        cpu: 1.8,
+        memory: 1.5,
+        network: 1.0,
+        disk: 1.2,
+        ai_tokens: 2.5,
+      },
+      [TaskCategory.SECURITY]: {
+        cpu: 2.0,
+        memory: 1.8,
+        network: 1.5,
+        disk: 1.0,
+        ai_tokens: 2.0,
+      },
+      [TaskCategory.PERFORMANCE]: {
+        cpu: 2.5,
+        memory: 2.0,
+        network: 1.2,
+        disk: 1.0,
+        ai_tokens: 1.5,
+      },
+      [TaskCategory.INFRASTRUCTURE]: {
+        cpu: 1.2,
+        memory: 1.0,
+        network: 2.0,
+        disk: 2.0,
+        ai_tokens: 1.0,
+      },
     };
 
     return multipliers[category || TaskCategory.FEATURE]?.[resourceType] || 1.0;
@@ -904,7 +1045,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     const priority = taskDefinition.priority || TaskPriority.MEDIUM;
 
     // Estimate position based on priority and queue size
-    return Math.max(0, metrics.pendingTasks * (1 - (priority / 1000)));
+    return Math.max(0, metrics.pendingTasks * (1 - priority / 1000));
   }
 
   private async calculateDependencyDelay(taskDefinition: any): Promise<number> {
@@ -959,12 +1100,17 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return riskFactors;
   }
 
-  private calculateResourceRequirements(taskDefinition: any): Map<string, number> {
+  private calculateResourceRequirements(
+    taskDefinition: any,
+  ): Map<string, number> {
     const requirements = new Map<string, number>();
     const resources = taskDefinition.requiredResources || ['cpu'];
 
     for (const resource of resources) {
-      const requirement = this.estimateResourceRequirement(taskDefinition, resource);
+      const requirement = this.estimateResourceRequirement(
+        taskDefinition,
+        resource,
+      );
       requirements.set(resource, requirement);
     }
 
@@ -980,18 +1126,25 @@ export class SelfManagingTaskQueue extends EventEmitter {
         break;
       case 'taskCompleted':
         this.realTimeMetrics.completedTasks++;
-        this.realTimeMetrics.pendingTasks = Math.max(0, this.realTimeMetrics.pendingTasks - 1);
+        this.realTimeMetrics.pendingTasks = Math.max(
+          0,
+          this.realTimeMetrics.pendingTasks - 1,
+        );
         break;
       case 'taskFailed':
         this.realTimeMetrics.failedTasks++;
-        this.realTimeMetrics.pendingTasks = Math.max(0, this.realTimeMetrics.pendingTasks - 1);
+        this.realTimeMetrics.pendingTasks = Math.max(
+          0,
+          this.realTimeMetrics.pendingTasks - 1,
+        );
         break;
     }
 
     // Recalculate derived metrics
-    this.realTimeMetrics.successRate = this.realTimeMetrics.totalTasks > 0
-      ? this.realTimeMetrics.completedTasks / this.realTimeMetrics.totalTasks
-      : 0;
+    this.realTimeMetrics.successRate =
+      this.realTimeMetrics.totalTasks > 0
+        ? this.realTimeMetrics.completedTasks / this.realTimeMetrics.totalTasks
+        : 0;
   }
 
   private handleTaskCompletion(task: Task, record: any, result: any): void {
@@ -1038,23 +1191,32 @@ export class SelfManagingTaskQueue extends EventEmitter {
     for (const resourceType of resources) {
       const allocation = this.resourceAllocation.get(resourceType);
       if (allocation) {
-        const requirement = this.estimateResourceRequirement(task, resourceType);
+        const requirement = this.estimateResourceRequirement(
+          task,
+          resourceType,
+        );
         allocation.allocated = Math.max(0, allocation.allocated - requirement);
         allocation.available += requirement;
       }
     }
   }
 
-  private updatePredictionAccuracy(prediction: TaskPrediction, actualDuration: number): void {
-    const error = Math.abs(prediction.estimatedDuration - actualDuration) / actualDuration;
+  private updatePredictionAccuracy(
+    prediction: TaskPrediction,
+    actualDuration: number,
+  ): void {
+    const error =
+      Math.abs(prediction.estimatedDuration - actualDuration) / actualDuration;
     const accuracy = Math.max(0, 1 - error);
 
     // Update running average
     this.realTimeMetrics.predictionAccuracy =
-      (this.realTimeMetrics.predictionAccuracy * 0.9) + (accuracy * 0.1);
+      this.realTimeMetrics.predictionAccuracy * 0.9 + accuracy * 0.1;
   }
 
-  private async performIntelligentOptimization(strategy?: OptimizationStrategy): Promise<OptimizationRecommendation[]> {
+  private async performIntelligentOptimization(
+    strategy?: OptimizationStrategy,
+  ): Promise<OptimizationRecommendation[]> {
     // Implementation would perform sophisticated optimization
     // This is a placeholder for the actual intelligent optimization logic
     return [];
@@ -1071,9 +1233,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
       learningData: {
         executionHistory: [],
         adaptationHistory: this.baseQueue.getAdaptationHistory(),
-        performanceBaselines: this.performanceBaselines
+        performanceBaselines: this.performanceBaselines,
       },
-      resourceState: this.resourceAllocation
+      resourceState: this.resourceAllocation,
     };
 
     this.stateSnapshots.push(snapshot);
@@ -1085,7 +1247,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
     logger.debug('Queue state persisted', {
       taskCount: snapshot.tasks.length,
-      timestamp: snapshot.timestamp
+      timestamp: snapshot.timestamp,
     });
   }
 
@@ -1123,7 +1285,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
   private updateResourceUtilizationMetrics(): void {
     this.resourceAllocation.forEach((allocation, resourceType) => {
       const capacity = this.config.resourcePools.get(resourceType) || 1;
-      const utilization = (allocation.allocated + allocation.reserved) / capacity;
+      const utilization =
+        (allocation.allocated + allocation.reserved) / capacity;
       this.realTimeMetrics.resourceUtilization.set(resourceType, utilization);
     });
   }
@@ -1141,17 +1304,30 @@ export class SelfManagingTaskQueue extends EventEmitter {
   private generateHealthRecommendations(): void {
     this.realTimeMetrics.recommendedActions = [];
 
-    if (this.realTimeMetrics.systemHealth === 'poor' || this.realTimeMetrics.systemHealth === 'critical') {
-      this.realTimeMetrics.recommendedActions.push('Consider increasing resource allocation');
-      this.realTimeMetrics.recommendedActions.push('Review task priorities and dependencies');
+    if (
+      this.realTimeMetrics.systemHealth === 'poor' ||
+      this.realTimeMetrics.systemHealth === 'critical'
+    ) {
+      this.realTimeMetrics.recommendedActions.push(
+        'Consider increasing resource allocation',
+      );
+      this.realTimeMetrics.recommendedActions.push(
+        'Review task priorities and dependencies',
+      );
 
       if (this.realTimeMetrics.successRate < 0.7) {
-        this.realTimeMetrics.recommendedActions.push('Investigate task failure patterns');
+        this.realTimeMetrics.recommendedActions.push(
+          'Investigate task failure patterns',
+        );
       }
     }
 
-    if (this.realTimeMetrics.averageWaitTime > this.config.maxAcceptableLatency) {
-      this.realTimeMetrics.recommendedActions.push('Optimize task scheduling and parallelization');
+    if (
+      this.realTimeMetrics.averageWaitTime > this.config.maxAcceptableLatency
+    ) {
+      this.realTimeMetrics.recommendedActions.push(
+        'Optimize task scheduling and parallelization',
+      );
     }
   }
 }

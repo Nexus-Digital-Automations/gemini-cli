@@ -16,7 +16,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { RegisteredAgent, AgentCapability } from './autonomousTaskIntegrator.js';
+import type {
+  RegisteredAgent,
+  AgentCapability,
+} from './autonomousTaskIntegrator.js';
 import type { AgentMetrics } from './agentCoordinator.js';
 import type { AgentRegistry } from './agentRegistry.js';
 
@@ -99,10 +102,21 @@ export interface SLAMetrics {
   };
 }
 
-export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'offline' | 'unknown';
+export type HealthStatus =
+  | 'healthy'
+  | 'degraded'
+  | 'unhealthy'
+  | 'offline'
+  | 'unknown';
 
 export interface HealthEvent {
-  type: 'status_changed' | 'issue_detected' | 'recovery_started' | 'recovery_completed' | 'sla_violation' | 'trend_detected';
+  type:
+    | 'status_changed'
+    | 'issue_detected'
+    | 'recovery_started'
+    | 'recovery_completed'
+    | 'sla_violation'
+    | 'trend_detected';
   timestamp: Date;
   agentId?: string;
   data: Record<string, unknown>;
@@ -141,10 +155,12 @@ export class HealthMonitor extends EventEmitter {
    */
   async performHealthCheck(agentId: string): Promise<HealthCheck> {
     const startTime = Date.now();
-    const agentInfo = (await this.agentRegistry.discoverAgents({
-      excludeAgents: [],
-      preferredAgents: [agentId],
-    })).find(info => info.agent.id === agentId);
+    const agentInfo = (
+      await this.agentRegistry.discoverAgents({
+        excludeAgents: [],
+        preferredAgents: [agentId],
+      })
+    ).find((info) => info.agent.id === agentId);
 
     if (!agentInfo) {
       const healthCheck: HealthCheck = {
@@ -157,13 +173,15 @@ export class HealthMonitor extends EventEmitter {
           taskQueueSize: 0,
           errorRate: 1.0,
         },
-        issues: [{
-          severity: 'critical',
-          category: 'availability',
-          code: 'AGENT_NOT_FOUND',
-          message: 'Agent not found in registry',
-          timestamp: new Date(),
-        }],
+        issues: [
+          {
+            severity: 'critical',
+            category: 'availability',
+            code: 'AGENT_NOT_FOUND',
+            message: 'Agent not found in registry',
+            timestamp: new Date(),
+          },
+        ],
       };
 
       return this.recordHealthCheck(healthCheck);
@@ -238,14 +256,18 @@ export class HealthMonitor extends EventEmitter {
 
     // Check last activity
     const timeSinceLastActivity = Date.now() - metrics.lastActiveTime.getTime();
-    if (timeSinceLastActivity > 300000) { // 5 minutes
+    if (timeSinceLastActivity > 300000) {
+      // 5 minutes
       issues.push({
         severity: 'warning',
         category: 'availability',
         code: 'INACTIVE_AGENT',
         message: `Agent has been inactive for ${Math.floor(timeSinceLastActivity / 60000)} minutes`,
         timestamp: new Date(),
-        metadata: { lastActive: metrics.lastActiveTime, inactiveTime: timeSinceLastActivity },
+        metadata: {
+          lastActive: metrics.lastActiveTime,
+          inactiveTime: timeSinceLastActivity,
+        },
       });
       if (status === 'healthy') status = 'degraded';
     }
@@ -273,7 +295,7 @@ export class HealthMonitor extends EventEmitter {
   async performHealthCheckAll(): Promise<HealthCheck[]> {
     const allAgents = this.agentRegistry.getAllAgents();
     const healthChecks = await Promise.all(
-      allAgents.map(agentInfo => this.performHealthCheck(agentInfo.agent.id))
+      allAgents.map((agentInfo) => this.performHealthCheck(agentInfo.agent.id)),
     );
 
     console.log(`🏥 Performed health checks on ${healthChecks.length} agents`);
@@ -305,7 +327,11 @@ export class HealthMonitor extends EventEmitter {
   /**
    * Trigger recovery action for an agent
    */
-  async triggerRecovery(agentId: string, trigger: HealthIssue, actionType: RecoveryAction['type'] = 'restart'): Promise<RecoveryAction> {
+  async triggerRecovery(
+    agentId: string,
+    trigger: HealthIssue,
+    actionType: RecoveryAction['type'] = 'restart',
+  ): Promise<RecoveryAction> {
     const action: RecoveryAction = {
       id: this.generateRecoveryActionId(),
       type: actionType,
@@ -354,7 +380,13 @@ export class HealthMonitor extends EventEmitter {
     overallErrorRate: number;
   } {
     const allAgents = this.agentRegistry.getAllAgents();
-    const statusCounts = { healthy: 0, degraded: 0, unhealthy: 0, offline: 0, unknown: 0 };
+    const statusCounts = {
+      healthy: 0,
+      degraded: 0,
+      unhealthy: 0,
+      offline: 0,
+      unknown: 0,
+    };
     let criticalIssues = 0;
     let warnings = 0;
     let totalResponseTime = 0;
@@ -389,7 +421,8 @@ export class HealthMonitor extends EventEmitter {
       offlineAgents: statusCounts.offline,
       criticalIssues,
       warnings,
-      averageResponseTime: totalOperations > 0 ? totalResponseTime / totalOperations : 0,
+      averageResponseTime:
+        totalOperations > 0 ? totalResponseTime / totalOperations : 0,
       overallErrorRate: totalOperations > 0 ? totalErrors / totalOperations : 0,
     };
   }
@@ -399,7 +432,9 @@ export class HealthMonitor extends EventEmitter {
    */
   setHealthThresholds(thresholds: HealthThreshold[]): void {
     this.healthThresholds = [...thresholds];
-    console.log(`🏥 Updated health thresholds: ${thresholds.length} thresholds configured`);
+    console.log(
+      `🏥 Updated health thresholds: ${thresholds.length} thresholds configured`,
+    );
   }
 
   /**
@@ -476,7 +511,9 @@ export class HealthMonitor extends EventEmitter {
       };
 
       this.emit('status_changed', event);
-      console.log(`🏥 Agent ${healthCheck.agentId} status changed: ${previousStatus} → ${healthCheck.status}`);
+      console.log(
+        `🏥 Agent ${healthCheck.agentId} status changed: ${previousStatus} → ${healthCheck.status}`,
+      );
     }
 
     // Emit events for new issues
@@ -493,8 +530,11 @@ export class HealthMonitor extends EventEmitter {
 
         // Auto-trigger recovery for critical issues
         if (this.shouldAutoRecover(issue)) {
-          this.triggerRecovery(healthCheck.agentId, issue).catch(error => {
-            console.error(`Failed to trigger auto-recovery for agent ${healthCheck.agentId}:`, error);
+          this.triggerRecovery(healthCheck.agentId, issue).catch((error) => {
+            console.error(
+              `Failed to trigger auto-recovery for agent ${healthCheck.agentId}:`,
+              error,
+            );
           });
         }
       }
@@ -533,7 +573,10 @@ export class HealthMonitor extends EventEmitter {
           result = await this.executeAlert(action.agentId, action.trigger);
           break;
         default:
-          result = { success: false, message: `Unknown recovery action type: ${action.type}` };
+          result = {
+            success: false,
+            message: `Unknown recovery action type: ${action.type}`,
+          };
       }
 
       action.result = result;
@@ -554,25 +597,34 @@ export class HealthMonitor extends EventEmitter {
 
       this.emit('recovery_completed', event);
 
-      console.log(`🔧 Recovery action ${action.id} for agent ${action.agentId}: ${result.success ? 'SUCCESS' : 'FAILED'} - ${result.message}`);
-
+      console.log(
+        `🔧 Recovery action ${action.id} for agent ${action.agentId}: ${result.success ? 'SUCCESS' : 'FAILED'} - ${result.message}`,
+      );
     } catch (error) {
-      action.result = { success: false, message: `Recovery action failed: ${error}` };
+      action.result = {
+        success: false,
+        message: `Recovery action failed: ${error}`,
+      };
       action.status = 'failed';
       action.endTime = new Date();
 
-      console.error(`Failed to execute recovery action ${action.id} for agent ${action.agentId}:`, error);
+      console.error(
+        `Failed to execute recovery action ${action.id} for agent ${action.agentId}:`,
+        error,
+      );
     }
 
     this.recoveryActions.set(action.id, action);
   }
 
-  private async executeRestart(agentId: string): Promise<RecoveryAction['result']> {
+  private async executeRestart(
+    agentId: string,
+  ): Promise<RecoveryAction['result']> {
     // In a real implementation, this would restart the agent process
     console.log(`🔄 Attempting to restart agent ${agentId}`);
 
     // Simulate restart delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     return {
       success: true,
@@ -581,17 +633,21 @@ export class HealthMonitor extends EventEmitter {
     };
   }
 
-  private async executeFailover(agentId: string): Promise<RecoveryAction['result']> {
+  private async executeFailover(
+    agentId: string,
+  ): Promise<RecoveryAction['result']> {
     console.log(`🔀 Attempting failover for agent ${agentId}`);
 
     // Find alternative agents with similar capabilities
-    const agentInfo = this.agentRegistry.getAllAgents().find(a => a.agent.id === agentId);
+    const agentInfo = this.agentRegistry
+      .getAllAgents()
+      .find((a) => a.agent.id === agentId);
     if (!agentInfo) {
       return { success: false, message: 'Agent not found for failover' };
     }
 
     const alternatives = await this.agentRegistry.discoverAgents({
-      capabilities: agentInfo.agent.capabilities.map(cap => ({
+      capabilities: agentInfo.agent.capabilities.map((cap) => ({
         capability: cap,
         required: true,
         priority: 1,
@@ -600,7 +656,10 @@ export class HealthMonitor extends EventEmitter {
     });
 
     if (alternatives.length === 0) {
-      return { success: false, message: 'No suitable agents available for failover' };
+      return {
+        success: false,
+        message: 'No suitable agents available for failover',
+      };
     }
 
     return {
@@ -610,7 +669,9 @@ export class HealthMonitor extends EventEmitter {
     };
   }
 
-  private async executeScale(agentId: string): Promise<RecoveryAction['result']> {
+  private async executeScale(
+    agentId: string,
+  ): Promise<RecoveryAction['result']> {
     console.log(`📈 Attempting to scale resources for agent ${agentId}`);
 
     return {
@@ -620,7 +681,9 @@ export class HealthMonitor extends EventEmitter {
     };
   }
 
-  private async executeThrottle(agentId: string): Promise<RecoveryAction['result']> {
+  private async executeThrottle(
+    agentId: string,
+  ): Promise<RecoveryAction['result']> {
     console.log(`🐌 Applying throttling to agent ${agentId}`);
 
     return {
@@ -630,7 +693,10 @@ export class HealthMonitor extends EventEmitter {
     };
   }
 
-  private async executeAlert(agentId: string, trigger: HealthIssue): Promise<RecoveryAction['result']> {
+  private async executeAlert(
+    agentId: string,
+    trigger: HealthIssue,
+  ): Promise<RecoveryAction['result']> {
     console.log(`🚨 Sending alert for agent ${agentId}: ${trigger.message}`);
 
     // In a real implementation, this would send notifications via email, Slack, etc.
@@ -648,7 +714,9 @@ export class HealthMonitor extends EventEmitter {
       'HIGH_ERROR_RATE',
     ];
 
-    return issue.severity === 'critical' && autoRecoveryIssues.includes(issue.code);
+    return (
+      issue.severity === 'critical' && autoRecoveryIssues.includes(issue.code)
+    );
   }
 
   private updateHealthTrends(healthCheck: HealthCheck): void {
@@ -667,7 +735,7 @@ export class HealthMonitor extends EventEmitter {
     ];
 
     for (const metric of metrics) {
-      let trend = trends.find(t => t.metric === metric.name);
+      let trend = trends.find((t) => t.metric === metric.name);
       if (!trend) {
         trend = {
           agentId,
@@ -686,8 +754,10 @@ export class HealthMonitor extends EventEmitter {
       });
 
       // Keep only recent data points for trend analysis
-      const cutoff = new Date(Date.now() - this.monitoringConfig.trendAnalysisWindow);
-      trend.dataPoints = trend.dataPoints.filter(dp => dp.timestamp > cutoff);
+      const cutoff = new Date(
+        Date.now() - this.monitoringConfig.trendAnalysisWindow,
+      );
+      trend.dataPoints = trend.dataPoints.filter((dp) => dp.timestamp > cutoff);
 
       // Analyze trend
       if (trend.dataPoints.length >= 3) {
@@ -704,11 +774,17 @@ export class HealthMonitor extends EventEmitter {
     const n = points.length;
     const sumX = points.reduce((sum, p, i) => sum + i, 0);
     const sumY = points.reduce((sum, p) => sum + p.value, 0);
-    const sumXY = points.reduce((sum, p, i) => sum + (i * p.value), 0);
-    const sumX2 = points.reduce((sum, p, i) => sum + (i * i), 0);
+    const sumXY = points.reduce((sum, p, i) => sum + i * p.value, 0);
+    const sumX2 = points.reduce((sum, p, i) => sum + i * i, 0);
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const correlation = Math.abs(slope) / (Math.sqrt(sumX2 / n - Math.pow(sumX / n, 2)) * Math.sqrt(points.reduce((sum, p) => sum + Math.pow(p.value, 2), 0) / n - Math.pow(sumY / n, 2)));
+    const correlation =
+      Math.abs(slope) /
+      (Math.sqrt(sumX2 / n - Math.pow(sumX / n, 2)) *
+        Math.sqrt(
+          points.reduce((sum, p) => sum + Math.pow(p.value, 2), 0) / n -
+            Math.pow(sumY / n, 2),
+        ));
 
     trend.confidence = Math.min(correlation, 1.0);
 
@@ -716,9 +792,15 @@ export class HealthMonitor extends EventEmitter {
     if (Math.abs(slope) < 0.01) {
       trend.trend = 'stable';
     } else if (slope > 0) {
-      trend.trend = trend.metric === 'error_rate' || trend.metric === 'response_time' ? 'degrading' : 'improving';
+      trend.trend =
+        trend.metric === 'error_rate' || trend.metric === 'response_time'
+          ? 'degrading'
+          : 'improving';
     } else {
-      trend.trend = trend.metric === 'error_rate' || trend.metric === 'response_time' ? 'improving' : 'degrading';
+      trend.trend =
+        trend.metric === 'error_rate' || trend.metric === 'response_time'
+          ? 'improving'
+          : 'degrading';
     }
 
     // Emit trend detection events for significant changes
@@ -744,7 +826,9 @@ export class HealthMonitor extends EventEmitter {
     let sla = this.slaMetrics.get(agentId);
 
     const now = new Date();
-    const periodStart = new Date(now.getTime() - this.monitoringConfig.slaCalculationPeriod);
+    const periodStart = new Date(
+      now.getTime() - this.monitoringConfig.slaCalculationPeriod,
+    );
 
     if (!sla || sla.period.start < periodStart) {
       // Create new SLA period
@@ -759,28 +843,43 @@ export class HealthMonitor extends EventEmitter {
     }
 
     // Calculate metrics from recent health checks
-    const recentChecks = (this.healthChecks.get(agentId) || [])
-      .filter(check => check.timestamp > periodStart);
+    const recentChecks = (this.healthChecks.get(agentId) || []).filter(
+      (check) => check.timestamp > periodStart,
+    );
 
     if (recentChecks.length > 0) {
       // Availability (percentage of non-offline checks)
-      const availableChecks = recentChecks.filter(check => check.status !== 'offline');
+      const availableChecks = recentChecks.filter(
+        (check) => check.status !== 'offline',
+      );
       sla.availability = (availableChecks.length / recentChecks.length) * 100;
 
       // Response time metrics
-      const responseTimes = availableChecks.map(check => check.responseTime).sort((a, b) => a - b);
+      const responseTimes = availableChecks
+        .map((check) => check.responseTime)
+        .sort((a, b) => a - b);
       if (responseTimes.length > 0) {
-        sla.responseTime.average = responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length;
-        sla.responseTime.p50 = responseTimes[Math.floor(responseTimes.length * 0.5)];
-        sla.responseTime.p95 = responseTimes[Math.floor(responseTimes.length * 0.95)];
-        sla.responseTime.p99 = responseTimes[Math.floor(responseTimes.length * 0.99)];
+        sla.responseTime.average =
+          responseTimes.reduce((sum, time) => sum + time, 0) /
+          responseTimes.length;
+        sla.responseTime.p50 =
+          responseTimes[Math.floor(responseTimes.length * 0.5)];
+        sla.responseTime.p95 =
+          responseTimes[Math.floor(responseTimes.length * 0.95)];
+        sla.responseTime.p99 =
+          responseTimes[Math.floor(responseTimes.length * 0.99)];
       }
 
       // Error rate
-      sla.errorRate = availableChecks.reduce((sum, check) => sum + check.metrics.errorRate, 0) / availableChecks.length;
+      sla.errorRate =
+        availableChecks.reduce(
+          (sum, check) => sum + check.metrics.errorRate,
+          0,
+        ) / availableChecks.length;
 
       // Throughput (simplified calculation)
-      const hoursSinceStart = (now.getTime() - periodStart.getTime()) / (1000 * 60 * 60);
+      const hoursSinceStart =
+        (now.getTime() - periodStart.getTime()) / (1000 * 60 * 60);
       sla.throughput = availableChecks.length / hoursSinceStart;
     }
 
@@ -788,7 +887,8 @@ export class HealthMonitor extends EventEmitter {
     this.slaMetrics.set(agentId, sla);
 
     // Check for SLA violations
-    if (sla.availability < 95) { // 95% availability SLA
+    if (sla.availability < 95) {
+      // 95% availability SLA
       const event: HealthEvent = {
         type: 'sla_violation',
         timestamp: new Date(),
@@ -847,7 +947,9 @@ export class HealthMonitor extends EventEmitter {
       }
     }, this.monitoringConfig.checkInterval);
 
-    console.log(`🏥 Health monitoring started (interval: ${this.monitoringConfig.checkInterval}ms)`);
+    console.log(
+      `🏥 Health monitoring started (interval: ${this.monitoringConfig.checkInterval}ms)`,
+    );
   }
 
   private startPeriodicCleanup(): void {
@@ -857,11 +959,13 @@ export class HealthMonitor extends EventEmitter {
   }
 
   private performCleanup(): void {
-    const cutoff = new Date(Date.now() - this.monitoringConfig.historyRetention);
+    const cutoff = new Date(
+      Date.now() - this.monitoringConfig.historyRetention,
+    );
 
     // Clean up old health checks
     for (const [agentId, checks] of this.healthChecks) {
-      const filteredChecks = checks.filter(check => check.timestamp > cutoff);
+      const filteredChecks = checks.filter((check) => check.timestamp > cutoff);
       if (filteredChecks.length === 0) {
         this.healthChecks.delete(agentId);
       } else {
@@ -879,11 +983,15 @@ export class HealthMonitor extends EventEmitter {
     // Clean up old trend data
     for (const [agentId, trends] of this.healthTrends) {
       for (const trend of trends) {
-        trend.dataPoints = trend.dataPoints.filter(dp => dp.timestamp > cutoff);
+        trend.dataPoints = trend.dataPoints.filter(
+          (dp) => dp.timestamp > cutoff,
+        );
       }
 
       // Remove trends with no recent data
-      const activeTrends = trends.filter(trend => trend.dataPoints.length > 0);
+      const activeTrends = trends.filter(
+        (trend) => trend.dataPoints.length > 0,
+      );
       if (activeTrends.length === 0) {
         this.healthTrends.delete(agentId);
       } else {

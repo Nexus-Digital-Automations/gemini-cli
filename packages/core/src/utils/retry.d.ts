@@ -5,15 +5,18 @@
  */
 
 export interface HttpError extends Error {
-    status?: number;
+  status?: number;
 }
 export interface RetryOptions {
-    maxAttempts: number;
-    initialDelayMs: number;
-    maxDelayMs: number;
-    shouldRetry: (error: Error) => boolean;
-    onPersistent429?: (authType?: string, error?: unknown) => Promise<string | boolean | null>;
-    authType?: string;
+  maxAttempts: number;
+  initialDelayMs: number;
+  maxDelayMs: number;
+  shouldRetry: (error: Error) => boolean;
+  onPersistent429?: (
+    authType?: string,
+    error?: unknown,
+  ) => Promise<string | boolean | null>;
+  authType?: string;
 }
 /**
  * Retries a function with exponential backoff and jitter.
@@ -22,7 +25,10 @@ export interface RetryOptions {
  * @returns A promise that resolves with the result of the function if successful.
  * @throws The last error encountered if all attempts fail.
  */
-export declare function retryWithBackoff<T>(fn: () => Promise<T>, options?: Partial<RetryOptions>): Promise<T>;
+export declare function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  options?: Partial<RetryOptions>,
+): Promise<T>;
 /**
  * Extracts the HTTP status code from an error object.
  * @param error The error object.

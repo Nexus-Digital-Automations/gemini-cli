@@ -57,17 +57,17 @@ export default defineConfig({
   autonomous: {
     agents: {
       registry: './src/agents',
-      autoLoad: true
+      autoLoad: true,
     },
     tools: {
       registry: './src/tools',
-      permissions: 'strict'
+      permissions: 'strict',
     },
     tasks: {
       maxConcurrent: 10,
-      defaultTimeout: 30000
-    }
-  }
+      defaultTimeout: 30000,
+    },
+  },
 });
 ```
 
@@ -78,7 +78,12 @@ export default defineConfig({
 ### Basic SubAgent Structure
 
 ```typescript
-import { SubAgentScope, PromptConfig, ModelConfig, RunConfig } from '@gemini-cli/core';
+import {
+  SubAgentScope,
+  PromptConfig,
+  ModelConfig,
+  RunConfig,
+} from '@gemini-cli/core';
 
 export class SecurityAnalysisAgent {
   private static readonly SYSTEM_PROMPT = `
@@ -91,20 +96,23 @@ export class SecurityAnalysisAgent {
     Always prioritize security over convenience and provide detailed explanations.
   `;
 
-  static async create(context: Config, options: SecurityAnalysisOptions = {}): Promise<SubAgentScope> {
+  static async create(
+    context: Config,
+    options: SecurityAnalysisOptions = {},
+  ): Promise<SubAgentScope> {
     const promptConfig: PromptConfig = {
-      systemPrompt: this.SYSTEM_PROMPT
+      systemPrompt: this.SYSTEM_PROMPT,
     };
 
     const modelConfig: ModelConfig = {
       model: options.model || 'gemini-2.5-pro',
-      temp: 0.2,  // Low temperature for consistent security analysis
-      top_p: 0.8
+      temp: 0.2, // Low temperature for consistent security analysis
+      top_p: 0.8,
     };
 
     const runConfig: RunConfig = {
       max_time_minutes: options.maxTime || 30,
-      max_turns: options.maxTurns || 50
+      max_turns: options.maxTurns || 50,
     };
 
     const toolConfig = {
@@ -112,17 +120,19 @@ export class SecurityAnalysisAgent {
         'Read',
         'Grep',
         'Bash',
-        'SecurityScan',  // Custom security scanning tool
-        'VulnerabilityDB'  // Custom vulnerability database tool
-      ]
+        'SecurityScan', // Custom security scanning tool
+        'VulnerabilityDB', // Custom vulnerability database tool
+      ],
     };
 
     const outputConfig = {
       outputs: {
-        vulnerability_report: 'Detailed vulnerability analysis with CVSS scores',
-        security_recommendations: 'Prioritized security improvement recommendations',
-        compliance_status: 'Compliance assessment against security standards'
-      }
+        vulnerability_report:
+          'Detailed vulnerability analysis with CVSS scores',
+        security_recommendations:
+          'Prioritized security improvement recommendations',
+        compliance_status: 'Compliance assessment against security standards',
+      },
     };
 
     return SubAgentScope.create(
@@ -131,7 +141,7 @@ export class SecurityAnalysisAgent {
       promptConfig,
       modelConfig,
       runConfig,
-      { toolConfig, outputConfig }
+      { toolConfig, outputConfig },
     );
   }
 }
@@ -143,7 +153,10 @@ export class SecurityAnalysisAgent {
 
 ```typescript
 export class ContextAwareAgent {
-  async executeWithContext(task: TaskDefinition, context: ProjectContext): Promise<void> {
+  async executeWithContext(
+    task: TaskDefinition,
+    context: ProjectContext,
+  ): Promise<void> {
     // Analyze project context
     const projectType = this.detectProjectType(context);
     const techStack = this.identifyTechStack(context);
@@ -153,16 +166,19 @@ export class ContextAwareAgent {
     const specializedTools = this.selectToolsForTechStack(techStack);
 
     // Create context-specific agent
-    const agent = await this.createSpecializedAgent(adaptedPrompt, specializedTools);
+    const agent = await this.createSpecializedAgent(
+      adaptedPrompt,
+      specializedTools,
+    );
     await agent.runNonInteractive(this.buildContextState(context));
   }
 
   private detectProjectType(context: ProjectContext): ProjectType {
     const indicators = {
       'web-app': ['package.json', 'src/components/', 'public/'],
-      'api': ['routes/', 'controllers/', 'middleware/'],
-      'library': ['index.ts', 'lib/', 'dist/'],
-      'mobile': ['ios/', 'android/', 'mobile/']
+      api: ['routes/', 'controllers/', 'middleware/'],
+      library: ['index.ts', 'lib/', 'dist/'],
+      mobile: ['ios/', 'android/', 'mobile/'],
     };
 
     return this.analyzeFilePatterns(context.files, indicators);
@@ -209,32 +225,33 @@ import { Type } from '@google/genai';
 export class SecurityScanTool extends DeclarativeTool {
   schema = {
     name: 'security_scan',
-    description: 'Performs comprehensive security scanning of source code files',
+    description:
+      'Performs comprehensive security scanning of source code files',
     parameters: {
       type: Type.OBJECT,
       properties: {
         target_path: {
           type: Type.STRING,
-          description: 'Path to scan (file or directory)'
+          description: 'Path to scan (file or directory)',
         },
         scan_type: {
           type: Type.STRING,
           enum: ['quick', 'comprehensive', 'focused'],
-          description: 'Type of security scan to perform'
+          description: 'Type of security scan to perform',
         },
         rules: {
           type: Type.ARRAY,
           items: { type: Type.STRING },
-          description: 'Specific security rules to apply'
+          description: 'Specific security rules to apply',
         },
         format: {
           type: Type.STRING,
           enum: ['json', 'sarif', 'text'],
-          description: 'Output format for scan results'
-        }
+          description: 'Output format for scan results',
+        },
       },
-      required: ['target_path']
-    }
+      required: ['target_path'],
+    },
   };
 
   async build(params: SecurityScanParams) {
@@ -243,7 +260,7 @@ export class SecurityScanTool extends DeclarativeTool {
         const scanner = new SecurityScanner({
           type: params.scan_type || 'quick',
           rules: params.rules || DEFAULT_SECURITY_RULES,
-          format: params.format || 'json'
+          format: params.format || 'json',
         });
 
         const results = await scanner.scanPath(params.target_path, { signal });
@@ -255,15 +272,15 @@ export class SecurityScanTool extends DeclarativeTool {
           metadata: {
             scanTime: results.duration,
             rulesApplied: results.rulesCount,
-            filesScanned: results.fileCount
-          }
+            filesScanned: results.fileCount,
+          },
         };
       },
 
       async shouldConfirmExecute(): Promise<ConfirmationDetails | null> {
         // Security scans are safe to run without confirmation
         return null;
-      }
+      },
     };
   }
 }
@@ -292,15 +309,15 @@ export class CustomToolRegistry {
   }
 
   createToolConfig(toolNames: string[]): ToolConfig {
-    const availableTools = toolNames.filter(name => this.tools.has(name));
-    const missing = toolNames.filter(name => !this.tools.has(name));
+    const availableTools = toolNames.filter((name) => this.tools.has(name));
+    const missing = toolNames.filter((name) => !this.tools.has(name));
 
     if (missing.length > 0) {
       console.warn(`Missing tools: ${missing.join(', ')}`);
     }
 
     return {
-      tools: availableTools.map(name => this.tools.get(name)!)
+      tools: availableTools.map((name) => this.tools.get(name)!),
     };
   }
 
@@ -363,9 +380,11 @@ export interface TaskProcessor {
 
 export class SecurityTaskProcessor implements TaskProcessor {
   canHandle(task: TaskDefinition): boolean {
-    return task.category === 'security' ||
-           task.title.toLowerCase().includes('security') ||
-           task.tags?.includes('security');
+    return (
+      task.category === 'security' ||
+      task.title.toLowerCase().includes('security') ||
+      task.tags?.includes('security')
+    );
   }
 
   async process(task: TaskDefinition): Promise<TaskResult> {
@@ -390,9 +409,9 @@ export class SecurityTaskProcessor implements TaskProcessor {
     const complexity = this.assessComplexity(task);
     const baseTime = 15; // minutes
     const complexityMultiplier = {
-      'simple': 1,
-      'moderate': 2,
-      'complex': 4
+      simple: 1,
+      moderate: 2,
+      complex: 4,
     };
 
     return baseTime * complexityMultiplier[complexity];
@@ -486,12 +505,14 @@ export class TaskDependencyResolver {
   }
 
   canExecute(taskId: string): boolean {
-    return this.graph.getDependencies(taskId).every(dep =>
-      this.isTaskCompleted(dep)
-    );
+    return this.graph
+      .getDependencies(taskId)
+      .every((dep) => this.isTaskCompleted(dep));
   }
 
-  async executeWithDependencies(rootTaskId: string): Promise<Map<string, TaskResult>> {
+  async executeWithDependencies(
+    rootTaskId: string,
+  ): Promise<Map<string, TaskResult>> {
     const executionOrder = this.getExecutionOrder();
     const results = new Map<string, TaskResult>();
 
@@ -584,10 +605,18 @@ export abstract class BasePlugin implements AutonomousPlugin {
   protected abstract onActivate(): Promise<void>;
 
   // Default implementations
-  registerAgents(): SubAgentDefinition[] { return []; }
-  registerTools(): DeclarativeTool[] { return []; }
-  registerTaskProcessors(): TaskProcessor[] { return []; }
-  registerCommands(): CommandDefinition[] { return []; }
+  registerAgents(): SubAgentDefinition[] {
+    return [];
+  }
+  registerTools(): DeclarativeTool[] {
+    return [];
+  }
+  registerTaskProcessors(): TaskProcessor[] {
+    return [];
+  }
+  registerCommands(): CommandDefinition[] {
+    return [];
+  }
 }
 ```
 
@@ -614,13 +643,13 @@ export class GitIntegrationPlugin extends BasePlugin {
       {
         name: 'git-commit-analyzer',
         factory: (context) => GitCommitAnalyzer.create(context),
-        description: 'Analyzes commit history for task insights'
+        description: 'Analyzes commit history for task insights',
       },
       {
         name: 'merge-conflict-resolver',
         factory: (context) => MergeConflictResolver.create(context),
-        description: 'Automatically resolves simple merge conflicts'
-      }
+        description: 'Automatically resolves simple merge conflicts',
+      },
     ];
   }
 
@@ -629,14 +658,12 @@ export class GitIntegrationPlugin extends BasePlugin {
       new GitCommitTool(),
       new GitBranchTool(),
       new GitMergeTool(),
-      new GitStatusTool()
+      new GitStatusTool(),
     ];
   }
 
   registerTaskProcessors(): TaskProcessor[] {
-    return [
-      new GitTaskProcessor(this.gitService)
-    ];
+    return [new GitTaskProcessor(this.gitService)];
   }
 
   async handleTask(task: TaskDefinition): Promise<boolean> {
@@ -697,7 +724,7 @@ export class PluginManager {
 
   getActivePlugins(): AutonomousPlugin[] {
     return Array.from(this.activePlugins)
-      .map(name => this.plugins.get(name)!)
+      .map((name) => this.plugins.get(name)!)
       .filter(Boolean);
   }
 }
@@ -829,7 +856,7 @@ export class TaskWebSocketHandler {
 
   private broadcast(message: any): void {
     const data = JSON.stringify(message);
-    this.connections.forEach(ws => {
+    this.connections.forEach((ws) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(data);
       }
@@ -929,7 +956,7 @@ const resolvers = {
 
     systemStatus: async () => {
       return systemMonitor.getStatus();
-    }
+    },
   },
 
   Mutation: {
@@ -939,7 +966,7 @@ const resolvers = {
 
     approveTask: async (_, { id }) => {
       return taskManager.approveTask(id);
-    }
+    },
   },
 
   Subscription: {
@@ -950,9 +977,9 @@ const resolvers = {
         for await (const event of eventStream) {
           yield { taskUpdates: event.task };
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 ```
 
@@ -983,8 +1010,8 @@ describe('SecurityAnalysisAgent', () => {
     mockTool('Read', { content: 'vulnerable code sample' });
     mockTool('SecurityScan', {
       vulnerabilities: [
-        { type: 'SQL_INJECTION', severity: 'HIGH', file: 'db.js' }
-      ]
+        { type: 'SQL_INJECTION', severity: 'HIGH', file: 'db.js' },
+      ],
     });
 
     // Act
@@ -1002,7 +1029,7 @@ describe('SecurityAnalysisAgent', () => {
   it('should handle timeout gracefully', async () => {
     // Arrange
     const shortTimeoutAgent = await SecurityAnalysisAgent.create(mockContext, {
-      maxTime: 0.1 // 6 seconds
+      maxTime: 0.1, // 6 seconds
     });
 
     const context = new ContextState();
@@ -1012,7 +1039,9 @@ describe('SecurityAnalysisAgent', () => {
     await shortTimeoutAgent.runNonInteractive(context);
 
     // Assert
-    expect(shortTimeoutAgent.output.terminate_reason).toBe(SubagentTerminateMode.TIMEOUT);
+    expect(shortTimeoutAgent.output.terminate_reason).toBe(
+      SubagentTerminateMode.TIMEOUT,
+    );
   });
 });
 ```
@@ -1039,8 +1068,8 @@ describe('Task Management Integration', () => {
       description: 'Analyze test codebase for security issues',
       category: 'security',
       metadata: {
-        target_path: './test-fixtures/security-test-app'
-      }
+        target_path: './test-fixtures/security-test-app',
+      },
     });
 
     // Approve task
@@ -1072,18 +1101,18 @@ describe('Performance Tests', () => {
         taskManager.createTask({
           title: `Performance Test Task ${i}`,
           description: 'Simple analysis task for performance testing',
-          category: 'analysis'
-        })
-      )
+          category: 'analysis',
+        }),
+      ),
     );
 
     // Approve all tasks
-    await Promise.all(tasks.map(task => taskManager.approveTask(task.id)));
+    await Promise.all(tasks.map((task) => taskManager.approveTask(task.id)));
 
     // Wait for all to complete
-    await Promise.all(tasks.map(task =>
-      waitForTaskCompletion(task.id, 60000)
-    ));
+    await Promise.all(
+      tasks.map((task) => waitForTaskCompletion(task.id, 60000)),
+    );
 
     const totalTime = Date.now() - startTime;
     const avgTimePerTask = totalTime / taskCount;
@@ -1129,7 +1158,7 @@ export class AgentPool {
   constructor(
     factory: AgentFactory,
     private maxSize: number = 10,
-    private idleTimeout: number = 300000 // 5 minutes
+    private idleTimeout: number = 300000, // 5 minutes
   ) {
     this.factory = factory;
     this.startCleanupTimer();
@@ -1137,12 +1166,12 @@ export class AgentPool {
 
   async acquire(type: string): Promise<SubAgentScope> {
     // Try to reuse available agent
-    const available = this.available.find(agent =>
-      agent.name === type && this.isAgentHealthy(agent)
+    const available = this.available.find(
+      (agent) => agent.name === type && this.isAgentHealthy(agent),
     );
 
     if (available) {
-      this.available = this.available.filter(a => a !== available);
+      this.available = this.available.filter((a) => a !== available);
       this.inUse.set(available.name, available);
       return available;
     }
@@ -1161,7 +1190,10 @@ export class AgentPool {
   release(agent: SubAgentScope): void {
     this.inUse.delete(agent.name);
 
-    if (this.isAgentHealthy(agent) && this.available.length < this.maxSize / 2) {
+    if (
+      this.isAgentHealthy(agent) &&
+      this.available.length < this.maxSize / 2
+    ) {
       // Reset agent state
       this.resetAgent(agent);
       this.available.push(agent);
@@ -1171,7 +1203,7 @@ export class AgentPool {
   private async waitForAvailableAgent(type: string): Promise<SubAgentScope> {
     return new Promise((resolve) => {
       const checkForAvailable = () => {
-        const available = this.available.find(a => a.name === type);
+        const available = this.available.find((a) => a.name === type);
         if (available) {
           resolve(this.acquire(type));
         } else {
@@ -1194,7 +1226,7 @@ export class ResultCache {
   constructor(maxSize: number = 1000) {
     this.cache = new LRUCache({
       max: maxSize,
-      maxAge: this.TTL
+      maxAge: this.TTL,
     });
   }
 
@@ -1205,7 +1237,7 @@ export class ResultCache {
       description: task.description,
       category: task.category,
       // Include content hash for file-based tasks
-      contentHash: this.calculateContentHash(task.metadata?.target_path)
+      contentHash: this.calculateContentHash(task.metadata?.target_path),
     };
 
     return hashObject(hashInput);
@@ -1228,7 +1260,7 @@ export class ResultCache {
     this.cache.set(key, {
       ...result,
       cached: true,
-      cacheTime: Date.now()
+      cacheTime: Date.now(),
     });
   }
 
@@ -1277,7 +1309,7 @@ export class ResourceMonitor {
       memory: process.memoryUsage(),
       cpu: process.cpuUsage(),
       handles: process._getActiveHandles().length,
-      requests: process._getActiveRequests().length
+      requests: process._getActiveRequests().length,
     };
   }
 
@@ -1286,7 +1318,7 @@ export class ResourceMonitor {
 
     // Check memory growth trend
     const memoryTrend = this.calculateTrend(
-      history.slice(-5).map(m => m.memory.heapUsed)
+      history.slice(-5).map((m) => m.memory.heapUsed),
     );
 
     // Throttle if memory is growing rapidly
@@ -1322,7 +1354,7 @@ export class RobustTaskExecutor {
 
   async executeWithRetry<T>(
     operation: () => Promise<T>,
-    context: string
+    context: string,
   ): Promise<T> {
     let lastError: Error;
 
@@ -1333,12 +1365,16 @@ export class RobustTaskExecutor {
         lastError = error;
 
         if (attempt === this.MAX_RETRIES) {
-          console.error(`Failed after ${this.MAX_RETRIES} attempts: ${context}`);
+          console.error(
+            `Failed after ${this.MAX_RETRIES} attempts: ${context}`,
+          );
           throw error;
         }
 
         const delay = this.calculateBackoffDelay(attempt);
-        console.warn(`Attempt ${attempt} failed: ${context}. Retrying in ${delay}ms`);
+        console.warn(
+          `Attempt ${attempt} failed: ${context}. Retrying in ${delay}ms`,
+        );
         await this.sleep(delay);
       }
     }
@@ -1351,7 +1387,7 @@ export class RobustTaskExecutor {
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 ```
@@ -1362,7 +1398,7 @@ export class RobustTaskExecutor {
 export class StructuredLogger {
   constructor(
     private context: LogContext,
-    private transport: LogTransport
+    private transport: LogTransport,
   ) {}
 
   info(message: string, metadata?: object): void {
@@ -1376,11 +1412,13 @@ export class StructuredLogger {
   error(message: string, error?: Error, metadata?: object): void {
     this.log('ERROR', message, {
       ...metadata,
-      error: error ? {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      } : undefined
+      error: error
+        ? {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+          }
+        : undefined,
     });
   }
 
@@ -1391,7 +1429,7 @@ export class StructuredLogger {
       message,
       context: this.context,
       metadata,
-      traceId: this.generateTraceId()
+      traceId: this.generateTraceId(),
     };
 
     this.transport.write(logEntry);
@@ -1400,7 +1438,7 @@ export class StructuredLogger {
   createChildLogger(additionalContext: Partial<LogContext>): StructuredLogger {
     return new StructuredLogger(
       { ...this.context, ...additionalContext },
-      this.transport
+      this.transport,
     );
   }
 }

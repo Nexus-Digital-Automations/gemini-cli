@@ -35,18 +35,23 @@ export const cancelTaskCommand: CommandModule<{}, CancelTaskOptions> = {
         alias: 'r',
       })
       .example('gemini autonomous tasks cancel task_123', 'Cancel task by ID')
-      .example('gemini autonomous tasks cancel task_456 --force --reason "Changed requirements"', 'Force cancel with reason'),
+      .example(
+        'gemini autonomous tasks cancel task_456 --force --reason "Changed requirements"',
+        'Force cancel with reason',
+      ),
 
   handler: async (argv) => {
     try {
-      console.log(chalk.yellow(`🚫 Cancelling task: ${chalk.bold(argv.taskId)}...`));
+      console.log(
+        chalk.yellow(`🚫 Cancelling task: ${chalk.bold(argv.taskId)}...`),
+      );
 
       if (argv.reason) {
         console.log(chalk.gray(`   Reason: ${argv.reason}`));
       }
 
       // Simulate task cancellation process
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // In a real implementation, this would:
       // 1. Send cancellation request to TaskManager API
@@ -54,13 +59,28 @@ export const cancelTaskCommand: CommandModule<{}, CancelTaskOptions> = {
       // 3. Cleanup any active agents working on this task
 
       // For now, simulate different scenarios
-      const mockTaskStatuses = ['running', 'queued', 'completed', 'cancelled', 'failed'];
-      const currentStatus = mockTaskStatuses[Math.floor(Math.random() * mockTaskStatuses.length)];
+      const mockTaskStatuses = [
+        'running',
+        'queued',
+        'completed',
+        'cancelled',
+        'failed',
+      ];
+      const currentStatus =
+        mockTaskStatuses[Math.floor(Math.random() * mockTaskStatuses.length)];
 
       switch (currentStatus) {
         case 'completed':
-          console.log(chalk.yellow('⚠️  Task is already completed and cannot be cancelled'));
-          console.log(chalk.blue('💡 Consider using "gemini autonomous tasks retry" if you need to re-run it'));
+          console.log(
+            chalk.yellow(
+              '⚠️  Task is already completed and cannot be cancelled',
+            ),
+          );
+          console.log(
+            chalk.blue(
+              '💡 Consider using "gemini autonomous tasks retry" if you need to re-run it',
+            ),
+          );
           break;
 
         case 'cancelled':
@@ -69,13 +89,21 @@ export const cancelTaskCommand: CommandModule<{}, CancelTaskOptions> = {
 
         case 'failed':
           console.log(chalk.yellow('⚠️  Task has already failed'));
-          console.log(chalk.blue('💡 No cancellation needed - task is not active'));
+          console.log(
+            chalk.blue('💡 No cancellation needed - task is not active'),
+          );
           break;
 
         case 'running':
           if (!argv.force && Math.random() < 0.3) {
-            console.log(chalk.red('❌ Cannot cancel task - it\'s in a critical state'));
-            console.log(chalk.blue('💡 Use --force flag to override, or wait for current operation to complete'));
+            console.log(
+              chalk.red("❌ Cannot cancel task - it's in a critical state"),
+            );
+            console.log(
+              chalk.blue(
+                '💡 Use --force flag to override, or wait for current operation to complete',
+              ),
+            );
             process.exit(1);
           }
 
@@ -105,20 +133,29 @@ export const cancelTaskCommand: CommandModule<{}, CancelTaskOptions> = {
       // Show next steps
       console.log(chalk.blue('\n🔄 Next Steps:'));
       console.log('   • Check overall status: gemini autonomous status');
-      console.log('   • View task history: gemini autonomous tasks list --show-cancelled');
-      console.log(`   • View task details: gemini autonomous tasks show ${argv.taskId}`);
+      console.log(
+        '   • View task history: gemini autonomous tasks list --show-cancelled',
+      );
+      console.log(
+        `   • View task details: gemini autonomous tasks show ${argv.taskId}`,
+      );
 
       // Simulate impact analysis
       if (currentStatus === 'running') {
         console.log(chalk.gray('\n🔍 Impact Analysis:'));
         console.log(chalk.gray('   • Dependent tasks: 2 tasks may be delayed'));
-        console.log(chalk.gray('   • Resource utilization: CPU freed, 1 agent available'));
-        console.log(chalk.gray('   • Progress lost: ~30% completion, can be resumed'));
+        console.log(
+          chalk.gray('   • Resource utilization: CPU freed, 1 agent available'),
+        );
+        console.log(
+          chalk.gray('   • Progress lost: ~30% completion, can be resumed'),
+        );
       }
-
     } catch (error) {
       console.error(chalk.red('❌ Failed to cancel task:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },

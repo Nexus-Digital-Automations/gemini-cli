@@ -13,7 +13,10 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import type { AgentCapability, TaskPriority } from '../services/autonomousTaskIntegrator.js';
+import type {
+  AgentCapability,
+  TaskPriority,
+} from '../services/autonomousTaskIntegrator.js';
 import type { IntegrationConfig } from '../services/integrationBridge.js';
 
 export interface AutonomousTaskSettings {
@@ -86,7 +89,8 @@ const DEFAULT_CONFIG: AutonomousTaskSettings = {
   enableRealTimeUpdates: true,
 
   // TaskManager API integration
-  taskManagerApiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+  taskManagerApiPath:
+    '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
   taskManagerApiTimeout: 10000,
   projectRoot: process.cwd(),
 
@@ -232,16 +236,27 @@ export class AutonomousTaskConfigManager {
     const errors: string[] = [];
 
     // Validate numeric ranges
-    if (this.config.maxConcurrentTasks < 1 || this.config.maxConcurrentTasks > 100) {
+    if (
+      this.config.maxConcurrentTasks < 1 ||
+      this.config.maxConcurrentTasks > 100
+    ) {
       errors.push('maxConcurrentTasks must be between 1 and 100');
     }
 
-    if (this.config.taskTimeoutMinutes < 1 || this.config.taskTimeoutMinutes > 1440) {
+    if (
+      this.config.taskTimeoutMinutes < 1 ||
+      this.config.taskTimeoutMinutes > 1440
+    ) {
       errors.push('taskTimeoutMinutes must be between 1 and 1440 (24 hours)');
     }
 
-    if (this.config.agentHeartbeatInterval < 1000 || this.config.agentHeartbeatInterval > 300000) {
-      errors.push('agentHeartbeatInterval must be between 1000ms and 300000ms (5 minutes)');
+    if (
+      this.config.agentHeartbeatInterval < 1000 ||
+      this.config.agentHeartbeatInterval > 300000
+    ) {
+      errors.push(
+        'agentHeartbeatInterval must be between 1000ms and 300000ms (5 minutes)',
+      );
     }
 
     if (this.config.apiServerPort < 1024 || this.config.apiServerPort > 65535) {
@@ -250,7 +265,9 @@ export class AutonomousTaskConfigManager {
 
     // Validate file paths exist
     if (!existsSync(dirname(this.config.taskManagerApiPath))) {
-      errors.push(`taskManagerApiPath directory does not exist: ${dirname(this.config.taskManagerApiPath)}`);
+      errors.push(
+        `taskManagerApiPath directory does not exist: ${dirname(this.config.taskManagerApiPath)}`,
+      );
     }
 
     if (!existsSync(this.config.projectRoot)) {
@@ -265,11 +282,15 @@ export class AutonomousTaskConfigManager {
 
     const validDependencyResolution = ['strict', 'relaxed'];
     if (!validDependencyResolution.includes(this.config.dependencyResolution)) {
-      errors.push(`dependencyResolution must be one of: ${validDependencyResolution.join(', ')}`);
+      errors.push(
+        `dependencyResolution must be one of: ${validDependencyResolution.join(', ')}`,
+      );
     }
 
     if (errors.length > 0) {
-      throw new Error(`Configuration validation failed:\n${errors.map(e => `  - ${e}`).join('\n')}`);
+      throw new Error(
+        `Configuration validation failed:\n${errors.map((e) => `  - ${e}`).join('\n')}`,
+      );
     }
   }
 
@@ -296,9 +317,14 @@ export class AutonomousTaskConfigManager {
             ...(fileConfig.priorityWeighting || {}),
           },
         };
-        console.log(`📖 Loaded autonomous task configuration from ${this.configPath}`);
+        console.log(
+          `📖 Loaded autonomous task configuration from ${this.configPath}`,
+        );
       } catch (error) {
-        console.warn(`⚠️ Failed to load config from ${this.configPath}, using defaults:`, error);
+        console.warn(
+          `⚠️ Failed to load config from ${this.configPath}, using defaults:`,
+          error,
+        );
       }
     }
 
@@ -309,7 +335,10 @@ export class AutonomousTaskConfigManager {
     try {
       this.validateConfigStatic(config);
     } catch (error) {
-      console.warn('⚠️ Configuration validation failed, using defaults:', error);
+      console.warn(
+        '⚠️ Configuration validation failed, using defaults:',
+        error,
+      );
       config = { ...DEFAULT_CONFIG };
     }
 
@@ -328,17 +357,25 @@ export class AutonomousTaskConfigManager {
       const configJson = JSON.stringify(this.config, null, 2);
       writeFileSync(this.configPath, configJson, 'utf8');
 
-      console.log(`💾 Saved autonomous task configuration to ${this.configPath}`);
+      console.log(
+        `💾 Saved autonomous task configuration to ${this.configPath}`,
+      );
     } catch (error) {
-      console.error(`❌ Failed to save configuration to ${this.configPath}:`, error);
+      console.error(
+        `❌ Failed to save configuration to ${this.configPath}:`,
+        error,
+      );
     }
   }
 
-  private applyEnvironmentOverrides(config: AutonomousTaskSettings): AutonomousTaskSettings {
+  private applyEnvironmentOverrides(
+    config: AutonomousTaskSettings,
+  ): AutonomousTaskSettings {
     const env = process.env as EnvironmentOverrides;
 
     if (env.GEMINI_AUTONOMOUS_TASKS_ENABLED !== undefined) {
-      config.enabled = env.GEMINI_AUTONOMOUS_TASKS_ENABLED.toLowerCase() === 'true';
+      config.enabled =
+        env.GEMINI_AUTONOMOUS_TASKS_ENABLED.toLowerCase() === 'true';
     }
 
     if (env.GEMINI_TASK_MANAGER_PATH !== undefined) {
@@ -360,7 +397,8 @@ export class AutonomousTaskConfigManager {
     }
 
     if (env.GEMINI_CLI_INTEGRATION !== undefined) {
-      config.cliCommandsIntegration = env.GEMINI_CLI_INTEGRATION.toLowerCase() === 'true';
+      config.cliCommandsIntegration =
+        env.GEMINI_CLI_INTEGRATION.toLowerCase() === 'true';
     }
 
     if (env.GEMINI_API_SERVER_PORT !== undefined) {
@@ -398,7 +436,8 @@ export class AutonomousTaskConfigManager {
   }
 
   private getDefaultConfigPath(): string {
-    const homeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
+    const homeDir =
+      process.env.HOME || process.env.USERPROFILE || process.cwd();
     return join(homeDir, '.gemini', 'autonomous-tasks.config.json');
   }
 }
@@ -415,7 +454,9 @@ export function getAutonomousTaskConfig(): AutonomousTaskSettings {
   return autonomousTaskConfig.getConfig();
 }
 
-export function updateAutonomousTaskConfig(updates: Partial<AutonomousTaskSettings>): void {
+export function updateAutonomousTaskConfig(
+  updates: Partial<AutonomousTaskSettings>,
+): void {
   autonomousTaskConfig.updateConfig(updates);
 }
 
@@ -423,6 +464,8 @@ export function getIntegrationConfig(): IntegrationConfig {
   return autonomousTaskConfig.getIntegrationConfig();
 }
 
-export function watchConfigChanges(callback: (config: AutonomousTaskSettings) => void): () => void {
+export function watchConfigChanges(
+  callback: (config: AutonomousTaskSettings) => void,
+): () => void {
   return autonomousTaskConfig.watch(callback);
 }

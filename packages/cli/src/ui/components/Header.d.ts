@@ -10,9 +10,9 @@ import type React from 'react';
  * Configures the application header display and branding.
  */
 interface HeaderProps {
-    customAsciiArt?: string;
-    version: string;
-    nightly: boolean;
+  customAsciiArt?: string;
+  version: string;
+  nightly: boolean;
 }
 /**
  * Header displays the application logo and version information.

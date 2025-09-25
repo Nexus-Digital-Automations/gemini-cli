@@ -6,7 +6,7 @@
 
 import type React from 'react';
 interface SessionSummaryDisplayProps {
-    duration: string;
+  duration: string;
 }
 export declare const SessionSummaryDisplay: React.FC<SessionSummaryDisplayProps>;
 export {};

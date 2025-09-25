@@ -185,13 +185,13 @@ class ShellTool extends BaseTool {
   // Execute shell command
   async executeCommand(
     command: string,
-    options?: ShellOptions
+    options?: ShellOptions,
   ): Promise<CommandResult>;
 
   // Execute command with streaming output
   async executeCommandStream(
     command: string,
-    options?: ShellOptions
+    options?: ShellOptions,
   ): AsyncIterator<CommandOutput>;
 }
 
@@ -220,7 +220,10 @@ class WebTool extends BaseTool {
   async fetchUrl(url: string, options?: FetchOptions): Promise<WebContent>;
 
   // Search the web
-  async searchWeb(query: string, options?: SearchOptions): Promise<SearchResult[]>;
+  async searchWeb(
+    query: string,
+    options?: SearchOptions,
+  ): Promise<SearchResult[]>;
 
   // Extract content from HTML
   async extractContent(html: string): Promise<ExtractedContent>;
@@ -305,7 +308,7 @@ interface CommandRegistry {
 
 type CommandHandler = (
   args: string[],
-  context: CommandContext
+  context: CommandContext,
 ) => Promise<CommandResult>;
 
 interface CommandContext {
@@ -443,14 +446,14 @@ enum TaskStatus {
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 enum TaskPriority {
   LOW = 'low',
   NORMAL = 'normal',
   HIGH = 'high',
-  URGENT = 'urgent'
+  URGENT = 'urgent',
 }
 ```
 
@@ -538,7 +541,7 @@ enum FeatureStatus {
   SUGGESTED = 'suggested',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  IMPLEMENTED = 'implemented'
+  IMPLEMENTED = 'implemented',
 }
 
 enum FeatureCategory {
@@ -547,7 +550,7 @@ enum FeatureCategory {
   NEW_FEATURE = 'new-feature',
   PERFORMANCE = 'performance',
   SECURITY = 'security',
-  DOCUMENTATION = 'documentation'
+  DOCUMENTATION = 'documentation',
 }
 ```
 
@@ -656,7 +659,7 @@ interface UserInfo {
 enum AuthMethod {
   OAUTH = 'oauth',
   API_KEY = 'api-key',
-  VERTEX_AI = 'vertex-ai'
+  VERTEX_AI = 'vertex-ai',
 }
 ```
 
@@ -726,7 +729,12 @@ class GeminiCliError extends Error {
   category: ErrorCategory;
   details?: any;
 
-  constructor(message: string, code: string, category: ErrorCategory, details?: any);
+  constructor(
+    message: string,
+    code: string,
+    category: ErrorCategory,
+    details?: any,
+  );
 }
 
 enum ErrorCategory {
@@ -735,7 +743,7 @@ enum ErrorCategory {
   TOOL_ERROR = 'tool_error',
   SYSTEM_ERROR = 'system_error',
   NETWORK_ERROR = 'network_error',
-  AUTH_ERROR = 'auth_error'
+  AUTH_ERROR = 'auth_error',
 }
 
 // Specific error types
@@ -785,13 +793,13 @@ interface StandardEvents {
 // Initialize Gemini CLI
 const gemini = new GeminiCli({
   auth: { method: 'oauth' },
-  model: { name: 'gemini-2.5-pro' }
+  model: { name: 'gemini-2.5-pro' },
 });
 
 // Send a message
 const response = await gemini.sendMessage({
-  content: "Help me analyze this codebase",
-  role: 'user'
+  content: 'Help me analyze this codebase',
+  role: 'user',
 });
 
 // Use a tool
@@ -801,7 +809,7 @@ const fileContent = await gemini.tools.fileSystem.readFile('src/main.ts');
 const task = await gemini.taskManager.createTask({
   title: 'Refactor authentication module',
   description: 'Update auth system to use OAuth 2.0',
-  priority: TaskPriority.HIGH
+  priority: TaskPriority.HIGH,
 });
 ```
 
@@ -823,8 +831,8 @@ class MyExtension extends ExtensionBase {
       {
         name: 'my-command',
         description: 'My custom command',
-        handler: this.handleMyCommand
-      }
+        handler: this.handleMyCommand,
+      },
     ];
   }
 

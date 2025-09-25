@@ -38,11 +38,11 @@ import { Logger } from '../../utils/logger.js';
  * Task dependency relationship types
  */
 export enum DependencyType {
-  HARD = 'hard',           // Must complete before dependent can start
-  SOFT = 'soft',           // Should complete first, but can run in parallel
-  RESOURCE = 'resource',   // Shares resources, coordinate execution
-  DATA = 'data',           // Data flows from prerequisite to dependent
-  CONDITIONAL = 'conditional' // Dependency based on runtime conditions
+  HARD = 'hard', // Must complete before dependent can start
+  SOFT = 'soft', // Should complete first, but can run in parallel
+  RESOURCE = 'resource', // Shares resources, coordinate execution
+  DATA = 'data', // Data flows from prerequisite to dependent
+  CONDITIONAL = 'conditional', // Dependency based on runtime conditions
 }
 
 /**
@@ -53,18 +53,18 @@ export enum DependencyStatus {
   SATISFIED = 'satisfied',
   BLOCKED = 'blocked',
   FAILED = 'failed',
-  SKIPPED = 'skipped'
+  SKIPPED = 'skipped',
 }
 
 /**
  * Task execution readiness levels
  */
 export enum ExecutionReadiness {
-  READY = 'ready',                    // All hard dependencies satisfied
+  READY = 'ready', // All hard dependencies satisfied
   CONDITIONALLY_READY = 'conditionally_ready', // Soft dependencies pending
-  BLOCKED = 'blocked',               // Hard dependencies unsatisfied
+  BLOCKED = 'blocked', // Hard dependencies unsatisfied
   WAITING_RESOURCES = 'waiting_resources', // Resource dependencies pending
-  FAILED_DEPENDENCIES = 'failed_dependencies' // Dependencies failed
+  FAILED_DEPENDENCIES = 'failed_dependencies', // Dependencies failed
 }
 
 /**
@@ -188,7 +188,7 @@ class DependencyGraph {
   addNode(node: TaskNode): void {
     this.logger.debug(`Adding node to dependency graph: ${node.taskId}`, {
       name: node.name,
-      type: node.type
+      type: node.type,
     });
 
     this.nodes.set(node.taskId, node);
@@ -206,39 +206,58 @@ class DependencyGraph {
    * Add dependency edge between tasks
    */
   addDependency(dependency: TaskDependency): void {
-    this.logger.debug(`Adding dependency: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`, {
-      type: dependency.type,
-      weight: dependency.weight
-    });
+    this.logger.debug(
+      `Adding dependency: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`,
+      {
+        type: dependency.type,
+        weight: dependency.weight,
+      },
+    );
 
     // Validate nodes exist
     if (!this.nodes.has(dependency.sourceTaskId)) {
-      throw new Error(`Source task not found in graph: ${dependency.sourceTaskId}`);
+      throw new Error(
+        `Source task not found in graph: ${dependency.sourceTaskId}`,
+      );
     }
     if (!this.nodes.has(dependency.targetTaskId)) {
-      throw new Error(`Target task not found in graph: ${dependency.targetTaskId}`);
+      throw new Error(
+        `Target task not found in graph: ${dependency.targetTaskId}`,
+      );
     }
 
     // Check for self-dependency
     if (dependency.sourceTaskId === dependency.targetTaskId) {
-      throw new Error(`Self-dependency not allowed: ${dependency.sourceTaskId}`);
+      throw new Error(
+        `Self-dependency not allowed: ${dependency.sourceTaskId}`,
+      );
     }
 
     // Store dependency
     this.edges.set(dependency.id, dependency);
 
     // Update adjacency lists
-    this.adjacencyList.get(dependency.sourceTaskId)!.add(dependency.targetTaskId);
-    this.reverseAdjacencyList.get(dependency.targetTaskId)!.add(dependency.sourceTaskId);
+    this.adjacencyList
+      .get(dependency.sourceTaskId)!
+      .add(dependency.targetTaskId);
+    this.reverseAdjacencyList
+      .get(dependency.targetTaskId)!
+      .add(dependency.sourceTaskId);
 
     // Validate no cycles created
     if (this.hasCycle()) {
       // Rollback the addition
       this.edges.delete(dependency.id);
-      this.adjacencyList.get(dependency.sourceTaskId)!.delete(dependency.targetTaskId);
-      this.reverseAdjacencyList.get(dependency.targetTaskId)!.delete(dependency.sourceTaskId);
+      this.adjacencyList
+        .get(dependency.sourceTaskId)!
+        .delete(dependency.targetTaskId);
+      this.reverseAdjacencyList
+        .get(dependency.targetTaskId)!
+        .delete(dependency.sourceTaskId);
 
-      throw new Error(`Adding dependency would create cycle: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`);
+      throw new Error(
+        `Adding dependency would create cycle: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`,
+      );
     }
   }
 
@@ -252,10 +271,16 @@ class DependencyGraph {
     }
 
     this.edges.delete(dependencyId);
-    this.adjacencyList.get(dependency.sourceTaskId)?.delete(dependency.targetTaskId);
-    this.reverseAdjacencyList.get(dependency.targetTaskId)?.delete(dependency.sourceTaskId);
+    this.adjacencyList
+      .get(dependency.sourceTaskId)
+      ?.delete(dependency.targetTaskId);
+    this.reverseAdjacencyList
+      .get(dependency.targetTaskId)
+      ?.delete(dependency.sourceTaskId);
 
-    this.logger.debug(`Removed dependency: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`);
+    this.logger.debug(
+      `Removed dependency: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`,
+    );
     return true;
   }
 
@@ -408,7 +433,9 @@ class DependencyGraph {
 
     // Verify all nodes processed (no cycles)
     if (result.length !== this.nodes.size) {
-      throw new Error('Cannot perform topological sort - graph contains cycles');
+      throw new Error(
+        'Cannot perform topological sort - graph contains cycles',
+      );
     }
 
     return result;
@@ -525,7 +552,8 @@ class DependencyGraph {
 
     const { duration: maxDepth } = this.findCriticalPath();
     const parallelGroups = this.findParallelExecutionGroups();
-    const parallelizationFactor = nodeCount > 0 ? nodeCount / parallelGroups.length : 0;
+    const parallelizationFactor =
+      nodeCount > 0 ? nodeCount / parallelGroups.length : 0;
 
     // Cyclomatic complexity: E - N + 2P (where P is number of connected components)
     const cyclomaticComplexity = edgeCount - nodeCount + 2;
@@ -536,7 +564,7 @@ class DependencyGraph {
       averageDegree,
       maxDepth,
       parallelizationFactor,
-      cyclomaticComplexity
+      cyclomaticComplexity,
     };
   }
 
@@ -574,7 +602,10 @@ export class DependencyAnalyzer extends EventEmitter {
   private readonly logger: Logger;
   private readonly dependencyGraph: DependencyGraph;
   private readonly conflictRegistry: Map<string, DependencyConflict>;
-  private readonly analysisCache: Map<string, { result: DependencyAnalysisResult; timestamp: number }>;
+  private readonly analysisCache: Map<
+    string,
+    { result: DependencyAnalysisResult; timestamp: number }
+  >;
   private readonly cacheTimeout: number = 300000; // 5 minutes
 
   constructor() {
@@ -584,7 +615,9 @@ export class DependencyAnalyzer extends EventEmitter {
     this.conflictRegistry = new Map();
     this.analysisCache = new Map();
 
-    this.logger.info('DependencyAnalyzer initialized with intelligent task sequencing capabilities');
+    this.logger.info(
+      'DependencyAnalyzer initialized with intelligent task sequencing capabilities',
+    );
   }
 
   /**
@@ -594,7 +627,7 @@ export class DependencyAnalyzer extends EventEmitter {
     this.logger.info(`Registering task in dependency system: ${task.taskId}`, {
       name: task.name,
       type: task.type,
-      priority: task.priority
+      priority: task.priority,
     });
 
     try {
@@ -611,18 +644,26 @@ export class DependencyAnalyzer extends EventEmitter {
    * Add dependency between tasks
    */
   public addDependency(dependency: TaskDependency): void {
-    this.logger.info(`Adding dependency: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`, {
-      type: dependency.type,
-      weight: dependency.weight
-    });
+    this.logger.info(
+      `Adding dependency: ${dependency.sourceTaskId} -> ${dependency.targetTaskId}`,
+      {
+        type: dependency.type,
+        weight: dependency.weight,
+      },
+    );
 
     try {
       this.dependencyGraph.addDependency(dependency);
-      this._invalidateCacheForAffectedTasks([dependency.sourceTaskId, dependency.targetTaskId]);
+      this._invalidateCacheForAffectedTasks([
+        dependency.sourceTaskId,
+        dependency.targetTaskId,
+      ]);
       this._detectAndResolveConflicts();
       this.emit('dependencyAdded', dependency);
     } catch (error) {
-      this.logger.error(`Failed to add dependency: ${dependency.id}`, { error });
+      this.logger.error(`Failed to add dependency: ${dependency.id}`, {
+        error,
+      });
       throw error;
     }
   }
@@ -641,7 +682,10 @@ export class DependencyAnalyzer extends EventEmitter {
     const result = this.dependencyGraph.removeDependency(dependencyId);
 
     if (result) {
-      this._invalidateCacheForAffectedTasks([dependency.sourceTaskId, dependency.targetTaskId]);
+      this._invalidateCacheForAffectedTasks([
+        dependency.sourceTaskId,
+        dependency.targetTaskId,
+      ]);
       this.emit('dependencyRemoved', dependency);
     }
 
@@ -666,23 +710,32 @@ export class DependencyAnalyzer extends EventEmitter {
     }
 
     const dependencies = this.dependencyGraph.getTaskDependencies(taskId);
-    const readiness = this._calculateExecutionReadiness(taskId, dependencies.incoming);
+    const readiness = this._calculateExecutionReadiness(
+      taskId,
+      dependencies.incoming,
+    );
     const parallelCandidates = this._findParallelCandidates(taskId);
     const criticalPath = this._findCriticalPathForTask(taskId);
     const riskFactors = this._assessRiskFactors(taskId, dependencies);
-    const recommendations = this._generateRecommendations(taskId, readiness, riskFactors);
+    const recommendations = this._generateRecommendations(
+      taskId,
+      readiness,
+      riskFactors,
+    );
 
     const result: DependencyAnalysisResult = {
       taskId,
       readiness,
-      blockedBy: dependencies.incoming.filter(dep => !this._isDependencySatisfied(dep)),
+      blockedBy: dependencies.incoming.filter(
+        (dep) => !this._isDependencySatisfied(dep),
+      ),
       dependsOn: dependencies.incoming,
       enables: dependencies.outgoing,
       parallelCandidates,
       criticalPath,
       estimatedStartTime: this._estimateStartTime(taskId),
       riskFactors,
-      recommendations
+      recommendations,
     };
 
     // Cache result
@@ -696,33 +749,40 @@ export class DependencyAnalyzer extends EventEmitter {
    */
   public generateOptimalSchedule(taskIds?: string[]): SchedulingResult {
     this.logger.info('Generating optimal execution schedule', {
-      taskCount: taskIds?.length || this.dependencyGraph.getNodes().size
+      taskCount: taskIds?.length || this.dependencyGraph.getNodes().size,
     });
 
-    const tasksToSchedule = taskIds || Array.from(this.dependencyGraph.getNodes().keys());
+    const tasksToSchedule =
+      taskIds || Array.from(this.dependencyGraph.getNodes().keys());
     const parallelGroups = this.dependencyGraph.findParallelExecutionGroups();
     const criticalPath = this.dependencyGraph.findCriticalPath();
     const statistics = this.dependencyGraph.getStatistics();
 
     // Filter groups to only include requested tasks
-    const filteredGroups = parallelGroups.map(group =>
-      group.filter(taskId => tasksToSchedule.includes(taskId))
-    ).filter(group => group.length > 0);
+    const filteredGroups = parallelGroups
+      .map((group) =>
+        group.filter((taskId) => tasksToSchedule.includes(taskId)),
+      )
+      .filter((group) => group.length > 0);
 
     // Build execution plan
     const executionPlan = filteredGroups.map((tasks, index) => ({
       phase: index + 1,
       tasks,
       parallelGroups: this._optimizeParallelExecution(tasks),
-      estimatedDuration: this._calculatePhaseDuration(tasks)
+      estimatedDuration: this._calculatePhaseDuration(tasks),
     }));
 
     const totalEstimatedDuration = executionPlan.reduce(
-      (sum, phase) => sum + phase.estimatedDuration, 0
+      (sum, phase) => sum + phase.estimatedDuration,
+      0,
     );
 
     const bottlenecks = this._identifyBottlenecks(executionPlan);
-    const optimizations = this._suggestOptimizations(executionPlan, bottlenecks);
+    const optimizations = this._suggestOptimizations(
+      executionPlan,
+      bottlenecks,
+    );
     const riskAssessment = this._assessScheduleRisks(executionPlan);
 
     return {
@@ -732,7 +792,7 @@ export class DependencyAnalyzer extends EventEmitter {
       parallelizationFactor: statistics.parallelizationFactor,
       bottlenecks,
       optimizations,
-      riskAssessment
+      riskAssessment,
     };
   }
 
@@ -786,22 +846,26 @@ export class DependencyAnalyzer extends EventEmitter {
     }>;
     statistics: ReturnType<DependencyGraph['getStatistics']>;
   } {
-    const nodes = Array.from(this.dependencyGraph.getNodes().values()).map(node => ({
-      id: node.taskId,
-      label: node.name,
-      type: node.type,
-      status: node.status,
-      priority: node.priority
-    }));
+    const nodes = Array.from(this.dependencyGraph.getNodes().values()).map(
+      (node) => ({
+        id: node.taskId,
+        label: node.name,
+        type: node.type,
+        status: node.status,
+        priority: node.priority,
+      }),
+    );
 
-    const edges = Array.from(this.dependencyGraph.getEdges().values()).map(edge => ({
-      id: edge.id,
-      source: edge.sourceTaskId,
-      target: edge.targetTaskId,
-      type: edge.type,
-      weight: edge.weight,
-      status: this._getDependencyStatus(edge)
-    }));
+    const edges = Array.from(this.dependencyGraph.getEdges().values()).map(
+      (edge) => ({
+        id: edge.id,
+        source: edge.sourceTaskId,
+        target: edge.targetTaskId,
+        type: edge.type,
+        weight: edge.weight,
+        status: this._getDependencyStatus(edge),
+      }),
+    );
 
     const statistics = this.dependencyGraph.getStatistics();
 
@@ -826,12 +890,16 @@ export class DependencyAnalyzer extends EventEmitter {
     const recommendations: string[] = [];
 
     // Assess health
-    if (conflicts.some(c => c.severity === 'critical')) {
+    if (conflicts.some((c) => c.severity === 'critical')) {
       graphHealth = 'critical';
-      recommendations.push('Critical dependency conflicts detected - immediate resolution required');
+      recommendations.push(
+        'Critical dependency conflicts detected - immediate resolution required',
+      );
     } else if (statistics.parallelizationFactor < 2) {
       graphHealth = 'warning';
-      recommendations.push('Low parallelization efficiency - consider restructuring dependencies');
+      recommendations.push(
+        'Low parallelization efficiency - consider restructuring dependencies',
+      );
     }
 
     const cyclicDependencies = this.dependencyGraph.findCycles().length;
@@ -843,25 +911,38 @@ export class DependencyAnalyzer extends EventEmitter {
       cyclicDependencies,
       bottleneckCount,
       parallelizationEfficiency: statistics.parallelizationFactor,
-      recommendations
+      recommendations,
     };
   }
 
   // =================== PRIVATE HELPER METHODS ===================
 
-  private _calculateExecutionReadiness(taskId: string, dependencies: TaskDependency[]): ExecutionReadiness {
+  private _calculateExecutionReadiness(
+    taskId: string,
+    dependencies: TaskDependency[],
+  ): ExecutionReadiness {
     if (dependencies.length === 0) {
       return ExecutionReadiness.READY;
     }
 
-    const hardDependencies = dependencies.filter(dep => dep.type === DependencyType.HARD);
-    const softDependencies = dependencies.filter(dep => dep.type === DependencyType.SOFT);
-    const resourceDependencies = dependencies.filter(dep => dep.type === DependencyType.RESOURCE);
+    const hardDependencies = dependencies.filter(
+      (dep) => dep.type === DependencyType.HARD,
+    );
+    const softDependencies = dependencies.filter(
+      (dep) => dep.type === DependencyType.SOFT,
+    );
+    const resourceDependencies = dependencies.filter(
+      (dep) => dep.type === DependencyType.RESOURCE,
+    );
 
     // Check hard dependencies
-    const unsatisfiedHard = hardDependencies.filter(dep => !this._isDependencySatisfied(dep));
+    const unsatisfiedHard = hardDependencies.filter(
+      (dep) => !this._isDependencySatisfied(dep),
+    );
     if (unsatisfiedHard.length > 0) {
-      const failedDeps = unsatisfiedHard.filter(dep => this._isDependencyFailed(dep));
+      const failedDeps = unsatisfiedHard.filter((dep) =>
+        this._isDependencyFailed(dep),
+      );
       if (failedDeps.length > 0) {
         return ExecutionReadiness.FAILED_DEPENDENCIES;
       }
@@ -869,13 +950,17 @@ export class DependencyAnalyzer extends EventEmitter {
     }
 
     // Check resource dependencies
-    const unsatisfiedResource = resourceDependencies.filter(dep => !this._isDependencySatisfied(dep));
+    const unsatisfiedResource = resourceDependencies.filter(
+      (dep) => !this._isDependencySatisfied(dep),
+    );
     if (unsatisfiedResource.length > 0) {
       return ExecutionReadiness.WAITING_RESOURCES;
     }
 
     // Check soft dependencies
-    const unsatisfiedSoft = softDependencies.filter(dep => !this._isDependencySatisfied(dep));
+    const unsatisfiedSoft = softDependencies.filter(
+      (dep) => !this._isDependencySatisfied(dep),
+    );
     if (unsatisfiedSoft.length > 0) {
       return ExecutionReadiness.CONDITIONALLY_READY;
     }
@@ -886,12 +971,18 @@ export class DependencyAnalyzer extends EventEmitter {
   private _isDependencySatisfied(dependency: TaskDependency): boolean {
     // In a real implementation, this would check the actual task status
     // For now, we'll simulate based on task metadata
-    const sourceNode = this.dependencyGraph.getNodes().get(dependency.sourceTaskId);
-    return sourceNode?.status === 'completed' || sourceNode?.status === 'success';
+    const sourceNode = this.dependencyGraph
+      .getNodes()
+      .get(dependency.sourceTaskId);
+    return (
+      sourceNode?.status === 'completed' || sourceNode?.status === 'success'
+    );
   }
 
   private _isDependencyFailed(dependency: TaskDependency): boolean {
-    const sourceNode = this.dependencyGraph.getNodes().get(dependency.sourceTaskId);
+    const sourceNode = this.dependencyGraph
+      .getNodes()
+      .get(dependency.sourceTaskId);
     return sourceNode?.status === 'failed' || sourceNode?.status === 'error';
   }
 
@@ -900,7 +991,7 @@ export class DependencyAnalyzer extends EventEmitter {
 
     for (const group of parallelGroups) {
       if (group.includes(taskId)) {
-        return group.filter(id => id !== taskId);
+        return group.filter((id) => id !== taskId);
       }
     }
 
@@ -929,10 +1020,13 @@ export class DependencyAnalyzer extends EventEmitter {
     }
 
     // Estimate based on longest dependency chain
-    return new Date(Date.now() + (dependencies.incoming.length * 60000)); // 1 minute per dependency
+    return new Date(Date.now() + dependencies.incoming.length * 60000); // 1 minute per dependency
   }
 
-  private _assessRiskFactors(taskId: string, dependencies: { incoming: TaskDependency[]; outgoing: TaskDependency[] }): string[] {
+  private _assessRiskFactors(
+    taskId: string,
+    dependencies: { incoming: TaskDependency[]; outgoing: TaskDependency[] },
+  ): string[] {
     const risks: string[] = [];
 
     if (dependencies.incoming.length > 5) {
@@ -943,7 +1037,9 @@ export class DependencyAnalyzer extends EventEmitter {
       risks.push('Task is a critical bottleneck for many dependent tasks');
     }
 
-    const hardDependencies = dependencies.incoming.filter(dep => dep.type === DependencyType.HARD);
+    const hardDependencies = dependencies.incoming.filter(
+      (dep) => dep.type === DependencyType.HARD,
+    );
     if (hardDependencies.length > 3) {
       risks.push('Multiple hard dependencies increase blocking risk');
     }
@@ -951,19 +1047,29 @@ export class DependencyAnalyzer extends EventEmitter {
     return risks;
   }
 
-  private _generateRecommendations(taskId: string, readiness: ExecutionReadiness, risks: string[]): string[] {
+  private _generateRecommendations(
+    taskId: string,
+    readiness: ExecutionReadiness,
+    risks: string[],
+  ): string[] {
     const recommendations: string[] = [];
 
     if (readiness === ExecutionReadiness.BLOCKED) {
-      recommendations.push('Resolve blocking dependencies before attempting execution');
+      recommendations.push(
+        'Resolve blocking dependencies before attempting execution',
+      );
     }
 
     if (readiness === ExecutionReadiness.WAITING_RESOURCES) {
-      recommendations.push('Coordinate resource allocation with dependent tasks');
+      recommendations.push(
+        'Coordinate resource allocation with dependent tasks',
+      );
     }
 
     if (risks.length > 2) {
-      recommendations.push('Consider breaking down task into smaller, more manageable units');
+      recommendations.push(
+        'Consider breaking down task into smaller, more manageable units',
+      );
     }
 
     return recommendations;
@@ -1005,11 +1111,14 @@ export class DependencyAnalyzer extends EventEmitter {
     return maxDuration;
   }
 
-  private _identifyBottlenecks(executionPlan: SchedulingResult['executionPlan']): string[] {
+  private _identifyBottlenecks(
+    executionPlan: SchedulingResult['executionPlan'],
+  ): string[] {
     const bottlenecks: string[] = [];
 
     for (const phase of executionPlan) {
-      if (phase.tasks.length === 1 && phase.estimatedDuration > 300000) { // 5 minutes
+      if (phase.tasks.length === 1 && phase.estimatedDuration > 300000) {
+        // 5 minutes
         bottlenecks.push(...phase.tasks);
       }
     }
@@ -1017,22 +1126,31 @@ export class DependencyAnalyzer extends EventEmitter {
     return bottlenecks;
   }
 
-  private _suggestOptimizations(executionPlan: SchedulingResult['executionPlan'], bottlenecks: string[]): string[] {
+  private _suggestOptimizations(
+    executionPlan: SchedulingResult['executionPlan'],
+    bottlenecks: string[],
+  ): string[] {
     const optimizations: string[] = [];
 
     if (bottlenecks.length > 0) {
-      optimizations.push(`Consider parallelizing bottleneck tasks: ${bottlenecks.join(', ')}`);
+      optimizations.push(
+        `Consider parallelizing bottleneck tasks: ${bottlenecks.join(', ')}`,
+      );
     }
 
     const totalPhases = executionPlan.length;
     if (totalPhases > 10) {
-      optimizations.push('High phase count detected - consider consolidating sequential tasks');
+      optimizations.push(
+        'High phase count detected - consider consolidating sequential tasks',
+      );
     }
 
     return optimizations;
   }
 
-  private _assessScheduleRisks(executionPlan: SchedulingResult['executionPlan']): {
+  private _assessScheduleRisks(
+    executionPlan: SchedulingResult['executionPlan'],
+  ): {
     high: string[];
     medium: string[];
     low: string[];
@@ -1042,9 +1160,11 @@ export class DependencyAnalyzer extends EventEmitter {
     const low: string[] = [];
 
     for (const phase of executionPlan) {
-      if (phase.estimatedDuration > 600000) { // 10 minutes
+      if (phase.estimatedDuration > 600000) {
+        // 10 minutes
         high.push(`Phase ${phase.phase} has high duration risk`);
-      } else if (phase.estimatedDuration > 300000) { // 5 minutes
+      } else if (phase.estimatedDuration > 300000) {
+        // 5 minutes
         medium.push(`Phase ${phase.phase} has medium duration risk`);
       } else {
         low.push(`Phase ${phase.phase} has low duration risk`);
@@ -1054,7 +1174,9 @@ export class DependencyAnalyzer extends EventEmitter {
     return { high, medium, low };
   }
 
-  private _createCircularDependencyConflict(cycle: string[]): DependencyConflict {
+  private _createCircularDependencyConflict(
+    cycle: string[],
+  ): DependencyConflict {
     return {
       id: `circular-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type: 'circular',
@@ -1067,10 +1189,10 @@ export class DependencyAnalyzer extends EventEmitter {
           action: 'break_cycle',
           description: 'Remove one dependency to break the circular reference',
           impact: 'May affect task execution order',
-          confidence: 0.8
-        }
+          confidence: 0.8,
+        },
       ],
-      detectedAt: new Date()
+      detectedAt: new Date(),
     };
   }
 
@@ -1082,7 +1204,10 @@ export class DependencyAnalyzer extends EventEmitter {
       const target = cycle[i + 1];
 
       for (const dependency of this.dependencyGraph.getEdges().values()) {
-        if (dependency.sourceTaskId === source && dependency.targetTaskId === target) {
+        if (
+          dependency.sourceTaskId === source &&
+          dependency.targetTaskId === target
+        ) {
           dependencies.push(dependency);
         }
       }
@@ -1116,7 +1241,9 @@ export class DependencyAnalyzer extends EventEmitter {
     let bottleneckCount = 0;
 
     for (const node of this.dependencyGraph.getNodes().values()) {
-      const dependencies = this.dependencyGraph.getTaskDependencies(node.taskId);
+      const dependencies = this.dependencyGraph.getTaskDependencies(
+        node.taskId,
+      );
       if (dependencies.outgoing.length > 5) {
         bottleneckCount++;
       }
@@ -1157,10 +1284,13 @@ export class DependencyAnalyzer extends EventEmitter {
   }
 
   private _attemptAutoResolve(conflict: DependencyConflict): void {
-    this.logger.info(`Attempting automatic resolution of conflict: ${conflict.id}`, {
-      type: conflict.type,
-      severity: conflict.severity
-    });
+    this.logger.info(
+      `Attempting automatic resolution of conflict: ${conflict.id}`,
+      {
+        type: conflict.type,
+        severity: conflict.severity,
+      },
+    );
 
     // Implementation would depend on conflict type
     // For now, just emit an event

@@ -16,7 +16,11 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { AutonomousTask, RegisteredAgent, TaskPriority } from './autonomousTaskIntegrator.js';
+import type {
+  AutonomousTask,
+  RegisteredAgent,
+  TaskPriority,
+} from './autonomousTaskIntegrator.js';
 import type { AgentMetrics } from './agentCoordinator.js';
 import type { AgentRegistry, AgentServiceInfo } from './agentRegistry.js';
 
@@ -24,15 +28,26 @@ import type { AgentRegistry, AgentServiceInfo } from './agentRegistry.js';
 export interface LoadBalancingStrategy {
   name: string;
   description: string;
-  selectAgent: (availableAgents: AgentServiceInfo[], task: AutonomousTask, context: LoadBalancingContext) => AgentServiceInfo | null;
+  selectAgent: (
+    availableAgents: AgentServiceInfo[],
+    task: AutonomousTask,
+    context: LoadBalancingContext,
+  ) => AgentServiceInfo | null;
   weight?: number;
   config?: Record<string, unknown>;
 }
 
 export interface LoadBalancingContext {
   currentLoad: Map<string, number>;
-  recentAssignments: Array<{ agentId: string; taskId: string; timestamp: Date }>;
-  performanceHistory: Map<string, Array<{ timestamp: Date; successRate: number; responseTime: number }>>;
+  recentAssignments: Array<{
+    agentId: string;
+    taskId: string;
+    timestamp: Date;
+  }>;
+  performanceHistory: Map<
+    string,
+    Array<{ timestamp: Date; successRate: number; responseTime: number }>
+  >;
   circuitBreakerStates: Map<string, CircuitBreakerState>;
 }
 
@@ -63,7 +78,12 @@ export interface BalancingDecision {
 }
 
 export interface LoadBalancingEvent {
-  type: 'task_assigned' | 'load_redistributed' | 'circuit_breaker_opened' | 'agent_overloaded' | 'scaling_recommendation';
+  type:
+    | 'task_assigned'
+    | 'load_redistributed'
+    | 'circuit_breaker_opened'
+    | 'agent_overloaded'
+    | 'scaling_recommendation';
   timestamp: Date;
   data: Record<string, unknown>;
 }
@@ -110,18 +130,24 @@ export class LoadBalancer extends EventEmitter {
 
     const strategy = this.strategies.get(this.currentStrategy);
     if (!strategy) {
-      throw new Error(`Unknown load balancing strategy: ${this.currentStrategy}`);
+      throw new Error(
+        `Unknown load balancing strategy: ${this.currentStrategy}`,
+      );
     }
 
-    const selectedAgent = strategy.selectAgent(availableAgents, task, this.context);
+    const selectedAgent = strategy.selectAgent(
+      availableAgents,
+      task,
+      this.context,
+    );
     if (!selectedAgent) {
       return null;
     }
 
     // Calculate alternatives for comparison
     const alternatives = availableAgents
-      .filter(agent => agent.agent.id !== selectedAgent.agent.id)
-      .map(agent => ({
+      .filter((agent) => agent.agent.id !== selectedAgent.agent.id)
+      .map((agent) => ({
         agent,
         score: this.calculateAgentScore(agent, task),
       }))
@@ -131,7 +157,11 @@ export class LoadBalancer extends EventEmitter {
     const decision: BalancingDecision = {
       selectedAgent,
       strategy: this.currentStrategy,
-      confidence: this.calculateConfidence(selectedAgent, availableAgents, task),
+      confidence: this.calculateConfidence(
+        selectedAgent,
+        availableAgents,
+        task,
+      ),
       alternatives,
       reasonCode: this.generateReasonCode(selectedAgent, task, strategy),
       timestamp: new Date(),
@@ -159,7 +189,9 @@ export class LoadBalancer extends EventEmitter {
 
     this.emit('task_assigned', event);
 
-    console.log(`⚖️ Load balancer assigned task ${task.id} to agent ${selectedAgent.agent.id} (strategy: ${this.currentStrategy}, confidence: ${(decision.confidence * 100).toFixed(1)}%)`);
+    console.log(
+      `⚖️ Load balancer assigned task ${task.id} to agent ${selectedAgent.agent.id} (strategy: ${this.currentStrategy}, confidence: ${(decision.confidence * 100).toFixed(1)}%)`,
+    );
 
     return decision;
   }
@@ -171,24 +203,38 @@ export class LoadBalancer extends EventEmitter {
     const allAgents = this.agentRegistry.getAllAgents();
     const loadDistribution = this.analyzeLoadDistribution(allAgents);
 
-    const overloadedAgents = loadDistribution.filter(dist => dist.recommendation === 'decrease');
-    const underloadedAgents = loadDistribution.filter(dist => dist.recommendation === 'increase');
+    const overloadedAgents = loadDistribution.filter(
+      (dist) => dist.recommendation === 'decrease',
+    );
+    const underloadedAgents = loadDistribution.filter(
+      (dist) => dist.recommendation === 'increase',
+    );
 
     if (overloadedAgents.length === 0 || underloadedAgents.length === 0) {
       return;
     }
 
-    const redistributions: Array<{ from: string; to: string; taskCount: number }> = [];
+    const redistributions: Array<{
+      from: string;
+      to: string;
+      taskCount: number;
+    }> = [];
 
     for (const overloaded of overloadedAgents) {
       const targetLoad = overloaded.capacity * 0.7; // Target 70% capacity
-      const tasksToMove = Math.floor((overloaded.currentLoad - targetLoad) * 10); // Rough estimation
+      const tasksToMove = Math.floor(
+        (overloaded.currentLoad - targetLoad) * 10,
+      ); // Rough estimation
 
       for (const underloaded of underloadedAgents) {
         if (tasksToMove <= 0) break;
 
-        const availableCapacity = underloaded.capacity - underloaded.currentLoad;
-        const tasksToTransfer = Math.min(tasksToMove, Math.floor(availableCapacity * 5));
+        const availableCapacity =
+          underloaded.capacity - underloaded.currentLoad;
+        const tasksToTransfer = Math.min(
+          tasksToMove,
+          Math.floor(availableCapacity * 5),
+        );
 
         if (tasksToTransfer > 0) {
           redistributions.push({
@@ -213,9 +259,13 @@ export class LoadBalancer extends EventEmitter {
 
       this.emit('load_redistributed', event);
 
-      console.log(`🔄 Load redistribution: ${redistributions.length} redistributions planned`);
+      console.log(
+        `🔄 Load redistribution: ${redistributions.length} redistributions planned`,
+      );
       for (const redist of redistributions) {
-        console.log(`   ${redist.taskCount} tasks from ${redist.from} to ${redist.to}`);
+        console.log(
+          `   ${redist.taskCount} tasks from ${redist.from} to ${redist.to}`,
+        );
       }
     }
   }
@@ -223,11 +273,14 @@ export class LoadBalancer extends EventEmitter {
   /**
    * Update agent performance metrics
    */
-  updateAgentPerformance(agentId: string, metrics: {
-    success: boolean;
-    responseTime: number;
-    timestamp: Date;
-  }): void {
+  updateAgentPerformance(
+    agentId: string,
+    metrics: {
+      success: boolean;
+      responseTime: number;
+      timestamp: Date;
+    },
+  ): void {
     // Update circuit breaker state
     this.updateCircuitBreaker(agentId, metrics.success, metrics.timestamp);
 
@@ -248,7 +301,7 @@ export class LoadBalancer extends EventEmitter {
     const cutoff = new Date(Date.now() - this.performanceWindow);
     this.context.performanceHistory.set(
       agentId,
-      history.filter(entry => entry.timestamp > cutoff)
+      history.filter((entry) => entry.timestamp > cutoff),
     );
   }
 
@@ -268,7 +321,7 @@ export class LoadBalancer extends EventEmitter {
    * Get available strategies
    */
   getAvailableStrategies(): Array<{ name: string; description: string }> {
-    return Array.from(this.strategies.values()).map(strategy => ({
+    return Array.from(this.strategies.values()).map((strategy) => ({
       name: strategy.name,
       description: strategy.description,
     }));
@@ -293,18 +346,25 @@ export class LoadBalancer extends EventEmitter {
     };
   } {
     const recentDecisions = this.balancingHistory.slice(-100);
-    const averageConfidence = recentDecisions.length > 0
-      ? recentDecisions.reduce((sum, decision) => sum + decision.confidence, 0) / recentDecisions.length
-      : 0;
+    const averageConfidence =
+      recentDecisions.length > 0
+        ? recentDecisions.reduce(
+            (sum, decision) => sum + decision.confidence,
+            0,
+          ) / recentDecisions.length
+        : 0;
 
     const strategyDistribution: Record<string, number> = {};
     for (const decision of recentDecisions) {
-      strategyDistribution[decision.strategy] = (strategyDistribution[decision.strategy] || 0) + 1;
+      strategyDistribution[decision.strategy] =
+        (strategyDistribution[decision.strategy] || 0) + 1;
     }
 
     const circuitBreakerStats = { open: 0, halfOpen: 0, closed: 0 };
     for (const state of this.context.circuitBreakerStates.values()) {
-      circuitBreakerStats[state.state.replace('-', '') as 'open' | 'halfOpen' | 'closed']++;
+      circuitBreakerStats[
+        state.state.replace('-', '') as 'open' | 'halfOpen' | 'closed'
+      ]++;
     }
 
     // Calculate performance metrics
@@ -327,8 +387,10 @@ export class LoadBalancer extends EventEmitter {
       strategyDistribution,
       circuitBreakerStats,
       performanceMetrics: {
-        averageResponseTime: totalEntries > 0 ? totalResponseTime / totalEntries : 0,
-        overallSuccessRate: totalEntries > 0 ? totalSuccessRate / totalEntries : 0,
+        averageResponseTime:
+          totalEntries > 0 ? totalResponseTime / totalEntries : 0,
+        overallSuccessRate:
+          totalEntries > 0 ? totalSuccessRate / totalEntries : 0,
       },
     };
   }
@@ -360,11 +422,15 @@ export class LoadBalancer extends EventEmitter {
       name: 'round-robin',
       description: 'Distributes tasks evenly across all available agents',
       selectAgent: (agents, task, context) => {
-        const sortedAgents = agents.sort((a, b) => a.agent.id.localeCompare(b.agent.id));
+        const sortedAgents = agents.sort((a, b) =>
+          a.agent.id.localeCompare(b.agent.id),
+        );
         const lastAssignments = context.recentAssignments.slice(-agents.length);
 
         for (const agent of sortedAgents) {
-          const recentAssignment = lastAssignments.find(a => a.agentId === agent.agent.id);
+          const recentAssignment = lastAssignments.find(
+            (a) => a.agentId === agent.agent.id,
+          );
           if (!recentAssignment) {
             return agent;
           }
@@ -378,7 +444,10 @@ export class LoadBalancer extends EventEmitter {
     this.strategies.set('least-loaded', {
       name: 'least-loaded',
       description: 'Assigns tasks to the agent with the lowest current load',
-      selectAgent: (agents, task, context) => agents.sort((a, b) => a.metrics.currentLoad - b.metrics.currentLoad)[0] || null,
+      selectAgent: (agents, task, context) =>
+        agents.sort(
+          (a, b) => a.metrics.currentLoad - b.metrics.currentLoad,
+        )[0] || null,
     });
 
     // Performance-based strategy
@@ -386,7 +455,7 @@ export class LoadBalancer extends EventEmitter {
       name: 'performance-based',
       description: 'Assigns tasks based on agent performance metrics',
       selectAgent: (agents, task, context) => {
-        const scored = agents.map(agent => ({
+        const scored = agents.map((agent) => ({
           agent,
           score: this.calculatePerformanceScore(agent, task, context),
         }));
@@ -399,28 +468,38 @@ export class LoadBalancer extends EventEmitter {
     // Adaptive strategy (hybrid approach)
     this.strategies.set('adaptive', {
       name: 'adaptive',
-      description: 'Adapts strategy based on current conditions and task requirements',
+      description:
+        'Adapts strategy based on current conditions and task requirements',
       selectAgent: (agents, task, context) => {
         // Use different strategies based on conditions
         if (task.priority === 'critical') {
-          return this.strategies.get('performance-based')!.selectAgent(agents, task, context);
+          return this.strategies
+            .get('performance-based')!
+            .selectAgent(agents, task, context);
         }
 
-        const highLoadAgents = agents.filter(a => a.metrics.currentLoad > 0.8);
+        const highLoadAgents = agents.filter(
+          (a) => a.metrics.currentLoad > 0.8,
+        );
         if (highLoadAgents.length > agents.length * 0.5) {
-          return this.strategies.get('least-loaded')!.selectAgent(agents, task, context);
+          return this.strategies
+            .get('least-loaded')!
+            .selectAgent(agents, task, context);
         }
 
-        return this.strategies.get('performance-based')!.selectAgent(agents, task, context);
+        return this.strategies
+          .get('performance-based')!
+          .selectAgent(agents, task, context);
       },
     });
 
     // Weighted strategy
     this.strategies.set('weighted', {
       name: 'weighted',
-      description: 'Assigns tasks based on weighted scoring of multiple factors',
+      description:
+        'Assigns tasks based on weighted scoring of multiple factors',
       selectAgent: (agents, task, context) => {
-        const scored = agents.map(agent => ({
+        const scored = agents.map((agent) => ({
           agent,
           score: this.calculateWeightedScore(agent, task, context),
         }));
@@ -431,9 +510,11 @@ export class LoadBalancer extends EventEmitter {
     });
   }
 
-  private async getAvailableAgents(task: AutonomousTask): Promise<AgentServiceInfo[]> {
+  private async getAvailableAgents(
+    task: AutonomousTask,
+  ): Promise<AgentServiceInfo[]> {
     const query = {
-      capabilities: task.requiredCapabilities.map(cap => ({
+      capabilities: task.requiredCapabilities.map((cap) => ({
         capability: cap,
         required: true,
         priority: 1,
@@ -445,13 +526,22 @@ export class LoadBalancer extends EventEmitter {
     const discoveredAgents = await this.agentRegistry.discoverAgents(query);
 
     // Filter out agents with open circuit breakers
-    return discoveredAgents.filter(agent => {
-      const circuitState = this.context.circuitBreakerStates.get(agent.agent.id);
-      return !circuitState || circuitState.state !== 'open' || this.shouldRetryAgent(circuitState);
+    return discoveredAgents.filter((agent) => {
+      const circuitState = this.context.circuitBreakerStates.get(
+        agent.agent.id,
+      );
+      return (
+        !circuitState ||
+        circuitState.state !== 'open' ||
+        this.shouldRetryAgent(circuitState)
+      );
     });
   }
 
-  private calculateAgentScore(agent: AgentServiceInfo, task: AutonomousTask): number {
+  private calculateAgentScore(
+    agent: AgentServiceInfo,
+    task: AutonomousTask,
+  ): number {
     let score = 0;
 
     // Performance factor (0-40 points)
@@ -462,13 +552,16 @@ export class LoadBalancer extends EventEmitter {
 
     // Response time factor (0-20 points)
     const maxResponseTime = 10000; // 10 seconds
-    const responseScore = Math.max(0, (maxResponseTime - agent.metrics.averageExecutionTime) / maxResponseTime);
+    const responseScore = Math.max(
+      0,
+      (maxResponseTime - agent.metrics.averageExecutionTime) / maxResponseTime,
+    );
     score += responseScore * 20;
 
     // Capability match factor (0-10 points)
     const requiredCaps = task.requiredCapabilities.length;
-    const matchedCaps = task.requiredCapabilities.filter(cap =>
-      agent.agent.capabilities.includes(cap)
+    const matchedCaps = task.requiredCapabilities.filter((cap) =>
+      agent.agent.capabilities.includes(cap),
     ).length;
 
     if (requiredCaps > 0) {
@@ -480,7 +573,11 @@ export class LoadBalancer extends EventEmitter {
     return score;
   }
 
-  private calculatePerformanceScore(agent: AgentServiceInfo, task: AutonomousTask, context: LoadBalancingContext): number {
+  private calculatePerformanceScore(
+    agent: AgentServiceInfo,
+    task: AutonomousTask,
+    context: LoadBalancingContext,
+  ): number {
     const history = context.performanceHistory.get(agent.agent.id) || [];
 
     if (history.length === 0) {
@@ -488,8 +585,12 @@ export class LoadBalancer extends EventEmitter {
     }
 
     const recentEntries = history.slice(-10); // Last 10 entries
-    const avgSuccessRate = recentEntries.reduce((sum, entry) => sum + entry.successRate, 0) / recentEntries.length;
-    const avgResponseTime = recentEntries.reduce((sum, entry) => sum + entry.responseTime, 0) / recentEntries.length;
+    const avgSuccessRate =
+      recentEntries.reduce((sum, entry) => sum + entry.successRate, 0) /
+      recentEntries.length;
+    const avgResponseTime =
+      recentEntries.reduce((sum, entry) => sum + entry.responseTime, 0) /
+      recentEntries.length;
 
     let score = avgSuccessRate * 60;
     score += Math.max(0, (5000 - avgResponseTime) / 5000) * 30; // Bonus for fast response
@@ -498,7 +599,11 @@ export class LoadBalancer extends EventEmitter {
     return score;
   }
 
-  private calculateWeightedScore(agent: AgentServiceInfo, task: AutonomousTask, context: LoadBalancingContext): number {
+  private calculateWeightedScore(
+    agent: AgentServiceInfo,
+    task: AutonomousTask,
+    context: LoadBalancingContext,
+  ): number {
     const weights = {
       performance: 0.4,
       load: 0.3,
@@ -515,37 +620,56 @@ export class LoadBalancer extends EventEmitter {
     score += (1 - agent.metrics.currentLoad) * 100 * weights.load;
 
     // Capability component
-    const capabilityMatch = task.requiredCapabilities.length > 0
-      ? task.requiredCapabilities.filter(cap => agent.agent.capabilities.includes(cap)).length / task.requiredCapabilities.length
-      : 1;
+    const capabilityMatch =
+      task.requiredCapabilities.length > 0
+        ? task.requiredCapabilities.filter((cap) =>
+            agent.agent.capabilities.includes(cap),
+          ).length / task.requiredCapabilities.length
+        : 1;
     score += capabilityMatch * 100 * weights.capability;
 
     // Historical component
     const history = context.performanceHistory.get(agent.agent.id) || [];
-    const historyScore = history.length > 0
-      ? history.slice(-5).reduce((sum, entry) => sum + entry.successRate, 0) / Math.min(5, history.length)
-      : 0.5;
+    const historyScore =
+      history.length > 0
+        ? history.slice(-5).reduce((sum, entry) => sum + entry.successRate, 0) /
+          Math.min(5, history.length)
+        : 0.5;
     score += historyScore * 100 * weights.history;
 
     return score;
   }
 
-  private calculateConfidence(selected: AgentServiceInfo, allAgents: AgentServiceInfo[], task: AutonomousTask): number {
+  private calculateConfidence(
+    selected: AgentServiceInfo,
+    allAgents: AgentServiceInfo[],
+    task: AutonomousTask,
+  ): number {
     if (allAgents.length <= 1) {
       return 1.0;
     }
 
     const selectedScore = this.calculateAgentScore(selected, task);
-    const scores = allAgents.map(agent => this.calculateAgentScore(agent, task));
+    const scores = allAgents.map((agent) =>
+      this.calculateAgentScore(agent, task),
+    );
     const maxScore = Math.max(...scores);
-    const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const avgScore =
+      scores.reduce((sum, score) => sum + score, 0) / scores.length;
 
     // Confidence based on how much better the selected agent is compared to average
-    const confidence = maxScore > avgScore ? (selectedScore - avgScore) / (maxScore - avgScore) : 0.5;
+    const confidence =
+      maxScore > avgScore
+        ? (selectedScore - avgScore) / (maxScore - avgScore)
+        : 0.5;
     return Math.max(0.1, Math.min(1.0, confidence));
   }
 
-  private generateReasonCode(agent: AgentServiceInfo, task: AutonomousTask, strategy: LoadBalancingStrategy): string {
+  private generateReasonCode(
+    agent: AgentServiceInfo,
+    task: AutonomousTask,
+    strategy: LoadBalancingStrategy,
+  ): string {
     const reasons = [];
 
     if (agent.metrics.currentLoad < 0.3) {
@@ -556,7 +680,11 @@ export class LoadBalancer extends EventEmitter {
       reasons.push('high-performance');
     }
 
-    if (task.requiredCapabilities.every(cap => agent.agent.capabilities.includes(cap))) {
+    if (
+      task.requiredCapabilities.every((cap) =>
+        agent.agent.capabilities.includes(cap),
+      )
+    ) {
       reasons.push('capability-match');
     }
 
@@ -569,7 +697,10 @@ export class LoadBalancer extends EventEmitter {
     return reasons.join(',');
   }
 
-  private async recordAssignment(decision: BalancingDecision, task: AutonomousTask): Promise<void> {
+  private async recordAssignment(
+    decision: BalancingDecision,
+    task: AutonomousTask,
+  ): Promise<void> {
     const assignment = {
       agentId: decision.selectedAgent.agent.id,
       taskId: task.id,
@@ -580,14 +711,20 @@ export class LoadBalancer extends EventEmitter {
 
     // Keep only recent assignments
     const cutoff = new Date(Date.now() - this.performanceWindow);
-    this.context.recentAssignments = this.context.recentAssignments.filter(a => a.timestamp > cutoff);
+    this.context.recentAssignments = this.context.recentAssignments.filter(
+      (a) => a.timestamp > cutoff,
+    );
 
     // Update current load
     const currentLoad = this.context.currentLoad.get(assignment.agentId) || 0;
     this.context.currentLoad.set(assignment.agentId, currentLoad + 1);
   }
 
-  private updateCircuitBreaker(agentId: string, success: boolean, timestamp: Date): void {
+  private updateCircuitBreaker(
+    agentId: string,
+    success: boolean,
+    timestamp: Date,
+  ): void {
     let state = this.context.circuitBreakerStates.get(agentId);
     if (!state) {
       state = {
@@ -601,20 +738,30 @@ export class LoadBalancer extends EventEmitter {
     if (success) {
       state.successCount++;
 
-      if (state.state === 'half-open' && state.successCount >= this.circuitBreakerConfig.halfOpenMaxRequests) {
+      if (
+        state.state === 'half-open' &&
+        state.successCount >= this.circuitBreakerConfig.halfOpenMaxRequests
+      ) {
         state.state = 'closed';
         state.failureCount = 0;
         state.successCount = 0;
-        console.log(`🔄 Circuit breaker for agent ${agentId} closed (recovered)`);
+        console.log(
+          `🔄 Circuit breaker for agent ${agentId} closed (recovered)`,
+        );
       }
     } else {
       state.failureCount++;
       state.lastFailure = timestamp;
       state.successCount = 0;
 
-      if (state.state === 'closed' && state.failureCount >= this.circuitBreakerConfig.failureThreshold) {
+      if (
+        state.state === 'closed' &&
+        state.failureCount >= this.circuitBreakerConfig.failureThreshold
+      ) {
         state.state = 'open';
-        state.nextRetry = new Date(timestamp.getTime() + this.circuitBreakerConfig.timeoutMs);
+        state.nextRetry = new Date(
+          timestamp.getTime() + this.circuitBreakerConfig.timeoutMs,
+        );
 
         const event: LoadBalancingEvent = {
           type: 'circuit_breaker_opened',
@@ -623,10 +770,14 @@ export class LoadBalancer extends EventEmitter {
         };
 
         this.emit('circuit_breaker_opened', event);
-        console.warn(`⚠️ Circuit breaker opened for agent ${agentId} (failures: ${state.failureCount})`);
+        console.warn(
+          `⚠️ Circuit breaker opened for agent ${agentId} (failures: ${state.failureCount})`,
+        );
       } else if (state.state === 'half-open') {
         state.state = 'open';
-        state.nextRetry = new Date(timestamp.getTime() + this.circuitBreakerConfig.timeoutMs);
+        state.nextRetry = new Date(
+          timestamp.getTime() + this.circuitBreakerConfig.timeoutMs,
+        );
       }
     }
 
@@ -648,19 +799,22 @@ export class LoadBalancer extends EventEmitter {
     return false;
   }
 
-  private analyzeLoadDistribution(agents: AgentServiceInfo[]): LoadDistribution[] {
-    return agents.map(agent => {
+  private analyzeLoadDistribution(
+    agents: AgentServiceInfo[],
+  ): LoadDistribution[] {
+    return agents.map((agent) => {
       const currentLoad = agent.metrics.currentLoad;
       const capacity = 1.0; // Normalized capacity
       const efficiency = agent.metrics.successRate;
 
       // Predict load based on recent trends
-      const recentAssignments = this.context.recentAssignments.filter(a =>
-        a.agentId === agent.agent.id &&
-        a.timestamp > new Date(Date.now() - 60000) // Last minute
+      const recentAssignments = this.context.recentAssignments.filter(
+        (a) =>
+          a.agentId === agent.agent.id &&
+          a.timestamp > new Date(Date.now() - 60000), // Last minute
       );
 
-      const predictedLoad = currentLoad + (recentAssignments.length * 0.1);
+      const predictedLoad = currentLoad + recentAssignments.length * 0.1;
 
       let recommendation: LoadDistribution['recommendation'] = 'maintain';
 
@@ -693,11 +847,13 @@ export class LoadBalancer extends EventEmitter {
     const cutoff = new Date(Date.now() - this.performanceWindow);
 
     // Clean up recent assignments
-    this.context.recentAssignments = this.context.recentAssignments.filter(a => a.timestamp > cutoff);
+    this.context.recentAssignments = this.context.recentAssignments.filter(
+      (a) => a.timestamp > cutoff,
+    );
 
     // Clean up performance history
     for (const [agentId, history] of this.context.performanceHistory) {
-      const filtered = history.filter(entry => entry.timestamp > cutoff);
+      const filtered = history.filter((entry) => entry.timestamp > cutoff);
       if (filtered.length === 0) {
         this.context.performanceHistory.delete(agentId);
       } else {

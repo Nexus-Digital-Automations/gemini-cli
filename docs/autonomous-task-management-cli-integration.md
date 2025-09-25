@@ -292,6 +292,7 @@ gemini autonomous metrics --export --format json
 ### Extensibility
 
 The CLI integration is designed for extensibility:
+
 - Plugin architecture for custom commands
 - API integration points for third-party tools
 - Configuration hooks for advanced customization

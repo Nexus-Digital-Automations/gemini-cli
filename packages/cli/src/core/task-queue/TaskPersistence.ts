@@ -8,9 +8,16 @@ import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import type { TaskMetadata, TaskPriority} from '../../monitoring/TaskStatusMonitor.js';
+import type {
+  TaskMetadata,
+  TaskPriority,
+} from '../../monitoring/TaskStatusMonitor.js';
 import { TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
-import type { AgentCapability, TaskAssignment, TaskDefinition } from './TaskQueue.js';
+import type {
+  AgentCapability,
+  TaskAssignment,
+  TaskDefinition,
+} from './TaskQueue.js';
 
 /**
  * Persistent storage configuration
@@ -116,7 +123,8 @@ export class TaskPersistence extends EventEmitter {
 
     // Set default configuration
     this.config = {
-      storageDir: config.storageDir || join(process.cwd(), '.gemini-cli', 'task-queue'),
+      storageDir:
+        config.storageDir || join(process.cwd(), '.gemini-cli', 'task-queue'),
       backupRetentionDays: config.backupRetentionDays || 7,
       compressionEnabled: config.compressionEnabled ?? true,
       encryptionKey: config.encryptionKey,
@@ -222,7 +230,6 @@ export class TaskPersistence extends EventEmitter {
         tasks: queueState.tasks.registry.length,
         agents: queueState.agents.registry.length,
       });
-
     } catch (error) {
       this.logger.error('Failed to persist queue state', { error });
       this.emit('persistence:error', { operation: 'persist', error });
@@ -263,13 +270,13 @@ export class TaskPersistence extends EventEmitter {
 
       // Attempt recovery from primary file
       let recoveredState = await this.attemptRecoveryFromFile(
-        join(this.storageDir, this.fileNames.currentState)
+        join(this.storageDir, this.fileNames.currentState),
       );
 
       if (!recoveredState) {
         // Try backup file
         recoveredState = await this.attemptRecoveryFromFile(
-          join(this.storageDir, this.fileNames.backup)
+          join(this.storageDir, this.fileNames.backup),
         );
 
         if (recoveredState) {
@@ -310,12 +317,10 @@ export class TaskPersistence extends EventEmitter {
           fallbackUsed: recoveryInfo.fallbackUsed,
           duration: Date.now() - startTime,
         });
-
       } else {
         recoveryInfo.errors.push('All recovery attempts failed');
         this.logger.error('Failed to recover queue state from any source');
       }
-
     } catch (error) {
       recoveryInfo.errors.push(`Recovery error: ${error}`);
       this.logger.error('Queue state recovery failed', { error });
@@ -331,7 +336,10 @@ export class TaskPersistence extends EventEmitter {
    */
   async createBackup(label?: string): Promise<string> {
     try {
-      const currentStateFile = join(this.storageDir, this.fileNames.currentState);
+      const currentStateFile = join(
+        this.storageDir,
+        this.fileNames.currentState,
+      );
 
       if (!(await this.fileExists(currentStateFile))) {
         throw new Error('No current state file to backup');
@@ -356,7 +364,6 @@ export class TaskPersistence extends EventEmitter {
       });
 
       return backupPath;
-
     } catch (error) {
       this.logger.error('Failed to create backup', { error, label });
       throw error;
@@ -366,15 +373,17 @@ export class TaskPersistence extends EventEmitter {
   /**
    * List available backups with metadata
    */
-  async listBackups(): Promise<Array<{
-    filename: string;
-    path: string;
-    size: number;
-    created: Date;
-    valid: boolean;
-    tasksCount?: number;
-    agentsCount?: number;
-  }>> {
+  async listBackups(): Promise<
+    Array<{
+      filename: string;
+      path: string;
+      size: number;
+      created: Date;
+      valid: boolean;
+      tasksCount?: number;
+      agentsCount?: number;
+    }>
+  > {
     try {
       const backupFiles = await this.getBackupFiles();
       const backupInfo = [];
@@ -409,8 +418,9 @@ export class TaskPersistence extends EventEmitter {
         });
       }
 
-      return backupInfo.sort((a, b) => b.created.getTime() - a.created.getTime());
-
+      return backupInfo.sort(
+        (a, b) => b.created.getTime() - a.created.getTime(),
+      );
     } catch (error) {
       this.logger.error('Failed to list backups', { error });
       return [];
@@ -450,7 +460,6 @@ export class TaskPersistence extends EventEmitter {
       });
 
       return recoveredState;
-
     } catch (error) {
       this.logger.error('Failed to restore from backup', { backupPath, error });
       throw error;
@@ -489,7 +498,10 @@ export class TaskPersistence extends EventEmitter {
       healthStatus.storageAccessible = true;
 
       // Check current state validity
-      const currentStateFile = join(this.storageDir, this.fileNames.currentState);
+      const currentStateFile = join(
+        this.storageDir,
+        this.fileNames.currentState,
+      );
       if (await this.fileExists(currentStateFile)) {
         try {
           const content = await fs.readFile(currentStateFile, 'utf8');
@@ -523,7 +535,6 @@ export class TaskPersistence extends EventEmitter {
       if (timeSinceLastSync > this.config.syncInterval * 5) {
         healthStatus.issues.push('Last sync was too long ago');
       }
-
     } catch (error) {
       healthStatus.healthy = false;
       healthStatus.issues.push(`Health check failed: ${error}`);
@@ -581,11 +592,18 @@ export class TaskPersistence extends EventEmitter {
   }
 
   private async serializeState(state: SerializableQueueState): Promise<string> {
-    let serialized = JSON.stringify(state, null, this.config.compressionEnabled ? 0 : 2);
+    let serialized = JSON.stringify(
+      state,
+      null,
+      this.config.compressionEnabled ? 0 : 2,
+    );
 
     // Add encryption if configured
     if (this.config.encryptionKey) {
-      serialized = await this.encryptData(serialized, this.config.encryptionKey);
+      serialized = await this.encryptData(
+        serialized,
+        this.config.encryptionKey,
+      );
     }
 
     // Add compression if enabled
@@ -596,7 +614,9 @@ export class TaskPersistence extends EventEmitter {
     return serialized;
   }
 
-  private async deserializeState(data: string): Promise<SerializableQueueState> {
+  private async deserializeState(
+    data: string,
+  ): Promise<SerializableQueueState> {
     let processed = data;
 
     // Decompress if needed
@@ -612,7 +632,9 @@ export class TaskPersistence extends EventEmitter {
     return JSON.parse(processed) as SerializableQueueState;
   }
 
-  private async validateStateIntegrity(state: SerializableQueueState): Promise<void> {
+  private async validateStateIntegrity(
+    state: SerializableQueueState,
+  ): Promise<void> {
     if (!state.version || !state.timestamp || !state.tasks || !state.agents) {
       throw new Error('Invalid state structure');
     }
@@ -648,7 +670,7 @@ export class TaskPersistence extends EventEmitter {
       await fs.writeFile(lockFile, JSON.stringify(lockData), { flag: 'wx' });
     } catch (error) {
       // Lock already exists, wait and retry
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       throw new Error('Failed to acquire lock');
     }
   }
@@ -662,14 +684,20 @@ export class TaskPersistence extends EventEmitter {
     }
   }
 
-  private async verifyWrittenData(filePath: string, originalState: SerializableQueueState): Promise<void> {
+  private async verifyWrittenData(
+    filePath: string,
+    originalState: SerializableQueueState,
+  ): Promise<void> {
     try {
       const writtenData = await fs.readFile(filePath, 'utf8');
       const parsedState = await this.deserializeState(writtenData);
       await this.validateStateIntegrity(parsedState);
 
       // Basic consistency check
-      if (parsedState.tasks.registry.length !== originalState.tasks.registry.length) {
+      if (
+        parsedState.tasks.registry.length !==
+        originalState.tasks.registry.length
+      ) {
         throw new Error('Written data does not match original');
       }
     } catch (error) {
@@ -677,7 +705,9 @@ export class TaskPersistence extends EventEmitter {
     }
   }
 
-  private async createVersionedBackup(state: SerializableQueueState): Promise<void> {
+  private async createVersionedBackup(
+    state: SerializableQueueState,
+  ): Promise<void> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupPath = join(this.backupDir, `queue-state-${timestamp}.json`);
 
@@ -727,7 +757,9 @@ export class TaskPersistence extends EventEmitter {
     return candidates;
   }
 
-  private async attemptRecoveryFromFile(filePath: string): Promise<SerializableQueueState | null> {
+  private async attemptRecoveryFromFile(
+    filePath: string,
+  ): Promise<SerializableQueueState | null> {
     try {
       if (!(await this.fileExists(filePath))) {
         return null;
@@ -744,7 +776,9 @@ export class TaskPersistence extends EventEmitter {
     }
   }
 
-  private async validateRecoveredState(state: SerializableQueueState): Promise<void> {
+  private async validateRecoveredState(
+    state: SerializableQueueState,
+  ): Promise<void> {
     // Additional validation for recovered state
     await this.validateStateIntegrity(state);
 
@@ -765,21 +799,22 @@ export class TaskPersistence extends EventEmitter {
     try {
       const files = await fs.readdir(this.backupDir);
       const backupFiles = files
-        .filter(file => file.startsWith('queue-state-') && file.endsWith('.json'))
-        .map(file => join(this.backupDir, file));
+        .filter(
+          (file) => file.startsWith('queue-state-') && file.endsWith('.json'),
+        )
+        .map((file) => join(this.backupDir, file));
 
       // Sort by creation time (newest first)
       const fileStats = await Promise.all(
-        backupFiles.map(async file => ({
+        backupFiles.map(async (file) => ({
           file,
           mtime: (await fs.stat(file)).mtime,
-        }))
+        })),
       );
 
       return fileStats
         .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())
         .map(({ file }) => file);
-
     } catch {
       return [];
     }
@@ -789,25 +824,35 @@ export class TaskPersistence extends EventEmitter {
     try {
       const backups = await this.listBackups();
       const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - this.config.backupRetentionDays);
+      cutoffDate.setDate(
+        cutoffDate.getDate() - this.config.backupRetentionDays,
+      );
 
-      const oldBackups = backups.filter(backup => backup.created < cutoffDate);
+      const oldBackups = backups.filter(
+        (backup) => backup.created < cutoffDate,
+      );
 
       for (const backup of oldBackups) {
         try {
           await fs.unlink(backup.path);
           this.logger.debug('Deleted old backup', { path: backup.path });
         } catch (error) {
-          this.logger.warning('Failed to delete old backup', { path: backup.path, error });
+          this.logger.warning('Failed to delete old backup', {
+            path: backup.path,
+            error,
+          });
         }
       }
-
     } catch (error) {
       this.logger.error('Failed to clean old backups', { error });
     }
   }
 
-  private async calculateDiskUsage(): Promise<{ total: number; backups: number; temp: number }> {
+  private async calculateDiskUsage(): Promise<{
+    total: number;
+    backups: number;
+    temp: number;
+  }> {
     const usage = { total: 0, backups: 0, temp: 0 };
 
     try {

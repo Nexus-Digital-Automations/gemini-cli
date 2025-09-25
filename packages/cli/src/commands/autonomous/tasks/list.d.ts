@@ -6,12 +6,12 @@
 
 import type { CommandModule } from 'yargs';
 interface ListTasksOptions {
-    status?: string;
-    priority?: string;
-    category?: string;
-    limit?: number;
-    json?: boolean;
-    'show-completed'?: boolean;
+  status?: string;
+  priority?: string;
+  category?: string;
+  limit?: number;
+  json?: boolean;
+  'show-completed'?: boolean;
 }
 export declare const listTasksCommand: CommandModule<{}, ListTasksOptions>;
 export {};

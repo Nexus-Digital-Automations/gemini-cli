@@ -6,8 +6,17 @@
 
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import type { Task, TaskPriority, TaskCategory, TaskStatus, QueueMetrics } from './TaskQueue.js';
-import type { DependencyAnalysis, DependencyNode } from './DependencyResolver.js';
+import type {
+  Task,
+  TaskPriority,
+  TaskCategory,
+  TaskStatus,
+  QueueMetrics,
+} from './TaskQueue.js';
+import type {
+  DependencyAnalysis,
+  DependencyNode,
+} from './DependencyResolver.js';
 
 /**
  * Optimization strategy types
@@ -17,7 +26,7 @@ export enum OptimizationStrategy {
   LATENCY_MINIMIZATION = 'latency_minimization',
   RESOURCE_EFFICIENCY = 'resource_efficiency',
   DEADLINE_OPTIMIZATION = 'deadline_optimization',
-  BALANCED = 'balanced'
+  BALANCED = 'balanced',
 }
 
 /**
@@ -25,19 +34,25 @@ export enum OptimizationStrategy {
  */
 export interface ResourceUtilization {
   resourceId: string;
-  currentLoad: number;       // 0.0 to 1.0
-  averageLoad: number;       // Historical average
-  peakLoad: number;          // Maximum recorded load
-  allocatedTasks: string[];  // Currently allocated task IDs
-  capacity: number;          // Maximum capacity
-  efficiency: number;        // How efficiently the resource is used
+  currentLoad: number; // 0.0 to 1.0
+  averageLoad: number; // Historical average
+  peakLoad: number; // Maximum recorded load
+  allocatedTasks: string[]; // Currently allocated task IDs
+  capacity: number; // Maximum capacity
+  efficiency: number; // How efficiently the resource is used
 }
 
 /**
  * Optimization recommendations
  */
 export interface OptimizationRecommendation {
-  type: 'reorder' | 'batch' | 'parallel' | 'defer' | 'priority_adjust' | 'resource_rebalance';
+  type:
+    | 'reorder'
+    | 'batch'
+    | 'parallel'
+    | 'defer'
+    | 'priority_adjust'
+    | 'resource_rebalance';
   priority: 'high' | 'medium' | 'low';
   taskIds: string[];
   description: string;
@@ -96,7 +111,7 @@ export class QueueOptimizer extends EventEmitter {
     averageLatency: 0,
     resourceEfficiency: 0,
     deadlineMissRate: 0,
-    optimizationSuccessRate: 0
+    optimizationSuccessRate: 0,
   };
 
   constructor() {
@@ -110,12 +125,12 @@ export class QueueOptimizer extends EventEmitter {
     tasks: Map<string, Task>,
     dependencyAnalysis: DependencyAnalysis,
     metrics: QueueMetrics,
-    strategy: OptimizationStrategy = OptimizationStrategy.BALANCED
+    strategy: OptimizationStrategy = OptimizationStrategy.BALANCED,
   ): OptimizationRecommendation[] {
     logger.info('Starting queue optimization', {
       taskCount: tasks.size,
       strategy,
-      readyTasks: dependencyAnalysis.readyTasks.length
+      readyTasks: dependencyAnalysis.readyTasks.length,
     });
 
     const recommendations: OptimizationRecommendation[] = [];
@@ -126,11 +141,15 @@ export class QueueOptimizer extends EventEmitter {
     // Generate strategy-specific recommendations
     switch (strategy) {
       case OptimizationStrategy.THROUGHPUT_MAXIMIZATION:
-        recommendations.push(...this.optimizeForThroughput(tasks, dependencyAnalysis));
+        recommendations.push(
+          ...this.optimizeForThroughput(tasks, dependencyAnalysis),
+        );
         break;
 
       case OptimizationStrategy.LATENCY_MINIMIZATION:
-        recommendations.push(...this.optimizeForLatency(tasks, dependencyAnalysis));
+        recommendations.push(
+          ...this.optimizeForLatency(tasks, dependencyAnalysis),
+        );
         break;
 
       case OptimizationStrategy.RESOURCE_EFFICIENCY:
@@ -138,21 +157,32 @@ export class QueueOptimizer extends EventEmitter {
         break;
 
       case OptimizationStrategy.DEADLINE_OPTIMIZATION:
-        recommendations.push(...this.optimizeForDeadlines(tasks, dependencyAnalysis));
+        recommendations.push(
+          ...this.optimizeForDeadlines(tasks, dependencyAnalysis),
+        );
         break;
 
       case OptimizationStrategy.BALANCED:
-        recommendations.push(...this.generateBalancedRecommendations(tasks, dependencyAnalysis, metrics));
+        recommendations.push(
+          ...this.generateBalancedRecommendations(
+            tasks,
+            dependencyAnalysis,
+            metrics,
+          ),
+        );
         break;
     }
 
     // Add general optimization recommendations
-    recommendations.push(...this.generateGeneralOptimizations(tasks, dependencyAnalysis));
+    recommendations.push(
+      ...this.generateGeneralOptimizations(tasks, dependencyAnalysis),
+    );
 
     // Sort by priority and expected improvement
     recommendations.sort((a, b) => {
       const priorityOrder = { high: 3, medium: 2, low: 1 };
-      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+      const priorityDiff =
+        priorityOrder[b.priority] - priorityOrder[a.priority];
       if (priorityDiff !== 0) return priorityDiff;
 
       return b.expectedImprovement - a.expectedImprovement;
@@ -164,13 +194,14 @@ export class QueueOptimizer extends EventEmitter {
       strategy,
       recommendations,
       appliedRecommendations: 0,
-      actualImprovement: 0
+      actualImprovement: 0,
     });
 
     logger.info('Queue optimization completed', {
       recommendationCount: recommendations.length,
       strategy,
-      highPriorityCount: recommendations.filter(r => r.priority === 'high').length
+      highPriorityCount: recommendations.filter((r) => r.priority === 'high')
+        .length,
     });
 
     this.emit('optimizationCompleted', { strategy, recommendations });
@@ -183,35 +214,41 @@ export class QueueOptimizer extends EventEmitter {
    */
   optimizeBatching(
     tasks: Map<string, Task>,
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): BatchOptimization {
-    const readyTasks = dependencyAnalysis.readyTasks.map(id => tasks.get(id)!).filter(Boolean);
+    const readyTasks = dependencyAnalysis.readyTasks
+      .map((id) => tasks.get(id)!)
+      .filter(Boolean);
 
     // Group tasks by compatibility for batching
     const batchGroups = this.identifyBatchGroups(readyTasks);
 
     // Optimize batch ordering
-    const optimizedBatches = this.optimizeBatchOrder(batchGroups, dependencyAnalysis);
+    const optimizedBatches = this.optimizeBatchOrder(
+      batchGroups,
+      dependencyAnalysis,
+    );
 
-    const originalOrder = readyTasks.map(t => t.id);
-    const optimizedOrder = optimizedBatches.flatMap(batch => batch.taskIds);
+    const originalOrder = readyTasks.map((t) => t.id);
+    const optimizedOrder = optimizedBatches.flatMap((batch) => batch.taskIds);
 
     const expectedSpeedup = this.calculateBatchSpeedup(optimizedBatches);
-    const resourceEfficiencyGain = this.calculateResourceEfficiencyGain(optimizedBatches);
+    const resourceEfficiencyGain =
+      this.calculateResourceEfficiencyGain(optimizedBatches);
 
     const result: BatchOptimization = {
       originalOrder,
       optimizedOrder,
       batches: optimizedBatches,
       expectedSpeedup,
-      resourceEfficiencyGain
+      resourceEfficiencyGain,
     };
 
     logger.info('Batch optimization completed', {
       originalTaskCount: originalOrder.length,
       batchCount: optimizedBatches.length,
       expectedSpeedup: `${(expectedSpeedup * 100).toFixed(1)}%`,
-      resourceEfficiencyGain: `${(resourceEfficiencyGain * 100).toFixed(1)}%`
+      resourceEfficiencyGain: `${(resourceEfficiencyGain * 100).toFixed(1)}%`,
     });
 
     this.emit('batchOptimized', result);
@@ -223,7 +260,7 @@ export class QueueOptimizer extends EventEmitter {
    * Generate load balancing recommendations
    */
   generateLoadBalancingRecommendations(
-    tasks: Map<string, Task>
+    tasks: Map<string, Task>,
   ): LoadBalancingRecommendation[] {
     const recommendations: LoadBalancingRecommendation[] = [];
 
@@ -244,10 +281,12 @@ export class QueueOptimizer extends EventEmitter {
       const utilization = this.resourceUtilization.get(overloadedResource)!;
 
       const candidateTargets = underutilizedResources
-        .map(resourceId => ({
+        .map((resourceId) => ({
           resourceId,
           utilization: this.resourceUtilization.get(resourceId)!,
-          availableCapacity: this.resourceUtilization.get(resourceId)!.capacity - this.resourceUtilization.get(resourceId)!.currentLoad
+          availableCapacity:
+            this.resourceUtilization.get(resourceId)!.capacity -
+            this.resourceUtilization.get(resourceId)!.currentLoad,
         }))
         .sort((a, b) => b.availableCapacity - a.availableCapacity);
 
@@ -256,26 +295,41 @@ export class QueueOptimizer extends EventEmitter {
 
         // Find tasks to move
         const tasksToMove = utilization.allocatedTasks
-          .map(taskId => tasks.get(taskId)!)
+          .map((taskId) => tasks.get(taskId)!)
           .filter(Boolean)
-          .filter(task => this.canMoveTask(task, overloadedResource, targetResource.resourceId))
+          .filter((task) =>
+            this.canMoveTask(
+              task,
+              overloadedResource,
+              targetResource.resourceId,
+            ),
+          )
           .slice(0, 3) // Limit moves to avoid thrashing
-          .map(task => ({
+          .map((task) => ({
             taskId: task.id,
             fromResource: overloadedResource,
             toResource: targetResource.resourceId,
-            impact: this.calculateMoveImpact(task, overloadedResource, targetResource.resourceId)
+            impact: this.calculateMoveImpact(
+              task,
+              overloadedResource,
+              targetResource.resourceId,
+            ),
           }));
 
         if (tasksToMove.length > 0) {
-          const expectedImprovement = tasksToMove.reduce((sum, move) => sum + move.impact, 0) / tasksToMove.length;
+          const expectedImprovement =
+            tasksToMove.reduce((sum, move) => sum + move.impact, 0) /
+            tasksToMove.length;
 
           recommendations.push({
             resourceId: overloadedResource,
             currentLoad: utilization.currentLoad,
-            targetLoad: Math.max(0.3, utilization.currentLoad - (tasksToMove.length * 0.1)),
+            targetLoad: Math.max(
+              0.3,
+              utilization.currentLoad - tasksToMove.length * 0.1,
+            ),
             tasksToMove,
-            expectedImprovement
+            expectedImprovement,
           });
         }
       }
@@ -284,7 +338,7 @@ export class QueueOptimizer extends EventEmitter {
     logger.info('Load balancing analysis completed', {
       overloadedResources: overloadedResources.length,
       underutilizedResources: underutilizedResources.length,
-      recommendations: recommendations.length
+      recommendations: recommendations.length,
     });
 
     return recommendations;
@@ -295,7 +349,7 @@ export class QueueOptimizer extends EventEmitter {
    */
   analyzeBottlenecks(
     tasks: Map<string, Task>,
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): Array<{
     type: 'dependency' | 'resource' | 'priority' | 'batch';
     description: string;
@@ -322,7 +376,7 @@ export class QueueOptimizer extends EventEmitter {
         description: `${blockedTasks.length} tasks blocked by dependencies`,
         impact,
         affectedTasks: blockedTasks,
-        recommendation: `Prioritize completion of blocking tasks: ${blockingTasks.slice(0, 3).join(', ')}`
+        recommendation: `Prioritize completion of blocking tasks: ${blockingTasks.slice(0, 3).join(', ')}`,
       });
     }
 
@@ -331,7 +385,10 @@ export class QueueOptimizer extends EventEmitter {
     bottlenecks.push(...resourceBottlenecks);
 
     // Priority inversion bottlenecks
-    const priorityBottlenecks = this.identifyPriorityInversions(tasks, dependencyAnalysis);
+    const priorityBottlenecks = this.identifyPriorityInversions(
+      tasks,
+      dependencyAnalysis,
+    );
     bottlenecks.push(...priorityBottlenecks);
 
     // Batching opportunity bottlenecks
@@ -343,7 +400,7 @@ export class QueueOptimizer extends EventEmitter {
 
     logger.info('Bottleneck analysis completed', {
       totalBottlenecks: bottlenecks.length,
-      highImpactBottlenecks: bottlenecks.filter(b => b.impact > 0.3).length
+      highImpactBottlenecks: bottlenecks.filter((b) => b.impact > 0.3).length,
     });
 
     return bottlenecks;
@@ -355,7 +412,7 @@ export class QueueOptimizer extends EventEmitter {
   predictPerformance(
     tasks: Map<string, Task>,
     dependencyAnalysis: DependencyAnalysis,
-    projectionHours = 24
+    projectionHours = 24,
   ): {
     expectedThroughput: number;
     expectedCompletionTime: number;
@@ -371,18 +428,28 @@ export class QueueOptimizer extends EventEmitter {
     const currentThroughput = this.performanceMetrics.averageThroughput;
     const resourceEfficiency = this.performanceMetrics.resourceEfficiency;
 
-    const expectedThroughput = Math.max(1, currentThroughput * resourceEfficiency);
+    const expectedThroughput = Math.max(
+      1,
+      currentThroughput * resourceEfficiency,
+    );
 
     // Estimate completion time considering dependencies
     const criticalPathDuration = dependencyAnalysis.estimatedDuration;
-    const parallelEfficiency = Math.min(0.8, readyTasks / Math.max(1, dependencyAnalysis.totalLevels));
+    const parallelEfficiency = Math.min(
+      0.8,
+      readyTasks / Math.max(1, dependencyAnalysis.totalLevels),
+    );
 
-    const expectedCompletionTime = criticalPathDuration * (1 - parallelEfficiency * 0.5);
+    const expectedCompletionTime =
+      criticalPathDuration * (1 - parallelEfficiency * 0.5);
 
     // Resource utilization forecast
     const resourceForecast = new Map<string, number>();
     for (const [resourceId, utilization] of this.resourceUtilization) {
-      const projectedLoad = Math.min(1.0, utilization.currentLoad * (totalTasks / Math.max(1, readyTasks)));
+      const projectedLoad = Math.min(
+        1.0,
+        utilization.currentLoad * (totalTasks / Math.max(1, readyTasks)),
+      );
       resourceForecast.set(resourceId, projectedLoad);
     }
 
@@ -391,7 +458,7 @@ export class QueueOptimizer extends EventEmitter {
     if (dependencyAnalysis.blockedTasks.length > totalTasks * 0.3) {
       bottleneckPredictions.push('High dependency blocking expected');
     }
-    if (Array.from(resourceForecast.values()).some(load => load > 0.9)) {
+    if (Array.from(resourceForecast.values()).some((load) => load > 0.9)) {
       bottleneckPredictions.push('Resource saturation predicted');
     }
 
@@ -405,13 +472,13 @@ export class QueueOptimizer extends EventEmitter {
       expectedCompletionTime,
       resourceUtilizationForecast: resourceForecast,
       bottleneckPredictions,
-      confidenceScore
+      confidenceScore,
     };
 
     logger.info('Performance prediction completed', {
       expectedThroughput: expectedThroughput.toFixed(2),
       expectedCompletionTime: `${(expectedCompletionTime / (1000 * 60 * 60)).toFixed(1)} hours`,
-      confidenceScore: `${(confidenceScore * 100).toFixed(1)}%`
+      confidenceScore: `${(confidenceScore * 100).toFixed(1)}%`,
     });
 
     this.emit('performancePredicted', prediction);
@@ -424,13 +491,21 @@ export class QueueOptimizer extends EventEmitter {
    */
   applyOptimizations(
     tasks: Map<string, Task>,
-    recommendations: OptimizationRecommendation[]
+    recommendations: OptimizationRecommendation[],
   ): {
     applied: number;
     failed: number;
-    results: Array<{ recommendation: OptimizationRecommendation; success: boolean; error?: string }>;
+    results: Array<{
+      recommendation: OptimizationRecommendation;
+      success: boolean;
+      error?: string;
+    }>;
   } {
-    const results: Array<{ recommendation: OptimizationRecommendation; success: boolean; error?: string }> = [];
+    const results: Array<{
+      recommendation: OptimizationRecommendation;
+      success: boolean;
+      error?: string;
+    }> = [];
     let applied = 0;
     let failed = 0;
 
@@ -444,24 +519,24 @@ export class QueueOptimizer extends EventEmitter {
         } else {
           failed++;
         }
-
       } catch (error) {
         results.push({
           recommendation,
           success: false,
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
         failed++;
 
         logger.warn('Failed to apply optimization recommendation', {
           type: recommendation.type,
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
 
     // Update optimization history
-    const lastOptimization = this.optimizationHistory[this.optimizationHistory.length - 1];
+    const lastOptimization =
+      this.optimizationHistory[this.optimizationHistory.length - 1];
     if (lastOptimization) {
       lastOptimization.appliedRecommendations = applied;
     }
@@ -469,7 +544,7 @@ export class QueueOptimizer extends EventEmitter {
     logger.info('Optimization application completed', {
       applied,
       failed,
-      successRate: `${((applied / (applied + failed)) * 100).toFixed(1)}%`
+      successRate: `${((applied / (applied + failed)) * 100).toFixed(1)}%`,
     });
 
     this.emit('optimizationsApplied', { applied, failed, results });
@@ -482,7 +557,7 @@ export class QueueOptimizer extends EventEmitter {
    */
   private optimizeForThroughput(
     tasks: Map<string, Task>,
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
@@ -495,7 +570,7 @@ export class QueueOptimizer extends EventEmitter {
         taskIds: parallelGroups.flat(),
         description: `Execute ${parallelGroups.length} groups of tasks in parallel`,
         expectedImprovement: Math.min(50, parallelGroups.length * 10),
-        riskLevel: 'low'
+        riskLevel: 'low',
       });
     }
 
@@ -509,7 +584,7 @@ export class QueueOptimizer extends EventEmitter {
           taskIds,
           description: `Batch ${taskIds.length} ${category} tasks for efficient processing`,
           expectedImprovement: Math.min(30, taskIds.length * 5),
-          riskLevel: 'low'
+          riskLevel: 'low',
         });
       }
     }
@@ -522,7 +597,7 @@ export class QueueOptimizer extends EventEmitter {
    */
   private optimizeForLatency(
     tasks: Map<string, Task>,
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
@@ -536,18 +611,18 @@ export class QueueOptimizer extends EventEmitter {
         description: `Boost priority of ${criticalPathTasks.length} critical path tasks`,
         expectedImprovement: 25,
         riskLevel: 'low',
-        metadata: { priorityBoost: TaskPriority.HIGH }
+        metadata: { priorityBoost: TaskPriority.HIGH },
       });
     }
 
     // Identify tasks with approaching deadlines
     const urgentTasks = Array.from(tasks.values())
-      .filter(task => {
+      .filter((task) => {
         if (!task.deadline) return false;
         const timeToDeadline = task.deadline.getTime() - Date.now();
         return timeToDeadline < 24 * 60 * 60 * 1000; // Less than 24 hours
       })
-      .map(task => task.id);
+      .map((task) => task.id);
 
     if (urgentTasks.length > 0) {
       recommendations.push({
@@ -557,7 +632,7 @@ export class QueueOptimizer extends EventEmitter {
         description: `Prioritize ${urgentTasks.length} tasks with approaching deadlines`,
         expectedImprovement: 40,
         riskLevel: 'low',
-        metadata: { priorityBoost: TaskPriority.HIGH }
+        metadata: { priorityBoost: TaskPriority.HIGH },
       });
     }
 
@@ -567,26 +642,30 @@ export class QueueOptimizer extends EventEmitter {
   /**
    * Optimize for resource efficiency
    */
-  private optimizeForResourceEfficiency(tasks: Map<string, Task>): OptimizationRecommendation[] {
+  private optimizeForResourceEfficiency(
+    tasks: Map<string, Task>,
+  ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
     // Identify resource conflicts and suggest rebalancing
-    const loadBalanceRecommendations = this.generateLoadBalancingRecommendations(tasks);
+    const loadBalanceRecommendations =
+      this.generateLoadBalancingRecommendations(tasks);
 
     for (const loadRec of loadBalanceRecommendations) {
       recommendations.push({
         type: 'resource_rebalance',
         priority: 'medium',
-        taskIds: loadRec.tasksToMove.map(move => move.taskId),
+        taskIds: loadRec.tasksToMove.map((move) => move.taskId),
         description: `Rebalance ${loadRec.tasksToMove.length} tasks from overloaded resource ${loadRec.resourceId}`,
         expectedImprovement: loadRec.expectedImprovement,
         riskLevel: 'medium',
-        metadata: { loadBalancing: loadRec }
+        metadata: { loadBalancing: loadRec },
       });
     }
 
     // Identify tasks that can share resources efficiently
-    const resourceSharingOpportunities = this.findResourceSharingOpportunities(tasks);
+    const resourceSharingOpportunities =
+      this.findResourceSharingOpportunities(tasks);
     for (const opportunity of resourceSharingOpportunities) {
       recommendations.push({
         type: 'batch',
@@ -595,7 +674,7 @@ export class QueueOptimizer extends EventEmitter {
         description: `Group ${opportunity.taskIds.length} tasks to share ${opportunity.resource}`,
         expectedImprovement: opportunity.efficiencyGain,
         riskLevel: 'low',
-        metadata: { resourceSharing: opportunity }
+        metadata: { resourceSharing: opportunity },
       });
     }
 
@@ -607,11 +686,13 @@ export class QueueOptimizer extends EventEmitter {
    */
   private optimizeForDeadlines(
     tasks: Map<string, Task>,
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
-    const tasksWithDeadlines = Array.from(tasks.values()).filter(task => task.deadline);
+    const tasksWithDeadlines = Array.from(tasks.values()).filter(
+      (task) => task.deadline,
+    );
 
     // Sort by deadline urgency
     tasksWithDeadlines.sort((a, b) => {
@@ -621,9 +702,12 @@ export class QueueOptimizer extends EventEmitter {
     });
 
     // Identify at-risk tasks
-    const atRiskTasks = tasksWithDeadlines.filter(task => {
+    const atRiskTasks = tasksWithDeadlines.filter((task) => {
       const timeToDeadline = task.deadline!.getTime() - Date.now();
-      const estimatedCompletion = this.estimateTaskCompletionTime(task, dependencyAnalysis);
+      const estimatedCompletion = this.estimateTaskCompletionTime(
+        task,
+        dependencyAnalysis,
+      );
       return estimatedCompletion > timeToDeadline;
     });
 
@@ -631,11 +715,11 @@ export class QueueOptimizer extends EventEmitter {
       recommendations.push({
         type: 'priority_adjust',
         priority: 'high',
-        taskIds: atRiskTasks.map(t => t.id),
+        taskIds: atRiskTasks.map((t) => t.id),
         description: `Emergency priority boost for ${atRiskTasks.length} deadline-at-risk tasks`,
         expectedImprovement: 60,
         riskLevel: 'high',
-        metadata: { emergencyPriority: true }
+        metadata: { emergencyPriority: true },
       });
     }
 
@@ -648,28 +732,47 @@ export class QueueOptimizer extends EventEmitter {
   private generateBalancedRecommendations(
     tasks: Map<string, Task>,
     dependencyAnalysis: DependencyAnalysis,
-    metrics: QueueMetrics
+    metrics: QueueMetrics,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
     // Balance between different optimization strategies
-    const throughputRecs = this.optimizeForThroughput(tasks, dependencyAnalysis);
+    const throughputRecs = this.optimizeForThroughput(
+      tasks,
+      dependencyAnalysis,
+    );
     const latencyRecs = this.optimizeForLatency(tasks, dependencyAnalysis);
     const resourceRecs = this.optimizeForResourceEfficiency(tasks);
     const deadlineRecs = this.optimizeForDeadlines(tasks, dependencyAnalysis);
 
     // Weight recommendations based on current performance metrics
-    const throughputWeight = 1.0 - Math.min(1.0, metrics.throughputPerHour / 100);
-    const latencyWeight = Math.min(1.0, metrics.averageWaitTime / (60 * 60 * 1000)); // Hour scale
+    const throughputWeight =
+      1.0 - Math.min(1.0, metrics.throughputPerHour / 100);
+    const latencyWeight = Math.min(
+      1.0,
+      metrics.averageWaitTime / (60 * 60 * 1000),
+    ); // Hour scale
     const resourceWeight = 1.0 - this.performanceMetrics.resourceEfficiency;
     const deadlineWeight = this.performanceMetrics.deadlineMissRate;
 
     // Apply weights and select top recommendations
     const weightedRecs = [
-      ...throughputRecs.map(r => ({ ...r, weightedScore: r.expectedImprovement * throughputWeight })),
-      ...latencyRecs.map(r => ({ ...r, weightedScore: r.expectedImprovement * latencyWeight })),
-      ...resourceRecs.map(r => ({ ...r, weightedScore: r.expectedImprovement * resourceWeight })),
-      ...deadlineRecs.map(r => ({ ...r, weightedScore: r.expectedImprovement * deadlineWeight }))
+      ...throughputRecs.map((r) => ({
+        ...r,
+        weightedScore: r.expectedImprovement * throughputWeight,
+      })),
+      ...latencyRecs.map((r) => ({
+        ...r,
+        weightedScore: r.expectedImprovement * latencyWeight,
+      })),
+      ...resourceRecs.map((r) => ({
+        ...r,
+        weightedScore: r.expectedImprovement * resourceWeight,
+      })),
+      ...deadlineRecs.map((r) => ({
+        ...r,
+        weightedScore: r.expectedImprovement * deadlineWeight,
+      })),
     ];
 
     // Remove duplicates and sort by weighted score
@@ -687,41 +790,41 @@ export class QueueOptimizer extends EventEmitter {
    */
   private generateGeneralOptimizations(
     tasks: Map<string, Task>,
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
     // Identify long-running tasks that could be broken down
     const longRunningTasks = Array.from(tasks.values()).filter(
-      task => task.estimatedDuration > 30 * 60 * 1000 // More than 30 minutes
+      (task) => task.estimatedDuration > 30 * 60 * 1000, // More than 30 minutes
     );
 
     if (longRunningTasks.length > 0) {
       recommendations.push({
         type: 'reorder',
         priority: 'low',
-        taskIds: longRunningTasks.map(t => t.id),
+        taskIds: longRunningTasks.map((t) => t.id),
         description: `Consider breaking down ${longRunningTasks.length} long-running tasks`,
         expectedImprovement: 15,
         riskLevel: 'medium',
-        metadata: { taskBreakdown: true }
+        metadata: { taskBreakdown: true },
       });
     }
 
     // Identify tasks with high retry rates
     const problematicTasks = Array.from(tasks.values()).filter(
-      task => task.currentRetries > 1
+      (task) => task.currentRetries > 1,
     );
 
     if (problematicTasks.length > 0) {
       recommendations.push({
         type: 'defer',
         priority: 'low',
-        taskIds: problematicTasks.map(t => t.id),
+        taskIds: problematicTasks.map((t) => t.id),
         description: `Review ${problematicTasks.length} tasks with multiple retries`,
         expectedImprovement: 10,
         riskLevel: 'low',
-        metadata: { reviewRequired: true }
+        metadata: { reviewRequired: true },
       });
     }
 
@@ -751,28 +854,37 @@ export class QueueOptimizer extends EventEmitter {
               peakLoad: 0,
               allocatedTasks: [],
               capacity: 1.0,
-              efficiency: 1.0
+              efficiency: 1.0,
             };
             this.resourceUtilization.set(resourceId, utilization);
           }
 
           utilization.allocatedTasks.push(task.id);
-          utilization.currentLoad = Math.min(1.0, utilization.currentLoad + 0.1); // Simple load model
+          utilization.currentLoad = Math.min(
+            1.0,
+            utilization.currentLoad + 0.1,
+          ); // Simple load model
         }
       }
     }
 
     // Update historical metrics
     for (const utilization of this.resourceUtilization.values()) {
-      utilization.peakLoad = Math.max(utilization.peakLoad, utilization.currentLoad);
-      utilization.averageLoad = (utilization.averageLoad * 0.9) + (utilization.currentLoad * 0.1);
+      utilization.peakLoad = Math.max(
+        utilization.peakLoad,
+        utilization.currentLoad,
+      );
+      utilization.averageLoad =
+        utilization.averageLoad * 0.9 + utilization.currentLoad * 0.1;
     }
   }
 
   /**
    * Find batchable task categories
    */
-  private findBatchableCategories(tasks: Map<string, Task>): Map<TaskCategory, string[]> {
+  private findBatchableCategories(
+    tasks: Map<string, Task>,
+  ): Map<TaskCategory, string[]> {
     const categories = new Map<TaskCategory, string[]>();
 
     for (const task of tasks.values()) {
@@ -832,8 +944,8 @@ export class QueueOptimizer extends EventEmitter {
    * Check for resource conflicts between tasks
    */
   private hasResourceConflict(task1: Task, task2: Task): boolean {
-    return task1.requiredResources.some(resource =>
-      task2.requiredResources.includes(resource)
+    return task1.requiredResources.some((resource) =>
+      task2.requiredResources.includes(resource),
     );
   }
 
@@ -842,26 +954,30 @@ export class QueueOptimizer extends EventEmitter {
    */
   private optimizeBatchOrder(
     batchGroups: Task[][],
-    dependencyAnalysis: DependencyAnalysis
+    dependencyAnalysis: DependencyAnalysis,
   ): Array<{
     taskIds: string[];
     estimatedDuration: number;
     resourceRequirements: string[];
     parallelizable: boolean;
   }> {
-    return batchGroups.map(group => {
-      const taskIds = group.map(t => t.id);
-      const estimatedDuration = Math.max(...group.map(t => t.estimatedDuration));
-      const resourceRequirements = Array.from(
-        new Set(group.flatMap(t => t.requiredResources))
+    return batchGroups.map((group) => {
+      const taskIds = group.map((t) => t.id);
+      const estimatedDuration = Math.max(
+        ...group.map((t) => t.estimatedDuration),
       );
-      const parallelizable = group.every(t => dependencyAnalysis.parallelizableGroups.some(pg => pg.includes(t.id)));
+      const resourceRequirements = Array.from(
+        new Set(group.flatMap((t) => t.requiredResources)),
+      );
+      const parallelizable = group.every((t) =>
+        dependencyAnalysis.parallelizableGroups.some((pg) => pg.includes(t.id)),
+      );
 
       return {
         taskIds,
         estimatedDuration,
         resourceRequirements,
-        parallelizable
+        parallelizable,
       };
     });
   }
@@ -869,28 +985,56 @@ export class QueueOptimizer extends EventEmitter {
   /**
    * Calculate batch speedup
    */
-  private calculateBatchSpeedup(batches: Array<{ estimatedDuration: number; parallelizable: boolean }>): number {
-    const totalSequentialTime = batches.reduce((sum, batch) => sum + batch.estimatedDuration, 0);
-    const totalParallelTime = batches.reduce((sum, batch) => sum + (batch.parallelizable ? batch.estimatedDuration * 0.3 : batch.estimatedDuration), 0);
+  private calculateBatchSpeedup(
+    batches: Array<{ estimatedDuration: number; parallelizable: boolean }>,
+  ): number {
+    const totalSequentialTime = batches.reduce(
+      (sum, batch) => sum + batch.estimatedDuration,
+      0,
+    );
+    const totalParallelTime = batches.reduce(
+      (sum, batch) =>
+        sum +
+        (batch.parallelizable
+          ? batch.estimatedDuration * 0.3
+          : batch.estimatedDuration),
+      0,
+    );
 
-    return Math.max(0, (totalSequentialTime - totalParallelTime) / totalSequentialTime);
+    return Math.max(
+      0,
+      (totalSequentialTime - totalParallelTime) / totalSequentialTime,
+    );
   }
 
   /**
    * Calculate resource efficiency gain
    */
-  private calculateResourceEfficiencyGain(batches: Array<{ resourceRequirements: string[] }>): number {
-    const totalResourceUsage = batches.reduce((sum, batch) => sum + batch.resourceRequirements.length, 0);
-    const uniqueResources = new Set(batches.flatMap(batch => batch.resourceRequirements)).size;
+  private calculateResourceEfficiencyGain(
+    batches: Array<{ resourceRequirements: string[] }>,
+  ): number {
+    const totalResourceUsage = batches.reduce(
+      (sum, batch) => sum + batch.resourceRequirements.length,
+      0,
+    );
+    const uniqueResources = new Set(
+      batches.flatMap((batch) => batch.resourceRequirements),
+    ).size;
 
-    return Math.max(0, (totalResourceUsage - uniqueResources) / totalResourceUsage);
+    return Math.max(
+      0,
+      (totalResourceUsage - uniqueResources) / totalResourceUsage,
+    );
   }
 
   /**
    * Additional utility methods for optimization...
    */
 
-  private findBlockingTasks(tasks: Map<string, Task>, dependencyAnalysis: DependencyAnalysis): string[] {
+  private findBlockingTasks(
+    tasks: Map<string, Task>,
+    dependencyAnalysis: DependencyAnalysis,
+  ): string[] {
     const blockingTasks = new Set<string>();
 
     for (const blockedTaskId of dependencyAnalysis.blockedTasks) {
@@ -926,11 +1070,12 @@ export class QueueOptimizer extends EventEmitter {
     for (const [resourceId, utilization] of this.resourceUtilization) {
       if (utilization.currentLoad > 0.8) {
         const affectedTasks = Array.from(tasks.values())
-          .filter(task =>
-            task.requiredResources.includes(resourceId) &&
-            task.status === TaskStatus.PENDING
+          .filter(
+            (task) =>
+              task.requiredResources.includes(resourceId) &&
+              task.status === TaskStatus.PENDING,
           )
-          .map(task => task.id);
+          .map((task) => task.id);
 
         if (affectedTasks.length > 0) {
           bottlenecks.push({
@@ -938,7 +1083,7 @@ export class QueueOptimizer extends EventEmitter {
             description: `Resource ${resourceId} at ${(utilization.currentLoad * 100).toFixed(1)}% capacity`,
             impact: utilization.currentLoad,
             affectedTasks,
-            recommendation: `Consider load balancing or increasing capacity for ${resourceId}`
+            recommendation: `Consider load balancing or increasing capacity for ${resourceId}`,
           });
         }
       }
@@ -947,7 +1092,10 @@ export class QueueOptimizer extends EventEmitter {
     return bottlenecks;
   }
 
-  private identifyPriorityInversions(tasks: Map<string, Task>, dependencyAnalysis: DependencyAnalysis): Array<{
+  private identifyPriorityInversions(
+    tasks: Map<string, Task>,
+    dependencyAnalysis: DependencyAnalysis,
+  ): Array<{
     type: 'priority';
     description: string;
     impact: number;
@@ -966,7 +1114,7 @@ export class QueueOptimizer extends EventEmitter {
     for (const taskId of dependencyAnalysis.blockedTasks) {
       const task = tasks.get(taskId);
       if (task && task.priority >= TaskPriority.HIGH) {
-        const blockingLowPriorityTasks = task.dependencies.filter(depId => {
+        const blockingLowPriorityTasks = task.dependencies.filter((depId) => {
           const depTask = tasks.get(depId);
           return depTask && depTask.priority < TaskPriority.MEDIUM;
         });
@@ -977,7 +1125,7 @@ export class QueueOptimizer extends EventEmitter {
             description: `High priority task ${taskId} blocked by low priority dependencies`,
             impact: 0.6,
             affectedTasks: [taskId, ...blockingLowPriorityTasks],
-            recommendation: `Consider boosting priority of blocking tasks: ${blockingLowPriorityTasks.join(', ')}`
+            recommendation: `Consider boosting priority of blocking tasks: ${blockingLowPriorityTasks.join(', ')}`,
           });
         }
       }
@@ -1012,7 +1160,7 @@ export class QueueOptimizer extends EventEmitter {
           description: `${taskIds.length} ${category} tasks could be batched together`,
           impact,
           affectedTasks: taskIds,
-          recommendation: `Batch process ${category} tasks for ${(impact * 100).toFixed(0)}% efficiency gain`
+          recommendation: `Batch process ${category} tasks for ${(impact * 100).toFixed(0)}% efficiency gain`,
         });
       }
     }
@@ -1021,11 +1169,18 @@ export class QueueOptimizer extends EventEmitter {
   }
 
   private calculateAverageTaskDuration(tasks: Map<string, Task>): number {
-    const durations = Array.from(tasks.values()).map(t => t.estimatedDuration);
-    return durations.length > 0 ? durations.reduce((sum, d) => sum + d, 0) / durations.length : 60000;
+    const durations = Array.from(tasks.values()).map(
+      (t) => t.estimatedDuration,
+    );
+    return durations.length > 0
+      ? durations.reduce((sum, d) => sum + d, 0) / durations.length
+      : 60000;
   }
 
-  private estimateTaskCompletionTime(task: Task, dependencyAnalysis: DependencyAnalysis): number {
+  private estimateTaskCompletionTime(
+    task: Task,
+    dependencyAnalysis: DependencyAnalysis,
+  ): number {
     // Simple estimation based on dependencies and current queue state
     const dependencyDepth = task.dependencies.length;
     const baseTime = task.estimatedDuration;
@@ -1038,26 +1193,42 @@ export class QueueOptimizer extends EventEmitter {
     if (this.optimizationHistory.length === 0) return 0.5;
 
     const accurateOptimizations = this.optimizationHistory.filter(
-      opt => opt.actualImprovement > opt.recommendations.reduce((sum, r) => sum + r.expectedImprovement, 0) * 0.7
+      (opt) =>
+        opt.actualImprovement >
+        opt.recommendations.reduce((sum, r) => sum + r.expectedImprovement, 0) *
+          0.7,
     );
 
     return accurateOptimizations.length / this.optimizationHistory.length;
   }
 
-  private canMoveTask(task: Task, fromResource: string, toResource: string): boolean {
+  private canMoveTask(
+    task: Task,
+    fromResource: string,
+    toResource: string,
+  ): boolean {
     // Simple check - in reality, this would involve more complex resource compatibility checks
-    return task.requiredResources.includes(fromResource) && !task.requiredResources.includes(toResource);
+    return (
+      task.requiredResources.includes(fromResource) &&
+      !task.requiredResources.includes(toResource)
+    );
   }
 
-  private calculateMoveImpact(task: Task, fromResource: string, toResource: string): number {
+  private calculateMoveImpact(
+    task: Task,
+    fromResource: string,
+    toResource: string,
+  ): number {
     const fromUtilization = this.resourceUtilization.get(fromResource);
     const toUtilization = this.resourceUtilization.get(toResource);
 
     if (!fromUtilization || !toUtilization) return 0;
 
     const loadReduction = 0.1; // Simplified load model
-    const fromImprovement = Math.max(0, fromUtilization.currentLoad - 0.8) * loadReduction;
-    const toImpact = Math.max(0, 0.8 - toUtilization.currentLoad) * loadReduction;
+    const fromImprovement =
+      Math.max(0, fromUtilization.currentLoad - 0.8) * loadReduction;
+    const toImpact =
+      Math.max(0, 0.8 - toUtilization.currentLoad) * loadReduction;
 
     return (fromImprovement + toImpact) / 2;
   }
@@ -1093,7 +1264,7 @@ export class QueueOptimizer extends EventEmitter {
         opportunities.push({
           resource,
           taskIds,
-          efficiencyGain: efficiencyGain * 100 // Convert to percentage
+          efficiencyGain: efficiencyGain * 100, // Convert to percentage
         });
       }
     }
@@ -1101,8 +1272,15 @@ export class QueueOptimizer extends EventEmitter {
     return opportunities;
   }
 
-  private deduplicateRecommendations(recommendations: Array<OptimizationRecommendation & { weightedScore: number }>): Array<OptimizationRecommendation & { weightedScore: number }> {
-    const unique = new Map<string, OptimizationRecommendation & { weightedScore: number }>();
+  private deduplicateRecommendations(
+    recommendations: Array<
+      OptimizationRecommendation & { weightedScore: number }
+    >,
+  ): Array<OptimizationRecommendation & { weightedScore: number }> {
+    const unique = new Map<
+      string,
+      OptimizationRecommendation & { weightedScore: number }
+    >();
 
     for (const rec of recommendations) {
       const key = `${rec.type}-${rec.taskIds.sort().join('-')}`;
@@ -1116,7 +1294,10 @@ export class QueueOptimizer extends EventEmitter {
     return Array.from(unique.values());
   }
 
-  private applyRecommendation(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
+  private applyRecommendation(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
     try {
       switch (recommendation.type) {
         case 'priority_adjust':
@@ -1144,27 +1325,38 @@ export class QueueOptimizer extends EventEmitter {
     } catch (error) {
       logger.error('Failed to apply recommendation', {
         type: recommendation.type,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       return false;
     }
   }
 
-  private applyPriorityAdjustment(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
-    const priorityBoost = recommendation.metadata?.priorityBoost as TaskPriority || TaskPriority.HIGH;
+  private applyPriorityAdjustment(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
+    const priorityBoost =
+      (recommendation.metadata?.priorityBoost as TaskPriority) ||
+      TaskPriority.HIGH;
 
     for (const taskId of recommendation.taskIds) {
       const task = tasks.get(taskId);
       if (task) {
         task.priority = Math.max(task.priority, priorityBoost);
-        task.dynamicPriority = Math.max(task.dynamicPriority, priorityBoost * 1.2);
+        task.dynamicPriority = Math.max(
+          task.dynamicPriority,
+          priorityBoost * 1.2,
+        );
       }
     }
 
     return true;
   }
 
-  private applyBatching(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
+  private applyBatching(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
     // Set batch group for all tasks in the recommendation
     const batchGroup = `optimized-batch-${Date.now()}`;
 
@@ -1179,7 +1371,10 @@ export class QueueOptimizer extends EventEmitter {
     return true;
   }
 
-  private applyParallelization(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
+  private applyParallelization(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
     // Mark tasks as suitable for parallel execution
     // This would integrate with the scheduler to enable concurrent execution
 
@@ -1194,7 +1389,10 @@ export class QueueOptimizer extends EventEmitter {
     return true;
   }
 
-  private applyReordering(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
+  private applyReordering(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
     // Apply priority adjustments to achieve desired ordering
     let priorityBoost = 50;
 
@@ -1209,20 +1407,30 @@ export class QueueOptimizer extends EventEmitter {
     return true;
   }
 
-  private applyDeferral(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
+  private applyDeferral(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
     // Lower priority of deferred tasks
     for (const taskId of recommendation.taskIds) {
       const task = tasks.get(taskId);
       if (task) {
-        task.dynamicPriority = Math.max(TaskPriority.LOW, task.dynamicPriority * 0.8);
+        task.dynamicPriority = Math.max(
+          TaskPriority.LOW,
+          task.dynamicPriority * 0.8,
+        );
       }
     }
 
     return true;
   }
 
-  private applyResourceRebalancing(tasks: Map<string, Task>, recommendation: OptimizationRecommendation): boolean {
-    const loadBalancing = recommendation.metadata?.loadBalancing as LoadBalancingRecommendation;
+  private applyResourceRebalancing(
+    tasks: Map<string, Task>,
+    recommendation: OptimizationRecommendation,
+  ): boolean {
+    const loadBalancing = recommendation.metadata
+      ?.loadBalancing as LoadBalancingRecommendation;
     if (!loadBalancing) return false;
 
     // This would integrate with the resource allocation system
@@ -1234,7 +1442,7 @@ export class QueueOptimizer extends EventEmitter {
         task.metadata.resourceRebalance = {
           from: move.fromResource,
           to: move.toResource,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
     }

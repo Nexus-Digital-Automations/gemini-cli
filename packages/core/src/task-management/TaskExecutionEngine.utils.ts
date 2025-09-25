@@ -11,7 +11,7 @@ import type {
   TaskStatus,
   TaskExecutionContext,
   TaskDependency,
-  AgentCapability
+  AgentCapability,
 } from './TaskExecutionEngine.js';
 
 /**
@@ -26,15 +26,16 @@ export class TaskExecutionUtils {
     taskId: string,
     taskQueue: Map<string, Task>,
     completedTasks: Map<string, Task>,
-    taskDependencies: Map<string, TaskDependency[]>
+    taskDependencies: Map<string, TaskDependency[]>,
   ): boolean {
     const dependencies = taskDependencies.get(taskId) || [];
 
     for (const dep of dependencies) {
       if (dep.taskId !== taskId) continue;
 
-      const dependencyTask = taskQueue.get(dep.dependsOnTaskId) ||
-                           completedTasks.get(dep.dependsOnTaskId);
+      const dependencyTask =
+        taskQueue.get(dep.dependsOnTaskId) ||
+        completedTasks.get(dep.dependsOnTaskId);
 
       if (!dependencyTask || dependencyTask.status !== TaskStatus.COMPLETED) {
         return false;
@@ -76,7 +77,10 @@ export class TaskExecutionUtils {
     context.set('expected_outputs', outputsList);
 
     // Set timing constraints
-    context.set('max_execution_minutes', task.maxExecutionTimeMinutes.toString());
+    context.set(
+      'max_execution_minutes',
+      task.maxExecutionTimeMinutes.toString(),
+    );
     context.set('created_at', task.createdAt.toISOString());
   }
 
@@ -215,7 +219,12 @@ Focus on delivering production-ready results that exceed expectations.`;
    * Gets appropriate tools for a task based on its type and complexity
    */
   static getToolsForTask(task: Task): string[] {
-    const baseTools = ['ReadFileTool', 'WriteFileTool', 'EditFileTool', 'ShellTool'];
+    const baseTools = [
+      'ReadFileTool',
+      'WriteFileTool',
+      'EditFileTool',
+      'ShellTool',
+    ];
 
     const typeSpecificTools: Record<TaskType, string[]> = {
       [TaskType.IMPLEMENTATION]: [
@@ -224,21 +233,21 @@ Focus on delivering production-ready results that exceed expectations.`;
         'LintTool',
         'BuildTool',
         'SearchTool',
-        'FormatTool'
+        'FormatTool',
       ],
       [TaskType.TESTING]: [
         ...baseTools,
         'TestRunnerTool',
         'CoverageAnalysisTool',
         'MockingTool',
-        'BenchmarkTool'
+        'BenchmarkTool',
       ],
       [TaskType.VALIDATION]: [
         ...baseTools,
         'ValidationTool',
         'ComplianceCheckerTool',
         'QualityAnalysisTool',
-        'AuditTool'
+        'AuditTool',
       ],
       [TaskType.DOCUMENTATION]: [
         'ReadFileTool',
@@ -246,36 +255,36 @@ Focus on delivering production-ready results that exceed expectations.`;
         'SearchTool',
         'DiagramTool',
         'MarkdownTool',
-        'WikiTool'
+        'WikiTool',
       ],
       [TaskType.ANALYSIS]: [
         'ReadFileTool',
         'DataAnalysisTool',
         'MetricsTool',
         'ReportingTool',
-        'VisualizationTool'
+        'VisualizationTool',
       ],
       [TaskType.DEPLOYMENT]: [
         ...baseTools,
         'DockerTool',
         'KubernetesTool',
         'ConfigManagementTool',
-        'MonitoringTool'
+        'MonitoringTool',
       ],
       [TaskType.SECURITY]: [
         ...baseTools,
         'SecurityScannerTool',
         'VulnerabilityAnalysisTool',
         'PenetrationTestingTool',
-        'ComplianceTool'
+        'ComplianceTool',
       ],
       [TaskType.PERFORMANCE]: [
         ...baseTools,
         'ProfilerTool',
         'BenchmarkTool',
         'MonitoringTool',
-        'OptimizationTool'
-      ]
+        'OptimizationTool',
+      ],
     };
 
     return typeSpecificTools[task.type] || baseTools;
@@ -288,7 +297,7 @@ Focus on delivering production-ready results that exceed expectations.`;
     taskId: string,
     taskQueue: Map<string, Task>,
     completedTasks: Map<string, Task>,
-    taskDependencies: Map<string, TaskDependency[]>
+    taskDependencies: Map<string, TaskDependency[]>,
   ): Task[] {
     const dependencies = taskDependencies.get(taskId) || [];
     const dependencyTasks: Task[] = [];
@@ -296,8 +305,9 @@ Focus on delivering production-ready results that exceed expectations.`;
     for (const dep of dependencies) {
       if (dep.taskId !== taskId) continue;
 
-      const dependencyTask = taskQueue.get(dep.dependsOnTaskId) ||
-                           completedTasks.get(dep.dependsOnTaskId);
+      const dependencyTask =
+        taskQueue.get(dep.dependsOnTaskId) ||
+        completedTasks.get(dep.dependsOnTaskId);
 
       if (dependencyTask) {
         dependencyTasks.push(dependencyTask);
@@ -313,18 +323,18 @@ Focus on delivering production-ready results that exceed expectations.`;
   static updateTaskProgress(task: Task, message: string): void {
     // Simple progress analysis based on message content
     const progressKeywords = {
-      'starting': 10,
-      'analyzing': 15,
-      'implementing': 30,
-      'coding': 40,
-      'testing': 60,
-      'validating': 70,
-      'documenting': 80,
-      'reviewing': 85,
-      'completing': 95,
-      'finished': 100,
-      'done': 100,
-      'complete': 100
+      starting: 10,
+      analyzing: 15,
+      implementing: 30,
+      coding: 40,
+      testing: 60,
+      validating: 70,
+      documenting: 80,
+      reviewing: 85,
+      completing: 95,
+      finished: 100,
+      done: 100,
+      complete: 100,
     };
 
     const messageLower = message.toLowerCase();
@@ -357,7 +367,7 @@ Focus on delivering production-ready results that exceed expectations.`;
     completedTaskId: string,
     taskQueue: Map<string, Task>,
     taskDependencies: Map<string, TaskDependency[]>,
-    scheduleFunction: (taskId: string) => Promise<void>
+    scheduleFunction: (taskId: string) => Promise<void>,
   ): Promise<void> {
     // Find all tasks that depend on the completed task
     const dependentTasks: string[] = [];
@@ -374,7 +384,11 @@ Focus on delivering production-ready results that exceed expectations.`;
     // Schedule dependent tasks that are now ready
     for (const taskId of dependentTasks) {
       const task = taskQueue.get(taskId);
-      if (task && (task.status === TaskStatus.ASSIGNED || task.status === TaskStatus.QUEUED)) {
+      if (
+        task &&
+        (task.status === TaskStatus.ASSIGNED ||
+          task.status === TaskStatus.QUEUED)
+      ) {
         await scheduleFunction(taskId);
       }
     }
@@ -388,7 +402,7 @@ Focus on delivering production-ready results that exceed expectations.`;
     taskQueue: Map<string, Task>,
     taskDependencies: Map<string, TaskDependency[]>,
     updateTaskStatus: (task: Task, status: TaskStatus) => void,
-    handleTaskError: (task: Task, error: string) => void
+    handleTaskError: (task: Task, error: string) => void,
   ): Promise<void> {
     // Find all tasks that depend on the failed task
     const dependentTasks: string[] = [];
@@ -408,8 +422,8 @@ Focus on delivering production-ready results that exceed expectations.`;
       if (!task) continue;
 
       const dependencies = taskDependencies.get(taskId) || [];
-      const relevantDep = dependencies.find(dep =>
-        dep.dependsOnTaskId === failedTaskId && dep.taskId === taskId
+      const relevantDep = dependencies.find(
+        (dep) => dep.dependsOnTaskId === failedTaskId && dep.taskId === taskId,
       );
 
       if (!relevantDep) continue;
@@ -417,12 +431,18 @@ Focus on delivering production-ready results that exceed expectations.`;
       if (relevantDep.type === 'hard') {
         // Hard dependency - cancel the task
         updateTaskStatus(task, TaskStatus.CANCELLED);
-        handleTaskError(task, `Cancelled due to hard dependency failure: ${failedTaskId}`);
+        handleTaskError(
+          task,
+          `Cancelled due to hard dependency failure: ${failedTaskId}`,
+        );
       } else {
         // Soft dependency - could potentially continue, but for now we'll cancel
         // In future versions, we might implement smarter handling
         updateTaskStatus(task, TaskStatus.CANCELLED);
-        handleTaskError(task, `Cancelled due to dependency failure: ${failedTaskId}`);
+        handleTaskError(
+          task,
+          `Cancelled due to dependency failure: ${failedTaskId}`,
+        );
       }
     }
   }
@@ -431,9 +451,10 @@ Focus on delivering production-ready results that exceed expectations.`;
    * Generates task summary for reporting
    */
   static generateTaskSummary(task: Task): string {
-    const duration = task.completedAt && task.startedAt
-      ? task.completedAt.getTime() - task.startedAt.getTime()
-      : 0;
+    const duration =
+      task.completedAt && task.startedAt
+        ? task.completedAt.getTime() - task.startedAt.getTime()
+        : 0;
 
     return `Task ${task.id} (${task.title}):
 - Status: ${task.status}
@@ -460,7 +481,10 @@ ${task.lastError ? `- Last Error: ${task.lastError}` : ''}`;
       errors.push('Task description is required');
     }
 
-    if (task.maxExecutionTimeMinutes !== undefined && task.maxExecutionTimeMinutes <= 0) {
+    if (
+      task.maxExecutionTimeMinutes !== undefined &&
+      task.maxExecutionTimeMinutes <= 0
+    ) {
       errors.push('Max execution time must be positive');
     }
 
@@ -468,7 +492,10 @@ ${task.lastError ? `- Last Error: ${task.lastError}` : ''}`;
       errors.push('Max retries cannot be negative');
     }
 
-    if (task.priority !== undefined && !Object.values(TaskType).includes(task.priority as any)) {
+    if (
+      task.priority !== undefined &&
+      !Object.values(TaskType).includes(task.priority as any)
+    ) {
       errors.push('Invalid task priority');
     }
 
@@ -480,15 +507,24 @@ ${task.lastError ? `- Last Error: ${task.lastError}` : ''}`;
    */
   static getStatusDescription(status: TaskStatus): string {
     switch (status) {
-      case TaskStatus.QUEUED: return 'Waiting in queue for analysis';
-      case TaskStatus.ANALYZED: return 'Analysis complete, ready for assignment';
-      case TaskStatus.ASSIGNED: return 'Assigned to execution engine';
-      case TaskStatus.IN_PROGRESS: return 'Currently executing';
-      case TaskStatus.BLOCKED: return 'Blocked waiting for dependencies';
-      case TaskStatus.VALIDATION: return 'Validating results';
-      case TaskStatus.COMPLETED: return 'Successfully completed';
-      case TaskStatus.FAILED: return 'Failed execution';
-      case TaskStatus.CANCELLED: return 'Cancelled by system or user';
+      case TaskStatus.QUEUED:
+        return 'Waiting in queue for analysis';
+      case TaskStatus.ANALYZED:
+        return 'Analysis complete, ready for assignment';
+      case TaskStatus.ASSIGNED:
+        return 'Assigned to execution engine';
+      case TaskStatus.IN_PROGRESS:
+        return 'Currently executing';
+      case TaskStatus.BLOCKED:
+        return 'Blocked waiting for dependencies';
+      case TaskStatus.VALIDATION:
+        return 'Validating results';
+      case TaskStatus.COMPLETED:
+        return 'Successfully completed';
+      case TaskStatus.FAILED:
+        return 'Failed execution';
+      case TaskStatus.CANCELLED:
+        return 'Cancelled by system or user';
     }
   }
 
@@ -503,20 +539,22 @@ ${task.lastError ? `- Last Error: ${task.lastError}` : ''}`;
     averageDurationMs: number;
     successRate: number;
   } {
-    const completed = tasks.filter(t => t.status === TaskStatus.COMPLETED);
-    const failed = tasks.filter(t => t.status === TaskStatus.FAILED);
-    const inProgress = tasks.filter(t => t.status === TaskStatus.IN_PROGRESS);
+    const completed = tasks.filter((t) => t.status === TaskStatus.COMPLETED);
+    const failed = tasks.filter((t) => t.status === TaskStatus.FAILED);
+    const inProgress = tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS);
 
     const totalFinished = completed.length + failed.length;
-    const successRate = totalFinished > 0 ? (completed.length / totalFinished) * 100 : 0;
+    const successRate =
+      totalFinished > 0 ? (completed.length / totalFinished) * 100 : 0;
 
     const durations = completed
-      .filter(t => t.startedAt && t.completedAt)
-      .map(t => t.completedAt!.getTime() - t.startedAt!.getTime());
+      .filter((t) => t.startedAt && t.completedAt)
+      .map((t) => t.completedAt!.getTime() - t.startedAt!.getTime());
 
-    const averageDurationMs = durations.length > 0
-      ? durations.reduce((sum, d) => sum + d, 0) / durations.length
-      : 0;
+    const averageDurationMs =
+      durations.length > 0
+        ? durations.reduce((sum, d) => sum + d, 0) / durations.length
+        : 0;
 
     return {
       total: tasks.length,
@@ -524,7 +562,7 @@ ${task.lastError ? `- Last Error: ${task.lastError}` : ''}`;
       failed: failed.length,
       inProgress: inProgress.length,
       averageDurationMs,
-      successRate
+      successRate,
     };
   }
 }

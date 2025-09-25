@@ -5,11 +5,11 @@
  */
 
 declare module 'vitest' {
-    interface Assertion<T> {
-        toHaveOnlyValidCharacters(): T;
-    }
-    interface AsymmetricMatchersContaining {
-        toHaveOnlyValidCharacters(): void;
-    }
+  interface Assertion<T> {
+    toHaveOnlyValidCharacters(): T;
+  }
+  interface AsymmetricMatchersContaining {
+    toHaveOnlyValidCharacters(): void;
+  }
 }
 export {};

@@ -157,7 +157,10 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
   private readonly sessionInfo: SessionInfo;
   private readonly taskStates = new Map<string, CrossSessionTaskState>();
   private readonly checkpoints = new Map<string, SessionCheckpoint>();
-  private readonly operationCache = new Map<string, { data: unknown; timestamp: number }>();
+  private readonly operationCache = new Map<
+    string,
+    { data: unknown; timestamp: number }
+  >();
 
   // Timers for periodic operations
   private heartbeatTimer?: NodeJS.Timeout;
@@ -247,11 +250,12 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         duration,
         crashRecoveryPerformed: this.config.crashRecoveryEnabled,
       });
-
     } catch (error) {
       this.sessionInfo.statistics.errorsEncountered++;
       this.emit('initialization-error', { error });
-      throw new Error(`Failed to initialize cross-session persistence: ${error}`);
+      throw new Error(
+        `Failed to initialize cross-session persistence: ${error}`,
+      );
     }
   }
 
@@ -299,7 +303,6 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         operationId,
         duration,
       });
-
     } catch (error) {
       this.sessionInfo.statistics.errorsEncountered++;
       this.emit('save-error', {
@@ -360,7 +363,6 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
       });
 
       return taskState;
-
     } catch (error) {
       this.sessionInfo.statistics.errorsEncountered++;
       this.emit('load-error', { taskId, error });
@@ -379,7 +381,9 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
   /**
    * Create manual checkpoint
    */
-  async createCheckpoint(type: 'automatic' | 'manual' | 'crash_recovery' = 'manual'): Promise<string> {
+  async createCheckpoint(
+    type: 'automatic' | 'manual' | 'crash_recovery' = 'manual',
+  ): Promise<string> {
     const startTime = performance.now();
     const checkpointId = randomUUID();
 
@@ -416,7 +420,6 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
       });
 
       return checkpointId;
-
     } catch (error) {
       this.sessionInfo.statistics.errorsEncountered++;
       this.emit('checkpoint-error', { checkpointId, type, error });
@@ -440,7 +443,9 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
 
       // Validate checkpoint integrity
       if (!this.validateCheckpointIntegrity(checkpoint)) {
-        throw new Error(`Checkpoint ${checkpointId} failed integrity validation`);
+        throw new Error(
+          `Checkpoint ${checkpointId} failed integrity validation`,
+        );
       }
 
       // Clear current state
@@ -460,7 +465,6 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         tasksRestored: checkpoint.taskStates.size,
         duration,
       });
-
     } catch (error) {
       this.sessionInfo.statistics.errorsEncountered++;
       this.emit('restore-error', { checkpointId, error });
@@ -515,9 +519,11 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         statistics: this.sessionInfo.statistics,
         force,
       });
-
     } catch (error) {
-      this.emit('shutdown-error', { sessionId: this.sessionInfo.sessionId, error });
+      this.emit('shutdown-error', {
+        sessionId: this.sessionInfo.sessionId,
+        error,
+      });
       throw error;
     }
   }
@@ -537,13 +543,22 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     if (!taskState.id) throw new Error('Task state must have an ID');
     if (!taskState.name) throw new Error('Task state must have a name');
     if (!taskState.type) throw new Error('Task state must have a type');
-    if (!['pending', 'running', 'completed', 'failed', 'cancelled'].includes(taskState.status)) {
+    if (
+      !['pending', 'running', 'completed', 'failed', 'cancelled'].includes(
+        taskState.status,
+      )
+    ) {
       throw new Error('Task state must have a valid status');
     }
   }
 
-  private async persistTaskStateToDisk(taskState: CrossSessionTaskState): Promise<void> {
-    const taskFile = join(this.config.persistenceDirectory, `task-${taskState.id}.json`);
+  private async persistTaskStateToDisk(
+    taskState: CrossSessionTaskState,
+  ): Promise<void> {
+    const taskFile = join(
+      this.config.persistenceDirectory,
+      `task-${taskState.id}.json`,
+    );
     const data = JSON.stringify(taskState, null, 2);
     await fs.writeFile(taskFile, data, 'utf8');
   }
@@ -571,7 +586,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         if (file.startsWith('checkpoint-') && file.endsWith('.json')) {
           try {
             const checkpoint = await this.loadCheckpointFromDisk(
-              file.replace('checkpoint-', '').replace('.json', '')
+              file.replace('checkpoint-', '').replace('.json', ''),
             );
             if (checkpoint) {
               this.checkpoints.set(checkpoint.id, checkpoint);
@@ -581,7 +596,6 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
           }
         }
       }
-
     } catch (error) {
       // Directory doesn't exist or is empty, which is fine
     }
@@ -593,11 +607,16 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     try {
       // Find any orphaned session files from previous crashes
       const files = await fs.readdir(this.config.persistenceDirectory);
-      const sessionFiles = files.filter(f => f.startsWith('session-') && f.endsWith('.json'));
+      const sessionFiles = files.filter(
+        (f) => f.startsWith('session-') && f.endsWith('.json'),
+      );
 
       for (const sessionFile of sessionFiles) {
         try {
-          const sessionPath = join(this.config.persistenceDirectory, sessionFile);
+          const sessionPath = join(
+            this.config.persistenceDirectory,
+            sessionFile,
+          );
           const data = await fs.readFile(sessionPath, 'utf8');
           const sessionInfo: SessionInfo = JSON.parse(data);
 
@@ -610,7 +629,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
 
             // Find most recent checkpoint for this session
             const sessionCheckpoints = Array.from(this.checkpoints.values())
-              .filter(cp => cp.sessionId === sessionInfo.sessionId)
+              .filter((cp) => cp.sessionId === sessionInfo.sessionId)
               .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
             if (sessionCheckpoints.length > 0) {
@@ -630,7 +649,6 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
           // Skip corrupted session files
         }
       }
-
     } catch (error) {
       // No session files or directory doesn't exist
     }
@@ -641,8 +659,10 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     const lastHeartbeat = new Date(sessionInfo.lastHeartbeat).getTime();
     const timeSinceHeartbeat = now - lastHeartbeat;
 
-    return sessionInfo.state === 'active' &&
-           timeSinceHeartbeat > (this.config.sessionTimeoutMs || 600_000);
+    return (
+      sessionInfo.state === 'active' &&
+      timeSinceHeartbeat > (this.config.sessionTimeoutMs || 600_000)
+    );
   }
 
   private startPeriodicOperations(): void {
@@ -668,26 +688,37 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     this.sessionInfo.lastHeartbeat = new Date();
     this.sessionInfo.statistics.averageOperationTime =
       this.operationMetrics.totalOperations > 0
-        ? this.operationMetrics.totalTime / this.operationMetrics.totalOperations
+        ? this.operationMetrics.totalTime /
+          this.operationMetrics.totalOperations
         : 0;
 
     await this.saveSessionMetadata();
   }
 
   private async saveSessionMetadata(): Promise<void> {
-    const sessionFile = join(this.config.persistenceDirectory, `session-${this.sessionInfo.sessionId}.json`);
+    const sessionFile = join(
+      this.config.persistenceDirectory,
+      `session-${this.sessionInfo.sessionId}.json`,
+    );
     const data = JSON.stringify(this.sessionInfo, null, 2);
     await fs.writeFile(sessionFile, data, 'utf8');
   }
 
   private shouldCreateCheckpoint(): boolean {
     // Create checkpoint every 1000 operations or if no checkpoints exist
-    return this.checkpoints.size === 0 ||
-           this.sessionInfo.statistics.operationsExecuted % 1000 === 0;
+    return (
+      this.checkpoints.size === 0 ||
+      this.sessionInfo.statistics.operationsExecuted % 1000 === 0
+    );
   }
 
-  private async saveCheckpointToDisk(checkpoint: SessionCheckpoint): Promise<void> {
-    const checkpointFile = join(this.config.persistenceDirectory, `checkpoint-${checkpoint.id}.json`);
+  private async saveCheckpointToDisk(
+    checkpoint: SessionCheckpoint,
+  ): Promise<void> {
+    const checkpointFile = join(
+      this.config.persistenceDirectory,
+      `checkpoint-${checkpoint.id}.json`,
+    );
 
     // Convert Map to Object for JSON serialization
     const serializable = {
@@ -699,9 +730,14 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     await fs.writeFile(checkpointFile, data, 'utf8');
   }
 
-  private async loadCheckpointFromDisk(checkpointId: string): Promise<SessionCheckpoint | null> {
+  private async loadCheckpointFromDisk(
+    checkpointId: string,
+  ): Promise<SessionCheckpoint | null> {
     try {
-      const checkpointFile = join(this.config.persistenceDirectory, `checkpoint-${checkpointId}.json`);
+      const checkpointFile = join(
+        this.config.persistenceDirectory,
+        `checkpoint-${checkpointId}.json`,
+      );
       const data = await fs.readFile(checkpointFile, 'utf8');
       const parsed = JSON.parse(data);
 
@@ -717,7 +753,9 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
   }
 
   private validateCheckpointIntegrity(checkpoint: SessionCheckpoint): boolean {
-    const calculatedHash = this.calculateIntegrityHashForData(checkpoint.taskStates);
+    const calculatedHash = this.calculateIntegrityHashForData(
+      checkpoint.taskStates,
+    );
     return calculatedHash === checkpoint.integrityHash;
   }
 
@@ -725,7 +763,9 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     return this.calculateIntegrityHashForData(this.taskStates);
   }
 
-  private calculateIntegrityHashForData(taskStates: Map<string, CrossSessionTaskState>): string {
+  private calculateIntegrityHashForData(
+    taskStates: Map<string, CrossSessionTaskState>,
+  ): string {
     const data = JSON.stringify(Array.from(taskStates.entries()).sort());
     const hash = createHash('sha256');
     hash.update(data);
@@ -741,8 +781,8 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     if (checkpointArray.length <= (this.config.maxCheckpoints || 10)) return;
 
     // Sort by timestamp, keep most recent
-    const sorted = checkpointArray.sort(([, a], [, b]) =>
-      b.timestamp.getTime() - a.timestamp.getTime()
+    const sorted = checkpointArray.sort(
+      ([, a], [, b]) => b.timestamp.getTime() - a.timestamp.getTime(),
     );
 
     const toDelete = sorted.slice(this.config.maxCheckpoints || 10);
@@ -753,7 +793,10 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
 
       // Remove from disk
       try {
-        const checkpointFile = join(this.config.persistenceDirectory, `checkpoint-${checkpointId}.json`);
+        const checkpointFile = join(
+          this.config.persistenceDirectory,
+          `checkpoint-${checkpointId}.json`,
+        );
         await fs.unlink(checkpointFile);
       } catch (error) {
         // File might already be deleted
@@ -779,7 +822,10 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
       const entries = Array.from(this.operationCache.entries());
       entries.sort(([, a], [, b]) => a.timestamp - b.timestamp);
 
-      const toRemove = entries.slice(0, this.operationCache.size - maxCacheSize);
+      const toRemove = entries.slice(
+        0,
+        this.operationCache.size - maxCacheSize,
+      );
       toRemove.forEach(([key]) => this.operationCache.delete(key));
     }
   }
@@ -815,7 +861,10 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
           error: error.message,
         });
       } catch (checkpointError) {
-        console.error('Failed to create emergency checkpoint:', checkpointError);
+        console.error(
+          'Failed to create emergency checkpoint:',
+          checkpointError,
+        );
       }
       process.exit(1);
     });
@@ -828,7 +877,10 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
           error: `Unhandled rejection: ${reason}`,
         });
       } catch (checkpointError) {
-        console.error('Failed to create emergency checkpoint:', checkpointError);
+        console.error(
+          'Failed to create emergency checkpoint:',
+          checkpointError,
+        );
       }
     });
   }

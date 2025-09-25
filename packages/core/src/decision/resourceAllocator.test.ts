@@ -5,9 +5,7 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import type {
-  ResourceInfo,
-  AllocationRequest} from './resourceAllocator';
+import type { ResourceInfo, AllocationRequest } from './resourceAllocator';
 import {
   ResourceAllocator,
   ResourceType,
@@ -62,12 +60,41 @@ describe('ResourceAllocator', () => {
     // Set up test context
     testContext = {
       systemLoad: { cpu: 0.3, memory: 0.4, diskIO: 0.2, networkIO: 0.1 },
-      taskQueueState: { totalTasks: 5, pendingTasks: 2, runningTasks: 2, failedTasks: 1, avgProcessingTime: 30000 },
-      agentContext: { activeAgents: 3, maxConcurrentAgents: 10, agentCapabilities: {}, agentWorkloads: {} },
-      projectState: { buildStatus: 'success', testStatus: 'passing', lintStatus: 'clean', gitStatus: 'clean' },
-      budgetContext: { currentUsage: 50, costPerToken: 0.001, estimatedCostForTask: 10 },
-      performanceHistory: { avgSuccessRate: 0.95, avgCompletionTime: 45000, commonFailureReasons: [], peakUsageHours: [9, 14, 16] },
-      userPreferences: { allowAutonomousDecisions: true, maxConcurrentTasks: 5, criticalTaskNotification: true },
+      taskQueueState: {
+        totalTasks: 5,
+        pendingTasks: 2,
+        runningTasks: 2,
+        failedTasks: 1,
+        avgProcessingTime: 30000,
+      },
+      agentContext: {
+        activeAgents: 3,
+        maxConcurrentAgents: 10,
+        agentCapabilities: {},
+        agentWorkloads: {},
+      },
+      projectState: {
+        buildStatus: 'success',
+        testStatus: 'passing',
+        lintStatus: 'clean',
+        gitStatus: 'clean',
+      },
+      budgetContext: {
+        currentUsage: 50,
+        costPerToken: 0.001,
+        estimatedCostForTask: 10,
+      },
+      performanceHistory: {
+        avgSuccessRate: 0.95,
+        avgCompletionTime: 45000,
+        commonFailureReasons: [],
+        peakUsageHours: [9, 14, 16],
+      },
+      userPreferences: {
+        allowAutonomousDecisions: true,
+        maxConcurrentTasks: 5,
+        criticalTaskNotification: true,
+      },
       timestamp: Date.now(),
     };
   });
@@ -179,7 +206,10 @@ describe('ResourceAllocator', () => {
         businessValue: 0.7,
       };
 
-      const result = await allocator.allocateResources(request, budgetConstrainedContext);
+      const result = await allocator.allocateResources(
+        request,
+        budgetConstrainedContext,
+      );
 
       expect(result.success).toBe(false);
       expect(result.reason).toContain('budget constraints');
@@ -290,7 +320,10 @@ describe('ResourceAllocator', () => {
       const spy = vi.fn();
       allocator.on('allocation-queued', spy);
 
-      const result = await allocator.allocateResources(secondRequest, testContext);
+      const result = await allocator.allocateResources(
+        secondRequest,
+        testContext,
+      );
 
       expect(result.success).toBe(false);
       expect(result.estimatedStartTime).toBeDefined();
@@ -334,7 +367,10 @@ describe('ResourceAllocator', () => {
         businessValue: 0.9,
       };
 
-      const queueResult = await allocator.allocateResources(secondRequest, testContext);
+      const queueResult = await allocator.allocateResources(
+        secondRequest,
+        testContext,
+      );
       expect(queueResult.success).toBe(false);
 
       const metrics = allocator.getMetrics();
@@ -344,7 +380,7 @@ describe('ResourceAllocator', () => {
       allocator.releaseResources('queue-test-1');
 
       // Give queue processing time
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const newMetrics = allocator.getMetrics();
       expect(newMetrics.queueLength).toBe(0);
@@ -392,7 +428,9 @@ describe('ResourceAllocator', () => {
 
       allocator.updateStrategy(AllocationStrategies.Efficiency);
 
-      expect(spy).toHaveBeenCalledWith({ strategy: AllocationStrategies.Efficiency });
+      expect(spy).toHaveBeenCalledWith({
+        strategy: AllocationStrategies.Efficiency,
+      });
     });
 
     test('should use different strategies appropriately', async () => {
@@ -458,25 +496,45 @@ describe('ResourceAllocator', () => {
 
     test('should track queue length', async () => {
       // Fill up CPU resources
-      await allocator.allocateResources({
-        requestId: 'fill-cpu',
-        taskId: 'fill-task',
-        requirements: [{ type: ResourceType.CPU, amount: 100, priority: DecisionPriority.NORMAL, flexible: false }],
-        preemptible: false,
-        estimatedDuration: 60000,
-        businessValue: 0.8,
-      }, testContext);
+      await allocator.allocateResources(
+        {
+          requestId: 'fill-cpu',
+          taskId: 'fill-task',
+          requirements: [
+            {
+              type: ResourceType.CPU,
+              amount: 100,
+              priority: DecisionPriority.NORMAL,
+              flexible: false,
+            },
+          ],
+          preemptible: false,
+          estimatedDuration: 60000,
+          businessValue: 0.8,
+        },
+        testContext,
+      );
 
       // Queue several requests
       for (let i = 0; i < 3; i++) {
-        await allocator.allocateResources({
-          requestId: `queued-${i}`,
-          taskId: `queued-task-${i}`,
-          requirements: [{ type: ResourceType.CPU, amount: 10, priority: DecisionPriority.NORMAL, flexible: false }],
-          preemptible: false,
-          estimatedDuration: 30000,
-          businessValue: 0.7,
-        }, testContext);
+        await allocator.allocateResources(
+          {
+            requestId: `queued-${i}`,
+            taskId: `queued-task-${i}`,
+            requirements: [
+              {
+                type: ResourceType.CPU,
+                amount: 10,
+                priority: DecisionPriority.NORMAL,
+                flexible: false,
+              },
+            ],
+            preemptible: false,
+            estimatedDuration: 30000,
+            businessValue: 0.7,
+          },
+          testContext,
+        );
       }
 
       const metrics = allocator.getMetrics();
@@ -489,7 +547,11 @@ describe('ResourceAllocator', () => {
       // Enable preemption strategy
       allocator.updateStrategy({
         ...AllocationStrategies.Balanced,
-        preemption: { enabled: true, minPriorityDifference: 1, gracePeriod: 100 },
+        preemption: {
+          enabled: true,
+          minPriorityDifference: 1,
+          gracePeriod: 100,
+        },
       });
 
       // Allocate with low priority
@@ -531,7 +593,10 @@ describe('ResourceAllocator', () => {
         businessValue: 0.9,
       };
 
-      const result = await allocator.allocateResources(highPriorityRequest, testContext);
+      const result = await allocator.allocateResources(
+        highPriorityRequest,
+        testContext,
+      );
 
       expect(result.success).toBe(true);
       expect(spy).toHaveBeenCalled();
@@ -547,7 +612,10 @@ describe('ResourceAllocator', () => {
           averageUtilization: 0.65,
           variance: 0.12,
           seasonality: {
-            daily: [0.3, 0.2, 0.1, 0.1, 0.2, 0.4, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8, 0.7, 0.9, 1.0, 0.9, 0.8, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2, 0.2],
+            daily: [
+              0.3, 0.2, 0.1, 0.1, 0.2, 0.4, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8, 0.7,
+              0.9, 1.0, 0.9, 0.8, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2, 0.2,
+            ],
             weekly: [0.8, 0.9, 0.95, 1.0, 0.95, 0.6, 0.4],
           },
         },
@@ -589,7 +657,10 @@ describe('ResourceAllocator', () => {
         businessValue: 0,
       };
 
-      const result = await allocator.allocateResources(invalidRequest, testContext);
+      const result = await allocator.allocateResources(
+        invalidRequest,
+        testContext,
+      );
 
       expect(result.success).toBe(false);
       expect(result.reason).toContain('Missing required identifiers');
@@ -612,7 +683,10 @@ describe('ResourceAllocator', () => {
         businessValue: 0.5,
       };
 
-      const result = await allocator.allocateResources(invalidRequest, testContext);
+      const result = await allocator.allocateResources(
+        invalidRequest,
+        testContext,
+      );
 
       expect(result.success).toBe(false);
       expect(result.reason).toContain('Unknown resource type');
@@ -641,7 +715,10 @@ describe('ResourceAllocator', () => {
 
       // This should not actually cause an error in our current implementation,
       // so we'll manually trigger an error event to test the spy
-      allocator.emit('allocation-error', { request, error: new Error('Test error') });
+      allocator.emit('allocation-error', {
+        request,
+        error: new Error('Test error'),
+      });
 
       expect(spy).toHaveBeenCalledWith({
         request,
@@ -711,7 +788,7 @@ describe('ResourceAllocator', () => {
       vi.advanceTimersByTime(6000);
 
       // Allow promises to resolve
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       status = allocator.getResourceStatus();
       expect(status.get(ResourceType.AGENT)?.allocated).toBe(0);
@@ -737,18 +814,20 @@ describe('AllocationStrategies', () => {
   });
 
   test('should have appropriate preemption settings', () => {
-    expect(AllocationStrategies.Efficiency.preemption.minPriorityDifference).toBeLessThan(
-      AllocationStrategies.Fairness.preemption.minPriorityDifference
+    expect(
+      AllocationStrategies.Efficiency.preemption.minPriorityDifference,
+    ).toBeLessThan(
+      AllocationStrategies.Fairness.preemption.minPriorityDifference,
     );
     expect(AllocationStrategies.Fairness.preemption.enabled).toBe(false);
-    expect(AllocationStrategies.DeadlineOptimized.preemption.gracePeriod).toBeLessThan(
-      AllocationStrategies.Balanced.preemption.gracePeriod
-    );
+    expect(
+      AllocationStrategies.DeadlineOptimized.preemption.gracePeriod,
+    ).toBeLessThan(AllocationStrategies.Balanced.preemption.gracePeriod);
   });
 
   test('should have logical overcommit ratios', () => {
     expect(AllocationStrategies.Efficiency.overcommit.ratio).toBeGreaterThan(
-      AllocationStrategies.Balanced.overcommit.ratio
+      AllocationStrategies.Balanced.overcommit.ratio,
     );
     expect(AllocationStrategies.Fairness.overcommit.enabled).toBe(false);
   });

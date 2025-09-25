@@ -8,14 +8,18 @@ import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import type {
   QualityAssuranceResult,
-  QualityMetrics} from '../QualityAssurance.js';
+  QualityMetrics,
+} from '../QualityAssurance.js';
 import {
   QualityAssurance,
   QualityCheckType,
   QualityThresholds,
-  QualityViolation
+  QualityViolation,
 } from '../QualityAssurance.js';
-import { ValidationFramework, ValidationSeverity } from '../ValidationFramework.js';
+import {
+  ValidationFramework,
+  ValidationSeverity,
+} from '../ValidationFramework.js';
 import type { TaskExecutionMetrics } from '../TaskValidator.js';
 import { TaskValidator } from '../TaskValidator.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
@@ -41,8 +45,8 @@ describe('QualityAssurance', () => {
       getStatistics: vi.fn().mockReturnValue({
         registeredRules: 8,
         activeValidations: 1,
-        enabledCategories: []
-      })
+        enabledCategories: [],
+      }),
     } as any;
 
     // Create mock task validator
@@ -52,14 +56,14 @@ describe('QualityAssurance', () => {
         activeValidations: 0,
         totalSnapshots: 5,
         configuredThresholds: {},
-        frameworkStats: {}
-      })
+        frameworkStats: {},
+      }),
     } as any;
 
     // Create quality assurance system
     qualityAssurance = new QualityAssurance(
       mockValidationFramework,
-      mockTaskValidator
+      mockTaskValidator,
     );
 
     // Create mock task
@@ -73,8 +77,8 @@ describe('QualityAssurance', () => {
       metadata: {
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'qa-test'
-      }
+        createdBy: 'qa-test',
+      },
     } as Task;
   });
 
@@ -92,7 +96,9 @@ describe('QualityAssurance', () => {
       // Should register rules for each quality check type
       expect(mockValidationFramework.registerRule).toHaveBeenCalled();
 
-      const ruleIds = mockValidationFramework.registerRule.mock.calls.map(call => call[0].id);
+      const ruleIds = mockValidationFramework.registerRule.mock.calls.map(
+        (call) => call[0].id,
+      );
       expect(ruleIds).toContain('quality-check-code_quality');
       expect(ruleIds).toContain('quality-check-performance');
       expect(ruleIds).toContain('quality-check-security');
@@ -101,19 +107,22 @@ describe('QualityAssurance', () => {
 
     it('should initialize with custom configuration', () => {
       const customConfig = {
-        enabledChecks: [QualityCheckType.SECURITY, QualityCheckType.PERFORMANCE],
+        enabledChecks: [
+          QualityCheckType.SECURITY,
+          QualityCheckType.PERFORMANCE,
+        ],
         alerting: {
           enabled: false,
           thresholdViolations: false,
           trendDegradation: false,
-          anomalyDetection: false
-        }
+          anomalyDetection: false,
+        },
       };
 
       const customQA = new QualityAssurance(
         mockValidationFramework,
         mockTaskValidator,
-        customConfig
+        customConfig,
       );
 
       expect(customQA).toBeInstanceOf(QualityAssurance);
@@ -131,10 +140,10 @@ describe('QualityAssurance', () => {
           endTime: new Date(),
           duration: 5000,
           memoryUsage: 256,
-          cpuUsage: 30
+          cpuUsage: 30,
         },
         artifacts: ['output.log'],
-        validationResults: []
+        validationResults: [],
       };
 
       const executionMetrics: TaskExecutionMetrics = {
@@ -144,11 +153,11 @@ describe('QualityAssurance', () => {
         memoryUsage: {
           peak: 256 * 1024 * 1024,
           average: 128 * 1024 * 1024,
-          current: 100 * 1024 * 1024
+          current: 100 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 30,
-          average: 25
+          average: 25,
         },
         errorCount: 0,
         warningCount: 1,
@@ -156,14 +165,14 @@ describe('QualityAssurance', () => {
         throughput: 100,
         qualityMetrics: {
           codeComplexity: 12,
-          testCoverage: 85
-        }
+          testCoverage: 85,
+        },
       };
 
       const result = await qualityAssurance.performQualityAssurance(
         mockTask,
         taskResult,
-        executionMetrics
+        executionMetrics,
       );
 
       expect(result).toBeDefined();
@@ -183,17 +192,17 @@ describe('QualityAssurance', () => {
         error: {
           message: 'Task execution failed',
           code: 'EXECUTION_ERROR',
-          stack: 'Error stack trace'
+          stack: 'Error stack trace',
         },
         metrics: {
           startTime: new Date(Date.now() - 60000),
           endTime: new Date(),
           duration: 60000, // Exceeds warning threshold
           memoryUsage: 2048, // Exceeds critical threshold
-          cpuUsage: 95 // Very high CPU usage
+          cpuUsage: 95, // Very high CPU usage
         },
         artifacts: [],
-        validationResults: []
+        validationResults: [],
       };
 
       const executionMetrics: TaskExecutionMetrics = {
@@ -203,11 +212,11 @@ describe('QualityAssurance', () => {
         memoryUsage: {
           peak: 2048 * 1024 * 1024, // 2GB - exceeds threshold
           average: 1024 * 1024 * 1024,
-          current: 1500 * 1024 * 1024
+          current: 1500 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 95,
-          average: 80
+          average: 80,
         },
         errorCount: 5,
         warningCount: 10,
@@ -215,14 +224,14 @@ describe('QualityAssurance', () => {
         throughput: 10,
         qualityMetrics: {
           codeComplexity: 35, // High complexity
-          testCoverage: 45 // Low coverage
-        }
+          testCoverage: 45, // Low coverage
+        },
       };
 
       const result = await qualityAssurance.performQualityAssurance(
         mockTask,
         taskResult,
-        executionMetrics
+        executionMetrics,
       );
 
       expect(result.passed).toBe(false);
@@ -232,7 +241,7 @@ describe('QualityAssurance', () => {
 
     it('should prevent concurrent quality checks for same task', async () => {
       // Mock a slow quality check
-      const slowCheck = new Promise<QualityAssuranceResult>(resolve => {
+      const slowCheck = new Promise<QualityAssuranceResult>((resolve) => {
         setTimeout(() => {
           resolve({
             id: 'qa-result-1',
@@ -246,12 +255,13 @@ describe('QualityAssurance', () => {
             violations: [],
             trends: [],
             recommendations: [],
-            validationResults: []
+            validationResults: [],
           });
         }, 100);
       });
 
-      const performQualityAssuranceSpy = vi.spyOn(qualityAssurance as any, 'executeComprehensiveQualityCheck')
+      const performQualityAssuranceSpy = vi
+        .spyOn(qualityAssurance as any, 'executeComprehensiveQualityCheck')
         .mockReturnValue(slowCheck);
 
       // Start two quality checks simultaneously
@@ -288,11 +298,11 @@ describe('QualityAssurance', () => {
         memoryUsage: {
           peak: 512 * 1024 * 1024,
           average: 256 * 1024 * 1024,
-          current: 200 * 1024 * 1024
+          current: 200 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 45,
-          average: 30
+          average: 30,
         },
         errorCount: 1,
         warningCount: 3,
@@ -300,14 +310,14 @@ describe('QualityAssurance', () => {
         throughput: 150,
         qualityMetrics: {
           codeComplexity: 18,
-          testCoverage: 78
-        }
+          testCoverage: 78,
+        },
       };
 
       const result = await qualityAssurance.performQualityAssurance(
         mockTask,
         undefined,
-        executionMetrics
+        executionMetrics,
       );
 
       expect(result.metrics).toBeDefined();
@@ -333,7 +343,7 @@ describe('QualityAssurance', () => {
             testCoverage: 85, // Above threshold
             codeSmells: 5,
             technicalDebt: 20,
-            duplication: 8
+            duplication: 8,
           },
           performance: {
             executionTime: 10000,
@@ -341,7 +351,7 @@ describe('QualityAssurance', () => {
             cpuUtilization: 30,
             throughput: 100,
             responseTime: 500,
-            resourceEfficiency: 0.8
+            resourceEfficiency: 0.8,
           },
           security: {
             vulnerabilities: 0,
@@ -349,7 +359,7 @@ describe('QualityAssurance', () => {
             exposedSecrets: 0,
             complianceViolations: 0,
             accessControlIssues: 0,
-            encryptionCoverage: 95
+            encryptionCoverage: 95,
           },
           reliability: {
             errorRate: 0.01,
@@ -357,7 +367,7 @@ describe('QualityAssurance', () => {
             recoveryTime: 30,
             uptime: 99.9,
             resilience: 0.9,
-            faultTolerance: 0.85
+            faultTolerance: 0.85,
           },
           business: {
             userSatisfaction: 4.2,
@@ -365,8 +375,8 @@ describe('QualityAssurance', () => {
             requirementsCoverage: 98,
             businessValue: 80,
             roi: 2.5,
-            timeToMarket: 60
-          }
+            timeToMarket: 60,
+          },
         };
 
         const result = await qualityAssurance.performQualityAssurance(mockTask);
@@ -380,7 +390,7 @@ describe('QualityAssurance', () => {
       it('should detect code quality violations', async () => {
         const badTask = {
           ...mockTask,
-          description: 'x'.repeat(5000) // Very long description indicating high complexity
+          description: 'x'.repeat(5000), // Very long description indicating high complexity
         };
 
         const result = await qualityAssurance.performQualityAssurance(badTask);
@@ -399,26 +409,30 @@ describe('QualityAssurance', () => {
           memoryUsage: {
             peak: 256 * 1024 * 1024, // 256MB - acceptable
             average: 128 * 1024 * 1024,
-            current: 100 * 1024 * 1024
+            current: 100 * 1024 * 1024,
           },
           cpuUsage: {
             peak: 50,
-            average: 30
+            average: 30,
           },
           errorCount: 0,
           warningCount: 0,
           retryCount: 0,
-          throughput: 200
+          throughput: 200,
         };
 
         const result = await qualityAssurance.performQualityAssurance(
           mockTask,
           undefined,
-          goodExecutionMetrics
+          goodExecutionMetrics,
         );
 
         // Should pass performance checks
-        expect(result.violations.filter(v => v.category === QualityCheckType.PERFORMANCE).length).toBe(0);
+        expect(
+          result.violations.filter(
+            (v) => v.category === QualityCheckType.PERFORMANCE,
+          ).length,
+        ).toBe(0);
       });
 
       it('should detect performance violations', async () => {
@@ -429,22 +443,22 @@ describe('QualityAssurance', () => {
           memoryUsage: {
             peak: 2048 * 1024 * 1024, // 2GB - exceeds threshold
             average: 1024 * 1024 * 1024,
-            current: 1500 * 1024 * 1024
+            current: 1500 * 1024 * 1024,
           },
           cpuUsage: {
             peak: 95,
-            average: 85
+            average: 85,
           },
           errorCount: 0,
           warningCount: 0,
           retryCount: 0,
-          throughput: 10
+          throughput: 10,
         };
 
         const result = await qualityAssurance.performQualityAssurance(
           mockTask,
           undefined,
-          badExecutionMetrics
+          badExecutionMetrics,
         );
 
         // Should have performance violations
@@ -474,15 +488,15 @@ describe('QualityAssurance', () => {
             endTime: new Date(),
             duration: 5000,
             memoryUsage: 256,
-            cpuUsage: 30
+            cpuUsage: 30,
           },
           artifacts: [],
-          validationResults: []
+          validationResults: [],
         };
 
         const result = await qualityAssurance.performQualityAssurance(
           mockTask,
-          successfulTaskResult
+          successfulTaskResult,
         );
 
         expect(result.metrics.reliability.errorRate).toBe(0);
@@ -495,17 +509,17 @@ describe('QualityAssurance', () => {
           success: false,
           error: {
             message: 'Task execution failed',
-            code: 'EXECUTION_ERROR'
+            code: 'EXECUTION_ERROR',
           },
           metrics: {
             startTime: new Date(Date.now() - 10000),
             endTime: new Date(),
             duration: 10000,
             memoryUsage: 512,
-            cpuUsage: 60
+            cpuUsage: 60,
           },
           artifacts: [],
-          validationResults: []
+          validationResults: [],
         };
 
         const executionMetrics: TaskExecutionMetrics = {
@@ -515,17 +529,17 @@ describe('QualityAssurance', () => {
           memoryUsage: {
             peak: 512 * 1024 * 1024,
             average: 256 * 1024 * 1024,
-            current: 200 * 1024 * 1024
+            current: 200 * 1024 * 1024,
           },
           errorCount: 3, // Multiple errors
           warningCount: 5,
-          retryCount: 2
+          retryCount: 2,
         };
 
         const result = await qualityAssurance.performQualityAssurance(
           mockTask,
           failedTaskResult,
-          executionMetrics
+          executionMetrics,
         );
 
         expect(result.metrics.reliability.failureRate).toBe(1);
@@ -543,8 +557,8 @@ describe('QualityAssurance', () => {
           maxCpuUtilization: 70,
           minThroughput: 150,
           maxResponseTime: 800,
-          minResourceEfficiency: 0.8
-        }
+          minResourceEfficiency: 0.8,
+        },
       };
 
       qualityAssurance.updateQualityThresholds(newThresholds);
@@ -563,8 +577,8 @@ describe('QualityAssurance', () => {
           severity: ValidationSeverity.INFO,
           status: 'passed' as any,
           message: 'Custom business rule passed',
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ]);
 
       qualityAssurance.registerCustomCheck('business_rules', customCheck);
@@ -602,22 +616,22 @@ describe('QualityAssurance', () => {
         memoryUsage: {
           peak: 3072 * 1024 * 1024, // 3GB - critical
           average: 2048 * 1024 * 1024,
-          current: 2500 * 1024 * 1024
+          current: 2500 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 98,
-          average: 90
+          average: 90,
         },
         errorCount: 10,
         warningCount: 20,
         retryCount: 5,
-        throughput: 5
+        throughput: 5,
       };
 
       await qualityAssurance.performQualityAssurance(
         mockTask,
         undefined,
-        criticalExecutionMetrics
+        criticalExecutionMetrics,
       );
 
       // Should trigger alerts for critical issues
@@ -630,7 +644,7 @@ describe('QualityAssurance', () => {
     it('should handle quality check errors gracefully', async () => {
       const errorTask = {
         ...mockTask,
-        id: 'error-task'
+        id: 'error-task',
       };
 
       // Should not throw even if internal checks fail
@@ -643,7 +657,10 @@ describe('QualityAssurance', () => {
 
   describe('Cleanup', () => {
     it('should cleanup resources', async () => {
-      const removeAllListenersSpy = vi.spyOn(qualityAssurance, 'removeAllListeners');
+      const removeAllListenersSpy = vi.spyOn(
+        qualityAssurance,
+        'removeAllListeners',
+      );
 
       await qualityAssurance.cleanup();
 
@@ -660,7 +677,10 @@ describe('QualityAssurance Integration Tests', () => {
   beforeEach(() => {
     realValidationFramework = new ValidationFramework();
     realTaskValidator = new TaskValidator(realValidationFramework);
-    qualityAssurance = new QualityAssurance(realValidationFramework, realTaskValidator);
+    qualityAssurance = new QualityAssurance(
+      realValidationFramework,
+      realTaskValidator,
+    );
   });
 
   it('should perform end-to-end quality assurance', async () => {
@@ -674,8 +694,8 @@ describe('QualityAssurance Integration Tests', () => {
       metadata: {
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'integration-qa-test'
-      }
+        createdBy: 'integration-qa-test',
+      },
     } as Task;
 
     const taskResult: TaskResult = {
@@ -687,10 +707,10 @@ describe('QualityAssurance Integration Tests', () => {
         endTime: new Date(),
         duration: 8000,
         memoryUsage: 384,
-        cpuUsage: 25
+        cpuUsage: 25,
       },
       artifacts: ['integration-test.log'],
-      validationResults: []
+      validationResults: [],
     };
 
     const executionMetrics: TaskExecutionMetrics = {
@@ -700,11 +720,11 @@ describe('QualityAssurance Integration Tests', () => {
       memoryUsage: {
         peak: 384 * 1024 * 1024,
         average: 256 * 1024 * 1024,
-        current: 200 * 1024 * 1024
+        current: 200 * 1024 * 1024,
       },
       cpuUsage: {
         peak: 25,
-        average: 20
+        average: 20,
       },
       errorCount: 0,
       warningCount: 1,
@@ -712,14 +732,14 @@ describe('QualityAssurance Integration Tests', () => {
       throughput: 125,
       qualityMetrics: {
         codeComplexity: 8,
-        testCoverage: 92
-      }
+        testCoverage: 92,
+      },
     };
 
     const result = await qualityAssurance.performQualityAssurance(
       task,
       taskResult,
-      executionMetrics
+      executionMetrics,
     );
 
     expect(result).toBeDefined();

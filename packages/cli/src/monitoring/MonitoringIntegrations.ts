@@ -6,8 +6,7 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type {
-  TaskMetadata} from './TaskStatusMonitor.js';
+import type { TaskMetadata } from './TaskStatusMonitor.js';
 import {
   TaskStatusMonitor,
   TaskStatus,
@@ -153,7 +152,8 @@ export class MonitoringIntegrations extends EventEmitter {
     // Subscribe to filtered events for this system
     statusUpdateBroker.subscribe({
       subscriberId: `external_${config.name}`,
-      eventTypes: config.filterConfig?.eventTypes || Object.values(StatusEventType),
+      eventTypes:
+        config.filterConfig?.eventTypes || Object.values(StatusEventType),
       filters: {
         priorityThreshold: config.filterConfig?.priorityThreshold || 'low',
         agentIds: config.filterConfig?.agentIds,
@@ -176,7 +176,9 @@ export class MonitoringIntegrations extends EventEmitter {
   unregisterExternalSystem(systemName: string): void {
     const config = this.externalSystems.get(systemName);
     if (!config) {
-      this.logger.warning('Attempt to unregister unknown system', { systemName });
+      this.logger.warning('Attempt to unregister unknown system', {
+        systemName,
+      });
       return;
     }
 
@@ -199,9 +201,13 @@ export class MonitoringIntegrations extends EventEmitter {
       this.todoWriteState = {
         tasks: todoWriteTasks,
         totalTasks: todoWriteTasks.length,
-        completedTasks: todoWriteTasks.filter(t => t.status === 'completed').length,
-        inProgressTasks: todoWriteTasks.filter(t => t.status === 'in_progress').length,
-        pendingTasks: todoWriteTasks.filter(t => t.status === 'pending').length,
+        completedTasks: todoWriteTasks.filter((t) => t.status === 'completed')
+          .length,
+        inProgressTasks: todoWriteTasks.filter(
+          (t) => t.status === 'in_progress',
+        ).length,
+        pendingTasks: todoWriteTasks.filter((t) => t.status === 'pending')
+          .length,
         lastUpdate: new Date(),
       };
 
@@ -222,7 +228,7 @@ export class MonitoringIntegrations extends EventEmitter {
           source: 'monitoring_integrations',
           priority: 'normal',
           tags: ['sync', 'todowrite'],
-        }
+        },
       );
 
       this.integrationStats.successfulSyncs++;
@@ -250,7 +256,7 @@ export class MonitoringIntegrations extends EventEmitter {
     timeframe?: {
       startDate: Date;
       endDate: Date;
-    }
+    },
   ): Promise<string> {
     const exportData = {
       timestamp: new Date().toISOString(),
@@ -295,7 +301,7 @@ export class MonitoringIntegrations extends EventEmitter {
       sessionId?: string;
       agentId?: string;
       taskId?: string;
-    }
+    },
   ): WebhookPayload {
     return {
       eventId,
@@ -321,7 +327,7 @@ export class MonitoringIntegrations extends EventEmitter {
    */
   async sendToExternalSystem(
     systemName: string,
-    payload: WebhookPayload
+    payload: WebhookPayload,
   ): Promise<void> {
     const config = this.externalSystems.get(systemName);
     if (!config) {
@@ -405,7 +411,10 @@ export class MonitoringIntegrations extends EventEmitter {
       const testPayload = this.createWebhookPayload(
         'test_' + Date.now(),
         StatusEventType.SYSTEM_ALERT,
-        { type: 'connection_test', message: 'Testing external system connection' }
+        {
+          type: 'connection_test',
+          message: 'Testing external system connection',
+        },
       );
 
       await this.sendToExternalSystem(systemName, testPayload);
@@ -439,7 +448,7 @@ export class MonitoringIntegrations extends EventEmitter {
           sessionId: event.data.sessionId as string,
           agentId: event.data.agentId as string,
           taskId: event.data.taskId as string,
-        }
+        },
       );
 
       // Send to all relevant external systems
@@ -466,7 +475,7 @@ export class MonitoringIntegrations extends EventEmitter {
         const payload = this.createWebhookPayload(
           event.id,
           event.type,
-          event.data
+          event.data,
         );
 
         try {
@@ -523,7 +532,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private async updateTodoWriteFromTask(
     task: TaskMetadata,
-    update: any
+    update: any,
   ): Promise<void> {
     // Only update if task originated from TodoWrite
     if (task.metadata?.source !== 'todowrite') return;
@@ -532,7 +541,9 @@ export class MonitoringIntegrations extends EventEmitter {
     if (!todoWriteId) return;
 
     // Find and update corresponding TodoWrite task
-    const todoTask = this.todoWriteState.tasks.find(t => t.id === todoWriteId);
+    const todoTask = this.todoWriteState.tasks.find(
+      (t) => t.id === todoWriteId,
+    );
     if (todoTask) {
       todoTask.status = this.mapTaskStatusToTodoWriteStatus(task.status);
       todoTask.activeForm = this.generateActiveForm(task.status, task.title);
@@ -542,7 +553,9 @@ export class MonitoringIntegrations extends EventEmitter {
     }
   }
 
-  private mapTodoWriteStatusToTaskStatus(todoStatus: TodoWriteTask['status']): TaskStatus {
+  private mapTodoWriteStatusToTaskStatus(
+    todoStatus: TodoWriteTask['status'],
+  ): TaskStatus {
     switch (todoStatus) {
       case 'pending':
         return TaskStatus.QUEUED;
@@ -555,7 +568,9 @@ export class MonitoringIntegrations extends EventEmitter {
     }
   }
 
-  private mapTaskStatusToTodoWriteStatus(taskStatus: TaskStatus): TodoWriteTask['status'] {
+  private mapTaskStatusToTodoWriteStatus(
+    taskStatus: TaskStatus,
+  ): TodoWriteTask['status'] {
     switch (taskStatus) {
       case TaskStatus.QUEUED:
       case TaskStatus.ASSIGNED:
@@ -574,27 +589,35 @@ export class MonitoringIntegrations extends EventEmitter {
   }
 
   private generateActiveForm(status: TaskStatus, title: string): string {
-    const action = status === TaskStatus.IN_PROGRESS ? 'Working on' :
-                  status === TaskStatus.COMPLETED ? 'Completed' :
-                  status === TaskStatus.FAILED ? 'Failed' :
-                  'Queued';
+    const action =
+      status === TaskStatus.IN_PROGRESS
+        ? 'Working on'
+        : status === TaskStatus.COMPLETED
+          ? 'Completed'
+          : status === TaskStatus.FAILED
+            ? 'Failed'
+            : 'Queued';
     return `${action} ${title}`;
   }
 
   private shouldSendToSystem(
     config: ExternalSystemConfig,
-    event: any
+    event: any,
   ): boolean {
     // Check event type filter
-    if (config.filterConfig?.eventTypes &&
-        !config.filterConfig.eventTypes.includes(event.type)) {
+    if (
+      config.filterConfig?.eventTypes &&
+      !config.filterConfig.eventTypes.includes(event.type)
+    ) {
       return false;
     }
 
     // Check priority threshold
     if (config.filterConfig?.priorityThreshold) {
       const priorityLevels = ['low', 'normal', 'high', 'critical'];
-      const requiredLevel = priorityLevels.indexOf(config.filterConfig.priorityThreshold);
+      const requiredLevel = priorityLevels.indexOf(
+        config.filterConfig.priorityThreshold,
+      );
       const eventLevel = priorityLevels.indexOf(event.priority);
       if (eventLevel < requiredLevel) {
         return false;
@@ -602,9 +625,11 @@ export class MonitoringIntegrations extends EventEmitter {
     }
 
     // Check agent ID filter
-    if (config.filterConfig?.agentIds &&
-        event.data.agentId &&
-        !config.filterConfig.agentIds.includes(event.data.agentId)) {
+    if (
+      config.filterConfig?.agentIds &&
+      event.data.agentId &&
+      !config.filterConfig.agentIds.includes(event.data.agentId)
+    ) {
       return false;
     }
 
@@ -613,7 +638,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private async sendWebhook(
     config: ExternalSystemConfig,
-    payload: WebhookPayload
+    payload: WebhookPayload,
   ): Promise<void> {
     if (!config.endpoint) {
       throw new Error('Webhook endpoint not configured');
@@ -629,13 +654,15 @@ export class MonitoringIntegrations extends EventEmitter {
     });
 
     if (!response.ok) {
-      throw new Error(`Webhook failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Webhook failed: ${response.status} ${response.statusText}`,
+      );
     }
   }
 
   private async sendApiRequest(
     config: ExternalSystemConfig,
-    payload: WebhookPayload
+    payload: WebhookPayload,
   ): Promise<void> {
     // Similar to webhook but might have different endpoint patterns
     await this.sendWebhook(config, payload);
@@ -643,7 +670,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private async sendToDatabase(
     config: ExternalSystemConfig,
-    payload: WebhookPayload
+    payload: WebhookPayload,
   ): Promise<void> {
     // Database integration would be implemented here
     // For now, we'll emit an event that external database handlers can consume
@@ -652,7 +679,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private async sendToMessageQueue(
     config: ExternalSystemConfig,
-    payload: WebhookPayload
+    payload: WebhookPayload,
   ): Promise<void> {
     // Message queue integration would be implemented here
     // For now, we'll emit an event that external queue handlers can consume
@@ -661,7 +688,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private async writeToFileSystem(
     config: ExternalSystemConfig,
-    payload: WebhookPayload
+    payload: WebhookPayload,
   ): Promise<void> {
     // File system integration would be implemented here
     // For now, we'll emit an event that external file handlers can consume
@@ -678,7 +705,7 @@ export class MonitoringIntegrations extends EventEmitter {
           break;
         case 'basic':
           const encoded = Buffer.from(
-            `${config.authentication.credentials.username}:${config.authentication.credentials.password}`
+            `${config.authentication.credentials.username}:${config.authentication.credentials.password}`,
           ).toString('base64');
           headers.Authorization = `Basic ${encoded}`;
           break;
@@ -698,7 +725,16 @@ export class MonitoringIntegrations extends EventEmitter {
     const tasks = data.tasks || [];
     if (tasks.length === 0) return 'No tasks available';
 
-    const headers = ['id', 'title', 'status', 'type', 'priority', 'assignedAgent', 'progress', 'lastUpdate'];
+    const headers = [
+      'id',
+      'title',
+      'status',
+      'type',
+      'priority',
+      'assignedAgent',
+      'progress',
+      'lastUpdate',
+    ];
     const rows = tasks.map((task: TaskMetadata) => [
       task.id,
       task.title.replace(/,/g, ';'),
@@ -710,7 +746,7 @@ export class MonitoringIntegrations extends EventEmitter {
       task.lastUpdate.toISOString(),
     ]);
 
-    return [headers, ...rows].map(row => row.join(',')).join('\n');
+    return [headers, ...rows].map((row) => row.join(',')).join('\n');
   }
 
   private convertToPrometheusFormat(data: any): string {

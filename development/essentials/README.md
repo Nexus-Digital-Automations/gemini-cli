@@ -26,18 +26,21 @@ development/essentials/
 ## Quick Start
 
 ### For New Developers
+
 1. Start with [Developer Guide](./developer-guide.md) for setup and onboarding
 2. Review [Architecture](./architecture.md) to understand system design
 3. Follow [Contributing](./contributing.md) for contribution workflow
 4. Check [Best Practices](./best-practices.md) for coding standards
 
 ### For Maintainers
+
 1. Review [Release Process](./release-process.md) for release management
 2. Check [Monitoring](./monitoring.md) for system health
 3. Follow [Security](./security.md) procedures for security compliance
 4. Use [Feature Workflow](./feature-workflow.md) for feature management
 
 ### For Troubleshooting
+
 1. Start with [Troubleshooting](./troubleshooting.md) for common issues
 2. Check [Performance](./performance.md) for optimization issues
 3. Review [Testing](./testing.md) for test-related problems

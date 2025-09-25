@@ -6,12 +6,20 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../logger/Logger.js';
-import type { ValidationFramework, ValidationResult} from './ValidationFramework.js';
-import { ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
+import type {
+  ValidationFramework,
+  ValidationResult,
+} from './ValidationFramework.js';
+import {
+  ValidationSeverity,
+  ValidationCategory,
+} from './ValidationFramework.js';
 import type { TaskValidator, TaskExecutionMetrics } from './TaskValidator.js';
-import { TaskValidationResult, TaskValidationContext } from './TaskValidator.js';
-import type { Task, TaskResult} from '../task-management/types.js';
-import { TaskStatus } from '../task-management/TaskQueue.js';
+import {
+  TaskValidationResult,
+  TaskValidationContext,
+} from './TaskValidator.js';
+import type { Task, TaskResult } from '../task-management/types.js';
 
 /**
  * Quality assurance events for monitoring and alerting
@@ -36,7 +44,7 @@ export enum QualityCheckType {
   MAINTAINABILITY = 'maintainability',
   COMPLIANCE = 'compliance',
   FUNCTIONAL = 'functional',
-  INTEGRATION = 'integration'
+  INTEGRATION = 'integration',
 }
 
 /**
@@ -45,52 +53,52 @@ export enum QualityCheckType {
 export interface QualityMetrics {
   // Code Quality Metrics
   codeQuality: {
-    complexity: number;              // Cyclomatic complexity score
-    maintainability: number;         // Maintainability index (0-100)
-    testCoverage: number;           // Test coverage percentage
-    codeSmells: number;             // Number of code smells detected
-    technicalDebt: number;          // Technical debt score
-    duplication: number;            // Code duplication percentage
+    complexity: number; // Cyclomatic complexity score
+    maintainability: number; // Maintainability index (0-100)
+    testCoverage: number; // Test coverage percentage
+    codeSmells: number; // Number of code smells detected
+    technicalDebt: number; // Technical debt score
+    duplication: number; // Code duplication percentage
   };
 
   // Performance Metrics
   performance: {
-    executionTime: number;          // Average execution time (ms)
-    memoryUsage: number;            // Peak memory usage (MB)
-    cpuUtilization: number;         // CPU utilization percentage
-    throughput: number;             // Operations per second
-    responseTime: number;           // Response time (ms)
-    resourceEfficiency: number;     // Resource efficiency score (0-1)
+    executionTime: number; // Average execution time (ms)
+    memoryUsage: number; // Peak memory usage (MB)
+    cpuUtilization: number; // CPU utilization percentage
+    throughput: number; // Operations per second
+    responseTime: number; // Response time (ms)
+    resourceEfficiency: number; // Resource efficiency score (0-1)
   };
 
   // Security Metrics
   security: {
-    vulnerabilities: number;        // Number of vulnerabilities found
-    securityScore: number;          // Security score (0-100)
-    exposedSecrets: number;         // Number of exposed secrets
-    complianceViolations: number;   // Compliance violations
-    accessControlIssues: number;    // Access control issues
-    encryptionCoverage: number;     // Encryption coverage percentage
+    vulnerabilities: number; // Number of vulnerabilities found
+    securityScore: number; // Security score (0-100)
+    exposedSecrets: number; // Number of exposed secrets
+    complianceViolations: number; // Compliance violations
+    accessControlIssues: number; // Access control issues
+    encryptionCoverage: number; // Encryption coverage percentage
   };
 
   // Reliability Metrics
   reliability: {
-    errorRate: number;              // Error rate percentage
-    failureRate: number;            // Failure rate percentage
-    recoveryTime: number;           // Mean time to recovery (seconds)
-    uptime: number;                 // Uptime percentage
-    resilience: number;             // Resilience score (0-1)
-    faultTolerance: number;         // Fault tolerance score (0-1)
+    errorRate: number; // Error rate percentage
+    failureRate: number; // Failure rate percentage
+    recoveryTime: number; // Mean time to recovery (seconds)
+    uptime: number; // Uptime percentage
+    resilience: number; // Resilience score (0-1)
+    faultTolerance: number; // Fault tolerance score (0-1)
   };
 
   // Business Metrics
   business: {
-    userSatisfaction: number;       // User satisfaction score (0-5)
-    featureCompleteness: number;    // Feature completeness percentage
-    requirementsCoverage: number;   // Requirements coverage percentage
-    businessValue: number;          // Business value score (0-100)
-    roi: number;                   // Return on investment
-    timeToMarket: number;          // Time to market (days)
+    userSatisfaction: number; // User satisfaction score (0-5)
+    featureCompleteness: number; // Feature completeness percentage
+    requirementsCoverage: number; // Requirements coverage percentage
+    businessValue: number; // Business value score (0-100)
+    roi: number; // Return on investment
+    timeToMarket: number; // Time to market (days)
   };
 }
 
@@ -295,7 +303,10 @@ export interface QualityAssuranceConfig {
     retentionDays: number;
     autoGenerate: boolean;
   };
-  customChecks?: Map<string, (task: Task, metrics: QualityMetrics) => Promise<ValidationResult[]>>;
+  customChecks?: Map<
+    string,
+    (task: Task, metrics: QualityMetrics) => Promise<ValidationResult[]>
+  >;
 }
 
 /**
@@ -311,15 +322,20 @@ export class QualityAssurance extends EventEmitter {
   private readonly config: QualityAssuranceConfig;
 
   // Quality data storage
-  private readonly qualityHistory: Map<string, QualityAssuranceResult[]> = new Map();
-  private readonly metricsHistory: Map<string, Array<{ timestamp: Date; metrics: QualityMetrics }>> = new Map();
-  private readonly activeChecks: Map<string, Promise<QualityAssuranceResult>> = new Map();
+  private readonly qualityHistory: Map<string, QualityAssuranceResult[]> =
+    new Map();
+  private readonly metricsHistory: Map<
+    string,
+    Array<{ timestamp: Date; metrics: QualityMetrics }>
+  > = new Map();
+  private readonly activeChecks: Map<string, Promise<QualityAssuranceResult>> =
+    new Map();
   private readonly qualityReports: QualityReport[] = [];
 
   constructor(
     validationFramework: ValidationFramework,
     taskValidator: TaskValidator,
-    config: Partial<QualityAssuranceConfig> = {}
+    config: Partial<QualityAssuranceConfig> = {},
   ) {
     super();
 
@@ -332,7 +348,7 @@ export class QualityAssurance extends EventEmitter {
       enabledChecks: this.config.enabledChecks,
       trending: this.config.trending.enabled,
       alerting: this.config.alerting.enabled,
-      reporting: this.config.reporting.enabled
+      reporting: this.config.reporting.enabled,
     });
 
     this.setupQualityChecks();
@@ -342,7 +358,9 @@ export class QualityAssurance extends EventEmitter {
   /**
    * Create default configuration with overrides
    */
-  private createDefaultConfig(config: Partial<QualityAssuranceConfig>): QualityAssuranceConfig {
+  private createDefaultConfig(
+    config: Partial<QualityAssuranceConfig>,
+  ): QualityAssuranceConfig {
     return {
       enabledChecks: Object.values(QualityCheckType),
       thresholds: this.getDefaultThresholds(),
@@ -350,22 +368,22 @@ export class QualityAssurance extends EventEmitter {
         enabled: true,
         windowSize: 20,
         minDataPoints: 5,
-        analysisInterval: 3600000 // 1 hour
+        analysisInterval: 3600000, // 1 hour
       },
       alerting: {
         enabled: true,
         thresholdViolations: true,
         trendDegradation: true,
-        anomalyDetection: true
+        anomalyDetection: true,
       },
       reporting: {
         enabled: true,
         interval: 86400000, // 24 hours
         retentionDays: 30,
-        autoGenerate: true
+        autoGenerate: true,
       },
       customChecks: new Map(),
-      ...config
+      ...config,
     };
   }
 
@@ -381,7 +399,7 @@ export class QualityAssurance extends EventEmitter {
         minTestCoverage: 80,
         maxCodeSmells: 10,
         maxTechnicalDebt: 30,
-        maxDuplication: 10
+        maxDuplication: 10,
       },
       performance: {
         maxExecutionTime: 30000,
@@ -389,7 +407,7 @@ export class QualityAssurance extends EventEmitter {
         maxCpuUtilization: 80,
         minThroughput: 100,
         maxResponseTime: 1000,
-        minResourceEfficiency: 0.7
+        minResourceEfficiency: 0.7,
       },
       security: {
         maxVulnerabilities: 0,
@@ -397,7 +415,7 @@ export class QualityAssurance extends EventEmitter {
         maxExposedSecrets: 0,
         maxComplianceViolations: 0,
         maxAccessControlIssues: 0,
-        minEncryptionCoverage: 90
+        minEncryptionCoverage: 90,
       },
       reliability: {
         maxErrorRate: 1.0,
@@ -405,7 +423,7 @@ export class QualityAssurance extends EventEmitter {
         maxRecoveryTime: 300,
         minUptime: 99.9,
         minResilience: 0.8,
-        minFaultTolerance: 0.7
+        minFaultTolerance: 0.7,
       },
       business: {
         minUserSatisfaction: 4.0,
@@ -413,8 +431,8 @@ export class QualityAssurance extends EventEmitter {
         minRequirementsCoverage: 95,
         minBusinessValue: 70,
         minRoi: 1.5,
-        maxTimeToMarket: 90
-      }
+        maxTimeToMarket: 90,
+      },
     };
   }
 
@@ -423,7 +441,7 @@ export class QualityAssurance extends EventEmitter {
    */
   private setupQualityChecks(): void {
     // Register quality check validation rules
-    Object.values(QualityCheckType).forEach(checkType => {
+    Object.values(QualityCheckType).forEach((checkType) => {
       if (this.config.enabledChecks.includes(checkType)) {
         this.validationFramework.registerRule({
           id: `quality-check-${checkType}`,
@@ -432,7 +450,8 @@ export class QualityAssurance extends EventEmitter {
           severity: ValidationSeverity.WARNING,
           enabled: true,
           description: `Automated quality check for ${checkType}`,
-          validator: async (context) => this.executeQualityCheck(checkType, context)
+          validator: async (context) =>
+            this.executeQualityCheck(checkType, context),
         });
       }
     });
@@ -441,7 +460,9 @@ export class QualityAssurance extends EventEmitter {
   /**
    * Map quality check type to validation category
    */
-  private mapCheckTypeToCategory(checkType: QualityCheckType): ValidationCategory {
+  private mapCheckTypeToCategory(
+    checkType: QualityCheckType,
+  ): ValidationCategory {
     switch (checkType) {
       case QualityCheckType.SECURITY:
         return ValidationCategory.SECURITY;
@@ -461,7 +482,7 @@ export class QualityAssurance extends EventEmitter {
   async performQualityAssurance(
     task: Task,
     taskResult?: TaskResult,
-    executionMetrics?: TaskExecutionMetrics
+    executionMetrics?: TaskExecutionMetrics,
   ): Promise<QualityAssuranceResult> {
     const startTime = Date.now();
     const checkId = `qa-${task.id}-${Date.now()}`;
@@ -469,7 +490,7 @@ export class QualityAssurance extends EventEmitter {
     this.logger.info('Starting quality assurance', {
       taskId: task.id,
       checkId,
-      enabledChecks: this.config.enabledChecks
+      enabledChecks: this.config.enabledChecks,
     });
 
     try {
@@ -484,7 +505,7 @@ export class QualityAssurance extends EventEmitter {
         task,
         taskResult,
         executionMetrics,
-        startTime
+        startTime,
       );
       this.activeChecks.set(task.id, checkPromise);
 
@@ -492,9 +513,10 @@ export class QualityAssurance extends EventEmitter {
 
       this.emit('qualityCheckCompleted', result);
       return result;
-
     } catch (error) {
-      this.logger.error(`Quality assurance failed for task: ${task.id}`, { error });
+      this.logger.error(`Quality assurance failed for task: ${task.id}`, {
+        error,
+      });
       throw error;
     } finally {
       this.activeChecks.delete(task.id);
@@ -508,16 +530,20 @@ export class QualityAssurance extends EventEmitter {
     task: Task,
     taskResult: TaskResult | undefined,
     executionMetrics: TaskExecutionMetrics | undefined,
-    startTime: number
+    startTime: number,
   ): Promise<QualityAssuranceResult> {
     // Collect quality metrics
-    const metrics = await this.collectQualityMetrics(task, taskResult, executionMetrics);
+    const metrics = await this.collectQualityMetrics(
+      task,
+      taskResult,
+      executionMetrics,
+    );
 
     // Execute all enabled quality checks
     const checkResults = await Promise.all(
-      this.config.enabledChecks.map(checkType =>
-        this.performSpecificQualityCheck(checkType, task, metrics)
-      )
+      this.config.enabledChecks.map((checkType) =>
+        this.performSpecificQualityCheck(checkType, task, metrics),
+      ),
     );
 
     // Flatten validation results
@@ -530,7 +556,10 @@ export class QualityAssurance extends EventEmitter {
     const overallScore = this.calculateOverallQualityScore(metrics, violations);
 
     // Generate recommendations
-    const recommendations = this.generateQualityRecommendations(metrics, violations);
+    const recommendations = this.generateQualityRecommendations(
+      metrics,
+      violations,
+    );
 
     // Analyze trends
     const trends = await this.analyzeTrends(task.id, metrics);
@@ -542,7 +571,12 @@ export class QualityAssurance extends EventEmitter {
       checkType: QualityCheckType.FUNCTIONAL, // Overall check
       timestamp: new Date(),
       duration: Date.now() - startTime,
-      passed: violations.filter(v => v.severity === ValidationSeverity.CRITICAL || v.severity === ValidationSeverity.ERROR).length === 0,
+      passed:
+        violations.filter(
+          (v) =>
+            v.severity === ValidationSeverity.CRITICAL ||
+            v.severity === ValidationSeverity.ERROR,
+        ).length === 0,
       overallScore,
       metrics,
       violations,
@@ -552,8 +586,8 @@ export class QualityAssurance extends EventEmitter {
       metadata: {
         taskTitle: task.title,
         taskType: task.type,
-        executionMetrics
-      }
+        executionMetrics,
+      },
     };
 
     // Store result in history
@@ -571,7 +605,7 @@ export class QualityAssurance extends EventEmitter {
   private async collectQualityMetrics(
     task: Task,
     taskResult: TaskResult | undefined,
-    executionMetrics: TaskExecutionMetrics | undefined
+    executionMetrics: TaskExecutionMetrics | undefined,
   ): Promise<QualityMetrics> {
     // TODO: Implement actual metrics collection from various sources
     // This is a placeholder implementation
@@ -583,7 +617,7 @@ export class QualityAssurance extends EventEmitter {
         testCoverage: this.calculateTestCoverage(task),
         codeSmells: 0, // TODO: Implement code smell detection
         technicalDebt: 0, // TODO: Implement technical debt analysis
-        duplication: 0 // TODO: Implement duplication analysis
+        duplication: 0, // TODO: Implement duplication analysis
       },
       performance: {
         executionTime: executionMetrics?.duration || 0,
@@ -591,7 +625,7 @@ export class QualityAssurance extends EventEmitter {
         cpuUtilization: executionMetrics?.cpuUsage?.peak || 0,
         throughput: executionMetrics?.throughput || 0,
         responseTime: 0, // TODO: Implement response time measurement
-        resourceEfficiency: 0.8 // TODO: Calculate actual resource efficiency
+        resourceEfficiency: 0.8, // TODO: Calculate actual resource efficiency
       },
       security: {
         vulnerabilities: 0, // TODO: Implement vulnerability scanning
@@ -599,24 +633,30 @@ export class QualityAssurance extends EventEmitter {
         exposedSecrets: 0, // TODO: Implement secret detection
         complianceViolations: 0, // TODO: Implement compliance checking
         accessControlIssues: 0, // TODO: Implement access control analysis
-        encryptionCoverage: 100 // TODO: Calculate encryption coverage
+        encryptionCoverage: 100, // TODO: Calculate encryption coverage
       },
       reliability: {
-        errorRate: executionMetrics ? executionMetrics.errorCount / Math.max(1, executionMetrics.errorCount + 1) : 0,
+        errorRate: executionMetrics
+          ? executionMetrics.errorCount /
+            Math.max(1, executionMetrics.errorCount + 1)
+          : 0,
         failureRate: taskResult?.success === false ? 1 : 0,
         recoveryTime: 0, // TODO: Implement recovery time measurement
         uptime: 99.9, // TODO: Implement uptime calculation
         resilience: 0.9, // TODO: Calculate resilience score
-        faultTolerance: 0.8 // TODO: Calculate fault tolerance score
+        faultTolerance: 0.8, // TODO: Calculate fault tolerance score
       },
       business: {
         userSatisfaction: 4.2, // TODO: Implement user satisfaction tracking
-        featureCompleteness: task.status === TaskStatus.COMPLETED ? 100 : (task as any).progress || 0,
+        featureCompleteness:
+          task.status === 'completed'
+            ? 100
+            : (task as any).progress || 0,
         requirementsCoverage: 95, // TODO: Implement requirements coverage
         businessValue: 75, // TODO: Calculate business value
         roi: 2.1, // TODO: Calculate ROI
-        timeToMarket: 45 // TODO: Calculate time to market
-      }
+        timeToMarket: 45, // TODO: Calculate time to market
+      },
     };
 
     return metrics;
@@ -628,7 +668,7 @@ export class QualityAssurance extends EventEmitter {
   private async performSpecificQualityCheck(
     checkType: QualityCheckType,
     task: Task,
-    metrics: QualityMetrics
+    metrics: QualityMetrics,
   ): Promise<ValidationResult[]> {
     this.emit('qualityCheckStarted', task.id, checkType);
 
@@ -656,7 +696,7 @@ export class QualityAssurance extends EventEmitter {
             severity: ValidationSeverity.INFO,
             status: 'skipped' as any,
             message: `Quality check for ${checkType} not yet implemented`,
-            timestamp
+            timestamp,
           });
       }
 
@@ -666,7 +706,6 @@ export class QualityAssurance extends EventEmitter {
         const customResults = await customCheck(task, metrics);
         results.push(...customResults);
       }
-
     } catch (error) {
       results.push({
         id: `${checkType}-error`,
@@ -674,7 +713,7 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.ERROR,
         status: 'failed' as any,
         message: `Quality check failed: ${(error as Error).message}`,
-        timestamp
+        timestamp,
       });
     }
 
@@ -685,7 +724,11 @@ export class QualityAssurance extends EventEmitter {
    * Quality check implementations
    */
 
-  private checkCodeQuality(task: Task, metrics: QualityMetrics, timestamp: Date): ValidationResult[] {
+  private checkCodeQuality(
+    task: Task,
+    metrics: QualityMetrics,
+    timestamp: Date,
+  ): ValidationResult[] {
     const results: ValidationResult[] = [];
     const thresholds = this.config.thresholds.codeQuality;
 
@@ -696,7 +739,7 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.WARNING,
         status: 'failed' as any,
         message: `Code complexity ${metrics.codeQuality.complexity} exceeds threshold ${thresholds.maxComplexity}`,
-        timestamp
+        timestamp,
       });
     }
 
@@ -707,14 +750,18 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.ERROR,
         status: 'failed' as any,
         message: `Test coverage ${metrics.codeQuality.testCoverage}% below threshold ${thresholds.minTestCoverage}%`,
-        timestamp
+        timestamp,
       });
     }
 
     return results;
   }
 
-  private checkPerformance(task: Task, metrics: QualityMetrics, timestamp: Date): ValidationResult[] {
+  private checkPerformance(
+    task: Task,
+    metrics: QualityMetrics,
+    timestamp: Date,
+  ): ValidationResult[] {
     const results: ValidationResult[] = [];
     const thresholds = this.config.thresholds.performance;
 
@@ -725,7 +772,7 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.WARNING,
         status: 'failed' as any,
         message: `Execution time ${metrics.performance.executionTime}ms exceeds threshold ${thresholds.maxExecutionTime}ms`,
-        timestamp
+        timestamp,
       });
     }
 
@@ -736,14 +783,18 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.ERROR,
         status: 'failed' as any,
         message: `Memory usage ${metrics.performance.memoryUsage}MB exceeds threshold ${thresholds.maxMemoryUsage}MB`,
-        timestamp
+        timestamp,
       });
     }
 
     return results;
   }
 
-  private checkSecurity(task: Task, metrics: QualityMetrics, timestamp: Date): ValidationResult[] {
+  private checkSecurity(
+    task: Task,
+    metrics: QualityMetrics,
+    timestamp: Date,
+  ): ValidationResult[] {
     const results: ValidationResult[] = [];
     const thresholds = this.config.thresholds.security;
 
@@ -754,7 +805,7 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.CRITICAL,
         status: 'failed' as any,
         message: `${metrics.security.vulnerabilities} vulnerabilities found, threshold is ${thresholds.maxVulnerabilities}`,
-        timestamp
+        timestamp,
       });
     }
 
@@ -765,14 +816,18 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.ERROR,
         status: 'failed' as any,
         message: `Security score ${metrics.security.securityScore} below threshold ${thresholds.minSecurityScore}`,
-        timestamp
+        timestamp,
       });
     }
 
     return results;
   }
 
-  private checkReliability(task: Task, metrics: QualityMetrics, timestamp: Date): ValidationResult[] {
+  private checkReliability(
+    task: Task,
+    metrics: QualityMetrics,
+    timestamp: Date,
+  ): ValidationResult[] {
     const results: ValidationResult[] = [];
     const thresholds = this.config.thresholds.reliability;
 
@@ -783,7 +838,7 @@ export class QualityAssurance extends EventEmitter {
         severity: ValidationSeverity.ERROR,
         status: 'failed' as any,
         message: `Error rate ${(metrics.reliability.errorRate * 100).toFixed(2)}% exceeds threshold ${(thresholds.maxErrorRate * 100).toFixed(2)}%`,
-        timestamp
+        timestamp,
       });
     }
 
@@ -806,16 +861,19 @@ export class QualityAssurance extends EventEmitter {
       documentation: 0.6,
       analysis: 1.0,
       refactoring: 1.1,
-      deployment: 1.3
+      deployment: 1.3,
     };
 
-    return Math.round(baseComplexity * (typeModifier[task.type as keyof typeof typeModifier] || 1.0));
+    return Math.round(
+      baseComplexity *
+        (typeModifier[task.type as keyof typeof typeModifier] || 1.0),
+    );
   }
 
   private calculateMaintainability(task: Task): number {
     // Simple heuristic - in real implementation, this would analyze actual code
     const complexity = this.calculateComplexity(task);
-    return Math.max(20, 100 - (complexity * 3));
+    return Math.max(20, 100 - complexity * 3);
   }
 
   private calculateTestCoverage(task: Task): number {
@@ -827,37 +885,54 @@ export class QualityAssurance extends EventEmitter {
    * Additional helper methods
    */
 
-  private analyzeViolations(taskId: string, metrics: QualityMetrics): QualityViolation[] {
+  private analyzeViolations(
+    taskId: string,
+    metrics: QualityMetrics,
+  ): QualityViolation[] {
     // TODO: Implement comprehensive violation analysis
     return [];
   }
 
-  private calculateOverallQualityScore(metrics: QualityMetrics, violations: QualityViolation[]): number {
+  private calculateOverallQualityScore(
+    metrics: QualityMetrics,
+    violations: QualityViolation[],
+  ): number {
     // Simple weighted average - can be enhanced with more sophisticated algorithms
     const weights = {
       codeQuality: 0.25,
-      performance: 0.20,
+      performance: 0.2,
       security: 0.25,
-      reliability: 0.20,
-      business: 0.10
+      reliability: 0.2,
+      business: 0.1,
     };
 
     let weightedSum = 0;
-    weightedSum += (metrics.codeQuality.maintainability / 100) * weights.codeQuality;
-    weightedSum += (Math.min(100, 100 - (metrics.performance.executionTime / 1000)) / 100) * weights.performance;
+    weightedSum +=
+      (metrics.codeQuality.maintainability / 100) * weights.codeQuality;
+    weightedSum +=
+      (Math.min(100, 100 - metrics.performance.executionTime / 1000) / 100) *
+      weights.performance;
     weightedSum += (metrics.security.securityScore / 100) * weights.security;
-    weightedSum += ((100 - metrics.reliability.errorRate * 100) / 100) * weights.reliability;
-    weightedSum += (metrics.business.featureCompleteness / 100) * weights.business;
+    weightedSum +=
+      ((100 - metrics.reliability.errorRate * 100) / 100) * weights.reliability;
+    weightedSum +=
+      (metrics.business.featureCompleteness / 100) * weights.business;
 
     return Math.max(0, Math.min(1, weightedSum));
   }
 
-  private generateQualityRecommendations(metrics: QualityMetrics, violations: QualityViolation[]): QualityRecommendation[] {
+  private generateQualityRecommendations(
+    metrics: QualityMetrics,
+    violations: QualityViolation[],
+  ): QualityRecommendation[] {
     // TODO: Implement intelligent recommendation generation
     return [];
   }
 
-  private async analyzeTrends(taskId: string, metrics: QualityMetrics): Promise<QualityTrend[]> {
+  private async analyzeTrends(
+    taskId: string,
+    metrics: QualityMetrics,
+  ): Promise<QualityTrend[]> {
     // TODO: Implement trend analysis based on historical data
     return [];
   }
@@ -876,7 +951,7 @@ export class QualityAssurance extends EventEmitter {
     // Store metrics for trending
     const metricsEntry = {
       timestamp: result.timestamp,
-      metrics: result.metrics
+      metrics: result.metrics,
     };
 
     const metricsHistory = this.metricsHistory.get(result.taskId) || [];
@@ -893,8 +968,13 @@ export class QualityAssurance extends EventEmitter {
     if (!this.config.alerting.enabled) return;
 
     // Check for threshold violations
-    if (this.config.alerting.thresholdViolations && result.violations.length > 0) {
-      const criticalViolations = result.violations.filter(v => v.severity === ValidationSeverity.CRITICAL);
+    if (
+      this.config.alerting.thresholdViolations &&
+      result.violations.length > 0
+    ) {
+      const criticalViolations = result.violations.filter(
+        (v) => v.severity === ValidationSeverity.CRITICAL,
+      );
       if (criticalViolations.length > 0) {
         const alert: QualityAlert = {
           id: `alert-${Date.now()}`,
@@ -903,10 +983,12 @@ export class QualityAssurance extends EventEmitter {
           message: `Critical quality violations detected for task ${result.taskId}`,
           details: `${criticalViolations.length} critical violations found`,
           taskId: result.taskId,
-          metrics: criticalViolations.map(v => v.metric),
+          metrics: criticalViolations.map((v) => v.metric),
           timestamp: new Date(),
           requiresAction: true,
-          suggestedActions: criticalViolations.flatMap(v => v.recommendations)
+          suggestedActions: criticalViolations.flatMap(
+            (v) => v.recommendations,
+          ),
         };
 
         this.emit('qualityAlertTriggered', alert);
@@ -953,16 +1035,18 @@ export class QualityAssurance extends EventEmitter {
     trendingMetrics: string[];
   } {
     const allResults = Array.from(this.qualityHistory.values()).flat();
-    const averageScore = allResults.length > 0
-      ? allResults.reduce((sum, result) => sum + result.overallScore, 0) / allResults.length
-      : 0;
+    const averageScore =
+      allResults.length > 0
+        ? allResults.reduce((sum, result) => sum + result.overallScore, 0) /
+          allResults.length
+        : 0;
 
     return {
       activeChecks: this.activeChecks.size,
       totalResults: allResults.length,
       averageScore,
       topViolations: [], // TODO: Calculate top violations
-      trendingMetrics: [] // TODO: Calculate trending metrics
+      trendingMetrics: [], // TODO: Calculate trending metrics
     };
   }
 
@@ -979,7 +1063,10 @@ export class QualityAssurance extends EventEmitter {
    */
   registerCustomCheck(
     checkType: string,
-    checker: (task: Task, metrics: QualityMetrics) => Promise<ValidationResult[]>
+    checker: (
+      task: Task,
+      metrics: QualityMetrics,
+    ) => Promise<ValidationResult[]>,
   ): void {
     this.config.customChecks!.set(checkType, checker);
     this.logger.info('Custom quality check registered', { checkType });
@@ -988,20 +1075,29 @@ export class QualityAssurance extends EventEmitter {
   /**
    * Execute quality check for a specific type
    */
-  private async executeQualityCheck(checkType: QualityCheckType, context: any): Promise<ValidationResult[]> {
+  private async executeQualityCheck(
+    checkType: QualityCheckType,
+    context: any,
+  ): Promise<ValidationResult[]> {
     const task = context.metadata?.task as Task;
     if (!task) {
-      return [{
-        id: 'quality-check-no-task',
-        category: this.mapCheckTypeToCategory(checkType),
-        severity: ValidationSeverity.ERROR,
-        status: 'failed' as any,
-        message: 'No task provided for quality check',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'quality-check-no-task',
+          category: this.mapCheckTypeToCategory(checkType),
+          severity: ValidationSeverity.ERROR,
+          status: 'failed' as any,
+          message: 'No task provided for quality check',
+          timestamp: new Date(),
+        },
+      ];
     }
 
-    const metrics = await this.collectQualityMetrics(task, undefined, undefined);
+    const metrics = await this.collectQualityMetrics(
+      task,
+      undefined,
+      undefined,
+    );
     return this.performSpecificQualityCheck(checkType, task, metrics);
   }
 

@@ -6,9 +6,16 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import { realTimeMonitoringSystem, type MonitoringSnapshot } from './RealTimeMonitoringSystem.js';
+import {
+  realTimeMonitoringSystem,
+  type MonitoringSnapshot,
+} from './RealTimeMonitoringSystem.js';
 import { enhancedMonitoringDashboard } from './EnhancedMonitoringDashboard.js';
-import { taskStatusMonitor, type TaskMetadata, type AgentStatus } from './TaskStatusMonitor.js';
+import {
+  taskStatusMonitor,
+  type TaskMetadata,
+  type AgentStatus,
+} from './TaskStatusMonitor.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
 import type { ExecutionMonitoringSystem } from '../../core/src/task-management/ExecutionMonitoringSystem.js';
 import * as fs from 'node:fs/promises';
@@ -166,9 +173,10 @@ export class MonitoringIntegrationHub extends EventEmitter {
         config: this.config,
         timestamp: new Date(),
       });
-
     } catch (error) {
-      this.logger.error('Failed to initialize MonitoringIntegrationHub', { error });
+      this.logger.error('Failed to initialize MonitoringIntegrationHub', {
+        error,
+      });
       throw error;
     }
   }
@@ -176,7 +184,9 @@ export class MonitoringIntegrationHub extends EventEmitter {
   /**
    * Register core execution monitoring system
    */
-  registerCoreExecutionMonitoring(executionMonitoring: ExecutionMonitoringSystem): void {
+  registerCoreExecutionMonitoring(
+    executionMonitoring: ExecutionMonitoringSystem,
+  ): void {
     this.coreExecutionMonitoring = executionMonitoring;
 
     // Setup event forwarding from core to integration hub
@@ -209,16 +219,19 @@ export class MonitoringIntegrationHub extends EventEmitter {
     const components = {
       realTimeMonitoring: this.getComponentHealthStatus('realTimeMonitoring'),
       dashboard: this.getComponentHealthStatus('dashboard'),
-      performanceAnalytics: this.getComponentHealthStatus('performanceAnalytics'),
+      performanceAnalytics: this.getComponentHealthStatus(
+        'performanceAnalytics',
+      ),
       taskStatusMonitor: this.getComponentHealthStatus('taskStatusMonitor'),
     };
 
     if (this.coreExecutionMonitoring) {
-      components['coreExecution'] = this.getComponentHealthStatus('coreExecution');
+      components['coreExecution'] =
+        this.getComponentHealthStatus('coreExecution');
     }
 
     // Determine overall health
-    const componentStatuses = Object.values(components).map(c => c.status);
+    const componentStatuses = Object.values(components).map((c) => c.status);
     let overall: 'healthy' | 'degraded' | 'unhealthy' | 'critical' = 'healthy';
 
     if (componentStatuses.includes('offline')) {
@@ -254,7 +267,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
     correlatedEvents.push(event);
 
     // Emit correlation event if we have events from multiple sources
-    const sources = new Set(correlatedEvents.map(e => e.source));
+    const sources = new Set(correlatedEvents.map((e) => e.source));
     if (sources.size > 1) {
       this.emit('events:correlated', {
         correlationId,
@@ -273,7 +286,9 @@ export class MonitoringIntegrationHub extends EventEmitter {
   /**
    * Get aggregated monitoring data
    */
-  getAggregatedData(timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour'): {
+  getAggregatedData(
+    timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour',
+  ): {
     systemSnapshot: MonitoringSnapshot;
     taskMetrics: {
       totalTasks: number;
@@ -301,14 +316,18 @@ export class MonitoringIntegrationHub extends EventEmitter {
     const allAgents = taskStatusMonitor.getAllAgents();
 
     // Calculate correlated events statistics
-    const correlatedEvents = Array.from(this.correlationMap.entries()).map(([id, events]) => ({
-      correlationId: id,
-      eventCount: events.length,
-      sources: Array.from(new Set(events.map(e => e.source))),
-      timespan: events.length > 1
-        ? events[events.length - 1].timestamp.getTime() - events[0].timestamp.getTime()
-        : 0,
-    }));
+    const correlatedEvents = Array.from(this.correlationMap.entries()).map(
+      ([id, events]) => ({
+        correlationId: id,
+        eventCount: events.length,
+        sources: Array.from(new Set(events.map((e) => e.source))),
+        timespan:
+          events.length > 1
+            ? events[events.length - 1].timestamp.getTime() -
+              events[0].timestamp.getTime()
+            : 0,
+      }),
+    );
 
     return {
       systemSnapshot,
@@ -321,9 +340,14 @@ export class MonitoringIntegrationHub extends EventEmitter {
       },
       agentMetrics: {
         totalAgents: allAgents.length,
-        activeAgents: allAgents.filter(a => a.status !== 'offline').length,
-        averagePerformance: allAgents.reduce((sum, a) => sum + a.performance.successRate, 0) / Math.max(allAgents.length, 1),
-        utilization: (allAgents.filter(a => a.status === 'busy').length / Math.max(allAgents.length, 1)) * 100,
+        activeAgents: allAgents.filter((a) => a.status !== 'offline').length,
+        averagePerformance:
+          allAgents.reduce((sum, a) => sum + a.performance.successRate, 0) /
+          Math.max(allAgents.length, 1),
+        utilization:
+          (allAgents.filter((a) => a.status === 'busy').length /
+            Math.max(allAgents.length, 1)) *
+          100,
       },
       correlatedEvents,
       timestamp: new Date(),
@@ -347,7 +371,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
    */
   async exportData(
     format: 'json' | 'csv' | 'prometheus',
-    timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour'
+    timeRange: 'last_hour' | 'last_day' | 'last_week' = 'last_hour',
   ): Promise<string> {
     const data = this.getAggregatedData(timeRange);
 
@@ -369,16 +393,18 @@ export class MonitoringIntegrationHub extends EventEmitter {
   /**
    * Configure alert webhooks
    */
-  configureWebhooks(webhooks: Array<{
-    url: string;
-    events: string[];
-    headers?: Record<string, string>;
-  }>): void {
+  configureWebhooks(
+    webhooks: Array<{
+      url: string;
+      events: string[];
+      headers?: Record<string, string>;
+    }>,
+  ): void {
     this.config.alertingWebhooks = webhooks;
 
     this.logger.info('Alert webhooks configured', {
       count: webhooks.length,
-      events: Array.from(new Set(webhooks.flatMap(w => w.events))),
+      events: Array.from(new Set(webhooks.flatMap((w) => w.events))),
     });
 
     this.emit('webhooks:configured', { webhooks });
@@ -530,9 +556,15 @@ export class MonitoringIntegrationHub extends EventEmitter {
     // Send to configured webhooks
     if (this.config.alertingWebhooks) {
       for (const webhook of this.config.alertingWebhooks) {
-        if (webhook.events.includes(event.eventType) || webhook.events.includes('*')) {
-          this.sendWebhook(webhook, event).catch(error => {
-            this.logger.error('Failed to send webhook', { webhook: webhook.url, error });
+        if (
+          webhook.events.includes(event.eventType) ||
+          webhook.events.includes('*')
+        ) {
+          this.sendWebhook(webhook, event).catch((error) => {
+            this.logger.error('Failed to send webhook', {
+              webhook: webhook.url,
+              error,
+            });
           });
         }
       }
@@ -543,7 +575,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
 
   private async sendWebhook(
     webhook: { url: string; headers?: Record<string, string> },
-    event: CrossSystemEvent
+    event: CrossSystemEvent,
   ): Promise<void> {
     // This would implement actual webhook sending
     // For now, we'll log it
@@ -581,7 +613,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
       1,
       'count',
       'throughput',
-      { timestamp: this.lastSyncTimestamp.toISOString() }
+      { timestamp: this.lastSyncTimestamp.toISOString() },
     );
 
     // Sync with core execution monitoring if available
@@ -617,7 +649,11 @@ export class MonitoringIntegrationHub extends EventEmitter {
       checks: [
         { name: 'monitoring_active', status: 'pass' },
         { name: 'websocket_connections', status: 'pass', value: 0 },
-        { name: 'alert_rules', status: 'pass', value: realTimeMonitoringSystem.getAlertRules().length },
+        {
+          name: 'alert_rules',
+          status: 'pass',
+          value: realTimeMonitoringSystem.getAlertRules().length,
+        },
       ],
       timestamp,
     });
@@ -681,13 +717,21 @@ export class MonitoringIntegrationHub extends EventEmitter {
   }
 
   private getComponentHealthStatus(component: string): HealthCheckResult {
-    return this.systemHealthStatus.get(component) || {
-      service: component,
-      status: 'offline',
-      responseTime: 0,
-      checks: [{ name: 'availability', status: 'fail', message: 'Service not found' }],
-      timestamp: new Date(),
-    };
+    return (
+      this.systemHealthStatus.get(component) || {
+        service: component,
+        status: 'offline',
+        responseTime: 0,
+        checks: [
+          {
+            name: 'availability',
+            status: 'fail',
+            message: 'Service not found',
+          },
+        ],
+        timestamp: new Date(),
+      }
+    );
   }
 
   private startMetricsExport(): void {
@@ -725,24 +769,44 @@ export class MonitoringIntegrationHub extends EventEmitter {
     // System metrics
     lines.push('# System Metrics');
     lines.push('timestamp,metric,value,unit');
-    lines.push(`${data.timestamp},memory_usage,${data.systemSnapshot.systemHealth.memoryUsageMB},MB`);
-    lines.push(`${data.timestamp},cpu_usage,${data.systemSnapshot.systemHealth.cpuUsagePercent},%`);
-    lines.push(`${data.timestamp},uptime,${data.systemSnapshot.systemHealth.uptime},ms`);
+    lines.push(
+      `${data.timestamp},memory_usage,${data.systemSnapshot.systemHealth.memoryUsageMB},MB`,
+    );
+    lines.push(
+      `${data.timestamp},cpu_usage,${data.systemSnapshot.systemHealth.cpuUsagePercent},%`,
+    );
+    lines.push(
+      `${data.timestamp},uptime,${data.systemSnapshot.systemHealth.uptime},ms`,
+    );
 
     // Task metrics
     lines.push('');
     lines.push('# Task Metrics');
-    lines.push(`${data.timestamp},total_tasks,${data.taskMetrics.totalTasks},count`);
-    lines.push(`${data.timestamp},completed_tasks,${data.taskMetrics.completedTasks},count`);
-    lines.push(`${data.timestamp},failed_tasks,${data.taskMetrics.failedTasks},count`);
-    lines.push(`${data.timestamp},success_rate,${data.taskMetrics.successRate},%`);
+    lines.push(
+      `${data.timestamp},total_tasks,${data.taskMetrics.totalTasks},count`,
+    );
+    lines.push(
+      `${data.timestamp},completed_tasks,${data.taskMetrics.completedTasks},count`,
+    );
+    lines.push(
+      `${data.timestamp},failed_tasks,${data.taskMetrics.failedTasks},count`,
+    );
+    lines.push(
+      `${data.timestamp},success_rate,${data.taskMetrics.successRate},%`,
+    );
 
     // Agent metrics
     lines.push('');
     lines.push('# Agent Metrics');
-    lines.push(`${data.timestamp},total_agents,${data.agentMetrics.totalAgents},count`);
-    lines.push(`${data.timestamp},active_agents,${data.agentMetrics.activeAgents},count`);
-    lines.push(`${data.timestamp},utilization,${data.agentMetrics.utilization},%`);
+    lines.push(
+      `${data.timestamp},total_agents,${data.agentMetrics.totalAgents},count`,
+    );
+    lines.push(
+      `${data.timestamp},active_agents,${data.agentMetrics.activeAgents},count`,
+    );
+    lines.push(
+      `${data.timestamp},utilization,${data.agentMetrics.utilization},%`,
+    );
 
     return lines.join('\n');
   }
@@ -754,36 +818,56 @@ export class MonitoringIntegrationHub extends EventEmitter {
 
     // System metrics
     lines.push(`# TYPE gemini_system_memory_usage gauge`);
-    lines.push(`gemini_system_memory_usage{unit="MB"} ${data.systemSnapshot.systemHealth.memoryUsageMB} ${timestamp}`);
+    lines.push(
+      `gemini_system_memory_usage{unit="MB"} ${data.systemSnapshot.systemHealth.memoryUsageMB} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_system_cpu_usage gauge`);
-    lines.push(`gemini_system_cpu_usage{unit="percent"} ${data.systemSnapshot.systemHealth.cpuUsagePercent} ${timestamp}`);
+    lines.push(
+      `gemini_system_cpu_usage{unit="percent"} ${data.systemSnapshot.systemHealth.cpuUsagePercent} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_system_uptime gauge`);
-    lines.push(`gemini_system_uptime{unit="milliseconds"} ${data.systemSnapshot.systemHealth.uptime} ${timestamp}`);
+    lines.push(
+      `gemini_system_uptime{unit="milliseconds"} ${data.systemSnapshot.systemHealth.uptime} ${timestamp}`,
+    );
 
     // Task metrics
     lines.push(`# TYPE gemini_tasks_total counter`);
-    lines.push(`gemini_tasks_total ${data.taskMetrics.totalTasks} ${timestamp}`);
+    lines.push(
+      `gemini_tasks_total ${data.taskMetrics.totalTasks} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_tasks_completed counter`);
-    lines.push(`gemini_tasks_completed ${data.taskMetrics.completedTasks} ${timestamp}`);
+    lines.push(
+      `gemini_tasks_completed ${data.taskMetrics.completedTasks} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_tasks_failed counter`);
-    lines.push(`gemini_tasks_failed ${data.taskMetrics.failedTasks} ${timestamp}`);
+    lines.push(
+      `gemini_tasks_failed ${data.taskMetrics.failedTasks} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_tasks_success_rate gauge`);
-    lines.push(`gemini_tasks_success_rate{unit="percent"} ${data.taskMetrics.successRate} ${timestamp}`);
+    lines.push(
+      `gemini_tasks_success_rate{unit="percent"} ${data.taskMetrics.successRate} ${timestamp}`,
+    );
 
     // Agent metrics
     lines.push(`# TYPE gemini_agents_total gauge`);
-    lines.push(`gemini_agents_total ${data.agentMetrics.totalAgents} ${timestamp}`);
+    lines.push(
+      `gemini_agents_total ${data.agentMetrics.totalAgents} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_agents_active gauge`);
-    lines.push(`gemini_agents_active ${data.agentMetrics.activeAgents} ${timestamp}`);
+    lines.push(
+      `gemini_agents_active ${data.agentMetrics.activeAgents} ${timestamp}`,
+    );
 
     lines.push(`# TYPE gemini_agents_utilization gauge`);
-    lines.push(`gemini_agents_utilization{unit="percent"} ${data.agentMetrics.utilization} ${timestamp}`);
+    lines.push(
+      `gemini_agents_utilization{unit="percent"} ${data.agentMetrics.utilization} ${timestamp}`,
+    );
 
     return lines.join('\n');
   }

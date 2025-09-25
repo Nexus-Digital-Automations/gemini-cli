@@ -38,7 +38,7 @@ import {
   DependencyType,
   ExecutionReadiness,
   SchedulingResult,
-  DependencyAnalysisResult
+  DependencyAnalysisResult,
 } from './DependencyAnalyzer.js';
 
 /**
@@ -89,7 +89,12 @@ export interface ExecutionContext {
  * Scheduling strategy configuration
  */
 export interface SchedulingStrategy {
-  algorithm: 'critical_path' | 'shortest_first' | 'deadline_first' | 'priority_first' | 'adaptive';
+  algorithm:
+    | 'critical_path'
+    | 'shortest_first'
+    | 'deadline_first'
+    | 'priority_first'
+    | 'adaptive';
   parallelizationEnabled: boolean;
   resourceOptimization: boolean;
   failureRecovery: boolean;
@@ -122,7 +127,13 @@ export interface SystemMetrics {
  * Scheduling event for monitoring and analytics
  */
 export interface SchedulingEvent {
-  type: 'task_scheduled' | 'task_started' | 'task_completed' | 'task_failed' | 'schedule_optimized' | 'resource_allocated';
+  type:
+    | 'task_scheduled'
+    | 'task_started'
+    | 'task_completed'
+    | 'task_failed'
+    | 'schedule_optimized'
+    | 'resource_allocated';
   taskId?: string;
   timestamp: Date;
   data: Record<string, any>;
@@ -157,7 +168,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
   constructor(
     dependencyAnalyzer: DependencyAnalyzer,
     resourceConstraints?: Partial<ResourceConstraints>,
-    schedulingStrategy?: Partial<SchedulingStrategy>
+    schedulingStrategy?: Partial<SchedulingStrategy>,
   ) {
     super();
 
@@ -175,9 +186,9 @@ export class IntelligentTaskScheduler extends EventEmitter {
         cpu: 1,
         memory: 1024, // 1GB
         disk: 10,
-        network: 100
+        network: 100,
       },
-      ...resourceConstraints
+      ...resourceConstraints,
     };
 
     // Initialize default scheduling strategy
@@ -190,7 +201,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
       loadBalancing: true,
       predictiveScheduling: true,
       reschedulingThreshold: 0.3,
-      ...schedulingStrategy
+      ...schedulingStrategy,
     };
 
     // Initialize task collections
@@ -207,7 +218,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
     this.logger.info('IntelligentTaskScheduler initialized', {
       maxConcurrentTasks: this.resourceConstraints.maxConcurrentTasks,
       algorithm: this.schedulingStrategy.algorithm,
-      parallelization: this.schedulingStrategy.parallelizationEnabled
+      parallelization: this.schedulingStrategy.parallelizationEnabled,
     });
 
     this.startScheduler();
@@ -216,17 +227,22 @@ export class IntelligentTaskScheduler extends EventEmitter {
   /**
    * Submit task for intelligent scheduling
    */
-  public async scheduleTask(task: TaskNode, dependencies: TaskDependency[] = []): Promise<void> {
+  public async scheduleTask(
+    task: TaskNode,
+    dependencies: TaskDependency[] = [],
+  ): Promise<void> {
     this.logger.info(`Scheduling task: ${task.taskId}`, {
       name: task.name,
       type: task.type,
       priority: task.priority,
-      dependencyCount: dependencies.length
+      dependencyCount: dependencies.length,
     });
 
     try {
       // Analyze task dependencies
-      const dependencyAnalysis = await this.dependencyAnalyzer.analyzeTask(task.taskId);
+      const dependencyAnalysis = await this.dependencyAnalyzer.analyzeTask(
+        task.taskId,
+      );
 
       // Create execution context
       const executionContext: ExecutionContext = {
@@ -235,15 +251,17 @@ export class IntelligentTaskScheduler extends EventEmitter {
         estimatedEndTime: this.calculateEstimatedEndTime(task),
         allocatedResources: this.calculateResourceAllocation(task),
         priority: this.calculateDynamicPriority(task, dependencyAnalysis),
-        dependencies: dependencyAnalysis.dependsOn.map(dep => dep.sourceTaskId),
+        dependencies: dependencyAnalysis.dependsOn.map(
+          (dep) => dep.sourceTaskId,
+        ),
         status: 'queued',
         retryCount: 0,
         maxRetries: this.getMaxRetries(task),
         metrics: {
           queueTime: 0,
           executionTime: 0,
-          resourceUtilization: {}
-        }
+          resourceUtilization: {},
+        },
       };
 
       // Add to execution queue
@@ -256,15 +274,18 @@ export class IntelligentTaskScheduler extends EventEmitter {
       this.emitSchedulingEvent('task_scheduled', task.taskId, {
         priority: executionContext.priority,
         estimatedStartTime: executionContext.startTime,
-        queuePosition: this.executionQueue.findIndex(ctx => ctx.taskId === task.taskId)
+        queuePosition: this.executionQueue.findIndex(
+          (ctx) => ctx.taskId === task.taskId,
+        ),
       });
 
       // Trigger immediate scheduling if resources available
       this.scheduleNextTasks();
-
     } catch (error) {
       this.logger.error(`Failed to schedule task: ${task.taskId}`, { error });
-      throw new Error(`Task scheduling failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Task scheduling failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -283,14 +304,16 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
     this.emitSchedulingEvent('schedule_optimized', undefined, {
       strategy: this.schedulingStrategy,
-      queueSize: this.executionQueue.length
+      queueSize: this.executionQueue.length,
     });
   }
 
   /**
    * Update resource constraints
    */
-  public updateResourceConstraints(constraints: Partial<ResourceConstraints>): void {
+  public updateResourceConstraints(
+    constraints: Partial<ResourceConstraints>,
+  ): void {
     this.logger.info('Updating resource constraints', { changes: constraints });
 
     this.resourceConstraints = { ...this.resourceConstraints, ...constraints };
@@ -320,7 +343,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
       failedTasks: this.failedTasks.size,
       resourceUtilization,
       systemMetrics: this.systemMetrics,
-      strategy: this.schedulingStrategy
+      strategy: this.schedulingStrategy,
     };
   }
 
@@ -344,7 +367,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
     }
 
     // Check queue
-    return this.executionQueue.find(ctx => ctx.taskId === taskId) || null;
+    return this.executionQueue.find((ctx) => ctx.taskId === taskId) || null;
   }
 
   /**
@@ -354,7 +377,9 @@ export class IntelligentTaskScheduler extends EventEmitter {
     this.logger.info(`Cancelling task: ${taskId}`);
 
     // Remove from queue if present
-    const queueIndex = this.executionQueue.findIndex(ctx => ctx.taskId === taskId);
+    const queueIndex = this.executionQueue.findIndex(
+      (ctx) => ctx.taskId === taskId,
+    );
     if (queueIndex !== -1) {
       this.executionQueue.splice(queueIndex, 1);
       this.logger.info(`Task cancelled from queue: ${taskId}`);
@@ -394,18 +419,28 @@ export class IntelligentTaskScheduler extends EventEmitter {
         resourceEfficiency: 0,
         throughput: 0,
         bottlenecks: [],
-        recommendations: []
+        recommendations: [],
       };
     }
 
-    const averageQueueTime = completedTasksArray.reduce((sum, ctx) => sum + ctx.metrics.queueTime, 0) / completedTasksArray.length;
-    const averageExecutionTime = completedTasksArray.reduce((sum, ctx) => sum + ctx.metrics.executionTime, 0) / completedTasksArray.length;
+    const averageQueueTime =
+      completedTasksArray.reduce((sum, ctx) => sum + ctx.metrics.queueTime, 0) /
+      completedTasksArray.length;
+    const averageExecutionTime =
+      completedTasksArray.reduce(
+        (sum, ctx) => sum + ctx.metrics.executionTime,
+        0,
+      ) / completedTasksArray.length;
     const successRate = completedTasksArray.length / totalTasks;
 
     const resourceEfficiency = this.calculateResourceEfficiency();
     const throughput = this.calculateThroughput();
     const bottlenecks = this.identifyBottlenecks();
-    const recommendations = this.generateRecommendations(successRate, resourceEfficiency, bottlenecks);
+    const recommendations = this.generateRecommendations(
+      successRate,
+      resourceEfficiency,
+      bottlenecks,
+    );
 
     return {
       averageQueueTime,
@@ -414,7 +449,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
       resourceEfficiency,
       throughput,
       bottlenecks,
-      recommendations
+      recommendations,
     };
   }
 
@@ -447,7 +482,8 @@ export class IntelligentTaskScheduler extends EventEmitter {
       return;
     }
 
-    const availableSlots = this.resourceConstraints.maxConcurrentTasks - this.runningTasks.size;
+    const availableSlots =
+      this.resourceConstraints.maxConcurrentTasks - this.runningTasks.size;
     if (availableSlots <= 0) {
       return;
     }
@@ -460,7 +496,10 @@ export class IntelligentTaskScheduler extends EventEmitter {
     }
 
     // Select tasks based on current algorithm
-    const tasksToSchedule = this.selectTasksForExecution(readyTasks, availableSlots);
+    const tasksToSchedule = this.selectTasksForExecution(
+      readyTasks,
+      availableSlots,
+    );
 
     // Start executing selected tasks
     for (const task of tasksToSchedule) {
@@ -472,14 +511,16 @@ export class IntelligentTaskScheduler extends EventEmitter {
    * Get tasks that are ready for execution
    */
   private getReadyTasks(): ExecutionContext[] {
-    return this.executionQueue.filter(ctx => {
+    return this.executionQueue.filter((ctx) => {
       // Check if all dependencies are satisfied
-      const dependenciesSatisfied = ctx.dependencies.every(depId =>
-        this.completedTasks.has(depId)
+      const dependenciesSatisfied = ctx.dependencies.every((depId) =>
+        this.completedTasks.has(depId),
       );
 
       // Check if resources are available
-      const resourcesAvailable = this.canAllocateResources(ctx.allocatedResources);
+      const resourcesAvailable = this.canAllocateResources(
+        ctx.allocatedResources,
+      );
 
       return dependenciesSatisfied && resourcesAvailable;
     });
@@ -488,7 +529,10 @@ export class IntelligentTaskScheduler extends EventEmitter {
   /**
    * Select tasks for execution based on scheduling algorithm
    */
-  private selectTasksForExecution(readyTasks: ExecutionContext[], maxTasks: number): ExecutionContext[] {
+  private selectTasksForExecution(
+    readyTasks: ExecutionContext[],
+    maxTasks: number,
+  ): ExecutionContext[] {
     let selectedTasks: ExecutionContext[] = [];
 
     switch (this.schedulingStrategy.algorithm) {
@@ -525,11 +569,13 @@ export class IntelligentTaskScheduler extends EventEmitter {
   private async startTaskExecution(context: ExecutionContext): Promise<void> {
     this.logger.info(`Starting task execution: ${context.taskId}`, {
       priority: context.priority,
-      allocatedResources: context.allocatedResources
+      allocatedResources: context.allocatedResources,
     });
 
     // Remove from queue
-    const queueIndex = this.executionQueue.findIndex(ctx => ctx.taskId === context.taskId);
+    const queueIndex = this.executionQueue.findIndex(
+      (ctx) => ctx.taskId === context.taskId,
+    );
     if (queueIndex !== -1) {
       this.executionQueue.splice(queueIndex, 1);
     }
@@ -545,7 +591,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
     // Emit event
     this.emitSchedulingEvent('task_started', context.taskId, {
       allocatedResources: context.allocatedResources,
-      queueTime: context.metrics.queueTime
+      queueTime: context.metrics.queueTime,
     });
 
     try {
@@ -554,7 +600,6 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
       // Task completed successfully
       this.handleTaskCompletion(context.taskId, true);
-
     } catch (error) {
       // Task failed
       this.handleTaskCompletion(context.taskId, false, error);
@@ -564,10 +609,16 @@ export class IntelligentTaskScheduler extends EventEmitter {
   /**
    * Handle task completion or failure
    */
-  private handleTaskCompletion(taskId: string, success: boolean, error?: any): void {
+  private handleTaskCompletion(
+    taskId: string,
+    success: boolean,
+    error?: any,
+  ): void {
     const context = this.runningTasks.get(taskId);
     if (!context) {
-      this.logger.warn(`Task completion handler called for non-running task: ${taskId}`);
+      this.logger.warn(
+        `Task completion handler called for non-running task: ${taskId}`,
+      );
       return;
     }
 
@@ -576,7 +627,8 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
     // Update context
     context.actualEndTime = new Date();
-    context.metrics.executionTime = context.actualEndTime.getTime() - context.startTime.getTime();
+    context.metrics.executionTime =
+      context.actualEndTime.getTime() - context.startTime.getTime();
     context.status = success ? 'completed' : 'failed';
 
     if (success) {
@@ -585,15 +637,14 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
       this.logger.info(`Task completed successfully: ${taskId}`, {
         executionTime: context.metrics.executionTime,
-        queueTime: context.metrics.queueTime
+        queueTime: context.metrics.queueTime,
       });
 
       this.emitSchedulingEvent('task_completed', taskId, {
         executionTime: context.metrics.executionTime,
         queueTime: context.metrics.queueTime,
-        resourceUtilization: context.metrics.resourceUtilization
+        resourceUtilization: context.metrics.resourceUtilization,
       });
-
     } else {
       // Handle failure
       if (context.retryCount < context.maxRetries) {
@@ -605,22 +656,21 @@ export class IntelligentTaskScheduler extends EventEmitter {
         this.logger.warn(`Task failed, retrying: ${taskId}`, {
           retryCount: context.retryCount,
           maxRetries: context.maxRetries,
-          error: error?.message
+          error: error?.message,
         });
-
       } else {
         // Permanent failure
         this.failedTasks.set(taskId, context);
 
         this.logger.error(`Task failed permanently: ${taskId}`, {
           retryCount: context.retryCount,
-          error: error?.message
+          error: error?.message,
         });
 
         this.emitSchedulingEvent('task_failed', taskId, {
           retryCount: context.retryCount,
           error: error?.message,
-          executionTime: context.metrics.executionTime
+          executionTime: context.metrics.executionTime,
         });
       }
     }
@@ -662,17 +712,22 @@ export class IntelligentTaskScheduler extends EventEmitter {
     return new Date(Date.now() + task.estimatedDuration);
   }
 
-  private calculateResourceAllocation(task: TaskNode): ExecutionContext['allocatedResources'] {
+  private calculateResourceAllocation(
+    task: TaskNode,
+  ): ExecutionContext['allocatedResources'] {
     const reqs = task.resourceRequirements;
     return {
       cpu: reqs.cpu || 1,
       memory: reqs.memory || 512, // 512MB default
       disk: reqs.disk || 1, // 1GB default
-      network: 10 // 10Mbps default
+      network: 10, // 10Mbps default
     };
   }
 
-  private calculateDynamicPriority(task: TaskNode, analysis: DependencyAnalysisResult): number {
+  private calculateDynamicPriority(
+    task: TaskNode,
+    analysis: DependencyAnalysisResult,
+  ): number {
     let priority = task.priority;
 
     // Boost priority for critical path tasks
@@ -692,15 +747,22 @@ export class IntelligentTaskScheduler extends EventEmitter {
   private getMaxRetries(task: TaskNode): number {
     // Different task types might have different retry policies
     switch (task.type) {
-      case 'critical': return 3;
-      case 'high_priority': return 2;
-      case 'normal': return 1;
-      case 'low_priority': return 0;
-      default: return 1;
+      case 'critical':
+        return 3;
+      case 'high_priority':
+        return 2;
+      case 'normal':
+        return 1;
+      case 'low_priority':
+        return 0;
+      default:
+        return 1;
     }
   }
 
-  private canAllocateResources(requested: ExecutionContext['allocatedResources']): boolean {
+  private canAllocateResources(
+    requested: ExecutionContext['allocatedResources'],
+  ): boolean {
     const available = this.calculateAvailableResources();
 
     return (
@@ -716,7 +778,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
       cpu: this.resourceConstraints.maxCpuCores,
       memory: this.resourceConstraints.maxMemoryMB,
       disk: this.resourceConstraints.maxDiskSpaceGB * 1024, // Convert to MB
-      network: this.resourceConstraints.maxNetworkBandwidthMbps
+      network: this.resourceConstraints.maxNetworkBandwidthMbps,
     };
 
     const reserved = this.resourceConstraints.reservedResources;
@@ -726,7 +788,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
       cpu: total.cpu - reserved.cpu - used.cpu,
       memory: total.memory - reserved.memory - used.memory,
       disk: total.disk - reserved.disk - used.disk,
-      network: total.network - reserved.network - used.network
+      network: total.network - reserved.network - used.network,
     };
   }
 
@@ -749,14 +811,14 @@ export class IntelligentTaskScheduler extends EventEmitter {
       cpu: this.resourceConstraints.maxCpuCores,
       memory: this.resourceConstraints.maxMemoryMB,
       disk: this.resourceConstraints.maxDiskSpaceGB * 1024,
-      network: this.resourceConstraints.maxNetworkBandwidthMbps
+      network: this.resourceConstraints.maxNetworkBandwidthMbps,
     };
 
     return {
       cpu: total.cpu > 0 ? (used.cpu / total.cpu) * 100 : 0,
       memory: total.memory > 0 ? (used.memory / total.memory) * 100 : 0,
       disk: total.disk > 0 ? (used.disk / total.disk) * 100 : 0,
-      network: total.network > 0 ? (used.network / total.network) * 100 : 0
+      network: total.network > 0 ? (used.network / total.network) * 100 : 0,
     };
   }
 
@@ -769,41 +831,54 @@ export class IntelligentTaskScheduler extends EventEmitter {
       resourceEfficiency: 0,
       queueLength: 0,
       activeTaskCount: 0,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
   // =================== SCHEDULING ALGORITHM IMPLEMENTATIONS ===================
 
-  private selectByCriticalPath(tasks: ExecutionContext[], maxTasks: number): ExecutionContext[] {
+  private selectByCriticalPath(
+    tasks: ExecutionContext[],
+    maxTasks: number,
+  ): ExecutionContext[] {
     // Sort by critical path membership and priority
     return tasks
       .sort((a, b) => this.compareByCriticalPath(a, b))
       .slice(0, maxTasks);
   }
 
-  private selectByShortestFirst(tasks: ExecutionContext[], maxTasks: number): ExecutionContext[] {
+  private selectByShortestFirst(
+    tasks: ExecutionContext[],
+    maxTasks: number,
+  ): ExecutionContext[] {
     // Sort by estimated duration (shortest first)
     return tasks
       .sort((a, b) => this.compareByDuration(a, b))
       .slice(0, maxTasks);
   }
 
-  private selectByDeadlineFirst(tasks: ExecutionContext[], maxTasks: number): ExecutionContext[] {
+  private selectByDeadlineFirst(
+    tasks: ExecutionContext[],
+    maxTasks: number,
+  ): ExecutionContext[] {
     // Sort by deadline (earliest first)
     return tasks
       .sort((a, b) => this.compareByDeadline(a, b))
       .slice(0, maxTasks);
   }
 
-  private selectByPriority(tasks: ExecutionContext[], maxTasks: number): ExecutionContext[] {
+  private selectByPriority(
+    tasks: ExecutionContext[],
+    maxTasks: number,
+  ): ExecutionContext[] {
     // Sort by priority (highest first)
-    return tasks
-      .sort((a, b) => b.priority - a.priority)
-      .slice(0, maxTasks);
+    return tasks.sort((a, b) => b.priority - a.priority).slice(0, maxTasks);
   }
 
-  private selectAdaptively(tasks: ExecutionContext[], maxTasks: number): ExecutionContext[] {
+  private selectAdaptively(
+    tasks: ExecutionContext[],
+    maxTasks: number,
+  ): ExecutionContext[] {
     // Combine multiple factors for intelligent selection
     return tasks
       .sort((a, b) => this.compareAdaptively(a, b))
@@ -812,7 +887,10 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
   // =================== COMPARISON METHODS ===================
 
-  private compareByCriticalPath(a: ExecutionContext, b: ExecutionContext): number {
+  private compareByCriticalPath(
+    a: ExecutionContext,
+    b: ExecutionContext,
+  ): number {
     // This would check if tasks are on critical path
     // For now, prioritize by dependency count and priority
     const aScore = a.dependencies.length * 10 + a.priority;
@@ -848,13 +926,17 @@ export class IntelligentTaskScheduler extends EventEmitter {
     score += context.dependencies.length * 5;
 
     // Factor in resource efficiency
-    const resourceScore = this.calculateResourceEfficiencyScore(context.allocatedResources);
+    const resourceScore = this.calculateResourceEfficiencyScore(
+      context.allocatedResources,
+    );
     score += resourceScore;
 
     return score;
   }
 
-  private calculateResourceEfficiencyScore(resources: ExecutionContext['allocatedResources']): number {
+  private calculateResourceEfficiencyScore(
+    resources: ExecutionContext['allocatedResources'],
+  ): number {
     const utilization = this.calculateCurrentResourceUtilization();
 
     // Prefer tasks that use currently underutilized resources
@@ -878,7 +960,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
       resourceEfficiency: this.calculateResourceEfficiency(),
       queueLength: this.executionQueue.length,
       activeTaskCount: this.runningTasks.size,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     // Store in history
@@ -901,13 +983,16 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
     // Check if rescheduling is needed
     const currentEfficiency = this.systemMetrics.resourceEfficiency;
-    if (currentEfficiency < this.schedulingStrategy.reschedulingThreshold * 100) {
+    if (
+      currentEfficiency <
+      this.schedulingStrategy.reschedulingThreshold * 100
+    ) {
       this.optimizeExecutionQueue();
 
       this.emitSchedulingEvent('schedule_optimized', undefined, {
         reason: 'low_efficiency',
         efficiency: currentEfficiency,
-        queueSize: this.executionQueue.length
+        queueSize: this.executionQueue.length,
       });
     }
   }
@@ -919,7 +1004,7 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
     const timeWindow = 300000; // 5 minutes
     const recentHistory = this.performanceHistory.filter(
-      metric => Date.now() - metric.timestamp.getTime() < timeWindow
+      (metric) => Date.now() - metric.timestamp.getTime() < timeWindow,
     );
 
     if (recentHistory.length === 0) {
@@ -927,7 +1012,9 @@ export class IntelligentTaskScheduler extends EventEmitter {
     }
 
     const completedInWindow = Array.from(this.completedTasks.values()).filter(
-      ctx => ctx.actualEndTime && Date.now() - ctx.actualEndTime.getTime() < timeWindow
+      (ctx) =>
+        ctx.actualEndTime &&
+        Date.now() - ctx.actualEndTime.getTime() < timeWindow,
     ).length;
 
     return completedInWindow / (timeWindow / 60000); // Tasks per minute
@@ -937,7 +1024,10 @@ export class IntelligentTaskScheduler extends EventEmitter {
     const completed = Array.from(this.completedTasks.values());
     if (completed.length === 0) return 0;
 
-    const totalTime = completed.reduce((sum, ctx) => sum + ctx.metrics.executionTime, 0);
+    const totalTime = completed.reduce(
+      (sum, ctx) => sum + ctx.metrics.executionTime,
+      0,
+    );
     return totalTime / completed.length;
   }
 
@@ -950,20 +1040,30 @@ export class IntelligentTaskScheduler extends EventEmitter {
 
   private calculateResourceEfficiency(): number {
     const utilization = this.calculateCurrentResourceUtilization();
-    const averageUtilization = (utilization.cpu + utilization.memory + utilization.disk + utilization.network) / 4;
+    const averageUtilization =
+      (utilization.cpu +
+        utilization.memory +
+        utilization.disk +
+        utilization.network) /
+      4;
 
     // Efficiency is balance between utilization and performance
     const throughput = this.systemMetrics.taskThroughput;
     const successRate = this.systemMetrics.successRate;
 
-    return (averageUtilization * 0.4 + throughput * 0.3 + successRate * 100 * 0.3);
+    return (
+      averageUtilization * 0.4 + throughput * 0.3 + successRate * 100 * 0.3
+    );
   }
 
   private identifyBottlenecks(): string[] {
     const bottlenecks: string[] = [];
 
     // High queue length
-    if (this.executionQueue.length > this.resourceConstraints.maxConcurrentTasks * 2) {
+    if (
+      this.executionQueue.length >
+      this.resourceConstraints.maxConcurrentTasks * 2
+    ) {
       bottlenecks.push('High task queue length');
     }
 
@@ -982,31 +1082,47 @@ export class IntelligentTaskScheduler extends EventEmitter {
     return bottlenecks;
   }
 
-  private generateRecommendations(successRate: number, efficiency: number, bottlenecks: string[]): string[] {
+  private generateRecommendations(
+    successRate: number,
+    efficiency: number,
+    bottlenecks: string[],
+  ): string[] {
     const recommendations: string[] = [];
 
     if (successRate < 0.9) {
-      recommendations.push('Consider increasing task retry limits or improving error handling');
+      recommendations.push(
+        'Consider increasing task retry limits or improving error handling',
+      );
     }
 
     if (efficiency < 50) {
-      recommendations.push('Resource utilization is low - consider increasing concurrent task limit');
+      recommendations.push(
+        'Resource utilization is low - consider increasing concurrent task limit',
+      );
     }
 
     if (efficiency > 90) {
-      recommendations.push('System is running at high efficiency - monitor for potential overload');
+      recommendations.push(
+        'System is running at high efficiency - monitor for potential overload',
+      );
     }
 
     if (bottlenecks.includes('CPU constraint')) {
-      recommendations.push('Consider scaling CPU resources or optimizing task CPU usage');
+      recommendations.push(
+        'Consider scaling CPU resources or optimizing task CPU usage',
+      );
     }
 
     if (bottlenecks.includes('Memory constraint')) {
-      recommendations.push('Consider increasing memory allocation or optimizing task memory usage');
+      recommendations.push(
+        'Consider increasing memory allocation or optimizing task memory usage',
+      );
     }
 
     if (this.executionQueue.length > 20) {
-      recommendations.push('High queue length detected - consider parallelization improvements');
+      recommendations.push(
+        'High queue length detected - consider parallelization improvements',
+      );
     }
 
     return recommendations;
@@ -1019,27 +1135,36 @@ export class IntelligentTaskScheduler extends EventEmitter {
       cpu: this.resourceConstraints.maxCpuCores,
       memory: this.resourceConstraints.maxMemoryMB,
       disk: this.resourceConstraints.maxDiskSpaceGB * 1024,
-      network: this.resourceConstraints.maxNetworkBandwidthMbps
+      network: this.resourceConstraints.maxNetworkBandwidthMbps,
     };
 
-    if (used.cpu > limits.cpu || used.memory > limits.memory ||
-        used.disk > limits.disk || used.network > limits.network) {
-
-      this.logger.warn('Resource constraint violation detected', { used, limits });
+    if (
+      used.cpu > limits.cpu ||
+      used.memory > limits.memory ||
+      used.disk > limits.disk ||
+      used.network > limits.network
+    ) {
+      this.logger.warn('Resource constraint violation detected', {
+        used,
+        limits,
+      });
 
       this.emitSchedulingEvent('resource_allocated', undefined, {
         violation: true,
         used,
-        limits
+        limits,
       });
 
       // In a real implementation, might need to pause or reschedule tasks
     }
   }
 
-  private async simulateTaskExecution(context: ExecutionContext): Promise<void> {
+  private async simulateTaskExecution(
+    context: ExecutionContext,
+  ): Promise<void> {
     // Simulate variable execution time
-    const baseTime = context.estimatedEndTime.getTime() - context.startTime.getTime();
+    const baseTime =
+      context.estimatedEndTime.getTime() - context.startTime.getTime();
     const variability = 0.3; // 30% variability
     const actualTime = baseTime * (1 + (Math.random() - 0.5) * variability);
 
@@ -1047,7 +1172,9 @@ export class IntelligentTaskScheduler extends EventEmitter {
     const failureRate = 0.05; // 5% failure rate
     const shouldFail = Math.random() < failureRate;
 
-    await new Promise(resolve => setTimeout(resolve, Math.min(actualTime, 1000))); // Cap simulation time
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(actualTime, 1000)),
+    ); // Cap simulation time
 
     if (shouldFail) {
       throw new Error('Simulated task execution failure');
@@ -1058,17 +1185,21 @@ export class IntelligentTaskScheduler extends EventEmitter {
       cpu: Math.random() * context.allocatedResources.cpu,
       memory: Math.random() * context.allocatedResources.memory,
       disk: Math.random() * context.allocatedResources.disk,
-      network: Math.random() * context.allocatedResources.network
+      network: Math.random() * context.allocatedResources.network,
     };
   }
 
-  private emitSchedulingEvent(type: SchedulingEvent['type'], taskId?: string, data: Record<string, any> = {}): void {
+  private emitSchedulingEvent(
+    type: SchedulingEvent['type'],
+    taskId?: string,
+    data: Record<string, any> = {},
+  ): void {
     const event: SchedulingEvent = {
       type,
       taskId,
       timestamp: new Date(),
       data,
-      impact: this.determineEventImpact(type, data)
+      impact: this.determineEventImpact(type, data),
     };
 
     this.schedulingEvents.push(event);
@@ -1079,7 +1210,10 @@ export class IntelligentTaskScheduler extends EventEmitter {
     this.emit(type, event);
   }
 
-  private determineEventImpact(type: SchedulingEvent['type'], data: Record<string, any>): SchedulingEvent['impact'] {
+  private determineEventImpact(
+    type: SchedulingEvent['type'],
+    data: Record<string, any>,
+  ): SchedulingEvent['impact'] {
     switch (type) {
       case 'task_failed':
         return 'high';
@@ -1116,12 +1250,17 @@ export class IntelligentTaskScheduler extends EventEmitter {
     const shutdownTimeout = 30000; // 30 seconds
     const startTime = Date.now();
 
-    while (this.runningTasks.size > 0 && Date.now() - startTime < shutdownTimeout) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    while (
+      this.runningTasks.size > 0 &&
+      Date.now() - startTime < shutdownTimeout
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     if (this.runningTasks.size > 0) {
-      this.logger.warn(`Shutdown timeout reached with ${this.runningTasks.size} tasks still running`);
+      this.logger.warn(
+        `Shutdown timeout reached with ${this.runningTasks.size} tasks still running`,
+      );
     }
 
     // Clear collections

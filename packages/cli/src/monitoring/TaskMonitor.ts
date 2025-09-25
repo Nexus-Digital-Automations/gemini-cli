@@ -6,7 +6,11 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type { TaskMetadata, TaskStatus, AgentStatus } from './TaskStatusMonitor.js';
+import type {
+  TaskMetadata,
+  TaskStatus,
+  AgentStatus,
+} from './TaskStatusMonitor.js';
 import { taskStatusMonitor, TaskStatusUpdate } from './TaskStatusMonitor.js';
 import { progressTracker, ProgressGranularity } from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
@@ -111,7 +115,9 @@ export class TaskMonitor extends EventEmitter {
     this.setupEventIntegration();
     this.setupPeriodicMonitoring();
 
-    this.logger.info('TaskMonitor initialized with integrated monitoring capabilities');
+    this.logger.info(
+      'TaskMonitor initialized with integrated monitoring capabilities',
+    );
   }
 
   /**
@@ -119,7 +125,7 @@ export class TaskMonitor extends EventEmitter {
    */
   async startMonitoring(
     taskId: string,
-    config: Partial<TaskMonitoringConfig> = {}
+    config: Partial<TaskMonitoringConfig> = {},
   ): Promise<void> {
     const defaultConfig: TaskMonitoringConfig = {
       scope: {
@@ -170,7 +176,9 @@ export class TaskMonitor extends EventEmitter {
   /**
    * Get comprehensive task status with all monitoring data
    */
-  async getIntegratedTaskStatus(taskId: string): Promise<IntegratedTaskStatus | null> {
+  async getIntegratedTaskStatus(
+    taskId: string,
+  ): Promise<IntegratedTaskStatus | null> {
     const config = this.monitoredTasks.get(taskId);
     if (!config) return null;
 
@@ -186,10 +194,17 @@ export class TaskMonitor extends EventEmitter {
     const dashboardData = performanceAnalyticsDashboard.getDashboardData();
 
     // Get agent data
-    const agent = task.assignedAgent ? taskStatusMonitor.getAgentStatus(task.assignedAgent) : undefined;
+    const agent = task.assignedAgent
+      ? taskStatusMonitor.getAgentStatus(task.assignedAgent)
+      : undefined;
 
     // Calculate analytics
-    const analytics = await this.calculateTaskAnalytics(taskId, task, progressMetrics, config);
+    const analytics = await this.calculateTaskAnalytics(
+      taskId,
+      task,
+      progressMetrics,
+      config,
+    );
 
     const integratedStatus: IntegratedTaskStatus = {
       task,
@@ -197,33 +212,44 @@ export class TaskMonitor extends EventEmitter {
 
       progress: {
         overall: progressMetrics?.overallProgress || task.progress,
-        milestones: progressMetrics?.checkpoints.milestones.map(m => ({
-          name: m.name,
-          completed: m.completed,
-          progress: m.progress,
-        })) || [],
+        milestones:
+          progressMetrics?.checkpoints.milestones.map((m) => ({
+            name: m.name,
+            completed: m.completed,
+            progress: m.progress,
+          })) || [],
         velocity: progressMetrics?.velocity || 0,
         estimatedCompletion: progressEstimate?.estimatedCompletion || null,
-        timeRemaining: progressEstimate ?
-          Math.max(0, progressEstimate.estimatedCompletion.getTime() - Date.now()) : 0,
+        timeRemaining: progressEstimate
+          ? Math.max(
+              0,
+              progressEstimate.estimatedCompletion.getTime() - Date.now(),
+            )
+          : 0,
       },
 
       performance: {
-        executionTime: task.actualDuration || (task.startTime ? Date.now() - task.startTime.getTime() : 0),
+        executionTime:
+          task.actualDuration ||
+          (task.startTime ? Date.now() - task.startTime.getTime() : 0),
         efficiency: progressMetrics?.efficiency || 1,
         resourceUsage: {
           cpu: 0, // Would be integrated with actual system monitoring
           memory: process.memoryUsage().heapUsed / 1024 / 1024,
         },
         throughput: agent?.performance.taskThroughput || 0,
-        errorRate: task.errorCount / Math.max(1, task.errorCount + (agent?.completedTasks || 0)),
+        errorRate:
+          task.errorCount /
+          Math.max(1, task.errorCount + (agent?.completedTasks || 0)),
       },
 
-      agent: agent ? {
-        id: agent.id,
-        status: agent.status,
-        performance: agent.performance,
-      } : undefined,
+      agent: agent
+        ? {
+            id: agent.id,
+            status: agent.status,
+            performance: agent.performance,
+          }
+        : undefined,
 
       analytics,
     };
@@ -249,7 +275,11 @@ export class TaskMonitor extends EventEmitter {
     };
     alerts: Array<{
       taskId: string;
-      type: 'progress_stall' | 'performance_degradation' | 'high_error_rate' | 'time_overrun';
+      type:
+        | 'progress_stall'
+        | 'performance_degradation'
+        | 'high_error_rate'
+        | 'time_overrun';
       severity: 'low' | 'medium' | 'high' | 'critical';
       message: string;
       timestamp: Date;
@@ -272,18 +302,25 @@ export class TaskMonitor extends EventEmitter {
 
     // Calculate system metrics
     const healthScores = Array.from(this.healthScores.values());
-    const averageHealthScore = healthScores.length > 0
-      ? healthScores.reduce((sum, score) => sum + score, 0) / healthScores.length
-      : 100;
+    const averageHealthScore =
+      healthScores.length > 0
+        ? healthScores.reduce((sum, score) => sum + score, 0) /
+          healthScores.length
+        : 100;
 
-    const healthyTasks = healthScores.filter(score => score >= 80).length;
-    const atRiskTasks = healthScores.filter(score => score >= 60 && score < 80).length;
-    const failingTasks = healthScores.filter(score => score < 60).length;
+    const healthyTasks = healthScores.filter((score) => score >= 80).length;
+    const atRiskTasks = healthScores.filter(
+      (score) => score >= 60 && score < 80,
+    ).length;
+    const failingTasks = healthScores.filter((score) => score < 60).length;
 
     const systemPerformance = performanceAnalyticsDashboard.getDashboardData();
 
     // Generate system-level recommendations
-    const recommendations = this.generateSystemRecommendations(activeTasks, alerts);
+    const recommendations = this.generateSystemRecommendations(
+      activeTasks,
+      alerts,
+    );
 
     return {
       activeTasks,
@@ -311,16 +348,20 @@ export class TaskMonitor extends EventEmitter {
       milestone?: string;
       operation?: string;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ): Promise<void> {
     const config = this.monitoredTasks.get(taskId);
     if (!config) return;
 
     // Update core task status
-    await taskStatusMonitor.updateTaskStatus(taskId, 'in_progress' as TaskStatus, {
-      progress,
-      context: options.context,
-    });
+    await taskStatusMonitor.updateTaskStatus(
+      taskId,
+      'in_progress' as TaskStatus,
+      {
+        progress,
+        context: options.context,
+      },
+    );
 
     // Update progress tracking if enabled
     if (config.scope.enableProgressTracking) {
@@ -352,15 +393,24 @@ export class TaskMonitor extends EventEmitter {
   /**
    * Complete task monitoring
    */
-  async completeTask(taskId: string, result: 'success' | 'failure', details?: Record<string, unknown>): Promise<void> {
+  async completeTask(
+    taskId: string,
+    result: 'success' | 'failure',
+    details?: Record<string, unknown>,
+  ): Promise<void> {
     const config = this.monitoredTasks.get(taskId);
     if (!config) return;
 
     const task = taskStatusMonitor.getTaskStatus(taskId);
     if (!task) return;
 
-    const actualDuration = task.startTime ? Date.now() - task.startTime.getTime() : 0;
-    const finalStatus = result === 'success' ? 'completed' as TaskStatus : 'failed' as TaskStatus;
+    const actualDuration = task.startTime
+      ? Date.now() - task.startTime.getTime()
+      : 0;
+    const finalStatus =
+      result === 'success'
+        ? ('completed' as TaskStatus)
+        : ('failed' as TaskStatus);
 
     // Update core status
     await taskStatusMonitor.updateTaskStatus(taskId, finalStatus, {
@@ -378,8 +428,10 @@ export class TaskMonitor extends EventEmitter {
         result === 'success' ? 'completed' : 'failed',
         {
           task,
-          agent: task.assignedAgent ? taskStatusMonitor.getAgentStatus(task.assignedAgent) : undefined,
-        }
+          agent: task.assignedAgent
+            ? taskStatusMonitor.getAgentStatus(task.assignedAgent)
+            : undefined,
+        },
       );
     }
 
@@ -459,7 +511,7 @@ export class TaskMonitor extends EventEmitter {
     taskId: string,
     task: TaskMetadata,
     progressMetrics: any,
-    config: TaskMonitoringConfig
+    config: TaskMonitoringConfig,
   ): Promise<IntegratedTaskStatus['analytics']> {
     const bottleneckAnalysis = progressTracker.analyzeBottlenecks(taskId);
     const recommendations = bottleneckAnalysis.recommendations.slice(0, 3);
@@ -472,14 +524,18 @@ export class TaskMonitor extends EventEmitter {
     if (task.errorCount > 0) {
       riskFactors.push('Recent errors detected');
     }
-    if (task.startTime && Date.now() - task.startTime.getTime() > (task.estimatedDuration || 300000) * 1.5) {
+    if (
+      task.startTime &&
+      Date.now() - task.startTime.getTime() >
+        (task.estimatedDuration || 300000) * 1.5
+    ) {
       riskFactors.push('Execution time exceeded estimate');
     }
 
     const healthScore = this.healthScores.get(taskId) || 100;
 
     return {
-      bottlenecks: bottleneckAnalysis.bottlenecks.map(b => b.name),
+      bottlenecks: bottleneckAnalysis.bottlenecks.map((b) => b.name),
       recommendations,
       riskFactors,
       healthScore,
@@ -500,7 +556,8 @@ export class TaskMonitor extends EventEmitter {
     // Reduce score based on time overruns
     if (task.startTime && task.estimatedDuration) {
       const elapsed = Date.now() - task.startTime.getTime();
-      const overrun = (elapsed - task.estimatedDuration) / task.estimatedDuration;
+      const overrun =
+        (elapsed - task.estimatedDuration) / task.estimatedDuration;
       if (overrun > 0) {
         healthScore -= Math.min(25, overrun * 50);
       }
@@ -511,7 +568,10 @@ export class TaskMonitor extends EventEmitter {
       const timeSinceUpdate = Date.now() - task.lastUpdate.getTime();
       const stallThreshold = config.thresholds.progressStall * 60 * 1000;
       if (timeSinceUpdate > stallThreshold) {
-        healthScore -= Math.min(20, (timeSinceUpdate - stallThreshold) / stallThreshold * 20);
+        healthScore -= Math.min(
+          20,
+          ((timeSinceUpdate - stallThreshold) / stallThreshold) * 20,
+        );
       }
     }
 
@@ -521,7 +581,10 @@ export class TaskMonitor extends EventEmitter {
     this.healthScores.set(taskId, healthScore);
   }
 
-  private async generateTaskAlerts(taskId: string, status: IntegratedTaskStatus): Promise<any[]> {
+  private async generateTaskAlerts(
+    taskId: string,
+    status: IntegratedTaskStatus,
+  ): Promise<any[]> {
     const config = this.monitoredTasks.get(taskId);
     if (!config) return [];
 
@@ -540,7 +603,10 @@ export class TaskMonitor extends EventEmitter {
     }
 
     // Performance degradation alert
-    if (status.performance.efficiency < (1 - config.thresholds.performanceDegradation / 100)) {
+    if (
+      status.performance.efficiency <
+      1 - config.thresholds.performanceDegradation / 100
+    ) {
       alerts.push({
         taskId,
         type: 'performance_degradation',
@@ -564,34 +630,52 @@ export class TaskMonitor extends EventEmitter {
     return alerts;
   }
 
-  private generateSystemRecommendations(tasks: IntegratedTaskStatus[], alerts: any[]): string[] {
+  private generateSystemRecommendations(
+    tasks: IntegratedTaskStatus[],
+    alerts: any[],
+  ): string[] {
     const recommendations: string[] = [];
 
     // Analyze common issues
-    const stalledTasks = tasks.filter(t => t.progress.velocity < 1).length;
-    const highErrorTasks = tasks.filter(t => t.performance.errorRate > 0.1).length;
-    const overdueTasks = tasks.filter(t => t.progress.timeRemaining < 0).length;
+    const stalledTasks = tasks.filter((t) => t.progress.velocity < 1).length;
+    const highErrorTasks = tasks.filter(
+      (t) => t.performance.errorRate > 0.1,
+    ).length;
+    const overdueTasks = tasks.filter(
+      (t) => t.progress.timeRemaining < 0,
+    ).length;
 
     if (stalledTasks > tasks.length * 0.3) {
-      recommendations.push('Consider reviewing task complexity and breaking down large tasks');
+      recommendations.push(
+        'Consider reviewing task complexity and breaking down large tasks',
+      );
     }
 
     if (highErrorTasks > 0) {
-      recommendations.push('Investigate and address common error patterns across tasks');
+      recommendations.push(
+        'Investigate and address common error patterns across tasks',
+      );
     }
 
     if (overdueTasks > 0) {
-      recommendations.push('Review time estimation accuracy and resource allocation');
+      recommendations.push(
+        'Review time estimation accuracy and resource allocation',
+      );
     }
 
     if (alerts.length > 10) {
-      recommendations.push('System is experiencing high alert volume - consider reducing monitoring sensitivity');
+      recommendations.push(
+        'System is experiencing high alert volume - consider reducing monitoring sensitivity',
+      );
     }
 
     return recommendations;
   }
 
-  private mergeConfig(defaultConfig: TaskMonitoringConfig, override: Partial<TaskMonitoringConfig>): TaskMonitoringConfig {
+  private mergeConfig(
+    defaultConfig: TaskMonitoringConfig,
+    override: Partial<TaskMonitoringConfig>,
+  ): TaskMonitoringConfig {
     return {
       scope: { ...defaultConfig.scope, ...override.scope },
       thresholds: { ...defaultConfig.thresholds, ...override.thresholds },

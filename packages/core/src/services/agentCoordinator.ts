@@ -17,7 +17,12 @@
 
 import { EventEmitter } from 'node:events';
 import type { Config } from '../index.js';
-import type { AutonomousTask, RegisteredAgent, AgentCapability, TaskPriority } from './autonomousTaskIntegrator.js';
+import type {
+  AutonomousTask,
+  RegisteredAgent,
+  AgentCapability,
+  TaskPriority,
+} from './autonomousTaskIntegrator.js';
 
 // Core coordination types
 export interface AgentMetrics {
@@ -43,7 +48,12 @@ export interface TaskAssignmentScore {
 }
 
 export interface CoordinationEvent {
-  type: 'agent_assigned' | 'load_balanced' | 'agent_recovered' | 'performance_alert' | 'coordination_update';
+  type:
+    | 'agent_assigned'
+    | 'load_balanced'
+    | 'agent_recovered'
+    | 'performance_alert'
+    | 'coordination_update';
   timestamp: Date;
   agentId?: string;
   taskId?: string;
@@ -111,7 +121,7 @@ export class AgentCoordinator extends EventEmitter {
       data: {
         action: 'agent_registered',
         capabilities: agent.capabilities,
-        maxConcurrentTasks: agent.maxConcurrentTasks
+        maxConcurrentTasks: agent.maxConcurrentTasks,
       },
     };
 
@@ -152,8 +162,10 @@ export class AgentCoordinator extends EventEmitter {
   /**
    * Find the optimal agent for a task using intelligent assignment algorithms
    */
-  async findOptimalAgent(task: AutonomousTask): Promise<RegisteredAgent | null> {
-    const availableAgents = Array.from(this.agents.values()).filter(agent => {
+  async findOptimalAgent(
+    task: AutonomousTask,
+  ): Promise<RegisteredAgent | null> {
+    const availableAgents = Array.from(this.agents.values()).filter((agent) => {
       const metrics = this.agentMetrics.get(agent.id);
       return (
         agent.status !== 'offline' &&
@@ -169,7 +181,9 @@ export class AgentCoordinator extends EventEmitter {
 
     // Calculate assignment scores for each available agent
     const scoredAgents = await Promise.all(
-      availableAgents.map(agent => this.calculateAssignmentScore(agent, task))
+      availableAgents.map((agent) =>
+        this.calculateAssignmentScore(agent, task),
+      ),
     );
 
     // Sort by score and return the best match
@@ -177,7 +191,9 @@ export class AgentCoordinator extends EventEmitter {
     const bestAssignment = scoredAgents[0];
 
     if (bestAssignment) {
-      console.log(`🎯 Optimal agent ${bestAssignment.agentId} selected for task ${task.id} (score: ${bestAssignment.score.toFixed(2)})`);
+      console.log(
+        `🎯 Optimal agent ${bestAssignment.agentId} selected for task ${task.id} (score: ${bestAssignment.score.toFixed(2)})`,
+      );
       console.log(`   Reasons: ${bestAssignment.reasons.join(', ')}`);
       return this.agents.get(bestAssignment.agentId) || null;
     }
@@ -188,10 +204,14 @@ export class AgentCoordinator extends EventEmitter {
   /**
    * Assign a task to an agent and update coordination state
    */
-  async assignTaskToAgent(task: AutonomousTask, agent: RegisteredAgent): Promise<void> {
+  async assignTaskToAgent(
+    task: AutonomousTask,
+    agent: RegisteredAgent,
+  ): Promise<void> {
     // Update agent state
     agent.currentTasks.push(task.id);
-    agent.status = agent.currentTasks.length >= agent.maxConcurrentTasks ? 'busy' : 'active';
+    agent.status =
+      agent.currentTasks.length >= agent.maxConcurrentTasks ? 'busy' : 'active';
     agent.lastHeartbeat = new Date();
 
     // Update task assignment
@@ -201,7 +221,8 @@ export class AgentCoordinator extends EventEmitter {
     // Update metrics
     const metrics = this.agentMetrics.get(agent.id);
     if (metrics) {
-      metrics.currentLoad = agent.currentTasks.length / agent.maxConcurrentTasks;
+      metrics.currentLoad =
+        agent.currentTasks.length / agent.maxConcurrentTasks;
       metrics.lastActiveTime = new Date();
       this.agentMetrics.set(agent.id, metrics);
     }
@@ -226,7 +247,11 @@ export class AgentCoordinator extends EventEmitter {
   /**
    * Complete a task and update agent metrics
    */
-  async completeTask(taskId: string, success: boolean, executionTime: number): Promise<void> {
+  async completeTask(
+    taskId: string,
+    success: boolean,
+    executionTime: number,
+  ): Promise<void> {
     const agentId = this.taskAssignments.get(taskId);
     if (!agentId) return;
 
@@ -235,21 +260,24 @@ export class AgentCoordinator extends EventEmitter {
 
     if (agent && metrics) {
       // Update agent state
-      agent.currentTasks = agent.currentTasks.filter(id => id !== taskId);
+      agent.currentTasks = agent.currentTasks.filter((id) => id !== taskId);
       agent.status = agent.currentTasks.length === 0 ? 'idle' : 'active';
 
       // Update metrics
       if (success) {
         metrics.totalTasksCompleted++;
-        metrics.averageExecutionTime = (metrics.averageExecutionTime + executionTime) / 2;
+        metrics.averageExecutionTime =
+          (metrics.averageExecutionTime + executionTime) / 2;
       } else {
         metrics.totalTasksFailed++;
         metrics.errorCount++;
       }
 
       const totalTasks = metrics.totalTasksCompleted + metrics.totalTasksFailed;
-      metrics.successRate = totalTasks > 0 ? metrics.totalTasksCompleted / totalTasks : 1.0;
-      metrics.currentLoad = agent.currentTasks.length / agent.maxConcurrentTasks;
+      metrics.successRate =
+        totalTasks > 0 ? metrics.totalTasksCompleted / totalTasks : 1.0;
+      metrics.currentLoad =
+        agent.currentTasks.length / agent.maxConcurrentTasks;
       metrics.lastActiveTime = new Date();
 
       this.agents.set(agentId, agent);
@@ -260,26 +288,30 @@ export class AgentCoordinator extends EventEmitter {
     }
 
     this.taskAssignments.delete(taskId);
-    console.log(`🏁 Task ${taskId} completed by agent ${agentId} (success: ${success})`);
+    console.log(
+      `🏁 Task ${taskId} completed by agent ${agentId} (success: ${success})`,
+    );
   }
 
   /**
    * Rebalance workload across agents
    */
   async rebalanceWorkload(): Promise<void> {
-    const activeAgents = Array.from(this.agents.values()).filter(agent =>
-      agent.status !== 'offline'
+    const activeAgents = Array.from(this.agents.values()).filter(
+      (agent) => agent.status !== 'offline',
     );
 
     if (activeAgents.length < 2) return;
 
     // Find overloaded and underloaded agents
-    const overloadedAgents = activeAgents.filter(agent => {
+    const overloadedAgents = activeAgents.filter((agent) => {
       const metrics = this.agentMetrics.get(agent.id);
-      return metrics && metrics.currentLoad > this.performanceThresholds.maxLoad;
+      return (
+        metrics && metrics.currentLoad > this.performanceThresholds.maxLoad
+      );
     });
 
-    const underloadedAgents = activeAgents.filter(agent => {
+    const underloadedAgents = activeAgents.filter((agent) => {
       const metrics = this.agentMetrics.get(agent.id);
       return metrics && metrics.currentLoad < 0.5; // Less than 50% loaded
     });
@@ -291,10 +323,14 @@ export class AgentCoordinator extends EventEmitter {
       const tasksToMove = Math.floor(overloadedAgent.currentTasks.length * 0.2); // Move 20% of tasks
       if (tasksToMove === 0) continue;
 
-      for (let i = 0; i < tasksToMove && i < overloadedAgent.currentTasks.length; i++) {
+      for (
+        let i = 0;
+        i < tasksToMove && i < overloadedAgent.currentTasks.length;
+        i++
+      ) {
         const taskId = overloadedAgent.currentTasks[i];
-        const targetAgent = underloadedAgents.find(agent =>
-          agent.currentTasks.length < agent.maxConcurrentTasks
+        const targetAgent = underloadedAgents.find(
+          (agent) => agent.currentTasks.length < agent.maxConcurrentTasks,
         );
 
         if (targetAgent) {
@@ -340,8 +376,9 @@ export class AgentCoordinator extends EventEmitter {
       totalAgents: number;
     };
   } {
-    const agents = Array.from(this.agents.values()).map(agent => {
-      const metrics = this.agentMetrics.get(agent.id) || this.createDefaultMetrics(agent.id);
+    const agents = Array.from(this.agents.values()).map((agent) => {
+      const metrics =
+        this.agentMetrics.get(agent.id) || this.createDefaultMetrics(agent.id);
       return {
         id: agent.id,
         status: agent.status,
@@ -353,9 +390,11 @@ export class AgentCoordinator extends EventEmitter {
 
     const totalLoad = agents.reduce((sum, agent) => sum + agent.currentLoad, 0);
     const averageLoad = agents.length > 0 ? totalLoad / agents.length : 0;
-    const healthyAgents = agents.filter(agent =>
-      agent.metrics.successRate >= this.performanceThresholds.minSuccessRate &&
-      agent.currentLoad <= this.performanceThresholds.maxLoad
+    const healthyAgents = agents.filter(
+      (agent) =>
+        agent.metrics.successRate >=
+          this.performanceThresholds.minSuccessRate &&
+        agent.currentLoad <= this.performanceThresholds.maxLoad,
     ).length;
 
     return {
@@ -375,7 +414,10 @@ export class AgentCoordinator extends EventEmitter {
   /**
    * Establish communication channel between agents
    */
-  async establishCommunication(agentId1: string, agentId2: string): Promise<void> {
+  async establishCommunication(
+    agentId1: string,
+    agentId2: string,
+  ): Promise<void> {
     const channel1 = this.communicationChannels.get(agentId1);
     const channel2 = this.communicationChannels.get(agentId2);
 
@@ -383,14 +425,20 @@ export class AgentCoordinator extends EventEmitter {
       channel1.add(agentId2);
       channel2.add(agentId1);
 
-      console.log(`🔗 Communication established between agents ${agentId1} and ${agentId2}`);
+      console.log(
+        `🔗 Communication established between agents ${agentId1} and ${agentId2}`,
+      );
     }
   }
 
   /**
    * Send message between agents
    */
-  async sendAgentMessage(fromAgent: string, toAgent: string, message: any): Promise<boolean> {
+  async sendAgentMessage(
+    fromAgent: string,
+    toAgent: string,
+    message: any,
+  ): Promise<boolean> {
     const channel = this.communicationChannels.get(fromAgent);
     if (!channel || !channel.has(toAgent)) {
       return false;
@@ -431,13 +479,15 @@ export class AgentCoordinator extends EventEmitter {
       {
         name: 'performance',
         weight: 0.4,
-        calculate: (agent: RegisteredAgent, task: AutonomousTask): number => agent.performance.successRate * 100,
+        calculate: (agent: RegisteredAgent, task: AutonomousTask): number =>
+          agent.performance.successRate * 100,
       },
       {
         name: 'load',
         weight: 0.3,
         calculate: (agent: RegisteredAgent, task: AutonomousTask): number => {
-          const loadFactor = 1 - (agent.currentTasks.length / agent.maxConcurrentTasks);
+          const loadFactor =
+            1 - agent.currentTasks.length / agent.maxConcurrentTasks;
           return loadFactor * 100;
         },
       },
@@ -445,7 +495,10 @@ export class AgentCoordinator extends EventEmitter {
         name: 'capability_match',
         weight: 0.2,
         calculate: (agent: RegisteredAgent, task: AutonomousTask): number => {
-          const matchScore = this.calculateCapabilityMatch(agent.capabilities, task.requiredCapabilities);
+          const matchScore = this.calculateCapabilityMatch(
+            agent.capabilities,
+            task.requiredCapabilities,
+          );
           return matchScore * 100;
         },
       },
@@ -454,14 +507,20 @@ export class AgentCoordinator extends EventEmitter {
         weight: 0.1,
         calculate: (agent: RegisteredAgent, task: AutonomousTask): number => {
           const maxTime = 10000; // 10 seconds
-          const responseScore = Math.max(0, (maxTime - agent.performance.averageCompletionTime) / maxTime);
+          const responseScore = Math.max(
+            0,
+            (maxTime - agent.performance.averageCompletionTime) / maxTime,
+          );
           return responseScore * 100;
         },
       },
     ];
   }
 
-  private async calculateAssignmentScore(agent: RegisteredAgent, task: AutonomousTask): Promise<TaskAssignmentScore> {
+  private async calculateAssignmentScore(
+    agent: RegisteredAgent,
+    task: AutonomousTask,
+  ): Promise<TaskAssignmentScore> {
     let totalScore = 0;
     const reasons: string[] = [];
 
@@ -486,20 +545,31 @@ export class AgentCoordinator extends EventEmitter {
       score: totalScore,
       reasons,
       loadFactor: agent.currentTasks.length / agent.maxConcurrentTasks,
-      capabilityMatch: this.calculateCapabilityMatch(agent.capabilities, task.requiredCapabilities),
+      capabilityMatch: this.calculateCapabilityMatch(
+        agent.capabilities,
+        task.requiredCapabilities,
+      ),
       performanceScore: agent.performance.successRate,
     };
   }
 
-  private hasRequiredCapabilities(agent: RegisteredAgent, required: AgentCapability[]): boolean {
+  private hasRequiredCapabilities(
+    agent: RegisteredAgent,
+    required: AgentCapability[],
+  ): boolean {
     if (required.length === 0) return true;
-    return required.every(capability => agent.capabilities.includes(capability));
+    return required.every((capability) =>
+      agent.capabilities.includes(capability),
+    );
   }
 
-  private calculateCapabilityMatch(agentCaps: AgentCapability[], taskCaps: AgentCapability[]): number {
+  private calculateCapabilityMatch(
+    agentCaps: AgentCapability[],
+    taskCaps: AgentCapability[],
+  ): number {
     if (taskCaps.length === 0) return 1.0;
 
-    const matches = taskCaps.filter(cap => agentCaps.includes(cap)).length;
+    const matches = taskCaps.filter((cap) => agentCaps.includes(cap)).length;
     return matches / taskCaps.length;
   }
 
@@ -540,7 +610,9 @@ export class AgentCoordinator extends EventEmitter {
   }
 
   private async handleAgentFailure(agentId: string): Promise<void> {
-    console.warn(`⚠️ Agent ${agentId} detected as offline - initiating recovery`);
+    console.warn(
+      `⚠️ Agent ${agentId} detected as offline - initiating recovery`,
+    );
 
     // Reassign tasks from failed agent
     await this.reassignAgentTasks(agentId);
@@ -563,13 +635,14 @@ export class AgentCoordinator extends EventEmitter {
 
     for (const taskId of tasksToReassign) {
       // Remove task from failed agent
-      agent.currentTasks = agent.currentTasks.filter(id => id !== taskId);
+      agent.currentTasks = agent.currentTasks.filter((id) => id !== taskId);
 
       // Find alternative agent (simplified - would integrate with task system)
-      const availableAgents = Array.from(this.agents.values()).filter(a =>
-        a.id !== agentId &&
-        a.status !== 'offline' &&
-        a.currentTasks.length < a.maxConcurrentTasks
+      const availableAgents = Array.from(this.agents.values()).filter(
+        (a) =>
+          a.id !== agentId &&
+          a.status !== 'offline' &&
+          a.currentTasks.length < a.maxConcurrentTasks,
       );
 
       if (availableAgents.length > 0) {
@@ -582,14 +655,20 @@ export class AgentCoordinator extends EventEmitter {
     this.agents.set(agentId, agent);
   }
 
-  private async moveTask(taskId: string, fromAgentId: string, toAgentId: string): Promise<void> {
+  private async moveTask(
+    taskId: string,
+    fromAgentId: string,
+    toAgentId: string,
+  ): Promise<void> {
     const fromAgent = this.agents.get(fromAgentId);
     const toAgent = this.agents.get(toAgentId);
 
     if (!fromAgent || !toAgent) return;
 
     // Update agents
-    fromAgent.currentTasks = fromAgent.currentTasks.filter(id => id !== taskId);
+    fromAgent.currentTasks = fromAgent.currentTasks.filter(
+      (id) => id !== taskId,
+    );
     toAgent.currentTasks.push(taskId);
 
     // Update assignment
@@ -597,7 +676,10 @@ export class AgentCoordinator extends EventEmitter {
 
     // Update agent states
     fromAgent.status = fromAgent.currentTasks.length === 0 ? 'idle' : 'active';
-    toAgent.status = toAgent.currentTasks.length >= toAgent.maxConcurrentTasks ? 'busy' : 'active';
+    toAgent.status =
+      toAgent.currentTasks.length >= toAgent.maxConcurrentTasks
+        ? 'busy'
+        : 'active';
 
     this.agents.set(fromAgentId, fromAgent);
     this.agents.set(toAgentId, toAgent);
@@ -607,12 +689,14 @@ export class AgentCoordinator extends EventEmitter {
     const toMetrics = this.agentMetrics.get(toAgentId);
 
     if (fromMetrics) {
-      fromMetrics.currentLoad = fromAgent.currentTasks.length / fromAgent.maxConcurrentTasks;
+      fromMetrics.currentLoad =
+        fromAgent.currentTasks.length / fromAgent.maxConcurrentTasks;
       this.agentMetrics.set(fromAgentId, fromMetrics);
     }
 
     if (toMetrics) {
-      toMetrics.currentLoad = toAgent.currentTasks.length / toAgent.maxConcurrentTasks;
+      toMetrics.currentLoad =
+        toAgent.currentTasks.length / toAgent.maxConcurrentTasks;
       this.agentMetrics.set(toAgentId, toMetrics);
     }
   }
@@ -624,10 +708,14 @@ export class AgentCoordinator extends EventEmitter {
     const issues: string[] = [];
 
     if (metrics.successRate < this.performanceThresholds.minSuccessRate) {
-      issues.push(`low success rate: ${(metrics.successRate * 100).toFixed(1)}%`);
+      issues.push(
+        `low success rate: ${(metrics.successRate * 100).toFixed(1)}%`,
+      );
     }
 
-    if (metrics.averageExecutionTime > this.performanceThresholds.maxResponseTime) {
+    if (
+      metrics.averageExecutionTime > this.performanceThresholds.maxResponseTime
+    ) {
       issues.push(`slow response time: ${metrics.averageExecutionTime}ms`);
     }
 
@@ -644,7 +732,9 @@ export class AgentCoordinator extends EventEmitter {
       };
 
       this.emit('performance_alert', event);
-      console.warn(`⚠️ Performance issues detected for agent ${agentId}: ${issues.join(', ')}`);
+      console.warn(
+        `⚠️ Performance issues detected for agent ${agentId}: ${issues.join(', ')}`,
+      );
     }
   }
 

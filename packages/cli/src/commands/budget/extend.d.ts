@@ -6,8 +6,8 @@
 
 import type { CommandModule } from 'yargs';
 interface ExtendCommandArgs {
-    amount: number;
-    confirm?: boolean;
+  amount: number;
+  confirm?: boolean;
 }
 export declare const extendCommand: CommandModule<object, ExtendCommandArgs>;
 export {};

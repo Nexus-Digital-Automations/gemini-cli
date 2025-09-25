@@ -5,4 +5,9 @@
  */
 
 import type { Config } from '../config/config.js';
-export declare function handleFallback(config: Config, failedModel: string, authType?: string, error?: unknown): Promise<string | boolean | null>;
+export declare function handleFallback(
+  config: Config,
+  failedModel: string,
+  authType?: string,
+  error?: unknown,
+): Promise<string | boolean | null>;

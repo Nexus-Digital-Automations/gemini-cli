@@ -5,7 +5,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
- 
+
 /**
  * Real-Time Task Status Monitor - Live Task State Broadcasting System
  *
@@ -50,7 +50,11 @@ class RealtimeTaskMonitor extends EventEmitter {
 
     this.persistenceEngine = persistenceEngine;
     this.projectRoot = options.projectRoot || process.cwd();
-    this.monitoringDir = path.join(this.projectRoot, '.gemini-tasks', 'monitoring');
+    this.monitoringDir = path.join(
+      this.projectRoot,
+      '.gemini-tasks',
+      'monitoring',
+    );
 
     // Monitoring configuration
     this.config = {
@@ -63,7 +67,7 @@ class RealtimeTaskMonitor extends EventEmitter {
         responseTime: 5000, // 5 seconds
       },
       retentionPeriod: options.retentionPeriod || 7 * 24 * 60 * 60 * 1000, // 7 days
-      ...options
+      ...options,
     };
 
     // Real-time monitoring state
@@ -88,7 +92,7 @@ class RealtimeTaskMonitor extends EventEmitter {
         failedTasks: 0,
         averageTaskTime: 0,
         systemLoad: 0,
-        memoryUsage: 0
+        memoryUsage: 0,
       },
 
       // Event stream
@@ -101,17 +105,20 @@ class RealtimeTaskMonitor extends EventEmitter {
         throughput: [],
         errorRate: [],
         memoryUsage: [],
-        cpuUsage: []
-      }
+        cpuUsage: [],
+      },
     };
 
     // Storage paths
     this.paths = {
       realTimeData: path.join(this.monitoringDir, 'realtime-data.json'),
       eventStream: path.join(this.monitoringDir, 'event-stream.log'),
-      performanceMetrics: path.join(this.monitoringDir, 'performance-metrics.json'),
+      performanceMetrics: path.join(
+        this.monitoringDir,
+        'performance-metrics.json',
+      ),
       alertLog: path.join(this.monitoringDir, 'alert-log.json'),
-      dashboardData: path.join(this.monitoringDir, 'dashboard-data.json')
+      dashboardData: path.join(this.monitoringDir, 'dashboard-data.json'),
     };
 
     // Monitoring intervals
@@ -134,10 +141,14 @@ class RealtimeTaskMonitor extends EventEmitter {
       await this._startPerformanceTracking();
       await this._startHealthChecks();
 
-      console.log('RealtimeTaskMonitor: Monitoring system initialized successfully');
+      console.log(
+        'RealtimeTaskMonitor: Monitoring system initialized successfully',
+      );
     } catch (error) {
       console.error('RealtimeTaskMonitor: Initialization failed:', error);
-      throw new Error(`Real-time monitoring initialization failed: ${error.message}`);
+      throw new Error(
+        `Real-time monitoring initialization failed: ${error.message}`,
+      );
     }
   }
 
@@ -146,10 +157,19 @@ class RealtimeTaskMonitor extends EventEmitter {
 
     // Initialize monitoring data files
     const initialFiles = [
-      { path: this.paths.realTimeData, data: { state: this.state, lastUpdate: new Date().toISOString() } },
-      { path: this.paths.performanceMetrics, data: { metrics: [], systemHealth: 'healthy' } },
+      {
+        path: this.paths.realTimeData,
+        data: { state: this.state, lastUpdate: new Date().toISOString() },
+      },
+      {
+        path: this.paths.performanceMetrics,
+        data: { metrics: [], systemHealth: 'healthy' },
+      },
       { path: this.paths.alertLog, data: { alerts: [], lastAlert: null } },
-      { path: this.paths.dashboardData, data: { dashboard: {}, lastRefresh: new Date().toISOString() } }
+      {
+        path: this.paths.dashboardData,
+        data: { dashboard: {}, lastRefresh: new Date().toISOString() },
+      },
     ];
 
     for (const file of initialFiles) {
@@ -173,12 +193,17 @@ class RealtimeTaskMonitor extends EventEmitter {
           ...savedState.state,
           systemMetrics: {
             ...this.state.systemMetrics,
-            startTime: savedState.state.systemMetrics?.startTime || new Date().toISOString()
-          }
+            startTime:
+              savedState.state.systemMetrics?.startTime ||
+              new Date().toISOString(),
+          },
         };
       }
     } catch (error) {
-      console.warn('RealtimeTaskMonitor: Could not load previous state, starting fresh:', error.message);
+      console.warn(
+        'RealtimeTaskMonitor: Could not load previous state, starting fresh:',
+        error.message,
+      );
     }
   }
 
@@ -211,7 +236,10 @@ class RealtimeTaskMonitor extends EventEmitter {
         this.state.performanceData = this._updatePerformanceData(metrics);
         await this._persistPerformanceData();
       } catch (error) {
-        console.error('RealtimeTaskMonitor: Performance tracking error:', error);
+        console.error(
+          'RealtimeTaskMonitor: Performance tracking error:',
+          error,
+        );
       }
     }, 5000); // Every 5 seconds
 
@@ -244,13 +272,14 @@ class RealtimeTaskMonitor extends EventEmitter {
     const taskData = {
       ...task,
       monitoringData: {
-        startTime: event === 'created' ? timestamp : task.monitoringData?.startTime,
+        startTime:
+          event === 'created' ? timestamp : task.monitoringData?.startTime,
         lastUpdate: timestamp,
         events: [
           ...(task.monitoringData?.events || []),
-          { event, timestamp, metadata: {} }
-        ]
-      }
+          { event, timestamp, metadata: {} },
+        ],
+      },
     };
 
     // Update task tracking
@@ -272,7 +301,7 @@ class RealtimeTaskMonitor extends EventEmitter {
       taskId: task.id,
       status: task.status,
       event,
-      agent: task.assignedAgent
+      agent: task.assignedAgent,
     });
 
     // Broadcast update
@@ -281,7 +310,7 @@ class RealtimeTaskMonitor extends EventEmitter {
       status: task.status,
       event,
       timestamp,
-      data: taskData
+      data: taskData,
     });
 
     return taskData;
@@ -303,8 +332,8 @@ class RealtimeTaskMonitor extends EventEmitter {
           tasksCompleted: 0,
           tasksInProgress: 0,
           averageTaskTime: 0,
-          errorRate: 0
-        }
+          errorRate: 0,
+        },
       });
     }
 
@@ -313,7 +342,7 @@ class RealtimeTaskMonitor extends EventEmitter {
     agent.activities.push({
       activity,
       timestamp,
-      metadata
+      metadata,
     });
 
     // Keep only last 100 activities
@@ -326,7 +355,7 @@ class RealtimeTaskMonitor extends EventEmitter {
     await this._logEvent('agent_activity', {
       agentId,
       activity,
-      metadata
+      metadata,
     });
 
     // Broadcast update
@@ -334,7 +363,7 @@ class RealtimeTaskMonitor extends EventEmitter {
       agentId,
       activity,
       timestamp,
-      agent
+      agent,
     });
 
     return agent;
@@ -353,22 +382,24 @@ class RealtimeTaskMonitor extends EventEmitter {
         heapUsed: memUsage.heapUsed,
         heapTotal: memUsage.heapTotal,
         external: memUsage.external,
-        arrayBuffers: memUsage.arrayBuffers
+        arrayBuffers: memUsage.arrayBuffers,
       },
       cpu: {
         user: cpuUsage.user,
-        system: cpuUsage.system
+        system: cpuUsage.system,
       },
       tasks: {
         active: this.state.activeTasks.size,
         completed: this.state.completedTasks.size,
-        failed: this.state.failedTasks.size
+        failed: this.state.failedTasks.size,
       },
       agents: {
         active: this.state.activeAgents.size,
-        totalActivities: Array.from(this.state.activeAgents.values())
-          .reduce((sum, agent) => sum + agent.activities.length, 0)
-      }
+        totalActivities: Array.from(this.state.activeAgents.values()).reduce(
+          (sum, agent) => sum + agent.activities.length,
+          0,
+        ),
+      },
     };
   }
 
@@ -378,31 +409,31 @@ class RealtimeTaskMonitor extends EventEmitter {
     // Add new metrics
     data.responseTime.push({
       timestamp: metrics.timestamp,
-      value: this.persistenceEngine?.metrics?.avgResponseTime || 0
+      value: this.persistenceEngine?.metrics?.avgResponseTime || 0,
     });
 
     data.throughput.push({
       timestamp: metrics.timestamp,
-      value: this.state.systemMetrics.completedTasks
+      value: this.state.systemMetrics.completedTasks,
     });
 
     data.errorRate.push({
       timestamp: metrics.timestamp,
-      value: this._calculateErrorRate()
+      value: this._calculateErrorRate(),
     });
 
     data.memoryUsage.push({
       timestamp: metrics.timestamp,
-      value: metrics.memory.heapUsed
+      value: metrics.memory.heapUsed,
     });
 
     data.cpuUsage.push({
       timestamp: metrics.timestamp,
-      value: metrics.cpu.user + metrics.cpu.system
+      value: metrics.cpu.user + metrics.cpu.system,
     });
 
     // Keep only recent data (last 1000 points)
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       if (data[key].length > 1000) {
         data[key] = data[key].slice(-1000);
       }
@@ -420,13 +451,16 @@ class RealtimeTaskMonitor extends EventEmitter {
     this.state.systemMetrics = {
       ...this.state.systemMetrics,
       uptime: now.getTime() - startTime.getTime(),
-      totalTasks: this.state.activeTasks.size + this.state.completedTasks.size + this.state.failedTasks.size,
+      totalTasks:
+        this.state.activeTasks.size +
+        this.state.completedTasks.size +
+        this.state.failedTasks.size,
       completedTasks: this.state.completedTasks.size,
       failedTasks: this.state.failedTasks.size,
       averageTaskTime: this._calculateAverageTaskTime(),
       systemLoad: this._calculateSystemLoad(),
       memoryUsage: process.memoryUsage().heapUsed,
-      lastUpdate: now.toISOString()
+      lastUpdate: now.toISOString(),
     };
   }
 
@@ -443,7 +477,7 @@ class RealtimeTaskMonitor extends EventEmitter {
           taskId,
           duration: taskDuration,
           threshold: timeoutThreshold,
-          task
+          task,
         });
       }
     }
@@ -460,7 +494,7 @@ class RealtimeTaskMonitor extends EventEmitter {
         type: 'memory_usage',
         severity: 'warning',
         value: memUsage.heapUsed,
-        threshold: this.config.alertThresholds.memoryUsage
+        threshold: this.config.alertThresholds.memoryUsage,
       });
     }
 
@@ -470,25 +504,26 @@ class RealtimeTaskMonitor extends EventEmitter {
         type: 'error_rate',
         severity: 'critical',
         value: errorRate,
-        threshold: this.config.alertThresholds.errorRate
+        threshold: this.config.alertThresholds.errorRate,
       });
     }
 
     // Response time check
-    const avgResponseTime = this.persistenceEngine?.metrics?.avgResponseTime || 0;
+    const avgResponseTime =
+      this.persistenceEngine?.metrics?.avgResponseTime || 0;
     if (avgResponseTime > this.config.alertThresholds.responseTime) {
       issues.push({
         type: 'response_time',
         severity: 'warning',
         value: avgResponseTime,
-        threshold: this.config.alertThresholds.responseTime
+        threshold: this.config.alertThresholds.responseTime,
       });
     }
 
     return {
       timestamp: new Date().toISOString(),
       healthy: issues.length === 0,
-      issues
+      issues,
     };
   }
 
@@ -499,7 +534,7 @@ class RealtimeTaskMonitor extends EventEmitter {
       timestamp: new Date().toISOString(),
       severity: this._determineAlertSeverity(type, data),
       data,
-      acknowledged: false
+      acknowledged: false,
     };
 
     this.state.alerts.unshift(alert);
@@ -530,26 +565,29 @@ class RealtimeTaskMonitor extends EventEmitter {
         systemHealth: await this._getSystemHealthStatus(),
         taskStats: this._getTaskStatistics(),
         agentStats: this._getAgentStatistics(),
-        performanceSummary: this._getPerformanceSummary()
+        performanceSummary: this._getPerformanceSummary(),
       },
       realTimeData: {
         activeTasks: Array.from(this.state.activeTasks.values()),
         activeAgents: Array.from(this.state.activeAgents.values()),
         recentEvents: this.state.eventHistory.slice(-50),
-        activeAlerts: this.state.alerts.filter(a => !a.acknowledged)
+        activeAlerts: this.state.alerts.filter((a) => !a.acknowledged),
       },
       charts: {
         taskThroughput: this.state.performanceData.throughput.slice(-50),
         memoryUsage: this.state.performanceData.memoryUsage.slice(-50),
         responseTime: this.state.performanceData.responseTime.slice(-50),
-        errorRate: this.state.performanceData.errorRate.slice(-50)
+        errorRate: this.state.performanceData.errorRate.slice(-50),
       },
       timelines: this._getTaskTimelines(),
-      systemMetrics: this.state.systemMetrics
+      systemMetrics: this.state.systemMetrics,
     };
 
     // Persist dashboard data
-    await fs.writeFile(this.paths.dashboardData, JSON.stringify(dashboardData, null, 2));
+    await fs.writeFile(
+      this.paths.dashboardData,
+      JSON.stringify(dashboardData, null, 2),
+    );
 
     return dashboardData;
   }
@@ -571,10 +609,12 @@ class RealtimeTaskMonitor extends EventEmitter {
       activeTasks: this.state.activeTasks.size,
       completedTasks: this.state.completedTasks.size,
       activeAgents: this.state.activeAgents.size,
-      recentAlerts: this.state.alerts.filter(a => !a.acknowledged).slice(0, 5)
+      recentAlerts: this.state.alerts
+        .filter((a) => !a.acknowledged)
+        .slice(0, 5),
     };
 
-    this.subscribers.forEach(callback => {
+    this.subscribers.forEach((callback) => {
       try {
         callback(updateData);
       } catch (error) {
@@ -589,14 +629,16 @@ class RealtimeTaskMonitor extends EventEmitter {
     const event = {
       timestamp: new Date().toISOString(),
       type: eventType,
-      data
+      data,
     };
 
     this.state.eventHistory.push(event);
 
     // Keep only recent events
     if (this.state.eventHistory.length > this.config.maxEventHistory) {
-      this.state.eventHistory = this.state.eventHistory.slice(-this.config.maxEventHistory);
+      this.state.eventHistory = this.state.eventHistory.slice(
+        -this.config.maxEventHistory,
+      );
     }
 
     // Append to event stream log
@@ -611,12 +653,18 @@ class RealtimeTaskMonitor extends EventEmitter {
     try {
       const stateData = {
         state: this.state,
-        lastUpdate: new Date().toISOString()
+        lastUpdate: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.paths.realTimeData, JSON.stringify(stateData, null, 2));
+      await fs.writeFile(
+        this.paths.realTimeData,
+        JSON.stringify(stateData, null, 2),
+      );
     } catch (error) {
-      console.warn('RealtimeTaskMonitor: State persistence failed:', error.message);
+      console.warn(
+        'RealtimeTaskMonitor: State persistence failed:',
+        error.message,
+      );
     }
   }
 
@@ -625,12 +673,18 @@ class RealtimeTaskMonitor extends EventEmitter {
       const perfData = {
         metrics: this.state.performanceData,
         systemHealth: await this._getSystemHealthStatus(),
-        lastUpdate: new Date().toISOString()
+        lastUpdate: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.paths.performanceMetrics, JSON.stringify(perfData, null, 2));
+      await fs.writeFile(
+        this.paths.performanceMetrics,
+        JSON.stringify(perfData, null, 2),
+      );
     } catch (error) {
-      console.warn('RealtimeTaskMonitor: Performance data persistence failed:', error.message);
+      console.warn(
+        'RealtimeTaskMonitor: Performance data persistence failed:',
+        error.message,
+      );
     }
   }
 
@@ -645,7 +699,7 @@ class RealtimeTaskMonitor extends EventEmitter {
       event,
       status: taskData.status,
       agent: taskData.assignedAgent,
-      metadata: {}
+      metadata: {},
     });
 
     // Keep only last 100 timeline entries per task
@@ -661,7 +715,7 @@ class RealtimeTaskMonitor extends EventEmitter {
         completedTasks: 0,
         failedTasks: 0,
         averageTaskTime: 0,
-        lastActivity: new Date().toISOString()
+        lastActivity: new Date().toISOString(),
       });
     }
 
@@ -690,7 +744,9 @@ class RealtimeTaskMonitor extends EventEmitter {
     if (completedTasks.length === 0) return 0;
 
     const totalTime = completedTasks.reduce((sum, task) => {
-      const startTime = new Date(task.monitoringData?.startTime || task.created_at);
+      const startTime = new Date(
+        task.monitoringData?.startTime || task.created_at,
+      );
       const endTime = new Date(task.updated_at);
       return sum + (endTime.getTime() - startTime.getTime());
     }, 0);
@@ -712,7 +768,7 @@ class RealtimeTaskMonitor extends EventEmitter {
       error_rate: 'critical',
       response_time: 'warning',
       system_failure: 'critical',
-      agent_timeout: 'warning'
+      agent_timeout: 'warning',
     };
     return severityMap[type] || 'info';
   }
@@ -722,7 +778,10 @@ class RealtimeTaskMonitor extends EventEmitter {
       active: this.state.activeTasks.size,
       completed: this.state.completedTasks.size,
       failed: this.state.failedTasks.size,
-      total: this.state.activeTasks.size + this.state.completedTasks.size + this.state.failedTasks.size
+      total:
+        this.state.activeTasks.size +
+        this.state.completedTasks.size +
+        this.state.failedTasks.size,
     };
   }
 
@@ -730,22 +789,32 @@ class RealtimeTaskMonitor extends EventEmitter {
     const agents = Array.from(this.state.activeAgents.values());
     return {
       total: agents.length,
-      averageTasksPerAgent: agents.length > 0 ?
-        agents.reduce((sum, agent) => sum + agent.performance.tasksInProgress, 0) / agents.length : 0,
-      mostActiveAgent: agents.reduce((max, agent) =>
-        agent.activities.length > (max?.activities?.length || 0) ? agent : max, null)?.id
+      averageTasksPerAgent:
+        agents.length > 0
+          ? agents.reduce(
+              (sum, agent) => sum + agent.performance.tasksInProgress,
+              0,
+            ) / agents.length
+          : 0,
+      mostActiveAgent: agents.reduce(
+        (max, agent) =>
+          agent.activities.length > (max?.activities?.length || 0)
+            ? agent
+            : max,
+        null,
+      )?.id,
     };
   }
 
   _getPerformanceSummary() {
     const recent = this.state.performanceData;
-    const getLatest = (arr) => arr.length > 0 ? arr[arr.length - 1].value : 0;
+    const getLatest = (arr) => (arr.length > 0 ? arr[arr.length - 1].value : 0);
 
     return {
       averageResponseTime: getLatest(recent.responseTime),
       memoryUsage: getLatest(recent.memoryUsage),
       throughput: getLatest(recent.throughput),
-      errorRate: getLatest(recent.errorRate)
+      errorRate: getLatest(recent.errorRate),
     };
   }
 
@@ -754,7 +823,7 @@ class RealtimeTaskMonitor extends EventEmitter {
     return {
       status: healthCheck.healthy ? 'healthy' : 'degraded',
       issues: healthCheck.issues.length,
-      lastCheck: healthCheck.timestamp
+      lastCheck: healthCheck.timestamp,
     };
   }
 
@@ -771,23 +840,26 @@ class RealtimeTaskMonitor extends EventEmitter {
 
     // Agent overload detection
     for (const [agentId, workload] of this.state.agentWorkloads) {
-      if (workload.currentTasks > 10) { // Threshold for overload
+      if (workload.currentTasks > 10) {
+        // Threshold for overload
         bottlenecks.push({
           type: 'agent_overload',
           agentId,
-          currentTasks: workload.currentTasks
+          currentTasks: workload.currentTasks,
         });
       }
     }
 
     // Queue backlog detection
-    const queuedTasks = Array.from(this.state.activeTasks.values())
-      .filter(task => task.status === 'queued');
+    const queuedTasks = Array.from(this.state.activeTasks.values()).filter(
+      (task) => task.status === 'queued',
+    );
 
-    if (queuedTasks.length > 50) { // Threshold for queue backlog
+    if (queuedTasks.length > 50) {
+      // Threshold for queue backlog
       bottlenecks.push({
         type: 'queue_backlog',
-        queuedTasks: queuedTasks.length
+        queuedTasks: queuedTasks.length,
       });
     }
 
@@ -805,7 +877,7 @@ class RealtimeTaskMonitor extends EventEmitter {
         issue: issue.type,
         severity: issue.severity,
         value: issue.value,
-        threshold: issue.threshold
+        threshold: issue.threshold,
       });
     }
   }
@@ -821,8 +893,8 @@ class RealtimeTaskMonitor extends EventEmitter {
       taskStats: this._getTaskStatistics(),
       agentStats: this._getAgentStatistics(),
       performanceSummary: this._getPerformanceSummary(),
-      activeAlerts: this.state.alerts.filter(a => !a.acknowledged).length,
-      lastUpdate: new Date().toISOString()
+      activeAlerts: this.state.alerts.filter((a) => !a.acknowledged).length,
+      lastUpdate: new Date().toISOString(),
     };
   }
 
@@ -840,7 +912,8 @@ class RealtimeTaskMonitor extends EventEmitter {
     return {
       agent: this.state.activeAgents.get(agentId),
       workload: this.state.agentWorkloads.get(agentId),
-      recentActivities: this.state.activeAgents.get(agentId)?.activities?.slice(-20) || []
+      recentActivities:
+        this.state.activeAgents.get(agentId)?.activities?.slice(-20) || [],
     };
   }
 
@@ -848,7 +921,7 @@ class RealtimeTaskMonitor extends EventEmitter {
    * Acknowledge alert
    */
   async acknowledgeAlert(alertId) {
-    const alert = this.state.alerts.find(a => a.id === alertId);
+    const alert = this.state.alerts.find((a) => a.id === alertId);
     if (alert) {
       alert.acknowledged = true;
       alert.acknowledgedAt = new Date().toISOString();

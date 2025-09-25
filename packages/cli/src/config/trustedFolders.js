@@ -7,7 +7,12 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { homedir } from 'node:os';
-import { FatalConfigError, getErrorMessage, isWithinRoot, ideContextStore, } from '@google/gemini-cli-core';
+import {
+  FatalConfigError,
+  getErrorMessage,
+  isWithinRoot,
+  ideContextStore,
+} from '@google/gemini-cli-core';
 import stripJsonComments from 'strip-json-comments';
 /** Filename for the trusted folders configuration file */
 export const TRUSTED_FOLDERS_FILENAME = 'trustedFolders.json';
@@ -28,10 +33,10 @@ export const USER_SETTINGS_DIR = path.join(homedir(), SETTINGS_DIRECTORY_NAME);
  * ```
  */
 export function getTrustedFoldersPath() {
-    if (process.env['GEMINI_CLI_TRUSTED_FOLDERS_PATH']) {
-        return process.env['GEMINI_CLI_TRUSTED_FOLDERS_PATH'];
-    }
-    return path.join(USER_SETTINGS_DIR, TRUSTED_FOLDERS_FILENAME);
+  if (process.env['GEMINI_CLI_TRUSTED_FOLDERS_PATH']) {
+    return process.env['GEMINI_CLI_TRUSTED_FOLDERS_PATH'];
+  }
+  return path.join(USER_SETTINGS_DIR, TRUSTED_FOLDERS_FILENAME);
 }
 /**
  * Trust levels that can be assigned to folders for security control.
@@ -48,12 +53,12 @@ export function getTrustedFoldersPath() {
  */
 export var TrustLevel;
 (function (TrustLevel) {
-    /** Trust the exact folder path specified */
-    TrustLevel["TRUST_FOLDER"] = "TRUST_FOLDER";
-    /** Trust the parent directory of the specified path */
-    TrustLevel["TRUST_PARENT"] = "TRUST_PARENT";
-    /** Explicitly mark the folder as untrusted */
-    TrustLevel["DO_NOT_TRUST"] = "DO_NOT_TRUST";
+  /** Trust the exact folder path specified */
+  TrustLevel['TRUST_FOLDER'] = 'TRUST_FOLDER';
+  /** Trust the parent directory of the specified path */
+  TrustLevel['TRUST_PARENT'] = 'TRUST_PARENT';
+  /** Explicitly mark the folder as untrusted */
+  TrustLevel['DO_NOT_TRUST'] = 'DO_NOT_TRUST';
 })(TrustLevel || (TrustLevel = {}));
 /**
  * Manages loaded trusted folders configuration with trust evaluation capabilities.
@@ -71,108 +76,108 @@ export var TrustLevel;
  * ```
  */
 export class LoadedTrustedFolders {
-    user;
-    errors;
-    constructor(user, errors) {
-        this.user = user;
-        this.errors = errors;
+  user;
+  errors;
+  constructor(user, errors) {
+    this.user = user;
+    this.errors = errors;
+  }
+  /**
+   * Returns all trust rules as an array of TrustRule objects.
+   * Converts the internal key-value configuration to a more structured format.
+   *
+   * @returns Array of trust rules with path and trust level
+   *
+   * @example
+   * ```typescript
+   * const rules = trustedFolders.rules;
+   * rules.forEach(rule => {
+   *   console.log(`${rule.path}: ${rule.trustLevel}`);
+   * });
+   * ```
+   */
+  get rules() {
+    return Object.entries(this.user.config).map(([path, trustLevel]) => ({
+      path,
+      trustLevel,
+    }));
+  }
+  /**
+   * Evaluates whether a given path should be trusted based on configured trust rules.
+   * Should only be called when the folder trust feature is active.
+   *
+   * Trust Evaluation Logic:
+   * 1. TRUST_FOLDER: Trusts the exact path and any subdirectories
+   * 2. TRUST_PARENT: Trusts the parent directory and any subdirectories
+   * 3. DO_NOT_TRUST: Explicitly marks the exact path as untrusted
+   * 4. If no rules match, returns undefined (unknown trust status)
+   *
+   * @param location - Absolute path to evaluate for trust status
+   * @returns true if trusted, false if explicitly untrusted, undefined if no rule applies
+   *
+   * @example
+   * ```typescript
+   * const isProjectTrusted = trustedFolders.isPathTrusted('/workspace/my-project');
+   * if (isProjectTrusted === true) {
+   *   // Enable full functionality
+   * } else if (isProjectTrusted === false) {
+   *   // Restrict operations
+   * } else {
+   *   // Prompt user for trust decision
+   * }
+   * ```
+   */
+  isPathTrusted(location) {
+    const trustedPaths = [];
+    const untrustedPaths = [];
+    for (const rule of this.rules) {
+      switch (rule.trustLevel) {
+        case TrustLevel.TRUST_FOLDER:
+          trustedPaths.push(rule.path);
+          break;
+        case TrustLevel.TRUST_PARENT:
+          trustedPaths.push(path.dirname(rule.path));
+          break;
+        case TrustLevel.DO_NOT_TRUST:
+          untrustedPaths.push(rule.path);
+          break;
+        default:
+          // Do nothing for unknown trust levels.
+          break;
+      }
     }
-    /**
-     * Returns all trust rules as an array of TrustRule objects.
-     * Converts the internal key-value configuration to a more structured format.
-     *
-     * @returns Array of trust rules with path and trust level
-     *
-     * @example
-     * ```typescript
-     * const rules = trustedFolders.rules;
-     * rules.forEach(rule => {
-     *   console.log(`${rule.path}: ${rule.trustLevel}`);
-     * });
-     * ```
-     */
-    get rules() {
-        return Object.entries(this.user.config).map(([path, trustLevel]) => ({
-            path,
-            trustLevel,
-        }));
+    for (const trustedPath of trustedPaths) {
+      if (isWithinRoot(location, trustedPath)) {
+        return true;
+      }
     }
-    /**
-     * Evaluates whether a given path should be trusted based on configured trust rules.
-     * Should only be called when the folder trust feature is active.
-     *
-     * Trust Evaluation Logic:
-     * 1. TRUST_FOLDER: Trusts the exact path and any subdirectories
-     * 2. TRUST_PARENT: Trusts the parent directory and any subdirectories
-     * 3. DO_NOT_TRUST: Explicitly marks the exact path as untrusted
-     * 4. If no rules match, returns undefined (unknown trust status)
-     *
-     * @param location - Absolute path to evaluate for trust status
-     * @returns true if trusted, false if explicitly untrusted, undefined if no rule applies
-     *
-     * @example
-     * ```typescript
-     * const isProjectTrusted = trustedFolders.isPathTrusted('/workspace/my-project');
-     * if (isProjectTrusted === true) {
-     *   // Enable full functionality
-     * } else if (isProjectTrusted === false) {
-     *   // Restrict operations
-     * } else {
-     *   // Prompt user for trust decision
-     * }
-     * ```
-     */
-    isPathTrusted(location) {
-        const trustedPaths = [];
-        const untrustedPaths = [];
-        for (const rule of this.rules) {
-            switch (rule.trustLevel) {
-                case TrustLevel.TRUST_FOLDER:
-                    trustedPaths.push(rule.path);
-                    break;
-                case TrustLevel.TRUST_PARENT:
-                    trustedPaths.push(path.dirname(rule.path));
-                    break;
-                case TrustLevel.DO_NOT_TRUST:
-                    untrustedPaths.push(rule.path);
-                    break;
-                default:
-                    // Do nothing for unknown trust levels.
-                    break;
-            }
-        }
-        for (const trustedPath of trustedPaths) {
-            if (isWithinRoot(location, trustedPath)) {
-                return true;
-            }
-        }
-        for (const untrustedPath of untrustedPaths) {
-            if (path.normalize(location) === path.normalize(untrustedPath)) {
-                return false;
-            }
-        }
-        return undefined;
+    for (const untrustedPath of untrustedPaths) {
+      if (path.normalize(location) === path.normalize(untrustedPath)) {
+        return false;
+      }
     }
-    /**
-     * Sets the trust level for a specific path and persists the change to disk.
-     * Updates the trust configuration and immediately saves to the trusted folders file.
-     *
-     * @param path - Absolute path to set trust level for
-     * @param trustLevel - Trust level to assign to the path
-     *
-     * @example
-     * ```typescript
-     * // Trust a new project folder
-     * trustedFolders.setValue('/workspace/new-project', TrustLevel.TRUST_FOLDER);
-     *
-     * // Mark a folder as untrusted
-     * trustedFolders.setValue('/unsafe/folder', TrustLevel.DO_NOT_TRUST);
-     * ```
-     */
-    setValue(path, trustLevel) {
-        this.user.config[path] = trustLevel;
-        saveTrustedFolders(this.user);
-    }
+    return undefined;
+  }
+  /**
+   * Sets the trust level for a specific path and persists the change to disk.
+   * Updates the trust configuration and immediately saves to the trusted folders file.
+   *
+   * @param path - Absolute path to set trust level for
+   * @param trustLevel - Trust level to assign to the path
+   *
+   * @example
+   * ```typescript
+   * // Trust a new project folder
+   * trustedFolders.setValue('/workspace/new-project', TrustLevel.TRUST_FOLDER);
+   *
+   * // Mark a folder as untrusted
+   * trustedFolders.setValue('/unsafe/folder', TrustLevel.DO_NOT_TRUST);
+   * ```
+   */
+  setValue(path, trustLevel) {
+    this.user.config[path] = trustLevel;
+    saveTrustedFolders(this.user);
+  }
 }
 let loadedTrustedFolders;
 /**
@@ -183,7 +188,7 @@ let loadedTrustedFolders;
  * @internal
  */
 export function resetTrustedFoldersForTesting() {
-    loadedTrustedFolders = undefined;
+  loadedTrustedFolders = undefined;
 }
 /**
  * Loads and caches the trusted folders configuration from disk.
@@ -210,38 +215,41 @@ export function resetTrustedFoldersForTesting() {
  * ```
  */
 export function loadTrustedFolders() {
-    if (loadedTrustedFolders) {
-        return loadedTrustedFolders;
-    }
-    const errors = [];
-    let userConfig = {};
-    const userPath = getTrustedFoldersPath();
-    // Load user trusted folders
-    try {
-        if (fs.existsSync(userPath)) {
-            const content = fs.readFileSync(userPath, 'utf-8');
-            const parsed = JSON.parse(stripJsonComments(content));
-            if (typeof parsed !== 'object' ||
-                parsed === null ||
-                Array.isArray(parsed)) {
-                errors.push({
-                    message: 'Trusted folders file is not a valid JSON object.',
-                    path: userPath,
-                });
-            }
-            else {
-                userConfig = parsed;
-            }
-        }
-    }
-    catch (error) {
-        errors.push({
-            message: getErrorMessage(error),
-            path: userPath,
-        });
-    }
-    loadedTrustedFolders = new LoadedTrustedFolders({ path: userPath, config: userConfig }, errors);
+  if (loadedTrustedFolders) {
     return loadedTrustedFolders;
+  }
+  const errors = [];
+  let userConfig = {};
+  const userPath = getTrustedFoldersPath();
+  // Load user trusted folders
+  try {
+    if (fs.existsSync(userPath)) {
+      const content = fs.readFileSync(userPath, 'utf-8');
+      const parsed = JSON.parse(stripJsonComments(content));
+      if (
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
+        errors.push({
+          message: 'Trusted folders file is not a valid JSON object.',
+          path: userPath,
+        });
+      } else {
+        userConfig = parsed;
+      }
+    }
+  } catch (error) {
+    errors.push({
+      message: getErrorMessage(error),
+      path: userPath,
+    });
+  }
+  loadedTrustedFolders = new LoadedTrustedFolders(
+    { path: userPath, config: userConfig },
+    errors,
+  );
+  return loadedTrustedFolders;
 }
 /**
  * Saves the trusted folders configuration to disk with secure file permissions.
@@ -258,17 +266,20 @@ export function loadTrustedFolders() {
  * ```
  */
 export function saveTrustedFolders(trustedFoldersFile) {
-    try {
-        // Ensure the directory exists
-        const dirPath = path.dirname(trustedFoldersFile.path);
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-        }
-        fs.writeFileSync(trustedFoldersFile.path, JSON.stringify(trustedFoldersFile.config, null, 2), { encoding: 'utf-8', mode: 0o600 });
+  try {
+    // Ensure the directory exists
+    const dirPath = path.dirname(trustedFoldersFile.path);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
     }
-    catch (error) {
-        console.error('Error saving trusted folders file:', error);
-    }
+    fs.writeFileSync(
+      trustedFoldersFile.path,
+      JSON.stringify(trustedFoldersFile.config, null, 2),
+      { encoding: 'utf-8', mode: 0o600 },
+    );
+  } catch (error) {
+    console.error('Error saving trusted folders file:', error);
+  }
 }
 /**
  * Determines if the folder trust feature is enabled based on current settings.
@@ -288,8 +299,8 @@ export function saveTrustedFolders(trustedFoldersFile) {
  * ```
  */
 export function isFolderTrustEnabled(settings) {
-    const folderTrustSetting = settings.security?.folderTrust?.enabled ?? false;
-    return folderTrustSetting;
+  const folderTrustSetting = settings.security?.folderTrust?.enabled ?? false;
+  return folderTrustSetting;
 }
 /**
  * Evaluates workspace trust using local configuration file.
@@ -312,19 +323,23 @@ export function isFolderTrustEnabled(settings) {
  * ```
  */
 function getWorkspaceTrustFromLocalConfig(trustConfig) {
-    const folders = loadTrustedFolders();
-    if (trustConfig) {
-        folders.user.config = trustConfig;
-    }
-    if (folders.errors.length > 0) {
-        const errorMessages = folders.errors.map((error) => `Error in ${error.path}: ${error.message}`);
-        throw new FatalConfigError(`${errorMessages.join('\n')}\nPlease fix the configuration file and try again.`);
-    }
-    const isTrusted = folders.isPathTrusted(process.cwd());
-    return {
-        isTrusted,
-        source: isTrusted !== undefined ? 'file' : undefined,
-    };
+  const folders = loadTrustedFolders();
+  if (trustConfig) {
+    folders.user.config = trustConfig;
+  }
+  if (folders.errors.length > 0) {
+    const errorMessages = folders.errors.map(
+      (error) => `Error in ${error.path}: ${error.message}`,
+    );
+    throw new FatalConfigError(
+      `${errorMessages.join('\n')}\nPlease fix the configuration file and try again.`,
+    );
+  }
+  const isTrusted = folders.isPathTrusted(process.cwd());
+  return {
+    isTrusted,
+    source: isTrusted !== undefined ? 'file' : undefined,
+  };
 }
 /**
  * Determines if the current workspace is trusted based on settings and trust sources.
@@ -357,14 +372,14 @@ function getWorkspaceTrustFromLocalConfig(trustConfig) {
  * ```
  */
 export function isWorkspaceTrusted(settings, trustConfig) {
-    if (!isFolderTrustEnabled(settings)) {
-        return { isTrusted: true, source: undefined };
-    }
-    const ideTrust = ideContextStore.get()?.workspaceState?.isTrusted;
-    if (ideTrust !== undefined) {
-        return { isTrusted: ideTrust, source: 'ide' };
-    }
-    // Fall back to the local user configuration
-    return getWorkspaceTrustFromLocalConfig(trustConfig);
+  if (!isFolderTrustEnabled(settings)) {
+    return { isTrusted: true, source: undefined };
+  }
+  const ideTrust = ideContextStore.get()?.workspaceState?.isTrusted;
+  if (ideTrust !== undefined) {
+    return { isTrusted: ideTrust, source: 'ide' };
+  }
+  // Fall back to the local user configuration
+  return getWorkspaceTrustFromLocalConfig(trustConfig);
 }
 //# sourceMappingURL=trustedFolders.js.map

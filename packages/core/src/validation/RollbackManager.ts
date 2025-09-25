@@ -33,7 +33,7 @@ export enum RollbackType {
   ENVIRONMENT = 'environment',
   CONFIGURATION = 'configuration',
   DEPENDENCY_STATE = 'dependency_state',
-  FULL_SYSTEM = 'full_system'
+  FULL_SYSTEM = 'full_system',
 }
 
 /**
@@ -46,29 +46,29 @@ export enum RollbackTrigger {
   SECURITY_VIOLATION = 'security_violation',
   USER_REQUEST = 'user_request',
   AUTOMATIC_RECOVERY = 'automatic_recovery',
-  SYSTEM_FAILURE = 'system_failure'
+  SYSTEM_FAILURE = 'system_failure',
 }
 
 /**
  * Rollback strategies for different scenarios
  */
 export enum RollbackStrategy {
-  IMMEDIATE = 'immediate',           // Rollback immediately on trigger
-  GRACEFUL = 'graceful',            // Complete current operations then rollback
-  SCHEDULED = 'scheduled',          // Rollback at scheduled time
-  MANUAL = 'manual',                // Require manual confirmation
-  SMART = 'smart',                  // AI-driven decision on rollback approach
-  CONDITIONAL = 'conditional'       // Rollback based on conditions
+  IMMEDIATE = 'immediate', // Rollback immediately on trigger
+  GRACEFUL = 'graceful', // Complete current operations then rollback
+  SCHEDULED = 'scheduled', // Rollback at scheduled time
+  MANUAL = 'manual', // Require manual confirmation
+  SMART = 'smart', // AI-driven decision on rollback approach
+  CONDITIONAL = 'conditional', // Rollback based on conditions
 }
 
 /**
  * Rollback operation priority levels
  */
 export enum RollbackPriority {
-  CRITICAL = 'critical',    // Immediate rollback required
-  HIGH = 'high',           // Rollback ASAP
-  MEDIUM = 'medium',       // Rollback when convenient
-  LOW = 'low'             // Rollback during maintenance window
+  CRITICAL = 'critical', // Immediate rollback required
+  HIGH = 'high', // Rollback ASAP
+  MEDIUM = 'medium', // Rollback when convenient
+  LOW = 'low', // Rollback during maintenance window
 }
 
 /**
@@ -87,14 +87,17 @@ export interface RollbackSnapshot {
   // File system snapshot
   fileSystem: {
     baseDirectory: string;
-    files: Map<string, {
-      content: string | Buffer;
-      stats: {
-        size: number;
-        mtime: Date;
-        permissions: string;
-      };
-    }>;
+    files: Map<
+      string,
+      {
+        content: string | Buffer;
+        stats: {
+          size: number;
+          mtime: Date;
+          permissions: string;
+        };
+      }
+    >;
     directories: string[];
   };
 
@@ -214,11 +217,11 @@ export interface RollbackResult {
     snapshotRestored: string;
     itemsRolledBack: {
       taskState: boolean;
-      fileSystem: number;  // Number of files restored
-      database: number;    // Number of transactions reversed
+      fileSystem: number; // Number of files restored
+      database: number; // Number of transactions reversed
       environment: number; // Number of variables restored
       configuration: number; // Number of config items restored
-      dependencies: number;   // Number of dependency states restored
+      dependencies: number; // Number of dependency states restored
     };
 
     // Validation results
@@ -314,9 +317,11 @@ export class RollbackManager extends EventEmitter {
   private readonly taskSnapshots: Map<string, string[]> = new Map(); // taskId -> snapshotIds
 
   // Operation management
-  private readonly activeRollbacks: Map<string, Promise<RollbackResult>> = new Map();
+  private readonly activeRollbacks: Map<string, Promise<RollbackResult>> =
+    new Map();
   private readonly rollbackHistory: RollbackResult[] = [];
-  private readonly pendingOperations: Map<string, RollbackOperation> = new Map();
+  private readonly pendingOperations: Map<string, RollbackOperation> =
+    new Map();
 
   constructor(config: Partial<RollbackManagerConfig> = {}) {
     super();
@@ -328,7 +333,7 @@ export class RollbackManager extends EventEmitter {
       enabled: this.config.enabled,
       autoSnapshot: this.config.snapshotting.autoSnapshot,
       defaultStrategy: this.config.strategies.defaultStrategy,
-      maxSnapshots: this.config.snapshotting.maxSnapshots
+      maxSnapshots: this.config.snapshotting.maxSnapshots,
     });
 
     this.startMaintenanceTasks();
@@ -337,7 +342,9 @@ export class RollbackManager extends EventEmitter {
   /**
    * Create default configuration with overrides
    */
-  private createDefaultConfig(config: Partial<RollbackManagerConfig>): RollbackManagerConfig {
+  private createDefaultConfig(
+    config: Partial<RollbackManagerConfig>,
+  ): RollbackManagerConfig {
     return {
       enabled: true,
 
@@ -347,7 +354,7 @@ export class RollbackManager extends EventEmitter {
         compressionEnabled: true,
         encryptionEnabled: false,
         storageLocation: './snapshots',
-        retentionDays: 30
+        retentionDays: 30,
       },
 
       policies: {
@@ -355,7 +362,7 @@ export class RollbackManager extends EventEmitter {
         requireApprovalForHighImpactRollback: true,
         maxConcurrentRollbacks: 3,
         rollbackTimeout: 300000, // 5 minutes
-        validationRequired: true
+        validationRequired: true,
       },
 
       strategies: {
@@ -364,20 +371,23 @@ export class RollbackManager extends EventEmitter {
           [RollbackTrigger.VALIDATION_FAILURE, RollbackStrategy.IMMEDIATE],
           [RollbackTrigger.SECURITY_VIOLATION, RollbackStrategy.IMMEDIATE],
           [RollbackTrigger.EXECUTION_ERROR, RollbackStrategy.GRACEFUL],
-          [RollbackTrigger.QUALITY_THRESHOLD_VIOLATION, RollbackStrategy.SCHEDULED],
-          [RollbackTrigger.USER_REQUEST, RollbackStrategy.MANUAL]
+          [
+            RollbackTrigger.QUALITY_THRESHOLD_VIOLATION,
+            RollbackStrategy.SCHEDULED,
+          ],
+          [RollbackTrigger.USER_REQUEST, RollbackStrategy.MANUAL],
         ]),
-        conditionalRules: []
+        conditionalRules: [],
       },
 
       monitoring: {
         metricsEnabled: true,
         alertingEnabled: true,
         notificationChannels: [],
-        healthChecks: true
+        healthChecks: true,
       },
 
-      ...config
+      ...config,
     };
   }
 
@@ -387,7 +397,7 @@ export class RollbackManager extends EventEmitter {
   async createSnapshot(
     task: Task,
     reason: string,
-    types: RollbackType[] = Object.values(RollbackType)
+    types: RollbackType[] = Object.values(RollbackType),
   ): Promise<RollbackSnapshot> {
     if (!this.config.enabled) {
       throw new Error('RollbackManager is disabled');
@@ -399,7 +409,7 @@ export class RollbackManager extends EventEmitter {
       taskId: task.id,
       snapshotId,
       types,
-      reason
+      reason,
     });
 
     const snapshot: RollbackSnapshot = {
@@ -414,13 +424,13 @@ export class RollbackManager extends EventEmitter {
       fileSystem: {
         baseDirectory: process.cwd(),
         files: new Map(),
-        directories: []
+        directories: [],
       },
 
       database: {
         transactions: [],
         data: {},
-        schema: {}
+        schema: {},
       },
 
       environment: {
@@ -429,18 +439,18 @@ export class RollbackManager extends EventEmitter {
         processInfo: {
           pid: process.pid,
           platform: process.platform,
-          nodeVersion: process.version
-        }
+          nodeVersion: process.version,
+        },
       },
 
       configuration: {
         files: new Map(),
-        runtime: {}
+        runtime: {},
       },
 
       dependencies: {
         taskStates: new Map(),
-        relationships: []
+        relationships: [],
       },
 
       metadata: {
@@ -451,9 +461,9 @@ export class RollbackManager extends EventEmitter {
         version: '1.0.0',
         retentionPolicy: {
           maxAge: this.config.snapshotting.retentionDays * 24 * 60 * 60 * 1000,
-          maxCount: this.config.snapshotting.maxSnapshots
-        }
-      }
+          maxCount: this.config.snapshotting.maxSnapshots,
+        },
+      },
     };
 
     // Create snapshots for requested types
@@ -473,7 +483,7 @@ export class RollbackManager extends EventEmitter {
     this.logger.info('Rollback snapshot created successfully', {
       snapshotId,
       size: snapshot.metadata.snapshotSize,
-      types: snapshot.type
+      types: snapshot.type,
     });
 
     return snapshot;
@@ -485,7 +495,7 @@ export class RollbackManager extends EventEmitter {
   private async createSpecificSnapshot(
     type: RollbackType,
     snapshot: RollbackSnapshot,
-    task: Task
+    task: Task,
   ): Promise<void> {
     try {
       switch (type) {
@@ -511,20 +521,29 @@ export class RollbackManager extends EventEmitter {
           this.logger.warn(`Unknown snapshot type: ${type}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to create ${type} snapshot`, { error, taskId: task.id });
+      this.logger.error(`Failed to create ${type} snapshot`, {
+        error,
+        taskId: task.id,
+      });
     }
   }
 
-  private async createTaskStateSnapshot(snapshot: RollbackSnapshot, task: Task): Promise<void> {
+  private async createTaskStateSnapshot(
+    snapshot: RollbackSnapshot,
+    task: Task,
+  ): Promise<void> {
     snapshot.taskState = JSON.parse(JSON.stringify(task)); // Deep copy
     snapshot.taskMetadata = {
       snapshotTime: snapshot.timestamp,
       originalStatus: task.status,
-      progress: (task as any).progress || 0
+      progress: (task as any).progress || 0,
     };
   }
 
-  private async createFileSystemSnapshot(snapshot: RollbackSnapshot, task: Task): Promise<void> {
+  private async createFileSystemSnapshot(
+    snapshot: RollbackSnapshot,
+    task: Task,
+  ): Promise<void> {
     // TODO: Implement comprehensive file system snapshot
     // This would involve:
     // 1. Identifying files affected by the task
@@ -536,10 +555,15 @@ export class RollbackManager extends EventEmitter {
     snapshot.fileSystem.baseDirectory = workingDir;
 
     // Placeholder implementation - would need to identify task-specific files
-    this.logger.debug('File system snapshot created (placeholder)', { taskId: task.id });
+    this.logger.debug('File system snapshot created (placeholder)', {
+      taskId: task.id,
+    });
   }
 
-  private async createDatabaseSnapshot(snapshot: RollbackSnapshot, task: Task): Promise<void> {
+  private async createDatabaseSnapshot(
+    snapshot: RollbackSnapshot,
+    task: Task,
+  ): Promise<void> {
     // TODO: Implement database snapshot
     // This would involve:
     // 1. Capturing database transactions related to the task
@@ -547,10 +571,15 @@ export class RollbackManager extends EventEmitter {
     // 3. Recording schema changes
     // 4. Handling different database types
 
-    this.logger.debug('Database snapshot created (placeholder)', { taskId: task.id });
+    this.logger.debug('Database snapshot created (placeholder)', {
+      taskId: task.id,
+    });
   }
 
-  private async createEnvironmentSnapshot(snapshot: RollbackSnapshot, task: Task): Promise<void> {
+  private async createEnvironmentSnapshot(
+    snapshot: RollbackSnapshot,
+    task: Task,
+  ): Promise<void> {
     snapshot.environment.variables = { ...process.env };
     snapshot.environment.workingDirectory = process.cwd();
     snapshot.environment.processInfo = {
@@ -558,20 +587,30 @@ export class RollbackManager extends EventEmitter {
       platform: process.platform,
       nodeVersion: process.version,
       memory: process.memoryUsage(),
-      uptime: process.uptime()
+      uptime: process.uptime(),
     };
   }
 
-  private async createConfigurationSnapshot(snapshot: RollbackSnapshot, task: Task): Promise<void> {
+  private async createConfigurationSnapshot(
+    snapshot: RollbackSnapshot,
+    task: Task,
+  ): Promise<void> {
     // TODO: Implement configuration snapshot
     // This would capture configuration files and runtime settings
-    this.logger.debug('Configuration snapshot created (placeholder)', { taskId: task.id });
+    this.logger.debug('Configuration snapshot created (placeholder)', {
+      taskId: task.id,
+    });
   }
 
-  private async createDependencySnapshot(snapshot: RollbackSnapshot, task: Task): Promise<void> {
+  private async createDependencySnapshot(
+    snapshot: RollbackSnapshot,
+    task: Task,
+  ): Promise<void> {
     // TODO: Implement dependency state snapshot
     // This would capture the state of task dependencies
-    this.logger.debug('Dependency snapshot created (placeholder)', { taskId: task.id });
+    this.logger.debug('Dependency snapshot created (placeholder)', {
+      taskId: task.id,
+    });
   }
 
   /**
@@ -588,7 +627,7 @@ export class RollbackManager extends EventEmitter {
       operationId: operation.id,
       taskId: operation.taskId,
       strategy: operation.strategy,
-      trigger: operation.trigger
+      trigger: operation.trigger,
     });
 
     this.emit('rollbackInitiated', operation);
@@ -596,11 +635,15 @@ export class RollbackManager extends EventEmitter {
     try {
       // Check if rollback is already in progress
       if (this.activeRollbacks.has(operation.taskId)) {
-        throw new Error(`Rollback already in progress for task: ${operation.taskId}`);
+        throw new Error(
+          `Rollback already in progress for task: ${operation.taskId}`,
+        );
       }
 
       // Check concurrent rollback limits
-      if (this.activeRollbacks.size >= this.config.policies.maxConcurrentRollbacks) {
+      if (
+        this.activeRollbacks.size >= this.config.policies.maxConcurrentRollbacks
+      ) {
         throw new Error('Maximum concurrent rollbacks exceeded');
       }
 
@@ -612,11 +655,10 @@ export class RollbackManager extends EventEmitter {
 
       this.emit('rollbackCompleted', result);
       return result;
-
     } catch (error) {
       this.logger.error('Rollback operation failed', {
         operationId: operation.id,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       this.emit('rollbackFailed', operation, error as Error);
@@ -631,7 +673,7 @@ export class RollbackManager extends EventEmitter {
    */
   private async performRollback(
     operation: RollbackOperation,
-    startTime: number
+    startTime: number,
   ): Promise<RollbackResult> {
     const snapshot = operation.targetSnapshot;
     const result: RollbackResult = {
@@ -647,20 +689,20 @@ export class RollbackManager extends EventEmitter {
           database: 0,
           environment: 0,
           configuration: 0,
-          dependencies: 0
-        }
+          dependencies: 0,
+        },
       },
       errors: [],
       recovery: {
         automaticRecoveryAttempted: false,
         manualInterventionRequired: false,
-        nextSteps: []
+        nextSteps: [],
       },
       metadata: {
         executedBy: 'RollbackManager',
         rollbackStrategy: operation.strategy,
-        impactLevel: operation.impact.riskLevel
-      }
+        impactLevel: operation.impact.riskLevel,
+      },
     };
 
     try {
@@ -674,7 +716,7 @@ export class RollbackManager extends EventEmitter {
             type: 'pre_validation_failed',
             message: 'Pre-rollback validation failed',
             details: preValidation.issues.join(', '),
-            recoverable: false
+            recoverable: false,
           });
           return result;
         }
@@ -694,24 +736,29 @@ export class RollbackManager extends EventEmitter {
             type: `rollback_${rollbackType}_failed`,
             message: `Failed to rollback ${rollbackType}`,
             details: error instanceof Error ? error.message : String(error),
-            recoverable: true
+            recoverable: true,
           });
         }
       }
 
       // Post-rollback validation
       if (operation.config.validateAfterRollback) {
-        const postValidation = await this.validateAfterRollback(operation, result);
+        const postValidation = await this.validateAfterRollback(
+          operation,
+          result,
+        );
         result.rollbackDetails.postRollbackValidation = postValidation;
 
         if (!postValidation.passed) {
           result.recovery.manualInterventionRequired = true;
-          result.recovery.nextSteps.push('Manual validation and correction required');
+          result.recovery.nextSteps.push(
+            'Manual validation and correction required',
+          );
         }
       }
 
       // Determine overall success
-      result.success = result.errors.filter(e => !e.recoverable).length === 0;
+      result.success = result.errors.filter((e) => !e.recoverable).length === 0;
       result.duration = Date.now() - startTime;
 
       // Store result in history
@@ -721,17 +768,16 @@ export class RollbackManager extends EventEmitter {
         operationId: operation.id,
         success: result.success,
         duration: result.duration,
-        errors: result.errors.length
+        errors: result.errors.length,
       });
 
       return result;
-
     } catch (error) {
       result.errors.push({
         type: 'rollback_execution_failed',
         message: 'Critical rollback execution error',
         details: error instanceof Error ? error.message : String(error),
-        recoverable: false
+        recoverable: false,
       });
 
       result.duration = Date.now() - startTime;
@@ -745,7 +791,7 @@ export class RollbackManager extends EventEmitter {
   private async rollbackSpecificType(
     type: RollbackType,
     snapshot: RollbackSnapshot,
-    result: RollbackResult
+    result: RollbackResult,
   ): Promise<void> {
     switch (type) {
       case RollbackType.TASK_STATE:
@@ -771,43 +817,67 @@ export class RollbackManager extends EventEmitter {
     }
   }
 
-  private async rollbackTaskState(snapshot: RollbackSnapshot, result: RollbackResult): Promise<void> {
+  private async rollbackTaskState(
+    snapshot: RollbackSnapshot,
+    result: RollbackResult,
+  ): Promise<void> {
     // TODO: Implement task state rollback
     // This would restore the task to its previous state
     result.rollbackDetails.itemsRolledBack.taskState = true;
     this.logger.debug('Task state rolled back', { snapshotId: snapshot.id });
   }
 
-  private async rollbackFileSystem(snapshot: RollbackSnapshot, result: RollbackResult): Promise<void> {
+  private async rollbackFileSystem(
+    snapshot: RollbackSnapshot,
+    result: RollbackResult,
+  ): Promise<void> {
     // TODO: Implement file system rollback
     // This would restore files from the snapshot
-    result.rollbackDetails.itemsRolledBack.fileSystem = snapshot.fileSystem.files.size;
+    result.rollbackDetails.itemsRolledBack.fileSystem =
+      snapshot.fileSystem.files.size;
     this.logger.debug('File system rolled back', { snapshotId: snapshot.id });
   }
 
-  private async rollbackDatabase(snapshot: RollbackSnapshot, result: RollbackResult): Promise<void> {
+  private async rollbackDatabase(
+    snapshot: RollbackSnapshot,
+    result: RollbackResult,
+  ): Promise<void> {
     // TODO: Implement database rollback
     // This would reverse database transactions
-    result.rollbackDetails.itemsRolledBack.database = snapshot.database.transactions.length;
+    result.rollbackDetails.itemsRolledBack.database =
+      snapshot.database.transactions.length;
     this.logger.debug('Database rolled back', { snapshotId: snapshot.id });
   }
 
-  private async rollbackEnvironment(snapshot: RollbackSnapshot, result: RollbackResult): Promise<void> {
+  private async rollbackEnvironment(
+    snapshot: RollbackSnapshot,
+    result: RollbackResult,
+  ): Promise<void> {
     // TODO: Implement environment rollback
     // This would restore environment variables and settings
-    result.rollbackDetails.itemsRolledBack.environment = Object.keys(snapshot.environment.variables).length;
+    result.rollbackDetails.itemsRolledBack.environment = Object.keys(
+      snapshot.environment.variables,
+    ).length;
     this.logger.debug('Environment rolled back', { snapshotId: snapshot.id });
   }
 
-  private async rollbackConfiguration(snapshot: RollbackSnapshot, result: RollbackResult): Promise<void> {
+  private async rollbackConfiguration(
+    snapshot: RollbackSnapshot,
+    result: RollbackResult,
+  ): Promise<void> {
     // TODO: Implement configuration rollback
-    result.rollbackDetails.itemsRolledBack.configuration = snapshot.configuration.files.size;
+    result.rollbackDetails.itemsRolledBack.configuration =
+      snapshot.configuration.files.size;
     this.logger.debug('Configuration rolled back', { snapshotId: snapshot.id });
   }
 
-  private async rollbackDependencies(snapshot: RollbackSnapshot, result: RollbackResult): Promise<void> {
+  private async rollbackDependencies(
+    snapshot: RollbackSnapshot,
+    result: RollbackResult,
+  ): Promise<void> {
     // TODO: Implement dependency rollback
-    result.rollbackDetails.itemsRolledBack.dependencies = snapshot.dependencies.taskStates.size;
+    result.rollbackDetails.itemsRolledBack.dependencies =
+      snapshot.dependencies.taskStates.size;
     this.logger.debug('Dependencies rolled back', { snapshotId: snapshot.id });
   }
 
@@ -841,14 +911,16 @@ export class RollbackManager extends EventEmitter {
     return `checksum-${snapshot.id}`;
   }
 
-  private async validateBeforeRollback(operation: RollbackOperation): Promise<{ passed: boolean; issues: string[] }> {
+  private async validateBeforeRollback(
+    operation: RollbackOperation,
+  ): Promise<{ passed: boolean; issues: string[] }> {
     // TODO: Implement pre-rollback validation
     return { passed: true, issues: [] };
   }
 
   private async validateAfterRollback(
     operation: RollbackOperation,
-    result: RollbackResult
+    result: RollbackResult,
   ): Promise<{ passed: boolean; issues: string[] }> {
     // TODO: Implement post-rollback validation
     return { passed: true, issues: [] };
@@ -856,9 +928,12 @@ export class RollbackManager extends EventEmitter {
 
   private startMaintenanceTasks(): void {
     // Periodic cleanup of old snapshots
-    setInterval(() => {
-      this.cleanupExpiredSnapshots();
-    }, 24 * 60 * 60 * 1000); // Daily cleanup
+    setInterval(
+      () => {
+        this.cleanupExpiredSnapshots();
+      },
+      24 * 60 * 60 * 1000,
+    ); // Daily cleanup
   }
 
   private cleanupExpiredSnapshots(): void {
@@ -882,7 +957,9 @@ export class RollbackManager extends EventEmitter {
    */
   getTaskSnapshots(taskId: string): RollbackSnapshot[] {
     const snapshotIds = this.taskSnapshots.get(taskId) || [];
-    return snapshotIds.map(id => this.snapshots.get(id)).filter(Boolean) as RollbackSnapshot[];
+    return snapshotIds
+      .map((id) => this.snapshots.get(id))
+      .filter(Boolean) as RollbackSnapshot[];
   }
 
   /**
@@ -895,18 +972,24 @@ export class RollbackManager extends EventEmitter {
     failedRollbacks: number;
     averageRollbackTime: number;
   } {
-    const completedRollbacks = this.rollbackHistory.filter(r => r.success).length;
-    const failedRollbacks = this.rollbackHistory.filter(r => !r.success).length;
-    const averageRollbackTime = this.rollbackHistory.length > 0
-      ? this.rollbackHistory.reduce((sum, r) => sum + r.duration, 0) / this.rollbackHistory.length
-      : 0;
+    const completedRollbacks = this.rollbackHistory.filter(
+      (r) => r.success,
+    ).length;
+    const failedRollbacks = this.rollbackHistory.filter(
+      (r) => !r.success,
+    ).length;
+    const averageRollbackTime =
+      this.rollbackHistory.length > 0
+        ? this.rollbackHistory.reduce((sum, r) => sum + r.duration, 0) /
+          this.rollbackHistory.length
+        : 0;
 
     return {
       totalSnapshots: this.snapshots.size,
       activeRollbacks: this.activeRollbacks.size,
       completedRollbacks,
       failedRollbacks,
-      averageRollbackTime
+      averageRollbackTime,
     };
   }
 
@@ -918,14 +1001,16 @@ export class RollbackManager extends EventEmitter {
     trigger: RollbackTrigger,
     snapshotId: string,
     reason: string,
-    options: Partial<RollbackOperation> = {}
+    options: Partial<RollbackOperation> = {},
   ): RollbackOperation {
     const snapshot = this.snapshots.get(snapshotId);
     if (!snapshot) {
       throw new Error(`Snapshot not found: ${snapshotId}`);
     }
 
-    const strategy = this.config.strategies.strategyMapping.get(trigger) || this.config.strategies.defaultStrategy;
+    const strategy =
+      this.config.strategies.strategyMapping.get(trigger) ||
+      this.config.strategies.defaultStrategy;
 
     return {
       id: `rollback-${taskId}-${Date.now()}`,
@@ -944,7 +1029,7 @@ export class RollbackManager extends EventEmitter {
         notifyStakeholders: true,
         maxRetries: 3,
         timeout: this.config.policies.rollbackTimeout,
-        force: false
+        force: false,
       },
 
       impact: {
@@ -952,22 +1037,25 @@ export class RollbackManager extends EventEmitter {
         affectedFiles: [],
         estimatedDowntime: 30000, // 30 seconds default
         riskLevel: 'medium',
-        mitigationSteps: []
+        mitigationSteps: [],
       },
 
       scheduling: {
         immediateExecution: strategy === RollbackStrategy.IMMEDIATE,
-        scheduledTime: strategy === RollbackStrategy.SCHEDULED ? new Date(Date.now() + 300000) : undefined
+        scheduledTime:
+          strategy === RollbackStrategy.SCHEDULED
+            ? new Date(Date.now() + 300000)
+            : undefined,
       },
 
       metadata: {
         createdAt: new Date(),
         createdBy: 'RollbackManager',
         reason,
-        estimatedDuration: 60000 // 1 minute default
+        estimatedDuration: 60000, // 1 minute default
       },
 
-      ...options
+      ...options,
     };
   }
 

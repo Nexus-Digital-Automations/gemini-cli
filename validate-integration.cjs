@@ -12,7 +12,10 @@ const path = require('path');
 
 console.log('🔍 Validating Task Management System Integration...\n');
 
-const TASK_MANAGEMENT_DIR = path.join(__dirname, 'packages/core/src/task-management');
+const TASK_MANAGEMENT_DIR = path.join(
+  __dirname,
+  'packages/core/src/task-management',
+);
 
 // Check if core integration files exist
 const requiredFiles = [
@@ -21,7 +24,7 @@ const requiredFiles = [
   'INTEGRATION_GUIDE.md',
   'DEPLOYMENT_GUIDE.md',
   'API_REFERENCE.md',
-  'tests/SystemIntegration.test.ts'
+  'tests/SystemIntegration.test.ts',
 ];
 
 console.log('📁 Checking required integration files:');
@@ -50,7 +53,7 @@ if (fs.existsSync(indexPath)) {
     'SystemConfigFactory',
     'createIntegratedTaskManagementSystem',
     'TaskManagementConfigManager',
-    'ConfigUtils'
+    'ConfigUtils',
   ];
 
   for (const exportName of requiredExports) {
@@ -69,7 +72,7 @@ const sizeChecks = [
   { file: 'INTEGRATION_GUIDE.md', minSize: 20000 }, // ~20KB
   { file: 'DEPLOYMENT_GUIDE.md', minSize: 15000 }, // ~15KB
   { file: 'API_REFERENCE.md', minSize: 20000 }, // ~20KB
-  { file: 'tests/SystemIntegration.test.ts', minSize: 5000 } // ~5KB
+  { file: 'tests/SystemIntegration.test.ts', minSize: 5000 }, // ~5KB
 ];
 
 for (const { file, minSize } of sizeChecks) {
@@ -79,7 +82,9 @@ for (const { file, minSize } of sizeChecks) {
     const stats = fs.statSync(filePath);
     const sizeOk = stats.size >= minSize;
 
-    console.log(`   ${sizeOk ? '✅' : '❌'} ${file} (${Math.round(stats.size / 1024)}KB)`);
+    console.log(
+      `   ${sizeOk ? '✅' : '❌'} ${file} (${Math.round(stats.size / 1024)}KB)`,
+    );
   } else {
     console.log(`   ❌ ${file} (not found)`);
   }
@@ -90,7 +95,7 @@ console.log('\n🔧 Basic TypeScript syntax validation:');
 const tsFiles = [
   'TaskManagementSystemIntegrator.ts',
   'TaskManagementConfig.ts',
-  'tests/SystemIntegration.test.ts'
+  'tests/SystemIntegration.test.ts',
 ];
 
 for (const file of tsFiles) {
@@ -102,8 +107,10 @@ for (const file of tsFiles) {
     // Basic syntax checks
     const hasImports = content.includes('import ');
     const hasExports = content.includes('export ');
-    const hasInterfaces = content.includes('interface ') || content.includes('type ');
-    const hasClasses = content.includes('class ') || content.includes('function ');
+    const hasInterfaces =
+      content.includes('interface ') || content.includes('type ');
+    const hasClasses =
+      content.includes('class ') || content.includes('function ');
 
     const syntaxOk = hasImports && hasExports && (hasInterfaces || hasClasses);
 
@@ -116,7 +123,7 @@ console.log('\n📚 Documentation completeness check:');
 const docFiles = [
   'INTEGRATION_GUIDE.md',
   'DEPLOYMENT_GUIDE.md',
-  'API_REFERENCE.md'
+  'API_REFERENCE.md',
 ];
 
 for (const file of docFiles) {
@@ -139,7 +146,10 @@ for (const file of docFiles) {
 console.log('\n🏗️  Integration architecture validation:');
 
 // Check if TaskManagementSystemIntegrator has key methods
-const integratorPath = path.join(TASK_MANAGEMENT_DIR, 'TaskManagementSystemIntegrator.ts');
+const integratorPath = path.join(
+  TASK_MANAGEMENT_DIR,
+  'TaskManagementSystemIntegrator.ts',
+);
 if (fs.existsSync(integratorPath)) {
   const content = fs.readFileSync(integratorPath, 'utf8');
 
@@ -148,12 +158,14 @@ if (fs.existsSync(integratorPath)) {
     'queueTask',
     'getSystemHealth',
     'getSystemStatus',
-    'shutdown'
+    'shutdown',
   ];
 
   for (const method of keyMethods) {
     const hasMethod = content.includes(`${method}(`);
-    console.log(`   ${hasMethod ? '✅' : '❌'} TaskManagementSystemIntegrator.${method}()`);
+    console.log(
+      `   ${hasMethod ? '✅' : '❌'} TaskManagementSystemIntegrator.${method}()`,
+    );
   }
 }
 
@@ -166,12 +178,14 @@ if (fs.existsSync(configPath)) {
     'loadConfig',
     'saveConfig',
     'updateConfig',
-    'validateConfig'
+    'validateConfig',
   ];
 
   for (const method of keyMethods) {
     const hasMethod = content.includes(`${method}(`);
-    console.log(`   ${hasMethod ? '✅' : '❌'} TaskManagementConfigManager.${method}()`);
+    console.log(
+      `   ${hasMethod ? '✅' : '❌'} TaskManagementConfigManager.${method}()`,
+    );
   }
 }
 
@@ -185,7 +199,9 @@ console.log('✅ Deployment guides and API reference complete');
 
 console.log('\n🎉 Integration validation passed!');
 console.log('\n📝 Key Integration Components:');
-console.log('   • TaskManagementSystemIntegrator - Main integration coordinator');
+console.log(
+  '   • TaskManagementSystemIntegrator - Main integration coordinator',
+);
 console.log('   • TaskManagementConfigManager - Configuration management');
 console.log('   • SystemConfigFactory - Configuration templates');
 console.log('   • Comprehensive documentation ecosystem');

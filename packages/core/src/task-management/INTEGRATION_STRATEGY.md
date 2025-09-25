@@ -9,11 +9,13 @@ This document outlines the detailed integration strategy for seamlessly incorpor
 ### 1. Configuration System Integration
 
 **Current State:**
+
 - `packages/core/src/config/autonomousTaskConfig.ts` - Already implemented configuration management
 - `packages/core/src/config/config.ts` - Core CLI configuration system
 - Environment variable support for external overrides
 
 **Integration Strategy:**
+
 ```typescript
 // Extension of existing Config interface
 interface ExtendedConfig extends Config {
@@ -24,7 +26,9 @@ interface ExtendedConfig extends Config {
 }
 
 // Integration with existing config loading
-export function enhanceConfigWithTaskManagement(config: Config): ExtendedConfig {
+export function enhanceConfigWithTaskManagement(
+  config: Config,
+): ExtendedConfig {
   const taskConfig = autonomousTaskConfig.getConfig();
 
   return {
@@ -38,6 +42,7 @@ export function enhanceConfigWithTaskManagement(config: Config): ExtendedConfig 
 ```
 
 **Implementation Plan:**
+
 1. Extend existing Config interface with task management methods
 2. Add autonomous task settings to CLI settings schema
 3. Implement configuration validation in existing validation pipeline
@@ -46,11 +51,13 @@ export function enhanceConfigWithTaskManagement(config: Config): ExtendedConfig 
 ### 2. CLI Command Integration
 
 **Current State:**
+
 - `packages/cli/src/nonInteractiveCli.ts` - Non-interactive command handling
 - `packages/cli/src/ui/commands/` - Interactive command implementations
 - Existing command registration system
 
 **New Command Structure:**
+
 ```typescript
 // New autonomous task commands
 const autonomousTaskCommands = {
@@ -84,20 +91,23 @@ const autonomousTaskCommands = {
     // Show agent pool status and capabilities
     const agents = await agentOrchestrator.getAllAgents();
     return formatAgentStatus(agents);
-  }
+  },
 };
 ```
 
 **Integration Approach:**
+
 ```typescript
 // Extend existing command system
-export function registerAutonomousTaskCommands(commandRegistry: CommandRegistry) {
+export function registerAutonomousTaskCommands(
+  commandRegistry: CommandRegistry,
+) {
   Object.entries(autonomousTaskCommands).forEach(([command, handler]) => {
     commandRegistry.register(command, {
       handler,
       description: getCommandDescription(command),
       examples: getCommandExamples(command),
-      category: 'Task Management'
+      category: 'Task Management',
     });
   });
 }
@@ -115,11 +125,13 @@ export function initializeTaskManagementCommands(config: ExtendedConfig) {
 ### 3. Service Layer Integration
 
 **Current State:**
+
 - `packages/core/src/services/autonomousTaskIntegrator.ts` - Basic task integration
 - `packages/core/src/services/integrationBridge.ts` - External system bridge
 - `packages/core/src/services/autonomousTaskApi.ts` - API layer
 
 **Enhanced Service Architecture:**
+
 ```typescript
 // Enhanced integration service
 export class EnhancedTaskIntegrationService {
@@ -127,7 +139,7 @@ export class EnhancedTaskIntegrationService {
     private config: ExtendedConfig,
     private taskEngine: TaskExecutionEngine,
     private agentOrchestrator: AgentOrchestrator,
-    private monitoringSystem: RealTimeMonitoringSystem
+    private monitoringSystem: RealTimeMonitoringSystem,
   ) {}
 
   async initializeIntegration(): Promise<void> {
@@ -170,11 +182,13 @@ export class EnhancedTaskIntegrationService {
 ### 4. SubAgent Framework Integration
 
 **Current State:**
+
 - Existing SubAgent framework for AI-powered task execution
 - Agent capability system
 - Task execution context management
 
 **Integration Strategy:**
+
 ```typescript
 // Extend SubAgent with task management awareness
 interface TaskAwareSubAgent extends SubAgent {
@@ -189,7 +203,7 @@ export class TaskAwareSubAgentScope extends SubAgentScope {
     agentId: string,
     task: Task,
     config: Config,
-    options: SubAgentOptions = {}
+    options: SubAgentOptions = {},
   ): Promise<TaskAwareSubAgentScope> {
     const enhancedOptions = {
       ...options,
@@ -198,8 +212,8 @@ export class TaskAwareSubAgentScope extends SubAgentScope {
       outputConfig: {
         ...options.outputConfig,
         taskId: task.id,
-        expectedOutputs: task.expectedOutput
-      }
+        expectedOutputs: task.expectedOutput,
+      },
     };
 
     const scope = await super.create(agentId, config, enhancedOptions);
@@ -208,7 +222,7 @@ export class TaskAwareSubAgentScope extends SubAgentScope {
 
   constructor(
     private baseScope: SubAgentScope,
-    private task: Task
+    private task: Task,
   ) {
     super(baseScope.agentId, baseScope.config, baseScope.options);
   }
@@ -243,8 +257,8 @@ export class TaskAwareSubAgentScope extends SubAgentScope {
         endTime: new Date(),
         duration: Date.now() - this.task.metadata.startTime!.getTime(),
         memoryUsage: process.memoryUsage().heapUsed,
-        cpuUsage: process.cpuUsage().user
-      }
+        cpuUsage: process.cpuUsage().user,
+      },
     };
   }
 }
@@ -253,16 +267,18 @@ export class TaskAwareSubAgentScope extends SubAgentScope {
 ### 5. Monitoring System Integration
 
 **Current State:**
+
 - `packages/cli/src/monitoring/` - Comprehensive monitoring infrastructure
 - Real-time status tracking
 - Event broadcasting system
 
 **Integration Bridge:**
+
 ```typescript
 export class TaskMonitoringBridge {
   constructor(
     private cliMonitoring: typeof import('../cli/src/monitoring/index.js'),
-    private taskMonitoring: RealTimeMonitoringSystem
+    private taskMonitoring: RealTimeMonitoringSystem,
   ) {}
 
   async initializeBridge(): Promise<void> {
@@ -284,7 +300,7 @@ export class TaskMonitoringBridge {
         type: 'TASK_MANAGEMENT_EVENT',
         payload: event,
         timestamp: new Date(),
-        source: 'task_engine'
+        source: 'task_engine',
       });
     });
   }
@@ -294,14 +310,14 @@ export class TaskMonitoringBridge {
     this.cliMonitoring.statusUpdateBroker.subscribe({
       subscriberId: 'task_management_bridge',
       eventTypes: ['AGENT_STATUS_CHANGED', 'SYSTEM_EVENT'],
-      deliveryMethod: 'realtime'
+      deliveryMethod: 'realtime',
     });
 
     this.cliMonitoring.statusUpdateBroker.on(
       'delivery:task_management_bridge',
       ({ event }) => {
         this.taskMonitoring.handleExternalEvent(event);
-      }
+      },
     );
   }
 }
@@ -310,11 +326,12 @@ export class TaskMonitoringBridge {
 ### 6. External System Integration
 
 **Infinite-Continue-Stop-Hook Integration:**
+
 ```typescript
 export class InfiniteHookTaskBridge {
   constructor(
     private taskManagerApiPath: string,
-    private timeout: number = 10000
+    private timeout: number = 10000,
   ) {}
 
   async syncTasksWithHook(): Promise<void> {
@@ -334,7 +351,7 @@ export class InfiniteHookTaskBridge {
     await this.executeHookCommand('register-capabilities', {
       agentId: 'autonomous_task_engine',
       capabilities: capabilities,
-      maxConcurrentTasks: this.config.getMaxConcurrentTasks()
+      maxConcurrentTasks: this.config.getMaxConcurrentTasks(),
     });
   }
 
@@ -346,19 +363,18 @@ export class InfiniteHookTaskBridge {
         taskId: task.id,
         progress: task.progress,
         status: task.status,
-        estimatedCompletion: task.estimatedCompletion
+        estimatedCompletion: task.estimatedCompletion,
       });
     }
   }
 
   private async executeHookCommand(
     command: string,
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
   ): Promise<any> {
     const cmd = `timeout ${this.timeout / 1000}s node "${this.taskManagerApiPath}" ${command}`;
-    const paramString = Object.keys(params).length > 0
-      ? ` '${JSON.stringify(params)}'`
-      : '';
+    const paramString =
+      Object.keys(params).length > 0 ? ` '${JSON.stringify(params)}'` : '';
 
     return this.executeShellCommand(cmd + paramString);
   }
@@ -366,16 +382,17 @@ export class InfiniteHookTaskBridge {
 ```
 
 **FEATURES.json Integration:**
+
 ```typescript
 export class FeaturesTaskBridge {
   constructor(
     private featuresPath: string,
-    private taskEngine: TaskExecutionEngine
+    private taskEngine: TaskExecutionEngine,
   ) {}
 
   async syncFeaturesWithTasks(): Promise<void> {
     const features = await this.loadFeatures();
-    const approvedFeatures = features.filter(f => f.status === 'approved');
+    const approvedFeatures = features.filter((f) => f.status === 'approved');
 
     for (const feature of approvedFeatures) {
       await this.createTaskFromFeature(feature);
@@ -392,9 +409,9 @@ export class FeaturesTaskBridge {
         priority: this.inferPriorityFromBusinessValue(feature.business_value),
         context: {
           featureId: feature.id,
-          originalFeature: feature
-        }
-      }
+          originalFeature: feature,
+        },
+      },
     );
 
     // Update feature with task reference
@@ -403,15 +420,18 @@ export class FeaturesTaskBridge {
     return taskId;
   }
 
-  private async updateFeatureWithTaskId(featureId: string, taskId: string): Promise<void> {
+  private async updateFeatureWithTaskId(
+    featureId: string,
+    taskId: string,
+  ): Promise<void> {
     const features = await this.loadFeatures();
-    const feature = features.find(f => f.id === featureId);
+    const feature = features.find((f) => f.id === featureId);
 
     if (feature) {
       feature.metadata = {
         ...feature.metadata,
         taskId,
-        taskCreatedAt: new Date().toISOString()
+        taskCreatedAt: new Date().toISOString(),
       };
 
       await this.saveFeatures(features);
@@ -425,6 +445,7 @@ export class FeaturesTaskBridge {
 ### 1. Opt-in Activation
 
 **Configuration-Based Activation:**
+
 ```typescript
 // Autonomous mode is opt-in by default
 const defaultConfig = {
@@ -437,12 +458,13 @@ const defaultConfig = {
 export function enableAutonomousMode(config: Config): void {
   config.updateSettings({
     autonomousTasksEnabled: true,
-    autoStartTaskProcessing: true
+    autoStartTaskProcessing: true,
   });
 }
 ```
 
 **Environment Variable Override:**
+
 ```bash
 # Enable autonomous mode via environment variable
 export GEMINI_AUTONOMOUS_TASKS_ENABLED=true
@@ -453,6 +475,7 @@ export GEMINI_AUTO_START_TASK_PROCESSING=true
 ### 2. Graceful Degradation
 
 **Fallback Mechanisms:**
+
 ```typescript
 export class TaskManagementFallback {
   static async initialize(config: ExtendedConfig): Promise<TaskManager | null> {
@@ -467,7 +490,10 @@ export class TaskManagementFallback {
 
       return taskManager;
     } catch (error) {
-      console.warn('Failed to initialize autonomous task management:', error.message);
+      console.warn(
+        'Failed to initialize autonomous task management:',
+        error.message,
+      );
       console.log('Falling back to manual task management');
       return null;
     }
@@ -483,12 +509,13 @@ export class TaskManagementFallback {
 ### 3. Backward Compatibility
 
 **Command Compatibility:**
+
 ```typescript
 // Existing commands continue to work unchanged
 const existingCommands = {
-  'chat': existingChatHandler,
-  'help': existingHelpHandler,
-  'auth': existingAuthHandler,
+  chat: existingChatHandler,
+  help: existingHelpHandler,
+  auth: existingAuthHandler,
   // ... all existing commands remain functional
 };
 
@@ -522,19 +549,20 @@ export function createUnifiedCommandRegistry(): CommandRegistry {
 ### 4. Progressive Enhancement
 
 **Feature Rollout Strategy:**
+
 ```typescript
 interface FeatureFlags {
-  basicTaskQueue: boolean;          // Phase 1: Basic queuing
-  intelligentBreakdown: boolean;    // Phase 2: AI-powered breakdown
+  basicTaskQueue: boolean; // Phase 1: Basic queuing
+  intelligentBreakdown: boolean; // Phase 2: AI-powered breakdown
   crossSessionPersistence: boolean; // Phase 3: Cross-session support
-  advancedMonitoring: boolean;      // Phase 4: Advanced analytics
-  agentOrchestration: boolean;      // Phase 5: Multi-agent coordination
+  advancedMonitoring: boolean; // Phase 4: Advanced analytics
+  agentOrchestration: boolean; // Phase 5: Multi-agent coordination
 }
 
 export class ProgressiveTaskManager {
   constructor(
     private config: ExtendedConfig,
-    private featureFlags: FeatureFlags
+    private featureFlags: FeatureFlags,
   ) {}
 
   async initialize(): Promise<void> {
@@ -561,6 +589,7 @@ export class ProgressiveTaskManager {
 ### 1. Compatibility Testing
 
 **Existing Functionality Tests:**
+
 ```typescript
 describe('Backward Compatibility', () => {
   it('should preserve existing chat command functionality', async () => {
@@ -584,6 +613,7 @@ describe('Backward Compatibility', () => {
 ### 2. Integration Testing
 
 **Cross-System Integration:**
+
 ```typescript
 describe('Task Management Integration', () => {
   it('should integrate with existing monitoring system', async () => {
@@ -592,7 +622,7 @@ describe('Task Management Integration', () => {
 
     expect(monitoringSystem.getLastEvent()).toMatchObject({
       type: 'TASK_QUEUED',
-      taskId: task
+      taskId: task,
     });
   });
 
@@ -608,6 +638,7 @@ describe('Task Management Integration', () => {
 ### 3. Performance Impact Testing
 
 **Resource Usage Validation:**
+
 ```typescript
 describe('Performance Impact', () => {
   it('should not significantly impact startup time when disabled', async () => {
@@ -633,6 +664,7 @@ describe('Performance Impact', () => {
 ### 1. For End Users
 
 **Enabling Autonomous Mode:**
+
 ```bash
 # Option 1: Environment variable
 export GEMINI_AUTONOMOUS_TASKS_ENABLED=true
@@ -645,6 +677,7 @@ gemini task:setup
 ```
 
 **Basic Usage:**
+
 ```bash
 # Create a new autonomous task
 gemini task:create "Implement user authentication" "Add JWT-based authentication system"
@@ -662,6 +695,7 @@ gemini task:dashboard
 ### 2. For Developers
 
 **Code Migration:**
+
 ```typescript
 // Before: Manual task execution
 async function implementFeature() {
@@ -678,11 +712,11 @@ async function implementFeature() {
       type: TaskType.IMPLEMENTATION,
       priority: TaskPriority.HIGH,
       expectedOutputs: {
-        'implementation': 'Feature implementation',
-        'tests': 'Test suite',
-        'documentation': 'Feature documentation'
-      }
-    }
+        implementation: 'Feature implementation',
+        tests: 'Test suite',
+        documentation: 'Feature documentation',
+      },
+    },
   );
 
   // Task executes autonomously
@@ -693,6 +727,7 @@ async function implementFeature() {
 ### 3. Configuration Migration
 
 **Settings Update:**
+
 ```json
 {
   "existingSettings": "preserved",
@@ -711,12 +746,13 @@ async function implementFeature() {
 ### 1. Feature Flags
 
 **Quick Disable:**
+
 ```typescript
 // Emergency disable via feature flag
 export function emergencyDisableTaskManagement(): void {
   config.updateSettings({
     autonomousTasksEnabled: false,
-    autoStartTaskProcessing: false
+    autoStartTaskProcessing: false,
   });
 
   // Gracefully shutdown task components
@@ -729,6 +765,7 @@ export function emergencyDisableTaskManagement(): void {
 ### 2. Data Preservation
 
 **State Backup:**
+
 ```typescript
 export class TaskDataBackup {
   async createBackup(): Promise<string> {
@@ -736,7 +773,7 @@ export class TaskDataBackup {
       tasks: await taskEngine.getAllTasks(),
       queue: await taskEngine.getQueueState(),
       config: config.getAutonomousTaskSettings(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     const backupPath = path.join(config.getDataDirectory(), 'task-backup.json');

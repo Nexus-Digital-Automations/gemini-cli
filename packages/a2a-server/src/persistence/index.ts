@@ -42,7 +42,7 @@ export { PersistenceStorageAPI } from './PersistenceStorageAPI.js';
 export type {
   PersistenceConfig,
   StorageStatistics,
-  StorageOperationResult
+  StorageOperationResult,
 } from './PersistenceStorageAPI.js';
 
 // Core Storage Engine
@@ -50,7 +50,7 @@ export { FileBasedTaskStore } from './FileBasedTaskStore.js';
 export type {
   FileBasedStorageConfig,
   TaskSessionMetadata,
-  StorageMetrics
+  StorageMetrics,
 } from './FileBasedTaskStore.js';
 
 // Session Management
@@ -58,7 +58,7 @@ export { SessionManager } from './SessionManager.js';
 export type {
   SessionOwnership,
   TaskCorrelation,
-  SessionHandoff
+  SessionHandoff,
 } from './SessionManager.js';
 
 // Conflict Resolution
@@ -68,7 +68,7 @@ export type {
   ResolutionStrategy,
   ConflictAnalysis,
   ConflictResolution,
-  ResourceLock
+  ResourceLock,
 } from './ConflictResolver.js';
 
 // Data Integrity Management
@@ -77,7 +77,7 @@ export type {
   IntegrityCheckResult,
   BackupMetadata,
   RecoveryOperation,
-  IntegrityConfig
+  IntegrityConfig,
 } from './DataIntegrityManager.js';
 
 // Performance Optimization
@@ -86,7 +86,7 @@ export type {
   PerformanceMetrics,
   PerformanceAnalysis,
   OptimizationRecommendation,
-  CacheStatistics
+  CacheStatistics,
 } from './PerformanceOptimizer.js';
 
 // Utilities and Helpers

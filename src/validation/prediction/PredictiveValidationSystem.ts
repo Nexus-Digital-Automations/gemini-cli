@@ -14,7 +14,10 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
-import type { ValidationReport, ValidationResult } from '../core/ValidationEngine.js';
+import type {
+  ValidationReport,
+  ValidationResult,
+} from '../core/ValidationEngine.js';
 
 /**
  * Predictive alert definition
@@ -28,7 +31,11 @@ export interface PredictiveAlert {
   confidence: number; // 0-100
   predictedAt: Date;
   timestamp: Date;
-  type: 'failure_risk' | 'performance_degradation' | 'resource_exhaustion' | 'quality_decline';
+  type:
+    | 'failure_risk'
+    | 'performance_degradation'
+    | 'resource_exhaustion'
+    | 'quality_decline';
   affectedSystems: string[];
   recommendedActions: string[];
   metadata: Record<string, any>;
@@ -81,11 +88,14 @@ interface PredictionStats {
   falsePositiveRate: number;
   falseNegativeRate: number;
   averageConfidence: number;
-  modelPerformance: Record<string, {
-    predictions: number;
-    accuracy: number;
-    avgConfidence: number;
-  }>;
+  modelPerformance: Record<
+    string,
+    {
+      predictions: number;
+      accuracy: number;
+      avgConfidence: number;
+    }
+  >;
   recentTrends: {
     failureRate: number;
     performanceTrend: 'improving' | 'stable' | 'declining';
@@ -165,11 +175,14 @@ export class PredictiveValidationSystem extends EventEmitter {
   private analysisInterval: NodeJS.Timeout | null = null;
 
   // Performance tracking
-  private readonly modelPerformance = new Map<string, {
-    predictions: number;
-    correctPredictions: number;
-    totalConfidence: number;
-  }>();
+  private readonly modelPerformance = new Map<
+    string,
+    {
+      predictions: number;
+      correctPredictions: number;
+      totalConfidence: number;
+    }
+  >();
 
   // Alert management
   private alertIdCounter = 0;
@@ -186,50 +199,50 @@ export class PredictiveValidationSystem extends EventEmitter {
           enabled: true,
           weight: 1.0,
           parameters: { windowSize: 20, threshold: 0.7 },
-          thresholds: { warning: 60, alert: 75, critical: 90 }
+          thresholds: { warning: 60, alert: 75, critical: 90 },
         },
         patternMatching: {
           enabled: true,
           weight: 1.2,
           parameters: { patternLength: 10, similarityThreshold: 0.8 },
-          thresholds: { warning: 65, alert: 80, critical: 95 }
+          thresholds: { warning: 65, alert: 80, critical: 95 },
         },
         anomalyDetection: {
           enabled: true,
           weight: 1.5,
           parameters: { standardDeviations: 2.5, minSamples: 15 },
-          thresholds: { warning: 70, alert: 85, critical: 95 }
+          thresholds: { warning: 70, alert: 85, critical: 95 },
         },
         resourceTrend: {
           enabled: true,
           weight: 1.1,
           parameters: { trendWindow: 30, exhaustionThreshold: 0.9 },
-          thresholds: { warning: 75, alert: 85, critical: 95 }
+          thresholds: { warning: 75, alert: 85, critical: 95 },
         },
         qualityRegression: {
           enabled: true,
           weight: 1.3,
           parameters: { regressionWindow: 25, qualityThreshold: 70 },
-          thresholds: { warning: 60, alert: 75, critical: 90 }
-        }
+          thresholds: { warning: 60, alert: 75, critical: 90 },
+        },
       },
       alerting: {
         enabled: true,
         minimumConfidence: 70,
         cooldownPeriod: 300000, // 5 minutes
-        maxActiveAlerts: 10
+        maxActiveAlerts: 10,
       },
       dataRetention: {
         maxHistoryDays: 30,
         maxMetricPoints: 10000,
-        compressionThreshold: 5000
+        compressionThreshold: 5000,
       },
       analysis: {
         analysisInterval: 60000, // 1 minute
         predictionHorizon: 900000, // 15 minutes
-        trendAnalysisWindow: 3600000 // 1 hour
+        trendAnalysisWindow: 3600000, // 1 hour
       },
-      ...config
+      ...config,
     };
 
     this.initializeModels();
@@ -239,7 +252,7 @@ export class PredictiveValidationSystem extends EventEmitter {
       modelsEnabled: Object.entries(this.config.models)
         .filter(([, config]) => config.enabled)
         .map(([name]) => name),
-      alertingEnabled: this.config.alerting.enabled
+      alertingEnabled: this.config.alerting.enabled,
     });
   }
 
@@ -259,12 +272,12 @@ export class PredictiveValidationSystem extends EventEmitter {
       cpuUsage: this.getCurrentCpuUsage(),
       criteriaCounts: {
         total: report.results.length,
-        passed: report.results.filter(r => r.status === 'passed').length,
-        failed: report.results.filter(r => r.status === 'failed').length,
-        skipped: report.results.filter(r => r.status === 'skipped').length
+        passed: report.results.filter((r) => r.status === 'passed').length,
+        failed: report.results.filter((r) => r.status === 'failed').length,
+        skipped: report.results.filter((r) => r.status === 'skipped').length,
       },
       errorTypes: this.extractErrorTypes(report.results),
-      performanceMetrics: this.extractPerformanceMetrics(report)
+      performanceMetrics: this.extractPerformanceMetrics(report),
     };
 
     // Store historical data
@@ -277,7 +290,7 @@ export class PredictiveValidationSystem extends EventEmitter {
     this.logger.debug('Processed validation report for prediction analysis', {
       taskId: report.taskId,
       status: report.overallStatus,
-      score: report.overallScore
+      score: report.overallScore,
     });
   }
 
@@ -285,51 +298,72 @@ export class PredictiveValidationSystem extends EventEmitter {
    * Get active alerts
    */
   public getActiveAlerts(): PredictiveAlert[] {
-    return Array.from(this.activeAlerts.values())
-      .sort((a, b) => b.confidence - a.confidence);
+    return Array.from(this.activeAlerts.values()).sort(
+      (a, b) => b.confidence - a.confidence,
+    );
   }
 
   /**
    * Get prediction statistics
    */
   public getPredictionStatistics(): PredictionStats {
-    const totalPredictions = Array.from(this.modelPerformance.values())
-      .reduce((sum, perf) => sum + perf.predictions, 0);
+    const totalPredictions = Array.from(this.modelPerformance.values()).reduce(
+      (sum, perf) => sum + perf.predictions,
+      0,
+    );
 
-    const totalCorrect = Array.from(this.modelPerformance.values())
-      .reduce((sum, perf) => sum + perf.correctPredictions, 0);
+    const totalCorrect = Array.from(this.modelPerformance.values()).reduce(
+      (sum, perf) => sum + perf.correctPredictions,
+      0,
+    );
 
-    const totalConfidence = Array.from(this.modelPerformance.values())
-      .reduce((sum, perf) => sum + perf.totalConfidence, 0);
+    const totalConfidence = Array.from(this.modelPerformance.values()).reduce(
+      (sum, perf) => sum + perf.totalConfidence,
+      0,
+    );
 
-    const recentMetrics = this.validationHistory
-      .filter(m => Date.now() - m.timestamp.getTime() < this.config.analysis.trendAnalysisWindow);
+    const recentMetrics = this.validationHistory.filter(
+      (m) =>
+        Date.now() - m.timestamp.getTime() <
+        this.config.analysis.trendAnalysisWindow,
+    );
 
-    const recentFailures = recentMetrics.filter(m => m.status === 'failed').length;
-    const failureRate = recentMetrics.length > 0 ? (recentFailures / recentMetrics.length) * 100 : 0;
+    const recentFailures = recentMetrics.filter(
+      (m) => m.status === 'failed',
+    ).length;
+    const failureRate =
+      recentMetrics.length > 0
+        ? (recentFailures / recentMetrics.length) * 100
+        : 0;
 
     const modelPerformance: Record<string, any> = {};
     for (const [model, perf] of this.modelPerformance) {
       modelPerformance[model] = {
         predictions: perf.predictions,
-        accuracy: perf.predictions > 0 ? (perf.correctPredictions / perf.predictions) * 100 : 0,
-        avgConfidence: perf.predictions > 0 ? perf.totalConfidence / perf.predictions : 0
+        accuracy:
+          perf.predictions > 0
+            ? (perf.correctPredictions / perf.predictions) * 100
+            : 0,
+        avgConfidence:
+          perf.predictions > 0 ? perf.totalConfidence / perf.predictions : 0,
       };
     }
 
     return {
       totalPredictions,
       alertsGenerated: this.alertHistory.length,
-      accuracyRate: totalPredictions > 0 ? (totalCorrect / totalPredictions) * 100 : 0,
+      accuracyRate:
+        totalPredictions > 0 ? (totalCorrect / totalPredictions) * 100 : 0,
       falsePositiveRate: this.calculateFalsePositiveRate(),
       falseNegativeRate: this.calculateFalseNegativeRate(),
-      averageConfidence: totalPredictions > 0 ? totalConfidence / totalPredictions : 0,
+      averageConfidence:
+        totalPredictions > 0 ? totalConfidence / totalPredictions : 0,
       modelPerformance,
       recentTrends: {
         failureRate,
         performanceTrend: this.calculatePerformanceTrend(),
-        qualityTrend: this.calculateQualityTrend()
-      }
+        qualityTrend: this.calculateQualityTrend(),
+      },
     };
   }
 
@@ -365,10 +399,13 @@ export class PredictiveValidationSystem extends EventEmitter {
 
     this.lastAnalysis = new Date();
 
-    this.logger.info(`Prediction analysis completed in ${Date.now() - startTime}ms`, {
-      modelsRun: predictions.length,
-      alertsGenerated: alerts.length
-    });
+    this.logger.info(
+      `Prediction analysis completed in ${Date.now() - startTime}ms`,
+      {
+        modelsRun: predictions.length,
+        alertsGenerated: alerts.length,
+      },
+    );
 
     // Emit results
     this.emit('predictionsGenerated', predictions);
@@ -387,14 +424,17 @@ export class PredictiveValidationSystem extends EventEmitter {
       this.modelStates.set(modelName, {
         initialized: false,
         lastUpdate: new Date(0),
-        parameters: { ...this.config.models[modelName as keyof typeof this.config.models].parameters },
-        state: {}
+        parameters: {
+          ...this.config.models[modelName as keyof typeof this.config.models]
+            .parameters,
+        },
+        state: {},
       });
 
       this.modelPerformance.set(modelName, {
         predictions: 0,
         correctPredictions: 0,
-        totalConfidence: 0
+        totalConfidence: 0,
       });
     }
   }
@@ -406,7 +446,7 @@ export class PredictiveValidationSystem extends EventEmitter {
     if (!this.config.enabled) return;
 
     this.analysisInterval = setInterval(() => {
-      this.runPredictionAnalysis().catch(error => {
+      this.runPredictionAnalysis().catch((error) => {
         this.logger.error('Prediction analysis failed', { error });
       });
     }, this.config.analysis.analysisInterval);
@@ -415,7 +455,10 @@ export class PredictiveValidationSystem extends EventEmitter {
   /**
    * Run specific prediction model
    */
-  private async runPredictionModel(modelName: string, config: ModelConfig): Promise<PredictionResult | null> {
+  private async runPredictionModel(
+    modelName: string,
+    config: ModelConfig,
+  ): Promise<PredictionResult | null> {
     switch (modelName) {
       case 'movingAverage':
         return this.runMovingAverageModel(config);
@@ -446,36 +489,62 @@ export class PredictiveValidationSystem extends EventEmitter {
         score: 0,
         confidence: 30,
         factors: [],
-        trend: 'stable'
+        trend: 'stable',
       };
     }
 
-    const failureRate = recent.filter(m => m.status === 'failed').length / recent.length;
-    const avgScore = recent.reduce((sum, m) => sum + m.score, 0) / recent.length;
-    const avgDuration = recent.reduce((sum, m) => sum + m.duration, 0) / recent.length;
+    const failureRate =
+      recent.filter((m) => m.status === 'failed').length / recent.length;
+    const avgScore =
+      recent.reduce((sum, m) => sum + m.score, 0) / recent.length;
+    const avgDuration =
+      recent.reduce((sum, m) => sum + m.duration, 0) / recent.length;
 
     const currentWindow = recent.slice(-5);
     const previousWindow = recent.slice(-10, -5);
 
-    const currentFailureRate = currentWindow.filter(m => m.status === 'failed').length / currentWindow.length;
-    const previousFailureRate = previousWindow.filter(m => m.status === 'failed').length / previousWindow.length;
+    const currentFailureRate =
+      currentWindow.filter((m) => m.status === 'failed').length /
+      currentWindow.length;
+    const previousFailureRate =
+      previousWindow.filter((m) => m.status === 'failed').length /
+      previousWindow.length;
 
-    const trend = currentFailureRate > previousFailureRate ? 'declining' :
-                  currentFailureRate < previousFailureRate ? 'improving' : 'stable';
+    const trend =
+      currentFailureRate > previousFailureRate
+        ? 'declining'
+        : currentFailureRate < previousFailureRate
+          ? 'improving'
+          : 'stable';
 
-    const riskScore = Math.min(100, (failureRate * 100) + ((100 - avgScore) * 0.5));
-    const confidence = Math.min(95, 50 + (recent.length * 2));
+    const riskScore = Math.min(100, failureRate * 100 + (100 - avgScore) * 0.5);
+    const confidence = Math.min(95, 50 + recent.length * 2);
 
     return {
       model: 'movingAverage',
       score: riskScore,
       confidence,
       factors: [
-        { name: 'failure_rate', value: failureRate, weight: 0.6, impact: failureRate * 60 },
-        { name: 'avg_score', value: avgScore, weight: 0.3, impact: (100 - avgScore) * 0.3 },
-        { name: 'avg_duration', value: avgDuration, weight: 0.1, impact: Math.min(10, avgDuration / 1000) }
+        {
+          name: 'failure_rate',
+          value: failureRate,
+          weight: 0.6,
+          impact: failureRate * 60,
+        },
+        {
+          name: 'avg_score',
+          value: avgScore,
+          weight: 0.3,
+          impact: (100 - avgScore) * 0.3,
+        },
+        {
+          name: 'avg_duration',
+          value: avgDuration,
+          weight: 0.1,
+          impact: Math.min(10, avgDuration / 1000),
+        },
       ],
-      trend
+      trend,
     };
   }
 
@@ -492,7 +561,7 @@ export class PredictiveValidationSystem extends EventEmitter {
         score: 0,
         confidence: 25,
         factors: [],
-        trend: 'stable'
+        trend: 'stable',
       };
     }
 
@@ -500,11 +569,18 @@ export class PredictiveValidationSystem extends EventEmitter {
     const historicalPatterns = [];
 
     // Extract historical patterns
-    for (let i = patternLength; i <= this.validationHistory.length - patternLength; i++) {
+    for (
+      let i = patternLength;
+      i <= this.validationHistory.length - patternLength;
+      i++
+    ) {
       const pattern = this.validationHistory.slice(i - patternLength, i);
       const nextResult = this.validationHistory[i];
 
-      if (this.calculatePatternSimilarity(currentPattern, pattern) >= similarityThreshold) {
+      if (
+        this.calculatePatternSimilarity(currentPattern, pattern) >=
+        similarityThreshold
+      ) {
         historicalPatterns.push({ pattern, nextResult });
       }
     }
@@ -514,30 +590,57 @@ export class PredictiveValidationSystem extends EventEmitter {
         model: 'patternMatching',
         score: 30,
         confidence: 40,
-        factors: [{ name: 'no_similar_patterns', value: 1, weight: 1, impact: 30 }],
-        trend: 'stable'
+        factors: [
+          { name: 'no_similar_patterns', value: 1, weight: 1, impact: 30 },
+        ],
+        trend: 'stable',
       };
     }
 
-    const failureProbability = historicalPatterns
-      .filter(p => p.nextResult.status === 'failed').length / historicalPatterns.length;
+    const failureProbability =
+      historicalPatterns.filter((p) => p.nextResult.status === 'failed')
+        .length / historicalPatterns.length;
 
-    const avgNextScore = historicalPatterns
-      .reduce((sum, p) => sum + p.nextResult.score, 0) / historicalPatterns.length;
+    const avgNextScore =
+      historicalPatterns.reduce((sum, p) => sum + p.nextResult.score, 0) /
+      historicalPatterns.length;
 
-    const riskScore = Math.min(100, (failureProbability * 100) + ((100 - avgNextScore) * 0.3));
-    const confidence = Math.min(90, 40 + (historicalPatterns.length * 5));
+    const riskScore = Math.min(
+      100,
+      failureProbability * 100 + (100 - avgNextScore) * 0.3,
+    );
+    const confidence = Math.min(90, 40 + historicalPatterns.length * 5);
 
     return {
       model: 'patternMatching',
       score: riskScore,
       confidence,
       factors: [
-        { name: 'failure_probability', value: failureProbability, weight: 0.7, impact: failureProbability * 70 },
-        { name: 'predicted_score', value: avgNextScore, weight: 0.3, impact: (100 - avgNextScore) * 0.3 },
-        { name: 'pattern_matches', value: historicalPatterns.length, weight: 0.1, impact: Math.min(10, historicalPatterns.length) }
+        {
+          name: 'failure_probability',
+          value: failureProbability,
+          weight: 0.7,
+          impact: failureProbability * 70,
+        },
+        {
+          name: 'predicted_score',
+          value: avgNextScore,
+          weight: 0.3,
+          impact: (100 - avgNextScore) * 0.3,
+        },
+        {
+          name: 'pattern_matches',
+          value: historicalPatterns.length,
+          weight: 0.1,
+          impact: Math.min(10, historicalPatterns.length),
+        },
       ],
-      trend: failureProbability > 0.5 ? 'declining' : failureProbability < 0.2 ? 'improving' : 'stable'
+      trend:
+        failureProbability > 0.5
+          ? 'declining'
+          : failureProbability < 0.2
+            ? 'improving'
+            : 'stable',
     };
   }
 
@@ -554,14 +657,14 @@ export class PredictiveValidationSystem extends EventEmitter {
         score: 0,
         confidence: 20,
         factors: [],
-        trend: 'stable'
+        trend: 'stable',
       };
     }
 
     const recent = this.validationHistory.slice(-minSamples);
-    const scores = recent.map(m => m.score);
-    const durations = recent.map(m => m.duration);
-    const memoryUsages = recent.map(m => m.memoryUsage);
+    const scores = recent.map((m) => m.score);
+    const durations = recent.map((m) => m.duration);
+    const memoryUsages = recent.map((m) => m.memoryUsage);
 
     const scoreStats = this.calculateStats(scores);
     const durationStats = this.calculateStats(durations);
@@ -571,27 +674,40 @@ export class PredictiveValidationSystem extends EventEmitter {
     const anomalies = [];
 
     // Detect anomalies
-    if (Math.abs(latest.score - scoreStats.mean) > stdDevs * scoreStats.stdDev) {
+    if (
+      Math.abs(latest.score - scoreStats.mean) >
+      stdDevs * scoreStats.stdDev
+    ) {
       anomalies.push({
         type: 'score',
         severity: Math.abs(latest.score - scoreStats.mean) / scoreStats.stdDev,
-        direction: latest.score < scoreStats.mean ? 'declining' : 'improving'
+        direction: latest.score < scoreStats.mean ? 'declining' : 'improving',
       });
     }
 
-    if (Math.abs(latest.duration - durationStats.mean) > stdDevs * durationStats.stdDev) {
+    if (
+      Math.abs(latest.duration - durationStats.mean) >
+      stdDevs * durationStats.stdDev
+    ) {
       anomalies.push({
         type: 'duration',
-        severity: Math.abs(latest.duration - durationStats.mean) / durationStats.stdDev,
-        direction: latest.duration > durationStats.mean ? 'increasing' : 'decreasing'
+        severity:
+          Math.abs(latest.duration - durationStats.mean) / durationStats.stdDev,
+        direction:
+          latest.duration > durationStats.mean ? 'increasing' : 'decreasing',
       });
     }
 
-    if (Math.abs(latest.memoryUsage - memoryStats.mean) > stdDevs * memoryStats.stdDev) {
+    if (
+      Math.abs(latest.memoryUsage - memoryStats.mean) >
+      stdDevs * memoryStats.stdDev
+    ) {
       anomalies.push({
         type: 'memory',
-        severity: Math.abs(latest.memoryUsage - memoryStats.mean) / memoryStats.stdDev,
-        direction: latest.memoryUsage > memoryStats.mean ? 'increasing' : 'decreasing'
+        severity:
+          Math.abs(latest.memoryUsage - memoryStats.mean) / memoryStats.stdDev,
+        direction:
+          latest.memoryUsage > memoryStats.mean ? 'increasing' : 'decreasing',
       });
     }
 
@@ -599,22 +715,30 @@ export class PredictiveValidationSystem extends EventEmitter {
       return sum + Math.min(50, anomaly.severity * 20);
     }, 0);
 
-    const confidence = Math.min(85, 30 + (recent.length * 3) + (anomalies.length * 10));
+    const confidence = Math.min(
+      85,
+      30 + recent.length * 3 + anomalies.length * 10,
+    );
 
-    const trend = anomalies.some(a => a.direction === 'declining' || a.direction === 'increasing') ? 'declining' :
-                  anomalies.length === 0 ? 'stable' : 'improving';
+    const trend = anomalies.some(
+      (a) => a.direction === 'declining' || a.direction === 'increasing',
+    )
+      ? 'declining'
+      : anomalies.length === 0
+        ? 'stable'
+        : 'improving';
 
     return {
       model: 'anomalyDetection',
       score: Math.min(100, riskScore),
       confidence,
-      factors: anomalies.map(a => ({
+      factors: anomalies.map((a) => ({
         name: `${a.type}_anomaly`,
         value: a.severity,
         weight: 0.33,
-        impact: Math.min(33, a.severity * 10)
+        impact: Math.min(33, a.severity * 10),
       })),
-      trend
+      trend,
     };
   }
 
@@ -631,39 +755,81 @@ export class PredictiveValidationSystem extends EventEmitter {
         score: 0,
         confidence: 25,
         factors: [],
-        trend: 'stable'
+        trend: 'stable',
       };
     }
 
     const recent = this.validationHistory.slice(-trendWindow);
-    const memoryTrend = this.calculateLinearTrend(recent.map(m => m.memoryUsage));
-    const cpuTrend = this.calculateLinearTrend(recent.map(m => m.cpuUsage));
-    const durationTrend = this.calculateLinearTrend(recent.map(m => m.duration));
+    const memoryTrend = this.calculateLinearTrend(
+      recent.map((m) => m.memoryUsage),
+    );
+    const cpuTrend = this.calculateLinearTrend(recent.map((m) => m.cpuUsage));
+    const durationTrend = this.calculateLinearTrend(
+      recent.map((m) => m.duration),
+    );
 
     // Predict resource usage in next hour
-    const hoursAhead = this.config.analysis.predictionHorizon / (60 * 60 * 1000);
-    const predictedMemory = recent[recent.length - 1].memoryUsage + (memoryTrend.slope * hoursAhead);
-    const predictedCpu = recent[recent.length - 1].cpuUsage + (cpuTrend.slope * hoursAhead);
+    const hoursAhead =
+      this.config.analysis.predictionHorizon / (60 * 60 * 1000);
+    const predictedMemory =
+      recent[recent.length - 1].memoryUsage + memoryTrend.slope * hoursAhead;
+    const predictedCpu =
+      recent[recent.length - 1].cpuUsage + cpuTrend.slope * hoursAhead;
 
-    const memoryRisk = Math.max(0, Math.min(100, (predictedMemory - exhaustionThreshold * 100) * 5));
-    const cpuRisk = Math.max(0, Math.min(100, (predictedCpu - exhaustionThreshold * 100) * 5));
-    const durationRisk = Math.max(0, Math.min(50, durationTrend.slope > 0 ? durationTrend.slope / 100 : 0));
+    const memoryRisk = Math.max(
+      0,
+      Math.min(100, (predictedMemory - exhaustionThreshold * 100) * 5),
+    );
+    const cpuRisk = Math.max(
+      0,
+      Math.min(100, (predictedCpu - exhaustionThreshold * 100) * 5),
+    );
+    const durationRisk = Math.max(
+      0,
+      Math.min(50, durationTrend.slope > 0 ? durationTrend.slope / 100 : 0),
+    );
 
     const overallRisk = Math.max(memoryRisk, cpuRisk, durationRisk);
-    const confidence = Math.min(80, 40 + (recent.length) + (Math.abs(memoryTrend.correlation) + Math.abs(cpuTrend.correlation)) * 20);
+    const confidence = Math.min(
+      80,
+      40 +
+        recent.length +
+        (Math.abs(memoryTrend.correlation) + Math.abs(cpuTrend.correlation)) *
+          20,
+    );
 
-    const trend = overallRisk > 50 ? 'declining' : overallRisk < 10 ? 'improving' : 'stable';
+    const trend =
+      overallRisk > 50
+        ? 'declining'
+        : overallRisk < 10
+          ? 'improving'
+          : 'stable';
 
     return {
       model: 'resourceTrend',
       score: overallRisk,
       confidence,
       factors: [
-        { name: 'memory_trend', value: memoryTrend.slope, weight: 0.4, impact: memoryRisk },
-        { name: 'cpu_trend', value: cpuTrend.slope, weight: 0.4, impact: cpuRisk },
-        { name: 'duration_trend', value: durationTrend.slope, weight: 0.2, impact: durationRisk }
+        {
+          name: 'memory_trend',
+          value: memoryTrend.slope,
+          weight: 0.4,
+          impact: memoryRisk,
+        },
+        {
+          name: 'cpu_trend',
+          value: cpuTrend.slope,
+          weight: 0.4,
+          impact: cpuRisk,
+        },
+        {
+          name: 'duration_trend',
+          value: durationTrend.slope,
+          weight: 0.2,
+          impact: durationRisk,
+        },
       ],
-      trend
+      trend,
     };
   }
 
@@ -680,49 +846,79 @@ export class PredictiveValidationSystem extends EventEmitter {
         score: 0,
         confidence: 30,
         factors: [],
-        trend: 'stable'
+        trend: 'stable',
       };
     }
 
     const recent = this.validationHistory.slice(-regressionWindow);
-    const scores = recent.map(m => m.score);
+    const scores = recent.map((m) => m.score);
     const scoreTrend = this.calculateLinearTrend(scores);
 
     const currentAvg = scores.slice(-5).reduce((sum, s) => sum + s, 0) / 5;
-    const previousAvg = scores.slice(-10, -5).reduce((sum, s) => sum + s, 0) / 5;
+    const previousAvg =
+      scores.slice(-10, -5).reduce((sum, s) => sum + s, 0) / 5;
 
     const qualityChange = currentAvg - previousAvg;
     const isRegressing = scoreTrend.slope < 0 && currentAvg < qualityThreshold;
 
-    const regressionRisk = isRegressing ? Math.min(100, (qualityThreshold - currentAvg) * 2) : 0;
-    const trendRisk = scoreTrend.slope < 0 ? Math.min(50, Math.abs(scoreTrend.slope)) : 0;
+    const regressionRisk = isRegressing
+      ? Math.min(100, (qualityThreshold - currentAvg) * 2)
+      : 0;
+    const trendRisk =
+      scoreTrend.slope < 0 ? Math.min(50, Math.abs(scoreTrend.slope)) : 0;
 
     const overallRisk = Math.max(regressionRisk, trendRisk);
-    const confidence = Math.min(85, 35 + (recent.length) + (Math.abs(scoreTrend.correlation) * 30));
+    const confidence = Math.min(
+      85,
+      35 + recent.length + Math.abs(scoreTrend.correlation) * 30,
+    );
 
-    const trend = qualityChange < -5 ? 'declining' : qualityChange > 5 ? 'improving' : 'stable';
+    const trend =
+      qualityChange < -5
+        ? 'declining'
+        : qualityChange > 5
+          ? 'improving'
+          : 'stable';
 
     return {
       model: 'qualityRegression',
       score: overallRisk,
       confidence,
       factors: [
-        { name: 'quality_trend', value: scoreTrend.slope, weight: 0.5, impact: trendRisk },
-        { name: 'current_quality', value: currentAvg, weight: 0.3, impact: Math.max(0, qualityThreshold - currentAvg) },
-        { name: 'quality_change', value: qualityChange, weight: 0.2, impact: Math.max(0, -qualityChange) }
+        {
+          name: 'quality_trend',
+          value: scoreTrend.slope,
+          weight: 0.5,
+          impact: trendRisk,
+        },
+        {
+          name: 'current_quality',
+          value: currentAvg,
+          weight: 0.3,
+          impact: Math.max(0, qualityThreshold - currentAvg),
+        },
+        {
+          name: 'quality_change',
+          value: qualityChange,
+          weight: 0.2,
+          impact: Math.max(0, -qualityChange),
+        },
       ],
-      trend
+      trend,
     };
   }
 
   /**
    * Generate alerts from prediction results
    */
-  private async generateAlertsFromPredictions(predictions: PredictionResult[]): Promise<PredictiveAlert[]> {
+  private async generateAlertsFromPredictions(
+    predictions: PredictionResult[],
+  ): Promise<PredictiveAlert[]> {
     const alerts: PredictiveAlert[] = [];
 
     for (const prediction of predictions) {
-      const modelConfig = this.config.models[prediction.model as keyof typeof this.config.models];
+      const modelConfig =
+        this.config.models[prediction.model as keyof typeof this.config.models];
       if (!modelConfig) continue;
 
       let severity: PredictiveAlert['severity'] = 'info';
@@ -757,7 +953,10 @@ export class PredictiveValidationSystem extends EventEmitter {
       // Check cooldown
       const cooldownKey = `${prediction.model}_${alertType}`;
       const lastAlert = this.alertCooldowns.get(cooldownKey);
-      if (lastAlert && Date.now() - lastAlert.getTime() < this.config.alerting.cooldownPeriod) {
+      if (
+        lastAlert &&
+        Date.now() - lastAlert.getTime() < this.config.alerting.cooldownPeriod
+      ) {
         continue;
       }
 
@@ -774,7 +973,9 @@ export class PredictiveValidationSystem extends EventEmitter {
         message: this.generateAlertMessage(prediction),
         details: this.generateAlertDetails(prediction),
         confidence: prediction.confidence,
-        predictedAt: new Date(Date.now() + this.config.analysis.predictionHorizon),
+        predictedAt: new Date(
+          Date.now() + this.config.analysis.predictionHorizon,
+        ),
         timestamp: new Date(),
         type: alertType,
         affectedSystems: this.determineAffectedSystems(prediction),
@@ -783,8 +984,8 @@ export class PredictiveValidationSystem extends EventEmitter {
           model: prediction.model,
           score: prediction.score,
           factors: prediction.factors,
-          trend: prediction.trend
-        }
+          trend: prediction.trend,
+        },
       };
 
       alerts.push(alert);
@@ -805,22 +1006,32 @@ export class PredictiveValidationSystem extends EventEmitter {
   /**
    * Helper methods for calculations
    */
-  private calculateStats(values: number[]): { mean: number; stdDev: number; min: number; max: number } {
+  private calculateStats(values: number[]): {
+    mean: number;
+    stdDev: number;
+    min: number;
+    max: number;
+  } {
     if (values.length === 0) return { mean: 0, stdDev: 0, min: 0, max: 0 };
 
     const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+    const variance =
+      values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
     const stdDev = Math.sqrt(variance);
 
     return {
       mean,
       stdDev,
       min: Math.min(...values),
-      max: Math.max(...values)
+      max: Math.max(...values),
     };
   }
 
-  private calculateLinearTrend(values: number[]): { slope: number; intercept: number; correlation: number } {
+  private calculateLinearTrend(values: number[]): {
+    slope: number;
+    intercept: number;
+    correlation: number;
+  } {
     if (values.length < 2) return { slope: 0, intercept: 0, correlation: 0 };
 
     const n = values.length;
@@ -835,13 +1046,21 @@ export class PredictiveValidationSystem extends EventEmitter {
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
 
-    const correlation = (n * sumXY - sumX * sumY) /
-                       Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
+    const correlation =
+      (n * sumXY - sumX * sumY) /
+      Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
 
-    return { slope, intercept, correlation: isNaN(correlation) ? 0 : correlation };
+    return {
+      slope,
+      intercept,
+      correlation: isNaN(correlation) ? 0 : correlation,
+    };
   }
 
-  private calculatePatternSimilarity(pattern1: ValidationMetrics[], pattern2: ValidationMetrics[]): number {
+  private calculatePatternSimilarity(
+    pattern1: ValidationMetrics[],
+    pattern2: ValidationMetrics[],
+  ): number {
     if (pattern1.length !== pattern2.length) return 0;
 
     let similarity = 0;
@@ -857,7 +1076,8 @@ export class PredictiveValidationSystem extends EventEmitter {
           const val1 = pattern1[i][factor as keyof ValidationMetrics] as number;
           const val2 = pattern2[i][factor as keyof ValidationMetrics] as number;
           const maxVal = Math.max(val1, val2);
-          factorSimilarity = maxVal > 0 ? 1 - Math.abs(val1 - val2) / maxVal : 1;
+          factorSimilarity =
+            maxVal > 0 ? 1 - Math.abs(val1 - val2) / maxVal : 1;
         }
 
         similarity += factorSimilarity;
@@ -867,26 +1087,40 @@ export class PredictiveValidationSystem extends EventEmitter {
     return similarity / (pattern1.length * factors.length);
   }
 
-  private generateAlertTitle(prediction: PredictionResult, severity: string): string {
+  private generateAlertTitle(
+    prediction: PredictionResult,
+    severity: string,
+  ): string {
     const modelNames = {
       movingAverage: 'Moving Average Analysis',
       patternMatching: 'Pattern Analysis',
       anomalyDetection: 'Anomaly Detection',
       resourceTrend: 'Resource Trend Analysis',
-      qualityRegression: 'Quality Analysis'
+      qualityRegression: 'Quality Analysis',
     };
 
-    const modelName = modelNames[prediction.model as keyof typeof modelNames] || prediction.model;
+    const modelName =
+      modelNames[prediction.model as keyof typeof modelNames] ||
+      prediction.model;
     return `${severity.toUpperCase()}: ${modelName} detected high risk (${Math.round(prediction.score)}% risk)`;
   }
 
   private generateAlertMessage(prediction: PredictionResult): string {
-    const trend = prediction.trend === 'declining' ? 'declining trend' :
-                  prediction.trend === 'improving' ? 'improving trend' : 'stable trend';
+    const trend =
+      prediction.trend === 'declining'
+        ? 'declining trend'
+        : prediction.trend === 'improving'
+          ? 'improving trend'
+          : 'stable trend';
 
-    return `Validation system shows ${Math.round(prediction.score)}% risk of failure with ${trend}. ` +
-           `Confidence: ${Math.round(prediction.confidence)}%. ` +
-           `Top factors: ${prediction.factors.slice(0, 2).map(f => f.name).join(', ')}.`;
+    return (
+      `Validation system shows ${Math.round(prediction.score)}% risk of failure with ${trend}. ` +
+      `Confidence: ${Math.round(prediction.confidence)}%. ` +
+      `Top factors: ${prediction.factors
+        .slice(0, 2)
+        .map((f) => f.name)
+        .join(', ')}.`
+    );
   }
 
   private generateAlertDetails(prediction: PredictionResult): string {
@@ -949,10 +1183,12 @@ export class PredictiveValidationSystem extends EventEmitter {
     const recent = this.validationHistory.slice(-20);
     if (recent.length < 10) return 'stable';
 
-    const recentAvg = recent.slice(-5).reduce((sum, m) => sum + m.duration, 0) / 5;
-    const previousAvg = recent.slice(-10, -5).reduce((sum, m) => sum + m.duration, 0) / 5;
+    const recentAvg =
+      recent.slice(-5).reduce((sum, m) => sum + m.duration, 0) / 5;
+    const previousAvg =
+      recent.slice(-10, -5).reduce((sum, m) => sum + m.duration, 0) / 5;
 
-    const change = (recentAvg - previousAvg) / previousAvg * 100;
+    const change = ((recentAvg - previousAvg) / previousAvg) * 100;
 
     return change > 10 ? 'declining' : change < -10 ? 'improving' : 'stable';
   }
@@ -962,7 +1198,8 @@ export class PredictiveValidationSystem extends EventEmitter {
     if (recent.length < 10) return 'stable';
 
     const recentAvg = recent.slice(-5).reduce((sum, m) => sum + m.score, 0) / 5;
-    const previousAvg = recent.slice(-10, -5).reduce((sum, m) => sum + m.score, 0) / 5;
+    const previousAvg =
+      recent.slice(-10, -5).reduce((sum, m) => sum + m.score, 0) / 5;
 
     const change = recentAvg - previousAvg;
 
@@ -979,7 +1216,9 @@ export class PredictiveValidationSystem extends EventEmitter {
     return 3; // Placeholder
   }
 
-  private extractErrorTypes(results: ValidationResult[]): Record<string, number> {
+  private extractErrorTypes(
+    results: ValidationResult[],
+  ): Record<string, number> {
     const errorTypes: Record<string, number> = {};
 
     for (const result of results) {
@@ -992,13 +1231,20 @@ export class PredictiveValidationSystem extends EventEmitter {
     return errorTypes;
   }
 
-  private extractPerformanceMetrics(report: ValidationReport): Record<string, number> {
+  private extractPerformanceMetrics(
+    report: ValidationReport,
+  ): Record<string, number> {
     return {
       totalDuration: report.duration || 0,
-      averageCriteriaTime: report.results.length > 0 ?
-        (report.duration || 0) / report.results.length : 0,
-      parallelizationRatio: report.results.length > 0 ?
-        (report.duration || 0) / Math.max(...report.results.map(r => r.duration || 0)) : 1
+      averageCriteriaTime:
+        report.results.length > 0
+          ? (report.duration || 0) / report.results.length
+          : 0,
+      parallelizationRatio:
+        report.results.length > 0
+          ? (report.duration || 0) /
+            Math.max(...report.results.map((r) => r.duration || 0))
+          : 1,
     };
   }
 
@@ -1006,18 +1252,23 @@ export class PredictiveValidationSystem extends EventEmitter {
     const lowerMessage = message.toLowerCase();
 
     if (lowerMessage.includes('timeout')) return 'timeout';
-    if (lowerMessage.includes('memory') || lowerMessage.includes('oom')) return 'memory';
-    if (lowerMessage.includes('permission') || lowerMessage.includes('access')) return 'permission';
-    if (lowerMessage.includes('network') || lowerMessage.includes('connection')) return 'network';
-    if (lowerMessage.includes('syntax') || lowerMessage.includes('parse')) return 'syntax';
-    if (lowerMessage.includes('type') || lowerMessage.includes('undefined')) return 'type';
+    if (lowerMessage.includes('memory') || lowerMessage.includes('oom'))
+      return 'memory';
+    if (lowerMessage.includes('permission') || lowerMessage.includes('access'))
+      return 'permission';
+    if (lowerMessage.includes('network') || lowerMessage.includes('connection'))
+      return 'network';
+    if (lowerMessage.includes('syntax') || lowerMessage.includes('parse'))
+      return 'syntax';
+    if (lowerMessage.includes('type') || lowerMessage.includes('undefined'))
+      return 'type';
 
     return 'general';
   }
 
   private getCurrentMemoryUsage(): number {
     const used = process.memoryUsage();
-    return (used.heapUsed / 1024 / 1024); // MB
+    return used.heapUsed / 1024 / 1024; // MB
   }
 
   private getCurrentCpuUsage(): number {
@@ -1043,23 +1294,34 @@ export class PredictiveValidationSystem extends EventEmitter {
   }
 
   private cleanupHistoricalData(): void {
-    const maxAge = Date.now() - (this.config.dataRetention.maxHistoryDays * 24 * 60 * 60 * 1000);
+    const maxAge =
+      Date.now() -
+      this.config.dataRetention.maxHistoryDays * 24 * 60 * 60 * 1000;
 
     // Remove old data
     const beforeLength = this.validationHistory.length;
-    while (this.validationHistory.length > 0 &&
-           this.validationHistory[0].timestamp.getTime() < maxAge) {
+    while (
+      this.validationHistory.length > 0 &&
+      this.validationHistory[0].timestamp.getTime() < maxAge
+    ) {
       this.validationHistory.shift();
     }
 
     // Compress data if needed
-    if (this.validationHistory.length > this.config.dataRetention.compressionThreshold) {
+    if (
+      this.validationHistory.length >
+      this.config.dataRetention.compressionThreshold
+    ) {
       // Keep recent data, compress older data
-      const keepRecent = Math.floor(this.config.dataRetention.compressionThreshold * 0.7);
+      const keepRecent = Math.floor(
+        this.config.dataRetention.compressionThreshold * 0.7,
+      );
       const toCompress = this.validationHistory.length - keepRecent;
 
       // Simple compression: keep every nth item
-      const compressionRatio = Math.ceil(toCompress / (this.config.dataRetention.compressionThreshold * 0.3));
+      const compressionRatio = Math.ceil(
+        toCompress / (this.config.dataRetention.compressionThreshold * 0.3),
+      );
 
       const compressed = [];
       for (let i = 0; i < toCompress; i += compressionRatio) {
@@ -1070,12 +1332,14 @@ export class PredictiveValidationSystem extends EventEmitter {
     }
 
     if (beforeLength !== this.validationHistory.length) {
-      this.logger.debug(`Cleaned up historical data: ${beforeLength} -> ${this.validationHistory.length} records`);
+      this.logger.debug(
+        `Cleaned up historical data: ${beforeLength} -> ${this.validationHistory.length} records`,
+      );
     }
   }
 
   private cleanupAlerts(): void {
-    const maxAge = Date.now() - (24 * 60 * 60 * 1000); // 24 hours
+    const maxAge = Date.now() - 24 * 60 * 60 * 1000; // 24 hours
 
     // Remove old active alerts
     for (const [id, alert] of this.activeAlerts) {
@@ -1086,8 +1350,9 @@ export class PredictiveValidationSystem extends EventEmitter {
 
     // Limit active alerts
     if (this.activeAlerts.size > this.config.alerting.maxActiveAlerts) {
-      const sorted = Array.from(this.activeAlerts.entries())
-        .sort(([, a], [, b]) => b.timestamp.getTime() - a.timestamp.getTime());
+      const sorted = Array.from(this.activeAlerts.entries()).sort(
+        ([, a], [, b]) => b.timestamp.getTime() - a.timestamp.getTime(),
+      );
 
       // Keep only the most recent alerts
       this.activeAlerts.clear();

@@ -16,7 +16,11 @@ import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { Logger } from '../../utils/logger.js';
-import type { ValidationContext, ValidationResult, ValidationStatus } from '../core/ValidationEngine.js';
+import type {
+  ValidationContext,
+  ValidationResult,
+  ValidationStatus,
+} from '../core/ValidationEngine.js';
 
 /**
  * Build validation configuration
@@ -110,7 +114,7 @@ export class BuildValidator {
       packageManager: 'npm',
       typeCheck: true,
       skipDependencyInstall: false,
-      ...config
+      ...config,
     };
   }
 
@@ -136,10 +140,12 @@ export class BuildValidator {
           severity: 'info',
           message: 'Build validation skipped - no buildable artifacts detected',
           details: 'No package.json with build script or buildable files found',
-          suggestions: ['Add build scripts to package.json if project requires compilation'],
+          suggestions: [
+            'Add build scripts to package.json if project requires compilation',
+          ],
           evidence: [],
           timestamp: new Date(),
-          duration: Date.now() - startTime
+          duration: Date.now() - startTime,
         };
       }
 
@@ -163,7 +169,12 @@ export class BuildValidator {
         criteriaId: 'build_check',
         status,
         score,
-        severity: summary.errors > 0 ? 'critical' : summary.warnings > 0 ? 'medium' : 'info',
+        severity:
+          summary.errors > 0
+            ? 'critical'
+            : summary.warnings > 0
+              ? 'medium'
+              : 'info',
         message: this.generateBuildMessage(summary),
         details: this.generateBuildDetails(summary, buildResult),
         suggestions: this.generateBuildSuggestions(summary, buildResult),
@@ -172,17 +183,20 @@ export class BuildValidator {
             type: 'log',
             path: 'build-output.log',
             content: `STDOUT:\n${buildResult.stdout}\n\nSTDERR:\n${buildResult.stderr}`,
-            metadata: { exitCode: buildResult.exitCode, duration: buildResult.duration }
+            metadata: {
+              exitCode: buildResult.exitCode,
+              duration: buildResult.duration,
+            },
           },
           {
             type: 'report',
             path: 'build-summary.json',
             content: JSON.stringify(summary, null, 2),
-            metadata: { outputFiles: buildResult.outputFiles.length }
-          }
+            metadata: { outputFiles: buildResult.outputFiles.length },
+          },
         ],
         timestamp: new Date(),
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
 
       this.logger.info(`Build validation completed`, {
@@ -191,15 +205,19 @@ export class BuildValidator {
         score,
         errors: summary.errors,
         warnings: summary.warnings,
-        duration: result.duration
+        duration: result.duration,
       });
 
       return result;
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown build validation error';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Unknown build validation error';
 
-      this.logger.error(`Build validation failed for task: ${context.taskId}`, { error });
+      this.logger.error(`Build validation failed for task: ${context.taskId}`, {
+        error,
+      });
 
       return {
         criteriaId: 'build_check',
@@ -212,11 +230,11 @@ export class BuildValidator {
           'Check that build tools are properly installed',
           'Verify package.json build scripts are correct',
           'Ensure all dependencies are available',
-          'Check for syntax errors in source files'
+          'Check for syntax errors in source files',
         ],
         evidence: [],
         timestamp: new Date(),
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
   }
@@ -231,7 +249,7 @@ export class BuildValidator {
       'webpack.config.js',
       'vite.config.js',
       'rollup.config.js',
-      'esbuild.config.js'
+      'esbuild.config.js',
     ];
 
     const config: any = {};
@@ -244,7 +262,9 @@ export class BuildValidator {
         if (file === 'package.json') {
           const packageJson = JSON.parse(content);
           config.packageJson = packageJson;
-          config.hasTypeScript = !!packageJson.devDependencies?.typescript || !!packageJson.dependencies?.typescript;
+          config.hasTypeScript =
+            !!packageJson.devDependencies?.typescript ||
+            !!packageJson.dependencies?.typescript;
           config.buildScript = packageJson.scripts?.build;
         } else if (file === 'tsconfig.json') {
           config.tsconfig = JSON.parse(content);
@@ -265,8 +285,13 @@ export class BuildValidator {
   private async checkIfBuildRequired(artifacts: any[]): Promise<boolean> {
     // Check for package.json with build script
     try {
-      const packageJsonPath = join(this.config.workingDirectory!, 'package.json');
-      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+      const packageJsonPath = join(
+        this.config.workingDirectory!,
+        'package.json',
+      );
+      const packageJson = JSON.parse(
+        await fs.readFile(packageJsonPath, 'utf-8'),
+      );
 
       if (packageJson.scripts?.build) {
         return true;
@@ -276,8 +301,8 @@ export class BuildValidator {
     }
 
     // Check for TypeScript files
-    const hasTypeScript = artifacts.some(artifact =>
-      artifact.type === 'file' && artifact.path.endsWith('.ts')
+    const hasTypeScript = artifacts.some(
+      (artifact) => artifact.type === 'file' && artifact.path.endsWith('.ts'),
     );
 
     // Check for common build tool configs
@@ -286,19 +311,19 @@ export class BuildValidator {
       'vite.config.js',
       'rollup.config.js',
       'esbuild.config.js',
-      'tsconfig.json'
+      'tsconfig.json',
     ];
 
     const hasBuildConfig = await Promise.all(
-      buildConfigs.map(async config => {
+      buildConfigs.map(async (config) => {
         try {
           await fs.access(join(this.config.workingDirectory!, config));
           return true;
         } catch {
           return false;
         }
-      })
-    ).then(results => results.some(Boolean));
+      }),
+    ).then((results) => results.some(Boolean));
 
     return hasTypeScript || hasBuildConfig;
   }
@@ -310,12 +335,13 @@ export class BuildValidator {
     this.logger.info('Installing dependencies...');
 
     const packageManager = this.config.packageManager!;
-    const installArgs = packageManager === 'npm' ? ['ci'] : ['install', '--frozen-lockfile'];
+    const installArgs =
+      packageManager === 'npm' ? ['ci'] : ['install', '--frozen-lockfile'];
 
     try {
       await this.runCommand(packageManager, installArgs, {
         timeout: 120000, // 2 minutes for dependency installation
-        cwd: this.config.workingDirectory
+        cwd: this.config.workingDirectory,
       });
 
       this.logger.info('Dependencies installed successfully');
@@ -335,10 +361,14 @@ export class BuildValidator {
     const args = this.config.buildArgs!;
 
     try {
-      const { stdout, stderr, exitCode } = await this.runCommand(command, args, {
-        timeout: this.config.timeout,
-        cwd: this.config.workingDirectory
-      });
+      const { stdout, stderr, exitCode } = await this.runCommand(
+        command,
+        args,
+        {
+          timeout: this.config.timeout,
+          cwd: this.config.workingDirectory,
+        },
+      );
 
       const duration = Date.now() - buildStartTime;
       const success = exitCode === 0;
@@ -358,24 +388,34 @@ export class BuildValidator {
         duration,
         outputFiles,
         errors,
-        warnings
+        warnings,
       };
-
     } catch (error) {
       const duration = Date.now() - buildStartTime;
 
       return {
         success: false,
-        exitCode: error && typeof error === 'object' && 'code' in error ? (error as any).code : 1,
-        stdout: error && typeof error === 'object' && 'stdout' in error ? (error as any).stdout : '',
-        stderr: error && typeof error === 'object' && 'stderr' in error ? (error as any).stderr : String(error),
+        exitCode:
+          error && typeof error === 'object' && 'code' in error
+            ? (error as any).code
+            : 1,
+        stdout:
+          error && typeof error === 'object' && 'stdout' in error
+            ? (error as any).stdout
+            : '',
+        stderr:
+          error && typeof error === 'object' && 'stderr' in error
+            ? (error as any).stderr
+            : String(error),
         duration,
         outputFiles: [],
-        errors: [{
-          message: error instanceof Error ? error.message : String(error),
-          severity: 'fatal' as const
-        }],
-        warnings: []
+        errors: [
+          {
+            message: error instanceof Error ? error.message : String(error),
+            severity: 'fatal' as const,
+          },
+        ],
+        warnings: [],
       };
     }
   }
@@ -391,12 +431,12 @@ export class BuildValidator {
     const expectedOutputs = this.config.expectedOutputs || [];
     const actualOutputs = buildResult.outputFiles;
 
-    const expectedFound = expectedOutputs.filter(expected =>
-      actualOutputs.some(actual => actual.includes(expected))
+    const expectedFound = expectedOutputs.filter((expected) =>
+      actualOutputs.some((actual) => actual.includes(expected)),
     );
 
-    const expectedMissing = expectedOutputs.filter(expected =>
-      !actualOutputs.some(actual => actual.includes(expected))
+    const expectedMissing = expectedOutputs.filter(
+      (expected) => !actualOutputs.some((actual) => actual.includes(expected)),
     );
 
     // Common output directories to check for unexpected files
@@ -407,7 +447,7 @@ export class BuildValidator {
       try {
         const dirPath = join(this.config.workingDirectory!, dir);
         const files = await fs.readdir(dirPath, { recursive: true });
-        unexpectedFiles.push(...files.map(file => join(dir, String(file))));
+        unexpectedFiles.push(...files.map((file) => join(dir, String(file))));
       } catch {
         // Directory doesn't exist
       }
@@ -416,7 +456,7 @@ export class BuildValidator {
     return {
       expectedFound,
       expectedMissing,
-      unexpectedFiles
+      unexpectedFiles,
     };
   }
 
@@ -480,7 +520,7 @@ export class BuildValidator {
         column: parseInt(match[3]),
         code: match[4],
         message: match[5],
-        severity: 'error'
+        severity: 'error',
       });
     }
 
@@ -489,7 +529,7 @@ export class BuildValidator {
       /ERROR\s+(.+)/gi,
       /Error:\s+(.+)/gi,
       /✘\s+(.+)/gi,
-      /Failed to compile/gi
+      /Failed to compile/gi,
     ];
 
     for (const pattern of genericErrorPatterns) {
@@ -497,7 +537,7 @@ export class BuildValidator {
       while ((match = pattern.exec(output)) !== null) {
         errors.push({
           message: match[1] || match[0],
-          severity: 'error'
+          severity: 'error',
         });
       }
     }
@@ -521,7 +561,7 @@ export class BuildValidator {
         line: parseInt(match[2]),
         column: parseInt(match[3]),
         code: match[4],
-        message: match[5]
+        message: match[5],
       });
     }
 
@@ -529,14 +569,14 @@ export class BuildValidator {
     const genericWarningPatterns = [
       /WARNING\s+(.+)/gi,
       /Warning:\s+(.+)/gi,
-      /⚠\s+(.+)/gi
+      /⚠\s+(.+)/gi,
     ];
 
     for (const pattern of genericWarningPatterns) {
       pattern.lastIndex = 0; // Reset regex
       while ((match = pattern.exec(output)) !== null) {
         warnings.push({
-          message: match[1] || match[0]
+          message: match[1] || match[0],
         });
       }
     }
@@ -549,7 +589,7 @@ export class BuildValidator {
    */
   private analyzeBuildResults(
     buildResult: BuildResult,
-    outputValidation: any
+    outputValidation: any,
   ): BuildSummary {
     return {
       success: buildResult.success,
@@ -559,7 +599,7 @@ export class BuildValidator {
       warnings: buildResult.warnings.length,
       compiledFiles: this.countCompiledFiles(buildResult.stdout),
       skippedFiles: this.countSkippedFiles(buildResult.stdout),
-      bundleSize: this.extractBundleSize(buildResult.stdout)
+      bundleSize: this.extractBundleSize(buildResult.stdout),
     };
   }
 
@@ -570,7 +610,7 @@ export class BuildValidator {
     const patterns = [
       /compiled (\d+) files?/i,
       /(\d+) files? compiled/i,
-      /built (\d+) files?/i
+      /built (\d+) files?/i,
     ];
 
     for (const pattern of patterns) {
@@ -587,10 +627,7 @@ export class BuildValidator {
    * Count skipped files from build output
    */
   private countSkippedFiles(stdout: string): number {
-    const patterns = [
-      /skipped (\d+) files?/i,
-      /(\d+) files? skipped/i
-    ];
+    const patterns = [/skipped (\d+) files?/i, /(\d+) files? skipped/i];
 
     for (const pattern of patterns) {
       const match = pattern.exec(stdout);
@@ -609,7 +646,7 @@ export class BuildValidator {
     const patterns = [
       /bundle size:\s*(\d+(?:\.\d+)?)\s*(kb|mb)/i,
       /total size:\s*(\d+(?:\.\d+)?)\s*(kb|mb)/i,
-      /(\d+(?:\.\d+)?)\s*(kb|mb)\s*total/i
+      /(\d+(?:\.\d+)?)\s*(kb|mb)\s*total/i,
     ];
 
     for (const pattern of patterns) {
@@ -633,15 +670,17 @@ export class BuildValidator {
     let score = 100;
 
     // Deduct for errors (critical)
-    score -= (summary.errors * 20);
+    score -= summary.errors * 20;
 
     // Deduct for warnings (less critical)
-    score -= (summary.warnings * 5);
+    score -= summary.warnings * 5;
 
     // Performance bonus/penalty based on build time
-    if (summary.duration < 30000) { // < 30 seconds
+    if (summary.duration < 30000) {
+      // < 30 seconds
       score += 5;
-    } else if (summary.duration > 120000) { // > 2 minutes
+    } else if (summary.duration > 120000) {
+      // > 2 minutes
       score -= 10;
     }
 
@@ -684,7 +723,10 @@ export class BuildValidator {
   /**
    * Generate detailed build report
    */
-  private generateBuildDetails(summary: BuildSummary, buildResult: BuildResult): string {
+  private generateBuildDetails(
+    summary: BuildSummary,
+    buildResult: BuildResult,
+  ): string {
     let details = `## Build Validation Report\n\n`;
 
     details += `### Summary\n`;
@@ -721,7 +763,10 @@ export class BuildValidator {
   /**
    * Generate build improvement suggestions
    */
-  private generateBuildSuggestions(summary: BuildSummary, buildResult: BuildResult): string[] {
+  private generateBuildSuggestions(
+    summary: BuildSummary,
+    buildResult: BuildResult,
+  ): string[] {
     const suggestions: string[] = [];
 
     if (!summary.success) {
@@ -736,8 +781,11 @@ export class BuildValidator {
       suggestions.push('Resolve build warnings to improve code quality');
     }
 
-    if (summary.duration > 120000) { // > 2 minutes
-      suggestions.push('Consider optimizing build performance with caching or parallel builds');
+    if (summary.duration > 120000) {
+      // > 2 minutes
+      suggestions.push(
+        'Consider optimizing build performance with caching or parallel builds',
+      );
     }
 
     if (summary.outputFiles === 0 && summary.success) {
@@ -745,13 +793,15 @@ export class BuildValidator {
     }
 
     // Analyze specific error types
-    const tsErrors = buildResult.errors.filter(e => e.code?.startsWith('TS'));
+    const tsErrors = buildResult.errors.filter((e) => e.code?.startsWith('TS'));
     if (tsErrors.length > 0) {
       suggestions.push('Review TypeScript configuration and type definitions');
     }
 
     if (suggestions.length === 0) {
-      suggestions.push('Build validation passed - maintain current build configuration');
+      suggestions.push(
+        'Build validation passed - maintain current build configuration',
+      );
     }
 
     return suggestions.slice(0, 5);
@@ -763,12 +813,12 @@ export class BuildValidator {
   private runCommand(
     command: string,
     args: string[],
-    options: { timeout?: number; cwd?: string } = {}
+    options: { timeout?: number; cwd?: string } = {},
   ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
         cwd: options.cwd || process.cwd(),
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
 
       let stdout = '';
@@ -778,7 +828,11 @@ export class BuildValidator {
       if (options.timeout) {
         timeout = setTimeout(() => {
           child.kill('SIGTERM');
-          reject(new Error(`Command '${command}' timed out after ${options.timeout}ms`));
+          reject(
+            new Error(
+              `Command '${command}' timed out after ${options.timeout}ms`,
+            ),
+          );
         }, options.timeout);
       }
 
@@ -796,13 +850,15 @@ export class BuildValidator {
         resolve({
           stdout,
           stderr,
-          exitCode: code || 0
+          exitCode: code || 0,
         });
       });
 
       child.on('error', (error) => {
         if (timeout) clearTimeout(timeout);
-        reject(new Error(`Failed to start command '${command}': ${error.message}`));
+        reject(
+          new Error(`Failed to start command '${command}': ${error.message}`),
+        );
       });
     });
   }

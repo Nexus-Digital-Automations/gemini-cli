@@ -34,7 +34,7 @@ The `TaskManagementSystemIntegrator` provides a unified interface that:
 ```typescript
 import {
   createIntegratedTaskManagementSystem,
-  SystemConfigFactory
+  SystemConfigFactory,
 } from '@google/gemini-cli/task-management';
 
 // Create configuration
@@ -53,8 +53,8 @@ if (result.success) {
     {
       type: 'implementation',
       priority: 'high',
-      useAutonomousQueue: true
-    }
+      useAutonomousQueue: true,
+    },
   );
 
   // Monitor system health
@@ -73,7 +73,7 @@ if (result.success) {
 ```typescript
 import {
   TaskManagementConfigManager,
-  ConfigUtils
+  ConfigUtils,
 } from '@google/gemini-cli/task-management';
 
 // Load configuration
@@ -91,8 +91,8 @@ if (!validation.isValid) {
 await configManager.updateConfig({
   taskEngine: {
     maxConcurrentTasks: 8,
-    timeoutMs: 600000
-  }
+    timeoutMs: 600000,
+  },
 });
 
 // Export configuration
@@ -108,6 +108,7 @@ const devConfig = SystemConfigFactory.createDevelopment(coreConfig);
 ```
 
 **Features:**
+
 - Task engine with 5 concurrent tasks
 - Autonomous queue with breakdown enabled
 - Real-time monitoring with dashboard
@@ -123,6 +124,7 @@ const prodConfig = SystemConfigFactory.createProduction(coreConfig);
 ```
 
 **Features:**
+
 - Task engine with 10 concurrent tasks
 - Advanced autonomous queue with learning
 - Comprehensive monitoring with alerts
@@ -134,10 +136,12 @@ const prodConfig = SystemConfigFactory.createProduction(coreConfig);
 ### Enterprise Configuration
 
 ```typescript
-const enterpriseConfig = TaskManagementConfigManager.generateTemplate('enterprise');
+const enterpriseConfig =
+  TaskManagementConfigManager.generateTemplate('enterprise');
 ```
 
 **Features:**
+
 - High-capacity task processing (15 concurrent)
 - Predictive analytics and insights
 - Multi-format metric exports (Prometheus, Grafana)
@@ -153,6 +157,7 @@ const minimalConfig = SystemConfigFactory.createMinimal(coreConfig);
 ```
 
 **Features:**
+
 - Basic task engine (3 concurrent tasks)
 - No autonomous features
 - Minimal monitoring
@@ -164,7 +169,10 @@ const minimalConfig = SystemConfigFactory.createMinimal(coreConfig);
 ### Custom Configuration
 
 ```typescript
-import { TaskManagementSystemIntegrator, type IntegratedSystemConfig } from '@google/gemini-cli/task-management';
+import {
+  TaskManagementSystemIntegrator,
+  type IntegratedSystemConfig,
+} from '@google/gemini-cli/task-management';
 
 const customConfig: IntegratedSystemConfig = {
   core: coreConfig,
@@ -172,7 +180,7 @@ const customConfig: IntegratedSystemConfig = {
     maxConcurrentTasks: 12,
     defaultRetryCount: 5,
     timeoutMs: 1800000, // 30 minutes
-    enableMetrics: true
+    enableMetrics: true,
   },
   autonomousQueue: {
     maxConcurrentTasks: 20,
@@ -180,7 +188,7 @@ const customConfig: IntegratedSystemConfig = {
     breakdownThreshold: 0.5,
     maxBreakdownDepth: 5,
     schedulingAlgorithm: 'hybrid_adaptive',
-    learningEnabled: true
+    learningEnabled: true,
   },
   monitoring: {
     enabled: true,
@@ -191,8 +199,8 @@ const customConfig: IntegratedSystemConfig = {
       averageExecutionTime: 900000,
       systemMemoryUsage: 0.75,
       queueBacklog: 200,
-      agentUtilization: 0.85
-    }
+      agentUtilization: 0.85,
+    },
   },
   // ... other configurations
 };
@@ -222,8 +230,10 @@ if (components.autonomousQueue) {
 // Direct access to monitoring system
 if (components.monitoring) {
   const dashboardData = components.monitoring.getDashboardData(
-    await components.monitoring.collectMetrics(components.taskEngine?.getAllTasks() || []),
-    components.taskEngine?.getAllTasks() || []
+    await components.monitoring.collectMetrics(
+      components.taskEngine?.getAllTasks() || [],
+    ),
+    components.taskEngine?.getAllTasks() || [],
   );
   console.log('Dashboard Data:', dashboardData);
 }
@@ -275,8 +285,8 @@ const result = await system.queueTask(
   'Update the API documentation with latest changes',
   {
     type: 'documentation',
-    priority: 'normal'
-  }
+    priority: 'normal',
+  },
 );
 
 if (result.success) {
@@ -300,13 +310,13 @@ const complexTask = await system.queueTask(
     useAutonomousQueue: true,
     estimatedDuration: 4 * 60 * 60 * 1000, // 4 hours
     expectedOutputs: {
-      'user_model': 'User data model and validation',
-      'auth_service': 'Authentication service',
-      'auth_controller': 'REST API controllers',
-      'tests': 'Comprehensive test suite',
-      'documentation': 'API documentation'
-    }
-  }
+      user_model: 'User data model and validation',
+      auth_service: 'Authentication service',
+      auth_controller: 'REST API controllers',
+      tests: 'Comprehensive test suite',
+      documentation: 'API documentation',
+    },
+  },
 );
 ```
 
@@ -319,8 +329,8 @@ const analysisTask = await system.queueTask(
   'Analyze and document system requirements',
   {
     type: 'analysis',
-    priority: 'high'
-  }
+    priority: 'high',
+  },
 );
 
 const designTask = await system.queueTask(
@@ -329,8 +339,8 @@ const designTask = await system.queueTask(
   {
     type: 'design',
     priority: 'high',
-    dependencies: [analysisTask.details.taskId]
-  }
+    dependencies: [analysisTask.details.taskId],
+  },
 );
 
 const implementationTask = await system.queueTask(
@@ -339,8 +349,8 @@ const implementationTask = await system.queueTask(
   {
     type: 'implementation',
     priority: 'high',
-    dependencies: [designTask.details.taskId]
-  }
+    dependencies: [designTask.details.taskId],
+  },
 );
 ```
 
@@ -370,7 +380,6 @@ try {
 
   // Continue with available components
   await system.queueTask('Test task', 'Testing with available components');
-
 } catch (error) {
   console.error('Unexpected error:', error);
   // Handle unexpected errors
@@ -381,7 +390,13 @@ try {
 
 ```typescript
 // Implement retry logic for task failures
-async function queueTaskWithRetry(system, title, description, options, maxRetries = 3) {
+async function queueTaskWithRetry(
+  system,
+  title,
+  description,
+  options,
+  maxRetries = 3,
+) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const result = await system.queueTask(title, description, options);
@@ -390,18 +405,19 @@ async function queueTaskWithRetry(system, title, description, options, maxRetrie
       }
 
       if (attempt === maxRetries) {
-        throw new Error(`Failed to queue task after ${maxRetries} attempts: ${result.message}`);
+        throw new Error(
+          `Failed to queue task after ${maxRetries} attempts: ${result.message}`,
+        );
       }
 
       console.warn(`Attempt ${attempt} failed: ${result.message}, retrying...`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
-
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
     } catch (error) {
       if (attempt === maxRetries) {
         throw error;
       }
       console.warn(`Attempt ${attempt} error: ${error.message}, retrying...`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
     }
   }
 }
@@ -418,17 +434,17 @@ const highThroughputConfig = {
   taskEngine: {
     maxConcurrentTasks: 20,
     timeoutMs: 1800000,
-    enableMetrics: true
+    enableMetrics: true,
   },
   autonomousQueue: {
     maxConcurrentTasks: 30,
     schedulingAlgorithm: 'adaptive',
-    performanceOptimization: true
+    performanceOptimization: true,
   },
   monitoring: {
     metricsRetentionHours: 12, // Reduced retention
     realTimeUpdates: false, // Disable for performance
-  }
+  },
 };
 
 // Optimize for reliability
@@ -437,14 +453,14 @@ const highReliabilityConfig = {
   taskEngine: {
     maxConcurrentTasks: 5,
     defaultRetryCount: 5,
-    timeoutMs: 3600000 // 1 hour
+    timeoutMs: 3600000, // 1 hour
   },
   persistence: {
     enabled: true,
     compressionEnabled: true,
     backupEnabled: true,
-    backupInterval: 3600000 // 1 hour
-  }
+    backupInterval: 3600000, // 1 hour
+  },
 };
 ```
 
@@ -453,7 +469,8 @@ const highReliabilityConfig = {
 ```typescript
 // Monitor memory usage
 const health = system.getSystemHealth();
-if (health.metrics.memoryUsage > 1000) { // 1GB
+if (health.metrics.memoryUsage > 1000) {
+  // 1GB
   console.warn(`High memory usage: ${health.metrics.memoryUsage}MB`);
 
   // Trigger cleanup if available
@@ -470,7 +487,10 @@ if (health.metrics.memoryUsage > 1000) { // 1GB
 ### Unit Testing
 
 ```typescript
-import { TaskManagementSystemIntegrator, SystemConfigFactory } from '@google/gemini-cli/task-management';
+import {
+  TaskManagementSystemIntegrator,
+  SystemConfigFactory,
+} from '@google/gemini-cli/task-management';
 
 describe('Task Management Integration', () => {
   let system: TaskManagementSystemIntegrator;
@@ -502,7 +522,8 @@ describe('Task Management Integration', () => {
 describe('E2E Task Management', () => {
   it('should handle complete workflow', async () => {
     const config = SystemConfigFactory.createDevelopment(realCoreConfig);
-    const { system, result } = await createIntegratedTaskManagementSystem(config);
+    const { system, result } =
+      await createIntegratedTaskManagementSystem(config);
 
     expect(result.success).toBe(true);
 
@@ -512,7 +533,7 @@ describe('E2E Task Management', () => {
       'Design system',
       'Implement features',
       'Write tests',
-      'Create documentation'
+      'Create documentation',
     ];
 
     for (const title of tasks) {
@@ -541,7 +562,10 @@ const taskEngine = createTaskEngine(config);
 const taskId = await taskEngine.queueTask('title', 'description', options);
 
 // New integrated approach
-import { createIntegratedTaskManagementSystem, SystemConfigFactory } from '@google/gemini-cli/task-management';
+import {
+  createIntegratedTaskManagementSystem,
+  SystemConfigFactory,
+} from '@google/gemini-cli/task-management';
 
 const systemConfig = SystemConfigFactory.createDevelopment(config);
 const { system } = await createIntegratedTaskManagementSystem(systemConfig);
@@ -559,7 +583,7 @@ function migrateConfig(oldConfig: any): IntegratedSystemConfig {
       maxConcurrentTasks: oldConfig.maxConcurrentTasks || 5,
       defaultRetryCount: oldConfig.retryCount || 3,
       timeoutMs: oldConfig.timeout || 300000,
-      enableMetrics: true
+      enableMetrics: true,
     },
     autonomousQueue: {
       enabled: true,
@@ -644,7 +668,7 @@ if (health.metrics.memoryUsage > 1000) {
   // Reduce concurrent tasks
   await system.updateConfig({
     taskEngine: { maxConcurrentTasks: 3 },
-    autonomousQueue: { maxConcurrentTasks: 5 }
+    autonomousQueue: { maxConcurrentTasks: 5 },
   });
 }
 ```
@@ -675,8 +699,8 @@ const debugConfig = {
   development: {
     enableDebugMode: true,
     enableVerboseLogging: true,
-    enablePerformanceProfiling: true
-  }
+    enablePerformanceProfiling: true,
+  },
 };
 
 const { system } = await createIntegratedTaskManagementSystem(debugConfig);

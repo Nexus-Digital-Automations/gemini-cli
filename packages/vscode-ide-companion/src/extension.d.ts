@@ -5,6 +5,8 @@
  */
 
 import type * as vscode from 'vscode';
-export declare const DIFF_SCHEME = "gemini-diff";
-export declare function activate(context: vscode.ExtensionContext): Promise<void>;
+export declare const DIFF_SCHEME = 'gemini-diff';
+export declare function activate(
+  context: vscode.ExtensionContext,
+): Promise<void>;
 export declare function deactivate(): Promise<void>;

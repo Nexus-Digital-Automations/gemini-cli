@@ -38,7 +38,9 @@ describe('ClassifierStrategy', () => {
 
     // Mock the logger
     mockLogger = { warn: vi.fn() };
-    vi.mocked(getComponentLogger).mockReturnValue(mockLogger as ReturnType<typeof getComponentLogger>);
+    vi.mocked(getComponentLogger).mockReturnValue(
+      mockLogger as ReturnType<typeof getComponentLogger>,
+    );
 
     strategy = new ClassifierStrategy();
     mockContext = {

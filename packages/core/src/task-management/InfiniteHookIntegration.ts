@@ -11,7 +11,7 @@ import type {
   TaskType,
   TaskStatus,
   TaskPriority,
-  TaskComplexity
+  TaskComplexity,
 } from './TaskExecutionEngine.js';
 import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { spawn, type ChildProcess } from 'node:child_process';
@@ -35,7 +35,10 @@ export interface TaskManagerAPI {
   getTaskQueue(filters?: any): Promise<any>;
   assignTask(taskId: string, agentId: string, options?: any): Promise<any>;
   updateTaskProgress(taskId: string, progress: any): Promise<any>;
-  registerAgentCapabilities(agentId: string, capabilities: string[]): Promise<any>;
+  registerAgentCapabilities(
+    agentId: string,
+    capabilities: string[],
+  ): Promise<any>;
 }
 
 /**
@@ -68,7 +71,7 @@ export class InfiniteHookIntegration {
     config: Config,
     taskEngine: TaskExecutionEngine,
     monitoring: ExecutionMonitoringSystem,
-    hookConfig?: Partial<HookIntegrationConfig>
+    hookConfig?: Partial<HookIntegrationConfig>,
   ) {
     this.config = config;
     this.taskEngine = taskEngine;
@@ -76,13 +79,20 @@ export class InfiniteHookIntegration {
 
     // Default hook configuration
     this.hookConfig = {
-      taskManagerApiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      taskManagerApiPath:
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
       agentId: 'TASK_EXECUTION_ENGINE',
-      capabilities: ['implementation', 'testing', 'validation', 'documentation', 'analysis'],
+      capabilities: [
+        'implementation',
+        'testing',
+        'validation',
+        'documentation',
+        'analysis',
+      ],
       autoApprovalEnabled: true,
       maxConcurrentTasks: 5,
       progressReportingIntervalMs: 60000, // 1 minute
-      ...hookConfig
+      ...hookConfig,
     };
 
     this.taskManagerApiPath = this.hookConfig.taskManagerApiPath;
@@ -93,7 +103,9 @@ export class InfiniteHookIntegration {
    */
   async initialize(): Promise<void> {
     try {
-      console.log('Initializing TaskExecutionEngine integration with infinite-continue-stop-hook...');
+      console.log(
+        'Initializing TaskExecutionEngine integration with infinite-continue-stop-hook...',
+      );
 
       // Initialize or reinitialize the agent
       await this.initializeAgent();
@@ -108,8 +120,9 @@ export class InfiniteHookIntegration {
       this.startProgressReporting();
 
       this.isIntegrationActive = true;
-      console.log('TaskExecutionEngine successfully integrated with infinite-continue-stop-hook system');
-
+      console.log(
+        'TaskExecutionEngine successfully integrated with infinite-continue-stop-hook system',
+      );
     } catch (error) {
       console.error('Failed to initialize hook integration:', error);
       throw error;
@@ -121,7 +134,10 @@ export class InfiniteHookIntegration {
    */
   private async initializeAgent(): Promise<void> {
     try {
-      const result = await this.executeTaskManagerCommand('reinitialize', this.hookConfig.agentId);
+      const result = await this.executeTaskManagerCommand(
+        'reinitialize',
+        this.hookConfig.agentId,
+      );
       if (!result.success) {
         throw new Error(`Agent initialization failed: ${result.error}`);
       }
@@ -140,14 +156,16 @@ export class InfiniteHookIntegration {
       const result = await this.executeTaskManagerCommand(
         'registerAgentCapabilities',
         this.hookConfig.agentId,
-        JSON.stringify(this.hookConfig.capabilities)
+        JSON.stringify(this.hookConfig.capabilities),
       );
 
       if (!result.success) {
         console.warn(`Failed to register capabilities: ${result.error}`);
         // Non-fatal, continue with integration
       } else {
-        console.log(`Registered capabilities: ${this.hookConfig.capabilities.join(', ')}`);
+        console.log(
+          `Registered capabilities: ${this.hookConfig.capabilities.join(', ')}`,
+        );
       }
     } catch (error) {
       console.warn('Capability registration failed:', error);
@@ -179,30 +197,39 @@ export class InfiniteHookIntegration {
       // Get approved features that don't have tasks yet
       const approvedFeaturesResult = await this.executeTaskManagerCommand(
         'list-features',
-        JSON.stringify({ status: 'approved' })
+        JSON.stringify({ status: 'approved' }),
       );
 
       if (!approvedFeaturesResult.success) {
-        console.error('Failed to fetch approved features:', approvedFeaturesResult.error);
+        console.error(
+          'Failed to fetch approved features:',
+          approvedFeaturesResult.error,
+        );
         return;
       }
 
       const approvedFeatures = approvedFeaturesResult.features || [];
 
       // Get existing task queue
-      const taskQueueResult = await this.executeTaskManagerCommand('getTaskQueue');
-      const existingTasks = taskQueueResult.success ? (taskQueueResult.tasks || []) : [];
+      const taskQueueResult =
+        await this.executeTaskManagerCommand('getTaskQueue');
+      const existingTasks = taskQueueResult.success
+        ? taskQueueResult.tasks || []
+        : [];
 
       // Find features without tasks
-      const featuresWithoutTasks = approvedFeatures.filter(feature =>
-        !existingTasks.some(task => task.feature_id === feature.id)
+      const featuresWithoutTasks = approvedFeatures.filter(
+        (feature) =>
+          !existingTasks.some((task) => task.feature_id === feature.id),
       );
 
       if (featuresWithoutTasks.length === 0) {
         return; // No new features to process
       }
 
-      console.log(`Found ${featuresWithoutTasks.length} approved features without tasks`);
+      console.log(
+        `Found ${featuresWithoutTasks.length} approved features without tasks`,
+      );
 
       // Create tasks for approved features
       for (const feature of featuresWithoutTasks) {
@@ -211,7 +238,6 @@ export class InfiniteHookIntegration {
 
       // Process queued tasks with our execution engine
       await this.processQueuedTasks();
-
     } catch (error) {
       console.error('Error checking for new tasks:', error);
     }
@@ -236,14 +262,14 @@ export class InfiniteHookIntegration {
           context: {
             featureId: feature.id,
             category: feature.category,
-            businessValue: feature.business_value
+            businessValue: feature.business_value,
           },
           expectedOutputs: {
-            'implementation_status': 'Status of implementation completion',
-            'validation_results': 'Results of validation and testing',
-            'documentation_updates': 'Documentation changes made'
-          }
-        }
+            implementation_status: 'Status of implementation completion',
+            validation_results: 'Results of validation and testing',
+            documentation_updates: 'Documentation changes made',
+          },
+        },
       );
 
       // Also create task in the hook system for tracking
@@ -257,17 +283,18 @@ export class InfiniteHookIntegration {
           priority: taskPriority,
           metadata: {
             execution_engine_task_id: taskId,
-            created_by_engine: true
-          }
-        })
+            created_by_engine: true,
+          },
+        }),
       );
 
       if (hookTaskResult.success) {
         console.log(`Created task for feature: ${feature.title}`);
       } else {
-        console.warn(`Failed to create hook task for feature ${feature.id}: ${hookTaskResult.error}`);
+        console.warn(
+          `Failed to create hook task for feature ${feature.id}: ${hookTaskResult.error}`,
+        );
       }
-
     } catch (error) {
       console.error(`Error creating task from feature ${feature.id}:`, error);
     }
@@ -281,7 +308,7 @@ export class InfiniteHookIntegration {
       // Get queued tasks from hook system
       const queueResult = await this.executeTaskManagerCommand(
         'getTaskQueue',
-        JSON.stringify({ status: 'queued' })
+        JSON.stringify({ status: 'queued' }),
       );
 
       if (!queueResult.success || !queueResult.tasks) {
@@ -291,15 +318,17 @@ export class InfiniteHookIntegration {
       const queuedTasks = queueResult.tasks;
 
       // Filter tasks that can be handled by our capabilities
-      const compatibleTasks = queuedTasks.filter(task =>
-        this.canHandleTask(task)
+      const compatibleTasks = queuedTasks.filter((task) =>
+        this.canHandleTask(task),
       );
 
       // Assign compatible tasks to our agent
-      for (const task of compatibleTasks.slice(0, this.hookConfig.maxConcurrentTasks)) {
+      for (const task of compatibleTasks.slice(
+        0,
+        this.hookConfig.maxConcurrentTasks,
+      )) {
         await this.assignTaskToEngine(task);
       }
-
     } catch (error) {
       console.error('Error processing queued tasks:', error);
     }
@@ -312,8 +341,10 @@ export class InfiniteHookIntegration {
     const requiredCapabilities = task.required_capabilities || [];
     if (requiredCapabilities.length === 0) return true;
 
-    return requiredCapabilities.some(cap =>
-      this.hookConfig.capabilities.includes(cap) || this.hookConfig.capabilities.includes('general')
+    return requiredCapabilities.some(
+      (cap) =>
+        this.hookConfig.capabilities.includes(cap) ||
+        this.hookConfig.capabilities.includes('general'),
     );
   }
 
@@ -331,13 +362,15 @@ export class InfiniteHookIntegration {
           reason: 'automated_assignment',
           metadata: {
             assigned_by_engine: true,
-            assignment_time: new Date().toISOString()
-          }
-        })
+            assignment_time: new Date().toISOString(),
+          },
+        }),
       );
 
       if (!assignResult.success) {
-        console.warn(`Failed to assign task ${hookTask.id}: ${assignResult.error}`);
+        console.warn(
+          `Failed to assign task ${hookTask.id}: ${assignResult.error}`,
+        );
         return;
       }
 
@@ -351,17 +384,18 @@ export class InfiniteHookIntegration {
             priority: hookTask.priority as TaskPriority,
             context: {
               hookTaskId: hookTask.id,
-              ...hookTask.metadata
+              ...hookTask.metadata,
             },
             expectedOutputs: {
-              'task_completion': 'Task completion status and results'
-            }
-          }
+              task_completion: 'Task completion status and results',
+            },
+          },
         );
 
-        console.log(`Assigned and queued task: ${hookTask.title} (Engine ID: ${engineTaskId})`);
+        console.log(
+          `Assigned and queued task: ${hookTask.title} (Engine ID: ${engineTaskId})`,
+        );
       }
-
     } catch (error) {
       console.error(`Error assigning task ${hookTask.id}:`, error);
     }
@@ -392,7 +426,7 @@ export class InfiniteHookIntegration {
       const allTasks = this.taskEngine.getAllTasks();
 
       // Report progress for active tasks
-      for (const task of allTasks.filter(t => t.status === 'in_progress')) {
+      for (const task of allTasks.filter((t) => t.status === 'in_progress')) {
         const hookTaskId = task.context?.hookTaskId as string;
         if (!hookTaskId) continue;
 
@@ -405,21 +439,25 @@ export class InfiniteHookIntegration {
             engine_task_id: task.id,
             last_updated: new Date().toISOString(),
             execution_stats: {
-              duration_ms: task.startedAt ? Date.now() - task.startedAt.getTime() : 0,
-              retry_count: task.retryCount
-            }
-          }
+              duration_ms: task.startedAt
+                ? Date.now() - task.startedAt.getTime()
+                : 0,
+              retry_count: task.retryCount,
+            },
+          },
         };
 
         await this.executeTaskManagerCommand(
           'updateTaskProgress',
           hookTaskId,
-          JSON.stringify(progressUpdate)
+          JSON.stringify(progressUpdate),
         );
       }
 
       // Report completed tasks
-      for (const task of allTasks.filter(t => t.status === 'completed' && !task.context?.reported)) {
+      for (const task of allTasks.filter(
+        (t) => t.status === 'completed' && !task.context?.reported,
+      )) {
         const hookTaskId = task.context?.hookTaskId as string;
         if (!hookTaskId) continue;
 
@@ -432,14 +470,14 @@ export class InfiniteHookIntegration {
             engine_task_id: task.id,
             completed_at: task.completedAt?.toISOString(),
             execution_time_ms: task.metrics?.durationMs || 0,
-            outputs: task.outputs
-          }
+            outputs: task.outputs,
+          },
         };
 
         const updateResult = await this.executeTaskManagerCommand(
           'updateTaskProgress',
           hookTaskId,
-          JSON.stringify(completionUpdate)
+          JSON.stringify(completionUpdate),
         );
 
         if (updateResult.success) {
@@ -449,7 +487,6 @@ export class InfiniteHookIntegration {
       }
 
       this.lastProgressReport = new Date();
-
     } catch (error) {
       console.error('Error reporting progress:', error);
     }
@@ -458,11 +495,14 @@ export class InfiniteHookIntegration {
   /**
    * Executes a command against the task manager API
    */
-  private async executeTaskManagerCommand(command: string, ...args: string[]): Promise<any> {
+  private async executeTaskManagerCommand(
+    command: string,
+    ...args: string[]
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       const fullArgs = [this.taskManagerApiPath, command, ...args];
       const child = spawn('timeout', ['10s', 'node', ...fullArgs], {
-        stdio: ['inherit', 'pipe', 'pipe']
+        stdio: ['inherit', 'pipe', 'pipe'],
       });
 
       let stdout = '';
@@ -485,7 +525,9 @@ export class InfiniteHookIntegration {
             resolve({ success: true, raw_output: stdout });
           }
         } else {
-          reject(new Error(`Command failed with code ${code}: ${stderr || stdout}`));
+          reject(
+            new Error(`Command failed with code ${code}: ${stderr || stdout}`),
+          );
         }
       });
 
@@ -500,13 +542,20 @@ export class InfiniteHookIntegration {
    */
   private mapFeatureCategoryToTaskType(category: string): TaskType {
     switch (category) {
-      case 'bug-fix': return 'implementation';
-      case 'security': return 'security';
-      case 'performance': return 'performance';
-      case 'documentation': return 'documentation';
-      case 'new-feature': return 'implementation';
-      case 'enhancement': return 'implementation';
-      default: return 'implementation';
+      case 'bug-fix':
+        return 'implementation';
+      case 'security':
+        return 'security';
+      case 'performance':
+        return 'performance';
+      case 'documentation':
+        return 'documentation';
+      case 'new-feature':
+        return 'implementation';
+      case 'enhancement':
+        return 'implementation';
+      default:
+        return 'implementation';
     }
   }
 
@@ -519,7 +568,11 @@ export class InfiniteHookIntegration {
 
     const businessValue = feature.business_value?.toLowerCase() || '';
     if (businessValue.includes('critical')) return 'critical';
-    if (businessValue.includes('essential') || businessValue.includes('important')) return 'high';
+    if (
+      businessValue.includes('essential') ||
+      businessValue.includes('important')
+    )
+      return 'high';
 
     return 'normal';
   }
@@ -529,14 +582,22 @@ export class InfiniteHookIntegration {
    */
   private mapEngineStatusToHookStatus(status: TaskStatus): string {
     switch (status) {
-      case 'queued': return 'queued';
-      case 'assigned': return 'assigned';
-      case 'in_progress': return 'in_progress';
-      case 'completed': return 'completed';
-      case 'failed': return 'failed';
-      case 'cancelled': return 'cancelled';
-      case 'blocked': return 'blocked';
-      default: return 'queued';
+      case 'queued':
+        return 'queued';
+      case 'assigned':
+        return 'assigned';
+      case 'in_progress':
+        return 'in_progress';
+      case 'completed':
+        return 'completed';
+      case 'failed':
+        return 'failed';
+      case 'cancelled':
+        return 'cancelled';
+      case 'blocked':
+        return 'blocked';
+      default:
+        return 'queued';
     }
   }
 
@@ -560,7 +621,7 @@ export class InfiniteHookIntegration {
         const result = await this.executeTaskManagerCommand(
           'authorize-stop',
           this.hookConfig.agentId,
-          JSON.stringify(stopReason)
+          JSON.stringify(stopReason),
         );
 
         if (result.success) {

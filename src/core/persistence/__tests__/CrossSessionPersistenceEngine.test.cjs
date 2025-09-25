@@ -9,8 +9,13 @@
  * Comprehensive test coverage for the enterprise-grade persistence system
  */
 
-const { CrossSessionPersistenceEngine } = require('../CrossSessionPersistenceEngine.js');
-const { TaskRecoveryManager, RECOVERY_STRATEGIES } = require('../TaskRecoveryManager.js');
+const {
+  CrossSessionPersistenceEngine,
+} = require('../CrossSessionPersistenceEngine.js');
+const {
+  TaskRecoveryManager,
+  RECOVERY_STRATEGIES,
+} = require('../TaskRecoveryManager.js');
 const fs = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -42,14 +47,14 @@ class TestUtils {
       tags: ['test', 'sample'],
       metadata: {
         test: true,
-        version: '1.0.0'
+        version: '1.0.0',
       },
-      ...overrides
+      ...overrides,
     };
   }
 
   static async sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   static measureExecutionTime(fn) {
@@ -124,7 +129,7 @@ class CrossSessionPersistenceEngineTestSuite {
 
   async runAllTests() {
     console.log('🚀 Starting CrossSessionPersistenceEngine Test Suite');
-    console.log('=' .repeat(80));
+    console.log('='.repeat(80));
 
     try {
       await this.setupTestEnvironment();
@@ -159,7 +164,7 @@ class CrossSessionPersistenceEngineTestSuite {
       autoBackup: false, // Disable for tests
       healthCheckInterval: 1000,
       performanceLogging: true,
-      auditTrail: true
+      auditTrail: true,
     });
 
     await this.engine.initialize();
@@ -181,11 +186,21 @@ class CrossSessionPersistenceEngineTestSuite {
       console.log(`  Running: ${testName}`);
       await testFn();
       const duration = Date.now() - startTime;
-      this.testResults.push({ name: testName, status: 'PASS', duration, error: null });
+      this.testResults.push({
+        name: testName,
+        status: 'PASS',
+        duration,
+        error: null,
+      });
       console.log(`  ✅ PASS: ${testName} (${duration}ms)`);
     } catch (error) {
       const duration = Date.now() - startTime;
-      this.testResults.push({ name: testName, status: 'FAIL', duration, error: error.message });
+      this.testResults.push({
+        name: testName,
+        status: 'FAIL',
+        duration,
+        error: error.message,
+      });
       console.log(`  ❌ FAIL: ${testName} (${duration}ms) - ${error.message}`);
     }
   }
@@ -229,7 +244,7 @@ class CrossSessionPersistenceEngineTestSuite {
       await TestUtils.sleep(10); // Ensure different timestamp
       const updatedTask = await this.engine.updateTask(createdTask.id, {
         status: 'in_progress',
-        description: 'Updated description'
+        description: 'Updated description',
       });
 
       if (updatedTask.status !== 'in_progress') {
@@ -260,17 +275,25 @@ class CrossSessionPersistenceEngineTestSuite {
 
     await this.runTest('Task Listing with Filters', async () => {
       // Create test data
-      await this.engine.createTask(TestUtils.createSampleTask({ status: 'pending', priority: 'high' }));
-      await this.engine.createTask(TestUtils.createSampleTask({ status: 'completed', priority: 'low' }));
-      await this.engine.createTask(TestUtils.createSampleTask({ status: 'pending', priority: 'medium' }));
+      await this.engine.createTask(
+        TestUtils.createSampleTask({ status: 'pending', priority: 'high' }),
+      );
+      await this.engine.createTask(
+        TestUtils.createSampleTask({ status: 'completed', priority: 'low' }),
+      );
+      await this.engine.createTask(
+        TestUtils.createSampleTask({ status: 'pending', priority: 'medium' }),
+      );
 
       const pendingTasks = await this.engine.listTasks({
         filter: { status: 'pending' },
-        sort: { field: 'priority', order: 'desc' }
+        sort: { field: 'priority', order: 'desc' },
       });
 
       if (pendingTasks.tasks.length !== 2) {
-        throw new Error(`Expected 2 pending tasks, got ${pendingTasks.tasks.length}`);
+        throw new Error(
+          `Expected 2 pending tasks, got ${pendingTasks.tasks.length}`,
+        );
       }
       if (pendingTasks.tasks[0].priority !== 'high') {
         throw new Error('Tasks not sorted by priority correctly');
@@ -290,14 +313,16 @@ class CrossSessionPersistenceEngineTestSuite {
       const task = await this.engine.createTask(taskData);
 
       // First retrieval should cache the task
-      const { result: task1, duration: duration1 } = await TestUtils.measureExecutionTime(
-        () => this.engine.getTask(task.id)
-      )();
+      const { result: task1, duration: duration1 } =
+        await TestUtils.measureExecutionTime(() =>
+          this.engine.getTask(task.id),
+        )();
 
       // Second retrieval should be faster (cached)
-      const { result: task2, duration: duration2 } = await TestUtils.measureExecutionTime(
-        () => this.engine.getTask(task.id)
-      )();
+      const { result: task2, duration: duration2 } =
+        await TestUtils.measureExecutionTime(() =>
+          this.engine.getTask(task.id),
+        )();
 
       if (JSON.stringify(task1) !== JSON.stringify(task2)) {
         throw new Error('Cached task data mismatch');
@@ -314,23 +339,27 @@ class CrossSessionPersistenceEngineTestSuite {
       const task = await this.engine.createTask(taskData);
 
       // Simulate concurrent updates
-      const updatePromises = Array(5).fill(null).map((_, i) =>
-        this.engine.updateTask(task.id, {
-          description: `Update ${i}`,
-          priority: i % 2 === 0 ? 'high' : 'low'
-        })
-      );
+      const updatePromises = Array(5)
+        .fill(null)
+        .map((_, i) =>
+          this.engine.updateTask(task.id, {
+            description: `Update ${i}`,
+            priority: i % 2 === 0 ? 'high' : 'low',
+          }),
+        );
 
       const results = await Promise.all(updatePromises);
       const finalTask = await this.engine.getTask(task.id);
 
       // Verify version incremented correctly
       if (finalTask.version !== task.version + 5) {
-        throw new Error(`Expected version ${task.version + 5}, got ${finalTask.version}`);
+        throw new Error(
+          `Expected version ${task.version + 5}, got ${finalTask.version}`,
+        );
       }
 
       // All updates should have succeeded
-      if (results.some(r => !r)) {
+      if (results.some((r) => !r)) {
         throw new Error('Some atomic operations failed');
       }
     });
@@ -343,7 +372,10 @@ class CrossSessionPersistenceEngineTestSuite {
         await this.engine.createTask(taskData);
         throw new Error('Should have failed validation');
       } catch (error) {
-        if (!error.message.includes('title') && !error.message.includes('required')) {
+        if (
+          !error.message.includes('title') &&
+          !error.message.includes('required')
+        ) {
           throw new Error(`Unexpected validation error: ${error.message}`);
         }
       }
@@ -353,23 +385,29 @@ class CrossSessionPersistenceEngineTestSuite {
       const sessionId = 'test-session-' + uuidv4().substring(0, 8);
 
       // Create tasks in session
-      const task1 = await this.engine.createTask(TestUtils.createSampleTask({
-        session_id: sessionId,
-        title: 'Session Task 1'
-      }));
+      const task1 = await this.engine.createTask(
+        TestUtils.createSampleTask({
+          session_id: sessionId,
+          title: 'Session Task 1',
+        }),
+      );
 
-      const task2 = await this.engine.createTask(TestUtils.createSampleTask({
-        session_id: sessionId,
-        title: 'Session Task 2'
-      }));
+      const task2 = await this.engine.createTask(
+        TestUtils.createSampleTask({
+          session_id: sessionId,
+          title: 'Session Task 2',
+        }),
+      );
 
       // Retrieve session tasks
       const sessionTasks = await this.engine.listTasks({
-        filter: { session_id: sessionId }
+        filter: { session_id: sessionId },
       });
 
       if (sessionTasks.tasks.length !== 2) {
-        throw new Error(`Expected 2 session tasks, got ${sessionTasks.tasks.length}`);
+        throw new Error(
+          `Expected 2 session tasks, got ${sessionTasks.tasks.length}`,
+        );
       }
     });
   }
@@ -385,22 +423,30 @@ class CrossSessionPersistenceEngineTestSuite {
       const taskCount = 100;
       const startTime = Date.now();
 
-      const createPromises = Array(taskCount).fill(null).map((_, i) =>
-        this.engine.createTask(TestUtils.createSampleTask({
-          title: `Performance Test Task ${i}`,
-          priority: i % 3 === 0 ? 'high' : (i % 2 === 0 ? 'medium' : 'low')
-        }))
-      );
+      const createPromises = Array(taskCount)
+        .fill(null)
+        .map((_, i) =>
+          this.engine.createTask(
+            TestUtils.createSampleTask({
+              title: `Performance Test Task ${i}`,
+              priority: i % 3 === 0 ? 'high' : i % 2 === 0 ? 'medium' : 'low',
+            }),
+          ),
+        );
 
       await Promise.all(createPromises);
       const duration = Date.now() - startTime;
       const avgTime = duration / taskCount;
 
-      console.log(`    📊 Created ${taskCount} tasks in ${duration}ms (avg: ${avgTime.toFixed(2)}ms/task)`);
+      console.log(
+        `    📊 Created ${taskCount} tasks in ${duration}ms (avg: ${avgTime.toFixed(2)}ms/task)`,
+      );
 
       // Performance threshold: should average < 50ms per task
       if (avgTime > 50) {
-        throw new Error(`Performance below threshold: ${avgTime.toFixed(2)}ms > 50ms`);
+        throw new Error(
+          `Performance below threshold: ${avgTime.toFixed(2)}ms > 50ms`,
+        );
       }
     });
 
@@ -408,9 +454,11 @@ class CrossSessionPersistenceEngineTestSuite {
       // Create test tasks
       const tasks = [];
       for (let i = 0; i < 20; i++) {
-        const task = await this.engine.createTask(TestUtils.createSampleTask({
-          title: `Cache Test Task ${i}`
-        }));
+        const task = await this.engine.createTask(
+          TestUtils.createSampleTask({
+            title: `Cache Test Task ${i}`,
+          }),
+        );
         tasks.push(task);
       }
 
@@ -426,11 +474,15 @@ class CrossSessionPersistenceEngineTestSuite {
       const duration = Date.now() - startTime;
       const avgTime = duration / retrievalCount;
 
-      console.log(`    📊 ${retrievalCount} retrievals in ${duration}ms (avg: ${avgTime.toFixed(2)}ms/retrieval)`);
+      console.log(
+        `    📊 ${retrievalCount} retrievals in ${duration}ms (avg: ${avgTime.toFixed(2)}ms/retrieval)`,
+      );
 
       // Performance threshold: should average < 10ms per cached retrieval
       if (avgTime > 10) {
-        throw new Error(`Cache performance below threshold: ${avgTime.toFixed(2)}ms > 10ms`);
+        throw new Error(
+          `Cache performance below threshold: ${avgTime.toFixed(2)}ms > 10ms`,
+        );
       }
     });
 
@@ -439,23 +491,27 @@ class CrossSessionPersistenceEngineTestSuite {
       const concurrentRequests = 50;
 
       const startTime = Date.now();
-      const promises = Array(concurrentRequests).fill(null).map(() =>
-        this.engine.getTask(task.id)
-      );
+      const promises = Array(concurrentRequests)
+        .fill(null)
+        .map(() => this.engine.getTask(task.id));
 
       const results = await Promise.all(promises);
       const duration = Date.now() - startTime;
 
-      console.log(`    📊 ${concurrentRequests} concurrent requests in ${duration}ms`);
+      console.log(
+        `    📊 ${concurrentRequests} concurrent requests in ${duration}ms`,
+      );
 
       // All requests should succeed
-      if (results.some(r => !r || r.id !== task.id)) {
+      if (results.some((r) => !r || r.id !== task.id)) {
         throw new Error('Some concurrent requests failed');
       }
 
       // Should handle concurrent load efficiently
       if (duration > 5000) {
-        throw new Error(`Concurrent performance too slow: ${duration}ms > 5000ms`);
+        throw new Error(
+          `Concurrent performance too slow: ${duration}ms > 5000ms`,
+        );
       }
     });
   }
@@ -471,53 +527,74 @@ class CrossSessionPersistenceEngineTestSuite {
       const recoveryManager = new TaskRecoveryManager(this.engine);
 
       // Create tasks and simulate failure scenario
-      const task1 = await this.engine.createTask(TestUtils.createSampleTask({
-        title: 'Recovery Test Task 1',
-        status: 'in_progress'
-      }));
+      const task1 = await this.engine.createTask(
+        TestUtils.createSampleTask({
+          title: 'Recovery Test Task 1',
+          status: 'in_progress',
+        }),
+      );
 
-      const task2 = await this.engine.createTask(TestUtils.createSampleTask({
-        title: 'Recovery Test Task 2',
-        status: 'failed'
-      }));
+      const task2 = await this.engine.createTask(
+        TestUtils.createSampleTask({
+          title: 'Recovery Test Task 2',
+          status: 'failed',
+        }),
+      );
 
       // Test recovery operations
       const recoveryResult = await recoveryManager.recoverTasks({
         strategy: RECOVERY_STRATEGIES.WARM,
-        validationLevel: 'standard'
+        validationLevel: 'standard',
       });
 
       if (!recoveryResult.success) {
         throw new Error(`Recovery failed: ${recoveryResult.message}`);
       }
 
-      console.log(`    📊 Recovery completed: ${recoveryResult.recoveredTasks} tasks processed`);
+      console.log(
+        `    📊 Recovery completed: ${recoveryResult.recoveredTasks} tasks processed`,
+      );
     });
 
     await this.runTest('Backup and Restore', async () => {
       // Create test data
-      const task1 = await this.engine.createTask(TestUtils.createSampleTask({ title: 'Backup Test 1' }));
-      const task2 = await this.engine.createTask(TestUtils.createSampleTask({ title: 'Backup Test 2' }));
+      const task1 = await this.engine.createTask(
+        TestUtils.createSampleTask({ title: 'Backup Test 1' }),
+      );
+      const task2 = await this.engine.createTask(
+        TestUtils.createSampleTask({ title: 'Backup Test 2' }),
+      );
 
       // Create backup
-      const backup = await this.engine.createBackup('test-backup-' + Date.now());
+      const backup = await this.engine.createBackup(
+        'test-backup-' + Date.now(),
+      );
       if (!backup.success) {
         throw new Error(`Backup creation failed: ${backup.message}`);
       }
 
       // Verify backup contains our data
       if (backup.stats.taskCount < 2) {
-        throw new Error(`Backup missing tasks: expected ≥2, got ${backup.stats.taskCount}`);
+        throw new Error(
+          `Backup missing tasks: expected ≥2, got ${backup.stats.taskCount}`,
+        );
       }
 
-      console.log(`    📊 Backup created: ${backup.stats.taskCount} tasks, ${backup.stats.totalSize} bytes`);
+      console.log(
+        `    📊 Backup created: ${backup.stats.taskCount} tasks, ${backup.stats.totalSize} bytes`,
+      );
     });
 
     await this.runTest('Data Corruption Recovery', async () => {
       const task = await this.engine.createTask(TestUtils.createSampleTask());
 
       // Simulate data corruption by writing invalid JSON
-      const taskFile = path.join(this.testDir, '.gemini-persistence', 'tasks', `${task.id}.json`);
+      const taskFile = path.join(
+        this.testDir,
+        '.gemini-persistence',
+        'tasks',
+        `${task.id}.json`,
+      );
       await fs.writeFile(taskFile, '{ invalid json content ');
 
       // System should detect corruption and handle gracefully
@@ -525,7 +602,9 @@ class CrossSessionPersistenceEngineTestSuite {
         const retrieved = await this.engine.getTask(task.id);
         // If recovery worked, we should get null (file treated as missing)
         // or the task should be recovered from backup/cache
-        console.log(`    📊 Corruption handled gracefully: ${retrieved ? 'recovered' : 'treated as missing'}`);
+        console.log(
+          `    📊 Corruption handled gracefully: ${retrieved ? 'recovered' : 'treated as missing'}`,
+        );
       } catch (error) {
         // Should not throw unhandled errors
         throw new Error(`Corruption not handled gracefully: ${error.message}`);
@@ -540,7 +619,7 @@ class CrossSessionPersistenceEngineTestSuite {
       try {
         // Attempt to update with invalid data structure
         await this.engine.updateTask(task.id, {
-          invalid_field: { circular: null }
+          invalid_field: { circular: null },
         });
         // Add circular reference to test JSON serialization failure
         const invalidData = {};
@@ -566,19 +645,25 @@ class CrossSessionPersistenceEngineTestSuite {
 
     await this.runTest('Concurrent Task Creation', async () => {
       const concurrentCreations = 20;
-      const createPromises = Array(concurrentCreations).fill(null).map((_, i) =>
-        this.engine.createTask(TestUtils.createSampleTask({
-          title: `Concurrent Task ${i}`,
-          priority: i % 2 === 0 ? 'high' : 'low'
-        }))
-      );
+      const createPromises = Array(concurrentCreations)
+        .fill(null)
+        .map((_, i) =>
+          this.engine.createTask(
+            TestUtils.createSampleTask({
+              title: `Concurrent Task ${i}`,
+              priority: i % 2 === 0 ? 'high' : 'low',
+            }),
+          ),
+        );
 
       const tasks = await Promise.all(createPromises);
 
       // Verify all tasks created successfully with unique IDs
-      const taskIds = new Set(tasks.map(t => t.id));
+      const taskIds = new Set(tasks.map((t) => t.id));
       if (taskIds.size !== concurrentCreations) {
-        throw new Error(`ID collision detected: ${taskIds.size} unique IDs from ${concurrentCreations} tasks`);
+        throw new Error(
+          `ID collision detected: ${taskIds.size} unique IDs from ${concurrentCreations} tasks`,
+        );
       }
     });
 
@@ -586,19 +671,23 @@ class CrossSessionPersistenceEngineTestSuite {
       const task = await this.engine.createTask(TestUtils.createSampleTask());
       const concurrentUpdates = 10;
 
-      const updatePromises = Array(concurrentUpdates).fill(null).map((_, i) =>
-        this.engine.updateTask(task.id, {
-          description: `Update ${i} at ${Date.now()}`,
-          metadata: { updateIndex: i, timestamp: Date.now() }
-        })
-      );
+      const updatePromises = Array(concurrentUpdates)
+        .fill(null)
+        .map((_, i) =>
+          this.engine.updateTask(task.id, {
+            description: `Update ${i} at ${Date.now()}`,
+            metadata: { updateIndex: i, timestamp: Date.now() },
+          }),
+        );
 
       const results = await Promise.all(updatePromises);
       const finalTask = await this.engine.getTask(task.id);
 
       // Verify all updates succeeded and version incremented correctly
       if (finalTask.version !== task.version + concurrentUpdates) {
-        throw new Error(`Version mismatch: expected ${task.version + concurrentUpdates}, got ${finalTask.version}`);
+        throw new Error(
+          `Version mismatch: expected ${task.version + concurrentUpdates}, got ${finalTask.version}`,
+        );
       }
     });
 
@@ -610,28 +699,34 @@ class CrossSessionPersistenceEngineTestSuite {
         if (i % 4 === 0) {
           // Create operation
           operations.push(
-            this.engine.createTask(TestUtils.createSampleTask({ title: `Mixed Op Task ${i}` }))
+            this.engine.createTask(
+              TestUtils.createSampleTask({ title: `Mixed Op Task ${i}` }),
+            ),
           );
         } else if (i % 4 === 1) {
           // Read operation (create a task first)
           operations.push(
-            this.engine.createTask(TestUtils.createSampleTask()).then(task =>
-              this.engine.getTask(task.id)
-            )
+            this.engine
+              .createTask(TestUtils.createSampleTask())
+              .then((task) => this.engine.getTask(task.id)),
           );
         } else if (i % 4 === 2) {
           // Update operation
           operations.push(
-            this.engine.createTask(TestUtils.createSampleTask()).then(task =>
-              this.engine.updateTask(task.id, { description: `Updated ${i}` })
-            )
+            this.engine
+              .createTask(TestUtils.createSampleTask())
+              .then((task) =>
+                this.engine.updateTask(task.id, {
+                  description: `Updated ${i}`,
+                }),
+              ),
           );
         } else {
           // Delete operation
           operations.push(
-            this.engine.createTask(TestUtils.createSampleTask()).then(task =>
-              this.engine.deleteTask(task.id)
-            )
+            this.engine
+              .createTask(TestUtils.createSampleTask())
+              .then((task) => this.engine.deleteTask(task.id)),
           );
         }
       }
@@ -639,11 +734,13 @@ class CrossSessionPersistenceEngineTestSuite {
       const results = await Promise.all(operations);
 
       // Verify no operations failed
-      if (results.some(r => r === null || r === false)) {
+      if (results.some((r) => r === null || r === false)) {
         throw new Error('Some mixed concurrent operations failed');
       }
 
-      console.log(`    📊 ${operations.length} mixed operations completed successfully`);
+      console.log(
+        `    📊 ${operations.length} mixed operations completed successfully`,
+      );
     });
   }
 
@@ -660,7 +757,7 @@ class CrossSessionPersistenceEngineTestSuite {
         title: 'E2E Lifecycle Test',
         description: 'Testing complete task lifecycle',
         status: 'pending',
-        priority: 'high'
+        priority: 'high',
       });
 
       const task = await this.engine.createTask(taskData);
@@ -668,12 +765,12 @@ class CrossSessionPersistenceEngineTestSuite {
       // Update through various states
       const inProgress = await this.engine.updateTask(task.id, {
         status: 'in_progress',
-        assignee: 'test-agent-001'
+        assignee: 'test-agent-001',
       });
 
       const completed = await this.engine.updateTask(task.id, {
         status: 'completed',
-        completion_time: new Date().toISOString()
+        completion_time: new Date().toISOString(),
       });
 
       // Verify state progression
@@ -688,10 +785,12 @@ class CrossSessionPersistenceEngineTestSuite {
       // Archive task
       const archived = await this.engine.updateTask(task.id, {
         status: 'archived',
-        archived_at: new Date().toISOString()
+        archived_at: new Date().toISOString(),
       });
 
-      console.log(`    📊 Task lifecycle: ${task.version} → ${archived.version} (${archived.status})`);
+      console.log(
+        `    📊 Task lifecycle: ${task.version} → ${archived.version} (${archived.status})`,
+      );
     });
 
     await this.runTest('Session Recovery Simulation', async () => {
@@ -700,11 +799,13 @@ class CrossSessionPersistenceEngineTestSuite {
       // Create session with active tasks
       const tasks = [];
       for (let i = 0; i < 5; i++) {
-        const task = await this.engine.createTask(TestUtils.createSampleTask({
-          title: `Session Task ${i}`,
-          session_id: sessionId,
-          status: i < 3 ? 'in_progress' : 'pending'
-        }));
+        const task = await this.engine.createTask(
+          TestUtils.createSampleTask({
+            title: `Session Task ${i}`,
+            session_id: sessionId,
+            status: i < 3 ? 'in_progress' : 'pending',
+          }),
+        );
         tasks.push(task);
       }
 
@@ -716,7 +817,9 @@ class CrossSessionPersistenceEngineTestSuite {
         throw new Error(`Session recovery failed: ${resumeResult.message}`);
       }
 
-      console.log(`    📊 Session recovery: ${resumeResult.resumedTasks} tasks resumed`);
+      console.log(
+        `    📊 Session recovery: ${resumeResult.resumedTasks} tasks resumed`,
+      );
     });
 
     await this.runTest('System Health Monitoring', async () => {
@@ -735,10 +838,14 @@ class CrossSessionPersistenceEngineTestSuite {
       }
 
       if (status.performance.operations < 20) {
-        throw new Error(`Expected ≥20 operations, got ${status.performance.operations}`);
+        throw new Error(
+          `Expected ≥20 operations, got ${status.performance.operations}`,
+        );
       }
 
-      console.log(`    📊 System health: ${status.performance.operations} ops, ${(status.cache.hitRate * 100).toFixed(1)}% cache hit rate`);
+      console.log(
+        `    📊 System health: ${status.performance.operations} ops, ${(status.cache.hitRate * 100).toFixed(1)}% cache hit rate`,
+      );
     });
 
     await this.runTest('Performance Under Load', async () => {
@@ -752,9 +859,11 @@ class CrossSessionPersistenceEngineTestSuite {
       while (Date.now() - startTime < loadTestDuration) {
         const promise = (async () => {
           try {
-            const task = await this.engine.createTask(TestUtils.createSampleTask({
-              title: `Load Test ${operationCount++}`
-            }));
+            const task = await this.engine.createTask(
+              TestUtils.createSampleTask({
+                title: `Load Test ${operationCount++}`,
+              }),
+            );
             await this.engine.getTask(task.id);
             await this.engine.updateTask(task.id, { status: 'completed' });
           } catch (error) {
@@ -768,13 +877,17 @@ class CrossSessionPersistenceEngineTestSuite {
 
       await Promise.all(loadPromises);
       const actualDuration = Date.now() - startTime;
-      const opsPerSecond = (operationCount / actualDuration * 1000).toFixed(2);
+      const opsPerSecond = ((operationCount / actualDuration) * 1000).toFixed(
+        2,
+      );
 
       if (errors.length > 0) {
         throw new Error(`${errors.length} errors during load test`);
       }
 
-      console.log(`    📊 Load test: ${operationCount} operations in ${actualDuration}ms (${opsPerSecond} ops/sec)`);
+      console.log(
+        `    📊 Load test: ${operationCount} operations in ${actualDuration}ms (${opsPerSecond} ops/sec)`,
+      );
     });
   }
 
@@ -786,35 +899,44 @@ class CrossSessionPersistenceEngineTestSuite {
     console.log('='.repeat(80));
 
     const totalTests = this.testResults.length;
-    const passedTests = this.testResults.filter(r => r.status === 'PASS').length;
-    const failedTests = this.testResults.filter(r => r.status === 'FAIL').length;
-    const totalDuration = this.testResults.reduce((sum, r) => sum + r.duration, 0);
+    const passedTests = this.testResults.filter(
+      (r) => r.status === 'PASS',
+    ).length;
+    const failedTests = this.testResults.filter(
+      (r) => r.status === 'FAIL',
+    ).length;
+    const totalDuration = this.testResults.reduce(
+      (sum, r) => sum + r.duration,
+      0,
+    );
     const avgDuration = (totalDuration / totalTests).toFixed(2);
 
     console.log(`Total Tests: ${totalTests}`);
     console.log(`Passed: ${passedTests} ✅`);
     console.log(`Failed: ${failedTests} ❌`);
-    console.log(`Success Rate: ${((passedTests / totalTests) * 100).toFixed(1)}%`);
+    console.log(
+      `Success Rate: ${((passedTests / totalTests) * 100).toFixed(1)}%`,
+    );
     console.log(`Total Duration: ${totalDuration}ms`);
     console.log(`Average Duration: ${avgDuration}ms per test`);
 
     if (failedTests > 0) {
       console.log('\n❌ Failed Tests:');
       this.testResults
-        .filter(r => r.status === 'FAIL')
-        .forEach(result => {
+        .filter((r) => r.status === 'FAIL')
+        .forEach((result) => {
           console.log(`  • ${result.name}: ${result.error}`);
         });
     }
 
     // Performance metrics
-    const performanceTests = this.testResults.filter(r =>
-      r.name.includes('Performance') || r.name.includes('Load')
+    const performanceTests = this.testResults.filter(
+      (r) => r.name.includes('Performance') || r.name.includes('Load'),
     );
 
     if (performanceTests.length > 0) {
       console.log('\n⚡ Performance Metrics:');
-      performanceTests.forEach(result => {
+      performanceTests.forEach((result) => {
         console.log(`  • ${result.name}: ${result.duration}ms`);
       });
     }
@@ -829,14 +951,14 @@ class CrossSessionPersistenceEngineTestSuite {
         successRate: (passedTests / totalTests) * 100,
         totalDuration,
         avgDuration: parseFloat(avgDuration),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       results: this.testResults,
       environment: {
         nodeVersion: process.version,
         platform: process.platform,
-        testDir: this.testDir
-      }
+        testDir: this.testDir,
+      },
     };
 
     await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
@@ -845,7 +967,9 @@ class CrossSessionPersistenceEngineTestSuite {
     if (failedTests === 0) {
       console.log('\n🎉 All tests passed! System is functioning correctly.');
     } else {
-      console.log(`\n⚠️  ${failedTests} test(s) failed. Please review and fix issues.`);
+      console.log(
+        `\n⚠️  ${failedTests} test(s) failed. Please review and fix issues.`,
+      );
     }
   }
 }
@@ -854,7 +978,7 @@ class CrossSessionPersistenceEngineTestSuite {
 module.exports = {
   CrossSessionPersistenceEngineTestSuite,
   TestUtils,
-  MockFileSystem
+  MockFileSystem,
 };
 
 // Run tests if called directly

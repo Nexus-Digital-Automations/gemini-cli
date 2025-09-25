@@ -18,7 +18,7 @@ import {
   MockTaskStore,
   TestUtilities,
   PerformanceMetrics,
-  StressTestRunner
+  StressTestRunner,
 } from './utils/TestFactories';
 
 describe('Edge Case Validation Suite', () => {
@@ -95,7 +95,7 @@ describe('Edge Case Validation Suite', () => {
         new Date(Number.MAX_SAFE_INTEGER), // Maximum timestamp
       ];
 
-      extremeDates.forEach(date => {
+      extremeDates.forEach((date) => {
         const task = TaskFactories.createTask({
           createdAt: date,
           scheduledFor: date,
@@ -114,7 +114,7 @@ describe('Edge Case Validation Suite', () => {
         'not-a-date' as any,
       ];
 
-      invalidDates.forEach(invalidDate => {
+      invalidDates.forEach((invalidDate) => {
         expect(() => {
           TaskFactories.createTask({ createdAt: invalidDate });
         }).toThrow();
@@ -128,22 +128,28 @@ describe('Edge Case Validation Suite', () => {
 
       for (let i = 0; i < chainDepth; i++) {
         const dependencies = i > 0 ? [`task-${i - 1}`] : [];
-        tasks.push(TaskFactories.createTask({
-          id: `task-${i}`,
-          title: `Task ${i}`,
-          dependencies,
-        }));
+        tasks.push(
+          TaskFactories.createTask({
+            id: `task-${i}`,
+            title: `Task ${i}`,
+            dependencies,
+          }),
+        );
       }
 
-      tasks.forEach(task => taskStore.addTask(task));
+      tasks.forEach((task) => taskStore.addTask(task));
 
       // Should handle deep chains but may implement depth limits
-      const resolutionResult = taskStore.resolveDependencies(`task-${chainDepth - 1}`);
+      const resolutionResult = taskStore.resolveDependencies(
+        `task-${chainDepth - 1}`,
+      );
 
       if (resolutionResult.success) {
         expect(resolutionResult.chainDepth).toBe(chainDepth);
       } else {
-        expect(resolutionResult.error).toContain('Maximum dependency depth exceeded');
+        expect(resolutionResult.error).toContain(
+          'Maximum dependency depth exceeded',
+        );
         expect(resolutionResult.maxDepthAllowed).toBeLessThan(chainDepth);
       }
     });
@@ -154,9 +160,15 @@ describe('Edge Case Validation Suite', () => {
       // Test large text content
       const largeDescription = 'Lorem ipsum '.repeat(100000); // ~1.1MB text
       const largeMetadata = {
-        logs: Array.from({ length: 10000 }, (_, i) => `Log entry ${i}: ${'x'.repeat(100)}`),
+        logs: Array.from(
+          { length: 10000 },
+          (_, i) => `Log entry ${i}: ${'x'.repeat(100)}`,
+        ),
         config: Object.fromEntries(
-          Array.from({ length: 1000 }, (_, i) => [`key${i}`, `value${'x'.repeat(50)}`])
+          Array.from({ length: 1000 }, (_, i) => [
+            `key${i}`,
+            `value${'x'.repeat(50)}`,
+          ]),
         ),
       };
 
@@ -170,12 +182,14 @@ describe('Edge Case Validation Suite', () => {
       const saveResult = taskStore.saveTask(massiveTask);
 
       if (saveResult instanceof Promise) {
-        saveResult.then(result => {
-          expect(result.success).toBe(true);
-          expect(result.warnings).toContain('Large task data detected');
-        }).catch(error => {
-          expect(error.message).toContain('Task data exceeds size limit');
-        });
+        saveResult
+          .then((result) => {
+            expect(result.success).toBe(true);
+            expect(result.warnings).toContain('Large task data detected');
+          })
+          .catch((error) => {
+            expect(error.message).toContain('Task data exceeds size limit');
+          });
       }
     });
 
@@ -233,7 +247,10 @@ describe('Edge Case Validation Suite', () => {
         { name: 'control_chars', content: 'Task\x01with\x02control\x03chars' },
         { name: 'unicode_emoji', content: '🚀📊💻🔧⚡🎯🌟💡🔥⭐' },
         { name: 'rtl_text', content: 'Task with Arabic: مرحبا بكم في النظام' },
-        { name: 'mixed_scripts', content: 'Mixed: Hello 你好 مرحبا שלום こんにちは' },
+        {
+          name: 'mixed_scripts',
+          content: 'Mixed: Hello 你好 مرحبا שלום こんにちは',
+        },
         { name: 'zalgo_text', content: 'T̸̰̅a̷̱̍s̵̰̈k̸̰̇ ̷̭̏w̵̱̌ḭ̸̍ṯ̷̍ȟ̵̰ ̸̰̅ẕ̷̍ä̵̰l̸̰̇g̷̭̏ǒ̵̱' },
       ];
 
@@ -256,25 +273,26 @@ describe('Edge Case Validation Suite', () => {
       // Create tasks exceeding the limit
       const excessTasks = Array.from(
         { length: maxConcurrentTasks + 50 },
-        (_, i) => TaskFactories.createTask({
-          id: `excess-task-${i}`,
-          estimatedDuration: 10000, // Long running tasks
-        })
+        (_, i) =>
+          TaskFactories.createTask({
+            id: `excess-task-${i}`,
+            estimatedDuration: 10000, // Long running tasks
+          }),
       );
 
-      excessTasks.forEach(task => taskStore.addTask(task));
+      excessTasks.forEach((task) => taskStore.addTask(task));
 
       // Execute all tasks
-      const executionPromises = excessTasks.map(task =>
-        taskStore.executeTask(task.id).catch(e => ({ error: e.message }))
+      const executionPromises = excessTasks.map((task) =>
+        taskStore.executeTask(task.id).catch((e) => ({ error: e.message })),
       );
 
       const results = await Promise.all(executionPromises);
 
       // Count successful executions
-      const successful = results.filter(r => !('error' in r)).length;
-      const queued = results.filter(r =>
-        'error' in r && r.error.includes('execution queue full')
+      const successful = results.filter((r) => !('error' in r)).length;
+      const queued = results.filter(
+        (r) => 'error' in r && r.error.includes('execution queue full'),
       ).length;
 
       expect(successful).toBeLessThanOrEqual(maxConcurrentTasks);
@@ -304,20 +322,21 @@ describe('Edge Case Validation Suite', () => {
       const maxQueueSize = taskStore.getMaxQueueSize();
 
       // Fill queue to capacity
-      const queueTasks = Array.from(
-        { length: maxQueueSize + 100 },
-        (_, i) => TaskFactories.createTask({
+      const queueTasks = Array.from({ length: maxQueueSize + 100 }, (_, i) =>
+        TaskFactories.createTask({
           id: `queue-task-${i}`,
           status: 'pending',
-        })
+        }),
       );
 
       const addResults = await Promise.allSettled(
-        queueTasks.map(task => taskStore.addTask(task))
+        queueTasks.map((task) => taskStore.addTask(task)),
       );
 
-      const successful = addResults.filter(r => r.status === 'fulfilled').length;
-      const rejected = addResults.filter(r => r.status === 'rejected').length;
+      const successful = addResults.filter(
+        (r) => r.status === 'fulfilled',
+      ).length;
+      const rejected = addResults.filter((r) => r.status === 'rejected').length;
 
       expect(successful).toBe(maxQueueSize);
       expect(rejected).toBe(100);
@@ -334,22 +353,24 @@ describe('Edge Case Validation Suite', () => {
       // Create tasks that use file operations
       const fileTasks = Array.from(
         { length: maxFileDescriptors + 10 },
-        (_, i) => TaskFactories.createTask({
-          id: `file-task-${i}`,
-          executionConfig: {
-            requiresFileAccess: true,
-            outputFiles: [`output-${i}.txt`],
-          },
-        })
+        (_, i) =>
+          TaskFactories.createTask({
+            id: `file-task-${i}`,
+            executionConfig: {
+              requiresFileAccess: true,
+              outputFiles: [`output-${i}.txt`],
+            },
+          }),
       );
 
       const executionResults = await Promise.allSettled(
-        fileTasks.map(task => taskStore.executeTask(task.id))
+        fileTasks.map((task) => taskStore.executeTask(task.id)),
       );
 
       const fileDescriptorExhausted = executionResults.some(
-        result => result.status === 'rejected' &&
-        result.reason?.message?.includes('too many open files')
+        (result) =>
+          result.status === 'rejected' &&
+          result.reason?.message?.includes('too many open files'),
       );
 
       expect(fileDescriptorExhausted).toBe(true);
@@ -363,19 +384,20 @@ describe('Edge Case Validation Suite', () => {
 
       for (let cycle = 0; cycle < cycles; cycle++) {
         // Create tasks
-        const cycleTasks = Array.from(
-          { length: tasksPerCycle },
-          (_, i) => TaskFactories.createTask({
+        const cycleTasks = Array.from({ length: tasksPerCycle }, (_, i) =>
+          TaskFactories.createTask({
             id: `cycle-${cycle}-task-${i}`,
-          })
+          }),
         );
 
         // Add all tasks
-        await Promise.all(cycleTasks.map(task => taskStore.addTask(task)));
+        await Promise.all(cycleTasks.map((task) => taskStore.addTask(task)));
 
         // Immediately delete half of them
         const toDelete = cycleTasks.slice(0, Math.floor(tasksPerCycle / 2));
-        await Promise.all(toDelete.map(task => taskStore.deleteTask(task.id)));
+        await Promise.all(
+          toDelete.map((task) => taskStore.deleteTask(task.id)),
+        );
       }
 
       // System should remain stable
@@ -399,7 +421,7 @@ describe('Edge Case Validation Suite', () => {
             updateCount: i,
             timestamp: new Date().toISOString(),
           },
-        })
+        }),
       );
 
       await Promise.all(modifications);
@@ -428,12 +450,12 @@ describe('Edge Case Validation Suite', () => {
         if (i % 2 === 0) {
           taskStore.setResourceAvailability({
             memory: 500, // Below requirement
-            cpu: 0.3,    // Below requirement
+            cpu: 0.3, // Below requirement
           });
         } else {
           taskStore.setResourceAvailability({
             memory: 2000, // Above requirement
-            cpu: 0.8,     // Above requirement
+            cpu: 0.8, // Above requirement
           });
         }
 
@@ -457,14 +479,14 @@ describe('Edge Case Validation Suite', () => {
         TaskFactories.createTask({
           id: `sync-task-${i}`,
           executionConfig: { synchronous: true },
-        })
+        }),
       );
 
       const asyncTasks = Array.from({ length: 50 }, (_, i) =>
         TaskFactories.createTask({
           id: `async-task-${i}`,
           executionConfig: { synchronous: false },
-        })
+        }),
       );
 
       const allTasks = [...syncTasks, ...asyncTasks];
@@ -473,18 +495,22 @@ describe('Edge Case Validation Suite', () => {
       TestUtilities.shuffleArray(allTasks);
 
       // Execute in mixed pattern
-      const executionPromises = allTasks.map(task =>
-        taskStore.executeTask(task.id)
+      const executionPromises = allTasks.map((task) =>
+        taskStore.executeTask(task.id),
       );
 
       const results = await Promise.all(executionPromises);
 
       // All should complete successfully
-      expect(results.every(r => r.success)).toBe(true);
+      expect(results.every((r) => r.success)).toBe(true);
 
       // Verify execution pattern handling
-      const syncResults = results.filter(r => r.executionType === 'synchronous');
-      const asyncResults = results.filter(r => r.executionType === 'asynchronous');
+      const syncResults = results.filter(
+        (r) => r.executionType === 'synchronous',
+      );
+      const asyncResults = results.filter(
+        (r) => r.executionType === 'asynchronous',
+      );
 
       expect(syncResults.length).toBe(50);
       expect(asyncResults.length).toBe(50);
@@ -495,18 +521,18 @@ describe('Edge Case Validation Suite', () => {
     it('should handle simultaneous backup and restore operations', async () => {
       // Populate with test data
       const testTasks = Array.from({ length: 100 }, (_, i) =>
-        TaskFactories.createTask({ id: `backup-task-${i}` })
+        TaskFactories.createTask({ id: `backup-task-${i}` }),
       );
 
-      await Promise.all(testTasks.map(task => taskStore.addTask(task)));
+      await Promise.all(testTasks.map((task) => taskStore.addTask(task)));
 
       // Start backup operation
       const backupPromise = taskStore.createBackup();
 
       // Simultaneously modify data
-      const modificationPromises = testTasks.slice(0, 50).map(task =>
-        taskStore.updateTask(task.id, { status: 'completed' })
-      );
+      const modificationPromises = testTasks
+        .slice(0, 50)
+        .map((task) => taskStore.updateTask(task.id, { status: 'completed' }));
 
       // Start restore from older backup
       const restorePromise = taskStore.restoreFromBackup('previous-backup');
@@ -538,7 +564,11 @@ describe('Edge Case Validation Suite', () => {
       const corruptionDetection = await taskStore.validateDataIntegrity();
 
       expect(corruptionDetection.corruptionDetected).toBe(true);
-      expect(corruptionDetection.affectedLayers).toEqual(['memory', 'disk', 'backup']);
+      expect(corruptionDetection.affectedLayers).toEqual([
+        'memory',
+        'disk',
+        'backup',
+      ]);
       expect(corruptionDetection.recoverabilityStatus).toBeDefined();
 
       // Should attempt automatic recovery
@@ -552,10 +582,10 @@ describe('Edge Case Validation Suite', () => {
         TaskFactories.createTaskWithSchema({
           id: `old-schema-task-${i}`,
           schemaVersion: '1.0.0',
-        })
+        }),
       );
 
-      await Promise.all(oldSchemaTasks.map(task => taskStore.addTask(task)));
+      await Promise.all(oldSchemaTasks.map((task) => taskStore.addTask(task)));
 
       // Simulate partial migration failure
       taskStore.simulateMigrationFailure({
@@ -580,7 +610,7 @@ describe('Edge Case Validation Suite', () => {
     it('should handle cascading validation failures', async () => {
       // Create interconnected tasks with potential validation issues
       const taskChain = Array.from({ length: 10 }, (_, i) => {
-        const dependencies = i > 0 ? [`chain-task-${i-1}`] : [];
+        const dependencies = i > 0 ? [`chain-task-${i - 1}`] : [];
         return TaskFactories.createTask({
           id: `chain-task-${i}`,
           dependencies,
@@ -591,7 +621,7 @@ describe('Edge Case Validation Suite', () => {
         });
       });
 
-      await Promise.all(taskChain.map(task => taskStore.addTask(task)));
+      await Promise.all(taskChain.map((task) => taskStore.addTask(task)));
 
       // Inject validation failure in the middle of chain
       taskStore.injectValidationFailure('chain-task-5', {
@@ -599,14 +629,18 @@ describe('Edge Case Validation Suite', () => {
         cascading: true,
       });
 
-      const validationResult = await taskStore.validateTaskChain('chain-task-9');
+      const validationResult =
+        await taskStore.validateTaskChain('chain-task-9');
 
       // Should detect cascading failures
       expect(validationResult.valid).toBe(false);
       expect(validationResult.cascadingFailures.length).toBeGreaterThan(0);
       expect(validationResult.affectedTasks).toContain('chain-task-5');
       expect(validationResult.impactAnalysis.downstreamTasks).toEqual([
-        'chain-task-6', 'chain-task-7', 'chain-task-8', 'chain-task-9'
+        'chain-task-6',
+        'chain-task-7',
+        'chain-task-8',
+        'chain-task-9',
       ]);
     });
   });
@@ -642,19 +676,21 @@ describe('Edge Case Validation Suite', () => {
         TaskFactories.createTask({
           id: `cpu-stress-task-${i}`,
           resourceRequirements: { cpu: 0.1 }, // 10% CPU each
-        })
+        }),
       );
 
       const schedulingStart = Date.now();
       const schedulingResults = await Promise.all(
-        cpuTasks.map(task => taskStore.scheduleTask(task))
+        cpuTasks.map((task) => taskStore.scheduleTask(task)),
       );
       const schedulingTime = Date.now() - schedulingStart;
 
       // Should degrade gracefully
       expect(schedulingTime).toBeLessThan(30000); // 30 seconds max
 
-      const successfullyScheduled = schedulingResults.filter(r => r.success).length;
+      const successfullyScheduled = schedulingResults.filter(
+        (r) => r.success,
+      ).length;
       expect(successfullyScheduled).toBeLessThan(cpuTasks.length); // Some should be deferred
       expect(successfullyScheduled).toBeGreaterThan(0); // Some should still work
     });
@@ -667,7 +703,7 @@ describe('Edge Case Validation Suite', () => {
         TaskFactories.createTask({
           id: `io-bulk-task-${i}`,
           metadata: { largeData: 'x'.repeat(10240) }, // 10KB each
-        })
+        }),
       );
 
       const bulkStart = Date.now();

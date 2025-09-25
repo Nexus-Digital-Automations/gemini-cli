@@ -39,12 +39,7 @@ export const testSuiteConfig = defineConfig({
       '**/*.performance.test.ts',
       '**/*.security.test.ts',
     ],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.git/**',
-    ],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
 
     // Timeout Configuration for Different Test Types
     testTimeout: 30000, // 30 seconds default
@@ -124,11 +119,7 @@ export const testSuiteConfig = defineConfig({
 
     // Watch Mode Configuration
     watch: false, // Disabled for CI/CD
-    watchExclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/coverage/**',
-    ],
+    watchExclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
 
     // Reporter Configuration
     reporters: [
@@ -229,9 +220,7 @@ export const testSuiteCategories = {
     description: 'Complete workflow and user journey testing',
     timeout: 60000,
     parallel: false, // Sequential execution for E2E
-    suites: [
-      'TaskManagementE2E.test.ts',
-    ],
+    suites: ['TaskManagementE2E.test.ts'],
     coverageTarget: 85,
     criticalFailureThreshold: 0,
   },
@@ -241,10 +230,7 @@ export const testSuiteCategories = {
     description: 'Performance benchmarks and optimization validation',
     timeout: 120000,
     parallel: false,
-    suites: [
-      'TaskManagementPerformance.test.ts',
-      'EdgeCaseValidation.test.ts',
-    ],
+    suites: ['TaskManagementPerformance.test.ts', 'EdgeCaseValidation.test.ts'],
     coverageTarget: 80,
     criticalFailureThreshold: 1, // 1 performance failure allowed
   },
@@ -254,9 +240,7 @@ export const testSuiteCategories = {
     description: 'Security vulnerability and penetration testing',
     timeout: 30000,
     parallel: true,
-    suites: [
-      'TaskManagementSecurity.test.ts',
-    ],
+    suites: ['TaskManagementSecurity.test.ts'],
     coverageTarget: 100, // 100% security coverage required
     criticalFailureThreshold: 0,
   },
@@ -266,10 +250,7 @@ export const testSuiteCategories = {
     description: 'Comprehensive error handling and recovery testing',
     timeout: 15000,
     parallel: true,
-    suites: [
-      'ErrorHandlingSystem.test.ts',
-      'InfiniteLoopProtection.test.ts',
-    ],
+    suites: ['ErrorHandlingSystem.test.ts', 'InfiniteLoopProtection.test.ts'],
     coverageTarget: 100,
     criticalFailureThreshold: 0,
   },
@@ -279,9 +260,7 @@ export const testSuiteCategories = {
     description: 'Test coverage analysis and validation',
     timeout: 30000,
     parallel: false,
-    suites: [
-      'CoverageReporting.test.ts',
-    ],
+    suites: ['CoverageReporting.test.ts'],
     coverageTarget: 100,
     criticalFailureThreshold: 0,
   },
@@ -416,11 +395,17 @@ export class TestSuiteOrchestrator {
     const startTime = Date.now();
 
     for (const category of this.EXECUTION_ORDER) {
-      const categoryConfig = testSuiteCategories[category as keyof typeof testSuiteCategories];
+      const categoryConfig =
+        testSuiteCategories[category as keyof typeof testSuiteCategories];
 
-      console.log(`\n🧪 Executing ${category} tests: ${categoryConfig.description}`);
+      console.log(
+        `\n🧪 Executing ${category} tests: ${categoryConfig.description}`,
+      );
 
-      const categoryResult = await this.executeCategoryTests(category, categoryConfig);
+      const categoryResult = await this.executeCategoryTests(
+        category,
+        categoryConfig,
+      );
       results.suiteResults[category] = categoryResult;
 
       results.totalTests += categoryResult.totalTests;
@@ -428,7 +413,10 @@ export class TestSuiteOrchestrator {
       results.failedTests += categoryResult.failedTests;
 
       // Check if critical failures exceed threshold
-      if (categoryResult.criticalFailures > categoryConfig.criticalFailureThreshold) {
+      if (
+        categoryResult.criticalFailures >
+        categoryConfig.criticalFailureThreshold
+      ) {
         console.error(`❌ Critical failures in ${category} exceed threshold`);
         results.overallSuccess = false;
         break;
@@ -436,7 +424,9 @@ export class TestSuiteOrchestrator {
 
       // Check coverage target
       if (categoryResult.coveragePercentage < categoryConfig.coverageTarget) {
-        console.warn(`⚠️  Coverage in ${category} below target: ${categoryResult.coveragePercentage}% < ${categoryConfig.coverageTarget}%`);
+        console.warn(
+          `⚠️  Coverage in ${category} below target: ${categoryResult.coveragePercentage}% < ${categoryConfig.coverageTarget}%`,
+        );
       }
     }
 
@@ -444,7 +434,8 @@ export class TestSuiteOrchestrator {
 
     // Validate quality gates
     results.qualityGates = await this.validateQualityGates(results);
-    results.overallSuccess = results.overallSuccess && results.qualityGates.allGatesPassed;
+    results.overallSuccess =
+      results.overallSuccess && results.qualityGates.allGatesPassed;
 
     return results;
   }
@@ -454,7 +445,7 @@ export class TestSuiteOrchestrator {
    */
   private static async executeCategoryTests(
     category: string,
-    config: any
+    config: any,
   ): Promise<CategoryTestResult> {
     // This would integrate with actual test runner
     // For now, return mock successful results
@@ -478,7 +469,7 @@ export class TestSuiteOrchestrator {
    * Validate quality gates after test execution
    */
   private static async validateQualityGates(
-    results: TestSuiteResults
+    results: TestSuiteResults,
   ): Promise<QualityGateResults> {
     const gates: QualityGateResults = {
       allGatesPassed: true,

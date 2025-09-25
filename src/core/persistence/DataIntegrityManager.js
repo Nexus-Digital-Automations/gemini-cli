@@ -49,7 +49,11 @@ class DataIntegrityManager extends EventEmitter {
     super();
 
     this.projectRoot = options.projectRoot || process.cwd();
-    this.integrityDir = path.join(this.projectRoot, '.gemini-tasks', 'integrity');
+    this.integrityDir = path.join(
+      this.projectRoot,
+      '.gemini-tasks',
+      'integrity',
+    );
     this.featuresPath = path.join(this.projectRoot, 'FEATURES.json');
 
     // Integrity configuration
@@ -60,7 +64,7 @@ class DataIntegrityManager extends EventEmitter {
       maxRepairAttempts: 3,
       corruptionThreshold: 0.1, // 10% corruption tolerance
       autoRepair: options.autoRepair !== false, // default true
-      ...options
+      ...options,
     };
 
     // Storage paths
@@ -70,7 +74,7 @@ class DataIntegrityManager extends EventEmitter {
       recoveryPoints: path.join(this.integrityDir, 'recovery-points'),
       transactionLog: path.join(this.integrityDir, 'transaction-log.json'),
       corruptionReport: path.join(this.integrityDir, 'corruption-report.json'),
-      repairHistory: path.join(this.integrityDir, 'repair-history.json')
+      repairHistory: path.join(this.integrityDir, 'repair-history.json'),
     };
 
     // Data schemas for validation
@@ -78,21 +82,43 @@ class DataIntegrityManager extends EventEmitter {
       features: {
         required: ['project', 'features', 'metadata'],
         features: {
-          required: ['id', 'title', 'description', 'business_value', 'category', 'status'],
-          statusValues: ['suggested', 'approved', 'rejected', 'implemented']
+          required: [
+            'id',
+            'title',
+            'description',
+            'business_value',
+            'category',
+            'status',
+          ],
+          statusValues: ['suggested', 'approved', 'rejected', 'implemented'],
         },
         metadata: {
-          required: ['version', 'created', 'updated', 'total_features']
-        }
+          required: ['version', 'created', 'updated', 'total_features'],
+        },
       },
       tasks: {
-        required: ['id', 'title', 'description', 'status', 'created_at', 'updated_at'],
-        statusValues: ['queued', 'assigned', 'in_progress', 'blocked', 'completed', 'failed', 'cancelled']
+        required: [
+          'id',
+          'title',
+          'description',
+          'status',
+          'created_at',
+          'updated_at',
+        ],
+        statusValues: [
+          'queued',
+          'assigned',
+          'in_progress',
+          'blocked',
+          'completed',
+          'failed',
+          'cancelled',
+        ],
       },
       agents: {
         required: ['lastHeartbeat', 'status', 'sessionId'],
-        statusValues: ['active', 'inactive', 'error']
-      }
+        statusValues: ['active', 'inactive', 'error'],
+      },
     };
 
     // Integrity state
@@ -103,7 +129,7 @@ class DataIntegrityManager extends EventEmitter {
       validationHistory: [],
       criticalErrors: [],
       checksums: new Map(),
-      validationInterval: null
+      validationInterval: null,
     };
 
     // Initialize integrity system
@@ -121,7 +147,9 @@ class DataIntegrityManager extends EventEmitter {
       console.log('DataIntegrityManager: System initialized successfully');
     } catch (error) {
       console.error('DataIntegrityManager: Initialization failed:', error);
-      throw new Error(`Data integrity system initialization failed: ${error.message}`);
+      throw new Error(
+        `Data integrity system initialization failed: ${error.message}`,
+      );
     }
   }
 
@@ -133,24 +161,24 @@ class DataIntegrityManager extends EventEmitter {
     const initialFiles = [
       {
         path: this.paths.checksums,
-        data: { checksums: {}, lastUpdate: new Date().toISOString() }
+        data: { checksums: {}, lastUpdate: new Date().toISOString() },
       },
       {
         path: this.paths.validationLog,
-        data: { validations: [], lastValidation: null }
+        data: { validations: [], lastValidation: null },
       },
       {
         path: this.paths.transactionLog,
-        data: { transactions: [], lastTransaction: null }
+        data: { transactions: [], lastTransaction: null },
       },
       {
         path: this.paths.corruptionReport,
-        data: { corruptions: [], lastCorruption: null, totalCorruptions: 0 }
+        data: { corruptions: [], lastCorruption: null, totalCorruptions: 0 },
       },
       {
         path: this.paths.repairHistory,
-        data: { repairs: [], lastRepair: null, totalRepairs: 0 }
-      }
+        data: { repairs: [], lastRepair: null, totalRepairs: 0 },
+      },
     ];
 
     for (const file of initialFiles) {
@@ -170,13 +198,18 @@ class DataIntegrityManager extends EventEmitter {
       this.state.checksums = new Map(Object.entries(checksums.checksums || {}));
 
       // Load validation history
-      const validationData = await fs.readFile(this.paths.validationLog, 'utf8');
+      const validationData = await fs.readFile(
+        this.paths.validationLog,
+        'utf8',
+      );
       const validationLog = JSON.parse(validationData);
       this.state.validationHistory = validationLog.validations || [];
       this.state.lastValidation = validationLog.lastValidation;
-
     } catch (error) {
-      console.warn('DataIntegrityManager: Could not load previous state:', error.message);
+      console.warn(
+        'DataIntegrityManager: Could not load previous state:',
+        error.message,
+      );
     }
   }
 
@@ -189,7 +222,10 @@ class DataIntegrityManager extends EventEmitter {
       try {
         await this.performIntegrityCheck();
       } catch (error) {
-        console.error('DataIntegrityManager: Scheduled validation failed:', error);
+        console.error(
+          'DataIntegrityManager: Scheduled validation failed:',
+          error,
+        );
         await this._logCriticalError('scheduled_validation_failed', error);
       }
     }, this.config.validationInterval);
@@ -214,7 +250,7 @@ class DataIntegrityManager extends EventEmitter {
         checks: {},
         issues: [],
         repairs: [],
-        summary: {}
+        summary: {},
       };
 
       // 1. Schema validation
@@ -224,16 +260,20 @@ class DataIntegrityManager extends EventEmitter {
       validationResult.checks.checksum = await this._verifyDataChecksums();
 
       // 3. Cross-reference validation
-      validationResult.checks.crossReference = await this._validateCrossReferences();
+      validationResult.checks.crossReference =
+        await this._validateCrossReferences();
 
       // 4. File system integrity
       validationResult.checks.filesystem = await this._validateFileSystem();
 
       // 5. Data consistency checks
-      validationResult.checks.consistency = await this._validateDataConsistency();
+      validationResult.checks.consistency =
+        await this._validateDataConsistency();
 
       // Analyze results and determine overall status
-      validationResult.status = this._analyzeValidationResults(validationResult.checks);
+      validationResult.status = this._analyzeValidationResults(
+        validationResult.checks,
+      );
       validationResult.duration = Date.now() - startTime;
 
       // Collect all issues
@@ -246,15 +286,21 @@ class DataIntegrityManager extends EventEmitter {
       // Generate summary
       validationResult.summary = {
         totalChecks: Object.keys(validationResult.checks).length,
-        passedChecks: Object.values(validationResult.checks).filter(c => c.valid).length,
+        passedChecks: Object.values(validationResult.checks).filter(
+          (c) => c.valid,
+        ).length,
         totalIssues: validationResult.issues.length,
-        criticalIssues: validationResult.issues.filter(i => i.severity === 'critical').length,
-        autoRepaired: validationResult.repairs.length
+        criticalIssues: validationResult.issues.filter(
+          (i) => i.severity === 'critical',
+        ).length,
+        autoRepaired: validationResult.repairs.length,
       };
 
       // Attempt automatic repair if enabled
       if (this.config.autoRepair && validationResult.issues.length > 0) {
-        const repairResults = await this._attemptAutoRepair(validationResult.issues);
+        const repairResults = await this._attemptAutoRepair(
+          validationResult.issues,
+        );
         validationResult.repairs = repairResults;
       }
 
@@ -274,7 +320,6 @@ class DataIntegrityManager extends EventEmitter {
       this.emit('integrityCheck', validationResult);
 
       return validationResult;
-
     } catch (error) {
       const errorResult = {
         id: checkId,
@@ -284,9 +329,21 @@ class DataIntegrityManager extends EventEmitter {
         status: 'failed',
         error: error.message,
         checks: {},
-        issues: [{ severity: 'critical', type: 'validation_failure', message: error.message }],
+        issues: [
+          {
+            severity: 'critical',
+            type: 'validation_failure',
+            message: error.message,
+          },
+        ],
         repairs: [],
-        summary: { totalChecks: 0, passedChecks: 0, totalIssues: 1, criticalIssues: 1, autoRepaired: 0 }
+        summary: {
+          totalChecks: 0,
+          passedChecks: 0,
+          totalIssues: 1,
+          criticalIssues: 1,
+          autoRepaired: 0,
+        },
       };
 
       await this._logValidationResult(errorResult);
@@ -306,7 +363,11 @@ class DataIntegrityManager extends EventEmitter {
         const features = JSON.parse(featuresData);
 
         // Validate root structure
-        const rootIssues = this._validateObject(features, this.schemas.features, 'features');
+        const rootIssues = this._validateObject(
+          features,
+          this.schemas.features,
+          'features',
+        );
         issues.push(...rootIssues);
 
         // Validate each feature
@@ -315,7 +376,7 @@ class DataIntegrityManager extends EventEmitter {
             const featureIssues = this._validateObject(
               feature,
               this.schemas.features.features,
-              `features.features[${index}]`
+              `features.features[${index}]`,
             );
             issues.push(...featureIssues);
           });
@@ -327,7 +388,7 @@ class DataIntegrityManager extends EventEmitter {
             const taskIssues = this._validateObject(
               task,
               this.schemas.tasks,
-              `features.tasks[${index}]`
+              `features.tasks[${index}]`,
             );
             issues.push(...taskIssues);
           });
@@ -339,18 +400,17 @@ class DataIntegrityManager extends EventEmitter {
             const agentIssues = this._validateObject(
               agent,
               this.schemas.agents,
-              `features.agents.${agentId}`
+              `features.agents.${agentId}`,
             );
             issues.push(...agentIssues);
           });
         }
-
       } catch (error) {
         issues.push({
           severity: 'critical',
           type: 'json_parse_error',
           path: 'FEATURES.json',
-          message: `Failed to parse FEATURES.json: ${error.message}`
+          message: `Failed to parse FEATURES.json: ${error.message}`,
         });
       }
 
@@ -358,19 +418,20 @@ class DataIntegrityManager extends EventEmitter {
         valid: issues.length === 0,
         issues,
         checkType: 'schema_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
       return {
         valid: false,
-        issues: [{
-          severity: 'critical',
-          type: 'schema_validation_error',
-          message: `Schema validation failed: ${error.message}`
-        }],
+        issues: [
+          {
+            severity: 'critical',
+            type: 'schema_validation_error',
+            message: `Schema validation failed: ${error.message}`,
+          },
+        ],
         checkType: 'schema_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -381,7 +442,11 @@ class DataIntegrityManager extends EventEmitter {
       const filesToCheck = [
         this.featuresPath,
         path.join(this.projectRoot, '.gemini-tasks', 'task-state.json'),
-        path.join(this.projectRoot, '.gemini-tasks', 'performance-metrics.json')
+        path.join(
+          this.projectRoot,
+          '.gemini-tasks',
+          'performance-metrics.json',
+        ),
       ];
 
       for (const filePath of filesToCheck) {
@@ -399,20 +464,19 @@ class DataIntegrityManager extends EventEmitter {
               path: filePath,
               message: `File checksum mismatch detected`,
               expectedChecksum: storedChecksum,
-              actualChecksum: currentChecksum
+              actualChecksum: currentChecksum,
             });
           }
 
           // Update stored checksum
           this.state.checksums.set(filePath, currentChecksum);
-
         } catch (error) {
           if (error.code !== 'ENOENT') {
             issues.push({
               severity: 'warning',
               type: 'checksum_verification_failed',
               path: filePath,
-              message: `Could not verify checksum: ${error.message}`
+              message: `Could not verify checksum: ${error.message}`,
             });
           }
         }
@@ -422,22 +486,23 @@ class DataIntegrityManager extends EventEmitter {
       await this._persistChecksums();
 
       return {
-        valid: issues.filter(i => i.severity === 'critical').length === 0,
+        valid: issues.filter((i) => i.severity === 'critical').length === 0,
         issues,
         checkType: 'checksum_verification',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
       return {
         valid: false,
-        issues: [{
-          severity: 'critical',
-          type: 'checksum_verification_error',
-          message: `Checksum verification failed: ${error.message}`
-        }],
+        issues: [
+          {
+            severity: 'critical',
+            type: 'checksum_verification_error',
+            message: `Checksum verification failed: ${error.message}`,
+          },
+        ],
         checkType: 'checksum_verification',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -452,16 +517,18 @@ class DataIntegrityManager extends EventEmitter {
 
       // Validate feature-task relationships
       if (features.tasks && Array.isArray(features.tasks)) {
-        features.tasks.forEach(task => {
+        features.tasks.forEach((task) => {
           if (task.feature_id) {
-            const feature = features.features?.find(f => f.id === task.feature_id);
+            const feature = features.features?.find(
+              (f) => f.id === task.feature_id,
+            );
             if (!feature) {
               issues.push({
                 severity: 'critical',
                 type: 'orphaned_task',
                 taskId: task.id,
                 featureId: task.feature_id,
-                message: `Task ${task.id} references non-existent feature ${task.feature_id}`
+                message: `Task ${task.id} references non-existent feature ${task.feature_id}`,
               });
             }
           }
@@ -470,7 +537,7 @@ class DataIntegrityManager extends EventEmitter {
 
       // Validate task-agent assignments
       if (features.tasks && features.agents) {
-        features.tasks.forEach(task => {
+        features.tasks.forEach((task) => {
           if (task.assigned_to) {
             const agent = features.agents[task.assigned_to];
             if (!agent) {
@@ -479,7 +546,7 @@ class DataIntegrityManager extends EventEmitter {
                 type: 'invalid_agent_assignment',
                 taskId: task.id,
                 agentId: task.assigned_to,
-                message: `Task ${task.id} assigned to non-existent agent ${task.assigned_to}`
+                message: `Task ${task.id} assigned to non-existent agent ${task.assigned_to}`,
               });
             }
           }
@@ -490,15 +557,15 @@ class DataIntegrityManager extends EventEmitter {
       if (features.agents) {
         Object.entries(features.agents).forEach(([agentId, agent]) => {
           if (agent.assigned_tasks && Array.isArray(agent.assigned_tasks)) {
-            agent.assigned_tasks.forEach(taskId => {
-              const task = features.tasks?.find(t => t.id === taskId);
+            agent.assigned_tasks.forEach((taskId) => {
+              const task = features.tasks?.find((t) => t.id === taskId);
               if (!task) {
                 issues.push({
                   severity: 'warning',
                   type: 'invalid_task_reference',
                   agentId,
                   taskId,
-                  message: `Agent ${agentId} references non-existent task ${taskId}`
+                  message: `Agent ${agentId} references non-existent task ${taskId}`,
                 });
               }
             });
@@ -508,17 +575,17 @@ class DataIntegrityManager extends EventEmitter {
 
       // Validate task dependencies
       if (features.tasks) {
-        features.tasks.forEach(task => {
+        features.tasks.forEach((task) => {
           if (task.dependencies && Array.isArray(task.dependencies)) {
-            task.dependencies.forEach(depTaskId => {
-              const depTask = features.tasks.find(t => t.id === depTaskId);
+            task.dependencies.forEach((depTaskId) => {
+              const depTask = features.tasks.find((t) => t.id === depTaskId);
               if (!depTask) {
                 issues.push({
                   severity: 'critical',
                   type: 'invalid_task_dependency',
                   taskId: task.id,
                   dependencyTaskId: depTaskId,
-                  message: `Task ${task.id} depends on non-existent task ${depTaskId}`
+                  message: `Task ${task.id} depends on non-existent task ${depTaskId}`,
                 });
               }
             });
@@ -527,22 +594,23 @@ class DataIntegrityManager extends EventEmitter {
       }
 
       return {
-        valid: issues.filter(i => i.severity === 'critical').length === 0,
+        valid: issues.filter((i) => i.severity === 'critical').length === 0,
         issues,
         checkType: 'cross_reference_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
       return {
         valid: false,
-        issues: [{
-          severity: 'critical',
-          type: 'cross_reference_validation_error',
-          message: `Cross-reference validation failed: ${error.message}`
-        }],
+        issues: [
+          {
+            severity: 'critical',
+            type: 'cross_reference_validation_error',
+            message: `Cross-reference validation failed: ${error.message}`,
+          },
+        ],
         checkType: 'cross_reference_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -553,7 +621,7 @@ class DataIntegrityManager extends EventEmitter {
       const requiredPaths = [
         this.featuresPath,
         this.integrityDir,
-        this.paths.recoveryPoints
+        this.paths.recoveryPoints,
       ];
 
       for (const requiredPath of requiredPaths) {
@@ -564,20 +632,23 @@ class DataIntegrityManager extends EventEmitter {
             severity: 'critical',
             type: 'missing_required_path',
             path: requiredPath,
-            message: `Required path does not exist or is not accessible`
+            message: `Required path does not exist or is not accessible`,
           });
         }
       }
 
       // Check file permissions
       try {
-        await fs.access(this.featuresPath, fs.constants.R_OK | fs.constants.W_OK);
+        await fs.access(
+          this.featuresPath,
+          fs.constants.R_OK | fs.constants.W_OK,
+        );
       } catch (error) {
         issues.push({
           severity: 'critical',
           type: 'file_permission_error',
           path: this.featuresPath,
-          message: 'FEATURES.json is not readable/writable'
+          message: 'FEATURES.json is not readable/writable',
         });
       }
 
@@ -588,7 +659,7 @@ class DataIntegrityManager extends EventEmitter {
           issues.push({
             severity: 'warning',
             type: 'disk_space_warning',
-            message: 'Potential disk space issue detected'
+            message: 'Potential disk space issue detected',
           });
         }
       } catch (error) {
@@ -596,22 +667,23 @@ class DataIntegrityManager extends EventEmitter {
       }
 
       return {
-        valid: issues.filter(i => i.severity === 'critical').length === 0,
+        valid: issues.filter((i) => i.severity === 'critical').length === 0,
         issues,
         checkType: 'filesystem_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
       return {
         valid: false,
-        issues: [{
-          severity: 'critical',
-          type: 'filesystem_validation_error',
-          message: `Filesystem validation failed: ${error.message}`
-        }],
+        issues: [
+          {
+            severity: 'critical',
+            type: 'filesystem_validation_error',
+            message: `Filesystem validation failed: ${error.message}`,
+          },
+        ],
         checkType: 'filesystem_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -631,7 +703,7 @@ class DataIntegrityManager extends EventEmitter {
           issues.push({
             severity: 'warning',
             type: 'metadata_inconsistency',
-            message: `Feature count mismatch: actual=${actualCount}, metadata=${metadataCount}`
+            message: `Feature count mismatch: actual=${actualCount}, metadata=${metadataCount}`,
           });
         }
       }
@@ -646,7 +718,7 @@ class DataIntegrityManager extends EventEmitter {
               type: 'invalid_feature_status',
               featureId: feature.id,
               status: feature.status,
-              message: `Feature at index ${index} has invalid status: ${feature.status}`
+              message: `Feature at index ${index} has invalid status: ${feature.status}`,
             });
           }
         });
@@ -654,7 +726,7 @@ class DataIntegrityManager extends EventEmitter {
 
       // Check timestamp consistency
       if (features.features) {
-        features.features.forEach(feature => {
+        features.features.forEach((feature) => {
           const createdAt = new Date(feature.created_at);
           const updatedAt = new Date(feature.updated_at);
 
@@ -663,29 +735,30 @@ class DataIntegrityManager extends EventEmitter {
               severity: 'warning',
               type: 'timestamp_inconsistency',
               featureId: feature.id,
-              message: `Feature updated_at is before created_at`
+              message: `Feature updated_at is before created_at`,
             });
           }
         });
       }
 
       return {
-        valid: issues.filter(i => i.severity === 'critical').length === 0,
+        valid: issues.filter((i) => i.severity === 'critical').length === 0,
         issues,
         checkType: 'data_consistency_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
       return {
         valid: false,
-        issues: [{
-          severity: 'critical',
-          type: 'consistency_validation_error',
-          message: `Data consistency validation failed: ${error.message}`
-        }],
+        issues: [
+          {
+            severity: 'critical',
+            type: 'consistency_validation_error',
+            message: `Data consistency validation failed: ${error.message}`,
+          },
+        ],
         checkType: 'data_consistency_validation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -703,7 +776,10 @@ class DataIntegrityManager extends EventEmitter {
           this.state.repairCount++;
         }
       } catch (error) {
-        console.error(`DataIntegrityManager: Auto-repair failed for ${issue.type}:`, error);
+        console.error(
+          `DataIntegrityManager: Auto-repair failed for ${issue.type}:`,
+          error,
+        );
         await this._logCriticalError('auto_repair_failed', error, { issue });
       }
     }
@@ -721,7 +797,7 @@ class DataIntegrityManager extends EventEmitter {
       issueType: issue.type,
       timestamp: new Date().toISOString(),
       status: 'attempted',
-      details: null
+      details: null,
     };
 
     try {
@@ -735,7 +811,8 @@ class DataIntegrityManager extends EventEmitter {
           break;
 
         case 'invalid_agent_assignment':
-          repairResult.details = await this._repairInvalidAgentAssignment(issue);
+          repairResult.details =
+            await this._repairInvalidAgentAssignment(issue);
           break;
 
         case 'invalid_task_reference':
@@ -748,12 +825,13 @@ class DataIntegrityManager extends EventEmitter {
 
         default:
           repairResult.status = 'skipped';
-          repairResult.details = { reason: 'No repair procedure available for this issue type' };
+          repairResult.details = {
+            reason: 'No repair procedure available for this issue type',
+          };
           return repairResult;
       }
 
       repairResult.status = 'completed';
-
     } catch (error) {
       repairResult.status = 'failed';
       repairResult.details = { error: error.message };
@@ -775,7 +853,7 @@ class DataIntegrityManager extends EventEmitter {
     return {
       action: 'updated_metadata',
       newCount: actualCount,
-      message: `Updated metadata total_features to ${actualCount}`
+      message: `Updated metadata total_features to ${actualCount}`,
     };
   }
 
@@ -784,7 +862,7 @@ class DataIntegrityManager extends EventEmitter {
     const features = JSON.parse(featuresData);
 
     // Find and remove orphaned task
-    const taskIndex = features.tasks.findIndex(t => t.id === issue.taskId);
+    const taskIndex = features.tasks.findIndex((t) => t.id === issue.taskId);
     if (taskIndex !== -1) {
       const removedTask = features.tasks.splice(taskIndex, 1)[0];
       await fs.writeFile(this.featuresPath, JSON.stringify(features, null, 2));
@@ -793,11 +871,14 @@ class DataIntegrityManager extends EventEmitter {
         action: 'removed_orphaned_task',
         taskId: issue.taskId,
         featureId: issue.featureId,
-        message: `Removed orphaned task ${issue.taskId}`
+        message: `Removed orphaned task ${issue.taskId}`,
       };
     }
 
-    return { action: 'task_not_found', message: 'Orphaned task no longer exists' };
+    return {
+      action: 'task_not_found',
+      message: 'Orphaned task no longer exists',
+    };
   }
 
   async _repairInvalidAgentAssignment(issue) {
@@ -805,7 +886,7 @@ class DataIntegrityManager extends EventEmitter {
     const features = JSON.parse(featuresData);
 
     // Find task and clear invalid assignment
-    const task = features.tasks?.find(t => t.id === issue.taskId);
+    const task = features.tasks?.find((t) => t.id === issue.taskId);
     if (task) {
       task.assigned_to = null;
       task.status = 'queued';
@@ -817,11 +898,14 @@ class DataIntegrityManager extends EventEmitter {
         action: 'cleared_invalid_assignment',
         taskId: issue.taskId,
         agentId: issue.agentId,
-        message: `Cleared invalid agent assignment and reset task to queued`
+        message: `Cleared invalid agent assignment and reset task to queued`,
       };
     }
 
-    return { action: 'task_not_found', message: 'Task with invalid assignment no longer exists' };
+    return {
+      action: 'task_not_found',
+      message: 'Task with invalid assignment no longer exists',
+    };
   }
 
   async _repairInvalidTaskReference(issue) {
@@ -834,18 +918,24 @@ class DataIntegrityManager extends EventEmitter {
       const taskIndex = agent.assigned_tasks.indexOf(issue.taskId);
       if (taskIndex !== -1) {
         agent.assigned_tasks.splice(taskIndex, 1);
-        await fs.writeFile(this.featuresPath, JSON.stringify(features, null, 2));
+        await fs.writeFile(
+          this.featuresPath,
+          JSON.stringify(features, null, 2),
+        );
 
         return {
           action: 'removed_invalid_task_reference',
           agentId: issue.agentId,
           taskId: issue.taskId,
-          message: `Removed invalid task reference from agent`
+          message: `Removed invalid task reference from agent`,
         };
       }
     }
 
-    return { action: 'reference_not_found', message: 'Invalid task reference no longer exists' };
+    return {
+      action: 'reference_not_found',
+      message: 'Invalid task reference no longer exists',
+    };
   }
 
   async _repairChecksumMismatch(issue) {
@@ -863,9 +953,8 @@ class DataIntegrityManager extends EventEmitter {
         action: 'updated_checksum',
         path: issue.path,
         newChecksum,
-        message: `Updated stored checksum after verifying file integrity`
+        message: `Updated stored checksum after verifying file integrity`,
       };
-
     } catch (error) {
       // If file is corrupted, try to restore from backup
       return await this._restoreFromBackup(issue.path);
@@ -881,15 +970,32 @@ class DataIntegrityManager extends EventEmitter {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const recoveryPointName = name || `recovery-${timestamp}`;
-      const recoveryDir = path.join(this.paths.recoveryPoints, recoveryPointName);
+      const recoveryDir = path.join(
+        this.paths.recoveryPoints,
+        recoveryPointName,
+      );
 
       await fs.mkdir(recoveryDir, { recursive: true });
 
       // Files to backup
       const backupFiles = [
         { source: this.featuresPath, dest: 'FEATURES.json' },
-        { source: path.join(this.projectRoot, '.gemini-tasks', 'task-state.json'), dest: 'task-state.json' },
-        { source: path.join(this.projectRoot, '.gemini-tasks', 'performance-metrics.json'), dest: 'performance-metrics.json' }
+        {
+          source: path.join(
+            this.projectRoot,
+            '.gemini-tasks',
+            'task-state.json',
+          ),
+          dest: 'task-state.json',
+        },
+        {
+          source: path.join(
+            this.projectRoot,
+            '.gemini-tasks',
+            'performance-metrics.json',
+          ),
+          dest: 'performance-metrics.json',
+        },
       ];
 
       const manifest = {
@@ -900,8 +1006,8 @@ class DataIntegrityManager extends EventEmitter {
         systemState: {
           totalFeatures: 0,
           totalTasks: 0,
-          totalAgents: 0
-        }
+          totalAgents: 0,
+        },
       };
 
       // Backup files
@@ -914,10 +1020,12 @@ class DataIntegrityManager extends EventEmitter {
 
           manifest.files.push(file.dest);
           manifest.checksums[file.dest] = this._calculateChecksum(sourceData);
-
         } catch (error) {
           if (error.code !== 'ENOENT') {
-            console.warn(`DataIntegrityManager: Could not backup ${file.source}:`, error.message);
+            console.warn(
+              `DataIntegrityManager: Could not backup ${file.source}:`,
+              error.message,
+            );
           }
         }
       }
@@ -930,7 +1038,9 @@ class DataIntegrityManager extends EventEmitter {
         manifest.systemState = {
           totalFeatures: features.features ? features.features.length : 0,
           totalTasks: features.tasks ? features.tasks.length : 0,
-          totalAgents: features.agents ? Object.keys(features.agents).length : 0
+          totalAgents: features.agents
+            ? Object.keys(features.agents).length
+            : 0,
         };
       } catch (error) {
         // Use defaults if can't read features file
@@ -939,22 +1049,21 @@ class DataIntegrityManager extends EventEmitter {
       // Save manifest
       await fs.writeFile(
         path.join(recoveryDir, 'manifest.json'),
-        JSON.stringify(manifest, null, 2)
+        JSON.stringify(manifest, null, 2),
       );
 
       await this._logTransaction('recovery_point_created', {
         name: recoveryPointName,
         path: recoveryDir,
-        manifest
+        manifest,
       });
 
       return {
         success: true,
         name: recoveryPointName,
         path: recoveryDir,
-        manifest
+        manifest,
       };
-
     } catch (error) {
       throw new Error(`Recovery point creation failed: ${error.message}`);
     }
@@ -965,7 +1074,10 @@ class DataIntegrityManager extends EventEmitter {
    */
   async restoreFromRecoveryPoint(recoveryPointName) {
     try {
-      const recoveryDir = path.join(this.paths.recoveryPoints, recoveryPointName);
+      const recoveryDir = path.join(
+        this.paths.recoveryPoints,
+        recoveryPointName,
+      );
       const manifestPath = path.join(recoveryDir, 'manifest.json');
 
       // Load recovery manifest
@@ -1009,7 +1121,6 @@ class DataIntegrityManager extends EventEmitter {
 
           // Update checksum
           this.state.checksums.set(destPath, checksum);
-
         } catch (error) {
           errors.push(`Failed to restore ${fileName}: ${error.message}`);
         }
@@ -1021,16 +1132,15 @@ class DataIntegrityManager extends EventEmitter {
         recoveryPointName,
         restoredFiles,
         errors,
-        manifest
+        manifest,
       });
 
       return {
         success: errors.length === 0,
         restoredFiles,
         errors,
-        manifest
+        manifest,
       };
-
     } catch (error) {
       throw new Error(`System restore failed: ${error.message}`);
     }
@@ -1042,7 +1152,7 @@ class DataIntegrityManager extends EventEmitter {
     if (recoveryPoints.length === 0) {
       return {
         action: 'no_backup_available',
-        message: 'No recovery points available for restoration'
+        message: 'No recovery points available for restoration',
       };
     }
 
@@ -1050,7 +1160,11 @@ class DataIntegrityManager extends EventEmitter {
     const fileName = path.basename(filePath);
 
     try {
-      const sourcePath = path.join(this.paths.recoveryPoints, latestRecoveryPoint.name, fileName);
+      const sourcePath = path.join(
+        this.paths.recoveryPoints,
+        latestRecoveryPoint.name,
+        fileName,
+      );
       const sourceData = await fs.readFile(sourcePath, 'utf8');
 
       await fs.writeFile(filePath, sourceData);
@@ -1062,14 +1176,13 @@ class DataIntegrityManager extends EventEmitter {
         action: 'restored_from_backup',
         filePath,
         recoveryPoint: latestRecoveryPoint.name,
-        message: `Restored file from recovery point ${latestRecoveryPoint.name}`
+        message: `Restored file from recovery point ${latestRecoveryPoint.name}`,
       };
-
     } catch (error) {
       return {
         action: 'restoration_failed',
         error: error.message,
-        message: `Failed to restore from backup: ${error.message}`
+        message: `Failed to restore from backup: ${error.message}`,
       };
     }
   }
@@ -1080,7 +1193,11 @@ class DataIntegrityManager extends EventEmitter {
       const recoveryPoints = [];
 
       for (const entry of entries) {
-        const manifestPath = path.join(this.paths.recoveryPoints, entry, 'manifest.json');
+        const manifestPath = path.join(
+          this.paths.recoveryPoints,
+          entry,
+          'manifest.json',
+        );
         try {
           const manifestData = await fs.readFile(manifestPath, 'utf8');
           const manifest = JSON.parse(manifestData);
@@ -1091,12 +1208,16 @@ class DataIntegrityManager extends EventEmitter {
       }
 
       // Sort by timestamp (newest first)
-      recoveryPoints.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      recoveryPoints.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
+      );
 
       return recoveryPoints;
-
     } catch (error) {
-      console.warn('DataIntegrityManager: Could not list recovery points:', error.message);
+      console.warn(
+        'DataIntegrityManager: Could not list recovery points:',
+        error.message,
+      );
       return [];
     }
   }
@@ -1108,13 +1229,13 @@ class DataIntegrityManager extends EventEmitter {
 
     // Check required fields
     if (schema.required) {
-      schema.required.forEach(field => {
+      schema.required.forEach((field) => {
         if (!(field in obj)) {
           issues.push({
             severity: 'critical',
             type: 'missing_required_field',
             path: `${path}.${field}`,
-            message: `Missing required field: ${field}`
+            message: `Missing required field: ${field}`,
           });
         }
       });
@@ -1129,7 +1250,7 @@ class DataIntegrityManager extends EventEmitter {
           path: `${path}.status`,
           value: obj.status,
           validValues: schema.statusValues,
-          message: `Invalid status value: ${obj.status}`
+          message: `Invalid status value: ${obj.status}`,
         });
       }
     }
@@ -1138,23 +1259,27 @@ class DataIntegrityManager extends EventEmitter {
   }
 
   _analyzeValidationResults(checks) {
-    const criticalIssues = Object.values(checks).some(check =>
-      check.issues && check.issues.some(issue => issue.severity === 'critical')
+    const criticalIssues = Object.values(checks).some(
+      (check) =>
+        check.issues &&
+        check.issues.some((issue) => issue.severity === 'critical'),
     );
 
     if (criticalIssues) {
       return 'critical';
     }
 
-    const hasWarnings = Object.values(checks).some(check =>
-      check.issues && check.issues.some(issue => issue.severity === 'warning')
+    const hasWarnings = Object.values(checks).some(
+      (check) =>
+        check.issues &&
+        check.issues.some((issue) => issue.severity === 'warning'),
     );
 
     if (hasWarnings) {
       return 'warning';
     }
 
-    const allPassed = Object.values(checks).every(check => check.valid);
+    const allPassed = Object.values(checks).every((check) => check.valid);
     return allPassed ? 'healthy' : 'degraded';
   }
 
@@ -1168,10 +1293,13 @@ class DataIntegrityManager extends EventEmitter {
   async _persistChecksums() {
     const checksumData = {
       checksums: Object.fromEntries(this.state.checksums),
-      lastUpdate: new Date().toISOString()
+      lastUpdate: new Date().toISOString(),
     };
 
-    await fs.writeFile(this.paths.checksums, JSON.stringify(checksumData, null, 2));
+    await fs.writeFile(
+      this.paths.checksums,
+      JSON.stringify(checksumData, null, 2),
+    );
   }
 
   async _logValidationResult(result) {
@@ -1187,10 +1315,15 @@ class DataIntegrityManager extends EventEmitter {
         log.validations = log.validations.slice(-500);
       }
 
-      await fs.writeFile(this.paths.validationLog, JSON.stringify(log, null, 2));
-
+      await fs.writeFile(
+        this.paths.validationLog,
+        JSON.stringify(log, null, 2),
+      );
     } catch (error) {
-      console.error('DataIntegrityManager: Failed to log validation result:', error);
+      console.error(
+        'DataIntegrityManager: Failed to log validation result:',
+        error,
+      );
     }
   }
 
@@ -1200,7 +1333,7 @@ class DataIntegrityManager extends EventEmitter {
         id: crypto.randomBytes(8).toString('hex'),
         timestamp: new Date().toISOString(),
         action,
-        data
+        data,
       };
 
       const logData = await fs.readFile(this.paths.transactionLog, 'utf8');
@@ -1214,8 +1347,10 @@ class DataIntegrityManager extends EventEmitter {
         log.transactions = log.transactions.slice(-1000);
       }
 
-      await fs.writeFile(this.paths.transactionLog, JSON.stringify(log, null, 2));
-
+      await fs.writeFile(
+        this.paths.transactionLog,
+        JSON.stringify(log, null, 2),
+      );
     } catch (error) {
       console.error('DataIntegrityManager: Failed to log transaction:', error);
     }
@@ -1235,10 +1370,15 @@ class DataIntegrityManager extends EventEmitter {
         history.repairs = history.repairs.slice(-1000);
       }
 
-      await fs.writeFile(this.paths.repairHistory, JSON.stringify(history, null, 2));
-
+      await fs.writeFile(
+        this.paths.repairHistory,
+        JSON.stringify(history, null, 2),
+      );
     } catch (error) {
-      console.error('DataIntegrityManager: Failed to log repair history:', error);
+      console.error(
+        'DataIntegrityManager: Failed to log repair history:',
+        error,
+      );
     }
   }
 
@@ -1249,7 +1389,7 @@ class DataIntegrityManager extends EventEmitter {
       type: errorType,
       message: error.message,
       stack: error.stack,
-      context
+      context,
     };
 
     this.state.criticalErrors.push(criticalError);
@@ -1262,7 +1402,10 @@ class DataIntegrityManager extends EventEmitter {
     // Emit critical error event
     this.emit('criticalError', criticalError);
 
-    console.error('DataIntegrityManager: Critical error logged:', criticalError);
+    console.error(
+      'DataIntegrityManager: Critical error logged:',
+      criticalError,
+    );
   }
 
   // =================== PUBLIC API ===================
@@ -1278,14 +1421,17 @@ class DataIntegrityManager extends EventEmitter {
       criticalErrors: this.state.criticalErrors.length,
       validationHistory: this.state.validationHistory.length,
       systemHealth: this._determineSystemHealth(),
-      nextValidation: this.state.lastValidation ?
-        new Date(Date.parse(this.state.lastValidation) + this.config.validationInterval).toISOString() :
-        'scheduled',
+      nextValidation: this.state.lastValidation
+        ? new Date(
+            Date.parse(this.state.lastValidation) +
+              this.config.validationInterval,
+          ).toISOString()
+        : 'scheduled',
       configuration: {
         validationInterval: this.config.validationInterval,
         autoRepair: this.config.autoRepair,
-        backupRetention: this.config.backupRetention
-      }
+        backupRetention: this.config.backupRetention,
+      },
     };
   }
 
@@ -1316,14 +1462,18 @@ class DataIntegrityManager extends EventEmitter {
     }
 
     const recentValidations = this.state.validationHistory.slice(-5);
-    const recentIssues = recentValidations.reduce((sum, v) => sum + v.summary.criticalIssues, 0);
+    const recentIssues = recentValidations.reduce(
+      (sum, v) => sum + v.summary.criticalIssues,
+      0,
+    );
 
     if (recentIssues > 0) {
       return 'degraded';
     }
 
-    const recentWarnings = recentValidations.reduce((sum, v) =>
-      sum + v.summary.totalIssues - v.summary.criticalIssues, 0
+    const recentWarnings = recentValidations.reduce(
+      (sum, v) => sum + v.summary.totalIssues - v.summary.criticalIssues,
+      0,
     );
 
     return recentWarnings > 10 ? 'warning' : 'healthy';

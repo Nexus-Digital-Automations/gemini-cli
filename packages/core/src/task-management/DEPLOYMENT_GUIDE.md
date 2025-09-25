@@ -9,18 +9,21 @@ This guide provides comprehensive instructions for deploying the Gemini CLI Task
 ### System Requirements
 
 #### Minimum Requirements
+
 - **Node.js**: 18.0.0 or higher
 - **Memory**: 512 MB available RAM
 - **Storage**: 100 MB free disk space
 - **OS**: Windows 10+, macOS 10.15+, or Linux (Ubuntu 18.04+)
 
 #### Recommended Requirements
+
 - **Node.js**: 20.0.0 or higher
 - **Memory**: 2 GB available RAM
 - **Storage**: 1 GB free disk space
 - **OS**: Latest stable versions
 
 #### Production Requirements
+
 - **Node.js**: 20.0.0 LTS
 - **Memory**: 4 GB available RAM
 - **Storage**: 10 GB free disk space (with proper backup storage)
@@ -64,7 +67,8 @@ Create a development configuration file:
 // config/development.ts
 import { TaskManagementConfigManager } from '@google/gemini-cli/task-management';
 
-export const developmentConfig = TaskManagementConfigManager.generateTemplate('development');
+export const developmentConfig =
+  TaskManagementConfigManager.generateTemplate('development');
 
 // Override specific settings
 developmentConfig.taskEngine.maxConcurrentTasks = 3;
@@ -78,13 +82,16 @@ developmentConfig.development.enableDebugMode = true;
 // src/task-system.ts
 import {
   createIntegratedTaskManagementSystem,
-  TaskManagementConfigManager
+  TaskManagementConfigManager,
 } from '@google/gemini-cli/task-management';
 import { developmentConfig } from '../config/development.js';
 
 async function initializeSystem() {
   const configManager = new TaskManagementConfigManager();
-  const config = await configManager.loadConfig('./config/task-config.json', coreConfig);
+  const config = await configManager.loadConfig(
+    './config/task-config.json',
+    coreConfig,
+  );
 
   const { system, result } = await createIntegratedTaskManagementSystem(config);
 
@@ -104,7 +111,8 @@ async function initializeSystem() {
 
 ```typescript
 // config/staging.ts
-export const stagingConfig = TaskManagementConfigManager.generateTemplate('production');
+export const stagingConfig =
+  TaskManagementConfigManager.generateTemplate('production');
 
 // Staging-specific overrides
 stagingConfig.environment = 'staging';
@@ -114,7 +122,7 @@ stagingConfig.monitoring.alertThresholds = {
   averageExecutionTime: 450000,
   systemMemoryUsage: 0.85,
   queueBacklog: 150,
-  agentUtilization: 0.95
+  agentUtilization: 0.95,
 };
 ```
 
@@ -163,8 +171,8 @@ services:
       context: .
       dockerfile: Dockerfile.staging
     ports:
-      - "3000:3000"
-      - "8080:8080"
+      - '3000:3000'
+      - '8080:8080'
     volumes:
       - ./staging-data:/app/data
       - ./staging-logs:/app/logs
@@ -176,7 +184,7 @@ services:
   monitoring:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     restart: unless-stopped
@@ -184,7 +192,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - '3001:3000'
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
@@ -201,7 +209,8 @@ volumes:
 
 ```typescript
 // config/production.ts
-export const productionConfig = TaskManagementConfigManager.generateTemplate('enterprise');
+export const productionConfig =
+  TaskManagementConfigManager.generateTemplate('enterprise');
 
 // Production-specific settings
 productionConfig.security.enableValidation = true;
@@ -286,51 +295,51 @@ spec:
         runAsUser: 1001
         fsGroup: 1001
       containers:
-      - name: task-management
-        image: gemini-cli/task-management:production
-        ports:
-        - containerPort: 8080
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: CONFIG_PATH
-          value: "/app/config/production.json"
-        volumeMounts:
-        - name: config-volume
-          mountPath: /app/config
-        - name: data-volume
-          mountPath: /app/data
-        - name: logs-volume
-          mountPath: /app/logs
-        resources:
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
+        - name: task-management
+          image: gemini-cli/task-management:production
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: CONFIG_PATH
+              value: '/app/config/production.json'
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+            - name: data-volume
+              mountPath: /app/data
+            - name: logs-volume
+              mountPath: /app/logs
+          resources:
+            limits:
+              memory: '2Gi'
+              cpu: '1000m'
+            requests:
+              memory: '1Gi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
       volumes:
-      - name: config-volume
-        configMap:
-          name: task-management-config
-      - name: data-volume
-        persistentVolumeClaim:
-          claimName: task-management-data
-      - name: logs-volume
-        persistentVolumeClaim:
-          claimName: task-management-logs
+        - name: config-volume
+          configMap:
+            name: task-management-config
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: task-management-data
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: task-management-logs
 
 ---
 apiVersion: v1
@@ -341,9 +350,9 @@ spec:
   selector:
     app: task-management
   ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
   type: ClusterIP
 
 ---
@@ -424,6 +433,7 @@ ALERT_WEBHOOK_URL=https://your-webhook-url
 ### Configuration Files
 
 #### Development
+
 ```json
 {
   "environment": "development",
@@ -449,6 +459,7 @@ ALERT_WEBHOOK_URL=https://your-webhook-url
 ```
 
 #### Production
+
 ```json
 {
   "environment": "production",
@@ -500,17 +511,17 @@ export const authConfig = {
   roles: [
     {
       name: 'admin',
-      permissions: ['read', 'write', 'execute', 'configure', 'monitor']
+      permissions: ['read', 'write', 'execute', 'configure', 'monitor'],
     },
     {
       name: 'developer',
-      permissions: ['read', 'write', 'execute', 'monitor']
+      permissions: ['read', 'write', 'execute', 'monitor'],
     },
     {
       name: 'viewer',
-      permissions: ['read', 'monitor']
-    }
-  ]
+      permissions: ['read', 'monitor'],
+    },
+  ],
 };
 ```
 
@@ -531,7 +542,7 @@ export const encryptionConfig = {
 
   validateKey(key: string): boolean {
     return key && key.length === 64; // 32 bytes as hex
-  }
+  },
 };
 ```
 
@@ -544,13 +555,13 @@ export const networkConfig = {
     origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
   },
 
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: process.env.NODE_ENV === 'production' ? 100 : 1000,
-    message: 'Too many requests from this IP'
+    message: 'Too many requests from this IP',
   },
 
   helmet: {
@@ -559,10 +570,10 @@ export const networkConfig = {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"]
-      }
-    }
-  }
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+  },
 };
 ```
 
@@ -587,13 +598,13 @@ scrape_configs:
       - targets: ['localhost:9100']
 
 rule_files:
-  - "alert_rules.yml"
+  - 'alert_rules.yml'
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - alertmanager:9093
+            - alertmanager:9093
 ```
 
 ### Grafana Dashboard
@@ -641,8 +652,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High task failure rate detected"
-          description: "Task failure rate is {{ $value }}% over the last 5 minutes"
+          summary: 'High task failure rate detected'
+          description: 'Task failure rate is {{ $value }}% over the last 5 minutes'
 
       - alert: SystemMemoryHigh
         expr: task_management_memory_usage_mb > 1500
@@ -650,8 +661,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "High memory usage"
-          description: "System memory usage is {{ $value }}MB"
+          summary: 'High memory usage'
+          description: 'System memory usage is {{ $value }}MB'
 
       - alert: TaskQueueBacklog
         expr: task_management_queue_size > 100
@@ -659,8 +670,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Large task queue backlog"
-          description: "Task queue has {{ $value }} pending tasks"
+          summary: 'Large task queue backlog'
+          description: 'Task queue has {{ $value }} pending tasks'
 ```
 
 ## Performance Tuning
@@ -674,21 +685,22 @@ export const performanceConfig = {
   cpu: {
     maxConcurrentTasks: Math.min(require('os').cpus().length * 2, 20),
     adaptiveScheduling: true,
-    taskPrioritization: true
+    taskPrioritization: true,
   },
 
   // Memory optimization
   memory: {
-    heapSizeLimit: process.env.NODE_OPTIONS?.includes('--max-old-space-size') ?
-      undefined : '--max-old-space-size=2048',
+    heapSizeLimit: process.env.NODE_OPTIONS?.includes('--max-old-space-size')
+      ? undefined
+      : '--max-old-space-size=2048',
     gcSettings: {
       '--expose-gc': true,
-      '--optimize-for-size': true
+      '--optimize-for-size': true,
     },
     cacheSettings: {
       maxCacheSize: 100 * 1024 * 1024, // 100MB
-      cacheTTL: 30 * 60 * 1000 // 30 minutes
-    }
+      cacheTTL: 30 * 60 * 1000, // 30 minutes
+    },
   },
 
   // I/O optimization
@@ -696,8 +708,8 @@ export const performanceConfig = {
     fileSystemCache: true,
     compressionEnabled: true,
     batchWrites: true,
-    writeInterval: 5000 // 5 seconds
-  }
+    writeInterval: 5000, // 5 seconds
+  },
 };
 ```
 
@@ -866,21 +878,23 @@ export class HealthCheckService {
       this.checkDatabaseConnection(),
       this.checkFileSystemAccess(),
       this.checkMemoryUsage(),
-      this.checkTaskQueue()
+      this.checkTaskQueue(),
     ]);
 
     const results = checks.map((check, index) => ({
       name: ['system', 'database', 'filesystem', 'memory', 'queue'][index],
       status: check.status === 'fulfilled' ? 'healthy' : 'unhealthy',
-      details: check.status === 'fulfilled' ? check.value : check.reason
+      details: check.status === 'fulfilled' ? check.value : check.reason,
     }));
 
-    const overallStatus = results.every(r => r.status === 'healthy') ? 'healthy' : 'unhealthy';
+    const overallStatus = results.every((r) => r.status === 'healthy')
+      ? 'healthy'
+      : 'unhealthy';
 
     return {
       status: overallStatus,
       timestamp: new Date(),
-      checks: results
+      checks: results,
     };
   }
 
@@ -968,11 +982,12 @@ setInterval(() => {
     rss: Math.round(usage.rss / 1024 / 1024) + ' MB',
     heapTotal: Math.round(usage.heapTotal / 1024 / 1024) + ' MB',
     heapUsed: Math.round(usage.heapUsed / 1024 / 1024) + ' MB',
-    external: Math.round(usage.external / 1024 / 1024) + ' MB'
+    external: Math.round(usage.external / 1024 / 1024) + ' MB',
   });
 
   // Force garbage collection if available
-  if (global.gc && usage.heapUsed > 1000 * 1024 * 1024) { // 1GB
+  if (global.gc && usage.heapUsed > 1000 * 1024 * 1024) {
+    // 1GB
     global.gc();
     console.log('Forced garbage collection');
   }
@@ -1008,10 +1023,12 @@ async function debugConfig() {
     const validation = manager.validateConfig(config);
     if (!validation.isValid) {
       console.error('Configuration errors:');
-      validation.errors.forEach(error => console.error(`- ${error}`));
+      validation.errors.forEach((error) => console.error(`- ${error}`));
 
       console.log('Suggestions:');
-      validation.suggestions.forEach(suggestion => console.log(`- ${suggestion}`));
+      validation.suggestions.forEach((suggestion) =>
+        console.log(`- ${suggestion}`),
+      );
     } else {
       console.log('Configuration is valid');
     }

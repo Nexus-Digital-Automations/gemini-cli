@@ -6,7 +6,7 @@
 
 import type React from 'react';
 interface UserShellMessageProps {
-    text: string;
+  text: string;
 }
 export declare const UserShellMessage: React.FC<UserShellMessageProps>;
 export {};

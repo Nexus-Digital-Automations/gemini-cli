@@ -4,4 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export declare const Notifications: () => import("react/jsx-runtime").JSX.Element | null;
+export declare const Notifications: () =>
+  | import('react/jsx-runtime').JSX.Element
+  | null;

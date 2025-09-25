@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { jsxs as _jsxs } from "react/jsx-runtime";
+import { jsxs as _jsxs } from 'react/jsx-runtime';
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -13,8 +13,11 @@ import { jsxs as _jsxs } from "react/jsx-runtime";
 import { Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import { tokenLimit } from '@google/gemini-cli-core';
-export const ContextUsageDisplay = ({ promptTokenCount, model, }) => {
-    const percentage = promptTokenCount / tokenLimit(model);
-    return (_jsxs(Text, { color: theme.text.secondary, children: ["(", ((1 - percentage) * 100).toFixed(0), "% context left)"] }));
+export const ContextUsageDisplay = ({ promptTokenCount, model }) => {
+  const percentage = promptTokenCount / tokenLimit(model);
+  return _jsxs(Text, {
+    color: theme.text.secondary,
+    children: ['(', ((1 - percentage) * 100).toFixed(0), '% context left)'],
+  });
 };
 //# sourceMappingURL=ContextUsageDisplay.js.map

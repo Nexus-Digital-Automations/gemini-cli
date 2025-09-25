@@ -131,7 +131,9 @@ describe('CrossSessionPersistenceEngine', () => {
     mockWriteFile.mockResolvedValue();
     mockAccess.mockResolvedValue(undefined);
     mockReaddir.mockResolvedValue([]);
-    mockReadFile.mockResolvedValue('{"version":"1.0.0","metadata":{},"tasks":{},"queues":{},"indexes":{"byStatus":{},"byType":{},"byPriority":{},"byCreationDate":[]},"tombstones":{"tasks":{},"queues":{}}}');
+    mockReadFile.mockResolvedValue(
+      '{"version":"1.0.0","metadata":{},"tasks":{},"queues":{},"indexes":{"byStatus":{},"byType":{},"byPriority":{},"byCreationDate":[]},"tombstones":{"tasks":{},"queues":{}}}',
+    );
   });
 
   afterEach(async () => {
@@ -153,7 +155,7 @@ describe('CrossSessionPersistenceEngine', () => {
           duration: expect.any(Number),
           crashRecovery: true,
           realtimeSync: false,
-        })
+        }),
       );
     });
 
@@ -165,7 +167,7 @@ describe('CrossSessionPersistenceEngine', () => {
       // Should write session metadata
       expect(mockWriteFile).toHaveBeenCalledWith(
         expect.stringContaining('session-test-uuid-1234.json'),
-        expect.stringContaining('"sessionId":"test-uuid-1234"')
+        expect.stringContaining('"sessionId":"test-uuid-1234"'),
       );
     });
 
@@ -223,7 +225,7 @@ describe('CrossSessionPersistenceEngine', () => {
       // Should update session metadata (heartbeat)
       expect(mockWriteFile).toHaveBeenCalledWith(
         expect.stringContaining('session-test-uuid-1234.json'),
-        expect.any(String)
+        expect.any(String),
       );
 
       vi.useRealTimers();
@@ -249,7 +251,7 @@ describe('CrossSessionPersistenceEngine', () => {
           duration: expect.any(Number),
           operationId: expect.any(String),
           conflict: false,
-        })
+        }),
       );
     });
 
@@ -283,7 +285,7 @@ describe('CrossSessionPersistenceEngine', () => {
           duration: expect.any(Number),
           found: true,
           cached: expect.any(Boolean),
-        })
+        }),
       );
     });
 
@@ -314,11 +316,11 @@ describe('CrossSessionPersistenceEngine', () => {
       }
 
       // Save tasks rapidly (should use buffering)
-      const savePromises = tasks.map(task => engine.saveTask(task));
+      const savePromises = tasks.map((task) => engine.saveTask(task));
       const results = await Promise.all(savePromises);
 
       // All saves should succeed
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.success).toBe(true);
       });
     });
@@ -343,7 +345,7 @@ describe('CrossSessionPersistenceEngine', () => {
           type: 'manual',
           size: expect.any(Number),
           duration: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -369,13 +371,13 @@ describe('CrossSessionPersistenceEngine', () => {
       // Should create checkpoints directory
       expect(mockMkdir).toHaveBeenCalledWith(
         expect.stringContaining('checkpoints'),
-        { recursive: true }
+        { recursive: true },
       );
 
       // Should write checkpoint file
       expect(mockWriteFile).toHaveBeenCalledWith(
         expect.stringContaining('checkpoint-test-uuid-1234.json'),
-        expect.stringContaining('"id":"test-uuid-1234"')
+        expect.stringContaining('"id":"test-uuid-1234"'),
       );
     });
 
@@ -420,7 +422,7 @@ describe('CrossSessionPersistenceEngine', () => {
           sessionId: 'test-uuid-1234',
           tasksRestored: 1,
           queuesRestored: 1,
-        })
+        }),
       );
     });
 
@@ -429,7 +431,9 @@ describe('CrossSessionPersistenceEngine', () => {
 
       // Create multiple checkpoints to trigger cleanup
       for (let i = 0; i < 15; i++) {
-        vi.mocked(vi.importActual('node:crypto')).randomUUID.mockReturnValue(`checkpoint-${i}`);
+        vi.mocked(vi.importActual('node:crypto')).randomUUID.mockReturnValue(
+          `checkpoint-${i}`,
+        );
         await engine.createCheckpoint('automatic');
       }
 
@@ -487,7 +491,7 @@ describe('CrossSessionPersistenceEngine', () => {
         expect.objectContaining({
           crashedSessions: 1,
           currentSession: 'test-uuid-1234',
-        })
+        }),
       );
     });
 
@@ -503,7 +507,7 @@ describe('CrossSessionPersistenceEngine', () => {
         expect.objectContaining({
           sessionId: 'test-uuid-1234',
           error: 'Simulated crash',
-        })
+        }),
       );
     });
 
@@ -518,7 +522,12 @@ describe('CrossSessionPersistenceEngine', () => {
         lastActivity: new Date(Date.now() - 1200000),
         state: 'active',
         processInfo: { pid: 99999, platform: 'linux', nodeVersion: 'v18.0.0' },
-        statistics: { tasksProcessed: 5, transactionsCommitted: 2, errorsEncountered: 0, totalOperations: 10 },
+        statistics: {
+          tasksProcessed: 5,
+          transactionsCommitted: 2,
+          errorsEncountered: 0,
+          totalOperations: 10,
+        },
       };
 
       const mockCheckpoint: CheckpointData = {
@@ -568,7 +577,7 @@ describe('CrossSessionPersistenceEngine', () => {
         expect.objectContaining({
           crashedSessionId: 'crashed-session',
           recoveredFromCheckpoint: 'crashed-checkpoint',
-        })
+        }),
       );
     });
   });
@@ -673,7 +682,9 @@ describe('CrossSessionPersistenceEngine', () => {
       });
 
       // Should reject corrupted checkpoint
-      await expect(engine.restoreFromCheckpoint(checkpointId)).rejects.toThrow(/integrity/);
+      await expect(engine.restoreFromCheckpoint(checkpointId)).rejects.toThrow(
+        /integrity/,
+      );
     });
 
     it('should maintain data integrity across sessions', async () => {
@@ -740,7 +751,7 @@ describe('CrossSessionPersistenceEngine', () => {
           sessionId: 'test-uuid-1234',
           statistics: expect.any(Object),
           force: false,
-        })
+        }),
       );
     });
 
@@ -753,7 +764,7 @@ describe('CrossSessionPersistenceEngine', () => {
       expect(checkpointSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'manual',
-        })
+        }),
       );
     });
 
@@ -769,7 +780,12 @@ describe('CrossSessionPersistenceEngine', () => {
         lastActivity: new Date(Date.now() - 3600000), // 1 hour ago
         state: 'active',
         processInfo: { pid: 99999, platform: 'linux', nodeVersion: 'v18.0.0' },
-        statistics: { tasksProcessed: 0, transactionsCommitted: 0, errorsEncountered: 0, totalOperations: 0 },
+        statistics: {
+          tasksProcessed: 0,
+          transactionsCommitted: 0,
+          errorsEncountered: 0,
+          totalOperations: 0,
+        },
       };
 
       (engine as any).activeSessions.set('old-session', oldSession);
@@ -780,7 +796,7 @@ describe('CrossSessionPersistenceEngine', () => {
 
       // Should clean up old session
       expect(mockUnlink).toHaveBeenCalledWith(
-        expect.stringContaining('session-old-session.json')
+        expect.stringContaining('session-old-session.json'),
       );
 
       vi.useRealTimers();
@@ -795,7 +811,7 @@ describe('CrossSessionPersistenceEngine', () => {
       expect(shutdownSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           force: true,
-        })
+        }),
       );
     });
   });

@@ -7,9 +7,17 @@
 import { vi } from 'vitest';
 import { ValidationFramework } from '../ValidationFramework.js';
 import { ValidationRules, RuleExecutionContext } from '../ValidationRules.js';
-import { TaskValidator, TaskValidationType, TaskValidationLevel } from '../TaskValidator.js';
+import {
+  TaskValidator,
+  TaskValidationType,
+  TaskValidationLevel,
+} from '../TaskValidator.js';
 import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
-import { RollbackManager, RollbackTrigger, RollbackType } from '../RollbackManager.js';
+import {
+  RollbackManager,
+  RollbackTrigger,
+  RollbackType,
+} from '../RollbackManager.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
 import { TaskStatus } from '../../task-management/TaskQueue.js';
 import { TaskPriority } from '../../task-management/types.js';
@@ -39,7 +47,8 @@ describe('ValidationSystem Integration', () => {
     testTask = {
       id: 'integration-test-task',
       title: 'Integration Test Task',
-      description: 'A comprehensive task for testing the complete validation system',
+      description:
+        'A comprehensive task for testing the complete validation system',
       type: 'implementation' as any,
       priority: TaskPriority.HIGH,
       status: TaskStatus.PENDING,
@@ -51,25 +60,25 @@ describe('ValidationSystem Integration', () => {
         tags: ['integration', 'validation', 'testing'],
         custom: {
           complexity: 'moderate',
-          criticality: 'high'
-        }
+          criticality: 'high',
+        },
       },
       parameters: {
         validateOutput: true,
         requireQualityCheck: true,
-        allowRollback: true
+        allowRollback: true,
       },
       expectedOutput: {
         result: 'Task completed successfully with validation',
         artifacts: 'Generated test artifacts',
-        qualityScore: 'Quality score above 0.8'
+        qualityScore: 'Quality score above 0.8',
       },
       validationCriteria: [
         'All required fields present',
         'Dependencies satisfied',
         'Quality thresholds met',
-        'Security compliance verified'
-      ]
+        'Security compliance verified',
+      ],
     } as Task;
 
     testTaskResult = {
@@ -78,17 +87,17 @@ describe('ValidationSystem Integration', () => {
       output: {
         result: 'Task completed successfully',
         processedItems: 150,
-        generatedArtifacts: ['output.log', 'report.json', 'metrics.csv']
+        generatedArtifacts: ['output.log', 'report.json', 'metrics.csv'],
       },
       metrics: {
         startTime: new Date(Date.now() - 25000), // 25 seconds ago
         endTime: new Date(),
         duration: 25000,
         memoryUsage: 384, // 384MB
-        cpuUsage: 35 // 35% CPU
+        cpuUsage: 35, // 35% CPU
       },
       artifacts: ['output.log', 'report.json', 'metrics.csv'],
-      validationResults: []
+      validationResults: [],
     };
   });
 
@@ -97,7 +106,7 @@ describe('ValidationSystem Integration', () => {
     await Promise.all([
       taskValidator.cleanup(),
       qualityAssurance.cleanup(),
-      rollbackManager.cleanup()
+      rollbackManager.cleanup(),
     ]);
   });
 
@@ -118,15 +127,18 @@ describe('ValidationSystem Integration', () => {
         skipValidations: [],
         metadata: {
           phase: 'pre-execution',
-          validationRequired: true
-        }
+          validationRequired: true,
+        },
       };
 
-      const preValidationResult = await taskValidator.validateTask(preExecutionContext);
+      const preValidationResult =
+        await taskValidator.validateTask(preExecutionContext);
 
       expect(preValidationResult).toBeDefined();
       expect(preValidationResult.taskId).toBe(testTask.id);
-      expect(preValidationResult.validationType).toBe(TaskValidationType.PRE_EXECUTION);
+      expect(preValidationResult.validationType).toBe(
+        TaskValidationType.PRE_EXECUTION,
+      );
       expect(preValidationResult.passed).toBe(true);
       expect(preValidationResult.qualityScore).toBeGreaterThan(0.5);
       expect(preValidationResult.rollbackRecommended).toBe(false);
@@ -137,7 +149,7 @@ describe('ValidationSystem Integration', () => {
       const initialSnapshot = await rollbackManager.createSnapshot(
         testTask,
         'Pre-execution snapshot for integration test',
-        [RollbackType.TASK_STATE, RollbackType.ENVIRONMENT]
+        [RollbackType.TASK_STATE, RollbackType.ENVIRONMENT],
       );
 
       expect(initialSnapshot).toBeDefined();
@@ -154,16 +166,16 @@ describe('ValidationSystem Integration', () => {
         memoryUsage: {
           peak: 384 * 1024 * 1024, // 384MB
           average: 256 * 1024 * 1024,
-          current: 200 * 1024 * 1024
+          current: 200 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 35,
-          average: 25
+          average: 25,
         },
         resourceUsage: new Map([
           ['memory', 384],
           ['cpu', 35],
-          ['disk', 50]
+          ['disk', 50],
         ]),
         errorCount: 0,
         warningCount: 2,
@@ -173,8 +185,8 @@ describe('ValidationSystem Integration', () => {
           codeComplexity: 12,
           testCoverage: 87,
           duplicateLines: 3,
-          maintainabilityIndex: 78
-        }
+          maintainabilityIndex: 78,
+        },
       };
 
       // Step 4: Post-execution validation
@@ -186,8 +198,8 @@ describe('ValidationSystem Integration', () => {
         metadata: {
           ...testTask.metadata,
           completedAt: new Date(),
-          actualDuration: executionMetrics.duration
-        }
+          actualDuration: executionMetrics.duration,
+        },
       };
 
       const postExecutionContext = {
@@ -204,11 +216,12 @@ describe('ValidationSystem Integration', () => {
         metadata: {
           phase: 'post-execution',
           validationRequired: true,
-          qualityCheckRequired: true
-        }
+          qualityCheckRequired: true,
+        },
       };
 
-      const postValidationResult = await taskValidator.validateTask(postExecutionContext);
+      const postValidationResult =
+        await taskValidator.validateTask(postExecutionContext);
 
       expect(postValidationResult).toBeDefined();
       expect(postValidationResult.passed).toBe(true);
@@ -221,7 +234,7 @@ describe('ValidationSystem Integration', () => {
       const qualityResult = await qualityAssurance.performQualityAssurance(
         completedTask,
         testTaskResult,
-        executionMetrics
+        executionMetrics,
       );
 
       expect(qualityResult).toBeDefined();
@@ -242,7 +255,7 @@ describe('ValidationSystem Integration', () => {
       console.log('Step 6: Verification complete');
 
       const allResults = [preValidationResult, postValidationResult];
-      const allPassed = allResults.every(result => result.passed);
+      const allPassed = allResults.every((result) => result.passed);
       const qualityPassed = qualityResult.passed;
 
       expect(allPassed).toBe(true);
@@ -258,7 +271,7 @@ describe('ValidationSystem Integration', () => {
         id: 'failing-integration-task',
         title: '', // Missing required field
         description: '', // Missing required field
-        status: TaskStatus.FAILED
+        status: TaskStatus.FAILED,
       };
 
       const failingTaskResult: TaskResult = {
@@ -270,18 +283,18 @@ describe('ValidationSystem Integration', () => {
           stack: 'Error stack trace...',
           details: {
             missingFields: ['title', 'description'],
-            validationErrors: ['Required field validation failed']
-          }
+            validationErrors: ['Required field validation failed'],
+          },
         },
         metrics: {
           startTime: new Date(Date.now() - 75000), // 75 seconds - exceeds warning threshold
           endTime: new Date(),
           duration: 75000,
           memoryUsage: 2048, // 2GB - exceeds critical threshold
-          cpuUsage: 95 // 95% CPU - very high
+          cpuUsage: 95, // 95% CPU - very high
         },
         artifacts: [],
-        validationResults: []
+        validationResults: [],
       };
 
       const failingExecutionMetrics = {
@@ -291,11 +304,11 @@ describe('ValidationSystem Integration', () => {
         memoryUsage: {
           peak: 2048 * 1024 * 1024, // 2GB - exceeds critical threshold (1GB)
           average: 1536 * 1024 * 1024,
-          current: 1800 * 1024 * 1024
+          current: 1800 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 95,
-          average: 85
+          average: 85,
         },
         errorCount: 8, // High error count
         warningCount: 15,
@@ -305,14 +318,14 @@ describe('ValidationSystem Integration', () => {
           codeComplexity: 45, // Very high complexity
           testCoverage: 35, // Low test coverage
           duplicateLines: 25,
-          maintainabilityIndex: 25
-        }
+          maintainabilityIndex: 25,
+        },
       };
 
       // Step 1: Create snapshot before attempting execution
       const preFailureSnapshot = await rollbackManager.createSnapshot(
         failingTask,
-        'Snapshot before attempting failing task execution'
+        'Snapshot before attempting failing task execution',
       );
 
       // Step 2: Attempt validation (should fail)
@@ -329,22 +342,25 @@ describe('ValidationSystem Integration', () => {
         skipValidations: [],
         metadata: {
           phase: 'post-execution-failure',
-          validationRequired: true
-        }
+          validationRequired: true,
+        },
       };
 
-      const failedValidationResult = await taskValidator.validateTask(failingValidationContext);
+      const failedValidationResult = await taskValidator.validateTask(
+        failingValidationContext,
+      );
 
       expect(failedValidationResult.passed).toBe(false);
       expect(failedValidationResult.rollbackRecommended).toBe(true);
       expect(failedValidationResult.rollbackReason).toBeDefined();
 
       // Step 3: Quality assurance should also detect issues
-      const failingQualityResult = await qualityAssurance.performQualityAssurance(
-        failingTask,
-        failingTaskResult,
-        failingExecutionMetrics
-      );
+      const failingQualityResult =
+        await qualityAssurance.performQualityAssurance(
+          failingTask,
+          failingTaskResult,
+          failingExecutionMetrics,
+        );
 
       expect(failingQualityResult.passed).toBe(false);
       expect(failingQualityResult.violations.length).toBeGreaterThan(0);
@@ -355,13 +371,16 @@ describe('ValidationSystem Integration', () => {
         failingTask.id,
         RollbackTrigger.VALIDATION_FAILURE,
         preFailureSnapshot.id,
-        'Rollback due to critical validation failures and quality issues'
+        'Rollback due to critical validation failures and quality issues',
       );
 
-      const rollbackResult = await rollbackManager.executeRollback(rollbackOperation);
+      const rollbackResult =
+        await rollbackManager.executeRollback(rollbackOperation);
 
       expect(rollbackResult.success).toBe(true);
-      expect(rollbackResult.rollbackDetails.snapshotRestored).toBe(preFailureSnapshot.id);
+      expect(rollbackResult.rollbackDetails.snapshotRestored).toBe(
+        preFailureSnapshot.id,
+      );
       expect(rollbackResult.errors.length).toBe(0);
 
       // Step 5: Verify rollback statistics
@@ -375,7 +394,7 @@ describe('ValidationSystem Integration', () => {
         ...testTask,
         id: `concurrent-task-${index + 1}`,
         title: `Concurrent Test Task ${index + 1}`,
-        description: `Concurrent validation test task number ${index + 1}`
+        description: `Concurrent validation test task number ${index + 1}`,
       }));
 
       const concurrentExecutionMetrics = concurrentTasks.map((task, index) => ({
@@ -385,11 +404,11 @@ describe('ValidationSystem Integration', () => {
         memoryUsage: {
           peak: (200 + index * 50) * 1024 * 1024,
           average: (150 + index * 30) * 1024 * 1024,
-          current: (120 + index * 20) * 1024 * 1024
+          current: (120 + index * 20) * 1024 * 1024,
         },
         cpuUsage: {
           peak: 20 + index * 5,
-          average: 15 + index * 3
+          average: 15 + index * 3,
         },
         errorCount: index, // Increasing error count
         warningCount: index * 2,
@@ -399,8 +418,8 @@ describe('ValidationSystem Integration', () => {
           codeComplexity: 10 + index * 2,
           testCoverage: 90 - index * 5,
           duplicateLines: index,
-          maintainabilityIndex: 85 - index * 3
-        }
+          maintainabilityIndex: 85 - index * 3,
+        },
       }));
 
       // Execute all validations concurrently
@@ -410,7 +429,7 @@ describe('ValidationSystem Integration', () => {
           taskResult: {
             ...testTaskResult,
             taskId: task.id,
-            success: index < 3 // First 3 succeed, last 2 fail
+            success: index < 3, // First 3 succeed, last 2 fail
           },
           validationType: TaskValidationType.POST_EXECUTION,
           validationLevel: TaskValidationLevel.MODERATE,
@@ -422,8 +441,8 @@ describe('ValidationSystem Integration', () => {
           skipValidations: [],
           metadata: {
             phase: 'concurrent-validation',
-            taskIndex: index
-          }
+            taskIndex: index,
+          },
         };
 
         return taskValidator.validateTask(context);
@@ -460,24 +479,26 @@ describe('ValidationSystem Integration', () => {
       const preExecutionRules = validationRules.getApplicableRules(
         RuleExecutionContext.PRE_EXECUTION,
         'implementation',
-        TaskStatus.PENDING
+        TaskStatus.PENDING,
       );
 
       expect(preExecutionRules.length).toBeGreaterThan(0);
 
       // Register rules with validation framework
-      preExecutionRules.forEach(rule => {
+      preExecutionRules.forEach((rule) => {
         validationFramework.registerRule(rule);
       });
 
       // Verify framework has the rules
       const frameworkRules = validationFramework.getRules();
-      expect(frameworkRules.length).toBeGreaterThanOrEqual(preExecutionRules.length);
+      expect(frameworkRules.length).toBeGreaterThanOrEqual(
+        preExecutionRules.length,
+      );
 
       // Execute validation through framework
       const context = {
         taskId: testTask.id,
-        metadata: { task: testTask }
+        metadata: { task: testTask },
       };
 
       const frameworkReport = await validationFramework.validateTask(context);
@@ -495,16 +516,16 @@ describe('ValidationSystem Integration', () => {
         memoryUsage: {
           peak: 300 * 1024 * 1024,
           average: 200 * 1024 * 1024,
-          current: 180 * 1024 * 1024
+          current: 180 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 40,
-          average: 30
+          average: 30,
         },
         errorCount: 1,
         warningCount: 3,
         retryCount: 0,
-        throughput: 120
+        throughput: 120,
       };
 
       // Run task validation
@@ -519,29 +540,34 @@ describe('ValidationSystem Integration', () => {
         executionMetrics,
         customValidators: [],
         skipValidations: [],
-        metadata: {}
+        metadata: {},
       };
 
-      const validationResult = await taskValidator.validateTask(validationContext);
+      const validationResult =
+        await taskValidator.validateTask(validationContext);
 
       // Run quality assurance
       const qaResult = await qualityAssurance.performQualityAssurance(
         { ...testTask, status: TaskStatus.COMPLETED },
         testTaskResult,
-        executionMetrics
+        executionMetrics,
       );
 
       // Compare results for consistency
       expect(validationResult.passed).toBe(qaResult.passed);
       expect(validationResult.executionMetrics).toBe(executionMetrics);
-      expect(qaResult.metrics.performance.executionTime).toBe(executionMetrics.duration);
+      expect(qaResult.metrics.performance.executionTime).toBe(
+        executionMetrics.duration,
+      );
 
       // Both should agree on overall quality assessment
       const validationQualityScore = validationResult.qualityScore;
       const qaQualityScore = qaResult.overallScore;
 
       // Should be reasonably close (within 0.2 points)
-      expect(Math.abs(validationQualityScore - qaQualityScore)).toBeLessThan(0.2);
+      expect(Math.abs(validationQualityScore - qaQualityScore)).toBeLessThan(
+        0.2,
+      );
     });
 
     it('should integrate rollback manager with validation failures', async () => {
@@ -549,7 +575,7 @@ describe('ValidationSystem Integration', () => {
       const criticalFailureTask: Task = {
         ...testTask,
         id: 'critical-failure-task',
-        status: TaskStatus.FAILED
+        status: TaskStatus.FAILED,
       };
 
       const criticalFailureMetrics = {
@@ -559,22 +585,22 @@ describe('ValidationSystem Integration', () => {
         memoryUsage: {
           peak: 4096 * 1024 * 1024, // 4GB - critical
           average: 3072 * 1024 * 1024,
-          current: 3500 * 1024 * 1024
+          current: 3500 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 98,
-          average: 95
+          average: 95,
         },
         errorCount: 20, // Very high error count
         warningCount: 50,
         retryCount: 10,
-        throughput: 1 // Extremely low throughput
+        throughput: 1, // Extremely low throughput
       };
 
       // Step 1: Create snapshot
       const preFailureSnapshot = await rollbackManager.createSnapshot(
         criticalFailureTask,
-        'Snapshot before critical failure'
+        'Snapshot before critical failure',
       );
 
       // Step 2: Validate (should recommend rollback)
@@ -586,8 +612,8 @@ describe('ValidationSystem Integration', () => {
           success: false,
           error: {
             message: 'Critical system failure',
-            code: 'CRITICAL_FAILURE'
-          }
+            code: 'CRITICAL_FAILURE',
+          },
         },
         validationType: TaskValidationType.POST_EXECUTION,
         validationLevel: TaskValidationLevel.STRICT,
@@ -597,10 +623,11 @@ describe('ValidationSystem Integration', () => {
         executionMetrics: criticalFailureMetrics,
         customValidators: [],
         skipValidations: [],
-        metadata: {}
+        metadata: {},
       };
 
-      const validationResult = await taskValidator.validateTask(validationContext);
+      const validationResult =
+        await taskValidator.validateTask(validationContext);
 
       expect(validationResult.rollbackRecommended).toBe(true);
       expect(validationResult.snapshot).toBeDefined();
@@ -611,10 +638,11 @@ describe('ValidationSystem Integration', () => {
           criticalFailureTask.id,
           RollbackTrigger.VALIDATION_FAILURE,
           validationResult.snapshot.id,
-          validationResult.rollbackReason || 'Validation recommended rollback'
+          validationResult.rollbackReason || 'Validation recommended rollback',
         );
 
-        const rollbackResult = await rollbackManager.executeRollback(rollbackOp);
+        const rollbackResult =
+          await rollbackManager.executeRollback(rollbackOp);
         expect(rollbackResult.success).toBe(true);
       }
     });
@@ -629,7 +657,7 @@ describe('ValidationSystem Integration', () => {
         ...testTask,
         id: `scale-test-task-${index + 1}`,
         title: `Scale Test Task ${index + 1}`,
-        description: `Large-scale validation test task ${index + 1}`
+        description: `Large-scale validation test task ${index + 1}`,
       }));
 
       // Execute validations in batches to avoid overwhelming the system
@@ -638,7 +666,7 @@ describe('ValidationSystem Integration', () => {
 
       for (let i = 0; i < largeBatch.length; i += batchSize) {
         const batch = largeBatch.slice(i, i + batchSize);
-        const batchPromises = batch.map(task => {
+        const batchPromises = batch.map((task) => {
           const context = {
             task: { ...task, status: TaskStatus.COMPLETED },
             taskResult: { ...testTaskResult, taskId: task.id },
@@ -654,15 +682,15 @@ describe('ValidationSystem Integration', () => {
               memoryUsage: {
                 peak: 300 * 1024 * 1024,
                 average: 200 * 1024 * 1024,
-                current: 180 * 1024 * 1024
+                current: 180 * 1024 * 1024,
               },
               errorCount: 0,
               warningCount: 1,
-              retryCount: 0
+              retryCount: 0,
             },
             customValidators: [],
             skipValidations: [],
-            metadata: { batchIndex: Math.floor(i / batchSize) }
+            metadata: { batchIndex: Math.floor(i / batchSize) },
           };
 
           return taskValidator.validateTask(context);
@@ -689,16 +717,22 @@ describe('ValidationSystem Integration', () => {
       const avgValidationTime = totalDuration / results.length;
       expect(avgValidationTime).toBeLessThan(600); // Less than 600ms per validation
 
-      console.log(`Large-scale validation completed: ${results.length} tasks in ${totalDuration}ms (avg: ${avgValidationTime.toFixed(2)}ms per task)`);
+      console.log(
+        `Large-scale validation completed: ${results.length} tasks in ${totalDuration}ms (avg: ${avgValidationTime.toFixed(2)}ms per task)`,
+      );
     });
   });
 
   describe('Error Recovery and Resilience', () => {
     it('should recover gracefully from component failures', async () => {
       // Simulate validation framework failure
-      const originalValidateTask = validationFramework.validateTask.bind(validationFramework);
-      const frameworkFailureSpy = vi.spyOn(validationFramework, 'validateTask')
-        .mockRejectedValueOnce(new Error('Validation framework temporary failure'))
+      const originalValidateTask =
+        validationFramework.validateTask.bind(validationFramework);
+      const frameworkFailureSpy = vi
+        .spyOn(validationFramework, 'validateTask')
+        .mockRejectedValueOnce(
+          new Error('Validation framework temporary failure'),
+        )
         .mockImplementation(originalValidateTask);
 
       const context = {
@@ -711,11 +745,13 @@ describe('ValidationSystem Integration', () => {
         executionMetrics: undefined,
         customValidators: [],
         skipValidations: [],
-        metadata: {}
+        metadata: {},
       };
 
       // First attempt should fail
-      await expect(taskValidator.validateTask(context)).rejects.toThrow('Validation framework temporary failure');
+      await expect(taskValidator.validateTask(context)).rejects.toThrow(
+        'Validation framework temporary failure',
+      );
 
       // Second attempt should succeed
       const recoveryResult = await taskValidator.validateTask(context);
@@ -734,7 +770,10 @@ describe('ValidationSystem End-to-End Scenarios', () => {
 
     const validationFramework = new ValidationFramework();
     const taskValidator = new TaskValidator(validationFramework);
-    const qualityAssurance = new QualityAssurance(validationFramework, taskValidator);
+    const qualityAssurance = new QualityAssurance(
+      validationFramework,
+      taskValidator,
+    );
     const rollbackManager = new RollbackManager();
 
     try {
@@ -742,15 +781,16 @@ describe('ValidationSystem End-to-End Scenarios', () => {
       const newTask: Task = {
         id: 'e2e-lifecycle-task',
         title: 'End-to-End Lifecycle Test Task',
-        description: 'A task that goes through the complete lifecycle with validation at every stage',
+        description:
+          'A task that goes through the complete lifecycle with validation at every stage',
         type: 'implementation' as any,
         priority: TaskPriority.HIGH,
         status: TaskStatus.PENDING,
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),
-          createdBy: 'e2e-test-system'
-        }
+          createdBy: 'e2e-test-system',
+        },
       } as Task;
 
       // Stage 1: Pre-execution validation
@@ -758,7 +798,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
 
       const preExecSnapshot = await rollbackManager.createSnapshot(
         newTask,
-        'Initial task state snapshot'
+        'Initial task state snapshot',
       );
 
       const preExecValidation = await taskValidator.validateTask({
@@ -771,7 +811,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
         executionMetrics: undefined,
         customValidators: [],
         skipValidations: [],
-        metadata: { stage: 'pre-execution' }
+        metadata: { stage: 'pre-execution' },
       });
 
       expect(preExecValidation.passed).toBe(true);
@@ -779,10 +819,10 @@ describe('ValidationSystem End-to-End Scenarios', () => {
       // Stage 2: Task execution simulation
       console.log('Stage 2: Task execution simulation');
 
-      const executingTask = { ...newTask, status: TaskStatus.IN_PROGRESS };
+      const executingTask = { ...newTask, status: TaskStatus.RUNNING };
       const duringExecSnapshot = await rollbackManager.createSnapshot(
         executingTask,
-        'Task execution started snapshot'
+        'Task execution started snapshot',
       );
 
       // Stage 3: During execution monitoring (simulated)
@@ -795,16 +835,16 @@ describe('ValidationSystem End-to-End Scenarios', () => {
         memoryUsage: {
           peak: 400 * 1024 * 1024,
           average: 300 * 1024 * 1024,
-          current: 280 * 1024 * 1024
+          current: 280 * 1024 * 1024,
         },
         cpuUsage: {
           peak: 45,
-          average: 30
+          average: 30,
         },
         errorCount: 0,
         warningCount: 1,
         retryCount: 0,
-        throughput: 100
+        throughput: 100,
       };
 
       // Stage 4: Task completion and post-execution validation
@@ -813,7 +853,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
       const completedTask = { ...newTask, status: TaskStatus.COMPLETED };
       const completionSnapshot = await rollbackManager.createSnapshot(
         completedTask,
-        'Task completion snapshot'
+        'Task completion snapshot',
       );
 
       const taskResult: TaskResult = {
@@ -821,17 +861,17 @@ describe('ValidationSystem End-to-End Scenarios', () => {
         success: true,
         output: {
           result: 'E2E test completed successfully',
-          metrics: 'All metrics within acceptable ranges'
+          metrics: 'All metrics within acceptable ranges',
         },
         metrics: {
           startTime: executionMetrics.startTime,
           endTime: executionMetrics.endTime,
           duration: executionMetrics.duration,
           memoryUsage: executionMetrics.memoryUsage.peak / (1024 * 1024),
-          cpuUsage: executionMetrics.cpuUsage.average
+          cpuUsage: executionMetrics.cpuUsage.average,
         },
         artifacts: ['e2e-test-results.json'],
-        validationResults: []
+        validationResults: [],
       };
 
       const postExecValidation = await taskValidator.validateTask({
@@ -841,11 +881,15 @@ describe('ValidationSystem End-to-End Scenarios', () => {
         validationLevel: TaskValidationLevel.MODERATE,
         dependencies: [],
         dependencyResults: new Map(),
-        previousSnapshots: [preExecSnapshot, duringExecSnapshot, completionSnapshot],
+        previousSnapshots: [
+          preExecSnapshot,
+          duringExecSnapshot,
+          completionSnapshot,
+        ],
         executionMetrics,
         customValidators: [],
         skipValidations: [],
-        metadata: { stage: 'post-execution' }
+        metadata: { stage: 'post-execution' },
       });
 
       expect(postExecValidation.passed).toBe(true);
@@ -857,7 +901,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
       const finalQA = await qualityAssurance.performQualityAssurance(
         completedTask,
         taskResult,
-        executionMetrics
+        executionMetrics,
       );
 
       expect(finalQA.passed).toBe(true);
@@ -879,13 +923,12 @@ describe('ValidationSystem End-to-End Scenarios', () => {
       expect(qualityStats.totalResults).toBeGreaterThan(0);
 
       console.log('End-to-end lifecycle test completed successfully');
-
     } finally {
       // Cleanup
       await Promise.all([
         taskValidator.cleanup(),
         qualityAssurance.cleanup(),
-        rollbackManager.cleanup()
+        rollbackManager.cleanup(),
       ]);
     }
   });

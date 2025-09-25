@@ -6,8 +6,8 @@
 
 import type { CommandModule } from 'yargs';
 interface DisableCommandArgs {
-    scope: 'user' | 'project';
-    confirm?: boolean;
+  scope: 'user' | 'project';
+  confirm?: boolean;
 }
 export declare const disableCommand: CommandModule<object, DisableCommandArgs>;
 export {};

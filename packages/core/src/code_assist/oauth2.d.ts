@@ -13,10 +13,13 @@ import type { AuthType } from '../core/contentGenerator.js';
  * been refreshed (or which throws error when refreshing credentials failed).
  */
 export interface OauthWebLogin {
-    authUrl: string;
-    loginCompletePromise: Promise<void>;
+  authUrl: string;
+  loginCompletePromise: Promise<void>;
 }
-export declare function getOauthClient(authType: AuthType, config: Config): Promise<OAuth2Client>;
+export declare function getOauthClient(
+  authType: AuthType,
+  config: Config,
+): Promise<OAuth2Client>;
 export declare function getAvailablePort(): Promise<number>;
 export declare function clearOauthClientCache(): void;
 export declare function clearCachedCredentialFile(): Promise<void>;

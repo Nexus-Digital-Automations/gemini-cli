@@ -17,7 +17,8 @@ const execAsync = promisify(exec);
  * TaskManager API, ensuring backward compatibility and graceful fallback.
  */
 
-const TASKMANAGER_API_PATH = '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
+const TASKMANAGER_API_PATH =
+  '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
 const API_TIMEOUT = 10000; // 10 seconds
 
 export interface TaskManagerResponse {
@@ -31,7 +32,13 @@ export interface FeatureSuggestion {
   title: string;
   description: string;
   business_value: string;
-  category: 'enhancement' | 'bug-fix' | 'new-feature' | 'performance' | 'security' | 'documentation';
+  category:
+    | 'enhancement'
+    | 'bug-fix'
+    | 'new-feature'
+    | 'performance'
+    | 'security'
+    | 'documentation';
 }
 
 export interface AgentInfo {
@@ -44,7 +51,9 @@ export interface AgentInfo {
 /**
  * Execute TaskManager API command with timeout and error handling
  */
-async function executeTaskManagerCommand(command: string): Promise<TaskManagerResponse> {
+async function executeTaskManagerCommand(
+  command: string,
+): Promise<TaskManagerResponse> {
   try {
     const fullCommand = `timeout ${API_TIMEOUT / 1000}s node "${TASKMANAGER_API_PATH}" ${command}`;
 
@@ -60,14 +69,14 @@ async function executeTaskManagerCommand(command: string): Promise<TaskManagerRe
       return {
         success: true,
         data: result,
-        message: result.message || 'Command executed successfully'
+        message: result.message || 'Command executed successfully',
       };
     } catch {
       // If not JSON, return raw output
       return {
         success: true,
         data: { output: stdout.trim() },
-        message: 'Command executed successfully'
+        message: 'Command executed successfully',
       };
     }
   } catch (error) {
@@ -78,23 +87,26 @@ async function executeTaskManagerCommand(command: string): Promise<TaskManagerRe
       return {
         success: false,
         error: 'TaskManager API timeout - system may be busy',
-        message: 'Request timed out after 10 seconds'
+        message: 'Request timed out after 10 seconds',
       };
     }
 
     // Check if it's a file not found error
-    if (errorMessage.includes('ENOENT') || errorMessage.includes('No such file')) {
+    if (
+      errorMessage.includes('ENOENT') ||
+      errorMessage.includes('No such file')
+    ) {
       return {
         success: false,
         error: 'TaskManager API not found',
-        message: 'TaskManager API is not available at expected location'
+        message: 'TaskManager API is not available at expected location',
       };
     }
 
     return {
       success: false,
       error: errorMessage,
-      message: 'TaskManager API call failed'
+      message: 'TaskManager API call failed',
     };
   }
 }
@@ -102,14 +114,18 @@ async function executeTaskManagerCommand(command: string): Promise<TaskManagerRe
 /**
  * Initialize or reinitialize an agent
  */
-export async function initializeAgent(agentId: string): Promise<TaskManagerResponse> {
+export async function initializeAgent(
+  agentId: string,
+): Promise<TaskManagerResponse> {
   return executeTaskManagerCommand(`reinitialize ${agentId}`);
 }
 
 /**
  * Suggest a new feature
  */
-export async function suggestFeature(feature: FeatureSuggestion): Promise<TaskManagerResponse> {
+export async function suggestFeature(
+  feature: FeatureSuggestion,
+): Promise<TaskManagerResponse> {
   const featureJson = JSON.stringify(feature).replace(/"/g, '\\"');
   return executeTaskManagerCommand(`suggest-feature "${featureJson}"`);
 }
@@ -118,24 +134,40 @@ export async function suggestFeature(feature: FeatureSuggestion): Promise<TaskMa
  * List features with optional filtering
  */
 export async function listFeatures(filter?: any): Promise<TaskManagerResponse> {
-  const filterArg = filter ? `"${JSON.stringify(filter).replace(/"/g, '\\"')}"` : '';
+  const filterArg = filter
+    ? `"${JSON.stringify(filter).replace(/"/g, '\\"')}"`
+    : '';
   return executeTaskManagerCommand(`list-features ${filterArg}`);
 }
 
 /**
  * Approve a feature
  */
-export async function approveFeature(featureId: string, approvalData?: any): Promise<TaskManagerResponse> {
-  const approvalArg = approvalData ? `"${JSON.stringify(approvalData).replace(/"/g, '\\"')}"` : '';
-  return executeTaskManagerCommand(`approve-feature ${featureId} ${approvalArg}`);
+export async function approveFeature(
+  featureId: string,
+  approvalData?: any,
+): Promise<TaskManagerResponse> {
+  const approvalArg = approvalData
+    ? `"${JSON.stringify(approvalData).replace(/"/g, '\\"')}"`
+    : '';
+  return executeTaskManagerCommand(
+    `approve-feature ${featureId} ${approvalArg}`,
+  );
 }
 
 /**
  * Reject a feature
  */
-export async function rejectFeature(featureId: string, rejectionData?: any): Promise<TaskManagerResponse> {
-  const rejectionArg = rejectionData ? `"${JSON.stringify(rejectionData).replace(/"/g, '\\"')}"` : '';
-  return executeTaskManagerCommand(`reject-feature ${featureId} ${rejectionArg}`);
+export async function rejectFeature(
+  featureId: string,
+  rejectionData?: any,
+): Promise<TaskManagerResponse> {
+  const rejectionArg = rejectionData
+    ? `"${JSON.stringify(rejectionData).replace(/"/g, '\\"')}"`
+    : '';
+  return executeTaskManagerCommand(
+    `reject-feature ${featureId} ${rejectionArg}`,
+  );
 }
 
 /**
@@ -155,7 +187,10 @@ export async function getInitializationStats(): Promise<TaskManagerResponse> {
 /**
  * Authorize agent to stop
  */
-export async function authorizeStop(agentId: string, reason: string): Promise<TaskManagerResponse> {
+export async function authorizeStop(
+  agentId: string,
+  reason: string,
+): Promise<TaskManagerResponse> {
   return executeTaskManagerCommand(`authorize-stop ${agentId} "${reason}"`);
 }
 
@@ -188,7 +223,10 @@ export async function listApiMethods(): Promise<TaskManagerResponse> {
 /**
  * Handle API response with user-friendly error messages
  */
-export function handleApiResponse(response: TaskManagerResponse, operation: string): boolean {
+export function handleApiResponse(
+  response: TaskManagerResponse,
+  operation: string,
+): boolean {
   if (response.success) {
     if (response.message) {
       console.log(chalk.green(`✅ ${operation}: ${response.message}`));
@@ -198,10 +236,17 @@ export function handleApiResponse(response: TaskManagerResponse, operation: stri
     console.error(chalk.red(`❌ ${operation} failed:`));
     console.error(chalk.red(response.error || 'Unknown error'));
 
-    if (response.error?.includes('not found') || response.error?.includes('ENOENT')) {
+    if (
+      response.error?.includes('not found') ||
+      response.error?.includes('ENOENT')
+    ) {
       console.log(chalk.blue('\n💡 TaskManager API Troubleshooting:'));
-      console.log('   • Ensure TaskManager API is installed at expected location');
-      console.log('   • Check if the infinite-continue-stop-hook system is running');
+      console.log(
+        '   • Ensure TaskManager API is installed at expected location',
+      );
+      console.log(
+        '   • Check if the infinite-continue-stop-hook system is running',
+      );
       console.log('   • Verify file permissions for TaskManager API');
     } else if (response.error?.includes('timeout')) {
       console.log(chalk.blue('\n💡 TaskManager API Timeout:'));
@@ -217,8 +262,13 @@ export function handleApiResponse(response: TaskManagerResponse, operation: stri
 /**
  * Graceful fallback handler for when TaskManager API is unavailable
  */
-export function handleApiFallback(operation: string, fallbackAction?: () => void): void {
-  console.log(chalk.yellow(`⚠️  TaskManager API not available for ${operation}`));
+export function handleApiFallback(
+  operation: string,
+  fallbackAction?: () => void,
+): void {
+  console.log(
+    chalk.yellow(`⚠️  TaskManager API not available for ${operation}`),
+  );
   console.log(chalk.blue('💡 Using local simulation mode'));
 
   if (fallbackAction) {
@@ -232,14 +282,14 @@ export function handleApiFallback(operation: string, fallbackAction?: () => void
 export function convertTaskToFeature(task: any): FeatureSuggestion {
   // Map task categories to TaskManager feature categories
   const categoryMap: Record<string, FeatureSuggestion['category']> = {
-    'FEATURE': 'new-feature',
-    'BUG_FIX': 'bug-fix',
-    'ERROR': 'bug-fix',
-    'ENHANCEMENT': 'enhancement',
-    'PERFORMANCE': 'performance',
-    'SECURITY': 'security',
-    'DOCUMENTATION': 'documentation',
-    'TEST': 'enhancement'
+    FEATURE: 'new-feature',
+    BUG_FIX: 'bug-fix',
+    ERROR: 'bug-fix',
+    ENHANCEMENT: 'enhancement',
+    PERFORMANCE: 'performance',
+    SECURITY: 'security',
+    DOCUMENTATION: 'documentation',
+    TEST: 'enhancement',
   };
 
   const mappedCategory = categoryMap[task.category] || 'new-feature';
@@ -248,6 +298,6 @@ export function convertTaskToFeature(task: any): FeatureSuggestion {
     title: task.title || task.description?.substring(0, 50) + '...',
     description: task.description || 'Autonomous task execution',
     business_value: `Autonomous task management: ${task.type || 'implementation'} with ${task.priority || 'medium'} priority`,
-    category: mappedCategory
+    category: mappedCategory,
   };
 }

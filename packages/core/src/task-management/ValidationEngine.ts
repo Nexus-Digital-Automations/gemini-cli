@@ -18,7 +18,7 @@ import type {
   TaskResult,
   TaskStatus,
   TaskPriority,
-  TaskCategory
+  TaskCategory,
 } from './types.js';
 import type { ExecutionMetrics } from './ExecutionMonitoringSystem.js';
 import * as fs from 'node:fs/promises';
@@ -41,12 +41,22 @@ export type ValidationCheckpointType =
 /**
  * Validation severity levels
  */
-export type ValidationSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
+export type ValidationSeverity =
+  | 'critical'
+  | 'high'
+  | 'medium'
+  | 'low'
+  | 'info';
 
 /**
  * Validation status
  */
-export type ValidationStatus = 'passed' | 'failed' | 'warning' | 'skipped' | 'error';
+export type ValidationStatus =
+  | 'passed'
+  | 'failed'
+  | 'warning'
+  | 'skipped'
+  | 'error';
 
 /**
  * Quality gate configuration
@@ -91,7 +101,11 @@ export interface ValidationRule {
   /** Severity of violations */
   severity: ValidationSeverity;
   /** Rule implementation function */
-  validator: (task: Task, result: TaskResult, context: ValidationContext) => Promise<ValidationRuleResult>;
+  validator: (
+    task: Task,
+    result: TaskResult,
+    context: ValidationContext,
+  ) => Promise<ValidationRuleResult>;
   /** Whether this rule is enabled */
   enabled: boolean;
   /** Rule-specific configuration */
@@ -216,10 +230,13 @@ export interface PerformanceBenchmark {
   /** Minimum throughput (operations per second) */
   minThroughput?: number;
   /** Custom performance metrics */
-  customMetrics?: Record<string, {
-    threshold: number;
-    comparison: 'less_than' | 'greater_than' | 'equals';
-  }>;
+  customMetrics?: Record<
+    string,
+    {
+      threshold: number;
+      comparison: 'less_than' | 'greater_than' | 'equals';
+    }
+  >;
 }
 
 /**
@@ -248,12 +265,17 @@ export class ValidationEngine extends EventEmitter {
   private readonly qualityGates: Map<string, QualityGateConfig> = new Map();
   private readonly validationRules: Map<string, ValidationRule> = new Map();
   private readonly validationHistory: ValidationResult[] = [];
-  private readonly performanceBenchmarks: Map<string, PerformanceBenchmark> = new Map();
+  private readonly performanceBenchmarks: Map<string, PerformanceBenchmark> =
+    new Map();
   private readonly securityScans: Map<string, SecurityScanConfig> = new Map();
 
   // Validation state
-  private readonly activeValidations: Map<TaskId, Promise<ValidationResult>> = new Map();
-  private readonly recoveryStrategies: Map<string, (task: Task, result: TaskResult) => Promise<boolean>> = new Map();
+  private readonly activeValidations: Map<TaskId, Promise<ValidationResult>> =
+    new Map();
+  private readonly recoveryStrategies: Map<
+    string,
+    (task: Task, result: TaskResult) => Promise<boolean>
+  > = new Map();
 
   // Persistence
   private readonly validationResultsPath: string;
@@ -283,7 +305,7 @@ export class ValidationEngine extends EventEmitter {
   async validateTaskCompletion(
     task: Task,
     result: TaskResult,
-    metrics: ExecutionMetrics
+    metrics: ExecutionMetrics,
   ): Promise<ValidationResult> {
     const startTime = Date.now();
     const validationId = `${task.id}_${startTime}`;
@@ -326,7 +348,7 @@ export class ValidationEngine extends EventEmitter {
   private async executeValidation(
     task: Task,
     result: TaskResult,
-    metrics: ExecutionMetrics
+    metrics: ExecutionMetrics,
   ): Promise<ValidationResult> {
     const startTime = Date.now();
     const gateResults: QualityGateResult[] = [];
@@ -340,13 +362,13 @@ export class ValidationEngine extends EventEmitter {
       result,
       config: this.config,
       metrics,
-      history: this.validationHistory.filter(v => v.taskId === task.id),
-      data: {}
+      history: this.validationHistory.filter((v) => v.taskId === task.id),
+      data: {},
     };
 
     // Execute quality gates in parallel for non-blocking gates, sequentially for blocking
-    const blockingGates = applicableGates.filter(gate => gate.blocking);
-    const nonBlockingGates = applicableGates.filter(gate => !gate.blocking);
+    const blockingGates = applicableGates.filter((gate) => gate.blocking);
+    const nonBlockingGates = applicableGates.filter((gate) => !gate.blocking);
 
     // Execute blocking gates first (sequentially)
     for (const gate of blockingGates) {
@@ -362,7 +384,7 @@ export class ValidationEngine extends EventEmitter {
     // Execute non-blocking gates in parallel
     if (nonBlockingGates.length > 0) {
       const nonBlockingResults = await Promise.all(
-        nonBlockingGates.map(gate => this.executeQualityGate(gate, context))
+        nonBlockingGates.map((gate) => this.executeQualityGate(gate, context)),
       );
       gateResults.push(...nonBlockingResults);
     }
@@ -379,7 +401,11 @@ export class ValidationEngine extends EventEmitter {
 
     if (!passed && result.success) {
       recoveryAttempted = true;
-      recoveryResults = await this.attemptAutomaticRecovery(task, result, gateResults);
+      recoveryResults = await this.attemptAutomaticRecovery(
+        task,
+        result,
+        gateResults,
+      );
     }
 
     const validationResult: ValidationResult = {
@@ -392,7 +418,7 @@ export class ValidationEngine extends EventEmitter {
       summary,
       recommendations,
       recoveryAttempted,
-      recoveryResults
+      recoveryResults,
     };
 
     return validationResult;
@@ -403,7 +429,7 @@ export class ValidationEngine extends EventEmitter {
    */
   private async executeQualityGate(
     gate: QualityGateConfig,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<QualityGateResult> {
     const startTime = Date.now();
 
@@ -411,12 +437,15 @@ export class ValidationEngine extends EventEmitter {
       // Execute all rules for this gate
       const ruleResults = await Promise.all(
         gate.rules
-          .filter(rule => rule.enabled)
-          .map(rule => this.executeValidationRule(rule, context))
+          .filter((rule) => rule.enabled)
+          .map((rule) => this.executeValidationRule(rule, context)),
       );
 
       // Determine gate status based on rule results
-      const status = this.calculateGateStatus(ruleResults, gate.minimumSeverity);
+      const status = this.calculateGateStatus(
+        ruleResults,
+        gate.minimumSeverity,
+      );
       const passed = status === 'passed';
 
       return {
@@ -425,7 +454,7 @@ export class ValidationEngine extends EventEmitter {
         passed,
         ruleResults,
         executionTimeMs: Date.now() - startTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       return {
@@ -437,8 +466,8 @@ export class ValidationEngine extends EventEmitter {
         timestamp: new Date(),
         error: {
           message: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined
-        }
+          stack: error instanceof Error ? error.stack : undefined,
+        },
       };
     }
   }
@@ -448,7 +477,7 @@ export class ValidationEngine extends EventEmitter {
    */
   private async executeValidationRule(
     rule: ValidationRule,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<ValidationRuleResult> {
     const startTime = Date.now();
 
@@ -456,20 +485,20 @@ export class ValidationEngine extends EventEmitter {
       const result = await Promise.race([
         rule.validator(context.task, context.result, context),
         new Promise<ValidationRuleResult>((_, reject) =>
-          setTimeout(() => reject(new Error('Validation rule timeout')), 30000)
-        )
+          setTimeout(() => reject(new Error('Validation rule timeout')), 30000),
+        ),
       ]);
 
       return {
         ...result,
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       };
     } catch (error) {
       return {
         passed: false,
         status: 'error',
         message: `Rule execution failed: ${error instanceof Error ? error.message : String(error)}`,
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       };
     }
   }
@@ -478,7 +507,7 @@ export class ValidationEngine extends EventEmitter {
    * Gets quality gates applicable to a specific task
    */
   private getApplicableQualityGates(task: Task): QualityGateConfig[] {
-    return Array.from(this.qualityGates.values()).filter(gate => {
+    return Array.from(this.qualityGates.values()).filter((gate) => {
       // Check if gate applies to this task
       if (!gate.applicableTasks) {
         return true; // Apply to all tasks if no restrictions
@@ -498,7 +527,9 @@ export class ValidationEngine extends EventEmitter {
 
       // Check tags match
       if (tags && task.metadata.tags) {
-        const hasMatchingTag = tags.some(tag => task.metadata.tags!.includes(tag));
+        const hasMatchingTag = tags.some((tag) =>
+          task.metadata.tags!.includes(tag),
+        );
         if (!hasMatchingTag) {
           return false;
         }
@@ -511,10 +542,14 @@ export class ValidationEngine extends EventEmitter {
   /**
    * Calculates overall validation status from gate results
    */
-  private calculateOverallValidationStatus(gateResults: QualityGateResult[]): boolean {
+  private calculateOverallValidationStatus(
+    gateResults: QualityGateResult[],
+  ): boolean {
     // All blocking gates must pass
-    const blockingGates = gateResults.filter(result => result.gate.blocking);
-    const allBlockingGatesPassed = blockingGates.every(result => result.passed);
+    const blockingGates = gateResults.filter((result) => result.gate.blocking);
+    const allBlockingGatesPassed = blockingGates.every(
+      (result) => result.passed,
+    );
 
     return allBlockingGatesPassed;
   }
@@ -524,21 +559,31 @@ export class ValidationEngine extends EventEmitter {
    */
   private calculateGateStatus(
     ruleResults: ValidationRuleResult[],
-    minimumSeverity: ValidationSeverity
+    minimumSeverity: ValidationSeverity,
   ): ValidationStatus {
-    const failedResults = ruleResults.filter(result => !result.passed);
+    const failedResults = ruleResults.filter((result) => !result.passed);
 
     if (failedResults.length === 0) {
       return 'passed';
     }
 
     // Check if any failed results meet the minimum severity threshold
-    const severityOrder: ValidationSeverity[] = ['critical', 'high', 'medium', 'low', 'info'];
+    const severityOrder: ValidationSeverity[] = [
+      'critical',
+      'high',
+      'medium',
+      'low',
+      'info',
+    ];
     const minSeverityIndex = severityOrder.indexOf(minimumSeverity);
 
-    const criticalFailures = failedResults.some(result => {
-      const rule = ruleResults.find(r => r === result);
-      return rule && severityOrder.indexOf(rule.status as ValidationSeverity) <= minSeverityIndex;
+    const criticalFailures = failedResults.some((result) => {
+      const rule = ruleResults.find((r) => r === result);
+      return (
+        rule &&
+        severityOrder.indexOf(rule.status as ValidationSeverity) <=
+          minSeverityIndex
+      );
     });
 
     if (criticalFailures) {
@@ -561,7 +606,7 @@ export class ValidationEngine extends EventEmitter {
       criticalViolations: 0,
       highViolations: 0,
       mediumViolations: 0,
-      lowViolations: 0
+      lowViolations: 0,
     };
 
     for (const gateResult of gateResults) {
@@ -618,16 +663,24 @@ export class ValidationEngine extends EventEmitter {
         // Add gate-specific recommendations
         switch (gateResult.gate.type) {
           case 'code_quality':
-            recommendations.push('Review code quality issues and fix linting violations');
+            recommendations.push(
+              'Review code quality issues and fix linting violations',
+            );
             break;
           case 'performance':
-            recommendations.push('Optimize performance bottlenecks identified in validation');
+            recommendations.push(
+              'Optimize performance bottlenecks identified in validation',
+            );
             break;
           case 'security':
-            recommendations.push('Address security vulnerabilities found during scan');
+            recommendations.push(
+              'Address security vulnerabilities found during scan',
+            );
             break;
           case 'functional_testing':
-            recommendations.push('Fix failing tests and ensure proper test coverage');
+            recommendations.push(
+              'Fix failing tests and ensure proper test coverage',
+            );
             break;
         }
 
@@ -649,7 +702,7 @@ export class ValidationEngine extends EventEmitter {
   private async attemptAutomaticRecovery(
     task: Task,
     result: TaskResult,
-    gateResults: QualityGateResult[]
+    gateResults: QualityGateResult[],
   ): Promise<{ success: boolean; actions: string[]; details: string }> {
     const actions: string[] = [];
     let overallSuccess = true;
@@ -657,8 +710,13 @@ export class ValidationEngine extends EventEmitter {
 
     // Attempt recovery for each failed gate
     for (const gateResult of gateResults) {
-      if (!gateResult.passed && this.recoveryStrategies.has(gateResult.gate.type)) {
-        const recoveryStrategy = this.recoveryStrategies.get(gateResult.gate.type)!;
+      if (
+        !gateResult.passed &&
+        this.recoveryStrategies.has(gateResult.gate.type)
+      ) {
+        const recoveryStrategy = this.recoveryStrategies.get(
+          gateResult.gate.type,
+        )!;
 
         try {
           const success = await recoveryStrategy(task, result);
@@ -680,7 +738,7 @@ export class ValidationEngine extends EventEmitter {
     return {
       success: overallSuccess,
       actions,
-      details: details.join('; ')
+      details: details.join('; '),
     };
   }
 
@@ -704,7 +762,7 @@ export class ValidationEngine extends EventEmitter {
    * Gets validation history for a task
    */
   getValidationHistory(taskId: TaskId): ValidationResult[] {
-    return this.validationHistory.filter(result => result.taskId === taskId);
+    return this.validationHistory.filter((result) => result.taskId === taskId);
   }
 
   /**
@@ -714,20 +772,26 @@ export class ValidationEngine extends EventEmitter {
     totalValidations: number;
     successRate: number;
     averageExecutionTime: number;
-    gateStatistics: Record<string, { passed: number; failed: number; successRate: number }>;
+    gateStatistics: Record<
+      string,
+      { passed: number; failed: number; successRate: number }
+    >;
   } {
     const total = this.validationHistory.length;
-    const passed = this.validationHistory.filter(v => v.passed).length;
+    const passed = this.validationHistory.filter((v) => v.passed).length;
     const successRate = total > 0 ? (passed / total) * 100 : 0;
 
     const totalExecutionTime = this.validationHistory.reduce(
       (sum, v) => sum + v.executionTimeMs,
-      0
+      0,
     );
     const averageExecutionTime = total > 0 ? totalExecutionTime / total : 0;
 
     // Calculate gate statistics
-    const gateStatistics: Record<string, { passed: number; failed: number; successRate: number }> = {};
+    const gateStatistics: Record<
+      string,
+      { passed: number; failed: number; successRate: number }
+    > = {};
 
     for (const validation of this.validationHistory) {
       for (const gateResult of validation.gateResults) {
@@ -755,7 +819,7 @@ export class ValidationEngine extends EventEmitter {
       totalValidations: total,
       successRate,
       averageExecutionTime,
-      gateStatistics
+      gateStatistics,
     };
   }
 
@@ -775,9 +839,9 @@ export class ValidationEngine extends EventEmitter {
       parameters: {
         lintingEnabled: true,
         formattingCheck: true,
-        complexityCheck: true
+        complexityCheck: true,
       },
-      rules: []
+      rules: [],
     });
 
     // Performance Gate
@@ -792,9 +856,9 @@ export class ValidationEngine extends EventEmitter {
       parameters: {
         benchmarkRequired: true,
         memoryThreshold: 512,
-        executionTimeThreshold: 30000
+        executionTimeThreshold: 30000,
       },
-      rules: []
+      rules: [],
     });
 
     // Security Gate
@@ -809,9 +873,9 @@ export class ValidationEngine extends EventEmitter {
       parameters: {
         sastRequired: true,
         dependencyCheck: true,
-        secretsCheck: true
+        secretsCheck: true,
       },
-      rules: []
+      rules: [],
     });
   }
 
@@ -860,10 +924,13 @@ export class ValidationEngine extends EventEmitter {
       const data = {
         validationHistory: this.validationHistory.slice(-100),
         statistics: this.getValidationStatistics(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
-      await fs.writeFile(this.validationResultsPath, JSON.stringify(data, null, 2));
+      await fs.writeFile(
+        this.validationResultsPath,
+        JSON.stringify(data, null, 2),
+      );
     } catch (error) {
       console.error('Error persisting validation results:', error);
     }

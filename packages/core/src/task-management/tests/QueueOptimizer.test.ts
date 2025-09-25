@@ -17,8 +17,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import type {
-  QueueMetrics} from '../QueueOptimizer.js';
+import type { QueueMetrics } from '../QueueOptimizer.js';
 import {
   QueueOptimizer,
   OptimizationStrategy,
@@ -26,9 +25,9 @@ import {
   ResourceAllocation,
   BatchingStrategy,
 } from '../QueueOptimizer.js';
-import type { Task} from '../TaskQueue.js';
+import type { Task } from '../TaskQueue.js';
 import { TaskStatus, TaskPriority } from '../TaskQueue.js';
-import type { DependencyAnalysis} from '../DependencyResolver.js';
+import type { DependencyAnalysis } from '../DependencyResolver.js';
 import { DependencyType } from '../DependencyResolver.js';
 
 // Mock logger
@@ -173,7 +172,12 @@ describe('QueueOptimizer', () => {
         'task-network-heavy': 0,
         'task-quick': 0,
       },
-      topologicalOrder: ['task-cpu-heavy', 'task-memory-heavy', 'task-network-heavy', 'task-quick'],
+      topologicalOrder: [
+        'task-cpu-heavy',
+        'task-memory-heavy',
+        'task-network-heavy',
+        'task-quick',
+      ],
       criticalPath: ['task-cpu-heavy', 'task-memory-heavy'],
       criticalPathDuration: 12000,
       parallelExecutionPaths: [
@@ -216,7 +220,7 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+        OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
       );
 
       expect(recommendations).toBeDefined();
@@ -224,7 +228,7 @@ describe('QueueOptimizer', () => {
 
       // Should recommend increasing concurrency for throughput
       const concurrencyRec = recommendations.find(
-        r => r.type === 'concurrency_adjustment'
+        (r) => r.type === 'concurrency_adjustment',
       );
       expect(concurrencyRec).toBeDefined();
       expect(concurrencyRec?.impact).toBeGreaterThan(0);
@@ -235,11 +239,11 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+        OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
       );
 
       const parallelRec = recommendations.find(
-        r => r.type === 'parallel_execution'
+        (r) => r.type === 'parallel_execution',
       );
       expect(parallelRec).toBeDefined();
       expect(parallelRec?.details).toHaveProperty('parallelizableTasks');
@@ -250,12 +254,12 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+        OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
       );
 
       // Should identify that CPU-heavy and network-heavy tasks can run in parallel
       const resourceRec = recommendations.find(
-        r => r.type === 'resource_balancing'
+        (r) => r.type === 'resource_balancing',
       );
       expect(resourceRec).toBeDefined();
     });
@@ -267,7 +271,7 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.LATENCY_MINIMIZATION
+        OptimizationStrategy.LATENCY_MINIMIZATION,
       );
 
       expect(recommendations).toBeDefined();
@@ -275,7 +279,7 @@ describe('QueueOptimizer', () => {
 
       // Should prioritize quick tasks for latency reduction
       const priorityRec = recommendations.find(
-        r => r.type === 'priority_adjustment'
+        (r) => r.type === 'priority_adjustment',
       );
       expect(priorityRec).toBeDefined();
     });
@@ -285,11 +289,11 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.LATENCY_MINIMIZATION
+        OptimizationStrategy.LATENCY_MINIMIZATION,
       );
 
       const criticalPathRec = recommendations.find(
-        r => r.type === 'critical_path_optimization'
+        (r) => r.type === 'critical_path_optimization',
       );
       expect(criticalPathRec).toBeDefined();
       expect(criticalPathRec?.details).toHaveProperty('criticalTasks');
@@ -321,11 +325,11 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.LATENCY_MINIMIZATION
+        OptimizationStrategy.LATENCY_MINIMIZATION,
       );
 
       const preemptionRec = recommendations.find(
-        r => r.type === 'task_preemption'
+        (r) => r.type === 'task_preemption',
       );
       expect(preemptionRec).toBeDefined();
     });
@@ -337,7 +341,7 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.RESOURCE_EFFICIENCY
+        OptimizationStrategy.RESOURCE_EFFICIENCY,
       );
 
       expect(recommendations).toBeDefined();
@@ -345,7 +349,7 @@ describe('QueueOptimizer', () => {
 
       // Should recommend resource balancing
       const resourceRec = recommendations.find(
-        r => r.type === 'resource_balancing'
+        (r) => r.type === 'resource_balancing',
       );
       expect(resourceRec).toBeDefined();
     });
@@ -375,11 +379,11 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.RESOURCE_EFFICIENCY
+        OptimizationStrategy.RESOURCE_EFFICIENCY,
       );
 
       const conflictRec = recommendations.find(
-        r => r.type === 'resource_conflict_resolution'
+        (r) => r.type === 'resource_conflict_resolution',
       );
       expect(conflictRec).toBeDefined();
     });
@@ -409,11 +413,11 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.RESOURCE_EFFICIENCY
+        OptimizationStrategy.RESOURCE_EFFICIENCY,
       );
 
       const batchingRec = recommendations.find(
-        r => r.type === 'task_batching'
+        (r) => r.type === 'task_batching',
       );
       expect(batchingRec).toBeDefined();
     });
@@ -446,7 +450,7 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.DEADLINE_OPTIMIZATION
+        OptimizationStrategy.DEADLINE_OPTIMIZATION,
       );
 
       expect(recommendations).toBeDefined();
@@ -454,7 +458,7 @@ describe('QueueOptimizer', () => {
 
       // Should recommend deadline-based scheduling
       const deadlineRec = recommendations.find(
-        r => r.type === 'deadline_scheduling'
+        (r) => r.type === 'deadline_scheduling',
       );
       expect(deadlineRec).toBeDefined();
     });
@@ -489,11 +493,11 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.DEADLINE_OPTIMIZATION
+        OptimizationStrategy.DEADLINE_OPTIMIZATION,
       );
 
       const violationRec = recommendations.find(
-        r => r.type === 'deadline_violation_warning'
+        (r) => r.type === 'deadline_violation_warning',
       );
       expect(violationRec).toBeDefined();
     });
@@ -503,7 +507,7 @@ describe('QueueOptimizer', () => {
     it('should identify optimal parallel execution groups', () => {
       const parallelGroups = optimizer.identifyParallelExecutionPaths(
         mockTasks,
-        mockDependencyAnalysis
+        mockDependencyAnalysis,
       );
 
       expect(parallelGroups).toBeDefined();
@@ -511,22 +515,22 @@ describe('QueueOptimizer', () => {
 
       // Should group tasks by resource compatibility
       const groups = parallelGroups;
-      expect(groups.some(group => group.length > 1)).toBe(true);
+      expect(groups.some((group) => group.length > 1)).toBe(true);
     });
 
     it('should consider resource constraints in parallel grouping', () => {
       const parallelGroups = optimizer.identifyParallelExecutionPaths(
         mockTasks,
-        mockDependencyAnalysis
+        mockDependencyAnalysis,
       );
 
       // Each group should respect resource constraints
-      parallelGroups.forEach(group => {
+      parallelGroups.forEach((group) => {
         let totalCpu = 0;
         let totalMemory = 0;
         let totalNetwork = 0;
 
-        group.forEach(taskId => {
+        group.forEach((taskId) => {
           const task = mockTasks.get(taskId);
           if (task?.resourceRequirements) {
             totalCpu += task.resourceRequirements.cpu || 0;
@@ -568,15 +572,15 @@ describe('QueueOptimizer', () => {
 
       const parallelGroups = optimizer.identifyParallelExecutionPaths(
         mockTasks,
-        mockDependencyAnalysis
+        mockDependencyAnalysis,
       );
 
       // Dependent task should not be in same group as its dependency
-      const groupWithCpuHeavy = parallelGroups.find(group =>
-        group.includes('task-cpu-heavy')
+      const groupWithCpuHeavy = parallelGroups.find((group) =>
+        group.includes('task-cpu-heavy'),
       );
-      const groupWithDependent = parallelGroups.find(group =>
-        group.includes('dependent-task')
+      const groupWithDependent = parallelGroups.find((group) =>
+        group.includes('dependent-task'),
       );
 
       if (groupWithCpuHeavy && groupWithDependent) {
@@ -611,15 +615,15 @@ describe('QueueOptimizer', () => {
 
       const batches = optimizer.identifyBatchingOpportunities(
         mockTasks,
-        BatchingStrategy.SIMILAR_TASKS
+        BatchingStrategy.SIMILAR_TASKS,
       );
 
       expect(batches).toBeDefined();
       expect(batches.length).toBeGreaterThan(0);
 
       // Should find batch of similar tasks
-      const similarBatch = batches.find(batch =>
-        batch.tasks.some(taskId => taskId.includes('similar-task'))
+      const similarBatch = batches.find((batch) =>
+        batch.tasks.some((taskId) => taskId.includes('similar-task')),
       );
       expect(similarBatch).toBeDefined();
       expect(similarBatch?.tasks.length).toBeGreaterThan(1);
@@ -628,19 +632,19 @@ describe('QueueOptimizer', () => {
     it('should batch by resource requirements', () => {
       const batches = optimizer.identifyBatchingOpportunities(
         mockTasks,
-        BatchingStrategy.RESOURCE_OPTIMIZATION
+        BatchingStrategy.RESOURCE_OPTIMIZATION,
       );
 
       expect(batches).toBeDefined();
       expect(batches.length).toBeGreaterThan(0);
 
       // Each batch should have compatible resource requirements
-      batches.forEach(batch => {
+      batches.forEach((batch) => {
         const resourceTypes = new Set<string>();
-        batch.tasks.forEach(taskId => {
+        batch.tasks.forEach((taskId) => {
           const task = mockTasks.get(taskId);
           if (task?.tags) {
-            task.tags.forEach(tag => {
+            task.tags.forEach((tag) => {
               if (tag.includes('-intensive')) {
                 resourceTypes.add(tag);
               }
@@ -679,11 +683,11 @@ describe('QueueOptimizer', () => {
       const batches = optimizer.identifyBatchingOpportunities(
         mockTasks,
         BatchingStrategy.SIMILAR_TASKS,
-        { maxBatchSize: 5 }
+        { maxBatchSize: 5 },
       );
 
       // Each batch should respect size limit
-      batches.forEach(batch => {
+      batches.forEach((batch) => {
         expect(batch.tasks.length).toBeLessThanOrEqual(5);
       });
     });
@@ -695,10 +699,10 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+        OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
       );
 
-      recommendations.forEach(rec => {
+      recommendations.forEach((rec) => {
         expect(rec.impact).toBeDefined();
         expect(typeof rec.impact).toBe('number');
         expect(rec.estimatedImprovement).toBeDefined();
@@ -710,10 +714,10 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.RESOURCE_EFFICIENCY
+        OptimizationStrategy.RESOURCE_EFFICIENCY,
       );
 
-      const metricsRec = recommendations.find(r => r.details?.metrics);
+      const metricsRec = recommendations.find((r) => r.details?.metrics);
       expect(metricsRec).toBeDefined();
 
       if (metricsRec?.details?.metrics) {
@@ -729,7 +733,7 @@ describe('QueueOptimizer', () => {
           mockTasks,
           mockDependencyAnalysis,
           mockMetrics,
-          OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+          OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
         );
       }
 
@@ -753,7 +757,7 @@ describe('QueueOptimizer', () => {
           cpu: 100,
           memory: 8192,
           network: 200,
-        }
+        },
       );
 
       expect(allocation).toBeDefined();
@@ -764,7 +768,7 @@ describe('QueueOptimizer', () => {
       let totalMemory = 0;
       let totalNetwork = 0;
 
-      Object.values(allocation.taskAllocations).forEach(taskAlloc => {
+      Object.values(allocation.taskAllocations).forEach((taskAlloc) => {
         totalCpu += taskAlloc.cpu;
         totalMemory += taskAlloc.memory;
         totalNetwork += taskAlloc.network;
@@ -784,7 +788,7 @@ describe('QueueOptimizer', () => {
           cpu: 20,
           memory: 128,
           network: 10,
-        }
+        },
       );
 
       expect(allocation).toBeDefined();
@@ -803,7 +807,7 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+        OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
       );
 
       expect(optimizationCompleteSpy).toHaveBeenCalledWith(
@@ -811,7 +815,7 @@ describe('QueueOptimizer', () => {
           strategy: OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
           recommendationCount: expect.any(Number),
           duration: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -843,7 +847,7 @@ describe('QueueOptimizer', () => {
         mockTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.RESOURCE_EFFICIENCY
+        OptimizationStrategy.RESOURCE_EFFICIENCY,
       );
 
       expect(resourceWarningSpy).toHaveBeenCalled();
@@ -858,7 +862,7 @@ describe('QueueOptimizer', () => {
         emptyTasks,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.THROUGHPUT_MAXIMIZATION
+        OptimizationStrategy.THROUGHPUT_MAXIMIZATION,
       );
 
       expect(recommendations).toBeDefined();
@@ -883,13 +887,15 @@ describe('QueueOptimizer', () => {
         tags: ['minimal'],
       };
 
-      const tasksWithMissing = new Map([['no-resources', taskWithoutResources]]);
+      const tasksWithMissing = new Map([
+        ['no-resources', taskWithoutResources],
+      ]);
 
       const recommendations = optimizer.optimizeQueue(
         tasksWithMissing,
         mockDependencyAnalysis,
         mockMetrics,
-        OptimizationStrategy.RESOURCE_EFFICIENCY
+        OptimizationStrategy.RESOURCE_EFFICIENCY,
       );
 
       expect(recommendations).toBeDefined();
@@ -902,7 +908,7 @@ describe('QueueOptimizer', () => {
           mockTasks,
           mockDependencyAnalysis,
           mockMetrics,
-          'INVALID_STRATEGY' as any
+          'INVALID_STRATEGY' as any,
         );
       }).toThrow();
     });

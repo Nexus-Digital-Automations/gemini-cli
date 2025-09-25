@@ -6,7 +6,10 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import type { PerformanceMetric, AnalyticsInsight } from './PerformanceAnalyticsDashboard.js';
+import type {
+  PerformanceMetric,
+  AnalyticsInsight,
+} from './PerformanceAnalyticsDashboard.js';
 import type { AuditEvent } from './AuditTrailAnalytics.js';
 import type { TaskMetadata, AgentStatus } from './TaskStatusMonitor.js';
 
@@ -191,11 +194,13 @@ export class AlertingNotificationSystem extends EventEmitter {
   private escalationInterval?: NodeJS.Timeout;
   private cleanupInterval?: NodeJS.Timeout;
 
-  constructor(options: {
-    maxHistorySize?: number;
-    processingIntervalMs?: number;
-    anomalyThreshold?: number;
-  } = {}) {
+  constructor(
+    options: {
+      maxHistorySize?: number;
+      processingIntervalMs?: number;
+      anomalyThreshold?: number;
+    } = {},
+  ) {
     super();
     this.logger = new Logger('AlertingNotificationSystem');
     this.alertRules = new Map();
@@ -221,7 +226,9 @@ export class AlertingNotificationSystem extends EventEmitter {
   /**
    * Create a new alert rule
    */
-  createAlertRule(rule: Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>): string {
+  createAlertRule(
+    rule: Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>,
+  ): string {
     const alertRule: AlertRule = {
       ...rule,
       id: this.generateRuleId(),
@@ -245,7 +252,10 @@ export class AlertingNotificationSystem extends EventEmitter {
   /**
    * Update an existing alert rule
    */
-  updateAlertRule(ruleId: string, updates: Partial<Omit<AlertRule, 'id' | 'createdAt'>>): boolean {
+  updateAlertRule(
+    ruleId: string,
+    updates: Partial<Omit<AlertRule, 'id' | 'createdAt'>>,
+  ): boolean {
     const rule = this.alertRules.get(ruleId);
     if (!rule) return false;
 
@@ -258,7 +268,10 @@ export class AlertingNotificationSystem extends EventEmitter {
     this.alertRules.set(ruleId, updatedRule);
     this.emit('rule:updated', { rule: updatedRule, changes: updates });
 
-    this.logger.info('Alert rule updated', { ruleId, changes: Object.keys(updates) });
+    this.logger.info('Alert rule updated', {
+      ruleId,
+      changes: Object.keys(updates),
+    });
     return true;
   }
 
@@ -305,13 +318,19 @@ export class AlertingNotificationSystem extends EventEmitter {
     this.checkMetricAlertRules(metric);
 
     // Detect anomalies
-    const isAnomaly = this.anomalyDetector.detectAnomaly(metric.name, metric.value);
+    const isAnomaly = this.anomalyDetector.detectAnomaly(
+      metric.name,
+      metric.value,
+    );
     if (isAnomaly) {
       this.triggerAnomalyAlert(metric);
     }
 
     // Analyze trends
-    const trendChange = this.trendAnalyzer.analyzeTrend(metric.name, metric.value);
+    const trendChange = this.trendAnalyzer.analyzeTrend(
+      metric.name,
+      metric.value,
+    );
     if (trendChange.significant) {
       this.triggerTrendAlert(metric, trendChange);
     }
@@ -356,15 +375,27 @@ export class AlertingNotificationSystem extends EventEmitter {
   }): void {
     // Check system health thresholds
     if (health.cpuUsage > 0.9) {
-      this.triggerSystemHealthAlert('cpu', health.cpuUsage, 'CPU usage critically high');
+      this.triggerSystemHealthAlert(
+        'cpu',
+        health.cpuUsage,
+        'CPU usage critically high',
+      );
     }
 
     if (health.memoryUsage > 0.85) {
-      this.triggerSystemHealthAlert('memory', health.memoryUsage, 'Memory usage critically high');
+      this.triggerSystemHealthAlert(
+        'memory',
+        health.memoryUsage,
+        'Memory usage critically high',
+      );
     }
 
     if (health.errorRate > 0.15) {
-      this.triggerSystemHealthAlert('error_rate', health.errorRate, 'Error rate above threshold');
+      this.triggerSystemHealthAlert(
+        'error_rate',
+        health.errorRate,
+        'Error rate above threshold',
+      );
     }
 
     if (health.activeAgents === 0) {
@@ -375,7 +406,11 @@ export class AlertingNotificationSystem extends EventEmitter {
   /**
    * Acknowledge an alert
    */
-  acknowledgeAlert(alertId: string, acknowledgedBy: string, notes?: string): boolean {
+  acknowledgeAlert(
+    alertId: string,
+    acknowledgedBy: string,
+    notes?: string,
+  ): boolean {
     const alert = this.activeAlerts.get(alertId);
     if (!alert || alert.status !== 'active') return false;
 
@@ -468,19 +503,25 @@ export class AlertingNotificationSystem extends EventEmitter {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const alertsToday = this.alertHistory.filter(alert =>
-      alert.triggeredAt >= today
+    const alertsToday = this.alertHistory.filter(
+      (alert) => alert.triggeredAt >= today,
     );
 
-    const resolvedAlerts = this.alertHistory.filter(alert =>
-      alert.resolvedAt && alert.triggeredAt >= today
+    const resolvedAlerts = this.alertHistory.filter(
+      (alert) => alert.resolvedAt && alert.triggeredAt >= today,
     );
 
-    const mttr = resolvedAlerts.length > 0
-      ? resolvedAlerts.reduce((sum, alert) =>
-          sum + (alert.resolvedAt!.getTime() - alert.triggeredAt.getTime()), 0
-        ) / resolvedAlerts.length / 1000 / 60 // minutes
-      : 0;
+    const mttr =
+      resolvedAlerts.length > 0
+        ? resolvedAlerts.reduce(
+            (sum, alert) =>
+              sum + (alert.resolvedAt!.getTime() - alert.triggeredAt.getTime()),
+            0,
+          ) /
+          resolvedAlerts.length /
+          1000 /
+          60 // minutes
+        : 0;
 
     return {
       activeAlerts,
@@ -492,11 +533,15 @@ export class AlertingNotificationSystem extends EventEmitter {
       topAlertRules: this.getTopAlertRules(10),
       systemHealth: {
         totalRules: this.alertRules.size,
-        enabledRules: Array.from(this.alertRules.values()).filter(r => r.enabled).length,
+        enabledRules: Array.from(this.alertRules.values()).filter(
+          (r) => r.enabled,
+        ).length,
         suppressedRules: this.suppressed.size,
         alertsToday: alertsToday.length,
         mttr,
-        escalatedAlerts: activeAlerts.filter(a => a.escalationLevel && a.escalationLevel > 0).length,
+        escalatedAlerts: activeAlerts.filter(
+          (a) => a.escalationLevel && a.escalationLevel > 0,
+        ).length,
       },
     };
   }
@@ -526,8 +571,10 @@ export class AlertingNotificationSystem extends EventEmitter {
     };
   } {
     const alerts = timeRange
-      ? this.alertHistory.filter(alert =>
-          alert.triggeredAt >= timeRange.start && alert.triggeredAt <= timeRange.end
+      ? this.alertHistory.filter(
+          (alert) =>
+            alert.triggeredAt >= timeRange.start &&
+            alert.triggeredAt <= timeRange.end,
         )
       : this.alertHistory;
 
@@ -542,27 +589,44 @@ export class AlertingNotificationSystem extends EventEmitter {
   /**
    * Export alert data
    */
-  exportAlerts(format: 'json' | 'csv' = 'json', includeResolved = true): string {
+  exportAlerts(
+    format: 'json' | 'csv' = 'json',
+    includeResolved = true,
+  ): string {
     const alerts = includeResolved
       ? [...this.activeAlerts.values(), ...this.alertHistory]
       : Array.from(this.activeAlerts.values());
 
     if (format === 'json') {
-      return JSON.stringify({
-        exportedAt: new Date().toISOString(),
-        totalAlerts: alerts.length,
-        activeAlerts: this.activeAlerts.size,
-        alerts: alerts.sort((a, b) => b.triggeredAt.getTime() - a.triggeredAt.getTime()),
-      }, null, 2);
+      return JSON.stringify(
+        {
+          exportedAt: new Date().toISOString(),
+          totalAlerts: alerts.length,
+          activeAlerts: this.activeAlerts.size,
+          alerts: alerts.sort(
+            (a, b) => b.triggeredAt.getTime() - a.triggeredAt.getTime(),
+          ),
+        },
+        null,
+        2,
+      );
     }
 
     // CSV format
     const headers = [
-      'ID', 'Rule Name', 'Type', 'Severity', 'Title', 'Status',
-      'Triggered At', 'Resolved At', 'Assigned To', 'Tags'
+      'ID',
+      'Rule Name',
+      'Type',
+      'Severity',
+      'Title',
+      'Status',
+      'Triggered At',
+      'Resolved At',
+      'Assigned To',
+      'Tags',
     ];
 
-    const rows = alerts.map(alert => [
+    const rows = alerts.map((alert) => [
       alert.id,
       alert.ruleName,
       alert.type,
@@ -576,7 +640,9 @@ export class AlertingNotificationSystem extends EventEmitter {
     ]);
 
     return [headers, ...rows]
-      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','),
+      )
       .join('\n');
   }
 
@@ -600,7 +666,14 @@ Alert Details:
 
 Please take appropriate action.
         `,
-        variables: ['title', 'severity', 'type', 'description', 'triggeredAt', 'affectedResources'],
+        variables: [
+          'title',
+          'severity',
+          'type',
+          'description',
+          'triggeredAt',
+          'affectedResources',
+        ],
         format: 'text',
       },
       {
@@ -615,7 +688,14 @@ Please take appropriate action.
 *Triggered:* {{triggeredAt}}
 *Affected:* {{affectedResources}}
         `,
-        variables: ['title', 'severity', 'type', 'description', 'triggeredAt', 'affectedResources'],
+        variables: [
+          'title',
+          'severity',
+          'type',
+          'description',
+          'triggeredAt',
+          'affectedResources',
+        ],
         format: 'markdown',
       },
     ];
@@ -626,27 +706,33 @@ Please take appropriate action.
   }
 
   private initializeDefaultRules(): void {
-    const defaultRules: Array<Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>> = [
+    const defaultRules: Array<
+      Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>
+    > = [
       {
         name: 'High CPU Usage',
         description: 'Alert when CPU usage exceeds 80%',
         type: AlertType.SYSTEM_HEALTH,
         severity: AlertSeverity.WARNING,
         enabled: true,
-        conditions: [{
-          type: 'metric',
-          metric: 'cpu_usage',
-          operator: 'gt',
-          threshold: 0.8,
-          timeWindow: 300000, // 5 minutes
-          aggregation: 'avg',
-        }],
-        actions: [{
-          type: 'notification',
-          channel: NotificationChannel.EMAIL,
-          recipients: ['admin@example.com'],
-          template: 'default-email',
-        }],
+        conditions: [
+          {
+            type: 'metric',
+            metric: 'cpu_usage',
+            operator: 'gt',
+            threshold: 0.8,
+            timeWindow: 300000, // 5 minutes
+            aggregation: 'avg',
+          },
+        ],
+        actions: [
+          {
+            type: 'notification',
+            channel: NotificationChannel.EMAIL,
+            recipients: ['admin@example.com'],
+            template: 'default-email',
+          },
+        ],
         throttle: {
           enabled: true,
           windowMs: 900000, // 15 minutes
@@ -661,35 +747,43 @@ Please take appropriate action.
         type: AlertType.PERFORMANCE_THRESHOLD,
         severity: AlertSeverity.ERROR,
         enabled: true,
-        conditions: [{
-          type: 'metric',
-          metric: 'task_failure_rate',
-          operator: 'gt',
-          threshold: 0.1,
-          timeWindow: 600000, // 10 minutes
-          aggregation: 'rate',
-        }],
-        actions: [{
-          type: 'notification',
-          channel: NotificationChannel.SLACK,
-          recipients: ['#alerts'],
-          template: 'default-slack',
-        }],
+        conditions: [
+          {
+            type: 'metric',
+            metric: 'task_failure_rate',
+            operator: 'gt',
+            threshold: 0.1,
+            timeWindow: 600000, // 10 minutes
+            aggregation: 'rate',
+          },
+        ],
+        actions: [
+          {
+            type: 'notification',
+            channel: NotificationChannel.SLACK,
+            recipients: ['#alerts'],
+            template: 'default-slack',
+          },
+        ],
         throttle: {
           enabled: true,
           windowMs: 1800000, // 30 minutes
           maxAlerts: 1,
         },
         escalation: {
-          levels: [{
-            level: 1,
-            delayMs: 1800000, // 30 minutes
-            actions: [{
-              type: 'notification',
-              channel: NotificationChannel.EMAIL,
-              recipients: ['team-lead@example.com'],
-            }],
-          }],
+          levels: [
+            {
+              level: 1,
+              delayMs: 1800000, // 30 minutes
+              actions: [
+                {
+                  type: 'notification',
+                  channel: NotificationChannel.EMAIL,
+                  recipients: ['team-lead@example.com'],
+                },
+              ],
+            },
+          ],
           timeoutMs: 3600000, // 1 hour
         },
         tags: ['tasks', 'reliability'],
@@ -728,7 +822,8 @@ Please take appropriate action.
     // Reset throttle windows
     const now = Date.now();
     for (const [ruleId, state] of this.throttleState.entries()) {
-      if (now - state.windowStart > 3600000) { // 1 hour window
+      if (now - state.windowStart > 3600000) {
+        // 1 hour window
         this.throttleState.delete(ruleId);
       }
     }
@@ -760,7 +855,9 @@ Please take appropriate action.
     // Clean up old metrics buffer
     for (const [metric, buffer] of this.metricsBuffer.entries()) {
       const oneHourAgo = Date.now() - 3600000;
-      const filteredBuffer = buffer.filter(m => m.timestamp.getTime() > oneHourAgo);
+      const filteredBuffer = buffer.filter(
+        (m) => m.timestamp.getTime() > oneHourAgo,
+      );
       this.metricsBuffer.set(metric, filteredBuffer);
     }
   }
@@ -793,28 +890,45 @@ Please take appropriate action.
     }
   }
 
-  private evaluateMetricCondition(condition: AlertCondition, metric: PerformanceMetric): boolean {
+  private evaluateMetricCondition(
+    condition: AlertCondition,
+    metric: PerformanceMetric,
+  ): boolean {
     const value = metric.value;
     const threshold = condition.threshold as number;
 
     switch (condition.operator) {
-      case 'gt': return value > threshold;
-      case 'gte': return value >= threshold;
-      case 'lt': return value < threshold;
-      case 'lte': return value <= threshold;
-      case 'eq': return value === threshold;
-      case 'ne': return value !== threshold;
-      default: return false;
+      case 'gt':
+        return value > threshold;
+      case 'gte':
+        return value >= threshold;
+      case 'lt':
+        return value < threshold;
+      case 'lte':
+        return value <= threshold;
+      case 'eq':
+        return value === threshold;
+      case 'ne':
+        return value !== threshold;
+      default:
+        return false;
     }
   }
 
-  private evaluateEventCondition(condition: AlertCondition, event: AuditEvent): boolean {
+  private evaluateEventCondition(
+    condition: AlertCondition,
+    event: AuditEvent,
+  ): boolean {
     // Implementation would depend on the specific condition structure
     // For now, return false as a placeholder
     return false;
   }
 
-  private triggerAlert(rule: AlertRule, sourceType: 'metric' | 'event' | 'insight', sourceData: Record<string, unknown>): void {
+  private triggerAlert(
+    rule: AlertRule,
+    sourceType: 'metric' | 'event' | 'insight',
+    sourceData: Record<string, unknown>,
+  ): void {
     // Check throttling
     if (this.isThrottled(rule)) return;
 
@@ -830,7 +944,10 @@ Please take appropriate action.
       status: 'active',
       source: {
         type: sourceType,
-        id: sourceType === 'metric' ? (sourceData.metric as PerformanceMetric).id : 'unknown',
+        id:
+          sourceType === 'metric'
+            ? (sourceData.metric as PerformanceMetric).id
+            : 'unknown',
         data: sourceData,
       },
       context: {
@@ -997,7 +1114,10 @@ Please take appropriate action.
       ruleId: 'insight-monitoring',
       ruleName: 'Analytics Insights',
       type: AlertType.PERFORMANCE_THRESHOLD,
-      severity: insight.severity === 'critical' ? AlertSeverity.CRITICAL : AlertSeverity.WARNING,
+      severity:
+        insight.severity === 'critical'
+          ? AlertSeverity.CRITICAL
+          : AlertSeverity.WARNING,
       title: insight.title,
       description: insight.description,
       triggeredAt: new Date(),
@@ -1021,8 +1141,17 @@ Please take appropriate action.
     this.emit('alert:triggered', { alert });
   }
 
-  private triggerSystemHealthAlert(component: string, value: number, description: string): void {
-    const severity = value >= 0.95 ? AlertSeverity.CRITICAL : value >= 0.85 ? AlertSeverity.ERROR : AlertSeverity.WARNING;
+  private triggerSystemHealthAlert(
+    component: string,
+    value: number,
+    description: string,
+  ): void {
+    const severity =
+      value >= 0.95
+        ? AlertSeverity.CRITICAL
+        : value >= 0.85
+          ? AlertSeverity.ERROR
+          : AlertSeverity.WARNING;
 
     const alertId = this.generateAlertId();
     const alert: Alert = {
@@ -1096,7 +1225,11 @@ Please take appropriate action.
         break;
       case 'suppress':
         if (action.suppressDuration) {
-          this.suppressRule(alert.ruleId, action.suppressDuration, 'Auto-suppressed by alert action');
+          this.suppressRule(
+            alert.ruleId,
+            action.suppressDuration,
+            'Auto-suppressed by alert action',
+          );
         }
         break;
     }
@@ -1105,11 +1238,15 @@ Please take appropriate action.
   private sendNotification(alert: Alert, action: AlertAction): void {
     if (!action.channel || !action.recipients) return;
 
-    const template = action.template ? this.notificationTemplates.get(action.template) : null;
-    const message = template ? this.renderTemplate(template, alert) : {
-      subject: alert.title,
-      body: alert.description,
-    };
+    const template = action.template
+      ? this.notificationTemplates.get(action.template)
+      : null;
+    const message = template
+      ? this.renderTemplate(template, alert)
+      : {
+          subject: alert.title,
+          body: alert.description,
+        };
 
     const notification = {
       channel: action.channel,
@@ -1165,7 +1302,9 @@ Please take appropriate action.
 
   private escalateAlert(alert: Alert, level: EscalationLevel): void {
     alert.escalationLevel = level.level;
-    alert.notes.push(`Escalated to level ${level.level} at ${new Date().toISOString()}`);
+    alert.notes.push(
+      `Escalated to level ${level.level} at ${new Date().toISOString()}`,
+    );
 
     for (const action of level.actions) {
       this.executeAlertAction(alert, action);
@@ -1180,7 +1319,10 @@ Please take appropriate action.
     });
   }
 
-  private renderTemplate(template: NotificationTemplate, alert: Alert): { subject: string; body: string } {
+  private renderTemplate(
+    template: NotificationTemplate,
+    alert: Alert,
+  ): { subject: string; body: string } {
     const variables: Record<string, string> = {
       title: alert.title,
       severity: alert.severity,
@@ -1202,7 +1344,9 @@ Please take appropriate action.
     return { subject, body };
   }
 
-  private extractActualValues(sourceData: Record<string, unknown>): Record<string, unknown> {
+  private extractActualValues(
+    sourceData: Record<string, unknown>,
+  ): Record<string, unknown> {
     // Extract relevant values from source data for context
     if (sourceData.metric) {
       const metric = sourceData.metric as PerformanceMetric;
@@ -1215,7 +1359,9 @@ Please take appropriate action.
     return {};
   }
 
-  private identifyAffectedResources(sourceData: Record<string, unknown>): string[] {
+  private identifyAffectedResources(
+    sourceData: Record<string, unknown>,
+  ): string[] {
     // Identify resources affected by the alert
     if (sourceData.metric) {
       const metric = sourceData.metric as PerformanceMetric;
@@ -1224,21 +1370,31 @@ Please take appropriate action.
     return [];
   }
 
-  private groupAlertsBySeverity(alerts: Alert[]): Record<AlertSeverity, number> {
-    return alerts.reduce((acc, alert) => {
-      acc[alert.severity] = (acc[alert.severity] || 0) + 1;
-      return acc;
-    }, {} as Record<AlertSeverity, number>);
+  private groupAlertsBySeverity(
+    alerts: Alert[],
+  ): Record<AlertSeverity, number> {
+    return alerts.reduce(
+      (acc, alert) => {
+        acc[alert.severity] = (acc[alert.severity] || 0) + 1;
+        return acc;
+      },
+      {} as Record<AlertSeverity, number>,
+    );
   }
 
   private groupAlertsByType(alerts: Alert[]): Record<AlertType, number> {
-    return alerts.reduce((acc, alert) => {
-      acc[alert.type] = (acc[alert.type] || 0) + 1;
-      return acc;
-    }, {} as Record<AlertType, number>);
+    return alerts.reduce(
+      (acc, alert) => {
+        acc[alert.type] = (acc[alert.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<AlertType, number>,
+    );
   }
 
-  private getTopAlertRules(limit: number): Array<{ ruleId: string; ruleName: string; count: number }> {
+  private getTopAlertRules(
+    limit: number,
+  ): Array<{ ruleId: string; ruleName: string; count: number }> {
     const ruleCounts: Record<string, { ruleName: string; count: number }> = {};
 
     for (const alert of [...this.activeAlerts.values(), ...this.alertHistory]) {
@@ -1266,7 +1422,12 @@ Please take appropriate action.
       const dateKey = alert.triggeredAt.toISOString().split('T')[0];
 
       if (!dailyData[dateKey]) {
-        dailyData[dateKey] = { date: dateKey, count: 0, critical: 0, resolved: 0 };
+        dailyData[dateKey] = {
+          date: dateKey,
+          count: 0,
+          critical: 0,
+          resolved: 0,
+        };
       }
 
       dailyData[dateKey].count++;
@@ -1280,7 +1441,9 @@ Please take appropriate action.
       }
     }
 
-    return Object.values(dailyData).sort((a: any, b: any) => a.date.localeCompare(b.date));
+    return Object.values(dailyData).sort((a: any, b: any) =>
+      a.date.localeCompare(b.date),
+    );
   }
 
   private calculateTopRuleMetrics(alerts: Alert[]): Array<{
@@ -1307,7 +1470,8 @@ Please take appropriate action.
 
       if (alert.resolvedAt) {
         metrics.resolvedCount++;
-        metrics.totalResolutionTime += alert.resolvedAt.getTime() - alert.triggeredAt.getTime();
+        metrics.totalResolutionTime +=
+          alert.resolvedAt.getTime() - alert.triggeredAt.getTime();
       }
     }
 
@@ -1316,9 +1480,10 @@ Please take appropriate action.
         ruleId: metrics.ruleId,
         name: metrics.name,
         triggers: metrics.triggers,
-        avgResolutionTime: metrics.resolvedCount > 0
-          ? metrics.totalResolutionTime / metrics.resolvedCount / 1000 / 60 // minutes
-          : 0,
+        avgResolutionTime:
+          metrics.resolvedCount > 0
+            ? metrics.totalResolutionTime / metrics.resolvedCount / 1000 / 60 // minutes
+            : 0,
       }))
       .sort((a, b) => b.triggers - a.triggers);
   }
@@ -1329,19 +1494,29 @@ Please take appropriate action.
     escalationRate: number;
     falsePositiveRate: number;
   } {
-    const resolvedAlerts = alerts.filter(a => a.status === 'resolved');
-    const escalatedAlerts = alerts.filter(a => a.escalationLevel && a.escalationLevel > 0);
+    const resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
+    const escalatedAlerts = alerts.filter(
+      (a) => a.escalationLevel && a.escalationLevel > 0,
+    );
 
-    const totalNotifications = alerts.reduce((sum, alert) => sum + alert.notificationsSent.length, 0);
+    const totalNotifications = alerts.reduce(
+      (sum, alert) => sum + alert.notificationsSent.length,
+      0,
+    );
     const successfulNotifications = alerts.reduce(
-      (sum, alert) => sum + alert.notificationsSent.filter(n => n.success).length,
-      0
+      (sum, alert) =>
+        sum + alert.notificationsSent.filter((n) => n.success).length,
+      0,
     );
 
     return {
       avgProcessingTime: 0, // Would be calculated from actual processing times
-      notificationSuccessRate: totalNotifications > 0 ? successfulNotifications / totalNotifications : 1,
-      escalationRate: alerts.length > 0 ? escalatedAlerts.length / alerts.length : 0,
+      notificationSuccessRate:
+        totalNotifications > 0
+          ? successfulNotifications / totalNotifications
+          : 1,
+      escalationRate:
+        alerts.length > 0 ? escalatedAlerts.length / alerts.length : 0,
       falsePositiveRate: 0, // Would need additional tracking for false positives
     };
   }
@@ -1389,7 +1564,10 @@ Please take appropriate action.
  * Simple anomaly detection using statistical methods
  */
 class AnomalyDetector {
-  private metricStats: Map<string, { values: number[]; mean: number; stddev: number }>;
+  private metricStats: Map<
+    string,
+    { values: number[]; mean: number; stddev: number }
+  >;
   private threshold: number;
 
   constructor(threshold = 2.0) {
@@ -1415,12 +1593,15 @@ class AnomalyDetector {
     }
 
     // Calculate mean and standard deviation
-    stats.mean = stats.values.reduce((sum, v) => sum + v, 0) / stats.values.length;
-    const variance = stats.values.reduce((sum, v) => sum + Math.pow(v - stats.mean, 2), 0) / stats.values.length;
+    stats.mean =
+      stats.values.reduce((sum, v) => sum + v, 0) / stats.values.length;
+    const variance =
+      stats.values.reduce((sum, v) => sum + Math.pow(v - stats.mean, 2), 0) /
+      stats.values.length;
     stats.stddev = Math.sqrt(variance);
 
     // Check if current value is an anomaly
-    return Math.abs(value - stats.mean) > (this.threshold * stats.stddev);
+    return Math.abs(value - stats.mean) > this.threshold * stats.stddev;
   }
 }
 
@@ -1434,7 +1615,10 @@ class TrendAnalyzer {
     this.metricTrends = new Map();
   }
 
-  analyzeTrend(metricName: string, value: number): { significant: boolean; direction: string; strength: number } {
+  analyzeTrend(
+    metricName: string,
+    value: number,
+  ): { significant: boolean; direction: string; strength: number } {
     if (!this.metricTrends.has(metricName)) {
       this.metricTrends.set(metricName, []);
     }

@@ -51,11 +51,13 @@ gemini system --resources
 ### Issue 1: Autonomous Mode Not Starting
 
 **Symptoms:**
+
 - Commands hang without autonomous agent deployment
 - "Autonomous mode unavailable" errors
 - Agents fail to initialize
 
 **Diagnosis:**
+
 ```bash
 # Check autonomous configuration
 gemini config list | grep autonomous
@@ -70,12 +72,14 @@ gemini system --check-requirements
 **Solutions:**
 
 1. **Enable Autonomous Mode:**
+
 ```bash
 gemini config set autonomous.enabled true
 gemini restart
 ```
 
 2. **Verify Installation:**
+
 ```bash
 # Reinstall autonomous components
 gemini install --autonomous --force
@@ -85,6 +89,7 @@ gemini update --include-autonomous
 ```
 
 3. **Reset Configuration:**
+
 ```bash
 # Backup current config
 cp ~/.gemini/config.yaml ~/.gemini/config.backup
@@ -97,11 +102,13 @@ gemini config set autonomous.enabled true
 ### Issue 2: Tasks Failing to Execute
 
 **Symptoms:**
+
 - Tasks stuck in "pending" status
 - "No available agents" errors
 - Task timeouts
 
 **Diagnosis:**
+
 ```bash
 # Check task status
 gemini tasks list --detailed
@@ -116,18 +123,21 @@ gemini system --memory --cpu
 **Solutions:**
 
 1. **Increase Agent Pool:**
+
 ```bash
 gemini config set autonomous.agents.max_concurrent 8
 gemini config set autonomous.agents.pool_size 10
 ```
 
 2. **Adjust Timeouts:**
+
 ```bash
 gemini config set autonomous.tasks.default_timeout 1800  # 30 minutes
 gemini config set autonomous.tasks.max_timeout 3600     # 1 hour
 ```
 
 3. **Free System Resources:**
+
 ```bash
 # Kill hung agents
 gemini agents --kill-hung
@@ -142,11 +152,13 @@ gemini agents --restart-pool
 ### Issue 3: Poor Task Quality
 
 **Symptoms:**
+
 - Tasks complete but produce incorrect results
 - Inconsistent output quality
 - Missing validation checks
 
 **Diagnosis:**
+
 ```bash
 # Check agent performance metrics
 gemini agents --performance-stats
@@ -161,6 +173,7 @@ gemini tasks --analyze-quality --last 10
 **Solutions:**
 
 1. **Increase Validation Requirements:**
+
 ```bash
 gemini config set autonomous.validation.level strict
 gemini config set autonomous.validation.require_tests true
@@ -168,6 +181,7 @@ gemini config set autonomous.validation.require_documentation true
 ```
 
 2. **Use Specialized Agents:**
+
 ```bash
 # Enable specialist agent routing
 gemini config set autonomous.agents.use_specialists true
@@ -175,6 +189,7 @@ gemini config set autonomous.agents.auto_select_best true
 ```
 
 3. **Add Quality Gates:**
+
 ```bash
 gemini config set autonomous.quality.min_test_coverage 80
 gemini config set autonomous.quality.require_linting true
@@ -186,11 +201,13 @@ gemini config set autonomous.quality.security_scan true
 ### Hung or Unresponsive Agents
 
 **Symptoms:**
+
 - Agents not responding to commands
 - Tasks stuck in "executing" state
 - High CPU usage from agent processes
 
 **Diagnosis:**
+
 ```bash
 # List all agents with detailed status
 gemini agents list --detailed --include-hung
@@ -205,6 +222,7 @@ gemini logs --agent [AGENT_ID] --tail 100
 **Solutions:**
 
 1. **Force Kill Hung Agents:**
+
 ```bash
 # Kill specific agent
 gemini agents kill [AGENT_ID] --force
@@ -217,6 +235,7 @@ gemini agents --emergency-stop
 ```
 
 2. **Restart Agent Pool:**
+
 ```bash
 # Graceful restart
 gemini agents --restart-pool --graceful
@@ -231,11 +250,13 @@ gemini agents --reset --confirm
 ### Agent Communication Issues
 
 **Symptoms:**
+
 - Agents can't coordinate tasks
 - Duplicate work being performed
 - Conflicting changes from multiple agents
 
 **Diagnosis:**
+
 ```bash
 # Check inter-agent communication
 gemini agents --check-communication
@@ -250,6 +271,7 @@ gemini agents --verify-registry
 **Solutions:**
 
 1. **Reset Agent Coordination:**
+
 ```bash
 # Clear coordination state
 gemini agents --clear-coordination-state
@@ -262,6 +284,7 @@ gemini agents --rebuild-registry
 ```
 
 2. **Adjust Coordination Settings:**
+
 ```bash
 gemini config set autonomous.coordination.conflict_resolution strict
 gemini config set autonomous.coordination.heartbeat_interval 5
@@ -273,11 +296,13 @@ gemini config set autonomous.coordination.timeout 30
 ### Tasks Timing Out
 
 **Symptoms:**
+
 - Frequent timeout errors
 - Tasks taking longer than expected
 - Incomplete results due to timeouts
 
 **Analysis:**
+
 ```bash
 # Review task performance metrics
 gemini tasks --performance-analysis
@@ -292,6 +317,7 @@ gemini system --monitor-during-tasks
 **Solutions:**
 
 1. **Optimize Task Timeouts:**
+
 ```bash
 # Increase default timeouts
 gemini config set autonomous.tasks.default_timeout 2400  # 40 minutes
@@ -302,6 +328,7 @@ gemini config set autonomous.tasks.adaptive_timeout true
 ```
 
 2. **Break Down Complex Tasks:**
+
 ```bash
 # Enable automatic task decomposition
 gemini config set autonomous.tasks.auto_decompose true
@@ -314,11 +341,13 @@ gemini config set autonomous.tasks.complexity_threshold medium
 ### Inconsistent Task Results
 
 **Symptoms:**
+
 - Same task produces different results
 - Quality varies between executions
 - Non-deterministic behavior
 
 **Investigation:**
+
 ```bash
 # Compare task execution logs
 gemini tasks compare-executions [TASK_ID_1] [TASK_ID_2]
@@ -333,6 +362,7 @@ gemini system --check-determinism
 **Solutions:**
 
 1. **Improve Result Consistency:**
+
 ```bash
 # Enable deterministic mode
 gemini config set autonomous.execution.deterministic true
@@ -345,6 +375,7 @@ gemini config set autonomous.validation.cross_validate true
 ```
 
 2. **Add Result Verification:**
+
 ```bash
 # Enable multi-agent verification
 gemini config set autonomous.validation.multi_agent_check true
@@ -358,11 +389,13 @@ gemini config set autonomous.validation.consistency_threshold 0.9
 ### High Resource Usage
 
 **Symptoms:**
+
 - System slowdown during autonomous tasks
 - Excessive memory consumption
 - High CPU utilization
 
 **Monitoring:**
+
 ```bash
 # Real-time resource monitoring
 gemini system --monitor-resources --real-time
@@ -377,6 +410,7 @@ gemini tasks --profile-resources --active
 **Optimization:**
 
 1. **Reduce Resource Consumption:**
+
 ```bash
 # Limit concurrent agents
 gemini config set autonomous.agents.max_concurrent 4
@@ -389,6 +423,7 @@ gemini config set autonomous.cleanup.aggressive true
 ```
 
 2. **Optimize Task Scheduling:**
+
 ```bash
 # Enable intelligent scheduling
 gemini config set autonomous.scheduler.intelligent true
@@ -403,11 +438,13 @@ gemini config set autonomous.scheduler.enable_queue true
 ### Slow Task Execution
 
 **Symptoms:**
+
 - Tasks take much longer than expected
 - Agents appear to be working inefficiently
 - Delayed responses from the system
 
 **Analysis:**
+
 ```bash
 # Performance profiling
 gemini tasks --profile-performance --detailed
@@ -422,6 +459,7 @@ gemini tasks --trace-execution [TASK_ID]
 **Optimization:**
 
 1. **Improve Execution Speed:**
+
 ```bash
 # Enable parallel execution
 gemini config set autonomous.execution.parallel true
@@ -434,6 +472,7 @@ gemini config set autonomous.cache.enabled true
 ```
 
 2. **Optimize Agent Performance:**
+
 ```bash
 # Enable agent warm-up
 gemini config set autonomous.agents.warm_up true
@@ -450,11 +489,13 @@ gemini config set autonomous.monitoring.performance true
 ### Invalid Configuration Settings
 
 **Symptoms:**
+
 - Configuration errors on startup
 - Settings not taking effect
 - Validation failures
 
 **Validation:**
+
 ```bash
 # Validate current configuration
 gemini config validate --autonomous
@@ -469,6 +510,7 @@ gemini config --check-compatibility
 **Resolution:**
 
 1. **Fix Configuration Errors:**
+
 ```bash
 # Reset to default settings
 gemini config reset autonomous --confirm
@@ -481,6 +523,7 @@ gemini config setup --autonomous --interactive
 ```
 
 2. **Verify Settings:**
+
 ```bash
 # List all autonomous settings
 gemini config list autonomous
@@ -495,11 +538,13 @@ gemini config --check-env-vars
 ### Environment-Specific Issues
 
 **Symptoms:**
+
 - Works in one environment but not another
 - Inconsistent behavior across deployments
 - Environment variable conflicts
 
 **Diagnosis:**
+
 ```bash
 # Compare environment configurations
 gemini config compare-environments
@@ -514,6 +559,7 @@ gemini system --validate-environment
 **Solutions:**
 
 1. **Standardize Environments:**
+
 ```bash
 # Export configuration
 gemini config export --autonomous > autonomous-config.yaml
@@ -589,6 +635,7 @@ gemini config set alerts.task_timeout_threshold 0.2
 **When System is Completely Unresponsive:**
 
 1. **Emergency Stop:**
+
 ```bash
 # Force stop all autonomous operations
 gemini emergency-stop --autonomous --force
@@ -601,6 +648,7 @@ gemini cleanup --emergency --all
 ```
 
 2. **System Reset:**
+
 ```bash
 # Reset autonomous system
 gemini reset --autonomous --confirm
@@ -617,6 +665,7 @@ gemini start --autonomous --minimal
 **For Less Severe Issues:**
 
 1. **Graceful Shutdown:**
+
 ```bash
 # Stop accepting new tasks
 gemini tasks --stop-intake
@@ -629,6 +678,7 @@ gemini agents --shutdown --graceful
 ```
 
 2. **Selective Restart:**
+
 ```bash
 # Restart specific components
 gemini coordination --restart
@@ -826,18 +876,21 @@ gemini db backup --output autonomous-db-backup.sql
 ### Regular Maintenance
 
 **Daily Tasks:**
+
 - [ ] Check system health: `gemini health-check --autonomous`
 - [ ] Monitor resource usage: `gemini system --resources`
 - [ ] Review error logs: `gemini logs --errors --last 24h`
 - [ ] Cleanup completed tasks: `gemini tasks --cleanup --completed`
 
 **Weekly Tasks:**
+
 - [ ] Analyze performance metrics: `gemini analyze --performance --last-week`
 - [ ] Update configuration if needed: `gemini config validate --autonomous`
 - [ ] Backup configuration: `gemini config backup`
 - [ ] Review and archive logs: `gemini logs --archive --older-than 7d`
 
 **Monthly Tasks:**
+
 - [ ] Full system analysis: `gemini analyze --comprehensive --last-month`
 - [ ] Update Gemini CLI: `gemini update`
 - [ ] Review and optimize configuration: `gemini config optimize`
@@ -851,7 +904,7 @@ gemini db backup --output autonomous-db-backup.sql
 # ~/.gemini/monitoring.yaml
 monitoring:
   enabled: true
-  interval: 60  # seconds
+  interval: 60 # seconds
   metrics:
     agents:
       - active_count
@@ -873,7 +926,7 @@ alerts:
   enabled: true
   channels:
     - email: admin@example.com
-    - slack: "#autonomous-alerts"
+    - slack: '#autonomous-alerts'
   thresholds:
     agent_failure_rate: 0.1
     memory_usage: 0.8
@@ -920,6 +973,7 @@ alerts:
 ### When to Escalate
 
 Escalate issues when:
+
 - System-wide failures persist after following recovery procedures
 - Data corruption or loss occurs
 - Security vulnerabilities are discovered

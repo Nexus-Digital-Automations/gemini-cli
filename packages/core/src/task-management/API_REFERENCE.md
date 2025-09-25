@@ -27,6 +27,7 @@ new TaskManagementSystemIntegrator(config: IntegratedSystemConfig)
 ```
 
 **Parameters:**
+
 - `config` - Integrated system configuration
 
 #### Methods
@@ -40,12 +41,14 @@ async initialize(): Promise<SystemOperationResult>
 ```
 
 **Returns:** `Promise<SystemOperationResult>`
+
 - `success: boolean` - Whether initialization succeeded
 - `message: string` - Human-readable status message
 - `details?: any` - Additional details about the operation
 - `timestamp: Date` - When the operation completed
 
 **Example:**
+
 ```typescript
 const integrator = new TaskManagementSystemIntegrator(config);
 const result = await integrator.initialize();
@@ -70,14 +73,21 @@ async queueTask(
 ```
 
 **Parameters:**
+
 - `title: string` - Task title (required)
 - `description: string` - Task description (required)
 - `options?: TaskOptions` - Optional task configuration
 
 **TaskOptions Interface:**
+
 ```typescript
 interface TaskOptions {
-  type?: 'implementation' | 'analysis' | 'testing' | 'documentation' | 'maintenance';
+  type?:
+    | 'implementation'
+    | 'analysis'
+    | 'testing'
+    | 'documentation'
+    | 'maintenance';
   priority?: 'low' | 'normal' | 'high' | 'critical';
   complexity?: 'low' | 'medium' | 'high';
   useAutonomousQueue?: boolean;
@@ -90,6 +100,7 @@ interface TaskOptions {
 ```
 
 **Example:**
+
 ```typescript
 const result = await integrator.queueTask(
   'Implement user authentication',
@@ -100,10 +111,10 @@ const result = await integrator.queueTask(
     complexity: 'medium',
     useAutonomousQueue: true,
     expectedOutputs: {
-      'auth_service': 'Authentication service implementation',
-      'tests': 'Comprehensive test suite'
-    }
-  }
+      auth_service: 'Authentication service implementation',
+      tests: 'Comprehensive test suite',
+    },
+  },
 );
 ```
 
@@ -116,6 +127,7 @@ getSystemHealth(): SystemHealth
 ```
 
 **Returns:** `SystemHealth`
+
 ```typescript
 interface SystemHealth {
   overall: 'healthy' | 'warning' | 'critical';
@@ -143,6 +155,7 @@ interface SystemHealth {
 ```
 
 **Example:**
+
 ```typescript
 const health = integrator.getSystemHealth();
 console.log('System Status:', health.overall);
@@ -179,6 +192,7 @@ getComponents(): {
 ```
 
 **Example:**
+
 ```typescript
 const components = integrator.getComponents();
 
@@ -213,14 +227,15 @@ Convenience function to create and initialize the system in one call.
 
 ```typescript
 async function createIntegratedTaskManagementSystem(
-  config: IntegratedSystemConfig
+  config: IntegratedSystemConfig,
 ): Promise<{
   system: TaskManagementSystemIntegrator;
   result: SystemOperationResult;
-}>
+}>;
 ```
 
 **Example:**
+
 ```typescript
 const config = SystemConfigFactory.createDevelopment(coreConfig);
 const { system, result } = await createIntegratedTaskManagementSystem(config);
@@ -268,7 +283,7 @@ Manages system configuration with validation and runtime updates.
 #### Constructor
 
 ```typescript
-new TaskManagementConfigManager()
+new TaskManagementConfigManager();
 ```
 
 #### Methods
@@ -285,13 +300,18 @@ async loadConfig(
 ```
 
 **Parameters:**
+
 - `filePath: string` - Path to configuration file
 - `coreConfig: Config` - Core Gemini CLI configuration
 
 **Example:**
+
 ```typescript
 const configManager = new TaskManagementConfigManager();
-const config = await configManager.loadConfig('./config/task-config.json', coreConfig);
+const config = await configManager.loadConfig(
+  './config/task-config.json',
+  coreConfig,
+);
 ```
 
 ##### saveConfig()
@@ -311,19 +331,20 @@ async updateConfig(updates: Partial<TaskManagementConfiguration>): Promise<void>
 ```
 
 **Example:**
+
 ```typescript
 await configManager.updateConfig({
   taskEngine: {
     maxConcurrentTasks: 8,
-    timeoutMs: 600000
+    timeoutMs: 600000,
   },
   monitoring: {
     enableAlerts: true,
     alertThresholds: {
       taskFailureRate: 0.1,
-      systemMemoryUsage: 0.8
-    }
-  }
+      systemMemoryUsage: 0.8,
+    },
+  },
 });
 ```
 
@@ -336,6 +357,7 @@ validateConfig(config: TaskManagementConfiguration): ConfigValidationResult
 ```
 
 **ConfigValidationResult Interface:**
+
 ```typescript
 interface ConfigValidationResult {
   isValid: boolean;
@@ -346,6 +368,7 @@ interface ConfigValidationResult {
 ```
 
 **Example:**
+
 ```typescript
 const validation = configManager.validateConfig(config);
 
@@ -366,6 +389,7 @@ onConfigChange(callback: (config: TaskManagementConfiguration) => void): () => v
 **Returns:** Unsubscribe function
 
 **Example:**
+
 ```typescript
 const unsubscribe = configManager.onConfigChange((newConfig) => {
   console.log('Configuration updated:', newConfig.version);
@@ -388,9 +412,11 @@ static generateTemplate(
 ```
 
 **Example:**
+
 ```typescript
 const prodTemplate = TaskManagementConfigManager.generateTemplate('production');
-const enterpriseTemplate = TaskManagementConfigManager.generateTemplate('enterprise');
+const enterpriseTemplate =
+  TaskManagementConfigManager.generateTemplate('enterprise');
 ```
 
 ##### createDefaultConfig()
@@ -419,6 +445,7 @@ static exportConfig(
 ```
 
 **Example:**
+
 ```typescript
 const jsonConfig = ConfigUtils.exportConfig(config, 'json');
 const envConfig = ConfigUtils.exportConfig(config, 'env');
@@ -461,13 +488,13 @@ const taskId = await taskStatusMonitor.registerTask({
   description: 'Test task for monitoring',
   type: TaskType.IMPLEMENTATION,
   priority: TaskPriority.HIGH,
-  assignedAgent: 'test-agent'
+  assignedAgent: 'test-agent',
 });
 
 // Update task status
 await taskStatusMonitor.updateTaskStatus(taskId, TaskStatus.IN_PROGRESS, {
   progress: 50,
-  message: 'Half way complete'
+  message: 'Half way complete',
 });
 
 // Get performance metrics
@@ -482,8 +509,11 @@ Event-driven status updates and notifications.
 // Subscribe to status events
 statusUpdateBroker.subscribe({
   subscriberId: 'my-app',
-  eventTypes: [StatusEventType.TASK_STATUS_CHANGED, StatusEventType.SYSTEM_ALERT],
-  deliveryMethod: 'realtime'
+  eventTypes: [
+    StatusEventType.TASK_STATUS_CHANGED,
+    StatusEventType.SYSTEM_ALERT,
+  ],
+  deliveryMethod: 'realtime',
 });
 
 // Listen for events
@@ -496,7 +526,7 @@ statusUpdateBroker.publish({
   type: StatusEventType.CUSTOM_EVENT,
   source: 'my-app',
   data: { message: 'Custom notification' },
-  timestamp: new Date()
+  timestamp: new Date(),
 });
 ```
 
@@ -508,13 +538,13 @@ Historical data analysis and insights.
 // Get task analytics for last 7 days
 const analytics = await statusHistoryAnalytics.getTaskAnalytics({
   timeframe: AnalyticsTimeframe.LAST_7_DAYS,
-  taskTypes: [TaskType.IMPLEMENTATION, TaskType.TESTING]
+  taskTypes: [TaskType.IMPLEMENTATION, TaskType.TESTING],
 });
 
 // Get agent performance metrics
 const agentAnalytics = await statusHistoryAnalytics.getAgentAnalytics({
   timeframe: AnalyticsTimeframe.LAST_30_DAYS,
-  agentIds: ['dev-agent-1', 'test-agent-1']
+  agentIds: ['dev-agent-1', 'test-agent-1'],
 });
 
 // Query historical data
@@ -522,7 +552,7 @@ const history = await statusHistoryAnalytics.queryHistory({
   startTime: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
   endTime: new Date(),
   eventTypes: [StatusEventType.TASK_COMPLETED, StatusEventType.TASK_FAILED],
-  limit: 100
+  limit: 100,
 });
 ```
 
@@ -559,6 +589,7 @@ GET /api/v1/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -591,6 +622,7 @@ POST /api/v1/tasks
 ```
 
 **Request Body:**
+
 ```json
 {
   "title": "Implement feature X",
@@ -608,6 +640,7 @@ POST /api/v1/tasks
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -628,6 +661,7 @@ GET /api/v1/tasks/{taskId}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "task-123456789",
@@ -649,6 +683,7 @@ GET /api/v1/tasks?status=active&limit=20&offset=0
 ```
 
 **Query Parameters:**
+
 - `status` - Filter by status (active, completed, failed, all)
 - `type` - Filter by task type
 - `priority` - Filter by priority
@@ -699,10 +734,12 @@ ws.onopen = () => {
   console.log('Connected to task management system');
 
   // Subscribe to specific events
-  ws.send(JSON.stringify({
-    action: 'subscribe',
-    events: ['task_status_changed', 'system_alert', 'agent_status_changed']
-  }));
+  ws.send(
+    JSON.stringify({
+      action: 'subscribe',
+      events: ['task_status_changed', 'system_alert', 'agent_status_changed'],
+    }),
+  );
 };
 
 ws.onmessage = (event) => {
@@ -772,16 +809,16 @@ interface SystemOperationResult {
 
 ### HTTP Error Codes
 
-| Code | Description | Example |
-|------|-------------|---------|
-| 400 | Bad Request | Invalid task parameters |
-| 401 | Unauthorized | Missing or invalid token |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Task ID not found |
-| 409 | Conflict | Duplicate task title |
-| 429 | Rate Limited | Too many requests |
-| 500 | Internal Error | System component failure |
-| 503 | Service Unavailable | System initializing |
+| Code | Description         | Example                  |
+| ---- | ------------------- | ------------------------ |
+| 400  | Bad Request         | Invalid task parameters  |
+| 401  | Unauthorized        | Missing or invalid token |
+| 403  | Forbidden           | Insufficient permissions |
+| 404  | Not Found           | Task ID not found        |
+| 409  | Conflict            | Duplicate task title     |
+| 429  | Rate Limited        | Too many requests        |
+| 500  | Internal Error      | System component failure |
+| 503  | Service Unavailable | System initializing      |
 
 ### Error Response Format
 
@@ -806,7 +843,13 @@ interface SystemOperationResult {
 
 ```typescript
 // Automatic retry with exponential backoff
-async function queueTaskWithRetry(system, title, description, options, maxRetries = 3) {
+async function queueTaskWithRetry(
+  system,
+  title,
+  description,
+  options,
+  maxRetries = 3,
+) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const result = await system.queueTask(title, description, options);
@@ -821,13 +864,14 @@ async function queueTaskWithRetry(system, title, description, options, maxRetrie
       }
 
       if (attempt === maxRetries) {
-        throw new Error(`Failed after ${maxRetries} attempts: ${result.message}`);
+        throw new Error(
+          `Failed after ${maxRetries} attempts: ${result.message}`,
+        );
       }
 
       // Exponential backoff
       const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
-      await new Promise(resolve => setTimeout(resolve, delay));
-
+      await new Promise((resolve) => setTimeout(resolve, delay));
     } catch (error) {
       if (attempt === maxRetries) {
         throw error;
@@ -845,7 +889,7 @@ async function queueTaskWithRetry(system, title, description, options, maxRetrie
 ```typescript
 import {
   createIntegratedTaskManagementSystem,
-  SystemConfigFactory
+  SystemConfigFactory,
 } from '@google/gemini-cli/task-management';
 
 async function basicExample() {
@@ -868,11 +912,11 @@ async function basicExample() {
       type: 'implementation',
       priority: 'high',
       expectedOutputs: {
-        'frontend': 'React dashboard components',
-        'api': 'Dashboard API endpoints',
-        'tests': 'Component and API tests'
-      }
-    }
+        frontend: 'React dashboard components',
+        api: 'Dashboard API endpoints',
+        tests: 'Component and API tests',
+      },
+    },
   );
 
   console.log('Task queued:', taskResult.success);
@@ -892,13 +936,16 @@ async function basicExample() {
 import {
   TaskManagementSystemIntegrator,
   TaskManagementConfigManager,
-  type IntegratedSystemConfig
+  type IntegratedSystemConfig,
 } from '@google/gemini-cli/task-management';
 
 async function advancedExample() {
   // 1. Load and validate configuration
   const configManager = new TaskManagementConfigManager();
-  const config = await configManager.loadConfig('./custom-config.json', coreConfig);
+  const config = await configManager.loadConfig(
+    './custom-config.json',
+    coreConfig,
+  );
 
   const validation = configManager.validateConfig(config);
   if (!validation.isValid) {
@@ -911,15 +958,15 @@ async function advancedExample() {
     autonomousQueue: {
       maxConcurrentTasks: 12,
       breakdownThreshold: 0.6,
-      learningEnabled: true
+      learningEnabled: true,
     },
     monitoring: {
       enablePredictiveAnalytics: true,
       alertThresholds: {
         taskFailureRate: 0.05,
-        systemMemoryUsage: 0.75
-      }
-    }
+        systemMemoryUsage: 0.75,
+      },
+    },
   });
 
   // 3. Initialize with custom configuration
@@ -947,7 +994,7 @@ async function advancedExample() {
 import {
   taskStatusMonitor,
   statusUpdateBroker,
-  StatusEventType
+  StatusEventType,
 } from '@google/gemini-cli/task-management';
 
 async function monitoringExample() {
@@ -960,9 +1007,9 @@ async function monitoringExample() {
       StatusEventType.TASK_STATUS_CHANGED,
       StatusEventType.TASK_COMPLETED,
       StatusEventType.TASK_FAILED,
-      StatusEventType.SYSTEM_ALERT
+      StatusEventType.SYSTEM_ALERT,
     ],
-    deliveryMethod: 'realtime'
+    deliveryMethod: 'realtime',
   });
 
   // 2. Handle events
@@ -992,7 +1039,7 @@ async function monitoringExample() {
     console.log('Performance:', {
       efficiency: metrics.systemEfficiency,
       throughput: metrics.taskThroughput,
-      memoryUsage: metrics.memoryUsage
+      memoryUsage: metrics.memoryUsage,
     });
   }, 30000);
 }
@@ -1002,14 +1049,17 @@ async function monitoringExample() {
 
 ```typescript
 class TaskManagementClient {
-  constructor(private baseUrl: string, private token?: string) {}
+  constructor(
+    private baseUrl: string,
+    private token?: string,
+  ) {}
 
   private async request(endpoint: string, options: RequestInit = {}) {
     const url = `${this.baseUrl}/api/v1${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
-      ...(this.token && { 'Authorization': `Bearer ${this.token}` }),
-      ...options.headers
+      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      ...options.headers,
     };
 
     const response = await fetch(url, { ...options, headers });
@@ -1029,7 +1079,7 @@ class TaskManagementClient {
   async queueTask(title: string, description: string, options: any = {}) {
     return this.request('/tasks', {
       method: 'POST',
-      body: JSON.stringify({ title, description, options })
+      body: JSON.stringify({ title, description, options }),
     });
   }
 
@@ -1056,7 +1106,7 @@ console.log('System Status:', health.status);
 const taskResult = await client.queueTask(
   'Process user data',
   'Clean and validate user data imports',
-  { type: 'processing', priority: 'normal' }
+  { type: 'processing', priority: 'normal' },
 );
 ```
 
@@ -1107,14 +1157,14 @@ enum TaskType {
   DOCUMENTATION = 'documentation',
   MAINTENANCE = 'maintenance',
   SECURITY = 'security',
-  PERFORMANCE = 'performance'
+  PERFORMANCE = 'performance',
 }
 
 enum TaskPriority {
   LOW = 'low',
   NORMAL = 'normal',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 enum TaskStatus {
@@ -1122,7 +1172,7 @@ enum TaskStatus {
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 ```
 

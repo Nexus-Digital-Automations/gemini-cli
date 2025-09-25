@@ -5,8 +5,8 @@
  */
 
 export interface AppState {
-    version: string;
-    startupWarnings: string[];
+  version: string;
+  startupWarnings: string[];
 }
-export declare const AppContext: import("react").Context<AppState | null>;
+export declare const AppContext: import('react').Context<AppState | null>;
 export declare const useAppContext: () => AppState;

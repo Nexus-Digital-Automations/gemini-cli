@@ -6,7 +6,7 @@
 
 import type React from 'react';
 interface ConsoleSummaryDisplayProps {
-    errorCount: number;
+  errorCount: number;
 }
 export declare const ConsoleSummaryDisplay: React.FC<ConsoleSummaryDisplayProps>;
 export {};

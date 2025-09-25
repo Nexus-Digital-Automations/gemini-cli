@@ -6,10 +6,13 @@
 
 import type { Storage } from '@google/gemini-cli-core';
 export interface UseShellHistoryReturn {
-    history: string[];
-    addCommandToHistory: (command: string) => void;
-    getPreviousCommand: () => string | null;
-    getNextCommand: () => string | null;
-    resetHistoryPosition: () => void;
+  history: string[];
+  addCommandToHistory: (command: string) => void;
+  getPreviousCommand: () => string | null;
+  getNextCommand: () => string | null;
+  resetHistoryPosition: () => void;
 }
-export declare function useShellHistory(projectRoot: string, storage?: Storage): UseShellHistoryReturn;
+export declare function useShellHistory(
+  projectRoot: string,
+  storage?: Storage,
+): UseShellHistoryReturn;

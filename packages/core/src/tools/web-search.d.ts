@@ -12,33 +12,35 @@ import { type Config } from '../config/config.js';
  * Web grounding chunk metadata from Google Search results
  */
 interface GroundingChunkWeb {
-    /** URL of the source webpage */
-    uri?: string;
-    /** Title of the source webpage */
-    title?: string;
+  /** URL of the source webpage */
+  uri?: string;
+  /** Title of the source webpage */
+  title?: string;
 }
 /**
  * Grounding chunk item containing web search result metadata
  */
 interface GroundingChunkItem {
-    /** Web-specific metadata for the grounding chunk */
-    web?: GroundingChunkWeb;
+  /** Web-specific metadata for the grounding chunk */
+  web?: GroundingChunkWeb;
 }
 /**
  * Parameters for the WebSearchTool
  */
 export interface WebSearchToolParams {
-    /** The search query to execute on Google Search */
-    query: string;
+  /** The search query to execute on Google Search */
+  query: string;
 }
 /**
  * Extended tool result including web search sources and citations
  */
 export interface WebSearchToolResult extends ToolResult {
-    /** Grounding chunks containing source URLs and titles from search results */
-    sources?: GroundingMetadata extends {
-        groundingChunks: GroundingChunkItem[];
-    } ? GroundingMetadata['groundingChunks'] : GroundingChunkItem[];
+  /** Grounding chunks containing source URLs and titles from search results */
+  sources?: GroundingMetadata extends {
+    groundingChunks: GroundingChunkItem[];
+  }
+    ? GroundingMetadata['groundingChunks']
+    : GroundingChunkItem[];
 }
 /**
  * Web search tool using Google Search integration via Gemini API
@@ -57,26 +59,31 @@ export interface WebSearchToolResult extends ToolResult {
  * - Fact-checking and verification with citations
  * - Gathering information from across the web
  */
-export declare class WebSearchTool extends BaseDeclarativeTool<WebSearchToolParams, WebSearchToolResult> {
-    private readonly config;
-    /** Tool identifier for registration and configuration */
-    static readonly Name: string;
-    /**
-     * Creates a new web search tool instance
-     * @param config - Configuration object containing Gemini API settings
-     */
-    constructor(config: Config);
-    /**
-     * Validates the parameters for the WebSearchTool.
-     * @param params The parameters to validate
-     * @returns An error message string if validation fails, null if valid
-     */
-    protected validateToolParamValues(params: WebSearchToolParams): string | null;
-    /**
-     * Creates a web search tool invocation instance
-     * @param params - Validated web search parameters
-     * @returns Configured web search invocation ready for execution
-     */
-    protected createInvocation(params: WebSearchToolParams): ToolInvocation<WebSearchToolParams, WebSearchToolResult>;
+export declare class WebSearchTool extends BaseDeclarativeTool<
+  WebSearchToolParams,
+  WebSearchToolResult
+> {
+  private readonly config;
+  /** Tool identifier for registration and configuration */
+  static readonly Name: string;
+  /**
+   * Creates a new web search tool instance
+   * @param config - Configuration object containing Gemini API settings
+   */
+  constructor(config: Config);
+  /**
+   * Validates the parameters for the WebSearchTool.
+   * @param params The parameters to validate
+   * @returns An error message string if validation fails, null if valid
+   */
+  protected validateToolParamValues(params: WebSearchToolParams): string | null;
+  /**
+   * Creates a web search tool invocation instance
+   * @param params - Validated web search parameters
+   * @returns Configured web search invocation ready for execution
+   */
+  protected createInvocation(
+    params: WebSearchToolParams,
+  ): ToolInvocation<WebSearchToolParams, WebSearchToolResult>;
 }
 export {};

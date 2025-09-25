@@ -6,6 +6,11 @@
 
 import type { render } from 'ink-testing-library';
 import type React from 'react';
-export declare const renderWithProviders: (component: React.ReactElement, { shellFocus }?: {
+export declare const renderWithProviders: (
+  component: React.ReactElement,
+  {
+    shellFocus,
+  }?: {
     shellFocus?: boolean | undefined;
-}) => ReturnType<typeof render>;
+  },
+) => ReturnType<typeof render>;

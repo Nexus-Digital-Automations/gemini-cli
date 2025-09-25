@@ -4,7 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 import * as path from 'node:path';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
@@ -45,14 +54,17 @@ describe('Task Management Integration Tests', () => {
 
   beforeEach(async () => {
     // Create a unique test database for each test
-    testDbPath = path.join(tempDir, `integration-test-${Date.now()}-${Math.random()}.db`);
+    testDbPath = path.join(
+      tempDir,
+      `integration-test-${Date.now()}-${Math.random()}.db`,
+    );
 
     // Import modules dynamically
     const [
       { TaskPersistence },
       { SessionManager },
       { DataSync },
-      { BackupRecovery }
+      { BackupRecovery },
     ] = await Promise.all([
       import('../TaskPersistence.js'),
       import('../SessionManager.js'),
@@ -131,8 +143,14 @@ describe('Task Management Integration Tests', () => {
 
     it('should handle complete task lifecycle with multiple sessions', async () => {
       // Create two sessions
-      const session1 = await sessionManager.createSession('agent-1', '/test/dir1');
-      const session2 = await sessionManager.createSession('agent-2', '/test/dir2');
+      const session1 = await sessionManager.createSession(
+        'agent-1',
+        '/test/dir1',
+      );
+      const session2 = await sessionManager.createSession(
+        'agent-2',
+        '/test/dir2',
+      );
 
       expect(session1.sessionId).toBeDefined();
       expect(session2.sessionId).toBeDefined();
@@ -168,7 +186,11 @@ describe('Task Management Integration Tests', () => {
       await persistence.saveDependencies(dependencies);
 
       // Acquire locks and execute tasks
-      await sessionManager.acquireTaskLock('task-1', session1.sessionId, 'exclusive');
+      await sessionManager.acquireTaskLock(
+        'task-1',
+        session1.sessionId,
+        'exclusive',
+      );
 
       // Update task status
       const updatedTask1 = { ...task1, status: 'in_progress' as const };
@@ -188,7 +210,11 @@ describe('Task Management Integration Tests', () => {
       await sessionManager.releaseTaskLock('task-1', session1.sessionId);
 
       // Now task 2 can start
-      await sessionManager.acquireTaskLock('task-2', session2.sessionId, 'exclusive');
+      await sessionManager.acquireTaskLock(
+        'task-2',
+        session2.sessionId,
+        'exclusive',
+      );
 
       const updatedTask2 = { ...task2, status: 'in_progress' as const };
       await persistence.saveTask(updatedTask2, session2.sessionId);
@@ -214,18 +240,22 @@ describe('Task Management Integration Tests', () => {
       const task = createTestTask('recoverable-task', 'Recoverable Task');
 
       await persistence.saveTask(task, session1.sessionId);
-      await sessionManager.acquireTaskLock('recoverable-task', session1.sessionId);
+      await sessionManager.acquireTaskLock(
+        'recoverable-task',
+        session1.sessionId,
+      );
 
       // Simulate session crash by terminating it
       await sessionManager.terminateSession(session1.sessionId, 'error');
 
       // Create recovery session
-      const recoverySession = await sessionManager.createSession('agent-recovery');
+      const recoverySession =
+        await sessionManager.createSession('agent-recovery');
 
       // Recover tasks (in a real implementation)
       const recovery = await sessionManager.recoverSessionTasks(
         session1.sessionId,
-        recoverySession.sessionId
+        recoverySession.sessionId,
       );
 
       expect(recovery.originalSessionId).toBe(session1.sessionId);
@@ -249,7 +279,7 @@ describe('Task Management Integration Tests', () => {
         session1.sessionId,
         'sync-agent-1',
         undefined,
-        task
+        task,
       );
 
       // Save task
@@ -264,7 +294,7 @@ describe('Task Management Integration Tests', () => {
         session2.sessionId,
         'sync-agent-2',
         task,
-        updatedTask
+        updatedTask,
       );
 
       // Get pending changes
@@ -328,7 +358,10 @@ describe('Task Management Integration Tests', () => {
         verifyIntegrity: true,
       };
 
-      const recoveryResult = await backupRecovery.restoreFromBackup(backup.id, recoveryOptions);
+      const recoveryResult = await backupRecovery.restoreFromBackup(
+        backup.id,
+        recoveryOptions,
+      );
       expect(recoveryResult.success).toBe(true);
       expect(recoveryResult.sourceBackupId).toBe(backup.id);
     });
@@ -348,7 +381,8 @@ describe('Task Management Integration Tests', () => {
       await persistence.saveTask(task2, session.sessionId);
 
       // Create incremental backup (will fall back to full in current implementation)
-      const incrementalBackup = await backupRecovery.createBackup('incremental');
+      const incrementalBackup =
+        await backupRecovery.createBackup('incremental');
       expect(incrementalBackup).toBeDefined();
 
       // Verify backup chain information
@@ -364,14 +398,14 @@ describe('Task Management Integration Tests', () => {
       // Create many tasks concurrently
       const taskCount = 100;
       const tasks = Array.from({ length: taskCount }, (_, i) =>
-        createTestTask(`perf-task-${i}`, `Performance Task ${i}`)
+        createTestTask(`perf-task-${i}`, `Performance Task ${i}`),
       );
 
       const startTime = Date.now();
 
       // Save all tasks concurrently
       await Promise.all(
-        tasks.map(task => persistence.saveTask(task, session.sessionId))
+        tasks.map((task) => persistence.saveTask(task, session.sessionId)),
       );
 
       const saveTime = Date.now() - startTime;
@@ -380,7 +414,7 @@ describe('Task Management Integration Tests', () => {
       // Load all tasks concurrently
       const loadStart = Date.now();
       const loadedTasks = await Promise.all(
-        tasks.map(task => persistence.loadTask(task.id))
+        tasks.map((task) => persistence.loadTask(task.id)),
       );
       const loadTime = Date.now() - loadStart;
 
@@ -388,7 +422,7 @@ describe('Task Management Integration Tests', () => {
 
       // Verify all tasks were loaded correctly
       expect(loadedTasks).toHaveLength(taskCount);
-      loadedTasks.forEach(task => expect(task).toBeDefined());
+      loadedTasks.forEach((task) => expect(task).toBeDefined());
 
       // Test list operations
       const listStart = Date.now();
@@ -406,21 +440,28 @@ describe('Task Management Integration Tests', () => {
       // Create multiple sessions concurrently
       const sessions = await Promise.all(
         Array.from({ length: sessionCount }, (_, i) =>
-          sessionManager.createSession(`concurrent-agent-${i}`)
-        )
+          sessionManager.createSession(`concurrent-agent-${i}`),
+        ),
       );
 
       expect(sessions).toHaveLength(sessionCount);
 
       // Each session creates and manages tasks
       const sessionPromises = sessions.map(async (session, sessionIndex) => {
-        const sessionTasks = Array.from({ length: tasksPerSession }, (_, taskIndex) =>
-          createTestTask(`session-${sessionIndex}-task-${taskIndex}`, `Session ${sessionIndex} Task ${taskIndex}`)
+        const sessionTasks = Array.from(
+          { length: tasksPerSession },
+          (_, taskIndex) =>
+            createTestTask(
+              `session-${sessionIndex}-task-${taskIndex}`,
+              `Session ${sessionIndex} Task ${taskIndex}`,
+            ),
         );
 
         // Save tasks for this session
         await Promise.all(
-          sessionTasks.map(task => persistence.saveTask(task, session.sessionId))
+          sessionTasks.map((task) =>
+            persistence.saveTask(task, session.sessionId),
+          ),
         );
 
         // Try to acquire locks on some tasks
@@ -430,7 +471,7 @@ describe('Task Management Integration Tests', () => {
               sessionTasks[i].id,
               session.sessionId,
               'exclusive',
-              5000
+              5000,
             );
           } catch (error) {
             // Some lock attempts may fail, which is expected
@@ -472,21 +513,26 @@ describe('Task Management Integration Tests', () => {
 
       // Operations should fail gracefully
       await expect(persistence.loadTask('error-task')).rejects.toThrow();
-      await expect(sessionManager.acquireTaskLock('error-task', session.sessionId)).rejects.toThrow();
+      await expect(
+        sessionManager.acquireTaskLock('error-task', session.sessionId),
+      ).rejects.toThrow();
     });
 
     it('should handle session timeout and cleanup', async () => {
       // Create session with very short timeout
-      const shortTimeoutManager = new (await import('../SessionManager.js')).SessionManager(
-        persistence,
-        { sessionTimeout: 100, heartbeatInterval: 50 }
-      );
+      const shortTimeoutManager = new (
+        await import('../SessionManager.js')
+      ).SessionManager(persistence, {
+        sessionTimeout: 100,
+        heartbeatInterval: 50,
+      });
       await shortTimeoutManager.initialize();
 
-      const session = await shortTimeoutManager.createSession('timeout-test-agent');
+      const session =
+        await shortTimeoutManager.createSession('timeout-test-agent');
 
       // Don't send heartbeat and wait for timeout
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       // Session should be marked as expired
       const sessionInfo = shortTimeoutManager.getSession(session.sessionId);
@@ -497,13 +543,12 @@ describe('Task Management Integration Tests', () => {
 
     it('should handle backup failures gracefully', async () => {
       // Create invalid backup configuration
-      const invalidBackupRecovery = new (await import('../BackupRecovery.js')).BackupRecovery(
-        persistence,
-        {
-          backupDirectory: '/invalid/path/that/does/not/exist',
-          enableAutoBackup: false,
-        }
-      );
+      const invalidBackupRecovery = new (
+        await import('../BackupRecovery.js')
+      ).BackupRecovery(persistence, {
+        backupDirectory: '/invalid/path/that/does/not/exist',
+        enableAutoBackup: false,
+      });
 
       await expect(invalidBackupRecovery.initialize()).rejects.toThrow();
     });
@@ -516,13 +561,25 @@ describe('Task Management Integration Tests', () => {
       dataSync['config'].syncInterval = 100;
 
       // Create development workflow scenario
-      const devSession = await sessionManager.createSession('dev-agent', '/project/src');
-      const testSession = await sessionManager.createSession('test-agent', '/project/tests');
+      const devSession = await sessionManager.createSession(
+        'dev-agent',
+        '/project/src',
+      );
+      const testSession = await sessionManager.createSession(
+        'test-agent',
+        '/project/tests',
+      );
 
       // Development creates tasks
-      const implementTask = createTestTask('implement-feature', 'Implement New Feature');
+      const implementTask = createTestTask(
+        'implement-feature',
+        'Implement New Feature',
+      );
       const testTask = createTestTask('test-feature', 'Test New Feature');
-      const docTask = createTestTask('document-feature', 'Document New Feature');
+      const docTask = createTestTask(
+        'document-feature',
+        'Document New Feature',
+      );
 
       // Save tasks and create dependencies
       await persistence.saveTask(implementTask, devSession.sessionId);
@@ -546,9 +603,15 @@ describe('Task Management Integration Tests', () => {
       await persistence.saveDependencies(dependencies);
 
       // Development starts implementation
-      await sessionManager.acquireTaskLock('implement-feature', devSession.sessionId);
+      await sessionManager.acquireTaskLock(
+        'implement-feature',
+        devSession.sessionId,
+      );
 
-      const inProgressImplement = { ...implementTask, status: 'in_progress' as const };
+      const inProgressImplement = {
+        ...implementTask,
+        status: 'in_progress' as const,
+      };
       await persistence.saveTask(inProgressImplement, devSession.sessionId);
 
       // Track change for synchronization
@@ -559,16 +622,25 @@ describe('Task Management Integration Tests', () => {
         devSession.sessionId,
         'dev-agent',
         { status: 'pending' },
-        { status: 'in_progress' }
+        { status: 'in_progress' },
       );
 
       // Complete implementation
-      const completedImplement = { ...inProgressImplement, status: 'completed' as const };
+      const completedImplement = {
+        ...inProgressImplement,
+        status: 'completed' as const,
+      };
       await persistence.saveTask(completedImplement, devSession.sessionId);
-      await sessionManager.releaseTaskLock('implement-feature', devSession.sessionId);
+      await sessionManager.releaseTaskLock(
+        'implement-feature',
+        devSession.sessionId,
+      );
 
       // Testing can now start
-      await sessionManager.acquireTaskLock('test-feature', testSession.sessionId);
+      await sessionManager.acquireTaskLock(
+        'test-feature',
+        testSession.sessionId,
+      );
 
       // Create backup before testing phase
       const backupMetadata = await backupRecovery.createBackup('full', {
@@ -581,14 +653,16 @@ describe('Task Management Integration Tests', () => {
       expect(syncResult.success).toBe(true);
 
       // Verify final state
-      const finalImplementTask = await persistence.loadTask('implement-feature');
+      const finalImplementTask =
+        await persistence.loadTask('implement-feature');
       expect(finalImplementTask?.status).toBe('completed');
 
       const taskOwnership = sessionManager.getTaskOwnership('test-feature');
       expect(taskOwnership?.sessionId).toBe(testSession.sessionId);
 
       // Get execution history
-      const history = await persistence.getExecutionHistory('implement-feature');
+      const history =
+        await persistence.getExecutionHistory('implement-feature');
       expect(history.length).toBeGreaterThanOrEqual(0);
 
       // Get system metrics

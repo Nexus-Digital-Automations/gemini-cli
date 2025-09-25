@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   TaskManagementSystemFactory,
   createTaskManagementSystem,
-  createTaskEngine
+  createTaskEngine,
 } from '../index.js';
 import type { Config } from '../../config/config.js';
 
@@ -26,16 +26,16 @@ const mockConfig: Partial<Config> = {
     getTool: vi.fn(),
     getAllTools: vi.fn(() => []),
     getAllToolNames: vi.fn(() => []),
-    getFunctionDeclarationsFiltered: vi.fn(() => [])
+    getFunctionDeclarationsFiltered: vi.fn(() => []),
   })),
   storage: {
     getProjectTempDir: vi.fn(() => '/tmp/test-project'),
     ensureProjectTempDir: vi.fn(() => Promise.resolve()),
     writeFile: vi.fn(() => Promise.resolve()),
     readFile: vi.fn(() => Promise.resolve('{"events": [], "metrics": []}')),
-    fileExists: vi.fn(() => Promise.resolve(false))
+    fileExists: vi.fn(() => Promise.resolve(false)),
   } as any,
-  getSessionId: vi.fn(() => 'test-session')
+  getSessionId: vi.fn(() => 'test-session'),
 };
 
 // Mock HTTP fetch for API calls
@@ -49,21 +49,21 @@ vi.mock('../core/subagent.js', () => ({
       runNonInteractive: vi.fn(() => Promise.resolve()),
       output: {
         terminate_reason: 'GOAL',
-        emitted_vars: {}
-      }
-    }))
+        emitted_vars: {},
+      },
+    })),
   },
   ContextState: vi.fn(() => ({
     set: vi.fn(),
     get: vi.fn(),
-    get_keys: vi.fn(() => [])
+    get_keys: vi.fn(() => []),
   })),
   SubagentTerminateMode: {
     GOAL: 'GOAL',
     ERROR: 'ERROR',
     TIMEOUT: 'TIMEOUT',
-    MAX_TURNS: 'MAX_TURNS'
-  }
+    MAX_TURNS: 'MAX_TURNS',
+  },
 }));
 
 describe('TaskManagementSystemFactory', () => {
@@ -71,14 +71,14 @@ describe('TaskManagementSystemFactory', () => {
     vi.clearAllMocks();
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ status: 'success' })
+      json: () => Promise.resolve({ status: 'success' }),
     });
   });
 
   describe('createComplete', () => {
     it('should create complete system with all components enabled by default', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       expect(system.taskEngine).toBeDefined();
@@ -92,7 +92,7 @@ describe('TaskManagementSystemFactory', () => {
     it('should create system with monitoring disabled', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
         mockConfig as Config,
-        { enableMonitoring: false }
+        { enableMonitoring: false },
       );
 
       expect(system.taskEngine).toBeDefined();
@@ -106,7 +106,7 @@ describe('TaskManagementSystemFactory', () => {
     it('should create system with hook integration disabled', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
         mockConfig as Config,
-        { enableHookIntegration: false }
+        { enableHookIntegration: false },
       );
 
       expect(system.taskEngine).toBeDefined();
@@ -122,8 +122,8 @@ describe('TaskManagementSystemFactory', () => {
         mockConfig as Config,
         {
           enableMonitoring: false,
-          enableHookIntegration: false
-        }
+          enableHookIntegration: false,
+        },
       );
 
       expect(system.taskEngine).toBeDefined();
@@ -139,14 +139,14 @@ describe('TaskManagementSystemFactory', () => {
         agentId: 'custom-agent',
         capabilities: ['frontend', 'backend', 'testing'],
         maxConcurrentTasks: 5,
-        progressReportingIntervalMs: 15000
+        progressReportingIntervalMs: 15000,
       };
 
       const system = await TaskManagementSystemFactory.createComplete(
         mockConfig as Config,
         {
-          hookIntegrationConfig: customConfig
-        }
+          hookIntegrationConfig: customConfig,
+        },
       );
 
       expect(system.hookIntegration).toBeDefined();
@@ -159,7 +159,7 @@ describe('TaskManagementSystemFactory', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       expect(system.taskEngine).toBeDefined();
@@ -171,7 +171,7 @@ describe('TaskManagementSystemFactory', () => {
 
     it('should integrate monitoring with task engine event handlers', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       const mockTask = {
@@ -181,7 +181,7 @@ describe('TaskManagementSystemFactory', () => {
         complexity: 'simple',
         priority: 'normal',
         status: 'completed',
-        progress: 100
+        progress: 100,
       };
 
       // Test monitoring integration by checking if events are recorded
@@ -196,7 +196,7 @@ describe('TaskManagementSystemFactory', () => {
   describe('createStandalone', () => {
     it('should create standalone task engine without monitoring or hook integration', () => {
       const taskEngine = TaskManagementSystemFactory.createStandalone(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       expect(taskEngine).toBeDefined();
@@ -209,11 +209,14 @@ describe('TaskManagementSystemFactory', () => {
 
     it('should call event handlers for standalone engine', async () => {
       const taskEngine = TaskManagementSystemFactory.createStandalone(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Test that event handlers are properly attached
-      const taskId = await taskEngine.queueTask('Test Task', 'Test Description');
+      const taskId = await taskEngine.queueTask(
+        'Test Task',
+        'Test Description',
+      );
       expect(taskId).toBeTruthy();
 
       const task = taskEngine.getTask(taskId);
@@ -224,7 +227,7 @@ describe('TaskManagementSystemFactory', () => {
   describe('createMonitoringOnly', () => {
     it('should create monitoring system only', () => {
       const monitoring = TaskManagementSystemFactory.createMonitoringOnly(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       expect(monitoring).toBeDefined();
@@ -239,14 +242,14 @@ describe('TaskManagementSystemFactory', () => {
   describe('Shutdown Coordination', () => {
     it('should shutdown all components in correct order', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Mock shutdown methods to verify call order
       const shutdownSpy = {
         hook: vi.fn(),
         monitoring: vi.fn(),
-        taskEngine: vi.fn()
+        taskEngine: vi.fn(),
       };
 
       if (system.hookIntegration) {
@@ -271,12 +274,14 @@ describe('TaskManagementSystemFactory', () => {
 
     it('should handle partial shutdown failures gracefully', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Mock monitoring shutdown to fail
       if (system.monitoring) {
-        system.monitoring.shutdown = vi.fn().mockRejectedValue(new Error('Monitoring shutdown failed'));
+        system.monitoring.shutdown = vi
+          .fn()
+          .mockRejectedValue(new Error('Monitoring shutdown failed'));
       }
 
       // Should not throw despite monitoring failure
@@ -287,13 +292,13 @@ describe('TaskManagementSystemFactory', () => {
   describe('Event Handler Integration', () => {
     it('should properly integrate event handlers between components', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Queue a task to test event flow
       const taskId = await system.taskEngine.queueTask(
         'Integration Test Task',
-        'Test task for event integration'
+        'Test task for event integration',
       );
 
       expect(taskId).toBeTruthy();
@@ -310,13 +315,13 @@ describe('TaskManagementSystemFactory', () => {
     it('should handle event handler failures gracefully', async () => {
       // Create system with potentially failing event handlers
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Task operations should continue even if event handlers fail
       const taskId = await system.taskEngine.queueTask(
         'Resilient Task',
-        'Task that continues despite event handler issues'
+        'Task that continues despite event handler issues',
       );
 
       expect(taskId).toBeTruthy();
@@ -333,7 +338,7 @@ describe('TaskManagementSystemFactory', () => {
 
       // Should still create system with defaults
       await expect(
-        TaskManagementSystemFactory.createComplete(invalidConfig)
+        TaskManagementSystemFactory.createComplete(invalidConfig),
       ).resolves.not.toThrow();
     });
 
@@ -344,9 +349,9 @@ describe('TaskManagementSystemFactory', () => {
           monitoringConfig: {
             verboseLogging: true,
             maxEventsInMemory: 1000,
-            metricsCollectionIntervalMs: 30000
-          }
-        }
+            metricsCollectionIntervalMs: 30000,
+          },
+        },
       );
 
       expect(system.monitoring).toBeDefined();
@@ -357,13 +362,12 @@ describe('TaskManagementSystemFactory', () => {
     it('should handle missing storage configuration', async () => {
       const configWithoutStorage = {
         ...mockConfig,
-        storage: undefined
+        storage: undefined,
       } as unknown as Config;
 
       // Should create system but may have limited persistence functionality
-      const system = await TaskManagementSystemFactory.createComplete(
-        configWithoutStorage
-      );
+      const system =
+        await TaskManagementSystemFactory.createComplete(configWithoutStorage);
 
       expect(system.taskEngine).toBeDefined();
 
@@ -374,14 +378,17 @@ describe('TaskManagementSystemFactory', () => {
   describe('Component Communication', () => {
     it('should enable communication between task engine and monitoring', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       expect(system.taskEngine).toBeDefined();
       expect(system.monitoring).toBeDefined();
 
       // Test that task engine can report to monitoring
-      const taskId = await system.taskEngine.queueTask('Communication Test', 'Test description');
+      const taskId = await system.taskEngine.queueTask(
+        'Communication Test',
+        'Test description',
+      );
       const stats = system.taskEngine.getExecutionStats();
 
       expect(stats).toBeDefined();
@@ -392,7 +399,7 @@ describe('TaskManagementSystemFactory', () => {
 
     it('should enable communication between monitoring and hook integration', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       if (system.monitoring && system.hookIntegration) {
@@ -411,18 +418,18 @@ describe('TaskManagementSystemFactory', () => {
   describe('Performance and Resource Management', () => {
     it('should handle concurrent task creation', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Create multiple tasks concurrently
       const taskPromises = Array.from({ length: 10 }, (_, i) =>
-        system.taskEngine.queueTask(`Concurrent Task ${i}`, `Description ${i}`)
+        system.taskEngine.queueTask(`Concurrent Task ${i}`, `Description ${i}`),
       );
 
       const taskIds = await Promise.all(taskPromises);
 
       expect(taskIds).toHaveLength(10);
-      expect(taskIds.every(id => typeof id === 'string')).toBe(true);
+      expect(taskIds.every((id) => typeof id === 'string')).toBe(true);
 
       const tasks = system.taskEngine.getAllTasks();
       expect(tasks.length).toBe(10);
@@ -432,12 +439,15 @@ describe('TaskManagementSystemFactory', () => {
 
     it('should manage memory usage effectively', async () => {
       const system = await TaskManagementSystemFactory.createComplete(
-        mockConfig as Config
+        mockConfig as Config,
       );
 
       // Create and complete many tasks to test memory management
       for (let i = 0; i < 100; i++) {
-        await system.taskEngine.queueTask(`Memory Test ${i}`, 'Test description');
+        await system.taskEngine.queueTask(
+          `Memory Test ${i}`,
+          'Test description',
+        );
       }
 
       const stats = system.taskEngine.getExecutionStats();
@@ -457,18 +467,22 @@ describe('Convenience Functions', () => {
     vi.clearAllMocks();
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ status: 'success' })
+      json: () => Promise.resolve({ status: 'success' }),
     });
   });
 
   describe('createTaskManagementSystem', () => {
     it('should be equivalent to TaskManagementSystemFactory.createComplete', async () => {
       const system1 = await createTaskManagementSystem(mockConfig as Config);
-      const system2 = await TaskManagementSystemFactory.createComplete(mockConfig as Config);
+      const system2 = await TaskManagementSystemFactory.createComplete(
+        mockConfig as Config,
+      );
 
       expect(typeof system1.taskEngine).toBe(typeof system2.taskEngine);
       expect(typeof system1.monitoring).toBe(typeof system2.monitoring);
-      expect(typeof system1.hookIntegration).toBe(typeof system2.hookIntegration);
+      expect(typeof system1.hookIntegration).toBe(
+        typeof system2.hookIntegration,
+      );
       expect(typeof system1.shutdown).toBe(typeof system2.shutdown);
 
       await system1.shutdown();
@@ -481,11 +495,14 @@ describe('Convenience Functions', () => {
         enableHookIntegration: true,
         hookIntegrationConfig: {
           agentId: 'test-agent',
-          capabilities: ['frontend']
-        }
+          capabilities: ['frontend'],
+        },
       };
 
-      const system = await createTaskManagementSystem(mockConfig as Config, options);
+      const system = await createTaskManagementSystem(
+        mockConfig as Config,
+        options,
+      );
 
       expect(system.taskEngine).toBeDefined();
       expect(system.monitoring).toBeUndefined();
@@ -498,7 +515,9 @@ describe('Convenience Functions', () => {
   describe('createTaskEngine', () => {
     it('should be equivalent to TaskManagementSystemFactory.createStandalone', () => {
       const engine1 = createTaskEngine(mockConfig as Config);
-      const engine2 = TaskManagementSystemFactory.createStandalone(mockConfig as Config);
+      const engine2 = TaskManagementSystemFactory.createStandalone(
+        mockConfig as Config,
+      );
 
       expect(typeof engine1.queueTask).toBe(typeof engine2.queueTask);
       expect(typeof engine1.getTask).toBe(typeof engine2.getTask);

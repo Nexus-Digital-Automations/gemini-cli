@@ -5,7 +5,10 @@
  */
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
-import { EnhancedMonitoringDashboard, type DashboardWidget } from '../EnhancedMonitoringDashboard.js';
+import {
+  EnhancedMonitoringDashboard,
+  type DashboardWidget,
+} from '../EnhancedMonitoringDashboard.js';
 import { realTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 
 // Mock dependencies
@@ -78,7 +81,7 @@ describe('EnhancedMonitoringDashboard', () => {
 
     dashboard = new EnhancedMonitoringDashboard();
     // Allow time for initialization
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   });
 
   afterEach(async () => {
@@ -101,7 +104,7 @@ describe('EnhancedMonitoringDashboard', () => {
       expect(defaultLayout.widgets).toHaveLength(5);
 
       // Check for expected widget types
-      const widgetTypes = defaultLayout.widgets.map(w => w.type);
+      const widgetTypes = defaultLayout.widgets.map((w) => w.type);
       expect(widgetTypes).toContain('metric');
       expect(widgetTypes).toContain('chart');
       expect(widgetTypes).toContain('alert_panel');
@@ -127,7 +130,10 @@ describe('EnhancedMonitoringDashboard', () => {
 
   describe('Layout Management', () => {
     it('should create new layout', () => {
-      const layoutId = dashboard.createLayout('Test Layout', 'Test description');
+      const layoutId = dashboard.createLayout(
+        'Test Layout',
+        'Test description',
+      );
 
       expect(typeof layoutId).toBe('string');
       expect(layoutId).toContain('layout_');
@@ -139,7 +145,10 @@ describe('EnhancedMonitoringDashboard', () => {
     });
 
     it('should set active layout', () => {
-      const layoutId = dashboard.createLayout('New Active Layout', 'Description');
+      const layoutId = dashboard.createLayout(
+        'New Active Layout',
+        'Description',
+      );
       const result = dashboard.setActiveLayout(layoutId);
 
       expect(result).toBe(true);
@@ -223,7 +232,7 @@ describe('EnhancedMonitoringDashboard', () => {
       expect(updated).toBe(true);
 
       const layout = dashboard.getLayout(layoutId);
-      const updatedWidget = layout?.widgets.find(w => w.id === widgetId);
+      const updatedWidget = layout?.widgets.find((w) => w.id === widgetId);
 
       expect(updatedWidget?.title).toBe('Updated Title');
       expect(updatedWidget?.enabled).toBe(false);
@@ -308,7 +317,10 @@ describe('EnhancedMonitoringDashboard', () => {
     let widgetId: string;
 
     beforeEach(() => {
-      layoutId = dashboard.createLayout('Chart Test Layout', 'For chart testing');
+      layoutId = dashboard.createLayout(
+        'Chart Test Layout',
+        'For chart testing',
+      );
       const widget: Omit<DashboardWidget, 'id'> = {
         type: 'chart',
         title: 'Test Chart',
@@ -374,9 +386,15 @@ describe('EnhancedMonitoringDashboard', () => {
       expect(weekChart).toBeDefined();
 
       // Verify that different time ranges were requested
-      expect(mockRealTimeMonitoring.getMonitoringHistory).toHaveBeenCalledWith(1);
-      expect(mockRealTimeMonitoring.getMonitoringHistory).toHaveBeenCalledWith(24);
-      expect(mockRealTimeMonitoring.getMonitoringHistory).toHaveBeenCalledWith(168);
+      expect(mockRealTimeMonitoring.getMonitoringHistory).toHaveBeenCalledWith(
+        1,
+      );
+      expect(mockRealTimeMonitoring.getMonitoringHistory).toHaveBeenCalledWith(
+        24,
+      );
+      expect(mockRealTimeMonitoring.getMonitoringHistory).toHaveBeenCalledWith(
+        168,
+      );
     });
 
     it('should generate default chart for unknown data source', () => {
@@ -410,7 +428,10 @@ describe('EnhancedMonitoringDashboard', () => {
 
   describe('Data Export/Import', () => {
     it('should export dashboard configuration', async () => {
-      const layoutId = dashboard.createLayout('Export Test', 'Test layout for export');
+      const layoutId = dashboard.createLayout(
+        'Export Test',
+        'Test layout for export',
+      );
 
       const exportData = await dashboard.exportDashboard(layoutId);
 
@@ -478,19 +499,17 @@ describe('EnhancedMonitoringDashboard', () => {
       expect(layouts.length).toBe(initialLayoutCount + 1);
 
       // Check that imported layout exists (with new ID)
-      const importedLayout = layouts.find(l => l.name === 'Imported Layout');
+      const importedLayout = layouts.find((l) => l.name === 'Imported Layout');
       expect(importedLayout).toBeDefined();
       expect(importedLayout?.widgets.length).toBe(1);
       expect(importedLayout?.widgets[0].title).toBe('Imported Widget');
     });
 
     it('should handle invalid import data', async () => {
-      await expect(
-        dashboard.importDashboard('invalid json')
-      ).rejects.toThrow();
+      await expect(dashboard.importDashboard('invalid json')).rejects.toThrow();
 
       await expect(
-        dashboard.importDashboard('{"invalid": "structure"}')
+        dashboard.importDashboard('{"invalid": "structure"}'),
       ).rejects.not.toThrow(); // Should handle gracefully with empty layouts
     });
   });
@@ -624,7 +643,7 @@ describe('EnhancedMonitoringDashboard', () => {
       const testDashboard = new EnhancedMonitoringDashboard();
 
       // Add some widgets and start updates
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       await testDashboard.shutdown();
 

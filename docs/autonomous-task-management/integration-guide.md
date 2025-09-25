@@ -85,64 +85,64 @@ name: Autonomous Task Management
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   task-validation:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Initialize Task Management System
-      run: |
-        timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize CI_AGENT
+      - name: Initialize Task Management System
+        run: |
+          timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize CI_AGENT
 
-    - name: Generate Tasks from Approved Features
-      run: |
-        timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" generate-tasks-from-features
+      - name: Generate Tasks from Approved Features
+        run: |
+          timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" generate-tasks-from-features
 
-    - name: Validate Task Queue
-      run: |
-        timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-task-queue
+      - name: Validate Task Queue
+        run: |
+          timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-task-queue
 
-    - name: Run Quality Gates
-      run: |
-        # Linting
-        npm run lint || exit 1
+      - name: Run Quality Gates
+        run: |
+          # Linting
+          npm run lint || exit 1
 
-        # Type checking
-        npm run typecheck || exit 1
+          # Type checking
+          npm run typecheck || exit 1
 
-        # Testing
-        npm test || exit 1
+          # Testing
+          npm test || exit 1
 
-        # Build validation
-        npm run build || exit 1
+          # Build validation
+          npm run build || exit 1
 
-    - name: Update Task Progress
-      if: success()
-      run: |
-        timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" update-task-status CI_VALIDATION completed
+      - name: Update Task Progress
+        if: success()
+        run: |
+          timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" update-task-status CI_VALIDATION completed
 
-    - name: Generate Task Report
-      run: |
-        timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" feature-stats > task-report.json
-        cat task-report.json
+      - name: Generate Task Report
+        run: |
+          timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" feature-stats > task-report.json
+          cat task-report.json
 
-    - name: Archive Task Report
-      uses: actions/upload-artifact@v3
-      with:
-        name: task-management-report
-        path: task-report.json
+      - name: Archive Task Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: task-management-report
+          path: task-report.json
 ```
 
 ### GitLab CI Integration
@@ -156,7 +156,7 @@ stages:
   - report
 
 variables:
-  NODE_VERSION: "18"
+  NODE_VERSION: '18'
 
 before_script:
   - node --version
@@ -318,68 +318,66 @@ Create `.vscode/tasks.json`:
 
 ```json
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Initialize Task Management",
-            "type": "shell",
-            "command": "timeout 10s node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" initialize VSCODE_AGENT",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Create Feature",
-            "type": "shell",
-            "command": "node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" suggest-feature",
-            "args": [
-                "${input:featureData}"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "List Features",
-            "type": "shell",
-            "command": "timeout 10s node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" list-features",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Feature Stats",
-            "type": "shell",
-            "command": "timeout 10s node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" feature-stats",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        }
-    ],
-    "inputs": [
-        {
-            "id": "featureData",
-            "description": "Feature JSON data",
-            "default": "{\"title\":\"New Feature\", \"description\":\"Feature description\", \"business_value\":\"Business justification\", \"category\":\"enhancement\"}"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Initialize Task Management",
+      "type": "shell",
+      "command": "timeout 10s node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" initialize VSCODE_AGENT",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Create Feature",
+      "type": "shell",
+      "command": "node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" suggest-feature",
+      "args": ["${input:featureData}"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "List Features",
+      "type": "shell",
+      "command": "timeout 10s node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" list-features",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Feature Stats",
+      "type": "shell",
+      "command": "timeout 10s node \"/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js\" feature-stats",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "featureData",
+      "description": "Feature JSON data",
+      "default": "{\"title\":\"New Feature\", \"description\":\"Feature description\", \"business_value\":\"Business justification\", \"category\":\"enhancement\"}"
+    }
+  ]
 }
 ```
 
@@ -387,16 +385,16 @@ Create `.vscode/settings.json`:
 
 ```json
 {
-    "taskManager.apiPath": "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js",
-    "taskManager.defaultTimeout": 10000,
-    "taskManager.autoInitialize": true,
-    "taskManager.defaultAgentId": "VSCODE_AGENT",
-    "files.watcherExclude": {
-        "**/FEATURES.json.lock": true
-    },
-    "terminal.integrated.env.osx": {
-        "TASK_MANAGER_API": "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js"
-    }
+  "taskManager.apiPath": "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js",
+  "taskManager.defaultTimeout": 10000,
+  "taskManager.autoInitialize": true,
+  "taskManager.defaultAgentId": "VSCODE_AGENT",
+  "files.watcherExclude": {
+    "**/FEATURES.json.lock": true
+  },
+  "terminal.integrated.env.osx": {
+    "TASK_MANAGER_API": "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js"
+  }
 }
 ```
 
@@ -492,16 +490,18 @@ function readPackage(pkg, context) {
   // Add task management scripts to all packages
   if (!pkg.scripts) pkg.scripts = {};
 
-  pkg.scripts['task:init'] = 'timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize PNPM_AGENT';
-  pkg.scripts['task:stats'] = 'timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" feature-stats';
+  pkg.scripts['task:init'] =
+    'timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize PNPM_AGENT';
+  pkg.scripts['task:stats'] =
+    'timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" feature-stats';
 
   return pkg;
 }
 
 module.exports = {
   hooks: {
-    readPackage
-  }
+    readPackage,
+  },
 };
 ```
 
@@ -617,26 +617,29 @@ const commitMsgFile = process.argv[2];
 const commitMsg = fs.readFileSync(commitMsgFile, 'utf8').trim();
 
 // Conventional commit pattern
-const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}/;
+const conventionalCommitRegex =
+  /^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}/;
 
 // Task management patterns
 const taskIdRegex = /Task-ID: (task_\d+_[a-f0-9]+)/;
 const featureIdRegex = /Feature-ID: (feature_\d+_[a-f0-9]+)/;
 
 if (!conventionalCommitRegex.test(commitMsg)) {
-    console.error('❌ Invalid commit message format. Please use conventional commits.');
-    console.error('Format: <type>[optional scope]: <description>');
-    console.error('Types: feat, fix, docs, style, refactor, test, chore');
-    process.exit(1);
+  console.error(
+    '❌ Invalid commit message format. Please use conventional commits.',
+  );
+  console.error('Format: <type>[optional scope]: <description>');
+  console.error('Types: feat, fix, docs, style, refactor, test, chore');
+  process.exit(1);
 }
 
 // Optional: Validate task ID if present
 const taskMatch = commitMsg.match(taskIdRegex);
 if (taskMatch) {
-    console.log(`✅ Task ID found: ${taskMatch[1]}`);
+  console.log(`✅ Task ID found: ${taskMatch[1]}`);
 
-    // Optional: Validate task exists in system
-    // This could make an API call to verify the task ID
+  // Optional: Validate task exists in system
+  // This could make an API call to verify the task ID
 }
 
 console.log('✅ Commit message validation passed');
@@ -668,63 +671,71 @@ const TaskManagerAPI = require('/Users/jeremyparker/infinite-continue-stop-hook/
 
 // Create metrics
 const featuresTotal = new promClient.Gauge({
-    name: 'taskmanager_features_total',
-    help: 'Total number of features by status',
-    labelNames: ['status']
+  name: 'taskmanager_features_total',
+  help: 'Total number of features by status',
+  labelNames: ['status'],
 });
 
 const agentsActive = new promClient.Gauge({
-    name: 'taskmanager_agents_active_total',
-    help: 'Total number of active agents'
+  name: 'taskmanager_agents_active_total',
+  help: 'Total number of active agents',
 });
 
 const tasksInQueue = new promClient.Gauge({
-    name: 'taskmanager_tasks_queue_total',
-    help: 'Total number of tasks in queue by status',
-    labelNames: ['status']
+  name: 'taskmanager_tasks_queue_total',
+  help: 'Total number of tasks in queue by status',
+  labelNames: ['status'],
 });
 
 const initializationsTotal = new promClient.Counter({
-    name: 'taskmanager_initializations_total',
-    help: 'Total number of agent initializations',
-    labelNames: ['type']
+  name: 'taskmanager_initializations_total',
+  help: 'Total number of agent initializations',
+  labelNames: ['type'],
 });
 
 // Update metrics function
 async function updateMetrics() {
-    const api = new TaskManagerAPI();
+  const api = new TaskManagerAPI();
 
-    try {
-        // Get feature stats
-        const featureStats = await api.getFeatureStats();
-        if (featureStats.success) {
-            Object.entries(featureStats.stats.by_status).forEach(([status, count]) => {
-                featuresTotal.set({ status }, count);
-            });
-        }
-
-        // Get initialization stats
-        const initStats = await api.getInitializationStats();
-        if (initStats.success) {
-            initializationsTotal.inc({ type: 'initialization' }, initStats.stats.total_initializations);
-            initializationsTotal.inc({ type: 'reinitialization' }, initStats.stats.total_reinitializations);
-        }
-
-        // Get task queue stats
-        const taskQueue = await api.getTaskQueue();
-        if (taskQueue.success) {
-            const statusCounts = taskQueue.tasks.reduce((acc, task) => {
-                acc[task.status] = (acc[task.status] || 0) + 1;
-                return acc;
-            }, {});
-
-            Object.entries(statusCounts).forEach(([status, count]) => {
-                tasksInQueue.set({ status }, count);
-            });
-        }
-    } catch (error) {
-        console.error('Error updating metrics:', error);
+  try {
+    // Get feature stats
+    const featureStats = await api.getFeatureStats();
+    if (featureStats.success) {
+      Object.entries(featureStats.stats.by_status).forEach(
+        ([status, count]) => {
+          featuresTotal.set({ status }, count);
+        },
+      );
     }
+
+    // Get initialization stats
+    const initStats = await api.getInitializationStats();
+    if (initStats.success) {
+      initializationsTotal.inc(
+        { type: 'initialization' },
+        initStats.stats.total_initializations,
+      );
+      initializationsTotal.inc(
+        { type: 'reinitialization' },
+        initStats.stats.total_reinitializations,
+      );
+    }
+
+    // Get task queue stats
+    const taskQueue = await api.getTaskQueue();
+    if (taskQueue.success) {
+      const statusCounts = taskQueue.tasks.reduce((acc, task) => {
+        acc[task.status] = (acc[task.status] || 0) + 1;
+        return acc;
+      }, {});
+
+      Object.entries(statusCounts).forEach(([status, count]) => {
+        tasksInQueue.set({ status }, count);
+      });
+    }
+  } catch (error) {
+    console.error('Error updating metrics:', error);
+  }
 }
 
 // Express server for metrics endpoint
@@ -732,21 +743,21 @@ const app = express();
 const port = process.env.METRICS_PORT || 9090;
 
 app.get('/metrics', async (req, res) => {
-    await updateMetrics();
-    res.set('Content-Type', promClient.register.contentType);
-    res.end(await promClient.register.metrics());
+  await updateMetrics();
+  res.set('Content-Type', promClient.register.contentType);
+  res.end(await promClient.register.metrics());
 });
 
 app.get('/health', (req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 app.listen(port, () => {
-    console.log(`Task Manager metrics server running on port ${port}`);
+  console.log(`Task Manager metrics server running on port ${port}`);
 
-    // Update metrics every 30 seconds
-    setInterval(updateMetrics, 30000);
-    updateMetrics(); // Initial update
+  // Update metrics every 30 seconds
+  setInterval(updateMetrics, 30000);
+  updateMetrics(); // Initial update
 });
 ```
 
@@ -811,89 +822,89 @@ const TaskManagerAPI = require('/Users/jeremyparker/infinite-continue-stop-hook/
 
 // Create structured logger
 const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.json()
-    ),
-    defaultMeta: { service: 'autonomous-task-manager' },
-    transports: [
-        new winston.transports.File({
-            filename: 'logs/taskmanager-error.log',
-            level: 'error'
-        }),
-        new winston.transports.File({
-            filename: 'logs/taskmanager.log'
-        }),
-        new winston.transports.Console({
-            format: winston.format.simple()
-        })
-    ]
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json(),
+  ),
+  defaultMeta: { service: 'autonomous-task-manager' },
+  transports: [
+    new winston.transports.File({
+      filename: 'logs/taskmanager-error.log',
+      level: 'error',
+    }),
+    new winston.transports.File({
+      filename: 'logs/taskmanager.log',
+    }),
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    }),
+  ],
 });
 
 // Proxy class with logging
 class LoggedTaskManagerAPI extends TaskManagerAPI {
-    async suggestFeature(featureData) {
-        const startTime = Date.now();
+  async suggestFeature(featureData) {
+    const startTime = Date.now();
 
-        logger.info('Feature suggestion initiated', {
-            operation: 'suggest_feature',
-            title: featureData.title,
-            category: featureData.category,
-            timestamp: new Date().toISOString()
-        });
+    logger.info('Feature suggestion initiated', {
+      operation: 'suggest_feature',
+      title: featureData.title,
+      category: featureData.category,
+      timestamp: new Date().toISOString(),
+    });
 
-        try {
-            const result = await super.suggestFeature(featureData);
+    try {
+      const result = await super.suggestFeature(featureData);
 
-            logger.info('Feature suggestion completed', {
-                operation: 'suggest_feature',
-                success: result.success,
-                featureId: result.feature?.id,
-                duration: Date.now() - startTime
-            });
+      logger.info('Feature suggestion completed', {
+        operation: 'suggest_feature',
+        success: result.success,
+        featureId: result.feature?.id,
+        duration: Date.now() - startTime,
+      });
 
-            return result;
-        } catch (error) {
-            logger.error('Feature suggestion failed', {
-                operation: 'suggest_feature',
-                error: error.message,
-                stack: error.stack,
-                duration: Date.now() - startTime
-            });
+      return result;
+    } catch (error) {
+      logger.error('Feature suggestion failed', {
+        operation: 'suggest_feature',
+        error: error.message,
+        stack: error.stack,
+        duration: Date.now() - startTime,
+      });
 
-            throw error;
-        }
+      throw error;
     }
+  }
 
-    async approveFeature(featureId, approvalData) {
-        logger.info('Feature approval initiated', {
-            operation: 'approve_feature',
-            featureId,
-            approvedBy: approvalData?.approved_by
-        });
+  async approveFeature(featureId, approvalData) {
+    logger.info('Feature approval initiated', {
+      operation: 'approve_feature',
+      featureId,
+      approvedBy: approvalData?.approved_by,
+    });
 
-        try {
-            const result = await super.approveFeature(featureId, approvalData);
+    try {
+      const result = await super.approveFeature(featureId, approvalData);
 
-            logger.info('Feature approval completed', {
-                operation: 'approve_feature',
-                featureId,
-                success: result.success
-            });
+      logger.info('Feature approval completed', {
+        operation: 'approve_feature',
+        featureId,
+        success: result.success,
+      });
 
-            return result;
-        } catch (error) {
-            logger.error('Feature approval failed', {
-                operation: 'approve_feature',
-                featureId,
-                error: error.message
-            });
+      return result;
+    } catch (error) {
+      logger.error('Feature approval failed', {
+        operation: 'approve_feature',
+        featureId,
+        error: error.message,
+      });
 
-            throw error;
-        }
+      throw error;
     }
+  }
 }
 
 module.exports = LoggedTaskManagerAPI;
@@ -909,104 +920,107 @@ Create `config/environment.js`:
 const path = require('path');
 
 const environments = {
-    development: {
-        taskManager: {
-            apiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
-            timeout: 10000,
-            retryAttempts: 3,
-            retryDelay: 1000,
-            enableDebugLogging: true,
-            enableMetrics: false
-        },
-        features: {
-            autoApproval: false,
-            autoTaskGeneration: true,
-            requireBusinessValue: true,
-            maxConcurrentAgents: 5
-        },
-        quality: {
-            requireLinting: true,
-            requireTesting: true,
-            requireTypeCheck: true,
-            requireBuild: false
-        }
+  development: {
+    taskManager: {
+      apiPath:
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      timeout: 10000,
+      retryAttempts: 3,
+      retryDelay: 1000,
+      enableDebugLogging: true,
+      enableMetrics: false,
     },
-
-    staging: {
-        taskManager: {
-            apiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
-            timeout: 10000,
-            retryAttempts: 5,
-            retryDelay: 2000,
-            enableDebugLogging: false,
-            enableMetrics: true
-        },
-        features: {
-            autoApproval: false,
-            autoTaskGeneration: true,
-            requireBusinessValue: true,
-            maxConcurrentAgents: 8
-        },
-        quality: {
-            requireLinting: true,
-            requireTesting: true,
-            requireTypeCheck: true,
-            requireBuild: true
-        }
+    features: {
+      autoApproval: false,
+      autoTaskGeneration: true,
+      requireBusinessValue: true,
+      maxConcurrentAgents: 5,
     },
+    quality: {
+      requireLinting: true,
+      requireTesting: true,
+      requireTypeCheck: true,
+      requireBuild: false,
+    },
+  },
 
-    production: {
-        taskManager: {
-            apiPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
-            timeout: 10000,
-            retryAttempts: 10,
-            retryDelay: 3000,
-            enableDebugLogging: false,
-            enableMetrics: true
-        },
-        features: {
-            autoApproval: false,
-            autoTaskGeneration: false,
-            requireBusinessValue: true,
-            maxConcurrentAgents: 10
-        },
-        quality: {
-            requireLinting: true,
-            requireTesting: true,
-            requireTypeCheck: true,
-            requireBuild: true,
-            requireSecurityScan: true
-        }
-    }
+  staging: {
+    taskManager: {
+      apiPath:
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      timeout: 10000,
+      retryAttempts: 5,
+      retryDelay: 2000,
+      enableDebugLogging: false,
+      enableMetrics: true,
+    },
+    features: {
+      autoApproval: false,
+      autoTaskGeneration: true,
+      requireBusinessValue: true,
+      maxConcurrentAgents: 8,
+    },
+    quality: {
+      requireLinting: true,
+      requireTesting: true,
+      requireTypeCheck: true,
+      requireBuild: true,
+    },
+  },
+
+  production: {
+    taskManager: {
+      apiPath:
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      timeout: 10000,
+      retryAttempts: 10,
+      retryDelay: 3000,
+      enableDebugLogging: false,
+      enableMetrics: true,
+    },
+    features: {
+      autoApproval: false,
+      autoTaskGeneration: false,
+      requireBusinessValue: true,
+      maxConcurrentAgents: 10,
+    },
+    quality: {
+      requireLinting: true,
+      requireTesting: true,
+      requireTypeCheck: true,
+      requireBuild: true,
+      requireSecurityScan: true,
+    },
+  },
 };
 
 const environment = process.env.NODE_ENV || 'development';
 const config = environments[environment];
 
 if (!config) {
-    throw new Error(`Unknown environment: ${environment}`);
+  throw new Error(`Unknown environment: ${environment}`);
 }
 
 module.exports = {
-    environment,
-    config,
+  environment,
+  config,
 
-    // Helper functions
-    getApiCommand: (command, args = []) => {
-        const timeout = config.taskManager.timeout;
-        const apiPath = config.taskManager.apiPath;
-        const timeoutCmd = timeout ? `timeout ${timeout / 1000}s` : '';
+  // Helper functions
+  getApiCommand: (command, args = []) => {
+    const timeout = config.taskManager.timeout;
+    const apiPath = config.taskManager.apiPath;
+    const timeoutCmd = timeout ? `timeout ${timeout / 1000}s` : '';
 
-        return `${timeoutCmd} node "${apiPath}" ${command} ${args.join(' ')}`;
-    },
+    return `${timeoutCmd} node "${apiPath}" ${command} ${args.join(' ')}`;
+  },
 
-    shouldRetry: (attempt) => {
-        return attempt < config.taskManager.retryAttempts;
-    },
+  shouldRetry: (attempt) => {
+    return attempt < config.taskManager.retryAttempts;
+  },
 
-    getRetryDelay: () => {
-        return config.taskManager.retryDelay;
-    }
+  getRetryDelay: () => {
+    return config.taskManager.retryDelay;
+  },
 };
 ```
 
@@ -1070,7 +1084,7 @@ services:
     container_name: autonomous-task-manager
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./FEATURES.json:/app/FEATURES.json
       - ./logs:/app/logs
@@ -1079,7 +1093,7 @@ services:
       - NODE_ENV=production
       - METRICS_PORT=9090
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9090/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1089,7 +1103,7 @@ services:
     image: prom/prometheus:latest
     container_name: taskmanager-prometheus
     ports:
-      - "9091:9090"
+      - '9091:9090'
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
@@ -1099,7 +1113,7 @@ services:
     image: grafana/grafana:latest
     container_name: taskmanager-grafana
     ports:
-      - "3001:3000"
+      - '3001:3000'
     volumes:
       - ./monitoring/grafana-dashboard.json:/var/lib/grafana/dashboards/taskmanager.json:ro
     environment:
@@ -1134,155 +1148,180 @@ const fs = require('fs').promises;
 const path = require('path');
 
 describe('Full Workflow Integration Test', () => {
-    let testProjectPath;
+  let testProjectPath;
 
-    beforeAll(async () => {
-        // Create temporary test project
-        testProjectPath = `/tmp/taskmanager-integration-test-${Date.now()}`;
-        await fs.mkdir(testProjectPath, { recursive: true });
-        process.chdir(testProjectPath);
-    });
+  beforeAll(async () => {
+    // Create temporary test project
+    testProjectPath = `/tmp/taskmanager-integration-test-${Date.now()}`;
+    await fs.mkdir(testProjectPath, { recursive: true });
+    process.chdir(testProjectPath);
+  });
 
-    afterAll(async () => {
-        // Cleanup
-        await fs.rmdir(testProjectPath, { recursive: true });
-    });
+  afterAll(async () => {
+    // Cleanup
+    await fs.rmdir(testProjectPath, { recursive: true });
+  });
 
-    test('Complete feature lifecycle with multiple agents', async () => {
-        const apiPath = '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
+  test('Complete feature lifecycle with multiple agents', async () => {
+    const apiPath =
+      '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
 
-        // 1. Initialize multiple agents
-        const agents = ['INTEGRATION_TEST_MAIN', 'INTEGRATION_TEST_DEV', 'INTEGRATION_TEST_QA'];
+    // 1. Initialize multiple agents
+    const agents = [
+      'INTEGRATION_TEST_MAIN',
+      'INTEGRATION_TEST_DEV',
+      'INTEGRATION_TEST_QA',
+    ];
 
-        for (const agentId of agents) {
-            const result = await runCommand(`timeout 10s node "${apiPath}" initialize ${agentId}`);
-            expect(result.exitCode).toBe(0);
-        }
-
-        // 2. Suggest multiple features
-        const features = [
-            {
-                title: 'Integration Test Feature 1',
-                description: 'First test feature for integration testing',
-                business_value: 'Validates feature suggestion workflow',
-                category: 'enhancement'
-            },
-            {
-                title: 'Integration Test Feature 2',
-                description: 'Second test feature for integration testing',
-                business_value: 'Validates concurrent feature management',
-                category: 'new-feature'
-            }
-        ];
-
-        const featureIds = [];
-        for (const feature of features) {
-            const result = await runCommand(`node "${apiPath}" suggest-feature '${JSON.stringify(feature)}'`);
-            expect(result.exitCode).toBe(0);
-
-            const output = JSON.parse(result.stdout);
-            expect(output.success).toBe(true);
-            featureIds.push(output.feature.id);
-        }
-
-        // 3. Approve features
-        for (const featureId of featureIds) {
-            const result = await runCommand(`timeout 10s node "${apiPath}" approve-feature ${featureId}`);
-            expect(result.exitCode).toBe(0);
-
-            const output = JSON.parse(result.stdout);
-            expect(output.success).toBe(true);
-            expect(output.feature.status).toBe('approved');
-        }
-
-        // 4. Generate tasks from approved features
-        const taskGenResult = await runCommand(`timeout 10s node "${apiPath}" generate-tasks-from-features`);
-        expect(taskGenResult.exitCode).toBe(0);
-
-        const taskGenOutput = JSON.parse(taskGenResult.stdout);
-        expect(taskGenOutput.success).toBe(true);
-        expect(taskGenOutput.generated_tasks.length).toBeGreaterThan(0);
-
-        // 5. Get task queue and verify tasks
-        const queueResult = await runCommand(`timeout 10s node "${apiPath}" get-task-queue`);
-        expect(queueResult.exitCode).toBe(0);
-
-        const queueOutput = JSON.parse(queueResult.stdout);
-        expect(queueOutput.success).toBe(true);
-        expect(queueOutput.tasks.length).toBeGreaterThan(0);
-
-        // 6. Assign tasks to agents
-        const taskId = queueOutput.tasks[0].id;
-        const assignResult = await runCommand(`timeout 10s node "${apiPath}" assign-task ${taskId} ${agents[1]}`);
-        expect(assignResult.exitCode).toBe(0);
-
-        const assignOutput = JSON.parse(assignResult.stdout);
-        expect(assignOutput.success).toBe(true);
-
-        // 7. Update task progress
-        const progressUpdate = {
-            status: 'in_progress',
-            progress_percentage: 50,
-            notes: 'Integration test progress update',
-            updated_by: agents[1]
-        };
-
-        const progressResult = await runCommand(`timeout 10s node "${apiPath}" update-task-progress ${taskId} '${JSON.stringify(progressUpdate)}'`);
-        expect(progressResult.exitCode).toBe(0);
-
-        const progressOutput = JSON.parse(progressResult.stdout);
-        expect(progressOutput.success).toBe(true);
-
-        // 8. Get final statistics
-        const statsResult = await runCommand(`timeout 10s node "${apiPath}" feature-stats`);
-        expect(statsResult.exitCode).toBe(0);
-
-        const statsOutput = JSON.parse(statsResult.stdout);
-        expect(statsOutput.success).toBe(true);
-        expect(statsOutput.stats.total).toBe(features.length);
-        expect(statsOutput.stats.by_status.approved).toBe(features.length);
-
-        // 9. Verify initialization stats
-        const initStatsResult = await runCommand(`timeout 10s node "${apiPath}" get-initialization-stats`);
-        expect(initStatsResult.exitCode).toBe(0);
-
-        const initStatsOutput = JSON.parse(initStatsResult.stdout);
-        expect(initStatsOutput.success).toBe(true);
-        expect(initStatsOutput.stats.total_initializations).toBeGreaterThanOrEqual(agents.length);
-    }, 60000); // 60 second timeout for full workflow
-
-    async function runCommand(command) {
-        return new Promise((resolve, reject) => {
-            const [cmd, ...args] = command.split(' ');
-            const child = spawn(cmd, args, {
-                stdio: ['pipe', 'pipe', 'pipe'],
-                cwd: testProjectPath
-            });
-
-            let stdout = '';
-            let stderr = '';
-
-            child.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-
-            child.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-
-            child.on('close', (code) => {
-                resolve({
-                    exitCode: code,
-                    stdout: stdout.trim(),
-                    stderr: stderr.trim()
-                });
-            });
-
-            child.on('error', (error) => {
-                reject(error);
-            });
-        });
+    for (const agentId of agents) {
+      const result = await runCommand(
+        `timeout 10s node "${apiPath}" initialize ${agentId}`,
+      );
+      expect(result.exitCode).toBe(0);
     }
+
+    // 2. Suggest multiple features
+    const features = [
+      {
+        title: 'Integration Test Feature 1',
+        description: 'First test feature for integration testing',
+        business_value: 'Validates feature suggestion workflow',
+        category: 'enhancement',
+      },
+      {
+        title: 'Integration Test Feature 2',
+        description: 'Second test feature for integration testing',
+        business_value: 'Validates concurrent feature management',
+        category: 'new-feature',
+      },
+    ];
+
+    const featureIds = [];
+    for (const feature of features) {
+      const result = await runCommand(
+        `node "${apiPath}" suggest-feature '${JSON.stringify(feature)}'`,
+      );
+      expect(result.exitCode).toBe(0);
+
+      const output = JSON.parse(result.stdout);
+      expect(output.success).toBe(true);
+      featureIds.push(output.feature.id);
+    }
+
+    // 3. Approve features
+    for (const featureId of featureIds) {
+      const result = await runCommand(
+        `timeout 10s node "${apiPath}" approve-feature ${featureId}`,
+      );
+      expect(result.exitCode).toBe(0);
+
+      const output = JSON.parse(result.stdout);
+      expect(output.success).toBe(true);
+      expect(output.feature.status).toBe('approved');
+    }
+
+    // 4. Generate tasks from approved features
+    const taskGenResult = await runCommand(
+      `timeout 10s node "${apiPath}" generate-tasks-from-features`,
+    );
+    expect(taskGenResult.exitCode).toBe(0);
+
+    const taskGenOutput = JSON.parse(taskGenResult.stdout);
+    expect(taskGenOutput.success).toBe(true);
+    expect(taskGenOutput.generated_tasks.length).toBeGreaterThan(0);
+
+    // 5. Get task queue and verify tasks
+    const queueResult = await runCommand(
+      `timeout 10s node "${apiPath}" get-task-queue`,
+    );
+    expect(queueResult.exitCode).toBe(0);
+
+    const queueOutput = JSON.parse(queueResult.stdout);
+    expect(queueOutput.success).toBe(true);
+    expect(queueOutput.tasks.length).toBeGreaterThan(0);
+
+    // 6. Assign tasks to agents
+    const taskId = queueOutput.tasks[0].id;
+    const assignResult = await runCommand(
+      `timeout 10s node "${apiPath}" assign-task ${taskId} ${agents[1]}`,
+    );
+    expect(assignResult.exitCode).toBe(0);
+
+    const assignOutput = JSON.parse(assignResult.stdout);
+    expect(assignOutput.success).toBe(true);
+
+    // 7. Update task progress
+    const progressUpdate = {
+      status: 'in_progress',
+      progress_percentage: 50,
+      notes: 'Integration test progress update',
+      updated_by: agents[1],
+    };
+
+    const progressResult = await runCommand(
+      `timeout 10s node "${apiPath}" update-task-progress ${taskId} '${JSON.stringify(progressUpdate)}'`,
+    );
+    expect(progressResult.exitCode).toBe(0);
+
+    const progressOutput = JSON.parse(progressResult.stdout);
+    expect(progressOutput.success).toBe(true);
+
+    // 8. Get final statistics
+    const statsResult = await runCommand(
+      `timeout 10s node "${apiPath}" feature-stats`,
+    );
+    expect(statsResult.exitCode).toBe(0);
+
+    const statsOutput = JSON.parse(statsResult.stdout);
+    expect(statsOutput.success).toBe(true);
+    expect(statsOutput.stats.total).toBe(features.length);
+    expect(statsOutput.stats.by_status.approved).toBe(features.length);
+
+    // 9. Verify initialization stats
+    const initStatsResult = await runCommand(
+      `timeout 10s node "${apiPath}" get-initialization-stats`,
+    );
+    expect(initStatsResult.exitCode).toBe(0);
+
+    const initStatsOutput = JSON.parse(initStatsResult.stdout);
+    expect(initStatsOutput.success).toBe(true);
+    expect(initStatsOutput.stats.total_initializations).toBeGreaterThanOrEqual(
+      agents.length,
+    );
+  }, 60000); // 60 second timeout for full workflow
+
+  async function runCommand(command) {
+    return new Promise((resolve, reject) => {
+      const [cmd, ...args] = command.split(' ');
+      const child = spawn(cmd, args, {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: testProjectPath,
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      child.on('close', (code) => {
+        resolve({
+          exitCode: code,
+          stdout: stdout.trim(),
+          stderr: stderr.trim(),
+        });
+      });
+
+      child.on('error', (error) => {
+        reject(error);
+      });
+    });
+  }
 });
 ```
 
@@ -1290,4 +1329,4 @@ This comprehensive integration guide provides all the necessary information for 
 
 ---
 
-*This integration guide should be customized based on your specific development environment and toolchain requirements.*
+_This integration guide should be customized based on your specific development environment and toolchain requirements._

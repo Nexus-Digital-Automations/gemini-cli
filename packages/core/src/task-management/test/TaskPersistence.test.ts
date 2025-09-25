@@ -4,7 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 import * as path from 'node:path';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
@@ -73,11 +82,21 @@ describe('TaskPersistence', () => {
 
       // Verify database has correct schema
       const db = new Database(testDbPath, { readonly: true });
-      const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+      const tables = db
+        .prepare("SELECT name FROM sqlite_master WHERE type='table'")
+        .all();
 
-      const expectedTables = ['tasks', 'sessions', 'task_dependencies', 'execution_history', 'execution_plans'];
+      const expectedTables = [
+        'tasks',
+        'sessions',
+        'task_dependencies',
+        'execution_history',
+        'execution_plans',
+      ];
       for (const expectedTable of expectedTables) {
-        expect(tables.some((table: any) => table.name === expectedTable)).toBe(true);
+        expect(tables.some((table: any) => table.name === expectedTable)).toBe(
+          true,
+        );
       }
 
       db.close();
@@ -107,7 +126,7 @@ describe('TaskPersistence', () => {
       const session = await persistence.createSession(
         'test-agent',
         '/test/directory',
-        { NODE_ENV: 'test' }
+        { NODE_ENV: 'test' },
       );
 
       expect(session).toBeDefined();
@@ -123,7 +142,7 @@ describe('TaskPersistence', () => {
       const originalHeartbeat = session.lastHeartbeat;
 
       // Wait a bit to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await persistence.updateSessionHeartbeat(session.sessionId);
 
@@ -132,7 +151,9 @@ describe('TaskPersistence', () => {
     });
 
     it('should throw error when updating heartbeat for non-existent session', async () => {
-      await expect(persistence.updateSessionHeartbeat('non-existent')).rejects.toThrow('Session non-existent not found');
+      await expect(
+        persistence.updateSessionHeartbeat('non-existent'),
+      ).rejects.toThrow('Session non-existent not found');
     });
   });
 
@@ -163,7 +184,9 @@ describe('TaskPersistence', () => {
       const task = createTestTask();
       const session = await persistence.createSession('test-agent');
 
-      await expect(persistence.saveTask(task, session.sessionId)).resolves.not.toThrow();
+      await expect(
+        persistence.saveTask(task, session.sessionId),
+      ).resolves.not.toThrow();
 
       // Verify task was saved by loading it
       const loadedTask = await persistence.loadTask(task.id);
@@ -217,14 +240,16 @@ describe('TaskPersistence', () => {
       expect(pendingTasks[0].id).toBe('task-1');
 
       // Test priority filtering
-      const highPriorityTasks = await persistence.listTasks({ priority: ['high'] });
+      const highPriorityTasks = await persistence.listTasks({
+        priority: ['high'],
+      });
       expect(highPriorityTasks).toHaveLength(1);
       expect(highPriorityTasks[0].id).toBe('task-1');
 
       // Test multiple filters
       const completedLowTasks = await persistence.listTasks({
         status: ['completed'],
-        priority: ['low']
+        priority: ['low'],
       });
       expect(completedLowTasks).toHaveLength(1);
       expect(completedLowTasks[0].id).toBe('task-2');
@@ -245,7 +270,9 @@ describe('TaskPersistence', () => {
 
       const loadedTask = await persistence.loadTask(task.id);
       expect(loadedTask?.metadata.tags).toEqual(['test', 'important']);
-      expect(loadedTask?.metadata.custom).toEqual({ customField: 'customValue' });
+      expect(loadedTask?.metadata.custom).toEqual({
+        customField: 'customValue',
+      });
       expect(loadedTask?.metadata.retryCount).toBe(2);
     });
   });
@@ -261,7 +288,7 @@ describe('TaskPersistence', () => {
         task.id,
         session.sessionId,
         'exclusive',
-        60000
+        60000,
       );
 
       expect(ownership).toBeDefined();
@@ -284,7 +311,7 @@ describe('TaskPersistence', () => {
 
       // Second lock should fail
       await expect(
-        persistence.acquireTaskLock(task.id, session2.sessionId)
+        persistence.acquireTaskLock(task.id, session2.sessionId),
       ).rejects.toThrow(`Task ${task.id} is already locked`);
     });
 
@@ -296,7 +323,11 @@ describe('TaskPersistence', () => {
       await persistence.saveTask(task, session1.sessionId);
 
       // First shared lock should succeed
-      const ownership1 = await persistence.acquireTaskLock(task.id, session1.sessionId, 'shared');
+      const ownership1 = await persistence.acquireTaskLock(
+        task.id,
+        session1.sessionId,
+        'shared',
+      );
       expect(ownership1.type).toBe('shared');
 
       // Second shared lock should succeed (in a full implementation)
@@ -311,10 +342,14 @@ describe('TaskPersistence', () => {
       await persistence.saveTask(task, session.sessionId);
       await persistence.acquireTaskLock(task.id, session.sessionId);
 
-      await expect(persistence.releaseTaskLock(task.id, session.sessionId)).resolves.not.toThrow();
+      await expect(
+        persistence.releaseTaskLock(task.id, session.sessionId),
+      ).resolves.not.toThrow();
 
       // Should be able to acquire lock again after release
-      await expect(persistence.acquireTaskLock(task.id, session.sessionId)).resolves.not.toThrow();
+      await expect(
+        persistence.acquireTaskLock(task.id, session.sessionId),
+      ).resolves.not.toThrow();
     });
 
     it('should handle lock expiration', async () => {
@@ -324,13 +359,20 @@ describe('TaskPersistence', () => {
       await persistence.saveTask(task, session.sessionId);
 
       // Acquire lock with very short duration
-      await persistence.acquireTaskLock(task.id, session.sessionId, 'exclusive', 1);
+      await persistence.acquireTaskLock(
+        task.id,
+        session.sessionId,
+        'exclusive',
+        1,
+      );
 
       // Wait for lock to expire
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Should be able to acquire lock again after expiration
-      await expect(persistence.acquireTaskLock(task.id, session.sessionId)).resolves.not.toThrow();
+      await expect(
+        persistence.acquireTaskLock(task.id, session.sessionId),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -353,12 +395,14 @@ describe('TaskPersistence', () => {
         },
       ];
 
-      await expect(persistence.saveDependencies(dependencies)).resolves.not.toThrow();
+      await expect(
+        persistence.saveDependencies(dependencies),
+      ).resolves.not.toThrow();
 
       const loadedDependencies = await persistence.loadDependencies();
       expect(loadedDependencies).toHaveLength(2);
 
-      const hardDep = loadedDependencies.find(d => d.type === 'hard');
+      const hardDep = loadedDependencies.find((d) => d.type === 'hard');
       expect(hardDep).toBeDefined();
       expect(hardDep?.dependentTaskId).toBe('task-2');
       expect(hardDep?.dependsOnTaskId).toBe('task-1');
@@ -427,15 +471,22 @@ describe('TaskPersistence', () => {
       const planId = await persistence.saveExecutionPlan(
         executionPlan,
         'Test Plan',
-        'A test execution plan'
+        'A test execution plan',
       );
 
       expect(planId).toBeDefined();
 
       const loadedPlan = await persistence.loadExecutionPlan(planId);
       expect(loadedPlan).toBeDefined();
-      expect(loadedPlan?.sequence.sequence).toEqual(['task-1', 'task-2', 'task-3']);
-      expect(loadedPlan?.sequence.parallelGroups).toEqual([['task-1'], ['task-2', 'task-3']]);
+      expect(loadedPlan?.sequence.sequence).toEqual([
+        'task-1',
+        'task-2',
+        'task-3',
+      ]);
+      expect(loadedPlan?.sequence.parallelGroups).toEqual([
+        ['task-1'],
+        ['task-2', 'task-3'],
+      ]);
       expect(loadedPlan?.sequence.criticalPath).toEqual(['task-1', 'task-2']);
     });
 
@@ -466,8 +517,12 @@ describe('TaskPersistence', () => {
       await persistence.saveTask(task, session.sessionId);
 
       const updatedMetrics = await persistence.getMetrics();
-      expect(updatedMetrics.totalTasks).toBeGreaterThanOrEqual(initialMetrics.totalTasks);
-      expect(updatedMetrics.activeSessions).toBeGreaterThanOrEqual(initialMetrics.activeSessions);
+      expect(updatedMetrics.totalTasks).toBeGreaterThanOrEqual(
+        initialMetrics.totalTasks,
+      );
+      expect(updatedMetrics.activeSessions).toBeGreaterThanOrEqual(
+        initialMetrics.activeSessions,
+      );
     });
   });
 
@@ -485,7 +540,9 @@ describe('TaskPersistence', () => {
 
       // Verify backup is a valid database
       const backupDb = new Database(backupPath, { readonly: true });
-      const tables = backupDb.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+      const tables = backupDb
+        .prepare("SELECT name FROM sqlite_master WHERE type='table'")
+        .all();
       expect(tables.length).toBeGreaterThan(0);
       backupDb.close();
 
@@ -516,10 +573,13 @@ describe('TaskPersistence', () => {
       expect(initialHistory).toHaveLength(0);
 
       // Save task again to trigger execution history recording
-      await persistence.saveTask({
-        ...task,
-        status: 'completed' as TaskStatus,
-      }, session.sessionId);
+      await persistence.saveTask(
+        {
+          ...task,
+          status: 'completed' as TaskStatus,
+        },
+        session.sessionId,
+      );
 
       // Check execution history
       const history = await persistence.getExecutionHistory(task.id, 10);
@@ -551,11 +611,11 @@ describe('TaskPersistence', () => {
     it('should handle invalid task data', async () => {
       const invalidTask = {
         id: 'test',
-        title: '',  // Invalid: empty title
+        title: '', // Invalid: empty title
         description: 'test',
-        status: 'invalid-status' as TaskStatus,  // Invalid status
-        priority: 'invalid-priority' as any,     // Invalid priority
-        category: 'invalid-category' as any,     // Invalid category
+        status: 'invalid-status' as TaskStatus, // Invalid status
+        priority: 'invalid-priority' as any, // Invalid priority
+        category: 'invalid-category' as any, // Invalid category
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -573,19 +633,23 @@ describe('TaskPersistence', () => {
       const session = await persistence.createSession('test-agent');
 
       // Create multiple tasks concurrently
-      const tasks = Array.from({ length: 10 }, (_, i) => createTestTask(`task-${i}`));
+      const tasks = Array.from({ length: 10 }, (_, i) =>
+        createTestTask(`task-${i}`),
+      );
 
-      const savePromises = tasks.map(task => persistence.saveTask(task, session.sessionId));
+      const savePromises = tasks.map((task) =>
+        persistence.saveTask(task, session.sessionId),
+      );
 
       // All saves should complete successfully
       await expect(Promise.all(savePromises)).resolves.not.toThrow();
 
       // All tasks should be loadable
-      const loadPromises = tasks.map(task => persistence.loadTask(task.id));
+      const loadPromises = tasks.map((task) => persistence.loadTask(task.id));
       const loadedTasks = await Promise.all(loadPromises);
 
       expect(loadedTasks).toHaveLength(10);
-      loadedTasks.forEach(task => expect(task).toBeDefined());
+      loadedTasks.forEach((task) => expect(task).toBeDefined());
     });
 
     it('should handle concurrent lock attempts', async () => {
@@ -596,14 +660,20 @@ describe('TaskPersistence', () => {
       await persistence.saveTask(task, session1.sessionId);
 
       // Attempt concurrent locks
-      const lockPromise1 = persistence.acquireTaskLock(task.id, session1.sessionId);
-      const lockPromise2 = persistence.acquireTaskLock(task.id, session2.sessionId);
+      const lockPromise1 = persistence.acquireTaskLock(
+        task.id,
+        session1.sessionId,
+      );
+      const lockPromise2 = persistence.acquireTaskLock(
+        task.id,
+        session2.sessionId,
+      );
 
       const results = await Promise.allSettled([lockPromise1, lockPromise2]);
 
       // One should succeed, one should fail
-      const successes = results.filter(r => r.status === 'fulfilled').length;
-      const failures = results.filter(r => r.status === 'rejected').length;
+      const successes = results.filter((r) => r.status === 'fulfilled').length;
+      const failures = results.filter((r) => r.status === 'rejected').length;
 
       expect(successes).toBe(1);
       expect(failures).toBe(1);

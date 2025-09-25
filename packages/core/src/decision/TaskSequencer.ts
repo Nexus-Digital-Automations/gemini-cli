@@ -19,7 +19,10 @@ import type {
   DecisionType,
   DecisionPriority,
 } from './types.js';
-import { DependencyAnalyzer, type DependencyAnalysisResult } from './DependencyAnalyzer.js';
+import {
+  DependencyAnalyzer,
+  type DependencyAnalysisResult,
+} from './DependencyAnalyzer.js';
 import { getComponentLogger } from '../utils/logger.js';
 
 const logger = getComponentLogger('DecisionTaskSequencer');
@@ -124,7 +127,7 @@ export class TaskSequencer {
 
   constructor(
     config: Partial<TaskSequencingConfig> = {},
-    dependencyAnalyzer?: DependencyAnalyzer
+    dependencyAnalyzer?: DependencyAnalyzer,
   ) {
     this.config = {
       algorithm: SequencingAlgorithm.ADAPTIVE_HYBRID,
@@ -159,7 +162,7 @@ export class TaskSequencer {
   async generateSequence(
     tasks: Map<TaskId, Task>,
     existingDependencies: TaskDependency[] = [],
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<SequencingDecision> {
     logger.info('Generating intelligent execution sequence', {
       taskCount: tasks.size,
@@ -172,38 +175,40 @@ export class TaskSequencer {
 
     // Check cache first
     const cached = this.sequenceCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 300000) { // 5 minute cache
+    if (cached && Date.now() - cached.timestamp < 300000) {
+      // 5 minute cache
       logger.debug('Returning cached sequence');
       return cached;
     }
 
     // Analyze dependencies first
-    const dependencyAnalysis = await this.dependencyAnalyzer.analyzeDependencies(
-      tasks,
-      existingDependencies,
-      context
-    );
+    const dependencyAnalysis =
+      await this.dependencyAnalyzer.analyzeDependencies(
+        tasks,
+        existingDependencies,
+        context,
+      );
 
     // Generate sequence based on selected algorithm
     const primarySequence = await this.executeAlgorithm(
       this.config.algorithm,
       tasks,
       dependencyAnalysis,
-      context
+      context,
     );
 
     // Generate alternative sequences for comparison
     const alternativeSequences = await this.generateAlternativeSequences(
       tasks,
       dependencyAnalysis,
-      context
+      context,
     );
 
     // Calculate performance metrics
     const metrics = this.calculateSequenceMetrics(
       primarySequence,
       tasks,
-      dependencyAnalysis
+      dependencyAnalysis,
     );
 
     // Create sequencing decision
@@ -213,11 +218,14 @@ export class TaskSequencer {
       type: DecisionType.SCHEDULING,
       choice: `Use ${this.config.algorithm} algorithm for task sequencing`,
       priority: DecisionPriority.HIGH,
-      confidence: this.calculateSequenceConfidence(metrics, alternativeSequences),
+      confidence: this.calculateSequenceConfidence(
+        metrics,
+        alternativeSequences,
+      ),
       reasoning: this.generateSequencingReasoning(
         primarySequence,
         metrics,
-        dependencyAnalysis
+        dependencyAnalysis,
       ),
       evidence: {
         dependencyAnalysis,
@@ -232,7 +240,7 @@ export class TaskSequencer {
       },
       context: context || this.createDefaultContext(),
       requiresApproval: false,
-      alternatives: alternativeSequences.map(alt => ({
+      alternatives: alternativeSequences.map((alt) => ({
         choice: `Use ${alt.algorithm} algorithm`,
         score: alt.score,
         reasoning: alt.reason,
@@ -268,7 +276,7 @@ export class TaskSequencer {
     algorithm: SequencingAlgorithm,
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<ExecutionSequence> {
     switch (algorithm) {
       case SequencingAlgorithm.CRITICAL_PATH:
@@ -284,14 +292,24 @@ export class TaskSequencer {
         return this.generateDeadlineDrivenSequence(tasks, dependencyAnalysis);
 
       case SequencingAlgorithm.ADAPTIVE_HYBRID:
-        return this.generateAdaptiveHybridSequence(tasks, dependencyAnalysis, context);
+        return this.generateAdaptiveHybridSequence(
+          tasks,
+          dependencyAnalysis,
+          context,
+        );
 
       case SequencingAlgorithm.MACHINE_LEARNING:
         return this.generateMLBasedSequence(tasks, dependencyAnalysis);
 
       default:
-        logger.warn(`Unknown algorithm ${algorithm}, falling back to adaptive hybrid`);
-        return this.generateAdaptiveHybridSequence(tasks, dependencyAnalysis, context);
+        logger.warn(
+          `Unknown algorithm ${algorithm}, falling back to adaptive hybrid`,
+        );
+        return this.generateAdaptiveHybridSequence(
+          tasks,
+          dependencyAnalysis,
+          context,
+        );
     }
   }
 
@@ -300,12 +318,15 @@ export class TaskSequencer {
    */
   private async generateCriticalPathSequence(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ExecutionSequence> {
     logger.debug('Generating critical path sequence');
 
     // Build dependency graph
-    const graph = this.buildDependencyGraph(tasks, dependencyAnalysis.suggestedDependencies);
+    const graph = this.buildDependencyGraph(
+      tasks,
+      dependencyAnalysis.suggestedDependencies,
+    );
 
     // Calculate critical path
     const criticalPath = this.calculateCriticalPath(tasks, graph);
@@ -314,7 +335,10 @@ export class TaskSequencer {
     const parallelGroups = this.generateParallelGroupsFromGraph(tasks, graph);
 
     // Estimate total duration
-    const estimatedDuration = this.calculateParallelGroupsDuration(parallelGroups, tasks);
+    const estimatedDuration = this.calculateParallelGroupsDuration(
+      parallelGroups,
+      tasks,
+    );
 
     return {
       sequence: criticalPath,
@@ -335,7 +359,7 @@ export class TaskSequencer {
    */
   private async generatePriorityWeightedSequence(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ExecutionSequence> {
     logger.debug('Generating priority weighted sequence');
 
@@ -348,18 +372,26 @@ export class TaskSequencer {
     }
 
     // Sort tasks by priority score
-    const sortedTasks = Array.from(tasks.values())
-      .sort((a, b) => (taskScores.get(b.id) || 0) - (taskScores.get(a.id) || 0));
+    const sortedTasks = Array.from(tasks.values()).sort(
+      (a, b) => (taskScores.get(b.id) || 0) - (taskScores.get(a.id) || 0),
+    );
 
-    const sequence = sortedTasks.map(task => task.id);
+    const sequence = sortedTasks.map((task) => task.id);
     const parallelGroups = this.generateParallelGroupsRespectingDependencies(
       sequence,
       tasks,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
 
-    const criticalPath = this.findCriticalPathInSequence(sequence, tasks, dependencyAnalysis.suggestedDependencies);
-    const estimatedDuration = this.calculateParallelGroupsDuration(parallelGroups, tasks);
+    const criticalPath = this.findCriticalPathInSequence(
+      sequence,
+      tasks,
+      dependencyAnalysis.suggestedDependencies,
+    );
+    const estimatedDuration = this.calculateParallelGroupsDuration(
+      parallelGroups,
+      tasks,
+    );
 
     return {
       sequence,
@@ -380,7 +412,7 @@ export class TaskSequencer {
    */
   private async generateResourceAwareSequence(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ExecutionSequence> {
     logger.debug('Generating resource-aware sequence');
 
@@ -388,13 +420,17 @@ export class TaskSequencer {
     const resourceGroups = this.groupTasksByResourceRequirements(tasks);
 
     // Optimize resource allocation
-    const optimizedSequence = this.optimizeResourceAllocation(resourceGroups, tasks, dependencyAnalysis);
+    const optimizedSequence = this.optimizeResourceAllocation(
+      resourceGroups,
+      tasks,
+      dependencyAnalysis,
+    );
 
     const parallelGroups = optimizedSequence.parallelGroups || [];
     const criticalPath = this.findCriticalPathInSequence(
       optimizedSequence.sequence,
       tasks,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
 
     return {
@@ -405,7 +441,11 @@ export class TaskSequencer {
       metadata: {
         algorithm: SequencingAlgorithm.RESOURCE_AWARE,
         generatedAt: new Date(),
-        factors: ['resource_efficiency', 'resource_availability', 'parallelization'],
+        factors: [
+          'resource_efficiency',
+          'resource_availability',
+          'parallelization',
+        ],
         constraints: ['resource_limits', 'dependencies'],
       },
     };
@@ -416,36 +456,40 @@ export class TaskSequencer {
    */
   private async generateDeadlineDrivenSequence(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ExecutionSequence> {
     logger.debug('Generating deadline-driven sequence');
 
     // Extract deadline information from tasks
     const tasksWithDeadlines = Array.from(tasks.values())
-      .filter(task => this.hasDeadline(task))
+      .filter((task) => this.hasDeadline(task))
       .sort((a, b) => this.getDeadline(a) - this.getDeadline(b));
 
-    const tasksWithoutDeadlines = Array.from(tasks.values())
-      .filter(task => !this.hasDeadline(task));
+    const tasksWithoutDeadlines = Array.from(tasks.values()).filter(
+      (task) => !this.hasDeadline(task),
+    );
 
     // Prioritize deadline tasks
     const sequence = [
-      ...tasksWithDeadlines.map(t => t.id),
-      ...tasksWithoutDeadlines.map(t => t.id),
+      ...tasksWithDeadlines.map((t) => t.id),
+      ...tasksWithoutDeadlines.map((t) => t.id),
     ];
 
     const parallelGroups = this.generateParallelGroupsRespectingDependencies(
       sequence,
       tasks,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
 
     const criticalPath = this.findCriticalPathInSequence(
       sequence,
       tasks,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
-    const estimatedDuration = this.calculateParallelGroupsDuration(parallelGroups, tasks);
+    const estimatedDuration = this.calculateParallelGroupsDuration(
+      parallelGroups,
+      tasks,
+    );
 
     return {
       sequence,
@@ -467,7 +511,7 @@ export class TaskSequencer {
   private async generateAdaptiveHybridSequence(
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
-    context?: DecisionContext
+    context?: DecisionContext,
   ): Promise<ExecutionSequence> {
     logger.debug('Generating adaptive hybrid sequence');
 
@@ -484,24 +528,30 @@ export class TaskSequencer {
     }
 
     // Sort tasks by composite score
-    const sortedTasks = Array.from(tasks.values())
-      .sort((a, b) => (taskScores.get(b.id) || 0) - (taskScores.get(a.id) || 0));
+    const sortedTasks = Array.from(tasks.values()).sort(
+      (a, b) => (taskScores.get(b.id) || 0) - (taskScores.get(a.id) || 0),
+    );
 
     // Apply intelligent grouping and parallelization
     const optimizedGroups = this.optimizeTaskGrouping(
       sortedTasks,
       dependencyAnalysis,
-      adaptedWeights
+      adaptedWeights,
     );
 
-    const sequence = optimizedGroups.flat().map(task => task.id);
-    const parallelGroups = optimizedGroups.map(group => group.map(task => task.id));
+    const sequence = optimizedGroups.flat().map((task) => task.id);
+    const parallelGroups = optimizedGroups.map((group) =>
+      group.map((task) => task.id),
+    );
     const criticalPath = this.findCriticalPathInSequence(
       sequence,
       tasks,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
-    const estimatedDuration = this.calculateParallelGroupsDuration(parallelGroups, tasks);
+    const estimatedDuration = this.calculateParallelGroupsDuration(
+      parallelGroups,
+      tasks,
+    );
 
     return {
       sequence,
@@ -518,11 +568,7 @@ export class TaskSequencer {
           'duration',
           'system_context',
         ],
-        constraints: [
-          'dependencies',
-          'resources',
-          'system_load',
-        ],
+        constraints: ['dependencies', 'resources', 'system_load'],
       },
     };
   }
@@ -532,12 +578,14 @@ export class TaskSequencer {
    */
   private async generateMLBasedSequence(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Promise<ExecutionSequence> {
     logger.debug('Generating ML-based sequence');
 
     if (this.executionHistory.size < 10) {
-      logger.warn('Insufficient historical data for ML, falling back to hybrid');
+      logger.warn(
+        'Insufficient historical data for ML, falling back to hybrid',
+      );
       return this.generateAdaptiveHybridSequence(tasks, dependencyAnalysis);
     }
 
@@ -545,15 +593,21 @@ export class TaskSequencer {
     const predictions = this.predictOptimalSequence(tasks, dependencyAnalysis);
 
     // Apply predicted ordering
-    const sequence = predictions.map(pred => pred.taskId);
-    const parallelGroups = this.generateParallelGroupsFromPredictions(predictions, tasks);
+    const sequence = predictions.map((pred) => pred.taskId);
+    const parallelGroups = this.generateParallelGroupsFromPredictions(
+      predictions,
+      tasks,
+    );
 
     const criticalPath = this.findCriticalPathInSequence(
       sequence,
       tasks,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
-    const estimatedDuration = this.calculateParallelGroupsDuration(parallelGroups, tasks);
+    const estimatedDuration = this.calculateParallelGroupsDuration(
+      parallelGroups,
+      tasks,
+    );
 
     return {
       sequence,
@@ -563,7 +617,11 @@ export class TaskSequencer {
       metadata: {
         algorithm: SequencingAlgorithm.MACHINE_LEARNING,
         generatedAt: new Date(),
-        factors: ['historical_performance', 'pattern_recognition', 'predictions'],
+        factors: [
+          'historical_performance',
+          'pattern_recognition',
+          'predictions',
+        ],
         constraints: ['learned_constraints', 'dependencies'],
       },
     };
@@ -574,7 +632,7 @@ export class TaskSequencer {
    */
   private calculateSchedulingFactors(
     task: Task,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): SchedulingFactors {
     // Priority score
     const priorityScores = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -585,8 +643,9 @@ export class TaskSequencer {
     const urgency = Math.min(ageMs / (24 * 60 * 60 * 1000), 1); // Normalize to 0-1
 
     // Impact based on dependencies
-    const dependentTasks = dependencyAnalysis.suggestedDependencies
-      .filter(dep => dep.dependsOnTaskId === task.id).length;
+    const dependentTasks = dependencyAnalysis.suggestedDependencies.filter(
+      (dep) => dep.dependsOnTaskId === task.id,
+    ).length;
     const impact = Math.min(dependentTasks / 5, 1); // Normalize
 
     // Dependency weight
@@ -597,7 +656,10 @@ export class TaskSequencer {
 
     // Duration factor
     const estimatedDuration = task.metadata.estimatedDuration || 60000;
-    const durationFactor = Math.max(0.1, 1 - (estimatedDuration / (4 * 60 * 60 * 1000))); // Penalize > 4 hours
+    const durationFactor = Math.max(
+      0.1,
+      1 - estimatedDuration / (4 * 60 * 60 * 1000),
+    ); // Penalize > 4 hours
 
     return {
       basePriority,
@@ -614,7 +676,7 @@ export class TaskSequencer {
    */
   private calculateCompositeScore(
     factors: SchedulingFactors,
-    weights: TaskSequencingConfig['weights']
+    weights: TaskSequencingConfig['weights'],
   ): number {
     let score = 0;
     score += factors.basePriority * weights.priority * 2.5; // Scale priority
@@ -633,33 +695,38 @@ export class TaskSequencer {
   private calculateSequenceMetrics(
     sequence: ExecutionSequence,
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): SequenceMetrics {
     const totalExecutionTime = sequence.estimatedDuration;
     const criticalPathDuration = this.calculateCriticalPathDuration(
       sequence.criticalPath,
-      tasks
+      tasks,
     );
 
     // Calculate resource utilization
     const resourceUtilization = this.calculateResourceUtilization(
       sequence.parallelGroups,
-      tasks
+      tasks,
     );
 
     // Calculate parallelization factor
-    const parallelizationFactor = sequence.parallelGroups.length > 0
-      ? sequence.parallelGroups.length / sequence.sequence.length
-      : 0;
+    const parallelizationFactor =
+      sequence.parallelGroups.length > 0
+        ? sequence.parallelGroups.length / sequence.sequence.length
+        : 0;
 
     // Calculate dependency satisfaction
     const dependencySatisfaction = this.calculateDependencySatisfaction(
       sequence,
-      dependencyAnalysis.suggestedDependencies
+      dependencyAnalysis.suggestedDependencies,
     );
 
     // Calculate risk assessment
-    const riskAssessment = this.calculateRiskAssessment(sequence, tasks, dependencyAnalysis);
+    const riskAssessment = this.calculateRiskAssessment(
+      sequence,
+      tasks,
+      dependencyAnalysis,
+    );
 
     return {
       totalExecutionTime,
@@ -672,57 +739,94 @@ export class TaskSequencer {
   }
 
   // Helper methods (simplified implementations)
-  private generateCacheKey(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): string {
+  private generateCacheKey(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): string {
     const taskIds = Array.from(tasks.keys()).sort().join(',');
-    const depIds = dependencies.map(d => `${d.dependentTaskId}->${d.dependsOnTaskId}`).sort().join(',');
+    const depIds = dependencies
+      .map((d) => `${d.dependentTaskId}->${d.dependsOnTaskId}`)
+      .sort()
+      .join(',');
     return `${taskIds}|${depIds}|${this.config.algorithm}`;
   }
 
   private calculateSequenceConfidence(
     metrics: SequenceMetrics,
-    alternatives: any[]
+    alternatives: any[],
   ): number {
     // Simplified confidence calculation
     return Math.min(
       0.5 +
-      metrics.dependencySatisfaction * 0.2 +
-      metrics.resourceUtilization * 0.2 +
-      (1 - metrics.riskAssessment) * 0.1,
-      1
+        metrics.dependencySatisfaction * 0.2 +
+        metrics.resourceUtilization * 0.2 +
+        (1 - metrics.riskAssessment) * 0.1,
+      1,
     );
   }
 
   private generateSequencingReasoning(
     sequence: ExecutionSequence,
     metrics: SequenceMetrics,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): string {
-    return `Generated sequence using ${sequence.metadata.algorithm} algorithm. ` +
+    return (
+      `Generated sequence using ${sequence.metadata.algorithm} algorithm. ` +
       `Estimated duration: ${Math.round(metrics.totalExecutionTime / 1000)}s, ` +
       `${sequence.parallelGroups.length} parallel groups, ` +
       `${Math.round(metrics.dependencySatisfaction * 100)}% dependency satisfaction, ` +
-      `${Math.round(metrics.resourceUtilization * 100)}% resource utilization.`;
+      `${Math.round(metrics.resourceUtilization * 100)}% resource utilization.`
+    );
   }
 
   private estimateSuccessProbability(metrics: SequenceMetrics): number {
     // Simplified success probability calculation
     return Math.min(
       0.7 +
-      metrics.dependencySatisfaction * 0.2 +
-      (1 - metrics.riskAssessment) * 0.1,
-      0.99
+        metrics.dependencySatisfaction * 0.2 +
+        (1 - metrics.riskAssessment) * 0.1,
+      0.99,
     );
   }
 
   private createDefaultContext(): DecisionContext {
     return {
       systemLoad: { cpu: 0.5, memory: 0.6, diskIO: 0.3, networkIO: 0.2 },
-      taskQueueState: { totalTasks: 0, pendingTasks: 0, runningTasks: 0, failedTasks: 0, avgProcessingTime: 60000 },
-      agentContext: { activeAgents: 1, maxConcurrentAgents: 4, agentCapabilities: {}, agentWorkloads: {} },
-      projectState: { buildStatus: 'unknown', testStatus: 'unknown', lintStatus: 'unknown', gitStatus: 'unknown' },
-      budgetContext: { currentUsage: 0, costPerToken: 0.001, estimatedCostForTask: 0.1 },
-      performanceHistory: { avgSuccessRate: 0.8, avgCompletionTime: 120000, commonFailureReasons: [], peakUsageHours: [] },
-      userPreferences: { allowAutonomousDecisions: true, maxConcurrentTasks: 4, criticalTaskNotification: true },
+      taskQueueState: {
+        totalTasks: 0,
+        pendingTasks: 0,
+        runningTasks: 0,
+        failedTasks: 0,
+        avgProcessingTime: 60000,
+      },
+      agentContext: {
+        activeAgents: 1,
+        maxConcurrentAgents: 4,
+        agentCapabilities: {},
+        agentWorkloads: {},
+      },
+      projectState: {
+        buildStatus: 'unknown',
+        testStatus: 'unknown',
+        lintStatus: 'unknown',
+        gitStatus: 'unknown',
+      },
+      budgetContext: {
+        currentUsage: 0,
+        costPerToken: 0.001,
+        estimatedCostForTask: 0.1,
+      },
+      performanceHistory: {
+        avgSuccessRate: 0.8,
+        avgCompletionTime: 120000,
+        commonFailureReasons: [],
+        peakUsageHours: [],
+      },
+      userPreferences: {
+        allowAutonomousDecisions: true,
+        maxConcurrentTasks: 4,
+        criticalTaskNotification: true,
+      },
       timestamp: Date.now(),
     };
   }
@@ -730,13 +834,15 @@ export class TaskSequencer {
   private async generateAlternativeSequences(
     tasks: Map<TaskId, Task>,
     dependencyAnalysis: DependencyAnalysisResult,
-    context?: DecisionContext
-  ): Promise<Array<{
-    sequence: ExecutionSequence;
-    algorithm: SequencingAlgorithm;
-    score: number;
-    reason: string;
-  }>> {
+    context?: DecisionContext,
+  ): Promise<
+    Array<{
+      sequence: ExecutionSequence;
+      algorithm: SequencingAlgorithm;
+      score: number;
+      reason: string;
+    }>
+  > {
     const alternatives = [];
     const algorithms = [
       SequencingAlgorithm.CRITICAL_PATH,
@@ -748,8 +854,17 @@ export class TaskSequencer {
       if (algorithm === this.config.algorithm) continue;
 
       try {
-        const sequence = await this.executeAlgorithm(algorithm, tasks, dependencyAnalysis, context);
-        const metrics = this.calculateSequenceMetrics(sequence, tasks, dependencyAnalysis);
+        const sequence = await this.executeAlgorithm(
+          algorithm,
+          tasks,
+          dependencyAnalysis,
+          context,
+        );
+        const metrics = this.calculateSequenceMetrics(
+          sequence,
+          tasks,
+          dependencyAnalysis,
+        );
         const score = this.calculateAlternativeScore(metrics);
 
         alternatives.push({
@@ -759,7 +874,10 @@ export class TaskSequencer {
           reason: `Alternative using ${algorithm}: ${Math.round(metrics.totalExecutionTime / 1000)}s duration, ${Math.round(metrics.resourceUtilization * 100)}% resource utilization`,
         });
       } catch (error) {
-        logger.warn(`Failed to generate alternative sequence with ${algorithm}`, { error });
+        logger.warn(
+          `Failed to generate alternative sequence with ${algorithm}`,
+          { error },
+        );
       }
     }
 
@@ -768,14 +886,19 @@ export class TaskSequencer {
 
   private calculateAlternativeScore(metrics: SequenceMetrics): number {
     // Simplified scoring for alternatives
-    return metrics.resourceUtilization * 0.4 +
-           metrics.parallelizationFactor * 0.3 +
-           metrics.dependencySatisfaction * 0.2 +
-           (1 - metrics.riskAssessment) * 0.1;
+    return (
+      metrics.resourceUtilization * 0.4 +
+      metrics.parallelizationFactor * 0.3 +
+      metrics.dependencySatisfaction * 0.2 +
+      (1 - metrics.riskAssessment) * 0.1
+    );
   }
 
   // Placeholder implementations for complex algorithms
-  private buildDependencyGraph(tasks: Map<TaskId, Task>, dependencies: TaskDependency[]): Map<TaskId, TaskId[]> {
+  private buildDependencyGraph(
+    tasks: Map<TaskId, Task>,
+    dependencies: TaskDependency[],
+  ): Map<TaskId, TaskId[]> {
     const graph = new Map<TaskId, TaskId[]>();
     for (const [taskId] of tasks) {
       graph.set(taskId, []);
@@ -788,12 +911,18 @@ export class TaskSequencer {
     return graph;
   }
 
-  private calculateCriticalPath(tasks: Map<TaskId, Task>, graph: Map<TaskId, TaskId[]>): TaskId[] {
+  private calculateCriticalPath(
+    tasks: Map<TaskId, Task>,
+    graph: Map<TaskId, TaskId[]>,
+  ): TaskId[] {
     // Simplified critical path calculation
     return Array.from(tasks.keys()).slice(0, Math.min(tasks.size, 5));
   }
 
-  private generateParallelGroupsFromGraph(tasks: Map<TaskId, Task>, graph: Map<TaskId, TaskId[]>): TaskId[][] {
+  private generateParallelGroupsFromGraph(
+    tasks: Map<TaskId, Task>,
+    graph: Map<TaskId, TaskId[]>,
+  ): TaskId[][] {
     // Simplified parallel group generation
     const taskIds = Array.from(tasks.keys());
     const groups: TaskId[][] = [];
@@ -803,14 +932,20 @@ export class TaskSequencer {
     return groups;
   }
 
-  private calculateParallelGroupsDuration(groups: TaskId[][], tasks: Map<TaskId, Task>): number {
+  private calculateParallelGroupsDuration(
+    groups: TaskId[][],
+    tasks: Map<TaskId, Task>,
+  ): number {
     let totalDuration = 0;
     for (const group of groups) {
       let maxGroupDuration = 0;
       for (const taskId of group) {
         const task = tasks.get(taskId);
         if (task) {
-          maxGroupDuration = Math.max(maxGroupDuration, task.metadata.estimatedDuration || 60000);
+          maxGroupDuration = Math.max(
+            maxGroupDuration,
+            task.metadata.estimatedDuration || 60000,
+          );
         }
       }
       totalDuration += maxGroupDuration;
@@ -818,13 +953,17 @@ export class TaskSequencer {
     return totalDuration;
   }
 
-  private calculatePriorityScore(task: Task, dependencyAnalysis: DependencyAnalysisResult): number {
+  private calculatePriorityScore(
+    task: Task,
+    dependencyAnalysis: DependencyAnalysisResult,
+  ): number {
     const priorityScores = { critical: 4, high: 3, medium: 2, low: 1 };
     const baseScore = priorityScores[task.priority];
 
     // Add bonus for tasks with many dependents
-    const dependents = dependencyAnalysis.suggestedDependencies
-      .filter(dep => dep.dependsOnTaskId === task.id).length;
+    const dependents = dependencyAnalysis.suggestedDependencies.filter(
+      (dep) => dep.dependsOnTaskId === task.id,
+    ).length;
 
     return baseScore + dependents * 0.5;
   }
@@ -832,7 +971,7 @@ export class TaskSequencer {
   private generateParallelGroupsRespectingDependencies(
     sequence: TaskId[],
     tasks: Map<TaskId, Task>,
-    dependencies: TaskDependency[]
+    dependencies: TaskDependency[],
   ): TaskId[][] {
     // Simplified implementation
     const groups: TaskId[][] = [];
@@ -846,10 +985,12 @@ export class TaskSequencer {
 
         // Check if all dependencies are satisfied
         const taskDeps = dependencies
-          .filter(dep => dep.dependentTaskId === taskId)
-          .map(dep => dep.dependsOnTaskId);
+          .filter((dep) => dep.dependentTaskId === taskId)
+          .map((dep) => dep.dependsOnTaskId);
 
-        const allDepsSatisfied = taskDeps.every(depId => processed.has(depId));
+        const allDepsSatisfied = taskDeps.every((depId) =>
+          processed.has(depId),
+        );
 
         if (allDepsSatisfied) {
           currentGroup.push(taskId);
@@ -859,7 +1000,7 @@ export class TaskSequencer {
       if (currentGroup.length === 0) break; // Avoid infinite loop
 
       groups.push(currentGroup);
-      currentGroup.forEach(id => processed.add(id));
+      currentGroup.forEach((id) => processed.add(id));
     }
 
     return groups;
@@ -868,13 +1009,15 @@ export class TaskSequencer {
   private findCriticalPathInSequence(
     sequence: TaskId[],
     tasks: Map<TaskId, Task>,
-    dependencies: TaskDependency[]
+    dependencies: TaskDependency[],
   ): TaskId[] {
     // Simplified critical path finding
     return sequence.slice(0, Math.min(sequence.length, 3));
   }
 
-  private groupTasksByResourceRequirements(tasks: Map<TaskId, Task>): Map<string, Task[]> {
+  private groupTasksByResourceRequirements(
+    tasks: Map<TaskId, Task>,
+  ): Map<string, Task[]> {
     const groups = new Map<string, Task[]>();
 
     for (const [taskId, task] of tasks) {
@@ -891,20 +1034,28 @@ export class TaskSequencer {
   private optimizeResourceAllocation(
     resourceGroups: Map<string, Task[]>,
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
-  ): { sequence: TaskId[]; parallelGroups?: TaskId[][]; estimatedDuration: number } {
+    dependencyAnalysis: DependencyAnalysisResult,
+  ): {
+    sequence: TaskId[];
+    parallelGroups?: TaskId[][];
+    estimatedDuration: number;
+  } {
     // Simplified resource optimization
     const sequence: TaskId[] = [];
 
     for (const [resourceType, groupTasks] of resourceGroups) {
       // Sort by priority within each resource group
       const sortedTasks = groupTasks.sort((a, b) => {
-        const aPriority = { critical: 4, high: 3, medium: 2, low: 1 }[a.priority];
-        const bPriority = { critical: 4, high: 3, medium: 2, low: 1 }[b.priority];
+        const aPriority = { critical: 4, high: 3, medium: 2, low: 1 }[
+          a.priority
+        ];
+        const bPriority = { critical: 4, high: 3, medium: 2, low: 1 }[
+          b.priority
+        ];
         return bPriority - aPriority;
       });
 
-      sequence.push(...sortedTasks.map(task => task.id));
+      sequence.push(...sortedTasks.map((task) => task.id));
     }
 
     const estimatedDuration = sequence.reduce((total, taskId) => {
@@ -917,16 +1068,25 @@ export class TaskSequencer {
 
   private hasDeadline(task: Task): boolean {
     // Check if task has deadline information
-    return !!(task.parameters as any)?.deadline || !!(task.metadata.custom as any)?.deadline;
+    return (
+      !!(task.parameters as any)?.deadline ||
+      !!(task.metadata.custom as any)?.deadline
+    );
   }
 
   private getDeadline(task: Task): number {
     // Extract deadline timestamp
-    const deadline = (task.parameters as any)?.deadline || (task.metadata.custom as any)?.deadline;
-    return typeof deadline === 'number' ? deadline : Date.now() + 24 * 60 * 60 * 1000; // Default 1 day
+    const deadline =
+      (task.parameters as any)?.deadline ||
+      (task.metadata.custom as any)?.deadline;
+    return typeof deadline === 'number'
+      ? deadline
+      : Date.now() + 24 * 60 * 60 * 1000; // Default 1 day
   }
 
-  private adaptWeightsToContext(context?: DecisionContext): TaskSequencingConfig['weights'] {
+  private adaptWeightsToContext(
+    context?: DecisionContext,
+  ): TaskSequencingConfig['weights'] {
     if (!context) return this.config.weights;
 
     // Adapt weights based on system state
@@ -948,14 +1108,17 @@ export class TaskSequencer {
   private optimizeTaskGrouping(
     sortedTasks: Task[],
     dependencyAnalysis: DependencyAnalysisResult,
-    weights: TaskSequencingConfig['weights']
+    weights: TaskSequencingConfig['weights'],
   ): Task[][] {
     // Simplified task grouping optimization
     const groups: Task[][] = [];
     let currentGroup: Task[] = [];
 
     for (const task of sortedTasks) {
-      if (currentGroup.length === 0 || this.canGroupTogether(task, currentGroup, dependencyAnalysis)) {
+      if (
+        currentGroup.length === 0 ||
+        this.canGroupTogether(task, currentGroup, dependencyAnalysis)
+      ) {
         currentGroup.push(task);
       } else {
         if (currentGroup.length > 0) {
@@ -981,13 +1144,16 @@ export class TaskSequencer {
   private canGroupTogether(
     task: Task,
     group: Task[],
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): boolean {
     // Check if task can be grouped with others (no dependencies between them)
     for (const groupTask of group) {
       const hasDependency = dependencyAnalysis.suggestedDependencies.some(
-        dep => (dep.dependentTaskId === task.id && dep.dependsOnTaskId === groupTask.id) ||
-               (dep.dependentTaskId === groupTask.id && dep.dependsOnTaskId === task.id)
+        (dep) =>
+          (dep.dependentTaskId === task.id &&
+            dep.dependsOnTaskId === groupTask.id) ||
+          (dep.dependentTaskId === groupTask.id &&
+            dep.dependsOnTaskId === task.id),
       );
       if (hasDependency) return false;
     }
@@ -996,7 +1162,7 @@ export class TaskSequencer {
 
   private predictOptimalSequence(
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): Array<{ taskId: TaskId; score: number }> {
     // Simplified ML prediction
     const predictions: Array<{ taskId: TaskId; score: number }> = [];
@@ -1012,9 +1178,22 @@ export class TaskSequencer {
 
   private extractTaskFeatures(task: Task): number[] {
     // Extract features for ML prediction
-    const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[task.priority];
-    const categoryScore = { implementation: 4, analysis: 3, testing: 2, documentation: 1, refactoring: 3, deployment: 2 }[task.category] || 1;
-    const durationScore = Math.min((task.metadata.estimatedDuration || 60000) / 60000, 10); // Normalize
+    const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[
+      task.priority
+    ];
+    const categoryScore =
+      {
+        implementation: 4,
+        analysis: 3,
+        testing: 2,
+        documentation: 1,
+        refactoring: 3,
+        deployment: 2,
+      }[task.category] || 1;
+    const durationScore = Math.min(
+      (task.metadata.estimatedDuration || 60000) / 60000,
+      10,
+    ); // Normalize
 
     return [priorityScore, categoryScore, durationScore];
   }
@@ -1031,32 +1210,42 @@ export class TaskSequencer {
 
   private generateParallelGroupsFromPredictions(
     predictions: Array<{ taskId: TaskId; score: number }>,
-    tasks: Map<TaskId, Task>
+    tasks: Map<TaskId, Task>,
   ): TaskId[][] {
     // Group predictions into parallel groups
     const groups: TaskId[][] = [];
     const tasksPerGroup = Math.max(1, Math.floor(predictions.length / 3));
 
     for (let i = 0; i < predictions.length; i += tasksPerGroup) {
-      const group = predictions.slice(i, i + tasksPerGroup).map(pred => pred.taskId);
+      const group = predictions
+        .slice(i, i + tasksPerGroup)
+        .map((pred) => pred.taskId);
       groups.push(group);
     }
 
     return groups;
   }
 
-  private calculateCriticalPathDuration(criticalPath: TaskId[], tasks: Map<TaskId, Task>): number {
+  private calculateCriticalPathDuration(
+    criticalPath: TaskId[],
+    tasks: Map<TaskId, Task>,
+  ): number {
     return criticalPath.reduce((total, taskId) => {
       const task = tasks.get(taskId);
       return total + (task?.metadata.estimatedDuration || 60000);
     }, 0);
   }
 
-  private calculateResourceUtilization(parallelGroups: TaskId[][], tasks: Map<TaskId, Task>): number {
+  private calculateResourceUtilization(
+    parallelGroups: TaskId[][],
+    tasks: Map<TaskId, Task>,
+  ): number {
     // Simplified resource utilization calculation
     if (parallelGroups.length === 0) return 0;
 
-    const avgGroupSize = parallelGroups.reduce((sum, group) => sum + group.length, 0) / parallelGroups.length;
+    const avgGroupSize =
+      parallelGroups.reduce((sum, group) => sum + group.length, 0) /
+      parallelGroups.length;
     const maxPossibleParallel = Math.min(tasks.size, 4); // Assume max 4 parallel
 
     return Math.min(avgGroupSize / maxPossibleParallel, 1);
@@ -1064,7 +1253,7 @@ export class TaskSequencer {
 
   private calculateDependencySatisfaction(
     sequence: ExecutionSequence,
-    dependencies: TaskDependency[]
+    dependencies: TaskDependency[],
   ): number {
     // Check how well the sequence respects dependencies
     let satisfiedDeps = 0;
@@ -1073,7 +1262,11 @@ export class TaskSequencer {
       const dependentIndex = sequence.sequence.indexOf(dep.dependentTaskId);
       const dependsOnIndex = sequence.sequence.indexOf(dep.dependsOnTaskId);
 
-      if (dependentIndex > dependsOnIndex || dependentIndex === -1 || dependsOnIndex === -1) {
+      if (
+        dependentIndex > dependsOnIndex ||
+        dependentIndex === -1 ||
+        dependsOnIndex === -1
+      ) {
         satisfiedDeps++;
       }
     }
@@ -1084,7 +1277,7 @@ export class TaskSequencer {
   private calculateRiskAssessment(
     sequence: ExecutionSequence,
     tasks: Map<TaskId, Task>,
-    dependencyAnalysis: DependencyAnalysisResult
+    dependencyAnalysis: DependencyAnalysisResult,
   ): number {
     // Calculate risk based on conflicts and complexity
     let riskScore = 0;
@@ -1093,17 +1286,23 @@ export class TaskSequencer {
     riskScore += dependencyAnalysis.conflicts.length * 0.1;
 
     // Risk from critical path length
-    const criticalPathRatio = sequence.criticalPath.length / sequence.sequence.length;
+    const criticalPathRatio =
+      sequence.criticalPath.length / sequence.sequence.length;
     riskScore += criticalPathRatio * 0.2;
 
     // Risk from high-priority tasks
-    const criticalTasks = Array.from(tasks.values()).filter(t => t.priority === 'critical').length;
+    const criticalTasks = Array.from(tasks.values()).filter(
+      (t) => t.priority === 'critical',
+    ).length;
     riskScore += (criticalTasks / tasks.size) * 0.3;
 
     return Math.min(riskScore, 1);
   }
 
-  private updateLearningModel(tasks: Map<TaskId, Task>, decision: SequencingDecision): void {
+  private updateLearningModel(
+    tasks: Map<TaskId, Task>,
+    decision: SequencingDecision,
+  ): void {
     // Update simple learning model with decision outcomes
     const success = decision.confidence > 0.7;
 
@@ -1111,7 +1310,10 @@ export class TaskSequencer {
       // Increase weights for successful patterns
       for (let i = 0; i < 3; i++) {
         const currentWeight = this.learningModel.get(`feature_${i}`) || 0.5;
-        this.learningModel.set(`feature_${i}`, Math.min(currentWeight * 1.1, 2.0));
+        this.learningModel.set(
+          `feature_${i}`,
+          Math.min(currentWeight * 1.1, 2.0),
+        );
       }
     }
 
@@ -1128,7 +1330,7 @@ export class TaskSequencer {
     taskId: TaskId,
     actualDuration: number,
     resourcesUsed: Map<string, number>,
-    success: boolean
+    success: boolean,
   ): void {
     const history: ExecutionHistory = {
       taskId,
@@ -1150,7 +1352,11 @@ export class TaskSequencer {
       this.executionHistory.delete(oldestKey);
     }
 
-    logger.debug('Execution history recorded', { taskId, success, duration: actualDuration });
+    logger.debug('Execution history recorded', {
+      taskId,
+      success,
+      duration: actualDuration,
+    });
   }
 
   /**

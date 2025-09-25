@@ -28,7 +28,12 @@ export interface EncryptedData {
 }
 
 export interface DataClassification {
-  readonly level: 'public' | 'internal' | 'confidential' | 'restricted' | 'top-secret';
+  readonly level:
+    | 'public'
+    | 'internal'
+    | 'confidential'
+    | 'restricted'
+    | 'top-secret';
   readonly categories: string[];
   readonly retentionPeriod?: number; // days
   readonly requiresEncryption: boolean;
@@ -131,13 +136,15 @@ export class DataProtectionManager extends EventEmitter {
   async encryptData(
     data: string | Buffer,
     classification: DataClassification,
-    options: { keyId?: string; algorithm?: string } = {}
+    options: { keyId?: string; algorithm?: string } = {},
   ): Promise<EncryptedData> {
     const startTime = Date.now();
 
     try {
       // Get or create encryption key
-      const keyId = options.keyId || await this.getOrCreateKey(classification.level, options.algorithm);
+      const keyId =
+        options.keyId ||
+        (await this.getOrCreateKey(classification.level, options.algorithm));
       const key = this.keys.get(keyId);
 
       if (!key) {
@@ -145,25 +152,32 @@ export class DataProtectionManager extends EventEmitter {
       }
 
       // Convert data to buffer
-      const dataBuffer = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
+      const dataBuffer =
+        typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
 
       // Encrypt data
       const encrypted = await this.performEncryption(dataBuffer, key);
 
       // Log encryption operation
-      await this.auditLogger.logEncryption(keyId, classification.level, dataBuffer.length);
+      await this.auditLogger.logEncryption(
+        keyId,
+        classification.level,
+        dataBuffer.length,
+      );
 
       this.emit('data:encrypted', {
         keyId,
         classification: classification.level,
         size: dataBuffer.length,
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       });
 
       return encrypted;
-
     } catch (error) {
-      await this.auditLogger.logError('encryption', error instanceof Error ? error.message : String(error));
+      await this.auditLogger.logError(
+        'encryption',
+        error instanceof Error ? error.message : String(error),
+      );
       this.emit('encryption:error', { error, classification });
       throw error;
     }
@@ -184,18 +198,23 @@ export class DataProtectionManager extends EventEmitter {
       const decrypted = await this.performDecryption(encryptedData, key);
 
       // Log decryption operation
-      await this.auditLogger.logDecryption(encryptedData.keyId, decrypted.length);
+      await this.auditLogger.logDecryption(
+        encryptedData.keyId,
+        decrypted.length,
+      );
 
       this.emit('data:decrypted', {
         keyId: encryptedData.keyId,
         size: decrypted.length,
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       });
 
       return decrypted;
-
     } catch (error) {
-      await this.auditLogger.logError('decryption', error instanceof Error ? error.message : String(error));
+      await this.auditLogger.logError(
+        'decryption',
+        error instanceof Error ? error.message : String(error),
+      );
       this.emit('decryption:error', { error, encryptedData });
       throw error;
     }
@@ -211,7 +230,10 @@ export class DataProtectionManager extends EventEmitter {
   /**
    * Redact PII from content for safe processing.
    */
-  async redactPII(content: string, options: { preserveFormat?: boolean; placeholder?: string } = {}): Promise<string> {
+  async redactPII(
+    content: string,
+    options: { preserveFormat?: boolean; placeholder?: string } = {},
+  ): Promise<string> {
     const piiResult = await this.detectPII(content);
 
     if (!piiResult.hasPII) {
@@ -222,16 +244,19 @@ export class DataProtectionManager extends EventEmitter {
     const placeholder = options.placeholder || '[REDACTED]';
 
     // Sort violations by position (reverse order to maintain indices)
-    const sortedViolations = piiResult.violations.sort((a, b) => b.location.start - a.location.start);
+    const sortedViolations = piiResult.violations.sort(
+      (a, b) => b.location.start - a.location.start,
+    );
 
     for (const violation of sortedViolations) {
       const replacement = options.preserveFormat
         ? violation.content.replace(/./g, '*')
         : placeholder;
 
-      redactedContent = redactedContent.substring(0, violation.location.start) +
-                      replacement +
-                      redactedContent.substring(violation.location.end);
+      redactedContent =
+        redactedContent.substring(0, violation.location.start) +
+        replacement +
+        redactedContent.substring(violation.location.end);
     }
 
     await this.auditLogger.logPIIRedaction(piiResult.piiTypes, content.length);
@@ -241,7 +266,10 @@ export class DataProtectionManager extends EventEmitter {
   /**
    * Classify data based on content analysis and business rules.
    */
-  async classifyData(content: string, metadata?: Record<string, unknown>): Promise<DataClassification> {
+  async classifyData(
+    content: string,
+    metadata?: Record<string, unknown>,
+  ): Promise<DataClassification> {
     const piiResult = await this.detectPII(content);
 
     // Determine classification level
@@ -250,8 +278,16 @@ export class DataProtectionManager extends EventEmitter {
     let requiresEncryption = false;
 
     if (piiResult.hasPII) {
-      const criticalPII = ['ssn', 'credit_card', 'passport', 'medical_id', 'bank_account'];
-      const hasCriticalPII = piiResult.piiTypes.some(type => criticalPII.includes(type));
+      const criticalPII = [
+        'ssn',
+        'credit_card',
+        'passport',
+        'medical_id',
+        'bank_account',
+      ];
+      const hasCriticalPII = piiResult.piiTypes.some((type) =>
+        criticalPII.includes(type),
+      );
 
       if (hasCriticalPII) {
         level = 'restricted';
@@ -267,7 +303,16 @@ export class DataProtectionManager extends EventEmitter {
 
     // Check for other sensitive patterns
     if (this.containsSecrets(content)) {
-      level = Math.max(level === 'public' ? 1 : level === 'internal' ? 2 : level === 'confidential' ? 3 : 4, 3) as any;
+      level = Math.max(
+        level === 'public'
+          ? 1
+          : level === 'internal'
+            ? 2
+            : level === 'confidential'
+              ? 3
+              : 4,
+        3,
+      ) as any;
       categories.push('secrets');
       requiresEncryption = true;
     }
@@ -282,10 +327,13 @@ export class DataProtectionManager extends EventEmitter {
       level,
       categories: [...new Set(categories)],
       requiresEncryption,
-      accessControls: this.getAccessControlsForLevel(level)
+      accessControls: this.getAccessControlsForLevel(level),
     };
 
-    await this.auditLogger.logDataClassification(classification, content.length);
+    await this.auditLogger.logDataClassification(
+      classification,
+      content.length,
+    );
     return classification;
   }
 
@@ -295,7 +343,7 @@ export class DataProtectionManager extends EventEmitter {
   async storeSecurely(
     identifier: string,
     data: string | Buffer,
-    options: SecureStorageOptions
+    options: SecureStorageOptions,
   ): Promise<string> {
     const classification = options.classification;
 
@@ -312,9 +360,10 @@ export class DataProtectionManager extends EventEmitter {
     const storageMetadata = {
       identifier,
       classification,
-      encrypted: classification.requiresEncryption || options.encryptionRequired,
+      encrypted:
+        classification.requiresEncryption || options.encryptionRequired,
       storedAt: new Date().toISOString(),
-      size: typeof data === 'string' ? Buffer.byteLength(data) : data.length
+      size: typeof data === 'string' ? Buffer.byteLength(data) : data.length,
     };
 
     const filePath = path.join(this.storageDirectory, `${identifier}.secure`);
@@ -323,7 +372,11 @@ export class DataProtectionManager extends EventEmitter {
     await fs.writeFile(filePath, storageData);
     await fs.writeFile(metadataPath, JSON.stringify(storageMetadata, null, 2));
 
-    await this.auditLogger.logSecureStorage(identifier, classification, storageMetadata.size);
+    await this.auditLogger.logSecureStorage(
+      identifier,
+      classification,
+      storageMetadata.size,
+    );
 
     // Schedule for retention policy compliance
     if (classification.retentionPeriod) {
@@ -336,14 +389,16 @@ export class DataProtectionManager extends EventEmitter {
   /**
    * Retrieve securely stored data.
    */
-  async retrieveSecurely(identifier: string): Promise<{ data: Buffer; classification: DataClassification }> {
+  async retrieveSecurely(
+    identifier: string,
+  ): Promise<{ data: Buffer; classification: DataClassification }> {
     const filePath = path.join(this.storageDirectory, `${identifier}.secure`);
     const metadataPath = path.join(this.storageDirectory, `${identifier}.meta`);
 
     try {
       const [storageData, metadataContent] = await Promise.all([
         fs.readFile(filePath, 'utf8'),
-        fs.readFile(metadataPath, 'utf8')
+        fs.readFile(metadataPath, 'utf8'),
       ]);
 
       const metadata = JSON.parse(metadataContent);
@@ -356,12 +411,17 @@ export class DataProtectionManager extends EventEmitter {
         data = Buffer.from(storageData, 'base64');
       }
 
-      await this.auditLogger.logSecureRetrieval(identifier, metadata.classification);
+      await this.auditLogger.logSecureRetrieval(
+        identifier,
+        metadata.classification,
+      );
 
       return { data, classification: metadata.classification };
-
     } catch (error) {
-      await this.auditLogger.logError('retrieval', error instanceof Error ? error.message : String(error));
+      await this.auditLogger.logError(
+        'retrieval',
+        error instanceof Error ? error.message : String(error),
+      );
       throw new Error(`Failed to retrieve secure data: ${identifier}`);
     }
   }
@@ -386,12 +446,20 @@ export class DataProtectionManager extends EventEmitter {
       await fs.unlink(filePath);
       await fs.unlink(metadataPath);
 
-      await this.auditLogger.logSecureDelete(identifier, metadata.classification);
+      await this.auditLogger.logSecureDelete(
+        identifier,
+        metadata.classification,
+      );
 
-      this.emit('data:securely_deleted', { identifier, classification: metadata.classification });
-
+      this.emit('data:securely_deleted', {
+        identifier,
+        classification: metadata.classification,
+      });
     } catch (error) {
-      await this.auditLogger.logError('secure_delete', error instanceof Error ? error.message : String(error));
+      await this.auditLogger.logError(
+        'secure_delete',
+        error instanceof Error ? error.message : String(error),
+      );
       throw error;
     }
   }
@@ -431,13 +499,17 @@ export class DataProtectionManager extends EventEmitter {
     return {
       timestamp: now,
       totalKeys: this.keys.size,
-      activeKeys: Array.from(this.keys.values()).filter(k => !k.expiresAt || k.expiresAt > now).length,
-      expiredKeys: Array.from(this.keys.values()).filter(k => k.expiresAt && k.expiresAt <= now).length,
+      activeKeys: Array.from(this.keys.values()).filter(
+        (k) => !k.expiresAt || k.expiresAt > now,
+      ).length,
+      expiredKeys: Array.from(this.keys.values()).filter(
+        (k) => k.expiresAt && k.expiresAt <= now,
+      ).length,
       retentionPolicies: this.retentionPolicies.length,
       // Additional compliance metrics would be calculated here
       gdprCompliance: this.assessGDPRCompliance(),
       ccpaCompliance: this.assessCCPACompliance(),
-      hipaaCompliance: this.assessHIPAACompliance()
+      hipaaCompliance: this.assessHIPAACompliance(),
     };
   }
 
@@ -445,7 +517,10 @@ export class DataProtectionManager extends EventEmitter {
    * Private implementation methods
    */
 
-  private async performEncryption(data: Buffer, key: EncryptionKey): Promise<EncryptedData> {
+  private async performEncryption(
+    data: Buffer,
+    key: EncryptionKey,
+  ): Promise<EncryptedData> {
     const algorithm = key.algorithm;
     const iv = crypto.randomBytes(algorithm === 'aes-256-gcm' ? 12 : 16);
 
@@ -463,17 +538,23 @@ export class DataProtectionManager extends EventEmitter {
       authTag: authTag.toString('base64'),
       keyId: key.id,
       algorithm: key.algorithm,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
-  private async performDecryption(encryptedData: EncryptedData, key: EncryptionKey): Promise<Buffer> {
+  private async performDecryption(
+    encryptedData: EncryptedData,
+    key: EncryptionKey,
+  ): Promise<Buffer> {
     const algorithm = encryptedData.algorithm;
     const iv = Buffer.from(encryptedData.iv, 'base64');
     const authTag = Buffer.from(encryptedData.authTag, 'base64');
     const encrypted = Buffer.from(encryptedData.encryptedContent, 'base64');
 
-    const decipher = crypto.createDecipher(algorithm, this.getKeyMaterial(key.id));
+    const decipher = crypto.createDecipher(
+      algorithm,
+      this.getKeyMaterial(key.id),
+    );
     decipher.setIV(iv);
     decipher.setAuthTag(authTag);
 
@@ -486,8 +567,16 @@ export class DataProtectionManager extends EventEmitter {
   private deriveMasterKey(): Buffer {
     // In production, this would use a secure key derivation process
     // potentially involving HSMs or key management services
-    const keyMaterial = process.env.GEMINI_MASTER_KEY || 'default-development-key-not-for-production';
-    return crypto.pbkdf2Sync(keyMaterial, 'gemini-cli-salt', 100000, 32, 'sha256');
+    const keyMaterial =
+      process.env.GEMINI_MASTER_KEY ||
+      'default-development-key-not-for-production';
+    return crypto.pbkdf2Sync(
+      keyMaterial,
+      'gemini-cli-salt',
+      100000,
+      32,
+      'sha256',
+    );
   }
 
   private getKeyMaterial(keyId: string): Buffer {
@@ -495,12 +584,16 @@ export class DataProtectionManager extends EventEmitter {
     return crypto.pbkdf2Sync(this.masterKey, keyId, 100000, 32, 'sha256');
   }
 
-  private async getOrCreateKey(classificationLevel: string, algorithm: string = 'aes-256-gcm'): Promise<string> {
+  private async getOrCreateKey(
+    classificationLevel: string,
+    algorithm: string = 'aes-256-gcm',
+  ): Promise<string> {
     // Look for existing key for this classification level
-    const existingKey = Array.from(this.keys.values()).find(k =>
-      k.metadata.classificationLevel === classificationLevel &&
-      k.algorithm === algorithm &&
-      (!k.expiresAt || k.expiresAt > new Date())
+    const existingKey = Array.from(this.keys.values()).find(
+      (k) =>
+        k.metadata.classificationLevel === classificationLevel &&
+        k.algorithm === algorithm &&
+        (!k.expiresAt || k.expiresAt > new Date()),
     );
 
     if (existingKey) {
@@ -508,18 +601,23 @@ export class DataProtectionManager extends EventEmitter {
     }
 
     // Create new key
-    const newKey = await this.generateEncryptionKey(algorithm, { classificationLevel });
+    const newKey = await this.generateEncryptionKey(algorithm, {
+      classificationLevel,
+    });
     this.keys.set(newKey.id, newKey);
     await this.saveKeys();
 
     return newKey.id;
   }
 
-  private async generateEncryptionKey(algorithm: string = 'aes-256-gcm', metadata: Record<string, unknown> = {}): Promise<EncryptionKey> {
+  private async generateEncryptionKey(
+    algorithm: string = 'aes-256-gcm',
+    metadata: Record<string, unknown> = {},
+  ): Promise<EncryptionKey> {
     const keyLengths = {
       'aes-256-gcm': 256,
       'aes-256-cbc': 256,
-      'chacha20-poly1305': 256
+      'chacha20-poly1305': 256,
     };
 
     const keyLength = keyLengths[algorithm as keyof typeof keyLengths] || 256;
@@ -529,7 +627,7 @@ export class DataProtectionManager extends EventEmitter {
       algorithm,
       keyLength,
       createdAt: new Date(),
-      metadata
+      metadata,
     };
   }
 
@@ -542,16 +640,23 @@ export class DataProtectionManager extends EventEmitter {
       /ghp_[A-Za-z0-9]{36}/, // GitHub tokens
     ];
 
-    return secretPatterns.some(pattern => pattern.test(content));
+    return secretPatterns.some((pattern) => pattern.test(content));
   }
 
-  private getAccessControlsForLevel(level: DataClassification['level']): string[] {
+  private getAccessControlsForLevel(
+    level: DataClassification['level'],
+  ): string[] {
     const controls: Record<string, string[]> = {
-      'public': [],
-      'internal': ['authenticated-users'],
-      'confidential': ['authorized-users', 'encryption-required'],
-      'restricted': ['privileged-users', 'encryption-required', 'mfa-required'],
-      'top-secret': ['clearance-required', 'encryption-required', 'mfa-required', 'audit-required']
+      public: [],
+      internal: ['authenticated-users'],
+      confidential: ['authorized-users', 'encryption-required'],
+      restricted: ['privileged-users', 'encryption-required', 'mfa-required'],
+      'top-secret': [
+        'clearance-required',
+        'encryption-required',
+        'mfa-required',
+        'audit-required',
+      ],
     };
 
     return controls[level] || [];
@@ -567,22 +672,29 @@ export class DataProtectionManager extends EventEmitter {
         await fs.writeFile(filePath, randomData);
         await fs.fsync((await fs.open(filePath, 'r')).fd);
       }
-
     } catch (error) {
       console.warn('Cryptographic erasure failed:', error);
     }
   }
 
-  private scheduleDataExpiration(identifier: string, retentionDays: number): void {
-    const expirationDate = new Date(Date.now() + retentionDays * 24 * 60 * 60 * 1000);
+  private scheduleDataExpiration(
+    identifier: string,
+    retentionDays: number,
+  ): void {
+    const expirationDate = new Date(
+      Date.now() + retentionDays * 24 * 60 * 60 * 1000,
+    );
     // In a production system, this would integrate with a job scheduler
-    setTimeout(async () => {
-      try {
-        await this.secureDelete(identifier);
-      } catch (error) {
-        console.error(`Failed to auto-expire data ${identifier}:`, error);
-      }
-    }, retentionDays * 24 * 60 * 60 * 1000);
+    setTimeout(
+      async () => {
+        try {
+          await this.secureDelete(identifier);
+        } catch (error) {
+          console.error(`Failed to auto-expire data ${identifier}:`, error);
+        }
+      },
+      retentionDays * 24 * 60 * 60 * 1000,
+    );
   }
 
   private initializeDefaultPolicies(): void {
@@ -593,7 +705,7 @@ export class DataProtectionManager extends EventEmitter {
         classification: 'public',
         retentionDays: 2555, // 7 years
         secureDeleteRequired: false,
-        complianceFrameworks: []
+        complianceFrameworks: [],
       },
       {
         id: 'default-confidential',
@@ -601,7 +713,7 @@ export class DataProtectionManager extends EventEmitter {
         classification: 'confidential',
         retentionDays: 1825, // 5 years
         secureDeleteRequired: true,
-        complianceFrameworks: ['GDPR', 'CCPA']
+        complianceFrameworks: ['GDPR', 'CCPA'],
       },
       {
         id: 'default-restricted',
@@ -610,8 +722,8 @@ export class DataProtectionManager extends EventEmitter {
         retentionDays: 365, // 1 year
         archiveAfterDays: 90,
         secureDeleteRequired: true,
-        complianceFrameworks: ['GDPR', 'CCPA', 'HIPAA']
-      }
+        complianceFrameworks: ['GDPR', 'CCPA', 'HIPAA'],
+      },
     ];
   }
 
@@ -625,7 +737,9 @@ export class DataProtectionManager extends EventEmitter {
         this.keys.set(keyData.id, {
           ...keyData,
           createdAt: new Date(keyData.createdAt),
-          expiresAt: keyData.expiresAt ? new Date(keyData.expiresAt) : undefined
+          expiresAt: keyData.expiresAt
+            ? new Date(keyData.expiresAt)
+            : undefined,
         });
       }
     } catch {
@@ -641,7 +755,10 @@ export class DataProtectionManager extends EventEmitter {
 
   private async loadRetentionPolicies(): Promise<void> {
     try {
-      const policiesPath = path.join(this.storageDirectory, 'retention-policies.json');
+      const policiesPath = path.join(
+        this.storageDirectory,
+        'retention-policies.json',
+      );
       const policiesData = await fs.readFile(policiesPath, 'utf8');
       this.retentionPolicies = JSON.parse(policiesData);
     } catch {
@@ -651,21 +768,26 @@ export class DataProtectionManager extends EventEmitter {
 
   private startPeriodicTasks(): void {
     // Key rotation check (daily)
-    setInterval(async () => {
-      const now = new Date();
-      for (const [keyId, key] of this.keys) {
-        const rotationInterval = 90; // 90 days default
-        const shouldRotate = now.getTime() - key.createdAt.getTime() > rotationInterval * 24 * 60 * 60 * 1000;
+    setInterval(
+      async () => {
+        const now = new Date();
+        for (const [keyId, key] of this.keys) {
+          const rotationInterval = 90; // 90 days default
+          const shouldRotate =
+            now.getTime() - key.createdAt.getTime() >
+            rotationInterval * 24 * 60 * 60 * 1000;
 
-        if (shouldRotate) {
-          try {
-            await this.rotateKey(keyId);
-          } catch (error) {
-            console.error(`Failed to rotate key ${keyId}:`, error);
+          if (shouldRotate) {
+            try {
+              await this.rotateKey(keyId);
+            } catch (error) {
+              console.error(`Failed to rotate key ${keyId}:`, error);
+            }
           }
         }
-      }
-    }, 24 * 60 * 60 * 1000);
+      },
+      24 * 60 * 60 * 1000,
+    );
   }
 
   private assessGDPRCompliance(): ComplianceAssessment {
@@ -674,7 +796,7 @@ export class DataProtectionManager extends EventEmitter {
       status: 'compliant',
       score: 0.95,
       findings: [],
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -684,7 +806,7 @@ export class DataProtectionManager extends EventEmitter {
       status: 'compliant',
       score: 0.92,
       findings: [],
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -694,7 +816,7 @@ export class DataProtectionManager extends EventEmitter {
       status: 'partial',
       score: 0.85,
       findings: ['Additional access controls recommended for PHI'],
-      recommendations: ['Implement role-based access for medical data']
+      recommendations: ['Implement role-based access for medical data'],
     };
   }
 }
@@ -715,19 +837,20 @@ class PIIDetector {
         type: 'email',
         location: { start: match.index, end: match.index + match[0].length },
         content: match[0],
-        confidence: 0.9
+        confidence: 0.9,
       });
       if (!piiTypes.includes('email')) piiTypes.push('email');
     }
 
     // Phone number detection
-    const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/g;
+    const phoneRegex =
+      /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/g;
     while ((match = phoneRegex.exec(content)) !== null) {
       violations.push({
         type: 'phone',
         location: { start: match.index, end: match.index + match[0].length },
         content: match[0],
-        confidence: 0.85
+        confidence: 0.85,
       });
       if (!piiTypes.includes('phone')) piiTypes.push('phone');
     }
@@ -739,19 +862,20 @@ class PIIDetector {
         type: 'credit_card',
         location: { start: match.index, end: match.index + match[0].length },
         content: match[0],
-        confidence: 0.8
+        confidence: 0.8,
       });
       if (!piiTypes.includes('credit_card')) piiTypes.push('credit_card');
     }
 
     // API key detection
-    const apiKeyRegex = /(?:api_key|apikey|access_token|secret_key)\s*[:=]\s*['"]([^'"]{20,})['"]|[A-Za-z0-9]{32,}/gi;
+    const apiKeyRegex =
+      /(?:api_key|apikey|access_token|secret_key)\s*[:=]\s*['"]([^'"]{20,})['"]|[A-Za-z0-9]{32,}/gi;
     while ((match = apiKeyRegex.exec(content)) !== null) {
       violations.push({
         type: 'api_key',
         location: { start: match.index, end: match.index + match[0].length },
         content: match[0],
-        confidence: 0.75
+        confidence: 0.75,
       });
       if (!piiTypes.includes('api_key')) piiTypes.push('api_key');
     }
@@ -759,8 +883,11 @@ class PIIDetector {
     return {
       hasPII: violations.length > 0,
       piiTypes,
-      confidence: violations.length > 0 ? Math.max(...violations.map(v => v.confidence)) : 0,
-      violations
+      confidence:
+        violations.length > 0
+          ? Math.max(...violations.map((v) => v.confidence))
+          : 0,
+      violations,
     };
   }
 }
@@ -771,7 +898,11 @@ class PIIDetector {
 class DataProtectionAuditLogger {
   constructor(private storageDirectory: string) {}
 
-  async logEncryption(keyId: string, classification: string, dataSize: number): Promise<void> {
+  async logEncryption(
+    keyId: string,
+    classification: string,
+    dataSize: number,
+  ): Promise<void> {
     await this.log('ENCRYPTION', { keyId, classification, dataSize });
   }
 
@@ -779,27 +910,47 @@ class DataProtectionAuditLogger {
     await this.log('DECRYPTION', { keyId, dataSize });
   }
 
-  async logPIIRedaction(piiTypes: PIIType[], originalSize: number): Promise<void> {
+  async logPIIRedaction(
+    piiTypes: PIIType[],
+    originalSize: number,
+  ): Promise<void> {
     await this.log('PII_REDACTION', { piiTypes, originalSize });
   }
 
-  async logDataClassification(classification: DataClassification, dataSize: number): Promise<void> {
+  async logDataClassification(
+    classification: DataClassification,
+    dataSize: number,
+  ): Promise<void> {
     await this.log('DATA_CLASSIFICATION', { classification, dataSize });
   }
 
-  async logSecureStorage(identifier: string, classification: DataClassification, size: number): Promise<void> {
+  async logSecureStorage(
+    identifier: string,
+    classification: DataClassification,
+    size: number,
+  ): Promise<void> {
     await this.log('SECURE_STORAGE', { identifier, classification, size });
   }
 
-  async logSecureRetrieval(identifier: string, classification: DataClassification): Promise<void> {
+  async logSecureRetrieval(
+    identifier: string,
+    classification: DataClassification,
+  ): Promise<void> {
     await this.log('SECURE_RETRIEVAL', { identifier, classification });
   }
 
-  async logSecureDelete(identifier: string, classification: DataClassification): Promise<void> {
+  async logSecureDelete(
+    identifier: string,
+    classification: DataClassification,
+  ): Promise<void> {
     await this.log('SECURE_DELETE', { identifier, classification });
   }
 
-  async logKeyRotation(keyId: string, oldKeyId: string, newKeyId: string): Promise<void> {
+  async logKeyRotation(
+    keyId: string,
+    oldKeyId: string,
+    newKeyId: string,
+  ): Promise<void> {
     await this.log('KEY_ROTATION', { keyId, oldKeyId, newKeyId });
   }
 
@@ -807,12 +958,18 @@ class DataProtectionAuditLogger {
     await this.log('ERROR', { operation, error });
   }
 
-  private async log(event: string, data: Record<string, unknown>): Promise<void> {
+  private async log(
+    event: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
     const logEntry = {
       timestamp: new Date().toISOString(),
       event,
       data,
-      checksum: crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex')
+      checksum: crypto
+        .createHash('sha256')
+        .update(JSON.stringify(data))
+        .digest('hex'),
     };
 
     try {

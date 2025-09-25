@@ -37,6 +37,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ### Initial Setup
 
 1. **Verify Project Structure**
+
    ```bash
    # Ensure project has proper git structure
    git status
@@ -46,12 +47,14 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
    ```
 
 2. **Initialize Your First Agent**
+
    ```bash
    # Initialize with descriptive agent ID
    timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize MAIN_DEVELOPMENT_AGENT
    ```
 
 3. **Explore System Capabilities**
+
    ```bash
    # Get complete API guide
    timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" guide
@@ -76,6 +79,7 @@ suggest → approve → implement → track
 ### Creating Feature Suggestions
 
 #### Basic Feature Suggestion
+
 ```bash
 node taskmanager-api.js suggest-feature '{
   "title": "Add Dark Mode Toggle",
@@ -86,6 +90,7 @@ node taskmanager-api.js suggest-feature '{
 ```
 
 #### Advanced Feature with Metadata
+
 ```bash
 node taskmanager-api.js suggest-feature '{
   "title": "Real-time Code Analysis",
@@ -116,6 +121,7 @@ Choose the appropriate category for your feature:
 ### Feature Approval Workflow
 
 #### Approve Features
+
 ```bash
 # Basic approval
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" approve-feature FEATURE_ID
@@ -128,6 +134,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 #### Bulk Approval for Related Features
+
 ```bash
 # Approve multiple features simultaneously
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" bulk-approve-features '["feature_id_1", "feature_id_2", "feature_id_3"]' '{
@@ -137,6 +144,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 #### Reject Features
+
 ```bash
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" reject-feature FEATURE_ID '{
   "rejected_by": "TECHNICAL_ARCHITECT",
@@ -147,6 +155,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ### Feature Tracking and Analytics
 
 #### List Features with Filtering
+
 ```bash
 # View all features
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" list-features
@@ -165,12 +174,14 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 #### Feature Analytics and Statistics
+
 ```bash
 # Get comprehensive feature statistics
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" feature-stats
 ```
 
 **Sample Output:**
+
 ```json
 {
   "success": true,
@@ -215,12 +226,14 @@ The system supports specialized agent roles for optimal task distribution:
 ### Agent Initialization Patterns
 
 #### Single Agent for Simple Tasks
+
 ```bash
 # Initialize for basic operations
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize SIMPLE_TASK_AGENT
 ```
 
 #### Coordinated Multi-Agent Deployment
+
 ```bash
 # Initialize multiple specialized agents
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize FRONTEND_AGENT_01
@@ -230,6 +243,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 #### Agent Reinitialization for Session Continuity
+
 ```bash
 # Reinitialize existing agent for new session
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" reinitialize FRONTEND_AGENT_01
@@ -238,7 +252,9 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ### Deployment Strategies
 
 #### Minimum Viable Deployment (3 Agents)
+
 For moderate complexity tasks:
+
 ```bash
 # Core development triad
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize DEV_AGENT_01
@@ -247,7 +263,9 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 #### Standard Deployment (5-7 Agents)
+
 For complex feature development:
+
 ```bash
 # Comprehensive development team
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize ARCHITECTURE_AGENT
@@ -260,7 +278,9 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 #### Maximum Deployment (8-10+ Agents)
+
 For large-scale system development:
+
 ```bash
 # Full enterprise development team
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize SYSTEM_ARCHITECT
@@ -291,6 +311,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 Before authorizing completion, verify:
 
 1. **Code Quality**
+
    ```bash
    # Linting passes with zero errors/warnings
    npm run lint
@@ -300,18 +321,21 @@ Before authorizing completion, verify:
    ```
 
 2. **Build Process**
+
    ```bash
    # Project builds successfully
    npm run build
    ```
 
 3. **Runtime Verification**
+
    ```bash
    # Application starts without errors
    npm run start
    ```
 
 4. **Test Validation**
+
    ```bash
    # All tests pass with adequate coverage
    npm test
@@ -336,19 +360,23 @@ Before authorizing completion, verify:
 ### System Health Monitoring
 
 #### Initialization Statistics
+
 ```bash
 # Get detailed usage analytics
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-initialization-stats
 ```
 
 **Understanding Time Buckets:**
+
 - 5-hour time periods with daily advancing start times
 - Today starts at 8am, tomorrow at 9am, etc.
 - Tracks initialization and reinitialization patterns
 - Historical data maintained for 30 days
 
 #### Real-Time Agent Status
+
 Monitor active agents and their sessions:
+
 - **Active Agents**: Currently operational agents
 - **Session IDs**: Unique identifiers for each agent session
 - **Heartbeat Tracking**: Last activity timestamp for each agent
@@ -357,12 +385,14 @@ Monitor active agents and their sessions:
 ### Performance Monitoring
 
 #### Response Time Tracking
+
 - All operations timeout at 10 seconds
 - Sub-second response for most operations
 - File locking prevents race conditions
 - Atomic operations ensure data integrity
 
 #### Resource Usage Optimization
+
 - Memory-efficient for large feature sets
 - Concurrent agent support
 - Optimized file I/O operations
@@ -397,6 +427,7 @@ Monitor active agents and their sessions:
 ## Common Workflows
 
 ### Daily Development Workflow
+
 ```bash
 # 1. Reinitialize your main agent
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" reinitialize MAIN_DEV_AGENT
@@ -414,6 +445,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 ### Feature Planning Session
+
 ```bash
 # 1. Suggest multiple features
 node taskmanager-api.js suggest-feature '{...feature1...}'
@@ -431,6 +463,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 ### Sprint Planning Workflow
+
 ```bash
 # 1. Initialize specialized planning team
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize PRODUCT_OWNER_AGENT
@@ -470,4 +503,4 @@ For detailed troubleshooting procedures, see [Troubleshooting Guide](./troublesh
 
 ---
 
-*This user guide provides the foundation for effective use of the Autonomous Task Management System, enabling teams to leverage intelligent task orchestration for more productive and enjoyable development experiences.*
+_This user guide provides the foundation for effective use of the Autonomous Task Management System, enabling teams to leverage intelligent task orchestration for more productive and enjoyable development experiences._

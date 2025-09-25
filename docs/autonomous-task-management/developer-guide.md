@@ -92,70 +92,71 @@ class AutonomousTaskManagerAPI {
 
 ```javascript
 const featureSchema = {
-  id: "feature_${timestamp}_${randomHex}",
-  title: "string(10-200)", // Required
-  description: "string(20-2000)", // Required
-  business_value: "string(10-1000)", // Required
-  category: "enhancement|bug-fix|new-feature|performance|security|documentation", // Required
-  status: "suggested|approved|rejected|implemented",
-  created_at: "ISO8601 timestamp",
-  updated_at: "ISO8601 timestamp",
-  suggested_by: "string",
-  metadata: {} // Optional additional data
-}
+  id: 'feature_${timestamp}_${randomHex}',
+  title: 'string(10-200)', // Required
+  description: 'string(20-2000)', // Required
+  business_value: 'string(10-1000)', // Required
+  category:
+    'enhancement|bug-fix|new-feature|performance|security|documentation', // Required
+  status: 'suggested|approved|rejected|implemented',
+  created_at: 'ISO8601 timestamp',
+  updated_at: 'ISO8601 timestamp',
+  suggested_by: 'string',
+  metadata: {}, // Optional additional data
+};
 ```
 
 ### Agent Object Schema
 
 ```javascript
 const agentSchema = {
-  id: "AGENT_ID",
-  status: "active|inactive",
+  id: 'AGENT_ID',
+  status: 'active|inactive',
   sessionId: "crypto.randomBytes(8).toString('hex')",
-  lastHeartbeat: "ISO8601 timestamp",
-  initialized: "ISO8601 timestamp",
-  reinitialized: "ISO8601 timestamp", // For reinitialized agents
-  previousSessions: ["sessionId1", "sessionId2"], // Session history
-  capabilities: ["frontend", "backend", "testing", "..."], // Agent capabilities
-  assigned_tasks: ["taskId1", "taskId2"] // Currently assigned task IDs
-}
+  lastHeartbeat: 'ISO8601 timestamp',
+  initialized: 'ISO8601 timestamp',
+  reinitialized: 'ISO8601 timestamp', // For reinitialized agents
+  previousSessions: ['sessionId1', 'sessionId2'], // Session history
+  capabilities: ['frontend', 'backend', 'testing', '...'], // Agent capabilities
+  assigned_tasks: ['taskId1', 'taskId2'], // Currently assigned task IDs
+};
 ```
 
 ### Task Object Schema (v4.0.0+)
 
 ```javascript
 const taskSchema = {
-  id: "task_${timestamp}_${randomHex}",
-  feature_id: "feature_id", // Reference to source feature
-  title: "string",
-  description: "string",
-  type: "implementation|testing|documentation|validation|deployment|analysis",
-  priority: "critical|high|normal|low",
-  status: "queued|assigned|in_progress|blocked|completed|failed|cancelled",
-  assigned_to: "AGENT_ID",
-  dependencies: ["task_id_1", "task_id_2"], // Task dependencies
+  id: 'task_${timestamp}_${randomHex}',
+  feature_id: 'feature_id', // Reference to source feature
+  title: 'string',
+  description: 'string',
+  type: 'implementation|testing|documentation|validation|deployment|analysis',
+  priority: 'critical|high|normal|low',
+  status: 'queued|assigned|in_progress|blocked|completed|failed|cancelled',
+  assigned_to: 'AGENT_ID',
+  dependencies: ['task_id_1', 'task_id_2'], // Task dependencies
   estimated_effort: 3600, // Seconds
-  required_capabilities: ["frontend", "testing"], // Required agent capabilities
-  created_at: "ISO8601 timestamp",
-  updated_at: "ISO8601 timestamp",
-  assigned_at: "ISO8601 timestamp",
-  completed_at: "ISO8601 timestamp",
+  required_capabilities: ['frontend', 'testing'], // Required agent capabilities
+  created_at: 'ISO8601 timestamp',
+  updated_at: 'ISO8601 timestamp',
+  assigned_at: 'ISO8601 timestamp',
+  completed_at: 'ISO8601 timestamp',
   progress_history: [
     {
-      timestamp: "ISO8601 timestamp",
-      status: "in_progress",
+      timestamp: 'ISO8601 timestamp',
+      status: 'in_progress',
       progress_percentage: 75,
-      notes: "Making good progress on UI components",
-      updated_by: "AGENT_ID",
-      metadata: {}
-    }
+      notes: 'Making good progress on UI components',
+      updated_by: 'AGENT_ID',
+      metadata: {},
+    },
   ],
   metadata: {
     auto_generated: true,
-    feature_category: "enhancement",
-    business_value: "Improves user experience"
-  }
-}
+    feature_category: 'enhancement',
+    business_value: 'Improves user experience',
+  },
+};
 ```
 
 ## File System Organization
@@ -185,24 +186,40 @@ const taskSchema = {
 ```json
 {
   "project": "project-name",
-  "features": [ /* Feature objects */ ],
+  "features": [
+    /* Feature objects */
+  ],
   "metadata": {
     "version": "1.0.0",
     "created": "2025-09-25T00:00:00.000Z",
     "updated": "2025-09-25T00:00:00.000Z",
     "total_features": 14,
-    "approval_history": [ /* Approval records */ ],
-    "initialization_stats": { /* Usage analytics */ }
+    "approval_history": [
+      /* Approval records */
+    ],
+    "initialization_stats": {
+      /* Usage analytics */
+    }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [ /* Valid statuses */ ],
-    "required_fields": [ /* Required feature fields */ ]
+    "allowed_statuses": [
+      /* Valid statuses */
+    ],
+    "required_fields": [
+      /* Required feature fields */
+    ]
   },
-  "agents": { /* Agent objects keyed by agent ID */ },
-  "tasks": [ /* Task objects */ ],
-  "completed_tasks": [ /* Completed task references */ ]
+  "agents": {
+    /* Agent objects keyed by agent ID */
+  },
+  "tasks": [
+    /* Task objects */
+  ],
+  "completed_tasks": [
+    /* Completed task references */
+  ]
 }
 ```
 
@@ -245,7 +262,9 @@ class FileLock {
           try {
             process.kill(lockPid, 0); // Check if process exists
             // Process exists, wait and retry
-            await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+            await new Promise((resolve) =>
+              setTimeout(resolve, this.retryDelay),
+            );
           } catch {
             // Process doesn't exist, remove stale lock
             await fs.unlink(lockPath);
@@ -254,7 +273,9 @@ class FileLock {
       }
     }
 
-    throw new Error(`Could not acquire lock for ${filePath} after ${this.maxRetries} attempts`);
+    throw new Error(
+      `Could not acquire lock for ${filePath} after ${this.maxRetries} attempts`,
+    );
   }
 }
 ```
@@ -335,6 +356,7 @@ _getCurrentTimeBucket() {
 To add a new command to the API:
 
 1. **Define Command Handler**
+
    ```javascript
    async newCommand(parameters) {
      try {
@@ -350,6 +372,7 @@ To add a new command to the API:
    ```
 
 2. **Add to CLI Interface**
+
    ```javascript
    case 'new-command':
      if (!args[1]) {
@@ -369,12 +392,14 @@ To add a new command to the API:
 To add new validation schemas:
 
 1. **Define Schema Constants**
+
    ```javascript
    const NEW_FIELD_VALUES = ['value1', 'value2', 'value3'];
    const NEW_REQUIRED_FIELDS = ['field1', 'field2'];
    ```
 
 2. **Create Validation Method**
+
    ```javascript
    _validateNewData(data) {
      if (!data || typeof data !== 'object') {
@@ -402,6 +427,7 @@ To add new validation schemas:
 To add new analytics capabilities:
 
 1. **Define Data Collection Points**
+
    ```javascript
    async collectAnalyticsData(operation, metadata) {
      const timestamp = new Date().toISOString();
@@ -410,6 +436,7 @@ To add new analytics capabilities:
    ```
 
 2. **Create Reporting Methods**
+
    ```javascript
    async getNewAnalytics(timeRange, filters) {
      const features = await this._loadFeatures();
@@ -423,7 +450,7 @@ To add new analytics capabilities:
    features.metadata.analytics.push({
      operation: 'feature_approval',
      timestamp: new Date().toISOString(),
-     metadata: analyticsData
+     metadata: analyticsData,
    });
    ```
 
@@ -459,7 +486,7 @@ describe('AutonomousTaskManagerAPI', () => {
         title: 'Test Feature',
         description: 'This is a test feature for unit testing',
         business_value: 'Validates the system works correctly',
-        category: 'enhancement'
+        category: 'enhancement',
       };
 
       const result = await api.suggestFeature(featureData);
@@ -494,7 +521,7 @@ describe('Integration Tests', () => {
     // 4. Assign tasks to agents
     const assignResult = await api.assignTask(
       taskResult.generated_tasks[0].id,
-      'TEST_AGENT'
+      'TEST_AGENT',
     );
     expect(assignResult.success).toBe(true);
   });
@@ -506,24 +533,26 @@ describe('Integration Tests', () => {
 ```javascript
 describe('Load Tests', () => {
   test('should handle concurrent operations', async () => {
-    const concurrentOperations = Array(50).fill().map((_, index) =>
-      api.suggestFeature({
-        title: `Concurrent Feature ${index}`,
-        description: `Feature created during concurrent load test ${index}`,
-        business_value: `Testing concurrent operation handling ${index}`,
-        category: 'enhancement'
-      })
-    );
+    const concurrentOperations = Array(50)
+      .fill()
+      .map((_, index) =>
+        api.suggestFeature({
+          title: `Concurrent Feature ${index}`,
+          description: `Feature created during concurrent load test ${index}`,
+          business_value: `Testing concurrent operation handling ${index}`,
+          category: 'enhancement',
+        }),
+      );
 
     const results = await Promise.all(concurrentOperations);
 
     // All operations should succeed
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.success).toBe(true);
     });
 
     // No duplicate IDs should be generated
-    const ids = results.map(r => r.feature.id);
+    const ids = results.map((r) => r.feature.id);
     const uniqueIds = [...new Set(ids)];
     expect(uniqueIds.length).toBe(ids.length);
   });
@@ -535,6 +564,7 @@ describe('Load Tests', () => {
 ### Memory Management
 
 1. **Large Dataset Handling**
+
    ```javascript
    // Stream large datasets instead of loading all into memory
    async processLargeFeatureSet(batchSize = 100) {
@@ -551,6 +581,7 @@ describe('Load Tests', () => {
    ```
 
 2. **Caching Strategy**
+
    ```javascript
    class PerformanceOptimizedAPI extends AutonomousTaskManagerAPI {
      constructor() {
@@ -572,6 +603,7 @@ describe('Load Tests', () => {
 ### I/O Optimization
 
 1. **Batch Operations**
+
    ```javascript
    async batchFeatureOperations(operations) {
      return await this._atomicFeatureOperation((features) => {
@@ -601,7 +633,7 @@ describe('Load Tests', () => {
          database: 'taskmanager',
          max: 20, // Maximum number of clients
          idleTimeoutMillis: 30000,
-         connectionTimeoutMillis: 2000
+         connectionTimeoutMillis: 2000,
        });
      }
    }
@@ -619,34 +651,37 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   transports: [
-    new winston.transports.File({ filename: 'taskmanager-error.log', level: 'error' }),
+    new winston.transports.File({
+      filename: 'taskmanager-error.log',
+      level: 'error',
+    }),
     new winston.transports.File({ filename: 'taskmanager.log' }),
-    new winston.transports.Console({ format: winston.format.simple() })
-  ]
+    new winston.transports.Console({ format: winston.format.simple() }),
+  ],
 });
 
 class LoggingEnabledAPI extends AutonomousTaskManagerAPI {
   async suggestFeature(featureData) {
     logger.info('Feature suggestion started', {
       title: featureData.title,
-      category: featureData.category
+      category: featureData.category,
     });
 
     try {
       const result = await super.suggestFeature(featureData);
       logger.info('Feature suggestion completed', {
         featureId: result.feature?.id,
-        success: result.success
+        success: result.success,
       });
       return result;
     } catch (error) {
       logger.error('Feature suggestion failed', {
         error: error.message,
         stack: error.stack,
-        featureData
+        featureData,
       });
       throw error;
     }
@@ -772,7 +807,7 @@ module.exports = {
     maxRetries: 200,
     retryDelay: 5,
     logLevel: 'debug',
-    enableHealthChecks: true
+    enableHealthChecks: true,
   },
   production: {
     timeout: 10000,
@@ -780,15 +815,15 @@ module.exports = {
     retryDelay: 2,
     logLevel: 'info',
     enableHealthChecks: true,
-    enableMetrics: true
+    enableMetrics: true,
   },
   testing: {
     timeout: 5000,
     maxRetries: 50,
     retryDelay: 1,
     logLevel: 'error',
-    enableHealthChecks: false
-  }
+    enableHealthChecks: false,
+  },
 };
 ```
 
@@ -884,4 +919,4 @@ This developer guide provides comprehensive technical documentation for maintain
 
 ---
 
-*This guide is maintained alongside the codebase and should be updated whenever significant changes are made to the system architecture or implementation.*
+_This guide is maintained alongside the codebase and should be updated whenever significant changes are made to the system architecture or implementation._

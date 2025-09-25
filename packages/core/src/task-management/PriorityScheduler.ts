@@ -6,9 +6,7 @@
 
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import type {
-  Task,
-  TaskCategory} from './TaskQueue.js';
+import type { Task, TaskCategory } from './TaskQueue.js';
 import {
   TaskPriority,
   TaskStatus,
@@ -17,7 +15,7 @@ import {
   ExecutionSequence,
   DependencyGraph,
   ResourceAllocation,
-  ExecutionPlan
+  ExecutionPlan,
 } from './TaskQueue.js';
 import type { TaskId } from './types.js';
 
@@ -25,14 +23,14 @@ import type { TaskId } from './types.js';
  * Advanced scheduling algorithms
  */
 export enum SchedulingAlgorithm {
-  FIFO = 'fifo',                        // First In, First Out
-  PRIORITY = 'priority',                // Priority-based scheduling
-  SHORTEST_JOB_FIRST = 'sjf',          // Shortest estimated duration first
-  DEADLINE_MONOTONIC = 'dm',            // Earliest deadline first
-  DEPENDENCY_AWARE = 'dependency',      // Considers task dependencies
-  RESOURCE_OPTIMAL = 'resource',        // Optimizes resource utilization
-  MACHINE_LEARNING = 'ml',              // ML-based intelligent scheduling
-  HYBRID_ADAPTIVE = 'hybrid'            // Adaptive hybrid approach
+  FIFO = 'fifo', // First In, First Out
+  PRIORITY = 'priority', // Priority-based scheduling
+  SHORTEST_JOB_FIRST = 'sjf', // Shortest estimated duration first
+  DEADLINE_MONOTONIC = 'dm', // Earliest deadline first
+  DEPENDENCY_AWARE = 'dependency', // Considers task dependencies
+  RESOURCE_OPTIMAL = 'resource', // Optimizes resource utilization
+  MACHINE_LEARNING = 'ml', // ML-based intelligent scheduling
+  HYBRID_ADAPTIVE = 'hybrid', // Adaptive hybrid approach
 }
 
 /**
@@ -100,7 +98,7 @@ export class PriorityScheduler extends EventEmitter {
       performanceTracking?: boolean;
       resourceAware?: boolean;
       dependencyAware?: boolean;
-    } = {}
+    } = {},
   ) {
     super();
 
@@ -110,7 +108,7 @@ export class PriorityScheduler extends EventEmitter {
       adaptiveThreshold: 0.15,
       maxLearningHistory: 1000,
       performanceWindow: 100,
-      ...options
+      ...options,
     };
 
     this.initializeAlgorithmConfigs();
@@ -118,7 +116,7 @@ export class PriorityScheduler extends EventEmitter {
 
     logger.info('PriorityScheduler initialized', {
       algorithm: this.currentAlgorithm,
-      options: this.options
+      options: this.options,
     });
   }
 
@@ -128,7 +126,7 @@ export class PriorityScheduler extends EventEmitter {
   async scheduleNextTasks(
     eligibleTasks: Task[],
     availableSlots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     const startTime = Date.now();
 
@@ -136,21 +134,24 @@ export class PriorityScheduler extends EventEmitter {
       eligibleTasks: eligibleTasks.length,
       availableSlots,
       algorithm: this.currentAlgorithm,
-      systemLoad: context.systemLoad
+      systemLoad: context.systemLoad,
     });
 
     let decision: SchedulingDecision;
 
     try {
       // Select appropriate algorithm based on current context
-      const algorithm = await this.selectOptimalAlgorithm(eligibleTasks, context);
+      const algorithm = await this.selectOptimalAlgorithm(
+        eligibleTasks,
+        context,
+      );
 
       // Apply the selected scheduling algorithm
       decision = await this.applySchedulingAlgorithm(
         algorithm,
         eligibleTasks,
         availableSlots,
-        context
+        context,
       );
 
       // Record decision for learning
@@ -163,21 +164,24 @@ export class PriorityScheduler extends EventEmitter {
         selectedTasks: decision.selectedTasks.length,
         algorithm: decision.metadata.algorithm,
         confidence: decision.metadata.confidenceScore,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       });
 
       this.emit('schedulingCompleted', decision);
 
       return decision;
-
     } catch (error) {
       logger.error('Scheduling failed, falling back to priority-based', {
         error: error instanceof Error ? error.message : String(error),
-        algorithm: this.currentAlgorithm
+        algorithm: this.currentAlgorithm,
       });
 
       // Fallback to simple priority scheduling
-      decision = await this.applyPriorityScheduling(eligibleTasks, availableSlots, context);
+      decision = await this.applyPriorityScheduling(
+        eligibleTasks,
+        availableSlots,
+        context,
+      );
       decision.metadata.algorithm = SchedulingAlgorithm.PRIORITY;
 
       this.emit('schedulingFallback', decision, error);
@@ -191,7 +195,7 @@ export class PriorityScheduler extends EventEmitter {
    */
   private async selectOptimalAlgorithm(
     tasks: Task[],
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingAlgorithm> {
     if (this.currentAlgorithm !== SchedulingAlgorithm.HYBRID_ADAPTIVE) {
       return this.currentAlgorithm;
@@ -199,11 +203,12 @@ export class PriorityScheduler extends EventEmitter {
 
     const factors = {
       taskCount: tasks.length,
-      hasDeadlines: tasks.some(t => t.deadline),
-      hasDependencies: tasks.some(t => t.dependencies.length > 0),
+      hasDeadlines: tasks.some((t) => t.deadline),
+      hasDependencies: tasks.some((t) => t.dependencies.length > 0),
       resourceConstrained: context.availableResources.size > 0,
       highSystemLoad: context.systemLoad > 0.8,
-      criticalTasks: tasks.filter(t => t.priority === TaskPriority.CRITICAL).length
+      criticalTasks: tasks.filter((t) => t.priority === TaskPriority.CRITICAL)
+        .length,
     };
 
     // Algorithm selection logic
@@ -237,7 +242,7 @@ export class PriorityScheduler extends EventEmitter {
     algorithm: SchedulingAlgorithm,
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     switch (algorithm) {
       case SchedulingAlgorithm.FIFO:
@@ -275,10 +280,10 @@ export class PriorityScheduler extends EventEmitter {
   private async applyFIFOScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
-    const sortedTasks = [...tasks].sort((a, b) =>
-      a.createdAt.getTime() - b.createdAt.getTime()
+    const sortedTasks = [...tasks].sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     );
 
     const selectedTasks = sortedTasks.slice(0, slots);
@@ -287,12 +292,17 @@ export class PriorityScheduler extends EventEmitter {
       selectedTasks,
       reasoning: ['Tasks selected in creation order (FIFO)'],
       expectedOutcome: this.calculateExpectedOutcome(selectedTasks, context),
-      alternatives: this.generateAlternatives(tasks, selectedTasks, slots, context),
+      alternatives: this.generateAlternatives(
+        tasks,
+        selectedTasks,
+        slots,
+        context,
+      ),
       metadata: {
         algorithm: SchedulingAlgorithm.FIFO,
         decisionTime: new Date(),
-        confidenceScore: 0.6
-      }
+        confidenceScore: 0.6,
+      },
     };
   }
 
@@ -302,28 +312,36 @@ export class PriorityScheduler extends EventEmitter {
   private async applyPriorityScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
-    const scoredTasks = tasks.map(task => ({
+    const scoredTasks = tasks.map((task) => ({
       task,
-      score: this.calculatePriorityScore(task, context)
+      score: this.calculatePriorityScore(task, context),
     }));
 
     scoredTasks.sort((a, b) => b.score - a.score);
-    const selectedTasks = scoredTasks.slice(0, slots).map(st => st.task);
+    const selectedTasks = scoredTasks.slice(0, slots).map((st) => st.task);
 
-    const reasoning = this.generatePriorityReasoning(scoredTasks, selectedTasks);
+    const reasoning = this.generatePriorityReasoning(
+      scoredTasks,
+      selectedTasks,
+    );
 
     return {
       selectedTasks,
       reasoning,
       expectedOutcome: this.calculateExpectedOutcome(selectedTasks, context),
-      alternatives: this.generateAlternatives(tasks, selectedTasks, slots, context),
+      alternatives: this.generateAlternatives(
+        tasks,
+        selectedTasks,
+        slots,
+        context,
+      ),
       metadata: {
         algorithm: SchedulingAlgorithm.PRIORITY,
         decisionTime: new Date(),
-        confidenceScore: 0.8
-      }
+        confidenceScore: 0.8,
+      },
     };
   }
 
@@ -333,34 +351,41 @@ export class PriorityScheduler extends EventEmitter {
   private async applySJFScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
-    const sortedTasks = [...tasks].sort((a, b) =>
-      (a.estimatedDuration || 60000) - (b.estimatedDuration || 60000)
+    const sortedTasks = [...tasks].sort(
+      (a, b) => (a.estimatedDuration || 60000) - (b.estimatedDuration || 60000),
     );
 
     // Apply priority weighting to break ties
-    const weightedTasks = sortedTasks.map(task => ({
+    const weightedTasks = sortedTasks.map((task) => ({
       task,
-      adjustedDuration: (task.estimatedDuration || 60000) / Math.max(1, task.dynamicPriority / 500)
+      adjustedDuration:
+        (task.estimatedDuration || 60000) /
+        Math.max(1, task.dynamicPriority / 500),
     }));
 
     weightedTasks.sort((a, b) => a.adjustedDuration - b.adjustedDuration);
-    const selectedTasks = weightedTasks.slice(0, slots).map(wt => wt.task);
+    const selectedTasks = weightedTasks.slice(0, slots).map((wt) => wt.task);
 
     return {
       selectedTasks,
       reasoning: [
         'Tasks selected by shortest estimated duration',
-        'Priority weighting applied to break ties'
+        'Priority weighting applied to break ties',
       ],
       expectedOutcome: this.calculateExpectedOutcome(selectedTasks, context),
-      alternatives: this.generateAlternatives(tasks, selectedTasks, slots, context),
+      alternatives: this.generateAlternatives(
+        tasks,
+        selectedTasks,
+        slots,
+        context,
+      ),
       metadata: {
         algorithm: SchedulingAlgorithm.SHORTEST_JOB_FIRST,
         decisionTime: new Date(),
-        confidenceScore: 0.75
-      }
+        confidenceScore: 0.75,
+      },
     };
   }
 
@@ -370,28 +395,30 @@ export class PriorityScheduler extends EventEmitter {
   private async applyDeadlineScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     const now = Date.now();
 
-    const tasksWithDeadlines = tasks.filter(task => task.deadline);
-    const tasksWithoutDeadlines = tasks.filter(task => !task.deadline);
+    const tasksWithDeadlines = tasks.filter((task) => task.deadline);
+    const tasksWithoutDeadlines = tasks.filter((task) => !task.deadline);
 
     // Sort tasks with deadlines by urgency
-    const deadlineSorted = tasksWithDeadlines.map(task => ({
-      task,
-      urgency: this.calculateDeadlineUrgency(task, now),
-      timeToDeadline: (task.deadline!.getTime() - now)
-    })).sort((a, b) => b.urgency - a.urgency);
+    const deadlineSorted = tasksWithDeadlines
+      .map((task) => ({
+        task,
+        urgency: this.calculateDeadlineUrgency(task, now),
+        timeToDeadline: task.deadline!.getTime() - now,
+      }))
+      .sort((a, b) => b.urgency - a.urgency);
 
     // Add high-priority tasks without deadlines
     const highPriorityNoDL = tasksWithoutDeadlines
-      .filter(task => task.priority >= TaskPriority.HIGH)
+      .filter((task) => task.priority >= TaskPriority.HIGH)
       .sort((a, b) => b.dynamicPriority - a.dynamicPriority);
 
     const combinedTasks = [
-      ...deadlineSorted.map(dt => dt.task),
-      ...highPriorityNoDL
+      ...deadlineSorted.map((dt) => dt.task),
+      ...highPriorityNoDL,
     ];
 
     const selectedTasks = combinedTasks.slice(0, slots);
@@ -399,19 +426,24 @@ export class PriorityScheduler extends EventEmitter {
     const reasoning = [
       `${tasksWithDeadlines.length} tasks with deadlines prioritized`,
       'Critical path and deadline pressure considered',
-      'High-priority tasks without deadlines included as capacity allows'
+      'High-priority tasks without deadlines included as capacity allows',
     ];
 
     return {
       selectedTasks,
       reasoning,
       expectedOutcome: this.calculateExpectedOutcome(selectedTasks, context),
-      alternatives: this.generateAlternatives(tasks, selectedTasks, slots, context),
+      alternatives: this.generateAlternatives(
+        tasks,
+        selectedTasks,
+        slots,
+        context,
+      ),
       metadata: {
         algorithm: SchedulingAlgorithm.DEADLINE_MONOTONIC,
         decisionTime: new Date(),
-        confidenceScore: 0.85
-      }
+        confidenceScore: 0.85,
+      },
     };
   }
 
@@ -421,7 +453,7 @@ export class PriorityScheduler extends EventEmitter {
   private async applyDependencyAwareScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     // Build dependency graph
     const dependencyGraph = this.buildDependencyGraph(tasks);
@@ -433,25 +465,30 @@ export class PriorityScheduler extends EventEmitter {
     const selectedTasks = this.selectParallelizableTasks(
       topologicalOrder,
       slots,
-      context
+      context,
     );
 
     const reasoning = [
       'Tasks selected respecting dependency order',
       'Parallel execution opportunities identified',
-      'Critical path optimization applied'
+      'Critical path optimization applied',
     ];
 
     return {
       selectedTasks,
       reasoning,
       expectedOutcome: this.calculateExpectedOutcome(selectedTasks, context),
-      alternatives: this.generateAlternatives(tasks, selectedTasks, slots, context),
+      alternatives: this.generateAlternatives(
+        tasks,
+        selectedTasks,
+        slots,
+        context,
+      ),
       metadata: {
         algorithm: SchedulingAlgorithm.DEPENDENCY_AWARE,
         decisionTime: new Date(),
-        confidenceScore: 0.9
-      }
+        confidenceScore: 0.9,
+      },
     };
   }
 
@@ -461,13 +498,13 @@ export class PriorityScheduler extends EventEmitter {
   private async applyResourceOptimalScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     // Score tasks based on resource efficiency
-    const resourceScored = tasks.map(task => ({
+    const resourceScored = tasks.map((task) => ({
       task,
       resourceScore: this.calculateResourceEfficiency(task, context),
-      conflictCount: this.calculateResourceConflicts(task, tasks)
+      conflictCount: this.calculateResourceConflicts(task, tasks),
     }));
 
     // Select optimal combination using greedy algorithm
@@ -480,7 +517,7 @@ export class PriorityScheduler extends EventEmitter {
         if (selectedTasks.length >= slots) return;
 
         // Check if task can be scheduled without resource conflicts
-        const canSchedule = task.requiredResources.every(resource => {
+        const canSchedule = task.requiredResources.every((resource) => {
           const used = usedResources.get(resource) || 0;
           const available = context.availableResources.get(resource) || 0;
           return used < available;
@@ -490,7 +527,7 @@ export class PriorityScheduler extends EventEmitter {
           selectedTasks.push(task);
 
           // Update used resources
-          task.requiredResources.forEach(resource => {
+          task.requiredResources.forEach((resource) => {
             usedResources.set(resource, (usedResources.get(resource) || 0) + 1);
           });
         }
@@ -501,15 +538,20 @@ export class PriorityScheduler extends EventEmitter {
       reasoning: [
         'Tasks selected for optimal resource utilization',
         'Resource conflicts minimized',
-        'Execution parallelism maximized within resource constraints'
+        'Execution parallelism maximized within resource constraints',
       ],
       expectedOutcome: this.calculateExpectedOutcome(selectedTasks, context),
-      alternatives: this.generateAlternatives(tasks, selectedTasks, slots, context),
+      alternatives: this.generateAlternatives(
+        tasks,
+        selectedTasks,
+        slots,
+        context,
+      ),
       metadata: {
         algorithm: SchedulingAlgorithm.RESOURCE_OPTIMAL,
         decisionTime: new Date(),
-        confidenceScore: 0.88
-      }
+        confidenceScore: 0.88,
+      },
     };
   }
 
@@ -519,7 +561,7 @@ export class PriorityScheduler extends EventEmitter {
   private async applyMLScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     if (this.learningData.length < 10) {
       // Fall back to priority scheduling if insufficient data
@@ -536,15 +578,15 @@ export class PriorityScheduler extends EventEmitter {
       reasoning: [
         'Machine learning predictions based on historical performance',
         `Trained on ${this.learningData.length} scheduling decisions`,
-        `Prediction confidence: ${Math.round(predictions.confidence * 100)}%`
+        `Prediction confidence: ${Math.round(predictions.confidence * 100)}%`,
       ],
       expectedOutcome: predictions.expectedOutcome,
       alternatives: predictions.alternatives,
       metadata: {
         algorithm: SchedulingAlgorithm.MACHINE_LEARNING,
         decisionTime: new Date(),
-        confidenceScore: predictions.confidence
-      }
+        confidenceScore: predictions.confidence,
+      },
     };
   }
 
@@ -554,35 +596,42 @@ export class PriorityScheduler extends EventEmitter {
   private async applyHybridScheduling(
     tasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision> {
     // Generate multiple scheduling options
     const options = await Promise.all([
       this.applyPriorityScheduling(tasks, slots, context),
       this.applySJFScheduling(tasks, slots, context),
       this.applyDeadlineScheduling(tasks, slots, context),
-      this.applyResourceOptimalScheduling(tasks, slots, context)
+      this.applyResourceOptimalScheduling(tasks, slots, context),
     ]);
 
     // Score each option
-    const scoredOptions = options.map(option => ({
+    const scoredOptions = options.map((option) => ({
       option,
-      score: this.scoreSchedulingOption(option, context)
+      score: this.scoreSchedulingOption(option, context),
     }));
 
     scoredOptions.sort((a, b) => b.score - a.score);
     const bestOption = scoredOptions[0].option;
 
     // Enhance with hybrid reasoning
-    bestOption.reasoning.unshift('Hybrid approach: evaluated multiple algorithms');
-    bestOption.alternatives = scoredOptions.slice(1, 4).map(so => ({
+    bestOption.reasoning.unshift(
+      'Hybrid approach: evaluated multiple algorithms',
+    );
+    bestOption.alternatives = scoredOptions.slice(1, 4).map((so) => ({
       tasks: so.option.selectedTasks,
       score: so.score,
-      tradeoffs: [`Alternative using ${so.option.metadata.algorithm} algorithm`]
+      tradeoffs: [
+        `Alternative using ${so.option.metadata.algorithm} algorithm`,
+      ],
     }));
 
     bestOption.metadata.algorithm = SchedulingAlgorithm.HYBRID_ADAPTIVE;
-    bestOption.metadata.confidenceScore = Math.max(0.9, bestOption.metadata.confidenceScore);
+    bestOption.metadata.confidenceScore = Math.max(
+      0.9,
+      bestOption.metadata.confidenceScore,
+    );
 
     return bestOption;
   }
@@ -590,7 +639,10 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Calculate priority score for a task
    */
-  private calculatePriorityScore(task: Task, context: SchedulingContext): number {
+  private calculatePriorityScore(
+    task: Task,
+    context: SchedulingContext,
+  ): number {
     let score = task.dynamicPriority;
 
     // Age factor
@@ -610,14 +662,15 @@ export class PriorityScheduler extends EventEmitter {
     }
 
     // Resource availability factor
-    const resourceFactor = task.requiredResources.length > 0
-      ? this.calculateResourceAvailabilityFactor(task, context)
-      : 1.0;
+    const resourceFactor =
+      task.requiredResources.length > 0
+        ? this.calculateResourceAvailabilityFactor(task, context)
+        : 1.0;
     score *= resourceFactor;
 
     // Historical success rate
     const successRate = this.getHistoricalSuccessRate(task);
-    score *= (0.5 + successRate * 0.5); // 0.5-1.0 multiplier
+    score *= 0.5 + successRate * 0.5; // 0.5-1.0 multiplier
 
     return score;
   }
@@ -635,7 +688,7 @@ export class PriorityScheduler extends EventEmitter {
     if (timeToDeadline <= estimatedDuration * 2) return 0.8; // High urgency
     if (timeToDeadline <= estimatedDuration * 5) return 0.5; // Medium urgency
 
-    return Math.max(0.1, 1 - (timeToDeadline / (7 * 24 * 60 * 60 * 1000))); // Week scale
+    return Math.max(0.1, 1 - timeToDeadline / (7 * 24 * 60 * 60 * 1000)); // Week scale
   }
 
   /**
@@ -654,11 +707,14 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Perform topological sort on dependency graph
    */
-  private topologicalSort(graph: Map<TaskId, Set<TaskId>>, tasks: Task[]): Task[] {
+  private topologicalSort(
+    graph: Map<TaskId, Set<TaskId>>,
+    tasks: Task[],
+  ): Task[] {
     const inDegree = new Map<TaskId, number>();
     const result: Task[] = [];
     const queue: Task[] = [];
-    const taskMap = new Map(tasks.map(t => [t.id, t]));
+    const taskMap = new Map(tasks.map((t) => [t.id, t]));
 
     // Initialize in-degrees
     for (const task of tasks) {
@@ -697,7 +753,7 @@ export class PriorityScheduler extends EventEmitter {
   private selectParallelizableTasks(
     orderedTasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Task[] {
     const selected: Task[] = [];
     const usedResources = new Set<string>();
@@ -706,13 +762,15 @@ export class PriorityScheduler extends EventEmitter {
       if (selected.length >= slots) break;
 
       // Check resource conflicts
-      const hasConflict = task.requiredResources.some(resource =>
-        usedResources.has(resource)
+      const hasConflict = task.requiredResources.some((resource) =>
+        usedResources.has(resource),
       );
 
       if (!hasConflict) {
         selected.push(task);
-        task.requiredResources.forEach(resource => usedResources.add(resource));
+        task.requiredResources.forEach((resource) =>
+          usedResources.add(resource),
+        );
       }
     }
 
@@ -722,7 +780,10 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Calculate resource efficiency score for a task
    */
-  private calculateResourceEfficiency(task: Task, context: SchedulingContext): number {
+  private calculateResourceEfficiency(
+    task: Task,
+    context: SchedulingContext,
+  ): number {
     if (task.requiredResources.length === 0) return 1.0;
 
     let efficiency = 0;
@@ -747,8 +808,8 @@ export class PriorityScheduler extends EventEmitter {
     for (const otherTask of allTasks) {
       if (otherTask.id === task.id) continue;
 
-      const sharedResources = task.requiredResources.filter(r =>
-        otherTask.requiredResources.includes(r)
+      const sharedResources = task.requiredResources.filter((r) =>
+        otherTask.requiredResources.includes(r),
       );
       conflicts += sharedResources.length;
     }
@@ -759,7 +820,10 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Calculate resource availability factor
    */
-  private calculateResourceAvailabilityFactor(task: Task, context: SchedulingContext): number {
+  private calculateResourceAvailabilityFactor(
+    task: Task,
+    context: SchedulingContext,
+  ): number {
     if (task.requiredResources.length === 0) return 1.0;
 
     let totalAvailability = 0;
@@ -779,17 +843,16 @@ export class PriorityScheduler extends EventEmitter {
    * Get historical success rate for similar tasks
    */
   private getHistoricalSuccessRate(task: Task): number {
-    const similarDecisions = this.learningData.filter(data =>
-      data.decision.selectedTasks.some(t =>
-        t.category === task.category &&
-        t.priority === task.priority
-      )
+    const similarDecisions = this.learningData.filter((data) =>
+      data.decision.selectedTasks.some(
+        (t) => t.category === task.category && t.priority === task.priority,
+      ),
     );
 
     if (similarDecisions.length === 0) return 0.8; // Default assumption
 
-    const successes = similarDecisions.filter(data =>
-      data.outcome.every(result => result.success)
+    const successes = similarDecisions.filter((data) =>
+      data.outcome.every((result) => result.success),
     ).length;
 
     return successes / similarDecisions.length;
@@ -800,7 +863,7 @@ export class PriorityScheduler extends EventEmitter {
    */
   private async predictOptimalScheduling(
     tasks: Task[],
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<{
     recommendations: Task[];
     confidence: number;
@@ -810,9 +873,12 @@ export class PriorityScheduler extends EventEmitter {
     // Simple ML implementation - would use actual ML framework in production
     const features = this.extractFeatures(tasks, context);
     const predictions = this.learningData
-      .map(data => ({
+      .map((data) => ({
         data,
-        similarity: this.calculateSimilarity(features, this.extractFeatures(data.decision.selectedTasks, context))
+        similarity: this.calculateSimilarity(
+          features,
+          this.extractFeatures(data.decision.selectedTasks, context),
+        ),
       }))
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, 10); // Top 10 most similar cases
@@ -826,21 +892,28 @@ export class PriorityScheduler extends EventEmitter {
       }
     }
 
-    const taskScores = tasks.map(task => ({
-      task,
-      score: weightedRecommendations.get(task.id) || 0
-    })).sort((a, b) => b.score - a.score);
+    const taskScores = tasks
+      .map((task) => ({
+        task,
+        score: weightedRecommendations.get(task.id) || 0,
+      }))
+      .sort((a, b) => b.score - a.score);
 
-    const recommendations = taskScores.map(ts => ts.task);
-    const confidence = predictions.length > 0
-      ? predictions.reduce((sum, p) => sum + p.similarity, 0) / predictions.length
-      : 0.5;
+    const recommendations = taskScores.map((ts) => ts.task);
+    const confidence =
+      predictions.length > 0
+        ? predictions.reduce((sum, p) => sum + p.similarity, 0) /
+          predictions.length
+        : 0.5;
 
     return {
       recommendations,
       confidence,
-      expectedOutcome: this.calculateExpectedOutcome(recommendations.slice(0, 5), context),
-      alternatives: []
+      expectedOutcome: this.calculateExpectedOutcome(
+        recommendations.slice(0, 5),
+        context,
+      ),
+      alternatives: [],
     };
   }
 
@@ -850,24 +923,30 @@ export class PriorityScheduler extends EventEmitter {
   private extractFeatures(tasks: Task[], context: SchedulingContext): number[] {
     return [
       tasks.length,
-      tasks.filter(t => t.priority === TaskPriority.CRITICAL).length,
-      tasks.filter(t => t.priority === TaskPriority.HIGH).length,
-      tasks.filter(t => t.dependencies.length > 0).length,
-      tasks.filter(t => t.deadline !== undefined).length,
+      tasks.filter((t) => t.priority === TaskPriority.CRITICAL).length,
+      tasks.filter((t) => t.priority === TaskPriority.HIGH).length,
+      tasks.filter((t) => t.dependencies.length > 0).length,
+      tasks.filter((t) => t.deadline !== undefined).length,
       context.systemLoad,
       context.queueDepth,
       context.currentWorkload,
-      context.availableResources.size
+      context.availableResources.size,
     ];
   }
 
   /**
    * Calculate similarity between feature vectors
    */
-  private calculateSimilarity(features1: number[], features2: number[]): number {
+  private calculateSimilarity(
+    features1: number[],
+    features2: number[],
+  ): number {
     if (features1.length !== features2.length) return 0;
 
-    const dotProduct = features1.reduce((sum, val, i) => sum + val * features2[i], 0);
+    const dotProduct = features1.reduce(
+      (sum, val, i) => sum + val * features2[i],
+      0,
+    );
     const norm1 = Math.sqrt(features1.reduce((sum, val) => sum + val * val, 0));
     const norm2 = Math.sqrt(features2.reduce((sum, val) => sum + val * val, 0));
 
@@ -877,7 +956,10 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Score a scheduling option
    */
-  private scoreSchedulingOption(option: SchedulingDecision, context: SchedulingContext): number {
+  private scoreSchedulingOption(
+    option: SchedulingDecision,
+    context: SchedulingContext,
+  ): number {
     let score = 0;
 
     // Base score from expected outcome
@@ -886,8 +968,12 @@ export class PriorityScheduler extends EventEmitter {
     score -= (option.expectedOutcome.totalDuration / 1000) * 0.1; // Prefer shorter duration
 
     // Risk penalty
-    const riskPenalty = option.expectedOutcome.riskAssessment === 'high' ? 50 :
-                       option.expectedOutcome.riskAssessment === 'medium' ? 20 : 0;
+    const riskPenalty =
+      option.expectedOutcome.riskAssessment === 'high'
+        ? 50
+        : option.expectedOutcome.riskAssessment === 'medium'
+          ? 20
+          : 0;
     score -= riskPenalty;
 
     // Confidence bonus
@@ -899,42 +985,57 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Calculate expected outcome for selected tasks
    */
-  private calculateExpectedOutcome(tasks: Task[], context: SchedulingContext): {
+  private calculateExpectedOutcome(
+    tasks: Task[],
+    context: SchedulingContext,
+  ): {
     totalDuration: number;
     resourceUtilization: number;
     parallelismFactor: number;
     riskAssessment: 'low' | 'medium' | 'high';
   } {
-    const totalDuration = Math.max(...tasks.map(t => t.estimatedDuration || 60000));
+    const totalDuration = Math.max(
+      ...tasks.map((t) => t.estimatedDuration || 60000),
+    );
 
     const resourceUsage = new Map<string, number>();
-    tasks.forEach(task => {
-      task.requiredResources.forEach(resource => {
+    tasks.forEach((task) => {
+      task.requiredResources.forEach((resource) => {
         resourceUsage.set(resource, (resourceUsage.get(resource) || 0) + 1);
       });
     });
 
     const maxResourceUsage = Math.max(0, ...Array.from(resourceUsage.values()));
     const totalResources = context.availableResources.size || 1;
-    const resourceUtilization = Math.min(1.0, maxResourceUsage / totalResources);
+    const resourceUtilization = Math.min(
+      1.0,
+      maxResourceUsage / totalResources,
+    );
 
-    const parallelismFactor = tasks.length > 1 ? Math.min(1.0, tasks.length / totalResources) : 0;
+    const parallelismFactor =
+      tasks.length > 1 ? Math.min(1.0, tasks.length / totalResources) : 0;
 
-    const highRiskTasks = tasks.filter(t =>
-      t.priority === TaskPriority.CRITICAL ||
-      t.currentRetries > 0 ||
-      (t.deadline && (t.deadline.getTime() - Date.now()) < (t.estimatedDuration || 60000) * 2)
+    const highRiskTasks = tasks.filter(
+      (t) =>
+        t.priority === TaskPriority.CRITICAL ||
+        t.currentRetries > 0 ||
+        (t.deadline &&
+          t.deadline.getTime() - Date.now() <
+            (t.estimatedDuration || 60000) * 2),
     ).length;
 
     const riskAssessment: 'low' | 'medium' | 'high' =
-      highRiskTasks > tasks.length * 0.5 ? 'high' :
-      highRiskTasks > 0 ? 'medium' : 'low';
+      highRiskTasks > tasks.length * 0.5
+        ? 'high'
+        : highRiskTasks > 0
+          ? 'medium'
+          : 'low';
 
     return {
       totalDuration,
       resourceUtilization,
       parallelismFactor,
-      riskAssessment
+      riskAssessment,
     };
   }
 
@@ -945,24 +1046,30 @@ export class PriorityScheduler extends EventEmitter {
     allTasks: Task[],
     selectedTasks: Task[],
     slots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Array<{ tasks: Task[]; score: number; tradeoffs: string[] }> {
-    const alternatives: Array<{ tasks: Task[]; score: number; tradeoffs: string[] }> = [];
+    const alternatives: Array<{
+      tasks: Task[];
+      score: number;
+      tradeoffs: string[];
+    }> = [];
 
     // Random sampling alternative
     const shuffledTasks = [...allTasks].sort(() => Math.random() - 0.5);
     alternatives.push({
       tasks: shuffledTasks.slice(0, slots),
       score: 0.3,
-      tradeoffs: ['Random selection - low optimization']
+      tradeoffs: ['Random selection - low optimization'],
     });
 
     // Priority-only alternative (if current wasn't priority-based)
-    const prioritySorted = [...allTasks].sort((a, b) => b.dynamicPriority - a.dynamicPriority);
+    const prioritySorted = [...allTasks].sort(
+      (a, b) => b.dynamicPriority - a.dynamicPriority,
+    );
     alternatives.push({
       tasks: prioritySorted.slice(0, slots),
       score: 0.6,
-      tradeoffs: ['Pure priority-based selection']
+      tradeoffs: ['Pure priority-based selection'],
     });
 
     return alternatives.slice(0, 2); // Limit alternatives
@@ -973,26 +1080,35 @@ export class PriorityScheduler extends EventEmitter {
    */
   private generatePriorityReasoning(
     scoredTasks: Array<{ task: Task; score: number }>,
-    selectedTasks: Task[]
+    selectedTasks: Task[],
   ): string[] {
     const reasoning: string[] = [];
 
-    const avgScore = scoredTasks.reduce((sum, st) => sum + st.score, 0) / scoredTasks.length;
-    const selectedScores = scoredTasks.filter(st => selectedTasks.includes(st.task));
+    const avgScore =
+      scoredTasks.reduce((sum, st) => sum + st.score, 0) / scoredTasks.length;
+    const selectedScores = scoredTasks.filter((st) =>
+      selectedTasks.includes(st.task),
+    );
 
-    reasoning.push(`Selected top ${selectedTasks.length} tasks by priority score`);
+    reasoning.push(
+      `Selected top ${selectedTasks.length} tasks by priority score`,
+    );
 
-    const criticalTasks = selectedTasks.filter(t => t.priority === TaskPriority.CRITICAL).length;
+    const criticalTasks = selectedTasks.filter(
+      (t) => t.priority === TaskPriority.CRITICAL,
+    ).length;
     if (criticalTasks > 0) {
       reasoning.push(`${criticalTasks} critical priority tasks included`);
     }
 
-    const tasksWithDeadlines = selectedTasks.filter(t => t.deadline).length;
+    const tasksWithDeadlines = selectedTasks.filter((t) => t.deadline).length;
     if (tasksWithDeadlines > 0) {
       reasoning.push(`${tasksWithDeadlines} tasks with deadlines prioritized`);
     }
 
-    const avgSelectedScore = selectedScores.reduce((sum, st) => sum + st.score, 0) / selectedScores.length;
+    const avgSelectedScore =
+      selectedScores.reduce((sum, st) => sum + st.score, 0) /
+      selectedScores.length;
     if (avgSelectedScore > avgScore * 1.2) {
       reasoning.push('Selected tasks significantly above average priority');
     }
@@ -1003,28 +1119,34 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Record scheduling decision for learning
    */
-  private recordSchedulingDecision(decision: SchedulingDecision, context: SchedulingContext): void {
+  private recordSchedulingDecision(
+    decision: SchedulingDecision,
+    context: SchedulingContext,
+  ): void {
     // Store limited history to prevent memory leaks
     if (this.learningData.length >= (this.options.maxLearningHistory || 1000)) {
       this.learningData.shift(); // Remove oldest entry
     }
 
     this.schedulingHistory.set(
-      decision.selectedTasks.map(t => t.id).join(','),
-      decision
+      decision.selectedTasks.map((t) => t.id).join(','),
+      decision,
     );
 
     logger.debug('Scheduling decision recorded for learning', {
       selectedTasks: decision.selectedTasks.length,
       algorithm: decision.metadata.algorithm,
-      confidence: decision.metadata.confidenceScore
+      confidence: decision.metadata.confidenceScore,
     });
   }
 
   /**
    * Update algorithm performance metrics
    */
-  private updateAlgorithmPerformance(algorithm: SchedulingAlgorithm, startTime: number): void {
+  private updateAlgorithmPerformance(
+    algorithm: SchedulingAlgorithm,
+    startTime: number,
+  ): void {
     const duration = Date.now() - startTime;
     const currentPerf = this.performanceMetrics.get(algorithm) || 0;
 
@@ -1038,11 +1160,14 @@ export class PriorityScheduler extends EventEmitter {
   /**
    * Learn from task execution outcomes
    */
-  recordExecutionOutcome(decision: SchedulingDecision, outcomes: TaskResult[]): void {
+  recordExecutionOutcome(
+    decision: SchedulingDecision,
+    outcomes: TaskResult[],
+  ): void {
     if (!this.options.enableMachineLearning) return;
 
     // Find the context for this decision
-    const decisionKey = decision.selectedTasks.map(t => t.id).join(',');
+    const decisionKey = decision.selectedTasks.map((t) => t.id).join(',');
     const historicalDecision = this.schedulingHistory.get(decisionKey);
 
     if (!historicalDecision) return;
@@ -1052,23 +1177,24 @@ export class PriorityScheduler extends EventEmitter {
       context: {} as SchedulingContext, // Would need to store this
       decision: historicalDecision,
       outcome: outcomes,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     // Update algorithm performance based on outcomes
-    const successRate = outcomes.filter(o => o.success).length / outcomes.length;
+    const successRate =
+      outcomes.filter((o) => o.success).length / outcomes.length;
     const algorithm = decision.metadata.algorithm;
 
     logger.debug('Execution outcome recorded for learning', {
       algorithm,
       successRate,
-      taskCount: outcomes.length
+      taskCount: outcomes.length,
     });
 
     this.emit('learningUpdated', {
       algorithm,
       successRate,
-      totalLearningData: this.learningData.length
+      totalLearningData: this.learningData.length,
     });
   }
 
@@ -1085,7 +1211,7 @@ export class PriorityScheduler extends EventEmitter {
       algorithmPerformance: new Map(this.performanceMetrics),
       currentAlgorithm: this.currentAlgorithm,
       totalDecisions: this.schedulingHistory.size,
-      learningDataSize: this.learningData.length
+      learningDataSize: this.learningData.length,
     };
   }
 
@@ -1098,7 +1224,7 @@ export class PriorityScheduler extends EventEmitter {
 
     logger.info('Scheduling algorithm changed', {
       from: oldAlgorithm,
-      to: algorithm
+      to: algorithm,
     });
 
     this.emit('algorithmChanged', { from: oldAlgorithm, to: algorithm });
@@ -1110,7 +1236,7 @@ export class PriorityScheduler extends EventEmitter {
   private initializeAlgorithmConfigs(): void {
     this.algorithmConfigs.set(SchedulingAlgorithm.FIFO, {
       enabled: true,
-      weight: 0.6
+      weight: 0.6,
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.PRIORITY, {
@@ -1121,14 +1247,14 @@ export class PriorityScheduler extends EventEmitter {
         [TaskPriority.HIGH]: 800,
         [TaskPriority.MEDIUM]: 500,
         [TaskPriority.LOW]: 200,
-        [TaskPriority.BACKGROUND]: 50
-      }
+        [TaskPriority.BACKGROUND]: 50,
+      },
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.SHORTEST_JOB_FIRST, {
       enabled: true,
       weight: 0.75,
-      priorityWeighting: true
+      priorityWeighting: true,
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.DEADLINE_MONOTONIC, {
@@ -1137,32 +1263,32 @@ export class PriorityScheduler extends EventEmitter {
       urgencyThresholds: {
         critical: 1.0,
         high: 0.8,
-        medium: 0.5
-      }
+        medium: 0.5,
+      },
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.DEPENDENCY_AWARE, {
       enabled: true,
       weight: 0.9,
-      parallelismFactor: 0.8
+      parallelismFactor: 0.8,
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.RESOURCE_OPTIMAL, {
       enabled: true,
       weight: 0.88,
-      resourceThreshold: 0.8
+      resourceThreshold: 0.8,
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.MACHINE_LEARNING, {
       enabled: this.options.enableMachineLearning,
       weight: 0.95,
-      minLearningData: 50
+      minLearningData: 50,
     });
 
     this.algorithmConfigs.set(SchedulingAlgorithm.HYBRID_ADAPTIVE, {
       enabled: true,
       weight: 1.0,
-      adaptiveThreshold: this.options.adaptiveThreshold
+      adaptiveThreshold: this.options.adaptiveThreshold,
     });
   }
 
@@ -1170,7 +1296,7 @@ export class PriorityScheduler extends EventEmitter {
    * Initialize performance metrics for all algorithms
    */
   private initializePerformanceMetrics(): void {
-    Object.values(SchedulingAlgorithm).forEach(algorithm => {
+    Object.values(SchedulingAlgorithm).forEach((algorithm) => {
       this.performanceMetrics.set(algorithm, 100); // Default 100ms
     });
   }

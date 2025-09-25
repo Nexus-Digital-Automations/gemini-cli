@@ -286,7 +286,8 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         })
         .option('budget-limit', {
           type: 'number',
-          description: 'Set daily budget limit for API requests (number of requests).',
+          description:
+            'Set daily budget limit for API requests (number of requests).',
         })
         .option('disable-budget', {
           type: 'boolean',

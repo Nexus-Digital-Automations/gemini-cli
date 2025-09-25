@@ -5,4 +5,8 @@
  */
 
 import type React from 'react';
-export declare const useStateAndRef: <T extends object | null | undefined | number | string>(initialValue: T) => readonly [T, React.RefObject<T>, React.Dispatch<React.SetStateAction<T>>];
+export declare const useStateAndRef: <
+  T extends object | null | undefined | number | string,
+>(
+  initialValue: T,
+) => readonly [T, React.RefObject<T>, React.Dispatch<React.SetStateAction<T>>];

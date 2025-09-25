@@ -40,7 +40,14 @@ export interface Permission {
 
 export interface AccessCondition {
   readonly field: string;
-  readonly operator: 'equals' | 'not_equals' | 'in' | 'not_in' | 'greater_than' | 'less_than' | 'regex';
+  readonly operator:
+    | 'equals'
+    | 'not_equals'
+    | 'in'
+    | 'not_in'
+    | 'greater_than'
+    | 'less_than'
+    | 'regex';
   readonly value: unknown;
 }
 
@@ -143,7 +150,9 @@ export class AccessControlManager extends EventEmitter {
   /**
    * Create a new user with specified roles and permissions.
    */
-  async createUser(userData: Partial<User> & { username: string; email: string }): Promise<User> {
+  async createUser(
+    userData: Partial<User> & { username: string; email: string },
+  ): Promise<User> {
     const user: User = {
       id: crypto.randomUUID(),
       username: userData.username,
@@ -152,7 +161,7 @@ export class AccessControlManager extends EventEmitter {
       permissions: userData.permissions || [],
       metadata: userData.metadata || {},
       createdAt: new Date(),
-      isActive: true
+      isActive: true,
     };
 
     this.users.set(user.id, user);
@@ -172,7 +181,7 @@ export class AccessControlManager extends EventEmitter {
       description: roleData.description || '',
       permissions: roleData.permissions || [],
       inheritsFrom: roleData.inheritsFrom,
-      metadata: roleData.metadata || {}
+      metadata: roleData.metadata || {},
     };
 
     this.roles.set(role.id, role);
@@ -195,15 +204,28 @@ export class AccessControlManager extends EventEmitter {
       // Apply security policies
       const policyResult = this.evaluatePolicies(request, riskScore);
       if (policyResult.action === 'deny') {
-        return this.createAccessResult(false, policyResult.reason, [], [], request, riskScore);
+        return this.createAccessResult(
+          false,
+          policyResult.reason,
+          [],
+          [],
+          request,
+          riskScore,
+        );
       }
 
       // Check user permissions
       const userPermissions = this.getUserPermissions(request.user);
-      const applicablePermissions = this.findApplicablePermissions(userPermissions, request);
+      const applicablePermissions = this.findApplicablePermissions(
+        userPermissions,
+        request,
+      );
 
       // Evaluate conditions
-      const conditionResults = await this.evaluateConditions(applicablePermissions, request);
+      const conditionResults = await this.evaluateConditions(
+        applicablePermissions,
+        request,
+      );
       const granted = conditionResults.length > 0;
 
       const reason = granted
@@ -214,9 +236,9 @@ export class AccessControlManager extends EventEmitter {
         granted,
         reason,
         applicablePermissions,
-        conditionResults.flatMap(cr => cr.conditions),
+        conditionResults.flatMap((cr) => cr.conditions),
         request,
-        riskScore
+        riskScore,
       );
 
       // Log access attempt
@@ -235,7 +257,6 @@ export class AccessControlManager extends EventEmitter {
       }
 
       return result;
-
     } catch (error) {
       const errorResult = this.createAccessResult(
         false,
@@ -243,7 +264,7 @@ export class AccessControlManager extends EventEmitter {
         [],
         [],
         request,
-        1.0
+        1.0,
       );
 
       await this.auditLogger.logAccessAttempt(errorResult.auditLog);
@@ -264,7 +285,7 @@ export class AccessControlManager extends EventEmitter {
 
     const updatedUser: User = {
       ...user,
-      permissions: [...user.permissions, permission]
+      permissions: [...user.permissions, permission],
     };
 
     this.users.set(userId, updatedUser);
@@ -281,14 +302,14 @@ export class AccessControlManager extends EventEmitter {
       throw new Error(`User not found: ${userId}`);
     }
 
-    const permission = user.permissions.find(p => p.id === permissionId);
+    const permission = user.permissions.find((p) => p.id === permissionId);
     if (!permission) {
       throw new Error(`Permission not found: ${permissionId}`);
     }
 
     const updatedUser: User = {
       ...user,
-      permissions: user.permissions.filter(p => p.id !== permissionId)
+      permissions: user.permissions.filter((p) => p.id !== permissionId),
     };
 
     this.users.set(userId, updatedUser);
@@ -306,13 +327,13 @@ export class AccessControlManager extends EventEmitter {
     if (!user) throw new Error(`User not found: ${userId}`);
     if (!role) throw new Error(`Role not found: ${roleId}`);
 
-    if (user.roles.some(r => r.id === roleId)) {
+    if (user.roles.some((r) => r.id === roleId)) {
       throw new Error(`User already has role: ${role.name}`);
     }
 
     const updatedUser: User = {
       ...user,
-      roles: [...user.roles, role]
+      roles: [...user.roles, role],
     };
 
     this.users.set(userId, updatedUser);
@@ -329,14 +350,14 @@ export class AccessControlManager extends EventEmitter {
       throw new Error(`User not found: ${userId}`);
     }
 
-    const role = user.roles.find(r => r.id === roleId);
+    const role = user.roles.find((r) => r.id === roleId);
     if (!role) {
       throw new Error(`User does not have role: ${roleId}`);
     }
 
     const updatedUser: User = {
       ...user,
-      roles: user.roles.filter(r => r.id !== roleId)
+      roles: user.roles.filter((r) => r.id !== roleId),
     };
 
     this.users.set(userId, updatedUser);
@@ -347,24 +368,32 @@ export class AccessControlManager extends EventEmitter {
   /**
    * Get comprehensive access audit trail.
    */
-  getAccessAuditTrail(userId?: string, resource?: string, timeRange?: { start: Date; end: Date }): AccessAuditEntry[] {
+  getAccessAuditTrail(
+    userId?: string,
+    resource?: string,
+    timeRange?: { start: Date; end: Date },
+  ): AccessAuditEntry[] {
     let filtered = this.auditLog;
 
     if (userId) {
-      filtered = filtered.filter(entry => entry.userId === userId);
+      filtered = filtered.filter((entry) => entry.userId === userId);
     }
 
     if (resource) {
-      filtered = filtered.filter(entry => entry.resource === resource);
+      filtered = filtered.filter((entry) => entry.resource === resource);
     }
 
     if (timeRange) {
-      filtered = filtered.filter(entry =>
-        entry.timestamp >= timeRange.start && entry.timestamp <= timeRange.end
+      filtered = filtered.filter(
+        (entry) =>
+          entry.timestamp >= timeRange.start &&
+          entry.timestamp <= timeRange.end,
       );
     }
 
-    return filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return filtered.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }
 
   /**
@@ -374,9 +403,11 @@ export class AccessControlManager extends EventEmitter {
     const now = new Date();
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const recent = this.auditLog.filter(entry => entry.timestamp >= last24Hours);
-    const denied = recent.filter(entry => !entry.granted);
-    const highRisk = recent.filter(entry => entry.riskScore > 0.7);
+    const recent = this.auditLog.filter(
+      (entry) => entry.timestamp >= last24Hours,
+    );
+    const denied = recent.filter((entry) => !entry.granted);
+    const highRisk = recent.filter((entry) => entry.riskScore > 0.7);
 
     return {
       totalUsers: this.users.size,
@@ -384,8 +415,12 @@ export class AccessControlManager extends EventEmitter {
       totalAccessAttempts24h: recent.length,
       deniedAccess24h: denied.length,
       highRiskAccess24h: highRisk.length,
-      successRate: recent.length > 0 ? (recent.length - denied.length) / recent.length : 1,
-      averageRiskScore: recent.length > 0 ? recent.reduce((sum, e) => sum + e.riskScore, 0) / recent.length : 0
+      successRate:
+        recent.length > 0 ? (recent.length - denied.length) / recent.length : 1,
+      averageRiskScore:
+        recent.length > 0
+          ? recent.reduce((sum, e) => sum + e.riskScore, 0) / recent.length
+          : 0,
     };
   }
 
@@ -404,10 +439,10 @@ export class AccessControlManager extends EventEmitter {
           id: 'admin-all',
           resource: '*',
           action: '*',
-          metadata: {}
-        }
+          metadata: {},
+        },
       ],
-      metadata: {}
+      metadata: {},
     };
 
     const userRole: Role = {
@@ -419,10 +454,10 @@ export class AccessControlManager extends EventEmitter {
           id: 'user-read',
           resource: 'user-data',
           action: 'read',
-          metadata: {}
-        }
+          metadata: {},
+        },
       ],
-      metadata: {}
+      metadata: {},
     };
 
     this.roles.set(adminRole.id, adminRole);
@@ -452,7 +487,6 @@ export class AccessControlManager extends EventEmitter {
       if (config.policies) {
         this.policies = config.policies;
       }
-
     } catch (error) {
       console.warn('Failed to load access control configuration:', error);
     }
@@ -479,15 +513,23 @@ export class AccessControlManager extends EventEmitter {
     return permissions;
   }
 
-  private findApplicablePermissions(permissions: Permission[], request: AccessRequest): Permission[] {
-    return permissions.filter(permission => {
-      const resourceMatch = permission.resource === '*' || permission.resource === request.resource;
-      const actionMatch = permission.action === '*' || permission.action === request.action;
+  private findApplicablePermissions(
+    permissions: Permission[],
+    request: AccessRequest,
+  ): Permission[] {
+    return permissions.filter((permission) => {
+      const resourceMatch =
+        permission.resource === '*' || permission.resource === request.resource;
+      const actionMatch =
+        permission.action === '*' || permission.action === request.action;
       return resourceMatch && actionMatch;
     });
   }
 
-  private async evaluateConditions(permissions: Permission[], request: AccessRequest): Promise<Array<{ permission: Permission; conditions: AccessCondition[] }>> {
+  private async evaluateConditions(
+    permissions: Permission[],
+    request: AccessRequest,
+  ): Promise<Array<{ permission: Permission; conditions: AccessCondition[] }>> {
     const results = [];
 
     for (const permission of permissions) {
@@ -496,8 +538,8 @@ export class AccessControlManager extends EventEmitter {
         continue;
       }
 
-      const conditionsMet = permission.conditions.every(condition =>
-        this.evaluateCondition(condition, request)
+      const conditionsMet = permission.conditions.every((condition) =>
+        this.evaluateCondition(condition, request),
       );
 
       if (conditionsMet) {
@@ -508,7 +550,10 @@ export class AccessControlManager extends EventEmitter {
     return results;
   }
 
-  private evaluateCondition(condition: AccessCondition, request: AccessRequest): boolean {
+  private evaluateCondition(
+    condition: AccessCondition,
+    request: AccessRequest,
+  ): boolean {
     const contextValue = request.context?.[condition.field];
 
     switch (condition.operator) {
@@ -517,23 +562,41 @@ export class AccessControlManager extends EventEmitter {
       case 'not_equals':
         return contextValue !== condition.value;
       case 'in':
-        return Array.isArray(condition.value) && condition.value.includes(contextValue);
+        return (
+          Array.isArray(condition.value) &&
+          condition.value.includes(contextValue)
+        );
       case 'not_in':
-        return Array.isArray(condition.value) && !condition.value.includes(contextValue);
+        return (
+          Array.isArray(condition.value) &&
+          !condition.value.includes(contextValue)
+        );
       case 'greater_than':
-        return typeof contextValue === 'number' && contextValue > (condition.value as number);
+        return (
+          typeof contextValue === 'number' &&
+          contextValue > (condition.value as number)
+        );
       case 'less_than':
-        return typeof contextValue === 'number' && contextValue < (condition.value as number);
+        return (
+          typeof contextValue === 'number' &&
+          contextValue < (condition.value as number)
+        );
       case 'regex':
-        return typeof contextValue === 'string' && new RegExp(condition.value as string).test(contextValue);
+        return (
+          typeof contextValue === 'string' &&
+          new RegExp(condition.value as string).test(contextValue)
+        );
       default:
         return false;
     }
   }
 
-  private evaluatePolicies(request: AccessRequest, riskScore: number): { action: string; reason: string } {
+  private evaluatePolicies(
+    request: AccessRequest,
+    riskScore: number,
+  ): { action: string; reason: string } {
     const applicablePolicies = this.policies
-      .filter(policy => policy.isActive)
+      .filter((policy) => policy.isActive)
       .sort((a, b) => b.priority - a.priority);
 
     for (const policy of applicablePolicies) {
@@ -541,7 +604,7 @@ export class AccessControlManager extends EventEmitter {
         if (this.evaluatePolicyRule(rule, request, riskScore)) {
           return {
             action: rule.action,
-            reason: `Policy ${policy.name} rule triggered: ${rule.condition}`
+            reason: `Policy ${policy.name} rule triggered: ${rule.condition}`,
           };
         }
       }
@@ -550,7 +613,11 @@ export class AccessControlManager extends EventEmitter {
     return { action: 'allow', reason: 'No policies triggered' };
   }
 
-  private evaluatePolicyRule(rule: PolicyRule, request: AccessRequest, riskScore: number): boolean {
+  private evaluatePolicyRule(
+    rule: PolicyRule,
+    request: AccessRequest,
+    riskScore: number,
+  ): boolean {
     // Simplified policy evaluation - in production, this would use a proper policy engine
     try {
       // Replace placeholders in condition
@@ -576,7 +643,7 @@ export class AccessControlManager extends EventEmitter {
     permissions: Permission[],
     conditions: AccessCondition[],
     request: AccessRequest,
-    riskScore: number
+    riskScore: number,
   ): AccessResult {
     const auditLog: AccessAuditEntry = {
       id: crypto.randomUUID(),
@@ -586,7 +653,7 @@ export class AccessControlManager extends EventEmitter {
       granted,
       reason,
       timestamp: request.timestamp,
-      riskScore
+      riskScore,
     };
 
     return {
@@ -594,27 +661,35 @@ export class AccessControlManager extends EventEmitter {
       reason,
       permissions,
       conditions,
-      auditLog
+      auditLog,
     };
   }
 
   private startPeriodicTasks(): void {
     // Clean up old audit logs (keep last 90 days)
-    setInterval(() => {
-      const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-      this.auditLog = this.auditLog.filter(entry => entry.timestamp > cutoff);
-    }, 24 * 60 * 60 * 1000); // Run daily
+    setInterval(
+      () => {
+        const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+        this.auditLog = this.auditLog.filter(
+          (entry) => entry.timestamp > cutoff,
+        );
+      },
+      24 * 60 * 60 * 1000,
+    ); // Run daily
 
     // Session cleanup
-    setInterval(() => {
-      const now = Date.now();
-      for (const [sessionId, session] of this.sessions) {
-        if (now - session.lastActivity > session.timeout) {
-          this.sessions.delete(sessionId);
-          this.emit('session:expired', { sessionId });
+    setInterval(
+      () => {
+        const now = Date.now();
+        for (const [sessionId, session] of this.sessions) {
+          if (now - session.lastActivity > session.timeout) {
+            this.sessions.delete(sessionId);
+            this.emit('session:expired', { sessionId });
+          }
         }
-      }
-    }, 5 * 60 * 1000); // Run every 5 minutes
+      },
+      5 * 60 * 1000,
+    ); // Run every 5 minutes
   }
 }
 
@@ -649,38 +724,46 @@ class AccessAuditLogger {
       resource: entry.resource,
       action: entry.action,
       reason: entry.reason,
-      riskScore: entry.riskScore
+      riskScore: entry.riskScore,
     });
   }
 
   async logUserAction(action: string, user: User): Promise<void> {
     console.log(`[USER-ACTION] ${action.toUpperCase()}`, {
       userId: user.id,
-      username: user.username
+      username: user.username,
     });
   }
 
   async logRoleAction(action: string, role: Role): Promise<void> {
     console.log(`[ROLE-ACTION] ${action.toUpperCase()}`, {
       roleId: role.id,
-      roleName: role.name
+      roleName: role.name,
     });
   }
 
-  async logPermissionAction(action: string, userId: string, permission: Permission): Promise<void> {
+  async logPermissionAction(
+    action: string,
+    userId: string,
+    permission: Permission,
+  ): Promise<void> {
     console.log(`[PERMISSION-ACTION] ${action.toUpperCase()}`, {
       userId,
       permissionId: permission.id,
       resource: permission.resource,
-      action: permission.action
+      action: permission.action,
     });
   }
 
-  async logRoleAssignment(action: string, userId: string, role: Role): Promise<void> {
+  async logRoleAssignment(
+    action: string,
+    userId: string,
+    role: Role,
+  ): Promise<void> {
     console.log(`[ROLE-ASSIGNMENT] ${action.toUpperCase()}`, {
       userId,
       roleId: role.id,
-      roleName: role.name
+      roleName: role.name,
     });
   }
 }
@@ -699,7 +782,10 @@ class RiskAnalyzer {
     }
 
     // Resource sensitivity risk
-    if (request.resource.includes('admin') || request.resource.includes('config')) {
+    if (
+      request.resource.includes('admin') ||
+      request.resource.includes('config')
+    ) {
       riskScore += 0.3;
     }
 

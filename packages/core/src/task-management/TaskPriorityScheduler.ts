@@ -13,7 +13,7 @@ import type {
   TaskCategory,
   TaskStatus,
   TaskExecutionResult,
-  PriorityFactors
+  PriorityFactors,
 } from './TaskQueue.js';
 
 /**
@@ -31,13 +31,13 @@ import type {
  * Priority adjustment strategies
  */
 export enum PriorityStrategy {
-  STATIC = 'static',                 // Fixed priority, no adjustment
-  AGE_BASED = 'age_based',          // Increase priority with age
+  STATIC = 'static', // Fixed priority, no adjustment
+  AGE_BASED = 'age_based', // Increase priority with age
   DEADLINE_DRIVEN = 'deadline_driven', // Adjust based on deadline proximity
   DEPENDENCY_AWARE = 'dependency_aware', // Consider dependency chains
   WORKLOAD_ADAPTIVE = 'workload_adaptive', // Adapt to current workload
-  ML_OPTIMIZED = 'ml_optimized',    // Machine learning based optimization
-  HYBRID = 'hybrid'                 // Combination of multiple strategies
+  ML_OPTIMIZED = 'ml_optimized', // Machine learning based optimization
+  HYBRID = 'hybrid', // Combination of multiple strategies
 }
 
 /**
@@ -48,18 +48,18 @@ export enum LoadBalanceAlgorithm {
   DEFICIT_ROUND_ROBIN = 'deficit_round_robin',
   FAIR_QUEUING = 'fair_queuing',
   CLASS_BASED_QUEUING = 'class_based_queuing',
-  PRIORITY_QUEUING = 'priority_queuing'
+  PRIORITY_QUEUING = 'priority_queuing',
 }
 
 /**
  * Starvation prevention mechanisms
  */
 export enum StarvationPreventionMode {
-  NONE = 'none',                    // No starvation prevention
+  NONE = 'none', // No starvation prevention
   PRIORITY_AGING = 'priority_aging', // Gradually increase priority with age
-  TIME_SLICING = 'time_slicing',    // Allocate time slices fairly
-  QUOTA_BASED = 'quota_based',      // Ensure minimum execution quotas
-  ADAPTIVE_BOOST = 'adaptive_boost'  // Intelligently boost starving tasks
+  TIME_SLICING = 'time_slicing', // Allocate time slices fairly
+  QUOTA_BASED = 'quota_based', // Ensure minimum execution quotas
+  ADAPTIVE_BOOST = 'adaptive_boost', // Intelligently boost starving tasks
 }
 
 /**
@@ -71,26 +71,26 @@ export interface PrioritySchedulerConfig {
   starvationPrevention: StarvationPreventionMode;
 
   // Timing parameters
-  adjustmentInterval: number;       // How often to recalculate priorities (ms)
-  maxStarvationTime: number;       // Maximum time before starvation prevention kicks in
-  priorityDecayRate: number;       // Rate at which boosted priorities decay
+  adjustmentInterval: number; // How often to recalculate priorities (ms)
+  maxStarvationTime: number; // Maximum time before starvation prevention kicks in
+  priorityDecayRate: number; // Rate at which boosted priorities decay
 
   // Weighting factors
-  ageWeight: number;               // How much age affects priority (0-1)
-  deadlineWeight: number;          // How much deadline proximity affects priority
-  dependencyWeight: number;        // How much dependency chain length affects priority
-  userWeight: number;              // How much user-defined priority affects final priority
-  systemWeight: number;            // How much system criticality affects priority
+  ageWeight: number; // How much age affects priority (0-1)
+  deadlineWeight: number; // How much deadline proximity affects priority
+  dependencyWeight: number; // How much dependency chain length affects priority
+  userWeight: number; // How much user-defined priority affects final priority
+  systemWeight: number; // How much system criticality affects priority
 
   // Fairness parameters
-  fairnessThreshold: number;       // Minimum fairness index to maintain
-  maxPriorityBoost: number;        // Maximum priority boost for starving tasks
-  minExecutionQuota: number;       // Minimum execution percentage per priority level
+  fairnessThreshold: number; // Minimum fairness index to maintain
+  maxPriorityBoost: number; // Maximum priority boost for starving tasks
+  minExecutionQuota: number; // Minimum execution percentage per priority level
 
   // Performance optimization
-  enableBatchAdjustment: boolean;  // Adjust priorities in batches for performance
+  enableBatchAdjustment: boolean; // Adjust priorities in batches for performance
   enablePredictiveAdjustment: boolean; // Use ML to predict optimal adjustments
-  cacheAdjustments: boolean;       // Cache adjustment calculations
+  cacheAdjustments: boolean; // Cache adjustment calculations
 }
 
 /**
@@ -144,7 +144,10 @@ export class TaskPriorityScheduler extends EventEmitter {
   private adjustmentTimer?: NodeJS.Timeout;
 
   // Performance optimization
-  private adjustmentCache = new Map<string, { priority: number; timestamp: number }>();
+  private adjustmentCache = new Map<
+    string,
+    { priority: number; timestamp: number }
+  >();
   private batchAdjustmentQueue: string[] = [];
 
   // Machine learning model for priority optimization
@@ -160,8 +163,11 @@ export class TaskPriorityScheduler extends EventEmitter {
 
     this.config = {
       strategy: config.strategy ?? PriorityStrategy.HYBRID,
-      loadBalanceAlgorithm: config.loadBalanceAlgorithm ?? LoadBalanceAlgorithm.WEIGHTED_ROUND_ROBIN,
-      starvationPrevention: config.starvationPrevention ?? StarvationPreventionMode.ADAPTIVE_BOOST,
+      loadBalanceAlgorithm:
+        config.loadBalanceAlgorithm ??
+        LoadBalanceAlgorithm.WEIGHTED_ROUND_ROBIN,
+      starvationPrevention:
+        config.starvationPrevention ?? StarvationPreventionMode.ADAPTIVE_BOOST,
 
       adjustmentInterval: config.adjustmentInterval ?? 30000, // 30 seconds
       maxStarvationTime: config.maxStarvationTime ?? 300000, // 5 minutes
@@ -179,11 +185,11 @@ export class TaskPriorityScheduler extends EventEmitter {
 
       enableBatchAdjustment: config.enableBatchAdjustment ?? true,
       enablePredictiveAdjustment: config.enablePredictiveAdjustment ?? true,
-      cacheAdjustments: config.cacheAdjustments ?? true
+      cacheAdjustments: config.cacheAdjustments ?? true,
     };
 
     // Initialize priority queues
-    Object.values(TaskPriority).forEach(priority => {
+    Object.values(TaskPriority).forEach((priority) => {
       this.priorityQueues.set(priority, []);
       this.executionQuotas.set(priority, this.calculateInitialQuota(priority));
     });
@@ -194,7 +200,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     logger.info('TaskPriorityScheduler initialized', {
       strategy: this.config.strategy,
       starvationPrevention: this.config.starvationPrevention,
-      adjustmentInterval: this.config.adjustmentInterval
+      adjustmentInterval: this.config.adjustmentInterval,
     });
   }
 
@@ -210,12 +216,15 @@ export class TaskPriorityScheduler extends EventEmitter {
         systemCriticality: 1.0,
         dependencyWeight: 1.0,
         resourceAvailability: 1.0,
-        executionHistory: 1.0
+        executionHistory: 1.0,
       };
     }
 
     // Calculate initial dynamic priority
-    task.dynamicPriority = this.calculateDynamicPriority(task, this.buildAdjustmentContext());
+    task.dynamicPriority = this.calculateDynamicPriority(
+      task,
+      this.buildAdjustmentContext(),
+    );
 
     // Store task and add to appropriate queue
     this.tasks.set(task.id, task);
@@ -224,7 +233,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     logger.debug(`Task added to priority scheduler: ${task.title}`, {
       taskId: task.id,
       basePriority: task.basePriority,
-      dynamicPriority: task.dynamicPriority
+      dynamicPriority: task.dynamicPriority,
     });
 
     this.emit('taskAdded', task);
@@ -249,7 +258,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     this.adjustmentCache.delete(taskId);
 
     logger.debug(`Task removed from priority scheduler: ${task.title}`, {
-      taskId: task.id
+      taskId: task.id,
     });
 
     this.emit('taskRemoved', task);
@@ -317,7 +326,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
     logger.debug(`Task result updated: ${taskId}`, {
       success: result.success,
-      duration: result.duration
+      duration: result.duration,
     });
 
     this.emit('taskResultUpdated', taskId, result);
@@ -346,7 +355,7 @@ export class TaskPriorityScheduler extends EventEmitter {
           newPriority,
           adjustmentReason: 'Manual recalculation',
           factors: { ...task.priorityFactors },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
 
         adjustmentEvents.push(adjustmentEvent);
@@ -394,7 +403,7 @@ export class TaskPriorityScheduler extends EventEmitter {
         executionRate,
         starvationCount,
         fairnessScore,
-        resourceUsage
+        resourceUsage,
       });
     }
 
@@ -422,13 +431,14 @@ export class TaskPriorityScheduler extends EventEmitter {
     const totalAdjustmentTime = 0;
     let adjustmentCount = 0;
 
-    this.adjustmentHistory.forEach(events => {
-      events.forEach(event => {
+    this.adjustmentHistory.forEach((events) => {
+      events.forEach((event) => {
         adjustmentCount++;
       });
     });
 
-    const avgAdjustmentTime = adjustmentCount > 0 ? totalAdjustmentTime / adjustmentCount : 0;
+    const avgAdjustmentTime =
+      adjustmentCount > 0 ? totalAdjustmentTime / adjustmentCount : 0;
 
     const metrics = {
       strategy: this.config.strategy,
@@ -436,7 +446,7 @@ export class TaskPriorityScheduler extends EventEmitter {
       avgAdjustmentTime,
       fairnessIndex,
       starvationEvents,
-      queueStats
+      queueStats,
     };
 
     // Add ML accuracy if available
@@ -450,7 +460,10 @@ export class TaskPriorityScheduler extends EventEmitter {
   /**
    * Calculate dynamic priority for a task
    */
-  private calculateDynamicPriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateDynamicPriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     switch (this.config.strategy) {
       case PriorityStrategy.STATIC:
         return task.basePriority;
@@ -479,12 +492,15 @@ export class TaskPriorityScheduler extends EventEmitter {
   /**
    * Age-based priority calculation
    */
-  private calculateAgeBasedPriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateAgeBasedPriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     const ageMs = context.currentTime.getTime() - task.createdAt.getTime();
     const ageHours = ageMs / (1000 * 60 * 60);
 
     // Exponential aging with configurable weight
-    const ageFactor = 1 + (this.config.ageWeight * Math.log(1 + ageHours));
+    const ageFactor = 1 + this.config.ageWeight * Math.log(1 + ageHours);
 
     return Math.min(2000, task.basePriority * ageFactor);
   }
@@ -492,36 +508,49 @@ export class TaskPriorityScheduler extends EventEmitter {
   /**
    * Deadline-driven priority calculation
    */
-  private calculateDeadlineDrivenPriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateDeadlineDrivenPriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     if (!task.deadline) {
       return task.basePriority;
     }
 
-    const timeToDeadline = task.deadline.getTime() - context.currentTime.getTime();
+    const timeToDeadline =
+      task.deadline.getTime() - context.currentTime.getTime();
     const maxUrgency = 7 * 24 * 60 * 60 * 1000; // 1 week
 
     // Exponential urgency increase as deadline approaches
-    const urgencyFactor = timeToDeadline <= 0 ? 2.0 :
-      Math.max(1.0, 2.0 - (timeToDeadline / maxUrgency));
+    const urgencyFactor =
+      timeToDeadline <= 0
+        ? 2.0
+        : Math.max(1.0, 2.0 - timeToDeadline / maxUrgency);
 
-    return Math.min(2000, task.basePriority * urgencyFactor * this.config.deadlineWeight);
+    return Math.min(
+      2000,
+      task.basePriority * urgencyFactor * this.config.deadlineWeight,
+    );
   }
 
   /**
    * Dependency-aware priority calculation
    */
-  private calculateDependencyAwarePriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateDependencyAwarePriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     // Calculate dependency chain impact
     const dependentTasks = task.dependents.length;
     const blockingTasks = task.dependencies.length;
 
     // Tasks with more dependents get higher priority
-    const dependentFactor = 1 + (dependentTasks * 0.1);
+    const dependentFactor = 1 + dependentTasks * 0.1;
 
     // Tasks blocked by fewer dependencies get slightly higher priority
-    const blockingFactor = blockingTasks > 0 ? 1 - (blockingTasks * 0.05) : 1;
+    const blockingFactor = blockingTasks > 0 ? 1 - blockingTasks * 0.05 : 1;
 
-    const dependencyAdjustment = dependentFactor * blockingFactor * this.config.dependencyWeight;
+    const dependencyAdjustment =
+      dependentFactor * blockingFactor * this.config.dependencyWeight;
 
     return Math.min(2000, task.basePriority * dependencyAdjustment);
   }
@@ -529,9 +558,13 @@ export class TaskPriorityScheduler extends EventEmitter {
   /**
    * Workload-adaptive priority calculation
    */
-  private calculateWorkloadAdaptivePriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateWorkloadAdaptivePriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     // Adjust based on current system load
-    const loadFactor = context.systemLoad > 0.8 ? 0.9 : context.systemLoad < 0.3 ? 1.1 : 1.0;
+    const loadFactor =
+      context.systemLoad > 0.8 ? 0.9 : context.systemLoad < 0.3 ? 1.1 : 1.0;
 
     // Adjust based on queue depth for this priority level
     const queueDepthFactor = context.queueDepth > 10 ? 1.1 : 1.0;
@@ -547,7 +580,10 @@ export class TaskPriorityScheduler extends EventEmitter {
   /**
    * ML-optimized priority calculation
    */
-  private calculateMLOptimizedPriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateMLOptimizedPriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     if (!this.mlModel || !this.config.enablePredictiveAdjustment) {
       return this.calculateHybridPriority(task, context);
     }
@@ -562,38 +598,50 @@ export class TaskPriorityScheduler extends EventEmitter {
   /**
    * Hybrid priority calculation combining multiple strategies
    */
-  private calculateHybridPriority(task: Task, context: PriorityAdjustmentContext): number {
+  private calculateHybridPriority(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number {
     // Base priority weighted by user importance
     let priority = task.basePriority * this.config.userWeight;
 
     // Age factor
     const ageMs = context.currentTime.getTime() - task.createdAt.getTime();
     const ageHours = ageMs / (1000 * 60 * 60);
-    const ageFactor = 1 + (this.config.ageWeight * Math.min(2, ageHours / 24)); // Max 2x after 24 hours
+    const ageFactor = 1 + this.config.ageWeight * Math.min(2, ageHours / 24); // Max 2x after 24 hours
     priority *= ageFactor;
 
     // Deadline factor
     if (task.deadline) {
-      const timeToDeadline = task.deadline.getTime() - context.currentTime.getTime();
+      const timeToDeadline =
+        task.deadline.getTime() - context.currentTime.getTime();
       const maxUrgency = 7 * 24 * 60 * 60 * 1000; // 1 week
-      const urgencyFactor = timeToDeadline <= 0 ? 2.0 :
-        1 + (this.config.deadlineWeight * Math.max(0, 1 - (timeToDeadline / maxUrgency)));
+      const urgencyFactor =
+        timeToDeadline <= 0
+          ? 2.0
+          : 1 +
+            this.config.deadlineWeight *
+              Math.max(0, 1 - timeToDeadline / maxUrgency);
       priority *= urgencyFactor;
     }
 
     // Dependency factor
     const dependentTasks = task.dependents.length;
-    const dependencyFactor = 1 + (this.config.dependencyWeight * dependentTasks * 0.1);
+    const dependencyFactor =
+      1 + this.config.dependencyWeight * dependentTasks * 0.1;
     priority *= dependencyFactor;
 
     // System criticality factor
-    const systemFactor = task.priorityFactors.systemCriticality * this.config.systemWeight;
+    const systemFactor =
+      task.priorityFactors.systemCriticality * this.config.systemWeight;
     priority *= systemFactor;
 
     // Apply starvation prevention if needed
     if (this.starvationTracker.has(task.id)) {
-      const starvationBoost = Math.min(this.config.maxPriorityBoost,
-        (ageMs - this.config.maxStarvationTime) / 60000); // 1 point per minute
+      const starvationBoost = Math.min(
+        this.config.maxPriorityBoost,
+        (ageMs - this.config.maxStarvationTime) / 60000,
+      ); // 1 point per minute
       priority += starvationBoost;
     }
 
@@ -609,11 +657,15 @@ export class TaskPriorityScheduler extends EventEmitter {
       [TaskPriority.HIGH, 4],
       [TaskPriority.MEDIUM, 2],
       [TaskPriority.LOW, 1],
-      [TaskPriority.BACKGROUND, 1]
+      [TaskPriority.BACKGROUND, 1],
     ]);
 
     let totalWeight = 0;
-    const availableQueues: Array<{ priority: TaskPriority; weight: number; tasks: Task[] }> = [];
+    const availableQueues: Array<{
+      priority: TaskPriority;
+      weight: number;
+      tasks: Task[];
+    }> = [];
 
     // Collect non-empty queues with their weights
     for (const [priority, queue] of this.priorityQueues.entries()) {
@@ -660,8 +712,10 @@ export class TaskPriorityScheduler extends EventEmitter {
     for (const queue of this.priorityQueues.values()) {
       if (queue.length === 0) continue;
 
-      const totalWaitTime = queue.reduce((sum, task) =>
-        sum + (now - task.createdAt.getTime()), 0);
+      const totalWaitTime = queue.reduce(
+        (sum, task) => sum + (now - task.createdAt.getTime()),
+        0,
+      );
       const avgWaitTime = totalWaitTime / queue.length;
 
       if (avgWaitTime > maxAvgWaitTime) {
@@ -712,8 +766,9 @@ export class TaskPriorityScheduler extends EventEmitter {
    */
   private priorityQueuing(): Task | null {
     // Process queues in priority order
-    const priorities = Array.from(this.priorityQueues.keys())
-      .sort((a, b) => b - a); // Highest priority first
+    const priorities = Array.from(this.priorityQueues.keys()).sort(
+      (a, b) => b - a,
+    ); // Highest priority first
 
     for (const priority of priorities) {
       const queue = this.priorityQueues.get(priority);
@@ -732,7 +787,9 @@ export class TaskPriorityScheduler extends EventEmitter {
     const queue = this.priorityQueues.get(priority);
     if (queue) {
       // Insert in sorted order by dynamic priority
-      const insertIndex = queue.findIndex(t => t.dynamicPriority < task.dynamicPriority);
+      const insertIndex = queue.findIndex(
+        (t) => t.dynamicPriority < task.dynamicPriority,
+      );
       if (insertIndex === -1) {
         queue.push(task);
       } else {
@@ -743,7 +800,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
   private removeFromQueue(task: Task): void {
     for (const queue of this.priorityQueues.values()) {
-      const index = queue.findIndex(t => t.id === task.id);
+      const index = queue.findIndex((t) => t.id === task.id);
       if (index !== -1) {
         queue.splice(index, 1);
         break;
@@ -762,8 +819,10 @@ export class TaskPriorityScheduler extends EventEmitter {
   private buildAdjustmentContext(): PriorityAdjustmentContext {
     const now = new Date();
     const systemLoad = this.calculateSystemLoad();
-    const queueDepth = Array.from(this.priorityQueues.values())
-      .reduce((sum, queue) => sum + queue.length, 0);
+    const queueDepth = Array.from(this.priorityQueues.values()).reduce(
+      (sum, queue) => sum + queue.length,
+      0,
+    );
 
     // Calculate average wait time
     let totalWaitTime = 0;
@@ -786,26 +845,34 @@ export class TaskPriorityScheduler extends EventEmitter {
       avgWaitTime,
       executionHistory: new Map(), // Would be populated from actual execution history
       resourceUtilization: {}, // Would be populated from system metrics
-      fairnessIndex: this.calculateOverallFairness()
+      fairnessIndex: this.calculateOverallFairness(),
     };
   }
 
   private calculateInitialQuota(priority: TaskPriority): number {
     // Initial quotas based on priority level
     switch (priority) {
-      case TaskPriority.CRITICAL: return 0.4;   // 40%
-      case TaskPriority.HIGH: return 0.3;       // 30%
-      case TaskPriority.MEDIUM: return 0.2;     // 20%
-      case TaskPriority.LOW: return 0.08;       // 8%
-      case TaskPriority.BACKGROUND: return 0.02; // 2%
-      default: return 0.1;
+      case TaskPriority.CRITICAL:
+        return 0.4; // 40%
+      case TaskPriority.HIGH:
+        return 0.3; // 30%
+      case TaskPriority.MEDIUM:
+        return 0.2; // 20%
+      case TaskPriority.LOW:
+        return 0.08; // 8%
+      case TaskPriority.BACKGROUND:
+        return 0.02; // 2%
+      default:
+        return 0.1;
     }
   }
 
   private calculateSystemLoad(): number {
     // Simplified system load calculation
-    const totalTasks = Array.from(this.priorityQueues.values())
-      .reduce((sum, queue) => sum + queue.length, 0);
+    const totalTasks = Array.from(this.priorityQueues.values()).reduce(
+      (sum, queue) => sum + queue.length,
+      0,
+    );
 
     return Math.min(1.0, totalTasks / 100); // Normalize to 0-1 scale
   }
@@ -830,14 +897,19 @@ export class TaskPriorityScheduler extends EventEmitter {
     const stats = this.getQueueStatistics();
     if (stats.length === 0) return 1.0;
 
-    const avgFairness = stats.reduce((sum, stat) => sum + stat.fairnessScore, 0) / stats.length;
+    const avgFairness =
+      stats.reduce((sum, stat) => sum + stat.fairnessScore, 0) / stats.length;
     return avgFairness;
   }
 
-  private extractMLFeatures(task: Task, context: PriorityAdjustmentContext): number[] {
+  private extractMLFeatures(
+    task: Task,
+    context: PriorityAdjustmentContext,
+  ): number[] {
     const ageMs = context.currentTime.getTime() - task.createdAt.getTime();
-    const timeToDeadline = task.deadline ?
-      Math.max(0, task.deadline.getTime() - context.currentTime.getTime()) : 0;
+    const timeToDeadline = task.deadline
+      ? Math.max(0, task.deadline.getTime() - context.currentTime.getTime())
+      : 0;
 
     return [
       task.basePriority,
@@ -849,7 +921,7 @@ export class TaskPriorityScheduler extends EventEmitter {
       context.queueDepth,
       context.avgWaitTime / (1000 * 60), // Average wait time in minutes
       task.priorityFactors.systemCriticality,
-      task.priorityFactors.resourceAvailability
+      task.priorityFactors.resourceAvailability,
     ];
   }
 
@@ -863,7 +935,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     this.trainingData.push({
       features,
       optimalPriority: task.dynamicPriority,
-      outcome
+      outcome,
     });
 
     // Keep only recent training data
@@ -882,14 +954,20 @@ export class TaskPriorityScheduler extends EventEmitter {
     // This would be implemented with actual quota management logic
   }
 
-  private scheduleRelatedAdjustments(taskId: string, result: TaskExecutionResult): void {
+  private scheduleRelatedAdjustments(
+    taskId: string,
+    result: TaskExecutionResult,
+  ): void {
     // Schedule priority adjustments for related tasks
     if (this.config.enableBatchAdjustment) {
       this.batchAdjustmentQueue.push(taskId);
     }
   }
 
-  private recordAdjustmentHistory(taskId: string, event: PriorityAdjustmentEvent): void {
+  private recordAdjustmentHistory(
+    taskId: string,
+    event: PriorityAdjustmentEvent,
+  ): void {
     const history = this.adjustmentHistory.get(taskId) || [];
     history.push(event);
 
@@ -901,7 +979,9 @@ export class TaskPriorityScheduler extends EventEmitter {
     this.adjustmentHistory.set(taskId, history);
   }
 
-  private selectCategoryByQuota(categoryQueues: Map<TaskCategory, Task[]>): TaskCategory | null {
+  private selectCategoryByQuota(
+    categoryQueues: Map<TaskCategory, Task[]>,
+  ): TaskCategory | null {
     // Select category based on execution quotas and current load
     let selectedCategory: TaskCategory | null = null;
     let maxPriority = -1;
@@ -910,7 +990,9 @@ export class TaskPriorityScheduler extends EventEmitter {
       if (tasks.length === 0) continue;
 
       // Calculate average priority for this category
-      const avgPriority = tasks.reduce((sum, task) => sum + task.dynamicPriority, 0) / tasks.length;
+      const avgPriority =
+        tasks.reduce((sum, task) => sum + task.dynamicPriority, 0) /
+        tasks.length;
 
       if (avgPriority > maxPriority) {
         maxPriority = avgPriority;
@@ -929,7 +1011,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     }, this.config.adjustmentInterval);
 
     logger.info('Priority adjustment timer started', {
-      interval: this.config.adjustmentInterval
+      interval: this.config.adjustmentInterval,
     });
   }
 
@@ -938,7 +1020,10 @@ export class TaskPriorityScheduler extends EventEmitter {
     const adjustmentEvents: PriorityAdjustmentEvent[] = [];
 
     // Process batch adjustments if enabled
-    if (this.config.enableBatchAdjustment && this.batchAdjustmentQueue.length > 0) {
+    if (
+      this.config.enableBatchAdjustment &&
+      this.batchAdjustmentQueue.length > 0
+    ) {
       this.processBatchAdjustments(context, adjustmentEvents);
     }
 
@@ -956,7 +1041,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
   private processBatchAdjustments(
     context: PriorityAdjustmentContext,
-    adjustmentEvents: PriorityAdjustmentEvent[]
+    adjustmentEvents: PriorityAdjustmentEvent[],
   ): void {
     // Process queued batch adjustments
     for (const taskId of this.batchAdjustmentQueue) {
@@ -971,7 +1056,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
   private checkForStarvation(
     context: PriorityAdjustmentContext,
-    adjustmentEvents: PriorityAdjustmentEvent[]
+    adjustmentEvents: PriorityAdjustmentEvent[],
   ): void {
     if (this.config.starvationPrevention === StarvationPreventionMode.NONE) {
       return;
@@ -1001,18 +1086,21 @@ export class TaskPriorityScheduler extends EventEmitter {
               newPriority,
               adjustmentReason: 'Starvation prevention',
               factors: { ...task.priorityFactors },
-              timestamp: new Date()
+              timestamp: new Date(),
             };
 
             adjustmentEvents.push(adjustmentEvent);
             this.recordAdjustmentHistory(taskId, adjustmentEvent);
 
-            logger.warn(`Applied starvation prevention boost to task: ${task.title}`, {
-              taskId,
-              waitTime,
-              boostAmount,
-              newPriority
-            });
+            logger.warn(
+              `Applied starvation prevention boost to task: ${task.title}`,
+              {
+                taskId,
+                waitTime,
+                boostAmount,
+                newPriority,
+              },
+            );
           }
         }
       }
@@ -1021,7 +1109,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
   private updateAllPriorities(
     context: PriorityAdjustmentContext,
-    adjustmentEvents: PriorityAdjustmentEvent[]
+    adjustmentEvents: PriorityAdjustmentEvent[],
   ): void {
     // Update priorities for all tasks
     for (const [taskId, task] of this.tasks.entries()) {
@@ -1035,7 +1123,7 @@ export class TaskPriorityScheduler extends EventEmitter {
   private adjustSingleTaskPriority(
     task: Task,
     context: PriorityAdjustmentContext,
-    adjustmentEvents: PriorityAdjustmentEvent[]
+    adjustmentEvents: PriorityAdjustmentEvent[],
   ): void {
     const oldPriority = task.dynamicPriority;
     const newPriority = this.calculateDynamicPriority(task, context);
@@ -1052,7 +1140,7 @@ export class TaskPriorityScheduler extends EventEmitter {
         newPriority,
         adjustmentReason: `${this.config.strategy} adjustment`,
         factors: { ...task.priorityFactors },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       adjustmentEvents.push(adjustmentEvent);
@@ -1063,7 +1151,10 @@ export class TaskPriorityScheduler extends EventEmitter {
   private calculateStarvationBoost(waitTime: number): number {
     const extraWaitTime = waitTime - this.config.maxStarvationTime;
     const boostPerMinute = this.config.maxPriorityBoost / (60 * 60 * 1000); // Boost per ms
-    return Math.min(this.config.maxPriorityBoost, extraWaitTime * boostPerMinute);
+    return Math.min(
+      this.config.maxPriorityBoost,
+      extraWaitTime * boostPerMinute,
+    );
   }
 
   /**

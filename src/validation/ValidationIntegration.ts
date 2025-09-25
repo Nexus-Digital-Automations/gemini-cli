@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AutomaticValidationSystem, TaskType, ValidationContext, ValidationResult } from './AutomaticValidationSystem';
+import {
+  AutomaticValidationSystem,
+  TaskType,
+  ValidationContext,
+  ValidationResult,
+} from './AutomaticValidationSystem.js';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -35,17 +40,25 @@ export class ValidationIntegration {
    */
   async validateTaskCompletion(
     taskDescription: string,
-    taskCategory: 'feature' | 'bug-fix' | 'refactoring' | 'testing' | 'documentation' = 'feature'
+    taskCategory:
+      | 'feature'
+      | 'bug-fix'
+      | 'refactoring'
+      | 'testing'
+      | 'documentation' = 'feature',
   ): Promise<ValidationResult> {
     const taskType = this.mapTaskCategoryToType(taskCategory);
 
     const context: ValidationContext = {
       taskDescription,
       timestamp: new Date().toISOString(),
-      triggeredBy: 'todowrite-completion'
+      triggeredBy: 'todowrite-completion',
     };
 
-    return await this.validationSystem.validateTaskCompletion(taskType, context);
+    return await this.validationSystem.validateTaskCompletion(
+      taskType,
+      context,
+    );
   }
 
   /**
@@ -54,7 +67,9 @@ export class ValidationIntegration {
    * @param featureId - ID of the completed feature
    * @returns Promise resolving to validation result
    */
-  async validateFeatureCompletion(featureId: string): Promise<ValidationResult> {
+  async validateFeatureCompletion(
+    featureId: string,
+  ): Promise<ValidationResult> {
     try {
       const featuresPath = join(this.projectRoot, 'FEATURES.json');
       const featuresContent = await readFile(featuresPath, 'utf-8');
@@ -70,15 +85,17 @@ export class ValidationIntegration {
         featureTitle: feature.title,
         featureDescription: feature.description,
         featureCategory: feature.category,
-        triggeredBy: 'feature-completion'
+        triggeredBy: 'feature-completion',
       };
 
       return await this.validationSystem.validateTaskCompletion(
         TaskType.FEATURE_IMPLEMENTATION,
-        context
+        context,
       );
     } catch (error) {
-      throw new Error(`Failed to validate feature completion: ${(error as Error).message}`);
+      throw new Error(
+        `Failed to validate feature completion: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -91,13 +108,13 @@ export class ValidationIntegration {
     const context: ValidationContext = {
       scope: 'full-project',
       triggeredBy: 'project-completion-check',
-      comprehensive: true
+      comprehensive: true,
     };
 
     // Use refactoring validation as it includes the most comprehensive checks
     return await this.validationSystem.validateTaskCompletion(
       TaskType.REFACTORING,
-      context
+      context,
     );
   }
 
@@ -107,16 +124,21 @@ export class ValidationIntegration {
    * @param commitMessage - Planned commit message
    * @returns Promise resolving to validation result
    */
-  async validateCommitReadiness(commitMessage: string): Promise<ValidationResult> {
+  async validateCommitReadiness(
+    commitMessage: string,
+  ): Promise<ValidationResult> {
     const context: ValidationContext = {
       commitMessage,
-      triggeredBy: 'pre-commit-validation'
+      triggeredBy: 'pre-commit-validation',
     };
 
     // Determine task type based on commit message patterns
     const taskType = this.inferTaskTypeFromCommitMessage(commitMessage);
 
-    return await this.validationSystem.validateTaskCompletion(taskType, context);
+    return await this.validationSystem.validateTaskCompletion(
+      taskType,
+      context,
+    );
   }
 
   /**
@@ -126,34 +148,35 @@ export class ValidationIntegration {
    * @returns Formatted report for CI/CD consumption
    */
   generateCICDReport(validationResult: ValidationResult): CICDReport {
-    const { status, passed, qualityGateResults, summary, executionTime } = validationResult;
+    const { status, passed, qualityGateResults, summary, executionTime } =
+      validationResult;
 
     return {
       success: passed,
       status: status,
       summary,
       duration: executionTime,
-      gates: qualityGateResults.map(gate => ({
+      gates: qualityGateResults.map((gate) => ({
         name: gate.gateName,
         passed: gate.passed,
         message: gate.message,
         duration: gate.executionTime,
-        severity: gate.severity
+        severity: gate.severity,
       })),
-      recommendations: validationResult.report.recommendations.map(rec => ({
+      recommendations: validationResult.report.recommendations.map((rec) => ({
         type: rec.type,
         priority: rec.priority,
         title: rec.title,
         description: rec.description,
-        actionItems: rec.actionItems
+        actionItems: rec.actionItems,
       })),
-      artifacts: validationResult.report.artifacts.map(artifact => ({
+      artifacts: validationResult.report.artifacts.map((artifact) => ({
         name: artifact.name,
         type: artifact.type,
-        size: artifact.content.length
+        size: artifact.content.length,
       })),
       timestamp: validationResult.timestamp.toISOString(),
-      sessionId: validationResult.sessionId
+      sessionId: validationResult.sessionId,
     };
   }
 
@@ -166,7 +189,7 @@ export class ValidationIntegration {
   shouldBlockContinuation(validationResult: ValidationResult): boolean {
     // Block if any ERROR severity gates failed
     const errorGatesFailed = validationResult.qualityGateResults.some(
-      gate => !gate.passed && gate.severity === 'error'
+      (gate) => !gate.passed && gate.severity === 'error',
     );
 
     return errorGatesFailed;
@@ -178,12 +201,16 @@ export class ValidationIntegration {
    * @param validationResult - Result from validation system
    * @returns Stop authorization recommendation
    */
-  generateStopAuthorizationRecommendation(validationResult: ValidationResult): StopAuthorizationRecommendation {
-    const canAuthorizeStop = validationResult.passed && !this.shouldBlockContinuation(validationResult);
+  generateStopAuthorizationRecommendation(
+    validationResult: ValidationResult,
+  ): StopAuthorizationRecommendation {
+    const canAuthorizeStop =
+      validationResult.passed &&
+      !this.shouldBlockContinuation(validationResult);
 
     const issues = validationResult.qualityGateResults
-      .filter(gate => !gate.passed)
-      .map(gate => `${gate.gateName}: ${gate.message}`);
+      .filter((gate) => !gate.passed)
+      .map((gate) => `${gate.gateName}: ${gate.message}`);
 
     return {
       canAuthorizeStop,
@@ -193,8 +220,10 @@ export class ValidationIntegration {
       issues,
       nextActions: canAuthorizeStop
         ? ['Ready to authorize stop - all quality gates satisfied']
-        : validationResult.report.recommendations.flatMap(rec => rec.actionItems),
-      validationSummary: validationResult.summary
+        : validationResult.report.recommendations.flatMap(
+            (rec) => rec.actionItems,
+          ),
+      validationSummary: validationResult.summary,
     };
   }
 
@@ -232,23 +261,43 @@ export class ValidationIntegration {
   private inferTaskTypeFromCommitMessage(commitMessage: string): TaskType {
     const message = commitMessage.toLowerCase();
 
-    if (message.startsWith('fix:') || message.includes('bug') || message.includes('error')) {
+    if (
+      message.startsWith('fix:') ||
+      message.includes('bug') ||
+      message.includes('error')
+    ) {
       return TaskType.BUG_FIX;
     }
 
-    if (message.startsWith('refactor:') || message.includes('refactor') || message.includes('cleanup')) {
+    if (
+      message.startsWith('refactor:') ||
+      message.includes('refactor') ||
+      message.includes('cleanup')
+    ) {
       return TaskType.REFACTORING;
     }
 
-    if (message.startsWith('test:') || message.includes('test') || message.includes('spec')) {
+    if (
+      message.startsWith('test:') ||
+      message.includes('test') ||
+      message.includes('spec')
+    ) {
       return TaskType.TESTING;
     }
 
-    if (message.startsWith('docs:') || message.includes('documentation') || message.includes('readme')) {
+    if (
+      message.startsWith('docs:') ||
+      message.includes('documentation') ||
+      message.includes('readme')
+    ) {
       return TaskType.DOCUMENTATION;
     }
 
-    if (message.startsWith('config:') || message.includes('configuration') || message.includes('setup')) {
+    if (
+      message.startsWith('config:') ||
+      message.includes('configuration') ||
+      message.includes('setup')
+    ) {
       return TaskType.CONFIGURATION;
     }
 
@@ -273,7 +322,10 @@ export class ValidationCLI {
    * @param command - Validation command to execute
    * @param args - Command arguments
    */
-  async executeCommand(command: ValidationCommand, args: ValidationCommandArgs): Promise<void> {
+  async executeCommand(
+    command: ValidationCommand,
+    args: ValidationCommandArgs,
+  ): Promise<void> {
     try {
       let result: ValidationResult;
 
@@ -281,7 +333,7 @@ export class ValidationCLI {
         case 'validate-task':
           result = await this.integration.validateTaskCompletion(
             args.description || 'Task completion validation',
-            args.category as any || 'feature'
+            (args.category as any) || 'feature',
           );
           break;
 
@@ -289,7 +341,9 @@ export class ValidationCLI {
           if (!args.featureId) {
             throw new Error('Feature ID is required for feature validation');
           }
-          result = await this.integration.validateFeatureCompletion(args.featureId);
+          result = await this.integration.validateFeatureCompletion(
+            args.featureId,
+          );
           break;
 
         case 'validate-project':
@@ -298,7 +352,7 @@ export class ValidationCLI {
 
         case 'validate-commit':
           result = await this.integration.validateCommitReadiness(
-            args.commitMessage || 'feat: task completion'
+            args.commitMessage || 'feat: task completion',
           );
           break;
 
@@ -310,7 +364,6 @@ export class ValidationCLI {
 
       // Exit with appropriate code
       process.exit(result.passed ? 0 : 1);
-
     } catch (error) {
       console.error('❌ Validation Error:', (error as Error).message);
       process.exit(1);
@@ -325,7 +378,9 @@ export class ValidationCLI {
     const statusColor = result.passed ? '\x1b[32m' : '\x1b[31m'; // Green or Red
     const resetColor = '\x1b[0m';
 
-    console.log(`\n${statusIcon} ${statusColor}VALIDATION ${result.status.toUpperCase()}${resetColor}`);
+    console.log(
+      `\n${statusIcon} ${statusColor}VALIDATION ${result.status.toUpperCase()}${resetColor}`,
+    );
     console.log(`📊 ${result.summary}`);
     console.log(`⏱️  Execution Time: ${result.executionTime}ms`);
     console.log(`🆔 Session ID: ${result.sessionId}`);
@@ -334,7 +389,7 @@ export class ValidationCLI {
       console.log('\n📋 Quality Gate Results:');
       console.log('━'.repeat(50));
 
-      result.qualityGateResults.forEach(gate => {
+      result.qualityGateResults.forEach((gate) => {
         const gateIcon = gate.passed ? '✅' : '❌';
         const severityBadge = this.getSeverityBadge(gate.severity);
         console.log(`${gateIcon} ${gate.gateName} ${severityBadge}`);
@@ -351,13 +406,13 @@ export class ValidationCLI {
       console.log('\n💡 Recommendations:');
       console.log('━'.repeat(50));
 
-      result.report.recommendations.forEach(rec => {
+      result.report.recommendations.forEach((rec) => {
         const priorityBadge = this.getPriorityBadge(rec.priority);
         console.log(`${priorityBadge} ${rec.title}`);
         console.log(`   ${rec.description}`);
 
         if (rec.actionItems.length > 0) {
-          rec.actionItems.forEach(item => {
+          rec.actionItems.forEach((item) => {
             console.log(`   • ${item}`);
           });
         }
@@ -366,7 +421,8 @@ export class ValidationCLI {
     }
 
     // Generate stop authorization recommendation
-    const stopRecommendation = this.integration.generateStopAuthorizationRecommendation(result);
+    const stopRecommendation =
+      this.integration.generateStopAuthorizationRecommendation(result);
     console.log('\n🚦 Stop Authorization Status:');
     console.log('━'.repeat(50));
 
@@ -375,14 +431,14 @@ export class ValidationCLI {
 
     if (stopRecommendation.issues.length > 0) {
       console.log('\n🔧 Issues to resolve:');
-      stopRecommendation.issues.forEach(issue => {
+      stopRecommendation.issues.forEach((issue) => {
         console.log(`   • ${issue}`);
       });
     }
 
     if (stopRecommendation.nextActions.length > 0) {
       console.log('\n📝 Next actions:');
-      stopRecommendation.nextActions.forEach(action => {
+      stopRecommendation.nextActions.forEach((action) => {
         console.log(`   • ${action}`);
       });
     }
@@ -396,9 +452,9 @@ export class ValidationCLI {
       case 'error':
         return '\x1b[41m ERROR \x1b[0m'; // Red background
       case 'warning':
-        return '\x1b[43m WARN \x1b[0m';  // Yellow background
+        return '\x1b[43m WARN \x1b[0m'; // Yellow background
       case 'info':
-        return '\x1b[44m INFO \x1b[0m';  // Blue background
+        return '\x1b[44m INFO \x1b[0m'; // Blue background
       default:
         return `[${severity.toUpperCase()}]`;
     }
@@ -410,11 +466,11 @@ export class ValidationCLI {
   private getPriorityBadge(priority: string): string {
     switch (priority) {
       case 'high':
-        return '\x1b[31m🔴 HIGH\x1b[0m';     // Red
+        return '\x1b[31m🔴 HIGH\x1b[0m'; // Red
       case 'medium':
-        return '\x1b[33m🟡 MEDIUM\x1b[0m';   // Yellow
+        return '\x1b[33m🟡 MEDIUM\x1b[0m'; // Yellow
       case 'low':
-        return '\x1b[32m🟢 LOW\x1b[0m';      // Green
+        return '\x1b[32m🟢 LOW\x1b[0m'; // Green
       default:
         return `🔵 ${priority.toUpperCase()}`;
     }
@@ -476,7 +532,9 @@ export interface ValidationCommandArgs {
 /**
  * Factory function to create validation integration instance.
  */
-export function createValidationIntegration(projectRoot: string): ValidationIntegration {
+export function createValidationIntegration(
+  projectRoot: string,
+): ValidationIntegration {
   return new ValidationIntegration(projectRoot);
 }
 
@@ -493,22 +551,35 @@ export function createValidationCLI(projectRoot: string): ValidationCLI {
 export async function validateTaskCompletion(
   projectRoot: string,
   taskDescription: string,
-  taskCategory: 'feature' | 'bug-fix' | 'refactoring' | 'testing' | 'documentation' = 'feature'
+  taskCategory:
+    | 'feature'
+    | 'bug-fix'
+    | 'refactoring'
+    | 'testing'
+    | 'documentation' = 'feature',
 ): Promise<ValidationResult> {
   const integration = new ValidationIntegration(projectRoot);
-  return await integration.validateTaskCompletion(taskDescription, taskCategory);
+  return await integration.validateTaskCompletion(
+    taskDescription,
+    taskCategory,
+  );
 }
 
 /**
  * Utility function to check if project is ready for completion.
  */
-export async function isProjectReadyForCompletion(projectRoot: string): Promise<boolean> {
+export async function isProjectReadyForCompletion(
+  projectRoot: string,
+): Promise<boolean> {
   try {
     const integration = new ValidationIntegration(projectRoot);
     const result = await integration.validateProjectCompletion();
     return !integration.shouldBlockContinuation(result);
   } catch (error) {
-    console.error('Project completion validation failed:', (error as Error).message);
+    console.error(
+      'Project completion validation failed:',
+      (error as Error).message,
+    );
     return false;
   }
 }
@@ -518,7 +589,7 @@ export async function isProjectReadyForCompletion(projectRoot: string): Promise<
  */
 export async function getStopAuthorizationStatus(
   projectRoot: string,
-  taskDescription: string = 'Project completion check'
+  taskDescription: string = 'Project completion check',
 ): Promise<StopAuthorizationRecommendation> {
   const integration = new ValidationIntegration(projectRoot);
   const result = await integration.validateTaskCompletion(taskDescription);

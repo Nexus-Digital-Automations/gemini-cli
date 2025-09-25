@@ -142,7 +142,10 @@ export class TaskBuilder {
    * Adds task dependencies
    */
   withDependencies(...dependencies: string[]): TaskBuilder {
-    this.config.dependencies = [...(this.config.dependencies || []), ...dependencies];
+    this.config.dependencies = [
+      ...(this.config.dependencies || []),
+      ...dependencies,
+    ];
     return this;
   }
 
@@ -166,7 +169,10 @@ export class TaskBuilder {
    * Sets expected output variables
    */
   withOutputs(outputs: Record<string, string>): TaskBuilder {
-    this.config.expectedOutputs = { ...this.config.expectedOutputs, ...outputs };
+    this.config.expectedOutputs = {
+      ...this.config.expectedOutputs,
+      ...outputs,
+    };
     return this;
   }
 
@@ -291,7 +297,10 @@ export class TaskBuilder {
    * Builds the output configuration
    */
   buildOutputConfig(): OutputConfig | undefined {
-    if (!this.config.expectedOutputs || Object.keys(this.config.expectedOutputs).length === 0) {
+    if (
+      !this.config.expectedOutputs ||
+      Object.keys(this.config.expectedOutputs).length === 0
+    ) {
       return undefined;
     }
 
@@ -337,7 +346,8 @@ export class TaskBuilder {
    * Generates a system prompt based on configuration
    */
   private generatePromptFromConfig(): string {
-    const { name, category, complexity, context, expectedOutputs } = this.config;
+    const { name, category, complexity, context, expectedOutputs } =
+      this.config;
 
     let prompt = `You are a ${complexity?.toLowerCase()} ${category?.toLowerCase().replace('_', ' ')} assistant named ${name}.
 
@@ -450,7 +460,10 @@ Your task is to complete the assigned work with high quality and attention to de
     }
 
     // Add complexity-specific instructions
-    if (complexity === TaskComplexity.COMPLEX || complexity === TaskComplexity.VERY_COMPLEX) {
+    if (
+      complexity === TaskComplexity.COMPLEX ||
+      complexity === TaskComplexity.VERY_COMPLEX
+    ) {
       instructions += `
 Advanced Requirements for Complex Tasks:
 - Break down complex problems into smaller, manageable parts
@@ -472,7 +485,13 @@ Advanced Requirements for Complex Tasks:
       case TaskCategory.CODE_GENERATION:
         return ['write_file', 'read_file', 'execute_command'];
       case TaskCategory.FILE_MANIPULATION:
-        return ['read_file', 'write_file', 'list_directory', 'move_file', 'delete_file'];
+        return [
+          'read_file',
+          'write_file',
+          'list_directory',
+          'move_file',
+          'delete_file',
+        ];
       case TaskCategory.DATA_PROCESSING:
         return ['read_file', 'write_file', 'execute_command'];
       case TaskCategory.API_INTEGRATION:
@@ -510,7 +529,7 @@ Advanced Requirements for Complex Tasks:
         .withTools('write_file', 'read_file', 'execute_command')
         .withOutputs({
           generated_code: 'The generated code implementation',
-          test_results: 'Results from testing the generated code'
+          test_results: 'Results from testing the generated code',
         })
         .withDuration(5),
 
@@ -522,7 +541,7 @@ Advanced Requirements for Complex Tasks:
         .withOutputs({
           processed_data: 'The processed and transformed data',
           processing_stats: 'Statistics about the processing operation',
-          error_report: 'Any errors encountered during processing'
+          error_report: 'Any errors encountered during processing',
         })
         .withDuration(10),
 
@@ -533,7 +552,7 @@ Advanced Requirements for Complex Tasks:
         .withTools('make_http_request', 'write_file')
         .withOutputs({
           api_response: 'Response data from the API call',
-          integration_status: 'Status of the integration'
+          integration_status: 'Status of the integration',
         })
         .withDuration(7),
 
@@ -545,7 +564,7 @@ Advanced Requirements for Complex Tasks:
         .withOutputs({
           test_coverage: 'Code coverage percentage achieved',
           test_results: 'Summary of test execution results',
-          performance_metrics: 'Performance benchmarks from tests'
+          performance_metrics: 'Performance benchmarks from tests',
         })
         .withDuration(15),
     };

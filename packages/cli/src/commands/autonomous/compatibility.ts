@@ -18,7 +18,7 @@ import {
   checkApiAvailability,
   getApiGuide,
   handleApiResponse,
-  initializeAgent
+  initializeAgent,
 } from './taskManagerApi.js';
 
 export interface CompatibilityCheck {
@@ -67,7 +67,8 @@ export class CompatibilityValidator {
           return false;
         }
       },
-      remediation: 'Ensure autonomous commands are properly exported and imported in config.ts'
+      remediation:
+        'Ensure autonomous commands are properly exported and imported in config.ts',
     });
 
     this.checks.push({
@@ -75,7 +76,8 @@ export class CompatibilityValidator {
       description: 'Verify TaskManager API is accessible and responsive',
       critical: false,
       check: async () => await checkApiAvailability(),
-      remediation: 'Install and start the infinite-continue-stop-hook TaskManager API system'
+      remediation:
+        'Install and start the infinite-continue-stop-hook TaskManager API system',
     });
 
     this.checks.push({
@@ -96,26 +98,33 @@ export class CompatibilityValidator {
           return false;
         }
       },
-      remediation: 'Check for import conflicts or circular dependencies'
+      remediation: 'Check for import conflicts or circular dependencies',
     });
 
     this.checks.push({
       name: 'configuration-isolation',
-      description: 'Verify autonomous config does not interfere with main CLI config',
+      description:
+        'Verify autonomous config does not interfere with main CLI config',
       critical: true,
       check: async () => {
         // Check that autonomous config files don't overwrite CLI config
         const cliConfigPath = path.join(process.cwd(), '.gemini');
-        const autonomousConfigPath = path.join(process.cwd(), '.gemini-autonomous-config.json');
+        const autonomousConfigPath = path.join(
+          process.cwd(),
+          '.gemini-autonomous-config.json',
+        );
 
         if (fs.existsSync(autonomousConfigPath)) {
           // Ensure it's separate from main config
-          return !fs.existsSync(path.join(cliConfigPath, 'autonomous-config.json'));
+          return !fs.existsSync(
+            path.join(cliConfigPath, 'autonomous-config.json'),
+          );
         }
 
         return true;
       },
-      remediation: 'Keep autonomous configuration separate from main CLI configuration'
+      remediation:
+        'Keep autonomous configuration separate from main CLI configuration',
     });
 
     this.checks.push({
@@ -126,13 +135,18 @@ export class CompatibilityValidator {
         try {
           const packageJsonPath = path.join(process.cwd(), 'package.json');
           if (fs.existsSync(packageJsonPath)) {
-            const packageData = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+            const packageData = JSON.parse(
+              fs.readFileSync(packageJsonPath, 'utf8'),
+            );
 
             // Check critical dependencies
             const criticalDeps = ['yargs', 'chalk', '@google/gemini-cli-core'];
 
             for (const dep of criticalDeps) {
-              if (!packageData.dependencies?.[dep] && !packageData.devDependencies?.[dep]) {
+              if (
+                !packageData.dependencies?.[dep] &&
+                !packageData.devDependencies?.[dep]
+              ) {
                 return false;
               }
             }
@@ -142,7 +156,8 @@ export class CompatibilityValidator {
           return false;
         }
       },
-      remediation: 'Install missing dependencies: npm install yargs chalk @google/gemini-cli-core'
+      remediation:
+        'Install missing dependencies: npm install yargs chalk @google/gemini-cli-core',
     });
 
     this.checks.push({
@@ -156,12 +171,12 @@ export class CompatibilityValidator {
           'packages/cli/src/ui',
         ];
 
-        return requiredPaths.every(p => {
+        return requiredPaths.every((p) => {
           const fullPath = path.join(process.cwd(), p);
           return fs.existsSync(fullPath);
         });
       },
-      remediation: 'Ensure all required directory structures are present'
+      remediation: 'Ensure all required directory structures are present',
     });
 
     this.checks.push({
@@ -173,14 +188,17 @@ export class CompatibilityValidator {
           const rootPackageJson = path.join(process.cwd(), 'package.json');
           if (fs.existsSync(rootPackageJson)) {
             const data = JSON.parse(fs.readFileSync(rootPackageJson, 'utf8'));
-            return Array.isArray(data.workspaces) && data.workspaces.includes('packages/*');
+            return (
+              Array.isArray(data.workspaces) &&
+              data.workspaces.includes('packages/*')
+            );
           }
           return true; // Not a workspace setup
         } catch {
           return false;
         }
       },
-      remediation: 'Verify workspace configuration in root package.json'
+      remediation: 'Verify workspace configuration in root package.json',
     });
 
     this.checks.push({
@@ -189,11 +207,18 @@ export class CompatibilityValidator {
       critical: true,
       check: async () => {
         // Check if .d.ts files exist for autonomous commands
-        const autonomousDir = path.join(process.cwd(), 'packages/cli/src/commands/autonomous');
+        const autonomousDir = path.join(
+          process.cwd(),
+          'packages/cli/src/commands/autonomous',
+        );
 
         if (fs.existsSync(autonomousDir)) {
-          const tsFiles = fs.readdirSync(autonomousDir).filter(f => f.endsWith('.ts'));
-          const dtsFiles = fs.readdirSync(autonomousDir).filter(f => f.endsWith('.d.ts'));
+          const tsFiles = fs
+            .readdirSync(autonomousDir)
+            .filter((f) => f.endsWith('.ts'));
+          const dtsFiles = fs
+            .readdirSync(autonomousDir)
+            .filter((f) => f.endsWith('.d.ts'));
 
           // Should have corresponding .d.ts files (or be able to generate them)
           return tsFiles.length > 0; // Basic check - files exist
@@ -201,7 +226,7 @@ export class CompatibilityValidator {
 
         return false;
       },
-      remediation: 'Run TypeScript compilation: npm run build or tsc'
+      remediation: 'Run TypeScript compilation: npm run build or tsc',
     });
 
     this.checks.push({
@@ -218,23 +243,28 @@ export class CompatibilityValidator {
           return false;
         }
       },
-      remediation: 'Check TaskManager API logs for initialization issues'
+      remediation: 'Check TaskManager API logs for initialization issues',
     });
 
     this.checks.push({
       name: 'feature-flags-compatibility',
-      description: 'Verify feature flags and experimental settings work correctly',
+      description:
+        'Verify feature flags and experimental settings work correctly',
       critical: false,
       check: async () => {
         // Check if experimental features are properly gated
         try {
-          const settingsPath = path.join(process.cwd(), 'packages/cli/src/config/settings.ts');
+          const settingsPath = path.join(
+            process.cwd(),
+            'packages/cli/src/config/settings.ts',
+          );
           return fs.existsSync(settingsPath);
         } catch {
           return false;
         }
       },
-      remediation: 'Ensure settings configuration is accessible and feature flags work'
+      remediation:
+        'Ensure settings configuration is accessible and feature flags work',
     });
   }
 
@@ -242,7 +272,9 @@ export class CompatibilityValidator {
    * Run all compatibility checks
    */
   async runAllChecks(): Promise<CompatibilityReport> {
-    console.log(chalk.cyan('🔍 Running Autonomous System Compatibility Checks...'));
+    console.log(
+      chalk.cyan('🔍 Running Autonomous System Compatibility Checks...'),
+    );
     console.log(chalk.gray('─'.repeat(80)));
 
     const report: CompatibilityReport = {
@@ -250,7 +282,7 @@ export class CompatibilityValidator {
       failed: 0,
       warnings: 0,
       criticalFailures: 0,
-      checks: []
+      checks: [],
     };
 
     for (let i = 0; i < this.checks.length; i++) {
@@ -266,7 +298,7 @@ export class CompatibilityValidator {
           report.checks.push({
             name: check.name,
             status: 'PASS',
-            message: 'Check completed successfully'
+            message: 'Check completed successfully',
           });
         } else {
           if (check.critical) {
@@ -282,7 +314,7 @@ export class CompatibilityValidator {
             name: check.name,
             status: check.critical ? 'FAIL' : 'WARN',
             message: `Check failed: ${check.description}`,
-            remediation: check.remediation
+            remediation: check.remediation,
           });
 
           if (check.remediation) {
@@ -291,7 +323,11 @@ export class CompatibilityValidator {
         }
       } catch (error) {
         console.log(chalk.red(`  ❌ ERROR: ${check.name}`));
-        console.log(chalk.red(`     ${error instanceof Error ? error.message : String(error)}`));
+        console.log(
+          chalk.red(
+            `     ${error instanceof Error ? error.message : String(error)}`,
+          ),
+        );
 
         if (check.critical) {
           report.criticalFailures++;
@@ -302,12 +338,12 @@ export class CompatibilityValidator {
           name: check.name,
           status: 'FAIL',
           message: `Check error: ${error instanceof Error ? error.message : String(error)}`,
-          remediation: check.remediation
+          remediation: check.remediation,
         });
       }
 
       // Small delay to make output readable
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     return report;
@@ -325,30 +361,52 @@ export class CompatibilityValidator {
     console.log(`Passed: ${chalk.green(report.passed)}`);
     console.log(`Warnings: ${chalk.yellow(report.warnings)}`);
     console.log(`Failed: ${chalk.red(report.failed)}`);
-    console.log(`Critical Failures: ${chalk.red.bold(report.criticalFailures)}`);
+    console.log(
+      `Critical Failures: ${chalk.red.bold(report.criticalFailures)}`,
+    );
 
     const overallScore = Math.round((report.passed / totalChecks) * 100);
-    console.log(`\nOverall Compatibility Score: ${this.getScoreColor(overallScore)(overallScore + '%')}`);
+    console.log(
+      `\nOverall Compatibility Score: ${this.getScoreColor(overallScore)(overallScore + '%')}`,
+    );
 
     if (report.criticalFailures > 0) {
       console.log(chalk.red.bold('\n❌ CRITICAL ISSUES DETECTED'));
-      console.log(chalk.red('The autonomous system may not function properly with existing CLI workflows.'));
-      console.log(chalk.blue('Please address critical failures before deploying.'));
+      console.log(
+        chalk.red(
+          'The autonomous system may not function properly with existing CLI workflows.',
+        ),
+      );
+      console.log(
+        chalk.blue('Please address critical failures before deploying.'),
+      );
     } else if (report.failed > 0 || report.warnings > 0) {
       console.log(chalk.yellow('\n⚠️  ISSUES DETECTED'));
-      console.log(chalk.yellow('Some features may have reduced functionality.'));
-      console.log(chalk.blue('Review warnings and failures for optimal operation.'));
+      console.log(
+        chalk.yellow('Some features may have reduced functionality.'),
+      );
+      console.log(
+        chalk.blue('Review warnings and failures for optimal operation.'),
+      );
     } else {
       console.log(chalk.green('\n✅ ALL CHECKS PASSED'));
-      console.log(chalk.green('Autonomous system is fully compatible with existing CLI workflows.'));
+      console.log(
+        chalk.green(
+          'Autonomous system is fully compatible with existing CLI workflows.',
+        ),
+      );
     }
 
     // Show remediation suggestions
-    const issuesWithRemediation = report.checks.filter(c => c.status !== 'PASS' && c.remediation);
+    const issuesWithRemediation = report.checks.filter(
+      (c) => c.status !== 'PASS' && c.remediation,
+    );
     if (issuesWithRemediation.length > 0) {
       console.log(chalk.blue('\n💡 Recommended Actions:'));
       issuesWithRemediation.forEach((issue, index) => {
-        console.log(`${index + 1}. ${chalk.cyan(issue.name)}: ${issue.remediation}`);
+        console.log(
+          `${index + 1}. ${chalk.cyan(issue.name)}: ${issue.remediation}`,
+        );
       });
     }
   }
@@ -363,7 +421,7 @@ export class CompatibilityValidator {
    * Quick health check - just critical systems
    */
   async quickHealthCheck(): Promise<boolean> {
-    const criticalChecks = this.checks.filter(c => c.critical);
+    const criticalChecks = this.checks.filter((c) => c.critical);
 
     for (const check of criticalChecks) {
       try {

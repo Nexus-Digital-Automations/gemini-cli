@@ -9,12 +9,12 @@ import type { CommandModule } from 'yargs';
  * Arguments interface for the budget set command
  */
 interface SetCommandArgs {
-    /** Daily API request limit */
-    limit: number;
-    /** Time when budget resets daily in HH:MM format */
-    'reset-time'?: string;
-    /** Configuration scope (user or project) */
-    scope: 'user' | 'project';
+  /** Daily API request limit */
+  limit: number;
+  /** Time when budget resets daily in HH:MM format */
+  'reset-time'?: string;
+  /** Configuration scope (user or project) */
+  scope: 'user' | 'project';
 }
 /**
  * Yargs command module for setting budget limits and configuration

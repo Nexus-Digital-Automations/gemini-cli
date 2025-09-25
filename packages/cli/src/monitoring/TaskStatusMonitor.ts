@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { StructuredLogger, getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
+import { StructuredLogger, getComponentLogger } from '../../../../packages/core/src/utils/logger.js';
 
 /**
  * Task status definitions for comprehensive monitoring
@@ -138,7 +138,9 @@ export class TaskStatusMonitor extends EventEmitter {
   /**
    * Register a new task for monitoring
    */
-  async registerTask(task: Omit<TaskMetadata, 'id' | 'lastUpdate'>): Promise<string> {
+  async registerTask(
+    task: Omit<TaskMetadata, 'id' | 'lastUpdate'>,
+  ): Promise<string> {
     const taskId = this.generateTaskId();
     const fullTask: TaskMetadata = {
       ...task,
@@ -187,7 +189,7 @@ export class TaskStatusMonitor extends EventEmitter {
       message?: string;
       error?: string;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ): Promise<boolean> {
     const task = this.tasks.get(taskId);
     if (!task) {
@@ -309,7 +311,7 @@ export class TaskStatusMonitor extends EventEmitter {
   async updateAgentHeartbeat(agentId: string): Promise<void> {
     const agent = this.agents.get(agentId);
     if (!agent) {
-      this.logger.warning('Agent heartbeat for unknown agent', { agentId });
+      this.logger.warn('Agent heartbeat for unknown agent', { agentId });
       return;
     }
 
@@ -339,20 +341,24 @@ export class TaskStatusMonitor extends EventEmitter {
 
     if (filters) {
       if (filters.status) {
-        tasks = tasks.filter(task => task.status === filters.status);
+        tasks = tasks.filter((task) => task.status === filters.status);
       }
       if (filters.type) {
-        tasks = tasks.filter(task => task.type === filters.type);
+        tasks = tasks.filter((task) => task.type === filters.type);
       }
       if (filters.priority) {
-        tasks = tasks.filter(task => task.priority === filters.priority);
+        tasks = tasks.filter((task) => task.priority === filters.priority);
       }
       if (filters.assignedAgent) {
-        tasks = tasks.filter(task => task.assignedAgent === filters.assignedAgent);
+        tasks = tasks.filter(
+          (task) => task.assignedAgent === filters.assignedAgent,
+        );
       }
     }
 
-    return tasks.sort((a, b) => b.lastUpdate.getTime() - a.lastUpdate.getTime());
+    return tasks.sort(
+      (a, b) => b.lastUpdate.getTime() - a.lastUpdate.getTime(),
+    );
   }
 
   /**
@@ -362,7 +368,7 @@ export class TaskStatusMonitor extends EventEmitter {
     let history = [...this.statusHistory];
 
     if (taskId) {
-      history = history.filter(update => update.taskId === taskId);
+      history = history.filter((update) => update.taskId === taskId);
     }
 
     return history
@@ -381,8 +387,9 @@ export class TaskStatusMonitor extends EventEmitter {
    * Get all agent statuses
    */
   getAllAgents(): AgentStatus[] {
-    return Array.from(this.agents.values())
-      .sort((a, b) => b.lastHeartbeat.getTime() - a.lastHeartbeat.getTime());
+    return Array.from(this.agents.values()).sort(
+      (a, b) => b.lastHeartbeat.getTime() - a.lastHeartbeat.getTime(),
+    );
   }
 
   /**
@@ -395,13 +402,17 @@ export class TaskStatusMonitor extends EventEmitter {
     blockedTasks: number;
     systemEfficiency: number;
   } {
-    const activeAgents = Array.from(this.agents.values())
-      .filter(agent => agent.status !== 'offline').length;
+    const activeAgents = Array.from(this.agents.values()).filter(
+      (agent) => agent.status !== 'offline',
+    ).length;
 
     const tasksByStatus = this.getTaskCountsByStatus();
-    const systemEfficiency = this.performanceMetrics.totalTasks > 0
-      ? (this.performanceMetrics.completedTasks / this.performanceMetrics.totalTasks) * 100
-      : 100;
+    const systemEfficiency =
+      this.performanceMetrics.totalTasks > 0
+        ? (this.performanceMetrics.completedTasks /
+            this.performanceMetrics.totalTasks) *
+          100
+        : 100;
 
     return {
       ...this.performanceMetrics,
@@ -453,17 +464,24 @@ export class TaskStatusMonitor extends EventEmitter {
   private async updateAgentTaskAssignment(
     agentId: string,
     taskId: string,
-    newStatus: TaskStatus
+    newStatus: TaskStatus,
   ): Promise<void> {
     const agent = this.agents.get(agentId);
     if (!agent) return;
 
     // Update agent's task assignments
-    if (newStatus === TaskStatus.IN_PROGRESS && !agent.currentTasks.includes(taskId)) {
+    if (
+      newStatus === TaskStatus.IN_PROGRESS &&
+      !agent.currentTasks.includes(taskId)
+    ) {
       agent.currentTasks.push(taskId);
       agent.status = 'busy';
-    } else if ([TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED].includes(newStatus)) {
-      agent.currentTasks = agent.currentTasks.filter(id => id !== taskId);
+    } else if (
+      [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED].includes(
+        newStatus,
+      )
+    ) {
+      agent.currentTasks = agent.currentTasks.filter((id) => id !== taskId);
       agent.status = agent.currentTasks.length > 0 ? 'busy' : 'idle';
 
       if (newStatus === TaskStatus.COMPLETED) {
@@ -475,7 +493,8 @@ export class TaskStatusMonitor extends EventEmitter {
       // Update performance metrics
       const totalTasks = agent.completedTasks + agent.failedTasks;
       if (totalTasks > 0) {
-        agent.performance.successRate = (agent.completedTasks / totalTasks) * 100;
+        agent.performance.successRate =
+          (agent.completedTasks / totalTasks) * 100;
       }
     }
 
@@ -494,7 +513,7 @@ export class TaskStatusMonitor extends EventEmitter {
       [TaskStatus.CANCELLED]: 0,
     };
 
-    for (const task of this.tasks.values()) {
+    for (const task of Array.from(this.tasks.values())) {
       counts[task.status]++;
     }
 
@@ -521,7 +540,6 @@ export class TaskStatusMonitor extends EventEmitter {
       // In a real implementation, this would persist to a database or file
       // For now, we'll emit an event that can be handled by external systems
       this.emit('status:persisted', { statusData });
-
     } catch (error) {
       this.logger.error('Failed to persist status data', { error });
     }

@@ -29,14 +29,17 @@ This document outlines the development best practices, coding standards, and gui
 ```typescript
 // ❌ Bad
 const processData = (d: any, n: number) => {
-  return d.filter(x => x.score > n).map(x => ({ ...x, processed: true }));
+  return d.filter((x) => x.score > n).map((x) => ({ ...x, processed: true }));
 };
 
 // ✅ Good
-const filterHighScoringItems = (items: ScoredItem[], minimumScore: number): ProcessedItem[] => {
+const filterHighScoringItems = (
+  items: ScoredItem[],
+  minimumScore: number,
+): ProcessedItem[] => {
   return items
-    .filter(item => item.score > minimumScore)
-    .map(item => ({ ...item, processed: true }));
+    .filter((item) => item.score > minimumScore)
+    .map((item) => ({ ...item, processed: true }));
 };
 ```
 
@@ -82,18 +85,24 @@ const processUserInput = (rawInput: string): ProcessedInput | null => {
 ```typescript
 // Variables and functions: camelCase
 const userPreferences = getUserPreferences();
-const calculateTotalScore = (items: ScoreItem[]) => { /* ... */ };
+const calculateTotalScore = (items: ScoreItem[]) => {
+  /* ... */
+};
 
 // Classes: PascalCase
-class ApiResponseHandler { /* ... */ }
-class UserAuthenticationService { /* ... */ }
+class ApiResponseHandler {
+  /* ... */
+}
+class UserAuthenticationService {
+  /* ... */
+}
 
 // Constants: UPPER_SNAKE_CASE
 const MAX_RETRY_ATTEMPTS = 3;
 const DEFAULT_TIMEOUT_MS = 5000;
 const API_ENDPOINTS = {
   USERS: '/api/users',
-  POSTS: '/api/posts'
+  POSTS: '/api/posts',
 };
 
 // Interfaces and Types: PascalCase
@@ -114,7 +123,7 @@ enum TaskStatus {
   PENDING = 'pending',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 ```
 
@@ -166,7 +175,7 @@ export type { AuthConfig, UserProfile } from './types';
 export class AuthService {
   constructor(
     private config: AuthConfig,
-    private apiClient: ApiClient
+    private apiClient: ApiClient,
   ) {}
 
   async login(credentials: LoginCredentials): Promise<AuthResult> {
@@ -185,7 +194,7 @@ class UserController {
   constructor(
     private userService: UserService,
     private validator: InputValidator,
-    private logger: Logger
+    private logger: Logger,
   ) {}
 
   async createUser(userData: CreateUserRequest): Promise<UserResponse> {
@@ -209,7 +218,7 @@ class UserController {
 class UserService {
   constructor(
     private userRepository: UserRepository,
-    private emailService: EmailService
+    private emailService: EmailService,
   ) {}
 
   async createUser(userData: CreateUserRequest): Promise<User> {
@@ -244,20 +253,22 @@ class GeminiService {
   constructor(
     private apiClient: ApiClient,
     private logger: Logger,
-    private config: GeminiConfig
+    private config: GeminiConfig,
   ) {}
 
   async sendMessage(message: string): Promise<GeminiResponse> {
-    this.logger.info('Sending message to Gemini', { messageLength: message.length });
+    this.logger.info('Sending message to Gemini', {
+      messageLength: message.length,
+    });
 
     try {
       const response = await this.apiClient.post<GeminiResponse>(
         this.config.endpoints.chat,
-        { message }
+        { message },
       );
 
       this.logger.info('Received response from Gemini', {
-        responseLength: response.content.length
+        responseLength: response.content.length,
       });
 
       return response;
@@ -277,7 +288,9 @@ type Result<T, E = Error> =
   | { success: true; data: T }
   | { success: false; error: E };
 
-const processUserData = async (userData: UserData): Promise<Result<User, ValidationError>> => {
+const processUserData = async (
+  userData: UserData,
+): Promise<Result<User, ValidationError>> => {
   try {
     const validatedData = validateUserData(userData);
     if (!validatedData.success) {
@@ -289,7 +302,7 @@ const processUserData = async (userData: UserData): Promise<Result<User, Validat
   } catch (error) {
     return {
       success: false,
-      error: new ValidationError('Failed to process user data', error)
+      error: new ValidationError('Failed to process user data', error),
     };
   }
 };
@@ -428,28 +441,31 @@ interface GeminiConfig {
 // Environment variable validation
 const validateEnvironment = (): GeminiConfig => {
   const requiredVars = ['GEMINI_API_URL', 'AUTH_METHOD'];
-  const missing = requiredVars.filter(name => !process.env[name]);
+  const missing = requiredVars.filter((name) => !process.env[name]);
 
   if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    throw new Error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
   }
 
   return {
     api: {
       baseUrl: process.env.GEMINI_API_URL!,
       timeout: Number(process.env.API_TIMEOUT) || 5000,
-      retryAttempts: Number(process.env.RETRY_ATTEMPTS) || 3
+      retryAttempts: Number(process.env.RETRY_ATTEMPTS) || 3,
     },
     auth: {
       method: process.env.AUTH_METHOD as GeminiConfig['auth']['method'],
-      credentials: process.env.AUTH_CREDENTIALS ?
-        JSON.parse(process.env.AUTH_CREDENTIALS) : undefined
+      credentials: process.env.AUTH_CREDENTIALS
+        ? JSON.parse(process.env.AUTH_CREDENTIALS)
+        : undefined,
     },
     features: {
       enableDebugLogging: process.env.DEBUG === 'true',
       maxContextLength: Number(process.env.MAX_CONTEXT_LENGTH) || 1000000,
-      enableTools: process.env.ENABLED_TOOLS?.split(',') || []
-    }
+      enableTools: process.env.ENABLED_TOOLS?.split(',') || [],
+    },
   };
 };
 ```
@@ -475,7 +491,7 @@ describe('UserService', () => {
     mockUserRepository = createMockUserRepository();
     mockEmailService = {
       sendWelcomeEmail: vi.fn().mockResolvedValue(undefined),
-      sendResetEmail: vi.fn().mockResolvedValue(undefined)
+      sendResetEmail: vi.fn().mockResolvedValue(undefined),
     };
 
     userService = new UserService(mockUserRepository, mockEmailService);
@@ -491,7 +507,7 @@ describe('UserService', () => {
       const userData = {
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'securePassword123'
+        password: 'securePassword123',
       };
       const expectedUser = createMockUser(userData);
 
@@ -503,9 +519,13 @@ describe('UserService', () => {
 
       // Assert
       expect(result).toEqual(expectedUser);
-      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(userData.email);
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+        userData.email,
+      );
       expect(mockUserRepository.create).toHaveBeenCalledWith(userData);
-      expect(mockEmailService.sendWelcomeEmail).toHaveBeenCalledWith(userData.email);
+      expect(mockEmailService.sendWelcomeEmail).toHaveBeenCalledWith(
+        userData.email,
+      );
     });
 
     it('should throw error when user already exists', async () => {
@@ -513,15 +533,16 @@ describe('UserService', () => {
       const userData = {
         name: 'Jane Doe',
         email: 'jane@example.com',
-        password: 'password123'
+        password: 'password123',
       };
       const existingUser = createMockUser({ email: userData.email });
 
       mockUserRepository.findByEmail.mockResolvedValue(existingUser);
 
       // Act & Assert
-      await expect(userService.createUser(userData))
-        .rejects.toThrow('User with this email already exists');
+      await expect(userService.createUser(userData)).rejects.toThrow(
+        'User with this email already exists',
+      );
 
       expect(mockUserRepository.create).not.toHaveBeenCalled();
       expect(mockEmailService.sendWelcomeEmail).not.toHaveBeenCalled();
@@ -532,15 +553,18 @@ describe('UserService', () => {
       const userData = {
         name: 'Bob Smith',
         email: 'bob@example.com',
-        password: 'password456'
+        password: 'password456',
       };
 
       mockUserRepository.findByEmail.mockResolvedValue(null);
-      mockUserRepository.create.mockRejectedValue(new Error('Database connection failed'));
+      mockUserRepository.create.mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       // Act & Assert
-      await expect(userService.createUser(userData))
-        .rejects.toThrow('Database connection failed');
+      await expect(userService.createUser(userData)).rejects.toThrow(
+        'Database connection failed',
+      );
 
       expect(mockEmailService.sendWelcomeEmail).not.toHaveBeenCalled();
     });
@@ -576,19 +600,17 @@ describe('User API Integration', () => {
       const userData = {
         name: 'Integration Test User',
         email: 'integration@test.com',
-        password: 'testPassword123'
+        password: 'testPassword123',
       };
 
       // Act
-      const response = await app.request
-        .post('/api/users')
-        .send(userData);
+      const response = await app.request.post('/api/users').send(userData);
 
       // Assert
       expect(response.status).toBe(201);
       expect(response.body.data).toMatchObject({
         name: userData.name,
-        email: userData.email
+        email: userData.email,
       });
       expect(response.body.data).not.toHaveProperty('password');
 
@@ -630,7 +652,7 @@ export class UserBuilder {
       email: this.user.email || 'test@example.com',
       role: this.user.role || 'user',
       createdAt: this.user.createdAt || new Date(),
-      updatedAt: this.user.updatedAt || new Date()
+      updatedAt: this.user.updatedAt || new Date(),
     };
   }
 }
@@ -647,7 +669,7 @@ const testUser = new UserBuilder()
 
 ### 1. Code Documentation
 
-```typescript
+````typescript
 /**
  * Processes user authentication and returns session information.
  *
@@ -678,25 +700,31 @@ const testUser = new UserBuilder()
  */
 async function authenticateUser(
   credentials: LoginCredentials,
-  options: AuthOptions = {}
+  options: AuthOptions = {},
 ): Promise<AuthResult> {
   // Implementation with inline comments for complex logic
 
   // Validate credentials format before processing
   const validation = validateCredentials(credentials);
   if (!validation.isValid) {
-    throw new AuthenticationError('Invalid credential format', validation.errors);
+    throw new AuthenticationError(
+      'Invalid credential format',
+      validation.errors,
+    );
   }
 
   // Check rate limiting to prevent brute force attacks
   const rateLimitCheck = await checkRateLimit(credentials.email);
   if (!rateLimitCheck.allowed) {
-    throw new RateLimitError('Too many login attempts', rateLimitCheck.resetTime);
+    throw new RateLimitError(
+      'Too many login attempts',
+      rateLimitCheck.resetTime,
+    );
   }
 
   // ... rest of implementation
 }
-```
+````
 
 ### 2. README Documentation
 
@@ -704,11 +732,13 @@ async function authenticateUser(
 # Feature Module Name
 
 ## Overview
+
 Brief description of what this module does and why it exists.
 
 ## Usage
 
 ### Basic Usage
+
 \`\`\`typescript
 import { FeatureService } from './feature.service';
 
@@ -717,15 +747,16 @@ const result = await service.processData(inputData);
 \`\`\`
 
 ### Advanced Usage
+
 \`\`\`typescript
 // Example of more complex usage
 const service = new FeatureService({
-  option1: 'value1',
-  option2: true
+option1: 'value1',
+option2: true
 });
 
 service.on('progress', (progress) => {
-  console.log(`Progress: ${progress.percentage}%`);
+console.log(`Progress: ${progress.percentage}%`);
 });
 
 const result = await service.processLargeDataset(data);
@@ -733,10 +764,10 @@ const result = await service.processLargeDataset(data);
 
 ## Configuration
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `timeout` | `number` | `5000` | Timeout in milliseconds |
-| `retries` | `number` | `3` | Number of retry attempts |
+| Option    | Type     | Default | Description              |
+| --------- | -------- | ------- | ------------------------ |
+| `timeout` | `number` | `5000`  | Timeout in milliseconds  |
+| `retries` | `number` | `3`     | Number of retry attempts |
 
 ## Error Handling
 
@@ -781,7 +812,7 @@ class ToolRegistry {
 
   getToolsByCategory(category: string): Tool[] {
     const toolNames = this.toolsByCategory.get(category) || new Set();
-    return Array.from(toolNames).map(name => this.toolsMap.get(name)!);
+    return Array.from(toolNames).map((name) => this.toolsMap.get(name)!);
   }
 }
 
@@ -813,10 +844,10 @@ class EventProcessor {
     const chunks = this.chunkArray(events, 100); // Process in chunks
 
     for (const chunk of chunks) {
-      await Promise.all(chunk.map(event => this.processEvent(event)));
+      await Promise.all(chunk.map((event) => this.processEvent(event)));
 
       // Allow garbage collection between chunks
-      await new Promise(resolve => setImmediate(resolve));
+      await new Promise((resolve) => setImmediate(resolve));
     }
   }
 
@@ -825,11 +856,11 @@ class EventProcessor {
     this.listeners.clear();
 
     // Clear all timers
-    this.timers.forEach(timer => clearTimeout(timer));
+    this.timers.forEach((timer) => clearTimeout(timer));
     this.timers.clear();
 
     // Clean up resources
-    this.resources.forEach(resource => resource.cleanup());
+    this.resources.forEach((resource) => resource.cleanup());
     this.resources.clear();
   }
 
@@ -853,7 +884,7 @@ class DataProcessor {
   async processItemsConcurrently<T, R>(
     items: T[],
     processor: (item: T) => Promise<R>,
-    options: { concurrency?: number; batchSize?: number } = {}
+    options: { concurrency?: number; batchSize?: number } = {},
   ): Promise<R[]> {
     const { concurrency = this.concurrencyLimit, batchSize = 100 } = options;
 
@@ -864,7 +895,7 @@ class DataProcessor {
       const batchResults = await this.processBatchWithConcurrency(
         batch,
         processor,
-        concurrency
+        concurrency,
       );
       results.push(...batchResults);
     }
@@ -875,7 +906,7 @@ class DataProcessor {
   private async processBatchWithConcurrency<T, R>(
     items: T[],
     processor: (item: T) => Promise<R>,
-    concurrency: number
+    concurrency: number,
   ): Promise<R[]> {
     const semaphore = new Semaphore(concurrency);
 
@@ -931,24 +962,28 @@ class Semaphore {
 import { z } from 'zod';
 
 const CreateUserSchema = z.object({
-  name: z.string()
+  name: z
+    .string()
     .min(1, 'Name is required')
     .max(100, 'Name too long')
     .regex(/^[a-zA-Z\s]+$/, 'Name contains invalid characters'),
 
-  email: z.string()
-    .email('Invalid email format')
-    .max(255, 'Email too long'),
+  email: z.string().email('Invalid email format').max(255, 'Email too long'),
 
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and number'),
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'Password must contain uppercase, lowercase, and number',
+    ),
 
-  age: z.number()
+  age: z
+    .number()
     .int('Age must be an integer')
     .min(13, 'Must be at least 13 years old')
     .max(120, 'Invalid age')
-    .optional()
+    .optional(),
 });
 
 const validateCreateUser = (data: unknown): CreateUserRequest => {
@@ -984,7 +1019,9 @@ class ApiKeyManager {
 
   static maskApiKey(apiKey: string): string {
     if (apiKey.length < 8) return '***';
-    return apiKey.slice(0, 4) + '*'.repeat(apiKey.length - 8) + apiKey.slice(-4);
+    return (
+      apiKey.slice(0, 4) + '*'.repeat(apiKey.length - 8) + apiKey.slice(-4)
+    );
   }
 
   static getApiKey(): string | null {
@@ -1004,7 +1041,10 @@ class ApiKeyManager {
 
 // ✅ Rate limiting
 class RateLimiter {
-  private requestCounts = new Map<string, { count: number; resetTime: number }>();
+  private requestCounts = new Map<
+    string,
+    { count: number; resetTime: number }
+  >();
   private readonly maxRequests: number;
   private readonly windowMs: number;
 
@@ -1020,7 +1060,7 @@ class RateLimiter {
     if (!record || now > record.resetTime) {
       this.requestCounts.set(identifier, {
         count: 1,
-        resetTime: now + this.windowMs
+        resetTime: now + this.windowMs,
       });
       return { allowed: true };
     }
@@ -1062,7 +1102,7 @@ abstract class GeminiError extends Error {
       category: this.category,
       context: this.context,
       timestamp: this.timestamp,
-      stack: this.stack
+      stack: this.stack,
     };
   }
 }
@@ -1071,7 +1111,10 @@ class ValidationError extends GeminiError {
   readonly code = 'VALIDATION_ERROR';
   readonly category = ErrorCategory.USER_INPUT;
 
-  constructor(message: string, public readonly errors: ValidationIssue[]) {
+  constructor(
+    message: string,
+    public readonly errors: ValidationIssue[],
+  ) {
     super(message, { errors });
   }
 }
@@ -1083,7 +1126,7 @@ class ApiError extends GeminiError {
   constructor(
     message: string,
     public readonly statusCode: number,
-    public readonly response?: unknown
+    public readonly response?: unknown,
   ) {
     super(message, { statusCode, response });
   }
@@ -1096,7 +1139,7 @@ class ToolExecutionError extends GeminiError {
   constructor(
     message: string,
     public readonly toolName: string,
-    public readonly toolArgs?: unknown
+    public readonly toolArgs?: unknown,
   ) {
     super(message, { toolName, toolArgs });
   }
@@ -1107,7 +1150,7 @@ enum ErrorCategory {
   API_ERROR = 'api_error',
   TOOL_ERROR = 'tool_error',
   SYSTEM_ERROR = 'system_error',
-  NETWORK_ERROR = 'network_error'
+  NETWORK_ERROR = 'network_error',
 }
 ```
 
@@ -1118,13 +1161,10 @@ enum ErrorCategory {
 class ResilientApiClient {
   constructor(
     private config: ApiConfig,
-    private logger: Logger
+    private logger: Logger,
   ) {}
 
-  async makeRequest<T>(
-    url: string,
-    options: RequestOptions = {}
-  ): Promise<T> {
+  async makeRequest<T>(url: string, options: RequestOptions = {}): Promise<T> {
     const maxRetries = options.retries ?? this.config.defaultRetries;
     let lastError: Error;
 
@@ -1148,7 +1188,7 @@ class ResilientApiClient {
         this.logger.warn('Request attempt failed', {
           url,
           attempt,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
 
         if (!this.isRetriableError(error)) {
@@ -1160,10 +1200,14 @@ class ResilientApiClient {
     this.logger.error('Request failed after all retries', {
       url,
       attempts: maxRetries + 1,
-      error: lastError.message
+      error: lastError.message,
     });
 
-    throw new ApiError(`Request failed after ${maxRetries + 1} attempts`, 0, lastError);
+    throw new ApiError(
+      `Request failed after ${maxRetries + 1} attempts`,
+      0,
+      lastError,
+    );
   }
 
   private calculateBackoffDelay(attempt: number): number {
@@ -1181,7 +1225,7 @@ class ResilientApiClient {
   }
 
   private wait(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 ```

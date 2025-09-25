@@ -22,13 +22,13 @@ import { URL } from 'node:url';
  * - fe80::/10 (Link-local)
  */
 const PRIVATE_IP_RANGES = [
-    /^10\./,
-    /^127\./,
-    /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
-    /^192\.168\./,
-    /^::1$/,
-    /^fc00:/,
-    /^fe80:/,
+  /^10\./,
+  /^127\./,
+  /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+  /^192\.168\./,
+  /^::1$/,
+  /^fc00:/,
+  /^fe80:/,
 ];
 /**
  * Custom error class for HTTP fetch operations.
@@ -40,18 +40,18 @@ const PRIVATE_IP_RANGES = [
  * ```
  */
 export class FetchError extends Error {
-    code;
-    /**
-     * Creates a new FetchError instance.
-     *
-     * @param message - Human-readable error description
-     * @param code - Optional error code for programmatic error handling
-     */
-    constructor(message, code) {
-        super(message);
-        this.code = code;
-        this.name = 'FetchError';
-    }
+  code;
+  /**
+   * Creates a new FetchError instance.
+   *
+   * @param message - Human-readable error description
+   * @param code - Optional error code for programmatic error handling
+   */
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+    this.name = 'FetchError';
+  }
 }
 /**
  * Checks if a URL points to a private IP address or localhost.
@@ -72,13 +72,12 @@ export class FetchError extends Error {
  * ```
  */
 export function isPrivateIp(url) {
-    try {
-        const hostname = new URL(url).hostname;
-        return PRIVATE_IP_RANGES.some((range) => range.test(hostname));
-    }
-    catch (_e) {
-        return false;
-    }
+  try {
+    const hostname = new URL(url).hostname;
+    return PRIVATE_IP_RANGES.some((range) => range.test(hostname));
+  } catch (_e) {
+    return false;
+  }
 }
 /**
  * Performs an HTTP fetch request with a specified timeout.
@@ -108,20 +107,18 @@ export function isPrivateIp(url) {
  * ```
  */
 export async function fetchWithTimeout(url, timeout) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-    try {
-        const response = await fetch(url, { signal: controller.signal });
-        return response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return response;
+  } catch (error) {
+    if (isNodeError(error) && error.code === 'ABORT_ERR') {
+      throw new FetchError(`Request timed out after ${timeout}ms`, 'ETIMEDOUT');
     }
-    catch (error) {
-        if (isNodeError(error) && error.code === 'ABORT_ERR') {
-            throw new FetchError(`Request timed out after ${timeout}ms`, 'ETIMEDOUT');
-        }
-        throw new FetchError(getErrorMessage(error));
-    }
-    finally {
-        clearTimeout(timeoutId);
-    }
+    throw new FetchError(getErrorMessage(error));
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 //# sourceMappingURL=fetch.js.map

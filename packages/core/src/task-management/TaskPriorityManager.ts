@@ -6,7 +6,12 @@
 
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import type { Task, TaskPriority, TaskCategory, PriorityFactors } from './TaskQueue.js';
+import type {
+  Task,
+  TaskPriority,
+  TaskCategory,
+  PriorityFactors,
+} from './TaskQueue.js';
 
 /**
  * Advanced priority calculation algorithms
@@ -16,7 +21,7 @@ export enum PriorityAlgorithm {
   URGENCY_IMPACT_MATRIX = 'urgency_impact_matrix',
   DEPENDENCY_CRITICAL_PATH = 'dependency_critical_path',
   RESOURCE_OPTIMIZATION = 'resource_optimization',
-  MACHINE_LEARNING = 'machine_learning'
+  MACHINE_LEARNING = 'machine_learning',
 }
 
 /**
@@ -105,7 +110,10 @@ export interface PriorityStatistics {
 export class TaskPriorityManager extends EventEmitter {
   private config: PriorityCalculationConfig;
   private priorityHistory = new Map<string, PriorityCalculationResult[]>();
-  private factorLearningData = new Map<string, Array<{ factors: PriorityFactors; outcome: 'success' | 'failure' }>>();
+  private factorLearningData = new Map<
+    string,
+    Array<{ factors: PriorityFactors; outcome: 'success' | 'failure' }>
+  >();
   private statistics: PriorityStatistics;
 
   constructor(config: Partial<PriorityCalculationConfig> = {}) {
@@ -123,21 +131,26 @@ export class TaskPriorityManager extends EventEmitter {
         deadlinePressure: config.weights?.deadlinePressure ?? 2.5,
         businessValue: config.weights?.businessValue ?? 2.0,
         riskFactor: config.weights?.riskFactor ?? 1.3,
-        ...config.weights
+        ...config.weights,
       },
       boostFactors: {
-        criticalPathMultiplier: config.boostFactors?.criticalPathMultiplier ?? 1.5,
-        blockingTaskMultiplier: config.boostFactors?.blockingTaskMultiplier ?? 1.3,
-        expiredDeadlineMultiplier: config.boostFactors?.expiredDeadlineMultiplier ?? 2.0,
-        resourceStarvedMultiplier: config.boostFactors?.resourceStarvedMultiplier ?? 1.4,
-        ...config.boostFactors
+        criticalPathMultiplier:
+          config.boostFactors?.criticalPathMultiplier ?? 1.5,
+        blockingTaskMultiplier:
+          config.boostFactors?.blockingTaskMultiplier ?? 1.3,
+        expiredDeadlineMultiplier:
+          config.boostFactors?.expiredDeadlineMultiplier ?? 2.0,
+        resourceStarvedMultiplier:
+          config.boostFactors?.resourceStarvedMultiplier ?? 1.4,
+        ...config.boostFactors,
       },
       decayFactors: {
         failureDecayRate: config.decayFactors?.failureDecayRate ?? 0.1,
         staleTaskDecayRate: config.decayFactors?.staleTaskDecayRate ?? 0.05,
-        resourceContentionDecayRate: config.decayFactors?.resourceContentionDecayRate ?? 0.15,
-        ...config.decayFactors
-      }
+        resourceContentionDecayRate:
+          config.decayFactors?.resourceContentionDecayRate ?? 0.15,
+        ...config.decayFactors,
+      },
     };
 
     this.statistics = {
@@ -146,13 +159,13 @@ export class TaskPriorityManager extends EventEmitter {
       categoryPriorityAverages: {} as Record<TaskCategory, number>,
       priorityVolatility: 0,
       adjustmentFrequency: 0,
-      topPriorityFactors: []
+      topPriorityFactors: [],
     };
 
     logger.info('TaskPriorityManager initialized', {
       algorithm: this.config.algorithm,
       weights: Object.keys(this.config.weights).length,
-      boostFactors: Object.keys(this.config.boostFactors).length
+      boostFactors: Object.keys(this.config.boostFactors).length,
     });
   }
 
@@ -162,16 +175,19 @@ export class TaskPriorityManager extends EventEmitter {
   async calculatePriority(
     task: Task,
     allTasks: Task[],
-    dependencyGraph?: Map<string, string[]>
+    dependencyGraph?: Map<string, string[]>,
   ): Promise<PriorityCalculationResult> {
     const startTime = Date.now();
     const oldPriority = task.dynamicPriority;
 
-    logger.debug(`Calculating priority for task ${task.id} using ${this.config.algorithm}`, {
-      taskTitle: task.title,
-      basePriority: task.basePriority,
-      currentPriority: task.dynamicPriority
-    });
+    logger.debug(
+      `Calculating priority for task ${task.id} using ${this.config.algorithm}`,
+      {
+        taskTitle: task.title,
+        basePriority: task.basePriority,
+        currentPriority: task.dynamicPriority,
+      },
+    );
 
     const adjustmentReasons: PriorityAdjustmentReason[] = [];
 
@@ -180,28 +196,60 @@ export class TaskPriorityManager extends EventEmitter {
 
     switch (this.config.algorithm) {
       case PriorityAlgorithm.WEIGHTED_FACTORS:
-        ({ priority: newPriority, confidence, reasons: adjustmentReasons } =
-          this.calculateWeightedFactorsPriority(task, allTasks, adjustmentReasons));
+        ({
+          priority: newPriority,
+          confidence,
+          reasons: adjustmentReasons,
+        } = this.calculateWeightedFactorsPriority(
+          task,
+          allTasks,
+          adjustmentReasons,
+        ));
         break;
 
       case PriorityAlgorithm.URGENCY_IMPACT_MATRIX:
-        ({ priority: newPriority, confidence, reasons: adjustmentReasons } =
-          this.calculateUrgencyImpactPriority(task, allTasks, adjustmentReasons));
+        ({
+          priority: newPriority,
+          confidence,
+          reasons: adjustmentReasons,
+        } = this.calculateUrgencyImpactPriority(
+          task,
+          allTasks,
+          adjustmentReasons,
+        ));
         break;
 
       case PriorityAlgorithm.DEPENDENCY_CRITICAL_PATH:
-        ({ priority: newPriority, confidence, reasons: adjustmentReasons } =
-          this.calculateCriticalPathPriority(task, allTasks, dependencyGraph, adjustmentReasons));
+        ({
+          priority: newPriority,
+          confidence,
+          reasons: adjustmentReasons,
+        } = this.calculateCriticalPathPriority(
+          task,
+          allTasks,
+          dependencyGraph,
+          adjustmentReasons,
+        ));
         break;
 
       case PriorityAlgorithm.RESOURCE_OPTIMIZATION:
-        ({ priority: newPriority, confidence, reasons: adjustmentReasons } =
-          this.calculateResourceOptimizedPriority(task, allTasks, adjustmentReasons));
+        ({
+          priority: newPriority,
+          confidence,
+          reasons: adjustmentReasons,
+        } = this.calculateResourceOptimizedPriority(
+          task,
+          allTasks,
+          adjustmentReasons,
+        ));
         break;
 
       case PriorityAlgorithm.MACHINE_LEARNING:
-        ({ priority: newPriority, confidence, reasons: adjustmentReasons } =
-          await this.calculateMLPriority(task, allTasks, adjustmentReasons));
+        ({
+          priority: newPriority,
+          confidence,
+          reasons: adjustmentReasons,
+        } = await this.calculateMLPriority(task, allTasks, adjustmentReasons));
         break;
 
       default:
@@ -229,8 +277,8 @@ export class TaskPriorityManager extends EventEmitter {
       metadata: {
         taskTitle: task.title,
         category: task.category,
-        basePriority: task.basePriority
-      }
+        basePriority: task.basePriority,
+      },
     };
 
     // Store in history for learning and auditing
@@ -245,9 +293,10 @@ export class TaskPriorityManager extends EventEmitter {
     logger.debug(`Priority calculated for task ${task.id}`, {
       oldPriority,
       newPriority,
-      change: ((newPriority - oldPriority) / oldPriority * 100).toFixed(1) + '%',
+      change:
+        (((newPriority - oldPriority) / oldPriority) * 100).toFixed(1) + '%',
       confidence,
-      calculationTime
+      calculationTime,
     });
 
     return result;
@@ -259,49 +308,56 @@ export class TaskPriorityManager extends EventEmitter {
   private calculateWeightedFactorsPriority(
     task: Task,
     allTasks: Task[],
-    reasons: PriorityAdjustmentReason[]
-  ): { priority: number; confidence: number; reasons: PriorityAdjustmentReason[] } {
+    reasons: PriorityAdjustmentReason[],
+  ): {
+    priority: number;
+    confidence: number;
+    reasons: PriorityAdjustmentReason[];
+  } {
     let priority = task.basePriority;
 
     // Age factor - older tasks get priority boost
     const ageMs = Date.now() - task.createdAt.getTime();
     const ageHours = ageMs / (1000 * 60 * 60);
-    const ageFactor = Math.min(2.0, 1 + (ageHours / 24));
+    const ageFactor = Math.min(2.0, 1 + ageHours / 24);
 
-    priority *= (1 + (ageFactor - 1) * this.config.weights.age);
+    priority *= 1 + (ageFactor - 1) * this.config.weights.age;
     reasons.push({
       factor: 'age',
       oldValue: 1.0,
       newValue: ageFactor,
       influence: (ageFactor - 1) * this.config.weights.age,
       reasoning: `Task has been waiting ${ageHours.toFixed(1)} hours`,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     // Deadline pressure
     if (task.deadline) {
       const timeToDeadline = task.deadline.getTime() - Date.now();
-      const deadlinePressure = Math.max(0.5, 1 - (timeToDeadline / (7 * 24 * 60 * 60 * 1000)));
+      const deadlinePressure = Math.max(
+        0.5,
+        1 - timeToDeadline / (7 * 24 * 60 * 60 * 1000),
+      );
 
-      priority *= (1 + deadlinePressure * this.config.weights.deadlinePressure);
+      priority *= 1 + deadlinePressure * this.config.weights.deadlinePressure;
       reasons.push({
         factor: 'deadline',
         oldValue: 1.0,
         newValue: deadlinePressure,
         influence: deadlinePressure * this.config.weights.deadlinePressure,
         reasoning: `Deadline in ${Math.round(timeToDeadline / (24 * 60 * 60 * 1000))} days`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     // Dependency weight - tasks blocking others get higher priority
-    const blockedTasksCount = task.dependents.filter(depId => {
-      const depTask = allTasks.find(t => t.id === depId);
+    const blockedTasksCount = task.dependents.filter((depId) => {
+      const depTask = allTasks.find((t) => t.id === depId);
       return depTask?.status === 'PENDING';
     }).length;
 
-    const depWeight = 1 + (blockedTasksCount * 0.1);
-    priority *= (1 + (depWeight - 1) * this.config.weights.dependencyWeight);
+    const depWeight = 1 + blockedTasksCount * 0.1;
+    priority *= 1 + (depWeight - 1) * this.config.weights.dependencyWeight;
 
     if (blockedTasksCount > 0) {
       reasons.push({
@@ -310,24 +366,31 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: depWeight,
         influence: (depWeight - 1) * this.config.weights.dependencyWeight,
         reasoning: `Blocking ${blockedTasksCount} other tasks`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     // User importance and system criticality
-    priority *= task.priorityFactors.userImportance * this.config.weights.userImportance;
-    priority *= task.priorityFactors.systemCriticality * this.config.weights.systemCriticality;
+    priority *=
+      task.priorityFactors.userImportance * this.config.weights.userImportance;
+    priority *=
+      task.priorityFactors.systemCriticality *
+      this.config.weights.systemCriticality;
 
     // Resource availability factor
-    priority *= task.priorityFactors.resourceAvailability * this.config.weights.resourceAvailability;
+    priority *=
+      task.priorityFactors.resourceAvailability *
+      this.config.weights.resourceAvailability;
 
     // Execution history factor
-    priority *= task.priorityFactors.executionHistory * this.config.weights.executionHistory;
+    priority *=
+      task.priorityFactors.executionHistory *
+      this.config.weights.executionHistory;
 
     return {
       priority,
       confidence: 0.85,
-      reasons
+      reasons,
     };
   }
 
@@ -337,8 +400,12 @@ export class TaskPriorityManager extends EventEmitter {
   private calculateUrgencyImpactPriority(
     task: Task,
     allTasks: Task[],
-    reasons: PriorityAdjustmentReason[]
-  ): { priority: number; confidence: number; reasons: PriorityAdjustmentReason[] } {
+    reasons: PriorityAdjustmentReason[],
+  ): {
+    priority: number;
+    confidence: number;
+    reasons: PriorityAdjustmentReason[];
+  } {
     // Calculate urgency (0-1 scale)
     let urgency = 0.5; // Default medium urgency
 
@@ -346,16 +413,21 @@ export class TaskPriorityManager extends EventEmitter {
       const timeToDeadline = task.deadline.getTime() - Date.now();
       const daysTillDeadline = timeToDeadline / (24 * 60 * 60 * 1000);
 
-      if (daysTillDeadline <= 0) urgency = 1.0; // Overdue
-      else if (daysTillDeadline <= 1) urgency = 0.9; // Critical
-      else if (daysTillDeadline <= 3) urgency = 0.7; // High
-      else if (daysTillDeadline <= 7) urgency = 0.5; // Medium
+      if (daysTillDeadline <= 0)
+        urgency = 1.0; // Overdue
+      else if (daysTillDeadline <= 1)
+        urgency = 0.9; // Critical
+      else if (daysTillDeadline <= 3)
+        urgency = 0.7; // High
+      else if (daysTillDeadline <= 7)
+        urgency = 0.5; // Medium
       else urgency = 0.3; // Low
     }
 
     // Factor in age for urgency
     const ageHours = (Date.now() - task.createdAt.getTime()) / (1000 * 60 * 60);
-    if (ageHours > 24) urgency = Math.min(1.0, urgency + 0.1 * Math.floor(ageHours / 24));
+    if (ageHours > 24)
+      urgency = Math.min(1.0, urgency + 0.1 * Math.floor(ageHours / 24));
 
     // Calculate impact (0-1 scale)
     let impact = 0.5; // Default medium impact
@@ -378,14 +450,15 @@ export class TaskPriorityManager extends EventEmitter {
       [TaskCategory.REFACTOR]: 0.4,
       [TaskCategory.TEST]: 0.5,
       [TaskCategory.DOCUMENTATION]: 0.3,
-      [TaskCategory.INFRASTRUCTURE]: 0.7
+      [TaskCategory.INFRASTRUCTURE]: 0.7,
     };
 
     impact = Math.max(impact, categoryImpactMap[task.category] || 0.5);
 
     // Calculate priority using urgency-impact matrix
     // Matrix: High Impact + High Urgency = Highest Priority
-    const priority = task.basePriority * (1 + urgency + impact + (urgency * impact));
+    const priority =
+      task.basePriority * (1 + urgency + impact + urgency * impact);
 
     reasons.push(
       {
@@ -393,10 +466,10 @@ export class TaskPriorityManager extends EventEmitter {
         oldValue: 0.5,
         newValue: urgency,
         influence: urgency,
-        reasoning: task.deadline ?
-          `Deadline urgency: ${urgency}` :
-          `Age-based urgency: ${urgency}`,
-        timestamp: new Date()
+        reasoning: task.deadline
+          ? `Deadline urgency: ${urgency}`
+          : `Age-based urgency: ${urgency}`,
+        timestamp: new Date(),
       },
       {
         factor: 'impact',
@@ -404,14 +477,14 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: impact,
         influence: impact,
         reasoning: `Business and dependency impact: ${impact}`,
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     );
 
     return {
       priority,
       confidence: 0.9,
-      reasons
+      reasons,
     };
   }
 
@@ -422,8 +495,12 @@ export class TaskPriorityManager extends EventEmitter {
     task: Task,
     allTasks: Task[],
     dependencyGraph: Map<string, string[]> | undefined,
-    reasons: PriorityAdjustmentReason[]
-  ): { priority: number; confidence: number; reasons: PriorityAdjustmentReason[] } {
+    reasons: PriorityAdjustmentReason[],
+  ): {
+    priority: number;
+    confidence: number;
+    reasons: PriorityAdjustmentReason[];
+  } {
     let priority = task.basePriority;
 
     if (!dependencyGraph) {
@@ -435,10 +512,14 @@ export class TaskPriorityManager extends EventEmitter {
     }
 
     // Calculate critical path length (longest chain of dependent tasks)
-    const criticalPathLength = this.calculateCriticalPathLength(task.id, dependencyGraph, allTasks);
+    const criticalPathLength = this.calculateCriticalPathLength(
+      task.id,
+      dependencyGraph,
+      allTasks,
+    );
 
     // Tasks on longer critical paths get higher priority
-    const pathMultiplier = 1 + (criticalPathLength * 0.1);
+    const pathMultiplier = 1 + criticalPathLength * 0.1;
     priority *= pathMultiplier;
 
     if (criticalPathLength > 0) {
@@ -448,14 +529,15 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: pathMultiplier,
         influence: pathMultiplier - 1,
         reasoning: `On critical path with length ${criticalPathLength}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     // Boost tasks that are blocking many others
     const blockingCount = task.dependents.length;
     if (blockingCount > 0) {
-      const blockingMultiplier = this.config.boostFactors.blockingTaskMultiplier *
+      const blockingMultiplier =
+        this.config.boostFactors.blockingTaskMultiplier *
         Math.log(blockingCount + 1);
       priority *= blockingMultiplier;
 
@@ -465,14 +547,16 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: blockingMultiplier,
         influence: blockingMultiplier - 1,
         reasoning: `Blocking ${blockingCount} tasks`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     // Boost tasks with expired deadlines exponentially
     if (task.deadline && task.deadline.getTime() < Date.now()) {
-      const overdueDays = (Date.now() - task.deadline.getTime()) / (24 * 60 * 60 * 1000);
-      const overdueMultiplier = this.config.boostFactors.expiredDeadlineMultiplier *
+      const overdueDays =
+        (Date.now() - task.deadline.getTime()) / (24 * 60 * 60 * 1000);
+      const overdueMultiplier =
+        this.config.boostFactors.expiredDeadlineMultiplier *
         Math.pow(1.1, overdueDays);
       priority *= overdueMultiplier;
 
@@ -482,14 +566,14 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: overdueMultiplier,
         influence: overdueMultiplier - 1,
         reasoning: `Overdue by ${overdueDays.toFixed(1)} days`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     return {
       priority,
       confidence: 0.85,
-      reasons
+      reasons,
     };
   }
 
@@ -499,8 +583,12 @@ export class TaskPriorityManager extends EventEmitter {
   private calculateResourceOptimizedPriority(
     task: Task,
     allTasks: Task[],
-    reasons: PriorityAdjustmentReason[]
-  ): { priority: number; confidence: number; reasons: PriorityAdjustmentReason[] } {
+    reasons: PriorityAdjustmentReason[],
+  ): {
+    priority: number;
+    confidence: number;
+    reasons: PriorityAdjustmentReason[];
+  } {
     let priority = task.basePriority;
 
     // Calculate resource contention score
@@ -508,7 +596,10 @@ export class TaskPriorityManager extends EventEmitter {
 
     if (resourceContention.score > 0.5) {
       // High contention - lower priority unless critical
-      const contentionPenalty = 1 - (resourceContention.score * this.config.decayFactors.resourceContentionDecayRate);
+      const contentionPenalty =
+        1 -
+        resourceContention.score *
+          this.config.decayFactors.resourceContentionDecayRate;
       priority *= contentionPenalty;
 
       reasons.push({
@@ -517,13 +608,14 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: contentionPenalty,
         influence: contentionPenalty - 1,
         reasoning: `High resource contention (${(resourceContention.score * 100).toFixed(0)}%)`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     // Boost resource-starved tasks
     if (task.priorityFactors.resourceAvailability < 0.5) {
-      const starvationBoost = this.config.boostFactors.resourceStarvedMultiplier;
+      const starvationBoost =
+        this.config.boostFactors.resourceStarvedMultiplier;
       priority *= starvationBoost;
 
       reasons.push({
@@ -532,12 +624,13 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: starvationBoost,
         influence: starvationBoost - 1,
         reasoning: 'Task has been resource-starved',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
     // Consider resource efficiency
-    const estimatedResourceUsage = Number(task.metadata.estimatedResourceUsage) || 1;
+    const estimatedResourceUsage =
+      Number(task.metadata.estimatedResourceUsage) || 1;
     const resourceEfficiency = 1 / Math.log(estimatedResourceUsage + 1);
     priority *= resourceEfficiency;
 
@@ -547,13 +640,13 @@ export class TaskPriorityManager extends EventEmitter {
       newValue: resourceEfficiency,
       influence: resourceEfficiency - 1,
       reasoning: `Resource efficiency factor based on usage estimate`,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     return {
       priority,
       confidence: 0.8,
-      reasons
+      reasons,
     };
   }
 
@@ -563,8 +656,12 @@ export class TaskPriorityManager extends EventEmitter {
   private async calculateMLPriority(
     task: Task,
     allTasks: Task[],
-    reasons: PriorityAdjustmentReason[]
-  ): Promise<{ priority: number; confidence: number; reasons: PriorityAdjustmentReason[] }> {
+    reasons: PriorityAdjustmentReason[],
+  ): Promise<{
+    priority: number;
+    confidence: number;
+    reasons: PriorityAdjustmentReason[];
+  }> {
     // Get historical data for similar tasks
     const similarTasksData = this.factorLearningData.get(task.category) || [];
 
@@ -581,8 +678,9 @@ export class TaskPriorityManager extends EventEmitter {
     let priority = task.basePriority;
 
     Object.entries(featureWeights).forEach(([feature, weight]) => {
-      const factorValue = task.priorityFactors[feature as keyof PriorityFactors] || 1.0;
-      priority *= (1 + (factorValue - 1) * weight);
+      const factorValue =
+        task.priorityFactors[feature as keyof PriorityFactors] || 1.0;
+      priority *= 1 + (factorValue - 1) * weight;
 
       reasons.push({
         factor: `ml_${feature}`,
@@ -590,17 +688,17 @@ export class TaskPriorityManager extends EventEmitter {
         newValue: factorValue,
         influence: (factorValue - 1) * weight,
         reasoning: `ML-derived weight for ${feature}: ${weight.toFixed(3)}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     });
 
     // Calculate confidence based on data quality and model performance
-    const confidence = Math.min(0.95, 0.5 + (similarTasksData.length / 100));
+    const confidence = Math.min(0.95, 0.5 + similarTasksData.length / 100);
 
     return {
       priority,
       confidence,
-      reasons
+      reasons,
     };
   }
 
@@ -611,7 +709,7 @@ export class TaskPriorityManager extends EventEmitter {
     taskId: string,
     dependencyGraph: Map<string, string[]>,
     allTasks: Task[],
-    visited = new Set<string>()
+    visited = new Set<string>(),
   ): number {
     if (visited.has(taskId)) {
       return 0; // Avoid cycles
@@ -626,9 +724,16 @@ export class TaskPriorityManager extends EventEmitter {
 
     let maxPath = 0;
     for (const dependentId of dependents) {
-      const dependentTask = allTasks.find(t => t.id === dependentId);
+      const dependentTask = allTasks.find((t) => t.id === dependentId);
       if (dependentTask && dependentTask.status === 'PENDING') {
-        const pathLength = 1 + this.calculateCriticalPathLength(dependentId, dependencyGraph, allTasks, new Set(visited));
+        const pathLength =
+          1 +
+          this.calculateCriticalPathLength(
+            dependentId,
+            dependencyGraph,
+            allTasks,
+            new Set(visited),
+          );
         maxPath = Math.max(maxPath, pathLength);
       }
     }
@@ -639,11 +744,14 @@ export class TaskPriorityManager extends EventEmitter {
   /**
    * Calculate resource contention for a task
    */
-  private calculateResourceContention(task: Task, allTasks: Task[]): { score: number; conflicts: string[] } {
+  private calculateResourceContention(
+    task: Task,
+    allTasks: Task[],
+  ): { score: number; conflicts: string[] } {
     const conflicts: string[] = [];
     let totalContention = 0;
 
-    const runningTasks = allTasks.filter(t => t.status === 'RUNNING');
+    const runningTasks = allTasks.filter((t) => t.status === 'RUNNING');
 
     for (const resource of task.requiredResources) {
       let resourceContention = 0;
@@ -658,8 +766,11 @@ export class TaskPriorityManager extends EventEmitter {
       totalContention += resourceContention;
     }
 
-    const score = task.requiredResources.length > 0 ?
-      totalContention / (task.requiredResources.length * runningTasks.length) : 0;
+    const score =
+      task.requiredResources.length > 0
+        ? totalContention /
+          (task.requiredResources.length * runningTasks.length)
+        : 0;
 
     return { score: Math.min(1, score), conflicts };
   }
@@ -667,23 +778,36 @@ export class TaskPriorityManager extends EventEmitter {
   /**
    * Calculate ML feature weights from historical data
    */
-  private calculateMLFeatureWeights(data: Array<{ factors: PriorityFactors; outcome: 'success' | 'failure' }>): Record<string, number> {
+  private calculateMLFeatureWeights(
+    data: Array<{ factors: PriorityFactors; outcome: 'success' | 'failure' }>,
+  ): Record<string, number> {
     const weights: Record<string, number> = {};
-    const factorNames = ['age', 'userImportance', 'systemCriticality', 'dependencyWeight', 'resourceAvailability', 'executionHistory'];
+    const factorNames = [
+      'age',
+      'userImportance',
+      'systemCriticality',
+      'dependencyWeight',
+      'resourceAvailability',
+      'executionHistory',
+    ];
 
     for (const factor of factorNames) {
-      const successValues = data.filter(d => d.outcome === 'success')
-        .map(d => d.factors[factor as keyof PriorityFactors]);
-      const failureValues = data.filter(d => d.outcome === 'failure')
-        .map(d => d.factors[factor as keyof PriorityFactors]);
+      const successValues = data
+        .filter((d) => d.outcome === 'success')
+        .map((d) => d.factors[factor as keyof PriorityFactors]);
+      const failureValues = data
+        .filter((d) => d.outcome === 'failure')
+        .map((d) => d.factors[factor as keyof PriorityFactors]);
 
       if (successValues.length === 0 || failureValues.length === 0) {
         weights[factor] = 1.0; // Default weight
         continue;
       }
 
-      const successAvg = successValues.reduce((a, b) => a + b, 0) / successValues.length;
-      const failureAvg = failureValues.reduce((a, b) => a + b, 0) / failureValues.length;
+      const successAvg =
+        successValues.reduce((a, b) => a + b, 0) / successValues.length;
+      const failureAvg =
+        failureValues.reduce((a, b) => a + b, 0) / failureValues.length;
 
       // Higher success average vs failure average = higher weight
       const ratio = successAvg / (failureAvg + 0.001); // Avoid division by zero
@@ -711,12 +835,16 @@ export class TaskPriorityManager extends EventEmitter {
   /**
    * Learn from task execution outcome
    */
-  learnFromExecution(taskId: string, outcome: 'success' | 'failure', task: Task): void {
+  learnFromExecution(
+    taskId: string,
+    outcome: 'success' | 'failure',
+    task: Task,
+  ): void {
     const categoryData = this.factorLearningData.get(task.category) || [];
 
     categoryData.push({
       factors: { ...task.priorityFactors },
-      outcome
+      outcome,
     });
 
     // Keep learning data manageable
@@ -728,7 +856,7 @@ export class TaskPriorityManager extends EventEmitter {
 
     logger.debug(`Learning data updated for category ${task.category}`, {
       outcome,
-      dataPoints: categoryData.length
+      dataPoints: categoryData.length,
     });
   }
 
@@ -741,25 +869,39 @@ export class TaskPriorityManager extends EventEmitter {
     if (allResults.length === 0) return;
 
     // Calculate average priority
-    this.statistics.averagePriority = allResults.reduce((sum, r) => sum + r.newPriority, 0) / allResults.length;
+    this.statistics.averagePriority =
+      allResults.reduce((sum, r) => sum + r.newPriority, 0) / allResults.length;
 
     // Calculate priority volatility (how much priorities change)
-    const priorityChanges = allResults.map(r => Math.abs(r.newPriority - r.oldPriority) / r.oldPriority);
-    this.statistics.priorityVolatility = priorityChanges.reduce((sum, change) => sum + change, 0) / priorityChanges.length;
+    const priorityChanges = allResults.map(
+      (r) => Math.abs(r.newPriority - r.oldPriority) / r.oldPriority,
+    );
+    this.statistics.priorityVolatility =
+      priorityChanges.reduce((sum, change) => sum + change, 0) /
+      priorityChanges.length;
 
     // Calculate adjustment frequency (recent hour)
-    const hourAgo = Date.now() - (60 * 60 * 1000);
-    const recentAdjustments = allResults.filter(r =>
-      r.adjustmentReasons.some(reason => reason.timestamp.getTime() > hourAgo)
+    const hourAgo = Date.now() - 60 * 60 * 1000;
+    const recentAdjustments = allResults.filter((r) =>
+      r.adjustmentReasons.some(
+        (reason) => reason.timestamp.getTime() > hourAgo,
+      ),
     );
     this.statistics.adjustmentFrequency = recentAdjustments.length;
 
     // Calculate top priority factors
-    const factorInfluences = new Map<string, { totalInfluence: number; count: number }>();
+    const factorInfluences = new Map<
+      string,
+      { totalInfluence: number; count: number }
+    >();
 
-    for (const result of allResults.slice(-100)) { // Last 100 results
+    for (const result of allResults.slice(-100)) {
+      // Last 100 results
       for (const reason of result.adjustmentReasons) {
-        const current = factorInfluences.get(reason.factor) || { totalInfluence: 0, count: 0 };
+        const current = factorInfluences.get(reason.factor) || {
+          totalInfluence: 0,
+          count: 0,
+        };
         current.totalInfluence += Math.abs(reason.influence);
         current.count++;
         factorInfluences.set(reason.factor, current);
@@ -770,7 +912,7 @@ export class TaskPriorityManager extends EventEmitter {
       .map(([factor, data]) => ({
         factor,
         influence: data.totalInfluence / data.count,
-        frequency: data.count
+        frequency: data.count,
       }))
       .sort((a, b) => b.influence - a.influence)
       .slice(0, 10);
@@ -799,13 +941,13 @@ export class TaskPriorityManager extends EventEmitter {
       ...newConfig,
       weights: { ...this.config.weights, ...newConfig.weights },
       boostFactors: { ...this.config.boostFactors, ...newConfig.boostFactors },
-      decayFactors: { ...this.config.decayFactors, ...newConfig.decayFactors }
+      decayFactors: { ...this.config.decayFactors, ...newConfig.decayFactors },
     };
 
     logger.info('Priority calculation configuration updated', {
       algorithm: this.config.algorithm,
       weightsUpdated: Object.keys(newConfig.weights || {}).length,
-      boostFactorsUpdated: Object.keys(newConfig.boostFactors || {}).length
+      boostFactorsUpdated: Object.keys(newConfig.boostFactors || {}).length,
     });
 
     this.emit('configurationUpdated', this.config);

@@ -9,14 +9,7 @@
  * Tests the complete integrated task management system including all components,
  * configurations, error handling, and real-world usage scenarios.
  */
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  jest,
-} from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, jest } from 'vitest';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import {

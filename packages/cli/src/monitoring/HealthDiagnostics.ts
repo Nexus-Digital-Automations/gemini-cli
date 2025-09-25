@@ -57,11 +57,14 @@ export interface DiagnosticReport {
     errorRate: number;
     resourceUtilization: number;
   };
-  componentStatus: Record<string, {
-    status: string;
-    metrics: Record<string, number>;
-    issues: string[];
-  }>;
+  componentStatus: Record<
+    string,
+    {
+      status: string;
+      metrics: Record<string, number>;
+      issues: string[];
+    }
+  >;
   recommendations: {
     immediate: string[];
     shortTerm: string[];
@@ -119,7 +122,10 @@ export class HealthDiagnostics extends EventEmitter {
       this.scheduleHealthCheck(config.component);
     }
 
-    this.emit('health-check:registered', { component: config.component, config });
+    this.emit('health-check:registered', {
+      component: config.component,
+      config,
+    });
     this.logger.info('Health check registered', {
       component: config.component,
       interval: config.checkInterval,
@@ -133,7 +139,9 @@ export class HealthDiagnostics extends EventEmitter {
   async performHealthCheck(componentName: string): Promise<HealthCheckResult> {
     const config = this.healthChecks.get(componentName);
     if (!config) {
-      throw new Error(`Health check not configured for component: ${componentName}`);
+      throw new Error(
+        `Health check not configured for component: ${componentName}`,
+      );
     }
 
     const startTime = Date.now();
@@ -149,13 +157,14 @@ export class HealthDiagnostics extends EventEmitter {
       result.checkDuration = Date.now() - startTime;
       result.lastChecked = new Date();
       result.nextCheckDue = new Date(Date.now() + config.checkInterval);
-
     } catch (error) {
       result = {
         component: componentName,
         status: 'critical',
         message: `Health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        details: { error: error instanceof Error ? error.stack : String(error) },
+        details: {
+          error: error instanceof Error ? error.stack : String(error),
+        },
         lastChecked: new Date(),
         nextCheckDue: new Date(Date.now() + config.checkInterval),
         checkDuration: Date.now() - startTime,
@@ -197,19 +206,24 @@ export class HealthDiagnostics extends EventEmitter {
 
     // Determine overall status
     let overallStatus: SystemHealthSummary['overallStatus'] = 'healthy';
-    const criticalCount = components.filter(c => c.status === 'critical').length;
-    const warningCount = components.filter(c => c.status === 'warning').length;
+    const criticalCount = components.filter(
+      (c) => c.status === 'critical',
+    ).length;
+    const warningCount = components.filter(
+      (c) => c.status === 'warning',
+    ).length;
 
     if (criticalCount > 0) {
       overallStatus = 'critical';
     } else if (warningCount > 0) {
       overallStatus = 'degraded';
-    } else if (components.some(c => c.status === 'unknown')) {
+    } else if (components.some((c) => c.status === 'unknown')) {
       overallStatus = 'degraded';
     }
 
     // Generate recommendations
-    const recommendations = await this.generateHealthRecommendations(components);
+    const recommendations =
+      await this.generateHealthRecommendations(components);
 
     const summary: SystemHealthSummary = {
       overallStatus,
@@ -226,7 +240,8 @@ export class HealthDiagnostics extends EventEmitter {
 
     // Store in history
     this.healthHistory.push(summary);
-    if (this.healthHistory.length > 288) { // Keep 24 hours (24 * 12 = 288 five-minute intervals)
+    if (this.healthHistory.length > 288) {
+      // Keep 24 hours (24 * 12 = 288 five-minute intervals)
       this.healthHistory.shift();
     }
 
@@ -247,8 +262,10 @@ export class HealthDiagnostics extends EventEmitter {
     const performanceMetrics = {
       taskThroughput: systemAnalytics.systemOverview.overallThroughput,
       averageResponseTime: dashboardData.systemOverview.averageExecutionTime,
-      errorRate: (dashboardData.systemOverview.systemEfficiency < 90) ?
-        (100 - dashboardData.systemOverview.systemEfficiency) : 0,
+      errorRate:
+        dashboardData.systemOverview.systemEfficiency < 90
+          ? 100 - dashboardData.systemOverview.systemEfficiency
+          : 0,
       resourceUtilization: dashboardData.systemOverview.agentUtilization,
     };
 
@@ -270,11 +287,20 @@ export class HealthDiagnostics extends EventEmitter {
 
     // Calculate trends
     const trends = {
-      healthScoreTrend: this.healthHistory.slice(-288).map(h => h.healthScore),
-      performanceTrend: this.healthHistory.slice(-288).map(h =>
-        h.components.filter(c => c.status === 'healthy').length / h.components.length * 100
-      ),
-      errorTrend: this.healthHistory.slice(-288).map(h => h.activeIssues.critical + h.activeIssues.warnings),
+      healthScoreTrend: this.healthHistory
+        .slice(-288)
+        .map((h) => h.healthScore),
+      performanceTrend: this.healthHistory
+        .slice(-288)
+        .map(
+          (h) =>
+            (h.components.filter((c) => c.status === 'healthy').length /
+              h.components.length) *
+            100,
+        ),
+      errorTrend: this.healthHistory
+        .slice(-288)
+        .map((h) => h.activeIssues.critical + h.activeIssues.warnings),
     };
 
     return {
@@ -290,7 +316,10 @@ export class HealthDiagnostics extends EventEmitter {
   /**
    * Get health check history for a component
    */
-  getComponentHealthHistory(componentName: string, hours = 24): HealthCheckResult[] {
+  getComponentHealthHistory(
+    componentName: string,
+    hours = 24,
+  ): HealthCheckResult[] {
     // This would be implemented with persistent storage in a real system
     // For now, return the current result
     const current = this.lastHealthResults.get(componentName);
@@ -316,14 +345,20 @@ export class HealthDiagnostics extends EventEmitter {
       }
     }
 
-    this.logger.info('Health check enabled/disabled', { componentName, enabled });
+    this.logger.info('Health check enabled/disabled', {
+      componentName,
+      enabled,
+    });
     return true;
   }
 
   /**
    * Update health check configuration
    */
-  updateHealthCheckConfig(componentName: string, updates: Partial<HealthCheckConfig>): boolean {
+  updateHealthCheckConfig(
+    componentName: string,
+    updates: Partial<HealthCheckConfig>,
+  ): boolean {
     const config = this.healthChecks.get(componentName);
     if (!config) return false;
 
@@ -334,7 +369,10 @@ export class HealthDiagnostics extends EventEmitter {
       this.scheduleHealthCheck(componentName);
     }
 
-    this.logger.info('Health check configuration updated', { componentName, updates });
+    this.logger.info('Health check configuration updated', {
+      componentName,
+      updates,
+    });
     return true;
   }
 
@@ -413,7 +451,10 @@ export class HealthDiagnostics extends EventEmitter {
       try {
         await this.performHealthCheck(componentName);
       } catch (error) {
-        this.logger.error('Scheduled health check failed', { componentName, error });
+        this.logger.error('Scheduled health check failed', {
+          componentName,
+          error,
+        });
       }
     }, config.checkInterval);
 
@@ -423,7 +464,9 @@ export class HealthDiagnostics extends EventEmitter {
     setImmediate(() => this.performHealthCheck(componentName));
   }
 
-  private async performDefaultHealthCheck(componentName: string): Promise<HealthCheckResult> {
+  private async performDefaultHealthCheck(
+    componentName: string,
+  ): Promise<HealthCheckResult> {
     const startTime = Date.now();
 
     try {
@@ -451,7 +494,8 @@ export class HealthDiagnostics extends EventEmitter {
           const progressAnalytics = progressTracker.getProgressAnalytics();
           details.totalTrackedTasks = progressAnalytics.totalTasksTracked;
           details.activeTasks = progressAnalytics.activeTasks;
-          details.estimationAccuracy = progressAnalytics.averageEstimationAccuracy;
+          details.estimationAccuracy =
+            progressAnalytics.averageEstimationAccuracy;
 
           if (progressAnalytics.averageEstimationAccuracy < 60) {
             status = 'warning';
@@ -460,7 +504,8 @@ export class HealthDiagnostics extends EventEmitter {
           break;
 
         case 'PerformanceAnalyticsDashboard':
-          const dashboardData = performanceAnalyticsDashboard.getDashboardData();
+          const dashboardData =
+            performanceAnalyticsDashboard.getDashboardData();
           details.insights = dashboardData.insights.length;
           details.trends = dashboardData.trends.length;
           break;
@@ -471,7 +516,8 @@ export class HealthDiagnostics extends EventEmitter {
           details.activeSubscriptions = brokerMetrics.activeSubscriptions;
           details.processingTime = brokerMetrics.averageProcessingTime;
 
-          if (brokerMetrics.averageProcessingTime > 1000) { // 1 second
+          if (brokerMetrics.averageProcessingTime > 1000) {
+            // 1 second
             status = 'warning';
             message = `High processing time: ${brokerMetrics.averageProcessingTime.toFixed(0)}ms`;
           }
@@ -482,7 +528,9 @@ export class HealthDiagnostics extends EventEmitter {
           details.totalNotifications = notificationMetrics.totalNotifications;
           details.activeUsers = notificationMetrics.activeUsers;
           details.deliverySuccessRate =
-            (notificationMetrics.deliveredNotifications / Math.max(notificationMetrics.totalNotifications, 1)) * 100;
+            (notificationMetrics.deliveredNotifications /
+              Math.max(notificationMetrics.totalNotifications, 1)) *
+            100;
 
           const deliveryRate = details.deliverySuccessRate as number;
           if (deliveryRate < 90) {
@@ -525,18 +573,25 @@ export class HealthDiagnostics extends EventEmitter {
         message,
         details,
         lastChecked: new Date(),
-        nextCheckDue: new Date(Date.now() + (this.healthChecks.get(componentName)?.checkInterval || 60000)),
+        nextCheckDue: new Date(
+          Date.now() +
+            (this.healthChecks.get(componentName)?.checkInterval || 60000),
+        ),
         checkDuration: Date.now() - startTime,
       };
-
     } catch (error) {
       return {
         component: componentName,
         status: 'critical',
         message: `Health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        details: { error: error instanceof Error ? error.stack : String(error) },
+        details: {
+          error: error instanceof Error ? error.stack : String(error),
+        },
         lastChecked: new Date(),
-        nextCheckDue: new Date(Date.now() + (this.healthChecks.get(componentName)?.checkInterval || 60000)),
+        nextCheckDue: new Date(
+          Date.now() +
+            (this.healthChecks.get(componentName)?.checkInterval || 60000),
+        ),
         checkDuration: Date.now() - startTime,
       };
     }
@@ -566,21 +621,25 @@ export class HealthDiagnostics extends EventEmitter {
     return score / components.length;
   }
 
-  private async generateHealthRecommendations(components: HealthCheckResult[]): Promise<string[]> {
+  private async generateHealthRecommendations(
+    components: HealthCheckResult[],
+  ): Promise<string[]> {
     const recommendations: string[] = [];
 
-    const criticalComponents = components.filter(c => c.status === 'critical');
-    const warningComponents = components.filter(c => c.status === 'warning');
+    const criticalComponents = components.filter(
+      (c) => c.status === 'critical',
+    );
+    const warningComponents = components.filter((c) => c.status === 'warning');
 
     if (criticalComponents.length > 0) {
       recommendations.push(
-        `URGENT: Address critical issues in ${criticalComponents.map(c => c.component).join(', ')}`
+        `URGENT: Address critical issues in ${criticalComponents.map((c) => c.component).join(', ')}`,
       );
     }
 
     if (warningComponents.length > 2) {
       recommendations.push(
-        'Multiple components showing warnings - consider system-wide performance review'
+        'Multiple components showing warnings - consider system-wide performance review',
       );
     }
 
@@ -588,18 +647,33 @@ export class HealthDiagnostics extends EventEmitter {
     for (const component of [...criticalComponents, ...warningComponents]) {
       switch (component.component) {
         case 'TaskStatusMonitor':
-          if (component.details?.systemEfficiency && (component.details.systemEfficiency as number) < 85) {
-            recommendations.push('Consider scaling agent pool or optimizing task distribution');
+          if (
+            component.details?.systemEfficiency &&
+            (component.details.systemEfficiency as number) < 85
+          ) {
+            recommendations.push(
+              'Consider scaling agent pool or optimizing task distribution',
+            );
           }
           break;
         case 'NotificationSystem':
-          if (component.details?.deliverySuccessRate && (component.details.deliverySuccessRate as number) < 95) {
-            recommendations.push('Investigate notification delivery failures and optimize channels');
+          if (
+            component.details?.deliverySuccessRate &&
+            (component.details.deliverySuccessRate as number) < 95
+          ) {
+            recommendations.push(
+              'Investigate notification delivery failures and optimize channels',
+            );
           }
           break;
         case 'MetricsCollector':
-          if (component.details?.memoryUsage && (component.details.memoryUsage as number) > 80) {
-            recommendations.push('Reduce metrics retention period or increase available memory');
+          if (
+            component.details?.memoryUsage &&
+            (component.details.memoryUsage as number) > 80
+          ) {
+            recommendations.push(
+              'Reduce metrics retention period or increase available memory',
+            );
           }
           break;
       }
@@ -619,9 +693,17 @@ export class HealthDiagnostics extends EventEmitter {
 
     for (const rec of allRecommendations) {
       const lowerRec = rec.toLowerCase();
-      if (lowerRec.includes('urgent') || lowerRec.includes('critical') || lowerRec.includes('immediately')) {
+      if (
+        lowerRec.includes('urgent') ||
+        lowerRec.includes('critical') ||
+        lowerRec.includes('immediately')
+      ) {
         immediate.push(rec);
-      } else if (lowerRec.includes('consider') || lowerRec.includes('review') || lowerRec.includes('investigate')) {
+      } else if (
+        lowerRec.includes('consider') ||
+        lowerRec.includes('review') ||
+        lowerRec.includes('investigate')
+      ) {
         shortTerm.push(rec);
       } else {
         longTerm.push(rec);
@@ -651,7 +733,10 @@ export class HealthDiagnostics extends EventEmitter {
     }, 300000); // 5 minutes
   }
 
-  private async withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  private async withTimeout<T>(
+    promise: Promise<T>,
+    timeoutMs: number,
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`Operation timed out after ${timeoutMs}ms`));

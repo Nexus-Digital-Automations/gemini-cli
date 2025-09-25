@@ -27,7 +27,7 @@ import {
   OptimizationType,
   OptimizationComplexity,
   Bottleneck,
-  BreakingPoint
+  BreakingPoint,
 } from '../types/Dependency';
 import type { Task, TaskId } from '../types/Task';
 
@@ -36,16 +36,21 @@ import type { Task, TaskId } from '../types/Task';
  */
 export class DependencyAnalysisEngine {
   private readonly cache: Map<string, any> = new Map();
-  private readonly analysisHistory: Map<string, DependencyAnalysisResult[]> = new Map();
+  private readonly analysisHistory: Map<string, DependencyAnalysisResult[]> =
+    new Map();
 
   constructor() {
-    console.log('DependencyAnalysisEngine initialized with advanced graph algorithms');
+    console.log(
+      'DependencyAnalysisEngine initialized with advanced graph algorithms',
+    );
   }
 
   /**
    * Validates dependency graph for structural integrity and logical consistency
    */
-  public async validateGraph(graph: DependencyGraph): Promise<GraphValidationStatus> {
+  public async validateGraph(
+    graph: DependencyGraph,
+  ): Promise<GraphValidationStatus> {
     const startTime = performance.now();
     console.log(`Validating dependency graph: ${graph.name}`);
 
@@ -63,9 +68,9 @@ export class DependencyAnalysisEngine {
           id: `circular-deps-${Date.now()}`,
           type: GraphErrorType.CIRCULAR_DEPENDENCY,
           message: `Detected ${cycles.length} circular dependency cycles`,
-          affectedNodes: cycles.flatMap(cycle => cycle.cycle),
-          affectedEdges: cycles.flatMap(cycle => cycle.edges),
-          suggestedResolution: 'Break cycles using suggested breaking points'
+          affectedNodes: cycles.flatMap((cycle) => cycle.cycle),
+          affectedEdges: cycles.flatMap((cycle) => cycle.edges),
+          suggestedResolution: 'Break cycles using suggested breaking points',
         });
       }
 
@@ -86,23 +91,29 @@ export class DependencyAnalysisEngine {
         validatedAt: new Date(),
         errors,
         warnings,
-        circularDependencies
+        circularDependencies,
       };
 
       const duration = performance.now() - startTime;
-      console.log(`Graph validation completed in ${duration.toFixed(2)}ms - Valid: ${validationResult.isValid}`);
+      console.log(
+        `Graph validation completed in ${duration.toFixed(2)}ms - Valid: ${validationResult.isValid}`,
+      );
 
       return validationResult;
     } catch (error) {
       console.error('Graph validation failed:', error);
-      throw new Error(`Graph validation error: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Graph validation error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Detects circular dependencies using Tarjan's strongly connected components algorithm
    */
-  public async detectCircularDependencies(graph: DependencyGraph): Promise<CircularDependency[]> {
+  public async detectCircularDependencies(
+    graph: DependencyGraph,
+  ): Promise<CircularDependency[]> {
     const circularDependencies: CircularDependency[] = [];
     const visited = new Set<DependencyNodeId>();
     const inStack = new Set<DependencyNodeId>();
@@ -154,8 +165,14 @@ export class DependencyAnalysisEngine {
 
         // If SCC has more than one node, it's a circular dependency
         if (stronglyConnectedComponent.length > 1) {
-          const cycleEdges = await this.findCycleEdges(graph, stronglyConnectedComponent);
-          const breakingPoints = await this.suggestBreakingPoints(graph, cycleEdges);
+          const cycleEdges = await this.findCycleEdges(
+            graph,
+            stronglyConnectedComponent,
+          );
+          const breakingPoints = await this.suggestBreakingPoints(
+            graph,
+            cycleEdges,
+          );
 
           circularDependencies.push({
             id: `cycle-${circularDependencies.length + 1}-${Date.now()}`,
@@ -163,7 +180,7 @@ export class DependencyAnalysisEngine {
             edges: cycleEdges,
             length: stronglyConnectedComponent.length,
             detectedAt: new Date(),
-            breakingPoints
+            breakingPoints,
           });
         }
       }
@@ -176,14 +193,18 @@ export class DependencyAnalysisEngine {
       }
     }
 
-    console.log(`Circular dependency detection completed - Found ${circularDependencies.length} cycles`);
+    console.log(
+      `Circular dependency detection completed - Found ${circularDependencies.length} cycles`,
+    );
     return circularDependencies;
   }
 
   /**
    * Performs topological sorting to determine optimal execution order
    */
-  public async topologicalSort(graph: DependencyGraph): Promise<DependencyNodeId[]> {
+  public async topologicalSort(
+    graph: DependencyGraph,
+  ): Promise<DependencyNodeId[]> {
     console.log('Performing topological sort for execution order');
 
     const inDegree = new Map<DependencyNodeId, number>();
@@ -237,14 +258,18 @@ export class DependencyAnalysisEngine {
       throw new Error('Graph contains cycles - topological sort impossible');
     }
 
-    console.log(`Topological sort completed - Order: [${result.slice(0, 5).join(', ')}${result.length > 5 ? '...' : ''}]`);
+    console.log(
+      `Topological sort completed - Order: [${result.slice(0, 5).join(', ')}${result.length > 5 ? '...' : ''}]`,
+    );
     return result;
   }
 
   /**
    * Identifies parallel execution opportunities
    */
-  public async identifyParallelGroups(graph: DependencyGraph): Promise<ParallelGroup[]> {
+  public async identifyParallelGroups(
+    graph: DependencyGraph,
+  ): Promise<ParallelGroup[]> {
     console.log('Identifying parallel execution opportunities');
 
     const executionOrder = await this.topologicalSort(graph);
@@ -263,7 +288,7 @@ export class DependencyAnalysisEngine {
         if (!node) continue;
 
         // Check if all dependencies are satisfied (in processed set)
-        const canExecute = node.incomingEdges.every(edgeId => {
+        const canExecute = node.incomingEdges.every((edgeId) => {
           const edge = graph.edges.get(edgeId);
           return edge ? processed.has(edge.from) : true;
         });
@@ -280,14 +305,17 @@ export class DependencyAnalysisEngine {
 
       // Create parallel group for this level
       const resourceRequirements = currentLevelNodes
-        .map(nodeId => graph.nodes.get(nodeId)?.metadata.resourceRequirements ?? [])
+        .map(
+          (nodeId) =>
+            graph.nodes.get(nodeId)?.metadata.resourceRequirements ?? [],
+        )
         .flat();
 
       const estimatedDuration = Math.max(
-        ...currentLevelNodes.map(nodeId => {
+        ...currentLevelNodes.map((nodeId) => {
           const node = graph.nodes.get(nodeId);
           return node?.task.estimatedEffort ?? 0;
-        })
+        }),
       );
 
       parallelGroups.push({
@@ -295,22 +323,26 @@ export class DependencyAnalysisEngine {
         nodes: currentLevelNodes,
         level,
         resourceRequirements,
-        estimatedDuration
+        estimatedDuration,
       });
 
       // Mark nodes as processed
-      currentLevelNodes.forEach(nodeId => processed.add(nodeId));
+      currentLevelNodes.forEach((nodeId) => processed.add(nodeId));
       level++;
     }
 
-    console.log(`Identified ${parallelGroups.length} parallel execution groups`);
+    console.log(
+      `Identified ${parallelGroups.length} parallel execution groups`,
+    );
     return parallelGroups;
   }
 
   /**
    * Calculates critical path using Forward and Backward Pass algorithms
    */
-  public async calculateCriticalPath(graph: DependencyGraph): Promise<CriticalPath> {
+  public async calculateCriticalPath(
+    graph: DependencyGraph,
+  ): Promise<CriticalPath> {
     console.log('Calculating critical path using CPM algorithm');
 
     const executionOrder = await this.topologicalSort(graph);
@@ -335,7 +367,10 @@ export class DependencyAnalysisEngine {
       }
 
       earlyStart.set(nodeId, maxEarlyFinish);
-      earlyFinish.set(nodeId, maxEarlyFinish + (node.task.estimatedEffort ?? 0));
+      earlyFinish.set(
+        nodeId,
+        maxEarlyFinish + (node.task.estimatedEffort ?? 0),
+      );
     }
 
     // Find project finish time
@@ -358,13 +393,17 @@ export class DependencyAnalysisEngine {
         for (const edgeId of node.outgoingEdges) {
           const edge = graph.edges.get(edgeId);
           if (!edge) continue;
-          const successorLateStart = lateStart.get(edge.to) ?? projectFinishTime;
+          const successorLateStart =
+            lateStart.get(edge.to) ?? projectFinishTime;
           minLateStart = Math.min(minLateStart, successorLateStart);
         }
         lateFinish.set(nodeId, minLateStart);
       }
 
-      lateStart.set(nodeId, (lateFinish.get(nodeId) ?? 0) - (node.task.estimatedEffort ?? 0));
+      lateStart.set(
+        nodeId,
+        (lateFinish.get(nodeId) ?? 0) - (node.task.estimatedEffort ?? 0),
+      );
     }
 
     // Identify critical path nodes (where early start = late start)
@@ -375,7 +414,8 @@ export class DependencyAnalysisEngine {
       const nodeEarlyStart = earlyStart.get(nodeId) ?? 0;
       const nodeLateStart = lateStart.get(nodeId) ?? 0;
 
-      if (Math.abs(nodeEarlyStart - nodeLateStart) < 0.001) { // Consider floating point precision
+      if (Math.abs(nodeEarlyStart - nodeLateStart) < 0.001) {
+        // Consider floating point precision
         criticalPathNodes.push(nodeId);
 
         const node = graph.nodes.get(nodeId);
@@ -393,8 +433,8 @@ export class DependencyAnalysisEngine {
                 'Consider breaking down into smaller tasks',
                 'Optimize task implementation',
                 'Allocate more resources',
-                'Parallelize sub-tasks where possible'
-              ]
+                'Parallelize sub-tasks where possible',
+              ],
             });
           }
         }
@@ -405,17 +445,24 @@ export class DependencyAnalysisEngine {
       nodes: criticalPathNodes,
       duration: projectFinishTime,
       bottlenecks,
-      optimizationPotential: bottlenecks.reduce((sum, bottleneck) => sum + (bottleneck.severity - 1), 0)
+      optimizationPotential: bottlenecks.reduce(
+        (sum, bottleneck) => sum + (bottleneck.severity - 1),
+        0,
+      ),
     };
 
-    console.log(`Critical path calculated - Duration: ${projectFinishTime}min, Nodes: ${criticalPathNodes.length}`);
+    console.log(
+      `Critical path calculated - Duration: ${projectFinishTime}min, Nodes: ${criticalPathNodes.length}`,
+    );
     return criticalPath;
   }
 
   /**
    * Performs comprehensive dependency analysis
    */
-  public async analyzeGraph(graph: DependencyGraph): Promise<DependencyAnalysisResult> {
+  public async analyzeGraph(
+    graph: DependencyGraph,
+  ): Promise<DependencyAnalysisResult> {
     const startTime = performance.now();
     console.log(`Starting comprehensive analysis of graph: ${graph.name}`);
 
@@ -423,29 +470,39 @@ export class DependencyAnalysisEngine {
       // Validate graph first
       const validationStatus = await this.validateGraph(graph);
       if (!validationStatus.isValid) {
-        throw new Error(`Graph validation failed: ${validationStatus.errors.map(e => e.message).join(', ')}`);
+        throw new Error(
+          `Graph validation failed: ${validationStatus.errors.map((e) => e.message).join(', ')}`,
+        );
       }
 
       // Perform core analyses
       const [executionOrder, criticalPath, parallelGroups] = await Promise.all([
         this.topologicalSort(graph),
         this.calculateCriticalPath(graph),
-        this.identifyParallelGroups(graph)
+        this.identifyParallelGroups(graph),
       ]);
 
       // Identify optimization opportunities
-      const optimizations = await this.identifyOptimizations(graph, criticalPath, parallelGroups);
-
-      // Generate resource allocation plan
-      const resourcePlan = await this.generateResourcePlan(graph, parallelGroups);
-
-      // Generate scheduling recommendations
-      const schedulingRecommendations = await this.generateSchedulingRecommendations(
+      const optimizations = await this.identifyOptimizations(
         graph,
         criticalPath,
         parallelGroups,
-        optimizations
       );
+
+      // Generate resource allocation plan
+      const resourcePlan = await this.generateResourcePlan(
+        graph,
+        parallelGroups,
+      );
+
+      // Generate scheduling recommendations
+      const schedulingRecommendations =
+        await this.generateSchedulingRecommendations(
+          graph,
+          criticalPath,
+          parallelGroups,
+          optimizations,
+        );
 
       const result: DependencyAnalysisResult = {
         analyzedAt: new Date(),
@@ -454,7 +511,7 @@ export class DependencyAnalysisEngine {
         parallelGroups,
         optimizations,
         resourcePlan,
-        schedulingRecommendations
+        schedulingRecommendations,
       };
 
       // Cache results for future use
@@ -464,7 +521,8 @@ export class DependencyAnalysisEngine {
       // Store in history
       const history = this.analysisHistory.get(graph.id) ?? [];
       history.push(result);
-      if (history.length > 10) { // Keep last 10 analyses
+      if (history.length > 10) {
+        // Keep last 10 analyses
         history.shift();
       }
       this.analysisHistory.set(graph.id, history);
@@ -479,7 +537,9 @@ export class DependencyAnalysisEngine {
       return result;
     } catch (error) {
       console.error('Graph analysis failed:', error);
-      throw new Error(`Analysis error: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Analysis error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -489,7 +549,7 @@ export class DependencyAnalysisEngine {
   private async identifyOptimizations(
     graph: DependencyGraph,
     criticalPath: CriticalPath,
-    parallelGroups: ParallelGroup[]
+    parallelGroups: ParallelGroup[],
   ): Promise<OptimizationOpportunity[]> {
     const optimizations: OptimizationOpportunity[] = [];
 
@@ -497,7 +557,8 @@ export class DependencyAnalysisEngine {
     for (const group of parallelGroups) {
       if (group.nodes.length === 1) {
         const node = graph.nodes.get(group.nodes[0]);
-        if (node && (node.task.estimatedEffort ?? 0) > 60) { // Tasks longer than 1 hour
+        if (node && (node.task.estimatedEffort ?? 0) > 60) {
+          // Tasks longer than 1 hour
           optimizations.push({
             id: `parallel-${group.id}`,
             type: OptimizationType.PARALLELIZATION,
@@ -507,8 +568,8 @@ export class DependencyAnalysisEngine {
             steps: [
               'Analyze task for sub-task opportunities',
               'Create parallel sub-tasks',
-              'Update dependencies accordingly'
-            ]
+              'Update dependencies accordingly',
+            ],
           });
         }
       }
@@ -518,12 +579,16 @@ export class DependencyAnalysisEngine {
     const resourceCounts = new Map<string, number>();
     for (const node of graph.nodes.values()) {
       for (const resource of node.metadata.resourceRequirements) {
-        resourceCounts.set(resource.resourceType, (resourceCounts.get(resource.resourceType) ?? 0) + 1);
+        resourceCounts.set(
+          resource.resourceType,
+          (resourceCounts.get(resource.resourceType) ?? 0) + 1,
+        );
       }
     }
 
     for (const [resourceType, count] of resourceCounts.entries()) {
-      if (count > graph.nodes.size * 0.7) { // More than 70% of tasks use this resource
+      if (count > graph.nodes.size * 0.7) {
+        // More than 70% of tasks use this resource
         optimizations.push({
           id: `resource-${resourceType}`,
           type: OptimizationType.RESOURCE_OPTIMIZATION,
@@ -533,15 +598,16 @@ export class DependencyAnalysisEngine {
           steps: [
             'Scale up resource availability',
             'Implement resource pooling',
-            'Consider alternative resources'
-          ]
+            'Consider alternative resources',
+          ],
         });
       }
     }
 
     // Dependency reduction opportunities
     for (const node of graph.nodes.values()) {
-      if (node.incomingEdges.length > 5) { // Highly dependent tasks
+      if (node.incomingEdges.length > 5) {
+        // Highly dependent tasks
         optimizations.push({
           id: `dep-reduction-${node.id}`,
           type: OptimizationType.DEPENDENCY_REDUCTION,
@@ -551,8 +617,8 @@ export class DependencyAnalysisEngine {
           steps: [
             'Review dependency necessity',
             'Combine related dependencies',
-            'Eliminate redundant dependencies'
-          ]
+            'Eliminate redundant dependencies',
+          ],
         });
       }
     }
@@ -565,7 +631,7 @@ export class DependencyAnalysisEngine {
    */
   private async generateResourcePlan(
     graph: DependencyGraph,
-    parallelGroups: ParallelGroup[]
+    parallelGroups: ParallelGroup[],
   ): Promise<any[]> {
     // Simplified resource plan generation
     // In a full implementation, this would use resource scheduling algorithms
@@ -579,7 +645,7 @@ export class DependencyAnalysisEngine {
     graph: DependencyGraph,
     criticalPath: CriticalPath,
     parallelGroups: ParallelGroup[],
-    optimizations: OptimizationOpportunity[]
+    optimizations: OptimizationOpportunity[],
   ): Promise<any[]> {
     // Simplified recommendation generation
     // In a full implementation, this would analyze current scheduling and suggest improvements
@@ -592,7 +658,7 @@ export class DependencyAnalysisEngine {
   private async validateNodeReferences(
     graph: DependencyGraph,
     errors: GraphValidationError[],
-    warnings: GraphValidationWarning[]
+    warnings: GraphValidationWarning[],
   ): Promise<void> {
     for (const node of graph.nodes.values()) {
       // Check for orphaned nodes (no incoming or outgoing edges)
@@ -602,7 +668,7 @@ export class DependencyAnalysisEngine {
           type: GraphWarningType.INEFFICIENT_STRUCTURE,
           message: `Node ${node.id} has no dependencies or dependents`,
           severity: ViolationSeverity.LOW,
-          affectedNodes: [node.id]
+          affectedNodes: [node.id],
         });
       }
     }
@@ -614,7 +680,7 @@ export class DependencyAnalysisEngine {
   private async validateEdgeReferences(
     graph: DependencyGraph,
     errors: GraphValidationError[],
-    warnings: GraphValidationWarning[]
+    warnings: GraphValidationWarning[],
   ): Promise<void> {
     for (const edge of graph.edges.values()) {
       // Check if referenced nodes exist
@@ -624,7 +690,7 @@ export class DependencyAnalysisEngine {
           type: GraphErrorType.INVALID_EDGE,
           message: `Edge ${edge.id} references non-existent source node ${edge.from}`,
           affectedNodes: [],
-          affectedEdges: [edge.id]
+          affectedEdges: [edge.id],
         });
       }
 
@@ -634,7 +700,7 @@ export class DependencyAnalysisEngine {
           type: GraphErrorType.INVALID_EDGE,
           message: `Edge ${edge.id} references non-existent target node ${edge.to}`,
           affectedNodes: [],
-          affectedEdges: [edge.id]
+          affectedEdges: [edge.id],
         });
       }
     }
@@ -646,7 +712,7 @@ export class DependencyAnalysisEngine {
   private async validateGraphStructure(
     graph: DependencyGraph,
     errors: GraphValidationError[],
-    warnings: GraphValidationWarning[]
+    warnings: GraphValidationWarning[],
   ): Promise<void> {
     // Check for very long dependency chains
     const maxChainLength = await this.findLongestPath(graph);
@@ -656,7 +722,7 @@ export class DependencyAnalysisEngine {
         type: GraphWarningType.LONG_CHAIN,
         message: `Dependency chain length (${maxChainLength}) may cause scheduling delays`,
         severity: ViolationSeverity.MEDIUM,
-        affectedNodes: []
+        affectedNodes: [],
       });
     }
   }
@@ -666,7 +732,7 @@ export class DependencyAnalysisEngine {
    */
   private async analyzePerformanceWarnings(
     graph: DependencyGraph,
-    warnings: GraphValidationWarning[]
+    warnings: GraphValidationWarning[],
   ): Promise<void> {
     const nodeCount = graph.nodes.size;
     const edgeCount = graph.edges.size;
@@ -678,7 +744,7 @@ export class DependencyAnalysisEngine {
         type: GraphWarningType.INEFFICIENT_STRUCTURE,
         message: `Graph density (${(density * 100).toFixed(1)}%) is high - may impact performance`,
         severity: ViolationSeverity.LOW,
-        affectedNodes: []
+        affectedNodes: [],
       });
     }
   }
@@ -688,7 +754,7 @@ export class DependencyAnalysisEngine {
    */
   private async findCycleEdges(
     graph: DependencyGraph,
-    cycle: DependencyNodeId[]
+    cycle: DependencyNodeId[],
   ): Promise<DependencyEdgeId[]> {
     const cycleEdges: DependencyEdgeId[] = [];
     const cycleSet = new Set(cycle);
@@ -707,7 +773,7 @@ export class DependencyAnalysisEngine {
    */
   private async suggestBreakingPoints(
     graph: DependencyGraph,
-    cycleEdges: DependencyEdgeId[]
+    cycleEdges: DependencyEdgeId[],
   ): Promise<BreakingPoint[]> {
     const breakingPoints: BreakingPoint[] = [];
 
@@ -729,8 +795,8 @@ export class DependencyAnalysisEngine {
           'Reorder task execution',
           'Split dependent task',
           'Add intermediate task',
-          'Change dependency type'
-        ]
+          'Change dependency type',
+        ],
       });
     }
 

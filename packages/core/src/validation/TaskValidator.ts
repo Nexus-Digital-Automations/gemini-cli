@@ -6,9 +6,17 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../logger/Logger.js';
-import type { ValidationFramework, ValidationContext, ValidationResult} from './ValidationFramework.js';
-import { ValidationStatus, ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
-import type { Task, TaskResult} from '../task-management/types.js';
+import type {
+  ValidationFramework,
+  ValidationContext,
+  ValidationResult,
+} from './ValidationFramework.js';
+import {
+  ValidationStatus,
+  ValidationSeverity,
+  ValidationCategory,
+} from './ValidationFramework.js';
+import type { Task, TaskResult } from '../task-management/types.js';
 import { TaskStatus } from '../task-management/TaskQueue.js';
 import { TaskPriority, DependencyType } from '../task-management/types.js';
 
@@ -18,9 +26,22 @@ import { TaskPriority, DependencyType } from '../task-management/types.js';
 export interface TaskValidationEvents {
   taskValidationStarted: [taskId: string, validationType: TaskValidationType];
   taskValidationCompleted: [taskId: string, result: TaskValidationResult];
-  taskValidationFailed: [taskId: string, error: Error, context: TaskValidationContext];
-  validationRuleExecuted: [ruleId: string, taskId: string, result: ValidationResult];
-  qualityThresholdExceeded: [taskId: string, metric: string, actual: number, threshold: number];
+  taskValidationFailed: [
+    taskId: string,
+    error: Error,
+    context: TaskValidationContext,
+  ];
+  validationRuleExecuted: [
+    ruleId: string,
+    taskId: string,
+    result: ValidationResult,
+  ];
+  qualityThresholdExceeded: [
+    taskId: string,
+    metric: string,
+    actual: number,
+    threshold: number,
+  ];
   rollbackInitiated: [taskId: string, reason: string, snapshot: TaskSnapshot];
   rollbackCompleted: [taskId: string, success: boolean];
 }
@@ -29,22 +50,22 @@ export interface TaskValidationEvents {
  * Task validation types for different validation scenarios
  */
 export enum TaskValidationType {
-  PRE_EXECUTION = 'pre_execution',        // Before task execution starts
-  IN_PROGRESS = 'in_progress',            // During task execution
-  POST_EXECUTION = 'post_execution',      // After task completion
-  DEPENDENCY = 'dependency',              // Dependency validation
-  ROLLBACK = 'rollback',                  // Rollback validation
-  QUALITY_ASSURANCE = 'quality_assurance' // Final quality check
+  PRE_EXECUTION = 'pre_execution', // Before task execution starts
+  IN_PROGRESS = 'in_progress', // During task execution
+  POST_EXECUTION = 'post_execution', // After task completion
+  DEPENDENCY = 'dependency', // Dependency validation
+  ROLLBACK = 'rollback', // Rollback validation
+  QUALITY_ASSURANCE = 'quality_assurance', // Final quality check
 }
 
 /**
  * Task validation result levels
  */
 export enum TaskValidationLevel {
-  STRICT = 'strict',           // All validations must pass
-  MODERATE = 'moderate',       // Critical validations must pass
-  LENIENT = 'lenient',         // Only blocking validations must pass
-  ADVISORY = 'advisory'        // Validation for informational purposes only
+  STRICT = 'strict', // All validations must pass
+  MODERATE = 'moderate', // Critical validations must pass
+  LENIENT = 'lenient', // Only blocking validations must pass
+  ADVISORY = 'advisory', // Validation for informational purposes only
 }
 
 /**
@@ -127,7 +148,12 @@ export interface TaskValidationResult {
  * Validation recommendations for task improvement
  */
 export interface ValidationRecommendation {
-  type: 'performance' | 'quality' | 'security' | 'maintainability' | 'reliability';
+  type:
+    | 'performance'
+    | 'quality'
+    | 'security'
+    | 'maintainability'
+    | 'reliability';
   severity: ValidationSeverity;
   message: string;
   details: string;
@@ -188,7 +214,10 @@ export interface TaskValidatorConfig {
     trackQuality: boolean;
     trackSecurity: boolean;
   };
-  customValidators?: Map<string, (context: TaskValidationContext) => Promise<ValidationResult[]>>;
+  customValidators?: Map<
+    string,
+    (context: TaskValidationContext) => Promise<ValidationResult[]>
+  >;
 }
 
 /**
@@ -206,12 +235,16 @@ export class TaskValidator extends EventEmitter {
   private readonly validationFramework: ValidationFramework;
   private readonly config: TaskValidatorConfig;
   private readonly snapshots: Map<string, TaskSnapshot[]> = new Map();
-  private readonly activeValidations: Map<string, Promise<TaskValidationResult>> = new Map();
-  private readonly qualityMetrics: Map<string, TaskExecutionMetrics> = new Map();
+  private readonly activeValidations: Map<
+    string,
+    Promise<TaskValidationResult>
+  > = new Map();
+  private readonly qualityMetrics: Map<string, TaskExecutionMetrics> =
+    new Map();
 
   constructor(
     validationFramework: ValidationFramework,
-    config: Partial<TaskValidatorConfig> = {}
+    config: Partial<TaskValidatorConfig> = {},
   ) {
     super();
 
@@ -223,7 +256,7 @@ export class TaskValidator extends EventEmitter {
       validationLevel: this.config.validationLevel,
       enabledTypes: this.config.enabledValidationTypes,
       snapshotting: this.config.snapshotting.enabled,
-      rollback: this.config.rollback.enabled
+      rollback: this.config.rollback.enabled,
     });
 
     this.setupValidationRules();
@@ -232,7 +265,9 @@ export class TaskValidator extends EventEmitter {
   /**
    * Create default configuration with overrides
    */
-  private createDefaultConfig(config: Partial<TaskValidatorConfig>): TaskValidatorConfig {
+  private createDefaultConfig(
+    config: Partial<TaskValidatorConfig>,
+  ): TaskValidatorConfig {
     return {
       validationLevel: TaskValidationLevel.MODERATE,
       qualityThresholds: {
@@ -241,26 +276,26 @@ export class TaskValidator extends EventEmitter {
         errorRate: { warning: 0.05, critical: 0.1 },
         codeQuality: { minScore: 0.7, criticalScore: 0.5 },
         testCoverage: { minPercent: 0.8, criticalPercent: 0.6 },
-        securityScore: { minScore: 0.8, criticalScore: 0.6 }
+        securityScore: { minScore: 0.8, criticalScore: 0.6 },
       },
       enabledValidationTypes: Object.values(TaskValidationType),
       snapshotting: {
         enabled: true,
         maxSnapshots: 10,
-        autoSnapshot: true
+        autoSnapshot: true,
       },
       rollback: {
         enabled: true,
         autoRollbackOnFailure: false,
-        preserveSnapshots: true
+        preserveSnapshots: true,
       },
       metrics: {
         trackPerformance: true,
         trackQuality: true,
-        trackSecurity: true
+        trackSecurity: true,
       },
       customValidators: new Map(),
-      ...config
+      ...config,
     };
   }
 
@@ -276,7 +311,7 @@ export class TaskValidator extends EventEmitter {
       severity: ValidationSeverity.ERROR,
       enabled: true,
       description: 'Validates task preconditions and dependencies',
-      validator: this.validateTaskPreconditions.bind(this)
+      validator: this.validateTaskPreconditions.bind(this),
     });
 
     // Quality assurance rules
@@ -287,7 +322,7 @@ export class TaskValidator extends EventEmitter {
       severity: ValidationSeverity.WARNING,
       enabled: true,
       description: 'Validates task execution quality metrics',
-      validator: this.validateQualityMetrics.bind(this)
+      validator: this.validateQualityMetrics.bind(this),
     });
 
     // Security validation rules
@@ -298,7 +333,7 @@ export class TaskValidator extends EventEmitter {
       severity: ValidationSeverity.ERROR,
       enabled: true,
       description: 'Validates task security compliance',
-      validator: this.validateTaskSecurity.bind(this)
+      validator: this.validateTaskSecurity.bind(this),
     });
 
     // Performance validation rules
@@ -309,14 +344,16 @@ export class TaskValidator extends EventEmitter {
       severity: ValidationSeverity.WARNING,
       enabled: true,
       description: 'Validates task performance metrics',
-      validator: this.validateTaskPerformance.bind(this)
+      validator: this.validateTaskPerformance.bind(this),
     });
   }
 
   /**
    * Validate a task comprehensively
    */
-  async validateTask(context: TaskValidationContext): Promise<TaskValidationResult> {
+  async validateTask(
+    context: TaskValidationContext,
+  ): Promise<TaskValidationResult> {
     const startTime = Date.now();
     const validationId = `${context.task.id}-${context.validationType}-${Date.now()}`;
 
@@ -324,7 +361,7 @@ export class TaskValidator extends EventEmitter {
       taskId: context.task.id,
       validationType: context.validationType,
       validationLevel: context.validationLevel,
-      validationId
+      validationId,
     });
 
     this.emit('taskValidationStarted', context.task.id, context.validationType);
@@ -332,7 +369,9 @@ export class TaskValidator extends EventEmitter {
     try {
       // Check for active validation
       if (this.activeValidations.has(context.task.id)) {
-        this.logger.warn(`Validation already running for task: ${context.task.id}`);
+        this.logger.warn(
+          `Validation already running for task: ${context.task.id}`,
+        );
         return await this.activeValidations.get(context.task.id)!;
       }
 
@@ -344,10 +383,16 @@ export class TaskValidator extends EventEmitter {
 
       this.emit('taskValidationCompleted', context.task.id, result);
       return result;
-
     } catch (error) {
-      this.logger.error(`Task validation failed: ${context.task.id}`, { error });
-      this.emit('taskValidationFailed', context.task.id, error as Error, context);
+      this.logger.error(`Task validation failed: ${context.task.id}`, {
+        error,
+      });
+      this.emit(
+        'taskValidationFailed',
+        context.task.id,
+        error as Error,
+        context,
+      );
       throw error;
     } finally {
       this.activeValidations.delete(context.task.id);
@@ -359,11 +404,14 @@ export class TaskValidator extends EventEmitter {
    */
   private async executeTaskValidation(
     context: TaskValidationContext,
-    startTime: number
+    startTime: number,
   ): Promise<TaskValidationResult> {
     // Create snapshot if enabled
     let snapshot: TaskSnapshot | undefined;
-    if (this.config.snapshotting.enabled && this.config.snapshotting.autoSnapshot) {
+    if (
+      this.config.snapshotting.enabled &&
+      this.config.snapshotting.autoSnapshot
+    ) {
       snapshot = await this.createTaskSnapshot(context.task);
       this.storeSnapshot(snapshot);
     }
@@ -377,51 +425,81 @@ export class TaskValidator extends EventEmitter {
         validationType: context.validationType,
         validationLevel: context.validationLevel,
         executionMetrics: context.executionMetrics,
-        ...context.metadata
-      }
+        ...context.metadata,
+      },
     };
 
     // Execute validation through framework
-    const validationReport = await this.validationFramework.validateTask(frameworkContext);
+    const validationReport =
+      await this.validationFramework.validateTask(frameworkContext);
 
     // Calculate quality score
-    const qualityScore = this.calculateQualityScore(validationReport.results, context);
+    const qualityScore = this.calculateQualityScore(
+      validationReport.results,
+      context,
+    );
 
     // Generate recommendations
-    const recommendations = this.generateRecommendations(validationReport.results, context);
+    const recommendations = this.generateRecommendations(
+      validationReport.results,
+      context,
+    );
 
     // Check if rollback is recommended
-    const rollbackRecommended = this.shouldRecommendRollback(validationReport.results, qualityScore, context);
+    const rollbackRecommended = this.shouldRecommendRollback(
+      validationReport.results,
+      qualityScore,
+      context,
+    );
 
     // Create comprehensive result
     const result: TaskValidationResult = {
       taskId: context.task.id,
       validationType: context.validationType,
       validationLevel: context.validationLevel,
-      passed: validationReport.failedRules === 0 && qualityScore >= this.getMinQualityScore(context.validationLevel),
+      passed:
+        validationReport.failedRules === 0 &&
+        qualityScore >= this.getMinQualityScore(context.validationLevel),
       timestamp: new Date(),
       duration: Date.now() - startTime,
       results: validationReport.results,
       qualityScore,
       executionMetrics: context.executionMetrics,
       rollbackRecommended,
-      rollbackReason: rollbackRecommended ? this.getRollbackReason(validationReport.results, qualityScore) : undefined,
+      rollbackReason: rollbackRecommended
+        ? this.getRollbackReason(validationReport.results, qualityScore)
+        : undefined,
       snapshot,
       recommendations,
       metadata: {
         validationReport,
-        frameworkStats: this.validationFramework.getStatistics()
-      }
+        frameworkStats: this.validationFramework.getStatistics(),
+      },
     };
 
     // Handle automatic rollback if configured
-    if (rollbackRecommended && this.config.rollback.autoRollbackOnFailure && snapshot) {
-      this.logger.warn(`Initiating automatic rollback for task: ${context.task.id}`, {
-        reason: result.rollbackReason
-      });
-      this.emit('rollbackInitiated', context.task.id, result.rollbackReason!, snapshot);
+    if (
+      rollbackRecommended &&
+      this.config.rollback.autoRollbackOnFailure &&
+      snapshot
+    ) {
+      this.logger.warn(
+        `Initiating automatic rollback for task: ${context.task.id}`,
+        {
+          reason: result.rollbackReason,
+        },
+      );
+      this.emit(
+        'rollbackInitiated',
+        context.task.id,
+        result.rollbackReason!,
+        snapshot,
+      );
 
-      const rollbackSuccess = await this.executeRollback(context.task.id, snapshot.id);
+      const rollbackSuccess = await this.executeRollback(
+        context.task.id,
+        snapshot.id,
+      );
       this.emit('rollbackCompleted', context.task.id, rollbackSuccess);
     }
 
@@ -436,7 +514,7 @@ export class TaskValidator extends EventEmitter {
 
     this.logger.debug('Creating task snapshot', {
       taskId: task.id,
-      snapshotId
+      snapshotId,
     });
 
     // TODO: Implement file system snapshot creation
@@ -454,8 +532,8 @@ export class TaskValidator extends EventEmitter {
       dependencyStates: new Map(), // TODO: Implement dependency state capture
       metadata: {
         createdBy: 'TaskValidator',
-        snapshotVersion: '1.0.0'
-      }
+        snapshotVersion: '1.0.0',
+      },
     };
 
     return snapshot;
@@ -478,7 +556,7 @@ export class TaskValidator extends EventEmitter {
     this.logger.debug('Task snapshot stored', {
       taskId: snapshot.taskId,
       snapshotId: snapshot.id,
-      totalSnapshots: taskSnapshots.length
+      totalSnapshots: taskSnapshots.length,
     });
   }
 
@@ -490,10 +568,13 @@ export class TaskValidator extends EventEmitter {
 
     try {
       const taskSnapshots = this.snapshots.get(taskId) || [];
-      const snapshot = taskSnapshots.find(s => s.id === snapshotId);
+      const snapshot = taskSnapshots.find((s) => s.id === snapshotId);
 
       if (!snapshot) {
-        this.logger.error('Snapshot not found for rollback', { taskId, snapshotId });
+        this.logger.error('Snapshot not found for rollback', {
+          taskId,
+          snapshotId,
+        });
         return false;
       }
 
@@ -501,9 +582,11 @@ export class TaskValidator extends EventEmitter {
       // TODO: Implement database rollback
       // TODO: Implement environment rollback
 
-      this.logger.info('Task rollback completed successfully', { taskId, snapshotId });
+      this.logger.info('Task rollback completed successfully', {
+        taskId,
+        snapshotId,
+      });
       return true;
-
     } catch (error) {
       this.logger.error('Task rollback failed', { taskId, snapshotId, error });
       return false;
@@ -517,30 +600,37 @@ export class TaskValidator extends EventEmitter {
   /**
    * Validate task preconditions and dependencies
    */
-  private async validateTaskPreconditions(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskPreconditions(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
     const task = context.metadata?.task as Task;
 
     if (!task) {
-      return [{
-        id: 'precondition-no-task',
-        category: ValidationCategory.LOGIC,
-        severity: ValidationSeverity.ERROR,
-        status: ValidationStatus.FAILED,
-        message: 'No task provided in validation context',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'precondition-no-task',
+          category: ValidationCategory.LOGIC,
+          severity: ValidationSeverity.ERROR,
+          status: ValidationStatus.FAILED,
+          message: 'No task provided in validation context',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     // Validate task status
-    if (task.status === TaskStatus.FAILED || task.status === TaskStatus.CANCELLED) {
+    if (
+      task.status === TaskStatus.FAILED ||
+      task.status === TaskStatus.CANCELLED
+    ) {
       results.push({
         id: 'precondition-invalid-status',
         category: ValidationCategory.LOGIC,
         severity: ValidationSeverity.ERROR,
         status: ValidationStatus.FAILED,
         message: `Task is in invalid status: ${task.status}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
@@ -552,40 +642,52 @@ export class TaskValidator extends EventEmitter {
         severity: ValidationSeverity.ERROR,
         status: ValidationStatus.FAILED,
         message: 'Task is missing required fields (title, description)',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
-    return results.length === 0 ? [{
-      id: 'precondition-valid',
-      category: ValidationCategory.LOGIC,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Task preconditions validated successfully',
-      timestamp: new Date()
-    }] : results;
+    return results.length === 0
+      ? [
+          {
+            id: 'precondition-valid',
+            category: ValidationCategory.LOGIC,
+            severity: ValidationSeverity.INFO,
+            status: ValidationStatus.PASSED,
+            message: 'Task preconditions validated successfully',
+            timestamp: new Date(),
+          },
+        ]
+      : results;
   }
 
   /**
    * Validate task quality metrics
    */
-  private async validateQualityMetrics(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateQualityMetrics(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
-    const executionMetrics = context.metadata?.executionMetrics as TaskExecutionMetrics;
+    const executionMetrics = context.metadata
+      ?.executionMetrics as TaskExecutionMetrics;
 
     if (!executionMetrics) {
-      return [{
-        id: 'quality-no-metrics',
-        category: ValidationCategory.FUNCTIONAL,
-        severity: ValidationSeverity.WARNING,
-        status: ValidationStatus.SKIPPED,
-        message: 'No execution metrics available for quality validation',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'quality-no-metrics',
+          category: ValidationCategory.FUNCTIONAL,
+          severity: ValidationSeverity.WARNING,
+          status: ValidationStatus.SKIPPED,
+          message: 'No execution metrics available for quality validation',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     // Validate execution time
-    if (executionMetrics.duration && this.config.qualityThresholds.executionTime) {
+    if (
+      executionMetrics.duration &&
+      this.config.qualityThresholds.executionTime
+    ) {
       const thresholds = this.config.qualityThresholds.executionTime;
       if (executionMetrics.duration > thresholds.critical) {
         results.push({
@@ -594,7 +696,7 @@ export class TaskValidator extends EventEmitter {
           severity: ValidationSeverity.CRITICAL,
           status: ValidationStatus.FAILED,
           message: `Task execution time ${executionMetrics.duration}ms exceeds critical threshold ${thresholds.critical}ms`,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else if (executionMetrics.duration > thresholds.warning) {
         results.push({
@@ -603,13 +705,14 @@ export class TaskValidator extends EventEmitter {
           severity: ValidationSeverity.WARNING,
           status: ValidationStatus.FAILED,
           message: `Task execution time ${executionMetrics.duration}ms exceeds warning threshold ${thresholds.warning}ms`,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     }
 
     // Validate error rate
-    const errorRate = executionMetrics.errorCount / (executionMetrics.errorCount + 1);
+    const errorRate =
+      executionMetrics.errorCount / (executionMetrics.errorCount + 1);
     if (this.config.qualityThresholds.errorRate) {
       const thresholds = this.config.qualityThresholds.errorRate;
       if (errorRate > thresholds.critical) {
@@ -619,25 +722,31 @@ export class TaskValidator extends EventEmitter {
           severity: ValidationSeverity.CRITICAL,
           status: ValidationStatus.FAILED,
           message: `Task error rate ${(errorRate * 100).toFixed(2)}% exceeds critical threshold ${(thresholds.critical * 100).toFixed(2)}%`,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     }
 
-    return results.length === 0 ? [{
-      id: 'quality-metrics-valid',
-      category: ValidationCategory.FUNCTIONAL,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Quality metrics validation passed',
-      timestamp: new Date()
-    }] : results;
+    return results.length === 0
+      ? [
+          {
+            id: 'quality-metrics-valid',
+            category: ValidationCategory.FUNCTIONAL,
+            severity: ValidationSeverity.INFO,
+            status: ValidationStatus.PASSED,
+            message: 'Quality metrics validation passed',
+            timestamp: new Date(),
+          },
+        ]
+      : results;
   }
 
   /**
    * Validate task security compliance
    */
-  private async validateTaskSecurity(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskSecurity(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
     const task = context.metadata?.task as Task;
 
@@ -647,36 +756,47 @@ export class TaskValidator extends EventEmitter {
     // - Check for security vulnerabilities
     // - Validate encryption and data protection
 
-    return [{
-      id: 'security-placeholder',
-      category: ValidationCategory.SECURITY,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Security validation placeholder - TODO: Implement comprehensive security checks',
-      timestamp: new Date()
-    }];
+    return [
+      {
+        id: 'security-placeholder',
+        category: ValidationCategory.SECURITY,
+        severity: ValidationSeverity.INFO,
+        status: ValidationStatus.PASSED,
+        message:
+          'Security validation placeholder - TODO: Implement comprehensive security checks',
+        timestamp: new Date(),
+      },
+    ];
   }
 
   /**
    * Validate task performance metrics
    */
-  private async validateTaskPerformance(context: ValidationContext): Promise<ValidationResult[]> {
+  private async validateTaskPerformance(
+    context: ValidationContext,
+  ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
-    const executionMetrics = context.metadata?.executionMetrics as TaskExecutionMetrics;
+    const executionMetrics = context.metadata
+      ?.executionMetrics as TaskExecutionMetrics;
 
     if (!executionMetrics) {
-      return [{
-        id: 'performance-no-metrics',
-        category: ValidationCategory.PERFORMANCE,
-        severity: ValidationSeverity.WARNING,
-        status: ValidationStatus.SKIPPED,
-        message: 'No execution metrics available for performance validation',
-        timestamp: new Date()
-      }];
+      return [
+        {
+          id: 'performance-no-metrics',
+          category: ValidationCategory.PERFORMANCE,
+          severity: ValidationSeverity.WARNING,
+          status: ValidationStatus.SKIPPED,
+          message: 'No execution metrics available for performance validation',
+          timestamp: new Date(),
+        },
+      ];
     }
 
     // Validate memory usage
-    if (executionMetrics.memoryUsage && this.config.qualityThresholds.memoryUsage) {
+    if (
+      executionMetrics.memoryUsage &&
+      this.config.qualityThresholds.memoryUsage
+    ) {
       const thresholds = this.config.qualityThresholds.memoryUsage;
       const peakMemoryMB = executionMetrics.memoryUsage.peak / (1024 * 1024);
 
@@ -687,39 +807,46 @@ export class TaskValidator extends EventEmitter {
           severity: ValidationSeverity.CRITICAL,
           status: ValidationStatus.FAILED,
           message: `Peak memory usage ${peakMemoryMB.toFixed(2)}MB exceeds critical threshold ${thresholds.critical}MB`,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     }
 
-    return results.length === 0 ? [{
-      id: 'performance-metrics-valid',
-      category: ValidationCategory.PERFORMANCE,
-      severity: ValidationSeverity.INFO,
-      status: ValidationStatus.PASSED,
-      message: 'Performance metrics validation passed',
-      timestamp: new Date()
-    }] : results;
+    return results.length === 0
+      ? [
+          {
+            id: 'performance-metrics-valid',
+            category: ValidationCategory.PERFORMANCE,
+            severity: ValidationSeverity.INFO,
+            status: ValidationStatus.PASSED,
+            message: 'Performance metrics validation passed',
+            timestamp: new Date(),
+          },
+        ]
+      : results;
   }
 
   /**
    * Helper methods
    */
 
-  private calculateQualityScore(results: ValidationResult[], context: TaskValidationContext): number {
+  private calculateQualityScore(
+    results: ValidationResult[],
+    context: TaskValidationContext,
+  ): number {
     if (results.length === 0) return 1.0;
 
     const weights = {
       [ValidationSeverity.CRITICAL]: 0.4,
       [ValidationSeverity.ERROR]: 0.3,
       [ValidationSeverity.WARNING]: 0.2,
-      [ValidationSeverity.INFO]: 0.1
+      [ValidationSeverity.INFO]: 0.1,
     };
 
     let totalWeight = 0;
     let failedWeight = 0;
 
-    results.forEach(result => {
+    results.forEach((result) => {
       const weight = weights[result.severity];
       totalWeight += weight;
 
@@ -731,20 +858,30 @@ export class TaskValidator extends EventEmitter {
     return totalWeight > 0 ? (totalWeight - failedWeight) / totalWeight : 1.0;
   }
 
-  private generateRecommendations(results: ValidationResult[], context: TaskValidationContext): ValidationRecommendation[] {
+  private generateRecommendations(
+    results: ValidationResult[],
+    context: TaskValidationContext,
+  ): ValidationRecommendation[] {
     const recommendations: ValidationRecommendation[] = [];
 
     // Generate recommendations based on validation results
-    results.forEach(result => {
-      if (result.status === ValidationStatus.FAILED && result.severity === ValidationSeverity.CRITICAL) {
+    results.forEach((result) => {
+      if (
+        result.status === ValidationStatus.FAILED &&
+        result.severity === ValidationSeverity.CRITICAL
+      ) {
         recommendations.push({
           type: 'reliability',
           severity: result.severity,
           message: `Critical validation failure: ${result.message}`,
           details: result.details || 'No additional details available',
-          suggestedActions: ['Review task implementation', 'Check dependencies', 'Validate input data'],
+          suggestedActions: [
+            'Review task implementation',
+            'Check dependencies',
+            'Validate input data',
+          ],
           impact: 'high',
-          effort: 'significant'
+          effort: 'significant',
         });
       }
     });
@@ -752,18 +889,33 @@ export class TaskValidator extends EventEmitter {
     return recommendations;
   }
 
-  private shouldRecommendRollback(results: ValidationResult[], qualityScore: number, context: TaskValidationContext): boolean {
-    const criticalFailures = results.filter(r => r.severity === ValidationSeverity.CRITICAL && r.status === ValidationStatus.FAILED);
+  private shouldRecommendRollback(
+    results: ValidationResult[],
+    qualityScore: number,
+    context: TaskValidationContext,
+  ): boolean {
+    const criticalFailures = results.filter(
+      (r) =>
+        r.severity === ValidationSeverity.CRITICAL &&
+        r.status === ValidationStatus.FAILED,
+    );
     const minQualityScore = this.getMinQualityScore(context.validationLevel);
 
     return criticalFailures.length > 0 || qualityScore < minQualityScore * 0.8;
   }
 
-  private getRollbackReason(results: ValidationResult[], qualityScore: number): string {
-    const criticalFailures = results.filter(r => r.severity === ValidationSeverity.CRITICAL && r.status === ValidationStatus.FAILED);
+  private getRollbackReason(
+    results: ValidationResult[],
+    qualityScore: number,
+  ): string {
+    const criticalFailures = results.filter(
+      (r) =>
+        r.severity === ValidationSeverity.CRITICAL &&
+        r.status === ValidationStatus.FAILED,
+    );
 
     if (criticalFailures.length > 0) {
-      return `Critical validation failures detected: ${criticalFailures.map(f => f.message).join(', ')}`;
+      return `Critical validation failures detected: ${criticalFailures.map((f) => f.message).join(', ')}`;
     }
 
     return `Quality score ${qualityScore.toFixed(3)} below acceptable threshold`;
@@ -771,11 +923,16 @@ export class TaskValidator extends EventEmitter {
 
   private getMinQualityScore(validationLevel: TaskValidationLevel): number {
     switch (validationLevel) {
-      case TaskValidationLevel.STRICT: return 0.95;
-      case TaskValidationLevel.MODERATE: return 0.80;
-      case TaskValidationLevel.LENIENT: return 0.60;
-      case TaskValidationLevel.ADVISORY: return 0.40;
-      default: return 0.80;
+      case TaskValidationLevel.STRICT:
+        return 0.95;
+      case TaskValidationLevel.MODERATE:
+        return 0.8;
+      case TaskValidationLevel.LENIENT:
+        return 0.6;
+      case TaskValidationLevel.ADVISORY:
+        return 0.4;
+      default:
+        return 0.8;
     }
   }
 
@@ -799,13 +956,16 @@ export class TaskValidator extends EventEmitter {
     configuredThresholds: QualityThresholds;
     frameworkStats: ReturnType<ValidationFramework['getStatistics']>;
   } {
-    const totalSnapshots = Array.from(this.snapshots.values()).reduce((sum, snapshots) => sum + snapshots.length, 0);
+    const totalSnapshots = Array.from(this.snapshots.values()).reduce(
+      (sum, snapshots) => sum + snapshots.length,
+      0,
+    );
 
     return {
       activeValidations: this.activeValidations.size,
       totalSnapshots,
       configuredThresholds: this.config.qualityThresholds,
-      frameworkStats: this.validationFramework.getStatistics()
+      frameworkStats: this.validationFramework.getStatistics(),
     };
   }
 
@@ -815,7 +975,7 @@ export class TaskValidator extends EventEmitter {
   updateQualityThresholds(thresholds: Partial<QualityThresholds>): void {
     this.config.qualityThresholds = {
       ...this.config.qualityThresholds,
-      ...thresholds
+      ...thresholds,
     };
 
     this.logger.info('Quality thresholds updated', { thresholds });
@@ -826,7 +986,7 @@ export class TaskValidator extends EventEmitter {
    */
   registerCustomValidator(
     name: string,
-    validator: (context: TaskValidationContext) => Promise<ValidationResult[]>
+    validator: (context: TaskValidationContext) => Promise<ValidationResult[]>,
   ): void {
     this.config.customValidators!.set(name, validator);
     this.logger.info('Custom validator registered', { name });

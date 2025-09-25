@@ -24,21 +24,25 @@ graph TB
 ## Key Components
 
 ### 1. AutonomousTaskIntegrator
+
 - **Purpose**: Core orchestrator for autonomous task management
 - **Responsibilities**: Task queue management, agent coordination, execution scheduling
 - **Features**: Event-driven architecture, dependency resolution, performance tracking
 
 ### 2. IntegrationBridge
+
 - **Purpose**: Bridge between internal systems and external APIs
 - **Responsibilities**: TaskManager API integration, CLI command execution, cross-session persistence
 - **Features**: Real-time synchronization, heartbeat monitoring, error handling
 
 ### 3. AutonomousTaskApi
+
 - **Purpose**: RESTful API interface for external tool integration
 - **Responsibilities**: Request routing, response formatting, authentication
 - **Features**: HTTP-like interface, comprehensive endpoint coverage, request tracking
 
 ### 4. Configuration Management
+
 - **Purpose**: Centralized configuration system with environment overrides
 - **Responsibilities**: Settings validation, file-based persistence, runtime updates
 - **Features**: Environment variable support, configuration watching, validation
@@ -52,7 +56,7 @@ import {
   createAutonomousTaskApi,
   getAutonomousTaskConfig,
   AutonomousTaskIntegrator,
-  IntegrationBridge
+  IntegrationBridge,
 } from '@google/gemini-cli-core';
 
 // Initialize the system
@@ -65,20 +69,21 @@ const task = await api.createTask({
   description: 'Add new functionality for feature X',
   type: 'implementation',
   priority: 'high',
-  requiredCapabilities: ['frontend', 'backend']
+  requiredCapabilities: ['frontend', 'backend'],
 });
 
 // Register an agent
 await api.registerAgent({
   id: 'my-agent-001',
   capabilities: ['frontend', 'backend', 'testing'],
-  maxConcurrentTasks: 3
+  maxConcurrentTasks: 3,
 });
 ```
 
 ## Core Features
 
 ### Task Management
+
 - ✅ Automatic task creation from approved features
 - ✅ Priority-based task scheduling
 - ✅ Dependency resolution and validation
@@ -86,6 +91,7 @@ await api.registerAgent({
 - ✅ Real-time progress tracking and updates
 
 ### Agent Coordination
+
 - ✅ Dynamic agent registration and capability matching
 - ✅ Performance-based task assignment
 - ✅ Concurrent task execution limits
@@ -93,6 +99,7 @@ await api.registerAgent({
 - ✅ Load balancing across available agents
 
 ### Integration Features
+
 - ✅ TaskManager API synchronization
 - ✅ CLI command execution with context
 - ✅ Cross-session task persistence

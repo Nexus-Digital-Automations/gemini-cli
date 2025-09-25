@@ -49,14 +49,49 @@ describe('TaskSequencer', () => {
     // Create sample tasks with different complexities and priorities
     sampleTasks = new Map();
     const taskDefinitions = [
-      { id: 'task1', title: 'Setup Environment', category: 'implementation' as TaskCategory, priority: 'high' as TaskPriority, cpu: 2, memory: 1024 },
-      { id: 'task2', title: 'Database Migration', category: 'implementation' as TaskCategory, priority: 'critical' as TaskPriority, cpu: 4, memory: 2048 },
-      { id: 'task3', title: 'Unit Tests', category: 'testing' as TaskCategory, priority: 'medium' as TaskPriority, cpu: 1, memory: 512 },
-      { id: 'task4', title: 'Documentation', category: 'documentation' as TaskCategory, priority: 'low' as TaskPriority, cpu: 1, memory: 256 },
-      { id: 'task5', title: 'Performance Analysis', category: 'analysis' as TaskCategory, priority: 'medium' as TaskPriority, cpu: 6, memory: 4096 },
+      {
+        id: 'task1',
+        title: 'Setup Environment',
+        category: 'implementation' as TaskCategory,
+        priority: 'high' as TaskPriority,
+        cpu: 2,
+        memory: 1024,
+      },
+      {
+        id: 'task2',
+        title: 'Database Migration',
+        category: 'implementation' as TaskCategory,
+        priority: 'critical' as TaskPriority,
+        cpu: 4,
+        memory: 2048,
+      },
+      {
+        id: 'task3',
+        title: 'Unit Tests',
+        category: 'testing' as TaskCategory,
+        priority: 'medium' as TaskPriority,
+        cpu: 1,
+        memory: 512,
+      },
+      {
+        id: 'task4',
+        title: 'Documentation',
+        category: 'documentation' as TaskCategory,
+        priority: 'low' as TaskPriority,
+        cpu: 1,
+        memory: 256,
+      },
+      {
+        id: 'task5',
+        title: 'Performance Analysis',
+        category: 'analysis' as TaskCategory,
+        priority: 'medium' as TaskPriority,
+        cpu: 6,
+        memory: 4096,
+      },
     ];
 
-    taskDefinitions.forEach(def => {
+    taskDefinitions.forEach((def) => {
       const task = createTestTask(
         def.id,
         def.title,
@@ -65,7 +100,7 @@ describe('TaskSequencer', () => {
         [
           { resourceType: 'cpu', maxUnits: def.cpu },
           { resourceType: 'memory', maxUnits: def.memory },
-        ]
+        ],
       );
       sampleTasks.set(def.id, task);
       dependencyGraph.addTask(task);
@@ -74,7 +109,10 @@ describe('TaskSequencer', () => {
 
   describe('Priority-Based Sequencing', () => {
     test('should sequence tasks by priority correctly', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'priority');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'priority',
+      );
 
       expect(sequence.metadata.algorithm).toBe('priority');
       expect(sequence.sequence.length).toBe(5);
@@ -102,7 +140,10 @@ describe('TaskSequencer', () => {
       dependencyGraph.addTask(taskA);
       dependencyGraph.addTask(taskB);
 
-      const sequence = sequencer.generateExecutionSequence(testTasks, 'priority');
+      const sequence = sequencer.generateExecutionSequence(
+        testTasks,
+        'priority',
+      );
 
       // Task A should come before Task B (earlier creation time)
       const taskAIndex = sequence.sequence.indexOf('taskA');
@@ -111,7 +152,10 @@ describe('TaskSequencer', () => {
     });
 
     test('should identify parallel groups in priority sequence', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'priority');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'priority',
+      );
 
       expect(sequence.parallelGroups.length).toBeGreaterThan(0);
 
@@ -130,7 +174,10 @@ describe('TaskSequencer', () => {
         type: 'hard',
       });
 
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'dependency_aware');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'dependency_aware',
+      );
 
       expect(sequence.metadata.algorithm).toBe('dependency_aware');
 
@@ -154,7 +201,10 @@ describe('TaskSequencer', () => {
         type: 'hard',
       });
 
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'dependency_aware');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'dependency_aware',
+      );
 
       const task1Index = sequence.sequence.indexOf('task1');
       const task2Index = sequence.sequence.indexOf('task2');
@@ -178,7 +228,10 @@ describe('TaskSequencer', () => {
         type: 'hard',
       });
 
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'dependency_aware');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'dependency_aware',
+      );
 
       // Should still generate a sequence (fallback to priority)
       expect(sequence.sequence.length).toBe(5);
@@ -199,7 +252,10 @@ describe('TaskSequencer', () => {
         type: 'hard',
       });
 
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'dependency_aware');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'dependency_aware',
+      );
 
       // Should have groups that respect dependencies
       const parallelGroups = sequence.parallelGroups;
@@ -215,14 +271,20 @@ describe('TaskSequencer', () => {
 
   describe('Resource-Optimal Sequencing', () => {
     test('should optimize for resource usage', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'resource_optimal');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'resource_optimal',
+      );
 
       expect(sequence.metadata.algorithm).toBe('resource_optimal');
       expect(sequence.parallelGroups.length).toBeGreaterThan(0);
     });
 
     test('should respect resource constraints in parallel groups', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'resource_optimal');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'resource_optimal',
+      );
 
       // Check each parallel group respects resource limits
       for (const group of sequence.parallelGroups) {
@@ -232,7 +294,8 @@ describe('TaskSequencer', () => {
         for (const taskId of group) {
           const task = sampleTasks.get(taskId)!;
           if (task.executionContext?.resourceConstraints) {
-            for (const constraint of task.executionContext.resourceConstraints) {
+            for (const constraint of task.executionContext
+              .resourceConstraints) {
               if (constraint.resourceType === 'cpu') {
                 totalCpu += constraint.maxUnits;
               } else if (constraint.resourceType === 'memory') {
@@ -243,21 +306,35 @@ describe('TaskSequencer', () => {
         }
 
         expect(totalCpu).toBeLessThanOrEqual(config.resourcePools.get('cpu')!);
-        expect(totalMemory).toBeLessThanOrEqual(config.resourcePools.get('memory')!);
+        expect(totalMemory).toBeLessThanOrEqual(
+          config.resourcePools.get('memory')!,
+        );
       }
     });
 
     test('should prioritize resource-efficient tasks', () => {
       // Create tasks with different resource efficiency ratios
-      const efficientTask = createTestTask('efficient', 'Efficient Task', 'testing', 'high', [
-        { resourceType: 'cpu', maxUnits: 1 },
-        { resourceType: 'memory', maxUnits: 256 },
-      ]);
+      const efficientTask = createTestTask(
+        'efficient',
+        'Efficient Task',
+        'testing',
+        'high',
+        [
+          { resourceType: 'cpu', maxUnits: 1 },
+          { resourceType: 'memory', maxUnits: 256 },
+        ],
+      );
 
-      const expensiveTask = createTestTask('expensive', 'Expensive Task', 'analysis', 'high', [
-        { resourceType: 'cpu', maxUnits: 8 },
-        { resourceType: 'memory', maxUnits: 8192 },
-      ]);
+      const expensiveTask = createTestTask(
+        'expensive',
+        'Expensive Task',
+        'analysis',
+        'high',
+        [
+          { resourceType: 'cpu', maxUnits: 8 },
+          { resourceType: 'memory', maxUnits: 8192 },
+        ],
+      );
 
       const testTasks = new Map([
         ['efficient', efficientTask],
@@ -267,7 +344,10 @@ describe('TaskSequencer', () => {
       dependencyGraph.addTask(efficientTask);
       dependencyGraph.addTask(expensiveTask);
 
-      const sequence = sequencer.generateExecutionSequence(testTasks, 'resource_optimal');
+      const sequence = sequencer.generateExecutionSequence(
+        testTasks,
+        'resource_optimal',
+      );
 
       // For same priority, efficient task should be scheduled earlier
       const efficientIndex = sequence.sequence.indexOf('efficient');
@@ -279,7 +359,10 @@ describe('TaskSequencer', () => {
 
   describe('Hybrid Sequencing', () => {
     test('should combine multiple scheduling factors', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'hybrid');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'hybrid',
+      );
 
       expect(sequence.metadata.algorithm).toBe('hybrid');
       expect(sequence.metadata.factors).toContain('priority');
@@ -295,7 +378,10 @@ describe('TaskSequencer', () => {
         type: 'hard',
       });
 
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'hybrid');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'hybrid',
+      );
 
       // Should respect dependencies
       const task1Index = sequence.sequence.indexOf('task1');
@@ -308,9 +394,10 @@ describe('TaskSequencer', () => {
         for (const taskId of group) {
           const task = sampleTasks.get(taskId)!;
           if (task.executionContext?.resourceConstraints) {
-            const cpuConstraint = task.executionContext.resourceConstraints.find(
-              c => c.resourceType === 'cpu'
-            );
+            const cpuConstraint =
+              task.executionContext.resourceConstraints.find(
+                (c) => c.resourceType === 'cpu',
+              );
             if (cpuConstraint) {
               totalCpu += cpuConstraint.maxUnits;
             }
@@ -324,7 +411,10 @@ describe('TaskSequencer', () => {
       // This tests the internal scoring mechanism by verifying sequence ordering
       // reflects a combination of priority, dependency weight, and resource efficiency
 
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'hybrid');
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'hybrid',
+      );
 
       // Critical task should generally rank higher
       const criticalTaskIndex = sequence.sequence.indexOf('task2');
@@ -336,8 +426,14 @@ describe('TaskSequencer', () => {
 
   describe('Resource Management', () => {
     test('should generate resource allocations', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'resource_optimal');
-      const allocations = sequencer.generateResourceAllocations(sequence, sampleTasks);
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'resource_optimal',
+      );
+      const allocations = sequencer.generateResourceAllocations(
+        sequence,
+        sampleTasks,
+      );
 
       expect(allocations.length).toBe(sampleTasks.size);
 
@@ -351,8 +447,14 @@ describe('TaskSequencer', () => {
     });
 
     test('should calculate timing correctly in allocations', () => {
-      const sequence = sequencer.generateExecutionSequence(sampleTasks, 'resource_optimal');
-      const allocations = sequencer.generateResourceAllocations(sequence, sampleTasks);
+      const sequence = sequencer.generateExecutionSequence(
+        sampleTasks,
+        'resource_optimal',
+      );
+      const allocations = sequencer.generateResourceAllocations(
+        sequence,
+        sampleTasks,
+      );
 
       // Allocations should be ordered by time
       for (let i = 1; i < allocations.length; i++) {
@@ -362,7 +464,7 @@ describe('TaskSequencer', () => {
         // Same parallel group should have same allocation time
         // Different groups should have later times
         expect(currentAllocation.allocatedAt.getTime()).toBeGreaterThanOrEqual(
-          prevAllocation.allocatedAt.getTime()
+          prevAllocation.allocatedAt.getTime(),
         );
       }
     });
@@ -414,7 +516,10 @@ describe('TaskSequencer', () => {
         totalDuration += duration;
       }
 
-      const sequence = sequencer.generateExecutionSequence(tasksWithDurations, 'priority');
+      const sequence = sequencer.generateExecutionSequence(
+        tasksWithDurations,
+        'priority',
+      );
 
       // Sequential execution duration should equal sum of task durations
       expect(sequence.estimatedDuration).toBe(totalDuration);
@@ -426,24 +531,37 @@ describe('TaskSequencer', () => {
       const taskDuration = 60000; // 1 minute each
 
       for (let i = 1; i <= 3; i++) {
-        const task = createTestTask(`parallel${i}`, `Parallel Task ${i}`, 'testing', 'medium');
+        const task = createTestTask(
+          `parallel${i}`,
+          `Parallel Task ${i}`,
+          'testing',
+          'medium',
+        );
         task.metadata.estimatedDuration = taskDuration;
         parallelTasks.set(`parallel${i}`, task);
         dependencyGraph.addTask(task);
       }
 
-      const sequence = sequencer.generateExecutionSequence(parallelTasks, 'resource_optimal');
+      const sequence = sequencer.generateExecutionSequence(
+        parallelTasks,
+        'resource_optimal',
+      );
 
       // With perfect parallelization, duration should be less than sum of all tasks
       const totalSequentialDuration = parallelTasks.size * taskDuration;
-      expect(sequence.estimatedDuration).toBeLessThanOrEqual(totalSequentialDuration);
+      expect(sequence.estimatedDuration).toBeLessThanOrEqual(
+        totalSequentialDuration,
+      );
     });
   });
 
   describe('Edge Cases', () => {
     test('should handle empty task set', () => {
       const emptyTasks = new Map();
-      const sequence = sequencer.generateExecutionSequence(emptyTasks, 'priority');
+      const sequence = sequencer.generateExecutionSequence(
+        emptyTasks,
+        'priority',
+      );
 
       expect(sequence.sequence).toEqual([]);
       expect(sequence.parallelGroups).toEqual([]);
@@ -452,7 +570,10 @@ describe('TaskSequencer', () => {
 
     test('should handle single task', () => {
       const singleTask = new Map([['task1', sampleTasks.get('task1')!]]);
-      const sequence = sequencer.generateExecutionSequence(singleTask, 'dependency_aware');
+      const sequence = sequencer.generateExecutionSequence(
+        singleTask,
+        'dependency_aware',
+      );
 
       expect(sequence.sequence).toEqual(['task1']);
       expect(sequence.parallelGroups).toEqual([['task1']]);
@@ -464,13 +585,16 @@ describe('TaskSequencer', () => {
         'no-resources',
         'Task Without Resources',
         'documentation',
-        'low'
+        'low',
       );
 
       const testTasks = new Map([['no-resources', taskWithoutResources]]);
       dependencyGraph.addTask(taskWithoutResources);
 
-      const sequence = sequencer.generateExecutionSequence(testTasks, 'resource_optimal');
+      const sequence = sequencer.generateExecutionSequence(
+        testTasks,
+        'resource_optimal',
+      );
 
       expect(sequence.sequence).toEqual(['no-resources']);
     });
@@ -489,7 +613,7 @@ function createTestTask(
   title: string,
   category: TaskCategory,
   priority: TaskPriority,
-  resourceConstraints?: ResourceConstraint[]
+  resourceConstraints?: ResourceConstraint[],
 ): Task {
   const now = new Date();
 

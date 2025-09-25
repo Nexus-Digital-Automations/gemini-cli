@@ -42,11 +42,48 @@
  * });
  * ```
  */
-export { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority, TaskMetadata, TaskStatusUpdate, AgentStatus, taskStatusMonitor, } from './TaskStatusMonitor.js';
-export { StatusUpdateBroker, StatusEventType, StatusEvent, NotificationConfig, statusUpdateBroker, } from './StatusUpdateBroker.js';
-export { NotificationSystem, NotificationPreferences, NotificationTemplate, DeliveredNotification, notificationSystem, } from './NotificationSystem.js';
-export { StatusHistoryAnalytics, AnalyticsTimeframe, TaskAnalytics, AgentAnalytics, SystemAnalytics, StatusHistoryEntry, HistoryQuery, statusHistoryAnalytics, } from './StatusHistoryAnalytics.js';
-export { MonitoringIntegrations, TodoWriteTask, TodoWriteState, ExternalSystemConfig, WebhookPayload, monitoringIntegrations, } from './MonitoringIntegrations.js';
+export {
+  TaskStatusMonitor,
+  TaskStatus,
+  TaskType,
+  TaskPriority,
+  TaskMetadata,
+  TaskStatusUpdate,
+  AgentStatus,
+  taskStatusMonitor,
+} from './TaskStatusMonitor.js';
+export {
+  StatusUpdateBroker,
+  StatusEventType,
+  StatusEvent,
+  NotificationConfig,
+  statusUpdateBroker,
+} from './StatusUpdateBroker.js';
+export {
+  NotificationSystem,
+  NotificationPreferences,
+  NotificationTemplate,
+  DeliveredNotification,
+  notificationSystem,
+} from './NotificationSystem.js';
+export {
+  StatusHistoryAnalytics,
+  AnalyticsTimeframe,
+  TaskAnalytics,
+  AgentAnalytics,
+  SystemAnalytics,
+  StatusHistoryEntry,
+  HistoryQuery,
+  statusHistoryAnalytics,
+} from './StatusHistoryAnalytics.js';
+export {
+  MonitoringIntegrations,
+  TodoWriteTask,
+  TodoWriteState,
+  ExternalSystemConfig,
+  WebhookPayload,
+  monitoringIntegrations,
+} from './MonitoringIntegrations.js';
 export { StatusDashboard } from './StatusDashboard.js';
 /**
  * Initialize the complete monitoring system with default configuration
@@ -64,260 +101,344 @@ export { StatusDashboard } from './StatusDashboard.js';
  * ```
  */
 export declare function initializeMonitoringSystem(options?: {
-    enableDashboard?: boolean;
-    enableNotifications?: boolean;
-    enableAnalytics?: boolean;
-    enableIntegrations?: boolean;
-    dashboardConfig?: {
-        autoRefresh?: boolean;
-        refreshInterval?: number;
-        initialView?: 'overview' | 'tasks' | 'agents' | 'analytics';
-    };
+  enableDashboard?: boolean;
+  enableNotifications?: boolean;
+  enableAnalytics?: boolean;
+  enableIntegrations?: boolean;
+  dashboardConfig?: {
+    autoRefresh?: boolean;
+    refreshInterval?: number;
+    initialView?: 'overview' | 'tasks' | 'agents' | 'analytics';
+  };
 }): Promise<{
-    taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-    statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-    notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-    statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-    monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-    dashboard: unknown;
-    /**
-     * Cleanup all monitoring resources
-     */
-    destroy: () => void;
+  taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+  statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+  notificationSystem:
+    | import('./NotificationSystem.js').NotificationSystem
+    | null;
+  statusHistoryAnalytics:
+    | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+    | null;
+  monitoringIntegrations:
+    | import('./MonitoringIntegrations.js').MonitoringIntegrations
+    | null;
+  dashboard: unknown;
+  /**
+   * Cleanup all monitoring resources
+   */
+  destroy: () => void;
 }>;
 /**
  * Quick start monitoring setup for common use cases
  */
 export declare const MonitoringPresets: {
+  /**
+   * Minimal monitoring for basic task tracking
+   */
+  minimal: () => Promise<{
+    taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+    statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+    notificationSystem:
+      | import('./NotificationSystem.js').NotificationSystem
+      | null;
+    statusHistoryAnalytics:
+      | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+      | null;
+    monitoringIntegrations:
+      | import('./MonitoringIntegrations.js').MonitoringIntegrations
+      | null;
+    dashboard: unknown;
     /**
-     * Minimal monitoring for basic task tracking
+     * Cleanup all monitoring resources
      */
-    minimal: () => Promise<{
-        taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-        statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-        notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-        statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-        monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: unknown;
-        /**
-         * Cleanup all monitoring resources
-         */
-        destroy: () => void;
-    }>;
+    destroy: () => void;
+  }>;
+  /**
+   * Development monitoring with dashboard and basic analytics
+   */
+  development: () => Promise<{
+    taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+    statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+    notificationSystem:
+      | import('./NotificationSystem.js').NotificationSystem
+      | null;
+    statusHistoryAnalytics:
+      | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+      | null;
+    monitoringIntegrations:
+      | import('./MonitoringIntegrations.js').MonitoringIntegrations
+      | null;
+    dashboard: unknown;
     /**
-     * Development monitoring with dashboard and basic analytics
+     * Cleanup all monitoring resources
      */
-    development: () => Promise<{
-        taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-        statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-        notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-        statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-        monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: unknown;
-        /**
-         * Cleanup all monitoring resources
-         */
-        destroy: () => void;
-    }>;
+    destroy: () => void;
+  }>;
+  /**
+   * Production monitoring with full feature set
+   */
+  production: () => Promise<{
+    taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+    statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+    notificationSystem:
+      | import('./NotificationSystem.js').NotificationSystem
+      | null;
+    statusHistoryAnalytics:
+      | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+      | null;
+    monitoringIntegrations:
+      | import('./MonitoringIntegrations.js').MonitoringIntegrations
+      | null;
+    dashboard: unknown;
     /**
-     * Production monitoring with full feature set
+     * Cleanup all monitoring resources
      */
-    production: () => Promise<{
-        taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-        statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-        notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-        statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-        monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: unknown;
-        /**
-         * Cleanup all monitoring resources
-         */
-        destroy: () => void;
-    }>;
+    destroy: () => void;
+  }>;
+  /**
+   * Full monitoring with dashboard for debugging and analysis
+   */
+  full: () => Promise<{
+    taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+    statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+    notificationSystem:
+      | import('./NotificationSystem.js').NotificationSystem
+      | null;
+    statusHistoryAnalytics:
+      | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+      | null;
+    monitoringIntegrations:
+      | import('./MonitoringIntegrations.js').MonitoringIntegrations
+      | null;
+    dashboard: unknown;
     /**
-     * Full monitoring with dashboard for debugging and analysis
+     * Cleanup all monitoring resources
      */
-    full: () => Promise<{
-        taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-        statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-        notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-        statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-        monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: unknown;
-        /**
-         * Cleanup all monitoring resources
-         */
-        destroy: () => void;
-    }>;
+    destroy: () => void;
+  }>;
 };
 /**
  * Utility functions for common monitoring operations
  */
 export declare const MonitoringUtils: {
+  /**
+   * Create a simple task and track its lifecycle
+   */
+  createAndTrackTask(
+    title: string,
+    description: string,
+    options?: {
+      type?: TaskType;
+      priority?: TaskPriority;
+      assignedAgent?: string;
+      tags?: string[];
+    },
+  ): Promise<string>;
+  /**
+   * Subscribe to all important status events with a simple callback
+   */
+  subscribeToAllEvents(callback: (event: unknown) => void): Promise<() => void>;
+  /**
+   * Get a snapshot of current system status
+   */
+  getSystemSnapshot(): Promise<{
+    timestamp: string;
+    summary: {
+      totalTasks: number;
+      activeTasks: number;
+      completedTasks: number;
+      failedTasks: number;
+      totalAgents: number;
+      activeAgents: number;
+      systemEfficiency: number;
+    };
+    tasks: import('./TaskStatusMonitor.js').TaskMetadata[];
+    agents: import('./TaskStatusMonitor.js').AgentStatus[];
+    metrics: {
+      totalTasks: number;
+      completedTasks: number;
+      failedTasks: number;
+      averageTaskDuration: number;
+      systemUptime: Date;
+      throughputPerHour: number;
+    } & {
+      activeAgents: number;
+      tasksInProgress: number;
+      queuedTasks: number;
+      blockedTasks: number;
+      systemEfficiency: number;
+    };
+  }>;
+  /**
+   * Export current monitoring data for analysis
+   */
+  exportData(format?: 'json' | 'csv'): Promise<string>;
+};
+export {
+  RealTimeMonitoringSystem,
+  type MonitoringSnapshot,
+  type MonitoringEvent,
+  type AlertRule,
+  type PredictiveInsight,
+  realTimeMonitoringSystem,
+} from './RealTimeMonitoringSystem.js';
+export {
+  EnhancedMonitoringDashboard,
+  type DashboardWidget,
+  type DashboardLayout,
+  type DashboardData,
+  type ChartData,
+  enhancedMonitoringDashboard,
+} from './EnhancedMonitoringDashboard.js';
+export {
+  MonitoringIntegrationHub,
+  type MonitoringIntegrationConfig,
+  type CrossSystemEvent,
+  type HealthCheckResult,
+  monitoringIntegrationHub,
+} from './MonitoringIntegrationHub.js';
+export declare const MonitoringSystemExports: {
+  initializeMonitoringSystem: typeof initializeMonitoringSystem;
+  MonitoringPresets: {
+    /**
+     * Minimal monitoring for basic task tracking
+     */
+    minimal: () => Promise<{
+      taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+      statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+      notificationSystem:
+        | import('./NotificationSystem.js').NotificationSystem
+        | null;
+      statusHistoryAnalytics:
+        | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+        | null;
+      monitoringIntegrations:
+        | import('./MonitoringIntegrations.js').MonitoringIntegrations
+        | null;
+      dashboard: unknown;
+      /**
+       * Cleanup all monitoring resources
+       */
+      destroy: () => void;
+    }>;
+    /**
+     * Development monitoring with dashboard and basic analytics
+     */
+    development: () => Promise<{
+      taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+      statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+      notificationSystem:
+        | import('./NotificationSystem.js').NotificationSystem
+        | null;
+      statusHistoryAnalytics:
+        | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+        | null;
+      monitoringIntegrations:
+        | import('./MonitoringIntegrations.js').MonitoringIntegrations
+        | null;
+      dashboard: unknown;
+      /**
+       * Cleanup all monitoring resources
+       */
+      destroy: () => void;
+    }>;
+    /**
+     * Production monitoring with full feature set
+     */
+    production: () => Promise<{
+      taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+      statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+      notificationSystem:
+        | import('./NotificationSystem.js').NotificationSystem
+        | null;
+      statusHistoryAnalytics:
+        | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+        | null;
+      monitoringIntegrations:
+        | import('./MonitoringIntegrations.js').MonitoringIntegrations
+        | null;
+      dashboard: unknown;
+      /**
+       * Cleanup all monitoring resources
+       */
+      destroy: () => void;
+    }>;
+    /**
+     * Full monitoring with dashboard for debugging and analysis
+     */
+    full: () => Promise<{
+      taskStatusMonitor: import('./TaskStatusMonitor.js').TaskStatusMonitor;
+      statusUpdateBroker: import('./StatusUpdateBroker.js').StatusUpdateBroker;
+      notificationSystem:
+        | import('./NotificationSystem.js').NotificationSystem
+        | null;
+      statusHistoryAnalytics:
+        | import('./StatusHistoryAnalytics.js').StatusHistoryAnalytics
+        | null;
+      monitoringIntegrations:
+        | import('./MonitoringIntegrations.js').MonitoringIntegrations
+        | null;
+      dashboard: unknown;
+      /**
+       * Cleanup all monitoring resources
+       */
+      destroy: () => void;
+    }>;
+  };
+  MonitoringUtils: {
     /**
      * Create a simple task and track its lifecycle
      */
-    createAndTrackTask(title: string, description: string, options?: {
+    createAndTrackTask(
+      title: string,
+      description: string,
+      options?: {
         type?: TaskType;
         priority?: TaskPriority;
         assignedAgent?: string;
         tags?: string[];
-    }): Promise<string>;
+      },
+    ): Promise<string>;
     /**
      * Subscribe to all important status events with a simple callback
      */
-    subscribeToAllEvents(callback: (event: unknown) => void): Promise<() => void>;
+    subscribeToAllEvents(
+      callback: (event: unknown) => void,
+    ): Promise<() => void>;
     /**
      * Get a snapshot of current system status
      */
     getSystemSnapshot(): Promise<{
-        timestamp: string;
-        summary: {
-            totalTasks: number;
-            activeTasks: number;
-            completedTasks: number;
-            failedTasks: number;
-            totalAgents: number;
-            activeAgents: number;
-            systemEfficiency: number;
-        };
-        tasks: import("./TaskStatusMonitor.js").TaskMetadata[];
-        agents: import("./TaskStatusMonitor.js").AgentStatus[];
-        metrics: {
-            totalTasks: number;
-            completedTasks: number;
-            failedTasks: number;
-            averageTaskDuration: number;
-            systemUptime: Date;
-            throughputPerHour: number;
-        } & {
-            activeAgents: number;
-            tasksInProgress: number;
-            queuedTasks: number;
-            blockedTasks: number;
-            systemEfficiency: number;
-        };
+      timestamp: string;
+      summary: {
+        totalTasks: number;
+        activeTasks: number;
+        completedTasks: number;
+        failedTasks: number;
+        totalAgents: number;
+        activeAgents: number;
+        systemEfficiency: number;
+      };
+      tasks: import('./TaskStatusMonitor.js').TaskMetadata[];
+      agents: import('./TaskStatusMonitor.js').AgentStatus[];
+      metrics: {
+        totalTasks: number;
+        completedTasks: number;
+        failedTasks: number;
+        averageTaskDuration: number;
+        systemUptime: Date;
+        throughputPerHour: number;
+      } & {
+        activeAgents: number;
+        tasksInProgress: number;
+        queuedTasks: number;
+        blockedTasks: number;
+        systemEfficiency: number;
+      };
     }>;
     /**
      * Export current monitoring data for analysis
      */
-    exportData(format?: "json" | "csv"): Promise<string>;
-};
-export { RealTimeMonitoringSystem, type MonitoringSnapshot, type MonitoringEvent, type AlertRule, type PredictiveInsight, realTimeMonitoringSystem, } from './RealTimeMonitoringSystem.js';
-export { EnhancedMonitoringDashboard, type DashboardWidget, type DashboardLayout, type DashboardData, type ChartData, enhancedMonitoringDashboard, } from './EnhancedMonitoringDashboard.js';
-export { MonitoringIntegrationHub, type MonitoringIntegrationConfig, type CrossSystemEvent, type HealthCheckResult, monitoringIntegrationHub, } from './MonitoringIntegrationHub.js';
-export declare const MonitoringSystemExports: {
-    initializeMonitoringSystem: typeof initializeMonitoringSystem;
-    MonitoringPresets: {
-        /**
-         * Minimal monitoring for basic task tracking
-         */
-        minimal: () => Promise<{
-            taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-            statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-            notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-            statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-            monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: unknown;
-            /**
-             * Cleanup all monitoring resources
-             */
-            destroy: () => void;
-        }>;
-        /**
-         * Development monitoring with dashboard and basic analytics
-         */
-        development: () => Promise<{
-            taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-            statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-            notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-            statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-            monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: unknown;
-            /**
-             * Cleanup all monitoring resources
-             */
-            destroy: () => void;
-        }>;
-        /**
-         * Production monitoring with full feature set
-         */
-        production: () => Promise<{
-            taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-            statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-            notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-            statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-            monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: unknown;
-            /**
-             * Cleanup all monitoring resources
-             */
-            destroy: () => void;
-        }>;
-        /**
-         * Full monitoring with dashboard for debugging and analysis
-         */
-        full: () => Promise<{
-            taskStatusMonitor: import("./TaskStatusMonitor.js").TaskStatusMonitor;
-            statusUpdateBroker: import("./StatusUpdateBroker.js").StatusUpdateBroker;
-            notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
-            statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
-            monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: unknown;
-            /**
-             * Cleanup all monitoring resources
-             */
-            destroy: () => void;
-        }>;
-    };
-    MonitoringUtils: {
-        /**
-         * Create a simple task and track its lifecycle
-         */
-        createAndTrackTask(title: string, description: string, options?: {
-            type?: TaskType;
-            priority?: TaskPriority;
-            assignedAgent?: string;
-            tags?: string[];
-        }): Promise<string>;
-        /**
-         * Subscribe to all important status events with a simple callback
-         */
-        subscribeToAllEvents(callback: (event: unknown) => void): Promise<() => void>;
-        /**
-         * Get a snapshot of current system status
-         */
-        getSystemSnapshot(): Promise<{
-            timestamp: string;
-            summary: {
-                totalTasks: number;
-                activeTasks: number;
-                completedTasks: number;
-                failedTasks: number;
-                totalAgents: number;
-                activeAgents: number;
-                systemEfficiency: number;
-            };
-            tasks: import("./TaskStatusMonitor.js").TaskMetadata[];
-            agents: import("./TaskStatusMonitor.js").AgentStatus[];
-            metrics: {
-                totalTasks: number;
-                completedTasks: number;
-                failedTasks: number;
-                averageTaskDuration: number;
-                systemUptime: Date;
-                throughputPerHour: number;
-            } & {
-                activeAgents: number;
-                tasksInProgress: number;
-                queuedTasks: number;
-                blockedTasks: number;
-                systemEfficiency: number;
-            };
-        }>;
-        /**
-         * Export current monitoring data for analysis
-         */
-        exportData(format?: "json" | "csv"): Promise<string>;
-    };
+    exportData(format?: 'json' | 'csv'): Promise<string>;
+  };
 };

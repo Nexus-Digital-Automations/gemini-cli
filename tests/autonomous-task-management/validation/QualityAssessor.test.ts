@@ -4,17 +4,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, beforeEach, afterEach, expect, jest } from 'vitest';
-import { QualityAssessor, QualityAssessmentLevel, QualityAssessmentContext, QualityMetrics } from '../../../packages/core/src/validation/QualityAssessor.js';
-import { ValidationFramework, ValidationStatus } from '../../../packages/core/src/validation/ValidationFramework.js';
-import { Task, TaskResult, TaskStatus, TaskPriority } from '../../../packages/core/src/task-management/types.js';
+import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
+import {
+  QualityAssessor,
+  QualityAssessmentLevel,
+} from '../../../packages/core/src/validation/QualityAssessor.js';
+import type {
+  QualityAssessmentContext,
+} from '../../../packages/core/src/validation/QualityAssessor.js';
+import {
+  ValidationFramework,
+} from '../../../packages/core/src/validation/ValidationFramework.js';
+import type {
+  Task,
+  TaskResult,
+} from '../../../packages/core/src/task-management/types.js';
 
 // Mock dependencies
 vi.mock('../../../packages/core/src/logger/Logger.js');
 
 describe('QualityAssessor', () => {
   let qualityAssessor: QualityAssessor;
-  let mockValidationFramework: jest.Mocked<ValidationFramework>;
+  let mockValidationFramework: any;
   let sampleTask: Task;
   let sampleTaskResult: TaskResult;
   let sampleContext: QualityAssessmentContext;
@@ -37,14 +48,14 @@ describe('QualityAssessor', () => {
       id: 'quality-test-task',
       title: 'Quality Assessment Test Task',
       description: 'A test task for quality assessment',
-      status: TaskStatus.COMPLETED,
-      priority: TaskPriority.HIGH,
+      status: 'completed',
+      priority: 'high',
       category: 'implementation',
       metadata: {
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'quality-tester'
-      }
+        createdBy: 'quality-tester',
+      },
     };
 
     // Create sample task result
@@ -57,9 +68,9 @@ describe('QualityAssessor', () => {
         endTime: new Date(),
         duration: 5000,
         memoryUsage: 100,
-        cpuUsage: 25
+        cpuUsage: 25,
       },
-      artifacts: ['output.json', 'metrics.log']
+      artifacts: ['output.json', 'metrics.log'],
     };
 
     // Create sample context
@@ -71,30 +82,30 @@ describe('QualityAssessor', () => {
         memoryUsage: 100 * 1024 * 1024, // 100MB
         cpuUsage: 25,
         errorCount: 0,
-        warningCount: 1
+        warningCount: 1,
       },
       testResults: {
         totalTests: 50,
         passedTests: 48,
         failedTests: 2,
-        coverage: 0.85
+        coverage: 0.85,
       },
       codeAnalysis: {
         linesOfCode: 1000,
         cyclomaticComplexity: 8,
         maintainabilityIndex: 75,
-        technicalDebtRatio: 0.15
+        technicalDebtRatio: 0.15,
       },
       securityScan: {
         vulnerabilities: [
           {
             severity: 'medium',
             type: 'XSS',
-            description: 'Potential XSS vulnerability'
-          }
+            description: 'Potential XSS vulnerability',
+          },
         ],
-        complianceScore: 0.85
-      }
+        complianceScore: 0.85,
+      },
     };
 
     // Create quality assessor instance
@@ -115,7 +126,9 @@ describe('QualityAssessor', () => {
       expect(stats.assessmentLevels).toContain(QualityAssessmentLevel.BASIC);
       expect(stats.assessmentLevels).toContain(QualityAssessmentLevel.STANDARD);
       expect(stats.assessmentLevels).toContain(QualityAssessmentLevel.RIGOROUS);
-      expect(stats.assessmentLevels).toContain(QualityAssessmentLevel.ENTERPRISE);
+      expect(stats.assessmentLevels).toContain(
+        QualityAssessmentLevel.ENTERPRISE,
+      );
     });
 
     it('should register default quality assessors', () => {
@@ -126,7 +139,10 @@ describe('QualityAssessor', () => {
 
   describe('Quality Assessment', () => {
     it('should assess quality at BASIC level', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.BASIC);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.BASIC,
+      );
 
       expect(result).toMatchObject({
         taskId: 'quality-test-task',
@@ -139,8 +155,8 @@ describe('QualityAssessor', () => {
           performanceScore: expect.any(Number),
           securityScore: expect.any(Number),
           maintainabilityScore: expect.any(Number),
-          reliabilityScore: expect.any(Number)
-        })
+          reliabilityScore: expect.any(Number),
+        }),
       });
 
       expect(result.metrics.overallScore).toBeGreaterThanOrEqual(0);
@@ -150,7 +166,10 @@ describe('QualityAssessor', () => {
     });
 
     it('should assess quality at STANDARD level', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.assessmentLevel).toBe(QualityAssessmentLevel.STANDARD);
       expect(result.metrics.overallScore).toBeDefined();
@@ -163,7 +182,10 @@ describe('QualityAssessor', () => {
     });
 
     it('should assess quality at RIGOROUS level', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.RIGOROUS);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.RIGOROUS,
+      );
 
       expect(result.assessmentLevel).toBe(QualityAssessmentLevel.RIGOROUS);
       expect(result.metrics.overallScore).toBeDefined();
@@ -175,7 +197,10 @@ describe('QualityAssessor', () => {
     });
 
     it('should assess quality at ENTERPRISE level', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.ENTERPRISE);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.ENTERPRISE,
+      );
 
       expect(result.assessmentLevel).toBe(QualityAssessmentLevel.ENTERPRISE);
       expect(result.metrics.overallScore).toBeDefined();
@@ -194,15 +219,27 @@ describe('QualityAssessor', () => {
       qualityAssessor.on('assessmentStarted', startedSpy);
       qualityAssessor.on('assessmentCompleted', completedSpy);
 
-      await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      expect(startedSpy).toHaveBeenCalledWith('quality-test-task', QualityAssessmentLevel.STANDARD);
+      expect(startedSpy).toHaveBeenCalledWith(
+        'quality-test-task',
+        QualityAssessmentLevel.STANDARD,
+      );
       expect(completedSpy).toHaveBeenCalledWith(expect.any(Object));
     });
 
     it('should prevent concurrent assessments for same task', async () => {
-      const promise1 = qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
-      const promise2 = qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const promise1 = qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
+      const promise2 = qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       const [result1, result2] = await Promise.all([promise1, promise2]);
 
@@ -220,8 +257,12 @@ describe('QualityAssessor', () => {
       const failedSpy = vi.fn();
       qualityAssessor.on('assessmentFailed', failedSpy);
 
-      await expect(qualityAssessor.assessQuality(problematicContext, QualityAssessmentLevel.STANDARD))
-        .rejects.toThrow();
+      await expect(
+        qualityAssessor.assessQuality(
+          problematicContext,
+          QualityAssessmentLevel.STANDARD,
+        ),
+      ).rejects.toThrow();
 
       expect(failedSpy).toHaveBeenCalled();
     });
@@ -229,49 +270,67 @@ describe('QualityAssessor', () => {
 
   describe('Quality Metrics Calculation', () => {
     it('should calculate functional quality score', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.metrics.functionalScore).toBeGreaterThanOrEqual(0);
       expect(result.metrics.functionalScore).toBeLessThanOrEqual(1);
     });
 
     it('should calculate performance quality score', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.metrics.performanceScore).toBeGreaterThanOrEqual(0);
       expect(result.metrics.performanceScore).toBeLessThanOrEqual(1);
     });
 
     it('should calculate security quality score', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.metrics.securityScore).toBeGreaterThanOrEqual(0);
       expect(result.metrics.securityScore).toBeLessThanOrEqual(1);
     });
 
     it('should calculate maintainability score', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.metrics.maintainabilityScore).toBeGreaterThanOrEqual(0);
       expect(result.metrics.maintainabilityScore).toBeLessThanOrEqual(1);
     });
 
     it('should calculate reliability score', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.metrics.reliabilityScore).toBeGreaterThanOrEqual(0);
       expect(result.metrics.reliabilityScore).toBeLessThanOrEqual(1);
     });
 
     it('should calculate overall score as weighted average', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       const weights = {
         functional: 0.25,
-        performance: 0.20,
-        security: 0.20,
+        performance: 0.2,
+        security: 0.2,
         maintainability: 0.15,
-        reliability: 0.20
+        reliability: 0.2,
       };
 
       const expectedOverallScore =
@@ -293,13 +352,18 @@ describe('QualityAssessor', () => {
           totalTests: 100,
           passedTests: 60, // Low pass rate
           failedTests: 40,
-          coverage: 0.6 // Low coverage
-        }
+          coverage: 0.6, // Low coverage
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithFailedTests, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithFailedTests,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const functionalIssues = result.issues.filter(i => i.category === 'functional' || i.category === 'testing');
+      const functionalIssues = result.issues.filter(
+        (i) => i.category === 'functional' || i.category === 'testing',
+      );
       expect(functionalIssues.length).toBeGreaterThan(0);
     });
 
@@ -311,13 +375,18 @@ describe('QualityAssessor', () => {
           memoryUsage: 2 * 1024 * 1024 * 1024, // 2GB - very high
           cpuUsage: 95, // Very high CPU
           errorCount: 0,
-          warningCount: 5
-        }
+          warningCount: 5,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithPerformanceIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithPerformanceIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const performanceIssues = result.issues.filter(i => i.category === 'performance');
+      const performanceIssues = result.issues.filter(
+        (i) => i.category === 'performance',
+      );
       expect(performanceIssues.length).toBeGreaterThan(0);
     });
 
@@ -329,24 +398,31 @@ describe('QualityAssessor', () => {
             {
               severity: 'critical' as const,
               type: 'SQL Injection',
-              description: 'Critical SQL injection vulnerability'
+              description: 'Critical SQL injection vulnerability',
             },
             {
               severity: 'high' as const,
               type: 'XSS',
-              description: 'Cross-site scripting vulnerability'
-            }
+              description: 'Cross-site scripting vulnerability',
+            },
           ],
-          complianceScore: 0.4 // Low compliance
-        }
+          complianceScore: 0.4, // Low compliance
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithSecurityIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithSecurityIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const securityIssues = result.issues.filter(i => i.category === 'security');
+      const securityIssues = result.issues.filter(
+        (i) => i.category === 'security',
+      );
       expect(securityIssues.length).toBeGreaterThan(0);
 
-      const criticalIssues = result.issues.filter(i => i.severity === 'critical');
+      const criticalIssues = result.issues.filter(
+        (i) => i.severity === 'critical',
+      );
       expect(criticalIssues.length).toBeGreaterThan(0);
     });
 
@@ -357,13 +433,18 @@ describe('QualityAssessor', () => {
           linesOfCode: 10000,
           cyclomaticComplexity: 25, // Very high complexity
           maintainabilityIndex: 30, // Low maintainability
-          technicalDebtRatio: 0.6 // High technical debt
-        }
+          technicalDebtRatio: 0.6, // High technical debt
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithMaintainabilityIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithMaintainabilityIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const maintainabilityIssues = result.issues.filter(i => i.category === 'maintainability');
+      const maintainabilityIssues = result.issues.filter(
+        (i) => i.category === 'maintainability',
+      );
       expect(maintainabilityIssues.length).toBeGreaterThan(0);
     });
 
@@ -374,28 +455,35 @@ describe('QualityAssessor', () => {
           totalTests: 10,
           passedTests: 5,
           failedTests: 5,
-          coverage: 0.3
+          coverage: 0.3,
         },
         securityScan: {
           vulnerabilities: [
             {
               severity: 'critical' as const,
               type: 'RCE',
-              description: 'Remote code execution'
-            }
+              description: 'Remote code execution',
+            },
           ],
-          complianceScore: 0.3
-        }
+          complianceScore: 0.3,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithMultipleIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithMultipleIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       // Issues should be sorted by priority
-      const sortedByPriority = [...result.issues].sort((a, b) => a.priority - b.priority);
+      const sortedByPriority = [...result.issues].sort(
+        (a, b) => a.priority - b.priority,
+      );
       expect(result.issues).toEqual(sortedByPriority);
 
       // Critical security issues should have highest priority (lowest priority number)
-      const criticalIssue = result.issues.find(i => i.severity === 'critical');
+      const criticalIssue = result.issues.find(
+        (i) => i.severity === 'critical',
+      );
       if (criticalIssue) {
         expect(criticalIssue.priority).toBe(1);
       }
@@ -411,16 +499,21 @@ describe('QualityAssessor', () => {
             {
               severity: 'critical' as const,
               type: 'RCE',
-              description: 'Critical remote code execution vulnerability'
-            }
+              description: 'Critical remote code execution vulnerability',
+            },
           ],
-          complianceScore: 0.2
-        }
+          complianceScore: 0.2,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithCriticalIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithCriticalIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const immediateRecommendations = result.recommendations.filter(r => r.type === 'immediate');
+      const immediateRecommendations = result.recommendations.filter(
+        (r) => r.type === 'immediate',
+      );
       expect(immediateRecommendations.length).toBeGreaterThan(0);
 
       const immediateRec = immediateRecommendations[0];
@@ -435,13 +528,18 @@ describe('QualityAssessor', () => {
           totalTests: 100,
           passedTests: 70,
           failedTests: 30,
-          coverage: 0.6
-        }
+          coverage: 0.6,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithHighIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithHighIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const shortTermRecommendations = result.recommendations.filter(r => r.type === 'short_term');
+      const shortTermRecommendations = result.recommendations.filter(
+        (r) => r.type === 'short_term',
+      );
       expect(shortTermRecommendations.length).toBeGreaterThan(0);
     });
 
@@ -452,21 +550,29 @@ describe('QualityAssessor', () => {
           linesOfCode: 5000,
           cyclomaticComplexity: 15,
           maintainabilityIndex: 40,
-          technicalDebtRatio: 0.4
-        }
+          technicalDebtRatio: 0.4,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithMaintainabilityIssues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithMaintainabilityIssues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
-      const longTermRecommendations = result.recommendations.filter(r => r.type === 'long_term');
+      const longTermRecommendations = result.recommendations.filter(
+        (r) => r.type === 'long_term',
+      );
       expect(longTermRecommendations.length).toBeGreaterThan(0);
     });
 
     it('should include success criteria in recommendations', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       if (result.recommendations.length > 0) {
-        result.recommendations.forEach(recommendation => {
+        result.recommendations.forEach((recommendation) => {
           expect(recommendation.success_criteria).toBeDefined();
           expect(recommendation.success_criteria.length).toBeGreaterThan(0);
         });
@@ -482,21 +588,26 @@ describe('QualityAssessor', () => {
           totalTests: 10,
           passedTests: 3,
           failedTests: 7,
-          coverage: 0.3
+          coverage: 0.3,
         },
         codeAnalysis: {
           linesOfCode: 2000,
           cyclomaticComplexity: 20,
           maintainabilityIndex: 25,
-          technicalDebtRatio: 0.7
-        }
+          technicalDebtRatio: 0.7,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithLowQuality, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithLowQuality,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.improvementPlan).toBeDefined();
       expect(result.improvementPlan!.phases.length).toBeGreaterThan(0);
-      expect(result.improvementPlan!.priorityRecommendations.length).toBeGreaterThan(0);
+      expect(
+        result.improvementPlan!.priorityRecommendations.length,
+      ).toBeGreaterThan(0);
       expect(result.improvementPlan!.totalEstimatedDuration).toBeDefined();
     });
 
@@ -507,21 +618,24 @@ describe('QualityAssessor', () => {
           totalTests: 100,
           passedTests: 98,
           failedTests: 2,
-          coverage: 0.95
+          coverage: 0.95,
         },
         codeAnalysis: {
           linesOfCode: 1000,
           cyclomaticComplexity: 5,
           maintainabilityIndex: 90,
-          technicalDebtRatio: 0.05
+          technicalDebtRatio: 0.05,
         },
         securityScan: {
           vulnerabilities: [],
-          complianceScore: 0.95
-        }
+          complianceScore: 0.95,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithHighQuality, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithHighQuality,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result.passed).toBe(true);
       expect(result.improvementPlan).toBeUndefined();
@@ -534,26 +648,29 @@ describe('QualityAssessor', () => {
           totalTests: 50,
           passedTests: 30,
           failedTests: 20,
-          coverage: 0.5
+          coverage: 0.5,
         },
         securityScan: {
           vulnerabilities: [
             {
               severity: 'high' as const,
               type: 'XSS',
-              description: 'Security issue'
-            }
+              description: 'Security issue',
+            },
           ],
-          complianceScore: 0.6
-        }
+          complianceScore: 0.6,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextNeedingImprovement, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextNeedingImprovement,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       if (result.improvementPlan) {
         expect(result.improvementPlan.phases.length).toBeGreaterThanOrEqual(1);
 
-        result.improvementPlan.phases.forEach(phase => {
+        result.improvementPlan.phases.forEach((phase) => {
           expect(phase.name).toBeDefined();
           expect(phase.duration).toBeDefined();
           expect(phase.objectives.length).toBeGreaterThan(0);
@@ -571,14 +688,19 @@ describe('QualityAssessor', () => {
           totalTests: 50,
           passedTests: 40,
           failedTests: 10,
-          coverage: 0.7
-        }
+          coverage: 0.7,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextForBronze, QualityAssessmentLevel.BASIC);
+      const result = await qualityAssessor.assessQuality(
+        contextForBronze,
+        QualityAssessmentLevel.BASIC,
+      );
 
       if (result.passed && result.certification) {
-        expect(['bronze', 'silver', 'gold', 'platinum']).toContain(result.certification.level);
+        expect(['bronze', 'silver', 'gold', 'platinum']).toContain(
+          result.certification.level,
+        );
         expect(result.certification.score).toBeGreaterThan(0);
         expect(result.certification.certified_by).toBe('QualityAssessor');
         expect(result.certification.certification_id).toContain('cert-');
@@ -592,21 +714,24 @@ describe('QualityAssessor', () => {
           totalTests: 100,
           passedTests: 98,
           failedTests: 2,
-          coverage: 0.95
+          coverage: 0.95,
         },
         codeAnalysis: {
           linesOfCode: 1000,
           cyclomaticComplexity: 4,
           maintainabilityIndex: 95,
-          technicalDebtRatio: 0.02
+          technicalDebtRatio: 0.02,
         },
         securityScan: {
           vulnerabilities: [],
-          complianceScore: 0.98
-        }
+          complianceScore: 0.98,
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextForGold, QualityAssessmentLevel.ENTERPRISE);
+      const result = await qualityAssessor.assessQuality(
+        contextForGold,
+        QualityAssessmentLevel.ENTERPRISE,
+      );
 
       if (result.passed && result.certification) {
         expect(['gold', 'platinum']).toContain(result.certification.level);
@@ -615,11 +740,16 @@ describe('QualityAssessor', () => {
     });
 
     it('should include validity period in certification', async () => {
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       if (result.certification) {
         expect(result.certification.valid_until).toBeInstanceOf(Date);
-        expect(result.certification.valid_until!.getTime()).toBeGreaterThan(Date.now());
+        expect(result.certification.valid_until!.getTime()).toBeGreaterThan(
+          Date.now(),
+        );
       }
     });
   });
@@ -627,7 +757,7 @@ describe('QualityAssessor', () => {
   describe('Custom Quality Assessors', () => {
     it('should register custom assessor', () => {
       const customAssessor = vi.fn().mockResolvedValue({
-        customMetric: 0.85
+        customMetric: 0.85,
       });
 
       qualityAssessor.registerCustomAssessor('custom-test', customAssessor);
@@ -638,23 +768,37 @@ describe('QualityAssessor', () => {
 
     it('should call custom assessor during assessment', async () => {
       const customAssessor = vi.fn().mockResolvedValue({
-        functionalScore: 0.9
+        functionalScore: 0.9,
       });
 
-      qualityAssessor.registerCustomAssessor('functional-override', customAssessor);
+      qualityAssessor.registerCustomAssessor(
+        'functional-override',
+        customAssessor,
+      );
 
-      await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(customAssessor).toHaveBeenCalledWith(sampleContext);
     });
 
     it('should handle custom assessor errors gracefully', async () => {
-      const failingAssessor = vi.fn().mockRejectedValue(new Error('Custom assessor failed'));
+      const failingAssessor = vi
+        .fn()
+        .mockRejectedValue(new Error('Custom assessor failed'));
 
-      qualityAssessor.registerCustomAssessor('failing-assessor', failingAssessor);
+      qualityAssessor.registerCustomAssessor(
+        'failing-assessor',
+        failingAssessor,
+      );
 
       // Assessment should still complete despite custom assessor failure
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result).toBeTruthy();
       expect(result.metrics.overallScore).toBeDefined();
@@ -666,10 +810,13 @@ describe('QualityAssessor', () => {
       const newCriteria = {
         minimumOverallScore: 0.95,
         maximumCriticalIssues: 0,
-        minimumTestCoverage: 0.9
+        minimumTestCoverage: 0.9,
       };
 
-      qualityAssessor.updateAssessmentCriteria(QualityAssessmentLevel.STANDARD, newCriteria);
+      qualityAssessor.updateAssessmentCriteria(
+        QualityAssessmentLevel.STANDARD,
+        newCriteria,
+      );
 
       // The criteria should be updated (internal state)
       expect(qualityAssessor).toBeInstanceOf(QualityAssessor);
@@ -681,12 +828,18 @@ describe('QualityAssessor', () => {
         minimumOverallScore: 0.99,
         maximumCriticalIssues: 0,
         maximumHighSeverityIssues: 0,
-        minimumTestCoverage: 0.99
+        minimumTestCoverage: 0.99,
       };
 
-      qualityAssessor.updateAssessmentCriteria(QualityAssessmentLevel.STANDARD, strictCriteria);
+      qualityAssessor.updateAssessmentCriteria(
+        QualityAssessmentLevel.STANDARD,
+        strictCriteria,
+      );
 
-      const result = await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       // With very strict criteria, most assessments should fail
       expect(result.passed).toBeDefined();
@@ -695,8 +848,14 @@ describe('QualityAssessor', () => {
 
   describe('Quality History Tracking', () => {
     it('should track quality history', async () => {
-      await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
-      await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.RIGOROUS);
+      await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
+      await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.RIGOROUS,
+      );
 
       const history = qualityAssessor.getQualityHistory('quality-test-task');
 
@@ -708,10 +867,13 @@ describe('QualityAssessor', () => {
     it('should limit quality history entries', async () => {
       // Perform many assessments
       for (let i = 0; i < 15; i++) {
-        await qualityAssessor.assessQuality({
-          ...sampleContext,
-          task: { ...sampleTask, id: `task-${i}` }
-        }, QualityAssessmentLevel.STANDARD);
+        await qualityAssessor.assessQuality(
+          {
+            ...sampleContext,
+            task: { ...sampleTask, id: `task-${i}` },
+          },
+          QualityAssessmentLevel.STANDARD,
+        );
       }
 
       const history = qualityAssessor.getQualityHistory('task-14');
@@ -723,7 +885,10 @@ describe('QualityAssessor', () => {
       qualityAssessor.on('qualityImproved', improvementSpy);
 
       // First assessment
-      await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       // Second assessment with better context (should trigger improvement event)
       const improvedContext = {
@@ -732,11 +897,14 @@ describe('QualityAssessor', () => {
           totalTests: 100,
           passedTests: 95,
           failedTests: 5,
-          coverage: 0.95
-        }
+          coverage: 0.95,
+        },
       };
 
-      await qualityAssessor.assessQuality(improvedContext, QualityAssessmentLevel.STANDARD);
+      await qualityAssessor.assessQuality(
+        improvedContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       // Should emit improvement event if score actually improved
       // (depends on the actual scoring algorithm)
@@ -751,7 +919,7 @@ describe('QualityAssessor', () => {
         activeAssessments: expect.any(Number),
         customAssessors: expect.any(Number),
         totalQualityHistoryEntries: expect.any(Number),
-        assessmentLevels: expect.any(Array)
+        assessmentLevels: expect.any(Array),
       });
 
       expect(stats.activeAssessments).toBe(0);
@@ -763,10 +931,13 @@ describe('QualityAssessor', () => {
       // Create slow assessment
       const slowContext = { ...sampleContext };
 
-      const assessmentPromise = qualityAssessor.assessQuality(slowContext, QualityAssessmentLevel.STANDARD);
+      const assessmentPromise = qualityAssessor.assessQuality(
+        slowContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       // Check stats while running (might not always catch it due to speed)
-      const statsWhileRunning = qualityAssessor.getStatistics();
+      // const statsWhileRunning = qualityAssessor.getStatistics();
       // expect(statsWhileRunning.activeAssessments).toBeGreaterThanOrEqual(0);
 
       await assessmentPromise;
@@ -779,7 +950,10 @@ describe('QualityAssessor', () => {
   describe('Cleanup and Resource Management', () => {
     it('should cleanup resources properly', async () => {
       // Create some state
-      await qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      await qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
       qualityAssessor.registerCustomAssessor('cleanup-test', vi.fn());
 
       await qualityAssessor.cleanup();
@@ -791,7 +965,10 @@ describe('QualityAssessor', () => {
 
     it('should handle cleanup with active assessments', async () => {
       // This test ensures cleanup doesn't break with ongoing assessments
-      const assessmentPromise = qualityAssessor.assessQuality(sampleContext, QualityAssessmentLevel.STANDARD);
+      const assessmentPromise = qualityAssessor.assessQuality(
+        sampleContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       await qualityAssessor.cleanup();
 
@@ -805,11 +982,14 @@ describe('QualityAssessor', () => {
     it('should handle context without execution metrics', async () => {
       const contextWithoutMetrics = {
         task: sampleTask,
-        taskResult: sampleTaskResult
+        taskResult: sampleTaskResult,
         // No executionMetrics, testResults, etc.
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithoutMetrics, QualityAssessmentLevel.BASIC);
+      const result = await qualityAssessor.assessQuality(
+        contextWithoutMetrics,
+        QualityAssessmentLevel.BASIC,
+      );
 
       expect(result).toBeTruthy();
       expect(result.metrics.overallScore).toBeDefined();
@@ -823,12 +1003,15 @@ describe('QualityAssessor', () => {
           memoryUsage: 50 * 1024 * 1024,
           cpuUsage: 10,
           errorCount: 0,
-          warningCount: 0
-        }
+          warningCount: 0,
+        },
         // Missing other optional fields
       };
 
-      const result = await qualityAssessor.assessQuality(partialContext, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        partialContext,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result).toBeTruthy();
       expect(result.metrics.performanceScore).toBeDefined();
@@ -842,12 +1025,15 @@ describe('QualityAssessor', () => {
           success: false,
           error: {
             message: 'Task execution failed',
-            code: 'EXECUTION_ERROR'
-          }
-        }
+            code: 'EXECUTION_ERROR',
+          },
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithFailedTask, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithFailedTask,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result).toBeTruthy();
       expect(result.metrics.reliabilityScore).toBeLessThan(0.8); // Should be penalized for failure
@@ -861,17 +1047,20 @@ describe('QualityAssessor', () => {
           memoryUsage: Number.MAX_SAFE_INTEGER,
           cpuUsage: 1000, // Invalid CPU percentage
           errorCount: Number.MAX_SAFE_INTEGER,
-          warningCount: Number.MAX_SAFE_INTEGER
+          warningCount: Number.MAX_SAFE_INTEGER,
         },
         testResults: {
           totalTests: 0, // Division by zero potential
           passedTests: 0,
           failedTests: 0,
-          coverage: 2.0 // Invalid coverage > 100%
-        }
+          coverage: 2.0, // Invalid coverage > 100%
+        },
       };
 
-      const result = await qualityAssessor.assessQuality(contextWithExtremeValues, QualityAssessmentLevel.STANDARD);
+      const result = await qualityAssessor.assessQuality(
+        contextWithExtremeValues,
+        QualityAssessmentLevel.STANDARD,
+      );
 
       expect(result).toBeTruthy();
       expect(result.metrics.overallScore).toBeGreaterThanOrEqual(0);

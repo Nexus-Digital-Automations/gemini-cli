@@ -7,6 +7,7 @@ This guide provides comprehensive troubleshooting procedures, diagnostic tools, 
 ## Quick Diagnostic Tools
 
 ### System Health Check
+
 ```bash
 #!/bin/bash
 # scripts/health-check.sh
@@ -70,6 +71,7 @@ echo "Health check completed. Review any ❌ or ⚠️ items above."
 ```
 
 ### Data Integrity Check
+
 ```bash
 #!/bin/bash
 # scripts/data-integrity-check.sh
@@ -137,11 +139,13 @@ echo "Data integrity check completed."
 ### Issue 1: API Timeout Errors
 
 #### Symptoms
+
 - Commands hang and timeout after 10 seconds
 - "Operation timed out" error messages
 - Slow system response
 
 #### Diagnosis
+
 ```bash
 # Check system load
 top -l 1 | head -n 10
@@ -162,6 +166,7 @@ time timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanag
 #### Solutions
 
 **Solution 1: Clear Stale Lock Files**
+
 ```bash
 # Remove stale lock files
 rm -f FEATURES.json.lock
@@ -171,6 +176,7 @@ ls -la *.lock
 ```
 
 **Solution 2: Check File Permissions**
+
 ```bash
 # Fix file permissions
 chmod 644 FEATURES.json
@@ -180,6 +186,7 @@ ls -la FEATURES.json
 ```
 
 **Solution 3: Restart Processes**
+
 ```bash
 # Kill any stuck Node.js processes
 pkill -f taskmanager-api.js
@@ -190,6 +197,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 **Solution 4: System Resource Issues**
+
 ```bash
 # Free up disk space if needed
 # Check large files
@@ -205,11 +213,13 @@ rm -rf /tmp/taskmanager-*
 ### Issue 2: JSON Corruption
 
 #### Symptoms
+
 - "Failed to load features" errors
 - "Invalid JSON" errors
 - Syntax error messages
 
 #### Diagnosis
+
 ```bash
 # Check JSON syntax
 jq . FEATURES.json
@@ -227,6 +237,7 @@ ls -la --time-style=full-iso FEATURES.json
 #### Solutions
 
 **Solution 1: Restore from Backup**
+
 ```bash
 # List available backups
 ls -la FEATURES.json.backup.*
@@ -240,6 +251,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 **Solution 2: Repair JSON Structure**
+
 ```bash
 # Create minimal valid structure
 cat > FEATURES.json << 'EOF'
@@ -272,11 +284,13 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ### Issue 3: Agent Initialization Failures
 
 #### Symptoms
+
 - "Failed to initialize agent" errors
 - Agent not appearing in system
 - Session ID generation issues
 
 #### Diagnosis
+
 ```bash
 # Test agent initialization directly
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" initialize TEST_AGENT
@@ -291,6 +305,7 @@ jq '.agents' FEATURES.json
 #### Solutions
 
 **Solution 1: Agent ID Validation Issues**
+
 ```bash
 # Ensure agent ID follows rules:
 # - 3-50 characters
@@ -303,6 +318,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 **Solution 2: Clean Up Corrupted Agent Data**
+
 ```bash
 # Remove corrupted agent entries
 jq 'del(.agents.CORRUPTED_AGENT_ID)' FEATURES.json > FEATURES_temp.json
@@ -315,11 +331,13 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ### Issue 4: Feature Creation Failures
 
 #### Symptoms
+
 - "Validation failed" errors
 - Required field errors
 - Feature not being created
 
 #### Diagnosis
+
 ```bash
 # Test with minimal valid feature
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" suggest-feature '{
@@ -336,6 +354,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 #### Solutions
 
 **Solution 1: Field Validation Issues**
+
 ```bash
 # Ensure all required fields are present and valid:
 # - title: 10-200 characters
@@ -357,6 +376,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 **Solution 2: Character Encoding Issues**
+
 ```bash
 # Check for invalid characters
 file FEATURES.json
@@ -369,11 +389,13 @@ mv FEATURES_utf8.json FEATURES.json
 ### Issue 5: Performance Degradation
 
 #### Symptoms
+
 - Slow API responses
 - Increasing response times
 - System becoming unresponsive
 
 #### Diagnosis
+
 ```bash
 # Monitor API performance
 for i in {1..10}; do
@@ -395,6 +417,7 @@ top -l 1 | head -n 20
 #### Solutions
 
 **Solution 1: Data Cleanup**
+
 ```bash
 # Archive old completed features
 CURRENT_DATE=$(date +%Y%m%d)
@@ -418,6 +441,7 @@ echo "Cleaned old implemented features. Check backup: FEATURES.backup.${CURRENT_
 ```
 
 **Solution 2: Agent Session Cleanup**
+
 ```bash
 # Remove inactive agent sessions (older than 24 hours)
 jq --argjson cutoff $(date -d '24 hours ago' +%s) '
@@ -437,11 +461,13 @@ echo "Cleaned up inactive agent sessions"
 ### Issue 6: File Locking Problems
 
 #### Symptoms
+
 - "Could not acquire lock" errors
 - Operations hanging indefinitely
 - Multiple processes accessing file
 
 #### Diagnosis
+
 ```bash
 # Check for lock files
 ls -la *.lock
@@ -456,6 +482,7 @@ ps aux | grep taskmanager-api
 #### Solutions
 
 **Solution 1: Clear Lock Files**
+
 ```bash
 # Remove all lock files
 rm -f FEATURES.json.lock
@@ -469,6 +496,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 ```
 
 **Solution 2: Process Investigation**
+
 ```bash
 # Find processes holding locks
 lsof FEATURES.json
@@ -484,6 +512,7 @@ lsof FEATURES.json
 ## Advanced Diagnostics
 
 ### Memory Leak Detection
+
 ```javascript
 // scripts/memory-diagnostic.js
 const AutonomousTaskManagerAPI = require('/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js');
@@ -505,7 +534,7 @@ async function memoryLeakTest() {
       console.log(`After ${i} operations:`, {
         heapUsed: `${Math.round(currentMemory.heapUsed / 1024 / 1024)}MB`,
         heapTotal: `${Math.round(currentMemory.heapTotal / 1024 / 1024)}MB`,
-        external: `${Math.round(currentMemory.external / 1024 / 1024)}MB`
+        external: `${Math.round(currentMemory.external / 1024 / 1024)}MB`,
       });
     }
   }
@@ -516,7 +545,8 @@ async function memoryLeakTest() {
   const heapGrowth = finalMemory.heapUsed - initialMemory.heapUsed;
   console.log(`Heap growth: ${Math.round(heapGrowth / 1024 / 1024)}MB`);
 
-  if (heapGrowth > 50 * 1024 * 1024) { // 50MB threshold
+  if (heapGrowth > 50 * 1024 * 1024) {
+    // 50MB threshold
     console.log('⚠️ Potential memory leak detected');
   } else {
     console.log('✅ Memory usage appears normal');
@@ -527,6 +557,7 @@ memoryLeakTest().catch(console.error);
 ```
 
 ### Performance Profiling
+
 ```javascript
 // scripts/performance-profile.js
 const AutonomousTaskManagerAPI = require('/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js');
@@ -539,7 +570,7 @@ async function performanceProfile() {
     { name: 'getFeatureStats', fn: () => api.getFeatureStats() },
     { name: 'getInitializationStats', fn: () => api.getInitializationStats() },
     { name: 'listFeatures', fn: () => api.listFeatures() },
-    { name: 'getComprehensiveGuide', fn: () => api.getComprehensiveGuide() }
+    { name: 'getComprehensiveGuide', fn: () => api.getComprehensiveGuide() },
   ];
 
   for (const operation of operations) {
@@ -580,6 +611,7 @@ performanceProfile().catch(console.error);
 ```
 
 ### Data Consistency Check
+
 ```javascript
 // scripts/data-consistency-check.js
 const fs = require('fs').promises;
@@ -595,13 +627,15 @@ async function dataConsistencyCheck() {
     const issues = [];
 
     // Check feature references
-    const featureIds = new Set(data.features.map(f => f.id));
+    const featureIds = new Set(data.features.map((f) => f.id));
 
     // Check task feature references
     if (data.tasks) {
       for (const task of data.tasks) {
         if (task.feature_id && !featureIds.has(task.feature_id)) {
-          issues.push(`Task ${task.id} references non-existent feature ${task.feature_id}`);
+          issues.push(
+            `Task ${task.id} references non-existent feature ${task.feature_id}`,
+          );
         }
       }
     }
@@ -610,12 +644,24 @@ async function dataConsistencyCheck() {
     const agentIds = new Set(Object.keys(data.agents || {}));
 
     for (const feature of data.features) {
-      if (feature.suggested_by && feature.suggested_by !== 'system' && !agentIds.has(feature.suggested_by)) {
-        issues.push(`Feature ${feature.id} suggested by non-existent agent ${feature.suggested_by}`);
+      if (
+        feature.suggested_by &&
+        feature.suggested_by !== 'system' &&
+        !agentIds.has(feature.suggested_by)
+      ) {
+        issues.push(
+          `Feature ${feature.id} suggested by non-existent agent ${feature.suggested_by}`,
+        );
       }
 
-      if (feature.approved_by && feature.approved_by !== 'system' && !agentIds.has(feature.approved_by)) {
-        issues.push(`Feature ${feature.id} approved by non-existent agent ${feature.approved_by}`);
+      if (
+        feature.approved_by &&
+        feature.approved_by !== 'system' &&
+        !agentIds.has(feature.approved_by)
+      ) {
+        issues.push(
+          `Feature ${feature.id} approved by non-existent agent ${feature.approved_by}`,
+        );
       }
     }
 
@@ -624,12 +670,21 @@ async function dataConsistencyCheck() {
     const metadataCount = data.metadata.total_features;
 
     if (actualFeatureCount !== metadataCount) {
-      issues.push(`Feature count mismatch: actual=${actualFeatureCount}, metadata=${metadataCount}`);
+      issues.push(
+        `Feature count mismatch: actual=${actualFeatureCount}, metadata=${metadataCount}`,
+      );
     }
 
     // Check required fields
     for (const feature of data.features) {
-      const requiredFields = ['id', 'title', 'description', 'business_value', 'category', 'status'];
+      const requiredFields = [
+        'id',
+        'title',
+        'description',
+        'business_value',
+        'category',
+        'status',
+      ];
       for (const field of requiredFields) {
         if (!feature[field]) {
           issues.push(`Feature ${feature.id} missing required field: ${field}`);
@@ -642,7 +697,7 @@ async function dataConsistencyCheck() {
       console.log('✅ No data consistency issues found');
     } else {
       console.log(`❌ Found ${issues.length} data consistency issues:`);
-      issues.forEach(issue => console.log(`   - ${issue}`));
+      issues.forEach((issue) => console.log(`   - ${issue}`));
     }
 
     // Summary statistics
@@ -651,7 +706,6 @@ async function dataConsistencyCheck() {
     console.log(`   Agents: ${Object.keys(data.agents || {}).length}`);
     console.log(`   Tasks: ${(data.tasks || []).length}`);
     console.log(`   Completed Tasks: ${(data.completed_tasks || []).length}`);
-
   } catch (error) {
     console.error('❌ Data consistency check failed:', error.message);
   }
@@ -663,6 +717,7 @@ dataConsistencyCheck();
 ## Monitoring and Alerting
 
 ### Real-Time Monitoring Script
+
 ```bash
 #!/bin/bash
 # scripts/monitor.sh
@@ -718,6 +773,7 @@ done
 ```
 
 ### Log Analysis Tools
+
 ```bash
 #!/bin/bash
 # scripts/analyze-logs.sh
@@ -752,7 +808,9 @@ fi
 ### System Recovery Checklist
 
 #### Complete System Failure
+
 1. **Immediate Actions**
+
    ```bash
    # Stop all running processes
    pkill -f taskmanager-api.js
@@ -765,6 +823,7 @@ fi
    ```
 
 2. **Data Recovery**
+
    ```bash
    # List available backups
    ls -la FEATURES.json.backup.*
@@ -778,6 +837,7 @@ fi
    ```
 
 3. **System Validation**
+
    ```bash
    # Run comprehensive health check
    ./scripts/health-check.sh
@@ -792,6 +852,7 @@ fi
 ### Disaster Recovery Plan
 
 #### Data Loss Scenarios
+
 1. **FEATURES.json Corruption**
    - Restore from backup
    - Reconstruct from audit logs if needed
@@ -805,6 +866,7 @@ fi
    - Document loss and prevention measures
 
 #### Service Interruption Procedures
+
 1. **Planned Maintenance**
    - Notify all users
    - Create fresh backup
@@ -820,16 +882,19 @@ fi
 ## Contact and Escalation
 
 ### Internal Escalation Path
+
 1. **Level 1**: Development Team Lead
 2. **Level 2**: System Administrator
 3. **Level 3**: Chief Technology Officer
 
 ### External Support
+
 - **Documentation**: `/docs/autonomous-task-management/`
 - **Issue Tracking**: Project repository issues
 - **Emergency Contact**: System administrator on-call
 
 ### Issue Reporting Template
+
 ```
 **System**: Autonomous Task Management System
 **Version**: 4.0.0
@@ -872,4 +937,4 @@ This comprehensive troubleshooting guide provides systematic approaches to ident
 
 ---
 
-*This troubleshooting guide should be kept current with system changes and updated based on new issues encountered in production environments.*
+_This troubleshooting guide should be kept current with system changes and updated based on new issues encountered in production environments._

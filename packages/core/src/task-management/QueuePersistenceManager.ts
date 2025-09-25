@@ -11,7 +11,12 @@ import { tmpdir, homedir } from 'node:os';
 import { v4 as uuidv4 } from 'uuid';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { logger } from '../utils/logger.js';
-import type { Task, TaskDependency, QueueMetrics, TaskExecutionRecord } from './TaskQueue.js';
+import type {
+  Task,
+  TaskDependency,
+  QueueMetrics,
+  TaskExecutionRecord,
+} from './TaskQueue.js';
 
 /**
  * Queue persistence configuration
@@ -108,13 +113,15 @@ export class QueuePersistenceManager extends EventEmitter {
     super();
 
     this.config = {
-      persistenceDir: config.persistenceDir || join(homedir(), '.gemini-cli', 'queue-persistence'),
+      persistenceDir:
+        config.persistenceDir ||
+        join(homedir(), '.gemini-cli', 'queue-persistence'),
       enableCompression: config.enableCompression ?? true,
       autoSaveInterval: config.autoSaveInterval ?? 300000, // 5 minutes
       maxBackupSnapshots: config.maxBackupSnapshots ?? 10,
       enableIncrementalSave: config.enableIncrementalSave ?? true,
       enableCrossSessionRecovery: config.enableCrossSessionRecovery ?? true,
-      maxRecoverableAge: config.maxRecoverableAge ?? (7 * 24 * 60 * 60 * 1000) // 7 days
+      maxRecoverableAge: config.maxRecoverableAge ?? 7 * 24 * 60 * 60 * 1000, // 7 days
     };
 
     this.currentSessionId = uuidv4();
@@ -123,7 +130,7 @@ export class QueuePersistenceManager extends EventEmitter {
       persistenceDir: this.config.persistenceDir,
       sessionId: this.currentSessionId,
       compression: this.config.enableCompression,
-      autoSaveInterval: this.config.autoSaveInterval
+      autoSaveInterval: this.config.autoSaveInterval,
     });
   }
 
@@ -165,7 +172,7 @@ export class QueuePersistenceManager extends EventEmitter {
     dependencies: Map<string, TaskDependency>,
     executionRecords: Map<string, TaskExecutionRecord>,
     metrics: QueueMetrics,
-    saveReason: 'scheduled' | 'manual' | 'shutdown' | 'recovery' = 'manual'
+    saveReason: 'scheduled' | 'manual' | 'shutdown' | 'recovery' = 'manual',
   ): Promise<PersistenceResult> {
     const startTime = Date.now();
     const warnings: string[] = [];
@@ -174,7 +181,7 @@ export class QueuePersistenceManager extends EventEmitter {
       taskCount: tasks.size,
       dependencyCount: dependencies.size,
       saveReason,
-      sessionId: this.currentSessionId
+      sessionId: this.currentSessionId,
     });
 
     try {
@@ -190,18 +197,25 @@ export class QueuePersistenceManager extends EventEmitter {
         metrics,
         metadata: {
           totalTasks: tasks.size,
-          runningTasks: Array.from(tasks.values()).filter(t => t.status === 'RUNNING').length,
-          completedTasks: Array.from(tasks.values()).filter(t => t.status === 'COMPLETED').length,
-          failedTasks: Array.from(tasks.values()).filter(t => t.status === 'FAILED').length,
+          runningTasks: Array.from(tasks.values()).filter(
+            (t) => t.status === 'RUNNING',
+          ).length,
+          completedTasks: Array.from(tasks.values()).filter(
+            (t) => t.status === 'COMPLETED',
+          ).length,
+          failedTasks: Array.from(tasks.values()).filter(
+            (t) => t.status === 'FAILED',
+          ).length,
           queueHealth: this.assessQueueHealth(tasks, metrics),
-          saveReason
-        }
+          saveReason,
+        },
       };
 
       // Check if incremental save is possible and beneficial
-      const shouldUseIncremental = this.config.enableIncrementalSave &&
+      const shouldUseIncremental =
+        this.config.enableIncrementalSave &&
         saveReason === 'scheduled' &&
-        await this.shouldUseIncrementalSave(snapshot);
+        (await this.shouldUseIncrementalSave(snapshot));
 
       let result: PersistenceResult;
 
@@ -222,7 +236,7 @@ export class QueuePersistenceManager extends EventEmitter {
           snapshotId: result.snapshotId,
           taskCount: tasks.size,
           saveReason,
-          duration: result.duration
+          duration: result.duration,
         });
 
         // Clean up old snapshots after successful save
@@ -230,9 +244,9 @@ export class QueuePersistenceManager extends EventEmitter {
       }
 
       return result;
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       logger.error('Failed to save queue state:', error);
 
       return {
@@ -240,7 +254,7 @@ export class QueuePersistenceManager extends EventEmitter {
         size: 0,
         duration: Date.now() - startTime,
         error: errorMessage,
-        warnings
+        warnings,
       };
     }
   }
@@ -281,7 +295,9 @@ export class QueuePersistenceManager extends EventEmitter {
       const validationResult = await this.validateSnapshot(snapshot);
       if (!validationResult.isValid) {
         logger.error('Snapshot validation failed:', validationResult.errors);
-        throw new Error(`Invalid snapshot: ${validationResult.errors.join(', ')}`);
+        throw new Error(
+          `Invalid snapshot: ${validationResult.errors.join(', ')}`,
+        );
       }
 
       // Convert arrays back to Maps
@@ -289,9 +305,11 @@ export class QueuePersistenceManager extends EventEmitter {
       const dependencies = new Map<string, TaskDependency>();
       const executionRecords = new Map<string, TaskExecutionRecord>();
 
-      snapshot.tasks.forEach(task => tasks.set(task.id, task));
-      snapshot.dependencies.forEach(dep => dependencies.set(dep.id, dep));
-      snapshot.executionRecords.forEach(record => executionRecords.set(record.taskId, record));
+      snapshot.tasks.forEach((task) => tasks.set(task.id, task));
+      snapshot.dependencies.forEach((dep) => dependencies.set(dep.id, dep));
+      snapshot.executionRecords.forEach((record) =>
+        executionRecords.set(record.taskId, record),
+      );
 
       const duration = Date.now() - startTime;
 
@@ -300,14 +318,14 @@ export class QueuePersistenceManager extends EventEmitter {
         taskCount: tasks.size,
         dependencyCount: dependencies.size,
         originalSession: snapshot.sessionId,
-        duration
+        duration,
       });
 
       this.emit('stateLoaded', {
         snapshotId: snapshot.id,
         taskCount: tasks.size,
         originalSessionId: snapshot.sessionId,
-        duration
+        duration,
       });
 
       return {
@@ -318,10 +336,9 @@ export class QueuePersistenceManager extends EventEmitter {
         sessionInfo: {
           originalSessionId: snapshot.sessionId,
           snapshotId: snapshot.id,
-          timestamp: snapshot.timestamp
-        }
+          timestamp: snapshot.timestamp,
+        },
       };
-
     } catch (error) {
       logger.error('Failed to load queue state:', error);
       throw error;
@@ -339,7 +356,7 @@ export class QueuePersistenceManager extends EventEmitter {
         return {
           availableSnapshots: [],
           potentialDataLoss: false,
-          orphanedTasks: []
+          orphanedTasks: [],
         };
       }
 
@@ -349,7 +366,9 @@ export class QueuePersistenceManager extends EventEmitter {
       let recommendedSnapshotId: string | undefined;
       let maxTaskCount = 0;
 
-      for (const file of snapshotFiles.filter(f => f.endsWith('.json') || f.endsWith('.json.gz'))) {
+      for (const file of snapshotFiles.filter(
+        (f) => f.endsWith('.json') || f.endsWith('.json.gz'),
+      )) {
         try {
           const snapshotPath = join(snapshotsDir, file);
           const snapshotData = await this.readSnapshotFile(snapshotPath);
@@ -363,7 +382,7 @@ export class QueuePersistenceManager extends EventEmitter {
               timestamp: new Date(snapshotData.timestamp),
               sessionId: snapshotData.sessionId,
               taskCount,
-              status: status.isValid ? 'complete' : 'corrupted'
+              status: status.isValid ? 'complete' : 'corrupted',
             });
 
             if (status.isValid && taskCount > maxTaskCount) {
@@ -371,7 +390,10 @@ export class QueuePersistenceManager extends EventEmitter {
               recommendedSnapshotId = snapshotData.id;
             }
 
-            if (!lastSuccessfulSave || new Date(snapshotData.timestamp) > lastSuccessfulSave) {
+            if (
+              !lastSuccessfulSave ||
+              new Date(snapshotData.timestamp) > lastSuccessfulSave
+            ) {
               if (status.isValid) {
                 lastSuccessfulSave = new Date(snapshotData.timestamp);
               }
@@ -383,13 +405,15 @@ export class QueuePersistenceManager extends EventEmitter {
       }
 
       // Sort snapshots by timestamp (newest first)
-      availableSnapshots.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      availableSnapshots.sort(
+        (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+      );
 
       // Determine if there's potential data loss
       const now = Date.now();
-      const potentialDataLoss = lastSuccessfulSave ?
-        (now - lastSuccessfulSave.getTime()) > this.config.autoSaveInterval * 2 :
-        false;
+      const potentialDataLoss = lastSuccessfulSave
+        ? now - lastSuccessfulSave.getTime() > this.config.autoSaveInterval * 2
+        : false;
 
       // Find orphaned tasks (tasks that might be in running state from previous sessions)
       const orphanedTasks = await this.findOrphanedTasks(availableSnapshots);
@@ -399,9 +423,8 @@ export class QueuePersistenceManager extends EventEmitter {
         recommendedSnapshot: recommendedSnapshotId,
         potentialDataLoss,
         lastSuccessfulSave,
-        orphanedTasks
+        orphanedTasks,
       };
-
     } catch (error) {
       logger.error('Failed to get recovery info:', error);
       throw error;
@@ -411,12 +434,14 @@ export class QueuePersistenceManager extends EventEmitter {
   /**
    * Save full snapshot to disk
    */
-  private async saveFullSnapshot(snapshot: QueueSnapshot): Promise<PersistenceResult> {
+  private async saveFullSnapshot(
+    snapshot: QueueSnapshot,
+  ): Promise<PersistenceResult> {
     const startTime = Date.now();
     const snapshotPath = join(
       this.config.persistenceDir,
       'snapshots',
-      `${snapshot.id}.json${this.config.enableCompression ? '.gz' : ''}`
+      `${snapshot.id}.json${this.config.enableCompression ? '.gz' : ''}`,
     );
 
     const data = JSON.stringify(snapshot, null, 2);
@@ -435,7 +460,7 @@ export class QueuePersistenceManager extends EventEmitter {
           size: compressed.length,
           compressionRatio: originalSize / compressed.length,
           duration: Date.now() - startTime,
-          warnings: []
+          warnings: [],
         };
       } else {
         await fse.writeFile(snapshotPath, data);
@@ -445,7 +470,7 @@ export class QueuePersistenceManager extends EventEmitter {
           snapshotId: snapshot.id,
           size: originalSize,
           duration: Date.now() - startTime,
-          warnings: []
+          warnings: [],
         };
       }
     } catch (error) {
@@ -457,7 +482,9 @@ export class QueuePersistenceManager extends EventEmitter {
   /**
    * Save incremental snapshot (delta from last snapshot)
    */
-  private async saveIncremental(snapshot: QueueSnapshot): Promise<PersistenceResult> {
+  private async saveIncremental(
+    snapshot: QueueSnapshot,
+  ): Promise<PersistenceResult> {
     // For now, implement as full save
     // In a production system, this would calculate deltas and save only changes
     logger.debug('Incremental save requested, using full save for now');
@@ -467,10 +494,12 @@ export class QueuePersistenceManager extends EventEmitter {
   /**
    * Load specific snapshot by ID
    */
-  private async loadSpecificSnapshot(snapshotId: string): Promise<QueueSnapshot> {
+  private async loadSpecificSnapshot(
+    snapshotId: string,
+  ): Promise<QueueSnapshot> {
     const possiblePaths = [
       join(this.config.persistenceDir, 'snapshots', `${snapshotId}.json.gz`),
-      join(this.config.persistenceDir, 'snapshots', `${snapshotId}.json`)
+      join(this.config.persistenceDir, 'snapshots', `${snapshotId}.json`),
     ];
 
     for (const path of possiblePaths) {
@@ -497,8 +526,8 @@ export class QueuePersistenceManager extends EventEmitter {
 
     const files = await fse.readdir(snapshotsDir);
     const snapshotFiles = files
-      .filter(f => f.endsWith('.json') || f.endsWith('.json.gz'))
-      .map(f => join(snapshotsDir, f));
+      .filter((f) => f.endsWith('.json') || f.endsWith('.json.gz'))
+      .map((f) => join(snapshotsDir, f));
 
     // Sort by modification time (newest first)
     const sortedFiles = [];
@@ -522,7 +551,10 @@ export class QueuePersistenceManager extends EventEmitter {
           if (validation.isValid) {
             return snapshot;
           } else {
-            logger.warn(`Skipping invalid snapshot ${file}:`, validation.errors);
+            logger.warn(
+              `Skipping invalid snapshot ${file}:`,
+              validation.errors,
+            );
           }
         }
       } catch (error) {
@@ -536,7 +568,9 @@ export class QueuePersistenceManager extends EventEmitter {
   /**
    * Read snapshot file with compression handling
    */
-  private async readSnapshotFile(filePath: string): Promise<QueueSnapshot | null> {
+  private async readSnapshotFile(
+    filePath: string,
+  ): Promise<QueueSnapshot | null> {
     try {
       if (filePath.endsWith('.gz')) {
         const compressed = await fse.readFile(filePath);
@@ -591,9 +625,12 @@ export class QueuePersistenceManager extends EventEmitter {
 
       // Consistency checks
       if (snapshot.dependencies && snapshot.tasks) {
-        const taskIds = new Set(snapshot.tasks.map(t => t.id));
+        const taskIds = new Set(snapshot.tasks.map((t) => t.id));
         for (const dep of snapshot.dependencies) {
-          if (!taskIds.has(dep.dependentTaskId) || !taskIds.has(dep.dependsOnTaskId)) {
+          if (
+            !taskIds.has(dep.dependentTaskId) ||
+            !taskIds.has(dep.dependsOnTaskId)
+          ) {
             warnings.push(`Dependency references non-existent task: ${dep.id}`);
           }
         }
@@ -602,9 +639,8 @@ export class QueuePersistenceManager extends EventEmitter {
       return {
         isValid: errors.length === 0,
         errors,
-        warnings
+        warnings,
       };
-
     } catch (error) {
       errors.push(`Validation error: ${error}`);
       return { isValid: false, errors, warnings };
@@ -616,11 +652,15 @@ export class QueuePersistenceManager extends EventEmitter {
    */
   private assessQueueHealth(
     tasks: Map<string, Task>,
-    metrics: QueueMetrics
+    metrics: QueueMetrics,
   ): 'healthy' | 'degraded' | 'critical' {
     const totalTasks = tasks.size;
-    const failedTasks = Array.from(tasks.values()).filter(t => t.status === 'FAILED').length;
-    const runningTasks = Array.from(tasks.values()).filter(t => t.status === 'RUNNING').length;
+    const failedTasks = Array.from(tasks.values()).filter(
+      (t) => t.status === 'FAILED',
+    ).length;
+    const runningTasks = Array.from(tasks.values()).filter(
+      (t) => t.status === 'RUNNING',
+    ).length;
 
     if (totalTasks === 0) {
       return 'healthy'; // Empty queue is healthy
@@ -633,7 +673,11 @@ export class QueuePersistenceManager extends EventEmitter {
       return 'critical';
     }
 
-    if (failureRate > 0.2 || successRate < 0.7 || runningTasks === 0 && totalTasks > 0) {
+    if (
+      failureRate > 0.2 ||
+      successRate < 0.7 ||
+      (runningTasks === 0 && totalTasks > 0)
+    ) {
       return 'degraded';
     }
 
@@ -647,8 +691,8 @@ export class QueuePersistenceManager extends EventEmitter {
     const hashableData = {
       taskCount: snapshot.tasks.length,
       dependencyCount: snapshot.dependencies.length,
-      taskStatuses: snapshot.tasks.map(t => `${t.id}:${t.status}`).sort(),
-      timestamp: snapshot.timestamp.getTime()
+      taskStatuses: snapshot.tasks.map((t) => `${t.id}:${t.status}`).sort(),
+      timestamp: snapshot.timestamp.getTime(),
     };
 
     return Buffer.from(JSON.stringify(hashableData)).toString('base64');
@@ -657,7 +701,9 @@ export class QueuePersistenceManager extends EventEmitter {
   /**
    * Check if incremental save should be used
    */
-  private async shouldUseIncrementalSave(snapshot: QueueSnapshot): Promise<boolean> {
+  private async shouldUseIncrementalSave(
+    snapshot: QueueSnapshot,
+  ): Promise<boolean> {
     if (!this.lastSnapshotHash) {
       return false; // No previous snapshot to compare
     }
@@ -673,26 +719,35 @@ export class QueuePersistenceManager extends EventEmitter {
   /**
    * Find orphaned tasks from previous sessions
    */
-  private async findOrphanedTasks(snapshots: Array<{ id: string; sessionId: string; timestamp: Date }>): Promise<string[]> {
+  private async findOrphanedTasks(
+    snapshots: Array<{ id: string; sessionId: string; timestamp: Date }>,
+  ): Promise<string[]> {
     const orphanedTasks: string[] = [];
 
     try {
       // Look for tasks that were running in previous sessions
-      for (const snapshotInfo of snapshots.slice(0, 5)) { // Check last 5 snapshots
+      for (const snapshotInfo of snapshots.slice(0, 5)) {
+        // Check last 5 snapshots
         if (snapshotInfo.sessionId === this.currentSessionId) continue;
 
         try {
           const snapshot = await this.loadSpecificSnapshot(snapshotInfo.id);
-          const runningTasks = snapshot.tasks.filter(t => t.status === 'RUNNING');
+          const runningTasks = snapshot.tasks.filter(
+            (t) => t.status === 'RUNNING',
+          );
 
           for (const task of runningTasks) {
             const ageMs = Date.now() - new Date(snapshot.timestamp).getTime();
-            if (ageMs > 60000) { // Tasks running for more than 1 minute are potentially orphaned
+            if (ageMs > 60000) {
+              // Tasks running for more than 1 minute are potentially orphaned
               orphanedTasks.push(task.id);
             }
           }
         } catch (error) {
-          logger.warn(`Failed to check orphaned tasks in snapshot ${snapshotInfo.id}:`, error);
+          logger.warn(
+            `Failed to check orphaned tasks in snapshot ${snapshotInfo.id}:`,
+            error,
+          );
         }
       }
     } catch (error) {
@@ -711,7 +766,7 @@ export class QueuePersistenceManager extends EventEmitter {
       join(this.config.persistenceDir, 'snapshots'),
       join(this.config.persistenceDir, 'backups'),
       join(this.config.persistenceDir, 'incremental'),
-      join(this.config.persistenceDir, 'temp')
+      join(this.config.persistenceDir, 'temp'),
     ];
 
     for (const dir of dirs) {
@@ -731,7 +786,9 @@ export class QueuePersistenceManager extends EventEmitter {
       this.emit('autoSaveRequested');
     }, this.config.autoSaveInterval);
 
-    logger.debug('Auto-save timer started', { interval: this.config.autoSaveInterval });
+    logger.debug('Auto-save timer started', {
+      interval: this.config.autoSaveInterval,
+    });
   }
 
   /**
@@ -758,7 +815,9 @@ export class QueuePersistenceManager extends EventEmitter {
       const files = await fse.readdir(snapshotsDir);
       const snapshotFiles = [];
 
-      for (const file of files.filter(f => f.endsWith('.json') || f.endsWith('.json.gz'))) {
+      for (const file of files.filter(
+        (f) => f.endsWith('.json') || f.endsWith('.json.gz'),
+      )) {
         try {
           const filePath = join(snapshotsDir, file);
           const stats = await fse.stat(filePath);
@@ -773,7 +832,10 @@ export class QueuePersistenceManager extends EventEmitter {
 
       // Keep only the most recent snapshots
       if (snapshotFiles.length > this.config.maxBackupSnapshots) {
-        const filesToDelete = snapshotFiles.slice(0, snapshotFiles.length - this.config.maxBackupSnapshots);
+        const filesToDelete = snapshotFiles.slice(
+          0,
+          snapshotFiles.length - this.config.maxBackupSnapshots,
+        );
 
         for (const { file } of filesToDelete) {
           try {
@@ -820,7 +882,10 @@ export class QueuePersistenceManager extends EventEmitter {
               logger.debug(`Removed expired snapshot: ${file}`);
             }
           } catch (error) {
-            logger.warn(`Failed to check/remove expired snapshot ${file}:`, error);
+            logger.warn(
+              `Failed to check/remove expired snapshot ${file}:`,
+              error,
+            );
           }
         }
       }
@@ -846,11 +911,14 @@ export class QueuePersistenceManager extends EventEmitter {
 
     this.config = {
       ...this.config,
-      ...newConfig
+      ...newConfig,
     };
 
     // Restart auto-save if interval changed
-    if (newConfig.autoSaveInterval !== undefined && newConfig.autoSaveInterval !== oldAutoSaveInterval) {
+    if (
+      newConfig.autoSaveInterval !== undefined &&
+      newConfig.autoSaveInterval !== oldAutoSaveInterval
+    ) {
       if (this.config.autoSaveInterval > 0) {
         this.startAutoSave();
       } else {
@@ -861,7 +929,7 @@ export class QueuePersistenceManager extends EventEmitter {
     logger.info('QueuePersistenceManager configuration updated', {
       autoSaveInterval: this.config.autoSaveInterval,
       compression: this.config.enableCompression,
-      maxBackups: this.config.maxBackupSnapshots
+      maxBackups: this.config.maxBackupSnapshots,
     });
 
     this.emit('configurationUpdated', this.config);

@@ -6,8 +6,17 @@
 
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
-import { taskStatusMonitor, type TaskMetadata, type TaskStatusUpdate, type AgentStatus, TaskStatus } from './TaskStatusMonitor.js';
-import { performanceAnalyticsDashboard, type PerformanceMetric } from './PerformanceAnalyticsDashboard.js';
+import {
+  taskStatusMonitor,
+  type TaskMetadata,
+  type TaskStatusUpdate,
+  type AgentStatus,
+  TaskStatus,
+} from './TaskStatusMonitor.js';
+import {
+  performanceAnalyticsDashboard,
+  type PerformanceMetric,
+} from './PerformanceAnalyticsDashboard.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { WebSocketServer } from 'ws';
@@ -34,7 +43,12 @@ export interface MonitoringConfig {
  * Real-time monitoring event types
  */
 export interface MonitoringEvent {
-  type: 'metric_update' | 'alert' | 'status_change' | 'performance_insight' | 'anomaly_detected';
+  type:
+    | 'metric_update'
+    | 'alert'
+    | 'status_change'
+    | 'performance_insight'
+    | 'anomaly_detected';
   timestamp: Date;
   data: unknown;
   severity?: 'low' | 'medium' | 'high' | 'critical';
@@ -127,7 +141,11 @@ export interface MonitoringSnapshot {
  */
 export interface PredictiveInsight {
   id: string;
-  type: 'capacity_prediction' | 'failure_prediction' | 'bottleneck_prediction' | 'trend_analysis';
+  type:
+    | 'capacity_prediction'
+    | 'failure_prediction'
+    | 'bottleneck_prediction'
+    | 'trend_analysis';
   title: string;
   description: string;
   confidence: number; // 0-1
@@ -160,7 +178,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   // Core monitoring state
   private monitoringSnapshots: MonitoringSnapshot[] = [];
   private alertRules: Map<string, AlertRule> = new Map();
-  private activeAlerts: Map<string, { rule: AlertRule; startTime: Date; lastTriggered: Date }> = new Map();
+  private activeAlerts: Map<
+    string,
+    { rule: AlertRule; startTime: Date; lastTriggered: Date }
+  > = new Map();
   private predictiveInsights: PredictiveInsight[] = [];
 
   // Real-time streaming
@@ -175,7 +196,8 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
   // Performance tracking
   private metricsBuffer: Map<string, PerformanceMetric[]> = new Map();
-  private anomalyBaseline: Map<string, { mean: number; stdDev: number }> = new Map();
+  private anomalyBaseline: Map<string, { mean: number; stdDev: number }> =
+    new Map();
 
   // Persistence paths
   private readonly persistencePath: string;
@@ -244,9 +266,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       });
 
       this.emit('system:initialized', { config: this.config });
-
     } catch (error) {
-      this.logger.error('Failed to initialize RealTimeMonitoringSystem', { error });
+      this.logger.error('Failed to initialize RealTimeMonitoringSystem', {
+        error,
+      });
       throw error;
     }
   }
@@ -262,11 +285,18 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     const memoryUsage = process.memoryUsage();
 
     // Calculate system health
-    const systemHealth = this.calculateSystemHealth(taskMetrics, allTasks, allAgents);
+    const systemHealth = this.calculateSystemHealth(
+      taskMetrics,
+      allTasks,
+      allAgents,
+    );
 
     // Calculate task metrics
     const taskCounts = this.calculateTaskCounts(allTasks);
-    const successRate = taskCounts.total > 0 ? (taskCounts.completed / taskCounts.total) * 100 : 100;
+    const successRate =
+      taskCounts.total > 0
+        ? (taskCounts.completed / taskCounts.total) * 100
+        : 100;
 
     // Calculate agent metrics
     const agentCounts = this.calculateAgentCounts(allAgents);
@@ -278,12 +308,14 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     const trends = this.calculateTrends();
 
     // Get active alerts
-    const activeAlerts = Array.from(this.activeAlerts.entries()).map(([id, alert]) => ({
-      id,
-      severity: alert.rule.severity,
-      message: alert.rule.name,
-      startTime: alert.startTime,
-    }));
+    const activeAlerts = Array.from(this.activeAlerts.entries()).map(
+      ([id, alert]) => ({
+        id,
+        severity: alert.rule.severity,
+        message: alert.rule.name,
+        startTime: alert.startTime,
+      }),
+    );
 
     const snapshot: MonitoringSnapshot = {
       timestamp,
@@ -394,7 +426,11 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   /**
    * Get active alerts
    */
-  getActiveAlerts(): Array<{ rule: AlertRule; startTime: Date; lastTriggered: Date }> {
+  getActiveAlerts(): Array<{
+    rule: AlertRule;
+    startTime: Date;
+    lastTriggered: Date;
+  }> {
     return Array.from(this.activeAlerts.values());
   }
 
@@ -404,7 +440,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   getMonitoringHistory(hours = 24): MonitoringSnapshot[] {
     const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
     return this.monitoringSnapshots
-      .filter(snapshot => snapshot.timestamp >= cutoffTime)
+      .filter((snapshot) => snapshot.timestamp >= cutoffTime)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }
 
@@ -412,13 +448,18 @@ export class RealTimeMonitoringSystem extends EventEmitter {
    * Get predictive insights
    */
   getPredictiveInsights(): PredictiveInsight[] {
-    return [...this.predictiveInsights].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return [...this.predictiveInsights].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
   }
 
   /**
    * Export monitoring data for external systems
    */
-  async exportMonitoringData(format: 'json' | 'csv' = 'json', hours = 24): Promise<string> {
+  async exportMonitoringData(
+    format: 'json' | 'csv' = 'json',
+    hours = 24,
+  ): Promise<string> {
     const history = this.getMonitoringHistory(hours);
     const insights = this.getPredictiveInsights();
     const alerts = this.getActiveAlerts();
@@ -455,8 +496,12 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       this.monitoringSnapshots.push(snapshot);
 
       // Trim history to retention period
-      const cutoffTime = new Date(Date.now() - this.config.retentionHours * 60 * 60 * 1000);
-      this.monitoringSnapshots = this.monitoringSnapshots.filter(s => s.timestamp >= cutoffTime);
+      const cutoffTime = new Date(
+        Date.now() - this.config.retentionHours * 60 * 60 * 1000,
+      );
+      this.monitoringSnapshots = this.monitoringSnapshots.filter(
+        (s) => s.timestamp >= cutoffTime,
+      );
 
       // Check alert conditions
       this.checkAlertConditions(snapshot);
@@ -480,7 +525,6 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       if (this.monitoringSnapshots.length % 10 === 0) {
         await this.persistMonitoringData();
       }
-
     } catch (error) {
       this.logger.error('Error collecting monitoring snapshot', { error });
     }
@@ -492,8 +536,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         id: 'high-failure-rate',
         name: 'High Task Failure Rate',
         description: 'Task failure rate exceeds threshold',
-        condition: (data) => data.taskMetrics.failed > 0 &&
-          (data.taskMetrics.failed / data.taskMetrics.total) > this.config.alertThresholds.taskFailureRate,
+        condition: (data) =>
+          data.taskMetrics.failed > 0 &&
+          data.taskMetrics.failed / data.taskMetrics.total >
+            this.config.alertThresholds.taskFailureRate,
         severity: 'high',
         cooldownMs: 5 * 60 * 1000, // 5 minutes
         enabled: true,
@@ -503,7 +549,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         id: 'memory-usage-critical',
         name: 'Critical Memory Usage',
         description: 'System memory usage is critically high',
-        condition: (data) => data.systemHealth.memoryUsageMB > this.config.alertThresholds.memoryUsageMB,
+        condition: (data) =>
+          data.systemHealth.memoryUsageMB >
+          this.config.alertThresholds.memoryUsageMB,
         severity: 'critical',
         cooldownMs: 2 * 60 * 1000, // 2 minutes
         enabled: true,
@@ -513,7 +561,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         id: 'queue-backlog',
         name: 'Task Queue Backlog',
         description: 'Task queue has significant backlog',
-        condition: (data) => data.taskMetrics.queued > this.config.alertThresholds.queueBacklogSize,
+        condition: (data) =>
+          data.taskMetrics.queued >
+          this.config.alertThresholds.queueBacklogSize,
         severity: 'medium',
         cooldownMs: 10 * 60 * 1000, // 10 minutes
         enabled: true,
@@ -523,7 +573,8 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         id: 'system-unhealthy',
         name: 'System Health Critical',
         description: 'Overall system health is critical or unhealthy',
-        condition: (data) => ['critical', 'unhealthy'].includes(data.systemHealth.overall),
+        condition: (data) =>
+          ['critical', 'unhealthy'].includes(data.systemHealth.overall),
         severity: 'critical',
         cooldownMs: 1 * 60 * 1000, // 1 minute
         enabled: true,
@@ -533,7 +584,8 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         id: 'no-active-agents',
         name: 'No Active Agents',
         description: 'No agents are currently active',
-        condition: (data) => data.agentMetrics.active === 0 && data.taskMetrics.queued > 0,
+        condition: (data) =>
+          data.agentMetrics.active === 0 && data.taskMetrics.queued > 0,
         severity: 'high',
         cooldownMs: 5 * 60 * 1000, // 5 minutes
         enabled: true,
@@ -559,7 +611,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       const activeAlert = this.activeAlerts.get(ruleId);
 
       // Check cooldown period
-      if (activeAlert && (now.getTime() - activeAlert.lastTriggered.getTime()) < rule.cooldownMs) {
+      if (
+        activeAlert &&
+        now.getTime() - activeAlert.lastTriggered.getTime() < rule.cooldownMs
+      ) {
         continue;
       }
 
@@ -594,7 +649,11 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     }
   }
 
-  private triggerAlert(rule: AlertRule, snapshot: MonitoringSnapshot, action: 'triggered' | 'continued' | 'resolved'): void {
+  private triggerAlert(
+    rule: AlertRule,
+    snapshot: MonitoringSnapshot,
+    action: 'triggered' | 'continued' | 'resolved',
+  ): void {
     const alert: MonitoringEvent = {
       type: 'alert',
       timestamp: new Date(),
@@ -634,7 +693,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     actionConfig: { type: string; config: Record<string, unknown> },
     rule: AlertRule,
     snapshot: MonitoringSnapshot,
-    action: string
+    action: string,
   ): void {
     switch (actionConfig.type) {
       case 'log':
@@ -671,7 +730,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       { key: 'memory', value: snapshot.systemHealth.memoryUsageMB },
       { key: 'taskFailures', value: snapshot.taskMetrics.failed },
       { key: 'throughput', value: snapshot.taskMetrics.throughputPerHour },
-      { key: 'responseTime', value: snapshot.performanceMetrics.responseTimeMs },
+      {
+        key: 'responseTime',
+        value: snapshot.performanceMetrics.responseTimeMs,
+      },
     ];
 
     for (const metric of metrics) {
@@ -682,7 +744,8 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
       const zScore = Math.abs((metric.value - baseline.mean) / baseline.stdDev);
 
-      if (zScore > 2.5) { // 2.5 standard deviations
+      if (zScore > 2.5) {
+        // 2.5 standard deviations
         this.emit('anomaly:detected', {
           type: 'anomaly_detected',
           timestamp: new Date(),
@@ -710,9 +773,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     this.metricsBuffer.set(key, buffer);
 
     if (buffer.length >= 10) {
-      const values = buffer.map(m => m.value);
+      const values = buffer.map((m) => m.value);
       const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-      const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
+      const variance =
+        values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
       const stdDev = Math.sqrt(variance);
 
       this.anomalyBaseline.set(key, { mean, stdDev });
@@ -721,22 +785,31 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
   private startMonitoringIntervals(): void {
     // Alert checking interval (more frequent)
-    this.alertCheckInterval = setInterval(() => {
-      const snapshot = this.getCurrentSnapshot();
-      this.checkAlertConditions(snapshot);
-    }, Math.min(this.config.updateIntervalMs * 2, 1000));
+    this.alertCheckInterval = setInterval(
+      () => {
+        const snapshot = this.getCurrentSnapshot();
+        this.checkAlertConditions(snapshot);
+      },
+      Math.min(this.config.updateIntervalMs * 2, 1000),
+    );
 
     // Predictive insights interval
     if (this.config.enablePredictiveAnalytics) {
-      this.insightsInterval = setInterval(() => {
-        this.generatePredictiveInsights();
-      }, 5 * 60 * 1000); // Every 5 minutes
+      this.insightsInterval = setInterval(
+        () => {
+          this.generatePredictiveInsights();
+        },
+        5 * 60 * 1000,
+      ); // Every 5 minutes
     }
 
     // Cleanup interval
-    this.cleanupInterval = setInterval(() => {
-      this.performCleanup();
-    }, 60 * 60 * 1000); // Every hour
+    this.cleanupInterval = setInterval(
+      () => {
+        this.performCleanup();
+      },
+      60 * 60 * 1000,
+    ); // Every hour
   }
 
   private async generatePredictiveInsights(): Promise<void> {
@@ -754,7 +827,6 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       if (this.predictiveInsights.length > 100) {
         this.predictiveInsights = this.predictiveInsights.slice(-100);
       }
-
     } catch (error) {
       this.logger.error('Error generating predictive insights', { error });
     }
@@ -766,11 +838,15 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
     // Memory usage trend
     const memoryTrend = this.calculateLinearTrend(
-      recentSnapshots.map(s => ({ x: s.timestamp.getTime(), y: s.systemHealth.memoryUsageMB }))
+      recentSnapshots.map((s) => ({
+        x: s.timestamp.getTime(),
+        y: s.systemHealth.memoryUsageMB,
+      })),
     );
 
     if (memoryTrend.slope > 0 && memoryTrend.confidence > 0.7) {
-      const timeToLimit = this.config.alertThresholds.memoryUsageMB / memoryTrend.slope;
+      const timeToLimit =
+        this.config.alertThresholds.memoryUsageMB / memoryTrend.slope;
 
       insights.push({
         id: `memory-trend-${Date.now()}`,
@@ -781,7 +857,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         timeHorizon: Math.max(1, timeToLimit / (1000 * 60 * 60)), // Convert to hours
         recommendation: 'Consider optimizing memory usage or scaling resources',
         impact: timeToLimit < 3600000 ? 'high' : 'medium', // Less than 1 hour
-        dataPoints: recentSnapshots.map(s => ({
+        dataPoints: recentSnapshots.map((s) => ({
           timestamp: s.timestamp,
           value: s.systemHealth.memoryUsageMB,
         })),
@@ -790,9 +866,11 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     }
 
     // Task failure rate trend
-    const failureRates = recentSnapshots.map(s => s.taskMetrics.failed / Math.max(1, s.taskMetrics.total));
+    const failureRates = recentSnapshots.map(
+      (s) => s.taskMetrics.failed / Math.max(1, s.taskMetrics.total),
+    );
     const failureTrend = this.calculateLinearTrend(
-      failureRates.map((rate, i) => ({ x: i, y: rate }))
+      failureRates.map((rate, i) => ({ x: i, y: rate })),
     );
 
     if (failureTrend.slope > 0.01 && failureTrend.confidence > 0.6) {
@@ -805,7 +883,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         timeHorizon: 4, // 4 hours prediction
         recommendation: 'Investigate recent changes and error patterns',
         impact: 'medium',
-        dataPoints: recentSnapshots.map(s => ({
+        dataPoints: recentSnapshots.map((s) => ({
           timestamp: s.timestamp,
           value: s.taskMetrics.failed / Math.max(1, s.taskMetrics.total),
         })),
@@ -847,32 +925,39 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   private calculateSystemHealth(
     taskMetrics: any,
     allTasks: TaskMetadata[],
-    allAgents: AgentStatus[]
+    allAgents: AgentStatus[],
   ): 'healthy' | 'degraded' | 'unhealthy' | 'critical' {
     const memoryUsage = process.memoryUsage().heapUsed / 1024 / 1024;
-    const failureRate = taskMetrics.totalTasks > 0
-      ? (taskMetrics.failedTasks / taskMetrics.totalTasks)
-      : 0;
-    const activeAgents = allAgents.filter(a => a.status !== 'offline').length;
+    const failureRate =
+      taskMetrics.totalTasks > 0
+        ? taskMetrics.failedTasks / taskMetrics.totalTasks
+        : 0;
+    const activeAgents = allAgents.filter((a) => a.status !== 'offline').length;
 
     // Critical conditions
-    if (memoryUsage > this.config.alertThresholds.memoryUsageMB * 2 ||
-        failureRate > 0.5 ||
-        (activeAgents === 0 && allTasks.some(t => t.status === 'queued'))) {
+    if (
+      memoryUsage > this.config.alertThresholds.memoryUsageMB * 2 ||
+      failureRate > 0.5 ||
+      (activeAgents === 0 && allTasks.some((t) => t.status === 'queued'))
+    ) {
       return 'critical';
     }
 
     // Unhealthy conditions
-    if (memoryUsage > this.config.alertThresholds.memoryUsageMB ||
-        failureRate > 0.3 ||
-        taskMetrics.systemEfficiency < 50) {
+    if (
+      memoryUsage > this.config.alertThresholds.memoryUsageMB ||
+      failureRate > 0.3 ||
+      taskMetrics.systemEfficiency < 50
+    ) {
       return 'unhealthy';
     }
 
     // Degraded conditions
-    if (failureRate > this.config.alertThresholds.taskFailureRate ||
-        taskMetrics.systemEfficiency < 80 ||
-        activeAgents < allAgents.length * 0.7) {
+    if (
+      failureRate > this.config.alertThresholds.taskFailureRate ||
+      taskMetrics.systemEfficiency < 80 ||
+      activeAgents < allAgents.length * 0.7
+    ) {
       return 'degraded';
     }
 
@@ -963,11 +1048,18 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       };
     }
 
-    const avgThroughput = recentSnapshots.reduce((sum, s) =>
-      sum + s.taskMetrics.throughputPerHour, 0) / recentSnapshots.length;
+    const avgThroughput =
+      recentSnapshots.reduce(
+        (sum, s) => sum + s.taskMetrics.throughputPerHour,
+        0,
+      ) / recentSnapshots.length;
 
-    const avgErrorRate = recentSnapshots.reduce((sum, s) =>
-      sum + (s.taskMetrics.failed / Math.max(1, s.taskMetrics.total)), 0) / recentSnapshots.length;
+    const avgErrorRate =
+      recentSnapshots.reduce(
+        (sum, s) =>
+          sum + s.taskMetrics.failed / Math.max(1, s.taskMetrics.total),
+        0,
+      ) / recentSnapshots.length;
 
     return {
       responseTimeMs: 500, // TODO: Implement actual response time tracking
@@ -998,14 +1090,32 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     const firstHalf = recentSnapshots.slice(0, mid);
     const secondHalf = recentSnapshots.slice(mid);
 
-    const firstCompletion = firstHalf.reduce((sum, s) => sum + s.taskMetrics.throughputPerHour, 0) / firstHalf.length;
-    const secondCompletion = secondHalf.reduce((sum, s) => sum + s.taskMetrics.throughputPerHour, 0) / secondHalf.length;
+    const firstCompletion =
+      firstHalf.reduce((sum, s) => sum + s.taskMetrics.throughputPerHour, 0) /
+      firstHalf.length;
+    const secondCompletion =
+      secondHalf.reduce((sum, s) => sum + s.taskMetrics.throughputPerHour, 0) /
+      secondHalf.length;
 
-    const firstError = firstHalf.reduce((sum, s) => sum + (s.taskMetrics.failed / Math.max(1, s.taskMetrics.total)), 0) / firstHalf.length;
-    const secondError = secondHalf.reduce((sum, s) => sum + (s.taskMetrics.failed / Math.max(1, s.taskMetrics.total)), 0) / secondHalf.length;
+    const firstError =
+      firstHalf.reduce(
+        (sum, s) =>
+          sum + s.taskMetrics.failed / Math.max(1, s.taskMetrics.total),
+        0,
+      ) / firstHalf.length;
+    const secondError =
+      secondHalf.reduce(
+        (sum, s) =>
+          sum + s.taskMetrics.failed / Math.max(1, s.taskMetrics.total),
+        0,
+      ) / secondHalf.length;
 
-    const firstMemory = firstHalf.reduce((sum, s) => sum + s.systemHealth.memoryUsageMB, 0) / firstHalf.length;
-    const secondMemory = secondHalf.reduce((sum, s) => sum + s.systemHealth.memoryUsageMB, 0) / secondHalf.length;
+    const firstMemory =
+      firstHalf.reduce((sum, s) => sum + s.systemHealth.memoryUsageMB, 0) /
+      firstHalf.length;
+    const secondMemory =
+      secondHalf.reduce((sum, s) => sum + s.systemHealth.memoryUsageMB, 0) /
+      secondHalf.length;
 
     return {
       taskCompletion: this.getTrendDirection(firstCompletion, secondCompletion),
@@ -1015,7 +1125,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     };
   }
 
-  private getTrendDirection(first: number, second: number): 'increasing' | 'decreasing' | 'stable' {
+  private getTrendDirection(
+    first: number,
+    second: number,
+  ): 'increasing' | 'decreasing' | 'stable' {
     const threshold = 0.05; // 5% threshold
     const change = (second - first) / Math.max(first, 0.001);
 
@@ -1027,7 +1140,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   private calculateAverageAgentUtilization(agents: AgentStatus[]): number {
     if (agents.length === 0) return 0;
 
-    const totalUtilization = agents.reduce((sum, agent) => sum + (agent.currentTasks.length > 0 ? 1 : 0), 0);
+    const totalUtilization = agents.reduce(
+      (sum, agent) => sum + (agent.currentTasks.length > 0 ? 1 : 0),
+      0,
+    );
 
     return (totalUtilization / agents.length) * 100;
   }
@@ -1035,7 +1151,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   private calculateAverageAgentPerformance(agents: AgentStatus[]): number {
     if (agents.length === 0) return 0;
 
-    const totalPerformance = agents.reduce((sum, agent) => sum + agent.performance.successRate, 0);
+    const totalPerformance = agents.reduce(
+      (sum, agent) => sum + agent.performance.successRate,
+      0,
+    );
     return totalPerformance / agents.length;
   }
 
@@ -1044,7 +1163,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       if (httpServer) {
         this.wsServer = new WebSocketServer({ server: httpServer });
       } else {
-        this.wsServer = new WebSocketServer({ port: this.config.websocketPort });
+        this.wsServer = new WebSocketServer({
+          port: this.config.websocketPort,
+        });
       }
 
       this.wsServer.on('connection', (ws) => {
@@ -1054,11 +1175,13 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         });
 
         // Send initial snapshot
-        ws.send(JSON.stringify({
-          type: 'initial_snapshot',
-          data: this.getCurrentSnapshot(),
-          timestamp: new Date(),
-        }));
+        ws.send(
+          JSON.stringify({
+            type: 'initial_snapshot',
+            data: this.getCurrentSnapshot(),
+            timestamp: new Date(),
+          }),
+        );
 
         ws.on('close', () => {
           this.connectedClients.delete(ws);
@@ -1076,7 +1199,6 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       this.logger.info('WebSocket server initialized', {
         port: this.config.websocketPort,
       });
-
     } catch (error) {
       this.logger.error('Failed to initialize WebSocket server', { error });
     }
@@ -1166,18 +1288,19 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       try {
         const insightsData = await fs.readFile(this.insightsPath, 'utf-8');
         const parsed = JSON.parse(insightsData);
-        this.predictiveInsights = (parsed.insights || []).map((insight: any) => ({
-          ...insight,
-          createdAt: new Date(insight.createdAt),
-          dataPoints: insight.dataPoints.map((dp: any) => ({
-            ...dp,
-            timestamp: new Date(dp.timestamp),
-          })),
-        }));
+        this.predictiveInsights = (parsed.insights || []).map(
+          (insight: any) => ({
+            ...insight,
+            createdAt: new Date(insight.createdAt),
+            dataPoints: insight.dataPoints.map((dp: any) => ({
+              ...dp,
+              timestamp: new Date(dp.timestamp),
+            })),
+          }),
+        );
       } catch (error) {
         // File doesn't exist - start fresh
       }
-
     } catch (error) {
       this.logger.error('Error loading persisted data', { error });
     }
@@ -1190,16 +1313,22 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         snapshots: this.monitoringSnapshots.slice(-1000), // Last 1000
         lastPersisted: new Date().toISOString(),
       };
-      await fs.writeFile(this.persistencePath, JSON.stringify(snapshotsData, null, 2));
+      await fs.writeFile(
+        this.persistencePath,
+        JSON.stringify(snapshotsData, null, 2),
+      );
 
       // Persist active alerts
       const alertsData = {
         alerts: Object.fromEntries(
-          Array.from(this.activeAlerts.entries()).map(([id, alert]) => [id, {
-            rule: alert.rule,
-            startTime: alert.startTime.toISOString(),
-            lastTriggered: alert.lastTriggered.toISOString(),
-          }])
+          Array.from(this.activeAlerts.entries()).map(([id, alert]) => [
+            id,
+            {
+              rule: alert.rule,
+              startTime: alert.startTime.toISOString(),
+              lastTriggered: alert.lastTriggered.toISOString(),
+            },
+          ]),
         ),
         lastPersisted: new Date().toISOString(),
       };
@@ -1210,8 +1339,10 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         insights: this.predictiveInsights.slice(-100), // Last 100
         lastPersisted: new Date().toISOString(),
       };
-      await fs.writeFile(this.insightsPath, JSON.stringify(insightsData, null, 2));
-
+      await fs.writeFile(
+        this.insightsPath,
+        JSON.stringify(insightsData, null, 2),
+      );
     } catch (error) {
       this.logger.error('Error persisting monitoring data', { error });
     }
@@ -1219,10 +1350,14 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
   private performCleanup(): void {
     // Clean up old snapshots beyond retention period
-    const cutoffTime = new Date(Date.now() - this.config.retentionHours * 60 * 60 * 1000);
+    const cutoffTime = new Date(
+      Date.now() - this.config.retentionHours * 60 * 60 * 1000,
+    );
     const initialCount = this.monitoringSnapshots.length;
 
-    this.monitoringSnapshots = this.monitoringSnapshots.filter(s => s.timestamp >= cutoffTime);
+    this.monitoringSnapshots = this.monitoringSnapshots.filter(
+      (s) => s.timestamp >= cutoffTime,
+    );
 
     const cleanedCount = initialCount - this.monitoringSnapshots.length;
     if (cleanedCount > 0) {
@@ -1234,7 +1369,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
     // Clean up old predictive insights (keep last 30 days)
     const insightsCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    this.predictiveInsights = this.predictiveInsights.filter(i => i.createdAt >= insightsCutoff);
+    this.predictiveInsights = this.predictiveInsights.filter(
+      (i) => i.createdAt >= insightsCutoff,
+    );
   }
 
   private convertToCSV(data: any): string {
@@ -1249,7 +1386,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       'success_rate',
       'throughput_per_hour',
       'active_agents',
-      'active_alerts'
+      'active_alerts',
     ];
 
     const rows = [headers.join(',')];

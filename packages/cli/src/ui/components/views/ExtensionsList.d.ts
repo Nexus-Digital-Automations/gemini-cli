@@ -4,4 +4,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export declare const ExtensionsList: () => import("react/jsx-runtime").JSX.Element;
+export declare const ExtensionsList: () => import('react/jsx-runtime').JSX.Element;

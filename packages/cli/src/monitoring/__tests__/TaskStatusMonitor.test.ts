@@ -6,7 +6,12 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority } from '../TaskStatusMonitor.js';
+import {
+  TaskStatusMonitor,
+  TaskStatus,
+  TaskType,
+  TaskPriority,
+} from '../TaskStatusMonitor.js';
 
 // Mock logger
 vi.mock('../utils/logger.js', () => ({
@@ -76,7 +81,7 @@ describe('TaskStatusMonitor', () => {
             title: taskData.title,
             status: TaskStatus.QUEUED,
           }),
-        })
+        }),
       );
     });
   });
@@ -97,11 +102,15 @@ describe('TaskStatusMonitor', () => {
     });
 
     it('should update task status successfully', async () => {
-      const result = await monitor.updateTaskStatus(taskId, TaskStatus.IN_PROGRESS, {
-        agentId: 'test-agent',
-        progress: 25,
-        message: 'Task started',
-      });
+      const result = await monitor.updateTaskStatus(
+        taskId,
+        TaskStatus.IN_PROGRESS,
+        {
+          agentId: 'test-agent',
+          progress: 25,
+          message: 'Task started',
+        },
+      );
 
       expect(result).toBe(true);
 
@@ -117,10 +126,14 @@ describe('TaskStatusMonitor', () => {
       await monitor.updateTaskStatus(taskId, TaskStatus.IN_PROGRESS);
 
       // Then complete it
-      const result = await monitor.updateTaskStatus(taskId, TaskStatus.COMPLETED, {
-        progress: 100,
-        message: 'Task completed successfully',
-      });
+      const result = await monitor.updateTaskStatus(
+        taskId,
+        TaskStatus.COMPLETED,
+        {
+          progress: 100,
+          message: 'Task completed successfully',
+        },
+      );
 
       expect(result).toBe(true);
 
@@ -144,7 +157,10 @@ describe('TaskStatusMonitor', () => {
     });
 
     it('should return false for non-existent task', async () => {
-      const result = await monitor.updateTaskStatus('non-existent', TaskStatus.COMPLETED);
+      const result = await monitor.updateTaskStatus(
+        'non-existent',
+        TaskStatus.COMPLETED,
+      );
       expect(result).toBe(false);
     });
 
@@ -186,17 +202,21 @@ describe('TaskStatusMonitor', () => {
       const initialHeartbeat = initialAgent?.lastHeartbeat;
 
       // Wait a bit to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await monitor.updateAgentHeartbeat(agentId);
 
       const updatedAgent = monitor.getAgentStatus(agentId);
-      expect(updatedAgent?.lastHeartbeat.getTime()).toBeGreaterThan(initialHeartbeat!.getTime());
+      expect(updatedAgent?.lastHeartbeat.getTime()).toBeGreaterThan(
+        initialHeartbeat!.getTime(),
+      );
     });
 
     it('should handle heartbeat for unknown agent gracefully', async () => {
       // Should not throw error
-      await expect(monitor.updateAgentHeartbeat('unknown-agent')).resolves.toBeUndefined();
+      await expect(
+        monitor.updateAgentHeartbeat('unknown-agent'),
+      ).resolves.toBeUndefined();
     });
   });
 
@@ -239,13 +259,21 @@ describe('TaskStatusMonitor', () => {
     it('should filter tasks by status', () => {
       const queuedTasks = monitor.getAllTasks({ status: TaskStatus.QUEUED });
       expect(queuedTasks).toHaveLength(3);
-      expect(queuedTasks.every(task => task.status === TaskStatus.QUEUED)).toBe(true);
+      expect(
+        queuedTasks.every((task) => task.status === TaskStatus.QUEUED),
+      ).toBe(true);
     });
 
     it('should filter tasks by type', () => {
-      const implementationTasks = monitor.getAllTasks({ type: TaskType.IMPLEMENTATION });
+      const implementationTasks = monitor.getAllTasks({
+        type: TaskType.IMPLEMENTATION,
+      });
       expect(implementationTasks).toHaveLength(2);
-      expect(implementationTasks.every(task => task.type === TaskType.IMPLEMENTATION)).toBe(true);
+      expect(
+        implementationTasks.every(
+          (task) => task.type === TaskType.IMPLEMENTATION,
+        ),
+      ).toBe(true);
 
       const testingTasks = monitor.getAllTasks({ type: TaskType.TESTING });
       expect(testingTasks).toHaveLength(1);
@@ -253,13 +281,17 @@ describe('TaskStatusMonitor', () => {
     });
 
     it('should filter tasks by priority', () => {
-      const highPriorityTasks = monitor.getAllTasks({ priority: TaskPriority.HIGH });
+      const highPriorityTasks = monitor.getAllTasks({
+        priority: TaskPriority.HIGH,
+      });
       expect(highPriorityTasks).toHaveLength(1);
       expect(highPriorityTasks[0].priority).toBe(TaskPriority.HIGH);
     });
 
     it('should filter tasks by assigned agent', () => {
-      const frontendTasks = monitor.getAllTasks({ assignedAgent: 'frontend-agent' });
+      const frontendTasks = monitor.getAllTasks({
+        assignedAgent: 'frontend-agent',
+      });
       expect(frontendTasks).toHaveLength(1);
       expect(frontendTasks[0].assignedAgent).toBe('frontend-agent');
     });
@@ -271,7 +303,7 @@ describe('TaskStatusMonitor', () => {
       // Tasks should be sorted by lastUpdate in descending order (newest first)
       for (let i = 1; i < allTasks.length; i++) {
         expect(allTasks[i - 1].lastUpdate.getTime()).toBeGreaterThanOrEqual(
-          allTasks[i].lastUpdate.getTime()
+          allTasks[i].lastUpdate.getTime(),
         );
       }
     });
@@ -351,7 +383,7 @@ describe('TaskStatusMonitor', () => {
       // Check that history is sorted by timestamp (newest first)
       for (let i = 1; i < history.length; i++) {
         expect(history[i - 1].timestamp.getTime()).toBeGreaterThanOrEqual(
-          history[i].timestamp.getTime()
+          history[i].timestamp.getTime(),
         );
       }
     });
@@ -391,7 +423,10 @@ describe('TaskStatusMonitor', () => {
       });
 
       // Invalid status should not crash the system
-      const result = await monitor.updateTaskStatus(taskId, 'invalid_status' as TaskStatus);
+      const result = await monitor.updateTaskStatus(
+        taskId,
+        'invalid_status' as TaskStatus,
+      );
       expect(result).toBe(true); // Should still update since TypeScript handles enum validation
     });
   });

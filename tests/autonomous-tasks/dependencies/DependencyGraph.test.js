@@ -5,7 +5,7 @@
  */
 import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/autonomous-tasks/types/TaskTypes';
-import { DependencyGraph, GraphNode, GraphEdge } from '../../../packages/core/src/autonomous-tasks/dependencies/DependencyGraph';
+import { DependencyGraph, GraphNode, GraphEdge, } from '../../../packages/core/src/autonomous-tasks/dependencies/DependencyGraph';
 import { DetectedDependency } from '../../../packages/core/src/autonomous-tasks/dependencies/DependencyAnalyzer';
 describe('DependencyGraph', () => {
     let graph;
@@ -115,8 +115,8 @@ describe('DependencyGraph', () => {
             expect(nodes).toHaveLength(4);
             expect(edges).toHaveLength(3);
             // Verify nodes have correct task references
-            nodes.forEach(node => {
-                const task = sampleTasks.find(t => t.id === node.id);
+            nodes.forEach((node) => {
+                const task = sampleTasks.find((t) => t.id === node.id);
                 expect(task).toBeDefined();
                 expect(node.task).toEqual(task);
             });
@@ -124,10 +124,10 @@ describe('DependencyGraph', () => {
         test('should calculate node levels correctly', async () => {
             await graph.buildGraph(sampleTasks, sampleDependencies);
             const nodes = graph.getNodes();
-            const task1Node = nodes.find(n => n.id === 'task-1');
-            const task2Node = nodes.find(n => n.id === 'task-2');
-            const task3Node = nodes.find(n => n.id === 'task-3');
-            const task4Node = nodes.find(n => n.id === 'task-4');
+            const task1Node = nodes.find((n) => n.id === 'task-1');
+            const task2Node = nodes.find((n) => n.id === 'task-2');
+            const task3Node = nodes.find((n) => n.id === 'task-3');
+            const task4Node = nodes.find((n) => n.id === 'task-4');
             expect(task1Node.level).toBe(0);
             expect(task2Node.level).toBe(1);
             expect(task3Node.level).toBe(2);
@@ -146,8 +146,8 @@ describe('DependencyGraph', () => {
         test('should calculate earliest and latest start times', async () => {
             await graph.buildGraph(sampleTasks, sampleDependencies);
             const nodes = graph.getNodes();
-            const task1Node = nodes.find(n => n.id === 'task-1');
-            const task2Node = nodes.find(n => n.id === 'task-2');
+            const task1Node = nodes.find((n) => n.id === 'task-1');
+            const task2Node = nodes.find((n) => n.id === 'task-2');
             expect(task1Node.earliestStart).toBe(0);
             expect(task2Node.earliestStart).toBe(3); // After task-1 completes (effort: 3)
         });
@@ -175,7 +175,7 @@ describe('DependencyGraph', () => {
         });
         test('should add edges correctly', () => {
             // First add nodes
-            sampleTasks.forEach(task => graph.addNode(task));
+            sampleTasks.forEach((task) => graph.addNode(task));
             // Then add edge
             graph.addEdge(sampleDependencies[0]);
             const edges = graph.getEdges();
@@ -192,11 +192,11 @@ describe('DependencyGraph', () => {
             expect(edges).toHaveLength(0);
         });
         test('should update node edge references', () => {
-            sampleTasks.forEach(task => graph.addNode(task));
+            sampleTasks.forEach((task) => graph.addNode(task));
             graph.addEdge(sampleDependencies[0]);
             const nodes = graph.getNodes();
-            const fromNode = nodes.find(n => n.id === 'task-1');
-            const toNode = nodes.find(n => n.id === 'task-2');
+            const fromNode = nodes.find((n) => n.id === 'task-1');
+            const toNode = nodes.find((n) => n.id === 'task-2');
             expect(fromNode.outEdges).toHaveLength(1);
             expect(toNode.inEdges).toHaveLength(1);
         });
@@ -218,8 +218,8 @@ describe('DependencyGraph', () => {
         test('should update node edge references after removal', () => {
             graph.removeEdge('task-1', 'task-2');
             const nodes = graph.getNodes();
-            const fromNode = nodes.find(n => n.id === 'task-1');
-            const toNode = nodes.find(n => n.id === 'task-2');
+            const fromNode = nodes.find((n) => n.id === 'task-1');
+            const toNode = nodes.find((n) => n.id === 'task-2');
             expect(fromNode.outEdges).toHaveLength(0);
             expect(toNode.inEdges).toHaveLength(0);
         });
@@ -249,7 +249,7 @@ describe('DependencyGraph', () => {
             await graph.buildGraph(sampleTasks, circularDeps);
             const validation = await graph.validateGraph();
             expect(validation.isValid).toBe(false);
-            const circularIssues = validation.issues.filter(issue => issue.type === 'circular_dependency');
+            const circularIssues = validation.issues.filter((issue) => issue.type === 'circular_dependency');
             expect(circularIssues.length).toBeGreaterThan(0);
         });
         test('should detect orphaned nodes', async () => {
@@ -271,7 +271,7 @@ describe('DependencyGraph', () => {
             const tasksWithOrphan = [...sampleTasks, orphanedTask];
             await graph.buildGraph(tasksWithOrphan, sampleDependencies);
             const validation = await graph.validateGraph();
-            const orphanIssues = validation.issues.filter(issue => issue.type === 'orphaned_node');
+            const orphanIssues = validation.issues.filter((issue) => issue.type === 'orphaned_node');
             expect(orphanIssues.length).toBeGreaterThan(0);
             expect(orphanIssues[0].affectedNodes).toContain('orphaned-task');
         });
@@ -311,7 +311,7 @@ describe('DependencyGraph', () => {
             const allDeps = [...sampleDependencies, ...highFanOutDeps];
             await graph.buildGraph(allTasks, allDeps);
             const validation = await graph.validateGraph();
-            const fanOutIssues = validation.issues.filter(issue => issue.type === 'excessive_fan_out');
+            const fanOutIssues = validation.issues.filter((issue) => issue.type === 'excessive_fan_out');
             expect(fanOutIssues.length).toBeGreaterThan(0);
         });
         test('should calculate graph metrics correctly', async () => {
@@ -331,7 +331,7 @@ describe('DependencyGraph', () => {
             await graph.buildGraph(sampleTasks, sampleDependencies);
             const cycles = await graph.detectStronglyConnectedComponents();
             // Filter for actual cycles (components with more than 1 node)
-            const actualCycles = cycles.filter(cycle => cycle.nodes.length > 1);
+            const actualCycles = cycles.filter((cycle) => cycle.nodes.length > 1);
             expect(actualCycles).toHaveLength(0);
         });
         test('should detect cycles in cyclic graph', async () => {
@@ -366,7 +366,7 @@ describe('DependencyGraph', () => {
             ];
             await graph.buildGraph(sampleTasks.slice(0, 3), cyclicDeps);
             const cycles = await graph.detectStronglyConnectedComponents();
-            const actualCycles = cycles.filter(cycle => cycle.nodes.length > 1);
+            const actualCycles = cycles.filter((cycle) => cycle.nodes.length > 1);
             expect(actualCycles.length).toBeGreaterThan(0);
             expect(actualCycles[0].nodes).toContain('task-1');
             expect(actualCycles[0].nodes).toContain('task-2');
@@ -395,7 +395,7 @@ describe('DependencyGraph', () => {
             ];
             await graph.buildGraph(sampleTasks.slice(0, 2), cyclicDeps);
             const cycles = await graph.detectStronglyConnectedComponents();
-            const actualCycles = cycles.filter(cycle => cycle.nodes.length > 1);
+            const actualCycles = cycles.filter((cycle) => cycle.nodes.length > 1);
             expect(actualCycles.length).toBeGreaterThan(0);
             expect(actualCycles[0].breakingOptions.length).toBeGreaterThan(0);
             // Breaking options should be sorted by impact (lower is better)

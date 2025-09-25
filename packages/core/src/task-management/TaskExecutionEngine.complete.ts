@@ -6,7 +6,11 @@
 
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
-import { SubAgentScope, ContextState, SubagentTerminateMode } from '../core/subagent.js';
+import {
+  SubAgentScope,
+  ContextState,
+  SubagentTerminateMode,
+} from '../core/subagent.js';
 import type {
   Task,
   TaskType,
@@ -16,7 +20,7 @@ import type {
   TaskExecutionContext,
   TaskDependency,
   AgentCapability,
-  TaskMetrics
+  TaskMetrics,
 } from './TaskExecutionEngine.js';
 import { TaskBreakdownAnalyzer } from './TaskExecutionEngine.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
@@ -49,12 +53,15 @@ export class TaskExecutionEngine {
       onTaskStatusChange?: (task: Task) => void;
       onTaskComplete?: (task: Task) => void;
       onTaskFailed?: (task: Task, error: string) => void;
-    }
+    },
   ) {
     this.config = config;
     this.toolRegistry = config.getToolRegistry();
     this.breakdownAnalyzer = new TaskBreakdownAnalyzer(config);
-    this.persistencePath = path.join(config.storage.getProjectTempDir(), 'task-execution-state.json');
+    this.persistencePath = path.join(
+      config.storage.getProjectTempDir(),
+      'task-execution-state.json',
+    );
 
     // Set up event handlers
     this.onTaskStatusChange = handlers?.onTaskStatusChange;
@@ -87,7 +94,9 @@ export class TaskExecutionEngine {
         this.taskDependencies.set(id, deps as TaskDependency[]);
       }
 
-      console.log(`Loaded ${this.taskQueue.size} queued tasks and ${this.completedTasks.size} completed tasks from persistence`);
+      console.log(
+        `Loaded ${this.taskQueue.size} queued tasks and ${this.completedTasks.size} completed tasks from persistence`,
+      );
     } catch (error) {
       // No persisted state or error loading - start fresh
       console.log('Starting with fresh task execution state');
@@ -101,13 +110,19 @@ export class TaskExecutionEngine {
     try {
       const state = {
         taskQueue: Object.fromEntries(
-          Array.from(this.taskQueue.entries()).map(([id, task]) => [id, this.serializeTask(task)])
+          Array.from(this.taskQueue.entries()).map(([id, task]) => [
+            id,
+            this.serializeTask(task),
+          ]),
         ),
         completedTasks: Object.fromEntries(
-          Array.from(this.completedTasks.entries()).map(([id, task]) => [id, this.serializeTask(task)])
+          Array.from(this.completedTasks.entries()).map(([id, task]) => [
+            id,
+            this.serializeTask(task),
+          ]),
         ),
         taskDependencies: Object.fromEntries(this.taskDependencies.entries()),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
       await fs.writeFile(this.persistencePath, JSON.stringify(state, null, 2));
@@ -127,11 +142,13 @@ export class TaskExecutionEngine {
       scheduledAt: task.scheduledAt?.toISOString(),
       startedAt: task.startedAt?.toISOString(),
       completedAt: task.completedAt?.toISOString(),
-      metrics: task.metrics ? {
-        ...task.metrics,
-        startTime: task.metrics.startTime.toISOString(),
-        endTime: task.metrics.endTime?.toISOString()
-      } : undefined
+      metrics: task.metrics
+        ? {
+            ...task.metrics,
+            startTime: task.metrics.startTime.toISOString(),
+            endTime: task.metrics.endTime?.toISOString(),
+          }
+        : undefined,
     };
   }
 
@@ -146,11 +163,15 @@ export class TaskExecutionEngine {
       scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
       startedAt: data.startedAt ? new Date(data.startedAt) : undefined,
       completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
-      metrics: data.metrics ? {
-        ...data.metrics,
-        startTime: new Date(data.metrics.startTime),
-        endTime: data.metrics.endTime ? new Date(data.metrics.endTime) : undefined
-      } : undefined
+      metrics: data.metrics
+        ? {
+            ...data.metrics,
+            startTime: new Date(data.metrics.startTime),
+            endTime: data.metrics.endTime
+              ? new Date(data.metrics.endTime)
+              : undefined,
+          }
+        : undefined,
     };
   }
 
@@ -164,7 +185,7 @@ export class TaskExecutionEngine {
       taskId,
       this.taskQueue,
       this.completedTasks,
-      this.taskDependencies
+      this.taskDependencies,
     );
   }
 
@@ -204,7 +225,7 @@ export class TaskExecutionEngine {
       taskId,
       this.taskQueue,
       this.completedTasks,
-      this.taskDependencies
+      this.taskDependencies,
     );
   }
 
@@ -230,20 +251,22 @@ export class TaskExecutionEngine {
       completedTaskId,
       this.taskQueue,
       this.taskDependencies,
-      this.scheduleTaskExecution.bind(this)
+      this.scheduleTaskExecution.bind(this),
     );
   }
 
   /**
    * Handles dependent tasks when a parent task fails
    */
-  private async handleDependentTasksOnFailure(failedTaskId: string): Promise<void> {
+  private async handleDependentTasksOnFailure(
+    failedTaskId: string,
+  ): Promise<void> {
     await TaskExecutionUtils.handleDependentTasksOnFailure(
       failedTaskId,
       this.taskQueue,
       this.taskDependencies,
       this.updateTaskStatus.bind(this),
-      this.handleTaskError.bind(this)
+      this.handleTaskError.bind(this),
     );
   }
 
@@ -276,11 +299,16 @@ export class TaskExecutionEngine {
    */
   private getDefaultExecutionTime(complexity: TaskComplexity): number {
     switch (complexity) {
-      case TaskComplexity.TRIVIAL: return 10;
-      case TaskComplexity.SIMPLE: return 30;
-      case TaskComplexity.MODERATE: return 60;
-      case TaskComplexity.COMPLEX: return 120;
-      case TaskComplexity.ENTERPRISE: return 300;
+      case TaskComplexity.TRIVIAL:
+        return 10;
+      case TaskComplexity.SIMPLE:
+        return 30;
+      case TaskComplexity.MODERATE:
+        return 60;
+      case TaskComplexity.COMPLEX:
+        return 120;
+      case TaskComplexity.ENTERPRISE:
+        return 300;
     }
   }
 
@@ -298,13 +326,16 @@ export class TaskExecutionEngine {
       expectedOutputs: Record<string, string>;
       context: Record<string, unknown>;
       maxExecutionTimeMinutes: number;
-    }> = {}
+    }> = {},
   ): Promise<string> {
     // Create initial task
     const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date();
 
-    const complexity = await this.breakdownAnalyzer.analyzeComplexity(title, description);
+    const complexity = await this.breakdownAnalyzer.analyzeComplexity(
+      title,
+      description,
+    );
 
     const task: Task = {
       id: taskId,
@@ -318,13 +349,15 @@ export class TaskExecutionEngine {
       requiredCapabilities: [], // Will be determined during breakdown
       subtaskIds: [],
       dependencies: [],
-      maxExecutionTimeMinutes: options.maxExecutionTimeMinutes || this.getDefaultExecutionTime(complexity),
+      maxExecutionTimeMinutes:
+        options.maxExecutionTimeMinutes ||
+        this.getDefaultExecutionTime(complexity),
       maxRetries: 3,
       context: options.context || {},
       expectedOutputs: options.expectedOutputs || {},
       createdAt: now,
       updatedAt: now,
-      retryCount: 0
+      retryCount: 0,
     };
 
     this.taskQueue.set(taskId, task);
@@ -361,15 +394,18 @@ export class TaskExecutionEngine {
 
       // Update task with breakdown results
       task.requiredCapabilities = breakdown.requiredCapabilities;
-      task.maxExecutionTimeMinutes = Math.max(task.maxExecutionTimeMinutes, breakdown.estimatedDurationMinutes);
+      task.maxExecutionTimeMinutes = Math.max(
+        task.maxExecutionTimeMinutes,
+        breakdown.estimatedDurationMinutes,
+      );
 
       this.updateTaskStatus(task, TaskStatus.ASSIGNED);
 
       // Schedule for execution
       await this.scheduleTaskExecution(taskId);
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.handleTaskError(task, `Breakdown analysis failed: ${errorMessage}`);
     }
   }
@@ -415,7 +451,7 @@ export class TaskExecutionEngine {
         toolCallsCount: 0,
         subAgentCount: 1,
         errorCount: 0,
-        retryCount: task.retryCount
+        retryCount: task.retryCount,
       };
 
       // Create execution context
@@ -427,29 +463,29 @@ export class TaskExecutionEngine {
         `task-executor-${task.type}`,
         this.config,
         {
-          systemPrompt: this.generateExecutionPrompt(task)
+          systemPrompt: this.generateExecutionPrompt(task),
         },
         {
           model: this.config.getModel(),
           temp: 0.7,
-          top_p: 0.9
+          top_p: 0.9,
         },
         {
           max_time_minutes: task.maxExecutionTimeMinutes,
-          max_turns: 50
+          max_turns: 50,
         },
         {
           toolConfig: {
-            tools: this.getToolsForTask(task)
+            tools: this.getToolsForTask(task),
           },
           outputConfig: {
-            outputs: task.expectedOutputs
+            outputs: task.expectedOutputs,
           },
           onMessage: (message) => {
             // Update progress based on message analysis
             this.updateTaskProgress(task, message);
-          }
-        }
+          },
+        },
       );
 
       const executionContext: TaskExecutionContext = {
@@ -458,7 +494,7 @@ export class TaskExecutionEngine {
         config: this.config,
         parentContext: context,
         dependencies: this.getDependencyTasks(taskId),
-        availableAgents: []  // TODO: Implement agent discovery
+        availableAgents: [], // TODO: Implement agent discovery
       };
 
       this.runningTasks.set(taskId, executionContext);
@@ -488,15 +524,14 @@ export class TaskExecutionEngine {
 
         // Schedule dependent tasks
         await this.scheduleDependentTasks(taskId);
-
       } else {
         // Task failed or timed out
         const errorMessage = `Task terminated with reason: ${result.terminate_reason}`;
         await this.handleTaskFailure(task, errorMessage);
       }
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       await this.handleTaskFailure(task, errorMessage);
     }
   }
@@ -504,7 +539,10 @@ export class TaskExecutionEngine {
   /**
    * Handles task execution failures with retry logic
    */
-  private async handleTaskFailure(task: Task, errorMessage: string): Promise<void> {
+  private async handleTaskFailure(
+    task: Task,
+    errorMessage: string,
+  ): Promise<void> {
     task.lastError = errorMessage;
     task.retryCount++;
 
@@ -547,12 +585,12 @@ export class TaskExecutionEngine {
   }): Task[] {
     const allTasks = [
       ...Array.from(this.taskQueue.values()),
-      ...Array.from(this.completedTasks.values())
+      ...Array.from(this.completedTasks.values()),
     ];
 
     if (!filter) return allTasks;
 
-    return allTasks.filter(task => {
+    return allTasks.filter((task) => {
       if (filter.status && task.status !== filter.status) return false;
       if (filter.type && task.type !== filter.type) return false;
       if (filter.priority && task.priority !== filter.priority) return false;

@@ -7,12 +7,11 @@
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
-import type {
-  Task} from './TaskQueue.js';
+import type { Task } from './TaskQueue.js';
 import {
   TaskStatus,
   TaskExecutionRecord,
-  TaskExecutionResult
+  TaskExecutionResult,
 } from './TaskQueue.js';
 import type { TaskId } from './types.js';
 
@@ -50,7 +49,7 @@ export enum LifecycleState {
   // Special states
   BLOCKED = 'blocked',
   EXPIRED = 'expired',
-  ARCHIVED = 'archived'
+  ARCHIVED = 'archived',
 }
 
 /**
@@ -182,7 +181,7 @@ export class TaskLifecycle extends EventEmitter {
       transitionTimeout?: number;
       enableHooks?: boolean;
       enableMetrics?: boolean;
-    } = {}
+    } = {},
   ) {
     super();
 
@@ -193,7 +192,7 @@ export class TaskLifecycle extends EventEmitter {
       transitionTimeout: 30000, // 30 seconds
       enableHooks: true,
       enableMetrics: true,
-      ...options
+      ...options,
     };
 
     this.initializeTransitionRules();
@@ -201,7 +200,7 @@ export class TaskLifecycle extends EventEmitter {
     this.startCleanupProcess();
 
     logger.info('TaskLifecycle manager initialized', {
-      options: this.options
+      options: this.options,
     });
   }
 
@@ -220,23 +219,23 @@ export class TaskLifecycle extends EventEmitter {
       resources: {
         allocated: [],
         used: new Map(),
-        released: []
+        released: [],
       },
       dependencies: {
         blocking: [...task.dependencies],
         blocked: [...task.dependents],
-        satisfied: []
+        satisfied: [],
       },
       validation: {
-        preConditions: task.preConditions.map(condition => ({
+        preConditions: task.preConditions.map((condition) => ({
           condition,
-          status: 'pending' as const
+          status: 'pending' as const,
         })),
-        postConditions: task.postConditions.map(condition => ({
+        postConditions: task.postConditions.map((condition) => ({
           condition,
-          status: 'pending' as const
-        }))
-      }
+          status: 'pending' as const,
+        })),
+      },
     };
 
     this.lifecycleContexts.set(task.id, context);
@@ -256,15 +255,15 @@ export class TaskLifecycle extends EventEmitter {
       trigger: 'system',
       metadata: {
         triggeredBy: 'TaskLifecycle.initializeTask',
-        reason: 'Task lifecycle initialization'
-      }
+        reason: 'Task lifecycle initialization',
+      },
     };
 
     await this.recordEvent(event);
 
     logger.debug(`Task lifecycle initialized: ${task.title}`, {
       taskId: task.id,
-      initialState: context.currentState
+      initialState: context.currentState,
     });
 
     this.emit('taskInitialized', task, context);
@@ -284,7 +283,7 @@ export class TaskLifecycle extends EventEmitter {
     taskId: TaskId,
     newState: LifecycleState,
     trigger: LifecycleEvent['trigger'] = 'manual',
-    metadata: Record<string, unknown> = {}
+    metadata: Record<string, unknown> = {},
   ): Promise<boolean> {
     const context = this.lifecycleContexts.get(taskId);
     if (!context) {
@@ -304,8 +303,14 @@ export class TaskLifecycle extends EventEmitter {
       this.activeTransitions.add(taskId);
 
       // Validate transition
-      if (this.options.enableStateValidation && !this.isValidTransition(currentState, newState)) {
-        logger.warn(`Invalid state transition: ${currentState} -> ${newState}`, { taskId });
+      if (
+        this.options.enableStateValidation &&
+        !this.isValidTransition(currentState, newState)
+      ) {
+        logger.warn(
+          `Invalid state transition: ${currentState} -> ${newState}`,
+          { taskId },
+        );
         return false;
       }
 
@@ -313,7 +318,12 @@ export class TaskLifecycle extends EventEmitter {
 
       // Execute before hooks
       if (this.options.enableHooks) {
-        await this.executeHooks(newState, 'before', await this.getTask(taskId), context);
+        await this.executeHooks(
+          newState,
+          'before',
+          await this.getTask(taskId),
+          context,
+        );
       }
 
       // Perform state-specific actions
@@ -334,8 +344,8 @@ export class TaskLifecycle extends EventEmitter {
         trigger,
         metadata: {
           ...metadata,
-          duration: Date.now() - transitionStart
-        }
+          duration: Date.now() - transitionStart,
+        },
       };
 
       await this.recordEvent(event);
@@ -348,27 +358,30 @@ export class TaskLifecycle extends EventEmitter {
       logger.info(`Task state transition: ${currentState} -> ${newState}`, {
         taskId,
         trigger,
-        duration: Date.now() - transitionStart
+        duration: Date.now() - transitionStart,
       });
 
       this.emit('stateTransition', taskId, currentState, newState, event);
 
       // Execute after hooks
       if (this.options.enableHooks) {
-        await this.executeHooks(newState, 'after', await this.getTask(taskId), context);
+        await this.executeHooks(
+          newState,
+          'after',
+          await this.getTask(taskId),
+          context,
+        );
       }
 
       return true;
-
     } catch (error) {
       logger.error(`State transition failed: ${currentState} -> ${newState}`, {
         taskId,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       this.emit('transitionError', taskId, currentState, newState, error);
       return false;
-
     } finally {
       this.activeTransitions.delete(taskId);
     }
@@ -419,7 +432,7 @@ export class TaskLifecycle extends EventEmitter {
 
     return this.transitionTo(taskId, LifecycleState.PAUSED, 'manual', {
       reason,
-      pausedAt: new Date().toISOString()
+      pausedAt: new Date().toISOString(),
     });
   }
 
@@ -435,12 +448,14 @@ export class TaskLifecycle extends EventEmitter {
     this.pausedTasks.delete(taskId);
 
     // First transition to resuming, then to running
-    await this.transitionTo(taskId, LifecycleState.RESUMING, 'manual', { reason });
+    await this.transitionTo(taskId, LifecycleState.RESUMING, 'manual', {
+      reason,
+    });
 
     // Short delay to allow resume preparation
     setTimeout(() => {
       this.transitionTo(taskId, LifecycleState.RUNNING, 'automatic', {
-        resumedAt: new Date().toISOString()
+        resumedAt: new Date().toISOString(),
       });
     }, 100);
 
@@ -450,7 +465,10 @@ export class TaskLifecycle extends EventEmitter {
   /**
    * Cancel a task
    */
-  async cancelTask(taskId: TaskId, reason = 'Manual cancellation'): Promise<boolean> {
+  async cancelTask(
+    taskId: TaskId,
+    reason = 'Manual cancellation',
+  ): Promise<boolean> {
     const context = this.lifecycleContexts.get(taskId);
     if (!context) return false;
 
@@ -459,7 +477,7 @@ export class TaskLifecycle extends EventEmitter {
       LifecycleState.COMPLETED,
       LifecycleState.FAILED,
       LifecycleState.CANCELLED,
-      LifecycleState.ARCHIVED
+      LifecycleState.ARCHIVED,
     ];
 
     if (nonCancellableStates.includes(context.currentState)) {
@@ -468,7 +486,7 @@ export class TaskLifecycle extends EventEmitter {
 
     return this.transitionTo(taskId, LifecycleState.CANCELLED, 'manual', {
       reason,
-      cancelledAt: new Date().toISOString()
+      cancelledAt: new Date().toISOString(),
     });
   }
 
@@ -486,14 +504,14 @@ export class TaskLifecycle extends EventEmitter {
     // Transition through retrying state back to queued
     await this.transitionTo(taskId, LifecycleState.RETRYING, 'manual', {
       reason,
-      attempt: context.executionAttempts
+      attempt: context.executionAttempts,
     });
 
     // After brief delay, move to queued for re-execution
     setTimeout(() => {
       this.transitionTo(taskId, LifecycleState.QUEUED, 'automatic', {
         requeued: true,
-        attempt: context.executionAttempts
+        attempt: context.executionAttempts,
       });
     }, 1000);
 
@@ -512,7 +530,7 @@ export class TaskLifecycle extends EventEmitter {
     logger.debug(`Lifecycle hook registered: ${hook.id}`, {
       state: hook.state,
       timing: hook.timing,
-      priority: hook.priority
+      priority: hook.priority,
     });
   }
 
@@ -521,7 +539,7 @@ export class TaskLifecycle extends EventEmitter {
    */
   unregisterHook(hookId: string): boolean {
     for (const [state, hooks] of this.lifecycleHooks.entries()) {
-      const index = hooks.findIndex(h => h.id === hookId);
+      const index = hooks.findIndex((h) => h.id === hookId);
       if (index > -1) {
         hooks.splice(index, 1);
         logger.debug(`Lifecycle hook unregistered: ${hookId}`, { state });
@@ -591,9 +609,12 @@ export class TaskLifecycle extends EventEmitter {
       totalTasks,
       stateDistribution,
       averageLifecycleDuration: totalTasks > 0 ? totalDuration / totalTasks : 0,
-      successRate: (completedTasks + failedTasks) > 0 ? completedTasks / (completedTasks + failedTasks) : 0,
+      successRate:
+        completedTasks + failedTasks > 0
+          ? completedTasks / (completedTasks + failedTasks)
+          : 0,
       retryRate: totalTasks > 0 ? totalRetries / totalTasks : 0,
-      mostCommonTransitions
+      mostCommonTransitions,
     };
   }
 
@@ -609,7 +630,7 @@ export class TaskLifecycle extends EventEmitter {
         LifecycleState.COMPLETED,
         LifecycleState.FAILED,
         LifecycleState.CANCELLED,
-        LifecycleState.ARCHIVED
+        LifecycleState.ARCHIVED,
       ];
 
       if (finalStates.includes(context.currentState)) {
@@ -627,7 +648,7 @@ export class TaskLifecycle extends EventEmitter {
       if (!this.isInState(taskId, LifecycleState.ARCHIVED)) {
         await this.transitionTo(taskId, LifecycleState.ARCHIVED, 'system', {
           reason: 'Automated cleanup',
-          cleanupTimestamp: new Date().toISOString()
+          cleanupTimestamp: new Date().toISOString(),
         });
       }
 
@@ -641,7 +662,7 @@ export class TaskLifecycle extends EventEmitter {
 
     logger.info(`Lifecycle cleanup completed`, {
       tasksCleaned: tasksToClean.length,
-      cutoffTime: new Date(cutoff)
+      cutoffTime: new Date(cutoff),
     });
 
     return tasksToClean.length;
@@ -659,7 +680,10 @@ export class TaskLifecycle extends EventEmitter {
     for (const preCondition of context.validation.preConditions) {
       try {
         // Simple condition evaluation - would need proper expression evaluator in production
-        const passed = await this.evaluateCondition(preCondition.condition, context);
+        const passed = await this.evaluateCondition(
+          preCondition.condition,
+          context,
+        );
         preCondition.status = passed ? 'passed' : 'failed';
 
         if (!passed) {
@@ -687,7 +711,10 @@ export class TaskLifecycle extends EventEmitter {
 
     for (const postCondition of context.validation.postConditions) {
       try {
-        const passed = await this.evaluateCondition(postCondition.condition, context);
+        const passed = await this.evaluateCondition(
+          postCondition.condition,
+          context,
+        );
         postCondition.status = passed ? 'passed' : 'failed';
 
         if (!passed) {
@@ -710,43 +737,168 @@ export class TaskLifecycle extends EventEmitter {
   private initializeTransitionRules(): void {
     const rules: LifecycleTransition[] = [
       // Creation flow
-      { from: LifecycleState.CREATED, to: LifecycleState.VALIDATED, conditions: [], actions: ['validate'] },
-      { from: LifecycleState.VALIDATED, to: LifecycleState.QUEUED, conditions: [], actions: ['queue'] },
+      {
+        from: LifecycleState.CREATED,
+        to: LifecycleState.VALIDATED,
+        conditions: [],
+        actions: ['validate'],
+      },
+      {
+        from: LifecycleState.VALIDATED,
+        to: LifecycleState.QUEUED,
+        conditions: [],
+        actions: ['queue'],
+      },
 
       // Execution preparation
-      { from: LifecycleState.QUEUED, to: LifecycleState.SCHEDULED, conditions: [], actions: ['schedule'] },
-      { from: LifecycleState.SCHEDULED, to: LifecycleState.PREPARING, conditions: [], actions: ['prepare'] },
-      { from: LifecycleState.PREPARING, to: LifecycleState.RESOURCE_ALLOCATED, conditions: [], actions: ['allocateResources'] },
+      {
+        from: LifecycleState.QUEUED,
+        to: LifecycleState.SCHEDULED,
+        conditions: [],
+        actions: ['schedule'],
+      },
+      {
+        from: LifecycleState.SCHEDULED,
+        to: LifecycleState.PREPARING,
+        conditions: [],
+        actions: ['prepare'],
+      },
+      {
+        from: LifecycleState.PREPARING,
+        to: LifecycleState.RESOURCE_ALLOCATED,
+        conditions: [],
+        actions: ['allocateResources'],
+      },
 
       // Execution
-      { from: LifecycleState.RESOURCE_ALLOCATED, to: LifecycleState.STARTING, conditions: [], actions: ['start'] },
-      { from: LifecycleState.STARTING, to: LifecycleState.RUNNING, conditions: [], actions: ['run'] },
-      { from: LifecycleState.RUNNING, to: LifecycleState.PAUSED, conditions: [], actions: ['pause'] },
-      { from: LifecycleState.PAUSED, to: LifecycleState.RESUMING, conditions: [], actions: ['resume'] },
-      { from: LifecycleState.RESUMING, to: LifecycleState.RUNNING, conditions: [], actions: ['run'] },
+      {
+        from: LifecycleState.RESOURCE_ALLOCATED,
+        to: LifecycleState.STARTING,
+        conditions: [],
+        actions: ['start'],
+      },
+      {
+        from: LifecycleState.STARTING,
+        to: LifecycleState.RUNNING,
+        conditions: [],
+        actions: ['run'],
+      },
+      {
+        from: LifecycleState.RUNNING,
+        to: LifecycleState.PAUSED,
+        conditions: [],
+        actions: ['pause'],
+      },
+      {
+        from: LifecycleState.PAUSED,
+        to: LifecycleState.RESUMING,
+        conditions: [],
+        actions: ['resume'],
+      },
+      {
+        from: LifecycleState.RESUMING,
+        to: LifecycleState.RUNNING,
+        conditions: [],
+        actions: ['run'],
+      },
 
       // Completion
-      { from: LifecycleState.RUNNING, to: LifecycleState.COMPLETING, conditions: [], actions: ['complete'] },
-      { from: LifecycleState.COMPLETING, to: LifecycleState.COMPLETED, conditions: [], actions: ['finalize'] },
+      {
+        from: LifecycleState.RUNNING,
+        to: LifecycleState.COMPLETING,
+        conditions: [],
+        actions: ['complete'],
+      },
+      {
+        from: LifecycleState.COMPLETING,
+        to: LifecycleState.COMPLETED,
+        conditions: [],
+        actions: ['finalize'],
+      },
 
       // Failure and recovery
-      { from: LifecycleState.RUNNING, to: LifecycleState.FAILED, conditions: [], actions: ['handleFailure'] },
-      { from: LifecycleState.FAILED, to: LifecycleState.RETRYING, conditions: [], actions: ['retry'] },
-      { from: LifecycleState.RETRYING, to: LifecycleState.QUEUED, conditions: [], actions: ['requeue'] },
-      { from: LifecycleState.FAILED, to: LifecycleState.ROLLING_BACK, conditions: [], actions: ['rollback'] },
-      { from: LifecycleState.ROLLING_BACK, to: LifecycleState.FAILED, conditions: [], actions: ['markFailed'] },
+      {
+        from: LifecycleState.RUNNING,
+        to: LifecycleState.FAILED,
+        conditions: [],
+        actions: ['handleFailure'],
+      },
+      {
+        from: LifecycleState.FAILED,
+        to: LifecycleState.RETRYING,
+        conditions: [],
+        actions: ['retry'],
+      },
+      {
+        from: LifecycleState.RETRYING,
+        to: LifecycleState.QUEUED,
+        conditions: [],
+        actions: ['requeue'],
+      },
+      {
+        from: LifecycleState.FAILED,
+        to: LifecycleState.ROLLING_BACK,
+        conditions: [],
+        actions: ['rollback'],
+      },
+      {
+        from: LifecycleState.ROLLING_BACK,
+        to: LifecycleState.FAILED,
+        conditions: [],
+        actions: ['markFailed'],
+      },
 
       // Cancellation
-      { from: LifecycleState.QUEUED, to: LifecycleState.CANCELLED, conditions: [], actions: ['cancel'] },
-      { from: LifecycleState.SCHEDULED, to: LifecycleState.CANCELLED, conditions: [], actions: ['cancel'] },
-      { from: LifecycleState.PREPARING, to: LifecycleState.CANCELLED, conditions: [], actions: ['cancel'] },
-      { from: LifecycleState.RUNNING, to: LifecycleState.CANCELLED, conditions: [], actions: ['cancel'] },
-      { from: LifecycleState.PAUSED, to: LifecycleState.CANCELLED, conditions: [], actions: ['cancel'] },
+      {
+        from: LifecycleState.QUEUED,
+        to: LifecycleState.CANCELLED,
+        conditions: [],
+        actions: ['cancel'],
+      },
+      {
+        from: LifecycleState.SCHEDULED,
+        to: LifecycleState.CANCELLED,
+        conditions: [],
+        actions: ['cancel'],
+      },
+      {
+        from: LifecycleState.PREPARING,
+        to: LifecycleState.CANCELLED,
+        conditions: [],
+        actions: ['cancel'],
+      },
+      {
+        from: LifecycleState.RUNNING,
+        to: LifecycleState.CANCELLED,
+        conditions: [],
+        actions: ['cancel'],
+      },
+      {
+        from: LifecycleState.PAUSED,
+        to: LifecycleState.CANCELLED,
+        conditions: [],
+        actions: ['cancel'],
+      },
 
       // Cleanup and archival
-      { from: LifecycleState.COMPLETED, to: LifecycleState.ARCHIVED, conditions: [], actions: ['archive'] },
-      { from: LifecycleState.FAILED, to: LifecycleState.ARCHIVED, conditions: [], actions: ['archive'] },
-      { from: LifecycleState.CANCELLED, to: LifecycleState.ARCHIVED, conditions: [], actions: ['archive'] },
+      {
+        from: LifecycleState.COMPLETED,
+        to: LifecycleState.ARCHIVED,
+        conditions: [],
+        actions: ['archive'],
+      },
+      {
+        from: LifecycleState.FAILED,
+        to: LifecycleState.ARCHIVED,
+        conditions: [],
+        actions: ['archive'],
+      },
+      {
+        from: LifecycleState.CANCELLED,
+        to: LifecycleState.ARCHIVED,
+        conditions: [],
+        actions: ['archive'],
+      },
     ];
 
     for (const rule of rules) {
@@ -768,11 +920,11 @@ export class TaskLifecycle extends EventEmitter {
         // Simulate resource allocation
         context.resources.allocated = [...task.requiredResources];
         logger.debug(`Resources allocated for task: ${task.id}`, {
-          resources: context.resources.allocated
+          resources: context.resources.allocated,
         });
       },
       priority: 100,
-      enabled: true
+      enabled: true,
     });
 
     // Resource cleanup hook
@@ -784,11 +936,11 @@ export class TaskLifecycle extends EventEmitter {
         context.resources.released = [...context.resources.allocated];
         context.resources.allocated = [];
         logger.debug(`Resources released for task: ${task.id}`, {
-          resources: context.resources.released
+          resources: context.resources.released,
         });
       },
       priority: 100,
-      enabled: true
+      enabled: true,
     });
 
     // Pre-condition validation hook
@@ -796,7 +948,8 @@ export class TaskLifecycle extends EventEmitter {
       id: 'validate-preconditions',
       state: LifecycleState.STARTING,
       timing: 'before',
-      condition: async (task: Task, context: LifecycleContext) => task.preConditions.length > 0,
+      condition: async (task: Task, context: LifecycleContext) =>
+        task.preConditions.length > 0,
       action: async (task: Task, context: LifecycleContext) => {
         const valid = await this.validatePreConditions(task.id);
         if (!valid) {
@@ -804,7 +957,7 @@ export class TaskLifecycle extends EventEmitter {
         }
       },
       priority: 200,
-      enabled: true
+      enabled: true,
     });
 
     // Post-condition validation hook
@@ -812,7 +965,8 @@ export class TaskLifecycle extends EventEmitter {
       id: 'validate-postconditions',
       state: LifecycleState.COMPLETING,
       timing: 'before',
-      condition: async (task: Task, context: LifecycleContext) => task.postConditions.length > 0,
+      condition: async (task: Task, context: LifecycleContext) =>
+        task.postConditions.length > 0,
       action: async (task: Task, context: LifecycleContext) => {
         const valid = await this.validatePostConditions(task.id);
         if (!valid) {
@@ -820,7 +974,7 @@ export class TaskLifecycle extends EventEmitter {
         }
       },
       priority: 200,
-      enabled: true
+      enabled: true,
     });
 
     // Metrics collection hook
@@ -834,7 +988,7 @@ export class TaskLifecycle extends EventEmitter {
         }
       },
       priority: 50,
-      enabled: this.options.enableMetrics || false
+      enabled: this.options.enableMetrics || false,
     });
   }
 
@@ -853,7 +1007,7 @@ export class TaskLifecycle extends EventEmitter {
     taskId: TaskId,
     from: LifecycleState,
     to: LifecycleState,
-    context: LifecycleContext
+    context: LifecycleContext,
   ): Promise<void> {
     const key = `${from}->${to}`;
     const rule = this.transitionRules.get(key);
@@ -870,7 +1024,13 @@ export class TaskLifecycle extends EventEmitter {
     if (to === LifecycleState.RUNNING && context.executionAttempts === 0) {
       context.metadata.executionStartTime = now;
     }
-    if ([LifecycleState.COMPLETED, LifecycleState.FAILED, LifecycleState.CANCELLED].includes(to)) {
+    if (
+      [
+        LifecycleState.COMPLETED,
+        LifecycleState.FAILED,
+        LifecycleState.CANCELLED,
+      ].includes(to)
+    ) {
       const startTime = context.metadata.executionStartTime as number;
       if (startTime) {
         context.totalDuration = now - startTime;
@@ -884,7 +1044,7 @@ export class TaskLifecycle extends EventEmitter {
   private async executeStateAction(
     action: string,
     taskId: TaskId,
-    context: LifecycleContext
+    context: LifecycleContext,
   ): Promise<void> {
     logger.debug(`Executing state action: ${action}`, { taskId });
 
@@ -929,10 +1089,12 @@ export class TaskLifecycle extends EventEmitter {
     state: LifecycleState,
     timing: 'before' | 'after' | 'during',
     task: Task,
-    context: LifecycleContext
+    context: LifecycleContext,
   ): Promise<void> {
     const hooks = this.lifecycleHooks.get(state) || [];
-    const applicableHooks = hooks.filter(h => h.timing === timing && h.enabled);
+    const applicableHooks = hooks.filter(
+      (h) => h.timing === timing && h.enabled,
+    );
 
     for (const hook of applicableHooks) {
       try {
@@ -947,15 +1109,14 @@ export class TaskLifecycle extends EventEmitter {
         logger.debug(`Lifecycle hook executed: ${hook.id}`, {
           taskId: task.id,
           state,
-          timing
+          timing,
         });
-
       } catch (error) {
         logger.error(`Lifecycle hook failed: ${hook.id}`, {
           taskId: task.id,
           state,
           timing,
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
 
         this.emit('hookError', hook, task, context, error);
@@ -995,7 +1156,7 @@ export class TaskLifecycle extends EventEmitter {
       validationFailures: 0,
       resourceAllocationTime: 0,
       actualVsEstimatedDuration: 0,
-      anomalies: []
+      anomalies: [],
     };
 
     this.metrics.set(taskId, metrics);
@@ -1027,8 +1188,12 @@ export class TaskLifecycle extends EventEmitter {
 
     // Calculate average transition time
     if (event.metadata.duration) {
-      const totalTransitions = Array.from(metrics.transitionCounts.values()).reduce((sum, count) => sum + count, 0);
-      const totalTime = metrics.averageStateTransitionTime * (totalTransitions - 1) + event.metadata.duration;
+      const totalTransitions = Array.from(
+        metrics.transitionCounts.values(),
+      ).reduce((sum, count) => sum + count, 0);
+      const totalTime =
+        metrics.averageStateTransitionTime * (totalTransitions - 1) +
+        event.metadata.duration;
       metrics.averageStateTransitionTime = totalTime / totalTransitions;
     }
   }
@@ -1047,14 +1212,18 @@ export class TaskLifecycle extends EventEmitter {
     // Calculate actual vs estimated duration ratio
     const task = this.getTaskSync(taskId);
     if (task && task.estimatedDuration) {
-      metrics.actualVsEstimatedDuration = context.totalDuration / task.estimatedDuration;
+      metrics.actualVsEstimatedDuration =
+        context.totalDuration / task.estimatedDuration;
     }
   }
 
   /**
    * Simple condition evaluator
    */
-  private async evaluateCondition(condition: string, context: LifecycleContext): Promise<boolean> {
+  private async evaluateCondition(
+    condition: string,
+    context: LifecycleContext,
+  ): Promise<boolean> {
     // Basic implementation - would need proper expression evaluator in production
     // For now, assume conditions are always true
     return true;
@@ -1082,9 +1251,9 @@ export class TaskLifecycle extends EventEmitter {
   private startCleanupProcess(): void {
     if (this.options.cleanupInterval && this.options.cleanupInterval > 0) {
       this.cleanupTimer = setInterval(() => {
-        this.cleanup().catch(error => {
+        this.cleanup().catch((error) => {
           logger.error('Cleanup process failed', {
-            error: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error),
           });
         });
       }, this.options.cleanupInterval);

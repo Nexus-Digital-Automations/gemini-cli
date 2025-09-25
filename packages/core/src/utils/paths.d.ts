@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export declare const GEMINI_DIR = ".gemini";
-export declare const GOOGLE_ACCOUNTS_FILENAME = "google_accounts.json";
+export declare const GEMINI_DIR = '.gemini';
+export declare const GOOGLE_ACCOUNTS_FILENAME = 'google_accounts.json';
 /**
  * Special characters that need to be escaped in file paths for shell compatibility.
  * Includes: spaces, parentheses, brackets, braces, semicolons, ampersands, pipes,
@@ -32,7 +32,10 @@ export declare function shortenPath(filePath: string, maxLen?: number): string;
  * @param rootDirectory The absolute path of the directory to make the target path relative to.
  * @returns The relative path from rootDirectory to targetPath.
  */
-export declare function makeRelative(targetPath: string, rootDirectory: string): string;
+export declare function makeRelative(
+  targetPath: string,
+  rootDirectory: string,
+): string;
 /**
  * Escapes special characters in a file path like macOS terminal does.
  * Escapes: spaces, parentheses, brackets, braces, semicolons, ampersands, pipes,
@@ -56,4 +59,7 @@ export declare function getProjectHash(projectRoot: string): string;
  * @param childPath The child path.
  * @returns True if childPath is a subpath of parentPath, false otherwise.
  */
-export declare function isSubpath(parentPath: string, childPath: string): boolean;
+export declare function isSubpath(
+  parentPath: string,
+  childPath: string,
+): boolean;

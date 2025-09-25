@@ -55,7 +55,10 @@ export const statusCommand: CommandModule<{}, StatusOptions> = {
       })
       .example('gemini autonomous status', 'Show current system status')
       .example('gemini autonomous status --json', 'Output status as JSON')
-      .example('gemini autonomous status --watch', 'Watch status with live updates'),
+      .example(
+        'gemini autonomous status --watch',
+        'Watch status with live updates',
+      ),
 
   handler: async (argv) => {
     try {
@@ -63,14 +66,22 @@ export const statusCommand: CommandModule<{}, StatusOptions> = {
         // Clear screen and setup watch mode
         process.stdout.write('\x1Bc');
         console.log(chalk.cyan('📊 Autonomous System Status - Live View'));
-        console.log(chalk.gray(`Refreshing every ${argv.interval}s (Press Ctrl+C to exit)`));
+        console.log(
+          chalk.gray(
+            `Refreshing every ${argv.interval}s (Press Ctrl+C to exit)`,
+          ),
+        );
         console.log(chalk.gray('─'.repeat(60)));
 
         const displayStatus = async () => {
           try {
             process.stdout.write('\x1B[H\x1B[2J'); // Clear screen
             console.log(chalk.cyan('📊 Autonomous System Status - Live View'));
-            console.log(chalk.gray(`Refreshing every ${argv.interval}s (Press Ctrl+C to exit)`));
+            console.log(
+              chalk.gray(
+                `Refreshing every ${argv.interval}s (Press Ctrl+C to exit)`,
+              ),
+            );
             console.log(chalk.gray('─'.repeat(60)));
 
             const status = await getSystemStatus();
@@ -84,7 +95,10 @@ export const statusCommand: CommandModule<{}, StatusOptions> = {
         await displayStatus();
 
         // Setup interval
-        const intervalId = setInterval(displayStatus, (argv.interval || 5) * 1000);
+        const intervalId = setInterval(
+          displayStatus,
+          (argv.interval || 5) * 1000,
+        );
 
         // Handle Ctrl+C
         process.on('SIGINT', () => {
@@ -103,10 +117,11 @@ export const statusCommand: CommandModule<{}, StatusOptions> = {
       } else {
         displaySystemStatus(status, true);
       }
-
     } catch (error) {
       console.error(chalk.red('❌ Failed to get system status:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },
@@ -120,7 +135,7 @@ async function getSystemStatus(): Promise<SystemStatus> {
     runningTasks: 0,
     completedTasks: 0,
     failedTasks: 0,
-    systemHealth: 'critical'
+    systemHealth: 'critical',
   };
 
   // Check if system is running via PID file
@@ -209,7 +224,9 @@ function displaySystemStatus(status: SystemStatus, showHeader: boolean) {
   }
 
   if (status.startTime) {
-    console.log(`   🚀 Started: ${new Date(status.startTime).toLocaleString()}`);
+    console.log(
+      `   🚀 Started: ${new Date(status.startTime).toLocaleString()}`,
+    );
   }
 
   // Health Status
@@ -217,16 +234,18 @@ function displaySystemStatus(status: SystemStatus, showHeader: boolean) {
   const healthIcon = {
     healthy: '🟢',
     degraded: '🟡',
-    critical: '🔴'
+    critical: '🔴',
   }[status.systemHealth];
 
   const healthColor = {
     healthy: chalk.green,
     degraded: chalk.yellow,
-    critical: chalk.red
+    critical: chalk.red,
   }[status.systemHealth];
 
-  console.log(`   ${healthIcon} System Health: ${healthColor(status.systemHealth.toUpperCase())}`);
+  console.log(
+    `   ${healthIcon} System Health: ${healthColor(status.systemHealth.toUpperCase())}`,
+  );
 
   if (status.lastHeartbeat) {
     const heartbeatTime = new Date(status.lastHeartbeat).toLocaleTimeString();
@@ -256,17 +275,28 @@ function displaySystemStatus(status: SystemStatus, showHeader: boolean) {
   if (!status.isRunning) {
     console.log(chalk.bold(chalk.yellow('\n💡 Recommendations:')));
     console.log(chalk.yellow('   • Start the system: gemini autonomous start'));
-  } else if (status.systemHealth === 'degraded' || status.systemHealth === 'critical') {
+  } else if (
+    status.systemHealth === 'degraded' ||
+    status.systemHealth === 'critical'
+  ) {
     console.log(chalk.bold(chalk.yellow('\n⚠️  Issues Detected:')));
 
-    if (status.failedTasks / Math.max(1, status.completedTasks + status.failedTasks) > 0.2) {
+    if (
+      status.failedTasks /
+        Math.max(1, status.completedTasks + status.failedTasks) >
+      0.2
+    ) {
       console.log(chalk.yellow('   • High task failure rate detected'));
-      console.log(chalk.yellow('   • Check system logs and task configurations'));
+      console.log(
+        chalk.yellow('   • Check system logs and task configurations'),
+      );
     }
 
     if (status.queuedTasks > 100) {
       console.log(chalk.yellow('   • Task queue is growing large'));
-      console.log(chalk.yellow('   • Consider increasing max concurrent agents'));
+      console.log(
+        chalk.yellow('   • Consider increasing max concurrent agents'),
+      );
     }
   } else {
     console.log(chalk.bold(chalk.green('\n✨ System Status:')));

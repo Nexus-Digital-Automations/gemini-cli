@@ -4,7 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, beforeEach, afterEach, it, expect, vi, type MockedFunction } from 'vitest';
+import {
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+  vi,
+  type MockedFunction,
+} from 'vitest';
 import { EventEmitter } from 'node:events';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
@@ -142,8 +150,12 @@ describe('RealTimeMonitoringSystem', () => {
     it('should setup default alert rules', () => {
       const alertRules = monitoringSystem.getAlertRules();
       expect(alertRules).toHaveLength(5);
-      expect(alertRules.some(rule => rule.name === 'High Task Failure Rate')).toBe(true);
-      expect(alertRules.some(rule => rule.name === 'Critical Memory Usage')).toBe(true);
+      expect(
+        alertRules.some((rule) => rule.name === 'High Task Failure Rate'),
+      ).toBe(true);
+      expect(
+        alertRules.some((rule) => rule.name === 'Critical Memory Usage'),
+      ).toBe(true);
     });
   });
 
@@ -217,7 +229,7 @@ describe('RealTimeMonitoringSystem', () => {
       monitoringSystem.addAlertRule(customRule);
 
       const rules = monitoringSystem.getAlertRules();
-      const addedRule = rules.find(rule => rule.id === 'custom-test-rule');
+      const addedRule = rules.find((rule) => rule.id === 'custom-test-rule');
 
       expect(addedRule).toBeDefined();
       expect(addedRule?.name).toBe('Test Alert');
@@ -237,11 +249,19 @@ describe('RealTimeMonitoringSystem', () => {
       };
 
       monitoringSystem.addAlertRule(customRule);
-      expect(monitoringSystem.getAlertRules().some(rule => rule.id === 'removable-rule')).toBe(true);
+      expect(
+        monitoringSystem
+          .getAlertRules()
+          .some((rule) => rule.id === 'removable-rule'),
+      ).toBe(true);
 
       const removed = monitoringSystem.removeAlertRule('removable-rule');
       expect(removed).toBe(true);
-      expect(monitoringSystem.getAlertRules().some(rule => rule.id === 'removable-rule')).toBe(false);
+      expect(
+        monitoringSystem
+          .getAlertRules()
+          .some((rule) => rule.id === 'removable-rule'),
+      ).toBe(false);
     });
 
     it('should trigger alerts when conditions are met', (done) => {
@@ -296,12 +316,12 @@ describe('RealTimeMonitoringSystem', () => {
       monitoringSystem.startMonitoring();
 
       // Wait for initial alert
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
       const initialAlertCount = alertCount;
 
       // Wait less than cooldown period
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Alert count should not increase due to cooldown
       expect(alertCount).toBe(initialAlertCount);
@@ -330,7 +350,7 @@ describe('RealTimeMonitoringSystem', () => {
 
       // Wait for insights generation (normally happens every 5 minutes)
       // We'll call the private method indirectly by waiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const insights = monitoringSystem.getPredictiveInsights();
 
@@ -381,7 +401,7 @@ describe('RealTimeMonitoringSystem', () => {
 
     it('should throw error for unsupported export format', async () => {
       await expect(
-        monitoringSystem.exportMonitoringData('xml' as any)
+        monitoringSystem.exportMonitoringData('xml' as any),
       ).rejects.toThrow('Unsupported export format: xml');
     });
   });
@@ -402,7 +422,7 @@ describe('RealTimeMonitoringSystem', () => {
           // Check that history is sorted by timestamp (newest first)
           for (let i = 1; i < history.length; i++) {
             expect(history[i].timestamp.getTime()).toBeLessThanOrEqual(
-              history[i - 1].timestamp.getTime()
+              history[i - 1].timestamp.getTime(),
             );
           }
 
@@ -417,7 +437,9 @@ describe('RealTimeMonitoringSystem', () => {
       const history = monitoringSystem.getMonitoringHistory(1);
 
       for (const snapshot of history) {
-        expect(snapshot.timestamp.getTime()).toBeGreaterThanOrEqual(oneHourAgo.getTime());
+        expect(snapshot.timestamp.getTime()).toBeGreaterThanOrEqual(
+          oneHourAgo.getTime(),
+        );
       }
     });
   });
@@ -462,7 +484,7 @@ describe('RealTimeMonitoringSystem', () => {
       highFrequencySystem.startMonitoring();
 
       // Run for 1 second
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const elapsed = Date.now() - startTime;
       highFrequencySystem.stopMonitoring();
@@ -488,7 +510,7 @@ describe('RealTimeMonitoringSystem', () => {
             expect(snapshot).toHaveProperty('timestamp');
             expect(snapshot.taskMetrics.total).toBe(3); // Should be consistent
             resolve();
-          })
+          }),
         );
       }
 
@@ -516,7 +538,9 @@ describe('RealTimeMonitoringSystem', () => {
         id: 'faulty-rule',
         name: 'Faulty Rule',
         description: 'This rule throws an error',
-        condition: () => { throw new Error('Test error'); },
+        condition: () => {
+          throw new Error('Test error');
+        },
         severity: 'low' as const,
         cooldownMs: 1000,
         enabled: true,
@@ -540,7 +564,7 @@ describe('RealTimeMonitoringSystem', () => {
       const system = new RealTimeMonitoringSystem();
 
       system.startMonitoring();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       await system.shutdown();
 

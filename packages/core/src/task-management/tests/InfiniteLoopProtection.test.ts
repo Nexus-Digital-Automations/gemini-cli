@@ -19,7 +19,7 @@ import {
   MockTaskStore,
   TestUtilities,
   PerformanceMetrics,
-  SafetyMonitor
+  SafetyMonitor,
 } from './utils/TestFactories';
 
 describe('Infinite Loop Protection System', () => {
@@ -59,7 +59,11 @@ describe('Infinite Loop Protection System', () => {
 
       expect(circularCheck.hasCircularDependencies).toBe(true);
       expect(circularCheck.cycles).toHaveLength(1);
-      expect(circularCheck.cycles[0].path).toEqual(['task-a', 'task-b', 'task-a']);
+      expect(circularCheck.cycles[0].path).toEqual([
+        'task-a',
+        'task-b',
+        'task-a',
+      ]);
     });
 
     it('should detect complex multi-node circular dependencies', async () => {
@@ -71,10 +75,10 @@ describe('Infinite Loop Protection System', () => {
         { id: 'task-d', deps: ['task-e'] },
         { id: 'task-e', deps: ['task-b'] }, // Creates cycle
       ].map(({ id, deps }) =>
-        TaskFactories.createTask({ id, dependencies: deps })
+        TaskFactories.createTask({ id, dependencies: deps }),
       );
 
-      await Promise.all(tasks.map(task => taskStore.addTask(task)));
+      await Promise.all(tasks.map((task) => taskStore.addTask(task)));
 
       const circularCheck = taskStore.detectCircularDependencies();
 
@@ -95,7 +99,10 @@ describe('Infinite Loop Protection System', () => {
       const circularCheck = taskStore.detectCircularDependencies();
 
       expect(circularCheck.hasCircularDependencies).toBe(true);
-      expect(circularCheck.cycles[0].path).toEqual(['self-ref-task', 'self-ref-task']);
+      expect(circularCheck.cycles[0].path).toEqual([
+        'self-ref-task',
+        'self-ref-task',
+      ]);
       expect(circularCheck.cycles[0].type).toBe('self_reference');
     });
 
@@ -114,7 +121,7 @@ describe('Infinite Loop Protection System', () => {
       ];
 
       const allTasks = [...cycle1Tasks, ...cycle2Tasks];
-      await Promise.all(allTasks.map(task => taskStore.addTask(task)));
+      await Promise.all(allTasks.map((task) => taskStore.addTask(task)));
 
       const circularCheck = taskStore.detectCircularDependencies();
 
@@ -138,9 +145,9 @@ describe('Infinite Loop Protection System', () => {
       await taskStore.addTask(taskB);
 
       // Attempt to execute should fail with circular dependency error
-      await expect(
-        taskStore.executeTask('circular-a')
-      ).rejects.toThrow('Cannot execute task with circular dependencies');
+      await expect(taskStore.executeTask('circular-a')).rejects.toThrow(
+        'Cannot execute task with circular dependencies',
+      );
 
       const taskStatus = await taskStore.getTask('circular-a');
       expect(taskStatus?.status).toBe('blocked');
@@ -155,19 +162,25 @@ describe('Infinite Loop Protection System', () => {
       const deepChainTasks = [];
 
       for (let i = 0; i <= maxDepth + 10; i++) {
-        const dependencies = i > 0 ? [`deep-task-${i-1}`] : [];
-        deepChainTasks.push(TaskFactories.createTask({
-          id: `deep-task-${i}`,
-          dependencies,
-        }));
+        const dependencies = i > 0 ? [`deep-task-${i - 1}`] : [];
+        deepChainTasks.push(
+          TaskFactories.createTask({
+            id: `deep-task-${i}`,
+            dependencies,
+          }),
+        );
       }
 
-      await Promise.all(deepChainTasks.map(task => taskStore.addTask(task)));
+      await Promise.all(deepChainTasks.map((task) => taskStore.addTask(task)));
 
-      const resolutionResult = await taskStore.resolveDependencies(`deep-task-${maxDepth + 10}`);
+      const resolutionResult = await taskStore.resolveDependencies(
+        `deep-task-${maxDepth + 10}`,
+      );
 
       expect(resolutionResult.success).toBe(false);
-      expect(resolutionResult.error).toContain('Maximum recursion depth exceeded');
+      expect(resolutionResult.error).toContain(
+        'Maximum recursion depth exceeded',
+      );
       expect(resolutionResult.maxDepthReached).toBe(maxDepth);
     });
 
@@ -180,7 +193,8 @@ describe('Infinite Loop Protection System', () => {
         executionConfig: {
           onComplete: () => {
             spawnCount++;
-            if (spawnCount < 1000) { // Try to create 1000 tasks
+            if (spawnCount < 1000) {
+              // Try to create 1000 tasks
               return TaskFactories.createTask({
                 id: `spawned-task-${spawnCount}`,
                 executionConfig: {
@@ -217,7 +231,9 @@ describe('Infinite Loop Protection System', () => {
 
       const maxRetries = taskStore.getMaxRetryLimit();
 
-      const executionResult = await taskStore.executeTask('always-failing-task');
+      const executionResult = await taskStore.executeTask(
+        'always-failing-task',
+      );
 
       expect(executionResult.success).toBe(false);
       expect(executionResult.retryAttempts).toBe(maxRetries);
@@ -231,7 +247,8 @@ describe('Infinite Loop Protection System', () => {
       const createNestedCallback = (depth: number): any => {
         return () => {
           callbackDepth = Math.max(callbackDepth, depth);
-          if (depth < 1000) { // Try to create deep callback chain
+          if (depth < 1000) {
+            // Try to create deep callback chain
             return createNestedCallback(depth + 1)();
           }
         };
@@ -247,7 +264,9 @@ describe('Infinite Loop Protection System', () => {
       safetyMonitor.setCallbackDepthLimit(maxCallbackDepth);
       await taskStore.addTask(callbackTask);
 
-      const executionResult = await taskStore.executeTask('callback-chain-task');
+      const executionResult = await taskStore.executeTask(
+        'callback-chain-task',
+      );
 
       expect(executionResult.success).toBe(true);
       expect(callbackDepth).toBeLessThanOrEqual(maxCallbackDepth);
@@ -341,7 +360,9 @@ describe('Infinite Loop Protection System', () => {
       const executionResult = await taskStore.executeTask('io-infinite-task');
 
       expect(executionResult.success).toBe(false);
-      expect(executionResult.terminationReason).toMatch(/io_(operations|time)_exceeded/);
+      expect(executionResult.terminationReason).toMatch(
+        /io_(operations|time)_exceeded/,
+      );
     });
   });
 
@@ -381,7 +402,9 @@ describe('Infinite Loop Protection System', () => {
 
       await taskStore.addTask(parentTask);
 
-      const executionResult = await taskStore.executeTask('parent-timeout-task');
+      const executionResult = await taskStore.executeTask(
+        'parent-timeout-task',
+      );
 
       expect(executionResult.success).toBe(false);
       expect(executionResult.terminationReason).toBe('parent_timeout_cascade');
@@ -400,7 +423,9 @@ describe('Infinite Loop Protection System', () => {
 
       await taskStore.addTask(cleanupTask);
 
-      const executionResult = await taskStore.executeTask('cleanup-timeout-task');
+      const executionResult = await taskStore.executeTask(
+        'cleanup-timeout-task',
+      );
 
       expect(executionResult.success).toBe(false);
       expect(executionResult.mainTaskCompleted).toBe(true);
@@ -430,7 +455,9 @@ describe('Infinite Loop Protection System', () => {
 
       const executionResult = await taskStore.executeTask('gradual-leak-task');
 
-      expect(executionResult.terminationReason).toBe('memory_growth_rate_exceeded');
+      expect(executionResult.terminationReason).toBe(
+        'memory_growth_rate_exceeded',
+      );
 
       const finalMemory = process.memoryUsage().heapUsed;
       const memoryGrowth = finalMemory - initialMemory;
@@ -474,7 +501,9 @@ describe('Infinite Loop Protection System', () => {
 
       await taskStore.addTask(resourceTask);
 
-      const executionResult = await taskStore.executeTask('resource-abandon-task');
+      const executionResult = await taskStore.executeTask(
+        'resource-abandon-task',
+      );
 
       // Even if task fails to clean up, system should handle it
       const resourceCleanup = await taskStore.cleanupAbandonedResources();
@@ -504,13 +533,20 @@ describe('Infinite Loop Protection System', () => {
         integrityCheckInterval: 500,
       });
 
-      const executionResult = await taskStore.executeTask('state-corruption-task');
+      const executionResult = await taskStore.executeTask(
+        'state-corruption-task',
+      );
 
       expect(executionResult.success).toBe(false);
-      expect(executionResult.terminationReason).toBe('state_integrity_violation');
+      expect(executionResult.terminationReason).toBe(
+        'state_integrity_violation',
+      );
 
       const finalState = taskStore.getSystemStateSnapshot();
-      const stateIntegrity = taskStore.validateStateIntegrity(initialState, finalState);
+      const stateIntegrity = taskStore.validateStateIntegrity(
+        initialState,
+        finalState,
+      );
 
       expect(stateIntegrity.isValid).toBe(true);
       expect(stateIntegrity.corruptionPrevented).toBe(true);
@@ -535,7 +571,9 @@ describe('Infinite Loop Protection System', () => {
 
       // Execute both tasks concurrently
       const infinitePromise = taskStore.executeTask('isolated-infinite-task');
-      const normalPromise = taskStore.executeTask('normal-task-during-infinite');
+      const normalPromise = taskStore.executeTask(
+        'normal-task-during-infinite',
+      );
 
       const [infiniteResult, normalResult] = await Promise.allSettled([
         infinitePromise,
@@ -549,7 +587,9 @@ describe('Infinite Loop Protection System', () => {
       // Infinite task should be terminated
       expect(infiniteResult.status).toBe('fulfilled');
       expect((infiniteResult as any).value.success).toBe(false);
-      expect((infiniteResult as any).value.terminationReason).toContain('infinite');
+      expect((infiniteResult as any).value.terminationReason).toContain(
+        'infinite',
+      );
     });
 
     it('should recover system stability after infinite loop detection', async () => {
@@ -560,21 +600,25 @@ describe('Infinite Loop Protection System', () => {
             simulateInfiniteLoop: true,
             loopType: ['cpu', 'memory', 'io', 'callback', 'recursive'][i],
           },
-        })
+        }),
       );
 
-      await Promise.all(multipleInfiniteLoops.map(task => taskStore.addTask(task)));
+      await Promise.all(
+        multipleInfiniteLoops.map((task) => taskStore.addTask(task)),
+      );
 
       // Execute all infinite loop tasks
       const executionResults = await Promise.allSettled(
-        multipleInfiniteLoops.map(task => taskStore.executeTask(task.id))
+        multipleInfiniteLoops.map((task) => taskStore.executeTask(task.id)),
       );
 
       // All should be terminated
-      executionResults.forEach(result => {
+      executionResults.forEach((result) => {
         expect(result.status).toBe('fulfilled');
         expect((result as any).value.success).toBe(false);
-        expect((result as any).value.terminationReason).toMatch(/infinite|exceeded|limit/);
+        expect((result as any).value.terminationReason).toMatch(
+          /infinite|exceeded|limit/,
+        );
       });
 
       // System should remain stable
@@ -582,7 +626,9 @@ describe('Infinite Loop Protection System', () => {
       expect(systemHealth.overallHealth).toBe('healthy');
       expect(systemHealth.infiniteLoopProtection.active).toBe(true);
       expect(systemHealth.infiniteLoopProtection.detectedLoops).toBe(5);
-      expect(systemHealth.infiniteLoopProtection.successfulTerminations).toBe(5);
+      expect(systemHealth.infiniteLoopProtection.successfulTerminations).toBe(
+        5,
+      );
 
       // Should be able to execute normal tasks after cleanup
       const recoveryTask = TaskFactories.createTask({
@@ -591,7 +637,9 @@ describe('Infinite Loop Protection System', () => {
       });
 
       await taskStore.addTask(recoveryTask);
-      const recoveryResult = await taskStore.executeTask('recovery-validation-task');
+      const recoveryResult = await taskStore.executeTask(
+        'recovery-validation-task',
+      );
 
       expect(recoveryResult.success).toBe(true);
       expect(recoveryResult.executionTime).toBeLessThan(2000);

@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { AlertSystem, AlertSeverity, AlertCategory, NotificationChannel } from '../AlertSystem.js';
+import {
+  AlertSystem,
+  AlertSeverity,
+  AlertCategory,
+  NotificationChannel,
+} from '../AlertSystem.js';
 import { TaskStatus, TaskType, TaskPriority } from '../TaskStatusMonitor.js';
 
 // Mock logger
@@ -43,18 +48,18 @@ describe('AlertSystem', () => {
           parameters: {
             metric: 'errorCount',
             operator: '>',
-            threshold: 3
-          }
+            threshold: 3,
+          },
         },
         triggers: {
-          eventTypes: ['task_status_update']
+          eventTypes: ['task_status_update'],
         },
         actions: {
           notifications: {
-            channels: [NotificationChannel.CONSOLE]
-          }
+            channels: [NotificationChannel.CONSOLE],
+          },
         },
-        cooldownPeriod: 300000
+        cooldownPeriod: 300000,
       };
 
       alertSystem.registerRule(rule);
@@ -75,14 +80,14 @@ describe('AlertSystem', () => {
         condition: { type: 'threshold' as const, parameters: {} },
         triggers: { eventTypes: ['task_status_update'] },
         actions: { notifications: { channels: [NotificationChannel.CONSOLE] } },
-        cooldownPeriod: 300000
+        cooldownPeriod: 300000,
       };
 
       alertSystem.registerRule(rule);
 
       const success = alertSystem.updateRule(ruleId, {
         name: 'Updated Rule',
-        severity: AlertSeverity.ERROR
+        severity: AlertSeverity.ERROR,
       });
 
       expect(success).toBe(true);
@@ -103,7 +108,7 @@ describe('AlertSystem', () => {
         condition: { type: 'threshold' as const, parameters: {} },
         triggers: { eventTypes: ['task_status_update'] },
         actions: { notifications: { channels: [NotificationChannel.CONSOLE] } },
-        cooldownPeriod: 300000
+        cooldownPeriod: 300000,
       };
 
       alertSystem.registerRule(rule);
@@ -135,7 +140,7 @@ describe('AlertSystem', () => {
         errorCount: 1,
         retryCount: 0,
         tags: ['critical'],
-        metadata: {}
+        metadata: {},
       };
 
       const update = {
@@ -144,7 +149,7 @@ describe('AlertSystem', () => {
         newStatus: TaskStatus.FAILED,
         timestamp: new Date(),
         agentId: 'agent-1',
-        error: 'Task execution failed'
+        error: 'Task execution failed',
       };
 
       const eventSpy = vi.fn();
@@ -177,7 +182,7 @@ describe('AlertSystem', () => {
         errorCount: 0,
         retryCount: 0,
         tags: ['delayed'],
-        metadata: {}
+        metadata: {},
       };
 
       const update = {
@@ -185,7 +190,7 @@ describe('AlertSystem', () => {
         previousStatus: TaskStatus.IN_PROGRESS,
         newStatus: TaskStatus.COMPLETED,
         timestamp: new Date(),
-        agentId: 'agent-1'
+        agentId: 'agent-1',
       };
 
       const eventSpy = vi.fn();
@@ -213,8 +218,8 @@ describe('AlertSystem', () => {
         performance: {
           successRate: 80,
           averageCompletionTime: 45000,
-          taskThroughput: 8
-        }
+          taskThroughput: 8,
+        },
       };
 
       const eventSpy = vi.fn();
@@ -240,8 +245,8 @@ describe('AlertSystem', () => {
         performance: {
           successRate: 33, // Very low success rate
           averageCompletionTime: 60000,
-          taskThroughput: 2
-        }
+          taskThroughput: 2,
+        },
       };
 
       const eventSpy = vi.fn();
@@ -251,7 +256,9 @@ describe('AlertSystem', () => {
 
       expect(eventSpy).toHaveBeenCalled();
       const alertEvent = eventSpy.mock.calls[0][0];
-      expect(alertEvent.alert.category).toBe(AlertCategory.PERFORMANCE_DEGRADATION);
+      expect(alertEvent.alert.category).toBe(
+        AlertCategory.PERFORMANCE_DEGRADATION,
+      );
     });
   });
 
@@ -265,7 +272,7 @@ describe('AlertSystem', () => {
         title: 'Test Alert',
         description: 'Test alert description',
         source: 'test',
-        context: {}
+        context: {},
       });
 
       const success = await alertSystem.acknowledgeAlert(alert.id, 'test-user');
@@ -285,10 +292,14 @@ describe('AlertSystem', () => {
         title: 'Test Alert',
         description: 'Test alert description',
         source: 'test',
-        context: {}
+        context: {},
       });
 
-      const success = await alertSystem.resolveAlert(alert.id, 'test-user', 'Fixed the issue');
+      const success = await alertSystem.resolveAlert(
+        alert.id,
+        'test-user',
+        'Fixed the issue',
+      );
 
       expect(success).toBe(true);
       expect(alert.status).toBe('resolved');
@@ -321,7 +332,7 @@ describe('AlertSystem', () => {
       // This test would require setting up some alerts first
       const activeAlerts = alertSystem.getActiveAlerts({
         category: AlertCategory.TASK_FAILURE,
-        severity: AlertSeverity.CRITICAL
+        severity: AlertSeverity.CRITICAL,
       });
 
       expect(Array.isArray(activeAlerts)).toBe(true);
@@ -334,12 +345,17 @@ describe('AlertSystem', () => {
         channel: NotificationChannel.EMAIL,
         async send(alert: any): Promise<boolean> {
           return true;
-        }
+        },
       };
 
-      alertSystem.registerNotificationChannel(NotificationChannel.EMAIL, testChannel);
+      alertSystem.registerNotificationChannel(
+        NotificationChannel.EMAIL,
+        testChannel,
+      );
 
-      expect(alertSystem['notificationDeliveries'].has(NotificationChannel.EMAIL)).toBe(true);
+      expect(
+        alertSystem['notificationDeliveries'].has(NotificationChannel.EMAIL),
+      ).toBe(true);
     });
   });
 });

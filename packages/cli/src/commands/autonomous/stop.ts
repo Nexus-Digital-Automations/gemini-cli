@@ -39,11 +39,16 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
       })
       .example('gemini autonomous stop', 'Stop gracefully with default timeout')
       .example('gemini autonomous stop --force', 'Force immediate stop')
-      .example('gemini autonomous stop --timeout 60', 'Wait up to 60 seconds for graceful stop'),
+      .example(
+        'gemini autonomous stop --timeout 60',
+        'Wait up to 60 seconds for graceful stop',
+      ),
 
   handler: async (argv) => {
     try {
-      console.log(chalk.cyan('⏹️  Stopping Autonomous Task Management System...'));
+      console.log(
+        chalk.cyan('⏹️  Stopping Autonomous Task Management System...'),
+      );
 
       // Check if system is running
       const pidFile = path.join(process.cwd(), '.autonomous-system.pid');
@@ -55,9 +60,15 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
         // Check if process is still running
         try {
           process.kill(systemPid, 0); // Test signal - doesn't actually kill
-          console.log(chalk.blue('📡 System found running, initiating shutdown...'));
+          console.log(
+            chalk.blue('📡 System found running, initiating shutdown...'),
+          );
         } catch (error) {
-          console.log(chalk.yellow('⚠️  No running system found (stale PID file removed)'));
+          console.log(
+            chalk.yellow(
+              '⚠️  No running system found (stale PID file removed)',
+            ),
+          );
           await fs.unlink(pidFile).catch(() => {});
           return;
         }
@@ -82,7 +93,7 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
           process.kill(systemPid, 'SIGUSR1');
 
           // Wait a moment for state saving
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
 
         // Send SIGTERM for graceful shutdown
@@ -92,12 +103,16 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
         const timeoutMs = (argv.timeout || 30) * 1000;
         const startTime = Date.now();
 
-        console.log(chalk.blue(`⏳ Waiting for graceful shutdown (timeout: ${argv.timeout}s)...`));
+        console.log(
+          chalk.blue(
+            `⏳ Waiting for graceful shutdown (timeout: ${argv.timeout}s)...`,
+          ),
+        );
 
         while (Date.now() - startTime < timeoutMs) {
           try {
             process.kill(systemPid, 0);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
           } catch (error) {
             // Process has terminated
             await fs.unlink(pidFile).catch(() => {});
@@ -107,7 +122,9 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
         }
 
         // Timeout reached, force kill
-        console.log(chalk.yellow('⚠️  Graceful shutdown timeout, force stopping...'));
+        console.log(
+          chalk.yellow('⚠️  Graceful shutdown timeout, force stopping...'),
+        );
         try {
           process.kill(systemPid, 'SIGKILL');
           await fs.unlink(pidFile).catch(() => {});
@@ -115,7 +132,6 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
         } catch (error) {
           console.log(chalk.green('✅ System stopped'));
         }
-
       } catch (error) {
         console.log(chalk.yellow('⚠️  No autonomous system PID file found'));
 
@@ -130,26 +146,35 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
 
         ps.on('close', () => {
           const lines = psOutput.split('\n');
-          const autonomousProcesses = lines.filter(line =>
-            line.includes('autonomous') &&
-            line.includes('node') &&
-            !line.includes('grep')
+          const autonomousProcesses = lines.filter(
+            (line) =>
+              line.includes('autonomous') &&
+              line.includes('node') &&
+              !line.includes('grep'),
           );
 
           if (autonomousProcesses.length === 0) {
-            console.log(chalk.green('✅ No autonomous processes found running'));
+            console.log(
+              chalk.green('✅ No autonomous processes found running'),
+            );
             return;
           }
 
-          console.log(chalk.blue(`📋 Found ${autonomousProcesses.length} autonomous processes`));
+          console.log(
+            chalk.blue(
+              `📋 Found ${autonomousProcesses.length} autonomous processes`,
+            ),
+          );
           autonomousProcesses.forEach((process, index) => {
             const pid = process.trim().split(/\s+/)[1];
             console.log(chalk.blue(`   ${index + 1}. PID ${pid}`));
           });
 
           if (argv.force) {
-            console.log(chalk.red('💀 Force stopping all autonomous processes...'));
-            autonomousProcesses.forEach(process => {
+            console.log(
+              chalk.red('💀 Force stopping all autonomous processes...'),
+            );
+            autonomousProcesses.forEach((process) => {
               const pid = parseInt(process.trim().split(/\s+/)[1], 10);
               try {
                 process.kill(pid, 'SIGKILL');
@@ -166,7 +191,7 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
       const stateFiles = [
         '.autonomous-system.pid',
         '.autonomous-system.state',
-        'data/autonomous-tasks.json.lock'
+        'data/autonomous-tasks.json.lock',
       ];
 
       for (const file of stateFiles) {
@@ -178,10 +203,11 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
       }
 
       console.log(chalk.green('🧹 Cleanup completed'));
-
     } catch (error) {
       console.error(chalk.red('❌ Failed to stop autonomous system:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },

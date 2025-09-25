@@ -5,6 +5,16 @@
  */
 
 import type { MergeStrategy } from '../config/settingsSchema.js';
-export type Mergeable = string | number | boolean | null | undefined | object | Mergeable[];
+export type Mergeable =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | object
+  | Mergeable[];
 export type MergeableObject = Record<string, Mergeable>;
-export declare function customDeepMerge(getMergeStrategyForPath: (path: string[]) => MergeStrategy | undefined, ...sources: MergeableObject[]): MergeableObject;
+export declare function customDeepMerge(
+  getMergeStrategyForPath: (path: string[]) => MergeStrategy | undefined,
+  ...sources: MergeableObject[]
+): MergeableObject;

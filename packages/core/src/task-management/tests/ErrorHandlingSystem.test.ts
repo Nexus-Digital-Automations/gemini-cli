@@ -16,7 +16,7 @@ import {
   TaskFactories,
   MockTaskStore,
   TestUtilities,
-  PerformanceMetrics
+  PerformanceMetrics,
 } from './utils/TestFactories';
 import type {
   Task,
@@ -24,7 +24,7 @@ import type {
   TaskPersistence,
   DependencyResolver,
   TaskPriorityScheduler,
-  ExecutionMonitoringSystem
+  ExecutionMonitoringSystem,
 } from '../types';
 
 describe('Comprehensive Error Handling System', () => {
@@ -140,9 +140,9 @@ describe('Comprehensive Error Handling System', () => {
         },
       });
 
-      await expect(
-        taskStore.executeTask(crashingTask.id)
-      ).rejects.toThrow('Task execution crashed');
+      await expect(taskStore.executeTask(crashingTask.id)).rejects.toThrow(
+        'Task execution crashed',
+      );
 
       // Verify crash recovery
       const crashedTask = taskStore.getTask(crashingTask.id);
@@ -238,12 +238,12 @@ describe('Comprehensive Error Handling System', () => {
         dependencies: ['task-b'],
       });
 
-      [taskC, taskB, taskA].forEach(task => taskStore.addTask(task));
+      [taskC, taskB, taskA].forEach((task) => taskStore.addTask(task));
 
       // Execute the chain
-      await expect(
-        taskStore.executeTask('task-a')
-      ).rejects.toThrow('Dependency chain failure');
+      await expect(taskStore.executeTask('task-a')).rejects.toThrow(
+        'Dependency chain failure',
+      );
 
       // Verify failure propagation
       expect(taskStore.getTask('task-c')?.status).toBe('failed');
@@ -260,11 +260,13 @@ describe('Comprehensive Error Handling System', () => {
         TaskFactories.createTask({ id: 'task-d', dependencies: ['task-b'] }),
       ];
 
-      tasks.forEach(task => taskStore.addTask(task));
+      tasks.forEach((task) => taskStore.addTask(task));
 
       expect(() => {
         taskStore.detectCircularDependencies();
-      }).toThrow('Circular dependency detected in chain: task-b -> task-c -> task-d -> task-b');
+      }).toThrow(
+        'Circular dependency detected in chain: task-b -> task-c -> task-d -> task-b',
+      );
     });
   });
 
@@ -336,10 +338,10 @@ describe('Comprehensive Error Handling System', () => {
           resourceRequirements: {
             memory: 100, // 100MB each
           },
-        })
+        }),
       );
 
-      memoryTasks.forEach(task => taskStore.addTask(task));
+      memoryTasks.forEach((task) => taskStore.addTask(task));
 
       // Simulate low memory condition
       taskStore.setSystemMemory(5000); // 5GB total
@@ -359,10 +361,10 @@ describe('Comprehensive Error Handling System', () => {
           resourceRequirements: {
             cpu: 0.5, // 50% CPU each
           },
-        })
+        }),
       );
 
-      cpuTasks.forEach(task => taskStore.addTask(task));
+      cpuTasks.forEach((task) => taskStore.addTask(task));
 
       // System has 4 CPU cores
       taskStore.setSystemCPUCores(4);
@@ -410,12 +412,14 @@ describe('Comprehensive Error Handling System', () => {
         () => taskStore.updateTaskStatus(task.id, 'failed'),
       ];
 
-      await Promise.all(operations.map(op => op()));
+      await Promise.all(operations.map((op) => op()));
 
       const finalTask = await taskStore.getTask(task.id);
 
       // Should have consistent final state
-      expect(finalTask?.status).toMatch(/^(in_progress|paused|completed|failed)$/);
+      expect(finalTask?.status).toMatch(
+        /^(in_progress|paused|completed|failed)$/,
+      );
       expect(finalTask?.stateTransitions).toBeDefined();
       expect(finalTask?.stateTransitions.length).toBeGreaterThan(0);
     });
@@ -447,8 +451,9 @@ describe('Comprehensive Error Handling System', () => {
 
       // Deadlock detection should prevent system hang
       const hasTimeout = results.some(
-        result => result.status === 'rejected' &&
-        result.reason?.message?.includes('deadlock')
+        (result) =>
+          result.status === 'rejected' &&
+          result.reason?.message?.includes('deadlock'),
       );
 
       expect(hasTimeout).toBe(true);
@@ -456,14 +461,16 @@ describe('Comprehensive Error Handling System', () => {
 
     it('should handle high-concurrency task creation', async () => {
       const concurrentCreations = Array.from({ length: 1000 }, (_, i) =>
-        taskStore.addTask(TaskFactories.createTask({
-          id: `concurrent-task-${i}`,
-          title: `Concurrent Task ${i}`,
-        }))
+        taskStore.addTask(
+          TaskFactories.createTask({
+            id: `concurrent-task-${i}`,
+            title: `Concurrent Task ${i}`,
+          }),
+        ),
       );
 
       const results = await Promise.allSettled(concurrentCreations);
-      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const successful = results.filter((r) => r.status === 'fulfilled').length;
 
       // Should handle high concurrency without data corruption
       expect(successful).toBe(1000);
@@ -471,7 +478,7 @@ describe('Comprehensive Error Handling System', () => {
 
       // Verify data integrity
       const allTasks = taskStore.getAllTasks();
-      const uniqueIds = new Set(allTasks.map(t => t.id));
+      const uniqueIds = new Set(allTasks.map((t) => t.id));
       expect(uniqueIds.size).toBe(1000); // No duplicate IDs
     });
   });
@@ -508,15 +515,18 @@ describe('Comprehensive Error Handling System', () => {
         },
       });
 
-      await expect(
-        taskStore.executeTask(dnsTask.id)
-      ).rejects.toThrow('DNS resolution failed');
+      await expect(taskStore.executeTask(dnsTask.id)).rejects.toThrow(
+        'DNS resolution failed',
+      );
 
       // Should provide fallback mechanisms
-      const fallbackResult = await taskStore.executeTaskWithFallback(dnsTask.id, {
-        useCachedDNS: true,
-        useAlternateEndpoints: true,
-      });
+      const fallbackResult = await taskStore.executeTaskWithFallback(
+        dnsTask.id,
+        {
+          useCachedDNS: true,
+          useAlternateEndpoints: true,
+        },
+      );
 
       expect(fallbackResult.success).toBe(true);
       expect(fallbackResult.fallbacksUsed).toContain('cached_dns');
@@ -528,7 +538,7 @@ describe('Comprehensive Error Handling System', () => {
       // Create system stress scenario
       taskStore.simulateSystemStress({
         cpuLoad: 0.95,
-        memoryPressure: 0.90,
+        memoryPressure: 0.9,
         diskIOLoad: 0.85,
       });
 
@@ -541,12 +551,12 @@ describe('Comprehensive Error Handling System', () => {
         TaskFactories.createTask({
           priority: 'normal',
           title: `Normal Task ${i}`,
-        })
+        }),
       );
 
       // Add all tasks
       await taskStore.addTask(criticalTask);
-      await Promise.all(normalTasks.map(task => taskStore.addTask(task)));
+      await Promise.all(normalTasks.map((task) => taskStore.addTask(task)));
 
       const schedulingResult = taskStore.scheduleWithGracefulDegradation();
 
@@ -562,10 +572,10 @@ describe('Comprehensive Error Handling System', () => {
         TaskFactories.createTask({
           id: `task-${i}`,
           status: Math.random() > 0.5 ? 'in_progress' : 'pending',
-        })
+        }),
       );
 
-      await Promise.all(tasks.map(task => taskStore.addTask(task)));
+      await Promise.all(tasks.map((task) => taskStore.addTask(task)));
 
       // Simulate catastrophic failure
       taskStore.simulateCatastrophicFailure();
@@ -591,8 +601,12 @@ describe('Comprehensive Error Handling System', () => {
       const executionResult = await taskStore.executeTask(task.id);
 
       expect(executionResult.success).toBe(true);
-      expect(executionResult.degradedComponents).toContain('dependency_resolver');
-      expect(executionResult.degradedComponents).toContain('priority_scheduler');
+      expect(executionResult.degradedComponents).toContain(
+        'dependency_resolver',
+      );
+      expect(executionResult.degradedComponents).toContain(
+        'priority_scheduler',
+      );
       expect(executionResult.fallbacksUsed).toBeDefined();
     });
   });
@@ -604,12 +618,12 @@ describe('Comprehensive Error Handling System', () => {
         TaskFactories.createTask({
           id: `massive-task-${i}`,
           title: `Massive Task ${i}`,
-        })
+        }),
       );
 
       const startTime = Date.now();
 
-      await Promise.all(massiveTasks.map(task => taskStore.addTask(task)));
+      await Promise.all(massiveTasks.map((task) => taskStore.addTask(task)));
 
       const additionTime = Date.now() - startTime;
 

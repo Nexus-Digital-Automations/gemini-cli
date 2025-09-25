@@ -9,7 +9,8 @@ import type { DecisionEngine } from './decisionEngine.js';
 import type {
   ResourceInfo,
   AllocationRequest,
-  AllocationResult} from './resourceAllocator.js';
+  AllocationResult,
+} from './resourceAllocator.js';
 import {
   ResourceAllocator,
   ResourceType,
@@ -84,13 +85,14 @@ export class ResourceDecisionService extends EventEmitter {
   private resourceAllocator: ResourceAllocator;
   private taskProfiles: Map<string, TaskResourceProfile> = new Map();
   private allocationHistory: Map<string, ResourceDecision[]> = new Map();
-  private optimizationRecommendations: ResourceOptimizationRecommendation[] = [];
+  private optimizationRecommendations: ResourceOptimizationRecommendation[] =
+    [];
   private readonly maxHistorySize = 1000;
 
   constructor(
     decisionEngine: DecisionEngine,
     resources: ResourceInfo[],
-    initialStrategy: AllocationStrategy = AllocationStrategies.Balanced
+    initialStrategy: AllocationStrategy = AllocationStrategies.Balanced,
   ) {
     super();
 
@@ -106,7 +108,7 @@ export class ResourceDecisionService extends EventEmitter {
    */
   async makeResourceDecision(
     taskProfile: TaskResourceProfile,
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<ResourceDecision> {
     try {
       // Store task profile for future reference
@@ -124,14 +126,22 @@ export class ResourceDecisionService extends EventEmitter {
           currentResourceState: this.resourceAllocator.getResourceStatus(),
           allocationMetrics: this.resourceAllocator.getMetrics(),
         },
-        { urgency: taskProfile.constraints.priority }
+        { urgency: taskProfile.constraints.priority },
       );
 
       // Apply the decision to get actual allocation
-      const allocation = await this.applyResourceDecision(decision, allocationRequest, context);
+      const allocation = await this.applyResourceDecision(
+        decision,
+        allocationRequest,
+        context,
+      );
 
       // Analyze the decision quality
-      const reasoning = this.analyzeAllocationDecision(decision, allocation, taskProfile);
+      const reasoning = this.analyzeAllocationDecision(
+        decision,
+        allocation,
+        taskProfile,
+      );
 
       const resourceDecision: ResourceDecision = {
         decision,
@@ -146,7 +156,6 @@ export class ResourceDecisionService extends EventEmitter {
       this.emit('resource-decision-made', resourceDecision);
 
       return resourceDecision;
-
     } catch (error) {
       this.emit('resource-decision-error', { taskProfile, error });
       throw error;
@@ -156,13 +165,17 @@ export class ResourceDecisionService extends EventEmitter {
   /**
    * Optimize resource allocation strategy based on historical data
    */
-  async optimizeResourceStrategy(context: DecisionContext): Promise<ResourceOptimizationRecommendation[]> {
+  async optimizeResourceStrategy(
+    context: DecisionContext,
+  ): Promise<ResourceOptimizationRecommendation[]> {
     const currentMetrics = this.resourceAllocator.getMetrics();
     const resourceStatus = this.resourceAllocator.getResourceStatus();
     const recommendations: ResourceOptimizationRecommendation[] = [];
 
     // Analyze resource utilization patterns
-    for (const [resourceType, utilization] of Object.entries(currentMetrics.utilization)) {
+    for (const [resourceType, utilization] of Object.entries(
+      currentMetrics.utilization,
+    )) {
       const resource = resourceStatus.get(resourceType as ResourceType);
       if (!resource) continue;
 
@@ -208,7 +221,8 @@ export class ResourceDecisionService extends EventEmitter {
         resource: ResourceType.AGENT,
         currentValue: 1,
         recommendedValue: 2,
-        reason: 'High queue length suggests need for more aggressive preemption or overcommit',
+        reason:
+          'High queue length suggests need for more aggressive preemption or overcommit',
         impact: {
           costChange: 0.1,
           performanceChange: 0.3,
@@ -225,7 +239,8 @@ export class ResourceDecisionService extends EventEmitter {
         resource: ResourceType.CONCURRENT_TASKS,
         currentValue: 1,
         recommendedValue: 2,
-        reason: 'Low fairness index suggests need for fairer allocation strategy',
+        reason:
+          'Low fairness index suggests need for fairer allocation strategy',
         impact: {
           costChange: 0.05,
           performanceChange: 0.1,
@@ -243,13 +258,17 @@ export class ResourceDecisionService extends EventEmitter {
           recommendations,
           currentMetrics,
           context,
-        }
+        },
       );
 
       // Sort recommendations based on decision engine insights
       recommendations.sort((a, b) => {
-        const scoreA = a.confidence * (a.impact.performanceChange + a.impact.utilizationChange);
-        const scoreB = b.confidence * (b.impact.performanceChange + b.impact.utilizationChange);
+        const scoreA =
+          a.confidence *
+          (a.impact.performanceChange + a.impact.utilizationChange);
+        const scoreB =
+          b.confidence *
+          (b.impact.performanceChange + b.impact.utilizationChange);
         return scoreB - scoreA;
       });
     }
@@ -265,7 +284,7 @@ export class ResourceDecisionService extends EventEmitter {
    */
   async applyOptimizationRecommendations(
     recommendations: ResourceOptimizationRecommendation[],
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<void> {
     for (const recommendation of recommendations) {
       try {
@@ -301,7 +320,10 @@ export class ResourceDecisionService extends EventEmitter {
     let successfulAllocations = 0;
     let totalDecisionTime = 0;
     let totalCost = 0;
-    const resourceUsage: Record<ResourceType, number> = {} as Record<ResourceType, number>;
+    const resourceUsage: Record<ResourceType, number> = {} as Record<
+      ResourceType,
+      number
+    >;
 
     for (const decisions of this.allocationHistory.values()) {
       for (const decision of decisions) {
@@ -319,13 +341,17 @@ export class ResourceDecisionService extends EventEmitter {
 
         // Track resource usage
         for (const allocation of decision.allocation.allocations) {
-          resourceUsage[allocation.type] = (resourceUsage[allocation.type] || 0) + allocation.amount;
+          resourceUsage[allocation.type] =
+            (resourceUsage[allocation.type] || 0) + allocation.amount;
         }
       }
     }
 
     const resourceStatus = this.resourceAllocator.getResourceStatus();
-    const resourceEfficiency: Record<ResourceType, number> = {} as Record<ResourceType, number>;
+    const resourceEfficiency: Record<ResourceType, number> = {} as Record<
+      ResourceType,
+      number
+    >;
 
     for (const [type, usage] of Object.entries(resourceUsage)) {
       const resource = resourceStatus.get(type as ResourceType);
@@ -336,12 +362,15 @@ export class ResourceDecisionService extends EventEmitter {
 
     return {
       totalAllocations,
-      successRate: totalAllocations > 0 ? successfulAllocations / totalAllocations : 0,
-      averageDecisionTime: totalAllocations > 0 ? totalDecisionTime / totalAllocations : 0,
+      successRate:
+        totalAllocations > 0 ? successfulAllocations / totalAllocations : 0,
+      averageDecisionTime:
+        totalAllocations > 0 ? totalDecisionTime / totalAllocations : 0,
       resourceEfficiency,
       costMetrics: {
         totalCost,
-        averageCostPerTask: totalAllocations > 0 ? totalCost / totalAllocations : 0,
+        averageCostPerTask:
+          totalAllocations > 0 ? totalCost / totalAllocations : 0,
         costEfficiency: this.resourceAllocator.getMetrics().costEfficiency,
       },
     };
@@ -356,7 +385,7 @@ export class ResourceDecisionService extends EventEmitter {
       resourceUtilization: Record<ResourceType, number>;
       duration: number;
       efficiency: number;
-    }
+    },
   ): void {
     const profile = this.taskProfiles.get(taskId);
     if (!profile) return;
@@ -371,16 +400,25 @@ export class ResourceDecisionService extends EventEmitter {
     }
 
     // Calculate running averages
-    for (const [resource, utilization] of Object.entries(actualUsage.resourceUtilization)) {
+    for (const [resource, utilization] of Object.entries(
+      actualUsage.resourceUtilization,
+    )) {
       const resourceType = resource as ResourceType;
-      const currentAvg = profile.historicalUsage.averageUtilization[resourceType] || 0;
-      profile.historicalUsage.averageUtilization[resourceType] = (currentAvg + utilization) / 2;
+      const currentAvg =
+        profile.historicalUsage.averageUtilization[resourceType] || 0;
+      profile.historicalUsage.averageUtilization[resourceType] =
+        (currentAvg + utilization) / 2;
 
-      const currentPeak = profile.historicalUsage.peakUtilization[resourceType] || 0;
-      profile.historicalUsage.peakUtilization[resourceType] = Math.max(currentPeak, utilization);
+      const currentPeak =
+        profile.historicalUsage.peakUtilization[resourceType] || 0;
+      profile.historicalUsage.peakUtilization[resourceType] = Math.max(
+        currentPeak,
+        utilization,
+      );
     }
 
-    profile.historicalUsage.efficiency = (profile.historicalUsage.efficiency + actualUsage.efficiency) / 2;
+    profile.historicalUsage.efficiency =
+      (profile.historicalUsage.efficiency + actualUsage.efficiency) / 2;
 
     this.emit('task-profile-updated', { taskId, profile });
   }
@@ -394,7 +432,9 @@ export class ResourceDecisionService extends EventEmitter {
 
     const latestDecision = decisions[decisions.length - 1];
     if (latestDecision?.allocation.success) {
-      this.resourceAllocator.releaseResources(latestDecision.allocation.requestId);
+      this.resourceAllocator.releaseResources(
+        latestDecision.allocation.requestId,
+      );
       this.emit('task-resources-released', { taskId });
     }
   }
@@ -438,12 +478,16 @@ export class ResourceDecisionService extends EventEmitter {
     });
   }
 
-  private createAllocationRequest(taskProfile: TaskResourceProfile): AllocationRequest {
+  private createAllocationRequest(
+    taskProfile: TaskResourceProfile,
+  ): AllocationRequest {
     return {
       requestId: `task-${taskProfile.taskId}-${Date.now()}`,
       taskId: taskProfile.taskId,
       requirements: taskProfile.estimatedRequirements,
-      deadline: taskProfile.constraints.maxDuration ? Date.now() + taskProfile.constraints.maxDuration : undefined,
+      deadline: taskProfile.constraints.maxDuration
+        ? Date.now() + taskProfile.constraints.maxDuration
+        : undefined,
       preemptible: taskProfile.constraints.preemptible,
       estimatedDuration: taskProfile.constraints.maxDuration || 300000, // Default 5 minutes
       businessValue: this.calculateBusinessValue(taskProfile),
@@ -464,7 +508,7 @@ export class ResourceDecisionService extends EventEmitter {
 
     // Adjust based on historical efficiency
     if (taskProfile.historicalUsage?.efficiency) {
-      value *= (0.5 + taskProfile.historicalUsage.efficiency * 0.5);
+      value *= 0.5 + taskProfile.historicalUsage.efficiency * 0.5;
     }
 
     return Math.min(1.0, Math.max(0.1, value));
@@ -473,7 +517,7 @@ export class ResourceDecisionService extends EventEmitter {
   private async applyResourceDecision(
     decision: Decision,
     allocationRequest: AllocationRequest,
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<AllocationResult> {
     // Apply any strategy changes suggested by the decision
     if (decision.choice.includes('aggressive')) {
@@ -481,34 +525,51 @@ export class ResourceDecisionService extends EventEmitter {
     } else if (decision.choice.includes('fair')) {
       this.resourceAllocator.updateStrategy(AllocationStrategies.Fairness);
     } else if (decision.choice.includes('deadline')) {
-      this.resourceAllocator.updateStrategy(AllocationStrategies.DeadlineOptimized);
+      this.resourceAllocator.updateStrategy(
+        AllocationStrategies.DeadlineOptimized,
+      );
     } else if (decision.choice.includes('cost')) {
       this.resourceAllocator.updateStrategy(AllocationStrategies.CostOptimized);
     }
 
     // Perform the actual resource allocation
-    return await this.resourceAllocator.allocateResources(allocationRequest, context);
+    return await this.resourceAllocator.allocateResources(
+      allocationRequest,
+      context,
+    );
   }
 
   private analyzeAllocationDecision(
     decision: Decision,
     allocation: AllocationResult,
-    taskProfile: TaskResourceProfile
+    taskProfile: TaskResourceProfile,
   ): ResourceDecision['reasoning'] {
     let resourceEfficiency = 0;
     let costBenefit = 0;
 
     if (allocation.success && allocation.allocations.length > 0) {
       // Calculate resource efficiency
-      const totalRequested = taskProfile.estimatedRequirements.reduce((sum, req) => sum + req.amount, 0);
-      const totalAllocated = allocation.allocations.reduce((sum, alloc) => sum + alloc.amount, 0);
-      resourceEfficiency = totalRequested > 0 ? totalAllocated / totalRequested : 0;
+      const totalRequested = taskProfile.estimatedRequirements.reduce(
+        (sum, req) => sum + req.amount,
+        0,
+      );
+      const totalAllocated = allocation.allocations.reduce(
+        (sum, alloc) => sum + alloc.amount,
+        0,
+      );
+      resourceEfficiency =
+        totalRequested > 0 ? totalAllocated / totalRequested : 0;
 
       // Calculate cost benefit
       if (allocation.estimatedCost && taskProfile.constraints.maxCost) {
-        costBenefit = Math.max(0, 1 - (allocation.estimatedCost / taskProfile.constraints.maxCost));
+        costBenefit = Math.max(
+          0,
+          1 - allocation.estimatedCost / taskProfile.constraints.maxCost,
+        );
       } else {
-        costBenefit = allocation.estimatedCost ? Math.max(0, 1 - allocation.estimatedCost / 100) : 0.8;
+        costBenefit = allocation.estimatedCost
+          ? Math.max(0, 1 - allocation.estimatedCost / 100)
+          : 0.8;
       }
     }
 
@@ -522,12 +583,14 @@ export class ResourceDecisionService extends EventEmitter {
 
   private async applyOptimizationRecommendation(
     recommendation: ResourceOptimizationRecommendation,
-    context: DecisionContext
+    context: DecisionContext,
   ): Promise<void> {
     switch (recommendation.type) {
       case 'strategy-change':
         if (recommendation.reason.includes('preemption')) {
-          this.resourceAllocator.updateStrategy(AllocationStrategies.Efficiency);
+          this.resourceAllocator.updateStrategy(
+            AllocationStrategies.Efficiency,
+          );
         } else if (recommendation.reason.includes('fairness')) {
           this.resourceAllocator.updateStrategy(AllocationStrategies.Fairness);
         }

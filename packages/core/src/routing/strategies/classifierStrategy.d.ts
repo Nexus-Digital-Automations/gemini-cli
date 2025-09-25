@@ -5,7 +5,11 @@
  */
 
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
-import type { RoutingContext, RoutingDecision, RoutingStrategy } from '../routingStrategy.js';
+import type {
+  RoutingContext,
+  RoutingDecision,
+  RoutingStrategy,
+} from '../routingStrategy.js';
 import type { Config } from '../../config/config.js';
 /**
  * AI-powered routing strategy that classifies requests by complexity.
@@ -35,25 +39,29 @@ import type { Config } from '../../config/config.js';
  * ```
  */
 export declare class ClassifierStrategy implements RoutingStrategy {
-    readonly name = "classifier";
-    /**
-     * Route the request by classifying its complexity using AI.
-     *
-     * Analyzes the user request and conversation history to determine appropriate
-     * model selection. Uses a structured JSON response with reasoning to ensure
-     * transparent and debuggable routing decisions.
-     *
-     * The method:
-     * 1. Extracts recent conversation history for context
-     * 2. Filters out tool calls to focus on user intent
-     * 3. Sends request to classifier model with structured schema
-     * 4. Parses response and maps to appropriate model
-     * 5. Returns null on failure to allow fallback strategies
-     *
-     * @param context - Routing context with request and conversation history
-     * @param _config - Application configuration (unused)
-     * @param baseLlmClient - LLM client for classification requests
-     * @returns Promise resolving to routing decision or null if classification fails
-     */
-    route(context: RoutingContext, _config: Config, baseLlmClient: BaseLlmClient): Promise<RoutingDecision | null>;
+  readonly name = 'classifier';
+  /**
+   * Route the request by classifying its complexity using AI.
+   *
+   * Analyzes the user request and conversation history to determine appropriate
+   * model selection. Uses a structured JSON response with reasoning to ensure
+   * transparent and debuggable routing decisions.
+   *
+   * The method:
+   * 1. Extracts recent conversation history for context
+   * 2. Filters out tool calls to focus on user intent
+   * 3. Sends request to classifier model with structured schema
+   * 4. Parses response and maps to appropriate model
+   * 5. Returns null on failure to allow fallback strategies
+   *
+   * @param context - Routing context with request and conversation history
+   * @param _config - Application configuration (unused)
+   * @param baseLlmClient - LLM client for classification requests
+   * @returns Promise resolving to routing decision or null if classification fails
+   */
+  route(
+    context: RoutingContext,
+    _config: Config,
+    baseLlmClient: BaseLlmClient,
+  ): Promise<RoutingDecision | null>;
 }

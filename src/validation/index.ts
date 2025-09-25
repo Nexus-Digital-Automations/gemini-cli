@@ -43,8 +43,8 @@ export {
   ValidationReport,
   ValidationEvidence,
   EvidenceType,
-  ValidationLogger
-} from './AutomaticValidationSystem';
+  ValidationLogger,
+} from './AutomaticValidationSystem.js';
 
 // Integration utilities exports
 export {
@@ -58,11 +58,11 @@ export {
   createValidationCLI,
   validateTaskCompletion,
   isProjectReadyForCompletion,
-  getStopAuthorizationStatus
-} from './ValidationIntegration';
+  getStopAuthorizationStatus,
+} from './ValidationIntegration.js';
 
 // Re-export examples for documentation and testing
-export { examples } from './examples';
+export { examples } from './examples.js';
 
 /**
  * Factory function to create a fully configured validation system.
@@ -86,7 +86,7 @@ export { examples } from './examples';
  */
 export function createValidationSystem(
   projectRoot: string,
-  config?: Partial<import('./AutomaticValidationSystem').ValidationConfig>
+  config?: Partial<import('./AutomaticValidationSystem').ValidationConfig>,
 ): AutomaticValidationSystem {
   const { AutomaticValidationSystem } = require('./AutomaticValidationSystem');
   return new AutomaticValidationSystem(projectRoot, config);
@@ -116,25 +116,29 @@ export async function quickValidate(
     type: 'feature' | 'bug-fix' | 'refactoring' | 'testing' | 'documentation';
     description: string;
     context?: Record<string, unknown>;
-  }
+  },
 ): Promise<{ passed: boolean; summary: string; issues: string[] }> {
   const { validateTaskCompletion } = require('./ValidationIntegration');
 
   try {
-    const result = await validateTaskCompletion(projectRoot, options.description, options.type);
+    const result = await validateTaskCompletion(
+      projectRoot,
+      options.description,
+      options.type,
+    );
 
     return {
       passed: result.passed,
       summary: result.summary,
       issues: result.qualityGateResults
-        .filter(gate => !gate.passed)
-        .map(gate => `${gate.gateName}: ${gate.message}`)
+        .filter((gate) => !gate.passed)
+        .map((gate) => `${gate.gateName}: ${gate.message}`),
     };
   } catch (error) {
     return {
       passed: false,
       summary: `Validation error: ${(error as Error).message}`,
-      issues: [(error as Error).message]
+      issues: [(error as Error).message],
     };
   }
 }
@@ -167,7 +171,7 @@ export async function validateSystemHealth(projectRoot: string): Promise<{
     { name: 'node', command: 'node', args: ['--version'] },
     { name: 'git', command: 'git', args: ['--version'] },
     { name: 'eslint', command: 'npx', args: ['eslint', '--version'] },
-    { name: 'typescript', command: 'npx', args: ['tsc', '--version'] }
+    { name: 'typescript', command: 'npx', args: ['tsc', '--version'] },
   ];
 
   const availableTools: string[] = [];
@@ -185,7 +189,11 @@ export async function validateSystemHealth(projectRoot: string): Promise<{
   let status: 'healthy' | 'degraded' | 'unhealthy';
   const recommendations: string[] = [];
 
-  if (availableTools.includes('npm') && availableTools.includes('node') && availableTools.includes('git')) {
+  if (
+    availableTools.includes('npm') &&
+    availableTools.includes('node') &&
+    availableTools.includes('git')
+  ) {
     if (missingTools.length === 0) {
       status = 'healthy';
     } else {
@@ -202,7 +210,7 @@ export async function validateSystemHealth(projectRoot: string): Promise<{
     status,
     availableTools,
     missingTools,
-    recommendations
+    recommendations,
   };
 }
 
@@ -215,10 +223,10 @@ export const DEFAULT_CONFIGS = {
    */
   STANDARD: {
     maxConcurrentGates: 3,
-    defaultGateTimeoutMs: 60000,  // 1 minute
-    slowGateThresholdMs: 30000,   // 30 seconds
+    defaultGateTimeoutMs: 60000, // 1 minute
+    slowGateThresholdMs: 30000, // 30 seconds
     enableEvidence: true,
-    evidenceRetentionDays: 7
+    evidenceRetentionDays: 7,
   },
 
   /**
@@ -227,9 +235,9 @@ export const DEFAULT_CONFIGS = {
   ENTERPRISE: {
     maxConcurrentGates: 8,
     defaultGateTimeoutMs: 180000, // 3 minutes
-    slowGateThresholdMs: 60000,   // 1 minute
+    slowGateThresholdMs: 60000, // 1 minute
     enableEvidence: true,
-    evidenceRetentionDays: 30
+    evidenceRetentionDays: 30,
   },
 
   /**
@@ -238,9 +246,9 @@ export const DEFAULT_CONFIGS = {
   CI_CD: {
     maxConcurrentGates: 10,
     defaultGateTimeoutMs: 300000, // 5 minutes
-    slowGateThresholdMs: 120000,  // 2 minutes
+    slowGateThresholdMs: 120000, // 2 minutes
     enableEvidence: true,
-    evidenceRetentionDays: 14
+    evidenceRetentionDays: 14,
   },
 
   /**
@@ -248,11 +256,11 @@ export const DEFAULT_CONFIGS = {
    */
   DEVELOPMENT: {
     maxConcurrentGates: 2,
-    defaultGateTimeoutMs: 30000,  // 30 seconds
-    slowGateThresholdMs: 15000,   // 15 seconds
-    enableEvidence: false,        // Reduced overhead
-    evidenceRetentionDays: 1
-  }
+    defaultGateTimeoutMs: 30000, // 30 seconds
+    slowGateThresholdMs: 15000, // 15 seconds
+    enableEvidence: false, // Reduced overhead
+    evidenceRetentionDays: 1,
+  },
 } as const;
 
 /**
@@ -262,7 +270,7 @@ export const DEFAULT_CONFIGS = {
  * @returns Recommended configuration
  */
 export async function getRecommendedConfig(
-  projectRoot: string
+  projectRoot: string,
 ): Promise<typeof DEFAULT_CONFIGS.STANDARD> {
   const { readFile, access } = require('node:fs/promises');
   const { join } = require('node:path');
@@ -273,21 +281,30 @@ export async function getRecommendedConfig(
     const packageContent = await readFile(packagePath, 'utf-8');
     const pkg = JSON.parse(packageContent);
 
-    const depCount = Object.keys(pkg.dependencies || {}).length +
-                    Object.keys(pkg.devDependencies || {}).length;
+    const depCount =
+      Object.keys(pkg.dependencies || {}).length +
+      Object.keys(pkg.devDependencies || {}).length;
 
     // Check for monorepo indicators
     const isMonorepo = pkg.workspaces || false;
 
     // Check for CI configuration
     const hasCIConfig = await Promise.all([
-      access(join(projectRoot, '.github/workflows')).then(() => true).catch(() => false),
-      access(join(projectRoot, '.gitlab-ci.yml')).then(() => true).catch(() => false),
-      access(join(projectRoot, 'Jenkinsfile')).then(() => true).catch(() => false)
-    ]).then(results => results.some(Boolean));
+      access(join(projectRoot, '.github/workflows'))
+        .then(() => true)
+        .catch(() => false),
+      access(join(projectRoot, '.gitlab-ci.yml'))
+        .then(() => true)
+        .catch(() => false),
+      access(join(projectRoot, 'Jenkinsfile'))
+        .then(() => true)
+        .catch(() => false),
+    ]).then((results) => results.some(Boolean));
 
     // Check if running in CI environment
-    const isCI = process.env.CI === 'true' || process.env.CONTINUOUS_INTEGRATION === 'true';
+    const isCI =
+      process.env.CI === 'true' ||
+      process.env.CONTINUOUS_INTEGRATION === 'true';
 
     // Determine configuration based on characteristics
     if (isCI || hasCIConfig) {
@@ -322,11 +339,11 @@ export const BUILD_INFO = {
     'Evidence collection',
     'CI/CD integration',
     'TodoWrite integration',
-    'Performance analytics'
+    'Performance analytics',
   ],
   compatibility: {
     node: '>=20.0.0',
     npm: '>=8.0.0',
-    typescript: '>=4.5.0'
-  }
+    typescript: '>=4.5.0',
+  },
 } as const;

@@ -44,18 +44,18 @@ class SecurityHardening {
         maxFailedAttempts: 5,
         lockoutDuration: 300000, // 5 minutes
         sessionTimeout: 3600000, // 1 hour
-        tokenLength: 32
+        tokenLength: 32,
       },
       rateLimit: {
         maxRequestsPerMinute: 60,
         maxRequestsPerHour: 1000,
-        windowSize: 60000 // 1 minute
+        windowSize: 60000, // 1 minute
       },
       encryption: {
         algorithm: 'aes-256-gcm',
         keyLength: 32,
         ivLength: 16,
-        tagLength: 16
+        tagLength: 16,
       },
       input: {
         maxStringLength: 10000,
@@ -68,24 +68,24 @@ class SecurityHardening {
           /data\:/gi,
           /\$\{.*\}/gi,
           /__proto__/gi,
-          /constructor/gi
-        ]
+          /constructor/gi,
+        ],
       },
       fileSystem: {
         allowedPaths: [
           process.cwd(),
           path.join(process.cwd(), 'monitoring'),
           path.join(process.cwd(), 'reports'),
-          '/tmp'
+          '/tmp',
         ],
         forbiddenFiles: [
           '.env',
           '.ssh',
           'id_rsa',
           'private_key',
-          'secrets.json'
-        ]
-      }
+          'secrets.json',
+        ],
+      },
     };
   }
 
@@ -105,7 +105,8 @@ class SecurityHardening {
       object: (value, options = {}) => {
         if (typeof value !== 'object' || value === null) return false;
         if (Array.isArray(value) && !options.allowArray) return false;
-        if (this._getObjectDepth(value) > (options.maxDepth || 10)) return false;
+        if (this._getObjectDepth(value) > (options.maxDepth || 10))
+          return false;
         return true;
       },
 
@@ -128,9 +129,9 @@ class SecurityHardening {
         if (typeof value !== 'string') return false;
         const resolvedPath = path.resolve(value);
         return this.securityPolicies.fileSystem.allowedPaths.some(
-          allowedPath => resolvedPath.startsWith(allowedPath)
+          (allowedPath) => resolvedPath.startsWith(allowedPath),
         );
-      }
+      },
     };
   }
 
@@ -143,7 +144,7 @@ class SecurityHardening {
         if (typeof value !== 'string') return '';
         // Remove potentially dangerous patterns
         let sanitized = value;
-        this.securityPolicies.input.forbiddenPatterns.forEach(pattern => {
+        this.securityPolicies.input.forbiddenPatterns.forEach((pattern) => {
           sanitized = sanitized.replace(pattern, '');
         });
         return sanitized.trim();
@@ -155,7 +156,11 @@ class SecurityHardening {
         const sanitized = {};
         for (const [key, val] of Object.entries(value)) {
           const cleanKey = this.sanitizers.string(key);
-          if (cleanKey && !cleanKey.startsWith('__') && cleanKey !== 'constructor') {
+          if (
+            cleanKey &&
+            !cleanKey.startsWith('__') &&
+            cleanKey !== 'constructor'
+          ) {
             if (typeof val === 'string') {
               sanitized[cleanKey] = this.sanitizers.string(val);
             } else if (typeof val === 'object' && val !== null) {
@@ -171,7 +176,7 @@ class SecurityHardening {
       filename: (value) => {
         if (typeof value !== 'string') return '';
         return value.replace(/[^a-zA-Z0-9._-]/g, '').substring(0, 255);
-      }
+      },
     };
   }
 
@@ -206,7 +211,7 @@ class SecurityHardening {
         isValid: true,
         sanitizedData: null,
         errors: [],
-        securityWarnings: []
+        securityWarnings: [],
       };
 
       // Basic type validation
@@ -221,11 +226,15 @@ class SecurityHardening {
 
       // Check for dangerous patterns
       const dataString = JSON.stringify(data);
-      this.securityPolicies.input.forbiddenPatterns.forEach((pattern, index) => {
-        if (pattern.test(dataString)) {
-          result.securityWarnings.push(`Dangerous pattern detected: ${pattern.source}`);
-        }
-      });
+      this.securityPolicies.input.forbiddenPatterns.forEach(
+        (pattern, index) => {
+          if (pattern.test(dataString)) {
+            result.securityWarnings.push(
+              `Dangerous pattern detected: ${pattern.source}`,
+            );
+          }
+        },
+      );
 
       // Sanitize based on type
       if (typeof data === 'string') {
@@ -240,7 +249,7 @@ class SecurityHardening {
       if (result.securityWarnings.length > 0) {
         this._logSecurityEvent('input_validation', 'medium', {
           warnings: result.securityWarnings,
-          originalData: this._truncateForLogging(dataString)
+          originalData: this._truncateForLogging(dataString),
         });
       }
 
@@ -250,7 +259,7 @@ class SecurityHardening {
         isValid: false,
         sanitizedData: null,
         errors: [`Validation error: ${error.message}`],
-        securityWarnings: []
+        securityWarnings: [],
       };
     }
   }
@@ -285,9 +294,13 @@ class SecurityHardening {
         identifier,
         action,
         count: limiter.count,
-        limit: maxRequests
+        limit: maxRequests,
       });
-      return { allowed: false, remaining: 0, retryAfter: windowSize - (now - limiter.windowStart) };
+      return {
+        allowed: false,
+        remaining: 0,
+        retryAfter: windowSize - (now - limiter.windowStart),
+      };
     }
 
     return { allowed: true, remaining: maxRequests - limiter.count };
@@ -302,8 +315,10 @@ class SecurityHardening {
       id: tokenId,
       userId,
       createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + this.securityPolicies.authentication.sessionTimeout).toISOString(),
-      metadata: this.sanitizers.object(metadata)
+      expiresAt: new Date(
+        Date.now() + this.securityPolicies.authentication.sessionTimeout,
+      ).toISOString(),
+      metadata: this.sanitizers.object(metadata),
     };
 
     // Store encrypted token
@@ -312,7 +327,7 @@ class SecurityHardening {
       encrypted: encryptedToken,
       userId,
       createdAt: tokenData.createdAt,
-      lastAccessed: new Date().toISOString()
+      lastAccessed: new Date().toISOString(),
     });
 
     this._logSecurityEvent('token_generated', 'low', { userId, tokenId });
@@ -336,17 +351,27 @@ class SecurityHardening {
       // Check expiration
       if (new Date() > new Date(tokenData.expiresAt)) {
         this.sessionTokens.delete(tokenId);
-        this._logSecurityEvent('expired_token_access', 'low', { tokenId, userId: tokenData.userId });
+        this._logSecurityEvent('expired_token_access', 'low', {
+          tokenId,
+          userId: tokenData.userId,
+        });
         return { valid: false, reason: 'token_expired' };
       }
 
       // Update last accessed
       storedToken.lastAccessed = new Date().toISOString();
 
-      return { valid: true, userId: tokenData.userId, metadata: tokenData.metadata };
+      return {
+        valid: true,
+        userId: tokenData.userId,
+        metadata: tokenData.metadata,
+      };
     } catch (error) {
       this.sessionTokens.delete(tokenId);
-      this._logSecurityEvent('token_validation_error', 'high', { tokenId, error: error.message });
+      this._logSecurityEvent('token_validation_error', 'high', {
+        tokenId,
+        error: error.message,
+      });
       return { valid: false, reason: 'validation_error' };
     }
   }
@@ -361,42 +386,57 @@ class SecurityHardening {
 
       // Check if path is allowed
       const isAllowedPath = this.securityPolicies.fileSystem.allowedPaths.some(
-        allowedPath => resolvedPath.startsWith(allowedPath)
+        (allowedPath) => resolvedPath.startsWith(allowedPath),
       );
 
       if (!isAllowedPath) {
         this._logSecurityEvent('unauthorized_file_access', 'high', {
           requestedPath: filePath,
           resolvedPath,
-          operation
+          operation,
         });
-        return { allowed: false, reason: 'path_not_allowed', sanitizedPath: null };
+        return {
+          allowed: false,
+          reason: 'path_not_allowed',
+          sanitizedPath: null,
+        };
       }
 
       // Check for forbidden files
-      const isForbiddenFile = this.securityPolicies.fileSystem.forbiddenFiles.some(
-        forbidden => fileName.includes(forbidden)
-      );
+      const isForbiddenFile =
+        this.securityPolicies.fileSystem.forbiddenFiles.some((forbidden) =>
+          fileName.includes(forbidden),
+        );
 
       if (isForbiddenFile) {
         this._logSecurityEvent('forbidden_file_access', 'critical', {
           requestedPath: filePath,
           fileName,
-          operation
+          operation,
         });
-        return { allowed: false, reason: 'forbidden_file', sanitizedPath: null };
+        return {
+          allowed: false,
+          reason: 'forbidden_file',
+          sanitizedPath: null,
+        };
       }
 
       // Check file extension for write operations
       if (operation === 'write') {
         const extension = path.extname(fileName);
-        if (!this.securityPolicies.input.allowedFileExtensions.includes(extension)) {
+        if (
+          !this.securityPolicies.input.allowedFileExtensions.includes(extension)
+        ) {
           this._logSecurityEvent('unsafe_file_extension', 'medium', {
             requestedPath: filePath,
             extension,
-            operation
+            operation,
           });
-          return { allowed: false, reason: 'unsafe_extension', sanitizedPath: null };
+          return {
+            allowed: false,
+            reason: 'unsafe_extension',
+            sanitizedPath: null,
+          };
         }
       }
 
@@ -404,9 +444,13 @@ class SecurityHardening {
     } catch (error) {
       this._logSecurityEvent('file_path_validation_error', 'medium', {
         requestedPath: filePath,
-        error: error.message
+        error: error.message,
       });
-      return { allowed: false, reason: 'validation_error', sanitizedPath: null };
+      return {
+        allowed: false,
+        reason: 'validation_error',
+        sanitizedPath: null,
+      };
     }
   }
 
@@ -415,7 +459,11 @@ class SecurityHardening {
    */
   _encrypt(text) {
     const iv = crypto.randomBytes(this.securityPolicies.encryption.ivLength);
-    const cipher = crypto.createCipher(this.securityPolicies.encryption.algorithm, this.encryptionKey, { iv });
+    const cipher = crypto.createCipher(
+      this.securityPolicies.encryption.algorithm,
+      this.encryptionKey,
+      { iv },
+    );
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -425,7 +473,7 @@ class SecurityHardening {
     return {
       iv: iv.toString('hex'),
       encryptedData: encrypted,
-      tag: tag.toString('hex')
+      tag: tag.toString('hex'),
     };
   }
 
@@ -435,7 +483,11 @@ class SecurityHardening {
   _decrypt(encryptedObj) {
     const iv = Buffer.from(encryptedObj.iv, 'hex');
     const tag = Buffer.from(encryptedObj.tag, 'hex');
-    const decipher = crypto.createDecipher(this.securityPolicies.encryption.algorithm, this.encryptionKey, { iv });
+    const decipher = crypto.createDecipher(
+      this.securityPolicies.encryption.algorithm,
+      this.encryptionKey,
+      { iv },
+    );
 
     decipher.setAuthTag(tag);
 
@@ -455,7 +507,7 @@ class SecurityHardening {
       type,
       severity,
       details: this.sanitizers.object(details),
-      source: 'security_hardening'
+      source: 'security_hardening',
     };
 
     this.auditLog.push(event);
@@ -466,8 +518,10 @@ class SecurityHardening {
     }
 
     // Log to console for immediate visibility
-    console.warn(`🔒 SECURITY EVENT [${severity.toUpperCase()}] ${type}:`,
-      JSON.stringify(this._truncateForLogging(details), null, 2));
+    console.warn(
+      `🔒 SECURITY EVENT [${severity.toUpperCase()}] ${type}:`,
+      JSON.stringify(this._truncateForLogging(details), null, 2),
+    );
 
     return event.id;
   }
@@ -477,7 +531,9 @@ class SecurityHardening {
    */
   _truncateForLogging(data, maxLength = 1000) {
     const str = typeof data === 'string' ? data : JSON.stringify(data);
-    return str.length > maxLength ? str.substring(0, maxLength) + '...[truncated]' : str;
+    return str.length > maxLength
+      ? str.substring(0, maxLength) + '...[truncated]'
+      : str;
   }
 
   /**
@@ -488,19 +544,19 @@ class SecurityHardening {
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     const recentEvents = this.auditLog.filter(
-      event => new Date(event.timestamp) > last24Hours
+      (event) => new Date(event.timestamp) > last24Hours,
     );
 
     const eventsByType = {};
     const eventsBySeverity = { low: 0, medium: 0, high: 0, critical: 0 };
 
-    recentEvents.forEach(event => {
+    recentEvents.forEach((event) => {
       eventsByType[event.type] = (eventsByType[event.type] || 0) + 1;
       eventsBySeverity[event.severity]++;
     });
 
     const topThreats = Object.entries(eventsByType)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([type, count]) => ({ type, count }));
 
@@ -513,18 +569,22 @@ class SecurityHardening {
         criticalEvents: eventsBySeverity.critical,
         highSeverityEvents: eventsBySeverity.high,
         mediumSeverityEvents: eventsBySeverity.medium,
-        lowSeverityEvents: eventsBySeverity.low
+        lowSeverityEvents: eventsBySeverity.low,
       },
       analysis: {
         topThreatTypes: topThreats,
         rateLimitViolations: eventsByType['rate_limit_exceeded'] || 0,
-        unauthorizedAccess: (eventsByType['unauthorized_file_access'] || 0) +
-                           (eventsByType['invalid_token_access'] || 0),
-        inputValidationIssues: eventsByType['input_validation'] || 0
+        unauthorizedAccess:
+          (eventsByType['unauthorized_file_access'] || 0) +
+          (eventsByType['invalid_token_access'] || 0),
+        inputValidationIssues: eventsByType['input_validation'] || 0,
       },
-      recommendations: this._generateSecurityRecommendations(eventsBySeverity, eventsByType),
+      recommendations: this._generateSecurityRecommendations(
+        eventsBySeverity,
+        eventsByType,
+      ),
       activeTokens: this.sessionTokens.size,
-      rateLimiters: this.rateLimiter.size
+      rateLimiters: this.rateLimiter.size,
     };
   }
 
@@ -544,8 +604,8 @@ class SecurityHardening {
           'Review all critical events immediately',
           'Check for system compromise indicators',
           'Verify access controls and authentication mechanisms',
-          'Consider temporary service restrictions if necessary'
-        ]
+          'Consider temporary service restrictions if necessary',
+        ],
       });
     }
 
@@ -554,13 +614,14 @@ class SecurityHardening {
         priority: 'high',
         category: 'rate_limiting',
         title: 'High Rate Limit Violations',
-        description: 'Excessive rate limit violations may indicate abuse or attack.',
+        description:
+          'Excessive rate limit violations may indicate abuse or attack.',
         actions: [
           'Review rate limit thresholds',
           'Implement progressive rate limiting',
           'Add IP-based blocking for repeat offenders',
-          'Monitor for distributed attacks'
-        ]
+          'Monitor for distributed attacks',
+        ],
       });
     }
 
@@ -574,8 +635,8 @@ class SecurityHardening {
           'Review input validation rules',
           'Strengthen sanitization processes',
           'Add additional pattern detection',
-          'Implement stricter input filtering'
-        ]
+          'Implement stricter input filtering',
+        ],
       });
     }
 
@@ -584,13 +645,14 @@ class SecurityHardening {
         priority: 'medium',
         category: 'session_management',
         title: 'High Token Count',
-        description: 'Large number of active session tokens may impact performance.',
+        description:
+          'Large number of active session tokens may impact performance.',
         actions: [
           'Implement token cleanup process',
           'Reduce session timeout for inactive tokens',
           'Add session monitoring and alerting',
-          'Consider token refresh mechanisms'
-        ]
+          'Consider token refresh mechanisms',
+        ],
       });
     }
 
@@ -610,7 +672,7 @@ class SecurityHardening {
       'File system access controls',
       'Encryption for sensitive data',
       'Security audit logging',
-      'Threat detection patterns'
+      'Threat detection patterns',
     ];
 
     const results = [];
@@ -618,15 +680,19 @@ class SecurityHardening {
     for (const measure of measures) {
       try {
         // Simulate applying each measure
-        await new Promise(resolve => setTimeout(resolve, 100));
-        results.push({ measure, status: 'applied', timestamp: new Date().toISOString() });
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        results.push({
+          measure,
+          status: 'applied',
+          timestamp: new Date().toISOString(),
+        });
         console.log(`✅ ${measure} - Applied`);
       } catch (error) {
         results.push({
           measure,
           status: 'failed',
           error: error.message,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
         console.error(`❌ ${measure} - Failed: ${error.message}`);
       }
@@ -638,10 +704,10 @@ class SecurityHardening {
       measures: results,
       summary: {
         total: measures.length,
-        applied: results.filter(r => r.status === 'applied').length,
-        failed: results.filter(r => r.status === 'failed').length
+        applied: results.filter((r) => r.status === 'applied').length,
+        failed: results.filter((r) => r.status === 'failed').length,
       },
-      securityLevel: this._assessSecurityLevel()
+      securityLevel: this._assessSecurityLevel(),
     };
 
     await this._saveHardeningReport(hardeningReport);
@@ -655,11 +721,13 @@ class SecurityHardening {
    */
   _assessSecurityLevel() {
     const recentEvents = this.auditLog.filter(
-      event => Date.now() - new Date(event.timestamp).getTime() < 3600000 // Last hour
+      (event) => Date.now() - new Date(event.timestamp).getTime() < 3600000, // Last hour
     );
 
-    const criticalEvents = recentEvents.filter(e => e.severity === 'critical').length;
-    const highEvents = recentEvents.filter(e => e.severity === 'high').length;
+    const criticalEvents = recentEvents.filter(
+      (e) => e.severity === 'critical',
+    ).length;
+    const highEvents = recentEvents.filter((e) => e.severity === 'high').length;
 
     if (criticalEvents > 0) return 'critical';
     if (highEvents > 3) return 'high_risk';
@@ -671,7 +739,10 @@ class SecurityHardening {
    * Save hardening report
    */
   async _saveHardeningReport(report) {
-    const reportPath = path.join(process.cwd(), 'security-hardening-report.json');
+    const reportPath = path.join(
+      process.cwd(),
+      'security-hardening-report.json',
+    );
     await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
     console.log(`📋 Security hardening report saved to: ${reportPath}`);
   }
@@ -697,7 +768,10 @@ class SecurityHardening {
 
     // Clean old rate limit entries
     for (const [key, limiter] of this.rateLimiter.entries()) {
-      if (now - limiter.windowStart > this.securityPolicies.rateLimit.windowSize * 10) {
+      if (
+        now - limiter.windowStart >
+        this.securityPolicies.rateLimit.windowSize * 10
+      ) {
         this.rateLimiter.delete(key);
       }
     }
@@ -725,7 +799,10 @@ async function main() {
 
       case 'audit':
         const auditReport = hardening.getSecurityAuditReport();
-        console.log('Security Audit Report:', JSON.stringify(auditReport, null, 2));
+        console.log(
+          'Security Audit Report:',
+          JSON.stringify(auditReport, null, 2),
+        );
         break;
 
       case 'test':
@@ -733,8 +810,13 @@ async function main() {
         console.log('🧪 Testing security features...');
 
         // Test input validation
-        const testData = { malicious: '<script>alert("xss")</script>', safe: 'normal data' };
-        const validation = hardening.validateAndSanitizeInput(testData, { type: 'object' });
+        const testData = {
+          malicious: '<script>alert("xss")</script>',
+          safe: 'normal data',
+        };
+        const validation = hardening.validateAndSanitizeInput(testData, {
+          type: 'object',
+        });
         console.log('Input validation test:', validation);
 
         // Test rate limiting
@@ -742,7 +824,9 @@ async function main() {
         console.log('Rate limit test:', rateLimit);
 
         // Test token generation
-        const token = hardening.generateSecureToken('test-user-123', { role: 'admin' });
+        const token = hardening.generateSecureToken('test-user-123', {
+          role: 'admin',
+        });
         console.log('Token generation test:', token);
 
         const tokenValidation = hardening.validateToken(token);

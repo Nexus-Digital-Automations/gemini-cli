@@ -8,7 +8,11 @@ import { EventEmitter } from 'node:events';
 import { cpus, freemem, totalmem, loadavg } from 'node:os';
 import { performance } from 'node:perf_hooks';
 import { Logger } from '../utils/logger.js';
-import type { TaskMetadata, TaskStatus, AgentStatus } from './TaskStatusMonitor.js';
+import type {
+  TaskMetadata,
+  TaskStatus,
+  AgentStatus,
+} from './TaskStatusMonitor.js';
 
 /**
  * System resource metrics
@@ -223,7 +227,7 @@ export class MetricsCollector extends EventEmitter {
    */
   async startTaskMetricsCollection(
     taskId: string,
-    taskMetadata: TaskMetadata
+    taskMetadata: TaskMetadata,
   ): Promise<void> {
     const metrics: TaskPerformanceMetrics = {
       taskId,
@@ -272,7 +276,7 @@ export class MetricsCollector extends EventEmitter {
       retryAttempted?: boolean;
       dataProcessed?: number; // MB
       requestsProcessed?: number;
-    }
+    },
   ): Promise<void> {
     const metrics = this.taskMetrics.get(taskId);
     if (!metrics) return;
@@ -314,7 +318,7 @@ export class MetricsCollector extends EventEmitter {
    */
   async completeTaskMetricsCollection(
     taskId: string,
-    finalStatus: TaskStatus
+    finalStatus: TaskStatus,
   ): Promise<TaskPerformanceMetrics | null> {
     const metrics = this.taskMetrics.get(taskId);
     if (!metrics) return null;
@@ -326,9 +330,12 @@ export class MetricsCollector extends EventEmitter {
     // Calculate throughput metrics
     if (metrics.duration > 0) {
       const durationSeconds = metrics.duration / 1000;
-      const totalOperations = Object.values(metrics.operationCounts)
-        .reduce((sum, count) => sum + count, 0);
-      metrics.throughputMetrics.operationsPerSecond = totalOperations / durationSeconds;
+      const totalOperations = Object.values(metrics.operationCounts).reduce(
+        (sum, count) => sum + count,
+        0,
+      );
+      metrics.throughputMetrics.operationsPerSecond =
+        totalOperations / durationSeconds;
     }
 
     // Mark performance end point and measure
@@ -337,13 +344,18 @@ export class MetricsCollector extends EventEmitter {
       performance.measure(
         `task-${taskId}-duration`,
         `task-${taskId}-start`,
-        `task-${taskId}-end`
+        `task-${taskId}-end`,
       );
 
       // Collect all performance entries for this task
-      metrics.performanceMarks = performance.getEntriesByName(`task-${taskId}-duration`);
+      metrics.performanceMarks = performance.getEntriesByName(
+        `task-${taskId}-duration`,
+      );
     } catch (error) {
-      this.logger.warning('Failed to collect performance marks', { taskId, error });
+      this.logger.warning('Failed to collect performance marks', {
+        taskId,
+        error,
+      });
     }
 
     // Update agent metrics if assigned
@@ -364,7 +376,10 @@ export class MetricsCollector extends EventEmitter {
   /**
    * Initialize agent performance tracking
    */
-  async initializeAgentMetrics(agentId: string, sessionId: string): Promise<void> {
+  async initializeAgentMetrics(
+    agentId: string,
+    sessionId: string,
+  ): Promise<void> {
     const metrics: AgentPerformanceMetrics = {
       agentId,
       sessionId,
@@ -451,53 +466,86 @@ export class MetricsCollector extends EventEmitter {
     if (recentMetrics.length < 3) return currentBottlenecks;
 
     // CPU bottleneck detection
-    const avgCpuUsage = recentMetrics.reduce((sum, m) => sum + m.cpu.usage, 0) / recentMetrics.length;
+    const avgCpuUsage =
+      recentMetrics.reduce((sum, m) => sum + m.cpu.usage, 0) /
+      recentMetrics.length;
     if (avgCpuUsage > 80) {
       const cpuBottleneck = this.createBottleneckAnalysis(
         'cpu',
         avgCpuUsage > 95 ? 'critical' : avgCpuUsage > 90 ? 'high' : 'medium',
         `High CPU usage detected: ${avgCpuUsage.toFixed(1)}%`,
-        ['Consider load balancing', 'Optimize CPU-intensive operations', 'Scale horizontally']
+        [
+          'Consider load balancing',
+          'Optimize CPU-intensive operations',
+          'Scale horizontally',
+        ],
       );
       currentBottlenecks.push(cpuBottleneck);
     }
 
     // Memory bottleneck detection
-    const avgMemoryUsage = recentMetrics.reduce((sum, m) => sum + m.memory.usagePercent, 0) / recentMetrics.length;
+    const avgMemoryUsage =
+      recentMetrics.reduce((sum, m) => sum + m.memory.usagePercent, 0) /
+      recentMetrics.length;
     if (avgMemoryUsage > 85) {
       const memoryBottleneck = this.createBottleneckAnalysis(
         'memory',
-        avgMemoryUsage > 95 ? 'critical' : avgMemoryUsage > 90 ? 'high' : 'medium',
+        avgMemoryUsage > 95
+          ? 'critical'
+          : avgMemoryUsage > 90
+            ? 'high'
+            : 'medium',
         `High memory usage detected: ${avgMemoryUsage.toFixed(1)}%`,
-        ['Optimize memory usage', 'Implement garbage collection tuning', 'Increase available memory']
+        [
+          'Optimize memory usage',
+          'Implement garbage collection tuning',
+          'Increase available memory',
+        ],
       );
       currentBottlenecks.push(memoryBottleneck);
     }
 
     // Event loop lag detection
-    const avgEventLoopLag = recentMetrics.reduce((sum, m) => sum + m.performance.eventLoopLag, 0) / recentMetrics.length;
+    const avgEventLoopLag =
+      recentMetrics.reduce((sum, m) => sum + m.performance.eventLoopLag, 0) /
+      recentMetrics.length;
     if (avgEventLoopLag > 100) {
       const lagBottleneck = this.createBottleneckAnalysis(
         'io',
-        avgEventLoopLag > 500 ? 'critical' : avgEventLoopLag > 200 ? 'high' : 'medium',
+        avgEventLoopLag > 500
+          ? 'critical'
+          : avgEventLoopLag > 200
+            ? 'high'
+            : 'medium',
         `High event loop lag detected: ${avgEventLoopLag.toFixed(1)}ms`,
-        ['Optimize async operations', 'Reduce blocking operations', 'Implement proper queueing']
+        [
+          'Optimize async operations',
+          'Reduce blocking operations',
+          'Implement proper queueing',
+        ],
       );
       currentBottlenecks.push(lagBottleneck);
     }
 
     // Task concurrency bottleneck detection
-    const activeTasks = Array.from(this.taskMetrics.values())
-      .filter(t => !t.endTime).length;
-    const activeAgents = Array.from(this.agentMetrics.values())
-      .filter(a => !a.activePeriod.end).length;
+    const activeTasks = Array.from(this.taskMetrics.values()).filter(
+      (t) => !t.endTime,
+    ).length;
+    const activeAgents = Array.from(this.agentMetrics.values()).filter(
+      (a) => !a.activePeriod.end,
+    ).length;
 
-    if (activeTasks > activeAgents * 3) { // More than 3 tasks per agent
+    if (activeTasks > activeAgents * 3) {
+      // More than 3 tasks per agent
       const concurrencyBottleneck = this.createBottleneckAnalysis(
         'concurrency',
         activeTasks > activeAgents * 5 ? 'high' : 'medium',
         `High task-to-agent ratio detected: ${(activeTasks / Math.max(activeAgents, 1)).toFixed(1)} tasks per agent`,
-        ['Scale agent pool', 'Implement task prioritization', 'Optimize task distribution']
+        [
+          'Scale agent pool',
+          'Implement task prioritization',
+          'Optimize task distribution',
+        ],
       );
       currentBottlenecks.push(concurrencyBottleneck);
     }
@@ -526,14 +574,17 @@ export class MetricsCollector extends EventEmitter {
     const periodStart = new Date(Date.now() - periodHours * 60 * 60 * 1000);
     const periodEnd = new Date();
 
-    const periodMetrics = this.systemMetricsHistory
-      .filter(m => m.timestamp >= periodStart);
+    const periodMetrics = this.systemMetricsHistory.filter(
+      (m) => m.timestamp >= periodStart,
+    );
 
-    const periodTasks = Array.from(this.taskMetrics.values())
-      .filter(t => t.startTime >= periodStart);
+    const periodTasks = Array.from(this.taskMetrics.values()).filter(
+      (t) => t.startTime >= periodStart,
+    );
 
-    const periodBottlenecks = this.bottleneckHistory
-      .filter(b => b.detectionTime >= periodStart);
+    const periodBottlenecks = this.bottleneckHistory.filter(
+      (b) => b.detectionTime >= periodStart,
+    );
 
     const analytics: SystemAnalytics = {
       period: {
@@ -543,8 +594,9 @@ export class MetricsCollector extends EventEmitter {
       },
       systemOverview: {
         totalTasks: periodTasks.length,
-        activeAgents: Array.from(this.agentMetrics.values())
-          .filter(a => !a.activePeriod.end).length,
+        activeAgents: Array.from(this.agentMetrics.values()).filter(
+          (a) => !a.activePeriod.end,
+        ).length,
         systemEfficiency: this.calculateSystemEfficiency(periodTasks),
         overallThroughput: this.calculateOverallThroughput(periodTasks),
       },
@@ -556,11 +608,18 @@ export class MetricsCollector extends EventEmitter {
       },
       bottleneckSummary: {
         totalBottlenecks: periodBottlenecks.length,
-        criticalBottlenecks: periodBottlenecks.filter(b => b.severity === 'critical').length,
+        criticalBottlenecks: periodBottlenecks.filter(
+          (b) => b.severity === 'critical',
+        ).length,
         commonBottleneckTypes: this.getCommonBottleneckTypes(periodBottlenecks),
-        resolutionRate: this.calculateBottleneckResolutionRate(periodBottlenecks),
+        resolutionRate:
+          this.calculateBottleneckResolutionRate(periodBottlenecks),
       },
-      recommendations: this.generateSystemRecommendations(periodMetrics, periodTasks, periodBottlenecks),
+      recommendations: this.generateSystemRecommendations(
+        periodMetrics,
+        periodTasks,
+        periodBottlenecks,
+      ),
     };
 
     return analytics;
@@ -611,7 +670,9 @@ export class MetricsCollector extends EventEmitter {
         this.emit('performance:entries', entries);
       });
 
-      this.performanceObserver.observe({ entryTypes: ['measure', 'navigation', 'mark'] });
+      this.performanceObserver.observe({
+        entryTypes: ['measure', 'navigation', 'mark'],
+      });
     } catch (error) {
       this.logger.warning('Performance observer not available', { error });
     }
@@ -669,7 +730,7 @@ export class MetricsCollector extends EventEmitter {
       },
     ];
 
-    defaultAlerts.forEach(alert => this.configureAlert(alert));
+    defaultAlerts.forEach((alert) => this.configureAlert(alert));
   }
 
   private startMetricsCollection(): void {
@@ -710,7 +771,7 @@ export class MetricsCollector extends EventEmitter {
 
   private async updateAgentPerformanceMetrics(
     agentId: string,
-    taskMetrics: TaskPerformanceMetrics
+    taskMetrics: TaskPerformanceMetrics,
   ): Promise<void> {
     const agentMetrics = this.agentMetrics.get(agentId);
     if (!agentMetrics) return;
@@ -725,14 +786,18 @@ export class MetricsCollector extends EventEmitter {
 
     // Update average task duration
     if (taskMetrics.duration) {
-      const totalDuration = agentMetrics.taskMetrics.averageTaskDuration *
-        (agentMetrics.taskMetrics.totalTasks - 1) + taskMetrics.duration;
-      agentMetrics.taskMetrics.averageTaskDuration = totalDuration / agentMetrics.taskMetrics.totalTasks;
+      const totalDuration =
+        agentMetrics.taskMetrics.averageTaskDuration *
+          (agentMetrics.taskMetrics.totalTasks - 1) +
+        taskMetrics.duration;
+      agentMetrics.taskMetrics.averageTaskDuration =
+        totalDuration / agentMetrics.taskMetrics.totalTasks;
     }
 
     // Update resource utilization
     if (taskMetrics.cpuUsageDuringTask.length > 0) {
-      const avgTaskCpu = taskMetrics.cpuUsageDuringTask.reduce((a, b) => a + b) /
+      const avgTaskCpu =
+        taskMetrics.cpuUsageDuringTask.reduce((a, b) => a + b) /
         taskMetrics.cpuUsageDuringTask.length;
       agentMetrics.resourceUtilization.averageCpuUsage =
         (agentMetrics.resourceUtilization.averageCpuUsage + avgTaskCpu) / 2;
@@ -752,7 +817,7 @@ export class MetricsCollector extends EventEmitter {
     type: BottleneckAnalysis['type'],
     severity: BottleneckAnalysis['severity'],
     description: string,
-    recommendations: string[]
+    recommendations: string[],
   ): BottleneckAnalysis {
     return {
       type,
@@ -762,8 +827,10 @@ export class MetricsCollector extends EventEmitter {
       affectedAgents: [], // Would be populated based on agent analysis
       recommendations,
       estimatedImpact: {
-        performanceReduction: severity === 'critical' ? 50 : severity === 'high' ? 30 : 15,
-        taskDelayMinutes: severity === 'critical' ? 10 : severity === 'high' ? 5 : 2,
+        performanceReduction:
+          severity === 'critical' ? 50 : severity === 'high' ? 30 : 15,
+        taskDelayMinutes:
+          severity === 'critical' ? 10 : severity === 'high' ? 5 : 2,
         affectedTaskCount: 0,
       },
       detectionTime: new Date(),
@@ -779,28 +846,35 @@ export class MetricsCollector extends EventEmitter {
   private calculateSystemEfficiency(tasks: TaskPerformanceMetrics[]): number {
     if (tasks.length === 0) return 100;
 
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
+    const completedTasks = tasks.filter((t) => t.status === 'completed').length;
     return (completedTasks / tasks.length) * 100;
   }
 
   private calculateOverallThroughput(tasks: TaskPerformanceMetrics[]): number {
     if (tasks.length === 0) return 0;
 
-    const totalOperations = tasks.reduce((sum, task) =>
-      sum + Object.values(task.operationCounts).reduce((a, b) => a + b, 0), 0
+    const totalOperations = tasks.reduce(
+      (sum, task) =>
+        sum + Object.values(task.operationCounts).reduce((a, b) => a + b, 0),
+      0,
     );
 
-    const totalDuration = tasks.reduce((sum, task) => sum + (task.duration || 0), 0);
-    return totalDuration > 0 ? (totalOperations / (totalDuration / 1000)) : 0;
+    const totalDuration = tasks.reduce(
+      (sum, task) => sum + (task.duration || 0),
+      0,
+    );
+    return totalDuration > 0 ? totalOperations / (totalDuration / 1000) : 0;
   }
 
-  private calculateTaskCompletionTrend(tasks: TaskPerformanceMetrics[]): number[] {
+  private calculateTaskCompletionTrend(
+    tasks: TaskPerformanceMetrics[],
+  ): number[] {
     // Implementation would calculate completion rate trends over time
     return [];
   }
 
   private calculateResourceUsageTrend(metrics: SystemMetrics[]): number[] {
-    return metrics.map(m => (m.cpu.usage + m.memory.usagePercent) / 2);
+    return metrics.map((m) => (m.cpu.usage + m.memory.usagePercent) / 2);
   }
 
   private calculateAgentUtilizationTrend(): number[] {
@@ -813,9 +887,11 @@ export class MetricsCollector extends EventEmitter {
     return [];
   }
 
-  private getCommonBottleneckTypes(bottlenecks: BottleneckAnalysis[]): string[] {
+  private getCommonBottleneckTypes(
+    bottlenecks: BottleneckAnalysis[],
+  ): string[] {
     const typeCounts = new Map<string, number>();
-    bottlenecks.forEach(b => {
+    bottlenecks.forEach((b) => {
       typeCounts.set(b.type, (typeCounts.get(b.type) || 0) + 1);
     });
 
@@ -825,42 +901,65 @@ export class MetricsCollector extends EventEmitter {
       .map(([type]) => type);
   }
 
-  private calculateBottleneckResolutionRate(bottlenecks: BottleneckAnalysis[]): number {
+  private calculateBottleneckResolutionRate(
+    bottlenecks: BottleneckAnalysis[],
+  ): number {
     if (bottlenecks.length === 0) return 100;
 
-    const resolvedBottlenecks = bottlenecks.filter(b => b.resolved).length;
+    const resolvedBottlenecks = bottlenecks.filter((b) => b.resolved).length;
     return (resolvedBottlenecks / bottlenecks.length) * 100;
   }
 
   private generateSystemRecommendations(
     metrics: SystemMetrics[],
     tasks: TaskPerformanceMetrics[],
-    bottlenecks: BottleneckAnalysis[]
+    bottlenecks: BottleneckAnalysis[],
   ): SystemAnalytics['recommendations'] {
     return {
-      systemOptimization: ['Monitor resource usage patterns', 'Implement performance caching'],
-      agentOptimization: ['Balance task distribution', 'Optimize agent capabilities'],
-      resourceAllocation: ['Scale resources based on demand', 'Implement auto-scaling'],
-      workloadDistribution: ['Implement intelligent task routing', 'Balance agent workloads'],
+      systemOptimization: [
+        'Monitor resource usage patterns',
+        'Implement performance caching',
+      ],
+      agentOptimization: [
+        'Balance task distribution',
+        'Optimize agent capabilities',
+      ],
+      resourceAllocation: [
+        'Scale resources based on demand',
+        'Implement auto-scaling',
+      ],
+      workloadDistribution: [
+        'Implement intelligent task routing',
+        'Balance agent workloads',
+      ],
     };
   }
 
   private checkAlerts(metrics: SystemMetrics): void {
     for (const [alertName, config] of this.alertConfigs) {
       const lastAlert = this.lastAlertTimes.get(alertName);
-      if (lastAlert && Date.now() - lastAlert.getTime() < config.cooldownPeriod) {
+      if (
+        lastAlert &&
+        Date.now() - lastAlert.getTime() < config.cooldownPeriod
+      ) {
         continue; // Still in cooldown period
       }
 
       const metricValue = this.getMetricValue(metrics, config.condition.metric);
-      if (metricValue !== null && this.evaluateCondition(metricValue, config.condition)) {
+      if (
+        metricValue !== null &&
+        this.evaluateCondition(metricValue, config.condition)
+      ) {
         this.triggerAlert(alertName, config, metricValue);
         this.lastAlertTimes.set(alertName, new Date());
       }
     }
   }
 
-  private getMetricValue(metrics: SystemMetrics, metricPath: string): number | null {
+  private getMetricValue(
+    metrics: SystemMetrics,
+    metricPath: string,
+  ): number | null {
     try {
       const path = metricPath.split('.');
       let value: any = metrics;
@@ -873,19 +972,33 @@ export class MetricsCollector extends EventEmitter {
     }
   }
 
-  private evaluateCondition(value: number, condition: PerformanceAlertConfig['condition']): boolean {
+  private evaluateCondition(
+    value: number,
+    condition: PerformanceAlertConfig['condition'],
+  ): boolean {
     switch (condition.operator) {
-      case '>': return value > condition.threshold;
-      case '<': return value < condition.threshold;
-      case '>=': return value >= condition.threshold;
-      case '<=': return value <= condition.threshold;
-      case '==': return value === condition.threshold;
-      case '!=': return value !== condition.threshold;
-      default: return false;
+      case '>':
+        return value > condition.threshold;
+      case '<':
+        return value < condition.threshold;
+      case '>=':
+        return value >= condition.threshold;
+      case '<=':
+        return value <= condition.threshold;
+      case '==':
+        return value === condition.threshold;
+      case '!=':
+        return value !== condition.threshold;
+      default:
+        return false;
     }
   }
 
-  private triggerAlert(name: string, config: PerformanceAlertConfig, value: number): void {
+  private triggerAlert(
+    name: string,
+    config: PerformanceAlertConfig,
+    value: number,
+  ): void {
     const alert = {
       name,
       severity: config.severity,
@@ -901,14 +1014,16 @@ export class MetricsCollector extends EventEmitter {
 
   private cleanupOldMetrics(): void {
     const cutoff = Date.now() - this.metricsRetentionPeriod;
-    this.systemMetricsHistory = this.systemMetricsHistory
-      .filter(metrics => metrics.timestamp.getTime() > cutoff);
+    this.systemMetricsHistory = this.systemMetricsHistory.filter(
+      (metrics) => metrics.timestamp.getTime() > cutoff,
+    );
   }
 
   private cleanupOldBottlenecks(): void {
     const cutoff = Date.now() - this.metricsRetentionPeriod;
-    this.bottleneckHistory = this.bottleneckHistory
-      .filter(bottleneck => bottleneck.detectionTime.getTime() > cutoff);
+    this.bottleneckHistory = this.bottleneckHistory.filter(
+      (bottleneck) => bottleneck.detectionTime.getTime() > cutoff,
+    );
   }
 
   /**

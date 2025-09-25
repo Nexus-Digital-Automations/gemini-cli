@@ -11,17 +11,17 @@ export declare const MAX_FILES = 10;
  * Keeps track of the workspace state, including open files, cursor position, and selected text.
  */
 export declare class OpenFilesManager {
-    private readonly context;
-    private readonly onDidChangeEmitter;
-    readonly onDidChange: vscode.Event<void>;
-    private debounceTimer;
-    private openFiles;
-    constructor(context: vscode.ExtensionContext);
-    private isFileUri;
-    private addOrMoveToFront;
-    private remove;
-    private rename;
-    private updateActiveContext;
-    private fireWithDebounce;
-    get state(): IdeContext;
+  private readonly context;
+  private readonly onDidChangeEmitter;
+  readonly onDidChange: vscode.Event<void>;
+  private debounceTimer;
+  private openFiles;
+  constructor(context: vscode.ExtensionContext);
+  private isFileUri;
+  private addOrMoveToFront;
+  private remove;
+  private rename;
+  private updateActiveContext;
+  private fireWithDebounce;
+  get state(): IdeContext;
 }

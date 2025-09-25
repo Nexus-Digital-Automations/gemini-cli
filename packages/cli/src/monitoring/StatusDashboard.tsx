@@ -7,9 +7,7 @@
 import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Text, useApp } from 'ink';
-import type {
-  TaskMetadata,
-  AgentStatus} from './TaskStatusMonitor.js';
+import type { TaskMetadata, AgentStatus } from './TaskStatusMonitor.js';
 import {
   TaskStatusMonitor,
   TaskStatus,
@@ -19,12 +17,16 @@ import type {
   TaskAnalytics,
   AgentAnalytics,
   SystemAnalytics,
-  AnalyticsTimeframe} from './StatusHistoryAnalytics.js';
+  AnalyticsTimeframe,
+} from './StatusHistoryAnalytics.js';
 import {
   StatusHistoryAnalytics,
   statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
-import { NotificationSystem, notificationSystem } from './NotificationSystem.js';
+import {
+  NotificationSystem,
+  notificationSystem,
+} from './NotificationSystem.js';
 
 interface DashboardState {
   currentView: 'overview' | 'tasks' | 'agents' | 'analytics' | 'history';
@@ -55,11 +57,11 @@ interface VisualizationProps {
 /**
  * ASCII-based Chart Components for Terminal Display
  */
-const BarChart: React.FC<{ data: Record<string, number>; title: string; maxWidth?: number }> = ({
-  data,
-  title,
-  maxWidth = 40,
-}) => {
+const BarChart: React.FC<{
+  data: Record<string, number>;
+  title: string;
+  maxWidth?: number;
+}> = ({ data, title, maxWidth = 40 }) => {
   const maxValue = Math.max(...Object.values(data));
   const scale = maxWidth / maxValue;
 
@@ -86,14 +88,8 @@ const ProgressBar: React.FC<{
   total: number;
   label: string;
   color?: string;
-  width?: number
-}> = ({
-  current,
-  total,
-  label,
-  color = 'green',
-  width = 30,
-}) => {
+  width?: number;
+}> = ({ current, total, label, color = 'green', width = 30 }) => {
   const percentage = total > 0 ? (current / total) * 100 : 0;
   const filledWidth = Math.floor((percentage / 100) * width);
   const emptyWidth = width - filledWidth;
@@ -118,14 +114,16 @@ const MetricCard: React.FC<{
   color?: string;
 }> = ({ title, value, unit = '', trend, color = 'white' }) => {
   const trendSymbol = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
-  const trendColor = trend === 'up' ? 'green' : trend === 'down' ? 'red' : 'yellow';
+  const trendColor =
+    trend === 'up' ? 'green' : trend === 'down' ? 'red' : 'yellow';
 
   return (
     <Box flexDirection="column" borderStyle="single" paddingX={1}>
       <Text dimColor>{title}</Text>
       <Box gap={1}>
         <Text color={color} bold>
-          {value}{unit}
+          {value}
+          {unit}
         </Text>
         {trend && <Text color={trendColor}>{trendSymbol}</Text>}
       </Box>
@@ -141,15 +139,21 @@ const OverviewDashboard: React.FC<{
   agents: AgentStatus[];
   metrics: SystemAnalytics;
 }> = ({ tasks, agents, metrics }) => {
-  const taskCounts = tasks.reduce((acc, task) => {
-    acc[task.status] = (acc[task.status] || 0) + 1;
-    return acc;
-  }, {} as Record<TaskStatus, number>);
+  const taskCounts = tasks.reduce(
+    (acc, task) => {
+      acc[task.status] = (acc[task.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<TaskStatus, number>,
+  );
 
-  const agentCounts = agents.reduce((acc, agent) => {
-    acc[agent.status] = (acc[agent.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const agentCounts = agents.reduce(
+    (acc, agent) => {
+      acc[agent.status] = (acc[agent.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return (
     <Box flexDirection="column" gap={1}>
@@ -164,8 +168,13 @@ const OverviewDashboard: React.FC<{
           title="System Efficiency"
           value={metrics.systemEfficiency.toFixed(1)}
           unit="%"
-          trend={metrics.trends.taskCompletionTrend === 'improving' ? 'up' :
-                metrics.trends.taskCompletionTrend === 'declining' ? 'down' : 'stable'}
+          trend={
+            metrics.trends.taskCompletionTrend === 'improving'
+              ? 'up'
+              : metrics.trends.taskCompletionTrend === 'declining'
+                ? 'down'
+                : 'stable'
+          }
           color="green"
         />
         <MetricCard
@@ -190,11 +199,11 @@ const OverviewDashboard: React.FC<{
       <Box marginTop={1}>
         <BarChart
           data={{
-            'Queued': taskCounts[TaskStatus.QUEUED] || 0,
+            Queued: taskCounts[TaskStatus.QUEUED] || 0,
             'In Progress': taskCounts[TaskStatus.IN_PROGRESS] || 0,
-            'Completed': taskCounts[TaskStatus.COMPLETED] || 0,
-            'Failed': taskCounts[TaskStatus.FAILED] || 0,
-            'Blocked': taskCounts[TaskStatus.BLOCKED] || 0,
+            Completed: taskCounts[TaskStatus.COMPLETED] || 0,
+            Failed: taskCounts[TaskStatus.FAILED] || 0,
+            Blocked: taskCounts[TaskStatus.BLOCKED] || 0,
           }}
           title="📊 Task Status Distribution"
         />
@@ -202,16 +211,15 @@ const OverviewDashboard: React.FC<{
 
       {/* Agent Status */}
       <Box marginTop={1}>
-        <BarChart
-          data={agentCounts}
-          title="🤖 Agent Status Distribution"
-        />
+        <BarChart data={agentCounts} title="🤖 Agent Status Distribution" />
       </Box>
 
       {/* System Alerts */}
       {metrics.bottlenecks.length > 0 && (
         <Box flexDirection="column" marginTop={1}>
-          <Text bold color="red">⚠️  System Alerts</Text>
+          <Text bold color="red">
+            ⚠️ System Alerts
+          </Text>
           {metrics.bottlenecks.slice(0, 3).map((bottleneck, index) => (
             <Box key={index}>
               <Text color="red">•</Text>
@@ -232,13 +240,17 @@ const TaskDashboard: React.FC<{
   agents: AgentStatus[];
 }> = ({ tasks, agents }) => {
   const [selectedTask, setSelectedTask] = useState<TaskMetadata | null>(null);
-  const [sortBy, setSortBy] = useState<'priority' | 'status' | 'created'>('priority');
+  const [sortBy, setSortBy] = useState<'priority' | 'status' | 'created'>(
+    'priority',
+  );
 
   const sortedTasks = [...tasks].sort((a, b) => {
     switch (sortBy) {
       case 'priority':
         const priorityOrder = { critical: 4, high: 3, normal: 2, low: 1 };
-        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
+        return (
+          (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
+        );
       case 'status':
         return a.status.localeCompare(b.status);
       case 'created':
@@ -282,24 +294,30 @@ const TaskDashboard: React.FC<{
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Text bold color="cyan">📋 Task Management Dashboard</Text>
+      <Text bold color="cyan">
+        📋 Task Management Dashboard
+      </Text>
 
       {/* Task Statistics */}
       <Box gap={2}>
         <ProgressBar
-          current={tasks.filter(t => t.status === TaskStatus.COMPLETED).length}
+          current={
+            tasks.filter((t) => t.status === TaskStatus.COMPLETED).length
+          }
           total={tasks.length}
           label="Completed"
           color="green"
         />
         <ProgressBar
-          current={tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length}
+          current={
+            tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS).length
+          }
           total={tasks.length}
           label="In Progress"
           color="yellow"
         />
         <ProgressBar
-          current={tasks.filter(t => t.status === TaskStatus.FAILED).length}
+          current={tasks.filter((t) => t.status === TaskStatus.FAILED).length}
           total={tasks.length}
           label="Failed"
           color="red"
@@ -327,10 +345,13 @@ const TaskDashboard: React.FC<{
       {/* Task Type Distribution */}
       <Box marginTop={1}>
         <BarChart
-          data={tasks.reduce((acc, task) => {
-            acc[task.type] = (acc[task.type] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>)}
+          data={tasks.reduce(
+            (acc, task) => {
+              acc[task.type] = (acc[task.type] || 0) + 1;
+              return acc;
+            },
+            {} as Record<string, number>,
+          )}
           title="📈 Tasks by Type"
         />
       </Box>
@@ -346,7 +367,7 @@ const AgentDashboard: React.FC<{
   tasks: TaskMetadata[];
 }> = ({ agents, tasks }) => {
   const getAgentTasks = (agentId: string) =>
-    tasks.filter(task => task.assignedAgent === agentId);
+    tasks.filter((task) => task.assignedAgent === agentId);
 
   const getPerformanceColor = (successRate: number): string => {
     if (successRate >= 90) return 'green';
@@ -354,34 +375,35 @@ const AgentDashboard: React.FC<{
     return 'red';
   };
 
-  const sortedAgents = [...agents].sort((a, b) =>
-    b.performance.successRate - a.performance.successRate
+  const sortedAgents = [...agents].sort(
+    (a, b) => b.performance.successRate - a.performance.successRate,
   );
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Text bold color="cyan">🤖 Agent Performance Dashboard</Text>
+      <Text bold color="cyan">
+        🤖 Agent Performance Dashboard
+      </Text>
 
       {/* Agent Statistics */}
       <Box gap={2}>
-        <MetricCard
-          title="Total Agents"
-          value={agents.length}
-          color="blue"
-        />
+        <MetricCard title="Total Agents" value={agents.length} color="blue" />
         <MetricCard
           title="Active Agents"
-          value={agents.filter(a => a.status === 'active' || a.status === 'busy').length}
+          value={
+            agents.filter((a) => a.status === 'active' || a.status === 'busy')
+              .length
+          }
           color="green"
         />
         <MetricCard
           title="Idle Agents"
-          value={agents.filter(a => a.status === 'idle').length}
+          value={agents.filter((a) => a.status === 'idle').length}
           color="yellow"
         />
         <MetricCard
           title="Offline Agents"
-          value={agents.filter(a => a.status === 'offline').length}
+          value={agents.filter((a) => a.status === 'offline').length}
           color="red"
         />
       </Box>
@@ -393,7 +415,9 @@ const AgentDashboard: React.FC<{
           const agentTasks = getAgentTasks(agent.id);
           return (
             <Box key={agent.id} gap={1}>
-              <Text color={getPerformanceColor(agent.performance.successRate)}>●</Text>
+              <Text color={getPerformanceColor(agent.performance.successRate)}>
+                ●
+              </Text>
               <Text>{agent.id.substring(0, 20).padEnd(20)}</Text>
               <Text color={getPerformanceColor(agent.performance.successRate)}>
                 {agent.performance.successRate.toFixed(1)}%
@@ -412,10 +436,13 @@ const AgentDashboard: React.FC<{
       {/* Agent Status Distribution */}
       <Box marginTop={1}>
         <BarChart
-          data={agents.reduce((acc, agent) => {
-            acc[agent.status] = (acc[agent.status] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>)}
+          data={agents.reduce(
+            (acc, agent) => {
+              acc[agent.status] = (acc[agent.status] || 0) + 1;
+              return acc;
+            },
+            {} as Record<string, number>,
+          )}
           title="📊 Agent Status Distribution"
         />
       </Box>
@@ -423,12 +450,15 @@ const AgentDashboard: React.FC<{
       {/* Capability Distribution */}
       <Box marginTop={1}>
         <BarChart
-          data={agents.reduce((acc, agent) => {
-            agent.capabilities.forEach(cap => {
-              acc[cap] = (acc[cap] || 0) + 1;
-            });
-            return acc;
-          }, {} as Record<string, number>)}
+          data={agents.reduce(
+            (acc, agent) => {
+              agent.capabilities.forEach((cap) => {
+                acc[cap] = (acc[cap] || 0) + 1;
+              });
+              return acc;
+            },
+            {} as Record<string, number>,
+          )}
           title="🛠️  Agent Capabilities"
         />
       </Box>
@@ -444,11 +474,15 @@ const AnalyticsDashboard: React.FC<{
   agentAnalytics: AgentAnalytics;
   systemAnalytics: SystemAnalytics;
 }> = ({ taskAnalytics, agentAnalytics, systemAnalytics }) => {
-  const [timeframe, setTimeframe] = useState<'1h' | '24h' | '7d' | '30d'>('24h');
+  const [timeframe, setTimeframe] = useState<'1h' | '24h' | '7d' | '30d'>(
+    '24h',
+  );
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Text bold color="cyan">📈 Analytics Dashboard</Text>
+      <Text bold color="cyan">
+        📈 Analytics Dashboard
+      </Text>
 
       {/* Key Performance Indicators */}
       <Box gap={2} marginTop={1}>
@@ -456,16 +490,26 @@ const AnalyticsDashboard: React.FC<{
           title="Completion Rate"
           value={taskAnalytics.completionRate.toFixed(1)}
           unit="%"
-          trend={taskAnalytics.completionRate > 0.8 ? 'up' :
-                taskAnalytics.completionRate > 0.6 ? 'stable' : 'down'}
+          trend={
+            taskAnalytics.completionRate > 0.8
+              ? 'up'
+              : taskAnalytics.completionRate > 0.6
+                ? 'stable'
+                : 'down'
+          }
           color="green"
         />
         <MetricCard
           title="Failure Rate"
           value={taskAnalytics.failureRate.toFixed(1)}
           unit="%"
-          trend={taskAnalytics.failureRate < 0.1 ? 'up' :
-                taskAnalytics.failureRate < 0.2 ? 'stable' : 'down'}
+          trend={
+            taskAnalytics.failureRate < 0.1
+              ? 'up'
+              : taskAnalytics.failureRate < 0.2
+                ? 'stable'
+                : 'down'
+          }
           color="red"
         />
         <MetricCard
@@ -484,13 +528,15 @@ const AnalyticsDashboard: React.FC<{
 
       {/* Time Series Visualization (ASCII) */}
       <Box flexDirection="column" marginTop={1}>
-        <Text bold>⏱️  Task Completion Timeline (Last {timeframe}):</Text>
+        <Text bold>⏱️ Task Completion Timeline (Last {timeframe}):</Text>
         {taskAnalytics.timeSeriesData.slice(-10).map((dataPoint, index) => (
           <Box key={index} gap={1}>
             <Text dimColor>
               {dataPoint.timestamp.toLocaleTimeString().substring(0, 5)}
             </Text>
-            <Text color="green">{'█'.repeat(Math.max(1, dataPoint.completed))}</Text>
+            <Text color="green">
+              {'█'.repeat(Math.max(1, dataPoint.completed))}
+            </Text>
             <Text color="red">{'█'.repeat(Math.max(1, dataPoint.failed))}</Text>
             <Text dimColor>
               ({dataPoint.completed}✓ {dataPoint.failed}✗)
@@ -512,28 +558,43 @@ const AnalyticsDashboard: React.FC<{
         <Text bold>📊 System Trends:</Text>
         <Box gap={1}>
           <Text>Task Completion:</Text>
-          <Text color={
-            systemAnalytics.trends.taskCompletionTrend === 'improving' ? 'green' :
-            systemAnalytics.trends.taskCompletionTrend === 'declining' ? 'red' : 'yellow'
-          }>
+          <Text
+            color={
+              systemAnalytics.trends.taskCompletionTrend === 'improving'
+                ? 'green'
+                : systemAnalytics.trends.taskCompletionTrend === 'declining'
+                  ? 'red'
+                  : 'yellow'
+            }
+          >
             {systemAnalytics.trends.taskCompletionTrend}
           </Text>
         </Box>
         <Box gap={1}>
           <Text>Agent Utilization:</Text>
-          <Text color={
-            systemAnalytics.trends.agentUtilizationTrend === 'improving' ? 'green' :
-            systemAnalytics.trends.agentUtilizationTrend === 'declining' ? 'red' : 'yellow'
-          }>
+          <Text
+            color={
+              systemAnalytics.trends.agentUtilizationTrend === 'improving'
+                ? 'green'
+                : systemAnalytics.trends.agentUtilizationTrend === 'declining'
+                  ? 'red'
+                  : 'yellow'
+            }
+          >
             {systemAnalytics.trends.agentUtilizationTrend}
           </Text>
         </Box>
         <Box gap={1}>
           <Text>Error Rate:</Text>
-          <Text color={
-            systemAnalytics.trends.errorRateTrend === 'improving' ? 'green' :
-            systemAnalytics.trends.errorRateTrend === 'declining' ? 'red' : 'yellow'
-          }>
+          <Text
+            color={
+              systemAnalytics.trends.errorRateTrend === 'improving'
+                ? 'green'
+                : systemAnalytics.trends.errorRateTrend === 'declining'
+                  ? 'red'
+                  : 'yellow'
+            }
+          >
             {systemAnalytics.trends.errorRateTrend}
           </Text>
         </Box>
@@ -564,12 +625,17 @@ export const StatusDashboard: React.FC<{
 
   const [tasks, setTasks] = useState<TaskMetadata[]>([]);
   const [agents, setAgents] = useState<AgentStatus[]>([]);
-  const [taskAnalytics, setTaskAnalytics] = useState<TaskAnalytics | null>(null);
-  const [agentAnalytics, setAgentAnalytics] = useState<AgentAnalytics | null>(null);
-  const [systemAnalytics, setSystemAnalytics] = useState<SystemAnalytics | null>(null);
+  const [taskAnalytics, setTaskAnalytics] = useState<TaskAnalytics | null>(
+    null,
+  );
+  const [agentAnalytics, setAgentAnalytics] = useState<AgentAnalytics | null>(
+    null,
+  );
+  const [systemAnalytics, setSystemAnalytics] =
+    useState<SystemAnalytics | null>(null);
 
   const refreshData = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: undefined }));
+    setState((prev) => ({ ...prev, isLoading: true, error: undefined }));
 
     try {
       // Get current data from monitors
@@ -586,23 +652,24 @@ export const StatusDashboard: React.FC<{
         granularity: 'hour',
       };
 
-      const [taskAnalyticsData, agentAnalyticsData, systemAnalyticsData] = await Promise.all([
-        statusHistoryAnalytics.getTaskAnalytics(timeframe),
-        statusHistoryAnalytics.getAgentAnalytics(timeframe),
-        statusHistoryAnalytics.getSystemAnalytics(timeframe),
-      ]);
+      const [taskAnalyticsData, agentAnalyticsData, systemAnalyticsData] =
+        await Promise.all([
+          statusHistoryAnalytics.getTaskAnalytics(timeframe),
+          statusHistoryAnalytics.getAgentAnalytics(timeframe),
+          statusHistoryAnalytics.getSystemAnalytics(timeframe),
+        ]);
 
       setTaskAnalytics(taskAnalyticsData);
       setAgentAnalytics(agentAnalyticsData);
       setSystemAnalytics(systemAnalyticsData);
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: false,
         lastRefresh: new Date(),
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -633,16 +700,16 @@ export const StatusDashboard: React.FC<{
 
       switch (key.name) {
         case '1':
-          setState(prev => ({ ...prev, currentView: 'overview' }));
+          setState((prev) => ({ ...prev, currentView: 'overview' }));
           break;
         case '2':
-          setState(prev => ({ ...prev, currentView: 'tasks' }));
+          setState((prev) => ({ ...prev, currentView: 'tasks' }));
           break;
         case '3':
-          setState(prev => ({ ...prev, currentView: 'agents' }));
+          setState((prev) => ({ ...prev, currentView: 'agents' }));
           break;
         case '4':
-          setState(prev => ({ ...prev, currentView: 'analytics' }));
+          setState((prev) => ({ ...prev, currentView: 'analytics' }));
           break;
         case 'r':
           refreshData();
@@ -673,7 +740,9 @@ export const StatusDashboard: React.FC<{
             agents={agents}
             metrics={systemAnalytics}
           />
-        ) : <Text>Loading system metrics...</Text>;
+        ) : (
+          <Text>Loading system metrics...</Text>
+        );
 
       case 'tasks':
         return <TaskDashboard tasks={tasks} agents={agents} />;
@@ -688,7 +757,9 @@ export const StatusDashboard: React.FC<{
             agentAnalytics={agentAnalytics}
             systemAnalytics={systemAnalytics}
           />
-        ) : <Text>Loading analytics data...</Text>;
+        ) : (
+          <Text>Loading analytics data...</Text>
+        );
 
       default:
         return <Text>Unknown view: {state.currentView}</Text>;
@@ -701,7 +772,9 @@ export const StatusDashboard: React.FC<{
       <Box justifyContent="space-between" marginBottom={1}>
         <Text bold>Status Dashboard - {state.currentView.toUpperCase()}</Text>
         <Text dimColor>
-          {state.isLoading ? '🔄 Refreshing...' : `Last: ${state.lastRefresh.toLocaleTimeString()}`}
+          {state.isLoading
+            ? '🔄 Refreshing...'
+            : `Last: ${state.lastRefresh.toLocaleTimeString()}`}
         </Text>
       </Box>
 
@@ -723,9 +796,7 @@ export const StatusDashboard: React.FC<{
       </Box>
 
       {/* Main Content */}
-      <Box flexDirection="column">
-        {renderCurrentView()}
-      </Box>
+      <Box flexDirection="column">{renderCurrentView()}</Box>
     </Box>
   );
 };

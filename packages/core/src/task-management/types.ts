@@ -10,9 +10,22 @@
 
 export type TaskId = string;
 export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
-export type TaskStatus = 'pending' | 'ready' | 'in_progress' | 'completed' | 'failed' | 'blocked' | 'cancelled';
+export type TaskStatus =
+  | 'pending'
+  | 'ready'
+  | 'in_progress'
+  | 'completed'
+  | 'failed'
+  | 'blocked'
+  | 'cancelled';
 export type DependencyType = 'hard' | 'soft' | 'resource' | 'temporal';
-export type TaskCategory = 'implementation' | 'testing' | 'documentation' | 'analysis' | 'refactoring' | 'deployment';
+export type TaskCategory =
+  | 'implementation'
+  | 'testing'
+  | 'documentation'
+  | 'analysis'
+  | 'refactoring'
+  | 'deployment';
 
 /**
  * Represents a task dependency relationship
@@ -341,7 +354,11 @@ export interface TaskQueueConfig {
   /** Priority thresholds */
   priorityThresholds: Record<TaskPriority, number>;
   /** Scheduling algorithm to use */
-  schedulingAlgorithm: 'fifo' | 'priority' | 'dependency_aware' | 'resource_optimal';
+  schedulingAlgorithm:
+    | 'fifo'
+    | 'priority'
+    | 'dependency_aware'
+    | 'resource_optimal';
   /** Auto-dependency learning enabled */
   autoDependencyLearning: boolean;
   /** Performance monitoring enabled */

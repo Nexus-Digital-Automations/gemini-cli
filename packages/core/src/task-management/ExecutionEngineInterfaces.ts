@@ -9,12 +9,19 @@ import type {
   Task,
   TaskExecutionResult,
   TaskContext,
-  QueueMetrics
+  QueueMetrics,
 } from './TaskQueue.js';
 import type { TaskId } from './types.js';
 import type { LifecycleContext, LifecycleState } from './TaskLifecycle.js';
-import type { SchedulingDecision, SchedulingContext, SchedulingAlgorithm } from './PriorityScheduler.js';
-import type { QueueSnapshot, PersistenceOperation } from './QueuePersistence.js';
+import type {
+  SchedulingDecision,
+  SchedulingContext,
+  SchedulingAlgorithm,
+} from './PriorityScheduler.js';
+import type {
+  QueueSnapshot,
+  PersistenceOperation,
+} from './QueuePersistence.js';
 
 /**
  * Execution engine capabilities and features
@@ -215,7 +222,14 @@ export interface ResourceAllocationResponse {
  * Queue management command
  */
 export interface QueueManagementCommand {
-  command: 'pause' | 'resume' | 'drain' | 'clear' | 'optimize' | 'rebalance' | 'compact';
+  command:
+    | 'pause'
+    | 'resume'
+    | 'drain'
+    | 'clear'
+    | 'optimize'
+    | 'rebalance'
+    | 'compact';
   parameters?: Record<string, unknown>;
   targetTasks?: TaskId[];
   reason?: string;
@@ -242,8 +256,14 @@ export interface PerformanceAnalyticsRequest {
   };
   granularity: 'minute' | 'hour' | 'day' | 'week';
   metrics: Array<
-    'throughput' | 'latency' | 'success_rate' | 'resource_utilization' |
-    'queue_depth' | 'execution_time' | 'wait_time' | 'retry_rate'
+    | 'throughput'
+    | 'latency'
+    | 'success_rate'
+    | 'resource_utilization'
+    | 'queue_depth'
+    | 'execution_time'
+    | 'wait_time'
+    | 'retry_rate'
   >;
   groupBy?: Array<'category' | 'priority' | 'resource' | 'algorithm'>;
   filters?: {
@@ -306,24 +326,42 @@ export interface IExecutionEngine {
   // Status and monitoring
   getTaskStatus(query: TaskStatusQuery): Promise<TaskStatusResponse>;
   getTaskProgress(taskId: TaskId): Promise<TaskProgressUpdate | null>;
-  subscribeToTaskUpdates(taskId: TaskId, callback: (update: TaskProgressUpdate) => void): string;
+  subscribeToTaskUpdates(
+    taskId: TaskId,
+    callback: (update: TaskProgressUpdate) => void,
+  ): string;
   unsubscribeFromTaskUpdates(subscriptionId: string): boolean;
 
   // Queue management
   getQueueMetrics(): Promise<QueueMetrics>;
-  manageQueue(command: QueueManagementCommand): Promise<QueueManagementResponse>;
-  optimizeQueue(): Promise<{ optimizationsApplied: string[]; expectedImpact: number }>;
+  manageQueue(
+    command: QueueManagementCommand,
+  ): Promise<QueueManagementResponse>;
+  optimizeQueue(): Promise<{
+    optimizationsApplied: string[];
+    expectedImpact: number;
+  }>;
 
   // Resource management
-  allocateResources(request: ResourceAllocationRequest): Promise<ResourceAllocationResponse>;
+  allocateResources(
+    request: ResourceAllocationRequest,
+  ): Promise<ResourceAllocationResponse>;
   releaseResources(allocationId: string): Promise<boolean>;
-  getResourceUtilization(): Promise<Record<string, { used: number; total: number; utilization: number }>>;
+  getResourceUtilization(): Promise<
+    Record<string, { used: number; total: number; utilization: number }>
+  >;
 
   // Analytics and performance
-  getPerformanceAnalytics(request: PerformanceAnalyticsRequest): Promise<PerformanceAnalyticsResponse>;
+  getPerformanceAnalytics(
+    request: PerformanceAnalyticsRequest,
+  ): Promise<PerformanceAnalyticsResponse>;
   getSystemHealth(): Promise<{
     status: 'healthy' | 'degraded' | 'critical';
-    issues: Array<{ severity: 'warning' | 'error'; message: string; component: string }>;
+    issues: Array<{
+      severity: 'warning' | 'error';
+      message: string;
+      component: string;
+    }>;
     uptime: number;
     lastHealthCheck: Date;
   }>;
@@ -331,17 +369,52 @@ export interface IExecutionEngine {
   // Persistence and recovery
   createSnapshot(description?: string): Promise<string>;
   restoreFromSnapshot(snapshotId: string): Promise<void>;
-  listSnapshots(): Promise<Array<{ id: string; timestamp: Date; description: string; taskCount: number }>>;
+  listSnapshots(): Promise<
+    Array<{
+      id: string;
+      timestamp: Date;
+      description: string;
+      taskCount: number;
+    }>
+  >;
 
   // Events
-  on(event: 'taskSubmitted', listener: (taskId: TaskId, request: TaskSubmissionRequest) => void): this;
-  on(event: 'taskStarted', listener: (taskId: TaskId, context: TaskContext) => void): this;
-  on(event: 'taskProgress', listener: (update: TaskProgressUpdate) => void): this;
-  on(event: 'taskCompleted', listener: (taskId: TaskId, result: TaskExecutionResult) => void): this;
-  on(event: 'taskFailed', listener: (taskId: TaskId, error: Error, retryScheduled: boolean) => void): this;
-  on(event: 'queueOptimized', listener: (metrics: { before: QueueMetrics; after: QueueMetrics }) => void): this;
-  on(event: 'resourcesAllocated', listener: (allocation: ResourceAllocationResponse) => void): this;
-  on(event: 'performanceAlert', listener: (alert: { type: string; message: string; severity: 'info' | 'warning' | 'error' }) => void): this;
+  on(
+    event: 'taskSubmitted',
+    listener: (taskId: TaskId, request: TaskSubmissionRequest) => void,
+  ): this;
+  on(
+    event: 'taskStarted',
+    listener: (taskId: TaskId, context: TaskContext) => void,
+  ): this;
+  on(
+    event: 'taskProgress',
+    listener: (update: TaskProgressUpdate) => void,
+  ): this;
+  on(
+    event: 'taskCompleted',
+    listener: (taskId: TaskId, result: TaskExecutionResult) => void,
+  ): this;
+  on(
+    event: 'taskFailed',
+    listener: (taskId: TaskId, error: Error, retryScheduled: boolean) => void,
+  ): this;
+  on(
+    event: 'queueOptimized',
+    listener: (metrics: { before: QueueMetrics; after: QueueMetrics }) => void,
+  ): this;
+  on(
+    event: 'resourcesAllocated',
+    listener: (allocation: ResourceAllocationResponse) => void,
+  ): this;
+  on(
+    event: 'performanceAlert',
+    listener: (alert: {
+      type: string;
+      message: string;
+      severity: 'info' | 'warning' | 'error';
+    }) => void,
+  ): this;
 }
 
 /**
@@ -358,7 +431,7 @@ export interface ITaskQueueIntegration {
   requestScheduling(
     eligibleTasks: Task[],
     availableSlots: number,
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingDecision>;
   applySchedulingDecision(decision: SchedulingDecision): Promise<void>;
 
@@ -367,7 +440,7 @@ export interface ITaskQueueIntegration {
     taskId: TaskId,
     fromState: LifecycleState,
     toState: LifecycleState,
-    context: LifecycleContext
+    context: LifecycleContext,
   ): Promise<void>;
 
   // Persistence integration
@@ -383,18 +456,18 @@ export interface IPrioritySchedulerIntegration {
   // Algorithm management
   selectSchedulingAlgorithm(
     tasks: Task[],
-    context: SchedulingContext
+    context: SchedulingContext,
   ): Promise<SchedulingAlgorithm>;
 
   configureAlgorithm(
     algorithm: SchedulingAlgorithm,
-    configuration: Record<string, unknown>
+    configuration: Record<string, unknown>,
   ): Promise<void>;
 
   // Learning and adaptation
   recordExecutionOutcome(
     decision: SchedulingDecision,
-    outcomes: TaskExecutionResult[]
+    outcomes: TaskExecutionResult[],
   ): Promise<void>;
 
   // Performance monitoring
@@ -414,14 +487,14 @@ export interface ILifecycleManagerIntegration {
   transitionTaskState(
     taskId: TaskId,
     newState: LifecycleState,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ): Promise<boolean>;
 
   // Hook management
   registerLifecycleHook(
     state: LifecycleState,
     timing: 'before' | 'after' | 'during',
-    handler: (task: Task, context: LifecycleContext) => Promise<void>
+    handler: (task: Task, context: LifecycleContext) => Promise<void>,
   ): string;
   unregisterLifecycleHook(hookId: string): boolean;
 
@@ -435,7 +508,11 @@ export interface ILifecycleManagerIntegration {
     aggregate: {
       averageLifecycleDuration: number;
       stateDistribution: Map<LifecycleState, number>;
-      transitionPatterns: Array<{ from: LifecycleState; to: LifecycleState; frequency: number }>;
+      transitionPatterns: Array<{
+        from: LifecycleState;
+        to: LifecycleState;
+        frequency: number;
+      }>;
     };
   }>;
 }
@@ -456,13 +533,17 @@ export interface IPersistenceManagerIntegration {
     entityType: 'task' | 'dependency' | 'record' | 'context',
     entityId: string,
     beforeState?: unknown,
-    afterState?: unknown
+    afterState?: unknown,
   ): void;
 
   // Data integrity
   verifyDataIntegrity(): Promise<{
     valid: boolean;
-    issues: Array<{ type: string; description: string; severity: 'warning' | 'error' }>;
+    issues: Array<{
+      type: string;
+      description: string;
+      severity: 'warning' | 'error';
+    }>;
   }>;
 
   // Storage management
@@ -498,17 +579,42 @@ export interface IntegrationEvents {
   'queue:drained': { completedTasks: number; cancelledTasks: number };
 
   // Scheduling events
-  'scheduling:algorithmChanged': { from: SchedulingAlgorithm; to: SchedulingAlgorithm };
-  'scheduling:decisionMade': { decision: SchedulingDecision; context: SchedulingContext };
-  'scheduling:performanceUpdated': { algorithm: SchedulingAlgorithm; metrics: Record<string, number> };
+  'scheduling:algorithmChanged': {
+    from: SchedulingAlgorithm;
+    to: SchedulingAlgorithm;
+  };
+  'scheduling:decisionMade': {
+    decision: SchedulingDecision;
+    context: SchedulingContext;
+  };
+  'scheduling:performanceUpdated': {
+    algorithm: SchedulingAlgorithm;
+    metrics: Record<string, number>;
+  };
 
   // Lifecycle events
-  'lifecycle:stateTransition': { taskId: TaskId; from: LifecycleState; to: LifecycleState };
-  'lifecycle:hookExecuted': { taskId: TaskId; hookId: string; state: LifecycleState };
-  'lifecycle:validationFailed': { taskId: TaskId; type: 'precondition' | 'postcondition'; details: string };
+  'lifecycle:stateTransition': {
+    taskId: TaskId;
+    from: LifecycleState;
+    to: LifecycleState;
+  };
+  'lifecycle:hookExecuted': {
+    taskId: TaskId;
+    hookId: string;
+    state: LifecycleState;
+  };
+  'lifecycle:validationFailed': {
+    taskId: TaskId;
+    type: 'precondition' | 'postcondition';
+    details: string;
+  };
 
   // Persistence events
-  'persistence:snapshotCreated': { snapshotId: string; taskCount: number; size: number };
+  'persistence:snapshotCreated': {
+    snapshotId: string;
+    taskCount: number;
+    size: number;
+  };
   'persistence:snapshotLoaded': { snapshotId: string; taskCount: number };
   'persistence:backupCreated': { backupId: string; description: string };
   'persistence:integrityCheck': { valid: boolean; issues: number };
@@ -516,15 +622,33 @@ export interface IntegrationEvents {
   // Resource events
   'resources:allocated': { allocation: ResourceAllocationResponse };
   'resources:released': { allocationId: string };
-  'resources:utilizationThreshold': { resource: string; utilization: number; threshold: number };
+  'resources:utilizationThreshold': {
+    resource: string;
+    utilization: number;
+    threshold: number;
+  };
 
   // Performance events
-  'performance:thresholdExceeded': { metric: string; value: number; threshold: number };
-  'performance:anomalyDetected': { type: string; description: string; severity: 'low' | 'medium' | 'high' };
-  'performance:optimizationSuggestion': { suggestion: string; expectedImpact: number };
+  'performance:thresholdExceeded': {
+    metric: string;
+    value: number;
+    threshold: number;
+  };
+  'performance:anomalyDetected': {
+    type: string;
+    description: string;
+    severity: 'low' | 'medium' | 'high';
+  };
+  'performance:optimizationSuggestion': {
+    suggestion: string;
+    expectedImpact: number;
+  };
 
   // System events
-  'system:healthCheck': { status: 'healthy' | 'degraded' | 'critical'; issues: string[] };
+  'system:healthCheck': {
+    status: 'healthy' | 'degraded' | 'critical';
+    issues: string[];
+  };
   'system:configurationUpdated': { changes: Record<string, unknown> };
   'system:shutdown': { reason: string };
   'system:emergency': { type: string; message: string };
@@ -534,9 +658,21 @@ export interface IntegrationEvents {
  * Event emitter with typed events for integration
  */
 export interface IIntegrationEventEmitter {
-  emit<K extends keyof IntegrationEvents>(event: K, data: IntegrationEvents[K]): boolean;
-  on<K extends keyof IntegrationEvents>(event: K, listener: (data: IntegrationEvents[K]) => void): this;
-  once<K extends keyof IntegrationEvents>(event: K, listener: (data: IntegrationEvents[K]) => void): this;
-  off<K extends keyof IntegrationEvents>(event: K, listener: (data: IntegrationEvents[K]) => void): this;
+  emit<K extends keyof IntegrationEvents>(
+    event: K,
+    data: IntegrationEvents[K],
+  ): boolean;
+  on<K extends keyof IntegrationEvents>(
+    event: K,
+    listener: (data: IntegrationEvents[K]) => void,
+  ): this;
+  once<K extends keyof IntegrationEvents>(
+    event: K,
+    listener: (data: IntegrationEvents[K]) => void,
+  ): this;
+  off<K extends keyof IntegrationEvents>(
+    event: K,
+    listener: (data: IntegrationEvents[K]) => void,
+  ): this;
   removeAllListeners<K extends keyof IntegrationEvents>(event?: K): this;
 }

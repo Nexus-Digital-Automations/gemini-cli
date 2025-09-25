@@ -4,7 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, beforeEach, afterEach, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import {
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -12,7 +21,12 @@ import * as path from 'node:path';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { EnhancedMonitoringDashboard } from '../EnhancedMonitoringDashboard.js';
 import { MonitoringIntegrationHub } from '../MonitoringIntegrationHub.js';
-import { TaskStatusMonitor, TaskStatus, TaskPriority, TaskType } from '../TaskStatusMonitor.js';
+import {
+  TaskStatusMonitor,
+  TaskStatus,
+  TaskPriority,
+  TaskType,
+} from '../TaskStatusMonitor.js';
 import { PerformanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
 
 // Mock node modules
@@ -92,18 +106,20 @@ describe('Monitoring System Integration Tests', () => {
     });
 
     // Allow time for initialization
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   });
 
   afterEach(async () => {
     // Shutdown all components
-    await Promise.all([
-      realTimeMonitoring?.shutdown(),
-      dashboard?.shutdown(),
-      integrationHub?.shutdown(),
-      taskStatusMonitor?.shutdown?.(),
-      performanceAnalytics?.shutdown?.(),
-    ].filter(Boolean));
+    await Promise.all(
+      [
+        realTimeMonitoring?.shutdown(),
+        dashboard?.shutdown(),
+        integrationHub?.shutdown(),
+        taskStatusMonitor?.shutdown?.(),
+        performanceAnalytics?.shutdown?.(),
+      ].filter(Boolean),
+    );
   });
 
   describe('System Initialization', () => {
@@ -112,7 +128,9 @@ describe('Monitoring System Integration Tests', () => {
       expect(dashboard).toBeInstanceOf(EnhancedMonitoringDashboard);
       expect(integrationHub).toBeInstanceOf(MonitoringIntegrationHub);
       expect(taskStatusMonitor).toBeInstanceOf(TaskStatusMonitor);
-      expect(performanceAnalytics).toBeInstanceOf(PerformanceAnalyticsDashboard);
+      expect(performanceAnalytics).toBeInstanceOf(
+        PerformanceAnalyticsDashboard,
+      );
 
       // Verify all components are event emitters
       expect(realTimeMonitoring).toBeInstanceOf(EventEmitter);
@@ -152,7 +170,7 @@ describe('Monitoring System Integration Tests', () => {
         100,
         'milliseconds',
         'response_time',
-        { source: 'integration_test' }
+        { source: 'integration_test' },
       );
 
       // Simulate real-time monitoring snapshot
@@ -176,7 +194,7 @@ describe('Monitoring System Integration Tests', () => {
       });
 
       // Wait for synchronization
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Verify data is synchronized across systems
       const systemStatus = integrationHub.getSystemStatus();
@@ -202,7 +220,9 @@ describe('Monitoring System Integration Tests', () => {
       expect(snapshot).toHaveProperty('activeAlerts');
 
       // Verify system health calculation
-      expect(snapshot.systemHealth.overall).toMatch(/^(healthy|degraded|unhealthy|critical)$/);
+      expect(snapshot.systemHealth.overall).toMatch(
+        /^(healthy|degraded|unhealthy|critical)$/,
+      );
       expect(typeof snapshot.systemHealth.uptime).toBe('number');
       expect(typeof snapshot.systemHealth.memoryUsageMB).toBe('number');
 
@@ -215,7 +235,9 @@ describe('Monitoring System Integration Tests', () => {
       // Verify agent metrics
       expect(typeof snapshot.agentMetrics.total).toBe('number');
       expect(typeof snapshot.agentMetrics.averageUtilization).toBe('number');
-      expect(snapshot.agentMetrics.averageUtilization).toBeGreaterThanOrEqual(0);
+      expect(snapshot.agentMetrics.averageUtilization).toBeGreaterThanOrEqual(
+        0,
+      );
       expect(snapshot.agentMetrics.averageUtilization).toBeLessThanOrEqual(100);
     });
 
@@ -229,7 +251,7 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Task for predictive analysis',
           type: TaskType.IMPLEMENTATION,
           priority: i % 3 === 0 ? TaskPriority.HIGH : TaskPriority.NORMAL,
-          estimatedDuration: 30000 + (i * 1000),
+          estimatedDuration: 30000 + i * 1000,
         });
 
         // Simulate some completions
@@ -237,7 +259,7 @@ describe('Monitoring System Integration Tests', () => {
           taskStatusMonitor.updateTaskStatus(taskId, {
             status: i % 4 === 0 ? TaskStatus.FAILED : TaskStatus.COMPLETED,
             endTime: new Date(),
-            actualDuration: 25000 + (i * 500),
+            actualDuration: 25000 + i * 500,
           });
         }
 
@@ -248,15 +270,15 @@ describe('Monitoring System Integration Tests', () => {
         // Record performance metrics
         performanceAnalytics.recordMetric(
           'task_completion_time',
-          25000 + (i * 500),
+          25000 + i * 500,
           'milliseconds',
           'performance',
-          { taskId, index: i }
+          { taskId, index: i },
         );
       }
 
       // Wait for insights generation
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const insights = realTimeMonitoring.getPredictiveInsights();
 
@@ -278,7 +300,12 @@ describe('Monitoring System Integration Tests', () => {
         expect(insight.confidence).toBeGreaterThanOrEqual(0);
         expect(insight.confidence).toBeLessThanOrEqual(1);
         expect(['low', 'medium', 'high', 'critical']).toContain(insight.impact);
-        expect(['capacity_prediction', 'failure_prediction', 'bottleneck_prediction', 'trend_analysis']).toContain(insight.type);
+        expect([
+          'capacity_prediction',
+          'failure_prediction',
+          'bottleneck_prediction',
+          'trend_analysis',
+        ]).toContain(insight.type);
       }
     });
 
@@ -323,19 +350,23 @@ describe('Monitoring System Integration Tests', () => {
       realTimeMonitoring.startMonitoring();
 
       // Wait for alert processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       realTimeMonitoring.stopMonitoring();
 
       // Verify alert was triggered
       expect(alertEvents.length).toBeGreaterThan(0);
 
-      const triggeredAlert = alertEvents.find(e => e.type === 'triggered');
+      const triggeredAlert = alertEvents.find((e) => e.type === 'triggered');
       expect(triggeredAlert).toBeDefined();
-      expect(triggeredAlert.alert.data.rule.name).toBe('Integration Test Alert');
+      expect(triggeredAlert.alert.data.rule.name).toBe(
+        'Integration Test Alert',
+      );
 
       // Verify cross-system event propagation
-      const crossSystemEvent = alertEvents.find(e => e.type === 'cross_system');
+      const crossSystemEvent = alertEvents.find(
+        (e) => e.type === 'cross_system',
+      );
       expect(crossSystemEvent).toBeDefined();
       expect(crossSystemEvent.eventType).toBe('alert_triggered');
     });
@@ -343,13 +374,16 @@ describe('Monitoring System Integration Tests', () => {
 
   describe('Dashboard Integration', () => {
     it('should create and manage dashboard layouts', () => {
-      const layoutId = dashboard.createLayout('Test Integration Layout', 'Layout for integration testing');
+      const layoutId = dashboard.createLayout(
+        'Test Integration Layout',
+        'Layout for integration testing',
+      );
 
       expect(typeof layoutId).toBe('string');
       expect(layoutId).toMatch(/^layout_\d+_[a-z0-9]+$/);
 
       const layouts = dashboard.getLayouts();
-      const testLayout = layouts.find(l => l.id === layoutId);
+      const testLayout = layouts.find((l) => l.id === layoutId);
 
       expect(testLayout).toBeDefined();
       expect(testLayout?.name).toBe('Test Integration Layout');
@@ -358,7 +392,10 @@ describe('Monitoring System Integration Tests', () => {
     });
 
     it('should add and configure widgets', () => {
-      const layoutId = dashboard.createLayout('Widget Test Layout', 'Layout for widget testing');
+      const layoutId = dashboard.createLayout(
+        'Widget Test Layout',
+        'Layout for widget testing',
+      );
 
       const widgetId = dashboard.addWidget(layoutId, {
         type: 'metric',
@@ -414,7 +451,10 @@ describe('Monitoring System Integration Tests', () => {
         actualDuration: 28000,
       });
 
-      const layoutId = dashboard.createLayout('Chart Test Layout', 'Layout for chart testing');
+      const layoutId = dashboard.createLayout(
+        'Chart Test Layout',
+        'Layout for chart testing',
+      );
       const widgetId = dashboard.addWidget(layoutId, {
         type: 'chart',
         title: 'Task Metrics Chart',
@@ -446,7 +486,10 @@ describe('Monitoring System Integration Tests', () => {
     });
 
     it('should provide current dashboard data', () => {
-      const layoutId = dashboard.createLayout('Data Test Layout', 'Layout for data testing');
+      const layoutId = dashboard.createLayout(
+        'Data Test Layout',
+        'Layout for data testing',
+      );
       dashboard.setActiveLayout(layoutId);
 
       const dashboardData = dashboard.getCurrentDashboardData();
@@ -480,7 +523,9 @@ describe('Monitoring System Integration Tests', () => {
       expect(systemStatus).toHaveProperty('timestamp');
 
       // Verify overall status
-      expect(['healthy', 'degraded', 'unhealthy', 'critical']).toContain(systemStatus.overall);
+      expect(['healthy', 'degraded', 'unhealthy', 'critical']).toContain(
+        systemStatus.overall,
+      );
 
       // Verify components
       expect(systemStatus.components).toHaveProperty('realTimeMonitoring');
@@ -522,16 +567,18 @@ describe('Monitoring System Integration Tests', () => {
         500,
         'milliseconds',
         'response_time',
-        { correlationId, taskId }
+        { correlationId, taskId },
       );
 
       // Wait for event processing
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Verify correlation
       expect(correlatedEvents.length).toBeGreaterThan(0);
 
-      const correlation = correlatedEvents.find(e => e.correlationId === correlationId);
+      const correlation = correlatedEvents.find(
+        (e) => e.correlationId === correlationId,
+      );
       expect(correlation).toBeDefined();
       expect(correlation.sources.length).toBeGreaterThan(1);
     });
@@ -579,12 +626,16 @@ describe('Monitoring System Integration Tests', () => {
 
       // Verify task metrics
       expect(aggregatedData.taskMetrics.totalTasks).toBeGreaterThanOrEqual(2);
-      expect(aggregatedData.taskMetrics.completedTasks).toBeGreaterThanOrEqual(1);
+      expect(aggregatedData.taskMetrics.completedTasks).toBeGreaterThanOrEqual(
+        1,
+      );
       expect(typeof aggregatedData.taskMetrics.successRate).toBe('number');
 
       // Verify agent metrics
       expect(aggregatedData.agentMetrics.totalAgents).toBeGreaterThanOrEqual(1);
-      expect(aggregatedData.agentMetrics.activeAgents).toBeGreaterThanOrEqual(0);
+      expect(aggregatedData.agentMetrics.activeAgents).toBeGreaterThanOrEqual(
+        0,
+      );
       expect(typeof aggregatedData.agentMetrics.utilization).toBe('number');
     });
   });
@@ -593,19 +644,34 @@ describe('Monitoring System Integration Tests', () => {
     it('should collect and analyze performance metrics', () => {
       // Record various performance metrics
       const metrics = [
-        { name: 'api_response_time', value: 150, unit: 'milliseconds', category: 'performance' },
-        { name: 'memory_usage', value: 256, unit: 'megabytes', category: 'resource' },
-        { name: 'task_completion_rate', value: 85, unit: 'percent', category: 'throughput' },
+        {
+          name: 'api_response_time',
+          value: 150,
+          unit: 'milliseconds',
+          category: 'performance',
+        },
+        {
+          name: 'memory_usage',
+          value: 256,
+          unit: 'megabytes',
+          category: 'resource',
+        },
+        {
+          name: 'task_completion_rate',
+          value: 85,
+          unit: 'percent',
+          category: 'throughput',
+        },
         { name: 'error_rate', value: 2, unit: 'percent', category: 'quality' },
       ];
 
-      metrics.forEach(metric => {
+      metrics.forEach((metric) => {
         performanceAnalytics.recordMetric(
           metric.name,
           metric.value,
           metric.unit,
           metric.category,
-          { timestamp: new Date().toISOString(), source: 'integration_test' }
+          { timestamp: new Date().toISOString(), source: 'integration_test' },
         );
       });
 
@@ -614,7 +680,7 @@ describe('Monitoring System Integration Tests', () => {
       expect(recordedMetrics.length).toBeGreaterThanOrEqual(metrics.length);
 
       // Verify metric structure
-      recordedMetrics.forEach(metric => {
+      recordedMetrics.forEach((metric) => {
         expect(metric).toHaveProperty('name');
         expect(metric).toHaveProperty('value');
         expect(metric).toHaveProperty('unit');
@@ -626,7 +692,9 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should generate performance insights', async () => {
       // Create a pattern of metrics that should generate insights
-      const responseTimePattern = [100, 110, 125, 140, 160, 180, 200, 230, 260, 300];
+      const responseTimePattern = [
+        100, 110, 125, 140, 160, 180, 200, 230, 260, 300,
+      ];
 
       responseTimePattern.forEach((responseTime, index) => {
         performanceAnalytics.recordMetric(
@@ -637,13 +705,13 @@ describe('Monitoring System Integration Tests', () => {
           {
             timestamp: new Date(Date.now() - (9 - index) * 60000).toISOString(), // 9 minutes of data
             endpoint: 'test_endpoint',
-            source: 'performance_test'
-          }
+            source: 'performance_test',
+          },
         );
       });
 
       // Wait for insight generation
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const insights = performanceAnalytics.getInsights();
 
@@ -662,7 +730,9 @@ describe('Monitoring System Integration Tests', () => {
         expect(typeof insight.confidence).toBe('number');
         expect(insight.confidence).toBeGreaterThanOrEqual(0);
         expect(insight.confidence).toBeLessThanOrEqual(1);
-        expect(['low', 'medium', 'high', 'critical']).toContain(insight.severity);
+        expect(['low', 'medium', 'high', 'critical']).toContain(
+          insight.severity,
+        );
       }
     });
   });
@@ -701,7 +771,10 @@ describe('Monitoring System Integration Tests', () => {
       expect(csvData).toContain('total_tasks');
 
       // Test Prometheus export
-      const prometheusData = await integrationHub.exportData('prometheus', 'last_hour');
+      const prometheusData = await integrationHub.exportData(
+        'prometheus',
+        'last_hour',
+      );
       expect(typeof prometheusData).toBe('string');
       expect(prometheusData).toContain('# TYPE gemini_');
       expect(prometheusData).toContain('gemini_tasks_total');
@@ -710,7 +783,10 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should handle dashboard configuration export/import', async () => {
       // Create a test dashboard layout
-      const layoutId = dashboard.createLayout('Export Test Layout', 'Layout for export testing');
+      const layoutId = dashboard.createLayout(
+        'Export Test Layout',
+        'Layout for export testing',
+      );
 
       const widgetId = dashboard.addWidget(layoutId, {
         type: 'gauge',
@@ -785,19 +861,22 @@ describe('Monitoring System Integration Tests', () => {
       await integrationHub.triggerSync();
 
       // Wait for sync completion
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Verify sync events
       expect(syncEvents.length).toBeGreaterThan(0);
 
-      const completedSync = syncEvents.find(e => e.snapshotTime);
+      const completedSync = syncEvents.find((e) => e.snapshotTime);
       expect(completedSync).toBeDefined();
       expect(completedSync.timestamp).toBeInstanceOf(Date);
     });
 
     it('should handle invalid configuration gracefully', () => {
       // Create dashboard with invalid widget configuration
-      const layoutId = dashboard.createLayout('Invalid Config Test', 'Test invalid configurations');
+      const layoutId = dashboard.createLayout(
+        'Invalid Config Test',
+        'Test invalid configurations',
+      );
 
       expect(() => {
         dashboard.addWidget(layoutId, {
@@ -822,23 +901,26 @@ describe('Monitoring System Integration Tests', () => {
       for (let i = 0; i < 50; i++) {
         operations.push(
           Promise.resolve().then(() => {
-            const taskId = taskStatusMonitor.registerTask(`load-test-task-${i}`, {
-              title: `Load Test Task ${i}`,
-              type: TaskType.IMPLEMENTATION,
-              priority: TaskPriority.NORMAL,
-              estimatedDuration: 10000,
-            });
+            const taskId = taskStatusMonitor.registerTask(
+              `load-test-task-${i}`,
+              {
+                title: `Load Test Task ${i}`,
+                type: TaskType.IMPLEMENTATION,
+                priority: TaskPriority.NORMAL,
+                estimatedDuration: 10000,
+              },
+            );
 
             performanceAnalytics.recordMetric(
               `load_test_metric_${i}`,
               Math.random() * 1000,
               'milliseconds',
               'performance',
-              { loadTest: true, index: i }
+              { loadTest: true, index: i },
             );
 
             return realTimeMonitoring.getCurrentSnapshot();
-          })
+          }),
         );
       }
 
@@ -850,7 +932,7 @@ describe('Monitoring System Integration Tests', () => {
 
       // Verify all operations completed successfully
       expect(snapshots).toHaveLength(50);
-      snapshots.forEach(snapshot => {
+      snapshots.forEach((snapshot) => {
         expect(snapshot).toHaveProperty('timestamp');
         expect(snapshot).toHaveProperty('systemHealth');
       });
@@ -873,7 +955,7 @@ describe('Monitoring System Integration Tests', () => {
       });
 
       // Wait for health check cycle
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Verify health monitoring is active
       expect(healthEvents.length).toBeGreaterThan(0);
@@ -910,7 +992,7 @@ describe('Monitoring System Integration Tests', () => {
       }
 
       // Wait for system to process the failures
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const systemStatus = integrationHub.getSystemStatus();
       const snapshot = realTimeMonitoring.getCurrentSnapshot();
@@ -920,7 +1002,9 @@ describe('Monitoring System Integration Tests', () => {
       expect(snapshot.taskMetrics.total).toBe(20);
 
       // System might be degraded due to high failure rate
-      expect(['healthy', 'degraded', 'unhealthy']).toContain(systemStatus.overall);
+      expect(['healthy', 'degraded', 'unhealthy']).toContain(
+        systemStatus.overall,
+      );
     });
   });
 });

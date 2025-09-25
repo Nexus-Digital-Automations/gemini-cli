@@ -18,247 +18,257 @@ import type { TaskCategory } from './types.js';
  * Task complexity levels determine breakdown strategy and resource allocation
  */
 export declare enum TaskComplexity {
-    TRIVIAL = "trivial",// Single-step, minimal resources
-    SIMPLE = "simple",// Few steps, basic validation
-    MODERATE = "moderate",// Multi-step, some dependencies
-    COMPLEX = "complex",// Many steps, complex dependencies
-    ENTERPRISE = "enterprise"
+  TRIVIAL = 'trivial', // Single-step, minimal resources
+  SIMPLE = 'simple', // Few steps, basic validation
+  MODERATE = 'moderate', // Multi-step, some dependencies
+  COMPLEX = 'complex', // Many steps, complex dependencies
+  ENTERPRISE = 'enterprise',
 }
 /**
  * Task execution status lifecycle
  */
 export declare enum TaskStatus {
-    QUEUED = "queued",// Task created, waiting for analysis
-    ANALYZED = "analyzed",// Breakdown complete, dependencies identified
-    ASSIGNED = "assigned",// Assigned to execution engine/agent
-    IN_PROGRESS = "in_progress",// Actively executing
-    BLOCKED = "blocked",// Waiting for dependencies or resources
-    VALIDATION = "validation",// Executing validation steps
-    COMPLETED = "completed",// Successfully completed
-    FAILED = "failed",// Failed execution
-    CANCELLED = "cancelled"
+  QUEUED = 'queued', // Task created, waiting for analysis
+  ANALYZED = 'analyzed', // Breakdown complete, dependencies identified
+  ASSIGNED = 'assigned', // Assigned to execution engine/agent
+  IN_PROGRESS = 'in_progress', // Actively executing
+  BLOCKED = 'blocked', // Waiting for dependencies or resources
+  VALIDATION = 'validation', // Executing validation steps
+  COMPLETED = 'completed', // Successfully completed
+  FAILED = 'failed', // Failed execution
+  CANCELLED = 'cancelled',
 }
 /**
  * Task priority levels for execution scheduling
  */
 export declare enum TaskPriority {
-    CRITICAL = "critical",// Emergency fixes, blocking issues
-    HIGH = "high",// Important features, major bugs
-    NORMAL = "normal",// Standard development work
-    LOW = "low"
+  CRITICAL = 'critical', // Emergency fixes, blocking issues
+  HIGH = 'high', // Important features, major bugs
+  NORMAL = 'normal', // Standard development work
+  LOW = 'low',
 }
 /**
  * Task types for specialized handling and agent assignment
  */
 export declare enum TaskType {
-    IMPLEMENTATION = "implementation",// Code implementation
-    TESTING = "testing",// Test creation/execution
-    VALIDATION = "validation",// Quality assurance
-    DOCUMENTATION = "documentation",// Documentation creation
-    ANALYSIS = "analysis",// Research and analysis
-    DEPLOYMENT = "deployment",// Deployment and operations
-    SECURITY = "security",// Security assessment/fixes
-    PERFORMANCE = "performance"
+  IMPLEMENTATION = 'implementation', // Code implementation
+  TESTING = 'testing', // Test creation/execution
+  VALIDATION = 'validation', // Quality assurance
+  DOCUMENTATION = 'documentation', // Documentation creation
+  ANALYSIS = 'analysis', // Research and analysis
+  DEPLOYMENT = 'deployment', // Deployment and operations
+  SECURITY = 'security', // Security assessment/fixes
+  PERFORMANCE = 'performance',
 }
 /**
  * Dependency types for task orchestration
  */
 export declare enum DependencyType {
-    HARD = "hard",// Must complete before dependent task starts
-    SOFT = "soft",// Preferred order, can run in parallel if needed
-    RESOURCE = "resource",// Shared resource dependency
-    DATA = "data",// Data flow dependency
-    VALIDATION = "validation"
+  HARD = 'hard', // Must complete before dependent task starts
+  SOFT = 'soft', // Preferred order, can run in parallel if needed
+  RESOURCE = 'resource', // Shared resource dependency
+  DATA = 'data', // Data flow dependency
+  VALIDATION = 'validation',
 }
 /**
  * Agent capabilities for task assignment
  */
 export declare enum AgentCapability {
-    FRONTEND = "frontend",
-    BACKEND = "backend",
-    TESTING = "testing",
-    DOCUMENTATION = "documentation",
-    SECURITY = "security",
-    PERFORMANCE = "performance",
-    ANALYSIS = "analysis",
-    VALIDATION = "validation",
-    DEPLOYMENT = "deployment"
+  FRONTEND = 'frontend',
+  BACKEND = 'backend',
+  TESTING = 'testing',
+  DOCUMENTATION = 'documentation',
+  SECURITY = 'security',
+  PERFORMANCE = 'performance',
+  ANALYSIS = 'analysis',
+  VALIDATION = 'validation',
+  DEPLOYMENT = 'deployment',
 }
 /**
  * Task dependency relationship
  */
 export interface TaskDependency {
-    taskId: string;
-    dependsOnTaskId: string;
-    type: DependencyType;
-    description?: string;
+  taskId: string;
+  dependsOnTaskId: string;
+  type: DependencyType;
+  description?: string;
 }
 /**
  * Task breakdown result with subtasks
  */
 export interface TaskBreakdown {
-    subtasks: Task[];
-    dependencies: TaskDependency[];
-    estimatedDurationMinutes: number;
-    requiredCapabilities: AgentCapability[];
-    risksAndMitigation: string[];
+  subtasks: Task[];
+  dependencies: TaskDependency[];
+  estimatedDurationMinutes: number;
+  requiredCapabilities: AgentCapability[];
+  risksAndMitigation: string[];
 }
 /**
  * Task execution metrics
  */
 export interface TaskMetrics {
-    startTime: Date;
-    endTime?: Date;
-    durationMs?: number;
-    tokenUsage: number;
-    toolCallsCount: number;
-    subAgentCount: number;
-    errorCount: number;
-    retryCount: number;
+  startTime: Date;
+  endTime?: Date;
+  durationMs?: number;
+  tokenUsage: number;
+  toolCallsCount: number;
+  subAgentCount: number;
+  errorCount: number;
+  retryCount: number;
 }
 /**
  * Core Task interface with comprehensive metadata
  */
 export interface Task {
-    id: string;
-    title: string;
-    description: string;
-    type: TaskType;
-    category: TaskCategory;
-    complexity: TaskComplexity;
-    priority: TaskPriority;
-    status: TaskStatus;
-    progress: number;
-    assignedAgent?: string;
-    requiredCapabilities: AgentCapability[];
-    parentTaskId?: string;
-    subtaskIds: string[];
-    dependencies: string[];
-    maxExecutionTimeMinutes: number;
-    maxRetries: number;
-    context: Record<string, unknown>;
-    expectedOutputs: Record<string, string>;
-    createdAt: Date;
-    updatedAt: Date;
-    scheduledAt?: Date;
-    startedAt?: Date;
-    completedAt?: Date;
-    metrics?: TaskMetrics;
-    lastError?: string;
-    retryCount: number;
-    results?: Record<string, unknown>;
-    outputs?: Record<string, string>;
+  id: string;
+  title: string;
+  description: string;
+  type: TaskType;
+  category: TaskCategory;
+  complexity: TaskComplexity;
+  priority: TaskPriority;
+  status: TaskStatus;
+  progress: number;
+  assignedAgent?: string;
+  requiredCapabilities: AgentCapability[];
+  parentTaskId?: string;
+  subtaskIds: string[];
+  dependencies: string[];
+  maxExecutionTimeMinutes: number;
+  maxRetries: number;
+  context: Record<string, unknown>;
+  expectedOutputs: Record<string, string>;
+  createdAt: Date;
+  updatedAt: Date;
+  scheduledAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  metrics?: TaskMetrics;
+  lastError?: string;
+  retryCount: number;
+  results?: Record<string, unknown>;
+  outputs?: Record<string, string>;
 }
 /**
  * Task execution context for agents
  */
 export interface TaskExecutionContext {
-    task: Task;
-    toolRegistry: ToolRegistry;
-    config: Config;
-    parentContext?: ContextState;
-    dependencies: Task[];
-    availableAgents: string[];
+  task: Task;
+  toolRegistry: ToolRegistry;
+  config: Config;
+  parentContext?: ContextState;
+  dependencies: Task[];
+  availableAgents: string[];
 }
 /**
  * Intelligent Task Breakdown Algorithms
  */
 export declare class TaskBreakdownAnalyzer {
-    private readonly config;
-    private readonly toolRegistry;
-    constructor(config: Config);
-    /**
-     * Analyzes task complexity using multiple heuristics
-     */
-    analyzeComplexity(title: string, description: string): Promise<TaskComplexity>;
-    /**
-     * Breaks down complex tasks into manageable subtasks using AI-assisted analysis
-     */
-    breakdownTask(task: Task): Promise<TaskBreakdown>;
-    /**
-     * Identifies task dependencies using graph analysis
-     */
-    identifyDependencies(tasks: Task[]): Promise<TaskDependency[]>;
-    /**
-     * Generates AI prompt for task breakdown based on complexity and type
-     */
-    private generateBreakdownPrompt;
-    /**
-     * Gets complexity-specific breakdown guidelines
-     */
-    private getComplexityGuidelines;
-    /**
-     * Gets type-specific breakdown guidelines
-     */
-    private getTypeGuidelines;
-    /**
-     * Parses subtasks from JSON string with error handling
-     */
-    private parseSubtasks;
-    /**
-     * Parses dependencies from JSON string with error handling
-     */
-    private parseDependencies;
-    /**
-     * Creates a Task object from parsed data
-     */
-    private createTaskFromData;
-    /**
-     * Analyzes potential dependency between two tasks
-     */
-    private analyzeDependency;
+  private readonly config;
+  private readonly toolRegistry;
+  constructor(config: Config);
+  /**
+   * Analyzes task complexity using multiple heuristics
+   */
+  analyzeComplexity(
+    title: string,
+    description: string,
+  ): Promise<TaskComplexity>;
+  /**
+   * Breaks down complex tasks into manageable subtasks using AI-assisted analysis
+   */
+  breakdownTask(task: Task): Promise<TaskBreakdown>;
+  /**
+   * Identifies task dependencies using graph analysis
+   */
+  identifyDependencies(tasks: Task[]): Promise<TaskDependency[]>;
+  /**
+   * Generates AI prompt for task breakdown based on complexity and type
+   */
+  private generateBreakdownPrompt;
+  /**
+   * Gets complexity-specific breakdown guidelines
+   */
+  private getComplexityGuidelines;
+  /**
+   * Gets type-specific breakdown guidelines
+   */
+  private getTypeGuidelines;
+  /**
+   * Parses subtasks from JSON string with error handling
+   */
+  private parseSubtasks;
+  /**
+   * Parses dependencies from JSON string with error handling
+   */
+  private parseDependencies;
+  /**
+   * Creates a Task object from parsed data
+   */
+  private createTaskFromData;
+  /**
+   * Analyzes potential dependency between two tasks
+   */
+  private analyzeDependency;
 }
 /**
  * Core Task Execution Engine with autonomous orchestration
  */
 export declare class TaskExecutionEngine {
-    private readonly config;
-    private readonly toolRegistry;
-    private readonly breakdownAnalyzer;
-    private readonly taskQueue;
-    private readonly runningTasks;
-    private readonly completedTasks;
-    private readonly taskDependencies;
-    private onTaskStatusChange?;
-    private onTaskComplete?;
-    private onTaskFailed?;
-    constructor(config: Config, handlers?: {
-        onTaskStatusChange?: (task: Task) => void;
-        onTaskComplete?: (task: Task) => void;
-        onTaskFailed?: (task: Task, error: string) => void;
-    });
-    /**
-     * Queues a new task for execution with intelligent breakdown
-     */
-    queueTask(title: string, description: string, options?: Partial<{
-        type: TaskType;
-        priority: TaskPriority;
-        expectedOutputs: Record<string, string>;
-        context: Record<string, unknown>;
-        maxExecutionTimeMinutes: number;
-    }>): Promise<string>;
-    /**
-     * Analyzes and breaks down a task asynchronously
-     */
-    private analyzeAndBreakdownTask;
-    /**
-     * Schedules task execution based on dependencies and resource availability
-     */
-    private scheduleTaskExecution;
-    /**
-     * Executes a task using SubAgentScope with comprehensive monitoring
-     */
-    private executeTask;
-    /**
-     * Handles task execution failures with retry logic
-     */
-    private handleTaskFailure;
-    /**
-     * Gets default execution time based on complexity
-     */
-    private getDefaultExecutionTime;
-    /**
-     * Updates task status and triggers event handlers
-     */
-    private updateTaskStatus;
+  private readonly config;
+  private readonly toolRegistry;
+  private readonly breakdownAnalyzer;
+  private readonly taskQueue;
+  private readonly runningTasks;
+  private readonly completedTasks;
+  private readonly taskDependencies;
+  private onTaskStatusChange?;
+  private onTaskComplete?;
+  private onTaskFailed?;
+  constructor(
+    config: Config,
+    handlers?: {
+      onTaskStatusChange?: (task: Task) => void;
+      onTaskComplete?: (task: Task) => void;
+      onTaskFailed?: (task: Task, error: string) => void;
+    },
+  );
+  /**
+   * Queues a new task for execution with intelligent breakdown
+   */
+  queueTask(
+    title: string,
+    description: string,
+    options?: Partial<{
+      type: TaskType;
+      priority: TaskPriority;
+      expectedOutputs: Record<string, string>;
+      context: Record<string, unknown>;
+      maxExecutionTimeMinutes: number;
+    }>,
+  ): Promise<string>;
+  /**
+   * Analyzes and breaks down a task asynchronously
+   */
+  private analyzeAndBreakdownTask;
+  /**
+   * Schedules task execution based on dependencies and resource availability
+   */
+  private scheduleTaskExecution;
+  /**
+   * Executes a task using SubAgentScope with comprehensive monitoring
+   */
+  private executeTask;
+  /**
+   * Handles task execution failures with retry logic
+   */
+  private handleTaskFailure;
+  /**
+   * Gets default execution time based on complexity
+   */
+  private getDefaultExecutionTime;
+  /**
+   * Updates task status and triggers event handlers
+   */
+  private updateTaskStatus;
 }

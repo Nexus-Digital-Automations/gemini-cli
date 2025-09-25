@@ -9,10 +9,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger as createLogger } from '../utils/logger.js';
 
 const logger = createLogger();
-import { TaskQueue, type Task, TaskPriority, TaskStatus, TaskCategory, type TaskContext, type TaskExecutionResult, type QueueMetrics } from './TaskQueue.js';
+import {
+  TaskQueue,
+  type Task,
+  TaskPriority,
+  TaskStatus,
+  TaskCategory,
+  type TaskContext,
+  type TaskExecutionResult,
+  type QueueMetrics,
+} from './TaskQueue.js';
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { QueueOptimizer, OptimizationStrategy } from './QueueOptimizer.js';
-import { AutonomousTaskBreakdown, type TaskBreakdownResult, BreakdownStrategy } from './AutonomousTaskBreakdown.js';
+import {
+  AutonomousTaskBreakdown,
+  type TaskBreakdownResult,
+  BreakdownStrategy,
+} from './AutonomousTaskBreakdown.js';
 import type { TaskId } from './types.js';
 
 /**
@@ -26,8 +39,8 @@ export interface EnhancedQueueConfig {
 
   // Autonomous breakdown settings
   enableAutonomousBreakdown: boolean;
-  breakdownThreshold: number;           // Complexity threshold for automatic breakdown
-  maxBreakdownDepth: number;           // Maximum levels of recursive breakdown
+  breakdownThreshold: number; // Complexity threshold for automatic breakdown
+  maxBreakdownDepth: number; // Maximum levels of recursive breakdown
   breakdownStrategies: BreakdownStrategy[];
 
   // Scheduling optimization
@@ -121,7 +134,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         BreakdownStrategy.FUNCTIONAL,
         BreakdownStrategy.TEMPORAL,
         BreakdownStrategy.DEPENDENCY,
-        BreakdownStrategy.HYBRID
+        BreakdownStrategy.HYBRID,
       ],
 
       schedulingAlgorithm: SchedulingAlgorithm.HYBRID_ADAPTIVE,
@@ -136,11 +149,11 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         ['cpu', 4],
         ['memory', 8],
         ['network', 6],
-        ['disk', 4]
+        ['disk', 4],
       ]),
       enableResourceOptimization: true,
 
-      ...config
+      ...config,
     };
 
     // Initialize components
@@ -151,7 +164,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       enableSmartScheduling: true,
       enableQueueOptimization: true,
       persistenceEnabled: true,
-      metricsEnabled: this.config.metricsEnabled
+      metricsEnabled: this.config.metricsEnabled,
     });
 
     this.priorityScheduler = new PriorityScheduler(
@@ -160,21 +173,21 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         enableMachineLearning: this.config.learningEnabled,
         adaptiveThreshold: 0.15,
         maxLearningHistory: 1000,
-        performanceWindow: 100
-      }
+        performanceWindow: 100,
+      },
     );
 
     this.queueOptimizer = new QueueOptimizer();
 
     this.taskBreakdown = new AutonomousTaskBreakdown({
       maxSubtasks: 12,
-      minSubtaskDuration: 30000,      // 30 seconds
-      maxSubtaskDuration: 600000,     // 10 minutes
+      minSubtaskDuration: 30000, // 30 seconds
+      maxSubtaskDuration: 600000, // 10 minutes
       complexityThreshold: this.config.breakdownThreshold,
       parallelizationPreference: 0.8,
       riskTolerance: 0.6,
       enableSmartBreakdown: true,
-      strategies: this.config.breakdownStrategies
+      strategies: this.config.breakdownStrategies,
     });
 
     // Initialize metrics
@@ -192,20 +205,23 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       config: this.config,
       autonomousBreakdown: this.config.enableAutonomousBreakdown,
       schedulingAlgorithm: this.config.schedulingAlgorithm,
-      optimizationStrategy: this.config.optimizationStrategy
+      optimizationStrategy: this.config.optimizationStrategy,
     });
   }
 
   /**
    * Add task with autonomous analysis and potential breakdown
    */
-  async addTask(taskDefinition: Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>): Promise<string> {
+  async addTask(
+    taskDefinition: Partial<Task> &
+      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+  ): Promise<string> {
     const startTime = Date.now();
 
     logger.debug('Adding task with autonomous analysis', {
       title: taskDefinition.title,
       category: taskDefinition.category,
-      estimatedDuration: taskDefinition.estimatedDuration
+      estimatedDuration: taskDefinition.estimatedDuration,
     });
 
     try {
@@ -224,10 +240,13 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
             originalTaskId: task.id,
             subtaskCount: breakdownResult.subtasks.length,
             strategy: breakdownResult.breakdownStrategy,
-            expectedImprovement: breakdownResult.expectedImprovement
+            expectedImprovement: breakdownResult.expectedImprovement,
           });
 
-          this.emit('taskBrokenDown', { originalTask: task, breakdown: breakdownResult });
+          this.emit('taskBrokenDown', {
+            originalTask: task,
+            breakdown: breakdownResult,
+          });
 
           return task.id; // Return original task ID as reference
         }
@@ -237,21 +256,23 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       const taskId = await this.baseQueue.addTask(task);
 
       // Update metrics
-      this.updateAutonomousMetrics('taskAdded', { taskId, duration: Date.now() - startTime });
+      this.updateAutonomousMetrics('taskAdded', {
+        taskId,
+        duration: Date.now() - startTime,
+      });
 
       logger.debug('Task added to queue', {
         taskId,
         analysisTime: Date.now() - startTime,
-        breakdownApplied: false
+        breakdownApplied: false,
       });
 
       return taskId;
-
     } catch (error) {
       logger.error('Failed to add task with autonomous analysis', {
         title: taskDefinition.title,
         error: error instanceof Error ? error.message : String(error),
-        analysisTime: Date.now() - startTime
+        analysisTime: Date.now() - startTime,
       });
 
       throw error;
@@ -261,7 +282,10 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   /**
    * Enhanced task creation with autonomous context
    */
-  private async createEnhancedTask(taskDefinition: Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>): Promise<Task> {
+  private async createEnhancedTask(
+    taskDefinition: Partial<Task> &
+      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+  ): Promise<Task> {
     const baseTask: Task = {
       id: taskDefinition.id ?? uuidv4(),
       title: taskDefinition.title,
@@ -288,7 +312,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         systemCriticality: 1.0,
         dependencyWeight: 1.0,
         resourceAvailability: 1.0,
-        executionHistory: 1.0
+        executionHistory: 1.0,
       },
 
       executeFunction: this.wrapExecuteFunction(taskDefinition.executeFunction),
@@ -300,8 +324,8 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         ...taskDefinition.metadata,
         autonomousAnalysis: {
           analyzedAt: new Date(),
-          queueVersion: '2.0-autonomous'
-        }
+          queueVersion: '2.0-autonomous',
+        },
       },
 
       requiredResources: taskDefinition.requiredResources ?? ['cpu'],
@@ -313,7 +337,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       progressCallback: taskDefinition.progressCallback,
 
       batchCompatible: taskDefinition.batchCompatible ?? false,
-      batchGroup: taskDefinition.batchGroup
+      batchGroup: taskDefinition.batchGroup,
     };
 
     // Enhance with autonomous context
@@ -325,9 +349,9 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         autonomousFeatures: {
           breakdown: this.config.enableAutonomousBreakdown,
           adaptiveScheduling: this.config.enableAdaptiveScheduling,
-          optimization: this.config.performanceOptimization
-        }
-      }
+          optimization: this.config.performanceOptimization,
+        },
+      },
     };
 
     return baseTask;
@@ -337,7 +361,10 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
    * Wrap execute function with autonomous monitoring
    */
   private wrapExecuteFunction(
-    originalFunction: (task: Task, context: TaskContext) => Promise<TaskExecutionResult>
+    originalFunction: (
+      task: Task,
+      context: TaskContext,
+    ) => Promise<TaskExecutionResult>,
   ): (task: Task, context: TaskContext) => Promise<TaskExecutionResult> {
     return async (task: Task, context: TaskContext) => {
       const startTime = Date.now();
@@ -346,8 +373,8 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         autonomous: {
           monitoringEnabled: true,
           startTime: new Date(),
-          queueVersion: '2.0-autonomous'
-        }
+          queueVersion: '2.0-autonomous',
+        },
       };
 
       try {
@@ -358,7 +385,6 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         this.recordTaskExecution(task, result, executionTime);
 
         return result;
-
       } catch (error) {
         // Record failure for learning
         this.recordTaskFailure(task, error as Error, Date.now() - startTime);
@@ -370,7 +396,9 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   /**
    * Autonomous breakdown analysis
    */
-  private async analyzeForBreakdown(task: Task): Promise<TaskBreakdownResult | null> {
+  private async analyzeForBreakdown(
+    task: Task,
+  ): Promise<TaskBreakdownResult | null> {
     try {
       this.autonomousMetrics.tasksAnalyzedForBreakdown++;
 
@@ -384,15 +412,14 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         const currentAvg = this.autonomousMetrics.averageBreakdownImprovement;
         const newImprovement = breakdown.metadata.estimatedSpeedup;
         this.autonomousMetrics.averageBreakdownImprovement =
-          (currentAvg * 0.9) + (newImprovement * 0.1);
+          currentAvg * 0.9 + newImprovement * 0.1;
       }
 
       return breakdown;
-
     } catch (error) {
       logger.warn('Autonomous breakdown analysis failed', {
         taskId: task.id,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       return null;
@@ -402,7 +429,10 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   /**
    * Add breakdown subtasks to queue
    */
-  private async addBreakdownSubtasks(originalTask: Task, breakdown: TaskBreakdownResult): Promise<void> {
+  private async addBreakdownSubtasks(
+    originalTask: Task,
+    breakdown: TaskBreakdownResult,
+  ): Promise<void> {
     const subtaskIds: string[] = [];
 
     try {
@@ -430,8 +460,8 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
               parentTaskId: originalTask.id,
               breakdownStrategy: subtask.breakdownStrategy,
               sequenceOrder: subtask.sequenceOrder,
-              isSubtask: true
-            }
+              isSubtask: true,
+            },
           } as AutonomousExecutionContext,
 
           basePriority: subtask.priority,
@@ -442,7 +472,11 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
           validateFunction: subtask.validateFunction,
           rollbackFunction: subtask.rollbackFunction,
 
-          tags: [...originalTask.tags, 'subtask', `breakdown-${subtask.breakdownStrategy}`],
+          tags: [
+            ...originalTask.tags,
+            'subtask',
+            `breakdown-${subtask.breakdownStrategy}`,
+          ],
           metadata: {
             ...originalTask.metadata,
             isSubtask: true,
@@ -452,7 +486,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
             canRunInParallel: subtask.canRunInParallel,
             riskLevel: subtask.riskLevel,
             qualityGates: subtask.qualityGates,
-            validationCriteria: subtask.validationCriteria
+            validationCriteria: subtask.validationCriteria,
           },
 
           requiredResources: originalTask.requiredResources,
@@ -464,7 +498,9 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
           progressCallback: originalTask.progressCallback,
 
           batchCompatible: subtask.canRunInParallel,
-          batchGroup: subtask.canRunInParallel ? `breakdown-${originalTask.id}` : undefined
+          batchGroup: subtask.canRunInParallel
+            ? `breakdown-${originalTask.id}`
+            : undefined,
         };
 
         const subtaskId = await this.baseQueue.addTask(enhancedSubtask);
@@ -485,7 +521,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
           logger.info('All subtasks completed for breakdown', {
             originalTaskId: originalTask.id,
             subtaskCount: subtaskIds.length,
-            breakdownStrategy: breakdown.breakdownStrategy
+            breakdownStrategy: breakdown.breakdownStrategy,
           });
 
           return {
@@ -494,10 +530,10 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
               message: 'Task breakdown execution completed successfully',
               originalTaskId: originalTask.id,
               subtasksCompleted: subtaskIds.length,
-              breakdownStrategy: breakdown.breakdownStrategy
+              breakdownStrategy: breakdown.breakdownStrategy,
             },
             duration: Date.now() - task.createdAt.getTime(),
-            artifacts: [`breakdown_${originalTask.id}_completed`]
+            artifacts: [`breakdown_${originalTask.id}_completed`],
           };
         },
 
@@ -506,8 +542,8 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
           isBreakdownTracker: true,
           originalTaskId: originalTask.id,
           subtaskIds,
-          breakdownMetadata: breakdown.metadata
-        }
+          breakdownMetadata: breakdown.metadata,
+        },
       };
 
       await this.baseQueue.addTask(trackingTask);
@@ -515,13 +551,12 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       logger.info('Breakdown subtasks added to queue', {
         originalTaskId: originalTask.id,
         subtaskCount: subtaskIds.length,
-        trackingTaskId: trackingTask.id
+        trackingTaskId: trackingTask.id,
       });
-
     } catch (error) {
       logger.error('Failed to add breakdown subtasks', {
         originalTaskId: originalTask.id,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
 
       throw error;
@@ -537,7 +572,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     return {
       ...baseMetrics,
       ...this.autonomousMetrics,
-      autonomyLevel: this.calculateAutonomyLevel()
+      autonomyLevel: this.calculateAutonomyLevel(),
     };
   }
 
@@ -549,23 +584,34 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
 
     // Breakdown autonomy
     if (this.autonomousMetrics.tasksAnalyzedForBreakdown > 0) {
-      const breakdownRate = this.autonomousMetrics.tasksBrokenDown / this.autonomousMetrics.tasksAnalyzedForBreakdown;
+      const breakdownRate =
+        this.autonomousMetrics.tasksBrokenDown /
+        this.autonomousMetrics.tasksAnalyzedForBreakdown;
       autonomyScore += breakdownRate * 0.3;
     }
 
     // Optimization autonomy
     if (this.autonomousMetrics.autonomousOptimizations > 0) {
-      autonomyScore += Math.min(0.3, this.autonomousMetrics.optimizationSuccessRate * 0.3);
+      autonomyScore += Math.min(
+        0.3,
+        this.autonomousMetrics.optimizationSuccessRate * 0.3,
+      );
     }
 
     // Adaptive scheduling
-    if (this.config.enableAdaptiveScheduling && this.autonomousMetrics.adaptiveSchedulingAdjustments > 0) {
+    if (
+      this.config.enableAdaptiveScheduling &&
+      this.autonomousMetrics.adaptiveSchedulingAdjustments > 0
+    ) {
       autonomyScore += 0.2;
     }
 
     // Learning capacity
     if (this.autonomousMetrics.learningDataPoints > 50) {
-      autonomyScore += Math.min(0.2, this.autonomousMetrics.predictionAccuracy * 0.2);
+      autonomyScore += Math.min(
+        0.2,
+        this.autonomousMetrics.predictionAccuracy * 0.2,
+      );
     }
 
     return Math.min(1.0, autonomyScore);
@@ -574,7 +620,11 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   /**
    * Record task execution for learning
    */
-  private recordTaskExecution(task: Task, result: TaskExecutionResult, executionTime: number): void {
+  private recordTaskExecution(
+    task: Task,
+    result: TaskExecutionResult,
+    executionTime: number,
+  ): void {
     this.executionResults.set(task.id, result);
 
     // If this was a breakdown subtask, record for learning
@@ -584,13 +634,18 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
 
       if (breakdown) {
         // Update breakdown learning
-        this.taskBreakdown.recordExecutionOutcome(breakdown, [{
-          subtaskId: task.id,
-          success: result.success,
-          duration: executionTime,
-          parallelization: task.metadata?.canRunInParallel ? 1 : 0,
-          resourceEfficiency: this.calculateResourceEfficiency(task, executionTime)
-        }]);
+        this.taskBreakdown.recordExecutionOutcome(breakdown, [
+          {
+            subtaskId: task.id,
+            success: result.success,
+            duration: executionTime,
+            parallelization: task.metadata?.canRunInParallel ? 1 : 0,
+            resourceEfficiency: this.calculateResourceEfficiency(
+              task,
+              executionTime,
+            ),
+          },
+        ]);
       }
     }
 
@@ -603,22 +658,26 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       taskId: task.id,
       success: result.success,
       duration: executionTime,
-      isSubtask: !!task.metadata?.isSubtask
+      isSubtask: !!task.metadata?.isSubtask,
     });
   }
 
   /**
    * Record task failure for learning
    */
-  private recordTaskFailure(task: Task, error: Error, executionTime: number): void {
+  private recordTaskFailure(
+    task: Task,
+    error: Error,
+    executionTime: number,
+  ): void {
     const failureResult: TaskExecutionResult = {
       success: false,
       error,
       duration: executionTime,
       metadata: {
         failureReason: error.message,
-        failureType: error.constructor.name
-      }
+        failureType: error.constructor.name,
+      },
     };
 
     this.recordTaskExecution(task, failureResult, executionTime);
@@ -627,7 +686,10 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   /**
    * Calculate resource efficiency for learning
    */
-  private calculateResourceEfficiency(task: Task, executionTime: number): number {
+  private calculateResourceEfficiency(
+    task: Task,
+    executionTime: number,
+  ): number {
     const estimatedDuration = task.estimatedDuration || 60000;
     const efficiency = estimatedDuration / Math.max(executionTime, 1);
     return Math.min(2.0, Math.max(0.1, efficiency));
@@ -641,12 +703,12 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     const recentResults = Array.from(this.executionResults.values()).slice(-50);
 
     if (recentResults.length > 10) {
-      const successCount = recentResults.filter(r => r.success).length;
+      const successCount = recentResults.filter((r) => r.success).length;
       const accuracy = successCount / recentResults.length;
 
       // Exponential moving average
       this.autonomousMetrics.predictionAccuracy =
-        (this.autonomousMetrics.predictionAccuracy * 0.8) + (accuracy * 0.2);
+        this.autonomousMetrics.predictionAccuracy * 0.8 + accuracy * 0.2;
     }
   }
 
@@ -680,7 +742,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
 
       learningDataPoints: 0,
       predictionAccuracy: 0.7,
-      autonomyLevel: 0.0
+      autonomyLevel: 0.0,
     };
   }
 
@@ -696,7 +758,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         this.autonomousMetrics.autonomousOptimizations++;
         if (data.success) {
           this.autonomousMetrics.optimizationSuccessRate =
-            (this.autonomousMetrics.optimizationSuccessRate * 0.9) + (0.1);
+            this.autonomousMetrics.optimizationSuccessRate * 0.9 + 0.1;
         }
         break;
       case 'adaptiveAdjustment':
@@ -755,7 +817,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         await this.performAutonomousOptimization();
       } catch (error) {
         logger.warn('Autonomous optimization cycle failed', {
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }, 60000); // Every minute
@@ -766,7 +828,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         await this.performAdaptiveParameterTuning();
       } catch (error) {
         logger.warn('Adaptive parameter tuning failed', {
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }, 300000); // Every 5 minutes
@@ -788,7 +850,8 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     // Determine optimization strategy based on current performance
     let strategy = this.config.optimizationStrategy;
 
-    if (queueStatus.averageWaitTime > 300000) { // > 5 minutes
+    if (queueStatus.averageWaitTime > 300000) {
+      // > 5 minutes
       strategy = OptimizationStrategy.LATENCY_MINIMIZATION;
     } else if (queueStatus.successRate < 0.8) {
       strategy = OptimizationStrategy.DEADLINE_OPTIMIZATION;
@@ -799,44 +862,57 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     // Generate and apply optimizations
     try {
       const tasks = this.baseQueue.getTasks();
-      const taskMap = new Map(tasks.map(t => [t.id, t]));
+      const taskMap = new Map(tasks.map((t) => [t.id, t]));
 
       const dependencyAnalysis = {
-        readyTasks: tasks.filter(t => t.status === TaskStatus.PENDING && t.dependencies.length === 0).map(t => t.id),
-        blockedTasks: tasks.filter(t => t.status === TaskStatus.BLOCKED).map(t => t.id),
-        parallelizableGroups: [tasks.filter(t => t.batchCompatible).map(t => t.id)],
-        criticalPath: tasks.filter(t => t.priority >= TaskPriority.HIGH).map(t => t.id),
+        readyTasks: tasks
+          .filter(
+            (t) =>
+              t.status === TaskStatus.PENDING && t.dependencies.length === 0,
+          )
+          .map((t) => t.id),
+        blockedTasks: tasks
+          .filter((t) => t.status === TaskStatus.BLOCKED)
+          .map((t) => t.id),
+        parallelizableGroups: [
+          tasks.filter((t) => t.batchCompatible).map((t) => t.id),
+        ],
+        criticalPath: tasks
+          .filter((t) => t.priority >= TaskPriority.HIGH)
+          .map((t) => t.id),
         totalLevels: 3,
-        estimatedDuration: Math.max(...tasks.map(t => t.estimatedDuration))
+        estimatedDuration: Math.max(...tasks.map((t) => t.estimatedDuration)),
       };
 
       const recommendations = this.queueOptimizer.optimizeQueue(
         taskMap,
         dependencyAnalysis,
         queueStatus,
-        strategy
+        strategy,
       );
 
       if (recommendations.length > 0) {
-        const applicationResult = this.queueOptimizer.applyOptimizations(taskMap, recommendations);
+        const applicationResult = this.queueOptimizer.applyOptimizations(
+          taskMap,
+          recommendations,
+        );
 
         logger.info('Autonomous optimization applied', {
           strategy,
           recommendationsCount: recommendations.length,
           applied: applicationResult.applied,
-          failed: applicationResult.failed
+          failed: applicationResult.failed,
         });
 
         this.updateAutonomousMetrics('optimization', {
           success: applicationResult.applied > 0,
-          applied: applicationResult.applied
+          applied: applicationResult.applied,
         });
       }
-
     } catch (error) {
       logger.warn('Autonomous optimization failed', {
         strategy,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -848,43 +924,79 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     const metrics = this.getAutonomousQueueStatus();
 
     // Adapt breakdown threshold based on success rate
-    if (metrics.breakdownSuccessRate > 0.9 && this.config.breakdownThreshold > 0.5) {
+    if (
+      metrics.breakdownSuccessRate > 0.9 &&
+      this.config.breakdownThreshold > 0.5
+    ) {
       this.config.breakdownThreshold -= 0.05; // Make breakdown more aggressive
-      this.taskBreakdown.updateConfig({ complexityThreshold: this.config.breakdownThreshold });
+      this.taskBreakdown.updateConfig({
+        complexityThreshold: this.config.breakdownThreshold,
+      });
 
-      this.logAdaptation('Breakdown threshold lowered', 'high_breakdown_success', -0.05);
-    } else if (metrics.breakdownSuccessRate < 0.6 && this.config.breakdownThreshold < 0.9) {
+      this.logAdaptation(
+        'Breakdown threshold lowered',
+        'high_breakdown_success',
+        -0.05,
+      );
+    } else if (
+      metrics.breakdownSuccessRate < 0.6 &&
+      this.config.breakdownThreshold < 0.9
+    ) {
       this.config.breakdownThreshold += 0.05; // Make breakdown more conservative
-      this.taskBreakdown.updateConfig({ complexityThreshold: this.config.breakdownThreshold });
+      this.taskBreakdown.updateConfig({
+        complexityThreshold: this.config.breakdownThreshold,
+      });
 
-      this.logAdaptation('Breakdown threshold raised', 'low_breakdown_success', 0.05);
+      this.logAdaptation(
+        'Breakdown threshold raised',
+        'low_breakdown_success',
+        0.05,
+      );
     }
 
     // Adapt concurrency based on resource utilization
-    if (metrics.successRate > 0.95 && metrics.averageWaitTime > 120000) { // 2 minutes
-      this.config.maxConcurrentTasks = Math.min(16, this.config.maxConcurrentTasks + 1);
-      this.logAdaptation('Increased concurrency', 'high_wait_time_good_success', 1);
-    } else if (metrics.successRate < 0.8 && this.config.maxConcurrentTasks > 2) {
-      this.config.maxConcurrentTasks = Math.max(2, this.config.maxConcurrentTasks - 1);
+    if (metrics.successRate > 0.95 && metrics.averageWaitTime > 120000) {
+      // 2 minutes
+      this.config.maxConcurrentTasks = Math.min(
+        16,
+        this.config.maxConcurrentTasks + 1,
+      );
+      this.logAdaptation(
+        'Increased concurrency',
+        'high_wait_time_good_success',
+        1,
+      );
+    } else if (
+      metrics.successRate < 0.8 &&
+      this.config.maxConcurrentTasks > 2
+    ) {
+      this.config.maxConcurrentTasks = Math.max(
+        2,
+        this.config.maxConcurrentTasks - 1,
+      );
       this.logAdaptation('Decreased concurrency', 'low_success_rate', -1);
     }
 
     logger.debug('Adaptive parameter tuning completed', {
       breakdownThreshold: this.config.breakdownThreshold,
       maxConcurrentTasks: this.config.maxConcurrentTasks,
-      autonomyLevel: metrics.autonomyLevel
+      autonomyLevel: metrics.autonomyLevel,
     });
   }
 
   /**
    * Log adaptation for monitoring and debugging
    */
-  private logAdaptation(adaptation: string, trigger: string, impact: number): void {
+  private logAdaptation(
+    adaptation: string,
+    trigger: string,
+    impact: number,
+  ): void {
     this.adaptationHistory.push({
       timestamp: new Date(),
       adaptation,
       trigger,
-      impact
+      impact,
     });
 
     // Keep only recent adaptations
@@ -892,13 +1004,17 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       this.adaptationHistory.shift();
     }
 
-    this.updateAutonomousMetrics('adaptiveAdjustment', { adaptation, trigger, impact });
+    this.updateAutonomousMetrics('adaptiveAdjustment', {
+      adaptation,
+      trigger,
+      impact,
+    });
 
     logger.info('Autonomous adaptation applied', {
       adaptation,
       trigger,
       impact,
-      autonomyLevel: this.calculateAutonomyLevel()
+      autonomyLevel: this.calculateAutonomyLevel(),
     });
 
     this.emit('autonomousAdaptation', { adaptation, trigger, impact });
@@ -914,14 +1030,18 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   /**
    * Get breakdown performance metrics
    */
-  getBreakdownMetrics(): ReturnType<AutonomousTaskBreakdown['getPerformanceMetrics']> {
+  getBreakdownMetrics(): ReturnType<
+    AutonomousTaskBreakdown['getPerformanceMetrics']
+  > {
     return this.taskBreakdown.getPerformanceMetrics();
   }
 
   /**
    * Get scheduler performance metrics
    */
-  getSchedulerMetrics(): ReturnType<PriorityScheduler['getPerformanceMetrics']> {
+  getSchedulerMetrics(): ReturnType<
+    PriorityScheduler['getPerformanceMetrics']
+  > {
     return this.priorityScheduler.getPerformanceMetrics();
   }
 
@@ -934,7 +1054,9 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
 
     // Apply configuration changes to components
     if (updates.breakdownThreshold !== undefined) {
-      this.taskBreakdown.updateConfig({ complexityThreshold: updates.breakdownThreshold });
+      this.taskBreakdown.updateConfig({
+        complexityThreshold: updates.breakdownThreshold,
+      });
     }
 
     if (updates.schedulingAlgorithm !== undefined) {
@@ -945,13 +1067,13 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       oldConfig: {
         breakdownThreshold: oldConfig.breakdownThreshold,
         maxConcurrentTasks: oldConfig.maxConcurrentTasks,
-        schedulingAlgorithm: oldConfig.schedulingAlgorithm
+        schedulingAlgorithm: oldConfig.schedulingAlgorithm,
       },
       newConfig: {
         breakdownThreshold: this.config.breakdownThreshold,
         maxConcurrentTasks: this.config.maxConcurrentTasks,
-        schedulingAlgorithm: this.config.schedulingAlgorithm
-      }
+        schedulingAlgorithm: this.config.schedulingAlgorithm,
+      },
     });
 
     this.emit('configurationUpdated', { oldConfig, newConfig: this.config });
@@ -1008,18 +1130,17 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         metrics: this.autonomousMetrics,
         adaptationHistory: this.adaptationHistory,
         config: this.config,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       // In a real implementation, this would save to persistent storage
       logger.debug('Autonomous state saved', {
         metricsSize: Object.keys(this.autonomousMetrics).length,
-        adaptationHistorySize: this.adaptationHistory.length
+        adaptationHistorySize: this.adaptationHistory.length,
       });
-
     } catch (error) {
       logger.warn('Failed to save autonomous state', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }

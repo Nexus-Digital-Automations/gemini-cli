@@ -44,22 +44,36 @@ export const metricsCommand: CommandModule<{}, MetricsOptions> = {
         alias: 't',
       })
       .example('gemini autonomous metrics', 'Show current metrics')
-      .example('gemini autonomous metrics --time-range 7d', 'Show 7-day metrics')
-      .example('gemini autonomous metrics --watch', 'Watch metrics with live updates'),
+      .example(
+        'gemini autonomous metrics --time-range 7d',
+        'Show 7-day metrics',
+      )
+      .example(
+        'gemini autonomous metrics --watch',
+        'Watch metrics with live updates',
+      ),
 
   handler: async (argv) => {
     try {
       if (argv.watch) {
         // Start watch mode
         console.log(chalk.cyan('📊 Autonomous System Metrics - Live View'));
-        console.log(chalk.gray(`Time Range: ${argv['time-range']} | Refreshing every ${argv.interval}s`));
+        console.log(
+          chalk.gray(
+            `Time Range: ${argv['time-range']} | Refreshing every ${argv.interval}s`,
+          ),
+        );
         console.log(chalk.gray('─'.repeat(80)));
 
         const displayMetrics = async () => {
           try {
             process.stdout.write('\x1B[H\x1B[2J'); // Clear screen
             console.log(chalk.cyan('📊 Autonomous System Metrics - Live View'));
-            console.log(chalk.gray(`Time Range: ${argv['time-range']} | Refreshing every ${argv.interval}s (Press Ctrl+C to exit)`));
+            console.log(
+              chalk.gray(
+                `Time Range: ${argv['time-range']} | Refreshing every ${argv.interval}s (Press Ctrl+C to exit)`,
+              ),
+            );
             console.log(chalk.gray('─'.repeat(80)));
 
             const metrics = await getSystemMetrics(argv['time-range'] || '24h');
@@ -73,7 +87,10 @@ export const metricsCommand: CommandModule<{}, MetricsOptions> = {
         await displayMetrics();
 
         // Setup interval
-        const intervalId = setInterval(displayMetrics, (argv.interval || 10) * 1000);
+        const intervalId = setInterval(
+          displayMetrics,
+          (argv.interval || 10) * 1000,
+        );
 
         // Handle Ctrl+C
         process.on('SIGINT', () => {
@@ -92,10 +109,11 @@ export const metricsCommand: CommandModule<{}, MetricsOptions> = {
       } else {
         displayMetricsData(metrics, true);
       }
-
     } catch (error) {
       console.error(chalk.red('❌ Failed to get system metrics:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },
@@ -114,8 +132,8 @@ async function getSystemMetrics(timeRange: string) {
       resourceUsage: {
         cpu: 35.2,
         memory: 512.4,
-        disk: 89.1
-      }
+        disk: 89.1,
+      },
     },
     tasks: {
       total: 156,
@@ -129,15 +147,15 @@ async function getSystemMetrics(timeRange: string) {
         bug_fix: 34,
         test: 18,
         documentation: 8,
-        refactor: 7
+        refactor: 7,
       },
       byPriority: {
         critical: 5,
         high: 23,
         medium: 98,
         low: 30,
-        background: 0
-      }
+        background: 0,
+      },
     },
     agents: {
       total: 8,
@@ -148,8 +166,8 @@ async function getSystemMetrics(timeRange: string) {
       topPerformers: [
         { id: 'FEATURE_AGENT_001', completedTasks: 34, successRate: 0.97 },
         { id: 'SECURITY_AGENT_002', completedTasks: 28, successRate: 0.95 },
-        { id: 'TEST_AGENT_001', completedTasks: 22, successRate: 0.91 }
-      ]
+        { id: 'TEST_AGENT_001', completedTasks: 22, successRate: 0.91 },
+      ],
     },
     performance: {
       averageResponseTime: 1250, // ms
@@ -157,20 +175,20 @@ async function getSystemMetrics(timeRange: string) {
       p99ResponseTime: 8500,
       errorRate: 0.08,
       tokensPerSecond: 45.7,
-      toolCallsPerMinute: 12.3
+      toolCallsPerMinute: 12.3,
     },
     quality: {
       lintPassRate: 0.98,
       testPassRate: 0.94,
       buildSuccessRate: 0.96,
-      securityScanPassRate: 0.89
+      securityScanPassRate: 0.89,
     },
     timeRange,
-    lastUpdated: new Date().toISOString()
+    lastUpdated: new Date().toISOString(),
   };
 
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   return baseMetrics;
 }
@@ -178,23 +196,41 @@ async function getSystemMetrics(timeRange: string) {
 function displayMetricsData(metrics: any, showHeader: boolean) {
   if (showHeader) {
     console.log(chalk.cyan('📊 Autonomous System Performance Metrics'));
-    console.log(chalk.gray(`Time Range: ${metrics.timeRange} | Last Updated: ${new Date(metrics.lastUpdated).toLocaleString()}`));
+    console.log(
+      chalk.gray(
+        `Time Range: ${metrics.timeRange} | Last Updated: ${new Date(metrics.lastUpdated).toLocaleString()}`,
+      ),
+    );
     console.log(chalk.gray('─'.repeat(80)));
   }
 
   // System Overview
   console.log(chalk.bold('🖥️  System Overview:'));
   console.log(`   Uptime: ${formatUptime(metrics.system.uptime)}`);
-  console.log(`   Total Tasks Processed: ${chalk.blue(metrics.system.totalTasks.toLocaleString())}`);
-  console.log(`   Success Rate: ${getSuccessRateDisplay(metrics.system.successRate)}`);
-  console.log(`   Avg Execution Time: ${chalk.yellow(formatDuration(metrics.system.averageExecutionTime))}`);
-  console.log(`   Throughput: ${chalk.cyan(metrics.system.throughput)} tasks/hour`);
+  console.log(
+    `   Total Tasks Processed: ${chalk.blue(metrics.system.totalTasks.toLocaleString())}`,
+  );
+  console.log(
+    `   Success Rate: ${getSuccessRateDisplay(metrics.system.successRate)}`,
+  );
+  console.log(
+    `   Avg Execution Time: ${chalk.yellow(formatDuration(metrics.system.averageExecutionTime))}`,
+  );
+  console.log(
+    `   Throughput: ${chalk.cyan(metrics.system.throughput)} tasks/hour`,
+  );
 
   // Resource Usage
   console.log(chalk.bold('\n💾 Resource Usage:'));
-  console.log(`   CPU: ${getUsageDisplay(metrics.system.resourceUsage.cpu, 80)}%`);
-  console.log(`   Memory: ${chalk.blue(metrics.system.resourceUsage.memory)} MB`);
-  console.log(`   Disk I/O: ${getUsageDisplay(metrics.system.resourceUsage.disk, 100)} MB/s`);
+  console.log(
+    `   CPU: ${getUsageDisplay(metrics.system.resourceUsage.cpu, 80)}%`,
+  );
+  console.log(
+    `   Memory: ${chalk.blue(metrics.system.resourceUsage.memory)} MB`,
+  );
+  console.log(
+    `   Disk I/O: ${getUsageDisplay(metrics.system.resourceUsage.disk, 100)} MB/s`,
+  );
 
   // Task Statistics
   console.log(chalk.bold('\n📋 Task Statistics:'));
@@ -209,14 +245,20 @@ function displayMetricsData(metrics: any, showHeader: boolean) {
   console.log(chalk.bold('\n📊 Task Distribution:'));
   console.log(chalk.underline('   By Category:'));
   Object.entries(metrics.tasks.byCategory).forEach(([category, count]) => {
-    const percentage = ((count as number / metrics.tasks.total) * 100).toFixed(1);
+    const percentage = (
+      ((count as number) / metrics.tasks.total) *
+      100
+    ).toFixed(1);
     console.log(`     ${category}: ${count} (${percentage}%)`);
   });
 
   console.log(chalk.underline('   By Priority:'));
   Object.entries(metrics.tasks.byPriority).forEach(([priority, count]) => {
     const color = getPriorityColor(priority);
-    const percentage = ((count as number / metrics.tasks.total) * 100).toFixed(1);
+    const percentage = (
+      ((count as number) / metrics.tasks.total) *
+      100
+    ).toFixed(1);
     console.log(`     ${color(priority)}: ${count} (${percentage}%)`);
   });
 
@@ -226,29 +268,53 @@ function displayMetricsData(metrics: any, showHeader: boolean) {
   console.log(`   🟢 Active: ${chalk.green(metrics.agents.active)}`);
   console.log(`   💤 Idle: ${chalk.gray(metrics.agents.idle)}`);
   console.log(`   🔥 Busy: ${chalk.yellow(metrics.agents.busy)}`);
-  console.log(`   Utilization: ${getUtilizationDisplay(metrics.agents.utilization)}`);
+  console.log(
+    `   Utilization: ${getUtilizationDisplay(metrics.agents.utilization)}`,
+  );
 
   console.log(chalk.underline('\n   Top Performers:'));
   metrics.agents.topPerformers.forEach((agent: any, index: number) => {
     const medal = ['🥇', '🥈', '🥉'][index] || '🏅';
-    console.log(`     ${medal} ${agent.id}: ${agent.completedTasks} tasks (${(agent.successRate * 100).toFixed(1)}% success)`);
+    console.log(
+      `     ${medal} ${agent.id}: ${agent.completedTasks} tasks (${(agent.successRate * 100).toFixed(1)}% success)`,
+    );
   });
 
   // Performance Metrics
   console.log(chalk.bold('\n⚡ Performance Metrics:'));
-  console.log(`   Avg Response Time: ${chalk.yellow(metrics.performance.averageResponseTime)} ms`);
-  console.log(`   95th Percentile: ${chalk.yellow(metrics.performance.p95ResponseTime)} ms`);
-  console.log(`   99th Percentile: ${chalk.red(metrics.performance.p99ResponseTime)} ms`);
-  console.log(`   Error Rate: ${getErrorRateDisplay(metrics.performance.errorRate)}`);
-  console.log(`   Tokens/Second: ${chalk.cyan(metrics.performance.tokensPerSecond.toFixed(1))}`);
-  console.log(`   Tool Calls/Min: ${chalk.cyan(metrics.performance.toolCallsPerMinute.toFixed(1))}`);
+  console.log(
+    `   Avg Response Time: ${chalk.yellow(metrics.performance.averageResponseTime)} ms`,
+  );
+  console.log(
+    `   95th Percentile: ${chalk.yellow(metrics.performance.p95ResponseTime)} ms`,
+  );
+  console.log(
+    `   99th Percentile: ${chalk.red(metrics.performance.p99ResponseTime)} ms`,
+  );
+  console.log(
+    `   Error Rate: ${getErrorRateDisplay(metrics.performance.errorRate)}`,
+  );
+  console.log(
+    `   Tokens/Second: ${chalk.cyan(metrics.performance.tokensPerSecond.toFixed(1))}`,
+  );
+  console.log(
+    `   Tool Calls/Min: ${chalk.cyan(metrics.performance.toolCallsPerMinute.toFixed(1))}`,
+  );
 
   // Quality Gates
   console.log(chalk.bold('\n✅ Quality Gates:'));
-  console.log(`   Lint Pass Rate: ${getQualityDisplay(metrics.quality.lintPassRate)}`);
-  console.log(`   Test Pass Rate: ${getQualityDisplay(metrics.quality.testPassRate)}`);
-  console.log(`   Build Success Rate: ${getQualityDisplay(metrics.quality.buildSuccessRate)}`);
-  console.log(`   Security Scan Pass: ${getQualityDisplay(metrics.quality.securityScanPassRate)}`);
+  console.log(
+    `   Lint Pass Rate: ${getQualityDisplay(metrics.quality.lintPassRate)}`,
+  );
+  console.log(
+    `   Test Pass Rate: ${getQualityDisplay(metrics.quality.testPassRate)}`,
+  );
+  console.log(
+    `   Build Success Rate: ${getQualityDisplay(metrics.quality.buildSuccessRate)}`,
+  );
+  console.log(
+    `   Security Scan Pass: ${getQualityDisplay(metrics.quality.securityScanPassRate)}`,
+  );
 
   if (showHeader) {
     console.log(chalk.gray('\n💡 Use --watch flag for live updates'));
@@ -321,7 +387,7 @@ function getPriorityColor(priority: string) {
     high: chalk.red,
     medium: chalk.yellow,
     low: chalk.blue,
-    background: chalk.gray
+    background: chalk.gray,
   };
   return colors[priority] || chalk.white;
 }

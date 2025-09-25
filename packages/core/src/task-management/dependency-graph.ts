@@ -44,7 +44,10 @@ export class DependencyGraphManager {
    * Add a task to the dependency graph
    */
   addTask(task: Task): void {
-    logger.debug('Adding task to dependency graph', { taskId: task.id, title: task.title });
+    logger.debug('Adding task to dependency graph', {
+      taskId: task.id,
+      title: task.title,
+    });
 
     this.tasks.set(task.id, task);
 
@@ -75,22 +78,29 @@ export class DependencyGraphManager {
 
     // Ensure both tasks exist in the graph
     if (!this.graph.nodes.has(dependency.dependentTaskId)) {
-      throw new Error(`Dependent task ${dependency.dependentTaskId} not found in graph`);
+      throw new Error(
+        `Dependent task ${dependency.dependentTaskId} not found in graph`,
+      );
     }
     if (!this.graph.nodes.has(dependency.dependsOnTaskId)) {
-      throw new Error(`Dependency task ${dependency.dependsOnTaskId} not found in graph`);
+      throw new Error(
+        `Dependency task ${dependency.dependsOnTaskId} not found in graph`,
+      );
     }
 
     // Check if dependency already exists
     const existingDependency = this.graph.edges.find(
-      edge =>
+      (edge) =>
         edge.dependentTaskId === dependency.dependentTaskId &&
-        edge.dependsOnTaskId === dependency.dependsOnTaskId
+        edge.dependsOnTaskId === dependency.dependsOnTaskId,
     );
 
     if (existingDependency) {
       logger.warn('Dependency already exists, updating', { dependency });
-      this.removeDependency(dependency.dependentTaskId, dependency.dependsOnTaskId);
+      this.removeDependency(
+        dependency.dependentTaskId,
+        dependency.dependsOnTaskId,
+      );
     }
 
     // Add to edges
@@ -116,13 +126,16 @@ export class DependencyGraphManager {
    * Remove a dependency relationship
    */
   removeDependency(dependentTaskId: TaskId, dependsOnTaskId: TaskId): void {
-    logger.debug('Removing dependency relationship', { dependentTaskId, dependsOnTaskId });
+    logger.debug('Removing dependency relationship', {
+      dependentTaskId,
+      dependsOnTaskId,
+    });
 
     // Remove from edges
     const edgeIndex = this.graph.edges.findIndex(
-      edge =>
+      (edge) =>
         edge.dependentTaskId === dependentTaskId &&
-        edge.dependsOnTaskId === dependsOnTaskId
+        edge.dependsOnTaskId === dependsOnTaskId,
     );
 
     if (edgeIndex !== -1) {
@@ -135,14 +148,19 @@ export class DependencyGraphManager {
     const dependencyNode = this.graph.nodes.get(dependsOnTaskId);
 
     if (dependentNode) {
-      dependentNode.dependencies = dependentNode.dependencies.filter(id => id !== dependsOnTaskId);
-      dependentNode.dependencyRelations = dependentNode.dependencyRelations.filter(
-        rel => rel.dependsOnTaskId !== dependsOnTaskId
+      dependentNode.dependencies = dependentNode.dependencies.filter(
+        (id) => id !== dependsOnTaskId,
       );
+      dependentNode.dependencyRelations =
+        dependentNode.dependencyRelations.filter(
+          (rel) => rel.dependsOnTaskId !== dependsOnTaskId,
+        );
     }
 
     if (dependencyNode) {
-      dependencyNode.dependents = dependencyNode.dependents.filter(id => id !== dependentTaskId);
+      dependencyNode.dependents = dependencyNode.dependents.filter(
+        (id) => id !== dependentTaskId,
+      );
     }
 
     this.graph.metadata.updatedAt = new Date();
@@ -161,11 +179,11 @@ export class DependencyGraphManager {
     }
 
     // Remove all dependencies involving this task
-    [...node.dependencies].forEach(depId => {
+    [...node.dependencies].forEach((depId) => {
       this.removeDependency(taskId, depId);
     });
 
-    [...node.dependents].forEach(depId => {
+    [...node.dependents].forEach((depId) => {
       this.removeDependency(depId, taskId);
     });
 
@@ -200,7 +218,9 @@ export class DependencyGraphManager {
         const cycleEdges: TaskDependency[] = [];
         for (let i = 0; i < cycle.length - 1; i++) {
           const edge = this.graph.edges.find(
-            e => e.dependentTaskId === cycle[i + 1] && e.dependsOnTaskId === cycle[i]
+            (e) =>
+              e.dependentTaskId === cycle[i + 1] &&
+              e.dependsOnTaskId === cycle[i],
           );
           if (edge) {
             cycleEdges.push(edge);
@@ -208,7 +228,10 @@ export class DependencyGraphManager {
         }
 
         // Generate resolution strategies
-        const resolutionStrategies = this.generateResolutionStrategies(cycle, cycleEdges);
+        const resolutionStrategies = this.generateResolutionStrategies(
+          cycle,
+          cycleEdges,
+        );
 
         cycles.push({
           cycle: cycle.slice(0, -1), // Remove duplicate last element
@@ -256,12 +279,12 @@ export class DependencyGraphManager {
    */
   private generateResolutionStrategies(
     cycle: TaskId[],
-    edges: TaskDependency[]
+    edges: TaskDependency[],
   ): CircularDependency['resolutionStrategies'] {
     const strategies: CircularDependency['resolutionStrategies'] = [];
 
     // Strategy 1: Remove the weakest edge (soft dependencies first)
-    const softEdges = edges.filter(e => e.type === 'soft');
+    const softEdges = edges.filter((e) => e.type === 'soft');
     if (softEdges.length > 0) {
       strategies.push({
         strategy: 'remove_edge',
@@ -272,7 +295,7 @@ export class DependencyGraphManager {
     }
 
     // Strategy 2: Split the most complex task in the cycle
-    const taskComplexities = cycle.map(taskId => {
+    const taskComplexities = cycle.map((taskId) => {
       const task = this.tasks.get(taskId);
       return {
         taskId,
@@ -281,7 +304,7 @@ export class DependencyGraphManager {
     });
 
     const mostComplexTask = taskComplexities.reduce((max, current) =>
-      current.complexity > max.complexity ? current : max
+      current.complexity > max.complexity ? current : max,
     );
 
     if (mostComplexTask.complexity > 5) {
@@ -294,7 +317,7 @@ export class DependencyGraphManager {
     }
 
     // Strategy 3: Remove temporal dependencies if present
-    const temporalEdges = edges.filter(e => e.type === 'temporal');
+    const temporalEdges = edges.filter((e) => e.type === 'temporal');
     if (temporalEdges.length > 0) {
       strategies.push({
         strategy: 'reorder',
@@ -305,7 +328,7 @@ export class DependencyGraphManager {
     }
 
     // Strategy 4: Remove hard dependency with highest impact
-    const hardEdges = edges.filter(e => e.type === 'hard');
+    const hardEdges = edges.filter((e) => e.type === 'hard');
     if (hardEdges.length > 0 && strategies.length === 0) {
       strategies.push({
         strategy: 'remove_edge',
@@ -331,12 +354,12 @@ export class DependencyGraphManager {
 
     // Add complexity based on category
     const categoryComplexity = {
-      'implementation': 3,
-      'testing': 2,
-      'documentation': 1,
-      'analysis': 4,
-      'refactoring': 3,
-      'deployment': 2,
+      implementation: 3,
+      testing: 2,
+      documentation: 1,
+      analysis: 4,
+      refactoring: 3,
+      deployment: 2,
     };
     complexity += categoryComplexity[task.category] || 2;
 
@@ -363,7 +386,7 @@ export class DependencyGraphManager {
     if (cycles.length > 0) {
       logger.warn('Circular dependencies detected', {
         cycleCount: cycles.length,
-        cycles: cycles.map(c => c.cycle),
+        cycles: cycles.map((c) => c.cycle),
       });
     }
   }
@@ -449,7 +472,9 @@ export class DependencyGraphManager {
     // Get topological order
     const topOrder = this.getTopologicalOrder();
     if (!topOrder) {
-      logger.warn('Cannot calculate critical path: circular dependencies detected');
+      logger.warn(
+        'Cannot calculate critical path: circular dependencies detected',
+      );
       return [];
     }
 
@@ -494,7 +519,7 @@ export class DependencyGraphManager {
 
     logger.debug('Critical path calculated', {
       path: criticalPath,
-      duration: maxDistance
+      duration: maxDistance,
     });
 
     return criticalPath;
@@ -524,7 +549,9 @@ export class DependencyGraphManager {
         if (!node) continue;
 
         // Check if all dependencies are satisfied
-        const allDependenciesMet = node.dependencies.every(depId => processed.has(depId));
+        const allDependenciesMet = node.dependencies.every((depId) =>
+          processed.has(depId),
+        );
 
         if (allDependenciesMet) {
           currentGroup.push(taskId);
@@ -532,17 +559,19 @@ export class DependencyGraphManager {
       }
 
       if (currentGroup.length === 0) {
-        logger.warn('No more tasks can be processed - possible circular dependency');
+        logger.warn(
+          'No more tasks can be processed - possible circular dependency',
+        );
         break;
       }
 
       parallelGroups.push(currentGroup);
-      currentGroup.forEach(taskId => processed.add(taskId));
+      currentGroup.forEach((taskId) => processed.add(taskId));
     }
 
     logger.debug('Parallel groups identified', {
       groupCount: parallelGroups.length,
-      groups: parallelGroups.map(group => group.length),
+      groups: parallelGroups.map((group) => group.length),
     });
 
     return parallelGroups;
@@ -633,7 +662,10 @@ export class DependencyGraphManager {
       nodeCount: this.graph.metadata.nodeCount,
       edgeCount: this.graph.metadata.edgeCount,
       hasCycles: this.graph.metadata.hasCycles,
-      avgDependencies: this.graph.metadata.nodeCount > 0 ? totalDependencies / this.graph.metadata.nodeCount : 0,
+      avgDependencies:
+        this.graph.metadata.nodeCount > 0
+          ? totalDependencies / this.graph.metadata.nodeCount
+          : 0,
       maxDepth: this.calculateMaxDepth(),
       criticalPathLength: criticalPath.length,
       parallelGroups: parallelGroups.length,
@@ -690,14 +722,18 @@ export class DependencyGraphManager {
       const task = this.tasks.get(taskId);
       const label = task ? `${task.title}\\n(${task.status})` : taskId;
       const color = this.getNodeColor(task?.status || 'pending');
-      lines.push(`  "${taskId}" [label="${label}", fillcolor="${color}", style=filled];`);
+      lines.push(
+        `  "${taskId}" [label="${label}", fillcolor="${color}", style=filled];`,
+      );
     }
 
     // Add edges
     for (const edge of this.graph.edges) {
       const style = this.getEdgeStyle(edge.type);
       const color = this.getEdgeColor(edge.type);
-      lines.push(`  "${edge.dependsOnTaskId}" -> "${edge.dependentTaskId}" [style="${style}", color="${color}"];`);
+      lines.push(
+        `  "${edge.dependsOnTaskId}" -> "${edge.dependentTaskId}" [style="${style}", color="${color}"];`,
+      );
     }
 
     lines.push('}');
@@ -706,33 +742,33 @@ export class DependencyGraphManager {
 
   private getNodeColor(status: string): string {
     const colors = {
-      'pending': 'lightgray',
-      'ready': 'lightblue',
-      'in_progress': 'yellow',
-      'completed': 'lightgreen',
-      'failed': 'lightcoral',
-      'blocked': 'orange',
-      'cancelled': 'lightgray',
+      pending: 'lightgray',
+      ready: 'lightblue',
+      in_progress: 'yellow',
+      completed: 'lightgreen',
+      failed: 'lightcoral',
+      blocked: 'orange',
+      cancelled: 'lightgray',
     };
     return colors[status as keyof typeof colors] || 'white';
   }
 
   private getEdgeStyle(type: string): string {
     const styles = {
-      'hard': 'solid',
-      'soft': 'dashed',
-      'resource': 'dotted',
-      'temporal': 'bold',
+      hard: 'solid',
+      soft: 'dashed',
+      resource: 'dotted',
+      temporal: 'bold',
     };
     return styles[type as keyof typeof styles] || 'solid';
   }
 
   private getEdgeColor(type: string): string {
     const colors = {
-      'hard': 'black',
-      'soft': 'gray',
-      'resource': 'blue',
-      'temporal': 'red',
+      hard: 'black',
+      soft: 'gray',
+      resource: 'blue',
+      temporal: 'red',
     };
     return colors[type as keyof typeof colors] || 'black';
   }

@@ -69,10 +69,7 @@ export class TaskManager {
     });
   }
 
-  async updateTaskStatus(
-    id: string,
-    newStatus: TaskStatus,
-  ): Promise<Task> {
+  async updateTaskStatus(id: string, newStatus: TaskStatus): Promise<Task> {
     const task = await this.taskStore.getTask(id);
     if (!task) {
       throw new Error(`Task with ID ${id} not found.`);
@@ -83,10 +80,7 @@ export class TaskManager {
     return task;
   }
 
-  async addDependency(
-    taskId: string,
-    dependencyId: string,
-  ): Promise<Task> {
+  async addDependency(taskId: string, dependencyId: string): Promise<Task> {
     const task = await this.taskStore.getTask(taskId);
     if (!task) {
       throw new Error(`Task with ID ${taskId} not found.`);
@@ -99,10 +93,7 @@ export class TaskManager {
     return task;
   }
 
-  async removeDependency(
-    taskId: string,
-    dependencyId: string,
-  ): Promise<Task> {
+  async removeDependency(taskId: string, dependencyId: string): Promise<Task> {
     const task = await this.taskStore.getTask(taskId);
     if (!task) {
       throw new Error(`Task with ID ${taskId} not found.`);
@@ -116,10 +107,7 @@ export class TaskManager {
     return task;
   }
 
-  async addSubtask(
-    parentTaskId: string,
-    subtaskId: string,
-  ): Promise<Task> {
+  async addSubtask(parentTaskId: string, subtaskId: string): Promise<Task> {
     const task = await this.taskStore.getTask(parentTaskId);
     if (!task) {
       throw new Error(`Task with ID ${parentTaskId} not found.`);

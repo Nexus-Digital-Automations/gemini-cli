@@ -107,7 +107,10 @@ export class ProgressTracker extends EventEmitter {
   private checkpoints: Map<string, ProgressCheckpoint>;
   private taskConfigs: Map<string, ProgressTrackingConfig>;
   private taskMetrics: Map<string, ProgressMetrics>;
-  private velocityHistory: Map<string, Array<{ timestamp: Date; velocity: number }>>;
+  private velocityHistory: Map<
+    string,
+    Array<{ timestamp: Date; velocity: number }>
+  >;
   private timeEstimateCache: Map<string, number>;
   private monitoringInterval?: NodeJS.Timeout;
 
@@ -129,7 +132,7 @@ export class ProgressTracker extends EventEmitter {
    */
   async initializeTaskTracking(
     taskId: string,
-    config: Partial<ProgressTrackingConfig> = {}
+    config: Partial<ProgressTrackingConfig> = {},
   ): Promise<void> {
     const fullConfig: ProgressTrackingConfig = {
       taskId,
@@ -190,7 +193,7 @@ export class ProgressTracker extends EventEmitter {
    */
   async addCheckpoint(
     taskId: string,
-    checkpoint: Omit<ProgressCheckpoint, 'id' | 'taskId' | 'timestamp'>
+    checkpoint: Omit<ProgressCheckpoint, 'id' | 'taskId' | 'timestamp'>,
   ): Promise<string> {
     const config = this.taskConfigs.get(taskId);
     if (!config) {
@@ -240,7 +243,7 @@ export class ProgressTracker extends EventEmitter {
   async updateCheckpointProgress(
     checkpointId: string,
     progress: number,
-    metadata: Record<string, unknown> = {}
+    metadata: Record<string, unknown> = {},
   ): Promise<void> {
     const checkpoint = this.checkpoints.get(checkpointId);
     if (!checkpoint) {
@@ -303,36 +306,41 @@ export class ProgressTracker extends EventEmitter {
       granularity?: ProgressGranularity;
       completed?: boolean;
       since?: Date;
-    }
+    },
   ): ProgressCheckpoint[] {
-    let checkpoints = Array.from(this.checkpoints.values())
-      .filter(checkpoint => checkpoint.taskId === taskId);
+    let checkpoints = Array.from(this.checkpoints.values()).filter(
+      (checkpoint) => checkpoint.taskId === taskId,
+    );
 
     if (filters) {
       if (filters.granularity) {
         checkpoints = checkpoints.filter(
-          checkpoint => checkpoint.granularity === filters.granularity
+          (checkpoint) => checkpoint.granularity === filters.granularity,
         );
       }
       if (filters.completed !== undefined) {
         checkpoints = checkpoints.filter(
-          checkpoint => (checkpoint.progress === 100) === filters.completed
+          (checkpoint) => (checkpoint.progress === 100) === filters.completed,
         );
       }
       if (filters.since) {
         checkpoints = checkpoints.filter(
-          checkpoint => checkpoint.timestamp >= filters.since!
+          (checkpoint) => checkpoint.timestamp >= filters.since!,
         );
       }
     }
 
-    return checkpoints.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return checkpoints.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }
 
   /**
    * Get velocity history for a task
    */
-  getVelocityHistory(taskId: string): Array<{ timestamp: Date; velocity: number }> {
+  getVelocityHistory(
+    taskId: string,
+  ): Array<{ timestamp: Date; velocity: number }> {
     return this.velocityHistory.get(taskId) || [];
   }
 
@@ -349,7 +357,9 @@ export class ProgressTracker extends EventEmitter {
 
     const remainingProgress = 100 - metrics.overallProgress;
     const estimatedMinutes = remainingProgress / metrics.velocity;
-    const estimatedCompletion = new Date(Date.now() + estimatedMinutes * 60 * 1000);
+    const estimatedCompletion = new Date(
+      Date.now() + estimatedMinutes * 60 * 1000,
+    );
 
     // Calculate confidence based on velocity trend stability
     const velocityTrend = metrics.trends.velocityTrend;
@@ -385,10 +395,10 @@ export class ProgressTracker extends EventEmitter {
     // Identify slow operations
     const avgDuration = this.calculateAverageDuration(checkpoints);
     const slowCheckpoints = checkpoints.filter(
-      checkpoint =>
+      (checkpoint) =>
         checkpoint.duration &&
         checkpoint.duration > avgDuration * 2 &&
-        checkpoint.progress < 100
+        checkpoint.progress < 100,
     );
 
     bottlenecks.push(...slowCheckpoints);
@@ -396,28 +406,42 @@ export class ProgressTracker extends EventEmitter {
     // Identify stalled checkpoints
     const now = Date.now();
     const stalledCheckpoints = checkpoints.filter(
-      checkpoint =>
+      (checkpoint) =>
         checkpoint.progress < 100 &&
-        now - checkpoint.timestamp.getTime() > config.alertThresholds.blockingDuration * 60 * 1000
+        now - checkpoint.timestamp.getTime() >
+          config.alertThresholds.blockingDuration * 60 * 1000,
     );
 
     bottlenecks.push(...stalledCheckpoints);
 
     // Generate recommendations
     if (metrics.velocity < config.alertThresholds.slowProgress) {
-      recommendations.push('Consider breaking down complex operations into smaller checkpoints');
-      recommendations.push('Review resource allocation and remove potential blockers');
+      recommendations.push(
+        'Consider breaking down complex operations into smaller checkpoints',
+      );
+      recommendations.push(
+        'Review resource allocation and remove potential blockers',
+      );
     }
 
     if (slowCheckpoints.length > 0) {
-      recommendations.push(`Optimize slow operations: ${slowCheckpoints.map(c => c.name).join(', ')}`);
+      recommendations.push(
+        `Optimize slow operations: ${slowCheckpoints.map((c) => c.name).join(', ')}`,
+      );
     }
 
     if (stalledCheckpoints.length > 0) {
-      recommendations.push(`Address stalled operations: ${stalledCheckpoints.map(c => c.name).join(', ')}`);
+      recommendations.push(
+        `Address stalled operations: ${stalledCheckpoints.map((c) => c.name).join(', ')}`,
+      );
     }
 
-    const severity = bottlenecks.length > 3 ? 'high' : bottlenecks.length > 1 ? 'medium' : 'low';
+    const severity =
+      bottlenecks.length > 3
+        ? 'high'
+        : bottlenecks.length > 1
+          ? 'medium'
+          : 'low';
 
     if (bottlenecks.length > 0) {
       this.emit(ProgressEventType.BOTTLENECK_DETECTED, {
@@ -448,22 +472,28 @@ export class ProgressTracker extends EventEmitter {
   } {
     const metrics = Array.from(this.taskMetrics.values());
     const totalTasks = metrics.length;
-    const activelyTracked = metrics.filter(m => m.overallProgress < 100).length;
+    const activelyTracked = metrics.filter(
+      (m) => m.overallProgress < 100,
+    ).length;
 
-    const velocities = metrics.map(m => m.velocity).filter(v => v > 0);
-    const averageVelocity = velocities.length > 0
-      ? velocities.reduce((a, b) => a + b) / velocities.length
-      : 0;
+    const velocities = metrics.map((m) => m.velocity).filter((v) => v > 0);
+    const averageVelocity =
+      velocities.length > 0
+        ? velocities.reduce((a, b) => a + b) / velocities.length
+        : 0;
 
-    const efficiencies = metrics.map(m => m.efficiency).filter(e => e > 0);
-    const systemEfficiency = efficiencies.length > 0
-      ? efficiencies.reduce((a, b) => a + b) / efficiencies.length
-      : 1;
+    const efficiencies = metrics.map((m) => m.efficiency).filter((e) => e > 0);
+    const systemEfficiency =
+      efficiencies.length > 0
+        ? efficiencies.reduce((a, b) => a + b) / efficiencies.length
+        : 1;
 
     // Analyze common bottlenecks
-    const allBottlenecks = metrics.flatMap(m => m.bottlenecks.slowestOperations);
+    const allBottlenecks = metrics.flatMap(
+      (m) => m.bottlenecks.slowestOperations,
+    );
     const bottleneckCounts = new Map<string, number>();
-    allBottlenecks.forEach(checkpoint => {
+    allBottlenecks.forEach((checkpoint) => {
       const key = checkpoint.granularity;
       bottleneckCounts.set(key, (bottleneckCounts.get(key) || 0) + 1);
     });
@@ -474,8 +504,12 @@ export class ProgressTracker extends EventEmitter {
       .map(([type]) => type);
 
     // Performance distribution
-    const fastTasks = velocities.filter(v => v > averageVelocity * 1.5).length;
-    const slowTasks = velocities.filter(v => v < averageVelocity * 0.5).length;
+    const fastTasks = velocities.filter(
+      (v) => v > averageVelocity * 1.5,
+    ).length;
+    const slowTasks = velocities.filter(
+      (v) => v < averageVelocity * 0.5,
+    ).length;
     const normalTasks = velocities.length - fastTasks - slowTasks;
 
     return {
@@ -494,7 +528,10 @@ export class ProgressTracker extends EventEmitter {
 
   // Private methods
 
-  private async updateTaskMetrics(taskId: string, checkpoint: ProgressCheckpoint): Promise<void> {
+  private async updateTaskMetrics(
+    taskId: string,
+    checkpoint: ProgressCheckpoint,
+  ): Promise<void> {
     const config = this.taskConfigs.get(taskId);
     const metrics = this.taskMetrics.get(taskId);
 
@@ -502,16 +539,22 @@ export class ProgressTracker extends EventEmitter {
 
     // Update overall progress
     const taskCheckpoints = this.getTaskCheckpoints(taskId);
-    const totalProgress = taskCheckpoints.reduce((sum, cp) => sum + cp.progress, 0);
-    metrics.overallProgress = taskCheckpoints.length > 0
-      ? Math.min(100, totalProgress / taskCheckpoints.length)
-      : 0;
+    const totalProgress = taskCheckpoints.reduce(
+      (sum, cp) => sum + cp.progress,
+      0,
+    );
+    metrics.overallProgress =
+      taskCheckpoints.length > 0
+        ? Math.min(100, totalProgress / taskCheckpoints.length)
+        : 0;
 
     // Update checkpoint counts
-    metrics.checkpoints.completed = taskCheckpoints.filter(cp => cp.progress === 100).length;
+    metrics.checkpoints.completed = taskCheckpoints.filter(
+      (cp) => cp.progress === 100,
+    ).length;
     metrics.checkpoints.total = taskCheckpoints.length;
     metrics.checkpoints.milestones = taskCheckpoints.filter(
-      cp => cp.granularity === ProgressGranularity.MILESTONE
+      (cp) => cp.granularity === ProgressGranularity.MILESTONE,
     );
 
     // Calculate velocity
@@ -528,8 +571,10 @@ export class ProgressTracker extends EventEmitter {
       metrics.bottlenecks = {
         slowestOperations: bottleneckAnalysis.bottlenecks.slice(0, 5),
         blockingIssues: bottleneckAnalysis.recommendations,
-        timeOverruns: taskCheckpoints.filter(cp =>
-          cp.duration && cp.duration > (this.timeEstimateCache.get(cp.id) || 0) * 1.2
+        timeOverruns: taskCheckpoints.filter(
+          (cp) =>
+            cp.duration &&
+            cp.duration > (this.timeEstimateCache.get(cp.id) || 0) * 1.2,
         ),
       };
     }
@@ -540,7 +585,10 @@ export class ProgressTracker extends EventEmitter {
     this.taskMetrics.set(taskId, metrics);
   }
 
-  private async updateVelocity(taskId: string, metrics: ProgressMetrics): Promise<void> {
+  private async updateVelocity(
+    taskId: string,
+    metrics: ProgressMetrics,
+  ): Promise<void> {
     const config = this.taskConfigs.get(taskId);
     if (!config) return;
 
@@ -549,16 +597,19 @@ export class ProgressTracker extends EventEmitter {
 
     // Calculate current velocity (progress points per minute)
     const recentCheckpoints = this.getTaskCheckpoints(taskId, {
-      since: new Date(Date.now() - 10 * 60 * 1000) // last 10 minutes
+      since: new Date(Date.now() - 10 * 60 * 1000), // last 10 minutes
     });
 
     if (recentCheckpoints.length >= 2) {
-      const timeSpan = recentCheckpoints[0].timestamp.getTime() -
-                     recentCheckpoints[recentCheckpoints.length - 1].timestamp.getTime();
-      const progressSpan = recentCheckpoints[0].progress -
-                          recentCheckpoints[recentCheckpoints.length - 1].progress;
+      const timeSpan =
+        recentCheckpoints[0].timestamp.getTime() -
+        recentCheckpoints[recentCheckpoints.length - 1].timestamp.getTime();
+      const progressSpan =
+        recentCheckpoints[0].progress -
+        recentCheckpoints[recentCheckpoints.length - 1].progress;
 
-      const velocity = timeSpan > 0 ? (progressSpan / (timeSpan / (1000 * 60))) : 0;
+      const velocity =
+        timeSpan > 0 ? progressSpan / (timeSpan / (1000 * 60)) : 0;
 
       velocityHistory.push({ timestamp: now, velocity });
 
@@ -570,17 +621,21 @@ export class ProgressTracker extends EventEmitter {
       this.velocityHistory.set(taskId, velocityHistory);
 
       // Update metrics
-      const recentVelocities = velocityHistory.slice(-5).map(v => v.velocity);
-      metrics.velocity = recentVelocities.length > 0
-        ? recentVelocities.reduce((a, b) => a + b) / recentVelocities.length
-        : 0;
+      const recentVelocities = velocityHistory.slice(-5).map((v) => v.velocity);
+      metrics.velocity =
+        recentVelocities.length > 0
+          ? recentVelocities.reduce((a, b) => a + b) / recentVelocities.length
+          : 0;
 
       // Check for velocity changes
       if (velocityHistory.length >= 2) {
-        const previousVelocity = velocityHistory[velocityHistory.length - 2].velocity;
-        const velocityChange = Math.abs(velocity - previousVelocity) / Math.max(previousVelocity, 1);
+        const previousVelocity =
+          velocityHistory[velocityHistory.length - 2].velocity;
+        const velocityChange =
+          Math.abs(velocity - previousVelocity) / Math.max(previousVelocity, 1);
 
-        if (velocityChange > 0.2) { // 20% change threshold
+        if (velocityChange > 0.2) {
+          // 20% change threshold
           this.emit(ProgressEventType.VELOCITY_CHANGED, {
             taskId,
             previousVelocity,
@@ -594,35 +649,50 @@ export class ProgressTracker extends EventEmitter {
 
   private updateTimeEstimates(taskId: string, metrics: ProgressMetrics): void {
     const checkpoints = this.getTaskCheckpoints(taskId);
-    const completedCheckpoints = checkpoints.filter(cp => cp.progress === 100);
+    const completedCheckpoints = checkpoints.filter(
+      (cp) => cp.progress === 100,
+    );
 
     if (completedCheckpoints.length > 0) {
       const totalActualTime = completedCheckpoints.reduce(
         (sum, cp) => sum + (cp.duration || 0),
-        0
+        0,
       );
       metrics.actualTimeElapsed = totalActualTime;
 
       // Estimate remaining time based on velocity
       if (metrics.velocity > 0) {
         const remainingProgress = 100 - metrics.overallProgress;
-        metrics.estimatedTimeRemaining = remainingProgress / metrics.velocity * 60 * 1000; // milliseconds
-        metrics.estimatedTotalTime = metrics.actualTimeElapsed + metrics.estimatedTimeRemaining;
+        metrics.estimatedTimeRemaining =
+          (remainingProgress / metrics.velocity) * 60 * 1000; // milliseconds
+        metrics.estimatedTotalTime =
+          metrics.actualTimeElapsed + metrics.estimatedTimeRemaining;
       }
 
       // Calculate efficiency
       if (metrics.estimatedTotalTime > 0) {
-        metrics.efficiency = Math.min(2, metrics.estimatedTotalTime / metrics.actualTimeElapsed);
+        metrics.efficiency = Math.min(
+          2,
+          metrics.estimatedTotalTime / metrics.actualTimeElapsed,
+        );
       }
 
       // Check for time overruns
       const config = this.taskConfigs.get(taskId);
-      if (config && metrics.actualTimeElapsed > metrics.estimatedTotalTime * (1 + config.alertThresholds.timeOverrun / 100)) {
+      if (
+        config &&
+        metrics.actualTimeElapsed >
+          metrics.estimatedTotalTime *
+            (1 + config.alertThresholds.timeOverrun / 100)
+      ) {
         this.emit(ProgressEventType.TIME_OVERRUN, {
           taskId,
           actualTime: metrics.actualTimeElapsed,
           estimatedTime: metrics.estimatedTotalTime,
-          overrunPercent: ((metrics.actualTimeElapsed - metrics.estimatedTotalTime) / metrics.estimatedTotalTime) * 100,
+          overrunPercent:
+            ((metrics.actualTimeElapsed - metrics.estimatedTotalTime) /
+              metrics.estimatedTotalTime) *
+            100,
         });
       }
     }
@@ -634,15 +704,18 @@ export class ProgressTracker extends EventEmitter {
     // Update velocity trend
     metrics.trends.velocityTrend = velocityHistory
       .slice(-10)
-      .map(v => v.velocity);
+      .map((v) => v.velocity);
 
     // Update progress trend
     const recentCheckpoints = this.getTaskCheckpoints(taskId).slice(0, 10);
-    metrics.trends.progressTrend = recentCheckpoints.map(cp => cp.progress);
+    metrics.trends.progressTrend = recentCheckpoints.map((cp) => cp.progress);
 
     // Update time estimate accuracy
     if (metrics.estimatedTotalTime > 0 && metrics.actualTimeElapsed > 0) {
-      const accuracy = Math.min(100, (metrics.estimatedTotalTime / metrics.actualTimeElapsed) * 100);
+      const accuracy = Math.min(
+        100,
+        (metrics.estimatedTotalTime / metrics.actualTimeElapsed) * 100,
+      );
       metrics.trends.timeEstimateAccuracy = accuracy;
     }
   }
@@ -651,14 +724,16 @@ export class ProgressTracker extends EventEmitter {
     if (numbers.length < 2) return 0;
 
     const mean = numbers.reduce((a, b) => a + b) / numbers.length;
-    const variance = numbers.reduce((sum, num) => sum + Math.pow(num - mean, 2), 0) / numbers.length;
+    const variance =
+      numbers.reduce((sum, num) => sum + Math.pow(num - mean, 2), 0) /
+      numbers.length;
 
     return Math.sqrt(variance);
   }
 
   private calculateAverageDuration(checkpoints: ProgressCheckpoint[]): number {
     const durationsWithValues = checkpoints
-      .map(cp => cp.duration)
+      .map((cp) => cp.duration)
       .filter((duration): duration is number => duration !== undefined);
 
     return durationsWithValues.length > 0
@@ -674,9 +749,12 @@ export class ProgressTracker extends EventEmitter {
 
   private setupPeriodicAnalysis(): void {
     // Run analysis every 2 minutes
-    this.monitoringInterval = setInterval(() => {
-      this.performPeriodicAnalysis();
-    }, 2 * 60 * 1000);
+    this.monitoringInterval = setInterval(
+      () => {
+        this.performPeriodicAnalysis();
+      },
+      2 * 60 * 1000,
+    );
   }
 
   private async performPeriodicAnalysis(): Promise<void> {

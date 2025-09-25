@@ -6,7 +6,7 @@
 
 import type { CommandModule } from 'yargs';
 interface EnableCommandArgs {
-    scope: 'user' | 'project';
+  scope: 'user' | 'project';
 }
 export declare const enableCommand: CommandModule<object, EnableCommandArgs>;
 export {};

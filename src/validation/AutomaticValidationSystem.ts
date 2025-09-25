@@ -27,7 +27,7 @@ export class AutomaticValidationSystem {
   constructor(
     projectRoot: string,
     config: Partial<ValidationConfig> = {},
-    logger?: ValidationLogger
+    logger?: ValidationLogger,
   ) {
     this.projectRoot = projectRoot;
     this.validationConfig = { ...DEFAULT_VALIDATION_CONFIG, ...config };
@@ -44,24 +44,41 @@ export class AutomaticValidationSystem {
    */
   async validateTaskCompletion(
     taskType: TaskType,
-    validationContext: ValidationContext = {}
+    validationContext: ValidationContext = {},
   ): Promise<ValidationResult> {
     const startTime = Date.now();
-    this.logger.info('Starting automatic validation', { taskType, context: validationContext });
+    this.logger.info('Starting automatic validation', {
+      taskType,
+      context: validationContext,
+    });
 
     try {
       // Initialize validation session
       const sessionId = this.generateSessionId();
-      const session = new ValidationSession(sessionId, taskType, validationContext);
+      const session = new ValidationSession(
+        sessionId,
+        taskType,
+        validationContext,
+      );
 
       // Execute quality gates based on task type
-      const qualityGateResults = await this.executeQualityGates(taskType, session);
+      const qualityGateResults = await this.executeQualityGates(
+        taskType,
+        session,
+      );
 
       // Collect evidence for all validation steps
-      const evidence = await this.evidenceCollector.collectEvidence(session, qualityGateResults);
+      const evidence = await this.evidenceCollector.collectEvidence(
+        session,
+        qualityGateResults,
+      );
 
       // Generate comprehensive validation report
-      const report = await this.generateValidationReport(session, qualityGateResults, evidence);
+      const report = await this.generateValidationReport(
+        session,
+        qualityGateResults,
+        evidence,
+      );
 
       // Determine overall validation result
       const overallResult = this.determineOverallResult(qualityGateResults);
@@ -71,8 +88,8 @@ export class AutomaticValidationSystem {
         sessionId,
         result: overallResult.status,
         executionTime,
-        gatesPassed: qualityGateResults.filter(r => r.passed).length,
-        totalGates: qualityGateResults.length
+        gatesPassed: qualityGateResults.filter((r) => r.passed).length,
+        totalGates: qualityGateResults.length,
       });
 
       return {
@@ -85,12 +102,17 @@ export class AutomaticValidationSystem {
         report,
         executionTime,
         timestamp: new Date(),
-        summary: this.generateValidationSummary(qualityGateResults, overallResult)
+        summary: this.generateValidationSummary(
+          qualityGateResults,
+          overallResult,
+        ),
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      this.logger.error('Validation failed with error', { error, executionTime });
+      this.logger.error('Validation failed with error', {
+        error,
+        executionTime,
+      });
 
       return {
         sessionId: this.generateSessionId(),
@@ -102,7 +124,7 @@ export class AutomaticValidationSystem {
         report: this.createErrorReport(error as Error),
         executionTime,
         timestamp: new Date(),
-        summary: `Validation system error: ${(error as Error).message}`
+        summary: `Validation system error: ${(error as Error).message}`,
       };
     }
   }
@@ -112,7 +134,7 @@ export class AutomaticValidationSystem {
    */
   private async executeQualityGates(
     taskType: TaskType,
-    session: ValidationSession
+    session: ValidationSession,
   ): Promise<QualityGateResult[]> {
     const gateDefinitions = this.getQualityGatesForTaskType(taskType);
     const results: QualityGateResult[] = [];
@@ -120,7 +142,7 @@ export class AutomaticValidationSystem {
     this.logger.info('Executing quality gates', {
       sessionId: session.id,
       taskType,
-      gateCount: gateDefinitions.length
+      gateCount: gateDefinitions.length,
     });
 
     // Execute gates with appropriate concurrency control
@@ -147,12 +169,12 @@ export class AutomaticValidationSystem {
    */
   private async executeQualityGate(
     gateDef: QualityGateDefinition,
-    session: ValidationSession
+    session: ValidationSession,
   ): Promise<QualityGateResult> {
     const startTime = Date.now();
     this.logger.debug('Executing quality gate', {
       gate: gateDef.name,
-      sessionId: session.id
+      sessionId: session.id,
     });
 
     try {
@@ -162,7 +184,7 @@ export class AutomaticValidationSystem {
       // Execute with timeout
       const result = await this.executeWithTimeout(
         () => executor.execute(this.projectRoot, session.context),
-        gateDef.timeoutMs || this.validationConfig.defaultGateTimeoutMs
+        gateDef.timeoutMs || this.validationConfig.defaultGateTimeoutMs,
       );
 
       const executionTime = Date.now() - startTime;
@@ -170,29 +192,30 @@ export class AutomaticValidationSystem {
       this.logger.debug('Quality gate completed', {
         gate: gateDef.name,
         passed: result.passed,
-        executionTime
+        executionTime,
       });
 
       return {
         gateName: gateDef.name,
         gateType: gateDef.type,
         passed: result.passed,
-        status: result.passed ? ValidationStatus.PASSED : ValidationStatus.FAILED,
+        status: result.passed
+          ? ValidationStatus.PASSED
+          : ValidationStatus.FAILED,
         message: result.message,
         details: result.details || {},
         evidence: result.evidence || [],
         executionTime,
         timestamp: new Date(),
-        severity: gateDef.severity || GateSeverity.ERROR
+        severity: gateDef.severity || GateSeverity.ERROR,
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
 
       this.logger.warn('Quality gate execution failed', {
         gate: gateDef.name,
         error: (error as Error).message,
-        executionTime
+        executionTime,
       });
 
       return {
@@ -205,7 +228,7 @@ export class AutomaticValidationSystem {
         evidence: [],
         executionTime,
         timestamp: new Date(),
-        severity: gateDef.severity || GateSeverity.ERROR
+        severity: gateDef.severity || GateSeverity.ERROR,
       };
     }
   }
@@ -213,22 +236,24 @@ export class AutomaticValidationSystem {
   /**
    * Get quality gate definitions for specific task type.
    */
-  private getQualityGatesForTaskType(taskType: TaskType): QualityGateDefinition[] {
+  private getQualityGatesForTaskType(
+    taskType: TaskType,
+  ): QualityGateDefinition[] {
     const baseGates: QualityGateDefinition[] = [
       {
         name: 'git-status-check',
         type: GateType.GIT_STATUS,
         description: 'Verify clean git status or appropriate staged changes',
         severity: GateSeverity.ERROR,
-        timeoutMs: 5000
+        timeoutMs: 5000,
       },
       {
         name: 'file-integrity-check',
         type: GateType.FILE_INTEGRITY,
         description: 'Verify file system integrity and expected file changes',
         severity: GateSeverity.WARNING,
-        timeoutMs: 10000
-      }
+        timeoutMs: 10000,
+      },
     ];
 
     const taskSpecificGates = this.getTaskSpecificGates(taskType);
@@ -247,43 +272,43 @@ export class AutomaticValidationSystem {
             type: GateType.LINTING,
             description: 'Run ESLint with zero warnings/errors tolerance',
             severity: GateSeverity.ERROR,
-            timeoutMs: 30000
+            timeoutMs: 30000,
           },
           {
             name: 'type-checking',
             type: GateType.TYPE_CHECKING,
             description: 'TypeScript type checking validation',
             severity: GateSeverity.ERROR,
-            timeoutMs: 45000
+            timeoutMs: 45000,
           },
           {
             name: 'build-validation',
             type: GateType.BUILD,
             description: 'Verify project builds successfully',
             severity: GateSeverity.ERROR,
-            timeoutMs: 120000
+            timeoutMs: 120000,
           },
           {
             name: 'unit-test-execution',
             type: GateType.UNIT_TESTS,
             description: 'Execute unit tests with coverage requirements',
             severity: GateSeverity.ERROR,
-            timeoutMs: 60000
+            timeoutMs: 60000,
           },
           {
             name: 'integration-test-validation',
             type: GateType.INTEGRATION_TESTS,
             description: 'Run integration tests for affected components',
             severity: GateSeverity.WARNING,
-            timeoutMs: 180000
+            timeoutMs: 180000,
           },
           {
             name: 'security-scanning',
             type: GateType.SECURITY_SCAN,
             description: 'Security vulnerability scanning',
             severity: GateSeverity.ERROR,
-            timeoutMs: 60000
-          }
+            timeoutMs: 60000,
+          },
         ];
 
       case TaskType.BUG_FIX:
@@ -293,29 +318,29 @@ export class AutomaticValidationSystem {
             type: GateType.LINTING,
             description: 'Lint validation for bug fix changes',
             severity: GateSeverity.ERROR,
-            timeoutMs: 30000
+            timeoutMs: 30000,
           },
           {
             name: 'type-checking',
             type: GateType.TYPE_CHECKING,
             description: 'Type checking for affected code',
             severity: GateSeverity.ERROR,
-            timeoutMs: 30000
+            timeoutMs: 30000,
           },
           {
             name: 'regression-testing',
             type: GateType.REGRESSION_TESTS,
             description: 'Regression test suite execution',
             severity: GateSeverity.ERROR,
-            timeoutMs: 90000
+            timeoutMs: 90000,
           },
           {
             name: 'affected-component-tests',
             type: GateType.UNIT_TESTS,
             description: 'Test affected components comprehensively',
             severity: GateSeverity.ERROR,
-            timeoutMs: 45000
-          }
+            timeoutMs: 45000,
+          },
         ];
 
       case TaskType.REFACTORING:
@@ -325,29 +350,29 @@ export class AutomaticValidationSystem {
             type: GateType.LINTING,
             description: 'Code style and quality validation',
             severity: GateSeverity.ERROR,
-            timeoutMs: 45000
+            timeoutMs: 45000,
           },
           {
             name: 'type-checking',
             type: GateType.TYPE_CHECKING,
             description: 'Comprehensive type validation',
             severity: GateSeverity.ERROR,
-            timeoutMs: 60000
+            timeoutMs: 60000,
           },
           {
             name: 'full-test-suite',
             type: GateType.FULL_TEST_SUITE,
             description: 'Complete test suite validation',
             severity: GateSeverity.ERROR,
-            timeoutMs: 300000
+            timeoutMs: 300000,
           },
           {
             name: 'performance-validation',
             type: GateType.PERFORMANCE,
             description: 'Performance regression testing',
             severity: GateSeverity.WARNING,
-            timeoutMs: 180000
-          }
+            timeoutMs: 180000,
+          },
         ];
 
       case TaskType.TESTING:
@@ -357,22 +382,22 @@ export class AutomaticValidationSystem {
             type: GateType.TEST_SYNTAX,
             description: 'Test file syntax and structure validation',
             severity: GateSeverity.ERROR,
-            timeoutMs: 15000
+            timeoutMs: 15000,
           },
           {
             name: 'test-execution',
             type: GateType.TEST_EXECUTION,
             description: 'Execute new and existing tests',
             severity: GateSeverity.ERROR,
-            timeoutMs: 120000
+            timeoutMs: 120000,
           },
           {
             name: 'coverage-validation',
             type: GateType.COVERAGE,
             description: 'Code coverage threshold validation',
             severity: GateSeverity.WARNING,
-            timeoutMs: 30000
-          }
+            timeoutMs: 30000,
+          },
         ];
 
       case TaskType.DOCUMENTATION:
@@ -382,22 +407,22 @@ export class AutomaticValidationSystem {
             type: GateType.MARKDOWN_LINT,
             description: 'Markdown syntax and style validation',
             severity: GateSeverity.WARNING,
-            timeoutMs: 15000
+            timeoutMs: 15000,
           },
           {
             name: 'link-validation',
             type: GateType.LINK_CHECK,
             description: 'Validate internal and external links',
             severity: GateSeverity.WARNING,
-            timeoutMs: 60000
+            timeoutMs: 60000,
           },
           {
             name: 'spell-checking',
             type: GateType.SPELL_CHECK,
             description: 'Spell checking for documentation',
             severity: GateSeverity.WARNING,
-            timeoutMs: 30000
-          }
+            timeoutMs: 30000,
+          },
         ];
 
       default:
@@ -407,8 +432,8 @@ export class AutomaticValidationSystem {
             type: GateType.LINTING,
             description: 'Basic code quality validation',
             severity: GateSeverity.WARNING,
-            timeoutMs: 30000
-          }
+            timeoutMs: 30000,
+          },
         ];
     }
   }
@@ -416,7 +441,9 @@ export class AutomaticValidationSystem {
   /**
    * Create gate executor for specific gate type.
    */
-  private createGateExecutor(gateDef: QualityGateDefinition): QualityGateExecutor {
+  private createGateExecutor(
+    gateDef: QualityGateDefinition,
+  ): QualityGateExecutor {
     switch (gateDef.type) {
       case GateType.LINTING:
         return new LintingGateExecutor(this.logger);
@@ -446,7 +473,7 @@ export class AutomaticValidationSystem {
    */
   private async executeWithTimeout<T>(
     fn: () => Promise<T>,
-    timeoutMs: number
+    timeoutMs: number,
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
@@ -468,11 +495,11 @@ export class AutomaticValidationSystem {
     passed: boolean;
   } {
     const errorGates = gateResults.filter(
-      r => !r.passed && r.severity === GateSeverity.ERROR
+      (r) => !r.passed && r.severity === GateSeverity.ERROR,
     );
 
     const warningGates = gateResults.filter(
-      r => !r.passed && r.severity === GateSeverity.WARNING
+      (r) => !r.passed && r.severity === GateSeverity.WARNING,
     );
 
     if (errorGates.length > 0) {
@@ -492,7 +519,7 @@ export class AutomaticValidationSystem {
   private async generateValidationReport(
     session: ValidationSession,
     gateResults: QualityGateResult[],
-    evidence: Map<string, ValidationEvidence>
+    evidence: Map<string, ValidationEvidence>,
   ): Promise<ValidationReport> {
     const reportId = `validation-${session.id}`;
     const timestamp = new Date();
@@ -507,7 +534,11 @@ export class AutomaticValidationSystem {
       evidence: Array.from(evidence.values()),
       recommendations: this.generateRecommendations(gateResults),
       metrics: this.calculateValidationMetrics(gateResults),
-      artifacts: await this.generateReportArtifacts(session, gateResults, evidence)
+      artifacts: await this.generateReportArtifacts(
+        session,
+        gateResults,
+        evidence,
+      ),
     };
   }
 
@@ -516,64 +547,81 @@ export class AutomaticValidationSystem {
    */
   private generateValidationSummary(
     gateResults: QualityGateResult[],
-    overallResult: { status: ValidationStatus; passed: boolean }
+    overallResult: { status: ValidationStatus; passed: boolean },
   ): string {
     const totalGates = gateResults.length;
-    const passedGates = gateResults.filter(r => r.passed).length;
+    const passedGates = gateResults.filter((r) => r.passed).length;
     const errorGates = gateResults.filter(
-      r => !r.passed && r.severity === GateSeverity.ERROR
+      (r) => !r.passed && r.severity === GateSeverity.ERROR,
     ).length;
     const warningGates = gateResults.filter(
-      r => !r.passed && r.severity === GateSeverity.WARNING
+      (r) => !r.passed && r.severity === GateSeverity.WARNING,
     ).length;
 
-    return `Validation ${overallResult.status}: ${passedGates}/${totalGates} gates passed` +
-           (errorGates > 0 ? `, ${errorGates} errors` : '') +
-           (warningGates > 0 ? `, ${warningGates} warnings` : '');
+    return (
+      `Validation ${overallResult.status}: ${passedGates}/${totalGates} gates passed` +
+      (errorGates > 0 ? `, ${errorGates} errors` : '') +
+      (warningGates > 0 ? `, ${warningGates} warnings` : '')
+    );
   }
 
   /**
    * Generate detailed validation summary with insights.
    */
-  private generateDetailedSummary(gateResults: QualityGateResult[]): ValidationSummary {
-    const totalExecutionTime = gateResults.reduce((sum, r) => sum + r.executionTime, 0);
+  private generateDetailedSummary(
+    gateResults: QualityGateResult[],
+  ): ValidationSummary {
+    const totalExecutionTime = gateResults.reduce(
+      (sum, r) => sum + r.executionTime,
+      0,
+    );
 
     return {
       totalGates: gateResults.length,
-      passedGates: gateResults.filter(r => r.passed).length,
-      failedGates: gateResults.filter(r => !r.passed).length,
-      errorGates: gateResults.filter(r => !r.passed && r.severity === GateSeverity.ERROR).length,
-      warningGates: gateResults.filter(r => !r.passed && r.severity === GateSeverity.WARNING).length,
+      passedGates: gateResults.filter((r) => r.passed).length,
+      failedGates: gateResults.filter((r) => !r.passed).length,
+      errorGates: gateResults.filter(
+        (r) => !r.passed && r.severity === GateSeverity.ERROR,
+      ).length,
+      warningGates: gateResults.filter(
+        (r) => !r.passed && r.severity === GateSeverity.WARNING,
+      ).length,
       totalExecutionTime,
       averageGateTime: totalExecutionTime / gateResults.length,
       slowestGate: gateResults.reduce((slowest, current) =>
-        current.executionTime > slowest.executionTime ? current : slowest
+        current.executionTime > slowest.executionTime ? current : slowest,
       ),
-      failureRate: (gateResults.filter(r => !r.passed).length / gateResults.length) * 100
+      failureRate:
+        (gateResults.filter((r) => !r.passed).length / gateResults.length) *
+        100,
     };
   }
 
   /**
    * Generate actionable recommendations based on validation results.
    */
-  private generateRecommendations(gateResults: QualityGateResult[]): ValidationRecommendation[] {
+  private generateRecommendations(
+    gateResults: QualityGateResult[],
+  ): ValidationRecommendation[] {
     const recommendations: ValidationRecommendation[] = [];
-    const failedGates = gateResults.filter(r => !r.passed);
+    const failedGates = gateResults.filter((r) => !r.passed);
 
-    failedGates.forEach(gate => {
+    failedGates.forEach((gate) => {
       recommendations.push({
         type: RecommendationType.ERROR_RESOLUTION,
         priority: gate.severity === GateSeverity.ERROR ? 'high' : 'medium',
         title: `Fix ${gate.gateName} issues`,
         description: gate.message,
         actionItems: this.generateActionItemsForGate(gate),
-        estimatedEffort: this.estimateEffortForGate(gate)
+        estimatedEffort: this.estimateEffortForGate(gate),
       });
     });
 
     // Add performance recommendations
     const slowGates = gateResults
-      .filter(r => r.executionTime > this.validationConfig.slowGateThresholdMs)
+      .filter(
+        (r) => r.executionTime > this.validationConfig.slowGateThresholdMs,
+      )
       .sort((a, b) => b.executionTime - a.executionTime);
 
     if (slowGates.length > 0) {
@@ -582,10 +630,10 @@ export class AutomaticValidationSystem {
         priority: 'low',
         title: 'Optimize slow validation gates',
         description: `${slowGates.length} gates are running slower than expected`,
-        actionItems: slowGates.map(gate =>
-          `Optimize ${gate.gateName} (${gate.executionTime}ms)`
+        actionItems: slowGates.map(
+          (gate) => `Optimize ${gate.gateName} (${gate.executionTime}ms)`,
         ),
-        estimatedEffort: 'medium'
+        estimatedEffort: 'medium',
       });
     }
 
@@ -603,35 +651,35 @@ export class AutomaticValidationSystem {
         return [
           'Run `npm run lint:fix` to auto-fix lint issues',
           'Review remaining lint errors and fix manually',
-          'Consider updating lint rules if patterns persist'
+          'Consider updating lint rules if patterns persist',
         ];
 
       case GateType.TYPE_CHECKING:
         return [
           'Run `npm run typecheck` to see detailed type errors',
           'Fix type mismatches and missing type definitions',
-          'Add proper type annotations where needed'
+          'Add proper type annotations where needed',
         ];
 
       case GateType.BUILD:
         return [
           'Run `npm run build` to see build errors',
           'Fix compilation errors and missing dependencies',
-          'Verify all imports and exports are correct'
+          'Verify all imports and exports are correct',
         ];
 
       case GateType.UNIT_TESTS:
         return [
           'Run `npm test` to see test failures',
           'Fix failing test cases',
-          'Update test expectations if behavior changed intentionally'
+          'Update test expectations if behavior changed intentionally',
         ];
 
       case GateType.SECURITY_SCAN:
         return [
           'Review security scan output for vulnerabilities',
           'Update vulnerable dependencies',
-          'Fix identified security issues in code'
+          'Fix identified security issues in code',
         ];
 
       default:
@@ -661,9 +709,12 @@ export class AutomaticValidationSystem {
   /**
    * Calculate comprehensive validation metrics.
    */
-  private calculateValidationMetrics(gateResults: QualityGateResult[]): ValidationMetrics {
+  private calculateValidationMetrics(
+    gateResults: QualityGateResult[],
+  ): ValidationMetrics {
     const totalTime = gateResults.reduce((sum, r) => sum + r.executionTime, 0);
-    const successRate = (gateResults.filter(r => r.passed).length / gateResults.length) * 100;
+    const successRate =
+      (gateResults.filter((r) => r.passed).length / gateResults.length) * 100;
 
     return {
       totalExecutionTime: totalTime,
@@ -671,17 +722,19 @@ export class AutomaticValidationSystem {
       successRate,
       gateTypeDistribution: this.calculateGateTypeDistribution(gateResults),
       severityDistribution: this.calculateSeverityDistribution(gateResults),
-      performanceMetrics: this.calculatePerformanceMetrics(gateResults)
+      performanceMetrics: this.calculatePerformanceMetrics(gateResults),
     };
   }
 
   /**
    * Calculate gate type distribution statistics.
    */
-  private calculateGateTypeDistribution(gateResults: QualityGateResult[]): Record<string, number> {
+  private calculateGateTypeDistribution(
+    gateResults: QualityGateResult[],
+  ): Record<string, number> {
     const distribution: Record<string, number> = {};
 
-    gateResults.forEach(gate => {
+    gateResults.forEach((gate) => {
       distribution[gate.gateType] = (distribution[gate.gateType] || 0) + 1;
     });
 
@@ -691,10 +744,12 @@ export class AutomaticValidationSystem {
   /**
    * Calculate severity distribution statistics.
    */
-  private calculateSeverityDistribution(gateResults: QualityGateResult[]): Record<string, number> {
+  private calculateSeverityDistribution(
+    gateResults: QualityGateResult[],
+  ): Record<string, number> {
     const distribution: Record<string, number> = {};
 
-    gateResults.forEach(gate => {
+    gateResults.forEach((gate) => {
       const severity = gate.severity.toString();
       distribution[severity] = (distribution[severity] || 0) + 1;
     });
@@ -705,8 +760,10 @@ export class AutomaticValidationSystem {
   /**
    * Calculate performance-related metrics.
    */
-  private calculatePerformanceMetrics(gateResults: QualityGateResult[]): PerformanceMetrics {
-    const executionTimes = gateResults.map(r => r.executionTime);
+  private calculatePerformanceMetrics(
+    gateResults: QualityGateResult[],
+  ): PerformanceMetrics {
+    const executionTimes = gateResults.map((r) => r.executionTime);
     const sortedTimes = executionTimes.sort((a, b) => a - b);
 
     return {
@@ -715,8 +772,8 @@ export class AutomaticValidationSystem {
       medianExecutionTime: this.calculateMedian(sortedTimes),
       p95ExecutionTime: this.calculatePercentile(sortedTimes, 95),
       slowGatesCount: gateResults.filter(
-        r => r.executionTime > this.validationConfig.slowGateThresholdMs
-      ).length
+        (r) => r.executionTime > this.validationConfig.slowGateThresholdMs,
+      ).length,
     };
   }
 
@@ -733,7 +790,10 @@ export class AutomaticValidationSystem {
   /**
    * Calculate percentile value from sorted array.
    */
-  private calculatePercentile(sortedArray: number[], percentile: number): number {
+  private calculatePercentile(
+    sortedArray: number[],
+    percentile: number,
+  ): number {
     const index = Math.ceil((percentile / 100) * sortedArray.length) - 1;
     return sortedArray[Math.max(0, Math.min(index, sortedArray.length - 1))];
   }
@@ -744,7 +804,7 @@ export class AutomaticValidationSystem {
   private async generateReportArtifacts(
     session: ValidationSession,
     gateResults: QualityGateResult[],
-    evidence: Map<string, ValidationEvidence>
+    evidence: Map<string, ValidationEvidence>,
   ): Promise<ValidationArtifact[]> {
     const artifacts: ValidationArtifact[] = [];
 
@@ -753,14 +813,14 @@ export class AutomaticValidationSystem {
       sessionId: session.id,
       timestamp: new Date().toISOString(),
       gateResults,
-      evidence: Array.from(evidence.values())
+      evidence: Array.from(evidence.values()),
     };
 
     artifacts.push({
       type: ArtifactType.JSON_REPORT,
       name: `validation-${session.id}.json`,
       content: JSON.stringify(jsonReport, null, 2),
-      mimeType: 'application/json'
+      mimeType: 'application/json',
     });
 
     // Generate human-readable summary
@@ -769,7 +829,7 @@ export class AutomaticValidationSystem {
       type: ArtifactType.SUMMARY_TEXT,
       name: `validation-${session.id}-summary.txt`,
       content: summary,
-      mimeType: 'text/plain'
+      mimeType: 'text/plain',
     });
 
     return artifacts;
@@ -780,7 +840,7 @@ export class AutomaticValidationSystem {
    */
   private generateHumanReadableSummary(
     session: ValidationSession,
-    gateResults: QualityGateResult[]
+    gateResults: QualityGateResult[],
   ): string {
     const lines: string[] = [];
 
@@ -795,14 +855,16 @@ export class AutomaticValidationSystem {
     // Overall status
     const overallResult = this.determineOverallResult(gateResults);
     lines.push(`Overall Status: ${overallResult.status}`);
-    lines.push(`Gates Passed: ${gateResults.filter(r => r.passed).length}/${gateResults.length}`);
+    lines.push(
+      `Gates Passed: ${gateResults.filter((r) => r.passed).length}/${gateResults.length}`,
+    );
     lines.push('');
 
     // Gate details
     lines.push('Quality Gate Results:');
     lines.push('-'.repeat(40));
 
-    gateResults.forEach(gate => {
+    gateResults.forEach((gate) => {
       const status = gate.passed ? '✅ PASS' : '❌ FAIL';
       lines.push(`${status} ${gate.gateName} (${gate.executionTime}ms)`);
       if (!gate.passed) {
@@ -831,18 +893,23 @@ export class AutomaticValidationSystem {
         totalExecutionTime: 0,
         averageGateTime: 0,
         slowestGate: null as any,
-        failureRate: 100
+        failureRate: 100,
       },
       gateResults: [],
       evidence: [],
-      recommendations: [{
-        type: RecommendationType.SYSTEM_ERROR,
-        priority: 'high',
-        title: 'Fix validation system error',
-        description: error.message,
-        actionItems: ['Check system logs', 'Verify environment configuration'],
-        estimatedEffort: 'high'
-      }],
+      recommendations: [
+        {
+          type: RecommendationType.SYSTEM_ERROR,
+          priority: 'high',
+          title: 'Fix validation system error',
+          description: error.message,
+          actionItems: [
+            'Check system logs',
+            'Verify environment configuration',
+          ],
+          estimatedEffort: 'high',
+        },
+      ],
       metrics: {
         totalExecutionTime: 0,
         averageGateExecutionTime: 0,
@@ -854,10 +921,10 @@ export class AutomaticValidationSystem {
           maxExecutionTime: 0,
           medianExecutionTime: 0,
           p95ExecutionTime: 0,
-          slowGatesCount: 0
-        }
+          slowGatesCount: 0,
+        },
       },
-      artifacts: []
+      artifacts: [],
     };
   }
 
@@ -878,14 +945,14 @@ export enum TaskType {
   TESTING = 'testing',
   DOCUMENTATION = 'documentation',
   CONFIGURATION = 'configuration',
-  UNKNOWN = 'unknown'
+  UNKNOWN = 'unknown',
 }
 
 export enum ValidationStatus {
   PASSED = 'passed',
   FAILED = 'failed',
   PASSED_WITH_WARNINGS = 'passed_with_warnings',
-  SKIPPED = 'skipped'
+  SKIPPED = 'skipped',
 }
 
 export enum GateType {
@@ -905,13 +972,13 @@ export enum GateType {
   COVERAGE = 'coverage',
   MARKDOWN_LINT = 'markdown_lint',
   LINK_CHECK = 'link_check',
-  SPELL_CHECK = 'spell_check'
+  SPELL_CHECK = 'spell_check',
 }
 
 export enum GateSeverity {
   ERROR = 'error',
   WARNING = 'warning',
-  INFO = 'info'
+  INFO = 'info',
 }
 
 export interface ValidationContext {
@@ -934,10 +1001,10 @@ export interface ValidationConfig {
 const DEFAULT_VALIDATION_CONFIG: ValidationConfig = {
   maxConcurrentGates: 5,
   defaultGateTimeoutMs: 60000, // 1 minute
-  slowGateThresholdMs: 30000,  // 30 seconds
+  slowGateThresholdMs: 30000, // 30 seconds
   enableEvidence: true,
   evidenceRetentionDays: 30,
-  reportFormats: ['json', 'text']
+  reportFormats: ['json', 'text'],
 };
 
 export interface QualityGateDefinition {
@@ -989,7 +1056,7 @@ export enum EvidenceType {
   FILE_CONTENT = 'file_content',
   SCREENSHOT = 'screenshot',
   LOG_ENTRY = 'log_entry',
-  METRIC = 'metric'
+  METRIC = 'metric',
 }
 
 export interface ValidationReport {
@@ -1030,7 +1097,7 @@ export enum RecommendationType {
   ERROR_RESOLUTION = 'error_resolution',
   PERFORMANCE_OPTIMIZATION = 'performance_optimization',
   PROCESS_IMPROVEMENT = 'process_improvement',
-  SYSTEM_ERROR = 'system_error'
+  SYSTEM_ERROR = 'system_error',
 }
 
 export type EffortEstimate = 'low' | 'medium' | 'high';
@@ -1062,7 +1129,7 @@ export interface ValidationArtifact {
 export enum ArtifactType {
   JSON_REPORT = 'json_report',
   SUMMARY_TEXT = 'summary_text',
-  DETAILED_LOG = 'detailed_log'
+  DETAILED_LOG = 'detailed_log',
 }
 
 // Internal classes for validation system
@@ -1072,7 +1139,7 @@ class ValidationSession {
     public readonly id: string,
     public readonly taskType: TaskType,
     public readonly context: ValidationContext,
-    public readonly startTime: Date = new Date()
+    public readonly startTime: Date = new Date(),
   ) {}
 }
 
@@ -1111,18 +1178,18 @@ abstract class QualityGateExecutor {
 
   abstract execute(
     projectRoot: string,
-    context: ValidationContext
+    context: ValidationContext,
   ): Promise<GateExecutionResult>;
 
   protected async executeCommand(
     command: string,
     args: string[],
-    options: SpawnOptionsWithoutStdio = {}
+    options: SpawnOptionsWithoutStdio = {},
   ): Promise<CommandResult> {
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
         ...options,
-        stdio: ['ignore', 'pipe', 'pipe']
+        stdio: ['ignore', 'pipe', 'pipe'],
       });
 
       let stdout = '';
@@ -1140,7 +1207,7 @@ abstract class QualityGateExecutor {
         resolve({
           exitCode: code || 0,
           stdout: stdout.trim(),
-          stderr: stderr.trim()
+          stderr: stderr.trim(),
         });
       });
 
@@ -1167,15 +1234,20 @@ interface CommandResult {
 // Specific gate executor implementations
 
 class LintingGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
-      const result = await this.executeCommand('npm', ['run', 'lint'], { cwd: projectRoot });
+      const result = await this.executeCommand('npm', ['run', 'lint'], {
+        cwd: projectRoot,
+      });
 
       if (result.exitCode === 0) {
         return {
           passed: true,
           message: 'Linting passed with no issues',
-          details: { stdout: result.stdout }
+          details: { stdout: result.stdout },
         };
       } else {
         return {
@@ -1184,31 +1256,36 @@ class LintingGateExecutor extends QualityGateExecutor {
           details: {
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr
+            stderr: result.stderr,
           },
-          evidence: [result.stderr]
+          evidence: [result.stderr],
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `Linting execution failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class TypeCheckingGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
-      const result = await this.executeCommand('npm', ['run', 'typecheck'], { cwd: projectRoot });
+      const result = await this.executeCommand('npm', ['run', 'typecheck'], {
+        cwd: projectRoot,
+      });
 
       if (result.exitCode === 0) {
         return {
           passed: true,
           message: 'Type checking passed successfully',
-          details: { stdout: result.stdout }
+          details: { stdout: result.stdout },
         };
       } else {
         return {
@@ -1217,31 +1294,36 @@ class TypeCheckingGateExecutor extends QualityGateExecutor {
           details: {
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr
+            stderr: result.stderr,
           },
-          evidence: [result.stderr]
+          evidence: [result.stderr],
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `Type checking execution failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class BuildGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
-      const result = await this.executeCommand('npm', ['run', 'build'], { cwd: projectRoot });
+      const result = await this.executeCommand('npm', ['run', 'build'], {
+        cwd: projectRoot,
+      });
 
       if (result.exitCode === 0) {
         return {
           passed: true,
           message: 'Build completed successfully',
-          details: { stdout: result.stdout }
+          details: { stdout: result.stdout },
         };
       } else {
         return {
@@ -1250,31 +1332,36 @@ class BuildGateExecutor extends QualityGateExecutor {
           details: {
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr
+            stderr: result.stderr,
           },
-          evidence: [result.stderr]
+          evidence: [result.stderr],
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `Build execution failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class UnitTestGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
-      const result = await this.executeCommand('npm', ['test'], { cwd: projectRoot });
+      const result = await this.executeCommand('npm', ['test'], {
+        cwd: projectRoot,
+      });
 
       if (result.exitCode === 0) {
         return {
           passed: true,
           message: 'Unit tests passed successfully',
-          details: { stdout: result.stdout }
+          details: { stdout: result.stdout },
         };
       } else {
         return {
@@ -1283,31 +1370,38 @@ class UnitTestGateExecutor extends QualityGateExecutor {
           details: {
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr
+            stderr: result.stderr,
           },
-          evidence: [result.stderr]
+          evidence: [result.stderr],
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `Unit test execution failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class IntegrationTestGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
-      const result = await this.executeCommand('npm', ['run', 'test:integration'], { cwd: projectRoot });
+      const result = await this.executeCommand(
+        'npm',
+        ['run', 'test:integration'],
+        { cwd: projectRoot },
+      );
 
       if (result.exitCode === 0) {
         return {
           passed: true,
           message: 'Integration tests passed successfully',
-          details: { stdout: result.stdout }
+          details: { stdout: result.stdout },
         };
       } else {
         return {
@@ -1316,32 +1410,42 @@ class IntegrationTestGateExecutor extends QualityGateExecutor {
           details: {
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr
+            stderr: result.stderr,
           },
-          evidence: [result.stderr]
+          evidence: [result.stderr],
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `Integration test execution failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class SecurityScanGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
       // Try semgrep first, then npm audit as fallback
-      const semgrepResult = await this.executeCommand('semgrep', ['--config=p/security-audit', '.'], { cwd: projectRoot });
+      const semgrepResult = await this.executeCommand(
+        'semgrep',
+        ['--config=p/security-audit', '.'],
+        { cwd: projectRoot },
+      );
 
-      if (semgrepResult.exitCode === 0 && !semgrepResult.stdout.includes('findings')) {
+      if (
+        semgrepResult.exitCode === 0 &&
+        !semgrepResult.stdout.includes('findings')
+      ) {
         return {
           passed: true,
           message: 'Security scan found no vulnerabilities',
-          details: { stdout: semgrepResult.stdout }
+          details: { stdout: semgrepResult.stdout },
         };
       } else {
         return {
@@ -1350,21 +1454,23 @@ class SecurityScanGateExecutor extends QualityGateExecutor {
           details: {
             exitCode: semgrepResult.exitCode,
             stdout: semgrepResult.stdout,
-            stderr: semgrepResult.stderr
+            stderr: semgrepResult.stderr,
           },
-          evidence: [semgrepResult.stdout]
+          evidence: [semgrepResult.stdout],
         };
       }
     } catch (error) {
       // Fallback to npm audit if semgrep is not available
       try {
-        const auditResult = await this.executeCommand('npm', ['audit'], { cwd: projectRoot });
+        const auditResult = await this.executeCommand('npm', ['audit'], {
+          cwd: projectRoot,
+        });
 
         if (auditResult.exitCode === 0) {
           return {
             passed: true,
             message: 'npm audit found no vulnerabilities',
-            details: { stdout: auditResult.stdout }
+            details: { stdout: auditResult.stdout },
           };
         } else {
           return {
@@ -1373,16 +1479,16 @@ class SecurityScanGateExecutor extends QualityGateExecutor {
             details: {
               exitCode: auditResult.exitCode,
               stdout: auditResult.stdout,
-              stderr: auditResult.stderr
+              stderr: auditResult.stderr,
             },
-            evidence: [auditResult.stdout]
+            evidence: [auditResult.stdout],
           };
         }
       } catch (auditError) {
         return {
           passed: false,
           message: `Security scanning tools not available: ${(error as Error).message}`,
-          details: { error: (error as Error).stack }
+          details: { error: (error as Error).stack },
         };
       }
     }
@@ -1390,28 +1496,45 @@ class SecurityScanGateExecutor extends QualityGateExecutor {
 }
 
 class GitStatusGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
-      const result = await this.executeCommand('git', ['status', '--porcelain'], { cwd: projectRoot });
+      const result = await this.executeCommand(
+        'git',
+        ['status', '--porcelain'],
+        { cwd: projectRoot },
+      );
 
-      const changes = result.stdout.trim().split('\n').filter(line => line.trim());
+      const changes = result.stdout
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim());
 
       if (changes.length === 0) {
         return {
           passed: true,
           message: 'Git working directory is clean',
-          details: { changes: [] }
+          details: { changes: [] },
         };
       } else {
         // Check if changes are appropriately staged
-        const staged = changes.filter(line => line.startsWith('A ') || line.startsWith('M ') || line.startsWith('D '));
-        const unstaged = changes.filter(line => line.includes(' M') || line.includes('??'));
+        const staged = changes.filter(
+          (line) =>
+            line.startsWith('A ') ||
+            line.startsWith('M ') ||
+            line.startsWith('D '),
+        );
+        const unstaged = changes.filter(
+          (line) => line.includes(' M') || line.includes('??'),
+        );
 
         if (staged.length > 0 && unstaged.length === 0) {
           return {
             passed: true,
             message: `Git has ${staged.length} staged changes ready for commit`,
-            details: { stagedChanges: staged }
+            details: { stagedChanges: staged },
           };
         } else {
           return {
@@ -1419,9 +1542,9 @@ class GitStatusGateExecutor extends QualityGateExecutor {
             message: `Git has ${unstaged.length} unstaged changes`,
             details: {
               stagedChanges: staged,
-              unstagedChanges: unstaged
+              unstagedChanges: unstaged,
             },
-            evidence: changes
+            evidence: changes,
           };
         }
       }
@@ -1429,14 +1552,17 @@ class GitStatusGateExecutor extends QualityGateExecutor {
       return {
         passed: false,
         message: `Git status check failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class FileIntegrityGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
       // Check for common file integrity issues
       const issues: string[] = [];
@@ -1452,8 +1578,15 @@ class FileIntegrityGateExecutor extends QualityGateExecutor {
       }
 
       // Check for suspicious file patterns
-      const result = await this.executeCommand('find', ['.', '-name', '*.tmp', '-o', '-name', '*.bak'], { cwd: projectRoot });
-      const suspiciousFiles = result.stdout.trim().split('\n').filter(line => line.trim());
+      const result = await this.executeCommand(
+        'find',
+        ['.', '-name', '*.tmp', '-o', '-name', '*.bak'],
+        { cwd: projectRoot },
+      );
+      const suspiciousFiles = result.stdout
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim());
 
       if (suspiciousFiles.length > 0) {
         issues.push(`Found ${suspiciousFiles.length} temporary/backup files`);
@@ -1463,32 +1596,37 @@ class FileIntegrityGateExecutor extends QualityGateExecutor {
         return {
           passed: true,
           message: 'File integrity check passed',
-          details: {}
+          details: {},
         };
       } else {
         return {
           passed: false,
           message: `File integrity issues found: ${issues.length}`,
           details: { issues },
-          evidence: issues
+          evidence: issues,
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `File integrity check failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
 }
 
 class PerformanceGateExecutor extends QualityGateExecutor {
-  async execute(projectRoot: string, context: ValidationContext): Promise<GateExecutionResult> {
+  async execute(
+    projectRoot: string,
+    context: ValidationContext,
+  ): Promise<GateExecutionResult> {
     try {
       // Run build and measure time as a basic performance check
       const startTime = Date.now();
-      const result = await this.executeCommand('npm', ['run', 'build'], { cwd: projectRoot });
+      const result = await this.executeCommand('npm', ['run', 'build'], {
+        cwd: projectRoot,
+      });
       const buildTime = Date.now() - startTime;
 
       // Performance thresholds
@@ -1499,28 +1637,28 @@ class PerformanceGateExecutor extends QualityGateExecutor {
           return {
             passed: true,
             message: `Build completed in ${buildTime}ms (within performance threshold)`,
-            details: { buildTime, threshold: slowBuildThreshold }
+            details: { buildTime, threshold: slowBuildThreshold },
           };
         } else {
           return {
             passed: false,
             message: `Build took ${buildTime}ms (exceeds ${slowBuildThreshold}ms threshold)`,
             details: { buildTime, threshold: slowBuildThreshold },
-            evidence: [`Slow build: ${buildTime}ms`]
+            evidence: [`Slow build: ${buildTime}ms`],
           };
         }
       } else {
         return {
           passed: false,
           message: 'Performance check failed due to build failure',
-          details: { exitCode: result.exitCode, stderr: result.stderr }
+          details: { exitCode: result.exitCode, stderr: result.stderr },
         };
       }
     } catch (error) {
       return {
         passed: false,
         message: `Performance check failed: ${(error as Error).message}`,
-        details: { error: (error as Error).stack }
+        details: { error: (error as Error).stack },
       };
     }
   }
@@ -1531,12 +1669,12 @@ class PerformanceGateExecutor extends QualityGateExecutor {
 class EvidenceCollector {
   constructor(
     private readonly projectRoot: string,
-    private readonly logger: ValidationLogger
+    private readonly logger: ValidationLogger,
   ) {}
 
   async collectEvidence(
     session: ValidationSession,
-    gateResults: QualityGateResult[]
+    gateResults: QualityGateResult[],
   ): Promise<Map<string, ValidationEvidence>> {
     const evidenceMap = new Map<string, ValidationEvidence>();
 
@@ -1553,8 +1691,8 @@ class EvidenceCollector {
             metadata: {
               gateType: gateResult.gateType,
               gateName: gateResult.gateName,
-              sessionId: session.id
-            }
+              sessionId: session.id,
+            },
           };
           evidenceMap.set(evidenceId, evidence);
         }
@@ -1562,7 +1700,8 @@ class EvidenceCollector {
 
       // Collect additional context evidence
       if (!gateResult.passed) {
-        const contextEvidence = await this.collectContextualEvidence(gateResult);
+        const contextEvidence =
+          await this.collectContextualEvidence(gateResult);
         if (contextEvidence) {
           evidenceMap.set(contextEvidence.id, contextEvidence);
         }
@@ -1573,7 +1712,7 @@ class EvidenceCollector {
   }
 
   private async collectContextualEvidence(
-    gateResult: QualityGateResult
+    gateResult: QualityGateResult,
   ): Promise<ValidationEvidence | null> {
     try {
       // Collect relevant log files or configuration based on gate type
@@ -1618,13 +1757,13 @@ class EvidenceCollector {
         metadata: {
           gateType: gateResult.gateType,
           gateName: gateResult.gateName,
-          contextType: 'configuration'
-        }
+          contextType: 'configuration',
+        },
       };
     } catch (error) {
       this.logger.warn('Failed to collect contextual evidence', {
         gate: gateResult.gateName,
-        error: (error as Error).message
+        error: (error as Error).message,
       });
       return null;
     }
@@ -1642,18 +1781,30 @@ export interface ValidationLogger {
 
 class ConsoleValidationLogger implements ValidationLogger {
   debug(message: string, meta?: object): void {
-    console.debug(`[VALIDATION:DEBUG] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+    console.debug(
+      `[VALIDATION:DEBUG] ${message}`,
+      meta ? JSON.stringify(meta, null, 2) : '',
+    );
   }
 
   info(message: string, meta?: object): void {
-    console.info(`[VALIDATION:INFO] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+    console.info(
+      `[VALIDATION:INFO] ${message}`,
+      meta ? JSON.stringify(meta, null, 2) : '',
+    );
   }
 
   warn(message: string, meta?: object): void {
-    console.warn(`[VALIDATION:WARN] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+    console.warn(
+      `[VALIDATION:WARN] ${message}`,
+      meta ? JSON.stringify(meta, null, 2) : '',
+    );
   }
 
   error(message: string, meta?: object): void {
-    console.error(`[VALIDATION:ERROR] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+    console.error(
+      `[VALIDATION:ERROR] ${message}`,
+      meta ? JSON.stringify(meta, null, 2) : '',
+    );
   }
 }

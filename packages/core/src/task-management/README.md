@@ -7,12 +7,14 @@ The Task Execution Engine is a sophisticated autonomous task management system t
 ## Features
 
 ### 🧠 Intelligent Task Breakdown
+
 - **Automated Complexity Analysis**: AI-powered assessment of task complexity (trivial, simple, moderate, complex, enterprise)
 - **Smart Decomposition**: Breaks complex tasks into manageable subtasks with clear dependencies
 - **Dependency Graph Generation**: Automatically identifies hard and soft dependencies between tasks
 - **Resource Planning**: Estimates execution time and required agent capabilities
 
 ### ⚡ Autonomous Execution Framework
+
 - **SubAgent Orchestration**: Leverages existing SubAgentScope for autonomous execution
 - **Resource Management**: Intelligent resource allocation and concurrent execution limits
 - **Progress Tracking**: Real-time progress monitoring with message analysis
@@ -20,6 +22,7 @@ The Task Execution Engine is a sophisticated autonomous task management system t
 - **Validation Cycles**: Built-in validation and quality assurance
 
 ### 📊 Real-time Monitoring System
+
 - **Performance Metrics**: Comprehensive execution statistics and performance analysis
 - **Bottleneck Detection**: Automatic identification of performance bottlenecks
 - **Health Monitoring**: System health status with component-level monitoring
@@ -27,12 +30,14 @@ The Task Execution Engine is a sophisticated autonomous task management system t
 - **Dashboard Integration**: Rich dashboard data with trends and insights
 
 ### 💾 Cross-session Persistence
+
 - **State Persistence**: Automatic saving and loading of task execution state
 - **Session Continuity**: Resume execution across application restarts
 - **Task History**: Complete audit trail of task execution events
 - **Metrics Storage**: Historical performance data and analytics
 
 ### 🔗 Infinite Hook Integration
+
 - **Feature-to-Task Mapping**: Automatic task creation from approved FEATURES.json entries
 - **Progress Reporting**: Real-time progress updates to the hook system
 - **Agent Registration**: Capability-based agent registration and assignment
@@ -76,10 +81,10 @@ const taskId = await system.taskEngine.queueTask(
     type: 'implementation',
     priority: 'high',
     expectedOutputs: {
-      'auth_system': 'Complete authentication system',
-      'tests': 'Comprehensive test suite'
-    }
-  }
+      auth_system: 'Complete authentication system',
+      tests: 'Comprehensive test suite',
+    },
+  },
 );
 
 // Monitor progress
@@ -101,8 +106,8 @@ const system = await createTaskManagementSystem(config, {
     agentId: 'MY_CUSTOM_AGENT',
     capabilities: ['frontend', 'backend', 'testing'],
     maxConcurrentTasks: 3,
-    progressReportingIntervalMs: 30000 // 30 seconds
-  }
+    progressReportingIntervalMs: 30000, // 30 seconds
+  },
 });
 ```
 
@@ -125,6 +130,7 @@ const taskId = await taskEngine.queueTask('Simple Task', 'Description');
 #### Core Methods
 
 **`queueTask(title, description, options?)`**
+
 - Queues a new task for intelligent breakdown and execution
 - Returns: `Promise<string>` - Task ID
 - Options:
@@ -135,19 +141,23 @@ const taskId = await taskEngine.queueTask('Simple Task', 'Description');
   - `maxExecutionTimeMinutes`: number - Maximum execution time
 
 **`getTask(taskId)`**
+
 - Retrieves a task by ID
 - Returns: `Task | undefined`
 
 **`getAllTasks(filter?)`**
+
 - Retrieves all tasks with optional filtering
 - Filter options: status, type, priority
 - Returns: `Task[]`
 
 **`getExecutionStats()`**
+
 - Gets comprehensive execution statistics
 - Returns: Execution statistics object
 
 **`cancelTask(taskId)`**
+
 - Cancels a queued or running task
 - Returns: `Promise<boolean>` - Success status
 
@@ -204,22 +214,27 @@ interface Task {
 #### Monitoring Methods
 
 **`recordEvent(event)`**
+
 - Records a task execution event
 - Event types: queued, started, progress, completed, failed, cancelled, retry
 
 **`collectMetrics(tasks)`**
+
 - Collects comprehensive execution metrics
 - Returns: `Promise<ExecutionMetrics>`
 
 **`analyzeBottlenecks(metrics, tasks)`**
+
 - Analyzes performance bottlenecks
 - Returns: `BottleneckAnalysis[]`
 
 **`getSystemHealth(metrics)`**
+
 - Evaluates system health status
 - Returns: `SystemHealthStatus`
 
 **`getDashboardData(metrics, tasks)`**
+
 - Gets complete dashboard data including trends
 - Returns: Dashboard data object with metrics, bottlenecks, health, and trends
 
@@ -228,16 +243,19 @@ interface Task {
 #### Integration Methods
 
 **`initialize()`**
+
 - Initializes integration with infinite-continue-stop-hook system
 - Returns: `Promise<void>`
 
 **`checkAndAuthorizeStop()`**
+
 - Checks if stop should be authorized and authorizes if conditions are met
 - Returns: `Promise<void>`
 
 ## Task Types and Complexities
 
 ### Task Types
+
 - **implementation**: Code implementation tasks
 - **testing**: Test creation and execution
 - **validation**: Quality assurance and validation
@@ -248,6 +266,7 @@ interface Task {
 - **performance**: Performance optimization
 
 ### Task Complexities
+
 - **trivial**: Single-step, minimal resources (e.g., fix typo)
 - **simple**: Few steps, basic validation (e.g., update configuration)
 - **moderate**: Multi-step, some dependencies (e.g., add feature)
@@ -255,6 +274,7 @@ interface Task {
 - **enterprise**: Highly complex, extensive coordination (e.g., new architecture)
 
 ### Task Priorities
+
 - **critical**: Emergency fixes, blocking issues
 - **high**: Important features, major bugs
 - **normal**: Standard development work
@@ -263,6 +283,7 @@ interface Task {
 ## Monitoring and Alerts
 
 ### Default Performance Alerts
+
 - **High Memory Usage**: Memory usage exceeds 512MB
 - **Low Success Rate**: Task success rate below 70%
 - **High Retry Rate**: Task retry rate exceeds 25%
@@ -277,7 +298,7 @@ const alertConfig: AlertConfig = {
   condition: (metrics) => metrics.averageExecutionTimeMs > 300000, // 5 minutes
   severity: 'high',
   message: 'Average execution time exceeds threshold',
-  cooldownMinutes: 30
+  cooldownMinutes: 30,
 };
 ```
 
@@ -299,6 +320,7 @@ The system automatically monitors approved features in FEATURES.json and creates
 ```
 
 Becomes:
+
 ```typescript
 {
   title: "Implement: User Authentication System",
@@ -323,19 +345,21 @@ const executionAgent = await SubAgentScope.create(
   {
     systemPrompt: generateExecutionPrompt(task),
     tools: getToolsForTask(task),
-    outputConfig: { outputs: task.expectedOutputs }
-  }
+    outputConfig: { outputs: task.expectedOutputs },
+  },
 );
 ```
 
 ## Persistence and Recovery
 
 ### State Persistence
+
 - Task queue state is automatically persisted to disk
 - Execution metrics and events are stored for analysis
 - System can resume from previous state after restart
 
 ### Recovery Mechanisms
+
 - Automatic retry with exponential backoff
 - Dependency resolution after failures
 - State reconciliation on startup
@@ -343,16 +367,19 @@ const executionAgent = await SubAgentScope.create(
 ## Performance Optimization
 
 ### Concurrency Management
+
 - Configurable maximum concurrent tasks
 - Resource-aware scheduling
 - Priority-based execution ordering
 
 ### Memory Management
+
 - Event log rotation (keeps last 5000 events)
 - Metrics history pruning (keeps last 500 entries)
 - Completed task cleanup utilities
 
 ### Execution Optimization
+
 - Intelligent tool selection based on task type
 - Progress-based timeout adjustments
 - Capability-based agent assignment
@@ -360,11 +387,13 @@ const executionAgent = await SubAgentScope.create(
 ## Testing
 
 ### Running Tests
+
 ```bash
 npm test packages/core/src/task-management/tests/
 ```
 
 ### Test Coverage
+
 - Unit tests for all core components
 - Integration tests for system workflows
 - Mock-based testing for external dependencies
@@ -373,12 +402,14 @@ npm test packages/core/src/task-management/tests/
 ## Contributing
 
 ### Development Setup
+
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Run tests: `npm test`
 4. Build: `npm run build`
 
 ### Code Style
+
 - Follow existing TypeScript patterns
 - Add comprehensive JSDoc comments
 - Include unit tests for new features
@@ -389,38 +420,43 @@ npm test packages/core/src/task-management/tests/
 ### Common Issues
 
 **Task Not Executing**
+
 - Check task dependencies are satisfied
 - Verify resource availability (max concurrent tasks)
 - Review agent capabilities match task requirements
 
 **High Memory Usage**
+
 - Enable task cleanup: `taskEngine.clearCompletedTasks()`
 - Reduce concurrent task limit
 - Check for memory leaks in custom tools
 
 **Integration Issues**
+
 - Verify infinite-continue-stop-hook system is running
 - Check task manager API path configuration
 - Review agent capabilities registration
 
 ### Debug Mode
+
 ```typescript
 // Enable verbose logging
 const system = await createTaskManagementSystem(config, {
   enableMonitoring: true,
   monitoringConfig: {
-    verboseLogging: true
-  }
+    verboseLogging: true,
+  },
 });
 ```
 
 ### Monitoring Integration
+
 ```typescript
 // Access real-time metrics
 const monitoring = system.monitoring;
 const dashboardData = monitoring.getDashboardData(
   await monitoring.collectMetrics(system.taskEngine.getAllTasks()),
-  system.taskEngine.getAllTasks()
+  system.taskEngine.getAllTasks(),
 );
 
 console.log('System Health:', dashboardData.health.overall);

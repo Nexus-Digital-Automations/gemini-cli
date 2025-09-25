@@ -15,8 +15,17 @@ import {
   type OutputConfig,
   type ToolConfig,
 } from '../../../packages/core/src/core/subagent.js';
-import { MockAgentFactory, MockAgentState, type MockAgentConfig } from '../utils/MockAgentFactory.js';
-import { TaskBuilder, TaskComplexity, TaskCategory, TaskPriority } from '../utils/TaskBuilder.js';
+import {
+  MockAgentFactory,
+  MockAgentState,
+  type MockAgentConfig,
+} from '../utils/MockAgentFactory.js';
+import {
+  TaskBuilder,
+  TaskComplexity,
+  TaskCategory,
+  TaskPriority,
+} from '../utils/TaskBuilder.js';
 import type { Config } from '../../../packages/core/src/config/config.js';
 
 describe('SubAgentScope - Autonomous Task Management Tests', () => {
@@ -92,8 +101,12 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
       expect(complexAgent).toBeDefined();
 
       // Verify different configurations
-      expect(simpleTask.modelConfig.temp).toBeLessThan(complexTask.modelConfig.temp);
-      expect(simpleTask.runConfig.max_turns).toBeLessThan(complexTask.runConfig.max_turns!);
+      expect(simpleTask.modelConfig.temp).toBeLessThan(
+        complexTask.modelConfig.temp,
+      );
+      expect(simpleTask.runConfig.max_turns).toBeLessThan(
+        complexTask.runConfig.max_turns!,
+      );
     });
 
     it('should handle context variable templating', async () => {
@@ -104,7 +117,9 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
 
       const task = new TaskBuilder()
         .withName('context-test')
-        .withCustomPrompt('Generate ${target_language} code for ${project_name} with ${complexity_level} complexity')
+        .withCustomPrompt(
+          'Generate ${target_language} code for ${project_name} with ${complexity_level} complexity',
+        )
         .withComplexity(TaskComplexity.MODERATE)
         .build();
 
@@ -186,7 +201,7 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
         TaskPriority.CRITICAL,
       ];
 
-      const tasks = priorities.map(priority =>
+      const tasks = priorities.map((priority) =>
         new TaskBuilder()
           .withName(`priority-${priority}-task`)
           .withPriority(priority)
@@ -194,7 +209,7 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
           .build(),
       );
 
-      const mockConfigs: MockAgentConfig[] = tasks.map(task => ({
+      const mockConfigs: MockAgentConfig[] = tasks.map((task) => ({
         name: task.name,
         state: MockAgentState.SUCCESS,
         executionTime: 100 * Math.random() + 50,
@@ -215,10 +230,12 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
       );
 
       // Execute all agents
-      await Promise.all(agents.map(agent => agent.runNonInteractive(new ContextState())));
+      await Promise.all(
+        agents.map((agent) => agent.runNonInteractive(new ContextState())),
+      );
 
       // Verify all agents completed successfully
-      agents.forEach(agent => {
+      agents.forEach((agent) => {
         expect(agent.output.terminate_reason).toBe(SubagentTerminateMode.GOAL);
       });
     });
@@ -264,11 +281,16 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
       // Execute dependency first
       await dependencyAgent.runNonInteractive(new ContextState());
 
-      expect(dependencyAgent.output.terminate_reason).toBe(SubagentTerminateMode.GOAL);
+      expect(dependencyAgent.output.terminate_reason).toBe(
+        SubagentTerminateMode.GOAL,
+      );
 
       // Now execute main task with dependency results
       const mainContext = new ContextState();
-      mainContext.set('dependency_result', dependencyAgent.output.emitted_vars.dependency_result);
+      mainContext.set(
+        'dependency_result',
+        dependencyAgent.output.emitted_vars.dependency_result,
+      );
 
       const mainAgent = await MockAgentFactory.createMockAgent(
         mainMock,
@@ -281,8 +303,12 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
 
       await mainAgent.runNonInteractive(mainContext);
 
-      expect(mainAgent.output.terminate_reason).toBe(SubagentTerminateMode.GOAL);
-      expect(mainAgent.output.emitted_vars.final_result).toBe('main_complete_with_dependency');
+      expect(mainAgent.output.terminate_reason).toBe(
+        SubagentTerminateMode.GOAL,
+      );
+      expect(mainAgent.output.emitted_vars.final_result).toBe(
+        'main_complete_with_dependency',
+      );
     });
   });
 
@@ -367,7 +393,9 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
 
       await agent.runNonInteractive(new ContextState());
 
-      expect(agent.output.terminate_reason).toBe(SubagentTerminateMode.MAX_TURNS);
+      expect(agent.output.terminate_reason).toBe(
+        SubagentTerminateMode.MAX_TURNS,
+      );
     });
 
     it('should handle partial success scenarios', async () => {
@@ -444,9 +472,15 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
         expect(agent.output.emitted_vars.category).toBe(category.toLowerCase());
 
         // Verify tool calls were logged
-        const logs = MockAgentFactory.getExecutionLogs(`tool-test-${category.toLowerCase()}`);
-        expect(logs.some(log => log.includes('Calling tool: read_file'))).toBe(true);
-        expect(logs.some(log => log.includes('Calling tool: write_file'))).toBe(true);
+        const logs = MockAgentFactory.getExecutionLogs(
+          `tool-test-${category.toLowerCase()}`,
+        );
+        expect(
+          logs.some((log) => log.includes('Calling tool: read_file')),
+        ).toBe(true);
+        expect(
+          logs.some((log) => log.includes('Calling tool: write_file')),
+        ).toBe(true);
       }
     });
 
@@ -488,9 +522,9 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
 
       // Verify all expected tools were called
       const logs = MockAgentFactory.getExecutionLogs('tool-validation-test');
-      expect(logs.some(log => log.includes('read_file'))).toBe(true);
-      expect(logs.some(log => log.includes('write_file'))).toBe(true);
-      expect(logs.some(log => log.includes('execute_command'))).toBe(true);
+      expect(logs.some((log) => log.includes('read_file'))).toBe(true);
+      expect(logs.some((log) => log.includes('write_file'))).toBe(true);
+      expect(logs.some((log) => log.includes('execute_command'))).toBe(true);
     });
   });
 
@@ -525,7 +559,9 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
 
       expect(agent.output.terminate_reason).toBe(SubagentTerminateMode.GOAL);
       expect(actualExecutionTime).toBeGreaterThanOrEqual(expectedExecutionTime);
-      expect(agent.output.emitted_vars.execution_time).toBe(`${expectedExecutionTime}ms`);
+      expect(agent.output.emitted_vars.execution_time).toBe(
+        `${expectedExecutionTime}ms`,
+      );
     });
 
     it('should handle different complexity performance characteristics', async () => {
@@ -544,9 +580,14 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
           .withComplexity(complexity)
           .build();
 
-        const expectedTime = complexity === TaskComplexity.SIMPLE ? 200 :
-                           complexity === TaskComplexity.MODERATE ? 500 :
-                           complexity === TaskComplexity.COMPLEX ? 1000 : 2000;
+        const expectedTime =
+          complexity === TaskComplexity.SIMPLE
+            ? 200
+            : complexity === TaskComplexity.MODERATE
+              ? 500
+              : complexity === TaskComplexity.COMPLEX
+                ? 1000
+                : 2000;
 
         const mockAgent: MockAgentConfig = {
           name: `performance-${complexity.toLowerCase()}`,

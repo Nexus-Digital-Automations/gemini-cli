@@ -29,6 +29,7 @@ Before contributing, ensure you have:
 ### Initial Setup
 
 1. **Fork the Repository**
+
    ```bash
    # Fork on GitHub UI, then clone your fork
    git clone git@github.com:YOUR_USERNAME/gemini-cli.git
@@ -39,6 +40,7 @@ Before contributing, ensure you have:
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm install
    npm run build
@@ -54,6 +56,7 @@ Before contributing, ensure you have:
 ### Development Environment
 
 1. **Environment Variables**
+
    ```bash
    # Create .env file
    cp .env.example .env
@@ -63,6 +66,7 @@ Before contributing, ensure you have:
    ```
 
 2. **IDE Configuration**
+
    ```bash
    # Open in VS Code with recommended settings
    code .
@@ -75,6 +79,7 @@ Before contributing, ensure you have:
 ### Feature Development
 
 1. **Create Feature Branch**
+
    ```bash
    git checkout main
    git pull upstream main
@@ -93,6 +98,7 @@ Before contributing, ensure you have:
    ```
 
 3. **Development Process**
+
    ```bash
    # Make changes
    npm run dev           # Development mode
@@ -101,6 +107,7 @@ Before contributing, ensure you have:
    ```
 
 4. **Commit Changes**
+
    ```bash
    # Stage changes
    git add .
@@ -125,6 +132,7 @@ Follow [Conventional Commits](https://conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat`: New features
 - `fix`: Bug fixes
 - `docs`: Documentation changes
@@ -134,6 +142,7 @@ Follow [Conventional Commits](https://conventionalcommits.org/):
 - `chore`: Changes to build process or auxiliary tools
 
 **Examples:**
+
 ```
 feat(tools): add web search functionality
 fix(auth): resolve OAuth token refresh issue
@@ -153,6 +162,7 @@ Use descriptive branch names with prefixes:
 - `test/` - Test improvements
 
 Examples:
+
 ```
 feature/autonomous-task-management
 bugfix/oauth-token-refresh
@@ -166,17 +176,20 @@ test/add-integration-tests
 ### 1. Code Contributions
 
 #### New Features
+
 - Check FEATURES.json for approved features
 - Follow architecture principles
 - Include comprehensive tests
 - Update documentation
 
 #### Bug Fixes
+
 - Reference GitHub issue in PR
 - Include regression test
 - Provide clear description of fix
 
 #### Performance Improvements
+
 - Include benchmarks
 - Document performance gains
 - Consider backward compatibility
@@ -184,6 +197,7 @@ test/add-integration-tests
 ### 2. Documentation Contributions
 
 #### Types of Documentation
+
 - API documentation
 - User guides and tutorials
 - Architecture documentation
@@ -191,6 +205,7 @@ test/add-integration-tests
 - Code comments and inline docs
 
 #### Documentation Standards
+
 - Clear, concise writing
 - Code examples for technical content
 - Screenshots for UI changes
@@ -199,12 +214,14 @@ test/add-integration-tests
 ### 3. Testing Contributions
 
 #### Test Types Needed
+
 - Unit tests for new functionality
 - Integration tests for workflows
 - E2E tests for user scenarios
 - Performance tests for optimizations
 
 #### Testing Guidelines
+
 ```typescript
 // Example test structure
 describe('FeatureName', () => {
@@ -246,7 +263,7 @@ export interface CreateUserRequest {
 }
 
 export async function createUser(
-  request: CreateUserRequest
+  request: CreateUserRequest,
 ): Promise<Result<User, ValidationError>> {
   // Implementation
 }
@@ -259,7 +276,7 @@ try {
   logger.error('User creation failed', { error });
   return {
     success: false,
-    error: new ValidationError('Failed to create user', error)
+    error: new ValidationError('Failed to create user', error),
   };
 }
 ```
@@ -267,16 +284,19 @@ try {
 ### Code Quality Requirements
 
 1. **Linting**: All code must pass ESLint
+
    ```bash
    npm run lint
    ```
 
 2. **Type Safety**: No TypeScript errors
+
    ```bash
    npm run typecheck
    ```
 
 3. **Testing**: Maintain >80% coverage
+
    ```bash
    npm test -- --coverage
    ```
@@ -294,6 +314,7 @@ try {
 ### Security Requirements
 
 1. **Input Validation**
+
    ```typescript
    // Validate all inputs
    const validation = validateInput(userInput);
@@ -303,17 +324,19 @@ try {
    ```
 
 2. **Secure Defaults**
+
    ```typescript
    // Use secure defaults
    const config = {
      timeout: 5000,
      retries: 3,
      validateSSL: true, // Always default to secure
-     ...userConfig
+     ...userConfig,
    };
    ```
 
 3. **Secret Handling**
+
    ```typescript
    // Never log secrets
    logger.info('API request', {
@@ -331,6 +354,7 @@ try {
 ### Before Creating PR
 
 1. **Update from upstream**
+
    ```bash
    git checkout main
    git pull upstream main
@@ -339,6 +363,7 @@ try {
    ```
 
 2. **Run full validation**
+
    ```bash
    npm run preflight
    # This runs: clean, install, format, lint, build, typecheck, test
@@ -357,25 +382,30 @@ try {
 
    ```markdown
    ## Description
+
    Brief description of changes
 
    ## Type of Change
+
    - [ ] Bug fix
    - [ ] New feature
    - [ ] Documentation update
    - [ ] Refactoring
 
    ## Testing
+
    - [ ] Unit tests added/updated
    - [ ] Integration tests added/updated
    - [ ] Manual testing completed
 
    ## Documentation
+
    - [ ] Code comments updated
    - [ ] README updated
    - [ ] API documentation updated
 
    ## Checklist
+
    - [ ] Code follows style guidelines
    - [ ] Self-review completed
    - [ ] No new warnings/errors
@@ -424,13 +454,16 @@ try {
 ### Issue Templates
 
 #### Bug Reports
+
 ```markdown
 **Environment:**
+
 - OS: [e.g. macOS 13.0]
 - Node.js: [e.g. 20.5.0]
 - CLI Version: [e.g. 0.7.0]
 
 **Steps to Reproduce:**
+
 1. Run command X
 2. Enter input Y
 3. See error Z
@@ -446,6 +479,7 @@ Include relevant error messages
 ```
 
 #### Feature Requests
+
 ```markdown
 **Use Case:**
 Describe the problem you're trying to solve

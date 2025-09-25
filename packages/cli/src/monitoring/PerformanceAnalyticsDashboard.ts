@@ -24,7 +24,12 @@ export interface PerformanceMetric {
   value: number;
   unit: string;
   timestamp: Date;
-  category: 'throughput' | 'latency' | 'success_rate' | 'resource_usage' | 'quality';
+  category:
+    | 'throughput'
+    | 'latency'
+    | 'success_rate'
+    | 'resource_usage'
+    | 'quality';
   tags: Record<string, string>;
   context?: Record<string, unknown>;
 }
@@ -81,12 +86,15 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
 
   // Performance tracking state
   private taskExecutionTimes: Map<string, number>;
-  private agentPerformanceHistory: Map<string, Array<{
-    timestamp: Date;
-    completedTasks: number;
-    failedTasks: number;
-    averageTime: number;
-  }>>;
+  private agentPerformanceHistory: Map<
+    string,
+    Array<{
+      timestamp: Date;
+      completedTasks: number;
+      failedTasks: number;
+      averageTime: number;
+    }>
+  >;
   private systemHealthHistory: Array<{
     timestamp: Date;
     cpuUsage: number;
@@ -95,11 +103,13 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     taskThroughput: number;
   }>;
 
-  constructor(options: {
-    retentionDays?: number;
-    metricsIntervalMs?: number;
-    insightsIntervalMs?: number;
-  } = {}) {
+  constructor(
+    options: {
+      retentionDays?: number;
+      metricsIntervalMs?: number;
+      insightsIntervalMs?: number;
+    } = {},
+  ) {
     super();
     this.logger = new Logger('PerformanceAnalyticsDashboard');
     this.metrics = new Map();
@@ -116,7 +126,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     this.initializeDefaultBenchmarks();
     this.setupPeriodicAnalysis(
       options.metricsIntervalMs || 60000, // 1 minute
-      options.insightsIntervalMs || 300000  // 5 minutes
+      options.insightsIntervalMs || 300000, // 5 minutes
     );
 
     this.logger.info('PerformanceAnalyticsDashboard initialized', {
@@ -134,7 +144,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     unit: string,
     category: PerformanceMetric['category'],
     tags: Record<string, string> = {},
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ): void {
     const metric: PerformanceMetric = {
       id: this.generateMetricId(),
@@ -175,23 +185,23 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
   /**
    * Process task lifecycle events for performance tracking
    */
-  onTaskEvent(event: 'registered' | 'started' | 'completed' | 'failed', data: {
-    task: TaskMetadata;
-    update?: TaskStatusUpdate;
-    agent?: AgentStatus;
-  }): void {
+  onTaskEvent(
+    event: 'registered' | 'started' | 'completed' | 'failed',
+    data: {
+      task: TaskMetadata;
+      update?: TaskStatusUpdate;
+      agent?: AgentStatus;
+    },
+  ): void {
     const { task, update, agent } = data;
 
     switch (event) {
       case 'started':
         this.taskExecutionTimes.set(task.id, Date.now());
-        this.recordMetric(
-          'task_started_rate',
-          1,
-          'count',
-          'throughput',
-          { taskType: task.type, priority: task.priority }
-        );
+        this.recordMetric('task_started_rate', 1, 'count', 'throughput', {
+          taskType: task.type,
+          priority: task.priority,
+        });
         break;
 
       case 'completed':
@@ -207,9 +217,12 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
   /**
    * Process agent performance data
    */
-  onAgentEvent(event: 'registered' | 'heartbeat' | 'status_changed', data: {
-    agent: AgentStatus;
-  }): void {
+  onAgentEvent(
+    event: 'registered' | 'heartbeat' | 'status_changed',
+    data: {
+      agent: AgentStatus;
+    },
+  ): void {
     const { agent } = data;
 
     switch (event) {
@@ -218,13 +231,10 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
         break;
 
       case 'status_changed':
-        this.recordMetric(
-          'agent_status_change',
-          1,
-          'count',
-          'resource_usage',
-          { agentId: agent.id, newStatus: agent.status }
-        );
+        this.recordMetric('agent_status_change', 1, 'count', 'resource_usage', {
+          agentId: agent.id,
+          newStatus: agent.status,
+        });
         break;
     }
   }
@@ -298,18 +308,24 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
   /**
    * Get performance analytics for a specific time period
    */
-  getAnalytics(timeRange: {
-    start: Date;
-    end: Date;
-  }, metrics?: string[]): {
+  getAnalytics(
+    timeRange: {
+      start: Date;
+      end: Date;
+    },
+    metrics?: string[],
+  ): {
     metrics: Record<string, PerformanceMetric[]>;
-    aggregations: Record<string, {
-      average: number;
-      min: number;
-      max: number;
-      count: number;
-      sum: number;
-    }>;
+    aggregations: Record<
+      string,
+      {
+        average: number;
+        min: number;
+        max: number;
+        count: number;
+        sum: number;
+      }
+    >;
     trends: TrendData[];
   } {
     const filteredMetrics: Record<string, PerformanceMetric[]> = {};
@@ -320,13 +336,15 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     for (const metricName of metricsToAnalyze) {
       const metricHistory = this.metrics.get(metricName) || [];
       const filteredHistory = metricHistory.filter(
-        metric => metric.timestamp >= timeRange.start && metric.timestamp <= timeRange.end
+        (metric) =>
+          metric.timestamp >= timeRange.start &&
+          metric.timestamp <= timeRange.end,
       );
 
       filteredMetrics[metricName] = filteredHistory;
 
       if (filteredHistory.length > 0) {
-        const values = filteredHistory.map(m => m.value);
+        const values = filteredHistory.map((m) => m.value);
         aggregations[metricName] = {
           average: values.reduce((sum, val) => sum + val, 0) / values.length,
           min: Math.min(...values),
@@ -337,8 +355,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
       }
     }
 
-    const trends = Array.from(this.trendData.values()).filter(trend =>
-      metrics ? metrics.includes(trend.metric) : true
+    const trends = Array.from(this.trendData.values()).filter((trend) =>
+      metrics ? metrics.includes(trend.metric) : true,
     );
 
     return {
@@ -365,10 +383,14 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
           id: this.generateInsightId(),
           title: 'Low Task Throughput Detected',
           description: `Current throughput (${avgThroughput.toFixed(2)}) is below warning threshold (${throughputBenchmark.warning})`,
-          severity: avgThroughput < throughputBenchmark.critical ? 'critical' : 'warning',
+          severity:
+            avgThroughput < throughputBenchmark.critical
+              ? 'critical'
+              : 'warning',
           category: 'performance',
           impact: 'high',
-          recommendation: 'Consider increasing agent pool size or optimizing task execution algorithms',
+          recommendation:
+            'Consider increasing agent pool size or optimizing task execution algorithms',
           actionable: true,
           relatedMetrics: ['task_completion_rate', 'agent_utilization'],
           timestamp: new Date(),
@@ -378,7 +400,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
 
     // Analyze agent performance
     const agentUtilization = this.calculateAgentUtilization();
-    if (agentUtilization < 0.7) { // Less than 70% utilization
+    if (agentUtilization < 0.7) {
+      // Less than 70% utilization
       recommendations.push({
         id: this.generateInsightId(),
         title: 'Low Agent Utilization',
@@ -386,7 +409,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
         severity: 'warning',
         category: 'efficiency',
         impact: 'medium',
-        recommendation: 'Review task distribution algorithms and consider reducing agent pool size or increasing task complexity',
+        recommendation:
+          'Review task distribution algorithms and consider reducing agent pool size or increasing task complexity',
         actionable: true,
         relatedMetrics: ['agent_utilization', 'task_queue_size'],
         timestamp: new Date(),
@@ -397,7 +421,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     const errorRateMetrics = this.getMetricsByName('task_failure_rate');
     if (errorRateMetrics.length > 0) {
       const avgErrorRate = this.calculateAverageMetric(errorRateMetrics);
-      if (avgErrorRate > 0.1) { // More than 10% failure rate
+      if (avgErrorRate > 0.1) {
+        // More than 10% failure rate
         recommendations.push({
           id: this.generateInsightId(),
           title: 'High Task Failure Rate',
@@ -405,7 +430,8 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
           severity: avgErrorRate > 0.2 ? 'critical' : 'warning',
           category: 'reliability',
           impact: 'high',
-          recommendation: 'Investigate common failure patterns and implement better error handling or task validation',
+          recommendation:
+            'Investigate common failure patterns and implement better error handling or task validation',
           actionable: true,
           relatedMetrics: ['task_failure_rate', 'error_frequency'],
           timestamp: new Date(),
@@ -423,12 +449,16 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     const dashboardData = this.getDashboardData();
 
     if (format === 'json') {
-      return JSON.stringify({
-        ...dashboardData,
-        exportTimestamp: new Date().toISOString(),
-        retentionDays: this.retentionDays,
-        totalMetrics: Array.from(this.metrics.keys()).length,
-      }, null, 2);
+      return JSON.stringify(
+        {
+          ...dashboardData,
+          exportTimestamp: new Date().toISOString(),
+          retentionDays: this.retentionDays,
+          totalMetrics: Array.from(this.metrics.keys()).length,
+        },
+        null,
+        2,
+      );
     }
 
     // CSV format implementation would go here
@@ -443,7 +473,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
         metric: 'task_completion_rate',
         target: 0.95,
         warning: 0.85,
-        critical: 0.70,
+        critical: 0.7,
         unit: 'ratio',
         description: 'Percentage of tasks completed successfully',
       },
@@ -457,9 +487,9 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
       },
       {
         metric: 'agent_utilization',
-        target: 0.80,
-        warning: 0.60,
-        critical: 0.40,
+        target: 0.8,
+        warning: 0.6,
+        critical: 0.4,
         unit: 'ratio',
         description: 'Percentage of time agents are actively working',
       },
@@ -478,7 +508,10 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     }
   }
 
-  private setupPeriodicAnalysis(metricsInterval: number, insightsInterval: number): void {
+  private setupPeriodicAnalysis(
+    metricsInterval: number,
+    insightsInterval: number,
+  ): void {
     // Collect system metrics periodically
     this.metricsInterval = setInterval(() => {
       this.collectSystemMetrics();
@@ -497,14 +530,14 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
       'memory_usage',
       memoryUsage.heapUsed / memoryUsage.heapTotal,
       'ratio',
-      'resource_usage'
+      'resource_usage',
     );
 
     this.recordMetric(
       'memory_heap_used',
       memoryUsage.heapUsed / 1024 / 1024,
       'MB',
-      'resource_usage'
+      'resource_usage',
     );
 
     // Record timestamp for system health history
@@ -548,20 +581,25 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
         executionTime,
         'milliseconds',
         'latency',
-        { taskType: task.type, priority: task.priority, agentId: agent?.id || 'unknown' }
+        {
+          taskType: task.type,
+          priority: task.priority,
+          agentId: agent?.id || 'unknown',
+        },
       );
 
-      this.recordMetric(
-        'task_completion_rate',
-        1,
-        'count',
-        'success_rate',
-        { taskType: task.type, priority: task.priority }
-      );
+      this.recordMetric('task_completion_rate', 1, 'count', 'success_rate', {
+        taskType: task.type,
+        priority: task.priority,
+      });
     }
   }
 
-  private handleTaskFailure(task: TaskMetadata, update?: TaskStatusUpdate, agent?: AgentStatus): void {
+  private handleTaskFailure(
+    task: TaskMetadata,
+    update?: TaskStatusUpdate,
+    agent?: AgentStatus,
+  ): void {
     const startTime = this.taskExecutionTimes.get(task.id);
     if (startTime) {
       const executionTime = Date.now() - startTime;
@@ -576,17 +614,15 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
           taskType: task.type,
           priority: task.priority,
           agentId: agent?.id || 'unknown',
-          error: update?.error || 'unknown_error'
-        }
+          error: update?.error || 'unknown_error',
+        },
       );
 
-      this.recordMetric(
-        'task_failure_rate',
-        1,
-        'count',
-        'quality',
-        { taskType: task.type, priority: task.priority, error: update?.error || 'unknown' }
-      );
+      this.recordMetric('task_failure_rate', 1, 'count', 'quality', {
+        taskType: task.type,
+        priority: task.priority,
+        error: update?.error || 'unknown',
+      });
     }
   }
 
@@ -614,7 +650,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
       agent.performance.successRate / 100,
       'ratio',
       'success_rate',
-      { agentId: agent.id }
+      { agentId: agent.id },
     );
 
     this.recordMetric(
@@ -622,7 +658,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
       agent.performance.taskThroughput,
       'tasks/hour',
       'throughput',
-      { agentId: agent.id }
+      { agentId: agent.id },
     );
   }
 
@@ -651,14 +687,18 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
 
     // Calculate trend direction and strength
     if (trend.dataPoints.length >= 10) {
-      const { direction, strength, confidence } = this.calculateTrend(trend.dataPoints);
+      const { direction, strength, confidence } = this.calculateTrend(
+        trend.dataPoints,
+      );
       trend.trendDirection = direction;
       trend.trendStrength = strength;
       trend.confidence = confidence;
     }
   }
 
-  private calculateTrend(dataPoints: Array<{ timestamp: Date; value: number }>): {
+  private calculateTrend(
+    dataPoints: Array<{ timestamp: Date; value: number }>,
+  ): {
     direction: 'up' | 'down' | 'stable';
     strength: number;
     confidence: number;
@@ -671,7 +711,10 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     const n = dataPoints.length;
     const sumX = dataPoints.reduce((sum, point, index) => sum + index, 0);
     const sumY = dataPoints.reduce((sum, point) => sum + point.value, 0);
-    const sumXY = dataPoints.reduce((sum, point, index) => sum + index * point.value, 0);
+    const sumXY = dataPoints.reduce(
+      (sum, point, index) => sum + index * point.value,
+      0,
+    );
     const sumXX = dataPoints.reduce((sum, _, index) => sum + index * index, 0);
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
@@ -689,14 +732,21 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
 
     const n = dataPoints.length;
     const xValues = dataPoints.map((_, index) => index);
-    const yValues = dataPoints.map(point => point.value);
+    const yValues = dataPoints.map((point) => point.value);
 
     const meanX = xValues.reduce((sum, x) => sum + x, 0) / n;
     const meanY = yValues.reduce((sum, y) => sum + y, 0) / n;
 
-    const numerator = xValues.reduce((sum, x, i) => sum + (x - meanX) * (yValues[i] - meanY), 0);
-    const denomX = Math.sqrt(xValues.reduce((sum, x) => sum + (x - meanX) ** 2, 0));
-    const denomY = Math.sqrt(yValues.reduce((sum, y) => sum + (y - meanY) ** 2, 0));
+    const numerator = xValues.reduce(
+      (sum, x, i) => sum + (x - meanX) * (yValues[i] - meanY),
+      0,
+    );
+    const denomX = Math.sqrt(
+      xValues.reduce((sum, x) => sum + (x - meanX) ** 2, 0),
+    );
+    const denomY = Math.sqrt(
+      yValues.reduce((sum, y) => sum + (y - meanY) ** 2, 0),
+    );
 
     return denomX * denomY === 0 ? 0 : numerator / (denomX * denomY);
   }
@@ -708,11 +758,16 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.retentionDays);
 
-    const filteredMetrics = metrics.filter(metric => metric.timestamp >= cutoffDate);
+    const filteredMetrics = metrics.filter(
+      (metric) => metric.timestamp >= cutoffDate,
+    );
     this.metrics.set(metricName, filteredMetrics);
   }
 
-  private getBenchmarkStatus(value: number, benchmark: PerformanceBenchmark): 'good' | 'warning' | 'critical' {
+  private getBenchmarkStatus(
+    value: number,
+    benchmark: PerformanceBenchmark,
+  ): 'good' | 'warning' | 'critical' {
     if (value <= benchmark.critical || value >= benchmark.critical) {
       return 'critical';
     }
@@ -736,17 +791,25 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     return {
       totalTasks: completionMetrics.length,
       activeTasks: this.taskExecutionTimes.size,
-      completionRate: completionMetrics.length > 0 ? this.calculateAverageMetric(completionMetrics) : 0,
-      averageExecutionTime: executionTimeMetrics.length > 0 ? this.calculateAverageMetric(executionTimeMetrics) : 0,
+      completionRate:
+        completionMetrics.length > 0
+          ? this.calculateAverageMetric(completionMetrics)
+          : 0,
+      averageExecutionTime:
+        executionTimeMetrics.length > 0
+          ? this.calculateAverageMetric(executionTimeMetrics)
+          : 0,
       systemEfficiency: 0.95, // Would be calculated from actual system data
       agentUtilization: this.calculateAgentUtilization(),
     };
   }
 
-  private getMetricsByCategory(category: PerformanceMetric['category']): PerformanceMetric[] {
+  private getMetricsByCategory(
+    category: PerformanceMetric['category'],
+  ): PerformanceMetric[] {
     const metrics: PerformanceMetric[] = [];
     for (const metricHistory of this.metrics.values()) {
-      metrics.push(...metricHistory.filter(m => m.category === category));
+      metrics.push(...metricHistory.filter((m) => m.category === category));
     }
     return metrics;
   }
@@ -757,7 +820,9 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
 
   private calculateAverageMetric(metrics: PerformanceMetric[]): number {
     if (metrics.length === 0) return 0;
-    return metrics.reduce((sum, metric) => sum + metric.value, 0) / metrics.length;
+    return (
+      metrics.reduce((sum, metric) => sum + metric.value, 0) / metrics.length
+    );
   }
 
   private calculateAgentUtilization(): number {
@@ -769,9 +834,9 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
   private calculateCurrentThroughput(): number {
     // Calculate tasks completed in the last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const completionMetrics = this.getMetricsByName('task_completion_rate').filter(
-      m => m.timestamp >= oneHourAgo
-    );
+    const completionMetrics = this.getMetricsByName(
+      'task_completion_rate',
+    ).filter((m) => m.timestamp >= oneHourAgo);
     return completionMetrics.length;
   }
 
@@ -814,4 +879,5 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
 /**
  * Singleton instance for global access
  */
-export const performanceAnalyticsDashboard = new PerformanceAnalyticsDashboard();
+export const performanceAnalyticsDashboard =
+  new PerformanceAnalyticsDashboard();

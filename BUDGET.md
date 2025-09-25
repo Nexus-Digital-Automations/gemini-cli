@@ -20,11 +20,13 @@ The Gemini CLI includes a comprehensive budget management system that helps you 
 ### Enable Budget Tracking
 
 1. **Set a daily limit** (automatically enables tracking):
+
    ```bash
    gemini budget set 100
    ```
 
 2. **Check your current usage**:
+
    ```bash
    gemini budget get
    ```
@@ -68,6 +70,7 @@ gemini budget set 500 --scope user
 ```
 
 **Options:**
+
 - `--reset-time <HH:MM>` - Time when budget resets daily (default: 00:00)
 - `--scope <user|project>` - Set budget at user or project level (default: project)
 
@@ -84,6 +87,7 @@ gemini budget get --json
 ```
 
 **Output includes:**
+
 - Daily limit and current usage
 - Remaining requests
 - Usage percentage with progress bar
@@ -164,12 +168,12 @@ Budget settings are stored in your `.gemini/settings.json` file:
 
 ### Configuration Options
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `enabled` | boolean | `false` | Enable/disable budget tracking |
-| `dailyLimit` | number | `100` | Maximum requests per day |
-| `resetTime` | string | `"00:00"` | Daily reset time (HH:MM format) |
-| `warningThresholds` | number[] | `[50, 75, 90]` | Warning percentages |
+| Setting             | Type     | Default        | Description                     |
+| ------------------- | -------- | -------------- | ------------------------------- |
+| `enabled`           | boolean  | `false`        | Enable/disable budget tracking  |
+| `dailyLimit`        | number   | `100`          | Maximum requests per day        |
+| `resetTime`         | string   | `"00:00"`      | Daily reset time (HH:MM format) |
+| `warningThresholds` | number[] | `[50, 75, 90]` | Warning percentages             |
 
 ### Reset Time Examples
 
@@ -195,6 +199,7 @@ When budget tracking is enabled, usage information automatically appears in the 
 ```
 
 **Display Elements:**
+
 - Current usage / Daily limit
 - Progress bar (visual indicator)
 - Remaining requests
@@ -209,6 +214,7 @@ When budget tracking is enabled, usage information automatically appears in the 
 ### Compact Mode
 
 On narrow terminals, the display automatically switches to compact mode:
+
 ```
 45/200 (23%)
 ```
@@ -228,6 +234,7 @@ gemini --disable-budget "Emergency fix needed"
 ```
 
 **Available Flags:**
+
 - `--budget-limit <number>` - Override daily limit for this session
 - `--disable-budget` - Skip budget enforcement for this command
 
@@ -243,6 +250,7 @@ gemini budget set 150 --scope project
 ```
 
 **Use when:**
+
 - Different projects have different budget needs
 - Working on multiple client projects
 - Project-specific cost management
@@ -257,6 +265,7 @@ gemini budget set 400 --scope user
 ```
 
 **Use when:**
+
 - Consistent budget across all work
 - Personal daily limit preference
 - Default fallback setting
@@ -331,6 +340,7 @@ The budget system works alongside official API quotas:
 ### Rate Limiting
 
 Budget tracking is separate from rate limiting:
+
 - Budget: Daily request count
 - Rate limits: Requests per minute
 - Both work together for complete control
@@ -387,6 +397,7 @@ npm update -g @google/gemini-cli
 ### Error Messages
 
 **"Daily budget exceeded"**
+
 ```bash
 # Options:
 gemini budget extend 25    # Temporary increase
@@ -395,6 +406,7 @@ gemini budget disable     # Disable tracking
 ```
 
 **"Budget tracking is not enabled"**
+
 ```bash
 gemini budget set 100     # Enable with limit
 # or

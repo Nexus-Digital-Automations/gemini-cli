@@ -34,7 +34,7 @@ export default defineConfig({
       '**/e2e-autonomous-workflows.test.ts',
       '**/performance-benchmarks.test.ts',
       '**/ci-cd-automation.test.ts',
-      '**/reliability-stress-testing.test.ts'
+      '**/reliability-stress-testing.test.ts',
     ],
 
     // Exclude patterns for files that shouldn't be tested
@@ -42,7 +42,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
-      '**/coverage/**'
+      '**/coverage/**',
     ],
 
     // Reporter configuration for comprehensive test results
@@ -51,7 +51,7 @@ export default defineConfig({
       'verbose',
       ['junit', { outputFile: './test-results/junit.xml' }],
       ['json', { outputFile: './test-results/results.json' }],
-      ['html', { outputFile: './test-results/index.html' }]
+      ['html', { outputFile: './test-results/index.html' }],
     ],
 
     // Test retry and parallel execution
@@ -65,8 +65,8 @@ export default defineConfig({
         minThreads: 1,
         maxThreads: 2, // Limited threads to prevent resource exhaustion
         isolate: true,
-        useAtomics: true
-      }
+        useAtomics: true,
+      },
     },
 
     // Environment variables for testing
@@ -77,10 +77,12 @@ export default defineConfig({
 
       // Task Manager configuration
       TASK_MANAGER_TIMEOUT: '10000',
-      TASK_MANAGER_API_PATH: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      TASK_MANAGER_API_PATH:
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
 
       // Integration test configuration
-      INTEGRATION_TEST_FILE_DIR: process.env.INTEGRATION_TEST_FILE_DIR || '/tmp/autonomous-tests',
+      INTEGRATION_TEST_FILE_DIR:
+        process.env.INTEGRATION_TEST_FILE_DIR || '/tmp/autonomous-tests',
       GEMINI_SANDBOX: process.env.GEMINI_SANDBOX || 'false',
 
       // CI/CD integration flags
@@ -92,7 +94,7 @@ export default defineConfig({
       // Test output configuration
       KEEP_OUTPUT: process.env.KEEP_OUTPUT || 'false',
       VERBOSE: process.env.VERBOSE || 'false',
-      DEBUG_AUTONOMOUS_TESTS: process.env.DEBUG || 'false'
+      DEBUG_AUTONOMOUS_TESTS: process.env.DEBUG || 'false',
     },
 
     // Coverage configuration
@@ -108,7 +110,7 @@ export default defineConfig({
         '**/e2e-autonomous-workflows.test.ts',
         '**/performance-benchmarks.test.ts',
         '**/ci-cd-automation.test.ts',
-        '**/reliability-stress-testing.test.ts'
+        '**/reliability-stress-testing.test.ts',
       ],
 
       // Exclude patterns from coverage
@@ -116,7 +118,7 @@ export default defineConfig({
         '**/node_modules/**',
         '**/test-helper.ts',
         '**/test-setup.ts',
-        '**/test-global-setup.ts'
+        '**/test-global-setup.ts',
       ],
 
       // Coverage thresholds
@@ -125,9 +127,9 @@ export default defineConfig({
           branches: 70,
           functions: 75,
           lines: 80,
-          statements: 80
-        }
-      }
+          statements: 80,
+        },
+      },
     },
 
     // Test isolation and cleanup
@@ -137,11 +139,7 @@ export default defineConfig({
 
     // Watch mode configuration (disabled for autonomous testing)
     watch: false,
-    watchExclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.git/**'
-    ]
+    watchExclude: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
   },
 
   // Build configuration for test dependencies
@@ -151,8 +149,8 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     rollupOptions: {
-      external: ['node:*', 'vitest', '@vitest/*']
-    }
+      external: ['node:*', 'vitest', '@vitest/*'],
+    },
   },
 
   // Resolve configuration for test modules
@@ -161,31 +159,33 @@ export default defineConfig({
       '@': join(__dirname, '..'),
       '@tests': __dirname,
       '@helpers': join(__dirname, 'helpers'),
-      '@fixtures': join(__dirname, 'fixtures')
-    }
+      '@fixtures': join(__dirname, 'fixtures'),
+    },
   },
 
   // Define global constants for tests
   define: {
     __AUTONOMOUS_TEST_MODE__: true,
-    __TASK_MANAGER_PATH__: JSON.stringify('/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js'),
+    __TASK_MANAGER_PATH__: JSON.stringify(
+      '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+    ),
     __TEST_TIMEOUT__: 300000,
     __PERFORMANCE_THRESHOLDS__: JSON.stringify({
       latency: {
         avg: 1000, // 1 second average
         p95: 2000, // 2 seconds 95th percentile
-        p99: 5000  // 5 seconds 99th percentile
+        p99: 5000, // 5 seconds 99th percentile
       },
       throughput: {
         minRPS: 10, // Minimum 10 requests per second
-        targetRPS: 50 // Target 50 requests per second
+        targetRPS: 50, // Target 50 requests per second
       },
       memory: {
         maxHeapMB: 500, // Maximum 500MB heap usage
-        maxRSSMB: 1000  // Maximum 1GB RSS usage
-      }
-    })
-  }
+        maxRSSMB: 1000, // Maximum 1GB RSS usage
+      },
+    }),
+  },
 });
 
 /**
@@ -205,24 +205,26 @@ export interface TestSuiteConfig {
 export const TEST_SUITES: Record<string, TestSuiteConfig> = {
   'autonomous-task-management': {
     name: 'Autonomous Task Management Integration Tests',
-    description: 'Core multi-agent coordination and task management functionality',
+    description:
+      'Core multi-agent coordination and task management functionality',
     timeout: 180000, // 3 minutes
     priority: 'critical',
     dependencies: [],
     tags: ['integration', 'multi-agent', 'coordination'],
     parallel: false,
-    retries: 2
+    retries: 2,
   },
 
   'e2e-autonomous-workflows': {
     name: 'End-to-End Autonomous Workflows',
-    description: 'Complete workflow scenarios from feature suggestion to implementation',
+    description:
+      'Complete workflow scenarios from feature suggestion to implementation',
     timeout: 240000, // 4 minutes
     priority: 'critical',
     dependencies: ['autonomous-task-management'],
     tags: ['e2e', 'workflows', 'integration'],
     parallel: false,
-    retries: 2
+    retries: 2,
   },
 
   'performance-benchmarks': {
@@ -233,7 +235,7 @@ export const TEST_SUITES: Record<string, TestSuiteConfig> = {
     dependencies: ['autonomous-task-management'],
     tags: ['performance', 'benchmarks', 'optimization'],
     parallel: false,
-    retries: 1
+    retries: 1,
   },
 
   'ci-cd-automation': {
@@ -244,19 +246,20 @@ export const TEST_SUITES: Record<string, TestSuiteConfig> = {
     dependencies: ['e2e-autonomous-workflows'],
     tags: ['ci-cd', 'automation', 'deployment'],
     parallel: false,
-    retries: 2
+    retries: 2,
   },
 
   'reliability-stress-testing': {
     name: 'System Reliability & Stress Testing',
-    description: 'High-load stress testing, fault tolerance, and chaos engineering',
+    description:
+      'High-load stress testing, fault tolerance, and chaos engineering',
     timeout: 600000, // 10 minutes
     priority: 'normal',
     dependencies: ['performance-benchmarks'],
     tags: ['reliability', 'stress', 'chaos-engineering'],
     parallel: false,
-    retries: 1
-  }
+    retries: 1,
+  },
 };
 
 /**
@@ -282,25 +285,31 @@ export class TestOrchestrator {
     const canExecute = (suiteId: string): boolean => {
       const suite = this.suites.get(suiteId);
       if (!suite) return false;
-      return suite.dependencies.every(dep => executed.has(dep));
+      return suite.dependencies.every((dep) => executed.has(dep));
     };
 
     while (executed.size < this.suites.size) {
       const available = Array.from(this.suites.keys())
-        .filter(id => !executed.has(id) && canExecute(id))
+        .filter((id) => !executed.has(id) && canExecute(id))
         .sort((a, b) => {
           const suiteA = this.suites.get(a)!;
           const suiteB = this.suites.get(b)!;
 
           // Sort by priority (critical > high > normal > low)
           const priorityOrder = { critical: 4, high: 3, normal: 2, low: 1 };
-          return priorityOrder[suiteB.priority] - priorityOrder[suiteA.priority];
+          return (
+            priorityOrder[suiteB.priority] - priorityOrder[suiteA.priority]
+          );
         });
 
       if (available.length === 0) {
         // Circular dependency or other issue
-        const remaining = Array.from(this.suites.keys()).filter(id => !executed.has(id));
-        throw new Error(`Cannot resolve dependencies for test suites: ${remaining.join(', ')}`);
+        const remaining = Array.from(this.suites.keys()).filter(
+          (id) => !executed.has(id),
+        );
+        throw new Error(
+          `Cannot resolve dependencies for test suites: ${remaining.join(', ')}`,
+        );
       }
 
       const next = available[0];
@@ -332,11 +341,11 @@ export class TestOrchestrator {
     const results = Array.from(this.results.values());
     return {
       total: results.length,
-      passed: results.filter(r => r.status === 'passed').length,
-      failed: results.filter(r => r.status === 'failed').length,
-      skipped: results.filter(r => r.status === 'skipped').length,
+      passed: results.filter((r) => r.status === 'passed').length,
+      failed: results.filter((r) => r.status === 'failed').length,
+      skipped: results.filter((r) => r.status === 'skipped').length,
       totalDuration: results.reduce((sum, r) => sum + r.duration, 0),
-      results: Object.fromEntries(this.results.entries())
+      results: Object.fromEntries(this.results.entries()),
     };
   }
 }
@@ -363,12 +372,14 @@ export interface TestSummary {
 export async function validateTestEnvironment(): Promise<boolean> {
   const requiredEnvVars = [
     'TASK_MANAGER_API_PATH',
-    'INTEGRATION_TEST_FILE_DIR'
+    'INTEGRATION_TEST_FILE_DIR',
   ];
 
-  const missing = requiredEnvVars.filter(env => !process.env[env]);
+  const missing = requiredEnvVars.filter((env) => !process.env[env]);
   if (missing.length > 0) {
-    console.error(`Missing required environment variables: ${missing.join(', ')}`);
+    console.error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
     return false;
   }
 
@@ -420,17 +431,22 @@ export class TestPerformanceMonitor {
     const suiteReports: Record<string, SuitePerformanceReport> = {};
 
     this.metrics.forEach((metrics, suite) => {
-      const durations = metrics.map(m => m.duration);
-      const memoryUsage = metrics.map(m => m.memoryUsage).filter(Boolean);
+      const durations = metrics.map((m) => m.duration);
+      const memoryUsage = metrics.map((m) => m.memoryUsage).filter(Boolean);
 
       suiteReports[suite] = {
         testCount: metrics.length,
         avgDuration: durations.reduce((a, b) => a + b, 0) / durations.length,
         maxDuration: Math.max(...durations),
         minDuration: Math.min(...durations),
-        avgMemoryMB: memoryUsage.length > 0 ?
-          memoryUsage.reduce((a, b) => a! + b!, 0)! / memoryUsage.length : 0,
-        maxMemoryMB: memoryUsage.length > 0 ? Math.max(...memoryUsage.filter(Boolean) as number[]) : 0
+        avgMemoryMB:
+          memoryUsage.length > 0
+            ? memoryUsage.reduce((a, b) => a! + b!, 0)! / memoryUsage.length
+            : 0,
+        maxMemoryMB:
+          memoryUsage.length > 0
+            ? Math.max(...(memoryUsage.filter(Boolean) as number[]))
+            : 0,
       };
     });
 
@@ -438,7 +454,7 @@ export class TestPerformanceMonitor {
       totalTests: allMetrics.length,
       overallDuration: allMetrics.reduce((sum, m) => sum + m.duration, 0),
       suites: suiteReports,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     };
   }
 }

@@ -126,7 +126,7 @@ export class DecisionAuditTrail {
         // Set up periodic flushing
         this.flushTimer = setInterval(
           () => this.flushToDisk(),
-          this.config.flushIntervalMs
+          this.config.flushIntervalMs,
         );
       }
 
@@ -164,7 +164,9 @@ export class DecisionAuditTrail {
    */
   recordDecision(decision: Decision): void {
     if (this.isShuttingDown) {
-      logger.warn('Cannot record decision during shutdown', { decisionId: decision.id });
+      logger.warn('Cannot record decision during shutdown', {
+        decisionId: decision.id,
+      });
       return;
     }
 
@@ -194,7 +196,9 @@ export class DecisionAuditTrail {
    */
   recordOutcome(outcome: DecisionOutcome): void {
     if (this.isShuttingDown) {
-      logger.warn('Cannot record outcome during shutdown', { decisionId: outcome.decisionId });
+      logger.warn('Cannot record outcome during shutdown', {
+        decisionId: outcome.decisionId,
+      });
       return;
     }
 
@@ -221,45 +225,51 @@ export class DecisionAuditTrail {
    * @param options - Filtering and pagination options
    * @returns Array of audit entries matching the criteria
    */
-  getDecisions(options: {
-    limit?: number;
-    since?: number;
-    until?: number;
-    type?: string;
-    success?: boolean;
-    minConfidence?: number;
-    maxConfidence?: number;
-  } = {}): AuditEntry[] {
+  getDecisions(
+    options: {
+      limit?: number;
+      since?: number;
+      until?: number;
+      type?: string;
+      success?: boolean;
+      minConfidence?: number;
+      maxConfidence?: number;
+    } = {},
+  ): AuditEntry[] {
     let results = Array.from(this.entries.values());
 
     // Apply filters
     if (options.since) {
-      results = results.filter(entry => entry.decision.timestamp >= options.since!);
+      results = results.filter(
+        (entry) => entry.decision.timestamp >= options.since!,
+      );
     }
 
     if (options.until) {
-      results = results.filter(entry => entry.decision.timestamp <= options.until!);
+      results = results.filter(
+        (entry) => entry.decision.timestamp <= options.until!,
+      );
     }
 
     if (options.type) {
-      results = results.filter(entry => entry.decision.type === options.type);
+      results = results.filter((entry) => entry.decision.type === options.type);
     }
 
     if (options.success !== undefined) {
-      results = results.filter(entry =>
-        entry.outcome?.success === options.success
+      results = results.filter(
+        (entry) => entry.outcome?.success === options.success,
       );
     }
 
     if (options.minConfidence !== undefined) {
-      results = results.filter(entry =>
-        entry.decision.confidence >= options.minConfidence!
+      results = results.filter(
+        (entry) => entry.decision.confidence >= options.minConfidence!,
       );
     }
 
     if (options.maxConfidence !== undefined) {
-      results = results.filter(entry =>
-        entry.decision.confidence <= options.maxConfidence!
+      results = results.filter(
+        (entry) => entry.decision.confidence <= options.maxConfidence!,
       );
     }
 
@@ -294,28 +304,31 @@ export class DecisionAuditTrail {
       };
     }
 
-    const entriesWithOutcomes = entries.filter(entry => entry.outcome);
+    const entriesWithOutcomes = entries.filter((entry) => entry.outcome);
     const successfulDecisions = entriesWithOutcomes.filter(
-      entry => entry.outcome!.success
+      (entry) => entry.outcome!.success,
     ).length;
     const failedDecisions = entriesWithOutcomes.length - successfulDecisions;
 
     // Calculate averages
     const totalConfidence = entries.reduce(
-      (sum, entry) => sum + entry.decision.confidence, 0
+      (sum, entry) => sum + entry.decision.confidence,
+      0,
     );
     const avgConfidence = totalConfidence / totalDecisions;
 
     const totalExecutionTime = entriesWithOutcomes.reduce(
-      (sum, entry) => sum + entry.outcome!.actualDuration, 0
+      (sum, entry) => sum + entry.outcome!.actualDuration,
+      0,
     );
-    const avgExecutionTime = entriesWithOutcomes.length > 0
-      ? totalExecutionTime / entriesWithOutcomes.length
-      : 0;
+    const avgExecutionTime =
+      entriesWithOutcomes.length > 0
+        ? totalExecutionTime / entriesWithOutcomes.length
+        : 0;
 
     // Group by decision type
     const decisionsByType: Record<string, number> = {};
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       const type = entry.decision.type;
       decisionsByType[type] = (decisionsByType[type] || 0) + 1;
     });
@@ -324,9 +337,10 @@ export class DecisionAuditTrail {
       totalDecisions,
       successfulDecisions,
       failedDecisions,
-      successRate: entriesWithOutcomes.length > 0
-        ? successfulDecisions / entriesWithOutcomes.length
-        : 0,
+      successRate:
+        entriesWithOutcomes.length > 0
+          ? successfulDecisions / entriesWithOutcomes.length
+          : 0,
       avgConfidence,
       avgExecutionTime,
       decisionsByType,
@@ -362,17 +376,19 @@ export class DecisionAuditTrail {
    * @param options - Export options
    * @returns JSON string of the audit data
    */
-  exportAsJson(options: {
-    since?: number;
-    until?: number;
-    includeContext?: boolean;
-  } = {}): string {
+  exportAsJson(
+    options: {
+      since?: number;
+      until?: number;
+      includeContext?: boolean;
+    } = {},
+  ): string {
     const entries = this.getDecisions({
       since: options.since,
       until: options.until,
     });
 
-    const exportData = entries.map(entry => ({
+    const exportData = entries.map((entry) => ({
       decision: options.includeContext
         ? entry.decision
         : { ...entry.decision, context: undefined },

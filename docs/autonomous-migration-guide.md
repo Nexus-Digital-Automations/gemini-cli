@@ -75,7 +75,7 @@ const assessments: WorkflowAssessment[] = [
     automation_benefits: 9,
     implementation_effort: 3,
     dependencies: ['Read', 'Grep', 'SecurityScan'],
-    blockers: []
+    blockers: [],
   },
   {
     workflow: 'Feature Implementation',
@@ -84,8 +84,8 @@ const assessments: WorkflowAssessment[] = [
     automation_benefits: 8,
     implementation_effort: 7,
     dependencies: ['Read', 'Write', 'Test', 'Git'],
-    blockers: ['Complex business logic']
-  }
+    blockers: ['Complex business logic'],
+  },
 ];
 ```
 
@@ -97,21 +97,21 @@ const assessments: WorkflowAssessment[] = [
 # System requirements assessment
 system_requirements:
   minimum:
-    memory: "4GB"
-    cpu: "2 cores"
-    disk: "10GB"
-    network: "stable internet"
+    memory: '4GB'
+    cpu: '2 cores'
+    disk: '10GB'
+    network: 'stable internet'
 
   recommended:
-    memory: "8GB"
-    cpu: "4 cores"
-    disk: "50GB SSD"
-    network: "high-speed internet"
+    memory: '8GB'
+    cpu: '4 cores'
+    disk: '50GB SSD'
+    network: 'high-speed internet'
 
   dependencies:
-    node_version: ">=16.0.0"
-    npm_version: ">=8.0.0"
-    git_version: ">=2.25.0"
+    node_version: '>=16.0.0'
+    npm_version: '>=8.0.0'
+    git_version: '>=2.25.0'
 ```
 
 #### Compatibility Check
@@ -139,18 +139,21 @@ npm install @gemini-cli/autonomous @gemini-cli/migration-tools
 ### Migration Approaches
 
 #### 1. Big Bang Migration (Not Recommended)
+
 - **Description**: Complete migration in one step
 - **Pros**: Fast implementation
 - **Cons**: High risk, difficult rollback
 - **Use Case**: Small teams, simple workflows only
 
 #### 2. Phased Migration (Recommended)
+
 - **Description**: Gradual migration over 2-8 weeks
 - **Pros**: Lower risk, easier validation
 - **Cons**: Longer timeline, temporary complexity
 - **Use Case**: Most organizations
 
 #### 3. Parallel Operation
+
 - **Description**: Run both systems simultaneously
 - **Pros**: Zero downtime, easy comparison
 - **Cons**: Resource intensive, complexity
@@ -160,13 +163,13 @@ npm install @gemini-cli/autonomous @gemini-cli/migration-tools
 
 #### Risk Assessment Matrix
 
-| Risk Factor | Probability | Impact | Mitigation Strategy |
-|-------------|-------------|--------|-------------------|
-| Data loss | Low | High | Automated backups, validation |
-| Downtime | Medium | Medium | Phased rollout, parallel systems |
-| Quality regression | Medium | High | Extensive testing, gradual deployment |
-| Team resistance | High | Medium | Training, clear communication |
-| Performance issues | Medium | Medium | Resource monitoring, optimization |
+| Risk Factor        | Probability | Impact | Mitigation Strategy                   |
+| ------------------ | ----------- | ------ | ------------------------------------- |
+| Data loss          | Low         | High   | Automated backups, validation         |
+| Downtime           | Medium      | Medium | Phased rollout, parallel systems      |
+| Quality regression | Medium      | High   | Extensive testing, gradual deployment |
+| Team resistance    | High        | Medium | Training, clear communication         |
+| Performance issues | Medium      | Medium | Resource monitoring, optimization     |
 
 #### Rollback Strategy
 
@@ -183,13 +186,17 @@ const rollbackPlan: RollbackPlan = {
     'Error rate > 10%',
     'Performance degradation > 50%',
     'Critical functionality failure',
-    'Team productivity drop > 30%'
+    'Team productivity drop > 30%',
   ],
   rollback_steps: [
     { step: 1, action: 'Pause autonomous system', duration: '5 minutes' },
-    { step: 2, action: 'Restore previous configuration', duration: '15 minutes' },
+    {
+      step: 2,
+      action: 'Restore previous configuration',
+      duration: '15 minutes',
+    },
     { step: 3, action: 'Validate system restoration', duration: '30 minutes' },
-    { step: 4, action: 'Resume normal operations', duration: '10 minutes' }
+    { step: 4, action: 'Resume normal operations', duration: '10 minutes' },
   ],
   // ... rest of plan
 };
@@ -202,6 +209,7 @@ const rollbackPlan: RollbackPlan = {
 ### Phase 1: Foundation (Week 1-2)
 
 #### Goals
+
 - Install and configure basic autonomous system
 - Migrate read-only operations
 - Establish monitoring and feedback loops
@@ -223,14 +231,15 @@ phase_1_tasks:
     - performance_monitoring
 
   success_criteria:
-    - system_stability: "> 99%"
-    - analysis_accuracy: "> 95%"
-    - team_comfort: "> 70%"
+    - system_stability: '> 99%'
+    - analysis_accuracy: '> 95%'
+    - team_comfort: '> 70%'
 ```
 
 #### Implementation Steps
 
 1. **System Installation**
+
    ```bash
    # Install core system
    npm install -g @gemini-cli/autonomous
@@ -243,21 +252,23 @@ phase_1_tasks:
    ```
 
 2. **Configure Read-Only Operations**
+
    ```yaml
    # .gemini/autonomous-config.yaml
    autonomous:
      enabled: true
-     mode: "assisted"  # Start conservative
+     mode: 'assisted' # Start conservative
 
    agents:
-     max_concurrent: 3  # Start small
+     max_concurrent: 3 # Start small
 
    tasks:
-     auto_approve_threshold: "low"
-     categories: ["analysis", "documentation"]  # Safe categories only
+     auto_approve_threshold: 'low'
+     categories: ['analysis', 'documentation'] # Safe categories only
    ```
 
 3. **Migration Execution**
+
    ```bash
    # Migrate code analysis workflow
    gemini migrate workflow \
@@ -275,6 +286,7 @@ phase_1_tasks:
 ### Phase 2: Core Operations (Week 3-4)
 
 #### Goals
+
 - Migrate core development operations
 - Introduce limited autonomous execution
 - Optimize performance and configuration
@@ -300,29 +312,30 @@ phase_2_targets:
 ```yaml
 # Upgraded configuration for Phase 2
 autonomous:
-  mode: "hybrid"  # More autonomous
+  mode: 'hybrid' # More autonomous
 
 agents:
-  max_concurrent: 5  # Increased capacity
+  max_concurrent: 5 # Increased capacity
   types:
     bug_investigator:
-      model: "gemini-2.5-pro"
-      tools: ["Read", "Grep", "Bash", "Git"]
+      model: 'gemini-2.5-pro'
+      tools: ['Read', 'Grep', 'Bash', 'Git']
       max_time_minutes: 20
 
     feature_implementer:
-      model: "gemini-2.5-flash"
-      tools: ["Read", "Write", "Edit", "MultiEdit"]
+      model: 'gemini-2.5-flash'
+      tools: ['Read', 'Write', 'Edit', 'MultiEdit']
       max_time_minutes: 30
 
 tasks:
-  auto_approve_threshold: "medium"
-  categories: ["analysis", "documentation", "bug-fix", "enhancement"]
+  auto_approve_threshold: 'medium'
+  categories: ['analysis', 'documentation', 'bug-fix', 'enhancement']
 ```
 
 ### Phase 3: Advanced Integration (Week 5-6)
 
 #### Goals
+
 - Full workflow automation
 - Advanced multi-agent coordination
 - Integration with existing tools
@@ -332,9 +345,9 @@ tasks:
 ```yaml
 phase_3_features:
   multi_agent:
-    coordination: "enabled"
+    coordination: 'enabled'
     parallel_execution: true
-    dependency_resolution: "automatic"
+    dependency_resolution: 'automatic'
 
   integrations:
     git:
@@ -359,21 +372,21 @@ const featureDevelopmentWorkflow = {
     {
       name: 'Analysis',
       agents: ['requirements_analyzer', 'architecture_designer'],
-      outputs: ['technical_spec', 'implementation_plan']
+      outputs: ['technical_spec', 'implementation_plan'],
     },
     {
       name: 'Implementation',
       agents: ['feature_developer', 'test_writer'],
       dependencies: ['technical_spec', 'implementation_plan'],
-      outputs: ['feature_code', 'test_suite']
+      outputs: ['feature_code', 'test_suite'],
     },
     {
       name: 'Validation',
       agents: ['quality_validator', 'security_scanner'],
       dependencies: ['feature_code', 'test_suite'],
-      outputs: ['quality_report', 'security_assessment']
-    }
-  ]
+      outputs: ['quality_report', 'security_assessment'],
+    },
+  ],
 };
 
 // Migration execution
@@ -383,6 +396,7 @@ await migrateComplexWorkflow(featureDevelopmentWorkflow);
 ### Phase 4: Optimization (Week 7-8)
 
 #### Goals
+
 - Performance optimization
 - Advanced monitoring
 - Team autonomy
@@ -432,16 +446,17 @@ gh api repos/:owner/:repo/branches/main/protection
 #### Migration Steps
 
 1. **Configure Git Integration**
+
    ```yaml
    integrations:
      git:
        enabled: true
-       auto_commit: false  # Start conservative
-       commit_message_template: "[AUTO] {task_title}: {summary}"
+       auto_commit: false # Start conservative
+       commit_message_template: '[AUTO] {task_title}: {summary}'
 
        branch_management:
          create_feature_branches: true
-         naming_pattern: "feature/auto-{task_id}"
+         naming_pattern: 'feature/auto-{task_id}'
 
        validation:
          pre_commit_hooks: true
@@ -449,6 +464,7 @@ gh api repos/:owner/:repo/branches/main/protection
    ```
 
 2. **Gradual Automation**
+
    ```bash
    # Week 1: Manual commits with autonomous analysis
    gemini config set integrations.git.auto_commit false
@@ -603,7 +619,7 @@ async function assessCurrentData(): Promise<DataInventory> {
     codebase: await analyzeCodebase(),
     git_history: await analyzeGitHistory(),
     documentation: await analyzeDocumentation(),
-    existing_automation: await analyzeAutomation()
+    existing_automation: await analyzeAutomation(),
   };
 }
 ```
@@ -642,14 +658,14 @@ class ConfigurationMigrator {
           code_linter: {
             tools: ['ESLint', 'Prettier'],
             rules: this.convertESLintRules(eslintConfig.rules),
-            auto_fix: true
-          }
-        }
+            auto_fix: true,
+          },
+        },
       },
       tasks: {
         categories: ['code-quality'],
-        auto_create_from_errors: true
-      }
+        auto_create_from_errors: true,
+      },
     };
   }
 
@@ -660,14 +676,16 @@ class ConfigurationMigrator {
           test_runner: {
             tools: ['Jest', 'TestAnalyzer'],
             coverage_threshold: jestConfig.coverageThreshold,
-            test_patterns: jestConfig.testMatch
-          }
-        }
-      }
+            test_patterns: jestConfig.testMatch,
+          },
+        },
+      },
     };
   }
 
-  async migratePackageScripts(scripts: Record<string, string>): Promise<TaskTemplate[]> {
+  async migratePackageScripts(
+    scripts: Record<string, string>,
+  ): Promise<TaskTemplate[]> {
     const templates: TaskTemplate[] = [];
 
     for (const [name, script] of Object.entries(scripts)) {
@@ -677,7 +695,7 @@ class ConfigurationMigrator {
           description: `Automated version of npm run ${name}`,
           command: script,
           category: this.categorizeScript(name),
-          schedule: this.determineSchedule(name)
+          schedule: this.determineSchedule(name),
         });
       }
     }
@@ -717,40 +735,41 @@ gemini migration status --detailed
 
 ```yaml
 training_phase_1:
-  duration: "1 week"
-  format: "mixed"
+  duration: '1 week'
+  format: 'mixed'
 
   sessions:
-    - title: "Autonomous System Overview"
-      duration: "2 hours"
-      format: "presentation + demo"
-      attendees: "all_team"
+    - title: 'Autonomous System Overview'
+      duration: '2 hours'
+      format: 'presentation + demo'
+      attendees: 'all_team'
 
-    - title: "Basic Operations"
-      duration: "2 hours"
-      format: "hands-on"
-      attendees: "developers"
+    - title: 'Basic Operations'
+      duration: '2 hours'
+      format: 'hands-on'
+      attendees: 'developers'
 
-    - title: "Monitoring and Troubleshooting"
-      duration: "1 hour"
-      format: "hands-on"
-      attendees: "tech_leads"
+    - title: 'Monitoring and Troubleshooting'
+      duration: '1 hour'
+      format: 'hands-on'
+      attendees: 'tech_leads'
 
   materials:
-    - "System overview slides"
-    - "Hands-on lab exercises"
-    - "Quick reference guides"
-    - "Video tutorials"
+    - 'System overview slides'
+    - 'Hands-on lab exercises'
+    - 'Quick reference guides'
+    - 'Video tutorials'
 ```
 
 #### Training Materials
 
-```markdown
+````markdown
 # Quick Start Guide for Developers
 
 ## Daily Operations
 
 ### Creating Tasks
+
 ```bash
 # Simple task creation
 gemini create-task "Fix login bug" --category bug-fix
@@ -761,8 +780,10 @@ gemini create-task "Implement user dashboard" \
   --requirements "./specs/dashboard.md" \
   --priority high
 ```
+````
 
 ### Monitoring Progress
+
 ```bash
 # Check active tasks
 gemini tasks list --active
@@ -775,10 +796,12 @@ gemini task results TASK_ID --detailed
 ```
 
 ### Common Issues
+
 - **Task stuck**: `gemini task restart TASK_ID`
 - **High resource usage**: `gemini resources optimize`
 - **Need help**: `gemini help` or ask in #autonomous-help
-```
+
+````
 
 #### Competency Assessment
 
@@ -807,7 +830,7 @@ const competencyRequirements = {
     configuration: 'competent'
   }
 };
-```
+````
 
 ### Knowledge Transfer
 
@@ -831,23 +854,23 @@ gemini workflows document \
 
 ```yaml
 mentorship_program:
-  structure: "buddy_system"
-  duration: "4 weeks"
+  structure: 'buddy_system'
+  duration: '4 weeks'
 
   pairs:
-    - mentor: "senior_dev_1"
-      mentee: "junior_dev_1"
-      focus_areas: ["task_creation", "monitoring"]
+    - mentor: 'senior_dev_1'
+      mentee: 'junior_dev_1'
+      focus_areas: ['task_creation', 'monitoring']
 
-    - mentor: "tech_lead_1"
-      mentee: "mid_level_dev_1"
-      focus_areas: ["configuration", "troubleshooting"]
+    - mentor: 'tech_lead_1'
+      mentee: 'mid_level_dev_1'
+      focus_areas: ['configuration', 'troubleshooting']
 
   milestones:
-    week_1: "Basic task creation and monitoring"
-    week_2: "Advanced task configuration"
-    week_3: "Troubleshooting and optimization"
-    week_4: "Independent operation"
+    week_1: 'Basic task creation and monitoring'
+    week_2: 'Advanced task configuration'
+    week_3: 'Troubleshooting and optimization'
+    week_4: 'Independent operation'
 ```
 
 ---
@@ -861,22 +884,22 @@ mentorship_program:
 ```typescript
 interface MigrationMetrics {
   performance: {
-    task_completion_rate: number;     // Target: >95%
-    average_task_duration: number;    // Target: <previous_manual_time
-    error_rate: number;               // Target: <5%
-    resource_utilization: number;     // Target: <80%
+    task_completion_rate: number; // Target: >95%
+    average_task_duration: number; // Target: <previous_manual_time
+    error_rate: number; // Target: <5%
+    resource_utilization: number; // Target: <80%
   };
 
   quality: {
-    code_quality_score: number;       // Target: maintain or improve
-    test_coverage: number;            // Target: maintain or improve
-    security_issues: number;          // Target: reduce
-    documentation_coverage: number;   // Target: improve
+    code_quality_score: number; // Target: maintain or improve
+    test_coverage: number; // Target: maintain or improve
+    security_issues: number; // Target: reduce
+    documentation_coverage: number; // Target: improve
   };
 
   productivity: {
-    developer_velocity: number;       // Target: +20%
-    time_to_resolution: number;       // Target: -30%
+    developer_velocity: number; // Target: +20%
+    time_to_resolution: number; // Target: -30%
     manual_intervention_rate: number; // Target: <10%
   };
 }
@@ -894,9 +917,9 @@ const monitoringConfig = {
         'migration_progress_percentage',
         'active_autonomous_tasks',
         'error_rate_last_24h',
-        'team_adoption_rate'
+        'team_adoption_rate',
       ],
-      refresh_interval: '30s'
+      refresh_interval: '30s',
     },
     {
       name: 'System Performance',
@@ -904,10 +927,10 @@ const monitoringConfig = {
         'resource_utilization',
         'task_queue_length',
         'average_response_time',
-        'agent_health_status'
+        'agent_health_status',
       ],
-      refresh_interval: '10s'
-    }
+      refresh_interval: '10s',
+    },
   ],
 
   alerts: [
@@ -915,15 +938,15 @@ const monitoringConfig = {
       name: 'High Error Rate',
       condition: 'error_rate > 0.1',
       severity: 'critical',
-      actions: ['notify_team', 'auto_rollback']
+      actions: ['notify_team', 'auto_rollback'],
     },
     {
       name: 'Low Adoption',
       condition: 'team_adoption_rate < 0.7 AND days_since_rollout > 7',
       severity: 'warning',
-      actions: ['schedule_training']
-    }
-  ]
+      actions: ['schedule_training'],
+    },
+  ],
 };
 ```
 
@@ -965,24 +988,28 @@ echo "=== Validation Complete ==="
 # Weekly Migration Review Checklist
 
 ## System Stability
+
 - [ ] No critical errors in past week
 - [ ] System uptime > 99.9%
 - [ ] Resource usage within acceptable limits
 - [ ] All agents responding normally
 
 ## Task Quality
+
 - [ ] Random sample of 10 completed tasks reviewed
 - [ ] Code quality maintained or improved
 - [ ] Documentation quality acceptable
 - [ ] No security regressions identified
 
 ## Team Feedback
+
 - [ ] Team satisfaction survey completed
 - [ ] Individual feedback sessions conducted
 - [ ] Issues and concerns documented
 - [ ] Action items identified and assigned
 
 ## Performance
+
 - [ ] Task completion times measured
 - [ ] Developer velocity assessed
 - [ ] Bottlenecks identified and addressed
@@ -1000,25 +1027,25 @@ echo "=== Validation Complete ==="
 ```yaml
 automatic_rollback_triggers:
   critical_errors:
-    threshold: "error_rate > 0.2 for 10 minutes"
-    action: "immediate_rollback"
+    threshold: 'error_rate > 0.2 for 10 minutes'
+    action: 'immediate_rollback'
 
   performance_degradation:
-    threshold: "response_time > 3x baseline for 15 minutes"
-    action: "immediate_rollback"
+    threshold: 'response_time > 3x baseline for 15 minutes'
+    action: 'immediate_rollback'
 
   system_unavailability:
-    threshold: "system_down for 5 minutes"
-    action: "failover_to_backup"
+    threshold: 'system_down for 5 minutes'
+    action: 'failover_to_backup'
 
 manual_rollback_triggers:
   team_productivity:
-    threshold: "productivity_drop > 40% for 2 days"
-    action: "planned_rollback"
+    threshold: 'productivity_drop > 40% for 2 days'
+    action: 'planned_rollback'
 
   quality_regression:
-    threshold: "quality_score_drop > 30%"
-    action: "planned_rollback"
+    threshold: 'quality_score_drop > 30%'
+    action: 'planned_rollback'
 ```
 
 ### Rollback Execution
@@ -1164,18 +1191,18 @@ gemini plan improvements \
 ```yaml
 completion_criteria:
   system_stability:
-    uptime: "> 99.9%"
-    error_rate: "< 2%"
-    response_time: "< 2x baseline"
+    uptime: '> 99.9%'
+    error_rate: '< 2%'
+    response_time: '< 2x baseline'
 
   functionality:
-    task_completion_rate: "> 95%"
+    task_completion_rate: '> 95%'
     quality_maintained: true
     security_maintained: true
 
   performance:
-    resource_usage: "< 80%"
-    throughput: ">= baseline"
+    resource_usage: '< 80%'
+    throughput: '>= baseline'
     scalability_validated: true
 ```
 
@@ -1184,14 +1211,14 @@ completion_criteria:
 ```yaml
 team_success_criteria:
   adoption:
-    daily_active_users: "> 90%"
-    task_creation_rate: "> target"
-    manual_override_rate: "< 10%"
+    daily_active_users: '> 90%'
+    task_creation_rate: '> target'
+    manual_override_rate: '< 10%'
 
   satisfaction:
-    team_satisfaction_score: "> 4/5"
-    productivity_improvement: "> 15%"
-    confidence_level: "> 4/5"
+    team_satisfaction_score: '> 4/5'
+    productivity_improvement: '> 15%'
+    confidence_level: '> 4/5'
 ```
 
 ### Final Validation
@@ -1219,21 +1246,21 @@ const continuousImprovement = {
   schedule: {
     weekly_reviews: 'Every Friday at 2 PM',
     monthly_optimization: 'First Monday of each month',
-    quarterly_assessment: 'End of each quarter'
+    quarterly_assessment: 'End of each quarter',
   },
 
   focus_areas: [
     'Performance optimization',
     'New workflow integration',
     'Team skill development',
-    'Tool and process refinement'
+    'Tool and process refinement',
   ],
 
   success_metrics: {
     efficiency_improvement: 'target: +5% monthly',
     error_reduction: 'target: -2% monthly',
-    team_satisfaction: 'target: maintain > 4/5'
-  }
+    team_satisfaction: 'target: maintain > 4/5',
+  },
 };
 ```
 

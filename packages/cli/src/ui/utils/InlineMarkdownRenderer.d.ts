@@ -6,7 +6,7 @@
 
 import type React from 'react';
 interface RenderInlineProps {
-    text: string;
+  text: string;
 }
 export declare const RenderInline: React.NamedExoticComponent<RenderInlineProps>;
 /**

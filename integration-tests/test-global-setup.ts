@@ -15,10 +15,12 @@ import { join } from 'node:path';
  * and setting up shared resources for all integration tests.
  */
 
-const TASK_MANAGER_API = process.env.TASK_MANAGER_API_PATH ||
+const TASK_MANAGER_API =
+  process.env.TASK_MANAGER_API_PATH ||
   '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js';
 
-const TEST_DIR = process.env.INTEGRATION_TEST_FILE_DIR || '/tmp/autonomous-tests';
+const TEST_DIR =
+  process.env.INTEGRATION_TEST_FILE_DIR || '/tmp/autonomous-tests';
 
 export default async function globalSetup() {
   console.log('🔧 Starting Integration Test Global Setup...');
@@ -44,7 +46,7 @@ export default async function globalSetup() {
       'performance',
       'ci-cd',
       'reliability',
-      'temp'
+      'temp',
     ];
 
     for (const subDir of testSubDirs) {
@@ -78,7 +80,9 @@ export default async function globalSetup() {
     console.log(`📊 Initial memory usage: ${freeMem}MB heap`);
 
     if (freeMem > 1000) {
-      console.warn('⚠️ High initial memory usage detected - may affect test results');
+      console.warn(
+        '⚠️ High initial memory usage detected - may affect test results',
+      );
     }
 
     // 6. Create test results directory
@@ -94,18 +98,20 @@ export default async function globalSetup() {
       subDirectories: testSubDirs,
       initialMemoryMB: freeMem,
       environment: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    console.log('📋 Global Setup Summary:', JSON.stringify(setupSummary, null, 2));
+    console.log(
+      '📋 Global Setup Summary:',
+      JSON.stringify(setupSummary, null, 2),
+    );
     console.log('✅ Integration Test Global Setup Complete');
 
     // Store setup info for teardown
     await fs.writeFile(
       join(TEST_DIR, 'setup-info.json'),
-      JSON.stringify(setupSummary, null, 2)
+      JSON.stringify(setupSummary, null, 2),
     );
-
   } catch (error) {
     console.error('❌ Global Setup Failed:', error);
     throw error;
@@ -162,12 +168,14 @@ export async function globalTeardown() {
       testDirectory: TEST_DIR,
       finalMemoryMB: finalMem,
       preservedDirectories: preserveDirs,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    console.log('📋 Global Teardown Summary:', JSON.stringify(teardownSummary, null, 2));
+    console.log(
+      '📋 Global Teardown Summary:',
+      JSON.stringify(teardownSummary, null, 2),
+    );
     console.log('✅ Integration Test Global Teardown Complete');
-
   } catch (error) {
     console.error('❌ Global Teardown Failed:', error);
     // Don't throw during teardown to avoid masking test failures

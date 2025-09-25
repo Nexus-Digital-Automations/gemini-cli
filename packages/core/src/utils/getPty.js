@@ -5,20 +5,18 @@
  */
 
 export const getPty = async () => {
+  try {
+    const lydell = '@lydell/node-pty';
+    const module = await import(lydell);
+    return { module, name: 'lydell-node-pty' };
+  } catch (_e) {
     try {
-        const lydell = '@lydell/node-pty';
-        const module = await import(lydell);
-        return { module, name: 'lydell-node-pty' };
+      const nodePty = 'node-pty';
+      const module = await import(nodePty);
+      return { module, name: 'node-pty' };
+    } catch (_e2) {
+      return null;
     }
-    catch (_e) {
-        try {
-            const nodePty = 'node-pty';
-            const module = await import(nodePty);
-            return { module, name: 'node-pty' };
-        }
-        catch (_e2) {
-            return null;
-        }
-    }
+  }
 };
 //# sourceMappingURL=getPty.js.map

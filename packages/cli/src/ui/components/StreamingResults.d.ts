@@ -11,11 +11,11 @@ import type { OperationProgress, ProgressUpdate } from '../types.js';
  * Configures how streaming operation results are displayed and formatted.
  */
 export interface StreamingResultsProps {
-    operation: OperationProgress;
-    maxResults?: number;
-    maxHeight?: number;
-    showTimestamps?: boolean;
-    autoScroll?: boolean;
+  operation: OperationProgress;
+  maxResults?: number;
+  maxHeight?: number;
+  showTimestamps?: boolean;
+  autoScroll?: boolean;
 }
 /**
  * StreamingResults displays live intermediate results from ongoing operations.
@@ -43,9 +43,9 @@ export declare const StreamingResults: React.FC<StreamingResultsProps>;
  * Configures how progress updates are shown during operations.
  */
 export interface LiveUpdateDisplayProps {
-    updates: ProgressUpdate[];
-    maxUpdates?: number;
-    compact?: boolean;
+  updates: ProgressUpdate[];
+  maxUpdates?: number;
+  compact?: boolean;
 }
 /**
  * LiveUpdateDisplay shows recent progress updates from ongoing operations.

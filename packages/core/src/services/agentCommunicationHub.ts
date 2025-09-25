@@ -85,7 +85,13 @@ export type MessageType =
 export type MessagePriority = 'critical' | 'high' | 'normal' | 'low';
 
 export interface CommunicationEvent {
-  type: 'message_sent' | 'message_delivered' | 'message_failed' | 'subscription_added' | 'barrier_completed' | 'consensus_reached';
+  type:
+    | 'message_sent'
+    | 'message_delivered'
+    | 'message_failed'
+    | 'subscription_added'
+    | 'barrier_completed'
+    | 'consensus_reached';
   timestamp: Date;
   data: Record<string, unknown>;
 }
@@ -103,10 +109,15 @@ export interface MessageQueue {
 export class AgentCommunicationHub extends EventEmitter {
   private connectedAgents: Set<string> = new Set();
   private messageQueues: Map<string, MessageQueue> = new Map();
-  private subscriptions: Map<string, Map<string, SubscriptionFilter>> = new Map(); // agentId -> subscriptionId -> filter
+  private subscriptions: Map<string, Map<string, SubscriptionFilter>> =
+    new Map(); // agentId -> subscriptionId -> filter
   private messageHistory: AgentMessage[] = [];
-  private pendingResponses: Map<string, { resolve: Function; reject: Function; timeout: NodeJS.Timeout }> = new Map();
-  private synchronizationBarriers: Map<string, SynchronizationBarrier> = new Map();
+  private pendingResponses: Map<
+    string,
+    { resolve: Function; reject: Function; timeout: NodeJS.Timeout }
+  > = new Map();
+  private synchronizationBarriers: Map<string, SynchronizationBarrier> =
+    new Map();
   private consensusOperations: Map<string, ConsensusOperation> = new Map();
   private routingTable: Map<string, Set<string>> = new Map(); // topic -> interested agents
   private messageStats = {
@@ -125,7 +136,10 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Connect an agent to the communication hub
    */
-  async connectAgent(agentId: string, capabilities?: AgentCapability[]): Promise<void> {
+  async connectAgent(
+    agentId: string,
+    capabilities?: AgentCapability[],
+  ): Promise<void> {
     this.connectedAgents.add(agentId);
 
     // Initialize message queue for the agent
@@ -181,14 +195,22 @@ export class AgentCommunicationHub extends EventEmitter {
 
     // Remove from synchronization barriers
     for (const [barrierId, barrier] of this.synchronizationBarriers) {
-      barrier.requiredParticipants = barrier.requiredParticipants.filter(id => id !== agentId);
-      barrier.waitingParticipants = barrier.waitingParticipants.filter(id => id !== agentId);
-      barrier.completedParticipants = barrier.completedParticipants.filter(id => id !== agentId);
+      barrier.requiredParticipants = barrier.requiredParticipants.filter(
+        (id) => id !== agentId,
+      );
+      barrier.waitingParticipants = barrier.waitingParticipants.filter(
+        (id) => id !== agentId,
+      );
+      barrier.completedParticipants = barrier.completedParticipants.filter(
+        (id) => id !== agentId,
+      );
     }
 
     // Remove from consensus operations
     for (const [operationId, operation] of this.consensusOperations) {
-      operation.participants = operation.participants.filter(id => id !== agentId);
+      operation.participants = operation.participants.filter(
+        (id) => id !== agentId,
+      );
       operation.votes.delete(agentId);
     }
 
@@ -198,7 +220,9 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Send a message between agents
    */
-  async sendMessage(message: Omit<AgentMessage, 'id' | 'timestamp'>): Promise<string> {
+  async sendMessage(
+    message: Omit<AgentMessage, 'id' | 'timestamp'>,
+  ): Promise<string> {
     const fullMessage: AgentMessage = {
       ...message,
       id: this.generateMessageId(),
@@ -233,7 +257,11 @@ export class AgentCommunicationHub extends EventEmitter {
       const event: CommunicationEvent = {
         type: 'message_failed',
         timestamp: new Date(),
-        data: { messageId: fullMessage.id, recipients, reason: 'no_recipients' },
+        data: {
+          messageId: fullMessage.id,
+          recipients,
+          reason: 'no_recipients',
+        },
       };
 
       this.emit('message_failed', event);
@@ -247,14 +275,19 @@ export class AgentCommunicationHub extends EventEmitter {
       this.emit('message_sent', event);
     }
 
-    console.log(`📨 Message ${fullMessage.id} sent from ${message.from} (delivered to ${deliveryCount} recipients)`);
+    console.log(
+      `📨 Message ${fullMessage.id} sent from ${message.from} (delivered to ${deliveryCount} recipients)`,
+    );
     return fullMessage.id;
   }
 
   /**
    * Send a message and wait for response
    */
-  async sendMessageWithResponse(message: Omit<AgentMessage, 'id' | 'timestamp' | 'requiresResponse'>, timeoutMs: number = 30000): Promise<MessageResponse> {
+  async sendMessageWithResponse(
+    message: Omit<AgentMessage, 'id' | 'timestamp' | 'requiresResponse'>,
+    timeoutMs: number = 30000,
+  ): Promise<MessageResponse> {
     const messageId = await this.sendMessage({
       ...message,
       requiresResponse: true,
@@ -274,7 +307,10 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Send a response to a message
    */
-  async sendResponse(originalMessageId: string, response: Omit<MessageResponse, 'timestamp'>): Promise<void> {
+  async sendResponse(
+    originalMessageId: string,
+    response: Omit<MessageResponse, 'timestamp'>,
+  ): Promise<void> {
     const fullResponse: MessageResponse = {
       ...response,
       timestamp: new Date(),
@@ -294,7 +330,10 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Subscribe to messages matching a filter
    */
-  async subscribe(agentId: string, filter: SubscriptionFilter): Promise<string> {
+  async subscribe(
+    agentId: string,
+    filter: SubscriptionFilter,
+  ): Promise<string> {
     if (!this.connectedAgents.has(agentId)) {
       throw new Error(`Agent ${agentId} is not connected`);
     }
@@ -325,7 +364,9 @@ export class AgentCommunicationHub extends EventEmitter {
       };
 
       this.emit('subscription_added', event);
-      console.log(`📋 Agent ${agentId} subscribed with filter: ${JSON.stringify(filter)}`);
+      console.log(
+        `📋 Agent ${agentId} subscribed with filter: ${JSON.stringify(filter)}`,
+      );
     }
 
     return subscriptionId;
@@ -345,7 +386,10 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Get messages for an agent
    */
-  async getMessages(agentId: string, limit: number = 50): Promise<AgentMessage[]> {
+  async getMessages(
+    agentId: string,
+    limit: number = 50,
+  ): Promise<AgentMessage[]> {
     const queue = this.messageQueues.get(agentId);
     if (!queue) {
       return [];
@@ -358,7 +402,12 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Create a synchronization barrier
    */
-  async createSynchronizationBarrier(barrierId: string, participants: string[], timeoutMs: number = 60000, payload?: Record<string, unknown>): Promise<void> {
+  async createSynchronizationBarrier(
+    barrierId: string,
+    participants: string[],
+    timeoutMs: number = 60000,
+    payload?: Record<string, unknown>,
+  ): Promise<void> {
     const barrier: SynchronizationBarrier = {
       id: barrierId,
       requiredParticipants: [...participants],
@@ -387,13 +436,18 @@ export class AgentCommunicationHub extends EventEmitter {
       });
     }
 
-    console.log(`🚧 Synchronization barrier ${barrierId} created for ${participants.length} participants`);
+    console.log(
+      `🚧 Synchronization barrier ${barrierId} created for ${participants.length} participants`,
+    );
   }
 
   /**
    * Join a synchronization barrier
    */
-  async joinSynchronizationBarrier(barrierId: string, agentId: string): Promise<boolean> {
+  async joinSynchronizationBarrier(
+    barrierId: string,
+    agentId: string,
+  ): Promise<boolean> {
     const barrier = this.synchronizationBarriers.get(barrierId);
     if (!barrier || barrier.status !== 'waiting') {
       return false;
@@ -408,10 +462,15 @@ export class AgentCommunicationHub extends EventEmitter {
     }
 
     barrier.completedParticipants.push(agentId);
-    barrier.waitingParticipants = barrier.waitingParticipants.filter(id => id !== agentId);
+    barrier.waitingParticipants = barrier.waitingParticipants.filter(
+      (id) => id !== agentId,
+    );
 
     // Check if barrier is complete
-    if (barrier.completedParticipants.length === barrier.requiredParticipants.length) {
+    if (
+      barrier.completedParticipants.length ===
+      barrier.requiredParticipants.length
+    ) {
       barrier.status = 'completed';
 
       // Notify all participants
@@ -450,7 +509,12 @@ export class AgentCommunicationHub extends EventEmitter {
   /**
    * Start a consensus operation
    */
-  async startConsensusOperation(operationId: string, type: ConsensusOperation['type'], participants: string[], timeoutMs: number = 120000): Promise<void> {
+  async startConsensusOperation(
+    operationId: string,
+    type: ConsensusOperation['type'],
+    participants: string[],
+    timeoutMs: number = 120000,
+  ): Promise<void> {
     const operation: ConsensusOperation = {
       id: operationId,
       type,
@@ -479,13 +543,19 @@ export class AgentCommunicationHub extends EventEmitter {
       });
     }
 
-    console.log(`🗳️ Consensus operation ${operationId} started with ${participants.length} participants`);
+    console.log(
+      `🗳️ Consensus operation ${operationId} started with ${participants.length} participants`,
+    );
   }
 
   /**
    * Submit a vote for a consensus operation
    */
-  async submitVote(operationId: string, agentId: string, vote: unknown): Promise<boolean> {
+  async submitVote(
+    operationId: string,
+    agentId: string,
+    vote: unknown,
+  ): Promise<boolean> {
     const operation = this.consensusOperations.get(operationId);
     if (!operation || operation.status !== 'voting') {
       return false;
@@ -538,11 +608,17 @@ export class AgentCommunicationHub extends EventEmitter {
         const event: CommunicationEvent = {
           type: 'consensus_reached',
           timestamp: new Date(),
-          data: { operationId, result: consensusResult, votes: operation.votes.size },
+          data: {
+            operationId,
+            result: consensusResult,
+            votes: operation.votes.size,
+          },
         };
 
         this.emit('consensus_reached', event);
-        console.log(`🗳️ Consensus reached for operation ${operationId}: ${JSON.stringify(consensusResult)}`);
+        console.log(
+          `🗳️ Consensus reached for operation ${operationId}: ${JSON.stringify(consensusResult)}`,
+        );
 
         // Clean up operation after a delay
         setTimeout(() => {
@@ -570,8 +646,13 @@ export class AgentCommunicationHub extends EventEmitter {
       activeConsensusOperations: number;
     };
   } {
-    const queueSizes = Array.from(this.messageQueues.values()).map(q => q.messages.length);
-    const averageQueueSize = queueSizes.length > 0 ? queueSizes.reduce((a, b) => a + b, 0) / queueSizes.length : 0;
+    const queueSizes = Array.from(this.messageQueues.values()).map(
+      (q) => q.messages.length,
+    );
+    const averageQueueSize =
+      queueSizes.length > 0
+        ? queueSizes.reduce((a, b) => a + b, 0) / queueSizes.length
+        : 0;
     const maxQueueSize = queueSizes.length > 0 ? Math.max(...queueSizes) : 0;
 
     return {
@@ -630,7 +711,10 @@ export class AgentCommunicationHub extends EventEmitter {
 
   // Private helper methods
 
-  private async deliverMessage(message: AgentMessage, recipient: string): Promise<boolean> {
+  private async deliverMessage(
+    message: AgentMessage,
+    recipient: string,
+  ): Promise<boolean> {
     if (!this.connectedAgents.has(recipient)) {
       return false;
     }
@@ -690,7 +774,10 @@ export class AgentCommunicationHub extends EventEmitter {
     return deliveries > 0;
   }
 
-  private messageMatchesFilter(message: AgentMessage, filter: SubscriptionFilter): boolean {
+  private messageMatchesFilter(
+    message: AgentMessage,
+    filter: SubscriptionFilter,
+  ): boolean {
     // Check message type
     if (filter.type && !filter.type.includes(message.type)) {
       return false;
@@ -704,7 +791,11 @@ export class AgentCommunicationHub extends EventEmitter {
     // Check recipient
     if (filter.to) {
       const recipients = Array.isArray(message.to) ? message.to : [message.to];
-      if (!filter.to.some(filterRecipient => recipients.includes(filterRecipient))) {
+      if (
+        !filter.to.some((filterRecipient) =>
+          recipients.includes(filterRecipient),
+        )
+      ) {
         return false;
       }
     }
@@ -740,8 +831,8 @@ export class AgentCommunicationHub extends EventEmitter {
 
     // Clean up expired messages
     for (const queue of this.messageQueues.values()) {
-      queue.messages = queue.messages.filter(msg =>
-        !msg.expiresAt || msg.expiresAt > now
+      queue.messages = queue.messages.filter(
+        (msg) => !msg.expiresAt || msg.expiresAt > now,
       );
     }
 
@@ -761,7 +852,9 @@ export class AgentCommunicationHub extends EventEmitter {
               action: 'barrier_timeout',
               barrierId,
             },
-          }).catch(error => console.error('Error notifying barrier timeout:', error));
+          }).catch((error) =>
+            console.error('Error notifying barrier timeout:', error),
+          );
         }
 
         // Remove after notification
@@ -788,7 +881,9 @@ export class AgentCommunicationHub extends EventEmitter {
               operationId,
               votes: operation.votes.size,
             },
-          }).catch(error => console.error('Error notifying consensus timeout:', error));
+          }).catch((error) =>
+            console.error('Error notifying consensus timeout:', error),
+          );
         }
 
         // Remove after notification
@@ -807,7 +902,10 @@ export class AgentCommunicationHub extends EventEmitter {
     // Clean up stale message queues (no access for 1 hour)
     const staleThreshold = 60 * 60 * 1000; // 1 hour
     for (const [agentId, queue] of this.messageQueues) {
-      if (now.getTime() - queue.lastAccess.getTime() > staleThreshold && !this.connectedAgents.has(agentId)) {
+      if (
+        now.getTime() - queue.lastAccess.getTime() > staleThreshold &&
+        !this.connectedAgents.has(agentId)
+      ) {
         this.messageQueues.delete(agentId);
       }
     }

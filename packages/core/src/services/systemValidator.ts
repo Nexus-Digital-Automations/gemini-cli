@@ -96,7 +96,7 @@ export class SystemValidator extends EventEmitter {
   async initialize(
     taskIntegrator: AutonomousTaskIntegrator,
     integrationBridge: IntegrationBridge,
-    systemMonitor: SystemMonitor
+    systemMonitor: SystemMonitor,
   ): Promise<void> {
     this.taskIntegrator = taskIntegrator;
     this.integrationBridge = integrationBridge;
@@ -162,7 +162,7 @@ export class SystemValidator extends EventEmitter {
           details: 'TaskManager API successfully connected and responsive',
           metrics: { uptime: status.bridge.uptime },
         };
-      }
+      },
     );
 
     // Test 2: Task Integrator Functionality
@@ -184,7 +184,7 @@ export class SystemValidator extends EventEmitter {
           details: `Task Integrator functional with ${endpoints.length} registered endpoints`,
           metrics: { endpoints: endpoints.length },
         };
-      }
+      },
     );
 
     // Test 3: System Monitor Integration
@@ -205,7 +205,7 @@ export class SystemValidator extends EventEmitter {
           metrics: { healthScore: health.score, uptime: health.uptime },
           warnings: health.issues,
         };
-      }
+      },
     );
 
     // Test 4: Cross-Component Communication
@@ -219,12 +219,14 @@ export class SystemValidator extends EventEmitter {
 
         // Test event propagation
         let eventReceived = false;
-        const testHandler = () => { eventReceived = true; };
+        const testHandler = () => {
+          eventReceived = true;
+        };
 
         this.taskIntegrator.once('test_event', testHandler);
         this.taskIntegrator.emit('test_event', { test: true });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         if (!eventReceived) {
           throw new Error('Event propagation not working');
@@ -235,7 +237,7 @@ export class SystemValidator extends EventEmitter {
           details: 'Cross-component communication working correctly',
           metrics: { eventPropagationDelay: 100 },
         };
-      }
+      },
     );
   }
 
@@ -246,91 +248,82 @@ export class SystemValidator extends EventEmitter {
     const category = 'System Health';
 
     // Test 1: System Resources
-    await this.runValidation(
-      category,
-      'System Resources',
-      async () => {
-        if (!this.systemMonitor) {
-          throw new Error('System Monitor not available');
-        }
-
-        const metrics = await this.systemMonitor.getCurrentMetrics();
-        const cpuUsage = metrics.system.cpu.usage;
-        const memoryUsage = metrics.system.memory.percentage;
-
-        let score = 100;
-        const warnings: string[] = [];
-
-        if (cpuUsage > 80) {
-          score -= 30;
-          warnings.push(`High CPU usage: ${cpuUsage.toFixed(1)}%`);
-        }
-
-        if (memoryUsage > 85) {
-          score -= 30;
-          warnings.push(`High memory usage: ${memoryUsage.toFixed(1)}%`);
-        }
-
-        return {
-          score: Math.max(0, score),
-          details: `System resources: CPU ${cpuUsage.toFixed(1)}%, Memory ${memoryUsage.toFixed(1)}%`,
-          metrics: { cpuUsage, memoryUsage },
-          warnings,
-        };
+    await this.runValidation(category, 'System Resources', async () => {
+      if (!this.systemMonitor) {
+        throw new Error('System Monitor not available');
       }
-    );
+
+      const metrics = await this.systemMonitor.getCurrentMetrics();
+      const cpuUsage = metrics.system.cpu.usage;
+      const memoryUsage = metrics.system.memory.percentage;
+
+      let score = 100;
+      const warnings: string[] = [];
+
+      if (cpuUsage > 80) {
+        score -= 30;
+        warnings.push(`High CPU usage: ${cpuUsage.toFixed(1)}%`);
+      }
+
+      if (memoryUsage > 85) {
+        score -= 30;
+        warnings.push(`High memory usage: ${memoryUsage.toFixed(1)}%`);
+      }
+
+      return {
+        score: Math.max(0, score),
+        details: `System resources: CPU ${cpuUsage.toFixed(1)}%, Memory ${memoryUsage.toFixed(1)}%`,
+        metrics: { cpuUsage, memoryUsage },
+        warnings,
+      };
+    });
 
     // Test 2: Active Alerts
-    await this.runValidation(
-      category,
-      'Active Alerts',
-      async () => {
-        if (!this.systemMonitor) {
-          throw new Error('System Monitor not available');
-        }
-
-        const alerts = this.systemMonitor.getActiveAlerts();
-        const criticalAlerts = alerts.filter(a => a.severity === 'critical');
-        const highAlerts = alerts.filter(a => a.severity === 'high');
-
-        let score = 100;
-        if (criticalAlerts.length > 0) score -= 50;
-        if (highAlerts.length > 0) score -= 25;
-
-        return {
-          score: Math.max(0, score),
-          details: `${alerts.length} active alerts (${criticalAlerts.length} critical, ${highAlerts.length} high)`,
-          metrics: { totalAlerts: alerts.length, criticalAlerts: criticalAlerts.length },
-          warnings: alerts.map(a => a.title),
-        };
+    await this.runValidation(category, 'Active Alerts', async () => {
+      if (!this.systemMonitor) {
+        throw new Error('System Monitor not available');
       }
-    );
+
+      const alerts = this.systemMonitor.getActiveAlerts();
+      const criticalAlerts = alerts.filter((a) => a.severity === 'critical');
+      const highAlerts = alerts.filter((a) => a.severity === 'high');
+
+      let score = 100;
+      if (criticalAlerts.length > 0) score -= 50;
+      if (highAlerts.length > 0) score -= 25;
+
+      return {
+        score: Math.max(0, score),
+        details: `${alerts.length} active alerts (${criticalAlerts.length} critical, ${highAlerts.length} high)`,
+        metrics: {
+          totalAlerts: alerts.length,
+          criticalAlerts: criticalAlerts.length,
+        },
+        warnings: alerts.map((a) => a.title),
+      };
+    });
 
     // Test 3: Component Responsiveness
-    await this.runValidation(
-      category,
-      'Component Responsiveness',
-      async () => {
-        const startTime = Date.now();
+    await this.runValidation(category, 'Component Responsiveness', async () => {
+      const startTime = Date.now();
 
-        if (!this.taskIntegrator) {
-          throw new Error('Task Integrator not available');
-        }
-
-        const status = this.taskIntegrator.getSystemStatus();
-        const responseTime = Date.now() - startTime;
-
-        let score = 100;
-        if (responseTime > 1000) score -= 30;
-        if (responseTime > 5000) score -= 50;
-
-        return {
-          score: Math.max(0, score),
-          details: `Component response time: ${responseTime}ms`,
-          metrics: { responseTime, totalTasks: status.tasks.total },
-        };
+      if (!this.taskIntegrator) {
+        throw new Error('Task Integrator not available');
       }
-    );
+
+      const status = this.taskIntegrator.getSystemStatus();
+      const responseTime = Date.now() - startTime;
+
+      let score = 100;
+      if (responseTime > 1000) score -= 30;
+      if (responseTime > 5000) score -= 50;
+
+      return {
+        score: Math.max(0, score),
+        details: `Component response time: ${responseTime}ms`,
+        metrics: { responseTime, totalTasks: status.tasks.total },
+      };
+    });
   }
 
   /**
@@ -373,58 +366,50 @@ export class SystemValidator extends EventEmitter {
           details: `Task creation time: ${creationTime}ms`,
           metrics: { taskCreationTime: creationTime },
         };
-      }
+      },
     );
 
     // Test 2: System Throughput
-    await this.runValidation(
-      category,
-      'System Throughput',
-      async () => {
-        if (!this.systemMonitor) {
-          throw new Error('System Monitor not available');
-        }
-
-        const metrics = await this.systemMonitor.getCurrentMetrics();
-        const throughput = metrics.tasks.throughput;
-
-        let score = 100;
-        if (throughput < 10) score -= 30; // Less than 10 tasks per hour
-        if (throughput < 5) score -= 50;   // Less than 5 tasks per hour
-
-        return {
-          score: Math.max(0, score),
-          details: `Current throughput: ${throughput} tasks/hour`,
-          metrics: { throughput },
-        };
+    await this.runValidation(category, 'System Throughput', async () => {
+      if (!this.systemMonitor) {
+        throw new Error('System Monitor not available');
       }
-    );
+
+      const metrics = await this.systemMonitor.getCurrentMetrics();
+      const throughput = metrics.tasks.throughput;
+
+      let score = 100;
+      if (throughput < 10) score -= 30; // Less than 10 tasks per hour
+      if (throughput < 5) score -= 50; // Less than 5 tasks per hour
+
+      return {
+        score: Math.max(0, score),
+        details: `Current throughput: ${throughput} tasks/hour`,
+        metrics: { throughput },
+      };
+    });
 
     // Test 3: Queue Performance
-    await this.runValidation(
-      category,
-      'Queue Performance',
-      async () => {
-        if (!this.taskIntegrator) {
-          throw new Error('Task Integrator not available');
-        }
-
-        const status = this.taskIntegrator.getSystemStatus();
-        const queueDepth = status.queue.depth;
-        const avgWaitTime = status.queue.avgWaitTime;
-
-        let score = 100;
-        if (queueDepth > 50) score -= 25;
-        if (queueDepth > 100) score -= 50;
-        if (avgWaitTime > 300000) score -= 25; // 5 minutes
-
-        return {
-          score: Math.max(0, score),
-          details: `Queue depth: ${queueDepth}, Average wait time: ${Math.round(avgWaitTime / 1000)}s`,
-          metrics: { queueDepth, avgWaitTime },
-        };
+    await this.runValidation(category, 'Queue Performance', async () => {
+      if (!this.taskIntegrator) {
+        throw new Error('Task Integrator not available');
       }
-    );
+
+      const status = this.taskIntegrator.getSystemStatus();
+      const queueDepth = status.queue.depth;
+      const avgWaitTime = status.queue.avgWaitTime;
+
+      let score = 100;
+      if (queueDepth > 50) score -= 25;
+      if (queueDepth > 100) score -= 50;
+      if (avgWaitTime > 300000) score -= 25; // 5 minutes
+
+      return {
+        score: Math.max(0, score),
+        details: `Queue depth: ${queueDepth}, Average wait time: ${Math.round(avgWaitTime / 1000)}s`,
+        metrics: { queueDepth, avgWaitTime },
+      };
+    });
   }
 
   /**
@@ -434,76 +419,80 @@ export class SystemValidator extends EventEmitter {
     const category = 'Security';
 
     // Test 1: API Security
-    await this.runValidation(
-      category,
-      'API Security',
-      async () => {
-        // Check for common security issues
-        const issues: string[] = [];
-        let score = 100;
+    await this.runValidation(category, 'API Security', async () => {
+      // Check for common security issues
+      const issues: string[] = [];
+      let score = 100;
 
-        // Check if running as root (security risk)
-        if (process.getuid && process.getuid() === 0) {
-          issues.push('Running as root user (security risk)');
-          score -= 30;
-        }
+      // Check if running as root (security risk)
+      if (process.getuid && process.getuid() === 0) {
+        issues.push('Running as root user (security risk)');
+        score -= 30;
+      }
 
-        // Check environment variables for sensitive data
-        const envVars = Object.keys(process.env);
-        const sensitiveVars = envVars.filter(key =>
+      // Check environment variables for sensitive data
+      const envVars = Object.keys(process.env);
+      const sensitiveVars = envVars.filter(
+        (key) =>
           key.toLowerCase().includes('password') ||
           key.toLowerCase().includes('secret') ||
-          key.toLowerCase().includes('key')
+          key.toLowerCase().includes('key'),
+      );
+
+      if (sensitiveVars.length > 0) {
+        issues.push(
+          `${sensitiveVars.length} potentially sensitive environment variables detected`,
         );
-
-        if (sensitiveVars.length > 0) {
-          issues.push(`${sensitiveVars.length} potentially sensitive environment variables detected`);
-          score -= 20;
-        }
-
-        return {
-          score: Math.max(0, score),
-          details: score === 100 ? 'No security issues detected' : 'Security issues found',
-          warnings: issues,
-        };
+        score -= 20;
       }
-    );
+
+      return {
+        score: Math.max(0, score),
+        details:
+          score === 100
+            ? 'No security issues detected'
+            : 'Security issues found',
+        warnings: issues,
+      };
+    });
 
     // Test 2: File Permissions
-    await this.runValidation(
-      category,
-      'File Permissions',
-      async () => {
-        // Check permissions on critical files
-        const criticalPaths = [
-          '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
-        ];
+    await this.runValidation(category, 'File Permissions', async () => {
+      // Check permissions on critical files
+      const criticalPaths = [
+        '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+      ];
 
-        const issues: string[] = [];
-        let score = 100;
+      const issues: string[] = [];
+      let score = 100;
 
-        for (const filePath of criticalPaths) {
-          try {
-            const stats = await import('node:fs/promises').then(fs => fs.stat(filePath));
-            const mode = stats.mode & parseInt('777', 8);
+      for (const filePath of criticalPaths) {
+        try {
+          const stats = await import('node:fs/promises').then((fs) =>
+            fs.stat(filePath),
+          );
+          const mode = stats.mode & parseInt('777', 8);
 
-            if (mode & parseInt('002', 8)) { // World writable
-              issues.push(`File ${filePath} is world-writable`);
-              score -= 40;
-            }
-          } catch (error) {
-            issues.push(`Cannot check permissions for ${filePath}`);
-            score -= 10;
+          if (mode & parseInt('002', 8)) {
+            // World writable
+            issues.push(`File ${filePath} is world-writable`);
+            score -= 40;
           }
+        } catch (error) {
+          issues.push(`Cannot check permissions for ${filePath}`);
+          score -= 10;
         }
-
-        return {
-          score: Math.max(0, score),
-          details: issues.length === 0 ? 'File permissions secure' : 'Permission issues found',
-          warnings: issues,
-        };
       }
-    );
+
+      return {
+        score: Math.max(0, score),
+        details:
+          issues.length === 0
+            ? 'File permissions secure'
+            : 'Permission issues found',
+        warnings: issues,
+      };
+    });
   }
 
   /**
@@ -513,56 +502,51 @@ export class SystemValidator extends EventEmitter {
     const category = 'Reliability';
 
     // Test 1: Error Handling
-    await this.runValidation(
-      category,
-      'Error Handling',
-      async () => {
-        if (!this.taskIntegrator) {
-          throw new Error('Task Integrator not available');
-        }
+    await this.runValidation(category, 'Error Handling', async () => {
+      if (!this.taskIntegrator) {
+        throw new Error('Task Integrator not available');
+      }
 
-        try {
-          // Test error handling by calling non-existent endpoint
-          await this.taskIntegrator.handleApiCall('non_existent_endpoint');
-          throw new Error('Error handling failed - should have thrown exception');
-        } catch (error) {
-          if (error.message.includes('Unknown API endpoint')) {
-            return {
-              score: 100,
-              details: 'Error handling working correctly',
-              metrics: { errorHandlingTest: 1 },
-            };
-          } else {
-            throw error;
-          }
+      try {
+        // Test error handling by calling non-existent endpoint
+        await this.taskIntegrator.handleApiCall('non_existent_endpoint');
+        throw new Error('Error handling failed - should have thrown exception');
+      } catch (error) {
+        if (error.message.includes('Unknown API endpoint')) {
+          return {
+            score: 100,
+            details: 'Error handling working correctly',
+            metrics: { errorHandlingTest: 1 },
+          };
+        } else {
+          throw error;
         }
       }
-    );
+    });
 
     // Test 2: Data Consistency
-    await this.runValidation(
-      category,
-      'Data Consistency',
-      async () => {
-        if (!this.taskIntegrator) {
-          throw new Error('Task Integrator not available');
-        }
-
-        const status1 = this.taskIntegrator.getSystemStatus();
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const status2 = this.taskIntegrator.getSystemStatus();
-
-        // Check for data consistency
-        const consistent = status1.tasks.total === status2.tasks.total &&
-                          status1.agents.total === status2.agents.total;
-
-        return {
-          score: consistent ? 100 : 50,
-          details: consistent ? 'Data consistency maintained' : 'Data consistency issues detected',
-          metrics: { consistencyCheck: consistent ? 1 : 0 },
-        };
+    await this.runValidation(category, 'Data Consistency', async () => {
+      if (!this.taskIntegrator) {
+        throw new Error('Task Integrator not available');
       }
-    );
+
+      const status1 = this.taskIntegrator.getSystemStatus();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const status2 = this.taskIntegrator.getSystemStatus();
+
+      // Check for data consistency
+      const consistent =
+        status1.tasks.total === status2.tasks.total &&
+        status1.agents.total === status2.agents.total;
+
+      return {
+        score: consistent ? 100 : 50,
+        details: consistent
+          ? 'Data consistency maintained'
+          : 'Data consistency issues detected',
+        metrics: { consistencyCheck: consistent ? 1 : 0 },
+      };
+    });
   }
 
   /**
@@ -572,91 +556,83 @@ export class SystemValidator extends EventEmitter {
     const category = 'Scalability';
 
     // Test 1: Agent Scalability
-    await this.runValidation(
-      category,
-      'Agent Scalability',
-      async () => {
-        if (!this.taskIntegrator) {
-          throw new Error('Task Integrator not available');
-        }
-
-        const initialStatus = this.taskIntegrator.getSystemStatus();
-        const initialAgentCount = initialStatus.agents.total;
-
-        // Test agent registration capacity
-        const testAgents = [];
-        const startTime = Date.now();
-
-        for (let i = 0; i < 5; i++) {
-          await this.taskIntegrator.registerAgent({
-            id: `scalability_test_agent_${i}`,
-            capabilities: ['testing'],
-            maxConcurrentTasks: 1,
-          });
-          testAgents.push(`scalability_test_agent_${i}`);
-        }
-
-        const registrationTime = Date.now() - startTime;
-        const finalStatus = this.taskIntegrator.getSystemStatus();
-        const finalAgentCount = finalStatus.agents.total;
-
-        const agentsRegistered = finalAgentCount - initialAgentCount;
-        const avgRegistrationTime = registrationTime / agentsRegistered;
-
-        let score = 100;
-        if (avgRegistrationTime > 100) score -= 25;
-        if (avgRegistrationTime > 500) score -= 50;
-
-        return {
-          score: Math.max(0, score),
-          details: `Registered ${agentsRegistered} agents in ${registrationTime}ms (avg: ${avgRegistrationTime.toFixed(1)}ms per agent)`,
-          metrics: { agentsRegistered, registrationTime, avgRegistrationTime },
-        };
+    await this.runValidation(category, 'Agent Scalability', async () => {
+      if (!this.taskIntegrator) {
+        throw new Error('Task Integrator not available');
       }
-    );
+
+      const initialStatus = this.taskIntegrator.getSystemStatus();
+      const initialAgentCount = initialStatus.agents.total;
+
+      // Test agent registration capacity
+      const testAgents = [];
+      const startTime = Date.now();
+
+      for (let i = 0; i < 5; i++) {
+        await this.taskIntegrator.registerAgent({
+          id: `scalability_test_agent_${i}`,
+          capabilities: ['testing'],
+          maxConcurrentTasks: 1,
+        });
+        testAgents.push(`scalability_test_agent_${i}`);
+      }
+
+      const registrationTime = Date.now() - startTime;
+      const finalStatus = this.taskIntegrator.getSystemStatus();
+      const finalAgentCount = finalStatus.agents.total;
+
+      const agentsRegistered = finalAgentCount - initialAgentCount;
+      const avgRegistrationTime = registrationTime / agentsRegistered;
+
+      let score = 100;
+      if (avgRegistrationTime > 100) score -= 25;
+      if (avgRegistrationTime > 500) score -= 50;
+
+      return {
+        score: Math.max(0, score),
+        details: `Registered ${agentsRegistered} agents in ${registrationTime}ms (avg: ${avgRegistrationTime.toFixed(1)}ms per agent)`,
+        metrics: { agentsRegistered, registrationTime, avgRegistrationTime },
+      };
+    });
 
     // Test 2: Task Scalability
-    await this.runValidation(
-      category,
-      'Task Scalability',
-      async () => {
-        if (!this.taskIntegrator) {
-          throw new Error('Task Integrator not available');
-        }
-
-        const initialStatus = this.taskIntegrator.getSystemStatus();
-        const initialTaskCount = initialStatus.tasks.total;
-
-        // Test task creation capacity
-        const startTime = Date.now();
-
-        for (let i = 0; i < 10; i++) {
-          await this.taskIntegrator.createTask({
-            title: `Scalability Test Task ${i}`,
-            description: `Task ${i} for scalability testing`,
-            type: 'testing',
-            priority: 'low',
-          });
-        }
-
-        const creationTime = Date.now() - startTime;
-        const finalStatus = this.taskIntegrator.getSystemStatus();
-        const finalTaskCount = finalStatus.tasks.total;
-
-        const tasksCreated = finalTaskCount - initialTaskCount;
-        const avgCreationTime = creationTime / tasksCreated;
-
-        let score = 100;
-        if (avgCreationTime > 50) score -= 25;
-        if (avgCreationTime > 200) score -= 50;
-
-        return {
-          score: Math.max(0, score),
-          details: `Created ${tasksCreated} tasks in ${creationTime}ms (avg: ${avgCreationTime.toFixed(1)}ms per task)`,
-          metrics: { tasksCreated, creationTime, avgCreationTime },
-        };
+    await this.runValidation(category, 'Task Scalability', async () => {
+      if (!this.taskIntegrator) {
+        throw new Error('Task Integrator not available');
       }
-    );
+
+      const initialStatus = this.taskIntegrator.getSystemStatus();
+      const initialTaskCount = initialStatus.tasks.total;
+
+      // Test task creation capacity
+      const startTime = Date.now();
+
+      for (let i = 0; i < 10; i++) {
+        await this.taskIntegrator.createTask({
+          title: `Scalability Test Task ${i}`,
+          description: `Task ${i} for scalability testing`,
+          type: 'testing',
+          priority: 'low',
+        });
+      }
+
+      const creationTime = Date.now() - startTime;
+      const finalStatus = this.taskIntegrator.getSystemStatus();
+      const finalTaskCount = finalStatus.tasks.total;
+
+      const tasksCreated = finalTaskCount - initialTaskCount;
+      const avgCreationTime = creationTime / tasksCreated;
+
+      let score = 100;
+      if (avgCreationTime > 50) score -= 25;
+      if (avgCreationTime > 200) score -= 50;
+
+      return {
+        score: Math.max(0, score),
+        details: `Created ${tasksCreated} tasks in ${creationTime}ms (avg: ${avgCreationTime.toFixed(1)}ms per task)`,
+        metrics: { tasksCreated, creationTime, avgCreationTime },
+      };
+    });
   }
 
   /**
@@ -666,44 +642,39 @@ export class SystemValidator extends EventEmitter {
     const category = 'Compliance';
 
     // Test 1: Audit Logging
-    await this.runValidation(
-      category,
-      'Audit Logging',
-      async () => {
-        // Check if audit logging is properly configured
-        const hasLogging = !!console.log; // Basic check
+    await this.runValidation(category, 'Audit Logging', async () => {
+      // Check if audit logging is properly configured
+      const hasLogging = !!console.log; // Basic check
 
-        return {
-          score: hasLogging ? 100 : 0,
-          details: hasLogging ? 'Audit logging available' : 'Audit logging not configured',
-          metrics: { loggingEnabled: hasLogging ? 1 : 0 },
-        };
-      }
-    );
+      return {
+        score: hasLogging ? 100 : 0,
+        details: hasLogging
+          ? 'Audit logging available'
+          : 'Audit logging not configured',
+        metrics: { loggingEnabled: hasLogging ? 1 : 0 },
+      };
+    });
 
     // Test 2: Data Retention
-    await this.runValidation(
-      category,
-      'Data Retention',
-      async () => {
-        if (!this.systemMonitor) {
-          return {
-            score: 50,
-            details: 'System Monitor not available - cannot verify data retention',
-            warnings: ['Data retention validation skipped'],
-          };
-        }
-
-        // Check if historical data is being retained
-        const historicalMetrics = this.systemMonitor.getHistoricalMetrics();
-
+    await this.runValidation(category, 'Data Retention', async () => {
+      if (!this.systemMonitor) {
         return {
-          score: historicalMetrics.length > 0 ? 100 : 50,
-          details: `${historicalMetrics.length} historical metric records found`,
-          metrics: { historicalRecords: historicalMetrics.length },
+          score: 50,
+          details:
+            'System Monitor not available - cannot verify data retention',
+          warnings: ['Data retention validation skipped'],
         };
       }
-    );
+
+      // Check if historical data is being retained
+      const historicalMetrics = this.systemMonitor.getHistoricalMetrics();
+
+      return {
+        score: historicalMetrics.length > 0 ? 100 : 50,
+        details: `${historicalMetrics.length} historical metric records found`,
+        metrics: { historicalRecords: historicalMetrics.length },
+      };
+    });
   }
 
   /**
@@ -713,32 +684,30 @@ export class SystemValidator extends EventEmitter {
     const category = 'End-to-End Workflows';
 
     // Test 1: Feature to Task Workflow
-    await this.runValidation(
-      category,
-      'Feature to Task Workflow',
-      async () => {
-        if (!this.integrationBridge) {
-          throw new Error('Integration Bridge not available');
-        }
-
-        try {
-          // Test the complete workflow
-          const systemStatus = await this.integrationBridge.getSystemStatus();
-
-          return {
-            score: systemStatus.bridge.status === 'active' ? 100 : 50,
-            details: `Feature to task workflow ${systemStatus.bridge.status === 'active' ? 'operational' : 'degraded'}`,
-            metrics: { workflowStatus: systemStatus.bridge.status === 'active' ? 1 : 0 },
-          };
-        } catch (error) {
-          return {
-            score: 0,
-            details: `Workflow validation failed: ${error.message}`,
-            errors: [error.message],
-          };
-        }
+    await this.runValidation(category, 'Feature to Task Workflow', async () => {
+      if (!this.integrationBridge) {
+        throw new Error('Integration Bridge not available');
       }
-    );
+
+      try {
+        // Test the complete workflow
+        const systemStatus = await this.integrationBridge.getSystemStatus();
+
+        return {
+          score: systemStatus.bridge.status === 'active' ? 100 : 50,
+          details: `Feature to task workflow ${systemStatus.bridge.status === 'active' ? 'operational' : 'degraded'}`,
+          metrics: {
+            workflowStatus: systemStatus.bridge.status === 'active' ? 1 : 0,
+          },
+        };
+      } catch (error) {
+        return {
+          score: 0,
+          details: `Workflow validation failed: ${error.message}`,
+          errors: [error.message],
+        };
+      }
+    });
 
     // Test 2: Agent Registration and Task Assignment
     await this.runValidation(
@@ -766,14 +735,14 @@ export class SystemValidator extends EventEmitter {
         });
 
         // Allow processing time
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         return {
           score: 100,
           details: 'Agent registration and task assignment workflow completed',
           metrics: { workflowCompleted: 1 },
         };
-      }
+      },
     );
   }
 
@@ -783,7 +752,7 @@ export class SystemValidator extends EventEmitter {
   private async runValidation(
     category: string,
     name: string,
-    validationFn: () => Promise<Partial<ValidationResult>>
+    validationFn: () => Promise<Partial<ValidationResult>>,
   ): Promise<void> {
     const startTime = Date.now();
 
@@ -796,7 +765,12 @@ export class SystemValidator extends EventEmitter {
       const validationResult: ValidationResult = {
         category,
         name,
-        status: result.score >= 80 ? 'passed' : result.score >= 60 ? 'warning' : 'failed',
+        status:
+          result.score >= 80
+            ? 'passed'
+            : result.score >= 60
+              ? 'warning'
+              : 'failed',
         score: result.score || 0,
         details: result.details || 'No details provided',
         metrics: result.metrics,
@@ -808,10 +782,15 @@ export class SystemValidator extends EventEmitter {
 
       this.validationResults.push(validationResult);
 
-      const statusIcon = validationResult.status === 'passed' ? '✅' :
-                        validationResult.status === 'warning' ? '⚠️' : '❌';
-      console.log(`    ${statusIcon} ${name}: ${validationResult.score}/100 (${validationResult.status})`);
-
+      const statusIcon =
+        validationResult.status === 'passed'
+          ? '✅'
+          : validationResult.status === 'warning'
+            ? '⚠️'
+            : '❌';
+      console.log(
+        `    ${statusIcon} ${name}: ${validationResult.score}/100 (${validationResult.status})`,
+      );
     } catch (error) {
       const executionTime = Date.now() - startTime;
 
@@ -852,10 +831,16 @@ export class SystemValidator extends EventEmitter {
     // Calculate category scores and status
     for (const [categoryName, category] of Object.entries(categories)) {
       const scores = category.checks.map((c: ValidationResult) => c.score);
-      category.score = scores.reduce((sum: number, score: number) => sum + score, 0) / scores.length;
+      category.score =
+        scores.reduce((sum: number, score: number) => sum + score, 0) /
+        scores.length;
 
-      const failedChecks = category.checks.filter((c: ValidationResult) => c.status === 'failed');
-      const warningChecks = category.checks.filter((c: ValidationResult) => c.status === 'warning');
+      const failedChecks = category.checks.filter(
+        (c: ValidationResult) => c.status === 'failed',
+      );
+      const warningChecks = category.checks.filter(
+        (c: ValidationResult) => c.status === 'warning',
+      );
 
       if (failedChecks.length > 0) {
         category.status = 'failed';
@@ -866,16 +851,26 @@ export class SystemValidator extends EventEmitter {
 
     // Calculate overall metrics
     const totalChecks = this.validationResults.length;
-    const passed = this.validationResults.filter(r => r.status === 'passed').length;
-    const warnings = this.validationResults.filter(r => r.status === 'warning').length;
-    const failed = this.validationResults.filter(r => r.status === 'failed').length;
-    const skipped = this.validationResults.filter(r => r.status === 'skipped').length;
+    const passed = this.validationResults.filter(
+      (r) => r.status === 'passed',
+    ).length;
+    const warnings = this.validationResults.filter(
+      (r) => r.status === 'warning',
+    ).length;
+    const failed = this.validationResults.filter(
+      (r) => r.status === 'failed',
+    ).length;
+    const skipped = this.validationResults.filter(
+      (r) => r.status === 'skipped',
+    ).length;
 
-    const overallScore = this.validationResults.reduce((sum, r) => sum + r.score, 0) / totalChecks;
+    const overallScore =
+      this.validationResults.reduce((sum, r) => sum + r.score, 0) / totalChecks;
 
     // Determine overall status and readiness level
     let overallStatus: 'ready' | 'partial' | 'not_ready' = 'ready';
-    let readinessLevel: 'production' | 'staging' | 'development' | 'testing' = 'production';
+    let readinessLevel: 'production' | 'staging' | 'development' | 'testing' =
+      'production';
 
     if (failed > 0) {
       overallStatus = 'not_ready';
@@ -891,12 +886,12 @@ export class SystemValidator extends EventEmitter {
 
     // Collect critical issues and recommendations
     const criticalIssues = this.validationResults
-      .filter(r => r.status === 'failed')
-      .map(r => r.details);
+      .filter((r) => r.status === 'failed')
+      .map((r) => r.details);
 
     const recommendations = this.validationResults
-      .filter(r => r.recommendations && r.recommendations.length > 0)
-      .flatMap(r => r.recommendations || []);
+      .filter((r) => r.recommendations && r.recommendations.length > 0)
+      .flatMap((r) => r.recommendations || []);
 
     return {
       timestamp,
@@ -921,10 +916,24 @@ export class SystemValidator extends EventEmitter {
         errorRate: 0,
       },
       complianceStatus: {
-        security: failed > 0 ? 'non_compliant' : warnings > 0 ? 'partial' : 'compliant',
-        performance: overallScore >= 90 ? 'acceptable' : overallScore >= 70 ? 'degraded' : 'unacceptable',
-        reliability: overallScore >= 95 ? 'high' : overallScore >= 80 ? 'medium' : 'low',
-        scalability: overallScore >= 90 ? 'excellent' : overallScore >= 75 ? 'good' : overallScore >= 60 ? 'limited' : 'poor',
+        security:
+          failed > 0 ? 'non_compliant' : warnings > 0 ? 'partial' : 'compliant',
+        performance:
+          overallScore >= 90
+            ? 'acceptable'
+            : overallScore >= 70
+              ? 'degraded'
+              : 'unacceptable',
+        reliability:
+          overallScore >= 95 ? 'high' : overallScore >= 80 ? 'medium' : 'low',
+        scalability:
+          overallScore >= 90
+            ? 'excellent'
+            : overallScore >= 75
+              ? 'good'
+              : overallScore >= 60
+                ? 'limited'
+                : 'poor',
       },
     };
   }

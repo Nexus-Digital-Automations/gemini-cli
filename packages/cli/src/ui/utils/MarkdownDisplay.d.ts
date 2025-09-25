@@ -6,10 +6,10 @@
 
 import type React from 'react';
 interface MarkdownDisplayProps {
-    text: string;
-    isPending: boolean;
-    availableTerminalHeight?: number;
-    terminalWidth: number;
+  text: string;
+  isPending: boolean;
+  availableTerminalHeight?: number;
+  terminalWidth: number;
 }
 export declare const MarkdownDisplay: React.NamedExoticComponent<MarkdownDisplayProps>;
 export {};

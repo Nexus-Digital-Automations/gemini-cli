@@ -9,7 +9,11 @@ import * as fs from 'node:fs';
 import { Writable } from 'node:stream';
 import { ProxyAgent } from 'undici';
 
-import type { CommandContext , SlashCommand, SlashCommandActionReturn } from '../../ui/commands/types.js';
+import type {
+  CommandContext,
+  SlashCommand,
+  SlashCommandActionReturn,
+} from '../../ui/commands/types.js';
 import {
   getGitRepoRoot,
   getLatestGitHubRelease,

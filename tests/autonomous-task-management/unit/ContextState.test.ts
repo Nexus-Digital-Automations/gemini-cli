@@ -78,7 +78,9 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       const testFunction = (x: number) => x * 2;
       context.set('function_key', testFunction);
 
-      const retrievedFunction = context.get('function_key') as typeof testFunction;
+      const retrievedFunction = context.get(
+        'function_key',
+      ) as typeof testFunction;
       expect(typeof retrievedFunction).toBe('function');
       expect(retrievedFunction(5)).toBe(10);
     });
@@ -103,8 +105,15 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       context.set('dependencies', ['task_000']);
       context.set('timeout_minutes', 10);
       context.set('max_retries', 3);
-      context.set('tools_available', ['read_file', 'write_file', 'execute_command']);
-      context.set('expected_outputs', { result: 'Generated code', metrics: 'Performance data' });
+      context.set('tools_available', [
+        'read_file',
+        'write_file',
+        'execute_command',
+      ]);
+      context.set('expected_outputs', {
+        result: 'Generated code',
+        metrics: 'Performance data',
+      });
 
       expect(context.get('task_id')).toBe('task_001');
       expect(context.get('task_type')).toBe('code_generation');
@@ -112,7 +121,11 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       expect(context.get('dependencies')).toEqual(['task_000']);
       expect(context.get('timeout_minutes')).toBe(10);
       expect(context.get('max_retries')).toBe(3);
-      expect(context.get('tools_available')).toEqual(['read_file', 'write_file', 'execute_command']);
+      expect(context.get('tools_available')).toEqual([
+        'read_file',
+        'write_file',
+        'execute_command',
+      ]);
       expect(context.get('expected_outputs')).toEqual({
         result: 'Generated code',
         metrics: 'Performance data',
@@ -124,7 +137,10 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       context.set('agent_id', 'agent_001');
       context.set('coordinator_id', 'coordinator_main');
       context.set('other_agents', ['agent_002', 'agent_003']);
-      context.set('shared_resources', { database: 'shared_db', file_system: '/shared' });
+      context.set('shared_resources', {
+        database: 'shared_db',
+        file_system: '/shared',
+      });
       context.set('communication_channel', 'ipc_queue');
 
       expect(context.get('agent_id')).toBe('agent_001');
@@ -220,7 +236,7 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       expect(context.get('key1')).toBe('new_value');
 
       // Keys should not duplicate
-      expect(context.get_keys().filter(k => k === 'key1')).toHaveLength(1);
+      expect(context.get_keys().filter((k) => k === 'key1')).toHaveLength(1);
     });
 
     it('should handle special characters in keys', () => {
@@ -259,8 +275,16 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       const retrieved = context.get('large_data') as typeof largeArray;
 
       expect(retrieved).toHaveLength(10000);
-      expect(retrieved[0]).toEqual({ id: 0, data: 'item_0', timestamp: expect.any(Number) });
-      expect(retrieved[9999]).toEqual({ id: 9999, data: 'item_9999', timestamp: expect.any(Number) });
+      expect(retrieved[0]).toEqual({
+        id: 0,
+        data: 'item_0',
+        timestamp: expect.any(Number),
+      });
+      expect(retrieved[9999]).toEqual({
+        id: 9999,
+        data: 'item_9999',
+        timestamp: expect.any(Number),
+      });
     });
   });
 
@@ -308,7 +332,7 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       const keys = context.get_keys();
       const serializableData: Record<string, unknown> = {};
 
-      keys.forEach(key => {
+      keys.forEach((key) => {
         const value = context.get(key);
         // Only include serializable values
         if (typeof value !== 'function') {
@@ -346,7 +370,9 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       expect(context.get('shared.coordinator_status')).toBe('active');
 
       // Can filter keys by agent
-      const agent001Keys = context.get_keys().filter(key => key.startsWith('agent_001.'));
+      const agent001Keys = context
+        .get_keys()
+        .filter((key) => key.startsWith('agent_001.'));
       expect(agent001Keys).toEqual(['agent_001.status', 'agent_001.progress']);
     });
 
@@ -369,7 +395,10 @@ describe('ContextState - Autonomous Task Management Tests', () => {
       context.set('task_C.status', 'running');
       context.set('task_C.input', context.get('task_B.output'));
 
-      expect(context.get('task_C.input')).toEqual({ data: 'result_B', source: 'result_A' });
+      expect(context.get('task_C.input')).toEqual({
+        data: 'result_B',
+        source: 'result_A',
+      });
     });
   });
 });

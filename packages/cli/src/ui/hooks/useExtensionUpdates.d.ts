@@ -7,7 +7,13 @@
 import type { GeminiCLIExtension } from '@google/gemini-cli-core';
 import type { ExtensionUpdateState } from '../state/extensions.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
-export declare const useExtensionUpdates: (extensions: GeminiCLIExtension[], addItem: UseHistoryManagerReturn["addItem"], cwd: string) => {
-    extensionsUpdateState: Map<string, ExtensionUpdateState>;
-    setExtensionsUpdateState: import("react").Dispatch<import("react").SetStateAction<Map<string, ExtensionUpdateState>>>;
+export declare const useExtensionUpdates: (
+  extensions: GeminiCLIExtension[],
+  addItem: UseHistoryManagerReturn['addItem'],
+  cwd: string,
+) => {
+  extensionsUpdateState: Map<string, ExtensionUpdateState>;
+  setExtensionsUpdateState: import('react').Dispatch<
+    import('react').SetStateAction<Map<string, ExtensionUpdateState>>
+  >;
 };

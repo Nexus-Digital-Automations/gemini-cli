@@ -8,16 +8,28 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import type { Task, TaskExecutionRecord, TaskDependency, QueueMetrics } from './TaskQueue.js';
+import type {
+  Task,
+  TaskExecutionRecord,
+  TaskDependency,
+  QueueMetrics,
+} from './TaskQueue.js';
 
 /**
  * Serializable task data for persistence
  */
-export interface SerializableTask extends Omit<Task, 'executeFunction' | 'validateFunction' | 'rollbackFunction' | 'progressCallback'> {
-  executeFunctionName?: string;  // Function name for reconstruction
+export interface SerializableTask
+  extends Omit<
+    Task,
+    | 'executeFunction'
+    | 'validateFunction'
+    | 'rollbackFunction'
+    | 'progressCallback'
+  > {
+  executeFunctionName?: string; // Function name for reconstruction
   validateFunctionName?: string;
   rollbackFunctionName?: string;
-  serializedContext?: string;    // JSON serialized context
+  serializedContext?: string; // JSON serialized context
 }
 
 /**
@@ -41,8 +53,8 @@ export interface PersistedQueueState {
  */
 export interface BackupConfig {
   enabled: boolean;
-  interval: number;           // Backup interval in milliseconds
-  maxBackups: number;         // Maximum number of backups to keep
+  interval: number; // Backup interval in milliseconds
+  maxBackups: number; // Maximum number of backups to keep
   compressionEnabled: boolean;
   encryptionEnabled: boolean;
   encryptionKey?: string;
@@ -55,7 +67,7 @@ export interface PersistenceOptions {
   storageDir: string;
   filename: string;
   autoSave: boolean;
-  autoSaveInterval: number;   // Auto-save interval in milliseconds
+  autoSaveInterval: number; // Auto-save interval in milliseconds
   enableBackups: boolean;
   backupConfig: BackupConfig;
   enableMigration: boolean;
@@ -67,7 +79,10 @@ export interface PersistenceOptions {
  */
 export interface TaskFunctionRegistry {
   executeFunctions: Map<string, (task: Task, context: any) => Promise<any>>;
-  validateFunctions: Map<string, (task: Task, context: any) => Promise<boolean>>;
+  validateFunctions: Map<
+    string,
+    (task: Task, context: any) => Promise<boolean>
+  >;
   rollbackFunctions: Map<string, (task: Task, context: any) => Promise<void>>;
 }
 
@@ -85,7 +100,9 @@ export class TaskPersistence extends EventEmitter {
     super();
 
     this.options = {
-      storageDir: options.storageDir ?? path.join(process.cwd(), '.gemini-cli', 'task-queue'),
+      storageDir:
+        options.storageDir ??
+        path.join(process.cwd(), '.gemini-cli', 'task-queue'),
       filename: options.filename ?? 'queue-state.json',
       autoSave: options.autoSave ?? true,
       autoSaveInterval: options.autoSaveInterval ?? 30000, // 30 seconds
@@ -96,17 +113,17 @@ export class TaskPersistence extends EventEmitter {
         maxBackups: 10,
         compressionEnabled: false,
         encryptionEnabled: false,
-        ...options.backupConfig
+        ...options.backupConfig,
       },
       enableMigration: options.enableMigration ?? true,
       compressionEnabled: options.compressionEnabled ?? false,
-      ...options
+      ...options,
     };
 
     this.functionRegistry = {
       executeFunctions: new Map(),
       validateFunctions: new Map(),
-      rollbackFunctions: new Map()
+      rollbackFunctions: new Map(),
     };
   }
 
@@ -135,14 +152,13 @@ export class TaskPersistence extends EventEmitter {
       logger.info('Task persistence initialized', {
         storageDir: this.options.storageDir,
         autoSave: this.options.autoSave,
-        enableBackups: this.options.enableBackups
+        enableBackups: this.options.enableBackups,
       });
 
       this.emit('initialized');
-
     } catch (error) {
       logger.error('Failed to initialize task persistence', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -151,7 +167,10 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Register task execution functions for reconstruction
    */
-  registerExecuteFunction(name: string, fn: (task: Task, context: any) => Promise<any>): void {
+  registerExecuteFunction(
+    name: string,
+    fn: (task: Task, context: any) => Promise<any>,
+  ): void {
     this.functionRegistry.executeFunctions.set(name, fn);
     logger.debug(`Registered execute function: ${name}`);
   }
@@ -159,7 +178,10 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Register task validation functions
    */
-  registerValidateFunction(name: string, fn: (task: Task, context: any) => Promise<boolean>): void {
+  registerValidateFunction(
+    name: string,
+    fn: (task: Task, context: any) => Promise<boolean>,
+  ): void {
     this.functionRegistry.validateFunctions.set(name, fn);
     logger.debug(`Registered validate function: ${name}`);
   }
@@ -167,7 +189,10 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Register task rollback functions
    */
-  registerRollbackFunction(name: string, fn: (task: Task, context: any) => Promise<void>): void {
+  registerRollbackFunction(
+    name: string,
+    fn: (task: Task, context: any) => Promise<void>,
+  ): void {
     this.functionRegistry.rollbackFunctions.set(name, fn);
     logger.debug(`Registered rollback function: ${name}`);
   }
@@ -182,14 +207,16 @@ export class TaskPersistence extends EventEmitter {
     failedTasks: Map<string, TaskExecutionRecord>,
     runningTasks: Set<string>,
     metrics: QueueMetrics,
-    sessionId: string = 'default'
+    sessionId: string = 'default',
   ): Promise<void> {
     try {
       const state: PersistedQueueState = {
         version: '1.0.0',
         timestamp: new Date(),
         sessionId,
-        tasks: Array.from(tasks.values()).map(task => this.serializeTask(task)),
+        tasks: Array.from(tasks.values()).map((task) =>
+          this.serializeTask(task),
+        ),
         dependencies: Array.from(dependencies.values()),
         completedTasks: Array.from(completedTasks.values()),
         failedTasks: Array.from(failedTasks.values()),
@@ -198,11 +225,14 @@ export class TaskPersistence extends EventEmitter {
         metadata: {
           totalTasks: tasks.size,
           totalDependencies: dependencies.size,
-          saveTimestamp: new Date().toISOString()
-        }
+          saveTimestamp: new Date().toISOString(),
+        },
       };
 
-      const filePath = path.join(this.options.storageDir, this.options.filename);
+      const filePath = path.join(
+        this.options.storageDir,
+        this.options.filename,
+      );
       const data = JSON.stringify(state, null, 2);
 
       // Atomic write using temporary file
@@ -213,14 +243,13 @@ export class TaskPersistence extends EventEmitter {
       logger.info('Queue state saved successfully', {
         filePath,
         taskCount: tasks.size,
-        sessionId
+        sessionId,
       });
 
       this.emit('stateSaved', state);
-
     } catch (error) {
       logger.error('Failed to save queue state', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -239,7 +268,10 @@ export class TaskPersistence extends EventEmitter {
     sessionId: string;
   } | null> {
     try {
-      const filePath = path.join(this.options.storageDir, this.options.filename);
+      const filePath = path.join(
+        this.options.storageDir,
+        this.options.filename,
+      );
 
       // Check if file exists
       try {
@@ -284,7 +316,7 @@ export class TaskPersistence extends EventEmitter {
       logger.info('Queue state loaded successfully', {
         taskCount: tasks.size,
         dependencyCount: dependencies.size,
-        sessionId: state.sessionId
+        sessionId: state.sessionId,
       });
 
       this.emit('stateLoaded', state);
@@ -296,12 +328,11 @@ export class TaskPersistence extends EventEmitter {
         failedTasks,
         runningTasks,
         metrics: state.metrics,
-        sessionId: state.sessionId
+        sessionId: state.sessionId,
       };
-
     } catch (error) {
       logger.error('Failed to load queue state', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -314,12 +345,19 @@ export class TaskPersistence extends EventEmitter {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupFileName = `backup-${sessionId}-${timestamp}.json`;
-      const backupPath = path.join(this.options.storageDir, 'backups', backupFileName);
+      const backupPath = path.join(
+        this.options.storageDir,
+        'backups',
+        backupFileName,
+      );
 
       // Ensure backup directory exists
       await fs.mkdir(path.dirname(backupPath), { recursive: true });
 
-      const sourcePath = path.join(this.options.storageDir, this.options.filename);
+      const sourcePath = path.join(
+        this.options.storageDir,
+        this.options.filename,
+      );
 
       // Copy current state file to backup
       try {
@@ -328,7 +366,7 @@ export class TaskPersistence extends EventEmitter {
 
         logger.info('Backup created successfully', {
           backupPath,
-          sessionId
+          sessionId,
         });
 
         // Clean up old backups
@@ -337,17 +375,15 @@ export class TaskPersistence extends EventEmitter {
         this.emit('backupCreated', { path: backupPath, sessionId });
 
         return backupPath;
-
       } catch (sourceError) {
         logger.warn('No source file found for backup, skipping', {
-          sourcePath
+          sourcePath,
         });
         return '';
       }
-
     } catch (error) {
       logger.error('Failed to create backup', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -358,7 +394,10 @@ export class TaskPersistence extends EventEmitter {
    */
   async restoreFromBackup(backupPath: string): Promise<void> {
     try {
-      const targetPath = path.join(this.options.storageDir, this.options.filename);
+      const targetPath = path.join(
+        this.options.storageDir,
+        this.options.filename,
+      );
 
       // Validate backup file exists and is readable
       const backupData = await fs.readFile(backupPath, 'utf-8');
@@ -377,15 +416,14 @@ export class TaskPersistence extends EventEmitter {
 
       logger.info('Restored from backup successfully', {
         backupPath,
-        taskCount: state.tasks.length
+        taskCount: state.tasks.length,
       });
 
       this.emit('backupRestored', { path: backupPath, state });
-
     } catch (error) {
       logger.error('Failed to restore from backup', {
         backupPath,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -394,12 +432,14 @@ export class TaskPersistence extends EventEmitter {
   /**
    * List available backups
    */
-  async listBackups(): Promise<Array<{
-    path: string;
-    timestamp: Date;
-    sessionId: string;
-    size: number;
-  }>> {
+  async listBackups(): Promise<
+    Array<{
+      path: string;
+      timestamp: Date;
+      sessionId: string;
+      size: number;
+    }>
+  > {
     try {
       const backupDir = path.join(this.options.storageDir, 'backups');
 
@@ -410,7 +450,9 @@ export class TaskPersistence extends EventEmitter {
       }
 
       const files = await fs.readdir(backupDir);
-      const backupFiles = files.filter(file => file.startsWith('backup-') && file.endsWith('.json'));
+      const backupFiles = files.filter(
+        (file) => file.startsWith('backup-') && file.endsWith('.json'),
+      );
 
       const backups = await Promise.all(
         backupFiles.map(async (file) => {
@@ -426,19 +468,18 @@ export class TaskPersistence extends EventEmitter {
             path: filePath,
             timestamp: new Date(timestampStr),
             sessionId,
-            size: stats.size
+            size: stats.size,
           };
-        })
+        }),
       );
 
       // Sort by timestamp (newest first)
       backups.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
       return backups;
-
     } catch (error) {
       logger.error('Failed to list backups', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       return [];
     }
@@ -459,13 +500,17 @@ export class TaskPersistence extends EventEmitter {
       let exportData: string;
 
       if (format === 'json') {
-        exportPath = path.join(this.options.storageDir, `export-${timestamp}.json`);
+        exportPath = path.join(
+          this.options.storageDir,
+          `export-${timestamp}.json`,
+        );
         exportData = JSON.stringify(state, null, 2);
-
       } else if (format === 'csv') {
-        exportPath = path.join(this.options.storageDir, `export-${timestamp}.csv`);
+        exportPath = path.join(
+          this.options.storageDir,
+          `export-${timestamp}.csv`,
+        );
         exportData = this.convertToCSV(state.tasks);
-
       } else {
         throw new Error(`Unsupported export format: ${format}`);
       }
@@ -474,17 +519,16 @@ export class TaskPersistence extends EventEmitter {
 
       logger.info('State exported successfully', {
         exportPath,
-        format
+        format,
       });
 
       this.emit('stateExported', { path: exportPath, format });
 
       return exportPath;
-
     } catch (error) {
       logger.error('Failed to export state', {
         format,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -505,9 +549,11 @@ export class TaskPersistence extends EventEmitter {
 
       if (!merge) {
         // Replace current state
-        const targetPath = path.join(this.options.storageDir, this.options.filename);
+        const targetPath = path.join(
+          this.options.storageDir,
+          this.options.filename,
+        );
         await fs.writeFile(targetPath, data);
-
       } else {
         // Merge with existing state
         const currentState = await this.loadQueueState();
@@ -520,11 +566,14 @@ export class TaskPersistence extends EventEmitter {
             mergedState.failedTasks,
             mergedState.runningTasks,
             mergedState.metrics,
-            mergedState.sessionId
+            mergedState.sessionId,
           );
         } else {
           // No current state, treat as replace
-          const targetPath = path.join(this.options.storageDir, this.options.filename);
+          const targetPath = path.join(
+            this.options.storageDir,
+            this.options.filename,
+          );
           await fs.writeFile(targetPath, data);
         }
       }
@@ -532,16 +581,19 @@ export class TaskPersistence extends EventEmitter {
       logger.info('State imported successfully', {
         filePath,
         merge,
-        taskCount: importedState.tasks.length
+        taskCount: importedState.tasks.length,
       });
 
-      this.emit('stateImported', { path: filePath, merge, state: importedState });
-
+      this.emit('stateImported', {
+        path: filePath,
+        merge,
+        state: importedState,
+      });
     } catch (error) {
       logger.error('Failed to import state', {
         filePath,
         merge,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -550,7 +602,8 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Clean up old storage files and backups
    */
-  async cleanup(olderThanMs = 7 * 24 * 60 * 60 * 1000): Promise<void> { // Default 7 days
+  async cleanup(olderThanMs = 7 * 24 * 60 * 60 * 1000): Promise<void> {
+    // Default 7 days
     try {
       const cutoff = Date.now() - olderThanMs;
 
@@ -559,7 +612,7 @@ export class TaskPersistence extends EventEmitter {
 
       // Clean up old export files
       const files = await fs.readdir(this.options.storageDir);
-      const exportFiles = files.filter(file => file.startsWith('export-'));
+      const exportFiles = files.filter((file) => file.startsWith('export-'));
 
       for (const file of exportFiles) {
         const filePath = path.join(this.options.storageDir, file);
@@ -572,10 +625,9 @@ export class TaskPersistence extends EventEmitter {
       }
 
       this.emit('cleanupCompleted', { cutoff: new Date(cutoff) });
-
     } catch (error) {
       logger.error('Failed to cleanup storage', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -600,11 +652,14 @@ export class TaskPersistence extends EventEmitter {
         backupCount: 0,
         backupTotalSize: 0,
         exportCount: 0,
-        exportTotalSize: 0
+        exportTotalSize: 0,
       };
 
       // Check state file
-      const stateFilePath = path.join(this.options.storageDir, this.options.filename);
+      const stateFilePath = path.join(
+        this.options.storageDir,
+        this.options.filename,
+      );
       try {
         const stateStats = await fs.stat(stateFilePath);
         stats.stateFile.exists = true;
@@ -652,10 +707,9 @@ export class TaskPersistence extends EventEmitter {
       }
 
       return stats;
-
     } catch (error) {
       logger.error('Failed to get storage statistics', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -667,7 +721,7 @@ export class TaskPersistence extends EventEmitter {
   private serializeTask(task: Task): SerializableTask {
     const serialized: SerializableTask = {
       ...task,
-      serializedContext: JSON.stringify(task.context)
+      serializedContext: JSON.stringify(task.context),
     };
 
     // Remove non-serializable functions and store function names
@@ -704,39 +758,54 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Deserialize a task from persistence
    */
-  private async deserializeTask(serializedTask: SerializableTask): Promise<Task> {
+  private async deserializeTask(
+    serializedTask: SerializableTask,
+  ): Promise<Task> {
     const task: Task = {
       ...serializedTask,
       context: serializedTask.serializedContext
         ? JSON.parse(serializedTask.serializedContext)
         : {},
-      executeFunction: async () => ({ success: false, duration: 0, error: new Error('No execute function') }),
+      executeFunction: async () => ({
+        success: false,
+        duration: 0,
+        error: new Error('No execute function'),
+      }),
       validateFunction: undefined,
       rollbackFunction: undefined,
-      progressCallback: undefined
+      progressCallback: undefined,
     };
 
     // Reconstruct functions from registry
     if (serializedTask.executeFunctionName) {
-      const executeFunction = this.functionRegistry.executeFunctions.get(serializedTask.executeFunctionName);
+      const executeFunction = this.functionRegistry.executeFunctions.get(
+        serializedTask.executeFunctionName,
+      );
       if (executeFunction) {
         task.executeFunction = executeFunction;
       } else {
-        logger.warn(`Execute function not found in registry: ${serializedTask.executeFunctionName}`, {
-          taskId: task.id
-        });
+        logger.warn(
+          `Execute function not found in registry: ${serializedTask.executeFunctionName}`,
+          {
+            taskId: task.id,
+          },
+        );
       }
     }
 
     if (serializedTask.validateFunctionName) {
-      const validateFunction = this.functionRegistry.validateFunctions.get(serializedTask.validateFunctionName);
+      const validateFunction = this.functionRegistry.validateFunctions.get(
+        serializedTask.validateFunctionName,
+      );
       if (validateFunction) {
         task.validateFunction = validateFunction;
       }
     }
 
     if (serializedTask.rollbackFunctionName) {
-      const rollbackFunction = this.functionRegistry.rollbackFunctions.get(serializedTask.rollbackFunctionName);
+      const rollbackFunction = this.functionRegistry.rollbackFunctions.get(
+        serializedTask.rollbackFunctionName,
+      );
       if (rollbackFunction) {
         task.rollbackFunction = rollbackFunction;
       }
@@ -773,8 +842,17 @@ export class TaskPersistence extends EventEmitter {
    */
   private convertToCSV(tasks: Map<string, Task>): string {
     const headers = [
-      'id', 'title', 'description', 'category', 'priority', 'status',
-      'createdAt', 'startedAt', 'completedAt', 'estimatedDuration', 'actualDuration'
+      'id',
+      'title',
+      'description',
+      'category',
+      'priority',
+      'status',
+      'createdAt',
+      'startedAt',
+      'completedAt',
+      'estimatedDuration',
+      'actualDuration',
     ];
 
     const rows = [headers.join(',')];
@@ -791,7 +869,7 @@ export class TaskPersistence extends EventEmitter {
         task.startedAt?.toISOString() || '',
         task.completedAt?.toISOString() || '',
         task.estimatedDuration.toString(),
-        task.actualDuration?.toString() || ''
+        task.actualDuration?.toString() || '',
       ];
       rows.push(row.join(','));
     }
@@ -804,7 +882,7 @@ export class TaskPersistence extends EventEmitter {
    */
   private mergeStates(
     current: any,
-    imported: PersistedQueueState
+    imported: PersistedQueueState,
   ): {
     tasks: Map<string, Task>;
     dependencies: Map<string, TaskDependency>;
@@ -837,7 +915,10 @@ export class TaskPersistence extends EventEmitter {
       mergedFailed.set(id, record);
     }
 
-    const mergedRunning = new Set([...current.runningTasks, ...(imported.runningTasks || [])]);
+    const mergedRunning = new Set([
+      ...current.runningTasks,
+      ...(imported.runningTasks || []),
+    ]);
 
     return {
       tasks: mergedTasks,
@@ -846,7 +927,7 @@ export class TaskPersistence extends EventEmitter {
       failedTasks: mergedFailed,
       runningTasks: mergedRunning,
       metrics: imported.metrics,
-      sessionId: imported.sessionId
+      sessionId: imported.sessionId,
     };
   }
 
@@ -860,18 +941,18 @@ export class TaskPersistence extends EventEmitter {
     try {
       const files = await fs.readdir(backupDir);
       const backupFiles = files
-        .filter(file => file.startsWith('backup-'))
-        .map(file => ({
+        .filter((file) => file.startsWith('backup-'))
+        .map((file) => ({
           name: file,
           path: path.join(backupDir, file),
-          stat: fs.stat(path.join(backupDir, file))
+          stat: fs.stat(path.join(backupDir, file)),
         }));
 
       const fileStats = await Promise.all(
         backupFiles.map(async (file) => ({
           ...file,
-          stat: await file.stat
-        }))
+          stat: await file.stat,
+        })),
       );
 
       // Sort by modification time (newest first)
@@ -888,18 +969,19 @@ export class TaskPersistence extends EventEmitter {
 
       // Remove files older than cutoff if specified
       if (cutoff) {
-        const oldFiles = fileStats.filter(file => file.stat.mtime.getTime() < cutoff);
+        const oldFiles = fileStats.filter(
+          (file) => file.stat.mtime.getTime() < cutoff,
+        );
         for (const file of oldFiles) {
           await fs.unlink(file.path);
           logger.info(`Removed old backup: ${file.name}`);
         }
       }
-
     } catch (error) {
       // Backup directory might not exist, which is fine
       if ((error as any).code !== 'ENOENT') {
         logger.warn('Failed to cleanup old backups', {
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -918,7 +1000,7 @@ export class TaskPersistence extends EventEmitter {
     }, this.options.autoSaveInterval);
 
     logger.debug('Auto-save timer started', {
-      interval: this.options.autoSaveInterval
+      interval: this.options.autoSaveInterval,
     });
   }
 
@@ -931,15 +1013,15 @@ export class TaskPersistence extends EventEmitter {
     }
 
     this.backupTimer = setInterval(() => {
-      this.createBackup().catch(error => {
+      this.createBackup().catch((error) => {
         logger.error('Automatic backup failed', {
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       });
     }, this.options.backupConfig.interval);
 
     logger.debug('Backup timer started', {
-      interval: this.options.backupConfig.interval
+      interval: this.options.backupConfig.interval,
     });
   }
 

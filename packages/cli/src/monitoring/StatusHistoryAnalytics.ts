@@ -4,20 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { StructuredLogger, getComponentLogger } from '@google/gemini-cli-core/utils/logger.js';
+import { StructuredLogger, getComponentLogger } from '../../../../packages/core/src/utils/logger.js';
 import {
   TaskStatusMonitor,
   TaskMetadata,
   TaskStatus,
   TaskStatusUpdate,
   AgentStatus,
-  taskStatusMonitor
+  taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
   StatusUpdateBroker,
   StatusEvent,
   StatusEventType,
-  statusUpdateBroker
+  statusUpdateBroker,
 } from './StatusUpdateBroker.js';
 
 export interface AnalyticsTimeframe {
@@ -60,13 +60,16 @@ export interface AgentAnalytics {
     successRate: number;
     averageTaskTime: number;
   }[];
-  agentEfficiency: Record<string, {
-    tasksCompleted: number;
-    tasksStarted: number;
-    averageCompletionTime: number;
-    successRate: number;
-    capabilities: string[];
-  }>;
+  agentEfficiency: Record<
+    string,
+    {
+      tasksCompleted: number;
+      tasksStarted: number;
+      averageCompletionTime: number;
+      successRate: number;
+      capabilities: string[];
+    }
+  >;
 }
 
 export interface SystemAnalytics {
@@ -75,7 +78,11 @@ export interface SystemAnalytics {
   eventsPerHour: number;
   systemEfficiency: number;
   bottlenecks: {
-    type: 'agent_capacity' | 'task_queue' | 'dependency_chain' | 'resource_constraint';
+    type:
+      | 'agent_capacity'
+      | 'task_queue'
+      | 'dependency_chain'
+      | 'resource_constraint';
     description: string;
     severity: 'low' | 'medium' | 'high' | 'critical';
     affectedTasks: string[];
@@ -136,7 +143,10 @@ export class StatusHistoryAnalytics {
   private objectIndex: Map<string, string[]>; // objectId -> entry IDs
   private agentIndex: Map<string, string[]>; // agentId -> entry IDs
   private eventTypeIndex: Map<StatusEventType, string[]>;
-  private analyticsCache: Map<string, { data: any; timestamp: Date; ttl: number }>;
+  private analyticsCache: Map<
+    string,
+    { data: any; timestamp: Date; ttl: number }
+  >;
   private persistenceInterval?: NodeJS.Timeout;
 
   constructor() {
@@ -168,7 +178,7 @@ export class StatusHistoryAnalytics {
       agentId?: string;
       sessionId?: string;
       correlationId?: string;
-    } = {}
+    } = {},
   ): Promise<string> {
     const entryId = this.generateEntryId();
     const timestamp = new Date();
@@ -216,27 +226,36 @@ export class StatusHistoryAnalytics {
 
     // Apply filters
     if (query.objectType) {
-      entries = entries.filter(entry => entry.objectType === query.objectType);
+      entries = entries.filter(
+        (entry) => entry.objectType === query.objectType,
+      );
     }
 
     if (query.objectIds && query.objectIds.length > 0) {
-      entries = entries.filter(entry => query.objectIds!.includes(entry.objectId));
+      entries = entries.filter((entry) =>
+        query.objectIds!.includes(entry.objectId),
+      );
     }
 
     if (query.eventTypes && query.eventTypes.length > 0) {
-      entries = entries.filter(entry => query.eventTypes!.includes(entry.eventType));
+      entries = entries.filter((entry) =>
+        query.eventTypes!.includes(entry.eventType),
+      );
     }
 
     if (query.dateRange) {
-      entries = entries.filter(entry =>
-        entry.timestamp >= query.dateRange!.start &&
-        entry.timestamp <= query.dateRange!.end
+      entries = entries.filter(
+        (entry) =>
+          entry.timestamp >= query.dateRange!.start &&
+          entry.timestamp <= query.dateRange!.end,
       );
     }
 
     if (query.agentIds && query.agentIds.length > 0) {
-      entries = entries.filter(entry =>
-        entry.context.agentId && query.agentIds!.includes(entry.context.agentId)
+      entries = entries.filter(
+        (entry) =>
+          entry.context.agentId &&
+          query.agentIds!.includes(entry.context.agentId),
       );
     }
 
@@ -279,7 +298,9 @@ export class StatusHistoryAnalytics {
   /**
    * Get comprehensive task analytics
    */
-  async getTaskAnalytics(timeframe: AnalyticsTimeframe): Promise<TaskAnalytics> {
+  async getTaskAnalytics(
+    timeframe: AnalyticsTimeframe,
+  ): Promise<TaskAnalytics> {
     const cacheKey = `task_analytics_${timeframe.startDate.getTime()}_${timeframe.endDate.getTime()}_${timeframe.granularity}`;
 
     // Check cache
@@ -305,7 +326,9 @@ export class StatusHistoryAnalytics {
   /**
    * Get comprehensive agent analytics
    */
-  async getAgentAnalytics(timeframe: AnalyticsTimeframe): Promise<AgentAnalytics> {
+  async getAgentAnalytics(
+    timeframe: AnalyticsTimeframe,
+  ): Promise<AgentAnalytics> {
     const cacheKey = `agent_analytics_${timeframe.startDate.getTime()}_${timeframe.endDate.getTime()}_${timeframe.granularity}`;
 
     // Check cache
@@ -320,7 +343,10 @@ export class StatusHistoryAnalytics {
       limit: 10000,
     });
 
-    const agentMetrics = await this.calculateAgentMetrics(agentEntries, timeframe);
+    const agentMetrics = await this.calculateAgentMetrics(
+      agentEntries,
+      timeframe,
+    );
 
     // Cache results for 5 minutes
     this.setCache(cacheKey, agentMetrics, 300000);
@@ -331,7 +357,9 @@ export class StatusHistoryAnalytics {
   /**
    * Get comprehensive system analytics
    */
-  async getSystemAnalytics(timeframe: AnalyticsTimeframe): Promise<SystemAnalytics> {
+  async getSystemAnalytics(
+    timeframe: AnalyticsTimeframe,
+  ): Promise<SystemAnalytics> {
     const cacheKey = `system_analytics_${timeframe.startDate.getTime()}_${timeframe.endDate.getTime()}_${timeframe.granularity}`;
 
     // Check cache
@@ -345,7 +373,10 @@ export class StatusHistoryAnalytics {
       limit: 10000,
     });
 
-    const systemMetrics = await this.calculateSystemMetrics(systemEntries, timeframe);
+    const systemMetrics = await this.calculateSystemMetrics(
+      systemEntries,
+      timeframe,
+    );
 
     // Cache results for 5 minutes
     this.setCache(cacheKey, systemMetrics, 300000);
@@ -356,7 +387,9 @@ export class StatusHistoryAnalytics {
   /**
    * Detect system bottlenecks and performance issues
    */
-  async detectBottlenecks(timeframe: AnalyticsTimeframe): Promise<SystemAnalytics['bottlenecks']> {
+  async detectBottlenecks(
+    timeframe: AnalyticsTimeframe,
+  ): Promise<SystemAnalytics['bottlenecks']> {
     const taskAnalytics = await this.getTaskAnalytics(timeframe);
     const agentAnalytics = await this.getAgentAnalytics(timeframe);
     const bottlenecks: SystemAnalytics['bottlenecks'] = [];
@@ -365,10 +398,12 @@ export class StatusHistoryAnalytics {
     if (agentAnalytics.busyAgents / agentAnalytics.totalAgents > 0.9) {
       bottlenecks.push({
         type: 'agent_capacity',
-        description: 'High agent utilization detected - may need additional agent capacity',
+        description:
+          'High agent utilization detected - may need additional agent capacity',
         severity: 'high',
         affectedTasks: [],
-        suggestedResolution: 'Consider adding more agents or optimizing task distribution',
+        suggestedResolution:
+          'Consider adding more agents or optimizing task distribution',
       });
     }
 
@@ -376,10 +411,12 @@ export class StatusHistoryAnalytics {
     if (taskAnalytics.queuedTasks > taskAnalytics.inProgressTasks * 2) {
       bottlenecks.push({
         type: 'task_queue',
-        description: 'Task queue backlog detected - tasks accumulating faster than completion',
+        description:
+          'Task queue backlog detected - tasks accumulating faster than completion',
         severity: 'medium',
         affectedTasks: [],
-        suggestedResolution: 'Review task priority and agent assignment algorithms',
+        suggestedResolution:
+          'Review task priority and agent assignment algorithms',
       });
     }
 
@@ -387,10 +424,12 @@ export class StatusHistoryAnalytics {
     if (taskAnalytics.failureRate > 0.15) {
       bottlenecks.push({
         type: 'resource_constraint',
-        description: 'High task failure rate detected - may indicate system resource issues',
+        description:
+          'High task failure rate detected - may indicate system resource issues',
         severity: 'critical',
         affectedTasks: [],
-        suggestedResolution: 'Investigate failing tasks and system resource availability',
+        suggestedResolution:
+          'Investigate failing tasks and system resource availability',
       });
     }
 
@@ -402,10 +441,11 @@ export class StatusHistoryAnalytics {
    */
   getCorrelationChain(correlationId: string): StatusHistoryEntry[] {
     const entryIds = this.correlationIndex.get(correlationId) || [];
-    return (entryIds
-      .map(id => this.statusHistory.get(id))
-      .filter(entry => entry !== undefined) as StatusHistoryEntry[])
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return (
+      entryIds
+        .map((id) => this.statusHistory.get(id))
+        .filter((entry) => entry !== undefined) as StatusHistoryEntry[]
+    ).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 
   /**
@@ -413,29 +453,36 @@ export class StatusHistoryAnalytics {
    */
   getObjectTimeline(objectId: string): StatusHistoryEntry[] {
     const entryIds = this.objectIndex.get(objectId) || [];
-    return (entryIds
-      .map(id => this.statusHistory.get(id))
-      .filter(entry => entry !== undefined) as StatusHistoryEntry[])
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return (
+      entryIds
+        .map((id) => this.statusHistory.get(id))
+        .filter((entry) => entry !== undefined) as StatusHistoryEntry[]
+    ).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 
   /**
    * Get agent activity history
    */
-  getAgentActivity(agentId: string, timeframe?: AnalyticsTimeframe): StatusHistoryEntry[] {
+  getAgentActivity(
+    agentId: string,
+    timeframe?: AnalyticsTimeframe,
+  ): StatusHistoryEntry[] {
     const entryIds = this.agentIndex.get(agentId) || [];
     let entries = entryIds
-      .map(id => this.statusHistory.get(id))
-      .filter(entry => entry !== undefined) as StatusHistoryEntry[];
+      .map((id) => this.statusHistory.get(id))
+      .filter((entry) => entry !== undefined) as StatusHistoryEntry[];
 
     if (timeframe) {
-      entries = entries.filter(entry =>
-        entry.timestamp >= timeframe.startDate &&
-        entry.timestamp <= timeframe.endDate
+      entries = entries.filter(
+        (entry) =>
+          entry.timestamp >= timeframe.startDate &&
+          entry.timestamp <= timeframe.endDate,
       );
     }
 
-    return entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return entries.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }
 
   /**
@@ -443,7 +490,7 @@ export class StatusHistoryAnalytics {
    */
   exportHistoryData(
     query: HistoryQuery,
-    format: 'json' | 'csv' | 'tsv' = 'json'
+    format: 'json' | 'csv' | 'tsv' = 'json',
   ): string {
     const entries = this.queryHistory(query);
 
@@ -475,7 +522,7 @@ export class StatusHistoryAnalytics {
           newState: data.task,
           metadata: { source: 'task_monitor' },
           correlationId: `task_lifecycle_${data.task.id}`,
-        }
+        },
       );
     });
 
@@ -490,7 +537,7 @@ export class StatusHistoryAnalytics {
           metadata: { update: data.update, source: 'task_monitor' },
           agentId: data.update.agentId,
           correlationId: `task_lifecycle_${data.task.id}`,
-        }
+        },
       );
     });
 
@@ -504,22 +551,17 @@ export class StatusHistoryAnalytics {
           metadata: { source: 'task_monitor' },
           agentId: data.agent.id,
           correlationId: `agent_lifecycle_${data.agent.id}`,
-        }
+        },
       );
     });
 
     // Listen to status update broker events
     statusUpdateBroker.on('event:published', (data) => {
-      this.recordHistoryEntry(
-        data.event.type,
-        'system',
-        data.event.id,
-        {
-          newState: data.event.data,
-          metadata: { event: data.event, source: 'status_broker' },
-          correlationId: data.event.id,
-        }
-      );
+      this.recordHistoryEntry(data.event.type, 'system', data.event.id, {
+        newState: data.event.data,
+        metadata: { event: data.event, source: 'status_broker' },
+        correlationId: data.event.id,
+      });
     });
   }
 
@@ -532,19 +574,19 @@ export class StatusHistoryAnalytics {
 
   private async calculateTaskMetrics(
     entries: StatusHistoryEntry[],
-    timeframe: AnalyticsTimeframe
+    timeframe: AnalyticsTimeframe,
   ): Promise<TaskAnalytics> {
-    const taskIds = new Set(entries.map(entry => entry.objectId));
-    const completedTasks = entries.filter(entry =>
-      entry.eventType === StatusEventType.TASK_COMPLETED
+    const taskIds = new Set(entries.map((entry) => entry.objectId));
+    const completedTasks = entries.filter(
+      (entry) => entry.eventType === StatusEventType.TASK_COMPLETED,
     ).length;
-    const failedTasks = entries.filter(entry =>
-      entry.eventType === StatusEventType.TASK_FAILED
+    const failedTasks = entries.filter(
+      (entry) => entry.eventType === StatusEventType.TASK_FAILED,
     ).length;
 
     // Get current task statuses from monitor
     const allTasks = taskStatusMonitor.getAllTasks();
-    const relevantTasks = allTasks.filter(task => taskIds.has(task.id));
+    const relevantTasks = allTasks.filter((task) => taskIds.has(task.id));
 
     const tasksByType: Record<string, number> = {};
     const tasksByPriority: Record<string, number> = {};
@@ -552,9 +594,11 @@ export class StatusHistoryAnalytics {
 
     for (const task of relevantTasks) {
       tasksByType[task.type] = (tasksByType[task.type] || 0) + 1;
-      tasksByPriority[task.priority] = (tasksByPriority[task.priority] || 0) + 1;
+      tasksByPriority[task.priority] =
+        (tasksByPriority[task.priority] || 0) + 1;
       if (task.assignedAgent) {
-        tasksByAgent[task.assignedAgent] = (tasksByAgent[task.assignedAgent] || 0) + 1;
+        tasksByAgent[task.assignedAgent] =
+          (tasksByAgent[task.assignedAgent] || 0) + 1;
       }
     }
 
@@ -566,9 +610,11 @@ export class StatusHistoryAnalytics {
       }
     }
 
-    const averageCompletionTime = completionTimes.length > 0
-      ? completionTimes.reduce((sum, time) => sum + time, 0) / completionTimes.length
-      : 0;
+    const averageCompletionTime =
+      completionTimes.length > 0
+        ? completionTimes.reduce((sum, time) => sum + time, 0) /
+          completionTimes.length
+        : 0;
 
     // Generate time series data
     const timeSeriesData = this.generateTimeSeriesData(entries, timeframe);
@@ -577,8 +623,12 @@ export class StatusHistoryAnalytics {
       totalTasks: taskIds.size,
       completedTasks,
       failedTasks,
-      inProgressTasks: relevantTasks.filter(task => task.status === TaskStatus.IN_PROGRESS).length,
-      queuedTasks: relevantTasks.filter(task => task.status === TaskStatus.QUEUED).length,
+      inProgressTasks: relevantTasks.filter(
+        (task) => task.status === TaskStatus.IN_PROGRESS,
+      ).length,
+      queuedTasks: relevantTasks.filter(
+        (task) => task.status === TaskStatus.QUEUED,
+      ).length,
       averageCompletionTime,
       completionRate: taskIds.size > 0 ? completedTasks / taskIds.size : 0,
       failureRate: taskIds.size > 0 ? failedTasks / taskIds.size : 0,
@@ -591,11 +641,15 @@ export class StatusHistoryAnalytics {
 
   private async calculateAgentMetrics(
     entries: StatusHistoryEntry[],
-    timeframe: AnalyticsTimeframe
+    timeframe: AnalyticsTimeframe,
   ): Promise<AgentAnalytics> {
-    const agentIds = new Set(entries.filter(entry => entry.context.agentId).map(entry => entry.context.agentId!));
+    const agentIds = new Set(
+      entries
+        .filter((entry) => entry.context.agentId)
+        .map((entry) => entry.context.agentId!),
+    );
     const allAgents = taskStatusMonitor.getAllAgents();
-    const relevantAgents = allAgents.filter(agent => agentIds.has(agent.id));
+    const relevantAgents = allAgents.filter((agent) => agentIds.has(agent.id));
 
     const agentEfficiency: AgentAnalytics['agentEfficiency'] = {};
     const topPerformers: AgentAnalytics['topPerformers'] = [];
@@ -627,10 +681,18 @@ export class StatusHistoryAnalytics {
       return scoreB - scoreA;
     });
 
-    const activeAgents = relevantAgents.filter(agent => agent.status === 'active' || agent.status === 'busy').length;
-    const idleAgents = relevantAgents.filter(agent => agent.status === 'idle').length;
-    const busyAgents = relevantAgents.filter(agent => agent.status === 'busy').length;
-    const offlineAgents = relevantAgents.filter(agent => agent.status === 'offline').length;
+    const activeAgents = relevantAgents.filter(
+      (agent) => agent.status === 'active' || agent.status === 'busy',
+    ).length;
+    const idleAgents = relevantAgents.filter(
+      (agent) => agent.status === 'idle',
+    ).length;
+    const busyAgents = relevantAgents.filter(
+      (agent) => agent.status === 'busy',
+    ).length;
+    const offlineAgents = relevantAgents.filter(
+      (agent) => agent.status === 'offline',
+    ).length;
 
     return {
       totalAgents: agentIds.size,
@@ -638,9 +700,13 @@ export class StatusHistoryAnalytics {
       idleAgents,
       busyAgents,
       offlineAgents,
-      averageTasksPerAgent: relevantAgents.length > 0
-        ? relevantAgents.reduce((sum, agent) => sum + agent.completedTasks, 0) / relevantAgents.length
-        : 0,
+      averageTasksPerAgent:
+        relevantAgents.length > 0
+          ? relevantAgents.reduce(
+              (sum, agent) => sum + agent.completedTasks,
+              0,
+            ) / relevantAgents.length
+          : 0,
       topPerformers: topPerformers.slice(0, 10),
       agentEfficiency,
     };
@@ -648,11 +714,15 @@ export class StatusHistoryAnalytics {
 
   private async calculateSystemMetrics(
     entries: StatusHistoryEntry[],
-    timeframe: AnalyticsTimeframe
+    timeframe: AnalyticsTimeframe,
   ): Promise<SystemAnalytics> {
-    const systemUptime = Date.now() - taskStatusMonitor.getPerformanceMetrics().systemUptime.getTime();
+    const systemUptime =
+      Date.now() -
+      taskStatusMonitor.getPerformanceMetrics().systemUptime.getTime();
     const totalEvents = entries.length;
-    const timeSpanHours = (timeframe.endDate.getTime() - timeframe.startDate.getTime()) / (1000 * 60 * 60);
+    const timeSpanHours =
+      (timeframe.endDate.getTime() - timeframe.startDate.getTime()) /
+      (1000 * 60 * 60);
     const eventsPerHour = timeSpanHours > 0 ? totalEvents / timeSpanHours : 0;
 
     const taskMetrics = await this.getTaskAnalytics(timeframe);
@@ -662,11 +732,19 @@ export class StatusHistoryAnalytics {
 
     // Calculate trends (simplified)
     const trends = {
-      taskCompletionTrend: taskMetrics.completionRate > 0.8 ? 'improving' as const :
-        taskMetrics.completionRate > 0.6 ? 'stable' as const : 'declining' as const,
+      taskCompletionTrend:
+        taskMetrics.completionRate > 0.8
+          ? ('improving' as const)
+          : taskMetrics.completionRate > 0.6
+            ? ('stable' as const)
+            : ('declining' as const),
       agentUtilizationTrend: 'stable' as const, // Would need more complex trend analysis
-      errorRateTrend: taskMetrics.failureRate < 0.1 ? 'improving' as const :
-        taskMetrics.failureRate < 0.2 ? 'stable' as const : 'declining' as const,
+      errorRateTrend:
+        taskMetrics.failureRate < 0.1
+          ? ('improving' as const)
+          : taskMetrics.failureRate < 0.2
+            ? ('stable' as const)
+            : ('declining' as const),
     };
 
     return {
@@ -681,15 +759,23 @@ export class StatusHistoryAnalytics {
 
   private generateTimeSeriesData(
     entries: StatusHistoryEntry[],
-    timeframe: AnalyticsTimeframe
+    timeframe: AnalyticsTimeframe,
   ): TaskAnalytics['timeSeriesData'] {
-    const buckets = new Map<string, { completed: number; failed: number; started: number; queued: number }>();
+    const buckets = new Map<
+      string,
+      { completed: number; failed: number; started: number; queued: number }
+    >();
 
     // Initialize buckets based on granularity
     const current = new Date(timeframe.startDate);
     while (current <= timeframe.endDate) {
       const bucketKey = this.getBucketKey(current, timeframe.granularity);
-      buckets.set(bucketKey, { completed: 0, failed: 0, started: 0, queued: 0 });
+      buckets.set(bucketKey, {
+        completed: 0,
+        failed: 0,
+        started: 0,
+        queued: 0,
+      });
 
       // Advance to next bucket
       this.advanceDate(current, timeframe.granularity);
@@ -697,7 +783,10 @@ export class StatusHistoryAnalytics {
 
     // Populate buckets with data
     for (const entry of entries) {
-      const bucketKey = this.getBucketKey(entry.timestamp, timeframe.granularity);
+      const bucketKey = this.getBucketKey(
+        entry.timestamp,
+        timeframe.granularity,
+      );
       const bucket = buckets.get(bucketKey);
       if (!bucket) continue;
 
@@ -727,7 +816,10 @@ export class StatusHistoryAnalytics {
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   }
 
-  private getBucketKey(date: Date, granularity: AnalyticsTimeframe['granularity']): string {
+  private getBucketKey(
+    date: Date,
+    granularity: AnalyticsTimeframe['granularity'],
+  ): string {
     switch (granularity) {
       case 'hour':
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
@@ -736,7 +828,7 @@ export class StatusHistoryAnalytics {
       case 'week':
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
-        return `${weekStart.getFullYear()}-W${Math.ceil((weekStart.getDate()) / 7)}`;
+        return `${weekStart.getFullYear()}-W${Math.ceil(weekStart.getDate() / 7)}`;
       case 'month':
         return `${date.getFullYear()}-${date.getMonth()}`;
       default:
@@ -744,22 +836,41 @@ export class StatusHistoryAnalytics {
     }
   }
 
-  private parseBucketKey(key: string, granularity: AnalyticsTimeframe['granularity']): Date {
+  private parseBucketKey(
+    key: string,
+    granularity: AnalyticsTimeframe['granularity'],
+  ): Date {
     const parts = key.split('-');
     switch (granularity) {
       case 'hour':
-        return new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]), parseInt(parts[3]));
+        return new Date(
+          parseInt(parts[0]),
+          parseInt(parts[1]),
+          parseInt(parts[2]),
+          parseInt(parts[3]),
+        );
       case 'day':
-        return new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        return new Date(
+          parseInt(parts[0]),
+          parseInt(parts[1]),
+          parseInt(parts[2]),
+        );
       case 'week':
       case 'month':
         return new Date(parseInt(parts[0]), parseInt(parts[1]) || 0, 1);
       default:
-        return new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        return new Date(
+          parseInt(parts[0]),
+          parseInt(parts[1]),
+          parseInt(parts[2]),
+        );
     }
   }
 
-  private advanceDate(date: Date, granularity: AnalyticsTimeframe['granularity']): void {
+  private advanceDate(
+    date: Date,
+    granularity: AnalyticsTimeframe['granularity'],
+  ): void {
     switch (granularity) {
       case 'hour':
         date.setHours(date.getHours() + 1);
@@ -826,7 +937,7 @@ export class StatusHistoryAnalytics {
 
   private invalidateAnalyticsCache(tags: string[]): void {
     for (const [key] of Array.from(this.analyticsCache.entries())) {
-      if (tags.some(tag => key.includes(tag))) {
+      if (tags.some((tag) => key.includes(tag))) {
         this.analyticsCache.delete(key);
       }
     }
@@ -835,8 +946,16 @@ export class StatusHistoryAnalytics {
   private convertToCSV(entries: StatusHistoryEntry[]): string {
     if (entries.length === 0) return '';
 
-    const headers = ['id', 'timestamp', 'eventType', 'objectType', 'objectId', 'agentId', 'metadata'];
-    const rows = entries.map(entry => [
+    const headers = [
+      'id',
+      'timestamp',
+      'eventType',
+      'objectType',
+      'objectId',
+      'agentId',
+      'metadata',
+    ];
+    const rows = entries.map((entry) => [
       entry.id,
       entry.timestamp.toISOString(),
       entry.eventType,
@@ -846,14 +965,22 @@ export class StatusHistoryAnalytics {
       JSON.stringify(entry.metadata),
     ]);
 
-    return [headers, ...rows].map(row => row.join(',')).join('\n');
+    return [headers, ...rows].map((row) => row.join(',')).join('\n');
   }
 
   private convertToTSV(entries: StatusHistoryEntry[]): string {
     if (entries.length === 0) return '';
 
-    const headers = ['id', 'timestamp', 'eventType', 'objectType', 'objectId', 'agentId', 'metadata'];
-    const rows = entries.map(entry => [
+    const headers = [
+      'id',
+      'timestamp',
+      'eventType',
+      'objectType',
+      'objectId',
+      'agentId',
+      'metadata',
+    ];
+    const rows = entries.map((entry) => [
       entry.id,
       entry.timestamp.toISOString(),
       entry.eventType,
@@ -863,7 +990,7 @@ export class StatusHistoryAnalytics {
       JSON.stringify(entry.metadata),
     ]);
 
-    return [headers, ...rows].map(row => row.join('\t')).join('\n');
+    return [headers, ...rows].map((row) => row.join('\t')).join('\n');
   }
 
   private performMaintenanceTasks(): void {

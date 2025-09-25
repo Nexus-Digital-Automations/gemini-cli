@@ -6,13 +6,17 @@
 
 import type { CommandModule } from 'yargs';
 import chalk from 'chalk';
-import { TaskPriority, TaskCategory, TaskType } from '@google/gemini-cli-core/task-management/types.js';
+import {
+  TaskPriority,
+  TaskCategory,
+  TaskType,
+} from '@google/gemini-cli-core/task-management/types.js';
 import {
   suggestFeature,
   convertTaskToFeature,
   handleApiResponse,
   handleApiFallback,
-  initializeAgent
+  initializeAgent,
 } from '../taskManagerApi.js';
 
 interface AddTaskOptions {
@@ -53,7 +57,16 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
       .option('type', {
         type: 'string',
         describe: 'Task type for specialized handling',
-        choices: ['implementation', 'testing', 'validation', 'documentation', 'analysis', 'deployment', 'security', 'performance'],
+        choices: [
+          'implementation',
+          'testing',
+          'validation',
+          'documentation',
+          'analysis',
+          'deployment',
+          'security',
+          'performance',
+        ],
         default: 'implementation',
         alias: 't',
       })
@@ -77,9 +90,18 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
         type: 'string',
         describe: 'Expected outputs as JSON string',
       })
-      .example('gemini autonomous tasks add "Implement user authentication"', 'Add a basic task')
-      .example('gemini autonomous tasks add "Fix critical bug" --priority critical --category bug_fix', 'Add a critical bug fix')
-      .example('gemini autonomous tasks add "Update docs" --type documentation --max-time 30', 'Add documentation task with 30 min limit'),
+      .example(
+        'gemini autonomous tasks add "Implement user authentication"',
+        'Add a basic task',
+      )
+      .example(
+        'gemini autonomous tasks add "Fix critical bug" --priority critical --category bug_fix',
+        'Add a critical bug fix',
+      )
+      .example(
+        'gemini autonomous tasks add "Update docs" --type documentation --max-time 30',
+        'Add documentation task with 30 min limit',
+      ),
 
   handler: async (argv) => {
     try {
@@ -87,22 +109,22 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
 
       // Validate and parse input
       const priorityMap: Record<string, TaskPriority> = {
-        'critical': TaskPriority.CRITICAL,
-        'high': TaskPriority.HIGH,
-        'medium': TaskPriority.MEDIUM,
-        'low': TaskPriority.LOW,
-        'background': TaskPriority.BACKGROUND
+        critical: TaskPriority.CRITICAL,
+        high: TaskPriority.HIGH,
+        medium: TaskPriority.MEDIUM,
+        low: TaskPriority.LOW,
+        background: TaskPriority.BACKGROUND,
       };
 
       const typeMap: Record<string, TaskType> = {
-        'implementation': TaskType.IMPLEMENTATION,
-        'testing': TaskType.TESTING,
-        'validation': TaskType.VALIDATION,
-        'documentation': TaskType.DOCUMENTATION,
-        'analysis': TaskType.ANALYSIS,
-        'deployment': TaskType.DEPLOYMENT,
-        'security': TaskType.SECURITY,
-        'performance': TaskType.PERFORMANCE
+        implementation: TaskType.IMPLEMENTATION,
+        testing: TaskType.TESTING,
+        validation: TaskType.VALIDATION,
+        documentation: TaskType.DOCUMENTATION,
+        analysis: TaskType.ANALYSIS,
+        deployment: TaskType.DEPLOYMENT,
+        security: TaskType.SECURITY,
+        performance: TaskType.PERFORMANCE,
       };
 
       let parsedContext = {};
@@ -120,7 +142,9 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
         try {
           parsedExpectedOutputs = JSON.parse(argv['expected-outputs']);
         } catch (error) {
-          console.error(chalk.red('❌ Invalid JSON format for expected-outputs'));
+          console.error(
+            chalk.red('❌ Invalid JSON format for expected-outputs'),
+          );
           process.exit(1);
         }
       }
@@ -156,13 +180,17 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
         console.log(`   ID: ${chalk.bold(taskId)}`);
         console.log(`   Title: ${chalk.bold(newTask.title)}`);
         console.log(`   Description: ${newTask.description}`);
-        console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
+        console.log(
+          `   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`,
+        );
         console.log(`   Category: ${chalk.cyan(newTask.category)}`);
         console.log(`   Type: ${chalk.magenta(newTask.type)}`);
         console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
 
         if (apiResponse.data?.feature_id) {
-          console.log(`   TaskManager Feature ID: ${chalk.green(apiResponse.data.feature_id)}`);
+          console.log(
+            `   TaskManager Feature ID: ${chalk.green(apiResponse.data.feature_id)}`,
+          );
         }
       } else {
         // Fallback to local simulation
@@ -172,35 +200,46 @@ export const addTaskCommand: CommandModule<{}, AddTaskOptions> = {
           console.log(`   ID: ${chalk.bold(taskId)}`);
           console.log(`   Title: ${chalk.bold(newTask.title)}`);
           console.log(`   Description: ${newTask.description}`);
-          console.log(`   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`);
+          console.log(
+            `   Priority: ${getPriorityColor(newTask.priority)(getPriorityName(newTask.priority))}`,
+          );
           console.log(`   Category: ${chalk.cyan(newTask.category)}`);
           console.log(`   Type: ${chalk.magenta(newTask.type)}`);
-          console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
+          console.log(
+            `   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`,
+          );
         });
       }
 
       if (newTask.dependencies.length > 0) {
-        console.log(`   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`);
+        console.log(
+          `   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`,
+        );
       }
 
       console.log(chalk.blue('\n🔄 Next Steps:'));
-      console.log('   • The task will be analyzed and broken down automatically');
+      console.log(
+        '   • The task will be analyzed and broken down automatically',
+      );
       console.log('   • Check status: gemini autonomous status');
-      console.log(`   • Monitor progress: gemini autonomous tasks show ${taskId}`);
+      console.log(
+        `   • Monitor progress: gemini autonomous tasks show ${taskId}`,
+      );
 
       // Simulate task analysis
       console.log(chalk.gray('\n🤖 Autonomous system is analyzing task...'));
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       console.log(chalk.green('✅ Task analysis complete'));
       console.log(chalk.blue('   • Complexity: MODERATE'));
       console.log(chalk.blue('   • Estimated subtasks: 3-5'));
       console.log(chalk.blue('   • Required capabilities: frontend, testing'));
       console.log(chalk.blue('   • Estimated duration: 45-75 minutes'));
-
     } catch (error) {
       console.error(chalk.red('❌ Failed to add task:'));
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
       process.exit(1);
     }
   },

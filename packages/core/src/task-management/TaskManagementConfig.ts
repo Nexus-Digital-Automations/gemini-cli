@@ -39,8 +39,15 @@ export interface AutonomousQueueConfig {
   enableAutonomousBreakdown: boolean;
   breakdownThreshold: number;
   maxBreakdownDepth: number;
-  breakdownStrategies: Array<'functional' | 'temporal' | 'dependency' | 'hybrid'>;
-  schedulingAlgorithm: 'fifo' | 'priority' | 'shortest_first' | 'adaptive' | 'hybrid_adaptive';
+  breakdownStrategies: Array<
+    'functional' | 'temporal' | 'dependency' | 'hybrid'
+  >;
+  schedulingAlgorithm:
+    | 'fifo'
+    | 'priority'
+    | 'shortest_first'
+    | 'adaptive'
+    | 'hybrid_adaptive';
   optimizationStrategy: 'performance' | 'resources' | 'balanced' | 'custom';
   enableAdaptiveScheduling: boolean;
   performanceOptimization: boolean;
@@ -124,7 +131,11 @@ export interface DependencyConfig {
   enableResolution: boolean;
   maxResolutionDepth: number;
   allowCircularDependencies: boolean;
-  resolutionStrategy: 'depth_first' | 'breadth_first' | 'topological' | 'adaptive';
+  resolutionStrategy:
+    | 'depth_first'
+    | 'breadth_first'
+    | 'topological'
+    | 'adaptive';
   cacheResolutions: boolean;
   enableValidation: boolean;
   validationRules: string[];
@@ -234,7 +245,9 @@ export class TaskManagementConfigManager {
   /**
    * Create default configuration for specified environment
    */
-  static createDefaultConfig(environment: 'development' | 'staging' | 'production'): TaskManagementConfiguration {
+  static createDefaultConfig(
+    environment: 'development' | 'staging' | 'production',
+  ): TaskManagementConfiguration {
     const baseConfig: TaskManagementConfiguration = {
       environment,
       version: '1.0.0',
@@ -262,7 +275,8 @@ export class TaskManagementConfigManager {
         breakdownThreshold: environment === 'production' ? 0.6 : 0.7,
         maxBreakdownDepth: environment === 'production' ? 4 : 3,
         breakdownStrategies: ['functional', 'temporal', 'dependency', 'hybrid'],
-        schedulingAlgorithm: environment === 'production' ? 'hybrid_adaptive' : 'adaptive',
+        schedulingAlgorithm:
+          environment === 'production' ? 'hybrid_adaptive' : 'adaptive',
         optimizationStrategy: 'balanced',
         enableAdaptiveScheduling: true,
         performanceOptimization: true,
@@ -286,7 +300,8 @@ export class TaskManagementConfigManager {
           queueBacklog: 100,
           agentUtilization: 0.9,
         },
-        exportFormats: environment === 'production' ? ['json', 'prometheus'] : ['json'],
+        exportFormats:
+          environment === 'production' ? ['json', 'prometheus'] : ['json'],
         exportInterval: 60000,
         enablePerformanceInsights: true,
         enablePredictiveAnalytics: environment === 'production',
@@ -309,10 +324,12 @@ export class TaskManagementConfigManager {
 
       hookIntegration: {
         enabled: true,
-        hookPath: '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
+        hookPath:
+          '/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js',
         agentId: `${environment.toUpperCase()}_TASK_MANAGER`,
         capabilities: ['autonomous_execution', 'monitoring', 'persistence'],
-        progressReportingIntervalMs: environment === 'development' ? 15000 : 60000,
+        progressReportingIntervalMs:
+          environment === 'development' ? 15000 : 60000,
         autoStopEnabled: true,
         stopConditions: {
           allTasksComplete: true,
@@ -394,7 +411,10 @@ export class TaskManagementConfigManager {
   /**
    * Load configuration from file or create default
    */
-  async loadConfig(filePath: string, coreConfig: Config): Promise<TaskManagementConfiguration> {
+  async loadConfig(
+    filePath: string,
+    coreConfig: Config,
+  ): Promise<TaskManagementConfiguration> {
     this.configPath = filePath;
 
     if (existsSync(filePath)) {
@@ -408,22 +428,30 @@ export class TaskManagementConfigManager {
         // Validate configuration
         const validation = this.validateConfig(config);
         if (!validation.isValid) {
-          console.warn('⚠️ Configuration validation failed:', validation.errors);
+          console.warn(
+            '⚠️ Configuration validation failed:',
+            validation.errors,
+          );
           console.log('📝 Suggestions:', validation.suggestions);
         }
 
         this.config = config;
         console.log(`✅ Configuration loaded from ${filePath}`);
       } catch (error) {
-        console.error(`❌ Failed to load configuration from ${filePath}:`, error);
+        console.error(
+          `❌ Failed to load configuration from ${filePath}:`,
+          error,
+        );
         console.log('🔄 Creating default configuration...');
-        this.config = TaskManagementConfigManager.createDefaultConfig('development');
+        this.config =
+          TaskManagementConfigManager.createDefaultConfig('development');
         this.config.core = coreConfig;
         await this.saveConfig();
       }
     } else {
       console.log('📄 Configuration file not found, creating default...');
-      this.config = TaskManagementConfigManager.createDefaultConfig('development');
+      this.config =
+        TaskManagementConfigManager.createDefaultConfig('development');
       this.config.core = coreConfig;
       await this.saveConfig();
     }
@@ -449,7 +477,7 @@ export class TaskManagementConfigManager {
       writeFileSync(
         this.configPath,
         JSON.stringify(configToSave, null, 2),
-        'utf8'
+        'utf8',
       );
 
       console.log(`✅ Configuration saved to ${this.configPath}`);
@@ -462,7 +490,9 @@ export class TaskManagementConfigManager {
   /**
    * Update configuration at runtime
    */
-  async updateConfig(updates: Partial<TaskManagementConfiguration>): Promise<void> {
+  async updateConfig(
+    updates: Partial<TaskManagementConfiguration>,
+  ): Promise<void> {
     if (!this.config) {
       throw new Error('No configuration loaded');
     }
@@ -473,14 +503,17 @@ export class TaskManagementConfigManager {
     // Validate updated configuration
     const validation = this.validateConfig(this.config);
     if (!validation.isValid) {
-      console.warn('⚠️ Updated configuration has validation errors:', validation.errors);
+      console.warn(
+        '⚠️ Updated configuration has validation errors:',
+        validation.errors,
+      );
     }
 
     // Save to file
     await this.saveConfig();
 
     // Notify watchers
-    this.watchers.forEach(watcher => watcher(this.config!));
+    this.watchers.forEach((watcher) => watcher(this.config!));
   }
 
   /**
@@ -506,25 +539,40 @@ export class TaskManagementConfigManager {
       errors.push('Task engine maxConcurrentTasks must be at least 1');
     }
     if (config.taskEngine.maxConcurrentTasks > 50) {
-      warnings.push('Task engine maxConcurrentTasks is very high (>50), consider performance impact');
+      warnings.push(
+        'Task engine maxConcurrentTasks is very high (>50), consider performance impact',
+      );
     }
     if (config.taskEngine.timeoutMs < 10000) {
-      warnings.push('Task timeout is very low (<10s), may cause premature failures');
+      warnings.push(
+        'Task timeout is very low (<10s), may cause premature failures',
+      );
     }
 
     // Validate autonomous queue config
     if (config.autonomousQueue.enabled) {
-      if (config.autonomousQueue.breakdownThreshold < 0 || config.autonomousQueue.breakdownThreshold > 1) {
+      if (
+        config.autonomousQueue.breakdownThreshold < 0 ||
+        config.autonomousQueue.breakdownThreshold > 1
+      ) {
         errors.push('Breakdown threshold must be between 0 and 1');
       }
-      if (config.autonomousQueue.maxBreakdownDepth < 1 || config.autonomousQueue.maxBreakdownDepth > 10) {
-        warnings.push('Max breakdown depth should typically be between 1 and 10');
+      if (
+        config.autonomousQueue.maxBreakdownDepth < 1 ||
+        config.autonomousQueue.maxBreakdownDepth > 10
+      ) {
+        warnings.push(
+          'Max breakdown depth should typically be between 1 and 10',
+        );
       }
     }
 
     // Validate monitoring config
     if (config.monitoring.enabled) {
-      if (config.monitoring.dashboardPort < 1024 || config.monitoring.dashboardPort > 65535) {
+      if (
+        config.monitoring.dashboardPort < 1024 ||
+        config.monitoring.dashboardPort > 65535
+      ) {
         errors.push('Dashboard port must be between 1024 and 65535');
       }
       if (config.monitoring.metricsRetentionHours < 1) {
@@ -537,7 +585,10 @@ export class TaskManagementConfigManager {
       if (config.persistence.retentionDays < 1) {
         errors.push('Retention days must be at least 1');
       }
-      if (config.persistence.encryptionEnabled && !config.persistence.encryptionKey) {
+      if (
+        config.persistence.encryptionEnabled &&
+        !config.persistence.encryptionKey
+      ) {
         warnings.push('Encryption enabled but no encryption key provided');
       }
     }
@@ -545,7 +596,9 @@ export class TaskManagementConfigManager {
     // Validate hook integration
     if (config.hookIntegration.enabled) {
       if (!existsSync(config.hookIntegration.hookPath)) {
-        warnings.push(`Hook path does not exist: ${config.hookIntegration.hookPath}`);
+        warnings.push(
+          `Hook path does not exist: ${config.hookIntegration.hookPath}`,
+        );
       }
       if (config.hookIntegration.progressReportingIntervalMs < 5000) {
         warnings.push('Progress reporting interval is very short (<5s)');
@@ -555,7 +608,9 @@ export class TaskManagementConfigManager {
     // Add suggestions
     if (config.environment === 'production') {
       if (!config.security.enableValidation) {
-        suggestions.push('Enable security validation in production environment');
+        suggestions.push(
+          'Enable security validation in production environment',
+        );
       }
       if (!config.monitoring.enableAlerts) {
         suggestions.push('Enable monitoring alerts in production environment');
@@ -576,7 +631,9 @@ export class TaskManagementConfigManager {
   /**
    * Watch for configuration changes
    */
-  onConfigChange(callback: (config: TaskManagementConfiguration) => void): () => void {
+  onConfigChange(
+    callback: (config: TaskManagementConfiguration) => void,
+  ): () => void {
     this.watchers.push(callback);
     return () => {
       const index = this.watchers.indexOf(callback);
@@ -589,7 +646,9 @@ export class TaskManagementConfigManager {
   /**
    * Generate configuration template for specific use case
    */
-  static generateTemplate(useCase: 'minimal' | 'development' | 'production' | 'enterprise'): TaskManagementConfiguration {
+  static generateTemplate(
+    useCase: 'minimal' | 'development' | 'production' | 'enterprise',
+  ): TaskManagementConfiguration {
     switch (useCase) {
       case 'minimal':
         return TaskManagementConfigManager.createMinimalTemplate();
@@ -605,7 +664,8 @@ export class TaskManagementConfigManager {
   }
 
   private static createMinimalTemplate(): TaskManagementConfiguration {
-    const config = TaskManagementConfigManager.createDefaultConfig('development');
+    const config =
+      TaskManagementConfigManager.createDefaultConfig('development');
 
     // Minimal settings
     config.autonomousQueue.enabled = false;
@@ -619,7 +679,8 @@ export class TaskManagementConfigManager {
   }
 
   private static createEnterpriseTemplate(): TaskManagementConfiguration {
-    const config = TaskManagementConfigManager.createDefaultConfig('production');
+    const config =
+      TaskManagementConfigManager.createDefaultConfig('production');
 
     // Enterprise enhancements
     config.security.enableSandboxing = true;
@@ -650,9 +711,14 @@ export class TaskManagementConfigManager {
       const targetValue = result[key];
 
       if (sourceValue !== undefined) {
-        if (typeof sourceValue === 'object' && sourceValue !== null &&
-            typeof targetValue === 'object' && targetValue !== null &&
-            !Array.isArray(sourceValue) && !Array.isArray(targetValue)) {
+        if (
+          typeof sourceValue === 'object' &&
+          sourceValue !== null &&
+          typeof targetValue === 'object' &&
+          targetValue !== null &&
+          !Array.isArray(sourceValue) &&
+          !Array.isArray(targetValue)
+        ) {
           (result as any)[key] = this.deepMerge(targetValue, sourceValue);
         } else {
           (result as any)[key] = sourceValue;
@@ -671,7 +737,10 @@ export class ConfigUtils {
   /**
    * Export configuration to different formats
    */
-  static exportConfig(config: TaskManagementConfiguration, format: 'json' | 'yaml' | 'env'): string {
+  static exportConfig(
+    config: TaskManagementConfiguration,
+    format: 'json' | 'yaml' | 'env',
+  ): string {
     switch (format) {
       case 'json':
         return JSON.stringify(config, null, 2);
@@ -687,7 +756,10 @@ export class ConfigUtils {
   /**
    * Import configuration from different formats
    */
-  static importConfig(data: string, format: 'json' | 'yaml' | 'env'): Partial<TaskManagementConfiguration> {
+  static importConfig(
+    data: string,
+    format: 'json' | 'yaml' | 'env',
+  ): Partial<TaskManagementConfiguration> {
     switch (format) {
       case 'json':
         return JSON.parse(data);
@@ -705,7 +777,13 @@ export class ConfigUtils {
    */
   static validateSchema(config: any): boolean {
     // Basic schema validation
-    const requiredFields = ['environment', 'version', 'taskEngine', 'autonomousQueue', 'monitoring'];
+    const requiredFields = [
+      'environment',
+      'version',
+      'taskEngine',
+      'autonomousQueue',
+      'monitoring',
+    ];
 
     for (const field of requiredFields) {
       if (!(field in config)) {
@@ -734,9 +812,15 @@ export class ConfigUtils {
 
     const flatten = (obj: any, prefix = ''): void => {
       for (const [key, value] of Object.entries(obj)) {
-        const envKey = `${prefix}${key}`.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+        const envKey = `${prefix}${key}`
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, '_');
 
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
           flatten(value, `${envKey}_`);
         } else {
           envVars.push(`${envKey}=${JSON.stringify(value)}`);
@@ -748,9 +832,13 @@ export class ConfigUtils {
     return envVars.join('\n');
   }
 
-  private static fromEnvFile(envData: string): Partial<TaskManagementConfiguration> {
+  private static fromEnvFile(
+    envData: string,
+  ): Partial<TaskManagementConfiguration> {
     const config: any = {};
-    const lines = envData.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+    const lines = envData
+      .split('\n')
+      .filter((line) => line.trim() && !line.startsWith('#'));
 
     for (const line of lines) {
       const [key, ...valueParts] = line.split('=');
