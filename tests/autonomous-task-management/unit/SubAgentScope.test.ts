@@ -6,14 +6,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  SubAgentScope,
   ContextState,
   SubagentTerminateMode,
-  type PromptConfig,
-  type ModelConfig,
-  type RunConfig,
-  type OutputConfig,
-  type ToolConfig,
 } from '../../../packages/core/src/core/subagent.js';
 import {
   MockAgentFactory,
@@ -30,7 +24,7 @@ import type { Config } from '../../../packages/core/src/config/config.js';
 
 describe('SubAgentScope - Autonomous Task Management Tests', () => {
   let mockConfig: Config;
-  let originalCreate: typeof SubAgentScope.create;
+  // let originalCreate: typeof SubAgentScope.create; // Not used in tests
 
   beforeEach(() => {
     mockConfig = {
@@ -44,7 +38,7 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
       initialize: vi.fn(),
     } as unknown as Config;
 
-    originalCreate = SubAgentScope.create;
+    // originalCreate = SubAgentScope.create; // Not used
     MockAgentFactory.reset();
   });
 
@@ -572,7 +566,12 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
         TaskComplexity.VERY_COMPLEX,
       ];
 
-      const executionTimes: Record<TaskComplexity, number> = {};
+      const executionTimes: Record<TaskComplexity, number> = {
+        [TaskComplexity.SIMPLE]: 0,
+        [TaskComplexity.MODERATE]: 0,
+        [TaskComplexity.COMPLEX]: 0,
+        [TaskComplexity.VERY_COMPLEX]: 0,
+      };
 
       for (const complexity of complexities) {
         const task = new TaskBuilder()
@@ -679,7 +678,7 @@ describe('SubAgentScope - Autonomous Task Management Tests', () => {
     it('should validate agent execution results', async () => {
       const standardConfigs = MockAgentFactory.createStandardConfigurations();
 
-      for (const [configName, config] of Object.entries(standardConfigs)) {
+      for (const config of Object.values(standardConfigs)) {
         const isValid = MockAgentFactory.validateAgentExecution(
           config.name,
           config.state,

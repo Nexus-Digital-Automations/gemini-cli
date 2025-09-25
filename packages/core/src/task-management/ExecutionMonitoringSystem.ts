@@ -7,12 +7,9 @@
 import type { Config } from '../config/config.js';
 import type {
   Task,
-  TaskStatus,
   TaskType,
   TaskComplexity,
   TaskPriority,
-  TaskMetrics,
-  AgentCapability,
 } from './TaskExecutionEngine.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -209,6 +206,10 @@ export class ExecutionMonitoringSystem {
       case 'retry':
         // Task being retried
         break;
+
+      default:
+        // Unknown event type
+        break;
     }
 
     // Trim event log to prevent memory issues
@@ -270,13 +271,18 @@ export class ExecutionMonitoringSystem {
 
     // Task type breakdown
     const tasksByType = {} as Record<TaskType, number>;
-    const tasksByComplexity = {} as Record<TaskComplexity, number>;
+    const tasksByComplexity: Record<TaskComplexity, number> = {
+      [TaskComplexity.TRIVIAL]: 0,
+      [TaskComplexity.SIMPLE]: 0,
+      [TaskComplexity.MODERATE]: 0,
+      [TaskComplexity.COMPLEX]: 0,
+      [TaskComplexity.ENTERPRISE]: 0,
+    };
     const tasksByPriority = {} as Record<TaskPriority, number>;
 
     for (const task of tasks) {
       tasksByType[task.type] = (tasksByType[task.type] || 0) + 1;
-      tasksByComplexity[task.complexity] =
-        (tasksByComplexity[task.complexity] || 0) + 1;
+      tasksByComplexity[task.complexity]++;
       tasksByPriority[task.priority] =
         (tasksByPriority[task.priority] || 0) + 1;
     }
@@ -634,7 +640,7 @@ export class ExecutionMonitoringSystem {
    */
   private triggerAlert(
     alertConfig: AlertConfig,
-    metrics: ExecutionMetrics,
+    _metrics: ExecutionMetrics,
   ): void {
     console.warn(
       `[ALERT] ${alertConfig.severity.toUpperCase()}: ${alertConfig.name} - ${alertConfig.message}`,

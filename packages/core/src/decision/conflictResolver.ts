@@ -5,12 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type {
-  DecisionContext,
-  Decision,
-  DecisionType,
-  DecisionPriority,
-} from './types';
+import type { DecisionContext, DecisionPriority } from './types';
 
 /**
  * Types of conflicts that can occur in the system
@@ -373,15 +368,25 @@ export class ConflictResolver extends EventEmitter {
       this.activeConflicts.size + this.resolutionHistory.size;
     const resolutions = Array.from(this.resolutionHistory.values());
 
-    const strategyUsage: Record<ResolutionStrategy, number> = {} as Record<
-      ResolutionStrategy,
-      number
-    >;
-    const severityDistribution: Record<ConflictSeverity, number> = {} as Record<
-      ConflictSeverity,
-      number
-    >;
-    const totalResolutionTime = 0;
+    const strategyUsage: Record<ResolutionStrategy, number> = {
+      [ResolutionStrategy.PRIORITY_BASED]: 0,
+      [ResolutionStrategy.ROUND_ROBIN]: 0,
+      [ResolutionStrategy.WEIGHTED_FAIR]: 0,
+      [ResolutionStrategy.FIRST_COME_FIRST_SERVED]: 0,
+      [ResolutionStrategy.DEADLINE_EARLIEST]: 0,
+      [ResolutionStrategy.COST_OPTIMAL]: 0,
+      [ResolutionStrategy.PREEMPTION]: 0,
+      [ResolutionStrategy.NEGOTIATION]: 0,
+      [ResolutionStrategy.ESCALATION]: 0,
+    };
+    const severityDistribution: Record<ConflictSeverity, number> = {
+      [ConflictSeverity.LOW]: 0,
+      [ConflictSeverity.MEDIUM]: 0,
+      [ConflictSeverity.HIGH]: 0,
+      [ConflictSeverity.CRITICAL]: 0,
+      [ConflictSeverity.BLOCKING]: 0,
+    };
+    const _totalResolutionTime = 0;
     let totalFairness = 0;
     let totalEfficiency = 0;
     let totalSatisfaction = 0;
@@ -426,10 +431,17 @@ export class ConflictResolver extends EventEmitter {
   ): Promise<ResolutionStrategy> {
     // Use multi-criteria decision analysis to select strategy
     const strategies = Object.values(ResolutionStrategy);
-    const scores: Record<ResolutionStrategy, number> = {} as Record<
-      ResolutionStrategy,
-      number
-    >;
+    const scores: Record<ResolutionStrategy, number> = {
+      [ResolutionStrategy.PRIORITY_BASED]: 0,
+      [ResolutionStrategy.ROUND_ROBIN]: 0,
+      [ResolutionStrategy.WEIGHTED_FAIR]: 0,
+      [ResolutionStrategy.FIRST_COME_FIRST_SERVED]: 0,
+      [ResolutionStrategy.DEADLINE_EARLIEST]: 0,
+      [ResolutionStrategy.COST_OPTIMAL]: 0,
+      [ResolutionStrategy.PREEMPTION]: 0,
+      [ResolutionStrategy.NEGOTIATION]: 0,
+      [ResolutionStrategy.ESCALATION]: 0,
+    };
 
     for (const strategy of strategies) {
       let score = this.config.strategyWeights[strategy] || 1.0;
@@ -475,6 +487,10 @@ export class ConflictResolver extends EventEmitter {
           } else {
             score *= 0.1;
           }
+          break;
+
+        default:
+          // Use base weight for other strategies
           break;
       }
 
@@ -622,8 +638,8 @@ export class ConflictResolver extends EventEmitter {
   ): Promise<ConflictResolution> {
     // Award based on timestamp (assuming participants have timestamps)
     const sortedParticipants = [...conflict.participants].sort((a, b) => {
-      const timeA = (a as any).timestamp || 0;
-      const timeB = (b as any).timestamp || 0;
+      const timeA = (a.constraints.timestamp as number) || 0;
+      const timeB = (b.constraints.timestamp as number) || 0;
       return timeA - timeB;
     });
 
@@ -646,8 +662,8 @@ export class ConflictResolver extends EventEmitter {
   ): Promise<ConflictResolution> {
     // Award based on earliest deadline
     const sortedParticipants = [...conflict.participants].sort((a, b) => {
-      const deadlineA = (a.constraints as any).deadline || Infinity;
-      const deadlineB = (b.constraints as any).deadline || Infinity;
+      const deadlineA = (a.constraints.deadline as number) || Infinity;
+      const deadlineB = (b.constraints.deadline as number) || Infinity;
       return deadlineA - deadlineB;
     });
 
@@ -670,7 +686,7 @@ export class ConflictResolver extends EventEmitter {
   ): Promise<ConflictResolution> {
     // Award based on cost efficiency
     const costEfficiency = conflict.participants.map((p) => {
-      const cost = (p.constraints as any).cost || 1;
+      const cost = (p.constraints.cost as number) || 1;
       const value = p.priority / DecisionPriority.URGENT;
       return { participant: p, efficiency: value / cost };
     });

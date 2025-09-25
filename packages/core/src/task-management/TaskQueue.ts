@@ -6,6 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
+// Note: Using relative import to utils/logger for internal usage
+// eslint-disable-next-line import/no-internal-modules
 import { logger } from '../utils/logger.js';
 
 /**
@@ -813,7 +815,10 @@ export class TaskQueue extends EventEmitter {
   /**
    * Simple condition evaluator (can be enhanced with a proper expression parser)
    */
-  private evaluateCondition(condition: string, context: TaskContext): boolean {
+  private evaluateCondition(
+    _condition: string,
+    _context: TaskContext,
+  ): boolean {
     // Basic implementation - would need a proper expression evaluator in production
     // For now, assume conditions are always true
     return true;
@@ -929,14 +934,27 @@ export class TaskQueue extends EventEmitter {
     this.metrics.throughputPerHour = recentCompletions.length;
 
     // Distribution metrics
-    this.metrics.priorityDistribution = {};
-    this.metrics.categoryDistribution = {};
+    this.metrics.priorityDistribution = {
+      [TaskPriority.CRITICAL]: 0,
+      [TaskPriority.HIGH]: 0,
+      [TaskPriority.MEDIUM]: 0,
+      [TaskPriority.LOW]: 0,
+      [TaskPriority.BACKGROUND]: 0,
+    };
+    this.metrics.categoryDistribution = {
+      [TaskCategory.FEATURE]: 0,
+      [TaskCategory.BUG_FIX]: 0,
+      [TaskCategory.TEST]: 0,
+      [TaskCategory.DOCUMENTATION]: 0,
+      [TaskCategory.REFACTOR]: 0,
+      [TaskCategory.SECURITY]: 0,
+      [TaskCategory.PERFORMANCE]: 0,
+      [TaskCategory.INFRASTRUCTURE]: 0,
+    };
 
     for (const task of this.tasks.values()) {
-      this.metrics.priorityDistribution[task.priority] =
-        (this.metrics.priorityDistribution[task.priority] || 0) + 1;
-      this.metrics.categoryDistribution[task.category] =
-        (this.metrics.categoryDistribution[task.category] || 0) + 1;
+      this.metrics.priorityDistribution[task.priority]++;
+      this.metrics.categoryDistribution[task.category]++;
     }
   }
 
