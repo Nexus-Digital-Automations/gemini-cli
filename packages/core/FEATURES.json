@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 48,
+      "total_reinitializations": 50,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 8
+          "reinit": 10
         },
         "14:00-18:59": {
           "init": 0,
@@ -35,7 +35,7 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-25T05:16:31.163Z",
-      "last_updated": "2025-09-25T14:43:44.817Z"
+      "last_updated": "2025-09-25T14:48:06.500Z"
     }
   },
   "workflow_config": {
@@ -46,10 +46,10 @@
   },
   "agents": {
     "test-agent": {
-      "lastHeartbeat": "2025-09-25T14:43:44.806Z",
+      "lastHeartbeat": "2025-09-25T14:48:06.497Z",
       "status": "active",
-      "reinitialized": "2025-09-25T14:43:44.806Z",
-      "sessionId": "cb084c6c633d6402",
+      "reinitialized": "2025-09-25T14:48:06.497Z",
+      "sessionId": "4239e15047b14e8e",
       "previousSessions": [
         "8fa9d77a8dbf5e6c",
         "45d75c0ceb400ea6",
@@ -97,7 +97,9 @@
         "ae95b4c250989f93",
         "b217fb1c346f4130",
         "ba35ba8bd0acc346",
-        "15d689cfdd7944b9"
+        "15d689cfdd7944b9",
+        "cb084c6c633d6402",
+        "a2eb98e4a0df5267"
       ]
     }
   }
