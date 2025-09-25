@@ -11,13 +11,10 @@
  * @author Claude Code - Auto-Compression Test Specialist
  * @version 1.0.0
  */
-
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   AutoCompressionManager,
   AutoCompressionEvent,
 } from '../AutoCompressionManager.js';
-
 import { TokenMonitorService } from '../TokenMonitorService.js';
 import {
   CompressionConfigurationManager,
@@ -25,36 +22,29 @@ import {
 } from '../CompressionConfigurationManager.js';
 import { CompressionFallbackSystem } from '../CompressionFallbackSystem.js';
 import { EnhancedCompressionAlgorithms } from '../EnhancedCompressionAlgorithms.js';
-import type { ContextItem } from '../types.js';
-
-import { ContextType, ContextPriority } from '../types.js';
+import { ContextItem, ContextType, ContextPriority } from '../types.js';
 import { performance } from 'node:perf_hooks';
-
 describe('AutoCompressionSystem Integration Tests', () => {
-  let compressionManager: AutoCompressionManager;
-  let tokenMonitor: TokenMonitorService;
-  let configManager: CompressionConfigurationManager;
-
+  let compressionManager;
+  let tokenMonitor;
+  let configManager;
   beforeEach(() => {
     configManager = new CompressionConfigurationManager();
     compressionManager = new AutoCompressionManager({}, configManager);
     tokenMonitor = new TokenMonitorService();
   });
-
   afterEach(async () => {
     compressionManager.stop();
     await new Promise((resolve) => setTimeout(resolve, 100)); // Allow cleanup
   });
-
   describe('Large Context Handling', () => {
     test('should handle context approaching 1M token limit (1,272,932 → 1,048,576)', async () => {
       // Create a large context that exceeds the limit
       const largeContextItems = createLargeContextItems(1_272_932); // Original problematic size
       const targetTokens = 1_048_576; // Claude API limit
-
       // Mock context manager
       const mockContextManager = {
-        getCurrentWindow: vi.fn(() => ({
+        getCurrentWindow: jest.fn(() => ({
           totalTokens: targetTokens,
           usedTokens: 1_272_932,
           availableTokens: targetTokens - 1_272_932, // Negative = over limit
@@ -91,17 +81,14 @@ describe('AutoCompressionSystem Integration Tests', () => {
             },
           },
         })),
-        updateContextWindowTotals: vi.fn(),
-
+        updateContextWindowTotals: jest.fn(),
       };
-
       compressionManager.registerContextManager(
         'test-session',
-        mockContextManager as any,
+        mockContextManager,
       );
-
       // Set up event listeners to track compression
-      const compressionEvents: any[] = [];
+      const compressionEvents = [];
       compressionManager.on(
         AutoCompressionEvent.COMPRESSION_STARTED,
         (event) => {
@@ -120,26 +107,20 @@ describe('AutoCompressionSystem Integration Tests', () => {
           compressionEvents.push({ type: 'warning', ...event });
         },
       );
-
       // Start monitoring and wait for automatic compression
       compressionManager.start();
-
       // Wait for automatic compression to trigger
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
       // Manually trigger compression to ensure it runs
       const result = await compressionManager.triggerRobustCompression(false);
-
       // Verify compression was successful
       expect(result.success).toBe(true);
       expect(result.compressedTokens).toBeLessThan(targetTokens);
       expect(result.compressionRatio).toBeLessThan(0.9); // At least 10% reduction
       expect(result.originalTokens).toBe(1_272_932);
-
       // Verify token limit compliance
       const finalSnapshot = compressionManager.getTokenUsage();
       expect(finalSnapshot.totalTokens).toBeLessThanOrEqual(targetTokens);
-
       console.log('Large Context Compression Test Results:', {
         originalTokens: result.originalTokens,
         compressedTokens: result.compressedTokens,
@@ -149,14 +130,12 @@ describe('AutoCompressionSystem Integration Tests', () => {
         compressionEvents: compressionEvents.length,
       });
     });
-
     test('should handle gradual context growth and predict compression needs', async () => {
       const baseTokens = 800_000; // Start at 800K tokens
       const growthRate = 5_000; // 5K tokens per monitoring cycle
       let currentTokens = baseTokens;
-
       const mockContextManager = {
-        getCurrentWindow: vi.fn(() => {
+        getCurrentWindow: jest.fn(() => {
           currentTokens += growthRate; // Simulate growth
           return {
             totalTokens: 1_048_576,
@@ -188,15 +167,12 @@ describe('AutoCompressionSystem Integration Tests', () => {
             },
           };
         }),
-        updateContextWindowTotals: vi.fn(),
-
+        updateContextWindowTotals: jest.fn(),
       };
-
       compressionManager.registerContextManager(
         'growth-test',
-        mockContextManager as any,
+        mockContextManager,
       );
-
       // Enable predictive compression
       compressionManager.updateConfiguration({
         tokenLimits: {
@@ -214,15 +190,13 @@ describe('AutoCompressionSystem Integration Tests', () => {
           },
         },
       });
-
-      const warnings: any[] = [];
+      const warnings = [];
       compressionManager.on(
         AutoCompressionEvent.TOKEN_LIMIT_WARNING,
         (event) => {
           warnings.push(event);
         },
       );
-
       // Start monitoring with shorter interval for testing
       compressionManager.updateConfiguration({
         monitoring: {
@@ -235,15 +209,12 @@ describe('AutoCompressionSystem Integration Tests', () => {
         },
       });
       compressionManager.start();
-
       // Wait for predictive compression to trigger
       await new Promise((resolve) => setTimeout(resolve, 3000));
-
       expect(warnings.length).toBeGreaterThan(0);
       expect(
         warnings.some((w) => w.level === 'warning' || w.level === 'critical'),
       ).toBe(true);
-
       console.log('Predictive Compression Test Results:', {
         finalTokens: currentTokens,
         warningsTriggered: warnings.length,
@@ -252,12 +223,10 @@ describe('AutoCompressionSystem Integration Tests', () => {
         ),
       });
     });
-
     test('should handle emergency compression at 95% threshold', async () => {
       const emergencyTokens = Math.floor(1_048_576 * 0.96); // 96% of limit
-
       const mockContextManager = {
-        getCurrentWindow: vi.fn(() => ({
+        getCurrentWindow: jest.fn(() => ({
           totalTokens: 1_048_576,
           usedTokens: emergencyTokens,
           availableTokens: 1_048_576 - emergencyTokens,
@@ -276,30 +245,24 @@ describe('AutoCompressionSystem Integration Tests', () => {
             },
           },
         })),
-        updateContextWindowTotals: vi.fn(),
-
+        updateContextWindowTotals: jest.fn(),
       };
-
       compressionManager.registerContextManager(
         'emergency-test',
-        mockContextManager as any,
+        mockContextManager,
       );
-
-      const emergencyEvents: any[] = [];
+      const emergencyEvents = [];
       compressionManager.on(
         AutoCompressionEvent.EMERGENCY_COMPRESSION,
         (event) => {
           emergencyEvents.push(event);
         },
       );
-
       // Trigger emergency compression
       const result = await compressionManager.triggerRobustCompression(true);
-
       expect(result.success).toBe(true);
       expect(result.compressedTokens).toBeLessThan(emergencyTokens * 0.7); // Aggressive compression
       expect(emergencyEvents.length).toBeGreaterThan(0);
-
       console.log('Emergency Compression Test Results:', {
         originalTokens: emergencyTokens,
         compressedTokens: result.compressedTokens,
@@ -309,7 +272,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
       });
     });
   });
-
   describe('Compression Effectiveness', () => {
     test('should achieve different compression ratios based on content type', async () => {
       const contentTypes = [
@@ -318,22 +280,17 @@ describe('AutoCompressionSystem Integration Tests', () => {
         { type: ContextType.ERROR, expectedRatio: 0.7 }, // Logs compress moderately
         { type: ContextType.FILE, expectedRatio: 0.5 }, // File listings compress very well
       ];
-
       const enhancedCompressor = new EnhancedCompressionAlgorithms();
-
       for (const { type, expectedRatio } of contentTypes) {
         const items = createContextItems(100, type);
         const testItem = items[0];
-
         const result = await enhancedCompressor.compressWithTypeOptimization(
           testItem,
           0.7, // Target 70% compression
         );
-
         expect(result.success).toBe(true);
         expect(result.compressionRatio).toBeLessThanOrEqual(expectedRatio);
         expect(result.compressedTokens).toBeLessThan(result.originalTokens);
-
         console.log(`Content Type ${type} Compression:`, {
           originalTokens: result.originalTokens,
           compressedTokens: result.compressedTokens,
@@ -342,7 +299,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
         });
       }
     });
-
     test('should preserve critical content priority', async () => {
       const items = [
         createContextItem(
@@ -366,9 +322,7 @@ describe('AutoCompressionSystem Integration Tests', () => {
           ContextPriority.HIGH,
         ),
       ];
-
       const fallbackSystem = new CompressionFallbackSystem();
-
       // Apply aggressive compression that should preserve critical items
       const result = await fallbackSystem.applyFallbackCompression(
         items,
@@ -376,14 +330,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
         new Error('Test compression'),
         false,
       );
-
       expect(result.success).toBe(true);
-
       // Verify critical content is preserved
       const compressedContent = result.compressed.toLowerCase();
       expect(compressedContent).toContain('critical');
       expect(compressedContent).toContain('system error');
-
       console.log('Priority Preservation Test:', {
         originalLength: result.original.length,
         compressedLength: result.compressed.length,
@@ -392,31 +343,25 @@ describe('AutoCompressionSystem Integration Tests', () => {
       });
     });
   });
-
   describe('Fallback System', () => {
     test('should handle compression algorithm failures gracefully', async () => {
       const items = createContextItems(50, ContextType.CODE);
-
       // Create a mock compression error
       const compressionError = new Error('Algorithm timeout exceeded');
       const fallbackSystem = new CompressionFallbackSystem();
-
       const result = await fallbackSystem.applyFallbackCompression(
         items,
         0.7,
         compressionError,
         false,
       );
-
       expect(result.fallbackStrategy).toBeDefined();
       expect(result.fallbackAttempts).toBeGreaterThan(0);
       expect(result.fallbackErrors.length).toBeGreaterThan(0);
-
       // Should still achieve some compression through fallback
       if (result.success) {
         expect(result.compressionRatio).toBeLessThan(1.0);
       }
-
       console.log('Fallback System Test:', {
         fallbackStrategy: result.fallbackStrategy,
         attempts: result.fallbackAttempts,
@@ -424,10 +369,8 @@ describe('AutoCompressionSystem Integration Tests', () => {
         errors: result.fallbackErrors?.length || 0,
       });
     });
-
     test('should apply emergency measures when all fallbacks fail', async () => {
       const items = createContextItems(100, ContextType.CONVERSATION);
-
       // Create fallback system with very restrictive settings to force emergency
       const restrictiveFallback = new CompressionFallbackSystem({
         maxFallbackAttempts: 1,
@@ -435,19 +378,16 @@ describe('AutoCompressionSystem Integration Tests', () => {
         minPreservationRatio: 0.05, // Keep only 5% minimum
         fallbackTimeoutMs: 100, // Very short timeout
       });
-
       const result = await restrictiveFallback.applyFallbackCompression(
         items,
         0.1, // Very aggressive target
         new Error('All algorithms failed'),
         true, // Emergency mode
       );
-
       if (result.emergencyMeasuresApplied) {
         expect(result.compressionRatio).toBeLessThan(0.2); // Very aggressive compression
         expect(result.recoveryActions.length).toBeGreaterThan(0);
       }
-
       console.log('Emergency Measures Test:', {
         emergencyApplied: result.emergencyMeasuresApplied,
         finalRatio: result.compressionRatio,
@@ -455,7 +395,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
       });
     });
   });
-
   describe('Configuration System', () => {
     test('should apply different configuration presets correctly', async () => {
       const presets = [
@@ -463,13 +402,10 @@ describe('AutoCompressionSystem Integration Tests', () => {
         ConfigurationPreset.BALANCED,
         ConfigurationPreset.AGGRESSIVE,
       ];
-
       for (const preset of presets) {
         const testConfigManager = new CompressionConfigurationManager();
         testConfigManager.applyPreset(preset);
-
         const config = testConfigManager.getConfig();
-
         // Verify preset characteristics
         switch (preset) {
           case ConfigurationPreset.CONSERVATIVE:
@@ -489,7 +425,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
             expect(config.compressionRatios.targets.normal).toBeCloseTo(0.7, 1);
             break;
         }
-
         console.log(`Preset ${preset} Configuration:`, {
           criticalThreshold: config.tokenLimits.thresholds.critical,
           normalRatio: config.compressionRatios.targets.normal,
@@ -497,15 +432,12 @@ describe('AutoCompressionSystem Integration Tests', () => {
         });
       }
     });
-
     test('should handle configuration changes dynamically', async () => {
       const testManager = new AutoCompressionManager({}, configManager);
-
       let configChangeEvents = 0;
       configManager.watchConfig('test', () => {
         configChangeEvents++;
       });
-
       // Change configuration
       configManager.updateConfig({
         tokenLimits: {
@@ -519,12 +451,10 @@ describe('AutoCompressionSystem Integration Tests', () => {
           predictive: { enabled: true, minutesAhead: 15, minGrowthRate: 500 },
         },
       });
-
       // Verify change was applied
       const updatedConfig = testManager.getConfig();
       expect(updatedConfig.maxTokenLimit).toBe(2_000_000);
       expect(configChangeEvents).toBeGreaterThan(0);
-
       console.log('Dynamic Configuration Test:', {
         configChanges: configChangeEvents,
         newMaxLimit: updatedConfig.maxTokenLimit,
@@ -532,14 +462,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
       });
     });
   });
-
   describe('Performance Tests', () => {
     test('should compress large contexts within reasonable time limits', async () => {
       const items = createLargeContextItems(500_000); // 500K tokens
       const allItems = [...items.conversation, ...items.code, ...items.logs];
-
       const startTime = performance.now();
-
       const enhancedCompressor = new EnhancedCompressionAlgorithms();
       const results = await Promise.all(
         allItems.slice(0, 10).map(
@@ -548,12 +475,9 @@ describe('AutoCompressionSystem Integration Tests', () => {
           ) => enhancedCompressor.compressWithTypeOptimization(item, 0.7),
         ),
       );
-
       const duration = performance.now() - startTime;
-
       expect(duration).toBeLessThan(10000); // Should complete within 10 seconds
       expect(results.every((r) => r.success)).toBe(true);
-
       console.log('Performance Test Results:', {
         itemsProcessed: results.length,
         totalDurationMs: duration,
@@ -561,7 +485,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
         allSuccessful: results.every((r) => r.success),
       });
     });
-
     test('should handle memory constraints gracefully', async () => {
       // Create very large items to test memory handling
       const largeItems = Array.from({ length: 5 }, (_, i) =>
@@ -571,13 +494,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
           ContextPriority.LOW,
         ),
       );
-
       const fallbackSystem = new CompressionFallbackSystem({
         maxFallbackAttempts: 3,
         enableEmergencyRemoval: true,
         fallbackTimeoutMs: 5000,
       });
-
       const memoryError = new Error('JavaScript heap out of memory');
       const result = await fallbackSystem.applyFallbackCompression(
         largeItems,
@@ -585,11 +506,9 @@ describe('AutoCompressionSystem Integration Tests', () => {
         memoryError,
         false,
       );
-
       // Should handle memory constraints without crashing
       expect(result).toBeDefined();
       expect(result.fallbackAttempts).toBeGreaterThan(0);
-
       console.log('Memory Constraint Test:', {
         handled: !!result,
         strategy: result.fallbackStrategy,
@@ -599,17 +518,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
     });
   });
 });
-
 // Helper functions for creating test data
-function createLargeContextItems(totalTokens: number): {
-  conversation: ContextItem[];
-  code: ContextItem[];
-  logs: ContextItem[];
-} {
+function createLargeContextItems(totalTokens) {
   const conversationTokens = Math.floor(totalTokens * 0.6);
   const codeTokens = Math.floor(totalTokens * 0.25);
   const logTokens = totalTokens - conversationTokens - codeTokens;
-
   return {
     conversation: createContextItems(
       Math.floor(conversationTokens / 1000),
@@ -619,8 +532,7 @@ function createLargeContextItems(totalTokens: number): {
     logs: createContextItems(Math.floor(logTokens / 1000), ContextType.ERROR),
   };
 }
-
-function createContextItems(count: number, type: ContextType): ContextItem[] {
+function createContextItems(count, type) {
   return Array.from({ length: count }, (_, i) =>
     createContextItem(
       generateContentByType(type, i),
@@ -629,12 +541,7 @@ function createContextItems(count: number, type: ContextType): ContextItem[] {
     ),
   );
 }
-
-function createContextItem(
-  content: string,
-  type: ContextType,
-  priority: ContextPriority,
-): ContextItem {
+function createContextItem(content, type, priority) {
   return {
     id: `test-item-${Date.now()}-${Math.random()}`,
     content,
@@ -649,8 +556,7 @@ function createContextItem(
     tags: [`type:${type}`, `priority:${priority}`],
   };
 }
-
-function generateContentByType(type: ContextType, index: number): string {
+function generateContentByType(type, index) {
   switch (type) {
     case ContextType.CODE:
       return `
@@ -678,7 +584,6 @@ function generateContentByType(type: ContextType, index: number): string {
           processingTime: number;
         }
       `;
-
     case ContextType.CONVERSATION:
       return `
         User: I'm having trouble with the auto-compression system. When I reach about ${Math.floor(Math.random() * 500000 + 800000)} tokens, the system seems to slow down significantly. Is there a way to optimize this?
@@ -709,7 +614,6 @@ function generateContentByType(type: ContextType, index: number): string {
 
         This will help the system compress proactively rather than reactively.
       `;
-
     case ContextType.ERROR:
       return `
         [${new Date().toISOString()}] ERROR - CompressionManager: Token limit approaching critical threshold
@@ -736,7 +640,6 @@ function generateContentByType(type: ContextType, index: number): string {
         Compression ratio: ${(Math.random() * 0.3 + 0.5).toFixed(3)}
         Duration: ${Math.floor(Math.random() * 2000 + 1000)}ms
       `;
-
     case ContextType.FILE:
       return `
         File listing for project directory ${index}:
@@ -764,8 +667,8 @@ function generateContentByType(type: ContextType, index: number): string {
         Dependencies: ${Math.floor(Math.random() * 20 + 30)} packages
         Last modified: ${new Date().toISOString()}
       `;
-
     default:
       return `Generic content item ${index} with various information and data that can be compressed effectively using different algorithms depending on the content characteristics and compression requirements.`;
   }
 }
+//# sourceMappingURL=AutoCompressionSystem.integration.test.js.map

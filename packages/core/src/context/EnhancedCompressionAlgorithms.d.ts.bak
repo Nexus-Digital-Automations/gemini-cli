@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+<<<<<<< Updated upstream
+import type { CompressionStrategy, CompressionResult, ContextItem } from './types.js';
+=======
 import type {
   CompressionStrategy,
   CompressionResult,
   ContextItem,
 } from './types.js';
-
+>>>>>>> Stashed changes
 /**
  * Enhanced compression configuration
  */

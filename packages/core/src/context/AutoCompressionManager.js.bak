@@ -18,13 +18,16 @@ import { getComponentLogger } from '../utils/logger.js';
 import { SemanticCompressor } from './SemanticCompressor.js';
 import { EnhancedCompressionAlgorithms } from './EnhancedCompressionAlgorithms.js';
 import { CompressionFallbackSystem } from './CompressionFallbackSystem.js';
+<<<<<<< Updated upstream
+import { CompressionConfigurationManager, createCompressionConfigurationManager, ConfigurationPreset, CompressionSystemConfig as _CompressionSystemConfig } from './CompressionConfigurationManager.js';
+=======
 import {
   CompressionConfigurationManager,
   createCompressionConfigurationManager,
   ConfigurationPreset,
   CompressionSystemConfig as _CompressionSystemConfig,
 } from './CompressionConfigurationManager.js';
-
+>>>>>>> Stashed changes
 import { CompressionStrategy } from './types.js';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
@@ -617,6 +620,267 @@ export class AutoCompressionManager extends EventEmitter {
       }
       return true;
     }
+<<<<<<< Updated upstream
+    /**
+     * Convert comprehensive configuration to legacy AutoCompressionConfig format
+     */
+    convertToLegacyConfig(systemConfig, overrides = {}) {
+        return {
+            maxTokenLimit: systemConfig.tokenLimits.maxTokenLimit,
+            compressionThreshold: systemConfig.tokenLimits.thresholds.critical,
+            emergencyThreshold: systemConfig.tokenLimits.thresholds.emergency,
+            targetCompressionRatio: systemConfig.compressionRatios.targets.normal,
+            monitoringInterval: systemConfig.monitoring.interval,
+            enableAutoCompression: systemConfig.monitoring.enabled,
+            enableEmergencyCompression: systemConfig.fallback.enableEmergencyRemoval,
+            minCompressionInterval: systemConfig.performance.rateLimiting.minInterval,
+            maxCompressionAttempts: systemConfig.fallback.maxAttempts,
+            compressionStrategies: Object.entries(systemConfig.algorithms.primaryStrategies).map(([strategy, priority]) => ({
+                strategy,
+                priority,
+                tokenThreshold: systemConfig.algorithms.selectionRules.tokenThresholds[strategy] || 0
+            })),
+            ...overrides
+        };
+    }
+    /**
+     * Handle configuration changes from configuration manager
+     */
+    handleConfigurationChange(newConfig) {
+        logger.info('Configuration change detected, updating AutoCompressionManager', {
+            tokenLimitChanged: newConfig.tokenLimits.maxTokenLimit !== this.config.maxTokenLimit,
+            thresholdsChanged: newConfig.tokenLimits.thresholds.critical !== this.config.compressionThreshold,
+            monitoringChanged: newConfig.monitoring.interval !== this.config.monitoringInterval
+        });
+        const oldConfig = this.config;
+        this.config = this.convertToLegacyConfig(newConfig);
+        // Update enhanced compressor configuration
+        if (this.enhancedCompressor && this.enhancedCompressor.updateConfig) {
+            this.enhancedCompressor.updateConfig({
+                targetRatio: newConfig.compressionRatios.targets.normal,
+                qualityLevel: newConfig.algorithms.qualityLevel,
+                maxProcessingTime: newConfig.algorithms.maxProcessingTime
+            });
+        }
+        // Update fallback system configuration
+        if (this.fallbackSystem) {
+            this.fallbackSystem.updateConfig({
+                maxFallbackAttempts: newConfig.fallback.maxAttempts,
+                enableEmergencyRemoval: newConfig.fallback.enableEmergencyRemoval,
+                minPreservationRatio: newConfig.fallback.minPreservationRatio,
+                enableAutoRecovery: newConfig.fallback.enableAutoRecovery,
+                fallbackTimeoutMs: newConfig.fallback.timeoutMs,
+                recoveryRetryDelay: newConfig.fallback.recoveryRetryDelay,
+                strategyPriorities: newConfig.fallback.strategyPriorities
+            });
+        }
+        // Restart monitoring if interval changed
+        if (newConfig.monitoring.interval !== oldConfig.monitoringInterval && this.monitoringTimer) {
+            this.stop();
+            this.start();
+        }
+        // Update trigger enable state
+        this.triggerEnabled = newConfig.monitoring.enabled;
+        logger.info('AutoCompressionManager configuration updated successfully');
+    }
+    /**
+     * Get current configuration manager
+     */
+    getConfigurationManager() {
+        return this.configManager;
+    }
+    /**
+     * Update configuration using configuration manager
+     */
+    updateConfiguration(updates) {
+        this.configManager.updateConfig(updates);
+    }
+    /**
+     * Apply configuration preset
+     */
+    applyConfigurationPreset(preset) {
+        this.configManager.applyPreset(preset);
+    }
+    /**
+     * Load configuration from file
+     */
+    async loadConfigurationFromFile(filePath) {
+        await this.configManager.loadFromFile(filePath);
+    }
+    /**
+     * Save current configuration to file
+     */
+    async saveConfigurationToFile(filePath) {
+        await this.configManager.saveToFile(filePath);
+    }
+    /**
+     * Set up automatic token limit trigger for 1,272,932 → 1,048,576 issue
+     */
+    setupTokenLimitTrigger() {
+        // Set up aggressive monitoring for the specific token limit issue
+        const criticalTriggerThreshold = 0.82; // 82% = ~860K tokens
+        const emergencyTriggerThreshold = 0.92; // 92% = ~965K tokens
+        this.on(AutoCompressionEvent.TOKEN_LIMIT_WARNING, async (data) => {
+            if (!this.triggerEnabled)
+                return;
+            // Handle the specific case where tokens exceed expected limits
+            if (data.totalTokens > this.config.maxTokenLimit * 0.95) {
+                logger.error('Critical token limit exceeded - emergency compression with fallback required', {
+                    totalTokens: data.totalTokens,
+                    maxLimit: this.config.maxTokenLimit,
+                    utilizationRatio: data.utilizationRatio,
+                    triggerType: 'emergency_token_limit_with_fallback'
+                });
+                // Force immediate compression with enhanced algorithms and fallback
+                await this.triggerRobustCompression(true);
+            }
+            else if (data.totalTokens > this.config.maxTokenLimit * 0.85) {
+                logger.warn('Token limit approaching - preemptive compression with fallback triggered', {
+                    totalTokens: data.totalTokens,
+                    maxLimit: this.config.maxTokenLimit,
+                    utilizationRatio: data.utilizationRatio,
+                    triggerType: 'preemptive_token_limit_with_fallback'
+                });
+                // Preemptive compression with enhanced algorithms and fallback
+                await this.triggerRobustCompression(false);
+            }
+        });
+        logger.info('Token limit trigger system with fallback activated', {
+            maxTokenLimit: this.config.maxTokenLimit,
+            criticalThreshold: criticalTriggerThreshold,
+            emergencyThreshold: emergencyTriggerThreshold,
+            fallbackEnabled: true
+        });
+    }
+    /**
+     * Trigger robust compression with enhanced algorithms and fallback mechanisms
+     */
+    async triggerRobustCompression(isEmergency = false) {
+        if (this.isCompressing) {
+            logger.warn('Compression already in progress, skipping robust compression request');
+            return {
+                success: false,
+                originalTokens: 0,
+                compressedTokens: 0,
+                compressionRatio: 1.0,
+                strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
+                duration: 0,
+                error: new Error('Compression already in progress'),
+                itemsCompressed: 0,
+                itemsRemoved: 0,
+            };
+        }
+        const snapshot = this.captureTokenUsageSnapshot();
+        logger.info('Triggering robust compression with enhanced algorithms and fallback', {
+            totalTokens: snapshot.totalTokens,
+            utilizationRatio: snapshot.utilizationRatio,
+            isEmergency,
+            compressionOpportunities: snapshot.compressionOpportunities.length,
+            fallbackEnabled: true
+        });
+        return this.performRobustCompression(snapshot, isEmergency);
+    }
+    /**
+     * Start automatic compression monitoring
+     */
+    start() {
+        if (this.monitoringTimer) {
+            logger.warn('AutoCompressionManager already started');
+            return;
+        }
+        if (!this.config.enableAutoCompression) {
+            logger.info('Auto-compression disabled in configuration');
+            return;
+        }
+        logger.info('Starting auto-compression monitoring', {
+            interval: this.config.monitoringInterval,
+            threshold: this.config.compressionThreshold,
+        });
+        this.monitoringTimer = setInterval(() => this.checkTokenUsage(), this.config.monitoringInterval);
+        // Initial check
+        this.checkTokenUsage();
+    }
+    /**
+     * Stop automatic compression monitoring
+     */
+    stop() {
+        if (this.monitoringTimer) {
+            clearInterval(this.monitoringTimer);
+            this.monitoringTimer = null;
+        }
+        logger.info('AutoCompressionManager stopped');
+    }
+    /**
+     * Register a context window manager for monitoring
+     */
+    registerContextManager(id, manager) {
+        this.contextManagers.set(id, manager);
+        logger.debug(`Registered context manager: ${id}`);
+    }
+    /**
+     * Unregister a context window manager
+     */
+    unregisterContextManager(id) {
+        this.contextManagers.delete(id);
+        logger.debug(`Unregistered context manager: ${id}`);
+    }
+    /**
+     * Manually trigger compression
+     */
+    async triggerCompression(force = false) {
+        const snapshot = this.captureTokenUsageSnapshot();
+        if (!force && !this.shouldCompress(snapshot)) {
+            return {
+                success: false,
+                originalTokens: snapshot.totalTokens,
+                compressedTokens: snapshot.totalTokens,
+                compressionRatio: 1.0,
+                strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
+                duration: 0,
+                error: new Error('Compression not needed'),
+                itemsCompressed: 0,
+                itemsRemoved: 0,
+            };
+        }
+        return this.performCompression(snapshot, false);
+    }
+    /**
+     * Get current token usage statistics
+     */
+    getTokenUsage() {
+        return this.captureTokenUsageSnapshot();
+    }
+    /**
+     * Get compression history and statistics
+     */
+    getCompressionHistory() {
+        const history = this.tokenUsageHistory;
+        const compressionEvents = history.filter((s) => s.timestamp.getTime() > this.lastCompressionTime);
+        const averageRatio = compressionEvents.length > 0
+            ? compressionEvents.reduce((sum, s) => sum + s.utilizationRatio, 0) /
+                compressionEvents.length
+            : 1.0;
+        const totalSaved = compressionEvents.reduce((sum, s, idx, arr) => {
+            if (idx > 0) {
+                return sum + Math.max(0, arr[idx - 1].totalTokens - s.totalTokens);
+            }
+            return sum;
+        }, 0);
+        return {
+            attempts: this.compressionAttempts,
+            lastCompressionTime: this.lastCompressionTime > 0
+                ? new Date(this.lastCompressionTime)
+                : null,
+            averageCompressionRatio: averageRatio,
+            totalTokensSaved: totalSaved,
+            history: history.slice(-50), // Keep last 50 snapshots
+        };
+    }
+    /**
+     * Check current token usage and trigger compression if needed
+     */
+    async checkTokenUsage() {
+=======
     return false;
   }
   /**
@@ -671,12 +935,49 @@ export class AutoCompressionManager extends EventEmitter {
           (sum, item) => sum + item.tokenCount,
           0,
         );
-
+>>>>>>> Stashed changes
         try {
           // First attempt: Enhanced compression algorithms
           const enhancedResults = [];
           for (const item of section.items) {
             try {
+<<<<<<< Updated upstream
+                const allItems = [];
+                for (const [_managerId, manager] of this.contextManagers.entries()) {
+                    const window = manager.getCurrentWindow();
+                    for (const [_sectionName, section] of Object.entries(window.sections)) {
+                        if (section.items && section.items.length > 0) {
+                            allItems.push(...section.items);
+                        }
+                    }
+                }
+                if (allItems.length > 0) {
+                    const emergencyFallback = await this.fallbackSystem.applyFallbackCompression(allItems, this.config.targetCompressionRatio * 0.3, // Very aggressive
+                    error, true // Emergency mode
+                    );
+                    const result = {
+                        success: emergencyFallback.success,
+                        originalTokens: emergencyFallback.originalTokens,
+                        compressedTokens: emergencyFallback.compressedTokens,
+                        compressionRatio: emergencyFallback.compressionRatio,
+                        strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
+                        duration: performance.now() - startTime,
+                        error: emergencyFallback.success ? undefined : error,
+                        itemsCompressed: 0,
+                        itemsRemoved: 0,
+                    };
+                    this.emit(AutoCompressionEvent.COMPRESSION_COMPLETED, {
+                        ...result,
+                        compressionType: 'emergency_fallback',
+                        emergencyMeasuresApplied: true
+                    });
+                    return result;
+                }
+            }
+            catch (emergencyError) {
+                logger.error('Emergency fallback also failed', {
+                    emergencyError: emergencyError instanceof Error ? emergencyError.message : String(emergencyError)
+=======
               const enhancedResult =
                 await this.enhancedCompressor.compressWithTypeOptimization(
                   item,
@@ -688,7 +989,7 @@ export class AutoCompressionManager extends EventEmitter {
                   item,
                   result: enhancedResult,
                   success: true,
-
+>>>>>>> Stashed changes
                 });
               } else {
                 // Enhanced compression didn't help, mark for fallback
@@ -707,6 +1008,93 @@ export class AutoCompressionManager extends EventEmitter {
                 item,
                 result: null,
                 success: false,
+<<<<<<< Updated upstream
+                originalTokens: snapshot.totalTokens,
+                compressedTokens: snapshot.totalTokens,
+                compressionRatio: 1.0,
+                strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
+                duration: performance.now() - startTime,
+                error,
+                itemsCompressed: 0,
+                itemsRemoved: 0,
+            };
+            this.emit(AutoCompressionEvent.COMPRESSION_FAILED, {
+                ...result,
+                error: error instanceof Error ? error.message : String(error),
+                compressionType: 'robust_with_fallback'
+            });
+            return result;
+        }
+        finally {
+            this.isCompressing = false;
+        }
+    }
+    /**
+     * Perform compression operation (legacy method using basic algorithms)
+     */
+    async performCompression(snapshot, isEmergency) {
+        const startTime = performance.now();
+        this.isCompressing = true;
+        this.compressionAttempts++;
+        const eventType = isEmergency
+            ? AutoCompressionEvent.EMERGENCY_COMPRESSION
+            : AutoCompressionEvent.COMPRESSION_STARTED;
+        this.emit(eventType, {
+            totalTokens: snapshot.totalTokens,
+            utilizationRatio: snapshot.utilizationRatio,
+            isEmergency,
+            attempt: this.compressionAttempts,
+        });
+        try {
+            let totalOriginalTokens = 0;
+            let totalCompressedTokens = 0;
+            let itemsCompressed = 0;
+            let itemsRemoved = 0;
+            // Sort compression opportunities by potential savings
+            const opportunities = snapshot.compressionOpportunities.sort((a, b) => b.estimatedSavings - a.estimatedSavings);
+            // Determine target compression ratio (more aggressive for emergency)
+            const targetRatio = isEmergency
+                ? this.config.targetCompressionRatio * 0.8 // More aggressive
+                : this.config.targetCompressionRatio;
+            // Compress sections with highest savings potential
+            for (const opportunity of opportunities) {
+                const [managerId, sectionName] = opportunity.section.split(':');
+                const manager = this.contextManagers.get(managerId);
+                if (!manager)
+                    continue;
+                const window = manager.getCurrentWindow();
+                const section = window.sections[sectionName];
+                if (!section || section.items.length === 0)
+                    continue;
+                // Apply compression to this section
+                const compressionResult = await this.compressor.batchCompress(section.items, targetRatio);
+                // Update section with compressed items
+                for (const [itemId, result] of compressionResult.entries()) {
+                    const itemIndex = section.items.findIndex((item) => item.id === itemId);
+                    if (itemIndex !== -1) {
+                        const originalItem = section.items[itemIndex];
+                        totalOriginalTokens += originalItem.tokenCount;
+                        if (result.compressedTokens < originalItem.tokenCount) {
+                            // Replace with compressed version
+                            section.items[itemIndex] = {
+                                ...originalItem,
+                                content: result.compressed,
+                                tokenCount: result.compressedTokens,
+                            };
+                            totalCompressedTokens += result.compressedTokens;
+                            itemsCompressed++;
+                        }
+                        else {
+                            // Compression didn't help, remove item if emergency
+                            if (isEmergency && section.items.length > 1) {
+                                section.items.splice(itemIndex, 1);
+                                itemsRemoved++;
+                            }
+                            else {
+                                totalCompressedTokens += result.compressedTokens;
+                            }
+                        }
+=======
                 error: enhancedError,
               });
             }
@@ -786,7 +1174,7 @@ export class AutoCompressionManager extends EventEmitter {
                       };
                       totalCompressedTokens += fallbackTokensPerItem;
                       itemsCompressed++;
-
+>>>>>>> Stashed changes
                     }
                   }
                 }
@@ -839,6 +1227,32 @@ export class AutoCompressionManager extends EventEmitter {
             0,
           );
         }
+<<<<<<< Updated upstream
+        catch (error) {
+            const duration = performance.now() - startTime;
+            const result = {
+                success: false,
+                originalTokens: snapshot.totalTokens,
+                compressedTokens: snapshot.totalTokens,
+                compressionRatio: 1.0,
+                strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
+                duration,
+                error,
+                itemsCompressed: 0,
+                itemsRemoved: 0,
+            };
+            this.emit(AutoCompressionEvent.COMPRESSION_FAILED, {
+                ...result,
+                error: error instanceof Error ? error.message : String(error),
+            });
+            logger.error('Compression failed', {
+                error,
+                totalTokens: snapshot.totalTokens,
+                duration: duration.toFixed(2),
+                isEmergency,
+            });
+            return result;
+=======
         // Recalculate section totals
         section.tokens = section.items.reduce(
           (sum, item) => sum + item.tokenCount,
@@ -848,7 +1262,7 @@ export class AutoCompressionManager extends EventEmitter {
         // Update manager totals
         if (manager['updateContextWindowTotals']) {
           manager['updateContextWindowTotals'](); // Call private method if it exists
-
+>>>>>>> Stashed changes
         }
       }
       const duration = performance.now() - startTime;

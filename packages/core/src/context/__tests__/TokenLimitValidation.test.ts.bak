@@ -19,8 +19,11 @@ import {
   ConfigurationPreset,
 } from '../CompressionConfigurationManager.js';
 import { TokenMonitorService } from '../TokenMonitorService.js';
+<<<<<<< Updated upstream
+import type { ContextItem} from '../types.js';
+=======
 import type { ContextItem } from '../types.js';
-
+>>>>>>> Stashed changes
 import { ContextType, ContextPriority } from '../types.js';
 import { performance } from 'node:perf_hooks';
 
@@ -138,8 +141,11 @@ describe('Token Limit Validation - 1,272,932 → 1,048,576 Issue', () => {
             },
           },
         })),
+<<<<<<< Updated upstream
+        updateContextWindowTotals: vi.fn()
+=======
         updateContextWindowTotals: vi.fn(),
-
+>>>>>>> Stashed changes
       };
 
       compressionManager.registerContextManager(
@@ -715,7 +721,10 @@ function createMockContextManager(
         },
       },
     })),
+<<<<<<< Updated upstream
+    updateContextWindowTotals: vi.fn()
+=======
     updateContextWindowTotals: vi.fn(),
-
+>>>>>>> Stashed changes
   };
 }

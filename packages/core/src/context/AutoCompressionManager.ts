@@ -24,13 +24,8 @@ import type {
   ConfigurationPreset,
   CompressionSystemConfig,
 } from './CompressionConfigurationManager.js';
-<<<<<<< Updated upstream
-import {
-  createCompressionConfigurationManager
-} from './CompressionConfigurationManager.js';
-=======
 import { createCompressionConfigurationManager } from './CompressionConfigurationManager.js';
->>>>>>> Stashed changes
+
 import type { ContextWindowManager } from './ContextWindowManager.js';
 import { CompressionStrategy } from './types.js';
 import EventEmitter from 'node:events';

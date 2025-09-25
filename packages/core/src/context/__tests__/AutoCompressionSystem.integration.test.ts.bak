@@ -13,11 +13,14 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+<<<<<<< Updated upstream
+import { AutoCompressionManager, AutoCompressionEvent } from '../AutoCompressionManager.js';
+=======
 import {
   AutoCompressionManager,
   AutoCompressionEvent,
 } from '../AutoCompressionManager.js';
-
+>>>>>>> Stashed changes
 import { TokenMonitorService } from '../TokenMonitorService.js';
 import {
   CompressionConfigurationManager,
@@ -25,8 +28,11 @@ import {
 } from '../CompressionConfigurationManager.js';
 import { CompressionFallbackSystem } from '../CompressionFallbackSystem.js';
 import { EnhancedCompressionAlgorithms } from '../EnhancedCompressionAlgorithms.js';
+<<<<<<< Updated upstream
+import type { ContextItem} from '../types.js';
+=======
 import type { ContextItem } from '../types.js';
-
+>>>>>>> Stashed changes
 import { ContextType, ContextPriority } from '../types.js';
 import { performance } from 'node:perf_hooks';
 
@@ -91,8 +97,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
             },
           },
         })),
+<<<<<<< Updated upstream
+        updateContextWindowTotals: vi.fn()
+=======
         updateContextWindowTotals: vi.fn(),
-
+>>>>>>> Stashed changes
       };
 
       compressionManager.registerContextManager(
@@ -188,8 +197,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
             },
           };
         }),
+<<<<<<< Updated upstream
+        updateContextWindowTotals: vi.fn()
+=======
         updateContextWindowTotals: vi.fn(),
-
+>>>>>>> Stashed changes
       };
 
       compressionManager.registerContextManager(
@@ -276,8 +288,11 @@ describe('AutoCompressionSystem Integration Tests', () => {
             },
           },
         })),
+<<<<<<< Updated upstream
+        updateContextWindowTotals: vi.fn()
+=======
         updateContextWindowTotals: vi.fn(),
-
+>>>>>>> Stashed changes
       };
 
       compressionManager.registerContextManager(

@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+<<<<<<< Updated upstream
+import type { CompressionConfigurationManager, ConfigurationPreset, CompressionSystemConfig } from './CompressionConfigurationManager.js';
+=======
 import type {
   CompressionConfigurationManager,
   ConfigurationPreset,
   CompressionSystemConfig,
 } from './CompressionConfigurationManager.js';
-
+>>>>>>> Stashed changes
 import type { ContextWindowManager } from './ContextWindowManager.js';
 import type { CompressionStrategy } from './types.js';
 import EventEmitter from 'node:events';
