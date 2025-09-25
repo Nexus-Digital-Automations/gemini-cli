@@ -588,18 +588,17 @@ describe('handleAtCommand', () => {
   });
 
   describe('gemini-ignore filtering', () => {
-    beforeEach(async () => {
-      // Re-initialize FileDiscoveryService for gemini-ignore tests
-      const fileDiscoveryService = new FileDiscoveryService(testRootDir);
-      await fileDiscoveryService.initialize();
-      mockConfig.getFileService = () => fileDiscoveryService;
-    });
-
     it('should skip gemini-ignored files in @ commands', async () => {
       await createTestFile(
         path.join(testRootDir, '.geminiignore'),
         'build/output.js',
       );
+
+      // Re-initialize FileDiscoveryService after creating .geminiignore file
+      const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+      await fileDiscoveryService.initialize();
+      mockConfig.getFileService = () => fileDiscoveryService;
+
       const geminiIgnoredFile = await createTestFile(
         path.join(testRootDir, 'build', 'output.js'),
         'console.log("Hello");',
@@ -632,6 +631,12 @@ describe('handleAtCommand', () => {
       path.join(testRootDir, '.geminiignore'),
       'build/output.js',
     );
+
+    // Re-initialize FileDiscoveryService after creating .geminiignore file
+    const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+    await fileDiscoveryService.initialize();
+    mockConfig.getFileService = () => fileDiscoveryService;
+
     const validFile = await createTestFile(
       path.join(testRootDir, 'src', 'index.ts'),
       'console.log("Hello world");',
@@ -664,6 +669,12 @@ describe('handleAtCommand', () => {
       path.join(testRootDir, '.geminiignore'),
       'dist/bundle.js',
     );
+
+    // Re-initialize FileDiscoveryService after creating .geminiignore file
+    const fileDiscoveryService = new FileDiscoveryService(testRootDir);
+    await fileDiscoveryService.initialize();
+    mockConfig.getFileService = () => fileDiscoveryService;
+
     const validFile = await createTestFile(
       path.join(testRootDir, 'src', 'main.ts'),
       '// Main application entry',
