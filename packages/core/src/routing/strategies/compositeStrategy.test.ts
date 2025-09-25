@@ -32,7 +32,9 @@ describe('CompositeStrategy', () => {
 
     // Mock the logger
     mockLogger = { error: vi.fn() };
-    vi.mocked(getComponentLogger).mockReturnValue(mockLogger as any);
+    vi.mocked(getComponentLogger).mockReturnValue(
+      mockLogger as ReturnType<typeof getComponentLogger>,
+    );
 
     mockContext = {} as RoutingContext;
     mockConfig = {} as Config;
