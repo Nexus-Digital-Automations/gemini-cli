@@ -12,8 +12,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 import type { Config } from '../../config/config.js';
 import {
   TaskManagementSystemIntegrator,
@@ -253,7 +253,7 @@ describe('Task Management System Integration Tests', () => {
       const configPath = join(testDir, 'runtime-config.json');
       configManager = new TaskManagementConfigManager();
 
-      let config = await configManager.loadConfig(configPath, coreConfig);
+      const config = await configManager.loadConfig(configPath, coreConfig);
       expect(config.taskEngine.maxConcurrentTasks).toBe(5); // Default development
 
       // Update configuration

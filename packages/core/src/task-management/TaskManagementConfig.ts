@@ -11,8 +11,8 @@
  * components with validation, environment-specific settings, and runtime updates.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { dirname, join } from 'path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import type { Config } from '../config/config.js';
 
 /**
@@ -39,7 +39,7 @@ export interface AutonomousQueueConfig {
   enableAutonomousBreakdown: boolean;
   breakdownThreshold: number;
   maxBreakdownDepth: number;
-  breakdownStrategies: ('functional' | 'temporal' | 'dependency' | 'hybrid')[];
+  breakdownStrategies: Array<'functional' | 'temporal' | 'dependency' | 'hybrid'>;
   schedulingAlgorithm: 'fifo' | 'priority' | 'shortest_first' | 'adaptive' | 'hybrid_adaptive';
   optimizationStrategy: 'performance' | 'resources' | 'balanced' | 'custom';
   enableAdaptiveScheduling: boolean;
@@ -67,7 +67,7 @@ export interface MonitoringConfig {
     queueBacklog: number;
     agentUtilization: number;
   };
-  exportFormats: ('json' | 'csv' | 'prometheus' | 'grafana')[];
+  exportFormats: Array<'json' | 'csv' | 'prometheus' | 'grafana'>;
   exportInterval: number;
   enablePerformanceInsights: boolean;
   enablePredictiveAnalytics: boolean;
@@ -147,10 +147,10 @@ export interface SecurityConfig {
     cooldownPeriodMs: number;
   };
   enableAccessControl: boolean;
-  accessControlRules: {
+  accessControlRules: Array<{
     role: string;
     permissions: string[];
-  }[];
+  }>;
 }
 
 /**
