@@ -4,9 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// Type definition for PTY module interface
+interface PtyModule {
+  spawn?: (shell?: string, args?: string[], options?: Record<string, unknown>) => PtyProcess;
+  [key: string]: unknown;
+}
+
 export type PtyImplementation = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  module: any;
+  module: PtyModule;
   name: 'lydell-node-pty' | 'node-pty';
 } | null;
 

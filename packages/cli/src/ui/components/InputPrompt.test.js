@@ -1264,7 +1264,7 @@ describe('InputPrompt', () => {
             const mockHandleAutocomplete = vi.fn(() => {
                 props.buffer.setText('echo hello');
             });
-            mockedUseReverseSearchCompletion.mockImplementation((buffer, shellHistory, reverseSearchActive) => ({
+            mockedUseReverseSearchCompletion.mockImplementation((_buffer, _shellHistory, reverseSearchActive) => ({
                 ...mockReverseSearchCompletion,
                 suggestions: reverseSearchActive
                     ? [

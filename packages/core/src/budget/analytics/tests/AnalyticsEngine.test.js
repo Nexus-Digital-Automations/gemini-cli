@@ -4,22 +4,53 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import * as fs from 'node:fs/promises';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as path from 'node:path';
-import * as os from 'node:os';
 import { createAnalyticsEngine } from '../AnalyticsEngine.js';
 import { BudgetTracker } from '../../budget-tracker.js';
+
+const mockFs = vi.hoisted(() => ({
+  mkdtemp: vi.fn(),
+  rm: vi.fn(),
+  readFile: vi.fn(),
+  writeFile: vi.fn(),
+  mkdir: vi.fn(),
+  files: new Map<string, string>(), // Define files map here
+}));
+
+const mockOs = vi.hoisted(() => ({
+  tmpdir: vi.fn(() => '/tmp'),
+}));
+
+vi.mock('node:fs/promises', () => mockFs);
+vi.mock('node:os', () => mockOs);
+
 describe('AnalyticsEngine', () => {
   let tempDir;
   let projectRoot;
   let budgetTracker;
   let analyticsEngine;
   let testMetrics;
+
   beforeEach(async () => {
-    // Create temporary directory for testing
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'analytics-test-'));
+    vi.clearAllMocks();
+    tempDir = '/tmp/analytics-test-' + Math.random().toString(36).substring(7);
+    mockFs.mkdtemp.mockResolvedValue(tempDir);
     projectRoot = tempDir;
+
+    // Mock fs operations for the test
+    mockFs.readFile.mockImplementation(async (filePath) => {
+      const content = mockFs.files.get(filePath);
+      if (content) {
+        return content;
+      }
+      throw new Error(`File not found: ${filePath}`);
+    });
+    mockFs.writeFile.mockImplementation(async (filePath, data) => {
+      mockFs.files.set(filePath, data);
+    });
+    mockFs.mkdir.mockResolvedValue(undefined);
+
     // Initialize budget tracker with test settings
     const budgetSettings = {
       enabled: true,
@@ -51,10 +82,11 @@ describe('AnalyticsEngine', () => {
     // Generate test metrics
     testMetrics = generateTestMetrics();
   });
+
   afterEach(async () => {
     // Clean up temporary directory
     try {
-      await fs.rm(tempDir, { recursive: true, force: true });
+      await mockFs.rm(tempDir, { recursive: true, force: true });
     } catch (error) {
       // Ignore cleanup errors
     }
