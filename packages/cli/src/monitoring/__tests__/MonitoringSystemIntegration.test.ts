@@ -189,7 +189,7 @@ describe('Monitoring System Integration Tests', () => {
         estimatedDuration: 60000,
       });
 
-      const agentId = taskStatusMonitor.registerAgent('test-agent-1', {
+      const _agentId = taskStatusMonitor.registerAgent('test-agent-1', {
         capabilities: ['testing', 'validation'],
         maxConcurrentTasks: 3,
       });
@@ -789,7 +789,7 @@ describe('Monitoring System Integration Tests', () => {
         'Layout for export testing',
       );
 
-      const widgetId = dashboard.addWidget(layoutId, {
+      const _widgetId = dashboard.addWidget(layoutId, {
         type: 'gauge',
         title: 'Export Test Widget',
         position: { x: 0, y: 0, width: 4, height: 3 },
@@ -902,7 +902,7 @@ describe('Monitoring System Integration Tests', () => {
       for (let i = 0; i < 50; i++) {
         operations.push(
           Promise.resolve().then(() => {
-            const taskId = taskStatusMonitor.registerTask(
+            const _taskId = taskStatusMonitor.registerTask(
               `load-test-task-${i}`,
               {
                 title: `Load Test Task ${i}`,
