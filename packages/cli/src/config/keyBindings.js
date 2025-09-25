@@ -7,7 +7,7 @@
 /**
  * Command enum for all available keyboard shortcuts
  */
-export var Command;
+export let Command;
 (function (Command) {
   // Basic bindings
   Command['RETURN'] = 'return';

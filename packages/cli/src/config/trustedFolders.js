@@ -51,7 +51,7 @@ export function getTrustedFoldersPath() {
  * };
  * ```
  */
-export var TrustLevel;
+export let TrustLevel;
 (function (TrustLevel) {
   /** Trust the exact folder path specified */
   TrustLevel['TRUST_FOLDER'] = 'TRUST_FOLDER';

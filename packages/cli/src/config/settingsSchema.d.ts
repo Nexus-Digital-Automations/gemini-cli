@@ -179,7 +179,7 @@ export interface BudgetUsageData {
  * The structure of this object defines the structure of the `Settings` type.
  * `as const` is crucial for TypeScript to infer the most specific types possible.
  */
-declare const SETTINGS_SCHEMA: {
+declare const _SETTINGS_SCHEMA: {
   readonly mcpServers: {
     readonly type: 'object';
     readonly label: 'MCP Servers';
@@ -195,7 +195,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'General';
     readonly category: 'General';
     readonly requiresRestart: false;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'General application settings.';
     readonly showInDialog: false;
     readonly properties: {
@@ -240,7 +240,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Checkpointing';
         readonly category: 'General';
         readonly requiresRestart: true;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Session checkpointing settings.';
         readonly showInDialog: false;
         readonly properties: {
@@ -280,7 +280,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Output';
     readonly category: 'General';
     readonly requiresRestart: false;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Settings for the CLI output.';
     readonly showInDialog: false;
     readonly properties: {
@@ -310,7 +310,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'UI';
     readonly category: 'UI';
     readonly requiresRestart: false;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'User interface settings.';
     readonly showInDialog: false;
     readonly properties: {
@@ -373,7 +373,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Footer';
         readonly category: 'UI';
         readonly requiresRestart: false;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Settings for the footer.';
         readonly showInDialog: false;
         readonly properties: {
@@ -456,7 +456,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Accessibility';
         readonly category: 'UI';
         readonly requiresRestart: true;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Accessibility settings.';
         readonly showInDialog: false;
         readonly properties: {
@@ -487,7 +487,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'IDE';
     readonly category: 'IDE';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'IDE integration settings.';
     readonly showInDialog: false;
     readonly properties: {
@@ -516,7 +516,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Privacy';
     readonly category: 'Privacy';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Privacy-related settings.';
     readonly showInDialog: false;
     readonly properties: {
@@ -545,7 +545,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Model';
     readonly category: 'Model';
     readonly requiresRestart: false;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Settings related to the generative model.';
     readonly showInDialog: false;
     readonly properties: {
@@ -624,7 +624,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Flash-First Smart Routing';
         readonly category: 'Model';
         readonly requiresRestart: false;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Settings for Flash-first smart model routing that defaults to cost-effective Flash model and escalates to Pro only when necessary.';
         readonly showInDialog: false;
         readonly properties: {
@@ -696,7 +696,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Context';
     readonly category: 'Context';
     readonly requiresRestart: false;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Settings for managing context provided to the model.';
     readonly showInDialog: false;
     readonly properties: {
@@ -751,7 +751,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'File Filtering';
         readonly category: 'Context';
         readonly requiresRestart: true;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Settings for git-aware file filtering.';
         readonly showInDialog: false;
         readonly properties: {
@@ -800,7 +800,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Tools';
     readonly category: 'Tools';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Settings for built-in and custom tools.';
     readonly showInDialog: false;
     readonly properties: {
@@ -818,7 +818,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Shell';
         readonly category: 'Tools';
         readonly requiresRestart: false;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Settings for shell execution.';
         readonly showInDialog: false;
         readonly properties: {
@@ -958,7 +958,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'MCP';
     readonly category: 'MCP';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Settings for Model Context Protocol (MCP) servers.';
     readonly showInDialog: false;
     readonly properties: {
@@ -1014,7 +1014,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Security';
     readonly category: 'Security';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Security-related settings.';
     readonly showInDialog: false;
     readonly properties: {
@@ -1023,7 +1023,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Folder Trust';
         readonly category: 'Security';
         readonly requiresRestart: false;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Settings for folder trust.';
         readonly showInDialog: false;
         readonly properties: {
@@ -1043,7 +1043,7 @@ declare const SETTINGS_SCHEMA: {
         readonly label: 'Authentication';
         readonly category: 'Security';
         readonly requiresRestart: true;
-        readonly default: {};
+        readonly default: Record<string, unknown>;
         readonly description: 'Authentication settings.';
         readonly showInDialog: false;
         readonly properties: {
@@ -1083,7 +1083,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Advanced';
     readonly category: 'Advanced';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Advanced settings for power users.';
     readonly showInDialog: false;
     readonly properties: {
@@ -1131,7 +1131,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Experimental';
     readonly category: 'Experimental';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Setting to enable experimental features';
     readonly showInDialog: false;
     readonly properties: {
@@ -1160,7 +1160,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Budget';
     readonly category: 'Budget';
     readonly requiresRestart: false;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Daily usage budget settings for API requests.';
     readonly showInDialog: true;
     readonly properties: {
@@ -1208,7 +1208,7 @@ declare const SETTINGS_SCHEMA: {
     readonly label: 'Extensions';
     readonly category: 'Extensions';
     readonly requiresRestart: true;
-    readonly default: {};
+    readonly default: Record<string, unknown>;
     readonly description: 'Settings for extensions.';
     readonly showInDialog: false;
     readonly properties: {

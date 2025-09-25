@@ -9,7 +9,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Alert severity levels
  */
-export var AlertSeverity;
+export let AlertSeverity;
 (function (AlertSeverity) {
   AlertSeverity['INFO'] = 'info';
   AlertSeverity['WARNING'] = 'warning';
@@ -19,7 +19,7 @@ export var AlertSeverity;
 /**
  * Alert categories for classification
  */
-export var AlertCategory;
+export let AlertCategory;
 (function (AlertCategory) {
   AlertCategory['TASK_FAILURE'] = 'task_failure';
   AlertCategory['TASK_DELAY'] = 'task_delay';
@@ -33,7 +33,7 @@ export var AlertCategory;
 /**
  * Alert notification channels
  */
-export var NotificationChannel;
+export let NotificationChannel;
 (function (NotificationChannel) {
   NotificationChannel['EMAIL'] = 'email';
   NotificationChannel['SLACK'] = 'slack';

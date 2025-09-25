@@ -174,7 +174,7 @@ export function getSystemDefaultsPath() {
  * 3. Workspace
  * 4. System (highest - administrative overrides)
  */
-export var SettingScope;
+export let SettingScope;
 (function (SettingScope) {
   /** User-specific settings stored in home directory */
   SettingScope['User'] = 'User';

@@ -353,10 +353,11 @@ export class AuditTrailAnalytics extends EventEmitter {
         case 'timestamp':
           comparison = a.timestamp.getTime() - b.timestamp.getTime();
           break;
-        case 'severity':
+        case 'severity': {
           const severityOrder = { info: 0, warning: 1, error: 2, critical: 3 };
           comparison = severityOrder[a.severity] - severityOrder[b.severity];
           break;
+        }
         case 'type':
           comparison = a.type.localeCompare(b.type);
           break;

@@ -9,7 +9,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Alert severity levels
  */
-export var AlertSeverity;
+export let AlertSeverity;
 (function (AlertSeverity) {
   AlertSeverity['INFO'] = 'info';
   AlertSeverity['WARNING'] = 'warning';
@@ -19,7 +19,7 @@ export var AlertSeverity;
 /**
  * Alert types for different monitoring scenarios
  */
-export var AlertType;
+export let AlertType;
 (function (AlertType) {
   AlertType['PERFORMANCE_THRESHOLD'] = 'performance:threshold';
   AlertType['SYSTEM_HEALTH'] = 'system:health';
@@ -35,7 +35,7 @@ export var AlertType;
 /**
  * Notification channels
  */
-export var NotificationChannel;
+export let NotificationChannel;
 (function (NotificationChannel) {
   NotificationChannel['EMAIL'] = 'email';
   NotificationChannel['SMS'] = 'sms';
@@ -919,6 +919,9 @@ Please take appropriate action.
             'Auto-suppressed by alert action',
           );
         }
+        break;
+      default:
+        console.warn(`Unknown alert action type: ${action.type}`);
         break;
     }
   }
