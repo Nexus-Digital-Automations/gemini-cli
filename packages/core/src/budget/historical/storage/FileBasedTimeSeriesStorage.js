@@ -130,7 +130,7 @@ export class FileBasedTimeSeriesStorage {
       return this.bucketIndex.get(bucketKey);
     }
     // Create new bucket
-    const date = new Date(timestamp);
+    const __date = new Date(timestamp);
     const bucket = {
       timeRange: {
         start: this.getBucketStartTime(bucketKey),
@@ -288,7 +288,7 @@ export class FileBasedTimeSeriesStorage {
       }
       let totalRecordsAffected = 0;
       // Process each bucket
-      for (const [bucketKey, bucketDataPoints] of bucketGroups) {
+      for (const [, bucketDataPoints] of bucketGroups) {
         const bucket = await this.getOrCreateBucket(
           bucketDataPoints[0].timestamp,
         );
@@ -426,7 +426,7 @@ export class FileBasedTimeSeriesStorage {
   getAggregationWindow(timestamp, aggregation) {
     const date = new Date(timestamp);
     switch (aggregation) {
-      case 'hour':
+      case 'hour': {
         const hourStart = new Date(
           date.getFullYear(),
           date.getMonth(),
@@ -437,7 +437,8 @@ export class FileBasedTimeSeriesStorage {
           windowStart: hourStart.getTime(),
           windowEnd: hourStart.getTime() + 60 * 60 * 1000,
         };
-      case 'day':
+      }
+      case 'day': {
         const dayStart = new Date(
           date.getFullYear(),
           date.getMonth(),
@@ -447,6 +448,7 @@ export class FileBasedTimeSeriesStorage {
           windowStart: dayStart.getTime(),
           windowEnd: dayStart.getTime() + 24 * 60 * 60 * 1000,
         };
+      }
       case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
@@ -504,7 +506,7 @@ export class FileBasedTimeSeriesStorage {
             data[data.length - 1].timestamp,
           );
         }
-      } catch (error) {
+      } catch {
         // Skip missing files
       }
     }
@@ -567,7 +569,7 @@ export class FileBasedTimeSeriesStorage {
       await this.initialize();
       let recordsAffected = 0;
       const bucketsToDelete = Array.from(this.bucketIndex.entries()).filter(
-        ([key, bucket]) => bucket.timeRange.end < olderThan,
+        ([, bucket]) => bucket.timeRange.end < olderThan,
       );
       for (const [bucketKey, bucket] of bucketsToDelete) {
         try {
@@ -603,7 +605,7 @@ export class FileBasedTimeSeriesStorage {
   /**
    * Create backup of all data
    */
-  async backup(backupPath) {
+  async backup() {
     const startTime = Date.now();
     try {
       await this.initialize();
@@ -627,7 +629,7 @@ export class FileBasedTimeSeriesStorage {
   /**
    * Restore data from backup
    */
-  async restore(backupPath) {
+  async restore() {
     const startTime = Date.now();
     try {
       // TODO: Implement restore functionality

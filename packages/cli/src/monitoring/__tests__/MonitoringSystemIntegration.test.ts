@@ -28,7 +28,7 @@ import {
   TaskType,
 } from '../TaskStatusMonitor.js';
 import { PerformanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
-import { type AlertEvent, type CorrelatedEvent, type SyncEvent, type HealthEvent, type TestEventData, type MonitoringSnapshot } from './types.js';
+import { type AlertEvent, type CorrelatedEvent, type SyncEvent, type HealthEvent, type MonitoringSnapshot } from './types.js';
 
 // Mock node modules
 vi.mock('node:fs/promises', () => ({
@@ -71,7 +71,7 @@ describe('Monitoring System Integration Tests', () => {
     tempDir = path.join(process.cwd(), '.tmp', 'test-monitoring');
     try {
       await fs.mkdir(tempDir, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Directory might already exist
     }
   });
@@ -80,7 +80,7 @@ describe('Monitoring System Integration Tests', () => {
     // Cleanup temporary directory
     try {
       await fs.rmdir(tempDir, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Directory might not exist or have permissions issues
     }
   });
@@ -181,7 +181,7 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should synchronize data across monitoring systems', async () => {
       // Register some test data
-      const taskId = taskStatusMonitor.registerTask('sync-test-task', {
+      const _taskId = taskStatusMonitor.registerTask('sync-test-task', {
         title: 'Sync Test Task',
         description: 'Task for testing data synchronization',
         type: TaskType.TESTING,
@@ -881,7 +881,7 @@ describe('Monitoring System Integration Tests', () => {
 
       expect(() => {
         dashboard.addWidget(layoutId, {
-          type: 'invalid_type' as any,
+          type: 'invalid_type' as 'metric' | 'chart' | 'alert_panel' | 'gauge' | 'table',
           title: 'Invalid Widget',
           position: { x: -1, y: -1, width: 0, height: 0 }, // Invalid position
           config: {
@@ -896,7 +896,7 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should maintain system stability under high load', async () => {
       const startTime = Date.now();
-      const operations: Array<Promise<any>> = [];
+      const operations: Array<Promise<unknown>> = [];
 
       // Simulate high load with concurrent operations
       for (let i = 0; i < 50; i++) {
