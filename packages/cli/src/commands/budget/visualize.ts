@@ -11,6 +11,8 @@ import {
   createBudgetDashboard,
   type DashboardConfig,
   type DashboardSections,
+  type BudgetTracker as CoreBudgetTracker,
+  type AnalyticsEngine as CoreAnalyticsEngine,
 } from '@google/gemini-cli-core';
 import type { Arguments, CommandBuilder } from 'yargs';
 
@@ -21,10 +23,7 @@ interface VisualizeArgs {
   recommendations?: boolean;
 }
 
-interface BudgetTracker {
-  isEnabled(): boolean;
-  getUsageStats(): Promise<UsageStats>;
-}
+// Using imported CoreBudgetTracker type instead of local interface
 
 interface UsageStats {
   requestCount: number;
@@ -34,17 +33,19 @@ interface UsageStats {
   remainingRequests: number;
 }
 
-interface AnalyticsEngine {
-  generateReport(): Promise<AnalyticsReport>;
-}
+// Using imported CoreAnalyticsEngine type instead of local interface
 
 interface AnalyticsReport {
+  generatedAt: string;
   period: {
     start: string;
     end: string;
   };
   summary: {
-    costTrend: string;
+    totalCost: number;
+    totalRequests: number;
+    averageCostPerRequest: number;
+    costTrend: 'increasing' | 'decreasing' | 'stable';
     budgetUtilization: number;
     projectedMonthlySpend: number;
   };
@@ -52,39 +53,81 @@ interface AnalyticsReport {
   patternAnalysis: PatternAnalysis[];
   anomalies: Anomaly[];
   optimizationRecommendations: OptimizationRecommendation[];
-  potentialSavings: PotentialSavings;
-  actionPlan: string[];
+  potentialSavings: {
+    immediate: number;
+    shortTerm: number;
+    longTerm: number;
+    total: number;
+    percentage: number;
+  };
+  actionPlan: {
+    critical: OptimizationRecommendation[];
+    highPriority: OptimizationRecommendation[];
+    quickWins: OptimizationRecommendation[];
+  };
 }
 
 interface FeatureAnalysis {
-  feature: string;
-  usage: number;
-  cost: number;
-  trend: string;
+  featureId: string;
+  featureName: string;
+  totalCost: number;
+  requestCount: number;
+  averageCostPerRequest: number;
+  usageFrequency: number;
+  businessValue: number;
+  roi: number;
+  costTrend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
+  utilizationRate: number;
+  peakUsageHours: string[];
+  recommendations: OptimizationRecommendation[];
 }
 
 interface PatternAnalysis {
   patternType: string;
-  description: string;
   confidence: number;
+  description: string;
+  timeWindow: {
+    start: string;
+    end: string;
+  };
+  frequency: number;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  affectedFeatures: string[];
+  recommendations: OptimizationRecommendation[];
 }
 
 interface Anomaly {
-  type: string;
+  id: string;
+  timestamp: string;
+  type: 'cost_spike' | 'unusual_pattern' | 'efficiency_drop' | 'volume_anomaly';
   severity: 'low' | 'medium' | 'high' | 'critical';
   description: string;
-  timestamp: string;
+  actualValue: number;
+  expectedValue: number;
+  deviationPercentage: number;
+  affectedDimensions: string[];
+  rootCauseAnalysis: string[];
+  recommendations: OptimizationRecommendation[];
 }
 
 interface OptimizationRecommendation {
+  id: string;
+  type: string;
   title: string;
   description: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  implementationComplexity: 'low' | 'medium' | 'high';
   potentialSavings: number;
-  savingsPercentage: string;
+  savingsPercentage: number;
+  implementationComplexity: 'low' | 'medium' | 'high';
   timeToImplement: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  confidenceScore: number;
+  applicableFeatures: string[];
   actionItems: string[];
+  metrics: {
+    currentCost: number;
+    projectedCost: number;
+    expectedReduction: number;
+  };
 }
 
 interface PotentialSavings {
@@ -241,8 +284,8 @@ export const visualizeCommand = {
  * Display interactive dashboard using the new BudgetDashboard system
  */
 async function displayInteractiveDashboard(
-  tracker: BudgetTracker,
-  analyticsEngine: AnalyticsEngine,
+  tracker: CoreBudgetTracker,
+  analyticsEngine: CoreAnalyticsEngine,
   period: string,
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
@@ -254,7 +297,6 @@ async function displayInteractiveDashboard(
       theme: 'auto' as const,
       enableInteractivity: false, // Set to false for one-shot display
       showRealTime: false, // Set to false for static display
-      autoRefresh: false,
     };
 
     // Create sections configuration
@@ -270,7 +312,6 @@ async function displayInteractiveDashboard(
 
     // Create the dashboard instance
     const dashboard = createBudgetDashboard(
-      process.cwd(),
       tracker,
       analyticsEngine,
       dashboardConfig,
@@ -281,7 +322,8 @@ async function displayInteractiveDashboard(
     console.log('');
 
     // Display the dashboard (one-shot mode)
-    await dashboard.refreshDashboard(sections);
+    const reportOutput = await dashboard.generateReport(sections);
+    console.log(reportOutput);
 
     console.log('');
     console.log('✅ Dashboard display complete!');
@@ -316,7 +358,7 @@ async function displayInteractiveDashboard(
 async function displayLegacyVisualization(
   stats: UsageStats,
   mockMetrics: UsageMetric[],
-  analyticsEngine: AnalyticsEngine,
+  analyticsEngine: CoreAnalyticsEngine,
   period: string,
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
@@ -413,7 +455,7 @@ async function displayASCIIVisualization(
 async function displayJSONVisualization(
   stats: UsageStats,
   mockMetrics: UsageMetric[],
-  analyticsEngine: AnalyticsEngine,
+  analyticsEngine: CoreAnalyticsEngine,
   includeAnalytics?: boolean,
   includeRecommendations?: boolean,
 ): Promise<void> {
@@ -440,7 +482,11 @@ async function displayJSONVisualization(
         jsonOutput.optimizationRecommendations =
           report.optimizationRecommendations;
         jsonOutput.potentialSavings = report.potentialSavings;
-        jsonOutput.actionPlan = report.actionPlan;
+        jsonOutput.actionPlan = [
+          ...report.actionPlan.critical.map((r) => r.title),
+          ...report.actionPlan.highPriority.map((r) => r.title),
+          ...report.actionPlan.quickWins.map((r) => r.title),
+        ];
       }
     } catch (_error) {
       jsonOutput.analyticsError = 'Insufficient data for analytics generation';
@@ -540,10 +586,14 @@ function displayAnalyticsInsights(report: AnalyticsReport): void {
 
   if (report.patternAnalysis.length > 0) {
     console.log('\n🔍 Detected patterns:');
-    report.patternAnalysis.forEach((pattern: PatternAnalysis, _index: number) => {
-      const icon = getPatternIcon(pattern.patternType);
-      console.log(`   ${icon} ${pattern.patternType}: ${pattern.description}`);
-    });
+    report.patternAnalysis.forEach(
+      (pattern: PatternAnalysis, _index: number) => {
+        const icon = getPatternIcon(pattern.patternType);
+        console.log(
+          `   ${icon} ${pattern.patternType}: ${pattern.description}`,
+        );
+      },
+    );
   }
 
   if (report.anomalies.length > 0) {
@@ -558,7 +608,9 @@ function displayAnalyticsInsights(report: AnalyticsReport): void {
 /**
  * Display optimization recommendations
  */
-function displayOptimizationRecommendations(recommendations: OptimizationRecommendation[]): void {
+function displayOptimizationRecommendations(
+  recommendations: OptimizationRecommendation[],
+): void {
   recommendations.forEach((rec, index) => {
     const priorityIcon = getPriorityIcon(rec.priority);
     const complexityColor = getComplexityColor(rec.implementationComplexity);
@@ -634,10 +686,7 @@ function displayActionItems(stats: UsageStats): void {
 /**
  * Generate and display ASCII chart
  */
-function displayASCIIChart(
-  data: ChartDataPoint[],
-  unit: string,
-): void {
+function displayASCIIChart(data: ChartDataPoint[], unit: string): void {
   const maxValue = Math.max(...data.map((d) => d.value));
   const chartWidth = 40;
 
@@ -654,7 +703,10 @@ function displayASCIIChart(
 /**
  * Display quick statistics summary
  */
-function displayQuickStats(mockMetrics: UsageMetric[], stats: UsageStats): void {
+function displayQuickStats(
+  mockMetrics: UsageMetric[],
+  stats: UsageStats,
+): void {
   const totalRequests = mockMetrics.length;
   const totalCost = mockMetrics.reduce(
     (sum: number, m: UsageMetric) => sum + (m.cost || 0),
@@ -774,7 +826,10 @@ function generateHourlyCostData(
     const hourMetrics = metrics.filter(
       (m: UsageMetric) => new Date(m.timestamp).getHours() === hour,
     );
-    const totalCost = hourMetrics.reduce((sum: number, m: UsageMetric) => sum + (m.cost || 0), 0);
+    const totalCost = hourMetrics.reduce(
+      (sum: number, m: UsageMetric) => sum + (m.cost || 0),
+      0,
+    );
 
     data.push({
       label: `${hour.toString().padStart(2, '0')}h`,
@@ -798,7 +853,10 @@ function getDayCount(period: string): number {
   }
 }
 
-function calculateEfficiencyScore(metrics: UsageMetric[], stats: UsageStats): number {
+function calculateEfficiencyScore(
+  metrics: UsageMetric[],
+  stats: UsageStats,
+): number {
   // Simple efficiency score based on usage vs limit ratio and cost effectiveness
   const utilizationScore = Math.min(10, (stats.usagePercentage / 100) * 10);
   const costScore =
