@@ -255,7 +255,7 @@ describe('AppContainer State Management', () => {
           _jsx(AppContainer, {
             config: mockConfig,
             settings: mockSettings,
-            startupWarnings: startupWarnings,
+            startupWarnings,
             version: '1.0.0',
             initializationResult: mockInitResult,
           }),
@@ -396,7 +396,7 @@ describe('AppContainer State Management', () => {
             _jsx(AppContainer, {
               config: mockConfig,
               settings: mockSettings,
-              version: version,
+              version,
               initializationResult: mockInitResult,
             }),
           );

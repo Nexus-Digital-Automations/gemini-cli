@@ -486,7 +486,7 @@ export class Config {
         toolCount: this.toolRegistry.getAllToolNames().length,
       });
     } catch (error) {
-      logger.error('Config initialization failed', { error: error });
+      logger.error('Config initialization failed', { error });
       throw error;
     } finally {
       endTimer();
@@ -1006,7 +1006,7 @@ export class Config {
       });
       return registry;
     } catch (error) {
-      logger.error('Tool registry creation failed', { error: error });
+      logger.error('Tool registry creation failed', { error });
       throw error;
     } finally {
       endTimer();

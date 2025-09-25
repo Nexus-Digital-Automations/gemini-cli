@@ -8,7 +8,7 @@ import { EventEmitter } from 'node:events';
 import {
   StructuredLogger,
   getComponentLogger,
-} from '../../../../packages/core/src/utils/logger.js';
+} from "@google/gemini-cli-core/src/utils/logger.js";
 /**
  * Event types for the status update system
  */
@@ -356,7 +356,7 @@ export class StatusUpdateBroker extends EventEmitter {
       this.logger.error('Realtime delivery failed', {
         subscriberId,
         eventId: event.id,
-        error: error,
+        error,
       });
     }
   }
@@ -381,7 +381,7 @@ export class StatusUpdateBroker extends EventEmitter {
       this.logger.error('Batched delivery failed', {
         subscriberId,
         eventCount: events.length,
-        error: error,
+        error,
       });
     }
   }

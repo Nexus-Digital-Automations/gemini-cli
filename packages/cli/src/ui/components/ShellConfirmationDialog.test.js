@@ -21,13 +21,13 @@ describe('ShellConfirmationDialog', () => {
   };
   it('renders correctly', () => {
     const { lastFrame } = renderWithProviders(
-      _jsx(ShellConfirmationDialog, { request: request }),
+      _jsx(ShellConfirmationDialog, { request }),
     );
     expect(lastFrame()).toMatchSnapshot();
   });
   it('calls onConfirm with ProceedOnce when "Yes, allow once" is selected', () => {
     const { lastFrame } = renderWithProviders(
-      _jsx(ShellConfirmationDialog, { request: request }),
+      _jsx(ShellConfirmationDialog, { request }),
     );
     const select = lastFrame().toString();
     // Simulate selecting the first option
@@ -36,7 +36,7 @@ describe('ShellConfirmationDialog', () => {
   });
   it('calls onConfirm with ProceedAlways when "Yes, allow always for this session" is selected', () => {
     const { lastFrame } = renderWithProviders(
-      _jsx(ShellConfirmationDialog, { request: request }),
+      _jsx(ShellConfirmationDialog, { request }),
     );
     const select = lastFrame().toString();
     // Simulate selecting the second option
@@ -44,7 +44,7 @@ describe('ShellConfirmationDialog', () => {
   });
   it('calls onConfirm with Cancel when "No (esc)" is selected', () => {
     const { lastFrame } = renderWithProviders(
-      _jsx(ShellConfirmationDialog, { request: request }),
+      _jsx(ShellConfirmationDialog, { request }),
     );
     const select = lastFrame().toString();
     // Simulate selecting the third option

@@ -74,7 +74,7 @@ export interface ScenarioParameters {
   /** Performance target variations */
   performanceTargets: Record<string, { min: number; max: number }>;
   /** Market condition scenarios */
-  marketConditions: ('bull' | 'bear' | 'volatile' | 'stable')[];
+  marketConditions: Array<'bull' | 'bear' | 'volatile' | 'stable'>;
   /** Strategic priority shifts */
   priorityShifts: string[];
   /** External constraints */
@@ -416,7 +416,7 @@ export class ScenarioPlanner {
    * @param parameters - Scenario generation parameters
    * @returns Generated scenarios
    */
-  public generateScenarios(
+  generateScenarios(
     candidates: AllocationCandidate[],
     parameters: ScenarioParameters
   ): AllocationScenario[] {
@@ -461,7 +461,7 @@ export class ScenarioPlanner {
    * @param candidates - Original candidates
    * @returns Scenario analysis result
    */
-  public analyzeScenarios(
+  analyzeScenarios(
     scenarios: AllocationScenario[],
     candidates: AllocationCandidate[]
   ): ScenarioAnalysisResult {
@@ -507,7 +507,7 @@ export class ScenarioPlanner {
    * @param parameterChanges - Parameters to vary
    * @returns What-if analysis results
    */
-  public generateWhatIfAnalysis(
+  generateWhatIfAnalysis(
     baseScenario: AllocationScenario,
     parameterChanges: Record<string, Array<{ parameter: string; value: number }>>
   ): Array<{

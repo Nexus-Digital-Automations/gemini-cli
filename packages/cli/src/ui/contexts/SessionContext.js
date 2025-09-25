@@ -176,8 +176,8 @@ export const SessionStatsProvider = ({ children }) => {
     [stats, startNewPrompt, getPromptCount],
   );
   return _jsx(SessionStatsContext.Provider, {
-    value: value,
-    children: children,
+    value,
+    children,
   });
 };
 // --- Consumer Hook ---

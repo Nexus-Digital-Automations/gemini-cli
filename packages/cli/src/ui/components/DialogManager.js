@@ -123,7 +123,7 @@ export const DialogManager = ({ addItem }) => {
         _jsx(ThemeDialog, {
           onSelect: uiActions.handleThemeSelect,
           onHighlight: uiActions.handleThemeHighlight,
-          settings: settings,
+          settings,
           availableTerminalHeight: constrainHeight
             ? terminalHeight - staticExtraHeight
             : undefined,
@@ -136,7 +136,7 @@ export const DialogManager = ({ addItem }) => {
     return _jsx(Box, {
       flexDirection: 'column',
       children: _jsx(SettingsDialog, {
-        settings: settings,
+        settings,
         onSelect: () => uiActions.closeSettingsDialog(),
         onRestartRequest: () => process.exit(0),
         availableTerminalHeight: terminalHeight - staticExtraHeight,
@@ -154,8 +154,8 @@ export const DialogManager = ({ addItem }) => {
     return _jsx(Box, {
       flexDirection: 'column',
       children: _jsx(AuthDialog, {
-        config: config,
-        settings: settings,
+        config,
+        settings,
         setAuthState: uiActions.setAuthState,
         authError: uiState.authError,
         onAuthError: uiActions.onAuthError,
@@ -176,7 +176,7 @@ export const DialogManager = ({ addItem }) => {
           }),
         _jsx(EditorSettingsDialog, {
           onSelect: uiActions.handleEditorSelect,
-          settings: settings,
+          settings,
           onExit: uiActions.exitEditorDialog,
         }),
       ],
@@ -185,13 +185,13 @@ export const DialogManager = ({ addItem }) => {
   if (uiState.showPrivacyNotice) {
     return _jsx(PrivacyNotice, {
       onExit: () => uiActions.exitPrivacyNotice(),
-      config: config,
+      config,
     });
   }
   if (uiState.isPermissionsDialogOpen) {
     return _jsx(PermissionsModifyTrustDialog, {
       onExit: uiActions.closePermissionsDialog,
-      addItem: addItem,
+      addItem,
     });
   }
   return null;

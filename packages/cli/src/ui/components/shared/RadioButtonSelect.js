@@ -25,14 +25,14 @@ export function RadioButtonSelect({
   showNumbers = true,
 }) {
   return _jsx(BaseSelectionList, {
-    items: items,
-    initialIndex: initialIndex,
-    onSelect: onSelect,
-    onHighlight: onHighlight,
-    isFocused: isFocused,
-    showNumbers: showNumbers,
-    showScrollArrows: showScrollArrows,
-    maxItemsToShow: maxItemsToShow,
+    items,
+    initialIndex,
+    onSelect,
+    onHighlight,
+    isFocused,
+    showNumbers,
+    showScrollArrows,
+    maxItemsToShow,
     renderItem: (item, { titleColor }) => {
       // Handle special theme display case for ThemeDialog compatibility
       if (item.themeNameDisplay && item.themeTypeDisplay) {

@@ -259,7 +259,7 @@ export class PerformanceOptimizer extends EventEmitter {
     // Initialize performance history for different intervals
     ['minute', 'hour', 'day', 'week'].forEach((interval) => {
       this.performanceHistory.set(interval, {
-        interval: interval,
+        interval,
         dataPoints: [],
         trends: {
           throughput: 'stable',

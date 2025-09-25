@@ -27,7 +27,7 @@ export var FailureHandlingStrategy;
 /**
  * Circuit breaker state
  */
-var CircuitBreakerState;
+let CircuitBreakerState;
 (function (CircuitBreakerState) {
   CircuitBreakerState['CLOSED'] = 'closed';
   CircuitBreakerState['OPEN'] = 'open';

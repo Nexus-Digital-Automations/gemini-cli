@@ -9,6 +9,6 @@ import { StatsDisplay } from './StatsDisplay.js';
 export const SessionSummaryDisplay = ({ duration }) =>
   _jsx(StatsDisplay, {
     title: 'Agent powering down. Goodbye!',
-    duration: duration,
+    duration,
   });
 //# sourceMappingURL=SessionSummaryDisplay.js.map

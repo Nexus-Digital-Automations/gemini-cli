@@ -206,15 +206,13 @@ describe('Infinite Loop Protection System', () => {
     it('should limit callback chain depth', async () => {
       let callbackDepth = 0;
       const maxCallbackDepth = 50;
-      const createNestedCallback = (depth) => {
-        return () => {
+      const createNestedCallback = (depth) => () => {
           callbackDepth = Math.max(callbackDepth, depth);
           if (depth < 1000) {
             // Try to create deep callback chain
             return createNestedCallback(depth + 1)();
           }
         };
-      };
       const callbackTask = TaskFactories.createTask({
         id: 'callback-chain-task',
         executionConfig: {

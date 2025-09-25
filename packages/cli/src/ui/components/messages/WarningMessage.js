@@ -24,7 +24,7 @@ export const WarningMessage = ({ text }) => {
         children: _jsx(Text, {
           wrap: 'wrap',
           color: Colors.AccentYellow,
-          children: _jsx(RenderInline, { text: text }),
+          children: _jsx(RenderInline, { text }),
         }),
       }),
     ],

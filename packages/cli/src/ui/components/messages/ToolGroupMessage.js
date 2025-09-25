@@ -79,7 +79,7 @@ export const ToolGroupMessage = ({
     width: '100%',
     marginLeft: 1,
     borderDimColor: hasPending && (!isShellCommand || !isEmbeddedShellFocused),
-    borderColor: borderColor,
+    borderColor,
     gap: 1,
     children: toolCalls.map((tool) => {
       const isConfirming = toolAwaitingApproval?.callId === tool.callId;
@@ -101,9 +101,9 @@ export const ToolGroupMessage = ({
                   : toolAwaitingApproval
                     ? 'low'
                     : 'medium',
-                activeShellPtyId: activeShellPtyId,
-                embeddedShellFocused: embeddedShellFocused,
-                config: config,
+                activeShellPtyId,
+                embeddedShellFocused,
+                config,
               }),
             }),
             tool.status === ToolCallStatus.Confirming &&
@@ -111,8 +111,8 @@ export const ToolGroupMessage = ({
               tool.confirmationDetails &&
               _jsx(ToolConfirmationMessage, {
                 confirmationDetails: tool.confirmationDetails,
-                config: config,
-                isFocused: isFocused,
+                config,
+                isFocused,
                 availableTerminalHeight: availableTerminalHeightPerToolMessage,
                 terminalWidth: innerWidth,
               }),

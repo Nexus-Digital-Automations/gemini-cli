@@ -145,7 +145,7 @@ export class TaskBreakdownAnalyzer {
         const matches = keywords.filter((keyword) =>
           text.includes(keyword.toLowerCase()),
         ).length;
-        return { complexity: complexity, score: matches };
+        return { complexity, score: matches };
       },
     );
     // Length-based heuristics

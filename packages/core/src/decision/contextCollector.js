@@ -256,10 +256,10 @@ export class ContextCollector {
         lastBuildTime: hasBuildDir
           ? Date.now() - Math.random() * 3600000
           : undefined, // Last hour
-        buildStatus: buildStatus,
-        testStatus: testStatus,
-        lintStatus: lintStatus,
-        gitStatus: gitStatus,
+        buildStatus,
+        testStatus,
+        lintStatus,
+        gitStatus,
       };
     } catch (error) {
       logger.warn('Failed to collect project state', { error });

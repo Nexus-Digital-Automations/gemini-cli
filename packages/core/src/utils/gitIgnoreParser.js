@@ -47,7 +47,7 @@ export class GitIgnoreParser {
       });
     } catch (error) {
       logger.warn('Failed to initialize GitIgnoreParser', {
-        error: error,
+        error,
       });
       this.globalPatterns = [];
     } finally {

@@ -88,7 +88,7 @@ export const FolderTrustDialog = ({ onSelect, isRestarting }) => {
           }),
           _jsx(RadioButtonSelect, {
             items: options,
-            onSelect: onSelect,
+            onSelect,
             isFocused: !isRestarting,
           }),
         ],

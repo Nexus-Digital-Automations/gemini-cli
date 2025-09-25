@@ -1,6 +1,13 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { TaskExecutionEngine } from '../taskExecutionEngine';
-import { TaskManager } from '../taskManager';
-import { Task, TaskStatus, TaskPriority, ToolCall } from '../types';
+import type { TaskManager } from '../taskManager';
+import type { Task, ToolCall } from '../types';
+import { TaskStatus, TaskPriority } from '../types';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 
 // Mock the global default_api object

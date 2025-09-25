@@ -115,7 +115,7 @@ export const CloudFreePrivacyNotice = ({ config, onExit }) => {
               'Allow Google to use this data to develop and improve our products?',
           }),
           _jsx(RadioButtonSelect, {
-            items: items,
+            items,
             initialIndex: privacyState.dataCollectionOptIn ? 0 : 1,
             onSelect: (value) => {
               updateDataCollectionOptIn(value);

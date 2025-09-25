@@ -17,13 +17,13 @@ describe('LoopDetectionConfirmation', () => {
   const onComplete = vi.fn();
   it('renders correctly', () => {
     const { lastFrame } = renderWithProviders(
-      _jsx(LoopDetectionConfirmation, { onComplete: onComplete }),
+      _jsx(LoopDetectionConfirmation, { onComplete }),
     );
     expect(lastFrame()).toMatchSnapshot();
   });
   it('contains the expected options', () => {
     const { lastFrame } = renderWithProviders(
-      _jsx(LoopDetectionConfirmation, { onComplete: onComplete }),
+      _jsx(LoopDetectionConfirmation, { onComplete }),
     );
     const output = lastFrame().toString();
     expect(output).toContain('A potential loop was detected');

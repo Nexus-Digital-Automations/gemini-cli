@@ -90,7 +90,7 @@ describe('<ToolGroupMessage />', () => {
     it('renders single successful tool call', () => {
       const toolCalls = [createToolCall()];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -116,7 +116,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -136,7 +136,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -150,7 +150,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -176,7 +176,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -199,7 +199,7 @@ describe('<ToolGroupMessage />', () => {
       const { lastFrame } = renderWithProviders(
         _jsx(ToolGroupMessage, {
           ...baseProps,
-          toolCalls: toolCalls,
+          toolCalls,
           availableTerminalHeight: 10,
         }),
       );
@@ -210,7 +210,7 @@ describe('<ToolGroupMessage />', () => {
       const { lastFrame } = renderWithProviders(
         _jsx(ToolGroupMessage, {
           ...baseProps,
-          toolCalls: toolCalls,
+          toolCalls,
           isFocused: false,
         }),
       );
@@ -227,7 +227,7 @@ describe('<ToolGroupMessage />', () => {
       const { lastFrame } = renderWithProviders(
         _jsx(ToolGroupMessage, {
           ...baseProps,
-          toolCalls: toolCalls,
+          toolCalls,
           terminalWidth: 40,
         }),
       );
@@ -244,7 +244,7 @@ describe('<ToolGroupMessage />', () => {
     it('uses yellow border when tools are pending', () => {
       const toolCalls = [createToolCall({ status: ToolCallStatus.Pending })];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       // The snapshot will capture the visual appearance including border color
       expect(lastFrame()).toMatchSnapshot();
@@ -257,7 +257,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -271,7 +271,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -295,7 +295,7 @@ describe('<ToolGroupMessage />', () => {
       const { lastFrame } = renderWithProviders(
         _jsx(ToolGroupMessage, {
           ...baseProps,
-          toolCalls: toolCalls,
+          toolCalls,
           availableTerminalHeight: 20,
         }),
       );
@@ -329,7 +329,7 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame } = renderWithProviders(
-        _jsx(ToolGroupMessage, { ...baseProps, toolCalls: toolCalls }),
+        _jsx(ToolGroupMessage, { ...baseProps, toolCalls }),
       );
       // Should only show confirmation for the first tool
       expect(lastFrame()).toMatchSnapshot();

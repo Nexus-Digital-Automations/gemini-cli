@@ -9,36 +9,41 @@ import type { Task} from '../types';
 import { TaskStatus, TaskPriority } from '../types';
 import { promises as _fs } from 'node:fs';
 import * as path from 'node:path';
-import { homedir } from 'node:os';
+import * as os from 'node:os';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 
-const MOCK_TASKS_DIR = path.join(homedir(), '.gemini_test_tasks');
+const MOCK_TASKS_DIR = path.join(os.tmpdir(), '.gemini_test_tasks', Math.random().toString(36).substring(7));
 const MOCK_TASKS_FILE = path.join(MOCK_TASKS_DIR, 'tasks.json');
 
 // Mock fs.promises
-const mockMkdir = vi.fn();
-const mockWriteFile = vi.fn();
-const mockReadFile = vi.fn();
-const mockRm = vi.fn();
+let mockedFs: ReturnType<typeof vi.mocked<typeof fs>>; // Declare type here
 
-vi.mock('fs/promises', () => ({
-  mkdir: mockMkdir,
-  writeFile: mockWriteFile,
-  readFile: mockReadFile,
-  rm: mockRm,
-}));
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof fs>();
+  return {
+    ...actual,
+    promises: {
+      ...actual.promises,
+      mkdir: vi.fn(),
+      writeFile: vi.fn(),
+      readFile: vi.fn(),
+      rm: vi.fn(),
+    },
+  };
+});
 
 describe('TaskStore', () => {
   let taskStore: TaskStore;
 
   beforeEach(async () => {
     vi.resetAllMocks();
+    mockedFs = vi.mocked(fs.promises); // Assign mocked object here
 
     // Reset mock implementations for each test
-    mockMkdir.mockResolvedValue(undefined);
-    mockWriteFile.mockResolvedValue(undefined);
-    mockReadFile.mockResolvedValue('[]'); // Default to empty array
-    mockRm.mockResolvedValue(undefined);
+    mockedFs.mkdir.mockResolvedValue(undefined);
+    mockedFs.writeFile.mockResolvedValue(undefined);
+    mockedFs.readFile.mockResolvedValue('[]'); // Default to empty array
+    mockedFs.rm.mockResolvedValue(undefined);
 
     taskStore = new TaskStore(MOCK_TASKS_DIR);
     await taskStore.ensureTasksFileExists();

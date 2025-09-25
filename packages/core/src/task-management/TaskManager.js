@@ -198,9 +198,7 @@ export class TaskManager {
         category: options?.category || 'implementation',
         priority: options?.priority || TaskPriority.MEDIUM,
         estimatedDuration: this.estimateTaskDuration(title, description),
-        executeFunction: async (task, executionContext) => {
-          return this.executeTaskWithQualityGates(task, executionContext);
-        },
+        executeFunction: async (task, executionContext) => this.executeTaskWithQualityGates(task, executionContext),
         dependencies: options?.dependencies,
         executionContext: options?.executionContext,
         parameters: options?.parameters,

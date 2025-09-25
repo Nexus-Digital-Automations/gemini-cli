@@ -76,7 +76,7 @@ export class CompositeStrategy {
         const logger = getComponentLogger('CompositeStrategy');
         logger.error(
           `Strategy '${strategy.name}' failed. Continuing to next strategy.`,
-          { error: error, strategyName: strategy.name },
+          { error, strategyName: strategy.name },
         );
       }
     }
@@ -92,7 +92,7 @@ export class CompositeStrategy {
       const logger = getComponentLogger('CompositeStrategy');
       logger.error(
         `Critical Error: Terminal strategy '${terminalStrategy.name}' failed. Routing cannot proceed.`,
-        { error: error, terminalStrategyName: terminalStrategy.name },
+        { error, terminalStrategyName: terminalStrategy.name },
       );
       throw error;
     }

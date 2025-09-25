@@ -31,8 +31,8 @@ export const QuittingDisplay = () => {
           availableTerminalHeight: uiState.constrainHeight
             ? availableTerminalHeight
             : undefined,
-          terminalWidth: terminalWidth,
-          item: item,
+          terminalWidth,
+          item,
           isPending: false,
         },
         item.id,

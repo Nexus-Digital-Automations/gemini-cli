@@ -285,7 +285,7 @@ index 123..789 100644
             children: _jsx(DiffRenderer, {
               diffContent: diffWithMultipleHunks,
               filename: 'multi.js',
-              terminalWidth: terminalWidth,
+              terminalWidth,
               availableTerminalHeight: height,
             }),
           }),

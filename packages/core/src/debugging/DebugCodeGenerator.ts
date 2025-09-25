@@ -1075,7 +1075,7 @@ export class DebugCodeGenerator {
 
     // Apply indentation preferences
     if (this.config.codeStyle.indentation === 'tabs') {
-      styledCode = styledCode.replace(/  /g, '\t');
+      styledCode = styledCode.replace(/ {2}/g, '\t');
     } else {
       const spaces = ' '.repeat(this.config.codeStyle.indentSize);
       styledCode = styledCode.replace(/\t/g, spaces);

@@ -38,7 +38,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { useSessionStats } from '../contexts/SessionContext.js';
 import { useKeypress } from './useKeypress.js';
-var StreamProcessingStatus;
+let StreamProcessingStatus;
 (function (StreamProcessingStatus) {
   StreamProcessingStatus[(StreamProcessingStatus['Completed'] = 0)] =
     'Completed';

@@ -10,7 +10,7 @@ const logger = new Logger('AuditMiddleware');
 /**
  * Audit event types
  */
-var AuditEventType;
+let AuditEventType;
 (function (AuditEventType) {
   AuditEventType['API_REQUEST'] = 'api_request';
   AuditEventType['AUTHENTICATION'] = 'authentication';

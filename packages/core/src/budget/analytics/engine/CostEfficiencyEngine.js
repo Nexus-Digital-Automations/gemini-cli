@@ -444,16 +444,14 @@ export class CostEfficiencyEngine {
   validateMetrics(metrics) {
     if (!Array.isArray(metrics)) return [];
 
-    return metrics.filter((metric) => {
-      return (
+    return metrics.filter((metric) => (
         metric &&
         typeof metric.timestamp === 'string' &&
         !isNaN(new Date(metric.timestamp).getTime()) &&
         typeof metric.cost === 'number' &&
         !isNaN(metric.cost) &&
         metric.cost >= 0
-      );
-    });
+      ));
   }
 
   getDateRange(metrics) {

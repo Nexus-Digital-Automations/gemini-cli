@@ -125,7 +125,7 @@ export class PatternAnalysisEngine {
         metricsAnalyzed: validatedMetrics.length,
         dateRange: this.getDateRange(validatedMetrics),
         patterns: scoredPatterns,
-        insights: insights,
+        insights,
         recommendations: await this.generatePatternRecommendations(
           scoredPatterns,
           insights,

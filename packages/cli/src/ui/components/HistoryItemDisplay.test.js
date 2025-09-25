@@ -35,7 +35,7 @@ describe('<HistoryItemDisplay />', () => {
       text: 'Hello',
     };
     const { lastFrame } = render(
-      _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+      _jsx(HistoryItemDisplay, { ...baseItem, item }),
     );
     expect(lastFrame()).toContain('Hello');
   });
@@ -46,7 +46,7 @@ describe('<HistoryItemDisplay />', () => {
       text: '/theme',
     };
     const { lastFrame } = render(
-      _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+      _jsx(HistoryItemDisplay, { ...baseItem, item }),
     );
     expect(lastFrame()).toContain('/theme');
   });
@@ -58,7 +58,7 @@ describe('<HistoryItemDisplay />', () => {
     };
     const { lastFrame } = render(
       _jsx(SessionStatsProvider, {
-        children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+        children: _jsx(HistoryItemDisplay, { ...baseItem, item }),
       }),
     );
     expect(lastFrame()).toContain('Stats');
@@ -76,7 +76,7 @@ describe('<HistoryItemDisplay />', () => {
       ideClient: 'test-ide',
     };
     const { lastFrame } = render(
-      _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+      _jsx(HistoryItemDisplay, { ...baseItem, item }),
     );
     expect(lastFrame()).toContain('About Gemini CLI');
   });
@@ -87,7 +87,7 @@ describe('<HistoryItemDisplay />', () => {
     };
     const { lastFrame } = render(
       _jsx(SessionStatsProvider, {
-        children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+        children: _jsx(HistoryItemDisplay, { ...baseItem, item }),
       }),
     );
     expect(lastFrame()).toContain(
@@ -101,7 +101,7 @@ describe('<HistoryItemDisplay />', () => {
     };
     const { lastFrame } = render(
       _jsx(SessionStatsProvider, {
-        children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+        children: _jsx(HistoryItemDisplay, { ...baseItem, item }),
       }),
     );
     expect(lastFrame()).toContain(
@@ -116,7 +116,7 @@ describe('<HistoryItemDisplay />', () => {
     };
     const { lastFrame } = render(
       _jsx(SessionStatsProvider, {
-        children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }),
+        children: _jsx(HistoryItemDisplay, { ...baseItem, item }),
       }),
     );
     expect(lastFrame()).toContain('Agent powering down. Goodbye!');

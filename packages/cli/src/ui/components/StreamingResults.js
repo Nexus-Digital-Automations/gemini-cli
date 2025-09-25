@@ -98,7 +98,7 @@ export const StreamingResults = ({
           _jsx(
             ResultItem,
             {
-              result: result,
+              result,
               isLatest: index === displayResults.length - 1,
               compact: isNarrow,
             },
@@ -289,7 +289,7 @@ export const LiveUpdateDisplay = ({
       recentUpdates.map((update, index) =>
         _jsx(
           UpdateItem,
-          { update: update, compact: compact },
+          { update, compact },
           `${update.operationId}-${update.timestamp.getTime()}-${index}`,
         ),
       ),

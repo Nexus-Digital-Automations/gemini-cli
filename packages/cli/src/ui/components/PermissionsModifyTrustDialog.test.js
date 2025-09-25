@@ -117,7 +117,7 @@ describe('PermissionsModifyTrustDialog', () => {
   it('should call onExit when escape is pressed', async () => {
     const onExit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      _jsx(PermissionsModifyTrustDialog, { onExit: onExit, addItem: vi.fn() }),
+      _jsx(PermissionsModifyTrustDialog, { onExit, addItem: vi.fn() }),
     );
     await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
     act(() => {
@@ -143,7 +143,7 @@ describe('PermissionsModifyTrustDialog', () => {
     });
     const onExit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      _jsx(PermissionsModifyTrustDialog, { onExit: onExit, addItem: vi.fn() }),
+      _jsx(PermissionsModifyTrustDialog, { onExit, addItem: vi.fn() }),
     );
     await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
     act(() => stdin.write('r')); // Press 'r' to restart
@@ -167,7 +167,7 @@ describe('PermissionsModifyTrustDialog', () => {
     });
     const onExit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      _jsx(PermissionsModifyTrustDialog, { onExit: onExit, addItem: vi.fn() }),
+      _jsx(PermissionsModifyTrustDialog, { onExit, addItem: vi.fn() }),
     );
     await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
     act(() => stdin.write('\x1b')); // Press escape

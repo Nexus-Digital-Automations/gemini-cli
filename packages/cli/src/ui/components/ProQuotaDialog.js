@@ -35,7 +35,7 @@ export function ProQuotaDialog({ failedModel, fallbackModel, onChoice }) {
       _jsx(Box, {
         marginTop: 1,
         children: _jsx(RadioButtonSelect, {
-          items: items,
+          items,
           initialIndex: 1,
           onSelect: handleSelect,
         }),

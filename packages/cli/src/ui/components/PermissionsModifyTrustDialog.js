@@ -108,7 +108,7 @@ export function PermissionsModifyTrustDialog({ onExit, addItem }) {
             items: TRUST_LEVEL_ITEMS,
             onSelect: updateTrustLevel,
             isFocused: true,
-            initialIndex: initialIndex,
+            initialIndex,
           }),
           _jsx(Box, {
             marginTop: 1,

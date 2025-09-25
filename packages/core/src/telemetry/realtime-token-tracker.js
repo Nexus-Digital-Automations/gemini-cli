@@ -101,7 +101,7 @@ export class RealtimeTokenTracker extends EventEmitter {
       });
     } catch (error) {
       logger.error('Failed to track token usage', {
-        error: error,
+        error,
         sessionId,
         promptId,
       });

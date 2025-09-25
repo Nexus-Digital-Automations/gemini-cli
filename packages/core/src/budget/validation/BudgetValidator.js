@@ -347,7 +347,7 @@ export class BudgetValidator {
         ruleTimings[rule.id] = Date.now() - ruleStart;
         this.logger.error('Rule validation failed', {
           ruleId: rule.id,
-          error: error,
+          error,
         });
       }
     }

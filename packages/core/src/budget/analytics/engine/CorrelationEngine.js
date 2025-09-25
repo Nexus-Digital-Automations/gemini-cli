@@ -408,7 +408,7 @@ export class CorrelationEngine {
           feature,
           peakHour,
           lowHour,
-          usage: usage,
+          usage,
           peakToLowRatio: usage[peakHour] / Math.max(usage[lowHour], 1),
           temporalConsistency: this.calculateTemporalConsistency(usage),
         });
@@ -1076,14 +1076,12 @@ export class CorrelationEngine {
       return [];
     }
 
-    const validatedMetrics = metrics.filter((metric) => {
-      return (
+    const validatedMetrics = metrics.filter((metric) => (
         metric &&
         typeof metric === 'object' &&
         metric.timestamp &&
         !isNaN(new Date(metric.timestamp).getTime())
-      );
-    });
+      ));
 
     this.logger.info('Metrics validated for correlation analysis', {
       original: metrics.length,

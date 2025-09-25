@@ -422,8 +422,8 @@ export class StackTraceAnalyzer {
       // This is a placeholder for source map resolution
       const resolvedLocation: SourceLocation = {
         file: filePath.replace('.min.js', '.ts'), // Simple example
-        line: line,
-        column: column,
+        line,
+        column,
         name: 'resolvedFunction', // Would be resolved from source map
         source: '', // Would contain original source code
       };
@@ -1040,9 +1040,9 @@ export class StackTraceAnalyzer {
    */
   private identifyCriticalPath(frames: StackTraceFrame[]): StackTraceFrame[] {
     // Critical path is user code frames leading to the error
-    return frames.filter((frame, index) => {
-      return frame.isUserCode || index === 0; // Include error origin and user code
-    });
+    return frames.filter((frame, index) => 
+       frame.isUserCode || index === 0 // Include error origin and user code
+    );
   }
 
   /**

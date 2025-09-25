@@ -34,7 +34,7 @@ describe('QueuedMessageDisplay', () => {
       'Third queued message',
     ];
     const { lastFrame } = render(
-      _jsx(QueuedMessageDisplay, { messageQueue: messageQueue }),
+      _jsx(QueuedMessageDisplay, { messageQueue }),
     );
     const output = lastFrame();
     expect(output).toContain('First queued message');
@@ -50,7 +50,7 @@ describe('QueuedMessageDisplay', () => {
       'Message 5',
     ];
     const { lastFrame } = render(
-      _jsx(QueuedMessageDisplay, { messageQueue: messageQueue }),
+      _jsx(QueuedMessageDisplay, { messageQueue }),
     );
     const output = lastFrame();
     expect(output).toContain('Message 1');
@@ -63,7 +63,7 @@ describe('QueuedMessageDisplay', () => {
   it('normalizes whitespace in messages', () => {
     const messageQueue = ['Message   with\tmultiple\n  whitespace'];
     const { lastFrame } = render(
-      _jsx(QueuedMessageDisplay, { messageQueue: messageQueue }),
+      _jsx(QueuedMessageDisplay, { messageQueue }),
     );
     const output = lastFrame();
     expect(output).toContain('Message with multiple whitespace');

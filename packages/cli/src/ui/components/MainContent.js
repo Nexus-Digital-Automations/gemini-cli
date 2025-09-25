@@ -36,7 +36,7 @@ export const MainContent = () => {
         Static,
         {
           items: [
-            _jsx(AppHeader, { version: version }, 'app-header'),
+            _jsx(AppHeader, { version }, 'app-header'),
             ...uiState.history.map((h) =>
               _jsx(
                 HistoryItemDisplay,

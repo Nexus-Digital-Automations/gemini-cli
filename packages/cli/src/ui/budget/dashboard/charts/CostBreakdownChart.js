@@ -209,7 +209,7 @@ export const CostBreakdownChart = ({
               marginBottom: 1,
               children: [
                 _jsx(Text, {
-                  color: color,
+                  color,
                   children: createProgressBar(item.percentage, 10, '█', '░'),
                 }),
                 _jsx(Text, {
@@ -274,7 +274,7 @@ export const CostBreakdownChart = ({
                 alignItems: 'center',
                 gap: 1,
                 children: _jsxs(Text, {
-                  color: color,
+                  color,
                   children: [
                     '█'.repeat(barWidth),
                     '░'.repeat(Math.max(0, availableWidth - barWidth)),
@@ -340,7 +340,7 @@ export const CostBreakdownChart = ({
                     alignItems: 'center',
                     gap: 1,
                     children: [
-                      _jsx(Text, { color: color, children: '\u25CF' }),
+                      _jsx(Text, { color, children: '\u25CF' }),
                       _jsx(Text, {
                         color: theme.text.secondary,
                         children: item.feature,

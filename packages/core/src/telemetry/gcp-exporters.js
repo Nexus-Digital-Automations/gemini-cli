@@ -86,7 +86,7 @@ export class GcpLogExporter {
     } catch (error) {
       resultCallback({
         code: ExportResultCode.FAILED,
-        error: error,
+        error,
       });
     }
   }

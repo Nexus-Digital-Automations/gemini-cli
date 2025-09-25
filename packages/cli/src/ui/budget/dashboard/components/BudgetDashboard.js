@@ -397,7 +397,7 @@ export const BudgetDashboard = ({
           _jsx(Box, {
             marginTop: 1,
             children: _jsx(CostProjectionChart, {
-              projections: projections,
+              projections,
               config: {
                 title: 'Cost Projections',
                 width: 80,
@@ -472,9 +472,9 @@ export const BudgetDashboard = ({
    */
   const renderAlertsView = () =>
     _jsx(BudgetAlertsPanel, {
-      alerts: alerts,
+      alerts,
       onDismissAlert: dismissAlert,
-      budgetStats: budgetStats,
+      budgetStats,
     });
   /**
    * Renders the settings and controls view.

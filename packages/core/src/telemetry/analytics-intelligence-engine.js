@@ -809,9 +809,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
       }
     }
     if (highFrequencyHours.length > 0) {
-      const batchableRequests = highFrequencyHours.reduce((sum, hour) => {
-        return sum + (requestsByHour.get(hour)?.length || 0);
-      }, 0);
+      const batchableRequests = highFrequencyHours.reduce((sum, hour) => sum + (requestsByHour.get(hour)?.length || 0), 0);
       const potentialSavings = batchableRequests * 0.002; // Estimate $0.002 savings per batched request
       recommendations.push({
         type: 'batch_processing',
@@ -898,7 +896,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
           this.config.lookbackHours * 60 * 60 * 1000,
         );
       } catch (error) {
-        logger.error('Realtime analysis failed', { error: error });
+        logger.error('Realtime analysis failed', { error });
       }
     });
     // Periodic analysis for comprehensive patterns
@@ -910,7 +908,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
             this.config.lookbackHours * 60 * 60 * 1000,
           );
         } catch (error) {
-          logger.error('Periodic analysis failed', { error: error });
+          logger.error('Periodic analysis failed', { error });
         }
       },
       10 * 60 * 1000,
@@ -933,7 +931,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
             samplesUsed: trainingData.length,
           });
         } catch (error) {
-          logger.error('Background training failed', { error: error });
+          logger.error('Background training failed', { error });
         }
       },
       60 * 60 * 1000,

@@ -30,7 +30,7 @@ export function SuggestionsDisplay({
   if (isLoading) {
     return _jsx(Box, {
       paddingX: 1,
-      width: width,
+      width,
       children: _jsx(Text, {
         color: 'gray',
         children: 'Loading suggestions...',
@@ -57,7 +57,7 @@ export function SuggestionsDisplay({
   return _jsxs(Box, {
     flexDirection: 'column',
     paddingX: 1,
-    width: width,
+    width,
     children: [
       scrollOffset > 0 &&
         _jsx(Text, { color: theme.text.primary, children: '\u25B2' }),
@@ -70,9 +70,9 @@ export function SuggestionsDisplay({
         const labelElement = _jsx(PrepareLabel, {
           label: suggestion.value,
           matchedIndex: suggestion.matchedIndex,
-          userInput: userInput,
-          textColor: textColor,
-          isExpanded: isExpanded,
+          userInput,
+          textColor,
+          isExpanded,
         });
         return _jsxs(
           Box,

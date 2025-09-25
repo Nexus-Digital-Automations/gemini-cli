@@ -140,17 +140,17 @@ export async function startInteractiveUI(
       value: settings,
       children: _jsx(KeypressProvider, {
         kittyProtocolEnabled: kittyProtocolStatus.enabled,
-        config: config,
+        config,
         debugKeystrokeLogging: settings.merged.general?.debugKeystrokeLogging,
         children: _jsx(SessionStatsProvider, {
           children: _jsx(VimModeProvider, {
-            settings: settings,
+            settings,
             children: _jsx(AppContainer, {
-              config: config,
-              settings: settings,
-              startupWarnings: startupWarnings,
-              version: version,
-              initializationResult: initializationResult,
+              config,
+              settings,
+              startupWarnings,
+              version,
+              initializationResult,
             }),
           }),
         }),

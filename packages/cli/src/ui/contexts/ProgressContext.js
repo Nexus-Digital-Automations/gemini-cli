@@ -136,7 +136,7 @@ export const ProgressProvider = ({ children }) => {
     toggleProgressPanel,
     cleanup,
   };
-  return _jsx(ProgressContext.Provider, { value: value, children: children });
+  return _jsx(ProgressContext.Provider, { value, children });
 };
 export const useProgress = () => {
   const context = useContext(ProgressContext);

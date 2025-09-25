@@ -22,7 +22,7 @@ export const GeminiRespondingSpinner = ({
   const isScreenReaderEnabled = useIsScreenReaderEnabled();
   if (streamingState === StreamingState.Responding) {
     return _jsx(GeminiSpinner, {
-      spinnerType: spinnerType,
+      spinnerType,
       altText: SCREEN_READER_RESPONDING,
     });
   } else if (nonRespondingDisplay) {

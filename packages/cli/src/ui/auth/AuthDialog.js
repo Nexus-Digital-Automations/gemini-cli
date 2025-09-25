@@ -141,7 +141,7 @@ Logging in with Google... Please restart Gemini CLI to continue.
       _jsx(Box, {
         marginTop: 1,
         children: _jsx(RadioButtonSelect, {
-          items: items,
+          items,
           initialIndex: initialAuthIndex,
           onSelect: handleAuthSelect,
         }),

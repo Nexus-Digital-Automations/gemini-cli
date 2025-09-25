@@ -28,7 +28,7 @@ describe('ToolConfirmationMessage', () => {
     };
     const { lastFrame } = renderWithProviders(
       _jsx(ToolConfirmationMessage, {
-        confirmationDetails: confirmationDetails,
+        confirmationDetails,
         config: mockConfig,
         availableTerminalHeight: 30,
         terminalWidth: 80,
@@ -49,7 +49,7 @@ describe('ToolConfirmationMessage', () => {
     };
     const { lastFrame } = renderWithProviders(
       _jsx(ToolConfirmationMessage, {
-        confirmationDetails: confirmationDetails,
+        confirmationDetails,
         config: mockConfig,
         availableTerminalHeight: 30,
         terminalWidth: 80,

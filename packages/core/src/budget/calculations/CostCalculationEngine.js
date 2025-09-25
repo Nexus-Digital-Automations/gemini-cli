@@ -133,7 +133,7 @@ export class CostCalculationEngine {
       return result;
     } catch (error) {
       this.logger.error('Cost calculation failed', {
-        error: error,
+        error,
         params,
       });
       throw error;

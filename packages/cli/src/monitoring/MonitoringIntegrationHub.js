@@ -143,7 +143,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
     }
     return {
       overall,
-      components: components,
+      components,
       integration: {
         initialized: this.isInitialized,
         lastSync: this.lastSyncTimestamp,

@@ -65,9 +65,9 @@ describe('PrepareLabel', () => {
     const matchedIndex = label.indexOf(userInput);
     const { lastFrame } = render(
       _jsx(PrepareLabel, {
-        label: label,
-        userInput: userInput,
-        matchedIndex: matchedIndex,
+        label,
+        userInput,
+        matchedIndex,
         textColor: color,
         isExpanded: true,
       }),
@@ -82,9 +82,9 @@ describe('PrepareLabel', () => {
     const matchedIndex = prefix.length;
     const { lastFrame } = render(
       _jsx(PrepareLabel, {
-        label: label,
+        label,
         userInput: core,
-        matchedIndex: matchedIndex,
+        matchedIndex,
         textColor: color,
         isExpanded: false,
       }),
@@ -104,9 +104,9 @@ describe('PrepareLabel', () => {
     const matchedIndex = prefix.length;
     const { lastFrame } = render(
       _jsx(PrepareLabel, {
-        label: label,
+        label,
         userInput: core,
-        matchedIndex: matchedIndex,
+        matchedIndex,
         textColor: color,
         isExpanded: false,
       }),

@@ -652,7 +652,7 @@ export function KeypressProvider({
   ]);
   return _jsx(KeypressContext.Provider, {
     value: { subscribe, unsubscribe },
-    children: children,
+    children,
   });
 }
 //# sourceMappingURL=KeypressContext.js.map

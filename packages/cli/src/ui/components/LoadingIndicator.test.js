@@ -120,7 +120,7 @@ describe('<LoadingIndicator />', () => {
   it('should render rightContent when provided', () => {
     const rightContent = _jsx(Text, { children: 'Extra Info' });
     const { lastFrame } = renderWithContext(
-      _jsx(LoadingIndicator, { ...defaultProps, rightContent: rightContent }),
+      _jsx(LoadingIndicator, { ...defaultProps, rightContent }),
       StreamingState.Responding,
     );
     expect(lastFrame()).toContain('Extra Info');

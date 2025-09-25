@@ -31,7 +31,7 @@ describe('SessionStatsContext', () => {
     const contextRef = { current: undefined };
     render(
       _jsx(SessionStatsProvider, {
-        children: _jsx(TestHarness, { contextRef: contextRef }),
+        children: _jsx(TestHarness, { contextRef }),
       }),
     );
     const stats = contextRef.current?.stats;
@@ -43,7 +43,7 @@ describe('SessionStatsContext', () => {
     const contextRef = { current: undefined };
     render(
       _jsx(SessionStatsProvider, {
-        children: _jsx(TestHarness, { contextRef: contextRef }),
+        children: _jsx(TestHarness, { contextRef }),
       }),
     );
     const newMetrics = {

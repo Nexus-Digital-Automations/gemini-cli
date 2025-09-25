@@ -1276,7 +1276,7 @@ export class FixSuggestionEngine {
   ): Promise<FixValidation> {
     try {
       // Basic validation checks
-      let isValid = true;
+      const isValid = true;
       const warnings: string[] = [];
       const requirements: string[] = [];
 

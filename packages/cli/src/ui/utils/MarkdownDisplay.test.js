@@ -47,7 +47,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -62,7 +62,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -75,7 +75,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -85,7 +85,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -97,7 +97,7 @@ describe('<MarkdownDisplay />', () => {
         value: mockSettings,
         children: _jsx(MarkdownDisplay, {
           ...baseProps,
-          text: text,
+          text,
           isPending: true,
         }),
       }),
@@ -113,7 +113,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -127,7 +127,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -140,7 +140,7 @@ describe('<MarkdownDisplay />', () => {
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -156,7 +156,7 @@ Test
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -171,7 +171,7 @@ Test
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -185,7 +185,7 @@ Some text before.
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -197,7 +197,7 @@ Paragraph 2.`.replace(/\n/g, EOL);
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -220,7 +220,7 @@ Another paragraph.
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -242,7 +242,7 @@ Another paragraph.
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: settings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();
@@ -253,7 +253,7 @@ Another paragraph.
     const { lastFrame } = render(
       _jsx(SettingsContext.Provider, {
         value: mockSettings,
-        children: _jsx(MarkdownDisplay, { ...baseProps, text: text }),
+        children: _jsx(MarkdownDisplay, { ...baseProps, text }),
       }),
     );
     expect(lastFrame()).toMatchSnapshot();

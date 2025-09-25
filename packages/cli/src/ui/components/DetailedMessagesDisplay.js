@@ -19,7 +19,7 @@ export const DetailedMessagesDisplay = ({ messages, maxHeight, width }) => {
     borderStyle: 'round',
     borderColor: theme.border.default,
     paddingX: 1,
-    width: width,
+    width,
     children: [
       _jsx(Box, {
         marginBottom: 1,
@@ -37,7 +37,7 @@ export const DetailedMessagesDisplay = ({ messages, maxHeight, width }) => {
         }),
       }),
       _jsx(MaxSizedBox, {
-        maxHeight: maxHeight,
+        maxHeight,
         maxWidth: width - borderAndPadding,
         children: messages.map((msg, index) => {
           let textColor = theme.text.primary;

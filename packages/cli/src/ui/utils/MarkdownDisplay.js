@@ -72,9 +72,9 @@ const MarkdownDisplayInternal = ({
             {
               content: codeBlockContent,
               lang: codeBlockLang,
-              isPending: isPending,
-              availableTerminalHeight: availableTerminalHeight,
-              terminalWidth: terminalWidth,
+              isPending,
+              availableTerminalHeight,
+              terminalWidth,
             },
             key,
           ),
@@ -145,7 +145,7 @@ const MarkdownDisplayInternal = ({
             {
               headers: tableHeaders,
               rows: tableRows,
-              terminalWidth: terminalWidth,
+              terminalWidth,
             },
             `table-${contentBlocks.length}`,
           ),
@@ -226,10 +226,10 @@ const MarkdownDisplayInternal = ({
         _jsx(
           RenderListItem,
           {
-            itemText: itemText,
+            itemText,
             type: 'ul',
-            marker: marker,
-            leadingWhitespace: leadingWhitespace,
+            marker,
+            leadingWhitespace,
           },
           key,
         ),
@@ -242,10 +242,10 @@ const MarkdownDisplayInternal = ({
         _jsx(
           RenderListItem,
           {
-            itemText: itemText,
+            itemText,
             type: 'ol',
-            marker: marker,
-            leadingWhitespace: leadingWhitespace,
+            marker,
+            leadingWhitespace,
           },
           key,
         ),
@@ -282,9 +282,9 @@ const MarkdownDisplayInternal = ({
         {
           content: codeBlockContent,
           lang: codeBlockLang,
-          isPending: isPending,
-          availableTerminalHeight: availableTerminalHeight,
-          terminalWidth: terminalWidth,
+          isPending,
+          availableTerminalHeight,
+          terminalWidth,
         },
         'line-eof',
       ),
@@ -298,7 +298,7 @@ const MarkdownDisplayInternal = ({
         {
           headers: tableHeaders,
           rows: tableRows,
-          terminalWidth: terminalWidth,
+          terminalWidth,
         },
         `table-${contentBlocks.length}`,
       ),
@@ -403,9 +403,9 @@ const RenderListItemInternal = ({
 const RenderListItem = React.memo(RenderListItemInternal);
 const RenderTableInternal = ({ headers, rows, terminalWidth }) =>
   _jsx(TableRenderer, {
-    headers: headers,
-    rows: rows,
-    terminalWidth: terminalWidth,
+    headers,
+    rows,
+    terminalWidth,
   });
 const RenderTable = React.memo(RenderTableInternal);
 export const MarkdownDisplay = React.memo(MarkdownDisplayInternal);

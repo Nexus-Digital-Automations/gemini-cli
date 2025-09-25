@@ -888,12 +888,10 @@ export class PerformanceKPIEngine {
       return [];
     }
 
-    const validatedMetrics = metrics.filter(metric => {
-      return metric &&
+    const validatedMetrics = metrics.filter(metric => metric &&
              typeof metric === 'object' &&
              metric.timestamp &&
-             !isNaN(new Date(metric.timestamp).getTime());
-    });
+             !isNaN(new Date(metric.timestamp).getTime()));
 
     this.logger.info('Metrics validated for KPI analysis', {
       original: metrics.length,

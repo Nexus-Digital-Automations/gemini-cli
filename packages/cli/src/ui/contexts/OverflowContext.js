@@ -55,7 +55,7 @@ export const OverflowProvider = ({ children }) => {
     value: stateValue,
     children: _jsx(OverflowActionsContext.Provider, {
       value: actionsValue,
-      children: children,
+      children,
     }),
   });
 };

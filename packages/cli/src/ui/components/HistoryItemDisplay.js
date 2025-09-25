@@ -43,16 +43,16 @@ export const HistoryItemDisplay = ({
         item.type === 'gemini' &&
           _jsx(GeminiMessage, {
             text: item.text,
-            isPending: isPending,
-            availableTerminalHeight: availableTerminalHeight,
-            terminalWidth: terminalWidth,
+            isPending,
+            availableTerminalHeight,
+            terminalWidth,
           }),
         item.type === 'gemini_content' &&
           _jsx(GeminiMessageContent, {
             text: item.text,
-            isPending: isPending,
-            availableTerminalHeight: availableTerminalHeight,
-            terminalWidth: terminalWidth,
+            isPending,
+            availableTerminalHeight,
+            terminalWidth,
           }),
         item.type === 'info' && _jsx(InfoMessage, { text: item.text }),
         item.type === 'warning' && _jsx(WarningMessage, { text: item.text }),
@@ -67,7 +67,7 @@ export const HistoryItemDisplay = ({
             gcpProject: item.gcpProject,
             ideClient: item.ideClient,
           }),
-        item.type === 'help' && commands && _jsx(Help, { commands: commands }),
+        item.type === 'help' && commands && _jsx(Help, { commands }),
         item.type === 'stats' &&
           _jsx(StatsDisplay, { duration: item.duration }),
         item.type === 'model_stats' && _jsx(ModelStatsDisplay, {}),
@@ -78,11 +78,11 @@ export const HistoryItemDisplay = ({
           _jsx(ToolGroupMessage, {
             toolCalls: item.tools,
             groupId: item.id,
-            availableTerminalHeight: availableTerminalHeight,
-            terminalWidth: terminalWidth,
-            isFocused: isFocused,
-            activeShellPtyId: activeShellPtyId,
-            embeddedShellFocused: embeddedShellFocused,
+            availableTerminalHeight,
+            terminalWidth,
+            isFocused,
+            activeShellPtyId,
+            embeddedShellFocused,
           }),
         item.type === 'compression' &&
           _jsx(CompressionMessage, { compression: item.compression }),

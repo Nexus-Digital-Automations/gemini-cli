@@ -198,11 +198,11 @@ export class BudgetController {
       }
       // Get historical data based on parameters
       const historyData = await budgetTracker.getUsageHistory({
-        startDate: startDate,
-        endDate: endDate,
+        startDate,
+        endDate,
         limit: parseInt(limit),
         offset: parseInt(offset),
-        granularity: granularity,
+        granularity,
       });
       const responseTime = Date.now() - startTime;
       const response = {

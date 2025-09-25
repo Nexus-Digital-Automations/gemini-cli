@@ -294,7 +294,7 @@ export const ToolConfirmationMessage = ({
         children: _jsx(RadioButtonSelect, {
           items: options,
           onSelect: handleSelect,
-          isFocused: isFocused,
+          isFocused,
         }),
       }),
     ],

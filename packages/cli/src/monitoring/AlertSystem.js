@@ -885,7 +885,7 @@ export class AlertSystem extends EventEmitter {
     const categoryCounts = this.calculateCountsByCategory(alerts);
     return Object.entries(categoryCounts)
       .map(([category, count]) => ({
-        category: category,
+        category,
         count,
       }))
       .sort((a, b) => b.count - a.count)

@@ -821,7 +821,7 @@ export class ErrorAnalysisEngine {
       if (similarity > 0.4) {
         related.push({
           signature: { id: errorSignature, hash: '', patterns: [] },
-          similarity: similarity,
+          similarity,
           frequency: _frequencyData.totalCount,
           lastOccurrence: _frequencyData.lastOccurrence,
           relationshipType: 'similar-context',

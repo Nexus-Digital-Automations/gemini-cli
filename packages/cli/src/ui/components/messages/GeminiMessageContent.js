@@ -25,10 +25,10 @@ export const GeminiMessageContent = ({
     flexDirection: 'column',
     paddingLeft: prefixWidth,
     children: _jsx(MarkdownDisplay, {
-      text: text,
-      isPending: isPending,
-      availableTerminalHeight: availableTerminalHeight,
-      terminalWidth: terminalWidth,
+      text,
+      isPending,
+      availableTerminalHeight,
+      terminalWidth,
     }),
   });
 };

@@ -449,9 +449,7 @@ export class BenchmarkingEngine {
       });
 
       // Calculate weighted overall score
-      const overallScore = Object.values(categoryScores).reduce((sum, category) => {
-        return sum + (category.score * category.weight);
-      }, 0);
+      const overallScore = Object.values(categoryScores).reduce((sum, category) => sum + (category.score * category.weight), 0);
 
       const performanceReport = {
         overallScore,
@@ -676,12 +674,10 @@ export class BenchmarkingEngine {
       return [];
     }
 
-    const validatedMetrics = metrics.filter(metric => {
-      return metric &&
+    const validatedMetrics = metrics.filter(metric => metric &&
              typeof metric === 'object' &&
              metric.timestamp &&
-             !isNaN(new Date(metric.timestamp).getTime());
-    });
+             !isNaN(new Date(metric.timestamp).getTime()));
 
     this.logger.info('Metrics validated for benchmarking', {
       original: metrics.length,

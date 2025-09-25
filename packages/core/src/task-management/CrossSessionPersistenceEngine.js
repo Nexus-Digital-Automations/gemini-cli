@@ -1002,7 +1002,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     } catch (error) {
       return {
         success: false,
-        error: error,
+        error,
         metadata: {
           duration: 0,
           sizeChange: 0,
@@ -1033,7 +1033,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     } catch (error) {
       return {
         success: false,
-        error: error,
+        error,
         data: [],
         metadata: {
           duration: 0,

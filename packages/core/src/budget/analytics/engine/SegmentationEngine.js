@@ -1227,14 +1227,12 @@ export class SegmentationEngine {
       return [];
     }
 
-    const validatedMetrics = metrics.filter((metric) => {
-      return (
+    const validatedMetrics = metrics.filter((metric) => (
         metric &&
         typeof metric === 'object' &&
         metric.timestamp &&
         !isNaN(new Date(metric.timestamp).getTime())
-      );
-    });
+      ));
 
     this.logger.info('Metrics validated', {
       original: metrics.length,

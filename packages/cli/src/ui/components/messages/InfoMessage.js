@@ -24,7 +24,7 @@ export const InfoMessage = ({ text }) => {
         children: _jsx(Text, {
           wrap: 'wrap',
           color: theme.status.warning,
-          children: _jsx(RenderInline, { text: text }),
+          children: _jsx(RenderInline, { text }),
         }),
       }),
     ],

@@ -80,7 +80,7 @@ describe('ThemeDialog Snapshots', () => {
         value: settings,
         children: _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
-          children: _jsx(ThemeDialog, { ...baseProps, settings: settings }),
+          children: _jsx(ThemeDialog, { ...baseProps, settings }),
         }),
       }),
     );
@@ -93,7 +93,7 @@ describe('ThemeDialog Snapshots', () => {
         value: settings,
         children: _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
-          children: _jsx(ThemeDialog, { ...baseProps, settings: settings }),
+          children: _jsx(ThemeDialog, { ...baseProps, settings }),
         }),
       }),
     );

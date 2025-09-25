@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../../../src/utils/logger.js';
+import { Logger } from "@google/gemini-cli/src/utils/logger.js";
 // Import validation system components
 import { ValidationFramework } from './ValidationFramework.js';
 import { ValidationRules, RuleExecutionContext } from './ValidationRules.js';

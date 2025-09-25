@@ -25,7 +25,7 @@ const StatRow = ({ title, children }) =>
         width: 28,
         children: _jsx(Text, { color: theme.text.link, children: title }),
       }),
-      _jsx(Box, { flexGrow: 1, children: children }),
+      _jsx(Box, { flexGrow: 1, children }),
     ],
   });
 const SubStatRow = ({ title, children }) =>
@@ -39,7 +39,7 @@ const SubStatRow = ({ title, children }) =>
           children: ['\u00BB ', title],
         }),
       }),
-      _jsx(Box, { flexGrow: 1, children: children }),
+      _jsx(Box, { flexGrow: 1, children }),
     ],
   });
 const Section = ({ title, children }) =>
@@ -350,7 +350,7 @@ export const StatsDisplay = ({ duration, title }) => {
       }),
       Object.keys(models).length > 0 &&
         _jsx(ModelUsageTable, {
-          models: models,
+          models,
           totalCachedTokens: computed.totalCachedTokens,
           cacheEfficiency: computed.cacheEfficiency,
         }),

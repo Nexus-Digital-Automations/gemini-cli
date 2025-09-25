@@ -850,7 +850,7 @@ export const InputPrompt = ({
                         renderedLine.push(
                           _jsx(
                             Text,
-                            { color: color, children: display },
+                            { color, children: display },
                             `token-${segIdx}`,
                           ),
                         );

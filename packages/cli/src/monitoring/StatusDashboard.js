@@ -63,7 +63,7 @@ const ProgressBar = ({
     gap: 1,
     children: [
       _jsx(Text, { dimColor: true, children: label.padEnd(15) }),
-      _jsx(Text, { color: color, children: '█'.repeat(filledWidth) }),
+      _jsx(Text, { color, children: '█'.repeat(filledWidth) }),
       _jsx(Text, { dimColor: true, children: '░'.repeat(emptyWidth) }),
       _jsxs(Text, {
         dimColor: true,
@@ -85,7 +85,7 @@ const MetricCard = ({ title, value, unit = '', trend, color = 'white' }) => {
       _jsxs(Box, {
         gap: 1,
         children: [
-          _jsxs(Text, { color: color, bold: true, children: [value, unit] }),
+          _jsxs(Text, { color, bold: true, children: [value, unit] }),
           trend && _jsx(Text, { color: trendColor, children: trendSymbol }),
         ],
       }),
@@ -746,21 +746,21 @@ export const StatusDashboard = ({
       case 'overview':
         return systemAnalytics
           ? _jsx(OverviewDashboard, {
-              tasks: tasks,
-              agents: agents,
+              tasks,
+              agents,
               metrics: systemAnalytics,
             })
           : _jsx(Text, { children: 'Loading system metrics...' });
       case 'tasks':
-        return _jsx(TaskDashboard, { tasks: tasks, agents: agents });
+        return _jsx(TaskDashboard, { tasks, agents });
       case 'agents':
-        return _jsx(AgentDashboard, { agents: agents, tasks: tasks });
+        return _jsx(AgentDashboard, { agents, tasks });
       case 'analytics':
         return taskAnalytics && agentAnalytics && systemAnalytics
           ? _jsx(AnalyticsDashboard, {
-              taskAnalytics: taskAnalytics,
-              agentAnalytics: agentAnalytics,
-              systemAnalytics: systemAnalytics,
+              taskAnalytics,
+              agentAnalytics,
+              systemAnalytics,
             })
           : _jsx(Text, { children: 'Loading analytics data...' });
       default:

@@ -172,7 +172,7 @@ export class BudgetAccessControl {
       };
     } catch (error) {
       this.logger.error('Permission check failed', {
-        error: error,
+        error,
         action,
         resource,
       });

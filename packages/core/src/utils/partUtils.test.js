@@ -13,7 +13,7 @@ import {
 } from './partUtils.js';
 const mockResponse = (parts) => ({
   candidates: parts
-    ? [{ content: { parts: parts, role: 'model' }, index: 0 }]
+    ? [{ content: { parts, role: 'model' }, index: 0 }]
     : [],
   promptFeedback: { safetyRatings: [] },
   text: undefined,

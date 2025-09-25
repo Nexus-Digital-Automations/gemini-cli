@@ -141,7 +141,7 @@ export class AnomalyDetectionEngine {
         executionTimeMs: executionTime,
         metricsAnalyzed: validatedMetrics.length,
         anomalies: significantAnomalies,
-        recommendations: recommendations,
+        recommendations,
         summary: this.createAnomalySummary(significantAnomalies),
         metadata: {
           detectionConfig: this.config,
@@ -507,16 +507,14 @@ export class AnomalyDetectionEngine {
   validateMetrics(metrics) {
     if (!Array.isArray(metrics)) return [];
 
-    return metrics.filter((metric) => {
-      return (
+    return metrics.filter((metric) => (
         metric &&
         typeof metric.timestamp === 'string' &&
         !isNaN(new Date(metric.timestamp).getTime()) &&
         typeof metric.cost === 'number' &&
         !isNaN(metric.cost) &&
         metric.cost >= 0
-      );
-    });
+      ));
   }
 
   groupMetricsByTime(metrics, granularity = 'hour') {

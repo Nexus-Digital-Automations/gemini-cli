@@ -45,7 +45,7 @@ describe('FolderTrustDialog', () => {
   it('should call onSelect with DO_NOT_TRUST when escape is pressed and not restarting', async () => {
     const onSelect = vi.fn();
     const { stdin } = renderWithProviders(
-      _jsx(FolderTrustDialog, { onSelect: onSelect, isRestarting: false }),
+      _jsx(FolderTrustDialog, { onSelect, isRestarting: false }),
     );
     stdin.write('\x1b'); // escape key
     await waitFor(() => {
@@ -55,7 +55,7 @@ describe('FolderTrustDialog', () => {
   it('should not call onSelect when escape is pressed and is restarting', async () => {
     const onSelect = vi.fn();
     const { stdin } = renderWithProviders(
-      _jsx(FolderTrustDialog, { onSelect: onSelect, isRestarting: true }),
+      _jsx(FolderTrustDialog, { onSelect, isRestarting: true }),
     );
     stdin.write('\x1b'); // escape key
     await waitFor(() => {

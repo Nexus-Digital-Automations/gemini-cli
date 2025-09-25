@@ -86,7 +86,7 @@ export const Footer = ({
     : shortenPath(tildeifyPath(targetDir), pathLength);
   const justifyContent = hideCWD && hideModelInfo ? 'center' : 'space-between';
   return _jsxs(Box, {
-    justifyContent: justifyContent,
+    justifyContent,
     width: '100%',
     flexDirection: isNarrow ? 'column' : 'row',
     alignItems: isNarrow ? 'flex-start' : 'center',
@@ -218,7 +218,7 @@ export const Footer = ({
                     !isNarrow &&
                     _jsx(Text, { color: theme.ui.comment, children: '| ' }),
                   _jsx(BudgetDisplay, {
-                    budgetSettings: budgetSettings,
+                    budgetSettings,
                     projectRoot: targetDir,
                     compact: isNarrow,
                   }),
@@ -245,8 +245,8 @@ export const Footer = ({
                       model,
                       ' ',
                       _jsx(ContextUsageDisplay, {
-                        promptTokenCount: promptTokenCount,
-                        model: model,
+                        promptTokenCount,
+                        model,
                       }),
                     ],
                   }),
@@ -287,7 +287,7 @@ export const Footer = ({
                     children: [
                       !hideModelInfo &&
                         _jsx(Text, { color: theme.ui.comment, children: '| ' }),
-                      _jsx(ConsoleSummaryDisplay, { errorCount: errorCount }),
+                      _jsx(ConsoleSummaryDisplay, { errorCount }),
                     ],
                   }),
               ],

@@ -147,7 +147,7 @@ export const Composer = () => {
                       _jsx(ContextSummaryDisplay, {
                         ideContext: uiState.ideContextState,
                         geminiMdFileCount: uiState.geminiMdFileCount,
-                        contextFileNames: contextFileNames,
+                        contextFileNames,
                         mcpServers: config.getMcpServers(),
                         blockedMcpServers: config.getBlockedMcpServers(),
                         showToolDescriptions: uiState.showToolDescriptions,
@@ -191,7 +191,7 @@ export const Composer = () => {
           onSubmit: uiActions.handleFinalSubmit,
           userMessages: uiState.userMessages,
           onClearScreen: uiActions.handleClearScreen,
-          config: config,
+          config,
           slashCommands: uiState.slashCommands,
           commandContext: uiState.commandContext,
           shellModeActive: uiState.shellModeActive,

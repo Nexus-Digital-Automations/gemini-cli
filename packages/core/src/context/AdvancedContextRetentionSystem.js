@@ -172,7 +172,7 @@ export class AdvancedContextRetentionSystem {
       content,
       timestamp: new Date(),
       lastAccessed: new Date(),
-      type: type, // Type assertion for flexibility
+      type, // Type assertion for flexibility
       priority: 'medium',
       relevanceScore: 0.5,
       tokenCount: this.estimateTokenCount(content),

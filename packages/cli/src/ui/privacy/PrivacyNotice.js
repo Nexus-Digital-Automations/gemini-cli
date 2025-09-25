@@ -19,12 +19,12 @@ const PrivacyNoticeText = ({ config, onExit }) => {
   const authType = config.getContentGeneratorConfig()?.authType;
   switch (authType) {
     case AuthType.USE_GEMINI:
-      return _jsx(GeminiPrivacyNotice, { onExit: onExit });
+      return _jsx(GeminiPrivacyNotice, { onExit });
     case AuthType.USE_VERTEX_AI:
-      return _jsx(CloudPaidPrivacyNotice, { onExit: onExit });
+      return _jsx(CloudPaidPrivacyNotice, { onExit });
     case AuthType.LOGIN_WITH_GOOGLE:
     default:
-      return _jsx(CloudFreePrivacyNotice, { config: config, onExit: onExit });
+      return _jsx(CloudFreePrivacyNotice, { config, onExit });
   }
 };
 export const PrivacyNotice = ({ onExit, config }) =>
@@ -32,6 +32,6 @@ export const PrivacyNotice = ({ onExit, config }) =>
     borderStyle: 'round',
     padding: 1,
     flexDirection: 'column',
-    children: _jsx(PrivacyNoticeText, { config: config, onExit: onExit }),
+    children: _jsx(PrivacyNoticeText, { config, onExit }),
   });
 //# sourceMappingURL=PrivacyNotice.js.map

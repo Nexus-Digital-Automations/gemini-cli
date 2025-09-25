@@ -293,7 +293,7 @@ export class DashboardApiServer extends EventEmitter {
         logger.error('Request handling failed', {
           requestId,
           url: req.url,
-          error: error,
+          error,
         });
         this.sendError(
           res,
@@ -603,7 +603,7 @@ export class DashboardApiServer extends EventEmitter {
           });
         } catch (error) {
           logger.error('Failed to send periodic dashboard update', {
-            error: error,
+            error,
           });
         }
       }, 30000);

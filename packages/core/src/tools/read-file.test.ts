@@ -13,11 +13,11 @@ import os from 'node:os';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import type { Config } from '../config/config.js';
-// eslint-disable-next-line import/no-internal-modules
+ 
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
-// eslint-disable-next-line import/no-internal-modules
+ 
 import { StandardFileSystemService } from '../services/fileSystemService.js';
-// eslint-disable-next-line import/no-internal-modules
+ 
 import { createMockWorkspaceContext } from '../test-utils/mockWorkspaceContext.js';
 import type { ToolInvocation, ToolResult } from './tools.js';
 

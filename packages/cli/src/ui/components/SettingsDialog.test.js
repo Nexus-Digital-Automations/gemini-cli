@@ -38,7 +38,7 @@ import { getSettingsSchema } from '../../config/settingsSchema.js';
 // Mock the VimModeContext
 const mockToggleVimEnabled = vi.fn();
 const mockSetVimMode = vi.fn();
-var TerminalKeys;
+let TerminalKeys;
 (function (TerminalKeys) {
   TerminalKeys['ENTER'] = '\r';
   TerminalKeys['TAB'] = '\t';
@@ -190,8 +190,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -207,8 +207,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
             availableTerminalHeight: 20,
           }),
         }),
@@ -225,8 +225,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -241,8 +241,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -259,8 +259,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -279,8 +279,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -298,8 +298,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -317,8 +317,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -339,8 +339,8 @@ describe('SettingsDialog', () => {
       const component = _jsx(KeypressProvider, {
         kittyProtocolEnabled: false,
         children: _jsx(SettingsDialog, {
-          settings: settings,
-          onSelect: onSelect,
+          settings,
+          onSelect,
         }),
       });
       const { stdin, unmount, lastFrame } = render(component);
@@ -429,8 +429,8 @@ describe('SettingsDialog', () => {
         const component = _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         });
         const { stdin, unmount } = render(component);
@@ -463,8 +463,8 @@ describe('SettingsDialog', () => {
         const component = _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         });
         const { stdin, unmount } = render(component);
@@ -496,8 +496,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -513,8 +513,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -534,8 +534,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -554,8 +554,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -579,9 +579,9 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
+            settings,
             onSelect: () => {},
-            onRestartRequest: onRestartRequest,
+            onRestartRequest,
           }),
         }),
       );
@@ -597,9 +597,9 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
+            settings,
             onSelect: () => {},
-            onRestartRequest: onRestartRequest,
+            onRestartRequest,
           }),
         }),
       );
@@ -618,8 +618,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -643,8 +643,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -668,8 +668,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -687,8 +687,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -707,8 +707,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -730,8 +730,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -749,12 +749,12 @@ describe('SettingsDialog', () => {
       const onSelect = vi.fn();
       const { stdin, unmount } = render(
         _jsx(VimModeProvider, {
-          settings: settings,
+          settings,
           children: _jsx(KeypressProvider, {
             kittyProtocolEnabled: false,
             children: _jsx(SettingsDialog, {
-              settings: settings,
-              onSelect: onSelect,
+              settings,
+              onSelect,
             }),
           }),
         }),
@@ -778,8 +778,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -794,8 +794,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -812,8 +812,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -833,8 +833,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -854,8 +854,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -874,8 +874,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -892,8 +892,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -913,8 +913,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -931,8 +931,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -949,8 +949,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -968,8 +968,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -998,8 +998,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1014,8 +1014,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1030,8 +1030,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1058,8 +1058,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1087,8 +1087,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1113,9 +1113,9 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
+            settings,
             onSelect: () => {},
-            onRestartRequest: onRestartRequest,
+            onRestartRequest,
           }),
         }),
       );
@@ -1135,8 +1135,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1165,8 +1165,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1202,8 +1202,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1256,8 +1256,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1290,8 +1290,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1304,8 +1304,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1332,8 +1332,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1365,8 +1365,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1397,8 +1397,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1422,8 +1422,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1453,8 +1453,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );
@@ -1507,8 +1507,8 @@ describe('SettingsDialog', () => {
         _jsx(KeypressProvider, {
           kittyProtocolEnabled: false,
           children: _jsx(SettingsDialog, {
-            settings: settings,
-            onSelect: onSelect,
+            settings,
+            onSelect,
           }),
         }),
       );

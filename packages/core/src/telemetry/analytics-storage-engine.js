@@ -323,7 +323,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
       } catch (error) {
         logger.error('Failed to delete partition', {
           partitionId: partition.partitionId,
-          error: error,
+          error,
         });
       }
     }
@@ -361,7 +361,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
       }
       this.emit('data_stored', { recordCount: dataToWrite.length });
     } catch (error) {
-      logger.error('Failed to flush write buffer', { error: error });
+      logger.error('Failed to flush write buffer', { error });
       // Put data back in buffer for retry
       this.writeBuffer.unshift(...dataToWrite);
     }
@@ -519,7 +519,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
     } catch (error) {
       logger.error('Failed to query partition', {
         partitionId: partition.partitionId,
-        error: error,
+        error,
       });
       return { data: [], indexUsed: false };
     }
@@ -616,7 +616,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
       }
     } catch (error) {
       logger.warn('Failed to load partition metadata', {
-        error: error,
+        error,
       });
     }
   }
@@ -641,7 +641,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
       );
     } catch (error) {
       logger.error('Failed to save partition metadata', {
-        error: error,
+        error,
       });
     }
   }

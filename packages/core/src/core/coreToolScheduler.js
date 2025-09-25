@@ -344,7 +344,7 @@ export class CoreToolScheduler {
           ToolErrorType.INVALID_TOOL_PARAMS,
         );
         return {
-          request: { ...call.request, args: args },
+          request: { ...call.request, args },
           status: 'error',
           tool: call.tool,
           response,
@@ -352,7 +352,7 @@ export class CoreToolScheduler {
       }
       return {
         ...call,
-        request: { ...call.request, args: args },
+        request: { ...call.request, args },
         invocation: invocationOrError,
       };
     });

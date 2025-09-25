@@ -211,7 +211,7 @@ export class ToolRegistry {
         ).length,
       });
     } catch (error) {
-      logger.error('Tool discovery failed', { error: error });
+      logger.error('Tool discovery failed', { error });
       throw error;
     } finally {
       endTimer();

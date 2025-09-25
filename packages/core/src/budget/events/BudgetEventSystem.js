@@ -94,7 +94,7 @@ export class BudgetEventSystem {
       });
     } catch (error) {
       this.logger.error('Failed to emit event', {
-        error: error,
+        error,
         eventType: event.type,
       });
       throw error;
@@ -339,7 +339,7 @@ export class BudgetEventSystem {
     } catch (error) {
       this.statistics.failedDeliveries++;
       this.logger.error('Failed to deliver event to subscription', {
-        error: error,
+        error,
         subscriptionId: subscription.id,
         eventType: event.type,
       });
@@ -421,7 +421,7 @@ export class BudgetEventSystem {
     } catch (error) {
       this.statistics.failedDeliveries += events.length;
       this.logger.error('Failed to deliver batched events', {
-        error: error,
+        error,
         subscriptionId,
         eventCount: events.length,
       });

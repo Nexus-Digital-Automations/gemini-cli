@@ -50,7 +50,7 @@ export const VimModeProvider = ({ children, settings }) => {
     toggleVimEnabled,
     setVimMode,
   };
-  return _jsx(VimModeContext.Provider, { value: value, children: children });
+  return _jsx(VimModeContext.Provider, { value, children });
 };
 export const useVimMode = () => {
   const context = useContext(VimModeContext);

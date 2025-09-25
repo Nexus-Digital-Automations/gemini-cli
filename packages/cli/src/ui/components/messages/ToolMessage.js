@@ -83,12 +83,12 @@ export const ToolMessage = ({
       _jsxs(Box, {
         minHeight: 1,
         children: [
-          _jsx(ToolStatusIndicator, { status: status, name: name }),
+          _jsx(ToolStatusIndicator, { status, name }),
           _jsx(ToolInfo, {
-            name: name,
-            status: status,
-            description: description,
-            emphasis: emphasis,
+            name,
+            status,
+            description,
+            emphasis,
           }),
           isThisShellFocusable &&
             _jsx(Box, {

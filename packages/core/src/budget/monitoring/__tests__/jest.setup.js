@@ -10,17 +10,11 @@
  */
 
 // Global test utilities
-global.createMockTimestamp = (offsetMs = 0) => {
-  return new Date(Date.now() + offsetMs);
-};
+global.createMockTimestamp = (offsetMs = 0) => new Date(Date.now() + offsetMs);
 
-global.createMockRequestId = (prefix = 'req') => {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
+global.createMockRequestId = (prefix = 'req') => `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-global.createMockSessionId = (prefix = 'session') => {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
+global.createMockSessionId = (prefix = 'session') => `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 // Mock console methods to reduce noise in tests
 const originalConsoleWarn = console.warn;
@@ -74,8 +68,7 @@ global.measureExecutionTime = async (fn) => {
 };
 
 // Test data generators
-global.generateTokenUsageData = (count = 10, baseTime = Date.now()) => {
-  return Array.from({ length: count }, (_, i) => ({
+global.generateTokenUsageData = (count = 10, baseTime = Date.now()) => Array.from({ length: count }, (_, i) => ({
     timestamp: new Date(baseTime - (count - i) * 1000),
     requestId: `req-${i}`,
     model: i % 2 === 0 ? 'gemini-2.5-flash' : 'gemini-2.5-pro',
@@ -88,11 +81,8 @@ global.generateTokenUsageData = (count = 10, baseTime = Date.now()) => {
     success: i % 10 !== 0, // Every 10th request fails
     sessionId: `session-${Math.floor(i / 5)}`,
   }));
-};
 
-global.generateLargeString = (sizeInBytes) => {
-  return 'x'.repeat(sizeInBytes);
-};
+global.generateLargeString = (sizeInBytes) => 'x'.repeat(sizeInBytes);
 
 // Async utilities for testing
 global.waitFor = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

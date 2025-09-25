@@ -511,7 +511,7 @@ export class DynamicRebalancer {
    * @param historicalData - Historical performance data
    * @returns Rebalancing analysis
    */
-  public analyzeRebalancingNeeds(
+  analyzeRebalancingNeeds(
     candidates: AllocationCandidate[],
     historicalData: Record<string, FeatureCostAnalysis[]>
   ): RebalancingAnalysis {
@@ -572,7 +572,7 @@ export class DynamicRebalancer {
    * @param analysis - Rebalancing analysis with recommended actions
    * @returns Execution result
    */
-  public async executeRebalancing(analysis: RebalancingAnalysis): Promise<RebalancingExecutionResult> {
+  async executeRebalancing(analysis: RebalancingAnalysis): Promise<RebalancingExecutionResult> {
     if (!analysis.rebalancingRequired) {
       throw new Error('No rebalancing required based on analysis');
     }
@@ -672,7 +672,7 @@ export class DynamicRebalancer {
    * @param historicalData - Historical performance data
    * @returns Rebalancing recommendations
    */
-  public getRebalancingRecommendations(
+  getRebalancingRecommendations(
     candidates: AllocationCandidate[],
     historicalData: Record<string, FeatureCostAnalysis[]>
   ): AllocationRecommendation[] {

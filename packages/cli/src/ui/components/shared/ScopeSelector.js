@@ -30,9 +30,9 @@ export function ScopeSelector({
       _jsx(RadioButtonSelect, {
         items: scopeItems,
         initialIndex: safeInitialIndex,
-        onSelect: onSelect,
-        onHighlight: onHighlight,
-        isFocused: isFocused,
+        onSelect,
+        onHighlight,
+        isFocused,
         showNumbers: isFocused,
       }),
     ],

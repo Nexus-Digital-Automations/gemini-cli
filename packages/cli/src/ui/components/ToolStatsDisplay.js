@@ -158,7 +158,7 @@ export const ToolStatsDisplay = () => {
         width: '100%',
       }),
       activeTools.map(([name, stats]) =>
-        _jsx(StatRow, { name: name, stats: stats }, name),
+        _jsx(StatRow, { name, stats }, name),
       ),
       _jsx(Box, { height: 1 }),
       _jsx(Text, {

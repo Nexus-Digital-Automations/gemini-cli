@@ -7,7 +7,7 @@
 import {
   StructuredLogger,
   getComponentLogger,
-} from '../../../../packages/core/src/utils/logger.js';
+} from "@google/gemini-cli-core/src/utils/logger.js";
 import {
   TaskStatusMonitor,
   TaskMetadata,
@@ -127,7 +127,7 @@ export class StatusHistoryAnalytics {
     const sortBy = query.sortBy || 'timestamp';
     const sortOrder = query.sortOrder || 'desc';
     entries.sort((a, b) => {
-      let aValue, bValue;
+      let aValue; let bValue;
       switch (sortBy) {
         case 'timestamp':
           aValue = a.timestamp.getTime();

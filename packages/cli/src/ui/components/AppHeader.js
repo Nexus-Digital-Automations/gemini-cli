@@ -24,9 +24,9 @@ export const AppHeader = ({ version }) => {
     flexDirection: 'column',
     children: [
       !(settings.merged.ui?.hideBanner || config.getScreenReader()) &&
-        _jsx(Header, { version: version, nightly: nightly }),
+        _jsx(Header, { version, nightly }),
       !(settings.merged.ui?.hideTips || config.getScreenReader()) &&
-        _jsx(Tips, { config: config }),
+        _jsx(Tips, { config }),
     ],
   });
 };

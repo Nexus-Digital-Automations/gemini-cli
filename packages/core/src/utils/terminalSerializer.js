@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-var Attribute;
+let Attribute;
 (function (Attribute) {
   Attribute[(Attribute['inverse'] = 1)] = 'inverse';
   Attribute[(Attribute['bold'] = 2)] = 'bold';

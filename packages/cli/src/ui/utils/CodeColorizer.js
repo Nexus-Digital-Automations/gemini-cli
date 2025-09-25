@@ -24,7 +24,7 @@ function renderHastNode(node, theme, inheritedColor) {
   if (node.type === 'text') {
     // Use the color passed down from parent element, or the theme's default.
     const color = inheritedColor || theme.defaultColor;
-    return _jsx(Text, { color: color, children: node.value });
+    return _jsx(Text, { color, children: node.value });
   }
   // Handle Element Nodes: Determine color and pass it down, don't wrap
   if (node.type === 'element') {
@@ -52,7 +52,7 @@ function renderHastNode(node, theme, inheritedColor) {
     );
     // Element nodes now only group children; color is applied by Text nodes.
     // Use a React Fragment to avoid adding unnecessary elements.
-    return _jsx(React.Fragment, { children: children });
+    return _jsx(React.Fragment, { children });
   }
   // Handle Root Node: Start recursion with initially inherited color
   if (node.type === 'root') {
@@ -124,7 +124,7 @@ export function colorizeCode(
     }
     return _jsx(MaxSizedBox, {
       maxHeight: availableHeight,
-      maxWidth: maxWidth,
+      maxWidth,
       additionalHiddenLinesCount: hiddenLinesCount,
       overflowDirection: 'top',
       children: lines.map((line, index) => {
@@ -164,7 +164,7 @@ export function colorizeCode(
     const padWidth = String(lines.length).length; // Calculate padding width based on number of lines
     return _jsx(MaxSizedBox, {
       maxHeight: availableHeight,
-      maxWidth: maxWidth,
+      maxWidth,
       overflowDirection: 'top',
       children: lines.map((line, index) =>
         _jsxs(

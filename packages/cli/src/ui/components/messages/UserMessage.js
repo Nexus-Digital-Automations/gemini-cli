@@ -17,7 +17,7 @@ export const UserMessage = ({ text }) => {
   const borderColor = isSlashCommand ? theme.text.accent : theme.text.secondary;
   return _jsxs(Box, {
     borderStyle: 'round',
-    borderColor: borderColor,
+    borderColor,
     flexDirection: 'row',
     paddingX: 2,
     paddingY: 0,
