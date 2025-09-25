@@ -204,7 +204,7 @@ const OverviewDashboard = ({ tasks, agents, metrics }) => {
 /**
  * Task Details Dashboard
  */
-const TaskDashboard = ({ tasks, agents }) => {
+const TaskDashboard = ({ tasks, _agents }) => {
   const [_selectedTask, _setSelectedTask] = useState(null);
   const [_sortBy, _setSortBy] = useState('priority');
   const sortedTasks = [...tasks].sort((a, b) => {
@@ -536,7 +536,7 @@ const AnalyticsDashboard = ({
             bold: true,
             children: [
               '\u23F1\uFE0F Task Completion Timeline (Last ',
-              timeframe,
+              _timeframe,
               '):',
             ],
           }),
