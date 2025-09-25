@@ -331,21 +331,19 @@ export const ToolExecutionDisplay = ({
               color: theme.text.secondary,
               children: 'Recent results:',
             }),
-            operation.intermediateResults
-              .slice(-3)
-              .map((result, index) =>
-                _jsx(
-                  Box,
-                  {
-                    marginLeft: 2,
-                    children: _jsxs(Text, {
-                      color: theme.text.muted,
-                      children: ['\u2022 ', formatIntermediateResult(result)],
-                    }),
-                  },
-                  index,
-                ),
+            operation.intermediateResults.slice(-3).map((result, index) =>
+              _jsx(
+                Box,
+                {
+                  marginLeft: 2,
+                  children: _jsxs(Text, {
+                    color: theme.text.muted,
+                    children: ['\u2022 ', formatIntermediateResult(result)],
+                  }),
+                },
+                index,
               ),
+            ),
             operation.intermediateResults.length > 3 &&
               _jsx(Box, {
                 marginLeft: 2,

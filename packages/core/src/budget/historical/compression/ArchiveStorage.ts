@@ -65,10 +65,7 @@ export class ArchiveStorageImpl implements ArchiveStorage {
   /**
    * Create a new archive storage instance
    */
-  constructor(config: {
-    storagePath: string;
-    maxFileSize?: number;
-  }) {
+  constructor(config: { storagePath: string; maxFileSize?: number }) {
     this.logger = createLogger('ArchiveStorage');
     this.storagePath = path.resolve(config.storagePath);
     this.indexPath = path.join(this.storagePath, 'archive-index.json');
@@ -82,7 +79,7 @@ export class ArchiveStorageImpl implements ArchiveStorage {
     });
 
     // Initialize storage and load index
-    this.initializeStorage().catch(error => {
+    this.initializeStorage().catch((error) => {
       this.logger.error('Failed to initialize archive storage', {
         error: error.message,
       });
@@ -187,7 +184,9 @@ export class ArchiveStorageImpl implements ArchiveStorage {
         .digest('hex');
 
       if (fileChecksum !== archiveMetadata.checksum) {
-        throw new Error(`Archive file integrity check failed for block ${blockId}`);
+        throw new Error(
+          `Archive file integrity check failed for block ${blockId}`,
+        );
       }
 
       // Parse archive data
@@ -232,12 +231,14 @@ export class ArchiveStorageImpl implements ArchiveStorage {
     endTime?: number;
     algorithm?: CompressionAlgorithm;
     minCompressionRatio?: number;
-  }): Promise<Array<{
-    id: string;
-    metadata: DataBlock['metadata'];
-    compression: CompressedBlock['compression'];
-    archivedAt: number;
-  }>> {
+  }): Promise<
+    Array<{
+      id: string;
+      metadata: DataBlock['metadata'];
+      compression: CompressedBlock['compression'];
+      archivedAt: number;
+    }>
+  > {
     this.logger.info('Listing archived blocks', { filter });
 
     try {
@@ -245,7 +246,7 @@ export class ArchiveStorageImpl implements ArchiveStorage {
 
       // Apply time range filter
       if (filter?.startTime || filter?.endTime) {
-        blockIds = blockIds.filter(blockId => {
+        blockIds = blockIds.filter((blockId) => {
           const block = this.index.blocks[blockId];
           const blockStart = block.metadata.startTime;
           const blockEnd = block.metadata.endTime;
@@ -259,7 +260,7 @@ export class ArchiveStorageImpl implements ArchiveStorage {
 
       // Apply algorithm filter
       if (filter?.algorithm) {
-        blockIds = blockIds.filter(blockId => {
+        blockIds = blockIds.filter((blockId) => {
           const block = this.index.blocks[blockId];
           return block.compression.algorithm === filter.algorithm;
         });
@@ -267,14 +268,16 @@ export class ArchiveStorageImpl implements ArchiveStorage {
 
       // Apply compression ratio filter
       if (filter?.minCompressionRatio) {
-        blockIds = blockIds.filter(blockId => {
+        blockIds = blockIds.filter((blockId) => {
           const block = this.index.blocks[blockId];
-          return block.compression.compressionRatio >= filter.minCompressionRatio;
+          return (
+            block.compression.compressionRatio >= filter.minCompressionRatio
+          );
         });
       }
 
       // Map to result format
-      const results = blockIds.map(blockId => {
+      const results = blockIds.map((blockId) => {
         const block = this.index.blocks[blockId];
         return {
           id: blockId,
@@ -378,18 +381,17 @@ export class ArchiveStorageImpl implements ArchiveStorage {
       const totalSize = blocks.reduce((sum, block) => sum + block.fileSize, 0);
       const totalCompressedSize = blocks.reduce(
         (sum, block) => sum + block.compression.compressedSize,
-        0
+        0,
       );
       const totalOriginalSize = blocks.reduce(
         (sum, block) => sum + block.compression.originalSize,
-        0
+        0,
       );
 
-      const averageCompressionRatio = totalOriginalSize > 0
-        ? totalCompressedSize / totalOriginalSize
-        : 0;
+      const averageCompressionRatio =
+        totalOriginalSize > 0 ? totalCompressedSize / totalOriginalSize : 0;
 
-      const timestamps = blocks.map(block => block.metadata.startTime);
+      const timestamps = blocks.map((block) => block.metadata.startTime);
       const oldestBlock = Math.min(...timestamps);
       const newestBlock = Math.max(...timestamps);
 
@@ -431,7 +433,9 @@ export class ArchiveStorageImpl implements ArchiveStorage {
 
       // Get all archive files
       const files = await fs.readdir(this.storagePath);
-      const archiveFiles = files.filter(file => file.endsWith('.json') && file !== 'archive-index.json');
+      const archiveFiles = files.filter(
+        (file) => file.endsWith('.json') && file !== 'archive-index.json',
+      );
 
       for (const fileName of archiveFiles) {
         try {
@@ -628,7 +632,7 @@ export class ArchiveStorageImpl implements ArchiveStorage {
 
     // Save index periodically
     if (this.index.totalBlocks % 10 === 0) {
-      this.saveIndex().catch(error => {
+      this.saveIndex().catch((error) => {
         this.logger.error('Failed to save index during update', {
           error: error.message,
         });

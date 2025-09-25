@@ -90,7 +90,9 @@ export class ContextPrioritizer {
       );
 
       // Sort by final score (descending)
-      const sortedItems = scoredItems.sort((a, b) => b.scoring.finalScore - a.scoring.finalScore);
+      const sortedItems = scoredItems.sort(
+        (a, b) => b.scoring.finalScore - a.scoring.finalScore,
+      );
 
       // Categorize items based on scores and priorities
       const result = this.categorizeItems(sortedItems);
@@ -184,20 +186,23 @@ export class ContextPrioritizer {
 
     // Boost relevance based on context type
     const typeBoosts: Record<ContextType, number> = {
-      [ContextType.ERROR]: 0.2,          // Errors are often relevant
+      [ContextType.ERROR]: 0.2, // Errors are often relevant
       [ContextType.USER_PREFERENCE]: 0.3, // User preferences are important
-      [ContextType.PROJECT_STATE]: 0.1,   // Project state has baseline relevance
-      [ContextType.CODE]: 0.15,          // Code context varies by situation
-      [ContextType.CONVERSATION]: 0.05,   // Conversation relevance varies
-      [ContextType.FILE]: 0.1,           // File context baseline
-      [ContextType.SYSTEM]: 0.0,         // System context is usually stable
+      [ContextType.PROJECT_STATE]: 0.1, // Project state has baseline relevance
+      [ContextType.CODE]: 0.15, // Code context varies by situation
+      [ContextType.CONVERSATION]: 0.05, // Conversation relevance varies
+      [ContextType.FILE]: 0.1, // File context baseline
+      [ContextType.SYSTEM]: 0.0, // System context is usually stable
     };
 
     relevance += typeBoosts[item.type] || 0;
 
     // If we have current context, calculate semantic similarity
     if (currentContext && item.content) {
-      const similarity = this.calculateSemanticSimilarity(item.content, currentContext);
+      const similarity = this.calculateSemanticSimilarity(
+        item.content,
+        currentContext,
+      );
       relevance = relevance * 0.6 + similarity * 0.4; // Blend existing and similarity
     }
 
@@ -206,8 +211,8 @@ export class ContextPrioritizer {
       const contextLower = currentContext.toLowerCase();
 
       // Check if any tags match current context
-      const tagMatches = item.tags.filter(tag =>
-        contextLower.includes(tag.toLowerCase())
+      const tagMatches = item.tags.filter((tag) =>
+        contextLower.includes(tag.toLowerCase()),
       ).length;
       relevance += tagMatches * 0.1;
 
@@ -232,21 +237,25 @@ export class ContextPrioritizer {
 
     // Simple word overlap similarity (would use embeddings in production)
     const words1 = new Set(
-      text1.toLowerCase()
+      text1
+        .toLowerCase()
         .split(/\s+/)
-        .filter(word => word.length > 3)
+        .filter((word) => word.length > 3),
     );
 
     const words2 = new Set(
-      text2.toLowerCase()
+      text2
+        .toLowerCase()
         .split(/\s+/)
-        .filter(word => word.length > 3)
+        .filter((word) => word.length > 3),
     );
 
     if (words1.size === 0 || words2.size === 0) return 0;
 
     // Calculate Jaccard similarity
-    const intersection = new Set([...words1].filter(word => words2.has(word)));
+    const intersection = new Set(
+      [...words1].filter((word) => words2.has(word)),
+    );
     const union = new Set([...words1, ...words2]);
 
     return intersection.size / union.size;
@@ -262,16 +271,21 @@ export class ContextPrioritizer {
     const maxInteractions = 100; // Assumed maximum for normalization
     const normalizedCount = Math.min(interactionCount, maxInteractions);
 
-    return normalizedCount > 0 ? Math.log(normalizedCount + 1) / Math.log(maxInteractions + 1) : 0;
+    return normalizedCount > 0
+      ? Math.log(normalizedCount + 1) / Math.log(maxInteractions + 1)
+      : 0;
   }
 
   /**
    * Calculate dependency score based on how many other items depend on this one
    */
-  private calculateDependencyScore(item: ContextItem, allItems: ContextItem[]): number {
+  private calculateDependencyScore(
+    item: ContextItem,
+    allItems: ContextItem[],
+  ): number {
     // Count how many other items list this item as a dependency
-    const dependentCount = allItems.filter(otherItem =>
-      otherItem.dependencies.includes(item.id)
+    const dependentCount = allItems.filter((otherItem) =>
+      otherItem.dependencies.includes(item.id),
     ).length;
 
     // Also count this item's own dependencies (items it depends on are less important to remove)
@@ -280,8 +294,9 @@ export class ContextPrioritizer {
     // Items that many others depend on should have higher scores
     // Items that depend on many others have moderate scores
     const maxDependents = Math.max(10, allItems.length * 0.1); // Assume max 10% dependency rate
-    const dependentScore = Math.min(dependentCount, maxDependents) / maxDependents;
-    const dependsOnScore = Math.min(dependsOnCount, 5) / 5 * 0.3; // Cap at 5 deps, lower weight
+    const dependentScore =
+      Math.min(dependentCount, maxDependents) / maxDependents;
+    const dependsOnScore = (Math.min(dependsOnCount, 5) / 5) * 0.3; // Cap at 5 deps, lower weight
 
     return dependentScore + dependsOnScore;
   }
@@ -344,10 +359,9 @@ export class ContextPrioritizer {
    */
   private isItemTooOld(item: ContextItem): boolean {
     const maxAge = this.config.maxAgeHours * 60 * 60 * 1000;
-    const age = Date.now() - Math.max(
-      item.timestamp.getTime(),
-      item.lastAccessed.getTime(),
-    );
+    const age =
+      Date.now() -
+      Math.max(item.timestamp.getTime(), item.lastAccessed.getTime());
 
     return age > maxAge;
   }
@@ -401,7 +415,8 @@ export class ContextPrioritizer {
       totalItems: originalItems.length,
       byPriority,
       byType,
-      averageRelevance: originalItems.length > 0 ? totalRelevance / originalItems.length : 0,
+      averageRelevance:
+        originalItems.length > 0 ? totalRelevance / originalItems.length : 0,
       totalTokens,
       estimatedSavings: compressionSavings + removalSavings,
     };
@@ -446,10 +461,12 @@ export class ContextPrioritizer {
    * Get interaction statistics
    */
   getInteractionStats(): Array<{ itemId: string; count: number }> {
-    return Array.from(this.interactionCounts.entries()).map(([itemId, count]) => ({
-      itemId,
-      count,
-    }));
+    return Array.from(this.interactionCounts.entries()).map(
+      ([itemId, count]) => ({
+        itemId,
+        count,
+      }),
+    );
   }
 }
 

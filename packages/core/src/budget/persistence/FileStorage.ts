@@ -14,7 +14,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { Logger } from '@google/gemini-cli/src/utils/logger.js';
 import type { BudgetSettings, BudgetUsageData } from '../types.js';
 import type {
   BudgetStorage,
@@ -223,9 +223,7 @@ export class FileStorage implements ObservableStorage {
   /**
    * Read usage data from file
    */
-  async readUsageData(): Promise<
-    StorageOperationResult<BudgetUsageData>
-  > {
+  async readUsageData(): Promise<StorageOperationResult<BudgetUsageData>> {
     const start = Date.now();
     this.metrics.readOperations++;
 
@@ -307,9 +305,7 @@ export class FileStorage implements ObservableStorage {
   /**
    * Write usage data to file with atomic operation
    */
-  async writeUsageData(
-    data: BudgetUsageData,
-  ): Promise<StorageOperationResult> {
+  async writeUsageData(data: BudgetUsageData): Promise<StorageOperationResult> {
     const start = Date.now();
     this.metrics.writeOperations++;
 
@@ -602,9 +598,7 @@ export class FileStorage implements ObservableStorage {
   /**
    * Restore data from backup
    */
-  async restoreFromBackup(
-    backupId: string,
-  ): Promise<StorageOperationResult> {
+  async restoreFromBackup(backupId: string): Promise<StorageOperationResult> {
     const start = Date.now();
 
     try {

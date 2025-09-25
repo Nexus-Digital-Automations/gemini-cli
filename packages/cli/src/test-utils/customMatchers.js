@@ -9,7 +9,6 @@ import { expect } from 'vitest';
 // eslint-disable-next-line no-control-regex
 const invalidCharsRegex = /[\b\x1b]/;
 function toHaveOnlyValidCharacters(buffer) {
-   
   const { isNot } = this;
   let pass = true;
   const invalidLines = [];
@@ -37,6 +36,5 @@ function toHaveOnlyValidCharacters(buffer) {
 }
 expect.extend({
   toHaveOnlyValidCharacters,
-   
 });
 //# sourceMappingURL=customMatchers.js.map

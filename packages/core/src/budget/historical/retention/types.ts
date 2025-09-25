@@ -59,7 +59,17 @@ export interface RetentionAction {
  */
 export interface RetentionCondition {
   field: string;
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'exists' | 'regex';
+  operator:
+    | 'eq'
+    | 'ne'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'in'
+    | 'nin'
+    | 'exists'
+    | 'regex';
   value: unknown;
   logicalOperator?: 'and' | 'or'; // For chaining conditions
 }
@@ -223,7 +233,10 @@ export interface RetentionManager {
   /**
    * Schedule automatic retention execution
    */
-  scheduleExecution(cronExpression: string, ruleIds?: string[]): Promise<string>;
+  scheduleExecution(
+    cronExpression: string,
+    ruleIds?: string[],
+  ): Promise<string>;
 
   /**
    * Cancel scheduled execution
@@ -293,20 +306,22 @@ export interface RetentionScheduler {
       timezone?: string;
       maxRetries?: number;
       retryDelay?: number;
-    }
+    },
   ): Promise<string>;
 
   /**
    * Get scheduled executions
    */
-  getSchedules(): Promise<Array<{
-    id: string;
-    cronExpression: string;
-    ruleIds: string[];
-    nextExecution: number;
-    enabled: boolean;
-    createdAt: number;
-  }>>;
+  getSchedules(): Promise<
+    Array<{
+      id: string;
+      cronExpression: string;
+      ruleIds: string[];
+      nextExecution: number;
+      enabled: boolean;
+      createdAt: number;
+    }>
+  >;
 
   /**
    * Enable/disable schedule
@@ -321,7 +336,10 @@ export interface RetentionScheduler {
   /**
    * Get schedule execution history
    */
-  getScheduleHistory(scheduleId: string, limit?: number): Promise<RetentionExecutionResult[]>;
+  getScheduleHistory(
+    scheduleId: string,
+    limit?: number,
+  ): Promise<RetentionExecutionResult[]>;
 }
 
 /**
@@ -335,7 +353,7 @@ export interface LegalHoldManager {
     holdId: string,
     criteria: RetentionCondition[],
     reason: string,
-    expirationDate?: number
+    expirationDate?: number,
   ): Promise<void>;
 
   /**
@@ -346,15 +364,17 @@ export interface LegalHoldManager {
   /**
    * Get active legal holds
    */
-  getActiveLegalHolds(): Promise<Array<{
-    id: string;
-    criteria: RetentionCondition[];
-    reason: string;
-    placedAt: number;
-    placedBy: string;
-    expirationDate?: number;
-    affectedDataCount: number;
-  }>>;
+  getActiveLegalHolds(): Promise<
+    Array<{
+      id: string;
+      criteria: RetentionCondition[];
+      reason: string;
+      placedAt: number;
+      placedBy: string;
+      expirationDate?: number;
+      affectedDataCount: number;
+    }>
+  >;
 
   /**
    * Check if data is under legal hold
@@ -364,14 +384,16 @@ export interface LegalHoldManager {
   /**
    * Get legal hold audit trail
    */
-  getAuditTrail(): Promise<Array<{
-    action: 'placed' | 'released' | 'modified';
-    holdId: string;
-    timestamp: number;
-    user: string;
-    reason: string;
-    details: Record<string, unknown>;
-  }>>;
+  getAuditTrail(): Promise<
+    Array<{
+      action: 'placed' | 'released' | 'modified';
+      holdId: string;
+      timestamp: number;
+      user: string;
+      reason: string;
+      details: Record<string, unknown>;
+    }>
+  >;
 }
 
 /**
@@ -384,7 +406,7 @@ export interface ComplianceReporter {
   generateComplianceReport(
     startDate: number,
     endDate: number,
-    format: 'json' | 'csv' | 'pdf'
+    format: 'json' | 'csv' | 'pdf',
   ): Promise<{
     reportId: string;
     format: string;

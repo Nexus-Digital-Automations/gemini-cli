@@ -40,11 +40,10 @@ import { isWorkspaceTrusted } from './trustedFolders.js';
 import { createPolicyEngineConfig } from './policy.js';
 // Simple console logger for now - replace with actual logger if available
 const logger = {
-   
   debug: (...args) => console.debug('[DEBUG]', ...args),
-   
+
   warn: (...args) => console.warn('[WARN]', ...args),
-   
+
   error: (...args) => console.error('[ERROR]', ...args),
 };
 export async function parseArguments(settings) {

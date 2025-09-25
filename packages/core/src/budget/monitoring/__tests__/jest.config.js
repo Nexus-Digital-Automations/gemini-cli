@@ -15,11 +15,7 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
-  collectCoverageFrom: [
-    '../*.ts',
-    '!../__tests__/**',
-    '!../index.ts',
-  ],
+  collectCoverageFrom: ['../*.ts', '!../__tests__/**', '!../index.ts'],
   coverageDirectory: './coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],

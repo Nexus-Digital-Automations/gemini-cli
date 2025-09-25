@@ -469,7 +469,9 @@ export class AdvancedQueryEngine implements QueryEngine {
     data: BudgetUsageTimeSeriesPoint[],
     filters: QueryFilter[],
   ): BudgetUsageTimeSeriesPoint[] {
-    return data.filter((dataPoint) => filters.every((filter) => this.evaluateFilter(dataPoint, filter)));
+    return data.filter((dataPoint) =>
+      filters.every((filter) => this.evaluateFilter(dataPoint, filter)),
+    );
   }
 
   /**

@@ -12,7 +12,14 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from '@jest/globals';
 import { EventEmitter } from 'node:events';
 import type { GenerateContentResponse } from '@google/genai';
 import {
@@ -33,21 +40,29 @@ class MockContentGenerator implements ContentGenerator {
 
   constructor(private failAfter?: number) {}
 
-  async generateContent(req: any, userPromptId: string): Promise<GenerateContentResponse> {
+  async generateContent(
+    req: any,
+    userPromptId: string,
+  ): Promise<GenerateContentResponse> {
     this.requestCount++;
 
-    if (this.shouldFail || (this.failAfter && this.requestCount > this.failAfter)) {
+    if (
+      this.shouldFail ||
+      (this.failAfter && this.requestCount > this.failAfter)
+    ) {
       throw new Error('Mock API failure');
     }
 
     return {
-      candidates: [{
-        content: {
-          parts: [{ text: 'Mock response' }],
-          role: 'model',
+      candidates: [
+        {
+          content: {
+            parts: [{ text: 'Mock response' }],
+            role: 'model',
+          },
+          finishReason: 'STOP',
         },
-        finishReason: 'STOP',
-      }],
+      ],
       usageMetadata: {
         promptTokenCount: 10,
         candidatesTokenCount: 5,
@@ -56,22 +71,30 @@ class MockContentGenerator implements ContentGenerator {
     };
   }
 
-  async *generateContentStream(req: any, userPromptId: string): Promise<AsyncGenerator<GenerateContentResponse>> {
+  async *generateContentStream(
+    req: any,
+    userPromptId: string,
+  ): Promise<AsyncGenerator<GenerateContentResponse>> {
     this.requestCount++;
 
-    if (this.shouldFail || (this.failAfter && this.requestCount > this.failAfter)) {
+    if (
+      this.shouldFail ||
+      (this.failAfter && this.requestCount > this.failAfter)
+    ) {
       throw new Error('Mock API streaming failure');
     }
 
     // Simulate streaming response
     yield {
-      candidates: [{
-        content: {
-          parts: [{ text: 'Mock ' }],
-          role: 'model',
+      candidates: [
+        {
+          content: {
+            parts: [{ text: 'Mock ' }],
+            role: 'model',
+          },
+          finishReason: 'CONTINUE',
         },
-        finishReason: 'CONTINUE',
-      }],
+      ],
       usageMetadata: {
         promptTokenCount: 10,
         candidatesTokenCount: 2,
@@ -80,13 +103,15 @@ class MockContentGenerator implements ContentGenerator {
     };
 
     yield {
-      candidates: [{
-        content: {
-          parts: [{ text: 'streaming response' }],
-          role: 'model',
+      candidates: [
+        {
+          content: {
+            parts: [{ text: 'streaming response' }],
+            role: 'model',
+          },
+          finishReason: 'STOP',
         },
-        finishReason: 'STOP',
-      }],
+      ],
       usageMetadata: {
         promptTokenCount: 10,
         candidatesTokenCount: 3,
@@ -207,7 +232,10 @@ describe('Token Monitoring Integration', () => {
         contents: [{ parts: [{ text: 'Test prompt' }], role: 'user' as const }],
       };
 
-      const response = await wrappedGenerator.generateContent(request, 'test-prompt-id');
+      const response = await wrappedGenerator.generateContent(
+        request,
+        'test-prompt-id',
+      );
 
       expect(response).toBeDefined();
       expect(response.candidates).toBeDefined();
@@ -221,10 +249,15 @@ describe('Token Monitoring Integration', () => {
     it('should track generateContentStream requests', async () => {
       const request = {
         model: 'test-model',
-        contents: [{ parts: [{ text: 'Test streaming prompt' }], role: 'user' as const }],
+        contents: [
+          { parts: [{ text: 'Test streaming prompt' }], role: 'user' as const },
+        ],
       };
 
-      const stream = await wrappedGenerator.generateContentStream(request, 'test-stream-id');
+      const stream = await wrappedGenerator.generateContentStream(
+        request,
+        'test-stream-id',
+      );
 
       // Consume the stream
       const responses: GenerateContentResponse[] = [];
@@ -248,8 +281,9 @@ describe('Token Monitoring Integration', () => {
         contents: [{ parts: [{ text: 'Test prompt' }], role: 'user' as const }],
       };
 
-      await expect(wrappedGenerator.generateContent(request, 'test-prompt-id'))
-        .rejects.toThrow('Mock API failure');
+      await expect(
+        wrappedGenerator.generateContent(request, 'test-prompt-id'),
+      ).rejects.toThrow('Mock API failure');
 
       // Check that failure was tracked
       const stats = integration.getTokenTracker().getUsageStats();
@@ -275,7 +309,7 @@ describe('Token Monitoring Integration', () => {
       await wrappedGenerator.generateContent(request, 'test-prompt-id');
 
       // Wait for metrics collection
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const summary = integration.getMetricsCollector().getMetricsSummary();
       expect(summary.totalDataPoints).toBeGreaterThan(0);
@@ -313,7 +347,8 @@ describe('Token Monitoring Integration', () => {
     });
 
     it('should emit events for request lifecycle', async () => {
-      const wrappedGenerator = integration.wrapContentGenerator(mockContentGenerator);
+      const wrappedGenerator =
+        integration.wrapContentGenerator(mockContentGenerator);
 
       const request = {
         model: 'test-model',
@@ -323,7 +358,7 @@ describe('Token Monitoring Integration', () => {
       await wrappedGenerator.generateContent(request, 'test-prompt-id');
 
       // Wait for events
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(eventReceived).toBeDefined();
       expect(eventReceived.type).toBeDefined();
@@ -339,7 +374,9 @@ describe('Token Monitoring Integration', () => {
         MonitoringPresets.Development,
       );
 
-      expect(result.contentGenerator).toBeInstanceOf(TokenTrackingContentGenerator);
+      expect(result.contentGenerator).toBeInstanceOf(
+        TokenTrackingContentGenerator,
+      );
       expect(result.integration).toBeInstanceOf(TokenMonitoringIntegration);
     });
   });
@@ -356,7 +393,8 @@ describe('Token Monitoring Integration', () => {
     });
 
     it('should track integration health', () => {
-      const wrappedGenerator = integration.wrapContentGenerator(mockContentGenerator);
+      const wrappedGenerator =
+        integration.wrapContentGenerator(mockContentGenerator);
       const integrationStats = (wrappedGenerator as any).getIntegrationStats();
 
       expect(integrationStats).toBeDefined();
@@ -369,15 +407,18 @@ describe('Token Monitoring Integration', () => {
     it('should handle initialization errors gracefully', async () => {
       const invalidConfig = {} as Config;
 
-      await expect(createTokenMonitoringIntegration(
-        invalidConfig,
-        budgetSettings,
-        MonitoringPresets.Testing,
-      )).rejects.toThrow();
+      await expect(
+        createTokenMonitoringIntegration(
+          invalidConfig,
+          budgetSettings,
+          MonitoringPresets.Testing,
+        ),
+      ).rejects.toThrow();
     });
 
     it('should recover from component failures', async () => {
-      const wrappedGenerator = integration.wrapContentGenerator(mockContentGenerator);
+      const wrappedGenerator =
+        integration.wrapContentGenerator(mockContentGenerator);
 
       // Simulate failure
       mockContentGenerator.setFailureMode(true);
@@ -387,15 +428,19 @@ describe('Token Monitoring Integration', () => {
         contents: [{ parts: [{ text: 'Test prompt' }], role: 'user' as const }],
       };
 
-      await expect(wrappedGenerator.generateContent(request, 'test-prompt-id'))
-        .rejects.toThrow();
+      await expect(
+        wrappedGenerator.generateContent(request, 'test-prompt-id'),
+      ).rejects.toThrow();
 
       // System should still be operational
       expect(integration.isIntegrationInitialized()).toBe(true);
 
       // Recovery should work
       mockContentGenerator.setFailureMode(false);
-      const response = await wrappedGenerator.generateContent(request, 'test-prompt-id-2');
+      const response = await wrappedGenerator.generateContent(
+        request,
+        'test-prompt-id-2',
+      );
       expect(response).toBeDefined();
     });
   });
@@ -438,10 +483,14 @@ describe('Token Monitoring System Performance', () => {
     for (let i = 0; i < requestCount; i++) {
       const request = {
         model: 'test-model',
-        contents: [{ parts: [{ text: `Test prompt ${i}` }], role: 'user' as const }],
+        contents: [
+          { parts: [{ text: `Test prompt ${i}` }], role: 'user' as const },
+        ],
       };
 
-      requests.push(wrappedGenerator.generateContent(request, `test-prompt-${i}`));
+      requests.push(
+        wrappedGenerator.generateContent(request, `test-prompt-${i}`),
+      );
     }
 
     const responses = await Promise.all(requests);
@@ -468,10 +517,20 @@ describe('Token Monitoring System Performance', () => {
       for (let i = 0; i < 50; i++) {
         const request = {
           model: 'test-model',
-          contents: [{ parts: [{ text: `Batch ${batch} prompt ${i}` }], role: 'user' as const }],
+          contents: [
+            {
+              parts: [{ text: `Batch ${batch} prompt ${i}` }],
+              role: 'user' as const,
+            },
+          ],
         };
 
-        requests.push(wrappedGenerator.generateContent(request, `batch-${batch}-prompt-${i}`));
+        requests.push(
+          wrappedGenerator.generateContent(
+            request,
+            `batch-${batch}-prompt-${i}`,
+          ),
+        );
       }
 
       await Promise.all(requests);

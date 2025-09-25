@@ -36,9 +36,9 @@ export type CompressionLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
  * Compression strategy for different data patterns
  */
 export type CompressionStrategy =
-  | 'speed'     // Prioritize compression speed
-  | 'ratio'     // Prioritize compression ratio
-  | 'balanced'  // Balance speed and ratio
+  | 'speed' // Prioritize compression speed
+  | 'ratio' // Prioritize compression ratio
+  | 'balanced' // Balance speed and ratio
   | 'adaptive'; // Automatically choose best strategy
 
 /**
@@ -111,13 +111,16 @@ export interface CompressionStats {
   averageCompressionTime: number;
 
   /** Algorithm performance breakdown */
-  algorithmStats: Map<CompressionAlgorithm, {
-    blocksProcessed: number;
-    totalOriginalSize: number;
-    totalCompressedSize: number;
-    averageRatio: number;
-    averageTime: number;
-  }>;
+  algorithmStats: Map<
+    CompressionAlgorithm,
+    {
+      blocksProcessed: number;
+      totalOriginalSize: number;
+      totalCompressedSize: number;
+      averageRatio: number;
+      averageTime: number;
+    }
+  >;
 
   /** Time range of compressed data */
   timeRange: {
@@ -206,13 +209,15 @@ export interface CompressionEngine {
       algorithm?: CompressionAlgorithm;
       level?: CompressionLevel;
       strategy?: CompressionStrategy;
-    }
+    },
   ): Promise<CompressedBlock>;
 
   /**
    * Decompress a compressed block
    */
-  decompressBlock(compressedBlock: CompressedBlock): Promise<DecompressionResult>;
+  decompressBlock(
+    compressedBlock: CompressedBlock,
+  ): Promise<DecompressionResult>;
 
   /**
    * Compress multiple blocks in parallel
@@ -224,7 +229,7 @@ export interface CompressionEngine {
       level?: CompressionLevel;
       strategy?: CompressionStrategy;
       maxConcurrency?: number;
-    }
+    },
   ): Promise<CompressedBlock[]>;
 
   /**
@@ -232,13 +237,18 @@ export interface CompressionEngine {
    */
   benchmarkAlgorithms(
     sampleData: BudgetUsageTimeSeriesPoint[],
-    algorithms?: CompressionAlgorithm[]
-  ): Promise<Map<CompressionAlgorithm, {
-    compressionRatio: number;
-    compressionTime: number;
-    decompressionTime: number;
-    memoryUsage: number;
-  }>>;
+    algorithms?: CompressionAlgorithm[],
+  ): Promise<
+    Map<
+      CompressionAlgorithm,
+      {
+        compressionRatio: number;
+        compressionTime: number;
+        decompressionTime: number;
+        memoryUsage: number;
+      }
+    >
+  >;
 
   /**
    * Get compression statistics
@@ -249,7 +259,7 @@ export interface CompressionEngine {
    * Optimize compression settings based on data patterns
    */
   optimizeSettings(
-    sampleData: BudgetUsageTimeSeriesPoint[]
+    sampleData: BudgetUsageTimeSeriesPoint[],
   ): Promise<Partial<CompressionConfig>>;
 
   /**
@@ -280,12 +290,14 @@ export interface ArchiveStorage {
     endTime?: number;
     algorithm?: CompressionAlgorithm;
     minCompressionRatio?: number;
-  }): Promise<Array<{
-    id: string;
-    metadata: DataBlock['metadata'];
-    compression: CompressedBlock['compression'];
-    archivedAt: number;
-  }>>;
+  }): Promise<
+    Array<{
+      id: string;
+      metadata: DataBlock['metadata'];
+      compression: CompressedBlock['compression'];
+      archivedAt: number;
+    }>
+  >;
 
   /**
    * Delete archived block
@@ -349,8 +361,8 @@ export interface OptimizationResult {
 export interface DataPatternAnalysis {
   /** Data characteristics */
   characteristics: {
-    entropy: number;           // Data randomness measure
-    repetition: number;        // Repeated pattern frequency
+    entropy: number; // Data randomness measure
+    repetition: number; // Repeated pattern frequency
     deltaCompressibility: number; // How well deltas compress
     temporalPattern: 'regular' | 'irregular' | 'bursty';
     valueDistribution: 'uniform' | 'normal' | 'skewed' | 'bimodal';
@@ -383,7 +395,7 @@ export interface AdaptiveCompressionManager {
    * Analyze data patterns and recommend compression settings
    */
   analyzeAndRecommend(
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<OptimizationResult>;
 
   /**
@@ -391,11 +403,14 @@ export interface AdaptiveCompressionManager {
    */
   learnFromResults(
     data: BudgetUsageTimeSeriesPoint[],
-    compressionResults: Map<CompressionAlgorithm, {
-      ratio: number;
-      time: number;
-      success: boolean;
-    }>
+    compressionResults: Map<
+      CompressionAlgorithm,
+      {
+        ratio: number;
+        time: number;
+        success: boolean;
+      }
+    >,
   ): Promise<void>;
 
   /**
@@ -417,7 +432,9 @@ export interface AdaptiveCompressionManager {
 /**
  * Factory function type for creating compression engines
  */
-export type CreateCompressionEngine = (config?: Partial<CompressionConfig>) => CompressionEngine;
+export type CreateCompressionEngine = (
+  config?: Partial<CompressionConfig>,
+) => CompressionEngine;
 
 /**
  * Factory function type for creating archive storage

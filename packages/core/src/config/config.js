@@ -918,7 +918,7 @@ export class Config {
     try {
       const registry = new ToolRegistry(this, this.eventEmitter);
       // helper to create & register core tools that are enabled
-       
+
       const registerCoreTool = (ToolClass, ...args) => {
         const className = ToolClass.name;
         const toolName = ToolClass.Name || className;

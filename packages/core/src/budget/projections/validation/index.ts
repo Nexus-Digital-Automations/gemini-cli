@@ -70,7 +70,9 @@ export const ValidationUtils = {
   /**
    * Create standard test suite configuration
    */
-  createStandardTestConfig: (name: string): import('./test-harness.js').TestSuiteConfig => ({
+  createStandardTestConfig: (
+    name: string,
+  ): import('./test-harness.js').TestSuiteConfig => ({
     id: `test_${Date.now()}`,
     name,
     description: `Standard validation test suite for ${name}`,
@@ -84,7 +86,9 @@ export const ValidationUtils = {
   /**
    * Create performance test configuration
    */
-  createPerformanceTestConfig: (name: string): import('./test-harness.js').TestSuiteConfig => ({
+  createPerformanceTestConfig: (
+    name: string,
+  ): import('./test-harness.js').TestSuiteConfig => ({
     id: `perf_${Date.now()}`,
     name: `Performance Test: ${name}`,
     description: `Performance-focused validation for ${name}`,
@@ -98,7 +102,9 @@ export const ValidationUtils = {
   /**
    * Create accuracy test configuration
    */
-  createAccuracyTestConfig: (name: string): import('./test-harness.js').TestSuiteConfig => ({
+  createAccuracyTestConfig: (
+    name: string,
+  ): import('./test-harness.js').TestSuiteConfig => ({
     id: `accuracy_${Date.now()}`,
     name: `Accuracy Test: ${name}`,
     description: `Accuracy-focused validation for ${name}`,
@@ -112,7 +118,9 @@ export const ValidationUtils = {
   /**
    * Create standard test data configurations
    */
-  createStandardTestDataConfigs: (): Array<import('./test-harness.js').TestDataConfig> => [
+  createStandardTestDataConfigs: (): Array<
+    import('./test-harness.js').TestDataConfig
+  > => [
     {
       type: 'linear',
       dataPoints: 100,
@@ -154,7 +162,9 @@ export const ValidationUtils = {
   /**
    * Quality score interpretation
    */
-  interpretQualityScore: (score: number): {
+  interpretQualityScore: (
+    score: number,
+  ): {
     grade: 'A' | 'B' | 'C' | 'D' | 'F';
     description: string;
     actionRequired: boolean;
@@ -168,7 +178,8 @@ export const ValidationUtils = {
     } else if (score >= 80) {
       return {
         grade: 'B',
-        description: 'Good algorithm performance with minor improvements needed',
+        description:
+          'Good algorithm performance with minor improvements needed',
         actionRequired: false,
       };
     } else if (score >= 70) {
@@ -195,7 +206,11 @@ export const ValidationUtils = {
   /**
    * Performance score interpretation
    */
-  interpretPerformanceScore: (executionTime: number, memoryUsage: number, throughput: number): {
+  interpretPerformanceScore: (
+    executionTime: number,
+    memoryUsage: number,
+    throughput: number,
+  ): {
     overall: 'excellent' | 'good' | 'fair' | 'poor';
     bottlenecks: string[];
     recommendations: string[];
@@ -206,7 +221,9 @@ export const ValidationUtils = {
     // Analyze execution time
     if (executionTime > 5000) {
       bottlenecks.push('Slow execution time');
-      recommendations.push('Optimize algorithm complexity or implement caching');
+      recommendations.push(
+        'Optimize algorithm complexity or implement caching',
+      );
     }
 
     // Analyze memory usage
@@ -218,7 +235,9 @@ export const ValidationUtils = {
     // Analyze throughput
     if (throughput < 50) {
       bottlenecks.push('Low throughput');
-      recommendations.push('Consider parallel processing or algorithmic improvements');
+      recommendations.push(
+        'Consider parallel processing or algorithmic improvements',
+      );
     }
 
     // Determine overall performance
@@ -289,7 +308,8 @@ export const ValidationConstants = {
 export const ValidationFramework = {
   VERSION: '1.0.0',
   NAME: 'Cost Projection Validation Framework',
-  DESCRIPTION: 'Comprehensive testing and validation system for cost projection algorithms',
+  DESCRIPTION:
+    'Comprehensive testing and validation system for cost projection algorithms',
   AUTHOR: 'Google LLC',
   LICENSE: 'Apache-2.0',
 } as const;

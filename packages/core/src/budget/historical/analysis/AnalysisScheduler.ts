@@ -66,7 +66,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
       maxConcurrentJobs?: number;
       jobStoragePath?: string;
       jobRetentionDays?: number;
-    } = {}
+    } = {},
   ) {
     this.logger = createLogger('AnalysisScheduler');
     this.trendEngine = trendEngine;
@@ -86,8 +86,10 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     this.startCleanupScheduler();
 
     // Load existing jobs
-    this.loadPersistedJobs().catch(error => {
-      this.logger.warn('Failed to load persisted jobs', { error: error.message });
+    this.loadPersistedJobs().catch((error) => {
+      this.logger.warn('Failed to load persisted jobs', {
+        error: error.message,
+      });
     });
   }
 
@@ -95,7 +97,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    * Schedule analysis job
    */
   async scheduleJob(
-    jobRequest: Omit<AnalysisJob, 'id' | 'createdAt' | 'status' | 'progress'>
+    jobRequest: Omit<AnalysisJob, 'id' | 'createdAt' | 'status' | 'progress'>,
   ): Promise<string> {
     const startTime = Date.now();
     const jobId = this.generateJobId();
@@ -159,7 +161,8 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     // Update progress for running jobs
     const runningContext = this.runningJobs.get(jobId);
     if (runningContext) {
-      job.estimatedCompletion = this.calculateEstimatedCompletion(runningContext);
+      job.estimatedCompletion =
+        this.calculateEstimatedCompletion(runningContext);
     }
 
     return { ...job }; // Return copy to prevent external mutation
@@ -228,11 +231,11 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
 
     // Apply filters
     if (filter?.type) {
-      jobs = jobs.filter(job => job.type === filter.type);
+      jobs = jobs.filter((job) => job.type === filter.type);
     }
 
     if (filter?.status) {
-      jobs = jobs.filter(job => job.status === filter.status);
+      jobs = jobs.filter((job) => job.status === filter.status);
     }
 
     // Sort by creation time (newest first)
@@ -243,7 +246,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
       jobs = jobs.slice(0, filter.limit);
     }
 
-    return jobs.map(job => ({ ...job })); // Return copies
+    return jobs.map((job) => ({ ...job })); // Return copies
   }
 
   /**
@@ -366,7 +369,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     ) {
       const jobId = this.jobQueue.shift();
       if (jobId) {
-        this.startJobExecution(jobId).catch(error => {
+        this.startJobExecution(jobId).catch((error) => {
           this.logger.error('Failed to start job execution', {
             jobId,
             error: error.message,
@@ -452,7 +455,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    * Execute analysis job based on type
    */
   private async executeJob(
-    context: JobExecutionContext
+    context: JobExecutionContext,
   ): Promise<InsightsReport | TrendAnalysis[] | AnomalyDetection> {
     const { job } = context;
 
@@ -460,8 +463,10 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     this.checkCancellation(context);
 
     // Fetch data
-    const queryBuilder = this.dataQueryBuilder()
-      .timeRange(job.dataQuery.startTime, job.dataQuery.endTime);
+    const queryBuilder = this.dataQueryBuilder().timeRange(
+      job.dataQuery.startTime,
+      job.dataQuery.endTime,
+    );
 
     // Apply filters if specified
     if (job.dataQuery.filters) {
@@ -503,12 +508,15 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private async executeTrendAnalysis(
     context: JobExecutionContext,
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<TrendAnalysis[]> {
     this.updateProgress(context, 30);
     this.checkCancellation(context);
 
-    const result = await this.trendEngine.analyzeTrends(data, context.job.config);
+    const result = await this.trendEngine.analyzeTrends(
+      data,
+      context.job.config,
+    );
     this.updateProgress(context, 90);
 
     return result;
@@ -519,16 +527,19 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private async executeSeasonalAnalysis(
     context: JobExecutionContext,
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<TrendAnalysis[]> {
     this.updateProgress(context, 30);
     this.checkCancellation(context);
 
-    const seasonalPatterns = await this.trendEngine.detectSeasonality(data, 'cost');
+    const seasonalPatterns = await this.trendEngine.detectSeasonality(
+      data,
+      'cost',
+    );
     this.updateProgress(context, 90);
 
     // Convert seasonal patterns to trend analysis format for consistency
-    const trends: TrendAnalysis[] = seasonalPatterns.map(pattern => ({
+    const trends: TrendAnalysis[] = seasonalPatterns.map((pattern) => ({
       metric: 'cost',
       period: pattern.patternType as any,
       startTime: context.job.dataQuery.startTime,
@@ -554,14 +565,14 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private async executeAnomalyAnalysis(
     context: JobExecutionContext,
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<AnomalyDetection> {
     this.updateProgress(context, 30);
     this.checkCancellation(context);
 
     const result = await this.trendEngine.detectAnomalies(
       data,
-      context.job.config.anomalySensitivity
+      context.job.config.anomalySensitivity,
     );
     this.updateProgress(context, 90);
 
@@ -573,7 +584,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private async executeEfficiencyAnalysis(
     context: JobExecutionContext,
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<TrendAnalysis[]> {
     this.updateProgress(context, 30);
     this.checkCancellation(context);
@@ -590,7 +601,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private async executeForecastAnalysis(
     context: JobExecutionContext,
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<TrendAnalysis[]> {
     this.updateProgress(context, 30);
     this.checkCancellation(context);
@@ -598,7 +609,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     const forecasts = await this.trendEngine.forecast(
       data,
       'cost',
-      context.job.config.forecastHorizon || 30
+      context.job.config.forecastHorizon || 30,
     );
     this.updateProgress(context, 90);
 
@@ -609,7 +620,8 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
       startTime: context.job.dataQuery.startTime,
       endTime: context.job.dataQuery.endTime,
       direction: 'stable',
-      strength: forecasts.reduce((sum, f) => sum + f.confidence, 0) / forecasts.length,
+      strength:
+        forecasts.reduce((sum, f) => sum + f.confidence, 0) / forecasts.length,
       confidence: 'medium',
       changeRate: 0,
       currentValue: data[data.length - 1]?.totalCost || 0,
@@ -629,12 +641,15 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private async executeInsightsAnalysis(
     context: JobExecutionContext,
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<InsightsReport> {
     this.updateProgress(context, 30);
     this.checkCancellation(context);
 
-    const result = await this.trendEngine.generateInsights(data, context.job.config);
+    const result = await this.trendEngine.generateInsights(
+      data,
+      context.job.config,
+    );
     this.updateProgress(context, 90);
 
     return result;
@@ -680,7 +695,9 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
   /**
    * Calculate estimated completion time
    */
-  private calculateEstimatedCompletion(context: JobExecutionContext): number | undefined {
+  private calculateEstimatedCompletion(
+    context: JobExecutionContext,
+  ): number | undefined {
     const { job, startTime } = context;
 
     if (job.progress <= 0) return undefined;
@@ -706,22 +723,25 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
    */
   private startCleanupScheduler(): void {
     // Run cleanup every hour
-    this.cleanupInterval = setInterval(async () => {
-      try {
-        const olderThan = this.jobRetentionDays * 24 * 60 * 60 * 1000;
-        const cleanedCount = await this.cleanupJobs(olderThan);
+    this.cleanupInterval = setInterval(
+      async () => {
+        try {
+          const olderThan = this.jobRetentionDays * 24 * 60 * 60 * 1000;
+          const cleanedCount = await this.cleanupJobs(olderThan);
 
-        if (cleanedCount > 0) {
-          this.logger.info('Automatic cleanup completed', {
-            cleanedJobs: cleanedCount,
+          if (cleanedCount > 0) {
+            this.logger.info('Automatic cleanup completed', {
+              cleanedJobs: cleanedCount,
+            });
+          }
+        } catch (error) {
+          this.logger.error('Automatic cleanup failed', {
+            error: error.message,
           });
         }
-      } catch (error) {
-        this.logger.error('Automatic cleanup failed', {
-          error: error.message,
-        });
-      }
-    }, 60 * 60 * 1000); // 1 hour
+      },
+      60 * 60 * 1000,
+    ); // 1 hour
   }
 
   /**
@@ -765,7 +785,7 @@ export function createAnalysisScheduler(
     maxConcurrentJobs?: number;
     jobStoragePath?: string;
     jobRetentionDays?: number;
-  }
+  },
 ): AnalysisScheduler {
   return new AnalysisSchedulerImpl(trendEngine, dataQueryBuilder, options);
 }

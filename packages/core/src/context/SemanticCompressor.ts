@@ -233,13 +233,28 @@ export class SemanticCompressor {
   /**
    * Initialize compression strategy implementations
    */
-  private initializeStrategies(): Map<CompressionStrategy, CompressionStrategyImpl> {
+  private initializeStrategies(): Map<
+    CompressionStrategy,
+    CompressionStrategyImpl
+  > {
     const strategies = new Map<CompressionStrategy, CompressionStrategyImpl>();
 
-    strategies.set(CompressionStrategy.SUMMARIZATION, new SummarizationStrategy());
-    strategies.set(CompressionStrategy.KEYWORD_EXTRACTION, new KeywordExtractionStrategy());
-    strategies.set(CompressionStrategy.SEMANTIC_CLUSTERING, new SemanticClusteringStrategy());
-    strategies.set(CompressionStrategy.PROGRESSIVE_DETAIL, new ProgressiveDetailStrategy());
+    strategies.set(
+      CompressionStrategy.SUMMARIZATION,
+      new SummarizationStrategy(),
+    );
+    strategies.set(
+      CompressionStrategy.KEYWORD_EXTRACTION,
+      new KeywordExtractionStrategy(),
+    );
+    strategies.set(
+      CompressionStrategy.SEMANTIC_CLUSTERING,
+      new SemanticClusteringStrategy(),
+    );
+    strategies.set(
+      CompressionStrategy.PROGRESSIVE_DETAIL,
+      new ProgressiveDetailStrategy(),
+    );
 
     return strategies;
   }
@@ -249,10 +264,13 @@ export class SemanticCompressor {
    */
   private validateCompressionResult(result: CompressionResult): void {
     if (result.informationLoss > this.config.maxInformationLoss) {
-      logger.warn('Compression result exceeds maximum information loss threshold', {
-        actualLoss: result.informationLoss,
-        maxLoss: this.config.maxInformationLoss,
-      });
+      logger.warn(
+        'Compression result exceeds maximum information loss threshold',
+        {
+          actualLoss: result.informationLoss,
+          maxLoss: this.config.maxInformationLoss,
+        },
+      );
     }
 
     if (result.compressionRatio < 0.1) {
@@ -302,7 +320,10 @@ export class SemanticCompressor {
  * Extracts key points from lengthy content
  */
 class SummarizationStrategy implements CompressionStrategyImpl {
-  async compress(content: string, targetRatio: number): Promise<CompressionResult> {
+  async compress(
+    content: string,
+    targetRatio: number,
+  ): Promise<CompressionResult> {
     const original = content;
     const originalTokens = this.estimateTokenCount(original);
 
@@ -311,7 +332,12 @@ class SummarizationStrategy implements CompressionStrategyImpl {
 
     if (sentences.length <= 2) {
       // Too short to summarize meaningfully
-      return this.createResult(original, original, originalTokens, originalTokens);
+      return this.createResult(
+        original,
+        original,
+        originalTokens,
+        originalTokens,
+      );
     }
 
     // Score sentences by importance
@@ -319,28 +345,38 @@ class SummarizationStrategy implements CompressionStrategyImpl {
 
     // Select top sentences to meet target ratio
     const targetTokens = Math.floor(originalTokens * targetRatio);
-    const selectedSentences = this.selectSentencesByToken(scoredSentences, targetTokens);
+    const selectedSentences = this.selectSentencesByToken(
+      scoredSentences,
+      targetTokens,
+    );
 
     // Reconstruct compressed content
     const compressed = selectedSentences
       .sort((a, b) => a.index - b.index) // Maintain original order
-      .map(s => s.sentence)
+      .map((s) => s.sentence)
       .join(' ');
 
     const compressedTokens = this.estimateTokenCount(compressed);
 
-    return this.createResult(original, compressed, originalTokens, compressedTokens);
+    return this.createResult(
+      original,
+      compressed,
+      originalTokens,
+      compressedTokens,
+    );
   }
 
   private splitIntoSentences(text: string): string[] {
     // Simple sentence splitting (could be improved with NLP library)
     return text
       .split(/[.!?]+/)
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
   }
 
-  private scoreSentences(sentences: string[]): Array<{ sentence: string; score: number; index: number }> {
+  private scoreSentences(
+    sentences: string[],
+  ): Array<{ sentence: string; score: number; index: number }> {
     return sentences.map((sentence, index) => ({
       sentence,
       index,
@@ -348,7 +384,10 @@ class SummarizationStrategy implements CompressionStrategyImpl {
     }));
   }
 
-  private calculateSentenceScore(sentence: string, allSentences: string[]): number {
+  private calculateSentenceScore(
+    sentence: string,
+    allSentences: string[],
+  ): number {
     let score = 0;
 
     // Length factor (moderate length sentences score higher)
@@ -364,9 +403,18 @@ class SummarizationStrategy implements CompressionStrategyImpl {
     }
 
     // Keyword factor (sentences with important keywords score higher)
-    const importantKeywords = ['error', 'function', 'class', 'import', 'export', 'const', 'let', 'var'];
-    const keywordMatches = importantKeywords.filter(keyword =>
-      sentence.toLowerCase().includes(keyword)
+    const importantKeywords = [
+      'error',
+      'function',
+      'class',
+      'import',
+      'export',
+      'const',
+      'let',
+      'var',
+    ];
+    const keywordMatches = importantKeywords.filter((keyword) =>
+      sentence.toLowerCase().includes(keyword),
     ).length;
     score += keywordMatches * 0.1;
 
@@ -410,7 +458,10 @@ class SummarizationStrategy implements CompressionStrategyImpl {
       compressedTokens,
       compressionRatio: compressedTokens / originalTokens,
       preservedConcepts: [], // Would extract key concepts in full implementation
-      informationLoss: Math.max(0, 1 - (compressedTokens / originalTokens) * 0.8), // Estimate
+      informationLoss: Math.max(
+        0,
+        1 - (compressedTokens / originalTokens) * 0.8,
+      ), // Estimate
       strategy: CompressionStrategy.SUMMARIZATION,
     };
   }
@@ -421,7 +472,10 @@ class SummarizationStrategy implements CompressionStrategyImpl {
  * Keeps important keywords and removes filler content
  */
 class KeywordExtractionStrategy implements CompressionStrategyImpl {
-  async compress(content: string, targetRatio: number): Promise<CompressionResult> {
+  async compress(
+    content: string,
+    targetRatio: number,
+  ): Promise<CompressionResult> {
     const original = content;
     const originalTokens = this.estimateTokenCount(original);
 
@@ -444,7 +498,10 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
       compressedTokens,
       compressionRatio: compressedTokens / originalTokens,
       preservedConcepts: selectedWords.slice(0, 10), // Top 10 words as concepts
-      informationLoss: Math.max(0, 1 - (selectedWords.length / words.length) * 0.9),
+      informationLoss: Math.max(
+        0,
+        1 - (selectedWords.length / words.length) * 0.9,
+      ),
       strategy: CompressionStrategy.KEYWORD_EXTRACTION,
     };
   }
@@ -453,22 +510,58 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
     return content
       .toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 2)
-      .filter(word => !/^\d+$/.test(word)) // Remove numbers
-      .filter(word => !this.isStopWord(word));
+      .filter((word) => word.length > 2)
+      .filter((word) => !/^\d+$/.test(word)) // Remove numbers
+      .filter((word) => !this.isStopWord(word));
   }
 
   private isStopWord(word: string): boolean {
     const stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-      'of', 'with', 'by', 'this', 'that', 'these', 'those', 'is', 'are',
-      'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do',
-      'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might',
+      'the',
+      'a',
+      'an',
+      'and',
+      'or',
+      'but',
+      'in',
+      'on',
+      'at',
+      'to',
+      'for',
+      'of',
+      'with',
+      'by',
+      'this',
+      'that',
+      'these',
+      'those',
+      'is',
+      'are',
+      'was',
+      'were',
+      'be',
+      'been',
+      'being',
+      'have',
+      'has',
+      'had',
+      'do',
+      'does',
+      'did',
+      'will',
+      'would',
+      'could',
+      'should',
+      'may',
+      'might',
     ]);
     return stopWords.has(word);
   }
 
-  private scoreWords(words: string[], content: string): Array<{ word: string; score: number }> {
+  private scoreWords(
+    words: string[],
+    content: string,
+  ): Array<{ word: string; score: number }> {
     const wordCounts = new Map<string, number>();
 
     // Count word frequencies
@@ -482,7 +575,11 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
     }));
   }
 
-  private calculateWordScore(word: string, frequency: number, content: string): number {
+  private calculateWordScore(
+    word: string,
+    frequency: number,
+    content: string,
+  ): number {
     let score = 0;
 
     // Frequency factor (normalized)
@@ -506,11 +603,37 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
 
   private isTechnicalTerm(word: string): boolean {
     const technicalTerms = [
-      'function', 'class', 'method', 'variable', 'parameter', 'return',
-      'import', 'export', 'module', 'package', 'library', 'framework',
-      'api', 'http', 'json', 'xml', 'database', 'sql', 'query',
-      'algorithm', 'data', 'structure', 'array', 'object', 'string',
-      'error', 'exception', 'debug', 'test', 'unit', 'integration',
+      'function',
+      'class',
+      'method',
+      'variable',
+      'parameter',
+      'return',
+      'import',
+      'export',
+      'module',
+      'package',
+      'library',
+      'framework',
+      'api',
+      'http',
+      'json',
+      'xml',
+      'database',
+      'sql',
+      'query',
+      'algorithm',
+      'data',
+      'structure',
+      'array',
+      'object',
+      'string',
+      'error',
+      'exception',
+      'debug',
+      'test',
+      'unit',
+      'integration',
     ];
     return technicalTerms.includes(word);
   }
@@ -520,7 +643,7 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
     targetTokens: number,
   ): string[] {
     const sorted = [...scoredWords].sort((a, b) => b.score - a.score);
-    return sorted.slice(0, targetTokens).map(item => item.word);
+    return sorted.slice(0, targetTokens).map((item) => item.word);
   }
 
   private estimateTokenCount(text: string): number {
@@ -533,7 +656,10 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
  * Groups similar concepts together and compresses clusters
  */
 class SemanticClusteringStrategy implements CompressionStrategyImpl {
-  async compress(content: string, targetRatio: number): Promise<CompressionResult> {
+  async compress(
+    content: string,
+    targetRatio: number,
+  ): Promise<CompressionResult> {
     const original = content;
     const originalTokens = this.estimateTokenCount(original);
 
@@ -544,8 +670,8 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
     const clusters = this.clusterSegments(segments);
 
     // Compress each cluster
-    const compressedClusters = clusters.map(cluster =>
-      this.compressCluster(cluster, targetRatio)
+    const compressedClusters = clusters.map((cluster) =>
+      this.compressCluster(cluster, targetRatio),
     );
 
     // Reconstruct compressed content
@@ -559,7 +685,10 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
       compressedTokens,
       compressionRatio: compressedTokens / originalTokens,
       preservedConcepts: clusters.map((_, i) => `cluster_${i}`),
-      informationLoss: Math.max(0, 1 - (compressedTokens / originalTokens) * 0.85),
+      informationLoss: Math.max(
+        0,
+        1 - (compressedTokens / originalTokens) * 0.85,
+      ),
       strategy: CompressionStrategy.SEMANTIC_CLUSTERING,
     };
   }
@@ -568,8 +697,8 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
     // Split by double newlines (paragraphs) or logical code blocks
     return content
       .split(/\n\s*\n/)
-      .map(segment => segment.trim())
-      .filter(segment => segment.length > 0);
+      .map((segment) => segment.trim())
+      .filter((segment) => segment.length > 0);
   }
 
   private clusterSegments(segments: string[]): string[][] {
@@ -603,7 +732,9 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
     const words1 = new Set(segment1.toLowerCase().split(/\s+/));
     const words2 = new Set(segment2.toLowerCase().split(/\s+/));
 
-    const intersection = new Set([...words1].filter(word => words2.has(word)));
+    const intersection = new Set(
+      [...words1].filter((word) => words2.has(word)),
+    );
     const union = new Set([...words1, ...words2]);
 
     return intersection.size / union.size; // Jaccard similarity
@@ -619,8 +750,13 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
 
     // Multiple segments - create summary
     const combined = cluster.join(' ');
-    const sentences = combined.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    const targetSentences = Math.max(1, Math.floor(sentences.length * targetRatio));
+    const sentences = combined
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 0);
+    const targetSentences = Math.max(
+      1,
+      Math.floor(sentences.length * targetRatio),
+    );
 
     return sentences.slice(0, targetSentences).join('. ') + '.';
   }
@@ -635,7 +771,10 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
  * Removes less important details first
  */
 class ProgressiveDetailStrategy implements CompressionStrategyImpl {
-  async compress(content: string, targetRatio: number): Promise<CompressionResult> {
+  async compress(
+    content: string,
+    targetRatio: number,
+  ): Promise<CompressionResult> {
     const original = content;
     const originalTokens = this.estimateTokenCount(original);
 
@@ -649,7 +788,7 @@ class ProgressiveDetailStrategy implements CompressionStrategyImpl {
     // Reconstruct compressed content
     const compressed = selectedParts
       .sort((a, b) => a.order - b.order)
-      .map(part => part.content)
+      .map((part) => part.content)
       .join('');
 
     const compressedTokens = this.estimateTokenCount(compressed);
@@ -660,8 +799,11 @@ class ProgressiveDetailStrategy implements CompressionStrategyImpl {
       originalTokens,
       compressedTokens,
       compressionRatio: compressedTokens / originalTokens,
-      preservedConcepts: selectedParts.map(part => part.type),
-      informationLoss: Math.max(0, 1 - (selectedParts.length / contentParts.length) * 0.8),
+      preservedConcepts: selectedParts.map((part) => part.type),
+      informationLoss: Math.max(
+        0,
+        1 - (selectedParts.length / contentParts.length) * 0.8,
+      ),
       strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
@@ -672,7 +814,12 @@ class ProgressiveDetailStrategy implements CompressionStrategyImpl {
     importance: number;
     order: number;
   }> {
-    const parts: Array<{ content: string; type: string; importance: number; order: number }> = [];
+    const parts: Array<{
+      content: string;
+      type: string;
+      importance: number;
+      order: number;
+    }> = [];
     let order = 0;
 
     // Split by lines and analyze each
@@ -700,7 +847,9 @@ class ProgressiveDetailStrategy implements CompressionStrategyImpl {
     let importance = 0.5; // Base importance
 
     // Code patterns (high importance)
-    if (/^(function|class|interface|type|const|let|var|import|export)/.test(line)) {
+    if (
+      /^(function|class|interface|type|const|let|var|import|export)/.test(line)
+    ) {
       importance += 0.4;
     }
 
@@ -738,9 +887,19 @@ class ProgressiveDetailStrategy implements CompressionStrategyImpl {
   }
 
   private selectPartsForTarget(
-    parts: Array<{ content: string; type: string; importance: number; order: number }>,
+    parts: Array<{
+      content: string;
+      type: string;
+      importance: number;
+      order: number;
+    }>,
     targetTokens: number,
-  ): Array<{ content: string; type: string; importance: number; order: number }> {
+  ): Array<{
+    content: string;
+    type: string;
+    importance: number;
+    order: number;
+  }> {
     const sorted = [...parts].sort((a, b) => b.importance - a.importance);
     const selected = [];
     let currentTokens = 0;

@@ -129,7 +129,6 @@ const createMockUIActions = () => ({
   setShellModeActive: vi.fn(),
   onEscapePromptChange: vi.fn(),
   vimHandleInput: vi.fn(),
-   
 });
 const createMockConfig = (overrides = {}) => ({
   getModel: vi.fn(() => 'gemini-1.5-pro'),
@@ -148,7 +147,7 @@ const createMockSettings = (merged = {}) => ({
     ...merged,
   },
 });
- 
+
 const renderComposer = (
   uiState,
   settings = createMockSettings(),
@@ -170,7 +169,7 @@ const renderComposer = (
       }),
     }),
   );
- 
+
 describe('Composer', () => {
   describe('Footer Display Settings', () => {
     it('renders Footer by default when hideFooter is false', () => {
@@ -195,7 +194,7 @@ describe('Composer', () => {
         sessionStats: {
           sessionId: 'test-session',
           sessionStartTime: new Date(),
-           
+
           metrics: {},
           lastPromptTokenCount: 150,
           promptCount: 5,
@@ -215,7 +214,6 @@ describe('Composer', () => {
       vi.mocked(useVimMode).mockReturnValueOnce({
         vimEnabled: true,
         vimMode: 'INSERT',
-         
       });
       const { lastFrame } = renderComposer(uiState, settings, config);
       expect(lastFrame()).toContain('Footer');
@@ -359,7 +357,6 @@ describe('Composer', () => {
         showErrorDetails: true,
         filteredConsoleMessages: [
           { level: 'error', message: 'Test error', timestamp: new Date() },
-           
         ],
       });
       const { lastFrame } = renderComposer(uiState);

@@ -564,7 +564,7 @@ describe('CoreToolScheduler edit cancellation', () => {
     const completedCalls = onAllToolCallsComplete.mock.calls[0][0];
     expect(completedCalls[0].status).toBe('cancelled');
     // Check that the diff is preserved
-     
+
     const cancelledCall = completedCalls[0];
     expect(cancelledCall.response.resultDisplay).toBeDefined();
     expect(cancelledCall.response.resultDisplay.fileDiff).toBe(

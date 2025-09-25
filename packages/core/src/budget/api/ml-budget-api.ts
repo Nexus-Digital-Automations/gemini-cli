@@ -11,11 +11,8 @@ import type {
   MLRiskAssessment,
   PredictionConfidence,
 } from '../types.js';
-import type {
-  MLEnhancedBudgetTracker} from '../ml-enhanced-tracker.js';
-import {
-  createMLEnhancedBudgetTracker,
-} from '../ml-enhanced-tracker.js';
+import type { MLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
+import { createMLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
 
 /**
  * API request interfaces for ML budget endpoints

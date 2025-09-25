@@ -252,7 +252,7 @@ export class TokenUsageCache extends EventEmitter {
       priority?: CachePriority;
       tags?: string[];
       skipCompression?: boolean;
-    } = {}
+    } = {},
   ): void {
     try {
       const now = new Date();
@@ -301,7 +301,6 @@ export class TokenUsageCache extends EventEmitter {
       if (this.config.enablePrefetching) {
         this.checkPrefetchTriggers(key);
       }
-
     } catch (error) {
       console.error(`Cache set error for key ${key}:`, error);
       this.emit('cache-error', { operation: 'set', key, error });
@@ -336,26 +335,30 @@ export class TokenUsageCache extends EventEmitter {
       this.accessTimes.clear();
       this.updateStats();
 
-      this.emit('cache-clear', { type: 'full', entriesCleared: this.stats.entryCount, bytesRecovered: totalSize });
+      this.emit('cache-clear', {
+        type: 'full',
+        entriesCleared: this.stats.entryCount,
+        bytesRecovered: totalSize,
+      });
     } else {
       // Clear by tags
       const keysToDelete: string[] = [];
       let bytesRecovered = 0;
 
       for (const [key, entry] of this.cache.entries()) {
-        if (entry.tags.some(tag => tags.includes(tag))) {
+        if (entry.tags.some((tag) => tags.includes(tag))) {
           keysToDelete.push(key);
           bytesRecovered += entry.size;
         }
       }
 
-      keysToDelete.forEach(key => this.delete(key));
+      keysToDelete.forEach((key) => this.delete(key));
 
       this.emit('cache-clear', {
         type: 'tag-based',
         tags,
         entriesCleared: keysToDelete.length,
-        bytesRecovered
+        bytesRecovered,
       });
     }
   }
@@ -364,10 +367,7 @@ export class TokenUsageCache extends EventEmitter {
    * Ensure cache capacity by evicting entries if necessary
    */
   private ensureCapacity(newEntrySize: number): void {
-    while (
-      this.needsEviction(newEntrySize) &&
-      this.cache.size > 0
-    ) {
+    while (this.needsEviction(newEntrySize) && this.cache.size > 0) {
       const keyToEvict = this.selectEvictionCandidate();
       if (keyToEvict) {
         const entry = this.cache.get(keyToEvict);
@@ -442,20 +442,27 @@ export class TokenUsageCache extends EventEmitter {
    */
   private updateStats(): void {
     this.stats.entryCount = this.cache.size;
-    this.stats.totalSize = Array.from(this.cache.values())
-      .reduce((sum, entry) => sum + entry.size, 0);
+    this.stats.totalSize = Array.from(this.cache.values()).reduce(
+      (sum, entry) => sum + entry.size,
+      0,
+    );
 
     this.stats.memoryUsage = this.stats.totalSize / this.config.maxSizeBytes;
 
     const totalRequests = this.stats.hits + this.stats.misses;
-    this.stats.hitRatio = totalRequests > 0 ? this.stats.hits / totalRequests : 0;
+    this.stats.hitRatio =
+      totalRequests > 0 ? this.stats.hits / totalRequests : 0;
 
     // Calculate efficiency score
-    this.stats.efficiencyScore = Math.min(100, Math.round(
-      (this.stats.hitRatio * 0.6 + // 60% weight on hit ratio
-       (1 - this.stats.memoryUsage) * 0.2 + // 20% weight on memory efficiency
-       (this.stats.avgAccessTime < 1 ? 0.2 : 0)) * 100 // 20% weight on speed
-    ));
+    this.stats.efficiencyScore = Math.min(
+      100,
+      Math.round(
+        (this.stats.hitRatio * 0.6 + // 60% weight on hit ratio
+          (1 - this.stats.memoryUsage) * 0.2 + // 20% weight on memory efficiency
+          (this.stats.avgAccessTime < 1 ? 0.2 : 0)) *
+          100, // 20% weight on speed
+      ),
+    );
   }
 
   /**
@@ -466,7 +473,10 @@ export class TokenUsageCache extends EventEmitter {
     this.recordAccessTime(key, performance.now() - startTime);
 
     if (this.config.enableStats) {
-      this.emit('cache-hit', { key, accessTime: performance.now() - startTime });
+      this.emit('cache-hit', {
+        key,
+        accessTime: performance.now() - startTime,
+      });
     }
   }
 
@@ -478,7 +488,10 @@ export class TokenUsageCache extends EventEmitter {
     this.recordAccessTime(key, performance.now() - startTime);
 
     if (this.config.enableStats) {
-      this.emit('cache-miss', { key, accessTime: performance.now() - startTime });
+      this.emit('cache-miss', {
+        key,
+        accessTime: performance.now() - startTime,
+      });
     }
   }
 
@@ -500,9 +513,10 @@ export class TokenUsageCache extends EventEmitter {
 
     // Update average access time
     const allTimes = Array.from(this.accessTimes.values()).flat();
-    this.stats.avgAccessTime = allTimes.length > 0
-      ? allTimes.reduce((sum, time) => sum + time, 0) / allTimes.length
-      : 0;
+    this.stats.avgAccessTime =
+      allTimes.length > 0
+        ? allTimes.reduce((sum, time) => sum + time, 0) / allTimes.length
+        : 0;
   }
 
   /**
@@ -531,7 +545,7 @@ export class TokenUsageCache extends EventEmitter {
       }
     }
 
-    expiredKeys.forEach(key => this.delete(key));
+    expiredKeys.forEach((key) => this.delete(key));
 
     if (expiredKeys.length > 0) {
       this.emit('cache-cleanup', {
@@ -549,7 +563,8 @@ export class TokenUsageCache extends EventEmitter {
         type: 'low-hit-ratio',
         hitRatio: this.stats.hitRatio,
         threshold: this.config.hitRatioThreshold,
-        recommendation: 'Consider increasing cache size or adjusting TTL values',
+        recommendation:
+          'Consider increasing cache size or adjusting TTL values',
       });
     }
   }
@@ -580,7 +595,10 @@ export class TokenUsageCache extends EventEmitter {
   /**
    * Check if prefetch should be triggered
    */
-  private shouldTriggerPrefetch(accessedKey: string, config: PrefetchConfig): boolean {
+  private shouldTriggerPrefetch(
+    accessedKey: string,
+    config: PrefetchConfig,
+  ): boolean {
     // Simple pattern matching for now
     const regex = new RegExp(config.keyPattern);
     return regex.test(accessedKey);
@@ -589,7 +607,10 @@ export class TokenUsageCache extends EventEmitter {
   /**
    * Execute prefetch operation
    */
-  private async executePrefetch(prefetchKey: string, config: PrefetchConfig): Promise<void> {
+  private async executePrefetch(
+    prefetchKey: string,
+    config: PrefetchConfig,
+  ): Promise<void> {
     try {
       const data = await config.fetcher();
       this.set(prefetchKey, data, {
@@ -654,9 +675,11 @@ export class TokenUsageCache extends EventEmitter {
     const compressionRatio = entries > 0 ? compressedEntries / entries : 0;
 
     // Memory efficiency (how much of max capacity is used effectively)
-    const memoryEfficiency = this.config.maxSizeBytes > 0
-      ? Math.min(1, totalBytes / this.config.maxSizeBytes) * this.stats.hitRatio
-      : 0;
+    const memoryEfficiency =
+      this.config.maxSizeBytes > 0
+        ? Math.min(1, totalBytes / this.config.maxSizeBytes) *
+          this.stats.hitRatio
+        : 0;
 
     return {
       entries,
@@ -717,7 +740,9 @@ export class TokenUsageCache extends EventEmitter {
 /**
  * Create a token usage cache instance with default configuration
  */
-export function createTokenUsageCache(config?: Partial<CacheConfig>): TokenUsageCache {
+export function createTokenUsageCache(
+  config?: Partial<CacheConfig>,
+): TokenUsageCache {
   return new TokenUsageCache(config);
 }
 
@@ -772,10 +797,16 @@ export const CachePresets = {
  * Cache key generators for consistent key patterns
  */
 export const CacheKeys = {
-  tokenUsage: (sessionId: string, timeframe: string) => `token-usage:${sessionId}:${timeframe}`,
-  modelUsage: (model: string, period: string) => `model-usage:${model}:${period}`,
-  budgetStats: (userId: string, date: string) => `budget-stats:${userId}:${date}`,
-  aggregatedMetrics: (type: string, window: string) => `metrics:${type}:${window}`,
-  historicalData: (feature: string, range: string) => `history:${feature}:${range}`,
-  costAnalysis: (model: string, timeframe: string) => `cost-analysis:${model}:${timeframe}`,
+  tokenUsage: (sessionId: string, timeframe: string) =>
+    `token-usage:${sessionId}:${timeframe}`,
+  modelUsage: (model: string, period: string) =>
+    `model-usage:${model}:${period}`,
+  budgetStats: (userId: string, date: string) =>
+    `budget-stats:${userId}:${date}`,
+  aggregatedMetrics: (type: string, window: string) =>
+    `metrics:${type}:${window}`,
+  historicalData: (feature: string, range: string) =>
+    `history:${feature}:${range}`,
+  costAnalysis: (model: string, timeframe: string) =>
+    `cost-analysis:${model}:${timeframe}`,
 } as const;

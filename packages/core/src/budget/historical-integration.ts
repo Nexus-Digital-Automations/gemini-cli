@@ -7,10 +7,9 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { BudgetSettings, BudgetUsageData } from './types.js';
-import type { BudgetTracker} from './budget-tracker.js';
+import type { BudgetTracker } from './budget-tracker.js';
 import { createBudgetTracker } from './budget-tracker.js';
-import type {
-  HistoricalBudgetAnalyzer} from './historical-analysis.js';
+import type { HistoricalBudgetAnalyzer } from './historical-analysis.js';
 import {
   createHistoricalBudgetAnalyzer,
   type HistoricalBudgetRecord,
@@ -24,8 +23,7 @@ import {
   type ScenarioConfig,
   type EnsembleForecast,
 } from './forecasting-models.js';
-import type {
-  HistoricalVisualizationEngine} from './historical-visualization.js';
+import type { HistoricalVisualizationEngine } from './historical-visualization.js';
 import {
   createHistoricalVisualizationEngine,
   type ChartConfig,

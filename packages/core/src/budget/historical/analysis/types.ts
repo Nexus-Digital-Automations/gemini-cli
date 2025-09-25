@@ -30,7 +30,11 @@ export type TrendPeriod =
 /**
  * Direction of trend movement
  */
-export type TrendDirection = 'increasing' | 'decreasing' | 'stable' | 'volatile';
+export type TrendDirection =
+  | 'increasing'
+  | 'decreasing'
+  | 'stable'
+  | 'volatile';
 
 /**
  * Confidence level for trend predictions
@@ -351,7 +355,7 @@ export interface TrendAnalysisEngine {
    */
   analyzeTrends(
     data: BudgetUsageTimeSeriesPoint[],
-    config: AnalysisConfig
+    config: AnalysisConfig,
   ): Promise<TrendAnalysis[]>;
 
   /**
@@ -359,7 +363,7 @@ export interface TrendAnalysisEngine {
    */
   detectSeasonality(
     data: BudgetUsageTimeSeriesPoint[],
-    metric: AnalysisMetric
+    metric: AnalysisMetric,
   ): Promise<SeasonalPattern[]>;
 
   /**
@@ -367,29 +371,27 @@ export interface TrendAnalysisEngine {
    */
   detectAnomalies(
     data: BudgetUsageTimeSeriesPoint[],
-    sensitivity: 'low' | 'medium' | 'high'
+    sensitivity: 'low' | 'medium' | 'high',
   ): Promise<AnomalyDetection>;
 
   /**
    * Analyze cost efficiency patterns
    */
   analyzeEfficiency(
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<EfficiencyAnalysis>;
 
   /**
    * Extract usage patterns and insights
    */
-  extractPatterns(
-    data: BudgetUsageTimeSeriesPoint[]
-  ): Promise<UsagePatterns>;
+  extractPatterns(data: BudgetUsageTimeSeriesPoint[]): Promise<UsagePatterns>;
 
   /**
    * Generate comprehensive insights report
    */
   generateInsights(
     data: BudgetUsageTimeSeriesPoint[],
-    config: AnalysisConfig
+    config: AnalysisConfig,
   ): Promise<InsightsReport>;
 
   /**
@@ -398,19 +400,23 @@ export interface TrendAnalysisEngine {
   forecast(
     data: BudgetUsageTimeSeriesPoint[],
     metric: AnalysisMetric,
-    horizon: number
-  ): Promise<Array<{
-    timestamp: number;
-    predictedValue: number;
-    confidence: number;
-    range: { min: number; max: number };
-  }>>;
+    horizon: number,
+  ): Promise<
+    Array<{
+      timestamp: number;
+      predictedValue: number;
+      confidence: number;
+      range: { min: number; max: number };
+    }>
+  >;
 }
 
 /**
  * Factory function type for creating trend analysis engines
  */
-export type CreateTrendAnalysisEngine = (config?: Partial<AnalysisConfig>) => TrendAnalysisEngine;
+export type CreateTrendAnalysisEngine = (
+  config?: Partial<AnalysisConfig>,
+) => TrendAnalysisEngine;
 
 /**
  * Analysis job for background processing
@@ -420,7 +426,13 @@ export interface AnalysisJob {
   id: string;
 
   /** Job type */
-  type: 'trend' | 'seasonal' | 'anomaly' | 'efficiency' | 'forecast' | 'insights';
+  type:
+    | 'trend'
+    | 'seasonal'
+    | 'anomaly'
+    | 'efficiency'
+    | 'forecast'
+    | 'insights';
 
   /** Job status */
   status: 'pending' | 'running' | 'completed' | 'failed';
@@ -468,7 +480,9 @@ export interface AnalysisScheduler {
   /**
    * Schedule analysis job
    */
-  scheduleJob(job: Omit<AnalysisJob, 'id' | 'createdAt' | 'status' | 'progress'>): Promise<string>;
+  scheduleJob(
+    job: Omit<AnalysisJob, 'id' | 'createdAt' | 'status' | 'progress'>,
+  ): Promise<string>;
 
   /**
    * Get job status

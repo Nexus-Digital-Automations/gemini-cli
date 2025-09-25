@@ -37,7 +37,13 @@ import type {
  * - Scheduled retention operations
  * - Compliance validation
  */
-export class DataRetentionManager implements RetentionManager, RetentionScheduler, LegalHoldManager, ComplianceReporter {
+export class DataRetentionManager
+  implements
+    RetentionManager,
+    RetentionScheduler,
+    LegalHoldManager,
+    ComplianceReporter
+{
   private readonly rulesDir: string;
   private readonly executionHistoryDir: string;
   private readonly schedulesDir: string;
@@ -51,7 +57,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
 
   constructor(
     private storage: TimeSeriesStorage,
-    baseDir: string
+    baseDir: string,
   ) {
     this.rulesDir = path.join(baseDir, 'retention-rules');
     this.executionHistoryDir = path.join(baseDir, 'execution-history');
@@ -103,7 +109,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
         this.rules.set(id, rule as RetentionRule);
       }
 
-      console.log(`[DataRetentionManager] Loaded ${this.rules.size} retention rules`);
+      console.log(
+        `[DataRetentionManager] Loaded ${this.rules.size} retention rules`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         console.warn('[DataRetentionManager] Failed to load rules:', error);
@@ -137,7 +145,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
         this.schedules.set(id, schedule);
       }
 
-      console.log(`[DataRetentionManager] Loaded ${this.schedules.size} schedules`);
+      console.log(
+        `[DataRetentionManager] Loaded ${this.schedules.size} schedules`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         console.warn('[DataRetentionManager] Failed to load schedules:', error);
@@ -158,10 +168,15 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
         this.legalHolds.set(id, hold);
       }
 
-      console.log(`[DataRetentionManager] Loaded ${this.legalHolds.size} legal holds`);
+      console.log(
+        `[DataRetentionManager] Loaded ${this.legalHolds.size} legal holds`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn('[DataRetentionManager] Failed to load legal holds:', error);
+        console.warn(
+          '[DataRetentionManager] Failed to load legal holds:',
+          error,
+        );
       }
     }
   }
@@ -175,10 +190,15 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
       const historyData = await fs.readFile(historyPath, 'utf-8');
       this.executionHistory = JSON.parse(historyData);
 
-      console.log(`[DataRetentionManager] Loaded ${this.executionHistory.length} execution records`);
+      console.log(
+        `[DataRetentionManager] Loaded ${this.executionHistory.length} execution records`,
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn('[DataRetentionManager] Failed to load execution history:', error);
+        console.warn(
+          '[DataRetentionManager] Failed to load execution history:',
+          error,
+        );
       }
     }
   }
@@ -189,9 +209,15 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   private async saveExecutionHistory(): Promise<void> {
     try {
       const historyPath = path.join(this.executionHistoryDir, 'history.json');
-      await fs.writeFile(historyPath, JSON.stringify(this.executionHistory, null, 2));
+      await fs.writeFile(
+        historyPath,
+        JSON.stringify(this.executionHistory, null, 2),
+      );
     } catch (error) {
-      console.error('[DataRetentionManager] Failed to save execution history:', error);
+      console.error(
+        '[DataRetentionManager] Failed to save execution history:',
+        error,
+      );
     }
   }
 
@@ -220,7 +246,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
           {
             field: 'timestamp',
             operator: 'lt',
-            value: Date.now() - (30 * 24 * 60 * 60 * 1000),
+            value: Date.now() - 30 * 24 * 60 * 60 * 1000,
           },
         ],
         priority: 1,
@@ -249,7 +275,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
           {
             field: 'timestamp',
             operator: 'lt',
-            value: Date.now() - (365 * 24 * 60 * 60 * 1000),
+            value: Date.now() - 365 * 24 * 60 * 60 * 1000,
           },
         ],
         priority: 2,
@@ -273,14 +299,22 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   async addRule(rule: RetentionRule): Promise<void> {
     this.rules.set(rule.id, rule);
     await this.saveRules();
-    await this.logAuditEvent('rule_added', rule.id, 'system', `Added retention rule: ${rule.name}`);
+    await this.logAuditEvent(
+      'rule_added',
+      rule.id,
+      'system',
+      `Added retention rule: ${rule.name}`,
+    );
     console.log(`[DataRetentionManager] Added retention rule: ${rule.name}`);
   }
 
   /**
    * Update existing rule
    */
-  async updateRule(ruleId: string, updates: Partial<RetentionRule>): Promise<void> {
+  async updateRule(
+    ruleId: string,
+    updates: Partial<RetentionRule>,
+  ): Promise<void> {
     const existingRule = this.rules.get(ruleId);
     if (!existingRule) {
       throw new Error(`Retention rule not found: ${ruleId}`);
@@ -294,7 +328,12 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
 
     this.rules.set(ruleId, updatedRule);
     await this.saveRules();
-    await this.logAuditEvent('rule_updated', ruleId, 'system', `Updated retention rule: ${existingRule.name}`);
+    await this.logAuditEvent(
+      'rule_updated',
+      ruleId,
+      'system',
+      `Updated retention rule: ${existingRule.name}`,
+    );
     console.log(`[DataRetentionManager] Updated retention rule: ${ruleId}`);
   }
 
@@ -309,7 +348,12 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
 
     this.rules.delete(ruleId);
     await this.saveRules();
-    await this.logAuditEvent('rule_removed', ruleId, 'system', `Removed retention rule: ${rule.name}`);
+    await this.logAuditEvent(
+      'rule_removed',
+      ruleId,
+      'system',
+      `Removed retention rule: ${rule.name}`,
+    );
     console.log(`[DataRetentionManager] Removed retention rule: ${ruleId}`);
   }
 
@@ -330,9 +374,13 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   /**
    * Create execution plan
    */
-  async createExecutionPlan(dryRun: boolean = false): Promise<RetentionExecutionPlan> {
+  async createExecutionPlan(
+    dryRun: boolean = false,
+  ): Promise<RetentionExecutionPlan> {
     const planId = `plan_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const enabledRules = Array.from(this.rules.values()).filter(rule => rule.enabled);
+    const enabledRules = Array.from(this.rules.values()).filter(
+      (rule) => rule.enabled,
+    );
 
     // Get storage statistics to estimate data size
     const storageStats = await this.storage.getStats();
@@ -404,7 +452,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
 
     try {
       const enabledRules = Array.from(this.rules.values())
-        .filter(rule => rule.enabled)
+        .filter((rule) => rule.enabled)
         .sort((a, b) => a.priority - b.priority);
 
       for (const rule of enabledRules) {
@@ -422,13 +470,15 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
           };
 
           result.errors.push(retentionError);
-          console.error(`[DataRetentionManager] Error executing rule ${rule.id}:`, error);
+          console.error(
+            `[DataRetentionManager] Error executing rule ${rule.id}:`,
+            error,
+          );
         }
       }
 
       result.status = result.errors.length === 0 ? 'success' : 'partial';
       result.summary = `Executed ${enabledRules.length} rules with ${result.errors.length} errors`;
-
     } catch (error) {
       result.status = 'failed';
       result.summary = `Execution failed: ${(error as Error).message}`;
@@ -439,17 +489,26 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     this.executionHistory.push(result);
     await this.saveExecutionHistory();
 
-    await this.logAuditEvent('plan_executed', planId, 'system',
-      `Executed retention plan ${planId} with status: ${result.status}`);
+    await this.logAuditEvent(
+      'plan_executed',
+      planId,
+      'system',
+      `Executed retention plan ${planId} with status: ${result.status}`,
+    );
 
-    console.log(`[DataRetentionManager] Plan execution completed: ${result.status}`);
+    console.log(
+      `[DataRetentionManager] Plan execution completed: ${result.status}`,
+    );
     return result;
   }
 
   /**
    * Execute individual retention rule
    */
-  private async executeRule(rule: RetentionRule, result: RetentionExecutionResult): Promise<void> {
+  private async executeRule(
+    rule: RetentionRule,
+    result: RetentionExecutionResult,
+  ): Promise<void> {
     console.log(`[DataRetentionManager] Executing rule: ${rule.name}`);
 
     // Check conditions
@@ -464,7 +523,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
       try {
         await this.executeAction(action, rule, result);
       } catch (error) {
-        throw new Error(`Failed to execute action ${action.type}: ${(error as Error).message}`);
+        throw new Error(
+          `Failed to execute action ${action.type}: ${(error as Error).message}`,
+        );
       }
     }
   }
@@ -472,7 +533,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   /**
    * Evaluate retention conditions
    */
-  private async evaluateConditions(conditions: RetentionCondition[]): Promise<boolean> {
+  private async evaluateConditions(
+    conditions: RetentionCondition[],
+  ): Promise<boolean> {
     // Simplified condition evaluation
     // In a real implementation, this would query the data and check conditions
     for (const condition of conditions) {
@@ -494,7 +557,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   private async executeAction(
     action: RetentionAction,
     rule: RetentionRule,
-    result: RetentionExecutionResult
+    result: RetentionExecutionResult,
   ): Promise<void> {
     switch (action.type) {
       case 'delete':
@@ -517,10 +580,13 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   private async executeDeleteAction(
     action: RetentionAction,
     rule: RetentionRule,
-    result: RetentionExecutionResult
+    result: RetentionExecutionResult,
   ): Promise<void> {
     // Find old data to delete based on rule conditions
-    const cutoffTime = Date.now() - (rule.retentionPeriod.value * this.getMillisecondsForUnit(rule.retentionPeriod.unit));
+    const cutoffTime =
+      Date.now() -
+      rule.retentionPeriod.value *
+        this.getMillisecondsForUnit(rule.retentionPeriod.unit);
 
     // Use storage's purgeOldData method
     const purgeResult = await this.storage.purgeOldData(cutoffTime);
@@ -528,7 +594,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     if (purgeResult.success) {
       result.actionsExecuted.delete += purgeResult.recordsAffected;
       result.dataSizeProcessedMB += 0.1; // Estimate
-      console.log(`[DataRetentionManager] Deleted ${purgeResult.recordsAffected} old records`);
+      console.log(
+        `[DataRetentionManager] Deleted ${purgeResult.recordsAffected} old records`,
+      );
     } else {
       throw new Error(`Delete action failed: ${purgeResult.error}`);
     }
@@ -540,7 +608,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   private async executeCompressAction(
     action: RetentionAction,
     rule: RetentionRule,
-    result: RetentionExecutionResult
+    result: RetentionExecutionResult,
   ): Promise<void> {
     // Use storage's compact method for compression
     const compactResult = await this.storage.compact();
@@ -548,7 +616,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     if (compactResult.success) {
       result.actionsExecuted.compress += compactResult.recordsAffected;
       result.dataSizeProcessedMB += 0.05; // Estimate
-      console.log(`[DataRetentionManager] Compressed ${compactResult.recordsAffected} records`);
+      console.log(
+        `[DataRetentionManager] Compressed ${compactResult.recordsAffected} records`,
+      );
     } else {
       throw new Error(`Compress action failed: ${compactResult.error}`);
     }
@@ -560,10 +630,13 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   private async executeArchiveAction(
     action: RetentionAction,
     rule: RetentionRule,
-    result: RetentionExecutionResult
+    result: RetentionExecutionResult,
   ): Promise<void> {
     // Create backup for archiving
-    const archivePath = path.join(this.executionHistoryDir, `archive_${Date.now()}.backup`);
+    const archivePath = path.join(
+      this.executionHistoryDir,
+      `archive_${Date.now()}.backup`,
+    );
     const backupResult = await this.storage.backup(archivePath);
 
     if (backupResult.success) {
@@ -578,21 +651,32 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   /**
    * Get milliseconds for time unit
    */
-  private getMillisecondsForUnit(unit: 'days' | 'weeks' | 'months' | 'years'): number {
+  private getMillisecondsForUnit(
+    unit: 'days' | 'weeks' | 'months' | 'years',
+  ): number {
     switch (unit) {
-      case 'days': return 24 * 60 * 60 * 1000;
-      case 'weeks': return 7 * 24 * 60 * 60 * 1000;
-      case 'months': return 30 * 24 * 60 * 60 * 1000; // Approximate
-      case 'years': return 365 * 24 * 60 * 60 * 1000; // Approximate
-      default: return 24 * 60 * 60 * 1000;
+      case 'days':
+        return 24 * 60 * 60 * 1000;
+      case 'weeks':
+        return 7 * 24 * 60 * 60 * 1000;
+      case 'months':
+        return 30 * 24 * 60 * 60 * 1000; // Approximate
+      case 'years':
+        return 365 * 24 * 60 * 60 * 1000; // Approximate
+      default:
+        return 24 * 60 * 60 * 1000;
     }
   }
 
   /**
    * Get execution history
    */
-  async getExecutionHistory(limit?: number): Promise<RetentionExecutionResult[]> {
-    const history = [...this.executionHistory].sort((a, b) => b.startTime - a.startTime);
+  async getExecutionHistory(
+    limit?: number,
+  ): Promise<RetentionExecutionResult[]> {
+    const history = [...this.executionHistory].sort(
+      (a, b) => b.startTime - a.startTime,
+    );
     return limit ? history.slice(0, limit) : history;
   }
 
@@ -615,14 +699,14 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     ];
 
     for (const category of ageCategories) {
-      const timestamp = currentTime - (category.days * 24 * 60 * 60 * 1000);
+      const timestamp = currentTime - category.days * 24 * 60 * 60 * 1000;
 
       analyses.push({
         dataPoint: {
           timestamp,
           size: 1024, // Estimate
           accessCount: Math.max(1, Math.floor(30 / category.days)),
-          lastAccessed: currentTime - (category.days * 12 * 60 * 60 * 1000), // Half the age
+          lastAccessed: currentTime - category.days * 12 * 60 * 60 * 1000, // Half the age
         },
         age: {
           days: category.days,
@@ -630,9 +714,19 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
           months: Math.floor(category.days / 30),
         },
         lifecycle: {
-          stage: category.days < 7 ? 'active' : category.days < 90 ? 'inactive' : 'archived',
+          stage:
+            category.days < 7
+              ? 'active'
+              : category.days < 90
+                ? 'inactive'
+                : 'archived',
           transitionDate: timestamp,
-          accessFrequency: category.days < 7 ? 'frequent' : category.days < 30 ? 'occasional' : 'rare',
+          accessFrequency:
+            category.days < 7
+              ? 'frequent'
+              : category.days < 30
+                ? 'occasional'
+                : 'rare',
           storageLocation: 'local',
           compressionRatio: category.days > 30 ? 0.7 : undefined,
         },
@@ -640,7 +734,12 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
           action: category.recommendation,
           reason: `Data is ${category.days} days old`,
           confidence: 0.8,
-          estimatedSaving: category.recommendation === 'delete' ? 1024 : category.recommendation === 'compress' ? 300 : 0,
+          estimatedSaving:
+            category.recommendation === 'delete'
+              ? 1024
+              : category.recommendation === 'compress'
+                ? 300
+                : 0,
         },
         appliedRules: [],
       });
@@ -654,29 +753,57 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
    */
   async getStats(): Promise<RetentionStats> {
     const totalRules = this.rules.size;
-    const activeRules = Array.from(this.rules.values()).filter(rule => rule.enabled).length;
+    const activeRules = Array.from(this.rules.values()).filter(
+      (rule) => rule.enabled,
+    ).length;
     const totalExecutions = this.executionHistory.length;
-    const successfulExecutions = this.executionHistory.filter(exec => exec.status === 'success').length;
-    const failedExecutions = this.executionHistory.filter(exec => exec.status === 'failed').length;
+    const successfulExecutions = this.executionHistory.filter(
+      (exec) => exec.status === 'success',
+    ).length;
+    const failedExecutions = this.executionHistory.filter(
+      (exec) => exec.status === 'failed',
+    ).length;
 
-    const dataProcessed = this.executionHistory.reduce((acc, exec) => ({
+    const dataProcessed = this.executionHistory.reduce(
+      (acc, exec) => ({
         totalSizeMB: acc.totalSizeMB + exec.dataSizeProcessedMB,
-        deletedSizeMB: acc.deletedSizeMB + (exec.actionsExecuted.delete * 0.1), // Estimate
-        archivedSizeMB: acc.archivedSizeMB + (exec.actionsExecuted.archive * 1), // Estimate
-        compressedSizeMB: acc.compressedSizeMB + (exec.actionsExecuted.compress * 0.05), // Estimate
-      }), { totalSizeMB: 0, deletedSizeMB: 0, archivedSizeMB: 0, compressedSizeMB: 0 });
+        deletedSizeMB: acc.deletedSizeMB + exec.actionsExecuted.delete * 0.1, // Estimate
+        archivedSizeMB: acc.archivedSizeMB + exec.actionsExecuted.archive * 1, // Estimate
+        compressedSizeMB:
+          acc.compressedSizeMB + exec.actionsExecuted.compress * 0.05, // Estimate
+      }),
+      {
+        totalSizeMB: 0,
+        deletedSizeMB: 0,
+        archivedSizeMB: 0,
+        compressedSizeMB: 0,
+      },
+    );
 
     const spaceSaved = {
-      totalMB: dataProcessed.deletedSizeMB + (dataProcessed.compressedSizeMB * 0.3), // Compression saves ~30%
-      percentageSaved: dataProcessed.totalSizeMB > 0 ?
-        ((dataProcessed.deletedSizeMB + (dataProcessed.compressedSizeMB * 0.3)) / dataProcessed.totalSizeMB) * 100 : 0,
+      totalMB:
+        dataProcessed.deletedSizeMB + dataProcessed.compressedSizeMB * 0.3, // Compression saves ~30%
+      percentageSaved:
+        dataProcessed.totalSizeMB > 0
+          ? ((dataProcessed.deletedSizeMB +
+              dataProcessed.compressedSizeMB * 0.3) /
+              dataProcessed.totalSizeMB) *
+            100
+          : 0,
     };
 
-    const averageExecutionTime = totalExecutions > 0 ?
-      this.executionHistory.reduce((sum, exec) => sum + (exec.endTime - exec.startTime), 0) / totalExecutions : 0;
+    const averageExecutionTime =
+      totalExecutions > 0
+        ? this.executionHistory.reduce(
+            (sum, exec) => sum + (exec.endTime - exec.startTime),
+            0,
+          ) / totalExecutions
+        : 0;
 
-    const lastExecution = totalExecutions > 0 ?
-      Math.max(...this.executionHistory.map(exec => exec.startTime)) : undefined;
+    const lastExecution =
+      totalExecutions > 0
+        ? Math.max(...this.executionHistory.map((exec) => exec.startTime))
+        : undefined;
 
     return {
       totalRules,
@@ -777,7 +904,10 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   /**
    * Schedule automatic retention execution
    */
-  async scheduleExecution(cronExpression: string, ruleIds?: string[]): Promise<string> {
+  async scheduleExecution(
+    cronExpression: string,
+    ruleIds?: string[],
+  ): Promise<string> {
     const scheduleId = `schedule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const schedule = {
@@ -791,7 +921,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
 
     this.schedules.set(scheduleId, schedule);
 
-    console.log(`[DataRetentionManager] Scheduled retention execution: ${scheduleId}`);
+    console.log(
+      `[DataRetentionManager] Scheduled retention execution: ${scheduleId}`,
+    );
     return scheduleId;
   }
 
@@ -801,7 +933,9 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
   async cancelScheduledExecution(scheduleId: string): Promise<void> {
     if (this.schedules.has(scheduleId)) {
       this.schedules.delete(scheduleId);
-      console.log(`[DataRetentionManager] Cancelled scheduled execution: ${scheduleId}`);
+      console.log(
+        `[DataRetentionManager] Cancelled scheduled execution: ${scheduleId}`,
+      );
     }
   }
 
@@ -810,7 +944,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
    */
   private calculateNextExecution(cronExpression: string): number {
     // Simplified cron calculation - would use a proper cron parser in real implementation
-    return Date.now() + (24 * 60 * 60 * 1000); // Default to 24 hours
+    return Date.now() + 24 * 60 * 60 * 1000; // Default to 24 hours
   }
 
   // Placeholder implementations for other interfaces
@@ -834,11 +968,18 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     await this.cancelScheduledExecution(scheduleId);
   }
 
-  async getScheduleHistory(scheduleId: string, limit?: number): Promise<RetentionExecutionResult[]> {
+  async getScheduleHistory(
+    scheduleId: string,
+    limit?: number,
+  ): Promise<RetentionExecutionResult[]> {
     return this.getExecutionHistory(limit);
   }
 
-  async placeLegalHold(holdId: string, criteria: RetentionCondition[], reason: string): Promise<void> {
+  async placeLegalHold(
+    holdId: string,
+    criteria: RetentionCondition[],
+    reason: string,
+  ): Promise<void> {
     const legalHold = {
       id: holdId,
       criteria,
@@ -849,13 +990,23 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     };
 
     this.legalHolds.set(holdId, legalHold);
-    await this.logAuditEvent('legal_hold_placed', holdId, 'system', `Legal hold placed: ${reason}`);
+    await this.logAuditEvent(
+      'legal_hold_placed',
+      holdId,
+      'system',
+      `Legal hold placed: ${reason}`,
+    );
   }
 
   async releaseLegalHold(holdId: string, reason: string): Promise<void> {
     if (this.legalHolds.has(holdId)) {
       this.legalHolds.delete(holdId);
-      await this.logAuditEvent('legal_hold_released', holdId, 'system', `Legal hold released: ${reason}`);
+      await this.logAuditEvent(
+        'legal_hold_released',
+        holdId,
+        'system',
+        `Legal hold released: ${reason}`,
+      );
     }
   }
 
@@ -878,7 +1029,11 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     }
   }
 
-  async generateComplianceReport(startDate: number, endDate: number, format: 'json' | 'csv' | 'pdf'): Promise<any> {
+  async generateComplianceReport(
+    startDate: number,
+    endDate: number,
+    format: 'json' | 'csv' | 'pdf',
+  ): Promise<any> {
     const reportId = `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const data: ComplianceReportData = {
@@ -908,8 +1063,8 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
 
   async generateDataLineageReport(dataIdentifier: string): Promise<any> {
     return {
-      created: Date.now() - (30 * 24 * 60 * 60 * 1000),
-      accessed: [Date.now() - (7 * 24 * 60 * 60 * 1000)],
+      created: Date.now() - 30 * 24 * 60 * 60 * 1000,
+      accessed: [Date.now() - 7 * 24 * 60 * 60 * 1000],
       modified: [],
       retentionRulesApplied: [],
       legalHolds: [],
@@ -921,14 +1076,21 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
     return {
       compliant: true,
       violations: [],
-      recommendations: ['Consider implementing additional retention rules for compliance'],
+      recommendations: [
+        'Consider implementing additional retention rules for compliance',
+      ],
     };
   }
 
   /**
    * Log audit event
    */
-  private async logAuditEvent(action: string, targetId: string, user: string, description: string): Promise<void> {
+  private async logAuditEvent(
+    action: string,
+    targetId: string,
+    user: string,
+    description: string,
+  ): Promise<void> {
     try {
       const auditPath = path.join(this.auditTrailDir, 'audit.json');
       let auditTrail: any[] = [];
@@ -965,7 +1127,7 @@ export class DataRetentionManager implements RetentionManager, RetentionSchedule
  */
 export function createDataRetentionManager(
   storage: TimeSeriesStorage,
-  baseDir: string
+  baseDir: string,
 ): DataRetentionManager {
   return new DataRetentionManager(storage, baseDir);
 }

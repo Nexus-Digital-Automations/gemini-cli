@@ -69,7 +69,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
     if (key.upArrow || input === 'k') {
       setSelectedAlertIndex(Math.max(0, selectedAlertIndex - 1));
     } else if (key.downArrow || input === 'j') {
-      setSelectedAlertIndex(Math.min(sortedAlerts.length - 1, selectedAlertIndex + 1));
+      setSelectedAlertIndex(
+        Math.min(sortedAlerts.length - 1, selectedAlertIndex + 1),
+      );
     } else if (key.return || input === ' ') {
       // Dismiss selected alert
       const selectedAlert = sortedAlerts[selectedAlertIndex];
@@ -141,10 +143,12 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
    * Renders the alerts summary header.
    */
   const renderAlertsHeader = () => {
-    const criticalCount = alerts.filter(a => a.severity === 'critical').length;
-    const errorCount = alerts.filter(a => a.severity === 'error').length;
-    const warningCount = alerts.filter(a => a.severity === 'warning').length;
-    const activeCount = alerts.filter(a => a.isActive).length;
+    const criticalCount = alerts.filter(
+      (a) => a.severity === 'critical',
+    ).length;
+    const errorCount = alerts.filter((a) => a.severity === 'error').length;
+    const warningCount = alerts.filter((a) => a.severity === 'warning').length;
+    const activeCount = alerts.filter((a) => a.isActive).length;
 
     return (
       <Box flexDirection="column" marginBottom={2}>
@@ -156,25 +160,41 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
           <Box gap={4}>
             <Box flexDirection="column">
               <Text color={theme.text.muted}>Active</Text>
-              <Text color={activeCount > 0 ? theme.status.warning : theme.status.success}>
+              <Text
+                color={
+                  activeCount > 0 ? theme.status.warning : theme.status.success
+                }
+              >
                 {activeCount}
               </Text>
             </Box>
             <Box flexDirection="column">
               <Text color={theme.text.muted}>Critical</Text>
-              <Text color={criticalCount > 0 ? theme.status.error : theme.text.secondary}>
+              <Text
+                color={
+                  criticalCount > 0 ? theme.status.error : theme.text.secondary
+                }
+              >
                 {criticalCount}
               </Text>
             </Box>
             <Box flexDirection="column">
               <Text color={theme.text.muted}>Errors</Text>
-              <Text color={errorCount > 0 ? theme.status.error : theme.text.secondary}>
+              <Text
+                color={
+                  errorCount > 0 ? theme.status.error : theme.text.secondary
+                }
+              >
                 {errorCount}
               </Text>
             </Box>
             <Box flexDirection="column">
               <Text color={theme.text.muted}>Warnings</Text>
-              <Text color={warningCount > 0 ? theme.status.warning : theme.text.secondary}>
+              <Text
+                color={
+                  warningCount > 0 ? theme.status.warning : theme.text.secondary
+                }
+              >
                 {warningCount}
               </Text>
             </Box>
@@ -183,7 +203,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
           <Box flexDirection="column" alignItems="flex-end">
             <Text color={theme.text.muted}>Last Alert</Text>
             <Text color={theme.text.secondary}>
-              {alerts.length > 0 ? formatTime(sortedAlerts[0].triggeredAt) : 'None'}
+              {alerts.length > 0
+                ? formatTime(sortedAlerts[0].triggeredAt)
+                : 'None'}
             </Text>
           </Box>
         </Box>
@@ -193,12 +215,18 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
             paddingX={2}
             paddingY={1}
             borderStyle="single"
-            borderColor={budgetStats.usagePercentage > 90 ? theme.status.error : theme.text.muted}
+            borderColor={
+              budgetStats.usagePercentage > 90
+                ? theme.status.error
+                : theme.text.muted
+            }
           >
             <Text color={theme.text.secondary}>
-              Current Status: {budgetStats.requestCount}/{budgetStats.dailyLimit} requests
-              ({formatPercentage(budgetStats.usagePercentage)}) •{' '}
-              {budgetStats.remainingRequests} remaining • Reset in {budgetStats.timeUntilReset}
+              Current Status: {budgetStats.requestCount}/
+              {budgetStats.dailyLimit} requests (
+              {formatPercentage(budgetStats.usagePercentage)}) •{' '}
+              {budgetStats.remainingRequests} remaining • Reset in{' '}
+              {budgetStats.timeUntilReset}
             </Text>
           </Box>
         )}
@@ -246,13 +274,15 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
             }
             marginBottom={1}
             backgroundColor={
-              index === selectedAlertIndex
-                ? theme.primary.light
-                : undefined
+              index === selectedAlertIndex ? theme.primary.light : undefined
             }
           >
             {/* Alert header */}
-            <Box justifyContent="space-between" alignItems="center" marginBottom={1}>
+            <Box
+              justifyContent="space-between"
+              alignItems="center"
+              marginBottom={1}
+            >
               <Box gap={1} alignItems="center">
                 <Text>{getSeverityIcon(alert.severity)}</Text>
                 <Text>{getTypeIcon(alert.type)}</Text>
@@ -284,23 +314,26 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
                 </Text>
               </Box>
               {index === selectedAlertIndex && (
-                <Text color={theme.text.muted}>
-                  Press Enter to dismiss
-                </Text>
+                <Text color={theme.text.muted}>Press Enter to dismiss</Text>
               )}
             </Box>
 
             {/* Suggested actions (show for selected alert) */}
-            {index === selectedAlertIndex && alert.suggestedActions.length > 0 && (
-              <Box flexDirection="column" marginTop={1}>
-                <Text color={theme.text.muted}>Suggested Actions:</Text>
-                {alert.suggestedActions.map((action, actionIndex) => (
-                  <Text key={actionIndex} color={theme.text.secondary} marginTop={1}>
-                    • {action}
-                  </Text>
-                ))}
-              </Box>
-            )}
+            {index === selectedAlertIndex &&
+              alert.suggestedActions.length > 0 && (
+                <Box flexDirection="column" marginTop={1}>
+                  <Text color={theme.text.muted}>Suggested Actions:</Text>
+                  {alert.suggestedActions.map((action, actionIndex) => (
+                    <Text
+                      key={actionIndex}
+                      color={theme.text.secondary}
+                      marginTop={1}
+                    >
+                      • {action}
+                    </Text>
+                  ))}
+                </Box>
+              )}
           </Box>
         ))}
       </Box>
@@ -322,9 +355,7 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
         <Box gap={4} marginBottom={1}>
           {currentThresholds.map((threshold, index) => (
             <Box key={index} alignItems="center" gap={1}>
-              <Text color={theme.status.warning}>
-                {threshold}%
-              </Text>
+              <Text color={theme.status.warning}>{threshold}%</Text>
               <Text color={theme.text.muted}>
                 {index === 0 ? 'Warning' : index === 1 ? 'Error' : 'Critical'}
               </Text>
@@ -343,7 +374,7 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
    * Renders alert statistics.
    */
   const renderAlertStats = () => {
-    const todaysAlerts = alerts.filter(alert => {
+    const todaysAlerts = alerts.filter((alert) => {
       const today = new Date();
       const alertDate = new Date(alert.triggeredAt);
       return (
@@ -353,7 +384,7 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
       );
     });
 
-    const recentAlerts = alerts.filter(alert => {
+    const recentAlerts = alerts.filter((alert) => {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       return alert.triggeredAt > oneHourAgo;
     });
@@ -394,18 +425,14 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
       borderTop
     >
       <Box gap={4}>
-        <Text color={theme.text.muted}>
-          ↑↓/jk: Navigate
-        </Text>
-        <Text color={theme.text.muted}>
-          Enter/Space: Dismiss
-        </Text>
-        <Text color={theme.text.muted}>
-          d: Toggle dismissed
-        </Text>
+        <Text color={theme.text.muted}>↑↓/jk: Navigate</Text>
+        <Text color={theme.text.muted}>Enter/Space: Dismiss</Text>
+        <Text color={theme.text.muted}>d: Toggle dismissed</Text>
       </Box>
       <Text color={theme.text.muted}>
-        {sortedAlerts.length > 0 ? `${selectedAlertIndex + 1}/${sortedAlerts.length}` : 'No alerts'}
+        {sortedAlerts.length > 0
+          ? `${selectedAlertIndex + 1}/${sortedAlerts.length}`
+          : 'No alerts'}
       </Text>
     </Box>
   );

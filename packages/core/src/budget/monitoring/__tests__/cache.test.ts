@@ -12,7 +12,14 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from '@jest/globals';
 import { TokenUsageCache, CachePriority, CachePresets } from '../cache.js';
 import type { CacheConfig, CacheStats } from '../cache.js';
 
@@ -103,7 +110,7 @@ describe('TokenUsageCache', () => {
       expect(cache.get(key)).toBe(value);
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       // Should be expired
       expect(cache.get(key)).toBeUndefined();
@@ -185,12 +192,20 @@ describe('TokenUsageCache', () => {
       });
 
       try {
-        smallCache.set('low-priority', 'value1', { priority: CachePriority.LOW });
-        smallCache.set('high-priority', 'value2', { priority: CachePriority.HIGH });
-        smallCache.set('critical-priority', 'value3', { priority: CachePriority.CRITICAL });
+        smallCache.set('low-priority', 'value1', {
+          priority: CachePriority.LOW,
+        });
+        smallCache.set('high-priority', 'value2', {
+          priority: CachePriority.HIGH,
+        });
+        smallCache.set('critical-priority', 'value3', {
+          priority: CachePriority.CRITICAL,
+        });
 
         // This should evict the low-priority entry
-        smallCache.set('normal-priority', 'value4', { priority: CachePriority.NORMAL });
+        smallCache.set('normal-priority', 'value4', {
+          priority: CachePriority.NORMAL,
+        });
 
         expect(smallCache.get('low-priority')).toBeUndefined(); // Should be evicted
         expect(smallCache.get('high-priority')).toBe('value2');
@@ -259,7 +274,7 @@ describe('TokenUsageCache', () => {
 
       expect(stats.hits).toBe(2);
       expect(stats.misses).toBe(1);
-      expect(stats.hitRatio).toBeCloseTo(2/3, 2);
+      expect(stats.hitRatio).toBeCloseTo(2 / 3, 2);
       expect(stats.entryCount).toBe(2);
       expect(stats.totalSize).toBeGreaterThan(0);
     });
@@ -333,7 +348,7 @@ describe('TokenUsageCache', () => {
         expect(stats.entryCount).toBe(1);
 
         // Wait for expiration and cleanup
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         stats = cleanupCache.getStats();
         expect(stats.entryCount).toBe(0);
@@ -367,8 +382,8 @@ describe('TokenUsageCache', () => {
 
       expect(exported).toBeDefined();
       expect(exported.entries).toHaveLength(2);
-      expect(exported.entries.some(e => e.key === 'key1')).toBe(true);
-      expect(exported.entries.some(e => e.key === 'key2')).toBe(true);
+      expect(exported.entries.some((e) => e.key === 'key1')).toBe(true);
+      expect(exported.entries.some((e) => e.key === 'key2')).toBe(true);
     });
 
     it('should import cache data', () => {

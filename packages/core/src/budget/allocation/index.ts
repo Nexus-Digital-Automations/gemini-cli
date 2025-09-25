@@ -58,6 +58,127 @@ export {
   type RecommendationPerformanceMetrics,
 } from './recommendations/index.js';
 
+// Optimization system exports
+export {
+  EfficiencyAnalyzer,
+  createEfficiencyAnalyzer,
+  ResourceUtilizationOptimizer,
+  createResourceUtilizationOptimizer,
+  DEFAULT_EFFICIENCY_CONFIG,
+  DEFAULT_UTILIZATION_CONFIG,
+} from './optimization/index.js';
+
+// Prioritization system exports
+export {
+  ResourceRanking,
+  createResourceRanking,
+  PriorityAssignment,
+  createPriorityAssignment,
+  DEFAULT_RANKING_CONFIG,
+  DEFAULT_PRIORITY_CONFIG,
+} from './prioritization/index.js';
+
+// Rebalancing system exports
+export {
+  DynamicRebalancer,
+  createDynamicRebalancer,
+  DEFAULT_REBALANCING_CONFIG,
+} from './rebalancing/index.js';
+
+// Scenario planning system exports
+export {
+  ScenarioPlanner,
+  createScenarioPlanner,
+  DEFAULT_SCENARIO_CONFIG,
+} from './scenarios/index.js';
+
+// Type exports from optimization system
+export type {
+  EfficiencyAnalysisConfig,
+  ResourceEfficiency,
+  EfficiencyTrend,
+  EfficiencyIssue,
+  EfficiencyImprovement,
+  PortfolioEfficiency,
+  UtilizationOptimizationConfig,
+  OptimizationObjective,
+  UtilizationAnalysis,
+  UtilizationMetrics,
+  UtilizationPattern,
+  UtilizationForecast,
+  OptimizationOpportunity,
+  CapacityAnalysis,
+  PerformanceCorrelation,
+  PortfolioUtilizationResult,
+} from './optimization/index.js';
+
+// Type exports from prioritization system
+export type {
+  ResourceRankingConfig,
+  RankingCriteria,
+  PriorityThresholds,
+  BusinessContextConfig,
+  RankingAlgorithmConfig,
+  ResourceRanking as ResourceRankingResult,
+  ScoreBreakdown,
+  RankingJustification,
+  SensitivityAnalysis,
+  PortfolioRanking,
+  PortfolioInsights,
+  RankingStatistics,
+  PriorityAssignmentConfig,
+  PriorityAssignmentStrategy,
+  PriorityAdjustmentConstraints,
+  PriorityEscalationConfig,
+  ConflictResolutionConfig,
+  BusinessRulesConfig,
+  BusinessRule,
+  EscalationTrigger,
+  PriorityAssignmentResult,
+  AssignmentRationale,
+  AssignmentMetadata,
+  PortfolioPriorityAssignmentResult,
+  PortfolioPriorityInsights,
+  PriorityConflict,
+  PriorityEscalation,
+  PriorityRecommendation,
+} from './prioritization/index.js';
+
+// Type exports from rebalancing system
+export type {
+  DynamicRebalancingConfig,
+  RebalancingStrategy,
+  RebalancingTrigger,
+  TriggerCondition,
+  RebalancingConstraints,
+  MonitoringConfig,
+  RiskManagementConfig,
+  AutomationConfig,
+  RebalancingAnalysis,
+  ResourceState,
+  RebalancingAction,
+  RebalancingRiskAssessment,
+  RiskFactor,
+  RebalancingOutcome,
+  RebalancingExecutionResult,
+} from './rebalancing/index.js';
+
+// Type exports from scenario planning system
+export type {
+  ScenarioPlanningConfig,
+  ScenarioParameters,
+  ScenarioAnalysisResult,
+  ScenarioComparison,
+  ScenarioRiskAnalysis,
+  SensitivityAnalysisResult,
+  ImplementationRoadmap,
+  ImplementationPhase,
+  Milestone,
+  ResourceRequirement,
+  RiskMitigationPlan,
+  SuccessMetric,
+} from './scenarios/index.js';
+
 /**
  * Main allocation system interface
  */
@@ -259,11 +380,12 @@ export function createAllocationSystem(
  * @returns Array of allocation candidates
  */
 export function createAllocationCandidatesFromBudgetData(
-  budgetData: any[], // This would be properly typed based on actual budget data structure
-  settings: any = {} // This would be properly typed based on actual settings structure
+  budgetData: unknown[], // This would be properly typed based on actual budget data structure
+  _settings: unknown = {} // This would be properly typed based on actual settings structure
 ): AllocationCandidate[] {
   // This is a placeholder implementation
   // In a real system, this would convert budget data to allocation candidates
+  console.log('Converting budget data:', budgetData.length, 'items');
   return [];
 }
 

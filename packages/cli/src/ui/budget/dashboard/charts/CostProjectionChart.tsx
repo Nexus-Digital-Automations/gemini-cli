@@ -134,7 +134,9 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
 
     switch (projection.trend) {
       case 'increasing':
-        return projection.confidence > 80 ? theme.status.error : theme.status.warning;
+        return projection.confidence > 80
+          ? theme.status.error
+          : theme.status.warning;
       case 'decreasing':
         return theme.status.success;
       case 'stable':
@@ -166,16 +168,15 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
   const renderProjectionHeader = () => {
     const totalProjected = sortedProjections.reduce(
       (sum, proj) => sum + proj.projectedCost,
-      0
+      0,
     );
-    const avgConfidence = sortedProjections.reduce(
-      (sum, proj) => sum + proj.confidence,
-      0
-    ) / sortedProjections.length;
+    const avgConfidence =
+      sortedProjections.reduce((sum, proj) => sum + proj.confidence, 0) /
+      sortedProjections.length;
 
     const highestProjection = sortedProjections.reduce(
       (max, proj) => (proj.projectedCost > max.projectedCost ? proj : max),
-      sortedProjections[0]
+      sortedProjections[0],
     );
 
     return (
@@ -225,7 +226,8 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
         <Box key={index} justifyContent="space-between" alignItems="center">
           <Box gap={2} alignItems="center">
             <Text color={theme.text.primary} bold>
-              {projection.period.charAt(0).toUpperCase() + projection.period.slice(1)}
+              {projection.period.charAt(0).toUpperCase() +
+                projection.period.slice(1)}
             </Text>
             <Text color={getTrendColor(projection)}>
               {getTrendIcon(projection.trend)} {projection.trend}
@@ -250,26 +252,38 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
   const renderDetailedProjections = () => (
     <Box flexDirection="column">
       {sortedProjections.map((projection, index) => {
-        const confidenceColor = projection.confidence > 80
-          ? theme.status.success
-          : projection.confidence > 60
-            ? theme.status.warning
-            : theme.status.error;
+        const confidenceColor =
+          projection.confidence > 80
+            ? theme.status.success
+            : projection.confidence > 60
+              ? theme.status.warning
+              : theme.status.error;
 
         return (
           <Box key={index} flexDirection="column" marginBottom={2}>
             {/* Projection header */}
-            <Box justifyContent="space-between" alignItems="center" marginBottom={1}>
+            <Box
+              justifyContent="space-between"
+              alignItems="center"
+              marginBottom={1}
+            >
               <Text color={theme.text.primary} bold>
-                {projection.period.charAt(0).toUpperCase() + projection.period.slice(1)} Projection
+                {projection.period.charAt(0).toUpperCase() +
+                  projection.period.slice(1)}{' '}
+                Projection
               </Text>
               <Text color={theme.text.secondary}>
-                {formatTime(projection.projectionRange.start)} - {formatTime(projection.projectionRange.end)}
+                {formatTime(projection.projectionRange.start)} -{' '}
+                {formatTime(projection.projectionRange.end)}
               </Text>
             </Box>
 
             {/* Cost and trend */}
-            <Box justifyContent="space-between" alignItems="center" marginBottom={1}>
+            <Box
+              justifyContent="space-between"
+              alignItems="center"
+              marginBottom={1}
+            >
               <Box gap={2} alignItems="center">
                 <Text color={theme.text.primary}>
                   Cost: {formatCurrency(projection.projectedCost)}
@@ -303,7 +317,7 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
    * Renders projection comparison chart.
    */
   const renderProjectionComparison = () => {
-    const maxCost = Math.max(...sortedProjections.map(p => p.projectedCost));
+    const maxCost = Math.max(...sortedProjections.map((p) => p.projectedCost));
     const availableWidth = config.width - 15; // Reserve space for labels
 
     return (
@@ -313,22 +327,24 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
         </Text>
 
         {sortedProjections.map((projection, index) => {
-          const barWidth = Math.max(1, Math.floor((projection.projectedCost / maxCost) * availableWidth));
+          const barWidth = Math.max(
+            1,
+            Math.floor((projection.projectedCost / maxCost) * availableWidth),
+          );
           const trendColor = getTrendColor(projection);
 
           return (
             <Box key={index} flexDirection="column" marginBottom={1}>
               <Box justifyContent="space-between">
-                <Text color={theme.text.primary}>
-                  {projection.period}
-                </Text>
+                <Text color={theme.text.primary}>{projection.period}</Text>
                 <Text color={theme.text.secondary}>
                   {formatCurrency(projection.projectedCost)}
                 </Text>
               </Box>
               <Box alignItems="center" gap={1}>
                 <Text color={trendColor}>
-                  {'█'.repeat(barWidth)}{'░'.repeat(Math.max(0, availableWidth - barWidth))}
+                  {'█'.repeat(barWidth)}
+                  {'░'.repeat(Math.max(0, availableWidth - barWidth))}
                 </Text>
                 <Text color={theme.text.muted}>
                   {getTrendIcon(projection.trend)}
@@ -345,9 +361,15 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
    * Renders budget planning insights and recommendations.
    */
   const renderBudgetInsights = () => {
-    const increasingProjections = sortedProjections.filter(p => p.trend === 'increasing');
-    const highConfidenceProjections = sortedProjections.filter(p => p.confidence > 80);
-    const totalMonthlyProjection = sortedProjections.find(p => p.period === 'monthly');
+    const increasingProjections = sortedProjections.filter(
+      (p) => p.trend === 'increasing',
+    );
+    const highConfidenceProjections = sortedProjections.filter(
+      (p) => p.confidence > 80,
+    );
+    const totalMonthlyProjection = sortedProjections.find(
+      (p) => p.period === 'monthly',
+    );
 
     return (
       <Box flexDirection="column" marginTop={1}>
@@ -358,7 +380,9 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
         {increasingProjections.length > 0 && (
           <Box marginBottom={1}>
             <Text color={theme.status.warning}>
-              ⚠ {increasingProjections.length} projection{increasingProjections.length > 1 ? 's' : ''} showing increasing costs
+              ⚠ {increasingProjections.length} projection
+              {increasingProjections.length > 1 ? 's' : ''} showing increasing
+              costs
             </Text>
           </Box>
         )}
@@ -366,7 +390,8 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
         {highConfidenceProjections.length > 0 && (
           <Box marginBottom={1}>
             <Text color={theme.status.success}>
-              ✓ {highConfidenceProjections.length} high-confidence projection{highConfidenceProjections.length > 1 ? 's' : ''}
+              ✓ {highConfidenceProjections.length} high-confidence projection
+              {highConfidenceProjections.length > 1 ? 's' : ''}
             </Text>
           </Box>
         )}
@@ -374,16 +399,15 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
         {totalMonthlyProjection && (
           <Box marginBottom={1}>
             <Text color={theme.text.secondary}>
-              📅 Monthly forecast: {formatCurrency(totalMonthlyProjection.projectedCost)}
-              {' '}({totalMonthlyProjection.confidence.toFixed(0)}% confidence)
+              📅 Monthly forecast:{' '}
+              {formatCurrency(totalMonthlyProjection.projectedCost)} (
+              {totalMonthlyProjection.confidence.toFixed(0)}% confidence)
             </Text>
           </Box>
         )}
 
         <Box marginTop={1}>
-          <Text color={theme.text.muted}>
-            💡 Recommendations:
-          </Text>
+          <Text color={theme.text.muted}>💡 Recommendations:</Text>
           <Box flexDirection="column" marginTop={1}>
             {increasingProjections.length > 0 && (
               <Text color={theme.text.muted}>
@@ -391,11 +415,14 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
               </Text>
             )}
             <Text color={theme.text.muted}>
-              • Set alerts at {Math.floor(sortedProjections[0]?.projectedCost * 0.8)} threshold
+              • Set alerts at{' '}
+              {Math.floor(sortedProjections[0]?.projectedCost * 0.8)} threshold
             </Text>
             {totalMonthlyProjection && (
               <Text color={theme.text.muted}>
-                • Budget {formatCurrency(totalMonthlyProjection.projectedCost * 1.2)} for safety margin
+                • Budget{' '}
+                {formatCurrency(totalMonthlyProjection.projectedCost * 1.2)} for
+                safety margin
               </Text>
             )}
           </Box>
@@ -424,26 +451,30 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
 
       {/* Chart visualization */}
       <Box flexGrow={1}>
-        {config.height > 20
-          ? (
-            <Box flexDirection="column">
-              {renderDetailedProjections()}
-              {config.height > 25 && renderBudgetInsights()}
-            </Box>
-          )
-          : config.height > 12
-          ? renderProjectionComparison()
-          : renderCompactProjections()}
+        {config.height > 20 ? (
+          <Box flexDirection="column">
+            {renderDetailedProjections()}
+            {config.height > 25 && renderBudgetInsights()}
+          </Box>
+        ) : config.height > 12 ? (
+          renderProjectionComparison()
+        ) : (
+          renderCompactProjections()
+        )}
       </Box>
 
       {/* Footer */}
-      <Box justifyContent="space-between" marginTop={1} paddingTop={1} borderTop>
+      <Box
+        justifyContent="space-between"
+        marginTop={1}
+        paddingTop={1}
+        borderTop
+      >
         <Text color={theme.text.muted}>
-          {sortedProjections.length} projection{sortedProjections.length !== 1 ? 's' : ''}
+          {sortedProjections.length} projection
+          {sortedProjections.length !== 1 ? 's' : ''}
         </Text>
-        <Text color={theme.text.muted}>
-          Updated: {formatTime(new Date())}
-        </Text>
+        <Text color={theme.text.muted}>Updated: {formatTime(new Date())}</Text>
       </Box>
     </Box>
   );

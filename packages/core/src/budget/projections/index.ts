@@ -57,39 +57,25 @@ export type {
 } from './types.js';
 
 // Mathematical algorithms
-export {
-  MathematicalAlgorithms,
-} from './algorithms/mathematical-algorithms.js';
+export { MathematicalAlgorithms } from './algorithms/mathematical-algorithms.js';
 
 // Forecasting engine
-export {
-  CostForecastingEngine,
-} from './forecasting/cost-forecasting-engine.js';
+export { CostForecastingEngine } from './forecasting/cost-forecasting-engine.js';
 
 // Alert system
-export {
-  BudgetAlertSystem,
-} from './alerts/budget-alert-system.js';
+export { BudgetAlertSystem } from './alerts/budget-alert-system.js';
 
 // Analysis engine
-export {
-  CostAnalysisEngine,
-} from './analysis/cost-analysis-engine.js';
+export { CostAnalysisEngine } from './analysis/cost-analysis-engine.js';
 
 // Prediction models
-export {
-  PredictionModels,
-} from './models/prediction-models.js';
+export { PredictionModels } from './models/prediction-models.js';
 
 // Alert triggers
-export {
-  AlertTriggerEngine,
-} from './triggers/alert-trigger-engine.js';
+export { AlertTriggerEngine } from './triggers/alert-trigger-engine.js';
 
 // Optimization engine
-export {
-  BudgetOptimizationEngine,
-} from './optimization/budget-optimization-engine.js';
+export { BudgetOptimizationEngine } from './optimization/budget-optimization-engine.js';
 
 // Validation framework
 export {
@@ -167,15 +153,21 @@ export class CostProjectionSystem {
     this.logger.info('Initializing cost projection system', { config });
 
     // Initialize core components
-    this.forecastingEngine = new (require('./forecasting/cost-forecasting-engine.js').CostForecastingEngine)();
-    this.alertSystem = new (require('./alerts/budget-alert-system.js').BudgetAlertSystem)();
-    this.analysisEngine = new (require('./analysis/cost-analysis-engine.js').CostAnalysisEngine)();
-    this.optimizationEngine = new (require('./optimization/budget-optimization-engine.js').BudgetOptimizationEngine)();
+    this.forecastingEngine =
+      new (require('./forecasting/cost-forecasting-engine.js').CostForecastingEngine)();
+    this.alertSystem =
+      new (require('./alerts/budget-alert-system.js').BudgetAlertSystem)();
+    this.analysisEngine =
+      new (require('./analysis/cost-analysis-engine.js').CostAnalysisEngine)();
+    this.optimizationEngine =
+      new (require('./optimization/budget-optimization-engine.js').BudgetOptimizationEngine)();
 
     // Initialize optional validation components
     if (config.enableValidation) {
-      this.validator = new (require('./validation/algorithm-validator.js').AlgorithmValidator)();
-      this.performanceMonitor = new (require('./validation/performance-monitor.js').PerformanceMonitor)();
+      this.validator =
+        new (require('./validation/algorithm-validator.js').AlgorithmValidator)();
+      this.performanceMonitor =
+        new (require('./validation/performance-monitor.js').PerformanceMonitor)();
     }
 
     this.logger.info('Cost projection system initialized successfully');
@@ -186,7 +178,7 @@ export class CostProjectionSystem {
    */
   async generateCostProjection(
     historicalData: Array<import('./types.js').CostDataPoint>,
-    projectionDays: number = 30
+    projectionDays: number = 30,
   ): Promise<import('./types.js').CostProjection> {
     const startTime = Date.now();
     this.logger.info('Generating comprehensive cost projection', {
@@ -204,20 +196,21 @@ export class CostProjectionSystem {
       const projection = await this.forecastingEngine.generateProjections(
         historicalData,
         projectionDays,
-        'ensemble'
+        'ensemble',
       );
 
       // Enhance projection with additional analysis
       const analysis = await this.analysisEngine.performComprehensiveAnalysis(
         historicalData,
-        projection
+        projection,
       );
 
       // Add optimization recommendations
-      const optimizations = await this.optimizationEngine.generateOptimizationPlan(
-        historicalData,
-        projection
-      );
+      const optimizations =
+        await this.optimizationEngine.generateOptimizationPlan(
+          historicalData,
+          projection,
+        );
 
       // Enhance projection with optimization insights
       const enhancedProjection = {
@@ -258,7 +251,7 @@ export class CostProjectionSystem {
   async monitorBudgetAndAlert(
     currentUsage: import('./types.js').BudgetUsageData,
     budgetLimit: number,
-    alertConfigs: Array<import('./types.js').BudgetAlertConfig>
+    alertConfigs: Array<import('./types.js').BudgetAlertConfig>,
   ): Promise<Array<import('./types.js').BudgetAlert>> {
     const startTime = Date.now();
     this.logger.info('Starting budget monitoring and alerting', {
@@ -274,7 +267,10 @@ export class CostProjectionSystem {
       }
 
       // Check all alerts
-      const alerts = await this.alertSystem.checkAllAlerts(currentUsage, budgetLimit);
+      const alerts = await this.alertSystem.checkAllAlerts(
+        currentUsage,
+        budgetLimit,
+      );
 
       const duration = Date.now() - startTime;
       this.logger.info('Budget monitoring completed', {
@@ -296,7 +292,7 @@ export class CostProjectionSystem {
    * Perform comprehensive cost analysis
    */
   async performCostAnalysis(
-    costData: Array<import('./types.js').CostDataPoint>
+    costData: Array<import('./types.js').CostDataPoint>,
   ): Promise<import('./types.js').CostAnalysisResult> {
     const startTime = Date.now();
     this.logger.info('Performing comprehensive cost analysis', {
@@ -304,7 +300,8 @@ export class CostProjectionSystem {
     });
 
     try {
-      const analysis = await this.analysisEngine.performComprehensiveAnalysis(costData);
+      const analysis =
+        await this.analysisEngine.performComprehensiveAnalysis(costData);
 
       const duration = Date.now() - startTime;
       this.logger.info('Cost analysis completed', {
@@ -329,7 +326,7 @@ export class CostProjectionSystem {
    */
   async generateOptimizationRecommendations(
     historicalData: Array<import('./types.js').CostDataPoint>,
-    currentProjection?: import('./types.js').CostProjection
+    currentProjection?: import('./types.js').CostProjection,
   ): Promise<Array<import('./types.js').OptimizationRecommendation>> {
     const startTime = Date.now();
     this.logger.info('Generating optimization recommendations', {
@@ -338,10 +335,11 @@ export class CostProjectionSystem {
     });
 
     try {
-      const optimizationPlan = await this.optimizationEngine.generateOptimizationPlan(
-        historicalData,
-        currentProjection
-      );
+      const optimizationPlan =
+        await this.optimizationEngine.generateOptimizationPlan(
+          historicalData,
+          currentProjection,
+        );
 
       const duration = Date.now() - startTime;
       this.logger.info('Optimization recommendations generated', {
@@ -363,7 +361,9 @@ export class CostProjectionSystem {
   /**
    * Validate system performance and accuracy
    */
-  async validateSystemPerformance(): Promise<import('./validation/algorithm-validator.js').ValidationReport | null> {
+  async validateSystemPerformance(): Promise<
+    import('./validation/algorithm-validator.js').ValidationReport | null
+  > {
     if (!this.validator) {
       this.logger.warn('Validation not enabled in system configuration');
       return null;
@@ -374,7 +374,8 @@ export class CostProjectionSystem {
 
     try {
       // Create a test algorithm that combines forecasting and analysis
-      const testAlgorithm = (data: Array<import('./types.js').CostDataPoint>) => this.forecastingEngine.generateProjections(data, 30, 'ensemble');
+      const testAlgorithm = (data: Array<import('./types.js').CostDataPoint>) =>
+        this.forecastingEngine.generateProjections(data, 30, 'ensemble');
 
       const report = await this.validator.runValidationSuite(testAlgorithm);
 
@@ -406,7 +407,7 @@ export class CostProjectionSystem {
 
     if (this.performanceMonitor) {
       this.performanceMonitor.startContinuousMonitoring(
-        this.config.performance.benchmarkInterval
+        this.config.performance.benchmarkInterval,
       );
       this.logger.info('Continuous performance monitoring started');
     }
@@ -449,7 +450,7 @@ export class CostProjectionSystem {
         alerts: 'operational' as const,
         analysis: 'operational' as const,
         optimization: 'operational' as const,
-        validation: this.validator ? 'operational' as const : undefined,
+        validation: this.validator ? ('operational' as const) : undefined,
       },
       lastHealthCheck: new Date(),
     };
@@ -541,7 +542,7 @@ export const ConfigurationFactory = {
   createDefaultAlertConfig: (
     id: string,
     thresholdValue: number,
-    severity: import('./types.js').BudgetAlertConfig['severity'] = 'warning'
+    severity: import('./types.js').BudgetAlertConfig['severity'] = 'warning',
   ): import('./types.js').BudgetAlertConfig => ({
     id,
     name: `Budget Alert ${id}`,
@@ -584,7 +585,9 @@ export const SystemUtils = {
   /**
    * Validate historical data for projection requirements
    */
-  validateHistoricalData: (data: Array<import('./types.js').CostDataPoint>): {
+  validateHistoricalData: (
+    data: Array<import('./types.js').CostDataPoint>,
+  ): {
     valid: boolean;
     issues: string[];
     recommendations: string[];
@@ -593,19 +596,29 @@ export const SystemUtils = {
     const recommendations: string[] = [];
 
     if (data.length < SystemConstants.MIN_HISTORICAL_DATA_POINTS) {
-      issues.push(`Insufficient data points: ${data.length} < ${SystemConstants.MIN_HISTORICAL_DATA_POINTS}`);
-      recommendations.push('Collect more historical data for accurate projections');
+      issues.push(
+        `Insufficient data points: ${data.length} < ${SystemConstants.MIN_HISTORICAL_DATA_POINTS}`,
+      );
+      recommendations.push(
+        'Collect more historical data for accurate projections',
+      );
     }
 
     // Check for data quality issues
-    const hasValidCosts = data.every(d => typeof d.cost === 'number' && !isNaN(d.cost) && isFinite(d.cost));
+    const hasValidCosts = data.every(
+      (d) => typeof d.cost === 'number' && !isNaN(d.cost) && isFinite(d.cost),
+    );
     if (!hasValidCosts) {
       issues.push('Invalid cost values detected');
-      recommendations.push('Clean data to ensure all cost values are valid numbers');
+      recommendations.push(
+        'Clean data to ensure all cost values are valid numbers',
+      );
     }
 
     // Check for chronological order
-    const sortedData = [...data].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sortedData = [...data].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
     const isChronological = JSON.stringify(data) === JSON.stringify(sortedData);
     if (!isChronological) {
       issues.push('Data is not in chronological order');
@@ -622,7 +635,9 @@ export const SystemUtils = {
   /**
    * Calculate data quality score
    */
-  calculateDataQualityScore: (data: Array<import('./types.js').CostDataPoint>): number => {
+  calculateDataQualityScore: (
+    data: Array<import('./types.js').CostDataPoint>,
+  ): number => {
     if (data.length === 0) return 0;
 
     let score = 100;
@@ -633,19 +648,23 @@ export const SystemUtils = {
     }
 
     // Check for missing values
-    const validCosts = data.filter(d =>
-      typeof d.cost === 'number' && !isNaN(d.cost) && isFinite(d.cost)
+    const validCosts = data.filter(
+      (d) => typeof d.cost === 'number' && !isNaN(d.cost) && isFinite(d.cost),
     ).length;
     const validityRatio = validCosts / data.length;
     score *= validityRatio;
 
     // Check for reasonable variance
     if (validCosts > 1) {
-      const costs = data.map(d => d.cost).filter(cost =>
-        typeof cost === 'number' && !isNaN(cost) && isFinite(cost)
-      );
+      const costs = data
+        .map((d) => d.cost)
+        .filter(
+          (cost) => typeof cost === 'number' && !isNaN(cost) && isFinite(cost),
+        );
       const mean = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
-      const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / costs.length;
+      const variance =
+        costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) /
+        costs.length;
       const coefficientOfVariation = Math.sqrt(variance) / mean;
 
       // Penalize extremely high variance (potential data quality issues)

@@ -6,9 +6,12 @@
 
 import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine.js';
-import type { ResourceInfo, AllocationResult ,
+import type {
+  ResourceInfo,
+  AllocationResult,
   ResourceAllocator,
-  ResourceType} from './resourceAllocator.js';
+  ResourceType,
+} from './resourceAllocator.js';
 import {
   type AllocationStrategy,
   type ResourceRequirement,

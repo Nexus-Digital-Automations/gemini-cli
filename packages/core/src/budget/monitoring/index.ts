@@ -13,24 +13,81 @@
  */
 
 // Core monitoring components
-export { TokenTracker, type TokenTrackerConfig, type TokenTrackingEvent, type RequestTrackingData, type TokenUsageStats } from './token-tracker.js';
-export { MetricsCollector, type MetricsCollectorConfig, type MetricsDataPoint, type MetricsSummary, type AggregatedMetrics, type TrendAnalysis, type StatisticalAnalysis } from './metrics-collector.js';
-export { UsageCalculator, type ModelPricing, type CostBreakdown, type UsageCostAnalysis } from './usage-calculator.js';
+export {
+  TokenTracker,
+  type TokenTrackerConfig,
+  type TokenTrackingEvent,
+  type RequestTrackingData,
+  type TokenUsageStats,
+} from './token-tracker.js';
+export {
+  MetricsCollector,
+  type MetricsCollectorConfig,
+  type MetricsDataPoint,
+  type MetricsSummary,
+  type AggregatedMetrics,
+  type TrendAnalysis,
+  type StatisticalAnalysis,
+} from './metrics-collector.js';
+export {
+  UsageCalculator,
+  type ModelPricing,
+  type CostBreakdown,
+  type UsageCostAnalysis,
+} from './usage-calculator.js';
 
 // Event management
-export { BudgetEventManager, type EventManagerConfig, type EventSubscription, type EventFilter, type EventRoutingRule, type EventHandler } from './events.js';
+export {
+  BudgetEventManager,
+  type EventManagerConfig,
+  type EventSubscription,
+  type EventFilter,
+  type EventRoutingRule,
+  type EventHandler,
+} from './events.js';
 
 // Quota and rate limiting
-export { QuotaManager, type QuotaManagerConfig, type QuotaLimit, type RateLimitStrategy, type TokenBucket, type SlidingWindowLimiter } from './quota-manager.js';
+export {
+  QuotaManager,
+  type QuotaManagerConfig,
+  type QuotaLimit,
+  type RateLimitStrategy,
+  type TokenBucket,
+  type SlidingWindowLimiter,
+} from './quota-manager.js';
 
 // Data aggregation
-export { TokenDataAggregator, type AggregatorConfig, type AggregationConfig, type TimeWindow, type WindowedData } from './aggregator.js';
+export {
+  TokenDataAggregator,
+  type AggregatorConfig,
+  type AggregationConfig,
+  type TimeWindow,
+  type WindowedData,
+} from './aggregator.js';
 
 // Real-time streaming
-export { RealTimeStreamingService, type StreamingConfig, type StreamSubscription, type StreamType, type StreamMessage, type StreamFilter } from './streaming.js';
+export {
+  RealTimeStreamingService,
+  type StreamingConfig,
+  type StreamSubscription,
+  type StreamType,
+  type StreamMessage,
+  type StreamFilter,
+} from './streaming.js';
 
 // Caching system
-export { TokenUsageCache, createTokenUsageCache, type CacheEntry, type CacheConfig, type CacheStats, type CacheInvalidationEvent, type PrefetchConfig, CachePriority, CachePresets, CacheKeys } from './cache.js';
+export {
+  TokenUsageCache,
+  createTokenUsageCache,
+  type CacheEntry,
+  type CacheConfig,
+  type CacheStats,
+  type CacheInvalidationEvent,
+  type PrefetchConfig,
+  CachePriority,
+  CachePresets,
+  CacheKeys,
+} from './cache.js';
 
 // Integration layer
 export {
@@ -39,7 +96,7 @@ export {
   createTokenMonitoringIntegration,
   createMonitoringEnabledContentGenerator,
   type MonitoringIntegrationConfig,
-  type IntegrationStats
+  type IntegrationStats,
 } from './integration.js';
 
 /**
@@ -120,10 +177,16 @@ export class MonitoringHealthChecker {
    */
   async performHealthCheck(): Promise<{
     healthy: boolean;
-    components: Record<string, { status: 'healthy' | 'warning' | 'error'; message?: string }>;
+    components: Record<
+      string,
+      { status: 'healthy' | 'warning' | 'error'; message?: string }
+    >;
     recommendations: string[];
   }> {
-    const components: Record<string, { status: 'healthy' | 'warning' | 'error'; message?: string }> = {};
+    const components: Record<
+      string,
+      { status: 'healthy' | 'warning' | 'error'; message?: string }
+    > = {};
     const recommendations: string[] = [];
 
     // Check token tracker
@@ -132,23 +195,39 @@ export class MonitoringHealthChecker {
       if (tokenStats.totalRequests > 0) {
         components.tokenTracker = { status: 'healthy' };
       } else {
-        components.tokenTracker = { status: 'warning', message: 'No requests tracked yet' };
+        components.tokenTracker = {
+          status: 'warning',
+          message: 'No requests tracked yet',
+        };
       }
     } catch (error) {
-      components.tokenTracker = { status: 'error', message: `Token tracker error: ${error}` };
-      recommendations.push('Check token tracker configuration and restart monitoring');
+      components.tokenTracker = {
+        status: 'error',
+        message: `Token tracker error: ${error}`,
+      };
+      recommendations.push(
+        'Check token tracker configuration and restart monitoring',
+      );
     }
 
     // Check metrics collector
     try {
-      const metricsStats = this.integration.getMetricsCollector().getMetricsSummary();
+      const metricsStats = this.integration
+        .getMetricsCollector()
+        .getMetricsSummary();
       if (metricsStats.totalDataPoints > 0) {
         components.metricsCollector = { status: 'healthy' };
       } else {
-        components.metricsCollector = { status: 'warning', message: 'No metrics collected yet' };
+        components.metricsCollector = {
+          status: 'warning',
+          message: 'No metrics collected yet',
+        };
       }
     } catch (error) {
-      components.metricsCollector = { status: 'error', message: `Metrics collector error: ${error}` };
+      components.metricsCollector = {
+        status: 'error',
+        message: `Metrics collector error: ${error}`,
+      };
       recommendations.push('Check metrics collector configuration');
     }
 
@@ -160,14 +239,23 @@ export class MonitoringHealthChecker {
         if (cacheStats.hitRatio > 0.8) {
           components.cache = { status: 'healthy' };
         } else if (cacheStats.hitRatio > 0.5) {
-          components.cache = { status: 'warning', message: 'Low cache hit ratio' };
+          components.cache = {
+            status: 'warning',
+            message: 'Low cache hit ratio',
+          };
           recommendations.push('Consider adjusting cache TTL or size limits');
         } else {
-          components.cache = { status: 'error', message: 'Very low cache hit ratio' };
+          components.cache = {
+            status: 'error',
+            message: 'Very low cache hit ratio',
+          };
           recommendations.push('Review cache configuration and usage patterns');
         }
       } catch (error) {
-        components.cache = { status: 'error', message: `Cache error: ${error}` };
+        components.cache = {
+          status: 'error',
+          message: `Cache error: ${error}`,
+        };
       }
     }
 
@@ -178,19 +266,29 @@ export class MonitoringHealthChecker {
         // Would need to add health check methods to streaming service
         components.streaming = { status: 'healthy' };
       } catch (error) {
-        components.streaming = { status: 'error', message: `Streaming error: ${error}` };
-        recommendations.push('Check streaming service configuration and restart if needed');
+        components.streaming = {
+          status: 'error',
+          message: `Streaming error: ${error}`,
+        };
+        recommendations.push(
+          'Check streaming service configuration and restart if needed',
+        );
       }
     }
 
     // Determine overall health
-    const hasErrors = Object.values(components).some(c => c.status === 'error');
-    const hasWarnings = Object.values(components).some(c => c.status === 'warning');
+    const hasErrors = Object.values(components).some(
+      (c) => c.status === 'error',
+    );
+    const hasWarnings = Object.values(components).some(
+      (c) => c.status === 'warning',
+    );
 
     return {
       healthy: !hasErrors,
       components,
-      recommendations: hasErrors || hasWarnings ? recommendations : ['System is healthy'],
+      recommendations:
+        hasErrors || hasWarnings ? recommendations : ['System is healthy'],
     };
   }
 }
@@ -207,8 +305,14 @@ export const MonitoringUtils = {
     budgetSettings: any,
     environment: 'production' | 'development' | 'testing' = 'development',
   ) => {
-    const preset = MonitoringPresets[environment === 'production' ? 'Production' :
-                                     environment === 'testing' ? 'Testing' : 'Development'];
+    const preset =
+      MonitoringPresets[
+        environment === 'production'
+          ? 'Production'
+          : environment === 'testing'
+            ? 'Testing'
+            : 'Development'
+      ];
 
     return createTokenMonitoringIntegration(config, budgetSettings, preset);
   },
@@ -233,7 +337,10 @@ export const MonitoringUtils = {
       if (onError) {
         onError(error as Error);
       }
-      console.error('Failed to setup monitoring, falling back to base generator:', error);
+      console.error(
+        'Failed to setup monitoring, falling back to base generator:',
+        error,
+      );
       return { contentGenerator: baseContentGenerator, integration: null };
     }
   },
@@ -241,5 +348,6 @@ export const MonitoringUtils = {
   /**
    * Create health checker for monitoring integration
    */
-  createHealthChecker: (integration: TokenMonitoringIntegration) => new MonitoringHealthChecker(integration),
+  createHealthChecker: (integration: TokenMonitoringIntegration) =>
+    new MonitoringHealthChecker(integration),
 };

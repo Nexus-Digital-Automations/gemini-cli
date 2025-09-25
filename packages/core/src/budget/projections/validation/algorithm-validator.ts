@@ -284,7 +284,7 @@ export class AlgorithmValidator {
   async validateProjectionAccuracy(
     algorithm: (data: CostDataPoint[]) => CostProjection,
     testData: CostDataPoint[],
-    actualOutcomes: number[]
+    actualOutcomes: number[],
   ): Promise<ValidationMetrics['accuracy']> {
     const startTime = Date.now();
     this.logger.info('Validating projection accuracy', {
@@ -336,7 +336,7 @@ export class AlgorithmValidator {
    */
   async validatePerformance<T>(
     algorithm: (data: CostDataPoint[]) => T,
-    testData: CostDataPoint[]
+    testData: CostDataPoint[],
   ): Promise<ValidationMetrics['performance']> {
     this.logger.info('Validating algorithm performance', {
       dataPoints: testData.length,
@@ -356,9 +356,15 @@ export class AlgorithmValidator {
       const memoryAfter = process.memoryUsage();
 
       const executionTimeMs = endTime - startTime;
-      const memoryUsageMB = (memoryAfter.heapUsed - memoryBefore.heapUsed) / 1024 / 1024;
-      const cpuUsagePercent = (endCpuUsage.user + endCpuUsage.system) / 1000 / executionTimeMs * 100;
-      const complexityScore = this.calculateComplexityScore(testData.length, executionTimeMs);
+      const memoryUsageMB =
+        (memoryAfter.heapUsed - memoryBefore.heapUsed) / 1024 / 1024;
+      const cpuUsagePercent =
+        ((endCpuUsage.user + endCpuUsage.system) / 1000 / executionTimeMs) *
+        100;
+      const complexityScore = this.calculateComplexityScore(
+        testData.length,
+        executionTimeMs,
+      );
 
       const performance = {
         executionTimeMs,
@@ -386,7 +392,7 @@ export class AlgorithmValidator {
    */
   async validateRobustness<T>(
     algorithm: (data: CostDataPoint[]) => T,
-    baseData: CostDataPoint[]
+    baseData: CostDataPoint[],
   ): Promise<ValidationMetrics['robustness']> {
     this.logger.info('Validating algorithm robustness', {
       dataPoints: baseData.length,
@@ -398,18 +404,25 @@ export class AlgorithmValidator {
       // Test noise resistance
       const noisyData = this.addNoiseToData(baseData, 0.1);
       const noisyResult = algorithm(noisyData);
-      const noiseResistance = this.calculateResultSimilarity(baseResult, noisyResult);
+      const noiseResistance = this.calculateResultSimilarity(
+        baseResult,
+        noisyResult,
+      );
 
       // Test outlier sensitivity
       const outlierData = this.addOutliersToData(baseData, 3);
       const outlierResult = algorithm(outlierData);
-      const outlierSensitivity = 1 - this.calculateResultSimilarity(baseResult, outlierResult);
+      const outlierSensitivity =
+        1 - this.calculateResultSimilarity(baseResult, outlierResult);
 
       // Test edge case handling
       const edgeCaseHandling = await this.testEdgeCaseHandling(algorithm);
 
       // Test pattern consistency
-      const patternConsistency = await this.testPatternConsistency(algorithm, baseData);
+      const patternConsistency = await this.testPatternConsistency(
+        algorithm,
+        baseData,
+      );
 
       const robustness = {
         noiseResistance,
@@ -437,7 +450,12 @@ export class AlgorithmValidator {
    */
   async runValidationSuite<T>(
     algorithm: (data: CostDataPoint[]) => T,
-    testCategories: Array<ValidationTestCase['category']> = ['accuracy', 'performance', 'robustness', 'edge_case']
+    testCategories: Array<ValidationTestCase['category']> = [
+      'accuracy',
+      'performance',
+      'robustness',
+      'edge_case',
+    ],
   ): Promise<ValidationReport> {
     const startTime = Date.now();
     this.logger.info('Running comprehensive validation suite', {
@@ -452,8 +470,8 @@ export class AlgorithmValidator {
       let testsFailed = 0;
 
       // Filter test cases by category
-      const selectedTests = Array.from(this.testCases.values()).filter(
-        (test) => testCategories.includes(test.category)
+      const selectedTests = Array.from(this.testCases.values()).filter((test) =>
+        testCategories.includes(test.category),
       );
 
       // Execute each test case
@@ -495,7 +513,11 @@ export class AlgorithmValidator {
       }
 
       // Generate comprehensive report
-      const report = await this.generateValidationReport(results, testsPassed, testsFailed);
+      const report = await this.generateValidationReport(
+        results,
+        testsPassed,
+        testsFailed,
+      );
 
       const duration = Date.now() - startTime;
       this.logger.info('Validation suite completed', {
@@ -521,7 +543,7 @@ export class AlgorithmValidator {
    */
   private async executeTestCase<T>(
     algorithm: (data: CostDataPoint[]) => T,
-    testCase: ValidationTestCase
+    testCase: ValidationTestCase,
   ): Promise<ValidationResult> {
     const startTime = Date.now();
 
@@ -533,11 +555,19 @@ export class AlgorithmValidator {
       const accuracyMetrics = await this.validateProjectionAccuracy(
         algorithm as any,
         testCase.inputData,
-        Array(testCase.inputData.length).fill(0).map((_, i) => i * 10)
+        Array(testCase.inputData.length)
+          .fill(0)
+          .map((_, i) => i * 10),
       );
 
-      const performanceMetrics = await this.validatePerformance(algorithm, testCase.inputData);
-      const robustnessMetrics = await this.validateRobustness(algorithm, testCase.inputData);
+      const performanceMetrics = await this.validatePerformance(
+        algorithm,
+        testCase.inputData,
+      );
+      const robustnessMetrics = await this.validateRobustness(
+        algorithm,
+        testCase.inputData,
+      );
 
       // Create significance metrics (placeholder implementation)
       const significanceMetrics = {
@@ -593,7 +623,7 @@ export class AlgorithmValidator {
   private async generateValidationReport(
     results: ValidationResult[],
     testsPassed: number,
-    testsFailed: number
+    testsFailed: number,
   ): Promise<ValidationReport> {
     const totalTests = results.length;
     const successRate = totalTests > 0 ? (testsPassed / totalTests) * 100 : 0;
@@ -603,7 +633,8 @@ export class AlgorithmValidator {
     const aggregatedMetrics = this.aggregateMetrics(successfulResults);
 
     // Calculate quality assessment
-    const qualityAssessment = this.calculateQualityAssessment(successfulResults);
+    const qualityAssessment =
+      this.calculateQualityAssessment(successfulResults);
 
     return {
       metadata: {
@@ -622,7 +653,11 @@ export class AlgorithmValidator {
 
   // Helper methods for data generation and calculations
 
-  private generateLinearTrendData(count: number, base: number, slope: number): CostDataPoint[] {
+  private generateLinearTrendData(
+    count: number,
+    base: number,
+    slope: number,
+  ): CostDataPoint[] {
     const data: CostDataPoint[] = [];
     const startDate = new Date();
 
@@ -635,7 +670,11 @@ export class AlgorithmValidator {
     return data;
   }
 
-  private generateSeasonalData(count: number, base: number, amplitude: number): CostDataPoint[] {
+  private generateSeasonalData(
+    count: number,
+    base: number,
+    amplitude: number,
+  ): CostDataPoint[] {
     const data: CostDataPoint[] = [];
     const startDate = new Date();
 
@@ -662,7 +701,10 @@ export class AlgorithmValidator {
     return data;
   }
 
-  private generateDataWithOutliers(count: number, outlierCount: number): CostDataPoint[] {
+  private generateDataWithOutliers(
+    count: number,
+    outlierCount: number,
+  ): CostDataPoint[] {
     const data = this.generateRandomData(count);
 
     // Add outliers
@@ -674,7 +716,11 @@ export class AlgorithmValidator {
     return data;
   }
 
-  private createDataPoint(timestamp: Date, cost: number, tokens: number): CostDataPoint {
+  private createDataPoint(
+    timestamp: Date,
+    cost: number,
+    tokens: number,
+  ): CostDataPoint {
     return {
       timestamp,
       cost,
@@ -688,14 +734,20 @@ export class AlgorithmValidator {
     };
   }
 
-  private addNoiseToData(data: CostDataPoint[], noiseLevel: number): CostDataPoint[] {
+  private addNoiseToData(
+    data: CostDataPoint[],
+    noiseLevel: number,
+  ): CostDataPoint[] {
     return data.map((point) => ({
       ...point,
       cost: point.cost * (1 + (Math.random() - 0.5) * noiseLevel),
     }));
   }
 
-  private addOutliersToData(data: CostDataPoint[], outlierCount: number): CostDataPoint[] {
+  private addOutliersToData(
+    data: CostDataPoint[],
+    outlierCount: number,
+  ): CostDataPoint[] {
     const result = [...data];
     for (let i = 0; i < outlierCount; i++) {
       const index = Math.floor(Math.random() * result.length);
@@ -715,7 +767,7 @@ export class AlgorithmValidator {
     }
 
     const ape = actual.map((a, i) =>
-      a !== 0 ? Math.abs((a - predicted[i]) / a) * 100 : 0
+      a !== 0 ? Math.abs((a - predicted[i]) / a) * 100 : 0,
     );
 
     return ape.reduce((sum, error) => sum + error, 0) / ape.length;
@@ -726,9 +778,9 @@ export class AlgorithmValidator {
       return Infinity;
     }
 
-    const mse = actual.reduce((sum, a, i) =>
-      sum + Math.pow(a - predicted[i], 2), 0
-    ) / actual.length;
+    const mse =
+      actual.reduce((sum, a, i) => sum + Math.pow(a - predicted[i], 2), 0) /
+      actual.length;
 
     return Math.sqrt(mse);
   }
@@ -738,9 +790,10 @@ export class AlgorithmValidator {
       return Infinity;
     }
 
-    return actual.reduce((sum, a, i) =>
-      sum + Math.abs(a - predicted[i]), 0
-    ) / actual.length;
+    return (
+      actual.reduce((sum, a, i) => sum + Math.abs(a - predicted[i]), 0) /
+      actual.length
+    );
   }
 
   private calculateMSE(actual: number[], predicted: number[]): number {
@@ -748,9 +801,10 @@ export class AlgorithmValidator {
       return Infinity;
     }
 
-    return actual.reduce((sum, a, i) =>
-      sum + Math.pow(a - predicted[i], 2), 0
-    ) / actual.length;
+    return (
+      actual.reduce((sum, a, i) => sum + Math.pow(a - predicted[i], 2), 0) /
+      actual.length
+    );
   }
 
   private calculateRSquared(actual: number[], predicted: number[]): number {
@@ -759,10 +813,16 @@ export class AlgorithmValidator {
     }
 
     const actualMean = actual.reduce((sum, a) => sum + a, 0) / actual.length;
-    const totalSumSquares = actual.reduce((sum, a) => sum + Math.pow(a - actualMean, 2), 0);
-    const residualSumSquares = actual.reduce((sum, a, i) => sum + Math.pow(a - predicted[i], 2), 0);
+    const totalSumSquares = actual.reduce(
+      (sum, a) => sum + Math.pow(a - actualMean, 2),
+      0,
+    );
+    const residualSumSquares = actual.reduce(
+      (sum, a, i) => sum + Math.pow(a - predicted[i], 2),
+      0,
+    );
 
-    return totalSumSquares === 0 ? 1 : 1 - (residualSumSquares / totalSumSquares);
+    return totalSumSquares === 0 ? 1 : 1 - residualSumSquares / totalSumSquares;
   }
 
   private calculateSMAPE(actual: number[], predicted: number[]): number {
@@ -772,7 +832,9 @@ export class AlgorithmValidator {
 
     const smape = actual.map((a, i) => {
       const denominator = (Math.abs(a) + Math.abs(predicted[i])) / 2;
-      return denominator !== 0 ? Math.abs(a - predicted[i]) / denominator * 100 : 0;
+      return denominator !== 0
+        ? (Math.abs(a - predicted[i]) / denominator) * 100
+        : 0;
     });
 
     return smape.reduce((sum, error) => sum + error, 0) / smape.length;
@@ -783,17 +845,18 @@ export class AlgorithmValidator {
       return 100;
     }
 
-    const ape = actual.map((a, i) =>
-      a !== 0 ? Math.abs((a - predicted[i]) / a) * 100 : 0
-    ).sort((a, b) => a - b);
+    const ape = actual
+      .map((a, i) => (a !== 0 ? Math.abs((a - predicted[i]) / a) * 100 : 0))
+      .sort((a, b) => a - b);
 
     const mid = Math.floor(ape.length / 2);
-    return ape.length % 2 === 0
-      ? (ape[mid - 1] + ape[mid]) / 2
-      : ape[mid];
+    return ape.length % 2 === 0 ? (ape[mid - 1] + ape[mid]) / 2 : ape[mid];
   }
 
-  private calculateComplexityScore(dataSize: number, executionTime: number): number {
+  private calculateComplexityScore(
+    dataSize: number,
+    executionTime: number,
+  ): number {
     // Simple complexity estimation based on execution time vs data size
     const timePerPoint = executionTime / dataSize;
 
@@ -823,7 +886,9 @@ export class AlgorithmValidator {
   }
 
   private levenshteinDistance(str1: string, str2: string): number {
-    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+    const matrix = Array(str2.length + 1)
+      .fill(null)
+      .map(() => Array(str1.length + 1).fill(null));
 
     for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
     for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
@@ -834,7 +899,7 @@ export class AlgorithmValidator {
         matrix[j][i] = Math.min(
           matrix[j][i - 1] + 1,
           matrix[j - 1][i] + 1,
-          matrix[j - 1][i - 1] + indicator
+          matrix[j - 1][i - 1] + indicator,
         );
       }
     }
@@ -842,7 +907,9 @@ export class AlgorithmValidator {
     return matrix[str2.length][str1.length];
   }
 
-  private async testEdgeCaseHandling<T>(algorithm: (data: CostDataPoint[]) => T): Promise<number> {
+  private async testEdgeCaseHandling<T>(
+    algorithm: (data: CostDataPoint[]) => T,
+  ): Promise<number> {
     let score = 0;
     const testCases = [
       [], // Empty data
@@ -856,7 +923,10 @@ export class AlgorithmValidator {
         score += 0.33; // Successfully handled edge case
       } catch (error) {
         // Check if it's a proper error handling (expected behavior)
-        if (error.message.includes('insufficient') || error.message.includes('minimum')) {
+        if (
+          error.message.includes('insufficient') ||
+          error.message.includes('minimum')
+        ) {
           score += 0.33; // Proper error handling
         }
         // Otherwise, it's poor error handling (score += 0)
@@ -868,13 +938,16 @@ export class AlgorithmValidator {
 
   private async testPatternConsistency<T>(
     algorithm: (data: CostDataPoint[]) => T,
-    baseData: CostDataPoint[]
+    baseData: CostDataPoint[],
   ): Promise<number> {
     try {
       // Test with different subsets of the same data
       const quarterData = baseData.slice(0, Math.floor(baseData.length / 4));
       const halfData = baseData.slice(0, Math.floor(baseData.length / 2));
-      const threeQuarterData = baseData.slice(0, Math.floor(baseData.length * 3 / 4));
+      const threeQuarterData = baseData.slice(
+        0,
+        Math.floor((baseData.length * 3) / 4),
+      );
 
       const fullResult = algorithm(baseData);
       const quarterResult = algorithm(quarterData);
@@ -882,9 +955,18 @@ export class AlgorithmValidator {
       const threeQuarterResult = algorithm(threeQuarterData);
 
       // Calculate consistency scores
-      const consistency1 = this.calculateResultSimilarity(fullResult, threeQuarterResult);
-      const consistency2 = this.calculateResultSimilarity(threeQuarterResult, halfResult);
-      const consistency3 = this.calculateResultSimilarity(halfResult, quarterResult);
+      const consistency1 = this.calculateResultSimilarity(
+        fullResult,
+        threeQuarterResult,
+      );
+      const consistency2 = this.calculateResultSimilarity(
+        threeQuarterResult,
+        halfResult,
+      );
+      const consistency3 = this.calculateResultSimilarity(
+        halfResult,
+        quarterResult,
+      );
 
       return (consistency1 + consistency2 + consistency3) / 3;
     } catch {
@@ -898,20 +980,26 @@ export class AlgorithmValidator {
     let score = 1.0;
 
     // Check for missing values
-    const hasValidCosts = data.every((point) =>
-      typeof point.cost === 'number' && !isNaN(point.cost) && isFinite(point.cost)
+    const hasValidCosts = data.every(
+      (point) =>
+        typeof point.cost === 'number' &&
+        !isNaN(point.cost) &&
+        isFinite(point.cost),
     );
     if (!hasValidCosts) score -= 0.3;
 
     // Check for data continuity
-    const hasValidTimestamps = data.every((point) => point.timestamp instanceof Date);
+    const hasValidTimestamps = data.every(
+      (point) => point.timestamp instanceof Date,
+    );
     if (!hasValidTimestamps) score -= 0.2;
 
     // Check for reasonable data range
     const costs = data.map((point) => point.cost);
     const mean = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
     const stdDev = Math.sqrt(
-      costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / costs.length
+      costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) /
+        costs.length,
     );
 
     // Penalize extremely high variance (potential data quality issues)
@@ -921,14 +1009,23 @@ export class AlgorithmValidator {
     return Math.max(0, score);
   }
 
-  private evaluateTestSuccess(testCase: ValidationTestCase, metrics: ValidationMetrics): boolean {
+  private evaluateTestSuccess(
+    testCase: ValidationTestCase,
+    metrics: ValidationMetrics,
+  ): boolean {
     switch (testCase.category) {
       case 'accuracy':
         return metrics.accuracy.mape < 20 && metrics.accuracy.rSquared > 0.7;
       case 'performance':
-        return metrics.performance.executionTimeMs < 5000 && metrics.performance.complexityScore <= 3;
+        return (
+          metrics.performance.executionTimeMs < 5000 &&
+          metrics.performance.complexityScore <= 3
+        );
       case 'robustness':
-        return metrics.robustness.noiseResistance > 0.7 && metrics.robustness.edgeCaseHandling > 0.5;
+        return (
+          metrics.robustness.noiseResistance > 0.7 &&
+          metrics.robustness.edgeCaseHandling > 0.5
+        );
       case 'edge_case':
         return metrics.robustness.edgeCaseHandling > 0.8;
       default:
@@ -976,7 +1073,9 @@ export class AlgorithmValidator {
     };
   }
 
-  private aggregateMetrics(results: ValidationResult[]): ValidationReport['aggregatedMetrics'] {
+  private aggregateMetrics(
+    results: ValidationResult[],
+  ): ValidationReport['aggregatedMetrics'] {
     if (results.length === 0) {
       return {
         averageAccuracy: this.createEmptyMetrics().accuracy,
@@ -1000,26 +1099,51 @@ export class AlgorithmValidator {
         medianAPE: this.average(accuracyMetrics.map((a) => a.medianAPE)),
       },
       performanceBenchmarks: {
-        executionTimeMs: this.average(performanceMetrics.map((p) => p.executionTimeMs)),
-        memoryUsageMB: this.average(performanceMetrics.map((p) => p.memoryUsageMB)),
-        cpuUsagePercent: this.average(performanceMetrics.map((p) => p.cpuUsagePercent)),
-        complexityScore: this.average(performanceMetrics.map((p) => p.complexityScore)),
+        executionTimeMs: this.average(
+          performanceMetrics.map((p) => p.executionTimeMs),
+        ),
+        memoryUsageMB: this.average(
+          performanceMetrics.map((p) => p.memoryUsageMB),
+        ),
+        cpuUsagePercent: this.average(
+          performanceMetrics.map((p) => p.cpuUsagePercent),
+        ),
+        complexityScore: this.average(
+          performanceMetrics.map((p) => p.complexityScore),
+        ),
       },
       robustnessAssessment: {
-        noiseResistance: this.average(robustnessMetrics.map((r) => r.noiseResistance)),
-        outlierSensitivity: this.average(robustnessMetrics.map((r) => r.outlierSensitivity)),
-        edgeCaseHandling: this.average(robustnessMetrics.map((r) => r.edgeCaseHandling)),
-        patternConsistency: this.average(robustnessMetrics.map((r) => r.patternConsistency)),
+        noiseResistance: this.average(
+          robustnessMetrics.map((r) => r.noiseResistance),
+        ),
+        outlierSensitivity: this.average(
+          robustnessMetrics.map((r) => r.outlierSensitivity),
+        ),
+        edgeCaseHandling: this.average(
+          robustnessMetrics.map((r) => r.edgeCaseHandling),
+        ),
+        patternConsistency: this.average(
+          robustnessMetrics.map((r) => r.patternConsistency),
+        ),
       },
     };
   }
 
-  private calculateQualityAssessment(results: ValidationResult[]): ValidationReport['qualityAssessment'] {
+  private calculateQualityAssessment(
+    results: ValidationResult[],
+  ): ValidationReport['qualityAssessment'] {
     if (results.length === 0) {
       return {
         overallScore: 0,
-        categoryScores: { accuracy: 0, performance: 0, robustness: 0, reliability: 0 },
-        recommendations: ['Insufficient test data to provide quality assessment'],
+        categoryScores: {
+          accuracy: 0,
+          performance: 0,
+          robustness: 0,
+          reliability: 0,
+        },
+        recommendations: [
+          'Insufficient test data to provide quality assessment',
+        ],
       };
     }
 
@@ -1027,21 +1151,38 @@ export class AlgorithmValidator {
 
     // Calculate category scores (0-100)
     const accuracyScore = Math.max(0, 100 - aggregated.averageAccuracy.mape);
-    const performanceScore = Math.max(0, 100 - aggregated.performanceBenchmarks.complexityScore * 20);
-    const robustnessScore = aggregated.robustnessAssessment.noiseResistance * 100;
-    const reliabilityScore = results.filter((r) => r.success).length / results.length * 100;
+    const performanceScore = Math.max(
+      0,
+      100 - aggregated.performanceBenchmarks.complexityScore * 20,
+    );
+    const robustnessScore =
+      aggregated.robustnessAssessment.noiseResistance * 100;
+    const reliabilityScore =
+      (results.filter((r) => r.success).length / results.length) * 100;
 
-    const overallScore = (accuracyScore + performanceScore + robustnessScore + reliabilityScore) / 4;
+    const overallScore =
+      (accuracyScore + performanceScore + robustnessScore + reliabilityScore) /
+      4;
 
     // Generate recommendations
     const recommendations: string[] = [];
-    if (accuracyScore < 80) recommendations.push('Improve prediction accuracy by enhancing algorithm parameters');
-    if (performanceScore < 70) recommendations.push('Optimize algorithm performance for large datasets');
-    if (robustnessScore < 75) recommendations.push('Enhance robustness to handle noisy data and outliers');
-    if (reliabilityScore < 90) recommendations.push('Address edge cases and improve error handling');
+    if (accuracyScore < 80)
+      recommendations.push(
+        'Improve prediction accuracy by enhancing algorithm parameters',
+      );
+    if (performanceScore < 70)
+      recommendations.push('Optimize algorithm performance for large datasets');
+    if (robustnessScore < 75)
+      recommendations.push(
+        'Enhance robustness to handle noisy data and outliers',
+      );
+    if (reliabilityScore < 90)
+      recommendations.push('Address edge cases and improve error handling');
 
     if (recommendations.length === 0) {
-      recommendations.push('Algorithm meets quality standards across all categories');
+      recommendations.push(
+        'Algorithm meets quality standards across all categories',
+      );
     }
 
     return {

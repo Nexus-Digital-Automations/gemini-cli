@@ -208,7 +208,7 @@ export class RealTimeStreamingService extends EventEmitter {
     private readonly tokenTracker: TokenTracker,
     private readonly metricsCollector: MetricsCollector,
     private readonly eventManager: BudgetEventManager,
-    config: StreamingConfig = {}
+    config: StreamingConfig = {},
   ) {
     super();
 
@@ -313,7 +313,9 @@ export class RealTimeStreamingService extends EventEmitter {
    */
   subscribe(subscription: Omit<StreamSubscription, 'active'>): string {
     if (this.subscriptions.size >= this.config.maxSubscriptions) {
-      throw new Error(`Maximum subscriptions limit reached (${this.config.maxSubscriptions})`);
+      throw new Error(
+        `Maximum subscriptions limit reached (${this.config.maxSubscriptions})`,
+      );
     }
 
     const sub: StreamSubscription = {
@@ -323,7 +325,10 @@ export class RealTimeStreamingService extends EventEmitter {
     };
 
     // Validate update interval
-    if (sub.updateInterval && sub.updateInterval < this.config.maxUpdateFrequency) {
+    if (
+      sub.updateInterval &&
+      sub.updateInterval < this.config.maxUpdateFrequency
+    ) {
       sub.updateInterval = this.config.maxUpdateFrequency;
       this.logger.warn('Update interval clamped to maximum frequency', {
         subscriptionId: sub.id,
@@ -407,36 +412,51 @@ export class RealTimeStreamingService extends EventEmitter {
    * Get streaming statistics
    */
   getStreamStatistics(): {
-    subscriptions: Array<{ id: string; streams: StreamType[]; updatesSent: number }>;
+    subscriptions: Array<{
+      id: string;
+      streams: StreamType[];
+      updatesSent: number;
+    }>;
     totalUpdates: number;
     errorRate: number;
     averageUpdateSize: number;
   } {
-    const subscriptions = Array.from(this.subscriptions.values()).map(sub => ({
-      id: sub.id,
-      streams: sub.streams,
-      updatesSent: 0, // Would need to track per subscription
-    }));
+    const subscriptions = Array.from(this.subscriptions.values()).map(
+      (sub) => ({
+        id: sub.id,
+        streams: sub.streams,
+        updatesSent: 0, // Would need to track per subscription
+      }),
+    );
 
     return {
       subscriptions,
       totalUpdates: this.status.updatesSent,
       errorRate: this.status.errors / Math.max(this.status.updatesSent, 1),
-      averageUpdateSize: this.status.bandwidth.totalBytes / Math.max(this.status.updatesSent, 1),
+      averageUpdateSize:
+        this.status.bandwidth.totalBytes / Math.max(this.status.updatesSent, 1),
     };
   }
 
   /**
    * Send immediate update to specific subscription
    */
-  async sendUpdate(subscriptionId: string, streamType: StreamType, data: any): Promise<void> {
+  async sendUpdate(
+    subscriptionId: string,
+    streamType: StreamType,
+    data: any,
+  ): Promise<void> {
     const subscription = this.subscriptions.get(subscriptionId);
     if (!subscription || !subscription.active) return;
 
     if (!subscription.streams.includes(streamType)) return;
 
     try {
-      const update = await this.createStreamUpdate(subscriptionId, streamType, data);
+      const update = await this.createStreamUpdate(
+        subscriptionId,
+        streamType,
+        data,
+      );
 
       if (this.shouldBuffer(update)) {
         this.addToBuffer(update, subscriptionId);
@@ -456,11 +476,15 @@ export class RealTimeStreamingService extends EventEmitter {
   /**
    * Broadcast update to all matching subscriptions
    */
-  async broadcastUpdate(streamType: StreamType, data: any, filters?: {
-    subscriptionIds?: string[];
-    eventTypes?: BudgetEventType[];
-    severities?: EventSeverity[];
-  }): Promise<void> {
+  async broadcastUpdate(
+    streamType: StreamType,
+    data: any,
+    filters?: {
+      subscriptionIds?: string[];
+      eventTypes?: BudgetEventType[];
+      severities?: EventSeverity[];
+    },
+  ): Promise<void> {
     const promises: Array<Promise<void>> = [];
 
     for (const subscription of this.subscriptions.values()) {
@@ -468,7 +492,10 @@ export class RealTimeStreamingService extends EventEmitter {
       if (!subscription.streams.includes(streamType)) continue;
 
       // Apply filters
-      if (filters?.subscriptionIds && !filters.subscriptionIds.includes(subscription.id)) {
+      if (
+        filters?.subscriptionIds &&
+        !filters.subscriptionIds.includes(subscription.id)
+      ) {
         continue;
       }
 
@@ -486,7 +513,10 @@ export class RealTimeStreamingService extends EventEmitter {
   /**
    * Update subscription configuration
    */
-  updateSubscription(subscriptionId: string, updates: Partial<StreamSubscription>): boolean {
+  updateSubscription(
+    subscriptionId: string,
+    updates: Partial<StreamSubscription>,
+  ): boolean {
     const subscription = this.subscriptions.get(subscriptionId);
     if (!subscription) return false;
 
@@ -581,7 +611,9 @@ export class RealTimeStreamingService extends EventEmitter {
   /**
    * Send periodic updates for subscription
    */
-  private async sendPeriodicUpdates(subscription: StreamSubscription): Promise<void> {
+  private async sendPeriodicUpdates(
+    subscription: StreamSubscription,
+  ): Promise<void> {
     const promises: Array<Promise<void>> = [];
 
     for (const streamType of subscription.streams) {
@@ -634,7 +666,7 @@ export class RealTimeStreamingService extends EventEmitter {
   private async createStreamUpdate(
     subscriptionId: string,
     streamType: StreamType,
-    data: any
+    data: any,
   ): Promise<StreamUpdate> {
     const sequence = this.getNextSequence(subscriptionId);
     let updateData = data;
@@ -652,7 +684,9 @@ export class RealTimeStreamingService extends EventEmitter {
     const metadata: StreamUpdate['metadata'] = {
       source: 'RealTimeStreamingService',
       version: '1.0.0',
-      delta: this.config.enableDeltaUpdates && !!this.lastUpdates.get(`${subscriptionId}:${streamType}`),
+      delta:
+        this.config.enableDeltaUpdates &&
+        !!this.lastUpdates.get(`${subscriptionId}:${streamType}`),
     };
 
     if (this.config.enableCompression && this.shouldCompress(updateData)) {
@@ -673,7 +707,10 @@ export class RealTimeStreamingService extends EventEmitter {
   /**
    * Deliver update to subscription
    */
-  private async deliverUpdate(subscription: StreamSubscription, update: StreamUpdate): Promise<void> {
+  private async deliverUpdate(
+    subscription: StreamSubscription,
+    update: StreamUpdate,
+  ): Promise<void> {
     try {
       subscription.onUpdate(update);
 
@@ -686,7 +723,6 @@ export class RealTimeStreamingService extends EventEmitter {
         const updateSize = JSON.stringify(update).length;
         this.status.bandwidth.totalBytes += updateSize;
       }
-
     } catch (error) {
       this.handleStreamError(subscription.id, {
         code: 'UPDATE_DELIVERY_FAILED',
@@ -712,7 +748,10 @@ export class RealTimeStreamingService extends EventEmitter {
         this.logger.error('Error callback failed', {
           subscriptionId,
           originalError: error,
-          callbackError: callbackError instanceof Error ? callbackError.message : String(callbackError),
+          callbackError:
+            callbackError instanceof Error
+              ? callbackError.message
+              : String(callbackError),
         });
       }
     }
@@ -767,7 +806,7 @@ export class RealTimeStreamingService extends EventEmitter {
       }
     });
 
-    Promise.allSettled(promises).catch(error => {
+    Promise.allSettled(promises).catch((error) => {
       this.logger.error('Failed to flush update buffer', {
         error: error instanceof Error ? error.message : String(error),
         bufferSize: updates.length,
@@ -780,7 +819,7 @@ export class RealTimeStreamingService extends EventEmitter {
    */
   private passesSubscriptionFilters(
     subscription: StreamSubscription,
-    context: { streamType: StreamType; data: any }
+    context: { streamType: StreamType; data: any },
   ): boolean {
     const filters = subscription.filters;
     if (!filters) return true;
@@ -843,7 +882,8 @@ export class RealTimeStreamingService extends EventEmitter {
       if (timeDiff > 0) {
         const currentBytesPerSecond = bytesDiff / timeDiff;
         this.status.bandwidth.averageBytesPerSecond =
-          this.status.bandwidth.totalBytes / ((now - this.status.startTime.getTime()) / 1000);
+          this.status.bandwidth.totalBytes /
+          ((now - this.status.startTime.getTime()) / 1000);
 
         if (currentBytesPerSecond > this.status.bandwidth.peakBytesPerSecond) {
           this.status.bandwidth.peakBytesPerSecond = currentBytesPerSecond;
@@ -863,13 +903,13 @@ export function createRealTimeStreamingService(
   tokenTracker: TokenTracker,
   metricsCollector: MetricsCollector,
   eventManager: BudgetEventManager,
-  config?: StreamingConfig
+  config?: StreamingConfig,
 ): RealTimeStreamingService {
   return new RealTimeStreamingService(
     tokenTracker,
     metricsCollector,
     eventManager,
-    config
+    config,
   );
 }
 
@@ -885,19 +925,26 @@ export function getGlobalStreamingService(
   tokenTracker?: TokenTracker,
   metricsCollector?: MetricsCollector,
   eventManager?: BudgetEventManager,
-  config?: StreamingConfig
+  config?: StreamingConfig,
 ): RealTimeStreamingService {
-  if (!globalStreamingService && tokenTracker && metricsCollector && eventManager) {
+  if (
+    !globalStreamingService &&
+    tokenTracker &&
+    metricsCollector &&
+    eventManager
+  ) {
     globalStreamingService = createRealTimeStreamingService(
       tokenTracker,
       metricsCollector,
       eventManager,
-      config
+      config,
     );
   }
 
   if (!globalStreamingService) {
-    throw new Error('Global streaming service not initialized and required dependencies not provided');
+    throw new Error(
+      'Global streaming service not initialized and required dependencies not provided',
+    );
   }
 
   return globalStreamingService;

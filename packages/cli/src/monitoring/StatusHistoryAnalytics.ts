@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { StructuredLogger} from "@google/gemini-cli-core/src/utils/logger.js";
-import { getComponentLogger } from "@google/gemini-cli-core/src/utils/logger.js";
+import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
+import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import {
   TaskStatusMonitor,
   TaskMetadata,
@@ -265,7 +265,8 @@ export class StatusHistoryAnalytics {
     const sortOrder = query.sortOrder || 'desc';
 
     entries.sort((a, b) => {
-      let aValue: any; let bValue: any;
+      let aValue: any;
+      let bValue: any;
 
       switch (sortBy) {
         case 'timestamp':

@@ -312,9 +312,7 @@ export class AlertTriggerEngine {
   /**
    * Process escalation rules for active alerts
    */
-  static processEscalationRules(
-    activeAlerts: BudgetAlert[],
-  ): BudgetAlert[] {
+  static processEscalationRules(activeAlerts: BudgetAlert[]): BudgetAlert[] {
     const startTime = Date.now();
     this.logger.info('Processing escalation rules', {
       activeAlerts: activeAlerts.length,

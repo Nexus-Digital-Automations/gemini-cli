@@ -200,9 +200,8 @@ describe('ShellExecutionService', () => {
   describe('pty interaction', () => {
     beforeEach(() => {
       vi.spyOn(ShellExecutionService['activePtys'], 'get').mockReturnValue({
-         
         ptyProcess: mockPtyProcess,
-         
+
         headlessTerminal: mockHeadlessTerminal,
       });
     });

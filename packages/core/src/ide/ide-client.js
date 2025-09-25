@@ -25,9 +25,8 @@ import { EnvHttpProxyAgent } from 'undici';
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js';
 import { IDE_REQUEST_TIMEOUT_MS } from './constants.js';
 const logger = {
-   
   debug: (...args) => console.debug('[DEBUG] [IDEClient]', ...args),
-   
+
   error: (...args) => console.error('[ERROR] [IDEClient]', ...args),
 };
 export var IDEConnectionStatus;

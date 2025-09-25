@@ -49,7 +49,15 @@ export interface AggregationFunction {
   /** Field to aggregate */
   field: string;
   /** Aggregation type */
-  type: 'sum' | 'avg' | 'min' | 'max' | 'count' | 'percentile' | 'variance' | 'custom';
+  type:
+    | 'sum'
+    | 'avg'
+    | 'min'
+    | 'max'
+    | 'count'
+    | 'percentile'
+    | 'variance'
+    | 'custom';
   /** Custom aggregation function */
   customFunction?: (values: number[]) => number;
   /** Percentile value (for percentile type) */
@@ -312,7 +320,7 @@ export class TokenDataAggregator extends EventEmitter {
 
     this.emit('batch_processed', {
       count: dataPoints.length,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   }
 
@@ -338,9 +346,11 @@ export class TokenDataAggregator extends EventEmitter {
    */
   analyzeStatistics(
     dataPoints: MetricsDataPoint[],
-    field: keyof MetricsDataPoint = 'totalCost'
+    field: keyof MetricsDataPoint = 'totalCost',
   ): StatisticalAnalysis {
-    const values = dataPoints.map(dp => dp[field] as number).filter(v => typeof v === 'number' && !isNaN(v));
+    const values = dataPoints
+      .map((dp) => dp[field] as number)
+      .filter((v) => typeof v === 'number' && !isNaN(v));
 
     if (values.length === 0) {
       return this.createEmptyStatistics();
@@ -352,7 +362,8 @@ export class TokenDataAggregator extends EventEmitter {
     // Calculate basic statistics
     const mean = values.reduce((sum, v) => sum + v, 0) / n;
     const median = this.calculatePercentile(sortedValues, 0.5);
-    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (n - 1);
+    const variance =
+      values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (n - 1);
     const standardDeviation = Math.sqrt(variance);
 
     // Calculate skewness and kurtosis
@@ -371,10 +382,12 @@ export class TokenDataAggregator extends EventEmitter {
     };
 
     // Calculate trend
-    const trend = this.calculateTrend(dataPoints.map(dp => ({
-      timestamp: dp.timestamp,
-      value: dp[field] as number
-    })));
+    const trend = this.calculateTrend(
+      dataPoints.map((dp) => ({
+        timestamp: dp.timestamp,
+        value: dp[field] as number,
+      })),
+    );
 
     return {
       mean,
@@ -394,11 +407,21 @@ export class TokenDataAggregator extends EventEmitter {
   getWindowedData(
     window: TimeWindow,
     endTime?: Date,
-    maxWindows?: number
-  ): Array<{ window: TimeWindow; dataPoints: MetricsDataPoint[]; startTime: Date; endTime: Date }> {
+    maxWindows?: number,
+  ): Array<{
+    window: TimeWindow;
+    dataPoints: MetricsDataPoint[];
+    startTime: Date;
+    endTime: Date;
+  }> {
     const end = endTime || new Date();
     const maxCount = maxWindows || 100;
-    const results: Array<{ window: TimeWindow; dataPoints: MetricsDataPoint[]; startTime: Date; endTime: Date }> = [];
+    const results: Array<{
+      window: TimeWindow;
+      dataPoints: MetricsDataPoint[];
+      startTime: Date;
+      endTime: Date;
+    }> = [];
 
     for (let i = 0; i < maxCount; i++) {
       const windowEnd = new Date(end.getTime() - i * window.durationMs);
@@ -470,7 +493,10 @@ export class TokenDataAggregator extends EventEmitter {
   /**
    * Add data point to specific aggregation
    */
-  private addDataPointToAggregation(configId: string, dataPoint: MetricsDataPoint): void {
+  private addDataPointToAggregation(
+    configId: string,
+    dataPoint: MetricsDataPoint,
+  ): void {
     const config = this.aggregationConfigs.get(configId);
     if (!config) return;
 
@@ -483,7 +509,11 @@ export class TokenDataAggregator extends EventEmitter {
 
     // Add to appropriate time buckets
     for (const window of config.timeWindows) {
-      const bucket = this.findOrCreateBucket(buckets, dataPoint.timestamp, window);
+      const bucket = this.findOrCreateBucket(
+        buckets,
+        dataPoint.timestamp,
+        window,
+      );
       bucket.dataPoints.push(dataPoint);
     }
 
@@ -494,14 +524,19 @@ export class TokenDataAggregator extends EventEmitter {
   /**
    * Find or create time bucket for data point
    */
-  private findOrCreateBucket(buckets: TimeBucket[], timestamp: Date, window: TimeWindow): TimeBucket {
+  private findOrCreateBucket(
+    buckets: TimeBucket[],
+    timestamp: Date,
+    window: TimeWindow,
+  ): TimeBucket {
     const bucketStart = this.calculateBucketStart(timestamp, window);
     const bucketEnd = new Date(bucketStart.getTime() + window.durationMs);
 
     // Look for existing bucket
-    let bucket = buckets.find(b =>
-      b.startTime.getTime() === bucketStart.getTime() &&
-      b.endTime.getTime() === bucketEnd.getTime()
+    let bucket = buckets.find(
+      (b) =>
+        b.startTime.getTime() === bucketStart.getTime() &&
+        b.endTime.getTime() === bucketEnd.getTime(),
     );
 
     if (!bucket) {
@@ -525,9 +560,11 @@ export class TokenDataAggregator extends EventEmitter {
       case 'calendar':
         // Align to calendar boundaries (hour, day, etc.)
         const date = new Date(timestamp);
-        if (window.durationMs === 60 * 60 * 1000) { // 1 hour
+        if (window.durationMs === 60 * 60 * 1000) {
+          // 1 hour
           date.setMinutes(0, 0, 0);
-        } else if (window.durationMs === 24 * 60 * 60 * 1000) { // 1 day
+        } else if (window.durationMs === 24 * 60 * 60 * 1000) {
+          // 1 day
           date.setHours(0, 0, 0, 0);
         }
         return date;
@@ -535,7 +572,8 @@ export class TokenDataAggregator extends EventEmitter {
       case 'tumbling':
         // Fixed-size non-overlapping windows
         const epochTime = timestamp.getTime();
-        const windowStart = Math.floor(epochTime / window.durationMs) * window.durationMs;
+        const windowStart =
+          Math.floor(epochTime / window.durationMs) * window.durationMs;
         return new Date(windowStart);
 
       case 'sliding':
@@ -548,13 +586,18 @@ export class TokenDataAggregator extends EventEmitter {
   /**
    * Check if data point matches filters
    */
-  private matchesFilter(dataPoint: MetricsDataPoint, filters?: AggregationConfig['filters']): boolean {
+  private matchesFilter(
+    dataPoint: MetricsDataPoint,
+    filters?: AggregationConfig['filters'],
+  ): boolean {
     if (!filters) return true;
 
     // This would need access to additional metadata about models, features, etc.
     // For now, just check cost filters
-    if (filters.minCost !== undefined && dataPoint.totalCost < filters.minCost) return false;
-    if (filters.maxCost !== undefined && dataPoint.totalCost > filters.maxCost) return false;
+    if (filters.minCost !== undefined && dataPoint.totalCost < filters.minCost)
+      return false;
+    if (filters.maxCost !== undefined && dataPoint.totalCost > filters.maxCost)
+      return false;
 
     return true;
   }
@@ -566,9 +609,13 @@ export class TokenDataAggregator extends EventEmitter {
     const now = new Date();
     const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-    buckets.splice(0, buckets.length, ...buckets.filter(bucket =>
-      now.getTime() - bucket.endTime.getTime() < maxAge
-    ));
+    buckets.splice(
+      0,
+      buckets.length,
+      ...buckets.filter(
+        (bucket) => now.getTime() - bucket.endTime.getTime() < maxAge,
+      ),
+    );
 
     // Limit total number of buckets
     if (buckets.length > 1000) {
@@ -603,14 +650,18 @@ export class TokenDataAggregator extends EventEmitter {
 
       // Process each time window
       for (const window of config.timeWindows) {
-        const windowBuckets = buckets.filter(bucket =>
-          now.getTime() - bucket.endTime.getTime() < window.durationMs * 2
+        const windowBuckets = buckets.filter(
+          (bucket) =>
+            now.getTime() - bucket.endTime.getTime() < window.durationMs * 2,
         );
 
         // Apply aggregation functions
         for (const func of config.functions) {
           for (const bucket of windowBuckets) {
-            const aggregatedValue = this.applyAggregationFunction(bucket.dataPoints, func);
+            const aggregatedValue = this.applyAggregationFunction(
+              bucket.dataPoints,
+              func,
+            );
 
             dataPoints.push({
               timestamp: bucket.endTime,
@@ -632,9 +683,13 @@ export class TokenDataAggregator extends EventEmitter {
         summary: {
           totalDataPoints: dataPoints.length,
           timeRange: {
-            start: dataPoints.length > 0 ?
-              dataPoints.reduce((min, dp) => dp.timestamp < min ? dp.timestamp : min, dataPoints[0].timestamp) :
-              now,
+            start:
+              dataPoints.length > 0
+                ? dataPoints.reduce(
+                    (min, dp) => (dp.timestamp < min ? dp.timestamp : min),
+                    dataPoints[0].timestamp,
+                  )
+                : now,
             end: now,
           },
           coverage: 1.0, // Simplified - would need actual coverage calculation
@@ -648,7 +703,6 @@ export class TokenDataAggregator extends EventEmitter {
         result,
         timestamp: now,
       });
-
     } catch (error) {
       this.logger.error('Failed to update aggregation', {
         configId: config.id,
@@ -662,15 +716,15 @@ export class TokenDataAggregator extends EventEmitter {
    */
   private applyAggregationFunction(
     dataPoints: MetricsDataPoint[],
-    func: AggregationFunction
+    func: AggregationFunction,
   ): { value: number; count: number; metadata: Record<string, number> } {
     if (dataPoints.length === 0) {
       return { value: 0, count: 0, metadata: {} };
     }
 
     const values = dataPoints
-      .map(dp => (dp as any)[func.field])
-      .filter(v => typeof v === 'number' && !isNaN(v));
+      .map((dp) => (dp as any)[func.field])
+      .filter((v) => typeof v === 'number' && !isNaN(v));
 
     if (values.length === 0) {
       return { value: 0, count: 0, metadata: {} };
@@ -704,7 +758,9 @@ export class TokenDataAggregator extends EventEmitter {
         break;
       case 'variance':
         const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-        result = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+        result =
+          values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) /
+          values.length;
         metadata.standardDeviation = Math.sqrt(result);
         break;
       case 'custom':
@@ -724,7 +780,10 @@ export class TokenDataAggregator extends EventEmitter {
   /**
    * Calculate percentile
    */
-  private calculatePercentile(sortedValues: number[], percentile: number): number {
+  private calculatePercentile(
+    sortedValues: number[],
+    percentile: number,
+  ): number {
     if (sortedValues.length === 0) return 0;
 
     const index = Math.ceil(sortedValues.length * percentile) - 1;
@@ -734,11 +793,18 @@ export class TokenDataAggregator extends EventEmitter {
   /**
    * Calculate skewness
    */
-  private calculateSkewness(values: number[], mean: number, standardDeviation: number): number {
+  private calculateSkewness(
+    values: number[],
+    mean: number,
+    standardDeviation: number,
+  ): number {
     if (standardDeviation === 0) return 0;
 
     const n = values.length;
-    const skewnessSum = values.reduce((sum, v) => sum + Math.pow((v - mean) / standardDeviation, 3), 0);
+    const skewnessSum = values.reduce(
+      (sum, v) => sum + Math.pow((v - mean) / standardDeviation, 3),
+      0,
+    );
 
     return skewnessSum / n;
   }
@@ -746,19 +812,28 @@ export class TokenDataAggregator extends EventEmitter {
   /**
    * Calculate kurtosis
    */
-  private calculateKurtosis(values: number[], mean: number, standardDeviation: number): number {
+  private calculateKurtosis(
+    values: number[],
+    mean: number,
+    standardDeviation: number,
+  ): number {
     if (standardDeviation === 0) return 0;
 
     const n = values.length;
-    const kurtosisSum = values.reduce((sum, v) => sum + Math.pow((v - mean) / standardDeviation, 4), 0);
+    const kurtosisSum = values.reduce(
+      (sum, v) => sum + Math.pow((v - mean) / standardDeviation, 4),
+      0,
+    );
 
-    return (kurtosisSum / n) - 3; // Subtract 3 for excess kurtosis
+    return kurtosisSum / n - 3; // Subtract 3 for excess kurtosis
   }
 
   /**
    * Calculate trend analysis
    */
-  private calculateTrend(data: Array<{ timestamp: Date; value: number }>): StatisticalAnalysis['trend'] {
+  private calculateTrend(
+    data: Array<{ timestamp: Date; value: number }>,
+  ): StatisticalAnalysis['trend'] {
     if (data.length < 2) {
       return {
         slope: 0,
@@ -789,7 +864,10 @@ export class TokenDataAggregator extends EventEmitter {
     const numerator = n * sumXY - sumX * sumY;
     const denominatorX = Math.sqrt(n * sumX2 - sumX * sumX);
     const denominatorY = Math.sqrt(n * sumY2 - sumY * sumY);
-    const correlation = denominatorX && denominatorY ? numerator / (denominatorX * denominatorY) : 0;
+    const correlation =
+      denominatorX && denominatorY
+        ? numerator / (denominatorX * denominatorY)
+        : 0;
 
     // Determine strength and direction
     const absCorrelation = Math.abs(correlation);
@@ -823,7 +901,13 @@ export class TokenDataAggregator extends EventEmitter {
       skewness: 0,
       kurtosis: 0,
       percentiles: {
-        p10: 0, p25: 0, p50: 0, p75: 0, p90: 0, p95: 0, p99: 0,
+        p10: 0,
+        p25: 0,
+        p50: 0,
+        p75: 0,
+        p90: 0,
+        p95: 0,
+        p99: 0,
       },
       trend: {
         slope: 0,
@@ -843,8 +927,8 @@ export class TokenDataAggregator extends EventEmitter {
       id: 'cost_aggregation',
       name: 'Cost Analysis',
       timeWindows: [
-        this.standardTimeWindows.find(w => w.id === 'hour')!,
-        this.standardTimeWindows.find(w => w.id === 'day')!,
+        this.standardTimeWindows.find((w) => w.id === 'hour')!,
+        this.standardTimeWindows.find((w) => w.id === 'day')!,
       ],
       functions: [
         { name: 'total_cost', field: 'totalCost', type: 'sum' },
@@ -860,8 +944,8 @@ export class TokenDataAggregator extends EventEmitter {
       id: 'token_usage_aggregation',
       name: 'Token Usage Analysis',
       timeWindows: [
-        this.standardTimeWindows.find(w => w.id === 'minute')!,
-        this.standardTimeWindows.find(w => w.id === 'hour')!,
+        this.standardTimeWindows.find((w) => w.id === 'minute')!,
+        this.standardTimeWindows.find((w) => w.id === 'hour')!,
       ],
       functions: [
         { name: 'total_tokens', field: 'totalTokens', type: 'sum' },
@@ -877,11 +961,20 @@ export class TokenDataAggregator extends EventEmitter {
       id: 'performance_aggregation',
       name: 'Performance Analysis',
       timeWindows: [
-        this.standardTimeWindows.find(w => w.id === 'sliding_hour')!,
+        this.standardTimeWindows.find((w) => w.id === 'sliding_hour')!,
       ],
       functions: [
-        { name: 'avg_response_time', field: 'averageResponseTime', type: 'avg' },
-        { name: 'p95_response_time', field: 'averageResponseTime', type: 'percentile', percentile: 0.95 },
+        {
+          name: 'avg_response_time',
+          field: 'averageResponseTime',
+          type: 'avg',
+        },
+        {
+          name: 'p95_response_time',
+          field: 'averageResponseTime',
+          type: 'percentile',
+          percentile: 0.95,
+        },
         { name: 'error_rate', field: 'errorRate', type: 'avg' },
       ],
       enabled: true,

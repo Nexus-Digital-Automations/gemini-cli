@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { Logger } from '@google/gemini-cli/src/utils/logger.js';
 import type { BudgetEvent, BudgetEventType, EventSeverity } from '../types.js';
 
 /**
@@ -280,7 +280,8 @@ export class BudgetEventSystem {
         currentAmount: number;
         limitAmount: number;
         source: string;
-      }) => this.emit({
+      }) =>
+        this.emit({
           type: BudgetEventType.LIMIT_EXCEEDED,
           timestamp: new Date(),
           data,
@@ -296,7 +297,8 @@ export class BudgetEventSystem {
         currentUsage: number;
         limitAmount: number;
         source: string;
-      }) => this.emit({
+      }) =>
+        this.emit({
           type: BudgetEventType.WARNING_THRESHOLD,
           timestamp: new Date(),
           data,
@@ -311,7 +313,8 @@ export class BudgetEventSystem {
         resetType: 'daily' | 'weekly' | 'monthly';
         previousUsage: number;
         source: string;
-      }) => this.emit({
+      }) =>
+        this.emit({
           type: BudgetEventType.BUDGET_RESET,
           timestamp: new Date(),
           data,
@@ -327,7 +330,8 @@ export class BudgetEventSystem {
         currentUsage: number;
         difference: number;
         source: string;
-      }) => this.emit({
+      }) =>
+        this.emit({
           type: BudgetEventType.USAGE_UPDATED,
           timestamp: new Date(),
           data,
@@ -343,7 +347,8 @@ export class BudgetEventSystem {
         oldSettings: any;
         newSettings: any;
         source: string;
-      }) => this.emit({
+      }) =>
+        this.emit({
           type: BudgetEventType.SETTINGS_CHANGED,
           timestamp: new Date(),
           data,
@@ -360,7 +365,8 @@ export class BudgetEventSystem {
         outputTokens: number;
         totalCost: number;
         source: string;
-      }) => this.emit({
+      }) =>
+        this.emit({
           type: BudgetEventType.COST_CALCULATED,
           timestamp: new Date(),
           data,

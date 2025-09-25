@@ -15,10 +15,7 @@ import { UsageTrendsGraph } from '../charts/UsageTrendsGraph.js';
 import { CostProjectionChart } from '../charts/CostProjectionChart.js';
 import { BudgetAlertsPanel } from './BudgetAlertsPanel.js';
 import { BudgetControlsPanel } from './BudgetControlsPanel.js';
-import {
-  formatPercentage,
-  createProgressBar,
-} from '../utils/chartUtils.js';
+import { formatPercentage, createProgressBar } from '../utils/chartUtils.js';
 import type { BudgetDashboardProps } from '../types/index.js';
 
 /**

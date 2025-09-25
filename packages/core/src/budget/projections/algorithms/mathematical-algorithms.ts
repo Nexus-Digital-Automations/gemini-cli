@@ -23,9 +23,7 @@ export class MathematicalAlgorithms {
   /**
    * Calculate comprehensive statistical measures for cost data
    */
-  static calculateStatistics(
-    dataPoints: CostDataPoint[],
-  ): StatisticalMeasures {
+  static calculateStatistics(dataPoints: CostDataPoint[]): StatisticalMeasures {
     const startTime = Date.now();
     this.logger.info('Calculating statistical measures', {
       dataPoints: dataPoints.length,
@@ -91,9 +89,7 @@ export class MathematicalAlgorithms {
   /**
    * Perform linear regression analysis for trend detection
    */
-  static performTrendAnalysis(
-    dataPoints: CostDataPoint[],
-  ): TrendAnalysis {
+  static performTrendAnalysis(dataPoints: CostDataPoint[]): TrendAnalysis {
     const startTime = Date.now();
     this.logger.info('Performing trend analysis', {
       dataPoints: dataPoints.length,
@@ -233,9 +229,13 @@ export class MathematicalAlgorithms {
 
           case 'exponential':
             const alpha = config.alpha || 0.2;
-            movingAverageValue = windowData.reduce((ema, point, index) => index === 0
-                ? point.cost
-                : alpha * point.cost + (1 - alpha) * ema, windowData[0].cost);
+            movingAverageValue = windowData.reduce(
+              (ema, point, index) =>
+                index === 0
+                  ? point.cost
+                  : alpha * point.cost + (1 - alpha) * ema,
+              windowData[0].cost,
+            );
             break;
 
           case 'weighted':
@@ -245,7 +245,10 @@ export class MathematicalAlgorithms {
             );
             const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
             movingAverageValue =
-              windowData.reduce((sum, point, index) => sum + point.cost * weights[index], 0) / weightSum;
+              windowData.reduce(
+                (sum, point, index) => sum + point.cost * weights[index],
+                0,
+              ) / weightSum;
             break;
 
           default:
@@ -302,9 +305,7 @@ export class MathematicalAlgorithms {
   /**
    * Analyze seasonal patterns in cost data
    */
-  static analyzeSeasonality(
-    dataPoints: CostDataPoint[],
-  ): SeasonalAnalysis {
+  static analyzeSeasonality(dataPoints: CostDataPoint[]): SeasonalAnalysis {
     const startTime = Date.now();
     this.logger.info('Analyzing seasonality', {
       dataPoints: dataPoints.length,

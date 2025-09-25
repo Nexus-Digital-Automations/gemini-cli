@@ -14,7 +14,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { GenerateContentParameters, GenerateContentResponse } from '@google/genai';
+import type {
+  GenerateContentParameters,
+  GenerateContentResponse,
+} from '@google/genai';
 import type { ContentGenerator } from '../../core/contentGenerator.js';
 import type { Config } from '../../config/config.js';
 import type { BudgetSettings } from '../types.js';
@@ -128,13 +131,17 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
 
     try {
       // Start request tracking
-      this.integration.getTokenTracker().startRequest(requestId, model, feature, sessionId);
+      this.integration
+        .getTokenTracker()
+        .startRequest(requestId, model, feature, sessionId);
 
       // Make the API call
       const response = await this.wrapped.generateContent(req, userPromptId);
 
       // Complete tracking with response
-      await this.integration.getTokenTracker().completeRequest(requestId, response);
+      await this.integration
+        .getTokenTracker()
+        .completeRequest(requestId, response);
 
       // Update integration stats
       this.updateStats('generateContent', true);
@@ -142,7 +149,9 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
       return response;
     } catch (error) {
       // Track error
-      await this.integration.getTokenTracker().completeRequest(requestId, undefined, error as Error);
+      await this.integration
+        .getTokenTracker()
+        .completeRequest(requestId, undefined, error as Error);
       this.updateStats('generateContent', false);
       throw error;
     }
@@ -158,17 +167,24 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
     const sessionId = this.integration.getSessionId();
 
     // Start request tracking
-    this.integration.getTokenTracker().startRequest(requestId, model, feature, sessionId);
+    this.integration
+      .getTokenTracker()
+      .startRequest(requestId, model, feature, sessionId);
 
     try {
       // Get stream from wrapped generator
-      const stream = await this.wrapped.generateContentStream(req, userPromptId);
+      const stream = await this.wrapped.generateContentStream(
+        req,
+        userPromptId,
+      );
 
       // Wrap stream to track responses
       return this.wrapStreamForTracking(stream, requestId);
     } catch (error) {
       // Track error
-      await this.integration.getTokenTracker().completeRequest(requestId, undefined, error as Error);
+      await this.integration
+        .getTokenTracker()
+        .completeRequest(requestId, undefined, error as Error);
       this.updateStats('generateContentStream', false);
       throw error;
     }
@@ -179,7 +195,9 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
     return this.wrapped.countTokens(req);
   }
 
-  async embedContent(req: EmbedContentParameters): Promise<EmbedContentResponse> {
+  async embedContent(
+    req: EmbedContentParameters,
+  ): Promise<EmbedContentResponse> {
     const requestId = randomUUID();
     const model = req.model || 'unknown';
     const feature = 'embed-content';
@@ -187,7 +205,9 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
 
     try {
       // Start request tracking
-      this.integration.getTokenTracker().startRequest(requestId, model, feature, sessionId);
+      this.integration
+        .getTokenTracker()
+        .startRequest(requestId, model, feature, sessionId);
 
       // Make the API call
       const response = await this.wrapped.embedContent(req);
@@ -201,7 +221,9 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
       return response;
     } catch (error) {
       // Track error
-      await this.integration.getTokenTracker().completeRequest(requestId, undefined, error as Error);
+      await this.integration
+        .getTokenTracker()
+        .completeRequest(requestId, undefined, error as Error);
       this.updateStats('embedContent', false);
       throw error;
     }
@@ -233,11 +255,13 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
       throw streamError;
     } finally {
       // Complete tracking with final response or error
-      await this.integration.getTokenTracker().completeRequest(
-        requestId,
-        finalResponse,
-        hasError ? error : undefined
-      );
+      await this.integration
+        .getTokenTracker()
+        .completeRequest(
+          requestId,
+          finalResponse,
+          hasError ? error : undefined,
+        );
     }
   }
 
@@ -246,7 +270,7 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
    */
   private extractFeature(req: GenerateContentParameters): string {
     // Try to determine feature from contents or config
-    if (req.contents?.some(c => c.parts?.some(p => 'functionCall' in p))) {
+    if (req.contents?.some((c) => c.parts?.some((p) => 'functionCall' in p))) {
       return 'function-calling';
     }
     if (req.config?.systemInstruction) {
@@ -262,16 +286,20 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
     if (success) {
       this.integrationStats.tokenTracker.totalRequests++;
     } else {
-      this.integrationStats.health.errors.push(`${operation} failed at ${new Date().toISOString()}`);
+      this.integrationStats.health.errors.push(
+        `${operation} failed at ${new Date().toISOString()}`,
+      );
 
       // Keep only last 10 errors
       if (this.integrationStats.health.errors.length > 10) {
-        this.integrationStats.health.errors = this.integrationStats.health.errors.slice(-10);
+        this.integrationStats.health.errors =
+          this.integrationStats.health.errors.slice(-10);
       }
     }
 
     // Update health status
-    this.integrationStats.health.isHealthy = this.integrationStats.health.errors.length < 5;
+    this.integrationStats.health.isHealthy =
+      this.integrationStats.health.errors.length < 5;
     this.integrationStats.health.uptime = Date.now() - this.startTime.getTime();
   }
 
@@ -316,8 +344,11 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
     const tokenStats = this.integration.getTokenTracker().getUsageStats();
     const cacheStats = this.integration.getCache()?.getStats();
 
-    this.integrationStats.tokenTracker.activeRequests = Object.keys(tokenStats.activeRequests).length;
-    this.integrationStats.tokenTracker.totalTokensProcessed = tokenStats.totalTokens;
+    this.integrationStats.tokenTracker.activeRequests = Object.keys(
+      tokenStats.activeRequests,
+    ).length;
+    this.integrationStats.tokenTracker.totalTokensProcessed =
+      tokenStats.totalTokens;
 
     if (cacheStats) {
       this.integrationStats.cache = {
@@ -405,9 +436,12 @@ export class TokenMonitoringIntegration extends EventEmitter {
     // Initialize optional components
     if (this.integrationConfig.enableStreaming) {
       this.streamingService = new RealTimeStreamingService({
-        enableCompression: this.integrationConfig.streamingConfig?.enableCompression ?? true,
-        maxBufferSize: this.integrationConfig.streamingConfig?.maxBufferSize ?? 10000,
-        defaultUpdateFrequency: this.integrationConfig.streamingConfig?.updateFrequency ?? 1000,
+        enableCompression:
+          this.integrationConfig.streamingConfig?.enableCompression ?? true,
+        maxBufferSize:
+          this.integrationConfig.streamingConfig?.maxBufferSize ?? 10000,
+        defaultUpdateFrequency:
+          this.integrationConfig.streamingConfig?.updateFrequency ?? 1000,
         enableBandwidthMonitoring: true,
       });
     }
@@ -496,7 +530,9 @@ export class TokenMonitoringIntegration extends EventEmitter {
     // Streaming service events
     if (this.streamingService) {
       this.streamingService.on('subscription-created', (subscription) => {
-        console.log(`Real-time streaming subscription created: ${subscription.id}`);
+        console.log(
+          `Real-time streaming subscription created: ${subscription.id}`,
+        );
       });
     }
 
@@ -528,7 +564,10 @@ export class TokenMonitoringIntegration extends EventEmitter {
       }
 
       // Setup quota limits from budget settings
-      if (this.integrationConfig.enableQuotaManagement && this.budgetSettings.dailyLimit) {
+      if (
+        this.integrationConfig.enableQuotaManagement &&
+        this.budgetSettings.dailyLimit
+      ) {
         this.quotaManager.addQuotaLimit({
           type: 'daily-requests',
           limit: this.budgetSettings.dailyLimit,
@@ -542,7 +581,10 @@ export class TokenMonitoringIntegration extends EventEmitter {
       this.eventManager.emitBudgetEvent({
         type: BudgetEventType.SESSION_STARTED,
         timestamp: new Date(),
-        data: { sessionId: this.sessionId, integrationConfig: this.integrationConfig },
+        data: {
+          sessionId: this.sessionId,
+          integrationConfig: this.integrationConfig,
+        },
         source: 'monitoring-integration',
         severity: 'info',
       });
@@ -550,15 +592,23 @@ export class TokenMonitoringIntegration extends EventEmitter {
       this.emit('initialized', { sessionId: this.sessionId });
     } catch (error) {
       this.emit('initialization-error', error);
-      throw new Error(`Failed to initialize token monitoring integration: ${error}`);
+      throw new Error(
+        `Failed to initialize token monitoring integration: ${error}`,
+      );
     }
   }
 
   /**
    * Create a token-tracking wrapper for content generators
    */
-  wrapContentGenerator(contentGenerator: ContentGenerator): TokenTrackingContentGenerator {
-    return new TokenTrackingContentGenerator(contentGenerator, this.config, this);
+  wrapContentGenerator(
+    contentGenerator: ContentGenerator,
+  ): TokenTrackingContentGenerator {
+    return new TokenTrackingContentGenerator(
+      contentGenerator,
+      this.config,
+      this,
+    );
   }
 
   /**
@@ -647,7 +697,8 @@ export class TokenMonitoringIntegration extends EventEmitter {
       system: {
         sessionId: this.sessionId,
         initialized: this.isInitialized,
-        uptime: Date.now() - (this.tokenTracker as any).createdAt?.getTime() || 0,
+        uptime:
+          Date.now() - (this.tokenTracker as any).createdAt?.getTime() || 0,
       },
     } as any;
 
@@ -738,14 +789,18 @@ export async function createMonitoringEnabledContentGenerator(
   config: Config,
   budgetSettings: BudgetSettings,
   integrationConfig?: Partial<MonitoringIntegrationConfig>,
-): Promise<{ contentGenerator: TokenTrackingContentGenerator; integration: TokenMonitoringIntegration }> {
+): Promise<{
+  contentGenerator: TokenTrackingContentGenerator;
+  integration: TokenMonitoringIntegration;
+}> {
   const integration = await createTokenMonitoringIntegration(
     config,
     budgetSettings,
     integrationConfig,
   );
 
-  const monitoringContentGenerator = integration.wrapContentGenerator(baseContentGenerator);
+  const monitoringContentGenerator =
+    integration.wrapContentGenerator(baseContentGenerator);
 
   return {
     contentGenerator: monitoringContentGenerator,

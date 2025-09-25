@@ -325,7 +325,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 16,
-      "total_reinitializations": 177,
+      "total_reinitializations": 181,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
@@ -346,7 +346,7 @@
         },
         "05:00-09:59": {
           "init": 0,
-          "reinit": 20
+          "reinit": 24
         }
       },
       "daily_history": [
@@ -406,7 +406,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T10:51:26.156Z"
+      "last_updated": "2025-09-25T10:59:55.594Z"
     }
   },
   "workflow_config": {
@@ -427,25 +427,28 @@
   },
   "agents": {
     "MAIN_AGENT": {
-      "lastHeartbeat": "2025-09-25T10:20:20.145Z",
+      "lastHeartbeat": "2025-09-25T10:59:55.590Z",
       "status": "active",
-      "reinitialized": "2025-09-25T10:20:20.145Z",
-      "sessionId": "519c518c7ed56b72",
+      "reinitialized": "2025-09-25T10:59:55.590Z",
+      "sessionId": "1230b6215becc07e",
       "previousSessions": [
         "dff048a54533f3b8",
-        "f6eb756a9a1b54a3"
+        "f6eb756a9a1b54a3",
+        "519c518c7ed56b72",
+        "b7e190d33a9cdf27"
       ]
     },
     "claude-agent": {
-      "lastHeartbeat": "2025-09-25T10:51:26.149Z",
+      "lastHeartbeat": "2025-09-25T10:58:10.181Z",
       "status": "active",
-      "reinitialized": "2025-09-25T10:51:26.149Z",
-      "sessionId": "d438c13c3dbbb0fa",
+      "reinitialized": "2025-09-25T10:58:10.181Z",
+      "sessionId": "f4d979cfa5845a3e",
       "previousSessions": [
         "0d47d3e153139d61",
         "a7fdf9d1ba24c4a4",
         "aa8165097175af05",
-        "6991a4a3a875e461"
+        "6991a4a3a875e461",
+        "d438c13c3dbbb0fa"
       ]
     },
     "budget-core-infrastructure-agent": {
@@ -491,12 +494,13 @@
       "previousSessions": []
     },
     "cost-projection-agent": {
-      "lastHeartbeat": "2025-09-25T10:40:53.259Z",
+      "lastHeartbeat": "2025-09-25T10:55:03.395Z",
       "status": "active",
-      "reinitialized": "2025-09-25T10:40:53.259Z",
-      "sessionId": "65f099258983a8e0",
+      "reinitialized": "2025-09-25T10:55:03.395Z",
+      "sessionId": "8b0d0a981c9b3953",
       "previousSessions": [
-        "500fec285249f5e5"
+        "500fec285249f5e5",
+        "65f099258983a8e0"
       ]
     },
     "USAGE_ANALYTICS_ENGINE_AGENT": {

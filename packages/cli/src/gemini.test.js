@@ -205,9 +205,8 @@ describe('gemini.tsx main function kitty protocol', () => {
     // Set no relaunch in tests since process spawning causing issues in tests
     originalEnvNoRelaunch = process.env['GEMINI_CLI_NO_RELAUNCH'];
     process.env['GEMINI_CLI_NO_RELAUNCH'] = 'true';
-     
+
     if (!process.stdin.setRawMode) {
-       
       process.stdin.setRawMode = vi.fn();
     }
     setRawModeSpy = vi.spyOn(process.stdin, 'setRawMode');

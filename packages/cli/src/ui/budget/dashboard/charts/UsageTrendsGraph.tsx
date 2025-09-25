@@ -136,9 +136,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
   const requestData = convertUsageToChartData(aggregatedData, 'requests');
 
   // Calculate moving averages if enabled
-  const tokenValues = tokenData.map(point => point.y as number);
-  const costValues = costData.map(point => point.y as number);
-  const requestValues = requestData.map(point => point.y as number);
+  const tokenValues = tokenData.map((point) => point.y as number);
+  const costValues = costData.map((point) => point.y as number);
+  const requestValues = requestData.map((point) => point.y as number);
 
   // Calculate trend statistics
   const calculateTrendStats = (values: number[]) => {
@@ -148,7 +148,8 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
     const earlier = values.slice(0, Math.min(5, Math.floor(values.length / 3)));
 
     const recentAvg = recent.reduce((sum, val) => sum + val, 0) / recent.length;
-    const earlierAvg = earlier.reduce((sum, val) => sum + val, 0) / earlier.length;
+    const earlierAvg =
+      earlier.reduce((sum, val) => sum + val, 0) / earlier.length;
 
     const change = ((recentAvg - earlierAvg) / earlierAvg) * 100;
 
@@ -166,9 +167,10 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
    * Renders the trends statistics header.
    */
   const renderTrendsHeader = () => {
-    const timeRange = aggregatedData.length > 0
-      ? `${formatTime(aggregatedData[0].timestamp)} - ${formatTime(aggregatedData[aggregatedData.length - 1].timestamp)}`
-      : 'No time range';
+    const timeRange =
+      aggregatedData.length > 0
+        ? `${formatTime(aggregatedData[0].timestamp)} - ${formatTime(aggregatedData[aggregatedData.length - 1].timestamp)}`
+        : 'No time range';
 
     return (
       <Box justifyContent="space-between" marginBottom={1}>
@@ -198,8 +200,8 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
       trend === 'increasing'
         ? theme.status.warning
         : trend === 'decreasing'
-        ? theme.status.success
-        : theme.text.muted;
+          ? theme.status.success
+          : theme.text.muted;
 
     const getTrendIcon = (trend: string) =>
       trend === 'increasing' ? '↗' : trend === 'decreasing' ? '↘' : '→';
@@ -252,15 +254,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
         </Box>
 
         <Box justifyContent="space-between" marginBottom={1}>
-          <Text color={theme.text.muted}>
-            Min: {formatCompact(minTokens)}
-          </Text>
-          <Text color={theme.text.muted}>
-            Avg: {formatCompact(avgTokens)}
-          </Text>
-          <Text color={theme.text.muted}>
-            Max: {formatCompact(maxTokens)}
-          </Text>
+          <Text color={theme.text.muted}>Min: {formatCompact(minTokens)}</Text>
+          <Text color={theme.text.muted}>Avg: {formatCompact(avgTokens)}</Text>
+          <Text color={theme.text.muted}>Max: {formatCompact(maxTokens)}</Text>
         </Box>
 
         {showMovingAverage && tokenValues.length > 5 && (
@@ -274,9 +270,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
                   tokenValues.map((value, index) => ({
                     timestamp: aggregatedData[index]?.timestamp || new Date(),
                     value,
-                  }))
-                ).map(point => point.value),
-                sparklineWidth
+                  })),
+                ).map((point) => point.value),
+                sparklineWidth,
               )}
             </Text>
           </Box>
@@ -338,7 +334,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
     const chartLines: string[] = Array(chartHeight).fill('');
 
     tokenValues.forEach((value, index) => {
-      const x = Math.floor((index / (tokenValues.length - 1)) * (chartWidth - 1));
+      const x = Math.floor(
+        (index / (tokenValues.length - 1)) * (chartWidth - 1),
+      );
       const normalizedValue = (value - minValue) / range;
       const y = Math.floor(normalizedValue * (chartHeight - 1));
       const displayY = chartHeight - 1 - y;
@@ -366,7 +364,10 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
             {formatTime(aggregatedData[0]?.timestamp || new Date())}
           </Text>
           <Text color={theme.text.muted}>
-            {formatTime(aggregatedData[aggregatedData.length - 1]?.timestamp || new Date())}
+            {formatTime(
+              aggregatedData[aggregatedData.length - 1]?.timestamp ||
+                new Date(),
+            )}
           </Text>
         </Box>
       </Box>
@@ -395,9 +396,7 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
             <Text color={theme.status.warning}>
               {formatCurrency(point.cost)}
             </Text>
-            <Text color={theme.text.muted}>
-              {point.requests} req
-            </Text>
+            <Text color={theme.text.muted}>{point.requests} req</Text>
           </Box>
         ))}
       </Box>
@@ -430,21 +429,24 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
         {config.height > 20
           ? renderDetailedLineChart()
           : showMultipleMetrics
-          ? renderMultipleMetricsTrend()
-          : renderSingleMetricTrend()}
+            ? renderMultipleMetricsTrend()
+            : renderSingleMetricTrend()}
       </Box>
 
       {/* Additional information for larger charts */}
       {config.height > 15 && renderRecentDataSummary()}
 
       {/* Footer */}
-      <Box justifyContent="space-between" marginTop={1} paddingTop={1} borderTop>
+      <Box
+        justifyContent="space-between"
+        marginTop={1}
+        paddingTop={1}
+        borderTop
+      >
         <Text color={theme.text.muted}>
           {aggregatedData.length} {period}s analyzed
         </Text>
-        <Text color={theme.text.muted}>
-          Updated: {formatTime(new Date())}
-        </Text>
+        <Text color={theme.text.muted}>Updated: {formatTime(new Date())}</Text>
       </Box>
     </Box>
   );

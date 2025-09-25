@@ -181,23 +181,21 @@ const OverviewDashboard = ({ tasks, agents, metrics }) => {
               color: 'red',
               children: '\u26A0\uFE0F System Alerts',
             }),
-            metrics.bottlenecks
-              .slice(0, 3)
-              .map((bottleneck, index) =>
-                _jsxs(
-                  Box,
-                  {
-                    children: [
-                      _jsx(Text, { color: 'red', children: '\u2022' }),
-                      _jsxs(Text, {
-                        dimColor: true,
-                        children: [' ', bottleneck.description],
-                      }),
-                    ],
-                  },
-                  index,
-                ),
+            metrics.bottlenecks.slice(0, 3).map((bottleneck, index) =>
+              _jsxs(
+                Box,
+                {
+                  children: [
+                    _jsx(Text, { color: 'red', children: '\u2022' }),
+                    _jsxs(Text, {
+                      dimColor: true,
+                      children: [' ', bottleneck.description],
+                    }),
+                  ],
+                },
+                index,
               ),
+            ),
           ],
         }),
     ],
@@ -296,40 +294,38 @@ const TaskDashboard = ({ tasks, agents }) => {
             bold: true,
             children: ['Recent Tasks (sorted by ', sortBy, '):'],
           }),
-          sortedTasks
-            .slice(0, 10)
-            .map((task) =>
-              _jsxs(
-                Box,
-                {
-                  gap: 1,
-                  children: [
-                    _jsx(Text, {
-                      color: getStatusColor(task.status),
-                      children: '\u25CF',
-                    }),
-                    _jsxs(Text, {
-                      color: getPriorityColor(task.priority),
-                      children: ['[', task.priority.toUpperCase(), ']'],
-                    }),
-                    _jsxs(Text, {
-                      children: [task.title.substring(0, 40), '...'],
-                    }),
-                    _jsx(Text, {
-                      dimColor: true,
-                      children: task.assignedAgent
-                        ? `@${task.assignedAgent}`
-                        : 'unassigned',
-                    }),
-                    _jsxs(Text, {
-                      dimColor: true,
-                      children: [task.progress, '%'],
-                    }),
-                  ],
-                },
-                task.id,
-              ),
+          sortedTasks.slice(0, 10).map((task) =>
+            _jsxs(
+              Box,
+              {
+                gap: 1,
+                children: [
+                  _jsx(Text, {
+                    color: getStatusColor(task.status),
+                    children: '\u25CF',
+                  }),
+                  _jsxs(Text, {
+                    color: getPriorityColor(task.priority),
+                    children: ['[', task.priority.toUpperCase(), ']'],
+                  }),
+                  _jsxs(Text, {
+                    children: [task.title.substring(0, 40), '...'],
+                  }),
+                  _jsx(Text, {
+                    dimColor: true,
+                    children: task.assignedAgent
+                      ? `@${task.assignedAgent}`
+                      : 'unassigned',
+                  }),
+                  _jsxs(Text, {
+                    dimColor: true,
+                    children: [task.progress, '%'],
+                  }),
+                ],
+              },
+              task.id,
             ),
+          ),
         ],
       }),
       _jsx(Box, {
@@ -543,43 +539,41 @@ const AnalyticsDashboard = ({
               '):',
             ],
           }),
-          taskAnalytics.timeSeriesData
-            .slice(-10)
-            .map((dataPoint, index) =>
-              _jsxs(
-                Box,
-                {
-                  gap: 1,
-                  children: [
-                    _jsx(Text, {
-                      dimColor: true,
-                      children: dataPoint.timestamp
-                        .toLocaleTimeString()
-                        .substring(0, 5),
-                    }),
-                    _jsx(Text, {
-                      color: 'green',
-                      children: '█'.repeat(Math.max(1, dataPoint.completed)),
-                    }),
-                    _jsx(Text, {
-                      color: 'red',
-                      children: '█'.repeat(Math.max(1, dataPoint.failed)),
-                    }),
-                    _jsxs(Text, {
-                      dimColor: true,
-                      children: [
-                        '(',
-                        dataPoint.completed,
-                        '\u2713 ',
-                        dataPoint.failed,
-                        '\u2717)',
-                      ],
-                    }),
-                  ],
-                },
-                index,
-              ),
+          taskAnalytics.timeSeriesData.slice(-10).map((dataPoint, index) =>
+            _jsxs(
+              Box,
+              {
+                gap: 1,
+                children: [
+                  _jsx(Text, {
+                    dimColor: true,
+                    children: dataPoint.timestamp
+                      .toLocaleTimeString()
+                      .substring(0, 5),
+                  }),
+                  _jsx(Text, {
+                    color: 'green',
+                    children: '█'.repeat(Math.max(1, dataPoint.completed)),
+                  }),
+                  _jsx(Text, {
+                    color: 'red',
+                    children: '█'.repeat(Math.max(1, dataPoint.failed)),
+                  }),
+                  _jsxs(Text, {
+                    dimColor: true,
+                    children: [
+                      '(',
+                      dataPoint.completed,
+                      '\u2713 ',
+                      dataPoint.failed,
+                      '\u2717)',
+                    ],
+                  }),
+                ],
+              },
+              index,
             ),
+          ),
         ],
       }),
       _jsx(Box, {

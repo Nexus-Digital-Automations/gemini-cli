@@ -11,6 +11,6 @@
 // interactive code path of the CLI.
 // See issue #1563 for more details.
 const isInCi = false;
- 
+
 export default isInCi;
 //# sourceMappingURL=is-in-ci.js.map

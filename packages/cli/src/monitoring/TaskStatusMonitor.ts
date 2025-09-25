@@ -5,8 +5,8 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { StructuredLogger} from "@google/gemini-cli-core/src/utils/logger.js";
-import { getComponentLogger } from "@google/gemini-cli-core/src/utils/logger.js";
+import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
+import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 
 /**
  * Task status definitions for comprehensive monitoring
@@ -542,7 +542,9 @@ export class TaskStatusMonitor extends EventEmitter {
       // For now, we'll emit an event that can be handled by external systems
       this.emit('status:persisted', { statusData });
     } catch (error) {
-      this.logger.error('Failed to persist status data', { error: error as Error });
+      this.logger.error('Failed to persist status data', {
+        error: error as Error,
+      });
     }
   }
 

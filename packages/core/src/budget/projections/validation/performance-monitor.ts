@@ -116,7 +116,11 @@ export interface DegradationDetection {
   /** Detected issues */
   issues: Array<{
     /** Issue type */
-    type: 'performance_regression' | 'memory_leak' | 'cpu_spike' | 'latency_increase';
+    type:
+      | 'performance_regression'
+      | 'memory_leak'
+      | 'cpu_spike'
+      | 'latency_increase';
     /** Issue severity */
     severity: 'low' | 'medium' | 'high' | 'critical';
     /** Issue description */
@@ -205,7 +209,7 @@ export class PerformanceMonitor {
   async benchmarkAlgorithm<T>(
     algorithmName: string,
     algorithm: (data: CostDataPoint[]) => T,
-    testData: CostDataPoint[]
+    testData: CostDataPoint[],
   ): Promise<PerformanceBenchmark> {
     const startTime = Date.now();
     this.logger.info(`Starting performance benchmark for ${algorithmName}`, {
@@ -216,7 +220,7 @@ export class PerformanceMonitor {
       const benchmark = await this.runPerformanceBenchmark(
         algorithmName,
         algorithm,
-        testData
+        testData,
       );
 
       // Store benchmark result
@@ -238,10 +242,13 @@ export class PerformanceMonitor {
 
       return benchmark;
     } catch (error) {
-      this.logger.error(`Performance benchmarking failed for ${algorithmName}`, {
-        error: error.message,
-        stack: error.stack,
-      });
+      this.logger.error(
+        `Performance benchmarking failed for ${algorithmName}`,
+        {
+          error: error.message,
+          stack: error.stack,
+        },
+      );
       throw error;
     }
   }
@@ -252,7 +259,7 @@ export class PerformanceMonitor {
   private async runPerformanceBenchmark<T>(
     algorithmName: string,
     algorithm: (data: CostDataPoint[]) => T,
-    testData: CostDataPoint[]
+    testData: CostDataPoint[],
   ): Promise<PerformanceBenchmark> {
     const benchmarkId = `${algorithmName}_${Date.now()}`;
     const latencyMeasurements: number[] = [];
@@ -289,8 +296,10 @@ export class PerformanceMonitor {
       const memoryAfter = process.memoryUsage();
 
       const runExecutionTime = runEndTime - runStartTime;
-      const runMemoryUsage = (memoryAfter.heapUsed - memoryBefore.heapUsed) / 1024 / 1024;
-      const runCpuUsage = (cpuAfter.user + cpuAfter.system) / 1000 / runExecutionTime * 100;
+      const runMemoryUsage =
+        (memoryAfter.heapUsed - memoryBefore.heapUsed) / 1024 / 1024;
+      const runCpuUsage =
+        ((cpuAfter.user + cpuAfter.system) / 1000 / runExecutionTime) * 100;
 
       latencyMeasurements.push(runExecutionTime);
       totalExecutionTime += runExecutionTime;
@@ -334,7 +343,7 @@ export class PerformanceMonitor {
    */
   analyzePerformanceTrends(
     algorithmName: string,
-    timeWindow: number = 7 * 24 * 60 * 60 * 1000 // 7 days
+    timeWindow: number = 7 * 24 * 60 * 60 * 1000, // 7 days
   ): PerformanceTrend[] {
     const startTime = Date.now();
     this.logger.info(`Analyzing performance trends for ${algorithmName}`, {
@@ -344,7 +353,9 @@ export class PerformanceMonitor {
     try {
       const benchmarks = this.benchmarks.get(algorithmName) || [];
       const cutoffTime = new Date(Date.now() - timeWindow);
-      const recentBenchmarks = benchmarks.filter((b) => b.timestamp >= cutoffTime);
+      const recentBenchmarks = benchmarks.filter(
+        (b) => b.timestamp >= cutoffTime,
+      );
 
       if (recentBenchmarks.length < 3) {
         this.logger.warn('Insufficient data for trend analysis', {
@@ -355,13 +366,18 @@ export class PerformanceMonitor {
       }
 
       const trends: PerformanceTrend[] = [];
-      const metrics = ['executionTime', 'memoryUsage', 'cpuUsage', 'throughput'];
+      const metrics = [
+        'executionTime',
+        'memoryUsage',
+        'cpuUsage',
+        'throughput',
+      ];
 
       metrics.forEach((metric) => {
         const trend = this.calculateTrendForMetric(
           algorithmName,
           metric,
-          recentBenchmarks
+          recentBenchmarks,
         );
         if (trend) {
           trends.push(trend);
@@ -369,17 +385,23 @@ export class PerformanceMonitor {
       });
 
       const duration = Date.now() - startTime;
-      this.logger.info(`Performance trend analysis completed for ${algorithmName}`, {
-        trendCount: trends.length,
-        analysisTime: duration,
-      });
+      this.logger.info(
+        `Performance trend analysis completed for ${algorithmName}`,
+        {
+          trendCount: trends.length,
+          analysisTime: duration,
+        },
+      );
 
       return trends;
     } catch (error) {
-      this.logger.error(`Performance trend analysis failed for ${algorithmName}`, {
-        error: error.message,
-        stack: error.stack,
-      });
+      this.logger.error(
+        `Performance trend analysis failed for ${algorithmName}`,
+        {
+          error: error.message,
+          stack: error.stack,
+        },
+      );
       throw error;
     }
   }
@@ -388,7 +410,7 @@ export class PerformanceMonitor {
    * Detect performance degradation
    */
   async detectPerformanceDegradation(
-    algorithmName: string
+    algorithmName: string,
   ): Promise<DegradationDetection | null> {
     const startTime = Date.now();
     this.logger.info(`Detecting performance degradation for ${algorithmName}`);
@@ -397,10 +419,13 @@ export class PerformanceMonitor {
       const benchmarks = this.benchmarks.get(algorithmName) || [];
 
       if (benchmarks.length < 10) {
-        this.logger.info('Insufficient benchmark history for degradation detection', {
-          algorithm: algorithmName,
-          benchmarkCount: benchmarks.length,
-        });
+        this.logger.info(
+          'Insufficient benchmark history for degradation detection',
+          {
+            algorithm: algorithmName,
+            benchmarkCount: benchmarks.length,
+          },
+        );
         return null;
       }
 
@@ -422,7 +447,7 @@ export class PerformanceMonitor {
           metric.threshold,
           metric.direction,
           recentBenchmarks,
-          baselineBenchmarks
+          baselineBenchmarks,
         );
 
         if (issue) {
@@ -432,9 +457,12 @@ export class PerformanceMonitor {
 
       if (issues.length === 0) {
         const duration = Date.now() - startTime;
-        this.logger.info(`No performance degradation detected for ${algorithmName}`, {
-          detectionTime: duration,
-        });
+        this.logger.info(
+          `No performance degradation detected for ${algorithmName}`,
+          {
+            detectionTime: duration,
+          },
+        );
         return null;
       }
 
@@ -449,23 +477,29 @@ export class PerformanceMonitor {
       };
 
       const duration = Date.now() - startTime;
-      this.logger.warn(`Performance degradation detected for ${algorithmName}`, {
-        issueCount: issues.length,
-        detectionTime: duration,
-        issues: issues.map((issue) => ({
-          type: issue.type,
-          severity: issue.severity,
-          metric: issue.metric,
-          degradationPercent: issue.degradationPercent,
-        })),
-      });
+      this.logger.warn(
+        `Performance degradation detected for ${algorithmName}`,
+        {
+          issueCount: issues.length,
+          detectionTime: duration,
+          issues: issues.map((issue) => ({
+            type: issue.type,
+            severity: issue.severity,
+            metric: issue.metric,
+            degradationPercent: issue.degradationPercent,
+          })),
+        },
+      );
 
       return degradationDetection;
     } catch (error) {
-      this.logger.error(`Performance degradation detection failed for ${algorithmName}`, {
-        error: error.message,
-        stack: error.stack,
-      });
+      this.logger.error(
+        `Performance degradation detection failed for ${algorithmName}`,
+        {
+          error: error.message,
+          stack: error.stack,
+        },
+      );
       throw error;
     }
   }
@@ -473,7 +507,8 @@ export class PerformanceMonitor {
   /**
    * Start continuous performance monitoring
    */
-  startContinuousMonitoring(intervalMs: number = 300000): void { // 5 minutes
+  startContinuousMonitoring(intervalMs: number = 300000): void {
+    // 5 minutes
     if (this.monitoringInterval) {
       this.logger.warn('Continuous monitoring already active');
       return;
@@ -535,7 +570,10 @@ export class PerformanceMonitor {
 
   // Private helper methods
 
-  private calculatePercentile(sortedValues: number[], percentile: number): number {
+  private calculatePercentile(
+    sortedValues: number[],
+    percentile: number,
+  ): number {
     if (sortedValues.length === 0) return 0;
 
     const index = (percentile / 100) * (sortedValues.length - 1);
@@ -553,7 +591,7 @@ export class PerformanceMonitor {
   private calculateTrendForMetric(
     algorithmName: string,
     metric: string,
-    benchmarks: PerformanceBenchmark[]
+    benchmarks: PerformanceBenchmark[],
   ): PerformanceTrend | null {
     if (benchmarks.length < 3) return null;
 
@@ -577,16 +615,23 @@ export class PerformanceMonitor {
 
     // Calculate R-squared
     const yMean = sumY / n;
-    const totalSumSquares = yValues.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+    const totalSumSquares = yValues.reduce(
+      (sum, y) => sum + Math.pow(y - yMean, 2),
+      0,
+    );
     const residualSumSquares = yValues.reduce(
       (sum, y, i) => sum + Math.pow(y - (slope * i + intercept), 2),
-      0
+      0,
     );
-    const rSquared = 1 - (residualSumSquares / totalSumSquares);
+    const rSquared = 1 - residualSumSquares / totalSumSquares;
 
     // Determine trend direction and strength
-    const direction = Math.abs(slope) < 0.001 ? 'stable' :
-                      slope > 0 ? 'improving' : 'degrading';
+    const direction =
+      Math.abs(slope) < 0.001
+        ? 'stable'
+        : slope > 0
+          ? 'improving'
+          : 'degrading';
     const strength = Math.min(1, Math.abs(slope) / (yMean || 1));
     const significance = rSquared;
 
@@ -608,7 +653,10 @@ export class PerformanceMonitor {
     };
   }
 
-  private getMetricValue(benchmark: PerformanceBenchmark, metric: string): number {
+  private getMetricValue(
+    benchmark: PerformanceBenchmark,
+    metric: string,
+  ): number {
     switch (metric) {
       case 'executionTime':
         return benchmark.metrics.executionTime;
@@ -628,14 +676,17 @@ export class PerformanceMonitor {
     threshold: number,
     direction: 'increase' | 'decrease',
     recentBenchmarks: PerformanceBenchmark[],
-    baselineBenchmarks: PerformanceBenchmark[]
+    baselineBenchmarks: PerformanceBenchmark[],
   ): DegradationDetection['issues'][0] | null {
     if (recentBenchmarks.length === 0 || baselineBenchmarks.length === 0) {
       return null;
     }
 
     const recentAvg = this.calculateMetricAverage(recentBenchmarks, metricKey);
-    const baselineAvg = this.calculateMetricAverage(baselineBenchmarks, metricKey);
+    const baselineAvg = this.calculateMetricAverage(
+      baselineBenchmarks,
+      metricKey,
+    );
 
     const changePercent = (recentAvg - baselineAvg) / baselineAvg;
 
@@ -658,7 +709,8 @@ export class PerformanceMonitor {
     else if (absChangePercent > 0.15) severity = 'medium';
 
     // Determine issue type
-    let issueType: DegradationDetection['issues'][0]['type'] = 'performance_regression';
+    let issueType: DegradationDetection['issues'][0]['type'] =
+      'performance_regression';
     if (metricKey === 'memoryUsage' && changePercent > 0.3) {
       issueType = 'memory_leak';
     } else if (metricKey === 'cpuUsage' && changePercent > 0.5) {
@@ -680,16 +732,18 @@ export class PerformanceMonitor {
 
   private calculateMetricAverage(
     benchmarks: PerformanceBenchmark[],
-    metricKey: keyof PerformanceBenchmark['metrics']
+    metricKey: keyof PerformanceBenchmark['metrics'],
   ): number {
     if (benchmarks.length === 0) return 0;
 
-    const values = benchmarks.map((b) => this.getMetricValue(b, String(metricKey)));
+    const values = benchmarks.map((b) =>
+      this.getMetricValue(b, String(metricKey)),
+    );
     return values.reduce((sum, val) => sum + val, 0) / values.length;
   }
 
   private generateDegradationRecommendations(
-    issues: DegradationDetection['issues']
+    issues: DegradationDetection['issues'],
   ): string[] {
     const recommendations: string[] = [];
 
@@ -698,29 +752,47 @@ export class PerformanceMonitor {
     const hasCpuIssues = issues.some((i) => i.type === 'cpu_spike');
 
     if (hasMemoryIssues) {
-      recommendations.push('Investigate potential memory leaks and optimize data structures');
-      recommendations.push('Review object lifecycle management and garbage collection patterns');
+      recommendations.push(
+        'Investigate potential memory leaks and optimize data structures',
+      );
+      recommendations.push(
+        'Review object lifecycle management and garbage collection patterns',
+      );
     }
 
     if (hasLatencyIssues) {
-      recommendations.push('Profile algorithm execution to identify bottlenecks');
-      recommendations.push('Consider algorithmic optimizations or caching strategies');
+      recommendations.push(
+        'Profile algorithm execution to identify bottlenecks',
+      );
+      recommendations.push(
+        'Consider algorithmic optimizations or caching strategies',
+      );
     }
 
     if (hasCpuIssues) {
-      recommendations.push('Analyze computational complexity and optimize hot paths');
-      recommendations.push('Consider parallelization or asynchronous processing');
+      recommendations.push(
+        'Analyze computational complexity and optimize hot paths',
+      );
+      recommendations.push(
+        'Consider parallelization or asynchronous processing',
+      );
     }
 
     if (issues.some((i) => i.severity === 'critical')) {
-      recommendations.push('URGENT: Review recent code changes that may have caused regression');
-      recommendations.push('Consider rolling back to previous stable version if issue persists');
+      recommendations.push(
+        'URGENT: Review recent code changes that may have caused regression',
+      );
+      recommendations.push(
+        'Consider rolling back to previous stable version if issue persists',
+      );
     }
 
     return recommendations;
   }
 
-  private calculateAverageMetrics(benchmarks: PerformanceBenchmark[]): PerformanceBenchmark['metrics'] {
+  private calculateAverageMetrics(
+    benchmarks: PerformanceBenchmark[],
+  ): PerformanceBenchmark['metrics'] {
     if (benchmarks.length === 0) {
       return {
         executionTime: 0,
@@ -750,7 +822,7 @@ export class PerformanceMonitor {
         cpuUsage: 0,
         throughput: 0,
         latency: { p50: 0, p90: 0, p95: 0, p99: 0 },
-      }
+      },
     );
 
     return {
@@ -767,7 +839,9 @@ export class PerformanceMonitor {
     };
   }
 
-  private async checkPerformanceAlerts(benchmark: PerformanceBenchmark): Promise<void> {
+  private async checkPerformanceAlerts(
+    benchmark: PerformanceBenchmark,
+  ): Promise<void> {
     for (const alert of this.alerts.values()) {
       if (alert.status !== 'active') continue;
 
@@ -807,16 +881,23 @@ export class PerformanceMonitor {
     // Check for degradation in all monitored algorithms
     for (const algorithmName of this.benchmarks.keys()) {
       try {
-        const degradation = await this.detectPerformanceDegradation(algorithmName);
+        const degradation =
+          await this.detectPerformanceDegradation(algorithmName);
         if (degradation && degradation.issues.length > 0) {
-          this.logger.warn(`Continuous monitoring detected degradation in ${algorithmName}`, {
-            issueCount: degradation.issues.length,
-          });
+          this.logger.warn(
+            `Continuous monitoring detected degradation in ${algorithmName}`,
+            {
+              issueCount: degradation.issues.length,
+            },
+          );
         }
       } catch (error) {
-        this.logger.error(`Continuous monitoring check failed for ${algorithmName}`, {
-          error: error.message,
-        });
+        this.logger.error(
+          `Continuous monitoring check failed for ${algorithmName}`,
+          {
+            error: error.message,
+          },
+        );
       }
     }
   }

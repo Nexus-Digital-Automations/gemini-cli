@@ -5,8 +5,8 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { StructuredLogger} from "@google/gemini-cli-core/src/utils/logger.js";
-import { getComponentLogger } from "@google/gemini-cli-core/src/utils/logger.js";
+import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
+import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import type {
   TaskStatusUpdate,
   AgentStatus,
@@ -389,7 +389,9 @@ export class StatusUpdateBroker extends EventEmitter {
   private async processEvent(event: StatusEvent): Promise<void> {
     const relevantSubscribers = this.getRelevantSubscribers(event);
 
-    for (const [subscriberId, config] of Array.from(relevantSubscribers.entries())) {
+    for (const [subscriberId, config] of Array.from(
+      relevantSubscribers.entries(),
+    )) {
       switch (config.deliveryMethod) {
         case 'realtime':
           await this.deliverRealtimeEvent(subscriberId, event, config);
@@ -413,7 +415,9 @@ export class StatusUpdateBroker extends EventEmitter {
   ): Map<string, NotificationConfig> {
     const relevantSubscribers = new Map<string, NotificationConfig>();
 
-    for (const [subscriberId, config] of Array.from(this.subscribers.entries())) {
+    for (const [subscriberId, config] of Array.from(
+      this.subscribers.entries(),
+    )) {
       // Check if event type matches
       if (!config.eventTypes.includes(event.type)) continue;
 
@@ -512,7 +516,9 @@ export class StatusUpdateBroker extends EventEmitter {
   }
 
   private async processBatchedEvents(): Promise<void> {
-    for (const [subscriberId, config] of Array.from(this.subscribers.entries())) {
+    for (const [subscriberId, config] of Array.from(
+      this.subscribers.entries(),
+    )) {
       if (config.deliveryMethod !== 'batched') continue;
 
       const events = this.batchedEvents.get(subscriberId);
@@ -532,7 +538,9 @@ export class StatusUpdateBroker extends EventEmitter {
   private async processWebhookEvents(): Promise<void> {
     // Webhook processing would be implemented here
     // For now, we'll just emit events that can be handled by external webhook delivery systems
-    for (const [subscriberId, events] of Array.from(this.webhookQueue.entries())) {
+    for (const [subscriberId, events] of Array.from(
+      this.webhookQueue.entries(),
+    )) {
       if (events.length === 0) continue;
 
       const config = this.subscribers.get(subscriberId);

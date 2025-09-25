@@ -66,7 +66,9 @@ export class CompressionEngineImpl implements CompressionEngine {
   /**
    * Create default compression configuration
    */
-  private createDefaultConfig(overrides: Partial<CompressionConfig>): CompressionConfig {
+  private createDefaultConfig(
+    overrides: Partial<CompressionConfig>,
+  ): CompressionConfig {
     return {
       defaultAlgorithm: 'gzip',
       defaultLevel: 6,
@@ -113,7 +115,7 @@ export class CompressionEngineImpl implements CompressionEngine {
       algorithm?: CompressionAlgorithm;
       level?: CompressionLevel;
       strategy?: CompressionStrategy;
-    }
+    },
   ): Promise<CompressedBlock> {
     const startTime = Date.now();
     const algorithm = options?.algorithm || this.config.defaultAlgorithm;
@@ -131,7 +133,10 @@ export class CompressionEngineImpl implements CompressionEngine {
     try {
       // Check cache first
       const cacheKey = this.generateCacheKey(block, algorithm, level);
-      if (this.config.cacheSettings.enabled && this.compressionCache.has(cacheKey)) {
+      if (
+        this.config.cacheSettings.enabled &&
+        this.compressionCache.has(cacheKey)
+      ) {
         const cached = this.compressionCache.get(cacheKey)!;
         this.logger.info('Returning cached compression result', {
           blockId: block.id,
@@ -154,7 +159,7 @@ export class CompressionEngineImpl implements CompressionEngine {
         serializedData,
         selectedAlgorithm,
         level,
-        strategy
+        strategy,
       );
 
       const compressedSize = compressedBuffer.length;
@@ -237,7 +242,9 @@ export class CompressionEngineImpl implements CompressionEngine {
   /**
    * Decompress a compressed block
    */
-  async decompressBlock(compressedBlock: CompressedBlock): Promise<DecompressionResult> {
+  async decompressBlock(
+    compressedBlock: CompressedBlock,
+  ): Promise<DecompressionResult> {
     const startTime = Date.now();
 
     this.logger.info('Starting block decompression', {
@@ -258,7 +265,7 @@ export class CompressionEngineImpl implements CompressionEngine {
       // Decompress data
       const decompressedBuffer = await this.decompressData(
         compressedBlock.compressedData,
-        compressedBlock.compression.algorithm
+        compressedBlock.compression.algorithm,
       );
 
       // Deserialize data
@@ -304,7 +311,7 @@ export class CompressionEngineImpl implements CompressionEngine {
       level?: CompressionLevel;
       strategy?: CompressionStrategy;
       maxConcurrency?: number;
-    }
+    },
   ): Promise<CompressedBlock[]> {
     const startTime = Date.now();
     const maxConcurrency = options?.maxConcurrency || this.config.maxWorkers;
@@ -321,8 +328,8 @@ export class CompressionEngineImpl implements CompressionEngine {
       const batches = this.createBatches(blocks, maxConcurrency);
 
       for (const batch of batches) {
-        const batchPromises = batch.map(block =>
-          this.compressBlock(block, options)
+        const batchPromises = batch.map((block) =>
+          this.compressBlock(block, options),
         );
 
         const batchResults = await Promise.all(batchPromises);
@@ -339,8 +346,11 @@ export class CompressionEngineImpl implements CompressionEngine {
       this.logger.info('Parallel block compression completed', {
         blockCount: blocks.length,
         duration: Date.now() - startTime,
-        averageRatio: results.reduce((sum, block) =>
-          sum + block.compression.compressionRatio, 0) / results.length,
+        averageRatio:
+          results.reduce(
+            (sum, block) => sum + block.compression.compressionRatio,
+            0,
+          ) / results.length,
       });
 
       return results;
@@ -358,13 +368,18 @@ export class CompressionEngineImpl implements CompressionEngine {
    */
   async benchmarkAlgorithms(
     sampleData: BudgetUsageTimeSeriesPoint[],
-    algorithms?: CompressionAlgorithm[]
-  ): Promise<Map<CompressionAlgorithm, {
-    compressionRatio: number;
-    compressionTime: number;
-    decompressionTime: number;
-    memoryUsage: number;
-  }>> {
+    algorithms?: CompressionAlgorithm[],
+  ): Promise<
+    Map<
+      CompressionAlgorithm,
+      {
+        compressionRatio: number;
+        compressionTime: number;
+        decompressionTime: number;
+        memoryUsage: number;
+      }
+    >
+  > {
     const testAlgorithms = algorithms || ['gzip', 'brotli', 'lz4', 'delta'];
     const results = new Map();
 
@@ -452,7 +467,7 @@ export class CompressionEngineImpl implements CompressionEngine {
    * Optimize compression settings based on data patterns
    */
   async optimizeSettings(
-    sampleData: BudgetUsageTimeSeriesPoint[]
+    sampleData: BudgetUsageTimeSeriesPoint[],
   ): Promise<Partial<CompressionConfig>> {
     this.logger.info('Optimizing compression settings', {
       sampleSize: sampleData.length,
@@ -473,7 +488,8 @@ export class CompressionEngineImpl implements CompressionEngine {
         const memoryScore = metrics.memoryUsage / (1024 * 1024); // Normalize to MB
 
         // Weighted score (prioritize compression ratio)
-        const balancedScore = compressionScore * 0.6 + speedScore * 0.2 + memoryScore * 0.2;
+        const balancedScore =
+          compressionScore * 0.6 + speedScore * 0.2 + memoryScore * 0.2;
 
         if (bestScore === 0 || balancedScore < bestScore) {
           bestScore = balancedScore;
@@ -533,7 +549,7 @@ export class CompressionEngineImpl implements CompressionEngine {
       // Verify decompression works
       const decompressed = await this.decompressData(
         compressedBlock.compressedData,
-        compressedBlock.compression.algorithm
+        compressedBlock.compression.algorithm,
       );
 
       // Verify size matches
@@ -566,7 +582,9 @@ export class CompressionEngineImpl implements CompressionEngine {
   /**
    * Deserialize data after decompression
    */
-  private deserializeData(serializedData: string): BudgetUsageTimeSeriesPoint[] {
+  private deserializeData(
+    serializedData: string,
+  ): BudgetUsageTimeSeriesPoint[] {
     return JSON.parse(serializedData);
   }
 
@@ -577,7 +595,7 @@ export class CompressionEngineImpl implements CompressionEngine {
     data: string,
     algorithm: CompressionAlgorithm,
     level: CompressionLevel,
-    strategy: CompressionStrategy
+    strategy: CompressionStrategy,
   ): Promise<Buffer> {
     const dataBuffer = Buffer.from(data, 'utf8');
 
@@ -590,9 +608,11 @@ export class CompressionEngineImpl implements CompressionEngine {
           params: {
             [zlib.constants.BROTLI_PARAM_QUALITY]: level,
             [zlib.constants.BROTLI_PARAM_MODE]:
-              strategy === 'speed' ? zlib.constants.BROTLI_MODE_GENERIC :
-              strategy === 'ratio' ? zlib.constants.BROTLI_MODE_TEXT :
-              zlib.constants.BROTLI_MODE_GENERIC,
+              strategy === 'speed'
+                ? zlib.constants.BROTLI_MODE_GENERIC
+                : strategy === 'ratio'
+                  ? zlib.constants.BROTLI_MODE_TEXT
+                  : zlib.constants.BROTLI_MODE_GENERIC,
           },
         });
 
@@ -621,7 +641,7 @@ export class CompressionEngineImpl implements CompressionEngine {
    */
   private async decompressData(
     compressedData: Buffer,
-    algorithm: CompressionAlgorithm
+    algorithm: CompressionAlgorithm,
   ): Promise<Buffer> {
     switch (algorithm) {
       case 'gzip':
@@ -723,7 +743,7 @@ export class CompressionEngineImpl implements CompressionEngine {
    * Select optimal algorithm based on data characteristics
    */
   private async selectOptimalAlgorithm(
-    data: BudgetUsageTimeSeriesPoint[]
+    data: BudgetUsageTimeSeriesPoint[],
   ): Promise<CompressionAlgorithm> {
     // Simple heuristics for algorithm selection
     const dataSize = Buffer.byteLength(JSON.stringify(data));
@@ -759,8 +779,11 @@ export class CompressionEngineImpl implements CompressionEngine {
       intervals.push(data[i].timestamp - data[i - 1].timestamp);
     }
 
-    const avgInterval = intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
-    const variance = intervals.reduce((sum, val) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
+    const avgInterval =
+      intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
+    const variance =
+      intervals.reduce((sum, val) => sum + Math.pow(val - avgInterval, 2), 0) /
+      intervals.length;
 
     // Low variance indicates regular temporal patterns
     return variance < avgInterval * 0.1;
@@ -797,16 +820,20 @@ export class CompressionEngineImpl implements CompressionEngine {
   /**
    * Analyze data to determine optimal compression strategy
    */
-  private analyzeDataStrategy(data: BudgetUsageTimeSeriesPoint[]): CompressionStrategy {
+  private analyzeDataStrategy(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): CompressionStrategy {
     const dataSize = Buffer.byteLength(JSON.stringify(data));
 
     // For large datasets, prioritize compression ratio
-    if (dataSize > 1024 * 1024) { // 1MB
+    if (dataSize > 1024 * 1024) {
+      // 1MB
       return 'ratio';
     }
 
     // For small datasets, prioritize speed
-    if (dataSize < 10 * 1024) { // 10KB
+    if (dataSize < 10 * 1024) {
+      // 10KB
       return 'speed';
     }
 
@@ -817,7 +844,9 @@ export class CompressionEngineImpl implements CompressionEngine {
   /**
    * Calculate optimal block size based on data characteristics
    */
-  private calculateOptimalBlockSize(data: BudgetUsageTimeSeriesPoint[]): number {
+  private calculateOptimalBlockSize(
+    data: BudgetUsageTimeSeriesPoint[],
+  ): number {
     // Base block size on data point density and memory constraints
     const avgPointSize = Buffer.byteLength(JSON.stringify(data)) / data.length;
     const maxBlockSize = this.config.maxMemoryUsage / (4 * avgPointSize); // 4x buffer for processing
@@ -837,15 +866,19 @@ export class CompressionEngineImpl implements CompressionEngine {
     this.stats.totalCompressedSize += compression.compressedSize;
 
     // Update overall compression ratio
-    this.stats.overallCompressionRatio = this.stats.totalCompressedSize / this.stats.totalOriginalSize;
+    this.stats.overallCompressionRatio =
+      this.stats.totalCompressedSize / this.stats.totalOriginalSize;
 
     // Update average compression time
     this.stats.averageCompressionTime =
-      ((this.stats.averageCompressionTime * (this.stats.totalBlocks - 1)) + compression.compressionTime) /
+      (this.stats.averageCompressionTime * (this.stats.totalBlocks - 1) +
+        compression.compressionTime) /
       this.stats.totalBlocks;
 
     // Update algorithm-specific stats
-    const algorithmStats = this.stats.algorithmStats.get(compression.algorithm) || {
+    const algorithmStats = this.stats.algorithmStats.get(
+      compression.algorithm,
+    ) || {
       blocksProcessed: 0,
       totalOriginalSize: 0,
       totalCompressedSize: 0,
@@ -856,15 +889,20 @@ export class CompressionEngineImpl implements CompressionEngine {
     algorithmStats.blocksProcessed++;
     algorithmStats.totalOriginalSize += compression.originalSize;
     algorithmStats.totalCompressedSize += compression.compressedSize;
-    algorithmStats.averageRatio = algorithmStats.totalCompressedSize / algorithmStats.totalOriginalSize;
+    algorithmStats.averageRatio =
+      algorithmStats.totalCompressedSize / algorithmStats.totalOriginalSize;
     algorithmStats.averageTime =
-      ((algorithmStats.averageTime * (algorithmStats.blocksProcessed - 1)) + compression.compressionTime) /
+      (algorithmStats.averageTime * (algorithmStats.blocksProcessed - 1) +
+        compression.compressionTime) /
       algorithmStats.blocksProcessed;
 
     this.stats.algorithmStats.set(compression.algorithm, algorithmStats);
 
     // Update time range
-    if (this.stats.timeRange.startTime === 0 || metadata.startTime < this.stats.timeRange.startTime) {
+    if (
+      this.stats.timeRange.startTime === 0 ||
+      metadata.startTime < this.stats.timeRange.startTime
+    ) {
       this.stats.timeRange.startTime = metadata.startTime;
     }
     if (metadata.endTime > this.stats.timeRange.endTime) {
@@ -872,8 +910,10 @@ export class CompressionEngineImpl implements CompressionEngine {
     }
 
     // Update space saved and efficiency
-    this.stats.spaceSaved = this.stats.totalOriginalSize - this.stats.totalCompressedSize;
-    this.stats.efficiency = (this.stats.spaceSaved / this.stats.totalOriginalSize) * 100;
+    this.stats.spaceSaved =
+      this.stats.totalOriginalSize - this.stats.totalCompressedSize;
+    this.stats.efficiency =
+      (this.stats.spaceSaved / this.stats.totalOriginalSize) * 100;
   }
 
   /**
@@ -882,7 +922,7 @@ export class CompressionEngineImpl implements CompressionEngine {
   private generateCacheKey(
     block: DataBlock,
     algorithm: CompressionAlgorithm,
-    level: CompressionLevel
+    level: CompressionLevel,
   ): string {
     const hash = crypto.createHash('md5');
     hash.update(JSON.stringify(block.data));
@@ -924,6 +964,8 @@ export class CompressionEngineImpl implements CompressionEngine {
 /**
  * Factory function to create a compression engine
  */
-export function createCompressionEngine(config?: Partial<CompressionConfig>): CompressionEngine {
+export function createCompressionEngine(
+  config?: Partial<CompressionConfig>,
+): CompressionEngine {
   return new CompressionEngineImpl(config);
 }

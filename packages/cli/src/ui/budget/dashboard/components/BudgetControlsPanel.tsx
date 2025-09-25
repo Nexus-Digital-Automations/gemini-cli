@@ -109,12 +109,12 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
       onToggleAutoRefresh?.();
     } else if (input === 'e') {
       // Quick export JSON
-      onExportData?.('json').then(data => {
+      onExportData?.('json').then((data) => {
         console.log('Export completed:', data.length, 'characters');
       });
     } else if (input === 'c') {
       // Quick export CSV
-      onExportData?.('csv').then(data => {
+      onExportData?.('csv').then((data) => {
         console.log('Export completed:', data.length, 'characters');
       });
     }
@@ -192,7 +192,11 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         start = new Date(now.getFullYear(), now.getMonth(), 1);
         break;
       case 'quarter':
-        start = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+        start = new Date(
+          now.getFullYear(),
+          Math.floor(now.getMonth() / 3) * 3,
+          1,
+        );
         break;
       case 'year':
         start = new Date(now.getFullYear(), 0, 1);
@@ -225,11 +229,11 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
 
     if (isIncluded) {
       // Move from include to exclude
-      newInclude = newInclude.filter(f => f !== feature);
+      newInclude = newInclude.filter((f) => f !== feature);
       newExclude.push(feature);
     } else if (isExcluded) {
       // Remove from exclude (neutral)
-      newExclude = newExclude.filter(f => f !== feature);
+      newExclude = newExclude.filter((f) => f !== feature);
     } else {
       // Add to include
       newInclude.push(feature);
@@ -302,8 +306,12 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
     if (!onExportData) return;
 
     const format = selectedOption === 0 ? 'json' : 'csv';
-    onExportData(format).then(data => {
-      console.log(`${format.toUpperCase()} export completed:`, data.length, 'characters');
+    onExportData(format).then((data) => {
+      console.log(
+        `${format.toUpperCase()} export completed:`,
+        data.length,
+        'characters',
+      );
     });
   };
 
@@ -335,9 +343,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
               : theme.text.secondary
           }
           backgroundColor={
-            index === selectedSection
-              ? theme.primary.light
-              : undefined
+            index === selectedSection ? theme.primary.light : undefined
           }
           bold={index === selectedSection}
         >
@@ -353,7 +359,8 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
   const renderTimeRangeControls = () => (
     <Box flexDirection="column">
       <Text color={theme.text.muted} marginBottom={1}>
-        Current: {formatTime(filters.timeRange.start)} to {formatTime(filters.timeRange.end)}
+        Current: {formatTime(filters.timeRange.start)} to{' '}
+        {formatTime(filters.timeRange.end)}
         {filters.timeRange.preset && ` (${filters.timeRange.preset})`}
       </Text>
 
@@ -368,8 +375,8 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
               index === selectedOption && selectedSection === 0
                 ? theme.primary.main
                 : filters.timeRange.preset === preset.value
-                ? theme.status.success
-                : theme.text.secondary
+                  ? theme.status.success
+                  : theme.text.secondary
             }
           >
             {index === selectedOption && selectedSection === 0 ? '→' : ' '}
@@ -395,19 +402,21 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
       {availableFeatures.map((feature, index) => {
         const isIncluded = filters.features.include.includes(feature);
         const isExcluded = filters.features.exclude.includes(feature);
-        const status = isIncluded ? 'included' : isExcluded ? 'excluded' : 'neutral';
+        const status = isIncluded
+          ? 'included'
+          : isExcluded
+            ? 'excluded'
+            : 'neutral';
 
-        const statusColor = status === 'included'
-          ? theme.status.success
-          : status === 'excluded'
-          ? theme.status.error
-          : theme.text.secondary;
+        const statusColor =
+          status === 'included'
+            ? theme.status.success
+            : status === 'excluded'
+              ? theme.status.error
+              : theme.text.secondary;
 
-        const statusIcon = status === 'included'
-          ? '✓'
-          : status === 'excluded'
-          ? '✗'
-          : '○';
+        const statusIcon =
+          status === 'included' ? '✓' : status === 'excluded' ? '✗' : '○';
 
         return (
           <Box key={feature} alignItems="center" gap={1} marginBottom={1}>
@@ -422,9 +431,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
               {feature}
             </Text>
             <Text color={statusColor}>{statusIcon}</Text>
-            <Text color={theme.text.muted}>
-              ({status})
-            </Text>
+            <Text color={theme.text.muted}>({status})</Text>
           </Box>
         );
       })}
@@ -446,7 +453,8 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
 
       {filters.costRange ? (
         <Text color={theme.text.secondary} marginBottom={1}>
-          Current: ${filters.costRange.min.toFixed(2)} - ${filters.costRange.max.toFixed(2)}
+          Current: ${filters.costRange.min.toFixed(2)} - $
+          {filters.costRange.max.toFixed(2)}
         </Text>
       ) : (
         <Text color={theme.text.muted} marginBottom={1}>
@@ -526,9 +534,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
             {selectedOption === 1 && selectedSection === 3 ? '→' : ' '}
             Interval:
           </Text>
-          <Text color={theme.text.primary}>
-            {refreshInterval}s
-          </Text>
+          <Text color={theme.text.primary}>{refreshInterval}s</Text>
         </Box>
       </Box>
 
@@ -608,24 +614,15 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
       borderTop
     >
       <Box gap={4}>
-        <Text color={theme.text.muted}>
-          ←→/hl: Sections
-        </Text>
-        <Text color={theme.text.muted}>
-          ↑↓/jk: Options
-        </Text>
-        <Text color={theme.text.muted}>
-          Enter: Select
-        </Text>
-        <Text color={theme.text.muted}>
-          t: Toggle refresh
-        </Text>
-        <Text color={theme.text.muted}>
-          e/c: Export
-        </Text>
+        <Text color={theme.text.muted}>←→/hl: Sections</Text>
+        <Text color={theme.text.muted}>↑↓/jk: Options</Text>
+        <Text color={theme.text.muted}>Enter: Select</Text>
+        <Text color={theme.text.muted}>t: Toggle refresh</Text>
+        <Text color={theme.text.muted}>e/c: Export</Text>
       </Box>
       <Text color={theme.text.muted}>
-        {sections[selectedSection]} ({selectedOption + 1}/{getMaxOptionsForSection(selectedSection)})
+        {sections[selectedSection]} ({selectedOption + 1}/
+        {getMaxOptionsForSection(selectedSection)})
       </Text>
     </Box>
   );

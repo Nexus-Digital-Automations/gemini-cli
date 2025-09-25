@@ -78,7 +78,7 @@ export class BudgetOptimizationEngine {
     burnRate: BurnRateAnalysis,
     trend: TrendAnalysis,
     variance: VarianceDetection,
-    targetSavings?: number
+    targetSavings?: number,
   ): Promise<{
     recommendations: OptimizationRecommendation[];
     opportunities: OptimizationOpportunity[];
@@ -98,10 +98,11 @@ export class BudgetOptimizationEngine {
 
     try {
       // Calculate target savings if not provided
-      const calculatedTargetSavings = targetSavings ||
+      const calculatedTargetSavings =
+        targetSavings ||
         Math.max(
           currentBudget.remaining * 0.2, // 20% of remaining budget
-          burnRate.currentBurnRate * 7   // One week of burn rate
+          burnRate.currentBurnRate * 7, // One week of burn rate
         );
 
       // Generate recommendations
@@ -112,7 +113,7 @@ export class BudgetOptimizationEngine {
         burnRate,
         trend,
         variance,
-        calculatedTargetSavings
+        calculatedTargetSavings,
       );
 
       // Identify optimization opportunities
@@ -120,7 +121,7 @@ export class BudgetOptimizationEngine {
         costData,
         burnRate,
         variance,
-        calculatedTargetSavings
+        calculatedTargetSavings,
       );
 
       // Create budget allocation strategies
@@ -128,24 +129,29 @@ export class BudgetOptimizationEngine {
         costData,
         currentBudget,
         burnRate,
-        calculatedTargetSavings
+        calculatedTargetSavings,
       );
 
       // Calculate summary metrics
-      const totalPotentialSavings = recommendations.reduce(
-        (sum, rec) => sum + rec.impact.estimatedSavings,
-        0
-      ) + opportunities.reduce(
-        (sum, opp) => sum + opp.potentialSavings.amount,
-        0
-      );
+      const totalPotentialSavings =
+        recommendations.reduce(
+          (sum, rec) => sum + rec.impact.estimatedSavings,
+          0,
+        ) +
+        opportunities.reduce(
+          (sum, opp) => sum + opp.potentialSavings.amount,
+          0,
+        );
 
       const implementationScore = this.calculateImplementationScore(
         recommendations,
-        opportunities
+        opportunities,
       );
 
-      const prioritizedActions = this.prioritizeActions(recommendations, opportunities);
+      const prioritizedActions = this.prioritizeActions(
+        recommendations,
+        opportunities,
+      );
 
       const result = {
         recommendations,
@@ -168,7 +174,9 @@ export class BudgetOptimizationEngine {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to generate optimization plan', { error: error.message });
+      this.logger.error('Failed to generate optimization plan', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -178,7 +186,7 @@ export class BudgetOptimizationEngine {
    */
   static analyzeCostEfficiency(
     costData: CostDataPoint[],
-    burnRate: BurnRateAnalysis
+    burnRate: BurnRateAnalysis,
   ): {
     efficiency: Array<{
       category: string;
@@ -212,20 +220,21 @@ export class BudgetOptimizationEngine {
         for (const category of burnRate.categoryBreakdown) {
           // Calculate efficiency metrics
           const categoryData = costData.filter(
-            point => point.context?.feature === category.category
+            (point) => point.context?.feature === category.category,
           );
 
-          const costPerUnit = category.burnRate / Math.max(1, categoryData.length);
+          const costPerUnit =
+            category.burnRate / Math.max(1, categoryData.length);
           const utilizationRate = this.calculateUtilizationRate(categoryData);
           const optimizationPotential = this.calculateOptimizationPotential(
             categoryData,
-            category.trend
+            category.trend,
           );
 
           const efficiencyScore = this.calculateEfficiencyScore(
             costPerUnit,
             utilizationRate,
-            category.percentage
+            category.percentage,
           );
 
           efficiency.push({
@@ -239,22 +248,31 @@ export class BudgetOptimizationEngine {
           // Generate category-specific recommendations
           if (efficiencyScore < 60) {
             recommendations.push(
-              `${category.category} shows low efficiency (${efficiencyScore.toFixed(1)}%). Consider optimization strategies.`
+              `${category.category} shows low efficiency (${efficiencyScore.toFixed(1)}%). Consider optimization strategies.`,
             );
           }
 
           if (optimizationPotential > 30) {
             recommendations.push(
-              `${category.category} has high optimization potential (${optimizationPotential.toFixed(1)}%). Prioritize for cost reduction.`
+              `${category.category} has high optimization potential (${optimizationPotential.toFixed(1)}%). Prioritize for cost reduction.`,
             );
           }
         }
       }
 
       // Calculate overall efficiency
-      const overallEfficiency = efficiency.length > 0
-        ? efficiency.reduce((sum, e) => sum + e.efficiency * (burnRate.categoryBreakdown?.find(c => c.category === e.category)?.percentage || 0), 0) / 100
-        : 50;
+      const overallEfficiency =
+        efficiency.length > 0
+          ? efficiency.reduce(
+              (sum, e) =>
+                sum +
+                e.efficiency *
+                  (burnRate.categoryBreakdown?.find(
+                    (c) => c.category === e.category,
+                  )?.percentage || 0),
+              0,
+            ) / 100
+          : 50;
 
       this.logger.info('Cost efficiency analysis completed', {
         duration: Date.now() - startTime,
@@ -269,7 +287,9 @@ export class BudgetOptimizationEngine {
         recommendations,
       };
     } catch (error) {
-      this.logger.error('Failed to analyze cost efficiency', { error: error.message });
+      this.logger.error('Failed to analyze cost efficiency', {
+        error: error.message,
+      });
       return {
         efficiency: [],
         overallEfficiency: 0,
@@ -284,7 +304,7 @@ export class BudgetOptimizationEngine {
   static createOptimizationScenarios(
     costData: CostDataPoint[],
     currentBudget: { total: number; used: number; remaining: number },
-    projection: CostProjection
+    projection: CostProjection,
   ): Array<{
     scenario: string;
     description: string;
@@ -308,7 +328,8 @@ export class BudgetOptimizationEngine {
       actions: this.createConservativeActions(costData, conservativeReduction),
       expectedOutcome: {
         costReduction: conservativeReduction,
-        budgetExtension: conservativeReduction / projection.summary.burnRatePerDay,
+        budgetExtension:
+          conservativeReduction / projection.summary.burnRatePerDay,
         riskLevel: 'low' as const,
         implementationTime: 3,
       },
@@ -333,12 +354,14 @@ export class BudgetOptimizationEngine {
     const aggressiveReduction = currentBudget.used * 0.35;
     scenarios.push({
       scenario: 'Aggressive Optimization',
-      description: 'Maximum cost reduction with significant operational changes',
+      description:
+        'Maximum cost reduction with significant operational changes',
       targetReduction: aggressiveReduction,
       actions: this.createAggressiveActions(costData, aggressiveReduction),
       expectedOutcome: {
         costReduction: aggressiveReduction,
-        budgetExtension: aggressiveReduction / projection.summary.burnRatePerDay,
+        budgetExtension:
+          aggressiveReduction / projection.summary.burnRatePerDay,
         riskLevel: 'high' as const,
         implementationTime: 14,
       },
@@ -356,18 +379,20 @@ export class BudgetOptimizationEngine {
     burnRate: BurnRateAnalysis,
     trend: TrendAnalysis,
     variance: VarianceDetection,
-    targetSavings: number
+    targetSavings: number,
   ): Promise<OptimizationRecommendation[]> {
     const recommendations: OptimizationRecommendation[] = [];
     let recId = 0;
 
     // Cost spike reduction recommendations
     if (variance.summary.significantVariances > 0) {
-      const spikeReduction = variance.summary.maxVarianceScore * currentBudget.used * 0.15;
+      const spikeReduction =
+        variance.summary.maxVarianceScore * currentBudget.used * 0.15;
       recommendations.push({
         id: `opt_${++recId}`,
         title: 'Implement Cost Spike Prevention',
-        description: 'Deploy automated monitoring and circuit breakers to prevent cost spikes before they occur.',
+        description:
+          'Deploy automated monitoring and circuit breakers to prevent cost spikes before they occur.',
         category: 'cost_reduction',
         impact: {
           estimatedSavings: spikeReduction,
@@ -384,11 +409,21 @@ export class BudgetOptimizationEngine {
             'Set up proactive alerting system',
           ],
           estimatedTimeHours: 20,
-          requiredResources: ['DevOps engineer', 'Monitoring specialist', 'Budget manager'],
-          risks: ['Potential service limitations during spike prevention', 'Learning curve for new monitoring tools'],
+          requiredResources: [
+            'DevOps engineer',
+            'Monitoring specialist',
+            'Budget manager',
+          ],
+          risks: [
+            'Potential service limitations during spike prevention',
+            'Learning curve for new monitoring tools',
+          ],
         },
         priority: 'high',
-        urgency: variance.summary.significantVariances > 5 ? 'this_week' : 'this_month',
+        urgency:
+          variance.summary.significantVariances > 5
+            ? 'this_week'
+            : 'this_month',
         supportingData: {
           historicalEvidence: `${variance.summary.significantVariances} cost spikes detected with max score ${variance.summary.maxVarianceScore.toFixed(3)}`,
           confidence: 0.85,
@@ -402,7 +437,8 @@ export class BudgetOptimizationEngine {
       recommendations.push({
         id: `opt_${++recId}`,
         title: 'Optimize Daily Burn Rate',
-        description: 'Implement systematic burn rate reduction through usage optimization and resource rightsizing.',
+        description:
+          'Implement systematic burn rate reduction through usage optimization and resource rightsizing.',
         category: 'usage_optimization',
         impact: {
           estimatedSavings: burnRateReduction,
@@ -419,11 +455,19 @@ export class BudgetOptimizationEngine {
             'Monitor and adjust optimization strategies',
           ],
           estimatedTimeHours: 24,
-          requiredResources: ['Cost optimization specialist', 'Technical architect', 'Data analyst'],
-          risks: ['Potential performance impact during optimization', 'Complexity in measuring optimization impact'],
+          requiredResources: [
+            'Cost optimization specialist',
+            'Technical architect',
+            'Data analyst',
+          ],
+          risks: [
+            'Potential performance impact during optimization',
+            'Complexity in measuring optimization impact',
+          ],
         },
         priority: burnRate.runway.currentRateDays < 30 ? 'critical' : 'high',
-        urgency: burnRate.runway.currentRateDays < 14 ? 'immediate' : 'this_week',
+        urgency:
+          burnRate.runway.currentRateDays < 14 ? 'immediate' : 'this_week',
         supportingData: {
           historicalEvidence: `Current burn rate: $${burnRate.currentBurnRate.toFixed(2)}/day, runway: ${burnRate.runway.currentRateDays} days`,
           confidence: 0.8,
@@ -456,8 +500,17 @@ export class BudgetOptimizationEngine {
               'Monitor impact of reallocation on business outcomes',
             ],
             estimatedTimeHours: 32,
-            requiredResources: ['Budget manager', 'Business analyst', 'Product manager', 'Finance team'],
-            risks: ['Potential disruption to existing operations', 'Difficulty in measuring value delivery', 'Organizational resistance to change'],
+            requiredResources: [
+              'Budget manager',
+              'Business analyst',
+              'Product manager',
+              'Finance team',
+            ],
+            risks: [
+              'Potential disruption to existing operations',
+              'Difficulty in measuring value delivery',
+              'Organizational resistance to change',
+            ],
           },
           priority: 'medium',
           urgency: 'this_month',
@@ -475,7 +528,8 @@ export class BudgetOptimizationEngine {
       recommendations.push({
         id: `opt_${++recId}`,
         title: 'Address Upward Cost Trend',
-        description: 'Implement measures to flatten or reverse the current upward cost trend.',
+        description:
+          'Implement measures to flatten or reverse the current upward cost trend.',
         category: 'process_improvement',
         impact: {
           estimatedSavings: trendReduction,
@@ -492,8 +546,16 @@ export class BudgetOptimizationEngine {
             'Establish regular trend review processes',
           ],
           estimatedTimeHours: 28,
-          requiredResources: ['Data analyst', 'Process improvement specialist', 'Management team'],
-          risks: ['Difficulty in identifying trend causes', 'Time required for trend reversal', 'Potential need for operational changes'],
+          requiredResources: [
+            'Data analyst',
+            'Process improvement specialist',
+            'Management team',
+          ],
+          risks: [
+            'Difficulty in identifying trend causes',
+            'Time required for trend reversal',
+            'Potential need for operational changes',
+          ],
         },
         priority: 'high',
         urgency: trend.slope > 1 ? 'this_week' : 'this_month',
@@ -506,7 +568,12 @@ export class BudgetOptimizationEngine {
 
     return recommendations.sort((a, b) => {
       const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      const urgencyOrder = { immediate: 4, this_week: 3, this_month: 2, when_convenient: 1 };
+      const urgencyOrder = {
+        immediate: 4,
+        this_week: 3,
+        this_month: 2,
+        when_convenient: 1,
+      };
       const scoreA = priorityOrder[a.priority] * 10 + urgencyOrder[a.urgency];
       const scoreB = priorityOrder[b.priority] * 10 + urgencyOrder[b.urgency];
       return scoreB - scoreA;
@@ -517,7 +584,7 @@ export class BudgetOptimizationEngine {
     costData: CostDataPoint[],
     burnRate: BurnRateAnalysis,
     variance: VarianceDetection,
-    targetSavings: number
+    targetSavings: number,
   ): OptimizationOpportunity[] {
     const opportunities: OptimizationOpportunity[] = [];
     let oppId = 0;
@@ -528,7 +595,8 @@ export class BudgetOptimizationEngine {
         id: `imm_opp_${++oppId}`,
         title: 'Eliminate Cost Anomalies',
         category: 'immediate',
-        description: 'Address identified cost spikes and anomalies for immediate savings.',
+        description:
+          'Address identified cost spikes and anomalies for immediate savings.',
         potentialSavings: {
           amount: variance.summary.maxVarianceScore * targetSavings * 0.3,
           percentage: 15,
@@ -541,8 +609,15 @@ export class BudgetOptimizationEngine {
           risks: ['Potential false positives in anomaly detection'],
         },
         measurability: {
-          kpis: ['Daily cost reduction', 'Anomaly detection accuracy', 'Alert response time'],
-          successMetrics: ['Cost spikes reduced by 80%', 'False alert rate below 5%'],
+          kpis: [
+            'Daily cost reduction',
+            'Anomaly detection accuracy',
+            'Alert response time',
+          ],
+          successMetrics: [
+            'Cost spikes reduced by 80%',
+            'False alert rate below 5%',
+          ],
           monitoringPeriod: 14,
         },
       });
@@ -564,12 +639,26 @@ export class BudgetOptimizationEngine {
         implementation: {
           effort: 'medium',
           timeToImplement: 16,
-          dependencies: ['Category usage data', 'Technical team availability', 'Business stakeholder alignment'],
-          risks: ['Potential impact on service quality', 'User experience changes'],
+          dependencies: [
+            'Category usage data',
+            'Technical team availability',
+            'Business stakeholder alignment',
+          ],
+          risks: [
+            'Potential impact on service quality',
+            'User experience changes',
+          ],
         },
         measurability: {
-          kpis: ['Category cost reduction', 'Usage efficiency', 'User satisfaction'],
-          successMetrics: ['Cost per unit reduced by 25%', 'User satisfaction maintained above 85%'],
+          kpis: [
+            'Category cost reduction',
+            'Usage efficiency',
+            'User satisfaction',
+          ],
+          successMetrics: [
+            'Cost per unit reduced by 25%',
+            'User satisfaction maintained above 85%',
+          ],
           monitoringPeriod: 30,
         },
       });
@@ -580,7 +669,8 @@ export class BudgetOptimizationEngine {
       id: `lt_opp_${++oppId}`,
       title: 'Implement Predictive Cost Management',
       category: 'long_term',
-      description: 'Deploy machine learning-based cost prediction and automatic optimization.',
+      description:
+        'Deploy machine learning-based cost prediction and automatic optimization.',
       potentialSavings: {
         amount: targetSavings * 0.4,
         percentage: 40,
@@ -589,12 +679,29 @@ export class BudgetOptimizationEngine {
       implementation: {
         effort: 'high',
         timeToImplement: 80,
-        dependencies: ['ML infrastructure', 'Historical data quality', 'Technical expertise', 'Budget for tooling'],
-        risks: ['Model accuracy uncertainties', 'Implementation complexity', 'Change management challenges'],
+        dependencies: [
+          'ML infrastructure',
+          'Historical data quality',
+          'Technical expertise',
+          'Budget for tooling',
+        ],
+        risks: [
+          'Model accuracy uncertainties',
+          'Implementation complexity',
+          'Change management challenges',
+        ],
       },
       measurability: {
-        kpis: ['Prediction accuracy', 'Automated optimization effectiveness', 'Cost trend improvement'],
-        successMetrics: ['Prediction accuracy above 85%', 'Monthly cost reduced by 40%', 'Manual interventions reduced by 70%'],
+        kpis: [
+          'Prediction accuracy',
+          'Automated optimization effectiveness',
+          'Cost trend improvement',
+        ],
+        successMetrics: [
+          'Prediction accuracy above 85%',
+          'Monthly cost reduced by 40%',
+          'Manual interventions reduced by 70%',
+        ],
         monitoringPeriod: 90,
       },
     });
@@ -604,7 +711,8 @@ export class BudgetOptimizationEngine {
       id: `str_opp_${++oppId}`,
       title: 'Establish Cost Excellence Center',
       category: 'strategic',
-      description: 'Create dedicated team and processes for continuous cost optimization.',
+      description:
+        'Create dedicated team and processes for continuous cost optimization.',
       potentialSavings: {
         amount: targetSavings * 0.6,
         percentage: 60,
@@ -613,12 +721,30 @@ export class BudgetOptimizationEngine {
       implementation: {
         effort: 'high',
         timeToImplement: 160,
-        dependencies: ['Executive sponsorship', 'Dedicated team budget', 'Process development', 'Training programs'],
-        risks: ['Resource allocation challenges', 'Organizational buy-in', 'Long-term sustainability'],
+        dependencies: [
+          'Executive sponsorship',
+          'Dedicated team budget',
+          'Process development',
+          'Training programs',
+        ],
+        risks: [
+          'Resource allocation challenges',
+          'Organizational buy-in',
+          'Long-term sustainability',
+        ],
       },
       measurability: {
-        kpis: ['Cost optimization initiatives launched', 'Savings realized', 'Team productivity', 'Knowledge sharing'],
-        successMetrics: ['Annual savings target achieved', 'Cost optimization maturity score above 80%', 'ROI on cost center above 300%'],
+        kpis: [
+          'Cost optimization initiatives launched',
+          'Savings realized',
+          'Team productivity',
+          'Knowledge sharing',
+        ],
+        successMetrics: [
+          'Annual savings target achieved',
+          'Cost optimization maturity score above 80%',
+          'ROI on cost center above 300%',
+        ],
         monitoringPeriod: 365,
       },
     });
@@ -630,7 +756,7 @@ export class BudgetOptimizationEngine {
     costData: CostDataPoint[],
     currentBudget: { total: number; used: number; remaining: number },
     burnRate: BurnRateAnalysis,
-    targetSavings: number
+    targetSavings: number,
   ): BudgetAllocationStrategy[] {
     const strategies: BudgetAllocationStrategy[] = [];
 
@@ -639,54 +765,69 @@ export class BudgetOptimizationEngine {
     }
 
     // Balanced allocation strategy
-    const balancedAllocations = burnRate.categoryBreakdown.map(category => ({
+    const balancedAllocations = burnRate.categoryBreakdown.map((category) => ({
       category: category.category,
       currentAllocation: category.percentage,
       recommendedAllocation: Math.min(category.percentage, 35), // Cap at 35%
-      rationale: category.percentage > 35
-        ? 'Reduce over-concentration to minimize risk'
-        : 'Maintain current balanced allocation',
+      rationale:
+        category.percentage > 35
+          ? 'Reduce over-concentration to minimize risk'
+          : 'Maintain current balanced allocation',
     }));
 
     strategies.push({
       strategyId: 'balanced_allocation',
       name: 'Balanced Portfolio Allocation',
-      description: 'Distribute budget more evenly across categories to reduce concentration risk.',
+      description:
+        'Distribute budget more evenly across categories to reduce concentration risk.',
       allocations: balancedAllocations,
-      expectedSavings: balancedAllocations.reduce((sum, alloc) =>
-        sum + Math.max(0, alloc.currentAllocation - alloc.recommendedAllocation), 0
-      ) * currentBudget.total / 100,
+      expectedSavings:
+        (balancedAllocations.reduce(
+          (sum, alloc) =>
+            sum +
+            Math.max(0, alloc.currentAllocation - alloc.recommendedAllocation),
+          0,
+        ) *
+          currentBudget.total) /
+        100,
       implementationComplexity: 'medium',
       riskLevel: 'low',
     });
 
     // Performance-based allocation
-    const performanceAllocations = burnRate.categoryBreakdown.map(category => {
-      const performanceScore = category.trend === 'decreasing' ? 1.2
-        : category.trend === 'stable' ? 1.0
-        : 0.8;
+    const performanceAllocations = burnRate.categoryBreakdown.map(
+      (category) => {
+        const performanceScore =
+          category.trend === 'decreasing'
+            ? 1.2
+            : category.trend === 'stable'
+              ? 1.0
+              : 0.8;
 
-      const recommendedPercentage = Math.max(
-        5, // Minimum 5%
-        Math.min(50, category.percentage * performanceScore) // Maximum 50%
-      );
+        const recommendedPercentage = Math.max(
+          5, // Minimum 5%
+          Math.min(50, category.percentage * performanceScore), // Maximum 50%
+        );
 
-      return {
-        category: category.category,
-        currentAllocation: category.percentage,
-        recommendedAllocation: recommendedPercentage,
-        rationale: category.trend === 'decreasing'
-          ? 'Increase allocation for cost-efficient category'
-          : category.trend === 'increasing'
-          ? 'Reduce allocation for cost-inefficient category'
-          : 'Maintain current allocation for stable category',
-      };
-    });
+        return {
+          category: category.category,
+          currentAllocation: category.percentage,
+          recommendedAllocation: recommendedPercentage,
+          rationale:
+            category.trend === 'decreasing'
+              ? 'Increase allocation for cost-efficient category'
+              : category.trend === 'increasing'
+                ? 'Reduce allocation for cost-inefficient category'
+                : 'Maintain current allocation for stable category',
+        };
+      },
+    );
 
     strategies.push({
       strategyId: 'performance_based_allocation',
       name: 'Performance-Based Allocation',
-      description: 'Allocate budget based on cost efficiency trends of each category.',
+      description:
+        'Allocate budget based on cost efficiency trends of each category.',
       allocations: performanceAllocations,
       expectedSavings: targetSavings * 0.3,
       implementationComplexity: 'high',
@@ -698,33 +839,50 @@ export class BudgetOptimizationEngine {
 
   private static calculateImplementationScore(
     recommendations: OptimizationRecommendation[],
-    opportunities: OptimizationOpportunity[]
+    opportunities: OptimizationOpportunity[],
   ): number {
     const recScore = recommendations.reduce((sum, rec) => {
-      const effortScore = { low: 3, medium: 2, high: 1 }[rec.impact.implementationEffort];
-      const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[rec.priority];
-      return sum + (effortScore * priorityScore);
+      const effortScore = { low: 3, medium: 2, high: 1 }[
+        rec.impact.implementationEffort
+      ];
+      const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[
+        rec.priority
+      ];
+      return sum + effortScore * priorityScore;
     }, 0);
 
     const oppScore = opportunities.reduce((sum, opp) => {
-      const effortScore = { low: 3, medium: 2, high: 1 }[opp.implementation.effort];
-      const categoryScore = { immediate: 4, short_term: 3, long_term: 2, strategic: 1 }[opp.category];
-      return sum + (effortScore * categoryScore);
+      const effortScore = { low: 3, medium: 2, high: 1 }[
+        opp.implementation.effort
+      ];
+      const categoryScore = {
+        immediate: 4,
+        short_term: 3,
+        long_term: 2,
+        strategic: 1,
+      }[opp.category];
+      return sum + effortScore * categoryScore;
     }, 0);
 
-    const totalPossible = (recommendations.length * 12) + (opportunities.length * 12);
-    return totalPossible > 0 ? Math.round((recScore + oppScore) / totalPossible * 100) : 0;
+    const totalPossible =
+      recommendations.length * 12 + opportunities.length * 12;
+    return totalPossible > 0
+      ? Math.round(((recScore + oppScore) / totalPossible) * 100)
+      : 0;
   }
 
   private static prioritizeActions(
     recommendations: OptimizationRecommendation[],
-    opportunities: OptimizationOpportunity[]
+    opportunities: OptimizationOpportunity[],
   ): string[] {
-    const actions: Array<{ action: string; priority: number; impact: number }> = [];
+    const actions: Array<{ action: string; priority: number; impact: number }> =
+      [];
 
     // Add recommendations
-    recommendations.forEach(rec => {
-      const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[rec.priority];
+    recommendations.forEach((rec) => {
+      const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[
+        rec.priority
+      ];
       const impactScore = rec.impact.savingsPercentage;
       actions.push({
         action: rec.title,
@@ -734,8 +892,13 @@ export class BudgetOptimizationEngine {
     });
 
     // Add opportunities
-    opportunities.forEach(opp => {
-      const categoryScore = { immediate: 4, short_term: 3, long_term: 2, strategic: 1 }[opp.category];
+    opportunities.forEach((opp) => {
+      const categoryScore = {
+        immediate: 4,
+        short_term: 3,
+        long_term: 2,
+        strategic: 1,
+      }[opp.category];
       const impactScore = opp.potentialSavings.percentage;
       actions.push({
         action: opp.title,
@@ -746,100 +909,140 @@ export class BudgetOptimizationEngine {
 
     // Sort by combined priority and impact score
     return actions
-      .sort((a, b) => (b.priority * 10 + b.impact) - (a.priority * 10 + a.impact))
+      .sort((a, b) => b.priority * 10 + b.impact - (a.priority * 10 + a.impact))
       .slice(0, 5) // Top 5 actions
-      .map(action => action.action);
+      .map((action) => action.action);
   }
 
   // Helper methods for scenario creation
-  private static createConservativeActions(costData: CostDataPoint[], targetReduction: number): OptimizationRecommendation[] {
-    return [{
-      id: 'conservative_1',
-      title: 'Basic Cost Monitoring',
-      description: 'Implement basic cost tracking and alerting',
-      category: 'cost_reduction',
-      impact: {
-        estimatedSavings: targetReduction,
-        savingsPercentage: 10,
-        timeToRealizeDays: 3,
-        implementationEffort: 'low',
+  private static createConservativeActions(
+    costData: CostDataPoint[],
+    targetReduction: number,
+  ): OptimizationRecommendation[] {
+    return [
+      {
+        id: 'conservative_1',
+        title: 'Basic Cost Monitoring',
+        description: 'Implement basic cost tracking and alerting',
+        category: 'cost_reduction',
+        impact: {
+          estimatedSavings: targetReduction,
+          savingsPercentage: 10,
+          timeToRealizeDays: 3,
+          implementationEffort: 'low',
+        },
+        implementation: {
+          steps: ['Set up cost alerts', 'Review daily spending'],
+          estimatedTimeHours: 4,
+          requiredResources: ['Budget manager'],
+          risks: ['Limited impact on actual costs'],
+        },
+        priority: 'medium',
+        urgency: 'this_week',
+        supportingData: {
+          historicalEvidence: 'Conservative optimization approach',
+          confidence: 0.9,
+        },
       },
-      implementation: {
-        steps: ['Set up cost alerts', 'Review daily spending'],
-        estimatedTimeHours: 4,
-        requiredResources: ['Budget manager'],
-        risks: ['Limited impact on actual costs'],
-      },
-      priority: 'medium',
-      urgency: 'this_week',
-      supportingData: {
-        historicalEvidence: 'Conservative optimization approach',
-        confidence: 0.9,
-      },
-    }];
+    ];
   }
 
-  private static createModerateActions(costData: CostDataPoint[], targetReduction: number): OptimizationRecommendation[] {
-    return [{
-      id: 'moderate_1',
-      title: 'Usage Pattern Optimization',
-      description: 'Optimize usage patterns and implement resource scheduling',
-      category: 'usage_optimization',
-      impact: {
-        estimatedSavings: targetReduction,
-        savingsPercentage: 20,
-        timeToRealizeDays: 7,
-        implementationEffort: 'medium',
+  private static createModerateActions(
+    costData: CostDataPoint[],
+    targetReduction: number,
+  ): OptimizationRecommendation[] {
+    return [
+      {
+        id: 'moderate_1',
+        title: 'Usage Pattern Optimization',
+        description:
+          'Optimize usage patterns and implement resource scheduling',
+        category: 'usage_optimization',
+        impact: {
+          estimatedSavings: targetReduction,
+          savingsPercentage: 20,
+          timeToRealizeDays: 7,
+          implementationEffort: 'medium',
+        },
+        implementation: {
+          steps: [
+            'Analyze usage patterns',
+            'Implement scheduling',
+            'Monitor results',
+          ],
+          estimatedTimeHours: 16,
+          requiredResources: ['Technical team', 'Budget manager'],
+          risks: ['Temporary service adjustments', 'Learning curve'],
+        },
+        priority: 'high',
+        urgency: 'this_week',
+        supportingData: {
+          historicalEvidence: 'Moderate optimization approach',
+          confidence: 0.8,
+        },
       },
-      implementation: {
-        steps: ['Analyze usage patterns', 'Implement scheduling', 'Monitor results'],
-        estimatedTimeHours: 16,
-        requiredResources: ['Technical team', 'Budget manager'],
-        risks: ['Temporary service adjustments', 'Learning curve'],
-      },
-      priority: 'high',
-      urgency: 'this_week',
-      supportingData: {
-        historicalEvidence: 'Moderate optimization approach',
-        confidence: 0.8,
-      },
-    }];
+    ];
   }
 
-  private static createAggressiveActions(costData: CostDataPoint[], targetReduction: number): OptimizationRecommendation[] {
-    return [{
-      id: 'aggressive_1',
-      title: 'Comprehensive Cost Restructuring',
-      description: 'Major restructuring of cost allocation and usage patterns',
-      category: 'budget_reallocation',
-      impact: {
-        estimatedSavings: targetReduction,
-        savingsPercentage: 35,
-        timeToRealizeDays: 14,
-        implementationEffort: 'high',
+  private static createAggressiveActions(
+    costData: CostDataPoint[],
+    targetReduction: number,
+  ): OptimizationRecommendation[] {
+    return [
+      {
+        id: 'aggressive_1',
+        title: 'Comprehensive Cost Restructuring',
+        description:
+          'Major restructuring of cost allocation and usage patterns',
+        category: 'budget_reallocation',
+        impact: {
+          estimatedSavings: targetReduction,
+          savingsPercentage: 35,
+          timeToRealizeDays: 14,
+          implementationEffort: 'high',
+        },
+        implementation: {
+          steps: [
+            'Complete cost analysis',
+            'Restructure allocations',
+            'Implement new processes',
+            'Monitor and adjust',
+          ],
+          estimatedTimeHours: 40,
+          requiredResources: [
+            'Full technical team',
+            'Management',
+            'External consultants',
+          ],
+          risks: [
+            'Significant operational changes',
+            'Potential service disruption',
+            'High implementation complexity',
+          ],
+        },
+        priority: 'critical',
+        urgency: 'immediate',
+        supportingData: {
+          historicalEvidence: 'Aggressive optimization approach',
+          confidence: 0.6,
+        },
       },
-      implementation: {
-        steps: ['Complete cost analysis', 'Restructure allocations', 'Implement new processes', 'Monitor and adjust'],
-        estimatedTimeHours: 40,
-        requiredResources: ['Full technical team', 'Management', 'External consultants'],
-        risks: ['Significant operational changes', 'Potential service disruption', 'High implementation complexity'],
-      },
-      priority: 'critical',
-      urgency: 'immediate',
-      supportingData: {
-        historicalEvidence: 'Aggressive optimization approach',
-        confidence: 0.6,
-      },
-    }];
+    ];
   }
 
   // Helper methods for efficiency analysis
-  private static calculateUtilizationRate(categoryData: CostDataPoint[]): number {
+  private static calculateUtilizationRate(
+    categoryData: CostDataPoint[],
+  ): number {
     if (categoryData.length === 0) return 0;
 
     // Simple utilization calculation based on data density
-    const sortedData = categoryData.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-    const timeSpan = sortedData[sortedData.length - 1].timestamp.getTime() - sortedData[0].timestamp.getTime();
+    const sortedData = categoryData.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+    const timeSpan =
+      sortedData[sortedData.length - 1].timestamp.getTime() -
+      sortedData[0].timestamp.getTime();
     const expectedDataPoints = timeSpan / (60 * 60 * 1000); // Hourly data points
 
     return Math.min(100, (categoryData.length / expectedDataPoints) * 100);
@@ -847,17 +1050,18 @@ export class BudgetOptimizationEngine {
 
   private static calculateOptimizationPotential(
     categoryData: CostDataPoint[],
-    trend: 'increasing' | 'decreasing' | 'stable'
+    trend: 'increasing' | 'decreasing' | 'stable',
   ): number {
-    const basePotential = trend === 'increasing' ? 40
-      : trend === 'stable' ? 20
-      : 10;
+    const basePotential =
+      trend === 'increasing' ? 40 : trend === 'stable' ? 20 : 10;
 
     // Adjust based on data variance
     if (categoryData.length > 0) {
-      const costs = categoryData.map(d => d.cost);
+      const costs = categoryData.map((d) => d.cost);
       const mean = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
-      const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / costs.length;
+      const variance =
+        costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) /
+        costs.length;
       const cv = mean > 0 ? Math.sqrt(variance) / mean : 0;
 
       return Math.min(70, basePotential + cv * 30);
@@ -869,7 +1073,7 @@ export class BudgetOptimizationEngine {
   private static calculateEfficiencyScore(
     costPerUnit: number,
     utilizationRate: number,
-    categoryPercentage: number
+    categoryPercentage: number,
   ): number {
     // Weight factors for efficiency calculation
     const utilizationWeight = 0.4;
@@ -880,17 +1084,18 @@ export class BudgetOptimizationEngine {
     const normalizedUtilization = Math.min(100, utilizationRate);
 
     // Normalize cost efficiency (inverse relationship - lower cost is better)
-    const normalizedCostEfficiency = Math.max(0, 100 - (costPerUnit * 10));
+    const normalizedCostEfficiency = Math.max(0, 100 - costPerUnit * 10);
 
     // Normalize concentration (moderate concentration is best)
     const idealConcentration = 20; // 20% is considered ideal
-    const concentrationPenalty = Math.abs(categoryPercentage - idealConcentration) * 2;
+    const concentrationPenalty =
+      Math.abs(categoryPercentage - idealConcentration) * 2;
     const normalizedConcentration = Math.max(0, 100 - concentrationPenalty);
 
     const efficiencyScore =
-      (normalizedUtilization * utilizationWeight) +
-      (normalizedCostEfficiency * costWeight) +
-      (normalizedConcentration * concentrationWeight);
+      normalizedUtilization * utilizationWeight +
+      normalizedCostEfficiency * costWeight +
+      normalizedConcentration * concentrationWeight;
 
     return Math.min(100, Math.max(0, efficiencyScore));
   }

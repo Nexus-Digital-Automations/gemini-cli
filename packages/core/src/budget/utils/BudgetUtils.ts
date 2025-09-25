@@ -178,9 +178,7 @@ export class BudgetUtils {
    * @param data - Array of historical data points
    * @returns Usage statistics summary
    */
-  static calculateUsageStats(
-    data: HistoricalDataPoint[],
-  ): UsageStatsSummary {
+  static calculateUsageStats(data: HistoricalDataPoint[]): UsageStatsSummary {
     if (data.length === 0) {
       return {
         totalCost: 0,
@@ -340,9 +338,7 @@ export class BudgetUtils {
    * @param usageDataArray - Array of usage data to merge
    * @returns Merged usage data
    */
-  static mergeUsageData(
-    usageDataArray: BudgetUsageData[],
-  ): BudgetUsageData {
+  static mergeUsageData(usageDataArray: BudgetUsageData[]): BudgetUsageData {
     if (usageDataArray.length === 0) {
       throw new Error('Cannot merge empty array of usage data');
     }
@@ -569,9 +565,7 @@ export class BudgetUtils {
    * @param level - Enforcement level
    * @returns Description string
    */
-  static getEnforcementDescription(
-    level: BudgetEnforcementLevel,
-  ): string {
+  static getEnforcementDescription(level: BudgetEnforcementLevel): string {
     switch (level) {
       case BudgetEnforcementLevel.WARNING_ONLY:
         return 'Shows warnings but allows usage above limits';
@@ -591,9 +585,7 @@ export class BudgetUtils {
    * @param frequency - Notification frequency
    * @returns Description string
    */
-  static getFrequencyDescription(
-    frequency: NotificationFrequency,
-  ): string {
+  static getFrequencyDescription(frequency: NotificationFrequency): string {
     switch (frequency) {
       case NotificationFrequency.IMMEDIATE:
         return 'Send notifications immediately when events occur';

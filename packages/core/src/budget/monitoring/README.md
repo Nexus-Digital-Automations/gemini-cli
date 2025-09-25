@@ -45,15 +45,19 @@ import {
 ### Basic Integration
 
 ```typescript
-import { createMonitoringEnabledContentGenerator, MonitoringPresets } from '@google/genai-cli/budget';
+import {
+  createMonitoringEnabledContentGenerator,
+  MonitoringPresets,
+} from '@google/genai-cli/budget';
 
 // Create monitoring-enabled content generator
-const { contentGenerator, integration } = await createMonitoringEnabledContentGenerator(
-  baseContentGenerator,
-  config,
-  budgetSettings,
-  MonitoringPresets.Production
-);
+const { contentGenerator, integration } =
+  await createMonitoringEnabledContentGenerator(
+    baseContentGenerator,
+    config,
+    budgetSettings,
+    MonitoringPresets.Production,
+  );
 
 // Use the wrapped generator for automatic token tracking
 const response = await contentGenerator.generateContent(request, promptId);
@@ -72,7 +76,7 @@ import {
   MetricsCollector,
   RealTimeStreamingService,
   TokenUsageCache,
-  CachePresets
+  CachePresets,
 } from '@google/genai-cli/budget';
 
 // Create custom integration
@@ -205,7 +209,8 @@ const stats = integration.getMonitoringStats();
 
 console.log('System Overview:', {
   totalRequests: stats.tokenTracker.totalRequests,
-  successRate: stats.tokenTracker.successfulRequests / stats.tokenTracker.totalRequests,
+  successRate:
+    stats.tokenTracker.successfulRequests / stats.tokenTracker.totalRequests,
   averageResponseTime: stats.tokenTracker.averageResponseTime,
   totalCost: stats.tokenTracker.totalCost,
   cacheHitRatio: stats.cache?.hitRatio || 0,
@@ -230,7 +235,7 @@ const aggregator = integration.getAggregator();
 const hourlyData = aggregator.getWindowedData({
   type: 'fixed',
   duration: 60 * 60 * 1000, // 1 hour
-  interval: 5 * 60 * 1000,   // 5 minute intervals
+  interval: 5 * 60 * 1000, // 5 minute intervals
 });
 
 // Analyze usage patterns
@@ -246,7 +251,9 @@ console.log('Usage trends:', trendAnalysis);
 // Use preset configurations for different scenarios
 const prodCache = new TokenUsageCache(CachePresets.HighPerformance);
 const devCache = new TokenUsageCache(CachePresets.Development);
-const memoryConstrainedCache = new TokenUsageCache(CachePresets.MemoryEfficient);
+const memoryConstrainedCache = new TokenUsageCache(
+  CachePresets.MemoryEfficient,
+);
 
 // Custom cache key strategies
 const keys = CacheKeys;
@@ -349,19 +356,20 @@ import { MonitoringUtils } from '@google/genai-cli/budget';
 const integration = await MonitoringUtils.createForEnvironment(
   config,
   budgetSettings,
-  process.env.NODE_ENV // 'production', 'development', or 'testing'
+  process.env.NODE_ENV, // 'production', 'development', or 'testing'
 );
 
 // Setup with error handling
-const { contentGenerator, integration } = await MonitoringUtils.setupWithErrorHandling(
-  baseContentGenerator,
-  config,
-  budgetSettings,
-  (error) => {
-    console.error('Monitoring setup failed:', error);
-    // Fallback handling
-  }
-);
+const { contentGenerator, integration } =
+  await MonitoringUtils.setupWithErrorHandling(
+    baseContentGenerator,
+    config,
+    budgetSettings,
+    (error) => {
+      console.error('Monitoring setup failed:', error);
+      // Fallback handling
+    },
+  );
 ```
 
 ### Health Monitoring
@@ -432,6 +440,7 @@ const tenantStats = tenantTracker.getUsageStats({
 ### Common Issues
 
 **High Memory Usage**
+
 ```typescript
 // Use memory-efficient configuration
 const integration = new TokenMonitoringIntegration(config, budgetSettings, {
@@ -443,6 +452,7 @@ const integration = new TokenMonitoringIntegration(config, budgetSettings, {
 ```
 
 **Performance Issues**
+
 ```typescript
 // Optimize for high-frequency operations
 const integration = new TokenMonitoringIntegration(config, budgetSettings, {
@@ -453,6 +463,7 @@ const integration = new TokenMonitoringIntegration(config, budgetSettings, {
 ```
 
 **Event System Overload**
+
 ```typescript
 // Configure event buffering
 const eventManager = new BudgetEventManager({

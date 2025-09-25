@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { Logger } from '@google/gemini-cli/src/utils/logger.js';
 import type { BudgetSecurityContext, BudgetPermission } from '../types.js';
 
 /**
@@ -374,10 +374,7 @@ export class BudgetAccessControl {
    * @param offset - Offset for pagination
    * @returns Array of audit log entries
    */
-  getAuditLog(
-    limit: number = 100,
-    offset: number = 0,
-  ): SecurityAuditEntry[] {
+  getAuditLog(limit: number = 100, offset: number = 0): SecurityAuditEntry[] {
     return this.auditLog
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(offset, offset + limit);

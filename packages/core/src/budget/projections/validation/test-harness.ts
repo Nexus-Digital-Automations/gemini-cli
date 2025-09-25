@@ -5,8 +5,14 @@
  */
 
 import type { CostDataPoint, CostProjection } from '../types.js';
-import type { ValidationReport, ValidationTestCase } from './algorithm-validator.js';
-import type { PerformanceBenchmark, DegradationDetection } from './performance-monitor.js';
+import type {
+  ValidationReport,
+  ValidationTestCase,
+} from './algorithm-validator.js';
+import type {
+  PerformanceBenchmark,
+  DegradationDetection,
+} from './performance-monitor.js';
 import { AlgorithmValidator } from './algorithm-validator.js';
 import { PerformanceMonitor } from './performance-monitor.js';
 import { Logger } from '../../utils/logger.js';
@@ -114,7 +120,7 @@ export class TestHarness {
    */
   async executeTestSuite(
     algorithmSpec: AlgorithmTestSpec,
-    config: TestSuiteConfig
+    config: TestSuiteConfig,
   ): Promise<TestExecutionResult> {
     const startTime = Date.now();
     this.logger.info(`Executing test suite: ${config.name}`, {
@@ -135,7 +141,8 @@ export class TestHarness {
         validationTests: result.validationReport.metadata.totalTests,
         performanceBenchmarks: result.performanceBenchmarks.length,
         degradationIssues: result.degradationDetection.reduce(
-          (sum, d) => sum + d.issues.length, 0
+          (sum, d) => sum + d.issues.length,
+          0,
         ),
       });
 
@@ -260,7 +267,7 @@ export class TestHarness {
    */
   async runBatchValidation(
     algorithmSpecs: AlgorithmTestSpec[],
-    testSuiteConfig: TestSuiteConfig
+    testSuiteConfig: TestSuiteConfig,
   ): Promise<Map<string, TestExecutionResult>> {
     const startTime = Date.now();
     this.logger.info('Running batch validation', {
@@ -276,7 +283,10 @@ export class TestHarness {
         this.logger.info(`Testing algorithm: ${algorithmSpec.name}`);
 
         try {
-          const result = await this.executeTestSuite(algorithmSpec, testSuiteConfig);
+          const result = await this.executeTestSuite(
+            algorithmSpec,
+            testSuiteConfig,
+          );
           results.set(algorithmSpec.id, result);
 
           // Log immediate feedback
@@ -288,15 +298,20 @@ export class TestHarness {
             });
           }
         } catch (error) {
-          this.logger.error(`Algorithm validation failed: ${algorithmSpec.name}`, {
-            error: error.message,
-          });
+          this.logger.error(
+            `Algorithm validation failed: ${algorithmSpec.name}`,
+            {
+              error: error.message,
+            },
+          );
           // Continue with other algorithms
         }
       }
 
       const duration = Date.now() - startTime;
-      const successCount = Array.from(results.values()).filter((r) => r.success).length;
+      const successCount = Array.from(results.values()).filter(
+        (r) => r.success,
+      ).length;
 
       this.logger.info('Batch validation completed', {
         totalAlgorithms: algorithmSpecs.length,
@@ -318,9 +333,7 @@ export class TestHarness {
   /**
    * Generate comprehensive test report
    */
-  generateComprehensiveReport(
-    results: Map<string, TestExecutionResult>
-  ): {
+  generateComprehensiveReport(results: Map<string, TestExecutionResult>): {
     summary: {
       totalAlgorithms: number;
       successfulAlgorithms: number;
@@ -348,35 +361,46 @@ export class TestHarness {
     });
 
     const totalAlgorithms = results.size;
-    const successfulResults = Array.from(results.values()).filter((r) => r.success);
+    const successfulResults = Array.from(results.values()).filter(
+      (r) => r.success,
+    );
     const successfulAlgorithms = successfulResults.length;
     const failedAlgorithms = totalAlgorithms - successfulAlgorithms;
-    const overallSuccessRate = totalAlgorithms > 0 ? (successfulAlgorithms / totalAlgorithms) * 100 : 0;
+    const overallSuccessRate =
+      totalAlgorithms > 0 ? (successfulAlgorithms / totalAlgorithms) * 100 : 0;
 
     // Calculate average quality score
     const qualityScores = Array.from(results.values()).map(
-      (r) => r.validationReport.qualityAssessment.overallScore
+      (r) => r.validationReport.qualityAssessment.overallScore,
     );
-    const averageQualityScore = qualityScores.length > 0
-      ? qualityScores.reduce((sum, score) => sum + score, 0) / qualityScores.length
-      : 0;
+    const averageQualityScore =
+      qualityScores.length > 0
+        ? qualityScores.reduce((sum, score) => sum + score, 0) /
+          qualityScores.length
+        : 0;
 
     // Generate algorithm-specific results
-    const algorithmResults = Array.from(results.entries()).map(([algorithmId, result]) => ({
-      algorithm: algorithmId,
-      success: result.success,
-      qualityScore: result.validationReport.qualityAssessment.overallScore,
-      performanceScore: this.calculatePerformanceScore(result.performanceBenchmarks),
-      issues: this.extractIssues(result),
-      recommendations: result.validationReport.qualityAssessment.recommendations,
-    }));
+    const algorithmResults = Array.from(results.entries()).map(
+      ([algorithmId, result]) => ({
+        algorithm: algorithmId,
+        success: result.success,
+        qualityScore: result.validationReport.qualityAssessment.overallScore,
+        performanceScore: this.calculatePerformanceScore(
+          result.performanceBenchmarks,
+        ),
+        issues: this.extractIssues(result),
+        recommendations:
+          result.validationReport.qualityAssessment.recommendations,
+      }),
+    );
 
     // Find best and worst performing algorithms
     const sortedByQuality = algorithmResults
       .slice()
       .sort((a, b) => b.qualityScore - a.qualityScore);
     const bestPerformingAlgorithm = sortedByQuality[0]?.algorithm || 'None';
-    const worstPerformingAlgorithm = sortedByQuality[sortedByQuality.length - 1]?.algorithm || 'None';
+    const worstPerformingAlgorithm =
+      sortedByQuality[sortedByQuality.length - 1]?.algorithm || 'None';
 
     // Identify common issues
     const allIssues = algorithmResults.flatMap((r) => r.issues);
@@ -394,7 +418,7 @@ export class TestHarness {
     // Generate overall recommendations
     const overallRecommendations = this.generateOverallRecommendations(
       algorithmResults,
-      commonIssues
+      commonIssues,
     );
 
     this.logger.info('Comprehensive test report generated', {
@@ -429,7 +453,7 @@ export class TestHarness {
   startContinuousTesting(
     algorithmSpecs: AlgorithmTestSpec[],
     config: TestSuiteConfig,
-    intervalMs: number = 3600000 // 1 hour
+    intervalMs: number = 3600000, // 1 hour
   ): NodeJS.Timeout {
     this.logger.info('Starting continuous testing mode', {
       algorithmCount: algorithmSpecs.length,
@@ -455,10 +479,13 @@ export class TestHarness {
 
         // Alert on significant quality degradation
         if (report.summary.averageQualityScore < 70) {
-          this.logger.warn('Quality degradation detected in continuous testing', {
-            averageQualityScore: report.summary.averageQualityScore,
-            failedAlgorithms: report.summary.failedAlgorithms,
-          });
+          this.logger.warn(
+            'Quality degradation detected in continuous testing',
+            {
+              averageQualityScore: report.summary.averageQualityScore,
+              failedAlgorithms: report.summary.failedAlgorithms,
+            },
+          );
         }
       } catch (error) {
         this.logger.error('Continuous testing cycle failed', {
@@ -472,7 +499,7 @@ export class TestHarness {
 
   private async runTestSuite(
     algorithmSpec: AlgorithmTestSpec,
-    config: TestSuiteConfig
+    config: TestSuiteConfig,
   ): Promise<TestExecutionResult> {
     const timestamp = new Date();
 
@@ -486,7 +513,7 @@ export class TestHarness {
     // Run validation suite
     const validationReport = await this.validator.runValidationSuite(
       algorithmSpec.algorithm,
-      config.categories
+      config.categories,
     );
 
     // Run performance benchmarking if enabled
@@ -504,7 +531,7 @@ export class TestHarness {
         const benchmark = await this.performanceMonitor.benchmarkAlgorithm(
           `${algorithmSpec.name}_${dataType}`,
           algorithmSpec.algorithm,
-          testData
+          testData,
         );
         performanceBenchmarks.push(benchmark);
       }
@@ -514,9 +541,10 @@ export class TestHarness {
     const degradationDetection: DegradationDetection[] = [];
     if (config.enableContinuousMonitoring) {
       try {
-        const degradation = await this.performanceMonitor.detectPerformanceDegradation(
-          algorithmSpec.name
-        );
+        const degradation =
+          await this.performanceMonitor.detectPerformanceDegradation(
+            algorithmSpec.name,
+          );
         if (degradation) {
           degradationDetection.push(degradation);
         }
@@ -529,9 +557,12 @@ export class TestHarness {
     }
 
     // Determine overall success
-    const success = validationReport.metadata.successRate >= 80 &&
-                   validationReport.qualityAssessment.overallScore >= 70 &&
-                   degradationDetection.every((d) => d.issues.every((i) => i.severity !== 'critical'));
+    const success =
+      validationReport.metadata.successRate >= 80 &&
+      validationReport.qualityAssessment.overallScore >= 70 &&
+      degradationDetection.every((d) =>
+        d.issues.every((i) => i.severity !== 'critical'),
+      );
 
     return {
       config,
@@ -566,7 +597,10 @@ export class TestHarness {
     }
   }
 
-  private generateLinearData(config: TestDataConfig, startDate: Date): CostDataPoint[] {
+  private generateLinearData(
+    config: TestDataConfig,
+    startDate: Date,
+  ): CostDataPoint[] {
     const slope = config.parameters.slope || 1;
     const data: CostDataPoint[] = [];
 
@@ -579,7 +613,10 @@ export class TestHarness {
     return data;
   }
 
-  private generateSeasonalData(config: TestDataConfig, startDate: Date): CostDataPoint[] {
+  private generateSeasonalData(
+    config: TestDataConfig,
+    startDate: Date,
+  ): CostDataPoint[] {
     const amplitude = config.parameters.amplitude || config.baseValue * 0.3;
     const period = config.parameters.period || 365;
     const data: CostDataPoint[] = [];
@@ -594,7 +631,10 @@ export class TestHarness {
     return data;
   }
 
-  private generateRandomData(config: TestDataConfig, startDate: Date): CostDataPoint[] {
+  private generateRandomData(
+    config: TestDataConfig,
+    startDate: Date,
+  ): CostDataPoint[] {
     const variance = config.parameters.variance || config.baseValue * 0.2;
     const data: CostDataPoint[] = [];
 
@@ -607,7 +647,10 @@ export class TestHarness {
     return data;
   }
 
-  private generateNoisyData(config: TestDataConfig, startDate: Date): CostDataPoint[] {
+  private generateNoisyData(
+    config: TestDataConfig,
+    startDate: Date,
+  ): CostDataPoint[] {
     const noiseLevel = config.parameters.noiseLevel || 0.3;
     const baseData = this.generateLinearData(config, startDate);
 
@@ -617,8 +660,12 @@ export class TestHarness {
     }));
   }
 
-  private generateOutlierData(config: TestDataConfig, startDate: Date): CostDataPoint[] {
-    const outlierCount = config.parameters.outlierCount || Math.floor(config.dataPoints * 0.05);
+  private generateOutlierData(
+    config: TestDataConfig,
+    startDate: Date,
+  ): CostDataPoint[] {
+    const outlierCount =
+      config.parameters.outlierCount || Math.floor(config.dataPoints * 0.05);
     const baseData = this.generateRandomData(config, startDate);
 
     // Add outliers
@@ -630,42 +677,49 @@ export class TestHarness {
     return baseData;
   }
 
-  private generateMixedData(config: TestDataConfig, startDate: Date): CostDataPoint[] {
+  private generateMixedData(
+    config: TestDataConfig,
+    startDate: Date,
+  ): CostDataPoint[] {
     const quarterSize = Math.floor(config.dataPoints / 4);
     const mixedData: CostDataPoint[] = [];
 
     // Quarter 1: Linear trend
     const linearData = this.generateLinearData(
       { ...config, dataPoints: quarterSize },
-      startDate
+      startDate,
     );
     mixedData.push(...linearData);
 
     // Quarter 2: Seasonal pattern
     const seasonalData = this.generateSeasonalData(
       { ...config, dataPoints: quarterSize },
-      new Date(startDate.getTime() + quarterSize * 24 * 60 * 60 * 1000)
+      new Date(startDate.getTime() + quarterSize * 24 * 60 * 60 * 1000),
     );
     mixedData.push(...seasonalData);
 
     // Quarter 3: Random data
     const randomData = this.generateRandomData(
       { ...config, dataPoints: quarterSize },
-      new Date(startDate.getTime() + quarterSize * 2 * 24 * 60 * 60 * 1000)
+      new Date(startDate.getTime() + quarterSize * 2 * 24 * 60 * 60 * 1000),
     );
     mixedData.push(...randomData);
 
     // Quarter 4: Data with outliers
     const outlierData = this.generateOutlierData(
       { ...config, dataPoints: config.dataPoints - quarterSize * 3 },
-      new Date(startDate.getTime() + quarterSize * 3 * 24 * 60 * 60 * 1000)
+      new Date(startDate.getTime() + quarterSize * 3 * 24 * 60 * 60 * 1000),
     );
     mixedData.push(...outlierData);
 
     return mixedData;
   }
 
-  private createDataPoint(timestamp: Date, cost: number, tokens: number): CostDataPoint {
+  private createDataPoint(
+    timestamp: Date,
+    cost: number,
+    tokens: number,
+  ): CostDataPoint {
     return {
       timestamp,
       cost,
@@ -688,12 +742,17 @@ export class TestHarness {
     });
   }
 
-  private calculatePerformanceScore(benchmarks: PerformanceBenchmark[]): number {
+  private calculatePerformanceScore(
+    benchmarks: PerformanceBenchmark[],
+  ): number {
     if (benchmarks.length === 0) return 0;
 
     const scores = benchmarks.map((benchmark) => {
       // Simple scoring based on execution time and memory usage
-      const timeScore = Math.max(0, 100 - benchmark.metrics.executionTime / 100);
+      const timeScore = Math.max(
+        0,
+        100 - benchmark.metrics.executionTime / 100,
+      );
       const memoryScore = Math.max(0, 100 - benchmark.metrics.memoryUsage);
       const throughputScore = Math.min(100, benchmark.metrics.throughput / 10);
 
@@ -707,10 +766,14 @@ export class TestHarness {
     const issues: string[] = [];
 
     // Extract validation issues
-    const failedTests = result.validationReport.results.filter((r) => !r.success);
+    const failedTests = result.validationReport.results.filter(
+      (r) => !r.success,
+    );
     failedTests.forEach((test) => {
       if (test.error) {
-        issues.push(`Validation failed: ${test.testCase.description} - ${test.error.message}`);
+        issues.push(
+          `Validation failed: ${test.testCase.description} - ${test.error.message}`,
+        );
       }
     });
 
@@ -731,8 +794,12 @@ export class TestHarness {
   }
 
   private generateOverallRecommendations(
-    algorithmResults: Array<{ algorithm: string; issues: string[]; recommendations: string[] }>,
-    commonIssues: string[]
+    algorithmResults: Array<{
+      algorithm: string;
+      issues: string[];
+      recommendations: string[];
+    }>,
+    commonIssues: string[],
   ): string[] {
     const recommendations: string[] = [];
 
@@ -745,24 +812,37 @@ export class TestHarness {
     }
 
     // Performance recommendations
-    const performanceIssues = commonIssues.filter((issue) =>
-      issue.includes('performance') || issue.includes('execution') || issue.includes('memory')
+    const performanceIssues = commonIssues.filter(
+      (issue) =>
+        issue.includes('performance') ||
+        issue.includes('execution') ||
+        issue.includes('memory'),
     );
     if (performanceIssues.length > 0) {
       recommendations.push('Optimize algorithm performance across the board');
-      recommendations.push('Consider implementing caching and memoization strategies');
+      recommendations.push(
+        'Consider implementing caching and memoization strategies',
+      );
     }
 
     // Quality recommendations
     const failedAlgorithms = algorithmResults.filter((r) => !r.success);
     if (failedAlgorithms.length > 0) {
-      recommendations.push(`Review and fix ${failedAlgorithms.length} failed algorithm(s)`);
-      recommendations.push('Implement additional error handling and edge case management');
+      recommendations.push(
+        `Review and fix ${failedAlgorithms.length} failed algorithm(s)`,
+      );
+      recommendations.push(
+        'Implement additional error handling and edge case management',
+      );
     }
 
     // Testing recommendations
-    recommendations.push('Maintain regular testing schedule with continuous monitoring');
-    recommendations.push('Expand test coverage for edge cases and error conditions');
+    recommendations.push(
+      'Maintain regular testing schedule with continuous monitoring',
+    );
+    recommendations.push(
+      'Expand test coverage for edge cases and error conditions',
+    );
 
     return recommendations;
   }

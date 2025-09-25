@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { Logger } from '@google/gemini-cli/src/utils/logger.js';
 import type {
   CostCalculationParams,
   BudgetCalculationContext,
@@ -356,9 +356,7 @@ export class CostCalculationEngine {
    * @param timeframe - Time range in milliseconds
    * @returns Model usage breakdown
    */
-  getModelUsageBreakdown(
-    timeframe: number,
-  ): Record<string, ModelUsageData> {
+  getModelUsageBreakdown(timeframe: number): Record<string, ModelUsageData> {
     const cutoffTime = Date.now() - timeframe;
     const modelUsage: Record<string, ModelUsageData> = {};
 

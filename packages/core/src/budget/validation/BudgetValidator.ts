@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { Logger } from '@google/gemini-cli/src/utils/logger.js';
 import type {
   BudgetSettings,
   BudgetUsageData,

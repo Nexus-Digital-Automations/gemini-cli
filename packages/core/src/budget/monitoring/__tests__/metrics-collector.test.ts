@@ -12,9 +12,19 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from '@jest/globals';
 import { MetricsCollector } from '../metrics-collector.js';
-import type { MetricsCollectorConfig, MetricsDataPoint } from '../metrics-collector.js';
+import type {
+  MetricsCollectorConfig,
+  MetricsDataPoint,
+} from '../metrics-collector.js';
 
 describe('MetricsCollector', () => {
   let metricsCollector: MetricsCollector;
@@ -58,7 +68,9 @@ describe('MetricsCollector', () => {
   });
 
   describe('Data Collection', () => {
-    const createSampleDataPoint = (overrides: Partial<MetricsDataPoint> = {}): MetricsDataPoint => ({
+    const createSampleDataPoint = (
+      overrides: Partial<MetricsDataPoint> = {},
+    ): MetricsDataPoint => ({
       timestamp: new Date(),
       requestId: 'req-123',
       model: 'gemini-2.5-flash',
@@ -100,7 +112,7 @@ describe('MetricsCollector', () => {
         createSampleDataPoint({ inputTokens: 20, outputTokens: 12 }),
       ];
 
-      dataPoints.forEach(dp => metricsCollector.addDataPoint(dp));
+      dataPoints.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       const summary = metricsCollector.getMetricsSummary();
       expect(summary.totalInputTokens).toBe(45); // 10 + 15 + 20
@@ -115,7 +127,7 @@ describe('MetricsCollector', () => {
         createSampleDataPoint({ responseTime: 300 }),
       ];
 
-      dataPoints.forEach(dp => metricsCollector.addDataPoint(dp));
+      dataPoints.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       const summary = metricsCollector.getMetricsSummary();
       expect(summary.averageResponseTime).toBe(200); // (100 + 200 + 300) / 3
@@ -128,7 +140,7 @@ describe('MetricsCollector', () => {
         createSampleDataPoint({ model: 'gemini-2.5-flash', cost: 0.002 }),
       ];
 
-      dataPoints.forEach(dp => metricsCollector.addDataPoint(dp));
+      dataPoints.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       const summary = metricsCollector.getMetricsSummary();
       expect(summary.modelBreakdown['gemini-2.5-flash'].requests).toBe(2);
@@ -139,7 +151,11 @@ describe('MetricsCollector', () => {
   });
 
   describe('Statistical Analysis', () => {
-    const generateDataPoints = (count: number, baseResponseTime: number = 100): MetricsDataPoint[] => Array.from({ length: count }, (_, i) => ({
+    const generateDataPoints = (
+      count: number,
+      baseResponseTime: number = 100,
+    ): MetricsDataPoint[] =>
+      Array.from({ length: count }, (_, i) => ({
         timestamp: new Date(Date.now() - (count - i) * 1000),
         requestId: `req-${i}`,
         model: 'test-model',
@@ -155,7 +171,7 @@ describe('MetricsCollector', () => {
 
     it('should perform statistical analysis on data points', () => {
       const dataPoints = generateDataPoints(100);
-      dataPoints.forEach(dp => metricsCollector.addDataPoint(dp));
+      dataPoints.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       const analysis = metricsCollector.performStatisticalAnalysis();
 
@@ -163,7 +179,9 @@ describe('MetricsCollector', () => {
       expect(analysis.responseTime).toBeDefined();
       expect(analysis.responseTime.mean).toBeGreaterThan(0);
       expect(analysis.responseTime.standardDeviation).toBeGreaterThanOrEqual(0);
-      expect(analysis.responseTime.min).toBeLessThanOrEqual(analysis.responseTime.max);
+      expect(analysis.responseTime.min).toBeLessThanOrEqual(
+        analysis.responseTime.max,
+      );
 
       expect(analysis.tokenUsage).toBeDefined();
       expect(analysis.tokenUsage.mean).toBeGreaterThan(0);
@@ -171,13 +189,17 @@ describe('MetricsCollector', () => {
 
     it('should calculate percentiles correctly', () => {
       const dataPoints = generateDataPoints(100, 100); // Response times from 100-190ms
-      dataPoints.forEach(dp => metricsCollector.addDataPoint(dp));
+      dataPoints.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       const analysis = metricsCollector.performStatisticalAnalysis();
 
       expect(analysis.responseTime.percentiles.p50).toBeGreaterThan(100);
-      expect(analysis.responseTime.percentiles.p95).toBeGreaterThan(analysis.responseTime.percentiles.p50);
-      expect(analysis.responseTime.percentiles.p99).toBeGreaterThan(analysis.responseTime.percentiles.p95);
+      expect(analysis.responseTime.percentiles.p95).toBeGreaterThan(
+        analysis.responseTime.percentiles.p50,
+      );
+      expect(analysis.responseTime.percentiles.p99).toBeGreaterThan(
+        analysis.responseTime.percentiles.p95,
+      );
     });
 
     it('should detect trends over time', () => {
@@ -196,7 +218,7 @@ describe('MetricsCollector', () => {
         sessionId: 'session-123',
       }));
 
-      dataPoints.forEach(dp => metricsCollector.addDataPoint(dp));
+      dataPoints.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       const trendAnalysis = metricsCollector.analyzeTrends();
 
@@ -231,7 +253,7 @@ describe('MetricsCollector', () => {
         sessionId: 'session-123',
       }));
 
-      baselineData.forEach(dp => metricsCollector.addDataPoint(dp));
+      baselineData.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       // Add anomalous data point
       const anomalousDataPoint = {
@@ -251,7 +273,7 @@ describe('MetricsCollector', () => {
       metricsCollector.addDataPoint(anomalousDataPoint);
 
       // Wait for anomaly detection
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Note: In a real implementation, this would require the anomaly detection
       // algorithm to be properly implemented and tuned
@@ -275,7 +297,7 @@ describe('MetricsCollector', () => {
         sessionId: 'session-123',
       }));
 
-      baselineData.forEach(dp => metricsCollector.addDataPoint(dp));
+      baselineData.forEach((dp) => metricsCollector.addDataPoint(dp));
 
       // Add anomalous cost data point
       const anomalousDataPoint = {
@@ -295,7 +317,10 @@ describe('MetricsCollector', () => {
       metricsCollector.addDataPoint(anomalousDataPoint);
 
       const summary = metricsCollector.getMetricsSummary();
-      expect(summary.totalCost).toBeCloseTo(0.1 + 0.001 * 20 + 0.0001 * (0 + 1 + 2) * Math.floor(20/3), 4);
+      expect(summary.totalCost).toBeCloseTo(
+        0.1 + 0.001 * 20 + 0.0001 * (0 + 1 + 2) * Math.floor(20 / 3),
+        4,
+      );
     });
   });
 
@@ -330,7 +355,7 @@ describe('MetricsCollector', () => {
       collector.start();
 
       // Wait for cleanup cycle
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       const summary = collector.getMetricsSummary();
       // Data should be cleaned up due to retention period

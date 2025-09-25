@@ -83,19 +83,17 @@ const _PrepareLabel = ({
     children: [
       before,
       match
-        ? match
-            .split(/(\s+)/)
-            .map((part, index) =>
-              _jsx(
-                Text,
-                {
-                  color: theme.background.primary,
-                  backgroundColor: theme.text.primary,
-                  children: part,
-                },
-                `match-${index}`,
-              ),
-            )
+        ? match.split(/(\s+)/).map((part, index) =>
+            _jsx(
+              Text,
+              {
+                color: theme.background.primary,
+                backgroundColor: theme.text.primary,
+                children: part,
+              },
+              `match-${index}`,
+            ),
+          )
         : null,
       after,
     ],

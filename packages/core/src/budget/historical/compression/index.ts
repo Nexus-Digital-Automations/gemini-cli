@@ -38,7 +38,4 @@ export {
 } from './CompressionEngine.js';
 
 // Export archive storage implementation
-export {
-  ArchiveStorageImpl,
-  createArchiveStorage,
-} from './ArchiveStorage.js';
+export { ArchiveStorageImpl, createArchiveStorage } from './ArchiveStorage.js';

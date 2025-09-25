@@ -28,7 +28,6 @@ export const createMockCommandContext = (overrides = {}) => {
         logMessage: vi.fn(),
         saveCheckpoint: vi.fn(),
         loadCheckpoint: vi.fn().mockResolvedValue([]),
-         
       }, // Cast because Logger is a class.
     },
     ui: {
@@ -42,7 +41,6 @@ export const createMockCommandContext = (overrides = {}) => {
       toggleVimEnabled: vi.fn(),
       extensionsUpdateState: new Map(),
       setExtensionsUpdateState: vi.fn(),
-       
     },
     session: {
       sessionShellAllowlist: new Set(),
@@ -63,7 +61,7 @@ export const createMockCommandContext = (overrides = {}) => {
       },
     },
   };
-   
+
   const merge = (target, source) => {
     const output = { ...target };
     for (const key in source) {

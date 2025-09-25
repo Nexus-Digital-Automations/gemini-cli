@@ -7,9 +7,11 @@ The Advanced Context Retention System extends Gemini CLI with intelligent contex
 ## Core Components
 
 ### 1. Context Prioritization Engine
+
 **Purpose**: Intelligently ranks context importance to optimize limited context window usage
 
 **Key Features**:
+
 - **Recency Weight**: Recent interactions weighted higher
 - **Relevance Scoring**: Code/project relevance analysis
 - **User Interaction Priority**: User-mentioned items get higher priority
@@ -17,6 +19,7 @@ The Advanced Context Retention System extends Gemini CLI with intelligent contex
 - **Semantic Similarity**: Similar topics clustered and prioritized
 
 **Implementation**: `ContextPrioritizer.ts`
+
 ```typescript
 interface ContextItem {
   id: string;
@@ -29,9 +32,11 @@ interface ContextItem {
 ```
 
 ### 2. Semantic Compression Engine
+
 **Purpose**: AI-powered context compression while preserving essential meaning
 
 **Key Features**:
+
 - **Conversation Summary**: Multi-turn conversations → key points
 - **Code Context Compression**: Function/class summaries instead of full code
 - **Progressive Detail Loss**: Less important details compressed more aggressively
@@ -39,6 +44,7 @@ interface ContextItem {
 - **Contextual Embeddings**: Vector representations for semantic similarity
 
 **Implementation**: `SemanticCompressor.ts`
+
 ```typescript
 interface CompressionResult {
   compressed: string;
@@ -50,9 +56,11 @@ interface CompressionResult {
 ```
 
 ### 3. Cross-Session Storage Manager
+
 **Purpose**: Persistent context storage and retrieval across CLI sessions
 
 **Key Features**:
+
 - **Session Continuity**: Link related sessions across time
 - **Project-Scoped Context**: Context tied to specific projects/directories
 - **Versioned Context History**: Track context evolution over time
@@ -60,6 +68,7 @@ interface CompressionResult {
 - **Context Migration**: Handle context format upgrades
 
 **Implementation**: `CrossSessionStorage.ts`
+
 ```typescript
 interface SessionContext {
   sessionId: string;
@@ -73,9 +82,11 @@ interface SessionContext {
 ```
 
 ### 4. Context Window Manager
+
 **Purpose**: Efficiently manages limited context space with intelligent allocation
 
 **Key Features**:
+
 - **Dynamic Allocation**: Adjusts context sections based on current needs
 - **Context Budget Management**: Tracks token usage across context sections
 - **Smart Eviction**: Removes least important context when space needed
@@ -83,6 +94,7 @@ interface SessionContext {
 - **Real-time Monitoring**: Tracks context usage and optimization opportunities
 
 **Implementation**: `ContextWindowManager.ts`
+
 ```typescript
 interface ContextWindow {
   totalTokens: number;
@@ -98,9 +110,11 @@ interface ContextWindow {
 ```
 
 ### 5. Code Context Analyzer
+
 **Purpose**: Deep understanding of project structure and code relationships
 
 **Key Features**:
+
 - **Dependency Graph Analysis**: Map code relationships and imports
 - **Function/Class Summarization**: Generate concise code summaries
 - **Change Impact Analysis**: Track how code changes affect context
@@ -108,6 +122,7 @@ interface ContextWindow {
 - **Documentation Integration**: Include relevant docs in code context
 
 **Implementation**: `CodeContextAnalyzer.ts`
+
 ```typescript
 interface CodeContextSnapshot {
   projectStructure: FileTree;
@@ -119,9 +134,11 @@ interface CodeContextSnapshot {
 ```
 
 ### 6. Context-Aware Suggestion Engine
+
 **Purpose**: Leverage historical context for intelligent suggestions
 
 **Key Features**:
+
 - **Pattern Recognition**: Learn from past user interactions
 - **Contextual Completions**: Code suggestions based on project context
 - **Workflow Optimization**: Suggest efficient task sequences
@@ -129,6 +146,7 @@ interface CodeContextSnapshot {
 - **Learning from Mistakes**: Remember and avoid repeated errors
 
 **Implementation**: `SuggestionEngine.ts`
+
 ```typescript
 interface ContextSuggestion {
   type: 'command' | 'code' | 'workflow' | 'optimization';
@@ -142,6 +160,7 @@ interface ContextSuggestion {
 ## System Integration
 
 ### Context Flow Architecture
+
 ```
 User Input → Context Prioritizer → Context Window Manager → Semantic Compressor → Model
      ↓                                        ↑
@@ -149,6 +168,7 @@ Context-Aware Suggestions ← Code Context Analyzer ← Cross-Session Storage
 ```
 
 ### Storage Architecture
+
 ```
 ~/.gemini/context/
 ├── sessions/           # Per-session context files

@@ -95,7 +95,7 @@ global.generateLargeString = (sizeInBytes) => {
 };
 
 // Async utilities for testing
-global.waitFor = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+global.waitFor = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 global.waitUntil = async (predicate, timeout = 5000, interval = 100) => {
   const startTime = Date.now();

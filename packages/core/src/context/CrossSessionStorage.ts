@@ -12,7 +12,14 @@
  * @version 1.0.0
  */
 
-import { readFile, writeFile, mkdir, readdir, stat, rm } from 'node:fs/promises';
+import {
+  readFile,
+  writeFile,
+  mkdir,
+  readdir,
+  stat,
+  rm,
+} from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { Storage } from '../config/storage.js';
@@ -181,7 +188,11 @@ export class CrossSessionStorage {
       const sessionData = this.prepareSessionForStorage(session);
 
       // Write session data
-      await writeFile(sessionFile, JSON.stringify(sessionData, null, 2), 'utf-8');
+      await writeFile(
+        sessionFile,
+        JSON.stringify(sessionData, null, 2),
+        'utf-8',
+      );
 
       // Update storage index
       await this.updateIndexWithSession(session, sessionFile);
@@ -212,7 +223,9 @@ export class CrossSessionStorage {
 
     try {
       // Find session in index
-      const sessionEntry = this.index!.sessions.find(s => s.sessionId === sessionId);
+      const sessionEntry = this.index!.sessions.find(
+        (s) => s.sessionId === sessionId,
+      );
       if (!sessionEntry) {
         logger.warn(`Session ${sessionId} not found in index`);
         return null;
@@ -257,13 +270,17 @@ export class CrossSessionStorage {
     this.ensureInitialized();
 
     const startTime = performance.now();
-    logger.debug(`Getting related sessions for project ${projectPath}`, { maxSessions });
+    logger.debug(`Getting related sessions for project ${projectPath}`, {
+      maxSessions,
+    });
 
     try {
       const projectHash = this.hashProjectPath(projectPath);
 
       // Find project in index
-      const projectEntry = this.index!.projects.find(p => p.projectHash === projectHash);
+      const projectEntry = this.index!.projects.find(
+        (p) => p.projectHash === projectHash,
+      );
       if (!projectEntry) {
         logger.debug(`No sessions found for project ${projectPath}`);
         return [];
@@ -283,14 +300,19 @@ export class CrossSessionStorage {
       }
 
       const duration = performance.now() - startTime;
-      logger.info(`Found ${sessions.length} related sessions in ${duration.toFixed(2)}ms`, {
-        projectPath,
-        projectHash,
-      });
+      logger.info(
+        `Found ${sessions.length} related sessions in ${duration.toFixed(2)}ms`,
+        {
+          projectPath,
+          projectHash,
+        },
+      );
 
       return sessions;
     } catch (error) {
-      logger.error(`Failed to get related sessions for ${projectPath}`, { error });
+      logger.error(`Failed to get related sessions for ${projectPath}`, {
+        error,
+      });
       return [];
     }
   }
@@ -298,7 +320,9 @@ export class CrossSessionStorage {
   /**
    * Get the most recent session for a project
    */
-  async getLatestSessionForProject(projectPath: string): Promise<SessionContext | null> {
+  async getLatestSessionForProject(
+    projectPath: string,
+  ): Promise<SessionContext | null> {
     const sessions = await this.getRelatedSessions(projectPath, 1);
     return sessions.length > 0 ? sessions[0] : null;
   }
@@ -314,7 +338,10 @@ export class CrossSessionStorage {
 
     try {
       const queryLower = query.toLowerCase();
-      const matchingSessions: Array<{ session: SessionContext; score: number }> = [];
+      const matchingSessions: Array<{
+        session: SessionContext;
+        score: number;
+      }> = [];
 
       // Search through sessions in index
       for (const sessionEntry of this.index!.sessions) {
@@ -322,7 +349,8 @@ export class CrossSessionStorage {
         if (!session) continue;
 
         const score = this.calculateSearchScore(session, queryLower);
-        if (score > 0.1) { // Minimum relevance threshold
+        if (score > 0.1) {
+          // Minimum relevance threshold
           matchingSessions.push({ session, score });
         }
       }
@@ -331,7 +359,7 @@ export class CrossSessionStorage {
       const results = matchingSessions
         .sort((a, b) => b.score - a.score)
         .slice(0, limit)
-        .map(item => item.session);
+        .map((item) => item.session);
 
       const duration = performance.now() - startTime;
       logger.info(`Search completed in ${duration.toFixed(2)}ms`, {
@@ -379,9 +407,10 @@ export class CrossSessionStorage {
       // Enforce session count limit
       if (this.index!.sessions.length > this.config.maxSessions) {
         const excess = this.index!.sessions.length - this.config.maxSessions;
-        const oldestSessions = this.index!.sessions
-          .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-          .slice(0, excess);
+        const oldestSessions = this.index!.sessions.sort(
+          (a, b) =>
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+        ).slice(0, excess);
 
         for (const sessionEntry of oldestSessions) {
           await this.removeSession(sessionEntry.sessionId);
@@ -422,12 +451,26 @@ export class CrossSessionStorage {
         totalSessions: this.index!.sessions.length,
         totalProjects: this.index!.projects.length,
         totalSizeBytes: stats.totalSize,
-        oldestSession: this.index!.sessions.length > 0
-          ? new Date(Math.min(...this.index!.sessions.map(s => new Date(s.startTime).getTime())))
-          : null,
-        newestSession: this.index!.sessions.length > 0
-          ? new Date(Math.max(...this.index!.sessions.map(s => new Date(s.startTime).getTime())))
-          : null,
+        oldestSession:
+          this.index!.sessions.length > 0
+            ? new Date(
+                Math.min(
+                  ...this.index!.sessions.map((s) =>
+                    new Date(s.startTime).getTime(),
+                  ),
+                ),
+              )
+            : null,
+        newestSession:
+          this.index!.sessions.length > 0
+            ? new Date(
+                Math.max(
+                  ...this.index!.sessions.map((s) =>
+                    new Date(s.startTime).getTime(),
+                  ),
+                ),
+              )
+            : null,
       };
     } catch (error) {
       logger.error('Failed to get storage stats', { error });
@@ -439,7 +482,9 @@ export class CrossSessionStorage {
 
   private ensureInitialized(): void {
     if (!this.initialized) {
-      throw new Error('CrossSessionStorage not initialized. Call initialize() first.');
+      throw new Error(
+        'CrossSessionStorage not initialized. Call initialize() first.',
+      );
     }
   }
 
@@ -487,7 +532,7 @@ export class CrossSessionStorage {
       ...session,
       startTime: session.startTime.toISOString(),
       endTime: session.endTime?.toISOString(),
-      contextItems: session.contextItems.map(item => ({
+      contextItems: session.contextItems.map((item) => ({
         ...item,
         timestamp: item.timestamp.toISOString(),
         lastAccessed: item.lastAccessed.toISOString(),
@@ -495,20 +540,28 @@ export class CrossSessionStorage {
     };
   }
 
-  private async updateIndexWithSession(session: SessionContext, filePath: string): Promise<void> {
+  private async updateIndexWithSession(
+    session: SessionContext,
+    filePath: string,
+  ): Promise<void> {
     const sessionEntry: SessionIndexEntry = {
       sessionId: session.sessionId,
       projectPath: session.projectPath,
       startTime: session.startTime.toISOString(),
       endTime: session.endTime?.toISOString(),
       itemCount: session.contextItems.length,
-      tokenCount: session.contextItems.reduce((sum, item) => sum + item.tokenCount, 0),
+      tokenCount: session.contextItems.reduce(
+        (sum, item) => sum + item.tokenCount,
+        0,
+      ),
       filePath,
       size: await this.getFileSize(filePath),
     };
 
     // Remove existing entry if it exists
-    this.index!.sessions = this.index!.sessions.filter(s => s.sessionId !== session.sessionId);
+    this.index!.sessions = this.index!.sessions.filter(
+      (s) => s.sessionId !== session.sessionId,
+    );
 
     // Add new entry
     this.index!.sessions.push(sessionEntry);
@@ -520,7 +573,9 @@ export class CrossSessionStorage {
     const projectHash = this.hashProjectPath(session.projectPath);
 
     // Find existing project entry
-    let projectEntry = this.index!.projects.find(p => p.projectHash === projectHash);
+    let projectEntry = this.index!.projects.find(
+      (p) => p.projectHash === projectHash,
+    );
 
     if (!projectEntry) {
       // Create new project entry
@@ -541,13 +596,19 @@ export class CrossSessionStorage {
     }
     projectEntry.lastAccessed = session.startTime.toISOString();
     projectEntry.contextSummary = session.conversationSummary;
-    projectEntry.totalTokens = session.contextItems.reduce((sum, item) => sum + item.tokenCount, 0);
+    projectEntry.totalTokens = session.contextItems.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
 
     await this.saveStorageIndex();
   }
 
   private hashProjectPath(projectPath: string): string {
-    return createHash('sha256').update(projectPath).digest('hex').substring(0, 16);
+    return createHash('sha256')
+      .update(projectPath)
+      .digest('hex')
+      .substring(0, 16);
   }
 
   private calculateSearchScore(session: SessionContext, query: string): number {
@@ -582,7 +643,9 @@ export class CrossSessionStorage {
 
   private async removeSession(sessionId: string): Promise<void> {
     // Find session in index
-    const sessionEntry = this.index!.sessions.find(s => s.sessionId === sessionId);
+    const sessionEntry = this.index!.sessions.find(
+      (s) => s.sessionId === sessionId,
+    );
     if (!sessionEntry) return;
 
     try {
@@ -590,15 +653,21 @@ export class CrossSessionStorage {
       await rm(sessionEntry.filePath);
 
       // Remove from index
-      this.index!.sessions = this.index!.sessions.filter(s => s.sessionId !== sessionId);
+      this.index!.sessions = this.index!.sessions.filter(
+        (s) => s.sessionId !== sessionId,
+      );
 
       // Update project index
       for (const projectEntry of this.index!.projects) {
-        projectEntry.sessionIds = projectEntry.sessionIds.filter(id => id !== sessionId);
+        projectEntry.sessionIds = projectEntry.sessionIds.filter(
+          (id) => id !== sessionId,
+        );
       }
 
       // Remove empty project entries
-      this.index!.projects = this.index!.projects.filter(p => p.sessionIds.length > 0);
+      this.index!.projects = this.index!.projects.filter(
+        (p) => p.sessionIds.length > 0,
+      );
 
       logger.debug(`Removed session ${sessionId}`);
     } catch (error) {
@@ -615,7 +684,10 @@ export class CrossSessionStorage {
     }
   }
 
-  private async calculateStorageSize(): Promise<{ totalSize: number; fileCount: number }> {
+  private async calculateStorageSize(): Promise<{
+    totalSize: number;
+    fileCount: number;
+  }> {
     let totalSize = 0;
     let fileCount = 0;
 
@@ -640,7 +712,8 @@ export class CrossSessionStorage {
     if (!this.index) return;
 
     const lastCleanup = new Date(this.index.lastCleanup);
-    const daysSinceCleanup = (Date.now() - lastCleanup.getTime()) / (1000 * 60 * 60 * 24);
+    const daysSinceCleanup =
+      (Date.now() - lastCleanup.getTime()) / (1000 * 60 * 60 * 24);
 
     // Run cleanup if it's been more than 7 days
     if (daysSinceCleanup > 7) {
@@ -653,7 +726,9 @@ export class CrossSessionStorage {
     const sizeMB = stats.totalSize / (1024 * 1024);
 
     if (sizeMB > this.config.maxStorageSizeMB) {
-      logger.warn(`Storage size (${sizeMB.toFixed(2)}MB) exceeds limit (${this.config.maxStorageSizeMB}MB)`);
+      logger.warn(
+        `Storage size (${sizeMB.toFixed(2)}MB) exceeds limit (${this.config.maxStorageSizeMB}MB)`,
+      );
       await this.cleanup();
     }
   }

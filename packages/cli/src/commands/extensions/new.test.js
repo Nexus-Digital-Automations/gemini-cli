@@ -18,7 +18,7 @@ describe('extensions new command', () => {
       { name: 'custom-commands', isDirectory: () => true },
       { name: 'mcp-server', isDirectory: () => true },
     ];
-     
+
     mockedFs.readdir.mockResolvedValue(fakeFiles);
   });
   it('should fail if no path is provided', async () => {

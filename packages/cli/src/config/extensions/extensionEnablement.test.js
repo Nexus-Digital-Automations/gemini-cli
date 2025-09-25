@@ -29,7 +29,7 @@ describe('ExtensionEnablementManager', () => {
   afterEach(() => {
     testDir.cleanup();
     // Reset the singleton instance for test isolation
-     
+
     ExtensionEnablementManager.instance = undefined;
   });
   describe('isEnabled', () => {

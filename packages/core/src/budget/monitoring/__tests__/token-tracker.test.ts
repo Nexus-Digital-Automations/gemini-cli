@@ -12,10 +12,20 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from '@jest/globals';
 import type { GenerateContentResponse } from '@google/genai';
 import { TokenTracker } from '../token-tracker.js';
-import type { TokenTrackerConfig, TokenTrackingEvent } from '../token-tracker.js';
+import type {
+  TokenTrackerConfig,
+  TokenTrackingEvent,
+} from '../token-tracker.js';
 
 describe('TokenTracker', () => {
   let tokenTracker: TokenTracker;
@@ -103,13 +113,15 @@ describe('TokenTracker', () => {
       const sessionId = 'session-123';
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: {
-            parts: [{ text: 'Test response' }],
-            role: 'model',
+        candidates: [
+          {
+            content: {
+              parts: [{ text: 'Test response' }],
+              role: 'model',
+            },
+            finishReason: 'STOP',
           },
-          finishReason: 'STOP',
-        }],
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 15,
@@ -162,13 +174,15 @@ describe('TokenTracker', () => {
       tokenTracker.startRequest(requestId, model, feature, sessionId);
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: {
-            parts: [{ text: 'Test response' }],
-            role: 'model',
+        candidates: [
+          {
+            content: {
+              parts: [{ text: 'Test response' }],
+              role: 'model',
+            },
+            finishReason: 'STOP',
           },
-          finishReason: 'STOP',
-        }],
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 15,
@@ -192,10 +206,12 @@ describe('TokenTracker', () => {
         tokenTracker.startRequest(req.id, 'test-model', 'chat', 'session-123');
 
         const mockResponse: GenerateContentResponse = {
-          candidates: [{
-            content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
-          }],
+          candidates: [
+            {
+              content: { parts: [{ text: 'Response' }], role: 'model' },
+              finishReason: 'STOP',
+            },
+          ],
           usageMetadata: {
             promptTokenCount: req.inputTokens,
             candidatesTokenCount: req.outputTokens,
@@ -224,10 +240,12 @@ describe('TokenTracker', () => {
         tokenTracker.startRequest(requestId, model, 'chat', 'session-123');
 
         const mockResponse: GenerateContentResponse = {
-          candidates: [{
-            content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
-          }],
+          candidates: [
+            {
+              content: { parts: [{ text: 'Response' }], role: 'model' },
+              finishReason: 'STOP',
+            },
+          ],
           usageMetadata: {
             promptTokenCount: 10,
             candidatesTokenCount: 5,
@@ -252,13 +270,20 @@ describe('TokenTracker', () => {
         const requestId = `req-${i}`;
         const feature = features[i];
 
-        tokenTracker.startRequest(requestId, 'test-model', feature, 'session-123');
+        tokenTracker.startRequest(
+          requestId,
+          'test-model',
+          feature,
+          'session-123',
+        );
 
         const mockResponse: GenerateContentResponse = {
-          candidates: [{
-            content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
-          }],
+          candidates: [
+            {
+              content: { parts: [{ text: 'Response' }], role: 'model' },
+              finishReason: 'STOP',
+            },
+          ],
           usageMetadata: {
             promptTokenCount: 10,
             candidatesTokenCount: 5,
@@ -281,13 +306,15 @@ describe('TokenTracker', () => {
       tokenTracker.startRequest(requestId, 'test-model', 'chat', 'session-123');
 
       // Simulate some processing time
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: { parts: [{ text: 'Response' }], role: 'model' },
-          finishReason: 'STOP',
-        }],
+        candidates: [
+          {
+            content: { parts: [{ text: 'Response' }], role: 'model' },
+            finishReason: 'STOP',
+          },
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 5,
@@ -306,8 +333,9 @@ describe('TokenTracker', () => {
     it('should handle completion of non-existent request', async () => {
       const nonExistentId = 'non-existent-req';
 
-      await expect(tokenTracker.completeRequest(nonExistentId))
-        .resolves.not.toThrow();
+      await expect(
+        tokenTracker.completeRequest(nonExistentId),
+      ).resolves.not.toThrow();
 
       const stats = tokenTracker.getUsageStats();
       expect(stats.failedRequests).toBe(0); // Should not count as failed
@@ -319,10 +347,12 @@ describe('TokenTracker', () => {
       tokenTracker.startRequest(requestId, 'test-model', 'chat', 'session-123');
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: { parts: [{ text: 'Response' }], role: 'model' },
-          finishReason: 'STOP',
-        }],
+        candidates: [
+          {
+            content: { parts: [{ text: 'Response' }], role: 'model' },
+            finishReason: 'STOP',
+          },
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 5,
@@ -343,10 +373,12 @@ describe('TokenTracker', () => {
       tokenTracker.startRequest(requestId, 'test-model', 'chat', 'session-123');
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: { parts: [{ text: 'Response' }], role: 'model' },
-          finishReason: 'STOP',
-        }],
+        candidates: [
+          {
+            content: { parts: [{ text: 'Response' }], role: 'model' },
+            finishReason: 'STOP',
+          },
+        ],
         // No usageMetadata
       };
 
@@ -369,10 +401,12 @@ describe('TokenTracker', () => {
       tracker.startRequest('req-123', 'test-model', 'chat', 'session-123');
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: { parts: [{ text: 'Response' }], role: 'model' },
-          finishReason: 'STOP',
-        }],
+        candidates: [
+          {
+            content: { parts: [{ text: 'Response' }], role: 'model' },
+            finishReason: 'STOP',
+          },
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 5,
@@ -396,10 +430,12 @@ describe('TokenTracker', () => {
       tracker.startRequest('req-123', 'test-model', 'chat', 'session-123');
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: { parts: [{ text: 'Response' }], role: 'model' },
-          finishReason: 'STOP',
-        }],
+        candidates: [
+          {
+            content: { parts: [{ text: 'Response' }], role: 'model' },
+            finishReason: 'STOP',
+          },
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 5,
@@ -427,10 +463,12 @@ describe('TokenTracker', () => {
       tokenTracker.startRequest('req-3', 'test-model', 'chat', session2);
 
       const mockResponse: GenerateContentResponse = {
-        candidates: [{
-          content: { parts: [{ text: 'Response' }], role: 'model' },
-          finishReason: 'STOP',
-        }],
+        candidates: [
+          {
+            content: { parts: [{ text: 'Response' }], role: 'model' },
+            finishReason: 'STOP',
+          },
+        ],
         usageMetadata: {
           promptTokenCount: 10,
           candidatesTokenCount: 5,

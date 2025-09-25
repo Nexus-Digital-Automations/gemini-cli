@@ -40,11 +40,15 @@ vi.mock('../charts/CostProjectionChart.js', () => ({
 }));
 
 vi.mock('../components/BudgetAlertsPanel.js', () => ({
-  BudgetAlertsPanel: () => <div data-testid="budget-alerts-panel">Alerts Panel</div>,
+  BudgetAlertsPanel: () => (
+    <div data-testid="budget-alerts-panel">Alerts Panel</div>
+  ),
 }));
 
 vi.mock('../components/BudgetControlsPanel.js', () => ({
-  BudgetControlsPanel: () => <div data-testid="budget-controls-panel">Controls Panel</div>,
+  BudgetControlsPanel: () => (
+    <div data-testid="budget-controls-panel">Controls Panel</div>
+  ),
 }));
 
 // Import the mocked hook
@@ -125,14 +129,13 @@ describe('BudgetDashboard', () => {
 
   it('should render disabled state when budget is not enabled', () => {
     const { lastFrame } = render(
-      <BudgetDashboard
-        {...defaultProps}
-        budgetSettings={{ enabled: false }}
-      />
+      <BudgetDashboard {...defaultProps} budgetSettings={{ enabled: false }} />,
     );
 
     expect(lastFrame()).toContain('Budget tracking is disabled');
-    expect(lastFrame()).toContain('Enable budget settings to view the dashboard');
+    expect(lastFrame()).toContain(
+      'Enable budget settings to view the dashboard',
+    );
   });
 
   it('should render loading state when dashboard is loading', () => {
@@ -222,7 +225,7 @@ describe('BudgetDashboard', () => {
 
   it('should render keyboard shortcuts in footer when not compact', () => {
     const { lastFrame } = render(
-      <BudgetDashboard {...defaultProps} compact={false} />
+      <BudgetDashboard {...defaultProps} compact={false} />,
     );
 
     expect(lastFrame()).toContain('←→/hl: Navigate');
@@ -235,7 +238,7 @@ describe('BudgetDashboard', () => {
 
   it('should not render footer when compact', () => {
     const { lastFrame } = render(
-      <BudgetDashboard {...defaultProps} compact={true} />
+      <BudgetDashboard {...defaultProps} compact={true} />,
     );
 
     expect(lastFrame()).not.toContain('←→/hl: Navigate');
@@ -262,7 +265,7 @@ describe('BudgetDashboard', () => {
     });
 
     const { lastFrame } = render(
-      <BudgetDashboard {...defaultProps} initialView="usage" />
+      <BudgetDashboard {...defaultProps} initialView="usage" />,
     );
 
     expect(lastFrame()).toContain('Token Usage Analysis');
@@ -281,7 +284,7 @@ describe('BudgetDashboard Chart Utilities', () => {
     });
 
     const { lastFrame: highUsageFrame } = render(
-      <BudgetDashboard {...defaultProps} />
+      <BudgetDashboard {...defaultProps} />,
     );
 
     // Should show high usage indicators
@@ -297,7 +300,7 @@ describe('BudgetDashboard Chart Utilities', () => {
     });
 
     const { lastFrame: mediumUsageFrame } = render(
-      <BudgetDashboard {...defaultProps} />
+      <BudgetDashboard {...defaultProps} />,
     );
 
     expect(mediumUsageFrame()).toContain('80%');
@@ -312,7 +315,7 @@ describe('BudgetDashboard Chart Utilities', () => {
     });
 
     const { lastFrame: lowUsageFrame } = render(
-      <BudgetDashboard {...defaultProps} />
+      <BudgetDashboard {...defaultProps} />,
     );
 
     expect(lowUsageFrame()).toContain('30%');

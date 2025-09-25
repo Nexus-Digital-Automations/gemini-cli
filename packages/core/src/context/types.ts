@@ -29,11 +29,11 @@ export enum ContextType {
  * Priority levels for context items
  */
 export enum ContextPriority {
-  CRITICAL = 'critical',     // Never compress or remove
-  HIGH = 'high',            // Compress lightly, remove only if necessary
-  MEDIUM = 'medium',        // Standard compression and removal
-  LOW = 'low',             // Aggressive compression, remove first
-  CACHED = 'cached',       // Can be retrieved from storage if needed
+  CRITICAL = 'critical', // Never compress or remove
+  HIGH = 'high', // Compress lightly, remove only if necessary
+  MEDIUM = 'medium', // Standard compression and removal
+  LOW = 'low', // Aggressive compression, remove first
+  CACHED = 'cached', // Can be retrieved from storage if needed
 }
 
 /**
