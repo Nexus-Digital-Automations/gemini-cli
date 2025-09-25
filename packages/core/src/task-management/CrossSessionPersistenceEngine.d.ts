@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { ITask, ITaskQueue } from '../interfaces/TaskInterfaces.js';
 import { FileBasedTaskStore, type StorageConfig, type TransactionContext, type PersistenceResult } from '../autonomous-tasks/persistence/FileBasedTaskStore.js';
 /**
@@ -103,6 +102,7 @@ export declare class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     private dataIntegrityManager;
     private performanceOptimizer;
     private syncManager;
+    private migrationManager;
     private writeBuffer;
     private writeBufferTimer?;
     private prefetchCache;
@@ -183,5 +183,9 @@ export declare class CrossSessionPersistenceEngine extends FileBasedTaskStore {
     private getAllTasks;
     private getAllQueues;
     private clearCurrentState;
+    /**
+     * Delete queue from persistent storage
+     */
+    private deleteQueue;
     private handleCrash;
 }

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Real-Time Task Status Monitoring System
  *
@@ -44,11 +43,11 @@
  * ```
  */
 // Core monitoring components
-export { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority, TaskMetadata, TaskStatusUpdate, AgentStatus, taskStatusMonitor } from './TaskStatusMonitor.js';
-export { StatusUpdateBroker, StatusEventType, StatusEvent, NotificationConfig, statusUpdateBroker } from './StatusUpdateBroker.js';
-export { NotificationSystem, NotificationPreferences, NotificationTemplate, DeliveredNotification, notificationSystem } from './NotificationSystem.js';
-export { StatusHistoryAnalytics, AnalyticsTimeframe, TaskAnalytics, AgentAnalytics, SystemAnalytics, StatusHistoryEntry, HistoryQuery, statusHistoryAnalytics } from './StatusHistoryAnalytics.js';
-export { MonitoringIntegrations, TodoWriteTask, TodoWriteState, ExternalSystemConfig, WebhookPayload, monitoringIntegrations } from './MonitoringIntegrations.js';
+export { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority, TaskMetadata, TaskStatusUpdate, AgentStatus, taskStatusMonitor, } from './TaskStatusMonitor.js';
+export { StatusUpdateBroker, StatusEventType, StatusEvent, NotificationConfig, statusUpdateBroker, } from './StatusUpdateBroker.js';
+export { NotificationSystem, NotificationPreferences, NotificationTemplate, DeliveredNotification, notificationSystem, } from './NotificationSystem.js';
+export { StatusHistoryAnalytics, AnalyticsTimeframe, TaskAnalytics, AgentAnalytics, SystemAnalytics, StatusHistoryEntry, HistoryQuery, statusHistoryAnalytics, } from './StatusHistoryAnalytics.js';
+export { MonitoringIntegrations, TodoWriteTask, TodoWriteState, ExternalSystemConfig, WebhookPayload, monitoringIntegrations, } from './MonitoringIntegrations.js';
 // Dashboard and visualization
 export { StatusDashboard } from './StatusDashboard.js';
 /**
@@ -67,7 +66,7 @@ export { StatusDashboard } from './StatusDashboard.js';
  * ```
  */
 export async function initializeMonitoringSystem(options = {}) {
-    const { enableDashboard = false, enableNotifications = true, enableAnalytics = true, enableIntegrations = true, dashboardConfig = {} } = options;
+    const { enableDashboard = false, enableNotifications = true, enableAnalytics = true, enableIntegrations = true, dashboardConfig = {}, } = options;
     // Import singleton instances
     const { taskStatusMonitor } = await import('./TaskStatusMonitor.js');
     const { statusUpdateBroker } = await import('./StatusUpdateBroker.js');
@@ -80,7 +79,7 @@ export async function initializeMonitoringSystem(options = {}) {
         dashboard = new StatusDashboard({
             autoRefresh: dashboardConfig.autoRefresh ?? true,
             refreshInterval: dashboardConfig.refreshInterval ?? 5000,
-            initialView: dashboardConfig.initialView ?? 'overview'
+            initialView: dashboardConfig.initialView ?? 'overview',
         });
     }
     return {
@@ -102,7 +101,7 @@ export async function initializeMonitoringSystem(options = {}) {
                 statusHistoryAnalytics.destroy();
             if (enableIntegrations)
                 monitoringIntegrations.destroy();
-        }
+        },
     };
 }
 /**
@@ -116,7 +115,7 @@ export const MonitoringPresets = {
         enableDashboard: false,
         enableNotifications: false,
         enableAnalytics: false,
-        enableIntegrations: false
+        enableIntegrations: false,
     }),
     /**
      * Development monitoring with dashboard and basic analytics
@@ -129,8 +128,8 @@ export const MonitoringPresets = {
         dashboardConfig: {
             autoRefresh: true,
             refreshInterval: 3000,
-            initialView: 'overview'
-        }
+            initialView: 'overview',
+        },
     }),
     /**
      * Production monitoring with full feature set
@@ -139,7 +138,7 @@ export const MonitoringPresets = {
         enableDashboard: false,
         enableNotifications: true,
         enableAnalytics: true,
-        enableIntegrations: true
+        enableIntegrations: true,
     }),
     /**
      * Full monitoring with dashboard for debugging and analysis
@@ -152,9 +151,9 @@ export const MonitoringPresets = {
         dashboardConfig: {
             autoRefresh: true,
             refreshInterval: 5000,
-            initialView: 'overview'
-        }
-    })
+            initialView: 'overview',
+        },
+    }),
 };
 /**
  * Utility functions for common monitoring operations
@@ -174,7 +173,7 @@ export const MonitoringUtils = {
             assignedAgent: options.assignedAgent,
             dependencies: [],
             tags: options.tags ?? [],
-            metadata: { source: 'monitoring_utils' }
+            metadata: { source: 'monitoring_utils' },
         });
     },
     /**
@@ -186,7 +185,7 @@ export const MonitoringUtils = {
         statusUpdateBroker.subscribe({
             subscriberId,
             eventTypes: Object.values(StatusEventType),
-            deliveryMethod: 'realtime'
+            deliveryMethod: 'realtime',
         });
         statusUpdateBroker.on(`delivery:${subscriberId}`, ({ event }) => {
             callback(event);
@@ -205,16 +204,16 @@ export const MonitoringUtils = {
             timestamp: new Date().toISOString(),
             summary: {
                 totalTasks: tasks.length,
-                activeTasks: tasks.filter(t => t.status === 'in_progress').length,
-                completedTasks: tasks.filter(t => t.status === 'completed').length,
-                failedTasks: tasks.filter(t => t.status === 'failed').length,
+                activeTasks: tasks.filter((t) => t.status === 'in_progress').length,
+                completedTasks: tasks.filter((t) => t.status === 'completed').length,
+                failedTasks: tasks.filter((t) => t.status === 'failed').length,
                 totalAgents: agents.length,
-                activeAgents: agents.filter(a => a.status !== 'offline').length,
-                systemEfficiency: metrics.systemEfficiency
+                activeAgents: agents.filter((a) => a.status !== 'offline').length,
+                systemEfficiency: metrics.systemEfficiency,
             },
             tasks,
             agents,
-            metrics
+            metrics,
         };
     },
     /**
@@ -223,12 +222,18 @@ export const MonitoringUtils = {
     async exportData(format = 'json') {
         const { monitoringIntegrations } = await import('./MonitoringIntegrations.js');
         return monitoringIntegrations.exportMonitoringData(format);
-    }
+    },
 };
-// Default export for convenience
-export default {
+// Advanced Monitoring Components
+export { RealTimeMonitoringSystem, realTimeMonitoringSystem, } from './RealTimeMonitoringSystem.js';
+export { EnhancedMonitoringDashboard, enhancedMonitoringDashboard, } from './EnhancedMonitoringDashboard.js';
+export { MonitoringIntegrationHub, monitoringIntegrationHub, } from './MonitoringIntegrationHub.js';
+// Note: MonitoringDeploymentManager available in deployment/MonitoringDeploymentGuide.js
+// Import directly when needed to avoid ESLint import restrictions
+// Named exports for convenience (avoiding default export lint warning)
+export const MonitoringSystemExports = {
     initializeMonitoringSystem,
     MonitoringPresets,
-    MonitoringUtils
+    MonitoringUtils,
 };
 //# sourceMappingURL=index.js.map

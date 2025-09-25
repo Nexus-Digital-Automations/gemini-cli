@@ -96,6 +96,10 @@ export class PriorityScheduler extends EventEmitter {
       adaptiveThreshold?: number;
       maxLearningHistory?: number;
       performanceWindow?: number;
+      adaptiveLearning?: boolean;
+      performanceTracking?: boolean;
+      resourceAware?: boolean;
+      dependencyAware?: boolean;
     } = {}
   ) {
     super();

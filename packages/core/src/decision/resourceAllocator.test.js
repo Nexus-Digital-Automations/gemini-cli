@@ -3,9 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ResourceAllocator, ResourceType, ResourceInfo, AllocationRequest, AllocationStrategies, } from './resourceAllocator';
+import { ResourceAllocator, ResourceType, AllocationStrategies, } from './resourceAllocator';
 import { DecisionPriority } from './types';
 describe('ResourceAllocator', () => {
     let allocator;

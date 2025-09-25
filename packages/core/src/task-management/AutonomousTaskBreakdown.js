@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { logger as createLogger } from '../utils/logger.js';
 import { TaskCategory, TaskPriority } from './TaskQueue.js';
@@ -267,7 +266,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
             { name: 'Cleanup & Finalization', weight: 0.10 }
         ];
         let sequenceOrder = 0;
-        let cumulativeDependencies = [];
+        const cumulativeDependencies = [];
         for (let i = 0; i < Math.min(phaseCount, phases.length); i++) {
             const phase = phases[i];
             const subtask = {
@@ -1523,7 +1522,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
         logger.info('Execution outcome recorded for learning', {
             breakdownStrategy: breakdown.breakdownStrategy,
             subtaskCount: breakdown.subtasks.length,
-            successRate: successRate,
+            successRate,
             actualSpeedup: breakdown.originalTask.estimatedDuration / totalDuration
         });
         this.emit('executionOutcomeRecorded', { breakdown, actualOutcome });

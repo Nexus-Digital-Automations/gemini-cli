@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TaskLifecycle } from '../TaskLifecycle.js';
 /**
@@ -383,10 +382,10 @@ describe('TaskLifecycle', () => {
             expect(result.issues.length).toBeGreaterThan(0);
         });
         it('should handle null/undefined task references', async () => {
-            expect(() => {
+            await expect(() => {
                 lifecycle.transitionTo(null, 'ready');
             }).rejects.toThrow();
-            expect(() => {
+            await expect(() => {
                 lifecycle.validateState(undefined);
             }).rejects.toThrow();
         });

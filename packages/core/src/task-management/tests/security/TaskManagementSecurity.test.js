@@ -3,11 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TaskManagementSystemFactory } from '../../index.js';
-import { TaskExecutionEngine } from '../../TaskExecutionEngine.complete.js';
-import { ExecutionMonitoringSystem } from '../../ExecutionMonitoringSystem.js';
 /**
  * @fileoverview Security and reliability testing framework for task management
  *
@@ -250,7 +247,7 @@ describe('Task Management Security Tests', () => {
         });
         it('should prevent recursive task creation bombs', async () => {
             const recursiveBombAttempt = async () => {
-                let depth = 0;
+                const depth = 0;
                 const maxDepth = 50;
                 const tasksCreated = [];
                 const createRecursiveTask = async (level) => {

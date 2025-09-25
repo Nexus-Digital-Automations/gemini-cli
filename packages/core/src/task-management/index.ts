@@ -12,6 +12,16 @@
  * persistence integrated with the infinite-continue-stop-hook system.
  */
 
+// Core TaskManager - Main Entry Point
+export {
+  TaskManager,
+  createTaskManager,
+  type TaskManagerConfig,
+  type AutonomousContext,
+  type TaskExecutionStrategy,
+  type AutonomousDecision
+} from './TaskManager.js';
+
 // Core exports
 export {
   // Types and enums
@@ -51,6 +61,31 @@ export {
   TaskCategory,
   DependencyType as QueueDependencyType
 } from './TaskQueue.js';
+
+// Unified System Integration
+export {
+  TaskManagementSystemIntegrator,
+  SystemConfigFactory,
+  createIntegratedTaskManagementSystem,
+  type IntegratedSystemConfig,
+  type SystemHealth,
+  type SystemOperationResult
+} from './TaskManagementSystemIntegrator.js';
+
+export {
+  TaskManagementConfigManager,
+  ConfigUtils,
+  type TaskManagementConfiguration,
+  type TaskEngineConfig,
+  type AutonomousQueueConfig,
+  type MonitoringConfig,
+  type PersistenceConfig,
+  type HookIntegrationConfig,
+  type DependencyConfig,
+  type SecurityConfig,
+  type DevelopmentConfig,
+  type ConfigValidationResult
+} from './TaskManagementConfig.js';
 
 export {
   PriorityScheduler,
@@ -445,12 +480,22 @@ export class TaskManagementSystemFactory {
 
 /**
  * Convenience function to create a complete task management system
+ * (Uses new unified TaskManager for autonomous capabilities)
  */
 export async function createTaskManagementSystem(
   config: Config,
   options?: any
 ) {
-  return TaskManagementSystemFactory.createComplete(config, options);
+  return createTaskManager({
+    config,
+    enableAutonomousBreakdown: true,
+    enableAdaptiveScheduling: true,
+    enableLearning: true,
+    enableMonitoring: true,
+    enableHookIntegration: true,
+    enablePersistence: true,
+    ...options
+  });
 }
 
 /**

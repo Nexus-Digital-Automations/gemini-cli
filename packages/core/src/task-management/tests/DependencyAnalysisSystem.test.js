@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DependencyAnalyzer, DependencySequencer, IntelligentDependencyManager, SequencingStrategy, createIntelligentDependencySystem, DependencyConfigurations } from '../../autonomous-tasks/dependencies/index.js';
 import { TaskPriority as Priority, TaskStatus as Status, TaskType as Type } from '../../autonomous-tasks/interfaces/TaskInterfaces.js';

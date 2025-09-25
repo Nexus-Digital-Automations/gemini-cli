@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Comprehensive Task Management System Integration
  *
@@ -11,6 +10,8 @@
  * breakdown, autonomous execution, real-time monitoring, and cross-session
  * persistence integrated with the infinite-continue-stop-hook system.
  */
+// Core TaskManager - Main Entry Point
+export { TaskManager, createTaskManager } from './TaskManager.js';
 // Core exports
 export { 
 // Types and enums
@@ -23,6 +24,9 @@ export { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 export { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 // Enhanced Autonomous Task Management
 export { TaskQueue, TaskPriority as QueueTaskPriority, TaskStatus as QueueTaskStatus, TaskCategory, DependencyType as QueueDependencyType } from './TaskQueue.js';
+// Unified System Integration
+export { TaskManagementSystemIntegrator, SystemConfigFactory, createIntegratedTaskManagementSystem } from './TaskManagementSystemIntegrator.js';
+export { TaskManagementConfigManager, ConfigUtils } from './TaskManagementConfig.js';
 export { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 export { QueueOptimizer, OptimizationStrategy } from './QueueOptimizer.js';
 export { AutonomousTaskBreakdown, BreakdownStrategy } from './AutonomousTaskBreakdown.js';
@@ -303,9 +307,19 @@ export class TaskManagementSystemFactory {
 }
 /**
  * Convenience function to create a complete task management system
+ * (Uses new unified TaskManager for autonomous capabilities)
  */
 export async function createTaskManagementSystem(config, options) {
-    return TaskManagementSystemFactory.createComplete(config, options);
+    return createTaskManager({
+        config,
+        enableAutonomousBreakdown: true,
+        enableAdaptiveScheduling: true,
+        enableLearning: true,
+        enableMonitoring: true,
+        enableHookIntegration: true,
+        enablePersistence: true,
+        ...options
+    });
 }
 /**
  * Convenience function to create standalone task engine

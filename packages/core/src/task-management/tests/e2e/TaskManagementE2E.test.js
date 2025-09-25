@@ -3,11 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TaskManagementSystemFactory } from '../../index.js';
-import { TaskExecutionEngine } from '../../TaskExecutionEngine.complete.js';
-import { ExecutionMonitoringSystem } from '../../ExecutionMonitoringSystem.js';
 /**
  * @fileoverview End-to-End tests for complete task management workflows
  *
@@ -521,7 +518,7 @@ describe('Task Management End-to-End Workflows', () => {
                     'final_report': 'Complete analysis report'
                 }
             });
-            let task = system.taskEngine.getTask(persistentTaskId);
+            const task = system.taskEngine.getTask(persistentTaskId);
             // Start task execution
             task.status = 'in_progress';
             task.startedAt = new Date();

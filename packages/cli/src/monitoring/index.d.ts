@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Real-Time Task Status Monitoring System
  *
@@ -43,11 +42,11 @@
  * });
  * ```
  */
-export { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority, TaskMetadata, TaskStatusUpdate, AgentStatus, taskStatusMonitor } from './TaskStatusMonitor.js';
-export { StatusUpdateBroker, StatusEventType, StatusEvent, NotificationConfig, statusUpdateBroker } from './StatusUpdateBroker.js';
-export { NotificationSystem, NotificationPreferences, NotificationTemplate, DeliveredNotification, notificationSystem } from './NotificationSystem.js';
-export { StatusHistoryAnalytics, AnalyticsTimeframe, TaskAnalytics, AgentAnalytics, SystemAnalytics, StatusHistoryEntry, HistoryQuery, statusHistoryAnalytics } from './StatusHistoryAnalytics.js';
-export { MonitoringIntegrations, TodoWriteTask, TodoWriteState, ExternalSystemConfig, WebhookPayload, monitoringIntegrations } from './MonitoringIntegrations.js';
+export { TaskStatusMonitor, TaskStatus, TaskType, TaskPriority, TaskMetadata, TaskStatusUpdate, AgentStatus, taskStatusMonitor, } from './TaskStatusMonitor.js';
+export { StatusUpdateBroker, StatusEventType, StatusEvent, NotificationConfig, statusUpdateBroker, } from './StatusUpdateBroker.js';
+export { NotificationSystem, NotificationPreferences, NotificationTemplate, DeliveredNotification, notificationSystem, } from './NotificationSystem.js';
+export { StatusHistoryAnalytics, AnalyticsTimeframe, TaskAnalytics, AgentAnalytics, SystemAnalytics, StatusHistoryEntry, HistoryQuery, statusHistoryAnalytics, } from './StatusHistoryAnalytics.js';
+export { MonitoringIntegrations, TodoWriteTask, TodoWriteState, ExternalSystemConfig, WebhookPayload, monitoringIntegrations, } from './MonitoringIntegrations.js';
 export { StatusDashboard } from './StatusDashboard.js';
 /**
  * Initialize the complete monitoring system with default configuration
@@ -80,7 +79,7 @@ export declare function initializeMonitoringSystem(options?: {
     notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
     statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
     monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-    dashboard: any;
+    dashboard: unknown;
     /**
      * Cleanup all monitoring resources
      */
@@ -99,7 +98,7 @@ export declare const MonitoringPresets: {
         notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
         statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
         monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: any;
+        dashboard: unknown;
         /**
          * Cleanup all monitoring resources
          */
@@ -114,7 +113,7 @@ export declare const MonitoringPresets: {
         notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
         statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
         monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: any;
+        dashboard: unknown;
         /**
          * Cleanup all monitoring resources
          */
@@ -129,7 +128,7 @@ export declare const MonitoringPresets: {
         notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
         statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
         monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: any;
+        dashboard: unknown;
         /**
          * Cleanup all monitoring resources
          */
@@ -144,7 +143,7 @@ export declare const MonitoringPresets: {
         notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
         statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
         monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-        dashboard: any;
+        dashboard: unknown;
         /**
          * Cleanup all monitoring resources
          */
@@ -167,7 +166,7 @@ export declare const MonitoringUtils: {
     /**
      * Subscribe to all important status events with a simple callback
      */
-    subscribeToAllEvents(callback: (event: any) => void): Promise<() => void>;
+    subscribeToAllEvents(callback: (event: unknown) => void): Promise<() => void>;
     /**
      * Get a snapshot of current system status
      */
@@ -182,8 +181,8 @@ export declare const MonitoringUtils: {
             activeAgents: number;
             systemEfficiency: number;
         };
-        tasks: Array<import("./TaskStatusMonitor.js").TaskMetadata>;
-        agents: Array<import("./TaskStatusMonitor.js").AgentStatus>;
+        tasks: import("./TaskStatusMonitor.js").TaskMetadata[];
+        agents: import("./TaskStatusMonitor.js").AgentStatus[];
         metrics: {
             totalTasks: number;
             completedTasks: number;
@@ -204,7 +203,10 @@ export declare const MonitoringUtils: {
      */
     exportData(format?: "json" | "csv"): Promise<string>;
 };
-declare const _default: {
+export { RealTimeMonitoringSystem, type MonitoringSnapshot, type MonitoringEvent, type AlertRule, type PredictiveInsight, realTimeMonitoringSystem, } from './RealTimeMonitoringSystem.js';
+export { EnhancedMonitoringDashboard, type DashboardWidget, type DashboardLayout, type DashboardData, type ChartData, enhancedMonitoringDashboard, } from './EnhancedMonitoringDashboard.js';
+export { MonitoringIntegrationHub, type MonitoringIntegrationConfig, type CrossSystemEvent, type HealthCheckResult, monitoringIntegrationHub, } from './MonitoringIntegrationHub.js';
+export declare const MonitoringSystemExports: {
     initializeMonitoringSystem: typeof initializeMonitoringSystem;
     MonitoringPresets: {
         /**
@@ -216,7 +218,7 @@ declare const _default: {
             notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
             statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
             monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: any;
+            dashboard: unknown;
             /**
              * Cleanup all monitoring resources
              */
@@ -231,7 +233,7 @@ declare const _default: {
             notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
             statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
             monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: any;
+            dashboard: unknown;
             /**
              * Cleanup all monitoring resources
              */
@@ -246,7 +248,7 @@ declare const _default: {
             notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
             statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
             monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: any;
+            dashboard: unknown;
             /**
              * Cleanup all monitoring resources
              */
@@ -261,7 +263,7 @@ declare const _default: {
             notificationSystem: import("./NotificationSystem.js").NotificationSystem | null;
             statusHistoryAnalytics: import("./StatusHistoryAnalytics.js").StatusHistoryAnalytics | null;
             monitoringIntegrations: import("./MonitoringIntegrations.js").MonitoringIntegrations | null;
-            dashboard: any;
+            dashboard: unknown;
             /**
              * Cleanup all monitoring resources
              */
@@ -281,7 +283,7 @@ declare const _default: {
         /**
          * Subscribe to all important status events with a simple callback
          */
-        subscribeToAllEvents(callback: (event: any) => void): Promise<() => void>;
+        subscribeToAllEvents(callback: (event: unknown) => void): Promise<() => void>;
         /**
          * Get a snapshot of current system status
          */
@@ -296,8 +298,8 @@ declare const _default: {
                 activeAgents: number;
                 systemEfficiency: number;
             };
-            tasks: Array<import("./TaskStatusMonitor.js").TaskMetadata>;
-            agents: Array<import("./TaskStatusMonitor.js").AgentStatus>;
+            tasks: import("./TaskStatusMonitor.js").TaskMetadata[];
+            agents: import("./TaskStatusMonitor.js").AgentStatus[];
             metrics: {
                 totalTasks: number;
                 completedTasks: number;
@@ -319,4 +321,3 @@ declare const _default: {
         exportData(format?: "json" | "csv"): Promise<string>;
     };
 };
-export default _default;

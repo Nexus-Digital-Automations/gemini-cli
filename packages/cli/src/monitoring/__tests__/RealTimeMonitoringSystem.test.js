@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';

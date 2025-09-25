@@ -3,9 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
-import { ResourceAllocator, ResourceType, ResourceInfo, AllocationRequest, AllocationResult, AllocationStrategies, } from './resourceAllocator';
+import { ResourceAllocator, ResourceType, AllocationStrategies, } from './resourceAllocator';
 /**
  * Service that makes intelligent resource allocation decisions
  * by combining the decision engine with resource allocation logic

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach } from '@jest/globals';
 import { Task } from '../../../packages/core/src/autonomous-tasks/types/TaskTypes';
 import { DependencyGraph, GraphNode, GraphEdge } from '../../../packages/core/src/autonomous-tasks/dependencies/DependencyGraph';

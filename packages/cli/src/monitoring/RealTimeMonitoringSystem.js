@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
 import { taskStatusMonitor, TaskStatus } from './TaskStatusMonitor.js';
@@ -256,7 +255,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
             config: this.config,
             snapshots: history,
             insights: insights.slice(0, 50), // Last 50 insights
-            alerts: alerts,
+            alerts,
             statistics: {
                 totalSnapshots: history.length,
                 totalInsights: insights.length,
@@ -751,9 +750,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     calculateAverageAgentUtilization(agents) {
         if (agents.length === 0)
             return 0;
-        const totalUtilization = agents.reduce((sum, agent) => {
-            return sum + (agent.currentTasks.length > 0 ? 1 : 0);
-        }, 0);
+        const totalUtilization = agents.reduce((sum, agent) => sum + (agent.currentTasks.length > 0 ? 1 : 0), 0);
         return (totalUtilization / agents.length) * 100;
     }
     calculateAverageAgentPerformance(agents) {

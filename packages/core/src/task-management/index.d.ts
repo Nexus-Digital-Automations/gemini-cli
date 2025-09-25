@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Comprehensive Task Management System Integration
  *
@@ -11,10 +10,13 @@
  * breakdown, autonomous execution, real-time monitoring, and cross-session
  * persistence integrated with the infinite-continue-stop-hook system.
  */
+export { TaskManager, createTaskManager, type TaskManagerConfig, type AutonomousContext, type TaskExecutionStrategy, type AutonomousDecision } from './TaskManager.js';
 export { TaskComplexity, TaskStatus, TaskPriority, TaskType, DependencyType, AgentCapability, SubagentTerminateMode, Task, TaskDependency, TaskBreakdown, TaskMetrics, TaskExecutionContext, TaskBreakdownAnalyzer, ContextState } from './TaskExecutionEngine.js';
 export { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 export { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 export { TaskQueue, TaskPriority as QueueTaskPriority, TaskStatus as QueueTaskStatus, TaskCategory, DependencyType as QueueDependencyType } from './TaskQueue.js';
+export { TaskManagementSystemIntegrator, SystemConfigFactory, createIntegratedTaskManagementSystem, type IntegratedSystemConfig, type SystemHealth, type SystemOperationResult } from './TaskManagementSystemIntegrator.js';
+export { TaskManagementConfigManager, ConfigUtils, type TaskManagementConfiguration, type TaskEngineConfig, type AutonomousQueueConfig, type MonitoringConfig, type PersistenceConfig, type HookIntegrationConfig, type DependencyConfig, type SecurityConfig, type DevelopmentConfig, type ConfigValidationResult } from './TaskManagementConfig.js';
 export { PriorityScheduler, SchedulingAlgorithm, type SchedulingContext, type SchedulingDecision } from './PriorityScheduler.js';
 export { QueueOptimizer, OptimizationStrategy, type OptimizationRecommendation, type BatchOptimization } from './QueueOptimizer.js';
 export { AutonomousTaskBreakdown, BreakdownStrategy, type TaskBreakdownResult, type ComplexityMetrics, type SubTask } from './AutonomousTaskBreakdown.js';
@@ -22,11 +24,10 @@ export { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig, type AutonomousE
 export { ExecutionMonitoringSystem, ExecutionMetrics, TaskExecutionEvent, AlertConfig, BottleneckAnalysis, SystemHealthStatus } from './ExecutionMonitoringSystem.js';
 export { InfiniteHookIntegration, TaskManagerAPI, HookIntegrationConfig } from './InfiniteHookIntegration.js';
 import type { Config } from '../config/config.js';
-import type { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
-import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
-import type { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import type { EnhancedAutonomousTaskQueue} from './EnhancedAutonomousTaskQueue.js';
-import { type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
+import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
+import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
+import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
+import { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
 /**
  * Complete Task Management System Factory
  *
@@ -78,13 +79,9 @@ export declare class TaskManagementSystemFactory {
 }
 /**
  * Convenience function to create a complete task management system
+ * (Uses new unified TaskManager for autonomous capabilities)
  */
-export declare function createTaskManagementSystem(config: Config, options?: any): Promise<{
-    taskEngine: TaskExecutionEngine;
-    monitoring?: ExecutionMonitoringSystem;
-    hookIntegration?: InfiniteHookIntegration;
-    shutdown: () => Promise<void>;
-}>;
+export declare function createTaskManagementSystem(config: Config, options?: any): Promise<any>;
 /**
  * Convenience function to create standalone task engine
  */

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Autonomous Task Management System - Backward Compatibility Validator
  *
@@ -44,9 +43,7 @@ export class CompatibilityValidator {
             name: 'taskmanager-api-connectivity',
             description: 'Verify TaskManager API is accessible and responsive',
             critical: false,
-            check: async () => {
-                return await checkApiAvailability();
-            },
+            check: async () => await checkApiAvailability(),
             remediation: 'Install and start the infinite-continue-stop-hook TaskManager API system'
         });
         this.checks.push({

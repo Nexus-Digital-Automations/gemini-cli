@@ -3,12 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TaskManagementSystemFactory } from '../../index.js';
-import { TaskExecutionEngine } from '../../TaskExecutionEngine.complete.js';
-import { ExecutionMonitoringSystem } from '../../ExecutionMonitoringSystem.js';
-import { InfiniteHookIntegration } from '../../InfiniteHookIntegration.js';
 import { DependencyResolver } from '../../DependencyResolver.js';
 import { TaskPriorityScheduler } from '../../TaskPriorityScheduler.js';
 import { TaskLifecycle } from '../../TaskLifecycle.js';
@@ -362,7 +358,7 @@ describe('Task Management System Integration', () => {
             });
             const task = system.taskEngine.getTask(taskId);
             // Test resource allocation
-            let allocation = scheduler.allocateResources(task);
+            const allocation = scheduler.allocateResources(task);
             expect(allocation).toBeTruthy();
             expect(allocation.allocatedResources.get('cpu')).toBe(2);
             // Update available resources (simulate system load)

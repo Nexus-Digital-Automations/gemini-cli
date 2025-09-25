@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 /**
  * Types of conflicts that can occur in the system
@@ -173,7 +172,7 @@ export class ConflictResolver extends EventEmitter {
         const resolutions = Array.from(this.resolutionHistory.values());
         const strategyUsage = {};
         const severityDistribution = {};
-        let totalResolutionTime = 0;
+        const totalResolutionTime = 0;
         let totalFairness = 0;
         let totalEfficiency = 0;
         let totalSatisfaction = 0;

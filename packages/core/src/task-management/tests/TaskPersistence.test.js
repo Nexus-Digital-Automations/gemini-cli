@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Comprehensive Test Suite for TaskPersistence
  *
@@ -18,9 +17,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { TaskPersistence, PersistedQueueState, SerializedTask } from '../TaskPersistence.js';
-import { Task, TaskStatus, TaskPriority } from '../TaskQueue.js';
-import { TaskDependency, DependencyType } from '../DependencyResolver.js';
+import { TaskPersistence, SerializedTask } from '../TaskPersistence.js';
+import { TaskStatus, TaskPriority } from '../TaskQueue.js';
+import { DependencyType } from '../DependencyResolver.js';
 // Mock filesystem operations
 vi.mock('node:fs', () => ({
     promises: {

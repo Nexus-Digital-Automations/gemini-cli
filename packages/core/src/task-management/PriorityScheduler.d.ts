@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import type { Task, TaskCategory } from './TaskQueue.js';
 import type { TaskId } from './types.js';
@@ -70,6 +69,10 @@ export declare class PriorityScheduler extends EventEmitter {
         adaptiveThreshold?: number;
         maxLearningHistory?: number;
         performanceWindow?: number;
+        adaptiveLearning?: boolean;
+        performanceTracking?: boolean;
+        resourceAware?: boolean;
+        dependencyAware?: boolean;
     });
     /**
      * Main scheduling function - selects optimal tasks for execution
