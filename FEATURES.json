@@ -325,7 +325,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 16,
-      "total_reinitializations": 156,
+      "total_reinitializations": 157,
       "current_day": "2025-09-25",
       "time_buckets": {
         "09:00-13:59": {
@@ -342,7 +342,7 @@
         },
         "00:00-04:59": {
           "init": 0,
-          "reinit": 7
+          "reinit": 8
         },
         "05:00-09:59": {
           "init": 0,
@@ -406,7 +406,7 @@
         }
       ],
       "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T07:46:23.932Z"
+      "last_updated": "2025-09-25T09:46:55.609Z"
     }
   },
   "workflow_config": {
@@ -468,6 +468,13 @@
       "status": "active",
       "reinitialized": "2025-09-25T07:45:44.361Z",
       "sessionId": "0accf5454891167d",
+      "previousSessions": []
+    },
+    "typescript-fix-agent": {
+      "lastHeartbeat": "2025-09-25T09:46:55.607Z",
+      "status": "active",
+      "reinitialized": "2025-09-25T09:46:55.607Z",
+      "sessionId": "f3a9dcf2dae62476",
       "previousSessions": []
     }
   },

@@ -11,7 +11,6 @@ import {
   beforeEach,
   afterEach,
   vi,
-  type MockedFunction,
 } from 'vitest';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
@@ -19,11 +18,10 @@ import { join } from 'node:path';
 import type { Task as SDKTask } from '@a2a-js/sdk';
 
 import { PersistenceStorageAPI } from '../PersistenceStorageAPI.js';
-import type { StorageOperationResult } from '../PersistenceStorageAPI.js';
 
 // Mock fs-extra for testing
 vi.mock('fs-extra');
-const mockFse = fse as any;
+const mockFse = vi.mocked(fse);
 
 // Mock logger
 vi.mock('../utils/logger.js', () => ({
@@ -280,7 +278,7 @@ describe('PersistenceStorageAPI', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data.cleanupResults).toBeDefined();
+      expect(result.data?.cleanupResults).toBeDefined();
       expect(result.metadata.operation).toBe('maintenance');
     });
 
@@ -485,7 +483,7 @@ describe('PersistenceStorageAPI', () => {
       await storageAPI.save(mockTask);
 
       // Transfer task
-      const transferResult = await storageAPI.transferTask(
+      await storageAPI.transferTask(
         mockTask.id,
         'target-session',
         'Test transfer',

@@ -284,7 +284,7 @@ export class FileBasedTaskStore implements TaskStore {
         sessionId: uuidv4(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        ownerId: process.env.USER || process.env.USERNAME || 'unknown',
+        ownerId: process.env['USER'] || process.env['USERNAME'] || 'unknown',
         isComplete:
           task.status.state === 'completed' || task.status.state === 'failed',
         version: '1.0.0',
@@ -353,7 +353,7 @@ export class FileBasedTaskStore implements TaskStore {
    */
   private async saveWorkspace(
     taskId: string,
-    persistedState: any,
+    persistedState: unknown,
     workspacePath: string,
   ): Promise<void> {
     const workDir = process.cwd();
@@ -455,7 +455,7 @@ export class FileBasedTaskStore implements TaskStore {
   /**
    * Load task metadata with decompression support
    */
-  private async loadMetadata(metadataPath: string): Promise<any> {
+  private async loadMetadata(metadataPath: string): Promise<unknown> {
     if (this.config.compressMetadata && metadataPath.endsWith('.gz')) {
       const compressedData = await fse.readFile(metadataPath);
       const jsonString = gunzipSync(compressedData).toString();
@@ -489,7 +489,7 @@ export class FileBasedTaskStore implements TaskStore {
    */
   private async restoreWorkspace(
     taskId: string,
-    loadedMetadata: any,
+    loadedMetadata: unknown,
     workspacePath: string,
   ): Promise<void> {
     const persistedState = getPersistedState(loadedMetadata);
@@ -536,7 +536,7 @@ export class FileBasedTaskStore implements TaskStore {
    */
   private createSDKTask(
     taskId: string,
-    loadedMetadata: any,
+    loadedMetadata: unknown,
     sessionMetadata?: TaskSessionMetadata,
   ): SDKTask {
     const persistedState = getPersistedState(loadedMetadata);
@@ -561,7 +561,7 @@ export class FileBasedTaskStore implements TaskStore {
   /**
    * Create backup of existing task data
    */
-  private async createBackup(taskId: string, paths: any): Promise<void> {
+  private async createBackup(taskId: string, paths: string[]): Promise<void> {
     if (!this.config.maxBackupVersions || this.config.maxBackupVersions <= 0) {
       return;
     }
@@ -708,7 +708,7 @@ export class FileBasedTaskStore implements TaskStore {
           } else {
             activeTasks++;
           }
-        } catch (error) {
+        } catch {
           // Ignore errors reading individual session files
         }
       }

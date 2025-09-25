@@ -666,7 +666,7 @@ export class DataIntegrityManager {
     const result = {
       deletedCount: 0,
       freedSpace: 0,
-      errors: [],
+      errors: [] as string[],
     };
 
     const now = Date.now();
@@ -681,7 +681,7 @@ export class DataIntegrityManager {
     }
 
     // Apply retention policies
-    for (const [filePath, backups] of backupGroups) {
+    for (const [, backups] of backupGroups) {
       // Sort by creation date (newest first)
       backups.sort(
         (a, b) =>
@@ -728,7 +728,7 @@ export class DataIntegrityManager {
         logger.debug(`Deleted backup ${backup.backupId}`);
       } catch (error) {
         result.errors.push(
-          `Failed to delete backup ${backup.backupId}: ${error}`,
+          `Failed to delete backup ${backup.backupId}: ${String(error)}`,
         );
       }
     }

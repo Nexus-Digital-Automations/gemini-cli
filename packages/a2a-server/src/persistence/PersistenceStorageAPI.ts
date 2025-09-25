@@ -5,7 +5,7 @@
  */
 
 import * as fse from 'fs-extra';
-import { join, dirname } from 'node:path';
+import { join } from 'node:path';
 import { homedir } from 'node:os';
 import type { Task as SDKTask } from '@a2a-js/sdk';
 import type { TaskStore } from '@a2a-js/sdk/server';
@@ -27,7 +27,6 @@ import {
 } from './ConflictResolver.js';
 import {
   DataIntegrityManager,
-  type IntegrityCheckResult,
   type BackupMetadata,
   type RecoveryOperation,
 } from './DataIntegrityManager.js';
@@ -174,14 +173,13 @@ export interface StorageOperationResult<T = unknown> {
  */
 export class PersistenceStorageAPI implements TaskStore {
   private config: Required<PersistenceConfig>;
-  private fileStorage: FileBasedTaskStore;
+  private fileStorage!: FileBasedTaskStore;
   private sessionManager?: SessionManager;
   private conflictResolver?: ConflictResolver;
   private dataIntegrity?: DataIntegrityManager;
 
   // Performance tracking
   private operationMetrics: Map<string, { count: number; totalTime: number }>;
-  private lastHealthCheck: Date;
 
   constructor(config: PersistenceConfig = {}) {
     // Initialize configuration with defaults
@@ -204,7 +202,7 @@ export class PersistenceStorageAPI implements TaskStore {
       enableConflictResolution: config.enableConflictResolution ?? true,
       enableDataIntegrity: config.enableDataIntegrity ?? true,
       ownerId:
-        config.ownerId || process.env.USER || process.env.USERNAME || 'unknown',
+        config.ownerId || process.env['USER'] || process.env['USERNAME'] || 'unknown',
       performance: {
         enableCaching: config.performance?.enableCaching ?? true,
         cacheSize: config.performance?.cacheSize ?? 100,
@@ -223,7 +221,6 @@ export class PersistenceStorageAPI implements TaskStore {
     };
 
     this.operationMetrics = new Map();
-    this.lastHealthCheck = new Date();
 
     this.initialize();
   }
@@ -765,8 +762,8 @@ export class PersistenceStorageAPI implements TaskStore {
 
     let healthStatus: 'healthy' | 'warning' | 'critical' = 'healthy';
     if (
-      failureRate > this.config.monitoring.alertThresholds.failureRate ||
-      diskUsage > this.config.monitoring.alertThresholds.diskUsage
+      failureRate > (this.config.monitoring?.alertThresholds?.failureRate ?? 10) ||
+      diskUsage > (this.config.monitoring?.alertThresholds?.diskUsage ?? 80)
     ) {
       healthStatus = 'warning';
     }
@@ -830,7 +827,7 @@ export class PersistenceStorageAPI implements TaskStore {
     try {
       logger.info('Performing comprehensive storage maintenance');
 
-      const results: any = {
+      const results: Record<string, unknown> = {
         cleanupResults: null,
         integrityResults: null,
         sessionResults: null,
@@ -973,8 +970,8 @@ export class PersistenceStorageAPI implements TaskStore {
   }
 
   private calculateThroughput(): number {
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
+    // const now = Date.now();
+    // const oneHour = 60 * 60 * 1000;
 
     // Calculate operations per second over the last hour
     let recentOps = 0;

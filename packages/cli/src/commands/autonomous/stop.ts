@@ -15,7 +15,7 @@ interface StopOptions {
   'save-state'?: boolean;
 }
 
-export const stopCommand: CommandModule<{}, StopOptions> = {
+export const stopCommand: CommandModule<object, StopOptions> = {
   command: 'stop',
   describe: 'Stop the autonomous task management system',
   builder: (yargs) =>
@@ -63,7 +63,7 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
           console.log(
             chalk.blue('📡 System found running, initiating shutdown...'),
           );
-        } catch (error) {
+        } catch {
           console.log(
             chalk.yellow(
               '⚠️  No running system found (stale PID file removed)',
@@ -79,7 +79,7 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
             process.kill(systemPid, 'SIGKILL');
             await fs.unlink(pidFile).catch(() => {});
             console.log(chalk.green('✅ System force stopped'));
-          } catch (error) {
+          } catch {
             console.log(chalk.yellow('⚠️  Process already terminated'));
           }
           return;
@@ -113,7 +113,7 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
           try {
             process.kill(systemPid, 0);
             await new Promise((resolve) => setTimeout(resolve, 1000));
-          } catch (error) {
+          } catch {
             // Process has terminated
             await fs.unlink(pidFile).catch(() => {});
             console.log(chalk.green('✅ System stopped gracefully'));
@@ -129,14 +129,14 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
           process.kill(systemPid, 'SIGKILL');
           await fs.unlink(pidFile).catch(() => {});
           console.log(chalk.green('✅ System stopped (forced after timeout)'));
-        } catch (error) {
+        } catch {
           console.log(chalk.green('✅ System stopped'));
         }
-      } catch (error) {
+      } catch {
         console.log(chalk.yellow('⚠️  No autonomous system PID file found'));
 
         // Try to find and stop any running autonomous processes
-        const { spawn } = require('node:child_process');
+        const { spawn } = await import('node:child_process');
         const ps = spawn('ps', ['aux']);
         let psOutput = '';
 
@@ -174,12 +174,12 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
             console.log(
               chalk.red('💀 Force stopping all autonomous processes...'),
             );
-            autonomousProcesses.forEach((process) => {
-              const pid = parseInt(process.trim().split(/\s+/)[1], 10);
+            autonomousProcesses.forEach((processLine) => {
+              const pid = parseInt(processLine.trim().split(/\s+/)[1], 10);
               try {
                 process.kill(pid, 'SIGKILL');
                 console.log(chalk.green(`✅ Stopped process ${pid}`));
-              } catch (error) {
+              } catch {
                 console.log(chalk.yellow(`⚠️  Could not stop process ${pid}`));
               }
             });
@@ -203,7 +203,7 @@ export const stopCommand: CommandModule<{}, StopOptions> = {
       }
 
       console.log(chalk.green('🧹 Cleanup completed'));
-    } catch (error) {
+    } catch {
       console.error(chalk.red('❌ Failed to stop autonomous system:'));
       console.error(
         chalk.red(error instanceof Error ? error.message : String(error)),

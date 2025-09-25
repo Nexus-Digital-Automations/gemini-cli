@@ -80,14 +80,6 @@ export type {
   IntegrityConfig,
 } from './DataIntegrityManager.js';
 
-// Performance Optimization
-export { PerformanceOptimizer } from './PerformanceOptimizer.js';
-export type {
-  PerformanceMetrics,
-  PerformanceAnalysis,
-  OptimizationRecommendation,
-  CacheStatistics,
-} from './PerformanceOptimizer.js';
+// Performance Optimization - TODO: Add PerformanceOptimizer when implemented
 
-// Utilities and Helpers
-export * from './types.js';
+// Utilities and Helpers - TODO: Add types when implemented

@@ -16,8 +16,6 @@ import path from 'node:path';
 import chalk from 'chalk';
 import {
   checkApiAvailability,
-  getApiGuide,
-  handleApiResponse,
   initializeAgent,
 } from './taskManagerApi.js';
 
@@ -61,8 +59,10 @@ export class CompatibilityValidator {
       check: async () => {
         try {
           // Check if commands are importable and exportable
-          const autonomousModule = await import('./index.js').catch(() => null);
-          return autonomousModule !== null;
+          // TODO: Re-enable when ./index.js is available
+          // const autonomousModule = await import('./index.js').catch(() => null);
+          // return autonomousModule !== null;
+          return false; // Temporary: return false until index.js is implemented
         } catch {
           return false;
         }
@@ -216,9 +216,9 @@ export class CompatibilityValidator {
           const tsFiles = fs
             .readdirSync(autonomousDir)
             .filter((f) => f.endsWith('.ts'));
-          const dtsFiles = fs
-            .readdirSync(autonomousDir)
-            .filter((f) => f.endsWith('.d.ts'));
+          // const dtsFiles = fs
+          //   .readdirSync(autonomousDir)
+          //   .filter((f) => f.endsWith('.d.ts'));
 
           // Should have corresponding .d.ts files (or be able to generate them)
           return tsFiles.length > 0; // Basic check - files exist

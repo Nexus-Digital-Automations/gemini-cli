@@ -133,7 +133,7 @@ export class SessionManager {
     // Initialize current session
     this.currentSession = {
       sessionId: uuidv4(),
-      ownerId: ownerId || process.env.USER || process.env.USERNAME || 'unknown',
+      ownerId: ownerId || process.env['USER'] || process.env['USERNAME'] || 'unknown',
       hostname: hostname(),
       processId: process.pid,
       startedAt: new Date().toISOString(),
@@ -476,7 +476,7 @@ export class SessionManager {
     const targetSessionId = sessionId || this.currentSession.sessionId;
     const tasks: TaskCorrelation[] = [];
 
-    for (const [taskId, correlation] of this.taskCorrelations) {
+    for (const [, correlation] of this.taskCorrelations) {
       if (correlation.currentOwner.sessionId === targetSessionId) {
         tasks.push(correlation);
       }
