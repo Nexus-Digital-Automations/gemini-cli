@@ -28,6 +28,7 @@ import type { DOMElement } from 'ink';
 import type { SessionStatsState } from '../contexts/SessionContext.js';
 import type { UpdateObject } from '../utils/updateCheck.js';
 import type { ExtensionUpdateState } from '../state/extensions.js';
+import type { Extension } from '../../config/extension.js';
 
 export interface ProQuotaDialogRequest {
   failedModel: string;
@@ -88,8 +89,7 @@ export interface UIState {
   messageQueue: string[];
   showAutoAcceptIndicator: ApprovalMode;
   showWorkspaceMigrationDialog: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  workspaceExtensions: any[]; // Extension[]
+  workspaceExtensions: Extension[];
   // Quota-related state
   userTier: UserTierId | undefined;
   proQuotaRequest: ProQuotaDialogRequest | null;

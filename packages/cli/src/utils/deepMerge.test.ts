@@ -157,7 +157,6 @@ describe('customDeepMerge', () => {
     const result = customDeepMerge(getMergeStrategy, {}, maliciousSource);
 
     expect(result).toEqual({});
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(({} as any).polluted).toBeUndefined();
+    expect((({} as Record<string, unknown>).polluted)).toBeUndefined();
   });
 });

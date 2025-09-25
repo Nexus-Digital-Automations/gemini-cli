@@ -7,6 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { promises as fs } from 'node:fs';
 import { join, dirname } from 'node:path';
+import crypto from 'node:crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import { TaskResult } from './types.js';

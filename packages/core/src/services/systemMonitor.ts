@@ -18,11 +18,12 @@
 import { EventEmitter } from 'node:events';
 import { promisify } from 'node:util';
 import { exec } from 'node:child_process';
+import os from 'node:os';
 import type { Config } from '../index.js';
 import type {
   AutonomousTaskIntegrator,
-  AutonomousTask,
-  RegisteredAgent,
+  _AutonomousTask,
+  _RegisteredAgent,
 } from './autonomousTaskIntegrator.js';
 import type { IntegrationBridge } from './integrationBridge.js';
 
@@ -426,7 +427,7 @@ export class SystemMonitor extends EventEmitter {
         uptime,
         cpu: {
           usage: Math.min(100, cpuPercentage),
-          cores: require('node:os').cpus().length,
+          cores: os.cpus().length,
         },
         memory: {
           used: memUsage.heapUsed,
@@ -561,7 +562,6 @@ export class SystemMonitor extends EventEmitter {
     } catch (error) {
       // Fallback for non-macOS systems
       try {
-        const os = require('node:os');
         return os.totalmem();
       } catch {
         return 8 * 1024 * 1024 * 1024; // 8GB default

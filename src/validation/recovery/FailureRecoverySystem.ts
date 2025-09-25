@@ -13,6 +13,7 @@
  */
 
 import { EventEmitter } from 'node:events';
+import os from 'node:os';
 import { Logger } from '../../utils/logger.js';
 import type {
   ValidationReport,
@@ -65,7 +66,7 @@ export interface ValidationFailure {
   severity: 'critical' | 'high' | 'medium' | 'low';
   category: 'build' | 'test' | 'lint' | 'security' | 'performance' | 'other';
   errorType: 'transient' | 'persistent' | 'configuration' | 'environmental';
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -110,7 +111,7 @@ export interface RecoveryResult {
   evidence: Array<{
     type: string;
     content: string;
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown>;
   }>;
   metrics: {
     duration: number;
@@ -410,7 +411,7 @@ export class FailureRecoverySystem extends EventEmitter {
    */
   private async getSystemState() {
     const memoryUsage = process.memoryUsage();
-    const totalMemory = require('node:os').totalmem();
+    const totalMemory = os.totalmem();
 
     return {
       resources: {
@@ -557,7 +558,7 @@ export class FailureRecoverySystem extends EventEmitter {
         'Retry validation for transient errors with exponential backoff',
       condition: (failure) =>
         failure.errorType === 'transient' && failure.attemptCount <= 3,
-      execute: async (failure, context) => {
+      execute: async (failure, _context) => {
         // Wait with exponential backoff
         const backoffMs = Math.min(
           1000 * Math.pow(2, failure.attemptCount - 1),
@@ -601,7 +602,7 @@ export class FailureRecoverySystem extends EventEmitter {
       description: 'Automatically fix common lint errors using eslint --fix',
       condition: (failure) =>
         failure.category === 'lint' && failure.severity !== 'critical',
-      execute: async (failure, context) => {
+      execute: async (_failure, _context) => {
         // This would run eslint --fix in a real implementation
         return {
           success: true,
@@ -637,7 +638,7 @@ export class FailureRecoverySystem extends EventEmitter {
       description: 'Escalate critical failures to human review',
       condition: (failure) =>
         failure.severity === 'critical' || failure.attemptCount > 3,
-      execute: async (failure, context) => {
+      execute: async (failure, _context) => {
         return {
           success: true,
           strategy: RecoveryStrategy.ESCALATE,
@@ -678,7 +679,7 @@ export class FailureRecoverySystem extends EventEmitter {
       description: 'Skip validation after too many failed attempts',
       condition: (failure) =>
         failure.attemptCount > 5 && failure.severity !== 'critical',
-      execute: async (failure, context) => {
+      execute: async (failure, _context) => {
         return {
           success: true,
           strategy: RecoveryStrategy.SKIP,

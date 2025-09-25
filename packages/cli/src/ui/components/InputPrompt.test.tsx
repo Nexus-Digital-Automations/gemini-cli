@@ -1928,7 +1928,7 @@ describe('InputPrompt', () => {
       props.shellModeActive = false;
 
       vi.mocked(useReverseSearchCompletion).mockImplementation(
-        (buffer, data, isActive) => ({
+        (_buffer, _data, isActive) => ({
           ...mockReverseSearchCompletion,
           suggestions: isActive
             ? [
