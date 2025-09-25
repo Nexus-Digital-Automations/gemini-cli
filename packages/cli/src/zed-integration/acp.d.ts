@@ -8,7 +8,6 @@ import type * as schema from './schema.js';
 export * from './schema.js';
 import type { WritableStream, ReadableStream } from 'node:stream/web';
 export declare class AgentSideConnection implements Client {
-  #private;
   constructor(
     toAgent: (conn: Client) => Agent,
     input: WritableStream<Uint8Array>,
