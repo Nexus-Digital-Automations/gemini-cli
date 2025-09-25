@@ -5,13 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type {
-  Alert} from '../AlertSystem.js';
+import type { Alert } from '../AlertSystem.js';
 import {
   AlertSystem,
   AlertSeverity,
   AlertCategory,
-  NotificationChannel
+  NotificationChannel,
 } from '../AlertSystem.js';
 import { TaskStatus, TaskType, TaskPriority } from '../TaskStatusMonitor.js';
 

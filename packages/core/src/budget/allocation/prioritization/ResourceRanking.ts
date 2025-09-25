@@ -341,7 +341,7 @@ export class ResourceRanking {
    */
   constructor(
     config: Partial<ResourceRankingConfig> = {},
-    logger: AllocationLogger
+    logger: AllocationLogger,
   ) {
     this.config = this.mergeConfig(DEFAULT_RANKING_CONFIG, config);
     this.logger = logger;
@@ -356,7 +356,7 @@ export class ResourceRanking {
    */
   rankResource(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): ResourceRanking {
     this.logger.info(`Starting resource ranking for ${candidate.resourceId}`, {
       resourceName: candidate.resourceName,
@@ -364,7 +364,10 @@ export class ResourceRanking {
     });
 
     // Calculate individual criterion scores
-    const scoreBreakdown = this.calculateScoreBreakdown(candidate, historicalData);
+    const scoreBreakdown = this.calculateScoreBreakdown(
+      candidate,
+      historicalData,
+    );
 
     // Calculate overall score
     const score = this.calculateOverallScore(scoreBreakdown);
@@ -373,7 +376,11 @@ export class ResourceRanking {
     const priority = this.assignPriority(score);
 
     // Generate ranking justification
-    const justification = this.generateJustification(candidate, scoreBreakdown, historicalData);
+    const justification = this.generateJustification(
+      candidate,
+      scoreBreakdown,
+      historicalData,
+    );
 
     // Calculate ranking confidence
     const confidence = this.calculateConfidence(scoreBreakdown, historicalData);
@@ -410,15 +417,15 @@ export class ResourceRanking {
    */
   rankPortfolio(
     candidates: AllocationCandidate[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): PortfolioRanking {
     this.logger.info('Starting portfolio ranking', {
       resourceCount: candidates.length,
     });
 
     // Rank individual resources
-    const rankings = candidates.map(candidate =>
-      this.rankResource(candidate, historicalData[candidate.resourceId] || [])
+    const rankings = candidates.map((candidate) =>
+      this.rankResource(candidate, historicalData[candidate.resourceId] || []),
     );
 
     // Sort by score and assign ranks
@@ -437,7 +444,10 @@ export class ResourceRanking {
     const statistics = this.calculateRankingStatistics(rankings);
 
     // Recommend allocation strategy
-    const recommendedStrategy = this.recommendAllocationStrategy(rankings, insights);
+    const recommendedStrategy = this.recommendAllocationStrategy(
+      rankings,
+      insights,
+    );
 
     const portfolioRanking: PortfolioRanking = {
       rankings,
@@ -464,7 +474,7 @@ export class ResourceRanking {
    */
   updatePriority(
     resourceId: string,
-    contextChanges: Partial<BusinessContextConfig>
+    contextChanges: Partial<BusinessContextConfig>,
   ): AllocationPriority {
     this.logger.info(`Updating priority for resource ${resourceId}`, {
       contextChanges,
@@ -487,12 +497,15 @@ export class ResourceRanking {
    */
   private calculateScoreBreakdown(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): ScoreBreakdown {
     const scores = {
       businessValue: this.calculateBusinessValueScore(candidate),
       roi: this.calculateROIScore(candidate, historicalData),
-      costEfficiency: this.calculateCostEfficiencyScore(candidate, historicalData),
+      costEfficiency: this.calculateCostEfficiencyScore(
+        candidate,
+        historicalData,
+      ),
       strategicImportance: this.calculateStrategicImportanceScore(candidate),
       riskFactor: this.calculateRiskFactorScore(candidate),
       usageTrends: this.calculateUsageTrendsScore(candidate, historicalData),
@@ -557,13 +570,15 @@ export class ResourceRanking {
    */
   private calculateROIScore(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50; // Default score
 
-    const avgROI = historicalData.reduce(
-      (sum, data) => sum + (data.revenue / Math.max(data.totalCost, 1)), 0
-    ) / historicalData.length;
+    const avgROI =
+      historicalData.reduce(
+        (sum, data) => sum + data.revenue / Math.max(data.totalCost, 1),
+        0,
+      ) / historicalData.length;
 
     // Convert ROI to 0-100 score (ROI of 2.0 = 100 points)
     return Math.min(100, Math.max(0, avgROI * 50));
@@ -574,30 +589,38 @@ export class ResourceRanking {
    */
   private calculateCostEfficiencyScore(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50;
 
-    const avgCostPerUnit = historicalData.reduce(
-      (sum, data) => sum + (data.totalCost / Math.max(data.usage, 1)), 0
-    ) / historicalData.length;
+    const avgCostPerUnit =
+      historicalData.reduce(
+        (sum, data) => sum + data.totalCost / Math.max(data.usage, 1),
+        0,
+      ) / historicalData.length;
 
-    const currentCostPerUnit = candidate.currentAllocation / Math.max(candidate.projectedUsage, 1);
+    const currentCostPerUnit =
+      candidate.currentAllocation / Math.max(candidate.projectedUsage, 1);
 
     // Better efficiency (lower cost per unit) gets higher score
-    const efficiency = Math.max(0.1, avgCostPerUnit / Math.max(currentCostPerUnit, 0.1));
+    const efficiency = Math.max(
+      0.1,
+      avgCostPerUnit / Math.max(currentCostPerUnit, 0.1),
+    );
     return Math.min(100, efficiency * 50);
   }
 
   /**
    * Calculate strategic importance score
    */
-  private calculateStrategicImportanceScore(candidate: AllocationCandidate): number {
+  private calculateStrategicImportanceScore(
+    candidate: AllocationCandidate,
+  ): number {
     let score = 50; // Base score
 
     // Check alignment with strategic focus
     const focusAlignment = this.config.businessContext.strategicFocus.filter(
-      focus => candidate.metadata.tags?.includes(focus)
+      (focus) => candidate.metadata.tags?.includes(focus),
     ).length;
 
     score += focusAlignment * 15; // Up to 45 bonus points
@@ -662,19 +685,20 @@ export class ResourceRanking {
    */
   private calculateUsageTrendsScore(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length < 3) return 50;
 
     // Calculate usage trend
-    const usageValues = historicalData.map(data => data.usage);
+    const usageValues = historicalData.map((data) => data.usage);
     const trend = this.calculateTrendSlope(usageValues);
 
     // Positive trend gets higher score
-    const trendScore = 50 + (trend * 25);
+    const trendScore = 50 + trend * 25;
 
     // Factor in projected usage vs current allocation
-    const projectedUtilization = candidate.projectedUsage / candidate.currentAllocation;
+    const projectedUtilization =
+      candidate.projectedUsage / candidate.currentAllocation;
     const utilizationScore = Math.min(100, projectedUtilization * 100);
 
     return Math.min(100, Math.max(0, (trendScore + utilizationScore) / 2));
@@ -683,7 +707,9 @@ export class ResourceRanking {
   /**
    * Calculate performance impact score
    */
-  private calculatePerformanceImpactScore(candidate: AllocationCandidate): number {
+  private calculatePerformanceImpactScore(
+    candidate: AllocationCandidate,
+  ): number {
     // Base score from business impact
     let score = candidate.businessImpact;
 
@@ -693,7 +719,7 @@ export class ResourceRanking {
     }
 
     // Adjust based on user impact
-    const userImpact = candidate.metadata.userImpact as number || 50;
+    const userImpact = (candidate.metadata.userImpact as number) || 50;
     score = (score + userImpact) / 2;
 
     return Math.min(100, Math.max(0, score));
@@ -703,13 +729,13 @@ export class ResourceRanking {
    * Calculate dependencies score
    */
   private calculateDependenciesScore(candidate: AllocationCandidate): number {
-    const dependencies = candidate.metadata.dependencies as string[] || [];
+    const dependencies = (candidate.metadata.dependencies as string[]) || [];
 
     // Fewer dependencies generally better, but critical dependencies important
-    let score = Math.max(20, 100 - (dependencies.length * 10));
+    let score = Math.max(20, 100 - dependencies.length * 10);
 
     // Boost score for resources that many others depend on
-    const dependents = candidate.metadata.dependents as string[] || [];
+    const dependents = (candidate.metadata.dependents as string[]) || [];
     if (dependents.length > 0) {
       score += Math.min(30, dependents.length * 10);
     }
@@ -753,19 +779,21 @@ export class ResourceRanking {
     let score = 50;
 
     // Boost for compliance requirements
-    const complianceRequired = candidate.metadata.complianceRequired as boolean || false;
+    const complianceRequired =
+      (candidate.metadata.complianceRequired as boolean) || false;
     if (complianceRequired) {
       score += 40;
     }
 
     // Boost for security requirements
-    const securityCritical = candidate.metadata.securityCritical as boolean || false;
+    const securityCritical =
+      (candidate.metadata.securityCritical as boolean) || false;
     if (securityCritical) {
       score += 30;
     }
 
     // Boost for regulatory requirements
-    const regulatory = candidate.metadata.regulatory as boolean || false;
+    const regulatory = (candidate.metadata.regulatory as boolean) || false;
     if (regulatory) {
       score += 25;
     }
@@ -812,7 +840,7 @@ export class ResourceRanking {
   private generateJustification(
     candidate: AllocationCandidate,
     scoreBreakdown: ScoreBreakdown,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): RankingJustification {
     const primaryFactors: string[] = [];
     const supportingFactors: string[] = [];
@@ -822,15 +850,23 @@ export class ResourceRanking {
     const recommendedActions: string[] = [];
 
     // Identify primary factors (highest weighted contributions)
-    const contributions = Object.entries(scoreBreakdown.weightedContributions)
-      .sort(([,a], [,b]) => b - a);
+    const contributions = Object.entries(
+      scoreBreakdown.weightedContributions,
+    ).sort(([, a], [, b]) => b - a);
 
-    primaryFactors.push(`Strong ${contributions[0][0].replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-    primaryFactors.push(`Above average ${contributions[1][0].replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+    primaryFactors.push(
+      `Strong ${contributions[0][0].replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+    );
+    primaryFactors.push(
+      `Above average ${contributions[1][0].replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+    );
 
     // Add business context factors
-    if (this.config.businessContext.strategicFocus.some(focus =>
-      candidate.metadata.tags?.includes(focus))) {
+    if (
+      this.config.businessContext.strategicFocus.some((focus) =>
+        candidate.metadata.tags?.includes(focus),
+      )
+    ) {
       businessContext.push('Aligns with strategic focus areas');
     }
 
@@ -861,7 +897,7 @@ export class ResourceRanking {
    */
   private calculateConfidence(
     scoreBreakdown: ScoreBreakdown,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     let confidence = 80; // Base confidence
 
@@ -873,14 +909,18 @@ export class ResourceRanking {
     // Reduce confidence for high score variance
     const scores = Object.values(scoreBreakdown).slice(0, -1); // Exclude weightedContributions
     const variance = this.calculateVariance(scores);
-    if (variance > 400) { // High variance
+    if (variance > 400) {
+      // High variance
       confidence -= 15;
     }
 
     // Increase confidence for consistent high performance
     if (historicalData.length > 10) {
-      const avgPerformance = historicalData.reduce((sum, data) =>
-        sum + (data.performance || 50), 0) / historicalData.length;
+      const avgPerformance =
+        historicalData.reduce(
+          (sum, data) => sum + (data.performance || 50),
+          0,
+        ) / historicalData.length;
       if (avgPerformance > 80) {
         confidence += 10;
       }
@@ -892,8 +932,12 @@ export class ResourceRanking {
   /**
    * Perform sensitivity analysis
    */
-  private performSensitivityAnalysis(scoreBreakdown: ScoreBreakdown): SensitivityAnalysis {
-    const influentialCriteria = Object.entries(scoreBreakdown.weightedContributions)
+  private performSensitivityAnalysis(
+    scoreBreakdown: ScoreBreakdown,
+  ): SensitivityAnalysis {
+    const influentialCriteria = Object.entries(
+      scoreBreakdown.weightedContributions,
+    )
       .map(([criterion, contribution]) => ({
         criterion,
         influence: contribution,
@@ -902,8 +946,9 @@ export class ResourceRanking {
       .slice(0, 3);
 
     // Calculate score range by varying top criteria
-    const currentScore = Object.values(scoreBreakdown.weightedContributions)
-      .reduce((sum, contrib) => sum + contrib, 0);
+    const currentScore = Object.values(
+      scoreBreakdown.weightedContributions,
+    ).reduce((sum, contrib) => sum + contrib, 0);
 
     const best = currentScore * 1.15; // 15% increase
     const worst = currentScore * 0.85; // 15% decrease
@@ -911,7 +956,10 @@ export class ResourceRanking {
 
     // Determine stability based on influence distribution
     const topInfluence = influentialCriteria[0]?.influence || 0;
-    const totalInfluence = influentialCriteria.reduce((sum, item) => sum + item.influence, 0);
+    const totalInfluence = influentialCriteria.reduce(
+      (sum, item) => sum + item.influence,
+      0,
+    );
     const concentration = topInfluence / totalInfluence;
 
     let stability: 'stable' | 'moderate' | 'volatile' = 'stable';
@@ -929,7 +977,9 @@ export class ResourceRanking {
   /**
    * Group rankings by priority
    */
-  private groupByPriority(rankings: ResourceRankingResult[]): Record<AllocationPriority, ResourceRankingResult[]> {
+  private groupByPriority(
+    rankings: ResourceRankingResult[],
+  ): Record<AllocationPriority, ResourceRankingResult[]> {
     const groups: Record<AllocationPriority, ResourceRankingResult[]> = {
       critical: [],
       high: [],
@@ -950,34 +1000,44 @@ export class ResourceRanking {
    */
   private generatePortfolioInsights(
     rankings: ResourceRankingResult[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): PortfolioInsights {
     // Calculate priority distribution
     const priorityDistribution: Record<AllocationPriority, number> = {
-      critical: rankings.filter(r => r.priority === 'critical').length,
-      high: rankings.filter(r => r.priority === 'high').length,
-      medium: rankings.filter(r => r.priority === 'medium').length,
-      low: rankings.filter(r => r.priority === 'low').length,
-      deferred: rankings.filter(r => r.priority === 'deferred').length,
+      critical: rankings.filter((r) => r.priority === 'critical').length,
+      high: rankings.filter((r) => r.priority === 'high').length,
+      medium: rankings.filter((r) => r.priority === 'medium').length,
+      low: rankings.filter((r) => r.priority === 'low').length,
+      deferred: rankings.filter((r) => r.priority === 'deferred').length,
     };
 
     // Calculate risk-reward balance
-    const avgRisk = rankings.reduce((sum, r) =>
-      sum + (100 - r.scoreBreakdown.riskFactor), 0) / rankings.length;
-    const avgReward = rankings.reduce((sum, r) =>
-      sum + r.scoreBreakdown.roi, 0) / rankings.length;
+    const avgRisk =
+      rankings.reduce(
+        (sum, r) => sum + (100 - r.scoreBreakdown.riskFactor),
+        0,
+      ) / rankings.length;
+    const avgReward =
+      rankings.reduce((sum, r) => sum + r.scoreBreakdown.roi, 0) /
+      rankings.length;
     const riskRewardBalance = avgReward / Math.max(avgRisk, 1);
 
     // Calculate strategic alignment
-    const strategicAlignment = rankings.reduce((sum, r) =>
-      sum + r.scoreBreakdown.strategicImportance, 0) / rankings.length;
+    const strategicAlignment =
+      rankings.reduce(
+        (sum, r) => sum + r.scoreBreakdown.strategicImportance,
+        0,
+      ) / rankings.length;
 
     const strengths: string[] = [];
     const vulnerabilities: string[] = [];
     const opportunities: string[] = [];
 
     // Identify strengths
-    if (priorityDistribution.critical + priorityDistribution.high > rankings.length * 0.4) {
+    if (
+      priorityDistribution.critical + priorityDistribution.high >
+      rankings.length * 0.4
+    ) {
       strengths.push('Strong portfolio of high-priority resources');
     }
     if (avgReward > 70) {
@@ -1013,15 +1073,21 @@ export class ResourceRanking {
   /**
    * Calculate ranking statistics
    */
-  private calculateRankingStatistics(rankings: ResourceRankingResult[]): RankingStatistics {
-    const scores = rankings.map(r => r.score);
+  private calculateRankingStatistics(
+    rankings: ResourceRankingResult[],
+  ): RankingStatistics {
+    const scores = rankings.map((r) => r.score);
 
-    const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const averageScore =
+      scores.reduce((sum, score) => sum + score, 0) / scores.length;
     const sortedScores = [...scores].sort((a, b) => a - b);
     const medianScore = sortedScores[Math.floor(sortedScores.length / 2)];
 
-    const variance = scores.reduce((sum, score) =>
-      sum + Math.pow(score - averageScore, 2), 0) / scores.length;
+    const variance =
+      scores.reduce(
+        (sum, score) => sum + Math.pow(score - averageScore, 2),
+        0,
+      ) / scores.length;
     const standardDeviation = Math.sqrt(variance);
 
     // Calculate quartiles
@@ -1035,20 +1101,20 @@ export class ResourceRanking {
 
     // Identify outliers (simplified)
     const outliers: string[] = [];
-    const threshold = averageScore + (2 * standardDeviation);
-    rankings.forEach(ranking => {
+    const threshold = averageScore + 2 * standardDeviation;
+    rankings.forEach((ranking) => {
       if (Math.abs(ranking.score - averageScore) > threshold) {
         outliers.push(ranking.resourceId);
       }
     });
 
     // Calculate consensus (simplified)
-    const highConfidence = rankings.filter(r => r.confidence > 80).length;
+    const highConfidence = rankings.filter((r) => r.confidence > 80).length;
     const agreement = highConfidence / rankings.length;
 
     const controversial = rankings
-      .filter(r => r.sensitivity.stability === 'volatile')
-      .map(r => r.resourceId);
+      .filter((r) => r.sensitivity.stability === 'volatile')
+      .map((r) => r.resourceId);
 
     return {
       averageScore,
@@ -1064,10 +1130,11 @@ export class ResourceRanking {
    */
   private recommendAllocationStrategy(
     rankings: ResourceRankingResult[],
-    insights: PortfolioInsights
+    insights: PortfolioInsights,
   ): AllocationStrategy {
-    const highPriorityCount = insights.balance.priorityDistribution.critical +
-                             insights.balance.priorityDistribution.high;
+    const highPriorityCount =
+      insights.balance.priorityDistribution.critical +
+      insights.balance.priorityDistribution.high;
     const totalResources = rankings.length;
     const highPriorityRatio = highPriorityCount / totalResources;
 
@@ -1080,7 +1147,7 @@ export class ResourceRanking {
       return 'priority_weighted';
     }
 
-    if (rankings.some(r => r.scoreBreakdown.costEfficiency > 80)) {
+    if (rankings.some((r) => r.scoreBreakdown.costEfficiency > 80)) {
       return 'usage_based';
     }
 
@@ -1096,8 +1163,8 @@ export class ResourceRanking {
     const n = values.length;
     const sumX = values.reduce((sum, _, index) => sum + index, 0);
     const sumY = values.reduce((sum, value) => sum + value, 0);
-    const sumXY = values.reduce((sum, value, index) => sum + (index * value), 0);
-    const sumX2 = values.reduce((sum, _, index) => sum + (index * index), 0);
+    const sumXY = values.reduce((sum, value, index) => sum + index * value, 0);
+    const sumX2 = values.reduce((sum, _, index) => sum + index * index, 0);
 
     return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
   }
@@ -1109,7 +1176,10 @@ export class ResourceRanking {
     if (values.length === 0) return 0;
 
     const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
-    return values.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / values.length;
+    return (
+      values.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) /
+      values.length
+    );
   }
 
   /**
@@ -1117,14 +1187,19 @@ export class ResourceRanking {
    */
   private mergeConfig(
     defaultConfig: ResourceRankingConfig,
-    userConfig: Partial<ResourceRankingConfig>
+    userConfig: Partial<ResourceRankingConfig>,
   ): ResourceRankingConfig {
     return {
       criteria: { ...defaultConfig.criteria, ...userConfig.criteria },
       thresholds: { ...defaultConfig.thresholds, ...userConfig.thresholds },
-      businessContext: { ...defaultConfig.businessContext, ...userConfig.businessContext },
+      businessContext: {
+        ...defaultConfig.businessContext,
+        ...userConfig.businessContext,
+      },
       algorithm: { ...defaultConfig.algorithm, ...userConfig.algorithm },
-      enableAdvancedFeatures: userConfig.enableAdvancedFeatures ?? defaultConfig.enableAdvancedFeatures,
+      enableAdvancedFeatures:
+        userConfig.enableAdvancedFeatures ??
+        defaultConfig.enableAdvancedFeatures,
     };
   }
 
@@ -1135,7 +1210,10 @@ export class ResourceRanking {
     const { criteria, thresholds } = this.config;
 
     // Validate criteria weights sum to 1.0
-    const totalWeight = Object.values(criteria).reduce((sum, weight) => sum + weight, 0);
+    const totalWeight = Object.values(criteria).reduce(
+      (sum, weight) => sum + weight,
+      0,
+    );
     if (Math.abs(totalWeight - 1.0) > 0.01) {
       throw new Error('Ranking criteria weights must sum to 1.0');
     }
@@ -1143,14 +1221,18 @@ export class ResourceRanking {
     // Validate individual weights
     for (const [criterion, weight] of Object.entries(criteria)) {
       if (weight < 0 || weight > 1) {
-        throw new Error(`Criterion weight ${criterion} must be between 0 and 1`);
+        throw new Error(
+          `Criterion weight ${criterion} must be between 0 and 1`,
+        );
       }
     }
 
     // Validate thresholds
-    if (thresholds.critical <= thresholds.high ||
-        thresholds.high <= thresholds.medium ||
-        thresholds.medium <= thresholds.low) {
+    if (
+      thresholds.critical <= thresholds.high ||
+      thresholds.high <= thresholds.medium ||
+      thresholds.medium <= thresholds.low
+    ) {
       throw new Error('Priority thresholds must be in descending order');
     }
 
@@ -1171,7 +1253,7 @@ export class ResourceRanking {
  */
 export function createResourceRanking(
   config?: Partial<ResourceRankingConfig>,
-  logger?: AllocationLogger
+  logger?: AllocationLogger,
 ): ResourceRanking {
   const defaultLogger: AllocationLogger = {
     info: () => {},

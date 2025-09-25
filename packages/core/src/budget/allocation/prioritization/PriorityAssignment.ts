@@ -60,7 +60,7 @@ export type PriorityAssignmentStrategy =
   | 'hybrid' // Combination of static and dynamic
   | 'machine_learning' // ML-based priority assignment
   | 'rule_based' // Business rules-driven assignment
-  | 'consensus' // Multi-stakeholder consensus-based;
+  | 'consensus'; // Multi-stakeholder consensus-based;
 
 /**
  * Priority adjustment constraints
@@ -116,11 +116,19 @@ export interface PriorityEscalationConfig {
  */
 export interface EscalationTrigger {
   /** Trigger type */
-  type: 'time_based' | 'performance_based' | 'business_impact' | 'external_event';
+  type:
+    | 'time_based'
+    | 'performance_based'
+    | 'business_impact'
+    | 'external_event';
   /** Trigger condition */
   condition: string;
   /** Escalation action */
-  action: 'increase_priority' | 'add_resources' | 'notify_stakeholders' | 'reassign';
+  action:
+    | 'increase_priority'
+    | 'add_resources'
+    | 'notify_stakeholders'
+    | 'reassign';
   /** Trigger sensitivity */
   sensitivity: number;
 }
@@ -130,7 +138,11 @@ export interface EscalationTrigger {
  */
 export interface ConflictResolutionConfig {
   /** Resolution strategy */
-  strategy: 'first_come_first_served' | 'highest_priority' | 'business_value' | 'stakeholder_vote';
+  strategy:
+    | 'first_come_first_served'
+    | 'highest_priority'
+    | 'business_value'
+    | 'stakeholder_vote';
   /** Conflict detection settings */
   detection: {
     /** Enable conflict detection */
@@ -176,7 +188,11 @@ export interface BusinessRule {
   /** Rule action */
   action: {
     /** Action type */
-    type: 'set_priority' | 'adjust_priority' | 'add_constraint' | 'require_approval';
+    type:
+      | 'set_priority'
+      | 'adjust_priority'
+      | 'add_constraint'
+      | 'require_approval';
     /** Action parameters */
     parameters: Record<string, unknown>;
   };
@@ -325,7 +341,11 @@ export interface PriorityConflict {
   /** Conflicting resources */
   resources: string[];
   /** Conflict type */
-  type: 'resource_competition' | 'priority_overlap' | 'constraint_violation' | 'stakeholder_disagreement';
+  type:
+    | 'resource_competition'
+    | 'priority_overlap'
+    | 'constraint_violation'
+    | 'stakeholder_disagreement';
   /** Conflict severity */
   severity: 'low' | 'medium' | 'high' | 'critical';
   /** Conflict description */
@@ -372,7 +392,11 @@ export interface PriorityEscalation {
  */
 export interface PriorityRecommendation {
   /** Recommendation type */
-  type: 'priority_change' | 'resource_reallocation' | 'constraint_adjustment' | 'strategy_change';
+  type:
+    | 'priority_change'
+    | 'resource_reallocation'
+    | 'constraint_adjustment'
+    | 'strategy_change';
   /** Target resources */
   resources: string[];
   /** Recommendation description */
@@ -436,7 +460,8 @@ export const DEFAULT_PRIORITY_CONFIG: PriorityAssignmentConfig = {
       enabled: true,
       channels: ['email', 'slack'],
       templates: {
-        escalation: 'Resource {{resourceId}} has been escalated to {{level}} priority',
+        escalation:
+          'Resource {{resourceId}} has been escalated to {{level}} priority',
       },
     },
   },
@@ -485,7 +510,7 @@ export class PriorityAssignment {
    */
   constructor(
     config: Partial<PriorityAssignmentConfig> = {},
-    logger: AllocationLogger
+    logger: AllocationLogger,
   ) {
     this.config = { ...DEFAULT_PRIORITY_CONFIG, ...config };
     this.logger = logger;
@@ -502,12 +527,15 @@ export class PriorityAssignment {
   assignPriority(
     candidate: AllocationCandidate,
     ranking: ResourceRanking,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): PriorityAssignmentResult {
-    this.logger.info(`Assigning priority for resource ${candidate.resourceId}`, {
-      currentPriority: candidate.priority,
-      rankingScore: ranking.score,
-    });
+    this.logger.info(
+      `Assigning priority for resource ${candidate.resourceId}`,
+      {
+        currentPriority: candidate.priority,
+        rankingScore: ranking.score,
+      },
+    );
 
     // Apply business rules first
     const ruleResults = this.applyBusinessRules(candidate);
@@ -518,11 +546,12 @@ export class PriorityAssignment {
     // Apply rule-based adjustments
     for (const rule of ruleResults.appliedRules) {
       if (rule.action.type === 'set_priority') {
-        assignedPriority = rule.action.parameters.priority as AllocationPriority;
+        assignedPriority = rule.action.parameters
+          .priority as AllocationPriority;
       } else if (rule.action.type === 'adjust_priority') {
         assignedPriority = this.adjustPriority(
           assignedPriority,
-          rule.action.parameters.adjustment as number
+          rule.action.parameters.adjustment as number,
         );
       }
     }
@@ -532,12 +561,15 @@ export class PriorityAssignment {
       assignedPriority = this.applyDynamicAdjustment(
         candidate,
         assignedPriority,
-        historicalData
+        historicalData,
       );
     }
 
     // Check for escalation triggers
-    const escalationTriggered = this.checkEscalationTriggers(candidate, historicalData);
+    const escalationTriggered = this.checkEscalationTriggers(
+      candidate,
+      historicalData,
+    );
     if (escalationTriggered) {
       assignedPriority = this.escalatePriority(assignedPriority);
     }
@@ -547,25 +579,28 @@ export class PriorityAssignment {
       candidate,
       ranking,
       assignedPriority,
-      ruleResults.appliedRules
+      ruleResults.appliedRules,
     );
 
     // Calculate assignment confidence
     const confidence = this.calculateAssignmentConfidence(
       candidate,
       ranking,
-      ruleResults.confidence
+      ruleResults.confidence,
     );
 
     // Create assignment metadata
     const metadata = this.createAssignmentMetadata(
       candidate,
       assignedPriority,
-      this.config.strategy
+      this.config.strategy,
     );
 
     // Generate assignment constraints
-    const constraints = this.generateAssignmentConstraints(candidate, assignedPriority);
+    const constraints = this.generateAssignmentConstraints(
+      candidate,
+      assignedPriority,
+    );
 
     const result: PriorityAssignmentResult = {
       resourceId: candidate.resourceId,
@@ -581,11 +616,14 @@ export class PriorityAssignment {
     // Store assignment history
     this.assignmentHistory.set(candidate.resourceId, metadata);
 
-    this.logger.info(`Priority assignment completed for ${candidate.resourceId}`, {
-      assignedPriority,
-      confidence,
-      rulesApplied: ruleResults.appliedRules.length,
-    });
+    this.logger.info(
+      `Priority assignment completed for ${candidate.resourceId}`,
+      {
+        assignedPriority,
+        confidence,
+        rulesApplied: ruleResults.appliedRules.length,
+      },
+    );
 
     return result;
   }
@@ -600,23 +638,27 @@ export class PriorityAssignment {
   assignPortfolioPriorities(
     candidates: AllocationCandidate[],
     rankings: ResourceRankingResult[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): PortfolioPriorityAssignmentResult {
     this.logger.info('Starting portfolio priority assignment', {
       resourceCount: candidates.length,
     });
 
     // Assign individual priorities
-    const assignments = candidates.map(candidate => {
-      const ranking = rankings.find(r => r.resourceId === candidate.resourceId);
+    const assignments = candidates.map((candidate) => {
+      const ranking = rankings.find(
+        (r) => r.resourceId === candidate.resourceId,
+      );
       if (!ranking) {
-        throw new Error(`No ranking found for resource ${candidate.resourceId}`);
+        throw new Error(
+          `No ranking found for resource ${candidate.resourceId}`,
+        );
       }
 
       return this.assignPriority(
         candidate,
         ranking,
-        historicalData[candidate.resourceId] || []
+        historicalData[candidate.resourceId] || [],
       );
     });
 
@@ -635,7 +677,11 @@ export class PriorityAssignment {
     const insights = this.generatePortfolioInsights(assignments, candidates);
 
     // Generate recommendations
-    const recommendations = this.generatePortfolioRecommendations(assignments, insights, conflicts);
+    const recommendations = this.generatePortfolioRecommendations(
+      assignments,
+      insights,
+      conflicts,
+    );
 
     const result: PortfolioPriorityAssignmentResult = {
       assignments,
@@ -664,7 +710,7 @@ export class PriorityAssignment {
   updatePriority(
     resourceId: string,
     contextChanges: Partial<BusinessContextConfig>,
-    performanceData: FeatureCostAnalysis[]
+    performanceData: FeatureCostAnalysis[],
   ): PriorityAssignmentResult | null {
     this.logger.info(`Updating priority for resource ${resourceId}`, {
       contextChanges,
@@ -672,13 +718,17 @@ export class PriorityAssignment {
 
     const existingMetadata = this.assignmentHistory.get(resourceId);
     if (!existingMetadata) {
-      this.logger.warn(`No assignment history found for resource ${resourceId}`);
+      this.logger.warn(
+        `No assignment history found for resource ${resourceId}`,
+      );
       return null;
     }
 
     // Check if update is allowed based on constraints
     if (!this.isUpdateAllowed(resourceId, existingMetadata)) {
-      this.logger.warn(`Priority update not allowed for resource ${resourceId}`);
+      this.logger.warn(
+        `Priority update not allowed for resource ${resourceId}`,
+      );
       return null;
     }
 
@@ -732,7 +782,8 @@ export class PriorityAssignment {
       }
     }
 
-    const confidence = appliedRules.length > 0 ? totalRuleConfidence / appliedRules.length : 0.5;
+    const confidence =
+      appliedRules.length > 0 ? totalRuleConfidence / appliedRules.length : 0.5;
 
     return { appliedRules, confidence };
   }
@@ -740,7 +791,10 @@ export class PriorityAssignment {
   /**
    * Evaluate rule condition against candidate
    */
-  private evaluateRuleCondition(condition: string, candidate: AllocationCandidate): boolean {
+  private evaluateRuleCondition(
+    condition: string,
+    candidate: AllocationCandidate,
+  ): boolean {
     // Simplified rule evaluation
     // In production, this would use a proper expression evaluator
     try {
@@ -756,7 +810,10 @@ export class PriorityAssignment {
       }
       return false;
     } catch (error) {
-      this.logger.warn('Failed to evaluate rule condition', { condition, error });
+      this.logger.warn('Failed to evaluate rule condition', {
+        condition,
+        error,
+      });
       return false;
     }
   }
@@ -767,23 +824,36 @@ export class PriorityAssignment {
   private applyDynamicAdjustment(
     candidate: AllocationCandidate,
     currentPriority: AllocationPriority,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): AllocationPriority {
     if (historicalData.length < 3) return currentPriority;
 
     // Check performance trends
-    const recentPerformance = historicalData.slice(-3).map(data => data.performance || 80);
-    const olderPerformance = historicalData.slice(0, 3).map(data => data.performance || 80);
+    const recentPerformance = historicalData
+      .slice(-3)
+      .map((data) => data.performance || 80);
+    const olderPerformance = historicalData
+      .slice(0, 3)
+      .map((data) => data.performance || 80);
 
-    const recentAvg = recentPerformance.reduce((sum, p) => sum + p, 0) / recentPerformance.length;
-    const olderAvg = olderPerformance.reduce((sum, p) => sum + p, 0) / olderPerformance.length;
+    const recentAvg =
+      recentPerformance.reduce((sum, p) => sum + p, 0) /
+      recentPerformance.length;
+    const olderAvg =
+      olderPerformance.reduce((sum, p) => sum + p, 0) / olderPerformance.length;
 
     const performanceChange = (recentAvg - olderAvg) / olderAvg;
 
     // Adjust priority based on performance change
-    if (performanceChange < -0.2 && this.config.dynamicAdjustment.sensitivity !== 'low') {
+    if (
+      performanceChange < -0.2 &&
+      this.config.dynamicAdjustment.sensitivity !== 'low'
+    ) {
       return this.escalatePriority(currentPriority);
-    } else if (performanceChange > 0.2 && this.config.dynamicAdjustment.sensitivity !== 'low') {
+    } else if (
+      performanceChange > 0.2 &&
+      this.config.dynamicAdjustment.sensitivity !== 'low'
+    ) {
       return this.deeecalatePriority(currentPriority);
     }
 
@@ -795,7 +865,7 @@ export class PriorityAssignment {
    */
   private checkEscalationTriggers(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): boolean {
     if (!this.config.escalation.enabled) return false;
 
@@ -814,14 +884,15 @@ export class PriorityAssignment {
   private evaluateTriggerCondition(
     trigger: EscalationTrigger,
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): boolean {
     switch (trigger.type) {
       case 'performance_based':
         if (historicalData.length >= 2) {
           const recent = historicalData[historicalData.length - 1];
           const previous = historicalData[historicalData.length - 2];
-          const degradation = (previous.performance - recent.performance) / previous.performance;
+          const degradation =
+            (previous.performance - recent.performance) / previous.performance;
           return degradation > 0.2;
         }
         return false;
@@ -845,8 +916,16 @@ export class PriorityAssignment {
   /**
    * Escalate priority to next level
    */
-  private escalatePriority(currentPriority: AllocationPriority): AllocationPriority {
-    const priorityOrder: AllocationPriority[] = ['deferred', 'low', 'medium', 'high', 'critical'];
+  private escalatePriority(
+    currentPriority: AllocationPriority,
+  ): AllocationPriority {
+    const priorityOrder: AllocationPriority[] = [
+      'deferred',
+      'low',
+      'medium',
+      'high',
+      'critical',
+    ];
     const currentIndex = priorityOrder.indexOf(currentPriority);
 
     if (currentIndex < priorityOrder.length - 1) {
@@ -859,8 +938,16 @@ export class PriorityAssignment {
   /**
    * De-escalate priority to previous level
    */
-  private deeecalatePriority(currentPriority: AllocationPriority): AllocationPriority {
-    const priorityOrder: AllocationPriority[] = ['deferred', 'low', 'medium', 'high', 'critical'];
+  private deeecalatePriority(
+    currentPriority: AllocationPriority,
+  ): AllocationPriority {
+    const priorityOrder: AllocationPriority[] = [
+      'deferred',
+      'low',
+      'medium',
+      'high',
+      'critical',
+    ];
     const currentIndex = priorityOrder.indexOf(currentPriority);
 
     if (currentIndex > 0) {
@@ -873,10 +960,22 @@ export class PriorityAssignment {
   /**
    * Adjust priority numerically
    */
-  private adjustPriority(currentPriority: AllocationPriority, adjustment: number): AllocationPriority {
-    const priorityOrder: AllocationPriority[] = ['deferred', 'low', 'medium', 'high', 'critical'];
+  private adjustPriority(
+    currentPriority: AllocationPriority,
+    adjustment: number,
+  ): AllocationPriority {
+    const priorityOrder: AllocationPriority[] = [
+      'deferred',
+      'low',
+      'medium',
+      'high',
+      'critical',
+    ];
     const currentIndex = priorityOrder.indexOf(currentPriority);
-    const newIndex = Math.max(0, Math.min(priorityOrder.length - 1, currentIndex + adjustment));
+    const newIndex = Math.max(
+      0,
+      Math.min(priorityOrder.length - 1, currentIndex + adjustment),
+    );
 
     return priorityOrder[newIndex];
   }
@@ -888,7 +987,7 @@ export class PriorityAssignment {
     candidate: AllocationCandidate,
     ranking: ResourceRanking,
     assignedPriority: AllocationPriority,
-    appliedRules: BusinessRule[]
+    appliedRules: BusinessRule[],
   ): AssignmentRationale {
     const primaryFactors = [
       `Ranking score: ${ranking.score.toFixed(1)}`,
@@ -907,8 +1006,16 @@ export class PriorityAssignment {
     ];
 
     const alternatives = [
-      { priority: 'high' as AllocationPriority, reason: 'Strong business case', score: 85 },
-      { priority: 'medium' as AllocationPriority, reason: 'Moderate impact', score: 65 },
+      {
+        priority: 'high' as AllocationPriority,
+        reason: 'Strong business case',
+        score: 85,
+      },
+      {
+        priority: 'medium' as AllocationPriority,
+        reason: 'Moderate impact',
+        score: 65,
+      },
     ];
 
     return {
@@ -927,7 +1034,7 @@ export class PriorityAssignment {
   private calculateAssignmentConfidence(
     candidate: AllocationCandidate,
     ranking: ResourceRanking,
-    ruleConfidence: number
+    ruleConfidence: number,
   ): number {
     let confidence = ranking.confidence;
 
@@ -950,7 +1057,7 @@ export class PriorityAssignment {
   private createAssignmentMetadata(
     candidate: AllocationCandidate,
     assignedPriority: AllocationPriority,
-    assignedBy: PriorityAssignmentStrategy
+    assignedBy: PriorityAssignmentStrategy,
   ): AssignmentMetadata {
     const existingMetadata = this.assignmentHistory.get(candidate.resourceId);
     const version = existingMetadata ? existingMetadata.version + 1 : 1;
@@ -982,7 +1089,7 @@ export class PriorityAssignment {
    */
   private generateAssignmentConstraints(
     candidate: AllocationCandidate,
-    assignedPriority: AllocationPriority
+    assignedPriority: AllocationPriority,
   ): AllocationConstraints {
     const baseConstraints = candidate.constraints;
 
@@ -992,11 +1099,17 @@ export class PriorityAssignment {
 
     switch (assignedPriority) {
       case 'critical':
-        minAllocation = Math.max(minAllocation, baseConstraints.maxAllocation * 0.8);
+        minAllocation = Math.max(
+          minAllocation,
+          baseConstraints.maxAllocation * 0.8,
+        );
         maxAllocation = baseConstraints.maxAllocation * 1.5;
         break;
       case 'high':
-        minAllocation = Math.max(minAllocation, baseConstraints.maxAllocation * 0.6);
+        minAllocation = Math.max(
+          minAllocation,
+          baseConstraints.maxAllocation * 0.6,
+        );
         maxAllocation = baseConstraints.maxAllocation * 1.2;
         break;
       case 'low':
@@ -1042,10 +1155,14 @@ export class PriorityAssignment {
   /**
    * Check if priority update is allowed
    */
-  private isUpdateAllowed(resourceId: string, metadata: AssignmentMetadata): boolean {
+  private isUpdateAllowed(
+    resourceId: string,
+    metadata: AssignmentMetadata,
+  ): boolean {
     const now = new Date();
     const lastAssignment = metadata.assignedAt;
-    const stabilityPeriod = this.config.dynamicAdjustment.constraints.stabilityPeriod;
+    const stabilityPeriod =
+      this.config.dynamicAdjustment.constraints.stabilityPeriod;
 
     // Parse stability period (simplified)
     let stabilityMs = 24 * 60 * 60 * 1000; // Default 24 hours
@@ -1063,7 +1180,7 @@ export class PriorityAssignment {
    */
   private detectPriorityConflicts(
     assignments: PriorityAssignmentResult[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): PriorityConflict[] {
     const conflicts: PriorityConflict[] = [];
 
@@ -1072,14 +1189,19 @@ export class PriorityAssignment {
     }
 
     // Check for resource competition (simplified implementation)
-    const highPriorityResources = assignments.filter(a =>
-      a.assignedPriority === 'critical' || a.assignedPriority === 'high'
+    const highPriorityResources = assignments.filter(
+      (a) => a.assignedPriority === 'critical' || a.assignedPriority === 'high',
     );
 
-    const totalHighPriorityAllocation = highPriorityResources.reduce((sum, assignment) => {
-      const candidate = candidates.find(c => c.resourceId === assignment.resourceId);
-      return sum + (candidate?.currentAllocation || 0);
-    }, 0);
+    const totalHighPriorityAllocation = highPriorityResources.reduce(
+      (sum, assignment) => {
+        const candidate = candidates.find(
+          (c) => c.resourceId === assignment.resourceId,
+        );
+        return sum + (candidate?.currentAllocation || 0);
+      },
+      0,
+    );
 
     // Assume budget constraint of 100,000
     const budgetConstraint = 100000;
@@ -1087,10 +1209,11 @@ export class PriorityAssignment {
     if (totalHighPriorityAllocation > budgetConstraint * 0.8) {
       conflicts.push({
         id: `budget_conflict_${Date.now()}`,
-        resources: highPriorityResources.map(r => r.resourceId),
+        resources: highPriorityResources.map((r) => r.resourceId),
         type: 'resource_competition',
         severity: 'high',
-        description: 'High priority resources exceed available budget allocation',
+        description:
+          'High priority resources exceed available budget allocation',
         resolutions: [
           {
             strategy: 'Reduce some priorities',
@@ -1117,7 +1240,7 @@ export class PriorityAssignment {
    */
   private resolvePriorityConflicts(
     conflicts: PriorityConflict[],
-    assignments: PriorityAssignmentResult[]
+    assignments: PriorityAssignmentResult[],
   ): void {
     for (const conflict of conflicts) {
       if (conflict.status !== 'detected') continue;
@@ -1141,7 +1264,7 @@ export class PriorityAssignment {
    */
   private resolveByBusinessValue(
     conflict: PriorityConflict,
-    assignments: PriorityAssignmentResult[]
+    assignments: PriorityAssignmentResult[],
   ): void {
     // Simplified resolution - would implement proper business value comparison
     this.logger.info(`Resolving conflict ${conflict.id} by business value`);
@@ -1152,7 +1275,7 @@ export class PriorityAssignment {
    */
   private resolveByHighestPriority(
     conflict: PriorityConflict,
-    assignments: PriorityAssignmentResult[]
+    assignments: PriorityAssignmentResult[],
   ): void {
     // Simplified resolution - would implement proper priority-based resolution
     this.logger.info(`Resolving conflict ${conflict.id} by highest priority`);
@@ -1163,14 +1286,16 @@ export class PriorityAssignment {
    */
   private generateEscalations(
     assignments: PriorityAssignmentResult[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): PriorityEscalation[] {
     const escalations: PriorityEscalation[] = [];
 
     // Check for resources that need escalation
     for (const assignment of assignments) {
       if (assignment.assignedPriority === 'critical') {
-        const candidate = candidates.find(c => c.resourceId === assignment.resourceId);
+        const candidate = candidates.find(
+          (c) => c.resourceId === assignment.resourceId,
+        );
         if (candidate && this.checkEscalationTriggers(candidate, [])) {
           escalations.push({
             id: `escalation_${assignment.resourceId}_${Date.now()}`,
@@ -1194,49 +1319,72 @@ export class PriorityAssignment {
    */
   private generatePortfolioInsights(
     assignments: PriorityAssignmentResult[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): PortfolioPriorityInsights {
     // Calculate priority distribution
     const distribution: Record<AllocationPriority, number> = {
-      critical: assignments.filter(a => a.assignedPriority === 'critical').length,
-      high: assignments.filter(a => a.assignedPriority === 'high').length,
-      medium: assignments.filter(a => a.assignedPriority === 'medium').length,
-      low: assignments.filter(a => a.assignedPriority === 'low').length,
-      deferred: assignments.filter(a => a.assignedPriority === 'deferred').length,
+      critical: assignments.filter((a) => a.assignedPriority === 'critical')
+        .length,
+      high: assignments.filter((a) => a.assignedPriority === 'high').length,
+      medium: assignments.filter((a) => a.assignedPriority === 'medium').length,
+      low: assignments.filter((a) => a.assignedPriority === 'low').length,
+      deferred: assignments.filter((a) => a.assignedPriority === 'deferred')
+        .length,
     };
 
     // Calculate balance
     const total = assignments.length;
-    const idealDistribution = { critical: 0.1, high: 0.2, medium: 0.4, low: 0.2, deferred: 0.1 };
+    const idealDistribution = {
+      critical: 0.1,
+      high: 0.2,
+      medium: 0.4,
+      low: 0.2,
+      deferred: 0.1,
+    };
     let balanceScore = 0;
 
     for (const [priority, count] of Object.entries(distribution)) {
       const actualRatio = count / total;
       const idealRatio = idealDistribution[priority as AllocationPriority];
       const deviation = Math.abs(actualRatio - idealRatio);
-      balanceScore += Math.max(0, 100 - (deviation * 200));
+      balanceScore += Math.max(0, 100 - deviation * 200);
     }
     balanceScore = balanceScore / Object.keys(distribution).length;
 
     const balanced = balanceScore > 70;
-    const issues = balanced ? [] : ['Uneven priority distribution', 'May indicate resource allocation issues'];
+    const issues = balanced
+      ? []
+      : [
+          'Uneven priority distribution',
+          'May indicate resource allocation issues',
+        ];
 
     // Competition analysis
     const highCompetition = ['critical_resources', 'high_priority_resources'];
-    const opportunities = ['medium_priority_optimization', 'low_priority_consolidation'];
-    const intensity = distribution.critical + distribution.high > total * 0.4 ? 80 : 50;
+    const opportunities = [
+      'medium_priority_optimization',
+      'low_priority_consolidation',
+    ];
+    const intensity =
+      distribution.critical + distribution.high > total * 0.4 ? 80 : 50;
 
     // Strategic alignment
-    const strategicScore = assignments.reduce((sum, a) =>
-      sum + (a.rationale.primaryFactors.includes('strategic') ? 1 : 0), 0) / assignments.length * 100;
+    const strategicScore =
+      (assignments.reduce(
+        (sum, a) =>
+          sum + (a.rationale.primaryFactors.includes('strategic') ? 1 : 0),
+        0,
+      ) /
+        assignments.length) *
+      100;
 
     const wellAligned = assignments
-      .filter(a => a.confidence > 80)
-      .map(a => a.resourceId);
+      .filter((a) => a.confidence > 80)
+      .map((a) => a.resourceId);
 
     const misaligned = assignments
-      .filter(a => a.confidence < 60)
-      .map(a => a.resourceId);
+      .filter((a) => a.confidence < 60)
+      .map((a) => a.resourceId);
 
     return {
       distribution,
@@ -1264,7 +1412,7 @@ export class PriorityAssignment {
   private generatePortfolioRecommendations(
     assignments: PriorityAssignmentResult[],
     insights: PortfolioPriorityInsights,
-    conflicts: PriorityConflict[]
+    conflicts: PriorityConflict[],
   ): PriorityRecommendation[] {
     const recommendations: PriorityRecommendation[] = [];
 
@@ -1273,7 +1421,8 @@ export class PriorityAssignment {
       recommendations.push({
         type: 'priority_change',
         resources: insights.alignment.misaligned,
-        description: 'Rebalance priority distribution to improve portfolio balance',
+        description:
+          'Rebalance priority distribution to improve portfolio balance',
         benefits: {
           cost: insights.balance.score * 0.5,
           performance: insights.balance.score * 0.3,
@@ -1288,8 +1437,9 @@ export class PriorityAssignment {
     if (conflicts.length > 0) {
       recommendations.push({
         type: 'resource_reallocation',
-        resources: conflicts.flatMap(c => c.resources),
-        description: 'Resolve resource conflicts through reallocation or priority adjustment',
+        resources: conflicts.flatMap((c) => c.resources),
+        description:
+          'Resolve resource conflicts through reallocation or priority adjustment',
         benefits: {
           cost: conflicts.length * 15,
           performance: conflicts.length * 20,
@@ -1308,7 +1458,10 @@ export class PriorityAssignment {
    */
   private validateConfiguration(): void {
     // Validate business rules
-    for (const rule of [...this.config.businessRules.mandatory, ...this.config.businessRules.conditional]) {
+    for (const rule of [
+      ...this.config.businessRules.mandatory,
+      ...this.config.businessRules.conditional,
+    ]) {
       if (!rule.id || !rule.name || !rule.condition) {
         throw new Error(`Invalid business rule: ${rule.id || 'unknown'}`);
       }
@@ -1316,8 +1469,13 @@ export class PriorityAssignment {
 
     // Validate thresholds in escalation configuration
     if (this.config.escalation.enabled) {
-      if (!this.config.escalation.triggers || this.config.escalation.triggers.length === 0) {
-        throw new Error('Escalation triggers must be defined when escalation is enabled');
+      if (
+        !this.config.escalation.triggers ||
+        this.config.escalation.triggers.length === 0
+      ) {
+        throw new Error(
+          'Escalation triggers must be defined when escalation is enabled',
+        );
       }
     }
 
@@ -1327,7 +1485,10 @@ export class PriorityAssignment {
       throw new Error('Maximum changes per period must be positive');
     }
 
-    if (constraints.confidenceThreshold < 0 || constraints.confidenceThreshold > 1) {
+    if (
+      constraints.confidenceThreshold < 0 ||
+      constraints.confidenceThreshold > 1
+    ) {
       throw new Error('Confidence threshold must be between 0 and 1');
     }
   }
@@ -1341,7 +1502,7 @@ export class PriorityAssignment {
  */
 export function createPriorityAssignment(
   config?: Partial<PriorityAssignmentConfig>,
-  logger?: AllocationLogger
+  logger?: AllocationLogger,
 ): PriorityAssignment {
   const defaultLogger: AllocationLogger = {
     info: () => {},

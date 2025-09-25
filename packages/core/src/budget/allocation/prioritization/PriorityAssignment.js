@@ -525,9 +525,13 @@ boolean;
     }
     return now.getTime() - lastAssignment.getTime() >= stabilityMs;
 }
-detectPriorityConflicts(assignments, PriorityAssignmentResult[], candidates, AllocationCandidate[]);
-PriorityConflict[];
-{
+/**
+ * Detect priority conflicts between assignments
+ * @param {Array} assignments - Priority assignment results
+ * @param {Array} candidates - Allocation candidates
+ * @returns {Array} Array of priority conflicts
+ */
+detectPriorityConflicts(assignments, candidates) {
     const conflicts = [];
     if (!this.config.conflictResolution.detection.enabled) {
         return conflicts;

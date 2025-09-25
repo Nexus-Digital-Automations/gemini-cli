@@ -46,14 +46,14 @@ describe('PersistenceStorageAPI', () => {
     vi.clearAllMocks();
 
     // Mock fs-extra methods
-    (mockFse.ensureDir as any) = vi.fn().mockResolvedValue(undefined);
-    (mockFse.pathExists as any) = vi.fn().mockResolvedValue(false);
-    (mockFse.writeJSON as any) = vi.fn().mockResolvedValue(undefined);
-    (mockFse.readJSON as any) = vi.fn().mockResolvedValue({});
-    (mockFse.copy as any) = vi.fn().mockResolvedValue(undefined);
-    (mockFse.move as any) = vi.fn().mockResolvedValue(undefined);
-    (mockFse.remove as any) = vi.fn().mockResolvedValue(undefined);
-    (mockFse.readdir as any) = vi.fn().mockResolvedValue([]);
+    mockFse.ensureDir = vi.fn().mockResolvedValue(undefined);
+    mockFse.pathExists = vi.fn().mockResolvedValue(false);
+    mockFse.writeJSON = vi.fn().mockResolvedValue(undefined);
+    mockFse.readJSON = vi.fn().mockResolvedValue({});
+    mockFse.copy = vi.fn().mockResolvedValue(undefined);
+    mockFse.move = vi.fn().mockResolvedValue(undefined);
+    mockFse.remove = vi.fn().mockResolvedValue(undefined);
+    mockFse.readdir = vi.fn().mockResolvedValue([]);
 
     // Create test task
     mockTask = {

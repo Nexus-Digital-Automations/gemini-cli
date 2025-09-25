@@ -11,6 +11,12 @@
  * @author Claude Code - Budget Allocation Agent
  * @version 1.0.0
  */
+
+// Import factory functions for internal use
+import { createUsageBasedAlgorithm } from './UsageBasedAlgorithm.js';
+import { createROIOptimizedAlgorithm } from './ROIOptimizedAlgorithm.js';
+import { createPriorityBasedAlgorithm } from './PriorityBasedAlgorithm.js';
+
 // Base algorithm exports
 export { BaseAllocationAlgorithm, } from './BaseAllocationAlgorithm.js';
 // Algorithm factory functions

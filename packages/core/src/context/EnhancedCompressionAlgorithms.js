@@ -761,11 +761,8 @@ export class EnhancedCompressionAlgorithms {
             strategy,
         };
     }
-    default;
-}
-clusterSimilarFunctions(code, string);
-string;
-{
+
+    clusterSimilarFunctions(code) {
     // Group similar function patterns and represent them more efficiently
     const functions = code.match(/function\s+\w+\([^)]*\)\s*\{[^}]*\}/g) || [];
     const clusters = new Map();
@@ -789,9 +786,8 @@ string;
     }
     return compressed;
 }
-compressJsonProgressively(data, unknown, targetRatio, number, originalTokens, number);
-string;
-{
+
+compressJsonProgressively(data, targetRatio, originalTokens) {
     const priorityFields = [
         'id',
         'name',
@@ -831,9 +827,8 @@ string;
     }
     return JSON.stringify(data);
 }
-extractJsonConcepts(data, unknown);
-string[];
-{
+
+extractJsonConcepts(data) {
     const concepts = [];
     const extract = (obj, path = '') => {
         if (typeof obj === 'object' && obj !== null) {
@@ -848,9 +843,8 @@ string[];
     extract(data);
     return Array.from(new Set(concepts));
 }
-extractErrorConcepts(content, string);
-string[];
-{
+
+extractErrorConcepts(content) {
     const errorPatterns = [
         /Error:\s*(.+)/gi,
         /Exception:\s*(.+)/gi,
@@ -868,10 +862,11 @@ string[];
     }
     return Array.from(new Set(concepts));
 }
-isImportantExchange(conversations, (Array));
-boolean;
-{
-    const importantKeywords = [
+    /**
+     * Check if conversation exchanges are important
+     */
+    isImportantExchange(conversations) {
+        const importantKeywords = [
         'error',
         'problem',
         'issue',
@@ -892,50 +887,62 @@ boolean;
     ];
     const content = conversations.map((c) => c.content.toLowerCase()).join(' ');
     return importantKeywords.some((keyword) => content.includes(keyword));
-}
-summarizeConversationBatch(conversations, (Array));
-string;
-{
+    }
+
+    /**
+     * Summarize conversation batch
+     */
+    summarizeConversationBatch(conversations) {
     const topics = conversations.map((c) => {
         const words = c.content.split(' ').filter((w) => w.length > 4);
         return words.slice(0, 3).join(' ');
     });
-    return `Discussion about ${topics.join(', ')}`;
-}
-extractConversationConcepts(content, string);
-string[];
-{
-    const actionWords = content.match(/\b(implement|create|fix|build|test|deploy|analyze|review|update|remove)\b/gi) || [];
-    return Array.from(new Set(actionWords.map((word) => word.toLowerCase())));
-}
-extractHtmlConcepts(content, string);
-string[];
-{
+        return `Discussion about ${topics.join(', ')}`;
+    }
+
+    /**
+     * Extract conversation concepts
+     */
+    extractConversationConcepts(content) {
+        const actionWords = content.match(/\b(implement|create|fix|build|test|deploy|analyze|review|update|remove)\b/gi) || [];
+        return Array.from(new Set(actionWords.map((word) => word.toLowerCase())));
+    }
+
+    /**
+     * Extract HTML concepts
+     */
+    extractHtmlConcepts(content) {
     const tags = content.match(/<(\w+)[^>]*>/g) || [];
     const tagNames = tags
         .map((tag) => tag.match(/<(\w+)/)?.[1] || '')
         .filter(Boolean);
-    return Array.from(new Set(tagNames));
-}
-summarizeMarkdownSection(content, string);
-string;
-{
-    const sentences = content
-        .split(/[.!?]+/)
-        .filter((s) => s.trim().length > 10);
-    if (sentences.length <= 2)
-        return content.trim();
-    // Keep first and last sentence, or most important ones
-    const firstSentence = sentences[0].trim() + '.';
-    const lastSentence = sentences[sentences.length - 1].trim() + '.';
-    if (sentences.length > 3) {
-        return `${firstSentence} ... ${lastSentence}`;
+        return Array.from(new Set(tagNames));
     }
-    else {
-        return sentences.join('. ').trim() + '.';
+
+    /**
+     * Summarize markdown section
+     */
+    summarizeMarkdownSection(content) {
+        const sentences = content
+            .split(/[.!?]+/)
+            .filter((s) => s.trim().length > 10);
+        if (sentences.length <= 2)
+            return content.trim();
+        // Keep first and last sentence, or most important ones
+        const firstSentence = sentences[0].trim() + '.';
+        const lastSentence = sentences[sentences.length - 1].trim() + '.';
+        if (sentences.length > 3) {
+            return `${firstSentence} ... ${lastSentence}`;
+        }
+        else {
+            return sentences.join('. ').trim() + '.';
+        }
     }
-}
-applySummarization(content, string, targetRatio, number);
+
+    /**
+     * Apply summarization compression
+     */
+    applySummarization(content, targetRatio) {
 string;
 {
     const sentences = content

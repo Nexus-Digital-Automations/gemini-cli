@@ -155,8 +155,8 @@ export class ResourceUtilizationOptimizer {
         // Sort by priority and expected benefits
         recommendations.sort((a, b) => {
             const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-            const aPriority = priorityOrder[opportunity.priority] || 0;
-            const bPriority = priorityOrder[opportunity.priority] || 0;
+            const aPriority = priorityOrder[a.priority] || 0;
+            const bPriority = priorityOrder[b.priority] || 0;
             if (aPriority !== bPriority)
                 return bPriority - aPriority;
             return b.expectedImpact.costImpact - a.expectedImpact.costImpact;

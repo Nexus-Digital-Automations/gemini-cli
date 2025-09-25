@@ -725,7 +725,8 @@ export class AlertSystem extends EventEmitter {
     const value = this.getValueFromContext(context, metric);
 
     if (value === null || value === undefined) return false;
-    if (typeof value !== 'number' || typeof threshold !== 'number') return false;
+    if (typeof value !== 'number' || typeof threshold !== 'number')
+      return false;
 
     switch (operator) {
       case '>':
@@ -766,7 +767,8 @@ export class AlertSystem extends EventEmitter {
     const { metric, deviationThreshold = 2 } = params;
     const value = this.getValueFromContext(context, metric);
 
-    if (typeof value !== 'number' || typeof deviationThreshold !== 'number') return false;
+    if (typeof value !== 'number' || typeof deviationThreshold !== 'number')
+      return false;
 
     // This would typically compare against historical data and calculate z-score
     // For now, return false as this is a placeholder implementation
@@ -825,7 +827,12 @@ export class AlertSystem extends EventEmitter {
     let value: unknown = context;
 
     for (const key of keys) {
-      if (value && typeof value === 'object' && value !== null && key in value) {
+      if (
+        value &&
+        typeof value === 'object' &&
+        value !== null &&
+        key in value
+      ) {
         value = (value as Record<string, unknown>)[key];
       } else {
         return null;
