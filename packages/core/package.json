@@ -13,9 +13,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js"
     },
-    "./src/utils/logger.js": {
-      "import": "./dist/src/utils/logger.js",
-      "require": "./dist/src/utils/logger.js"
+    "./src/*": {
+      "import": "./dist/src/*",
+      "require": "./dist/src/*"
     }
   },
   "scripts": {
