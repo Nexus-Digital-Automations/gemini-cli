@@ -6,7 +6,6 @@
 
 import type {
   HistoricalBudgetRecord,
-  TrendAnalysis,
   BudgetForecast,
 } from './historical-analysis.js';
 
@@ -214,7 +213,10 @@ export class BudgetForecastingEngine {
     return {
       targetDate,
       forecastUsage: ensembleForecast,
-      confidenceInterval: monteCarloResults.confidenceIntervals['0.95'],
+      confidenceInterval: {
+        ...monteCarloResults.confidenceIntervals['0.95'],
+        confidence: 0.95,
+      },
       scenarios: this.convertMonteCarloToScenarios(monteCarloResults),
       recommendedLimit: Math.ceil(monteCarloResults.percentiles['90'] * 1.2), // 20% buffer over 90th percentile
       riskAssessment,
@@ -364,7 +366,7 @@ export class BudgetForecastingEngine {
     const values = records.map((r) => r.dailyUsage);
 
     // Decompose time series into trend, seasonal, and residual components
-    const { trend, seasonal, residual } = this.decomposeTimeSeries(values);
+    const { trend, seasonal } = this.decomposeTimeSeries(values);
 
     // Extrapolate each component
     const trendForecast = this.extrapolateTrend(trend, horizon);
@@ -623,7 +625,6 @@ export class BudgetForecastingEngine {
   ): Promise<ModelValidationMetrics> {
     const values = records.map((r) => r.dailyUsage);
     const trainSize = Math.floor(values.length * 0.8);
-    const trainData = values.slice(0, trainSize);
     const testData = values.slice(trainSize);
 
     if (testData.length < 3) {
