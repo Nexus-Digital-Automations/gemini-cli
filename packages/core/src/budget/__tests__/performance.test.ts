@@ -9,9 +9,9 @@ import * as fs from 'node:fs/promises';
 import * as _path from 'node:path';
 import { BudgetTracker } from '../budget-tracker.js';
 import { BudgetEnforcement } from '../budget-enforcement.js';
-import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
+import { BudgetContentGenerator } from '../../core/budgetContentGenerator.js';
 import type { BudgetSettings, BudgetUsageData } from '../types.js';
-import type { ContentGenerator } from '../core/contentGenerator.js';
+import type { ContentGenerator } from '../../core/contentGenerator.js';
 import type { Config } from '../../config/config.js';
 
 // Mock file system operations
@@ -23,18 +23,29 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-const performanceMarkSpy = vi
-  .spyOn(performance, 'mark')
-  .mockImplementation(() => {});
+const performanceMarkSpy = vi.spyOn(performance, 'mark').mockImplementation(
+  () =>
+    ({
+      name: 'test',
+      entryType: 'mark' as const,
+      startTime: 0,
+      duration: 0,
+      toJSON: () => ({}),
+    }) as PerformanceMark,
+);
 const performanceMeasureSpy = vi
   .spyOn(performance, 'measure')
-  .mockImplementation(() => ({
-    duration: 0,
-    name: 'test',
-    entryType: 'measure',
-    startTime: 0,
-    toJSON: () => ({}),
-  }));
+  .mockImplementation(
+    () =>
+      ({
+        duration: 0,
+        name: 'test',
+        entryType: 'measure' as const,
+        startTime: 0,
+        detail: null,
+        toJSON: () => ({}),
+      }) as PerformanceMeasure,
+  );
 
 /**
  * Performance testing utilities for budget analytics system
@@ -96,6 +107,16 @@ class PerformanceTestUtils {
     return {
       date: new Date().toISOString().split('T')[0],
       requestCount,
+      totalCost: requestCount * 0.001, // Mock cost calculation
+      tokenUsage: {
+        inputTokens: requestCount * 10,
+        outputTokens: requestCount * 5,
+        totalTokens: requestCount * 15,
+        tokenCosts: {
+          input: requestCount * 0.0005,
+          output: requestCount * 0.0005,
+        },
+      },
       lastResetTime: new Date().toISOString(),
       warningsShown: requestCount > 5000 ? [50, 75, 90] : [],
     };
@@ -128,7 +149,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
     mockConfig = {
       getProjectRoot: vi.fn().mockReturnValue(projectRoot),
-    } as Config;
+    } as unknown as Config;
 
     mockContentGenerator = {
       userTier: 'paid' as ContentGenerator['userTier'],
@@ -333,16 +354,22 @@ describe('Budget Analytics Performance and Load Tests', () => {
         const opType = i % 4;
         switch (opType) {
           case 0:
-            return () =>
-              tracker.recordRequest().then(() => {
-                requestCount++;
-              });
+            return async () => {
+              await tracker.recordRequest();
+              requestCount++;
+            };
           case 1:
-            return () => tracker.isOverBudget();
+            return async () => {
+              await tracker.isOverBudget();
+            };
           case 2:
-            return () => tracker.getUsageStats();
+            return async () => {
+              await tracker.getUsageStats();
+            };
           case 3:
-            return () => enforcement.checkRequestAllowed();
+            return async () => {
+              await enforcement.checkRequestAllowed();
+            };
           default:
             return () => Promise.resolve();
         }
@@ -400,9 +427,15 @@ describe('Budget Analytics Performance and Load Tests', () => {
       );
 
       const operations = [
-        () => tracker.getUsageStats(),
-        () => tracker.isOverBudget(),
-        () => tracker.shouldShowWarning(),
+        async () => {
+          await tracker.getUsageStats();
+        },
+        async () => {
+          await tracker.isOverBudget();
+        },
+        async () => {
+          await tracker.shouldShowWarning();
+        },
       ];
 
       for (const operation of operations) {
@@ -492,6 +525,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
       });
 
       const mockRequest = {
+        model: 'gemini-1.5-flash',
         contents: [{ parts: [{ text: 'Test' }], role: 'user' as const }],
       };
 
@@ -539,9 +573,15 @@ describe('Budget Analytics Performance and Load Tests', () => {
       );
 
       const operations = [
-        () => tracker.recordRequest(),
-        () => tracker.getUsageStats(),
-        () => tracker.isOverBudget(),
+        async () => {
+          await tracker.recordRequest();
+        },
+        async () => {
+          await tracker.getUsageStats();
+        },
+        async () => {
+          await tracker.isOverBudget();
+        },
       ];
 
       for (const operation of operations) {
@@ -620,12 +660,14 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const enforcement = new BudgetEnforcement(projectRoot, budgetSettings);
 
       // Test rapid settings updates
-      const updateOperations = Array.from({ length: 100 }, (_, i) => () => {
-        const newLimit = 1000 + i * 10;
-        tracker.updateSettings({ dailyLimit: newLimit });
-        enforcement.updateSettings({ dailyLimit: newLimit });
-        return Promise.resolve();
-      });
+      const updateOperations = Array.from(
+        { length: 100 },
+        (_, i) => async () => {
+          const newLimit = 1000 + i * 10;
+          tracker.updateSettings({ dailyLimit: newLimit });
+          enforcement.updateSettings({ dailyLimit: newLimit });
+        },
+      );
 
       const { totalDuration } =
         await PerformanceTestUtils.measureBatchOperations(
@@ -643,6 +685,13 @@ describe('Budget Analytics Performance and Load Tests', () => {
   });
 
   describe('Performance Regression Detection', () => {
+    interface PerformanceBaseline {
+      recordRequest: number;
+      getUsageStats: number;
+      isOverBudget: number;
+      shouldShowWarning: number;
+    }
+
     it('should establish performance baseline for future comparison', async () => {
       const tracker = new BudgetTracker(projectRoot, budgetSettings);
 
@@ -651,13 +700,21 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       // Baseline measurements for key operations
       const baselineOperations = {
-        recordRequest: () => tracker.recordRequest(),
-        getUsageStats: () => tracker.getUsageStats(),
-        isOverBudget: () => tracker.isOverBudget(),
-        shouldShowWarning: () => tracker.shouldShowWarning(),
+        recordRequest: async () => {
+          await tracker.recordRequest();
+        },
+        getUsageStats: async () => {
+          await tracker.getUsageStats();
+        },
+        isOverBudget: async () => {
+          await tracker.isOverBudget();
+        },
+        shouldShowWarning: async () => {
+          await tracker.shouldShowWarning();
+        },
       };
 
-      const baseline: Record<string, number> = {};
+      const baseline = {} as PerformanceBaseline;
 
       for (const [operationName, operation] of Object.entries(
         baselineOperations,
@@ -666,7 +723,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
           operationName,
           operation,
         );
-        baseline[operationName] = duration;
+        (baseline as Record<string, number>)[operationName] = duration;
       }
 
       // Log baseline for reference
@@ -707,6 +764,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
 
       // 3. Make API calls through content generator
       const mockRequest = {
+        model: 'gemini-1.5-flash',
         contents: [{ parts: [{ text: 'Test' }], role: 'user' as const }],
       };
 

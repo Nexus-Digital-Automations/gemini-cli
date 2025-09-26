@@ -72,22 +72,14 @@ export {
 } from './ValidationFramework.js';
 
 // Code quality validation exports
-export {
-  CodeQualityValidator,
-  type CodeQualityConfig,
-} from './CodeQualityValidator.js';
+export { CodeQualityValidator } from './CodeQualityValidator.js';
 
 // Functional validation exports
-export {
-  FunctionalValidator,
-  type FunctionalValidationConfig,
-  type BehaviorScenario,
-} from './FunctionalValidator.js';
+export { FunctionalValidator } from './FunctionalValidator.js';
 
 // Integration validation exports
 export {
   IntegrationValidator,
-  type IntegrationValidationConfig,
   type IntegrationTestConfig,
   type PerformanceBenchmark,
   type CompatibilityConfig,
@@ -97,7 +89,6 @@ export {
 export {
   ValidationWorkflow,
   TaskExecutionStage,
-  type ValidationWorkflowConfig,
   type TaskExecutionContext,
   type WorkflowExecutionResult,
 } from './ValidationWorkflow.js';
@@ -106,7 +97,6 @@ export {
 export {
   ValidationFailureHandler,
   FailureHandlingStrategy,
-  type ValidationFailureHandlerConfig,
   type RetryConfig,
   type CircuitBreakerConfig,
   type EscalationConfig,
@@ -118,7 +108,6 @@ export {
   ValidationReporting,
   ReportFormat,
   AnalyticsPeriod,
-  type ValidationReportingConfig,
 } from './ValidationReporting.js';
 
 // Continuous monitoring exports
@@ -127,12 +116,49 @@ export {
   MonitoringTrigger,
   MonitoringScope,
   HealthStatus,
-  type ContinuousValidationMonitorConfig,
   type MonitoringRule,
   type HealthCheck,
   type MonitoringAlert,
   type SystemHealthMetrics,
 } from './ContinuousValidationMonitor.js';
+
+// Import types and classes needed for ValidationSystemConfig and ValidationSystem interfaces
+import {
+  CodeQualityValidator,
+  type CodeQualityConfig,
+} from './CodeQualityValidator.js';
+import {
+  FunctionalValidator,
+  type FunctionalValidationConfig,
+} from './FunctionalValidator.js';
+import {
+  IntegrationValidator,
+  type IntegrationValidationConfig,
+} from './IntegrationValidator.js';
+import {
+  ValidationWorkflow,
+  TaskExecutionStage,
+  type ValidationWorkflowConfig,
+} from './ValidationWorkflow.js';
+import {
+  ValidationFailureHandler,
+  FailureHandlingStrategy,
+  type ValidationFailureHandlerConfig,
+} from './ValidationFailureHandler.js';
+import {
+  ValidationReporting,
+  ReportFormat,
+  type ValidationReportingConfig,
+} from './ValidationReporting.js';
+import {
+  ContinuousValidationMonitor,
+  type ContinuousValidationMonitorConfig,
+} from './ContinuousValidationMonitor.js';
+import {
+  ValidationFramework,
+  ValidationSeverity,
+  ValidationCategory,
+} from './ValidationFramework.js';
 
 /**
  * Complete validation system configuration
@@ -482,6 +508,8 @@ export async function createDefaultValidationSystem(): Promise<ValidationSystem>
       systemCompatibility: {
         nodeVersions: ['18.x', '20.x', '22.x'],
         operatingSystems: ['linux', 'darwin', 'win32'],
+        architectures: ['x64', 'arm64'],
+        dependencies: [],
       },
     },
     monitoring: {
@@ -495,15 +523,7 @@ export async function createDefaultValidationSystem(): Promise<ValidationSystem>
   });
 }
 
-// Re-export specific imports for proper type resolution
-import type { CodeQualityConfig } from './CodeQualityValidator.js';
-import type { FunctionalValidationConfig } from './FunctionalValidator.js';
-import type { IntegrationValidationConfig } from './IntegrationValidator.js';
-import type { ValidationWorkflowConfig } from './ValidationWorkflow.js';
-import type { ValidationFailureHandlerConfig } from './ValidationFailureHandler.js';
-import type { ValidationReportingConfig } from './ValidationReporting.js';
-import type { ContinuousValidationMonitorConfig } from './ContinuousValidationMonitor.js';
-
+// Re-export types for external use
 export type {
   CodeQualityConfig,
   FunctionalValidationConfig,
