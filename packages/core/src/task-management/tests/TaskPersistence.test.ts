@@ -20,7 +20,7 @@ import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { PersistedQueueState } from '../TaskPersistence.js';
-import { TaskPersistence, SerializedTask } from '../TaskPersistence.js';
+import { TaskPersistence } from '../TaskPersistence.js';
 import type { Task, PriorityFactors } from '../TaskQueue.js';
 import { TaskStatus, TaskPriority, TaskCategory } from '../TaskQueue.js';
 import type { TaskDependency } from '../DependencyResolver.js';
@@ -88,7 +88,7 @@ describe('TaskPersistence', () => {
             systemCriticality: 4,
             dependencyWeight: 2,
             resourceAvailability: 3,
-            executionHistory: 4
+            executionHistory: 4,
           } as PriorityFactors,
           estimatedDuration: 1000,
           actualDuration: undefined,
@@ -119,7 +119,7 @@ describe('TaskPersistence', () => {
             systemCriticality: 3,
             dependencyWeight: 4,
             resourceAvailability: 5,
-            executionHistory: 5
+            executionHistory: 5,
           } as PriorityFactors,
           estimatedDuration: 2000,
           actualDuration: 1800000,
@@ -178,9 +178,9 @@ describe('TaskPersistence', () => {
           throughputPerHour: 0,
           successRate: 1.0,
           priorityDistribution: {},
-          categoryDistribution: {}
+          categoryDistribution: {},
         }, // metrics
-        'test-session'
+        'test-session',
       );
 
       expect(mockMkdir).toHaveBeenCalled();
@@ -202,7 +202,11 @@ describe('TaskPersistence', () => {
     });
 
     it('should handle function serialization with registry', async () => {
-      const customFunction = async () => ({ success: true, custom: true, duration: 0 });
+      const customFunction = async () => ({
+        success: true,
+        custom: true,
+        duration: 0,
+      });
       persistence.registerFunction('customExecute', customFunction);
 
       const taskWithCustomFunction = new Map([
@@ -224,7 +228,7 @@ describe('TaskPersistence', () => {
               systemCriticality: 3,
               dependencyWeight: 2,
               resourceAvailability: 4,
-              executionHistory: 3
+              executionHistory: 3,
             } as PriorityFactors,
             executionHistory: [],
             functionName: 'customExecute', // Function registry name
@@ -255,9 +259,9 @@ describe('TaskPersistence', () => {
           throughputPerHour: 0,
           successRate: 1.0,
           priorityDistribution: {},
-          categoryDistribution: {}
+          categoryDistribution: {},
         },
-        'test-session'
+        'test-session',
       );
 
       const writeCall = mockWriteFile.mock.calls[0];
@@ -299,9 +303,9 @@ describe('TaskPersistence', () => {
           throughputPerHour: 0,
           successRate: 1.0,
           priorityDistribution: {},
-          categoryDistribution: {}
+          categoryDistribution: {},
         },
-        'test-session'
+        'test-session',
       );
 
       // Verify that compression was applied (data should not be plain JSON)
@@ -339,7 +343,7 @@ describe('TaskPersistence', () => {
               systemCriticality: 3,
               dependencyWeight: 2,
               resourceAvailability: 4,
-              executionHistory: 3
+              executionHistory: 3,
             } as PriorityFactors,
             executionHistory: [],
           },
@@ -391,7 +395,7 @@ describe('TaskPersistence', () => {
               systemCriticality: 3,
               dependencyWeight: 2,
               resourceAvailability: 4,
-              executionHistory: 3
+              executionHistory: 3,
             } as PriorityFactors,
             executionHistory: [],
           },
@@ -430,6 +434,7 @@ describe('TaskPersistence', () => {
       mockReadFile.mockResolvedValue(compressedData);
 
       // Mock the decompression to return valid JSON
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.spyOn(compressionPersistence as any, 'decompressData').mockReturnValue(
         JSON.stringify({
           version: '1.0.0',
@@ -483,6 +488,7 @@ describe('TaskPersistence', () => {
         'backup-2024-01-10.json', // This should be kept
       ];
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockReaddir.mockResolvedValue(oldBackupFiles as any);
 
       // Mock file stats to make first two files old
@@ -494,6 +500,7 @@ describe('TaskPersistence', () => {
         return {
           mtime: new Date(isOld ? '2024-01-01' : '2024-01-10'),
           isFile: () => true,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any;
       });
 
@@ -537,7 +544,7 @@ describe('TaskPersistence', () => {
               systemCriticality: 3,
               dependencyWeight: 2,
               resourceAvailability: 4,
-              executionHistory: 3
+              executionHistory: 3,
             } as PriorityFactors,
             executionHistory: [],
           },
@@ -668,9 +675,9 @@ describe('TaskPersistence', () => {
           throughputPerHour: 0,
           successRate: 1.0,
           priorityDistribution: {},
-          categoryDistribution: {}
+          categoryDistribution: {},
         },
-        'test-session'
+        'test-session',
       );
       const endTime = Date.now();
 
@@ -711,6 +718,7 @@ describe('TaskPersistence', () => {
 
       // Spy on streaming method
       const streamingSpy = vi.spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         streamingPersistence as any,
         'saveWithStreaming',
       );
@@ -733,9 +741,9 @@ describe('TaskPersistence', () => {
           throughputPerHour: 0,
           successRate: 1.0,
           priorityDistribution: {},
-          categoryDistribution: {}
+          categoryDistribution: {},
         },
-        'test-session'
+        'test-session',
       );
 
       expect(streamingSpy).toHaveBeenCalled();
@@ -772,9 +780,9 @@ describe('TaskPersistence', () => {
           throughputPerHour: 0,
           successRate: 1.0,
           priorityDistribution: {},
-          categoryDistribution: {}
+          categoryDistribution: {},
         },
-        'test-session'
+        'test-session',
       );
 
       expect(saveSpy).toHaveBeenCalledWith(
@@ -834,19 +842,19 @@ describe('TaskPersistence', () => {
           new Map(),
           new Set(),
           {
-          totalTasks: 0,
-          pendingTasks: 0,
-          runningTasks: 0,
-          completedTasks: 0,
-          failedTasks: 0,
-          averageWaitTime: 0,
-          averageExecutionTime: 0,
-          throughputPerHour: 0,
-          successRate: 1.0,
-          priorityDistribution: {},
-          categoryDistribution: {}
-        },
-          'test-session'
+            totalTasks: 0,
+            pendingTasks: 0,
+            runningTasks: 0,
+            completedTasks: 0,
+            failedTasks: 0,
+            averageWaitTime: 0,
+            averageExecutionTime: 0,
+            throughputPerHour: 0,
+            successRate: 1.0,
+            priorityDistribution: {},
+            categoryDistribution: {},
+          },
+          'test-session',
         ),
       ).rejects.toThrow();
 

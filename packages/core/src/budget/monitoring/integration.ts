@@ -27,6 +27,8 @@ import type { Config } from '../../config/config.js';
 import type { BudgetSettings } from '../types.js';
 import { TokenTracker } from './token-tracker.js';
 import { MetricsCollector } from './metrics-collector.js';
+import type { TokenUsageStats } from './token-tracker.js';
+import type { MetricsSummary } from './metrics-collector.js';
 import { UsageCalculator } from './usage-calculator.js';
 import { BudgetEventManager } from './events.js';
 import { QuotaManager } from './quota-manager.js';
@@ -274,7 +276,10 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
    */
   private extractFeature(req: GenerateContentParameters): string {
     // Try to determine feature from contents or config
-    if (Array.isArray(req.contents) && req.contents.some((c) => c.parts?.some((p) => 'functionCall' in p))) {
+    if (
+      Array.isArray(req.contents) &&
+      req.contents.some((c) => c.parts?.some((p) => 'functionCall' in p))
+    ) {
       return 'function-calling';
     }
     if (req.config?.systemInstruction) {
@@ -348,7 +353,9 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
     const tokenStats = this.integration.getTokenTracker().getUsageStats();
     const cacheStats = this.integration.getCache()?.getStats();
 
-    this.integrationStats.tokenTracker.activeRequests = this.integration.getTokenTracker().getActiveRequests().length;
+    this.integrationStats.tokenTracker.activeRequests = this.integration
+      .getTokenTracker()
+      .getActiveRequests().length;
     this.integrationStats.tokenTracker.totalTokensProcessed =
       tokenStats.totalTokens;
 
@@ -436,7 +443,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
           maxUpdateFrequency:
             this.integrationConfig.streamingConfig?.updateFrequency ?? 1000,
           enableBandwidthMonitoring: true,
-        }
+        },
       );
     }
 
@@ -511,7 +518,10 @@ export class TokenMonitoringIntegration extends EventEmitter {
       });
 
       if (this.streamingService) {
-        this.streamingService.broadcastUpdate(StreamType.ANOMALY_ALERTS, anomaly);
+        this.streamingService.broadcastUpdate(
+          StreamType.ANOMALY_ALERTS,
+          anomaly,
+        );
       }
     });
 
@@ -695,7 +705,13 @@ export class TokenMonitoringIntegration extends EventEmitter {
     cache?: unknown;
     system: { sessionId: string; initialized: boolean; uptime: number };
   } {
-    const stats = {
+    const stats: {
+      tokenTracker: TokenUsageStats;
+      metricsCollector: MetricsSummary;
+      streaming?: { isRunning: boolean; activeSubscriptions: number };
+      cache?: unknown;
+      system: { sessionId: string; initialized: boolean; uptime: number };
+    } = {
       tokenTracker: this.tokenTracker.getUsageStats(),
       metricsCollector: this.metricsCollector.getMetricsSummary(),
       system: {
