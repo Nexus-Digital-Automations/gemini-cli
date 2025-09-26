@@ -12,6 +12,7 @@ import {
   SecurityValidator,
   type SecurityValidationResult,
   type SecurityIssue,
+  type SecurityCategory,
 } from '../validation/SecurityValidator.js';
 
 export interface SecurityAuditResult {
@@ -81,19 +82,6 @@ export type AuditType =
   | 'dependency'
   | 'access-control'
   | 'data-protection';
-
-export type SecurityCategory =
-  | 'authentication'
-  | 'authorization'
-  | 'data-protection'
-  | 'encryption'
-  | 'input-validation'
-  | 'injection'
-  | 'configuration'
-  | 'dependencies'
-  | 'secrets'
-  | 'network-security'
-  | 'logging-monitoring';
 
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 export type RiskLevel = 'critical' | 'high' | 'medium' | 'low';

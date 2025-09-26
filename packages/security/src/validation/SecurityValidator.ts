@@ -233,7 +233,7 @@ export class SecurityValidator extends EventEmitter {
     rule: SecurityRule,
     filePath: string,
     content: string,
-    lines: string[],
+    _lines: string[],
   ): Promise<SecurityIssue[]> {
     const issues: SecurityIssue[] = [];
     let match;
@@ -346,7 +346,7 @@ export class SecurityValidator extends EventEmitter {
         category: 'secrets',
         severity: 'critical',
         pattern:
-          /(password|pwd|secret|key|token|api_key)\s*[:=]\s*['"][\w\-\/+=]{8,}/gi,
+          /(password|pwd|secret|key|token|api_key)\s*[:=]\s*['"][\w\-/+=]{8,}/gi,
         message: 'Potential hardcoded secret detected',
         remediation:
           'Move secrets to environment variables or secure configuration files',

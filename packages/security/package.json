@@ -16,9 +16,7 @@
     "security:validate": "node dist/cli/security-validator.js",
     "security:audit": "node dist/cli/security-auditor.js"
   },
-  "dependencies": {
-    "crypto": "^1.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",

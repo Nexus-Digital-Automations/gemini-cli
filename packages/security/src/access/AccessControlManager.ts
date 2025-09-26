@@ -715,7 +715,7 @@ interface SecurityMetrics {
  * Specialized logger for access control audit trails.
  */
 class AccessAuditLogger {
-  constructor(private configPath?: string) {}
+  constructor(private _configPath?: string) {}
 
   async logAccessAttempt(entry: AccessAuditEntry): Promise<void> {
     // Implementation for persistent audit logging

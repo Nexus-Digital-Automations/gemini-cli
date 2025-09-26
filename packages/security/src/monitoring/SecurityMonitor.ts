@@ -6,7 +6,6 @@
 
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 
 export interface SecurityEvent {
@@ -184,7 +183,7 @@ export class SecurityMonitor extends EventEmitter {
     // Perform threat intelligence matching
     const threatMatches = await this.matchThreatIntelligence(fullEvent);
     if (threatMatches.length > 0) {
-      fullEvent.metadata.threatMatches = threatMatches;
+      fullEvent.metadata['threatMatches'] = threatMatches;
       this.emit('threat:detected', {
         event: fullEvent,
         matches: threatMatches,
@@ -194,7 +193,7 @@ export class SecurityMonitor extends EventEmitter {
     // Check for anomalies
     const isAnomalous = await this.anomalyDetector.isAnomalous(fullEvent);
     if (isAnomalous) {
-      fullEvent.metadata.anomalous = true;
+      fullEvent.metadata['anomalous'] = true;
       this.emit('anomaly:detected', fullEvent);
     }
 
@@ -289,7 +288,7 @@ export class SecurityMonitor extends EventEmitter {
       throw new Error(`Alert not found: ${alertId}`);
     }
 
-    (alert as any).status = status;
+    (alert as SecurityAlert & { status: string }).status = status;
     await this.auditLogger.logAlertStatusChange(alertId, status);
     this.emit('alert:status_changed', { alertId, status });
   }
@@ -507,7 +506,7 @@ export class SecurityMonitor extends EventEmitter {
 
       for (const f of fields) {
         if (value && typeof value === 'object') {
-          value = value[f];
+          value = (value as Record<string, unknown>)[f];
         } else {
           return undefined;
         }
@@ -550,7 +549,7 @@ export class SecurityMonitor extends EventEmitter {
 
   private generateRecommendations(
     event: SecurityEvent,
-    rule: AlertRule,
+    _rule: AlertRule,
   ): string[] {
     const recommendations: string[] = [];
 
@@ -599,7 +598,6 @@ export class SecurityMonitor extends EventEmitter {
     const investigationId = crypto.randomUUID();
 
     // Correlate events
-    const correlationId = crypto.randomUUID();
     const correlatedEvents = await this.correlateEvents(events);
 
     // Analyze attack patterns
@@ -743,7 +741,7 @@ export class SecurityMonitor extends EventEmitter {
       impacts.push('CCPA disclosure requirements may apply');
     }
 
-    if (events.some((e) => e.metadata.containsPII)) {
+    if (events.some((e) => e.metadata['containsPII'])) {
       impacts.push('Personal data involved - enhanced reporting required');
     }
 
@@ -794,7 +792,7 @@ export class SecurityMonitor extends EventEmitter {
     const threatCounts = new Map<string, number>();
 
     for (const event of events) {
-      const matches = event.metadata.threatMatches as
+      const matches = event.metadata['threatMatches'] as
         | ThreatIndicator[]
         | undefined;
       if (matches) {
@@ -1015,10 +1013,13 @@ class SecurityMetricsCollector {
  * Security audit logger for monitoring operations.
  */
 class SecurityAuditLogger {
-  constructor(private configPath?: string) {}
+  constructor(private _configPath?: string) {}
 
   async logSecurityEvent(event: SecurityEvent): Promise<void> {
-    await this.log('SECURITY_EVENT', event);
+    await this.log(
+      'SECURITY_EVENT',
+      event as unknown as Record<string, unknown>,
+    );
   }
 
   async logAlert(alert: SecurityAlert): Promise<void> {
@@ -1045,7 +1046,7 @@ class SecurityAuditLogger {
     event: string,
     data: Record<string, unknown>,
   ): Promise<void> {
-    const logEntry = {
+    const _logEntry = {
       timestamp: new Date().toISOString(),
       event,
       data,
