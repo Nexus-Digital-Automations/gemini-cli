@@ -71,7 +71,7 @@ export class OpenFilesManager {
       this.fireWithDebounce();
     });
 
-    context.subscriptions.push(
+    this.context.subscriptions.push(
       editorWatcher,
       selectionWatcher,
       closeWatcher,
