@@ -19,9 +19,12 @@ import { getBudgetTracker } from '../../budget-tracker.js';
 
 // Simple console-based logging for now
 const logger = {
-  info: (message: string, meta?: unknown) => console.info(`[ConfigurationController] ${message}`, meta),
-  warn: (message: string, meta?: unknown) => console.warn(`[ConfigurationController] ${message}`, meta),
-  error: (message: string, meta?: unknown) => console.error(`[ConfigurationController] ${message}`, meta),
+  info: (message: string, meta?: unknown) =>
+    console.info(`[ConfigurationController] ${message}`, meta),
+  warn: (message: string, meta?: unknown) =>
+    console.warn(`[ConfigurationController] ${message}`, meta),
+  error: (message: string, meta?: unknown) =>
+    console.error(`[ConfigurationController] ${message}`, meta),
 };
 
 /**
@@ -154,7 +157,8 @@ export class ConfigurationController {
       };
 
       // Perform validation
-      const validationResult = this.validateConfigurationInternal(updatedSettings);
+      const validationResult =
+        this.validateConfigurationInternal(updatedSettings);
       if (!validationResult.valid) {
         logger.warn('Configuration validation failed', {
           errors: validationResult.errors,
@@ -312,7 +316,8 @@ export class ConfigurationController {
       const parsedSettings = this.parseQueryParameters(settingsToValidate);
 
       // Perform validation
-      const validationResult = this.validateConfigurationInternal(parsedSettings);
+      const validationResult =
+        this.validateConfigurationInternal(parsedSettings);
 
       const responseTime = Date.now() - startTime;
       const response = {
@@ -448,24 +453,31 @@ export class ConfigurationController {
   private parseQueryParameters(params: unknown): Partial<BudgetSettings> {
     const parsed: Partial<BudgetSettings> = {};
 
-    if (params.enabled !== undefined) {
-      parsed.enabled = params.enabled === 'true';
+    // Type guard to ensure params is an object with string index signature
+    if (!params || typeof params !== 'object') {
+      return parsed;
     }
 
-    if (params.dailyLimit !== undefined) {
-      const limit = parseFloat(params.dailyLimit);
+    const typedParams = params as Record<string, string | undefined>;
+
+    if (typedParams.enabled !== undefined) {
+      parsed.enabled = typedParams.enabled === 'true';
+    }
+
+    if (typedParams.dailyLimit !== undefined) {
+      const limit = parseFloat(typedParams.dailyLimit);
       if (!isNaN(limit)) {
         parsed.dailyLimit = limit;
       }
     }
 
-    if (params.resetTime !== undefined) {
-      parsed.resetTime = params.resetTime;
+    if (typedParams.resetTime !== undefined) {
+      parsed.resetTime = typedParams.resetTime;
     }
 
-    if (params.warningThresholds !== undefined) {
+    if (typedParams.warningThresholds !== undefined) {
       try {
-        parsed.warningThresholds = JSON.parse(params.warningThresholds);
+        parsed.warningThresholds = JSON.parse(typedParams.warningThresholds);
       } catch {
         // Invalid JSON, will be caught in validation
       }
@@ -482,14 +494,14 @@ export class ConfigurationController {
     current: BudgetSettings,
   ): Array<{
     field: string;
-    previousValue: any;
-    newValue: any;
+    previousValue: unknown;
+    newValue: unknown;
     type: 'added' | 'modified' | 'removed';
   }> {
     const changes: Array<{
       field: string;
-      previousValue: any;
-      newValue: any;
+      previousValue: unknown;
+      newValue: unknown;
       type: 'added' | 'modified' | 'removed';
     }> = [];
 
@@ -499,8 +511,8 @@ export class ConfigurationController {
     ]);
 
     for (const key of allKeys) {
-      const prevValue = (previous as any)[key];
-      const currValue = (current as any)[key];
+      const prevValue = (previous as Record<string, unknown>)[key];
+      const currValue = (current as Record<string, unknown>)[key];
 
       if (prevValue === undefined && currValue !== undefined) {
         changes.push({
