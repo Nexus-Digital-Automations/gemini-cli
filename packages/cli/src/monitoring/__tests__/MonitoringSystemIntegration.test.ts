@@ -146,20 +146,22 @@ describe('Monitoring System Integration Tests', () => {
       expect(taskStatusMonitor).toBeInstanceOf(EventEmitter);
     });
 
-    it('should establish cross-system event connectivity', (done) => {
+    it('should establish cross-system event connectivity', async () => {
       let eventCount = 0;
       const expectedEvents = 3;
 
-      integrationHub.on('cross-system:event', (event) => {
-        eventCount++;
-        expect(event).toHaveProperty('source');
-        expect(event).toHaveProperty('eventType');
-        expect(event).toHaveProperty('timestamp');
-        expect(event).toHaveProperty('data');
+      const eventPromise = new Promise((resolve) => {
+        integrationHub.on('cross-system:event', (event) => {
+          eventCount++;
+          expect(event).toHaveProperty('source');
+          expect(event).toHaveProperty('eventType');
+          expect(event).toHaveProperty('timestamp');
+          expect(event).toHaveProperty('data');
 
-        if (eventCount >= expectedEvents) {
-          done();
-        }
+          if (eventCount >= expectedEvents) {
+            resolve(event);
+          }
+        });
       });
 
       // Trigger events from different systems
@@ -176,13 +178,20 @@ describe('Monitoring System Integration Tests', () => {
         'test_metric',
         100,
         'milliseconds',
-        'response_time',
+        'performance', // Fixed: changed from 'response_time' to valid category
         { source: 'integration_test' },
       );
 
       // Simulate real-time monitoring snapshot
       const snapshot = realTimeMonitoring.getCurrentSnapshot();
       expect(snapshot).toBeTruthy();
+
+      // Wait for events with timeout
+      const timeoutPromise = new Promise((resolve) => {
+        setTimeout(() => resolve(null), 5000);
+      });
+
+      await Promise.race([eventPromise, timeoutPromise]);
     });
 
     it('should synchronize data across monitoring systems', async () => {
@@ -195,7 +204,10 @@ describe('Monitoring System Integration Tests', () => {
         estimatedDuration: 60000,
       });
 
-      taskStatusMonitor.registerAgent('test-agent-1', ['testing', 'validation']);
+      taskStatusMonitor.registerAgent('test-agent-1', [
+        'testing',
+        'validation',
+      ]);
 
       // Wait for synchronization
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -604,7 +616,10 @@ describe('Monitoring System Integration Tests', () => {
         }),
       ];
 
-      const agentId = taskStatusMonitor.registerAgent('aggregate-test-agent', ['implementation', 'testing']);
+      const agentId = taskStatusMonitor.registerAgent('aggregate-test-agent', [
+        'implementation',
+        'testing',
+      ]);
 
       // Complete some tasks
       taskStatusMonitor.updateTaskStatus(taskIds[0], {
