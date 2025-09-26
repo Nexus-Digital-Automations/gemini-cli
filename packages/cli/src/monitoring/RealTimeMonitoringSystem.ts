@@ -5,7 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import {
   taskStatusMonitor,
   type TaskMetadata,
@@ -18,7 +21,7 @@ import {
 } from './PerformanceAnalyticsDashboard.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import type { Server } from 'node:http';
 
 /**
@@ -58,7 +61,13 @@ export interface MonitoringEvent {
  * WebSocket message interface for broadcasting
  */
 export interface WebSocketMessage {
-  type: 'update' | 'alert' | 'status' | 'metric';
+  type:
+    | 'update'
+    | 'alert'
+    | 'status'
+    | 'metric'
+    | 'monitoring_update'
+    | 'initial_snapshot';
   timestamp: Date;
   data: MonitoringSnapshot | AlertRule | PerformanceMetric | object;
 }
@@ -979,10 +988,18 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     allAgents: AgentStatus[],
   ): 'healthy' | 'degraded' | 'unhealthy' | 'critical' {
     const memoryUsage = process.memoryUsage().heapUsed / 1024 / 1024;
-    const failureRate =
-      taskMetrics.totalTasks > 0
-        ? taskMetrics.failedTasks / taskMetrics.totalTasks
-        : 0;
+
+    // Type guards for unknown types
+    const totalTasks =
+      typeof taskMetrics.totalTasks === 'number' ? taskMetrics.totalTasks : 0;
+    const failedTasks =
+      typeof taskMetrics.failedTasks === 'number' ? taskMetrics.failedTasks : 0;
+    const systemEfficiency =
+      typeof taskMetrics.systemEfficiency === 'number'
+        ? taskMetrics.systemEfficiency
+        : 100;
+
+    const failureRate = totalTasks > 0 ? failedTasks / totalTasks : 0;
     const activeAgents = allAgents.filter((a) => a.status !== 'offline').length;
 
     // Critical conditions
@@ -998,7 +1015,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     if (
       memoryUsage > this.config.alertThresholds.memoryUsageMB ||
       failureRate > 0.3 ||
-      taskMetrics.systemEfficiency < 50
+      systemEfficiency < 50
     ) {
       return 'unhealthy';
     }
@@ -1006,7 +1023,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     // Degraded conditions
     if (
       failureRate > this.config.alertThresholds.taskFailureRate ||
-      taskMetrics.systemEfficiency < 80 ||
+      systemEfficiency < 80 ||
       activeAgents < allAgents.length * 0.7
     ) {
       return 'degraded';
@@ -1175,10 +1192,22 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       secondHalf.length;
 
     return {
-      taskCompletion: this.getTrendDirection(firstCompletion, secondCompletion),
-      errorRate: this.getTrendDirection(firstError, secondError),
-      performance: this.getTrendDirection(secondCompletion, firstCompletion), // Inverted for performance
-      resourceUsage: this.getTrendDirection(firstMemory, secondMemory),
+      taskCompletion: this.getTrendDirection(
+        firstCompletion,
+        secondCompletion,
+      ) as 'increasing' | 'decreasing' | 'stable',
+      errorRate: this.getTrendDirection(firstError, secondError) as
+        | 'increasing'
+        | 'decreasing'
+        | 'stable',
+      performance: this.getPerformanceTrendDirection(
+        secondCompletion,
+        firstCompletion,
+      ) as 'improving' | 'degrading' | 'stable',
+      resourceUsage: this.getTrendDirection(firstMemory, secondMemory) as
+        | 'increasing'
+        | 'decreasing'
+        | 'stable',
     };
   }
 
@@ -1191,6 +1220,18 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
     if (change > threshold) return 'increasing';
     if (change < -threshold) return 'decreasing';
+    return 'stable';
+  }
+
+  private getPerformanceTrendDirection(
+    first: number,
+    second: number,
+  ): 'improving' | 'degrading' | 'stable' {
+    const threshold = 0.05; // 5% threshold
+    const change = (second - first) / Math.max(first, 0.001);
+
+    if (change > threshold) return 'improving';
+    if (change < -threshold) return 'degrading';
     return 'stable';
   }
 
@@ -1431,7 +1472,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     );
   }
 
-  private convertToCSV(data: MonitoringSnapshot[]): string {
+  private convertToCSV(data: { snapshots?: MonitoringSnapshot[] }): string {
     // Simple CSV conversion for snapshots
     const headers = [
       'timestamp',
@@ -1448,7 +1489,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
     const rows = [headers.join(',')];
 
-    for (const snapshot of data.snapshots) {
+    for (const snapshot of data.snapshots || []) {
       const row = [
         snapshot.timestamp,
         snapshot.systemHealth.overall,
