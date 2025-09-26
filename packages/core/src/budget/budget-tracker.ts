@@ -157,7 +157,7 @@ export class BudgetTracker {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
-        tokenCosts: { input: 0, output: 0 }
+        tokenCosts: { input: 0, output: 0 },
       },
       lastResetTime: resetTime,
       warningsShown: [],
@@ -182,7 +182,7 @@ export class BudgetTracker {
   /**
    * Get current usage data, creating default if it doesn't exist
    */
-  private async getCurrentUsageData(): Promise<BudgetUsageData> {
+  async getCurrentUsageData(): Promise<BudgetUsageData> {
     try {
       const data = await fs.readFile(this.usageFilePath, 'utf-8');
       const usageData = JSON.parse(data) as BudgetUsageData;
@@ -202,7 +202,7 @@ export class BudgetTracker {
   /**
    * Save usage data to file
    */
-  private async saveUsageData(usageData: BudgetUsageData): Promise<void> {
+  async saveUsageData(usageData: BudgetUsageData): Promise<void> {
     try {
       // Ensure the .gemini directory exists
       const dir = path.dirname(this.usageFilePath);
@@ -232,7 +232,7 @@ export class BudgetTracker {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
-        tokenCosts: { input: 0, output: 0 }
+        tokenCosts: { input: 0, output: 0 },
       },
       lastResetTime: now,
       warningsShown: [],
