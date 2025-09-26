@@ -872,7 +872,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
             k,
             Array.from(v),
           ]),
-        ) as { [k: string]: string[] };
+        ) as unknown as Map<string, Set<string>>;
         data[id] = metadataObj;
       }
 
