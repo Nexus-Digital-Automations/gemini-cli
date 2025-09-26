@@ -250,14 +250,13 @@ describe('useReactToolScheduler', () => {
     (
       mockToolRequiresConfirmation.shouldConfirmExecute as Mock
     ).mockImplementation(
-      async (): Promise<ToolCallConfirmationDetails | null> =>
-        ({
-          onConfirm: mockOnUserConfirmForToolConfirmation,
-          fileName: 'mockToolRequiresConfirmation.ts',
-          fileDiff: 'Mock tool requires confirmation',
-          type: 'edit',
-          title: 'Mock Tool Requires Confirmation',
-        }),
+      async (): Promise<ToolCallConfirmationDetails | null> => ({
+        onConfirm: mockOnUserConfirmForToolConfirmation,
+        fileName: 'mockToolRequiresConfirmation.ts',
+        fileDiff: 'Mock tool requires confirmation',
+        type: 'edit',
+        title: 'Mock Tool Requires Confirmation',
+      }),
     );
 
     vi.useFakeTimers();
@@ -694,8 +693,20 @@ describe('useReactToolScheduler', () => {
     const { result } = renderScheduler();
     const schedule = result.current[1];
     const requests: ToolCallRequestInfo[] = [
-      { callId: 'multi1', name: 'tool1', args: { p: 1 }, isClientInitiated: false, prompt_id: 'test' },
-      { callId: 'multi2', name: 'tool2', args: { p: 2 }, isClientInitiated: false, prompt_id: 'test' },
+      {
+        callId: 'multi1',
+        name: 'tool1',
+        args: { p: 1 },
+        isClientInitiated: false,
+        prompt_id: 'test',
+      },
+      {
+        callId: 'multi2',
+        name: 'tool2',
+        args: { p: 2 },
+        isClientInitiated: false,
+        prompt_id: 'test',
+      },
     ];
 
     act(() => {

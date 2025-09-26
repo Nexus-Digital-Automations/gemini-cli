@@ -120,7 +120,9 @@ export class TaskPersistence extends EventEmitter {
 
   constructor(config: Partial<PersistenceConfig> = {}) {
     super();
-    this.logger = new WinstonStructuredLogger().child({ component: 'TaskPersistence' });
+    this.logger = new WinstonStructuredLogger().child({
+      component: 'TaskPersistence',
+    });
 
     // Set default configuration
     this.config = {
@@ -917,13 +919,19 @@ export class TaskPersistence extends EventEmitter {
 
   private async encryptData(data: string, key: string): Promise<string> {
     // In a real implementation, this would use a crypto library
-    this.logger.debug('Encrypting data', { dataLength: data.length, keyLength: key.length });
+    this.logger.debug('Encrypting data', {
+      dataLength: data.length,
+      keyLength: key.length,
+    });
     return data;
   }
 
   private async decryptData(data: string, key: string): Promise<string> {
     // In a real implementation, this would decrypt the data
-    this.logger.debug('Decrypting data', { dataLength: data.length, keyLength: key.length });
+    this.logger.debug('Decrypting data', {
+      dataLength: data.length,
+      keyLength: key.length,
+    });
     return data;
   }
 

@@ -623,6 +623,7 @@ export class QuotaManager extends EventEmitter {
         // Handle unexpected values
         break;
     }
+    }
 
     delay = Math.min(delay, config.maxDelay);
     this.currentThrottleDelay = delay;

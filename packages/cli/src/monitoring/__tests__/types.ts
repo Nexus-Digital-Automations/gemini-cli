@@ -19,6 +19,9 @@ export interface MockRealTimeMonitoring {
   getAlertHistory: jest.MockedFunction<() => AlertEvent[]>;
   getPerformanceMetrics: jest.MockedFunction<() => PerformanceMetrics>;
   updateConfiguration: jest.MockedFunction<(config: Record<string, unknown>) => void>;
+  getActiveAlerts: jest.MockedFunction<() => AlertSummary[]>;
+  getPredictiveInsights: jest.MockedFunction<() => Record<string, unknown>[]>;
+  getMonitoringHistory: jest.MockedFunction<() => Record<string, unknown>[]>;
 }
 
 export interface MockTaskStatusMonitor {

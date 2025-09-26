@@ -28,7 +28,13 @@ import {
   TaskType,
 } from '../TaskStatusMonitor.js';
 import { PerformanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
-import { type AlertEvent, type CorrelatedEvent, type SyncEvent, type HealthEvent, type MonitoringSnapshot } from './types.js';
+import {
+  type AlertEvent,
+  type CorrelatedEvent,
+  type SyncEvent,
+  type HealthEvent,
+  type MonitoringSnapshot,
+} from './types.js';
 
 // Mock node modules
 vi.mock('node:fs/promises', () => ({
@@ -881,7 +887,12 @@ describe('Monitoring System Integration Tests', () => {
 
       expect(() => {
         dashboard.addWidget(layoutId, {
-          type: 'invalid_type' as 'metric' | 'chart' | 'alert_panel' | 'gauge' | 'table',
+          type: 'invalid_type' as
+            | 'metric'
+            | 'chart'
+            | 'alert_panel'
+            | 'gauge'
+            | 'table',
           title: 'Invalid Widget',
           position: { x: -1, y: -1, width: 0, height: 0 }, // Invalid position
           config: {
@@ -902,15 +913,12 @@ describe('Monitoring System Integration Tests', () => {
       for (let i = 0; i < 50; i++) {
         operations.push(
           Promise.resolve().then(() => {
-            taskStatusMonitor.registerTask(
-              `load-test-task-${i}`,
-              {
-                title: `Load Test Task ${i}`,
-                type: TaskType.IMPLEMENTATION,
-                priority: TaskPriority.NORMAL,
-                estimatedDuration: 10000,
-              },
-            );
+            taskStatusMonitor.registerTask(`load-test-task-${i}`, {
+              title: `Load Test Task ${i}`,
+              type: TaskType.IMPLEMENTATION,
+              priority: TaskPriority.NORMAL,
+              estimatedDuration: 10000,
+            });
 
             performanceAnalytics.recordMetric(
               `load_test_metric_${i}`,

@@ -4,19 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  beforeEach,
-  afterEach,
-  it,
-  expect,
-  vi,
-} from 'vitest';
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
-import { performanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
-import { type MockTaskStatusMonitor, type MockPerformanceAnalytics, type MonitoringSnapshot } from './types.js';
+import {
+  type MockTaskStatusMonitor,
+  type MonitoringSnapshot,
+} from './types.js';
 
 // Mock dependencies
 vi.mock('../TaskStatusMonitor.js', () => ({
@@ -52,7 +47,8 @@ describe('RealTimeMonitoringSystem', () => {
   let mockTaskStatusMonitor: MockTaskStatusMonitor;
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTaskStatusMonitor = taskStatusMonitor as unknown as MockTaskStatusMonitor;
+    mockTaskStatusMonitor =
+      taskStatusMonitor as unknown as MockTaskStatusMonitor;
 
     // Setup default mock responses
     mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({

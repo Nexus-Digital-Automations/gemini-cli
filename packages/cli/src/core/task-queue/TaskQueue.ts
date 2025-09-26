@@ -147,7 +147,9 @@ export class TaskQueue extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new WinstonStructuredLogger().child({ component: 'TaskQueue' });
+    this.logger = new WinstonStructuredLogger().child({
+      component: 'TaskQueue',
+    });
     this.queuesByPriority = new Map();
     this.taskRegistry = new Map();
     this.agentRegistry = new Map();

@@ -538,6 +538,7 @@ export class DependencyResolver extends EventEmitter {
           // Handle unexpected values
           break;
     }
+    }
   }
 
   /**

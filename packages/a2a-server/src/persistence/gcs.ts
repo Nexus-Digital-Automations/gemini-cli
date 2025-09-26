@@ -235,7 +235,7 @@ export class GCSTaskStore implements TaskStore {
       }
       const [compressedMetadata] = await metadataFile.download();
       const jsonData = gunzipSync(compressedMetadata).toString();
-      const loadedMetadata = JSON.parse(jsonData);
+      const loadedMetadata = JSON.parse(jsonData) as PersistedTaskMetadata;
       logger.info(`Task ${taskId} metadata loaded from GCS.`);
 
       const persistedState = getPersistedState(loadedMetadata);
@@ -271,7 +271,9 @@ export class GCSTaskStore implements TaskStore {
 
       return {
         id: taskId,
-        contextId: loadedMetadata._contextId || uuidv4(),
+        contextId:
+          ((loadedMetadata as Record<string, unknown>)['_contextId'] as string) ||
+          uuidv4(),
         kind: 'task',
         status: {
           state: persistedState._taskState,

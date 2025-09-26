@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
@@ -46,7 +48,7 @@ describe('PersistenceStorageAPI', () => {
     mockFse.copy = vi.fn().mockResolvedValue(undefined);
     mockFse.move = vi.fn().mockResolvedValue(undefined);
     mockFse.remove = vi.fn().mockResolvedValue(undefined);
-    mockFse.readdir = vi.fn().mockResolvedValue([]) as any;
+    (mockFse.readdir as any) = vi.fn().mockResolvedValue([]);
 
     // Create test task
     mockTask = {
@@ -108,9 +110,7 @@ describe('PersistenceStorageAPI', () => {
       };
 
       (mockFse.pathExists as any).mockResolvedValue(true);
-      (mockFse.readJSON as any).mockResolvedValue(
-        taskMetadata,
-      );
+      (mockFse.readJSON as any).mockResolvedValue(taskMetadata);
 
       const loadedTask = await storageAPI.load('test-task-id');
 
@@ -128,18 +128,14 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle save errors gracefully', async () => {
-      (mockFse.writeJSON as any).mockRejectedValue(
-        new Error('Write failed'),
-      );
+      (mockFse.writeJSON as any).mockRejectedValue(new Error('Write failed'));
 
       await expect(storageAPI.save(mockTask)).rejects.toThrow('Write failed');
     });
 
     test('should handle load errors gracefully', async () => {
       (mockFse.pathExists as any).mockResolvedValue(true);
-      (mockFse.readJSON as any).mockRejectedValue(
-        new Error('Read failed'),
-      );
+      (mockFse.readJSON as any).mockRejectedValue(new Error('Read failed'));
 
       await expect(storageAPI.load('test-task-id')).rejects.toThrow(
         'Read failed',
@@ -452,12 +448,8 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Integration', () => {
     test('should maintain data consistency across save/load cycle', async () => {
-      (mockFse.pathExists as any).mockResolvedValueOnce(
-        false,
-      ); // For save
-      (mockFse.pathExists as any).mockResolvedValueOnce(
-        true,
-      ); // For load
+      (mockFse.pathExists as any).mockResolvedValueOnce(false); // For save
+      (mockFse.pathExists as any).mockResolvedValueOnce(true); // For load
 
       // Set up mock return value for load
       const expectedMetadata = {
@@ -473,9 +465,7 @@ describe('PersistenceStorageAPI', () => {
         },
       };
 
-      (mockFse.readJSON as any).mockResolvedValue(
-        expectedMetadata,
-      );
+      (mockFse.readJSON as any).mockResolvedValue(expectedMetadata);
 
       // Save task
       await storageAPI.save(mockTask);
