@@ -30,9 +30,9 @@ const mockResponse = (
 describe('partUtils', () => {
   describe('partToString (default behavior)', () => {
     it('should return empty string for undefined or null', () => {
-      // @ts-expect-error Testing invalid input
+      // Testing invalid input
       expect(partToString(undefined)).toBe('');
-      // @ts-expect-error Testing invalid input
+      // Testing invalid input
       expect(partToString(null)).toBe('');
     });
 
@@ -60,9 +60,9 @@ describe('partUtils', () => {
     const verboseOptions = { verbose: true };
 
     it('should return empty string for undefined or null', () => {
-      // @ts-expect-error Testing invalid input
+      // Testing invalid input
       expect(partToString(undefined, verboseOptions)).toBe('');
-      // @ts-expect-error Testing invalid input
+      // Testing invalid input
       expect(partToString(null, verboseOptions)).toBe('');
     });
 

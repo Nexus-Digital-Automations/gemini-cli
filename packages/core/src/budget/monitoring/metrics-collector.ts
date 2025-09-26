@@ -17,15 +17,15 @@ import { getComponentLogger } from '../../utils/logger.js';
 import type {
   TokenTracker,
   TokenUsageStats,
-  RequestTrackingData,
+  RequestTrackingData as _RequestTrackingData,
 } from './token-tracker.js';
 import type {
   TokenUsageData,
   ModelUsageData,
-  SessionUsageData,
-  HistoricalDataPoint,
-  BudgetEvent,
-  BudgetEventType,
+  SessionUsageData as _SessionUsageData,
+  HistoricalDataPoint as _HistoricalDataPoint,
+  BudgetEvent as _BudgetEvent,
+  BudgetEventType as _BudgetEventType,
 } from '../types.js';
 
 /**
@@ -77,6 +77,7 @@ export interface MetricsSummary {
   topModels: ModelUsageData[];
   topFeatures: Array<{ feature: string; usage: TokenUsageData }>;
   topSessions: Array<{ sessionId: string; usage: TokenUsageData }>;
+  totalDataPoints: number;
 }
 
 /**
@@ -148,7 +149,7 @@ export interface AnomalyData {
 export interface MetricsEvent {
   type: 'snapshot' | 'trend_update' | 'anomaly_detected' | 'summary_update';
   timestamp: Date;
-  data: any;
+  data: MetricsDataPoint | TrendAnalysis | AnomalyData | MetricsSummary;
 }
 
 /**
@@ -253,6 +254,7 @@ export class MetricsCollector extends EventEmitter {
       topModels: this.getTopModels(stats, 10),
       topFeatures: this.getTopFeatures(stats, 10),
       topSessions: this.getTopSessions(stats, 10),
+      totalDataPoints: this.historicalData.length,
     };
   }
 
@@ -379,7 +381,7 @@ export class MetricsCollector extends EventEmitter {
   /**
    * Add a data point to historical data
    */
-  private addHistoricalDataPoint(dataPoint: MetricsDataPoint): void {
+  addHistoricalDataPoint(dataPoint: MetricsDataPoint): void {
     this.historicalData.push(dataPoint);
 
     // Maintain circular buffer
@@ -741,7 +743,7 @@ export class MetricsCollector extends EventEmitter {
 
       // Keep only recent anomalies
       const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
-      const recentAnomaliesCount = this.anomalies.length;
+      const _recentAnomaliesCount = this.anomalies.length;
       this.anomalies.splice(0, this.anomalies.length);
       this.anomalies.push(
         ...this.anomalies.filter((a) => a.timestamp >= cutoff),

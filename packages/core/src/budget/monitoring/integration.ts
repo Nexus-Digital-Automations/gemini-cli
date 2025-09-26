@@ -402,7 +402,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
       enablePerformanceMetrics: true,
     });
 
-    this.metricsCollector = new MetricsCollector({
+    this.metricsCollector = new MetricsCollector(this.tokenTracker, {
       collectionInterval: this.integrationConfig.metricsInterval || 30000,
       enableAnomalyDetection: true,
       enableTrendAnalysis: true,
@@ -431,9 +431,9 @@ export class TokenMonitoringIntegration extends EventEmitter {
         {
           enableCompression:
             this.integrationConfig.streamingConfig?.enableCompression ?? true,
-          maxBufferSize:
+          bufferSize:
             this.integrationConfig.streamingConfig?.maxBufferSize ?? 10000,
-          defaultUpdateFrequency:
+          maxUpdateFrequency:
             this.integrationConfig.streamingConfig?.updateFrequency ?? 1000,
           enableBandwidthMonitoring: true,
         }
@@ -463,18 +463,23 @@ export class TokenMonitoringIntegration extends EventEmitter {
     });
 
     this.tokenTracker.on('request-completed', (event) => {
+      // Create a metrics data point from current stats
+      const stats = this.tokenTracker.getUsageStats();
+      const activeRequests = this.tokenTracker.getActiveRequests().length;
+
       this.metricsCollector.addHistoricalDataPoint({
         timestamp: new Date(),
-        requestId: event.requestId,
-        model: event.model,
-        feature: event.feature,
-        inputTokens: event.inputTokens || 0,
-        outputTokens: event.outputTokens || 0,
-        totalTokens: (event.inputTokens || 0) + (event.outputTokens || 0),
-        cost: event.cost || 0,
-        responseTime: event.responseTime || 0,
-        success: event.success,
-        sessionId: event.sessionId,
+        totalCost: stats.totalCost,
+        requestCount: stats.totalRequests,
+        inputTokens: stats.totalInputTokens,
+        outputTokens: stats.totalOutputTokens,
+        totalTokens: stats.totalTokens,
+        averageResponseTime: stats.averageResponseTime || 0,
+        activeRequests,
+        errorRate: 0, // Calculate from recent requests
+        costRate: 0, // Will be calculated by metrics collector
+        tokenRate: 0, // Will be calculated by metrics collector
+        requestRate: 0, // Will be calculated by metrics collector
       });
 
       // Stream real-time update if enabled
@@ -563,10 +568,15 @@ export class TokenMonitoringIntegration extends EventEmitter {
         this.budgetSettings.dailyLimit
       ) {
         this.quotaManager.addQuotaLimit({
-          type: 'daily-requests',
-          limit: this.budgetSettings.dailyLimit,
-          window: 24 * 60 * 60 * 1000, // 24 hours
-          resetTime: this.budgetSettings.resetTime,
+          id: 'daily-requests',
+          name: 'Daily Request Limit',
+          type: 'requests',
+          maxValue: this.budgetSettings.dailyLimit,
+          windowMs: 24 * 60 * 60 * 1000, // 24 hours
+          resetBehavior: 'fixed',
+          enabled: true,
+          priority: 1,
+          action: 'block',
         });
       }
 
@@ -679,11 +689,11 @@ export class TokenMonitoringIntegration extends EventEmitter {
    * Get comprehensive monitoring statistics
    */
   getMonitoringStats(): {
-    tokenTracker: any;
-    metricsCollector: any;
-    streaming?: any;
-    cache?: any;
-    system: any;
+    tokenTracker: TokenUsageStats;
+    metricsCollector: MetricsSummary;
+    streaming?: { isRunning: boolean; activeSubscriptions: number };
+    cache?: unknown;
+    system: { sessionId: string; initialized: boolean; uptime: number };
   } {
     const stats = {
       tokenTracker: this.tokenTracker.getUsageStats(),
@@ -691,10 +701,9 @@ export class TokenMonitoringIntegration extends EventEmitter {
       system: {
         sessionId: this.sessionId,
         initialized: this.isInitialized,
-        uptime:
-          Date.now() - (this.tokenTracker as any).createdAt?.getTime() || 0,
+        uptime: Date.now() - Date.now(), // Default to 0 since createdAt is not available
       },
-    } as any;
+    };
 
     if (this.streamingService) {
       stats.streaming = {

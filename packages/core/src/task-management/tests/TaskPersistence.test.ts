@@ -58,7 +58,7 @@ describe('TaskPersistence', () => {
   beforeEach(() => {
     tempDir = join(tmpdir(), 'task-persistence-test');
     persistence = new TaskPersistence({
-      persistenceDir: tempDir,
+      storageDir: tempDir,
       enableBackup: true,
       backupRetentionDays: 7,
       compressionEnabled: true,
@@ -79,7 +79,7 @@ describe('TaskPersistence', () => {
           basePriority: TaskPriority.HIGH,
           dynamicPriority: 5,
           createdAt: new Date('2024-01-01T00:00:00Z'),
-          executeFunction: async () => ({ success: true }),
+          executeFunction: async () => ({ success: true, duration: 0 }),
           dependencies: [],
           dependents: [],
           priorityFactors: {
@@ -110,7 +110,7 @@ describe('TaskPersistence', () => {
           dynamicPriority: 3,
           createdAt: new Date('2024-01-01T00:30:00Z'),
           completedAt: new Date('2024-01-01T02:00:00Z'),
-          executeFunction: async () => ({ success: true }),
+          executeFunction: async () => ({ success: true, duration: 0 }),
           dependencies: ['task-1'],
           dependents: [],
           priorityFactors: {
@@ -167,7 +167,19 @@ describe('TaskPersistence', () => {
         new Map(), // completedTasks
         new Map(), // failedTasks
         new Set(), // runningTasks
-        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 }, // metrics
+        {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        }, // metrics
         'test-session'
       );
 
@@ -190,7 +202,7 @@ describe('TaskPersistence', () => {
     });
 
     it('should handle function serialization with registry', async () => {
-      const customFunction = async () => ({ success: true, custom: true });
+      const customFunction = async () => ({ success: true, custom: true, duration: 0 });
       persistence.registerFunction('customExecute', customFunction);
 
       const taskWithCustomFunction = new Map([
@@ -232,7 +244,19 @@ describe('TaskPersistence', () => {
         new Map(),
         new Map(),
         new Set(),
-        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        },
         'test-session'
       );
 
@@ -248,7 +272,7 @@ describe('TaskPersistence', () => {
 
     it('should compress data when compression is enabled', async () => {
       const compressionPersistence = new TaskPersistence({
-        persistenceDir: tempDir,
+        storageDir: tempDir,
         compressionEnabled: true,
       });
 
@@ -264,7 +288,19 @@ describe('TaskPersistence', () => {
         new Map(),
         new Map(),
         new Set(),
-        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        },
         'test-session'
       );
 
@@ -380,7 +416,7 @@ describe('TaskPersistence', () => {
 
     it('should decompress data when needed', async () => {
       const compressionPersistence = new TaskPersistence({
-        persistenceDir: tempDir,
+        storageDir: tempDir,
         compressionEnabled: true,
       });
 
@@ -601,7 +637,7 @@ describe('TaskPersistence', () => {
           priority: TaskPriority.MEDIUM,
           createdAt: new Date(),
           updatedAt: new Date(),
-          executeFunction: async () => ({ success: true }),
+          executeFunction: async () => ({ success: true, duration: 0 }),
           dependencies: [],
           priorityFactors: {},
           executionHistory: [],
@@ -621,7 +657,19 @@ describe('TaskPersistence', () => {
         new Map(),
         new Map(),
         new Set(),
-        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        },
         'test-session'
       );
       const endTime = Date.now();
@@ -633,7 +681,7 @@ describe('TaskPersistence', () => {
 
     it('should use streaming for large datasets', async () => {
       const streamingPersistence = new TaskPersistence({
-        persistenceDir: tempDir,
+        storageDir: tempDir,
         useStreaming: true,
         streamThreshold: 100, // Use streaming for >100 tasks
       });
@@ -648,7 +696,7 @@ describe('TaskPersistence', () => {
           priority: TaskPriority.MEDIUM,
           createdAt: new Date(),
           updatedAt: new Date(),
-          executeFunction: async () => ({ success: true }),
+          executeFunction: async () => ({ success: true, duration: 0 }),
           dependencies: [],
           priorityFactors: {},
           executionHistory: [],
@@ -674,7 +722,19 @@ describe('TaskPersistence', () => {
         new Map(),
         new Map(),
         new Set(),
-        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        },
         'test-session'
       );
 
@@ -701,7 +761,19 @@ describe('TaskPersistence', () => {
         new Map(),
         new Map(),
         new Set(),
-        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        },
         'test-session'
       );
 
@@ -761,7 +833,19 @@ describe('TaskPersistence', () => {
           new Map(),
           new Map(),
           new Set(),
-          { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+          {
+          totalTasks: 0,
+          pendingTasks: 0,
+          runningTasks: 0,
+          completedTasks: 0,
+          failedTasks: 0,
+          averageWaitTime: 0,
+          averageExecutionTime: 0,
+          throughputPerHour: 0,
+          successRate: 1.0,
+          priorityDistribution: {},
+          categoryDistribution: {}
+        },
           'test-session'
         ),
       ).rejects.toThrow();
