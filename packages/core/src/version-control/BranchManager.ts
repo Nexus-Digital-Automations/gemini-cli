@@ -14,9 +14,9 @@
 
 import { execSync } from 'node:child_process';
 import { getComponentLogger } from '../utils/logger.js';
+import { BranchType } from './types.js';
 import type {
   BranchInfo,
-  BranchType,
   BranchCreationOptions,
   BranchProtectionRule,
   RepositoryStatus,

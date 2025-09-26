@@ -16,9 +16,9 @@ import { execSync } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { getComponentLogger } from '../utils/logger.js';
+import { CommitType } from './types.js';
 import type {
   CommitMessage,
-  CommitType,
   CodeAnalysis,
   ImportChange,
   CommitGenerationOptions,
@@ -99,24 +99,28 @@ export class CommitMessageGenerator {
       const body = this.generateBody(analysis);
       const isBreakingChange = this.detectBreakingChange(analysis);
       const references = this.extractIssueReferences(analysis);
-      const footer = this.generateFooter(isBreakingChange, references);
+      const referenceStrings = references.map(ref => `${ref.type}#${ref.id}`);
+      const footer = this.generateFooter(isBreakingChange, referenceStrings);
 
       const commitMessage: CommitMessage = {
+        hash: '', // Will be set after commit
         type: commitType,
         scope,
-        description,
+        subject: description,
         body: body || undefined,
-        footer: footer || undefined,
-        isBreakingChange,
-        references: references.length > 0 ? references : undefined,
-        coAuthors: this.config.includeCoAuthors ? this.extractCoAuthors() : undefined,
+        author: this.getCurrentUser(),
+        email: this.getCurrentUserEmail(),
+        date: new Date(),
+        breakingChange: isBreakingChange ? { description, scope } : undefined,
+        footers: {},
+        references,
       };
 
       logger.info('Generated commit message', {
         type: commitMessage.type,
         scope: commitMessage.scope,
-        description: commitMessage.description,
-        isBreakingChange: commitMessage.isBreakingChange,
+        subject: commitMessage.subject,
+        breakingChange: commitMessage.breakingChange,
       });
 
       return commitMessage;
@@ -357,8 +361,8 @@ export class CommitMessageGenerator {
   /**
    * Extract issue references from commit messages or branch names
    */
-  extractIssueReferences(analysis: CodeAnalysis): string[] {
-    const references: string[] = [];
+  extractIssueReferences(analysis: CodeAnalysis): Array<{ type: string; id: string; url: string }> {
+    const references: Array<{ type: string; id: string; url: string }> = [];
 
     try {
       // Check current branch name for issue references
@@ -368,14 +372,23 @@ export class CommitMessageGenerator {
       for (const pattern of issuePatterns) {
         const match = branchName.match(pattern);
         if (match) {
-          references.push(`#${match[1]}`);
+          const issueId = match[1];
+          references.push({
+            type: 'issue',
+            id: issueId,
+            url: `https://github.com/repo/issues/${issueId}` // Mock URL - would be configurable
+          });
         }
       }
     } catch (error) {
       logger.debug('Failed to extract issue references', { error });
     }
 
-    return [...new Set(references)]; // Remove duplicates
+    // Remove duplicates based on id
+    const uniqueRefs = references.filter((ref, index, arr) =>
+      arr.findIndex(r => r.id === ref.id) === index
+    );
+    return uniqueRefs;
   }
 
   /**
@@ -655,6 +668,30 @@ export class CommitMessageGenerator {
   }
 
   /**
+   * Get current Git user name
+   */
+  private getCurrentUser(): string {
+    try {
+      return execSync('git config user.name', { encoding: 'utf8' }).trim();
+    } catch (error) {
+      logger.warn('Failed to get Git user name', { error });
+      return 'Unknown User';
+    }
+  }
+
+  /**
+   * Get current Git user email
+   */
+  private getCurrentUserEmail(): string {
+    try {
+      return execSync('git config user.email', { encoding: 'utf8' }).trim();
+    } catch (error) {
+      logger.warn('Failed to get Git user email', { error });
+      return 'unknown@example.com';
+    }
+  }
+
+  /**
    * Format commit message for git commit
    */
   formatCommitMessage(commitMessage: CommitMessage): string {
@@ -664,18 +701,21 @@ export class CommitMessageGenerator {
       message += `(${commitMessage.scope})`;
     }
 
-    if (commitMessage.isBreakingChange) {
+    if (commitMessage.breakingChange) {
       message += '!';
     }
 
-    message += `: ${commitMessage.description}`;
+    message += `: ${commitMessage.subject}`;
 
     if (commitMessage.body) {
       message += `\n\n${commitMessage.body}`;
     }
 
-    if (commitMessage.footer) {
-      message += `\n\n${commitMessage.footer}`;
+    if (commitMessage.footers && Object.keys(commitMessage.footers).length > 0) {
+      const footerText = Object.entries(commitMessage.footers)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+      message += `\n\n${footerText}`;
     }
 
     return message;

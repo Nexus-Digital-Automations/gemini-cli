@@ -3,14 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import AjvPkg from 'ajv';
 import * as addFormats from 'ajv-formats';
-// Ajv's ESM/CJS interop: use 'any' for compatibility as recommended by Ajv docs
- 
+// Ajv's ESM/CJS interop: handle both named and default exports
 const AjvClass = AjvPkg.default || AjvPkg;
 const ajValidator = new AjvClass();
- 
 const addFormatsFunc = addFormats.default || addFormats;
 addFormatsFunc(ajValidator);
 /**

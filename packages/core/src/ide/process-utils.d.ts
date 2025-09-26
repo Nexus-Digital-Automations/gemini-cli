@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Traverses up the process tree to find the process ID and command of the IDE.
  *
@@ -17,6 +16,6 @@
  * @returns A promise that resolves to the PID and command of the IDE process.
  */
 export declare function getIdeProcessInfo(): Promise<{
-  pid: number;
-  command: string;
+    pid: number;
+    command: string;
 }>;

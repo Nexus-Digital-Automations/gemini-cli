@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Type guard to check if an error is a Node.js errno exception.
  * Node.js errno exceptions have a 'code' property that indicates the type of system error.

@@ -9,33 +9,61 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 64,
-      "current_day": "2025-09-25",
+      "total_reinitializations": 65,
+      "current_day": "2025-09-26",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 20
+          "reinit": 0
         },
         "14:00-18:59": {
           "init": 0,
-          "reinit": 4
+          "reinit": 0
         },
         "19:00-23:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 1
         },
         "00:00-04:59": {
           "init": 0,
-          "reinit": 16
+          "reinit": 0
         },
         "05:00-09:59": {
           "init": 0,
-          "reinit": 24
+          "reinit": 0
         }
       },
-      "daily_history": [],
-      "last_reset": "2025-09-25T05:16:31.163Z",
-      "last_updated": "2025-09-25T19:50:40.962Z"
+      "daily_history": [
+        {
+          "date": "2025-09-25",
+          "total_init": 0,
+          "total_reinit": 64,
+          "buckets": {
+            "09:00-13:59": {
+              "init": 0,
+              "reinit": 20
+            },
+            "14:00-18:59": {
+              "init": 0,
+              "reinit": 4
+            },
+            "19:00-23:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "00:00-04:59": {
+              "init": 0,
+              "reinit": 16
+            },
+            "05:00-09:59": {
+              "init": 0,
+              "reinit": 24
+            }
+          }
+        }
+      ],
+      "last_reset": "2025-09-26T01:09:12.949Z",
+      "last_updated": "2025-09-26T01:09:12.949Z"
     }
   },
   "workflow_config": {
@@ -125,6 +153,13 @@
         "a67f8c32bcdacc78",
         "a6e8abc3265a6de6"
       ]
+    },
+    "AGENT_VERSION_CONTROL": {
+      "lastHeartbeat": "2025-09-26T01:09:12.944Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T01:09:12.944Z",
+      "sessionId": "053e5a2563b342e3",
+      "previousSessions": []
     }
   }
 }

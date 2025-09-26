@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Safely stringifies an object to JSON, handling circular references by replacing them with [Circular].
  *
@@ -11,7 +10,4 @@
  * @param space - Optional space parameter for formatting (defaults to no formatting)
  * @returns JSON string with circular references replaced by [Circular]
  */
-export declare function safeJsonStringify(
-  obj: unknown,
-  space?: string | number,
-): string;
+export declare function safeJsonStringify(obj: unknown, space?: string | number): string;

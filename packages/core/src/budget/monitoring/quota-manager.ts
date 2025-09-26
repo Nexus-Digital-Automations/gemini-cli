@@ -620,11 +620,9 @@ export class QuotaManager extends EventEmitter {
             Math.random() * (config.maxDelay - config.minDelay);
           break;
       default:
-          // Handle unexpected values
-          break;
-    
-
-      }
+        // Handle unexpected values
+        break;
+    }
 
     delay = Math.min(delay, config.maxDelay);
     this.currentThrottleDelay = delay;
@@ -724,12 +722,11 @@ export class QuotaManager extends EventEmitter {
         );
         break;
       // Add other strategies as needed
-    default:
+      default:
         // Handle unexpected values
         break;
-  
-
     }
+  }
 
   /**
    * Initialize quota usage tracking

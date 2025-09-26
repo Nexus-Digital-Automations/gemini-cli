@@ -5,7 +5,7 @@
  */
 
 export declare class TestMcpServer {
-  private server;
-  start(): Promise<number>;
-  stop(): Promise<void>;
+    private server;
+    start(): Promise<number>;
+    stop(): Promise<void>;
 }

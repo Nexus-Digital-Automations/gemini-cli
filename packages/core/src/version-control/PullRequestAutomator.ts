@@ -108,7 +108,8 @@ export class PullRequestAutomator {
         comments: [],
         metrics: this.initializePRMetrics(),
         analysis,
-        autoMergeConfig: options.enableAutoMerge ? this.getAutoMergeConfig() : undefined
+        autoMergeConfig: options.enableAutoMerge ? this.getAutoMergeConfig() : undefined,
+        linkedIssues: this.extractLinkedIssues(analysis)
       };
 
       // Execute platform-specific creation
@@ -894,6 +895,25 @@ ${analysis.estimatedReviewTime} minutes`;
     labels.push(`complexity-${this.categorizeComplexity(analysis.complexity)}`);
 
     return [...new Set(labels)]; // Remove duplicates
+  }
+
+  private extractLinkedIssues(analysis: PRAnalysis): string[] {
+    const linkedIssues: string[] = [];
+
+    // Extract issue references from file names and changes
+    for (const file of analysis.filesChanged) {
+      // Look for issue patterns in file names
+      const issuePatterns = [/#(\d+)/, /issue[-_](\d+)/i, /fix[-_](\d+)/i];
+      for (const pattern of issuePatterns) {
+        const match = file.match(pattern);
+        if (match) {
+          linkedIssues.push(`#${match[1]}`);
+        }
+      }
+    }
+
+    // Remove duplicates and return
+    return [...new Set(linkedIssues)];
   }
 
   private categorizeSize(lines: number): string {
