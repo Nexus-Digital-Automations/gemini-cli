@@ -543,7 +543,9 @@ export class DependencyResolver extends EventEmitter {
   /**
    * Resolve conflict using best effort strategy
    */
-  private resolveConflictBestEffort(cycle: string[]): void {
+  private resolveConflictBestEffort(
+    cycle: string[]
+  ): void {
     // Remove the dependency with the lowest priority impact
     let minImpact = Infinity;
     let targetDependency: TaskDependency | null = null;
