@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import type { TaskStatus } from '../task-management/types.js';
 import type {
   ValidationRule,
@@ -17,7 +17,7 @@ import {
   ValidationSeverity,
   ValidationCategory,
 } from './ValidationFramework.js';
-import type { Task, TaskResult } from '../task-management/types.js';
+import type { Task } from '../task-management/types.js';
 import type { TaskExecutionMetrics } from './TaskValidator.js';
 
 /**
@@ -496,8 +496,8 @@ export class ValidationRules {
 
     // Sort by priority
     return applicableRules.sort((a, b) => {
-      const priorityA = (a.metadata?.priority as number) || 999;
-      const priorityB = (b.metadata?.priority as number) || 999;
+      const priorityA = (a.metadata?.['priority'] as number) || 999;
+      const priorityB = (b.metadata?.['priority'] as number) || 999;
       return priorityA - priorityB;
     });
   }
@@ -579,7 +579,7 @@ export class ValidationRules {
   private async validateTaskRequiredFields(
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const task = context.metadata?.task as Task;
+    const task = context.metadata?.['task'] as Task;
     if (!task) {
       return [
         {
@@ -638,7 +638,7 @@ export class ValidationRules {
   private async validateTaskStatusForExecution(
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const task = context.metadata?.task as Task;
+    const task = context.metadata?.['task'] as Task;
     if (!task) {
       return [
         {
@@ -687,7 +687,7 @@ export class ValidationRules {
   private async validateTaskDependencies(
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const task = context.metadata?.task as Task;
+    const task = context.metadata?.['task'] as Task;
     if (!task) {
       return [
         {
@@ -724,8 +724,8 @@ export class ValidationRules {
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const executionMetrics = context.metadata
-      ?.executionMetrics as TaskExecutionMetrics;
-    const task = context.metadata?.task as Task;
+      ?.['executionMetrics'] as TaskExecutionMetrics;
+    const task = context.metadata?.['task'] as Task;
 
     if (!executionMetrics || !task) {
       return [
@@ -858,7 +858,7 @@ export class ValidationRules {
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const executionMetrics = context.metadata
-      ?.executionMetrics as TaskExecutionMetrics;
+      ?.['executionMetrics'] as TaskExecutionMetrics;
 
     if (!executionMetrics?.memoryUsage) {
       return [

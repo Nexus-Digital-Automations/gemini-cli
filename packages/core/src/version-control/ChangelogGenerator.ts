@@ -8,22 +8,20 @@ import { execSync } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import {
-  VCAutomationConfig,
+  type VCAutomationConfig,
   ReleaseType,
-  ChangelogEntry,
-  CommitMessage,
-  ReleaseNotes,
+  type ChangelogEntry,
+  type CommitMessage,
+  type ReleaseNotes,
   ChangelogFormat,
-  ChangelogConfig,
-  ReleaseMetrics,
-  ChangelogTemplate,
-  SemanticVersion,
-  ReleaseSection,
-  ContributorInfo,
-  BreakingChange,
-  MigrationGuide,
-  ChangelogAnalytics,
-  ReleaseImpact,
+  type ReleaseMetrics,
+  type ChangelogTemplate,
+  type ReleaseSection,
+  type ContributorInfo,
+  type BreakingChange,
+  type MigrationGuide,
+  type ChangelogAnalytics,
+  type ReleaseImpact,
 } from './types.js';
 
 /**
@@ -308,11 +306,11 @@ export class ChangelogGenerator {
 
     // Add release highlights
     if (
-      releaseNotes.sections.highlights &&
-      releaseNotes.sections.highlights.length > 0
+      releaseNotes.sections['highlights'] &&
+      releaseNotes.sections['highlights'].length > 0
     ) {
       content += '\n\n## ✨ Highlights\n\n';
-      for (const highlight of releaseNotes.sections.highlights) {
+      for (const highlight of releaseNotes.sections['highlights']) {
         content += `- **${highlight.title}**: ${highlight.description}\n`;
       }
     }
@@ -843,7 +841,6 @@ export class ChangelogGenerator {
     entries: ChangelogEntry[],
     breakingChanges: BreakingChange[],
   ): ReleaseImpact {
-    const totalFiles = [...new Set(entries.flatMap((e) => e.files))].length;
     const totalLines = entries.reduce(
       (acc, e) => acc + e.linesAdded + e.linesDeleted,
       0,
@@ -877,11 +874,11 @@ export class ChangelogGenerator {
     const sections: Record<string, ReleaseSection[]> = {};
 
     // Generate highlights
-    sections.highlights = this.generateHighlights(groupedEntries);
+    sections['highlights'] = this.generateHighlights(groupedEntries);
 
     // Generate feature sections
-    if (groupedEntries.feat) {
-      sections.features = groupedEntries.feat.map((entry) => ({
+    if (groupedEntries['feat']) {
+      sections['features'] = groupedEntries['feat'].map((entry) => ({
         title: entry.subject,
         description: entry.description || entry.subject,
         type: 'feature',
@@ -892,8 +889,8 @@ export class ChangelogGenerator {
     }
 
     // Generate bug fix sections
-    if (groupedEntries.fix) {
-      sections.fixes = groupedEntries.fix.map((entry) => ({
+    if (groupedEntries['fix']) {
+      sections['fixes'] = groupedEntries['fix'].map((entry) => ({
         title: entry.subject,
         description: entry.description || entry.subject,
         type: 'fix',

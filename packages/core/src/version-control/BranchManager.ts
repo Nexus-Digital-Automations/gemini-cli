@@ -152,8 +152,8 @@ export class BranchManager {
 
       return branchInfo;
     } catch (error) {
-      logger.error('Failed to create branch', { error, options });
-      throw error;
+      logger.error('Failed to create branch', { error: error as Error, options });
+      throw error as Error;
     }
   }
 
@@ -209,8 +209,8 @@ export class BranchManager {
         rulesCount: applicableRules.length,
       });
     } catch (error) {
-      logger.error('Failed to apply protection rules', { error, branchName });
-      throw error;
+      logger.error('Failed to apply protection rules', { error: error as Error, branchName });
+      throw error as Error;
     }
   }
 
@@ -237,8 +237,8 @@ export class BranchManager {
       });
       return cleanedBranches;
     } catch (error) {
-      logger.error('Failed to cleanup merged branches', { error });
-      throw error;
+      logger.error('Failed to cleanup merged branches', { error: error as Error });
+      throw error as Error;
     }
   }
 
@@ -271,8 +271,8 @@ export class BranchManager {
 
       return report;
     } catch (error) {
-      logger.error('Failed to analyze branch health', { error });
-      throw error;
+      logger.error('Failed to analyze branch health', { error: error as Error });
+      throw error as Error;
     }
   }
 
@@ -351,8 +351,8 @@ export class BranchManager {
         remoteUrl,
       };
     } catch (error) {
-      logger.error('Failed to get repository status', { error });
-      throw error;
+      logger.error('Failed to get repository status', { error: error as Error });
+      throw error as Error;
     }
   }
 
@@ -380,8 +380,8 @@ export class BranchManager {
 
       logger.info('Switched to branch successfully', { branchName });
     } catch (error) {
-      logger.error('Failed to switch to branch', { error, branchName });
-      throw error;
+      logger.error('Failed to switch to branch', { error: error as Error, branchName });
+      throw error as Error;
     }
   }
 
@@ -398,7 +398,7 @@ export class BranchManager {
       });
     } catch (error) {
       logger.warn('Failed to pull latest changes from remote', {
-        error,
+        error: error as Error,
         baseBranch,
       });
     }
@@ -532,8 +532,8 @@ export class BranchManager {
         isProtected: this.isBranchProtected(branchName),
       };
     } catch (error) {
-      logger.error('Failed to get branch info', { error, branchName });
-      throw error;
+      logger.error('Failed to get branch info', { error: error as Error, branchName });
+      throw error as Error;
     }
   }
 
@@ -574,7 +574,7 @@ export class BranchManager {
           branches.push(await this.getBranchInfo(name));
         } catch (error) {
           logger.warn('Failed to get info for branch', {
-            error,
+            error: error as Error,
             branchName: name,
           });
         }
@@ -582,7 +582,7 @@ export class BranchManager {
 
       return branches;
     } catch (error) {
-      logger.error('Failed to get all branches', { error });
+      logger.error('Failed to get all branches', { error: error as Error });
       return [];
     }
   }
@@ -620,7 +620,7 @@ export class BranchManager {
           branches.push(await this.getBranchInfo(name));
         } catch (error) {
           logger.warn('Failed to get info for merged branch', {
-            error,
+            error: error as Error,
             branchName: name,
           });
         }
@@ -628,7 +628,7 @@ export class BranchManager {
 
       return branches;
     } catch (error) {
-      logger.error('Failed to get merged branches', { error });
+      logger.error('Failed to get merged branches', { error: error as Error });
       return [];
     }
   }
@@ -662,8 +662,8 @@ export class BranchManager {
 
       logger.info('Branch deleted', { branchName });
     } catch (error) {
-      logger.error('Failed to delete branch', { error, branchName });
-      throw error;
+      logger.error('Failed to delete branch', { error: error as Error, branchName });
+      throw error as Error;
     }
   }
 

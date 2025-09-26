@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type {
@@ -129,23 +129,6 @@ interface ReportTemplateData {
   metadata: Record<string, unknown>;
 }
 
-/**
- * Aggregated report data
- */
-interface _AggregatedReportData {
-  period: {
-    start: Date;
-    end: Date;
-  };
-  totalReports: number;
-  overallMetrics: ValidationMetrics;
-  reports: Array<ValidationReport | WorkflowExecutionResult>;
-  trends: {
-    validationTrend: number; // percentage change
-    failureTrend: number;
-    performanceTrend: number;
-  };
-}
 
 /**
  * Dashboard widget data
@@ -164,7 +147,6 @@ interface DashboardWidget {
 export class ValidationReporting extends EventEmitter {
   private readonly logger: Logger;
   private readonly config: ValidationReportingConfig;
-  private readonly metricsStore: Map<string, ValidationMetrics> = new Map();
   private readonly reportHistory: Array<
     ValidationReport | WorkflowExecutionResult
   > = [];
@@ -906,8 +888,8 @@ export class ValidationReporting extends EventEmitter {
       clearInterval(this.metricsCollectionInterval);
     }
 
-    if (this.dashboardServer) {
-      this.dashboardServer.close();
+    if (this.dashboardServer && typeof this.dashboardServer === 'object' && 'close' in this.dashboardServer) {
+      (this.dashboardServer as { close(): void }).close();
     }
 
     this.logger.info('ValidationReporting cleanup completed');
