@@ -312,9 +312,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
     const baseQuery = await this.queryTokenUsage(query);
     const data = baseQuery.data;
 
-    if (!query.aggregateBy) {
-      query.aggregateBy = 'hour';
-    }
+    const aggregateBy = query.aggregateBy || 'hour';
 
     const groups = new Map<string, TokenUsageData[]>();
 
@@ -322,7 +320,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
     for (const item of data) {
       let groupKey: string;
 
-      switch (query.aggregateBy) {
+      switch (aggregateBy) {
         case 'hour':
           groupKey = new Date(item.timestamp).toISOString().slice(0, 13); // YYYY-MM-DDTHH
           break;
@@ -722,7 +720,8 @@ export class AnalyticsStorageEngine extends EventEmitter {
       const data = await this.readPartition(partition.path);
 
       // Update access time
-      partition.lastAccessedAt = Date.now();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (partition as any).lastAccessedAt = Date.now();
 
       return {
         data: this.applyQueryFilters(data, query),
@@ -873,7 +872,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
             k,
             Array.from(v),
           ]),
-        );
+        ) as { [k: string]: string[] };
         data[id] = metadataObj;
       }
 

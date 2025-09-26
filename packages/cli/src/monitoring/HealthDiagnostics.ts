@@ -274,14 +274,24 @@ export class HealthDiagnostics extends EventEmitter {
       string,
       {
         status: string;
-        metrics: Record<string, unknown>;
+        metrics: Record<string, number>;
         issues: string[];
       }
     > = {};
     for (const component of systemHealth.components) {
+      // Filter component details to only include numeric values
+      const numericMetrics: Record<string, number> = {};
+      if (component.details) {
+        for (const [key, value] of Object.entries(component.details)) {
+          if (typeof value === 'number') {
+            numericMetrics[key] = value;
+          }
+        }
+      }
+
       componentStatus[component.component] = {
         status: component.status,
-        metrics: component.details || {},
+        metrics: numericMetrics,
         issues: component.status !== 'healthy' ? [component.message] : [],
       };
     }
@@ -499,15 +509,14 @@ export class HealthDiagnostics extends EventEmitter {
         }
 
         case 'ProgressTracker': {
-          const progressAnalytics = progressTracker.getProgressAnalytics();
-          details['totalTrackedTasks'] = progressAnalytics.totalTasksTracked;
-          details['activeTasks'] = progressAnalytics.activeTasks;
-          details.estimationAccuracy =
-            progressAnalytics.averageEstimationAccuracy;
+          const systemAnalytics = progressTracker.getSystemAnalytics();
+          details['totalTrackedTasks'] = systemAnalytics.totalTasks;
+          details['activeTasks'] = systemAnalytics.activelyTracked;
+          details.systemEfficiency = systemAnalytics.systemEfficiency;
 
-          if (progressAnalytics.averageEstimationAccuracy < 60) {
+          if (systemAnalytics.systemEfficiency < 60) {
             status = 'warning';
-            message = `Low estimation accuracy: ${progressAnalytics.averageEstimationAccuracy.toFixed(1)}%`;
+            message = `Low system efficiency: ${systemAnalytics.systemEfficiency.toFixed(1)}%`;
           }
           break;
         }
@@ -561,17 +570,17 @@ export class HealthDiagnostics extends EventEmitter {
         }
 
         case 'MetricsCollector': {
-          const collectorSummary = metricsCollector.getMetricsSummary();
-          details.totalMetrics = collectorSummary.totalRawValues;
-          details.memoryUsage = collectorSummary.memoryUsage.percentage;
-          details.activeAlerts = collectorSummary.activeAlerts;
+          const systemAnalytics = await metricsCollector.getSystemAnalytics();
+          details.totalTasks = systemAnalytics.systemOverview.totalTasks;
+          details.activeAgents = systemAnalytics.systemOverview.activeAgents;
+          details.systemEfficiency = systemAnalytics.systemOverview.systemEfficiency;
 
-          if (collectorSummary.memoryUsage.percentage > 90) {
+          if (systemAnalytics.systemOverview.systemEfficiency < 60) {
             status = 'critical';
-            message = `High memory usage: ${collectorSummary.memoryUsage.percentage.toFixed(1)}%`;
-          } else if (collectorSummary.memoryUsage.percentage > 80) {
+            message = `Low system efficiency: ${systemAnalytics.systemOverview.systemEfficiency.toFixed(1)}%`;
+          } else if (systemAnalytics.systemOverview.systemEfficiency < 80) {
             status = 'warning';
-            message = `Elevated memory usage: ${collectorSummary.memoryUsage.percentage.toFixed(1)}%`;
+            message = `Reduced system efficiency: ${systemAnalytics.systemOverview.systemEfficiency.toFixed(1)}%`;
           }
           break;
         }

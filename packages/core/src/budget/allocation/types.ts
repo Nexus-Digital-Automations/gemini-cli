@@ -111,6 +111,8 @@ export interface AllocationRecommendation extends OptimizationRecommendation {
   riskAssessment: RiskAssessment;
   /** Dependencies on other allocation decisions */
   dependencies: string[];
+  /** Estimated time to implement in hours */
+  estimatedTimeToImplement: number;
 }
 
 /**

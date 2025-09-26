@@ -9,7 +9,7 @@ import _React from 'react';
 import { render, act } from '@testing-library/react';
 import { BudgetDisplay, type BudgetDisplayProps } from '../BudgetDisplay.js';
 import { createBudgetTracker } from '@google/gemini-cli-core';
-import type { BudgetSettings } from '../../config/settingsSchema.js';
+import type { BudgetSettings } from '../../../config/settingsSchema.js';
 
 // Mock the budget tracker
 vi.mock('@google/gemini-cli-core', () => ({
@@ -19,7 +19,7 @@ vi.mock('@google/gemini-cli-core', () => ({
 }));
 
 // Mock the theme import
-vi.mock('../semantic-colors.js', () => ({
+vi.mock('../../semantic-colors.js', () => ({
   theme: {
     status: {
       success: 'green',

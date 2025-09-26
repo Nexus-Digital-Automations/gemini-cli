@@ -34,6 +34,7 @@ export interface SemanticColors {
     error: string;
     success: string;
     warning: string;
+    info: string;
   };
 }
 
@@ -65,6 +66,7 @@ export const lightSemanticColors: SemanticColors = {
     error: lightTheme.AccentRed,
     success: lightTheme.AccentGreen,
     warning: lightTheme.AccentYellow,
+    info: lightTheme.AccentBlue,
   },
 };
 
@@ -96,6 +98,7 @@ export const darkSemanticColors: SemanticColors = {
     error: darkTheme.AccentRed,
     success: darkTheme.AccentGreen,
     warning: darkTheme.AccentYellow,
+    info: darkTheme.AccentBlue,
   },
 };
 
@@ -127,5 +130,6 @@ export const ansiSemanticColors: SemanticColors = {
     error: ansiTheme.AccentRed,
     success: ansiTheme.AccentGreen,
     warning: ansiTheme.AccentYellow,
+    info: ansiTheme.AccentBlue,
   },
 };

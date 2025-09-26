@@ -168,9 +168,10 @@ export function logToolCall(config: Config, event: ToolCallEvent): void {
   ClearcutLogger.getInstance(config)?.logToolCallEvent(event);
   if (!isTelemetrySdkInitialized()) return;
 
+  const { metadata: _metadata, ...eventWithoutMetadata } = event;
   const attributes: LogAttributes = {
     ...getCommonAttributes(config),
-    ...event,
+    ...eventWithoutMetadata,
     'event.name': EVENT_TOOL_CALL,
     'event.timestamp': new Date().toISOString(),
     function_args: safeJsonStringify(event.function_args, 2),

@@ -341,12 +341,12 @@ export async function createValidationSystem(
         performanceBenchmarks: config.integration.performanceBenchmarks || [],
         integrationTests: config.integration.integrationTests || {
           enabled: false,
-          testSuites: [],
+          testCommand: '',
           timeout: 30000
         },
         e2eTests: config.integration.e2eTests || {
           enabled: false,
-          testSuites: [],
+          testCommand: '',
           timeout: 60000
         },
         loadTesting: config.integration.loadTesting || {

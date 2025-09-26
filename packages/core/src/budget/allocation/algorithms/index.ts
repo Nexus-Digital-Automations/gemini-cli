@@ -53,6 +53,7 @@ export type {
 import type {
   AllocationStrategy,
   AllocationAlgorithmConfig,
+  AllocationOptimizationResult,
 } from '../types.js';
 import {
   BaseAllocationAlgorithm,
