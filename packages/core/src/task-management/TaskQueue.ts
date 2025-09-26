@@ -297,8 +297,7 @@ export class TaskQueue extends EventEmitter {
    * Add a new task to the queue with intelligent priority assignment
    */
   async addTask(
-    taskDefinition: Partial<Task> &
-      Pick<Task, 'title' | 'description'>,
+    taskDefinition: Partial<Task> & Pick<Task, 'title' | 'description'>,
   ): Promise<string> {
     const task: Task = {
       id: taskDefinition.id ?? uuidv4(),
@@ -616,7 +615,9 @@ export class TaskQueue extends EventEmitter {
         );
       });
 
-      const executionPromise = task.executeFunction(task, task.context);
+      const executionPromise = task.executeFunction
+        ? task.executeFunction(task, task.context || {})
+        : Promise.resolve({ success: true, duration: 0, result: undefined });
 
       const result = await Promise.race([executionPromise, timeoutPromise]);
 
@@ -702,7 +703,7 @@ export class TaskQueue extends EventEmitter {
         // Handle rollback if defined
         if (task.rollbackFunction) {
           try {
-            await task.rollbackFunction(task, task.context);
+            await task.rollbackFunction(task, task.context || {});
             logger.info(`Task rollback completed: ${task.title}`, {
               taskId: task.id,
             });
@@ -873,8 +874,8 @@ export class TaskQueue extends EventEmitter {
     const similar: TaskExecutionRecord[] = [];
 
     for (const record of [
-      ...this.completedTasks.values(),
-      ...this.failedTasks.values(),
+      ...Array.from(this.completedTasks.values()),
+      ...Array.from(this.failedTasks.values()),
     ]) {
       const recordTask = this.tasks.get(record.taskId);
       if (
@@ -1161,7 +1162,7 @@ export class TaskQueue extends EventEmitter {
     const cutoff = Date.now() - olderThanMs;
 
     const toRemove: string[] = [];
-    for (const [taskId, task] of this.tasks.entries()) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       if (
         (task.status === TaskStatus.COMPLETED ||
           task.status === TaskStatus.FAILED) &&
@@ -1231,7 +1232,7 @@ export class TaskQueue extends EventEmitter {
     }
 
     // Cancel any remaining tasks
-    for (const taskId of this.runningTasks) {
+    for (const taskId of Array.from(this.runningTasks)) {
       await this.cancelTask(taskId, 'System shutdown');
     }
 

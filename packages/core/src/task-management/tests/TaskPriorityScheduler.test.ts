@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TaskPriorityScheduler } from '../TaskPriorityScheduler.js';
+import {
+  TaskPriorityScheduler,
+  PriorityStrategy,
+  LoadBalanceAlgorithm,
+  StarvationPreventionMode,
+} from '../TaskPriorityScheduler.js';
 
 // Mock the logger
 vi.mock('../../utils/logger.js', () => ({
@@ -16,12 +21,9 @@ vi.mock('../../utils/logger.js', () => ({
     error: vi.fn(),
   },
 }));
-import { TaskPriority, TaskStatus, TaskCategory, Task } from '../TaskQueue.js';
-import type {
-  SchedulingFactors,
-  ExecutionSequence,
-  TaskId,
-} from '../types.js';
+import type { Task } from '../TaskQueue.js';
+import { TaskPriority, TaskStatus, TaskCategory } from '../TaskQueue.js';
+// Additional types from types.js if needed in future
 
 /**
  * @fileoverview Comprehensive test suite for TaskPriorityScheduler
@@ -36,9 +38,9 @@ describe('TaskPriorityScheduler', () => {
 
   beforeEach(() => {
     scheduler = new TaskPriorityScheduler({
-      strategy: 'hybrid',
-      loadBalanceAlgorithm: 'weighted_round_robin',
-      starvationPrevention: 'adaptive_boost',
+      strategy: PriorityStrategy.HYBRID,
+      loadBalanceAlgorithm: LoadBalanceAlgorithm.WEIGHTED_ROUND_ROBIN,
+      starvationPrevention: StarvationPreventionMode.ADAPTIVE_BOOST,
       adjustmentInterval: 30000,
       maxStarvationTime: 300000,
       priorityDecayRate: 0.95,
@@ -165,9 +167,9 @@ describe('TaskPriorityScheduler', () => {
     describe('FIFO Scheduling', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
-          strategy: 'static',
-          loadBalanceAlgorithm: 'priority_queuing',
-          starvationPrevention: 'none',
+          strategy: PriorityStrategy.STATIC,
+          loadBalanceAlgorithm: LoadBalanceAlgorithm.PRIORITY_QUEUING,
+          starvationPrevention: StarvationPreventionMode.NONE,
         });
       });
 
@@ -191,9 +193,9 @@ describe('TaskPriorityScheduler', () => {
     describe('Priority-Based Scheduling', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
-          strategy: 'static',
-          loadBalanceAlgorithm: 'priority_queuing',
-          starvationPrevention: 'none',
+          strategy: PriorityStrategy.STATIC,
+          loadBalanceAlgorithm: LoadBalanceAlgorithm.PRIORITY_QUEUING,
+          starvationPrevention: StarvationPreventionMode.NONE,
         });
       });
 
@@ -221,9 +223,9 @@ describe('TaskPriorityScheduler', () => {
     describe('Dependency-Aware Scheduling', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
-          strategy: 'dependency_aware',
-          loadBalanceAlgorithm: 'priority_queuing',
-          starvationPrevention: 'none',
+          strategy: PriorityStrategy.DEPENDENCY_AWARE,
+          loadBalanceAlgorithm: LoadBalanceAlgorithm.PRIORITY_QUEUING,
+          starvationPrevention: StarvationPreventionMode.NONE,
         });
       });
 
@@ -292,9 +294,9 @@ describe('TaskPriorityScheduler', () => {
     describe('Resource-Optimal Scheduling', () => {
       beforeEach(() => {
         scheduler = new TaskPriorityScheduler({
-          strategy: 'workload_adaptive',
-          loadBalanceAlgorithm: 'weighted_round_robin',
-          starvationPrevention: 'none',
+          strategy: PriorityStrategy.WORKLOAD_ADAPTIVE,
+          loadBalanceAlgorithm: LoadBalanceAlgorithm.WEIGHTED_ROUND_ROBIN,
+          starvationPrevention: StarvationPreventionMode.NONE,
         });
       });
 
@@ -451,7 +453,7 @@ describe('TaskPriorityScheduler', () => {
       // Should include all tasks
       expect(selectedTasks).toHaveLength(3);
       // Should include the high priority task
-      const taskIds = selectedTasks.map(t => t.id);
+      const taskIds = selectedTasks.map((t) => t.id);
       expect(taskIds).toContain(longTask.id);
     });
 
