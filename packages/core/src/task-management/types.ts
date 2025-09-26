@@ -10,9 +10,50 @@
 
 export type TaskId = string;
 
-// Re-export enums from TaskQueue and TaskExecutionEngine for backward compatibility
-export { TaskPriority, TaskStatus, TaskCategory } from './TaskQueue.js';
-export { TaskType } from './TaskExecutionEngine.js';
+// Define enums locally for task management types compatibility
+export enum TaskPriority {
+  CRITICAL = 1000, // Security, critical bugs, system failures
+  HIGH = 800, // User-blocking issues, major features
+  NORMAL = 500, // Regular features, enhancements
+  MEDIUM = 400, // Moderate priority features
+  LOW = 200, // Nice-to-have, optimizations
+  BACKGROUND = 50, // Cleanup, documentation
+}
+
+export enum TaskStatus {
+  PENDING = 'pending',
+  QUEUED = 'queued',
+  ANALYZED = 'analyzed',
+  ASSIGNED = 'assigned',
+  IN_PROGRESS = 'in_progress',
+  RUNNING = 'running',
+  BLOCKED = 'blocked',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  CANCELLED = 'cancelled',
+}
+
+export enum TaskCategory {
+  FEATURE = 'feature',
+  BUG_FIX = 'bug_fix',
+  TEST = 'test',
+  DOCUMENTATION = 'documentation',
+  REFACTOR = 'refactor',
+  SECURITY = 'security',
+  PERFORMANCE = 'performance',
+  INFRASTRUCTURE = 'infrastructure',
+}
+
+export enum TaskType {
+  IMPLEMENTATION = 'implementation', // Code implementation
+  TESTING = 'testing', // Test creation/execution
+  VALIDATION = 'validation', // Quality assurance
+  DOCUMENTATION = 'documentation', // Documentation creation
+  ANALYSIS = 'analysis', // Research and analysis
+  DEPLOYMENT = 'deployment', // Deployment and operations
+  SECURITY = 'security', // Security assessment/fixes
+  PERFORMANCE = 'performance', // Performance optimization
+}
 
 export type DependencyType = 'hard' | 'soft' | 'resource' | 'temporal';
 
