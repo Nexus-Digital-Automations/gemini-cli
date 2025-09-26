@@ -15,8 +15,8 @@
 import type {
   AllocationCandidate,
   AllocationScenario,
-  FeatureCostAnalysis,
 } from '../types.js';
+import type { FeatureCostAnalysis } from '../../analytics/AnalyticsEngine.js';
 
 /**
  * Efficiency analysis configuration

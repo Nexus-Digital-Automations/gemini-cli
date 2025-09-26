@@ -26,6 +26,8 @@ import type {
   ResourceRankingResult,
 } from './ResourceRanking.js';
 
+import { ResourceRanking } from './ResourceRanking.js';
+
 /**
  * Priority assignment configuration
  */
@@ -854,7 +856,7 @@ export class PriorityAssignment {
       performanceChange > 0.2 &&
       this.config.dynamicAdjustment.sensitivity !== 'low'
     ) {
-      return this.deeecalatePriority(currentPriority);
+      return this.deEscalatePriority(currentPriority);
     }
 
     return currentPriority;
@@ -938,7 +940,7 @@ export class PriorityAssignment {
   /**
    * De-escalate priority to previous level
    */
-  private deeecalatePriority(
+  private deEscalatePriority(
     currentPriority: AllocationPriority,
   ): AllocationPriority {
     const priorityOrder: AllocationPriority[] = [
