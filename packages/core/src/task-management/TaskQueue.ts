@@ -8,7 +8,9 @@ import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 // Note: Using relative import to utils/logger for internal usage
 
-import { logger } from '../utils/logger.js';
+import { logger as getLogger } from '../utils/logger.js';
+
+const logger = getLogger();
 
 /**
  * Task priority levels with intelligent scoring system
@@ -121,10 +123,10 @@ export interface Task {
   status: TaskStatus;
 
   // Execution details
-  estimatedDuration: number; // In milliseconds
+  estimatedDuration?: number; // In milliseconds
   actualDuration?: number;
-  maxRetries: number;
-  currentRetries: number;
+  maxRetries?: number;
+  currentRetries?: number;
 
   // Timing
   createdAt: Date;
@@ -138,15 +140,15 @@ export interface Task {
   dependents: string[]; // Task IDs that depend on this task
 
   // Execution context
-  context: TaskContext;
+  context?: TaskContext;
 
   // Dynamic priority calculation
   basePriority: TaskPriority;
   dynamicPriority: number;
-  priorityFactors: PriorityFactors;
+  priorityFactors?: PriorityFactors;
 
   // Autonomous execution
-  executeFunction: (
+  executeFunction?: (
     task: Task,
     context: TaskContext,
   ) => Promise<TaskExecutionResult>;
@@ -154,16 +156,16 @@ export interface Task {
   rollbackFunction?: (task: Task, context: TaskContext) => Promise<void>;
 
   // Metadata
-  tags: string[];
-  metadata: Record<string, unknown>;
+  tags?: string[];
+  metadata?: Record<string, unknown>;
 
   // Resource requirements
-  requiredResources: string[];
-  resourceConstraints: Record<string, unknown>;
+  requiredResources?: string[];
+  resourceConstraints?: Record<string, unknown>;
 
   // Quality gates
-  preConditions: string[];
-  postConditions: string[];
+  preConditions?: string[];
+  postConditions?: string[];
 
   // Execution results and error handling
   results?: Record<string, unknown>;
@@ -185,7 +187,7 @@ export interface Task {
   progressCallback?: (progress: number, message: string) => void;
 
   // Smart batching hints
-  batchCompatible: boolean;
+  batchCompatible?: boolean;
   batchGroup?: string;
 }
 
@@ -296,7 +298,7 @@ export class TaskQueue extends EventEmitter {
    */
   async addTask(
     taskDefinition: Partial<Task> &
-      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+      Pick<Task, 'title' | 'description'>,
   ): Promise<string> {
     const task: Task = {
       id: taskDefinition.id ?? uuidv4(),
@@ -445,7 +447,7 @@ export class TaskQueue extends EventEmitter {
   private getEligibleTasks(): Task[] {
     const eligible: Task[] = [];
 
-    for (const task of this.tasks.values()) {
+    for (const task of Array.from(this.tasks.values())) {
       if (task.status !== TaskStatus.PENDING) {
         continue;
       }
@@ -726,7 +728,7 @@ export class TaskQueue extends EventEmitter {
   private adjustTaskPriorities(): void {
     const now = Date.now();
 
-    for (const task of this.tasks.values()) {
+    for (const task of Array.from(this.tasks.values())) {
       if (
         task.status === TaskStatus.COMPLETED ||
         task.status === TaskStatus.FAILED
@@ -938,6 +940,7 @@ export class TaskQueue extends EventEmitter {
     this.metrics.priorityDistribution = {
       [TaskPriority.CRITICAL]: 0,
       [TaskPriority.HIGH]: 0,
+      [TaskPriority.NORMAL]: 0,
       [TaskPriority.MEDIUM]: 0,
       [TaskPriority.LOW]: 0,
       [TaskPriority.BACKGROUND]: 0,
@@ -953,7 +956,7 @@ export class TaskQueue extends EventEmitter {
       [TaskCategory.INFRASTRUCTURE]: 0,
     };
 
-    for (const task of this.tasks.values()) {
+    for (const task of Array.from(this.tasks.values())) {
       this.metrics.priorityDistribution[task.priority]++;
       this.metrics.categoryDistribution[task.category]++;
     }
@@ -1066,7 +1069,7 @@ export class TaskQueue extends EventEmitter {
     const groups: Task[][] = [];
     const processed = new Set<string>();
 
-    for (const task of this.tasks.values()) {
+    for (const task of Array.from(this.tasks.values())) {
       if (processed.has(task.id) || task.status !== TaskStatus.PENDING)
         continue;
 

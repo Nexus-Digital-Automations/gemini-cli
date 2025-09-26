@@ -190,13 +190,13 @@ export type {
 
 // Dashboard type exports
 export type {
-  DashboardConfig,
-  DashboardSections,
-  DashboardData,
-  BudgetAlert,
-  CurrentUsageData,
-  CostProjections,
-  TrendsData,
+  BudgetDashboardConfig,
+  BudgetDashboardSections,
+  BudgetDashboardData,
+  BudgetDashboardAlert,
+  BudgetCurrentUsageData,
+  BudgetCostProjections,
+  BudgetTrendsData,
   RealTimeData,
   UsageEvent,
   UsageEventListener,

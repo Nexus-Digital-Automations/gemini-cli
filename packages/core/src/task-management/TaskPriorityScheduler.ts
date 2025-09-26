@@ -6,7 +6,9 @@
 
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
-import { logger } from '../utils/logger.js';
+import { logger as getLogger } from '../utils/logger.js';
+
+const logger = getLogger();
 import {
   TaskPriority,
   TaskStatus
@@ -188,10 +190,12 @@ export class TaskPriorityScheduler extends EventEmitter {
     };
 
     // Initialize priority queues
-    Object.values(TaskPriority).forEach((priority) => {
-      this.priorityQueues.set(priority, []);
-      this.executionQuotas.set(priority, this.calculateInitialQuota(priority));
-    });
+    Object.values(TaskPriority)
+      .filter((value): value is TaskPriority => typeof value === 'number')
+      .forEach((priority) => {
+        this.priorityQueues.set(priority, []);
+        this.executionQuotas.set(priority, this.calculateInitialQuota(priority));
+      });
 
     // Start priority adjustment process
     this.startPriorityAdjustment();
@@ -218,6 +222,10 @@ export class TaskPriorityScheduler extends EventEmitter {
         executionHistory: 1.0,
       };
     }
+
+    // Initialize other required properties
+    if (!task.dependencies) task.dependencies = [];
+    if (!task.dependents) task.dependents = [];
 
     // Calculate initial dynamic priority
     task.dynamicPriority = this.calculateDynamicPriority(
@@ -338,7 +346,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     const context = this.buildAdjustmentContext();
     const adjustmentEvents: PriorityAdjustmentEvent[] = [];
 
-    for (const [taskId, task] of this.tasks.entries()) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       const oldPriority = task.dynamicPriority;
       const newPriority = this.calculateDynamicPriority(task, context);
 
@@ -374,7 +382,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     const stats: PriorityQueueStats[] = [];
     const now = Date.now();
 
-    for (const [priority, queue] of this.priorityQueues.entries()) {
+    for (const [priority, queue] of Array.from(this.priorityQueues.entries())) {
       const tasks = queue;
       const taskCount = tasks.length;
 
@@ -654,6 +662,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     const weights = new Map([
       [TaskPriority.CRITICAL, 8],
       [TaskPriority.HIGH, 4],
+      [TaskPriority.NORMAL, 3],
       [TaskPriority.MEDIUM, 2],
       [TaskPriority.LOW, 1],
       [TaskPriority.BACKGROUND, 1],
@@ -667,7 +676,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     }> = [];
 
     // Collect non-empty queues with their weights
-    for (const [priority, queue] of this.priorityQueues.entries()) {
+    for (const [priority, queue] of Array.from(this.priorityQueues.entries())) {
       if (queue.length > 0) {
         const weight = weights.get(priority) || 1;
         totalWeight += weight;
@@ -708,7 +717,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
     const now = Date.now();
 
-    for (const queue of this.priorityQueues.values()) {
+    for (const queue of Array.from(this.priorityQueues.values())) {
       if (queue.length === 0) continue;
 
       const totalWaitTime = queue.reduce(
@@ -734,7 +743,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     const categoryQueues = new Map<TaskCategory, Task[]>();
 
     // Organize tasks by category across all priority queues
-    for (const queue of this.priorityQueues.values()) {
+    for (const queue of Array.from(this.priorityQueues.values())) {
       for (const task of queue) {
         const categoryQueue = categoryQueues.get(task.category) || [];
         categoryQueue.push(task);
@@ -798,7 +807,7 @@ export class TaskPriorityScheduler extends EventEmitter {
   }
 
   private removeFromQueue(task: Task): void {
-    for (const queue of this.priorityQueues.values()) {
+    for (const queue of Array.from(this.priorityQueues.values())) {
       const index = queue.findIndex((t) => t.id === task.id);
       if (index !== -1) {
         queue.splice(index, 1);
@@ -828,7 +837,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     let taskCount = 0;
     const currentTime = now.getTime();
 
-    for (const queue of this.priorityQueues.values()) {
+    for (const queue of Array.from(this.priorityQueues.values())) {
       for (const task of queue) {
         totalWaitTime += currentTime - task.createdAt.getTime();
         taskCount++;
@@ -855,8 +864,10 @@ export class TaskPriorityScheduler extends EventEmitter {
         return 0.4; // 40%
       case TaskPriority.HIGH:
         return 0.3; // 30%
+      case TaskPriority.NORMAL:
+        return 0.15; // 15%
       case TaskPriority.MEDIUM:
-        return 0.2; // 20%
+        return 0.13; // 13%
       case TaskPriority.LOW:
         return 0.08; // 8%
       case TaskPriority.BACKGROUND:
@@ -985,7 +996,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     let selectedCategory: TaskCategory | null = null;
     let maxPriority = -1;
 
-    for (const [category, tasks] of categoryQueues.entries()) {
+    for (const [category, tasks] of Array.from(categoryQueues.entries())) {
       if (tasks.length === 0) continue;
 
       // Calculate average priority for this category
@@ -1063,7 +1074,7 @@ export class TaskPriorityScheduler extends EventEmitter {
 
     const now = context.currentTime.getTime();
 
-    for (const [taskId, task] of this.tasks.entries()) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       const waitTime = now - task.createdAt.getTime();
 
       if (waitTime > this.config.maxStarvationTime) {
@@ -1111,7 +1122,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     adjustmentEvents: PriorityAdjustmentEvent[],
   ): void {
     // Update priorities for all tasks
-    for (const [taskId, task] of this.tasks.entries()) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       if (!this.starvationTracker.has(taskId)) {
         // Only adjust non-starving tasks to avoid interference
         this.adjustSingleTaskPriority(task, context, adjustmentEvents);

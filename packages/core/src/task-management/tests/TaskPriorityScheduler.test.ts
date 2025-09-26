@@ -16,9 +16,8 @@ vi.mock('../../utils/logger.js', () => ({
     error: vi.fn(),
   },
 }));
-import { TaskPriority, TaskStatus, TaskCategory } from '../TaskQueue.js';
+import { TaskPriority, TaskStatus, TaskCategory, Task } from '../TaskQueue.js';
 import type {
-  Task,
   SchedulingFactors,
   ExecutionSequence,
   TaskId,
@@ -603,6 +602,8 @@ function createMockTask(
       executionHistory: 1.0,
     },
     currentRetries: 0,
+    maxRetries: 3,
+    tags: ['test'],
     metadata: {
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -610,5 +611,10 @@ function createMockTask(
       estimatedDuration: 60000,
       tags: ['test'],
     },
+    context: {},
+    preConditions: [],
+    postConditions: [],
+    resourceConstraints: {},
+    batchCompatible: false,
   };
 }

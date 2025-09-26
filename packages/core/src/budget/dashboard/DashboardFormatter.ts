@@ -6,10 +6,10 @@
 
 import chalk from 'chalk';
 import type {
-  DashboardConfig,
-  DashboardData,
-  DashboardSections,
-  BudgetAlert,
+  BudgetDashboardConfig,
+  BudgetDashboardData,
+  BudgetDashboardSections,
+  BudgetDashboardAlert,
 } from './BudgetDashboard.js';
 import type {
   FeatureCostAnalysis,
@@ -24,11 +24,11 @@ import { ChartRenderer } from './ChartRenderer.js';
  * of all dashboard components and sections.
  */
 export class DashboardFormatter {
-  private config: Required<DashboardConfig>;
+  private config: Required<BudgetDashboardConfig>;
   private chartRenderer: ChartRenderer;
   private readonly PANEL_WIDTH = 80;
 
-  constructor(config: Required<DashboardConfig>) {
+  constructor(config: Required<BudgetDashboardConfig>) {
     this.config = config;
     this.chartRenderer = new ChartRenderer({
       width: this.PANEL_WIDTH - 4,
@@ -40,7 +40,7 @@ export class DashboardFormatter {
   /**
    * Format the complete dashboard with all sections
    */
-  formatDashboard(data: DashboardData, sections: DashboardSections): string {
+  formatDashboard(data: BudgetDashboardData, sections: BudgetDashboardSections): string {
     let dashboard = '';
 
     // Header
@@ -144,7 +144,7 @@ export class DashboardFormatter {
   /**
    * Format the summary panel with key metrics
    */
-  private formatSummaryPanel(data: DashboardData): string {
+  private formatSummaryPanel(data: BudgetDashboardData): string {
     const { currentUsage } = data;
 
     let panel = '';
@@ -205,7 +205,7 @@ export class DashboardFormatter {
   /**
    * Format real-time usage section
    */
-  private formatRealTimeUsage(data: DashboardData): string {
+  private formatRealTimeUsage(data: BudgetDashboardData): string {
     let section = '';
     section += chalk.bold('⚡ Real-Time Usage') + '\n';
     section += '━'.repeat(this.PANEL_WIDTH) + '\n';
@@ -230,7 +230,7 @@ export class DashboardFormatter {
   /**
    * Format budget alerts section
    */
-  private formatBudgetAlerts(alerts: BudgetAlert[]): string {
+  private formatBudgetAlerts(alerts: BudgetDashboardAlert[]): string {
     let section = '';
     section += chalk.bold('🚨 Budget Alerts') + '\n';
     section += '━'.repeat(this.PANEL_WIDTH) + '\n';
@@ -291,7 +291,7 @@ export class DashboardFormatter {
   /**
    * Format cost projections section
    */
-  private formatCostProjections(data: DashboardData): string {
+  private formatCostProjections(data: BudgetDashboardData): string {
     const { projections } = data;
 
     let section = '';
@@ -342,7 +342,7 @@ export class DashboardFormatter {
   /**
    * Format historical trends section
    */
-  private formatHistoricalTrends(data: DashboardData): string {
+  private formatHistoricalTrends(data: BudgetDashboardData): string {
     const { trends } = data;
 
     let section = '';

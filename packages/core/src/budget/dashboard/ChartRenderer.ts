@@ -4,7 +4,50 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import chalk from 'chalk';
+// Type-safe chalk interface for terminal coloring
+interface ChalkInstance {
+  (str: string): string;
+  bold: ChalkInstance;
+  dim: ChalkInstance;
+  cyan: ChalkInstance;
+  blue: ChalkInstance;
+  white: ChalkInstance;
+  green: ChalkInstance;
+  red: ChalkInstance;
+  yellow: ChalkInstance;
+  hex: (color: string) => ChalkInstance;
+}
+
+// Create chalk instance with fallback for when chalk is not available
+const createChalk = (): ChalkInstance => {
+  let chalkModule: any = null;
+
+  try {
+    // Try to import chalk dynamically
+    chalkModule = eval('require')('chalk');
+    // If chalk is available, use it
+    return chalkModule as ChalkInstance;
+  } catch {
+    // Fallback: no-op functions that return the input string
+    const identity = (str: string) => str;
+
+    // Create a shared fallback instance to avoid recursion
+    const fallbackChalk: ChalkInstance = identity as ChalkInstance;
+    fallbackChalk.bold = fallbackChalk;
+    fallbackChalk.dim = fallbackChalk;
+    fallbackChalk.cyan = fallbackChalk;
+    fallbackChalk.blue = fallbackChalk;
+    fallbackChalk.white = fallbackChalk;
+    fallbackChalk.green = fallbackChalk;
+    fallbackChalk.red = fallbackChalk;
+    fallbackChalk.yellow = fallbackChalk;
+    fallbackChalk.hex = () => fallbackChalk;
+
+    return fallbackChalk;
+  }
+};
+
+const chalk = createChalk();
 
 /**
  * Chart configuration options
