@@ -7,7 +7,6 @@
 import * as vscode from 'vscode';
 import {
   CloseDiffRequestSchema,
-  IdeContextNotificationSchema,
   OpenDiffRequestSchema,
 } from '@google/gemini-cli-core/src/ide/types.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
@@ -101,11 +100,11 @@ function sendIdeContextUpdateNotification(
 ) {
   const ideContext = openFilesManager.state;
 
-  const notification = IdeContextNotificationSchema.parse({
-    jsonrpc: '2.0',
-    method: 'ide/contextUpdate',
+  const notification = {
+    jsonrpc: '2.0' as const,
+    method: 'ide/contextUpdate' as const,
     params: ideContext,
-  });
+  };
 
   log(
     `Sending IDE context update notification: ${JSON.stringify(

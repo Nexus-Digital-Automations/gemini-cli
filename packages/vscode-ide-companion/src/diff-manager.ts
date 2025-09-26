@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  IdeDiffAcceptedNotificationSchema,
-  IdeDiffClosedNotificationSchema,
-} from '@google/gemini-cli-core/src/ide/types.js';
+// Note: Schema imports removed as we're constructing typed objects directly
 import { type JSONRPCNotification } from '@modelcontextprotocol/sdk/types.js';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
@@ -146,16 +143,15 @@ export class DiffManager {
       const modifiedContent = rightDoc.getText();
       await this.closeDiffEditor(uriToClose);
       if (!suppressNotification) {
-        this.onDidChangeEmitter.fire(
-          IdeDiffClosedNotificationSchema.parse({
-            jsonrpc: '2.0',
-            method: 'ide/diffClosed',
-            params: {
-              filePath,
-              content: modifiedContent,
-            },
-          }),
-        );
+        const notification = {
+          jsonrpc: '2.0' as const,
+          method: 'ide/diffClosed' as const,
+          params: {
+            filePath,
+            content: modifiedContent,
+          },
+        };
+        this.onDidChangeEmitter.fire(notification);
       }
       return modifiedContent;
     }
@@ -176,16 +172,15 @@ export class DiffManager {
     const modifiedContent = rightDoc.getText();
     await this.closeDiffEditor(rightDocUri);
 
-    this.onDidChangeEmitter.fire(
-      IdeDiffAcceptedNotificationSchema.parse({
-        jsonrpc: '2.0',
-        method: 'ide/diffAccepted',
-        params: {
-          filePath: diffInfo.originalFilePath,
-          content: modifiedContent,
-        },
-      }),
-    );
+    const notification = {
+      jsonrpc: '2.0' as const,
+      method: 'ide/diffAccepted' as const,
+      params: {
+        filePath: diffInfo.originalFilePath,
+        content: modifiedContent,
+      },
+    };
+    this.onDidChangeEmitter.fire(notification);
   }
 
   /**
@@ -204,16 +199,15 @@ export class DiffManager {
     const modifiedContent = rightDoc.getText();
     await this.closeDiffEditor(rightDocUri);
 
-    this.onDidChangeEmitter.fire(
-      IdeDiffClosedNotificationSchema.parse({
-        jsonrpc: '2.0',
-        method: 'ide/diffClosed',
-        params: {
-          filePath: diffInfo.originalFilePath,
-          content: modifiedContent,
-        },
-      }),
-    );
+    const notification = {
+      jsonrpc: '2.0' as const,
+      method: 'ide/diffClosed' as const,
+      params: {
+        filePath: diffInfo.originalFilePath,
+        content: modifiedContent,
+      },
+    };
+    this.onDidChangeEmitter.fire(notification);
   }
 
   private async onActiveEditorChange(editor: vscode.TextEditor | undefined) {
