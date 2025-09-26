@@ -5,7 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import type {
   TaskStatusUpdate,
   AgentStatus,
@@ -27,6 +30,7 @@ export enum AuditEventType {
   AGENT_TASK_ASSIGNMENT = 'agent:task-assignment',
   SYSTEM_START = 'system:start',
   SYSTEM_SHUTDOWN = 'system:shutdown',
+  SYSTEM_EVENT = 'system:event',
   CONFIG_CHANGED = 'config:changed',
   SECURITY_EVENT = 'security:event',
   PERFORMANCE_THRESHOLD = 'performance:threshold',
@@ -134,7 +138,7 @@ export interface ComplianceReport {
  * with comprehensive event tracking, querying capabilities, and automated compliance monitoring.
  */
 export class AuditTrailAnalytics extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private events: AuditEvent[];
   private eventIndex: Map<string, Set<number>>; // For efficient querying
   private retentionDays: number;
@@ -163,7 +167,7 @@ export class AuditTrailAnalytics extends EventEmitter {
     } = {},
   ) {
     super();
-    this.logger = new Logger('AuditTrailAnalytics');
+    this.logger = getComponentLogger('AuditTrailAnalytics');
     this.events = [];
     this.eventIndex = new Map();
     this.retentionDays = options.retentionDays || 90; // 90 days default
@@ -472,8 +476,14 @@ export class AuditTrailAnalytics extends EventEmitter {
       recentCriticalEvents: events
         .filter((e) => e.severity === 'critical')
         .slice(0, 10),
-      topSources: this.getTopValues(events, 'source', 10),
-      topActors: this.getTopValues(events, 'actor.id', 10),
+      topSources: this.getTopValues(events, 'source', 10) as Array<{
+        source: string;
+        count: number;
+      }>,
+      topActors: this.getTopValues(events, 'actor.id', 10) as Array<{
+        actor: string;
+        count: number;
+      }>,
     };
 
     return analytics;
@@ -962,7 +972,9 @@ export class AuditTrailAnalytics extends EventEmitter {
     events: AuditEvent[],
     path: string,
     limit: number,
-  ): Array<{ [key: string]: string | number }> {
+  ):
+    | Array<{ source: string; count: number }>
+    | Array<{ actor: string; count: number }> {
     const counts: Record<string, number> = {};
 
     for (const event of events) {
@@ -983,11 +995,15 @@ export class AuditTrailAnalytics extends EventEmitter {
       .sort(([, a], [, b]) => b - a)
       .slice(0, limit)
       .map(([key, count]) => {
-        const result: Record<string, string | number> = { count };
         const lastPart = path.split('.').pop()!;
-        result[lastPart] = key;
-        return result;
-      });
+        if (lastPart === 'source') {
+          return { source: key, count };
+        } else {
+          return { actor: key, count };
+        }
+      }) as
+      | Array<{ source: string; count: number }>
+      | Array<{ actor: string; count: number }>;
   }
 
   private exportToCSV(events: AuditEvent[]): string {

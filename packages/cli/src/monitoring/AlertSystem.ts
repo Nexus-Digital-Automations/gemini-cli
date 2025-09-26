@@ -5,12 +5,16 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import type {
   TaskMetadata,
-  TaskStatus,
   TaskStatusUpdate,
-  AgentStatus,
+  AgentStatus} from './TaskStatusMonitor.js';
+import {
+  TaskStatus
 } from './TaskStatusMonitor.js';
 import type { BottleneckAnalysis } from './MetricsCollector.js';
 
@@ -172,7 +176,7 @@ export interface NotificationDelivery {
  * - Integration with external monitoring systems
  */
 export class AlertSystem extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private alertRules: Map<string, AlertRule>;
   private activeAlerts: Map<string, Alert>;
   private alertHistory: Alert[];
@@ -189,7 +193,7 @@ export class AlertSystem extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('AlertSystem');
+    this.logger = getComponentLogger('AlertSystem');
     this.alertRules = new Map();
     this.activeAlerts = new Map();
     this.alertHistory = [];
@@ -226,7 +230,7 @@ export class AlertSystem extends EventEmitter {
   updateRule(ruleId: string, updates: Partial<AlertRule>): boolean {
     const existingRule = this.alertRules.get(ruleId);
     if (!existingRule) {
-      this.logger.warning('Attempt to update non-existent rule', { ruleId });
+      this.logger.warn('Attempt to update non-existent rule', { ruleId });
       return false;
     }
 
@@ -928,7 +932,7 @@ export class AlertSystem extends EventEmitter {
       try {
         const delivery = this.notificationDeliveries.get(channel);
         if (!delivery) {
-          this.logger.warning('Notification channel not configured', {
+          this.logger.warn('Notification channel not configured', {
             channel,
           });
           continue;
@@ -937,7 +941,7 @@ export class AlertSystem extends EventEmitter {
         const notification = {
           channel,
           timestamp: new Date(),
-          status: 'pending' as const,
+          status: 'pending' as 'pending' | 'sent' | 'failed',
         };
 
         alert.notifications.push(notification);
@@ -980,7 +984,7 @@ export class AlertSystem extends EventEmitter {
           escalationLevel: alert.escalationLevel,
         });
 
-        this.logger.warning('Alert escalated', {
+        this.logger.warn('Alert escalated', {
           alertId: alert.id,
           escalationLevel: alert.escalationLevel,
         });
@@ -1001,7 +1005,14 @@ export class AlertSystem extends EventEmitter {
       const remediationAction = {
         action,
         timestamp: new Date(),
-        status: 'running' as const,
+        status: 'running' as 'pending' | 'running' | 'completed' | 'failed',
+        result: undefined as
+          | Record<string, unknown>
+          | string
+          | number
+          | boolean
+          | undefined,
+        error: undefined as string | undefined,
       };
 
       alert.remediationActions.push(remediationAction);

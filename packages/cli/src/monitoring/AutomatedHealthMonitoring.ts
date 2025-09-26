@@ -5,7 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import { realTimeMonitoringSystem } from './RealTimeMonitoringSystem.js';
 import { monitoringIntegrationHub } from './MonitoringIntegrationHub.js';
 import { taskStatusMonitor, TaskStatus } from './TaskStatusMonitor.js';
@@ -165,7 +168,7 @@ export interface SystemHealthSummary {
  * - Integration with alerting and notification systems
  */
 export class AutomatedHealthMonitoring extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
 
   // Health monitoring configuration
   private healthChecks: Map<string, HealthCheckConfig> = new Map();
@@ -198,7 +201,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
   constructor(config?: Partial<AutomatedHealthMonitoring['config']>) {
     super();
-    this.logger = new Logger('AutomatedHealthMonitoring');
+    this.logger = getComponentLogger('AutomatedHealthMonitoring');
 
     this.config = {
       globalHealthCheckInterval: 30000, // 30 seconds
@@ -1851,9 +1854,11 @@ export class AutomatedHealthMonitoring extends EventEmitter {
               history as Array<{
                 timestamp: string;
                 result: SelfHealingExecutionResult;
+                startTime: string;
+                endTime: string;
               }>
             ).map((item) => ({
-              ...item,
+              ...item.result,
               startTime: new Date(item.startTime),
               endTime: new Date(item.endTime),
             })),
