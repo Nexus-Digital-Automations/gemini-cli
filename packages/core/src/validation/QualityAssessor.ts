@@ -5,19 +5,15 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { logger as parentLogger } from '../utils/logger.js';
 import type {
-  ValidationFramework,
   ValidationResult,
 } from './ValidationFramework.js';
 import {
-  ValidationContext,
   ValidationStatus,
-  ValidationSeverity,
   ValidationCategory,
 } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
-import { TaskStatus, TaskPriority } from '../task-management/types.js';
 
 /**
  * Quality assessment levels for different validation strictness
@@ -235,8 +231,7 @@ export interface QualityAssessorEvents {
  * - Continuous quality monitoring
  */
 export class QualityAssessor extends EventEmitter {
-  private readonly logger: Logger;
-  private readonly validationFramework: ValidationFramework;
+  private readonly logger = parentLogger().child({ component: 'QualityAssessor' });
   private readonly assessmentCriteria: Map<
     QualityAssessmentLevel,
     QualityAssessmentCriteria
@@ -251,11 +246,8 @@ export class QualityAssessor extends EventEmitter {
     (context: QualityAssessmentContext) => Promise<Partial<QualityMetrics>>
   > = new Map();
 
-  constructor(validationFramework: ValidationFramework) {
+  constructor() {
     super();
-
-    this.logger = new Logger('QualityAssessor');
-    this.validationFramework = validationFramework;
 
     this.initializeDefaultCriteria();
     this.registerDefaultAssessors();
@@ -414,7 +406,7 @@ export class QualityAssessor extends EventEmitter {
       this.emit('assessmentCompleted', result);
       return result;
     } catch (error) {
-      this.logger.error(`Quality assessment failed: ${taskId}`, { error });
+      this.logger.error(`Quality assessment failed: ${taskId}`, { error: error as Error | undefined });
       this.emit('assessmentFailed', taskId, error as Error);
       throw error;
     } finally {
@@ -517,21 +509,21 @@ export class QualityAssessor extends EventEmitter {
             this.logger.debug(`Assessor ${name} completed`, { result });
             return result;
           } catch (error) {
-            this.logger.error(`Assessor ${name} failed`, { error });
+            this.logger.error(`Assessor ${name} failed`, { error: error as Error | undefined });
             return {};
           }
         },
       ),
     );
 
-    // Merge assessor results
-    const metrics = assessorResults.reduce(
+    // Merge assessor results - ensure complete QualityMetrics structure
+    const metrics: QualityMetrics = assessorResults.reduce(
       (acc, result) => ({
         ...acc,
         ...result,
       }),
       baseMetrics,
-    );
+    ) as QualityMetrics;
 
     // Calculate overall score as weighted average
     metrics.overallScore = this.calculateOverallScore(metrics);
@@ -714,7 +706,7 @@ export class QualityAssessor extends EventEmitter {
     if (highIssues.length > 0) {
       recommendations.push({
         type: 'short_term',
-        category: 'quality',
+        category: 'reliability',
         priority: 2,
         title: 'Improve Core Quality Metrics',
         description:
@@ -772,7 +764,7 @@ export class QualityAssessor extends EventEmitter {
    */
   private createQualityImprovementPlan(
     recommendations: QualityRecommendation[],
-    issues: QualityIssue[],
+    _issues: QualityIssue[],
   ): QualityImprovementPlan {
     const phases = [];
 

@@ -4,8 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { execAsync } from '../utils/ProcessUtils.js';
-import { Logger } from '../logger/Logger.js';
+import { logger, type StructuredLogger } from '../utils/logger.js';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execAsync = promisify(exec);
 import type {
   ValidationContext,
   ValidationResult,
@@ -15,8 +18,6 @@ import {
   ValidationStatus,
   ValidationCategory,
 } from './ValidationFramework.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import * as os from 'node:os';
 
 /**
@@ -116,36 +117,37 @@ interface PerformanceMetrics {
  * Handles system compatibility, performance, and integration testing
  */
 export class IntegrationValidator {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: IntegrationValidationConfig;
 
   constructor(config: IntegrationValidationConfig) {
-    this.logger = new Logger('IntegrationValidator');
+    this.logger = logger().child({ component: 'IntegrationValidator' });
     this.config = {
-      systemCompatibility: {
+      ...config,
+      systemCompatibility: config.systemCompatibility || {
         nodeVersions: ['18.x', '20.x', '22.x'],
         operatingSystems: ['linux', 'darwin', 'win32'],
         architectures: ['x64', 'arm64'],
         dependencies: [],
       },
-      performanceBenchmarks: [],
-      integrationTests: {
+      performanceBenchmarks: config.performanceBenchmarks || [],
+      integrationTests: config.integrationTests || {
         enabled: true,
         testCommand: 'npm run test:integration',
         timeout: 300000,
       },
-      e2eTests: {
+      e2eTests: config.e2eTests || {
         enabled: true,
         testCommand: 'npm run test:e2e',
         timeout: 600000,
       },
-      loadTesting: {
+      loadTesting: config.loadTesting || {
         enabled: false,
         concurrent: 10,
         duration: 60000,
         targetRps: 100,
       },
-      monitoringChecks: {
+      monitoringChecks: config.monitoringChecks || {
         healthEndpoints: [],
         resourceLimits: {
           maxMemory: 1024 * 1024 * 1024, // 1GB
@@ -153,7 +155,6 @@ export class IntegrationValidator {
           maxDiskUsage: 90, // 90%
         },
       },
-      ...config,
     };
 
     this.logger.info('IntegrationValidator initialized', {
@@ -216,7 +217,7 @@ export class IntegrationValidator {
       return results;
     } catch (error) {
       this.logger.error('Integration validation failed', {
-        error,
+        error: error as Error | undefined,
         taskId: context.taskId,
       });
       return [
@@ -271,7 +272,7 @@ export class IntegrationValidator {
         duration: result.duration || Date.now() - startTime,
       }));
     } catch (error) {
-      this.logger.error('System compatibility check failed', { error });
+      this.logger.error('System compatibility check failed', { error: error as Error | undefined });
       return [
         {
           id: `compatibility-error-${Date.now()}`,
@@ -351,7 +352,7 @@ export class IntegrationValidator {
    * Run integration tests
    */
   private async runIntegrationTests(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
@@ -389,7 +390,7 @@ export class IntegrationValidator {
         },
       ];
     } catch (error) {
-      this.logger.error('Integration tests failed', { error });
+      this.logger.error('Integration tests failed', { error: error as Error | undefined });
       return [
         {
           id: `integration-tests-error-${Date.now()}`,
@@ -408,7 +409,7 @@ export class IntegrationValidator {
    * Run end-to-end tests
    */
   private async runE2ETests(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
@@ -446,7 +447,7 @@ export class IntegrationValidator {
         },
       ];
     } catch (error) {
-      this.logger.error('E2E tests failed', { error });
+      this.logger.error('E2E tests failed', { error: error as Error | undefined });
       return [
         {
           id: `e2e-tests-error-${Date.now()}`,
@@ -465,7 +466,7 @@ export class IntegrationValidator {
    * Run load tests
    */
   private async runLoadTests(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
@@ -498,7 +499,7 @@ export class IntegrationValidator {
         },
       ];
     } catch (error) {
-      this.logger.error('Load tests failed', { error });
+      this.logger.error('Load tests failed', { error: error as Error | undefined });
       return [
         {
           id: `load-tests-error-${Date.now()}`,
@@ -517,7 +518,7 @@ export class IntegrationValidator {
    * Run monitoring and health checks
    */
   private async runMonitoringChecks(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
     const startTime = Date.now();
@@ -538,7 +539,7 @@ export class IntegrationValidator {
         duration: result.duration || Date.now() - startTime,
       }));
     } catch (error) {
-      this.logger.error('Monitoring checks failed', { error });
+      this.logger.error('Monitoring checks failed', { error: error as Error | undefined });
       return [
         {
           id: `monitoring-error-${Date.now()}`,
@@ -582,11 +583,12 @@ export class IntegrationValidator {
     const currentVersion = systemInfo.nodeVersion;
     const majorVersion = parseInt(
       currentVersion.replace('v', '').split('.')[0],
+      10,
     );
 
     const isCompatible = this.config.systemCompatibility.nodeVersions.some(
       (version) => {
-        const targetMajor = parseInt(version.replace('x', '').replace('.', ''));
+        const targetMajor = parseInt(version.replace('x', '').replace('.', ''), 10);
         return majorVersion === targetMajor;
       },
     );
@@ -662,7 +664,7 @@ export class IntegrationValidator {
    * Check dependency compatibility
    */
   private async checkDependencyCompatibility(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
 
@@ -708,7 +710,7 @@ export class IntegrationValidator {
    */
   private async executeBenchmark(
     benchmark: PerformanceBenchmark,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<PerformanceMetrics> {
     const startTime = Date.now();
 
@@ -795,9 +797,9 @@ export class IntegrationValidator {
     const skippedMatch = output.match(/(\d+) skipped/i);
 
     return {
-      passed: passedMatch ? parseInt(passedMatch[1]) : 0,
-      failed: failedMatch ? parseInt(failedMatch[1]) : 0,
-      skipped: skippedMatch ? parseInt(skippedMatch[1]) : 0,
+      passed: passedMatch ? parseInt(passedMatch[1], 10) : 0,
+      failed: failedMatch ? parseInt(failedMatch[1], 10) : 0,
+      skipped: skippedMatch ? parseInt(skippedMatch[1], 10) : 0,
     };
   }
 
@@ -810,7 +812,6 @@ export class IntegrationValidator {
   }> {
     // This is a simplified simulation - real implementation would use load testing tools
     const duration = this.config.loadTesting.duration;
-    const concurrent = this.config.loadTesting.concurrent;
 
     // Simulate some load
     await new Promise((resolve) =>

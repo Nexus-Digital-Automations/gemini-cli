@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { logger as parentLogger } from '../utils/logger.js';
 import type {
   ValidationFramework,
   ValidationResult,
@@ -14,10 +14,9 @@ import {
   ValidationSeverity,
   ValidationCategory,
 } from './ValidationFramework.js';
-import type { TaskValidator, TaskExecutionMetrics } from './TaskValidator.js';
-import {
-  TaskValidationResult,
-  TaskValidationContext,
+import type {
+  TaskValidator,
+  TaskExecutionMetrics
 } from './TaskValidator.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 
@@ -316,9 +315,8 @@ export interface QualityAssuranceConfig {
  * for maintaining high quality standards in autonomous task execution.
  */
 export class QualityAssurance extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger = parentLogger().child({ component: 'QualityAssurance' });
   private readonly validationFramework: ValidationFramework;
-  private readonly taskValidator: TaskValidator;
   private readonly config: QualityAssuranceConfig;
 
   // Quality data storage
@@ -330,18 +328,15 @@ export class QualityAssurance extends EventEmitter {
   > = new Map();
   private readonly activeChecks: Map<string, Promise<QualityAssuranceResult>> =
     new Map();
-  private readonly qualityReports: QualityReport[] = [];
 
   constructor(
     validationFramework: ValidationFramework,
-    taskValidator: TaskValidator,
+    _taskValidator: TaskValidator,
     config: Partial<QualityAssuranceConfig> = {},
   ) {
     super();
 
-    this.logger = new Logger('QualityAssurance');
     this.validationFramework = validationFramework;
-    this.taskValidator = taskValidator;
     this.config = this.createDefaultConfig(config);
 
     this.logger.info('QualityAssurance initialized', {
@@ -515,7 +510,7 @@ export class QualityAssurance extends EventEmitter {
       return result;
     } catch (error) {
       this.logger.error(`Quality assurance failed for task: ${task.id}`, {
-        error,
+        error: error as Error | undefined,
       });
       throw error;
     } finally {

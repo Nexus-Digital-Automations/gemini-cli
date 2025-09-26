@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { WinstonStructuredLogger } from '../utils/logger.js';
+import { logger as parentLogger } from '../utils/logger.js';
 import type {
   ValidationFramework,
   ValidationContext,
@@ -234,7 +234,7 @@ export interface TaskValidatorConfig {
  * - Comprehensive reporting and recommendations
  */
 export class TaskValidator extends EventEmitter {
-  private readonly logger: WinstonStructuredLogger;
+  private readonly logger = parentLogger().child({ component: 'TaskValidator' });
   private readonly validationFramework: ValidationFramework;
   private readonly config: TaskValidatorConfig;
   private readonly snapshots: Map<string, TaskSnapshot[]> = new Map();
@@ -249,9 +249,6 @@ export class TaskValidator extends EventEmitter {
   ) {
     super();
 
-    this.logger = new WinstonStructuredLogger({
-      defaultMeta: { component: 'TaskValidator' },
-    });
     this.validationFramework = validationFramework;
     this.config = this.createDefaultConfig(config);
 
@@ -388,7 +385,7 @@ export class TaskValidator extends EventEmitter {
       return result;
     } catch (error) {
       this.logger.error(`Task validation failed: ${context.task.id}`, {
-        error,
+        error: error as Error | undefined,
       });
       this.emit(
         'taskValidationFailed',
@@ -591,7 +588,7 @@ export class TaskValidator extends EventEmitter {
       });
       return true;
     } catch (error) {
-      this.logger.error('Task rollback failed', { taskId, snapshotId, error });
+      this.logger.error('Task rollback failed', { taskId, snapshotId, error: error as Error | undefined });
       return false;
     }
   }

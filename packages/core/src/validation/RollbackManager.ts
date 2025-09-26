@@ -5,11 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
-import { TaskSnapshot } from './TaskValidator.js';
+import { logger as parentLogger } from '../utils/logger.js';
+// TaskSnapshot interface available but not used in implementation yet
+// import type { TaskSnapshot } from './TaskValidator.js';
 import type { Task, TaskStatus } from '../task-management/types.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 
 /**
  * Rollback events for monitoring and alerting
@@ -156,7 +155,7 @@ export interface RollbackSnapshot {
 export interface RollbackOperation {
   id: string;
   taskId: string;
-  type: RollbackType;
+  type: RollbackType[];
   trigger: RollbackTrigger;
   strategy: RollbackStrategy;
   priority: RollbackPriority;
@@ -309,7 +308,7 @@ export interface RollbackManagerConfig {
  * for maintaining system reliability and recovery from validation failures.
  */
 export class RollbackManager extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger = parentLogger().child({ component: 'RollbackManager' });
   private readonly config: RollbackManagerConfig;
 
   // Snapshot storage
@@ -320,13 +319,10 @@ export class RollbackManager extends EventEmitter {
   private readonly activeRollbacks: Map<string, Promise<RollbackResult>> =
     new Map();
   private readonly rollbackHistory: RollbackResult[] = [];
-  private readonly pendingOperations: Map<string, RollbackOperation> =
-    new Map();
 
   constructor(config: Partial<RollbackManagerConfig> = {}) {
     super();
 
-    this.logger = new Logger('RollbackManager');
     this.config = this.createDefaultConfig(config);
 
     this.logger.info('RollbackManager initialized', {
@@ -434,7 +430,9 @@ export class RollbackManager extends EventEmitter {
       },
 
       environment: {
-        variables: { ...process.env },
+        variables: Object.fromEntries(
+          Object.entries(process.env).filter(([, value]) => value !== undefined)
+        ) as Record<string, string>,
         workingDirectory: process.cwd(),
         processInfo: {
           pid: process.pid,
@@ -522,7 +520,7 @@ export class RollbackManager extends EventEmitter {
       }
     } catch (error) {
       this.logger.error(`Failed to create ${type} snapshot`, {
-        error,
+        error: error as Error | undefined,
         taskId: task.id,
       });
     }
@@ -580,7 +578,9 @@ export class RollbackManager extends EventEmitter {
     snapshot: RollbackSnapshot,
     task: Task,
   ): Promise<void> {
-    snapshot.environment.variables = { ...process.env };
+    snapshot.environment.variables = Object.fromEntries(
+      Object.entries(process.env).filter(([, value]) => value !== undefined)
+    ) as Record<string, string>;
     snapshot.environment.workingDirectory = process.cwd();
     snapshot.environment.processInfo = {
       pid: process.pid,
@@ -658,7 +658,7 @@ export class RollbackManager extends EventEmitter {
     } catch (error) {
       this.logger.error('Rollback operation failed', {
         operationId: operation.id,
-        error: error instanceof Error ? error.message : String(error),
+        error: error as Error | undefined,
       });
 
       this.emit('rollbackFailed', operation, error as Error);
