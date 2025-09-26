@@ -5,7 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import type {
   TaskMetadata,
   TaskStatusUpdate,
@@ -274,19 +277,19 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     }> = [];
 
     // Get latest metrics
-    for (const [name, metricHistory] of this.metrics) {
+    for (const [name, metricHistory] of Array.from(this.metrics)) {
       if (metricHistory.length > 0) {
         realTimeMetrics[name] = metricHistory[metricHistory.length - 1];
       }
     }
 
     // Get trend data
-    for (const trendData of this.trendData.values()) {
+    for (const trendData of Array.from(this.trendData.values())) {
       trends.push(trendData);
     }
 
     // Check benchmark status
-    for (const [metricName, benchmark] of this.benchmarks) {
+    for (const [metricName, benchmark] of Array.from(this.benchmarks)) {
       const currentMetric = realTimeMetrics[metricName];
       if (currentMetric) {
         const status = this.getBenchmarkStatus(currentMetric.value, benchmark);
@@ -336,13 +339,16 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     trends: TrendData[];
   } {
     const filteredMetrics: Record<string, PerformanceMetric[]> = {};
-    const aggregations: Record<string, {
-      average: number;
-      min: number;
-      max: number;
-      count: number;
-      sum: number;
-    }> = {};
+    const aggregations: Record<
+      string,
+      {
+        average: number;
+        min: number;
+        max: number;
+        count: number;
+        sum: number;
+      }
+    > = {};
 
     const metricsToAnalyze = metrics || Array.from(this.metrics.keys());
 
@@ -821,7 +827,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     category: PerformanceMetric['category'],
   ): PerformanceMetric[] {
     const metrics: PerformanceMetric[] = [];
-    for (const metricHistory of this.metrics.values()) {
+    for (const metricHistory of Array.from(this.metrics.values())) {
       metrics.push(...metricHistory.filter((m) => m.category === category));
     }
     return metrics;

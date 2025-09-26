@@ -5,7 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import type {
   PerformanceMetric,
   AnalyticsInsight,
@@ -288,7 +291,7 @@ export class AlertingNotificationSystem extends EventEmitter {
     this.alertRules.delete(ruleId);
 
     // Resolve any active alerts for this rule
-    for (const alert of this.activeAlerts.values()) {
+    for (const alert of Array.from(this.activeAlerts.values())) {
       if (alert.ruleId === ruleId) {
         this.resolveAlert(alert.id, 'rule_deleted');
       }
@@ -597,7 +600,7 @@ export class AlertingNotificationSystem extends EventEmitter {
     includeResolved = true,
   ): string {
     const alerts = includeResolved
-      ? [...this.activeAlerts.values(), ...this.alertHistory]
+      ? [...Array.from(this.activeAlerts.values()), ...this.alertHistory]
       : Array.from(this.activeAlerts.values());
 
     if (format === 'json') {
@@ -815,7 +818,9 @@ Please take appropriate action.
 
   private processAlerts(): void {
     // Process suppression expiry
-    for (const [ruleId, suppressUntil] of this.suppressed.entries()) {
+    for (const [ruleId, suppressUntil] of Array.from(
+      this.suppressed.entries(),
+    )) {
       if (new Date() >= suppressUntil) {
         this.suppressed.delete(ruleId);
         this.emit('rule:suppression-expired', { ruleId });

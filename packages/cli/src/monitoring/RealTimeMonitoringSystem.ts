@@ -665,7 +665,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   private checkAlertConditions(snapshot: MonitoringSnapshot): void {
     const now = new Date();
 
-    for (const [ruleId, rule] of this.alertRules) {
+    for (const [ruleId, rule] of Array.from(this.alertRules)) {
       if (!rule.enabled) continue;
 
       const activeAlert = this.activeAlerts.get(ruleId);
@@ -1308,7 +1308,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     const messageStr = JSON.stringify(message);
     const disconnectedClients: Set<WebSocket> = new Set();
 
-    for (const client of this.connectedClients) {
+    for (const client of Array.from(this.connectedClients)) {
       try {
         if (client.readyState === WebSocket.OPEN) {
           client.send(messageStr);
@@ -1322,7 +1322,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
     }
 
     // Clean up disconnected clients
-    for (const client of disconnectedClients) {
+    for (const client of Array.from(disconnectedClients)) {
       this.connectedClients.delete(client);
     }
   }

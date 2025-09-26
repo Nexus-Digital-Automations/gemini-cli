@@ -639,7 +639,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   }
 
   private initializeWidgetDataSources(): void {
-    for (const widget of this.widgets.values()) {
+    for (const widget of Array.from(this.widgets.values())) {
       this.initializeWidgetDataSource(widget);
     }
   }
@@ -1118,7 +1118,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     // Listen to monitoring system events
     realTimeMonitoringSystem.on('snapshot:collected', () => {
       // Update widgets that need frequent updates
-      for (const widget of this.widgets.values()) {
+      for (const widget of Array.from(this.widgets.values())) {
         if (widget.enabled && widget.config.refreshIntervalMs <= 1000) {
           this.updateWidgetData(widget);
         }
@@ -1199,7 +1199,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     this.logger.info('Shutting down EnhancedMonitoringDashboard');
 
     // Clear all intervals
-    for (const interval of this.dataRefreshIntervals.values()) {
+    for (const interval of Array.from(this.dataRefreshIntervals.values())) {
       clearInterval(interval);
     }
 
