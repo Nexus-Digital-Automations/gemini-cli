@@ -129,7 +129,6 @@ interface ReportTemplateData {
   metadata: Record<string, unknown>;
 }
 
-
 /**
  * Dashboard widget data
  */
@@ -157,7 +156,9 @@ export class ValidationReporting extends EventEmitter {
   constructor(config: Partial<ValidationReportingConfig> = {}) {
     super();
 
-    this.logger = new Logger('ValidationReporting');
+    this.logger = new Logger({
+      defaultMeta: { component: 'ValidationReporting' },
+    });
     this.config = {
       outputDirectory: './validation-reports',
       formats: [ReportFormat.JSON, ReportFormat.HTML],
@@ -888,7 +889,11 @@ export class ValidationReporting extends EventEmitter {
       clearInterval(this.metricsCollectionInterval);
     }
 
-    if (this.dashboardServer && typeof this.dashboardServer === 'object' && 'close' in this.dashboardServer) {
+    if (
+      this.dashboardServer &&
+      typeof this.dashboardServer === 'object' &&
+      'close' in this.dashboardServer
+    ) {
       (this.dashboardServer as { close(): void }).close();
     }
 

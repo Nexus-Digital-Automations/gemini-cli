@@ -118,7 +118,7 @@ export class ValidationRules {
   private readonly registry: RuleRegistry;
 
   constructor() {
-    this.logger = new Logger('ValidationRules');
+    this.logger = new Logger({ defaultMeta: { component: 'ValidationRules' } });
     this.registry = {
       rules: new Map(),
       rulesByCategory: new Map(),
@@ -577,9 +577,9 @@ export class ValidationRules {
    * Validate that task has all required fields
    */
   private async validateTaskRequiredFields(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const task = context.metadata?.['task'] as Task;
+    const task = _context.metadata?.['task'] as Task;
     if (!task) {
       return [
         {
@@ -598,7 +598,7 @@ export class ValidationRules {
     const missingFields: string[] = [];
 
     requiredFields.forEach((field) => {
-      const value = (task as any)[field];
+      const value = (task as Record<string, unknown>)[field];
       if (
         value === undefined ||
         value === null ||
@@ -636,9 +636,9 @@ export class ValidationRules {
    * Validate that task status is valid for execution
    */
   private async validateTaskStatusForExecution(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const task = context.metadata?.['task'] as Task;
+    const task = _context.metadata?.['task'] as Task;
     if (!task) {
       return [
         {
@@ -685,9 +685,9 @@ export class ValidationRules {
    * Validate that all task dependencies are satisfied
    */
   private async validateTaskDependencies(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const task = context.metadata?.['task'] as Task;
+    const task = _context.metadata?.['task'] as Task;
     if (!task) {
       return [
         {
@@ -721,11 +721,12 @@ export class ValidationRules {
    * Validate execution timeout limits
    */
   private async validateExecutionTimeout(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const executionMetrics = context.metadata
-      ?.['executionMetrics'] as TaskExecutionMetrics;
-    const task = context.metadata?.['task'] as Task;
+    const executionMetrics = _context.metadata?.[
+      'executionMetrics'
+    ] as TaskExecutionMetrics;
+    const task = _context.metadata?.['task'] as Task;
 
     if (!executionMetrics || !task) {
       return [
@@ -741,7 +742,9 @@ export class ValidationRules {
     }
 
     const maxExecutionTime =
-      (task as any).maxExecutionTimeMinutes * 60 * 1000 || 3600000; // 1 hour default
+      ((task as Record<string, unknown>).maxExecutionTimeMinutes as number) *
+        60 *
+        1000 || 3600000; // 1 hour default
     const actualExecutionTime = executionMetrics.duration || 0;
 
     if (actualExecutionTime > maxExecutionTime) {
@@ -775,7 +778,7 @@ export class ValidationRules {
    */
 
   private async validateResourceConsumption(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement resource consumption validation
     return [
@@ -791,7 +794,7 @@ export class ValidationRules {
   }
 
   private async validateTaskCompletionCriteria(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement completion criteria validation
     return [
@@ -807,7 +810,7 @@ export class ValidationRules {
   }
 
   private async validateTaskOutputs(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement output validation
     return [
@@ -823,7 +826,7 @@ export class ValidationRules {
   }
 
   private async validateSensitiveDataHandling(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement sensitive data handling validation
     return [
@@ -839,7 +842,7 @@ export class ValidationRules {
   }
 
   private async validateAccessControls(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement access controls validation
     return [
@@ -855,10 +858,11 @@ export class ValidationRules {
   }
 
   private async validateMemoryUsage(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const executionMetrics = context.metadata
-      ?.['executionMetrics'] as TaskExecutionMetrics;
+    const executionMetrics = _context.metadata?.[
+      'executionMetrics'
+    ] as TaskExecutionMetrics;
 
     if (!executionMetrics?.memoryUsage) {
       return [
@@ -902,7 +906,7 @@ export class ValidationRules {
   }
 
   private async validateCpuUsage(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement CPU usage validation similar to memory validation
     return [
@@ -918,7 +922,7 @@ export class ValidationRules {
   }
 
   private async validateCodeStandards(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement code standards validation
     return [
@@ -934,7 +938,7 @@ export class ValidationRules {
   }
 
   private async validateTestCoverage(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement test coverage validation
     return [
@@ -950,7 +954,7 @@ export class ValidationRules {
   }
 
   private async validateBusinessRequirements(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement business requirements validation
     return [
@@ -966,7 +970,7 @@ export class ValidationRules {
   }
 
   private async validateDataIntegrity(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement data integrity validation
     return [
@@ -982,7 +986,7 @@ export class ValidationRules {
   }
 
   private async validateApiContracts(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     // TODO: Implement API contract validation
     return [
