@@ -19,6 +19,7 @@ import type {
   TaskExecutionContext,
   TaskExecutionResult,
   ExecutionLogger,
+  ExecutionStateManager,
 } from './execution-engine.js';
 import { TaskBreakdownEngine } from './task-breakdown-engine.js';
 import { AutonomousExecutionEngine } from './execution-engine.js';
@@ -335,12 +336,14 @@ export class AutonomousTaskManagerIntegration {
 
       // Get incomplete states
       const states = await this.stateManager.listStates();
-      const incompleteStates = (states as Array<Record<string, unknown>>).filter(
+      const incompleteStates = (
+        states as Array<Record<string, unknown>>
+      ).filter(
         (state): state is Record<string, unknown> =>
           state &&
           typeof state === 'object' &&
           'status' in state &&
-          ['in_progress', 'pending'].includes(state['status'] as TaskStatus)
+          ['in_progress', 'pending'].includes(state['status'] as TaskStatus),
       );
 
       for (const state of incompleteStates) {
@@ -348,12 +351,15 @@ export class AutonomousTaskManagerIntegration {
           // Restore task from checkpoint
           const taskId = state['taskId'];
           if (typeof taskId === 'string') {
-            const restoredState = await this.stateManager.restoreFromCheckpoint(taskId);
+            const restoredState =
+              await this.stateManager.restoreFromCheckpoint(taskId);
             if (restoredState) {
               this.logger.info(`Restored task from checkpoint: ${taskId}`);
 
               // Reconstruct task and continue execution
-              const task = this.reconstructTaskFromState(restoredState as Record<string, unknown>);
+              const task = this.reconstructTaskFromState(
+                restoredState as Record<string, unknown>,
+              );
               if (task) {
                 this.activeTasks.set(task.id, task);
                 // Continue execution would happen here
@@ -440,7 +446,7 @@ export class AutonomousTaskManagerIntegration {
       availableTools: new Map(), // Would be populated with actual tools
       abortSignal: new AbortController().signal,
       logger: this.logger,
-      stateManager: this.stateManager as unknown, // Type compatibility - ComprehensiveStateManager needs interface alignment
+      stateManager: this.stateManager as ExecutionStateManager, // Type compatibility - ComprehensiveStateManager implements ExecutionStateManager interface
       validationEngine: this.validationEngine,
     };
 
@@ -464,7 +470,11 @@ export class AutonomousTaskManagerIntegration {
     for (const result of results) {
       try {
         const update: Partial<TaskManagerTaskData> = {
-          status: result.status as 'failed' | 'in_progress' | 'completed' | 'pending',
+          status: result.status as
+            | 'failed'
+            | 'in_progress'
+            | 'completed'
+            | 'pending',
           metadata: {
             duration: result.duration,
             completed: result.endTime,

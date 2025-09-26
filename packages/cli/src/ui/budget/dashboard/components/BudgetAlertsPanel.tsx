@@ -152,9 +152,11 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
 
     return (
       <Box flexDirection="column" marginBottom={2}>
-        <Text color={theme.text.primary} bold marginBottom={1}>
-          Budget Alerts & Notifications
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.primary} bold>
+            Budget Alerts & Notifications
+          </Text>
+        </Box>
 
         <Box justifyContent="space-between" marginBottom={1}>
           <Box gap={4}>
@@ -256,9 +258,11 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
 
     return (
       <Box flexDirection="column" flexGrow={1}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Active Alerts ({sortedAlerts.length}):
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>
+            Active Alerts ({sortedAlerts.length}):
+          </Text>
+        </Box>
 
         {sortedAlerts.map((alert, index) => (
           <Box
@@ -274,7 +278,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
             }
             marginBottom={1}
             backgroundColor={
-              index === selectedAlertIndex ? theme.primary.light : undefined
+              index === selectedAlertIndex
+                ? theme.background.secondary
+                : undefined
             }
           >
             {/* Alert header */}
@@ -296,9 +302,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
             </Box>
 
             {/* Alert message */}
-            <Text color={theme.text.secondary} marginBottom={1}>
-              {alert.message}
-            </Text>
+            <Box marginBottom={1}>
+              <Text color={theme.text.secondary}>{alert.message}</Text>
+            </Box>
 
             {/* Alert details */}
             <Box justifyContent="space-between" marginBottom={1}>
@@ -324,13 +330,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
                 <Box flexDirection="column" marginTop={1}>
                   <Text color={theme.text.muted}>Suggested Actions:</Text>
                   {alert.suggestedActions.map((action, actionIndex) => (
-                    <Text
-                      key={actionIndex}
-                      color={theme.text.secondary}
-                      marginTop={1}
-                    >
-                      • {action}
-                    </Text>
+                    <Box key={actionIndex} marginTop={1}>
+                      <Text color={theme.text.secondary}>• {action}</Text>
+                    </Box>
                   ))}
                 </Box>
               )}
@@ -348,9 +350,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
 
     return (
       <Box flexDirection="column" marginTop={2}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Alert Thresholds:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Alert Thresholds:</Text>
+        </Box>
 
         <Box gap={4} marginBottom={1}>
           {currentThresholds.map((threshold, index) => (
@@ -391,9 +393,9 @@ export const BudgetAlertsPanel: React.FC<BudgetAlertsPanelProps> = ({
 
     return (
       <Box flexDirection="column" marginTop={2}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Alert Statistics:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Alert Statistics:</Text>
+        </Box>
 
         <Box gap={4}>
           <Box flexDirection="column">

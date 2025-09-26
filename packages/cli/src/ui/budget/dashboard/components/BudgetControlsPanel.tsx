@@ -320,7 +320,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
    */
   const renderHeader = () => (
     <Box flexDirection="column" marginBottom={2}>
-      <Text color={theme.text.primary} bold marginBottom={1}>
+      <Text color={theme.text.primary} bold>
         Dashboard Settings & Controls
       </Text>
       <Text color={theme.text.secondary}>
@@ -338,12 +338,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         <Text
           key={section}
           color={
-            index === selectedSection
-              ? theme.primary.main
-              : theme.text.secondary
-          }
-          backgroundColor={
-            index === selectedSection ? theme.primary.light : undefined
+            index === selectedSection ? theme.text.accent : theme.text.secondary
           }
           bold={index === selectedSection}
         >
@@ -358,22 +353,20 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
    */
   const renderTimeRangeControls = () => (
     <Box flexDirection="column">
-      <Text color={theme.text.muted} marginBottom={1}>
+      <Text color={theme.text.muted}>
         Current: {formatTime(filters.timeRange.start)} to{' '}
         {formatTime(filters.timeRange.end)}
         {filters.timeRange.preset && ` (${filters.timeRange.preset})`}
       </Text>
 
-      <Text color={theme.text.muted} marginBottom={1}>
-        Select preset:
-      </Text>
+      <Text color={theme.text.muted}>Select preset:</Text>
 
       {timeRangePresets.map((preset, index) => (
         <Box key={preset.value} alignItems="center" gap={1} marginBottom={1}>
           <Text
             color={
               index === selectedOption && selectedSection === 0
-                ? theme.primary.main
+                ? theme.text.accent
                 : filters.timeRange.preset === preset.value
                   ? theme.status.success
                   : theme.text.secondary
@@ -395,9 +388,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
    */
   const renderFeatureControls = () => (
     <Box flexDirection="column">
-      <Text color={theme.text.muted} marginBottom={1}>
-        Feature Filters:
-      </Text>
+      <Text color={theme.text.muted}>Feature Filters:</Text>
 
       {availableFeatures.map((feature, index) => {
         const isIncluded = filters.features.include.includes(feature);
@@ -423,7 +414,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
             <Text
               color={
                 index === selectedOption && selectedSection === 1
-                  ? theme.primary.main
+                  ? theme.text.accent
                   : theme.text.secondary
               }
             >
@@ -436,7 +427,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         );
       })}
 
-      <Text color={theme.text.muted} marginTop={1}>
+      <Text color={theme.text.muted}>
         Press Enter to cycle: neutral → included → excluded
       </Text>
     </Box>
@@ -447,17 +438,15 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
    */
   const renderCostRangeControls = () => (
     <Box flexDirection="column">
-      <Text color={theme.text.muted} marginBottom={1}>
-        Cost Range Filter:
-      </Text>
+      <Text color={theme.text.muted}>Cost Range Filter:</Text>
 
       {filters.costRange ? (
-        <Text color={theme.text.secondary} marginBottom={1}>
+        <Text color={theme.text.secondary}>
           Current: ${filters.costRange.min.toFixed(2)} - $
           {filters.costRange.max.toFixed(2)}
         </Text>
       ) : (
-        <Text color={theme.text.muted} marginBottom={1}>
+        <Text color={theme.text.muted}>
           No cost filter applied (showing all costs)
         </Text>
       )}
@@ -466,7 +455,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         <Text
           color={
             selectedOption === 0 && selectedSection === 2
-              ? theme.primary.main
+              ? theme.text.accent
               : theme.text.secondary
           }
         >
@@ -476,7 +465,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         <Text
           color={
             selectedOption === 1 && selectedSection === 2
-              ? theme.primary.main
+              ? theme.text.accent
               : theme.text.secondary
           }
         >
@@ -486,7 +475,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         <Text
           color={
             selectedOption === 2 && selectedSection === 2
-              ? theme.primary.main
+              ? theme.text.accent
               : theme.text.secondary
           }
         >
@@ -502,16 +491,14 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
    */
   const renderRefreshControls = () => (
     <Box flexDirection="column">
-      <Text color={theme.text.muted} marginBottom={1}>
-        Auto-refresh Settings:
-      </Text>
+      <Text color={theme.text.muted}>Auto-refresh Settings:</Text>
 
       <Box flexDirection="column" gap={1} marginBottom={2}>
         <Box alignItems="center" gap={2}>
           <Text
             color={
               selectedOption === 0 && selectedSection === 3
-                ? theme.primary.main
+                ? theme.text.accent
                 : theme.text.secondary
             }
           >
@@ -527,7 +514,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
           <Text
             color={
               selectedOption === 1 && selectedSection === 3
-                ? theme.primary.main
+                ? theme.text.accent
                 : theme.text.secondary
             }
           >
@@ -549,15 +536,13 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
    */
   const renderExportControls = () => (
     <Box flexDirection="column">
-      <Text color={theme.text.muted} marginBottom={1}>
-        Export Dashboard Data:
-      </Text>
+      <Text color={theme.text.muted}>Export Dashboard Data:</Text>
 
       <Box flexDirection="column" gap={1} marginBottom={2}>
         <Text
           color={
             selectedOption === 0 && selectedSection === 4
-              ? theme.primary.main
+              ? theme.text.accent
               : theme.text.secondary
           }
         >
@@ -567,7 +552,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         <Text
           color={
             selectedOption === 1 && selectedSection === 4
-              ? theme.primary.main
+              ? theme.text.accent
               : theme.text.secondary
           }
         >
@@ -576,7 +561,7 @@ export const BudgetControlsPanel: React.FC<BudgetControlsPanelProps> = ({
         </Text>
       </Box>
 
-      <Text color={theme.text.muted} marginBottom={1}>
+      <Text color={theme.text.muted}>
         Quick exports: &apos;e&apos; for JSON, &apos;c&apos; for CSV
       </Text>
     </Box>

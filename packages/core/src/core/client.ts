@@ -350,7 +350,7 @@ export class GeminiClient {
       const activeFile = openFiles.find((f) => f.isActive);
       const otherOpenFiles = openFiles
         .filter((f) => !f.isActive)
-        .map((f) => f.path);
+        .map((f: { path: string; isActive: boolean }) => f.path);
 
       const contextData: Record<string, unknown> = {};
 

@@ -11,7 +11,7 @@ import {
   useReactToolScheduler,
   mapToDisplay,
 } from './useReactToolScheduler.js';
-import type { PartUnion, FunctionResponse } from '@google/genai';
+import type { Part, FunctionResponse } from '@google/genai';
 import type {
   Config,
   ToolCallRequestInfo,
@@ -253,7 +253,10 @@ describe('useReactToolScheduler', () => {
       async (): Promise<ToolCallConfirmationDetails | null> => ({
         onConfirm: mockOnUserConfirmForToolConfirmation,
         fileName: 'mockToolRequiresConfirmation.ts',
+        filePath: '/mock/path/mockToolRequiresConfirmation.ts',
         fileDiff: 'Mock tool requires confirmation',
+        originalContent: 'original content',
+        newContent: 'new content',
         type: 'edit',
         title: 'Mock Tool Requires Confirmation',
       }),
@@ -857,10 +860,11 @@ describe('mapToDisplay', () => {
           id: 'testCallId',
           response: { output: 'Test output' },
         } as FunctionResponse,
-      } as PartUnion,
+      } as Part,
     ],
     resultDisplay: 'Test display output',
     error: undefined,
+    errorType: undefined,
   };
 
   // Define a more specific type for extraProps for these tests
@@ -971,7 +975,7 @@ describe('mapToDisplay', () => {
         response: baseResponse,
       },
       expectedStatus: ToolCallStatus.Success,
-      expectedResultDisplay: baseResponse.resultDisplay,
+      expectedResultDisplay: baseResponse.resultDisplay as string,
       expectedName: baseTool.displayName,
       expectedDescription: baseInvocation.getDescription(),
     },

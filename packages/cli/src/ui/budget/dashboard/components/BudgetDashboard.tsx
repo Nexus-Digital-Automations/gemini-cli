@@ -146,13 +146,10 @@ export const BudgetDashboard: React.FC<BudgetDashboardProps> = ({
             <Text
               color={
                 index === selectedIndex
-                  ? theme.primary.main
+                  ? theme.text.accent
                   : dashboardState.activeView === option.key
                     ? theme.status.success
                     : theme.text.secondary
-              }
-              backgroundColor={
-                index === selectedIndex ? theme.primary.light : undefined
               }
             >
               {option.icon} {option.label}

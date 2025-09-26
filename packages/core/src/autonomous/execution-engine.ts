@@ -810,7 +810,6 @@ export class AutonomousExecutionEngine extends EventEmitter {
     return (
       error.recoverable &&
       task.category !== TaskCategory.DOCUMENTATION &&
-      task.category !== TaskCategory.DOCUMENTATION &&
       task.category !== TaskCategory.TEST
     );
   }

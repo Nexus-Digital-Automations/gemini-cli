@@ -10,12 +10,7 @@ import type {
   QualityAssuranceResult,
   QualityMetrics,
 } from '../QualityAssurance.js';
-import {
-  QualityAssurance,
-  QualityCheckType,
-  QualityThresholds,
-  QualityViolation,
-} from '../QualityAssurance.js';
+import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
 import {
   ValidationFramework,
   ValidationSeverity,
@@ -24,7 +19,7 @@ import type { TaskExecutionMetrics } from '../TaskValidator.js';
 import { TaskValidator } from '../TaskValidator.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
 import { TaskStatus } from '../../task-management/TaskQueue.js';
-import { TaskPriority } from '../../task-management/types.js';
+import { TaskPriority, TaskCategory } from '../../task-management/types.js';
 
 // Mock dependencies
 vi.mock('../ValidationFramework.js');
@@ -33,8 +28,8 @@ vi.mock('../../logger/Logger.js');
 
 describe('QualityAssurance', () => {
   let qualityAssurance: QualityAssurance;
-  let mockValidationFramework: jest.Mocked<ValidationFramework>;
-  let mockTaskValidator: jest.Mocked<TaskValidator>;
+  let mockValidationFramework: Partial<ValidationFramework>;
+  let mockTaskValidator: Partial<TaskValidator>;
   let mockTask: Task;
 
   beforeEach(() => {
@@ -71,13 +66,15 @@ describe('QualityAssurance', () => {
       id: 'test-task-qa',
       title: 'Quality Assurance Test Task',
       description: 'A task for testing quality assurance',
-      type: 'implementation' as any,
-      priority: TaskPriority.NORMAL,
+      category: TaskCategory.FEATURE,
+      priority: TaskPriority.MEDIUM,
       status: TaskStatus.COMPLETED,
       metadata: {
         createdAt: new Date(),
         updatedAt: new Date(),
         createdBy: 'qa-test',
+        estimatedDuration: 5000,
+        tags: ['test'],
       },
     } as Task;
   });
@@ -97,7 +94,7 @@ describe('QualityAssurance', () => {
       expect(mockValidationFramework.registerRule).toHaveBeenCalled();
 
       const ruleIds = mockValidationFramework.registerRule.mock.calls.map(
-        (call) => call[0].id,
+        (call: any[]) => call[0].id,
       );
       expect(ruleIds).toContain('quality-check-code_quality');
       expect(ruleIds).toContain('quality-check-performance');
@@ -336,49 +333,6 @@ describe('QualityAssurance', () => {
   describe('Quality Check Implementations', () => {
     describe('Code Quality Checks', () => {
       it('should validate code quality metrics', async () => {
-        const mockMetrics: QualityMetrics = {
-          codeQuality: {
-            complexity: 15, // Under threshold
-            maintainability: 75,
-            testCoverage: 85, // Above threshold
-            codeSmells: 5,
-            technicalDebt: 20,
-            duplication: 8,
-          },
-          performance: {
-            executionTime: 10000,
-            memoryUsage: 256,
-            cpuUtilization: 30,
-            throughput: 100,
-            responseTime: 500,
-            resourceEfficiency: 0.8,
-          },
-          security: {
-            vulnerabilities: 0,
-            securityScore: 90,
-            exposedSecrets: 0,
-            complianceViolations: 0,
-            accessControlIssues: 0,
-            encryptionCoverage: 95,
-          },
-          reliability: {
-            errorRate: 0.01,
-            failureRate: 0.001,
-            recoveryTime: 30,
-            uptime: 99.9,
-            resilience: 0.9,
-            faultTolerance: 0.85,
-          },
-          business: {
-            userSatisfaction: 4.2,
-            featureCompleteness: 95,
-            requirementsCoverage: 98,
-            businessValue: 80,
-            roi: 2.5,
-            timeToMarket: 60,
-          },
-        };
-
         const result = await qualityAssurance.performQualityAssurance(mockTask);
 
         // Should pass quality checks for good metrics
@@ -688,15 +642,17 @@ describe('QualityAssurance Integration Tests', () => {
       id: 'integration-qa-task',
       title: 'Integration QA Test Task',
       description: 'A comprehensive integration test for quality assurance',
-      type: 'implementation' as any,
-      priority: TaskPriority.NORMAL,
+      category: TaskCategory.FEATURE,
+      priority: TaskPriority.MEDIUM,
       status: TaskStatus.COMPLETED,
       metadata: {
-        createdAt: new Date(),
+        createdAt: new Date(Date.now() - 8000),
         updatedAt: new Date(),
         createdBy: 'integration-qa-test',
+        estimatedDuration: 8000,
+        tags: ['integration', 'qa'],
       },
-    } as Task;
+    };
 
     const taskResult: TaskResult = {
       taskId: task.id,

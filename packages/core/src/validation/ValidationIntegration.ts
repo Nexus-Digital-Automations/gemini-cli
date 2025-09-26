@@ -5,11 +5,11 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 
 // Import validation system components
-import { ValidationFramework } from './ValidationFramework.js';
-import { ValidationRules, RuleExecutionContext } from './ValidationRules.js';
+import { ValidationFramework, ValidationCategory } from './ValidationFramework.js';
+import { ValidationRules, RuleCategory } from './ValidationRules.js';
 import type {
   TaskValidationContext,
   TaskExecutionMetrics,
@@ -20,15 +20,11 @@ import {
   TaskValidationLevel,
 } from './TaskValidator.js';
 import { QualityAssurance, QualityCheckType } from './QualityAssurance.js';
-import {
-  RollbackManager,
-  RollbackTrigger,
-  RollbackType,
-} from './RollbackManager.js';
+import { RollbackManager, RollbackTrigger } from './RollbackManager.js';
 
 // Import task management types (using our types as they are compatible)
 import type { Task, TaskResult } from '../task-management/types.js';
-import { TaskPriority } from '../task-management/types.js';
+import { TaskStatus } from '../task-management/types.js';
 
 // Import existing task execution engine types
 import type { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';
@@ -293,7 +289,9 @@ export class ValidationIntegration extends EventEmitter {
   constructor(config: Partial<ValidationIntegrationConfig> = {}) {
     super();
 
-    this.logger = new Logger('ValidationIntegration');
+    this.logger = new Logger({
+      defaultMeta: { component: 'ValidationIntegration' },
+    });
     this.config = this.createDefaultConfig(config);
 
     // Initialize validation system components
@@ -394,7 +392,7 @@ export class ValidationIntegration extends EventEmitter {
       const frameworkRule = {
         id: rule.id,
         name: rule.name,
-        category: rule.category,
+        category: this.mapRuleCategoryToValidationCategory(rule.category),
         severity: rule.config.severity,
         enabled: rule.config.enabled,
         description: rule.description,
@@ -474,7 +472,9 @@ export class ValidationIntegration extends EventEmitter {
     this.logger.info('Starting comprehensive task validation', {
       taskId: task.id,
       phases: Object.keys(this.config.phases).filter(
-        (p) => (this.config.phases as any)[p].enabled,
+        (p) =>
+          (this.config.phases as Record<string, { enabled: boolean }>)[p]
+            .enabled,
       ),
     });
 
@@ -521,7 +521,7 @@ export class ValidationIntegration extends EventEmitter {
       this.emit(
         'validationSystemError',
         task.id,
-        error as Error,
+        error as Error | undefined,
         TaskValidationPhase.PRE_EXECUTION,
       );
       throw error;
@@ -575,7 +575,7 @@ export class ValidationIntegration extends EventEmitter {
     // Phase 2: During execution monitoring (if task is running)
     if (
       this.config.phases.duringExecution.enabled &&
-      task.status === 'in_progress'
+      task.status === TaskStatus.RUNNING
     ) {
       result.duringExecution = await this.executeDuringExecutionMonitoring(
         task,
@@ -672,9 +672,7 @@ export class ValidationIntegration extends EventEmitter {
       issues: validationResult.results
         .filter((r) => r.status === 'failed')
         .map((r) => r.message),
-      recommendations: validationResult.recommendations.map(
-        (r) => r.description,
-      ),
+      recommendations: validationResult.recommendations.map((r) => r.message),
     };
   }
 
@@ -720,7 +718,8 @@ export class ValidationIntegration extends EventEmitter {
       // Execution time check
       if (executionMetrics.duration) {
         const durationMinutes = executionMetrics.duration / (1000 * 60);
-        const timeThreshold = task.maxExecutionTimeMinutes || 60;
+        const timeThreshold =
+          (task.metadata.estimatedDuration || 60 * 60 * 1000) / (1000 * 60);
 
         thresholds.push({
           metric: 'execution_time',
@@ -853,7 +852,7 @@ export class ValidationIntegration extends EventEmitter {
   private async evaluateRollbackNeed(
     task: Task,
     result: TaskExecutionValidationResult,
-    context: ValidatedTaskExecutionContext,
+    _context: ValidatedTaskExecutionContext,
   ): Promise<NonNullable<TaskExecutionValidationResult['rollback']>> {
     const rollbackRecommended =
       !result.overallPassed ||
@@ -894,7 +893,7 @@ export class ValidationIntegration extends EventEmitter {
         success = rollbackResult.success;
       } catch (error) {
         this.logger.error(`Failed to execute rollback for task: ${task.id}`, {
-          error,
+          error: error as Error | undefined,
         });
         executed = true;
         success = false;
@@ -935,7 +934,7 @@ export class ValidationIntegration extends EventEmitter {
 
   private createTaskResultFromContext(
     task: Task,
-    context: ValidatedTaskExecutionContext,
+    _context: ValidatedTaskExecutionContext,
   ): TaskResult {
     return {
       taskId: task.id,
@@ -964,12 +963,12 @@ export class ValidationIntegration extends EventEmitter {
   private evaluateCompletionCriterion(
     criterion: string,
     task: Task,
-    validationResult: any,
+    validationResult: { passed: boolean; qualityScore: number },
   ): boolean {
     // Simple heuristic - in production, this would be more sophisticated
     switch (criterion.toLowerCase()) {
       case 'all required fields present':
-        return task.title && task.description;
+        return Boolean(task.title && task.description);
       case 'dependencies satisfied':
         return validationResult.passed;
       case 'quality thresholds met':
@@ -995,6 +994,33 @@ export class ValidationIntegration extends EventEmitter {
         validationDisabled: true,
       },
     };
+  }
+
+  private mapRuleCategoryToValidationCategory(
+    ruleCategory: RuleCategory,
+  ): ValidationCategory {
+    switch (ruleCategory) {
+      case RuleCategory.TASK_PRECONDITIONS:
+      case RuleCategory.TASK_EXECUTION:
+      case RuleCategory.TASK_COMPLETION:
+        return ValidationCategory.FUNCTIONAL;
+      case RuleCategory.DEPENDENCY_VALIDATION:
+        return ValidationCategory.INTEGRATION;
+      case RuleCategory.SECURITY_COMPLIANCE:
+        return ValidationCategory.SECURITY;
+      case RuleCategory.PERFORMANCE_VALIDATION:
+        return ValidationCategory.PERFORMANCE;
+      case RuleCategory.QUALITY_ASSURANCE:
+        return ValidationCategory.FUNCTIONAL;
+      case RuleCategory.BUSINESS_RULES:
+        return ValidationCategory.BUSINESS;
+      case RuleCategory.DATA_VALIDATION:
+        return ValidationCategory.SYNTAX;
+      case RuleCategory.INTEGRATION_VALIDATION:
+        return ValidationCategory.INTEGRATION;
+      default:
+        return ValidationCategory.LOGIC;
+    }
   }
 
   private startMonitoring(): void {

@@ -270,11 +270,14 @@ export class HealthDiagnostics extends EventEmitter {
     };
 
     // Analyze component status
-    const componentStatus: Record<string, {
-      status: string;
-      metrics: Record<string, unknown>;
-      issues: string[];
-    }> = {};
+    const componentStatus: Record<
+      string,
+      {
+        status: string;
+        metrics: Record<string, unknown>;
+        issues: string[];
+      }
+    > = {};
     for (const component of systemHealth.components) {
       componentStatus[component.component] = {
         status: component.status,
@@ -481,9 +484,9 @@ export class HealthDiagnostics extends EventEmitter {
       switch (componentName) {
         case 'TaskStatusMonitor': {
           const taskMetrics = taskStatusMonitor.getPerformanceMetrics();
-          details.totalTasks = taskMetrics.totalTasks;
-          details.activeAgents = taskMetrics.activeAgents;
-          details.systemEfficiency = taskMetrics.systemEfficiency;
+          details['totalTasks'] = taskMetrics.totalTasks;
+          details['activeAgents'] = taskMetrics.activeAgents;
+          details['systemEfficiency'] = taskMetrics.systemEfficiency;
 
           if (taskMetrics.systemEfficiency < 70) {
             status = 'critical';
@@ -497,8 +500,8 @@ export class HealthDiagnostics extends EventEmitter {
 
         case 'ProgressTracker': {
           const progressAnalytics = progressTracker.getProgressAnalytics();
-          details.totalTrackedTasks = progressAnalytics.totalTasksTracked;
-          details.activeTasks = progressAnalytics.activeTasks;
+          details['totalTrackedTasks'] = progressAnalytics.totalTasksTracked;
+          details['activeTasks'] = progressAnalytics.activeTasks;
           details.estimationAccuracy =
             progressAnalytics.averageEstimationAccuracy;
 
@@ -661,8 +664,8 @@ export class HealthDiagnostics extends EventEmitter {
       switch (component.component) {
         case 'TaskStatusMonitor':
           if (
-            component.details?.systemEfficiency &&
-            (component.details.systemEfficiency as number) < 85
+            component.details?.['systemEfficiency'] &&
+            (component.details['systemEfficiency'] as number) < 85
           ) {
             recommendations.push(
               'Consider scaling agent pool or optimizing task distribution',

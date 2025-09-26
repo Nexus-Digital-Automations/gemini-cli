@@ -12,18 +12,15 @@ import {
   BudgetEnforcement,
   BudgetExceededError,
 } from '../budget-enforcement.js';
-import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
+import type { BudgetSettings, BudgetUsageData } from '../types.js';
+import type { Config } from '../../config/config.js';
+import type { ContentGenerator } from '../../core/contentGenerator.js';
 import type {
-  BudgetSettings,
-  BudgetUsageData,
-  BudgetWarning as _BudgetWarning,
-} from '../types.js';
-import type {
-  ContentGenerator,
   GenerateContentParameters,
   GenerateContentResponse,
-} from '../core/contentGenerator.js';
-import type { Config } from '../config/config.js';
+} from '@google/genai';
+import { FinishReason } from '@google/genai';
+import { BudgetContentGenerator } from '../../core/budgetContentGenerator.js';
 
 // Mock file system operations for isolated testing
 vi.mock('node:fs/promises', () => ({
@@ -58,7 +55,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
 
     mockConfig = {
       getProjectRoot: vi.fn().mockReturnValue(projectRoot),
-    } as Config;
+    } as unknown as Config;
 
     mockContentGenerator = {
       userTier: 'paid' as ContentGenerator['userTier'],
@@ -105,6 +102,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const mockUsageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 1,
+        totalCost: 0.01,
+        tokenUsage: {
+          inputTokens: 10,
+          outputTokens: 20,
+          totalTokens: 30,
+          tokenCosts: {
+            input: 0.005,
+            output: 0.005,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -166,6 +173,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const resetUsageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 0,
+        totalCost: 0,
+        tokenUsage: {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+          tokenCosts: {
+            input: 0,
+            output: 0,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -186,6 +203,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const initialUsageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 95,
+        totalCost: 0.95,
+        tokenUsage: {
+          inputTokens: 950,
+          outputTokens: 1900,
+          totalTokens: 2850,
+          tokenCosts: {
+            input: 0.475,
+            output: 0.475,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [50, 75, 90],
       };
@@ -261,6 +288,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const usageData: BudgetUsageData = {
         date: '2023-12-01',
         requestCount: 75,
+        totalCost: 0.75,
+        tokenUsage: {
+          inputTokens: 750,
+          outputTokens: 1500,
+          totalTokens: 2250,
+          tokenCosts: {
+            input: 0.375,
+            output: 0.375,
+          },
+        },
         lastResetTime: '2023-12-01T10:00:00.000Z', // Last reset at 10 AM
         warningsShown: [50],
       };
@@ -309,17 +346,23 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
 
       const mockRequest: GenerateContentParameters = {
         contents: [{ parts: [{ text: 'Test prompt' }], role: 'user' }],
+        model: 'gemini-1.5-flash',
       };
 
-      const mockResponse: GenerateContentResponse = {
+      const mockResponse = {
         candidates: [
           {
             content: { parts: [{ text: 'Test response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: FinishReason.STOP,
             index: 0,
           },
         ],
-      };
+        get text() { return 'Test response'; },
+        get data() { return undefined; },
+        get functionCalls() { return []; },
+        get executableCode() { return undefined; },
+        get codeExecutionResult() { return undefined; },
+      } as GenerateContentResponse;
 
       mockContentGenerator.generateContent = vi
         .fn()
@@ -336,6 +379,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const usageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 0,
+        totalCost: 0,
+        tokenUsage: {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+          tokenCosts: {
+            input: 0,
+            output: 0,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -436,11 +489,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                 parts: [{ text: 'Streaming chunk 1' }],
                 role: 'model',
               },
-              finishReason: 'STOP',
+              finishReason: FinishReason.STOP,
               index: 0,
             },
           ],
-        };
+          get text() { return 'Streaming chunk 1'; },
+          get data() { return undefined; },
+          get functionCalls() { return []; },
+          get executableCode() { return undefined; },
+          get codeExecutionResult() { return undefined; },
+        } as GenerateContentResponse;
         yield {
           candidates: [
             {
@@ -448,11 +506,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                 parts: [{ text: 'Streaming chunk 2' }],
                 role: 'model',
               },
-              finishReason: 'STOP',
+              finishReason: FinishReason.STOP,
               index: 0,
             },
           ],
-        };
+          get text() { return 'Streaming chunk 2'; },
+          get data() { return undefined; },
+          get functionCalls() { return []; },
+          get executableCode() { return undefined; },
+          get codeExecutionResult() { return undefined; },
+        } as GenerateContentResponse;
       }
 
       mockContentGenerator.generateContentStream = vi
@@ -463,6 +526,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const usageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 0,
+        totalCost: 0,
+        tokenUsage: {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+          tokenCosts: {
+            input: 0,
+            output: 0,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -471,6 +544,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
 
       const streamRequest: GenerateContentParameters = {
         contents: [{ parts: [{ text: 'Streaming prompt' }], role: 'user' }],
+        model: 'gemini-1.5-flash',
       };
 
       // 1. Successful streaming request
@@ -485,10 +559,10 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       }
 
       expect(chunks).toHaveLength(2);
-      expect(chunks[0].candidates?.[0].content.parts?.[0]).toEqual({
+      expect(chunks[0].candidates?.[0]?.content.parts?.[0]).toEqual({
         text: 'Streaming chunk 1',
       });
-      expect(chunks[1].candidates?.[0].content.parts?.[0]).toEqual({
+      expect(chunks[1].candidates?.[0]?.content.parts?.[0]).toEqual({
         text: 'Streaming chunk 2',
       });
 
@@ -520,15 +594,20 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       );
 
       // Mock successful API response
-      const mockResponse: GenerateContentResponse = {
+      const mockResponse = {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: FinishReason.STOP,
             index: 0,
           },
         ],
-      };
+        get text() { return 'Response'; },
+        get data() { return undefined; },
+        get functionCalls() { return []; },
+        get executableCode() { return undefined; },
+        get codeExecutionResult() { return undefined; },
+      } as GenerateContentResponse;
 
       mockContentGenerator.generateContent = vi
         .fn()
@@ -539,6 +618,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
 
       const request: GenerateContentParameters = {
         contents: [{ parts: [{ text: 'Test' }], role: 'user' }],
+        model: 'gemini-1.5-flash',
       };
 
       // 1. Verify initial state across all components
@@ -573,6 +653,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const mockUsageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 201, // Over new limit
+        totalCost: 2.01,
+        tokenUsage: {
+          inputTokens: 2010,
+          outputTokens: 4020,
+          totalTokens: 6030,
+          tokenCosts: {
+            input: 1.005,
+            output: 1.005,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -662,6 +752,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
         JSON.stringify({
           date: new Date().toISOString().split('T')[0],
           requestCount: 5,
+          totalCost: 0.05,
+          tokenUsage: {
+            inputTokens: 50,
+            outputTokens: 100,
+            totalTokens: 150,
+            tokenCosts: {
+              input: 0.025,
+              output: 0.025,
+            },
+          },
           lastResetTime: new Date().toISOString(),
           warningsShown: [],
         }),
@@ -693,7 +793,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
 
         const stats = await tracker.getUsageStats();
         expect(stats.requestCount).toBeGreaterThanOrEqual(0);
-        expect(stats.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(stats.dailyLimit).toBe(100);
       }
     });
 
@@ -704,6 +804,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const usageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 50,
+        totalCost: 0.5,
+        tokenUsage: {
+          inputTokens: 500,
+          outputTokens: 1000,
+          totalTokens: 1500,
+          tokenCosts: {
+            input: 0.25,
+            output: 0.25,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -755,6 +865,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const usageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 0,
+        totalCost: 0,
+        tokenUsage: {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+          tokenCosts: {
+            input: 0,
+            output: 0,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [],
       };
@@ -788,6 +908,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       const largeUsageData: BudgetUsageData = {
         date: new Date().toISOString().split('T')[0],
         requestCount: 50000,
+        totalCost: 500.0,
+        tokenUsage: {
+          inputTokens: 500000,
+          outputTokens: 1000000,
+          totalTokens: 1500000,
+          tokenCosts: {
+            input: 250.0,
+            output: 250.0,
+          },
+        },
         lastResetTime: new Date().toISOString(),
         warningsShown: [50, 75, 90], // All thresholds triggered
       };

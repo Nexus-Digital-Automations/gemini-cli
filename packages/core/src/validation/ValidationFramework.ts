@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 
 /**
  * Validation severity levels for different types of validation failures
@@ -162,7 +162,9 @@ export class ValidationFramework extends EventEmitter {
     },
   ) {
     super();
-    this.logger = new Logger('ValidationFramework');
+    this.logger = new Logger({
+      defaultMeta: { component: 'ValidationFramework' },
+    });
     this.config = {
       maxConcurrentValidations: 10,
       timeout: 300000, // 5 minutes
@@ -259,7 +261,7 @@ export class ValidationFramework extends EventEmitter {
       return report;
     } catch (error) {
       this.logger.error(`Validation failed for task: ${context.taskId}`, {
-        error,
+        error: error as Error | undefined,
       });
       this.emit('validationFailed', context.taskId, error as Error);
       throw error;
@@ -431,8 +433,8 @@ export class ValidationFramework extends EventEmitter {
 
       return enrichedResults;
     } catch (error) {
-      this.logger.error(`Validation rule failed: ${rule.id}`, { error });
-      this.emit('ruleFailed', rule.id, error as Error);
+      this.logger.error(`Validation rule failed: ${rule.id}`, { error: error as Error | undefined });
+      this.emit('ruleFailed', rule.id, error as Error | undefined);
 
       // Return failure result
       return [
@@ -474,11 +476,11 @@ export class ValidationFramework extends EventEmitter {
           }),
         ]);
       } catch (error) {
-        lastError = error as Error;
+        lastError = error instanceof Error ? error : new Error(String(error));
         if (attempt < retries) {
           this.logger.warn(
             `Validation attempt ${attempt + 1} failed, retrying...`,
-            { error },
+            { error: error as Error | undefined },
           );
           await new Promise((resolve) =>
             setTimeout(resolve, 1000 * (attempt + 1)),
@@ -577,7 +579,7 @@ export class ValidationFramework extends EventEmitter {
       summary,
       metadata: {
         validationFrameworkVersion: '1.0.0',
-        executionEnvironment: process.env.NODE_ENV || 'development',
+        executionEnvironment: process.env['NODE_ENV'] || 'development',
       },
     };
   }

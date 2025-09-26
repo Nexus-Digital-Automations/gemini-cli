@@ -218,7 +218,9 @@ export class ValidationReporting extends EventEmitter {
         dashboardEnabled: this.config.dashboard.enabled,
       });
     } catch (error) {
-      this.logger.error('Failed to initialize validation reporting', { error });
+      this.logger.error('Failed to initialize validation reporting', {
+        error: error as Error | undefined,
+      });
       throw error;
     }
   }
@@ -261,7 +263,7 @@ export class ValidationReporting extends EventEmitter {
           generatedPaths[format] = filePath;
         } catch (formatError) {
           this.logger.error(`Failed to generate ${format} report`, {
-            error: formatError,
+            error: formatError as Error | undefined,
           });
         }
       }
@@ -290,11 +292,13 @@ export class ValidationReporting extends EventEmitter {
 
       return generatedPaths;
     } catch (error) {
-      this.logger.error(`Failed to generate report: ${reportId}`, { error });
+      this.logger.error(`Failed to generate report: ${reportId}`, {
+        error: error as Error | undefined,
+      });
       this.emit('reportGenerationFailed', {
         reportId,
         taskId: data.taskId,
-        error: (error as Error).message,
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -856,7 +860,9 @@ export class ValidationReporting extends EventEmitter {
         }
       }
     } catch (error) {
-      this.logger.warn('Failed to archive old reports', { error });
+      this.logger.warn('Failed to archive old reports', {
+        error: error as Error | undefined,
+      });
     }
   }
 

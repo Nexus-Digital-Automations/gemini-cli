@@ -155,7 +155,7 @@ export interface DecompositionRule {
  * manageable, executable tasks with proper dependency management and execution strategies.
  */
 export class TaskBreakdownEngine {
-  private decompositionRules: Map<string, DecompositionRule> = new Map();
+  // Removed unused _decompositionRules
   private breakdownStrategies: Map<string, BreakdownStrategy> = new Map();
   private complexityAnalyzers: ComplexityAnalyzer[] = [];
 
@@ -563,10 +563,7 @@ export class TaskBreakdownEngine {
     };
 
     // Adjust strategy based on category
-    if (
-      category === TaskCategory.DOCUMENTATION ||
-      category === TaskCategory.DOCUMENTATION
-    ) {
+    if (category === TaskCategory.DOCUMENTATION) {
       baseStrategy.type = 'parallel';
       baseStrategy.maxConcurrency = 3;
     }
@@ -656,10 +653,7 @@ export class TaskBreakdownEngine {
   private getPostExecutionValidation(category: TaskCategory): string[] {
     const validation: string[] = ['Check task completion status'];
 
-    if (
-      category === TaskCategory.FEATURE ||
-      category === TaskCategory.FEATURE
-    ) {
+    if (category === TaskCategory.FEATURE) {
       validation.push('Verify file integrity');
       validation.push('Run syntax validation');
     }

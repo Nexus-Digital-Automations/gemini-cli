@@ -598,7 +598,7 @@ export class ValidationRules {
     const missingFields: string[] = [];
 
     requiredFields.forEach((field) => {
-      const value = (task as Record<string, unknown>)[field];
+      const value = (task as unknown as Record<string, unknown>)[field];
       if (
         value === undefined ||
         value === null ||
@@ -742,7 +742,9 @@ export class ValidationRules {
     }
 
     const maxExecutionTime =
-      ((task as Record<string, unknown>).maxExecutionTimeMinutes as number) *
+      (((task as unknown as Record<string, unknown>)[
+        'maxExecutionTimeMinutes'
+      ] as number) || 60) *
         60 *
         1000 || 3600000; // 1 hour default
     const actualExecutionTime = executionMetrics.duration || 0;

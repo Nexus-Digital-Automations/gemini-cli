@@ -132,8 +132,13 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
   private widgets: Map<string, DashboardWidget> = new Map();
 
   // Data management
-  private cachedData: Map<string, { data: Record<string, unknown> | string | number | boolean | null; timestamp: Date }> =
-    new Map();
+  private cachedData: Map<
+    string,
+    {
+      data: Record<string, unknown> | string | number | boolean | null;
+      timestamp: Date;
+    }
+  > = new Map();
   private dataRefreshIntervals: Map<string, NodeJS.Timeout> = new Map();
 
   // Visualization data
@@ -367,7 +372,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         overall: currentSnapshot.systemHealth.overall,
         uptime: currentSnapshot.systemHealth.uptime,
         version: '1.0.0', // TODO: Get from package.json
-        environment: process.env.NODE_ENV || 'development',
+        environment: process.env['NODE_ENV'] || 'development',
       },
       summary: {
         totalTasks: currentSnapshot.taskMetrics.total,
@@ -658,7 +663,8 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   private updateWidgetData(widget: DashboardWidget): void {
     try {
-      let data: Record<string, unknown> | string | number | boolean | null = null;
+      let data: Record<string, unknown> | string | number | boolean | null =
+        null;
 
       switch (widget.config.dataSource) {
         case 'system_health':
@@ -711,7 +717,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     }
   }
 
-  private getSystemHealthData(_widget: DashboardWidget): Record<string, unknown> {
+  private getSystemHealthData(
+    _widget: DashboardWidget,
+  ): Record<string, unknown> {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
 
     return {
@@ -757,7 +765,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getAgentPerformanceData(widget: DashboardWidget): Record<string, unknown> {
+  private getAgentPerformanceData(
+    widget: DashboardWidget,
+  ): Record<string, unknown> {
     const snapshot = realTimeMonitoringSystem.getCurrentSnapshot();
 
     return {
@@ -775,7 +785,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getAlertHistoryData(_widget: DashboardWidget): Record<string, unknown> {
+  private getAlertHistoryData(
+    _widget: DashboardWidget,
+  ): Record<string, unknown> {
     const activeAlerts = realTimeMonitoringSystem.getActiveAlerts();
 
     return {
@@ -798,7 +810,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     };
   }
 
-  private getPredictiveInsightsData(_widget: DashboardWidget): Record<string, unknown> {
+  private getPredictiveInsightsData(
+    _widget: DashboardWidget,
+  ): Record<string, unknown> {
     const insights = realTimeMonitoringSystem.getPredictiveInsights();
 
     return {
@@ -842,7 +856,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       data !== null &&
       'value' in data
     ) {
-      const value = data.value;
+      const value = data['value'];
       if (typeof value === 'number') {
         const criticalThreshold = widget.config.thresholds.find(
           (t) => t.label === 'Critical',
@@ -1151,7 +1165,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       });
     } catch (error) {
       // File doesn't exist or is corrupted - start fresh
-      this.logger.info('No persisted layouts found, starting fresh', { error: (error as Error).message });
+      this.logger.info('No persisted layouts found, starting fresh', {
+        error: (error as Error).message,
+      });
     }
   }
 

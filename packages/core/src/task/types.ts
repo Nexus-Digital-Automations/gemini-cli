@@ -30,6 +30,7 @@ export interface ToolCall {
 export interface TaskMetadata {
   toolCalls: ToolCall[];
   context: Record<string, unknown>; // Arbitrary data relevant to the task
+  estimatedDuration?: number; // Estimated duration in milliseconds
   // Add any other metadata needed for autonomy, e.g., 'agentInstructions'
 }
 

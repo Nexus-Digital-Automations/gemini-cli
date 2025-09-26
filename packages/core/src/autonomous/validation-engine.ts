@@ -5,7 +5,7 @@
  */
 
 import * as fs from 'node:fs/promises';
-import type { Stats } from 'node:fs';
+// Using fs.Stats type directly
 import * as path from 'node:path';
 import type { AutonomousTask } from './task-breakdown-engine.js';
 import { TaskCategory } from './task-breakdown-engine.js';
@@ -69,7 +69,9 @@ export interface FileSystemValidator {
   isReadable(filePath: string): Promise<boolean>;
   isWritable(filePath: string): Promise<boolean>;
   getFileSize(filePath: string): Promise<number>;
-  getFileStats(filePath: string): Promise<Stats>;
+  getFileStats(
+    filePath: string,
+  ): Promise<Awaited<ReturnType<typeof import('node:fs/promises').stat>>>;
   validatePath(filePath: string, workspaceRoot: string): Promise<boolean>;
 }
 
@@ -706,7 +708,9 @@ export class DefaultFileSystemValidator implements FileSystemValidator {
     return stats.size;
   }
 
-  async getFileStats(filePath: string): Promise<fs.Stats> {
+  async getFileStats(
+    filePath: string,
+  ): Promise<Awaited<ReturnType<typeof fs.stat>>> {
     return fs.stat(filePath);
   }
 

@@ -34,7 +34,25 @@ vi.mock('../semantic-colors.js', () => ({
 }));
 
 const mockTracker = {
+  projectRoot: '/test/project',
+  settings: {
+    enabled: true,
+    dailyLimit: 100,
+    resetTime: '00:00',
+    warningThresholds: [50, 75, 90],
+  },
+  usageFilePath: '/test/project/.gemini/budget-usage.json',
+  isEnabled: vi.fn(),
+  getBudgetSettings: vi.fn(),
+  updateSettings: vi.fn(),
+  recordRequest: vi.fn(),
+  isOverBudget: vi.fn(),
+  shouldShowWarning: vi.fn(),
   getUsageStats: vi.fn(),
+  resetDailyUsage: vi.fn(),
+  extendDailyLimit: vi.fn(),
+  getTodayUsage: vi.fn(),
+  recordRequestWithCost: vi.fn(),
 };
 
 const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -61,7 +79,7 @@ describe('BudgetDisplay', () => {
     };
 
     vi.mocked(createBudgetTracker).mockReturnValue(
-      mockTracker as ReturnType<typeof createBudgetTracker>,
+      mockTracker as unknown as ReturnType<typeof createBudgetTracker>,
     );
 
     // Mock timer functions for async operations

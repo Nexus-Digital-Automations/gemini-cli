@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import type {
   ValidationContext,
   ValidationReport,
@@ -150,8 +150,12 @@ export class ValidationWorkflow extends EventEmitter {
   constructor(config: ValidationWorkflowConfig) {
     super();
 
-    this.logger = new Logger('ValidationWorkflow');
-    this.config = {
+    this.logger = new Logger({
+      defaultMeta: { component: 'ValidationWorkflow' },
+    });
+
+    // Default configuration
+    const defaultConfig: ValidationWorkflowConfig = {
       stages: {
         [TaskExecutionStage.PRE_EXECUTION]: {
           enabled: true,
@@ -191,6 +195,7 @@ export class ValidationWorkflow extends EventEmitter {
         maxRetries: 2,
         retryDelay: 1000,
       },
+      validatorConfigs: {},
       reporting: {
         aggregateReports: true,
         persistReports: true,
@@ -201,7 +206,23 @@ export class ValidationWorkflow extends EventEmitter {
         onFailure: true,
         onWarning: false,
       },
+    };
+
+    // Merge configurations properly
+    this.config = {
+      ...defaultConfig,
       ...config,
+      stages: { ...defaultConfig.stages, ...config.stages },
+      globalConfig: { ...defaultConfig.globalConfig, ...config.globalConfig },
+      validatorConfigs: {
+        ...defaultConfig.validatorConfigs,
+        ...config.validatorConfigs,
+      },
+      reporting: { ...defaultConfig.reporting, ...config.reporting },
+      notifications: {
+        ...defaultConfig.notifications,
+        ...config.notifications,
+      },
     };
 
     // Initialize validation framework and validators
@@ -316,7 +337,7 @@ export class ValidationWorkflow extends EventEmitter {
     } catch (error) {
       this.logger.error(
         `Validation workflow failed for task: ${context.taskId}`,
-        { error },
+        { error: error as Error | undefined },
       );
       this.emit('workflowFailed', context.taskId, context.stage, error);
       throw error;
@@ -375,7 +396,9 @@ export class ValidationWorkflow extends EventEmitter {
 
       return result;
     } catch (error) {
-      this.logger.error(`Workflow stage ${context.stage} failed`, { error });
+      this.logger.error(`Workflow stage ${context.stage} failed`, {
+        error: error as Error | undefined,
+      });
 
       // Create error result
       const errorResult = this.createErrorResult(
@@ -457,7 +480,9 @@ export class ValidationWorkflow extends EventEmitter {
           break;
         }
       } catch (error) {
-        this.logger.error(`Validator ${validator} failed`, { error });
+        this.logger.error(`Validator ${validator} failed`, {
+          error: error as Error | undefined,
+        });
         reports.push(this.createValidatorErrorReport(context, error as Error));
 
         if (!stageConfig.continueOnFailure) {
@@ -852,7 +877,7 @@ export class ValidationWorkflow extends EventEmitter {
 
     this.logger.error(`Workflow failed for task: ${result.taskId}`, {
       stage: result.stage,
-      error: error.message,
+      error: error instanceof Error ? error : new Error(String(error)),
       duration: result.duration,
     });
   }

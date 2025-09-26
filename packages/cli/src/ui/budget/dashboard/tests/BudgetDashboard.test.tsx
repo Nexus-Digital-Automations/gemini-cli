@@ -56,72 +56,73 @@ import { useBudgetDashboard } from '../hooks/useBudgetDashboard.js';
 
 const mockUseBudgetDashboard = useBudgetDashboard as Mock;
 
-describe('BudgetDashboard', () => {
-  const defaultProps: BudgetDashboardProps = {
-    projectRoot: '/test/project',
-    budgetSettings: { enabled: true, dailyLimit: 1000 },
-    initialView: 'overview',
-    compact: false,
+// Shared test data
+const defaultProps: BudgetDashboardProps = {
+  projectRoot: '/test/project',
+  budgetSettings: { enabled: true, dailyLimit: 1000 },
+  initialView: 'overview',
+  compact: false,
+  refreshInterval: 30,
+};
+
+const mockDashboardData = {
+  budgetStats: {
+    requestCount: 500,
+    dailyLimit: 1000,
+    remainingRequests: 500,
+    usagePercentage: 50,
+    timeUntilReset: '12h 30m',
+    lastUpdated: new Date(),
+  },
+  historicalData: [
+    {
+      timestamp: new Date(),
+      tokens: 1000,
+      cost: 0.1,
+      requests: 10,
+      feature: 'test',
+    },
+  ],
+  costBreakdown: [
+    {
+      feature: 'chat',
+      cost: 5.0,
+      percentage: 50,
+      tokens: 5000,
+      requests: 100,
+      avgCostPerRequest: 0.05,
+    },
+  ],
+  alerts: [],
+  projections: [],
+  dashboardState: {
+    activeView: 'overview' as const,
+    filters: {
+      timeRange: {
+        start: new Date(),
+        end: new Date(),
+        preset: 'week' as const,
+      },
+      features: {
+        include: [],
+        exclude: [],
+      },
+    },
+    isLoading: false,
+    lastRefresh: new Date(),
     refreshInterval: 30,
-  };
+    autoRefresh: true,
+    error: null,
+  },
+  setActiveView: vi.fn(),
+  updateFilters: vi.fn(),
+  refreshData: vi.fn(),
+  toggleAutoRefresh: vi.fn(),
+  dismissAlert: vi.fn(),
+  exportData: vi.fn(),
+};
 
-  const mockDashboardData = {
-    budgetStats: {
-      requestCount: 500,
-      dailyLimit: 1000,
-      remainingRequests: 500,
-      usagePercentage: 50,
-      timeUntilReset: '12h 30m',
-      lastUpdated: new Date(),
-    },
-    historicalData: [
-      {
-        timestamp: new Date(),
-        tokens: 1000,
-        cost: 0.1,
-        requests: 10,
-        feature: 'test',
-      },
-    ],
-    costBreakdown: [
-      {
-        feature: 'chat',
-        cost: 5.0,
-        percentage: 50,
-        tokens: 5000,
-        requests: 100,
-        avgCostPerRequest: 0.05,
-      },
-    ],
-    alerts: [],
-    projections: [],
-    dashboardState: {
-      activeView: 'overview' as const,
-      filters: {
-        timeRange: {
-          start: new Date(),
-          end: new Date(),
-          preset: 'week' as const,
-        },
-        features: {
-          include: [],
-          exclude: [],
-        },
-      },
-      isLoading: false,
-      lastRefresh: new Date(),
-      refreshInterval: 30,
-      autoRefresh: true,
-      error: null,
-    },
-    setActiveView: vi.fn(),
-    updateFilters: vi.fn(),
-    refreshData: vi.fn(),
-    toggleAutoRefresh: vi.fn(),
-    dismissAlert: vi.fn(),
-    exportData: vi.fn(),
-  };
-
+describe('BudgetDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseBudgetDashboard.mockReturnValue(mockDashboardData);
