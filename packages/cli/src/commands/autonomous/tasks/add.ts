@@ -92,7 +92,7 @@ export const addTaskCommand: CommandModule = {
         'Add documentation task with 30 min limit',
       ),
 
-  handler: async (argv: _AddTaskOptions) => {
+  handler: async (argv: any) => {
     try {
       console.log(chalk.cyan('➕ Adding new task to autonomous system...'));
 

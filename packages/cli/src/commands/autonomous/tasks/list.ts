@@ -45,16 +45,6 @@ interface DisplayTask {
   description?: string;
 }
 
-interface _ListTasksOptions {
-  status?: string;
-  priority?: string;
-  category?: string;
-  limit: number;
-  json: boolean;
-  'show-completed': boolean;
-  [key: string]: unknown;
-}
-
 export const listTasksCommand: CommandModule = {
   command: 'list',
   describe: 'List tasks in the autonomous system',
@@ -108,7 +98,7 @@ export const listTasksCommand: CommandModule = {
         'Include completed tasks',
       ),
 
-  handler: async (argv: _ListTasksOptions) => {
+  handler: async (argv: any) => {
     try {
       console.log(chalk.cyan('📋 Task List'));
       console.log(chalk.gray('─'.repeat(80)));
