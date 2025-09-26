@@ -26,8 +26,6 @@ import type {
   ResourceRankingResult,
 } from './ResourceRanking.js';
 
-import { ResourceRanking } from './ResourceRanking.js';
-
 /**
  * Priority assignment configuration
  */
@@ -987,7 +985,7 @@ export class PriorityAssignment {
    */
   private generateAssignmentRationale(
     candidate: AllocationCandidate,
-    ranking: ResourceRanking,
+    ranking: ResourceRankingResult,
     assignedPriority: AllocationPriority,
     appliedRules: BusinessRule[],
   ): AssignmentRationale {
@@ -1035,7 +1033,7 @@ export class PriorityAssignment {
    */
   private calculateAssignmentConfidence(
     candidate: AllocationCandidate,
-    ranking: ResourceRanking,
+    ranking: ResourceRankingResult,
     ruleConfidence: number,
   ): number {
     let confidence = ranking.confidence;

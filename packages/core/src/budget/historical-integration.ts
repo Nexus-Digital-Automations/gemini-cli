@@ -865,12 +865,12 @@ export class HistoricalBudgetService {
       case 'monthly':
         now.setMonth(now.getMonth() + 1);
         break;
-    }
-
-    return now.toISOString();
       default:
         // Handle unexpected values
         break;
+    }
+
+    return now.toISOString();
   }
 
   private async saveSchedule(schedule: AnalysisSchedule): Promise<void> {

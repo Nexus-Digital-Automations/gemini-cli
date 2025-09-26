@@ -16,9 +16,18 @@ import type {
   AllocationCandidate,
   AllocationPriority,
   AllocationStrategy,
-  FeatureCostAnalysis,
-  AllocationLogger,
 } from '../types.js';
+import type { FeatureCostAnalysis } from '../analytics/AnalyticsEngine.js';
+
+/**
+ * Logger interface for allocation operations
+ */
+export interface AllocationLogger {
+  info(message: string, data?: Record<string, unknown>): void;
+  warn(message: string, data?: Record<string, unknown>): void;
+  error(message: string, data?: Record<string, unknown>): void;
+  debug(message: string, data?: Record<string, unknown>): void;
+}
 
 /**
  * Resource ranking configuration
@@ -557,7 +566,7 @@ export class ResourceRanking {
 
     // Adjust based on strategic focus
     for (const focus of this.config.businessContext.strategicFocus) {
-      if (candidate.metadata.tags?.includes(focus)) {
+      if ((candidate.metadata.tags as string[])?.includes(focus)) {
         score *= 1.1;
       }
     }
@@ -620,7 +629,7 @@ export class ResourceRanking {
 
     // Check alignment with strategic focus
     const focusAlignment = this.config.businessContext.strategicFocus.filter(
-      (focus) => candidate.metadata.tags?.includes(focus),
+      (focus) => (candidate.metadata.tags as string[])?.includes(focus),
     ).length;
 
     score += focusAlignment * 15; // Up to 45 bonus points

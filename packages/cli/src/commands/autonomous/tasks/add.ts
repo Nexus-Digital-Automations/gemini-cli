@@ -19,18 +19,19 @@ import {
   initializeAgent,
 } from '../taskManagerApi.js';
 
-interface _AddTaskOptions {
+interface AddTaskOptions {
   priority: string;
   category: string;
   type: string;
   description: string;
   'max-time': number;
   dependencies: string[];
-  context: string;
-  'expected-outputs': string;
+  context?: string;
+  'expected-outputs'?: string;
+  [key: string]: unknown;
 }
 
-export const addTaskCommand: CommandModule = {
+export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
   command: 'add <description>',
   describe: 'Add a new task to the autonomous system',
   builder: (yargs) =>
@@ -127,20 +128,20 @@ export const addTaskCommand: CommandModule = {
         performance: TaskType.PERFORMANCE,
       };
 
-      let parsedContext = {};
-      if (argv.context) {
+      let parsedContext: Record<string, unknown> = {};
+      if (argv['context']) {
         try {
-          parsedContext = JSON.parse(argv.context);
+          parsedContext = JSON.parse(argv['context'] as string);
         } catch (_error) {
           console.error(chalk.red('❌ Invalid JSON format for context'));
           process.exit(1);
         }
       }
 
-      let parsedExpectedOutputs = {};
+      let parsedExpectedOutputs: Record<string, unknown> = {};
       if (argv['expected-outputs']) {
         try {
-          parsedExpectedOutputs = JSON.parse(argv['expected-outputs']);
+          parsedExpectedOutputs = JSON.parse(argv['expected-outputs'] as string);
         } catch (_error) {
           console.error(
             chalk.red('❌ Invalid JSON format for expected-outputs'),
@@ -154,13 +155,13 @@ export const addTaskCommand: CommandModule = {
 
       // Create task object
       const newTask = {
-        title: generateTaskTitle(argv.description),
-        description: argv.description,
-        type: typeMap[argv.type || 'implementation'],
-        priority: priorityMap[argv.priority || 'medium'],
-        category: argv.category as TaskCategory,
-        maxExecutionTimeMinutes: argv['max-time'] || 60,
-        dependencies: argv.dependencies || [],
+        title: generateTaskTitle(argv['description'] as string),
+        description: argv['description'] as string,
+        type: typeMap[argv['type'] as string || 'implementation'],
+        priority: priorityMap[argv['priority'] as string || 'medium'],
+        category: argv['category'] as TaskCategory,
+        maxExecutionTimeMinutes: (argv['max-time'] as number) || 60,
+        dependencies: (argv['dependencies'] as string[]) || [],
         context: parsedContext,
         expectedOutputs: parsedExpectedOutputs,
       };
@@ -212,7 +213,7 @@ export const addTaskCommand: CommandModule = {
         });
       }
 
-      if (newTask.dependencies.length > 0) {
+      if (newTask.dependencies && newTask.dependencies.length > 0) {
         console.log(
           `   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`,
         );

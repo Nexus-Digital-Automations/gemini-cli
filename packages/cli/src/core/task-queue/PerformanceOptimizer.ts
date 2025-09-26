@@ -876,7 +876,6 @@ export class PerformanceOptimizer extends EventEmitter {
   private async executeOptimization(
     recommendation: OptimizationRecommendation,
   ): Promise<OptimizationResult> {
-    const _startTime = Date.now();
     let revertAction: (() => Promise<void>) | undefined;
 
     try {
@@ -1213,8 +1212,8 @@ export class PerformanceOptimizer extends EventEmitter {
       olderAvg.systemMetrics.errorRate, // Inverted - lower error rate is better
       recentAvg.systemMetrics.errorRate,
     );
-    history.trends.errorRate = errorTrend === 'increasing' ? 'improving' :
-                               errorTrend === 'decreasing' ? 'degrading' : 'stable';
+    history.trends.errorRate = errorTrend === 'increasing' ? 'decreasing' :
+                               errorTrend === 'decreasing' ? 'increasing' : 'stable';
   }
 
   private calculateAverageMetrics(
