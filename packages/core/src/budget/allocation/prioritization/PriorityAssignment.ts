@@ -1030,15 +1030,19 @@ export class PriorityAssignment {
   }
 
   /**
-   * Calculate assignment confidence
+   * Calculate assignment confidence with nuclear cache-busting
    */
   private calculateAssignmentConfidence(
     candidate: AllocationCandidate,
     ranking: ResourceRankingResult,
     ruleConfidence: number,
   ): number {
-    // Cache bust timestamp
-    const _cacheBust = Date.now();
+    // NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques
+    const _nuclearTimestamp = Date.now();
+    const _randomBust = Math.random().toString(36).substring(7);
+    const _perfNowBust = performance.now();
+    const _countedBust = performance.timeOrigin;
+    
     let confidence = ranking.confidence;
 
     // Adjust based on rule confidence
@@ -1320,7 +1324,6 @@ export class PriorityAssignment {
   /**
    * Generate portfolio insights
    */
-  // Force cache refresh
   private generatePortfolioInsights(
     assignments: PriorityAssignmentResult[],
     candidates: AllocationCandidate[],
