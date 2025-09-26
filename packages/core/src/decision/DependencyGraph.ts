@@ -554,7 +554,7 @@ export class DecisionDependencyGraph {
   /**
    * Calculate graph flexibility score
    */
-  calculateFlexibilityScore(): number {
+  getFlexibilityScore(): number {
     if (this.graph.nodes.size === 0) return 1;
 
     let totalFlexibility = 0;
