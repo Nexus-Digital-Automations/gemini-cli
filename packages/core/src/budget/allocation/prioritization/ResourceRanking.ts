@@ -490,7 +490,7 @@ export class ResourceRanking {
     });
 
     // Update business context
-    const updatedConfig = {
+    const _updatedConfig = {
       ...this.config,
       businessContext: { ...this.config.businessContext, ...contextChanges },
     };
@@ -562,6 +562,9 @@ export class ResourceRanking {
         // Prioritize strategic initiatives
         if (candidate.metadata.category === 'strategic') score *= 1.25;
         break;
+      default:
+        // No adjustment for unknown phases
+        break;
     }
 
     // Adjust based on strategic focus
@@ -584,10 +587,8 @@ export class ResourceRanking {
     if (historicalData.length === 0) return 50; // Default score
 
     const avgROI =
-      historicalData.reduce(
-        (sum, data) => sum + data.roi,
-        0,
-      ) / historicalData.length;
+      historicalData.reduce((sum, data) => sum + data.roi, 0) /
+      historicalData.length;
 
     // Convert ROI to 0-100 score (ROI of 2.0 = 100 points)
     return Math.min(100, Math.max(0, avgROI * 50));
@@ -651,6 +652,9 @@ export class ResourceRanking {
       case 'deferred':
         score -= 20;
         break;
+      default:
+        // No adjustment for unknown priorities
+        break;
     }
 
     return Math.min(100, Math.max(0, score));
@@ -678,6 +682,9 @@ export class ResourceRanking {
         break;
       case 'low':
         if (candidate.metadata.category === 'experimental') score += 10;
+        break;
+      default:
+        // No adjustment for unknown competitive pressure levels
         break;
     }
 
@@ -849,7 +856,7 @@ export class ResourceRanking {
   private generateJustification(
     candidate: AllocationCandidate,
     scoreBreakdown: ScoreBreakdown,
-    historicalData: FeatureCostAnalysis[],
+    _historicalData: FeatureCostAnalysis[],
   ): RankingJustification {
     const primaryFactors: string[] = [];
     const supportingFactors: string[] = [];
@@ -926,10 +933,8 @@ export class ResourceRanking {
     // Increase confidence for consistent high performance
     if (historicalData.length > 10) {
       const avgPerformance =
-        historicalData.reduce(
-          (sum, data) => sum + data.businessValue,
-          0,
-        ) / historicalData.length;
+        historicalData.reduce((sum, data) => sum + data.businessValue, 0) /
+        historicalData.length;
       if (avgPerformance > 80) {
         confidence += 10;
       }
@@ -1009,7 +1014,7 @@ export class ResourceRanking {
    */
   private generatePortfolioInsights(
     rankings: ResourceRankingResult[],
-    candidates: AllocationCandidate[],
+    _candidates: AllocationCandidate[],
   ): PortfolioInsights {
     // Calculate priority distribution
     const priorityDistribution: Record<AllocationPriority, number> = {
