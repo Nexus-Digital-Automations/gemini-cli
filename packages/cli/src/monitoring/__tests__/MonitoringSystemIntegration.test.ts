@@ -195,10 +195,7 @@ describe('Monitoring System Integration Tests', () => {
         estimatedDuration: 60000,
       });
 
-      taskStatusMonitor.registerAgent('test-agent-1', {
-        capabilities: ['testing', 'validation'],
-        maxConcurrentTasks: 3,
-      });
+      taskStatusMonitor.registerAgent('test-agent-1', ['testing', 'validation']);
 
       // Wait for synchronization
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -607,10 +604,7 @@ describe('Monitoring System Integration Tests', () => {
         }),
       ];
 
-      const agentId = taskStatusMonitor.registerAgent('aggregate-test-agent', {
-        capabilities: ['implementation', 'testing'],
-        maxConcurrentTasks: 2,
-      });
+      const agentId = taskStatusMonitor.registerAgent('aggregate-test-agent', ['implementation', 'testing']);
 
       // Complete some tasks
       taskStatusMonitor.updateTaskStatus(taskIds[0], {

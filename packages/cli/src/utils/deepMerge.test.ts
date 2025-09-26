@@ -157,6 +157,6 @@ describe('customDeepMerge', () => {
     const result = customDeepMerge(getMergeStrategy, {}, maliciousSource);
 
     expect(result).toEqual({});
-    expect((({} as Record<string, unknown>).polluted)).toBeUndefined();
+    expect((({} as Record<string, unknown>)['polluted'])).toBeUndefined();
   });
 });

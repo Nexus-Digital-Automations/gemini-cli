@@ -29,6 +29,7 @@ export interface MockTaskStatusMonitor {
   getCurrentStatus: jest.MockedFunction<() => TaskStatus>;
   getTaskHistory: jest.MockedFunction<() => TaskHistoryItem[]>;
   on: jest.MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
+  shutdown: jest.MockedFunction<() => void>;
 }
 
 export interface MockPerformanceAnalytics {
@@ -36,6 +37,7 @@ export interface MockPerformanceAnalytics {
   getResourceUsage: jest.MockedFunction<() => ResourceUsage>;
   getCPUMetrics: jest.MockedFunction<() => CPUMetrics>;
   getMemoryMetrics: jest.MockedFunction<() => MemoryMetrics>;
+  shutdown: jest.MockedFunction<() => void>;
 }
 
 // Event data structures

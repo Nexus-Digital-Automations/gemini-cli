@@ -142,7 +142,6 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   // Persistence paths
   private readonly layoutsPath: string;
-  private readonly preferencesPath: string;
 
   constructor() {
     super();
@@ -151,7 +150,6 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     // Setup persistence paths
     const tempDir = path.join(process.cwd(), '.tmp', 'dashboard');
     this.layoutsPath = path.join(tempDir, 'dashboard-layouts.json');
-    this.preferencesPath = path.join(tempDir, 'dashboard-preferences.json');
 
     this.initializeDashboard();
   }

@@ -637,9 +637,9 @@ export class DecisionDependencyGraph {
       default:
           // Handle unexpected values
           break;
-    
+    }
 
-      }
+    }
 
     // Calculate projected metrics
     const projectedMetrics = this.calculateGraphMetrics();
