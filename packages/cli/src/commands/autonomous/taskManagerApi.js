@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import chalk from 'chalk';

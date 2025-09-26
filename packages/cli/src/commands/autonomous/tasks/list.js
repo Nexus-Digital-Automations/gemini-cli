@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import chalk from 'chalk';
 import { TaskStatus, TaskPriority, TaskCategory, } from '@google/gemini-cli-core/src/task-management/types.js';
 import { listFeatures, handleApiResponse, handleApiFallback, initializeAgent, } from '../taskManagerApi.js';

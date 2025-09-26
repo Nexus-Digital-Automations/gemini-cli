@@ -450,7 +450,7 @@ export class AutonomousTaskManagerIntegration {
     for (const result of results) {
       try {
         const update: Partial<TaskManagerTaskData> = {
-          status: result.status as any,
+          status: result.status,
           metadata: {
             duration: result.duration,
             completed: result.endTime,
