@@ -257,7 +257,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
         subtasks = await this.performRiskBasedBreakdown(task, complexity);
         break;
       case BreakdownStrategy.HYBRID:
-        subtasks = await this.performHybridBreakdown(task, _complexity);
+        subtasks = await this.performHybridBreakdown(task, complexity);
         break;
       default:
         subtasks = [];
