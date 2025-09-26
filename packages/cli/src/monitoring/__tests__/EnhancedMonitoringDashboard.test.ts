@@ -165,8 +165,8 @@ describe('EnhancedMonitoringDashboard', () => {
     });
 
     it('should list layouts sorted by last modified', () => {
-      const layout1Id = dashboard.createLayout('Layout 1', 'First layout');
-      const layout2Id = dashboard.createLayout('Layout 2', 'Second layout');
+      dashboard.createLayout('Layout 1', 'First layout');
+      dashboard.createLayout('Layout 2', 'Second layout');
 
       const layouts = dashboard.getLayouts();
 
@@ -596,6 +596,7 @@ describe('EnhancedMonitoringDashboard', () => {
       // Widgets should show error status
       for (const widget of dashboardData.widgets) {
         // May show error status depending on implementation
+        expect(widget).toBeDefined();
       }
     });
 

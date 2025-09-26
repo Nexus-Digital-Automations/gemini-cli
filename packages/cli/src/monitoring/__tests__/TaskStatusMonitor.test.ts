@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { EventEmitter } from 'node:events';
+import { EventEmitter as _EventEmitter } from 'node:events';
 import {
   TaskStatusMonitor,
   TaskStatus,

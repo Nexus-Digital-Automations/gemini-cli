@@ -244,8 +244,8 @@ export const MonitoringUtils = {
     title: string,
     description: string,
     options: {
-      type?: any;
-      priority?: any;
+      type?: string;
+      priority?: string;
       assignedAgent?: string;
       tags?: string[];
     } = {},

@@ -385,7 +385,7 @@ export class ResourceUtilizationOptimizer {
     /**
      * Identify optimization opportunities
      */
-    identifyOptimizationOpportunities(candidate, current, historical, predicted) {
+    identifyOptimizationOpportunities(candidate, current, historical, _predicted) {
         const opportunities = [];
         // Check for rightsizing opportunities
         if (current.average < this.config.utilizationRange.min) {
@@ -559,7 +559,7 @@ export class ResourceUtilizationOptimizer {
     /**
      * Identify cross-resource opportunities
      */
-    identifyCrossResourceOpportunities(resources, candidates) {
+    identifyCrossResourceOpportunities(resources, _candidates) {
         const opportunities = [];
         // Find consolidation opportunities
         const underutilizedResources = resources.filter(r => r.current.average < 0.4);
@@ -701,7 +701,8 @@ export class ResourceUtilizationOptimizer {
      * Validate configuration
      */
     validateConfiguration() {
-        const { weights, utilizationRange, scaling } = this.config;
+        const { utilizationRange, scaling } = this.config;
+        const _weights = this.config.weights;
         // Validate utilization range
         if (utilizationRange.min >= utilizationRange.max) {
             throw new Error('Minimum utilization must be less than maximum utilization');

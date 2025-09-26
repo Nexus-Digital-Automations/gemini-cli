@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   PerformanceAnalyticsDashboard,
-  type PerformanceMetric,
+  type PerformanceMetric as _PerformanceMetric,
 } from '../PerformanceAnalyticsDashboard.js';
 import { TaskType, TaskPriority, TaskStatus } from '../TaskStatusMonitor.js';
 

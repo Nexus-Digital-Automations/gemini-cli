@@ -912,7 +912,7 @@ export class AutomaticQueueOptimizer extends EventEmitter {
   /**
    * Get success criteria for optimization validation
    */
-  getSuccessCriteria(opportunity, analysis) {
+  getSuccessCriteria(opportunity, _analysis) {
     const criteria = [];
     // Performance improvement criteria
     if (opportunity.estimatedImprovement.includes('throughput')) {
@@ -1320,11 +1320,11 @@ class LearningEngine {
     this.config = config;
     this.optimizationResults = new Map();
   }
-  async recordOptimizationResult(recommendation, result) {
-    this.optimizationResults.set(recommendation.id, result);
+  async recordOptimizationResult(recommendation, _result) {
+    this.optimizationResults.set(recommendation.id, _result);
     // Learn from the outcome
     console.log(
-      `[LearningEngine] Recording ${result.success ? 'successful' : 'failed'} optimization: ${recommendation.type}`,
+      `[LearningEngine] Recording ${_result.success ? 'successful' : 'failed'} optimization: ${recommendation.type}`,
     );
   }
   async updateModel(result) {

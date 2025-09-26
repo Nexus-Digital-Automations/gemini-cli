@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { performance } from 'node:perf_hooks';
-import { Worker, isMainThread, parentPort, workerData, } from 'node:worker_threads';
+import { performance as _performance } from 'node:perf_hooks';
+import { Worker as _Worker, isMainThread as _isMainThread, parentPort as _parentPort, workerData as _workerData, } from 'node:worker_threads';
 import EventEmitter from 'node:events';
 import { getComponentLogger, createTimer, LogLevel } from '../utils/logger.js';
 const logger = getComponentLogger('AnalyticsIntelligenceEngine');
