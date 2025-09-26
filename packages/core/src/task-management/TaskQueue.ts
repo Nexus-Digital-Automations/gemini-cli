@@ -643,7 +643,7 @@ export class TaskQueue extends EventEmitter {
       this.emit('taskCompleted', task, executionRecord, result);
 
       // Process any follow-up tasks
-      if (result.nextTasks) {
+      if ('nextTasks' in result && result.nextTasks) {
         for (const nextTaskDef of result.nextTasks) {
           await this.addTask({
             ...nextTaskDef,
