@@ -335,7 +335,7 @@ export function createBudgetRouter(): Router {
   router.use(
     (error: Error, req: Request, res: Response, _next: NextFunction) => {
       logger.error('Budget API route error', {
-        error: error,
+        error,
         path: req.path,
         method: req.method,
         timestamp: new Date().toISOString(),

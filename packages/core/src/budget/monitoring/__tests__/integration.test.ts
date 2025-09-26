@@ -45,7 +45,7 @@ import type { BudgetSettings } from '../../types.js';
 class MockContentGenerator implements ContentGenerator {
   private requestCount = 0;
   private shouldFail = false;
-  public userTier?: UserTierId;
+  userTier?: UserTierId;
 
   constructor(private failAfter?: number) {}
 

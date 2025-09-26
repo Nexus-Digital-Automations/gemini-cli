@@ -216,9 +216,9 @@ export class MLBudgetAPI {
         success: true,
         data: {
           forecast: extendedForecast,
-          recommendations: recommendations,
+          recommendations,
           riskAssessment: extendedRiskAssessment,
-          confidence: confidence,
+          confidence,
           generatedAt: new Date().toISOString(),
           forecastHorizon: request.forecastHours,
         },
@@ -254,9 +254,9 @@ export class MLBudgetAPI {
       return {
         success: true,
         data: {
-          immediate: immediate,
-          shortTerm: shortTerm,
-          longTerm: longTerm,
+          immediate,
+          shortTerm,
+          longTerm,
           potentialSavings: {
             percentage: potentialSavings,
             estimatedRequests: Math.round(potentialSavings * 100),
@@ -316,7 +316,7 @@ export class MLBudgetAPI {
         success: true,
         data: {
           anomalies: formattedAnomalies,
-          patterns: patterns,
+          patterns,
           generatedAt: new Date().toISOString(),
         },
       };

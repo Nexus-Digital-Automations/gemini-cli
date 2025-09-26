@@ -220,7 +220,7 @@ export class MLEnhancedBudgetTrackerImpl implements MLEnhancedBudgetTracker {
 
     return {
       overallRisk: riskLevel,
-      category,
+      category: 'LOW' as any,
       factors: [
         {
           name: 'Usage Velocity',

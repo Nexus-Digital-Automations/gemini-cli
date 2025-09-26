@@ -9,11 +9,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import {
   TaskPriority,
-  TaskCategory,
-  TaskStatus,
-  PriorityFactors,
+  TaskStatus
 } from './TaskQueue.js';
-import type { Task, TaskExecutionResult } from './TaskQueue.js';
+import type { Task, TaskExecutionResult ,
+  TaskCategory,
+  PriorityFactors} from './TaskQueue.js';
 
 /**
  * @fileoverview Advanced Task Priority Scheduler with Dynamic Adjustment
