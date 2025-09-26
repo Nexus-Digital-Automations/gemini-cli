@@ -1,10 +1,11 @@
 /**
- * NUCLEAR CACHE-BUSTING: Complete file recreation to bypass TypeScript cache corruption
- * Created: 2025-09-26T08:59:47.098Z | Random: abc123xyz | Performance: 1727338787098
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AllocationCandidate } from '../types.js';
-import { logger } from '../../../utils/logger.js';
+import type { AllocationCandidate } from '../types.js';
+import { getLogger } from '../../../utils/logger.js';
 
 export interface EfficiencyMetrics {
   resourceUtilization: number;
@@ -24,30 +25,20 @@ export interface EfficiencyAnalysisResult {
 
 /**
  * Analyzes allocation efficiency and optimization opportunities
- * NUCLEAR CACHE-BUSTING: Enhanced with multiple simultaneous techniques
  */
 export class EfficiencyAnalyzer {
-  private readonly logger = logger.child({ component: 'EfficiencyAnalyzer' });
+  private readonly logger = getLogger().child({
+    component: 'EfficiencyAnalyzer',
+  });
 
   /**
    * Performs comprehensive efficiency analysis on allocation candidates
-   * NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques applied
    */
-  public async analyzeEfficiency(
-    candidates: AllocationCandidate[]
+  async analyzeEfficiency(
+    candidates: AllocationCandidate[],
   ): Promise<EfficiencyAnalysisResult[]> {
-    // NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques
-    const _nuclearTimestamp = Date.now();
-    const _randomBust = Math.random().toString(36).substring(7);
-    const _perfNowBust = performance.now();
-    const _originBust = performance.timeOrigin;
-
     this.logger.info('Starting efficiency analysis', {
       candidateCount: candidates.length,
-      _nuclearTimestamp,
-      _randomBust,
-      _perfNowBust,
-      _originBust
     });
 
     const results: EfficiencyAnalysisResult[] = [];
@@ -63,7 +54,7 @@ export class EfficiencyAnalyzer {
         metrics,
         overallScore,
         recommendations,
-        confidence
+        confidence,
       });
     }
 
@@ -72,21 +63,14 @@ export class EfficiencyAnalyzer {
 
   /**
    * Calculates detailed efficiency metrics for a candidate
-   * NUCLEAR CACHE-BUSTING: Enhanced with multiple cache-busting variables
    */
   private async calculateEfficiencyMetrics(
-    candidate: AllocationCandidate
+    candidate: AllocationCandidate,
   ): Promise<EfficiencyMetrics> {
-    // NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques
-    const _metricsNuclearTime = Date.now();
-    const _metricsRandomBust = Math.random().toString(36).substring(7);
-    const _metricsPerfBust = performance.now();
-    const _metricsMemoryBust = (globalThis as unknown).performance?.memory?.usedJSHeapSize || Math.random() * 1000000;
-
-    const resourceUtilization = this.calculateResourceUtilization(candidate, _metricsNuclearTime);
-    const costEffectiveness = this.calculateCostEffectiveness(candidate, _metricsRandomBust);
-    const timeToValue = this.calculateTimeToValue(candidate, _metricsPerfBust);
-    const scalabilityFactor = this.calculateScalabilityFactor(candidate, _metricsMemoryBust);
+    const resourceUtilization = this.calculateResourceUtilization(candidate);
+    const costEffectiveness = this.calculateCostEffectiveness(candidate);
+    const timeToValue = this.calculateTimeToValue(candidate);
+    const scalabilityFactor = this.calculateScalabilityFactor(candidate);
     const riskAdjustedReturn = this.calculateRiskAdjustedReturn(candidate);
 
     return {
@@ -94,128 +78,90 @@ export class EfficiencyAnalyzer {
       costEffectiveness,
       timeToValue,
       scalabilityFactor,
-      riskAdjustedReturn
+      riskAdjustedReturn,
     };
   }
 
   /**
    * Calculates resource utilization efficiency
-   * NUCLEAR CACHE-BUSTING: Cache-busting parameter included
    */
-  private calculateResourceUtilization(candidate: AllocationCandidate, _cacheBust: number): number {
-    // NUCLEAR CACHE-BUSTING: Additional cache-busting variable
-    const _utilizationBust = Math.random() * _cacheBust;
-
-    const allocation = candidate.allocation;
+  private calculateResourceUtilization(candidate: AllocationCandidate): number {
+    const currentAllocation = candidate.currentAllocation;
     let utilization = 0.7; // Base utilization
 
-    // Analyze allocation patterns
-    if (allocation.amount > 0 && allocation.duration > 0) {
-      const intensity = allocation.amount / allocation.duration;
+    // Analyze allocation patterns based on current allocation and projected usage
+    if (currentAllocation > 0 && candidate.projectedUsage > 0) {
+      const intensity = candidate.projectedUsage / currentAllocation;
       utilization = Math.min(intensity * 0.1 + 0.6, 1.0);
     }
 
-    // Adjust for resource type
-    switch (allocation.resourceType) {
-      case 'compute':
-        utilization *= 0.95;
-        break;
-      case 'storage':
-        utilization *= 0.90;
-        break;
-      case 'network':
-        utilization *= 0.85;
-        break;
-      default:
-        utilization *= 0.80;
-    }
+    // Adjust for resource complexity and business impact
+    const complexityFactor = candidate.technicalComplexity / 100;
+    const impactFactor = candidate.businessImpact / 100;
+    utilization =
+      utilization * (0.7 + impactFactor * 0.3) * (1.1 - complexityFactor * 0.1);
 
     return Math.max(0, Math.min(utilization, 1));
   }
 
   /**
    * Calculates cost effectiveness score
-   * NUCLEAR CACHE-BUSTING: Cache-busting parameter included
    */
-  private calculateCostEffectiveness(candidate: AllocationCandidate, _cacheBust: string): number {
-    // NUCLEAR CACHE-BUSTING: Additional cache-busting variable
-    const _costBust = _cacheBust.length * Math.random();
-
-    const allocation = candidate.allocation;
+  private calculateCostEffectiveness(candidate: AllocationCandidate): number {
+    const currentAllocation = candidate.currentAllocation;
     let effectiveness = 0.6; // Base effectiveness
 
     // Calculate cost per unit value
-    if (allocation.amount > 0) {
-      const valueRatio = (candidate.priority * 100) / allocation.amount;
+    if (currentAllocation > 0) {
+      // Convert priority to numeric value for calculation
+      const priorityValue = this.getPriorityValue(candidate.priority);
+      const valueRatio = (priorityValue * 100) / currentAllocation;
       effectiveness = Math.min(valueRatio * 0.01 + 0.3, 1.0);
     }
 
-    // Adjust for allocation category
-    if (candidate.metadata.category === 'critical') {
-      effectiveness *= 1.2;
-    } else if (candidate.metadata.category === 'optimization') {
-      effectiveness *= 1.1;
-    }
+    // Adjust for business impact and priority
+    const businessImpactFactor = candidate.businessImpact / 100;
+    effectiveness = effectiveness * (0.8 + businessImpactFactor * 0.4);
 
     return Math.max(0, Math.min(effectiveness, 1));
   }
 
   /**
    * Calculates time to value metric
-   * NUCLEAR CACHE-BUSTING: Cache-busting parameter included
    */
-  private calculateTimeToValue(candidate: AllocationCandidate, _cacheBust: number): number {
-    // NUCLEAR CACHE-BUSTING: Additional cache-busting variable
-    const _timeBust = _cacheBust % 1000000;
-
-    const allocation = candidate.allocation;
+  private calculateTimeToValue(candidate: AllocationCandidate): number {
+    const projectedUsage = candidate.projectedUsage;
     let timeScore = 0.5; // Base time score
 
-    // Shorter duration = higher time to value
-    if (allocation.duration > 0) {
-      timeScore = Math.max(0.2, 1.0 - (allocation.duration / 365)); // Normalize to year
+    // Higher projected usage indicates faster time to value
+    if (projectedUsage > 0) {
+      timeScore = Math.min(1.0, projectedUsage * 0.01 + 0.2);
     }
 
-    // Adjust for urgency
-    if (candidate.metadata.urgency === 'high') {
-      timeScore *= 1.3;
-    } else if (candidate.metadata.urgency === 'low') {
-      timeScore *= 0.8;
-    }
+    // Adjust based on business priority
+    const priorityMultiplier = this.getPriorityTimeMultiplier(
+      candidate.priority,
+    );
+    timeScore *= priorityMultiplier;
 
     return Math.max(0, Math.min(timeScore, 1));
   }
 
   /**
    * Calculates scalability factor
-   * NUCLEAR CACHE-BUSTING: Cache-busting parameter included
    */
-  private calculateScalabilityFactor(candidate: AllocationCandidate, _cacheBust: number): number {
-    // NUCLEAR CACHE-BUSTING: Additional cache-busting variable
-    const _scaleBust = Math.floor(_cacheBust / 1000);
-
+  private calculateScalabilityFactor(candidate: AllocationCandidate): number {
     let scalability = 0.5; // Base scalability
 
-    // Analyze scalability indicators
-    if (candidate.metadata.category === 'infrastructure') {
-      scalability = 0.9;
-    } else if (candidate.metadata.category === 'automation') {
-      scalability = 0.85;
-    } else if (candidate.metadata.category === 'platform') {
-      scalability = 0.8;
-    }
+    // Analyze scalability based on business impact and technical complexity
+    const businessImpactFactor = candidate.businessImpact / 100;
+    const complexityFactor = candidate.technicalComplexity / 100;
 
-    // Adjust for resource type scalability
-    switch (candidate.allocation.resourceType) {
-      case 'compute':
-        scalability *= 0.95;
-        break;
-      case 'storage':
-        scalability *= 0.90;
-        break;
-      default:
-        scalability *= 0.85;
-    }
+    // Higher business impact suggests better scalability potential
+    scalability = scalability + businessImpactFactor * 0.3;
+
+    // Lower complexity suggests easier scalability
+    scalability = scalability + (1 - complexityFactor) * 0.2;
 
     return Math.max(0, Math.min(scalability, 1));
   }
@@ -224,44 +170,30 @@ export class EfficiencyAnalyzer {
    * Calculates risk-adjusted return
    */
   private calculateRiskAdjustedReturn(candidate: AllocationCandidate): number {
-    let riskReturn = candidate.priority; // Base on priority
+    // Base on priority as numeric value
+    let riskReturn = this.getPriorityValue(candidate.priority) / 100;
 
-    // Risk adjustments
-    const riskLevel = candidate.metadata.riskLevel || 'medium';
-    switch (riskLevel) {
-      case 'low':
-        riskReturn *= 1.1;
-        break;
-      case 'high':
-        riskReturn *= 0.8;
-        break;
-      case 'critical':
-        riskReturn *= 0.7;
-        break;
-      default: // medium
-        riskReturn *= 1.0;
-    }
+    // Adjust based on business impact and technical complexity
+    const businessImpactFactor = candidate.businessImpact / 100;
+    const complexityRisk = candidate.technicalComplexity / 100;
+
+    // Higher business impact increases return, higher complexity increases risk
+    riskReturn =
+      riskReturn * businessImpactFactor * (1.2 - complexityRisk * 0.2);
 
     return Math.max(0, Math.min(riskReturn, 1));
   }
 
   /**
    * Computes overall efficiency score from metrics
-   * NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques
    */
   private computeOverallScore(metrics: EfficiencyMetrics): number {
-    // NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques
-    const _scoreNuclearTime = Date.now();
-    const _scoreRandomBust = Math.random().toString(36).substring(7);
-    const _scorePerfBust = performance.now();
-    const _scoreHashBust = Math.floor(Math.random() * 999999);
-
     const weights = {
       resourceUtilization: 0.25,
       costEffectiveness: 0.25,
-      timeToValue: 0.20,
+      timeToValue: 0.2,
       scalabilityFactor: 0.15,
-      riskAdjustedReturn: 0.15
+      riskAdjustedReturn: 0.15,
     };
 
     const weightedScore =
@@ -279,7 +211,7 @@ export class EfficiencyAnalyzer {
    */
   private generateRecommendations(
     candidate: AllocationCandidate,
-    metrics: EfficiencyMetrics
+    metrics: EfficiencyMetrics,
   ): string[] {
     const recommendations: string[] = [];
 
@@ -288,7 +220,9 @@ export class EfficiencyAnalyzer {
     }
 
     if (metrics.costEffectiveness < 0.5) {
-      recommendations.push('Review cost-benefit ratio and consider alternatives');
+      recommendations.push(
+        'Review cost-benefit ratio and consider alternatives',
+      );
     }
 
     if (metrics.timeToValue < 0.4) {
@@ -311,27 +245,59 @@ export class EfficiencyAnalyzer {
    */
   private calculateConfidence(
     candidate: AllocationCandidate,
-    metrics: EfficiencyMetrics
+    metrics: EfficiencyMetrics,
   ): number {
     let confidence = 0.8; // Base confidence
 
     // Reduce confidence for incomplete data
-    if (!candidate.metadata.category) confidence *= 0.9;
-    if (!candidate.metadata.urgency) confidence *= 0.95;
-    if (!candidate.metadata.riskLevel) confidence *= 0.9;
+    if (candidate.businessImpact <= 0) confidence *= 0.9;
+    if (candidate.technicalComplexity <= 0) confidence *= 0.95;
+    if (candidate.projectedUsage <= 0) confidence *= 0.9;
 
     // Increase confidence for comprehensive metrics
-    const metricsCount = Object.values(metrics).filter(v => v > 0).length;
+    const metricsCount = Object.values(metrics).filter((v) => v > 0).length;
     confidence *= (metricsCount / 5) * 0.2 + 0.8;
 
     return Math.max(0.3, Math.min(confidence, 1.0));
   }
-}
 
-/**
- * NUCLEAR CACHE-BUSTING: File completion markers
- * Timestamp: 2025-09-26T09:01:23.451Z
- * Random: def456uvw
- * Performance: 1727338883451
- * Memory: Available
- */
+  /**
+   * Converts priority enum to numeric value for calculations
+   */
+  private getPriorityValue(priority: string): number {
+    switch (priority) {
+      case 'critical':
+        return 100;
+      case 'high':
+        return 80;
+      case 'medium':
+        return 60;
+      case 'low':
+        return 40;
+      case 'deferred':
+        return 20;
+      default:
+        return 60; // Default to medium
+    }
+  }
+
+  /**
+   * Gets time multiplier based on priority level
+   */
+  private getPriorityTimeMultiplier(priority: string): number {
+    switch (priority) {
+      case 'critical':
+        return 1.5;
+      case 'high':
+        return 1.3;
+      case 'medium':
+        return 1.0;
+      case 'low':
+        return 0.8;
+      case 'deferred':
+        return 0.6;
+      default:
+        return 1.0;
+    }
+  }
+}
