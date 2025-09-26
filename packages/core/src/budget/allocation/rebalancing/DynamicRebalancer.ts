@@ -1438,6 +1438,13 @@ export class DynamicRebalancer {
     }
 
     return {
+      // Required AllocationRecommendation properties
+      id: `rebalance-${action.resourceId}-${Date.now()}`,
+      title: `Rebalance ${action.resourceId} allocation`,
+      potentialSavings: Math.max(0, -action.changeAmount),
+      savingsPercentage: action.currentAllocation > 0 ? (Math.max(0, -action.changeAmount) / action.currentAllocation) * 100 : 0,
+      estimatedTimeToImplement: 3,
+      category: 'rebalancing',
       resourceId: action.resourceId,
       currentAllocation: action.currentAllocation,
       recommendedAllocation: action.recommendedAllocation,

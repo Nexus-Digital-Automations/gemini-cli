@@ -1120,6 +1120,13 @@ export class ResourceUtilizationOptimizer {
     const allocationChange = recommendedAllocation - candidate.currentAllocation;
 
     return {
+      // Required AllocationRecommendation properties
+      id: `allocation-${candidate.resourceId}-${Date.now()}`,
+      title: `Optimize ${candidate.resourceName || candidate.resourceId} allocation`,
+      potentialSavings: Math.max(opportunity.benefits.costSavings, 0),
+      savingsPercentage: candidate.currentAllocation > 0 ? (Math.max(opportunity.benefits.costSavings, 0) / candidate.currentAllocation) * 100 : 0,
+      estimatedTimeToImplement: opportunity.complexity === 'low' ? 2 : opportunity.complexity === 'high' ? 8 : 4,
+      category: 'resource_optimization',
       resourceId: candidate.resourceId,
       currentAllocation: candidate.currentAllocation,
       recommendedAllocation,
