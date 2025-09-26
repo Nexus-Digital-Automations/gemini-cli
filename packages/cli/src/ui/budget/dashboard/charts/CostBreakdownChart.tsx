@@ -165,9 +165,9 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
    */
   const renderPieChart = () => (
     <Box flexDirection="column" marginBottom={1}>
-      <Text color={theme.text.muted} marginBottom={1}>
-        Cost Distribution:
-      </Text>
+      <Box marginBottom={1}>
+        <Text color={theme.text.muted}>Cost Distribution:</Text>
+      </Box>
       {sortedData.map((item, index) => {
         const color =
           index < colorPalette.length
@@ -251,9 +251,9 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
 
     return (
       <Box flexDirection="column" marginTop={1}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Legend:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Legend:</Text>
+        </Box>
         {rows.map((row, rowIndex) => (
           <Box key={rowIndex} gap={2} marginBottom={1}>
             {row.map((item, index) => {
@@ -290,9 +290,9 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
 
     return (
       <Box flexDirection="column" marginTop={1}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Analysis:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Analysis:</Text>
+        </Box>
 
         <Box justifyContent="space-between" marginBottom={1}>
           <Text color={theme.text.secondary}>
@@ -306,9 +306,9 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
           </Text>
         </Box>
 
-        <Text color={theme.text.muted} marginBottom={1}>
-          Top Cost Contributors:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Top Cost Contributors:</Text>
+        </Box>
         {topFeatures.map((item, index) => (
           <Box
             key={item.feature}
@@ -348,9 +348,11 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
       height={config.height}
     >
       {/* Title */}
-      <Text color={theme.text.secondary} bold marginBottom={1}>
-        {config.title}
-      </Text>
+      <Box marginBottom={1}>
+        <Text color={theme.text.secondary} bold>
+          {config.title}
+        </Text>
+      </Box>
 
       {/* Statistics header */}
       {renderStatsHeader()}

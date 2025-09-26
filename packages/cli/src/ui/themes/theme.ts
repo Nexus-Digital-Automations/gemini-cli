@@ -41,6 +41,7 @@ export interface CustomTheme {
   };
   background?: {
     primary?: string;
+    secondary?: string;
     diff?: {
       added?: string;
       removed?: string;
@@ -59,6 +60,7 @@ export interface CustomTheme {
     error?: string;
     success?: string;
     warning?: string;
+    info?: string;
   };
 
   // Legacy properties (all optional)
@@ -442,6 +444,10 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       success: customTheme.status?.success ?? colors.AccentGreen,
       warning: customTheme.status?.warning ?? colors.AccentYellow,
       info: customTheme.status?.info ?? colors.AccentBlue,
+    },
+    charts: {
+      line: colors.AccentCyan,
+      bar: colors.AccentPurple,
     },
   };
 

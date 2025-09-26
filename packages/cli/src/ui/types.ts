@@ -385,3 +385,12 @@ export {
   type ProgressUpdate,
   type ProgressInteraction,
 } from '@google/gemini-cli-core';
+
+// Extended Ink component props for better TypeScript support
+declare module 'ink' {
+  interface TextProps {
+    marginBottom?: number;
+    minWidth?: number;
+    bold?: boolean;
+  }
+}

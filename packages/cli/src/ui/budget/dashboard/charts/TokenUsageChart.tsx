@@ -347,9 +347,11 @@ export const TokenUsageChart: React.FC<TokenUsageChartProps> = ({
       height={config.height}
     >
       {/* Title */}
-      <Text color={theme.text.secondary} bold marginBottom={1}>
-        {config.title}
-      </Text>
+      <Box marginBottom={1}>
+        <Text color={theme.text.secondary} bold>
+          {config.title}
+        </Text>
+      </Box>
 
       {/* Statistics header */}
       {renderStatsHeader()}

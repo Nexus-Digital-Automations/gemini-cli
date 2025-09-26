@@ -322,9 +322,9 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
 
     return (
       <Box flexDirection="column">
-        <Text color={theme.text.muted} marginBottom={1}>
-          Cost Comparison:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Cost Comparison:</Text>
+        </Box>
 
         {sortedProjections.map((projection, index) => {
           const barWidth = Math.max(
@@ -373,9 +373,9 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
 
     return (
       <Box flexDirection="column" marginTop={1}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Budget Planning Insights:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Budget Planning Insights:</Text>
+        </Box>
 
         {increasingProjections.length > 0 && (
           <Box marginBottom={1}>
@@ -442,9 +442,11 @@ export const CostProjectionChart: React.FC<CostProjectionChartProps> = ({
       height={config.height}
     >
       {/* Title */}
-      <Text color={theme.text.secondary} bold marginBottom={1}>
-        {config.title}
-      </Text>
+      <Box marginBottom={1}>
+        <Text color={theme.text.secondary} bold>
+          {config.title}
+        </Text>
+      </Box>
 
       {/* Projection header */}
       {renderProjectionHeader()}

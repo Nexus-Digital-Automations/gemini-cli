@@ -37,6 +37,10 @@ export interface SemanticColors {
     warning: string;
     info: string;
   };
+  charts: {
+    line: string;
+    bar: string;
+  };
 }
 
 export const lightSemanticColors: SemanticColors = {
@@ -69,6 +73,10 @@ export const lightSemanticColors: SemanticColors = {
     success: lightTheme.AccentGreen,
     warning: lightTheme.AccentYellow,
     info: lightTheme.AccentBlue,
+  },
+  charts: {
+    line: lightTheme.AccentCyan,
+    bar: lightTheme.AccentPurple,
   },
 };
 
@@ -103,6 +111,10 @@ export const darkSemanticColors: SemanticColors = {
     warning: darkTheme.AccentYellow,
     info: darkTheme.AccentBlue,
   },
+  charts: {
+    line: darkTheme.AccentCyan,
+    bar: darkTheme.AccentPurple,
+  },
 };
 
 export const ansiSemanticColors: SemanticColors = {
@@ -135,5 +147,9 @@ export const ansiSemanticColors: SemanticColors = {
     success: ansiTheme.AccentGreen,
     warning: ansiTheme.AccentYellow,
     info: ansiTheme.AccentBlue,
+  },
+  charts: {
+    line: ansiTheme.AccentCyan,
+    bar: ansiTheme.AccentPurple,
   },
 };

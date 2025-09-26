@@ -245,9 +245,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
 
     return (
       <Box flexDirection="column">
-        <Text color={theme.text.muted} marginBottom={1}>
-          Token Usage Trend:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Token Usage Trend:</Text>
+        </Box>
 
         <Box alignItems="center" gap={1} marginBottom={1}>
           <Text color={theme.charts.line}>{tokenSparkline}</Text>
@@ -261,9 +261,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
 
         {showMovingAverage && tokenValues.length > 5 && (
           <Box marginTop={1}>
-            <Text color={theme.text.muted} marginBottom={1}>
-              Moving Average (5-period):
-            </Text>
+            <Box marginBottom={1}>
+              <Text color={theme.text.muted}>Moving Average (5-period):</Text>
+            </Box>
             <Text color={theme.status.info}>
               {createSparkline(
                 calculateMovingAverage(
@@ -290,27 +290,27 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
     return (
       <Box flexDirection="column">
         <Box gap={1} marginBottom={1}>
-          <Text color={theme.charts.line} minWidth={10}>
-            Tokens:
-          </Text>
+          <Box minWidth={10}>
+            <Text color={theme.charts.line}>Tokens:</Text>
+          </Box>
           <Text color={theme.charts.line}>
             {createSparkline(tokenValues, sparklineWidth)}
           </Text>
         </Box>
 
         <Box gap={1} marginBottom={1}>
-          <Text color={theme.status.warning} minWidth={10}>
-            Cost:
-          </Text>
+          <Box minWidth={10}>
+            <Text color={theme.status.warning}>Cost:</Text>
+          </Box>
           <Text color={theme.status.warning}>
             {createSparkline(costValues, sparklineWidth)}
           </Text>
         </Box>
 
         <Box gap={1} marginBottom={1}>
-          <Text color={theme.status.success} minWidth={10}>
-            Requests:
-          </Text>
+          <Box minWidth={10}>
+            <Text color={theme.status.success}>Requests:</Text>
+          </Box>
           <Text color={theme.status.success}>
             {createSparkline(requestValues, sparklineWidth)}
           </Text>
@@ -349,9 +349,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
 
     return (
       <Box flexDirection="column">
-        <Text color={theme.text.muted} marginBottom={1}>
-          Token Usage Over Time:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Token Usage Over Time:</Text>
+        </Box>
 
         {chartLines.map((line, index) => (
           <Text key={index} color={theme.charts.line}>
@@ -382,9 +382,9 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
 
     return (
       <Box flexDirection="column" marginTop={1}>
-        <Text color={theme.text.muted} marginBottom={1}>
-          Recent Periods:
-        </Text>
+        <Box marginBottom={1}>
+          <Text color={theme.text.muted}>Recent Periods:</Text>
+        </Box>
         {recentPoints.map((point, index) => (
           <Box key={index} justifyContent="space-between" marginBottom={1}>
             <Text color={theme.text.secondary}>
@@ -414,9 +414,11 @@ export const UsageTrendsGraph: React.FC<UsageTrendsGraphProps> = ({
       height={config.height}
     >
       {/* Title */}
-      <Text color={theme.text.secondary} bold marginBottom={1}>
-        {config.title}
-      </Text>
+      <Box marginBottom={1}>
+        <Text color={theme.text.secondary} bold>
+          {config.title}
+        </Text>
+      </Box>
 
       {/* Trends header */}
       {renderTrendsHeader()}

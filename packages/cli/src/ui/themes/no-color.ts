@@ -56,6 +56,10 @@ const noColorSemanticColors: SemanticColors = {
     warning: '',
     info: '',
   },
+  charts: {
+    line: '',
+    bar: '',
+  },
 };
 
 export const NoColorTheme: Theme = new Theme(
