@@ -46,7 +46,7 @@ describe('PersistenceStorageAPI', () => {
     mockFse.copy = vi.fn().mockResolvedValue(undefined);
     mockFse.move = vi.fn().mockResolvedValue(undefined);
     mockFse.remove = vi.fn().mockResolvedValue(undefined);
-    mockFse.readdir = vi.fn().mockResolvedValue([]) as typeof mockFse.readdir;
+    mockFse.readdir = vi.fn().mockResolvedValue([]) as any;
 
     // Create test task
     mockTask = {
@@ -85,7 +85,7 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Task Storage Operations', () => {
     test('should save task successfully', async () => {
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+      (mockFse.pathExists as any).mockResolvedValue(false);
 
       await storageAPI.save(mockTask);
 
@@ -107,8 +107,8 @@ describe('PersistenceStorageAPI', () => {
         },
       };
 
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(
+      (mockFse.pathExists as any).mockResolvedValue(true);
+      (mockFse.readJSON as any).mockResolvedValue(
         taskMetadata,
       );
 
@@ -120,7 +120,7 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should return undefined for non-existent task', async () => {
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+      (mockFse.pathExists as any).mockResolvedValue(false);
 
       const loadedTask = await storageAPI.load('non-existent-task');
 
@@ -128,7 +128,7 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle save errors gracefully', async () => {
-      (mockFse.writeJSON as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (mockFse.writeJSON as any).mockRejectedValue(
         new Error('Write failed'),
       );
 
@@ -136,8 +136,8 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle load errors gracefully', async () => {
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (mockFse.pathExists as any).mockResolvedValue(true);
+      (mockFse.readJSON as any).mockRejectedValue(
         new Error('Read failed'),
       );
 
@@ -386,7 +386,7 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Error Handling', () => {
     test('should handle filesystem errors during initialization', async () => {
-      (mockFse.ensureDir as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (mockFse.ensureDir as any).mockRejectedValue(
         new Error('Permission denied'),
       );
 
@@ -405,8 +405,8 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle corrupted metadata during load', async () => {
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue({
+      (mockFse.pathExists as any).mockResolvedValue(true);
+      (mockFse.readJSON as any).mockResolvedValue({
         invalid: 'data',
       });
 
@@ -452,10 +452,10 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Integration', () => {
     test('should maintain data consistency across save/load cycle', async () => {
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+      (mockFse.pathExists as any).mockResolvedValueOnce(
         false,
       ); // For save
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+      (mockFse.pathExists as any).mockResolvedValueOnce(
         true,
       ); // For load
 
@@ -473,7 +473,7 @@ describe('PersistenceStorageAPI', () => {
         },
       };
 
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(
+      (mockFse.readJSON as any).mockResolvedValue(
         expectedMetadata,
       );
 
