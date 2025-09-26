@@ -519,15 +519,4 @@ export function createBudgetDashboard(
   return new BudgetDashboard(budgetTracker, analytics, config);
 }
 
-/**
- * Export types for external use
- */
-export type {
-  DashboardConfig,
-  DashboardSections,
-  DashboardData,
-  BudgetAlert,
-  CurrentUsageData,
-  CostProjections,
-  TrendsData,
-};
+// Types are already exported individually above
