@@ -689,6 +689,7 @@ export class QuotaManager extends EventEmitter {
       usage: usage.currentUsage,
       limit: limit.maxValue,
     });
+  }
 
   /**
    * Initialize default quota limits

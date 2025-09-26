@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs/promises';
-import { createMockCommandContext } from '../../../test-utils/createMockCommandContext.js';
+import { createMockCommandContext } from '../../../test-utils/mockCommandContext.js';
 import { budgetCommand } from '../../../commands/budget.js';
 import { getCommand } from '../get.js';
 import { setCommand } from '../set.js';
@@ -17,6 +17,38 @@ import { extendCommand } from '../extend.js';
 import type { Config } from '../../../config/config.js';
 import type { BudgetSettings } from '../../../config/settingsSchema.js';
 
+// Mock the settings loading since budget commands use it directly
+vi.mock('../../../config/settings.js', () => ({
+  loadSettings: vi.fn().mockReturnValue({
+    merged: {
+      budget: {
+        enabled: true,
+        dailyLimit: 100,
+        resetTime: '00:00',
+        warningThresholds: [50, 75, 90],
+      },
+    },
+  }),
+}));
+
+// Mock the budget tracker
+vi.mock('@google/gemini-cli-core', async () => {
+  const actual = await vi.importActual('@google/gemini-cli-core');
+  return {
+    ...actual,
+    createBudgetTracker: vi.fn().mockReturnValue({
+      isEnabled: vi.fn().mockReturnValue(true),
+      getUsageStats: vi.fn().mockResolvedValue({
+        requestCount: 25,
+        dailyLimit: 100,
+        usagePercentage: 25.0,
+        timeUntilReset: '12h 30m',
+        remainingRequests: 75,
+      }),
+    }),
+  };
+});
+
 // Mock file system operations
 vi.mock('node:fs/promises', () => ({
   readFile: vi.fn(),
@@ -26,13 +58,8 @@ vi.mock('node:fs/promises', () => ({
   unlink: vi.fn(),
 }));
 
-// Mock config and settings
-const mockConfig = {
-  getProjectRoot: vi.fn().mockReturnValue('/test/project'),
-  getSettings: vi.fn(),
-  updateSettings: vi.fn(),
-  getBudgetSettings: vi.fn(),
-} as unknown as Config;
+// Mock config - simplified for TypeScript compatibility
+const mockConfig = {} as Config;
 
 // Helper function to create yargs-like arguments from test arguments
 function createMockYargsArgs(testArgs: string[] = []): any {
@@ -72,7 +99,6 @@ interface MockUsageData {
 }
 
 describe('Budget CLI Integration Tests', () => {
-  let _testProjectRoot: string;
   let mockBudgetSettings: BudgetSettings;
   let mockUsageData: MockUsageData;
 
@@ -80,8 +106,6 @@ describe('Budget CLI Integration Tests', () => {
     vi.clearAllMocks();
     consoleSpy.mockClear();
     consoleErrorSpy.mockClear();
-
-    _testProjectRoot = '/test/project';
     mockBudgetSettings = {
       enabled: true,
       dailyLimit: 100,
@@ -101,12 +125,6 @@ describe('Budget CLI Integration Tests', () => {
     vi.mocked(fs.writeFile).mockResolvedValue();
     vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mockUsageData));
     vi.mocked(fs.access).mockResolvedValue(undefined);
-
-    mockConfig.getBudgetSettings = vi.fn().mockReturnValue(mockBudgetSettings);
-    mockConfig.getSettings = vi
-      .fn()
-      .mockReturnValue({ budget: mockBudgetSettings });
-    mockConfig.updateSettings = vi.fn();
   });
 
   afterEach(() => {

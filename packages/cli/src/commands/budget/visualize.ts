@@ -13,6 +13,7 @@ import {
   type DashboardSections,
   type BudgetTracker as CoreBudgetTracker,
   type AnalyticsEngine as CoreAnalyticsEngine,
+  type FeatureCostAnalysis,
 } from '@google/gemini-cli-core';
 import type { Arguments, CommandBuilder } from 'yargs';
 
@@ -49,7 +50,7 @@ interface AnalyticsReport {
     budgetUtilization: number;
     projectedMonthlySpend: number;
   };
-  featureAnalysis: FeatureAnalysis[];
+  featureAnalysis: FeatureCostAnalysis[];
   patternAnalysis: PatternAnalysis[];
   anomalies: Anomaly[];
   optimizationRecommendations: OptimizationRecommendation[];
@@ -67,20 +68,7 @@ interface AnalyticsReport {
   };
 }
 
-interface FeatureAnalysis {
-  featureId: string;
-  featureName: string;
-  totalCost: number;
-  requestCount: number;
-  averageCostPerRequest: number;
-  usageFrequency: number;
-  businessValue: number;
-  roi: number;
-  costTrend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
-  utilizationRate: number;
-  peakUsageHours: string[];
-  recommendations: OptimizationRecommendation[];
-}
+// Using imported FeatureCostAnalysis type instead of local interface
 
 interface PatternAnalysis {
   patternType: string;
@@ -160,7 +148,7 @@ interface JSONOutput {
   usageMetrics: UsageMetric[];
   analytics?: {
     summary: AnalyticsReport['summary'];
-    featureAnalysis: FeatureAnalysis[];
+    featureAnalysis: FeatureCostAnalysis[];
     patternAnalysis: PatternAnalysis[];
     anomalies: Anomaly[];
   };
