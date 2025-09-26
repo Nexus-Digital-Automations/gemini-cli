@@ -5,11 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type {
-  ValidationResult,
   ValidationReport,
   ValidationSeverity,
   ValidationStatus,
@@ -133,7 +132,7 @@ interface ReportTemplateData {
 /**
  * Aggregated report data
  */
-interface AggregatedReportData {
+interface _AggregatedReportData {
   period: {
     start: Date;
     end: Date;
@@ -170,7 +169,7 @@ export class ValidationReporting extends EventEmitter {
     ValidationReport | WorkflowExecutionResult
   > = [];
   private readonly dashboardWidgets: Map<string, DashboardWidget> = new Map();
-  private dashboardServer?: any; // HTTP server for dashboard
+  private dashboardServer?: unknown; // HTTP server for dashboard
   private metricsCollectionInterval?: NodeJS.Timeout;
 
   constructor(config: Partial<ValidationReportingConfig> = {}) {
@@ -642,7 +641,7 @@ export class ValidationReporting extends EventEmitter {
               informationUri: 'https://github.com/google-gemini/gemini-cli',
             },
           },
-          results: [] as any[],
+          results: [] as unknown[],
         },
       ],
     };
@@ -795,7 +794,7 @@ export class ValidationReporting extends EventEmitter {
    * Update analytics with new data
    */
   private async updateAnalytics(
-    data: ValidationReport | WorkflowExecutionResult,
+    _data: ValidationReport | WorkflowExecutionResult,
   ): Promise<void> {
     // This would update analytics database or storage
     // For now, just update in-memory metrics
@@ -846,8 +845,8 @@ export class ValidationReporting extends EventEmitter {
    * Send report notifications
    */
   private async sendReportNotifications(
-    data: ValidationReport | WorkflowExecutionResult,
-    paths: { [format: string]: string },
+    _data: ValidationReport | WorkflowExecutionResult,
+    _paths: { [format: string]: string },
   ): Promise<void> {
     // Implementation would send notifications via configured channels
     this.logger.debug('Sending report notifications');

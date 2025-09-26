@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 import type {
   ValidationFramework,
   ValidationContext,
@@ -18,7 +18,7 @@ import {
 } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 import { TaskStatus } from '../task-management/TaskQueue.js';
-import { TaskPriority, DependencyType } from '../task-management/types.js';
+import type { TaskPriority as _TaskPriority, DependencyType as _DependencyType } from '../task-management/types.js';
 
 /**
  * Task validation events for comprehensive monitoring
@@ -747,8 +747,8 @@ export class TaskValidator extends EventEmitter {
   private async validateTaskSecurity(
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const results: ValidationResult[] = [];
-    const task = context.metadata?.task as Task;
+    const _results: ValidationResult[] = [];
+    const _task = context.metadata?.task as Task;
 
     // TODO: Implement comprehensive security validation
     // - Check for exposed secrets
@@ -832,7 +832,7 @@ export class TaskValidator extends EventEmitter {
 
   private calculateQualityScore(
     results: ValidationResult[],
-    context: TaskValidationContext,
+    _context: TaskValidationContext,
   ): number {
     if (results.length === 0) return 1.0;
 
@@ -860,7 +860,7 @@ export class TaskValidator extends EventEmitter {
 
   private generateRecommendations(
     results: ValidationResult[],
-    context: TaskValidationContext,
+    _context: TaskValidationContext,
   ): ValidationRecommendation[] {
     const recommendations: ValidationRecommendation[] = [];
 

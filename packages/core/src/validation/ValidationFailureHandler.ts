@@ -5,10 +5,9 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 import type {
   ValidationResult,
-  ValidationReport,
   ValidationContext,
 } from './ValidationFramework.js';
 import {
@@ -156,7 +155,7 @@ interface FailureRecord {
 /**
  * Retry attempt result
  */
-interface RetryAttemptResult {
+interface _RetryAttemptResult {
   success: boolean;
   result?: ValidationResult[] | WorkflowExecutionResult;
   error?: Error;
@@ -562,7 +561,7 @@ export class ValidationFailureHandler extends EventEmitter {
   private async executeCircuitBreaker<T>(
     operation: () => Promise<T>,
     context: ValidationContext | TaskExecutionContext,
-    failureRecord: FailureRecord,
+    _failureRecord: FailureRecord,
   ): Promise<T> {
     const circuitKey = this.getCircuitBreakerKey(context);
     const circuitBreaker = this.getOrCreateCircuitBreaker(circuitKey);
@@ -712,7 +711,7 @@ export class ValidationFailureHandler extends EventEmitter {
     // Try original operation one more time after escalation
     try {
       return await originalOperation();
-    } catch (escalationError) {
+    } catch (_escalationError) {
       // If escalation doesn't resolve, continue with exponential backoff
       return await this.executeExponentialBackoff(
         originalOperation,
@@ -726,7 +725,7 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private determineHandlingStrategy(
     error: Error,
-    context: ValidationContext | TaskExecutionContext,
+    _context: ValidationContext | TaskExecutionContext,
   ): FailureHandlingStrategy {
     // Check severity-based strategy
     if ('severity' in error && error.severity) {
@@ -804,7 +803,7 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private updateMetrics(
     error: Error,
-    context: ValidationContext | TaskExecutionContext,
+    _context: ValidationContext | TaskExecutionContext,
   ): void {
     if (!this.config.monitoring.trackMetrics) {
       return;
@@ -879,7 +878,7 @@ export class ValidationFailureHandler extends EventEmitter {
    */
   private shouldUseFallback(
     error: Error,
-    context: ValidationContext | TaskExecutionContext,
+    _context: ValidationContext | TaskExecutionContext,
   ): boolean {
     return this.config.fallbackConfig.conditions.some((condition) => {
       if ('severity' in error && error.severity !== condition.severity) {
@@ -924,8 +923,8 @@ export class ValidationFailureHandler extends EventEmitter {
    * Execute alternative operation for fallback
    */
   private async executeAlternative<T>(
-    context: ValidationContext | TaskExecutionContext,
-    config?: Record<string, unknown>,
+    _context: ValidationContext | TaskExecutionContext,
+    _config?: Record<string, unknown>,
   ): Promise<T> {
     // This would execute an alternative validation method
     throw new Error('Alternative execution not implemented');
@@ -997,7 +996,7 @@ export class ValidationFailureHandler extends EventEmitter {
     this.recoveryOperations.set('restart', {
       id: 'restart',
       name: 'Restart Operation',
-      execute: async (context, error) => {
+      execute: async (_context, _error) => {
         this.logger.info('Executing restart recovery operation');
         // Implementation would restart the operation
         return true;
@@ -1008,7 +1007,7 @@ export class ValidationFailureHandler extends EventEmitter {
     this.recoveryOperations.set('reset', {
       id: 'reset',
       name: 'Reset State',
-      execute: async (context, error) => {
+      execute: async (_context, _error) => {
         this.logger.info('Executing reset recovery operation');
         // Implementation would reset validation state
         return true;
@@ -1019,7 +1018,7 @@ export class ValidationFailureHandler extends EventEmitter {
     this.recoveryOperations.set('cleanup', {
       id: 'cleanup',
       name: 'Cleanup Resources',
-      execute: async (context, error) => {
+      execute: async (_context, _error) => {
         this.logger.info('Executing cleanup recovery operation');
         // Implementation would cleanup resources
         return true;

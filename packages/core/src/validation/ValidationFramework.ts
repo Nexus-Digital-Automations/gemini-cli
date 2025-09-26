@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 
 /**
  * Validation severity levels for different types of validation failures
@@ -312,7 +312,7 @@ export class ValidationFramework extends EventEmitter {
   /**
    * Get applicable validation rules for the context
    */
-  private getApplicableRules(context: ValidationContext): ValidationRule[] {
+  private getApplicableRules(_context: ValidationContext): ValidationRule[] {
     return this.getRules().filter((rule) => {
       // Check if rule is enabled
       if (!rule.enabled) {
