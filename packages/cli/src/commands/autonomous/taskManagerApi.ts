@@ -48,6 +48,14 @@ export interface AgentInfo {
   timestamp?: string;
 }
 
+export interface AutonomousTask {
+  title?: string;
+  description?: string;
+  category?: string;
+  type?: string;
+  priority?: string;
+}
+
 /**
  * Execute TaskManager API command with timeout and error handling
  */
@@ -281,9 +289,7 @@ export function handleApiFallback(
 /**
  * Convert autonomous task to TaskManager feature suggestion
  */
-export function convertTaskToFeature(
-  task: Record<string, unknown>,
-): FeatureSuggestion {
+export function convertTaskToFeature(task: AutonomousTask): FeatureSuggestion {
   // Map task categories to TaskManager feature categories
   const categoryMap: Record<string, FeatureSuggestion['category']> = {
     FEATURE: 'new-feature',
@@ -296,12 +302,16 @@ export function convertTaskToFeature(
     TEST: 'enhancement',
   };
 
-  const mappedCategory = categoryMap[(task as any)['category']] || 'new-feature';
+  const mappedCategory =
+    categoryMap[task.category as keyof typeof categoryMap] || 'new-feature';
 
   return {
-    title: (task as any)['title'] || ((task as any)['description'] as string)?.substring(0, 50) + '...',
-    description: (task as any)['description'] || 'Autonomous task execution',
-    business_value: `Autonomous task management: ${(task as any)['type'] || 'implementation'} with ${(task as any)['priority'] || 'medium'} priority`,
+    title:
+      task.title ||
+      task.description?.substring(0, 50) + '...' ||
+      'Autonomous Task',
+    description: task.description || 'Autonomous task execution',
+    business_value: `Autonomous task management: ${task.type || 'implementation'} with ${task.priority || 'medium'} priority`,
     category: mappedCategory,
   };
 }
