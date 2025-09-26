@@ -550,8 +550,9 @@ export class TestSuiteOrchestrator {
     const reportPath = `./test-results/comprehensive-report-${Date.now()}.json`;
     // In real implementation, would write to file
     console.log(`📊 Test report generated: ${reportPath}`);
+    console.log(JSON.stringify(report, null, 2));
 
-    return reportPath;
+    return JSON.stringify(report, null, 2);
   }
 
   /**

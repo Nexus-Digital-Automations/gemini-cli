@@ -73,7 +73,12 @@ export class TestFactories {
     baseOverrides: Partial<Task> = {},
   ): Task[] {
     const tasks: Task[] = [];
-    const priorities: TaskPriority[] = [TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.HIGH, TaskPriority.CRITICAL];
+    const priorities: TaskPriority[] = [
+      TaskPriority.LOW,
+      TaskPriority.MEDIUM,
+      TaskPriority.HIGH,
+      TaskPriority.CRITICAL,
+    ];
     const categories: TaskCategory[] = [
       TaskCategory.FEATURE,
       TaskCategory.TEST,
@@ -315,8 +320,8 @@ export class TestFactories {
       getModel: vi.fn(() => 'gemini-2.0-pro'),
       getToolRegistry: vi.fn(() => ({
         tools: new Map(),
-        config: {} as any,
-        mcpClientManager: {} as any,
+        config: {} as Record<string, unknown>,
+        mcpClientManager: {} as Record<string, unknown>,
         registerTool: vi.fn(),
         getTool: vi.fn(),
         getAllTools: vi.fn(() => []),
@@ -335,11 +340,11 @@ export class TestFactories {
         getProjectGeminiDir: vi.fn(() => '/tmp/test-project/.gemini'),
         ensureProjectGeminiDir: vi.fn(),
         getProjectRoot: vi.fn(() => '/tmp/test-project'),
-      } as any,
+      } as Record<string, unknown>,
       getSessionId: vi.fn(() => 'test-session-id'),
       settings: {
         get: vi.fn((key: string) => {
-          const defaults: Record<string, any> = {
+          const defaults: Record<string, unknown> = {
             'taskManagement.maxConcurrentTasks': 5,
             'taskManagement.defaultTimeout': 300000,
             'taskManagement.maxRetries': 3,
@@ -362,7 +367,9 @@ export class TestFactories {
        * Linear dependency chain: A -> B -> C -> D
        */
       linearChain: () => {
-        const tasks = this.createMockTasks(4, { category: TaskCategory.FEATURE });
+        const tasks = this.createMockTasks(4, {
+          category: TaskCategory.FEATURE,
+        });
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[1].id),
@@ -375,7 +382,9 @@ export class TestFactories {
        * Fan-out pattern: A -> [B, C, D]
        */
       fanOut: () => {
-        const tasks = this.createMockTasks(4, { category: TaskCategory.REFACTOR });
+        const tasks = this.createMockTasks(4, {
+          category: TaskCategory.REFACTOR,
+        });
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[0].id),
@@ -401,7 +410,9 @@ export class TestFactories {
        * Diamond pattern: A -> [B, C] -> D
        */
       diamond: () => {
-        const tasks = this.createMockTasks(4, { category: TaskCategory.FEATURE });
+        const tasks = this.createMockTasks(4, {
+          category: TaskCategory.FEATURE,
+        });
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[0].id),
@@ -629,13 +640,16 @@ export class TestFactories {
 
     for (const key in source) {
       const sourceValue = source[key];
-      const targetValue = (target as any)[key];
+      const targetValue = (target as Record<string, unknown>)[key];
 
       if (sourceValue !== undefined) {
         if (this.isObject(sourceValue) && this.isObject(targetValue)) {
-          (result as any)[key] = this.deepMerge(targetValue, sourceValue);
+          (result as Record<string, unknown>)[key] = this.deepMerge(
+            targetValue,
+            sourceValue,
+          );
         } else {
-          (result as any)[key] = sourceValue;
+          (result as Record<string, unknown>)[key] = sourceValue;
         }
       }
     }
@@ -646,7 +660,7 @@ export class TestFactories {
   /**
    * Check if value is a plain object
    */
-  private static isObject(value: any): value is Record<string, any> {
+  private static isObject(value: unknown): value is Record<string, unknown> {
     return (
       value !== null &&
       typeof value === 'object' &&
@@ -1021,13 +1035,13 @@ export const TestUtilities = TestUtils;
 
 // Mock exports that other test files expect
 export class MockTaskStore {
-  private tasks: Map<string, any> = new Map();
+  private tasks: Map<string, unknown> = new Map();
 
-  async save(key: string, value: any): Promise<void> {
+  async save(key: string, value: unknown): Promise<void> {
     this.tasks.set(key, value);
   }
 
-  async load(key: string): Promise<any> {
+  async load(key: string): Promise<unknown> {
     return this.tasks.get(key);
   }
 
