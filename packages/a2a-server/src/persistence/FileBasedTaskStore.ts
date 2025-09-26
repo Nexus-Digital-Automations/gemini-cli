@@ -15,7 +15,7 @@ import type { Task as SDKTask } from '@a2a-js/sdk';
 import type { TaskStore } from '@a2a-js/sdk/server';
 import { logger } from '../utils/logger.js';
 import { setTargetDir } from '../config/config.js';
-import { getPersistedState, type PersistedTaskMetadata } from '../types.js';
+import { getPersistedState, type PersistedTaskMetadata, type PersistedStateMetadata } from '../types.js';
 
 /**
  * File-based persistence storage configuration
@@ -353,7 +353,7 @@ export class FileBasedTaskStore implements TaskStore {
    */
   private async saveWorkspace(
     taskId: string,
-    persistedState: unknown,
+    persistedState: PersistedStateMetadata,
     workspacePath: string,
   ): Promise<void> {
     const workDir = process.cwd();
@@ -492,6 +492,12 @@ export class FileBasedTaskStore implements TaskStore {
     loadedMetadata: unknown,
     workspacePath: string,
   ): Promise<void> {
+    if (typeof loadedMetadata !== 'object' || loadedMetadata === null) {
+      throw new Error(
+        `Invalid metadata for task ${taskId}: expected object but got ${typeof loadedMetadata}`,
+      );
+    }
+
     const persistedState = getPersistedState(
       loadedMetadata as PersistedTaskMetadata,
     );
@@ -541,6 +547,12 @@ export class FileBasedTaskStore implements TaskStore {
     loadedMetadata: unknown,
     sessionMetadata?: TaskSessionMetadata,
   ): SDKTask {
+    if (typeof loadedMetadata !== 'object' || loadedMetadata === null) {
+      throw new Error(
+        `Invalid metadata for task ${taskId}: expected object but got ${typeof loadedMetadata}`,
+      );
+    }
+
     const persistedState = getPersistedState(
       loadedMetadata as PersistedTaskMetadata,
     );
