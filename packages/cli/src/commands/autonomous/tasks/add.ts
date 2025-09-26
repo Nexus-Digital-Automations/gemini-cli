@@ -92,7 +92,18 @@ export const addTaskCommand: CommandModule = {
         'Add documentation task with 30 min limit',
       ),
 
-  handler: async (argv: any) => {
+  handler: async (argv: unknown) => {
+    const args = argv as {
+      description: string;
+      priority?: string;
+      category?: string;
+      type?: string;
+      maxTime?: number;
+      dependencies?: string[];
+      context?: string;
+      expectedOutputs?: string;
+      [key: string]: unknown;
+    };
     try {
       console.log(chalk.cyan('➕ Adding new task to autonomous system...'));
 
@@ -117,9 +128,9 @@ export const addTaskCommand: CommandModule = {
       };
 
       let parsedContext: Record<string, unknown> = {};
-      if (argv['context']) {
+      if (args.context) {
         try {
-          parsedContext = JSON.parse(argv['context'] as string);
+          parsedContext = JSON.parse(args.context);
         } catch (_error) {
           console.error(chalk.red('❌ Invalid JSON format for context'));
           process.exit(1);
@@ -127,11 +138,9 @@ export const addTaskCommand: CommandModule = {
       }
 
       let parsedExpectedOutputs: Record<string, unknown> = {};
-      if (argv['expected-outputs']) {
+      if (args.expectedOutputs) {
         try {
-          parsedExpectedOutputs = JSON.parse(
-            argv['expected-outputs'] as string,
-          );
+          parsedExpectedOutputs = JSON.parse(args.expectedOutputs);
         } catch (_error) {
           console.error(
             chalk.red('❌ Invalid JSON format for expected-outputs'),
@@ -145,13 +154,13 @@ export const addTaskCommand: CommandModule = {
 
       // Create task object
       const newTask = {
-        title: generateTaskTitle(argv['description'] as string),
-        description: argv['description'] as string,
-        type: typeMap[(argv['type'] as string) || 'implementation'],
-        priority: priorityMap[(argv['priority'] as string) || 'medium'],
-        category: argv['category'] as TaskCategory,
-        maxExecutionTimeMinutes: (argv['max-time'] as number) || 60,
-        dependencies: (argv['dependencies'] as string[]) || [],
+        title: generateTaskTitle(args.description),
+        description: args.description,
+        type: typeMap[args.type || 'implementation'],
+        priority: priorityMap[args.priority || 'medium'],
+        category: args.category as TaskCategory,
+        maxExecutionTimeMinutes: args.maxTime || 60,
+        dependencies: args.dependencies || [],
         context: parsedContext,
         expectedOutputs: parsedExpectedOutputs,
       };

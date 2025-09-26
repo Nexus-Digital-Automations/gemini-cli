@@ -783,7 +783,7 @@ describe('Monitoring System Integration Tests', () => {
       expect(recordedMetrics.length).toBeGreaterThan(0);
 
       // Verify metric structure
-      recordedMetrics.forEach((metric: any) => {
+      recordedMetrics.forEach((metric) => {
         expect(metric).toHaveProperty('name');
         expect(metric).toHaveProperty('value');
         expect(metric).toHaveProperty('unit');

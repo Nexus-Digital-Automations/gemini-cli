@@ -23,8 +23,14 @@ import {
   CompressionConfigurationManager,
   ConfigurationPreset,
 } from '../CompressionConfigurationManager.js';
-import { CompressionFallbackSystem } from '../CompressionFallbackSystem.js';
-import { EnhancedCompressionAlgorithms } from '../EnhancedCompressionAlgorithms.js';
+import {
+  CompressionFallbackSystem,
+  type FallbackCompressionResult,
+} from '../CompressionFallbackSystem.js';
+import {
+  EnhancedCompressionAlgorithms,
+  type EnhancedCompressionResult,
+} from '../EnhancedCompressionAlgorithms.js';
 import type { ContextItem } from '../types.js';
 
 import { ContextType, ContextPriority } from '../types.js';
@@ -325,12 +331,13 @@ describe('AutoCompressionSystem Integration Tests', () => {
         const items = createContextItems(100, type);
         const testItem = items[0];
 
-        const result = await enhancedCompressor.compressWithTypeOptimization(
+        const result = (await enhancedCompressor.compressWithTypeOptimization(
           testItem,
           0.7, // Target 70% compression
-        );
+        )) as EnhancedCompressionResult;
 
-        expect(result.success).toBe(true);
+        expect(result.compressed).toBeDefined();
+        expect(result.originalTokens).toBeGreaterThan(0);
         expect(result.compressionRatio).toBeLessThanOrEqual(expectedRatio);
         expect(result.compressedTokens).toBeLessThan(result.originalTokens);
 
@@ -370,12 +377,12 @@ describe('AutoCompressionSystem Integration Tests', () => {
       const fallbackSystem = new CompressionFallbackSystem();
 
       // Apply aggressive compression that should preserve critical items
-      const result = await fallbackSystem.applyFallbackCompression(
+      const result = (await fallbackSystem.applyFallbackCompression(
         items,
         0.3, // Very aggressive 30% target
         new Error('Test compression'),
         false,
-      );
+      )) as FallbackCompressionResult;
 
       expect(result.success).toBe(true);
 

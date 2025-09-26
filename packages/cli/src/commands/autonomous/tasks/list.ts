@@ -98,7 +98,7 @@ export const listTasksCommand: CommandModule = {
         'Include completed tasks',
       ),
 
-  handler: async (argv: any) => {
+  handler: async (argv: { status?: string; showCompleted?: boolean; [key: string]: unknown }) => {
     try {
       console.log(chalk.cyan('📋 Task List'));
       console.log(chalk.gray('─'.repeat(80)));

@@ -41,7 +41,7 @@ describe('TaskStore', () => {
 
   beforeEach(async () => {
     vi.resetAllMocks();
-    mockedFs = vi.mocked(fs).promises as {
+    mockedFs = vi.mocked(fs).promises as unknown as {
       mkdir: ReturnType<typeof vi.fn>;
       writeFile: ReturnType<typeof vi.fn>;
       readFile: ReturnType<typeof vi.fn>;

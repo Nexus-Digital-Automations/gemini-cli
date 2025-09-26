@@ -18,10 +18,9 @@ import {
   expect,
   beforeEach,
   afterEach,
-  jest,
-} from '@jest/globals';
+} from 'vitest';
 import { TokenUsageCache, CachePriority, CachePresets } from '../cache.js';
-import type { CacheConfig, CacheStats } from '../cache.js';
+import type { CacheConfig } from '../cache.js';
 
 describe('TokenUsageCache', () => {
   let cache: TokenUsageCache;

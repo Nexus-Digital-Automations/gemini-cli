@@ -19,7 +19,7 @@ import {
   RollbackType,
 } from '../RollbackManager.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
-import { TaskPriority, TaskStatus } from '../../task-management/types.js';
+import { TaskPriority, TaskStatus, TaskCategory, TaskType } from '../../task-management/types.js';
 
 // Mock logger to avoid console output during tests
 vi.mock('../../logger/Logger.js');
@@ -48,7 +48,7 @@ describe('ValidationSystem Integration', () => {
       title: 'Integration Test Task',
       description:
         'A comprehensive task for testing the complete validation system',
-      category: 'implementation',
+      category: TaskCategory.FEATURE,
       priority: TaskPriority.HIGH,
       status: TaskStatus.PENDING,
       metadata: {
@@ -477,7 +477,7 @@ describe('ValidationSystem Integration', () => {
       // Get rules from validation rules system
       const preExecutionRules = validationRules.getApplicableRules(
         RuleExecutionContext.PRE_EXECUTION,
-        'implementation',
+        TaskType.IMPLEMENTATION,
         TaskStatus.PENDING,
       );
 
@@ -782,7 +782,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
         title: 'End-to-End Lifecycle Test Task',
         description:
           'A task that goes through the complete lifecycle with validation at every stage',
-        category: 'implementation',
+        category: TaskCategory.FEATURE,
         priority: TaskPriority.HIGH,
         status: TaskStatus.PENDING,
         metadata: {

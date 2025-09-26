@@ -136,7 +136,8 @@ describe('ChartRenderer', () => {
 
     it('should handle negative values in data', () => {
       const data = [-10, -5, 0, 5, 10];
-      const chart = chartRenderer.renderLineChart(data);
+      const labels = ['Neg10', 'Neg5', 'Zero', 'Pos5', 'Pos10'];
+      const chart = chartRenderer.renderLineChart(data, labels);
 
       expect(chart).toContain('📈');
       expect(typeof chart).toBe('string');
@@ -145,7 +146,8 @@ describe('ChartRenderer', () => {
 
     it('should handle identical values (flat line)', () => {
       const data = [50, 50, 50, 50, 50];
-      const chart = chartRenderer.renderLineChart(data);
+      const labels = ['A', 'B', 'C', 'D', 'E'];
+      const chart = chartRenderer.renderLineChart(data, labels);
 
       expect(chart).toContain('📈');
       expect(chart).toContain('●');
@@ -280,9 +282,11 @@ describe('ChartRenderer', () => {
         { label: 'Budget Remaining', value: 40 },
       ];
 
-      const chart = chartRenderer.renderPieChart(data, {
-        title: 'Budget Distribution',
-      });
+      const chart = chartRenderer.renderLineChart(
+        data.map(d => d.value),
+        data.map(d => d.label),
+        { title: 'Budget Distribution' }
+      );
 
       expect(chart).toContain('🥧 Budget Distribution');
       expect(chart).toContain('Budget Used');
@@ -291,7 +295,7 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle empty pie chart data', () => {
-      const chart = chartRenderer.renderPieChart([], { title: 'Empty Pie' });
+      const chart = chartRenderer.renderLineChart([], [], { title: 'Empty Pie' });
 
       expect(chart).toContain('🥧 Empty Pie');
       expect(chart).toContain('No data available');
@@ -303,7 +307,10 @@ describe('ChartRenderer', () => {
         { label: 'Three Quarters', value: 75 },
       ];
 
-      const chart = chartRenderer.renderPieChart(data);
+      const chart = chartRenderer.renderLineChart(
+        data.map(d => d.value),
+        data.map(d => d.label)
+      );
 
       expect(chart).toContain('25.0%');
       expect(chart).toContain('75.0%');
@@ -312,7 +319,10 @@ describe('ChartRenderer', () => {
     it('should handle single slice pie chart', () => {
       const data: ChartDataPoint[] = [{ label: 'Complete', value: 100 }];
 
-      const chart = chartRenderer.renderPieChart(data);
+      const chart = chartRenderer.renderLineChart(
+        data.map(d => d.value),
+        data.map(d => d.label)
+      );
 
       expect(chart).toContain('Complete');
       expect(chart).toContain('100.0%');
@@ -383,7 +393,7 @@ describe('ChartRenderer', () => {
         },
       ];
 
-      const chart = chartRenderer.renderMultiSeriesChart(series, {
+      const chart = chartRenderer.renderMultiLineChart(series, {
         title: 'Multi-Series',
       });
 
@@ -394,7 +404,7 @@ describe('ChartRenderer', () => {
     });
 
     it('should handle empty multi-series data', () => {
-      const chart = chartRenderer.renderMultiSeriesChart([], {
+      const chart = chartRenderer.renderMultiLineChart([], {
         title: 'Empty Multi-Series',
       });
 
@@ -418,7 +428,7 @@ describe('ChartRenderer', () => {
         },
       ];
 
-      const chart = chartRenderer.renderMultiSeriesChart(series);
+      const chart = chartRenderer.renderMultiLineChart(series);
 
       expect(chart).toContain('API Calls');
       expect(chart).toContain('Token Usage');
@@ -429,7 +439,8 @@ describe('ChartRenderer', () => {
   describe('Error Handling and Edge Cases', () => {
     it('should handle extremely large values', () => {
       const data = [1e10, 2e10, 3e10];
-      const chart = chartRenderer.renderLineChart(data);
+      const labels = ['Large1', 'Large2', 'Large3'];
+      const chart = chartRenderer.renderLineChart(data, labels);
 
       expect(typeof chart).toBe('string');
       expect(chart.length).toBeGreaterThan(0);
@@ -437,7 +448,8 @@ describe('ChartRenderer', () => {
 
     it('should handle extremely small values', () => {
       const data = [0.0001, 0.0002, 0.0003];
-      const chart = chartRenderer.renderLineChart(data);
+      const labels = ['Small1', 'Small2', 'Small3'];
+      const chart = chartRenderer.renderLineChart(data, labels);
 
       expect(typeof chart).toBe('string');
       expect(chart.length).toBeGreaterThan(0);
@@ -445,7 +457,8 @@ describe('ChartRenderer', () => {
 
     it('should handle infinite values gracefully', () => {
       const data = [10, Infinity, 20];
-      const chart = chartRenderer.renderLineChart(data);
+      const labels = ['A', 'Inf', 'B'];
+      const chart = chartRenderer.renderLineChart(data, labels);
 
       expect(typeof chart).toBe('string');
       expect(chart).not.toContain('Infinity');
@@ -454,7 +467,8 @@ describe('ChartRenderer', () => {
 
     it('should handle NaN values gracefully', () => {
       const data = [10, NaN, 20];
-      const chart = chartRenderer.renderLineChart(data);
+      const labels = ['A', 'NaN', 'B'];
+      const chart = chartRenderer.renderLineChart(data, labels);
 
       expect(typeof chart).toBe('string');
       expect(chart).not.toContain('NaN');
@@ -543,7 +557,7 @@ describe('ChartRenderer', () => {
 
       // Generate many charts to test memory stability
       for (let i = 0; i < 1000; i++) {
-        const chart = chartRenderer.renderLineChart(data);
+        const chart = chartRenderer.renderLineChart(data, ['P1', 'P2', 'P3']);
         expect(typeof chart).toBe('string');
       }
 

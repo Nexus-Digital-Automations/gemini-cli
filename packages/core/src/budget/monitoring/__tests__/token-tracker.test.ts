@@ -17,10 +17,8 @@ import {
   it,
   expect,
   beforeEach,
-  afterEach,
-  jest,
-} from '@jest/globals';
-import type { GenerateContentResponse } from '@google/genai';
+} from 'vitest';
+import type { GenerateContentResponse, FinishReason } from '@google/genai';
 import { TokenTracker } from '../token-tracker.js';
 import type {
   TokenTrackerConfig,
@@ -119,7 +117,7 @@ describe('TokenTracker', () => {
               parts: [{ text: 'Test response' }],
               role: 'model',
             },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
@@ -180,7 +178,7 @@ describe('TokenTracker', () => {
               parts: [{ text: 'Test response' }],
               role: 'model',
             },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
@@ -209,7 +207,7 @@ describe('TokenTracker', () => {
           candidates: [
             {
               content: { parts: [{ text: 'Response' }], role: 'model' },
-              finishReason: 'STOP',
+              finishReason: 'STOP' as FinishReason,
             },
           ],
           usageMetadata: {
@@ -243,7 +241,7 @@ describe('TokenTracker', () => {
           candidates: [
             {
               content: { parts: [{ text: 'Response' }], role: 'model' },
-              finishReason: 'STOP',
+              finishReason: 'STOP' as FinishReason,
             },
           ],
           usageMetadata: {
@@ -281,7 +279,7 @@ describe('TokenTracker', () => {
           candidates: [
             {
               content: { parts: [{ text: 'Response' }], role: 'model' },
-              finishReason: 'STOP',
+              finishReason: 'STOP' as FinishReason,
             },
           ],
           usageMetadata: {
@@ -312,7 +310,7 @@ describe('TokenTracker', () => {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
@@ -350,7 +348,7 @@ describe('TokenTracker', () => {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
@@ -376,7 +374,7 @@ describe('TokenTracker', () => {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         // No usageMetadata
@@ -404,7 +402,7 @@ describe('TokenTracker', () => {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
@@ -433,7 +431,7 @@ describe('TokenTracker', () => {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
@@ -466,7 +464,7 @@ describe('TokenTracker', () => {
         candidates: [
           {
             content: { parts: [{ text: 'Response' }], role: 'model' },
-            finishReason: 'STOP',
+            finishReason: 'STOP' as FinishReason,
           },
         ],
         usageMetadata: {
