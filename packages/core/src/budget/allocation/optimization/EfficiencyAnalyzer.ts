@@ -410,7 +410,7 @@ export class EfficiencyAnalyzer {
       if (allocation.riskAssessment.riskLevel !== 'low') {
         risks.push({
           type: 'performance_degradation',
-          severity: allocation.riskAssessment.riskLevel as any,
+          severity: allocation.riskAssessment.riskLevel as 'high' | 'medium' | 'low',
           description: `High risk allocation for ${allocation.resourceId}`,
           impact: {
             financial: allocation.expectedImpact.costImpact,
@@ -783,7 +783,7 @@ export class EfficiencyAnalyzer {
   private generateImprovements(
     candidate: AllocationCandidate,
     inefficiencies: EfficiencyIssue[],
-    trends: EfficiencyTrend[],
+    _trends: EfficiencyTrend[],
   ): EfficiencyImprovement[] {
     const improvements: EfficiencyImprovement[] = [];
 
@@ -793,7 +793,7 @@ export class EfficiencyAnalyzer {
         case 'underutilization':
           improvements.push({
             type: 'reallocation',
-            priority: issue.severity as any,
+            priority: issue.severity as 'high' | 'medium' | 'low',
             description: 'Reduce allocation to match actual usage patterns',
             expectedBenefits: {
               costSavings: issue.impact.financial,
@@ -814,7 +814,7 @@ export class EfficiencyAnalyzer {
         case 'cost_inefficiency':
           improvements.push({
             type: 'optimization',
-            priority: issue.severity as any,
+            priority: issue.severity as 'high' | 'medium' | 'low',
             description:
               'Optimize resource configuration for better cost efficiency',
             expectedBenefits: {
@@ -927,7 +927,7 @@ export class EfficiencyAnalyzer {
    */
   private generatePortfolioOptimizations(
     resourceEfficiencies: ResourceEfficiency[],
-    candidates: AllocationCandidate[],
+    _candidates: AllocationCandidate[],
   ): EfficiencyImprovement[] {
     const optimizations: EfficiencyImprovement[] = [];
 
@@ -996,7 +996,7 @@ export class EfficiencyAnalyzer {
    */
   private calculateBenchmarks(
     resourceEfficiencies: ResourceEfficiency[],
-    historicalData: Record<string, FeatureCostAnalysis[]>,
+    _historicalData: Record<string, FeatureCostAnalysis[]>,
   ): { industry: number; historicalBest: number; peerAverage: number } {
     const currentScore =
       resourceEfficiencies.reduce((sum, r) => sum + r.overallScore, 0) /

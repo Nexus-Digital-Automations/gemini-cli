@@ -13,7 +13,6 @@ import type {
   SubAgentOptions,
 } from '../../../packages/core/src/core/subagent.js';
 import type { FunctionDeclaration } from '@google/genai';
-import { Type } from '@google/genai';
 
 /**
  * Task complexity levels for testing different scenarios

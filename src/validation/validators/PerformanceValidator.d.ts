@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { ValidationContext, ValidationResult } from '../core/ValidationEngine.js';
 /**
  * Performance validation configuration

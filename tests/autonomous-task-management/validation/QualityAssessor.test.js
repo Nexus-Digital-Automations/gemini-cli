@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
 import { QualityAssessor, QualityAssessmentLevel, } from '../../../packages/core/src/validation/QualityAssessor.js';
 import { ValidationFramework, } from '../../../packages/core/src/validation/ValidationFramework.js';

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Lint validation implementation for code quality validation
  * Executes linting rules and validates code quality standards

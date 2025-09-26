@@ -5,11 +5,12 @@
  */
 
 import { performance } from 'node:perf_hooks';
-import { createWriteStream, createReadStream, existsSync, mkdirSync, statSync, readdirSync, } from 'node:fs';
+import { createWriteStream, createReadStream, existsSync, mkdirSync, statSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { unlink, writeFile, rename, readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { promisify } from 'node:util';
-import { pipeline } from 'node:stream';
+import { pipeline, Readable, Transform } from 'node:stream';
 import * as zlib from 'node:zlib';
 import EventEmitter from 'node:events';
 import { getComponentLogger, createTimer, LogLevel } from '../utils/logger.js';
@@ -241,7 +242,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
             limit: undefined,
             offset: undefined,
         });
-        const { Readable, Transform } = require('node:stream');
+        // Already imported at top of file
         if (format === 'csv') {
             return this.createCsvStream(data);
         }

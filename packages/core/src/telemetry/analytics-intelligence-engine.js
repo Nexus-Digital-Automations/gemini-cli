@@ -567,7 +567,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
     }
     return [];
   }
-  async detectTokenAnomalies(data, sessionId) {
+  async detectTokenAnomalies(data, _sessionId) {
     const tokens = data.map((d) => d.totalTokens);
     if (tokens.length < 10) return [];
     const stats = StatisticalAnalyzer.calculateStats(tokens);
@@ -607,7 +607,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
       },
     ];
   }
-  async detectModelSwitchingPatterns(data, sessionId) {
+  async detectModelSwitchingPatterns(data, _sessionId) {
     // Group by session to detect frequent model switching
     const sessionGroups = new Map();
     for (const item of data) {

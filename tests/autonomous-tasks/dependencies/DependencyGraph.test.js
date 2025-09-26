@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/task/types.js';
 import { DecisionDependencyGraph as DependencyGraph, } from '../../../packages/core/src/decision/DependencyGraph.js';

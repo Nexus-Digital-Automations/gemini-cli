@@ -314,9 +314,9 @@ export class CodeQualityValidator {
           duration: Date.now() - startTime,
           metadata: { filesChecked: filesToCheck.length },
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Parse Prettier output to identify unformatted files
-        const stderr = error.stderr || '';
+        const stderr = (error as any).stderr || '';
         const unformattedFiles = stderr
           .split('\n')
           .filter(
@@ -373,7 +373,7 @@ export class CodeQualityValidator {
    * Run TypeScript compiler validation
    */
   private async runTypeScript(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 
@@ -395,8 +395,8 @@ export class CodeQualityValidator {
           duration: Date.now() - startTime,
         },
       ];
-    } catch (error: any) {
-      const stderr = error.stderr || '';
+    } catch (error: unknown) {
+      const stderr = (error as any).stderr || '';
       const results: ValidationResult[] = [];
 
       // Parse TypeScript errors
@@ -448,7 +448,7 @@ export class CodeQualityValidator {
    */
   private async runSecurityScanner(
     scanner: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const startTime = Date.now();
 

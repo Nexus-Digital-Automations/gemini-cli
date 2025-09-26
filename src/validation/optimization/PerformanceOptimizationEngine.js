@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Performance Optimization Engine for validation system optimization
  * Analyzes performance bottlenecks and generates actionable optimization recommendations

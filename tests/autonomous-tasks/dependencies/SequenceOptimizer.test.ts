@@ -225,7 +225,7 @@ describe('SequenceOptimizer', () => {
 
       // At least one parallel group should have multiple tasks
       const multiTaskGroups = result.parallelGroups.filter(
-        (group: ParallelGroup) => group.parallelTasks.length > 1,
+        (group: TestParallelGroup) => group.parallelTasks.length > 1,
       );
       expect(multiTaskGroups.length).toBeGreaterThan(0);
     });
