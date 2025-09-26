@@ -5,12 +5,15 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import {
   realTimeMonitoringSystem,
   type MonitoringSnapshot,
-  type _PredictiveInsight,
-  type _AlertRule,
+  type PredictiveInsight as _PredictiveInsight,
+  type AlertRule as _AlertRule,
 } from './RealTimeMonitoringSystem.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -760,7 +763,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       throughputPerHour: snapshot.taskMetrics.throughputPerHour,
       chartData: this.generateChartData(
         widget.id,
-        widget.config.timeRange || 'last_hour',
+        widget.config.timeRange === 'custom'
+          ? 'last_hour'
+          : widget.config.timeRange || 'last_hour',
       ),
     };
   }
@@ -1166,7 +1171,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     } catch (error) {
       // File doesn't exist or is corrupted - start fresh
       this.logger.info('No persisted layouts found, starting fresh', {
-        error: (error as Error).message,
+        error,
       });
     }
   }

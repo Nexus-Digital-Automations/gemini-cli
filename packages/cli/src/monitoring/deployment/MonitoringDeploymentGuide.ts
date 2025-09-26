@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import {
   monitoringIntegrationHub,
   type MonitoringIntegrationConfig as _MonitoringIntegrationConfig,
@@ -601,7 +604,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
         },
         {
           name: 'memory',
-          type: 'system',
+          type: 'service',
           config: { maxUsagePercent: 80 },
         },
       ],
