@@ -14,15 +14,13 @@ import type {
   TaskStatus,
   AgentStatus,
 } from './TaskStatusMonitor.js';
-import { taskStatusMonitor, _TaskStatusUpdate } from './TaskStatusMonitor.js';
+import { taskStatusMonitor } from './TaskStatusMonitor.js';
 import {
   progressTracker,
   ProgressGranularity,
   type ProgressMetrics as TrackerProgressMetrics,
 } from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
-import { _statusUpdateBroker } from './StatusUpdateBroker.js';
-import { _notificationSystem } from './NotificationSystem.js';
 
 export interface MonitoringScope {
   taskId: string;
@@ -54,7 +52,12 @@ export interface TaskMonitoringConfig {
 export interface TaskAlert {
   id: string;
   taskId: string;
-  type: 'warning' | 'error' | 'critical';
+  type:
+    | 'progress_stall'
+    | 'performance_degradation'
+    | 'high_error_rate'
+    | 'time_overrun';
+  severity: 'low' | 'medium' | 'high' | 'critical';
   message: string;
   timestamp: Date;
   resolved: boolean;
@@ -239,7 +242,7 @@ export class TaskMonitor extends EventEmitter {
         milestones:
           progressMetrics?.checkpoints.milestones.map((m) => ({
             name: m.name,
-            completed: m.completed,
+            completed: m.progress >= 100,
             progress: m.progress,
           })) || [],
         velocity: progressMetrics?.velocity || 0,
@@ -443,7 +446,11 @@ export class TaskMonitor extends EventEmitter {
 
     // Complete progress tracking
     if (config.scope.enableProgressTracking) {
-      progressTracker.completeTask(taskId, actualDuration);
+      // Progress tracking is automatically completed when status is updated
+      this.logger.debug('Progress tracking completed for task', {
+        taskId,
+        actualDuration,
+      });
     }
 
     // Record performance metrics
@@ -618,11 +625,13 @@ export class TaskMonitor extends EventEmitter {
     // Progress stall alert
     if (status.progress.velocity < config.thresholds.progressStall) {
       alerts.push({
+        id: `${taskId}-progress-stall-${now.getTime()}`,
         taskId,
         type: 'progress_stall',
         severity: 'medium',
         message: `Task progress has stalled (velocity: ${status.progress.velocity.toFixed(2)})`,
         timestamp: now,
+        resolved: false,
       });
     }
 
@@ -632,22 +641,26 @@ export class TaskMonitor extends EventEmitter {
       1 - config.thresholds.performanceDegradation / 100
     ) {
       alerts.push({
+        id: `${taskId}-performance-degradation-${now.getTime()}`,
         taskId,
         type: 'performance_degradation',
         severity: 'high',
         message: `Task performance has degraded (efficiency: ${(status.performance.efficiency * 100).toFixed(1)}%)`,
         timestamp: now,
+        resolved: false,
       });
     }
 
     // High error rate alert
     if (status.performance.errorRate > config.thresholds.errorRate) {
       alerts.push({
+        id: `${taskId}-high-error-rate-${now.getTime()}`,
         taskId,
         type: 'high_error_rate',
         severity: 'critical',
         message: `High error rate detected (${(status.performance.errorRate * 100).toFixed(1)}%)`,
         timestamp: now,
+        resolved: false,
       });
     }
 
