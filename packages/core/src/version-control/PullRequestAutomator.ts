@@ -23,7 +23,7 @@ import {
   PRNotification,
   PRAutomationRule,
   PRWorkflow,
-  QualityGate
+  QualityGate,
 } from './types.js';
 
 /**
@@ -75,14 +75,17 @@ export class PullRequestAutomator {
     try {
       const currentBranch = this.getCurrentBranch();
       const sourceBranch = options.sourceBranch || currentBranch;
-      const targetBranch = options.targetBranch || this.config.defaultTargetBranch;
+      const targetBranch =
+        options.targetBranch || this.config.defaultTargetBranch;
 
       // Analyze changes for intelligent PR creation
       const analysis = await this.analyzePRChanges(sourceBranch, targetBranch);
 
       // Generate title and description if not provided
-      const title = options.title || await this.generatePRTitle(analysis);
-      const description = options.description || await this.generatePRDescription(analysis, options.template);
+      const title = options.title || (await this.generatePRTitle(analysis));
+      const description =
+        options.description ||
+        (await this.generatePRDescription(analysis, options.template));
 
       // Suggest reviewers if auto-assignment enabled
       const suggestedReviewers = options.autoAssignReviewers
@@ -99,7 +102,10 @@ export class PullRequestAutomator {
         targetBranch,
         status: PRStatus.DRAFT,
         author: this.getCurrentUser(),
-        reviewers: suggestedReviewers.map(s => ({ username: s.username, status: ReviewStatus.PENDING })),
+        reviewers: suggestedReviewers.map((s) => ({
+          username: s.username,
+          status: ReviewStatus.PENDING,
+        })),
         assignees: options.assignees || [],
         labels: this.generateLabels(analysis, options.labels || []),
         createdAt: new Date(),
@@ -108,8 +114,10 @@ export class PullRequestAutomator {
         comments: [],
         metrics: this.initializePRMetrics(),
         analysis,
-        autoMergeConfig: options.enableAutoMerge ? this.getAutoMergeConfig() : undefined,
-        linkedIssues: this.extractLinkedIssues(analysis)
+        autoMergeConfig: options.enableAutoMerge
+          ? this.getAutoMergeConfig()
+          : undefined,
+        linkedIssues: this.extractLinkedIssues(analysis),
       };
 
       // Execute platform-specific creation
@@ -176,9 +184,11 @@ export class PullRequestAutomator {
         results.set(gateId, isValid);
 
         // Update PR checks
-        const existingCheck = pr.checks.find(c => c.name === gate.name);
+        const existingCheck = pr.checks.find((c) => c.name === gate.name);
         if (existingCheck) {
-          existingCheck.status = isValid ? CheckStatus.SUCCESS : CheckStatus.FAILURE;
+          existingCheck.status = isValid
+            ? CheckStatus.SUCCESS
+            : CheckStatus.FAILURE;
           existingCheck.updatedAt = new Date();
         } else {
           pr.checks.push({
@@ -187,7 +197,7 @@ export class PullRequestAutomator {
             description: gate.description,
             url: gate.url,
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
           });
         }
       } catch (error) {
@@ -228,11 +238,15 @@ export class PullRequestAutomator {
 
         return true;
       } else {
-        await this.sendMergeFailureNotification(pr, [mergeResult.error || 'Unknown merge error']);
+        await this.sendMergeFailureNotification(pr, [
+          mergeResult.error || 'Unknown merge error',
+        ]);
         return false;
       }
     } catch (error) {
-      await this.sendMergeFailureNotification(pr, [`Auto-merge failed: ${error}`]);
+      await this.sendMergeFailureNotification(pr, [
+        `Auto-merge failed: ${error}`,
+      ]);
       return false;
     }
   }
@@ -248,14 +262,14 @@ export class PullRequestAutomator {
   }> {
     const summary: PRMetrics = {
       totalPRs: prs.length,
-      openPRs: prs.filter(pr => pr.status === PRStatus.OPEN).length,
-      mergedPRs: prs.filter(pr => pr.status === PRStatus.MERGED).length,
-      closedPRs: prs.filter(pr => pr.status === PRStatus.CLOSED).length,
+      openPRs: prs.filter((pr) => pr.status === PRStatus.OPEN).length,
+      mergedPRs: prs.filter((pr) => pr.status === PRStatus.MERGED).length,
+      closedPRs: prs.filter((pr) => pr.status === PRStatus.CLOSED).length,
       averageTimeToMerge: this.calculateAverageTimeToMerge(prs),
       averageReviewTime: this.calculateAverageReviewTime(prs),
       mergeThroughput: this.calculateMergeThroughput(prs),
       qualityScore: this.calculateQualityScore(prs),
-      automationEfficiency: this.calculateAutomationEfficiency(prs)
+      automationEfficiency: this.calculateAutomationEfficiency(prs),
     };
 
     const trends = this.analyzeTrends(prs);
@@ -280,7 +294,7 @@ export class PullRequestAutomator {
           reason: `Code owner for ${owner.files.join(', ')}`,
           confidence: 0.9,
           expertise: owner.expertise,
-          availability: await this.checkReviewerAvailability(owner.username)
+          availability: await this.checkReviewerAvailability(owner.username),
         });
       }
 
@@ -305,18 +319,24 @@ export class PullRequestAutomator {
   /**
    * Analyze PR changes for intelligent automation decisions
    */
-  private async analyzePRChanges(sourceBranch: string, targetBranch: string): Promise<PRAnalysis> {
+  private async analyzePRChanges(
+    sourceBranch: string,
+    targetBranch: string,
+  ): Promise<PRAnalysis> {
     try {
       const diffOutput = execSync(
         `git diff ${targetBranch}...${sourceBranch} --name-status`,
-        { cwd: this.workingDir, encoding: 'utf-8' }
+        { cwd: this.workingDir, encoding: 'utf-8' },
       );
 
       const changes = this.parseDiffOutput(diffOutput);
-      const filesChanged = changes.map(c => c.file);
+      const filesChanged = changes.map((c) => c.file);
 
       // Calculate change metrics
-      const linesChanged = await this.calculateLinesChanged(sourceBranch, targetBranch);
+      const linesChanged = await this.calculateLinesChanged(
+        sourceBranch,
+        targetBranch,
+      );
       const complexity = this.calculateChangeComplexity(changes);
 
       // Detect change patterns
@@ -340,7 +360,11 @@ export class PullRequestAutomator {
         hasBreakingChanges: this.detectBreakingChanges(changes),
         hasDatabaseChanges: this.detectDatabaseChanges(filesChanged),
         hasSecurityChanges: this.detectSecurityChanges(filesChanged),
-        estimatedReviewTime: this.estimateReviewTime(linesChanged, complexity, riskLevel)
+        estimatedReviewTime: this.estimateReviewTime(
+          linesChanged,
+          complexity,
+          riskLevel,
+        ),
       };
     } catch (error) {
       throw new Error(`Failed to analyze PR changes: ${error}`);
@@ -390,8 +414,13 @@ export class PullRequestAutomator {
   /**
    * Generate comprehensive PR description using templates
    */
-  private async generatePRDescription(analysis: PRAnalysis, templateName?: string): Promise<string> {
-    const template = templateName ? this.prTemplates.get(templateName) : this.selectBestTemplate(analysis);
+  private async generatePRDescription(
+    analysis: PRAnalysis,
+    templateName?: string,
+  ): Promise<string> {
+    const template = templateName
+      ? this.prTemplates.get(templateName)
+      : this.selectBestTemplate(analysis);
     if (!template) {
       return this.generateBasicDescription(analysis);
     }
@@ -399,13 +428,31 @@ export class PullRequestAutomator {
     let description = template.content;
 
     // Replace template variables
-    description = description.replace(/\{\{changeType\}\}/g, analysis.changeType);
-    description = description.replace(/\{\{filesChanged\}\}/g, analysis.filesChanged.length.toString());
-    description = description.replace(/\{\{linesChanged\}\}/g, (analysis.linesAdded + analysis.linesDeleted).toString());
-    description = description.replace(/\{\{complexity\}\}/g, analysis.complexity.toString());
+    description = description.replace(
+      /\{\{changeType\}\}/g,
+      analysis.changeType,
+    );
+    description = description.replace(
+      /\{\{filesChanged\}\}/g,
+      analysis.filesChanged.length.toString(),
+    );
+    description = description.replace(
+      /\{\{linesChanged\}\}/g,
+      (analysis.linesAdded + analysis.linesDeleted).toString(),
+    );
+    description = description.replace(
+      /\{\{complexity\}\}/g,
+      analysis.complexity.toString(),
+    );
     description = description.replace(/\{\{riskLevel\}\}/g, analysis.riskLevel);
-    description = description.replace(/\{\{estimatedReviewTime\}\}/g, `${analysis.estimatedReviewTime} minutes`);
-    description = description.replace(/\{\{affectedComponents\}\}/g, analysis.affectedComponents.join(', ') || 'None');
+    description = description.replace(
+      /\{\{estimatedReviewTime\}\}/g,
+      `${analysis.estimatedReviewTime} minutes`,
+    );
+    description = description.replace(
+      /\{\{affectedComponents\}\}/g,
+      analysis.affectedComponents.join(', ') || 'None',
+    );
 
     // Add test coverage information
     if (analysis.testCoverage) {
@@ -414,19 +461,23 @@ export class PullRequestAutomator {
 
     // Add warnings for high-risk changes
     if (analysis.riskLevel === 'high') {
-      description += '\n\n⚠️ **High Risk Changes** - This PR contains changes that require careful review.';
+      description +=
+        '\n\n⚠️ **High Risk Changes** - This PR contains changes that require careful review.';
     }
 
     if (analysis.hasBreakingChanges) {
-      description += '\n\n🚨 **Breaking Changes** - This PR introduces breaking changes. Please review the migration guide.';
+      description +=
+        '\n\n🚨 **Breaking Changes** - This PR introduces breaking changes. Please review the migration guide.';
     }
 
     if (analysis.hasDatabaseChanges) {
-      description += '\n\n🗄️ **Database Changes** - This PR includes database schema modifications.';
+      description +=
+        '\n\n🗄️ **Database Changes** - This PR includes database schema modifications.';
     }
 
     if (analysis.hasSecurityChanges) {
-      description += '\n\n🔐 **Security Changes** - This PR modifies security-related code.';
+      description +=
+        '\n\n🔐 **Security Changes** - This PR modifies security-related code.';
     }
 
     return description;
@@ -441,23 +492,39 @@ export class PullRequestAutomator {
       currentStage: 'created',
       stages: [
         { name: 'created', status: 'completed', completedAt: new Date() },
-        { name: 'ci_checks', status: 'pending', requirements: ['build', 'test', 'lint'] },
-        { name: 'review', status: 'pending', requirements: [`${this.config.requiredReviewers} reviewers`] },
-        { name: 'approval', status: 'pending', requirements: ['all checks pass', 'conflicts resolved'] },
-        { name: 'merge', status: 'pending', requirements: ['auto-merge enabled'] }
+        {
+          name: 'ci_checks',
+          status: 'pending',
+          requirements: ['build', 'test', 'lint'],
+        },
+        {
+          name: 'review',
+          status: 'pending',
+          requirements: [`${this.config.requiredReviewers} reviewers`],
+        },
+        {
+          name: 'approval',
+          status: 'pending',
+          requirements: ['all checks pass', 'conflicts resolved'],
+        },
+        {
+          name: 'merge',
+          status: 'pending',
+          requirements: ['auto-merge enabled'],
+        },
       ],
       automation: {
         autoAssignReviewers: true,
         autoLabelBasedOnChanges: true,
         autoRequestChangesOnFailure: true,
-        autoMergeWhenReady: !!pr.autoMergeConfig
+        autoMergeWhenReady: !!pr.autoMergeConfig,
       },
       notifications: {
         onStatusChange: true,
         onReviewRequired: true,
         onChecksFailure: true,
-        onReadyToMerge: true
-      }
+        onReadyToMerge: true,
+      },
     };
 
     this.activeWorkflows.set(pr.id, workflow);
@@ -466,7 +533,10 @@ export class PullRequestAutomator {
   /**
    * Platform-specific implementations
    */
-  private async executeGitPlatformCommand(command: string, data: any): Promise<any> {
+  private async executeGitPlatformCommand(
+    command: string,
+    data: any,
+  ): Promise<any> {
     // This would integrate with GitHub API, GitLab API, etc.
     // For now, return mock data
     if (command === 'create-pr') {
@@ -484,10 +554,19 @@ export class PullRequestAutomator {
     // Mock implementation - would update via git platform API
   }
 
-  private calculatePRStatus(pr: PullRequest, gateResults: Map<string, boolean>): PRStatus {
-    const allGatesPassed = Array.from(gateResults.values()).every(result => result);
-    const hasApprovals = pr.reviewers.some(r => r.status === ReviewStatus.APPROVED);
-    const hasRequestedChanges = pr.reviewers.some(r => r.status === ReviewStatus.CHANGES_REQUESTED);
+  private calculatePRStatus(
+    pr: PullRequest,
+    gateResults: Map<string, boolean>,
+  ): PRStatus {
+    const allGatesPassed = Array.from(gateResults.values()).every(
+      (result) => result,
+    );
+    const hasApprovals = pr.reviewers.some(
+      (r) => r.status === ReviewStatus.APPROVED,
+    );
+    const hasRequestedChanges = pr.reviewers.some(
+      (r) => r.status === ReviewStatus.CHANGES_REQUESTED,
+    );
 
     if (hasRequestedChanges) return PRStatus.CHANGES_REQUESTED;
     if (!allGatesPassed) return PRStatus.CHECKS_FAILED;
@@ -496,7 +575,10 @@ export class PullRequestAutomator {
     return PRStatus.OPEN;
   }
 
-  private async handleStatusChange(pr: PullRequest, newStatus: PRStatus): Promise<void> {
+  private async handleStatusChange(
+    pr: PullRequest,
+    newStatus: PRStatus,
+  ): Promise<void> {
     const workflow = this.activeWorkflows.get(pr.id);
     if (!workflow) return;
 
@@ -517,8 +599,12 @@ export class PullRequestAutomator {
     await this.executeAutomationRules(pr, newStatus);
   }
 
-  private updateWorkflowStage(workflow: PRWorkflow, stageName: string, status: string): void {
-    const stage = workflow.stages.find(s => s.name === stageName);
+  private updateWorkflowStage(
+    workflow: PRWorkflow,
+    stageName: string,
+    status: string,
+  ): void {
+    const stage = workflow.stages.find((s) => s.name === stageName);
     if (stage) {
       stage.status = status as any;
       if (status === 'completed') {
@@ -527,7 +613,10 @@ export class PullRequestAutomator {
     }
   }
 
-  private async executeAutomationRules(pr: PullRequest, status: PRStatus): Promise<void> {
+  private async executeAutomationRules(
+    pr: PullRequest,
+    status: PRStatus,
+  ): Promise<void> {
     for (const [ruleId, rule] of this.automationRules) {
       if (rule.trigger === status && this.evaluateRuleCondition(pr, rule)) {
         await this.executeRuleAction(pr, rule);
@@ -535,27 +624,39 @@ export class PullRequestAutomator {
     }
   }
 
-  private evaluateRuleCondition(pr: PullRequest, rule: PRAutomationRule): boolean {
+  private evaluateRuleCondition(
+    pr: PullRequest,
+    rule: PRAutomationRule,
+  ): boolean {
     // Evaluate rule conditions (mock implementation)
     return true;
   }
 
-  private async executeRuleAction(pr: PullRequest, rule: PRAutomationRule): Promise<void> {
+  private async executeRuleAction(
+    pr: PullRequest,
+    rule: PRAutomationRule,
+  ): Promise<void> {
     // Execute rule actions (mock implementation)
   }
 
-  private async sendPRNotifications(pr: PullRequest, event: string): Promise<void> {
+  private async sendPRNotifications(
+    pr: PullRequest,
+    event: string,
+  ): Promise<void> {
     // Mock implementation for sending notifications
   }
 
-  private async sendMergeFailureNotification(pr: PullRequest, reasons: string[]): Promise<void> {
+  private async sendMergeFailureNotification(
+    pr: PullRequest,
+    reasons: string[],
+  ): Promise<void> {
     // Mock implementation for merge failure notifications
   }
 
   private getCurrentBranch(): string {
     return execSync('git rev-parse --abbrev-ref HEAD', {
       cwd: this.workingDir,
-      encoding: 'utf-8'
+      encoding: 'utf-8',
     }).trim();
   }
 
@@ -563,7 +664,7 @@ export class PullRequestAutomator {
     try {
       return execSync('git config user.name', {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       }).trim();
     } catch {
       return 'Unknown User';
@@ -583,9 +684,15 @@ export class PullRequestAutomator {
       requireReviewApproval: true,
       minimumReviewers: this.config.requiredReviewers,
       allowedMergeHours: { start: 9, end: 17 },
-      allowedMergeDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      allowedMergeDays: [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+      ],
       exemptUsers: this.config.exemptUsers || [],
-      safetyDelay: 300 // 5 minutes
+      safetyDelay: 300, // 5 minutes
     };
   }
 
@@ -600,7 +707,7 @@ export class PullRequestAutomator {
       averageReviewTime: 0,
       mergeThroughput: 0,
       qualityScore: 0,
-      automationEfficiency: 0
+      automationEfficiency: 0,
     };
   }
 
@@ -609,24 +716,37 @@ export class PullRequestAutomator {
     return pr.metrics;
   }
 
-  private async validateGate(pr: PullRequest, gate: QualityGate): Promise<boolean> {
+  private async validateGate(
+    pr: PullRequest,
+    gate: QualityGate,
+  ): Promise<boolean> {
     // Mock implementation - would validate specific gate requirements
     return Math.random() > 0.2; // 80% pass rate
   }
 
-  private async performPreMergeValidation(pr: PullRequest): Promise<PRValidationResult> {
+  private async performPreMergeValidation(
+    pr: PullRequest,
+  ): Promise<PRValidationResult> {
     const reasons: string[] = [];
 
     // Check if all required checks pass
-    const failedChecks = pr.checks.filter(c => c.status === CheckStatus.FAILURE);
+    const failedChecks = pr.checks.filter(
+      (c) => c.status === CheckStatus.FAILURE,
+    );
     if (failedChecks.length > 0) {
-      reasons.push(`Failed checks: ${failedChecks.map(c => c.name).join(', ')}`);
+      reasons.push(
+        `Failed checks: ${failedChecks.map((c) => c.name).join(', ')}`,
+      );
     }
 
     // Check for required approvals
-    const approvedReviewers = pr.reviewers.filter(r => r.status === ReviewStatus.APPROVED);
+    const approvedReviewers = pr.reviewers.filter(
+      (r) => r.status === ReviewStatus.APPROVED,
+    );
     if (approvedReviewers.length < this.config.requiredReviewers) {
-      reasons.push(`Insufficient approvals: ${approvedReviewers.length}/${this.config.requiredReviewers}`);
+      reasons.push(
+        `Insufficient approvals: ${approvedReviewers.length}/${this.config.requiredReviewers}`,
+      );
     }
 
     // Check for conflicts
@@ -637,21 +757,23 @@ export class PullRequestAutomator {
 
     return {
       isValid: reasons.length === 0,
-      reasons
+      reasons,
     };
   }
 
-  private async executeMerge(pr: PullRequest): Promise<{ success: boolean; commitSha?: string; error?: string }> {
+  private async executeMerge(
+    pr: PullRequest,
+  ): Promise<{ success: boolean; commitSha?: string; error?: string }> {
     try {
       const mergeCommand = this.buildMergeCommand(pr);
       const result = execSync(mergeCommand, {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
 
       const commitSha = execSync('git rev-parse HEAD', {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       }).trim();
 
       return { success: true, commitSha };
@@ -694,10 +816,13 @@ export class PullRequestAutomator {
 
   private async checkForConflicts(pr: PullRequest): Promise<boolean> {
     try {
-      execSync(`git merge-tree $(git merge-base ${pr.targetBranch} ${pr.sourceBranch}) ${pr.targetBranch} ${pr.sourceBranch}`, {
-        cwd: this.workingDir,
-        encoding: 'utf-8'
-      });
+      execSync(
+        `git merge-tree $(git merge-base ${pr.targetBranch} ${pr.sourceBranch}) ${pr.targetBranch} ${pr.sourceBranch}`,
+        {
+          cwd: this.workingDir,
+          encoding: 'utf-8',
+        },
+      );
       return false; // No conflicts
     } catch {
       return true; // Conflicts detected
@@ -713,17 +838,22 @@ export class PullRequestAutomator {
   }
 
   // Analysis and suggestion methods
-  private parseDiffOutput(output: string): Array<{ status: string; file: string }> {
+  private parseDiffOutput(
+    output: string,
+  ): Array<{ status: string; file: string }> {
     return output
       .split('\n')
-      .filter(line => line.trim())
-      .map(line => {
+      .filter((line) => line.trim())
+      .map((line) => {
         const [status, file] = line.split('\t');
         return { status, file };
       });
   }
 
-  private async calculateLinesChanged(sourceBranch: string, targetBranch: string): Promise<{
+  private async calculateLinesChanged(
+    sourceBranch: string,
+    targetBranch: string,
+  ): Promise<{
     added: number;
     deleted: number;
     modified: number;
@@ -731,11 +861,12 @@ export class PullRequestAutomator {
     try {
       const diffStat = execSync(
         `git diff ${targetBranch}...${sourceBranch} --numstat`,
-        { cwd: this.workingDir, encoding: 'utf-8' }
+        { cwd: this.workingDir, encoding: 'utf-8' },
       );
 
-      let added = 0, deleted = 0;
-      diffStat.split('\n').forEach(line => {
+      let added = 0,
+        deleted = 0;
+      diffStat.split('\n').forEach((line) => {
         if (line.trim()) {
           const [addedStr, deletedStr] = line.split('\t');
           added += parseInt(addedStr) || 0;
@@ -749,10 +880,12 @@ export class PullRequestAutomator {
     }
   }
 
-  private calculateChangeComplexity(changes: Array<{ status: string; file: string }>): number {
+  private calculateChangeComplexity(
+    changes: Array<{ status: string; file: string }>,
+  ): number {
     let complexity = 0;
 
-    changes.forEach(change => {
+    changes.forEach((change) => {
       // Different file types have different complexity weights
       if (change.file.match(/\.(ts|js|py|java|cpp|c)$/)) complexity += 3;
       else if (change.file.match(/\.(json|yaml|yml|xml)$/)) complexity += 1;
@@ -767,21 +900,36 @@ export class PullRequestAutomator {
     return Math.round(complexity);
   }
 
-  private detectChangeType(changes: Array<{ status: string; file: string }>): string {
-    const testFiles = changes.filter(c => c.file.includes('test') || c.file.includes('spec')).length;
-    const docFiles = changes.filter(c => c.file.match(/\.(md|rst|txt)$/)).length;
-    const configFiles = changes.filter(c => c.file.match(/\.(json|yaml|yml|toml|ini)$/)).length;
-    const codeFiles = changes.filter(c => c.file.match(/\.(ts|js|py|java|cpp|c)$/)).length;
+  private detectChangeType(
+    changes: Array<{ status: string; file: string }>,
+  ): string {
+    const testFiles = changes.filter(
+      (c) => c.file.includes('test') || c.file.includes('spec'),
+    ).length;
+    const docFiles = changes.filter((c) =>
+      c.file.match(/\.(md|rst|txt)$/),
+    ).length;
+    const configFiles = changes.filter((c) =>
+      c.file.match(/\.(json|yaml|yml|toml|ini)$/),
+    ).length;
+    const codeFiles = changes.filter((c) =>
+      c.file.match(/\.(ts|js|py|java|cpp|c)$/),
+    ).length;
 
     if (testFiles > 0 && codeFiles === 0) return 'test';
     if (docFiles > 0 && codeFiles === 0) return 'docs';
     if (configFiles > 0 && codeFiles === 0) return 'chore';
-    if (changes.some(c => c.status === 'A')) return 'feature';
-    if (changes.some(c => c.file.includes('bug') || c.file.includes('fix'))) return 'bugfix';
+    if (changes.some((c) => c.status === 'A')) return 'feature';
+    if (changes.some((c) => c.file.includes('bug') || c.file.includes('fix')))
+      return 'bugfix';
     return codeFiles > 0 ? 'feature' : 'chore';
   }
 
-  private assessRiskLevel(changes: Array<{ status: string; file: string }>, linesChanged: any, complexity: number): 'low' | 'medium' | 'high' {
+  private assessRiskLevel(
+    changes: Array<{ status: string; file: string }>,
+    linesChanged: any,
+    complexity: number,
+  ): 'low' | 'medium' | 'high' {
     const totalLines = linesChanged.added + linesChanged.deleted;
 
     if (totalLines > 1000 || complexity > 50) return 'high';
@@ -792,7 +940,7 @@ export class PullRequestAutomator {
   private identifyAffectedComponents(files: string[]): string[] {
     const components = new Set<string>();
 
-    files.forEach(file => {
+    files.forEach((file) => {
       const parts = file.split('/');
       if (parts.length > 1) {
         components.add(parts[1]); // Second level directory as component
@@ -802,43 +950,56 @@ export class PullRequestAutomator {
     return Array.from(components);
   }
 
-  private async analyzeTestCoverage(files: string[]): Promise<{ percentage: number; newTests: number } | null> {
+  private async analyzeTestCoverage(
+    files: string[],
+  ): Promise<{ percentage: number; newTests: number } | null> {
     // Mock implementation - would analyze test coverage
     return {
       percentage: Math.floor(Math.random() * 40) + 60, // 60-100%
-      newTests: files.filter(f => f.includes('test') || f.includes('spec')).length
+      newTests: files.filter((f) => f.includes('test') || f.includes('spec'))
+        .length,
     };
   }
 
-  private detectBreakingChanges(changes: Array<{ status: string; file: string }>): boolean {
-    return changes.some(change =>
-      change.file.includes('api') ||
-      change.file.includes('interface') ||
-      change.status === 'D' // Deletions might be breaking
+  private detectBreakingChanges(
+    changes: Array<{ status: string; file: string }>,
+  ): boolean {
+    return changes.some(
+      (change) =>
+        change.file.includes('api') ||
+        change.file.includes('interface') ||
+        change.status === 'D', // Deletions might be breaking
     );
   }
 
   private detectDatabaseChanges(files: string[]): boolean {
-    return files.some(file =>
-      file.includes('migration') ||
-      file.includes('schema') ||
-      file.includes('database')
+    return files.some(
+      (file) =>
+        file.includes('migration') ||
+        file.includes('schema') ||
+        file.includes('database'),
     );
   }
 
   private detectSecurityChanges(files: string[]): boolean {
-    return files.some(file =>
-      file.includes('auth') ||
-      file.includes('security') ||
-      file.includes('crypto')
+    return files.some(
+      (file) =>
+        file.includes('auth') ||
+        file.includes('security') ||
+        file.includes('crypto'),
     );
   }
 
-  private estimateReviewTime(linesChanged: any, complexity: number, riskLevel: string): number {
+  private estimateReviewTime(
+    linesChanged: any,
+    complexity: number,
+    riskLevel: string,
+  ): number {
     const baseTime = 15; // 15 minutes base
     const linesTime = (linesChanged.added + linesChanged.deleted) * 0.1;
     const complexityTime = complexity * 0.5;
-    const riskMultiplier = riskLevel === 'high' ? 1.5 : riskLevel === 'medium' ? 1.2 : 1;
+    const riskMultiplier =
+      riskLevel === 'high' ? 1.5 : riskLevel === 'medium' ? 1.2 : 1;
 
     return Math.round((baseTime + linesTime + complexityTime) * riskMultiplier);
   }
@@ -847,7 +1008,7 @@ export class PullRequestAutomator {
     try {
       return execSync('git log -1 --pretty=%B', {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       }).trim();
     } catch {
       return 'Update code';
@@ -861,8 +1022,10 @@ export class PullRequestAutomator {
 
   private selectBestTemplate(analysis: PRAnalysis): PRTemplate | undefined {
     // Select template based on change analysis
-    if (analysis.hasBreakingChanges) return this.prTemplates.get('breaking-change');
-    if (analysis.changeType === 'feature') return this.prTemplates.get('feature');
+    if (analysis.hasBreakingChanges)
+      return this.prTemplates.get('breaking-change');
+    if (analysis.changeType === 'feature')
+      return this.prTemplates.get('feature');
     if (analysis.changeType === 'bugfix') return this.prTemplates.get('bugfix');
     return this.prTemplates.get('default');
   }
@@ -882,7 +1045,10 @@ ${analysis.affectedComponents.join(', ') || 'None'}
 ${analysis.estimatedReviewTime} minutes`;
   }
 
-  private generateLabels(analysis: PRAnalysis, existingLabels: string[]): string[] {
+  private generateLabels(
+    analysis: PRAnalysis,
+    existingLabels: string[],
+  ): string[] {
     const labels = [...existingLabels];
 
     // Add labels based on analysis
@@ -891,7 +1057,9 @@ ${analysis.estimatedReviewTime} minutes`;
     if (analysis.hasDatabaseChanges) labels.push('database');
     if (analysis.hasSecurityChanges) labels.push('security');
 
-    labels.push(`size-${this.categorizeSize(analysis.linesAdded + analysis.linesDeleted)}`);
+    labels.push(
+      `size-${this.categorizeSize(analysis.linesAdded + analysis.linesDeleted)}`,
+    );
     labels.push(`complexity-${this.categorizeComplexity(analysis.complexity)}`);
 
     return [...new Set(labels)]; // Remove duplicates
@@ -931,7 +1099,9 @@ ${analysis.estimatedReviewTime} minutes`;
 
   // Metrics and analysis methods
   private calculateAverageTimeToMerge(prs: PullRequest[]): number {
-    const mergedPRs = prs.filter(pr => pr.status === PRStatus.MERGED && pr.mergedAt);
+    const mergedPRs = prs.filter(
+      (pr) => pr.status === PRStatus.MERGED && pr.mergedAt,
+    );
     if (mergedPRs.length === 0) return 0;
 
     const totalTime = mergedPRs.reduce((acc, pr) => {
@@ -948,7 +1118,7 @@ ${analysis.estimatedReviewTime} minutes`;
   }
 
   private calculateMergeThroughput(prs: PullRequest[]): number {
-    const mergedThisWeek = prs.filter(pr => {
+    const mergedThisWeek = prs.filter((pr) => {
       if (!pr.mergedAt) return false;
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       return pr.mergedAt > weekAgo;
@@ -972,7 +1142,7 @@ ${analysis.estimatedReviewTime} minutes`;
     return {
       weeklyTrend: 'increasing',
       averageSize: 'decreasing',
-      qualityTrend: 'stable'
+      qualityTrend: 'stable',
     };
   }
 
@@ -980,19 +1150,27 @@ ${analysis.estimatedReviewTime} minutes`;
     return {
       topContributors: ['user1', 'user2', 'user3'],
       bottleneckComponents: ['frontend', 'api'],
-      peakHours: [10, 14, 16]
+      peakHours: [10, 14, 16],
     };
   }
 
-  private generateRecommendations(prs: PullRequest[], summary: PRMetrics, trends: any): string[] {
+  private generateRecommendations(
+    prs: PullRequest[],
+    summary: PRMetrics,
+    trends: any,
+  ): string[] {
     const recommendations: string[] = [];
 
     if (summary.averageTimeToMerge > 48) {
-      recommendations.push('Consider reducing review requirements or adding more reviewers');
+      recommendations.push(
+        'Consider reducing review requirements or adding more reviewers',
+      );
     }
 
     if (summary.qualityScore < 80) {
-      recommendations.push('Implement stricter quality gates to improve code quality');
+      recommendations.push(
+        'Implement stricter quality gates to improve code quality',
+      );
     }
 
     if (summary.automationEfficiency < 85) {
@@ -1003,21 +1181,27 @@ ${analysis.estimatedReviewTime} minutes`;
   }
 
   // Reviewer suggestion methods
-  private async getCodeOwners(files: string[]): Promise<Array<{
-    username: string;
-    files: string[];
-    expertise: string[];
-  }>> {
+  private async getCodeOwners(files: string[]): Promise<
+    Array<{
+      username: string;
+      files: string[];
+      expertise: string[];
+    }>
+  > {
     // Mock implementation - would read CODEOWNERS file
     return [];
   }
 
-  private async suggestByExpertise(analysis: PRAnalysis): Promise<ReviewerSuggestion[]> {
+  private async suggestByExpertise(
+    analysis: PRAnalysis,
+  ): Promise<ReviewerSuggestion[]> {
     // Mock implementation
     return [];
   }
 
-  private async suggestByHistory(analysis: PRAnalysis): Promise<ReviewerSuggestion[]> {
+  private async suggestByHistory(
+    analysis: PRAnalysis,
+  ): Promise<ReviewerSuggestion[]> {
     // Mock implementation
     return [];
   }
@@ -1057,7 +1241,7 @@ ${analysis.estimatedReviewTime} minutes`;
 - [ ] Self-review completed
 - [ ] Comments added for hard-to-understand areas
 - [ ] Documentation updated
-- [ ] No new warnings introduced`
+- [ ] No new warnings introduced`,
     });
 
     this.prTemplates.set('feature', {
@@ -1084,7 +1268,7 @@ ${analysis.estimatedReviewTime} minutes`;
 ## Documentation
 - [ ] API documentation updated
 - [ ] User documentation updated
-- [ ] Migration guide (if needed)`
+- [ ] Migration guide (if needed)`,
     });
 
     this.prTemplates.set('bugfix', {
@@ -1111,7 +1295,7 @@ ${analysis.estimatedReviewTime} minutes`;
 ## Impact
 - [ ] No breaking changes
 - [ ] Backward compatible
-- [ ] Migration required: No`
+- [ ] Migration required: No`,
     });
 
     this.prTemplates.set('breaking-change', {
@@ -1142,7 +1326,7 @@ ${analysis.estimatedReviewTime} minutes`;
 ## Communication Plan
 - [ ] Team notified
 - [ ] Documentation updated
-- [ ] Release notes prepared`
+- [ ] Release notes prepared`,
     });
   }
 
@@ -1154,7 +1338,7 @@ ${analysis.estimatedReviewTime} minutes`;
       trigger: PRStatus.OPEN,
       conditions: ['pr.created'],
       actions: ['add-labels-based-on-analysis'],
-      enabled: true
+      enabled: true,
     });
 
     this.automationRules.set('assign-reviewers', {
@@ -1164,7 +1348,7 @@ ${analysis.estimatedReviewTime} minutes`;
       trigger: PRStatus.OPEN,
       conditions: ['pr.created', 'auto-assign-enabled'],
       actions: ['assign-code-owners', 'assign-by-expertise'],
-      enabled: true
+      enabled: true,
     });
 
     this.automationRules.set('notify-stakeholders', {
@@ -1174,7 +1358,7 @@ ${analysis.estimatedReviewTime} minutes`;
       trigger: PRStatus.APPROVED,
       conditions: ['pr.approved'],
       actions: ['notify-product-team', 'notify-qa-team'],
-      enabled: true
+      enabled: true,
     });
   }
 
@@ -1186,7 +1370,7 @@ ${analysis.estimatedReviewTime} minutes`;
       type: 'check',
       required: true,
       url: '/checks/build',
-      timeout: 600 // 10 minutes
+      timeout: 600, // 10 minutes
     });
 
     this.qualityGates.set('tests', {
@@ -1196,7 +1380,7 @@ ${analysis.estimatedReviewTime} minutes`;
       type: 'check',
       required: true,
       url: '/checks/tests',
-      timeout: 900 // 15 minutes
+      timeout: 900, // 15 minutes
     });
 
     this.qualityGates.set('coverage', {
@@ -1206,7 +1390,7 @@ ${analysis.estimatedReviewTime} minutes`;
       type: 'coverage',
       required: true,
       threshold: 80,
-      url: '/checks/coverage'
+      url: '/checks/coverage',
     });
 
     this.qualityGates.set('security', {
@@ -1216,7 +1400,7 @@ ${analysis.estimatedReviewTime} minutes`;
       type: 'security',
       required: true,
       url: '/checks/security',
-      timeout: 300 // 5 minutes
+      timeout: 300, // 5 minutes
     });
 
     this.qualityGates.set('lint', {
@@ -1226,7 +1410,7 @@ ${analysis.estimatedReviewTime} minutes`;
       type: 'quality',
       required: true,
       url: '/checks/lint',
-      timeout: 120 // 2 minutes
+      timeout: 120, // 2 minutes
     });
   }
 }

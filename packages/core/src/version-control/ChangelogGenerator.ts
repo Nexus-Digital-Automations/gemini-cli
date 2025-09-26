@@ -23,7 +23,7 @@ import {
   BreakingChange,
   MigrationGuide,
   ChangelogAnalytics,
-  ReleaseImpact
+  ReleaseImpact,
 } from './types.js';
 
 /**
@@ -60,17 +60,19 @@ export class ChangelogGenerator {
   /**
    * Generate comprehensive changelog from git history
    */
-  async generateChangelog(options: {
-    fromVersion?: string;
-    toVersion?: string;
-    format?: ChangelogFormat;
-    template?: string;
-    includeUnreleased?: boolean;
-    groupByType?: boolean;
-    includeBreakingChanges?: boolean;
-    includeContributors?: boolean;
-    outputPath?: string;
-  } = {}): Promise<{
+  async generateChangelog(
+    options: {
+      fromVersion?: string;
+      toVersion?: string;
+      format?: ChangelogFormat;
+      template?: string;
+      includeUnreleased?: boolean;
+      groupByType?: boolean;
+      includeBreakingChanges?: boolean;
+      includeContributors?: boolean;
+      outputPath?: string;
+    } = {},
+  ): Promise<{
     changelog: string;
     releaseNotes: ReleaseNotes;
     metrics: ReleaseMetrics;
@@ -80,7 +82,7 @@ export class ChangelogGenerator {
       // Determine version range
       const { fromVersion, toVersion } = await this.resolveVersionRange(
         options.fromVersion,
-        options.toVersion
+        options.toVersion,
       );
 
       // Parse commits in range
@@ -96,7 +98,11 @@ export class ChangelogGenerator {
       const metrics = this.calculateReleaseMetrics(entries, commits);
 
       // Generate analytics
-      const analytics = await this.generateAnalytics(entries, releaseNotes, metrics);
+      const analytics = await this.generateAnalytics(
+        entries,
+        releaseNotes,
+        metrics,
+      );
 
       // Generate changelog content
       const format = options.format || this.config.defaultFormat;
@@ -106,7 +112,7 @@ export class ChangelogGenerator {
         releaseNotes,
         format,
         template,
-        options
+        options,
       );
 
       // Save to file if path provided
@@ -128,9 +134,10 @@ export class ChangelogGenerator {
    */
   async generateReleaseNotes(
     entries: ChangelogEntry[],
-    version?: string
+    version?: string,
   ): Promise<ReleaseNotes> {
-    const releaseVersion = version || await this.calculateNextVersion(entries);
+    const releaseVersion =
+      version || (await this.calculateNextVersion(entries));
     const previousVersion = await this.getPreviousVersion(releaseVersion);
 
     // Group entries by type
@@ -140,9 +147,10 @@ export class ChangelogGenerator {
     const breakingChanges = this.extractBreakingChanges(entries);
 
     // Generate migration guide if needed
-    const migrationGuide = breakingChanges.length > 0
-      ? await this.generateMigrationGuide(breakingChanges)
-      : null;
+    const migrationGuide =
+      breakingChanges.length > 0
+        ? await this.generateMigrationGuide(breakingChanges)
+        : null;
 
     // Get contributor information
     const contributors = await this.getContributors(entries);
@@ -167,19 +175,24 @@ export class ChangelogGenerator {
         totalChanges: entries.length,
         commitCount: entries.reduce((acc, e) => acc + e.commits.length, 0),
         contributorCount: contributors.length,
-        filesChanged: [...new Set(entries.flatMap(e => e.files))].length,
-        linesChanged: entries.reduce((acc, e) => acc + (e.linesAdded + e.linesDeleted), 0)
+        filesChanged: [...new Set(entries.flatMap((e) => e.files))].length,
+        linesChanged: entries.reduce(
+          (acc, e) => acc + (e.linesAdded + e.linesDeleted),
+          0,
+        ),
       },
       releaseType: this.determineReleaseType(entries, breakingChanges),
       tags: this.generateReleaseTags(entries, impact),
-      recommendations: this.generateReleaseRecommendations(entries, impact)
+      recommendations: this.generateReleaseRecommendations(entries, impact),
     };
   }
 
   /**
    * Analyze commits and create structured changelog entries
    */
-  private async analyzeCommits(commits: CommitMessage[]): Promise<ChangelogEntry[]> {
+  private async analyzeCommits(
+    commits: CommitMessage[],
+  ): Promise<ChangelogEntry[]> {
     const entries: ChangelogEntry[] = [];
     const processedCommits = new Set<string>();
 
@@ -192,13 +205,16 @@ export class ChangelogGenerator {
       }
 
       // Skip internal/maintenance commits unless configured
-      if (this.isInternalCommit(commit) && !this.config.includeInternalCommits) {
+      if (
+        this.isInternalCommit(commit) &&
+        !this.config.includeInternalCommits
+      ) {
         continue;
       }
 
       // Find related commits (fixes, reverts, etc.)
       const relatedCommits = this.findRelatedCommits(commit, commits);
-      relatedCommits.forEach(c => processedCommits.add(c.hash));
+      relatedCommits.forEach((c) => processedCommits.add(c.hash));
 
       // Get file changes for this commit
       const fileChanges = await this.getCommitFileChanges(commit.hash);
@@ -229,8 +245,8 @@ export class ChangelogGenerator {
           complexity: impact.complexity,
           riskLevel: impact.riskLevel,
           testCoverage: impact.testCoverage,
-          affectedModules: impact.affectedModules
-        }
+          affectedModules: impact.affectedModules,
+        },
       };
 
       entries.push(entry);
@@ -240,7 +256,10 @@ export class ChangelogGenerator {
     // Sort entries by significance and date
     return entries.sort((a, b) => {
       if (a.significance !== b.significance) {
-        return this.getSignificanceWeight(b.significance) - this.getSignificanceWeight(a.significance);
+        return (
+          this.getSignificanceWeight(b.significance) -
+          this.getSignificanceWeight(a.significance)
+        );
       }
       return b.date.getTime() - a.date.getTime();
     });
@@ -254,9 +273,10 @@ export class ChangelogGenerator {
     releaseNotes: ReleaseNotes,
     format: ChangelogFormat,
     templateName: string,
-    options: any
+    options: any,
   ): Promise<string> {
-    const template = this.templates.get(templateName) || this.templates.get('default')!;
+    const template =
+      this.templates.get(templateName) || this.templates.get('default')!;
 
     switch (format) {
       case ChangelogFormat.MARKDOWN:
@@ -279,7 +299,7 @@ export class ChangelogGenerator {
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
     template: ChangelogTemplate,
-    options: any
+    options: any,
   ): string {
     let content = template.header
       .replace('{{version}}', releaseNotes.version)
@@ -287,7 +307,10 @@ export class ChangelogGenerator {
       .replace('{{summary}}', releaseNotes.summary);
 
     // Add release highlights
-    if (releaseNotes.sections.highlights && releaseNotes.sections.highlights.length > 0) {
+    if (
+      releaseNotes.sections.highlights &&
+      releaseNotes.sections.highlights.length > 0
+    ) {
       content += '\n\n## ✨ Highlights\n\n';
       for (const highlight of releaseNotes.sections.highlights) {
         content += `- **${highlight.title}**: ${highlight.description}\n`;
@@ -327,7 +350,9 @@ export class ChangelogGenerator {
     }
 
     // Group entries by type and render
-    const grouped = options.groupByType ? this.groupEntriesByType(entries) : { all: entries };
+    const grouped = options.groupByType
+      ? this.groupEntriesByType(entries)
+      : { all: entries };
 
     for (const [type, typeEntries] of Object.entries(grouped)) {
       if (typeEntries.length === 0) continue;
@@ -358,14 +383,18 @@ export class ChangelogGenerator {
         content += line + '\n';
 
         // Add description if present and detailed output requested
-        if (entry.description && entry.description !== entry.subject && this.config.includeDescriptions) {
+        if (
+          entry.description &&
+          entry.description !== entry.subject &&
+          this.config.includeDescriptions
+        ) {
           content += `  ${entry.description}\n`;
         }
 
         // Add issue references
         if (entry.references.length > 0) {
           const refs = entry.references
-            .map(ref => `[${ref.type} ${ref.id}](${ref.url})`)
+            .map((ref) => `[${ref.type} ${ref.id}](${ref.url})`)
             .join(', ');
           content += `  References: ${refs}\n`;
         }
@@ -375,7 +404,8 @@ export class ChangelogGenerator {
     // Add contributors section
     if (options.includeContributors && releaseNotes.contributors.length > 0) {
       content += '\n\n## 👥 Contributors\n\n';
-      content += 'Thanks to all the contributors who made this release possible:\n\n';
+      content +=
+        'Thanks to all the contributors who made this release possible:\n\n';
 
       for (const contributor of releaseNotes.contributors) {
         content += `- [@${contributor.username}](${contributor.profileUrl}) (${contributor.contributions} contribution${contributor.contributions !== 1 ? 's' : ''})\n`;
@@ -394,9 +424,11 @@ export class ChangelogGenerator {
     }
 
     // Add footer from template
-    content += '\n\n' + template.footer
-      .replace('{{version}}', releaseNotes.version)
-      .replace('{{date}}', releaseNotes.releaseDate.toISOString());
+    content +=
+      '\n\n' +
+      template.footer
+        .replace('{{version}}', releaseNotes.version)
+        .replace('{{date}}', releaseNotes.releaseDate.toISOString());
 
     return content;
   }
@@ -404,7 +436,11 @@ export class ChangelogGenerator {
   /**
    * Render changelog as JSON
    */
-  private renderJSON(entries: ChangelogEntry[], releaseNotes: ReleaseNotes, options: any): string {
+  private renderJSON(
+    entries: ChangelogEntry[],
+    releaseNotes: ReleaseNotes,
+    options: any,
+  ): string {
     const data = {
       version: releaseNotes.version,
       releaseDate: releaseNotes.releaseDate.toISOString(),
@@ -416,7 +452,7 @@ export class ChangelogGenerator {
       sections: releaseNotes.sections,
       contributors: releaseNotes.contributors,
       metadata: releaseNotes.metadata,
-      entries: entries.map(entry => ({
+      entries: entries.map((entry) => ({
         id: entry.id,
         type: entry.type,
         scope: entry.scope,
@@ -432,8 +468,8 @@ export class ChangelogGenerator {
         linesAdded: entry.linesAdded,
         linesDeleted: entry.linesDeleted,
         tags: entry.tags,
-        metadata: entry.metadata
-      }))
+        metadata: entry.metadata,
+      })),
     };
 
     return JSON.stringify(data, null, 2);
@@ -446,10 +482,15 @@ export class ChangelogGenerator {
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
     template: ChangelogTemplate,
-    options: any
+    options: any,
   ): string {
     // Convert markdown to HTML (simplified implementation)
-    const markdownContent = this.renderMarkdown(entries, releaseNotes, template, options);
+    const markdownContent = this.renderMarkdown(
+      entries,
+      releaseNotes,
+      template,
+      options,
+    );
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -482,7 +523,11 @@ export class ChangelogGenerator {
   /**
    * Render changelog as XML
    */
-  private renderXML(entries: ChangelogEntry[], releaseNotes: ReleaseNotes, options: any): string {
+  private renderXML(
+    entries: ChangelogEntry[],
+    releaseNotes: ReleaseNotes,
+    options: any,
+  ): string {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += `<changelog version="${releaseNotes.version}" date="${releaseNotes.releaseDate.toISOString()}">\n`;
     xml += `  <summary>${this.escapeXml(releaseNotes.summary)}</summary>\n`;
@@ -506,9 +551,11 @@ export class ChangelogGenerator {
     xml += '  <entries>\n';
     for (const entry of entries) {
       xml += `    <entry id="${entry.id}" type="${entry.type}" impact="${entry.impact}">\n`;
-      if (entry.scope) xml += `      <scope>${this.escapeXml(entry.scope)}</scope>\n`;
+      if (entry.scope)
+        xml += `      <scope>${this.escapeXml(entry.scope)}</scope>\n`;
       xml += `      <subject>${this.escapeXml(entry.subject)}</subject>\n`;
-      if (entry.description) xml += `      <description>${this.escapeXml(entry.description)}</description>\n`;
+      if (entry.description)
+        xml += `      <description>${this.escapeXml(entry.description)}</description>\n`;
       xml += `      <author>${this.escapeXml(entry.author)}</author>\n`;
       xml += `      <date>${entry.date.toISOString()}</date>\n`;
       xml += `      <linesAdded>${entry.linesAdded}</linesAdded>\n`;
@@ -529,12 +576,15 @@ export class ChangelogGenerator {
   }
 
   // Utility and helper methods
-  private async resolveVersionRange(fromVersion?: string, toVersion?: string): Promise<{
+  private async resolveVersionRange(
+    fromVersion?: string,
+    toVersion?: string,
+  ): Promise<{
     fromVersion: string;
     toVersion: string;
   }> {
     if (!fromVersion) {
-      fromVersion = await this.getLastReleaseTag() || 'HEAD~100';
+      fromVersion = (await this.getLastReleaseTag()) || 'HEAD~100';
     }
 
     if (!toVersion) {
@@ -544,18 +594,21 @@ export class ChangelogGenerator {
     return { fromVersion, toVersion };
   }
 
-  private async parseCommitsInRange(fromVersion: string, toVersion: string): Promise<CommitMessage[]> {
+  private async parseCommitsInRange(
+    fromVersion: string,
+    toVersion: string,
+  ): Promise<CommitMessage[]> {
     try {
       const gitLog = execSync(
         `git log ${fromVersion}..${toVersion} --pretty=format:"%H|%an|%ae|%ad|%s|%b" --date=iso`,
-        { cwd: this.workingDir, encoding: 'utf-8' }
+        { cwd: this.workingDir, encoding: 'utf-8' },
       );
 
       return gitLog
         .split('\n')
-        .filter(line => line.trim())
-        .map(line => this.parseCommitLine(line))
-        .filter(commit => commit !== null) as CommitMessage[];
+        .filter((line) => line.trim())
+        .map((line) => this.parseCommitLine(line))
+        .filter((commit) => commit !== null) as CommitMessage[];
     } catch (error) {
       throw new Error(`Failed to parse commits: ${error}`);
     }
@@ -572,11 +625,14 @@ export class ChangelogGenerator {
       hash,
       author,
       email,
-      date: new Date(date)
+      date: new Date(date),
     });
   }
 
-  private parseConventionalCommit(message: string, metadata: any): CommitMessage {
+  private parseConventionalCommit(
+    message: string,
+    metadata: any,
+  ): CommitMessage {
     const lines = message.split('\n');
     const header = lines[0];
     const body = lines.slice(2).join('\n').trim();
@@ -614,21 +670,25 @@ export class ChangelogGenerator {
       author: metadata.author,
       email: metadata.email,
       date: metadata.date,
-      breakingChange: isBreaking ? {
-        description: breakingDescription || subject,
-        scope,
-        migration: this.extractMigrationInfo(body)
-      } : undefined,
+      breakingChange: isBreaking
+        ? {
+            description: breakingDescription || subject,
+            scope,
+            migration: this.extractMigrationInfo(body),
+          }
+        : undefined,
       footers: this.parseFooters(body),
-      references: this.parseReferences(message)
+      references: this.parseReferences(message),
     };
   }
 
-  private async calculateNextVersion(entries: ChangelogEntry[]): Promise<string> {
+  private async calculateNextVersion(
+    entries: ChangelogEntry[],
+  ): Promise<string> {
     const currentVersion = await this.getCurrentVersion();
-    const hasBreaking = entries.some(e => e.breakingChange);
-    const hasFeatures = entries.some(e => e.type === 'feat');
-    const hasFixes = entries.some(e => e.type === 'fix');
+    const hasBreaking = entries.some((e) => e.breakingChange);
+    const hasFeatures = entries.some((e) => e.type === 'feat');
+    const hasFixes = entries.some((e) => e.type === 'fix');
 
     if (hasBreaking) {
       return this.incrementVersion(currentVersion, 'major');
@@ -655,14 +715,17 @@ export class ChangelogGenerator {
     try {
       return execSync('git describe --tags --abbrev=0', {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       }).trim();
     } catch {
       return '0.0.0';
     }
   }
 
-  private incrementVersion(version: string, type: 'major' | 'minor' | 'patch'): string {
+  private incrementVersion(
+    version: string,
+    type: 'major' | 'minor' | 'patch',
+  ): string {
     const parts = version.replace(/^v/, '').split('.').map(Number);
     const [major, minor, patch] = parts;
 
@@ -678,42 +741,51 @@ export class ChangelogGenerator {
     }
   }
 
-  private groupEntriesByType(entries: ChangelogEntry[]): Record<string, ChangelogEntry[]> {
-    return entries.reduce((acc, entry) => {
-      if (!acc[entry.type]) acc[entry.type] = [];
-      acc[entry.type].push(entry);
-      return acc;
-    }, {} as Record<string, ChangelogEntry[]>);
+  private groupEntriesByType(
+    entries: ChangelogEntry[],
+  ): Record<string, ChangelogEntry[]> {
+    return entries.reduce(
+      (acc, entry) => {
+        if (!acc[entry.type]) acc[entry.type] = [];
+        acc[entry.type].push(entry);
+        return acc;
+      },
+      {} as Record<string, ChangelogEntry[]>,
+    );
   }
 
   private extractBreakingChanges(entries: ChangelogEntry[]): BreakingChange[] {
     return entries
-      .filter(e => e.breakingChange)
-      .map(e => ({
+      .filter((e) => e.breakingChange)
+      .map((e) => ({
         description: e.breakingChange!.description,
         scope: e.breakingChange!.scope,
         migration: e.breakingChange!.migration,
         migrationGuide: e.breakingChange!.migration,
         affectedAPIs: [], // TODO: Extract from files or analysis
-        commit: e.id
+        commit: e.id,
       }))
       .filter(Boolean);
   }
 
-  private async generateMigrationGuide(breakingChanges: BreakingChange[]): Promise<MigrationGuide> {
+  private async generateMigrationGuide(
+    breakingChanges: BreakingChange[],
+  ): Promise<MigrationGuide> {
     const steps = breakingChanges.map((change, index) => ({
       title: `Update ${change.scope || 'affected code'}`,
       description: change.migration || change.description,
       order: index + 1,
-      codeExample: this.generateCodeExample(change)
+      codeExample: this.generateCodeExample(change),
     }));
 
     return {
-      overview: 'This release contains breaking changes that require code updates.',
+      overview:
+        'This release contains breaking changes that require code updates.',
       steps,
       estimatedTime: steps.length * 15, // 15 minutes per step
       automationAvailable: false,
-      rollbackInstructions: 'Revert to the previous version if issues occur during migration.'
+      rollbackInstructions:
+        'Revert to the previous version if issues occur during migration.',
     };
   }
 
@@ -722,11 +794,13 @@ export class ChangelogGenerator {
     return {
       language: 'typescript',
       before: '// Old API usage',
-      after: '// New API usage'
+      after: '// New API usage',
     };
   }
 
-  private async getContributors(entries: ChangelogEntry[]): Promise<ContributorInfo[]> {
+  private async getContributors(
+    entries: ChangelogEntry[],
+  ): Promise<ContributorInfo[]> {
     const contributorMap = new Map<string, ContributorInfo>();
 
     for (const entry of entries) {
@@ -740,7 +814,9 @@ export class ChangelogGenerator {
       contributor.contributions++;
     }
 
-    return Array.from(contributorMap.values()).sort((a, b) => b.contributions - a.contributions);
+    return Array.from(contributorMap.values()).sort(
+      (a, b) => b.contributions - a.contributions,
+    );
   }
 
   private async getContributorInfo(username: string): Promise<ContributorInfo> {
@@ -756,20 +832,30 @@ export class ChangelogGenerator {
       profileUrl: `https://github.com/${username}`,
       contributions: 0,
       firstContribution: new Date(),
-      role: 'contributor'
+      role: 'contributor',
     };
 
     this.contributorCache.set(username, info);
     return info;
   }
 
-  private calculateReleaseImpact(entries: ChangelogEntry[], breakingChanges: BreakingChange[]): ReleaseImpact {
-    const totalFiles = [...new Set(entries.flatMap(e => e.files))].length;
-    const totalLines = entries.reduce((acc, e) => acc + e.linesAdded + e.linesDeleted, 0);
-    const highImpactChanges = entries.filter(e => e.impact === 'high').length;
+  private calculateReleaseImpact(
+    entries: ChangelogEntry[],
+    breakingChanges: BreakingChange[],
+  ): ReleaseImpact {
+    const totalFiles = [...new Set(entries.flatMap((e) => e.files))].length;
+    const totalLines = entries.reduce(
+      (acc, e) => acc + e.linesAdded + e.linesDeleted,
+      0,
+    );
+    const highImpactChanges = entries.filter((e) => e.impact === 'high').length;
 
     let level: ReleaseImpact['level'] = 'low';
-    if (breakingChanges.length > 0 || totalLines > 1000 || highImpactChanges > 5) {
+    if (
+      breakingChanges.length > 0 ||
+      totalLines > 1000 ||
+      highImpactChanges > 5
+    ) {
       level = 'high';
     } else if (totalLines > 200 || highImpactChanges > 2) {
       level = 'medium';
@@ -781,11 +867,13 @@ export class ChangelogGenerator {
       migrationEffort: this.estimateMigrationEffort(breakingChanges),
       riskAssessment: this.assessReleaseRisk(entries, breakingChanges),
       rollbackComplexity: this.assessRollbackComplexity(entries),
-      compatibility: this.assessCompatibility(entries, breakingChanges)
+      compatibility: this.assessCompatibility(entries, breakingChanges),
     };
   }
 
-  private generateReleaseSections(groupedEntries: Record<string, ChangelogEntry[]>): Record<string, ReleaseSection[]> {
+  private generateReleaseSections(
+    groupedEntries: Record<string, ChangelogEntry[]>,
+  ): Record<string, ReleaseSection[]> {
     const sections: Record<string, ReleaseSection[]> = {};
 
     // Generate highlights
@@ -793,123 +881,136 @@ export class ChangelogGenerator {
 
     // Generate feature sections
     if (groupedEntries.feat) {
-      sections.features = groupedEntries.feat.map(entry => ({
+      sections.features = groupedEntries.feat.map((entry) => ({
         title: entry.subject,
         description: entry.description || entry.subject,
         type: 'feature',
         impact: entry.impact,
         author: entry.author,
-        references: entry.references
+        references: entry.references,
       }));
     }
 
     // Generate bug fix sections
     if (groupedEntries.fix) {
-      sections.fixes = groupedEntries.fix.map(entry => ({
+      sections.fixes = groupedEntries.fix.map((entry) => ({
         title: entry.subject,
         description: entry.description || entry.subject,
         type: 'fix',
         impact: entry.impact,
         author: entry.author,
-        references: entry.references
+        references: entry.references,
       }));
     }
 
     return sections;
   }
 
-  private generateHighlights(groupedEntries: Record<string, ChangelogEntry[]>): ReleaseSection[] {
+  private generateHighlights(
+    groupedEntries: Record<string, ChangelogEntry[]>,
+  ): ReleaseSection[] {
     const highlights: ReleaseSection[] = [];
 
     // Find most significant changes
     const significantChanges = Object.values(groupedEntries)
       .flat()
-      .filter(e => e.significance === 'high' || e.impact === 'high')
+      .filter((e) => e.significance === 'high' || e.impact === 'high')
       .slice(0, 5);
 
     for (const change of significantChanges) {
       highlights.push({
         title: change.subject,
-        description: change.description || `${change.type} improvement in ${change.scope || 'core functionality'}`,
+        description:
+          change.description ||
+          `${change.type} improvement in ${change.scope || 'core functionality'}`,
         type: change.type as any,
         impact: change.impact,
         author: change.author,
-        references: change.references
+        references: change.references,
       });
     }
 
     return highlights;
   }
 
-  private calculateReleaseMetrics(entries: ChangelogEntry[], commits: CommitMessage[]): ReleaseMetrics {
+  private calculateReleaseMetrics(
+    entries: ChangelogEntry[],
+    commits: CommitMessage[],
+  ): ReleaseMetrics {
     return {
       totalCommits: commits.length,
       totalChanges: entries.length,
-      contributorCount: [...new Set(entries.map(e => e.author))].length,
-      filesChanged: [...new Set(entries.flatMap(e => e.files))].length,
+      contributorCount: [...new Set(entries.map((e) => e.author))].length,
+      filesChanged: [...new Set(entries.flatMap((e) => e.files))].length,
       linesAdded: entries.reduce((acc, e) => acc + e.linesAdded, 0),
       linesDeleted: entries.reduce((acc, e) => acc + e.linesDeleted, 0),
-      breakingChanges: entries.filter(e => e.breakingChange).length,
-      features: entries.filter(e => e.type === 'feat').length,
-      bugFixes: entries.filter(e => e.type === 'fix').length,
-      performance: entries.filter(e => e.type === 'perf').length,
-      documentation: entries.filter(e => e.type === 'docs').length,
-      chores: entries.filter(e => e.type === 'chore').length,
-      averageChangeSize: entries.reduce((acc, e) => acc + e.linesAdded + e.linesDeleted, 0) / entries.length,
-      complexityScore: entries.reduce((acc, e) => acc + (e.metadata.complexity || 1), 0) / entries.length,
+      breakingChanges: entries.filter((e) => e.breakingChange).length,
+      features: entries.filter((e) => e.type === 'feat').length,
+      bugFixes: entries.filter((e) => e.type === 'fix').length,
+      performance: entries.filter((e) => e.type === 'perf').length,
+      documentation: entries.filter((e) => e.type === 'docs').length,
+      chores: entries.filter((e) => e.type === 'chore').length,
+      averageChangeSize:
+        entries.reduce((acc, e) => acc + e.linesAdded + e.linesDeleted, 0) /
+        entries.length,
+      complexityScore:
+        entries.reduce((acc, e) => acc + (e.metadata.complexity || 1), 0) /
+        entries.length,
       riskScore: this.calculateRiskScore(entries),
       qualityScore: this.calculateQualityScore(entries),
-      developmentVelocity: this.calculateDevelopmentVelocity(commits)
+      developmentVelocity: this.calculateDevelopmentVelocity(commits),
     };
   }
 
   private async generateAnalytics(
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
-    metrics: ReleaseMetrics
+    metrics: ReleaseMetrics,
   ): Promise<ChangelogAnalytics> {
     return {
       trends: {
         commitFrequency: this.analyzeCommitFrequency(entries),
         changeTypes: this.analyzeChangeTypes(entries),
-        contributorActivity: this.analyzeContributorActivity(releaseNotes.contributors),
+        contributorActivity: this.analyzeContributorActivity(
+          releaseNotes.contributors,
+        ),
         complexity: this.analyzeComplexityTrends(entries),
-        quality: this.analyzeQualityTrends(entries)
+        quality: this.analyzeQualityTrends(entries),
       },
       insights: {
         mostActiveContributors: releaseNotes.contributors.slice(0, 5),
         hottestComponents: this.identifyHottestComponents(entries),
         qualityImprovements: this.identifyQualityImprovements(entries),
         technicalDebt: this.analyzeTechnicalDebt(entries),
-        riskFactors: this.identifyRiskFactors(entries)
+        riskFactors: this.identifyRiskFactors(entries),
       },
       comparisons: {
         previousRelease: await this.compareToPreviousRelease(metrics),
         averageRelease: this.compareToAverage(metrics),
-        benchmarks: this.compareToBenchmarks(metrics)
+        benchmarks: this.compareToBenchmarks(metrics),
       },
       predictions: {
         nextReleaseSize: this.predictNextReleaseSize(entries),
         qualityTrend: this.predictQualityTrend(entries),
-        riskForecast: this.forecastRisk(entries)
-      }
+        riskForecast: this.forecastRisk(entries),
+      },
     };
   }
 
   // Helper methods for analysis and formatting
   private normalizeCommitType(type: string): string {
     const typeMap: Record<string, string> = {
-      'feature': 'feat',
-      'bugfix': 'fix',
-      'hotfix': 'fix',
-      'documentation': 'docs',
-      'style': 'style',
-      'refactor': 'refactor',
-      'performance': 'perf',
-      'test': 'test',
-      'chore': 'chore',
-      'build': 'build',
-      'ci': 'ci'
+      feature: 'feat',
+      bugfix: 'fix',
+      hotfix: 'fix',
+      documentation: 'docs',
+      style: 'style',
+      refactor: 'refactor',
+      performance: 'perf',
+      test: 'test',
+      chore: 'chore',
+      build: 'build',
+      ci: 'ci',
     };
 
     return typeMap[type.toLowerCase()] || type.toLowerCase();
@@ -917,18 +1018,18 @@ export class ChangelogGenerator {
 
   private getSectionTitle(type: string): string {
     const titles: Record<string, string> = {
-      'feat': 'Features',
-      'fix': 'Bug Fixes',
-      'docs': 'Documentation',
-      'style': 'Styles',
-      'refactor': 'Code Refactoring',
-      'perf': 'Performance Improvements',
-      'test': 'Tests',
-      'build': 'Build System',
-      'ci': 'Continuous Integration',
-      'chore': 'Chores',
-      'revert': 'Reverts',
-      'all': 'All Changes'
+      feat: 'Features',
+      fix: 'Bug Fixes',
+      docs: 'Documentation',
+      style: 'Styles',
+      refactor: 'Code Refactoring',
+      perf: 'Performance Improvements',
+      test: 'Tests',
+      build: 'Build System',
+      ci: 'Continuous Integration',
+      chore: 'Chores',
+      revert: 'Reverts',
+      all: 'All Changes',
     };
 
     return titles[type] || type.charAt(0).toUpperCase() + type.slice(1);
@@ -936,18 +1037,18 @@ export class ChangelogGenerator {
 
   private getSectionIcon(type: string): string {
     const icons: Record<string, string> = {
-      'feat': '✨',
-      'fix': '🐛',
-      'docs': '📚',
-      'style': '💎',
-      'refactor': '📦',
-      'perf': '🚀',
-      'test': '🚨',
-      'build': '🛠',
-      'ci': '⚙️',
-      'chore': '♻️',
-      'revert': '⏪',
-      'all': '📋'
+      feat: '✨',
+      fix: '🐛',
+      docs: '📚',
+      style: '💎',
+      refactor: '📦',
+      perf: '🚀',
+      test: '🚨',
+      build: '🛠',
+      ci: '⚙️',
+      chore: '♻️',
+      revert: '⏪',
+      all: '📋',
     };
 
     return icons[type] || '📝';
@@ -982,17 +1083,23 @@ export class ChangelogGenerator {
 
   // Mock implementations for various analysis methods
   private isInternalCommit(commit: CommitMessage): boolean {
-    return commit.type === 'chore' ||
-           commit.subject.includes('[skip ci]') ||
-           commit.subject.includes('[internal]');
+    return (
+      commit.type === 'chore' ||
+      commit.subject.includes('[skip ci]') ||
+      commit.subject.includes('[internal]')
+    );
   }
 
-  private findRelatedCommits(commit: CommitMessage, allCommits: CommitMessage[]): CommitMessage[] {
+  private findRelatedCommits(
+    commit: CommitMessage,
+    allCommits: CommitMessage[],
+  ): CommitMessage[] {
     // Find fixup commits, reverts, etc.
-    return allCommits.filter(c =>
-      c.hash !== commit.hash &&
-      (c.subject.includes(`fixup! ${commit.subject}`) ||
-       c.subject.includes(`revert: ${commit.subject}`))
+    return allCommits.filter(
+      (c) =>
+        c.hash !== commit.hash &&
+        (c.subject.includes(`fixup! ${commit.subject}`) ||
+          c.subject.includes(`revert: ${commit.subject}`)),
     );
   }
 
@@ -1004,14 +1111,14 @@ export class ChangelogGenerator {
     try {
       const numstat = execSync(`git show --numstat ${hash}`, {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
 
       let additions = 0;
       let deletions = 0;
       const files: string[] = [];
 
-      numstat.split('\n').forEach(line => {
+      numstat.split('\n').forEach((line) => {
         const parts = line.split('\t');
         if (parts.length === 3) {
           additions += parseInt(parts[0]) || 0;
@@ -1026,15 +1133,22 @@ export class ChangelogGenerator {
     }
   }
 
-  private async analyzeCommitImpact(commit: CommitMessage, fileChanges: any): Promise<any> {
+  private async analyzeCommitImpact(
+    commit: CommitMessage,
+    fileChanges: any,
+  ): Promise<any> {
     // Mock implementation for impact analysis
     return {
       level: fileChanges.files.length > 5 ? 'high' : 'low',
       significance: commit.type === 'feat' ? 'high' : 'medium',
-      complexity: fileChanges.files.length + (fileChanges.additions + fileChanges.deletions) / 100,
+      complexity:
+        fileChanges.files.length +
+        (fileChanges.additions + fileChanges.deletions) / 100,
       riskLevel: commit.breakingChange ? 'high' : 'low',
       testCoverage: 85,
-      affectedModules: [...new Set(fileChanges.files.map((f: string) => f.split('/')[0]))]
+      affectedModules: [
+        ...new Set(fileChanges.files.map((f: string) => f.split('/')[0])),
+      ],
     };
   }
 
@@ -1048,7 +1162,9 @@ export class ChangelogGenerator {
     return description;
   }
 
-  private extractReferences(commit: CommitMessage): Array<{ type: string; id: string; url: string }> {
+  private extractReferences(
+    commit: CommitMessage,
+  ): Array<{ type: string; id: string; url: string }> {
     const refs: Array<{ type: string; id: string; url: string }> = [];
     const message = commit.subject + ' ' + commit.body;
 
@@ -1061,7 +1177,7 @@ export class ChangelogGenerator {
           refs.push({
             type: 'issue',
             id,
-            url: `https://github.com/repo/issues/${id}`
+            url: `https://github.com/repo/issues/${id}`,
           });
         }
       }
@@ -1089,34 +1205,43 @@ export class ChangelogGenerator {
 
   private getSignificanceWeight(significance: string): number {
     const weights: Record<string, number> = {
-      'critical': 5,
-      'high': 4,
-      'medium': 3,
-      'low': 2,
-      'minimal': 1
+      critical: 5,
+      high: 4,
+      medium: 3,
+      low: 2,
+      minimal: 1,
     };
     return weights[significance] || 1;
   }
 
-  private determineReleaseType(entries: ChangelogEntry[], breakingChanges: BreakingChange[]): ReleaseType {
+  private determineReleaseType(
+    entries: ChangelogEntry[],
+    breakingChanges: BreakingChange[],
+  ): ReleaseType {
     if (breakingChanges.length > 0) return ReleaseType.MAJOR;
-    if (entries.some(e => e.type === 'feat')) return ReleaseType.MINOR;
+    if (entries.some((e) => e.type === 'feat')) return ReleaseType.MINOR;
     return ReleaseType.PATCH;
   }
 
-  private generateReleaseTags(entries: ChangelogEntry[], impact: ReleaseImpact): string[] {
+  private generateReleaseTags(
+    entries: ChangelogEntry[],
+    impact: ReleaseImpact,
+  ): string[] {
     const tags: string[] = [];
 
     if (impact.level === 'high') tags.push('major-release');
-    if (entries.some(e => e.type === 'perf')) tags.push('performance');
-    if (entries.some(e => e.type === 'feat')) tags.push('features');
-    if (entries.some(e => e.type === 'fix')) tags.push('bugfixes');
-    if (entries.some(e => e.breakingChange)) tags.push('breaking-changes');
+    if (entries.some((e) => e.type === 'perf')) tags.push('performance');
+    if (entries.some((e) => e.type === 'feat')) tags.push('features');
+    if (entries.some((e) => e.type === 'fix')) tags.push('bugfixes');
+    if (entries.some((e) => e.breakingChange)) tags.push('breaking-changes');
 
     return tags;
   }
 
-  private generateReleaseRecommendations(entries: ChangelogEntry[], impact: ReleaseImpact): string[] {
+  private generateReleaseRecommendations(
+    entries: ChangelogEntry[],
+    impact: ReleaseImpact,
+  ): string[] {
     const recommendations: string[] = [];
 
     if (impact.level === 'high') {
@@ -1129,16 +1254,19 @@ export class ChangelogGenerator {
       recommendations.push('Prepare rollback procedures');
     }
 
-    if (entries.some(e => e.type === 'perf')) {
+    if (entries.some((e) => e.type === 'perf')) {
       recommendations.push('Monitor performance metrics after deployment');
     }
 
     return recommendations;
   }
 
-  private generateReleaseSummary(entries: ChangelogEntry[], impact: ReleaseImpact): string {
-    const features = entries.filter(e => e.type === 'feat').length;
-    const fixes = entries.filter(e => e.type === 'fix').length;
+  private generateReleaseSummary(
+    entries: ChangelogEntry[],
+    impact: ReleaseImpact,
+  ): string {
+    const features = entries.filter((e) => e.type === 'feat').length;
+    const fixes = entries.filter((e) => e.type === 'fix').length;
     const total = entries.length;
 
     let summary = `This release includes ${total} changes`;
@@ -1169,7 +1297,7 @@ export class ChangelogGenerator {
       return acc;
     }, 0);
 
-    return Math.min(riskFactors / entries.length * 20, 100);
+    return Math.min((riskFactors / entries.length) * 20, 100);
   }
 
   private calculateQualityScore(entries: ChangelogEntry[]): number {
@@ -1187,7 +1315,8 @@ export class ChangelogGenerator {
 
     const oldestCommit = commits[commits.length - 1].date;
     const newestCommit = commits[0].date;
-    const daysDiff = (newestCommit.getTime() - oldestCommit.getTime()) / (1000 * 60 * 60 * 24);
+    const daysDiff =
+      (newestCommit.getTime() - oldestCommit.getTime()) / (1000 * 60 * 60 * 24);
 
     return daysDiff > 0 ? commits.length / daysDiff : commits.length;
   }
@@ -1198,37 +1327,44 @@ export class ChangelogGenerator {
   }
 
   private analyzeChangeTypes(entries: ChangelogEntry[]): any {
-    const types = entries.reduce((acc, e) => {
-      acc[e.type] = (acc[e.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const types = entries.reduce(
+      (acc, e) => {
+        acc[e.type] = (acc[e.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return { distribution: types, trend: 'more_features' };
   }
 
   private analyzeContributorActivity(contributors: ContributorInfo[]): any {
     return {
-      newContributors: contributors.filter(c => c.role === 'new').length,
+      newContributors: contributors.filter((c) => c.role === 'new').length,
       activeContributors: contributors.length,
-      trend: 'increasing'
+      trend: 'increasing',
     };
   }
 
   private analyzeComplexityTrends(entries: ChangelogEntry[]): any {
-    const avgComplexity = entries.reduce((acc, e) => acc + (e.metadata.complexity || 1), 0) / entries.length;
+    const avgComplexity =
+      entries.reduce((acc, e) => acc + (e.metadata.complexity || 1), 0) /
+      entries.length;
     return { average: avgComplexity, trend: 'stable' };
   }
 
   private analyzeQualityTrends(entries: ChangelogEntry[]): any {
-    const avgQuality = entries.reduce((acc, e) => acc + (e.metadata.testCoverage || 80), 0) / entries.length;
+    const avgQuality =
+      entries.reduce((acc, e) => acc + (e.metadata.testCoverage || 80), 0) /
+      entries.length;
     return { average: avgQuality, trend: 'improving' };
   }
 
   private identifyHottestComponents(entries: ChangelogEntry[]): string[] {
     const componentChanges = new Map<string, number>();
 
-    entries.forEach(e => {
-      e.metadata.affectedModules?.forEach(module => {
+    entries.forEach((e) => {
+      e.metadata.affectedModules?.forEach((module) => {
         componentChanges.set(module, (componentChanges.get(module) || 0) + 1);
       });
     });
@@ -1241,32 +1377,35 @@ export class ChangelogGenerator {
 
   private identifyQualityImprovements(entries: ChangelogEntry[]): string[] {
     return entries
-      .filter(e => e.type === 'test' || e.type === 'refactor')
-      .map(e => e.subject)
+      .filter((e) => e.type === 'test' || e.type === 'refactor')
+      .map((e) => e.subject)
       .slice(0, 5);
   }
 
   private analyzeTechnicalDebt(entries: ChangelogEntry[]): any {
-    const debtReduction = entries.filter(e =>
-      e.type === 'refactor' ||
-      e.subject.toLowerCase().includes('debt') ||
-      e.subject.toLowerCase().includes('cleanup')
+    const debtReduction = entries.filter(
+      (e) =>
+        e.type === 'refactor' ||
+        e.subject.toLowerCase().includes('debt') ||
+        e.subject.toLowerCase().includes('cleanup'),
     ).length;
 
     return {
       reductionEfforts: debtReduction,
-      trend: debtReduction > 2 ? 'decreasing' : 'stable'
+      trend: debtReduction > 2 ? 'decreasing' : 'stable',
     };
   }
 
   private identifyRiskFactors(entries: ChangelogEntry[]): string[] {
     const risks: string[] = [];
 
-    if (entries.some(e => e.breakingChange)) {
+    if (entries.some((e) => e.breakingChange)) {
       risks.push('Breaking changes present');
     }
 
-    const highRiskChanges = entries.filter(e => e.metadata.riskLevel === 'high').length;
+    const highRiskChanges = entries.filter(
+      (e) => e.metadata.riskLevel === 'high',
+    ).length;
     if (highRiskChanges > 3) {
       risks.push(`${highRiskChanges} high-risk changes`);
     }
@@ -1275,7 +1414,9 @@ export class ChangelogGenerator {
   }
 
   // Additional mock methods for comprehensive analytics
-  private async compareToPreviousRelease(metrics: ReleaseMetrics): Promise<any> {
+  private async compareToPreviousRelease(
+    metrics: ReleaseMetrics,
+  ): Promise<any> {
     return { changeInCommits: '+15%', changeInContributors: '+20%' };
   }
 
@@ -1288,11 +1429,17 @@ export class ChangelogGenerator {
   }
 
   private predictNextReleaseSize(entries: ChangelogEntry[]): string {
-    return entries.length > 20 ? 'large' : entries.length > 10 ? 'medium' : 'small';
+    return entries.length > 20
+      ? 'large'
+      : entries.length > 10
+        ? 'medium'
+        : 'small';
   }
 
   private predictQualityTrend(entries: ChangelogEntry[]): string {
-    const qualityChanges = entries.filter(e => e.type === 'test' || e.type === 'refactor').length;
+    const qualityChanges = entries.filter(
+      (e) => e.type === 'test' || e.type === 'refactor',
+    ).length;
     return qualityChanges > 3 ? 'improving' : 'stable';
   }
 
@@ -1302,41 +1449,62 @@ export class ChangelogGenerator {
   }
 
   // Helper methods for release impact calculation
-  private estimateAffectedUsers(level: ReleaseImpact['level'], entries: ChangelogEntry[]): number {
+  private estimateAffectedUsers(
+    level: ReleaseImpact['level'],
+    entries: ChangelogEntry[],
+  ): number {
     const baseUsers = 1000; // Mock base user count
 
     switch (level) {
-      case 'high': return Math.floor(baseUsers * 0.8);
-      case 'medium': return Math.floor(baseUsers * 0.4);
-      case 'low': return Math.floor(baseUsers * 0.1);
-      default: return 0;
+      case 'high':
+        return Math.floor(baseUsers * 0.8);
+      case 'medium':
+        return Math.floor(baseUsers * 0.4);
+      case 'low':
+        return Math.floor(baseUsers * 0.1);
+      default:
+        return 0;
     }
   }
 
-  private estimateMigrationEffort(breakingChanges: BreakingChange[]): 'none' | 'low' | 'medium' | 'high' {
+  private estimateMigrationEffort(
+    breakingChanges: BreakingChange[],
+  ): 'none' | 'low' | 'medium' | 'high' {
     if (breakingChanges.length === 0) return 'none';
     if (breakingChanges.length <= 2) return 'low';
     if (breakingChanges.length <= 5) return 'medium';
     return 'high';
   }
 
-  private assessReleaseRisk(entries: ChangelogEntry[], breakingChanges: BreakingChange[]): 'low' | 'medium' | 'high' {
+  private assessReleaseRisk(
+    entries: ChangelogEntry[],
+    breakingChanges: BreakingChange[],
+  ): 'low' | 'medium' | 'high' {
     const riskScore = this.calculateRiskScore(entries);
     if (breakingChanges.length > 0 || riskScore > 70) return 'high';
     if (riskScore > 30) return 'medium';
     return 'low';
   }
 
-  private assessRollbackComplexity(entries: ChangelogEntry[]): 'simple' | 'moderate' | 'complex' {
-    const dbChanges = entries.filter(e => e.files.some(f => f.includes('migration'))).length;
-    const schemaChanges = entries.filter(e => e.files.some(f => f.includes('schema'))).length;
+  private assessRollbackComplexity(
+    entries: ChangelogEntry[],
+  ): 'simple' | 'moderate' | 'complex' {
+    const dbChanges = entries.filter((e) =>
+      e.files.some((f) => f.includes('migration')),
+    ).length;
+    const schemaChanges = entries.filter((e) =>
+      e.files.some((f) => f.includes('schema')),
+    ).length;
 
     if (dbChanges > 0 || schemaChanges > 0) return 'complex';
     if (entries.length > 20) return 'moderate';
     return 'simple';
   }
 
-  private assessCompatibility(entries: ChangelogEntry[], breakingChanges: BreakingChange[]): {
+  private assessCompatibility(
+    entries: ChangelogEntry[],
+    breakingChanges: BreakingChange[],
+  ): {
     backward: boolean;
     forward: boolean;
     apiVersion: string;
@@ -1344,7 +1512,7 @@ export class ChangelogGenerator {
     return {
       backward: breakingChanges.length === 0,
       forward: true, // Assume forward compatibility unless breaking changes
-      apiVersion: breakingChanges.length > 0 ? 'v2' : 'v1'
+      apiVersion: breakingChanges.length > 0 ? 'v2' : 'v1',
     };
   }
 
@@ -1361,14 +1529,16 @@ export class ChangelogGenerator {
     return footers;
   }
 
-  private parseReferences(message: string): Array<{ type: string; id: string; url: string }> {
+  private parseReferences(
+    message: string,
+  ): Array<{ type: string; id: string; url: string }> {
     const refs: Array<{ type: string; id: string; url: string }> = [];
 
     // Parse various reference patterns
     const patterns = [
       { pattern: /(closes?|fixes?|resolves?)\s+#(\d+)/gi, type: 'closes' },
       { pattern: /(refs?|references?)\s+#(\d+)/gi, type: 'references' },
-      { pattern: /(relates? to|see also)\s+#(\d+)/gi, type: 'related' }
+      { pattern: /(relates? to|see also)\s+#(\d+)/gi, type: 'related' },
     ];
 
     patterns.forEach(({ pattern, type }) => {
@@ -1379,7 +1549,7 @@ export class ChangelogGenerator {
         refs.push({
           type,
           id,
-          url: this.generateReferenceUrl(type, id)
+          url: this.generateReferenceUrl(type, id),
         });
       }
     });
@@ -1401,19 +1571,23 @@ export class ChangelogGenerator {
     try {
       return execSync('git describe --tags --abbrev=0', {
         cwd: this.workingDir,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       }).trim();
     } catch {
       return null;
     }
   }
 
-  private async getPreviousVersion(currentVersion: string): Promise<string | null> {
+  private async getPreviousVersion(
+    currentVersion: string,
+  ): Promise<string | null> {
     try {
       const tags = execSync('git tag --sort=-version:refname', {
         cwd: this.workingDir,
-        encoding: 'utf-8'
-      }).trim().split('\n');
+        encoding: 'utf-8',
+      })
+        .trim()
+        .split('\n');
 
       const currentIndex = tags.indexOf(currentVersion);
       return currentIndex > 0 ? tags[currentIndex + 1] : null;
@@ -1429,7 +1603,8 @@ export class ChangelogGenerator {
     this.templates.set('default', {
       name: 'Default Template',
       description: 'Standard changelog template',
-      header: '# Changelog - {{version}}\n\n**Release Date**: {{date}}\n\n{{summary}}',
+      header:
+        '# Changelog - {{version}}\n\n**Release Date**: {{date}}\n\n{{summary}}',
       sections: {
         breaking: '## 💥 BREAKING CHANGES',
         features: '## ✨ Features',
@@ -1438,9 +1613,9 @@ export class ChangelogGenerator {
         refactor: '## 📦 Code Refactoring',
         perf: '## 🚀 Performance',
         test: '## 🚨 Tests',
-        chore: '## ♻️ Chores'
+        chore: '## ♻️ Chores',
       },
-      footer: '\n---\n\nGenerated on {{date}} for version {{version}}'
+      footer: '\n---\n\nGenerated on {{date}} for version {{version}}',
     });
 
     this.templates.set('minimal', {
@@ -1450,15 +1625,16 @@ export class ChangelogGenerator {
       sections: {
         features: '### Features',
         fixes: '### Bug Fixes',
-        other: '### Other Changes'
+        other: '### Other Changes',
       },
-      footer: ''
+      footer: '',
     });
 
     this.templates.set('detailed', {
       name: 'Detailed Template',
       description: 'Comprehensive changelog template',
-      header: '# Release {{version}}\n\n**Date**: {{date}}\n**Summary**: {{summary}}\n',
+      header:
+        '# Release {{version}}\n\n**Date**: {{date}}\n**Summary**: {{summary}}\n',
       sections: {
         highlights: '## 🌟 Release Highlights',
         breaking: '## 💥 BREAKING CHANGES',
@@ -1472,9 +1648,10 @@ export class ChangelogGenerator {
         test: '## 🚨 Testing',
         build: '## 🛠 Build System',
         ci: '## ⚙️ CI/CD',
-        chore: '## ♻️ Maintenance'
+        chore: '## ♻️ Maintenance',
       },
-      footer: '\n\n---\n\n**Full Changelog**: [{{version}}]({{compareUrl}})\n\n*This release was generated automatically on {{date}}*'
+      footer:
+        '\n\n---\n\n**Full Changelog**: [{{version}}]({{compareUrl}})\n\n*This release was generated automatically on {{date}}*',
     });
   }
 }

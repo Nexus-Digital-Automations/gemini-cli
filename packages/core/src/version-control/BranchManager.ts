@@ -124,18 +124,26 @@ export class BranchManager {
       await this.ensureBaseBranchReady(baseBranch);
 
       // Create the new branch
-      execSync(`git checkout -b "${branchName}" "${baseBranch}"`, { stdio: 'pipe' });
+      execSync(`git checkout -b "${branchName}" "${baseBranch}"`, {
+        stdio: 'pipe',
+      });
       logger.info('Branch created locally', { branchName, baseBranch });
 
       // Push to remote if requested
       if (options.pushToRemote) {
         const upstreamFlag = options.setUpstream ? '-u' : '';
-        execSync(`git push ${upstreamFlag} ${this.config.remoteName} "${branchName}"`, { stdio: 'pipe' });
+        execSync(
+          `git push ${upstreamFlag} ${this.config.remoteName} "${branchName}"`,
+          { stdio: 'pipe' },
+        );
         logger.info('Branch pushed to remote', { branchName });
       }
 
       // Apply protection rules if enabled
-      if (this.config.enableAutoProtection && this.shouldProtectBranch(options.type)) {
+      if (
+        this.config.enableAutoProtection &&
+        this.shouldProtectBranch(options.type)
+      ) {
         await this.applyProtectionRules(branchName);
       }
 
@@ -166,7 +174,10 @@ export class BranchManager {
     branchName = branchName.replace('{description}', description);
 
     // Replace version placeholder for release branches
-    if (options.type === BranchType.RELEASE || options.type === BranchType.HOTFIX) {
+    if (
+      options.type === BranchType.RELEASE ||
+      options.type === BranchType.HOTFIX
+    ) {
       const version = this.getNextVersion(options.type);
       branchName = branchName.replace('{version}', version);
     }
@@ -193,7 +204,10 @@ export class BranchManager {
         await this.applyProtectionRule(branchName, rule);
       }
 
-      logger.info('Protection rules applied', { branchName, rulesCount: applicableRules.length });
+      logger.info('Protection rules applied', {
+        branchName,
+        rulesCount: applicableRules.length,
+      });
     } catch (error) {
       logger.error('Failed to apply protection rules', { error, branchName });
       throw error;
@@ -218,7 +232,9 @@ export class BranchManager {
         }
       }
 
-      logger.info('Merged branch cleanup completed', { cleanedCount: cleanedBranches.length });
+      logger.info('Merged branch cleanup completed', {
+        cleanedCount: cleanedBranches.length,
+      });
       return cleanedBranches;
     } catch (error) {
       logger.error('Failed to cleanup merged branches', { error });
@@ -241,8 +257,8 @@ export class BranchManager {
         totalBranches: allBranches.length,
         staleBranches,
         unprotectedBranches: await this.getUnprotectedCriticalBranches(),
-        branchesAhead: allBranches.filter(b => b.commitsAhead > 0),
-        branchesBehind: allBranches.filter(b => b.commitsBehind > 5),
+        branchesAhead: allBranches.filter((b) => b.commitsAhead > 0),
+        branchesBehind: allBranches.filter((b) => b.commitsBehind > 5),
         mergedBranches,
         protectionViolations: await this.getProtectionViolations(),
       };
@@ -265,19 +281,30 @@ export class BranchManager {
    */
   async getRepositoryStatus(): Promise<RepositoryStatus> {
     try {
-      const currentBranch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
-      const statusOutput = execSync('git status --porcelain', { encoding: 'utf8' });
+      const currentBranch = execSync('git branch --show-current', {
+        encoding: 'utf8',
+      }).trim();
+      const statusOutput = execSync('git status --porcelain', {
+        encoding: 'utf8',
+      });
 
       const stagedFiles: string[] = [];
       const modifiedFiles: string[] = [];
       const untrackedFiles: string[] = [];
 
-      const lines = statusOutput.trim().split('\n').filter(line => line.length > 0);
+      const lines = statusOutput
+        .trim()
+        .split('\n')
+        .filter((line) => line.length > 0);
       for (const line of lines) {
         const status = line.substring(0, 2);
         const file = line.substring(3);
 
-        if (status.includes('A') || status.includes('M') || status.includes('D')) {
+        if (
+          status.includes('A') ||
+          status.includes('M') ||
+          status.includes('D')
+        ) {
           stagedFiles.push(file);
         } else if (status.includes(' M') || status.includes(' D')) {
           modifiedFiles.push(file);
@@ -290,8 +317,13 @@ export class BranchManager {
       let commitsAhead = 0;
       let commitsBehind = 0;
       try {
-        const aheadBehind = execSync(`git rev-list --count --left-right ${this.config.remoteName}/${currentBranch}...HEAD 2>/dev/null || echo "0	0"`, { encoding: 'utf8' }).trim();
-        const [behind, ahead] = aheadBehind.split('\t').map(n => parseInt(n, 10));
+        const aheadBehind = execSync(
+          `git rev-list --count --left-right ${this.config.remoteName}/${currentBranch}...HEAD 2>/dev/null || echo "0	0"`,
+          { encoding: 'utf8' },
+        ).trim();
+        const [behind, ahead] = aheadBehind
+          .split('\t')
+          .map((n) => parseInt(n, 10));
         commitsAhead = ahead || 0;
         commitsBehind = behind || 0;
       } catch {
@@ -301,7 +333,9 @@ export class BranchManager {
       // Get remote URL
       let remoteUrl: string | undefined;
       try {
-        remoteUrl = execSync(`git remote get-url ${this.config.remoteName}`, { encoding: 'utf8' }).trim();
+        remoteUrl = execSync(`git remote get-url ${this.config.remoteName}`, {
+          encoding: 'utf8',
+        }).trim();
       } catch {
         // No remote configured
       }
@@ -325,11 +359,14 @@ export class BranchManager {
   /**
    * Switch to a branch, creating it if necessary
    */
-  async switchToBranch(branchName: string, createIfNotExists = false): Promise<void> {
+  async switchToBranch(
+    branchName: string,
+    createIfNotExists = false,
+  ): Promise<void> {
     try {
       logger.info('Switching to branch', { branchName, createIfNotExists });
 
-      if (createIfNotExists && !await this.branchExists(branchName)) {
+      if (createIfNotExists && !(await this.branchExists(branchName))) {
         const options: BranchCreationOptions = {
           type: this.inferBranchType(branchName),
           customName: branchName,
@@ -356,9 +393,14 @@ export class BranchManager {
 
     // Pull latest changes
     try {
-      execSync(`git pull ${this.config.remoteName} "${baseBranch}"`, { stdio: 'pipe' });
+      execSync(`git pull ${this.config.remoteName} "${baseBranch}"`, {
+        stdio: 'pipe',
+      });
     } catch (error) {
-      logger.warn('Failed to pull latest changes from remote', { error, baseBranch });
+      logger.warn('Failed to pull latest changes from remote', {
+        error,
+        baseBranch,
+      });
     }
   }
 
@@ -372,7 +414,9 @@ export class BranchManager {
   private getNextVersion(branchType: BranchType): string {
     try {
       // Get the latest version tag
-      const latestTag = execSync('git describe --tags --abbrev=0', { encoding: 'utf8' }).trim();
+      const latestTag = execSync('git describe --tags --abbrev=0', {
+        encoding: 'utf8',
+      }).trim();
       const versionMatch = latestTag.match(/v?(\d+)\.(\d+)\.(\d+)/);
 
       if (versionMatch) {
@@ -416,7 +460,9 @@ export class BranchManager {
 
   private branchExists(branchName: string): boolean {
     try {
-      execSync(`git show-ref --verify --quiet refs/heads/${branchName}`, { stdio: 'pipe' });
+      execSync(`git show-ref --verify --quiet refs/heads/${branchName}`, {
+        stdio: 'pipe',
+      });
       return true;
     } catch {
       return false;
@@ -424,18 +470,25 @@ export class BranchManager {
   }
 
   private shouldProtectBranch(branchType: BranchType): boolean {
-    return [BranchType.MAIN, BranchType.DEVELOP, BranchType.RELEASE].includes(branchType);
+    return [BranchType.MAIN, BranchType.DEVELOP, BranchType.RELEASE].includes(
+      branchType,
+    );
   }
 
-  private getApplicableProtectionRules(branchName: string): BranchProtectionRule[] {
-    return this.config.protectionRules.filter(rule => {
+  private getApplicableProtectionRules(
+    branchName: string,
+  ): BranchProtectionRule[] {
+    return this.config.protectionRules.filter((rule) => {
       const pattern = rule.branchPattern.replace(/\*/g, '.*');
       const regex = new RegExp(`^${pattern}$`);
       return regex.test(branchName);
     });
   }
 
-  private async applyProtectionRule(branchName: string, rule: BranchProtectionRule): Promise<void> {
+  private async applyProtectionRule(
+    branchName: string,
+    rule: BranchProtectionRule,
+  ): Promise<void> {
     // This would integrate with the specific Git hosting service API (GitHub, GitLab, etc.)
     // For now, we'll log the action
     logger.info('Would apply protection rule', { branchName, rule });
@@ -447,14 +500,21 @@ export class BranchManager {
       const createdAt = new Date(); // Would get actual creation date from git log
 
       // Get last commit
-      const lastCommit = execSync(`git rev-parse "${branchName}"`, { encoding: 'utf8' }).trim();
+      const lastCommit = execSync(`git rev-parse "${branchName}"`, {
+        encoding: 'utf8',
+      }).trim();
 
       // Get commits ahead/behind
       let commitsAhead = 0;
       let commitsBehind = 0;
       try {
-        const aheadBehind = execSync(`git rev-list --count --left-right "${baseBranch}...${branchName}"`, { encoding: 'utf8' }).trim();
-        const [behind, ahead] = aheadBehind.split('\t').map(n => parseInt(n, 10));
+        const aheadBehind = execSync(
+          `git rev-list --count --left-right "${baseBranch}...${branchName}"`,
+          { encoding: 'utf8' },
+        ).trim();
+        const [behind, ahead] = aheadBehind
+          .split('\t')
+          .map((n) => parseInt(n, 10));
         commitsAhead = ahead || 0;
         commitsBehind = behind || 0;
       } catch {
@@ -478,7 +538,8 @@ export class BranchManager {
   }
 
   private inferBranchType(branchName: string): BranchType {
-    if (branchName === 'main' || branchName === 'master') return BranchType.MAIN;
+    if (branchName === 'main' || branchName === 'master')
+      return BranchType.MAIN;
     if (branchName === 'develop') return BranchType.DEVELOP;
     if (branchName.startsWith('feature/')) return BranchType.FEATURE;
     if (branchName.startsWith('hotfix/')) return BranchType.HOTFIX;
@@ -492,20 +553,30 @@ export class BranchManager {
   private isBranchProtected(branchName: string): boolean {
     // This would check with the Git hosting service API
     // For now, assume main branches are protected
-    return [BranchType.MAIN, BranchType.DEVELOP].includes(this.inferBranchType(branchName));
+    return [BranchType.MAIN, BranchType.DEVELOP].includes(
+      this.inferBranchType(branchName),
+    );
   }
 
   private async getAllBranches(): Promise<BranchInfo[]> {
     try {
-      const output = execSync('git branch --format="%(refname:short)"', { encoding: 'utf8' });
-      const branchNames = output.trim().split('\n').filter(name => name.length > 0);
+      const output = execSync('git branch --format="%(refname:short)"', {
+        encoding: 'utf8',
+      });
+      const branchNames = output
+        .trim()
+        .split('\n')
+        .filter((name) => name.length > 0);
 
       const branches: BranchInfo[] = [];
       for (const name of branchNames) {
         try {
           branches.push(await this.getBranchInfo(name));
         } catch (error) {
-          logger.warn('Failed to get info for branch', { error, branchName: name });
+          logger.warn('Failed to get info for branch', {
+            error,
+            branchName: name,
+          });
         }
       }
 
@@ -519,9 +590,11 @@ export class BranchManager {
   private async getStaleBranches(): Promise<BranchInfo[]> {
     const allBranches = await this.getAllBranches();
     const thresholdDate = new Date();
-    thresholdDate.setDate(thresholdDate.getDate() - this.config.staleBranchThreshold);
+    thresholdDate.setDate(
+      thresholdDate.getDate() - this.config.staleBranchThreshold,
+    );
 
-    return allBranches.filter(branch => {
+    return allBranches.filter((branch) => {
       // This would check the actual last commit date
       // For now, just return empty array
       return false;
@@ -530,16 +603,26 @@ export class BranchManager {
 
   private async getMergedBranches(): Promise<BranchInfo[]> {
     try {
-      const output = execSync(`git branch --merged ${this.config.defaultBaseBranch} --format="%(refname:short)"`, { encoding: 'utf8' });
-      const mergedBranchNames = output.trim().split('\n')
-        .filter(name => name.length > 0 && name !== this.config.defaultBaseBranch);
+      const output = execSync(
+        `git branch --merged ${this.config.defaultBaseBranch} --format="%(refname:short)"`,
+        { encoding: 'utf8' },
+      );
+      const mergedBranchNames = output
+        .trim()
+        .split('\n')
+        .filter(
+          (name) => name.length > 0 && name !== this.config.defaultBaseBranch,
+        );
 
       const branches: BranchInfo[] = [];
       for (const name of mergedBranchNames) {
         try {
           branches.push(await this.getBranchInfo(name));
         } catch (error) {
-          logger.warn('Failed to get info for merged branch', { error, branchName: name });
+          logger.warn('Failed to get info for merged branch', {
+            error,
+            branchName: name,
+          });
         }
       }
 
@@ -555,7 +638,8 @@ export class BranchManager {
     if (branch.isProtected) return false;
 
     // Don't delete main branches
-    if ([BranchType.MAIN, BranchType.DEVELOP].includes(branch.type)) return false;
+    if ([BranchType.MAIN, BranchType.DEVELOP].includes(branch.type))
+      return false;
 
     // Check if auto-delete is enabled
     return this.config.autoDeleteMerged;
@@ -568,7 +652,10 @@ export class BranchManager {
 
       // Delete remote branch if it exists
       try {
-        execSync(`git push ${this.config.remoteName} --delete "${branchName}"`, { stdio: 'pipe' });
+        execSync(
+          `git push ${this.config.remoteName} --delete "${branchName}"`,
+          { stdio: 'pipe' },
+        );
       } catch {
         // Remote branch might not exist
       }
@@ -582,8 +669,12 @@ export class BranchManager {
 
   private async getUnprotectedCriticalBranches(): Promise<BranchInfo[]> {
     const allBranches = await this.getAllBranches();
-    return allBranches.filter(branch => {
-      const isCritical = [BranchType.MAIN, BranchType.DEVELOP, BranchType.RELEASE].includes(branch.type);
+    return allBranches.filter((branch) => {
+      const isCritical = [
+        BranchType.MAIN,
+        BranchType.DEVELOP,
+        BranchType.RELEASE,
+      ].includes(branch.type);
       return isCritical && !branch.isProtected;
     });
   }
