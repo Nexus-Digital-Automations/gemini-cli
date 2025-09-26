@@ -140,7 +140,10 @@ export class TaskStatusMonitor extends EventEmitter {
    * Register a new task for monitoring
    */
   async registerTask(
-    task: Omit<TaskMetadata, 'id' | 'lastUpdate'>,
+    task: Omit<
+      TaskMetadata,
+      'id' | 'lastUpdate' | 'status' | 'progress' | 'errorCount' | 'retryCount'
+    >,
   ): Promise<string> {
     const taskId = this.generateTaskId();
     const fullTask: TaskMetadata = {

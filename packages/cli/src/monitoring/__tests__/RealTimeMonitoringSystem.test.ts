@@ -6,12 +6,12 @@
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
-import { taskStatusMonitor } from '../TaskStatusMonitor.js';
 import {
-  type MockTaskStatusMonitor,
+  RealTimeMonitoringSystem,
   type MonitoringSnapshot,
-} from './types.js';
+} from '../RealTimeMonitoringSystem.js';
+import { taskStatusMonitor } from '../TaskStatusMonitor.js';
+import { type MockTaskStatusMonitor } from './types.js';
 
 // Mock dependencies
 vi.mock('../TaskStatusMonitor.js', () => ({
@@ -124,21 +124,21 @@ describe('RealTimeMonitoringSystem', () => {
       expect(monitoringSystem).toBeInstanceOf(EventEmitter);
     });
 
-    it('should emit system:initialized event', (done) => {
-      const newSystem = new RealTimeMonitoringSystem();
+    it('should emit system:initialized event', () => new Promise<void>((resolve) => {
+        const newSystem = new RealTimeMonitoringSystem();
 
-      newSystem.on('system:initialized', (data) => {
-        expect(data).toHaveProperty('config');
-        expect(data.config).toHaveProperty('updateIntervalMs');
-        expect(data.config.updateIntervalMs).toBe(500);
-        done();
-      });
+        newSystem.on('system:initialized', (data) => {
+          expect(data).toHaveProperty('config');
+          expect(data.config).toHaveProperty('updateIntervalMs');
+          expect(data.config.updateIntervalMs).toBe(500);
+          resolve();
+        });
 
-      // Allow time for initialization
-      setTimeout(() => {
-        newSystem.shutdown();
-      }, 100);
-    });
+        // Allow time for initialization
+        setTimeout(() => {
+          newSystem.shutdown();
+        }, 100);
+      }));
 
     it('should setup default alert rules', () => {
       const alertRules = monitoringSystem.getAlertRules();
@@ -257,34 +257,34 @@ describe('RealTimeMonitoringSystem', () => {
       ).toBe(false);
     });
 
-    it('should trigger alerts when conditions are met', (done) => {
-      const testRule = {
-        id: 'trigger-test',
-        name: 'Always Trigger',
-        description: 'This rule always triggers',
-        condition: () => true,
-        severity: 'low' as const,
-        cooldownMs: 100,
-        enabled: true,
-        actions: [{ type: 'log' as const, config: {} }],
-      };
+    it('should trigger alerts when conditions are met', () => new Promise<void>((resolve) => {
+        const testRule = {
+          id: 'trigger-test',
+          name: 'Always Trigger',
+          description: 'This rule always triggers',
+          condition: () => true,
+          severity: 'low' as const,
+          cooldownMs: 100,
+          enabled: true,
+          actions: [{ type: 'log' as const, config: {} }],
+        };
 
-      monitoringSystem.addAlertRule(testRule);
+        monitoringSystem.addAlertRule(testRule);
 
-      monitoringSystem.on('alert:triggered', (data) => {
-        expect(data).toHaveProperty('alert');
-        expect(data.alert.data.rule.name).toBe('Always Trigger');
-        done();
-      });
+        monitoringSystem.on('alert:triggered', (data) => {
+          expect(data).toHaveProperty('alert');
+          expect(data.alert.data.rule.name).toBe('Always Trigger');
+          resolve();
+        });
 
-      // Start monitoring to trigger alert checking
-      monitoringSystem.startMonitoring();
+        // Start monitoring to trigger alert checking
+        monitoringSystem.startMonitoring();
 
-      // Stop monitoring after test
-      setTimeout(() => {
-        monitoringSystem.stopMonitoring();
-      }, 200);
-    });
+        // Stop monitoring after test
+        setTimeout(() => {
+          monitoringSystem.stopMonitoring();
+        }, 200);
+      }));
 
     it('should respect alert cooldown periods', async () => {
       const testRule = {
@@ -438,28 +438,28 @@ describe('RealTimeMonitoringSystem', () => {
   });
 
   describe('Performance Requirements', () => {
-    it('should provide sub-second monitoring updates', (done) => {
-      const startTime = Date.now();
-      let updateCount = 0;
+    it('should provide sub-second monitoring updates', () => new Promise<void>((resolve) => {
+        const startTime = Date.now();
+        let updateCount = 0;
 
-      monitoringSystem.on('snapshot:collected', () => {
-        updateCount++;
+        monitoringSystem.on('snapshot:collected', () => {
+          updateCount++;
 
-        if (updateCount >= 3) {
-          const elapsed = Date.now() - startTime;
-          const averageInterval = elapsed / updateCount;
+          if (updateCount >= 3) {
+            const elapsed = Date.now() - startTime;
+            const averageInterval = elapsed / updateCount;
 
-          // Should be close to 500ms (configured update interval)
-          expect(averageInterval).toBeLessThan(600);
-          expect(averageInterval).toBeGreaterThan(400);
+            // Should be close to 500ms (configured update interval)
+            expect(averageInterval).toBeLessThan(600);
+            expect(averageInterval).toBeGreaterThan(400);
 
-          monitoringSystem.stopMonitoring();
-          done();
-        }
-      });
+            monitoringSystem.stopMonitoring();
+            resolve();
+          }
+        });
 
-      monitoringSystem.startMonitoring();
-    });
+        monitoringSystem.startMonitoring();
+      }));
 
     it('should handle high-frequency monitoring without performance degradation', async () => {
       const startTime = Date.now();
