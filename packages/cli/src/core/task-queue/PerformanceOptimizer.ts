@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../utils/logger.js';
+import { WinstonStructuredLogger } from '../../../../core/src/utils/logger.js';
 import type {
   TaskPriority,
   TaskType,
@@ -177,7 +177,7 @@ interface PerformanceHistory {
  * - System health monitoring
  */
 export class PerformanceOptimizer extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: WinstonStructuredLogger;
   private readonly taskQueue: TaskQueue;
 
   private performanceHistory: Map<string, PerformanceHistory>;
@@ -204,7 +204,7 @@ export class PerformanceOptimizer extends EventEmitter {
 
   constructor(taskQueue: TaskQueue) {
     super();
-    this.logger = new Logger('PerformanceOptimizer');
+    this.logger = new WinstonStructuredLogger({ defaultMeta: { component: 'PerformanceOptimizer' } });
     this.taskQueue = taskQueue;
     this.performanceHistory = new Map();
     this.appliedOptimizations = new Map();

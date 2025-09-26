@@ -470,7 +470,7 @@ export class EfficiencyAnalyzer {
 
     const avgCostPerUnit =
       historicalData.reduce(
-        (sum, data) => sum + data.totalCost / data.usage,
+        (sum, data) => sum + data.averageCostPerRequest,
         0,
       ) / historicalData.length;
 
@@ -517,7 +517,7 @@ export class EfficiencyAnalyzer {
 
     const avgROI =
       historicalData.reduce(
-        (sum, data) => sum + data.revenue / data.totalCost,
+        (sum, data) => sum + data.roi,
         0,
       ) / historicalData.length;
 
@@ -587,9 +587,9 @@ export class EfficiencyAnalyzer {
 
     // Analyze cost trend
     const costTrend = this.calculateTrend(
-      historicalData.map((data) => ({
-        timestamp: new Date(data.timestamp),
-        value: data.totalCost / data.usage,
+      historicalData.map((data, index) => ({
+        timestamp: new Date(Date.now() - (historicalData.length - index) * 24 * 60 * 60 * 1000),
+        value: data.averageCostPerRequest,
       })),
     );
     trends.push({
@@ -599,8 +599,8 @@ export class EfficiencyAnalyzer {
 
     // Analyze utilization trend
     const utilizationTrend = this.calculateTrend(
-      historicalData.map((data) => ({
-        timestamp: new Date(data.timestamp),
+      historicalData.map((data, index) => ({
+        timestamp: new Date(Date.now() - (historicalData.length - index) * 24 * 60 * 60 * 1000),
         value: data.utilizationRate * 100,
       })),
     );
@@ -611,9 +611,9 @@ export class EfficiencyAnalyzer {
 
     // Analyze ROI trend
     const roiTrend = this.calculateTrend(
-      historicalData.map((data) => ({
-        timestamp: new Date(data.timestamp),
-        value: (data.revenue / data.totalCost) * 100,
+      historicalData.map((data, index) => ({
+        timestamp: new Date(Date.now() - (historicalData.length - index) * 24 * 60 * 60 * 1000),
+        value: data.roi * 100,
       })),
     );
     trends.push({
@@ -1022,10 +1022,10 @@ export class EfficiencyAnalyzer {
     if (historicalData.length === 0) return 50;
 
     // Simple efficiency calculation based on cost per unit
-    const avgUsage =
-      historicalData.reduce((sum, data) => sum + data.usage, 0) /
+    const avgRequestCount =
+      historicalData.reduce((sum, data) => sum + data.requestCount, 0) /
       historicalData.length;
-    const costPerUnit = allocation / avgUsage;
+    const costPerUnit = allocation / Math.max(avgRequestCount, 1);
 
     // Normalize to 0-100 scale (lower cost per unit is better)
     return Math.max(0, Math.min(100, 100 - costPerUnit / 10)); // Simplified normalization

@@ -528,7 +528,7 @@ export class PriorityAssignment {
    */
   assignPriority(
     candidate: AllocationCandidate,
-    ranking: ResourceRanking,
+    ranking: ResourceRankingResult,
     historicalData: FeatureCostAnalysis[],
   ): PriorityAssignmentResult {
     this.logger.info(

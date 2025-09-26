@@ -357,7 +357,7 @@ export class ResourceRanking {
   rankResource(
     candidate: AllocationCandidate,
     historicalData: FeatureCostAnalysis[],
-  ): ResourceRanking {
+  ): ResourceRankingResult {
     this.logger.info(`Starting resource ranking for ${candidate.resourceId}`, {
       resourceName: candidate.resourceName,
       currentAllocation: candidate.currentAllocation,
@@ -388,7 +388,7 @@ export class ResourceRanking {
     // Perform sensitivity analysis
     const sensitivity = this.performSensitivityAnalysis(scoreBreakdown);
 
-    const ranking: ResourceRanking = {
+    const ranking: ResourceRankingResult = {
       resourceId: candidate.resourceId,
       resourceName: candidate.resourceName,
       score,
