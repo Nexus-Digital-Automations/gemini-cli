@@ -11,9 +11,12 @@ import type {
   QualityMetrics,
 } from '../QualityAssurance.js';
 import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
+import type {
+  ValidationCategory,
+  ValidationStatus} from '../ValidationFramework.js';
 import {
   ValidationFramework,
-  ValidationSeverity,
+  ValidationSeverity
 } from '../ValidationFramework.js';
 import type { TaskExecutionMetrics } from '../TaskValidator.js';
 import { TaskValidator } from '../TaskValidator.js';
@@ -42,7 +45,7 @@ describe('QualityAssurance', () => {
         activeValidations: 1,
         enabledCategories: [],
       }),
-    } as any;
+    };
 
     // Create mock task validator
     mockTaskValidator = {
@@ -53,7 +56,7 @@ describe('QualityAssurance', () => {
         configuredThresholds: {},
         frameworkStats: {},
       }),
-    } as any;
+    };
 
     // Create quality assurance system
     qualityAssurance = new QualityAssurance(
@@ -93,9 +96,10 @@ describe('QualityAssurance', () => {
       // Should register rules for each quality check type
       expect(mockValidationFramework.registerRule).toHaveBeenCalled();
 
-      const registerRuleMock = mockValidationFramework.registerRule as any;
+      const registerRuleMock =
+        mockValidationFramework.registerRule as ReturnType<typeof vi.fn>;
       const ruleIds = registerRuleMock.mock.calls.map(
-        (call: any[]) => call[0].id,
+        (call: unknown[]) => (call[0] as { id: string }).id,
       );
       expect(ruleIds).toContain('quality-check-code_quality');
       expect(ruleIds).toContain('quality-check-performance');
@@ -259,7 +263,12 @@ describe('QualityAssurance', () => {
       });
 
       const performQualityAssuranceSpy = vi
-        .spyOn(qualityAssurance as any, 'executeComprehensiveQualityCheck')
+        .spyOn(
+          qualityAssurance as unknown as {
+            executeComprehensiveQualityCheck: () => Promise<QualityAssuranceResult>;
+          },
+          'executeComprehensiveQualityCheck',
+        )
         .mockReturnValue(slowCheck);
 
       // Start two quality checks simultaneously
@@ -528,9 +537,9 @@ describe('QualityAssurance', () => {
       const customCheck = vi.fn().mockResolvedValue([
         {
           id: 'custom-business-rule',
-          category: 'business' as any,
+          category: 'business' as ValidationCategory,
           severity: ValidationSeverity.INFO,
-          status: 'passed' as any,
+          status: 'passed' as ValidationStatus,
           message: 'Custom business rule passed',
           timestamp: new Date(),
         },

@@ -8,7 +8,10 @@ import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 
 // Import validation system components
-import { ValidationFramework, ValidationCategory } from './ValidationFramework.js';
+import {
+  ValidationFramework,
+  ValidationCategory,
+} from './ValidationFramework.js';
 import { ValidationRules, RuleCategory } from './ValidationRules.js';
 import type {
   TaskValidationContext,
@@ -517,7 +520,9 @@ export class ValidationIntegration extends EventEmitter {
 
       return result;
     } catch (error) {
-      this.logger.error(`Task validation failed: ${task.id}`, { error });
+      this.logger.error(`Task validation failed: ${task.id}`, {
+        error: error as Error | undefined,
+      });
       this.emit(
         'validationSystemError',
         task.id,

@@ -12,7 +12,7 @@ import { BudgetEnforcement } from '../budget-enforcement.js';
 import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
 import type { BudgetSettings, BudgetUsageData } from '../types.js';
 import type { ContentGenerator } from '../core/contentGenerator.js';
-import type { Config } from '../config/config.js';
+import type { Config } from '../../config/config.js';
 
 // Mock file system operations
 vi.mock('node:fs/promises', () => ({
@@ -166,11 +166,12 @@ describe('Budget Analytics Performance and Load Tests', () => {
       const usageData = PerformanceTestUtils.createLargeUsageData(0);
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(usageData));
 
-      const { result: _result, duration } = await PerformanceTestUtils.measureOperation(
-        'Single Request Record',
-        () => tracker.recordRequest(),
-        PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),
-      );
+      const { result: _result, duration } =
+        await PerformanceTestUtils.measureOperation(
+          'Single Request Record',
+          () => tracker.recordRequest(),
+          PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),
+        );
 
       expect(duration).toBeLessThan(
         PerformanceTestUtils.getThreshold('SINGLE_REQUEST_RECORD'),
