@@ -15,7 +15,7 @@ import {
   type AnalyticsEngine as CoreAnalyticsEngine,
   type FeatureCostAnalysis,
 } from '@google/gemini-cli-core';
-import type { Arguments, CommandBuilder } from 'yargs';
+import type { Arguments, CommandBuilder, CommandModule } from 'yargs';
 
 interface VisualizeArgs {
   format?: 'ascii' | 'json' | 'interactive';
@@ -171,7 +171,7 @@ interface JSONOutput {
  * The command leverages the advanced analytics engine to provide
  * actionable insights for budget optimization and cost reduction.
  */
-export const visualizeCommand = {
+export const visualizeCommand: CommandModule<object, VisualizeArgs> = {
   command: 'visualize [format]',
   describe:
     'Visualize budget usage with analytics and optimization recommendations',

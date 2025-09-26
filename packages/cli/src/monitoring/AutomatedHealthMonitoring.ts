@@ -768,7 +768,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       let severity: HealthMonitoringResult['severity'] = 'info';
       if (status === 'unhealthy') {
         severity =
-          checkResult.value >= this.config.escalationThresholds.emergency
+          checkResult.value >= this.config.escalationThresholds['emergency']
             ? 'critical'
             : 'error';
       } else if (status === 'warning') {
@@ -1341,7 +1341,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   private async executeClearCache(
     config: Record<string, unknown>,
   ): Promise<{ message: string }> {
-    const cacheTypes = (config.cacheTypes as string[]) || [];
+    const cacheTypes = (config['cacheTypes'] as string[]) || [];
     const clearedCaches: string[] = [];
 
     // Force garbage collection
@@ -1374,7 +1374,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   private async executeRestartService(
     config: Record<string, unknown>,
   ): Promise<{ message: string }> {
-    const service = config.service as string;
+    const service = config['service'] as string;
 
     // Simulate service restart
     this.logger.info('Simulating service restart', { service });
@@ -1390,7 +1390,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   private async executeRedistributeLoad(
     config: Record<string, unknown>,
   ): Promise<{ message: string }> {
-    const strategy = config.strategy as string;
+    const strategy = config['strategy'] as string;
 
     switch (strategy) {
       case 'rebalance_tasks': {
@@ -1444,8 +1444,8 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     config: Record<string, unknown>,
   ): Promise<{ message: string }> {
     // Simulate resource scaling
-    const resourceType = (config.resourceType as string) || 'agents';
-    const scaleDirection = (config.direction as string) || 'up';
+    const resourceType = (config['resourceType'] as string) || 'agents';
+    const scaleDirection = (config['direction'] as string) || 'up';
 
     this.logger.info('Simulating resource scaling', {
       resourceType,
@@ -1460,9 +1460,9 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   private async executeNotifyAdmin(
     config: Record<string, unknown>,
   ): Promise<{ message: string }> {
-    const severity = (config.severity as string) || 'info';
+    const severity = (config['severity'] as string) || 'info';
     const message =
-      (config.message as string) || 'Health monitoring notification';
+      (config['message'] as string) || 'Health monitoring notification';
 
     this.logger.warn('Admin notification', { severity, message });
 
@@ -1475,7 +1475,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
   private async executeCustomScript(
     config: Record<string, unknown>,
   ): Promise<{ message: string }> {
-    const action = config.action as string;
+    const action = config['action'] as string;
 
     switch (action) {
       case 'force_gc':

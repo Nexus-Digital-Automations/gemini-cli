@@ -5,7 +5,8 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../utils/logger.js';
+import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
+import { WinstonStructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import type {
   TaskType,
   TaskMetadata,
@@ -112,7 +113,7 @@ class PriorityQueueNode {
  * - Performance analytics and optimization
  */
 export class TaskQueue extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly queuesByPriority: Map<TaskPriority, PriorityQueueNode[]>;
   private readonly taskRegistry: Map<string, TaskMetadata>;
   private readonly agentRegistry: Map<string, AgentCapability>;
@@ -146,7 +147,7 @@ export class TaskQueue extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('TaskQueue');
+    this.logger = new WinstonStructuredLogger().child({ component: 'TaskQueue' });
     this.queuesByPriority = new Map();
     this.taskRegistry = new Map();
     this.agentRegistry = new Map();
@@ -288,7 +289,7 @@ export class TaskQueue extends EventEmitter {
   ): Promise<void> {
     const agent = this.agentRegistry.get(agentId);
     if (!agent) {
-      this.logger.warning('Attempted to update unknown agent', { agentId });
+      this.logger.warn('Attempted to update unknown agent', { agentId });
       return;
     }
 
@@ -319,7 +320,16 @@ export class TaskQueue extends EventEmitter {
     totalFailed: number;
     availableAgents: number;
     busyAgents: number;
-    performance: typeof this.performanceMetrics;
+    performance: {
+      totalTasksProcessed: number;
+      averageQueueTime: number;
+      averageExecutionTime: number;
+      throughputPerMinute: number;
+      systemEfficiency: number;
+      rebalanceCount: number;
+      optimizationCount: number;
+      lastOptimization: Date;
+    };
     nextScheduledTask?: {
       taskId: string;
       title: string;

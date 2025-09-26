@@ -7,7 +7,8 @@
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../utils/logger.js';
+import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
+import { WinstonStructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import type {
   TaskMetadata,
   TaskPriority,
@@ -99,7 +100,7 @@ export interface RecoveryInfo {
  * - Real-time sync and batch operations
  */
 export class TaskPersistence extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: PersistenceConfig;
   private readonly storageDir: string;
   private readonly backupDir: string;
@@ -119,7 +120,7 @@ export class TaskPersistence extends EventEmitter {
 
   constructor(config: Partial<PersistenceConfig> = {}) {
     super();
-    this.logger = new Logger('TaskPersistence');
+    this.logger = new WinstonStructuredLogger().child({ component: 'TaskPersistence' });
 
     // Set default configuration
     this.config = {
@@ -778,7 +779,7 @@ export class TaskPersistence extends EventEmitter {
 
       return state;
     } catch (error) {
-      this.logger.warning('Recovery attempt failed', { filePath, error });
+      this.logger.warn('Recovery attempt failed', { filePath, error });
       return null;
     }
   }
@@ -795,7 +796,7 @@ export class TaskPersistence extends EventEmitter {
     const ageHours = (now.getTime() - stateTime.getTime()) / (1000 * 60 * 60);
 
     if (ageHours > 24) {
-      this.logger.warning('Recovered state is more than 24 hours old', {
+      this.logger.warn('Recovered state is more than 24 hours old', {
         stateAge: ageHours,
         stateTimestamp: state.timestamp,
       });
@@ -844,7 +845,7 @@ export class TaskPersistence extends EventEmitter {
           await fs.unlink(backup.path);
           this.logger.debug('Deleted old backup', { path: backup.path });
         } catch (error) {
-          this.logger.warning('Failed to delete old backup', {
+          this.logger.warn('Failed to delete old backup', {
             path: backup.path,
             error,
           });

@@ -1521,7 +1521,6 @@ Please take appropriate action.
     escalationRate: number;
     falsePositiveRate: number;
   } {
-    const _resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
     const escalatedAlerts = alerts.filter(
       (a) => a.escalationLevel && a.escalationLevel > 0,
     );

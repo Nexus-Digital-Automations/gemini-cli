@@ -50,12 +50,9 @@ vi.mock('ws', () => ({
 describe('RealTimeMonitoringSystem', () => {
   let monitoringSystem: RealTimeMonitoringSystem;
   let mockTaskStatusMonitor: MockTaskStatusMonitor;
-  let _mockPerformanceAnalytics: MockPerformanceAnalytics;
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockTaskStatusMonitor = taskStatusMonitor as unknown as MockTaskStatusMonitor;
-    _mockPerformanceAnalytics = performanceAnalyticsDashboard as unknown as MockPerformanceAnalytics;
 
     // Setup default mock responses
     mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({

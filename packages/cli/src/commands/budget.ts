@@ -15,7 +15,7 @@ import {
   visualizeCommand,
 } from './budget/index.js';
 
-export const budgetCommand: CommandModule = {
+export const budgetCommand: CommandModule<object, object> = {
   command: 'budget',
   describe: 'Manage daily API request budget limits',
   builder: (yargs: Argv) =>

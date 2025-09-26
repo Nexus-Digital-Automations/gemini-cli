@@ -585,9 +585,9 @@ describe('Monitoring System Performance Tests', () => {
         });
 
         // Generate monitoring data
-        const _snapshot = realTimeMonitoring.getCurrentSnapshot();
-        const _dashboardData = dashboard.getCurrentDashboardData();
-        const _systemStatus = integrationHub.getSystemStatus();
+        realTimeMonitoring.getCurrentSnapshot();
+        dashboard.getCurrentDashboardData();
+        integrationHub.getSystemStatus();
 
         // Record performance metrics
         performanceAnalytics.recordMetric(

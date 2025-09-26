@@ -181,7 +181,7 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should synchronize data across monitoring systems', async () => {
       // Register some test data
-      const _taskId = taskStatusMonitor.registerTask('sync-test-task', {
+      taskStatusMonitor.registerTask('sync-test-task', {
         title: 'Sync Test Task',
         description: 'Task for testing data synchronization',
         type: TaskType.TESTING,
@@ -189,7 +189,7 @@ describe('Monitoring System Integration Tests', () => {
         estimatedDuration: 60000,
       });
 
-      const _agentId = taskStatusMonitor.registerAgent('test-agent-1', {
+      taskStatusMonitor.registerAgent('test-agent-1', {
         capabilities: ['testing', 'validation'],
         maxConcurrentTasks: 3,
       });
@@ -789,7 +789,7 @@ describe('Monitoring System Integration Tests', () => {
         'Layout for export testing',
       );
 
-      const _widgetId = dashboard.addWidget(layoutId, {
+      dashboard.addWidget(layoutId, {
         type: 'gauge',
         title: 'Export Test Widget',
         position: { x: 0, y: 0, width: 4, height: 3 },
@@ -902,7 +902,7 @@ describe('Monitoring System Integration Tests', () => {
       for (let i = 0; i < 50; i++) {
         operations.push(
           Promise.resolve().then(() => {
-            const _taskId = taskStatusMonitor.registerTask(
+            taskStatusMonitor.registerTask(
               `load-test-task-${i}`,
               {
                 title: `Load Test Task ${i}`,
