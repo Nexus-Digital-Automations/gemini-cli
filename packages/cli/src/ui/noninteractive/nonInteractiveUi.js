@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Creates a UI context object with no-op functions.
  * Useful for non-interactive environments where UI operations

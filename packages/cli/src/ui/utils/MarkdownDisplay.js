@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -56,7 +50,7 @@ const MarkdownDisplayInternal = ({ text, isPending, availableTerminalHeight, ter
             if (fenceMatch &&
                 fenceMatch[1].startsWith(codeBlockFence[0]) &&
                 fenceMatch[1].length >= codeBlockFence.length) {
-                addContentBlock(_jsx(RenderCodeBlock, { content: codeBlockContent, lang: codeBlockLang, isPending, availableTerminalHeight, terminalWidth }, key));
+                addContentBlock(_jsx(RenderCodeBlock, { content: codeBlockContent, lang: codeBlockLang, isPending: isPending, availableTerminalHeight: availableTerminalHeight, terminalWidth: terminalWidth }, key));
                 inCodeBlock = false;
                 codeBlockContent = [];
                 codeBlockLang = null;
@@ -110,7 +104,7 @@ const MarkdownDisplayInternal = ({ text, isPending, availableTerminalHeight, ter
         else if (inTable && !tableRowMatch) {
             // End of table
             if (tableHeaders.length > 0 && tableRows.length > 0) {
-                addContentBlock(_jsx(RenderTable, { headers: tableHeaders, rows: tableRows, terminalWidth }, `table-${contentBlocks.length}`));
+                addContentBlock(_jsx(RenderTable, { headers: tableHeaders, rows: tableRows, terminalWidth: terminalWidth }, `table-${contentBlocks.length}`));
             }
             inTable = false;
             tableRows = [];
@@ -151,13 +145,13 @@ const MarkdownDisplayInternal = ({ text, isPending, availableTerminalHeight, ter
             const leadingWhitespace = ulMatch[1];
             const marker = ulMatch[2];
             const itemText = ulMatch[3];
-            addContentBlock(_jsx(RenderListItem, { itemText, type: "ul", marker, leadingWhitespace }, key));
+            addContentBlock(_jsx(RenderListItem, { itemText: itemText, type: "ul", marker: marker, leadingWhitespace: leadingWhitespace }, key));
         }
         else if (olMatch) {
             const leadingWhitespace = olMatch[1];
             const marker = olMatch[2];
             const itemText = olMatch[3];
-            addContentBlock(_jsx(RenderListItem, { itemText, type: "ol", marker, leadingWhitespace }, key));
+            addContentBlock(_jsx(RenderListItem, { itemText: itemText, type: "ol", marker: marker, leadingWhitespace: leadingWhitespace }, key));
         }
         else {
             if (line.trim().length === 0 && !inCodeBlock) {
@@ -172,11 +166,11 @@ const MarkdownDisplayInternal = ({ text, isPending, availableTerminalHeight, ter
         }
     });
     if (inCodeBlock) {
-        addContentBlock(_jsx(RenderCodeBlock, { content: codeBlockContent, lang: codeBlockLang, isPending, availableTerminalHeight, terminalWidth }, "line-eof"));
+        addContentBlock(_jsx(RenderCodeBlock, { content: codeBlockContent, lang: codeBlockLang, isPending: isPending, availableTerminalHeight: availableTerminalHeight, terminalWidth: terminalWidth }, "line-eof"));
     }
     // Handle table at end of content
     if (inTable && tableHeaders.length > 0 && tableRows.length > 0) {
-        addContentBlock(_jsx(RenderTable, { headers: tableHeaders, rows: tableRows, terminalWidth }, `table-${contentBlocks.length}`));
+        addContentBlock(_jsx(RenderTable, { headers: tableHeaders, rows: tableRows, terminalWidth: terminalWidth }, `table-${contentBlocks.length}`));
     }
     return _jsx(_Fragment, { children: contentBlocks });
 };
@@ -208,7 +202,7 @@ const RenderListItemInternal = ({ itemText, type, marker, leadingWhitespace = ''
     return (_jsxs(Box, { paddingLeft: indentation + LIST_ITEM_PREFIX_PADDING, flexDirection: "row", children: [_jsx(Box, { width: prefixWidth, children: _jsx(Text, { color: theme.text.primary, children: prefix }) }), _jsx(Box, { flexGrow: LIST_ITEM_TEXT_FLEX_GROW, children: _jsx(Text, { wrap: "wrap", color: theme.text.primary, children: _jsx(RenderInline, { text: itemText }) }) })] }));
 };
 const RenderListItem = React.memo(RenderListItemInternal);
-const RenderTableInternal = ({ headers, rows, terminalWidth, }) => (_jsx(TableRenderer, { headers, rows, terminalWidth }));
+const RenderTableInternal = ({ headers, rows, terminalWidth, }) => (_jsx(TableRenderer, { headers: headers, rows: rows, terminalWidth: terminalWidth }));
 const RenderTable = React.memo(RenderTableInternal);
 export const MarkdownDisplay = React.memo(MarkdownDisplayInternal);
 //# sourceMappingURL=MarkdownDisplay.js.map

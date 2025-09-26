@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 import type { BudgetSettings } from '../../config/settingsSchema.js';
 import type { SandboxConfig } from '@google/gemini-cli-core';
@@ -12,25 +11,25 @@ import type { SandboxConfig } from '@google/gemini-cli-core';
  * Configures the comprehensive status information displayed in the footer.
  */
 export interface FooterProps {
-  model: string;
-  targetDir: string;
-  branchName?: string;
-  debugMode: boolean;
-  debugMessage: string;
-  corgiMode: boolean;
-  errorCount: number;
-  showErrorDetails: boolean;
-  showMemoryUsage?: boolean;
-  promptTokenCount: number;
-  nightly: boolean;
-  vimMode?: string;
-  isTrustedFolder?: boolean;
-  hideCWD?: boolean;
-  hideSandboxStatus?: boolean;
-  hideModelInfo?: boolean;
-  budgetSettings?: BudgetSettings;
-  showBudgetStatus?: boolean;
-  sandboxConfig?: SandboxConfig;
+    model: string;
+    targetDir: string;
+    branchName?: string;
+    debugMode: boolean;
+    debugMessage: string;
+    corgiMode: boolean;
+    errorCount: number;
+    showErrorDetails: boolean;
+    showMemoryUsage?: boolean;
+    promptTokenCount: number;
+    nightly: boolean;
+    vimMode?: string;
+    isTrustedFolder?: boolean;
+    hideCWD?: boolean;
+    hideSandboxStatus?: boolean;
+    hideModelInfo?: boolean;
+    budgetSettings?: BudgetSettings;
+    showBudgetStatus?: boolean;
+    sandboxConfig?: SandboxConfig;
 }
 /**
  * Footer displays comprehensive status information at the bottom of the CLI.

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import type { TaskMetadata, TaskStatusUpdate, AgentStatus } from './TaskStatusMonitor.js';
 import type { BottleneckAnalysis } from './MetricsCollector.js';

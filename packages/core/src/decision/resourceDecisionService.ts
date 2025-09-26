@@ -609,12 +609,13 @@ export class ResourceDecisionService extends EventEmitter {
         // Trigger resource rebalancing
         await this.resourceAllocator.optimizeAllocations();
         break;
-    }
 
-    this.emit('optimization-applied', { recommendation });
       default:
         // Handle unexpected values
         break;
+    }
+
+    this.emit('optimization-applied', { recommendation });
   }
 
   private addToHistory(taskId: string, decision: ResourceDecision): void {

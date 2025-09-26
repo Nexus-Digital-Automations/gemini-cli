@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 import { Box } from 'ink';
 import { MarkdownDisplay } from '../../utils/MarkdownDisplay.js';
@@ -16,6 +10,6 @@ import { MarkdownDisplay } from '../../utils/MarkdownDisplay.js';
 export const GeminiMessageContent = ({ text, isPending, availableTerminalHeight, terminalWidth, }) => {
     const originalPrefix = '✦ ';
     const prefixWidth = originalPrefix.length;
-    return (_jsx(Box, { flexDirection: "column", paddingLeft: prefixWidth, children: _jsx(MarkdownDisplay, { text, isPending, availableTerminalHeight, terminalWidth }) }));
+    return (_jsx(Box, { flexDirection: "column", paddingLeft: prefixWidth, children: _jsx(MarkdownDisplay, { text: text, isPending: isPending, availableTerminalHeight: availableTerminalHeight, terminalWidth: terminalWidth }) }));
 };
 //# sourceMappingURL=GeminiMessageContent.js.map

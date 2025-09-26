@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 import type { BudgetSettings } from '../../config/settingsSchema.js';
 /**
@@ -11,9 +10,9 @@ import type { BudgetSettings } from '../../config/settingsSchema.js';
  * Configures how budget information is displayed and tracked.
  */
 export interface BudgetDisplayProps {
-  budgetSettings?: BudgetSettings;
-  projectRoot: string;
-  compact?: boolean;
+    budgetSettings?: BudgetSettings;
+    projectRoot: string;
+    compact?: boolean;
 }
 /**
  * BudgetDisplay shows current API usage against configured limits.

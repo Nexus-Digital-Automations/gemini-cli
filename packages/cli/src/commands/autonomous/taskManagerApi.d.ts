@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export interface TaskManagerResponse {
     success: boolean;
     data?: unknown;
@@ -26,8 +25,12 @@ export interface AutonomousTask {
     title?: string;
     description?: string;
     category?: string;
-    type?: string;
-    priority?: string;
+    type?: string | unknown;
+    priority?: string | unknown;
+    maxExecutionTimeMinutes?: number;
+    dependencies?: string[];
+    context?: Record<string, unknown>;
+    expectedOutputs?: Record<string, unknown>;
 }
 /**
  * Initialize or reinitialize an agent

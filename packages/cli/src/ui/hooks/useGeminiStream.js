@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { GeminiEventType as ServerGeminiEventType, getErrorMessage, isNodeError, MessageSenderType, logUserPrompt, GitService, UnauthorizedError, UserPromptEvent, DEFAULT_GEMINI_FLASH_MODEL, logConversationFinishedEvent, ConversationFinishedEvent, ApprovalMode, parseAndFormatApiError, ToolConfirmationOutcome, promptIdContext, } from '@google/gemini-cli-core';
 import { FinishReason } from '@google/genai';
@@ -19,7 +18,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { useSessionStats } from '../contexts/SessionContext.js';
 import { useKeypress } from './useKeypress.js';
-let StreamProcessingStatus;
+var StreamProcessingStatus;
 (function (StreamProcessingStatus) {
     StreamProcessingStatus[StreamProcessingStatus["Completed"] = 0] = "Completed";
     StreamProcessingStatus[StreamProcessingStatus["UserCancelled"] = 1] = "UserCancelled";

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useCallback, useEffect, useReducer, useRef, useTransition, } from 'react';
 function consoleMessagesReducer(state, action) {
     switch (action.type) {

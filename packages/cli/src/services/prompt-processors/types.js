@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * The placeholder string for shorthand argument injection in custom commands.
  * When used outside of !{...}, arguments are injected raw.

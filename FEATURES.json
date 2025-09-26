@@ -343,7 +343,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 284,
+      "total_reinitializations": 287,
       "current_day": "2025-09-26",
       "time_buckets": {
         "09:00-13:59": {
@@ -356,7 +356,7 @@
         },
         "19:00-23:59": {
           "init": 0,
-          "reinit": 13
+          "reinit": 16
         },
         "00:00-04:59": {
           "init": 0,
@@ -451,7 +451,7 @@
         }
       ],
       "last_reset": "2025-09-26T00:03:10.026Z",
-      "last_updated": "2025-09-26T01:17:47.375Z"
+      "last_updated": "2025-09-26T01:38:29.720Z"
     }
   },
   "workflow_config": {
@@ -471,32 +471,32 @@
     ]
   },
   "agents": {
-    "AGENT_AUTO_COMPRESSION": {
-      "lastHeartbeat": "2025-09-26T00:49:52.582Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T00:49:52.582Z",
-      "sessionId": "826d107ccd8006b4",
-      "previousSessions": []
-    },
-    "CONTINUATION_AGENT_2": {
-      "lastHeartbeat": "2025-09-26T01:02:22.668Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T01:02:22.668Z",
-      "sessionId": "8aca9dc2c78999fc",
-      "previousSessions": []
-    },
-    "CONTINUATION_AGENT_3": {
-      "lastHeartbeat": "2025-09-26T01:04:30.951Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T01:04:30.951Z",
-      "sessionId": "b6e26be137c617b5",
-      "previousSessions": []
-    },
     "agent-2": {
       "lastHeartbeat": "2025-09-26T01:17:47.365Z",
       "status": "active",
       "reinitialized": "2025-09-26T01:17:47.365Z",
       "sessionId": "a6abf61e8913e5d8",
+      "previousSessions": []
+    },
+    "AGENT_3": {
+      "lastHeartbeat": "2025-09-26T01:30:24.053Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T01:30:24.053Z",
+      "sessionId": "ae26308d0c075bdb",
+      "previousSessions": []
+    },
+    "Agent_4_EfficiencyAnalyzer": {
+      "lastHeartbeat": "2025-09-26T01:36:09.747Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T01:36:09.747Z",
+      "sessionId": "f5492b5d3c27fc22",
+      "previousSessions": []
+    },
+    "agent-5": {
+      "lastHeartbeat": "2025-09-26T01:38:29.717Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T01:38:29.717Z",
+      "sessionId": "e29069fafdc18b5e",
       "previousSessions": []
     }
   },

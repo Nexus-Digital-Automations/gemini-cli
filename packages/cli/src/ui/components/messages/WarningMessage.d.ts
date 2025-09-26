@@ -3,10 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 interface WarningMessageProps {
-  text: string;
+    text: string;
 }
 export declare const WarningMessage: React.FC<WarningMessageProps>;
 export {};

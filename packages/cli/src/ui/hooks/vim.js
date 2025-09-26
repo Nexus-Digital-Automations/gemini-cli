@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useCallback, useReducer, useEffect } from 'react';
 import { useVimMode } from '../contexts/VimModeContext.js';
 // Constants

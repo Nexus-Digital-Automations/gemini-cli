@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Composer is the main orchestrator component for the CLI interface.
  *
@@ -27,4 +26,4 @@
  * <Composer />
  * ```
  */
-export declare const Composer: () => import('react/jsx-runtime').JSX.Element;
+export declare const Composer: () => import("react/jsx-runtime").JSX.Element;

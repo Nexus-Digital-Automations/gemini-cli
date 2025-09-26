@@ -312,6 +312,7 @@ export class TaskExecutionEngine {
       default:
         return 300;
     }
+  }
 
   // Public API methods
 
@@ -347,12 +348,10 @@ export class TaskExecutionEngine {
       priority: options.priority || TaskPriority.NORMAL,
       status: TaskStatus.QUEUED,
       progress: 0,
-      requiredCapabilities: [], // Will be determined during breakdown
+      requiredCapabilities: [],
       subtaskIds: [],
       dependencies: [],
-      maxExecutionTimeMinutes:
-        options.maxExecutionTimeMinutes ||
-        this.getDefaultExecutionTime(complexity),
+      maxExecutionTimeMinutes: options.maxExecutionTimeMinutes || this.getDefaultExecutionTime(complexity),
       maxRetries: 3,
       context: options.context || {},
       expectedOutputs: options.expectedOutputs || {},

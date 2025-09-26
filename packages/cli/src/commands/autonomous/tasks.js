@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { listTasksCommand, addTaskCommand, cancelTaskCommand, showTaskCommand, retryTaskCommand, } from './tasks/index.js';
 export const tasksCommand = {
     command: 'tasks',

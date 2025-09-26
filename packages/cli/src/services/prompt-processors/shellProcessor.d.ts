@@ -3,12 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { CommandContext } from '../../ui/commands/types.js';
 import type { IPromptProcessor, PromptPipelineContent } from './types.js';
 export declare class ConfirmationRequiredError extends Error {
-  commandsToConfirm: string[];
-  constructor(message: string, commandsToConfirm: string[]);
+    commandsToConfirm: string[];
+    constructor(message: string, commandsToConfirm: string[]);
 }
 /**
  * Handles prompt interpolation, including shell command execution (`!{...}`)
@@ -21,11 +20,8 @@ export declare class ConfirmationRequiredError extends Error {
  * 4. Parsing correctly handles nested braces.
  */
 export declare class ShellProcessor implements IPromptProcessor {
-  private readonly commandName;
-  constructor(commandName: string);
-  process(
-    prompt: PromptPipelineContent,
-    context: CommandContext,
-  ): Promise<PromptPipelineContent>;
-  private processString;
+    private readonly commandName;
+    constructor(commandName: string);
+    process(prompt: PromptPipelineContent, context: CommandContext): Promise<PromptPipelineContent>;
+    private processString;
 }

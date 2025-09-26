@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useEffect } from 'react';
 const ENABLE_BRACKETED_PASTE = '\x1b[?2004h';
 const DISABLE_BRACKETED_PASTE = '\x1b[?2004l';

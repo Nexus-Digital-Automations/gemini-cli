@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useState, useCallback } from 'react';
 import { themeManager } from '../themes/theme-manager.js';
 import { MessageType } from '../types.js';

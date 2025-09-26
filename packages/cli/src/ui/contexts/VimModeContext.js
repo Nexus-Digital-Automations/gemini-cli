@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -42,7 +36,7 @@ export const VimModeProvider = ({ children, settings, }) => {
         toggleVimEnabled,
         setVimMode,
     };
-    return (_jsx(VimModeContext.Provider, { value, children }));
+    return (_jsx(VimModeContext.Provider, { value: value, children: children }));
 };
 export const useVimMode = () => {
     const context = useContext(VimModeContext);

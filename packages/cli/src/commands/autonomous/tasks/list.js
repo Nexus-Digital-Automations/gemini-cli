@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import chalk from 'chalk';
 import { TaskStatus, TaskPriority, TaskCategory, } from '@google/gemini-cli-core/src/task-management/types.js';
 import { listFeatures, handleApiResponse, handleApiFallback, initializeAgent, } from '../taskManagerApi.js';
@@ -99,9 +98,9 @@ export const listTasksCommand = {
                     {
                         id: 'task_001',
                         title: 'Implement user authentication system',
-                        status: TaskStatus.RUNNING,
-                        priority: TaskPriority.HIGH,
-                        category: TaskCategory.FEATURE,
+                        status: 'running',
+                        priority: 'high',
+                        category: 'feature',
                         progress: 65,
                         assignedAgent: 'SECURITY_AGENT_001',
                         createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
@@ -111,9 +110,9 @@ export const listTasksCommand = {
                     {
                         id: 'task_002',
                         title: 'Fix memory leak in task queue',
-                        status: TaskStatus.QUEUED,
-                        priority: TaskPriority.CRITICAL,
-                        category: TaskCategory.BUG_FIX,
+                        status: 'queued',
+                        priority: 'critical',
+                        category: 'bug_fix',
                         progress: 0,
                         createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
                         dependencies: ['task_001'],
@@ -121,9 +120,9 @@ export const listTasksCommand = {
                     {
                         id: 'task_003',
                         title: 'Update API documentation',
-                        status: TaskStatus.COMPLETED,
-                        priority: TaskPriority.MEDIUM,
-                        category: TaskCategory.DOCUMENTATION,
+                        status: 'completed',
+                        priority: 'medium',
+                        category: 'documentation',
                         progress: 100,
                         assignedAgent: 'DOCUMENTATION_AGENT_001',
                         createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
@@ -132,9 +131,9 @@ export const listTasksCommand = {
                     {
                         id: 'task_004',
                         title: 'Optimize database queries',
-                        status: TaskStatus.BLOCKED,
-                        priority: TaskPriority.HIGH,
-                        category: TaskCategory.PERFORMANCE,
+                        status: 'blocked',
+                        priority: 'high',
+                        category: 'performance',
                         progress: 25,
                         assignedAgent: 'PERFORMANCE_AGENT_001',
                         createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
@@ -148,19 +147,11 @@ export const listTasksCommand = {
                     return false;
                 if (argv['category'] && task.category !== argv['category'])
                     return false;
-                if (!argv['show-completed'] && task.status === TaskStatus.COMPLETED)
+                if (!argv['show-completed'] && task.status === 'completed')
                     return false;
-                // Priority filtering (convert string to enum value)
+                // Priority filtering (compare string priorities directly)
                 if (argv['priority']) {
-                    const priorityMap = {
-                        critical: TaskPriority.CRITICAL,
-                        high: TaskPriority.HIGH,
-                        medium: TaskPriority.MEDIUM,
-                        low: TaskPriority.LOW,
-                        background: TaskPriority.BACKGROUND,
-                    };
-                    const priorityKey = argv['priority'];
-                    if (task.priority !== priorityMap[priorityKey])
+                    if (task.priority !== argv['priority'])
                         return false;
                 }
                 return true;

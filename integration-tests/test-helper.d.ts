@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export declare function createToolCallErrorMessage(expectedTools: string | string[], foundTools: string[], result: string): string;
 export declare function printDebugInfo(rig: TestRig, result: string, context?: Record<string, unknown>): {
     toolRequest: {
@@ -20,7 +19,7 @@ export declare class TestRig {
     testName?: string;
     _lastRunStdout?: string;
     constructor();
-    getDefaultTimeout(): 60000 | 30000 | 15000;
+    getDefaultTimeout(): 30000 | 60000 | 15000;
     setup(testName: string, options?: {
         settings?: Record<string, unknown>;
     }): void;

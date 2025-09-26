@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { Theme, lightTheme } from './theme.js';
 const googleCodeColors = {
     type: 'light',

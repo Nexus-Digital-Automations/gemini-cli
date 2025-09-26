@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { getSettingsSchema } from '../config/settingsSchema.js';
 function flattenSchema(schema, prefix = '') {
     let result = {};

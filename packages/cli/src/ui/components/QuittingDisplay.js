@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -21,6 +15,6 @@ export const QuittingDisplay = () => {
     if (!uiState.quittingMessages) {
         return null;
     }
-    return (_jsx(Box, { flexDirection: "column", marginBottom: 1, children: uiState.quittingMessages.map((item) => (_jsx(HistoryItemDisplay, { availableTerminalHeight: uiState.constrainHeight ? availableTerminalHeight : undefined, terminalWidth, item, isPending: false }, item.id))) }));
+    return (_jsx(Box, { flexDirection: "column", marginBottom: 1, children: uiState.quittingMessages.map((item) => (_jsx(HistoryItemDisplay, { availableTerminalHeight: uiState.constrainHeight ? availableTerminalHeight : undefined, terminalWidth: terminalWidth, item: item, isPending: false }, item.id))) }));
 };
 //# sourceMappingURL=QuittingDisplay.js.map

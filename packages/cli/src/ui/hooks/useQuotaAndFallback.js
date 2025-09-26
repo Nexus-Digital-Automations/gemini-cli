@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { AuthType, isGenericQuotaExceededError, isProQuotaExceededError, UserTierId, } from '@google/gemini-cli-core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {} from './useHistoryManager.js';

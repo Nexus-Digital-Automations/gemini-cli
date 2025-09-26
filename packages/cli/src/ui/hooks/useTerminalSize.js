@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useEffect, useState } from 'react';
 const TERMINAL_PADDING_X = 8;
 export function useTerminalSize() {

@@ -44,8 +44,8 @@ export declare const FileSchema: z.ZodObject<{
         character: number;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    timestamp: number;
     path: string;
+    timestamp: number;
     cursor?: {
         line: number;
         character: number;
@@ -53,8 +53,8 @@ export declare const FileSchema: z.ZodObject<{
     isActive?: boolean | undefined;
     selectedText?: string | undefined;
 }, {
-    timestamp: number;
     path: string;
+    timestamp: number;
     cursor?: {
         line: number;
         character: number;
@@ -108,8 +108,8 @@ export declare const IdeContextSchema: z.ZodObject<{
                 character: number;
             }>>;
         }, "strip", z.ZodTypeAny, {
-            timestamp: number;
             path: string;
+            timestamp: number;
             cursor?: {
                 line: number;
                 character: number;
@@ -117,8 +117,8 @@ export declare const IdeContextSchema: z.ZodObject<{
             isActive?: boolean | undefined;
             selectedText?: string | undefined;
         }, {
-            timestamp: number;
             path: string;
+            timestamp: number;
             cursor?: {
                 line: number;
                 character: number;
@@ -132,8 +132,8 @@ export declare const IdeContextSchema: z.ZodObject<{
         isTrusted: z.ZodOptional<z.ZodBoolean>;
     }, "strip", z.ZodTypeAny, {
         openFiles?: {
-            timestamp: number;
             path: string;
+            timestamp: number;
             cursor?: {
                 line: number;
                 character: number;
@@ -144,8 +144,8 @@ export declare const IdeContextSchema: z.ZodObject<{
         isTrusted?: boolean | undefined;
     }, {
         openFiles?: {
-            timestamp: number;
             path: string;
+            timestamp: number;
             cursor?: {
                 line: number;
                 character: number;
@@ -158,8 +158,8 @@ export declare const IdeContextSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     workspaceState?: {
         openFiles?: {
-            timestamp: number;
             path: string;
+            timestamp: number;
             cursor?: {
                 line: number;
                 character: number;
@@ -172,8 +172,8 @@ export declare const IdeContextSchema: z.ZodObject<{
 }, {
     workspaceState?: {
         openFiles?: {
-            timestamp: number;
             path: string;
+            timestamp: number;
             cursor?: {
                 line: number;
                 character: number;
@@ -233,8 +233,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
                     character: number;
                 }>>;
             }, "strip", z.ZodTypeAny, {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -242,8 +242,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
                 isActive?: boolean | undefined;
                 selectedText?: string | undefined;
             }, {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -257,8 +257,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
             isTrusted: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
             openFiles?: {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -269,8 +269,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
             isTrusted?: boolean | undefined;
         }, {
             openFiles?: {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -283,8 +283,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         workspaceState?: {
             openFiles?: {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -297,8 +297,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
     }, {
         workspaceState?: {
             openFiles?: {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -313,8 +313,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
     params: {
         workspaceState?: {
             openFiles?: {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -325,14 +325,14 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
             isTrusted?: boolean | undefined;
         } | undefined;
     };
-    jsonrpc: "2.0";
     method: "ide/contextUpdate";
+    jsonrpc: "2.0";
 }, {
     params: {
         workspaceState?: {
             openFiles?: {
-                timestamp: number;
                 path: string;
+                timestamp: number;
                 cursor?: {
                     line: number;
                     character: number;
@@ -343,8 +343,8 @@ export declare const IdeContextNotificationSchema: z.ZodObject<{
             isTrusted?: boolean | undefined;
         } | undefined;
     };
-    jsonrpc: "2.0";
     method: "ide/contextUpdate";
+    jsonrpc: "2.0";
 }>;
 /**
  * A notification that a diff has been accepted in the IDE.
@@ -373,15 +373,15 @@ export declare const IdeDiffAcceptedNotificationSchema: z.ZodObject<{
         content: string;
         filePath: string;
     };
-    jsonrpc: "2.0";
     method: "ide/diffAccepted";
+    jsonrpc: "2.0";
 }, {
     params: {
         content: string;
         filePath: string;
     };
-    jsonrpc: "2.0";
     method: "ide/diffAccepted";
+    jsonrpc: "2.0";
 }>;
 /**
  * A notification that a diff has been rejected in the IDE.
@@ -403,14 +403,14 @@ export declare const IdeDiffRejectedNotificationSchema: z.ZodObject<{
     params: {
         filePath: string;
     };
-    jsonrpc: "2.0";
     method: "ide/diffRejected";
+    jsonrpc: "2.0";
 }, {
     params: {
         filePath: string;
     };
-    jsonrpc: "2.0";
     method: "ide/diffRejected";
+    jsonrpc: "2.0";
 }>;
 /**
  * This is defineded for backwards compatability only. Newer extension versions
@@ -436,15 +436,15 @@ export declare const IdeDiffClosedNotificationSchema: z.ZodObject<{
         filePath: string;
         content?: string | undefined;
     };
-    jsonrpc: "2.0";
     method: "ide/diffClosed";
+    jsonrpc: "2.0";
 }, {
     params: {
         filePath: string;
         content?: string | undefined;
     };
-    jsonrpc: "2.0";
     method: "ide/diffClosed";
+    jsonrpc: "2.0";
 }>;
 /**
  * The request to open a diff view in the IDE.

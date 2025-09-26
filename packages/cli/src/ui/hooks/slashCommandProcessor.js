@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useCallback, useMemo, useEffect, useState, } from 'react';
 import {} from '@google/genai';
 import process from 'node:process';

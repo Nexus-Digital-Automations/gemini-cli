@@ -3,14 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { CommandModule } from 'yargs';
 /**
  * Arguments interface for the link extension command
  */
 interface InstallArgs {
-  /** Local file system path to the extension directory */
-  path: string;
+    /** Local file system path to the extension directory */
+    path: string;
 }
 /**
  * Handles the link extension command execution

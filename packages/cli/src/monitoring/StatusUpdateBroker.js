@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 /**
@@ -298,7 +297,7 @@ export class StatusUpdateBroker extends EventEmitter {
             this.logger.error('Realtime delivery failed', {
                 subscriberId,
                 eventId: event.id,
-                error,
+                error: error,
             });
         }
     }
@@ -324,7 +323,7 @@ export class StatusUpdateBroker extends EventEmitter {
             this.logger.error('Batched delivery failed', {
                 subscriberId,
                 eventCount: events.length,
-                error,
+                error: error,
             });
         }
     }

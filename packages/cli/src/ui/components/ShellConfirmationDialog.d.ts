@@ -3,17 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type { ToolConfirmationOutcome } from '@google/gemini-cli-core';
+import { ToolConfirmationOutcome } from '@google/gemini-cli-core';
 import type React from 'react';
 export interface ShellConfirmationRequest {
-  commands: string[];
-  onConfirm: (
-    outcome: ToolConfirmationOutcome,
-    approvedCommands?: string[],
-  ) => void;
+    commands: string[];
+    onConfirm: (outcome: ToolConfirmationOutcome, approvedCommands?: string[]) => void;
 }
 export interface ShellConfirmationDialogProps {
-  request: ShellConfirmationRequest;
+    request: ShellConfirmationRequest;
 }
 export declare const ShellConfirmationDialog: React.FC<ShellConfirmationDialogProps>;

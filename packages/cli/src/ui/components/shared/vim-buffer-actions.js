@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { getLineRangeOffsets, getPositionFromOffsets, replaceRangeInternal, pushUndo, isWordCharStrict, isWordCharWithCombining, isCombiningMark, findNextWordAcrossLines, findPrevWordAcrossLines, findWordEndInLine, } from './text-buffer.js';
 import { cpLen, toCodePoints } from '../../utils/textUtils.js';
 import { assumeExhaustive } from '../../../utils/checks.js';

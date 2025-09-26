@@ -3,12 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type React from 'react';
+import React from 'react';
 interface TableRendererProps {
-  headers: string[];
-  rows: string[][];
-  terminalWidth: number;
+    headers: string[];
+    rows: string[][];
+    terminalWidth: number;
 }
 /**
  * Custom table renderer for markdown tables

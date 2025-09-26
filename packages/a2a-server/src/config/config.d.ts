@@ -3,8 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type { Config } from '@google/gemini-cli-core';
+import { Config } from '@google/gemini-cli-core';
 import type { Settings } from './settings.js';
 import type { Extension } from './extension.js';
 import { type AgentSettings } from '../types.js';
@@ -34,11 +33,7 @@ import { type AgentSettings } from '../types.js';
  * const config = await loadConfig(settings, extensions, 'task-123');
  * ```
  */
-export declare function loadConfig(
-  settings: Settings,
-  extensions: Extension[],
-  taskId: string,
-): Promise<Config>;
+export declare function loadConfig(settings: Settings, extensions: Extension[], taskId: string): Promise<Config>;
 /**
  * Merges MCP (Model Context Protocol) server configurations from settings and extensions.
  *
@@ -56,11 +51,8 @@ export declare function loadConfig(
  * // Result: { 'server1': config1, 'server2': config2, ... }
  * ```
  */
-export declare function mergeMcpServers(
-  settings: Settings,
-  extensions: Extension[],
-): {
-  [x: string]: import('@google/gemini-cli-core').MCPServerConfig;
+export declare function mergeMcpServers(settings: Settings, extensions: Extension[]): {
+    [x: string]: import("@google/gemini-cli-core").MCPServerConfig;
 };
 /**
  * Sets and changes to the target workspace directory for agent execution.
@@ -78,9 +70,7 @@ export declare function mergeMcpServers(
  * // Process is now operating in the target directory
  * ```
  */
-export declare function setTargetDir(
-  agentSettings: AgentSettings | undefined,
-): string;
+export declare function setTargetDir(agentSettings: AgentSettings | undefined): string;
 /**
  * Loads environment variables from .env files in the workspace hierarchy.
  *

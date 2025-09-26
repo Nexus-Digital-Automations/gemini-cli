@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import util from 'node:util';
 export class ConsolePatcher {
     originalConsoleLog = console.log;

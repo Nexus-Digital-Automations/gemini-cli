@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 const EstimatedArtWidth = 59;
 const BoxBorderWidth = 1;
 export const BOX_PADDING_X = 1;

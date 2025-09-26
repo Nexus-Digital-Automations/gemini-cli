@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { CoreToolScheduler } from '@google/gemini-cli-core';
 import { useCallback, useState, useMemo } from 'react';
 import { ToolCallStatus } from '../types.js';
@@ -53,7 +52,6 @@ export function useReactToolScheduler(onComplete, config, getPreferredEditor, on
         getPreferredEditor,
         config,
         onEditorClose,
-         
     }), [
         config,
         outputUpdateHandler,

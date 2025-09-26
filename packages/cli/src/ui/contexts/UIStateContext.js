@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { createContext, useContext } from 'react';
 import {} from '../hooks/useHistoryManager.js';
 export const UIStateContext = createContext(null);

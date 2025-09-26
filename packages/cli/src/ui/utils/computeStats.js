@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export function calculateErrorRate(metrics) {
     if (metrics.api.totalRequests === 0) {
         return 0;

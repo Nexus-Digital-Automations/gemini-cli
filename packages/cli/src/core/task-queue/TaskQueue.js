@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { Logger } from '../../utils/logger.js';
 import { TaskStatus, TaskPriority, taskStatusMonitor, } from '../../monitoring/TaskStatusMonitor.js';
@@ -98,6 +97,10 @@ export class TaskQueue extends EventEmitter {
             priority: definition.options?.priority || TaskPriority.NORMAL,
             dependencies: definition.options?.dependencies || [],
             tags: definition.options?.tags || [],
+            status: 'pending',
+            errorCount: 0,
+            progress: 0,
+            retryCount: 0,
             metadata: {
                 executor: definition.executor,
                 params: definition.params,

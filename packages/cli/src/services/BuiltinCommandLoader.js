@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { aboutCommand } from '../ui/commands/aboutCommand.js';
 import { authCommand } from '../ui/commands/authCommand.js';
 import { bugCommand } from '../ui/commands/bugCommand.js';
@@ -37,49 +36,49 @@ import { terminalSetupCommand } from '../ui/commands/terminalSetupCommand.js';
  * of the Gemini CLI application.
  */
 export class BuiltinCommandLoader {
-  config;
-  constructor(config) {
-    this.config = config;
-  }
-  /**
-   * Gathers all raw built-in command definitions, injects dependencies where
-   * needed (e.g., config) and filters out any that are not available.
-   *
-   * @param _signal An AbortSignal (unused for this synchronous loader).
-   * @returns A promise that resolves to an array of `SlashCommand` objects.
-   */
-  async loadCommands(_signal) {
-    const allDefinitions = [
-      aboutCommand,
-      authCommand,
-      bugCommand,
-      chatCommand,
-      clearCommand,
-      compressCommand,
-      copyCommand,
-      corgiCommand,
-      docsCommand,
-      directoryCommand,
-      editorCommand,
-      extensionsCommand,
-      helpCommand,
-      await ideCommand(),
-      initCommand,
-      mcpCommand,
-      memoryCommand,
-      this.config?.getFolderTrust() ? permissionsCommand : null,
-      privacyCommand,
-      quitCommand,
-      restoreCommand(this.config),
-      statsCommand,
-      themeCommand,
-      toolsCommand,
-      settingsCommand,
-      vimCommand,
-      setupGithubCommand,
-      terminalSetupCommand,
-    ];
-    return allDefinitions.filter((cmd) => cmd !== null);
-  }
+    config;
+    constructor(config) {
+        this.config = config;
+    }
+    /**
+     * Gathers all raw built-in command definitions, injects dependencies where
+     * needed (e.g., config) and filters out any that are not available.
+     *
+     * @param _signal An AbortSignal (unused for this synchronous loader).
+     * @returns A promise that resolves to an array of `SlashCommand` objects.
+     */
+    async loadCommands(_signal) {
+        const allDefinitions = [
+            aboutCommand,
+            authCommand,
+            bugCommand,
+            chatCommand,
+            clearCommand,
+            compressCommand,
+            copyCommand,
+            corgiCommand,
+            docsCommand,
+            directoryCommand,
+            editorCommand,
+            extensionsCommand,
+            helpCommand,
+            await ideCommand(),
+            initCommand,
+            mcpCommand,
+            memoryCommand,
+            this.config?.getFolderTrust() ? permissionsCommand : null,
+            privacyCommand,
+            quitCommand,
+            restoreCommand(this.config),
+            statsCommand,
+            themeCommand,
+            toolsCommand,
+            settingsCommand,
+            vimCommand,
+            setupGithubCommand,
+            terminalSetupCommand,
+        ];
+        return allDefinitions.filter((cmd) => cmd !== null);
+    }
 }
 //# sourceMappingURL=BuiltinCommandLoader.js.map

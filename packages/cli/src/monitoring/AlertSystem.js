@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
 /**
@@ -882,7 +881,7 @@ export class AlertSystem extends EventEmitter {
         const categoryCounts = this.calculateCountsByCategory(alerts);
         return Object.entries(categoryCounts)
             .map(([category, count]) => ({
-            category,
+            category: category,
             count,
         }))
             .sort((a, b) => b.count - a.count)

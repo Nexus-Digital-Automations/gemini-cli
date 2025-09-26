@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useMemo } from 'react';
 /**
  * Hook that provides contextual loading phrases based on the current operation

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Checks if a query string potentially represents an '@' command.
  * It triggers if the query starts with '@' or contains '@' preceded by whitespace

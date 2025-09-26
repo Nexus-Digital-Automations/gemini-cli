@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { AuthType, logToolCall, convertToFunctionResponse, ToolConfirmationOutcome, clearCachedCredentialFile, isNodeError, getErrorMessage, isWithinRoot, getErrorStatus, MCPServerConfig, DiscoveredMCPTool, StreamEventType, } from '@google/gemini-cli-core';
 import * as acp from './acp.js';
 import { AcpFileSystemService } from './fileSystemService.js';

@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useState, useCallback, } from 'react';
 import { globalProgressTracker, OperationDetector, } from '@google/gemini-cli-core';
@@ -112,7 +106,7 @@ export const ProgressProvider = ({ children, }) => {
         toggleProgressPanel,
         cleanup,
     };
-    return (_jsx(ProgressContext.Provider, { value, children }));
+    return (_jsx(ProgressContext.Provider, { value: value, children: children }));
 };
 export const useProgress = () => {
     const context = useContext(ProgressContext);

@@ -3,14 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { CommandModule } from 'yargs';
 /**
  * Arguments interface for the budget get command
  */
 interface GetCommandArgs {
-  /** Whether to output results in JSON format */
-  json?: boolean;
+    /** Whether to output results in JSON format */
+    json?: boolean;
 }
 /**
  * Yargs command module for displaying budget status and usage

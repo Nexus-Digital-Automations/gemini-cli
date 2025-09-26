@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import * as fse from 'fs-extra';
 import { promises as fsPromises } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -341,6 +340,9 @@ export class FileBasedTaskStore {
      * Restore workspace from archive
      */
     async restoreWorkspace(taskId, loadedMetadata, workspacePath) {
+        if (typeof loadedMetadata !== 'object' || loadedMetadata === null) {
+            throw new Error(`Invalid metadata for task ${taskId}: expected object but got ${typeof loadedMetadata}`);
+        }
         const persistedState = getPersistedState(loadedMetadata);
         if (!persistedState) {
             throw new Error(`Loaded metadata for task ${taskId} is missing persisted state`);
@@ -374,6 +376,9 @@ export class FileBasedTaskStore {
      * Create SDK Task object from loaded data
      */
     createSDKTask(taskId, loadedMetadata, sessionMetadata) {
+        if (typeof loadedMetadata !== 'object' || loadedMetadata === null) {
+            throw new Error(`Invalid metadata for task ${taskId}: expected object but got ${typeof loadedMetadata}`);
+        }
         const persistedState = getPersistedState(loadedMetadata);
         if (!persistedState) {
             throw new Error(`Invalid persisted state for task ${taskId}`);

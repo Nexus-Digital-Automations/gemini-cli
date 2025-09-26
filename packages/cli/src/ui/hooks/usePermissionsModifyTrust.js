@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useState, useCallback } from 'react';
 import * as process from 'node:process';
 import { loadTrustedFolders, TrustLevel, isWorkspaceTrusted, } from '../../config/trustedFolders.js';

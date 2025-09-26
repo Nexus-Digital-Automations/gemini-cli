@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import chalk from 'chalk';
 export const metricsCommand = {
     command: 'metrics',

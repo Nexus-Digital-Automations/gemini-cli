@@ -3,13 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { Arguments, CommandBuilder } from 'yargs';
 interface VisualizeArgs {
-  format?: 'ascii' | 'json' | 'interactive';
-  period?: 'day' | 'week' | 'month';
-  analytics?: boolean;
-  recommendations?: boolean;
+    format?: 'ascii' | 'json' | 'interactive';
+    period?: 'day' | 'week' | 'month';
+    analytics?: boolean;
+    recommendations?: boolean;
 }
 /**
  * Yargs command module for budget visualization with analytics
@@ -25,9 +24,9 @@ interface VisualizeArgs {
  * actionable insights for budget optimization and cost reduction.
  */
 export declare const visualizeCommand: {
-  command: string;
-  describe: string;
-  builder: CommandBuilder<VisualizeArgs, VisualizeArgs>;
-  handler: (args: Arguments<VisualizeArgs>) => Promise<void>;
+    command: string;
+    describe: string;
+    builder: CommandBuilder<VisualizeArgs, VisualizeArgs>;
+    handler: (args: Arguments<VisualizeArgs>) => Promise<void>;
 };
 export {};

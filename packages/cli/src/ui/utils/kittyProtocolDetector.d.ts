@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Detects Kitty keyboard protocol support.
  * Definitive document about this protocol lives at https://sw.kovidgoyal.net/kitty/keyboard-protocol/

@@ -3,13 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { env } from 'node:process';
-import { EOL } from 'node:os';
 import fs from 'node:fs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 function sanitizeTestName(name) {

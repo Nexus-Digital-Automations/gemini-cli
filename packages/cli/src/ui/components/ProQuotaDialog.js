@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
 import { Box, Text } from 'ink';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
@@ -22,6 +16,6 @@ export function ProQuotaDialog({ failedModel, fallbackModel, onChoice, }) {
     const handleSelect = (choice) => {
         onChoice(choice);
     };
-    return (_jsxs(Box, { borderStyle: "round", flexDirection: "column", paddingX: 1, children: [_jsxs(Text, { bold: true, color: theme.status.warning, children: ["Pro quota limit reached for ", failedModel, "."] }), _jsx(Box, { marginTop: 1, children: _jsx(RadioButtonSelect, { items, initialIndex: 1, onSelect: handleSelect }) })] }));
+    return (_jsxs(Box, { borderStyle: "round", flexDirection: "column", paddingX: 1, children: [_jsxs(Text, { bold: true, color: theme.status.warning, children: ["Pro quota limit reached for ", failedModel, "."] }), _jsx(Box, { marginTop: 1, children: _jsx(RadioButtonSelect, { items: items, initialIndex: 1, onSelect: handleSelect }) })] }));
 }
 //# sourceMappingURL=ProQuotaDialog.js.map

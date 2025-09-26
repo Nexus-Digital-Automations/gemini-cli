@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useState, useEffect, useCallback } from 'react';
 import { spawnAsync } from '@google/gemini-cli-core';
 import fs from 'node:fs';

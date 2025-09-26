@@ -3,16 +3,15 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { CommandModule } from 'yargs';
 /**
  * Arguments interface for the update extension command
  */
 interface UpdateArgs {
-  /** The name of a specific extension to update */
-  name?: string;
-  /** Whether to update all extensions */
-  all?: boolean;
+    /** The name of a specific extension to update */
+    name?: string;
+    /** Whether to update all extensions */
+    all?: boolean;
 }
 /**
  * Handles the update extension command execution

@@ -3,11 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { type Settings, type MemoryImportFormat } from './settingsSchema.js';
 export type { Settings, MemoryImportFormat };
 /** Directory name used for storing Gemini CLI configuration files */
-export declare const SETTINGS_DIRECTORY_NAME = '.gemini';
+export declare const SETTINGS_DIRECTORY_NAME = ".gemini";
 /** Absolute path to the user's global settings file */
 export declare const USER_SETTINGS_PATH: string;
 /** Directory containing the user's global settings file */
@@ -47,64 +46,64 @@ export type { DnsResolutionOrder } from './settingsSchema.js';
  * 4. System (highest - administrative overrides)
  */
 export declare enum SettingScope {
-  /** User-specific settings stored in home directory */
-  User = 'User',
-  /** Project/workspace-specific settings (only loaded in trusted workspaces) */
-  Workspace = 'Workspace',
-  /** System-wide administrative settings with highest precedence */
-  System = 'System',
-  /** Default baseline settings for the system */
-  SystemDefaults = 'SystemDefaults',
+    /** User-specific settings stored in home directory */
+    User = "User",
+    /** Project/workspace-specific settings (only loaded in trusted workspaces) */
+    Workspace = "Workspace",
+    /** System-wide administrative settings with highest precedence */
+    System = "System",
+    /** Default baseline settings for the system */
+    SystemDefaults = "SystemDefaults"
 }
 /**
  * Configuration for session checkpointing and recovery functionality.
  * Enables automatic saving and restoration of conversation state.
  */
 export interface CheckpointingSettings {
-  /** Whether to enable automatic session checkpointing for recovery */
-  enabled?: boolean;
+    /** Whether to enable automatic session checkpointing for recovery */
+    enabled?: boolean;
 }
 /**
  * Configuration for tool output summarization to manage context window usage.
  * Helps prevent tool outputs from consuming excessive token budget.
  */
 export interface SummarizeToolOutputSettings {
-  /** Maximum tokens to allocate for tool output before summarization kicks in */
-  tokenBudget?: number;
+    /** Maximum tokens to allocate for tool output before summarization kicks in */
+    tokenBudget?: number;
 }
 /**
  * Accessibility-focused configuration options for improved usability.
  * Provides options for users with different accessibility needs.
  */
 export interface AccessibilitySettings {
-  /** Disable animated loading phrases for accessibility */
-  disableLoadingPhrases?: boolean;
-  /** Enable screen reader compatibility mode with plain text output */
-  screenReader?: boolean;
+    /** Disable animated loading phrases for accessibility */
+    disableLoadingPhrases?: boolean;
+    /** Enable screen reader compatibility mode with plain text output */
+    screenReader?: boolean;
 }
 /**
  * Error information for configuration file parsing and validation failures.
  * Used to provide detailed feedback about configuration problems.
  */
 export interface SettingsError {
-  /** Descriptive error message explaining what went wrong */
-  message: string;
-  /** File path where the error occurred */
-  path: string;
+    /** Descriptive error message explaining what went wrong */
+    message: string;
+    /** File path where the error occurred */
+    path: string;
 }
 /**
  * Represents a loaded configuration file with both processed and original content.
  * Maintains original format for preservation during updates.
  */
 export interface SettingsFile {
-  /** Processed settings with environment variable resolution and type conversion */
-  settings: Settings;
-  /** Original settings as parsed from file, used for format-preserving saves */
-  originalSettings: Settings;
-  /** Absolute path to the settings file */
-  path: string;
-  /** Original JSON content for format preservation during updates */
-  rawJson?: string;
+    /** Processed settings with environment variable resolution and type conversion */
+    settings: Settings;
+    /** Original settings as parsed from file, used for format-preserving saves */
+    originalSettings: Settings;
+    /** Absolute path to the settings file */
+    path: string;
+    /** Original JSON content for format preservation during updates */
+    rawJson?: string;
 }
 /**
  * Determines if a settings object needs migration from v1 to v2 format.
@@ -122,9 +121,7 @@ export interface SettingsFile {
  * const isUpdated = needsMigration(newSettings); // false
  * ```
  */
-export declare function needsMigration(
-  settings: Record<string, unknown>,
-): boolean;
+export declare function needsMigration(settings: Record<string, unknown>): boolean;
 /**
  * Converts settings from v2 nested format back to v1 flat format.
  * Used for backward compatibility when saving settings to files that expect v1 format.
@@ -143,9 +140,7 @@ export declare function needsMigration(
  * // Result: { vimMode: true, theme: 'dark' }
  * ```
  */
-export declare function migrateSettingsToV1(
-  v2Settings: Record<string, unknown>,
-): Record<string, unknown>;
+export declare function migrateSettingsToV1(v2Settings: Record<string, unknown>): Record<string, unknown>;
 /**
  * Complete settings configuration loaded from all available sources.
  * Manages configuration from system defaults, user preferences, workspace settings,
@@ -174,88 +169,81 @@ export declare function migrateSettingsToV1(
  * ```
  */
 export declare class LoadedSettings {
-  constructor(
-    system: SettingsFile,
-    systemDefaults: SettingsFile,
-    user: SettingsFile,
-    workspace: SettingsFile,
-    isTrusted: boolean,
-    migratedInMemorScopes: Set<SettingScope>,
-  );
-  /** System-wide administrative settings with highest precedence */
-  readonly system: SettingsFile;
-  /** Default baseline settings with lowest precedence */
-  readonly systemDefaults: SettingsFile;
-  /** User personal settings */
-  readonly user: SettingsFile;
-  /** Project/workspace-specific settings (only used if workspace is trusted) */
-  readonly workspace: SettingsFile;
-  /** Whether the current workspace is trusted for loading workspace settings */
-  readonly isTrusted: boolean;
-  /** Set of scopes that were migrated in memory but not yet written to disk */
-  readonly migratedInMemorScopes: Set<SettingScope>;
-  private _merged;
-  /**
-   * The final merged settings configuration with all scopes properly combined.
-   * This is the configuration that should be used throughout the application.
-   *
-   * @returns Complete settings object with proper precedence applied
-   */
-  get merged(): Settings;
-  /**
-   * Computes the merged settings by combining all configuration scopes.
-   * Called automatically when settings change to maintain consistency.
-   *
-   * @returns Newly computed merged settings
-   */
-  private computeMergedSettings;
-  /**
-   * Retrieves the settings file for a specific configuration scope.
-   * Provides access to individual configuration layers for targeted modifications.
-   *
-   * @param scope - The configuration scope to retrieve
-   * @returns The settings file for the specified scope
-   * @throws Error if the scope is invalid
-   *
-   * @example
-   * ```typescript
-   * const userSettings = loadedSettings.forScope(SettingScope.User);
-   * const currentTheme = userSettings.settings.ui?.theme;
-   * ```
-   */
-  forScope(scope: SettingScope): SettingsFile;
-  /**
-   * Sets a configuration value in a specific scope and persists the change.
-   * Updates both the runtime settings and the original settings for file persistence.
-   * Automatically recomputes merged settings and saves to disk.
-   *
-   * @param scope - The configuration scope to modify
-   * @param key - Dot-separated path to the setting (e.g., 'ui.theme')
-   * @param value - The new value to set
-   *
-   * @example
-   * ```typescript
-   * // Set user preference for vim mode
-   * loadedSettings.setValue(SettingScope.User, 'general.vimMode', true);
-   *
-   * // Set workspace-specific theme
-   * loadedSettings.setValue(SettingScope.Workspace, 'ui.theme', 'project-dark');
-   * ```
-   */
-  setValue(scope: SettingScope, key: string, value: unknown): void;
-  /**
-   * Explicitly saves all settings files to disk.
-   * Note: Individual setValue calls already save automatically.
-   * This method is provided for explicit save operations and consistency.
-   * In the future, this could be enhanced to track dirty state and batch saves.
-   *
-   * @example
-   * ```typescript
-   * // Explicit save operation (though setValue already saves)
-   * await loadedSettings.save();
-   * ```
-   */
-  save(): Promise<void>;
+    constructor(system: SettingsFile, systemDefaults: SettingsFile, user: SettingsFile, workspace: SettingsFile, isTrusted: boolean, migratedInMemorScopes: Set<SettingScope>);
+    /** System-wide administrative settings with highest precedence */
+    readonly system: SettingsFile;
+    /** Default baseline settings with lowest precedence */
+    readonly systemDefaults: SettingsFile;
+    /** User personal settings */
+    readonly user: SettingsFile;
+    /** Project/workspace-specific settings (only used if workspace is trusted) */
+    readonly workspace: SettingsFile;
+    /** Whether the current workspace is trusted for loading workspace settings */
+    readonly isTrusted: boolean;
+    /** Set of scopes that were migrated in memory but not yet written to disk */
+    readonly migratedInMemorScopes: Set<SettingScope>;
+    private _merged;
+    /**
+     * The final merged settings configuration with all scopes properly combined.
+     * This is the configuration that should be used throughout the application.
+     *
+     * @returns Complete settings object with proper precedence applied
+     */
+    get merged(): Settings;
+    /**
+     * Computes the merged settings by combining all configuration scopes.
+     * Called automatically when settings change to maintain consistency.
+     *
+     * @returns Newly computed merged settings
+     */
+    private computeMergedSettings;
+    /**
+     * Retrieves the settings file for a specific configuration scope.
+     * Provides access to individual configuration layers for targeted modifications.
+     *
+     * @param scope - The configuration scope to retrieve
+     * @returns The settings file for the specified scope
+     * @throws Error if the scope is invalid
+     *
+     * @example
+     * ```typescript
+     * const userSettings = loadedSettings.forScope(SettingScope.User);
+     * const currentTheme = userSettings.settings.ui?.theme;
+     * ```
+     */
+    forScope(scope: SettingScope): SettingsFile;
+    /**
+     * Sets a configuration value in a specific scope and persists the change.
+     * Updates both the runtime settings and the original settings for file persistence.
+     * Automatically recomputes merged settings and saves to disk.
+     *
+     * @param scope - The configuration scope to modify
+     * @param key - Dot-separated path to the setting (e.g., 'ui.theme')
+     * @param value - The new value to set
+     *
+     * @example
+     * ```typescript
+     * // Set user preference for vim mode
+     * loadedSettings.setValue(SettingScope.User, 'general.vimMode', true);
+     *
+     * // Set workspace-specific theme
+     * loadedSettings.setValue(SettingScope.Workspace, 'ui.theme', 'project-dark');
+     * ```
+     */
+    setValue(scope: SettingScope, key: string, value: unknown): void;
+    /**
+     * Explicitly saves all settings files to disk.
+     * Note: Individual setValue calls already save automatically.
+     * This method is provided for explicit save operations and consistency.
+     * In the future, this could be enhanced to track dirty state and batch saves.
+     *
+     * @example
+     * ```typescript
+     * // Explicit save operation (though setValue already saves)
+     * await loadedSettings.save();
+     * ```
+     */
+    save(): Promise<void>;
 }
 /**
  * Configures Google Cloud environment variables specifically for Cloud Shell environments.
@@ -277,9 +265,7 @@ export declare class LoadedSettings {
  * }
  * ```
  */
-export declare function setUpCloudShellEnvironment(
-  envFilePath: string | null,
-): void;
+export declare function setUpCloudShellEnvironment(envFilePath: string | null): void;
 /**
  * Loads environment variables from .env files based on current workspace and trust settings.
  * Implements security measures and variable exclusion rules for safe environment loading.
@@ -309,8 +295,5 @@ export declare function loadEnvironment(settings: Settings): void;
  * Project settings override user settings.
  */
 export declare function loadSettings(workspaceDir?: string): LoadedSettings;
-export declare function migrateDeprecatedSettings(
-  loadedSettings: LoadedSettings,
-  workspaceDir?: string,
-): void;
+export declare function migrateDeprecatedSettings(loadedSettings: LoadedSettings, workspaceDir?: string): void;
 export declare function saveSettings(settingsFile: SettingsFile): void;

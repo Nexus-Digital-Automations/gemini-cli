@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { AyuDark } from './ayu.js';
 import { AyuLight } from './ayu-light.js';
 import { AtomOneDark } from './atom-one-dark.js';
@@ -22,7 +21,7 @@ import { createCustomTheme, validateCustomTheme } from './theme.js';
 import { ANSI } from './ansi.js';
 import { ANSILight } from './ansi-light.js';
 import { NoColorTheme } from './no-color.js';
-import process from 'node:process';
+import * as process from 'node:process';
 export const DEFAULT_THEME = DefaultDark;
 class ThemeManager {
     availableThemes;
@@ -109,7 +108,7 @@ class ThemeManager {
         }
         if (this.activeTheme) {
             const isBuiltIn = this.availableThemes.some((t) => t.name === this.activeTheme.name);
-            const isCustom = [...this.customThemes.values()].includes(this.activeTheme);
+            const isCustom = Array.from(this.customThemes.values()).includes(this.activeTheme);
             if (isBuiltIn || isCustom) {
                 return this.activeTheme;
             }

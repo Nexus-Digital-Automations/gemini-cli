@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useState, useCallback } from 'react';
 export function useInputHistory({ userMessages, onSubmit, isActive, currentQuery, onChange, }) {
     const [historyIndex, setHistoryIndex] = useState(-1);

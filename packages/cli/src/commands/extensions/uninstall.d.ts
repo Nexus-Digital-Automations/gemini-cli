@@ -3,14 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { CommandModule } from 'yargs';
 /**
  * Arguments interface for the uninstall extension command
  */
 interface UninstallArgs {
-  /** The name or source URL of the extension to uninstall */
-  name: string;
+    /** The name or source URL of the extension to uninstall */
+    name: string;
 }
 /**
  * Handles the uninstall extension command execution

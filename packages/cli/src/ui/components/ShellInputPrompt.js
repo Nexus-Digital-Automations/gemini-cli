@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useCallback } from 'react';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { ShellExecutionService } from '@google/gemini-cli-core';

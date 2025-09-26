@@ -3,8 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type React from 'react';
+import React from 'react';
 import { type Config } from '@google/gemini-cli-core';
 export declare const ConfigContext: React.Context<Config | undefined>;
 export declare const useConfig: () => Config;
