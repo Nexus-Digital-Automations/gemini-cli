@@ -8,7 +8,7 @@ import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js'
 /**
  * Task status definitions for comprehensive monitoring
  */
-export let TaskStatus;
+export var TaskStatus;
 (function (TaskStatus) {
     TaskStatus["QUEUED"] = "queued";
     TaskStatus["ASSIGNED"] = "assigned";
@@ -18,14 +18,14 @@ export let TaskStatus;
     TaskStatus["FAILED"] = "failed";
     TaskStatus["CANCELLED"] = "cancelled";
 })(TaskStatus || (TaskStatus = {}));
-export let TaskPriority;
+export var TaskPriority;
 (function (TaskPriority) {
     TaskPriority["CRITICAL"] = "critical";
     TaskPriority["HIGH"] = "high";
     TaskPriority["NORMAL"] = "normal";
     TaskPriority["LOW"] = "low";
 })(TaskPriority || (TaskPriority = {}));
-export let TaskType;
+export var TaskType;
 (function (TaskType) {
     TaskType["IMPLEMENTATION"] = "implementation";
     TaskType["TESTING"] = "testing";

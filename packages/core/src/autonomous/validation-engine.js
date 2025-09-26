@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import * as fs from 'node:fs/promises';
+// Using fs.Stats type directly
 import * as path from 'node:path';
+import { TaskCategory } from './task-breakdown-engine.js';
 /**
  * Validation rule priority
  */
-export let ValidationPriority;
+export var ValidationPriority;
 (function (ValidationPriority) {
     ValidationPriority[ValidationPriority["LOW"] = 1] = "LOW";
     ValidationPriority[ValidationPriority["MEDIUM"] = 2] = "MEDIUM";
@@ -34,7 +36,13 @@ export class ComprehensiveValidationEngine {
         const context = {
             executionResult: result,
             fileSystem: this.fileSystemValidator,
-            logger: console, // Simplified logger
+            logger: {
+                debug: (message, context) => console.debug(message, context),
+                info: (message, context) => console.info(message, context),
+                warn: (message, context) => console.warn(message, context),
+                error: (message, error, context) => console.error(message, error, context),
+                metric: (name, value, labels) => console.log(`METRIC ${name}=${value}`, labels),
+            },
         };
         // Validate success criteria
         const successValidation = await this.successCriteriaValidator.validateCriteria(task.successCriteria || [], task, result);
@@ -97,7 +105,7 @@ export class ComprehensiveValidationEngine {
             for (const file of task.targetFiles) {
                 try {
                     const exists = await this.fileSystemValidator.fileExists(file);
-                    if (!exists && task.category !== TaskCategory.CREATE) {
+                    if (!exists && task.category !== TaskCategory.FEATURE) {
                         errors.push(`Target file does not exist: ${file}`);
                     }
                     if (exists) {
@@ -105,7 +113,7 @@ export class ComprehensiveValidationEngine {
                         if (!isReadable) {
                             errors.push(`Cannot read target file: ${file}`);
                         }
-                        if ([TaskCategory.EDIT, TaskCategory.DELETE].includes(task.category)) {
+                        if ([TaskCategory.FEATURE, TaskCategory.REFACTOR].includes(task.category)) {
                             const isWritable = await this.fileSystemValidator.isWritable(file);
                             if (!isWritable) {
                                 errors.push(`Cannot write to target file: ${file}`);
@@ -146,7 +154,13 @@ export class ComprehensiveValidationEngine {
         const context = {
             executionResult: result,
             fileSystem: this.fileSystemValidator,
-            logger: console,
+            logger: {
+                debug: (message, context) => console.debug(message, context),
+                info: (message, context) => console.info(message, context),
+                warn: (message, context) => console.warn(message, context),
+                error: (message, error, context) => console.error(message, error, context),
+                metric: (name, value, labels) => console.log(`METRIC ${name}=${value}`, labels),
+            },
         };
         const errors = [];
         const warnings = [];
@@ -164,7 +178,7 @@ export class ComprehensiveValidationEngine {
             warnings.push(`Task took longer than expected: ${actualDuration}min vs ${expectedDuration}min`);
         }
         // Validate created/modified files
-        if (task.category === TaskCategory.CREATE && task.targetFiles) {
+        if (task.category === TaskCategory.FEATURE && task.targetFiles) {
             for (const file of task.targetFiles) {
                 const exists = await this.fileSystemValidator.fileExists(file);
                 if (!exists) {
@@ -210,19 +224,19 @@ export class ComprehensiveValidationEngine {
         const tools = [];
         // Extract tool requirements based on task category and description
         switch (task.category) {
-            case TaskCategory.READ:
+            case TaskCategory.DOCUMENTATION:
                 tools.push('read-file');
                 break;
-            case TaskCategory.EDIT:
+            case TaskCategory.FEATURE:
                 tools.push('edit');
                 break;
-            case TaskCategory.CREATE:
+            case TaskCategory.BUG_FIX:
                 tools.push('write-file');
                 break;
-            case TaskCategory.SEARCH:
+            case TaskCategory.REFACTOR:
                 tools.push('grep');
                 break;
-            case TaskCategory.EXECUTE:
+            case TaskCategory.INFRASTRUCTURE:
                 tools.push('shell');
                 break;
             default:
@@ -359,7 +373,11 @@ export class ComprehensiveValidationEngine {
         this.addValidationRule({
             name: 'file_existence',
             description: 'Validates that required files exist',
-            category: [TaskCategory.READ, TaskCategory.EDIT, TaskCategory.ANALYZE],
+            category: [
+                TaskCategory.DOCUMENTATION,
+                TaskCategory.FEATURE,
+                TaskCategory.TEST,
+            ],
             priority: ValidationPriority.HIGH,
             validate: async (task, context) => {
                 if (!task.targetFiles) {
@@ -371,7 +389,7 @@ export class ComprehensiveValidationEngine {
                 }
                 for (const file of task.targetFiles) {
                     const exists = await context.fileSystem.fileExists(file);
-                    if (!exists && task.category !== TaskCategory.CREATE) {
+                    if (!exists && task.category !== TaskCategory.FEATURE) {
                         return {
                             passed: false,
                             message: `Required file does not exist: ${file}`,
@@ -390,7 +408,11 @@ export class ComprehensiveValidationEngine {
         this.addValidationRule({
             name: 'file_permissions',
             description: 'Validates file access permissions',
-            category: [TaskCategory.EDIT, TaskCategory.DELETE, TaskCategory.CREATE],
+            category: [
+                TaskCategory.FEATURE,
+                TaskCategory.REFACTOR,
+                TaskCategory.FEATURE,
+            ],
             priority: ValidationPriority.HIGH,
             validate: async (task, context) => {
                 if (!task.targetFiles) {
@@ -404,8 +426,8 @@ export class ComprehensiveValidationEngine {
                     const exists = await context.fileSystem.fileExists(file);
                     if (!exists)
                         continue;
-                    if (task.category === TaskCategory.EDIT ||
-                        task.category === TaskCategory.DELETE) {
+                    if (task.category === TaskCategory.FEATURE ||
+                        task.category === TaskCategory.REFACTOR) {
                         const writable = await context.fileSystem.isWritable(file);
                         if (!writable) {
                             return {
@@ -553,7 +575,7 @@ export class DefaultSuccessCriteriaValidator {
         // Check file operations
         if (lower.includes('file') && lower.includes('created')) {
             // Would check if expected files were created
-            return task.category === TaskCategory.CREATE;
+            return task.category === TaskCategory.FEATURE;
         }
         if (lower.includes('test') && lower.includes('pass')) {
             // Would run and check test results

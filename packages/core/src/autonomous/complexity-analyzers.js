@@ -121,7 +121,7 @@ export class LinguisticComplexityAnalyzer {
                 return baseDuration * 2;
             case TaskComplexity.COMPLEX:
                 return baseDuration * 4;
-            case TaskComplexity.HIGHLY_COMPLEX:
+            case TaskComplexity.ENTERPRISE:
                 return baseDuration * 8;
             default:
                 return baseDuration;
@@ -133,7 +133,7 @@ export class LinguisticComplexityAnalyzer {
  */
 export class WorkspaceComplexityAnalyzer {
     name = 'WorkspaceComplexityAnalyzer';
-    async analyze(request, _context) {
+    async analyze(request, context) {
         const factors = [];
         let complexity = TaskComplexity.SIMPLE;
         // Analyze workspace directories count
@@ -232,7 +232,7 @@ export class WorkspaceComplexityAnalyzer {
                 return Math.max(15, baseComplexity * 2);
             case TaskComplexity.COMPLEX:
                 return Math.max(30, baseComplexity * 4);
-            case TaskComplexity.HIGHLY_COMPLEX:
+            case TaskComplexity.ENTERPRISE:
                 return Math.max(60, baseComplexity * 8);
             default:
                 return Math.max(5, baseComplexity);
@@ -244,7 +244,7 @@ export class WorkspaceComplexityAnalyzer {
  */
 export class ToolComplexityAnalyzer {
     name = 'ToolComplexityAnalyzer';
-    async analyze(request, _context) {
+    async analyze(request, context) {
         const factors = [];
         let complexity = TaskComplexity.SIMPLE;
         // Analyze tool requirements
@@ -288,7 +288,7 @@ export class ToolComplexityAnalyzer {
             complexity = TaskComplexity.COMPLEX;
         }
         else {
-            complexity = TaskComplexity.HIGHLY_COMPLEX;
+            complexity = TaskComplexity.ENTERPRISE;
         }
         // Check for tool combination complexity
         const dangerousCombinations = [
@@ -318,7 +318,7 @@ export class ToolComplexityAnalyzer {
                 description: `Missing tools: ${missingTools.join(', ')}`,
                 weight: 0.9,
             });
-            complexity = TaskComplexity.HIGHLY_COMPLEX;
+            complexity = TaskComplexity.ENTERPRISE;
         }
         return {
             complexity,
@@ -354,7 +354,7 @@ export class ToolComplexityAnalyzer {
                 return baseDuration * 1.5;
             case TaskComplexity.COMPLEX:
                 return baseDuration * 3;
-            case TaskComplexity.HIGHLY_COMPLEX:
+            case TaskComplexity.ENTERPRISE:
                 return baseDuration * 5;
             default:
                 return baseDuration;
@@ -366,7 +366,7 @@ export class ToolComplexityAnalyzer {
  */
 export class DependencyComplexityAnalyzer {
     name = 'DependencyComplexityAnalyzer';
-    async analyze(request, _context) {
+    async analyze(request, context) {
         const factors = [];
         let complexity = TaskComplexity.SIMPLE;
         // Analyze sequential dependency indicators
@@ -495,7 +495,7 @@ export class DependencyComplexityAnalyzer {
                 return Math.max(15, dependencyComplexity * 2);
             case TaskComplexity.COMPLEX:
                 return Math.max(30, dependencyComplexity * 3);
-            case TaskComplexity.HIGHLY_COMPLEX:
+            case TaskComplexity.ENTERPRISE:
                 return Math.max(60, dependencyComplexity * 5);
             default:
                 return Math.max(5, dependencyComplexity);

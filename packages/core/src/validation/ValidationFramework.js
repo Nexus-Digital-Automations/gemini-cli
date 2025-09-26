@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 /**
  * Validation severity levels for different types of validation failures
  */
-export let ValidationSeverity;
+export var ValidationSeverity;
 (function (ValidationSeverity) {
     ValidationSeverity["INFO"] = "info";
     ValidationSeverity["WARNING"] = "warning";
@@ -18,7 +18,7 @@ export let ValidationSeverity;
 /**
  * Validation status for tracking validation states
  */
-export let ValidationStatus;
+export var ValidationStatus;
 (function (ValidationStatus) {
     ValidationStatus["PENDING"] = "pending";
     ValidationStatus["RUNNING"] = "running";
@@ -29,7 +29,7 @@ export let ValidationStatus;
 /**
  * Validation rule category for organizing validation types
  */
-export let ValidationCategory;
+export var ValidationCategory;
 (function (ValidationCategory) {
     ValidationCategory["SYNTAX"] = "syntax";
     ValidationCategory["LOGIC"] = "logic";
@@ -52,7 +52,9 @@ export class ValidationFramework extends EventEmitter {
         enabledCategories: Object.values(ValidationCategory),
     }) {
         super();
-        this.logger = new Logger('ValidationFramework');
+        this.logger = new Logger({
+            defaultMeta: { component: 'ValidationFramework' },
+        });
         this.config = {
             maxConcurrentValidations: 10,
             timeout: 300000, // 5 minutes
@@ -131,7 +133,7 @@ export class ValidationFramework extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Validation failed for task: ${context.taskId}`, {
-                error,
+                error: error,
             });
             this.emit('validationFailed', context.taskId, error);
             throw error;
@@ -248,7 +250,7 @@ export class ValidationFramework extends EventEmitter {
             return enrichedResults;
         }
         catch (error) {
-            this.logger.error(`Validation rule failed: ${rule.id}`, { error });
+            this.logger.error(`Validation rule failed: ${rule.id}`, { error: error });
             this.emit('ruleFailed', rule.id, error);
             // Return failure result
             return [
@@ -281,9 +283,9 @@ export class ValidationFramework extends EventEmitter {
                 ]);
             }
             catch (error) {
-                lastError = error;
+                lastError = error instanceof Error ? error : new Error(String(error));
                 if (attempt < retries) {
-                    this.logger.warn(`Validation attempt ${attempt + 1} failed, retrying...`, { error });
+                    this.logger.warn(`Validation attempt ${attempt + 1} failed, retrying...`, { error: error });
                     await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1))); // Exponential backoff
                 }
             }
@@ -355,7 +357,7 @@ export class ValidationFramework extends EventEmitter {
             summary,
             metadata: {
                 validationFrameworkVersion: '1.0.0',
-                executionEnvironment: process.env.NODE_ENV || 'development',
+                executionEnvironment: process.env['NODE_ENV'] || 'development',
             },
         };
     }

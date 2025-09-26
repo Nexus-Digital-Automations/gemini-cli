@@ -6,7 +6,7 @@
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { VCAutomationConfig, ReleaseType, ChangelogEntry, CommitMessage, ReleaseNotes, ChangelogFormat, ChangelogConfig, ReleaseMetrics, ChangelogTemplate, SemanticVersion, ReleaseSection, ContributorInfo, BreakingChange, MigrationGuide, ChangelogAnalytics, ReleaseImpact, } from './types.js';
+import { ReleaseType, ChangelogFormat, } from './types.js';
 /**
  * ChangelogGenerator - Intelligent automated changelog and release notes generation
  *
@@ -201,10 +201,10 @@ export class ChangelogGenerator {
             .replace('{{date}}', releaseNotes.releaseDate.toISOString().split('T')[0])
             .replace('{{summary}}', releaseNotes.summary);
         // Add release highlights
-        if (releaseNotes.sections.highlights &&
-            releaseNotes.sections.highlights.length > 0) {
+        if (releaseNotes.sections['highlights'] &&
+            releaseNotes.sections['highlights'].length > 0) {
             content += '\n\n## ✨ Highlights\n\n';
-            for (const highlight of releaseNotes.sections.highlights) {
+            for (const highlight of releaseNotes.sections['highlights']) {
                 content += `- **${highlight.title}**: ${highlight.description}\n`;
             }
         }
@@ -622,7 +622,6 @@ export class ChangelogGenerator {
         return info;
     }
     calculateReleaseImpact(entries, breakingChanges) {
-        const totalFiles = [...new Set(entries.flatMap((e) => e.files))].length;
         const totalLines = entries.reduce((acc, e) => acc + e.linesAdded + e.linesDeleted, 0);
         const highImpactChanges = entries.filter((e) => e.impact === 'high').length;
         let level = 'low';
@@ -646,10 +645,10 @@ export class ChangelogGenerator {
     generateReleaseSections(groupedEntries) {
         const sections = {};
         // Generate highlights
-        sections.highlights = this.generateHighlights(groupedEntries);
+        sections['highlights'] = this.generateHighlights(groupedEntries);
         // Generate feature sections
-        if (groupedEntries.feat) {
-            sections.features = groupedEntries.feat.map((entry) => ({
+        if (groupedEntries['feat']) {
+            sections['features'] = groupedEntries['feat'].map((entry) => ({
                 title: entry.subject,
                 description: entry.description || entry.subject,
                 type: 'feature',
@@ -659,8 +658,8 @@ export class ChangelogGenerator {
             }));
         }
         // Generate bug fix sections
-        if (groupedEntries.fix) {
-            sections.fixes = groupedEntries.fix.map((entry) => ({
+        if (groupedEntries['fix']) {
+            sections['fixes'] = groupedEntries['fix'].map((entry) => ({
                 title: entry.subject,
                 description: entry.description || entry.subject,
                 type: 'fix',

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import type { ValidationFramework, ValidationResult } from './ValidationFramework.js';
+import type { ValidationResult } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 /**
  * Quality assessment levels for different validation strictness
@@ -189,12 +189,11 @@ export interface QualityAssessorEvents {
  */
 export declare class QualityAssessor extends EventEmitter {
     private readonly logger;
-    private readonly validationFramework;
     private readonly assessmentCriteria;
     private readonly activeAssessments;
     private readonly qualityHistory;
     private readonly customAssessors;
-    constructor(validationFramework: ValidationFramework);
+    constructor();
     /**
      * Initialize default quality assessment criteria for each level
      */

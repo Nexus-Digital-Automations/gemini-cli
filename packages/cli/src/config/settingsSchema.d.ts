@@ -1198,6 +1198,250 @@ declare const SETTINGS_SCHEMA: {
             };
         };
     };
+    readonly persona: {
+        readonly type: "object";
+        readonly label: "AI Persona";
+        readonly category: "Persona";
+        readonly requiresRestart: false;
+        readonly default: Record<string, unknown>;
+        readonly description: "Customizable AI personality and behavior settings.";
+        readonly showInDialog: true;
+        readonly properties: {
+            readonly active: {
+                readonly type: "string";
+                readonly label: "Active Persona";
+                readonly category: "Persona";
+                readonly requiresRestart: false;
+                readonly default: "professional";
+                readonly description: "Currently active persona profile.";
+                readonly showInDialog: true;
+            };
+            readonly personality: {
+                readonly type: "object";
+                readonly label: "Personality Traits";
+                readonly category: "Persona";
+                readonly requiresRestart: false;
+                readonly default: Record<string, unknown>;
+                readonly description: "Core personality characteristics.";
+                readonly showInDialog: false;
+                readonly properties: {
+                    readonly formality: {
+                        readonly type: "enum";
+                        readonly label: "Communication Style";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "professional";
+                        readonly description: "How formal or casual the AI communication should be.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "formal";
+                            readonly label: "Formal & Professional";
+                        }, {
+                            readonly value: "professional";
+                            readonly label: "Professional & Friendly";
+                        }, {
+                            readonly value: "casual";
+                            readonly label: "Casual & Conversational";
+                        }, {
+                            readonly value: "relaxed";
+                            readonly label: "Relaxed & Informal";
+                        }];
+                    };
+                    readonly verbosity: {
+                        readonly type: "enum";
+                        readonly label: "Response Length";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "balanced";
+                        readonly description: "How detailed and lengthy responses should be.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "concise";
+                            readonly label: "Concise & Brief";
+                        }, {
+                            readonly value: "balanced";
+                            readonly label: "Balanced Detail";
+                        }, {
+                            readonly value: "detailed";
+                            readonly label: "Detailed & Thorough";
+                        }, {
+                            readonly value: "comprehensive";
+                            readonly label: "Comprehensive & Extensive";
+                        }];
+                    };
+                    readonly creativity: {
+                        readonly type: "enum";
+                        readonly label: "Creativity Level";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "practical";
+                        readonly description: "How creative and experimental the AI should be.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "conservative";
+                            readonly label: "Conservative & Safe";
+                        }, {
+                            readonly value: "practical";
+                            readonly label: "Practical & Reliable";
+                        }, {
+                            readonly value: "innovative";
+                            readonly label: "Innovative & Creative";
+                        }, {
+                            readonly value: "experimental";
+                            readonly label: "Experimental & Bold";
+                        }];
+                    };
+                    readonly teachingStyle: {
+                        readonly type: "enum";
+                        readonly label: "Teaching Approach";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "explanatory";
+                        readonly description: "How the AI explains concepts and provides guidance.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "direct";
+                            readonly label: "Direct & Solution-Focused";
+                        }, {
+                            readonly value: "explanatory";
+                            readonly label: "Explanatory & Educational";
+                        }, {
+                            readonly value: "socratic";
+                            readonly label: "Socratic & Question-Guided";
+                        }, {
+                            readonly value: "mentoring";
+                            readonly label: "Mentoring & Supportive";
+                        }];
+                    };
+                };
+            };
+            readonly behavior: {
+                readonly type: "object";
+                readonly label: "Behavioral Patterns";
+                readonly category: "Persona";
+                readonly requiresRestart: false;
+                readonly default: Record<string, unknown>;
+                readonly description: "How the AI behaves and interacts.";
+                readonly showInDialog: false;
+                readonly properties: {
+                    readonly proactiveness: {
+                        readonly type: "enum";
+                        readonly label: "Proactiveness";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "balanced";
+                        readonly description: "How proactive the AI should be in suggesting improvements.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "reactive";
+                            readonly label: "Reactive - Wait for Instructions";
+                        }, {
+                            readonly value: "balanced";
+                            readonly label: "Balanced - Moderate Suggestions";
+                        }, {
+                            readonly value: "proactive";
+                            readonly label: "Proactive - Suggest Improvements";
+                        }, {
+                            readonly value: "assertive";
+                            readonly label: "Assertive - Drive Best Practices";
+                        }];
+                    };
+                    readonly errorHandling: {
+                        readonly type: "enum";
+                        readonly label: "Error Handling Style";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "helpful";
+                        readonly description: "How the AI responds to and handles errors.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "concise";
+                            readonly label: "Concise - Brief Error Messages";
+                        }, {
+                            readonly value: "helpful";
+                            readonly label: "Helpful - Explain and Guide";
+                        }, {
+                            readonly value: "thorough";
+                            readonly label: "Thorough - Deep Problem Analysis";
+                        }, {
+                            readonly value: "preventive";
+                            readonly label: "Preventive - Focus on Prevention";
+                        }];
+                    };
+                    readonly codeStyle: {
+                        readonly type: "enum";
+                        readonly label: "Code Review Style";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "constructive";
+                        readonly description: "How the AI approaches code review and suggestions.";
+                        readonly showInDialog: true;
+                        readonly options: readonly [{
+                            readonly value: "minimal";
+                            readonly label: "Minimal - Essential Changes Only";
+                        }, {
+                            readonly value: "constructive";
+                            readonly label: "Constructive - Balanced Feedback";
+                        }, {
+                            readonly value: "comprehensive";
+                            readonly label: "Comprehensive - Detailed Review";
+                        }, {
+                            readonly value: "mentoring";
+                            readonly label: "Mentoring - Teaching-Focused";
+                        }];
+                    };
+                };
+            };
+            readonly customization: {
+                readonly type: "object";
+                readonly label: "Custom Preferences";
+                readonly category: "Persona";
+                readonly requiresRestart: false;
+                readonly default: Record<string, unknown>;
+                readonly description: "Advanced customization options.";
+                readonly showInDialog: false;
+                readonly properties: {
+                    readonly preferredTerminology: {
+                        readonly type: "object";
+                        readonly label: "Preferred Terminology";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: Record<string, string>;
+                        readonly description: "Custom terminology preferences for technical terms.";
+                        readonly showInDialog: false;
+                    };
+                    readonly customPromptAdditions: {
+                        readonly type: "string";
+                        readonly label: "Custom Prompt Additions";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: "";
+                        readonly description: "Additional instructions to add to the system prompt.";
+                        readonly showInDialog: true;
+                    };
+                    readonly learningPreferences: {
+                        readonly type: "array";
+                        readonly label: "Learning Focus Areas";
+                        readonly category: "Persona";
+                        readonly requiresRestart: false;
+                        readonly default: string[];
+                        readonly description: "Areas where you want the AI to focus on teaching.";
+                        readonly showInDialog: false;
+                        readonly mergeStrategy: MergeStrategy.UNION;
+                    };
+                };
+            };
+            readonly profiles: {
+                readonly type: "object";
+                readonly label: "Persona Profiles";
+                readonly category: "Persona";
+                readonly requiresRestart: false;
+                readonly default: Record<string, PersonaProfile>;
+                readonly description: "Saved persona configurations for quick switching.";
+                readonly showInDialog: false;
+            };
+        };
+    };
 };
 /**
  * TypeScript type derived from the complete settings schema constant.
@@ -1280,5 +1524,85 @@ export interface FooterSettings {
     hideSandboxStatus?: boolean;
     /** Whether to hide the model name and context usage information */
     hideModelInfo?: boolean;
+}
+/**
+ * Personality trait values for AI behavior customization.
+ * Defines how the AI communicates and approaches different tasks.
+ */
+export interface PersonalityTraits {
+    /** Communication formality level */
+    formality?: 'formal' | 'professional' | 'casual' | 'relaxed';
+    /** Response detail level */
+    verbosity?: 'concise' | 'balanced' | 'detailed' | 'comprehensive';
+    /** Creativity and innovation level */
+    creativity?: 'conservative' | 'practical' | 'innovative' | 'experimental';
+    /** Teaching and explanation approach */
+    teachingStyle?: 'direct' | 'explanatory' | 'socratic' | 'mentoring';
+}
+/**
+ * Behavioral patterns for AI interaction style.
+ * Controls how the AI behaves in different situations.
+ */
+export interface BehavioralPatterns {
+    /** How proactive the AI should be */
+    proactiveness?: 'reactive' | 'balanced' | 'proactive' | 'assertive';
+    /** Error handling approach */
+    errorHandling?: 'concise' | 'helpful' | 'thorough' | 'preventive';
+    /** Code review and feedback style */
+    codeStyle?: 'minimal' | 'constructive' | 'comprehensive' | 'mentoring';
+}
+/**
+ * Advanced customization options for persona behavior.
+ * Allows fine-tuning of AI responses and terminology.
+ */
+export interface PersonaCustomization {
+    /** Custom terminology mappings for technical terms */
+    preferredTerminology?: Record<string, string>;
+    /** Additional instructions to add to system prompt */
+    customPromptAdditions?: string;
+    /** Areas of focus for educational content */
+    learningPreferences?: string[];
+}
+/**
+ * Complete persona profile configuration.
+ * Represents a saved set of personality, behavior, and customization preferences.
+ *
+ * @example
+ * ```typescript
+ * const mentorPersona: PersonaProfile = {
+ *   name: 'Coding Mentor',
+ *   description: 'Patient teacher focused on learning',
+ *   personality: {
+ *     formality: 'professional',
+ *     verbosity: 'detailed',
+ *     creativity: 'practical',
+ *     teachingStyle: 'mentoring'
+ *   },
+ *   behavior: {
+ *     proactiveness: 'proactive',
+ *     errorHandling: 'thorough',
+ *     codeStyle: 'mentoring'
+ *   },
+ *   customization: {
+ *     learningPreferences: ['best-practices', 'security', 'performance']
+ *   }
+ * };
+ * ```
+ */
+export interface PersonaProfile {
+    /** Display name for the persona */
+    name: string;
+    /** Description of the persona's characteristics */
+    description: string;
+    /** Personality trait configuration */
+    personality: PersonalityTraits;
+    /** Behavioral pattern configuration */
+    behavior: BehavioralPatterns;
+    /** Advanced customization options */
+    customization: PersonaCustomization;
+    /** Whether this is a built-in system persona */
+    isSystem?: boolean;
+    /** Creation or last modification timestamp */
+    updatedAt?: string;
 }
 export {};

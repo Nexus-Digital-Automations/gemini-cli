@@ -5,11 +5,11 @@
  */
 import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { QualityAssurance, QualityCheckType, QualityThresholds, QualityViolation, } from '../QualityAssurance.js';
-import { ValidationFramework, ValidationSeverity, } from '../ValidationFramework.js';
+import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
+import { ValidationFramework, ValidationSeverity } from '../ValidationFramework.js';
 import { TaskValidator } from '../TaskValidator.js';
 import { TaskStatus } from '../../task-management/TaskQueue.js';
-import { TaskPriority } from '../../task-management/types.js';
+import { TaskPriority, TaskCategory } from '../../task-management/types.js';
 // Mock dependencies
 vi.mock('../ValidationFramework.js');
 vi.mock('../TaskValidator.js');
@@ -47,13 +47,15 @@ describe('QualityAssurance', () => {
             id: 'test-task-qa',
             title: 'Quality Assurance Test Task',
             description: 'A task for testing quality assurance',
-            type: 'implementation',
-            priority: TaskPriority.NORMAL,
+            category: TaskCategory.FEATURE,
+            priority: TaskPriority.MEDIUM,
             status: TaskStatus.COMPLETED,
             metadata: {
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 createdBy: 'qa-test',
+                estimatedDuration: 5000,
+                tags: ['test'],
             },
         };
     });
@@ -68,7 +70,8 @@ describe('QualityAssurance', () => {
         it('should register quality check validation rules', () => {
             // Should register rules for each quality check type
             expect(mockValidationFramework.registerRule).toHaveBeenCalled();
-            const ruleIds = mockValidationFramework.registerRule.mock.calls.map((call) => call[0].id);
+            const registerRuleMock = mockValidationFramework.registerRule;
+            const ruleIds = registerRuleMock.mock.calls.map((call) => call[0].id);
             expect(ruleIds).toContain('quality-check-code_quality');
             expect(ruleIds).toContain('quality-check-performance');
             expect(ruleIds).toContain('quality-check-security');
@@ -265,48 +268,6 @@ describe('QualityAssurance', () => {
     describe('Quality Check Implementations', () => {
         describe('Code Quality Checks', () => {
             it('should validate code quality metrics', async () => {
-                const mockMetrics = {
-                    codeQuality: {
-                        complexity: 15, // Under threshold
-                        maintainability: 75,
-                        testCoverage: 85, // Above threshold
-                        codeSmells: 5,
-                        technicalDebt: 20,
-                        duplication: 8,
-                    },
-                    performance: {
-                        executionTime: 10000,
-                        memoryUsage: 256,
-                        cpuUtilization: 30,
-                        throughput: 100,
-                        responseTime: 500,
-                        resourceEfficiency: 0.8,
-                    },
-                    security: {
-                        vulnerabilities: 0,
-                        securityScore: 90,
-                        exposedSecrets: 0,
-                        complianceViolations: 0,
-                        accessControlIssues: 0,
-                        encryptionCoverage: 95,
-                    },
-                    reliability: {
-                        errorRate: 0.01,
-                        failureRate: 0.001,
-                        recoveryTime: 30,
-                        uptime: 99.9,
-                        resilience: 0.9,
-                        faultTolerance: 0.85,
-                    },
-                    business: {
-                        userSatisfaction: 4.2,
-                        featureCompleteness: 95,
-                        requirementsCoverage: 98,
-                        businessValue: 80,
-                        roi: 2.5,
-                        timeToMarket: 60,
-                    },
-                };
                 const result = await qualityAssurance.performQualityAssurance(mockTask);
                 // Should pass quality checks for good metrics
                 expect(result.passed).toBe(true);
@@ -546,13 +507,15 @@ describe('QualityAssurance Integration Tests', () => {
             id: 'integration-qa-task',
             title: 'Integration QA Test Task',
             description: 'A comprehensive integration test for quality assurance',
-            type: 'implementation',
-            priority: TaskPriority.NORMAL,
+            category: TaskCategory.FEATURE,
+            priority: TaskPriority.MEDIUM,
             status: TaskStatus.COMPLETED,
             metadata: {
-                createdAt: new Date(),
+                createdAt: new Date(Date.now() - 8000),
                 updatedAt: new Date(),
                 createdBy: 'integration-qa-test',
+                estimatedDuration: 8000,
+                tags: ['integration', 'qa'],
             },
         };
         const taskResult = {

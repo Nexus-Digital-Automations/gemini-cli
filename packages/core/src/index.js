@@ -107,4 +107,8 @@ export * from './utils/browser.js';
 export { Storage } from './config/storage.js';
 // Export test utils
 export * from './test-utils/index.js';
+// Export knowledge base management
+export * from './knowledge/KnowledgeBaseManager.js';
+// Export persona management
+export * from './persona/PersonaManager.js';
 //# sourceMappingURL=index.js.map

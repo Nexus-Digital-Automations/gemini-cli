@@ -17,7 +17,7 @@ export declare class LinguisticComplexityAnalyzer implements ComplexityAnalyzer 
  */
 export declare class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
     name: string;
-    analyze(request: string, _context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
+    analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
     private estimateDurationFromWorkspace;
 }
 /**
@@ -25,7 +25,7 @@ export declare class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
  */
 export declare class ToolComplexityAnalyzer implements ComplexityAnalyzer {
     name: string;
-    analyze(request: string, _context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
+    analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
     private estimateDurationFromTools;
 }
 /**
@@ -33,7 +33,7 @@ export declare class ToolComplexityAnalyzer implements ComplexityAnalyzer {
  */
 export declare class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
     name: string;
-    analyze(request: string, _context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
+    analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
     private estimateDurationFromDependencies;
 }
 /**

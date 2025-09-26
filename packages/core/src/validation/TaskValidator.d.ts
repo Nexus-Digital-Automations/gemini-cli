@@ -206,7 +206,6 @@ export declare class TaskValidator extends EventEmitter {
     private readonly config;
     private readonly snapshots;
     private readonly activeValidations;
-    private readonly qualityMetrics;
     constructor(validationFramework: ValidationFramework, config?: Partial<TaskValidatorConfig>);
     /**
      * Create default configuration with overrides

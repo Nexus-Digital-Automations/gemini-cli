@@ -11,8 +11,8 @@
  * @version 1.0.0
  */
 import { execSync } from 'node:child_process';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as _fs from 'node:fs/promises';
+import * as _path from 'node:path';
 import { getComponentLogger } from '../utils/logger.js';
 import { CommitType } from './types.js';
 const logger = getComponentLogger('commit-message-generator');
@@ -61,8 +61,6 @@ export class CommitMessageGenerator {
             const body = this.generateBody(analysis);
             const isBreakingChange = this.detectBreakingChange(analysis);
             const references = this.extractIssueReferences(analysis);
-            const referenceStrings = references.map(ref => `${ref.type}#${ref.id}`);
-            const footer = this.generateFooter(isBreakingChange, referenceStrings);
             const commitMessage = {
                 hash: '', // Will be set after commit
                 type: commitType,
@@ -85,7 +83,7 @@ export class CommitMessageGenerator {
             return commitMessage;
         }
         catch (error) {
-            logger.error('Failed to generate commit message', { error });
+            logger.error('Failed to generate commit message', { error: error });
             throw error;
         }
     }
@@ -116,7 +114,7 @@ export class CommitMessageGenerator {
             return analysis;
         }
         catch (error) {
-            logger.error('Failed to analyze changes', { error });
+            logger.error('Failed to analyze changes', { error: error });
             throw error;
         }
     }
@@ -309,7 +307,7 @@ export class CommitMessageGenerator {
             }
         }
         catch (error) {
-            logger.debug('Failed to extract issue references', { error });
+            logger.debug('Failed to extract issue references', { error: error });
         }
         // Remove duplicates based on id
         const uniqueRefs = references.filter((ref, index, arr) => arr.findIndex(r => r.id === ref.id) === index);
@@ -347,7 +345,7 @@ export class CommitMessageGenerator {
             return output.trim().split('\n').filter(file => file.length > 0);
         }
         catch (error) {
-            logger.warn('Failed to get modified files, falling back to all changed files', { error });
+            logger.warn('Failed to get modified files, falling back to all changed files', { error: error });
             try {
                 const output = execSync('git diff HEAD~1 --name-only', { encoding: 'utf8' });
                 return output.trim().split('\n').filter(file => file.length > 0);
@@ -553,7 +551,7 @@ export class CommitMessageGenerator {
             return execSync('git config user.name', { encoding: 'utf8' }).trim();
         }
         catch (error) {
-            logger.warn('Failed to get Git user name', { error });
+            logger.warn('Failed to get Git user name', { error: error });
             return 'Unknown User';
         }
     }
@@ -565,7 +563,7 @@ export class CommitMessageGenerator {
             return execSync('git config user.email', { encoding: 'utf8' }).trim();
         }
         catch (error) {
-            logger.warn('Failed to get Git user email', { error });
+            logger.warn('Failed to get Git user email', { error: error });
             return 'unknown@example.com';
         }
     }

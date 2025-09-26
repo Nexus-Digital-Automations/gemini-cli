@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
-import { ValidationContext, ValidationStatus, ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
-import { TaskStatus, TaskPriority } from '../task-management/types.js';
+import { logger as parentLogger } from '../utils/logger.js';
+import { ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
 /**
  * Quality assessment levels for different validation strictness
  */
-export let QualityAssessmentLevel;
+export var QualityAssessmentLevel;
 (function (QualityAssessmentLevel) {
     QualityAssessmentLevel["BASIC"] = "basic";
     QualityAssessmentLevel["STANDARD"] = "standard";
@@ -28,16 +27,13 @@ export let QualityAssessmentLevel;
  * - Continuous quality monitoring
  */
 export class QualityAssessor extends EventEmitter {
-    logger;
-    validationFramework;
+    logger = parentLogger().child({ component: 'QualityAssessor' });
     assessmentCriteria = new Map();
     activeAssessments = new Map();
     qualityHistory = new Map();
     customAssessors = new Map();
-    constructor(validationFramework) {
+    constructor() {
         super();
-        this.logger = new Logger('QualityAssessor');
-        this.validationFramework = validationFramework;
         this.initializeDefaultCriteria();
         this.registerDefaultAssessors();
         this.logger.info('QualityAssessor initialized', {
@@ -164,7 +160,7 @@ export class QualityAssessor extends EventEmitter {
             return result;
         }
         catch (error) {
-            this.logger.error(`Quality assessment failed: ${taskId}`, { error });
+            this.logger.error(`Quality assessment failed: ${taskId}`, { error: error });
             this.emit('assessmentFailed', taskId, error);
             throw error;
         }
@@ -245,11 +241,11 @@ export class QualityAssessor extends EventEmitter {
                 return result;
             }
             catch (error) {
-                this.logger.error(`Assessor ${name} failed`, { error });
+                this.logger.error(`Assessor ${name} failed`, { error: error });
                 return {};
             }
         }));
-        // Merge assessor results
+        // Merge assessor results - ensure complete QualityMetrics structure
         const metrics = assessorResults.reduce((acc, result) => ({
             ...acc,
             ...result,
@@ -398,7 +394,7 @@ export class QualityAssessor extends EventEmitter {
         if (highIssues.length > 0) {
             recommendations.push({
                 type: 'short_term',
-                category: 'quality',
+                category: 'reliability',
                 priority: 2,
                 title: 'Improve Core Quality Metrics',
                 description: 'Focus on improving fundamental quality aspects that significantly impact overall quality score',
@@ -445,7 +441,7 @@ export class QualityAssessor extends EventEmitter {
     /**
      * Create quality improvement plan
      */
-    createQualityImprovementPlan(recommendations, issues) {
+    createQualityImprovementPlan(recommendations, _issues) {
         const phases = [];
         // Phase 1: Immediate fixes (critical issues)
         const criticalRecommendations = recommendations.filter((r) => r.type === 'immediate');

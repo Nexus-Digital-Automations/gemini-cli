@@ -5,7 +5,7 @@
  */
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
+import { RealTimeMonitoringSystem, } from '../RealTimeMonitoringSystem.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
 import {} from './types.js';
 // Mock dependencies
@@ -108,19 +108,19 @@ describe('RealTimeMonitoringSystem', () => {
             expect(monitoringSystem).toBeInstanceOf(RealTimeMonitoringSystem);
             expect(monitoringSystem).toBeInstanceOf(EventEmitter);
         });
-        it('should emit system:initialized event', (done) => {
+        it('should emit system:initialized event', () => new Promise((resolve) => {
             const newSystem = new RealTimeMonitoringSystem();
             newSystem.on('system:initialized', (data) => {
                 expect(data).toHaveProperty('config');
                 expect(data.config).toHaveProperty('updateIntervalMs');
                 expect(data.config.updateIntervalMs).toBe(500);
-                done();
+                resolve();
             });
             // Allow time for initialization
             setTimeout(() => {
                 newSystem.shutdown();
             }, 100);
-        });
+        }));
         it('should setup default alert rules', () => {
             const alertRules = monitoringSystem.getAlertRules();
             expect(alertRules).toHaveLength(5);
@@ -211,7 +211,7 @@ describe('RealTimeMonitoringSystem', () => {
                 .getAlertRules()
                 .some((rule) => rule.id === 'removable-rule')).toBe(false);
         });
-        it('should trigger alerts when conditions are met', (done) => {
+        it('should trigger alerts when conditions are met', () => new Promise((resolve) => {
             const testRule = {
                 id: 'trigger-test',
                 name: 'Always Trigger',
@@ -226,7 +226,7 @@ describe('RealTimeMonitoringSystem', () => {
             monitoringSystem.on('alert:triggered', (data) => {
                 expect(data).toHaveProperty('alert');
                 expect(data.alert.data.rule.name).toBe('Always Trigger');
-                done();
+                resolve();
             });
             // Start monitoring to trigger alert checking
             monitoringSystem.startMonitoring();
@@ -234,7 +234,7 @@ describe('RealTimeMonitoringSystem', () => {
             setTimeout(() => {
                 monitoringSystem.stopMonitoring();
             }, 200);
-        });
+        }));
         it('should respect alert cooldown periods', async () => {
             const testRule = {
                 id: 'cooldown-test',
@@ -352,7 +352,7 @@ describe('RealTimeMonitoringSystem', () => {
         });
     });
     describe('Performance Requirements', () => {
-        it('should provide sub-second monitoring updates', (done) => {
+        it('should provide sub-second monitoring updates', () => new Promise((resolve) => {
             const startTime = Date.now();
             let updateCount = 0;
             monitoringSystem.on('snapshot:collected', () => {
@@ -364,11 +364,11 @@ describe('RealTimeMonitoringSystem', () => {
                     expect(averageInterval).toBeLessThan(600);
                     expect(averageInterval).toBeGreaterThan(400);
                     monitoringSystem.stopMonitoring();
-                    done();
+                    resolve();
                 }
             });
             monitoringSystem.startMonitoring();
-        });
+        }));
         it('should handle high-frequency monitoring without performance degradation', async () => {
             const startTime = Date.now();
             // Simulate high-frequency monitoring (every 100ms)

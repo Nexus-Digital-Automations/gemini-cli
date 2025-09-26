@@ -28,7 +28,7 @@ export interface FunctionalValidationConfig {
 /**
  * Behavior validation scenario
  */
-interface BehaviorScenario {
+export interface BehaviorScenario {
     id: string;
     description: string;
     setup?: () => Promise<void>;
@@ -89,4 +89,3 @@ export declare class FunctionalValidator {
      */
     getSupportedFrameworks(): string[];
 }
-export {};

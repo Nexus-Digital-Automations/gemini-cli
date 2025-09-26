@@ -127,7 +127,7 @@ export interface RollbackSnapshot {
 export interface RollbackOperation {
     id: string;
     taskId: string;
-    type: RollbackType;
+    type: RollbackType[];
     trigger: RollbackTrigger;
     strategy: RollbackStrategy;
     priority: RollbackPriority;
@@ -258,7 +258,6 @@ export declare class RollbackManager extends EventEmitter {
     private readonly taskSnapshots;
     private readonly activeRollbacks;
     private readonly rollbackHistory;
-    private readonly pendingOperations;
     constructor(config?: Partial<RollbackManagerConfig>);
     /**
      * Create default configuration with overrides

@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { VCAutomationConfig, ChangelogEntry, ReleaseNotes, ChangelogFormat, ReleaseMetrics, ChangelogAnalytics } from './types.js';
+import { type VCAutomationConfig, type ChangelogEntry, type ReleaseNotes, ChangelogFormat, type ReleaseMetrics, type ChangelogAnalytics } from './types.js';
 /**
  * ChangelogGenerator - Intelligent automated changelog and release notes generation
  *

@@ -270,6 +270,7 @@ export declare class ValidationIntegration extends EventEmitter {
     private createTaskResultFromContext;
     private evaluateCompletionCriterion;
     private createPassthroughResult;
+    private mapRuleCategoryToValidationCategory;
     private startMonitoring;
     private performHealthCheck;
     private performScheduledQualityChecks;

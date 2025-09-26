@@ -90,10 +90,10 @@ export const BudgetDashboard = ({ projectRoot, budgetSettings = { enabled: true 
      * Renders the navigation bar with view options.
      */
     const renderNavigation = () => (_jsx(Box, { borderStyle: "round", paddingX: 1, marginBottom: 1, children: _jsx(Box, { gap: 2, children: navigationOptions.map((option, index) => (_jsx(Box, { children: _jsxs(Text, { color: index === selectedIndex
-                        ? theme.primary.main
+                        ? theme.text.accent
                         : dashboardState.activeView === option.key
                             ? theme.status.success
-                            : theme.text.secondary, backgroundColor: index === selectedIndex ? theme.primary.light : undefined, children: [option.icon, " ", option.label] }) }, option.key))) }) }));
+                            : theme.text.secondary, children: [option.icon, " ", option.label] }) }, option.key))) }) }));
     /**
      * Renders the dashboard header with key metrics.
      */

@@ -354,9 +354,9 @@ export class HealthDiagnostics extends EventEmitter {
             switch (componentName) {
                 case 'TaskStatusMonitor': {
                     const taskMetrics = taskStatusMonitor.getPerformanceMetrics();
-                    details.totalTasks = taskMetrics.totalTasks;
-                    details.activeAgents = taskMetrics.activeAgents;
-                    details.systemEfficiency = taskMetrics.systemEfficiency;
+                    details['totalTasks'] = taskMetrics.totalTasks;
+                    details['activeAgents'] = taskMetrics.activeAgents;
+                    details['systemEfficiency'] = taskMetrics.systemEfficiency;
                     if (taskMetrics.systemEfficiency < 70) {
                         status = 'critical';
                         message = `Low system efficiency: ${taskMetrics.systemEfficiency.toFixed(1)}%`;
@@ -369,8 +369,8 @@ export class HealthDiagnostics extends EventEmitter {
                 }
                 case 'ProgressTracker': {
                     const progressAnalytics = progressTracker.getProgressAnalytics();
-                    details.totalTrackedTasks = progressAnalytics.totalTasksTracked;
-                    details.activeTasks = progressAnalytics.activeTasks;
+                    details['totalTrackedTasks'] = progressAnalytics.totalTasksTracked;
+                    details['activeTasks'] = progressAnalytics.activeTasks;
                     details.estimationAccuracy =
                         progressAnalytics.averageEstimationAccuracy;
                     if (progressAnalytics.averageEstimationAccuracy < 60) {
@@ -504,8 +504,8 @@ export class HealthDiagnostics extends EventEmitter {
         for (const component of [...criticalComponents, ...warningComponents]) {
             switch (component.component) {
                 case 'TaskStatusMonitor':
-                    if (component.details?.systemEfficiency &&
-                        component.details.systemEfficiency < 85) {
+                    if (component.details?.['systemEfficiency'] &&
+                        component.details['systemEfficiency'] < 85) {
                         recommendations.push('Consider scaling agent pool or optimizing task distribution');
                     }
                     break;

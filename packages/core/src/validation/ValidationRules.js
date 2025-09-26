@@ -3,12 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Logger } from "@google/gemini-cli/src/utils/logger.js";
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import { ValidationStatus, ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
 /**
  * Rule categories for organization and filtering
  */
-export let RuleCategory;
+export var RuleCategory;
 (function (RuleCategory) {
     RuleCategory["TASK_PRECONDITIONS"] = "task_preconditions";
     RuleCategory["TASK_EXECUTION"] = "task_execution";
@@ -24,7 +24,7 @@ export let RuleCategory;
 /**
  * Rule execution contexts for conditional rule application
  */
-export let RuleExecutionContext;
+export var RuleExecutionContext;
 (function (RuleExecutionContext) {
     RuleExecutionContext["PRE_EXECUTION"] = "pre_execution";
     RuleExecutionContext["DURING_EXECUTION"] = "during_execution";
@@ -43,7 +43,7 @@ export class ValidationRules {
     logger;
     registry;
     constructor() {
-        this.logger = new Logger('ValidationRules');
+        this.logger = new Logger({ defaultMeta: { component: 'ValidationRules' } });
         this.registry = {
             rules: new Map(),
             rulesByCategory: new Map(),
@@ -376,8 +376,8 @@ export class ValidationRules {
         }
         // Sort by priority
         return applicableRules.sort((a, b) => {
-            const priorityA = a.metadata?.priority || 999;
-            const priorityB = b.metadata?.priority || 999;
+            const priorityA = a.metadata?.['priority'] || 999;
+            const priorityB = b.metadata?.['priority'] || 999;
             return priorityA - priorityB;
         });
     }
@@ -443,8 +443,8 @@ export class ValidationRules {
     /**
      * Validate that task has all required fields
      */
-    async validateTaskRequiredFields(context) {
-        const task = context.metadata?.task;
+    async validateTaskRequiredFields(_context) {
+        const task = _context.metadata?.['task'];
         if (!task) {
             return [
                 {
@@ -494,8 +494,8 @@ export class ValidationRules {
     /**
      * Validate that task status is valid for execution
      */
-    async validateTaskStatusForExecution(context) {
-        const task = context.metadata?.task;
+    async validateTaskStatusForExecution(_context) {
+        const task = _context.metadata?.['task'];
         if (!task) {
             return [
                 {
@@ -537,8 +537,8 @@ export class ValidationRules {
     /**
      * Validate that all task dependencies are satisfied
      */
-    async validateTaskDependencies(context) {
-        const task = context.metadata?.task;
+    async validateTaskDependencies(_context) {
+        const task = _context.metadata?.['task'];
         if (!task) {
             return [
                 {
@@ -567,10 +567,9 @@ export class ValidationRules {
     /**
      * Validate execution timeout limits
      */
-    async validateExecutionTimeout(context) {
-        const executionMetrics = context.metadata
-            ?.executionMetrics;
-        const task = context.metadata?.task;
+    async validateExecutionTimeout(_context) {
+        const executionMetrics = _context.metadata?.['executionMetrics'];
+        const task = _context.metadata?.['task'];
         if (!executionMetrics || !task) {
             return [
                 {
@@ -583,7 +582,9 @@ export class ValidationRules {
                 },
             ];
         }
-        const maxExecutionTime = task.maxExecutionTimeMinutes * 60 * 1000 || 3600000; // 1 hour default
+        const maxExecutionTime = (task['maxExecutionTimeMinutes'] || 60) *
+            60 *
+            1000 || 3600000; // 1 hour default
         const actualExecutionTime = executionMetrics.duration || 0;
         if (actualExecutionTime > maxExecutionTime) {
             return [
@@ -612,7 +613,7 @@ export class ValidationRules {
      * Additional validation rule implementations...
      * Each rule follows the same pattern: extract context, validate conditions, return results
      */
-    async validateResourceConsumption(context) {
+    async validateResourceConsumption(_context) {
         // TODO: Implement resource consumption validation
         return [
             {
@@ -625,7 +626,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateTaskCompletionCriteria(context) {
+    async validateTaskCompletionCriteria(_context) {
         // TODO: Implement completion criteria validation
         return [
             {
@@ -638,7 +639,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateTaskOutputs(context) {
+    async validateTaskOutputs(_context) {
         // TODO: Implement output validation
         return [
             {
@@ -651,7 +652,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateSensitiveDataHandling(context) {
+    async validateSensitiveDataHandling(_context) {
         // TODO: Implement sensitive data handling validation
         return [
             {
@@ -664,7 +665,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateAccessControls(context) {
+    async validateAccessControls(_context) {
         // TODO: Implement access controls validation
         return [
             {
@@ -677,9 +678,8 @@ export class ValidationRules {
             },
         ];
     }
-    async validateMemoryUsage(context) {
-        const executionMetrics = context.metadata
-            ?.executionMetrics;
+    async validateMemoryUsage(_context) {
+        const executionMetrics = _context.metadata?.['executionMetrics'];
         if (!executionMetrics?.memoryUsage) {
             return [
                 {
@@ -717,7 +717,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateCpuUsage(context) {
+    async validateCpuUsage(_context) {
         // TODO: Implement CPU usage validation similar to memory validation
         return [
             {
@@ -730,7 +730,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateCodeStandards(context) {
+    async validateCodeStandards(_context) {
         // TODO: Implement code standards validation
         return [
             {
@@ -743,7 +743,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateTestCoverage(context) {
+    async validateTestCoverage(_context) {
         // TODO: Implement test coverage validation
         return [
             {
@@ -756,7 +756,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateBusinessRequirements(context) {
+    async validateBusinessRequirements(_context) {
         // TODO: Implement business requirements validation
         return [
             {
@@ -769,7 +769,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateDataIntegrity(context) {
+    async validateDataIntegrity(_context) {
         // TODO: Implement data integrity validation
         return [
             {
@@ -782,7 +782,7 @@ export class ValidationRules {
             },
         ];
     }
-    async validateApiContracts(context) {
+    async validateApiContracts(_context) {
         // TODO: Implement API contract validation
         return [
             {

@@ -8,7 +8,7 @@ import * as fs from 'node:fs/promises';
 import * as _path from 'node:path';
 import { BudgetTracker } from '../budget-tracker.js';
 import { BudgetEnforcement } from '../budget-enforcement.js';
-import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
+import { BudgetContentGenerator } from '../../core/budgetContentGenerator.js';
 // Mock file system operations
 vi.mock('node:fs/promises', () => ({
     readFile: vi.fn(),
@@ -17,9 +17,13 @@ vi.mock('node:fs/promises', () => ({
     access: vi.fn(),
 }));
 const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
-const performanceMarkSpy = vi
-    .spyOn(performance, 'mark')
-    .mockImplementation(() => { });
+const performanceMarkSpy = vi.spyOn(performance, 'mark').mockImplementation(() => ({
+    name: 'test',
+    entryType: 'mark',
+    startTime: 0,
+    duration: 0,
+    toJSON: () => ({}),
+}));
 const performanceMeasureSpy = vi
     .spyOn(performance, 'measure')
     .mockImplementation(() => ({
@@ -27,6 +31,7 @@ const performanceMeasureSpy = vi
     name: 'test',
     entryType: 'measure',
     startTime: 0,
+    detail: null,
     toJSON: () => ({}),
 }));
 /**
@@ -69,6 +74,16 @@ class PerformanceTestUtils {
         return {
             date: new Date().toISOString().split('T')[0],
             requestCount,
+            totalCost: requestCount * 0.001, // Mock cost calculation
+            tokenUsage: {
+                inputTokens: requestCount * 10,
+                outputTokens: requestCount * 5,
+                totalTokens: requestCount * 15,
+                tokenCosts: {
+                    input: requestCount * 0.0005,
+                    output: requestCount * 0.0005,
+                },
+            },
             lastResetTime: new Date().toISOString(),
             warningsShown: requestCount > 5000 ? [50, 75, 90] : [],
         };
@@ -210,15 +225,22 @@ describe('Budget Analytics Performance and Load Tests', () => {
                 const opType = i % 4;
                 switch (opType) {
                     case 0:
-                        return () => tracker.recordRequest().then(() => {
+                        return async () => {
+                            await tracker.recordRequest();
                             requestCount++;
-                        });
+                        };
                     case 1:
-                        return () => tracker.isOverBudget();
+                        return async () => {
+                            await tracker.isOverBudget();
+                        };
                     case 2:
-                        return () => tracker.getUsageStats();
+                        return async () => {
+                            await tracker.getUsageStats();
+                        };
                     case 3:
-                        return () => enforcement.checkRequestAllowed();
+                        return async () => {
+                            await enforcement.checkRequestAllowed();
+                        };
                     default:
                         return () => Promise.resolve();
                 }
@@ -248,9 +270,15 @@ describe('Budget Analytics Performance and Load Tests', () => {
             const extremeUsageData = PerformanceTestUtils.createLargeUsageData(Number.MAX_SAFE_INTEGER);
             vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(extremeUsageData));
             const operations = [
-                () => tracker.getUsageStats(),
-                () => tracker.isOverBudget(),
-                () => tracker.shouldShowWarning(),
+                async () => {
+                    await tracker.getUsageStats();
+                },
+                async () => {
+                    await tracker.isOverBudget();
+                },
+                async () => {
+                    await tracker.shouldShowWarning();
+                },
             ];
             for (const operation of operations) {
                 const { duration } = await PerformanceTestUtils.measureOperation('Extreme Value Processing', operation, 100);
@@ -309,6 +337,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
                 return Promise.resolve(JSON.stringify(usageData));
             });
             const mockRequest = {
+                model: 'gemini-1.5-flash',
                 contents: [{ parts: [{ text: 'Test' }], role: 'user' }],
             };
             // Test integrated API call performance
@@ -327,9 +356,15 @@ describe('Budget Analytics Performance and Load Tests', () => {
             vi.mocked(fs.readFile).mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(JSON.stringify(PerformanceTestUtils.createLargeUsageData(10))), 50)));
             vi.mocked(fs.writeFile).mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(), 30)));
             const operations = [
-                () => tracker.recordRequest(),
-                () => tracker.getUsageStats(),
-                () => tracker.isOverBudget(),
+                async () => {
+                    await tracker.recordRequest();
+                },
+                async () => {
+                    await tracker.getUsageStats();
+                },
+                async () => {
+                    await tracker.isOverBudget();
+                },
             ];
             for (const operation of operations) {
                 const { duration } = await PerformanceTestUtils.measureOperation('Slow FileSystem Operation', operation, 200);
@@ -380,11 +415,10 @@ describe('Budget Analytics Performance and Load Tests', () => {
             const tracker = new BudgetTracker(projectRoot, budgetSettings);
             const enforcement = new BudgetEnforcement(projectRoot, budgetSettings);
             // Test rapid settings updates
-            const updateOperations = Array.from({ length: 100 }, (_, i) => () => {
+            const updateOperations = Array.from({ length: 100 }, (_, i) => async () => {
                 const newLimit = 1000 + i * 10;
                 tracker.updateSettings({ dailyLimit: newLimit });
                 enforcement.updateSettings({ dailyLimit: newLimit });
-                return Promise.resolve();
             });
             const { totalDuration } = await PerformanceTestUtils.measureBatchOperations('Rapid Settings Updates', updateOperations, 1000);
             expect(totalDuration).toBeLessThan(1000);
@@ -400,10 +434,18 @@ describe('Budget Analytics Performance and Load Tests', () => {
             vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(usageData));
             // Baseline measurements for key operations
             const baselineOperations = {
-                recordRequest: () => tracker.recordRequest(),
-                getUsageStats: () => tracker.getUsageStats(),
-                isOverBudget: () => tracker.isOverBudget(),
-                shouldShowWarning: () => tracker.shouldShowWarning(),
+                recordRequest: async () => {
+                    await tracker.recordRequest();
+                },
+                getUsageStats: async () => {
+                    await tracker.getUsageStats();
+                },
+                isOverBudget: async () => {
+                    await tracker.isOverBudget();
+                },
+                shouldShowWarning: async () => {
+                    await tracker.shouldShowWarning();
+                },
             };
             const baseline = {};
             for (const [operationName, operation] of Object.entries(baselineOperations)) {
@@ -435,6 +477,7 @@ describe('Budget Analytics Performance and Load Tests', () => {
             expect(initialStats.requestCount).toBe(2);
             // 3. Make API calls through content generator
             const mockRequest = {
+                model: 'gemini-1.5-flash',
                 contents: [{ parts: [{ text: 'Test' }], role: 'user' }],
             };
             for (let i = 0; i < 10; i++) {

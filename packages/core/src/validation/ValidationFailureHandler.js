@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
 /**
  * Failure handling strategy types
  */
-export let FailureHandlingStrategy;
+export var FailureHandlingStrategy;
 (function (FailureHandlingStrategy) {
     FailureHandlingStrategy["IMMEDIATE_RETRY"] = "immediate-retry";
     FailureHandlingStrategy["EXPONENTIAL_BACKOFF"] = "exponential-backoff";
@@ -22,7 +22,7 @@ export let FailureHandlingStrategy;
 /**
  * Circuit breaker state
  */
-let CircuitBreakerState;
+var CircuitBreakerState;
 (function (CircuitBreakerState) {
     CircuitBreakerState["CLOSED"] = "closed";
     CircuitBreakerState["OPEN"] = "open";
@@ -47,7 +47,9 @@ export class ValidationFailureHandler extends EventEmitter {
     };
     constructor(config = {}) {
         super();
-        this.logger = new Logger('ValidationFailureHandler');
+        this.logger = new Logger({
+            defaultMeta: { component: 'ValidationFailureHandler' },
+        });
         this.config = {
             globalStrategy: FailureHandlingStrategy.EXPONENTIAL_BACKOFF,
             categoryStrategies: {
@@ -138,7 +140,7 @@ export class ValidationFailureHandler extends EventEmitter {
     async handleValidationFailure(error, context, originalOperation) {
         const failureId = `failure-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         this.logger.warn(`Handling validation failure: ${failureId}`, {
-            error: error.message,
+            error,
             taskId: this.getTaskId(context),
         });
         // Record failure
@@ -167,7 +169,7 @@ export class ValidationFailureHandler extends EventEmitter {
                 originalError: error.message,
                 handlingError: handlingError.message,
             });
-            failureRecord.metadata.handlingError = handlingError.message;
+            failureRecord.metadata['handlingError'] = handlingError.message;
             this.emit('failureUnresolved', failureRecord);
             throw handlingError;
         }
@@ -391,7 +393,9 @@ export class ValidationFailureHandler extends EventEmitter {
             }
             catch (fallbackError) {
                 this.logger.warn(`Fallback strategy ${strategy.type} failed`, {
-                    error: fallbackError.message,
+                    error: fallbackError instanceof Error
+                        ? fallbackError
+                        : new Error(String(fallbackError)),
                 });
             }
         }
@@ -574,7 +578,7 @@ export class ValidationFailureHandler extends EventEmitter {
      * Create default result for fallback
      */
     createDefaultResult(config) {
-        const defaultValue = config?.defaultValue || 'passed';
+        const defaultValue = config?.['defaultValue'] || 'passed';
         return {
             status: ValidationStatus.PASSED,
             message: `Default result applied: ${defaultValue}`,
@@ -600,7 +604,7 @@ export class ValidationFailureHandler extends EventEmitter {
                     case 'log':
                         this.logger.error('Escalation triggered', {
                             level,
-                            error: error.message,
+                            error,
                             failureRecord,
                         });
                         break;
@@ -614,7 +618,9 @@ export class ValidationFailureHandler extends EventEmitter {
             }
             catch (actionError) {
                 this.logger.error(`Escalation action ${action} failed`, {
-                    error: actionError.message,
+                    error: actionError instanceof Error
+                        ? actionError
+                        : new Error(String(actionError)),
                 });
             }
         }
@@ -626,7 +632,7 @@ export class ValidationFailureHandler extends EventEmitter {
         this.logger.info('Sending escalation notifications', {
             recipients,
             failureId: failureRecord.id,
-            error: error.message,
+            error,
         });
         // Implementation would send actual notifications
     }

@@ -8,7 +8,8 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { BudgetTracker } from '../budget-tracker.js';
 import { BudgetEnforcement, BudgetExceededError, } from '../budget-enforcement.js';
-import { BudgetContentGenerator } from '../core/budgetContentGenerator.js';
+import { FinishReason } from '@google/genai';
+import { BudgetContentGenerator } from '../../core/budgetContentGenerator.js';
 // Mock file system operations for isolated testing
 vi.mock('node:fs/promises', () => ({
     readFile: vi.fn(),
@@ -71,6 +72,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const mockUsageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 1,
+                totalCost: 0.01,
+                tokenUsage: {
+                    inputTokens: 10,
+                    outputTokens: 20,
+                    totalTokens: 30,
+                    tokenCosts: {
+                        input: 0.005,
+                        output: 0.005,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
@@ -116,6 +127,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const resetUsageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 0,
+                totalCost: 0,
+                tokenUsage: {
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    totalTokens: 0,
+                    tokenCosts: {
+                        input: 0,
+                        output: 0,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
@@ -132,6 +153,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const initialUsageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 95,
+                totalCost: 0.95,
+                tokenUsage: {
+                    inputTokens: 950,
+                    outputTokens: 1900,
+                    totalTokens: 2850,
+                    tokenCosts: {
+                        input: 0.475,
+                        output: 0.475,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [50, 75, 90],
             };
@@ -188,6 +219,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const usageData = {
                 date: '2023-12-01',
                 requestCount: 75,
+                totalCost: 0.75,
+                tokenUsage: {
+                    inputTokens: 750,
+                    outputTokens: 1500,
+                    totalTokens: 2250,
+                    tokenCosts: {
+                        input: 0.375,
+                        output: 0.375,
+                    },
+                },
                 lastResetTime: '2023-12-01T10:00:00.000Z', // Last reset at 10 AM
                 warningsShown: [50],
             };
@@ -213,15 +254,21 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('File not found'));
             const mockRequest = {
                 contents: [{ parts: [{ text: 'Test prompt' }], role: 'user' }],
+                model: 'gemini-1.5-flash',
             };
             const mockResponse = {
                 candidates: [
                     {
                         content: { parts: [{ text: 'Test response' }], role: 'model' },
-                        finishReason: 'STOP',
+                        finishReason: FinishReason.STOP,
                         index: 0,
                     },
                 ],
+                get text() { return 'Test response'; },
+                get data() { return undefined; },
+                get functionCalls() { return []; },
+                get executableCode() { return undefined; },
+                get codeExecutionResult() { return undefined; },
             };
             mockContentGenerator.generateContent = vi
                 .fn()
@@ -233,6 +280,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const usageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 0,
+                totalCost: 0,
+                tokenUsage: {
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    totalTokens: 0,
+                    tokenCosts: {
+                        input: 0,
+                        output: 0,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
@@ -294,10 +351,15 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                                 parts: [{ text: 'Streaming chunk 1' }],
                                 role: 'model',
                             },
-                            finishReason: 'STOP',
+                            finishReason: FinishReason.STOP,
                             index: 0,
                         },
                     ],
+                    get text() { return 'Streaming chunk 1'; },
+                    get data() { return undefined; },
+                    get functionCalls() { return []; },
+                    get executableCode() { return undefined; },
+                    get codeExecutionResult() { return undefined; },
                 };
                 yield {
                     candidates: [
@@ -306,10 +368,15 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                                 parts: [{ text: 'Streaming chunk 2' }],
                                 role: 'model',
                             },
-                            finishReason: 'STOP',
+                            finishReason: FinishReason.STOP,
                             index: 0,
                         },
                     ],
+                    get text() { return 'Streaming chunk 2'; },
+                    get data() { return undefined; },
+                    get functionCalls() { return []; },
+                    get executableCode() { return undefined; },
+                    get codeExecutionResult() { return undefined; },
                 };
             }
             mockContentGenerator.generateContentStream = vi
@@ -319,12 +386,23 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const usageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 0,
+                totalCost: 0,
+                tokenUsage: {
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    totalTokens: 0,
+                    tokenCosts: {
+                        input: 0,
+                        output: 0,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
             vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(usageData));
             const streamRequest = {
                 contents: [{ parts: [{ text: 'Streaming prompt' }], role: 'user' }],
+                model: 'gemini-1.5-flash',
             };
             // 1. Successful streaming request
             const stream = await budgetContentGenerator.generateContentStream(streamRequest, 'stream-prompt');
@@ -333,10 +411,10 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                 chunks.push(chunk);
             }
             expect(chunks).toHaveLength(2);
-            expect(chunks[0].candidates?.[0].content.parts?.[0]).toEqual({
+            expect(chunks[0]?.candidates?.[0]?.content?.parts?.[0]).toEqual({
                 text: 'Streaming chunk 1',
             });
-            expect(chunks[1].candidates?.[0].content.parts?.[0]).toEqual({
+            expect(chunks[1]?.candidates?.[0]?.content?.parts?.[0]).toEqual({
                 text: 'Streaming chunk 2',
             });
             // 2. Simulate budget exceeded scenario for streaming
@@ -356,10 +434,15 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                 candidates: [
                     {
                         content: { parts: [{ text: 'Response' }], role: 'model' },
-                        finishReason: 'STOP',
+                        finishReason: FinishReason.STOP,
                         index: 0,
                     },
                 ],
+                get text() { return 'Response'; },
+                get data() { return undefined; },
+                get functionCalls() { return []; },
+                get executableCode() { return undefined; },
+                get codeExecutionResult() { return undefined; },
             };
             mockContentGenerator.generateContent = vi
                 .fn()
@@ -368,6 +451,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('File not found'));
             const request = {
                 contents: [{ parts: [{ text: 'Test' }], role: 'user' }],
+                model: 'gemini-1.5-flash',
             };
             // 1. Verify initial state across all components
             expect(tracker.isEnabled()).toBe(true);
@@ -389,6 +473,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const mockUsageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 201, // Over new limit
+                totalCost: 2.01,
+                tokenUsage: {
+                    inputTokens: 2010,
+                    outputTokens: 4020,
+                    totalTokens: 6030,
+                    tokenCosts: {
+                        input: 1.005,
+                        output: 1.005,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
@@ -453,6 +547,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify({
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 5,
+                totalCost: 0.05,
+                tokenUsage: {
+                    inputTokens: 50,
+                    outputTokens: 100,
+                    totalTokens: 150,
+                    tokenCosts: {
+                        input: 0.025,
+                        output: 0.025,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             }));
@@ -476,7 +580,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
                 await expect(tracker.recordRequest()).resolves.not.toThrow();
                 const stats = await tracker.getUsageStats();
                 expect(stats.requestCount).toBeGreaterThanOrEqual(0);
-                expect(stats.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+                expect(stats.dailyLimit).toBe(100);
             }
         });
         it('should maintain consistency during concurrent operations', async () => {
@@ -485,6 +589,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const usageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 50,
+                totalCost: 0.5,
+                tokenUsage: {
+                    inputTokens: 500,
+                    outputTokens: 1000,
+                    totalTokens: 1500,
+                    tokenCosts: {
+                        input: 0.25,
+                        output: 0.25,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
@@ -524,6 +638,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const usageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 0,
+                totalCost: 0,
+                tokenUsage: {
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    totalTokens: 0,
+                    tokenCosts: {
+                        input: 0,
+                        output: 0,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [],
             };
@@ -550,6 +674,16 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             const largeUsageData = {
                 date: new Date().toISOString().split('T')[0],
                 requestCount: 50000,
+                totalCost: 500.0,
+                tokenUsage: {
+                    inputTokens: 500000,
+                    outputTokens: 1000000,
+                    totalTokens: 1500000,
+                    tokenCosts: {
+                        input: 250.0,
+                        output: 250.0,
+                    },
+                },
                 lastResetTime: new Date().toISOString(),
                 warningsShown: [50, 75, 90], // All thresholds triggered
             };

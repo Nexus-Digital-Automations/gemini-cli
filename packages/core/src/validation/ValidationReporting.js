@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 /**
  * Report format types
  */
-export let ReportFormat;
+export var ReportFormat;
 (function (ReportFormat) {
     ReportFormat["JSON"] = "json";
     ReportFormat["XML"] = "xml";
@@ -22,7 +22,7 @@ export let ReportFormat;
 /**
  * Analytics time period
  */
-export let AnalyticsPeriod;
+export var AnalyticsPeriod;
 (function (AnalyticsPeriod) {
     AnalyticsPeriod["HOUR"] = "hour";
     AnalyticsPeriod["DAY"] = "day";
@@ -36,14 +36,15 @@ export let AnalyticsPeriod;
 export class ValidationReporting extends EventEmitter {
     logger;
     config;
-    metricsStore = new Map();
     reportHistory = [];
     dashboardWidgets = new Map();
     dashboardServer; // HTTP server for dashboard
     metricsCollectionInterval;
     constructor(config = {}) {
         super();
-        this.logger = new Logger('ValidationReporting');
+        this.logger = new Logger({
+            defaultMeta: { component: 'ValidationReporting' },
+        });
         this.config = {
             outputDirectory: './validation-reports',
             formats: [ReportFormat.JSON, ReportFormat.HTML],
@@ -99,7 +100,9 @@ export class ValidationReporting extends EventEmitter {
             });
         }
         catch (error) {
-            this.logger.error('Failed to initialize validation reporting', { error });
+            this.logger.error('Failed to initialize validation reporting', {
+                error: error,
+            });
             throw error;
         }
     }
@@ -155,11 +158,13 @@ export class ValidationReporting extends EventEmitter {
             return generatedPaths;
         }
         catch (error) {
-            this.logger.error(`Failed to generate report: ${reportId}`, { error });
+            this.logger.error(`Failed to generate report: ${reportId}`, {
+                error: error,
+            });
             this.emit('reportGenerationFailed', {
                 reportId,
                 taskId: data.taskId,
-                error: error.message,
+                error: error instanceof Error ? error.message : String(error),
             });
             throw error;
         }
@@ -630,7 +635,9 @@ export class ValidationReporting extends EventEmitter {
             }
         }
         catch (error) {
-            this.logger.warn('Failed to archive old reports', { error });
+            this.logger.warn('Failed to archive old reports', {
+                error: error,
+            });
         }
     }
     /**
@@ -652,7 +659,9 @@ export class ValidationReporting extends EventEmitter {
         if (this.metricsCollectionInterval) {
             clearInterval(this.metricsCollectionInterval);
         }
-        if (this.dashboardServer) {
+        if (this.dashboardServer &&
+            typeof this.dashboardServer === 'object' &&
+            'close' in this.dashboardServer) {
             this.dashboardServer.close();
         }
         this.logger.info('ValidationReporting cleanup completed');

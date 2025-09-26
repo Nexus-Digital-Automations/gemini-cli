@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { logger as _logger } from '../utils/logger.js';
 /**
  * Monitoring trigger types
  */
-export let MonitoringTrigger;
+export var MonitoringTrigger;
 (function (MonitoringTrigger) {
     MonitoringTrigger["FILE_CHANGE"] = "file-change";
     MonitoringTrigger["TIME_BASED"] = "time-based";
@@ -21,7 +21,7 @@ export let MonitoringTrigger;
 /**
  * Monitoring scope
  */
-export let MonitoringScope;
+export var MonitoringScope;
 (function (MonitoringScope) {
     MonitoringScope["PROJECT"] = "project";
     MonitoringScope["WORKSPACE"] = "workspace";
@@ -32,7 +32,7 @@ export let MonitoringScope;
 /**
  * Health status
  */
-export let HealthStatus;
+export var HealthStatus;
 (function (HealthStatus) {
     HealthStatus["HEALTHY"] = "healthy";
     HealthStatus["DEGRADED"] = "degraded";
@@ -44,10 +44,10 @@ export let HealthStatus;
  * Provides real-time monitoring, health checks, and automated validation triggers
  */
 export class ContinuousValidationMonitor extends EventEmitter {
-    logger;
+    logger = _logger().child({ component: 'ContinuousValidationMonitor' });
     constructor(_config, _validationFramework, _validationWorkflow, _failureHandler, _reporting) {
         super();
-        this.logger = new Logger('ContinuousValidationMonitor');
+        // Logger initialized as class property
         this.logger.info('ContinuousValidationMonitor initialized (stub implementation)');
     }
     async startMonitoring() {

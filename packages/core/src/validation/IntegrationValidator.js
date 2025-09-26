@@ -3,11 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { execAsync } from '../utils/ProcessUtils.js';
-import { Logger } from '../logger/Logger.js';
+import { logger } from '../utils/logger.js';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+const execAsync = promisify(exec);
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import * as os from 'node:os';
 /**
  * Integration validation automation system
@@ -17,32 +17,33 @@ export class IntegrationValidator {
     logger;
     config;
     constructor(config) {
-        this.logger = new Logger('IntegrationValidator');
+        this.logger = logger().child({ component: 'IntegrationValidator' });
         this.config = {
-            systemCompatibility: {
+            ...config,
+            systemCompatibility: config.systemCompatibility || {
                 nodeVersions: ['18.x', '20.x', '22.x'],
                 operatingSystems: ['linux', 'darwin', 'win32'],
                 architectures: ['x64', 'arm64'],
                 dependencies: [],
             },
-            performanceBenchmarks: [],
-            integrationTests: {
+            performanceBenchmarks: config.performanceBenchmarks || [],
+            integrationTests: config.integrationTests || {
                 enabled: true,
                 testCommand: 'npm run test:integration',
                 timeout: 300000,
             },
-            e2eTests: {
+            e2eTests: config.e2eTests || {
                 enabled: true,
                 testCommand: 'npm run test:e2e',
                 timeout: 600000,
             },
-            loadTesting: {
+            loadTesting: config.loadTesting || {
                 enabled: false,
                 concurrent: 10,
                 duration: 60000,
                 targetRps: 100,
             },
-            monitoringChecks: {
+            monitoringChecks: config.monitoringChecks || {
                 healthEndpoints: [],
                 resourceLimits: {
                     maxMemory: 1024 * 1024 * 1024, // 1GB
@@ -50,7 +51,6 @@ export class IntegrationValidator {
                     maxDiskUsage: 90, // 90%
                 },
             },
-            ...config,
         };
         this.logger.info('IntegrationValidator initialized', {
             systemCompatibility: this.config.systemCompatibility,
@@ -100,7 +100,7 @@ export class IntegrationValidator {
         }
         catch (error) {
             this.logger.error('Integration validation failed', {
-                error,
+                error: error,
                 taskId: context.taskId,
             });
             return [
@@ -144,7 +144,7 @@ export class IntegrationValidator {
             }));
         }
         catch (error) {
-            this.logger.error('System compatibility check failed', { error });
+            this.logger.error('System compatibility check failed', { error: error });
             return [
                 {
                     id: `compatibility-error-${Date.now()}`,
@@ -209,7 +209,7 @@ export class IntegrationValidator {
     /**
      * Run integration tests
      */
-    async runIntegrationTests(context) {
+    async runIntegrationTests(_context) {
         const startTime = Date.now();
         try {
             this.logger.debug('Running integration tests');
@@ -241,7 +241,7 @@ export class IntegrationValidator {
             ];
         }
         catch (error) {
-            this.logger.error('Integration tests failed', { error });
+            this.logger.error('Integration tests failed', { error: error });
             return [
                 {
                     id: `integration-tests-error-${Date.now()}`,
@@ -258,7 +258,7 @@ export class IntegrationValidator {
     /**
      * Run end-to-end tests
      */
-    async runE2ETests(context) {
+    async runE2ETests(_context) {
         const startTime = Date.now();
         try {
             this.logger.debug('Running end-to-end tests');
@@ -290,7 +290,7 @@ export class IntegrationValidator {
             ];
         }
         catch (error) {
-            this.logger.error('E2E tests failed', { error });
+            this.logger.error('E2E tests failed', { error: error });
             return [
                 {
                     id: `e2e-tests-error-${Date.now()}`,
@@ -307,7 +307,7 @@ export class IntegrationValidator {
     /**
      * Run load tests
      */
-    async runLoadTests(context) {
+    async runLoadTests(_context) {
         const startTime = Date.now();
         try {
             this.logger.debug('Running load tests');
@@ -335,7 +335,7 @@ export class IntegrationValidator {
             ];
         }
         catch (error) {
-            this.logger.error('Load tests failed', { error });
+            this.logger.error('Load tests failed', { error: error });
             return [
                 {
                     id: `load-tests-error-${Date.now()}`,
@@ -352,7 +352,7 @@ export class IntegrationValidator {
     /**
      * Run monitoring and health checks
      */
-    async runMonitoringChecks(context) {
+    async runMonitoringChecks(_context) {
         const results = [];
         const startTime = Date.now();
         try {
@@ -369,7 +369,7 @@ export class IntegrationValidator {
             }));
         }
         catch (error) {
-            this.logger.error('Monitoring checks failed', { error });
+            this.logger.error('Monitoring checks failed', { error: error });
             return [
                 {
                     id: `monitoring-error-${Date.now()}`,
@@ -407,9 +407,9 @@ export class IntegrationValidator {
      */
     checkNodeVersionCompatibility(systemInfo) {
         const currentVersion = systemInfo.nodeVersion;
-        const majorVersion = parseInt(currentVersion.replace('v', '').split('.')[0]);
+        const majorVersion = parseInt(currentVersion.replace('v', '').split('.')[0], 10);
         const isCompatible = this.config.systemCompatibility.nodeVersions.some((version) => {
-            const targetMajor = parseInt(version.replace('x', '').replace('.', ''));
+            const targetMajor = parseInt(version.replace('x', '').replace('.', ''), 10);
             return majorVersion === targetMajor;
         });
         return {
@@ -470,7 +470,7 @@ export class IntegrationValidator {
     /**
      * Check dependency compatibility
      */
-    async checkDependencyCompatibility(context) {
+    async checkDependencyCompatibility(_context) {
         const results = [];
         for (const dependency of this.config.systemCompatibility.dependencies) {
             try {
@@ -509,7 +509,7 @@ export class IntegrationValidator {
     /**
      * Execute performance benchmark
      */
-    async executeBenchmark(benchmark, context) {
+    async executeBenchmark(benchmark, _context) {
         const startTime = Date.now();
         if (benchmark.testCommand) {
             // Execute custom benchmark command
@@ -579,9 +579,9 @@ export class IntegrationValidator {
         const failedMatch = output.match(/(\d+) failed/i);
         const skippedMatch = output.match(/(\d+) skipped/i);
         return {
-            passed: passedMatch ? parseInt(passedMatch[1]) : 0,
-            failed: failedMatch ? parseInt(failedMatch[1]) : 0,
-            skipped: skippedMatch ? parseInt(skippedMatch[1]) : 0,
+            passed: passedMatch ? parseInt(passedMatch[1], 10) : 0,
+            failed: failedMatch ? parseInt(failedMatch[1], 10) : 0,
+            skipped: skippedMatch ? parseInt(skippedMatch[1], 10) : 0,
         };
     }
     /**
@@ -590,7 +590,6 @@ export class IntegrationValidator {
     async simulateLoadTest() {
         // This is a simplified simulation - real implementation would use load testing tools
         const duration = this.config.loadTesting.duration;
-        const concurrent = this.config.loadTesting.concurrent;
         // Simulate some load
         await new Promise((resolve) => setTimeout(resolve, Math.min(duration, 5000)));
         return {

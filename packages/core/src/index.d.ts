@@ -96,3 +96,5 @@ export { sessionId } from './utils/session.js';
 export * from './utils/browser.js';
 export { Storage } from './config/storage.js';
 export * from './test-utils/index.js';
+export * from './knowledge/KnowledgeBaseManager.js';
+export * from './persona/PersonaManager.js';

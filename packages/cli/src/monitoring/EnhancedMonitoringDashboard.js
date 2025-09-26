@@ -221,7 +221,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
                 overall: currentSnapshot.systemHealth.overall,
                 uptime: currentSnapshot.systemHealth.uptime,
                 version: '1.0.0', // TODO: Get from package.json
-                environment: process.env.NODE_ENV || 'development',
+                environment: process.env['NODE_ENV'] || 'development',
             },
             summary: {
                 totalTasks: currentSnapshot.taskMetrics.total,
@@ -618,7 +618,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
             typeof data === 'object' &&
             data !== null &&
             'value' in data) {
-            const value = data.value;
+            const value = data['value'];
             if (typeof value === 'number') {
                 const criticalThreshold = widget.config.thresholds.find((t) => t.label === 'Critical');
                 if (criticalThreshold && value >= criticalThreshold.value) {
@@ -886,7 +886,9 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         }
         catch (error) {
             // File doesn't exist or is corrupted - start fresh
-            this.logger.info('No persisted layouts found, starting fresh', { error: error.message });
+            this.logger.info('No persisted layouts found, starting fresh', {
+                error: error.message,
+            });
         }
     }
     async persistLayouts() {

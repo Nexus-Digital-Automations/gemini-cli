@@ -269,25 +269,23 @@ export const BudgetControlsPanel = ({ filters, onUpdateFilters, autoRefresh, onT
     /**
      * Renders the controls header.
      */
-    const renderHeader = () => (_jsxs(Box, { flexDirection: "column", marginBottom: 2, children: [_jsx(Text, { color: theme.text.primary, bold: true, marginBottom: 1, children: "Dashboard Settings & Controls" }), _jsx(Text, { color: theme.text.secondary, children: "Configure filters, export options, and dashboard behavior" })] }));
+    const renderHeader = () => (_jsxs(Box, { flexDirection: "column", marginBottom: 2, children: [_jsx(Text, { color: theme.text.primary, bold: true, children: "Dashboard Settings & Controls" }), _jsx(Text, { color: theme.text.secondary, children: "Configure filters, export options, and dashboard behavior" })] }));
     /**
      * Renders the section navigation.
      */
-    const renderSectionNavigation = () => (_jsx(Box, { gap: 2, marginBottom: 2, children: sections.map((section, index) => (_jsx(Text, { color: index === selectedSection
-                ? theme.primary.main
-                : theme.text.secondary, backgroundColor: index === selectedSection ? theme.primary.light : undefined, bold: index === selectedSection, children: section }, section))) }));
+    const renderSectionNavigation = () => (_jsx(Box, { gap: 2, marginBottom: 2, children: sections.map((section, index) => (_jsx(Text, { color: index === selectedSection ? theme.text.accent : theme.text.secondary, bold: index === selectedSection, children: section }, section))) }));
     /**
      * Renders the time range controls section.
      */
-    const renderTimeRangeControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsxs(Text, { color: theme.text.muted, marginBottom: 1, children: ["Current: ", formatTime(filters.timeRange.start), " to", ' ', formatTime(filters.timeRange.end), filters.timeRange.preset && ` (${filters.timeRange.preset})`] }), _jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "Select preset:" }), timeRangePresets.map((preset, index) => (_jsxs(Box, { alignItems: "center", gap: 1, marginBottom: 1, children: [_jsxs(Text, { color: index === selectedOption && selectedSection === 0
-                            ? theme.primary.main
+    const renderTimeRangeControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsxs(Text, { color: theme.text.muted, children: ["Current: ", formatTime(filters.timeRange.start), " to", ' ', formatTime(filters.timeRange.end), filters.timeRange.preset && ` (${filters.timeRange.preset})`] }), _jsx(Text, { color: theme.text.muted, children: "Select preset:" }), timeRangePresets.map((preset, index) => (_jsxs(Box, { alignItems: "center", gap: 1, marginBottom: 1, children: [_jsxs(Text, { color: index === selectedOption && selectedSection === 0
+                            ? theme.text.accent
                             : filters.timeRange.preset === preset.value
                                 ? theme.status.success
                                 : theme.text.secondary, children: [index === selectedOption && selectedSection === 0 ? '→' : ' ', preset.label] }), filters.timeRange.preset === preset.value && (_jsx(Text, { color: theme.status.success, children: "\u2713" }))] }, preset.value)))] }));
     /**
      * Renders the feature controls section.
      */
-    const renderFeatureControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "Feature Filters:" }), availableFeatures.map((feature, index) => {
+    const renderFeatureControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, children: "Feature Filters:" }), availableFeatures.map((feature, index) => {
                 const isIncluded = filters.features.include.includes(feature);
                 const isExcluded = filters.features.exclude.includes(feature);
                 const status = isIncluded
@@ -302,35 +300,35 @@ export const BudgetControlsPanel = ({ filters, onUpdateFilters, autoRefresh, onT
                         : theme.text.secondary;
                 const statusIcon = status === 'included' ? '✓' : status === 'excluded' ? '✗' : '○';
                 return (_jsxs(Box, { alignItems: "center", gap: 1, marginBottom: 1, children: [_jsxs(Text, { color: index === selectedOption && selectedSection === 1
-                                ? theme.primary.main
+                                ? theme.text.accent
                                 : theme.text.secondary, children: [index === selectedOption && selectedSection === 1 ? '→' : ' ', feature] }), _jsx(Text, { color: statusColor, children: statusIcon }), _jsxs(Text, { color: theme.text.muted, children: ["(", status, ")"] })] }, feature));
-            }), _jsx(Text, { color: theme.text.muted, marginTop: 1, children: "Press Enter to cycle: neutral \u2192 included \u2192 excluded" })] }));
+            }), _jsx(Text, { color: theme.text.muted, children: "Press Enter to cycle: neutral \u2192 included \u2192 excluded" })] }));
     /**
      * Renders the cost range controls section.
      */
-    const renderCostRangeControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "Cost Range Filter:" }), filters.costRange ? (_jsxs(Text, { color: theme.text.secondary, marginBottom: 1, children: ["Current: $", filters.costRange.min.toFixed(2), " - $", filters.costRange.max.toFixed(2)] })) : (_jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "No cost filter applied (showing all costs)" })), _jsxs(Box, { flexDirection: "column", gap: 1, children: [_jsxs(Text, { color: selectedOption === 0 && selectedSection === 2
-                            ? theme.primary.main
+    const renderCostRangeControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, children: "Cost Range Filter:" }), filters.costRange ? (_jsxs(Text, { color: theme.text.secondary, children: ["Current: $", filters.costRange.min.toFixed(2), " - $", filters.costRange.max.toFixed(2)] })) : (_jsx(Text, { color: theme.text.muted, children: "No cost filter applied (showing all costs)" })), _jsxs(Box, { flexDirection: "column", gap: 1, children: [_jsxs(Text, { color: selectedOption === 0 && selectedSection === 2
+                            ? theme.text.accent
                             : theme.text.secondary, children: [selectedOption === 0 && selectedSection === 2 ? '→' : ' ', "Set minimum cost ($0.01)"] }), _jsxs(Text, { color: selectedOption === 1 && selectedSection === 2
-                            ? theme.primary.main
+                            ? theme.text.accent
                             : theme.text.secondary, children: [selectedOption === 1 && selectedSection === 2 ? '→' : ' ', "Set maximum cost ($50.00)"] }), _jsxs(Text, { color: selectedOption === 2 && selectedSection === 2
-                            ? theme.primary.main
+                            ? theme.text.accent
                             : theme.text.secondary, children: [selectedOption === 2 && selectedSection === 2 ? '→' : ' ', "Reset cost filter"] })] })] }));
     /**
      * Renders the refresh settings controls section.
      */
-    const renderRefreshControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "Auto-refresh Settings:" }), _jsxs(Box, { flexDirection: "column", gap: 1, marginBottom: 2, children: [_jsxs(Box, { alignItems: "center", gap: 2, children: [_jsxs(Text, { color: selectedOption === 0 && selectedSection === 3
-                                    ? theme.primary.main
+    const renderRefreshControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, children: "Auto-refresh Settings:" }), _jsxs(Box, { flexDirection: "column", gap: 1, marginBottom: 2, children: [_jsxs(Box, { alignItems: "center", gap: 2, children: [_jsxs(Text, { color: selectedOption === 0 && selectedSection === 3
+                                    ? theme.text.accent
                                     : theme.text.secondary, children: [selectedOption === 0 && selectedSection === 3 ? '→' : ' ', "Auto-refresh:"] }), _jsx(Text, { color: autoRefresh ? theme.status.success : theme.status.error, children: autoRefresh ? 'ON' : 'OFF' })] }), _jsxs(Box, { alignItems: "center", gap: 2, children: [_jsxs(Text, { color: selectedOption === 1 && selectedSection === 3
-                                    ? theme.primary.main
+                                    ? theme.text.accent
                                     : theme.text.secondary, children: [selectedOption === 1 && selectedSection === 3 ? '→' : ' ', "Interval:"] }), _jsxs(Text, { color: theme.text.primary, children: [refreshInterval, "s"] })] })] }), _jsx(Text, { color: theme.text.muted, children: "Press 't' to quickly toggle auto-refresh" })] }));
     /**
      * Renders the export controls section.
      */
-    const renderExportControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "Export Dashboard Data:" }), _jsxs(Box, { flexDirection: "column", gap: 1, marginBottom: 2, children: [_jsxs(Text, { color: selectedOption === 0 && selectedSection === 4
-                            ? theme.primary.main
+    const renderExportControls = () => (_jsxs(Box, { flexDirection: "column", children: [_jsx(Text, { color: theme.text.muted, children: "Export Dashboard Data:" }), _jsxs(Box, { flexDirection: "column", gap: 1, marginBottom: 2, children: [_jsxs(Text, { color: selectedOption === 0 && selectedSection === 4
+                            ? theme.text.accent
                             : theme.text.secondary, children: [selectedOption === 0 && selectedSection === 4 ? '→' : ' ', "Export as JSON (detailed)"] }), _jsxs(Text, { color: selectedOption === 1 && selectedSection === 4
-                            ? theme.primary.main
-                            : theme.text.secondary, children: [selectedOption === 1 && selectedSection === 4 ? '→' : ' ', "Export as CSV (summary)"] })] }), _jsx(Text, { color: theme.text.muted, marginBottom: 1, children: "Quick exports: 'e' for JSON, 'c' for CSV" })] }));
+                            ? theme.text.accent
+                            : theme.text.secondary, children: [selectedOption === 1 && selectedSection === 4 ? '→' : ' ', "Export as CSV (summary)"] })] }), _jsx(Text, { color: theme.text.muted, children: "Quick exports: 'e' for JSON, 'c' for CSV" })] }));
     /**
      * Renders the current section content.
      */

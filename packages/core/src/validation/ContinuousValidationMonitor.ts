@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { logger as _logger } from '../utils/logger.js';
 import type {
   ValidationFramework,
   ValidationContext,
@@ -182,7 +182,7 @@ export interface ContinuousValidationMonitorConfig {
  * Provides real-time monitoring, health checks, and automated validation triggers
  */
 export class ContinuousValidationMonitor extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger = _logger().child({ component: 'ContinuousValidationMonitor' });
 
   constructor(
     _config: Partial<ContinuousValidationMonitorConfig>,
@@ -192,7 +192,7 @@ export class ContinuousValidationMonitor extends EventEmitter {
     _reporting: ValidationReporting,
   ) {
     super();
-    this.logger = new Logger('ContinuousValidationMonitor');
+    // Logger initialized as class property
     this.logger.info(
       'ContinuousValidationMonitor initialized (stub implementation)',
     );

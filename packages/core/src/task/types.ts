@@ -34,12 +34,27 @@ export interface TaskMetadata {
   // Add any other metadata needed for autonomy, e.g., 'agentInstructions'
 }
 
+export enum TaskType {
+  IMPLEMENTATION = 'implementation', // Code implementation
+  TESTING = 'testing', // Test creation/execution
+  VALIDATION = 'validation', // Quality assurance
+  DOCUMENTATION = 'documentation', // Documentation creation
+  ANALYSIS = 'analysis', // Research and analysis
+  DEPLOYMENT = 'deployment', // Deployment and operations
+  SECURITY = 'security', // Security assessment/fixes
+  PERFORMANCE = 'performance', // Performance optimization
+  REFACTORING = 'refactoring', // Code refactoring
+  CRITICAL = 'critical', // Critical priority tasks
+  QUALITY = 'quality', // Quality control tasks
+}
+
 export interface Task {
   id: string;
   name: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  type?: TaskType; // Task type for specialized handling
   category?: string; // Task category for grouping and analysis
   dueDate?: string; // ISO date string
   assignee?: string;

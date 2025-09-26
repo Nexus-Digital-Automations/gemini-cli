@@ -21,6 +21,9 @@ export interface CodeQualityConfig {
     }>;
 }
 /**
+ * Security scan result structure
+ */
+/**
  * Code quality validation automation system
  * Handles linting, formatting, and security scanning
  */

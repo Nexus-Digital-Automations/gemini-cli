@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
+import { TaskStatus } from './task-breakdown-engine.js';
+import { TaskPriority, TaskCategory } from '../task-management/types.js';
 /**
  * Types of execution errors
  */
-export let ExecutionErrorType;
+export var ExecutionErrorType;
 (function (ExecutionErrorType) {
     ExecutionErrorType["VALIDATION_FAILED"] = "validation_failed";
     ExecutionErrorType["TOOL_NOT_FOUND"] = "tool_not_found";
@@ -27,10 +29,7 @@ export let ExecutionErrorType;
  */
 export class AutonomousExecutionEngine extends EventEmitter {
     strategySelector;
-    runningTasks = new Map();
     taskStates = new Map();
-    executionQueue = [];
-    isProcessing = false;
     constructor(strategySelector) {
         super();
         this.strategySelector =
@@ -189,7 +188,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
         const startTime = new Date();
         const logger = context.logger;
         // Update task state
-        await this.updateTaskState(task.id, TaskStatus.IN_PROGRESS, 'Executing atomic task', context);
+        await this.updateTaskState(task.id, TaskStatus.RUNNING, 'Executing atomic task', context);
         // Find appropriate tool for task
         const toolName = this.selectToolForTask(task, context);
         const tool = context.availableTools.get(toolName);
@@ -261,7 +260,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
         const startTime = new Date();
         const logger = context.logger;
         logger.info(`Executing composite task with ${task.childTaskIds?.length || 0} children`, { taskId: task.id });
-        await this.updateTaskState(task.id, TaskStatus.IN_PROGRESS, 'Executing composite task', context);
+        await this.updateTaskState(task.id, TaskStatus.RUNNING, 'Executing composite task', context);
         // Load child tasks (would need to be provided by the caller or loaded from storage)
         const childTasks = await this.loadChildTasks(task.childTaskIds || [], context);
         // Execute child tasks based on strategy
@@ -341,20 +340,14 @@ export class AutonomousExecutionEngine extends EventEmitter {
     selectToolForTask(task, context) {
         // Simple tool selection based on task category
         const toolMapping = {
-            [TaskCategory.READ]: ['read-file', 'read-many-files', 'ls'],
-            [TaskCategory.EDIT]: ['edit', 'smart-edit'],
-            [TaskCategory.CREATE]: ['write-file', 'edit'],
-            [TaskCategory.DELETE]: ['shell'], // Use shell for rm commands
-            [TaskCategory.SEARCH]: ['grep', 'glob'],
-            [TaskCategory.ANALYZE]: ['read-file', 'grep'],
-            [TaskCategory.EXECUTE]: ['shell'],
+            [TaskCategory.FEATURE]: ['edit', 'write-file', 'shell'],
+            [TaskCategory.BUG_FIX]: ['read-file', 'edit', 'shell'],
+            [TaskCategory.TEST]: ['shell', 'read-file'],
+            [TaskCategory.DOCUMENTATION]: ['edit', 'write-file'],
             [TaskCategory.REFACTOR]: ['edit', 'smart-edit'],
-            [TaskCategory.TEST]: ['shell'],
-            [TaskCategory.DEPLOY]: ['shell'],
-            [TaskCategory.VALIDATE]: ['shell', 'read-file'],
-            [TaskCategory.OPTIMIZE]: ['edit', 'smart-edit'],
-            [TaskCategory.DEBUG]: ['read-file', 'shell'],
-            [TaskCategory.DOCUMENT]: ['edit', 'write-file'],
+            [TaskCategory.SECURITY]: ['read-file', 'edit', 'shell'],
+            [TaskCategory.PERFORMANCE]: ['edit', 'shell'],
+            [TaskCategory.INFRASTRUCTURE]: ['shell', 'edit'],
         };
         const possibleTools = toolMapping[task.category] || ['shell'];
         // Return first available tool
@@ -380,7 +373,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
             status,
             progress: status === TaskStatus.COMPLETED
                 ? 100
-                : status === TaskStatus.IN_PROGRESS
+                : status === TaskStatus.RUNNING
                     ? 50
                     : 0,
             currentStep: message,
@@ -479,9 +472,8 @@ export class AutonomousExecutionEngine extends EventEmitter {
     }
     shouldRollback(task, error) {
         return (error.recoverable &&
-            task.category !== TaskCategory.READ &&
-            task.category !== TaskCategory.SEARCH &&
-            task.category !== TaskCategory.ANALYZE);
+            task.category !== TaskCategory.DOCUMENTATION &&
+            task.category !== TaskCategory.TEST);
     }
     aggregateMetrics(results) {
         return results.reduce((acc, result) => ({
@@ -489,7 +481,12 @@ export class AutonomousExecutionEngine extends EventEmitter {
             retryAttempts: acc.retryAttempts + result.metrics.retryAttempts,
             validationChecks: acc.validationChecks + result.metrics.validationChecks,
             cacheHits: (acc.cacheHits || 0) + (result.metrics.cacheHits || 0),
-        }), { toolInvocations: 0, retryAttempts: 0, validationChecks: 0 });
+        }), {
+            toolInvocations: 0,
+            retryAttempts: 0,
+            validationChecks: 0,
+            cacheHits: 0,
+        });
     }
     setupEventHandlers() {
         this.on('taskCompleted', (result) => {
@@ -540,8 +537,8 @@ export class DefaultExecutionStrategySelector {
             if (task.targetFiles) {
                 for (const file of task.targetFiles) {
                     if (filePaths.has(file) &&
-                        (task.category === TaskCategory.EDIT ||
-                            task.category === TaskCategory.DELETE)) {
+                        (task.category === TaskCategory.FEATURE ||
+                            task.category === TaskCategory.REFACTOR)) {
                         return false; // Conflicting file access
                     }
                     filePaths.add(file);
@@ -563,16 +560,16 @@ export class DefaultExecutionStrategySelector {
     }
     requiresConfirmation(task) {
         return [
-            TaskCategory.DELETE,
-            TaskCategory.EXECUTE,
-            TaskCategory.DEPLOY,
+            TaskCategory.REFACTOR,
+            TaskCategory.INFRASTRUCTURE,
+            TaskCategory.INFRASTRUCTURE,
         ].includes(task.category);
     }
     isParallelizable(task) {
         return [
-            TaskCategory.READ,
-            TaskCategory.SEARCH,
-            TaskCategory.ANALYZE,
+            TaskCategory.DOCUMENTATION,
+            TaskCategory.DOCUMENTATION,
+            TaskCategory.TEST,
         ].includes(task.category);
     }
 }

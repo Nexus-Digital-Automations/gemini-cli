@@ -93,7 +93,6 @@ export declare class TaskManagerAPIClient implements TaskManagerClient {
     deleteTask(taskId: string): Promise<TaskManagerResponse>;
     authorizeStop(agentId: string, reason: string): Promise<TaskManagerResponse>;
     private executeCommand;
-    private createDefaultLogger;
 }
 /**
  * Comprehensive autonomous task management integration

@@ -3,11 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { execAsync } from '../utils/ProcessUtils.js';
-import { Logger } from '../logger/Logger.js';
+import { logger } from '../utils/logger.js';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+const execAsync = promisify(exec);
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 /**
  * Functional validation automation system
  * Handles testing, behavior verification, and functional correctness
@@ -16,25 +16,25 @@ export class FunctionalValidator {
     logger;
     config;
     constructor(config) {
-        this.logger = new Logger('FunctionalValidator');
+        this.logger = logger().child({ component: 'FunctionalValidator' });
         this.config = {
-            testFrameworks: ['vitest', 'jest'],
-            coverageThreshold: {
+            ...config,
+            testFrameworks: config.testFrameworks || ['vitest', 'jest'],
+            coverageThreshold: config.coverageThreshold || {
                 lines: 80,
                 functions: 80,
                 branches: 70,
                 statements: 80,
             },
-            testPatterns: ['**/*.test.ts', '**/*.spec.ts'],
-            behaviorValidation: {
+            testPatterns: config.testPatterns || ['**/*.test.ts', '**/*.spec.ts'],
+            behaviorValidation: config.behaviorValidation || {
                 enabled: true,
                 scenarios: [],
             },
-            performanceThresholds: {
+            performanceThresholds: config.performanceThresholds || {
                 maxExecutionTime: 30000, // 30 seconds
                 maxMemoryUsage: 512 * 1024 * 1024, // 512MB
             },
-            ...config,
         };
         this.logger.info('FunctionalValidator initialized', {
             testFrameworks: this.config.testFrameworks,
@@ -77,7 +77,7 @@ export class FunctionalValidator {
         }
         catch (error) {
             this.logger.error('Functional validation failed', {
-                error,
+                error: error instanceof Error ? error : new Error(String(error)),
                 taskId: context.taskId,
             });
             return [
@@ -172,7 +172,7 @@ export class FunctionalValidator {
             return results;
         }
         catch (error) {
-            this.logger.error(`${framework} test execution failed`, { error });
+            this.logger.error(`${framework} test execution failed`, { error: error instanceof Error ? error : new Error(String(error)) });
             return [
                 {
                     id: `${framework}-error-${Date.now()}`,
@@ -251,7 +251,7 @@ export class FunctionalValidator {
             return results;
         }
         catch (error) {
-            this.logger.error('Coverage analysis failed', { error });
+            this.logger.error('Coverage analysis failed', { error: error instanceof Error ? error : new Error(String(error)) });
             return [
                 {
                     id: `coverage-error-${Date.now()}`,
@@ -354,7 +354,7 @@ export class FunctionalValidator {
             const executionStartTime = process.hrtime.bigint();
             // Simulate task execution or run actual performance tests
             const performanceTestCommand = 'npm test -- --run --reporter=json';
-            const { stdout } = await execAsync(performanceTestCommand, {
+            const { stdout: _stdout } = await execAsync(performanceTestCommand, {
                 timeout: this.config.performanceThresholds.maxExecutionTime,
             });
             const executionEndTime = process.hrtime.bigint();
@@ -401,7 +401,7 @@ export class FunctionalValidator {
             return results;
         }
         catch (error) {
-            this.logger.error('Performance validation failed', { error });
+            this.logger.error('Performance validation failed', { error: error instanceof Error ? error : new Error(String(error)) });
             return [
                 {
                     id: `performance-error-${Date.now()}`,
@@ -497,7 +497,7 @@ export class FunctionalValidator {
             }
         }
         catch (error) {
-            this.logger.warn(`Failed to parse ${framework} results`, { error });
+            this.logger.warn(`Failed to parse ${framework} results`, { error: error instanceof Error ? error : new Error(String(error)) });
             // Return generic result
             results.push({
                 name: 'Parse Error',
@@ -538,7 +538,7 @@ export class FunctionalValidator {
             };
         }
         catch (error) {
-            this.logger.warn('Failed to parse coverage report', { error });
+            this.logger.warn('Failed to parse coverage report', { error: error instanceof Error ? error : new Error(String(error)) });
             return {
                 lines: { total: 0, covered: 0, percentage: 0 },
                 functions: { total: 0, covered: 0, percentage: 0 },

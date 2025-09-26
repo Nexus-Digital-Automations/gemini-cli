@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import type { AutonomousTask, TaskStatus, ExecutionStrategy } from './task-breakdown-engine.js';
+import type { AutonomousTask, ExecutionStrategy } from './task-breakdown-engine.js';
+import { TaskStatus } from './task-breakdown-engine.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
 /**
@@ -138,10 +139,7 @@ export interface ExecutionStrategySelector {
  */
 export declare class AutonomousExecutionEngine extends EventEmitter {
     private readonly strategySelector;
-    private readonly runningTasks;
     private readonly taskStates;
-    private readonly executionQueue;
-    private isProcessing;
     constructor(strategySelector?: ExecutionStrategySelector);
     /**
      * Executes a single autonomous task

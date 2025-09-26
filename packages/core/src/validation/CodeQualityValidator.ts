@@ -4,8 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { execAsync } from '../utils/ProcessUtils.js';
-import { Logger } from '../logger/Logger.js';
+import { logger, type StructuredLogger } from '../utils/logger.js';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execAsync = promisify(exec);
 import type {
   ValidationContext,
   ValidationResult,
@@ -16,9 +19,7 @@ import {
   ValidationCategory,
 } from './ValidationFramework.js';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
  
-const _path = path; // Declare usage to avoid unused variable warning
 
 /**
  * Code quality validation configuration
@@ -56,29 +57,29 @@ interface ESLintResult {
  * Security scan result structure
  */
  
-interface _SecurityScanResult {
-  tool: string;
-  severity: string;
-  message: string;
-  file?: string;
-  line?: number;
-  rule?: string;
-}
+// interface SecurityScanResult {
+//   tool: string;
+//   severity: string;
+//   message: string;
+//   file?: string;
+//   line?: number;
+//   rule?: string;
+// }
 
 /**
  * Code quality validation automation system
  * Handles linting, formatting, and security scanning
  */
 export class CodeQualityValidator {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: CodeQualityConfig;
 
   constructor(config: CodeQualityConfig) {
-    this.logger = new Logger('CodeQualityValidator');
+    this.logger = logger().child({ component: 'CodeQualityValidator' });
     this.config = {
-      enabledLinters: ['eslint', 'prettier'],
-      securityScanners: ['semgrep'],
       ...config,
+      enabledLinters: config.enabledLinters || ['eslint', 'prettier'],
+      securityScanners: config.securityScanners || ['semgrep'],
     };
 
     this.logger.info('CodeQualityValidator initialized', {
@@ -139,7 +140,7 @@ export class CodeQualityValidator {
       return results;
     } catch (error) {
       this.logger.error('Code quality validation failed', {
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
         taskId: context.taskId,
       });
       return [
@@ -241,7 +242,7 @@ export class CodeQualityValidator {
 
       return results;
     } catch (error) {
-      this.logger.error('ESLint validation failed', { error });
+      this.logger.error('ESLint validation failed', { error: error instanceof Error ? error : new Error(String(error)) });
       return [
         {
           id: `eslint-error-${Date.now()}`,
@@ -345,7 +346,7 @@ export class CodeQualityValidator {
             category: ValidationCategory.SYNTAX,
             severity: ValidationSeverity.ERROR,
             status: ValidationStatus.FAILED,
-            message: `Prettier check failed: ${error.message}`,
+            message: `Prettier check failed: ${error instanceof Error ? error.message : String(error)}`,
             timestamp: new Date(),
             duration: Date.now() - startTime,
           });
@@ -354,7 +355,7 @@ export class CodeQualityValidator {
 
       return results;
     } catch (error) {
-      this.logger.error('Prettier validation failed', { error });
+      this.logger.error('Prettier validation failed', { error: error instanceof Error ? error : new Error(String(error)) });
       return [
         {
           id: `prettier-error-${Date.now()}`,
@@ -433,7 +434,7 @@ export class CodeQualityValidator {
           category: ValidationCategory.SYNTAX,
           severity: ValidationSeverity.ERROR,
           status: ValidationStatus.FAILED,
-          message: `TypeScript compilation failed: ${error.message}`,
+          message: `TypeScript compilation failed: ${error instanceof Error ? error.message : String(error)}`,
           timestamp: new Date(),
           duration: Date.now() - startTime,
         });
@@ -516,7 +517,7 @@ export class CodeQualityValidator {
 
       return results;
     } catch (error) {
-      this.logger.error(`${scanner} security scan failed`, { error });
+      this.logger.error(`${scanner} security scan failed`, { error: error instanceof Error ? error : new Error(String(error)) });
       return [
         {
           id: `${scanner}-error-${Date.now()}`,
@@ -570,7 +571,7 @@ export class CodeQualityValidator {
         } catch (error) {
           this.logger.warn(
             `Failed to read file for custom rule validation: ${filePath}`,
-            { error },
+            { error: error instanceof Error ? error : new Error(String(error)) },
           );
         }
       }

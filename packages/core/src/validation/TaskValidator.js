@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { logger as parentLogger } from '../utils/logger.js';
 import { ValidationStatus, ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
 import { TaskStatus } from '../task-management/TaskQueue.js';
 /**
  * Task validation types for different validation scenarios
  */
-export let TaskValidationType;
+export var TaskValidationType;
 (function (TaskValidationType) {
     TaskValidationType["PRE_EXECUTION"] = "pre_execution";
     TaskValidationType["IN_PROGRESS"] = "in_progress";
@@ -22,7 +22,7 @@ export let TaskValidationType;
 /**
  * Task validation result levels
  */
-export let TaskValidationLevel;
+export var TaskValidationLevel;
 (function (TaskValidationLevel) {
     TaskValidationLevel["STRICT"] = "strict";
     TaskValidationLevel["MODERATE"] = "moderate";
@@ -40,15 +40,13 @@ export let TaskValidationLevel;
  * - Comprehensive reporting and recommendations
  */
 export class TaskValidator extends EventEmitter {
-    logger;
+    logger = parentLogger().child({ component: 'TaskValidator' });
     validationFramework;
     config;
     snapshots = new Map();
     activeValidations = new Map();
-    qualityMetrics = new Map();
     constructor(validationFramework, config = {}) {
         super();
-        this.logger = new Logger('TaskValidator');
         this.validationFramework = validationFramework;
         this.config = this.createDefaultConfig(config);
         this.logger.info('TaskValidator initialized', {
@@ -166,7 +164,7 @@ export class TaskValidator extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Task validation failed: ${context.task.id}`, {
-                error,
+                error: error,
             });
             this.emit('taskValidationFailed', context.task.id, error, context);
             throw error;
@@ -312,7 +310,7 @@ export class TaskValidator extends EventEmitter {
             return true;
         }
         catch (error) {
-            this.logger.error('Task rollback failed', { taskId, snapshotId, error });
+            this.logger.error('Task rollback failed', { taskId, snapshotId, error: error });
             return false;
         }
     }
@@ -324,7 +322,7 @@ export class TaskValidator extends EventEmitter {
      */
     async validateTaskPreconditions(context) {
         const results = [];
-        const task = context.metadata?.task;
+        const task = context.metadata?.['task'];
         if (!task) {
             return [
                 {
@@ -378,8 +376,7 @@ export class TaskValidator extends EventEmitter {
      */
     async validateQualityMetrics(context) {
         const results = [];
-        const executionMetrics = context.metadata
-            ?.executionMetrics;
+        const executionMetrics = context.metadata?.['executionMetrics'];
         if (!executionMetrics) {
             return [
                 {
@@ -448,9 +445,7 @@ export class TaskValidator extends EventEmitter {
     /**
      * Validate task security compliance
      */
-    async validateTaskSecurity(context) {
-        const _results = [];
-        const _task = context.metadata?.task;
+    async validateTaskSecurity(_context) {
         // TODO: Implement comprehensive security validation
         // - Check for exposed secrets
         // - Validate permissions and access controls
@@ -472,8 +467,7 @@ export class TaskValidator extends EventEmitter {
      */
     async validateTaskPerformance(context) {
         const results = [];
-        const executionMetrics = context.metadata
-            ?.executionMetrics;
+        const executionMetrics = context.metadata?.['executionMetrics'];
         if (!executionMetrics) {
             return [
                 {

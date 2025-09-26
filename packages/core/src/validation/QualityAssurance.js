@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { logger as parentLogger } from '../utils/logger.js';
 import { ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
-import { TaskValidationResult, TaskValidationContext, } from './TaskValidator.js';
 /**
  * Types of quality checks performed
  */
-export let QualityCheckType;
+export var QualityCheckType;
 (function (QualityCheckType) {
     QualityCheckType["CODE_QUALITY"] = "code_quality";
     QualityCheckType["PERFORMANCE"] = "performance";
@@ -28,20 +27,16 @@ export let QualityCheckType;
  * for maintaining high quality standards in autonomous task execution.
  */
 export class QualityAssurance extends EventEmitter {
-    logger;
+    logger = parentLogger().child({ component: 'QualityAssurance' });
     validationFramework;
-    taskValidator;
     config;
     // Quality data storage
     qualityHistory = new Map();
     metricsHistory = new Map();
     activeChecks = new Map();
-    qualityReports = [];
-    constructor(validationFramework, taskValidator, config = {}) {
+    constructor(validationFramework, _taskValidator, config = {}) {
         super();
-        this.logger = new Logger('QualityAssurance');
         this.validationFramework = validationFramework;
-        this.taskValidator = taskValidator;
         this.config = this.createDefaultConfig(config);
         this.logger.info('QualityAssurance initialized', {
             enabledChecks: this.config.enabledChecks,
@@ -190,7 +185,7 @@ export class QualityAssurance extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Quality assurance failed for task: ${task.id}`, {
-                error,
+                error: error,
             });
             throw error;
         }

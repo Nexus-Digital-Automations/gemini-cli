@@ -4,14 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
-import { TaskSnapshot } from './TaskValidator.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import { logger as parentLogger } from '../utils/logger.js';
 /**
  * Types of rollback operations
  */
-export let RollbackType;
+export var RollbackType;
 (function (RollbackType) {
     RollbackType["TASK_STATE"] = "task_state";
     RollbackType["FILE_SYSTEM"] = "file_system";
@@ -24,7 +21,7 @@ export let RollbackType;
 /**
  * Rollback triggers that initiate rollback operations
  */
-export let RollbackTrigger;
+export var RollbackTrigger;
 (function (RollbackTrigger) {
     RollbackTrigger["VALIDATION_FAILURE"] = "validation_failure";
     RollbackTrigger["EXECUTION_ERROR"] = "execution_error";
@@ -37,7 +34,7 @@ export let RollbackTrigger;
 /**
  * Rollback strategies for different scenarios
  */
-export let RollbackStrategy;
+export var RollbackStrategy;
 (function (RollbackStrategy) {
     RollbackStrategy["IMMEDIATE"] = "immediate";
     RollbackStrategy["GRACEFUL"] = "graceful";
@@ -49,7 +46,7 @@ export let RollbackStrategy;
 /**
  * Rollback operation priority levels
  */
-export let RollbackPriority;
+export var RollbackPriority;
 (function (RollbackPriority) {
     RollbackPriority["CRITICAL"] = "critical";
     RollbackPriority["HIGH"] = "high";
@@ -64,7 +61,7 @@ export let RollbackPriority;
  * for maintaining system reliability and recovery from validation failures.
  */
 export class RollbackManager extends EventEmitter {
-    logger;
+    logger = parentLogger().child({ component: 'RollbackManager' });
     config;
     // Snapshot storage
     snapshots = new Map();
@@ -72,10 +69,8 @@ export class RollbackManager extends EventEmitter {
     // Operation management
     activeRollbacks = new Map();
     rollbackHistory = [];
-    pendingOperations = new Map();
     constructor(config = {}) {
         super();
-        this.logger = new Logger('RollbackManager');
         this.config = this.createDefaultConfig(config);
         this.logger.info('RollbackManager initialized', {
             enabled: this.config.enabled,
@@ -161,7 +156,7 @@ export class RollbackManager extends EventEmitter {
                 schema: {},
             },
             environment: {
-                variables: { ...process.env },
+                variables: Object.fromEntries(Object.entries(process.env).filter(([, value]) => value !== undefined)),
                 workingDirectory: process.cwd(),
                 processInfo: {
                     pid: process.pid,
@@ -236,7 +231,7 @@ export class RollbackManager extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Failed to create ${type} snapshot`, {
-                error,
+                error: error,
                 taskId: task.id,
             });
         }
@@ -275,7 +270,7 @@ export class RollbackManager extends EventEmitter {
         });
     }
     async createEnvironmentSnapshot(snapshot, task) {
-        snapshot.environment.variables = { ...process.env };
+        snapshot.environment.variables = Object.fromEntries(Object.entries(process.env).filter(([, value]) => value !== undefined));
         snapshot.environment.workingDirectory = process.cwd();
         snapshot.environment.processInfo = {
             pid: process.pid,
@@ -333,7 +328,7 @@ export class RollbackManager extends EventEmitter {
         catch (error) {
             this.logger.error('Rollback operation failed', {
                 operationId: operation.id,
-                error: error instanceof Error ? error.message : String(error),
+                error: error,
             });
             this.emit('rollbackFailed', operation, error);
             throw error;

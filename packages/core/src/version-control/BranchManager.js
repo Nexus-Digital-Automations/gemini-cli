@@ -74,7 +74,10 @@ export class BranchManager {
             return branchInfo;
         }
         catch (error) {
-            logger.error('Failed to create branch', { error, options });
+            logger.error('Failed to create branch', {
+                error: error,
+                options,
+            });
             throw error;
         }
     }
@@ -119,7 +122,10 @@ export class BranchManager {
             });
         }
         catch (error) {
-            logger.error('Failed to apply protection rules', { error, branchName });
+            logger.error('Failed to apply protection rules', {
+                error: error,
+                branchName,
+            });
             throw error;
         }
     }
@@ -144,7 +150,9 @@ export class BranchManager {
             return cleanedBranches;
         }
         catch (error) {
-            logger.error('Failed to cleanup merged branches', { error });
+            logger.error('Failed to cleanup merged branches', {
+                error: error,
+            });
             throw error;
         }
     }
@@ -174,7 +182,9 @@ export class BranchManager {
             return report;
         }
         catch (error) {
-            logger.error('Failed to analyze branch health', { error });
+            logger.error('Failed to analyze branch health', {
+                error: error,
+            });
             throw error;
         }
     }
@@ -247,7 +257,9 @@ export class BranchManager {
             };
         }
         catch (error) {
-            logger.error('Failed to get repository status', { error });
+            logger.error('Failed to get repository status', {
+                error: error,
+            });
             throw error;
         }
     }
@@ -272,7 +284,10 @@ export class BranchManager {
             logger.info('Switched to branch successfully', { branchName });
         }
         catch (error) {
-            logger.error('Failed to switch to branch', { error, branchName });
+            logger.error('Failed to switch to branch', {
+                error: error,
+                branchName,
+            });
             throw error;
         }
     }
@@ -288,12 +303,12 @@ export class BranchManager {
         }
         catch (error) {
             logger.warn('Failed to pull latest changes from remote', {
-                error,
+                error: error,
                 baseBranch,
             });
         }
     }
-    generateBranchDescription(options) {
+    generateBranchDescription(_options) {
         // This is a simplified implementation
         // In a real scenario, you might analyze commit messages, issue titles, etc.
         const timestamp = new Date().getTime().toString().slice(-4);
@@ -326,7 +341,7 @@ export class BranchManager {
     sanitizeBranchName(name) {
         return name
             .toLowerCase()
-            .replace(/[^a-z0-9\-_\/]/g, '-')
+            .replace(/[^a-z0-9\-_/]/g, '-')
             .replace(/--+/g, '-')
             .replace(/^-|-$/g, '');
     }
@@ -399,7 +414,10 @@ export class BranchManager {
             };
         }
         catch (error) {
-            logger.error('Failed to get branch info', { error, branchName });
+            logger.error('Failed to get branch info', {
+                error: error,
+                branchName,
+            });
             throw error;
         }
     }
@@ -441,7 +459,7 @@ export class BranchManager {
                 }
                 catch (error) {
                     logger.warn('Failed to get info for branch', {
-                        error,
+                        error: error,
                         branchName: name,
                     });
                 }
@@ -449,7 +467,7 @@ export class BranchManager {
             return branches;
         }
         catch (error) {
-            logger.error('Failed to get all branches', { error });
+            logger.error('Failed to get all branches', { error: error });
             return [];
         }
     }
@@ -457,11 +475,10 @@ export class BranchManager {
         const allBranches = await this.getAllBranches();
         const thresholdDate = new Date();
         thresholdDate.setDate(thresholdDate.getDate() - this.config.staleBranchThreshold);
-        return allBranches.filter((branch) => {
-            // This would check the actual last commit date
-            // For now, just return empty array
-            return false;
-        });
+        return allBranches.filter((_branch) => 
+        // This would check the actual last commit date
+        // For now, just return empty array
+        false);
     }
     async getMergedBranches() {
         try {
@@ -477,7 +494,7 @@ export class BranchManager {
                 }
                 catch (error) {
                     logger.warn('Failed to get info for merged branch', {
-                        error,
+                        error: error,
                         branchName: name,
                     });
                 }
@@ -485,7 +502,7 @@ export class BranchManager {
             return branches;
         }
         catch (error) {
-            logger.error('Failed to get merged branches', { error });
+            logger.error('Failed to get merged branches', { error: error });
             return [];
         }
     }
@@ -513,7 +530,10 @@ export class BranchManager {
             logger.info('Branch deleted', { branchName });
         }
         catch (error) {
-            logger.error('Failed to delete branch', { error, branchName });
+            logger.error('Failed to delete branch', {
+                error: error,
+                branchName,
+            });
             throw error;
         }
     }

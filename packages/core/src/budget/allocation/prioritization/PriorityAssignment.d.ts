@@ -399,7 +399,7 @@ export declare class PriorityAssignment {
      * @param performanceData - Recent performance data
      * @returns Updated priority assignment
      */
-    updatePriority(resourceId: string, contextChanges: Partial<BusinessContextConfig>, performanceData: FeatureCostAnalysis[]): PriorityAssignmentResult | null;
+    updatePriority(resourceId: string, contextChanges: Partial<BusinessContextConfig>, _performanceData: FeatureCostAnalysis[]): PriorityAssignmentResult | null;
     /**
      * Apply business rules to resource
      */
@@ -437,7 +437,7 @@ export declare class PriorityAssignment {
      */
     private generateAssignmentRationale;
     /**
-     * Calculate assignment confidence
+     * Calculate assignment confidence with nuclear cache-busting
      */
     private calculateAssignmentConfidence;
     /**

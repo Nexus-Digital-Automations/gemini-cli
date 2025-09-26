@@ -58,9 +58,9 @@
 // Core validation framework exports
 export { ValidationFramework, ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
 // Code quality validation exports
-export { CodeQualityValidator, } from './CodeQualityValidator.js';
+export { CodeQualityValidator } from './CodeQualityValidator.js';
 // Functional validation exports
-export { FunctionalValidator, } from './FunctionalValidator.js';
+export { FunctionalValidator } from './FunctionalValidator.js';
 // Integration validation exports
 export { IntegrationValidator, } from './IntegrationValidator.js';
 // Validation workflow exports
@@ -71,6 +71,15 @@ export { ValidationFailureHandler, FailureHandlingStrategy, } from './Validation
 export { ValidationReporting, ReportFormat, AnalyticsPeriod, } from './ValidationReporting.js';
 // Continuous monitoring exports
 export { ContinuousValidationMonitor, MonitoringTrigger, MonitoringScope, HealthStatus, } from './ContinuousValidationMonitor.js';
+// Import types and classes needed for ValidationSystemConfig and ValidationSystem interfaces
+import { CodeQualityValidator, } from './CodeQualityValidator.js';
+import { FunctionalValidator, } from './FunctionalValidator.js';
+import { IntegrationValidator, } from './IntegrationValidator.js';
+import { ValidationWorkflow, TaskExecutionStage, } from './ValidationWorkflow.js';
+import { ValidationFailureHandler, FailureHandlingStrategy, } from './ValidationFailureHandler.js';
+import { ValidationReporting, ReportFormat, } from './ValidationReporting.js';
+import { ContinuousValidationMonitor, } from './ContinuousValidationMonitor.js';
+import { ValidationFramework, ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
 /**
  * Create a complete validation system with all components integrated
  */
@@ -375,6 +384,8 @@ export async function createDefaultValidationSystem() {
             systemCompatibility: {
                 nodeVersions: ['18.x', '20.x', '22.x'],
                 operatingSystems: ['linux', 'darwin', 'win32'],
+                architectures: ['x64', 'arm64'],
+                dependencies: [],
             },
         },
         monitoring: {

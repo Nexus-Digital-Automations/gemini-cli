@@ -6,7 +6,7 @@
 // Re-export enums from TaskQueue and TaskExecutionEngine for backward compatibility
 export { TaskPriority, TaskStatus, TaskCategory } from './TaskQueue.js';
 export { TaskType } from './TaskExecutionEngine.js';
-export let TaskComplexity;
+export var TaskComplexity;
 (function (TaskComplexity) {
     TaskComplexity["TRIVIAL"] = "trivial";
     TaskComplexity["SIMPLE"] = "simple";

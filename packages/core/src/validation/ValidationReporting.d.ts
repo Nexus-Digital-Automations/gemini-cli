@@ -69,7 +69,6 @@ export interface ValidationReportingConfig {
 export declare class ValidationReporting extends EventEmitter {
     private readonly logger;
     private readonly config;
-    private readonly metricsStore;
     private readonly reportHistory;
     private readonly dashboardWidgets;
     private dashboardServer?;

@@ -25,6 +25,20 @@ export interface ToolCall {
 export interface TaskMetadata {
     toolCalls: ToolCall[];
     context: Record<string, unknown>;
+    estimatedDuration?: number;
+}
+export declare enum TaskType {
+    IMPLEMENTATION = "implementation",// Code implementation
+    TESTING = "testing",// Test creation/execution
+    VALIDATION = "validation",// Quality assurance
+    DOCUMENTATION = "documentation",// Documentation creation
+    ANALYSIS = "analysis",// Research and analysis
+    DEPLOYMENT = "deployment",// Deployment and operations
+    SECURITY = "security",// Security assessment/fixes
+    PERFORMANCE = "performance",// Performance optimization
+    REFACTORING = "refactoring",// Code refactoring
+    CRITICAL = "critical",// Critical priority tasks
+    QUALITY = "quality"
 }
 export interface Task {
     id: string;
@@ -32,6 +46,7 @@ export interface Task {
     description: string;
     status: TaskStatus;
     priority: TaskPriority;
+    type?: TaskType;
     category?: string;
     dueDate?: string;
     assignee?: string;

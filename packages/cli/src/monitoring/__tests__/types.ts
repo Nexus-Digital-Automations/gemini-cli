@@ -28,6 +28,23 @@ export interface MockTaskStatusMonitor {
   getPerformanceMetrics: jest.MockedFunction<() => TaskPerformanceMetrics>;
   getCurrentStatus: jest.MockedFunction<() => TaskStatus>;
   getTaskHistory: jest.MockedFunction<() => TaskHistoryItem[]>;
+  getAllTasks: jest.MockedFunction<() => Array<{
+    id: string;
+    status: string;
+    type: string;
+    priority: string;
+    startedAt: Date;
+    completedAt?: Date;
+  }>>;
+  getAllAgents: jest.MockedFunction<() => Array<{
+    id: string;
+    status: string;
+    capabilities: string[];
+    currentTasks: string[];
+    performance: { successRate: number; taskThroughput: number };
+    completedTasks: number;
+    failedTasks: number;
+  }>>;
   on: jest.MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
   shutdown: jest.MockedFunction<() => void>;
 }
@@ -90,11 +107,53 @@ export interface EventBase {
 
 // Monitoring data structures
 export interface MonitoringSnapshot {
-  timestamp: number;
-  taskMetrics: TaskMetrics;
-  performanceMetrics: PerformanceMetrics;
-  systemHealth: SystemHealth;
-  alerts: AlertSummary[];
+  timestamp: Date;
+  // System metrics
+  systemHealth: {
+    overall: 'healthy' | 'degraded' | 'unhealthy' | 'critical';
+    uptime: number;
+    memoryUsageMB: number;
+    cpuUsagePercent: number;
+  };
+  // Task metrics
+  taskMetrics: {
+    total: number;
+    queued: number;
+    inProgress: number;
+    completed: number;
+    failed: number;
+    blocked: number;
+    cancelled: number;
+    successRate: number;
+    averageExecutionTimeMs: number;
+    throughputPerHour: number;
+  };
+  // Agent metrics
+  agentMetrics: {
+    total: number;
+    active: number;
+    idle: number;
+    busy: number;
+    offline: number;
+    averageUtilization: number;
+    averagePerformance: number;
+  };
+  // Performance metrics
+  performanceMetrics: {
+    responseTimeMs: number;
+    throughput: number;
+    errorRate: number;
+    availabilityPercent: number;
+  };
+  // Trend indicators
+  trends: {
+    taskCompletion: 'increasing' | 'decreasing' | 'stable';
+    errorRate: 'increasing' | 'decreasing' | 'stable';
+    performance: 'improving' | 'degrading' | 'stable';
+    resourceUsage: 'increasing' | 'decreasing' | 'stable';
+  };
+  // Active alerts
+  activeAlerts: AlertSummary[];
 }
 
 export interface TaskMetrics {

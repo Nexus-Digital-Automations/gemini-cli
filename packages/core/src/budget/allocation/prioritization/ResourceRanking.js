@@ -204,7 +204,6 @@ export class ResourceRanking {
                 break;
             case 'growth':
                 // Prioritize scalability and efficiency
-                // Force cache refresh
                 if (candidate.metadata.category === 'scalability')
                     score *= 1.2;
                 break;
@@ -507,7 +506,6 @@ export class ResourceRanking {
     /**
      * Perform sensitivity analysis
      */
-    // Force cache refresh
     performSensitivityAnalysis(scoreBreakdown) {
         const influentialCriteria = Object.entries(scoreBreakdown.weightedContributions)
             .map(([criterion, contribution]) => ({

@@ -14,6 +14,8 @@ export { IdeConnectionEvent, IdeConnectionType, ExtensionInstallEvent, Extension
 export { makeFakeConfig } from './src/test-utils/config.js';
 export * from './src/utils/pathReader.js';
 export { ClearcutLogger } from './src/telemetry/clearcut-logger/clearcut-logger.js';
+export { PersonaManager, personaManager, } from './src/persona/PersonaManager.js';
+export type { PersonaProfile, PersonalityTraits, BehavioralPatterns, PersonaCustomization, } from './src/persona/PersonaManager.js';
 export { BudgetTracker, createBudgetTracker, } from './src/budget/budget-tracker.js';
 export { BudgetEnforcement, BudgetExceededError, createBudgetEnforcement, isBudgetExceededError, } from './src/budget/budget-enforcement.js';
 export { BudgetContentGenerator, createBudgetContentGenerator, } from './src/core/budgetContentGenerator.js';
@@ -21,3 +23,5 @@ export type { BudgetSettings, BudgetUsageData } from './src/budget/types.js';
 export type { BudgetWarning, BudgetEnforcementOptions, } from './src/budget/budget-enforcement.js';
 export { ProgressTracker, globalProgressTracker, OperationDetector, } from './src/progress/index.js';
 export type { ProgressUpdateCallback, ToolCallInfo, } from './src/progress/index.js';
+export { KnowledgeBaseManager, knowledgeBaseManager, createKnowledgeBaseManager, KnowledgeSourceType, } from './src/knowledge/KnowledgeBaseManager.js';
+export type { KnowledgeSource, KnowledgeDocument, KnowledgeQuery, KnowledgeSearchResult, KnowledgeSuggestion, InstitutionalPattern, PatternExample, } from './src/knowledge/KnowledgeBaseManager.js';

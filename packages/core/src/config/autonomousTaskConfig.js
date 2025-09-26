@@ -25,7 +25,7 @@ const DEFAULT_CONFIG = {
     // Agent configuration
     agentHeartbeatInterval: 30000,
     maxAgentsPerTask: 3,
-    defaultAgentCapabilities: ['general'],
+    defaultAgentCapabilities: ['analysis'],
     agentPerformanceTracking: true,
     // Task queue configuration
     taskSyncInterval: 60000,
@@ -96,7 +96,7 @@ export class AutonomousTaskConfigManager {
      * Update configuration settings
      */
     updateConfig(updates) {
-        const previousConfig = { ...this.config };
+        // const previousConfig = { ...this.config }; // Unused - for future rollback feature
         // Merge updates with current config
         this.config = {
             ...this.config,
@@ -290,7 +290,7 @@ export class AutonomousTaskConfigManager {
         }
     }
     getDefaultConfigPath() {
-        const homeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
+        const homeDir = process.env['HOME'] || process.env['USERPROFILE'] || process.cwd();
         return join(homeDir, '.gemini', 'autonomous-tasks.config.json');
     }
 }

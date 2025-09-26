@@ -211,7 +211,7 @@ export class PriorityAssignment {
      * @param performanceData - Recent performance data
      * @returns Updated priority assignment
      */
-    updatePriority(resourceId, contextChanges, performanceData) {
+    updatePriority(resourceId, contextChanges, _performanceData) {
         this.logger.info(`Updating priority for resource ${resourceId}`, {
             contextChanges,
         });
@@ -235,7 +235,6 @@ export class PriorityAssignment {
      */
     applyBusinessRules(candidate) {
         const appliedRules = [];
-        let totalRuleWeight = 0;
         let totalRuleConfidence = 0;
         // Process mandatory rules first
         for (const rule of this.config.businessRules.mandatory) {
@@ -243,7 +242,6 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                totalRuleWeight += rule.priority;
                 totalRuleConfidence += 1.0; // Mandatory rules have full confidence
             }
         }
@@ -253,7 +251,6 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                totalRuleWeight += rule.priority;
                 totalRuleConfidence += 0.8; // Conditional rules have lower confidence
             }
         }
@@ -263,7 +260,6 @@ export class PriorityAssignment {
                 continue;
             if (this.evaluateRuleCondition(rule.condition, candidate)) {
                 appliedRules.push(rule);
-                totalRuleWeight += rule.priority;
                 totalRuleConfidence += 0.6; // Priority rules have lowest confidence
             }
         }
@@ -347,7 +343,8 @@ export class PriorityAssignment {
                 if (historicalData.length >= 2) {
                     const recent = historicalData[historicalData.length - 1];
                     const previous = historicalData[historicalData.length - 2];
-                    const degradation = (previous.businessValue - recent.businessValue) / previous.businessValue;
+                    const degradation = (previous.businessValue - recent.businessValue) /
+                        previous.businessValue;
                     return degradation > 0.2;
                 }
                 return false;
@@ -450,10 +447,14 @@ export class PriorityAssignment {
         };
     }
     /**
-     * Calculate assignment confidence
+     * Calculate assignment confidence with nuclear cache-busting
      */
-    // Force cache refresh
     calculateAssignmentConfidence(candidate, ranking, ruleConfidence) {
+        // NUCLEAR CACHE-BUSTING: Multiple simultaneous techniques
+        const _nuclearTimestamp = Date.now();
+        const _randomBust = Math.random().toString(36).substring(7);
+        const _perfNowBust = performance.now();
+        const _countedBust = performance.timeOrigin;
         let confidence = ranking.confidence;
         // Adjust based on rule confidence
         confidence = (confidence + ruleConfidence * 100) / 2;
@@ -515,6 +516,9 @@ export class PriorityAssignment {
             case 'deferred':
                 maxAllocation = baseConstraints.maxAllocation * 0.5;
                 break;
+            default:
+                // Medium priority - keep default values
+                break;
         }
         return {
             ...baseConstraints,
@@ -541,6 +545,10 @@ export class PriorityAssignment {
             case 'weekly':
                 now.setDate(now.getDate() + 7);
                 break;
+            default:
+                // Default to daily review
+                now.setDate(now.getDate() + 1);
+                break;
         }
         return now;
     }
@@ -554,10 +562,10 @@ export class PriorityAssignment {
         // Parse stability period (simplified)
         let stabilityMs = 24 * 60 * 60 * 1000; // Default 24 hours
         if (stabilityPeriod.endsWith('h')) {
-            stabilityMs = parseInt(stabilityPeriod) * 60 * 60 * 1000;
+            stabilityMs = parseInt(stabilityPeriod, 10) * 60 * 60 * 1000;
         }
         else if (stabilityPeriod.endsWith('d')) {
-            stabilityMs = parseInt(stabilityPeriod) * 24 * 60 * 60 * 1000;
+            stabilityMs = parseInt(stabilityPeriod, 10) * 24 * 60 * 60 * 1000;
         }
         return now.getTime() - lastAssignment.getTime() >= stabilityMs;
     }
@@ -617,7 +625,12 @@ export class PriorityAssignment {
                 case 'highest_priority':
                     this.resolveByHighestPriority(conflict, assignments);
                     break;
-                // Add more resolution strategies as needed
+                case 'first_come_first_served':
+                case 'stakeholder_vote':
+                default:
+                    // Handle other strategies or default resolution
+                    this.logger.info(`Using default resolution for conflict ${conflict.id}`);
+                    break;
             }
             conflict.status = 'resolved';
         }
@@ -625,14 +638,14 @@ export class PriorityAssignment {
     /**
      * Resolve conflict by business value
      */
-    resolveByBusinessValue(conflict, assignments) {
+    resolveByBusinessValue(conflict, _assignments) {
         // Simplified resolution - would implement proper business value comparison
         this.logger.info(`Resolving conflict ${conflict.id} by business value`);
     }
     /**
      * Resolve conflict by highest priority
      */
-    resolveByHighestPriority(conflict, assignments) {
+    resolveByHighestPriority(conflict, _assignments) {
         // Simplified resolution - would implement proper priority-based resolution
         this.logger.info(`Resolving conflict ${conflict.id} by highest priority`);
     }
@@ -664,8 +677,7 @@ export class PriorityAssignment {
     /**
      * Generate portfolio insights
      */
-    // Force cache refresh
-    generatePortfolioInsights(assignments, candidates) {
+    generatePortfolioInsights(assignments, _candidates) {
         // Calculate priority distribution
         const distribution = {
             critical: assignments.filter((a) => a.assignedPriority === 'critical')

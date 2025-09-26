@@ -124,6 +124,9 @@ export declare class TestFactories {
             description: string;
             status: TaskStatus;
             priority: TaskPriority;
+            type?: TaskType /**
+             * Creates a dependency graph from tasks
+             */;
             category: TaskCategory;
             metadata: TaskMetadata;
             parameters?: Record<string, unknown>;
@@ -154,6 +157,9 @@ export declare class TestFactories {
             title: string;
             description: string;
             status: TaskStatus;
+            type?: TaskType /**
+             * Creates a dependency graph from tasks
+             */;
             category: TaskCategory;
             executionContext?: TaskExecutionContext;
             parameters?: Record<string, unknown>;
@@ -192,6 +198,9 @@ export declare class TestFactories {
             description: string;
             status: TaskStatus;
             priority: TaskPriority;
+            type?: TaskType /**
+             * Creates a dependency graph from tasks
+             */;
             parameters?: Record<string, unknown>;
             expectedOutput?: Record<string, unknown>;
             validationCriteria?: string[];
@@ -243,6 +252,9 @@ export declare class TestFactories {
             description: string;
             status: TaskStatus;
             priority: TaskPriority;
+            type?: TaskType /**
+             * Creates a dependency graph from tasks
+             */;
             category: TaskCategory;
             parameters?: Record<string, unknown>;
             expectedOutput?: Record<string, unknown>;

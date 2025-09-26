@@ -5,24 +5,13 @@
  */
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import { TaskComplexity } from '../task-management/types.js';
-import type { TaskCategory, TaskPriority } from '../task-management/types.js';
+import { TaskCategory, TaskPriority, TaskStatus } from '../task-management/types.js';
 /**
  * Using canonical enums from types.ts:
  * - TaskComplexity: TRIVIAL, SIMPLE, MODERATE, COMPLEX, ENTERPRISE
  * - TaskCategory: implementation, testing, documentation, analysis, refactoring, deployment
  * - TaskPriority: critical, high, medium, low
  */
-/**
- * Task execution status
- */
-export declare enum TaskStatus {
-    PENDING = "pending",
-    IN_PROGRESS = "in_progress",
-    BLOCKED = "blocked",
-    COMPLETED = "completed",
-    FAILED = "failed",
-    CANCELLED = "cancelled"
-}
 /**
  * Represents a decomposed task with metadata and execution context
  */
@@ -135,7 +124,6 @@ export interface DecompositionRule {
  * manageable, executable tasks with proper dependency management and execution strategies.
  */
 export declare class TaskBreakdownEngine {
-    private decompositionRules;
     private breakdownStrategies;
     private complexityAnalyzers;
     constructor();
@@ -205,3 +193,4 @@ export interface ComplexityAnalyzer {
     name: string;
     analyze(request: string, context: TaskBreakdownContext): Promise<ComplexityAnalysisResult>;
 }
+export { TaskCategory, TaskPriority, TaskStatus, } from '../task-management/types.js';

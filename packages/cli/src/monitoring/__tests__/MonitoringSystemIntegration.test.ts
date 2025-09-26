@@ -168,11 +168,11 @@ describe('Monitoring System Integration Tests', () => {
         description: 'Integration test task',
         type: TaskType.IMPLEMENTATION,
         priority: TaskPriority.NORMAL,
-        status: TaskStatus.QUEUED,
+        // status: TaskStatus.QUEUED, // omitted from type
         dependencies: [],
-        progress: 0,
-        errorCount: 0,
-        retryCount: 0,
+        // progress: 0, // omitted from type
+        // errorCount: 0, // omitted from type
+        // retryCount: 0, // omitted from type
         estimatedDuration: 30000,
         tags: [],
         metadata: {},
@@ -206,11 +206,11 @@ describe('Monitoring System Integration Tests', () => {
         description: 'Task for testing data synchronization',
         type: TaskType.TESTING,
         priority: TaskPriority.HIGH,
-        status: TaskStatus.QUEUED,
+        // status: TaskStatus.QUEUED, // omitted from type
         dependencies: [],
-        progress: 0,
-        errorCount: 0,
-        retryCount: 0,
+        // progress: 0, // omitted from type
+        // errorCount: 0, // omitted from type
+        // retryCount: 0, // omitted from type
         estimatedDuration: 60000,
         tags: [],
         metadata: {},
@@ -279,11 +279,11 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Task for predictive analysis',
           type: TaskType.IMPLEMENTATION,
           priority: i % 3 === 0 ? TaskPriority.HIGH : TaskPriority.NORMAL,
-          status: TaskStatus.QUEUED,
+          // status: TaskStatus.QUEUED, // omitted from type
           dependencies: [],
-          progress: 0,
-          errorCount: 0,
-          retryCount: 0,
+          // progress: 0, // omitted from type
+          // errorCount: 0, // omitted from type
+          // retryCount: 0, // omitted from type
           estimatedDuration: 30000 + i * 1000,
           tags: [],
           metadata: {},
@@ -381,12 +381,12 @@ describe('Monitoring System Integration Tests', () => {
         description: 'Task to trigger alert',
         type: TaskType.VALIDATION,
         priority: TaskPriority.HIGH,
-        status: TaskStatus.QUEUED,
+        // status: TaskStatus.QUEUED, // omitted from type
         dependencies: [],
-        progress: 0,
+        // progress: 0, // omitted from type
         estimatedDuration: 15000,
-        errorCount: 0,
-        retryCount: 0,
+        // errorCount: 0, // omitted from type
+        // retryCount: 0, // omitted from type
         tags: ['integration-test'],
         metadata: {},
       });
@@ -476,12 +476,12 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Chart task for testing',
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.HIGH,
-          status: TaskStatus.QUEUED,
+          // status: TaskStatus.QUEUED, // omitted from type
           dependencies: [],
-          progress: 0,
+          // progress: 0, // omitted from type
           estimatedDuration: 30000,
-          errorCount: 0,
-          retryCount: 0,
+          // errorCount: 0, // omitted from type
+          // retryCount: 0, // omitted from type
           tags: ['chart-test'],
           metadata: {},
         }),
@@ -490,12 +490,12 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Chart task for testing',
           type: TaskType.TESTING,
           priority: TaskPriority.NORMAL,
-          status: TaskStatus.QUEUED,
+          // status: TaskStatus.QUEUED, // omitted from type
           dependencies: [],
-          progress: 0,
+          // progress: 0, // omitted from type
           estimatedDuration: 20000,
-          errorCount: 0,
-          retryCount: 0,
+          // errorCount: 0, // omitted from type
+          // retryCount: 0, // omitted from type
           tags: ['chart-test'],
           metadata: {},
         }),
@@ -614,11 +614,11 @@ describe('Monitoring System Integration Tests', () => {
         description: 'Task for correlation testing',
         type: TaskType.IMPLEMENTATION,
         priority: TaskPriority.NORMAL,
-        status: TaskStatus.QUEUED,
+        // status: TaskStatus.QUEUED, // omitted from type
         dependencies: [],
-        progress: 0,
-        errorCount: 0,
-        retryCount: 0,
+        // progress: 0, // omitted from type
+        // errorCount: 0, // omitted from type
+        // retryCount: 0, // omitted from type
         estimatedDuration: 30000,
         tags: [],
         metadata: {},
@@ -660,11 +660,11 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Task for aggregation testing 1',
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.HIGH,
-          status: TaskStatus.QUEUED,
+          // status: TaskStatus.QUEUED, // omitted from type
           dependencies: [],
-          progress: 0,
-          errorCount: 0,
-          retryCount: 0,
+          // progress: 0, // omitted from type
+          // errorCount: 0, // omitted from type
+          // retryCount: 0, // omitted from type
           estimatedDuration: 30000,
           tags: [],
           metadata: {},
@@ -674,11 +674,11 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Task for aggregation testing 2',
           type: TaskType.TESTING,
           priority: TaskPriority.NORMAL,
-          status: TaskStatus.QUEUED,
+          // status: TaskStatus.QUEUED, // omitted from type
           dependencies: [],
-          progress: 0,
-          errorCount: 0,
-          retryCount: 0,
+          // progress: 0, // omitted from type
+          // errorCount: 0, // omitted from type
+          // retryCount: 0, // omitted from type
           estimatedDuration: 20000,
           tags: [],
           metadata: {},
@@ -847,11 +847,11 @@ describe('Monitoring System Integration Tests', () => {
         description: 'Task for export testing',
         type: TaskType.VALIDATION,
         priority: TaskPriority.NORMAL,
-        status: TaskStatus.QUEUED,
+        // status: TaskStatus.QUEUED, // omitted from type
         dependencies: [],
-        progress: 0,
-        errorCount: 0,
-        retryCount: 0,
+        // progress: 0, // omitted from type
+        // errorCount: 0, // omitted from type
+        // retryCount: 0, // omitted from type
         estimatedDuration: 25000,
         tags: [],
         metadata: {},
@@ -1022,11 +1022,11 @@ describe('Monitoring System Integration Tests', () => {
               description: 'Load test task for high load simulation',
               type: TaskType.IMPLEMENTATION,
               priority: TaskPriority.NORMAL,
-              status: TaskStatus.QUEUED,
+              // status: TaskStatus.QUEUED, // omitted from type
               dependencies: [],
-              progress: 0,
-              errorCount: 0,
-              retryCount: 0,
+              // progress: 0, // omitted from type
+              // errorCount: 0, // omitted from type
+              // retryCount: 0, // omitted from type
               estimatedDuration: 10000,
               tags: [],
               metadata: { loadTest: true, index: i },
@@ -1098,11 +1098,11 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Task for degradation testing',
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.HIGH,
-          status: TaskStatus.QUEUED,
+          // status: TaskStatus.QUEUED, // omitted from type
           dependencies: [],
-          progress: 0,
-          errorCount: 0,
-          retryCount: 0,
+          // progress: 0, // omitted from type
+          // errorCount: 0, // omitted from type
+          // retryCount: 0, // omitted from type
           estimatedDuration: 60000,
           tags: [],
           metadata: {},
@@ -1116,7 +1116,7 @@ describe('Monitoring System Integration Tests', () => {
           taskIds[i],
           TaskStatus.FAILED,
           {
-            progress: 0,
+            // progress: 0, // omitted from type
             message: 'Task failed during degradation test',
             error: `Simulated failure ${i}`,
           },

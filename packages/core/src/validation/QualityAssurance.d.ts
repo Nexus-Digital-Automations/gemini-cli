@@ -282,13 +282,11 @@ export interface QualityAssuranceConfig {
 export declare class QualityAssurance extends EventEmitter {
     private readonly logger;
     private readonly validationFramework;
-    private readonly taskValidator;
     private readonly config;
     private readonly qualityHistory;
     private readonly metricsHistory;
     private readonly activeChecks;
-    private readonly qualityReports;
-    constructor(validationFramework: ValidationFramework, taskValidator: TaskValidator, config?: Partial<QualityAssuranceConfig>);
+    constructor(validationFramework: ValidationFramework, _taskValidator: TaskValidator, config?: Partial<QualityAssuranceConfig>);
     /**
      * Create default configuration with overrides
      */

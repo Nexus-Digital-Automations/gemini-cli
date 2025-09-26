@@ -138,6 +138,8 @@ export interface Task {
   status: TaskStatus;
   /** Task priority level */
   priority: TaskPriority;
+  /** Task type for specialized handling */
+  type?: TaskType;
   /** Task category */
   category: TaskCategory;
   /** Execution context */

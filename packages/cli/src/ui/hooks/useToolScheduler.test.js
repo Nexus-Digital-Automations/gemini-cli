@@ -188,7 +188,10 @@ describe('useReactToolScheduler', () => {
         mockToolRequiresConfirmation.shouldConfirmExecute.mockImplementation(async () => ({
             onConfirm: mockOnUserConfirmForToolConfirmation,
             fileName: 'mockToolRequiresConfirmation.ts',
+            filePath: '/mock/path/mockToolRequiresConfirmation.ts',
             fileDiff: 'Mock tool requires confirmation',
+            originalContent: 'original content',
+            newContent: 'new content',
             type: 'edit',
             title: 'Mock Tool Requires Confirmation',
         }));
@@ -703,6 +706,7 @@ describe('mapToDisplay', () => {
         ],
         resultDisplay: 'Test display output',
         error: undefined,
+        errorType: undefined,
     };
     const baseInvocation = baseTool.build(baseRequest.args);
     const testCases = [
