@@ -5,7 +5,6 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { randomUUID } from 'node:crypto';
 import type {
   AutonomousTask,
   TaskStatus,
@@ -13,7 +12,6 @@ import type {
   TaskCategory,
   ExecutionStrategy,
   RetryPolicy,
-  TaskBreakdownContext,
 } from './task-breakdown-engine.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
@@ -864,7 +862,7 @@ export class DefaultExecutionStrategySelector
 {
   selectStrategy(
     task: AutonomousTask,
-    context: TaskExecutionContext,
+    _context: TaskExecutionContext,
   ): ExecutionStrategy {
     // Return the task's configured strategy or generate a default one
     if (task.executionStrategy) {

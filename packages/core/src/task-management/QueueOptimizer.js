@@ -6,11 +6,11 @@
 
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import { TaskPriority } from './types.js';
+import { TaskPriority, TaskStatus } from './types.js';
 /**
  * Optimization strategy types
  */
-export var OptimizationStrategy;
+export let OptimizationStrategy;
 (function (OptimizationStrategy) {
   OptimizationStrategy['THROUGHPUT_MAXIMIZATION'] = 'throughput_maximization';
   OptimizationStrategy['LATENCY_MINIMIZATION'] = 'latency_minimization';
@@ -264,10 +264,10 @@ export class QueueOptimizer extends EventEmitter {
   /**
    * Predict queue performance based on current state
    */
-  predictPerformance(tasks, dependencyAnalysis, projectionHours = 24) {
+  predictPerformance(tasks, dependencyAnalysis, _projectionHours = 24) {
     const readyTasks = dependencyAnalysis.readyTasks.length;
     const totalTasks = tasks.size;
-    const averageTaskDuration = this.calculateAverageTaskDuration(tasks);
+    const _averageTaskDuration = this.calculateAverageTaskDuration(tasks);
     // Simple throughput prediction based on historical data and current resources
     const currentThroughput = this.performanceMetrics.averageThroughput;
     const resourceEfficiency = this.performanceMetrics.resourceEfficiency;
@@ -556,7 +556,7 @@ export class QueueOptimizer extends EventEmitter {
   /**
    * Generate general optimization recommendations
    */
-  generateGeneralOptimizations(tasks, dependencyAnalysis) {
+  generateGeneralOptimizations(tasks, _dependencyAnalysis) {
     const recommendations = [];
     // Identify long-running tasks that could be broken down
     const longRunningTasks = Array.from(tasks.values()).filter(
@@ -840,7 +840,7 @@ export class QueueOptimizer extends EventEmitter {
       ? durations.reduce((sum, d) => sum + d, 0) / durations.length
       : 60000;
   }
-  estimateTaskCompletionTime(task, dependencyAnalysis) {
+  estimateTaskCompletionTime(task, _dependencyAnalysis) {
     // Simple estimation based on dependencies and current queue state
     const dependencyDepth = task.dependencies.length;
     const baseTime = task.estimatedDuration;

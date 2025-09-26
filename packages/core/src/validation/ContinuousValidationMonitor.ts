@@ -9,13 +9,13 @@ import { Logger } from '../logger/Logger.js';
 import type {
   ValidationFramework,
   ValidationContext,
-  ValidationReport,
+  ValidationReport as _ValidationReport,
 } from './ValidationFramework.js';
 import type {
   ValidationWorkflow,
   TaskExecutionStage,
   TaskExecutionContext,
-  WorkflowExecutionResult,
+  WorkflowExecutionResult as _WorkflowExecutionResult,
 } from './ValidationWorkflow.js';
 import type { ValidationFailureHandler } from './ValidationFailureHandler.js';
 import type { ValidationReporting } from './ValidationReporting.js';
@@ -185,11 +185,11 @@ export class ContinuousValidationMonitor extends EventEmitter {
   private readonly logger: Logger;
 
   constructor(
-    config: Partial<ContinuousValidationMonitorConfig>,
-    validationFramework: ValidationFramework,
-    validationWorkflow: ValidationWorkflow,
-    failureHandler: ValidationFailureHandler,
-    reporting: ValidationReporting,
+    _config: Partial<ContinuousValidationMonitorConfig>,
+    _validationFramework: ValidationFramework,
+    _validationWorkflow: ValidationWorkflow,
+    _failureHandler: ValidationFailureHandler,
+    _reporting: ValidationReporting,
   ) {
     super();
     this.logger = new Logger('ContinuousValidationMonitor');
@@ -207,15 +207,15 @@ export class ContinuousValidationMonitor extends EventEmitter {
   }
 
   queueValidation(
-    context: ValidationContext | TaskExecutionContext,
-    trigger: MonitoringTrigger,
-    priority: number = 0,
+    _context: ValidationContext | TaskExecutionContext,
+    _trigger: MonitoringTrigger,
+    _priority: number = 0,
   ): string {
     return `validation-${Date.now()}`;
   }
 
   async triggerValidation(
-    context: ValidationContext | TaskExecutionContext,
+    _context: ValidationContext | TaskExecutionContext,
   ): Promise<string> {
     return `validation-${Date.now()}`;
   }
@@ -251,13 +251,13 @@ export class ContinuousValidationMonitor extends EventEmitter {
     this.logger.info(`Added health check: ${healthCheck.id}`);
   }
 
-  isWorkflowRunning(taskId: string, stage: TaskExecutionStage): boolean {
+  isWorkflowRunning(_taskId: string, _stage: TaskExecutionStage): boolean {
     return false;
   }
 
   async cancelWorkflow(
-    taskId: string,
-    stage: TaskExecutionStage,
+    _taskId: string,
+    _stage: TaskExecutionStage,
   ): Promise<boolean> {
     return false;
   }

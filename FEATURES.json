@@ -328,28 +328,28 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 271,
-      "current_day": "2025-09-25",
+      "total_reinitializations": 276,
+      "current_day": "2025-09-26",
       "time_buckets": {
         "09:00-13:59": {
           "init": 0,
-          "reinit": 39
+          "reinit": 0
         },
         "14:00-18:59": {
           "init": 0,
-          "reinit": 25
+          "reinit": 0
         },
         "19:00-23:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 5
         },
         "00:00-04:59": {
           "init": 0,
-          "reinit": 8
+          "reinit": 0
         },
         "05:00-09:59": {
-          "init": 1,
-          "reinit": 50
+          "init": 0,
+          "reinit": 0
         }
       },
       "daily_history": [
@@ -406,27 +406,44 @@
               "reinit": 0
             }
           }
+        },
+        {
+          "date": "2025-09-25",
+          "total_init": 1,
+          "total_reinit": 122,
+          "buckets": {
+            "09:00-13:59": {
+              "init": 0,
+              "reinit": 39
+            },
+            "14:00-18:59": {
+              "init": 0,
+              "reinit": 25
+            },
+            "19:00-23:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "00:00-04:59": {
+              "init": 0,
+              "reinit": 8
+            },
+            "05:00-09:59": {
+              "init": 1,
+              "reinit": 50
+            }
+          }
         }
       ],
-      "last_reset": "2025-09-25T06:52:16.230Z",
-      "last_updated": "2025-09-25T23:51:57.307Z"
+      "last_reset": "2025-09-26T00:03:10.026Z",
+      "last_updated": "2025-09-26T00:09:46.612Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "RECOVERY_AGENT": {
@@ -441,10 +458,7 @@
       "status": "active",
       "reinitialized": "2025-09-25T23:51:48.990Z",
       "sessionId": "37e89efd581605cf",
-      "previousSessions": [
-        "d90c4840e7b99e0a",
-        "6ba3a4ff272f283c"
-      ]
+      "previousSessions": ["d90c4840e7b99e0a", "6ba3a4ff272f283c"]
     },
     "TYPESCRIPT_FIX_AGENT": {
       "lastHeartbeat": "2025-09-25T19:33:28.078Z",
@@ -510,11 +524,11 @@
       "previousSessions": []
     },
     "AGENT_AUTO_COMPRESSION": {
-      "lastHeartbeat": "2025-09-25T19:46:12.131Z",
+      "lastHeartbeat": "2025-09-26T00:03:10.012Z",
       "status": "active",
-      "reinitialized": "2025-09-25T19:46:12.131Z",
-      "sessionId": "7c66888737896f13",
-      "previousSessions": []
+      "reinitialized": "2025-09-26T00:03:10.012Z",
+      "sessionId": "9df98ea2d5f84276",
+      "previousSessions": ["7c66888737896f13"]
     },
     "CONTINUATION_AGENT": {
       "lastHeartbeat": "2025-09-25T19:50:25.960Z",
@@ -531,11 +545,11 @@
       "previousSessions": []
     },
     "batch3-linter-agent": {
-      "lastHeartbeat": "2025-09-25T19:52:34.831Z",
+      "lastHeartbeat": "2025-09-26T00:09:46.588Z",
       "status": "active",
-      "reinitialized": "2025-09-25T19:52:34.831Z",
-      "sessionId": "809ac36f24b2766d",
-      "previousSessions": []
+      "reinitialized": "2025-09-26T00:09:46.588Z",
+      "sessionId": "a87a5b7b23b3ca59",
+      "previousSessions": ["809ac36f24b2766d"]
     },
     "LINTER_COORDINATOR": {
       "lastHeartbeat": "2025-09-25T19:52:35.363Z",
@@ -570,9 +584,7 @@
       "status": "active",
       "reinitialized": "2025-09-25T23:51:57.296Z",
       "sessionId": "8f398f64c1ef1d0c",
-      "previousSessions": [
-        "921fefcd727593fd"
-      ]
+      "previousSessions": ["921fefcd727593fd"]
     },
     "LINTER_CLEANUP_AGENT": {
       "lastHeartbeat": "2025-09-25T23:51:50.502Z",
@@ -586,6 +598,27 @@
       "status": "active",
       "reinitialized": "2025-09-25T23:51:51.805Z",
       "sessionId": "475e71f723a27e43",
+      "previousSessions": []
+    },
+    "agent_var_fixes": {
+      "lastHeartbeat": "2025-09-26T00:05:15.067Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T00:05:15.067Z",
+      "sessionId": "4f9e54aa898863b5",
+      "previousSessions": []
+    },
+    "BUILD_FAILURE_FIXER": {
+      "lastHeartbeat": "2025-09-26T00:06:15.262Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T00:06:15.262Z",
+      "sessionId": "7f8e3df1d30d25b1",
+      "previousSessions": []
+    },
+    "LINTING_TIMEOUT_FIXER": {
+      "lastHeartbeat": "2025-09-26T00:06:15.592Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T00:06:15.592Z",
+      "sessionId": "51b07065d767bafd",
       "previousSessions": []
     }
   },

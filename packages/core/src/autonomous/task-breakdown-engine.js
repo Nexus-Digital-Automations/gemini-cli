@@ -5,25 +5,38 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { TaskComplexity, TaskCategory } from '../task-management/types.js';
+import {
+  TaskComplexity,
+  TaskCategory,
+  TaskPriority,
+  TaskStatus,
+} from '../task-management/types.js';
 /**
  * Using canonical enums from types.ts:
  * - TaskComplexity: TRIVIAL, SIMPLE, MODERATE, COMPLEX, ENTERPRISE
- * - TaskCategory: implementation, testing, documentation, analysis, refactoring, deployment
- * - TaskPriority: critical, high, medium, low
+ * - TaskCategory: FEATURE, BUG_FIX, TEST, DOCUMENTATION, REFACTOR, SECURITY, PERFORMANCE, INFRASTRUCTURE
+ * - TaskPriority: CRITICAL, HIGH, MEDIUM, LOW, BACKGROUND
+ * - TaskStatus: PENDING, QUEUED, RUNNING, BLOCKED, COMPLETED, FAILED, CANCELLED
  */
-/**
- * Task execution status
- */
-export var TaskStatus;
-(function (TaskStatus) {
-  TaskStatus['PENDING'] = 'pending';
-  TaskStatus['IN_PROGRESS'] = 'in_progress';
-  TaskStatus['BLOCKED'] = 'blocked';
-  TaskStatus['COMPLETED'] = 'completed';
-  TaskStatus['FAILED'] = 'failed';
-  TaskStatus['CANCELLED'] = 'cancelled';
-})(TaskStatus || (TaskStatus = {}));
+
+// Extended task categories for more granular classification
+export const ExtendedTaskCategory = {
+  READ: 'read',
+  EDIT: 'edit',
+  CREATE: 'create',
+  DELETE: 'delete',
+  SEARCH: 'search',
+  ANALYZE: 'analyze',
+  EXECUTE: 'execute',
+  REFACTOR: 'refactor',
+  TEST: 'test',
+  DEPLOY: 'deploy',
+  VALIDATE: 'validate',
+  OPTIMIZE: 'optimize',
+  DEBUG: 'debug',
+  DOCUMENT: 'document',
+  ...TaskCategory, // Include standard categories
+};
 /**
  * Autonomous Task Breakdown Engine
  *

@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 /**
  * Dependency resolution strategy
  */
-export var ResolutionStrategy;
+export let ResolutionStrategy;
 (function (ResolutionStrategy) {
   ResolutionStrategy['STRICT'] = 'strict';
   ResolutionStrategy['BEST_EFFORT'] = 'best_effort';
@@ -266,7 +266,7 @@ export class DependencyResolver extends EventEmitter {
   identifyParallelizableGroups() {
     const groups = [];
     const executionLevels = this.getExecutionLevels();
-    for (const [level, tasks] of executionLevels) {
+    for (const [_level, tasks] of executionLevels) {
       if (tasks.length > 1) {
         // Further subdivide by resource conflicts and other constraints
         const subGroups = this.subdivideByConstraints(tasks);
@@ -383,7 +383,7 @@ export class DependencyResolver extends EventEmitter {
   calculateEstimatedDuration() {
     const executionLevels = this.getExecutionLevels();
     let totalDuration = 0;
-    for (const [level, tasks] of executionLevels) {
+    for (const [_level, tasks] of executionLevels) {
       // For each level, the duration is the maximum duration of tasks in that level
       // (since they can run in parallel)
       const levelDuration = Math.max(
@@ -540,7 +540,7 @@ export class DependencyResolver extends EventEmitter {
     const sortedLevels = Array.from(executionLevels.entries()).sort(
       (a, b) => a[0] - b[0],
     );
-    for (const [level, tasks] of sortedLevels) {
+    for (const [_level, tasks] of sortedLevels) {
       // Within each level, sort by priority and critical path
       const sortedTasks = tasks.sort((a, b) => {
         const nodeA = this.dependencyGraph.get(a);

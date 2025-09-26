@@ -5,11 +5,15 @@
  */
 
 import { describe, test, expect, beforeEach } from 'vitest';
-import { Task, TaskDependency, ResourceConstraint } from '../../../packages/core/src/task-management/types.js';
+import {
+  Task,
+  TaskDependency,
+  ResourceConstraint,
+} from '../../../packages/core/src/task-management/types.js';
 import {
   ParallelOptimizer as SequenceOptimizer,
   ParallelOptimizationConfig,
-  ParallelStrategy
+  ParallelStrategy,
 } from '../../../packages/core/src/decision/ParallelOptimizer.js';
 
 // Define proper interfaces for test types based on actual usage
@@ -19,11 +23,13 @@ interface TestExecutionBatch {
 
 interface TestParallelGroup {
   tasks: string[];
+  parallelTasks: string[];
   resourceUtilization: Record<string, number>;
   bottlenecks: string[];
+  estimatedCompletion: number;
 }
 
-interface TestOptimizationResult {
+interface _TestOptimizationResult {
   executionOrder: TestExecutionBatch[];
   parallelGroups: TestParallelGroup[];
 }
@@ -42,7 +48,7 @@ describe('SequenceOptimizer', () => {
       targetResourceUtilization: 0.8,
       minTaskDurationForParallelization: 1000,
       enablePredictiveAllocation: false,
-      learningRate: 0.1
+      learningRate: 0.1,
     };
 
     optimizer = new SequenceOptimizer(config);
@@ -61,8 +67,8 @@ describe('SequenceOptimizer', () => {
           updatedAt: new Date('2024-01-01T00:00:00Z'),
           createdBy: 'system',
           estimatedDuration: 3000,
-          tags: ['database', 'backend']
-        }
+          tags: ['database', 'backend'],
+        },
       },
       {
         id: 'task-2',
@@ -76,8 +82,8 @@ describe('SequenceOptimizer', () => {
           updatedAt: new Date('2024-01-01T01:00:00Z'),
           createdBy: 'system',
           estimatedDuration: 5000,
-          tags: ['backend', 'api']
-        }
+          tags: ['backend', 'api'],
+        },
       },
       {
         id: 'task-3',
@@ -91,8 +97,8 @@ describe('SequenceOptimizer', () => {
           updatedAt: new Date('2024-01-01T02:00:00Z'),
           createdBy: 'system',
           estimatedDuration: 4000,
-          tags: ['frontend', 'ui']
-        }
+          tags: ['frontend', 'ui'],
+        },
       },
       {
         id: 'task-4',
@@ -106,8 +112,8 @@ describe('SequenceOptimizer', () => {
           updatedAt: new Date('2024-01-01T03:00:00Z'),
           createdBy: 'system',
           estimatedDuration: 2000,
-          tags: ['testing']
-        }
+          tags: ['testing'],
+        },
       },
       {
         id: 'task-5',
@@ -121,8 +127,8 @@ describe('SequenceOptimizer', () => {
           updatedAt: new Date('2024-01-01T04:00:00Z'),
           createdBy: 'system',
           estimatedDuration: 3000,
-          tags: ['documentation']
-        }
+          tags: ['documentation'],
+        },
       },
     ];
 
@@ -179,10 +185,12 @@ describe('SequenceOptimizer', () => {
       let task1BatchIndex = -1;
       let task2BatchIndex = -1;
 
-      result.executionOrder.forEach((batch: ExecutionBatch, index: number) => {
-        if (batch.tasks.includes('task-1')) task1BatchIndex = index;
-        if (batch.tasks.includes('task-2')) task2BatchIndex = index;
-      });
+      result.executionOrder.forEach(
+        (batch: TestExecutionBatch, index: number) => {
+          if (batch.tasks.includes('task-1')) task1BatchIndex = index;
+          if (batch.tasks.includes('task-2')) task2BatchIndex = index;
+        },
+      );
 
       // task-1 should come before task-2 due to dependency
       expect(task1BatchIndex).toBeLessThan(task2BatchIndex);
@@ -391,10 +399,12 @@ describe('SequenceOptimizer', () => {
         expect(group.resourceUtilization).toBeDefined();
 
         // Resource utilization should be a valid object
-        Object.values(group.resourceUtilization).forEach((utilization: number) => {
-          expect(typeof utilization).toBe('number');
-          expect(utilization).toBeGreaterThanOrEqual(0);
-        });
+        Object.values(group.resourceUtilization).forEach(
+          (utilization: number) => {
+            expect(typeof utilization).toBe('number');
+            expect(utilization).toBeGreaterThanOrEqual(0);
+          },
+        );
       });
     });
   });
@@ -483,7 +493,9 @@ describe('SequenceOptimizer', () => {
 
         // Completion time should be at least as long as the longest task
         const groupTasks = group.parallelTasks
-          .map((taskId: string) => sampleTasks.find((t: Task) => t.id === taskId))
+          .map((taskId: string) =>
+            sampleTasks.find((t: Task) => t.id === taskId),
+          )
           .filter((t: Task | undefined): t is Task => t !== undefined);
 
         const maxEffort = Math.max(

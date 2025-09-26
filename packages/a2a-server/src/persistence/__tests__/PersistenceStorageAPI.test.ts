@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  test,
-  expect,
-  beforeEach,
-  afterEach,
-  vi,
-} from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -53,7 +46,7 @@ describe('PersistenceStorageAPI', () => {
     mockFse.copy = vi.fn().mockResolvedValue(undefined);
     mockFse.move = vi.fn().mockResolvedValue(undefined);
     mockFse.remove = vi.fn().mockResolvedValue(undefined);
-    mockFse.readdir = vi.fn().mockResolvedValue([]);
+    mockFse.readdir = vi.fn().mockResolvedValue([]) as typeof mockFse.readdir;
 
     // Create test task
     mockTask = {
@@ -115,7 +108,9 @@ describe('PersistenceStorageAPI', () => {
       };
 
       (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(taskMetadata);
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(
+        taskMetadata,
+      );
 
       const loadedTask = await storageAPI.load('test-task-id');
 
@@ -133,14 +128,18 @@ describe('PersistenceStorageAPI', () => {
     });
 
     test('should handle save errors gracefully', async () => {
-      (mockFse.writeJSON as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Write failed'));
+      (mockFse.writeJSON as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Write failed'),
+      );
 
       await expect(storageAPI.save(mockTask)).rejects.toThrow('Write failed');
     });
 
     test('should handle load errors gracefully', async () => {
       (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Read failed'));
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Read failed'),
+      );
 
       await expect(storageAPI.load('test-task-id')).rejects.toThrow(
         'Read failed',
@@ -387,7 +386,9 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Error Handling', () => {
     test('should handle filesystem errors during initialization', async () => {
-      (mockFse.ensureDir as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Permission denied'));
+      (mockFse.ensureDir as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Permission denied'),
+      );
 
       await expect(
         () => new PersistenceStorageAPI({ baseDir: '/invalid/path' }),
@@ -405,7 +406,9 @@ describe('PersistenceStorageAPI', () => {
 
     test('should handle corrupted metadata during load', async () => {
       (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue({ invalid: 'data' });
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue({
+        invalid: 'data',
+      });
 
       await expect(storageAPI.load('test-task-id')).rejects.toThrow();
     });
@@ -449,8 +452,12 @@ describe('PersistenceStorageAPI', () => {
 
   describe('Integration', () => {
     test('should maintain data consistency across save/load cycle', async () => {
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(false); // For save
-      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true); // For load
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+        false,
+      ); // For save
+      (mockFse.pathExists as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+        true,
+      ); // For load
 
       // Set up mock return value for load
       const expectedMetadata = {
@@ -466,7 +473,9 @@ describe('PersistenceStorageAPI', () => {
         },
       };
 
-      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(expectedMetadata);
+      (mockFse.readJSON as ReturnType<typeof vi.fn>).mockResolvedValue(
+        expectedMetadata,
+      );
 
       // Save task
       await storageAPI.save(mockTask);

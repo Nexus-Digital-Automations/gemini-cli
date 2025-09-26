@@ -6,6 +6,21 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { TaskCategory } from '../task-management/TaskQueue.js';
+
+// Extended task categories to handle references not in the standard enum
+export const ExtendedTaskCategory = {
+  READ: 'read',
+  EDIT: 'edit',
+  CREATE: 'create',
+  DELETE: 'delete',
+  SEARCH: 'search',
+  ANALYZE: 'analyze',
+  EXECUTE: 'execute',
+  VALIDATE: 'validate',
+  ...TaskCategory, // Include standard categories
+};
+
 /**
  * Validation rule priority
  */
@@ -115,7 +130,9 @@ export class ComprehensiveValidationEngine {
               errors.push(`Cannot read target file: ${file}`);
             }
             if (
-              [TaskCategory.EDIT, TaskCategory.DELETE].includes(task.category)
+              [ExtendedTaskCategory.EDIT, ExtendedTaskCategory.DELETE].includes(
+                task.category,
+              )
             ) {
               const isWritable =
                 await this.fileSystemValidator.isWritable(file);
@@ -230,19 +247,19 @@ export class ComprehensiveValidationEngine {
     const tools = [];
     // Extract tool requirements based on task category and description
     switch (task.category) {
-      case TaskCategory.READ:
+      case ExtendedTaskCategory.READ:
         tools.push('read-file');
         break;
-      case TaskCategory.EDIT:
+      case ExtendedTaskCategory.EDIT:
         tools.push('edit');
         break;
       case TaskCategory.CREATE:
         tools.push('write-file');
         break;
-      case TaskCategory.SEARCH:
+      case ExtendedTaskCategory.SEARCH:
         tools.push('grep');
         break;
-      case TaskCategory.EXECUTE:
+      case ExtendedTaskCategory.EXECUTE:
         tools.push('shell');
         break;
       default:
@@ -374,7 +391,11 @@ export class ComprehensiveValidationEngine {
     this.addValidationRule({
       name: 'file_existence',
       description: 'Validates that required files exist',
-      category: [TaskCategory.READ, TaskCategory.EDIT, TaskCategory.ANALYZE],
+      category: [
+        ExtendedTaskCategory.READ,
+        ExtendedTaskCategory.EDIT,
+        ExtendedTaskCategory.ANALYZE,
+      ],
       priority: ValidationPriority.HIGH,
       validate: async (task, context) => {
         if (!task.targetFiles) {

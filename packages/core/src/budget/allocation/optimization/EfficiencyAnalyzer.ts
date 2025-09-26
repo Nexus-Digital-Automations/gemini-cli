@@ -14,9 +14,7 @@
 
 import type {
   AllocationCandidate,
-  AllocationRecommendation,
   AllocationScenario,
-  AllocationStrategy,
   FeatureCostAnalysis,
 } from '../types.js';
 
@@ -104,7 +102,11 @@ export interface EfficiencyTrend {
  */
 export interface EfficiencyIssue {
   /** Issue type */
-  type: 'underutilization' | 'overallocation' | 'cost_inefficiency' | 'performance_degradation';
+  type:
+    | 'underutilization'
+    | 'overallocation'
+    | 'cost_inefficiency'
+    | 'performance_degradation';
   /** Issue severity */
   severity: 'critical' | 'high' | 'medium' | 'low';
   /** Issue description */
@@ -233,13 +235,25 @@ export class EfficiencyAnalyzer {
    */
   analyzeResourceEfficiency(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): ResourceEfficiency {
     // Calculate individual efficiency metrics
-    const costEfficiency = this.calculateCostEfficiency(candidate, historicalData);
-    const utilizationEfficiency = this.calculateUtilizationEfficiency(candidate, historicalData);
-    const roiEfficiency = this.calculateROIEfficiency(candidate, historicalData);
-    const performanceEfficiency = this.calculatePerformanceEfficiency(candidate, historicalData);
+    const costEfficiency = this.calculateCostEfficiency(
+      candidate,
+      historicalData,
+    );
+    const utilizationEfficiency = this.calculateUtilizationEfficiency(
+      candidate,
+      historicalData,
+    );
+    const roiEfficiency = this.calculateROIEfficiency(
+      candidate,
+      historicalData,
+    );
+    const performanceEfficiency = this.calculatePerformanceEfficiency(
+      candidate,
+      historicalData,
+    );
 
     // Calculate overall efficiency score
     const overallScore = this.calculateOverallEfficiencyScore({
@@ -256,15 +270,23 @@ export class EfficiencyAnalyzer {
     const trends = this.analyzeTrends(candidate, historicalData);
 
     // Identify inefficiencies
-    const inefficiencies = this.identifyInefficiencies(candidate, historicalData, {
-      cost: costEfficiency,
-      utilization: utilizationEfficiency,
-      roi: roiEfficiency,
-      performance: performanceEfficiency,
-    });
+    const inefficiencies = this.identifyInefficiencies(
+      candidate,
+      historicalData,
+      {
+        cost: costEfficiency,
+        utilization: utilizationEfficiency,
+        roi: roiEfficiency,
+        performance: performanceEfficiency,
+      },
+    );
 
     // Generate improvement recommendations
-    const improvements = this.generateImprovements(candidate, inefficiencies, trends);
+    const improvements = this.generateImprovements(
+      candidate,
+      inefficiencies,
+      trends,
+    );
 
     return {
       resourceId: candidate.resourceId,
@@ -288,32 +310,47 @@ export class EfficiencyAnalyzer {
    */
   analyzePortfolioEfficiency(
     candidates: AllocationCandidate[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): PortfolioEfficiency {
     // Analyze individual resource efficiencies
-    const resourceEfficiencies = candidates.map(candidate =>
-      this.analyzeResourceEfficiency(candidate, historicalData[candidate.resourceId] || [])
+    const resourceEfficiencies = candidates.map((candidate) =>
+      this.analyzeResourceEfficiency(
+        candidate,
+        historicalData[candidate.resourceId] || [],
+      ),
     );
 
     // Calculate overall portfolio score
-    const overallScore = resourceEfficiencies.reduce(
-      (sum, efficiency) => sum + efficiency.overallScore, 0
-    ) / resourceEfficiencies.length;
+    const overallScore =
+      resourceEfficiencies.reduce(
+        (sum, efficiency) => sum + efficiency.overallScore,
+        0,
+      ) / resourceEfficiencies.length;
 
     // Analyze portfolio-level trends
     const portfolioTrends = this.analyzePortfolioTrends(resourceEfficiencies);
 
     // Identify cross-resource issues
-    const crossResourceIssues = this.identifyCrossResourceIssues(resourceEfficiencies, candidates);
+    const crossResourceIssues = this.identifyCrossResourceIssues(
+      resourceEfficiencies,
+      candidates,
+    );
 
     // Generate optimization opportunities
-    const optimizationOpportunities = this.generatePortfolioOptimizations(resourceEfficiencies, candidates);
+    const optimizationOpportunities = this.generatePortfolioOptimizations(
+      resourceEfficiencies,
+      candidates,
+    );
 
     // Calculate distribution
-    const distribution = this.calculateEfficiencyDistribution(resourceEfficiencies);
+    const distribution =
+      this.calculateEfficiencyDistribution(resourceEfficiencies);
 
     // Calculate benchmarks
-    const benchmarks = this.calculateBenchmarks(resourceEfficiencies, historicalData);
+    const benchmarks = this.calculateBenchmarks(
+      resourceEfficiencies,
+      historicalData,
+    );
 
     return {
       overallScore,
@@ -334,7 +371,7 @@ export class EfficiencyAnalyzer {
    */
   analyzeScenarioEfficiency(
     scenario: AllocationScenario,
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): {
     scenarioScore: number;
     improvementFromCurrent: number;
@@ -356,11 +393,11 @@ export class EfficiencyAnalyzer {
       // Calculate efficiency gain from current to recommended allocation
       const currentEfficiency = this.calculateAllocationEfficiency(
         allocation.currentAllocation,
-        resourceData
+        resourceData,
       );
       const recommendedEfficiency = this.calculateAllocationEfficiency(
         allocation.recommendedAllocation,
-        resourceData
+        resourceData,
       );
 
       const gain = recommendedEfficiency - currentEfficiency;
@@ -386,7 +423,8 @@ export class EfficiencyAnalyzer {
       }
 
       // Generate recommendations for optimization
-      if (gain < 5) { // Less than 5% efficiency gain
+      if (gain < 5) {
+        // Less than 5% efficiency gain
         recommendations.push({
           type: 'optimization',
           priority: 'medium',
@@ -399,13 +437,18 @@ export class EfficiencyAnalyzer {
           },
           implementationEffort: 'medium',
           timeline: 'short_term',
-          successMetrics: ['efficiency_score', 'cost_reduction', 'utilization_improvement'],
+          successMetrics: [
+            'efficiency_score',
+            'cost_reduction',
+            'utilization_improvement',
+          ],
         });
       }
     }
 
     const scenarioScore = totalScore / scenario.allocations.length;
-    const improvementFromCurrent = totalImprovement / scenario.allocations.length;
+    const improvementFromCurrent =
+      totalImprovement / scenario.allocations.length;
 
     return {
       scenarioScore,
@@ -421,18 +464,24 @@ export class EfficiencyAnalyzer {
    */
   private calculateCostEfficiency(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50; // Default score
 
-    const avgCostPerUnit = historicalData.reduce(
-      (sum, data) => sum + (data.totalCost / data.usage), 0
-    ) / historicalData.length;
+    const avgCostPerUnit =
+      historicalData.reduce(
+        (sum, data) => sum + data.totalCost / data.usage,
+        0,
+      ) / historicalData.length;
 
-    const currentCostPerUnit = candidate.currentAllocation / candidate.projectedUsage;
+    const currentCostPerUnit =
+      candidate.currentAllocation / candidate.projectedUsage;
 
     // Lower cost per unit is better (inverse relationship)
-    const efficiency = Math.max(0, Math.min(100, 100 - ((currentCostPerUnit / avgCostPerUnit - 1) * 50)));
+    const efficiency = Math.max(
+      0,
+      Math.min(100, 100 - (currentCostPerUnit / avgCostPerUnit - 1) * 50),
+    );
 
     return efficiency;
   }
@@ -442,19 +491,19 @@ export class EfficiencyAnalyzer {
    */
   private calculateUtilizationEfficiency(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50; // Default score
 
-    const avgUtilization = historicalData.reduce(
-      (sum, data) => sum + data.utilizationRate, 0
-    ) / historicalData.length;
+    const avgUtilization =
+      historicalData.reduce((sum, data) => sum + data.utilizationRate, 0) /
+      historicalData.length;
 
     // Optimal utilization is around 80%
     const optimalUtilization = 0.8;
     const deviation = Math.abs(avgUtilization - optimalUtilization);
 
-    return Math.max(0, Math.min(100, 100 - (deviation * 200)));
+    return Math.max(0, Math.min(100, 100 - deviation * 200));
   }
 
   /**
@@ -462,13 +511,15 @@ export class EfficiencyAnalyzer {
    */
   private calculateROIEfficiency(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50; // Default score
 
-    const avgROI = historicalData.reduce(
-      (sum, data) => sum + (data.revenue / data.totalCost), 0
-    ) / historicalData.length;
+    const avgROI =
+      historicalData.reduce(
+        (sum, data) => sum + data.revenue / data.totalCost,
+        0,
+      ) / historicalData.length;
 
     // ROI > 1 is good, scale to 0-100
     return Math.max(0, Math.min(100, avgROI * 50));
@@ -479,7 +530,7 @@ export class EfficiencyAnalyzer {
    */
   private calculatePerformanceEfficiency(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50; // Default score
 
@@ -512,7 +563,9 @@ export class EfficiencyAnalyzer {
   /**
    * Classify efficiency level based on score
    */
-  private classifyEfficiency(score: number): 'high' | 'medium' | 'low' | 'critical' {
+  private classifyEfficiency(
+    score: number,
+  ): 'high' | 'medium' | 'low' | 'critical' {
     if (score >= this.config.thresholds.high) return 'high';
     if (score >= this.config.thresholds.medium) return 'medium';
     if (score >= this.config.thresholds.low) return 'low';
@@ -524,7 +577,7 @@ export class EfficiencyAnalyzer {
    */
   private analyzeTrends(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): EfficiencyTrend[] {
     if (historicalData.length < this.config.minDataPoints) {
       return [];
@@ -534,10 +587,10 @@ export class EfficiencyAnalyzer {
 
     // Analyze cost trend
     const costTrend = this.calculateTrend(
-      historicalData.map(data => ({
+      historicalData.map((data) => ({
         timestamp: new Date(data.timestamp),
         value: data.totalCost / data.usage,
-      }))
+      })),
     );
     trends.push({
       metric: 'cost',
@@ -546,10 +599,10 @@ export class EfficiencyAnalyzer {
 
     // Analyze utilization trend
     const utilizationTrend = this.calculateTrend(
-      historicalData.map(data => ({
+      historicalData.map((data) => ({
         timestamp: new Date(data.timestamp),
         value: data.utilizationRate * 100,
-      }))
+      })),
     );
     trends.push({
       metric: 'utilization',
@@ -558,10 +611,10 @@ export class EfficiencyAnalyzer {
 
     // Analyze ROI trend
     const roiTrend = this.calculateTrend(
-      historicalData.map(data => ({
+      historicalData.map((data) => ({
         timestamp: new Date(data.timestamp),
         value: (data.revenue / data.totalCost) * 100,
-      }))
+      })),
     );
     trends.push({
       metric: 'roi',
@@ -574,7 +627,9 @@ export class EfficiencyAnalyzer {
   /**
    * Calculate trend from data points
    */
-  private calculateTrend(dataPoints: Array<{ timestamp: Date; value: number }>): Omit<EfficiencyTrend, 'metric'> {
+  private calculateTrend(
+    dataPoints: Array<{ timestamp: Date; value: number }>,
+  ): Omit<EfficiencyTrend, 'metric'> {
     if (dataPoints.length < 2) {
       return {
         direction: 'stable',
@@ -589,8 +644,14 @@ export class EfficiencyAnalyzer {
     const n = dataPoints.length;
     const sumX = dataPoints.reduce((sum, point, index) => sum + index, 0);
     const sumY = dataPoints.reduce((sum, point) => sum + point.value, 0);
-    const sumXY = dataPoints.reduce((sum, point, index) => sum + (index * point.value), 0);
-    const sumX2 = dataPoints.reduce((sum, point, index) => sum + (index * index), 0);
+    const sumXY = dataPoints.reduce(
+      (sum, point, index) => sum + index * point.value,
+      0,
+    );
+    const sumX2 = dataPoints.reduce(
+      (sum, point, index) => sum + index * index,
+      0,
+    );
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     const changeRate = slope;
@@ -604,17 +665,25 @@ export class EfficiencyAnalyzer {
     // Calculate strength (correlation coefficient)
     const avgX = sumX / n;
     const avgY = sumY / n;
-    const numerator = dataPoints.reduce((sum, point, index) =>
-      sum + ((index - avgX) * (point.value - avgY)), 0
+    const numerator = dataPoints.reduce(
+      (sum, point, index) => sum + (index - avgX) * (point.value - avgY),
+      0,
     );
-    const denomX = Math.sqrt(dataPoints.reduce((sum, point, index) =>
-      sum + Math.pow(index - avgX, 2), 0
-    ));
-    const denomY = Math.sqrt(dataPoints.reduce((sum, point) =>
-      sum + Math.pow(point.value - avgY, 2), 0
-    ));
+    const denomX = Math.sqrt(
+      dataPoints.reduce(
+        (sum, point, index) => sum + Math.pow(index - avgX, 2),
+        0,
+      ),
+    );
+    const denomY = Math.sqrt(
+      dataPoints.reduce(
+        (sum, point) => sum + Math.pow(point.value - avgY, 2),
+        0,
+      ),
+    );
 
-    const correlation = denomX * denomY === 0 ? 0 : numerator / (denomX * denomY);
+    const correlation =
+      denomX * denomY === 0 ? 0 : numerator / (denomX * denomY);
     const strength = Math.abs(correlation) * 100;
 
     // Determine significance
@@ -642,7 +711,7 @@ export class EfficiencyAnalyzer {
       utilization: number;
       roi: number;
       performance: number;
-    }
+    },
   ): EfficiencyIssue[] {
     const issues: EfficiencyIssue[] = [];
 
@@ -650,8 +719,12 @@ export class EfficiencyAnalyzer {
     if (efficiencyScores.utilization < this.config.thresholds.medium) {
       issues.push({
         type: 'underutilization',
-        severity: efficiencyScores.utilization < this.config.thresholds.low ? 'high' : 'medium',
-        description: 'Resource is underutilized, leading to inefficient budget allocation',
+        severity:
+          efficiencyScores.utilization < this.config.thresholds.low
+            ? 'high'
+            : 'medium',
+        description:
+          'Resource is underutilized, leading to inefficient budget allocation',
         impact: {
           financial: candidate.currentAllocation * 0.2, // Estimate 20% waste
           performance: 100 - efficiencyScores.utilization,
@@ -666,8 +739,12 @@ export class EfficiencyAnalyzer {
     if (efficiencyScores.cost < this.config.thresholds.medium) {
       issues.push({
         type: 'cost_inefficiency',
-        severity: efficiencyScores.cost < this.config.thresholds.low ? 'high' : 'medium',
-        description: 'Resource has poor cost efficiency compared to alternatives',
+        severity:
+          efficiencyScores.cost < this.config.thresholds.low
+            ? 'high'
+            : 'medium',
+        description:
+          'Resource has poor cost efficiency compared to alternatives',
         impact: {
           financial: candidate.currentAllocation * 0.15, // Estimate 15% excess cost
           performance: 0,
@@ -682,7 +759,10 @@ export class EfficiencyAnalyzer {
     if (efficiencyScores.performance < this.config.thresholds.medium) {
       issues.push({
         type: 'performance_degradation',
-        severity: efficiencyScores.performance < this.config.thresholds.low ? 'critical' : 'medium',
+        severity:
+          efficiencyScores.performance < this.config.thresholds.low
+            ? 'critical'
+            : 'medium',
         description: 'Resource performance is below expectations',
         impact: {
           financial: 0,
@@ -703,7 +783,7 @@ export class EfficiencyAnalyzer {
   private generateImprovements(
     candidate: AllocationCandidate,
     inefficiencies: EfficiencyIssue[],
-    trends: EfficiencyTrend[]
+    trends: EfficiencyTrend[],
   ): EfficiencyImprovement[] {
     const improvements: EfficiencyImprovement[] = [];
 
@@ -723,7 +803,11 @@ export class EfficiencyAnalyzer {
             },
             implementationEffort: 'low',
             timeline: 'immediate',
-            successMetrics: ['utilization_rate', 'cost_per_unit', 'allocation_efficiency'],
+            successMetrics: [
+              'utilization_rate',
+              'cost_per_unit',
+              'allocation_efficiency',
+            ],
           });
           break;
 
@@ -731,7 +815,8 @@ export class EfficiencyAnalyzer {
           improvements.push({
             type: 'optimization',
             priority: issue.severity as any,
-            description: 'Optimize resource configuration for better cost efficiency',
+            description:
+              'Optimize resource configuration for better cost efficiency',
             expectedBenefits: {
               costSavings: issue.impact.financial,
               performanceGain: 10,
@@ -757,7 +842,11 @@ export class EfficiencyAnalyzer {
             },
             implementationEffort: 'medium',
             timeline: 'short_term',
-            successMetrics: ['response_time', 'throughput', 'performance_score'],
+            successMetrics: [
+              'response_time',
+              'throughput',
+              'performance_score',
+            ],
           });
           break;
         default:
@@ -772,15 +861,17 @@ export class EfficiencyAnalyzer {
   /**
    * Analyze portfolio-level trends
    */
-  private analyzePortfolioTrends(resourceEfficiencies: ResourceEfficiency[]): EfficiencyTrend[] {
+  private analyzePortfolioTrends(
+    resourceEfficiencies: ResourceEfficiency[],
+  ): EfficiencyTrend[] {
     // Aggregate trends across all resources
     const portfolioTrends: EfficiencyTrend[] = [];
 
     // Calculate overall efficiency trend
-    const overallScores = resourceEfficiencies.flatMap(resource =>
+    const overallScores = resourceEfficiencies.flatMap((resource) =>
       resource.trends
-        .filter(trend => trend.metric === 'overall')
-        .flatMap(trend => trend.dataPoints)
+        .filter((trend) => trend.metric === 'overall')
+        .flatMap((trend) => trend.dataPoints),
     );
 
     if (overallScores.length > 0) {
@@ -799,21 +890,27 @@ export class EfficiencyAnalyzer {
    */
   private identifyCrossResourceIssues(
     resourceEfficiencies: ResourceEfficiency[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): EfficiencyIssue[] {
     const issues: EfficiencyIssue[] = [];
 
     // Check for portfolio imbalances
-    const highEfficiencyCount = resourceEfficiencies.filter(r => r.classification === 'high').length;
-    const lowEfficiencyCount = resourceEfficiencies.filter(r => r.classification === 'low').length;
+    const highEfficiencyCount = resourceEfficiencies.filter(
+      (r) => r.classification === 'high',
+    ).length;
+    const lowEfficiencyCount = resourceEfficiencies.filter(
+      (r) => r.classification === 'low',
+    ).length;
 
     if (lowEfficiencyCount > highEfficiencyCount) {
       issues.push({
         type: 'overallocation',
         severity: 'medium',
-        description: 'Portfolio has more low-efficiency than high-efficiency resources',
+        description:
+          'Portfolio has more low-efficiency than high-efficiency resources',
         impact: {
-          financial: candidates.reduce((sum, c) => sum + c.currentAllocation, 0) * 0.1,
+          financial:
+            candidates.reduce((sum, c) => sum + c.currentAllocation, 0) * 0.1,
           performance: 15,
           utilization: 10,
         },
@@ -830,19 +927,27 @@ export class EfficiencyAnalyzer {
    */
   private generatePortfolioOptimizations(
     resourceEfficiencies: ResourceEfficiency[],
-    candidates: AllocationCandidate[]
+    candidates: AllocationCandidate[],
   ): EfficiencyImprovement[] {
     const optimizations: EfficiencyImprovement[] = [];
 
     // Identify rebalancing opportunities
-    const lowEfficiencyResources = resourceEfficiencies.filter(r => r.classification === 'low');
-    const highEfficiencyResources = resourceEfficiencies.filter(r => r.classification === 'high');
+    const lowEfficiencyResources = resourceEfficiencies.filter(
+      (r) => r.classification === 'low',
+    );
+    const highEfficiencyResources = resourceEfficiencies.filter(
+      (r) => r.classification === 'high',
+    );
 
-    if (lowEfficiencyResources.length > 0 && highEfficiencyResources.length > 0) {
+    if (
+      lowEfficiencyResources.length > 0 &&
+      highEfficiencyResources.length > 0
+    ) {
       optimizations.push({
         type: 'reallocation',
         priority: 'high',
-        description: 'Reallocate budget from low-efficiency to high-efficiency resources',
+        description:
+          'Reallocate budget from low-efficiency to high-efficiency resources',
         expectedBenefits: {
           costSavings: 0,
           performanceGain: 20,
@@ -851,7 +956,11 @@ export class EfficiencyAnalyzer {
         },
         implementationEffort: 'medium',
         timeline: 'medium_term',
-        successMetrics: ['portfolio_efficiency', 'overall_roi', 'resource_balance'],
+        successMetrics: [
+          'portfolio_efficiency',
+          'overall_roi',
+          'resource_balance',
+        ],
       });
     }
 
@@ -861,17 +970,24 @@ export class EfficiencyAnalyzer {
   /**
    * Calculate efficiency distribution
    */
-  private calculateEfficiencyDistribution(resourceEfficiencies: ResourceEfficiency[]): {
+  private calculateEfficiencyDistribution(
+    resourceEfficiencies: ResourceEfficiency[],
+  ): {
     high: number;
     medium: number;
     low: number;
     critical: number;
   } {
     return {
-      high: resourceEfficiencies.filter(r => r.classification === 'high').length,
-      medium: resourceEfficiencies.filter(r => r.classification === 'medium').length,
-      low: resourceEfficiencies.filter(r => r.classification === 'low').length,
-      critical: resourceEfficiencies.filter(r => r.classification === 'critical').length,
+      high: resourceEfficiencies.filter((r) => r.classification === 'high')
+        .length,
+      medium: resourceEfficiencies.filter((r) => r.classification === 'medium')
+        .length,
+      low: resourceEfficiencies.filter((r) => r.classification === 'low')
+        .length,
+      critical: resourceEfficiencies.filter(
+        (r) => r.classification === 'critical',
+      ).length,
     };
   }
 
@@ -880,11 +996,11 @@ export class EfficiencyAnalyzer {
    */
   private calculateBenchmarks(
     resourceEfficiencies: ResourceEfficiency[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): { industry: number; historicalBest: number; peerAverage: number } {
-    const currentScore = resourceEfficiencies.reduce(
-      (sum, r) => sum + r.overallScore, 0
-    ) / resourceEfficiencies.length;
+    const currentScore =
+      resourceEfficiencies.reduce((sum, r) => sum + r.overallScore, 0) /
+      resourceEfficiencies.length;
 
     // Calculate historical best (simplified)
     const historicalBest = Math.min(100, currentScore + 15); // Assume best was 15% higher
@@ -901,16 +1017,18 @@ export class EfficiencyAnalyzer {
    */
   private calculateAllocationEfficiency(
     allocation: number,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): number {
     if (historicalData.length === 0) return 50;
 
     // Simple efficiency calculation based on cost per unit
-    const avgUsage = historicalData.reduce((sum, data) => sum + data.usage, 0) / historicalData.length;
+    const avgUsage =
+      historicalData.reduce((sum, data) => sum + data.usage, 0) /
+      historicalData.length;
     const costPerUnit = allocation / avgUsage;
 
     // Normalize to 0-100 scale (lower cost per unit is better)
-    return Math.max(0, Math.min(100, 100 - (costPerUnit / 10))); // Simplified normalization
+    return Math.max(0, Math.min(100, 100 - costPerUnit / 10)); // Simplified normalization
   }
 
   /**
@@ -920,7 +1038,10 @@ export class EfficiencyAnalyzer {
     const { weights, thresholds } = this.config;
 
     // Validate weights sum to 1.0
-    const weightSum = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
+    const weightSum = Object.values(weights).reduce(
+      (sum, weight) => sum + weight,
+      0,
+    );
     if (Math.abs(weightSum - 1.0) > 0.01) {
       throw new Error('Efficiency analyzer weights must sum to 1.0');
     }
@@ -933,7 +1054,10 @@ export class EfficiencyAnalyzer {
     }
 
     // Validate thresholds
-    if (thresholds.high <= thresholds.medium || thresholds.medium <= thresholds.low) {
+    if (
+      thresholds.high <= thresholds.medium ||
+      thresholds.medium <= thresholds.low
+    ) {
       throw new Error('Efficiency thresholds must be in descending order');
     }
   }
@@ -945,7 +1069,7 @@ export class EfficiencyAnalyzer {
  * @returns EfficiencyAnalyzer instance
  */
 export function createEfficiencyAnalyzer(
-  config?: Partial<EfficiencyAnalysisConfig>
+  config?: Partial<EfficiencyAnalysisConfig>,
 ): EfficiencyAnalyzer {
   return new EfficiencyAnalyzer(config);
 }

@@ -6,11 +6,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type {
-  AutonomousTask,
-  TaskCategory,
-  TaskComplexity,
-} from './task-breakdown-engine.js';
+import type { AutonomousTask, TaskCategory } from './task-breakdown-engine.js';
 import type {
   ValidationEngine,
   ValidationResult,
@@ -176,12 +172,6 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
     task: AutonomousTask,
     context: TaskExecutionContext,
   ): Promise<ValidationResult> {
-    const validationContext: ValidationContext = {
-      executionContext: context,
-      fileSystem: this.fileSystemValidator,
-      logger: context.logger,
-    };
-
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -432,7 +422,7 @@ export class ComprehensiveValidationEngine implements ValidationEngine {
 
   private async validateSyntax(
     task: AutonomousTask,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationRuleResult> {
     if (!task.targetFiles) {
       return {
