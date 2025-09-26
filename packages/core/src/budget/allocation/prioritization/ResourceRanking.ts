@@ -538,7 +538,7 @@ export class ResourceRanking {
   }
 
   /**
-   * Calculate business value score with nuclear cache-busting
+   * Calculate business value score
    */
   private calculateBusinessValueScore(candidate: AllocationCandidate): number {
     // Base score from business impact
