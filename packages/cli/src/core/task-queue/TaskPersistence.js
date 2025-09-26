@@ -6,7 +6,7 @@
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../utils/logger.js';
+import { WinstonStructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 /**
  * Task Queue Persistence and Recovery Engine
@@ -39,7 +39,9 @@ export class TaskPersistence extends EventEmitter {
     };
     constructor(config = {}) {
         super();
-        this.logger = new Logger('TaskPersistence');
+        this.logger = new WinstonStructuredLogger().child({
+            component: 'TaskPersistence',
+        });
         // Set default configuration
         this.config = {
             storageDir: config.storageDir || join(process.cwd(), '.gemini-cli', 'task-queue'),
@@ -76,8 +78,9 @@ export class TaskPersistence extends EventEmitter {
             });
         }
         catch (error) {
-            this.logger.error('Failed to initialize task persistence', { error });
-            throw error;
+            const errorInstance = error instanceof Error ? error : new Error(String(error));
+            this.logger.error('Failed to initialize task persistence', { error: errorInstance });
+            throw errorInstance;
         }
     }
     /**
@@ -132,9 +135,10 @@ export class TaskPersistence extends EventEmitter {
             });
         }
         catch (error) {
-            this.logger.error('Failed to persist queue state', { error });
-            this.emit('persistence:error', { operation: 'persist', error });
-            throw error;
+            const errorInstance = error instanceof Error ? error : new Error(String(error));
+            this.logger.error('Failed to persist queue state', { error: errorInstance });
+            this.emit('persistence:error', { operation: 'persist', error: errorInstance });
+            throw errorInstance;
         }
         finally {
             await this.releaseLock();
@@ -210,8 +214,9 @@ export class TaskPersistence extends EventEmitter {
             }
         }
         catch (error) {
-            recoveryInfo.errors.push(`Recovery error: ${error}`);
-            this.logger.error('Queue state recovery failed', { error });
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            recoveryInfo.errors.push(`Recovery error: ${errorMessage}`);
+            this.logger.error('Queue state recovery failed', { error: error instanceof Error ? error : new Error(String(error)) });
         }
         finally {
             recoveryInfo.recoveryDurationMs = Date.now() - startTime;
@@ -243,8 +248,9 @@ export class TaskPersistence extends EventEmitter {
             return backupPath;
         }
         catch (error) {
-            this.logger.error('Failed to create backup', { error, label });
-            throw error;
+            const errorInstance = error instanceof Error ? error : new Error(String(error));
+            this.logger.error('Failed to create backup', { error: errorInstance, label });
+            throw errorInstance;
         }
     }
     /**
@@ -284,7 +290,7 @@ export class TaskPersistence extends EventEmitter {
             return backupInfo.sort((a, b) => b.created.getTime() - a.created.getTime());
         }
         catch (error) {
-            this.logger.error('Failed to list backups', { error });
+            this.logger.error('Failed to list backups', { error: error instanceof Error ? error : new Error(String(error)) });
             return [];
         }
     }
@@ -317,8 +323,9 @@ export class TaskPersistence extends EventEmitter {
             return recoveredState;
         }
         catch (error) {
-            this.logger.error('Failed to restore from backup', { backupPath, error });
-            throw error;
+            const errorInstance = error instanceof Error ? error : new Error(String(error));
+            this.logger.error('Failed to restore from backup', { backupPath, error: errorInstance });
+            throw errorInstance;
         }
     }
     /**
@@ -382,7 +389,7 @@ export class TaskPersistence extends EventEmitter {
             await this.ensureDirectories();
         }
         catch (error) {
-            this.logger.error('Failed to setup persistence directories', { error });
+            this.logger.error('Failed to setup persistence directories', { error: error instanceof Error ? error : new Error(String(error)) });
         }
     }
     async ensureDirectories() {
@@ -405,7 +412,8 @@ export class TaskPersistence extends EventEmitter {
             await fs.unlink(testFile);
         }
         catch (error) {
-            throw new Error(`Storage directory not writable: ${error}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            throw new Error(`Storage directory not writable: ${errorMessage}`);
         }
         // Check disk space
         const stats = await fs.stat(this.storageDir);
@@ -559,7 +567,7 @@ export class TaskPersistence extends EventEmitter {
             return state;
         }
         catch (error) {
-            this.logger.warning('Recovery attempt failed', { filePath, error });
+            this.logger.warn('Recovery attempt failed', { filePath, error: error instanceof Error ? error : new Error(String(error)) });
             return null;
         }
     }
@@ -571,7 +579,7 @@ export class TaskPersistence extends EventEmitter {
         const now = new Date();
         const ageHours = (now.getTime() - stateTime.getTime()) / (1000 * 60 * 60);
         if (ageHours > 24) {
-            this.logger.warning('Recovered state is more than 24 hours old', {
+            this.logger.warn('Recovered state is more than 24 hours old', {
                 stateAge: ageHours,
                 stateTimestamp: state.timestamp,
             });
@@ -608,15 +616,15 @@ export class TaskPersistence extends EventEmitter {
                     this.logger.debug('Deleted old backup', { path: backup.path });
                 }
                 catch (error) {
-                    this.logger.warning('Failed to delete old backup', {
+                    this.logger.warn('Failed to delete old backup', {
                         path: backup.path,
-                        error,
+                        error: error instanceof Error ? error : new Error(String(error)),
                     });
                 }
             }
         }
         catch (error) {
-            this.logger.error('Failed to clean old backups', { error });
+            this.logger.error('Failed to clean old backups', { error: error instanceof Error ? error : new Error(String(error)) });
         }
     }
     async calculateDiskUsage() {
@@ -672,12 +680,18 @@ export class TaskPersistence extends EventEmitter {
     }
     async encryptData(data, key) {
         // In a real implementation, this would use a crypto library
-        this.logger.debug('Encrypting data', { dataLength: data.length, keyLength: key.length });
+        this.logger.debug('Encrypting data', {
+            dataLength: data.length,
+            keyLength: key.length,
+        });
         return data;
     }
     async decryptData(data, key) {
         // In a real implementation, this would decrypt the data
-        this.logger.debug('Decrypting data', { dataLength: data.length, keyLength: key.length });
+        this.logger.debug('Decrypting data', {
+            dataLength: data.length,
+            keyLength: key.length,
+        });
         return data;
     }
     /**

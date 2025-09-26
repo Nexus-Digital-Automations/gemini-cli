@@ -3,13 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
 /**
  * Optimization strategy types
  */
-export var OptimizationStrategy;
+export let OptimizationStrategy;
 (function (OptimizationStrategy) {
     OptimizationStrategy["THROUGHPUT_MAXIMIZATION"] = "throughput_maximization";
     OptimizationStrategy["LATENCY_MINIMIZATION"] = "latency_minimization";

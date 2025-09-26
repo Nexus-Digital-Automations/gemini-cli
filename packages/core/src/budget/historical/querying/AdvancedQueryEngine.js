@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 /**
@@ -527,13 +526,10 @@ export class AdvancedQueryEngine {
                         // Handle unexpected values
                         break;
                 }
-                results.push(result);
             }
-            return results;
+            results.push(result);
         }
-        /**
-         * Generate cache key for query
-         */
+        return results;
     }
     /**
      * Generate cache key for query

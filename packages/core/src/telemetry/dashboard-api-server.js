@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { createServer } from 'node:http';
 import { parse as parseUrl } from 'node:url';
 import { parse as parseQuery } from 'node:querystring';
@@ -280,7 +279,7 @@ export class DashboardApiServer extends EventEmitter {
                 logger.error('Request handling failed', {
                     requestId,
                     url: req.url,
-                    error,
+                    error: error,
                 });
                 this.sendError(res, 'INTERNAL_ERROR', 'Internal server error', 500, requestId, startTime);
             }
@@ -534,7 +533,7 @@ export class DashboardApiServer extends EventEmitter {
                 }
                 catch (error) {
                     logger.error('Failed to send periodic dashboard update', {
-                        error,
+                        error: error,
                     });
                 }
             }, 30000);

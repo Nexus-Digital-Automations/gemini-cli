@@ -3,12 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 /**
  * Types of execution errors
  */
-export var ExecutionErrorType;
+export let ExecutionErrorType;
 (function (ExecutionErrorType) {
     ExecutionErrorType["VALIDATION_FAILED"] = "validation_failed";
     ExecutionErrorType["TOOL_NOT_FOUND"] = "tool_not_found";

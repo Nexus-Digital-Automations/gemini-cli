@@ -3,40 +3,33 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type {
-  StackTraceFrame,
-  StackTraceAnalysis,
-  ContextLine,
-  LanguageSupport,
-  SourceLocation,
-} from './types.js';
+import type { StackTraceFrame, StackTraceAnalysis, ContextLine, LanguageSupport, SourceLocation } from './types.js';
 /**
  * Configuration for stack trace analyzer
  */
 export interface StackTraceAnalyzerConfig {
-  /** Enable source map resolution */
-  enableSourceMaps: boolean;
-  /** Enable context line extraction */
-  enableContextLines: boolean;
-  /** Number of context lines to extract around each frame */
-  contextLineCount: number;
-  /** Enable async call chain analysis */
-  enableAsyncAnalysis: boolean;
-  /** Enable recursion detection */
-  enableRecursionDetection: boolean;
-  /** Maximum stack trace depth to analyze */
-  maxAnalysisDepth: number;
-  /** Supported programming languages */
-  supportedLanguages: LanguageSupport[];
-  /** Enable third-party library detection */
-  enableLibraryDetection: boolean;
-  /** Known library patterns for filtering */
-  libraryPatterns: string[];
-  /** Enable performance optimizations */
-  enableOptimizations: boolean;
-  /** Cache TTL for source map data in milliseconds */
-  sourceMapCacheTTL: number;
+    /** Enable source map resolution */
+    enableSourceMaps: boolean;
+    /** Enable context line extraction */
+    enableContextLines: boolean;
+    /** Number of context lines to extract around each frame */
+    contextLineCount: number;
+    /** Enable async call chain analysis */
+    enableAsyncAnalysis: boolean;
+    /** Enable recursion detection */
+    enableRecursionDetection: boolean;
+    /** Maximum stack trace depth to analyze */
+    maxAnalysisDepth: number;
+    /** Supported programming languages */
+    supportedLanguages: LanguageSupport[];
+    /** Enable third-party library detection */
+    enableLibraryDetection: boolean;
+    /** Known library patterns for filtering */
+    libraryPatterns: string[];
+    /** Enable performance optimizations */
+    enableOptimizations: boolean;
+    /** Cache TTL for source map data in milliseconds */
+    sourceMapCacheTTL: number;
 }
 /**
  * Default configuration for stack trace analyzer
@@ -80,169 +73,152 @@ export declare const DEFAULT_STACK_TRACE_ANALYZER_CONFIG: StackTraceAnalyzerConf
  * ```
  */
 export declare class StackTraceAnalyzer {
-  private config;
-  private sourceMapCache;
-  private contextCache;
-  private projectPath?;
-  private isInitialized;
-  constructor(config?: Partial<StackTraceAnalyzerConfig>);
-  /**
-   * Initialize the stack trace analyzer
-   */
-  initialize(projectPath?: string): Promise<void>;
-  /**
-   * Analyze a complete stack trace
-   */
-  analyzeStackTrace(
-    stackTraceText: string,
-    options?: {
-      language?: LanguageSupport;
-      sourceRoot?: string;
-      includeContext?: boolean;
-      maxFrames?: number;
-    },
-  ): Promise<StackTraceAnalysis>;
-  /**
-   * Parse individual stack trace frame
-   */
-  parseFrame(
-    frameText: string,
-    language: LanguageSupport,
-  ): Promise<StackTraceFrame | null>;
-  /**
-   * Resolve source map for a given location
-   */
-  resolveSourceMap(
-    filePath: string,
-    line: number,
-    column: number,
-  ): Promise<SourceLocation | null>;
-  /**
-   * Extract context lines around a frame
-   */
-  extractContextLines(
-    filePath: string,
-    lineNumber: number,
-    contextCount?: number,
-  ): Promise<ContextLine[]>;
-  /**
-   * Get stack trace analysis statistics
-   */
-  getAnalysisStats(): {
-    sourceMapsResolved: number;
-    contextLinesExtracted: number;
-    framesAnalyzed: number;
-    cacheHitRate: number;
-  };
-  /**
-   * Clear caches
-   */
-  clearCache(): void;
-  /**
-   * Update configuration
-   */
-  updateConfig(newConfig: Partial<StackTraceAnalyzerConfig>): void;
-  /**
-   * Parse stack trace text into frames
-   */
-  private parseStackTrace;
-  /**
-   * Create stack trace frame from regex match
-   */
-  private createFrameFromMatch;
-  /**
-   * Analyze individual frames for detailed insights
-   */
-  private analyzeFrames;
-  /**
-   * Analyze the call chain for patterns and flow
-   */
-  private analyzeCallChain;
-  /**
-   * Detect common error patterns in stack trace
-   */
-  private detectErrorPatterns;
-  /**
-   * Identify the root cause frame
-   */
-  private identifyRootCause;
-  /**
-   * Classify frames by their role and importance
-   */
-  private classifyFrames;
-  /**
-   * Detect recursion patterns in stack trace
-   */
-  private detectRecursion;
-  /**
-   * Analyze async call chains
-   */
-  private analyzeAsyncChain;
-  /**
-   * Generate analysis insights
-   */
-  private generateInsights;
-  /**
-   * Detect programming language from stack trace format
-   */
-  private detectLanguageFromStackTrace;
-  /**
-   * Check if frame represents user code
-   */
-  private isUserCodeFrame;
-  /**
-   * Check if frame represents third-party code
-   */
-  private isThirdPartyFrame;
-  /**
-   * Check if frame represents async operation
-   */
-  private isAsyncFrame;
-  /**
-   * Calculate frame importance for prioritization
-   */
-  private calculateFrameImportance;
-  /**
-   * Categorize frame by its role
-   */
-  private categorizeFrame;
-  /**
-   * Generate frame-specific insights
-   */
-  private generateFrameInsights;
-  /**
-   * Calculate confidence score for frame analysis
-   */
-  private calculateFrameConfidence;
-  /**
-   * Identify critical path through the call stack
-   */
-  private identifyCriticalPath;
-  /**
-   * Identify transitions between user code and libraries
-   */
-  private identifyLibraryTransitions;
-  /**
-   * Calculate promise chain depth from stack trace text
-   */
-  private calculatePromiseChainDepth;
-  /**
-   * Get recommendations for detected error patterns
-   */
-  private getPatternRecommendations;
-  /**
-   * Initialize source maps for the project
-   */
-  private initializeSourceMaps;
-  /**
-   * Get source map data for a file
-   */
-  private getSourceMapData;
+    private config;
+    private sourceMapCache;
+    private contextCache;
+    private projectPath?;
+    private isInitialized;
+    constructor(config?: Partial<StackTraceAnalyzerConfig>);
+    /**
+     * Initialize the stack trace analyzer
+     */
+    initialize(projectPath?: string): Promise<void>;
+    /**
+     * Analyze a complete stack trace
+     */
+    analyzeStackTrace(stackTraceText: string, options?: {
+        language?: LanguageSupport;
+        sourceRoot?: string;
+        includeContext?: boolean;
+        maxFrames?: number;
+    }): Promise<StackTraceAnalysis>;
+    /**
+     * Parse individual stack trace frame
+     */
+    parseFrame(frameText: string, language: LanguageSupport): Promise<StackTraceFrame | null>;
+    /**
+     * Resolve source map for a given location
+     */
+    resolveSourceMap(filePath: string, line: number, column: number): Promise<SourceLocation | null>;
+    /**
+     * Extract context lines around a frame
+     */
+    extractContextLines(filePath: string, lineNumber: number, contextCount?: number): Promise<ContextLine[]>;
+    /**
+     * Get stack trace analysis statistics
+     */
+    getAnalysisStats(): {
+        sourceMapsResolved: number;
+        contextLinesExtracted: number;
+        framesAnalyzed: number;
+        cacheHitRate: number;
+    };
+    /**
+     * Clear caches
+     */
+    clearCache(): void;
+    /**
+     * Update configuration
+     */
+    updateConfig(newConfig: Partial<StackTraceAnalyzerConfig>): void;
+    /**
+     * Parse stack trace text into frames
+     */
+    private parseStackTrace;
+    /**
+     * Create stack trace frame from regex match
+     */
+    private createFrameFromMatch;
+    /**
+     * Analyze individual frames for detailed insights
+     */
+    private analyzeFrames;
+    /**
+     * Analyze the call chain for patterns and flow
+     */
+    private analyzeCallChain;
+    /**
+     * Detect common error patterns in stack trace
+     */
+    private detectErrorPatterns;
+    /**
+     * Identify the root cause frame
+     */
+    private identifyRootCause;
+    /**
+     * Classify frames by their role and importance
+     */
+    private classifyFrames;
+    /**
+     * Detect recursion patterns in stack trace
+     */
+    private detectRecursion;
+    /**
+     * Analyze async call chains
+     */
+    private analyzeAsyncChain;
+    /**
+     * Generate analysis insights
+     */
+    private generateInsights;
+    /**
+     * Detect programming language from stack trace format
+     */
+    private detectLanguageFromStackTrace;
+    /**
+     * Check if frame represents user code
+     */
+    private isUserCodeFrame;
+    /**
+     * Check if frame represents third-party code
+     */
+    private isThirdPartyFrame;
+    /**
+     * Check if frame represents async operation
+     */
+    private isAsyncFrame;
+    /**
+     * Calculate frame importance for prioritization
+     */
+    private calculateFrameImportance;
+    /**
+     * Categorize frame by its role
+     */
+    private categorizeFrame;
+    /**
+     * Generate frame-specific insights
+     */
+    private generateFrameInsights;
+    /**
+     * Calculate confidence score for frame analysis
+     */
+    private calculateFrameConfidence;
+    /**
+     * Identify critical path through the call stack
+     */
+    private identifyCriticalPath;
+    /**
+     * Identify transitions between user code and libraries
+     */
+    private identifyLibraryTransitions;
+    /**
+     * Calculate promise chain depth from stack trace text
+     */
+    private calculatePromiseChainDepth;
+    /**
+     * Get recommendations for detected error patterns
+     */
+    private getPatternRecommendations;
+    /**
+     * Initialize source maps for the project
+     */
+    private initializeSourceMaps;
+    /**
+     * Get source map data for a file
+     */
+    private getSourceMapData;
 }
 /**
  * Create a Stack Trace Analyzer instance
  */
-export declare function createStackTraceAnalyzer(
-  config?: Partial<StackTraceAnalyzerConfig>,
-  projectPath?: string,
-): Promise<StackTraceAnalyzer>;
+export declare function createStackTraceAnalyzer(config?: Partial<StackTraceAnalyzerConfig>, projectPath?: string): Promise<StackTraceAnalyzer>;

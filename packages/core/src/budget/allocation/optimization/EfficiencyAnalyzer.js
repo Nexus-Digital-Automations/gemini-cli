@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Default efficiency analysis configuration
  */
@@ -392,6 +391,7 @@ export class EfficiencyAnalyzer {
                 detectedAt: new Date(),
             });
         }
+        // Force cache refresh
         return issues;
     }
     /**

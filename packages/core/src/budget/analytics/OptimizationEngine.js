@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Advanced optimization engine generating intelligent cost reduction recommendations
  */
@@ -192,11 +191,8 @@ export class OptimizationEngine {
                     // Handle unexpected values
                     break;
             }
-            return recommendations;
         }
-        /**
-         * Generate system-wide optimization recommendations
-         */
+        return recommendations;
     }
     /**
      * Generate system-wide optimization recommendations
@@ -660,8 +656,10 @@ export class OptimizationEngine {
             },
         };
     }
-    // More placeholder methods would be implemented for completeness...
-    async createAnomalyResolutionRecommendations(anomalies, costAnalysis) {
+    /**
+     * Generate anomaly resolution recommendations
+     */
+    async generateAnomalyResolutionRecommendations(anomalies, costAnalysis) {
         // Implementation would create specific recommendations for each anomaly
         return [];
     }

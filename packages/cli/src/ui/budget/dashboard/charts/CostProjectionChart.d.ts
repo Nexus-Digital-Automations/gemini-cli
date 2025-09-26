@@ -3,23 +3,22 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 import type { ChartConfig, CostProjection } from '../types/index.js';
 /**
  * Props for the CostProjectionChart component.
  */
 interface CostProjectionChartProps {
-  /** Cost projection data to visualize */
-  projections: CostProjection[];
-  /** Chart configuration options */
-  config: ChartConfig;
-  /** Whether the chart is currently loading */
-  loading?: boolean;
-  /** Error message if chart failed to load */
-  error?: string;
-  /** Callback when a projection is selected */
-  onProjectionSelect?: (projection: CostProjection) => void;
+    /** Cost projection data to visualize */
+    projections: CostProjection[];
+    /** Chart configuration options */
+    config: ChartConfig;
+    /** Whether the chart is currently loading */
+    loading?: boolean;
+    /** Error message if chart failed to load */
+    error?: string;
+    /** Callback when a projection is selected */
+    onProjectionSelect?: (projection: CostProjection) => void;
 }
 /**
  * Cost Projection Chart Component

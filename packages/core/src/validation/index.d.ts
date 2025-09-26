@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Comprehensive Automatic Task Completion Validation Cycles
  *
@@ -56,98 +55,43 @@
  * });
  * ```
  */
-export {
-  ValidationFramework,
-  ValidationSeverity,
-  ValidationStatus,
-  ValidationCategory,
-  type ValidationContext,
-  type ValidationResult,
-  type ValidationReport,
-  type ValidationRule,
-  type ValidationConfig,
-  type ValidationExecutor,
-} from './ValidationFramework.js';
-export {
-  CodeQualityValidator,
-  type CodeQualityConfig,
-} from './CodeQualityValidator.js';
-export {
-  FunctionalValidator,
-  type FunctionalValidationConfig,
-  type BehaviorScenario,
-} from './FunctionalValidator.js';
-export {
-  IntegrationValidator,
-  type IntegrationValidationConfig,
-  type IntegrationTestConfig,
-  type PerformanceBenchmark,
-  type CompatibilityConfig,
-} from './IntegrationValidator.js';
-export {
-  ValidationWorkflow,
-  TaskExecutionStage,
-  type ValidationWorkflowConfig,
-  type TaskExecutionContext,
-  type WorkflowExecutionResult,
-} from './ValidationWorkflow.js';
-export {
-  ValidationFailureHandler,
-  FailureHandlingStrategy,
-  type ValidationFailureHandlerConfig,
-  type RetryConfig,
-  type CircuitBreakerConfig,
-  type EscalationConfig,
-  type FallbackConfig,
-} from './ValidationFailureHandler.js';
-export {
-  ValidationReporting,
-  ReportFormat,
-  AnalyticsPeriod,
-  type ValidationReportingConfig,
-} from './ValidationReporting.js';
-export {
-  ContinuousValidationMonitor,
-  MonitoringTrigger,
-  MonitoringScope,
-  HealthStatus,
-  type ContinuousValidationMonitorConfig,
-  type MonitoringRule,
-  type HealthCheck,
-  type MonitoringAlert,
-  type SystemHealthMetrics,
-} from './ContinuousValidationMonitor.js';
+export { ValidationFramework, ValidationSeverity, ValidationStatus, ValidationCategory, type ValidationContext, type ValidationResult, type ValidationReport, type ValidationRule, type ValidationConfig, type ValidationExecutor, } from './ValidationFramework.js';
+export { CodeQualityValidator, type CodeQualityConfig, } from './CodeQualityValidator.js';
+export { FunctionalValidator, type FunctionalValidationConfig, type BehaviorScenario, } from './FunctionalValidator.js';
+export { IntegrationValidator, type IntegrationValidationConfig, type IntegrationTestConfig, type PerformanceBenchmark, type CompatibilityConfig, } from './IntegrationValidator.js';
+export { ValidationWorkflow, TaskExecutionStage, type ValidationWorkflowConfig, type TaskExecutionContext, type WorkflowExecutionResult, } from './ValidationWorkflow.js';
+export { ValidationFailureHandler, FailureHandlingStrategy, type ValidationFailureHandlerConfig, type RetryConfig, type CircuitBreakerConfig, type EscalationConfig, type FallbackConfig, } from './ValidationFailureHandler.js';
+export { ValidationReporting, ReportFormat, AnalyticsPeriod, type ValidationReportingConfig, } from './ValidationReporting.js';
+export { ContinuousValidationMonitor, MonitoringTrigger, MonitoringScope, HealthStatus, type ContinuousValidationMonitorConfig, type MonitoringRule, type HealthCheck, type MonitoringAlert, type SystemHealthMetrics, } from './ContinuousValidationMonitor.js';
 /**
  * Complete validation system configuration
  */
 export interface ValidationSystemConfig {
-  codeQuality?: Partial<CodeQualityConfig>;
-  functional?: Partial<FunctionalValidationConfig>;
-  integration?: Partial<IntegrationValidationConfig>;
-  workflow?: Partial<ValidationWorkflowConfig>;
-  failureHandling?: Partial<ValidationFailureHandlerConfig>;
-  reporting?: Partial<ValidationReportingConfig>;
-  monitoring?: Partial<ContinuousValidationMonitorConfig>;
+    codeQuality?: Partial<CodeQualityConfig>;
+    functional?: Partial<FunctionalValidationConfig>;
+    integration?: Partial<IntegrationValidationConfig>;
+    workflow?: Partial<ValidationWorkflowConfig>;
+    failureHandling?: Partial<ValidationFailureHandlerConfig>;
+    reporting?: Partial<ValidationReportingConfig>;
+    monitoring?: Partial<ContinuousValidationMonitorConfig>;
 }
 /**
  * Complete validation system
  */
 export interface ValidationSystem {
-  framework: ValidationFramework;
-  codeQualityValidator: CodeQualityValidator;
-  functionalValidator: FunctionalValidator;
-  integrationValidator: IntegrationValidator;
-  workflow: ValidationWorkflow;
-  failureHandler: ValidationFailureHandler;
-  reporting: ValidationReporting;
-  monitor: ContinuousValidationMonitor;
+    framework: ValidationFramework;
+    codeQualityValidator: CodeQualityValidator;
+    functionalValidator: FunctionalValidator;
+    integrationValidator: IntegrationValidator;
+    workflow: ValidationWorkflow;
+    failureHandler: ValidationFailureHandler;
+    reporting: ValidationReporting;
+    monitor: ContinuousValidationMonitor;
 }
 /**
  * Create a complete validation system with all components integrated
  */
-export declare function createValidationSystem(
-  config?: ValidationSystemConfig,
-): Promise<ValidationSystem>;
+export declare function createValidationSystem(config?: ValidationSystemConfig): Promise<ValidationSystem>;
 /**
  * Default validation system factory with common configurations
  */
@@ -159,12 +103,4 @@ import type { ValidationWorkflowConfig } from './ValidationWorkflow.js';
 import type { ValidationFailureHandlerConfig } from './ValidationFailureHandler.js';
 import type { ValidationReportingConfig } from './ValidationReporting.js';
 import type { ContinuousValidationMonitorConfig } from './ContinuousValidationMonitor.js';
-export type {
-  CodeQualityConfig,
-  FunctionalValidationConfig,
-  IntegrationValidationConfig,
-  ValidationWorkflowConfig,
-  ValidationFailureHandlerConfig,
-  ValidationReportingConfig,
-  ContinuousValidationMonitorConfig,
-};
+export type { CodeQualityConfig, FunctionalValidationConfig, IntegrationValidationConfig, ValidationWorkflowConfig, ValidationFailureHandlerConfig, ValidationReportingConfig, ContinuousValidationMonitorConfig, };

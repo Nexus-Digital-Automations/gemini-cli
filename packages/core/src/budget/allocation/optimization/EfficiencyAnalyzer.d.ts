@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Budget allocation efficiency analysis system
  * Provides comprehensive efficiency analysis for budget allocations and resource utilization

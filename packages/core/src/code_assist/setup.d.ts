@@ -3,15 +3,14 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type { UserTierId } from './types.js';
+import { UserTierId } from './types.js';
 import type { OAuth2Client } from 'google-auth-library';
 export declare class ProjectIdRequiredError extends Error {
-  constructor();
+    constructor();
 }
 export interface UserData {
-  projectId: string;
-  userTier: UserTierId;
+    projectId: string;
+    userTier: UserTierId;
 }
 /**
  *

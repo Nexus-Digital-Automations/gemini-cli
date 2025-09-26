@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useReactToolScheduler, mapToDisplay, } from './useReactToolScheduler.js';
@@ -99,6 +98,8 @@ describe('useReactToolScheduler in YOLO Mode', () => {
             callId: 'yoloCall',
             name: 'mockToolRequiresConfirmation',
             args: { data: 'any data' },
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -163,7 +164,7 @@ describe('useReactToolScheduler', () => {
                     type: 'tool_group', // Still default to tool_group for most cases
                     tools: [],
                 };
-                pendingItem = updaterOrValue(prevState); // Allow any for more flexibility
+                pendingItem = updaterOrValue(prevState); // Allow for more flexibility
             }
             else {
                 pendingItem = updaterOrValue;
@@ -215,6 +216,8 @@ describe('useReactToolScheduler', () => {
             callId: 'call1',
             name: 'mockTool',
             args: { param: 'value' },
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -257,6 +260,8 @@ describe('useReactToolScheduler', () => {
             callId: 'call1',
             name: 'nonexistentTool',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -294,6 +299,8 @@ describe('useReactToolScheduler', () => {
             callId: 'call1',
             name: 'mockTool',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -326,6 +333,8 @@ describe('useReactToolScheduler', () => {
             callId: 'call1',
             name: 'mockTool',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -363,6 +372,8 @@ describe('useReactToolScheduler', () => {
             callId: 'callConfirm',
             name: 'mockToolRequiresConfirmation',
             args: { data: 'sensitive' },
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -411,6 +422,8 @@ describe('useReactToolScheduler', () => {
             callId: 'callConfirmCancel',
             name: 'mockToolRequiresConfirmation',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -466,6 +479,8 @@ describe('useReactToolScheduler', () => {
             callId: 'liveCall',
             name: 'mockToolWithLiveOutput',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request, new AbortController().signal);
@@ -544,8 +559,20 @@ describe('useReactToolScheduler', () => {
         const { result } = renderScheduler();
         const schedule = result.current[1];
         const requests = [
-            { callId: 'multi1', name: 'tool1', args: { p: 1 } },
-            { callId: 'multi2', name: 'tool2', args: { p: 2 } },
+            {
+                callId: 'multi1',
+                name: 'tool1',
+                args: { p: 1 },
+                isClientInitiated: false,
+                prompt_id: 'test',
+            },
+            {
+                callId: 'multi2',
+                name: 'tool2',
+                args: { p: 2 },
+                isClientInitiated: false,
+                prompt_id: 'test',
+            },
         ];
         act(() => {
             schedule(requests, new AbortController().signal);
@@ -615,11 +642,15 @@ describe('useReactToolScheduler', () => {
             callId: 'run1',
             name: 'mockTool',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         const request2 = {
             callId: 'run2',
             name: 'mockTool',
             args: {},
+            isClientInitiated: false,
+            prompt_id: 'test',
         };
         act(() => {
             schedule(request1, new AbortController().signal);
@@ -650,6 +681,8 @@ describe('mapToDisplay', () => {
         callId: 'testCallId',
         name: 'testTool',
         args: { foo: 'bar' },
+        isClientInitiated: false,
+        prompt_id: 'test',
     };
     const baseTool = new MockTool({
         name: 'testTool',

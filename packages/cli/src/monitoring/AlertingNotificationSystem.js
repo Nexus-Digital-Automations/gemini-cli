@@ -8,7 +8,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Alert severity levels
  */
-export var AlertSeverity;
+export let AlertSeverity;
 (function (AlertSeverity) {
     AlertSeverity["INFO"] = "info";
     AlertSeverity["WARNING"] = "warning";
@@ -18,7 +18,7 @@ export var AlertSeverity;
 /**
  * Alert types for different monitoring scenarios
  */
-export var AlertType;
+export let AlertType;
 (function (AlertType) {
     AlertType["PERFORMANCE_THRESHOLD"] = "performance:threshold";
     AlertType["SYSTEM_HEALTH"] = "system:health";
@@ -34,7 +34,7 @@ export var AlertType;
 /**
  * Notification channels
  */
-export var NotificationChannel;
+export let NotificationChannel;
 (function (NotificationChannel) {
     NotificationChannel["EMAIL"] = "email";
     NotificationChannel["SMS"] = "sms";
@@ -1077,7 +1077,6 @@ Please take appropriate action.
             .sort((a, b) => b.triggers - a.triggers);
     }
     calculatePerformanceMetrics(alerts) {
-        const _resolvedAlerts = alerts.filter((a) => a.status === 'resolved');
         const escalatedAlerts = alerts.filter((a) => a.escalationLevel && a.escalationLevel > 0);
         const totalNotifications = alerts.reduce((sum, alert) => sum + alert.notificationsSent.length, 0);
         const successfulNotifications = alerts.reduce((sum, alert) => sum + alert.notificationsSent.filter((n) => n.success).length, 0);

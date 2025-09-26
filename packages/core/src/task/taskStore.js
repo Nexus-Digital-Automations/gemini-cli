@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 const TASKS_FILE_NAME = '.gemini/tasks.json';

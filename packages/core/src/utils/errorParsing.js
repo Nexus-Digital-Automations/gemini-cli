@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { isProQuotaExceededError, isGenericQuotaExceededError, isApiError, isStructuredError, } from './quotaErrorDetection.js';
 import { DEFAULT_GEMINI_MODEL, DEFAULT_GEMINI_FLASH_MODEL, } from '../config/models.js';
 import { UserTierId } from '../code_assist/types.js';

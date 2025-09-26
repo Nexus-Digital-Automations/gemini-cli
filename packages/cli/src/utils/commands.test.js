@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect } from 'vitest';
 import { parseSlashCommand } from './commands.js';
 import { CommandKind } from '../ui/commands/types.js';

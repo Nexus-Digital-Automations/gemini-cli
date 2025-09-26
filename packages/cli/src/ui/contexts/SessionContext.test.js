@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -29,7 +23,7 @@ const TestHarness = ({ contextRef, }) => {
 describe('SessionStatsContext', () => {
     it('should provide the correct initial state', () => {
         const contextRef = { current: undefined };
-        render(_jsx(SessionStatsProvider, { children: _jsx(TestHarness, { contextRef }) }));
+        render(_jsx(SessionStatsProvider, { children: _jsx(TestHarness, { contextRef: contextRef }) }));
         const stats = contextRef.current?.stats;
         expect(stats?.sessionStartTime).toBeInstanceOf(Date);
         expect(stats?.metrics).toBeDefined();
@@ -37,7 +31,7 @@ describe('SessionStatsContext', () => {
     });
     it('should update metrics when the uiTelemetryService emits an update', () => {
         const contextRef = { current: undefined };
-        render(_jsx(SessionStatsProvider, { children: _jsx(TestHarness, { contextRef }) }));
+        render(_jsx(SessionStatsProvider, { children: _jsx(TestHarness, { contextRef: contextRef }) }));
         const newMetrics = {
             models: {
                 'gemini-pro': {

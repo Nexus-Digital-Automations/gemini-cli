@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 // Models are imported as string literals to avoid dependencies
 import { getComponentLogger } from '../../utils/logger.js';
 import { FlashEscalationEvent } from '../../telemetry/types.js';

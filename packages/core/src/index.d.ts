@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export * from './config/config.js';
 export * from './config/autonomousTaskConfig.js';
 export * from './output/types.js';
@@ -87,16 +86,10 @@ export * from './tools/mcp-client.js';
 export * from './tools/mcp-tool.js';
 export * from './tools/write-todos.js';
 export { MCPOAuthProvider } from './mcp/oauth-provider.js';
-export type {
-  OAuthToken,
-  OAuthCredentials,
-} from './mcp/token-storage/types.js';
+export type { OAuthToken, OAuthCredentials, } from './mcp/token-storage/types.js';
 export { MCPOAuthTokenStorage } from './mcp/oauth-token-storage.js';
 export type { MCPOAuthConfig } from './mcp/oauth-provider.js';
-export type {
-  OAuthAuthorizationServerMetadata,
-  OAuthProtectedResourceMetadata,
-} from './mcp/oauth-utils.js';
+export type { OAuthAuthorizationServerMetadata, OAuthProtectedResourceMetadata, } from './mcp/oauth-utils.js';
 export { OAuthUtils } from './mcp/oauth-utils.js';
 export * from './telemetry/index.js';
 export { sessionId } from './utils/session.js';

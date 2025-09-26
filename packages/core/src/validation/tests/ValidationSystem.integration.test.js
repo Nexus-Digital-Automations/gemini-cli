@@ -3,15 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { vi } from 'vitest';
 import { ValidationFramework } from '../ValidationFramework.js';
 import { ValidationRules, RuleExecutionContext } from '../ValidationRules.js';
 import { TaskValidator, TaskValidationType, TaskValidationLevel, } from '../TaskValidator.js';
-import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
+import { QualityAssurance } from '../QualityAssurance.js';
 import { RollbackManager, RollbackTrigger, RollbackType, } from '../RollbackManager.js';
-import { TaskStatus } from '../../task-management/TaskQueue.js';
-import { TaskPriority } from '../../task-management/types.js';
+import { TaskPriority, TaskStatus } from '../../task-management/types.js';
 // Mock logger to avoid console output during tests
 vi.mock('../../logger/Logger.js');
 describe('ValidationSystem Integration', () => {
@@ -34,7 +32,7 @@ describe('ValidationSystem Integration', () => {
             id: 'integration-test-task',
             title: 'Integration Test Task',
             description: 'A comprehensive task for testing the complete validation system',
-            type: 'implementation',
+            category: 'implementation',
             priority: TaskPriority.HIGH,
             status: TaskStatus.PENDING,
             metadata: {
@@ -616,7 +614,7 @@ describe('ValidationSystem End-to-End Scenarios', () => {
                 id: 'e2e-lifecycle-task',
                 title: 'End-to-End Lifecycle Test Task',
                 description: 'A task that goes through the complete lifecycle with validation at every stage',
-                type: 'implementation',
+                category: 'implementation',
                 priority: TaskPriority.HIGH,
                 status: TaskStatus.PENDING,
                 metadata: {

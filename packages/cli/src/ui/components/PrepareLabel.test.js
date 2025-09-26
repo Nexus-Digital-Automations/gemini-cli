@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -41,7 +35,7 @@ describe('PrepareLabel', () => {
         const label = 'run: git commit -m "feat: add search"';
         const userInput = 'commit';
         const matchedIndex = label.indexOf(userInput);
-        const { lastFrame } = render(_jsx(PrepareLabel, { label, userInput, matchedIndex, textColor: color, isExpanded: true }));
+        const { lastFrame } = render(_jsx(PrepareLabel, { label: label, userInput: userInput, matchedIndex: matchedIndex, textColor: color, isExpanded: true }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('creates centered window around match when collapsed', () => {
@@ -50,7 +44,7 @@ describe('PrepareLabel', () => {
         const suffix = '/and/then/some/more/components/'.repeat(3);
         const label = prefix + core + suffix;
         const matchedIndex = prefix.length;
-        const { lastFrame } = render(_jsx(PrepareLabel, { label, userInput: core, matchedIndex, textColor: color, isExpanded: false }));
+        const { lastFrame } = render(_jsx(PrepareLabel, { label: label, userInput: core, matchedIndex: matchedIndex, textColor: color, isExpanded: false }));
         const out = lastFrame();
         const f = flat(out);
         expect(f.includes(core)).toBe(true);
@@ -64,7 +58,7 @@ describe('PrepareLabel', () => {
         const suffix = ' in this text';
         const label = prefix + core + suffix;
         const matchedIndex = prefix.length;
-        const { lastFrame } = render(_jsx(PrepareLabel, { label, userInput: core, matchedIndex, textColor: color, isExpanded: false }));
+        const { lastFrame } = render(_jsx(PrepareLabel, { label: label, userInput: core, matchedIndex: matchedIndex, textColor: color, isExpanded: false }));
         const out = lastFrame();
         const f = flat(out);
         expect(f.includes('...')).toBe(true);

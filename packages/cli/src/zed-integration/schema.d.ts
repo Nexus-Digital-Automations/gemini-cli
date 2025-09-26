@@ -103,12 +103,12 @@ export declare const textResourceContentsSchema: z.ZodObject<{
     text: z.ZodString;
     uri: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    text: string;
     uri: string;
+    text: string;
     mimeType?: string | null | undefined;
 }, {
-    text: string;
     uri: string;
+    text: string;
     mimeType?: string | null | undefined;
 }>;
 export declare const blobResourceContentsSchema: z.ZodObject<{
@@ -198,11 +198,11 @@ export declare const planEntrySchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     content: string;
     status: "in_progress" | "completed" | "pending";
-    priority: "high" | "low" | "medium";
+    priority: "low" | "medium" | "high";
 }, {
     content: string;
     status: "in_progress" | "completed" | "pending";
-    priority: "high" | "low" | "medium";
+    priority: "low" | "medium" | "high";
 }>;
 export declare const permissionOptionSchema: z.ZodObject<{
     kind: z.ZodUnion<[z.ZodLiteral<"allow_once">, z.ZodLiteral<"allow_always">, z.ZodLiteral<"reject_once">, z.ZodLiteral<"reject_always">]>;
@@ -299,19 +299,19 @@ export declare const mcpServerSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     command: string;
     name: string;
+    args: string[];
     env: {
         value: string;
         name: string;
     }[];
-    args: string[];
 }, {
     command: string;
     name: string;
+    args: string[];
     env: {
         value: string;
         name: string;
     }[];
-    args: string[];
 }>;
 export declare const promptCapabilitiesSchema: z.ZodObject<{
     audio: z.ZodOptional<z.ZodBoolean>;
@@ -362,12 +362,12 @@ export declare const authMethodSchema: z.ZodObject<{
     name: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     name: string;
-    id: string;
     description: string | null;
+    id: string;
 }, {
     name: string;
-    id: string;
     description: string | null;
+    id: string;
 }>;
 export declare const clientResponseSchema: z.ZodUnion<[z.ZodNull, z.ZodObject<{
     content: z.ZodString;
@@ -419,12 +419,12 @@ export declare const embeddedResourceResourceSchema: z.ZodUnion<[z.ZodObject<{
     text: z.ZodString;
     uri: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    text: string;
     uri: string;
+    text: string;
     mimeType?: string | null | undefined;
 }, {
-    text: string;
     uri: string;
+    text: string;
     mimeType?: string | null | undefined;
 }>, z.ZodObject<{
     blob: z.ZodString;
@@ -458,42 +458,42 @@ export declare const newSessionRequestSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
 }, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
 }>;
 export declare const loadSessionRequestSchema: z.ZodObject<{
     cwd: z.ZodString;
@@ -514,44 +514,44 @@ export declare const loadSessionRequestSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }>, "many">;
     sessionId: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
     sessionId: string;
 }, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
     sessionId: string;
 }>;
 export declare const initializeResponseSchema: z.ZodObject<{
@@ -591,16 +591,15 @@ export declare const initializeResponseSchema: z.ZodObject<{
         name: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }, {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }>, "many">;
     protocolVersion: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    protocolVersion: number;
     agentCapabilities: {
         loadSession?: boolean | undefined;
         promptCapabilities?: {
@@ -611,11 +610,11 @@ export declare const initializeResponseSchema: z.ZodObject<{
     };
     authMethods: {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }[];
+    protocolVersion: number;
 }, {
-    protocolVersion: number;
     agentCapabilities: {
         loadSession?: boolean | undefined;
         promptCapabilities?: {
@@ -626,9 +625,10 @@ export declare const initializeResponseSchema: z.ZodObject<{
     };
     authMethods: {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }[];
+    protocolVersion: number;
 }>;
 export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
     annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
@@ -680,8 +680,8 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
     mimeType: z.ZodString;
     type: z.ZodLiteral<"image">;
 }, "strip", z.ZodTypeAny, {
-    data: string;
     type: "image";
+    data: string;
     mimeType: string;
     annotations?: {
         priority?: number | null | undefined;
@@ -689,8 +689,8 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
         lastModified?: string | null | undefined;
     } | null | undefined;
 }, {
-    data: string;
     type: "image";
+    data: string;
     mimeType: string;
     annotations?: {
         priority?: number | null | undefined;
@@ -715,8 +715,8 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
     mimeType: z.ZodString;
     type: z.ZodLiteral<"audio">;
 }, "strip", z.ZodTypeAny, {
-    data: string;
     type: "audio";
+    data: string;
     mimeType: string;
     annotations?: {
         priority?: number | null | undefined;
@@ -724,8 +724,8 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
         lastModified?: string | null | undefined;
     } | null | undefined;
 }, {
-    data: string;
     type: "audio";
+    data: string;
     mimeType: string;
     annotations?: {
         priority?: number | null | undefined;
@@ -755,30 +755,30 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
     uri: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     type: "resource_link";
-    uri: string;
     name: string;
+    uri: string;
     title?: string | null | undefined;
-    mimeType?: string | null | undefined;
     description?: string | null | undefined;
+    size?: number | null | undefined;
+    mimeType?: string | null | undefined;
     annotations?: {
         priority?: number | null | undefined;
         audience?: ("user" | "assistant")[] | null | undefined;
         lastModified?: string | null | undefined;
     } | null | undefined;
-    size?: number | null | undefined;
 }, {
     type: "resource_link";
-    uri: string;
     name: string;
+    uri: string;
     title?: string | null | undefined;
-    mimeType?: string | null | undefined;
     description?: string | null | undefined;
+    size?: number | null | undefined;
+    mimeType?: string | null | undefined;
     annotations?: {
         priority?: number | null | undefined;
         audience?: ("user" | "assistant")[] | null | undefined;
         lastModified?: string | null | undefined;
     } | null | undefined;
-    size?: number | null | undefined;
 }>, z.ZodObject<{
     annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
         audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -798,12 +798,12 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
         text: z.ZodString;
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        text: string;
         uri: string;
+        text: string;
         mimeType?: string | null | undefined;
     }, {
-        text: string;
         uri: string;
+        text: string;
         mimeType?: string | null | undefined;
     }>, z.ZodObject<{
         blob: z.ZodString;
@@ -822,8 +822,8 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     type: "resource";
     resource: {
-        text: string;
         uri: string;
+        text: string;
         mimeType?: string | null | undefined;
     } | {
         uri: string;
@@ -838,8 +838,8 @@ export declare const contentBlockSchema: z.ZodUnion<[z.ZodObject<{
 }, {
     type: "resource";
     resource: {
-        text: string;
         uri: string;
+        text: string;
         mimeType?: string | null | undefined;
     } | {
         uri: string;
@@ -903,8 +903,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"image">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -912,8 +912,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -938,8 +938,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"audio">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -947,8 +947,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -978,30 +978,30 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }>, z.ZodObject<{
         annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
             audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -1021,12 +1021,12 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             text: z.ZodString;
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }>, z.ZodObject<{
             blob: z.ZodString;
@@ -1045,8 +1045,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -1061,8 +1061,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
     }, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -1077,6 +1077,7 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
     }>]>;
     type: z.ZodLiteral<"content">;
 }, "strip", z.ZodTypeAny, {
+    type: "content";
     content: {
         type: "text";
         text: string;
@@ -1086,8 +1087,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1095,8 +1096,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1105,22 +1106,22 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -1133,8 +1134,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     };
-    type: "content";
 }, {
+    type: "content";
     content: {
         type: "text";
         text: string;
@@ -1144,8 +1145,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1153,8 +1154,8 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1163,22 +1164,22 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -1191,20 +1192,19 @@ export declare const toolCallContentSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     };
-    type: "content";
 }>, z.ZodObject<{
     newText: z.ZodString;
     oldText: z.ZodNullable<z.ZodString>;
     path: z.ZodString;
     type: z.ZodLiteral<"diff">;
 }, "strip", z.ZodTypeAny, {
-    path: string;
     type: "diff";
+    path: string;
     newText: string;
     oldText: string | null;
 }, {
-    path: string;
     type: "diff";
+    path: string;
     newText: string;
     oldText: string | null;
 }>]>;
@@ -1260,8 +1260,8 @@ export declare const toolCallSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1269,8 +1269,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1295,8 +1295,8 @@ export declare const toolCallSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1304,8 +1304,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1335,30 +1335,30 @@ export declare const toolCallSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -1378,12 +1378,12 @@ export declare const toolCallSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -1402,8 +1402,8 @@ export declare const toolCallSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -1418,8 +1418,8 @@ export declare const toolCallSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -1434,6 +1434,7 @@ export declare const toolCallSchema: z.ZodObject<{
         }>]>;
         type: z.ZodLiteral<"content">;
     }, "strip", z.ZodTypeAny, {
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -1443,8 +1444,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1452,8 +1453,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1462,22 +1463,22 @@ export declare const toolCallSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -1490,8 +1491,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     }, {
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -1501,8 +1502,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1510,8 +1511,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1520,22 +1521,22 @@ export declare const toolCallSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -1548,20 +1549,19 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     }>, z.ZodObject<{
         newText: z.ZodString;
         oldText: z.ZodNullable<z.ZodString>;
         path: z.ZodString;
         type: z.ZodLiteral<"diff">;
     }, "strip", z.ZodTypeAny, {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     }, {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     }>]>, "many">>;
@@ -1586,6 +1586,7 @@ export declare const toolCallSchema: z.ZodObject<{
     kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
     toolCallId: string;
     content?: ({
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -1595,8 +1596,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1604,8 +1605,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1614,22 +1615,22 @@ export declare const toolCallSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -1642,10 +1643,9 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     } | {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     })[] | undefined;
@@ -1660,6 +1660,7 @@ export declare const toolCallSchema: z.ZodObject<{
     kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
     toolCallId: string;
     content?: ({
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -1669,8 +1670,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1678,8 +1679,8 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -1688,22 +1689,22 @@ export declare const toolCallSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -1716,10 +1717,9 @@ export declare const toolCallSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     } | {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     })[] | undefined;
@@ -1802,8 +1802,8 @@ export declare const promptRequestSchema: z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"image">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1811,8 +1811,8 @@ export declare const promptRequestSchema: z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1837,8 +1837,8 @@ export declare const promptRequestSchema: z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"audio">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1846,8 +1846,8 @@ export declare const promptRequestSchema: z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1877,30 +1877,30 @@ export declare const promptRequestSchema: z.ZodObject<{
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }>, z.ZodObject<{
         annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
             audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -1920,12 +1920,12 @@ export declare const promptRequestSchema: z.ZodObject<{
             text: z.ZodString;
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }>, z.ZodObject<{
             blob: z.ZodString;
@@ -1944,8 +1944,8 @@ export declare const promptRequestSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -1960,8 +1960,8 @@ export declare const promptRequestSchema: z.ZodObject<{
     }, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -1985,8 +1985,8 @@ export declare const promptRequestSchema: z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -1994,8 +1994,8 @@ export declare const promptRequestSchema: z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2004,22 +2004,22 @@ export declare const promptRequestSchema: z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2043,8 +2043,8 @@ export declare const promptRequestSchema: z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2052,8 +2052,8 @@ export declare const promptRequestSchema: z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2062,22 +2062,22 @@ export declare const promptRequestSchema: z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2143,8 +2143,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"image">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2152,8 +2152,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2178,8 +2178,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"audio">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2187,8 +2187,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2218,30 +2218,30 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }>, z.ZodObject<{
         annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
             audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -2261,12 +2261,12 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             text: z.ZodString;
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }>, z.ZodObject<{
             blob: z.ZodString;
@@ -2285,8 +2285,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2301,8 +2301,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2326,8 +2326,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2335,8 +2335,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2345,22 +2345,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2384,8 +2384,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2393,8 +2393,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2403,22 +2403,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2483,8 +2483,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"image">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2492,8 +2492,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2518,8 +2518,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"audio">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2527,8 +2527,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2558,30 +2558,30 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }>, z.ZodObject<{
         annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
             audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -2601,12 +2601,12 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             text: z.ZodString;
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }>, z.ZodObject<{
             blob: z.ZodString;
@@ -2625,8 +2625,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2641,8 +2641,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2666,8 +2666,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2675,8 +2675,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2685,22 +2685,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2724,8 +2724,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2733,8 +2733,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2743,22 +2743,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2823,8 +2823,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"image">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2832,8 +2832,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2858,8 +2858,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"audio">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2867,8 +2867,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -2898,30 +2898,30 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }>, z.ZodObject<{
         annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
             audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -2941,12 +2941,12 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             text: z.ZodString;
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }>, z.ZodObject<{
             blob: z.ZodString;
@@ -2965,8 +2965,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -2981,8 +2981,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -3006,8 +3006,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -3015,8 +3015,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -3025,22 +3025,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -3064,8 +3064,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -3073,8 +3073,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -3083,22 +3083,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -3164,8 +3164,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3173,8 +3173,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3199,8 +3199,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3208,8 +3208,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3239,30 +3239,30 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -3282,12 +3282,12 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -3306,8 +3306,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3322,8 +3322,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3338,6 +3338,7 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         }>]>;
         type: z.ZodLiteral<"content">;
     }, "strip", z.ZodTypeAny, {
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -3347,8 +3348,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3356,8 +3357,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3366,22 +3367,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3394,8 +3395,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     }, {
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -3405,8 +3406,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3414,8 +3415,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3424,22 +3425,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3452,20 +3453,19 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     }>, z.ZodObject<{
         newText: z.ZodString;
         oldText: z.ZodNullable<z.ZodString>;
         path: z.ZodString;
         type: z.ZodLiteral<"diff">;
     }, "strip", z.ZodTypeAny, {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     }, {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     }>]>, "many">>;
@@ -3492,6 +3492,7 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     toolCallId: string;
     sessionUpdate: "tool_call";
     content?: ({
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -3501,8 +3502,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3510,8 +3511,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3520,22 +3521,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3548,10 +3549,9 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     } | {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     })[] | undefined;
@@ -3567,6 +3567,7 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     toolCallId: string;
     sessionUpdate: "tool_call";
     content?: ({
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -3576,8 +3577,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3585,8 +3586,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3595,22 +3596,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3623,10 +3624,9 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     } | {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     })[] | undefined;
@@ -3687,8 +3687,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3696,8 +3696,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3722,8 +3722,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3731,8 +3731,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3762,30 +3762,30 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -3805,12 +3805,12 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -3829,8 +3829,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3845,8 +3845,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3861,6 +3861,7 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
         }>]>;
         type: z.ZodLiteral<"content">;
     }, "strip", z.ZodTypeAny, {
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -3870,8 +3871,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3879,8 +3880,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3889,22 +3890,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3917,8 +3918,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     }, {
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -3928,8 +3929,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3937,8 +3938,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -3947,22 +3948,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -3975,20 +3976,19 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     }>, z.ZodObject<{
         newText: z.ZodString;
         oldText: z.ZodNullable<z.ZodString>;
         path: z.ZodString;
         type: z.ZodLiteral<"diff">;
     }, "strip", z.ZodTypeAny, {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     }, {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     }>]>, "many">>>;
@@ -4012,6 +4012,7 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     toolCallId: string;
     sessionUpdate: "tool_call_update";
     content?: ({
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -4021,8 +4022,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -4030,8 +4031,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -4040,22 +4041,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -4068,10 +4069,9 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     } | {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     })[] | null | undefined;
@@ -4087,6 +4087,7 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     toolCallId: string;
     sessionUpdate: "tool_call_update";
     content?: ({
+        type: "content";
         content: {
             type: "text";
             text: string;
@@ -4096,8 +4097,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -4105,8 +4106,8 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -4115,22 +4116,22 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -4143,10 +4144,9 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         };
-        type: "content";
     } | {
-        path: string;
         type: "diff";
+        path: string;
         newText: string;
         oldText: string | null;
     })[] | null | undefined;
@@ -4166,25 +4166,25 @@ export declare const sessionUpdateSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         content: string;
         status: "in_progress" | "completed" | "pending";
-        priority: "high" | "low" | "medium";
+        priority: "low" | "medium" | "high";
     }, {
         content: string;
         status: "in_progress" | "completed" | "pending";
-        priority: "high" | "low" | "medium";
+        priority: "low" | "medium" | "high";
     }>, "many">;
     sessionUpdate: z.ZodLiteral<"plan">;
 }, "strip", z.ZodTypeAny, {
     entries: {
         content: string;
         status: "in_progress" | "completed" | "pending";
-        priority: "high" | "low" | "medium";
+        priority: "low" | "medium" | "high";
     }[];
     sessionUpdate: "plan";
 }, {
     entries: {
         content: string;
         status: "in_progress" | "completed" | "pending";
-        priority: "high" | "low" | "medium";
+        priority: "low" | "medium" | "high";
     }[];
     sessionUpdate: "plan";
 }>]>;
@@ -4225,16 +4225,15 @@ export declare const agentResponseSchema: z.ZodUnion<[z.ZodObject<{
         name: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }, {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }>, "many">;
     protocolVersion: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    protocolVersion: number;
     agentCapabilities: {
         loadSession?: boolean | undefined;
         promptCapabilities?: {
@@ -4245,11 +4244,11 @@ export declare const agentResponseSchema: z.ZodUnion<[z.ZodObject<{
     };
     authMethods: {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }[];
+    protocolVersion: number;
 }, {
-    protocolVersion: number;
     agentCapabilities: {
         loadSession?: boolean | undefined;
         promptCapabilities?: {
@@ -4260,9 +4259,10 @@ export declare const agentResponseSchema: z.ZodUnion<[z.ZodObject<{
     };
     authMethods: {
         name: string;
-        id: string;
         description: string | null;
+        id: string;
     }[];
+    protocolVersion: number;
 }>, z.ZodNull, z.ZodObject<{
     sessionId: z.ZodString;
 }, "strip", z.ZodTypeAny, {
@@ -4343,8 +4343,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"image">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4352,8 +4352,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4378,8 +4378,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"audio">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4387,8 +4387,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4418,30 +4418,30 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }>, z.ZodObject<{
                 annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                     audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -4461,12 +4461,12 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     text: z.ZodString;
                     uri: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }>, z.ZodObject<{
                     blob: z.ZodString;
@@ -4485,8 +4485,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4501,8 +4501,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
             }, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4517,6 +4517,7 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
             }>]>;
             type: z.ZodLiteral<"content">;
         }, "strip", z.ZodTypeAny, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -4526,8 +4527,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4535,8 +4536,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4545,22 +4546,22 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4573,8 +4574,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -4584,8 +4585,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4593,8 +4594,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4603,22 +4604,22 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4631,20 +4632,19 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }>, z.ZodObject<{
             newText: z.ZodString;
             oldText: z.ZodNullable<z.ZodString>;
             path: z.ZodString;
             type: z.ZodLiteral<"diff">;
         }, "strip", z.ZodTypeAny, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }>]>, "many">>;
@@ -4669,6 +4669,7 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -4678,8 +4679,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4687,8 +4688,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4697,22 +4698,22 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4725,10 +4726,9 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -4743,6 +4743,7 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -4752,8 +4753,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4761,8 +4762,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4771,22 +4772,22 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4799,10 +4800,9 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -4813,17 +4813,13 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
         rawInput?: unknown;
     }>;
 }, "strip", z.ZodTypeAny, {
-    options: {
-        name: string;
-        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
-        optionId: string;
-    }[];
     toolCall: {
         title: string;
         status: "failed" | "in_progress" | "completed" | "pending";
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -4833,8 +4829,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4842,8 +4838,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4852,22 +4848,22 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4880,10 +4876,9 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -4894,18 +4889,19 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
         rawInput?: unknown;
     };
     sessionId: string;
+    options: {
+        name: string;
+        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
+        optionId: string;
+    }[];
 }, {
-    options: {
-        name: string;
-        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
-        optionId: string;
-    }[];
     toolCall: {
         title: string;
         status: "failed" | "in_progress" | "completed" | "pending";
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -4915,8 +4911,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4924,8 +4920,8 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -4934,22 +4930,22 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -4962,10 +4958,9 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -4976,6 +4971,11 @@ export declare const requestPermissionRequestSchema: z.ZodObject<{
         rawInput?: unknown;
     };
     sessionId: string;
+    options: {
+        name: string;
+        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
+        optionId: string;
+    }[];
 }>;
 export declare const initializeRequestSchema: z.ZodObject<{
     clientCapabilities: z.ZodObject<{
@@ -5071,8 +5071,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5080,8 +5080,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5106,8 +5106,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5115,8 +5115,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5146,30 +5146,30 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -5189,12 +5189,12 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -5213,8 +5213,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5229,8 +5229,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5254,8 +5254,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5263,8 +5263,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5273,22 +5273,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5312,8 +5312,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5321,8 +5321,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5331,22 +5331,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5411,8 +5411,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5420,8 +5420,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5446,8 +5446,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5455,8 +5455,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5486,30 +5486,30 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -5529,12 +5529,12 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -5553,8 +5553,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5569,8 +5569,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5594,8 +5594,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5603,8 +5603,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5613,22 +5613,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5652,8 +5652,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5661,8 +5661,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5671,22 +5671,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5751,8 +5751,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5760,8 +5760,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5786,8 +5786,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5795,8 +5795,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5826,30 +5826,30 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -5869,12 +5869,12 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -5893,8 +5893,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5909,8 +5909,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5934,8 +5934,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5943,8 +5943,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -5953,22 +5953,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -5992,8 +5992,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -6001,8 +6001,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -6011,22 +6011,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -6092,8 +6092,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"image">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6101,8 +6101,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6127,8 +6127,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"audio">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6136,8 +6136,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6167,30 +6167,30 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }>, z.ZodObject<{
                 annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                     audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -6210,12 +6210,12 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     text: z.ZodString;
                     uri: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }>, z.ZodObject<{
                     blob: z.ZodString;
@@ -6234,8 +6234,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6250,8 +6250,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             }, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6266,6 +6266,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             }>]>;
             type: z.ZodLiteral<"content">;
         }, "strip", z.ZodTypeAny, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6275,8 +6276,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6284,8 +6285,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6294,22 +6295,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6322,8 +6323,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6333,8 +6334,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6342,8 +6343,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6352,22 +6353,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6380,20 +6381,19 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }>, z.ZodObject<{
             newText: z.ZodString;
             oldText: z.ZodNullable<z.ZodString>;
             path: z.ZodString;
             type: z.ZodLiteral<"diff">;
         }, "strip", z.ZodTypeAny, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }>]>, "many">>;
@@ -6420,6 +6420,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6429,8 +6430,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6438,8 +6439,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6448,22 +6449,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6476,10 +6477,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -6495,6 +6495,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6504,8 +6505,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6513,8 +6514,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6523,22 +6524,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6551,10 +6552,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -6615,8 +6615,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"image">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6624,8 +6624,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6650,8 +6650,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"audio">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6659,8 +6659,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6690,30 +6690,30 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }>, z.ZodObject<{
                 annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                     audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -6733,12 +6733,12 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     text: z.ZodString;
                     uri: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }>, z.ZodObject<{
                     blob: z.ZodString;
@@ -6757,8 +6757,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6773,8 +6773,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             }, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6789,6 +6789,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             }>]>;
             type: z.ZodLiteral<"content">;
         }, "strip", z.ZodTypeAny, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6798,8 +6799,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6807,8 +6808,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6817,22 +6818,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6845,8 +6846,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6856,8 +6857,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6865,8 +6866,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6875,22 +6876,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6903,20 +6904,19 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }>, z.ZodObject<{
             newText: z.ZodString;
             oldText: z.ZodNullable<z.ZodString>;
             path: z.ZodString;
             type: z.ZodLiteral<"diff">;
         }, "strip", z.ZodTypeAny, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }>]>, "many">>>;
@@ -6940,6 +6940,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -6949,8 +6950,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6958,8 +6959,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -6968,22 +6969,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -6996,10 +6997,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -7015,6 +7015,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -7024,8 +7025,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7033,8 +7034,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7043,22 +7044,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -7071,10 +7072,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -7094,25 +7094,25 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }, {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }>, "many">;
         sessionUpdate: z.ZodLiteral<"plan">;
     }, "strip", z.ZodTypeAny, {
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     }, {
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     }>]>;
@@ -7127,8 +7127,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7136,8 +7136,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7146,22 +7146,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -7185,8 +7185,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7194,8 +7194,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7204,22 +7204,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -7243,8 +7243,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7252,8 +7252,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7262,22 +7262,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -7298,6 +7298,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -7307,8 +7308,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7316,8 +7317,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7326,22 +7327,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -7354,10 +7355,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -7370,6 +7370,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -7379,8 +7380,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7388,8 +7389,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7398,22 +7399,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -7426,10 +7427,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -7445,7 +7445,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     };
@@ -7461,8 +7461,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7470,8 +7470,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7480,22 +7480,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -7519,8 +7519,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7528,8 +7528,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7538,22 +7538,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -7577,8 +7577,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7586,8 +7586,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -7596,22 +7596,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -7632,6 +7632,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -7641,8 +7642,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7650,8 +7651,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7660,22 +7661,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -7688,10 +7689,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -7704,6 +7704,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -7713,8 +7714,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7722,8 +7723,8 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7732,22 +7733,22 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -7760,10 +7761,9 @@ export declare const sessionNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -7779,7 +7779,7 @@ export declare const sessionNotificationSchema: z.ZodObject<{
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     };
@@ -7879,8 +7879,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"image">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7888,8 +7888,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7914,8 +7914,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"audio">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7923,8 +7923,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -7954,30 +7954,30 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }>, z.ZodObject<{
                 annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                     audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -7997,12 +7997,12 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     text: z.ZodString;
                     uri: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }>, z.ZodObject<{
                     blob: z.ZodString;
@@ -8021,8 +8021,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8037,8 +8037,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
             }, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8053,6 +8053,7 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
             }>]>;
             type: z.ZodLiteral<"content">;
         }, "strip", z.ZodTypeAny, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -8062,8 +8063,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8071,8 +8072,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8081,22 +8082,22 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8109,8 +8110,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -8120,8 +8121,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8129,8 +8130,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8139,22 +8140,22 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8167,20 +8168,19 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }>, z.ZodObject<{
             newText: z.ZodString;
             oldText: z.ZodNullable<z.ZodString>;
             path: z.ZodString;
             type: z.ZodLiteral<"diff">;
         }, "strip", z.ZodTypeAny, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }>]>, "many">>;
@@ -8205,6 +8205,7 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -8214,8 +8215,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8223,8 +8224,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8233,22 +8234,22 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8261,10 +8262,9 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -8279,6 +8279,7 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -8288,8 +8289,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8297,8 +8298,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8307,22 +8308,22 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8335,10 +8336,9 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -8349,17 +8349,13 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
         rawInput?: unknown;
     }>;
 }, "strip", z.ZodTypeAny, {
-    options: {
-        name: string;
-        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
-        optionId: string;
-    }[];
     toolCall: {
         title: string;
         status: "failed" | "in_progress" | "completed" | "pending";
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -8369,8 +8365,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8378,8 +8374,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8388,22 +8384,22 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8416,10 +8412,9 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -8430,18 +8425,19 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
         rawInput?: unknown;
     };
     sessionId: string;
+    options: {
+        name: string;
+        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
+        optionId: string;
+    }[];
 }, {
-    options: {
-        name: string;
-        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
-        optionId: string;
-    }[];
     toolCall: {
         title: string;
         status: "failed" | "in_progress" | "completed" | "pending";
         kind: "search" | "edit" | "fetch" | "read" | "delete" | "move" | "execute" | "think" | "other";
         toolCallId: string;
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -8451,8 +8447,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8460,8 +8456,8 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -8470,22 +8466,22 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -8498,10 +8494,9 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -8512,6 +8507,11 @@ export declare const clientRequestSchema: z.ZodUnion<[z.ZodObject<{
         rawInput?: unknown;
     };
     sessionId: string;
+    options: {
+        name: string;
+        kind: "allow_once" | "allow_always" | "reject_once" | "reject_always";
+        optionId: string;
+    }[];
 }>]>;
 export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
     clientCapabilities: z.ZodObject<{
@@ -8578,42 +8578,42 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
 }, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
 }>, z.ZodObject<{
     cwd: z.ZodString;
     mcpServers: z.ZodArray<z.ZodObject<{
@@ -8633,44 +8633,44 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }, {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }>, "many">;
     sessionId: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
     sessionId: string;
 }, {
+    cwd: string;
     mcpServers: {
         command: string;
         name: string;
+        args: string[];
         env: {
             value: string;
             name: string;
         }[];
-        args: string[];
     }[];
-    cwd: string;
     sessionId: string;
 }>, z.ZodObject<{
     prompt: z.ZodArray<z.ZodUnion<[z.ZodObject<{
@@ -8723,8 +8723,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"image">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8732,8 +8732,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8758,8 +8758,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
         mimeType: z.ZodString;
         type: z.ZodLiteral<"audio">;
     }, "strip", z.ZodTypeAny, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8767,8 +8767,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     }, {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8798,30 +8798,30 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
         uri: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }, {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     }>, z.ZodObject<{
         annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
             audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -8841,12 +8841,12 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             text: z.ZodString;
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }, {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         }>, z.ZodObject<{
             blob: z.ZodString;
@@ -8865,8 +8865,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -8881,8 +8881,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
     }, {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -8906,8 +8906,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8915,8 +8915,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8925,22 +8925,22 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -8964,8 +8964,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "image";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8973,8 +8973,8 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
             lastModified?: string | null | undefined;
         } | null | undefined;
     } | {
-        data: string;
         type: "audio";
+        data: string;
         mimeType: string;
         annotations?: {
             priority?: number | null | undefined;
@@ -8983,22 +8983,22 @@ export declare const agentRequestSchema: z.ZodUnion<[z.ZodObject<{
         } | null | undefined;
     } | {
         type: "resource_link";
-        uri: string;
         name: string;
+        uri: string;
         title?: string | null | undefined;
-        mimeType?: string | null | undefined;
         description?: string | null | undefined;
+        size?: number | null | undefined;
+        mimeType?: string | null | undefined;
         annotations?: {
             priority?: number | null | undefined;
             audience?: ("user" | "assistant")[] | null | undefined;
             lastModified?: string | null | undefined;
         } | null | undefined;
-        size?: number | null | undefined;
     } | {
         type: "resource";
         resource: {
-            text: string;
             uri: string;
+            text: string;
             mimeType?: string | null | undefined;
         } | {
             uri: string;
@@ -9066,8 +9066,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9075,8 +9075,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9101,8 +9101,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9110,8 +9110,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9141,30 +9141,30 @@ export declare const agentNotificationSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -9184,12 +9184,12 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -9208,8 +9208,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9224,8 +9224,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9249,8 +9249,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9258,8 +9258,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9268,22 +9268,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9307,8 +9307,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9316,8 +9316,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9326,22 +9326,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9406,8 +9406,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9415,8 +9415,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9441,8 +9441,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9450,8 +9450,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9481,30 +9481,30 @@ export declare const agentNotificationSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -9524,12 +9524,12 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -9548,8 +9548,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9564,8 +9564,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9589,8 +9589,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9598,8 +9598,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9608,22 +9608,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9647,8 +9647,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9656,8 +9656,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9666,22 +9666,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9746,8 +9746,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"image">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9755,8 +9755,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9781,8 +9781,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             mimeType: z.ZodString;
             type: z.ZodLiteral<"audio">;
         }, "strip", z.ZodTypeAny, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9790,8 +9790,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         }, {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9821,30 +9821,30 @@ export declare const agentNotificationSchema: z.ZodObject<{
             uri: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }, {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         }>, z.ZodObject<{
             annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                 audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -9864,12 +9864,12 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 text: z.ZodString;
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }, {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             }>, z.ZodObject<{
                 blob: z.ZodString;
@@ -9888,8 +9888,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9904,8 +9904,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9929,8 +9929,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9938,8 +9938,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9948,22 +9948,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -9987,8 +9987,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -9996,8 +9996,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -10006,22 +10006,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -10087,8 +10087,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"image">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10096,8 +10096,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10122,8 +10122,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"audio">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10131,8 +10131,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10162,30 +10162,30 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }>, z.ZodObject<{
                 annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                     audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -10205,12 +10205,12 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     text: z.ZodString;
                     uri: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }>, z.ZodObject<{
                     blob: z.ZodString;
@@ -10229,8 +10229,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10245,8 +10245,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             }, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10261,6 +10261,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
             }>]>;
             type: z.ZodLiteral<"content">;
         }, "strip", z.ZodTypeAny, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10270,8 +10271,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10279,8 +10280,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10289,22 +10290,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10317,8 +10318,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10328,8 +10329,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10337,8 +10338,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10347,22 +10348,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10375,20 +10376,19 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }>, z.ZodObject<{
             newText: z.ZodString;
             oldText: z.ZodNullable<z.ZodString>;
             path: z.ZodString;
             type: z.ZodLiteral<"diff">;
         }, "strip", z.ZodTypeAny, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }>]>, "many">>;
@@ -10415,6 +10415,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10424,8 +10425,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10433,8 +10434,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10443,22 +10444,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10471,10 +10472,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -10490,6 +10490,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10499,8 +10500,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10508,8 +10509,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10518,22 +10519,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10546,10 +10547,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -10610,8 +10610,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"image">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10619,8 +10619,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10645,8 +10645,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 mimeType: z.ZodString;
                 type: z.ZodLiteral<"audio">;
             }, "strip", z.ZodTypeAny, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10654,8 +10654,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             }, {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10685,30 +10685,30 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 uri: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }, {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             }>, z.ZodObject<{
                 annotations: z.ZodNullable<z.ZodOptional<z.ZodObject<{
                     audience: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodUnion<[z.ZodLiteral<"assistant">, z.ZodLiteral<"user">]>, "many">>>;
@@ -10728,12 +10728,12 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     text: z.ZodString;
                     uri: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }, {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 }>, z.ZodObject<{
                     blob: z.ZodString;
@@ -10752,8 +10752,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10768,8 +10768,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
             }, {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10784,6 +10784,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
             }>]>;
             type: z.ZodLiteral<"content">;
         }, "strip", z.ZodTypeAny, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10793,8 +10794,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10802,8 +10803,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10812,22 +10813,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10840,8 +10841,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }, {
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10851,8 +10852,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10860,8 +10861,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10870,22 +10871,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10898,20 +10899,19 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         }>, z.ZodObject<{
             newText: z.ZodString;
             oldText: z.ZodNullable<z.ZodString>;
             path: z.ZodString;
             type: z.ZodLiteral<"diff">;
         }, "strip", z.ZodTypeAny, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }, {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         }>]>, "many">>>;
@@ -10935,6 +10935,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -10944,8 +10945,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10953,8 +10954,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -10963,22 +10964,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -10991,10 +10992,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -11010,6 +11010,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -11019,8 +11020,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11028,8 +11029,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11038,22 +11039,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -11066,10 +11067,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -11089,25 +11089,25 @@ export declare const agentNotificationSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }, {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }>, "many">;
         sessionUpdate: z.ZodLiteral<"plan">;
     }, "strip", z.ZodTypeAny, {
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     }, {
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     }>]>;
@@ -11122,8 +11122,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11131,8 +11131,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11141,22 +11141,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -11180,8 +11180,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11189,8 +11189,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11199,22 +11199,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -11238,8 +11238,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11247,8 +11247,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11257,22 +11257,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -11293,6 +11293,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -11302,8 +11303,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11311,8 +11312,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11321,22 +11322,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -11349,10 +11350,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -11365,6 +11365,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -11374,8 +11375,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11383,8 +11384,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11393,22 +11394,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -11421,10 +11422,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -11440,7 +11440,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     };
@@ -11456,8 +11456,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11465,8 +11465,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11475,22 +11475,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -11514,8 +11514,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11523,8 +11523,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11533,22 +11533,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -11572,8 +11572,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "image";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11581,8 +11581,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 lastModified?: string | null | undefined;
             } | null | undefined;
         } | {
-            data: string;
             type: "audio";
+            data: string;
             mimeType: string;
             annotations?: {
                 priority?: number | null | undefined;
@@ -11591,22 +11591,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
             } | null | undefined;
         } | {
             type: "resource_link";
-            uri: string;
             name: string;
+            uri: string;
             title?: string | null | undefined;
-            mimeType?: string | null | undefined;
             description?: string | null | undefined;
+            size?: number | null | undefined;
+            mimeType?: string | null | undefined;
             annotations?: {
                 priority?: number | null | undefined;
                 audience?: ("user" | "assistant")[] | null | undefined;
                 lastModified?: string | null | undefined;
             } | null | undefined;
-            size?: number | null | undefined;
         } | {
             type: "resource";
             resource: {
-                text: string;
                 uri: string;
+                text: string;
                 mimeType?: string | null | undefined;
             } | {
                 uri: string;
@@ -11627,6 +11627,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -11636,8 +11637,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11645,8 +11646,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11655,22 +11656,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -11683,10 +11684,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | undefined;
@@ -11699,6 +11699,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         toolCallId: string;
         sessionUpdate: "tool_call_update";
         content?: ({
+            type: "content";
             content: {
                 type: "text";
                 text: string;
@@ -11708,8 +11709,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "image";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11717,8 +11718,8 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             } | {
-                data: string;
                 type: "audio";
+                data: string;
                 mimeType: string;
                 annotations?: {
                     priority?: number | null | undefined;
@@ -11727,22 +11728,22 @@ export declare const agentNotificationSchema: z.ZodObject<{
                 } | null | undefined;
             } | {
                 type: "resource_link";
-                uri: string;
                 name: string;
+                uri: string;
                 title?: string | null | undefined;
-                mimeType?: string | null | undefined;
                 description?: string | null | undefined;
+                size?: number | null | undefined;
+                mimeType?: string | null | undefined;
                 annotations?: {
                     priority?: number | null | undefined;
                     audience?: ("user" | "assistant")[] | null | undefined;
                     lastModified?: string | null | undefined;
                 } | null | undefined;
-                size?: number | null | undefined;
             } | {
                 type: "resource";
                 resource: {
-                    text: string;
                     uri: string;
+                    text: string;
                     mimeType?: string | null | undefined;
                 } | {
                     uri: string;
@@ -11755,10 +11756,9 @@ export declare const agentNotificationSchema: z.ZodObject<{
                     lastModified?: string | null | undefined;
                 } | null | undefined;
             };
-            type: "content";
         } | {
-            path: string;
             type: "diff";
+            path: string;
             newText: string;
             oldText: string | null;
         })[] | null | undefined;
@@ -11774,7 +11774,7 @@ export declare const agentNotificationSchema: z.ZodObject<{
         entries: {
             content: string;
             status: "in_progress" | "completed" | "pending";
-            priority: "high" | "low" | "medium";
+            priority: "low" | "medium" | "high";
         }[];
         sessionUpdate: "plan";
     };

@@ -157,7 +157,7 @@ describe('validateNonInterActiveAuth', () => {
         expect(refreshAuthMock).toHaveBeenCalledWith(AuthType.USE_GEMINI);
     });
     it('uses configuredAuthType if provided', async () => {
-        // Set required env var for USE_GEMINI
+        // Set required env let for USE_GEMINI
         process.env['GEMINI_API_KEY'] = 'fake-key';
         const nonInteractiveConfig = {
             refreshAuth: refreshAuthMock,
@@ -206,7 +206,7 @@ describe('validateNonInterActiveAuth', () => {
     it('uses enforcedAuthType if provided', async () => {
         mockSettings.merged.security.auth.enforcedType = AuthType.USE_GEMINI;
         mockSettings.merged.security.auth.selectedType = AuthType.USE_GEMINI;
-        // Set required env var for USE_GEMINI to ensure enforcedAuthType takes precedence
+        // Set required env let for USE_GEMINI to ensure enforcedAuthType takes precedence
         process.env['GEMINI_API_KEY'] = 'fake-key';
         const nonInteractiveConfig = {
             refreshAuth: refreshAuthMock,

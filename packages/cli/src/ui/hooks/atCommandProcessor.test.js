@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { handleAtCommand } from './atCommandProcessor.js';
 import { FileDiscoveryService, GlobTool, ReadManyFilesTool, StandardFileSystemService, ToolRegistry, COMMON_IGNORE_PATTERNS,

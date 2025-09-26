@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PolicyEngine } from './policy-engine.js';
 import { PolicyDecision, } from './types.js';

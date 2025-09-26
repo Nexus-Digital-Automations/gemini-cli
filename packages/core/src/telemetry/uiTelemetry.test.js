@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UiTelemetryService } from './uiTelemetry.js';
 import { ToolCallDecision } from './tool-call-decision.js';

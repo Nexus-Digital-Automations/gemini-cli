@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import {} from '../config/config.js';
 import {} from '../core/coreToolScheduler.js';
 import {} from '../core/turn.js';

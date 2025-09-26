@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { AutonomousTask } from './task-breakdown-engine.js';
 import type { TaskExecutionContext, TaskExecutionResult, ExecutionLogger } from './execution-engine.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';

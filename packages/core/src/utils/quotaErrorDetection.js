@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export function isApiError(error) {
     return (typeof error === 'object' &&
         error !== null &&

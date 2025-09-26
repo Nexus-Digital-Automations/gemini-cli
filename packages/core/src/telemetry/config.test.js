@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect } from 'vitest';
 import { parseBooleanEnvFlag, parseTelemetryTargetValue, resolveTelemetrySettings, } from './config.js';
 import { TelemetryTarget } from './index.js';
@@ -104,7 +103,7 @@ describe('telemetry/config helpers', () => {
                 useCollector: true, // from env as no argv option
             });
         });
-        it('falls back to OTEL_EXPORTER_OTLP_ENDPOINT when GEMINI var is missing', async () => {
+        it('falls back to OTEL_EXPORTER_OTLP_ENDPOINT when GEMINI let is missing', async () => {
             const settings = {};
             const env = {
                 OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel:4317',

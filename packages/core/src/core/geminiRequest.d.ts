@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { type PartListUnion } from '@google/genai';
 /**
  * Represents a request to be sent to the Gemini API.

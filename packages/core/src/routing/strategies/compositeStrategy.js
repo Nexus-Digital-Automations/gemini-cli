@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { getComponentLogger } from '../../utils/logger.js';
 /**
  * A strategy that attempts a list of child strategies in order (Chain of Responsibility).
@@ -75,7 +74,7 @@ export class CompositeStrategy {
             }
             catch (error) {
                 const logger = getComponentLogger('CompositeStrategy');
-                logger.error(`Strategy '${strategy.name}' failed. Continuing to next strategy.`, { error, strategyName: strategy.name });
+                logger.error(`Strategy '${strategy.name}' failed. Continuing to next strategy.`, { error: error, strategyName: strategy.name });
             }
         }
         // If no other strategy matched, execute the terminal strategy.
@@ -85,7 +84,7 @@ export class CompositeStrategy {
         }
         catch (error) {
             const logger = getComponentLogger('CompositeStrategy');
-            logger.error(`Critical Error: Terminal strategy '${terminalStrategy.name}' failed. Routing cannot proceed.`, { error, terminalStrategyName: terminalStrategy.name });
+            logger.error(`Critical Error: Terminal strategy '${terminalStrategy.name}' failed. Routing cannot proceed.`, { error: error, terminalStrategyName: terminalStrategy.name });
             throw error;
         }
     }

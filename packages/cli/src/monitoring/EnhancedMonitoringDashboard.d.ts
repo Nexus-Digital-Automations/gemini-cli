@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 /**
  * Dashboard widget configuration
@@ -121,7 +120,6 @@ export declare class EnhancedMonitoringDashboard extends EventEmitter {
     private chartConfigurations;
     private dashboardUpdateInterval?;
     private readonly layoutsPath;
-    private readonly preferencesPath;
     constructor();
     /**
      * Initialize dashboard system

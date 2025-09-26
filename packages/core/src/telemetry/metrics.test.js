@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FileOperation } from './metrics.js';
 import { makeFakeConfig } from '../test-utils/config.js';

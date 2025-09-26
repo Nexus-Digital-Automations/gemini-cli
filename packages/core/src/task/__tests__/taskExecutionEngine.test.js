@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { TaskExecutionEngine } from '../taskExecutionEngine';
 import { TaskStatus, TaskPriority } from '../types';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';

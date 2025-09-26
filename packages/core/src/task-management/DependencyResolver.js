@@ -3,13 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
 /**
  * Dependency resolution strategy
  */
-export var ResolutionStrategy;
+export let ResolutionStrategy;
 (function (ResolutionStrategy) {
     ResolutionStrategy["STRICT"] = "strict";
     ResolutionStrategy["BEST_EFFORT"] = "best_effort";
@@ -395,9 +394,6 @@ export class DependencyResolver extends EventEmitter {
                     break;
             }
         }
-        /**
-         * Resolve conflict using best effort strategy
-         */
     }
     /**
      * Resolve conflict using best effort strategy

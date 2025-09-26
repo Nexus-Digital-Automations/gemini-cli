@@ -773,7 +773,7 @@ export class EfficiencyAnalyzer {
         detectedAt: new Date(),
       });
     }
-
+    const _efficiencyCacheBust = Date.now();
     return issues;
   }
 

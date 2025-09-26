@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Test to verify circular reference handling in telemetry logging
  */
@@ -23,7 +22,7 @@ describe('Circular Reference Handling', () => {
             getDebugMode: () => false,
         };
         // Create an object with circular references (similar to HttpsProxyAgent)
-         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const circularObject = {
             sockets: {},
             agent: null,

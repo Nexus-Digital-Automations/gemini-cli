@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { DependencyManager } from './dependency-manager.js';
 import { getComponentLogger } from '../utils/logger.js';
 const logger = getComponentLogger('IntelligentTaskQueue');

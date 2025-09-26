@@ -3,8 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type { z } from 'zod';
 import type { TaskId, Task, TaskDependency } from '../task-management/types.js';
 import type { DecisionContext } from './types.js';
 /**
@@ -194,96 +192,5 @@ export declare class DependencyAnalyzer {
 /**
  * Zod schemas for validation
  */
-export declare const DependencyAnalysisConfigSchema: z.ZodObject<{
-    enableAutoLearning: z.ZodBoolean;
-    detectionWeights: z.ZodObject<{
-        semantic: z.ZodNumber;
-        temporal: z.ZodNumber;
-        resource: z.ZodNumber;
-        pattern: z.ZodNumber;
-    }, "strip", z.ZodTypeAny, {
-        resource: number;
-        pattern: number;
-        temporal: number;
-        semantic: number;
-    }, {
-        resource: number;
-        pattern: number;
-        temporal: number;
-        semantic: number;
-    }>;
-    autoCreateThreshold: z.ZodNumber;
-    maxAnalysisDepth: z.ZodNumber;
-    cacheSize: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
-    cacheSize: number;
-    maxAnalysisDepth: number;
-    enableAutoLearning: boolean;
-    detectionWeights: {
-        resource: number;
-        pattern: number;
-        temporal: number;
-        semantic: number;
-    };
-    autoCreateThreshold: number;
-}, {
-    cacheSize: number;
-    maxAnalysisDepth: number;
-    enableAutoLearning: boolean;
-    detectionWeights: {
-        resource: number;
-        pattern: number;
-        temporal: number;
-        semantic: number;
-    };
-    autoCreateThreshold: number;
-}>;
-export declare const DependencyAnalysisResultSchema: z.ZodObject<{
-    suggestedDependencies: z.ZodArray<z.ZodAny, "many">;
-    confidenceScores: z.ZodMap<z.ZodString, z.ZodNumber>;
-    conflicts: z.ZodArray<z.ZodAny, "many">;
-    performanceImpact: z.ZodObject<{
-        criticalPathLength: z.ZodNumber;
-        totalExecutionTime: z.ZodNumber;
-        parallelizationPotential: z.ZodNumber;
-        resourceUtilization: z.ZodNumber;
-        bottlenecks: z.ZodArray<z.ZodAny, "many">;
-    }, "strip", z.ZodTypeAny, {
-        bottlenecks: any[];
-        resourceUtilization: number;
-        criticalPathLength: number;
-        totalExecutionTime: number;
-        parallelizationPotential: number;
-    }, {
-        bottlenecks: any[];
-        resourceUtilization: number;
-        criticalPathLength: number;
-        totalExecutionTime: number;
-        parallelizationPotential: number;
-    }>;
-    optimizations: z.ZodArray<z.ZodAny, "many">;
-}, "strip", z.ZodTypeAny, {
-    conflicts: any[];
-    performanceImpact: {
-        bottlenecks: any[];
-        resourceUtilization: number;
-        criticalPathLength: number;
-        totalExecutionTime: number;
-        parallelizationPotential: number;
-    };
-    optimizations: any[];
-    suggestedDependencies: any[];
-    confidenceScores: Map<string, number>;
-}, {
-    conflicts: any[];
-    performanceImpact: {
-        bottlenecks: any[];
-        resourceUtilization: number;
-        criticalPathLength: number;
-        totalExecutionTime: number;
-        parallelizationPotential: number;
-    };
-    optimizations: any[];
-    suggestedDependencies: any[];
-    confidenceScores: Map<string, number>;
-}>;
+export declare const DependencyAnalysisConfigSchema: any;
+export declare const DependencyAnalysisResultSchema: any;

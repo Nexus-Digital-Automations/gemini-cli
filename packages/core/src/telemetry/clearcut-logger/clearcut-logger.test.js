@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import 'vitest';
 import { vi, describe, it, expect, afterEach, beforeAll, afterAll, } from 'vitest';
 import { ClearcutLogger, EventNames, TEST_ONLY } from './clearcut-logger.js';
@@ -305,7 +304,7 @@ describe('ClearcutLogger', () => {
             const { logger } = setup();
             // Spy on flushToClearcut to prevent it from clearing the queue
             const flushSpy = vi
-                 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .spyOn(logger, 'flushToClearcut')
                 .mockResolvedValue({ nextRequestWaitMs: 0 });
             logger?.logRipgrepFallbackEvent();

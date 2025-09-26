@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { DEFAULT_GEMINI_MODEL } from '../../config/models.js';
 export class DefaultStrategy {
     name = 'default';

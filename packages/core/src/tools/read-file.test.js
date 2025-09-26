@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ReadFileTool } from './read-file.js';
 import { ToolErrorType } from './tool-error.js';

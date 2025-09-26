@@ -3,15 +3,14 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { PartUnion } from '@google/genai';
 import type { FileSystemService } from '../services/fileSystemService.js';
-import type { ToolErrorType } from '../tools/tool-error.js';
+import { ToolErrorType } from '../tools/tool-error.js';
 export declare const DEFAULT_ENCODING: BufferEncoding;
 type UnicodeEncoding = 'utf8' | 'utf16le' | 'utf16be' | 'utf32le' | 'utf32be';
 interface BOMInfo {
-  encoding: UnicodeEncoding;
-  bomLength: number;
+    encoding: UnicodeEncoding;
+    bomLength: number;
 }
 /**
  * Detects a Unicode Byte Order Mark (BOM) at the beginning of a buffer.
@@ -81,9 +80,7 @@ export declare function readFileWithEncoding(filePath: string): Promise<string>;
  * console.log(getSpecificMimeType('unknown.xyz')); // undefined
  * ```
  */
-export declare function getSpecificMimeType(
-  filePath: string,
-): string | undefined;
+export declare function getSpecificMimeType(filePath: string): string | undefined;
 /**
  * Validates that a path is within the bounds of a specified root directory.
  *
@@ -110,10 +107,7 @@ export declare function getSpecificMimeType(
  * isWithinRoot('/home/user/subdir', '/home/user'); // true
  * ```
  */
-export declare function isWithinRoot(
-  pathToCheck: string,
-  rootDirectory: string,
-): boolean;
+export declare function isWithinRoot(pathToCheck: string, rootDirectory: string): boolean;
 /**
  * Determines if a file contains binary data using heuristic analysis.
  *
@@ -159,9 +153,7 @@ export declare function isBinaryFile(filePath: string): Promise<boolean>;
  * console.log(await detectFileType('app.exe')); // 'binary'
  * ```
  */
-export declare function detectFileType(
-  filePath: string,
-): Promise<'text' | 'image' | 'pdf' | 'audio' | 'video' | 'binary' | 'svg'>;
+export declare function detectFileType(filePath: string): Promise<'text' | 'image' | 'pdf' | 'audio' | 'video' | 'binary' | 'svg'>;
 /**
  * Represents the complete result of processing a file for LLM consumption.
  *
@@ -175,20 +167,20 @@ export declare function detectFileType(
  * - Errors: string error message
  */
 export interface ProcessedFileReadResult {
-  /** Content formatted for LLM consumption - string for text, Part for image/pdf/binary */
-  llmContent: PartUnion;
-  /** Human-readable display string showing file content summary */
-  returnDisplay: string;
-  /** Optional error message for the LLM if file processing failed */
-  error?: string;
-  /** Structured error type for programmatic handling */
-  errorType?: ToolErrorType;
-  /** For text files, indicates if content was truncated due to size limits */
-  isTruncated?: boolean;
-  /** For text files, the total number of lines in the original file */
-  originalLineCount?: number;
-  /** For text files, the range of lines shown [startLine, endLine] (1-based for display) */
-  linesShown?: [number, number];
+    /** Content formatted for LLM consumption - string for text, Part for image/pdf/binary */
+    llmContent: PartUnion;
+    /** Human-readable display string showing file content summary */
+    returnDisplay: string;
+    /** Optional error message for the LLM if file processing failed */
+    error?: string;
+    /** Structured error type for programmatic handling */
+    errorType?: ToolErrorType;
+    /** For text files, indicates if content was truncated due to size limits */
+    isTruncated?: boolean;
+    /** For text files, the total number of lines in the original file */
+    originalLineCount?: number;
+    /** For text files, the range of lines shown [startLine, endLine] (1-based for display) */
+    linesShown?: [number, number];
 }
 /**
  * Reads and processes a file into a format suitable for LLM consumption.
@@ -231,13 +223,7 @@ export interface ProcessedFileReadResult {
  * );
  * ```
  */
-export declare function processSingleFileContent(
-  filePath: string,
-  rootDirectory: string,
-  fileSystemService: FileSystemService,
-  offset?: number,
-  limit?: number,
-): Promise<ProcessedFileReadResult>;
+export declare function processSingleFileContent(filePath: string, rootDirectory: string, fileSystemService: FileSystemService, offset?: number, limit?: number): Promise<ProcessedFileReadResult>;
 /**
  * Checks if a file exists at the specified path.
  *

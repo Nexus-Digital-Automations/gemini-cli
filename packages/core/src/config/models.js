@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /** Default Gemini Flash model for fast, cost-effective conversations (Flash-first approach) */
 export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
 /** Default Gemini Flash model for faster, cost-effective conversations */
@@ -30,16 +29,16 @@ export const DEFAULT_THINKING_MODE = -1;
  * @returns The effective model name.
  */
 export function getEffectiveModel(isInFallbackMode, requestedModel) {
-  // If we are not in fallback mode, simply use the requested model.
-  if (!isInFallbackMode) {
-    return requestedModel;
-  }
-  // If a "lite" model is requested, honor it. This allows for variations of
-  // lite models without needing to list them all as constants.
-  if (requestedModel.includes('lite')) {
-    return requestedModel;
-  }
-  // Default fallback for Gemini CLI.
-  return DEFAULT_GEMINI_FLASH_MODEL;
+    // If we are not in fallback mode, simply use the requested model.
+    if (!isInFallbackMode) {
+        return requestedModel;
+    }
+    // If a "lite" model is requested, honor it. This allows for variations of
+    // lite models without needing to list them all as constants.
+    if (requestedModel.includes('lite')) {
+        return requestedModel;
+    }
+    // Default fallback for Gemini CLI.
+    return DEFAULT_GEMINI_FLASH_MODEL;
 }
 //# sourceMappingURL=models.js.map

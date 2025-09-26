@@ -390,22 +390,22 @@ export class ResourceDecisionService extends EventEmitter {
                 // Trigger resource rebalancing
                 await this.resourceAllocator.optimizeAllocations();
                 break;
+            default:
+                // Handle unexpected values
+                break;
         }
         this.emit('optimization-applied', { recommendation });
     }
-    default;
-}
-addToHistory(taskId, string, decision, ResourceDecision);
-void {
-    : .allocationHistory.has(taskId)
-};
-{
-    this.allocationHistory.set(taskId, []);
-}
-const history = this.allocationHistory.get(taskId);
-history.push(decision);
-// Trim history if it gets too large
-if (history.length > this.maxHistorySize) {
-    history.splice(0, history.length - this.maxHistorySize);
+    addToHistory(taskId, decision) {
+        if (!this.allocationHistory.has(taskId)) {
+            this.allocationHistory.set(taskId, []);
+        }
+        const history = this.allocationHistory.get(taskId);
+        history.push(decision);
+        // Trim history if it gets too large
+        if (history.length > this.maxHistorySize) {
+            history.splice(0, history.length - this.maxHistorySize);
+        }
+    }
 }
 //# sourceMappingURL=resourceDecisionService.js.map

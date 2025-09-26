@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { Logger } from '../../../../../src/utils/logger.js';
 const logger = new Logger('ValidationMiddleware');
 /**
@@ -413,63 +412,63 @@ function setValidationData(req, location, data) {
             // Handle unexpected values
             break;
     }
-    /**
-     * Get nested property from object
-     */
-    function getNestedProperty(obj, path) {
-        return path.split('.').reduce((current, key) => current?.[key], obj);
-    }
-    /**
-     * Check for potential XSS patterns
-     */
-    function containsXSS(input) {
-        const xssPatterns = [
-            /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-            /javascript:/gi,
-            /on\w+\s*=/gi,
-            /<iframe/gi,
-            /<object/gi,
-            /<embed/gi,
-        ];
-        return xssPatterns.some((pattern) => pattern.test(input));
-    }
-    /**
-     * Check for potential SQL injection patterns
-     */
-    function containsSQLInjection(input) {
-        const sqlPatterns = [
-            /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
-            /('|(\\'))|(;|\||`)/gi,
-            /((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/gi,
-            /((\%27)|(\'))union/gi,
-        ];
-        return sqlPatterns.some((pattern) => pattern.test(input));
-    }
-    /**
-     * Validation middleware composition utility
-     */
-    export function composeValidation(...middlewares) {
-        return (req, res, next) => {
-            let currentIndex = 0;
-            function runNext() {
-                if (currentIndex >= middlewares.length) {
-                    return next();
-                }
-                const middleware = middlewares[currentIndex++];
-                middleware(req, res, runNext);
+}
+/**
+ * Get nested property from object
+ */
+function getNestedProperty(obj, path) {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+}
+/**
+ * Check for potential XSS patterns
+ */
+function containsXSS(input) {
+    const xssPatterns = [
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        /javascript:/gi,
+        /on\w+\s*=/gi,
+        /<iframe/gi,
+        /<object/gi,
+        /<embed/gi,
+    ];
+    return xssPatterns.some((pattern) => pattern.test(input));
+}
+/**
+ * Check for potential SQL injection patterns
+ */
+function containsSQLInjection(input) {
+    const sqlPatterns = [
+        /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
+        /('|(\\'))|(;|\||`)/gi,
+        /((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/gi,
+        /((\%27)|(\'))union/gi,
+    ];
+    return sqlPatterns.some((pattern) => pattern.test(input));
+}
+/**
+ * Validation middleware composition utility
+ */
+export function composeValidation(...middlewares) {
+    return (req, res, next) => {
+        let currentIndex = 0;
+        function runNext() {
+            if (currentIndex >= middlewares.length) {
+                return next();
             }
-            runNext();
-        };
-    }
-    /**
-     * Export validation utilities
-     */
-    export const validationUtils = {
-        extractValidationData,
-        setValidationData,
-        getNestedProperty,
-        containsXSS,
-        containsSQLInjection,
+            const middleware = middlewares[currentIndex++];
+            middleware(req, res, runNext);
+        }
+        runNext();
     };
 }
+/**
+ * Export validation utilities
+ */
+export const validationUtils = {
+    extractValidationData,
+    setValidationData,
+    getNestedProperty,
+    containsXSS,
+    containsSQLInjection,
+};
 //# sourceMappingURL=validation-middleware.js.map

@@ -4,4 +4,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import type { CommandModule } from 'yargs';
-export declare const budgetCommand: CommandModule;
+export declare const budgetCommand: CommandModule<object, object>;

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { MemoryEfficientStringBuilder, StreamTokenCounter, ContextWindowManager, MemoryOptimizationUtils, memoryOptimizer, } from './memoryOptimizer.js';
 import * as fs from 'node:fs/promises';

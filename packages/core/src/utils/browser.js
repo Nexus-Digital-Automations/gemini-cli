@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Determines if we should attempt to launch a browser for authentication
  * based on the user's environment.

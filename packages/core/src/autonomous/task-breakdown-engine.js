@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { randomUUID } from 'node:crypto';
 import { TaskComplexity } from '../task-management/types.js';
 /**
@@ -15,7 +14,7 @@ import { TaskComplexity } from '../task-management/types.js';
 /**
  * Task execution status
  */
-export var TaskStatus;
+export let TaskStatus;
 (function (TaskStatus) {
     TaskStatus["PENDING"] = "pending";
     TaskStatus["IN_PROGRESS"] = "in_progress";

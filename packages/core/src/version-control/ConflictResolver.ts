@@ -5,18 +5,20 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
-  MergeConflict,
   ConflictResolutionStrategy,
-  VCAutomationConfig,
   ConflictType,
+  ConflictCategory,
+} from './types.js';
+import type {
+  MergeConflict,
+  VCAutomationConfig,
   ResolutionResult,
   ConflictAnalysis,
   AutoResolutionRule,
   ConflictContext,
-  CodeBlock,
   SemanticAnalysis,
   ResolutionReport,
 } from './types.js';
@@ -270,11 +272,11 @@ export class ConflictResolver {
         );
         conflicts.push(conflict);
         currentConflict = null;
-      } else if (currentConflict) {
+      } else if (currentConflict && Array.isArray(currentConflict.oursContent) && Array.isArray(currentConflict.theirsContent)) {
         if (currentConflict.separatorLine) {
-          currentConflict.theirsContent!.push(line);
+          currentConflict.theirsContent.push(line);
         } else {
-          currentConflict.oursContent!.push(line);
+          currentConflict.oursContent.push(line);
         }
       }
     }
@@ -315,8 +317,12 @@ export class ConflictResolver {
   private async analyzeSemantics(
     conflict: MergeConflict,
   ): Promise<SemanticAnalysis> {
-    const oursCode = conflict.oursContent.join('\n');
-    const theirsCode = conflict.theirsContent.join('\n');
+    const oursCode = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent.join('\n')
+      : (conflict.oursContent || '');
+    const theirsCode = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent.join('\n')
+      : (conflict.theirsContent || '');
 
     return {
       syntaxValid: {
@@ -351,7 +357,7 @@ export class ConflictResolver {
       if (rule) {
         const resolution = await this.applyResolutionRule(conflict, rule);
         return {
-          conflictId: conflict.id,
+          conflictId: conflict.id || 'unknown',
           success: true,
           strategy: 'auto',
           resolvedContent: resolution.content,
@@ -365,7 +371,7 @@ export class ConflictResolver {
       const semanticResult = await this.semanticResolution(conflict);
       if (semanticResult.confidence >= this.config.autoResolveThreshold) {
         return {
-          conflictId: conflict.id,
+          conflictId: conflict.id || 'unknown',
           success: true,
           strategy: 'semantic',
           resolvedContent: semanticResult.content,
@@ -378,7 +384,7 @@ export class ConflictResolver {
       // Fall back to pattern-based resolution
       const patternResult = await this.patternBasedResolution(conflict);
       return {
-        conflictId: conflict.id,
+        conflictId: conflict.id || 'unknown',
         success: patternResult.confidence >= this.config.autoResolveThreshold,
         strategy: 'pattern',
         resolvedContent: patternResult.content,
@@ -388,7 +394,7 @@ export class ConflictResolver {
       };
     } catch (error) {
       return {
-        conflictId: conflict.id,
+        conflictId: conflict.id || 'unknown',
         success: false,
         strategy: 'auto',
         confidence: 0,
@@ -407,7 +413,7 @@ export class ConflictResolver {
     // In a real implementation, this would provide interactive prompts
     // For now, return a structured response for manual handling
     return {
-      conflictId: conflict.id,
+      conflictId: conflict.id || 'unknown',
       success: false,
       strategy: 'interactive',
       confidence: 0,
@@ -431,7 +437,7 @@ export class ConflictResolver {
     const analysis = await this.analyzeSemantics(conflict);
 
     return {
-      conflictId: conflict.id,
+      conflictId: conflict.id || 'unknown',
       success: false,
       strategy: 'manual',
       confidence: 0,
@@ -525,7 +531,12 @@ export class ConflictResolver {
       afterLines: lines.slice(conflictLine + 1, end),
       function: this.findEnclosingFunction(lines, conflictLine),
       module: this.findModuleName(lines),
-    };
+      functionName: this.findEnclosingFunction(lines, conflictLine),
+      className: undefined,
+      fileType: 'text',
+      contextLines: lines.slice(start, end),
+      category: ConflictCategory.CODE_LOGIC,
+    } as ConflictContext;
   }
 
   private findEnclosingFunction(
@@ -564,7 +575,8 @@ export class ConflictResolver {
   ): Record<string, number> {
     return conflicts.reduce(
       (acc, conflict) => {
-        acc[conflict.type] = (acc[conflict.type] || 0) + 1;
+        const type = conflict.type || 'unknown';
+        acc[type] = (acc[type] || 0) + 1;
         return acc;
       },
       {} as Record<string, number>,
@@ -673,35 +685,50 @@ export class ConflictResolver {
 
   // Conflict type detection methods
   private isImportConflict(conflict: MergeConflict): boolean {
-    const allContent = [
-      ...conflict.oursContent,
-      ...conflict.theirsContent,
-    ].join('\n');
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+    const allContent = [...oursContent, ...theirsContent].join('\n');
     return /^(import|from|require|#include)/m.test(allContent);
   }
 
   private isFormatOnlyConflict(conflict: MergeConflict): boolean {
-    const oursNormalized = conflict.oursContent.join('').replace(/\s/g, '');
-    const theirsNormalized = conflict.theirsContent.join('').replace(/\s/g, '');
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent.join('')
+      : (conflict.oursContent || '');
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent.join('')
+      : (conflict.theirsContent || '');
+    const oursNormalized = oursContent.replace(/\s/g, '');
+    const theirsNormalized = theirsContent.replace(/\s/g, '');
     return oursNormalized === theirsNormalized;
   }
 
   private isLogicConflict(conflict: MergeConflict): boolean {
     const logicPatterns =
       /\b(if|else|for|while|switch|case|function|class|method)\b/;
-    const allContent = [
-      ...conflict.oursContent,
-      ...conflict.theirsContent,
-    ].join('\n');
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+    const allContent = [...oursContent, ...theirsContent].join('\n');
     return logicPatterns.test(allContent);
   }
 
   private isDataStructureConflict(conflict: MergeConflict): boolean {
     const structurePatterns = /\b(interface|type|struct|class|schema|model)\b/;
-    const allContent = [
-      ...conflict.oursContent,
-      ...conflict.theirsContent,
-    ].join('\n');
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+    const allContent = [...oursContent, ...theirsContent].join('\n');
     return structurePatterns.test(allContent);
   }
 
@@ -750,10 +777,13 @@ export class ConflictResolver {
 
   private identifyRiskFactors(conflict: MergeConflict): string[] {
     const risks: string[] = [];
-    const allContent = [
-      ...conflict.oursContent,
-      ...conflict.theirsContent,
-    ].join('\n');
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+    const allContent = [...oursContent, ...theirsContent].join('\n');
 
     if (/delete|remove|drop/i.test(allContent)) risks.push('data_deletion');
     if (/password|key|secret|token/i.test(allContent))
@@ -775,10 +805,13 @@ export class ConflictResolver {
   private analyzeDependencies(conflict: MergeConflict): string[] {
     // Extract potential dependencies from conflict content
     const deps: string[] = [];
-    const allContent = [
-      ...conflict.oursContent,
-      ...conflict.theirsContent,
-    ].join('\n');
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+    const allContent = [...oursContent, ...theirsContent].join('\n');
 
     const importMatches = allContent.match(
       /(?:import|require|from)\s+['"`]([^'"`]+)['"`]/g,
@@ -797,11 +830,14 @@ export class ConflictResolver {
     conflict: MergeConflict,
   ): AutoResolutionRule | undefined {
     for (const rule of this.autoResolutionRules.values()) {
-      if (rule.conflictTypes.includes(conflict.type)) {
-        const allContent = [
-          ...conflict.oursContent,
-          ...conflict.theirsContent,
-        ].join('\n');
+      if (conflict.type && rule.conflictTypes.includes(conflict.type)) {
+        const oursContent = Array.isArray(conflict.oursContent)
+          ? conflict.oursContent
+          : conflict.oursContent ? [conflict.oursContent] : [];
+        const theirsContent = Array.isArray(conflict.theirsContent)
+          ? conflict.theirsContent
+          : conflict.theirsContent ? [conflict.theirsContent] : [];
+        const allContent = [...oursContent, ...theirsContent].join('\n');
         if (rule.pattern.test(allContent)) {
           return rule;
         }
@@ -821,8 +857,11 @@ export class ConflictResolver {
     const semantic = await this.analyzeSemantics(conflict);
 
     if (semantic.functionalEquivalence) {
+      const oursContent = Array.isArray(conflict.oursContent)
+        ? conflict.oursContent.join('\n')
+        : (conflict.oursContent || '');
       return {
-        content: conflict.oursContent.join('\n'),
+        content: oursContent,
         confidence: 0.9,
         reasoning: 'Functionally equivalent code - keeping current version',
       };
@@ -886,7 +925,14 @@ export class ConflictResolver {
     confidence: number;
     reasoning: string;
   } {
-    const allImports = [...conflict.oursContent, ...conflict.theirsContent]
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+
+    const allImports = [...oursContent, ...theirsContent]
       .filter((line) => line.trim())
       .filter((line, index, arr) => arr.indexOf(line) === index) // Remove duplicates
       .sort();
@@ -903,16 +949,21 @@ export class ConflictResolver {
     confidence: number;
     reasoning: string;
   } {
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent
+      : conflict.oursContent ? [conflict.oursContent] : [];
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent
+      : conflict.theirsContent ? [conflict.theirsContent] : [];
+
     // Choose the version with better formatting (more consistent indentation)
-    const oursFormatScore = this.calculateFormattingScore(conflict.oursContent);
-    const theirsFormatScore = this.calculateFormattingScore(
-      conflict.theirsContent,
-    );
+    const oursFormatScore = this.calculateFormattingScore(oursContent);
+    const theirsFormatScore = this.calculateFormattingScore(theirsContent);
 
     const content =
       oursFormatScore >= theirsFormatScore
-        ? conflict.oursContent.join('\n')
-        : conflict.theirsContent.join('\n');
+        ? oursContent.join('\n')
+        : theirsContent.join('\n');
 
     return {
       content,
@@ -926,11 +977,16 @@ export class ConflictResolver {
     confidence: number;
     reasoning: string;
   } {
+    const oursContent = Array.isArray(conflict.oursContent)
+      ? conflict.oursContent.join('\n')
+      : (conflict.oursContent || '');
+    const theirsContent = Array.isArray(conflict.theirsContent)
+      ? conflict.theirsContent.join('\n')
+      : (conflict.theirsContent || '');
+
     // Extract version numbers and select the latest
-    const oursVersion = this.extractVersion(conflict.oursContent.join('\n'));
-    const theirsVersion = this.extractVersion(
-      conflict.theirsContent.join('\n'),
-    );
+    const oursVersion = this.extractVersion(oursContent);
+    const theirsVersion = this.extractVersion(theirsContent);
 
     if (
       oursVersion &&
@@ -938,14 +994,14 @@ export class ConflictResolver {
       this.compareVersions(oursVersion, theirsVersion) < 0
     ) {
       return {
-        content: conflict.theirsContent.join('\n'),
+        content: theirsContent,
         confidence: 0.8,
         reasoning: `Selected newer version: ${theirsVersion} > ${oursVersion}`,
       };
     }
 
     return {
-      content: conflict.oursContent.join('\n'),
+      content: oursContent,
       confidence: 0.8,
       reasoning: oursVersion
         ? `Keeping current version: ${oursVersion}`

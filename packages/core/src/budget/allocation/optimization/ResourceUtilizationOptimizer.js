@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Default utilization optimization configuration
  */
@@ -155,8 +154,8 @@ export class ResourceUtilizationOptimizer {
         // Sort by priority and expected benefits
         recommendations.sort((a, b) => {
             const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-            const aPriority = priorityOrder[a.priority] || 0;
-            const bPriority = priorityOrder[b.priority] || 0;
+            const aPriority = priorityOrder[opportunity.priority] || 0;
+            const bPriority = priorityOrder[opportunity.priority] || 0;
             if (aPriority !== bPriority)
                 return bPriority - aPriority;
             return b.expectedImpact.costImpact - a.expectedImpact.costImpact;
@@ -385,7 +384,7 @@ export class ResourceUtilizationOptimizer {
     /**
      * Identify optimization opportunities
      */
-    identifyOptimizationOpportunities(candidate, current, historical, _predicted) {
+    identifyOptimizationOpportunities(candidate, current, historical, predicted) {
         const opportunities = [];
         // Check for rightsizing opportunities
         if (current.average < this.config.utilizationRange.min) {
@@ -559,7 +558,7 @@ export class ResourceUtilizationOptimizer {
     /**
      * Identify cross-resource opportunities
      */
-    identifyCrossResourceOpportunities(resources, _candidates) {
+    identifyCrossResourceOpportunities(resources, candidates) {
         const opportunities = [];
         // Find consolidation opportunities
         const underutilizedResources = resources.filter(r => r.current.average < 0.4);
@@ -701,8 +700,7 @@ export class ResourceUtilizationOptimizer {
      * Validate configuration
      */
     validateConfiguration() {
-        const { utilizationRange, scaling } = this.config;
-        const _weights = this.config.weights;
+        const { weights, utilizationRange, scaling } = this.config;
         // Validate utilization range
         if (utilizationRange.min >= utilizationRange.max) {
             throw new Error('Minimum utilization must be less than maximum utilization');

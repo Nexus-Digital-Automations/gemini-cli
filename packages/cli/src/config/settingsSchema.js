@@ -18,7 +18,7 @@ export const TOGGLE_TYPES = new Set([
  * (system defaults, user settings, workspace settings, etc.).
  * Determines how conflicts between different configuration scopes are resolved.
  */
-export var MergeStrategy;
+export let MergeStrategy;
 (function (MergeStrategy) {
     /** Replace the old value with the new value completely. This is the default behavior. */
     MergeStrategy["REPLACE"] = "replace";

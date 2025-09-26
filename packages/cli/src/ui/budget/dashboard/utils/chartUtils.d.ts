@@ -3,14 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type {
-  ChartDataPoint,
-  TimeSeriesData,
-  UsageDataPoint,
-  CostBreakdownItem,
-  TokenUsageMetrics,
-} from '../types/index.js';
+import type { ChartDataPoint, TimeSeriesData, UsageDataPoint, CostBreakdownItem, TokenUsageMetrics } from '../types/index.js';
 /**
  * Budget Usage Visualizer - Chart Utility Functions
  *
@@ -33,10 +26,7 @@ import type {
  * formatCurrency(1234.56) // "$1,234.56"
  * ```
  */
-export declare function formatCurrency(
-  amount: number,
-  precision?: number,
-): string;
+export declare function formatCurrency(amount: number, precision?: number): string;
 /**
  * Formats a number as a compact string with appropriate units (K, M, B).
  * Useful for displaying large numbers in limited space.
@@ -52,10 +42,7 @@ export declare function formatCurrency(
  * formatCompact(1234567890) // "1.2B"
  * ```
  */
-export declare function formatCompact(
-  value: number,
-  precision?: number,
-): string;
+export declare function formatCompact(value: number, precision?: number): string;
 /**
  * Formats a percentage with appropriate precision and symbol.
  * Handles edge cases like NaN, Infinity, and very small percentages.
@@ -64,10 +51,7 @@ export declare function formatCompact(
  * @param precision - Number of decimal places (default: 1)
  * @returns Formatted percentage string
  */
-export declare function formatPercentage(
-  percentage: number,
-  precision?: number,
-): string;
+export declare function formatPercentage(percentage: number, precision?: number): string;
 /**
  * Converts usage data points to chart data points for visualization.
  * Transforms backend data into format suitable for chart components.
@@ -76,10 +60,7 @@ export declare function formatPercentage(
  * @param type - Type of chart data to extract ('cost' | 'tokens' | 'requests')
  * @returns Array of chart data points
  */
-export declare function convertUsageToChartData(
-  usageData: UsageDataPoint[],
-  type: 'cost' | 'tokens' | 'requests',
-): ChartDataPoint[];
+export declare function convertUsageToChartData(usageData: UsageDataPoint[], type: 'cost' | 'tokens' | 'requests'): ChartDataPoint[];
 /**
  * Converts cost breakdown items to pie chart data points.
  * Creates data suitable for pie chart visualization with colors and labels.
@@ -88,10 +69,7 @@ export declare function convertUsageToChartData(
  * @param colorPalette - Array of colors to use for pie slices
  * @returns Array of chart data points for pie chart
  */
-export declare function convertBreakdownToChartData(
-  breakdown: CostBreakdownItem[],
-  colorPalette?: string[],
-): ChartDataPoint[];
+export declare function convertBreakdownToChartData(breakdown: CostBreakdownItem[], colorPalette?: string[]): ChartDataPoint[];
 /**
  * Creates time series data from token usage metrics.
  * Useful for trending charts and historical analysis.
@@ -100,15 +78,7 @@ export declare function convertBreakdownToChartData(
  * @param field - Field to extract for time series ('totalTokens' | 'totalCost' | 'inputTokens' | 'outputTokens')
  * @returns Time series data array
  */
-export declare function createTimeSeriesFromMetrics(
-  metrics: TokenUsageMetrics[],
-  field:
-    | 'totalTokens'
-    | 'totalCost'
-    | 'inputTokens'
-    | 'outputTokens'
-    | 'cachedTokens',
-): TimeSeriesData;
+export declare function createTimeSeriesFromMetrics(metrics: TokenUsageMetrics[], field: 'totalTokens' | 'totalCost' | 'inputTokens' | 'outputTokens' | 'cachedTokens'): TimeSeriesData;
 /**
  * Calculates moving average for smoothing chart data.
  * Useful for trend analysis and noise reduction.
@@ -117,10 +87,7 @@ export declare function createTimeSeriesFromMetrics(
  * @param windowSize - Size of the moving average window
  * @returns Smoothed time series data
  */
-export declare function calculateMovingAverage(
-  data: TimeSeriesData,
-  windowSize?: number,
-): TimeSeriesData;
+export declare function calculateMovingAverage(data: TimeSeriesData, windowSize?: number): TimeSeriesData;
 /**
  * Formats a timestamp as a readable time string.
  * Handles different time formats based on recency.
@@ -129,10 +96,7 @@ export declare function calculateMovingAverage(
  * @param format - Format type ('short' | 'medium' | 'long')
  * @returns Formatted time string
  */
-export declare function formatTime(
-  timestamp: Date,
-  format?: 'short' | 'medium' | 'long',
-): string;
+export declare function formatTime(timestamp: Date, format?: 'short' | 'medium' | 'long'): string;
 /**
  * Creates ASCII-based progress bar for CLI display.
  * Generates a visual representation of progress using Unicode characters.
@@ -143,12 +107,7 @@ export declare function formatTime(
  * @param empty - Character to use for empty portion
  * @returns ASCII progress bar string
  */
-export declare function createProgressBar(
-  percentage: number,
-  width?: number,
-  filled?: string,
-  empty?: string,
-): string;
+export declare function createProgressBar(percentage: number, width?: number, filled?: string, empty?: string): string;
 /**
  * Creates ASCII-based sparkline for inline data visualization.
  * Generates a compact chart using Unicode block characters.
@@ -166,10 +125,7 @@ export declare function createSparkline(data: number[], width?: number): string;
  * @param theme - Color theme ('default' | 'budget' | 'usage' | 'cost')
  * @returns Array of color codes
  */
-export declare function generateColorPalette(
-  count: number,
-  theme?: 'default' | 'budget' | 'usage' | 'cost',
-): string[];
+export declare function generateColorPalette(count: number, theme?: 'default' | 'budget' | 'usage' | 'cost'): string[];
 /**
  * Default color palette for pie charts and other visualizations.
  * Provides good contrast and accessibility in CLI environments.
@@ -183,7 +139,4 @@ export declare const DEFAULT_PIE_COLORS: string[];
  * @param period - Time period for aggregation ('hour' | 'day' | 'week' | 'month')
  * @returns Aggregated usage data
  */
-export declare function aggregateUsageByPeriod(
-  data: UsageDataPoint[],
-  period: 'hour' | 'day' | 'week' | 'month',
-): UsageDataPoint[];
+export declare function aggregateUsageByPeriod(data: UsageDataPoint[], period: 'hour' | 'day' | 'week' | 'month'): UsageDataPoint[];

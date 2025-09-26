@@ -3,11 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine.js';
-import type { ResourceInfo, AllocationResult , ResourceAllocator, ResourceType} from './resourceAllocator.js';
-import { type AllocationStrategy, type ResourceRequirement } from './resourceAllocator.js';
+import type { ResourceInfo, AllocationResult } from './resourceAllocator.js';
+import { ResourceAllocator, ResourceType, type AllocationStrategy, type ResourceRequirement } from './resourceAllocator.js';
 import type { DecisionContext, Decision, DecisionPriority } from './types';
 /**
  * Task resource profile for decision making
@@ -125,5 +124,5 @@ export declare class ResourceDecisionService extends EventEmitter {
     private applyResourceDecision;
     private analyzeAllocationDecision;
     private applyOptimizationRecommendation;
-    default: break;
+    private addToHistory;
 }

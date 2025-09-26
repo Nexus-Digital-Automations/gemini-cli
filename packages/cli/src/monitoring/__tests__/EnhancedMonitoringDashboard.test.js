@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { EnhancedMonitoringDashboard, } from '../EnhancedMonitoringDashboard.js';
 import { realTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
@@ -27,7 +26,8 @@ describe('EnhancedMonitoringDashboard', () => {
     let mockRealTimeMonitoring;
     beforeEach(async () => {
         vi.clearAllMocks();
-        mockRealTimeMonitoring = realTimeMonitoringSystem;
+        mockRealTimeMonitoring =
+            realTimeMonitoringSystem;
         // Setup default mock responses
         mockRealTimeMonitoring.getCurrentSnapshot.mockReturnValue({
             timestamp: new Date(),
@@ -97,17 +97,18 @@ describe('EnhancedMonitoringDashboard', () => {
             expect(widgetTypes).toContain('gauge');
             expect(widgetTypes).toContain('table');
         });
-        it('should emit dashboard:initialized event', (done) => {
+        it('should emit dashboard:initialized event', async () => {
             const newDashboard = new EnhancedMonitoringDashboard();
-            newDashboard.on('dashboard:initialized', (data) => {
-                expect(data).toHaveProperty('layoutsCount');
-                expect(data).toHaveProperty('widgetsCount');
-                done();
+            const initPromise = new Promise((resolve) => {
+                newDashboard.on('dashboard:initialized', (data) => {
+                    expect(data).toHaveProperty('layoutsCount');
+                    expect(data).toHaveProperty('widgetsCount');
+                    resolve(data);
+                });
             });
+            await initPromise;
             // Clean up
-            setTimeout(() => {
-                newDashboard.shutdown();
-            }, 200);
+            await newDashboard.shutdown();
         });
     });
     describe('Layout Management', () => {
@@ -425,22 +426,24 @@ describe('EnhancedMonitoringDashboard', () => {
         });
     });
     describe('Real-time Updates', () => {
-        it('should emit dashboard events on updates', (done) => {
-            dashboard.on('dashboard:updated', (data) => {
-                expect(data).toHaveProperty('timestamp');
-                expect(data).toHaveProperty('layoutId');
-                expect(data).toHaveProperty('widgetCount');
-                done();
+        it('should emit dashboard events on updates', async () => {
+            const updatePromise = new Promise((resolve) => {
+                dashboard.on('dashboard:updated', (data) => {
+                    expect(data).toHaveProperty('timestamp');
+                    expect(data).toHaveProperty('layoutId');
+                    expect(data).toHaveProperty('widgetCount');
+                    resolve(data);
+                });
             });
-            // Wait for periodic update
-            setTimeout(() => {
-                // Update should happen within 5 seconds
-                if (!dashboard.listenerCount('dashboard:updated')) {
-                    done(); // Complete test if no event received
-                }
-            }, 6000);
+            // Wait for periodic update with timeout
+            const timeoutPromise = new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(null);
+                }, 6000);
+            });
+            await Promise.race([updatePromise, timeoutPromise]);
         });
-        it('should emit widget data update events', (done) => {
+        it('should emit widget data update events', async () => {
             const layoutId = dashboard.createLayout('Test Layout', 'Test');
             const widget = {
                 type: 'metric',
@@ -454,16 +457,21 @@ describe('EnhancedMonitoringDashboard', () => {
                 enabled: true,
             };
             const widgetId = dashboard.addWidget(layoutId, widget);
-            dashboard.on('widget:data-updated', (data) => {
-                expect(data).toHaveProperty('widgetId');
-                expect(data).toHaveProperty('data');
-                expect(data.widgetId).toBe(widgetId);
-                done();
+            const updatePromise = new Promise((resolve) => {
+                dashboard.on('widget:data-updated', (data) => {
+                    expect(data).toHaveProperty('widgetId');
+                    expect(data).toHaveProperty('data');
+                    expect(data.widgetId).toBe(widgetId);
+                    resolve(data);
+                });
             });
             // Should receive update within reasonable time
-            setTimeout(() => {
-                done(); // Complete test even if no event received
-            }, 500);
+            const timeoutPromise = new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(null); // Complete test even if no event received
+                }, 500);
+            });
+            await Promise.race([updatePromise, timeoutPromise]);
         });
     });
     describe('Error Handling', () => {

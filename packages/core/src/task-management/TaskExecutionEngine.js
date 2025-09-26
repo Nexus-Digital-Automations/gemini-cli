@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { TaskComplexity } from './types.js';
 import { SubAgentScope, ContextState, SubagentTerminateMode, } from '../core/subagent.js';
 import { CoreToolScheduler as _CoreToolScheduler } from '../core/coreToolScheduler.js';
@@ -31,7 +30,7 @@ import * as _path from 'node:path';
 /**
  * Task types for specialized handling and agent assignment
  */
-export var TaskType;
+export let TaskType;
 (function (TaskType) {
     TaskType["IMPLEMENTATION"] = "implementation";
     TaskType["TESTING"] = "testing";
@@ -45,7 +44,7 @@ export var TaskType;
 /**
  * Dependency types for task orchestration
  */
-export var DependencyType;
+export let DependencyType;
 (function (DependencyType) {
     DependencyType["HARD"] = "hard";
     DependencyType["SOFT"] = "soft";
@@ -56,7 +55,7 @@ export var DependencyType;
 /**
  * Agent capabilities for task assignment
  */
-export var AgentCapability;
+export let AgentCapability;
 (function (AgentCapability) {
     AgentCapability["FRONTEND"] = "frontend";
     AgentCapability["BACKEND"] = "backend";
@@ -138,7 +137,7 @@ export class TaskBreakdownAnalyzer {
         // Score based on keyword matches
         const scores = Object.entries(complexityKeywords).map(([complexity, keywords]) => {
             const matches = keywords.filter((keyword) => text.includes(keyword.toLowerCase())).length;
-            return { complexity, score: matches };
+            return { complexity: complexity, score: matches };
         });
         // Length-based heuristics
         const descriptionLength = description.length;

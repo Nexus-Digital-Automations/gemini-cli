@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-export var PolicyDecision;
+export let PolicyDecision;
 (function (PolicyDecision) {
     PolicyDecision["ALLOW"] = "allow";
     PolicyDecision["DENY"] = "deny";

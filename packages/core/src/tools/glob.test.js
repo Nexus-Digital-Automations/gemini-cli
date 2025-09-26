@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { GlobTool, sortFileEntries } from './glob.js';
 import { partListUnionToString } from '../core/geminiRequest.js';
 import path from 'node:path';

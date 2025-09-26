@@ -189,9 +189,9 @@ export interface MergeConflict {
   /** Their version */
   theirVersion: string;
   /** Our content */
-  oursContent?: string;
+  oursContent?: string | string[];
   /** Their content */
-  theirsContent?: string;
+  theirsContent?: string | string[];
   /** Conflict type */
   type?: ConflictType;
   /** Conflict severity */
@@ -204,6 +204,10 @@ export interface MergeConflict {
   context: ConflictContext;
   /** Suggested resolution */
   suggestedResolution?: ConflictResolution;
+  /** Our branch name */
+  oursBranch?: string;
+  /** Their branch name */
+  theirsBranch?: string;
 }
 
 /**

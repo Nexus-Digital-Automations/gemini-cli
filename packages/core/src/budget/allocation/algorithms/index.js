@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Budget allocation algorithms module exports
  * Provides comprehensive allocation optimization algorithms for intelligent budget distribution
@@ -11,18 +10,8 @@
  * @author Claude Code - Budget Allocation Agent
  * @version 1.0.0
  */
-
-// Import factory functions for internal use
-import { createUsageBasedAlgorithm } from './UsageBasedAlgorithm.js';
-import { createROIOptimizedAlgorithm } from './ROIOptimizedAlgorithm.js';
-import { createPriorityBasedAlgorithm } from './PriorityBasedAlgorithm.js';
-
 // Base algorithm exports
 export { BaseAllocationAlgorithm, } from './BaseAllocationAlgorithm.js';
-// Algorithm factory functions
-export { createUsageBasedAlgorithm } from './UsageBasedAlgorithm.js';
-export { createROIOptimizedAlgorithm } from './ROIOptimizedAlgorithm.js';
-export { createPriorityBasedAlgorithm } from './PriorityBasedAlgorithm.js';
 // Algorithm implementations
 export { UsageBasedAlgorithm, createUsageBasedAlgorithm, } from './UsageBasedAlgorithm.js';
 export { ROIOptimizedAlgorithm, createROIOptimizedAlgorithm, } from './ROIOptimizedAlgorithm.js';

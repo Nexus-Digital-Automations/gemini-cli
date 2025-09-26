@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { test, expect } from 'vitest';
 import { ResultCache } from './result-cache.js';
 test('ResultCache basic usage', async () => {

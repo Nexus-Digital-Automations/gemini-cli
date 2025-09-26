@@ -3,21 +3,20 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { type BaseLlmClient } from '../core/baseLlmClient.js';
 /**
  * Represents the result of an LLM-corrected search and replace operation.
  * Used when the original edit attempt failed and needs to be fixed by analyzing the file content.
  */
 export interface SearchReplaceEdit {
-  /** The corrected search string that should match the exact text in the file */
-  search: string;
-  /** The replacement string to be used (typically unchanged from original) */
-  replace: string;
-  /** True if the desired change is already present in the file and no edit is needed */
-  noChangesRequired: boolean;
-  /** Detailed explanation of why the original search failed and how it was corrected */
-  explanation: string;
+    /** The corrected search string that should match the exact text in the file */
+    search: string;
+    /** The replacement string to be used (typically unchanged from original) */
+    replace: string;
+    /** True if the desired change is already present in the file and no edit is needed */
+    noChangesRequired: boolean;
+    /** Detailed explanation of why the original search failed and how it was corrected */
+    explanation: string;
 }
 /**
  * Attempts to fix a failed edit by using an LLM to generate a corrected search and replace pair.
@@ -53,15 +52,7 @@ export interface SearchReplaceEdit {
  * );
  * ```
  */
-export declare function FixLLMEditWithInstruction(
-  instruction: string,
-  old_string: string,
-  new_string: string,
-  error: string,
-  current_content: string,
-  baseLlmClient: BaseLlmClient,
-  abortSignal: AbortSignal,
-): Promise<SearchReplaceEdit>;
+export declare function FixLLMEditWithInstruction(instruction: string, old_string: string, new_string: string, error: string, current_content: string, baseLlmClient: BaseLlmClient, abortSignal: AbortSignal): Promise<SearchReplaceEdit>;
 /**
  * Clears the internal cache used by the LLM edit fixer.
  * This function is intended for testing purposes only to ensure clean state between tests.

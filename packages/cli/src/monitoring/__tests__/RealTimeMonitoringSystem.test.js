@@ -3,12 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import { describe, beforeEach, afterEach, it, expect, vi, } from 'vitest';
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
 import { taskStatusMonitor } from '../TaskStatusMonitor.js';
-import { performanceAnalyticsDashboard } from '../PerformanceAnalyticsDashboard.js';
 import {} from './types.js';
 // Mock dependencies
 vi.mock('../TaskStatusMonitor.js', () => ({
@@ -38,11 +36,10 @@ vi.mock('ws', () => ({
 describe('RealTimeMonitoringSystem', () => {
     let monitoringSystem;
     let mockTaskStatusMonitor;
-    let _mockPerformanceAnalytics;
     beforeEach(() => {
         vi.clearAllMocks();
-        mockTaskStatusMonitor = taskStatusMonitor;
-        _mockPerformanceAnalytics = performanceAnalyticsDashboard;
+        mockTaskStatusMonitor =
+            taskStatusMonitor;
         // Setup default mock responses
         mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({
             totalTasks: 100,

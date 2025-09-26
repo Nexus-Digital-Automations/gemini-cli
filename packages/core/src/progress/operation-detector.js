@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { OperationType } from './types.js';
 /**
  * Detects the operation type and creates context based on tool call information

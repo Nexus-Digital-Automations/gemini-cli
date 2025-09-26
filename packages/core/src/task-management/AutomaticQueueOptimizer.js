@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Automatic Queue Optimization and Performance Tuning System
  *
@@ -30,7 +29,7 @@ import { RealtimeQueueSnapshot as _RealtimeQueueSnapshot } from './RealtimeQueue
 /**
  * Types of optimization strategies available
  */
-export var OptimizationType;
+export let OptimizationType;
 (function (OptimizationType) {
     OptimizationType["ALGORITHM_SWITCH"] = "algorithm_switch";
     OptimizationType["CONCURRENCY_TUNING"] = "concurrency_tuning";

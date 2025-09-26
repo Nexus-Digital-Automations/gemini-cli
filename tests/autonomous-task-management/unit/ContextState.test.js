@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ContextState } from '../../../packages/core/src/core/subagent.js';
 describe('ContextState - Autonomous Task Management Tests', () => {

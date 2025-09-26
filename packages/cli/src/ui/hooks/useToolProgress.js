@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useCallback, useEffect, useState } from 'react';
 import { useProgress } from '../contexts/ProgressContext.js';
 import { ToolCallStatus } from '../types.js';

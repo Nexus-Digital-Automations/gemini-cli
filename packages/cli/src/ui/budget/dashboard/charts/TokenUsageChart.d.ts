@@ -3,29 +3,24 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
-import type {
-  ChartConfig,
-  UsageDataPoint,
-  TokenUsageMetrics,
-} from '../types/index.js';
+import type { ChartConfig, UsageDataPoint, TokenUsageMetrics } from '../types/index.js';
 /**
  * Props for the TokenUsageChart component.
  */
 interface TokenUsageChartProps {
-  /** Usage data points to visualize */
-  data: UsageDataPoint[];
-  /** Chart configuration options */
-  config: ChartConfig;
-  /** Optional token usage metrics for detailed analysis */
-  metrics?: TokenUsageMetrics[];
-  /** Whether the chart is currently loading */
-  loading?: boolean;
-  /** Error message if chart failed to load */
-  error?: string;
-  /** Callback when a data point is clicked or selected */
-  onDataPointSelect?: (dataPoint: UsageDataPoint) => void;
+    /** Usage data points to visualize */
+    data: UsageDataPoint[];
+    /** Chart configuration options */
+    config: ChartConfig;
+    /** Optional token usage metrics for detailed analysis */
+    metrics?: TokenUsageMetrics[];
+    /** Whether the chart is currently loading */
+    loading?: boolean;
+    /** Error message if chart failed to load */
+    error?: string;
+    /** Callback when a data point is clicked or selected */
+    onDataPointSelect?: (dataPoint: UsageDataPoint) => void;
 }
 /**
  * Token Usage Chart Component

@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -63,12 +57,12 @@ describe('ThemeDialog Snapshots', () => {
     });
     it('should render correctly in theme selection mode', () => {
         const settings = createMockSettings();
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: settings, children: _jsx(KeypressProvider, { kittyProtocolEnabled: false, children: _jsx(ThemeDialog, { ...baseProps, settings }) }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: settings, children: _jsx(KeypressProvider, { kittyProtocolEnabled: false, children: _jsx(ThemeDialog, { ...baseProps, settings: settings }) }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('should render correctly in scope selector mode', async () => {
         const settings = createMockSettings();
-        const { lastFrame, stdin } = render(_jsx(SettingsContext.Provider, { value: settings, children: _jsx(KeypressProvider, { kittyProtocolEnabled: false, children: _jsx(ThemeDialog, { ...baseProps, settings }) }) }));
+        const { lastFrame, stdin } = render(_jsx(SettingsContext.Provider, { value: settings, children: _jsx(KeypressProvider, { kittyProtocolEnabled: false, children: _jsx(ThemeDialog, { ...baseProps, settings: settings }) }) }));
         // Press Tab to switch to scope selector mode
         act(() => {
             stdin.write('\t');

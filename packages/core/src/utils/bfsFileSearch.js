@@ -3,13 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 // Simple console logger for now.
 // TODO: Integrate with a more robust server-side logger.
 const logger = {
-     
     debug: (...args) => console.debug('[DEBUG] [BfsFileSearch]', ...args),
 };
 /**

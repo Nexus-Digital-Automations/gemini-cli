@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import mock from 'mock-fs';
 import * as path from 'node:path';

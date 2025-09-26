@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Tracks user activity state to determine when memory monitoring should be active.
  *
@@ -27,39 +26,39 @@
  * ```
  */
 export declare class ActivityDetector {
-  private lastActivityTime;
-  private readonly idleThresholdMs;
-  /**
-   * Creates a new ActivityDetector instance.
-   *
-   * @param idleThresholdMs - Milliseconds of inactivity before user is considered idle (default: 30 seconds)
-   */
-  constructor(idleThresholdMs?: number);
-  /**
-   * Record user activity (called by CLI when user types, adds messages, etc.).
-   *
-   * Updates the last activity timestamp to the current time, resetting the idle timer.
-   * Should be called on any meaningful user interaction.
-   */
-  recordActivity(): void;
-  /**
-   * Check if user is currently active (activity within idle threshold).
-   *
-   * @returns True if user activity occurred within the idle threshold, false otherwise
-   */
-  isUserActive(): boolean;
-  /**
-   * Get time since last activity in milliseconds.
-   *
-   * @returns Milliseconds elapsed since the last recorded activity
-   */
-  getTimeSinceLastActivity(): number;
-  /**
-   * Get last activity timestamp.
-   *
-   * @returns Unix timestamp (milliseconds) of the last recorded activity
-   */
-  getLastActivityTime(): number;
+    private lastActivityTime;
+    private readonly idleThresholdMs;
+    /**
+     * Creates a new ActivityDetector instance.
+     *
+     * @param idleThresholdMs - Milliseconds of inactivity before user is considered idle (default: 30 seconds)
+     */
+    constructor(idleThresholdMs?: number);
+    /**
+     * Record user activity (called by CLI when user types, adds messages, etc.).
+     *
+     * Updates the last activity timestamp to the current time, resetting the idle timer.
+     * Should be called on any meaningful user interaction.
+     */
+    recordActivity(): void;
+    /**
+     * Check if user is currently active (activity within idle threshold).
+     *
+     * @returns True if user activity occurred within the idle threshold, false otherwise
+     */
+    isUserActive(): boolean;
+    /**
+     * Get time since last activity in milliseconds.
+     *
+     * @returns Milliseconds elapsed since the last recorded activity
+     */
+    getTimeSinceLastActivity(): number;
+    /**
+     * Get last activity timestamp.
+     *
+     * @returns Unix timestamp (milliseconds) of the last recorded activity
+     */
+    getLastActivityTime(): number;
 }
 /**
  * Get global activity detector instance.

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { escapePath, unescapePath, isSubpath } from './paths.js';
 describe('escapePath', () => {

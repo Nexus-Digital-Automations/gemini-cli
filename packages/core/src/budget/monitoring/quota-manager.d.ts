@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Quota management and rate limiting system
  * Provides comprehensive quota tracking, rate limiting, and usage control
@@ -214,11 +213,51 @@ export declare class QuotaManager extends EventEmitter {
      * Apply throttling logic
      */
     private applyThrottling;
-    /**
-     * Handle quota violation
-     */
     private handleQuotaViolation;
-    default: break;
+    /**
+     * Initialize default quota limits
+     */
+    private initializeQuotaLimits;
+    /**
+     * Initialize rate limiters
+     */
+    private initializeRateLimiters;
+    /**
+     * Initialize quota usage tracking
+     */
+    private initializeQuotaUsage;
+    /**
+     * Update quota usage for a limit
+     */
+    private updateQuotaUsage;
+    /**
+     * Update usage window based on reset behavior
+     */
+    private updateUsageWindow;
+    /**
+     * Check if limit applies to request type
+     */
+    private isLimitApplicable;
+    /**
+     * Get default quota limits
+     */
+    private getDefaultLimits;
+    /**
+     * Get default rate limit configuration
+     */
+    private getDefaultRateLimitConfig;
+    /**
+     * Get default throttle configuration
+     */
+    private getDefaultThrottleConfig;
+    /**
+     * Emit budget event
+     */
+    private emitBudgetEvent;
+    /**
+     * Get event severity based on type
+     */
+    private getEventSeverity;
 }
 /**
  * Create a new QuotaManager instance

@@ -3,14 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
 /**
  * Failure handling strategy types
  */
-export var FailureHandlingStrategy;
+export let FailureHandlingStrategy;
 (function (FailureHandlingStrategy) {
     FailureHandlingStrategy["IMMEDIATE_RETRY"] = "immediate-retry";
     FailureHandlingStrategy["EXPONENTIAL_BACKOFF"] = "exponential-backoff";
@@ -309,7 +308,7 @@ export class ValidationFailureHandler extends EventEmitter {
     /**
      * Execute circuit breaker strategy
      */
-    async executeCircuitBreaker(operation, context, failureRecord) {
+    async executeCircuitBreaker(operation, context, _failureRecord) {
         const circuitKey = this.getCircuitBreakerKey(context);
         const circuitBreaker = this.getOrCreateCircuitBreaker(circuitKey);
         // Check circuit breaker state
@@ -421,7 +420,7 @@ export class ValidationFailureHandler extends EventEmitter {
         try {
             return await originalOperation();
         }
-        catch (escalationError) {
+        catch (_escalationError) {
             // If escalation doesn't resolve, continue with exponential backoff
             return await this.executeExponentialBackoff(originalOperation, failureRecord);
         }
@@ -429,7 +428,7 @@ export class ValidationFailureHandler extends EventEmitter {
     /**
      * Determine appropriate handling strategy
      */
-    determineHandlingStrategy(error, context) {
+    determineHandlingStrategy(error, _context) {
         // Check severity-based strategy
         if ('severity' in error && error.severity) {
             const severityStrategy = this.config.severityStrategies[error.severity];
@@ -489,7 +488,7 @@ export class ValidationFailureHandler extends EventEmitter {
     /**
      * Update failure metrics
      */
-    updateMetrics(error, context) {
+    updateMetrics(error, _context) {
         if (!this.config.monitoring.trackMetrics) {
             return;
         }
@@ -546,7 +545,7 @@ export class ValidationFailureHandler extends EventEmitter {
     /**
      * Check if fallback should be used
      */
-    shouldUseFallback(error, context) {
+    shouldUseFallback(error, _context) {
         return this.config.fallbackConfig.conditions.some((condition) => {
             if ('severity' in error && error.severity !== condition.severity) {
                 return false;
@@ -584,7 +583,7 @@ export class ValidationFailureHandler extends EventEmitter {
     /**
      * Execute alternative operation for fallback
      */
-    async executeAlternative(context, config) {
+    async executeAlternative(_context, _config) {
         // This would execute an alternative validation method
         throw new Error('Alternative execution not implemented');
     }
@@ -638,7 +637,7 @@ export class ValidationFailureHandler extends EventEmitter {
         this.recoveryOperations.set('restart', {
             id: 'restart',
             name: 'Restart Operation',
-            execute: async (context, error) => {
+            execute: async (_context, _error) => {
                 this.logger.info('Executing restart recovery operation');
                 // Implementation would restart the operation
                 return true;
@@ -648,7 +647,7 @@ export class ValidationFailureHandler extends EventEmitter {
         this.recoveryOperations.set('reset', {
             id: 'reset',
             name: 'Reset State',
-            execute: async (context, error) => {
+            execute: async (_context, _error) => {
                 this.logger.info('Executing reset recovery operation');
                 // Implementation would reset validation state
                 return true;
@@ -658,7 +657,7 @@ export class ValidationFailureHandler extends EventEmitter {
         this.recoveryOperations.set('cleanup', {
             id: 'cleanup',
             name: 'Cleanup Resources',
-            execute: async (context, error) => {
+            execute: async (_context, _error) => {
                 this.logger.info('Executing cleanup recovery operation');
                 // Implementation would cleanup resources
                 return true;

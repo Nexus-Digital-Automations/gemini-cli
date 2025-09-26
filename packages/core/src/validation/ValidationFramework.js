@@ -3,13 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 /**
  * Validation severity levels for different types of validation failures
  */
-export var ValidationSeverity;
+export let ValidationSeverity;
 (function (ValidationSeverity) {
     ValidationSeverity["INFO"] = "info";
     ValidationSeverity["WARNING"] = "warning";
@@ -19,7 +18,7 @@ export var ValidationSeverity;
 /**
  * Validation status for tracking validation states
  */
-export var ValidationStatus;
+export let ValidationStatus;
 (function (ValidationStatus) {
     ValidationStatus["PENDING"] = "pending";
     ValidationStatus["RUNNING"] = "running";
@@ -30,7 +29,7 @@ export var ValidationStatus;
 /**
  * Validation rule category for organizing validation types
  */
-export var ValidationCategory;
+export let ValidationCategory;
 (function (ValidationCategory) {
     ValidationCategory["SYNTAX"] = "syntax";
     ValidationCategory["LOGIC"] = "logic";
@@ -166,7 +165,7 @@ export class ValidationFramework extends EventEmitter {
     /**
      * Get applicable validation rules for the context
      */
-    getApplicableRules(context) {
+    getApplicableRules(_context) {
         return this.getRules().filter((rule) => {
             // Check if rule is enabled
             if (!rule.enabled) {

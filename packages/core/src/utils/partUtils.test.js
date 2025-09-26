@@ -3,12 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect } from 'vitest';
 import { partToString, getResponseText, flatMapTextParts, appendToLastTextPart, } from './partUtils.js';
 const mockResponse = (parts) => ({
     candidates: parts
-        ? [{ content: { parts, role: 'model' }, index: 0 }]
+        ? [{ content: { parts: parts, role: 'model' }, index: 0 }]
         : [],
     promptFeedback: { safetyRatings: [] },
     text: undefined,

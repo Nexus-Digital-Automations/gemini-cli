@@ -3,8 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type { z } from 'zod';
 import type { TaskId, Task, TaskDependency } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
 /**
@@ -152,6 +150,31 @@ export declare class DecisionDependencyGraph {
      * Generate graph optimizations based on analysis
      */
     generateOptimizations(context?: DecisionContext): GraphOptimization[];
+    /**
+     * Calculate graph flexibility score
+     */
+    getFlexibilityScore(): number;
+    /**
+     * Perform what-if analysis for dependency changes
+     */
+    analyzeWhatIf(changes: Array<{
+        type: 'add' | 'remove' | 'modify';
+        dependency: TaskDependency;
+        newConfidence?: number;
+    }>): {
+        originalMetrics: Record<string, unknown>;
+        projectedMetrics: Record<string, unknown>;
+        impact: {
+            timeChange: number;
+            riskChange: number;
+            flexibilityChange: number;
+        };
+        recommendations: string[];
+    };
+    /**
+     * Export graph in various formats for visualization and analysis
+     */
+    exportGraph(format: 'dot' | 'json' | 'cytoscape' | 'dagre'): string;
     private calculateImpactScore;
     private determineCriticality;
     private calculateFlexibility;
@@ -207,152 +230,5 @@ export declare class DecisionDependencyGraph {
 /**
  * Zod schemas for validation
  */
-export declare const DecisionDependencyNodeSchema: z.ZodObject<{
-    taskId: z.ZodString;
-    dependencies: z.ZodArray<z.ZodString, "many">;
-    dependents: z.ZodArray<z.ZodString, "many">;
-    dependencyRelations: z.ZodArray<z.ZodAny, "many">;
-    decisionMetadata: z.ZodObject<{
-        impactScore: z.ZodNumber;
-        criticality: z.ZodEnum<["low", "medium", "high", "critical"]>;
-        flexibility: z.ZodNumber;
-        delayCost: z.ZodNumber;
-        dependencyConfidence: z.ZodMap<z.ZodString, z.ZodNumber>;
-    }, "strip", z.ZodTypeAny, {
-        impactScore: number;
-        criticality: "critical" | "low" | "medium" | "high";
-        flexibility: number;
-        delayCost: number;
-        dependencyConfidence: Map<string, number>;
-    }, {
-        impactScore: number;
-        criticality: "critical" | "low" | "medium" | "high";
-        flexibility: number;
-        delayCost: number;
-        dependencyConfidence: Map<string, number>;
-    }>;
-    traversalMetadata: z.ZodObject<{
-        visited: z.ZodOptional<z.ZodBoolean>;
-        processing: z.ZodOptional<z.ZodBoolean>;
-        depth: z.ZodOptional<z.ZodNumber>;
-        topologicalOrder: z.ZodOptional<z.ZodNumber>;
-        pathCost: z.ZodOptional<z.ZodNumber>;
-        heuristic: z.ZodOptional<z.ZodNumber>;
-    }, "strip", z.ZodTypeAny, {
-        visited?: boolean | undefined;
-        processing?: boolean | undefined;
-        depth?: number | undefined;
-        topologicalOrder?: number | undefined;
-        pathCost?: number | undefined;
-        heuristic?: number | undefined;
-    }, {
-        visited?: boolean | undefined;
-        processing?: boolean | undefined;
-        depth?: number | undefined;
-        topologicalOrder?: number | undefined;
-        pathCost?: number | undefined;
-        heuristic?: number | undefined;
-    }>;
-}, "strip", z.ZodTypeAny, {
-    taskId: string;
-    dependencies: string[];
-    dependents: string[];
-    dependencyRelations: any[];
-    decisionMetadata: {
-        impactScore: number;
-        criticality: "critical" | "low" | "medium" | "high";
-        flexibility: number;
-        delayCost: number;
-        dependencyConfidence: Map<string, number>;
-    };
-    traversalMetadata: {
-        visited?: boolean | undefined;
-        processing?: boolean | undefined;
-        depth?: number | undefined;
-        topologicalOrder?: number | undefined;
-        pathCost?: number | undefined;
-        heuristic?: number | undefined;
-    };
-}, {
-    taskId: string;
-    dependencies: string[];
-    dependents: string[];
-    dependencyRelations: any[];
-    decisionMetadata: {
-        impactScore: number;
-        criticality: "critical" | "low" | "medium" | "high";
-        flexibility: number;
-        delayCost: number;
-        dependencyConfidence: Map<string, number>;
-    };
-    traversalMetadata: {
-        visited?: boolean | undefined;
-        processing?: boolean | undefined;
-        depth?: number | undefined;
-        topologicalOrder?: number | undefined;
-        pathCost?: number | undefined;
-        heuristic?: number | undefined;
-    };
-}>;
-export declare const GraphOptimizationSchema: z.ZodObject<{
-    type: z.ZodEnum<["remove_edge", "add_edge", "split_node", "merge_nodes", "reorder_execution"]>;
-    description: z.ZodString;
-    targets: z.ZodObject<{
-        tasks: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        edges: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        tasks?: string[] | undefined;
-        edges?: any[] | undefined;
-    }, {
-        tasks?: string[] | undefined;
-        edges?: any[] | undefined;
-    }>;
-    benefits: z.ZodObject<{
-        timeReduction: z.ZodNumber;
-        resourceSavings: z.ZodNumber;
-        riskReduction: z.ZodNumber;
-        flexibilityIncrease: z.ZodNumber;
-    }, "strip", z.ZodTypeAny, {
-        timeReduction: number;
-        resourceSavings: number;
-        riskReduction: number;
-        flexibilityIncrease: number;
-    }, {
-        timeReduction: number;
-        resourceSavings: number;
-        riskReduction: number;
-        flexibilityIncrease: number;
-    }>;
-    complexity: z.ZodEnum<["low", "medium", "high"]>;
-    confidence: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
-    type: "remove_edge" | "add_edge" | "split_node" | "merge_nodes" | "reorder_execution";
-    description: string;
-    confidence: number;
-    complexity: "low" | "medium" | "high";
-    targets: {
-        tasks?: string[] | undefined;
-        edges?: any[] | undefined;
-    };
-    benefits: {
-        timeReduction: number;
-        resourceSavings: number;
-        riskReduction: number;
-        flexibilityIncrease: number;
-    };
-}, {
-    type: "remove_edge" | "add_edge" | "split_node" | "merge_nodes" | "reorder_execution";
-    description: string;
-    confidence: number;
-    complexity: "low" | "medium" | "high";
-    targets: {
-        tasks?: string[] | undefined;
-        edges?: any[] | undefined;
-    };
-    benefits: {
-        timeReduction: number;
-        resourceSavings: number;
-        riskReduction: number;
-        flexibilityIncrease: number;
-    };
-}>;
+export declare const DecisionDependencyNodeSchema: any;
+export declare const GraphOptimizationSchema: any;

@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-var Attribute;
+let Attribute;
 (function (Attribute) {
     Attribute[Attribute["inverse"] = 1] = "inverse";
     Attribute[Attribute["bold"] = 2] = "bold";
@@ -11,7 +11,7 @@ var Attribute;
     Attribute[Attribute["underline"] = 8] = "underline";
     Attribute[Attribute["dim"] = 16] = "dim";
 })(Attribute || (Attribute = {}));
-export var ColorMode;
+export let ColorMode;
 (function (ColorMode) {
     ColorMode[ColorMode["DEFAULT"] = 0] = "DEFAULT";
     ColorMode[ColorMode["PALETTE"] = 1] = "PALETTE";

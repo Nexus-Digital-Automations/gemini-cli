@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { Logger } from '../utils/logger.js';
 import { realTimeMonitoringSystem, } from './RealTimeMonitoringSystem.js';
@@ -36,14 +35,12 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     dashboardUpdateInterval;
     // Persistence paths
     layoutsPath;
-    preferencesPath;
     constructor() {
         super();
         this.logger = new Logger('EnhancedMonitoringDashboard');
         // Setup persistence paths
         const tempDir = path.join(process.cwd(), '.tmp', 'dashboard');
         this.layoutsPath = path.join(tempDir, 'dashboard-layouts.json');
-        this.preferencesPath = path.join(tempDir, 'dashboard-preferences.json');
         this.initializeDashboard();
     }
     /**

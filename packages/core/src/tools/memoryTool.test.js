@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MemoryTool, setGeminiMdFilename, getCurrentGeminiMdFilename, getAllGeminiMdFilenames, DEFAULT_CONTEXT_FILENAME, } from './memoryTool.js';
 import * as fs from 'node:fs/promises';
@@ -208,7 +207,7 @@ describe('MemoryTool', () => {
             memoryTool = new MemoryTool();
             // Clear the allowlist before each test
             const invocation = memoryTool.build({ fact: 'mock-fact' });
-             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             invocation.constructor.allowlist.clear();
             // Mock fs.readFile to return empty string (file doesn't exist)
             vi.mocked(fs.readFile).mockResolvedValue('');
@@ -237,7 +236,7 @@ describe('MemoryTool', () => {
             const memoryFilePath = path.join(os.homedir(), '.gemini', getCurrentGeminiMdFilename());
             const invocation = memoryTool.build(params);
             // Add the memory file to the allowlist
-             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             invocation.constructor.allowlist.add(memoryFilePath);
             const result = await invocation.shouldConfirmExecute(mockAbortSignal);
             expect(result).toBe(false);
@@ -254,7 +253,7 @@ describe('MemoryTool', () => {
                 await result.onConfirm(ToolConfirmationOutcome.ProceedAlways);
                 // Check that the memory file was added to the allowlist
                 expect(
-                 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 invocation.constructor.allowlist.has(memoryFilePath)).toBe(true);
             }
         });
@@ -268,7 +267,7 @@ describe('MemoryTool', () => {
             if (result && result.type === 'edit') {
                 // Simulate the onConfirm callback with different outcomes
                 await result.onConfirm(ToolConfirmationOutcome.ProceedOnce);
-                 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const allowlist = invocation.constructor.allowlist;
                 expect(allowlist.has(memoryFilePath)).toBe(false);
                 await result.onConfirm(ToolConfirmationOutcome.Cancel);

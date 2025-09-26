@@ -5,6 +5,8 @@
  */
 // Mock node:crypto for Vitest in jsdom environment
 import { vi } from 'vitest';
+// Import testing-library/jest-dom matchers (toBeInTheDocument, toBeVisible, etc.)
+import '@testing-library/jest-dom/vitest';
 vi.mock('node:crypto', () => ({
     randomUUID: vi.fn(() => 'mock-random-uuid'),
 }));

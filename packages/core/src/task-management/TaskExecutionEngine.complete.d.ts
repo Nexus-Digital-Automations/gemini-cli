@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { Config } from '../config/config.js';
 import type { Task, TaskType, TaskStatus, TaskPriority } from './TaskExecutionEngine.js';
 /**
@@ -94,6 +93,16 @@ export declare class TaskExecutionEngine {
      * Gets default execution time based on complexity
      */
     private getDefaultExecutionTime;
+    /**
+     * Queues a new task for execution with intelligent breakdown
+     */
+    queueTask(title: string, description: string, options?: Partial<{
+        type: TaskType;
+        priority: TaskPriority;
+        expectedOutputs: Record<string, string>;
+        context: Record<string, unknown>;
+        maxExecutionTimeMinutes: number;
+    }>): Promise<string>;
     /**
      * Analyzes and breaks down a task asynchronously
      */

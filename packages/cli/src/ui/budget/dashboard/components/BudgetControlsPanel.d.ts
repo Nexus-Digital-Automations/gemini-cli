@@ -3,25 +3,24 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 import type { DashboardFilters } from '../types/index.js';
 /**
  * Props for the BudgetControlsPanel component.
  */
 interface BudgetControlsPanelProps {
-  /** Current dashboard filters */
-  filters: DashboardFilters;
-  /** Callback when filters are updated */
-  onUpdateFilters?: (filters: Partial<DashboardFilters>) => void;
-  /** Whether auto-refresh is enabled */
-  autoRefresh: boolean;
-  /** Callback to toggle auto-refresh */
-  onToggleAutoRefresh?: () => void;
-  /** Current refresh interval in seconds */
-  refreshInterval: number;
-  /** Callback to export dashboard data */
-  onExportData?: (format: 'json' | 'csv') => Promise<string>;
+    /** Current dashboard filters */
+    filters: DashboardFilters;
+    /** Callback when filters are updated */
+    onUpdateFilters?: (filters: Partial<DashboardFilters>) => void;
+    /** Whether auto-refresh is enabled */
+    autoRefresh: boolean;
+    /** Callback to toggle auto-refresh */
+    onToggleAutoRefresh?: () => void;
+    /** Current refresh interval in seconds */
+    refreshInterval: number;
+    /** Callback to export dashboard data */
+    onExportData?: (format: 'json' | 'csv') => Promise<string>;
 }
 /**
  * Budget Controls Panel Component

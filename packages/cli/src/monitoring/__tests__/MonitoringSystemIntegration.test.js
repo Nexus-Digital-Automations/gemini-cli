@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, beforeEach, afterEach, it, expect, vi, beforeAll, afterAll, } from 'vitest';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
@@ -109,18 +108,20 @@ describe('Monitoring System Integration Tests', () => {
             expect(integrationHub).toBeInstanceOf(EventEmitter);
             expect(taskStatusMonitor).toBeInstanceOf(EventEmitter);
         });
-        it('should establish cross-system event connectivity', (done) => {
+        it('should establish cross-system event connectivity', async () => {
             let eventCount = 0;
             const expectedEvents = 3;
-            integrationHub.on('cross-system:event', (event) => {
-                eventCount++;
-                expect(event).toHaveProperty('source');
-                expect(event).toHaveProperty('eventType');
-                expect(event).toHaveProperty('timestamp');
-                expect(event).toHaveProperty('data');
-                if (eventCount >= expectedEvents) {
-                    done();
-                }
+            const eventPromise = new Promise((resolve) => {
+                integrationHub.on('cross-system:event', (event) => {
+                    eventCount++;
+                    expect(event).toHaveProperty('source');
+                    expect(event).toHaveProperty('eventType');
+                    expect(event).toHaveProperty('timestamp');
+                    expect(event).toHaveProperty('data');
+                    if (eventCount >= expectedEvents) {
+                        resolve(event);
+                    }
+                });
             });
             // Trigger events from different systems
             taskStatusMonitor.registerTask('test-task-1', {
@@ -131,24 +132,30 @@ describe('Monitoring System Integration Tests', () => {
                 estimatedDuration: 30000,
             });
             // Record a performance metric
-            performanceAnalytics.recordMetric('test_metric', 100, 'milliseconds', 'response_time', { source: 'integration_test' });
+            performanceAnalytics.recordMetric('test_metric', 100, 'milliseconds', 'performance', // Fixed: changed from 'response_time' to valid category
+            { source: 'integration_test' });
             // Simulate real-time monitoring snapshot
             const snapshot = realTimeMonitoring.getCurrentSnapshot();
             expect(snapshot).toBeTruthy();
+            // Wait for events with timeout
+            const timeoutPromise = new Promise((resolve) => {
+                setTimeout(() => resolve(null), 5000);
+            });
+            await Promise.race([eventPromise, timeoutPromise]);
         });
         it('should synchronize data across monitoring systems', async () => {
             // Register some test data
-            const _taskId = taskStatusMonitor.registerTask('sync-test-task', {
+            taskStatusMonitor.registerTask('sync-test-task', {
                 title: 'Sync Test Task',
                 description: 'Task for testing data synchronization',
                 type: TaskType.TESTING,
                 priority: TaskPriority.HIGH,
                 estimatedDuration: 60000,
             });
-            const _agentId = taskStatusMonitor.registerAgent('test-agent-1', {
-                capabilities: ['testing', 'validation'],
-                maxConcurrentTasks: 3,
-            });
+            taskStatusMonitor.registerAgent('test-agent-1', [
+                'testing',
+                'validation',
+            ]);
             // Wait for synchronization
             await new Promise((resolve) => setTimeout(resolve, 1500));
             // Verify data is synchronized across systems
@@ -459,10 +466,10 @@ describe('Monitoring System Integration Tests', () => {
                     estimatedDuration: 20000,
                 }),
             ];
-            const agentId = taskStatusMonitor.registerAgent('aggregate-test-agent', {
-                capabilities: ['implementation', 'testing'],
-                maxConcurrentTasks: 2,
-            });
+            const agentId = taskStatusMonitor.registerAgent('aggregate-test-agent', [
+                'implementation',
+                'testing',
+            ]);
             // Complete some tasks
             taskStatusMonitor.updateTaskStatus(taskIds[0], {
                 status: TaskStatus.COMPLETED,
@@ -599,7 +606,7 @@ describe('Monitoring System Integration Tests', () => {
         it('should handle dashboard configuration export/import', async () => {
             // Create a test dashboard layout
             const layoutId = dashboard.createLayout('Export Test Layout', 'Layout for export testing');
-            const _widgetId = dashboard.addWidget(layoutId, {
+            dashboard.addWidget(layoutId, {
                 type: 'gauge',
                 title: 'Export Test Widget',
                 position: { x: 0, y: 0, width: 4, height: 3 },
@@ -690,7 +697,7 @@ describe('Monitoring System Integration Tests', () => {
             // Simulate high load with concurrent operations
             for (let i = 0; i < 50; i++) {
                 operations.push(Promise.resolve().then(() => {
-                    const _taskId = taskStatusMonitor.registerTask(`load-test-task-${i}`, {
+                    taskStatusMonitor.registerTask(`load-test-task-${i}`, {
                         title: `Load Test Task ${i}`,
                         type: TaskType.IMPLEMENTATION,
                         priority: TaskPriority.NORMAL,

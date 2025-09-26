@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -16,11 +10,11 @@ import { LoopDetectionConfirmation } from './LoopDetectionConfirmation.js';
 describe('LoopDetectionConfirmation', () => {
     const onComplete = vi.fn();
     it('renders correctly', () => {
-        const { lastFrame } = renderWithProviders(_jsx(LoopDetectionConfirmation, { onComplete }));
+        const { lastFrame } = renderWithProviders(_jsx(LoopDetectionConfirmation, { onComplete: onComplete }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('contains the expected options', () => {
-        const { lastFrame } = renderWithProviders(_jsx(LoopDetectionConfirmation, { onComplete }));
+        const { lastFrame } = renderWithProviders(_jsx(LoopDetectionConfirmation, { onComplete: onComplete }));
         const output = lastFrame().toString();
         expect(output).toContain('A potential loop was detected');
         expect(output).toContain('Keep loop detection enabled (esc)');

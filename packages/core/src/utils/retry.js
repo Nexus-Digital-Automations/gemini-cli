@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { AuthType } from '../core/contentGenerator.js';
 import { isProQuotaExceededError, isGenericQuotaExceededError, } from './quotaErrorDetection.js';
 const DEFAULT_RETRY_OPTIONS = {

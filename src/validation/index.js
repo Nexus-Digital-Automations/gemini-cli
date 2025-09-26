@@ -3,14 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { AutomaticValidationSystem } from './AutomaticValidationSystem.js';
 import { validateTaskCompletion } from './ValidationIntegration.js';
 import { spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile, access } from 'node:fs/promises';
 import { join } from 'node:path';
-
 /**
  * Automatic Validation System - Main Export Module
  *

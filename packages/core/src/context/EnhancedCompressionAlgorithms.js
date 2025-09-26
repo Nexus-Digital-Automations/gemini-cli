@@ -19,7 +19,7 @@ const logger = getComponentLogger('enhanced-compression-algorithms');
 /**
  * Extended content type categories for compression optimization
  */
-export var ContentTypeCategory;
+export let ContentTypeCategory;
 (function (ContentTypeCategory) {
     ContentTypeCategory["JAVASCRIPT_CODE"] = "javascript_code";
     ContentTypeCategory["TYPESCRIPT_CODE"] = "typescript_code";
@@ -761,344 +761,301 @@ export class EnhancedCompressionAlgorithms {
             strategy,
         };
     }
-    default;
-}
-clusterSimilarFunctions(code, string);
-string;
-{
-    // Group similar function patterns and represent them more efficiently
-    const functions = code.match(/function\s+\w+\([^)]*\)\s*\{[^}]*\}/g) || [];
-    const clusters = new Map();
-    for (const func of functions) {
-        const signature = func.match(/function\s+(\w+)\(([^)]*)\)/)?.[0] || '';
-        const pattern = signature.replace(/\w+/g, 'X'); // Generalize names
-        if (!clusters.has(pattern))
-            clusters.set(pattern, []);
-        clusters.get(pattern).push(func);
-    }
-    // Replace clustered functions with representatives
-    let compressed = code;
-    for (const [pattern, funcs] of clusters.entries()) {
-        if (funcs.length > 2) {
-            const representative = funcs[0];
-            const others = funcs.slice(1);
-            for (const func of others) {
-                compressed = compressed.replace(func, `// Similar to above (${funcs.length} total)`);
-            }
+    // Helper methods for specific compression techniques
+    clusterSimilarFunctions(code) {
+        // Group similar function patterns and represent them more efficiently
+        const functions = code.match(/function\s+\w+\([^)]*\)\s*\{[^}]*\}/g) || [];
+        const clusters = new Map();
+        for (const func of functions) {
+            const signature = func.match(/function\s+(\w+)\(([^)]*)\)/)?.[0] || '';
+            const pattern = signature.replace(/\w+/g, 'X'); // Generalize names
+            if (!clusters.has(pattern))
+                clusters.set(pattern, []);
+            clusters.get(pattern).push(func);
         }
-    }
-    return compressed;
-}
-compressJsonProgressively(data, unknown, targetRatio, number, originalTokens, number);
-string;
-{
-    const priorityFields = [
-        'id',
-        'name',
-        'type',
-        'value',
-        'error',
-        'message',
-        'status',
-    ];
-    if (Array.isArray(data)) {
-        // For arrays, keep representative samples
-        const sampleSize = Math.max(2, Math.floor(data.length * targetRatio));
-        const samples = data.slice(0, sampleSize);
-        if (samples.length < data.length) {
-            samples.push(`... ${data.length - samples.length} more items`);
-        }
-        return JSON.stringify(samples);
-    }
-    else if (typeof data === 'object' && data !== null) {
-        // For objects, prioritize important fields
-        const compressed = {};
-        const entries = Object.entries(data);
-        // Add priority fields first
-        for (const [key, value] of entries) {
-            if (priorityFields.includes(key.toLowerCase())) {
-                compressed[key] = value;
-            }
-        }
-        // Add remaining fields up to target ratio
-        const remaining = entries.filter(([key]) => !priorityFields.includes(key.toLowerCase()));
-        const remainingCount = Math.floor(remaining.length * targetRatio);
-        for (let i = 0; i < remainingCount; i++) {
-            const [key, value] = remaining[i];
-            compressed[key] = value;
-        }
-        return JSON.stringify(compressed);
-    }
-    return JSON.stringify(data);
-}
-extractJsonConcepts(data, unknown);
-string[];
-{
-    const concepts = [];
-    const extract = (obj, path = '') => {
-        if (typeof obj === 'object' && obj !== null) {
-            for (const [key, value] of Object.entries(obj)) {
-                concepts.push(key);
-                if (typeof value === 'object') {
-                    extract(value, `${path}.${key}`);
+        // Replace clustered functions with representatives
+        let compressed = code;
+        for (const [pattern, funcs] of clusters.entries()) {
+            if (funcs.length > 2) {
+                const representative = funcs[0];
+                const others = funcs.slice(1);
+                for (const func of others) {
+                    compressed = compressed.replace(func, `// Similar to above (${funcs.length} total)`);
                 }
             }
         }
-    };
-    extract(data);
-    return Array.from(new Set(concepts));
-}
-extractErrorConcepts(content, string);
-string[];
-{
-    const errorPatterns = [
-        /Error:\s*(.+)/gi,
-        /Exception:\s*(.+)/gi,
-        /Failed:\s*(.+)/gi,
-        /\bat\s+([^(]+)/gi,
-        /File\s+"([^"]+)"/gi,
-    ];
-    const concepts = [];
-    for (const pattern of errorPatterns) {
-        const matches = content.matchAll(pattern);
-        for (const match of matches) {
-            if (match[1])
-                concepts.push(match[1].trim());
+        return compressed;
+    }
+    compressJsonProgressively(data, targetRatio, originalTokens) {
+        const priorityFields = [
+            'id',
+            'name',
+            'type',
+            'value',
+            'error',
+            'message',
+            'status',
+        ];
+        if (Array.isArray(data)) {
+            // For arrays, keep representative samples
+            const sampleSize = Math.max(2, Math.floor(data.length * targetRatio));
+            const samples = data.slice(0, sampleSize);
+            if (samples.length < data.length) {
+                samples.push(`... ${data.length - samples.length} more items`);
+            }
+            return JSON.stringify(samples);
         }
-    }
-    return Array.from(new Set(concepts));
-}
-isImportantExchange(conversations, (Array));
-boolean;
-{
-    const importantKeywords = [
-        'error',
-        'problem',
-        'issue',
-        'bug',
-        'fix',
-        'solution',
-        'implement',
-        'create',
-        'build',
-        'test',
-        'deploy',
-        'question',
-        'help',
-        'explain',
-        'how',
-        'what',
-        'why',
-    ];
-    const content = conversations.map((c) => c.content.toLowerCase()).join(' ');
-    return importantKeywords.some((keyword) => content.includes(keyword));
-}
-summarizeConversationBatch(conversations, (Array));
-string;
-{
-    const topics = conversations.map((c) => {
-        const words = c.content.split(' ').filter((w) => w.length > 4);
-        return words.slice(0, 3).join(' ');
-    });
-    return `Discussion about ${topics.join(', ')}`;
-}
-extractConversationConcepts(content, string);
-string[];
-{
-    const actionWords = content.match(/\b(implement|create|fix|build|test|deploy|analyze|review|update|remove)\b/gi) || [];
-    return Array.from(new Set(actionWords.map((word) => word.toLowerCase())));
-}
-extractHtmlConcepts(content, string);
-string[];
-{
-    const tags = content.match(/<(\w+)[^>]*>/g) || [];
-    const tagNames = tags
-        .map((tag) => tag.match(/<(\w+)/)?.[1] || '')
-        .filter(Boolean);
-    return Array.from(new Set(tagNames));
-}
-summarizeMarkdownSection(content, string);
-string;
-{
-    const sentences = content
-        .split(/[.!?]+/)
-        .filter((s) => s.trim().length > 10);
-    if (sentences.length <= 2)
-        return content.trim();
-    // Keep first and last sentence, or most important ones
-    const firstSentence = sentences[0].trim() + '.';
-    const lastSentence = sentences[sentences.length - 1].trim() + '.';
-    if (sentences.length > 3) {
-        return `${firstSentence} ... ${lastSentence}`;
-    }
-    else {
-        return sentences.join('. ').trim() + '.';
-    }
-}
-applySummarization(content, string, targetRatio, number);
-string;
-{
-    const sentences = content
-        .split(/[.!?]+/)
-        .filter((s) => s.trim().length > 5);
-    const targetCount = Math.max(1, Math.floor(sentences.length * targetRatio));
-    // Keep most important sentences (first, last, and longest ones)
-    const selected = [];
-    if (sentences.length > 0)
-        selected.push(sentences[0]);
-    if (sentences.length > 1 && selected.length < targetCount) {
-        selected.push(sentences[sentences.length - 1]);
-    }
-    // Add longest sentences up to target
-    const remaining = sentences
-        .filter((s) => !selected.includes(s))
-        .sort((a, b) => b.length - a.length);
-    while (selected.length < targetCount && remaining.length > 0) {
-        selected.push(remaining.shift());
-    }
-    return selected.join('. ').trim() + '.';
-}
-applyKeywordExtraction(content, string, targetRatio, number);
-string;
-{
-    const words = content.split(/\s+/);
-    const targetCount = Math.max(10, Math.floor(words.length * targetRatio));
-    // Extract important words (longer, non-common words)
-    const importantWords = words
-        .filter((word) => word.length > 3 &&
-        !/^(the|and|for|are|but|not|you|all|can|has|had|her|was|one|our|out|day|get|use|man|new|now|old|see|him|two|how|its|who|oil|sit|did)$/.test(word.toLowerCase()))
-        .slice(0, targetCount);
-    return importantWords.join(' ');
-}
-applySemanticClustering(content, string, targetRatio, number);
-string;
-{
-    const paragraphs = content
-        .split(/\n\s*\n/)
-        .filter((p) => p.trim().length > 0);
-    const targetCount = Math.max(1, Math.floor(paragraphs.length * targetRatio));
-    // Simple clustering by paragraph similarity (basic approach)
-    const selected = paragraphs
-        .sort((a, b) => b.length - a.length) // Prefer longer paragraphs
-        .slice(0, targetCount);
-    return selected.join('\n\n');
-}
-applyProgressiveDetailReduction(content, string, targetRatio, number);
-string;
-{
-    let compressed = content;
-    // Step 1: Remove extra whitespace
-    compressed = compressed.replace(/\s+/g, ' ').trim();
-    // Step 2: Remove parenthetical remarks
-    compressed = compressed.replace(/\([^)]+\)/g, '');
-    // Step 3: If still too long, truncate with summary
-    const currentRatio = compressed.length / content.length;
-    if (currentRatio > targetRatio) {
-        const targetLength = Math.floor(content.length * targetRatio);
-        compressed =
-            compressed.substring(0, targetLength - 20) + '... [truncated]';
-    }
-    return compressed;
-}
-calculateQualityScore(result, CompressionResult, analysis, ContentTypeAnalysis);
-number;
-{
-    let quality = 1.0;
-    // Penalize high information loss
-    quality -= result.informationLoss * 0.3;
-    // Reward good compression ratio
-    if (result.compressionRatio < 0.8)
-        quality += 0.1;
-    if (result.compressionRatio < 0.6)
-        quality += 0.1;
-    // Reward preserved concepts
-    const conceptRatio = result.preservedConcepts.length /
-        Math.max(1, analysis.characteristics.keyConcepts.length);
-    quality += conceptRatio * 0.2;
-    return Math.max(0, Math.min(1.0, quality));
-}
-calculateInformationLoss(original, string, compressed, string);
-number;
-{
-    const originalWords = new Set(original.toLowerCase().split(/\s+/));
-    const compressedWords = new Set(compressed.toLowerCase().split(/\s+/));
-    let lostWords = 0;
-    for (const word of originalWords) {
-        if (!compressedWords.has(word))
-            lostWords++;
-    }
-    return originalWords.size > 0 ? lostWords / originalWords.size : 0;
-}
-extractCriticalElements(original, string, compressed, string);
-string[];
-{
-    const criticalPatterns = [
-        /\b(error|exception|failed|success|warning|critical)\b/gi,
-        /\b(function|class|interface|type)\s+\w+/gi,
-        /\b(import|export|require)\b[^;]+/gi,
-        /\b(TODO|FIXME|NOTE|WARNING)\b[^:\n]*/gi,
-    ];
-    const elements = [];
-    for (const pattern of criticalPatterns) {
-        const matches = compressed.matchAll(pattern);
-        for (const match of matches) {
-            elements.push(match[0]);
+        else if (typeof data === 'object' && data !== null) {
+            // For objects, prioritize important fields
+            const compressed = {};
+            const entries = Object.entries(data);
+            // Add priority fields first
+            for (const [key, value] of entries) {
+                if (priorityFields.includes(key.toLowerCase())) {
+                    compressed[key] = value;
+                }
+            }
+            // Add remaining fields up to target ratio
+            const remaining = entries.filter(([key]) => !priorityFields.includes(key.toLowerCase()));
+            const remainingCount = Math.floor(remaining.length * targetRatio);
+            for (let i = 0; i < remainingCount; i++) {
+                const [key, value] = remaining[i];
+                compressed[key] = value;
+            }
+            return JSON.stringify(compressed);
         }
+        return JSON.stringify(data);
     }
-    return Array.from(new Set(elements));
-}
-estimateTokenCount(text, string);
-number;
-{
-    // Rough token estimation: ~4 characters per token on average
-    return Math.ceil(text.length / 4);
-}
-trackPerformanceMetrics(contentType, ContentTypeCategory, processingTime, number);
-void {
-    const: key = contentType,
-    : .performanceMetrics.has(key)
-};
-{
-    this.performanceMetrics.set(key, []);
-}
-const metrics = this.performanceMetrics.get(key);
-metrics.push(processingTime);
-// Keep last 100 measurements
-if (metrics.length > 100) {
-    metrics.shift();
-}
-// Log performance summary every 10 measurements
-if (metrics.length % 10 === 0) {
-    const avg = metrics.reduce((sum, time) => sum + time, 0) / metrics.length;
-    logger.debug('Performance metrics updated', {
-        contentType,
-        averageProcessingTime: avg.toFixed(2),
-        measurements: metrics.length,
-    });
-}
-/**
- * Get performance statistics
- */
-getPerformanceStats();
-Record <
-    string,
-    { average: number, count: number, latest: number }
-        > {
-            const: stats, Record() { average: number; count: number; latest: number; }
-        }
-        > ;
-{ }
-;
-for (const [type, measurements] of this.performanceMetrics.entries()) {
-    if (measurements.length > 0) {
-        const average = measurements.reduce((sum, time) => sum + time, 0) /
-            measurements.length;
-        stats[type] = {
-            average: Number(average.toFixed(2)),
-            count: measurements.length,
-            latest: Number(measurements[measurements.length - 1].toFixed(2)),
+    extractJsonConcepts(data) {
+        const concepts = [];
+        const extract = (obj, path = '') => {
+            if (typeof obj === 'object' && obj !== null) {
+                for (const [key, value] of Object.entries(obj)) {
+                    concepts.push(key);
+                    if (typeof value === 'object') {
+                        extract(value, `${path}.${key}`);
+                    }
+                }
+            }
         };
+        extract(data);
+        return Array.from(new Set(concepts));
+    }
+    extractErrorConcepts(content) {
+        const errorPatterns = [
+            /Error:\s*(.+)/gi,
+            /Exception:\s*(.+)/gi,
+            /Failed:\s*(.+)/gi,
+            /\bat\s+([^(]+)/gi,
+            /File\s+"([^"]+)"/gi,
+        ];
+        const concepts = [];
+        for (const pattern of errorPatterns) {
+            const matches = content.matchAll(pattern);
+            for (const match of matches) {
+                if (match[1])
+                    concepts.push(match[1].trim());
+            }
+        }
+        return Array.from(new Set(concepts));
+    }
+    isImportantExchange(conversations) {
+        const importantKeywords = [
+            'error',
+            'problem',
+            'issue',
+            'bug',
+            'fix',
+            'solution',
+            'implement',
+            'create',
+            'build',
+            'test',
+            'deploy',
+            'question',
+            'help',
+            'explain',
+            'how',
+            'what',
+            'why',
+        ];
+        const content = conversations.map((c) => c.content.toLowerCase()).join(' ');
+        return importantKeywords.some((keyword) => content.includes(keyword));
+    }
+    summarizeConversationBatch(conversations) {
+        const topics = conversations.map((c) => {
+            const words = c.content.split(' ').filter((w) => w.length > 4);
+            return words.slice(0, 3).join(' ');
+        });
+        return `Discussion about ${topics.join(', ')}`;
+    }
+    extractConversationConcepts(content) {
+        const actionWords = content.match(/\b(implement|create|fix|build|test|deploy|analyze|review|update|remove)\b/gi) || [];
+        return Array.from(new Set(actionWords.map((word) => word.toLowerCase())));
+    }
+    extractHtmlConcepts(content) {
+        const tags = content.match(/<(\w+)[^>]*>/g) || [];
+        const tagNames = tags
+            .map((tag) => tag.match(/<(\w+)/)?.[1] || '')
+            .filter(Boolean);
+        return Array.from(new Set(tagNames));
+    }
+    summarizeMarkdownSection(content) {
+        const sentences = content
+            .split(/[.!?]+/)
+            .filter((s) => s.trim().length > 10);
+        if (sentences.length <= 2)
+            return content.trim();
+        // Keep first and last sentence, or most important ones
+        const firstSentence = sentences[0].trim() + '.';
+        const lastSentence = sentences[sentences.length - 1].trim() + '.';
+        if (sentences.length > 3) {
+            return `${firstSentence} ... ${lastSentence}`;
+        }
+        else {
+            return sentences.join('. ').trim() + '.';
+        }
+    }
+    applySummarization(content, targetRatio) {
+        const sentences = content
+            .split(/[.!?]+/)
+            .filter((s) => s.trim().length > 5);
+        const targetCount = Math.max(1, Math.floor(sentences.length * targetRatio));
+        // Keep most important sentences (first, last, and longest ones)
+        const selected = [];
+        if (sentences.length > 0)
+            selected.push(sentences[0]);
+        if (sentences.length > 1 && selected.length < targetCount) {
+            selected.push(sentences[sentences.length - 1]);
+        }
+        // Add longest sentences up to target
+        const remaining = sentences
+            .filter((s) => !selected.includes(s))
+            .sort((a, b) => b.length - a.length);
+        while (selected.length < targetCount && remaining.length > 0) {
+            selected.push(remaining.shift());
+        }
+        return selected.join('. ').trim() + '.';
+    }
+    applyKeywordExtraction(content, targetRatio) {
+        const words = content.split(/\s+/);
+        const targetCount = Math.max(10, Math.floor(words.length * targetRatio));
+        // Extract important words (longer, non-common words)
+        const importantWords = words
+            .filter((word) => word.length > 3 &&
+            !/^(the|and|for|are|but|not|you|all|can|has|had|her|was|one|our|out|day|get|use|man|new|now|old|see|him|two|how|its|who|oil|sit|did)$/.test(word.toLowerCase()))
+            .slice(0, targetCount);
+        return importantWords.join(' ');
+    }
+    applySemanticClustering(content, targetRatio) {
+        const paragraphs = content
+            .split(/\n\s*\n/)
+            .filter((p) => p.trim().length > 0);
+        const targetCount = Math.max(1, Math.floor(paragraphs.length * targetRatio));
+        // Simple clustering by paragraph similarity (basic approach)
+        const selected = paragraphs
+            .sort((a, b) => b.length - a.length) // Prefer longer paragraphs
+            .slice(0, targetCount);
+        return selected.join('\n\n');
+    }
+    applyProgressiveDetailReduction(content, targetRatio) {
+        let compressed = content;
+        // Step 1: Remove extra whitespace
+        compressed = compressed.replace(/\s+/g, ' ').trim();
+        // Step 2: Remove parenthetical remarks
+        compressed = compressed.replace(/\([^)]+\)/g, '');
+        // Step 3: If still too long, truncate with summary
+        const currentRatio = compressed.length / content.length;
+        if (currentRatio > targetRatio) {
+            const targetLength = Math.floor(content.length * targetRatio);
+            compressed =
+                compressed.substring(0, targetLength - 20) + '... [truncated]';
+        }
+        return compressed;
+    }
+    calculateQualityScore(result, analysis) {
+        let quality = 1.0;
+        // Penalize high information loss
+        quality -= result.informationLoss * 0.3;
+        // Reward good compression ratio
+        if (result.compressionRatio < 0.8)
+            quality += 0.1;
+        if (result.compressionRatio < 0.6)
+            quality += 0.1;
+        // Reward preserved concepts
+        const conceptRatio = result.preservedConcepts.length /
+            Math.max(1, analysis.characteristics.keyConcepts.length);
+        quality += conceptRatio * 0.2;
+        return Math.max(0, Math.min(1.0, quality));
+    }
+    calculateInformationLoss(original, compressed) {
+        const originalWords = new Set(original.toLowerCase().split(/\s+/));
+        const compressedWords = new Set(compressed.toLowerCase().split(/\s+/));
+        let lostWords = 0;
+        for (const word of originalWords) {
+            if (!compressedWords.has(word))
+                lostWords++;
+        }
+        return originalWords.size > 0 ? lostWords / originalWords.size : 0;
+    }
+    extractCriticalElements(original, compressed) {
+        const criticalPatterns = [
+            /\b(error|exception|failed|success|warning|critical)\b/gi,
+            /\b(function|class|interface|type)\s+\w+/gi,
+            /\b(import|export|require)\b[^;]+/gi,
+            /\b(TODO|FIXME|NOTE|WARNING)\b[^:\n]*/gi,
+        ];
+        const elements = [];
+        for (const pattern of criticalPatterns) {
+            const matches = compressed.matchAll(pattern);
+            for (const match of matches) {
+                elements.push(match[0]);
+            }
+        }
+        return Array.from(new Set(elements));
+    }
+    estimateTokenCount(text) {
+        // Rough token estimation: ~4 characters per token on average
+        return Math.ceil(text.length / 4);
+    }
+    trackPerformanceMetrics(contentType, processingTime) {
+        const key = contentType;
+        if (!this.performanceMetrics.has(key)) {
+            this.performanceMetrics.set(key, []);
+        }
+        const metrics = this.performanceMetrics.get(key);
+        metrics.push(processingTime);
+        // Keep last 100 measurements
+        if (metrics.length > 100) {
+            metrics.shift();
+        }
+        // Log performance summary every 10 measurements
+        if (metrics.length % 10 === 0) {
+            const avg = metrics.reduce((sum, time) => sum + time, 0) / metrics.length;
+            logger.debug('Performance metrics updated', {
+                contentType,
+                averageProcessingTime: avg.toFixed(2),
+                measurements: metrics.length,
+            });
+        }
+    }
+    /**
+     * Get performance statistics
+     */
+    getPerformanceStats() {
+        const stats = {};
+        for (const [type, measurements] of this.performanceMetrics.entries()) {
+            if (measurements.length > 0) {
+                const average = measurements.reduce((sum, time) => sum + time, 0) /
+                    measurements.length;
+                stats[type] = {
+                    average: Number(average.toFixed(2)),
+                    count: measurements.length,
+                    latest: Number(measurements[measurements.length - 1].toFixed(2)),
+                };
+            }
+        }
+        return stats;
     }
 }
-return stats;
 //# sourceMappingURL=EnhancedCompressionAlgorithms.js.map

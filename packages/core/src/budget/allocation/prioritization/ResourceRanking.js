@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Default resource ranking configuration
  */
@@ -154,7 +153,7 @@ export class ResourceRanking {
             contextChanges,
         });
         // Update business context
-        const updatedConfig = {
+        const _updatedConfig = {
             ...this.config,
             businessContext: { ...this.config.businessContext, ...contextChanges },
         };
@@ -205,6 +204,7 @@ export class ResourceRanking {
                 break;
             case 'growth':
                 // Prioritize scalability and efficiency
+                // Force cache refresh
                 if (candidate.metadata.category === 'scalability')
                     score *= 1.2;
                 break;
@@ -217,6 +217,9 @@ export class ResourceRanking {
                 // Prioritize strategic initiatives
                 if (candidate.metadata.category === 'strategic')
                     score *= 1.25;
+                break;
+            default:
+                // No adjustment for unknown phases
                 break;
         }
         // Adjust based on strategic focus
@@ -233,7 +236,8 @@ export class ResourceRanking {
     calculateROIScore(candidate, historicalData) {
         if (historicalData.length === 0)
             return 50; // Default score
-        const avgROI = historicalData.reduce((sum, data) => sum + data.roi, 0) / historicalData.length;
+        const avgROI = historicalData.reduce((sum, data) => sum + data.roi, 0) /
+            historicalData.length;
         // Convert ROI to 0-100 score (ROI of 2.0 = 100 points)
         return Math.min(100, Math.max(0, avgROI * 50));
     }
@@ -274,6 +278,9 @@ export class ResourceRanking {
             case 'deferred':
                 score -= 20;
                 break;
+            default:
+                // No adjustment for unknown priorities
+                break;
         }
         return Math.min(100, Math.max(0, score));
     }
@@ -300,6 +307,9 @@ export class ResourceRanking {
             case 'low':
                 if (candidate.metadata.category === 'experimental')
                     score += 10;
+                break;
+            default:
+                // No adjustment for unknown competitive pressure levels
                 break;
         }
         // Factor in market conditions
@@ -433,7 +443,7 @@ export class ResourceRanking {
     /**
      * Generate ranking justification
      */
-    generateJustification(candidate, scoreBreakdown, historicalData) {
+    generateJustification(candidate, scoreBreakdown, _historicalData) {
         const primaryFactors = [];
         const supportingFactors = [];
         const riskConsiderations = [];
@@ -486,7 +496,8 @@ export class ResourceRanking {
         }
         // Increase confidence for consistent high performance
         if (historicalData.length > 10) {
-            const avgPerformance = historicalData.reduce((sum, data) => sum + data.businessValue, 0) / historicalData.length;
+            const avgPerformance = historicalData.reduce((sum, data) => sum + data.businessValue, 0) /
+                historicalData.length;
             if (avgPerformance > 80) {
                 confidence += 10;
             }
@@ -496,6 +507,7 @@ export class ResourceRanking {
     /**
      * Perform sensitivity analysis
      */
+    // Force cache refresh
     performSensitivityAnalysis(scoreBreakdown) {
         const influentialCriteria = Object.entries(scoreBreakdown.weightedContributions)
             .map(([criterion, contribution]) => ({
@@ -544,7 +556,7 @@ export class ResourceRanking {
     /**
      * Generate portfolio insights
      */
-    generatePortfolioInsights(rankings, candidates) {
+    generatePortfolioInsights(rankings, _candidates) {
         // Calculate priority distribution
         const priorityDistribution = {
             critical: rankings.filter((r) => r.priority === 'critical').length,

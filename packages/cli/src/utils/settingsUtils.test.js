@@ -3,9 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-/* eslint-env jest */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { 
 // Schema utilities
 getSettingsByCategory, getSettingDefinition, requiresRestart, getDefaultValue, getRestartRequiredSettings, getEffectiveValue, getAllSettingKeys, getSettingsByType, getSettingsRequiringRestart, isValidSettingKey, getSettingCategory, shouldShowInDialog, getDialogSettingsByCategory, getDialogSettingsByType, getDialogSettingKeys, 

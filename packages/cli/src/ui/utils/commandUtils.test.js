@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { isAtCommand, isSlashCommand, copyToClipboard, getUrlOpenCommand, } from './commandUtils.js';

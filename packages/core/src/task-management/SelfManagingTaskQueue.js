@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Self-Managing Task Queue with Intelligent Scheduling and Autonomous Optimization
  *
@@ -816,9 +815,6 @@ export class SelfManagingTaskQueue extends EventEmitter {
             this.realTimeMetrics.totalTasks > 0
                 ? this.realTimeMetrics.completedTasks / this.realTimeMetrics.totalTasks
                 : 0;
-            default:
-              // Handle unexpected values
-              break;
     }
     handleTaskCompletion(task, record, result) {
         // Release reserved resources

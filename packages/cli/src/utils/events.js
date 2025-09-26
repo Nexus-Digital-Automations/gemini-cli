@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-export var AppEvent;
+export let AppEvent;
 (function (AppEvent) {
     AppEvent["OpenDebugConsole"] = "open-debug-console";
     AppEvent["LogError"] = "log-error";

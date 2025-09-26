@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { AnyDeclarativeTool, AnyToolInvocation } from '../index.js';
 /**
  * Checks if a tool invocation matches any of a list of patterns.
@@ -17,8 +16,4 @@ import type { AnyDeclarativeTool, AnyToolInvocation } from '../index.js';
  *     invocations where the arguments start with that prefix.
  * @returns True if the invocation matches any pattern, false otherwise.
  */
-export declare function doesToolInvocationMatch(
-  toolOrToolName: AnyDeclarativeTool | string,
-  invocation: AnyToolInvocation,
-  patterns: string[],
-): boolean;
+export declare function doesToolInvocationMatch(toolOrToolName: AnyDeclarativeTool | string, invocation: AnyToolInvocation, patterns: string[]): boolean;

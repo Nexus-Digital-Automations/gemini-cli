@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { useKeypress } from './useKeypress.js';

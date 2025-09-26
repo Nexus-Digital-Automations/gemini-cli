@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import type { Arguments, CommandBuilder } from 'yargs';
+import type { CommandModule } from 'yargs';
 interface VisualizeArgs {
     format?: 'ascii' | 'json' | 'interactive';
     period?: 'day' | 'week' | 'month';
@@ -23,10 +23,5 @@ interface VisualizeArgs {
  * The command leverages the advanced analytics engine to provide
  * actionable insights for budget optimization and cost reduction.
  */
-export declare const visualizeCommand: {
-    command: string;
-    describe: string;
-    builder: CommandBuilder<VisualizeArgs, VisualizeArgs>;
-    handler: (args: Arguments<VisualizeArgs>) => Promise<void>;
-};
+export declare const visualizeCommand: CommandModule<object, VisualizeArgs>;
 export {};

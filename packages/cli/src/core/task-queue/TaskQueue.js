@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../utils/logger.js';
+import { WinstonStructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import { TaskStatus, TaskPriority, taskStatusMonitor, } from '../../monitoring/TaskStatusMonitor.js';
 import { statusUpdateBroker } from '../../monitoring/StatusUpdateBroker.js';
 /**
@@ -64,7 +64,9 @@ export class TaskQueue extends EventEmitter {
     };
     constructor() {
         super();
-        this.logger = new Logger('TaskQueue');
+        this.logger = new WinstonStructuredLogger().child({
+            component: 'TaskQueue',
+        });
         this.queuesByPriority = new Map();
         this.taskRegistry = new Map();
         this.agentRegistry = new Map();
@@ -168,7 +170,7 @@ export class TaskQueue extends EventEmitter {
     async updateAgentStatus(agentId, updates) {
         const agent = this.agentRegistry.get(agentId);
         if (!agent) {
-            this.logger.warning('Attempted to update unknown agent', { agentId });
+            this.logger.warn('Attempted to update unknown agent', { agentId });
             return;
         }
         // Merge updates
@@ -575,7 +577,7 @@ export class TaskQueue extends EventEmitter {
             this.logger.error('Failed to assign task to agent', {
                 taskId: task.id,
                 agentId: agent.agentId,
-                error,
+                error: error instanceof Error ? error : new Error(String(error)),
             });
             return null;
         }
@@ -637,7 +639,7 @@ export class TaskQueue extends EventEmitter {
             this.updateTaskCompletion(task.id);
         }
         else if (update.newStatus === TaskStatus.FAILED) {
-            this.handleTaskFailure(task.id, update.error?.message || 'Unknown error');
+            this.handleTaskFailure(task.id, update.error || new Error('Unknown error'));
         }
     }
     updateTaskCompletion(taskId) {
@@ -660,7 +662,7 @@ export class TaskQueue extends EventEmitter {
         setImmediate(() => this.processQueue());
     }
     handleTaskFailure(taskId, error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorInstance = error instanceof Error ? error : new Error(String(error));
         const currentFailures = this.failedTasks.get(taskId) || 0;
         this.failedTasks.set(taskId, currentFailures + 1);
         const task = this.taskRegistry.get(taskId);
@@ -680,7 +682,7 @@ export class TaskQueue extends EventEmitter {
                     taskId,
                     failureCount: currentFailures + 1,
                     maxRetries,
-                    error: errorMessage,
+                    error: errorInstance,
                 });
             }
         }
@@ -690,7 +692,7 @@ export class TaskQueue extends EventEmitter {
                 taskId,
                 failureCount: currentFailures + 1,
                 maxRetries,
-                error: errorMessage,
+                error: errorInstance,
             });
         }
         // Update agent status
@@ -723,7 +725,7 @@ export class TaskQueue extends EventEmitter {
             this.emit('queue:state-persisted', { queueState });
         }
         catch (error) {
-            this.logger.error('Failed to persist queue state', { error });
+            this.logger.error('Failed to persist queue state', { error: error instanceof Error ? error : new Error(String(error)) });
         }
     }
     /**

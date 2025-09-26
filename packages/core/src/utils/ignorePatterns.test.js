@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi } from 'vitest';
 import { FileExclusions, BINARY_EXTENSIONS, extractExtensionsFromPatterns, } from './ignorePatterns.js';
 // Mock the memoryTool module

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { expect, describe, it } from 'vitest';
 import { doesToolInvocationMatch } from './tool-utils.js';
 import { ReadFileTool } from '../tools/read-file.js';

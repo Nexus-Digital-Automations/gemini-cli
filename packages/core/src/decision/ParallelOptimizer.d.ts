@@ -3,12 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type { z } from 'zod';
 import type { TaskId, Task, TaskDependency } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
-import type { DependencyAnalyzer } from './DependencyAnalyzer.js';
-import type { DecisionDependencyGraph } from './DependencyGraph.js';
+import { DependencyAnalyzer } from './DependencyAnalyzer.js';
+import { DecisionDependencyGraph } from './DependencyGraph.js';
 /**
  * Parallel execution strategies
  */
@@ -233,99 +231,5 @@ export declare class ParallelOptimizer {
 /**
  * Zod schemas for validation
  */
-export declare const ParallelOptimizationConfigSchema: z.ZodObject<{
-    strategy: z.ZodNativeEnum<typeof ParallelStrategy>;
-    maxConcurrency: z.ZodNumber;
-    resourcePools: z.ZodMap<z.ZodString, z.ZodObject<{
-        name: z.ZodString;
-        capacity: z.ZodNumber;
-        allocated: z.ZodNumber;
-        tags: z.ZodArray<z.ZodString, "many">;
-        shareable: z.ZodBoolean;
-        costPerUnit: z.ZodOptional<z.ZodNumber>;
-        priorityMultiplier: z.ZodNumber;
-    }, "strip", z.ZodTypeAny, {
-        name: string;
-        tags: string[];
-        capacity: number;
-        allocated: number;
-        shareable: boolean;
-        priorityMultiplier: number;
-        costPerUnit?: number | undefined;
-    }, {
-        name: string;
-        tags: string[];
-        capacity: number;
-        allocated: number;
-        shareable: boolean;
-        priorityMultiplier: number;
-        costPerUnit?: number | undefined;
-    }>>;
-    enableDynamicRebalancing: z.ZodBoolean;
-    targetResourceUtilization: z.ZodNumber;
-    minTaskDurationForParallelization: z.ZodNumber;
-    enablePredictiveAllocation: z.ZodBoolean;
-    learningRate: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
-    maxConcurrency: number;
-    strategy: ParallelStrategy;
-    resourcePools: Map<string, {
-        name: string;
-        tags: string[];
-        capacity: number;
-        allocated: number;
-        shareable: boolean;
-        priorityMultiplier: number;
-        costPerUnit?: number | undefined;
-    }>;
-    enableDynamicRebalancing: boolean;
-    targetResourceUtilization: number;
-    minTaskDurationForParallelization: number;
-    enablePredictiveAllocation: boolean;
-    learningRate: number;
-}, {
-    maxConcurrency: number;
-    strategy: ParallelStrategy;
-    resourcePools: Map<string, {
-        name: string;
-        tags: string[];
-        capacity: number;
-        allocated: number;
-        shareable: boolean;
-        priorityMultiplier: number;
-        costPerUnit?: number | undefined;
-    }>;
-    enableDynamicRebalancing: boolean;
-    targetResourceUtilization: number;
-    minTaskDurationForParallelization: number;
-    enablePredictiveAllocation: boolean;
-    learningRate: number;
-}>;
-export declare const ParallelExecutionGroupSchema: z.ZodObject<{
-    id: z.ZodString;
-    tasks: z.ZodArray<z.ZodString, "many">;
-    resourceAllocations: z.ZodMap<z.ZodString, z.ZodNumber>;
-    estimatedDuration: z.ZodNumber;
-    priority: z.ZodNumber;
-    satisfiesDependencies: z.ZodArray<z.ZodAny, "many">;
-    confidence: z.ZodNumber;
-    risks: z.ZodArray<z.ZodString, "many">;
-}, "strip", z.ZodTypeAny, {
-    id: string;
-    tasks: string[];
-    priority: number;
-    estimatedDuration: number;
-    confidence: number;
-    risks: string[];
-    resourceAllocations: Map<string, number>;
-    satisfiesDependencies: any[];
-}, {
-    id: string;
-    tasks: string[];
-    priority: number;
-    estimatedDuration: number;
-    confidence: number;
-    risks: string[];
-    resourceAllocations: Map<string, number>;
-    satisfiesDependencies: any[];
-}>;
+export declare const ParallelOptimizationConfigSchema: any;
+export declare const ParallelExecutionGroupSchema: any;

@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-export var CommandKind;
+export let CommandKind;
 (function (CommandKind) {
     CommandKind["BUILT_IN"] = "built-in";
     CommandKind["FILE"] = "file";

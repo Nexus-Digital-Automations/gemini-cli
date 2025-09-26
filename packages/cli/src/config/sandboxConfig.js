@@ -16,7 +16,7 @@ function isSandboxCommand(value) {
     return VALID_SANDBOX_COMMANDS.includes(value);
 }
 function getSandboxCommand(sandbox) {
-    // If the SANDBOX env var is set, we're already inside the sandbox.
+    // If the SANDBOX env let is set, we're already inside the sandbox.
     if (process.env['SANDBOX']) {
         return '';
     }

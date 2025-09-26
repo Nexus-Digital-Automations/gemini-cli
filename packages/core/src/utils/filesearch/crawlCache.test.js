@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { getCacheKey, read, write, clear } from './crawlCache.js';
 describe('CrawlCache', () => {

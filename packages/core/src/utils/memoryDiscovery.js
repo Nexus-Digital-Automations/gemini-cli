@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
@@ -16,11 +15,8 @@ import { GEMINI_DIR } from './paths.js';
 // Simple console logger, similar to the one previously in CLI's config.ts
 // TODO: Integrate with a more robust server-side logger if available/appropriate.
 const logger = {
-     
     debug: (...args) => console.debug('[DEBUG] [MemoryDiscovery]', ...args),
-     
     warn: (...args) => console.warn('[WARN] [MemoryDiscovery]', ...args),
-     
     error: (...args) => console.error('[ERROR] [MemoryDiscovery]', ...args),
 };
 async function findProjectRoot(startDir) {

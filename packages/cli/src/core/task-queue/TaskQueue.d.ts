@@ -124,7 +124,16 @@ export declare class TaskQueue extends EventEmitter {
         totalFailed: number;
         availableAgents: number;
         busyAgents: number;
-        performance: typeof this.performanceMetrics;
+        performance: {
+            totalTasksProcessed: number;
+            averageQueueTime: number;
+            averageExecutionTime: number;
+            throughputPerMinute: number;
+            systemEfficiency: number;
+            rebalanceCount: number;
+            optimizationCount: number;
+            lastOptimization: Date;
+        };
         nextScheduledTask?: {
             taskId: string;
             title: string;

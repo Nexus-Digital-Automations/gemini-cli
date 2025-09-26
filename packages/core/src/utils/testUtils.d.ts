@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Check if we should simulate a 429 error for the current request
  */
@@ -27,8 +26,4 @@ export declare function resetSimulationState(): void;
 /**
  * Enable/disable 429 simulation programmatically (for tests)
  */
-export declare function setSimulate429(
-  enabled: boolean,
-  afterRequests?: number,
-  forAuthType?: string,
-): void;
+export declare function setSimulate429(enabled: boolean, afterRequests?: number, forAuthType?: string): void;

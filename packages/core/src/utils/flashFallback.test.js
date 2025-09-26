@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Config } from '../config/config.js';
 import fs from 'node:fs';

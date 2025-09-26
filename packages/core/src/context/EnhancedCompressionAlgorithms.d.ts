@@ -3,9 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { CompressionResult, ContextItem } from './types.js';
-import type { CompressionStrategy } from './types.js';
+import { CompressionStrategy } from './types.js';
 /**
  * Enhanced compression configuration
  */
@@ -189,5 +188,30 @@ export declare class EnhancedCompressionAlgorithms {
      * Compress generic content using specified strategy
      */
     private compressGenericContent;
-    default: break;
+    private clusterSimilarFunctions;
+    private compressJsonProgressively;
+    private extractJsonConcepts;
+    private extractErrorConcepts;
+    private isImportantExchange;
+    private summarizeConversationBatch;
+    private extractConversationConcepts;
+    private extractHtmlConcepts;
+    private summarizeMarkdownSection;
+    private applySummarization;
+    private applyKeywordExtraction;
+    private applySemanticClustering;
+    private applyProgressiveDetailReduction;
+    private calculateQualityScore;
+    private calculateInformationLoss;
+    private extractCriticalElements;
+    private estimateTokenCount;
+    private trackPerformanceMetrics;
+    /**
+     * Get performance statistics
+     */
+    getPerformanceStats(): Record<string, {
+        average: number;
+        count: number;
+        latest: number;
+    }>;
 }

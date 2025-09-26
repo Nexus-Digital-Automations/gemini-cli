@@ -3,13 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { execAsync } from '../utils/ProcessUtils.js';
 import { Logger } from '../logger/Logger.js';
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
- 
 const _path = path; // Declare usage to avoid unused variable warning
 /**
  * Code quality validation automation system

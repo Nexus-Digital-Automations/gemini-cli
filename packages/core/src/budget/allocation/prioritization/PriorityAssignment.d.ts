@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Priority assignment algorithms and management system
  * Provides intelligent priority assignment based on dynamic business conditions and resource constraints
@@ -12,7 +11,7 @@
  * @version 1.0.0
  */
 import type { AllocationCandidate, AllocationPriority, AllocationConstraints } from '../types.js';
-import type { FeatureCostAnalysis } from '../analytics/AnalyticsEngine.js';
+import type { FeatureCostAnalysis } from '../../analytics/AnalyticsEngine.js';
 import type { AllocationLogger } from '../algorithms/BaseAllocationAlgorithm.js';
 import type { BusinessContextConfig, ResourceRankingResult } from './ResourceRanking.js';
 /**

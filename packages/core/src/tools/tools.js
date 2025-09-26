@@ -317,7 +317,7 @@ export function hasCycleInSchema(schema) {
     }
     return traverse(schema, new Set(), new Set());
 }
-export var ToolConfirmationOutcome;
+export let ToolConfirmationOutcome;
 (function (ToolConfirmationOutcome) {
     ToolConfirmationOutcome["ProceedOnce"] = "proceed_once";
     ToolConfirmationOutcome["ProceedAlways"] = "proceed_always";
@@ -326,7 +326,7 @@ export var ToolConfirmationOutcome;
     ToolConfirmationOutcome["ModifyWithEditor"] = "modify_with_editor";
     ToolConfirmationOutcome["Cancel"] = "cancel";
 })(ToolConfirmationOutcome || (ToolConfirmationOutcome = {}));
-export var Kind;
+export let Kind;
 (function (Kind) {
     Kind["Read"] = "read";
     Kind["Edit"] = "edit";

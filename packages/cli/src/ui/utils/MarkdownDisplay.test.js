@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -32,7 +26,7 @@ describe('<MarkdownDisplay />', () => {
     });
     it('renders a simple paragraph', () => {
         const text = 'Hello, world.';
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders headers with correct levels', () => {
@@ -42,22 +36,22 @@ describe('<MarkdownDisplay />', () => {
 ### Header 3
 #### Header 4
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders a fenced code block with a language', () => {
         const text = '```javascript\nconst x = 1;\nconsole.log(x);\n```'.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders a fenced code block without a language', () => {
         const text = '```\nplain text\n```'.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('handles unclosed (pending) code blocks', () => {
         const text = '```typescript\nlet y = 2;'.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text, isPending: true }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text, isPending: true }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders unordered lists with different markers', () => {
@@ -66,7 +60,7 @@ describe('<MarkdownDisplay />', () => {
 * item B
 + item C
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders nested unordered lists', () => {
@@ -75,7 +69,7 @@ describe('<MarkdownDisplay />', () => {
   * Level 2
     * Level 3
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders ordered lists', () => {
@@ -83,7 +77,7 @@ describe('<MarkdownDisplay />', () => {
 1. First item
 2. Second item
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders horizontal rules', () => {
@@ -94,7 +88,7 @@ World
 ***
 Test
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('renders tables correctly', () => {
@@ -104,7 +98,7 @@ Test
 | Cell 1   | Cell 2   |
 | Cell 3   | Cell 4   |
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('handles a table at the end of the input', () => {
@@ -113,14 +107,14 @@ Some text before.
 | A | B |
 |---|
 | 1 | 2 |`.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('inserts a single space between paragraphs', () => {
         const text = `Paragraph 1.
 
 Paragraph 2.`.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('correctly parses a mix of markdown elements', () => {
@@ -138,7 +132,7 @@ some code
 
 Another paragraph.
 `.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
     });
     it('hides line numbers in code blocks when showLineNumbers is false', () => {
@@ -148,13 +142,13 @@ Another paragraph.
             settings: { ui: { showLineNumbers: false } },
             originalSettings: { ui: { showLineNumbers: false } },
         }, { path: '', settings: {}, originalSettings: {} }, true, new Set());
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: settings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: settings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
         expect(lastFrame()).not.toContain(' 1 ');
     });
     it('shows line numbers in code blocks by default', () => {
         const text = '```javascript\nconst x = 1;\n```'.replace(/\n/g, EOL);
-        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text }) }));
+        const { lastFrame } = render(_jsx(SettingsContext.Provider, { value: mockSettings, children: _jsx(MarkdownDisplay, { ...baseProps, text: text }) }));
         expect(lastFrame()).toMatchSnapshot();
         expect(lastFrame()).toContain(' 1 ');
     });

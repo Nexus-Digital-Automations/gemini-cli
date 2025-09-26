@@ -3,27 +3,26 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 import type { ChartConfig, UsageDataPoint } from '../types/index.js';
 /**
  * Props for the UsageTrendsGraph component.
  */
 interface UsageTrendsGraphProps {
-  /** Usage data points to visualize trends */
-  data: UsageDataPoint[];
-  /** Chart configuration options */
-  config: ChartConfig;
-  /** Whether the chart is currently loading */
-  loading?: boolean;
-  /** Error message if chart failed to load */
-  error?: string;
-  /** Time period for trend aggregation */
-  period?: 'hour' | 'day' | 'week' | 'month';
-  /** Whether to show moving average */
-  showMovingAverage?: boolean;
-  /** Whether to show multiple metrics simultaneously */
-  showMultipleMetrics?: boolean;
+    /** Usage data points to visualize trends */
+    data: UsageDataPoint[];
+    /** Chart configuration options */
+    config: ChartConfig;
+    /** Whether the chart is currently loading */
+    loading?: boolean;
+    /** Error message if chart failed to load */
+    error?: string;
+    /** Time period for trend aggregation */
+    period?: 'hour' | 'day' | 'week' | 'month';
+    /** Whether to show moving average */
+    showMovingAverage?: boolean;
+    /** Whether to show multiple metrics simultaneously */
+    showMultipleMetrics?: boolean;
 }
 /**
  * Usage Trends Graph Component

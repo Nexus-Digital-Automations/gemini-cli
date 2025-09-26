@@ -3,13 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
-import { Logger } from '../logger/Logger.js';
+import { Logger } from '../utils/logger.js';
 /**
  * Monitoring trigger types
  */
-export var MonitoringTrigger;
+export let MonitoringTrigger;
 (function (MonitoringTrigger) {
     MonitoringTrigger["FILE_CHANGE"] = "file-change";
     MonitoringTrigger["TIME_BASED"] = "time-based";
@@ -22,7 +21,7 @@ export var MonitoringTrigger;
 /**
  * Monitoring scope
  */
-export var MonitoringScope;
+export let MonitoringScope;
 (function (MonitoringScope) {
     MonitoringScope["PROJECT"] = "project";
     MonitoringScope["WORKSPACE"] = "workspace";
@@ -33,7 +32,7 @@ export var MonitoringScope;
 /**
  * Health status
  */
-export var HealthStatus;
+export let HealthStatus;
 (function (HealthStatus) {
     HealthStatus["HEALTHY"] = "healthy";
     HealthStatus["DEGRADED"] = "degraded";

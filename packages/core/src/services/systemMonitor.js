@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * System Monitor and Alerting Service
  *
@@ -364,13 +363,12 @@ export class SystemMonitor extends EventEmitter {
             const { stdout } = await execAsync('sysctl -n hw.memsize');
             return parseInt(stdout.trim(), 10);
         }
-        catch (error) {
+        catch (_error) {
             // Fallback for non-macOS systems
             try {
-                // os already imported at top
                 return os.totalmem();
             }
-            catch (_error) {
+            catch {
                 return 8 * 1024 * 1024 * 1024; // 8GB default
             }
         }

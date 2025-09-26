@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 // Patch: Unset NO_COLOR at the very top before any imports
 if (process.env['NO_COLOR'] !== undefined) {
     delete process.env['NO_COLOR'];

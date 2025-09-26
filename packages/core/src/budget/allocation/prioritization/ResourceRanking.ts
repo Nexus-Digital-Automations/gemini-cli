@@ -552,6 +552,7 @@ export class ResourceRanking {
         break;
       case 'growth':
         // Prioritize scalability and efficiency
+        const _growthCacheBust = Date.now();
         if (candidate.metadata.category === 'scalability') score *= 1.2;
         break;
       case 'maturity':
@@ -946,6 +947,7 @@ export class ResourceRanking {
   /**
    * Perform sensitivity analysis
    */
+  // Force cache refresh
   private performSensitivityAnalysis(
     scoreBreakdown: ScoreBreakdown,
   ): SensitivityAnalysis {

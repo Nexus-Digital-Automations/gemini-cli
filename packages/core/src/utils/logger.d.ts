@@ -3,80 +3,79 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Log level enumeration defining the severity hierarchy.
  * Used to filter log messages by importance and control verbosity.
  */
 export declare enum LogLevel {
-  /** Detailed debugging information for development */
-  DEBUG = 'debug',
-  /** General information about application flow */
-  INFO = 'info',
-  /** Warning conditions that should be noted */
-  WARN = 'warn',
-  /** Error conditions that require attention */
-  ERROR = 'error',
+    /** Detailed debugging information for development */
+    DEBUG = "debug",
+    /** General information about application flow */
+    INFO = "info",
+    /** Warning conditions that should be noted */
+    WARN = "warn",
+    /** Error conditions that require attention */
+    ERROR = "error"
 }
 /**
  * Configuration options for the structured logger.
  * Controls output destinations, formatting, and behavior.
  */
 export interface LoggerConfig {
-  /** Minimum log level to output (defaults to INFO) */
-  level?: LogLevel;
-  /** Whether to enable console output (defaults to true) */
-  enableConsole?: boolean;
-  /** Whether to enable file output (defaults to false in development) */
-  enableFile?: boolean;
-  /** Directory path for log files (defaults to ./.logs) */
-  logDir?: string;
-  /** Base filename for log files (defaults to 'gemini-cli') */
-  logFileName?: string;
-  /** Whether to include colors in console output (auto-detected) */
-  colorize?: boolean;
-  /** Whether to enable debug mode with verbose output */
-  debugMode?: boolean;
-  /** Custom metadata to include with all log messages */
-  defaultMeta?: Record<string, unknown>;
+    /** Minimum log level to output (defaults to INFO) */
+    level?: LogLevel;
+    /** Whether to enable console output (defaults to true) */
+    enableConsole?: boolean;
+    /** Whether to enable file output (defaults to false in development) */
+    enableFile?: boolean;
+    /** Directory path for log files (defaults to ./.logs) */
+    logDir?: string;
+    /** Base filename for log files (defaults to 'gemini-cli') */
+    logFileName?: string;
+    /** Whether to include colors in console output (auto-detected) */
+    colorize?: boolean;
+    /** Whether to enable debug mode with verbose output */
+    debugMode?: boolean;
+    /** Custom metadata to include with all log messages */
+    defaultMeta?: Record<string, unknown>;
 }
 /**
  * Structured data interface for log entries.
  * Provides consistent metadata format across all log messages.
  */
 export interface LogMeta {
-  /** Component or module generating the log */
-  component?: string;
-  /** Unique session or request identifier */
-  sessionId?: string;
-  /** Error object for error-level logs */
-  error?: Error;
-  /** Duration in milliseconds for performance tracking */
-  duration?: number;
-  /** Additional structured data */
-  [key: string]: unknown;
+    /** Component or module generating the log */
+    component?: string;
+    /** Unique session or request identifier */
+    sessionId?: string;
+    /** Error object for error-level logs */
+    error?: Error;
+    /** Duration in milliseconds for performance tracking */
+    duration?: number;
+    /** Additional structured data */
+    [key: string]: unknown;
 }
 /**
  * Extended logger interface with context-aware capabilities.
  * Provides methods for creating child loggers with inherited context.
  */
 export interface StructuredLogger {
-  /** Log debug-level message */
-  debug(message: string, meta?: LogMeta): void;
-  /** Log info-level message */
-  info(message: string, meta?: LogMeta): void;
-  /** Log warning-level message */
-  warn(message: string, meta?: LogMeta): void;
-  /** Log error-level message */
-  error(message: string, meta?: LogMeta): void;
-  /** Create child logger with additional context */
-  child(context: LogMeta): StructuredLogger;
-  /** Update log level dynamically */
-  setLevel(level: LogLevel): void;
-  /** Get current log level */
-  getLevel(): LogLevel;
-  /** Check if level is enabled */
-  isLevelEnabled(level: LogLevel): boolean;
+    /** Log debug-level message */
+    debug(message: string, meta?: LogMeta): void;
+    /** Log info-level message */
+    info(message: string, meta?: LogMeta): void;
+    /** Log warning-level message */
+    warn(message: string, meta?: LogMeta): void;
+    /** Log error-level message */
+    error(message: string, meta?: LogMeta): void;
+    /** Create child logger with additional context */
+    child(context: LogMeta): StructuredLogger;
+    /** Update log level dynamically */
+    setLevel(level: LogLevel): void;
+    /** Get current log level */
+    getLevel(): LogLevel;
+    /** Check if level is enabled */
+    isLevelEnabled(level: LogLevel): boolean;
 }
 /**
  * Winston-based structured logger implementation.
@@ -117,100 +116,100 @@ export interface StructuredLogger {
  * ```
  */
 export declare class WinstonStructuredLogger implements StructuredLogger {
-  private readonly winston;
-  private readonly config;
-  /**
-   * Creates a new structured logger instance.
-   *
-   * @param config - Configuration options for the logger
-   * @throws Error if log directory cannot be created
-   */
-  constructor(config?: LoggerConfig);
-  /**
-   * Creates the winston log format with timestamp and structured output.
-   * Handles error serialization and metadata formatting.
-   */
-  private createLogFormat;
-  /**
-   * Creates winston transport instances based on configuration.
-   * Supports console and file outputs with appropriate formatting.
-   */
-  private createTransports;
-  /**
-   * Log a debug-level message with optional metadata.
-   * Debug messages are typically used for detailed troubleshooting.
-   *
-   * @param message - The log message
-   * @param meta - Optional structured metadata
-   */
-  debug(message: string, meta?: LogMeta): void;
-  /**
-   * Log an info-level message with optional metadata.
-   * Info messages represent normal application flow.
-   *
-   * @param message - The log message
-   * @param meta - Optional structured metadata
-   */
-  info(message: string, meta?: LogMeta): void;
-  /**
-   * Log a warning-level message with optional metadata.
-   * Warnings indicate conditions that should be noted but don't prevent operation.
-   *
-   * @param message - The log message
-   * @param meta - Optional structured metadata
-   */
-  warn(message: string, meta?: LogMeta): void;
-  /**
-   * Log an error-level message with optional metadata.
-   * Error messages indicate conditions that require attention.
-   *
-   * @param message - The log message
-   * @param meta - Optional structured metadata including error objects
-   */
-  error(message: string, meta?: LogMeta): void;
-  /**
-   * Create a child logger that inherits context from the parent.
-   * Child loggers automatically include the provided context in all log messages.
-   *
-   * @param context - Additional context to include in all child logger messages
-   * @returns A new logger instance with the inherited context
-   *
-   * @example
-   * ```typescript
-   * const mainLogger = createLogger();
-   * const toolLogger = mainLogger.child({ component: 'tool-registry' });
-   * toolLogger.info('Tool registered'); // Includes component: 'tool-registry'
-   * ```
-   */
-  child(context: LogMeta): StructuredLogger;
-  /**
-   * Update the minimum log level dynamically.
-   * Messages below this level will be filtered out.
-   *
-   * @param level - The new minimum log level
-   */
-  setLevel(level: LogLevel): void;
-  /**
-   * Get the current minimum log level.
-   *
-   * @returns The current log level
-   */
-  getLevel(): LogLevel;
-  /**
-   * Check if a specific log level is enabled.
-   * Useful for avoiding expensive log message construction.
-   *
-   * @param level - The log level to check
-   * @returns True if the level would be logged
-   *
-   * @example
-   * ```typescript
-   * if (logger.isLevelEnabled(LogLevel.DEBUG)) {
-   *   logger.debug('Expensive debug info', { data: expensiveCalculation() });
-   * }
-   * ```
-   */
-  isLevelEnabled(level: LogLevel): boolean;
+    private readonly winston;
+    private readonly config;
+    /**
+     * Creates a new structured logger instance.
+     *
+     * @param config - Configuration options for the logger
+     * @throws Error if log directory cannot be created
+     */
+    constructor(config?: LoggerConfig);
+    /**
+     * Creates the winston log format with timestamp and structured output.
+     * Handles error serialization and metadata formatting.
+     */
+    private createLogFormat;
+    /**
+     * Creates winston transport instances based on configuration.
+     * Supports console and file outputs with appropriate formatting.
+     */
+    private createTransports;
+    /**
+     * Log a debug-level message with optional metadata.
+     * Debug messages are typically used for detailed troubleshooting.
+     *
+     * @param message - The log message
+     * @param meta - Optional structured metadata
+     */
+    debug(message: string, meta?: LogMeta): void;
+    /**
+     * Log an info-level message with optional metadata.
+     * Info messages represent normal application flow.
+     *
+     * @param message - The log message
+     * @param meta - Optional structured metadata
+     */
+    info(message: string, meta?: LogMeta): void;
+    /**
+     * Log a warning-level message with optional metadata.
+     * Warnings indicate conditions that should be noted but don't prevent operation.
+     *
+     * @param message - The log message
+     * @param meta - Optional structured metadata
+     */
+    warn(message: string, meta?: LogMeta): void;
+    /**
+     * Log an error-level message with optional metadata.
+     * Error messages indicate conditions that require attention.
+     *
+     * @param message - The log message
+     * @param meta - Optional structured metadata including error objects
+     */
+    error(message: string, meta?: LogMeta): void;
+    /**
+     * Create a child logger that inherits context from the parent.
+     * Child loggers automatically include the provided context in all log messages.
+     *
+     * @param context - Additional context to include in all child logger messages
+     * @returns A new logger instance with the inherited context
+     *
+     * @example
+     * ```typescript
+     * const mainLogger = createLogger();
+     * const toolLogger = mainLogger.child({ component: 'tool-registry' });
+     * toolLogger.info('Tool registered'); // Includes component: 'tool-registry'
+     * ```
+     */
+    child(context: LogMeta): StructuredLogger;
+    /**
+     * Update the minimum log level dynamically.
+     * Messages below this level will be filtered out.
+     *
+     * @param level - The new minimum log level
+     */
+    setLevel(level: LogLevel): void;
+    /**
+     * Get the current minimum log level.
+     *
+     * @returns The current log level
+     */
+    getLevel(): LogLevel;
+    /**
+     * Check if a specific log level is enabled.
+     * Useful for avoiding expensive log message construction.
+     *
+     * @param level - The log level to check
+     * @returns True if the level would be logged
+     *
+     * @example
+     * ```typescript
+     * if (logger.isLevelEnabled(LogLevel.DEBUG)) {
+     *   logger.debug('Expensive debug info', { data: expensiveCalculation() });
+     * }
+     * ```
+     */
+    isLevelEnabled(level: LogLevel): boolean;
 }
 /**
  * Create and configure the global logger instance.
@@ -258,10 +257,7 @@ export declare function getLogger(): StructuredLogger;
  * logger.info('Tools loaded'); // Includes component and sessionId
  * ```
  */
-export declare function getComponentLogger(
-  component: string,
-  additionalContext?: LogMeta,
-): StructuredLogger;
+export declare function getComponentLogger(component: string, additionalContext?: LogMeta): StructuredLogger;
 /**
  * Performance timing utility for measuring operation duration.
  * Returns a function that logs the elapsed time when called.
@@ -281,11 +277,7 @@ export declare function getComponentLogger(
  * endTimer(); // Logs: "file-processing completed in 1234ms"
  * ```
  */
-export declare function createTimer(
-  logger: StructuredLogger,
-  operation: string,
-  level?: LogLevel,
-): () => void;
+export declare function createTimer(logger: StructuredLogger, operation: string, level?: LogLevel): () => void;
 /**
  * Configuration helper for integrating with existing Config system.
  * Extracts logging configuration from the application config.
@@ -295,10 +287,6 @@ export declare function createTimer(
  * @param logDir - Optional custom log directory
  * @returns Logger configuration object
  */
-export declare function createLoggerConfigFromAppConfig(
-  debugMode: boolean,
-  sessionId?: string,
-  logDir?: string,
-): LoggerConfig;
+export declare function createLoggerConfigFromAppConfig(debugMode: boolean, sessionId?: string, logDir?: string): LoggerConfig;
 export type LogContext = LogMeta;
 export declare const logger: () => StructuredLogger;

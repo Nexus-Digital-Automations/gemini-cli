@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { DEFAULT_GEMINI_MODEL_AUTO } from '../../config/models.js';
 /**
  * Handles cases where the user explicitly specifies a model (override).

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { spawn } from 'node:child_process';
 import { TaskComplexity } from '../task-management/types.js';
 import { TaskBreakdownEngine } from './task-breakdown-engine.js';

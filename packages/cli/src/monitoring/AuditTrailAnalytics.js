@@ -8,7 +8,7 @@ import { Logger } from '../utils/logger.js';
 /**
  * Audit event types for comprehensive tracking
  */
-export var AuditEventType;
+export let AuditEventType;
 (function (AuditEventType) {
     AuditEventType["TASK_CREATED"] = "task:created";
     AuditEventType["TASK_ASSIGNED"] = "task:assigned";

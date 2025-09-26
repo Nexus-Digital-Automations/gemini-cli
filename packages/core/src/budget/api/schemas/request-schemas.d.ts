@@ -3,14 +3,13 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Base validation result interface
  */
 export interface ValidationResult {
-  valid: boolean;
-  errors: string[];
-  data?: any;
+    valid: boolean;
+    errors: string[];
+    data?: any;
 }
 /**
  * Base validator function type
@@ -40,9 +39,9 @@ export declare const notificationRequestSchema: SchemaValidator;
  * Export all schemas for easy importing
  */
 export declare const schemas: {
-  usageRequestSchema: SchemaValidator;
-  configurationRequestSchema: SchemaValidator;
-  analyticsRequestSchema: SchemaValidator;
-  exportRequestSchema: SchemaValidator;
-  notificationRequestSchema: SchemaValidator;
+    usageRequestSchema: SchemaValidator;
+    configurationRequestSchema: SchemaValidator;
+    analyticsRequestSchema: SchemaValidator;
+    exportRequestSchema: SchemaValidator;
+    notificationRequestSchema: SchemaValidator;
 };

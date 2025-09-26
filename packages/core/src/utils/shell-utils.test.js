@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { expect, describe, it, beforeEach, vi, afterEach } from 'vitest';
 import { checkCommandPermissions, escapeShellArg, getCommandRoots, getShellConfiguration, isCommandAllowed, stripShellWrapper, } from './shell-utils.js';
 const mockPlatform = vi.hoisted(() => vi.fn());

@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -26,7 +20,7 @@ describe('ToolConfirmationMessage', () => {
             urls: ['https://example.com'],
             onConfirm: vi.fn(),
         };
-        const { lastFrame } = renderWithProviders(_jsx(ToolConfirmationMessage, { confirmationDetails, config: mockConfig, availableTerminalHeight: 30, terminalWidth: 80 }));
+        const { lastFrame } = renderWithProviders(_jsx(ToolConfirmationMessage, { confirmationDetails: confirmationDetails, config: mockConfig, availableTerminalHeight: 30, terminalWidth: 80 }));
         expect(lastFrame()).not.toContain('URLs to fetch:');
     });
     it('should display urls if prompt and url are different', () => {
@@ -39,7 +33,7 @@ describe('ToolConfirmationMessage', () => {
             ],
             onConfirm: vi.fn(),
         };
-        const { lastFrame } = renderWithProviders(_jsx(ToolConfirmationMessage, { confirmationDetails, config: mockConfig, availableTerminalHeight: 30, terminalWidth: 80 }));
+        const { lastFrame } = renderWithProviders(_jsx(ToolConfirmationMessage, { confirmationDetails: confirmationDetails, config: mockConfig, availableTerminalHeight: 30, terminalWidth: 80 }));
         expect(lastFrame()).toContain('URLs to fetch:');
         expect(lastFrame()).toContain('- https://raw.githubusercontent.com/google/gemini-react/main/README.md');
     });

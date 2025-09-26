@@ -3,22 +3,16 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import type {
-  DecisionRule,
-  DecisionAction,
-  DecisionType,
-  DecisionContext,
-} from './types.js';
+import type { DecisionRule, DecisionAction, DecisionType, DecisionContext } from './types.js';
 /**
  * Result of evaluating a rule against context.
  */
 export interface RuleEvaluationResult {
-  rule: DecisionRule;
-  matched: boolean;
-  confidence: number;
-  actions: DecisionAction[];
-  reasoning: string;
+    rule: DecisionRule;
+    matched: boolean;
+    confidence: number;
+    actions: DecisionAction[];
+    reasoning: string;
 }
 /**
  * Rule-based decision engine that applies configurable decision logic.
@@ -79,108 +73,101 @@ export interface RuleEvaluationResult {
  * ```
  */
 export declare class RuleEngine {
-  private readonly rules;
-  private readonly rulesByType;
-  private isInitialized;
-  private readonly ruleStats;
-  /**
-   * Initialize the rule engine.
-   */
-  initialize(): Promise<void>;
-  /**
-   * Shutdown the rule engine gracefully.
-   */
-  shutdown(): Promise<void>;
-  /**
-   * Evaluate rules for a specific decision type and context.
-   *
-   * @param type - Type of decision being made
-   * @param input - Input parameters for the decision
-   * @param context - Current system context
-   * @returns Array of rule evaluation results
-   */
-  evaluate<T = Record<string, unknown>>(
-    type: DecisionType,
-    input: T,
-    context: DecisionContext,
-  ): Promise<RuleEvaluationResult[]>;
-  /**
-   * Add a new rule or update an existing one.
-   *
-   * @param rule - Rule to add or update
-   */
-  addRule(rule: DecisionRule): Promise<void>;
-  /**
-   * Remove a rule by ID.
-   *
-   * @param ruleId - ID of the rule to remove
-   */
-  removeRule(ruleId: string): Promise<void>;
-  /**
-   * Update an existing rule.
-   *
-   * @param ruleId - ID of the rule to update
-   * @param updates - Partial rule updates
-   */
-  updateRule(ruleId: string, updates: Partial<DecisionRule>): Promise<void>;
-  /**
-   * Get all rules, optionally filtered by decision type.
-   *
-   * @param type - Optional decision type to filter by
-   * @returns Array of rules
-   */
-  getRules(type?: DecisionType): DecisionRule[];
-  /**
-   * Get rule performance statistics.
-   */
-  getRuleStatistics(): Record<
-    string,
-    {
-      evaluations: number;
-      matches: number;
-      matchRate: number;
-      avgEvaluationTime: number;
-      lastUsed: Date;
-    }
-  >;
-  /**
-   * Evaluate a single rule against input and context.
-   */
-  private evaluateRule;
-  /**
-   * Evaluate a single condition against the evaluation context.
-   */
-  private evaluateCondition;
-  /**
-   * Get a field value from the evaluation context using dot notation.
-   */
-  private getFieldValue;
-  /**
-   * Flatten a nested object for easier field access.
-   */
-  private flattenObject;
-  /**
-   * Generate human-readable reasoning for rule evaluation.
-   */
-  private generateReasoning;
-  /**
-   * Validate rule structure and constraints.
-   */
-  private validateRule;
-  /**
-   * Update performance statistics for a rule.
-   */
-  private updateRuleStats;
-  /**
-   * Load default built-in rules.
-   */
-  private loadDefaultRules;
-  /**
-   * Load custom rules from configuration.
-   */
-  private loadCustomRules;
-  /**
-   * Save rule performance statistics.
-   */
-  private saveRuleStats;
+    private readonly rules;
+    private readonly rulesByType;
+    private isInitialized;
+    private readonly ruleStats;
+    /**
+     * Initialize the rule engine.
+     */
+    initialize(): Promise<void>;
+    /**
+     * Shutdown the rule engine gracefully.
+     */
+    shutdown(): Promise<void>;
+    /**
+     * Evaluate rules for a specific decision type and context.
+     *
+     * @param type - Type of decision being made
+     * @param input - Input parameters for the decision
+     * @param context - Current system context
+     * @returns Array of rule evaluation results
+     */
+    evaluate<T = Record<string, unknown>>(type: DecisionType, input: T, context: DecisionContext): Promise<RuleEvaluationResult[]>;
+    /**
+     * Add a new rule or update an existing one.
+     *
+     * @param rule - Rule to add or update
+     */
+    addRule(rule: DecisionRule): Promise<void>;
+    /**
+     * Remove a rule by ID.
+     *
+     * @param ruleId - ID of the rule to remove
+     */
+    removeRule(ruleId: string): Promise<void>;
+    /**
+     * Update an existing rule.
+     *
+     * @param ruleId - ID of the rule to update
+     * @param updates - Partial rule updates
+     */
+    updateRule(ruleId: string, updates: Partial<DecisionRule>): Promise<void>;
+    /**
+     * Get all rules, optionally filtered by decision type.
+     *
+     * @param type - Optional decision type to filter by
+     * @returns Array of rules
+     */
+    getRules(type?: DecisionType): DecisionRule[];
+    /**
+     * Get rule performance statistics.
+     */
+    getRuleStatistics(): Record<string, {
+        evaluations: number;
+        matches: number;
+        matchRate: number;
+        avgEvaluationTime: number;
+        lastUsed: Date;
+    }>;
+    /**
+     * Evaluate a single rule against input and context.
+     */
+    private evaluateRule;
+    /**
+     * Evaluate a single condition against the evaluation context.
+     */
+    private evaluateCondition;
+    /**
+     * Get a field value from the evaluation context using dot notation.
+     */
+    private getFieldValue;
+    /**
+     * Flatten a nested object for easier field access.
+     */
+    private flattenObject;
+    /**
+     * Generate human-readable reasoning for rule evaluation.
+     */
+    private generateReasoning;
+    /**
+     * Validate rule structure and constraints.
+     */
+    private validateRule;
+    /**
+     * Update performance statistics for a rule.
+     */
+    private updateRuleStats;
+    /**
+     * Load default built-in rules.
+     */
+    private loadDefaultRules;
+    /**
+     * Load custom rules from configuration.
+     */
+    private loadCustomRules;
+    /**
+     * Save rule performance statistics.
+     */
+    private saveRuleStats;
 }

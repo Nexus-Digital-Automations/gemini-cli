@@ -211,7 +211,7 @@ export declare class PerformanceMonitor extends EventEmitter {
      * Get performance summary for monitoring dashboard
      */
     getPerformanceSummary(): {
-        status: "healthy" | "warning" | "critical";
+        status: "critical" | "warning" | "healthy";
         validations: {
             total: number;
             successful: number;

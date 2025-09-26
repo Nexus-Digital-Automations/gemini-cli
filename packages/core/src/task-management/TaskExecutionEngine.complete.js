@@ -226,47 +226,41 @@ export class TaskExecutionEngine {
             default:
                 return 300;
         }
-        // Public API methods
-        /**
-         * Queues a new task for execution with intelligent breakdown
-         */
-        async;
-        queueTask(title, string, description, string, options, (Partial) = {});
-        Promise < string > {
-            // Create initial task
-            const: taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            const: now = new Date(),
-            const: complexity = await this.breakdownAnalyzer.analyzeComplexity(title, description),
-            const: task, Task = {
-                id: taskId,
-                title,
-                description,
-                type: options.type || TaskType.IMPLEMENTATION,
-                complexity,
-                priority: options.priority || TaskPriority.NORMAL,
-                status: TaskStatus.QUEUED,
-                progress: 0,
-                requiredCapabilities: [], // Will be determined during breakdown
-                subtaskIds: [],
-                dependencies: [],
-                maxExecutionTimeMinutes: options.maxExecutionTimeMinutes ||
-                    this.getDefaultExecutionTime(complexity),
-                maxRetries: 3,
-                context: options.context || {},
-                expectedOutputs: options.expectedOutputs || {},
-                createdAt: now,
-                updatedAt: now,
-                retryCount: 0,
-            },
-            this: .taskQueue.set(taskId, task),
-            this: .updateTaskStatus(task, TaskStatus.QUEUED),
-            // Trigger breakdown analysis in background
-            this: .analyzeAndBreakdownTask(taskId),
-            return: taskId
+    }
+    // Public API methods
+    /**
+     * Queues a new task for execution with intelligent breakdown
+     */
+    async queueTask(title, description, options = {}) {
+        // Create initial task
+        const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const now = new Date();
+        const complexity = await this.breakdownAnalyzer.analyzeComplexity(title, description);
+        const task = {
+            id: taskId,
+            title,
+            description,
+            type: options.type || TaskType.IMPLEMENTATION,
+            complexity,
+            priority: options.priority || TaskPriority.NORMAL,
+            status: TaskStatus.QUEUED,
+            progress: 0,
+            requiredCapabilities: [],
+            subtaskIds: [],
+            dependencies: [],
+            maxExecutionTimeMinutes: options.maxExecutionTimeMinutes || this.getDefaultExecutionTime(complexity),
+            maxRetries: 3,
+            context: options.context || {},
+            expectedOutputs: options.expectedOutputs || {},
+            createdAt: now,
+            updatedAt: now,
+            retryCount: 0,
         };
-        /**
-         * Analyzes and breaks down a task asynchronously
-         */
+        this.taskQueue.set(taskId, task);
+        this.updateTaskStatus(task, TaskStatus.QUEUED);
+        // Trigger breakdown analysis in background
+        this.analyzeAndBreakdownTask(taskId);
+        return taskId;
     }
     /**
      * Analyzes and breaks down a task asynchronously

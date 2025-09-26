@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as fs from 'node:fs';
 import { isSubpath } from '../utils/paths.js';
 import { detectIde } from '../ide/detect-ide.js';
@@ -22,7 +23,7 @@ const logger = {
     debug: (...args) => console.debug('[DEBUG] [IDEClient]', ...args),
     error: (...args) => console.error('[ERROR] [IDEClient]', ...args),
 };
-export var IDEConnectionStatus;
+export let IDEConnectionStatus;
 (function (IDEConnectionStatus) {
     IDEConnectionStatus["Connected"] = "connected";
     IDEConnectionStatus["Disconnected"] = "disconnected";

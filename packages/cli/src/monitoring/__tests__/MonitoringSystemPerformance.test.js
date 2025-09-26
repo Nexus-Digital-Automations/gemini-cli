@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, beforeEach, afterEach, it, expect, vi, beforeAll, afterAll as _afterAll, } from 'vitest';
 import { performance } from 'node:perf_hooks';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
@@ -430,9 +429,9 @@ describe('Monitoring System Performance Tests', () => {
                     });
                 });
                 // Generate monitoring data
-                const _snapshot = realTimeMonitoring.getCurrentSnapshot();
-                const _dashboardData = dashboard.getCurrentDashboardData();
-                const _systemStatus = integrationHub.getSystemStatus();
+                realTimeMonitoring.getCurrentSnapshot();
+                dashboard.getCurrentDashboardData();
+                integrationHub.getSystemStatus();
                 // Record performance metrics
                 performanceAnalytics.recordMetric('memory_test_metric', Math.random() * 500, 'milliseconds', 'performance', { cycle });
                 // Take memory snapshot every 10 cycles

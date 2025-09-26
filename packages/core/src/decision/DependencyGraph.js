@@ -293,154 +293,136 @@ export class DecisionDependencyGraph {
                     // Handle unexpected values
                     break;
             }
-            // Analyze weak dependencies for removal
-            const weakDependencies = this.findWeakDependencies();
-            for (const weakDep of weakDependencies.slice(0, 3)) {
-                optimizations.push({
-                    type: 'remove_edge',
-                    description: `Remove weak dependency: ${weakDep.dependsOnTaskId} -> ${weakDep.dependentTaskId}`,
-                    targets: { edges: [weakDep] },
-                    benefits: {
-                        timeReduction: 30000, // Assume 30s savings
-                        resourceSavings: 0.05,
-                        riskReduction: 0.1,
-                        flexibilityIncrease: 0.4,
-                    },
-                    complexity: 'low',
-                    confidence: 0.5,
-                });
-            }
-            // Look for merge opportunities
-            const mergeCandidates = this.findMergeCandidates();
-            for (const candidates of mergeCandidates.slice(0, 2)) {
-                optimizations.push({
-                    type: 'merge_nodes',
-                    description: `Merge related tasks: ${candidates.join(', ')}`,
-                    targets: { tasks: candidates },
-                    benefits: {
-                        timeReduction: 60000, // Assume 1 minute savings from reduced overhead
-                        resourceSavings: 0.1,
-                        riskReduction: 0.15,
-                        flexibilityIncrease: -0.1, // Merging reduces flexibility
-                    },
-                    complexity: 'medium',
-                    confidence: 0.6,
-                });
-            }
-            // Sort by expected benefits
-            optimizations.sort((a, b) => {
-                const aScore = a.benefits.timeReduction + a.benefits.resourceSavings * 10000;
-                const bScore = b.benefits.timeReduction + b.benefits.resourceSavings * 10000;
-                return bScore - aScore;
+        }
+        // Analyze weak dependencies for removal
+        const weakDependencies = this.findWeakDependencies();
+        for (const weakDep of weakDependencies.slice(0, 3)) {
+            optimizations.push({
+                type: 'remove_edge',
+                description: `Remove weak dependency: ${weakDep.dependsOnTaskId} -> ${weakDep.dependentTaskId}`,
+                targets: { edges: [weakDep] },
+                benefits: {
+                    timeReduction: 30000, // Assume 30s savings
+                    resourceSavings: 0.05,
+                    riskReduction: 0.1,
+                    flexibilityIncrease: 0.4,
+                },
+                complexity: 'low',
+                confidence: 0.5,
             });
-            // Cache results
-            this.optimizationCache.set(cacheKey, optimizations);
-            return optimizations;
         }
-        /**
-         * Calculate graph flexibility score
-         */
-        calculateFlexibilityScore();
-        number;
-        {
-            if (this.graph.nodes.size === 0)
-                return 1;
-            let totalFlexibility = 0;
-            let nodeCount = 0;
-            for (const [taskId, node] of this.graph.nodes) {
-                const flexibility = node.decisionMetadata.flexibility;
-                totalFlexibility += flexibility;
-                nodeCount++;
-            }
-            const averageFlexibility = nodeCount > 0 ? totalFlexibility / nodeCount : 0;
-            // Adjust for graph structure
-            const densityPenalty = this.graph.metadata.edgeCount /
-                Math.max((this.graph.nodes.size * (this.graph.nodes.size - 1)) / 2, 1);
-            const cyclePenalty = this.graph.metadata.hasCycles ? 0.2 : 0;
-            const finalScore = Math.max(0, averageFlexibility - densityPenalty * 0.3 - cyclePenalty);
-            // Update metadata
-            this.graph.metadata.decisionInsights.flexibilityMap.set('overall', finalScore);
-            return finalScore;
+        // Look for merge opportunities
+        const mergeCandidates = this.findMergeCandidates();
+        for (const candidates of mergeCandidates.slice(0, 2)) {
+            optimizations.push({
+                type: 'merge_nodes',
+                description: `Merge related tasks: ${candidates.join(', ')}`,
+                targets: { tasks: candidates },
+                benefits: {
+                    timeReduction: 60000, // Assume 1 minute savings from reduced overhead
+                    resourceSavings: 0.1,
+                    riskReduction: 0.15,
+                    flexibilityIncrease: -0.1, // Merging reduces flexibility
+                },
+                complexity: 'medium',
+                confidence: 0.6,
+            });
         }
-        /**
-         * Perform what-if analysis for dependency changes
-         */
-        analyzeWhatIf(changes, (Array));
-        {
-            originalMetrics: Record;
-            projectedMetrics: Record;
-            impact: {
-                timeChange: number;
-                riskChange: number;
-                flexibilityChange: number;
-            }
-            ;
-            recommendations: string[];
+        // Sort by expected benefits
+        optimizations.sort((a, b) => {
+            const aScore = a.benefits.timeReduction + a.benefits.resourceSavings * 10000;
+            const bScore = b.benefits.timeReduction + b.benefits.resourceSavings * 10000;
+            return bScore - aScore;
+        });
+        // Cache results
+        this.optimizationCache.set(cacheKey, optimizations);
+        return optimizations;
+    }
+    /**
+     * Calculate graph flexibility score
+     */
+    getFlexibilityScore() {
+        if (this.graph.nodes.size === 0)
+            return 1;
+        let totalFlexibility = 0;
+        let nodeCount = 0;
+        for (const [taskId, node] of this.graph.nodes) {
+            const flexibility = node.decisionMetadata.flexibility;
+            totalFlexibility += flexibility;
+            nodeCount++;
         }
-        {
-            logger.debug('Performing what-if analysis', { changes: changes.length });
-            // Capture original state
-            const originalMetrics = this.calculateGraphMetrics();
-            // Create temporary graph with changes
-            const tempGraph = this.cloneGraph();
-            // Apply changes to temporary graph
-            for (const change of changes) {
-                switch (change.type) {
-                    case 'add':
-                        this.addDependency(change.dependency, change.newConfidence || 1.0);
-                        break;
-                    case 'remove':
-                        this.removeDependency(change.dependency.dependentTaskId, change.dependency.dependsOnTaskId);
-                        break;
-                    case 'modify':
-                        this.updateDependencyConfidence(change.dependency, change.newConfidence || 1.0);
-                        break;
-                    default:
-                        // Handle unexpected values
-                        break;
-                }
-                // Calculate projected metrics
-                const projectedMetrics = this.calculateGraphMetrics();
-                // Calculate impact
-                const impact = {
-                    timeChange: projectedMetrics.totalExecutionTime -
-                        originalMetrics.totalExecutionTime,
-                    riskChange: projectedMetrics.overallRisk - originalMetrics.overallRisk,
-                    flexibilityChange: projectedMetrics.flexibility - originalMetrics.flexibility,
-                };
-                // Generate recommendations
-                const recommendations = this.generateWhatIfRecommendations(impact, changes);
-                // Restore original graph
-                this.restoreGraph(tempGraph);
-                return {
-                    originalMetrics,
-                    projectedMetrics,
-                    impact,
-                    recommendations,
-                };
+        const averageFlexibility = nodeCount > 0 ? totalFlexibility / nodeCount : 0;
+        // Adjust for graph structure
+        const densityPenalty = this.graph.metadata.edgeCount /
+            Math.max((this.graph.nodes.size * (this.graph.nodes.size - 1)) / 2, 1);
+        const cyclePenalty = this.graph.metadata.hasCycles ? 0.2 : 0;
+        const finalScore = Math.max(0, averageFlexibility - densityPenalty * 0.3 - cyclePenalty);
+        // Update metadata
+        this.graph.metadata.decisionInsights.flexibilityMap.set('overall', finalScore);
+        return finalScore;
+    }
+    /**
+     * Perform what-if analysis for dependency changes
+     */
+    analyzeWhatIf(changes) {
+        logger.debug('Performing what-if analysis', { changes: changes.length });
+        // Capture original state
+        const originalMetrics = this.calculateGraphMetrics();
+        // Create temporary graph with changes
+        const tempGraph = this.cloneGraph();
+        // Apply changes to temporary graph
+        for (const change of changes) {
+            switch (change.type) {
+                case 'add':
+                    this.addDependency(change.dependency, change.newConfidence || 1.0);
+                    break;
+                case 'remove':
+                    this.removeDependency(change.dependency.dependentTaskId, change.dependency.dependsOnTaskId);
+                    break;
+                case 'modify':
+                    this.updateDependencyConfidence(change.dependency, change.newConfidence || 1.0);
+                    break;
+                default:
+                    // Handle unexpected values
+                    break;
             }
-            /**
-             * Export graph in various formats for visualization and analysis
-             */
-            exportGraph(format, 'dot' | 'json' | 'cytoscape' | 'dagre');
-            string;
-            {
-                switch (format) {
-                    case 'dot':
-                        return this.exportToDot();
-                    case 'json':
-                        return this.exportToJson();
-                    case 'cytoscape':
-                        return this.exportToCytoscape();
-                    case 'dagre':
-                        return this.exportToDagre();
-                    default:
-                        throw new Error(`Unsupported export format: ${format}`);
-                }
-            }
-            // Private helper methods
         }
-        // Private helper methods
+        // Calculate projected metrics
+        const projectedMetrics = this.calculateGraphMetrics();
+        // Calculate impact
+        const impact = {
+            timeChange: projectedMetrics.totalExecutionTime -
+                originalMetrics.totalExecutionTime,
+            riskChange: projectedMetrics.overallRisk - originalMetrics.overallRisk,
+            flexibilityChange: projectedMetrics.flexibility - originalMetrics.flexibility,
+        };
+        // Generate recommendations
+        const recommendations = this.generateWhatIfRecommendations(impact, changes);
+        // Restore original graph
+        this.restoreGraph(tempGraph);
+        return {
+            originalMetrics,
+            projectedMetrics,
+            impact,
+            recommendations,
+        };
+    }
+    /**
+     * Export graph in various formats for visualization and analysis
+     */
+    exportGraph(format) {
+        switch (format) {
+            case 'dot':
+                return this.exportToDot();
+            case 'json':
+                return this.exportToJson();
+            case 'cytoscape':
+                return this.exportToCytoscape();
+            case 'dagre':
+                return this.exportToDagre();
+            default:
+                throw new Error(`Unsupported export format: ${format}`);
+        }
     }
     // Private helper methods
     calculateImpactScore(task, context) {

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { ToolResult } from '../tools/tools.js';
 import type { GeminiClient } from '../core/client.js';
 /**
@@ -12,11 +11,7 @@ import type { GeminiClient } from '../core/client.js';
  * @param result The result of the tool execution.
  * @returns The summary of the result.
  */
-export type Summarizer = (
-  result: ToolResult,
-  geminiClient: GeminiClient,
-  abortSignal: AbortSignal,
-) => Promise<string>;
+export type Summarizer = (result: ToolResult, geminiClient: GeminiClient, abortSignal: AbortSignal) => Promise<string>;
 /**
  * The default summarizer for tool results.
  *
@@ -27,9 +22,4 @@ export type Summarizer = (
  */
 export declare const defaultSummarizer: Summarizer;
 export declare const llmSummarizer: Summarizer;
-export declare function summarizeToolOutput(
-  textToSummarize: string,
-  geminiClient: GeminiClient,
-  abortSignal: AbortSignal,
-  maxOutputTokens?: number,
-): Promise<string>;
+export declare function summarizeToolOutput(textToSummarize: string, geminiClient: GeminiClient, abortSignal: AbortSignal, maxOutputTokens?: number): Promise<string>;

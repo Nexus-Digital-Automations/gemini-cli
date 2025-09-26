@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { Kind, BaseDeclarativeTool, BaseToolInvocation } from './tools.js';
 import { spawn } from 'node:child_process';
 import { StringDecoder } from 'node:string_decoder';
@@ -194,7 +193,7 @@ export class ToolRegistry {
             });
         }
         catch (error) {
-            logger.error('Tool discovery failed', { error });
+            logger.error('Tool discovery failed', { error: error });
             throw error;
         }
         finally {

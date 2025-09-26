@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Request Validation Middleware
  * Provides comprehensive input validation for all Budget API endpoints
@@ -72,4 +71,38 @@ export declare function validateSecurity(options?: {
     sanitizeHtml?: boolean;
     maxStringLength?: number;
 }): (req: ValidatedRequest, res: Response, next: NextFunction) => void;
+/**
+ * Extract data from request based on location
+ */
+declare function extractValidationData(req: Request, location: ValidationLocation): any;
+/**
+ * Set data in request based on location
+ */
+declare function setValidationData(req: Request, location: ValidationLocation, data: any): void;
+/**
+ * Get nested property from object
+ */
+declare function getNestedProperty(obj: any, path: string): any;
+/**
+ * Check for potential XSS patterns
+ */
+declare function containsXSS(input: string): boolean;
+/**
+ * Check for potential SQL injection patterns
+ */
+declare function containsSQLInjection(input: string): boolean;
+/**
+ * Validation middleware composition utility
+ */
+export declare function composeValidation(...middlewares: Array<(req: Request, res: Response, next: NextFunction) => void>): (req: Request, res: Response, next: NextFunction) => void;
+/**
+ * Export validation utilities
+ */
+export declare const validationUtils: {
+    extractValidationData: typeof extractValidationData;
+    setValidationData: typeof setValidationData;
+    getNestedProperty: typeof getNestedProperty;
+    containsXSS: typeof containsXSS;
+    containsSQLInjection: typeof containsSQLInjection;
+};
 export {};

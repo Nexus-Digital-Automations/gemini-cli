@@ -3,17 +3,16 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /** Default Gemini Flash model for fast, cost-effective conversations (Flash-first approach) */
-export declare const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+export declare const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 /** Default Gemini Flash model for faster, cost-effective conversations */
-export declare const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
+export declare const DEFAULT_GEMINI_FLASH_MODEL = "gemini-2.5-flash";
 /** Default Gemini Flash Lite model for ultra-fast, minimal cost conversations */
-export declare const DEFAULT_GEMINI_FLASH_LITE_MODEL = 'gemini-2.5-flash-lite';
+export declare const DEFAULT_GEMINI_FLASH_LITE_MODEL = "gemini-2.5-flash-lite";
 /** Auto model selection identifier for dynamic model routing */
-export declare const DEFAULT_GEMINI_MODEL_AUTO = 'auto';
+export declare const DEFAULT_GEMINI_MODEL_AUTO = "auto";
 /** Default embedding model for vector operations and semantic search */
-export declare const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
+export declare const DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-001";
 /** Default thinking mode setting (-1 enables dynamic thinking for models that support it) */
 export declare const DEFAULT_THINKING_MODE = -1;
 /**
@@ -29,7 +28,4 @@ export declare const DEFAULT_THINKING_MODE = -1;
  * @param requestedModel The model that was originally requested.
  * @returns The effective model name.
  */
-export declare function getEffectiveModel(
-  isInFallbackMode: boolean,
-  requestedModel: string,
-): string;
+export declare function getEffectiveModel(isInFallbackMode: boolean, requestedModel: string): string;

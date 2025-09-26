@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Abstract base class for all budget allocation algorithms
  * Provides common functionality and enforces consistent interface

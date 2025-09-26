@@ -6,7 +6,7 @@
 /**
  * Task complexity levels for testing different scenarios
  */
-export var TaskComplexity;
+export let TaskComplexity;
 (function (TaskComplexity) {
     TaskComplexity["SIMPLE"] = "SIMPLE";
     TaskComplexity["MODERATE"] = "MODERATE";
@@ -16,7 +16,7 @@ export var TaskComplexity;
 /**
  * Task categories for organizational testing
  */
-export var TaskCategory;
+export let TaskCategory;
 (function (TaskCategory) {
     TaskCategory["CODE_GENERATION"] = "CODE_GENERATION";
     TaskCategory["FILE_MANIPULATION"] = "FILE_MANIPULATION";
@@ -30,7 +30,7 @@ export var TaskCategory;
 /**
  * Priority levels for task scheduling tests
  */
-export var TaskPriority;
+export let TaskPriority;
 (function (TaskPriority) {
     TaskPriority[TaskPriority["LOW"] = 1] = "LOW";
     TaskPriority[TaskPriority["NORMAL"] = 2] = "NORMAL";

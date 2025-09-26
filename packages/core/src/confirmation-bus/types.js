@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {} from '@google/genai';
-export var MessageBusType;
+export let MessageBusType;
 (function (MessageBusType) {
     MessageBusType["TOOL_CONFIRMATION_REQUEST"] = "tool-confirmation-request";
     MessageBusType["TOOL_CONFIRMATION_RESPONSE"] = "tool-confirmation-response";

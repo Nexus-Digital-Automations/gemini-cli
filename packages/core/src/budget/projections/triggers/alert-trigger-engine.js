@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Advanced alert trigger system with sophisticated escalation and custom rules
  * Provides intelligent alerting with dynamic thresholds and contextual triggers

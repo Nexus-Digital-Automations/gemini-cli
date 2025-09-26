@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 import { logger as createLogger } from '../utils/logger.js';
@@ -545,9 +544,6 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         // Sync with base queue metrics
         const baseMetrics = this.baseQueue.getMetrics();
         Object.assign(this.autonomousMetrics, baseMetrics);
-            default:
-              // Handle unexpected values
-              break;
     }
     /**
      * Setup component integration event handlers

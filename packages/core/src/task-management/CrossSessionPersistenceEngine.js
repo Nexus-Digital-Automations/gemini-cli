@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Cross-Session Task Persistence Engine
  *
@@ -973,7 +972,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         catch (error) {
             return {
                 success: false,
-                error,
+                error: error,
                 metadata: {
                     duration: 0,
                     sizeChange: 0,
@@ -1005,7 +1004,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         catch (error) {
             return {
                 success: false,
-                error,
+                error: error,
                 data: [],
                 metadata: {
                     duration: 0,

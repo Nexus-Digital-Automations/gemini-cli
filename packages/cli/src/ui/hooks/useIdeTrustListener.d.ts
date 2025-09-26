@@ -9,6 +9,6 @@
  * if a restart is needed because the trust state has changed.
  */
 export declare function useIdeTrustListener(): {
-    isIdeTrusted: boolean | undefined;
+    isIdeTrusted: any;
     needsRestart: boolean;
 };

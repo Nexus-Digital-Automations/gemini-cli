@@ -3,11 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 export declare function resolvePathFromEnv(envVar?: string): {
-  isSwitch: boolean;
-  value: string | null;
-  isDisabled: boolean;
+    isSwitch: boolean;
+    value: string | null;
+    isDisabled: boolean;
 };
 export declare function getCoreSystemPrompt(userMemory?: string): string;
 /**

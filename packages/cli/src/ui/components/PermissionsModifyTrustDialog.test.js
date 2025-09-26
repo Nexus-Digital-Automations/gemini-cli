@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -106,7 +100,7 @@ describe('PermissionsModifyTrustDialog', () => {
     });
     it('should call onExit when escape is pressed', async () => {
         const onExit = vi.fn();
-        const { stdin, lastFrame } = renderWithProviders(_jsx(PermissionsModifyTrustDialog, { onExit, addItem: vi.fn() }));
+        const { stdin, lastFrame } = renderWithProviders(_jsx(PermissionsModifyTrustDialog, { onExit: onExit, addItem: vi.fn() }));
         await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
         act(() => {
             stdin.write('\x1b'); // escape key
@@ -130,7 +124,7 @@ describe('PermissionsModifyTrustDialog', () => {
             isFolderTrustEnabled: true,
         });
         const onExit = vi.fn();
-        const { stdin, lastFrame } = renderWithProviders(_jsx(PermissionsModifyTrustDialog, { onExit, addItem: vi.fn() }));
+        const { stdin, lastFrame } = renderWithProviders(_jsx(PermissionsModifyTrustDialog, { onExit: onExit, addItem: vi.fn() }));
         await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
         act(() => stdin.write('r')); // Press 'r' to restart
         await waitFor(() => {
@@ -152,7 +146,7 @@ describe('PermissionsModifyTrustDialog', () => {
             isFolderTrustEnabled: true,
         });
         const onExit = vi.fn();
-        const { stdin, lastFrame } = renderWithProviders(_jsx(PermissionsModifyTrustDialog, { onExit, addItem: vi.fn() }));
+        const { stdin, lastFrame } = renderWithProviders(_jsx(PermissionsModifyTrustDialog, { onExit: onExit, addItem: vi.fn() }));
         await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
         act(() => stdin.write('\x1b')); // Press escape
         await waitFor(() => {

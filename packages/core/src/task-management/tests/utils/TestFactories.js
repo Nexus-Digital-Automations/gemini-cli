@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { vi } from 'vitest';
 /**
  * @fileoverview Test factories and utilities for task management testing

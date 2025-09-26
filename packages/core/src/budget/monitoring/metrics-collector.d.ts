@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * @fileoverview Comprehensive metrics collection and aggregation system
  * Collects detailed usage metrics from token tracker and other sources
@@ -192,7 +191,58 @@ export declare class MetricsCollector extends EventEmitter {
      * Get aggregated metrics for a time period
      */
     private getAggregatedMetrics;
-    default: break;
+    /**
+     * Calculate trend analysis
+     */
+    private calculateTrends;
+    /**
+     * Calculate trend data for a series of values
+     */
+    private calculateTrendData;
+    /**
+     * Create null trend data
+     */
+    private createNullTrend;
+    /**
+     * Calculate predictions for future usage
+     */
+    private calculatePredictions;
+    /**
+     * Detect anomalies in current data point
+     */
+    private detectAnomalies;
+    /**
+     * Detect anomaly in a specific metric
+     */
+    private detectAnomalyInMetric;
+    /**
+     * Determine anomaly severity based on deviation score
+     */
+    private getAnomalySeverity;
+    /**
+     * Generate human-readable anomaly description
+     */
+    private generateAnomalyDescription;
+    /**
+     * Get recent anomalies
+     */
+    private getRecentAnomalies;
+    /**
+     * Get top models by usage
+     */
+    private getTopModels;
+    /**
+     * Get top features by usage
+     */
+    private getTopFeatures;
+    /**
+     * Get top sessions by usage
+     */
+    private getTopSessions;
+    /**
+     * Setup event listeners for the token tracker
+     */
+    private setupTokenTrackerListeners;
 }
 /**
  * Create a new MetricsCollector instance

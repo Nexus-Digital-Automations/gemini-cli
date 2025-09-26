@@ -3,11 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 // Re-export enums from TaskQueue and TaskExecutionEngine for backward compatibility
 export { TaskPriority, TaskStatus, TaskCategory } from './TaskQueue.js';
 export { TaskType } from './TaskExecutionEngine.js';
-export var TaskComplexity;
+export let TaskComplexity;
 (function (TaskComplexity) {
     TaskComplexity["TRIVIAL"] = "trivial";
     TaskComplexity["SIMPLE"] = "simple";

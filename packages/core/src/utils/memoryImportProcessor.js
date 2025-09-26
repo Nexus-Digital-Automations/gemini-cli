@@ -3,18 +3,14 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { isSubpath } from './paths.js';
 import { marked } from 'marked';
 // Simple console logger for import processing
 const logger = {
-     
     debug: (...args) => console.debug('[DEBUG] [ImportProcessor]', ...args),
-     
     warn: (...args) => console.warn('[WARN] [ImportProcessor]', ...args),
-     
     error: (...args) => console.error('[ERROR] [ImportProcessor]', ...args),
 };
 // Helper to find the project root (looks for .git directory)

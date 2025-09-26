@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { getEffectiveModel } from '../../config/models.js';
 export class FallbackStrategy {
     name = 'fallback';

@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fsPromises from 'node:fs/promises';
 import * as nodePath from 'node:path';

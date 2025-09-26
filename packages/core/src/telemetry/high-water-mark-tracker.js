@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * High-water mark tracker for memory metrics
  * Only triggers when memory usage increases by a significant threshold

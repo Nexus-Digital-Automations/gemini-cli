@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { getFolderStructure } from './getFolderStructure.js';
 /**
  * Generates a string describing the current workspace directories and their structures.

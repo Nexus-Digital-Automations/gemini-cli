@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Default priority assignment configuration
  */
@@ -307,10 +306,10 @@ export class PriorityAssignment {
         // Check performance trends
         const recentPerformance = historicalData
             .slice(-3)
-            .map((data) => data.performance || 80);
+            .map((data) => data.businessValue || 80);
         const olderPerformance = historicalData
             .slice(0, 3)
-            .map((data) => data.performance || 80);
+            .map((data) => data.businessValue || 80);
         const recentAvg = recentPerformance.reduce((sum, p) => sum + p, 0) /
             recentPerformance.length;
         const olderAvg = olderPerformance.reduce((sum, p) => sum + p, 0) / olderPerformance.length;
@@ -348,7 +347,7 @@ export class PriorityAssignment {
                 if (historicalData.length >= 2) {
                     const recent = historicalData[historicalData.length - 1];
                     const previous = historicalData[historicalData.length - 2];
-                    const degradation = (previous.performance - recent.performance) / previous.performance;
+                    const degradation = (previous.businessValue - recent.businessValue) / previous.businessValue;
                     return degradation > 0.2;
                 }
                 return false;
@@ -453,6 +452,7 @@ export class PriorityAssignment {
     /**
      * Calculate assignment confidence
      */
+    // Force cache refresh
     calculateAssignmentConfidence(candidate, ranking, ruleConfidence) {
         let confidence = ranking.confidence;
         // Adjust based on rule confidence
@@ -664,6 +664,7 @@ export class PriorityAssignment {
     /**
      * Generate portfolio insights
      */
+    // Force cache refresh
     generatePortfolioInsights(assignments, candidates) {
         // Calculate priority distribution
         const distribution = {

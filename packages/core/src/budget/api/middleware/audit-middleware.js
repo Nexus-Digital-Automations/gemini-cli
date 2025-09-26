@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { Logger } from '../../../../../src/utils/logger.js';
 import { BudgetEventType, EventSeverity } from '../../types.js';
 const logger = new Logger('AuditMiddleware');
@@ -120,9 +119,6 @@ class AuditStore {
                 // Handle unexpected values
                 break;
         }
-        /**
-         * Map severity to log level
-         */
     }
     /**
      * Map severity to log level

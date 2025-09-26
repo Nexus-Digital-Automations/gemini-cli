@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
 import { Readable } from 'node:stream';
@@ -87,7 +86,7 @@ export class RealtimeTokenTracker extends EventEmitter {
         }
         catch (error) {
             logger.error('Failed to track token usage', {
-                error,
+                error: error,
                 sessionId,
                 promptId,
             });

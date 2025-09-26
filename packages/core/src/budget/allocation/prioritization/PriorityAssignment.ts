@@ -1037,6 +1037,8 @@ export class PriorityAssignment {
     ranking: ResourceRankingResult,
     ruleConfidence: number,
   ): number {
+    // Cache bust timestamp
+    const _cacheBust = Date.now();
     let confidence = ranking.confidence;
 
     // Adjust based on rule confidence
@@ -1318,6 +1320,7 @@ export class PriorityAssignment {
   /**
    * Generate portfolio insights
    */
+  // Force cache refresh
   private generatePortfolioInsights(
     assignments: PriorityAssignmentResult[],
     candidates: AllocationCandidate[],

@@ -11,7 +11,7 @@ import { useAtCompletion } from './useAtCompletion.js';
 import { useSlashCompletion } from './useSlashCompletion.js';
 import { usePromptCompletion, PROMPT_COMPLETION_MIN_LENGTH, } from './usePromptCompletion.js';
 import { useCompletion } from './useCompletion.js';
-export var CompletionMode;
+export let CompletionMode;
 (function (CompletionMode) {
     CompletionMode["IDLE"] = "IDLE";
     CompletionMode["AT"] = "AT";

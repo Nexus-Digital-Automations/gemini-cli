@@ -404,26 +404,20 @@ export class QuotaManager extends EventEmitter {
                     // Handle unexpected values
                     break;
             }
-            delay = Math.min(delay, config.maxDelay);
-            this.currentThrottleDelay = delay;
-            const shouldThrottle = Math.random() > config.factor;
-            return {
-                allowed: !shouldThrottle,
-                currentUsage: delay,
-                limit: config.maxDelay,
-                usagePercentage: (delay / config.maxDelay) * 100,
-                message: shouldThrottle
-                    ? `Throttled for ${delay}ms`
-                    : 'Throttling passed',
-            };
         }
-        /**
-         * Handle quota violation
-         */
+        delay = Math.min(delay, config.maxDelay);
+        this.currentThrottleDelay = delay;
+        const shouldThrottle = Math.random() > config.factor;
+        return {
+            allowed: !shouldThrottle,
+            currentUsage: delay,
+            limit: config.maxDelay,
+            usagePercentage: (delay / config.maxDelay) * 100,
+            message: shouldThrottle
+                ? `Throttled for ${delay}ms`
+                : 'Throttling passed',
+        };
     }
-    /**
-     * Handle quota violation
-     */
     async handleQuotaViolation(limitId, limit, validation) {
         const usage = this.quotaUsage.get(limitId);
         if (!usage)
@@ -451,6 +445,9 @@ export class QuotaManager extends EventEmitter {
             case 'log':
                 this.logger.info('Quota limit exceeded', violation);
                 break;
+            default:
+                // Handle unexpected values
+                break;
         }
         this.emitBudgetEvent('limit_exceeded', {
             violation,
@@ -459,183 +456,199 @@ export class QuotaManager extends EventEmitter {
             limit: limit.maxValue,
         });
     }
-    default;
-}
-initializeQuotaLimits();
-void {
-    : .config.defaultLimits
-};
-{
-    this.quotaLimits.set(limit.id, limit);
-    this.initializeQuotaUsage(limit.id, limit);
-}
-initializeRateLimiters();
-void {
-    const: config = this.config.rateLimitConfig,
-    // Create global rate limiter
-    switch(config) { }, : .strategy
-};
-{
-    'sliding_window';
-    this.rateLimiters.set('global', new SlidingWindowLimiter(config.maxRequests, config.windowMs));
-    break;
-    'token_bucket';
-    const refillRate = config.recoveryRate || config.maxRequests / (config.windowMs / 1000);
-    this.rateLimiters.set('global', new TokenBucket(config.maxRequests, refillRate));
-    break;
-    // Handle unexpected values
-    break;
-}
-initializeQuotaUsage(limitId, string, limit, QuotaLimit);
-void {
-    const: now = new Date(),
-    const: windowEnd = new Date(now.getTime() + limit.windowMs),
-    this: .quotaUsage.set(limitId, {
-        limitId,
-        currentUsage: 0,
-        maxValue: limit.maxValue,
-        usagePercentage: 0,
-        windowStart: now,
-        windowEnd,
-        isExceeded: false,
-        timeToReset: limit.windowMs,
-        recentUsage: [],
-    })
-};
-async;
-updateQuotaUsage(limitId, string, value, number, timestamp, Date);
-Promise < void  > {
-    const: usage = this.quotaUsage.get(limitId),
-    if(, usage) { }, return: ,
-    // Add to recent usage history
-    usage, : .recentUsage.push({ timestamp, value }),
-    // Keep only recent usage (last 100 entries or 1 hour)
-    const: oneHourAgo = new Date(timestamp.getTime() - 60 * 60 * 1000),
-    usage, : .recentUsage = usage.recentUsage
-        .filter((entry) => entry.timestamp > oneHourAgo)
-        .slice(-100),
-    // Update current usage
-    usage, : .currentUsage += value,
-    usage, : .usagePercentage = (usage.currentUsage / usage.maxValue) * 100,
-    usage, : .isExceeded = usage.currentUsage > usage.maxValue
-};
-updateUsageWindow(limitId, string, limit, QuotaLimit);
-void {
-    const: usage = this.quotaUsage.get(limitId),
-    if(, usage) { }, return: ,
-    const: now = new Date(),
-    if(limit) { }, : .resetBehavior === 'fixed' && now > usage.windowEnd
-};
-{
-    // Reset for fixed window
-    usage.currentUsage = 0;
-    usage.windowStart = now;
-    usage.windowEnd = new Date(now.getTime() + limit.windowMs);
-    usage.usagePercentage = 0;
-    usage.isExceeded = false;
-    usage.recentUsage = [];
-}
-if (limit.resetBehavior === 'sliding') {
-    // For sliding window, remove old usage
-    const windowStart = new Date(now.getTime() - limit.windowMs);
-    const validUsage = usage.recentUsage.filter((entry) => entry.timestamp > windowStart);
-    usage.recentUsage = validUsage;
-    usage.currentUsage = validUsage.reduce((sum, entry) => sum + entry.value, 0);
-    usage.usagePercentage = (usage.currentUsage / usage.maxValue) * 100;
-    usage.isExceeded = usage.currentUsage > usage.maxValue;
-    usage.windowStart = windowStart;
-    usage.windowEnd = now;
-}
-usage.timeToReset = usage.windowEnd.getTime() - now.getTime();
-isLimitApplicable(limit, QuotaLimit, requestType, string);
-boolean;
-{
-    switch (limit.type) {
-        case 'requests':
-            return requestType === 'api_call';
-        case 'tokens':
-            return requestType === 'token_usage';
-        case 'cost':
-            return requestType === 'cost';
-        case 'custom':
-            return true; // Custom limits apply to all types
-        default:
-            return false;
+    /**
+     * Initialize default quota limits
+     */
+    initializeQuotaLimits() {
+        for (const limit of this.config.defaultLimits) {
+            this.quotaLimits.set(limit.id, limit);
+            this.initializeQuotaUsage(limit.id, limit);
+        }
     }
-}
-getDefaultLimits();
-QuotaLimit[];
-{
-    return [
-        {
-            id: 'daily_requests',
-            name: 'Daily API Requests',
-            type: 'requests',
-            maxValue: 1000,
-            windowMs: 24 * 60 * 60 * 1000, // 24 hours
-            resetBehavior: 'fixed',
-            enabled: true,
-            priority: 1,
-            action: 'warn',
-        },
-        {
-            id: 'hourly_cost',
-            name: 'Hourly Cost Limit',
-            type: 'cost',
-            maxValue: 10, // $10 per hour
-            windowMs: 60 * 60 * 1000, // 1 hour
-            resetBehavior: 'sliding',
-            enabled: true,
-            priority: 2,
-            action: 'throttle',
-        },
-    ];
-}
-getDefaultRateLimitConfig();
-RateLimitConfig;
-{
-    return {
-        maxRequests: 100,
-        windowMs: 60 * 1000, // 1 minute
-        strategy: 'sliding_window',
-        recoveryRate: 2, // 2 requests per second
-    };
-}
-getDefaultThrottleConfig();
-ThrottleConfig;
-{
-    return {
-        factor: 0.5, // 50% throttling
-        minDelay: 100, // 100ms minimum delay
-        maxDelay: 5000, // 5s maximum delay
-        backoffStrategy: 'exponential',
-    };
-}
-emitBudgetEvent(type, BudgetEventType, data, (Record));
-void {
-    const: event, BudgetEvent = {
-        type,
-        timestamp: new Date(),
-        data,
-        source: 'QuotaManager',
-        severity: this.getEventSeverity(type),
-    },
-    this: .emit('budget_event', event)
-};
-getEventSeverity(type, BudgetEventType);
-EventSeverity;
-{
-    switch (type) {
-        case 'limit_exceeded':
-            return 'critical';
-        case 'warning_threshold':
-            return 'warning';
-        case 'usage_updated':
-        case 'settings_changed':
-        case 'budget_reset':
-            return 'info';
-        default:
-            return 'info';
+    /**
+     * Initialize rate limiters
+     */
+    initializeRateLimiters() {
+        const config = this.config.rateLimitConfig;
+        // Create global rate limiter
+        switch (config.strategy) {
+            case 'sliding_window':
+                this.rateLimiters.set('global', new SlidingWindowLimiter(config.maxRequests, config.windowMs));
+                break;
+            case 'token_bucket':
+                const refillRate = config.recoveryRate || config.maxRequests / (config.windowMs / 1000);
+                this.rateLimiters.set('global', new TokenBucket(config.maxRequests, refillRate));
+                break;
+            // Add other strategies as needed
+            default:
+                // Handle unexpected values
+                break;
+        }
+    }
+    /**
+     * Initialize quota usage tracking
+     */
+    initializeQuotaUsage(limitId, limit) {
+        const now = new Date();
+        const windowEnd = new Date(now.getTime() + limit.windowMs);
+        this.quotaUsage.set(limitId, {
+            limitId,
+            currentUsage: 0,
+            maxValue: limit.maxValue,
+            usagePercentage: 0,
+            windowStart: now,
+            windowEnd,
+            isExceeded: false,
+            timeToReset: limit.windowMs,
+            recentUsage: [],
+        });
+    }
+    /**
+     * Update quota usage for a limit
+     */
+    async updateQuotaUsage(limitId, value, timestamp) {
+        const usage = this.quotaUsage.get(limitId);
+        if (!usage)
+            return;
+        // Add to recent usage history
+        usage.recentUsage.push({ timestamp, value });
+        // Keep only recent usage (last 100 entries or 1 hour)
+        const oneHourAgo = new Date(timestamp.getTime() - 60 * 60 * 1000);
+        usage.recentUsage = usage.recentUsage
+            .filter((entry) => entry.timestamp > oneHourAgo)
+            .slice(-100);
+        // Update current usage
+        usage.currentUsage += value;
+        usage.usagePercentage = (usage.currentUsage / usage.maxValue) * 100;
+        usage.isExceeded = usage.currentUsage > usage.maxValue;
+    }
+    /**
+     * Update usage window based on reset behavior
+     */
+    updateUsageWindow(limitId, limit) {
+        const usage = this.quotaUsage.get(limitId);
+        if (!usage)
+            return;
+        const now = new Date();
+        if (limit.resetBehavior === 'fixed' && now > usage.windowEnd) {
+            // Reset for fixed window
+            usage.currentUsage = 0;
+            usage.windowStart = now;
+            usage.windowEnd = new Date(now.getTime() + limit.windowMs);
+            usage.usagePercentage = 0;
+            usage.isExceeded = false;
+            usage.recentUsage = [];
+        }
+        else if (limit.resetBehavior === 'sliding') {
+            // For sliding window, remove old usage
+            const windowStart = new Date(now.getTime() - limit.windowMs);
+            const validUsage = usage.recentUsage.filter((entry) => entry.timestamp > windowStart);
+            usage.recentUsage = validUsage;
+            usage.currentUsage = validUsage.reduce((sum, entry) => sum + entry.value, 0);
+            usage.usagePercentage = (usage.currentUsage / usage.maxValue) * 100;
+            usage.isExceeded = usage.currentUsage > usage.maxValue;
+            usage.windowStart = windowStart;
+            usage.windowEnd = now;
+        }
+        usage.timeToReset = usage.windowEnd.getTime() - now.getTime();
+    }
+    /**
+     * Check if limit applies to request type
+     */
+    isLimitApplicable(limit, requestType) {
+        switch (limit.type) {
+            case 'requests':
+                return requestType === 'api_call';
+            case 'tokens':
+                return requestType === 'token_usage';
+            case 'cost':
+                return requestType === 'cost';
+            case 'custom':
+                return true; // Custom limits apply to all types
+            default:
+                return false;
+        }
+    }
+    /**
+     * Get default quota limits
+     */
+    getDefaultLimits() {
+        return [
+            {
+                id: 'daily_requests',
+                name: 'Daily API Requests',
+                type: 'requests',
+                maxValue: 1000,
+                windowMs: 24 * 60 * 60 * 1000, // 24 hours
+                resetBehavior: 'fixed',
+                enabled: true,
+                priority: 1,
+                action: 'warn',
+            },
+            {
+                id: 'hourly_cost',
+                name: 'Hourly Cost Limit',
+                type: 'cost',
+                maxValue: 10, // $10 per hour
+                windowMs: 60 * 60 * 1000, // 1 hour
+                resetBehavior: 'sliding',
+                enabled: true,
+                priority: 2,
+                action: 'throttle',
+            },
+        ];
+    }
+    /**
+     * Get default rate limit configuration
+     */
+    getDefaultRateLimitConfig() {
+        return {
+            maxRequests: 100,
+            windowMs: 60 * 1000, // 1 minute
+            strategy: 'sliding_window',
+            recoveryRate: 2, // 2 requests per second
+        };
+    }
+    /**
+     * Get default throttle configuration
+     */
+    getDefaultThrottleConfig() {
+        return {
+            factor: 0.5, // 50% throttling
+            minDelay: 100, // 100ms minimum delay
+            maxDelay: 5000, // 5s maximum delay
+            backoffStrategy: 'exponential',
+        };
+    }
+    /**
+     * Emit budget event
+     */
+    emitBudgetEvent(type, data) {
+        const event = {
+            type,
+            timestamp: new Date(),
+            data,
+            source: 'QuotaManager',
+            severity: this.getEventSeverity(type),
+        };
+        this.emit('budget_event', event);
+    }
+    /**
+     * Get event severity based on type
+     */
+    getEventSeverity(type) {
+        switch (type) {
+            case 'limit_exceeded':
+                return 'critical';
+            case 'warning_threshold':
+                return 'warning';
+            case 'usage_updated':
+            case 'settings_changed':
+            case 'budget_reset':
+                return 'info';
+            default:
+                return 'info';
+        }
     }
 }
 /**

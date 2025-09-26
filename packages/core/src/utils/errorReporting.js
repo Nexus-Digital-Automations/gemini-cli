@@ -3,13 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { getComponentLogger } from './logger.js';
-
-const logger = getComponentLogger('errorReporting');
 /**
  * Generates an error report, writes it to a temporary file, and logs information to console.error.
  * @param error The error object.
@@ -45,10 +41,10 @@ export async function reportError(error, baseMessage, context, type = 'general',
     }
     catch (stringifyError) {
         // This can happen if context contains something like BigInt
-        logger.error(`${baseMessage} Could not stringify report content (likely due to context)`, { error: stringifyError });
-        logger.error('Original error that triggered report generation', { error });
+        console.error(`${baseMessage} Could not stringify report content (likely due to context):`, stringifyError);
+        console.error('Original error that triggered report generation:', error);
         if (context) {
-            logger.error('Original context could not be stringified or included in report.');
+            console.error('Original context could not be stringified or included in report.');
         }
         // Fallback: try to report only the error if context was the issue
         try {
@@ -56,34 +52,34 @@ export async function reportError(error, baseMessage, context, type = 'general',
             stringifiedReportContent = JSON.stringify(minimalReportContent, null, 2);
             // Still try to write the minimal report
             await fs.writeFile(reportPath, stringifiedReportContent);
-            logger.error(`${baseMessage} Partial report (excluding context) available at: ${reportPath}`);
+            console.error(`${baseMessage} Partial report (excluding context) available at: ${reportPath}`);
         }
         catch (minimalWriteError) {
-            logger.error(`${baseMessage} Failed to write even a minimal error report`, { error: minimalWriteError });
+            console.error(`${baseMessage} Failed to write even a minimal error report:`, minimalWriteError);
         }
         return;
     }
     try {
         await fs.writeFile(reportPath, stringifiedReportContent);
-        logger.error(`${baseMessage} Full report available at: ${reportPath}`);
+        console.error(`${baseMessage} Full report available at: ${reportPath}`);
     }
     catch (writeError) {
-        logger.error(`${baseMessage} Additionally, failed to write detailed error report`, { error: writeError });
+        console.error(`${baseMessage} Additionally, failed to write detailed error report:`, writeError);
         // Log the original error as a fallback if report writing fails
-        logger.error('Original error that triggered report generation', { error });
+        console.error('Original error that triggered report generation:', error);
         if (context) {
             // Context was stringifiable, but writing the file failed.
             // We already have stringifiedReportContent, but it might be too large for console.
             // So, we try to log the original context object, and if that fails, its stringified version (truncated).
             try {
-                logger.error('Original context', { context });
+                console.error('Original context:', context);
             }
             catch {
                 try {
-                    logger.error('Original context (stringified, truncated)', { contextPreview: JSON.stringify(context).substring(0, 1000) });
+                    console.error('Original context (stringified, truncated):', JSON.stringify(context).substring(0, 1000));
                 }
                 catch {
-                    logger.error('Original context could not be logged or stringified.');
+                    console.error('Original context could not be logged or stringified.');
                 }
             }
         }

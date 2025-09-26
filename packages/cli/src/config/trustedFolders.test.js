@@ -119,7 +119,7 @@ describe('Trusted Folders Loading', () => {
         expect(errors[0].path).toBe(userPath);
         expect(errors[0].message).toContain('Unexpected token');
     });
-    it('should use GEMINI_CLI_TRUSTED_FOLDERS_PATH env var if set', () => {
+    it('should use GEMINI_CLI_TRUSTED_FOLDERS_PATH env let if set', () => {
         const customPath = '/custom/path/to/trusted_folders.json';
         process.env['GEMINI_CLI_TRUSTED_FOLDERS_PATH'] = customPath;
         mockFsExistsSync.mockImplementation((p) => p === customPath);

@@ -3,21 +3,20 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type React from 'react';
 import type { BudgetAlert, BudgetUsageStats } from '../types/index.js';
 /**
  * Props for the BudgetAlertsPanel component.
  */
 interface BudgetAlertsPanelProps {
-  /** Active budget alerts to display */
-  alerts: BudgetAlert[];
-  /** Current budget usage statistics */
-  budgetStats?: BudgetUsageStats | null;
-  /** Callback when an alert is dismissed */
-  onDismissAlert?: (alertId: string) => void;
-  /** Callback when alert thresholds are modified */
-  onModifyThresholds?: (thresholds: number[]) => void;
+    /** Active budget alerts to display */
+    alerts: BudgetAlert[];
+    /** Current budget usage statistics */
+    budgetStats?: BudgetUsageStats | null;
+    /** Callback when an alert is dismissed */
+    onDismissAlert?: (alertId: string) => void;
+    /** Callback when alert thresholds are modified */
+    onModifyThresholds?: (thresholds: number[]) => void;
 }
 /**
  * Budget Alerts Panel Component

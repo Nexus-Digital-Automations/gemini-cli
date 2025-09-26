@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import type { Config } from '../config/config.js';
 import { type SpawnOptionsWithoutStdio } from 'node:child_process';
 /**
@@ -14,14 +13,14 @@ export type ShellType = 'cmd' | 'powershell' | 'bash';
  * Defines the configuration required to execute a command string within a specific shell.
  */
 export interface ShellConfiguration {
-  /** The path or name of the shell executable (e.g., 'bash', 'cmd.exe'). */
-  executable: string;
-  /**
-   * The arguments required by the shell to execute a subsequent string argument.
-   */
-  argsPrefix: string[];
-  /** An identifier for the shell type. */
-  shell: ShellType;
+    /** The path or name of the shell executable (e.g., 'bash', 'cmd.exe'). */
+    executable: string;
+    /**
+     * The arguments required by the shell to execute a subsequent string argument.
+     */
+    argsPrefix: string[];
+    /** An identifier for the shell type. */
+    shell: ShellType;
 }
 /**
  * Determines the appropriate shell configuration for the current platform.
@@ -96,15 +95,11 @@ export declare function detectCommandSubstitution(command: string): boolean;
  *   presence activates "Default Deny" mode.
  * @returns An object detailing which commands are not allowed.
  */
-export declare function checkCommandPermissions(
-  command: string,
-  config: Config,
-  sessionAllowlist?: Set<string>,
-): {
-  allAllowed: boolean;
-  disallowedCommands: string[];
-  blockReason?: string;
-  isHardDenial?: boolean;
+export declare function checkCommandPermissions(command: string, config: Config, sessionAllowlist?: Set<string>): {
+    allAllowed: boolean;
+    disallowedCommands: string[];
+    blockReason?: string;
+    isHardDenial?: boolean;
 };
 /**
  * Determines whether a given shell command is allowed to execute based on
@@ -117,18 +112,11 @@ export declare function checkCommandPermissions(
  * @param config The application configuration.
  * @returns An object with 'allowed' boolean and optional 'reason' string if not allowed.
  */
-export declare const spawnAsync: (
-  command: string,
-  args: string[],
-  options?: SpawnOptionsWithoutStdio,
-) => Promise<{
-  stdout: string;
-  stderr: string;
+export declare const spawnAsync: (command: string, args: string[], options?: SpawnOptionsWithoutStdio) => Promise<{
+    stdout: string;
+    stderr: string;
 }>;
-export declare function isCommandAllowed(
-  command: string,
-  config: Config,
-): {
-  allowed: boolean;
-  reason?: string;
+export declare function isCommandAllowed(command: string, config: Config): {
+    allowed: boolean;
+    reason?: string;
 };

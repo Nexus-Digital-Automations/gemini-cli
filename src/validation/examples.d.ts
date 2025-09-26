@@ -3,7 +3,6 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Comprehensive examples demonstrating the Automatic Validation System usage.
  *
@@ -66,11 +65,11 @@ export declare function examplePerformanceAnalysis(): Promise<void>;
  */
 export declare function runAllExamples(): Promise<void>;
 export declare const examples: {
-  basicTaskValidation: typeof exampleBasicTaskValidation;
-  featureValidation: typeof exampleFeatureValidation;
-  projectCompletionCheck: typeof exampleProjectCompletionCheck;
-  advancedValidation: typeof exampleAdvancedValidation;
-  cicdIntegration: typeof exampleCICDIntegration;
-  todoWriteIntegration: typeof exampleTodoWriteIntegration;
-  performanceAnalysis: typeof examplePerformanceAnalysis;
+    basicTaskValidation: typeof exampleBasicTaskValidation;
+    featureValidation: typeof exampleFeatureValidation;
+    projectCompletionCheck: typeof exampleProjectCompletionCheck;
+    advancedValidation: typeof exampleAdvancedValidation;
+    cicdIntegration: typeof exampleCICDIntegration;
+    todoWriteIntegration: typeof exampleTodoWriteIntegration;
+    performanceAnalysis: typeof examplePerformanceAnalysis;
 };
