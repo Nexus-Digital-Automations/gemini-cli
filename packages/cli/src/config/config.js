@@ -13,6 +13,7 @@ import { mcpCommand } from '../commands/mcp.js';
 import { extensionsCommand } from '../commands/extensions.js';
 import { budgetCommand } from '../commands/budget.js';
 import { autonomousCommand } from '../commands/autonomous.js';
+import { collaborationCommand } from '../commands/collaboration.js';
 import { Config, loadServerHierarchicalMemory, setGeminiMdFilename as setServerGeminiMdFilename, getCurrentGeminiMdFilename, ApprovalMode, DEFAULT_GEMINI_MODEL, DEFAULT_GEMINI_MODEL_AUTO, DEFAULT_GEMINI_EMBEDDING_MODEL, DEFAULT_MEMORY_FILE_FILTERING_OPTIONS, FileDiscoveryService, ShellTool, EditTool, WriteFileTool, resolveTelemetrySettings, FatalConfigError, } from '@google/gemini-cli-core';
 import { annotateActiveExtensions } from './extension.js';
 import { getCliVersion } from '../utils/version.js';
@@ -215,6 +216,8 @@ export async function parseArguments(settings) {
     yargsInstance.command(budgetCommand);
     // Register autonomous task management subcommands
     yargsInstance.command(autonomousCommand);
+    // Register collaboration subcommands (Pair-Programming Mode)
+    yargsInstance.command(collaborationCommand);
     yargsInstance
         .version(await getCliVersion()) // This will enable the --version flag based on package.json
         .alias('v', 'version')
@@ -227,8 +230,8 @@ export async function parseArguments(settings) {
     // Handle case where MCP subcommands are executed - they should exit the process
     // and not return to main CLI logic
     if (result._.length > 0 &&
-        (result._[0] === 'mcp' || result._[0] === 'extensions')) {
-        // MCP commands handle their own execution and process exit
+        (result._[0] === 'mcp' || result._[0] === 'extensions' || result._[0] === 'collab')) {
+        // MCP and other subcommands handle their own execution and process exit
         process.exit(0);
     }
     // The import format is now only controlled by settings.memoryImportFormat
