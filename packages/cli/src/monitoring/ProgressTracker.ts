@@ -778,7 +778,7 @@ export class ProgressTracker extends EventEmitter {
         await this.updateTaskMetrics(taskId, dummyCheckpoint);
       }
     } catch (error) {
-      this.logger.error('Periodic analysis failed', { error });
+      this.logger.error('Periodic analysis failed', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

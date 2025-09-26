@@ -11,13 +11,13 @@ export default defineConfig({
   test: {
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', 'config.test.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**'],
-    environment: 'jsdom',
+    environment: 'node',
     globals: true,
-    reporters: ['default', 'junit'],
+    reporters: [
+      'default',
+      ['junit', { outputFile: 'junit.xml' }]
+    ],
     silent: true,
-    outputFile: {
-      junit: 'junit.xml',
-    },
     setupFiles: ['./test-setup.ts'],
     coverage: {
       enabled: true,

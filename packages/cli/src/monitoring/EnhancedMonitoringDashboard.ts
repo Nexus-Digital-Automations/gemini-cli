@@ -202,7 +202,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       });
     } catch (error) {
       this.logger.error('Failed to initialize EnhancedMonitoringDashboard', {
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }
@@ -505,7 +505,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         layoutsCount: importData.layouts?.length || 0,
       });
     } catch (error) {
-      this.logger.error('Failed to import dashboard configuration', { error });
+      this.logger.error('Failed to import dashboard configuration', { error: error instanceof Error ? error : new Error(String(error)) });
       throw error;
     }
   }
@@ -707,7 +707,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
       this.logger.error('Error updating widget data', {
         widgetId: widget.id,
         dataSource: widget.config.dataSource,
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
 
       this.cachedData.set(widget.id, {
@@ -1171,7 +1171,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
     } catch (error) {
       // File doesn't exist or is corrupted - start fresh
       this.logger.info('No persisted layouts found, starting fresh', {
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     }
   }
@@ -1188,7 +1188,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
         JSON.stringify(layoutsData, null, 2),
       );
     } catch (error) {
-      this.logger.error('Error persisting layouts', { error });
+      this.logger.error('Error persisting layouts', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

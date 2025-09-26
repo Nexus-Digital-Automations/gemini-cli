@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 27,
+      "total_reinitializations": 35,
       "current_day": "2025-09-26",
       "time_buckets": {
         "10:00-14:59": {
           "init": 0,
-          "reinit": 14
+          "reinit": 22
         },
         "15:00-19:59": {
           "init": 0,
@@ -90,14 +90,24 @@
         }
       ],
       "last_reset": "2025-09-26T16:42:44.790Z",
-      "last_updated": "2025-09-26T17:37:47.470Z"
+      "last_updated": "2025-09-26T18:17:05.660Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {
     "AGENT_GEMINI_CLI_001": {
@@ -143,7 +153,9 @@
       "status": "active",
       "reinitialized": "2025-09-26T17:08:56.846Z",
       "sessionId": "2ab724735cfbb8bf",
-      "previousSessions": ["74926804ad032868"]
+      "previousSessions": [
+        "74926804ad032868"
+      ]
     },
     "CORE_API_FIXER": {
       "lastHeartbeat": "2025-09-26T16:44:37.750Z",
@@ -227,6 +239,62 @@
       "status": "active",
       "reinitialized": "2025-09-26T17:37:47.468Z",
       "sessionId": "1c66555ad6c92bab",
+      "previousSessions": []
+    },
+    "budget-typescript-fix": {
+      "lastHeartbeat": "2025-09-26T17:47:24.971Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T17:47:24.971Z",
+      "sessionId": "a91677451aa77721",
+      "previousSessions": []
+    },
+    "Agent5": {
+      "lastHeartbeat": "2025-09-26T18:14:16.832Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:14:16.832Z",
+      "sessionId": "79a87c55760068bc",
+      "previousSessions": []
+    },
+    "agent-4-enum-string-resolver": {
+      "lastHeartbeat": "2025-09-26T18:17:02.692Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:17:02.692Z",
+      "sessionId": "9805e3bc4170693d",
+      "previousSessions": []
+    },
+    "AGENT-6-INTERFACE-COMPLIANCE": {
+      "lastHeartbeat": "2025-09-26T18:17:03.467Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:17:03.467Z",
+      "sessionId": "7bf3b1f44eab7935",
+      "previousSessions": []
+    },
+    "AGENT_2_TYPE_DEFINITIONS": {
+      "lastHeartbeat": "2025-09-26T18:17:03.652Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:17:03.652Z",
+      "sessionId": "a331af20d3702be2",
+      "previousSessions": []
+    },
+    "AGENT_8_STREAMING_ML_API_ERRORS": {
+      "lastHeartbeat": "2025-09-26T18:17:04.288Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:17:04.288Z",
+      "sessionId": "22f06992016dc9a6",
+      "previousSessions": []
+    },
+    "AGENT-10-MISC-ERROR-RESOLVER": {
+      "lastHeartbeat": "2025-09-26T18:17:05.140Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:17:05.140Z",
+      "sessionId": "16c3bf09d23830b0",
+      "previousSessions": []
+    },
+    "AGENT_3_PROPERTY_RESOLVER": {
+      "lastHeartbeat": "2025-09-26T18:17:05.653Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:17:05.653Z",
+      "sessionId": "5fb42a1746c24754",
       "previousSessions": []
     }
   }

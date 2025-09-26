@@ -534,7 +534,7 @@ export class TaskMonitor extends EventEmitter {
         }
       }
     } catch (error) {
-      this.logger.error('Periodic health check failed', { error });
+      this.logger.error('Periodic health check failed', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

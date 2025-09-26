@@ -191,7 +191,7 @@ export class MonitoringDeploymentManager {
         deploymentPath: this.deploymentPath,
       });
     } catch (error) {
-      this.logger.error('Monitoring system deployment failed', { error });
+      this.logger.error('Monitoring system deployment failed', { error: error instanceof Error ? error : new Error(String(error)) });
       await this.rollbackDeployment();
       throw error;
     }
@@ -916,7 +916,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
 
       this.logger.info('Deployment rollback completed');
     } catch (error) {
-      this.logger.error('Error during deployment rollback', { error });
+      this.logger.error('Error during deployment rollback', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

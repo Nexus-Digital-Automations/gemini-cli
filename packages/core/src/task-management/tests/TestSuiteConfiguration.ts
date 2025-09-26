@@ -153,7 +153,6 @@ export const testSuiteConfig = defineConfig({
     snapshotFormat: {
       escapeString: true,
       printBasicPrototype: true,
-      sortProperties: true,
     },
 
     // Benchmark Configuration
@@ -186,6 +185,18 @@ export const testSuiteConfig = defineConfig({
     ENTERPRISE_GRADE: 'true',
   },
 });
+
+/**
+ * Test Suite Category Configuration Interface
+ */
+interface TestSuiteCategoryConfig {
+  description: string;
+  timeout: number;
+  parallel: boolean;
+  suites: string[];
+  coverageTarget: number;
+  criticalFailureThreshold?: number;
+}
 
 /**
  * Test Suite Categories and Organization
@@ -393,7 +404,14 @@ export class TestSuiteOrchestrator {
       failedTests: 0,
       suiteResults: {},
       coverageMetrics: {},
-      qualityGates: {},
+      qualityGates: {
+        allGatesPassed: true,
+        coverage: {},
+        testQuality: {},
+        security: {},
+        performance: {},
+        documentation: {},
+      } as QualityGateResults,
       executionTime: 0,
       timestamp: new Date(),
     };
@@ -451,7 +469,7 @@ export class TestSuiteOrchestrator {
    */
   private static async executeCategoryTests(
     category: string,
-    config: any,
+    config: TestSuiteCategoryConfig,
   ): Promise<CategoryTestResult> {
     // This would integrate with actual test runner
     // For now, return mock successful results
@@ -475,7 +493,7 @@ export class TestSuiteOrchestrator {
    * Validate quality gates after test execution
    */
   private static async validateQualityGates(
-    results: TestSuiteResults,
+    _results: TestSuiteResults,
   ): Promise<QualityGateResults> {
     const gates: QualityGateResults = {
       allGatesPassed: true,

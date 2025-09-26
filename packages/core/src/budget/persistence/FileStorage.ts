@@ -14,7 +14,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { Logger } from '@google/gemini-cli/src/utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
 import type { BudgetSettings, BudgetUsageData } from '../types.js';
 import type {
   BudgetStorage,
@@ -68,7 +68,7 @@ const DEFAULT_CONFIG: Required<FileStorageConfig> = {
  * File-based storage implementation with event support
  */
 export class FileStorage implements ObservableStorage {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: Required<FileStorageConfig>;
   private readonly eventListeners = new Map<string, StorageEventListener[]>();
   private readonly metrics: StorageMetrics;
@@ -81,7 +81,7 @@ export class FileStorage implements ObservableStorage {
    * @param config - Storage configuration
    */
   constructor(projectRoot: string, config: Partial<FileStorageConfig> = {}) {
-    this.logger = new Logger('BudgetFileStorage');
+    this.logger = getComponentLogger('BudgetFileStorage');
     this.config = {
       ...DEFAULT_CONFIG,
       ...config,

@@ -210,10 +210,15 @@ export type {
   ChartSeries,
 } from './dashboard/ChartRenderer.js';
 
-// Allocation System Exports - Intelligent Budget Allocation and Optimization
+// Allocation System Type Exports
+export type {
+  AllocationSystem,
+  RecommendationEngine,
+} from './allocation/index.js';
+
+// Allocation System Value Exports - Intelligent Budget Allocation and Optimization
 export {
   // Core allocation system
-  AllocationSystem,
   createAllocationSystem,
   createAllocationCandidatesFromBudgetData,
   createRecommendationContext,
@@ -233,7 +238,6 @@ export {
   compareAlgorithmPerformance,
   ALGORITHM_REGISTRY,
   // Recommendation engine
-  RecommendationEngine,
   createRecommendationEngine,
 } from './allocation/index.js';
 
@@ -305,21 +309,14 @@ export type {
   MetricsSummary,
   AggregatedMetrics,
   TrendAnalysis,
-  StatisticalAnalysis,
   // Event management types
-  EventManagerConfig,
   EventSubscription as MonitoringEventSubscription,
   EventFilter,
   EventRoutingRule,
-  EventHandler,
   // Quota management types
   QuotaManagerConfig,
   QuotaLimit,
-  RateLimitStrategy,
-  TokenBucket,
-  SlidingWindowLimiter,
   // Data aggregation types
-  AggregatorConfig,
   AggregationConfig,
   TimeWindow,
   WindowedData,
@@ -327,8 +324,8 @@ export type {
   StreamingConfig,
   StreamSubscription,
   StreamType,
-  StreamMessage,
-  StreamFilter,
+  StreamUpdate,
+  StreamError,
   // Cache types
   CacheEntry,
   CacheConfig,

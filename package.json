@@ -94,6 +94,7 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-metrics": "^2.1.0",
+    "googleapis": "^160.0.0",
     "simple-git": "^3.28.0"
   },
   "optionalDependencies": {

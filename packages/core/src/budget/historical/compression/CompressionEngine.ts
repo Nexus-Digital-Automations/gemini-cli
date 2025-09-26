@@ -15,8 +15,7 @@
 import * as zlib from 'node:zlib';
 import * as crypto from 'node:crypto';
 import { promisify } from 'node:util';
-import { createLogger } from '../../../utils/logger.js';
-import type { Logger } from '../../../types/common.js';
+import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 import type { BudgetUsageTimeSeriesPoint } from '../storage/types.js';
 import type {
   CompressionEngine,
@@ -41,7 +40,7 @@ const brotliDecompress = promisify(zlib.brotliDecompress);
  * Supports adaptive algorithm selection and parallel processing
  */
 export class CompressionEngineImpl implements CompressionEngine {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: CompressionConfig;
   private readonly stats: CompressionStats;
   private readonly compressionCache = new Map<string, CompressedBlock>();
@@ -50,7 +49,7 @@ export class CompressionEngineImpl implements CompressionEngine {
    * Create a new compression engine
    */
   constructor(config: Partial<CompressionConfig> = {}) {
-    this.logger = createLogger('CompressionEngine');
+    this.logger = getComponentLogger('CompressionEngine');
     this.config = this.createDefaultConfig(config);
     this.stats = this.initializeStats();
 

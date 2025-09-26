@@ -328,7 +328,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       this.emit('system:initialized', { config: this.config });
     } catch (error) {
       this.logger.error('Failed to initialize RealTimeMonitoringSystem', {
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }
@@ -586,7 +586,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         await this.persistMonitoringData();
       }
     } catch (error) {
-      this.logger.error('Error collecting monitoring snapshot', { error });
+      this.logger.error('Error collecting monitoring snapshot', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 
@@ -703,7 +703,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         this.logger.error('Error evaluating alert rule', {
           ruleId,
           ruleName: rule.name,
-          error,
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }
@@ -888,7 +888,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         this.predictiveInsights = this.predictiveInsights.slice(-100);
       }
     } catch (error) {
-      this.logger.error('Error generating predictive insights', { error });
+      this.logger.error('Error generating predictive insights', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 
@@ -1289,7 +1289,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         });
 
         ws.on('error', (error) => {
-          this.logger.error('WebSocket error', { error });
+          this.logger.error('WebSocket error', { error: error instanceof Error ? error : new Error(String(error)) });
           this.connectedClients.delete(ws);
         });
       });
@@ -1298,7 +1298,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         port: this.config.websocketPort,
       });
     } catch (error) {
-      this.logger.error('Failed to initialize WebSocket server', { error });
+      this.logger.error('Failed to initialize WebSocket server', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 
@@ -1316,7 +1316,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
           disconnectedClients.add(client);
         }
       } catch (error) {
-        this.logger.error('Error broadcasting to WebSocket client', { error });
+        this.logger.error('Error broadcasting to WebSocket client', { error: error instanceof Error ? error : new Error(String(error)) });
         disconnectedClients.add(client);
       }
     }
@@ -1400,7 +1400,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         // File doesn't exist - start fresh
       }
     } catch (error) {
-      this.logger.error('Error loading persisted data', { error });
+      this.logger.error('Error loading persisted data', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 
@@ -1442,7 +1442,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         JSON.stringify(insightsData, null, 2),
       );
     } catch (error) {
-      this.logger.error('Error persisting monitoring data', { error });
+      this.logger.error('Error persisting monitoring data', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

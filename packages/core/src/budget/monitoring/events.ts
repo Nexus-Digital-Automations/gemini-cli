@@ -248,7 +248,7 @@ export class BudgetEventManager extends EventEmitter {
     } catch (error) {
       this.logger.error('Failed to emit budget event', {
         event,
-        error: error instanceof Error ? error.message : String(error),
+        errorMessage: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -438,7 +438,7 @@ export class BudgetEventManager extends EventEmitter {
           } catch (error) {
             this.logger.error('Subscription handler failed', {
               subscriptionId: subscription.id,
-              error: error instanceof Error ? error.message : String(error),
+              errorMessage: error instanceof Error ? error.message : String(error),
             });
           }
         } else {
@@ -583,7 +583,7 @@ export class BudgetEventManager extends EventEmitter {
         } catch (error) {
           this.logger.error('Historical event handler failed', {
             subscriptionId: subscription.id,
-            error: error instanceof Error ? error.message : String(error),
+            errorMessage: error instanceof Error ? error.message : String(error),
           });
         }
       }

@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from '@google/gemini-cli/src/utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
 import type { BudgetSecurityContext, BudgetPermission } from '../types.js';
 
 /**
@@ -144,7 +144,7 @@ const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
  * Budget access control and security manager
  */
 export class BudgetAccessControl {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: SecurityConfig;
   private readonly auditLog: SecurityAuditEntry[] = [];
   private readonly accessRules = new Map<string, AccessControlRule>();
@@ -163,7 +163,7 @@ export class BudgetAccessControl {
    * @param config - Security configuration
    */
   constructor(config: Partial<SecurityConfig> = {}) {
-    this.logger = new Logger('BudgetAccessControl');
+    this.logger = getComponentLogger('BudgetAccessControl');
     this.config = { ...DEFAULT_SECURITY_CONFIG, ...config };
 
     // Register default access control rules

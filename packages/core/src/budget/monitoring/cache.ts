@@ -156,7 +156,7 @@ export class TokenUsageCache extends EventEmitter {
   private cache = new Map<string, CacheEntry>();
   private config: CacheConfig;
   private stats: CacheStats;
-  private cleanupTimer?: NodeJS.Timer;
+  private cleanupTimer?: NodeJS.Timeout;
   private prefetchQueue = new Map<string, PrefetchConfig>();
   private accessTimes = new Map<string, number[]>();
   private compressionCache = new Map<string, Buffer>();

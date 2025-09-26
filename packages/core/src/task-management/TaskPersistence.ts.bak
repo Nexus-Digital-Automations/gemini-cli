@@ -157,8 +157,8 @@ export class TaskPersistence extends EventEmitter {
 
       this.emit('initialized');
     } catch (error) {
-      logger().error('Failed to initialize task persistence', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to initialize task persistence', {
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -172,7 +172,7 @@ export class TaskPersistence extends EventEmitter {
     fn: (task: Task, context: any) => Promise<any>,
   ): void {
     this.functionRegistry.executeFunctions.set(name, fn);
-    logger().debug(`Registered execute function: ${name}`);
+    logger.debug(`Registered execute function: ${name}`);
   }
 
   /**
@@ -183,7 +183,7 @@ export class TaskPersistence extends EventEmitter {
     fn: (task: Task, context: any) => Promise<boolean>,
   ): void {
     this.functionRegistry.validateFunctions.set(name, fn);
-    logger().debug(`Registered validate function: ${name}`);
+    logger.debug(`Registered validate function: ${name}`);
   }
 
   /**
@@ -194,7 +194,7 @@ export class TaskPersistence extends EventEmitter {
     fn: (task: Task, context: any) => Promise<void>,
   ): void {
     this.functionRegistry.rollbackFunctions.set(name, fn);
-    logger().debug(`Registered rollback function: ${name}`);
+    logger.debug(`Registered rollback function: ${name}`);
   }
 
   /**
@@ -240,7 +240,7 @@ export class TaskPersistence extends EventEmitter {
       await fs.writeFile(tempPath, data, 'utf-8');
       await fs.rename(tempPath, filePath);
 
-      logger().info('Queue state saved successfully', {
+      logger.info('Queue state saved successfully', {
         filePath,
         taskCount: tasks.size,
         sessionId,
@@ -248,8 +248,8 @@ export class TaskPersistence extends EventEmitter {
 
       this.emit('stateSaved', state);
     } catch (error) {
-      logger().error('Failed to save queue state', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to save queue state', {
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -277,7 +277,7 @@ export class TaskPersistence extends EventEmitter {
       try {
         await fs.access(filePath);
       } catch {
-        logger().info('No existing queue state found');
+        logger.info('No existing queue state found');
         return null;
       }
 
@@ -313,7 +313,7 @@ export class TaskPersistence extends EventEmitter {
 
       const runningTasks = new Set<string>(state.runningTasks);
 
-      logger().info('Queue state loaded successfully', {
+      logger.info('Queue state loaded successfully', {
         taskCount: tasks.size,
         dependencyCount: dependencies.size,
         sessionId: state.sessionId,
@@ -331,8 +331,8 @@ export class TaskPersistence extends EventEmitter {
         sessionId: state.sessionId,
       };
     } catch (error) {
-      logger().error('Failed to load queue state', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to load queue state', {
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -364,7 +364,7 @@ export class TaskPersistence extends EventEmitter {
         const data = await fs.readFile(sourcePath, 'utf-8');
         await fs.writeFile(backupPath, data);
 
-        logger().info('Backup created successfully', {
+        logger.info('Backup created successfully', {
           backupPath,
           sessionId,
         });
@@ -376,14 +376,14 @@ export class TaskPersistence extends EventEmitter {
 
         return backupPath;
       } catch (sourceError) {
-        logger().warn('No source file found for backup, skipping', {
+        logger.warn('No source file found for backup, skipping', {
           sourcePath,
         });
         return '';
       }
     } catch (error) {
-      logger().error('Failed to create backup', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to create backup', {
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -414,16 +414,16 @@ export class TaskPersistence extends EventEmitter {
       // Restore the backup
       await fs.writeFile(targetPath, backupData);
 
-      logger().info('Restored from backup successfully', {
+      logger.info('Restored from backup successfully', {
         backupPath,
         taskCount: state.tasks.length,
       });
 
       this.emit('backupRestored', { path: backupPath, state });
     } catch (error) {
-      logger().error('Failed to restore from backup', {
+      logger.error('Failed to restore from backup', {
         backupPath,
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -478,8 +478,8 @@ export class TaskPersistence extends EventEmitter {
 
       return backups;
     } catch (error) {
-      logger().error('Failed to list backups', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to list backups', {
+        error: error instanceof Error ? error.message : String(error),
       });
       return [];
     }
@@ -517,7 +517,7 @@ export class TaskPersistence extends EventEmitter {
 
       await fs.writeFile(exportPath, exportData);
 
-      logger().info('State exported successfully', {
+      logger.info('State exported successfully', {
         exportPath,
         format,
       });
@@ -526,9 +526,9 @@ export class TaskPersistence extends EventEmitter {
 
       return exportPath;
     } catch (error) {
-      logger().error('Failed to export state', {
+      logger.error('Failed to export state', {
         format,
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -578,7 +578,7 @@ export class TaskPersistence extends EventEmitter {
         }
       }
 
-      logger().info('State imported successfully', {
+      logger.info('State imported successfully', {
         filePath,
         merge,
         taskCount: importedState.tasks.length,
@@ -590,10 +590,10 @@ export class TaskPersistence extends EventEmitter {
         state: importedState,
       });
     } catch (error) {
-      logger().error('Failed to import state', {
+      logger.error('Failed to import state', {
         filePath,
         merge,
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -620,14 +620,14 @@ export class TaskPersistence extends EventEmitter {
 
         if (stats.mtime.getTime() < cutoff) {
           await fs.unlink(filePath);
-          logger().info(`Cleaned up old export file: ${file}`);
+          logger.info(`Cleaned up old export file: ${file}`);
         }
       }
 
       this.emit('cleanupCompleted', { cutoff: new Date(cutoff) });
     } catch (error) {
-      logger().error('Failed to cleanup storage', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to cleanup storage', {
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -708,8 +708,8 @@ export class TaskPersistence extends EventEmitter {
 
       return stats;
     } catch (error) {
-      logger().error('Failed to get storage statistics', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Failed to get storage statistics', {
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
@@ -784,7 +784,7 @@ export class TaskPersistence extends EventEmitter {
       if (executeFunction) {
         task.executeFunction = executeFunction;
       } else {
-        logger().warn(
+        logger.warn(
           `Execute function not found in registry: ${serializedTask.executeFunctionName}`,
           {
             taskId: task.id,
@@ -825,7 +825,7 @@ export class TaskPersistence extends EventEmitter {
    * Migrate state to current version
    */
   private async migrateState(state: PersistedQueueState): Promise<void> {
-    logger().info(`Migrating state from version ${state.version} to 1.0.0`);
+    logger.info(`Migrating state from version ${state.version} to 1.0.0`);
 
     // Add migration logic for different versions
     if (!state.version || state.version < '1.0.0') {
@@ -963,7 +963,7 @@ export class TaskPersistence extends EventEmitter {
         const filesToRemove = fileStats.slice(maxBackups);
         for (const file of filesToRemove) {
           await fs.unlink(file.path);
-          logger().info(`Removed old backup: ${file.name}`);
+          logger.info(`Removed old backup: ${file.name}`);
         }
       }
 
@@ -974,14 +974,14 @@ export class TaskPersistence extends EventEmitter {
         );
         for (const file of oldFiles) {
           await fs.unlink(file.path);
-          logger().info(`Removed old backup: ${file.name}`);
+          logger.info(`Removed old backup: ${file.name}`);
         }
       }
     } catch (error) {
       // Backup directory might not exist, which is fine
       if ((error as any).code !== 'ENOENT') {
-        logger().warn('Failed to cleanup old backups', {
-          error: error instanceof Error ? error : new Error(String(error)),
+        logger.warn('Failed to cleanup old backups', {
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -999,7 +999,7 @@ export class TaskPersistence extends EventEmitter {
       this.emit('autoSaveRequested');
     }, this.options.autoSaveInterval);
 
-    logger().debug('Auto-save timer started', {
+    logger.debug('Auto-save timer started', {
       interval: this.options.autoSaveInterval,
     });
   }
@@ -1014,13 +1014,13 @@ export class TaskPersistence extends EventEmitter {
 
     this.backupTimer = setInterval(() => {
       this.createBackup().catch((error) => {
-        logger().error('Automatic backup failed', {
-          error: error instanceof Error ? error : new Error(String(error)),
+        logger.error('Automatic backup failed', {
+          error: error instanceof Error ? error.message : String(error),
         });
       });
     }, this.options.backupConfig.interval);
 
-    logger().debug('Backup timer started', {
+    logger.debug('Backup timer started', {
       interval: this.options.backupConfig.interval,
     });
   }
@@ -1039,7 +1039,7 @@ export class TaskPersistence extends EventEmitter {
       this.backupTimer = undefined;
     }
 
-    logger().info('Task persistence stopped');
+    logger.info('Task persistence stopped');
     this.emit('stopped');
   }
 
@@ -1057,7 +1057,7 @@ export class TaskPersistence extends EventEmitter {
     this.isInitialized = false;
     this.emit('shutdown');
 
-    logger().info('Task persistence shutdown completed');
+    logger.info('Task persistence shutdown completed');
   }
 
   /**
@@ -1065,8 +1065,8 @@ export class TaskPersistence extends EventEmitter {
    */
   destroy(): void {
     this.shutdown().catch((error) => {
-      logger().error('Error during persistence destruction', {
-        error: error instanceof Error ? error : new Error(String(error)),
+      logger.error('Error during persistence destruction', {
+        error: error instanceof Error ? error.message : String(error),
       });
     });
   }
@@ -1076,7 +1076,7 @@ export class TaskPersistence extends EventEmitter {
    */
   registerFunction(name: string, func: (task: Task, context: any) => Promise<any>): void {
     this.functionRegistry.executeFunctions.set(name, func);
-    logger().debug('Function registered', { name });
+    logger.debug('Function registered', { name });
   }
 
   /**
@@ -1085,7 +1085,7 @@ export class TaskPersistence extends EventEmitter {
   getRegisteredFunction(name: string): ((task: Task, context: any) => Promise<any>) | undefined {
     const func = this.functionRegistry.executeFunctions.get(name);
     if (!func) {
-      logger().warn('Function not found in registry', { name });
+      logger.warn('Function not found in registry', { name });
       // Return a fallback function
       return async () => ({ success: false, error: 'Function not found' });
     }

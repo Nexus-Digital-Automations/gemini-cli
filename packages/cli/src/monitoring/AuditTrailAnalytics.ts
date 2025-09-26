@@ -1124,7 +1124,7 @@ export class AuditTrailAnalytics extends EventEmitter {
 
       this.emit('audit:data-persisted', { persistenceData });
     } catch (error) {
-      this.logger.error('Failed to persist audit data', { error });
+      this.logger.error('Failed to persist audit data', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

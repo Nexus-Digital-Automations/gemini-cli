@@ -354,7 +354,7 @@ export interface KnowledgeStats {
  * ```
  */
 export class KnowledgeBaseManager {
-  private readonly logger = logger.child({ component: 'KnowledgeBaseManager' });
+  private readonly logger = logger().child({ component: 'KnowledgeBaseManager' });
   private sources: Map<string, KnowledgeSource> = new Map();
   private documents: Map<string, KnowledgeDocument> = new Map();
   private patterns: Map<string, InstitutionalPattern> = new Map();

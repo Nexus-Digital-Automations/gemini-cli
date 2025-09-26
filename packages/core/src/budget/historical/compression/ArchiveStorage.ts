@@ -16,7 +16,6 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { createLogger } from '../../../utils/logger.js';
-import type { Logger } from '../../../types/common.js';
 import type {
   ArchiveStorage,
   CompressedBlock,
@@ -55,7 +54,7 @@ interface ArchiveIndex {
  * Provides efficient compressed data storage with metadata indexing
  */
 export class ArchiveStorageImpl implements ArchiveStorage {
-  private readonly logger: Logger;
+  private readonly logger;
   private readonly storagePath: string;
   private readonly indexPath: string;
   private readonly maxFileSize: number;
@@ -66,7 +65,7 @@ export class ArchiveStorageImpl implements ArchiveStorage {
    * Create a new archive storage instance
    */
   constructor(config: { storagePath: string; maxFileSize?: number }) {
-    this.logger = createLogger('ArchiveStorage');
+    this.logger = createLogger().child({ component: 'ArchiveStorage' });
     this.storagePath = path.resolve(config.storagePath);
     this.indexPath = path.join(this.storagePath, 'archive-index.json');
     this.maxFileSize = config.maxFileSize || 50 * 1024 * 1024; // 50MB default
@@ -546,7 +545,16 @@ export class ArchiveStorageImpl implements ArchiveStorage {
       totalSize: 0,
       blocks: {},
       timeIndex: {},
-      algorithmIndex: {},
+      algorithmIndex: {
+        gzip: [],
+        brotli: [],
+        lz4: [],
+        snappy: [],
+        delta: [],
+        rle: [],
+        huffman: [],
+        adaptive: [],
+      },
     };
   }
 

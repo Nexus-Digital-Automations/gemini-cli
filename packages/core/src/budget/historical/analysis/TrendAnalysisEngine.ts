@@ -12,8 +12,7 @@
  * @version 1.0.0
  */
 
-import { createLogger } from '../../../utils/logger.js';
-import type { Logger } from '../../../types/common.js';
+import { createLogger, type StructuredLogger } from '../../../utils/logger.js';
 import type { BudgetUsageTimeSeriesPoint } from '../storage/types.js';
 import type {
   TrendAnalysisEngine,
@@ -35,14 +34,14 @@ import type {
  * Implements comprehensive statistical analysis for budget usage patterns
  */
 export class TrendAnalysisEngineImpl implements TrendAnalysisEngine {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: AnalysisConfig;
 
   /**
    * Create a new trend analysis engine
    */
   constructor(config: Partial<AnalysisConfig> = {}) {
-    this.logger = createLogger('TrendAnalysisEngine');
+    this.logger = createLogger().child({ component: 'TrendAnalysisEngine' });
     this.config = this.createDefaultConfig(config);
 
     this.logger.info('TrendAnalysisEngine initialized', {

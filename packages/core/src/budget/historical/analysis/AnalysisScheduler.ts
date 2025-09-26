@@ -12,8 +12,7 @@
  * @version 1.0.0
  */
 
-import { createLogger } from '../../../utils/logger.js';
-import type { Logger } from '../../../types/common.js';
+import { createLogger, type StructuredLogger } from '../../../utils/logger.js';
 import type { BudgetUsageTimeSeriesPoint } from '../storage/types.js';
 import type { QueryBuilder } from '../querying/types.js';
 import type {
@@ -41,7 +40,7 @@ interface JobExecutionContext {
  * Manages long-running analysis tasks with progress tracking and cancellation
  */
 export class AnalysisSchedulerImpl implements AnalysisScheduler {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly trendEngine: TrendAnalysisEngine;
   private readonly dataQueryBuilder: () => QueryBuilder;
 
@@ -68,7 +67,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
       jobRetentionDays?: number;
     } = {},
   ) {
-    this.logger = createLogger('AnalysisScheduler');
+    this.logger = createLogger().child({ component: 'AnalysisScheduler' });
     this.trendEngine = trendEngine;
     this.dataQueryBuilder = dataQueryBuilder;
 
@@ -471,7 +470,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     // Apply filters if specified
     if (job.dataQuery.filters) {
       Object.entries(job.dataQuery.filters).forEach(([field, value]) => {
-        queryBuilder.where(field, 'equals', value);
+        queryBuilder.where(field, 'eq', value);
       });
     }
 

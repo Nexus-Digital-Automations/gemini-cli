@@ -252,7 +252,7 @@ const BUILT_IN_PERSONAS: Record<string, PersonaProfile> = {
  * ```
  */
 export class PersonaManager {
-  private readonly logger = logger.child({ component: 'PersonaManager' });
+  private readonly logger = logger().child({ component: 'PersonaManager' });
   private personas: Map<string, PersonaProfile> = new Map();
   private activePersonaId: string = 'professional';
 

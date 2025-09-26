@@ -12,8 +12,9 @@
  * @version 1.0.0
  */
 
-import { Logger } from '@google/gemini-cli/src/utils/logger.js';
-import type { BudgetEvent, BudgetEventType, EventSeverity } from '../types.js';
+import { createLogger } from '../../utils/logger.js';
+import type { BudgetEvent, BudgetSettings } from '../types.js';
+import { BudgetEventType, EventSeverity } from '../types.js';
 
 /**
  * Event handler function type
@@ -91,7 +92,7 @@ export interface EventStatistics {
  * Comprehensive budget event system with filtering, batching, and monitoring
  */
 export class BudgetEventSystem {
-  private readonly logger: Logger;
+  private readonly logger;
   private readonly subscriptions = new Map<string, EventSubscription>();
   private readonly eventQueue = new Map<string, QueuedEvent[]>();
   private readonly batchTimers = new Map<string, NodeJS.Timeout>();
@@ -103,7 +104,7 @@ export class BudgetEventSystem {
    * Create new budget event system
    */
   constructor() {
-    this.logger = new Logger('BudgetEventSystem');
+    this.logger = createLogger().child({ component: 'BudgetEventSystem' });
 
     this.statistics = {
       totalEvents: 0,
@@ -344,8 +345,8 @@ export class BudgetEventSystem {
        */
       settingsChanged: (data: {
         changedFields: string[];
-        oldSettings: any;
-        newSettings: any;
+        oldSettings: BudgetSettings;
+        newSettings: BudgetSettings;
         source: string;
       }) =>
         this.emit({
@@ -398,7 +399,7 @@ export class BudgetEventSystem {
   getSubscriptions(): Array<Omit<EventSubscription, 'handler'>> {
     return Array.from(this.subscriptions.values())
       .filter((sub) => sub.active)
-      .map(({ handler, ...subscription }) => subscription);
+      .map(({ handler: _handler, ...subscription }) => subscription);
   }
 
   /**

@@ -353,7 +353,7 @@ export class MetricsCollector extends EventEmitter {
     } catch (error) {
       this.logger.warn('Failed to collect performance marks', {
         taskId,
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     }
 
@@ -673,7 +673,7 @@ export class MetricsCollector extends EventEmitter {
         entryTypes: ['measure', 'navigation', 'mark'],
       });
     } catch (error) {
-      this.logger.warn('Performance observer not available', { error });
+      this.logger.warn('Performance observer not available', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 
@@ -742,7 +742,7 @@ export class MetricsCollector extends EventEmitter {
 
         this.emit('metrics:collected', metrics);
       } catch (error) {
-        this.logger.error('Failed to collect system metrics', { error });
+        this.logger.error('Failed to collect system metrics', { error: error instanceof Error ? error : new Error(String(error)) });
       }
     }, this.collectionIntervalMs);
   }
@@ -753,7 +753,7 @@ export class MetricsCollector extends EventEmitter {
         await this.analyzePerformanceBottlenecks();
         this.updateAgentPerformanceProfiles();
       } catch (error) {
-        this.logger.error('Failed to perform periodic analysis', { error });
+        this.logger.error('Failed to perform periodic analysis', { error: error instanceof Error ? error : new Error(String(error)) });
       }
     }, this.analysisIntervalMs);
   }

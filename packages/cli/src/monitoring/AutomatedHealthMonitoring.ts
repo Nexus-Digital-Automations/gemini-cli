@@ -260,7 +260,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       });
     } catch (error) {
       this.logger.error('Failed to initialize AutomatedHealthMonitoring', {
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }
@@ -731,7 +731,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
       } catch (error) {
         this.logger.error('Health check execution error', {
           checkId: config.id,
-          error,
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }, config.interval);
@@ -1121,7 +1121,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
           this.logger.error('Self-healing action execution failed', {
             actionId: action.id,
             checkId,
-            error,
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }
@@ -1906,7 +1906,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
         JSON.stringify(historyData, null, 2),
       );
     } catch (error) {
-      this.logger.error('Failed to persist health monitoring state', { error });
+      this.logger.error('Failed to persist health monitoring state', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

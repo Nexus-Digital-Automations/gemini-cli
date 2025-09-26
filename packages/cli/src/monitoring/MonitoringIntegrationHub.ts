@@ -174,7 +174,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
       });
     } catch (error) {
       this.logger.error('Failed to initialize MonitoringIntegrationHub', {
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }
@@ -562,7 +562,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
           this.sendWebhook(webhook, event).catch((error) => {
             this.logger.error('Failed to send webhook', {
               webhook: webhook.url,
-              error,
+              error: error instanceof Error ? error : new Error(String(error)),
             });
           });
         }
@@ -590,7 +590,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
       try {
         await this.performDataSynchronization();
       } catch (error) {
-        this.logger.error('Data synchronization failed', { error });
+        this.logger.error('Data synchronization failed', { error: error instanceof Error ? error : new Error(String(error)) });
       }
     }, this.config.syncIntervalMs);
 
@@ -738,7 +738,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
       try {
         await this.performMetricsExport();
       } catch (error) {
-        this.logger.error('Metrics export failed', { error });
+        this.logger.error('Metrics export failed', { error: error instanceof Error ? error : new Error(String(error)) });
       }
     }, 60000); // Every minute
 
@@ -756,7 +756,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
 
         this.logger.debug('Metrics exported', { format, filepath });
       } catch (error) {
-        this.logger.error('Failed to export metrics', { format, error });
+        this.logger.error('Failed to export metrics', { format, error: error instanceof Error ? error : new Error(String(error)) });
       }
     }
   }

@@ -714,7 +714,7 @@ export class AlertSystem extends EventEmitter {
     } catch (error) {
       this.logger.error('Rule condition evaluation failed', {
         ruleId: rule.id,
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return false;
     }
@@ -965,7 +965,7 @@ export class AlertSystem extends EventEmitter {
         this.logger.error('Notification delivery failed', {
           alertId: alert.id,
           channel,
-          error,
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }
@@ -1036,7 +1036,7 @@ export class AlertSystem extends EventEmitter {
         this.logger.error('Auto-remediation failed', {
           alertId: alert.id,
           action,
-          error,
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }

@@ -314,15 +314,28 @@ export class TestFactories {
     const baseConfig: Partial<Config> = {
       getModel: vi.fn(() => 'gemini-2.0-pro'),
       getToolRegistry: vi.fn(() => ({
+        tools: new Map(),
+        config: {} as any,
+        mcpClientManager: {} as any,
+        registerTool: vi.fn(),
         getTool: vi.fn(),
         getAllTools: vi.fn(() => []),
         getAllToolNames: vi.fn(() => []),
         getFunctionDeclarationsFiltered: vi.fn(() => []),
+        getToolsByServer: vi.fn(() => []),
+        refreshMcpTools: vi.fn(),
+        discoverMcpServers: vi.fn(),
+        destroy: vi.fn(),
       })),
       storage: {
+        targetDir: '/tmp/test-project',
+        getFilePathHash: vi.fn(() => 'test-hash'),
         getProjectTempDir: vi.fn(() => '/tmp/test-project'),
         ensureProjectTempDir: vi.fn(),
-      } as Partial<Config['storage']>,
+        getProjectGeminiDir: vi.fn(() => '/tmp/test-project/.gemini'),
+        ensureProjectGeminiDir: vi.fn(),
+        getProjectRoot: vi.fn(() => '/tmp/test-project'),
+      } as any,
       getSessionId: vi.fn(() => 'test-session-id'),
       settings: {
         get: vi.fn((key: string) => {
@@ -999,5 +1012,54 @@ export class MockDataGenerators {
     }
 
     return contexts;
+  }
+}
+
+// Export aliases for backwards compatibility
+export const TaskFactories = TestFactories;
+export const TestUtilities = TestUtils;
+
+// Mock exports that other test files expect
+export class MockTaskStore {
+  private tasks: Map<string, any> = new Map();
+
+  async save(key: string, value: any): Promise<void> {
+    this.tasks.set(key, value);
+  }
+
+  async load(key: string): Promise<any> {
+    return this.tasks.get(key);
+  }
+
+  async delete(key: string): Promise<void> {
+    this.tasks.delete(key);
+  }
+
+  async list(): Promise<string[]> {
+    return Array.from(this.tasks.keys());
+  }
+
+  clear(): void {
+    this.tasks.clear();
+  }
+}
+
+export class PerformanceMetrics {
+  private metrics: Map<string, number> = new Map();
+
+  record(name: string, value: number): void {
+    this.metrics.set(name, value);
+  }
+
+  get(name: string): number | undefined {
+    return this.metrics.get(name);
+  }
+
+  getAll(): Record<string, number> {
+    return Object.fromEntries(this.metrics);
+  }
+
+  clear(): void {
+    this.metrics.clear();
   }
 }

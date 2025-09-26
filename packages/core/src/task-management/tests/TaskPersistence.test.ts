@@ -21,8 +21,8 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { PersistedQueueState } from '../TaskPersistence.js';
 import { TaskPersistence, SerializedTask } from '../TaskPersistence.js';
-import type { Task } from '../TaskQueue.js';
-import { TaskStatus, TaskPriority } from '../TaskQueue.js';
+import type { Task, PriorityFactors } from '../TaskQueue.js';
+import { TaskStatus, TaskPriority, TaskCategory } from '../TaskQueue.js';
 import type { TaskDependency } from '../DependencyResolver.js';
 import { DependencyType } from '../DependencyResolver.js';
 
@@ -73,18 +73,27 @@ describe('TaskPersistence', () => {
           id: 'task-1',
           title: 'Test Task 1',
           description: 'First test task',
+          category: TaskCategory.FEATURE,
           status: TaskStatus.PENDING,
           priority: TaskPriority.HIGH,
+          basePriority: TaskPriority.HIGH,
+          dynamicPriority: 5,
           createdAt: new Date('2024-01-01T00:00:00Z'),
-          updatedAt: new Date('2024-01-01T01:00:00Z'),
           executeFunction: async () => ({ success: true }),
           dependencies: [],
-          priorityFactors: {},
-          executionHistory: [],
+          dependents: [],
+          priorityFactors: {
+            age: 1,
+            userImportance: 5,
+            systemCriticality: 4,
+            dependencyWeight: 2,
+            resourceAvailability: 3,
+            executionHistory: 4
+          } as PriorityFactors,
           estimatedDuration: 1000,
-          actualDuration: null,
-          retryCount: 0,
+          actualDuration: undefined,
           maxRetries: 3,
+          currentRetries: 0,
           tags: ['test', 'high-priority'],
         },
       ],
@@ -94,26 +103,28 @@ describe('TaskPersistence', () => {
           id: 'task-2',
           title: 'Test Task 2',
           description: 'Second test task',
+          category: TaskCategory.TEST,
           status: TaskStatus.COMPLETED,
           priority: TaskPriority.MEDIUM,
+          basePriority: TaskPriority.MEDIUM,
+          dynamicPriority: 3,
           createdAt: new Date('2024-01-01T00:30:00Z'),
-          updatedAt: new Date('2024-01-01T02:00:00Z'),
+          completedAt: new Date('2024-01-01T02:00:00Z'),
           executeFunction: async () => ({ success: true }),
           dependencies: ['task-1'],
-          priorityFactors: {},
-          executionHistory: [
-            {
-              startTime: new Date('2024-01-01T01:30:00Z'),
-              endTime: new Date('2024-01-01T02:00:00Z'),
-              duration: 1800000,
-              success: true,
-              result: { success: true },
-            },
-          ],
+          dependents: [],
+          priorityFactors: {
+            age: 2,
+            userImportance: 3,
+            systemCriticality: 3,
+            dependencyWeight: 4,
+            resourceAvailability: 5,
+            executionHistory: 5
+          } as PriorityFactors,
           estimatedDuration: 2000,
           actualDuration: 1800000,
-          retryCount: 0,
           maxRetries: 3,
+          currentRetries: 0,
           tags: ['test'],
         },
       ],
@@ -153,8 +164,11 @@ describe('TaskPersistence', () => {
       await persistence.saveQueueState(
         mockTasks,
         mockDependencies,
-        new Map([['metric1', 100]]),
-        { version: '1.0.0', lastSave: new Date() },
+        new Map(), // completedTasks
+        new Map(), // failedTasks
+        new Set(), // runningTasks
+        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 }, // metrics
+        'test-session'
       );
 
       expect(mockMkdir).toHaveBeenCalled();
@@ -192,7 +206,14 @@ describe('TaskPersistence', () => {
             updatedAt: new Date(),
             executeFunction: customFunction,
             dependencies: [],
-            priorityFactors: {},
+            priorityFactors: {
+              age: 1,
+              userImportance: 3,
+              systemCriticality: 3,
+              dependencyWeight: 2,
+              resourceAvailability: 4,
+              executionHistory: 3
+            } as PriorityFactors,
             executionHistory: [],
             functionName: 'customExecute', // Function registry name
           } as Task,
@@ -209,7 +230,10 @@ describe('TaskPersistence', () => {
         taskWithCustomFunction,
         new Map(),
         new Map(),
-        {},
+        new Map(),
+        new Set(),
+        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        'test-session'
       );
 
       const writeCall = mockWriteFile.mock.calls[0];
@@ -238,7 +262,10 @@ describe('TaskPersistence', () => {
         mockTasks,
         mockDependencies,
         new Map(),
-        {},
+        new Map(),
+        new Set(),
+        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        'test-session'
       );
 
       // Verify that compression was applied (data should not be plain JSON)
@@ -266,11 +293,18 @@ describe('TaskPersistence', () => {
             description: 'Task restored from persistence',
             status: TaskStatus.PENDING,
             priority: TaskPriority.HIGH,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T01:00:00Z',
+            createdAt: new Date('2024-01-01T00:00:00Z'),
+            updatedAt: new Date('2024-01-01T01:00:00Z'),
             functionName: 'defaultExecute',
             dependencies: [],
-            priorityFactors: {},
+            priorityFactors: {
+              age: 1,
+              userImportance: 3,
+              systemCriticality: 3,
+              dependencyWeight: 2,
+              resourceAvailability: 4,
+              executionHistory: 3
+            } as PriorityFactors,
             executionHistory: [],
           },
         ],
@@ -311,11 +345,18 @@ describe('TaskPersistence', () => {
             description: 'Task with unregistered function',
             status: TaskStatus.PENDING,
             priority: TaskPriority.MEDIUM,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T01:00:00Z',
+            createdAt: new Date('2024-01-01T00:00:00Z'),
+            updatedAt: new Date('2024-01-01T01:00:00Z'),
             functionName: 'missingFunction',
             dependencies: [],
-            priorityFactors: {},
+            priorityFactors: {
+              age: 1,
+              userImportance: 3,
+              systemCriticality: 3,
+              dependencyWeight: 2,
+              resourceAvailability: 4,
+              executionHistory: 3
+            } as PriorityFactors,
             executionHistory: [],
           },
         ],
@@ -383,12 +424,7 @@ describe('TaskPersistence', () => {
       mockWriteFile.mockResolvedValue();
       mockReaddir.mockResolvedValue([]);
 
-      await persistence.createBackup(
-        mockTasks,
-        mockDependencies,
-        new Map(),
-        {},
-      );
+      await persistence.createBackup('test-session');
 
       // Should create both main file and backup
       expect(mockWriteFile).toHaveBeenCalledTimes(2);
@@ -455,11 +491,18 @@ describe('TaskPersistence', () => {
             description: 'Task restored from backup',
             status: TaskStatus.PENDING,
             priority: TaskPriority.MEDIUM,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T01:00:00Z',
+            createdAt: new Date('2024-01-01T00:00:00Z'),
+            updatedAt: new Date('2024-01-01T01:00:00Z'),
             functionName: 'defaultExecute',
             dependencies: [],
-            priorityFactors: {},
+            priorityFactors: {
+              age: 1,
+              userImportance: 3,
+              systemCriticality: 3,
+              dependencyWeight: 2,
+              resourceAvailability: 4,
+              executionHistory: 3
+            } as PriorityFactors,
             executionHistory: [],
           },
         ],
@@ -572,7 +615,15 @@ describe('TaskPersistence', () => {
       mockWriteFile.mockResolvedValue();
 
       const startTime = Date.now();
-      await persistence.saveQueueState(largeTasks, new Map(), new Map(), {});
+      await persistence.saveQueueState(
+        largeTasks,
+        new Map(),
+        new Map(),
+        new Map(),
+        new Set(),
+        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        'test-session'
+      );
       const endTime = Date.now();
 
       // Should complete within reasonable time (5 seconds for 10k tasks)
@@ -621,7 +672,10 @@ describe('TaskPersistence', () => {
         largeTasks,
         new Map(),
         new Map(),
-        {},
+        new Map(),
+        new Set(),
+        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        'test-session'
       );
 
       expect(streamingSpy).toHaveBeenCalled();
@@ -645,7 +699,10 @@ describe('TaskPersistence', () => {
         mockTasks,
         mockDependencies,
         new Map(),
-        {},
+        new Map(),
+        new Set(),
+        { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+        'test-session'
       );
 
       expect(saveSpy).toHaveBeenCalledWith(
@@ -698,7 +755,15 @@ describe('TaskPersistence', () => {
       mockWriteFile.mockRejectedValue(new Error('Disk full'));
 
       await expect(
-        persistence.saveQueueState(mockTasks, mockDependencies, new Map(), {}),
+        persistence.saveQueueState(
+          mockTasks,
+          mockDependencies,
+          new Map(),
+          new Map(),
+          new Set(),
+          { tasksExecuted: 0, averageExecutionTime: 0, successRate: 1.0 },
+          'test-session'
+        ),
       ).rejects.toThrow();
 
       expect(errorSpy).toHaveBeenCalledWith(

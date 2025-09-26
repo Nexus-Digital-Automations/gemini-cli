@@ -470,7 +470,7 @@ export class HealthDiagnostics extends EventEmitter {
       } catch (error) {
         this.logger.error('Scheduled health check failed', {
           componentName,
-          error,
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }, config.checkInterval);
@@ -755,7 +755,7 @@ export class HealthDiagnostics extends EventEmitter {
           });
         }
       } catch (error) {
-        this.logger.error('Failed to update system health summary', { error });
+        this.logger.error('Failed to update system health summary', { error: error instanceof Error ? error : new Error(String(error)) });
       }
     }, 300000); // 5 minutes
   }

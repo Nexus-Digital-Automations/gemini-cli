@@ -603,7 +603,7 @@ export class NotificationSystem extends EventEmitter {
       this.logger.error('Notification delivery failed', {
         userId,
         channel,
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     }
   }

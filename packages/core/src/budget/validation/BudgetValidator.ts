@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from '@google/gemini-cli/src/utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
 import type {
   BudgetSettings,
   BudgetUsageData,
@@ -354,14 +354,14 @@ class RequestFrequencyRule implements ValidationRule {
  * Comprehensive budget validator with configurable rules
  */
 export class BudgetValidator {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly rules: Map<string, ValidationRule>;
 
   /**
    * Create new budget validator
    */
   constructor() {
-    this.logger = new Logger('BudgetValidator');
+    this.logger = getComponentLogger('BudgetValidator');
     this.rules = new Map();
 
     // Register default rules

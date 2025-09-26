@@ -1,0 +1,4 @@
+
+> @google/gemini-cli@0.7.0-nightly.20250918.2722473a lint
+> eslint . --ext .ts,.tsx
+

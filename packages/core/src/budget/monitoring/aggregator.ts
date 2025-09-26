@@ -135,6 +135,20 @@ export interface AggregationResult {
 }
 
 /**
+ * Windowed data result structure
+ */
+export interface WindowedData {
+  /** Time window used */
+  window: TimeWindow;
+  /** Data points in window */
+  dataPoints: MetricsDataPoint[];
+  /** Window start time */
+  startTime: Date;
+  /** Window end time */
+  endTime: Date;
+}
+
+/**
  * Statistical analysis result
  */
 export interface StatisticalAnalysis {
@@ -408,20 +422,10 @@ export class TokenDataAggregator extends EventEmitter {
     window: TimeWindow,
     endTime?: Date,
     maxWindows?: number,
-  ): Array<{
-    window: TimeWindow;
-    dataPoints: MetricsDataPoint[];
-    startTime: Date;
-    endTime: Date;
-  }> {
+  ): WindowedData[] {
     const end = endTime || new Date();
     const maxCount = maxWindows || 100;
-    const results: Array<{
-      window: TimeWindow;
-      dataPoints: MetricsDataPoint[];
-      startTime: Date;
-      endTime: Date;
-    }> = [];
+    const results: WindowedData[] = [];
 
     for (let i = 0; i < maxCount; i++) {
       const windowEnd = new Date(end.getTime() - i * window.durationMs);
@@ -706,7 +710,7 @@ export class TokenDataAggregator extends EventEmitter {
     } catch (error) {
       this.logger.error('Failed to update aggregation', {
         configId: config.id,
-        error: error instanceof Error ? error.message : String(error),
+        errorMessage: error instanceof Error ? error.message : String(error),
       });
     }
   }

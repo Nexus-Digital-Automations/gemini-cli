@@ -9,8 +9,8 @@ import {
   createBudgetTracker,
   createAnalyticsEngine,
   createBudgetDashboard,
-  type DashboardConfig,
-  type DashboardSections,
+  type BudgetDashboardConfig,
+  type BudgetDashboardSections,
   type BudgetTracker as CoreBudgetTracker,
   type AnalyticsEngine as CoreAnalyticsEngine,
   type FeatureCostAnalysis,
@@ -280,7 +280,7 @@ async function displayInteractiveDashboard(
 ): Promise<void> {
   try {
     // Create dashboard configuration
-    const dashboardConfig: DashboardConfig = {
+    const dashboardConfig: BudgetDashboardConfig = {
       refreshInterval: 5000,
       theme: 'auto' as const,
       enableInteractivity: false, // Set to false for one-shot display
@@ -288,7 +288,7 @@ async function displayInteractiveDashboard(
     };
 
     // Create sections configuration
-    const sections: DashboardSections = {
+    const sections: BudgetDashboardSections = {
       summary: true,
       realTimeUsage: false, // Disable real-time for static display
       budgetAlerts: true,

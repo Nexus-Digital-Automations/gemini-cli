@@ -15,8 +15,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import { createLogger } from '../../../utils/logger.js';
-import type { Logger } from '../../../types/common.js';
+import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 import type {
   MigrationEngine,
   SchemaMigration,
@@ -34,8 +33,8 @@ import type {
  * Handles forward and backward migrations with safety guarantees
  */
 export class MigrationEngineImpl implements MigrationEngine {
-  private readonly logger: Logger;
-  private readonly dataSource: { type: string; config: Record<string, any> };
+  private readonly logger: StructuredLogger;
+  private readonly dataSource: { type: 'file' | 'database' | 'memory'; config: Record<string, any> };
   private readonly migrationsPath: string;
   private readonly registryLocation: string;
   private readonly defaultBatchSize: number;
@@ -53,7 +52,7 @@ export class MigrationEngineImpl implements MigrationEngine {
     registryLocation: string;
     defaultBatchSize?: number;
   }) {
-    this.logger = createLogger('MigrationEngine');
+    this.logger = getComponentLogger('MigrationEngine');
     this.dataSource = config.dataSource;
     this.migrationsPath = path.resolve(config.migrationsPath);
     this.registryLocation = path.resolve(config.registryLocation);

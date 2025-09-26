@@ -10,8 +10,7 @@ import { vi } from 'vitest';
 // Import testing-library/jest-dom matchers (toBeInTheDocument, toBeVisible, etc.)
 import '@testing-library/jest-dom/vitest';
 
-// Import jest-dom type declarations for vitest
-import './src/test-utils/jest-dom.js';
+// Jest-dom types are automatically imported through @testing-library/jest-dom/vitest
 
 vi.mock('node:crypto', () => ({
   randomUUID: vi.fn(() => 'mock-random-uuid'),

@@ -17,6 +17,10 @@ import { EventEmitter } from 'node:events';
 import type {
   GenerateContentParameters,
   GenerateContentResponse,
+  CountTokensParameters,
+  CountTokensResponse,
+  EmbedContentParameters,
+  EmbedContentResponse,
 } from '@google/genai';
 import type { ContentGenerator } from '../../core/contentGenerator.js';
 import type { Config } from '../../config/config.js';
@@ -27,9 +31,9 @@ import { UsageCalculator } from './usage-calculator.js';
 import { BudgetEventManager } from './events.js';
 import { QuotaManager } from './quota-manager.js';
 import { TokenDataAggregator } from './aggregator.js';
-import { RealTimeStreamingService } from './streaming.js';
+import { RealTimeStreamingService, StreamType } from './streaming.js';
 import { TokenUsageCache } from './cache.js';
-import { BudgetEventType } from '../types.js';
+import { BudgetEventType, EventSeverity } from '../types.js';
 import { randomUUID } from 'node:crypto';
 
 /**
@@ -270,7 +274,7 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
    */
   private extractFeature(req: GenerateContentParameters): string {
     // Try to determine feature from contents or config
-    if (req.contents?.some((c) => c.parts?.some((p) => 'functionCall' in p))) {
+    if (Array.isArray(req.contents) && req.contents.some((c) => c.parts?.some((p) => 'functionCall' in p))) {
       return 'function-calling';
     }
     if (req.config?.systemInstruction) {
@@ -344,9 +348,7 @@ export class TokenTrackingContentGenerator implements ContentGenerator {
     const tokenStats = this.integration.getTokenTracker().getUsageStats();
     const cacheStats = this.integration.getCache()?.getStats();
 
-    this.integrationStats.tokenTracker.activeRequests = Object.keys(
-      tokenStats.activeRequests,
-    ).length;
+    this.integrationStats.tokenTracker.activeRequests = this.integration.getTokenTracker().getActiveRequests().length;
     this.integrationStats.tokenTracker.totalTokensProcessed =
       tokenStats.totalTokens;
 
@@ -396,54 +398,46 @@ export class TokenMonitoringIntegration extends EventEmitter {
     // Initialize core components
     this.tokenTracker = new TokenTracker({
       enableDetailedTracking: true,
-      trackCosts: true,
-      trackPerformance: true,
-      enableLogging: this.config.getDebugMode(),
-      sessionId: this.sessionId,
+      enableRealTimeCosts: true,
+      enablePerformanceMetrics: true,
     });
 
     this.metricsCollector = new MetricsCollector({
       collectionInterval: this.integrationConfig.metricsInterval || 30000,
-      enableStatisticalAnalysis: true,
       enableAnomalyDetection: true,
       enableTrendAnalysis: true,
-      retentionPeriod: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     this.usageCalculator = new UsageCalculator();
 
     this.eventManager = new BudgetEventManager({
-      enableEventBuffering: true,
-      maxEventBuffer: 1000,
-      enableEventPersistence: true,
-      enableEventRouting: true,
+      maxEvents: 1000,
+      persistent: true,
     });
 
     this.quotaManager = new QuotaManager({
-      enableRateLimiting: this.integrationConfig.enableQuotaManagement,
-      enableQuotaEnforcement: true,
-      enableUsageTracking: true,
-      defaultRateLimitStrategy: 'sliding-window',
+      enableAutoAdjustment: this.integrationConfig.enableQuotaManagement,
+      enableViolationLogging: true,
     });
 
-    this.aggregator = new TokenDataAggregator({
-      enableRealTimeAggregation: true,
-      defaultAggregationWindow: 60000, // 1 minute
-      enableStatisticalAnalysis: true,
-      retentionPeriod: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
+    this.aggregator = new TokenDataAggregator();
 
     // Initialize optional components
     if (this.integrationConfig.enableStreaming) {
-      this.streamingService = new RealTimeStreamingService({
-        enableCompression:
-          this.integrationConfig.streamingConfig?.enableCompression ?? true,
-        maxBufferSize:
-          this.integrationConfig.streamingConfig?.maxBufferSize ?? 10000,
-        defaultUpdateFrequency:
-          this.integrationConfig.streamingConfig?.updateFrequency ?? 1000,
-        enableBandwidthMonitoring: true,
-      });
+      this.streamingService = new RealTimeStreamingService(
+        this.tokenTracker,
+        this.metricsCollector,
+        this.eventManager,
+        {
+          enableCompression:
+            this.integrationConfig.streamingConfig?.enableCompression ?? true,
+          maxBufferSize:
+            this.integrationConfig.streamingConfig?.maxBufferSize ?? 10000,
+          defaultUpdateFrequency:
+            this.integrationConfig.streamingConfig?.updateFrequency ?? 1000,
+          enableBandwidthMonitoring: true,
+        }
+      );
     }
 
     if (this.integrationConfig.enableCaching) {
@@ -464,12 +458,12 @@ export class TokenMonitoringIntegration extends EventEmitter {
         timestamp: new Date(),
         data: { requestStarted: event },
         source: 'token-tracker',
-        severity: 'info',
+        severity: EventSeverity.INFO,
       });
     });
 
     this.tokenTracker.on('request-completed', (event) => {
-      this.metricsCollector.addDataPoint({
+      this.metricsCollector.addHistoricalDataPoint({
         timestamp: new Date(),
         requestId: event.requestId,
         model: event.model,
@@ -485,7 +479,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
 
       // Stream real-time update if enabled
       if (this.streamingService) {
-        this.streamingService.broadcastUpdate('token-usage', {
+        this.streamingService.broadcastUpdate(StreamType.TOKEN_USAGE, {
           type: 'request-completed',
           data: event,
           timestamp: new Date(),
@@ -497,7 +491,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
         timestamp: new Date(),
         data: { requestCompleted: event },
         source: 'token-tracker',
-        severity: 'info',
+        severity: EventSeverity.INFO,
       });
     });
 
@@ -508,11 +502,11 @@ export class TokenMonitoringIntegration extends EventEmitter {
         timestamp: new Date(),
         data: { anomaly },
         source: 'metrics-collector',
-        severity: 'warning',
+        severity: EventSeverity.WARNING,
       });
 
       if (this.streamingService) {
-        this.streamingService.broadcastUpdate('anomaly-alert', anomaly);
+        this.streamingService.broadcastUpdate(StreamType.ANOMALY_ALERTS, anomaly);
       }
     });
 
@@ -523,7 +517,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
         timestamp: new Date(),
         data: { quotaExceeded: event },
         source: 'quota-manager',
-        severity: 'error',
+        severity: EventSeverity.ERROR,
       });
     });
 
@@ -586,7 +580,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
           integrationConfig: this.integrationConfig,
         },
         source: 'monitoring-integration',
-        severity: 'info',
+        severity: EventSeverity.INFO,
       });
 
       this.emit('initialized', { sessionId: this.sessionId });
@@ -740,7 +734,7 @@ export class TokenMonitoringIntegration extends EventEmitter {
         timestamp: new Date(),
         data: { sessionId: this.sessionId },
         source: 'monitoring-integration',
-        severity: 'info',
+        severity: EventSeverity.INFO,
       });
 
       this.isInitialized = false;

@@ -27,7 +27,6 @@ export {
   type MetricsSummary,
   type AggregatedMetrics,
   type TrendAnalysis,
-  type StatisticalAnalysis,
 } from './metrics-collector.js';
 export {
   UsageCalculator,
@@ -39,11 +38,9 @@ export {
 // Event management
 export {
   BudgetEventManager,
-  type EventManagerConfig,
   type EventSubscription,
   type EventFilter,
   type EventRoutingRule,
-  type EventHandler,
 } from './events.js';
 
 // Quota and rate limiting
@@ -51,15 +48,11 @@ export {
   QuotaManager,
   type QuotaManagerConfig,
   type QuotaLimit,
-  type RateLimitStrategy,
-  type TokenBucket,
-  type SlidingWindowLimiter,
 } from './quota-manager.js';
 
 // Data aggregation
 export {
   TokenDataAggregator,
-  type AggregatorConfig,
   type AggregationConfig,
   type TimeWindow,
   type WindowedData,
@@ -71,8 +64,8 @@ export {
   type StreamingConfig,
   type StreamSubscription,
   type StreamType,
-  type StreamMessage,
-  type StreamFilter,
+  type StreamUpdate,
+  type StreamError,
 } from './streaming.js';
 
 // Caching system
@@ -97,6 +90,13 @@ export {
   createMonitoringEnabledContentGenerator,
   type MonitoringIntegrationConfig,
   type IntegrationStats,
+} from './integration.js';
+
+// Import for internal usage
+import {
+  TokenMonitoringIntegration,
+  createTokenMonitoringIntegration,
+  createMonitoringEnabledContentGenerator,
 } from './integration.js';
 
 /**

@@ -248,7 +248,7 @@ export class MonitoringIntegrations extends EventEmitter {
       });
     } catch (error) {
       this.integrationStats.failedSyncs++;
-      this.logger.error('TodoWrite sync failed', { error });
+      this.logger.error('TodoWrite sync failed', { error: error instanceof Error ? error : new Error(String(error)) });
       throw error;
     }
   }
@@ -464,7 +464,7 @@ export class MonitoringIntegrations extends EventEmitter {
           } catch (error) {
             this.logger.error('Failed to send to external system', {
               systemName,
-              error,
+              error: error instanceof Error ? error : new Error(String(error)),
             });
           }
         }
@@ -490,7 +490,7 @@ export class MonitoringIntegrations extends EventEmitter {
           this.logger.error('Webhook delivery failed', {
             systemName,
             eventId: event.id,
-            error,
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }
