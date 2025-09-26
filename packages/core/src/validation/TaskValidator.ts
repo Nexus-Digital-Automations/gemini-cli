@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { WinstonStructuredLogger } from '../utils/logger.js';
 import type {
   ValidationFramework,
   ValidationContext,
@@ -18,7 +18,10 @@ import {
 } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 import { TaskStatus } from '../task-management/TaskQueue.js';
-import type { TaskPriority as _TaskPriority, DependencyType as _DependencyType } from '../task-management/types.js';
+import type {
+  TaskPriority as _TaskPriority,
+  DependencyType as _DependencyType,
+} from '../task-management/types.js';
 
 /**
  * Task validation events for comprehensive monitoring
@@ -231,7 +234,7 @@ export interface TaskValidatorConfig {
  * - Comprehensive reporting and recommendations
  */
 export class TaskValidator extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: WinstonStructuredLogger;
   private readonly validationFramework: ValidationFramework;
   private readonly config: TaskValidatorConfig;
   private readonly snapshots: Map<string, TaskSnapshot[]> = new Map();
@@ -239,8 +242,6 @@ export class TaskValidator extends EventEmitter {
     string,
     Promise<TaskValidationResult>
   > = new Map();
-  private readonly qualityMetrics: Map<string, TaskExecutionMetrics> =
-    new Map();
 
   constructor(
     validationFramework: ValidationFramework,
@@ -248,7 +249,9 @@ export class TaskValidator extends EventEmitter {
   ) {
     super();
 
-    this.logger = new Logger('TaskValidator');
+    this.logger = new WinstonStructuredLogger({
+      defaultMeta: { component: 'TaskValidator' },
+    });
     this.validationFramework = validationFramework;
     this.config = this.createDefaultConfig(config);
 
@@ -604,7 +607,7 @@ export class TaskValidator extends EventEmitter {
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
-    const task = context.metadata?.task as Task;
+    const task = context.metadata?.['task'] as Task;
 
     if (!task) {
       return [
@@ -667,8 +670,9 @@ export class TaskValidator extends EventEmitter {
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
-    const executionMetrics = context.metadata
-      ?.executionMetrics as TaskExecutionMetrics;
+    const executionMetrics = context.metadata?.[
+      'executionMetrics'
+    ] as TaskExecutionMetrics;
 
     if (!executionMetrics) {
       return [
@@ -745,11 +749,8 @@ export class TaskValidator extends EventEmitter {
    * Validate task security compliance
    */
   private async validateTaskSecurity(
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<ValidationResult[]> {
-    const _results: ValidationResult[] = [];
-    const _task = context.metadata?.task as Task;
-
     // TODO: Implement comprehensive security validation
     // - Check for exposed secrets
     // - Validate permissions and access controls
@@ -776,8 +777,9 @@ export class TaskValidator extends EventEmitter {
     context: ValidationContext,
   ): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
-    const executionMetrics = context.metadata
-      ?.executionMetrics as TaskExecutionMetrics;
+    const executionMetrics = context.metadata?.[
+      'executionMetrics'
+    ] as TaskExecutionMetrics;
 
     if (!executionMetrics) {
       return [
