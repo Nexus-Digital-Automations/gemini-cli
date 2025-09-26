@@ -621,7 +621,7 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
           candidate.priority === 'deferred'
             ? 'low'
             : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
-        estimatedTimeToImplement: `${Math.ceil(analysis.timeToImplement / 7)} weeks`,
+        estimatedTimeToImplement: Math.ceil(analysis.timeToImplement / 7) * 7, // convert weeks to days
         category: 'priority_optimization',
         tags: ['priority-based', 'strategic', 'business-aligned'],
       };

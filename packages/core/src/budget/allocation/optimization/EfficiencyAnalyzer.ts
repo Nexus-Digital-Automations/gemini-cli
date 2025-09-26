@@ -301,3 +301,112 @@ export class EfficiencyAnalyzer {
     }
   }
 }
+
+/**
+ * Configuration for efficiency analysis
+ */
+export interface EfficiencyAnalysisConfig {
+  weights: {
+    resourceUtilization: number;
+    costEffectiveness: number;
+    timeToValue: number;
+    scalabilityFactor: number;
+    riskAdjustedReturn: number;
+  };
+  thresholds: {
+    minUtilization: number;
+    minCostEffectiveness: number;
+    minTimeToValue: number;
+    minScalability: number;
+    minRiskReturn: number;
+  };
+}
+
+/**
+ * Resource efficiency metrics
+ */
+export interface ResourceEfficiency {
+  resourceId: string;
+  utilizationRate: number;
+  costPerUnit: number;
+  performanceScore: number;
+  efficiencyRank: number;
+  recommendations: string[];
+}
+
+/**
+ * Efficiency trend analysis
+ */
+export interface EfficiencyTrend {
+  periodStart: string;
+  periodEnd: string;
+  trendDirection: 'improving' | 'declining' | 'stable';
+  changePercentage: number;
+  keyFactors: string[];
+  forecastedEfficiency: number;
+}
+
+/**
+ * Efficiency issue identification
+ */
+export interface EfficiencyIssue {
+  issueId: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  affectedResources: string[];
+  potentialImpact: number;
+  recommendedActions: string[];
+}
+
+/**
+ * Efficiency improvement opportunities
+ */
+export interface EfficiencyImprovement {
+  improvementId: string;
+  type: 'cost_reduction' | 'utilization_increase' | 'performance_boost';
+  estimatedSavings: number;
+  implementationCost: number;
+  timeframe: string;
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+/**
+ * Portfolio-wide efficiency analysis
+ */
+export interface PortfolioEfficiency {
+  overallScore: number;
+  resourceEfficiencies: ResourceEfficiency[];
+  trends: EfficiencyTrend[];
+  issues: EfficiencyIssue[];
+  improvements: EfficiencyImprovement[];
+  recommendations: string[];
+}
+
+/**
+ * Default configuration for efficiency analysis
+ */
+export const DEFAULT_EFFICIENCY_CONFIG: EfficiencyAnalysisConfig = {
+  weights: {
+    resourceUtilization: 0.25,
+    costEffectiveness: 0.25,
+    timeToValue: 0.2,
+    scalabilityFactor: 0.15,
+    riskAdjustedReturn: 0.15,
+  },
+  thresholds: {
+    minUtilization: 0.6,
+    minCostEffectiveness: 0.5,
+    minTimeToValue: 0.4,
+    minScalability: 0.6,
+    minRiskReturn: 0.5,
+  },
+};
+
+/**
+ * Creates a new EfficiencyAnalyzer instance with optional configuration
+ */
+export function createEfficiencyAnalyzer(
+  _config?: Partial<EfficiencyAnalysisConfig>,
+): EfficiencyAnalyzer {
+  return new EfficiencyAnalyzer();
+}

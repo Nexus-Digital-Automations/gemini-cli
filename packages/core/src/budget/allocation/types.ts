@@ -6,8 +6,11 @@
 
 import type {
   OptimizationRecommendation,
+  OptimizationType,
   FeatureCostAnalysis,
 } from '../analytics/AnalyticsEngine.js';
+
+export type { FeatureCostAnalysis, OptimizationType };
 
 /**
  * Budget allocation priority levels for resource ranking
@@ -92,7 +95,40 @@ export interface AllocationCandidate {
 /**
  * Budget allocation recommendation with optimization rationale
  */
-export interface AllocationRecommendation extends OptimizationRecommendation {
+export interface AllocationRecommendation {
+  // From OptimizationRecommendation
+  /** Unique identifier for the recommendation */
+  id: string;
+  /** Type of optimization recommendation */
+  type: OptimizationType;
+  /** Recommendation title */
+  title: string;
+  /** Detailed description of the recommendation */
+  description: string;
+  /** Potential cost savings amount */
+  potentialSavings: number;
+  /** Savings percentage */
+  savingsPercentage: number;
+  /** Implementation complexity level */
+  implementationComplexity: 'low' | 'medium' | 'high';
+  /** Time estimate to implement */
+  timeToImplement?: string;
+  /** Priority level */
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  /** Confidence score (0-100) */
+  confidenceScore?: number;
+  /** Features applicable to this recommendation */
+  applicableFeatures?: string[];
+  /** Action items for implementation */
+  actionItems?: string[];
+  /** Metrics for tracking success */
+  metrics?: {
+    currentCost: number;
+    projectedCost: number;
+    expectedReduction: number;
+  };
+
+  // Allocation-specific properties
   /** Target resource for allocation change */
   resourceId: string;
   /** Current allocation amount */
@@ -113,6 +149,16 @@ export interface AllocationRecommendation extends OptimizationRecommendation {
   dependencies: string[];
   /** Estimated time to implement in hours */
   estimatedTimeToImplement: number;
+  /** Category of the allocation recommendation */
+  category: string;
+  /** Expected savings amount (for compatibility with optimization engine) */
+  expectedSavings?: number;
+  /** Validation criteria for the recommendation */
+  validationCriteria?: string[];
+  /** Rollback plan for the recommendation */
+  rollbackPlan?: string;
+  /** Tags for categorization and filtering */
+  tags?: string[];
 }
 
 /**
@@ -235,4 +281,14 @@ export interface AllocationOptimizationResult {
     budgetBalanced: boolean;
     improvementAchieved: boolean;
   };
+}
+
+/**
+ * Logger interface for allocation system
+ */
+export interface AllocationLogger {
+  info(message: string, meta?: Record<string, unknown>): void;
+  warn(message: string, meta?: Record<string, unknown>): void;
+  error(message: string, meta?: Record<string, unknown>): void;
+  debug(message: string, meta?: Record<string, unknown>): void;
 }

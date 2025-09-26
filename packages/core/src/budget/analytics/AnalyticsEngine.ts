@@ -85,6 +85,10 @@ export interface FeatureCostAnalysis {
   utilizationRate: number;
   peakUsageHours: string[];
   recommendations: OptimizationRecommendation[];
+  /** Timestamp for the analysis data point */
+  timestamp?: string;
+  /** Performance score (0-100) for this analysis */
+  performance?: number;
 }
 
 /**

@@ -341,3 +341,23 @@ export function createBudgetTracker(
 
   return new BudgetTracker(projectRoot, settings || defaultSettings);
 }
+
+/**
+ * Get singleton BudgetTracker instance
+ */
+export async function getBudgetTracker(): Promise<BudgetTracker | null> {
+  try {
+    const projectRoot = process.cwd();
+    const defaultSettings: BudgetSettings = {
+      enabled: false,
+      dailyLimit: 1000,
+      resetTime: '00:00',
+      warningThresholds: [50, 75, 90],
+    };
+
+    return createBudgetTracker(projectRoot, defaultSettings);
+  } catch (error) {
+    console.error('Failed to create budget tracker:', error);
+    return null;
+  }
+}

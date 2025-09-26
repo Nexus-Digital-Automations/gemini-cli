@@ -9,26 +9,26 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 13,
-      "current_day": "2025-09-24",
+      "total_reinitializations": 15,
+      "current_day": "2025-09-26",
       "time_buckets": {
-        "08:00-12:59": {
+        "10:00-14:59": {
+          "init": 0,
+          "reinit": 2
+        },
+        "15:00-19:59": {
           "init": 0,
           "reinit": 0
         },
-        "13:00-17:59": {
+        "20:00-00:59": {
           "init": 0,
           "reinit": 0
         },
-        "18:00-22:59": {
+        "01:00-05:59": {
           "init": 0,
           "reinit": 0
         },
-        "23:00-03:59": {
-          "init": 0,
-          "reinit": 10
-        },
-        "04:00-08:59": {
+        "06:00-10:59": {
           "init": 0,
           "reinit": 0
         }
@@ -60,17 +60,54 @@
               "reinit": 0
             }
           }
+        },
+        {
+          "date": "2025-09-24",
+          "total_init": 0,
+          "total_reinit": 10,
+          "buckets": {
+            "08:00-12:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "13:00-17:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "18:00-22:59": {
+              "init": 0,
+              "reinit": 0
+            },
+            "23:00-03:59": {
+              "init": 0,
+              "reinit": 10
+            },
+            "04:00-08:59": {
+              "init": 0,
+              "reinit": 0
+            }
+          }
         }
       ],
-      "last_reset": "2025-09-24T05:58:13.302Z",
-      "last_updated": "2025-09-24T06:34:42.246Z"
+      "last_reset": "2025-09-26T16:42:44.790Z",
+      "last_updated": "2025-09-26T16:44:37.753Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {
     "AGENT_GEMINI_CLI_001": {
@@ -110,6 +147,20 @@
         "9a13676217af3cc1",
         "d102214413c420bf"
       ]
+    },
+    "AGENT_BUILD_PERFECTOR": {
+      "lastHeartbeat": "2025-09-26T16:42:44.787Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T16:42:44.787Z",
+      "sessionId": "74926804ad032868",
+      "previousSessions": []
+    },
+    "CORE_API_FIXER": {
+      "lastHeartbeat": "2025-09-26T16:44:37.750Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T16:44:37.750Z",
+      "sessionId": "6b5aa12c7fb5b65a",
+      "previousSessions": []
     }
   }
 }

@@ -15,7 +15,6 @@
 import type {
   AllocationCandidate,
   AllocationRecommendation,
-  AllocationConstraints,
   AllocationStrategy,
   FeatureCostAnalysis,
   AllocationLogger,
@@ -480,8 +479,8 @@ export class ResourceUtilizationOptimizer {
     // Sort by priority and expected benefits
     recommendations.sort((a, b) => {
       const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      const aPriority = priorityOrder[opportunity.priority as keyof typeof priorityOrder] || 0;
-      const bPriority = priorityOrder[opportunity.priority as keyof typeof priorityOrder] || 0;
+      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
+      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
 
       if (aPriority !== bPriority) return bPriority - aPriority;
       return b.expectedImpact.costImpact - a.expectedImpact.costImpact;
@@ -756,7 +755,7 @@ export class ResourceUtilizationOptimizer {
     candidate: AllocationCandidate,
     current: UtilizationMetrics,
     historical: UtilizationPattern[],
-    predicted: UtilizationForecast
+    _predicted: UtilizationForecast
   ): OptimizationOpportunity[] {
     const opportunities: OptimizationOpportunity[] = [];
 
@@ -960,7 +959,7 @@ export class ResourceUtilizationOptimizer {
    */
   private identifyCrossResourceOpportunities(
     resources: UtilizationAnalysis[],
-    candidates: AllocationCandidate[]
+    _candidates: AllocationCandidate[]
   ): OptimizationOpportunity[] {
     const opportunities: OptimizationOpportunity[] = [];
 
@@ -1144,8 +1143,8 @@ export class ResourceUtilizationOptimizer {
       },
       dependencies: [],
       // OptimizationRecommendation fields
-      type: 'optimization',
-      priority: opportunity.priority as any,
+      type: 'cost_reduction',
+      priority: opportunity.priority as 'critical' | 'high' | 'medium' | 'low',
       description: opportunity.description,
       expectedSavings: opportunity.benefits.costSavings,
       implementationComplexity: opportunity.complexity,
@@ -1158,7 +1157,7 @@ export class ResourceUtilizationOptimizer {
    * Validate configuration
    */
   private validateConfiguration(): void {
-    const { weights, utilizationRange, scaling } = this.config;
+    const { utilizationRange, scaling } = this.config;
 
     // Validate utilization range
     if (utilizationRange.min >= utilizationRange.max) {

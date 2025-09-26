@@ -7,16 +7,10 @@
 import type { StructuredLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import { getComponentLogger } from '@google/gemini-cli-core/src/utils/logger.js';
 import {
-  TaskStatusMonitor as _TaskStatusMonitor,
-  TaskMetadata as _TaskMetadata,
   TaskStatus,
-  TaskStatusUpdate as _TaskStatusUpdate,
-  AgentStatus as _AgentStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
-  StatusUpdateBroker as _StatusUpdateBroker,
-  StatusEvent as _StatusEvent,
   StatusEventType,
   statusUpdateBroker,
 } from './StatusUpdateBroker.js';
@@ -308,7 +302,7 @@ export class StatusHistoryAnalytics {
     // Check cache
     const cached = this.getFromCache(cacheKey);
     if (cached) {
-      return cached;
+      return cached as TaskAnalytics;
     }
 
     const taskEntries = this.queryHistory({
@@ -336,7 +330,7 @@ export class StatusHistoryAnalytics {
     // Check cache
     const cached = this.getFromCache(cacheKey);
     if (cached) {
-      return cached;
+      return cached as AgentAnalytics;
     }
 
     const agentEntries = this.queryHistory({
@@ -367,7 +361,7 @@ export class StatusHistoryAnalytics {
     // Check cache
     const cached = this.getFromCache(cacheKey);
     if (cached) {
-      return cached;
+      return cached as SystemAnalytics;
     }
 
     const systemEntries = this.queryHistory({
@@ -800,9 +794,9 @@ export class StatusHistoryAnalytics {
           bucket.failed++;
           break;
         case StatusEventType.TASK_STATUS_CHANGED:
-          if (entry.newState?.status === TaskStatus.IN_PROGRESS) {
+          if (entry.newState && typeof entry.newState === 'object' && 'status' in entry.newState && entry.newState.status === TaskStatus.IN_PROGRESS) {
             bucket.started++;
-          } else if (entry.newState?.status === TaskStatus.QUEUED) {
+          } else if (entry.newState && typeof entry.newState === 'object' && 'status' in entry.newState && entry.newState.status === TaskStatus.QUEUED) {
             bucket.queued++;
           }
           break;

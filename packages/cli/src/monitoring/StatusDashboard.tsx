@@ -9,7 +9,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Box, Text, useApp } from 'ink';
 import type { TaskMetadata, AgentStatus } from './TaskStatusMonitor.js';
 import {
-  _TaskStatusMonitor,
   TaskStatus,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
@@ -20,13 +19,8 @@ import type {
   AnalyticsTimeframe,
 } from './StatusHistoryAnalytics.js';
 import {
-  _StatusHistoryAnalytics,
   statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
-import {
-  _NotificationSystem,
-  _notificationSystem,
-} from './NotificationSystem.js';
 
 interface DashboardState {
   currentView: 'overview' | 'tasks' | 'agents' | 'analytics' | 'history';

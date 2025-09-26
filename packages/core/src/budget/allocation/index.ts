@@ -28,6 +28,19 @@ export type {
   AllocationOptimizationResult,
 } from './types.js';
 
+// Import types for local use
+import type {
+  RecommendationEngine,
+  RecommendationContext,
+  RecommendationResult,
+} from './recommendations/index.js';
+import { createRecommendationEngine } from './recommendations/index.js';
+import type {
+  AllocationStrategy,
+  AllocationCandidate,
+  AllocationLogger,
+} from './types.js';
+
 // Algorithm exports
 export {
   BaseAllocationAlgorithm,

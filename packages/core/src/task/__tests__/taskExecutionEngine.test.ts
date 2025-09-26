@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TaskExecutionEngine } from '../taskExecutionEngine.js';
-import type { TaskManager } from '../taskManager.js';
+import { TaskExecutionEngine } from '../../task-management/TaskExecutionEngine.js';
+import type { TaskManager as _TaskManager } from '../taskManager.js';
 import type { Task, ToolCall } from '../types.js';
 import { TaskStatus, TaskPriority } from '../types.js';
-import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
+import { vi, beforeEach, afterEach, describe, it, expect, type MockedFunction } from 'vitest';
 
 // Mock the global default_api object
 const mockDefaultApi = {
@@ -25,11 +25,17 @@ interface DefaultApi {
 
 // Declare globalThis.default_api for TypeScript
 declare global {
-  let default_api: DefaultApi;
+  var default_api: DefaultApi;
 }
 
 describe('TaskExecutionEngine', () => {
-  let mockTaskManager: TaskManager;
+  let mockTaskManager: {
+    getTask: MockedFunction<(id: string) => Promise<Task>>;
+    updateTaskStatus: MockedFunction<(id: string, newStatus: TaskStatus) => Promise<Task>>;
+    updateTaskMetadata: MockedFunction<(id: string, metadata: any) => Promise<Task>>;
+    listTasks: MockedFunction<(filter?: { status?: TaskStatus; assignee?: string; }) => Promise<Task[]>>;
+    getRunnableTasks: MockedFunction<() => Promise<Task[]>>;
+  };
   let taskExecutionEngine: TaskExecutionEngine;
 
   beforeEach(() => {
@@ -41,9 +47,9 @@ describe('TaskExecutionEngine', () => {
       updateTaskStatus: vi.fn(),
       updateTaskMetadata: vi.fn(),
       listTasks: vi.fn(),
-      getRunnableTasks: vi.fn(), // Added this line
-    } as unknown as TaskManager;
-    taskExecutionEngine = new TaskExecutionEngine(mockTaskManager);
+      getRunnableTasks: vi.fn(),
+    };
+    taskExecutionEngine = new TaskExecutionEngine(mockTaskManager as unknown as _TaskManager);
   });
 
   afterEach(() => {

@@ -432,7 +432,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
           candidate.priority === 'deferred'
             ? 'low'
             : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
-        estimatedTimeToImplement: '1-2 days',
+        estimatedTimeToImplement: 2, // 1-2 days: estimate 2 days
         category: 'cost_optimization',
         tags: ['usage-based', 'automatic', 'data-driven'],
       };

@@ -1469,7 +1469,7 @@ export class DynamicRebalancer {
       },
       dependencies: [],
       // Additional fields from OptimizationRecommendation
-      type: 'rebalancing',
+      type: 'budget_reallocation',
       priority: action.priority as 'high' | 'medium' | 'low',
       description: action.rationale,
       expectedSavings: Math.max(0, -action.changeAmount),

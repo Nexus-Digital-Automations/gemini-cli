@@ -14,8 +14,8 @@
  */
 
 import type { Request, Response } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
-import { BudgetSettings } from '../../types.js';
+import { Logger } from '../../../utils/logger.js';
+import type { BudgetSettings } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
 import { getMLBudgetAPI } from '../../api/ml-budget-api.js';
 import { AnalyticsEngine } from '../../analytics/AnalyticsEngine.js';

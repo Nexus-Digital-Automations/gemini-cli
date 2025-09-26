@@ -554,7 +554,26 @@ export class ScenarioPlanner {
     candidates: AllocationCandidate[],
     parameters: ScenarioParameters
   ): AllocationScenario {
-    const allocations: AllocationRecommendation[] = candidates.map(candidate => ({
+    const allocations: AllocationRecommendation[] = candidates.map((candidate, index) => ({
+      // OptimizationRecommendation properties
+      id: `base_${candidate.resourceId}_${index}`,
+      type: 'budget_reallocation',
+      title: `Base optimization for ${candidate.resourceName || candidate.resourceId}`,
+      description: 'Base scenario optimization with minimal changes',
+      potentialSavings: candidate.currentAllocation * 0.03,
+      savingsPercentage: 3,
+      implementationComplexity: 'low',
+      timeToImplement: '1-2 weeks',
+      priority: 'medium',
+      confidenceScore: 85,
+      applicableFeatures: [candidate.resourceId],
+      actionItems: ['Apply 5% allocation increase', 'Monitor performance'],
+      metrics: {
+        currentCost: candidate.currentAllocation,
+        projectedCost: candidate.currentAllocation * 1.05,
+        expectedReduction: 0,
+      },
+      // AllocationRecommendation specific properties
       resourceId: candidate.resourceId,
       currentAllocation: candidate.currentAllocation,
       recommendedAllocation: candidate.currentAllocation * 1.05, // 5% increase
@@ -577,13 +596,8 @@ export class ScenarioPlanner {
         negativeProbability: 10,
       },
       dependencies: [],
-      type: 'optimization',
-      priority: 'medium',
-      description: 'Base scenario optimization',
-      expectedSavings: 0,
-      implementationComplexity: 'low',
-      validationCriteria: ['Performance improvement', 'Cost efficiency'],
-      rollbackPlan: 'Revert to current allocation',
+      estimatedTimeToImplement: 14, // 2 weeks in hours (approximate)
+      category: 'base_optimization',
     }));
 
     return {
@@ -609,7 +623,26 @@ export class ScenarioPlanner {
     candidates: AllocationCandidate[],
     parameters: ScenarioParameters
   ): AllocationScenario {
-    const allocations: AllocationRecommendation[] = candidates.map(candidate => ({
+    const allocations: AllocationRecommendation[] = candidates.map((candidate, index) => ({
+      // OptimizationRecommendation properties
+      id: `optimistic_${candidate.resourceId}_${index}`,
+      type: 'budget_reallocation',
+      title: `Optimistic growth for ${candidate.resourceName || candidate.resourceId}`,
+      description: 'Optimistic growth scenario with increased investment',
+      potentialSavings: candidate.currentAllocation * 0.1,
+      savingsPercentage: 10,
+      implementationComplexity: 'medium',
+      timeToImplement: '3-4 weeks',
+      priority: 'high',
+      confidenceScore: 70,
+      applicableFeatures: [candidate.resourceId],
+      actionItems: ['Apply 30% allocation increase', 'Monitor ROI targets', 'Stage rollout'],
+      metrics: {
+        currentCost: candidate.currentAllocation,
+        projectedCost: candidate.currentAllocation * 1.3,
+        expectedReduction: candidate.currentAllocation * 0.1,
+      },
+      // AllocationRecommendation specific properties
       resourceId: candidate.resourceId,
       currentAllocation: candidate.currentAllocation,
       recommendedAllocation: candidate.currentAllocation * 1.3, // 30% increase
@@ -632,13 +665,8 @@ export class ScenarioPlanner {
         negativeProbability: 25,
       },
       dependencies: [],
-      type: 'growth',
-      priority: 'high',
-      description: 'Optimistic growth scenario',
-      expectedSavings: 0,
-      implementationComplexity: 'medium',
-      validationCriteria: ['ROI achievement', 'Performance targets'],
-      rollbackPlan: 'Gradual reduction if targets not met',
+      estimatedTimeToImplement: 28, // 4 weeks in hours (approximate)
+      category: 'growth_optimization',
     }));
 
     return {
@@ -665,7 +693,26 @@ export class ScenarioPlanner {
     candidates: AllocationCandidate[],
     parameters: ScenarioParameters
   ): AllocationScenario {
-    const allocations: AllocationRecommendation[] = candidates.map(candidate => ({
+    const allocations: AllocationRecommendation[] = candidates.map((candidate, index) => ({
+      // OptimizationRecommendation properties
+      id: `pessimistic_${candidate.resourceId}_${index}`,
+      type: 'cost_reduction',
+      title: `Cost reduction for ${candidate.resourceName || candidate.resourceId}`,
+      description: 'Pessimistic constraint scenario with budget reduction',
+      potentialSavings: candidate.currentAllocation * 0.2,
+      savingsPercentage: 20,
+      implementationComplexity: 'high',
+      timeToImplement: '2-3 weeks',
+      priority: 'high',
+      confidenceScore: 80,
+      applicableFeatures: [candidate.resourceId],
+      actionItems: ['Apply 20% allocation decrease', 'Maintain service levels', 'Monitor performance closely'],
+      metrics: {
+        currentCost: candidate.currentAllocation,
+        projectedCost: candidate.currentAllocation * 0.8,
+        expectedReduction: candidate.currentAllocation * 0.2,
+      },
+      // AllocationRecommendation specific properties
       resourceId: candidate.resourceId,
       currentAllocation: candidate.currentAllocation,
       recommendedAllocation: candidate.currentAllocation * 0.8, // 20% decrease
@@ -688,13 +735,8 @@ export class ScenarioPlanner {
         negativeProbability: 40,
       },
       dependencies: [],
-      type: 'cost_reduction',
-      priority: 'high',
-      description: 'Pessimistic constraint scenario',
-      expectedSavings: candidate.currentAllocation * 0.2,
-      implementationComplexity: 'high',
-      validationCriteria: ['Cost reduction', 'Service level maintenance'],
-      rollbackPlan: 'Emergency budget increase if critical issues',
+      estimatedTimeToImplement: 21, // 3 weeks in hours (approximate)
+      category: 'cost_reduction_optimization',
     }));
 
     return {
@@ -721,7 +763,26 @@ export class ScenarioPlanner {
     candidates: AllocationCandidate[],
     parameters: ScenarioParameters
   ): AllocationScenario {
-    const allocations: AllocationRecommendation[] = candidates.map(candidate => ({
+    const allocations: AllocationRecommendation[] = candidates.map((candidate, index) => ({
+      // OptimizationRecommendation properties
+      id: `balanced_${candidate.resourceId}_${index}`,
+      type: 'budget_reallocation',
+      title: `Balanced optimization for ${candidate.resourceName || candidate.resourceId}`,
+      description: 'Balanced growth and efficiency scenario with moderate allocation increase',
+      potentialSavings: candidate.currentAllocation * 0.02,
+      savingsPercentage: 2,
+      implementationComplexity: 'medium',
+      timeToImplement: '2-3 weeks',
+      priority: 'medium',
+      confidenceScore: 90,
+      applicableFeatures: [candidate.resourceId],
+      actionItems: ['Apply 10% allocation increase', 'Monitor balanced metrics', 'Track sustainable growth'],
+      metrics: {
+        currentCost: candidate.currentAllocation,
+        projectedCost: candidate.currentAllocation * 1.1,
+        expectedReduction: candidate.currentAllocation * 0.02,
+      },
+      // AllocationRecommendation specific properties
       resourceId: candidate.resourceId,
       currentAllocation: candidate.currentAllocation,
       recommendedAllocation: candidate.currentAllocation * 1.1, // 10% increase
@@ -744,11 +805,9 @@ export class ScenarioPlanner {
         negativeProbability: 15,
       },
       dependencies: [],
-      type: 'balanced',
-      priority: 'medium',
-      description: 'Balanced growth and efficiency scenario',
+      estimatedTimeToImplement: 21, // 3 weeks in hours (approximate)
+      category: 'balanced_optimization',
       expectedSavings: candidate.currentAllocation * 0.02,
-      implementationComplexity: 'medium',
       validationCriteria: ['Balanced metrics', 'Sustainable growth'],
       rollbackPlan: 'Adjust based on performance feedback',
     }));
@@ -777,49 +836,63 @@ export class ScenarioPlanner {
     candidates: AllocationCandidate[],
     parameters: ScenarioParameters
   ): AllocationScenario {
-    const allocations: AllocationRecommendation[] = candidates.map(candidate => ({
-      resourceId: candidate.resourceId,
-      currentAllocation: candidate.currentAllocation,
-      recommendedAllocation: Math.min(
+    const allocations: AllocationRecommendation[] = candidates.map((candidate, index) => {
+      const recommendedAllocation = Math.min(
         candidate.constraints.maxAllocation,
         Math.max(candidate.constraints.minAllocation, candidate.currentAllocation * 0.95)
-      ),
-      allocationChange: Math.min(
-        candidate.constraints.maxAllocation,
-        Math.max(candidate.constraints.minAllocation, candidate.currentAllocation * 0.95)
-      ) - candidate.currentAllocation,
-      strategy: 'usage_based' as AllocationStrategy,
-      confidence: 95,
-      expectedImpact: {
-        costImpact: Math.min(
-          candidate.constraints.maxAllocation,
-          Math.max(candidate.constraints.minAllocation, candidate.currentAllocation * 0.95)
-        ) - candidate.currentAllocation,
-        performanceImpact: 5,
-        utilizationImpact: 10,
-        businessValueImpact: 8,
-        roiImpact: 0.1,
-        impactTimeline: 'short_term',
-      },
-      riskAssessment: {
-        riskLevel: 'low',
-        riskFactors: ['Constraint compliance'],
-        mitigationStrategies: ['Strict adherence to constraints'],
-        maxNegativeImpact: 0,
-        negativeProbability: 5,
-      },
-      dependencies: [],
-      type: 'constraint_optimization',
-      priority: 'high',
-      description: 'Constraint-compliant optimization scenario',
-      expectedSavings: Math.max(0, candidate.currentAllocation - Math.min(
-        candidate.constraints.maxAllocation,
-        Math.max(candidate.constraints.minAllocation, candidate.currentAllocation * 0.95)
-      )),
-      implementationComplexity: 'low',
-      validationCriteria: ['Constraint compliance', 'Efficiency within bounds'],
-      rollbackPlan: 'No rollback needed - constraint compliant',
-    }));
+      );
+      const allocationChange = recommendedAllocation - candidate.currentAllocation;
+      const expectedSavings = Math.max(0, candidate.currentAllocation - recommendedAllocation);
+
+      return {
+        // OptimizationRecommendation properties
+        id: `constraint_${candidate.resourceId}_${index}`,
+        type: 'cost_reduction',
+        title: `Constraint-compliant optimization for ${candidate.resourceName || candidate.resourceId}`,
+        description: 'Constraint-compliant optimization scenario within strict boundaries',
+        potentialSavings: expectedSavings,
+        savingsPercentage: expectedSavings > 0 ? (expectedSavings / candidate.currentAllocation) * 100 : 0,
+        implementationComplexity: 'low',
+        timeToImplement: '1-2 weeks',
+        priority: 'high',
+        confidenceScore: 95,
+        applicableFeatures: [candidate.resourceId],
+        actionItems: ['Apply constraint-compliant allocation', 'Verify compliance', 'Monitor efficiency within bounds'],
+        metrics: {
+          currentCost: candidate.currentAllocation,
+          projectedCost: recommendedAllocation,
+          expectedReduction: expectedSavings,
+        },
+        // AllocationRecommendation specific properties
+        resourceId: candidate.resourceId,
+        currentAllocation: candidate.currentAllocation,
+        recommendedAllocation,
+        allocationChange,
+        strategy: 'usage_based' as AllocationStrategy,
+        confidence: 95,
+        expectedImpact: {
+          costImpact: allocationChange,
+          performanceImpact: 5,
+          utilizationImpact: 10,
+          businessValueImpact: 8,
+          roiImpact: 0.1,
+          impactTimeline: 'short_term',
+        },
+        riskAssessment: {
+          riskLevel: 'low',
+          riskFactors: ['Constraint compliance'],
+          mitigationStrategies: ['Strict adherence to constraints'],
+          maxNegativeImpact: 0,
+          negativeProbability: 5,
+        },
+        dependencies: [],
+        estimatedTimeToImplement: 14, // 2 weeks in hours (approximate)
+        category: 'constraint_optimization',
+        expectedSavings,
+        validationCriteria: ['Constraint compliance', 'Efficiency within bounds'],
+        rollbackPlan: 'No rollback needed - constraint compliant',
+      };
+    });
 
     return {
       scenarioId: 'constraint_scenario',
@@ -852,19 +925,40 @@ export class ScenarioPlanner {
     const variation = (index + 1) * 0.15; // 15%, 30%, 45% etc.
     const isGrowth = index % 2 === 0;
 
-    const allocations: AllocationRecommendation[] = candidates.map(candidate => {
+    const allocations: AllocationRecommendation[] = candidates.map((candidate, candidateIndex) => {
       const changeMultiplier = isGrowth ? (1 + variation) : (1 - variation * 0.5);
       const recommendedAllocation = candidate.currentAllocation * changeMultiplier;
+      const allocationChange = recommendedAllocation - candidate.currentAllocation;
+      const expectedSavings = isGrowth ? 0 : Math.abs(allocationChange);
 
       return {
+        // OptimizationRecommendation properties
+        id: `custom_${index + 1}_${candidate.resourceId}_${candidateIndex}`,
+        type: 'budget_reallocation',
+        title: `Custom scenario ${index + 1} for ${candidate.resourceName || candidate.resourceId}`,
+        description: `Custom scenario ${index + 1} with ${(variation * 100).toFixed(0)}% variation`,
+        potentialSavings: expectedSavings,
+        savingsPercentage: expectedSavings > 0 ? (expectedSavings / candidate.currentAllocation) * 100 : 0,
+        implementationComplexity: 'medium',
+        timeToImplement: '3-4 weeks',
+        priority: 'medium',
+        confidenceScore: 75,
+        applicableFeatures: [candidate.resourceId],
+        actionItems: ['Apply custom variation', 'Monitor adaptive metrics', 'Execute standard rollback if needed'],
+        metrics: {
+          currentCost: candidate.currentAllocation,
+          projectedCost: recommendedAllocation,
+          expectedReduction: expectedSavings,
+        },
+        // AllocationRecommendation specific properties
         resourceId: candidate.resourceId,
         currentAllocation: candidate.currentAllocation,
         recommendedAllocation,
-        allocationChange: recommendedAllocation - candidate.currentAllocation,
+        allocationChange,
         strategy: 'priority_weighted' as AllocationStrategy,
         confidence: 75,
         expectedImpact: {
-          costImpact: recommendedAllocation - candidate.currentAllocation,
+          costImpact: allocationChange,
           performanceImpact: isGrowth ? variation * 50 : -variation * 25,
           utilizationImpact: variation * 30,
           businessValueImpact: isGrowth ? variation * 40 : -variation * 20,
@@ -875,15 +969,13 @@ export class ScenarioPlanner {
           riskLevel: variation > 0.3 ? 'high' : variation > 0.15 ? 'medium' : 'low',
           riskFactors: ['Scenario variation risk'],
           mitigationStrategies: ['Adaptive management'],
-          maxNegativeImpact: Math.abs(recommendedAllocation - candidate.currentAllocation) * 0.5,
+          maxNegativeImpact: Math.abs(allocationChange) * 0.5,
           negativeProbability: variation * 50,
         },
         dependencies: [],
-        type: 'custom',
-        priority: 'medium',
-        description: `Custom scenario ${index + 1}`,
-        expectedSavings: isGrowth ? 0 : Math.abs(recommendedAllocation - candidate.currentAllocation),
-        implementationComplexity: 'medium',
+        estimatedTimeToImplement: 28, // 4 weeks in hours (approximate)
+        category: 'custom_optimization',
+        expectedSavings,
         validationCriteria: ['Custom metrics'],
         rollbackPlan: 'Standard rollback procedure',
       };

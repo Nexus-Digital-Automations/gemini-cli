@@ -11,15 +11,13 @@ import type {
   TaskResult,
   DependencyGraph,
   ExecutionSequence,
-  TaskPriority,
-  TaskStatus,
-  TaskCategory,
-  DependencyType,
+  DependencyType as _DependencyType,
   ResourceConstraint,
   TaskExecutionContext,
-  TaskMetadata,
+  TaskMetadata as _TaskMetadata,
   ResourceAllocation,
 } from '../../types.js';
+import { TaskPriority, TaskStatus, TaskCategory } from '../../types.js';
 import type { Config } from '../../../config/config.js';
 
 /**
@@ -47,9 +45,9 @@ export class TestFactories {
       id,
       title: `Test Task ${this.taskIdCounter}`,
       description: 'A test task created by the test factory',
-      status: 'pending',
-      priority: 'medium',
-      category: 'implementation',
+      status: TaskStatus.PENDING,
+      priority: TaskPriority.MEDIUM,
+      category: TaskCategory.FEATURE,
       metadata: {
         createdAt,
         updatedAt: createdAt,
@@ -75,22 +73,22 @@ export class TestFactories {
     baseOverrides: Partial<Task> = {},
   ): Task[] {
     const tasks: Task[] = [];
-    const priorities: TaskPriority[] = ['low', 'medium', 'high', 'critical'];
+    const priorities: TaskPriority[] = [TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.HIGH, TaskPriority.CRITICAL];
     const categories: TaskCategory[] = [
-      'implementation',
-      'testing',
-      'documentation',
-      'analysis',
-      'refactoring',
-      'deployment',
+      TaskCategory.FEATURE,
+      TaskCategory.TEST,
+      TaskCategory.DOCUMENTATION,
+      TaskCategory.REFACTOR,
+      TaskCategory.PERFORMANCE,
+      TaskCategory.INFRASTRUCTURE,
     ];
     const statuses: TaskStatus[] = [
-      'pending',
-      'ready',
-      'in_progress',
-      'completed',
-      'failed',
-      'blocked',
+      TaskStatus.PENDING,
+      TaskStatus.QUEUED,
+      TaskStatus.RUNNING,
+      TaskStatus.COMPLETED,
+      TaskStatus.FAILED,
+      TaskStatus.BLOCKED,
     ];
 
     for (let i = 0; i < count; i++) {
@@ -324,7 +322,7 @@ export class TestFactories {
       storage: {
         getProjectTempDir: vi.fn(() => '/tmp/test-project'),
         ensureProjectTempDir: vi.fn(),
-      } as any,
+      } as Partial<Config['storage']>,
       getSessionId: vi.fn(() => 'test-session-id'),
       settings: {
         get: vi.fn((key: string) => {
@@ -351,7 +349,7 @@ export class TestFactories {
        * Linear dependency chain: A -> B -> C -> D
        */
       linearChain: () => {
-        const tasks = this.createMockTasks(4, { category: 'implementation' });
+        const tasks = this.createMockTasks(4, { category: TaskCategory.FEATURE });
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[1].id),
@@ -364,7 +362,7 @@ export class TestFactories {
        * Fan-out pattern: A -> [B, C, D]
        */
       fanOut: () => {
-        const tasks = this.createMockTasks(4, { category: 'analysis' });
+        const tasks = this.createMockTasks(4, { category: TaskCategory.REFACTOR });
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[0].id),
@@ -377,7 +375,7 @@ export class TestFactories {
        * Fan-in pattern: [A, B, C] -> D
        */
       fanIn: () => {
-        const tasks = this.createMockTasks(4, { category: 'testing' });
+        const tasks = this.createMockTasks(4, { category: TaskCategory.TEST });
         const dependencies = [
           this.createMockDependency(tasks[3].id, tasks[0].id),
           this.createMockDependency(tasks[3].id, tasks[1].id),
@@ -390,7 +388,7 @@ export class TestFactories {
        * Diamond pattern: A -> [B, C] -> D
        */
       diamond: () => {
-        const tasks = this.createMockTasks(4, { category: 'implementation' });
+        const tasks = this.createMockTasks(4, { category: TaskCategory.FEATURE });
         const dependencies = [
           this.createMockDependency(tasks[1].id, tasks[0].id),
           this.createMockDependency(tasks[2].id, tasks[0].id),
@@ -447,9 +445,12 @@ export class TestFactories {
        */
       highVolume: (count: number = 1000) =>
         this.createMockTasks(count, {
-          category: 'implementation',
-          priority: 'medium',
+          category: TaskCategory.FEATURE,
+          priority: TaskPriority.MEDIUM,
           metadata: {
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            createdBy: 'test-factory',
             estimatedDuration: 60000, // 1 minute each
             tags: ['performance-test', 'high-volume'],
           },
@@ -473,10 +474,10 @@ export class TestFactories {
        */
       mixedPriority: (count: number = 200) => {
         const priorities: TaskPriority[] = [
-          'critical',
-          'high',
-          'medium',
-          'low',
+          TaskPriority.CRITICAL,
+          TaskPriority.HIGH,
+          TaskPriority.MEDIUM,
+          TaskPriority.LOW,
         ];
         return this.createMockTasks(count).map((task, index) => ({
           ...task,
@@ -484,11 +485,11 @@ export class TestFactories {
           metadata: {
             ...task.metadata,
             estimatedDuration:
-              task.priority === 'critical'
+              task.priority === TaskPriority.CRITICAL
                 ? 30000
-                : task.priority === 'high'
+                : task.priority === TaskPriority.HIGH
                   ? 120000
-                  : task.priority === 'medium'
+                  : task.priority === TaskPriority.MEDIUM
                     ? 300000
                     : 600000,
           },
@@ -501,7 +502,7 @@ export class TestFactories {
       longRunning: (count: number = 20) =>
         this.createMockTasks(count).map((task) => ({
           ...task,
-          category: 'analysis' as TaskCategory,
+          category: TaskCategory.PERFORMANCE,
           metadata: {
             ...task.metadata,
             estimatedDuration: (60 + Math.random() * 300) * 60 * 1000, // 1-6 hours

@@ -189,6 +189,10 @@ export class Theme {
         warning: this.colors.AccentYellow,
         info: this.colors.AccentBlue,
       },
+      charts: {
+        line: this.colors.AccentCyan,
+        bar: this.colors.AccentPurple,
+      },
     };
     this._colorMap = Object.freeze(this._buildColorMap(rawMappings)); // Build and freeze the map
 

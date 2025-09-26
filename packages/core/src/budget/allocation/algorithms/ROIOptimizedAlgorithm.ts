@@ -586,7 +586,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
           candidate.priority === 'deferred'
             ? 'low'
             : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
-        estimatedTimeToImplement: `${Math.ceil(analysis.timeToROI / 7)}-${Math.ceil(analysis.timeToROI / 7) + 1} weeks`,
+        estimatedTimeToImplement: Math.ceil(analysis.timeToROI / 7) * 7, // convert weeks to days
         category: 'roi_optimization',
         tags: ['roi-optimized', 'efficient-frontier', 'data-driven'],
       };
@@ -872,7 +872,7 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
         candidate.priority === 'deferred'
           ? 'low'
           : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
-      estimatedTimeToImplement: 'immediate',
+      estimatedTimeToImplement: 1, // immediate: 1 day
       category: 'roi_optimization',
       tags: ['roi-optimized', 'no-change', 'stable'],
     };

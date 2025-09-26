@@ -12,7 +12,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Assertion } from 'vitest';
 import { expect } from 'vitest';
 import type { TextBuffer } from '../ui/components/shared/text-buffer.js';
 
@@ -20,8 +19,9 @@ import type { TextBuffer } from '../ui/components/shared/text-buffer.js';
 // eslint-disable-next-line no-control-regex
 const invalidCharsRegex = /[\b\x1b]/;
 
-function toHaveOnlyValidCharacters(this: Assertion, buffer: TextBuffer) {
-  const { isNot } = this as Assertion & { isNot: boolean };
+function toHaveOnlyValidCharacters(buffer: TextBuffer) {
+  // @ts-expect-error - Vitest matcher context access
+  const isNot = this.isNot;
   let pass = true;
   const invalidLines: Array<{ line: number; content: string }> = [];
 
@@ -51,7 +51,7 @@ function toHaveOnlyValidCharacters(this: Assertion, buffer: TextBuffer) {
 
 expect.extend({
   toHaveOnlyValidCharacters,
-} as Record<string, unknown>);
+});
 
 // Extend Vitest's `expect` interface with the custom matcher's type definition.
 declare module 'vitest' {

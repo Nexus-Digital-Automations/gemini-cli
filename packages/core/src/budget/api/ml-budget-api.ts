@@ -695,6 +695,13 @@ export const mlBudgetHandlers = {
 };
 
 /**
+ * Get the singleton ML Budget API instance
+ */
+export function getMLBudgetAPI(): MLBudgetAPI {
+  return mlBudgetAPI;
+}
+
+/**
  * Export the singleton API instance and handlers
  */
 export { mlBudgetAPI };
