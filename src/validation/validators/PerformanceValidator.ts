@@ -1148,6 +1148,7 @@ export class PerformanceValidator {
           // Handle unexpected priority values
           break;
     }
+  }
 
     return Math.max(0, Math.min(100, score));
   }
