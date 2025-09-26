@@ -152,7 +152,10 @@ export class BranchManager {
 
       return branchInfo;
     } catch (error) {
-      logger.error('Failed to create branch', { error: error as Error, options });
+      logger.error('Failed to create branch', {
+        error: error as Error,
+        options,
+      });
       throw error as Error;
     }
   }
@@ -209,7 +212,10 @@ export class BranchManager {
         rulesCount: applicableRules.length,
       });
     } catch (error) {
-      logger.error('Failed to apply protection rules', { error: error as Error, branchName });
+      logger.error('Failed to apply protection rules', {
+        error: error as Error,
+        branchName,
+      });
       throw error as Error;
     }
   }
@@ -237,7 +243,9 @@ export class BranchManager {
       });
       return cleanedBranches;
     } catch (error) {
-      logger.error('Failed to cleanup merged branches', { error: error as Error });
+      logger.error('Failed to cleanup merged branches', {
+        error: error as Error,
+      });
       throw error as Error;
     }
   }
@@ -271,7 +279,9 @@ export class BranchManager {
 
       return report;
     } catch (error) {
-      logger.error('Failed to analyze branch health', { error: error as Error });
+      logger.error('Failed to analyze branch health', {
+        error: error as Error,
+      });
       throw error as Error;
     }
   }
@@ -351,7 +361,9 @@ export class BranchManager {
         remoteUrl,
       };
     } catch (error) {
-      logger.error('Failed to get repository status', { error: error as Error });
+      logger.error('Failed to get repository status', {
+        error: error as Error,
+      });
       throw error as Error;
     }
   }
@@ -380,7 +392,10 @@ export class BranchManager {
 
       logger.info('Switched to branch successfully', { branchName });
     } catch (error) {
-      logger.error('Failed to switch to branch', { error: error as Error, branchName });
+      logger.error('Failed to switch to branch', {
+        error: error as Error,
+        branchName,
+      });
       throw error as Error;
     }
   }
@@ -404,7 +419,7 @@ export class BranchManager {
     }
   }
 
-  private generateBranchDescription(options: BranchCreationOptions): string {
+  private generateBranchDescription(_options: BranchCreationOptions): string {
     // This is a simplified implementation
     // In a real scenario, you might analyze commit messages, issue titles, etc.
     const timestamp = new Date().getTime().toString().slice(-4);
@@ -441,7 +456,7 @@ export class BranchManager {
   private sanitizeBranchName(name: string): string {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9\-_\/]/g, '-')
+      .replace(/[^a-z0-9\-_/]/g, '-')
       .replace(/--+/g, '-')
       .replace(/^-|-$/g, '');
   }
@@ -532,7 +547,10 @@ export class BranchManager {
         isProtected: this.isBranchProtected(branchName),
       };
     } catch (error) {
-      logger.error('Failed to get branch info', { error: error as Error, branchName });
+      logger.error('Failed to get branch info', {
+        error: error as Error,
+        branchName,
+      });
       throw error as Error;
     }
   }
@@ -594,11 +612,11 @@ export class BranchManager {
       thresholdDate.getDate() - this.config.staleBranchThreshold,
     );
 
-    return allBranches.filter((branch) => {
+    return allBranches.filter((_branch) => 
       // This would check the actual last commit date
       // For now, just return empty array
-      return false;
-    });
+       false
+    );
   }
 
   private async getMergedBranches(): Promise<BranchInfo[]> {
@@ -662,7 +680,10 @@ export class BranchManager {
 
       logger.info('Branch deleted', { branchName });
     } catch (error) {
-      logger.error('Failed to delete branch', { error: error as Error, branchName });
+      logger.error('Failed to delete branch', {
+        error: error as Error,
+        branchName,
+      });
       throw error as Error;
     }
   }
