@@ -20,7 +20,6 @@ import type { TextBuffer } from '../ui/components/shared/text-buffer.js';
 const invalidCharsRegex = /[\b\x1b]/;
 
 function toHaveOnlyValidCharacters(buffer: TextBuffer) {
-  // @ts-expect-error - Vitest matcher context access
   const isNot = this.isNot;
   let pass = true;
   const invalidLines: Array<{ line: number; content: string }> = [];
