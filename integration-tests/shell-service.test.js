@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeAll } from 'vitest';
 import { ShellExecutionService } from '../packages/core/src/services/shellExecutionService.js';
 import * as fs from 'node:fs/promises';
