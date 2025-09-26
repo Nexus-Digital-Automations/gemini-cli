@@ -640,14 +640,7 @@ export class QuotaManager extends EventEmitter {
     };
   }
 
-  /**
-   * Handle quota violation
-   */
-  private async handleQuotaViolation(
-    limitId: string,
-    limit: QuotaLimit,
-    validation: BudgetValidationResult,
-  ): Promise<void> {
+  private async handleQuotaViolation(limitId: string, limit: QuotaLimit, validation: BudgetValidationResult): Promise<void> {
     const usage = this.quotaUsage.get(limitId);
     if (!usage) return;
 
