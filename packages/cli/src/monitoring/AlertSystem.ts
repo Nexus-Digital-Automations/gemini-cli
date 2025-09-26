@@ -12,10 +12,9 @@ import {
 import type {
   TaskMetadata,
   TaskStatusUpdate,
-  AgentStatus} from './TaskStatusMonitor.js';
-import {
-  TaskStatus
+  AgentStatus,
 } from './TaskStatusMonitor.js';
+import { TaskStatus } from './TaskStatusMonitor.js';
 import type { BottleneckAnalysis } from './MetricsCollector.js';
 
 /**
@@ -662,7 +661,7 @@ export class AlertSystem extends EventEmitter {
     eventType: string,
     context: Record<string, unknown>,
   ): Promise<void> {
-    for (const [ruleId, rule] of this.alertRules) {
+    for (const [ruleId, rule] of Array.from(this.alertRules)) {
       if (!rule.enabled) continue;
 
       // Check if this rule applies to the event type
@@ -916,7 +915,7 @@ export class AlertSystem extends EventEmitter {
   }
 
   private isAlertSuppressed(title: string): boolean {
-    for (const [, suppression] of this.suppressionRules) {
+    for (const [, suppression] of Array.from(this.suppressionRules)) {
       if (suppression.pattern.test(title)) {
         return true;
       }
@@ -1323,7 +1322,7 @@ export class AlertSystem extends EventEmitter {
    */
   destroy(): void {
     // Clear all escalation timers
-    for (const timer of this.escalationTimers.values()) {
+    for (const timer of Array.from(this.escalationTimers.values())) {
       clearTimeout(timer);
     }
 

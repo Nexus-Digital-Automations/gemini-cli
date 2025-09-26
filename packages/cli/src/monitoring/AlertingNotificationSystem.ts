@@ -829,7 +829,7 @@ Please take appropriate action.
 
     // Reset throttle windows
     const now = Date.now();
-    for (const [ruleId, state] of this.throttleState.entries()) {
+    for (const [ruleId, state] of Array.from(this.throttleState.entries())) {
       if (now - state.windowStart > 3600000) {
         // 1 hour window
         this.throttleState.delete(ruleId);
@@ -838,7 +838,7 @@ Please take appropriate action.
   }
 
   private processEscalations(): void {
-    for (const alert of this.activeAlerts.values()) {
+    for (const alert of Array.from(this.activeAlerts.values())) {
       const rule = this.alertRules.get(alert.ruleId);
       if (!rule?.escalation || alert.status !== 'active') continue;
 
@@ -861,7 +861,7 @@ Please take appropriate action.
     }
 
     // Clean up old metrics buffer
-    for (const [metric, buffer] of this.metricsBuffer.entries()) {
+    for (const [metric, buffer] of Array.from(this.metricsBuffer.entries())) {
       const oneHourAgo = Date.now() - 3600000;
       const filteredBuffer = buffer.filter(
         (m) => m.timestamp.getTime() > oneHourAgo,
@@ -871,7 +871,7 @@ Please take appropriate action.
   }
 
   private checkMetricAlertRules(metric: PerformanceMetric): void {
-    for (const rule of this.alertRules.values()) {
+    for (const rule of Array.from(this.alertRules.values())) {
       if (!rule.enabled || this.suppressed.has(rule.id)) continue;
 
       for (const condition of rule.conditions) {
@@ -885,7 +885,7 @@ Please take appropriate action.
   }
 
   private checkEventAlertRules(event: AuditEvent): void {
-    for (const rule of this.alertRules.values()) {
+    for (const rule of Array.from(this.alertRules.values())) {
       if (!rule.enabled || this.suppressed.has(rule.id)) continue;
 
       for (const condition of rule.conditions) {
@@ -1412,7 +1412,10 @@ Please take appropriate action.
   ): Array<{ ruleId: string; ruleName: string; count: number }> {
     const ruleCounts: Record<string, { ruleName: string; count: number }> = {};
 
-    for (const alert of [...this.activeAlerts.values(), ...this.alertHistory]) {
+    for (const alert of [
+      ...Array.from(this.activeAlerts.values()),
+      ...this.alertHistory,
+    ]) {
       if (!ruleCounts[alert.ruleId]) {
         ruleCounts[alert.ruleId] = { ruleName: alert.ruleName, count: 0 };
       }
