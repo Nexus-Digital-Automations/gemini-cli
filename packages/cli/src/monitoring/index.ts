@@ -264,8 +264,12 @@ export const MonitoringUtils = {
     return taskStatusMonitor.registerTask({
       title,
       description,
-      type: (options.type as TaskType) ?? TaskType.IMPLEMENTATION,
-      priority: (options.priority as TaskPriority) ?? TaskPriority.NORMAL,
+      type: (options.type as keyof typeof TaskType)
+        ? TaskType[options.type as keyof typeof TaskType]
+        : TaskType.IMPLEMENTATION,
+      priority: (options.priority as keyof typeof TaskPriority)
+        ? TaskPriority[options.priority as keyof typeof TaskPriority]
+        : TaskPriority.NORMAL,
       assignedAgent: options.assignedAgent,
       dependencies: [],
       tags: options.tags ?? [],

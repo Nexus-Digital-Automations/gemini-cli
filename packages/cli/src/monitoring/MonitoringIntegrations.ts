@@ -5,11 +5,16 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import type { TaskMetadata as _TaskMetadata } from './TaskStatusMonitor.js';
 import {
   TaskStatusMonitor as _TaskStatusMonitor,
   TaskStatus,
+  TaskType,
+  TaskPriority,
   taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 import {
@@ -19,9 +24,9 @@ import {
 } from './StatusUpdateBroker.js';
 import {
   NotificationSystem as _NotificationSystem,
-  NotificationPreferences as _NotificationPreferences,
   notificationSystem as _notificationSystem,
 } from './NotificationSystem.js';
+import type { NotificationPreferences as _NotificationPreferences } from './NotificationSystem.js';
 import {
   StatusHistoryAnalytics as _StatusHistoryAnalytics,
   statusHistoryAnalytics as _statusHistoryAnalytics,
@@ -467,7 +472,7 @@ export class MonitoringIntegrations extends EventEmitter {
     });
 
     // Listen to webhook delivery events
-    statusUpdateBroker.on(/^webhook:/, async (data) => {
+    statusUpdateBroker.on('webhook:delivery', async (data) => {
       const { events, config } = data;
       const systemName = config.subscriberId.replace('external_', '');
 
@@ -516,8 +521,9 @@ export class MonitoringIntegrations extends EventEmitter {
       await taskStatusMonitor.registerTask({
         title: todoTask.content,
         description: todoTask.activeForm || todoTask.content,
-        type: 'implementation', // Default type
-        priority: todoTask.priority || 'normal',
+        type: TaskType.IMPLEMENTATION, // Default type
+        priority:
+          this.mapPriorityToEnum(todoTask.priority) || TaskPriority.NORMAL,
         assignedAgent: todoTask.assignedAgent,
         dependencies: todoTask.dependencies || [],
         tags: todoTask.tags || ['todowrite'],
@@ -607,13 +613,17 @@ export class MonitoringIntegrations extends EventEmitter {
     // Check event type filter
     if (
       config.filterConfig?.eventTypes &&
-      !config.filterConfig.eventTypes.includes(event.type)
+      typeof event.type === 'string' &&
+      !config.filterConfig.eventTypes.includes(event.type as StatusEventType)
     ) {
       return false;
     }
 
     // Check priority threshold
-    if (config.filterConfig?.priorityThreshold) {
+    if (
+      config.filterConfig?.priorityThreshold &&
+      typeof event.priority === 'string'
+    ) {
       const priorityLevels = ['low', 'normal', 'high', 'critical'];
       const requiredLevel = priorityLevels.indexOf(
         config.filterConfig.priorityThreshold,
@@ -627,7 +637,10 @@ export class MonitoringIntegrations extends EventEmitter {
     // Check agent ID filter
     if (
       config.filterConfig?.agentIds &&
-      event.data.agentId &&
+      typeof event.data === 'object' &&
+      event.data !== null &&
+      'agentId' in event.data &&
+      typeof event.data.agentId === 'string' &&
       !config.filterConfig.agentIds.includes(event.data.agentId)
     ) {
       return false;
@@ -726,7 +739,8 @@ export class MonitoringIntegrations extends EventEmitter {
   private convertToCSV(data: Record<string, unknown>): string {
     // Simple CSV conversion for tasks
     const tasks = data.tasks || [];
-    if (tasks.length === 0) return 'No tasks available';
+    if (!Array.isArray(tasks) || tasks.length === 0)
+      return 'No tasks available';
 
     const headers = [
       'id',
@@ -754,30 +768,83 @@ export class MonitoringIntegrations extends EventEmitter {
 
   private convertToPrometheusFormat(data: Record<string, unknown>): string {
     const timestamp = Date.now();
-    const metrics = data.performanceMetrics || {};
+    const metrics =
+      typeof data.performanceMetrics === 'object' &&
+      data.performanceMetrics !== null
+        ? (data.performanceMetrics as Record<string, unknown>)
+        : {};
+    const agents = Array.isArray(data.agents)
+      ? (data.agents as Array<{ status: string }>)
+      : [];
+
+    const totalTasks =
+      typeof metrics.totalTasks === 'number' ? metrics.totalTasks : 0;
+    const completedTasks =
+      typeof metrics.completedTasks === 'number' ? metrics.completedTasks : 0;
+    const activeAgents = agents.filter((a) => a.status === 'active').length;
 
     return [
       `# HELP gemini_tasks_total Total number of tasks`,
       `# TYPE gemini_tasks_total counter`,
-      `gemini_tasks_total ${metrics.totalTasks || 0} ${timestamp}`,
+      `gemini_tasks_total ${totalTasks} ${timestamp}`,
       '',
       `# HELP gemini_tasks_completed Total completed tasks`,
       `# TYPE gemini_tasks_completed counter`,
-      `gemini_tasks_completed ${metrics.completedTasks || 0} ${timestamp}`,
+      `gemini_tasks_completed ${completedTasks} ${timestamp}`,
       '',
       `# HELP gemini_agents_active Number of active agents`,
       `# TYPE gemini_agents_active gauge`,
-      `gemini_agents_active ${(data.agents as Array<{ status: string }>)?.filter((a) => a.status === 'active').length || 0} ${timestamp}`,
+      `gemini_agents_active ${activeAgents} ${timestamp}`,
     ].join('\n');
   }
 
   private convertToInfluxDBFormat(data: Record<string, unknown>): string {
     const timestamp = Date.now() * 1000000; // InfluxDB uses nanoseconds
 
+    const system =
+      typeof data.system === 'object' && data.system !== null
+        ? (data.system as Record<string, unknown>)
+        : {};
+    const environment =
+      typeof system.environment === 'string' ? system.environment : 'unknown';
+
+    const metrics =
+      typeof data.performanceMetrics === 'object' &&
+      data.performanceMetrics !== null
+        ? (data.performanceMetrics as Record<string, unknown>)
+        : {};
+    const agents = Array.isArray(data.agents)
+      ? (data.agents as Array<{ status: string }>)
+      : [];
+
+    const totalTasks =
+      typeof metrics.totalTasks === 'number' ? metrics.totalTasks : 0;
+    const completedTasks =
+      typeof metrics.completedTasks === 'number' ? metrics.completedTasks : 0;
+    const activeAgents = agents.filter((a) => a.status === 'active').length;
+
     return [
-      `gemini_tasks,environment=${data.system.environment} total=${data.performanceMetrics.totalTasks || 0},completed=${data.performanceMetrics.completedTasks || 0} ${timestamp}`,
-      `gemini_agents,environment=${(data.system as { environment: string }).environment} active=${(data.agents as Array<{ status: string }>)?.filter((a) => a.status === 'active').length || 0} ${timestamp}`,
+      `gemini_tasks,environment=${environment} total=${totalTasks},completed=${completedTasks} ${timestamp}`,
+      `gemini_agents,environment=${environment} active=${activeAgents} ${timestamp}`,
     ].join('\n');
+  }
+
+  /**
+   * Map string priority to TaskPriority enum
+   */
+  private mapPriorityToEnum(priority?: string): TaskPriority {
+    switch (priority) {
+      case 'critical':
+        return TaskPriority.CRITICAL;
+      case 'high':
+        return TaskPriority.HIGH;
+      case 'normal':
+        return TaskPriority.NORMAL;
+      case 'low':
+        return TaskPriority.LOW;
+      default:
+        return TaskPriority.NORMAL;
+    }
   }
 
   /**

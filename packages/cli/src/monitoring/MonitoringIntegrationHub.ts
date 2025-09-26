@@ -5,10 +5,11 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type {
- ExecutionMonitoringSystem ,
+import {
   getComponentLogger,
-  type StructuredLogger } from '@google/gemini-cli-core';
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
+import type { ExecutionMonitoringSystem } from '@google/gemini-cli-core/src/task-management/ExecutionMonitoringSystem.js';
 import {
   realTimeMonitoringSystem,
   type MonitoringSnapshot,
