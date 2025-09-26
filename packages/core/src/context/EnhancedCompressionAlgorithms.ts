@@ -1051,9 +1051,6 @@ export class EnhancedCompressionAlgorithms {
       informationLoss: this.calculateInformationLoss(item.content, compressed),
       strategy,
     };
-      default:
-        // Handle unexpected values
-        break;
   }
 
   // Helper methods for specific compression techniques

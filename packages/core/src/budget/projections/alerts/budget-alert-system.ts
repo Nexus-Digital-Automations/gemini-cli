@@ -192,9 +192,6 @@ export class BudgetAlertSystem {
         error: error.message,
       });
       return null;
-        default:
-          // Handle unexpected values
-          break;
     }
   }
 
