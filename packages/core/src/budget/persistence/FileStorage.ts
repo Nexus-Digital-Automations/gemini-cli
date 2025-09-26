@@ -14,19 +14,20 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '../../utils/logger.js';
 import type { BudgetSettings, BudgetUsageData } from '../types.js';
 import type {
-  BudgetStorage,
   StorageOperationResult,
   StorageHealthCheck,
   StorageMetrics,
-  StorageConfig,
   ObservableStorage,
   StorageEvent,
-  StorageEventType,
   StorageEventListener,
 } from './BudgetStorageInterface.js';
+import { StorageEventType } from './BudgetStorageInterface.js';
 
 /**
  * File storage configuration
@@ -174,7 +175,7 @@ export class FileStorage implements ObservableStorage {
   async healthCheck(): Promise<StorageHealthCheck> {
     const start = Date.now();
     let healthy = true;
-    const details: Record<string, any> = {};
+    const details: Record<string, unknown> = {};
 
     try {
       // Check base directory accessibility
@@ -501,8 +502,6 @@ export class FileStorage implements ObservableStorage {
         error: 'Invalid confirmation token',
       };
     }
-
-    const start = Date.now();
 
     try {
       const settingsPath = this.getSettingsPath();
