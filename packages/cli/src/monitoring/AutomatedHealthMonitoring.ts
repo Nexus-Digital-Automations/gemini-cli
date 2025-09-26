@@ -329,7 +329,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
     // Return all results
     const allResults: HealthMonitoringResult[] = [];
-    for (const results of this.healthCheckResults.values()) {
+    for (const results of Array.from(this.healthCheckResults.values())) {
       allResults.push(...results);
     }
 
@@ -348,7 +348,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
 
     // Return all execution history
     const allHistory: SelfHealingExecutionResult[] = [];
-    for (const history of this.actionExecutionHistory.values()) {
+    for (const history of Array.from(this.actionExecutionHistory.values())) {
       allHistory.push(...history);
     }
 
@@ -1917,7 +1917,7 @@ export class AutomatedHealthMonitoring extends EventEmitter {
     this.logger.info('Shutting down AutomatedHealthMonitoring');
 
     // Clear all intervals
-    for (const interval of this.healthCheckIntervals.values()) {
+    for (const interval of Array.from(this.healthCheckIntervals.values())) {
       clearInterval(interval);
     }
 

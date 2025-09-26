@@ -805,7 +805,7 @@ export class AuditTrailAnalytics extends EventEmitter {
   private checkComplianceViolations(event: AuditEvent): string[] {
     const violations: string[] = [];
 
-    for (const [ruleName, ruleCheck] of this.complianceRules) {
+    for (const [ruleName, ruleCheck] of Array.from(this.complianceRules)) {
       if (!ruleCheck(event)) {
         violations.push(ruleName);
       }
