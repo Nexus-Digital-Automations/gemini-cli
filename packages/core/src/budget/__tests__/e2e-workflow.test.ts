@@ -362,7 +362,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
         get functionCalls() { return []; },
         get executableCode() { return undefined; },
         get codeExecutionResult() { return undefined; },
-      } as GenerateContentResponse;
+      } as unknown as GenerateContentResponse;
 
       mockContentGenerator.generateContent = vi
         .fn()
@@ -498,7 +498,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
           get functionCalls() { return []; },
           get executableCode() { return undefined; },
           get codeExecutionResult() { return undefined; },
-        } as GenerateContentResponse;
+        } as unknown as GenerateContentResponse;
         yield {
           candidates: [
             {
@@ -515,7 +515,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
           get functionCalls() { return []; },
           get executableCode() { return undefined; },
           get codeExecutionResult() { return undefined; },
-        } as GenerateContentResponse;
+        } as unknown as GenerateContentResponse;
       }
 
       mockContentGenerator.generateContentStream = vi
@@ -559,10 +559,10 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
       }
 
       expect(chunks).toHaveLength(2);
-      expect(chunks[0].candidates?.[0]?.content.parts?.[0]).toEqual({
+      expect(chunks[0]?.candidates?.[0]?.content?.parts?.[0]).toEqual({
         text: 'Streaming chunk 1',
       });
-      expect(chunks[1].candidates?.[0]?.content.parts?.[0]).toEqual({
+      expect(chunks[1]?.candidates?.[0]?.content?.parts?.[0]).toEqual({
         text: 'Streaming chunk 2',
       });
 
@@ -607,7 +607,7 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
         get functionCalls() { return []; },
         get executableCode() { return undefined; },
         get codeExecutionResult() { return undefined; },
-      } as GenerateContentResponse;
+      } as unknown as GenerateContentResponse;
 
       mockContentGenerator.generateContent = vi
         .fn()

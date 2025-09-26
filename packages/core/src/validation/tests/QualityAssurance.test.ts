@@ -57,8 +57,8 @@ describe('QualityAssurance', () => {
 
     // Create quality assurance system
     qualityAssurance = new QualityAssurance(
-      mockValidationFramework,
-      mockTaskValidator,
+      mockValidationFramework as ValidationFramework,
+      mockTaskValidator as TaskValidator,
     );
 
     // Create mock task
@@ -93,7 +93,8 @@ describe('QualityAssurance', () => {
       // Should register rules for each quality check type
       expect(mockValidationFramework.registerRule).toHaveBeenCalled();
 
-      const ruleIds = mockValidationFramework.registerRule.mock.calls.map(
+      const registerRuleMock = mockValidationFramework.registerRule as any;
+      const ruleIds = registerRuleMock.mock.calls.map(
         (call: any[]) => call[0].id,
       );
       expect(ruleIds).toContain('quality-check-code_quality');
@@ -117,8 +118,8 @@ describe('QualityAssurance', () => {
       };
 
       const customQA = new QualityAssurance(
-        mockValidationFramework,
-        mockTaskValidator,
+        mockValidationFramework as ValidationFramework,
+        mockTaskValidator as TaskValidator,
         customConfig,
       );
 

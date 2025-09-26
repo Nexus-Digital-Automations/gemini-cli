@@ -446,7 +446,7 @@ export class AutonomousTaskManagerIntegration {
       availableTools: new Map(), // Would be populated with actual tools
       abortSignal: new AbortController().signal,
       logger: this.logger,
-      stateManager: this.stateManager as ExecutionStateManager, // Type compatibility - ComprehensiveStateManager implements ExecutionStateManager interface
+      stateManager: this.stateManager as unknown as ExecutionStateManager, // Type compatibility - ComprehensiveStateManager interface alignment
       validationEngine: this.validationEngine,
     };
 
