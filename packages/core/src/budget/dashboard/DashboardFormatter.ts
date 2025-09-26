@@ -4,36 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Create a simple chalk fallback when not available
-const createChalkFallback = () => {
-  const identity = (str: string) => str;
-  const colorProxy = new Proxy(identity, {
-    get: () => identity,
-  });
-  return new Proxy(identity, {
-    get: () => colorProxy,
-  });
-};
-
-// Conditional chalk usage - initialize with fallback, then try to load chalk async
-let chalk: ReturnType<typeof createChalkFallback> = createChalkFallback();
-
-// Attempt to load chalk asynchronously
-(async () => {
-  try {
-    const chalkModule = await import('chalk');
-    chalk = chalkModule.default || chalkModule;
-  } catch {
-    // Keep using fallback
-  }
-})();
+import chalk from 'chalk';
 import type {
   DashboardConfig,
   DashboardData,
   DashboardSections,
   BudgetAlert,
 } from './BudgetDashboard.js';
-import type { FeatureCostAnalysis, OptimizationRecommendation } from '../index.js';
+import type {
+  FeatureCostAnalysis,
+  OptimizationRecommendation,
+} from '../index.js';
 import { ChartRenderer } from './ChartRenderer.js';
 
 /**
@@ -505,9 +486,7 @@ export class DashboardFormatter {
   /**
    * Get color for complexity level
    */
-  private getComplexityColor(
-    complexity: string,
-  ): ReturnType<typeof createChalkFallback> {
+  private getComplexityColor(complexity: string) {
     switch (complexity) {
       case 'low':
         return chalk.green;

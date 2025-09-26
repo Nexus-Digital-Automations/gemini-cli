@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 // Note: Using relative import to utils/logger for internal usage
- 
+
 import { logger } from '../utils/logger.js';
 
 /**
@@ -16,7 +16,8 @@ import { logger } from '../utils/logger.js';
 export enum TaskPriority {
   CRITICAL = 1000, // Security, critical bugs, system failures
   HIGH = 800, // User-blocking issues, major features
-  MEDIUM = 500, // Regular features, enhancements
+  NORMAL = 500, // Regular features, enhancements
+  MEDIUM = 400, // Moderate priority features
   LOW = 200, // Nice-to-have, optimizations
   BACKGROUND = 50, // Cleanup, documentation
 }

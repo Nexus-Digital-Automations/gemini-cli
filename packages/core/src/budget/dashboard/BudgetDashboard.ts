@@ -21,7 +21,7 @@ import { ChartRenderer } from './ChartRenderer.js';
 /**
  * Dashboard configuration options
  */
-export interface DashboardConfig {
+export interface BudgetDashboardConfig {
   refreshInterval?: number;
   maxHistoryDays?: number;
   showRealTime?: boolean;
@@ -33,7 +33,7 @@ export interface DashboardConfig {
 /**
  * Dashboard sections configuration
  */
-export interface DashboardSections {
+export interface BudgetDashboardSections {
   summary?: boolean;
   realTimeUsage?: boolean;
   historicalTrends?: boolean;
@@ -46,7 +46,7 @@ export interface DashboardSections {
 /**
  * Budget alert types and severity levels
  */
-export interface BudgetAlert {
+export interface BudgetDashboardAlert {
   id: string;
   type: 'critical' | 'warning' | 'info' | 'success';
   title: string;
@@ -60,7 +60,7 @@ export interface BudgetAlert {
 /**
  * Current usage summary data
  */
-export interface CurrentUsageData {
+export interface BudgetCurrentUsageData {
   todayRequests: number;
   todayCost: number;
   budgetRemaining: number;
@@ -70,7 +70,7 @@ export interface CurrentUsageData {
 /**
  * Cost projections data
  */
-export interface CostProjections {
+export interface BudgetCostProjections {
   dailyProjection: number;
   weeklyProjection: number;
   monthlyProjection: number;
@@ -82,7 +82,7 @@ export interface CostProjections {
 /**
  * Historical trends data
  */
-export interface TrendsData {
+export interface BudgetTrendsData {
   hourlyUsage: number[];
   dailyUsage: number[];
   weeklyUsage: number[];
@@ -91,13 +91,13 @@ export interface TrendsData {
 /**
  * Complete dashboard data structure
  */
-export interface DashboardData {
-  currentUsage: CurrentUsageData;
-  projections: CostProjections;
-  trends: TrendsData;
+export interface BudgetDashboardData {
+  currentUsage: BudgetCurrentUsageData;
+  projections: BudgetCostProjections;
+  trends: BudgetTrendsData;
   features: FeatureCostAnalysis[];
   recommendations: OptimizationRecommendation[];
-  alerts: BudgetAlert[];
+  alerts: BudgetDashboardAlert[];
   realTimeData?: RealTimeData;
 }
 
@@ -113,16 +113,16 @@ export class BudgetDashboard {
   private realTimeTracker: RealTimeTracker;
   private formatter: DashboardFormatter;
   private chartRenderer: ChartRenderer;
-  private config: Required<DashboardConfig>;
+  private config: Required<BudgetDashboardConfig>;
 
   private isRunning = false;
   private refreshTimer?: NodeJS.Timeout;
-  private currentData?: DashboardData;
+  private currentData?: BudgetDashboardData;
 
   constructor(
     budgetTracker: BudgetTracker,
     analytics: AnalyticsEngine,
-    config: DashboardConfig = {},
+    config: BudgetDashboardConfig = {},
   ) {
     this.budgetTracker = budgetTracker;
     this.analytics = analytics;
@@ -150,7 +150,7 @@ export class BudgetDashboard {
    * Start the interactive dashboard
    */
   async startDashboard(
-    sections: Partial<DashboardSections> = {},
+    sections: Partial<BudgetDashboardSections> = {},
   ): Promise<void> {
     if (this.isRunning) {
       return;
@@ -194,10 +194,10 @@ export class BudgetDashboard {
    * Generate a static dashboard report
    */
   async generateReport(
-    sections: Partial<DashboardSections> = {},
+    sections: Partial<BudgetDashboardSections> = {},
   ): Promise<string> {
-    const data = await this.collectDashboardData();
-    const fullSections: DashboardSections = {
+    const data = await this.collectBudgetDashboardData();
+    const fullSections: BudgetDashboardSections = {
       summary: true,
       realTimeUsage: true,
       historicalTrends: true,
@@ -214,22 +214,22 @@ export class BudgetDashboard {
   /**
    * Get current dashboard data snapshot
    */
-  async getDashboardData(): Promise<DashboardData> {
-    return this.collectDashboardData();
+  async getBudgetDashboardData(): Promise<BudgetDashboardData> {
+    return this.collectBudgetDashboardData();
   }
 
   /**
    * Refresh dashboard display
    */
   private async refreshDashboard(
-    sections: Partial<DashboardSections>,
+    sections: Partial<BudgetDashboardSections>,
   ): Promise<void> {
     try {
       // Collect latest data
-      this.currentData = await this.collectDashboardData();
+      this.currentData = await this.collectBudgetDashboardData();
 
       // Format and display
-      const fullSections: DashboardSections = {
+      const fullSections: BudgetDashboardSections = {
         summary: true,
         realTimeUsage: this.config.showRealTime,
         historicalTrends: true,
@@ -258,13 +258,13 @@ export class BudgetDashboard {
   /**
    * Collect all dashboard data from various sources
    */
-  private async collectDashboardData(): Promise<DashboardData> {
+  private async collectBudgetDashboardData(): Promise<BudgetDashboardData> {
     // Get budget settings and current usage
     const settings = this.budgetTracker.getBudgetSettings();
     const todayUsage = await this.budgetTracker.getTodayUsage();
 
     // Calculate current usage metrics
-    const currentUsage: CurrentUsageData = {
+    const currentUsage: BudgetCurrentUsageData = {
       todayRequests: todayUsage.requestCount,
       todayCost: todayUsage.totalCost,
       budgetRemaining: Math.max(
@@ -277,13 +277,13 @@ export class BudgetDashboard {
     };
 
     // Generate cost projections
-    const projections = this.generateCostProjections(
+    const projections = this.generateBudgetCostProjections(
       currentUsage,
       settings.dailyLimit || 0,
     );
 
     // Generate trends data (mock data for now - would integrate with historical tracking)
-    const trends = this.generateTrendsData();
+    const trends = this.generateBudgetTrendsData();
 
     // Get real-time data if available
     const realTimeData = this.config.showRealTime
@@ -291,7 +291,7 @@ export class BudgetDashboard {
       : undefined;
 
     // Generate budget alerts
-    const alerts = this.generateBudgetAlerts(currentUsage, settings);
+    const alerts = this.generateBudgetDashboardAlerts(currentUsage, settings);
 
     // Get analytics data (mock for now - would integrate with actual analytics engine)
     const features = this.generateFeatureAnalysis();
@@ -312,10 +312,10 @@ export class BudgetDashboard {
   /**
    * Generate cost projections based on current usage
    */
-  private generateCostProjections(
-    usage: CurrentUsageData,
+  private generateBudgetCostProjections(
+    usage: BudgetCurrentUsageData,
     dailyLimit: number,
-  ): CostProjections {
+  ): BudgetCostProjections {
     const hourOfDay = new Date().getHours();
     const dailyProgress = hourOfDay / 24;
 
@@ -338,7 +338,7 @@ export class BudgetDashboard {
   /**
    * Generate historical trends data
    */
-  private generateTrendsData(): TrendsData {
+  private generateBudgetTrendsData(): BudgetTrendsData {
     // Generate mock data - in real implementation would pull from historical storage
     return {
       hourlyUsage: Array.from({ length: 24 }, () =>
@@ -356,11 +356,11 @@ export class BudgetDashboard {
   /**
    * Generate budget alerts based on current status
    */
-  private generateBudgetAlerts(
-    usage: CurrentUsageData,
+  private generateBudgetDashboardAlerts(
+    usage: BudgetCurrentUsageData,
     _settings: unknown,
-  ): BudgetAlert[] {
-    const alerts: BudgetAlert[] = [];
+  ): BudgetDashboardAlert[] {
+    const alerts: BudgetDashboardAlert[] = [];
 
     // Budget utilization alerts
     if (usage.budgetUtilization > 90) {
@@ -424,7 +424,7 @@ export class BudgetDashboard {
    * Generate optimization recommendations
    */
   private generateOptimizationRecommendations(
-    usage: CurrentUsageData,
+    usage: BudgetCurrentUsageData,
   ): OptimizationRecommendation[] {
     const recommendations: OptimizationRecommendation[] = [];
 
@@ -460,7 +460,9 @@ export class BudgetDashboard {
   /**
    * Setup periodic dashboard refresh
    */
-  private setupPeriodicRefresh(sections: Partial<DashboardSections>): void {
+  private setupPeriodicRefresh(
+    sections: Partial<BudgetDashboardSections>,
+  ): void {
     this.refreshTimer = setInterval(async () => {
       if (this.isRunning) {
         await this.refreshDashboard(sections);
@@ -514,7 +516,7 @@ export class BudgetDashboard {
 export function createBudgetDashboard(
   budgetTracker: BudgetTracker,
   analytics: AnalyticsEngine,
-  config?: DashboardConfig,
+  config?: BudgetDashboardConfig,
 ): BudgetDashboard {
   return new BudgetDashboard(budgetTracker, analytics, config);
 }

@@ -17,8 +17,8 @@ import type {
   TaskExecutionContext,
   WorkflowExecutionResult as _WorkflowExecutionResult,
 } from './ValidationWorkflow.js';
-import type { ValidationFailureHandler } from 'ValidationFailureHandler.js';
-import type { ValidationReporting } from 'ValidationReporting.js';
+import type { ValidationFailureHandler } from './ValidationFailureHandler.js';
+import type { ValidationReporting } from './ValidationReporting.js';
 
 /**
  * Monitoring trigger types

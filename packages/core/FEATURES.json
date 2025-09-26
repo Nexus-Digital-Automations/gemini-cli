@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 67,
+      "total_reinitializations": 68,
       "current_day": "2025-09-26",
       "time_buckets": {
         "10:00-14:59": {
           "init": 0,
-          "reinit": 1
+          "reinit": 2
         },
         "15:00-19:59": {
           "init": 0,
@@ -63,24 +63,14 @@
         }
       ],
       "last_reset": "2025-09-26T10:18:51.572Z",
-      "last_updated": "2025-09-26T17:29:05.400Z"
+      "last_updated": "2025-09-26T17:35:24.031Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "test-agent": {
@@ -173,6 +163,13 @@
       "status": "active",
       "reinitialized": "2025-09-26T17:29:05.399Z",
       "sessionId": "7a0f46ab1e9f6094",
+      "previousSessions": []
+    },
+    "AGENT_001": {
+      "lastHeartbeat": "2025-09-26T17:35:24.029Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T17:35:24.029Z",
+      "sessionId": "ff5f65d920d4f097",
       "previousSessions": []
     }
   }

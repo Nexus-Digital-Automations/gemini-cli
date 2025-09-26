@@ -101,14 +101,14 @@ export {
   type CircuitBreakerConfig,
   type EscalationConfig,
   type FallbackConfig,
-} from 'ValidationFailureHandler.js';
+} from './ValidationFailureHandler.js';
 
 // Reporting and analytics exports
 export {
   ValidationReporting,
   ReportFormat,
   AnalyticsPeriod,
-} from 'ValidationReporting.js';
+} from './ValidationReporting.js';
 
 // Continuous monitoring exports
 export {
@@ -120,7 +120,7 @@ export {
   type HealthCheck,
   type MonitoringAlert,
   type SystemHealthMetrics,
-} from 'ContinuousValidationMonitor.js';
+} from './ContinuousValidationMonitor.js';
 
 // Import types and classes needed for ValidationSystemConfig and ValidationSystem interfaces
 import {
@@ -144,16 +144,16 @@ import {
   ValidationFailureHandler,
   FailureHandlingStrategy,
   type ValidationFailureHandlerConfig,
-} from 'ValidationFailureHandler.js';
+} from './ValidationFailureHandler.js';
 import {
   ValidationReporting,
   ReportFormat,
   type ValidationReportingConfig,
-} from 'ValidationReporting.js';
+} from './ValidationReporting.js';
 import {
   ContinuousValidationMonitor,
   type ContinuousValidationMonitorConfig,
-} from 'ContinuousValidationMonitor.js';
+} from './ContinuousValidationMonitor.js';
 import {
   ValidationFramework,
   ValidationSeverity,

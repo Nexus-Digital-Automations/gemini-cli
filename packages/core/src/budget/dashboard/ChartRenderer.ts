@@ -4,29 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Create a simple chalk fallback when not available
-const createChalkFallback = () => {
-  const identity = (str: string) => str;
-  const colorProxy = new Proxy(identity, {
-    get: () => identity,
-  });
-  return new Proxy(identity, {
-    get: () => colorProxy,
-  });
-};
-
-// Conditional chalk usage - initialize with fallback, then try to load chalk async
-let chalk: ReturnType<typeof createChalkFallback> = createChalkFallback();
-
-// Attempt to load chalk asynchronously
-(async () => {
-  try {
-    const chalkModule = await import('chalk');
-    chalk = chalkModule.default || chalkModule;
-  } catch {
-    // Keep using fallback
-  }
-})();
+import chalk from 'chalk';
 
 /**
  * Chart configuration options
