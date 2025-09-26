@@ -211,12 +211,11 @@ class AuditStore {
       case 'error':
         logger.error(`Audit: ${event.eventType}`, logData);
         break;
-    default:
+      default:
         // Handle unexpected values
         break;
-  
-
     }
+  }
 
   /**
    * Map severity to log level

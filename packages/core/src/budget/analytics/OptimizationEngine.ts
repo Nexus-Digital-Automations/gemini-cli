@@ -377,9 +377,10 @@ export class OptimizationEngine {
             ),
           );
           break;
-      default:
-        // Handle unexpected values
-        break;
+        default:
+          // Handle unexpected values
+          break;
+      }
     }
 
     return recommendations;
@@ -1017,8 +1018,10 @@ export class OptimizationEngine {
     };
   }
 
-  // More placeholder methods would be implemented for completeness...
-  private async createAnomalyResolutionRecommendations(
+  /**
+   * Generate anomaly resolution recommendations
+   */
+  private async generateAnomalyResolutionRecommendations(
     anomalies: AnomalyDetection[],
     costAnalysis: CostAnalysis,
   ): Promise<OptimizationRecommendation[]> {
