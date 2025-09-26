@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -220,7 +226,7 @@ export const knowledgeCommand = {
             const context = argv.context || 'current project context';
             const projectPath = process.cwd();
             const suggestions = await knowledgeBaseManager.getContextualSuggestions(context, projectPath);
-            render(_jsx(SuggestionsComponent, { suggestions: suggestions }));
+            render(_jsx(SuggestionsComponent, { suggestions }));
         }
         catch (error) {
             render(_jsx(ErrorMessage, { message: `Failed to generate suggestions: ${error instanceof Error ? error.message : String(error)}` }));
@@ -231,7 +237,7 @@ export const knowledgeCommand = {
         try {
             await knowledgeBaseManager.initialize();
             const stats = knowledgeBaseManager.getStats();
-            render(_jsx(StatsComponent, { stats: stats }));
+            render(_jsx(StatsComponent, { stats }));
         }
         catch (error) {
             render(_jsx(ErrorMessage, { message: `Failed to get statistics: ${error instanceof Error ? error.message : String(error)}` }));
@@ -245,7 +251,7 @@ export const knowledgeCommand = {
             await knowledgeBaseManager.extractInstitutionalPatterns();
             // We'll need to expose a method to get patterns
             const patterns = [];
-            render(_jsx(PatternsComponent, { patterns: patterns }));
+            render(_jsx(PatternsComponent, { patterns }));
         }
         catch (error) {
             render(_jsx(ErrorMessage, { message: `Failed to get patterns: ${error instanceof Error ? error.message : String(error)}` }));

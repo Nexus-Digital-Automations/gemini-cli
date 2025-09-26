@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 import { Text, useIsScreenReaderEnabled } from 'ink';
 import Spinner from 'ink-spinner';
@@ -9,7 +15,7 @@ export const GeminiRespondingSpinner = ({ nonRespondingDisplay, spinnerType = 'd
     const streamingState = useStreamingContext();
     const isScreenReaderEnabled = useIsScreenReaderEnabled();
     if (streamingState === StreamingState.Responding) {
-        return (_jsx(GeminiSpinner, { spinnerType: spinnerType, altText: SCREEN_READER_RESPONDING }));
+        return (_jsx(GeminiSpinner, { spinnerType, altText: SCREEN_READER_RESPONDING }));
     }
     else if (nonRespondingDisplay) {
         return isScreenReaderEnabled ? (_jsx(Text, { children: SCREEN_READER_LOADING })) : (_jsx(Text, { color: theme.text.primary, children: nonRespondingDisplay }));

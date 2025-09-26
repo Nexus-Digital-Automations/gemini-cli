@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Part, PartListUnion, GenerateContentResponse, FunctionDeclaration, FinishReason, GenerateContentResponseUsageMetadata } from '@google/genai';
 import type { ToolCallConfirmationDetails, ToolResult, ToolResultDisplay } from '../tools/tools.js';
 import type { ToolErrorType } from '../tools/tool-error.js';

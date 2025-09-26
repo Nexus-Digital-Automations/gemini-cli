@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Context-Aware Suggestion Engine
  * Leverages historical context for intelligent suggestions and workflow optimization

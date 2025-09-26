@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Archive storage implementation for compressed historical data
  * Provides efficient long-term storage with metadata indexing and retrieval

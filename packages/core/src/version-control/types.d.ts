@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Version Control Automation System - Core Types
  * Comprehensive type definitions for intelligent version control automation

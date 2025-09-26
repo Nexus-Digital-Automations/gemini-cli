@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -13,7 +19,7 @@ export const MAX_SUGGESTIONS_TO_SHOW = 8;
 export { MAX_WIDTH };
 export function SuggestionsDisplay({ suggestions, activeIndex, isLoading, width, scrollOffset, userInput, mode, expandedIndex, }) {
     if (isLoading) {
-        return (_jsx(Box, { paddingX: 1, width: width, children: _jsx(Text, { color: "gray", children: "Loading suggestions..." }) }));
+        return (_jsx(Box, { paddingX: 1, width, children: _jsx(Text, { color: "gray", children: "Loading suggestions..." }) }));
     }
     if (suggestions.length === 0) {
         return null; // Don't render anything if there are no suggestions
@@ -25,13 +31,13 @@ export function SuggestionsDisplay({ suggestions, activeIndex, isLoading, width,
     const getFullLabel = (s) => s.label + (s.commandKind === CommandKind.MCP_PROMPT ? ' [MCP]' : '');
     const maxLabelLength = Math.max(...suggestions.map((s) => getFullLabel(s).length));
     const commandColumnWidth = mode === 'slash' ? Math.min(maxLabelLength, Math.floor(width * 0.5)) : 0;
-    return (_jsxs(Box, { flexDirection: "column", paddingX: 1, width: width, children: [scrollOffset > 0 && _jsx(Text, { color: theme.text.primary, children: "\u25B2" }), visibleSuggestions.map((suggestion, index) => {
+    return (_jsxs(Box, { flexDirection: "column", paddingX: 1, width, children: [scrollOffset > 0 && _jsx(Text, { color: theme.text.primary, children: "\u25B2" }), visibleSuggestions.map((suggestion, index) => {
                 const originalIndex = startIndex + index;
                 const isActive = originalIndex === activeIndex;
                 const isExpanded = originalIndex === expandedIndex;
                 const textColor = isActive ? theme.text.accent : theme.text.secondary;
                 const isLong = suggestion.value.length >= MAX_WIDTH;
-                const labelElement = (_jsx(PrepareLabel, { label: suggestion.value, matchedIndex: suggestion.matchedIndex, userInput: userInput, textColor: textColor, isExpanded: isExpanded }));
+                const labelElement = (_jsx(PrepareLabel, { label: suggestion.value, matchedIndex: suggestion.matchedIndex, userInput, textColor, isExpanded }));
                 return (_jsxs(Box, { flexDirection: "row", children: [_jsx(Box, { ...(mode === 'slash'
                                 ? { width: commandColumnWidth, flexShrink: 0 }
                                 : { flexShrink: 1 }), children: _jsxs(Box, { children: [labelElement, suggestion.commandKind === CommandKind.MCP_PROMPT && (_jsx(Text, { color: textColor, children: " [MCP]" }))] }) }), suggestion.description && (_jsx(Box, { flexGrow: 1, paddingLeft: 3, children: _jsx(Text, { color: textColor, wrap: "truncate", children: suggestion.description }) })), isActive && isLong && (_jsx(Box, { children: _jsx(Text, { color: Colors.Gray, children: isExpanded ? ' ← ' : ' → ' }) }))] }, `${suggestion.value}-${originalIndex}`));

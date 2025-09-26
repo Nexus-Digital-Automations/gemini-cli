@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Settings } from './settings.js';
 /** Filename for the trusted folders configuration file */
 export declare const TRUSTED_FOLDERS_FILENAME = "trustedFolders.json";

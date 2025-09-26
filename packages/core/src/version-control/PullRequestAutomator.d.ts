@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { PRStatus } from './types.js';
+
+import type { PRStatus } from './types.js';
 import type { PullRequest, VCAutomationConfig, PRMetrics, ReviewerSuggestion, PRAnalysis } from './types.js';
 /**
  * PullRequestAutomator - Intelligent pull request lifecycle management

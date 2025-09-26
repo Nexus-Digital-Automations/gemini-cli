@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { populateMcpServerCommand, createTransport, isEnabled, hasValidTypes, McpClient, hasNetworkTransport, } from './mcp-client.js';
@@ -219,7 +220,7 @@ describe('mcp-client', () => {
                     },
                 }, false);
                 expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 const authProvider = transport._authProvider;
                 expect(authProvider).toBeInstanceOf(GoogleCredentialProvider);
             });
@@ -232,7 +233,7 @@ describe('mcp-client', () => {
                     },
                 }, false);
                 expect(transport).toBeInstanceOf(SSEClientTransport);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 const authProvider = transport._authProvider;
                 expect(authProvider).toBeInstanceOf(GoogleCredentialProvider);
             });

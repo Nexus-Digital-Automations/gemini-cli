@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { HistoryItemWithoutId } from '../types.js';
 import type { Config, GeminiClient } from '@google/gemini-cli-core';
 import { type PartListUnion } from '@google/genai';

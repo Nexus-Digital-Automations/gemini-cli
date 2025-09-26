@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Comprehensive Budget Management API Routes
  * Provides RESTful endpoints for all budget management operations including

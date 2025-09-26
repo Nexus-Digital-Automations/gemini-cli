@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger } from "@google/gemini-cli-core/src/utils/logger.js";
 import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
@@ -161,7 +162,7 @@ export class PerformanceOptimizer extends EventEmitter {
                 sideEffects: [`Optimization failed: ${error instanceof Error ? error.message : String(error)}`],
             };
             this.appliedOptimizations.set(recommendationId, result);
-            this.logger.error('Optimization failed', { recommendationId, error: error });
+            this.logger.error('Optimization failed', { recommendationId, error });
             return result;
         }
     }
@@ -192,7 +193,7 @@ export class PerformanceOptimizer extends EventEmitter {
         catch (error) {
             this.logger.error('Failed to revert optimization', {
                 recommendationId,
-                error: error,
+                error,
             });
             return false;
         }
@@ -238,7 +239,7 @@ export class PerformanceOptimizer extends EventEmitter {
         // Initialize performance history for different intervals
         ['minute', 'hour', 'day', 'week'].forEach((interval) => {
             this.performanceHistory.set(interval, {
-                interval: interval,
+                interval,
                 dataPoints: [],
                 trends: {
                     throughput: 'stable',
@@ -328,7 +329,7 @@ export class PerformanceOptimizer extends EventEmitter {
             });
         }
         catch (error) {
-            this.logger.error('Failed to collect performance metrics', { error: error });
+            this.logger.error('Failed to collect performance metrics', { error });
         }
     }
     async runOptimizationCycle() {
@@ -372,7 +373,7 @@ export class PerformanceOptimizer extends EventEmitter {
             this.optimizationState.lastOptimizationRun = new Date();
         }
         catch (error) {
-            this.logger.error('Optimization cycle failed', { error: error });
+            this.logger.error('Optimization cycle failed', { error });
         }
     }
     generateRecommendations() {

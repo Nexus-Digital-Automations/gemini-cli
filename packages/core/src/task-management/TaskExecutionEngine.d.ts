@@ -3,11 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Config } from '../config/config.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { TaskPriority, Task as BaseTask } from './types.js';
-import { TaskComplexity } from './types.js';
-import { ContextState } from '../core/subagent.js';
+import type { TaskComplexity } from './types.js';
+import type { ContextState } from '../core/subagent.js';
 /**
  * @fileoverview Comprehensive Task Execution Engine with Intelligent Breakdown
  *

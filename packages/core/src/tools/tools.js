@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { ToolErrorType } from './tool-error.js';
 import { SchemaValidator } from '../utils/schemaValidator.js';
 import { randomUUID } from 'node:crypto';

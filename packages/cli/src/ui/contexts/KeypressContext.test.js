@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
@@ -43,7 +49,7 @@ class MockStdin extends EventEmitter {
 describe('KeypressContext - Kitty Protocol', () => {
     let stdin;
     const mockSetRawMode = vi.fn();
-    const wrapper = ({ children, kittyProtocolEnabled = true, }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: kittyProtocolEnabled, children: children }));
+    const wrapper = ({ children, kittyProtocolEnabled = true, }) => (_jsx(KeypressProvider, { kittyProtocolEnabled, children }));
     beforeEach(() => {
         vi.clearAllMocks();
         stdin = new MockStdin();
@@ -300,7 +306,7 @@ describe('KeypressContext - Kitty Protocol', () => {
         });
         it('should not log keystrokes when debugKeystrokeLogging is false', async () => {
             const keyHandler = vi.fn();
-            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: false, children: children }));
+            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: false, children }));
             const { result } = renderHook(() => useKeypressContext(), { wrapper });
             act(() => {
                 result.current.subscribe(keyHandler);
@@ -314,7 +320,7 @@ describe('KeypressContext - Kitty Protocol', () => {
         });
         it('should log kitty buffer accumulation when debugKeystrokeLogging is true', async () => {
             const keyHandler = vi.fn();
-            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children: children }));
+            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children }));
             const { result } = renderHook(() => useKeypressContext(), { wrapper });
             act(() => {
                 result.current.subscribe(keyHandler);
@@ -331,7 +337,7 @@ describe('KeypressContext - Kitty Protocol', () => {
         });
         it('should log kitty buffer overflow when debugKeystrokeLogging is true', async () => {
             const keyHandler = vi.fn();
-            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children: children }));
+            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children }));
             const { result } = renderHook(() => useKeypressContext(), { wrapper });
             act(() => {
                 result.current.subscribe(keyHandler);
@@ -345,7 +351,7 @@ describe('KeypressContext - Kitty Protocol', () => {
         });
         it('should log kitty buffer clear on Ctrl+C when debugKeystrokeLogging is true', async () => {
             const keyHandler = vi.fn();
-            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children: children }));
+            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children }));
             const { result } = renderHook(() => useKeypressContext(), { wrapper });
             act(() => {
                 result.current.subscribe(keyHandler);
@@ -379,7 +385,7 @@ describe('KeypressContext - Kitty Protocol', () => {
         });
         it('should show char codes when debugKeystrokeLogging is true even without debug mode', async () => {
             const keyHandler = vi.fn();
-            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children: children }));
+            const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, debugKeystrokeLogging: true, children }));
             const { result } = renderHook(() => useKeypressContext(), { wrapper });
             act(() => {
                 result.current.subscribe(keyHandler);
@@ -502,7 +508,7 @@ describe('KeypressContext - Kitty Protocol', () => {
 describe('Drag and Drop Handling', () => {
     let stdin;
     const mockSetRawMode = vi.fn();
-    const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, children: children }));
+    const wrapper = ({ children }) => (_jsx(KeypressProvider, { kittyProtocolEnabled: true, children }));
     beforeEach(() => {
         vi.clearAllMocks();
         vi.useFakeTimers();

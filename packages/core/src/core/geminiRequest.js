@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import {} from '@google/genai';
 import { partToString } from '../utils/partUtils.js';
 export function partListUnionToString(value) {

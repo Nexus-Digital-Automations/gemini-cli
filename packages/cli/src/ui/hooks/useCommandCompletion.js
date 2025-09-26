@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useCallback, useMemo, useEffect } from 'react';
 import { logicalPosToOffset } from '../components/shared/text-buffer.js';
 import { isSlashCommand } from '../utils/commandUtils.js';

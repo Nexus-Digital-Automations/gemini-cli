@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect } from 'vitest';
 import { isValidColor, resolveColor, CSS_NAME_TO_HEX_MAP, INK_SUPPORTED_NAMES, } from './color-utils.js';
 describe('Color Utils', () => {

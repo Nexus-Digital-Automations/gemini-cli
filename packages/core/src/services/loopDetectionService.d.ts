@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ServerGeminiStreamEvent } from '../core/turn.js';
 import type { Config } from '../config/config.js';
 /**

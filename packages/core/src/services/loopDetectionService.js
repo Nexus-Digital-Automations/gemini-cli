@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { createHash } from 'node:crypto';
 import { GeminiEventType } from '../core/turn.js';
 import { logLoopDetected, logLoopDetectionDisabled, } from '../telemetry/loggers.js';

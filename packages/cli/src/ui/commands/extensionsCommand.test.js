@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { updateAllUpdatableExtensions, updateExtension, } from '../../config/extensions/update.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import { MessageType } from '../types.js';

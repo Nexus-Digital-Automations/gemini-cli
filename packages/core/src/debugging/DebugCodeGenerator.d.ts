@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { DebugCodeTemplate, DebugCodeSnippet, InstrumentationCode, DebugGenerationOptions, LanguageSupport, DebugCodeType, TestCaseGeneration, ErrorAnalysis } from './types.js';
 /**
  * Configuration for debug code generator

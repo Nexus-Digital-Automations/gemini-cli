@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget allocation scenarios module exports
  * Provides scenario-based planning tools and impact prediction capabilities

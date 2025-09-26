@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { CostDataPoint, StatisticalMeasures, TrendAnalysis, MovingAverageAnalysis, SeasonalAnalysis, VarianceDetection } from '../types.js';
 /**
  * Core mathematical algorithms for cost projection and analysis

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { BudgetTracker } from '../budget-tracker.js';
 import type { AnalyticsEngine, FeatureCostAnalysis, OptimizationRecommendation } from '../index';
 import { type RealTimeData } from './RealTimeTracker.js';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type SlashCommand } from '../ui/commands/types.js';
 export type ParsedSlashCommand = {
     commandToExecute: SlashCommand | undefined;

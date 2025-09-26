@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { aboutCommand } from '../ui/commands/aboutCommand.js';
 import { authCommand } from '../ui/commands/authCommand.js';
 import { bugCommand } from '../ui/commands/bugCommand.js';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 // Mathematical algorithms
 export { MathematicalAlgorithms } from './algorithms/mathematical-algorithms.js';
 // Forecasting engine

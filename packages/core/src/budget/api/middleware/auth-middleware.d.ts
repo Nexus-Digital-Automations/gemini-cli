@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget API Authentication and Authorization Middleware
  * Provides comprehensive authentication and authorization for budget management endpoints
@@ -13,7 +14,7 @@
  */
 import type { Request, Response, NextFunction } from 'express';
 import type { BudgetSecurityContext } from '../../types.js';
-import { BudgetPermission } from '../../types.js';
+import type { BudgetPermission } from '../../types.js';
 /**
  * Enhanced request interface with authentication context
  */

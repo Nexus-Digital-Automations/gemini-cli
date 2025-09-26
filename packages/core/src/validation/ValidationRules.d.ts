@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { TaskStatus } from '../task-management/types.js';
 import type { ValidationRule, ValidationExecutor, ValidationResult } from './ValidationFramework.js';
-import { ValidationSeverity } from './ValidationFramework.js';
+import type { ValidationSeverity } from './ValidationFramework.js';
 /**
  * Rule categories for organization and filtering
  */

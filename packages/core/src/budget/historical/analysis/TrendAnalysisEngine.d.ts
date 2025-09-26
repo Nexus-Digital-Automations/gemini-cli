@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { BudgetUsageTimeSeriesPoint } from '../storage/types.js';
 import type { TrendAnalysisEngine, AnalysisConfig, TrendAnalysis, SeasonalPattern, AnomalyDetection, EfficiencyAnalysis, UsagePatterns, InsightsReport, AnalysisMetric } from './types.js';
 /**

@@ -3,10 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { GenerateContentResponse, type Content, type GenerateContentConfig, type SendMessageParameters, type Part, type Tool } from '@google/genai';
+
+import type { GenerateContentResponse} from '@google/genai';
+import { type Content, type GenerateContentConfig, type SendMessageParameters, type Part, type Tool } from '@google/genai';
 import type { Config } from '../config/config.js';
 import type { StructuredError } from './turn.js';
-import { ChatRecordingService } from '../services/chatRecordingService.js';
+import type { ChatRecordingService } from '../services/chatRecordingService.js';
 export declare enum StreamEventType {
     /** A regular content chunk from the API. */
     CHUNK = "chunk",

@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import * as fs from 'node:fs/promises';
+
+import type * as fs from 'node:fs/promises';
 import type { AutonomousTask } from './task-breakdown-engine.js';
-import { TaskCategory } from './task-breakdown-engine.js';
+import type { TaskCategory } from './task-breakdown-engine.js';
 import type { ValidationEngine, ValidationResult, TaskExecutionContext, TaskExecutionResult, ExecutionLogger } from './execution-engine.js';
 /**
  * Validation rule interface

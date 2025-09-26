@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { executeToolCall } from './nonInteractiveToolExecutor.js';
 import { DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES, DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD, ToolErrorType, ApprovalMode, } from '../index.js';

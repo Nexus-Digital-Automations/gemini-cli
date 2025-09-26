@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useReducer, useRef, useEffect } from 'react';
 import { useKeypress } from './useKeypress.js';
 const NUMBER_INPUT_TIMEOUT_MS = 1000;

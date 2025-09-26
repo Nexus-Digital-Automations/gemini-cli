@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Real-time streaming system for token usage updates
  * Provides WebSocket-like streaming capabilities for live budget monitoring

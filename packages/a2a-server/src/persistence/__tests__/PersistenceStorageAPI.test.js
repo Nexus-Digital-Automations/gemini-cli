@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';

@@ -10,7 +10,7 @@
  * @author Claude Code - Pair-Programming Implementation Agent
  * @version 1.0.0
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type { CollaborationConflict, ConflictType, ConflictResolutionStrategy, ConflictResolution, ConflictingChange, ContextConflict, SessionParticipant } from './types.js';
 import type { ContextItem } from '../context/types.js';
 /**

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Historical data analysis type definitions
  * Provides comprehensive trend analysis and insights for budget usage data

@@ -3,28 +3,29 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+import type { MockedFunction } from 'vitest';
 /**
  * Type definitions for monitoring test utilities
  * These types replace explicit 'any' types in test files
  */
 export interface MockRealTimeMonitoring {
-    getCurrentSnapshot: jest.MockedFunction<() => MonitoringSnapshot>;
-    startMonitoring: jest.MockedFunction<() => void>;
-    stopMonitoring: jest.MockedFunction<() => void>;
-    on: jest.MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
-    emit: jest.MockedFunction<(event: string, data: unknown) => void>;
-    getAlertHistory: jest.MockedFunction<() => AlertEvent[]>;
-    getPerformanceMetrics: jest.MockedFunction<() => PerformanceMetrics>;
-    updateConfiguration: jest.MockedFunction<(config: Record<string, unknown>) => void>;
-    getActiveAlerts: jest.MockedFunction<() => AlertSummary[]>;
-    getPredictiveInsights: jest.MockedFunction<() => Record<string, unknown>[]>;
-    getMonitoringHistory: jest.MockedFunction<() => Record<string, unknown>[]>;
+    getCurrentSnapshot: MockedFunction<() => MonitoringSnapshot>;
+    startMonitoring: MockedFunction<() => void>;
+    stopMonitoring: MockedFunction<() => void>;
+    on: MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
+    emit: MockedFunction<(event: string, data: unknown) => void>;
+    getAlertHistory: MockedFunction<() => AlertEvent[]>;
+    getPerformanceMetrics: MockedFunction<() => PerformanceMetrics>;
+    updateConfiguration: MockedFunction<(config: Record<string, unknown>) => void>;
+    getActiveAlerts: MockedFunction<() => AlertSummary[]>;
+    getPredictiveInsights: MockedFunction<() => Array<Record<string, unknown>>>;
+    getMonitoringHistory: MockedFunction<() => Array<Record<string, unknown>>>;
 }
 export interface MockTaskStatusMonitor {
-    getPerformanceMetrics: jest.MockedFunction<() => TaskPerformanceMetrics>;
-    getCurrentStatus: jest.MockedFunction<() => TaskStatus>;
-    getTaskHistory: jest.MockedFunction<() => TaskHistoryItem[]>;
-    getAllTasks: jest.MockedFunction<() => Array<{
+    getPerformanceMetrics: MockedFunction<() => TaskPerformanceMetrics>;
+    getCurrentStatus: MockedFunction<() => TaskStatus>;
+    getTaskHistory: MockedFunction<() => TaskHistoryItem[]>;
+    getAllTasks: MockedFunction<() => Array<{
         id: string;
         status: string;
         type: string;
@@ -32,7 +33,7 @@ export interface MockTaskStatusMonitor {
         startedAt: Date;
         completedAt?: Date;
     }>>;
-    getAllAgents: jest.MockedFunction<() => Array<{
+    getAllAgents: MockedFunction<() => Array<{
         id: string;
         status: string;
         capabilities: string[];
@@ -44,15 +45,15 @@ export interface MockTaskStatusMonitor {
         completedTasks: number;
         failedTasks: number;
     }>>;
-    on: jest.MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
-    shutdown: jest.MockedFunction<() => void>;
+    on: MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
+    shutdown: MockedFunction<() => void>;
 }
 export interface MockPerformanceAnalytics {
-    getSystemMetrics: jest.MockedFunction<() => SystemMetrics>;
-    getResourceUsage: jest.MockedFunction<() => ResourceUsage>;
-    getCPUMetrics: jest.MockedFunction<() => CPUMetrics>;
-    getMemoryMetrics: jest.MockedFunction<() => MemoryMetrics>;
-    shutdown: jest.MockedFunction<() => void>;
+    getSystemMetrics: MockedFunction<() => SystemMetrics>;
+    getResourceUsage: MockedFunction<() => ResourceUsage>;
+    getCPUMetrics: MockedFunction<() => CPUMetrics>;
+    getMemoryMetrics: MockedFunction<() => MemoryMetrics>;
+    shutdown: MockedFunction<() => void>;
 }
 export interface AlertEvent {
     type: 'triggered' | 'resolved' | 'escalated';

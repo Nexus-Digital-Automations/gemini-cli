@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { ApiRequestEvent, ApiResponseEvent, ApiErrorEvent, } from '../telemetry/types.js';
 import { logApiError, logApiRequest, logApiResponse, } from '../telemetry/loggers.js';
 import { toContents } from '../code_assist/converter.js';

@@ -3,8 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import type { LoadedSettings } from '../config/settings.js';
-import { SettingScope } from '../config/settings.js';
+
+import type { LoadedSettings , SettingScope } from '../config/settings.js';
 /**
  * Shared scope labels for dialog components that need to display setting scopes
  */
@@ -16,7 +16,7 @@ export declare const SCOPE_LABELS: {
 /**
  * Helper function to get scope items for radio button selects
  */
-export declare function getScopeItems(): ({
+export declare function getScopeItems(): Array<{
     label: "User Settings";
     value: SettingScope;
 } | {
@@ -25,7 +25,7 @@ export declare function getScopeItems(): ({
 } | {
     label: "System Settings";
     value: SettingScope;
-})[];
+}>;
 /**
  * Generate scope message for a specific setting
  */

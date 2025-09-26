@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Data aggregation system for token usage analytics
  * Provides time-series aggregation, windowing, and statistical analysis

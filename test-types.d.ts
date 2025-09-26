@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Shared type definitions for all test files
  * These types replace explicit 'any' types across the test suite

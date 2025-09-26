@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Text, useApp } from 'ink';
@@ -20,12 +26,12 @@ const ProgressBar = ({ current, total, label, color = 'green', width = 30 }) => 
     const percentage = total > 0 ? (current / total) * 100 : 0;
     const filledWidth = Math.floor((percentage / 100) * width);
     const emptyWidth = width - filledWidth;
-    return (_jsxs(Box, { gap: 1, children: [_jsx(Text, { dimColor: true, children: label.padEnd(15) }), _jsx(Text, { color: color, children: '█'.repeat(filledWidth) }), _jsx(Text, { dimColor: true, children: '░'.repeat(emptyWidth) }), _jsxs(Text, { dimColor: true, children: [current, "/", total, " (", percentage.toFixed(1), "%)"] })] }));
+    return (_jsxs(Box, { gap: 1, children: [_jsx(Text, { dimColor: true, children: label.padEnd(15) }), _jsx(Text, { color, children: '█'.repeat(filledWidth) }), _jsx(Text, { dimColor: true, children: '░'.repeat(emptyWidth) }), _jsxs(Text, { dimColor: true, children: [current, "/", total, " (", percentage.toFixed(1), "%)"] })] }));
 };
 const MetricCard = ({ title, value, unit = '', trend, color = 'white' }) => {
     const trendSymbol = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
     const trendColor = trend === 'up' ? 'green' : trend === 'down' ? 'red' : 'yellow';
-    return (_jsxs(Box, { flexDirection: "column", borderStyle: "single", paddingX: 1, children: [_jsx(Text, { dimColor: true, children: title }), _jsxs(Box, { gap: 1, children: [_jsxs(Text, { color: color, bold: true, children: [value, unit] }), trend && _jsx(Text, { color: trendColor, children: trendSymbol })] })] }));
+    return (_jsxs(Box, { flexDirection: "column", borderStyle: "single", paddingX: 1, children: [_jsx(Text, { dimColor: true, children: title }), _jsxs(Box, { gap: 1, children: [_jsxs(Text, { color, bold: true, children: [value, unit] }), trend && _jsx(Text, { color: trendColor, children: trendSymbol })] })] }));
 };
 /**
  * Overview Dashboard - System Status Summary
@@ -265,13 +271,13 @@ export const StatusDashboard = ({ autoRefresh = true, refreshInterval = 5000, in
         }
         switch (state.currentView) {
             case 'overview':
-                return systemAnalytics ? (_jsx(OverviewDashboard, { tasks: tasks, agents: agents, metrics: systemAnalytics })) : (_jsx(Text, { children: "Loading system metrics..." }));
+                return systemAnalytics ? (_jsx(OverviewDashboard, { tasks, agents, metrics: systemAnalytics })) : (_jsx(Text, { children: "Loading system metrics..." }));
             case 'tasks':
-                return _jsx(TaskDashboard, { tasks: tasks, agents: agents });
+                return _jsx(TaskDashboard, { tasks, agents });
             case 'agents':
-                return _jsx(AgentDashboard, { agents: agents, tasks: tasks });
+                return _jsx(AgentDashboard, { agents, tasks });
             case 'analytics':
-                return taskAnalytics && agentAnalytics && systemAnalytics ? (_jsx(AnalyticsDashboard, { taskAnalytics: taskAnalytics, agentAnalytics: agentAnalytics, systemAnalytics: systemAnalytics })) : (_jsx(Text, { children: "Loading analytics data..." }));
+                return taskAnalytics && agentAnalytics && systemAnalytics ? (_jsx(AnalyticsDashboard, { taskAnalytics, agentAnalytics, systemAnalytics })) : (_jsx(Text, { children: "Loading analytics data..." }));
             default:
                 return _jsxs(Text, { children: ["Unknown view: ", state.currentView] });
         }

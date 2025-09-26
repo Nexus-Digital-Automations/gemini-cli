@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import * as fs from 'node:fs/promises';
@@ -101,7 +102,7 @@ export class ValidationReporting extends EventEmitter {
         }
         catch (error) {
             this.logger.error('Failed to initialize validation reporting', {
-                error: error,
+                error,
             });
             throw error;
         }
@@ -159,7 +160,7 @@ export class ValidationReporting extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Failed to generate report: ${reportId}`, {
-                error: error,
+                error,
             });
             this.emit('reportGenerationFailed', {
                 reportId,
@@ -636,7 +637,7 @@ export class ValidationReporting extends EventEmitter {
         }
         catch (error) {
             this.logger.warn('Failed to archive old reports', {
-                error: error,
+                error,
             });
         }
     }

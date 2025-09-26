@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -89,7 +90,7 @@ vi.mock('fzf', async () => {
                 find: vi
                     .fn()
                     .mockImplementation((query) => simulateFuzzyMatching(items, query)),
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
             };
         }),
     };
@@ -101,7 +102,7 @@ const createDefaultAsyncFzfMock = () => (items, _options) => {
         find: vi
             .fn()
             .mockImplementation((query) => simulateFuzzyMatching(items, query)),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
     };
 };
 // Export test utilities

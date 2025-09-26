@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { OutputFormat, JsonFormatter, parseAndFormatApiError, FatalTurnLimitedError, FatalToolExecutionError, FatalCancellationError, } from '@google/gemini-cli-core';
 export function getErrorMessage(error) {
     if (error instanceof Error) {

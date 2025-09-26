@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { createRealTimeTracker, } from './RealTimeTracker.js';
 import { DashboardFormatter } from './DashboardFormatter.js';
 import { ChartRenderer } from './ChartRenderer.js';

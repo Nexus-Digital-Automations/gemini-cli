@@ -12,9 +12,9 @@
  * @version 1.0.0
  */
 
-import { EventEmitter } from 'events';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { EventEmitter } from 'node:events';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 import type {
   SessionRecording,
   CollaborationEvent,

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect } from 'vitest';
 import { getStatusColor, TOOL_SUCCESS_RATE_HIGH, TOOL_SUCCESS_RATE_MEDIUM, USER_AGREEMENT_RATE_HIGH, USER_AGREEMENT_RATE_MEDIUM, CACHE_EFFICIENCY_HIGH, CACHE_EFFICIENCY_MEDIUM, } from './displayUtils.js';
 import { Colors } from '../colors.js';

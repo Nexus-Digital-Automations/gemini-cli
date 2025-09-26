@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Core mathematical algorithms for cost projection and analysis
  * High-precision statistical analysis and trend detection

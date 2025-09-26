@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -23,7 +29,7 @@ describe('QueuedMessageDisplay', () => {
             'Second queued message',
             'Third queued message',
         ];
-        const { lastFrame } = render(_jsx(QueuedMessageDisplay, { messageQueue: messageQueue }));
+        const { lastFrame } = render(_jsx(QueuedMessageDisplay, { messageQueue }));
         const output = lastFrame();
         expect(output).toContain('First queued message');
         expect(output).toContain('Second queued message');
@@ -37,7 +43,7 @@ describe('QueuedMessageDisplay', () => {
             'Message 4',
             'Message 5',
         ];
-        const { lastFrame } = render(_jsx(QueuedMessageDisplay, { messageQueue: messageQueue }));
+        const { lastFrame } = render(_jsx(QueuedMessageDisplay, { messageQueue }));
         const output = lastFrame();
         expect(output).toContain('Message 1');
         expect(output).toContain('Message 2');
@@ -48,7 +54,7 @@ describe('QueuedMessageDisplay', () => {
     });
     it('normalizes whitespace in messages', () => {
         const messageQueue = ['Message   with\tmultiple\n  whitespace'];
-        const { lastFrame } = render(_jsx(QueuedMessageDisplay, { messageQueue: messageQueue }));
+        const { lastFrame } = render(_jsx(QueuedMessageDisplay, { messageQueue }));
         const output = lastFrame();
         expect(output).toContain('Message with multiple whitespace');
     });

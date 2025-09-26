@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Intelligent Commit Message Generator for Version Control Automation
  * Analyzes code changes and generates meaningful, conventional commit messages automatically
@@ -83,7 +84,7 @@ export class CommitMessageGenerator {
             return commitMessage;
         }
         catch (error) {
-            logger.error('Failed to generate commit message', { error: error });
+            logger.error('Failed to generate commit message', { error });
             throw error;
         }
     }
@@ -114,7 +115,7 @@ export class CommitMessageGenerator {
             return analysis;
         }
         catch (error) {
-            logger.error('Failed to analyze changes', { error: error });
+            logger.error('Failed to analyze changes', { error });
             throw error;
         }
     }
@@ -307,7 +308,7 @@ export class CommitMessageGenerator {
             }
         }
         catch (error) {
-            logger.debug('Failed to extract issue references', { error: error });
+            logger.debug('Failed to extract issue references', { error });
         }
         // Remove duplicates based on id
         const uniqueRefs = references.filter((ref, index, arr) => arr.findIndex(r => r.id === ref.id) === index);
@@ -345,7 +346,7 @@ export class CommitMessageGenerator {
             return output.trim().split('\n').filter(file => file.length > 0);
         }
         catch (error) {
-            logger.warn('Failed to get modified files, falling back to all changed files', { error: error });
+            logger.warn('Failed to get modified files, falling back to all changed files', { error });
             try {
                 const output = execSync('git diff HEAD~1 --name-only', { encoding: 'utf8' });
                 return output.trim().split('\n').filter(file => file.length > 0);
@@ -551,7 +552,7 @@ export class CommitMessageGenerator {
             return execSync('git config user.name', { encoding: 'utf8' }).trim();
         }
         catch (error) {
-            logger.warn('Failed to get Git user name', { error: error });
+            logger.warn('Failed to get Git user name', { error });
             return 'Unknown User';
         }
     }
@@ -563,7 +564,7 @@ export class CommitMessageGenerator {
             return execSync('git config user.email', { encoding: 'utf8' }).trim();
         }
         catch (error) {
-            logger.warn('Failed to get Git user email', { error: error });
+            logger.warn('Failed to get Git user email', { error });
             return 'unknown@example.com';
         }
     }

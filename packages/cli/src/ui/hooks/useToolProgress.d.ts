@@ -3,8 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ToolCallStatus } from '../types.js';
-import type { OperationProgress } from '../types.js';
+
+import type { ToolCallStatus , OperationProgress } from '../types.js';
 import type { ToolCallInfo } from '@google/gemini-cli-core';
 export interface ToolProgressState {
     operationId?: string;

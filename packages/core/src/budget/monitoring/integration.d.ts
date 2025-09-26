@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Integration layer for token tracking with existing Gemini API systems
  * Provides seamless integration between the token monitoring infrastructure and
@@ -16,14 +17,14 @@ import type { GenerateContentParameters, GenerateContentResponse } from '@google
 import type { ContentGenerator } from '../../core/contentGenerator.js';
 import type { Config } from '../../config/config.js';
 import type { BudgetSettings } from '../types.js';
-import { TokenTracker } from './token-tracker.js';
-import { MetricsCollector } from './metrics-collector.js';
-import { UsageCalculator } from './usage-calculator.js';
-import { BudgetEventManager } from './events.js';
-import { QuotaManager } from './quota-manager.js';
-import { TokenDataAggregator } from './aggregator.js';
-import { RealTimeStreamingService } from './streaming.js';
-import { TokenUsageCache } from './cache.js';
+import type { TokenTracker } from './token-tracker.js';
+import type { MetricsCollector } from './metrics-collector.js';
+import type { UsageCalculator } from './usage-calculator.js';
+import type { BudgetEventManager } from './events.js';
+import type { QuotaManager } from './quota-manager.js';
+import type { TokenDataAggregator } from './aggregator.js';
+import type { RealTimeStreamingService } from './streaming.js';
+import type { TokenUsageCache } from './cache.js';
 /**
  * Integration configuration options
  */

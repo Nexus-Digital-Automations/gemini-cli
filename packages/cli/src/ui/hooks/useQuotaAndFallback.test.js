@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach, afterEach, } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { UserTierId, AuthType, isGenericQuotaExceededError, isProQuotaExceededError, makeFakeConfig, } from '@google/gemini-cli-core';

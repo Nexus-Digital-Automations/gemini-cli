@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -50,6 +56,6 @@ export const FolderTrustDialog = ({ onSelect, isRestarting, }) => {
             value: FolderTrustChoice.DO_NOT_TRUST,
         },
     ];
-    return (_jsxs(Box, { flexDirection: "column", children: [_jsxs(Box, { flexDirection: "column", borderStyle: "round", borderColor: theme.status.warning, padding: 1, width: "100%", marginLeft: 1, children: [_jsxs(Box, { flexDirection: "column", marginBottom: 1, children: [_jsx(Text, { bold: true, color: theme.text.primary, children: "Do you trust this folder?" }), _jsx(Text, { color: theme.text.primary, children: "Trusting a folder allows Gemini to execute commands it suggests. This is a security feature to prevent accidental execution in untrusted directories." })] }), _jsx(RadioButtonSelect, { items: options, onSelect: onSelect, isFocused: !isRestarting })] }), isRestarting && (_jsx(Box, { marginLeft: 1, marginTop: 1, children: _jsx(Text, { color: theme.status.warning, children: "Gemini CLI is restarting to apply the trust changes..." }) }))] }));
+    return (_jsxs(Box, { flexDirection: "column", children: [_jsxs(Box, { flexDirection: "column", borderStyle: "round", borderColor: theme.status.warning, padding: 1, width: "100%", marginLeft: 1, children: [_jsxs(Box, { flexDirection: "column", marginBottom: 1, children: [_jsx(Text, { bold: true, color: theme.text.primary, children: "Do you trust this folder?" }), _jsx(Text, { color: theme.text.primary, children: "Trusting a folder allows Gemini to execute commands it suggests. This is a security feature to prevent accidental execution in untrusted directories." })] }), _jsx(RadioButtonSelect, { items: options, onSelect, isFocused: !isRestarting })] }), isRestarting && (_jsx(Box, { marginLeft: 1, marginTop: 1, children: _jsx(Text, { color: theme.status.warning, children: "Gemini CLI is restarting to apply the trust changes..." }) }))] }));
 };
 //# sourceMappingURL=FolderTrustDialog.js.map

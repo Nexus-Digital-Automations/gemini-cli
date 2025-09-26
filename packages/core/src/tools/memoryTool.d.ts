@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ToolEditConfirmationDetails, ToolResult } from './tools.js';
 import { BaseDeclarativeTool, BaseToolInvocation } from './tools.js';
 import type { ModifiableDeclarativeTool, ModifyContext } from './modifiable-tool.js';

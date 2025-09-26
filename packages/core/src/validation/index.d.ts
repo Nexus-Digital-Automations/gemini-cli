@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Comprehensive Automatic Task Completion Validation Cycles
  *
@@ -63,14 +64,21 @@ export { ValidationWorkflow, TaskExecutionStage, type TaskExecutionContext, type
 export { ValidationFailureHandler, FailureHandlingStrategy, type RetryConfig, type CircuitBreakerConfig, type EscalationConfig, type FallbackConfig, } from './ValidationFailureHandler.js';
 export { ValidationReporting, ReportFormat, AnalyticsPeriod, } from './ValidationReporting.js';
 export { ContinuousValidationMonitor, MonitoringTrigger, MonitoringScope, HealthStatus, type MonitoringRule, type HealthCheck, type MonitoringAlert, type SystemHealthMetrics, } from './ContinuousValidationMonitor.js';
-import { CodeQualityValidator, type CodeQualityConfig } from './CodeQualityValidator.js';
-import { FunctionalValidator, type FunctionalValidationConfig } from './FunctionalValidator.js';
-import { IntegrationValidator, type IntegrationValidationConfig } from './IntegrationValidator.js';
-import { ValidationWorkflow, type ValidationWorkflowConfig } from './ValidationWorkflow.js';
-import { ValidationFailureHandler, type ValidationFailureHandlerConfig } from './ValidationFailureHandler.js';
-import { ValidationReporting, type ValidationReportingConfig } from './ValidationReporting.js';
-import { ContinuousValidationMonitor, type ContinuousValidationMonitorConfig } from './ContinuousValidationMonitor.js';
-import { ValidationFramework } from './ValidationFramework.js';
+import type { CodeQualityValidator} from './CodeQualityValidator.js';
+import { type CodeQualityConfig } from './CodeQualityValidator.js';
+import type { FunctionalValidator} from './FunctionalValidator.js';
+import { type FunctionalValidationConfig } from './FunctionalValidator.js';
+import type { IntegrationValidator} from './IntegrationValidator.js';
+import { type IntegrationValidationConfig } from './IntegrationValidator.js';
+import type { ValidationWorkflow} from './ValidationWorkflow.js';
+import { type ValidationWorkflowConfig } from './ValidationWorkflow.js';
+import type { ValidationFailureHandler} from './ValidationFailureHandler.js';
+import { type ValidationFailureHandlerConfig } from './ValidationFailureHandler.js';
+import type { ValidationReporting} from './ValidationReporting.js';
+import { type ValidationReportingConfig } from './ValidationReporting.js';
+import type { ContinuousValidationMonitor} from './ContinuousValidationMonitor.js';
+import { type ContinuousValidationMonitorConfig } from './ContinuousValidationMonitor.js';
+import type { ValidationFramework } from './ValidationFramework.js';
 /**
  * Complete validation system configuration
  */

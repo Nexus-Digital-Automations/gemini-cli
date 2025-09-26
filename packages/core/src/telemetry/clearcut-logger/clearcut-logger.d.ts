@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpsProxyAgent } from 'https-proxy-agent';
+
+import type { HttpsProxyAgent } from 'https-proxy-agent';
 import type { StartSessionEvent, UserPromptEvent, ToolCallEvent, ApiRequestEvent, ApiResponseEvent, ApiErrorEvent, LoopDetectedEvent, NextSpeakerCheckEvent, SlashCommandEvent, MalformedJsonResponseEvent, IdeConnectionEvent, ConversationFinishedEvent, KittySequenceOverflowEvent, ChatCompressionEvent, FileOperationEvent, InvalidChunkEvent, ContentRetryEvent, ContentRetryFailureEvent, ExtensionInstallEvent, ToolOutputTruncatedEvent, ExtensionUninstallEvent, ModelRoutingEvent, ExtensionEnableEvent } from '../types.js';
-import { EventMetadataKey } from './event-metadata-key.js';
+import type { EventMetadataKey } from './event-metadata-key.js';
 import type { Config } from '../../config/config.js';
 export declare enum EventNames {
     START_SESSION = "start_session",

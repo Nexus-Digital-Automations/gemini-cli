@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { expect } from 'vitest';
 // RegExp to detect invalid characters: backspace, and ANSI escape codes
 // eslint-disable-next-line no-control-regex

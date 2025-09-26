@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsxs as _jsxs, jsx as _jsx, Fragment as _Fragment } from "react/jsx-runtime";
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { Box, Text } from 'ink';
@@ -681,7 +687,7 @@ export const InputPrompt = ({ buffer, onSubmit, userMessages, onClearScreen, con
                                 const color = seg.type === 'command' || seg.type === 'file'
                                     ? theme.text.accent
                                     : theme.text.primary;
-                                renderedLine.push(_jsx(Text, { color: color, children: display }, `token-${segIdx}`));
+                                renderedLine.push(_jsx(Text, { color, children: display }, `token-${segIdx}`));
                             });
                             const currentLineGhost = isOnCursorLine ? inlineGhost : '';
                             if (isOnCursorLine &&

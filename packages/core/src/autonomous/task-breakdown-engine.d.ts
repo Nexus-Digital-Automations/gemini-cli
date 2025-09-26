@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
-import { TaskComplexity } from '../task-management/types.js';
-import { TaskCategory, TaskPriority, TaskStatus } from '../task-management/types.js';
+import type { TaskComplexity } from '../task-management/types.js';
+import type { TaskCategory, TaskPriority, TaskStatus } from '../task-management/types.js';
 /**
  * Using canonical enums from types.ts:
  * - TaskComplexity: TRIVIAL, SIMPLE, MODERATE, COMPLEX, ENTERPRISE

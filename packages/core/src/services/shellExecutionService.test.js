@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import EventEmitter from 'node:events';
 import {} from 'node:child_process';
@@ -170,9 +171,9 @@ describe('ShellExecutionService', () => {
     describe('pty interaction', () => {
         beforeEach(() => {
             vi.spyOn(ShellExecutionService['activePtys'], 'get').mockReturnValue({
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 ptyProcess: mockPtyProcess,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 headlessTerminal: mockHeadlessTerminal,
             });
         });

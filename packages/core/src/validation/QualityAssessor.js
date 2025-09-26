@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { logger as parentLogger } from '../utils/logger.js';
 import { ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
@@ -160,7 +161,7 @@ export class QualityAssessor extends EventEmitter {
             return result;
         }
         catch (error) {
-            this.logger.error(`Quality assessment failed: ${taskId}`, { error: error });
+            this.logger.error(`Quality assessment failed: ${taskId}`, { error });
             this.emit('assessmentFailed', taskId, error);
             throw error;
         }
@@ -241,7 +242,7 @@ export class QualityAssessor extends EventEmitter {
                 return result;
             }
             catch (error) {
-                this.logger.error(`Assessor ${name} failed`, { error: error });
+                this.logger.error(`Assessor ${name} failed`, { error });
                 return {};
             }
         }));

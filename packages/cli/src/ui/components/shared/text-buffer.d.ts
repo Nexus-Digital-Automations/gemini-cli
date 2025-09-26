@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export type Direction = 'left' | 'right' | 'up' | 'down' | 'wordLeft' | 'wordRight' | 'home' | 'end';
 export declare const isWordCharStrict: (char: string) => boolean;
 export declare const isWhitespace: (char: string) => boolean;

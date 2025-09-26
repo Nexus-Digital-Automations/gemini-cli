@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type Config } from '../config/config.js';
 import { type Status } from '../core/coreToolScheduler.js';
 import { type ThoughtSummary } from '../core/turn.js';

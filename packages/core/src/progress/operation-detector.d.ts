@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { OperationContext } from './types.js';
 export interface ToolCallInfo {
     name: string;

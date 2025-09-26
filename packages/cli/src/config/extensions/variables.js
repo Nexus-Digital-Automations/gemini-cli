@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { VARIABLE_SCHEMA } from './variableSchema.js';
 export function validateVariables(variables, schema) {
     for (const key in schema) {

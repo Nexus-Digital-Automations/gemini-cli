@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { MCPServerConfig } from '@google/gemini-cli-core';
 import { type TelemetrySettings } from '@google/gemini-cli-core';
 export declare const SETTINGS_DIRECTORY_NAME = ".gemini";

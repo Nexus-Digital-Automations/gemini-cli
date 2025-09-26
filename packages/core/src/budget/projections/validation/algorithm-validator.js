@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { Logger } from '../../utils/logger.js';
 /**
  * Algorithm validator for cost projection and analysis algorithms

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Advanced Context Retention System - Main Index
  * Unified API for intelligent context management in Gemini CLI

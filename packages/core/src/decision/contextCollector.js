@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { cpuUsage, memoryUsage } from 'node:process';
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -241,10 +242,10 @@ export class ContextCollector {
                 lastBuildTime: hasBuildDir
                     ? Date.now() - Math.random() * 3600000
                     : undefined, // Last hour
-                buildStatus: buildStatus,
-                testStatus: testStatus,
-                lintStatus: lintStatus,
-                gitStatus: gitStatus,
+                buildStatus,
+                testStatus,
+                lintStatus,
+                gitStatus,
             };
         }
         catch (error) {

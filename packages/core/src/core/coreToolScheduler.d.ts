@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ToolCallRequestInfo, ToolCallResponseInfo, ToolCallConfirmationDetails, EditorType, Config, ToolConfirmationPayload, AnyDeclarativeTool, AnyToolInvocation, AnsiOutput } from '../index.js';
-import { ToolConfirmationOutcome } from '../index.js';
+import type { ToolConfirmationOutcome } from '../index.js';
 import type { Part, PartListUnion } from '@google/genai';
 export type ValidatingToolCall = {
     status: 'validating';

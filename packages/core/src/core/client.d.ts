@@ -3,13 +3,14 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { GenerateContentConfig, PartListUnion, Content, GenerateContentResponse } from '@google/genai';
 import type { ServerGeminiStreamEvent, ChatCompressionInfo } from './turn.js';
-import { Turn } from './turn.js';
+import type { Turn } from './turn.js';
 import type { Config } from '../config/config.js';
-import { GeminiChat } from './geminiChat.js';
+import type { GeminiChat } from './geminiChat.js';
 import type { ChatRecordingService } from '../services/chatRecordingService.js';
-import { LoopDetectionService } from '../services/loopDetectionService.js';
+import type { LoopDetectionService } from '../services/loopDetectionService.js';
 export declare function isThinkingSupported(model: string): boolean;
 export declare function isThinkingDefault(model: string): boolean;
 /**

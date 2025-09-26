@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { performance } from 'node:perf_hooks';
 import { createWriteStream, createReadStream, existsSync, mkdirSync, statSync, readdirSync, } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -312,7 +313,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
             catch (error) {
                 logger.error('Failed to delete partition', {
                     partitionId: partition.partitionId,
-                    error: error,
+                    error,
                 });
             }
         }
@@ -352,7 +353,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
             this.emit('data_stored', { recordCount: dataToWrite.length });
         }
         catch (error) {
-            logger.error('Failed to flush write buffer', { error: error });
+            logger.error('Failed to flush write buffer', { error });
             // Put data back in buffer for retry
             this.writeBuffer.unshift(...dataToWrite);
         }
@@ -510,7 +511,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
         catch (error) {
             logger.error('Failed to query partition', {
                 partitionId: partition.partitionId,
-                error: error,
+                error,
             });
             return { data: [], indexUsed: false };
         }
@@ -610,7 +611,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
         }
         catch (error) {
             logger.warn('Failed to load partition metadata', {
-                error: error,
+                error,
             });
         }
     }
@@ -631,7 +632,7 @@ export class AnalyticsStorageEngine extends EventEmitter {
         }
         catch (error) {
             logger.error('Failed to save partition metadata', {
-                error: error,
+                error,
             });
         }
     }

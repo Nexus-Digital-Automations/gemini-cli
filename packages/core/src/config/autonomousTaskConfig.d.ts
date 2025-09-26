@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { AgentCapability, TaskPriority } from '../services/autonomousTaskIntegrator.js';
 import type { IntegrationConfig } from '../services/integrationBridge.js';
 export interface AutonomousTaskSettings {

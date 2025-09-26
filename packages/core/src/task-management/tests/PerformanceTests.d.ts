@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { SelfManagingTaskQueue } from '../SelfManagingTaskQueue.js';
+
+import type { SelfManagingTaskQueue } from '../SelfManagingTaskQueue.js';
 /**
  * Performance test configuration
  */

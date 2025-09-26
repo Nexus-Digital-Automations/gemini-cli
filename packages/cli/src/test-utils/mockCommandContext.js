@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi } from 'vitest';
 /**
  * Creates a deep, fully-typed mock of the CommandContext for use in tests.
@@ -27,7 +28,7 @@ export const createMockCommandContext = (overrides = {}) => {
                 logMessage: vi.fn(),
                 saveCheckpoint: vi.fn(),
                 loadCheckpoint: vi.fn().mockResolvedValue([]),
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
             }, // Cast because Logger is a class.
         },
         ui: {
@@ -41,7 +42,7 @@ export const createMockCommandContext = (overrides = {}) => {
             toggleVimEnabled: vi.fn(),
             extensionsUpdateState: new Map(),
             setExtensionsUpdateState: vi.fn(),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
         },
         session: {
             sessionShellAllowlist: new Set(),
@@ -62,7 +63,7 @@ export const createMockCommandContext = (overrides = {}) => {
             },
         },
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const merge = (target, source) => {
         const output = { ...target };
         for (const key in source) {

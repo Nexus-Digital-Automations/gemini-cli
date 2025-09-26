@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ChartDataPoint, TimeSeriesData, UsageDataPoint, CostBreakdownItem, TokenUsageMetrics } from '../types/index.js';
 /**
  * Budget Usage Visualizer - Chart Utility Functions

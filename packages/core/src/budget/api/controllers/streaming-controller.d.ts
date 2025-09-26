@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget Streaming Controller
  * Handles real-time budget data streaming via WebSocket connections

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { DiscoveredMCPTool } from '../tools/mcp-tool.js';
 import { AuthType } from '../core/contentGenerator.js';
 import { getDecisionFromOutcome, ToolCallDecision, } from './tool-call-decision.js';

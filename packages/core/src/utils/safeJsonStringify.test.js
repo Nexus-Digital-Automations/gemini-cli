@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect } from 'vitest';
 import { safeJsonStringify } from './safeJsonStringify.js';
 describe('safeJsonStringify', () => {
@@ -33,14 +34,14 @@ describe('safeJsonStringify', () => {
         expect(result).toBe('{\n  "name": "test",\n  "value": 42\n}');
     });
     it('should handle circular references with formatting', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const obj = { name: 'test' };
         obj.circular = obj;
         const result = safeJsonStringify(obj, 2);
         expect(result).toBe('{\n  "name": "test",\n  "circular": "[Circular]"\n}');
     });
     it('should handle arrays with circular references', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const arr = [{ id: 1 }];
         arr[0].parent = arr; // Create circular reference
         const result = safeJsonStringify(arr);

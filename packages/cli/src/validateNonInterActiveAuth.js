@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { AuthType, OutputFormat } from '@google/gemini-cli-core';
 import { USER_SETTINGS_PATH } from './config/settings.js';
 import { validateAuthMethod } from './config/auth.js';

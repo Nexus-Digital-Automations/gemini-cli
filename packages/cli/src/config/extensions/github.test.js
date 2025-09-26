@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { checkForExtensionUpdate, cloneFromGit, findReleaseAsset, parseGitHubRepoForReleases, } from './github.js';
 import { simpleGit } from 'simple-git';

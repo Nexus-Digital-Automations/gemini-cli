@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
@@ -7,7 +13,7 @@ export const DetailedMessagesDisplay = ({ messages, maxHeight, width }) => {
         return null; // Don't render anything if there are no messages
     }
     const borderAndPadding = 4;
-    return (_jsxs(Box, { flexDirection: "column", marginTop: 1, borderStyle: "round", borderColor: theme.border.default, paddingX: 1, width: width, children: [_jsx(Box, { marginBottom: 1, children: _jsxs(Text, { bold: true, color: theme.text.primary, children: ["Debug Console", ' ', _jsx(Text, { color: theme.text.secondary, children: "(ctrl+o to close)" })] }) }), _jsx(MaxSizedBox, { maxHeight: maxHeight, maxWidth: width - borderAndPadding, children: messages.map((msg, index) => {
+    return (_jsxs(Box, { flexDirection: "column", marginTop: 1, borderStyle: "round", borderColor: theme.border.default, paddingX: 1, width, children: [_jsx(Box, { marginBottom: 1, children: _jsxs(Text, { bold: true, color: theme.text.primary, children: ["Debug Console", ' ', _jsx(Text, { color: theme.text.secondary, children: "(ctrl+o to close)" })] }) }), _jsx(MaxSizedBox, { maxHeight, maxWidth: width - borderAndPadding, children: messages.map((msg, index) => {
                     let textColor = theme.text.primary;
                     let icon = '\u2139'; // Information source (ℹ)
                     switch (msg.type) {

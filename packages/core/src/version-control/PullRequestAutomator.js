@@ -3,7 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import { PRStatus, ReviewStatus, CheckStatus, MergeStrategy, } from './types.js';
 /**
  * PullRequestAutomator - Intelligent pull request lifecycle management
@@ -649,7 +649,8 @@ export class PullRequestAutomator {
     async calculateLinesChanged(sourceBranch, targetBranch) {
         try {
             const diffStat = execSync(`git diff ${targetBranch}...${sourceBranch} --numstat`, { cwd: this.workingDir, encoding: 'utf-8' });
-            let added = 0, deleted = 0;
+            let added = 0;
+            let deleted = 0;
             diffStat.split('\n').forEach((line) => {
                 if (line.trim()) {
                     const [addedStr, deletedStr] = line.split('\t');

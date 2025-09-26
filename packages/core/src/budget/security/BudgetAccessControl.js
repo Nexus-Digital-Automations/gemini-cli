@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget security and access control framework
  * Provides comprehensive security controls for budget operations and data access
@@ -134,7 +135,7 @@ export class BudgetAccessControl {
         }
         catch (error) {
             this.logger.error('Permission check failed', {
-                error: error,
+                error,
                 action,
                 resource,
             });

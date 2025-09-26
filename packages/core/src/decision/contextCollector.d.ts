@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { DecisionContext } from './types.js';
 /**
  * Context collector that gathers comprehensive system state for decision-making.

@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ToolConfirmationOutcome } from '../tools/tools.js';
+
+import type { ToolConfirmationOutcome } from '../tools/tools.js';
 export declare enum ToolCallDecision {
     ACCEPT = "accept",
     REJECT = "reject",

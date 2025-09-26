@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { GoogleAuth } from 'google-auth-library';
 import { GoogleCredentialProvider } from './google-auth-provider.js';
 import { vi, describe, beforeEach, it, expect } from 'vitest';

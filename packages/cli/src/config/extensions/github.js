@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { simpleGit } from 'simple-git';
 import { getErrorMessage } from '../../utils/errors.js';
 import { ExtensionUpdateState } from '../../ui/state/extensions.js';

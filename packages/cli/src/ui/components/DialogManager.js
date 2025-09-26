@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -63,10 +69,10 @@ export const DialogManager = ({ addItem }) => {
                         } }) })] }));
     }
     if (uiState.isThemeDialogOpen) {
-        return (_jsxs(Box, { flexDirection: "column", children: [uiState.themeError && (_jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.status.error, children: uiState.themeError }) })), _jsx(ThemeDialog, { onSelect: uiActions.handleThemeSelect, onHighlight: uiActions.handleThemeHighlight, settings: settings, availableTerminalHeight: constrainHeight ? terminalHeight - staticExtraHeight : undefined, terminalWidth: mainAreaWidth })] }));
+        return (_jsxs(Box, { flexDirection: "column", children: [uiState.themeError && (_jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.status.error, children: uiState.themeError }) })), _jsx(ThemeDialog, { onSelect: uiActions.handleThemeSelect, onHighlight: uiActions.handleThemeHighlight, settings, availableTerminalHeight: constrainHeight ? terminalHeight - staticExtraHeight : undefined, terminalWidth: mainAreaWidth })] }));
     }
     if (uiState.isSettingsDialogOpen) {
-        return (_jsx(Box, { flexDirection: "column", children: _jsx(SettingsDialog, { settings: settings, onSelect: () => uiActions.closeSettingsDialog(), onRestartRequest: () => process.exit(0), availableTerminalHeight: terminalHeight - staticExtraHeight }) }));
+        return (_jsx(Box, { flexDirection: "column", children: _jsx(SettingsDialog, { settings, onSelect: () => uiActions.closeSettingsDialog(), onRestartRequest: () => process.exit(0), availableTerminalHeight: terminalHeight - staticExtraHeight }) }));
     }
     if (uiState.isAuthenticating) {
         return (_jsx(AuthInProgress, { onTimeout: () => {
@@ -74,16 +80,16 @@ export const DialogManager = ({ addItem }) => {
             } }));
     }
     if (uiState.isAuthDialogOpen) {
-        return (_jsx(Box, { flexDirection: "column", children: _jsx(AuthDialog, { config: config, settings: settings, setAuthState: uiActions.setAuthState, authError: uiState.authError, onAuthError: uiActions.onAuthError }) }));
+        return (_jsx(Box, { flexDirection: "column", children: _jsx(AuthDialog, { config, settings, setAuthState: uiActions.setAuthState, authError: uiState.authError, onAuthError: uiActions.onAuthError }) }));
     }
     if (uiState.isEditorDialogOpen) {
-        return (_jsxs(Box, { flexDirection: "column", children: [uiState.editorError && (_jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.status.error, children: uiState.editorError }) })), _jsx(EditorSettingsDialog, { onSelect: uiActions.handleEditorSelect, settings: settings, onExit: uiActions.exitEditorDialog })] }));
+        return (_jsxs(Box, { flexDirection: "column", children: [uiState.editorError && (_jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.status.error, children: uiState.editorError }) })), _jsx(EditorSettingsDialog, { onSelect: uiActions.handleEditorSelect, settings, onExit: uiActions.exitEditorDialog })] }));
     }
     if (uiState.showPrivacyNotice) {
-        return (_jsx(PrivacyNotice, { onExit: () => uiActions.exitPrivacyNotice(), config: config }));
+        return (_jsx(PrivacyNotice, { onExit: () => uiActions.exitPrivacyNotice(), config }));
     }
     if (uiState.isPermissionsDialogOpen) {
-        return (_jsx(PermissionsModifyTrustDialog, { onExit: uiActions.closePermissionsDialog, addItem: addItem }));
+        return (_jsx(PermissionsModifyTrustDialog, { onExit: uiActions.closePermissionsDialog, addItem }));
     }
     return null;
 };

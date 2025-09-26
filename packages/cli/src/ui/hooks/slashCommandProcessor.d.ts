@@ -3,11 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type Dispatch, type SetStateAction } from 'react';
 import { type PartListUnion } from '@google/genai';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
-import type { Config } from '@google/gemini-cli-core';
-import { ToolConfirmationOutcome } from '@google/gemini-cli-core';
+import type { Config , ToolConfirmationOutcome } from '@google/gemini-cli-core';
 import type { HistoryItemWithoutId, SlashCommandProcessorResult, HistoryItem } from '../types.js';
 import type { LoadedSettings } from '../../config/settings.js';
 import { type CommandContext, type SlashCommand } from '../commands/types.js';

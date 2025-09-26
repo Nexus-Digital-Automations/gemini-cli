@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Audit Logging Middleware
  * Provides comprehensive audit logging for all Budget API operations
@@ -12,7 +13,7 @@
  * @version 1.0.0
  */
 import type { Request, Response, NextFunction } from 'express';
-import { EventSeverity } from '../../types.js';
+import type { EventSeverity } from '../../types.js';
 /**
  * Audit event interface
  */

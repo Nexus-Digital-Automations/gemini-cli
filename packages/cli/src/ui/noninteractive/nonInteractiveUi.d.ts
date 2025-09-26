@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { CommandContext } from '../commands/types.js';
 /**
  * Creates a UI context object with no-op functions.

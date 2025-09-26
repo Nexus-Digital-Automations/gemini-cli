@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Iteratively parses a prompt string to extract injections (e.g., !{...} or @{...}),
  * correctly handling nested braces within the content.

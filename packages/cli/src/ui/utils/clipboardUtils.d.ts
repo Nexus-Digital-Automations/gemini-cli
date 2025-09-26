@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Checks if the system clipboard contains an image (macOS only for now)
  * @returns true if clipboard contains an image

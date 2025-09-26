@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ErrorAnalysis, ErrorAnalysisContext, ErrorPattern, ErrorCategory, ErrorTrend, SimilarityScore } from './types.js';
 import { type ErrorPatternRecognitionConfig } from './ErrorPatternRecognition.js';
 /**

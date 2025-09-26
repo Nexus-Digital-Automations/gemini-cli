@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -26,7 +32,7 @@ describe('<AnsiOutputText />', () => {
                 createAnsiToken({ text: 'world!' }),
             ],
         ];
-        const { lastFrame } = render(_jsx(AnsiOutputText, { data: data }));
+        const { lastFrame } = render(_jsx(AnsiOutputText, { data }));
         expect(lastFrame()).toBe('Hello, world!');
     });
     it('correctly applies all the styles', () => {
@@ -41,7 +47,7 @@ describe('<AnsiOutputText />', () => {
         ];
         // Note: ink-testing-library doesn't render styles, so we can only check the text.
         // We are testing that it renders without crashing.
-        const { lastFrame } = render(_jsx(AnsiOutputText, { data: data }));
+        const { lastFrame } = render(_jsx(AnsiOutputText, { data }));
         expect(lastFrame()).toBe('BoldItalicUnderlineDimInverse');
     });
     it('correctly applies foreground and background colors', () => {
@@ -53,7 +59,7 @@ describe('<AnsiOutputText />', () => {
         ];
         // Note: ink-testing-library doesn't render colors, so we can only check the text.
         // We are testing that it renders without crashing.
-        const { lastFrame } = render(_jsx(AnsiOutputText, { data: data }));
+        const { lastFrame } = render(_jsx(AnsiOutputText, { data }));
         expect(lastFrame()).toBe('Red FGBlue BG');
     });
     it('handles empty lines and empty tokens', () => {
@@ -63,7 +69,7 @@ describe('<AnsiOutputText />', () => {
             [createAnsiToken({ text: 'Third line' })],
             [createAnsiToken({ text: '' })],
         ];
-        const { lastFrame } = render(_jsx(AnsiOutputText, { data: data }));
+        const { lastFrame } = render(_jsx(AnsiOutputText, { data }));
         const output = lastFrame();
         expect(output).toBeDefined();
         const lines = output.split('\n');
@@ -77,7 +83,7 @@ describe('<AnsiOutputText />', () => {
             [createAnsiToken({ text: 'Line 3' })],
             [createAnsiToken({ text: 'Line 4' })],
         ];
-        const { lastFrame } = render(_jsx(AnsiOutputText, { data: data, availableTerminalHeight: 2 }));
+        const { lastFrame } = render(_jsx(AnsiOutputText, { data, availableTerminalHeight: 2 }));
         const output = lastFrame();
         expect(output).not.toContain('Line 1');
         expect(output).not.toContain('Line 2');

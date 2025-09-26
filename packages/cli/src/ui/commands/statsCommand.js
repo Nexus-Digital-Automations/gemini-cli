@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { MessageType } from '../types.js';
 import { formatDuration } from '../utils/formatters.js';
 import { CommandKind, } from './types.js';

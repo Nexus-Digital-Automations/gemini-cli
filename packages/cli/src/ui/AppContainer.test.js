@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -238,7 +244,7 @@ describe('AppContainer State Management', () => {
         it('renders with startup warnings', () => {
             const startupWarnings = ['Warning 1', 'Warning 2'];
             expect(() => {
-                render(_jsx(AppContainer, { config: mockConfig, settings: mockSettings, startupWarnings: startupWarnings, version: "1.0.0", initializationResult: mockInitResult }));
+                render(_jsx(AppContainer, { config: mockConfig, settings: mockSettings, startupWarnings, version: "1.0.0", initializationResult: mockInitResult }));
             }).not.toThrow();
         });
     });
@@ -313,7 +319,7 @@ describe('AppContainer State Management', () => {
     describe('Version Handling', () => {
         it.each(['1.0.0', '2.1.3-beta', '3.0.0-nightly'])('handles version format: %s', (version) => {
             expect(() => {
-                render(_jsx(AppContainer, { config: mockConfig, settings: mockSettings, version: version, initializationResult: mockInitResult }));
+                render(_jsx(AppContainer, { config: mockConfig, settings: mockSettings, version, initializationResult: mockInitResult }));
             }).not.toThrow();
         });
     });

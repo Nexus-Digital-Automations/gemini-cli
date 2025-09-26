@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { TaskId, Task, TaskDependency, DependencyGraph, CircularDependency } from './types.js';
 /**
  * Advanced dependency graph construction and analysis system

@@ -3,11 +3,12 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { type Task, type TaskContext, type QueueMetrics } from './TaskQueue.js';
-import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
-import { OptimizationStrategy } from './QueueOptimizer.js';
-import { AutonomousTaskBreakdown, BreakdownStrategy } from './AutonomousTaskBreakdown.js';
+import type { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
+import type { OptimizationStrategy } from './QueueOptimizer.js';
+import type { AutonomousTaskBreakdown, BreakdownStrategy } from './AutonomousTaskBreakdown.js';
 /**
  * Enhanced autonomous queue configuration
  */

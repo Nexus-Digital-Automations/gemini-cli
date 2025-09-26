@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 // Import validation system components
@@ -242,7 +243,7 @@ export class ValidationIntegration extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Task validation failed: ${task.id}`, {
-                error: error,
+                error,
             });
             this.emit('validationSystemError', task.id, error, TaskValidationPhase.PRE_EXECUTION);
             throw error;
@@ -503,7 +504,7 @@ export class ValidationIntegration extends EventEmitter {
             }
             catch (error) {
                 this.logger.error(`Failed to execute rollback for task: ${task.id}`, {
-                    error: error,
+                    error,
                 });
                 executed = true;
                 success = false;

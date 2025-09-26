@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Error Pattern Recognition Engine for Interactive Debugging Assistance
  * Provides intelligent pattern matching and categorization of errors across programming languages

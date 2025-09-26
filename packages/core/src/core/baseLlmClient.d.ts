@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Content, GenerateContentConfig, Part } from '@google/genai';
 import type { Config } from '../config/config.js';
 import type { ContentGenerator } from './contentGenerator.js';

@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -47,7 +53,7 @@ export const ToolMessage = ({ name, description, resultDisplay, status, availabl
                 '...' + resultDisplay.slice(-MAXIMUM_RESULT_DISPLAY_CHARACTERS);
         }
     }
-    return (_jsxs(Box, { paddingX: 1, paddingY: 0, flexDirection: "column", children: [_jsxs(Box, { minHeight: 1, children: [_jsx(ToolStatusIndicator, { status: status, name: name }), _jsx(ToolInfo, { name: name, status: status, description: description, emphasis: emphasis }), isThisShellFocusable && (_jsx(Box, { marginLeft: 1, flexShrink: 0, children: _jsx(Text, { color: theme.text.accent, children: isThisShellFocused ? '(Focused)' : '(ctrl+f to focus)' }) })), emphasis === 'high' && _jsx(TrailingIndicator, {})] }), resultDisplay && (_jsx(Box, { paddingLeft: STATUS_INDICATOR_WIDTH, width: "100%", marginTop: 1, children: _jsx(Box, { flexDirection: "column", children: typeof resultDisplay === 'string' && renderOutputAsMarkdown ? (_jsx(Box, { flexDirection: "column", children: _jsx(MarkdownDisplay, { text: resultDisplay, isPending: false, availableTerminalHeight: availableHeight, terminalWidth: childWidth }) })) : typeof resultDisplay === 'string' && !renderOutputAsMarkdown ? (_jsx(MaxSizedBox, { maxHeight: availableHeight, maxWidth: childWidth, children: _jsx(Box, { children: _jsx(Text, { wrap: "wrap", color: theme.text.primary, children: resultDisplay }) }) })) : typeof resultDisplay === 'object' &&
+    return (_jsxs(Box, { paddingX: 1, paddingY: 0, flexDirection: "column", children: [_jsxs(Box, { minHeight: 1, children: [_jsx(ToolStatusIndicator, { status, name }), _jsx(ToolInfo, { name, status, description, emphasis }), isThisShellFocusable && (_jsx(Box, { marginLeft: 1, flexShrink: 0, children: _jsx(Text, { color: theme.text.accent, children: isThisShellFocused ? '(Focused)' : '(ctrl+f to focus)' }) })), emphasis === 'high' && _jsx(TrailingIndicator, {})] }), resultDisplay && (_jsx(Box, { paddingLeft: STATUS_INDICATOR_WIDTH, width: "100%", marginTop: 1, children: _jsx(Box, { flexDirection: "column", children: typeof resultDisplay === 'string' && renderOutputAsMarkdown ? (_jsx(Box, { flexDirection: "column", children: _jsx(MarkdownDisplay, { text: resultDisplay, isPending: false, availableTerminalHeight: availableHeight, terminalWidth: childWidth }) })) : typeof resultDisplay === 'string' && !renderOutputAsMarkdown ? (_jsx(MaxSizedBox, { maxHeight: availableHeight, maxWidth: childWidth, children: _jsx(Box, { children: _jsx(Text, { wrap: "wrap", color: theme.text.primary, children: resultDisplay }) }) })) : typeof resultDisplay === 'object' &&
                         'fileDiff' in resultDisplay ? (_jsx(DiffRenderer, { diffContent: resultDisplay.fileDiff, filename: resultDisplay.fileName, availableTerminalHeight: availableHeight, terminalWidth: childWidth })) : (_jsx(AnsiOutputText, { data: resultDisplay, availableTerminalHeight: availableHeight })) }) })), isThisShellFocused && config && (_jsx(Box, { paddingLeft: STATUS_INDICATOR_WIDTH, marginTop: 1, children: _jsx(ShellInputPrompt, { activeShellPtyId: activeShellPtyId ?? null, focus: embeddedShellFocused }) }))] }));
 };
 const ToolStatusIndicator = ({ status, name, }) => {

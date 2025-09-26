@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Storage } from '@google/gemini-cli-core';
+
+import type { Storage } from '@google/gemini-cli-core';
 export interface UseShellHistoryReturn {
     history: string[];
     addCommandToHistory: (command: string) => void;

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { GeminiEventType } from '@google/gemini-cli-core';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';

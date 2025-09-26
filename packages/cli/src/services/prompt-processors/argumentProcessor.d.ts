@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { IPromptProcessor, PromptPipelineContent } from './types.js';
 import type { CommandContext } from '../../ui/commands/types.js';
 /**

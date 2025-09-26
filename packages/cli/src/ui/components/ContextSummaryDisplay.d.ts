@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type React from 'react';
 import { type IdeContext, type MCPServerConfig } from '@google/gemini-cli-core';
 interface ContextSummaryDisplayProps {

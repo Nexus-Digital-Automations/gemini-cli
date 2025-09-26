@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { getErrorMessage } from '../../utils/errors.js';
 import { ExtensionUpdateState } from '../state/extensions.js';
 import { useMemo, useState } from 'react';

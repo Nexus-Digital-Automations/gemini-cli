@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { ToolCallStatus } from '../types.js';
 import { useCallback, useState } from 'react';
 import { isBinary, ShellExecutionService } from '@google/gemini-cli-core';

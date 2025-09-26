@@ -10,7 +10,7 @@
  * @author Claude Code - Pair-Programming Implementation Agent
  * @version 1.0.0
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type { CollaborationEvent, CollaborationEventType } from './types.js';
 /**
  * Event bus for collaborative programming sessions

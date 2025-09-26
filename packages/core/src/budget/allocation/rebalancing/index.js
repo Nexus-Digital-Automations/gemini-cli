@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget allocation rebalancing module exports
  * Provides dynamic budget redistribution and constraint handling capabilities

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type Credentials } from 'google-auth-library';
 export declare class OAuthCredentialStorage {
     private static storage;

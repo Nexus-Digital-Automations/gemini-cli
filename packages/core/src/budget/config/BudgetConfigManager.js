@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget configuration management system
  * Handles loading, validation, and management of budget configuration settings
@@ -129,7 +130,7 @@ export class BudgetConfigManager {
         }
         catch (error) {
             this.logger.error('Failed to update budget settings', {
-                error: error,
+                error,
                 updates,
             });
             throw error;

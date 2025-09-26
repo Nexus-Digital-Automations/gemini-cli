@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getOauthClient, resetOauthClientForTesting, clearCachedCredentialFile, clearOauthClientCache, } from './oauth2.js';
 import { UserAccountManager } from '../utils/userAccountManager.js';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget Management API Documentation
  * Comprehensive documentation for all Budget API endpoints with examples,

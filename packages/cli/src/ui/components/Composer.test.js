@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsxs as _jsxs, jsx as _jsx, Fragment as _Fragment } from "react/jsx-runtime";
 /**
  * @license
@@ -110,7 +116,7 @@ const createMockUIActions = () => ({
     setShellModeActive: vi.fn(),
     onEscapePromptChange: vi.fn(),
     vimHandleInput: vi.fn(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
 });
 const createMockConfig = (overrides = {}) => ({
     getModel: vi.fn(() => 'gemini-1.5-pro'),
@@ -129,9 +135,9 @@ const createMockSettings = (merged = {}) => ({
         ...merged,
     },
 });
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 const renderComposer = (uiState, settings = createMockSettings(), config = createMockConfig(), uiActions = createMockUIActions()) => render(_jsx(ConfigContext.Provider, { value: config, children: _jsx(SettingsContext.Provider, { value: settings, children: _jsx(UIStateContext.Provider, { value: uiState, children: _jsx(UIActionsContext.Provider, { value: uiActions, children: _jsx(ProgressProvider, { children: _jsx(Composer, {}) }) }) }) }) }));
-/* eslint-enable @typescript-eslint/no-explicit-any */
+ 
 describe('Composer', () => {
     describe('Footer Display Settings', () => {
         it('renders Footer by default when hideFooter is false', () => {
@@ -156,7 +162,7 @@ describe('Composer', () => {
                 sessionStats: {
                     sessionId: 'test-session',
                     sessionStartTime: new Date(),
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                     
                     metrics: {},
                     lastPromptTokenCount: 150,
                     promptCount: 5,
@@ -176,7 +182,7 @@ describe('Composer', () => {
             vi.mocked(useVimMode).mockReturnValueOnce({
                 vimEnabled: true,
                 vimMode: 'INSERT',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
             });
             const { lastFrame } = renderComposer(uiState, settings, config);
             expect(lastFrame()).toContain('Footer');
@@ -320,7 +326,7 @@ describe('Composer', () => {
                 showErrorDetails: true,
                 filteredConsoleMessages: [
                     { level: 'error', message: 'Test error', timestamp: new Date() },
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                     
                 ],
             });
             const { lastFrame } = renderComposer(uiState);

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Pair-Programming Mode - Core Types and Interfaces
  * Comprehensive type definitions for collaborative development sessions

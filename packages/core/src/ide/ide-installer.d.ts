@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type IdeInfo } from './detect-ide.js';
 export interface IdeInstaller {
     install(): Promise<InstallResult>;

@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { Task, TaskContext, TaskExecutionResult } from './TaskQueue.js';
-import { TaskCategory, TaskPriority } from './TaskQueue.js';
+import type { TaskCategory, TaskPriority } from './TaskQueue.js';
 /**
  * Task complexity analysis metrics
  */

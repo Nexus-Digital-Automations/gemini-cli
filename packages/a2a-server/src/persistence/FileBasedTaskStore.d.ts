@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Task as SDKTask } from '@a2a-js/sdk';
 import type { TaskStore } from '@a2a-js/sdk/server';
 /**

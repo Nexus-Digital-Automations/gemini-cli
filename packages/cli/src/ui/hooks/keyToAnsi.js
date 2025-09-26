@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Translates a Key object into its corresponding ANSI escape sequence.
  * This is useful for sending control characters to a pseudo-terminal.

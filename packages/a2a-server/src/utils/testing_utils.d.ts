@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { SendStreamingMessageSuccessResponse } from '@a2a-js/sdk';
 import type { Config } from '@google/gemini-cli-core';
 export declare function createMockConfig(overrides?: Partial<Config>): Partial<Config>;

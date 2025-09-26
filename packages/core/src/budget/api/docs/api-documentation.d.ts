@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * OpenAPI specification for the Budget Management API
  */
@@ -21,11 +22,11 @@ export declare const openApiSpec: {
             url: string;
         };
     };
-    servers: {
+    servers: Array<{
         url: string;
         description: string;
-    }[];
-    security: ({
+    }>;
+    security: Array<{
         bearerAuth: never[];
         apiKeyAuth?: undefined;
         basicAuth?: undefined;
@@ -37,7 +38,7 @@ export declare const openApiSpec: {
         basicAuth: never[];
         bearerAuth?: undefined;
         apiKeyAuth?: undefined;
-    })[];
+    }>;
     components: {
         securitySchemes: {
             bearerAuth: {
@@ -299,21 +300,21 @@ export declare const openApiSpec: {
                 summary: string;
                 description: string;
                 tags: string[];
-                parameters: {
+                parameters: Array<{
                     name: string;
                     in: string;
                     schema: {
                         type: string;
                     };
                     description: string;
-                }[];
+                }>;
                 responses: {
                     '200': {
                         description: string;
                         content: {
                             'application/json': {
                                 schema: {
-                                    allOf: ({
+                                    allOf: Array<{
                                         $ref: string;
                                         properties?: undefined;
                                     } | {
@@ -332,7 +333,7 @@ export declare const openApiSpec: {
                                             };
                                         };
                                         $ref?: undefined;
-                                    })[];
+                                    }>;
                                 };
                             };
                         };
@@ -354,7 +355,7 @@ export declare const openApiSpec: {
                 summary: string;
                 description: string;
                 tags: string[];
-                parameters: ({
+                parameters: Array<{
                     name: string;
                     in: string;
                     schema: {
@@ -402,7 +403,7 @@ export declare const openApiSpec: {
                         maximum?: undefined;
                     };
                     description: string;
-                })[];
+                }>;
                 responses: {
                     '200': {
                         description: string;
@@ -430,7 +431,7 @@ export declare const openApiSpec: {
                         content: {
                             'application/json': {
                                 schema: {
-                                    allOf: ({
+                                    allOf: Array<{
                                         $ref: string;
                                         properties?: undefined;
                                     } | {
@@ -445,7 +446,7 @@ export declare const openApiSpec: {
                                             };
                                         };
                                         $ref?: undefined;
-                                    })[];
+                                    }>;
                                 };
                             };
                         };
@@ -499,7 +500,7 @@ export declare const openApiSpec: {
                 summary: string;
                 description: string;
                 tags: string[];
-                parameters: ({
+                parameters: Array<{
                     name: string;
                     in: string;
                     schema: {
@@ -519,7 +520,7 @@ export declare const openApiSpec: {
                         format?: undefined;
                     };
                     description: string;
-                })[];
+                }>;
                 responses: {
                     '200': {
                         description: string;
@@ -538,7 +539,7 @@ export declare const openApiSpec: {
                 summary: string;
                 description: string;
                 tags: string[];
-                parameters: ({
+                parameters: Array<{
                     name: string;
                     in: string;
                     required: boolean;
@@ -571,7 +572,7 @@ export declare const openApiSpec: {
                     };
                     description: string;
                     required?: undefined;
-                })[];
+                }>;
                 responses: {
                     '200': {
                         description: string;
@@ -621,10 +622,10 @@ export declare const openApiSpec: {
             };
         };
     };
-    tags: {
+    tags: Array<{
         name: string;
         description: string;
-    }[];
+    }>;
 };
 /**
  * API endpoint documentation with examples
@@ -661,7 +662,7 @@ export declare const apiDocumentation: {
         usage: {
             title: string;
             description: string;
-            endpoints: ({
+            endpoints: Array<{
                 method: string;
                 path: string;
                 description: string;
@@ -697,15 +698,15 @@ export declare const apiDocumentation: {
                                 warningsShown: number[];
                             };
                             mlPredictions: {
-                                dailyForecast: {
+                                dailyForecast: Array<{
                                     timestamp: string;
                                     predictedCost: number;
-                                }[];
-                                recommendations: {
+                                }>;
+                                recommendations: Array<{
                                     type: string;
                                     description: string;
                                     potentialSavings: number;
-                                }[];
+                                }>;
                             };
                             history?: undefined;
                             pagination?: undefined;
@@ -735,13 +736,13 @@ export declare const apiDocumentation: {
                     response: {
                         success: boolean;
                         data: {
-                            history: {
+                            history: Array<{
                                 date: string;
                                 requestCount: number;
                                 totalCost: number;
                                 lastResetTime: string;
                                 warningsShown: number[];
-                            }[];
+                            }>;
                             pagination: {
                                 limit: number;
                                 offset: number;
@@ -754,12 +755,12 @@ export declare const apiDocumentation: {
                     };
                 };
                 responses?: undefined;
-            })[];
+            }>;
         };
         configuration: {
             title: string;
             description: string;
-            endpoints: ({
+            endpoints: Array<{
                 method: string;
                 path: string;
                 description: string;
@@ -807,16 +808,16 @@ export declare const apiDocumentation: {
                                 resetTime: string;
                                 warningThresholds: number[];
                             };
-                            changes: {
+                            changes: Array<{
                                 field: string;
                                 previousValue: number;
                                 newValue: number;
                                 type: string;
-                            }[];
+                            }>;
                         };
                     };
                 };
-            })[];
+            }>;
         };
     };
     errorHandling: {
@@ -997,11 +998,11 @@ export declare const completeBudgetAPIDocumentation: {
                 url: string;
             };
         };
-        servers: {
+        servers: Array<{
             url: string;
             description: string;
-        }[];
-        security: ({
+        }>;
+        security: Array<{
             bearerAuth: never[];
             apiKeyAuth?: undefined;
             basicAuth?: undefined;
@@ -1013,7 +1014,7 @@ export declare const completeBudgetAPIDocumentation: {
             basicAuth: never[];
             bearerAuth?: undefined;
             apiKeyAuth?: undefined;
-        })[];
+        }>;
         components: {
             securitySchemes: {
                 bearerAuth: {
@@ -1275,21 +1276,21 @@ export declare const completeBudgetAPIDocumentation: {
                     summary: string;
                     description: string;
                     tags: string[];
-                    parameters: {
+                    parameters: Array<{
                         name: string;
                         in: string;
                         schema: {
                             type: string;
                         };
                         description: string;
-                    }[];
+                    }>;
                     responses: {
                         '200': {
                             description: string;
                             content: {
                                 'application/json': {
                                     schema: {
-                                        allOf: ({
+                                        allOf: Array<{
                                             $ref: string;
                                             properties?: undefined;
                                         } | {
@@ -1308,7 +1309,7 @@ export declare const completeBudgetAPIDocumentation: {
                                                 };
                                             };
                                             $ref?: undefined;
-                                        })[];
+                                        }>;
                                     };
                                 };
                             };
@@ -1330,7 +1331,7 @@ export declare const completeBudgetAPIDocumentation: {
                     summary: string;
                     description: string;
                     tags: string[];
-                    parameters: ({
+                    parameters: Array<{
                         name: string;
                         in: string;
                         schema: {
@@ -1378,7 +1379,7 @@ export declare const completeBudgetAPIDocumentation: {
                             maximum?: undefined;
                         };
                         description: string;
-                    })[];
+                    }>;
                     responses: {
                         '200': {
                             description: string;
@@ -1406,7 +1407,7 @@ export declare const completeBudgetAPIDocumentation: {
                             content: {
                                 'application/json': {
                                     schema: {
-                                        allOf: ({
+                                        allOf: Array<{
                                             $ref: string;
                                             properties?: undefined;
                                         } | {
@@ -1421,7 +1422,7 @@ export declare const completeBudgetAPIDocumentation: {
                                                 };
                                             };
                                             $ref?: undefined;
-                                        })[];
+                                        }>;
                                     };
                                 };
                             };
@@ -1475,7 +1476,7 @@ export declare const completeBudgetAPIDocumentation: {
                     summary: string;
                     description: string;
                     tags: string[];
-                    parameters: ({
+                    parameters: Array<{
                         name: string;
                         in: string;
                         schema: {
@@ -1495,7 +1496,7 @@ export declare const completeBudgetAPIDocumentation: {
                             format?: undefined;
                         };
                         description: string;
-                    })[];
+                    }>;
                     responses: {
                         '200': {
                             description: string;
@@ -1514,7 +1515,7 @@ export declare const completeBudgetAPIDocumentation: {
                     summary: string;
                     description: string;
                     tags: string[];
-                    parameters: ({
+                    parameters: Array<{
                         name: string;
                         in: string;
                         required: boolean;
@@ -1547,7 +1548,7 @@ export declare const completeBudgetAPIDocumentation: {
                         };
                         description: string;
                         required?: undefined;
-                    })[];
+                    }>;
                     responses: {
                         '200': {
                             description: string;
@@ -1597,10 +1598,10 @@ export declare const completeBudgetAPIDocumentation: {
                 };
             };
         };
-        tags: {
+        tags: Array<{
             name: string;
             description: string;
-        }[];
+        }>;
     };
     apiDocumentation: {
         title: string;
@@ -1634,7 +1635,7 @@ export declare const completeBudgetAPIDocumentation: {
             usage: {
                 title: string;
                 description: string;
-                endpoints: ({
+                endpoints: Array<{
                     method: string;
                     path: string;
                     description: string;
@@ -1670,15 +1671,15 @@ export declare const completeBudgetAPIDocumentation: {
                                     warningsShown: number[];
                                 };
                                 mlPredictions: {
-                                    dailyForecast: {
+                                    dailyForecast: Array<{
                                         timestamp: string;
                                         predictedCost: number;
-                                    }[];
-                                    recommendations: {
+                                    }>;
+                                    recommendations: Array<{
                                         type: string;
                                         description: string;
                                         potentialSavings: number;
-                                    }[];
+                                    }>;
                                 };
                                 history?: undefined;
                                 pagination?: undefined;
@@ -1708,13 +1709,13 @@ export declare const completeBudgetAPIDocumentation: {
                         response: {
                             success: boolean;
                             data: {
-                                history: {
+                                history: Array<{
                                     date: string;
                                     requestCount: number;
                                     totalCost: number;
                                     lastResetTime: string;
                                     warningsShown: number[];
-                                }[];
+                                }>;
                                 pagination: {
                                     limit: number;
                                     offset: number;
@@ -1727,12 +1728,12 @@ export declare const completeBudgetAPIDocumentation: {
                         };
                     };
                     responses?: undefined;
-                })[];
+                }>;
             };
             configuration: {
                 title: string;
                 description: string;
-                endpoints: ({
+                endpoints: Array<{
                     method: string;
                     path: string;
                     description: string;
@@ -1780,16 +1781,16 @@ export declare const completeBudgetAPIDocumentation: {
                                     resetTime: string;
                                     warningThresholds: number[];
                                 };
-                                changes: {
+                                changes: Array<{
                                     field: string;
                                     previousValue: number;
                                     newValue: number;
                                     type: string;
-                                }[];
+                                }>;
                             };
                         };
                     };
-                })[];
+                }>;
             };
         };
         errorHandling: {

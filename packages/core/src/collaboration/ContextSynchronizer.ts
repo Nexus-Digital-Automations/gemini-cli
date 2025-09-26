@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type {
   SharedContextManager,
   ContextSyncState,
@@ -60,9 +60,7 @@ export class ContextSynchronizer extends EventEmitter {
         await this.removeContextItem(contextId, itemId, participantId);
       },
 
-      getContextForParticipant: (participantId: string) => {
-        return this.getContextForParticipant(contextId, participantId);
-      },
+      getContextForParticipant: (participantId: string) => this.getContextForParticipant(contextId, participantId),
 
       synchronize: async () => {
         await this.synchronizeSession(contextId);
@@ -192,11 +190,11 @@ export class ContextSynchronizer extends EventEmitter {
     const items = Array.from(sharedContext.items.values());
 
     // Filter based on participant permissions and preferences
-    return items.filter(item => {
+    return items.filter(item => 
       // Basic filtering - in production, this would be more sophisticated
       // considering participant roles, permissions, and preferences
-      return item.type !== ContextType.SYSTEM || this.hasSystemAccess(participantId);
-    }).sort((a, b) => {
+       item.type !== ContextType.SYSTEM || this.hasSystemAccess(participantId)
+    ).sort((a, b) => {
       // Sort by priority and recency
       const priorityOrder = {
         [ContextPriority.CRITICAL]: 0,

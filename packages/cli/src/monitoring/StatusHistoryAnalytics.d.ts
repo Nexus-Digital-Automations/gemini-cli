@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { StatusEventType } from './StatusUpdateBroker.js';
+
+import type { StatusEventType } from './StatusUpdateBroker.js';
 export interface AnalyticsTimeframe {
     startDate: Date;
     endDate: Date;

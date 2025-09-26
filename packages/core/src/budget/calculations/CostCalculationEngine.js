@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget cost calculation engine
  * Provides accurate cost calculations for different models and usage patterns
@@ -132,7 +133,7 @@ export class CostCalculationEngine {
         }
         catch (error) {
             this.logger.error('Cost calculation failed', {
-                error: error,
+                error,
                 params,
             });
             throw error;

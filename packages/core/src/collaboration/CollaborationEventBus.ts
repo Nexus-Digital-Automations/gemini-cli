@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type {
   CollaborationEvent,
   CollaborationEventType,
@@ -377,7 +377,7 @@ export class CollaborationEventBus extends EventEmitter {
       return;
     }
 
-    const notifications: Promise<void>[] = [];
+    const notifications: Array<Promise<void>> = [];
 
     for (const subscription of sessionSubscriptions) {
       if (subscription.isActive && subscription.eventTypes.includes(event.type)) {

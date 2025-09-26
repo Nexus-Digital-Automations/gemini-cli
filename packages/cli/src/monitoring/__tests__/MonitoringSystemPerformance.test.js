@@ -151,10 +151,10 @@ describe('Monitoring System Performance Tests', () => {
                     dependencies: [],
                     tags: [],
                     metadata: {},
-                    status: TaskStatus.QUEUED,
-                    progress: 0,
-                    errorCount: 0,
-                    retryCount: 0,
+                    // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                    // progress: 0, // omitted from registerTask interface
+                    // errorCount: 0, // omitted from registerTask interface
+                    // retryCount: 0, // omitted from registerTask interface
                 });
             }
             // Start monitoring and wait for alert processing
@@ -245,10 +245,10 @@ describe('Monitoring System Performance Tests', () => {
                             dependencies: [],
                             tags: [],
                             metadata: {},
-                            status: TaskStatus.QUEUED,
-                            progress: 0,
-                            errorCount: 0,
-                            retryCount: 0,
+                            // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                            // progress: 0, // omitted from registerTask interface
+                            // errorCount: 0, // omitted from registerTask interface
+                            // retryCount: 0, // omitted from registerTask interface
                         });
                         batchTaskIds.push(taskId);
                     }
@@ -359,10 +359,10 @@ describe('Monitoring System Performance Tests', () => {
                     dependencies: [],
                     tags: [],
                     metadata: {},
-                    status: TaskStatus.QUEUED,
-                    progress: 0,
-                    errorCount: 0,
-                    retryCount: 0,
+                    // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                    // progress: 0, // omitted from registerTask interface
+                    // errorCount: 0, // omitted from registerTask interface
+                    // retryCount: 0, // omitted from registerTask interface
                 });
                 if (operationCount % 3 === 0) {
                     taskStatusMonitor.updateTaskStatus(taskId, TaskStatus.COMPLETED, {
@@ -446,10 +446,10 @@ describe('Monitoring System Performance Tests', () => {
                         dependencies: [],
                         tags: [],
                         metadata: {},
-                        status: TaskStatus.QUEUED,
-                        progress: 0,
-                        errorCount: 0,
-                        retryCount: 0,
+                        // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                        // progress: 0, // omitted from registerTask interface
+                        // errorCount: 0, // omitted from registerTask interface
+                        // retryCount: 0, // omitted from registerTask interface
                     });
                     taskIds.push(taskId);
                 }
@@ -522,10 +522,10 @@ describe('Monitoring System Performance Tests', () => {
                             index: i,
                             complexity: Math.random() > 0.5 ? 'high' : 'low',
                         },
-                        status: TaskStatus.QUEUED,
-                        progress: 0,
-                        errorCount: 0,
-                        retryCount: 0,
+                        // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                        // progress: 0, // omitted from registerTask interface
+                        // errorCount: 0, // omitted from registerTask interface
+                        // retryCount: 0, // omitted from registerTask interface
                     });
                     batchTasks.push(taskId);
                 }
@@ -588,10 +588,10 @@ describe('Monitoring System Performance Tests', () => {
                     dependencies: [],
                     tags: [],
                     metadata: {},
-                    status: TaskStatus.QUEUED,
-                    progress: 0,
-                    errorCount: 0,
-                    retryCount: 0,
+                    // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                    // progress: 0, // omitted from registerTask interface
+                    // errorCount: 0, // omitted from registerTask interface
+                    // retryCount: 0, // omitted from registerTask interface
                 });
                 if (i % 2 === 0) {
                     taskStatusMonitor.updateTaskStatus(taskId, TaskStatus.COMPLETED, {
@@ -661,10 +661,10 @@ describe('Monitoring System Performance Tests', () => {
                         dependencies: [],
                         tags: [],
                         metadata: {},
-                        status: TaskStatus.QUEUED,
-                        progress: 0,
-                        errorCount: 0,
-                        retryCount: 0,
+                        // status: TaskStatus.QUEUED, // omitted from registerTask interface
+                        // progress: 0, // omitted from registerTask interface
+                        // errorCount: 0, // omitted from registerTask interface
+                        // retryCount: 0, // omitted from registerTask interface
                     });
                     if (Math.random() > 0.3) {
                         taskStatusMonitor.updateTaskStatus(taskId, Math.random() > 0.1 ? TaskStatus.COMPLETED : TaskStatus.FAILED, {

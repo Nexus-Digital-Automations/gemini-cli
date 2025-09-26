@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type Extension } from '../../config/extension.js';
 export declare function WorkspaceMigrationDialog(props: {
     workspaceExtensions: Extension[];

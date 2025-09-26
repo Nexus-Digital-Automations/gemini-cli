@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { mcpCommand } from './mcpCommand.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';

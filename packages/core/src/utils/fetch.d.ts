@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Custom error class for HTTP fetch operations.
  * Extends the standard Error class with an optional error code for better error handling.

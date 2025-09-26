@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { CompressionConfigurationManager, ConfigurationPreset, CompressionSystemConfig } from './CompressionConfigurationManager.js';
 import type { ContextWindowManager } from './ContextWindowManager.js';
-import { CompressionStrategy } from './types.js';
+import type { CompressionStrategy } from './types.js';
 import EventEmitter from 'node:events';
 /**
  * Configuration options for auto-compression

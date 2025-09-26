@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebFetchTool } from './web-fetch.js';
 import { ApprovalMode } from '../config/config.js';

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Implements an in-memory cache for file search results.
  * This cache optimizes subsequent searches by leveraging previously computed results.

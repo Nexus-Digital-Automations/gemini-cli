@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Config } from '../config/config.js';
 import type { ToolInvocation, ToolResult, ToolCallConfirmationDetails } from './tools.js';
 import { BaseDeclarativeTool, BaseToolInvocation } from './tools.js';

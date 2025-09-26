@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { GeminiCLIExtension } from '@google/gemini-cli-core';
-import { ExtensionUpdateState } from '../../ui/state/extensions.js';
+import type { ExtensionUpdateState } from '../../ui/state/extensions.js';
 import { type Dispatch, type SetStateAction } from 'react';
 export interface ExtensionUpdateInfo {
     name: string;

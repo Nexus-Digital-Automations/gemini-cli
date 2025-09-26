@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget storage interface and abstractions
  * Defines the contract for budget data persistence with multiple storage backends

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useStdin, useStdout } from 'ink';
 import { useEffect, useState } from 'react';
 import { useKeypress } from './useKeypress.js';

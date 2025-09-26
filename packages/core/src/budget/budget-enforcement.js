@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { BudgetTracker } from './budget-tracker.js';
 /**
  * Error thrown when a request is blocked due to budget limits

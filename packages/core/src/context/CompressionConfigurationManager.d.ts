@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CompressionStrategy } from './types.js';
-import { FallbackStrategy } from './CompressionFallbackSystem.js';
+
+import type { CompressionStrategy } from './types.js';
+import type { FallbackStrategy } from './CompressionFallbackSystem.js';
 /**
  * Token limit configuration
  */

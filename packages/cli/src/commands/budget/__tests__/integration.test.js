@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /*
  * TODO: This test file needs to be rewritten to properly mock settings loading
  * instead of relying on Config object methods. The budget commands use loadSettings()

@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { BranchType } from './types.js';
+
+import type { BranchType } from './types.js';
 import type { BranchInfo, BranchCreationOptions, BranchProtectionRule, RepositoryStatus } from './types.js';
 /**
  * Branch health report

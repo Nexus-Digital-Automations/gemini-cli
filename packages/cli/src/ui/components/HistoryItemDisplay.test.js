@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -28,7 +34,7 @@ describe('<HistoryItemDisplay />', () => {
             type: MessageType.USER,
             text: 'Hello',
         };
-        const { lastFrame } = render(_jsx(HistoryItemDisplay, { ...baseItem, item: item }));
+        const { lastFrame } = render(_jsx(HistoryItemDisplay, { ...baseItem, item }));
         expect(lastFrame()).toContain('Hello');
     });
     it('renders UserMessage for "user" type with slash command', () => {
@@ -37,7 +43,7 @@ describe('<HistoryItemDisplay />', () => {
             type: MessageType.USER,
             text: '/theme',
         };
-        const { lastFrame } = render(_jsx(HistoryItemDisplay, { ...baseItem, item: item }));
+        const { lastFrame } = render(_jsx(HistoryItemDisplay, { ...baseItem, item }));
         expect(lastFrame()).toContain('/theme');
     });
     it('renders StatsDisplay for "stats" type', () => {
@@ -46,7 +52,7 @@ describe('<HistoryItemDisplay />', () => {
             type: MessageType.STATS,
             duration: '1s',
         };
-        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }) }));
+        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item }) }));
         expect(lastFrame()).toContain('Stats');
     });
     it('renders AboutBox for "about" type', () => {
@@ -61,7 +67,7 @@ describe('<HistoryItemDisplay />', () => {
             gcpProject: 'test-project',
             ideClient: 'test-ide',
         };
-        const { lastFrame } = render(_jsx(HistoryItemDisplay, { ...baseItem, item: item }));
+        const { lastFrame } = render(_jsx(HistoryItemDisplay, { ...baseItem, item }));
         expect(lastFrame()).toContain('About Gemini CLI');
     });
     it('renders ModelStatsDisplay for "model_stats" type', () => {
@@ -69,7 +75,7 @@ describe('<HistoryItemDisplay />', () => {
             ...baseItem,
             type: 'model_stats',
         };
-        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }) }));
+        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item }) }));
         expect(lastFrame()).toContain('No API calls have been made in this session.');
     });
     it('renders ToolStatsDisplay for "tool_stats" type', () => {
@@ -77,7 +83,7 @@ describe('<HistoryItemDisplay />', () => {
             ...baseItem,
             type: 'tool_stats',
         };
-        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }) }));
+        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item }) }));
         expect(lastFrame()).toContain('No tool calls have been made in this session.');
     });
     it('renders SessionSummaryDisplay for "quit" type', () => {
@@ -86,7 +92,7 @@ describe('<HistoryItemDisplay />', () => {
             type: 'quit',
             duration: '1s',
         };
-        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item: item }) }));
+        const { lastFrame } = render(_jsx(SessionStatsProvider, { children: _jsx(HistoryItemDisplay, { ...baseItem, item }) }));
         expect(lastFrame()).toContain('Agent powering down. Goodbye!');
     });
 });

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { HistoryItem, ThoughtSummary, ConsoleMessageItem, ShellConfirmationRequest, ConfirmationRequest, LoopDetectionConfirmationRequest, HistoryItemWithoutId, StreamingState } from '../types.js';
 import type { CommandContext, SlashCommand } from '../commands/types.js';
 import type { TextBuffer } from '../components/shared/text-buffer.js';

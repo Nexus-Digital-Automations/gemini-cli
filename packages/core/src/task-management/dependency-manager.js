@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { ResourceAllocation } from './types.js';
 import { DependencyGraphManager } from './dependency-graph.js';
 import { TaskSequencer } from './task-sequencer.js';

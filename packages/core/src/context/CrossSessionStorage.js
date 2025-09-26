@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Cross-Session Storage Manager
  * Persistent context storage and retrieval across CLI sessions

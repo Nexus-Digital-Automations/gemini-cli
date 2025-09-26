@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Comprehensive Task Management System Integration
  *
@@ -24,10 +25,11 @@ export { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig, type AutonomousE
 export { ExecutionMonitoringSystem, ExecutionMetrics, TaskExecutionEvent, AlertConfig, BottleneckAnalysis, SystemHealthStatus, } from './ExecutionMonitoringSystem.js';
 export { InfiniteHookIntegration, TaskManagerAPI, HookIntegrationConfig, } from './InfiniteHookIntegration.js';
 import type { Config } from '../config/config.js';
-import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
-import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
-import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import { EnhancedAutonomousTaskQueue, type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
+import type { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
+import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
+import type { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
+import type { EnhancedAutonomousTaskQueue} from './EnhancedAutonomousTaskQueue.js';
+import { type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
 /**
  * Complete Task Management System Factory
  *

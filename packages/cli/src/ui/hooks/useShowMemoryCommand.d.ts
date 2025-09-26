@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Message } from '../types.js';
 import type { Config } from '@google/gemini-cli-core';
 import type { LoadedSettings } from '../../config/settings.js';

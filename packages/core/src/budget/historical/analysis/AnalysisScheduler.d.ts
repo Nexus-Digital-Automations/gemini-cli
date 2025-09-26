@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { QueryBuilder } from '../querying/types.js';
 import type { AnalysisScheduler, AnalysisJob, TrendAnalysisEngine } from './types.js';
 /**

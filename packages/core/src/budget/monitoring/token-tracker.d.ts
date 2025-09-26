@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Real-time token usage tracking system
  * Provides comprehensive token consumption monitoring and data collection

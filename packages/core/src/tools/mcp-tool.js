@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
 import { BaseDeclarativeTool, BaseToolInvocation, Kind, ToolConfirmationOutcome, } from './tools.js';
 import { ToolErrorType } from './tool-error.js';

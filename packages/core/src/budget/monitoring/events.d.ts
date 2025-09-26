@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Event handling system for token usage monitoring
  * Provides centralized event management, filtering, and dispatch for budget events

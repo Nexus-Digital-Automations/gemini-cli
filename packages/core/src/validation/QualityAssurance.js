@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { logger as parentLogger } from '../utils/logger.js';
 import { ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
@@ -185,7 +186,7 @@ export class QualityAssurance extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Quality assurance failed for task: ${task.id}`, {
-                error: error,
+                error,
             });
             throw error;
         }

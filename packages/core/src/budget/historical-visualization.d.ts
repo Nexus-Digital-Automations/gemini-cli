@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { HistoricalBudgetRecord, TrendAnalysis, AnomalyDetection, BudgetForecast } from './historical-analysis.js';
 /**
  * Chart configuration options for historical data visualization

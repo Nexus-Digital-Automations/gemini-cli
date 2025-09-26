@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Request Validation Middleware
  * Provides comprehensive input validation for all Budget API endpoints

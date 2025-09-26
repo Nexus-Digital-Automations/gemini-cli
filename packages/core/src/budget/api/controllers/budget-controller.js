@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { Logger } from '../../../../../src/utils/logger.js';
 import { BudgetSettings, BudgetUsageData } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
@@ -192,11 +193,11 @@ export class BudgetController {
             }
             // Get historical data based on parameters
             const historyData = await budgetTracker.getUsageHistory({
-                startDate: startDate,
-                endDate: endDate,
+                startDate,
+                endDate,
                 limit: parseInt(limit),
                 offset: parseInt(offset),
-                granularity: granularity,
+                granularity,
             });
             const responseTime = Date.now() - startTime;
             const response = {

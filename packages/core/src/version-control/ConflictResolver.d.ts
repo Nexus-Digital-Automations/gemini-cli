@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ConflictResolutionStrategy } from './types.js';
+
+import type { ConflictResolutionStrategy } from './types.js';
 import type { MergeConflict, VCAutomationConfig, ResolutionResult, ConflictAnalysis, ResolutionReport } from './types.js';
 /**
  * ConflictResolver - Intelligent merge conflict detection and resolution

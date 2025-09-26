@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import { ValidationFramework, ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
@@ -193,7 +194,7 @@ export class ValidationWorkflow extends EventEmitter {
             return result;
         }
         catch (error) {
-            this.logger.error(`Validation workflow failed for task: ${context.taskId}`, { error: error });
+            this.logger.error(`Validation workflow failed for task: ${context.taskId}`, { error });
             this.emit('workflowFailed', context.taskId, context.stage, error);
             throw error;
         }
@@ -230,7 +231,7 @@ export class ValidationWorkflow extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Workflow stage ${context.stage} failed`, {
-                error: error,
+                error,
             });
             // Create error result
             const errorResult = this.createErrorResult(context, startTime, error);
@@ -283,7 +284,7 @@ export class ValidationWorkflow extends EventEmitter {
             }
             catch (error) {
                 this.logger.error(`Validator ${validator} failed`, {
-                    error: error,
+                    error,
                 });
                 reports.push(this.createValidatorErrorReport(context, error));
                 if (!stageConfig.continueOnFailure) {

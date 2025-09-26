@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Core interfaces for cost projection and budget alert system
  * Specialized component for advanced cost forecasting and proactive budget management

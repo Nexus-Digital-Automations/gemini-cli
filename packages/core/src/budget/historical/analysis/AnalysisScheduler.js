@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Background analysis job scheduler implementation
  * Manages and executes analysis tasks asynchronously with progress tracking

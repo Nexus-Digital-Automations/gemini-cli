@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Real-Time Error Monitor for Interactive Debugging Assistance
  * Provides continuous error detection and monitoring for live applications

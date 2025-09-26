@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { GitIgnoreParser } from '../utils/gitIgnoreParser.js';
 import { GeminiIgnoreParser } from '../utils/geminiIgnoreParser.js';
 import { isGitRepository } from '../utils/gitUtils.js';

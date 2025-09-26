@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { TaskComplexity } from './types.js';
 import { SubAgentScope, ContextState, SubagentTerminateMode, } from '../core/subagent.js';
 import { CoreToolScheduler as _CoreToolScheduler } from '../core/coreToolScheduler.js';
@@ -137,7 +138,7 @@ export class TaskBreakdownAnalyzer {
         // Score based on keyword matches
         const scores = Object.entries(complexityKeywords).map(([complexity, keywords]) => {
             const matches = keywords.filter((keyword) => text.includes(keyword.toLowerCase())).length;
-            return { complexity: complexity, score: matches };
+            return { complexity, score: matches };
         });
         // Length-based heuristics
         const descriptionLength = description.length;

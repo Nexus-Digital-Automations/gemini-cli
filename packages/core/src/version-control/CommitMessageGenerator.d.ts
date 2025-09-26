@@ -3,7 +3,8 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommitType } from './types.js';
+
+import type { CommitType } from './types.js';
 import type { CommitMessage, CodeAnalysis, CommitGenerationOptions } from './types.js';
 /**
  * Configuration for commit message generation

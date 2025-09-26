@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ArchiveStorage, CompressedBlock, CompressionAlgorithm, DataBlock } from './types.js';
 /**
  * File-based archive storage implementation

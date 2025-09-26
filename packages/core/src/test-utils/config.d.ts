@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ConfigParameters } from '../config/config.js';
-import { Config } from '../config/config.js';
+import type { Config } from '../config/config.js';
 /**
  * Default parameters used for {@link FAKE_CONFIG}
  */

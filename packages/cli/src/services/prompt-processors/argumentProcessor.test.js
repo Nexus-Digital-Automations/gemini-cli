@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { DefaultArgumentProcessor } from './argumentProcessor.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import { describe, it, expect } from 'vitest';

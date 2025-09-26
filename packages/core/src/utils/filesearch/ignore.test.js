@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, afterEach } from 'vitest';
 import { Ignore, loadIgnoreRules } from './ignore.js';
 import { createTmpDir, cleanupTmpDir } from '@google/gemini-cli-test-utils';

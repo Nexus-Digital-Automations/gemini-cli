@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as url from 'node:url';
 import * as path from 'node:path';
 import { logger } from '../utils/logger.js';

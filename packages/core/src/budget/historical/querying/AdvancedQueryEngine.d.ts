@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { QueryRange, TimeSeriesStorage } from '../storage/types.js';
 import type { AggregationResult, AggregationWindow, AggregationEngine } from '../aggregation/types.js';
 import type { QueryEngine, QueryBuilder, QueryFilter, SortSpec, GroupSpec, QueryResult, QueryExecutionPlan, IndexSpec, QueryCacheConfig } from './types.js';

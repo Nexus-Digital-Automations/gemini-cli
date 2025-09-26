@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { TelemetrySettings } from '../config/config.js';
-import { TelemetryTarget } from './index.js';
+import type { TelemetryTarget } from './index.js';
 /**
  * Parse a boolean environment flag. Accepts 'true'/'1' as true.
  */

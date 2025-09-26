@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
@@ -145,7 +151,7 @@ export const BudgetDashboard = ({ projectRoot, budgetSettings = { enabled: true 
                                 showAxes: false,
                                 showGrid: false,
                                 colorScheme: 'cost',
-                            } }) })] }), projections.length > 0 && (_jsx(Box, { marginTop: 1, children: _jsx(CostProjectionChart, { projections: projections, config: {
+                            } }) })] }), projections.length > 0 && (_jsx(Box, { marginTop: 1, children: _jsx(CostProjectionChart, { projections, config: {
                         title: 'Cost Projections',
                         width: 80,
                         height: 6,
@@ -189,7 +195,7 @@ export const BudgetDashboard = ({ projectRoot, budgetSettings = { enabled: true 
     /**
      * Renders the alerts management view.
      */
-    const renderAlertsView = () => (_jsx(BudgetAlertsPanel, { alerts: alerts, onDismissAlert: dismissAlert, budgetStats: budgetStats }));
+    const renderAlertsView = () => (_jsx(BudgetAlertsPanel, { alerts, onDismissAlert: dismissAlert, budgetStats }));
     /**
      * Renders the settings and controls view.
      */

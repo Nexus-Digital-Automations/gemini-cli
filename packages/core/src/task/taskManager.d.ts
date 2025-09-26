@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Task, TaskMetadata } from './types';
-import { TaskStatus, TaskPriority } from './types';
+import type { TaskStatus, TaskPriority } from './types';
 import type { TaskStore } from './taskStore.js';
 export declare class TaskManager {
     private taskStore;

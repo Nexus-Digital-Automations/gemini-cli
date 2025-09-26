@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { type Settings, type MemoryImportFormat } from './settingsSchema.js';
 export type { Settings, MemoryImportFormat };
 /** Directory name used for storing Gemini CLI configuration files */

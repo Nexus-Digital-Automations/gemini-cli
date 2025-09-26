@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget allocation system - Main module exports
  * Intelligent budget allocation recommendations and optimization system

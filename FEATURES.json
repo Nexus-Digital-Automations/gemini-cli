@@ -349,7 +349,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 332,
+      "total_reinitializations": 334,
       "current_day": "2025-09-26",
       "time_buckets": {
         "10:00-14:59": {
@@ -370,7 +370,7 @@
         },
         "06:00-10:59": {
           "init": 0,
-          "reinit": 12
+          "reinit": 14
         }
       },
       "daily_history": [
@@ -457,7 +457,7 @@
         }
       ],
       "last_reset": "2025-09-26T07:36:52.498Z",
-      "last_updated": "2025-09-26T11:26:33.675Z"
+      "last_updated": "2025-09-26T11:41:28.919Z"
     }
   },
   "workflow_config": {
@@ -477,104 +477,6 @@
     ]
   },
   "agents": {
-    "VALIDATION_AGENT": {
-      "lastHeartbeat": "2025-09-26T09:44:03.365Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T09:44:03.365Z",
-      "sessionId": "47aa568990b73a29",
-      "previousSessions": [
-        "69fe398c4ea4e1ee",
-        "e12d1c6019871c16",
-        "673525cde86b544f",
-        "00edbb6dde21e0a6",
-        "bfd52030dffa86c8",
-        "58e0778bbf64d5e5"
-      ]
-    },
-    "AGENT_CODEBASE_PERFECTION": {
-      "lastHeartbeat": "2025-09-26T10:41:59.920Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:41:59.920Z",
-      "sessionId": "2ffa57ee73f7969c",
-      "previousSessions": [
-        "f8e1fcb033572ee6",
-        "7a3b2e4e43beeeaf",
-        "ebd28c3a63789f4e",
-        "f2638381fef2333c",
-        "7e2f4f75e63ff486",
-        "13b8b315771724ca"
-      ]
-    },
-    "typescript-syntax-fixer": {
-      "lastHeartbeat": "2025-09-26T09:31:18.732Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T09:31:18.732Z",
-      "sessionId": "aa5777384fe4d9ac",
-      "previousSessions": []
-    },
-    "SECURITY_AGENT_001": {
-      "lastHeartbeat": "2025-09-26T09:37:16.164Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T09:37:16.164Z",
-      "sessionId": "7d18d279d0a43c96",
-      "previousSessions": []
-    },
-    "UI_TYPESCRIPT_FIXER": {
-      "lastHeartbeat": "2025-09-26T10:46:18.662Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:46:18.662Z",
-      "sessionId": "5a4abb93772f7472",
-      "previousSessions": []
-    },
-    "build-fix-agent": {
-      "lastHeartbeat": "2025-09-26T10:52:40.419Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:52:40.419Z",
-      "sessionId": "2faf8285affd1db8",
-      "previousSessions": []
-    },
-    "8AB0E741-FE4E-4178-8216-58553BB56ED4": {
-      "lastHeartbeat": "2025-09-26T10:55:09.149Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:55:09.149Z",
-      "sessionId": "ac774a8f6cd7616c",
-      "previousSessions": []
-    },
-    "typescript-cleanup-agent": {
-      "lastHeartbeat": "2025-09-26T10:55:09.920Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:55:09.920Z",
-      "sessionId": "b79a70664f40b8c8",
-      "previousSessions": []
-    },
-    "PROPERTY_ACCESS_FIX_AGENT": {
-      "lastHeartbeat": "2025-09-26T10:55:11.273Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:55:11.273Z",
-      "sessionId": "9383b29b64ee883b",
-      "previousSessions": []
-    },
-    "agent-validator": {
-      "lastHeartbeat": "2025-09-26T10:55:11.966Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T10:55:11.966Z",
-      "sessionId": "9678f1bf4049a92c",
-      "previousSessions": []
-    },
-    "VALIDATION_SYSTEM_TYPESCRIPT_FIXER": {
-      "lastHeartbeat": "2025-09-26T11:04:10.203Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T11:04:10.203Z",
-      "sessionId": "a7a977ce52604f3c",
-      "previousSessions": []
-    },
-    "AGENT_TYPESCRIPT_FIX": {
-      "lastHeartbeat": "2025-09-26T11:07:12.813Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T11:07:12.813Z",
-      "sessionId": "2f2e6dbd2fc0e482",
-      "previousSessions": []
-    },
     "validation-fix-agent": {
       "lastHeartbeat": "2025-09-26T11:26:32.964Z",
       "status": "active",
@@ -632,6 +534,20 @@
       "status": "active",
       "reinitialized": "2025-09-26T11:26:33.664Z",
       "sessionId": "3a6401dc8625454d",
+      "previousSessions": []
+    },
+    "build-fix-agent": {
+      "lastHeartbeat": "2025-09-26T11:38:43.395Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T11:38:43.395Z",
+      "sessionId": "b0c42941e7acd909",
+      "previousSessions": []
+    },
+    "AGENT_TYPESCRIPT_FIXER": {
+      "lastHeartbeat": "2025-09-26T11:41:28.917Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T11:41:28.917Z",
+      "sessionId": "7ab35bbeaf6c3fb0",
       "previousSessions": []
     }
   },

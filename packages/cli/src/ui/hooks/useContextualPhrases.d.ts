@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { OperationProgress } from '../types.js';
 export interface ContextualPhrase {
     message: string;

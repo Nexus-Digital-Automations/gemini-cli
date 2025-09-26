@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { logger as parentLogger } from '../utils/logger.js';
 import { ValidationStatus, ValidationSeverity, ValidationCategory, } from './ValidationFramework.js';
@@ -164,7 +165,7 @@ export class TaskValidator extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Task validation failed: ${context.task.id}`, {
-                error: error,
+                error,
             });
             this.emit('taskValidationFailed', context.task.id, error, context);
             throw error;
@@ -310,7 +311,7 @@ export class TaskValidator extends EventEmitter {
             return true;
         }
         catch (error) {
-            this.logger.error('Task rollback failed', { taskId, snapshotId, error: error });
+            this.logger.error('Task rollback failed', { taskId, snapshotId, error });
             return false;
         }
     }

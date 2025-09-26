@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Unit tests for TokenTracker component
  * Tests core token tracking functionality, event emission, and statistics

@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Box, Text } from 'ink';
 import { theme } from '../../../semantic-colors.js';
@@ -52,7 +58,7 @@ export const CostBreakdownChart = ({ data, config, loading = false, error, onIte
                 const color = index < colorPalette.length
                     ? colorPalette[index]
                     : theme.text.secondary;
-                return (_jsxs(Box, { gap: 1, marginBottom: 1, children: [_jsx(Text, { color: color, children: createProgressBar(item.percentage, 10, '█', '░') }), _jsx(Text, { color: theme.text.primary, children: item.feature }), _jsxs(Text, { color: theme.text.muted, children: ["(", formatPercentage(item.percentage), ")"] })] }, item.feature));
+                return (_jsxs(Box, { gap: 1, marginBottom: 1, children: [_jsx(Text, { color, children: createProgressBar(item.percentage, 10, '█', '░') }), _jsx(Text, { color: theme.text.primary, children: item.feature }), _jsxs(Text, { color: theme.text.muted, children: ["(", formatPercentage(item.percentage), ")"] })] }, item.feature));
             })] }));
     /**
      * Renders horizontal bar chart for detailed breakdown.
@@ -65,7 +71,7 @@ export const CostBreakdownChart = ({ data, config, loading = false, error, onIte
                 const color = index < colorPalette.length
                     ? colorPalette[index]
                     : theme.text.secondary;
-                return (_jsxs(Box, { flexDirection: "column", marginBottom: 1, children: [_jsxs(Box, { justifyContent: "space-between", alignItems: "center", children: [_jsx(Text, { color: theme.text.primary, bold: true, children: item.feature }), _jsxs(Text, { color: theme.text.secondary, children: [formatCurrency(item.cost), " (", formatPercentage(item.percentage), ")"] })] }), _jsx(Box, { alignItems: "center", gap: 1, children: _jsxs(Text, { color: color, children: ['█'.repeat(barWidth), '░'.repeat(Math.max(0, availableWidth - barWidth))] }) }), _jsxs(Box, { justifyContent: "space-between", children: [_jsxs(Text, { color: theme.text.muted, children: [item.requests, " requests"] }), _jsxs(Text, { color: theme.text.muted, children: [formatCurrency(item.avgCostPerRequest), " avg/req"] })] })] }, item.feature));
+                return (_jsxs(Box, { flexDirection: "column", marginBottom: 1, children: [_jsxs(Box, { justifyContent: "space-between", alignItems: "center", children: [_jsx(Text, { color: theme.text.primary, bold: true, children: item.feature }), _jsxs(Text, { color: theme.text.secondary, children: [formatCurrency(item.cost), " (", formatPercentage(item.percentage), ")"] })] }), _jsx(Box, { alignItems: "center", gap: 1, children: _jsxs(Text, { color, children: ['█'.repeat(barWidth), '░'.repeat(Math.max(0, availableWidth - barWidth))] }) }), _jsxs(Box, { justifyContent: "space-between", children: [_jsxs(Text, { color: theme.text.muted, children: [item.requests, " requests"] }), _jsxs(Text, { color: theme.text.muted, children: [formatCurrency(item.avgCostPerRequest), " avg/req"] })] })] }, item.feature));
             }) }));
     };
     /**
@@ -82,7 +88,7 @@ export const CostBreakdownChart = ({ data, config, loading = false, error, onIte
                         const color = globalIndex < colorPalette.length
                             ? colorPalette[globalIndex]
                             : theme.text.secondary;
-                        return (_jsxs(Box, { alignItems: "center", gap: 1, children: [_jsx(Text, { color: color, children: "\u25CF" }), _jsx(Text, { color: theme.text.secondary, children: item.feature })] }, item.feature));
+                        return (_jsxs(Box, { alignItems: "center", gap: 1, children: [_jsx(Text, { color, children: "\u25CF" }), _jsx(Text, { color: theme.text.secondary, children: item.feature })] }, item.feature));
                     }) }, rowIndex)))] }));
     };
     /**

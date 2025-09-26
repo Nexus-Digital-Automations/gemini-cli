@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { Logger } from '../../../../../src/utils/logger.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
 const logger = new Logger('ConfigurationController');

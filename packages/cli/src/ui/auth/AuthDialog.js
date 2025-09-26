@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useCallback } from 'react';
 import { Box, Text } from 'ink';
@@ -94,6 +100,6 @@ Logging in with Google... Please restart Gemini CLI to continue.
             onSelect(undefined, SettingScope.User);
         }
     }, { isActive: true });
-    return (_jsxs(Box, { borderStyle: "round", borderColor: theme.border.default, flexDirection: "column", padding: 1, width: "100%", children: [_jsx(Text, { bold: true, color: theme.text.primary, children: "Get started" }), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.primary, children: "How would you like to authenticate for this project?" }) }), _jsx(Box, { marginTop: 1, children: _jsx(RadioButtonSelect, { items: items, initialIndex: initialAuthIndex, onSelect: handleAuthSelect }) }), authError && (_jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.status.error, children: authError }) })), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.secondary, children: "(Use Enter to select)" }) }), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.primary, children: "Terms of Services and Privacy Notice for Gemini CLI" }) }), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.link, children: 'https://github.com/google-gemini/gemini-cli/blob/main/docs/tos-privacy.md' }) })] }));
+    return (_jsxs(Box, { borderStyle: "round", borderColor: theme.border.default, flexDirection: "column", padding: 1, width: "100%", children: [_jsx(Text, { bold: true, color: theme.text.primary, children: "Get started" }), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.primary, children: "How would you like to authenticate for this project?" }) }), _jsx(Box, { marginTop: 1, children: _jsx(RadioButtonSelect, { items, initialIndex: initialAuthIndex, onSelect: handleAuthSelect }) }), authError && (_jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.status.error, children: authError }) })), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.secondary, children: "(Use Enter to select)" }) }), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.primary, children: "Terms of Services and Privacy Notice for Gemini CLI" }) }), _jsx(Box, { marginTop: 1, children: _jsx(Text, { color: theme.text.link, children: 'https://github.com/google-gemini/gemini-cli/blob/main/docs/tos-privacy.md' }) })] }));
 }
 //# sourceMappingURL=AuthDialog.js.map

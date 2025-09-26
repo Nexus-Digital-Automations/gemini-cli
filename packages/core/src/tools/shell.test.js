@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach, afterEach, } from 'vitest';
 const mockShellExecutionService = vi.hoisted(() => vi.fn());
 vi.mock('../services/shellExecutionService.js', () => ({
@@ -274,7 +275,7 @@ describe('ShellTool', () => {
             const confirmation = await invocation.shouldConfirmExecute(new AbortController().signal);
             expect(confirmation).not.toBe(false);
             expect(confirmation && confirmation.type).toBe('exec');
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             await confirmation.onConfirm(ToolConfirmationOutcome.ProceedAlways);
             // Should now be allowlisted
             const secondInvocation = shellTool.build({ command: 'npm test' });

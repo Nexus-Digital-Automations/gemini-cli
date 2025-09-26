@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Advanced token usage calculation and cost computation engine
  * Provides precise cost calculations based on model pricing, token counts, and usage patterns

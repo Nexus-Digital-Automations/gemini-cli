@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import type { ValidationReport } from './ValidationFramework.js';
-import { ValidationStatus } from './ValidationFramework.js';
+import type { ValidationStatus } from './ValidationFramework.js';
 import type { CodeQualityConfig } from './CodeQualityValidator.js';
 import type { FunctionalValidationConfig } from './FunctionalValidator.js';
 import type { IntegrationValidationConfig } from './IntegrationValidator.js';

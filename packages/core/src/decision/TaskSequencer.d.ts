@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { TaskId, Task, TaskDependency, ExecutionSequence } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
-import { DependencyAnalyzer } from './DependencyAnalyzer.js';
+import type { DependencyAnalyzer } from './DependencyAnalyzer.js';
 /**
  * Advanced sequencing algorithm types
  */

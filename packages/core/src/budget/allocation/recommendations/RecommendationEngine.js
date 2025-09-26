@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { createAllocationAlgorithm, validateAlgorithmConfig, } from '../algorithms/index.js';
 /**
  * Intelligent recommendation engine for budget allocation optimization

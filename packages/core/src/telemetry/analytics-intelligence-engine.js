@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { performance } from 'node:perf_hooks';
 import { Worker, isMainThread, parentPort, workerData, } from 'node:worker_threads';
 import EventEmitter from 'node:events';
@@ -802,7 +803,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
                 await this.analyzeUsagePatterns(undefined, this.config.lookbackHours * 60 * 60 * 1000);
             }
             catch (error) {
-                logger.error('Realtime analysis failed', { error: error });
+                logger.error('Realtime analysis failed', { error });
             }
         });
         // Periodic analysis for comprehensive patterns
@@ -811,7 +812,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
                 await this.analyzeUsagePatterns(undefined, this.config.lookbackHours * 60 * 60 * 1000);
             }
             catch (error) {
-                logger.error('Periodic analysis failed', { error: error });
+                logger.error('Periodic analysis failed', { error });
             }
         }, 10 * 60 * 1000); // Every 10 minutes
     }
@@ -831,7 +832,7 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
                 });
             }
             catch (error) {
-                logger.error('Background training failed', { error: error });
+                logger.error('Background training failed', { error });
             }
         }, 60 * 60 * 1000); // Every hour
     }

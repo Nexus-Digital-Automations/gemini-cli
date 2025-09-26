@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Core TaskManager Class - Unified Autonomous Task Management Interface
  *
@@ -16,7 +17,7 @@
  */
 import type { Config } from '../config/config.js';
 import { type EnhancedQueueConfig } from './EnhancedAutonomousTaskQueue.js';
-import { TaskPriority } from './TaskQueue.js';
+import type { TaskPriority } from './TaskQueue.js';
 import type { TaskId, TaskStatus, TaskResult, TaskExecutionContext } from './types.js';
 /**
  * TaskManager Configuration Options

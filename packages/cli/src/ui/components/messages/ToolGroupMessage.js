@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useMemo } from 'react';
 import { Box, Text } from 'ink';
@@ -44,15 +50,15 @@ export const ToolGroupMessage = ({ toolCalls, availableTerminalHeight, terminalW
           Ink to render the border of the box incorrectly and span multiple lines and even
           cause tearing.
         */
-        width: "100%", marginLeft: 1, borderDimColor: hasPending && (!isShellCommand || !isEmbeddedShellFocused), borderColor: borderColor, gap: 1, children: toolCalls.map((tool) => {
+        width: "100%", marginLeft: 1, borderDimColor: hasPending && (!isShellCommand || !isEmbeddedShellFocused), borderColor, gap: 1, children: toolCalls.map((tool) => {
             const isConfirming = toolAwaitingApproval?.callId === tool.callId;
             return (_jsxs(Box, { flexDirection: "column", minHeight: 1, children: [_jsx(Box, { flexDirection: "row", alignItems: "center", children: _jsx(ToolMessage, { ...tool, availableTerminalHeight: availableTerminalHeightPerToolMessage, terminalWidth: innerWidth, emphasis: isConfirming
                                 ? 'high'
                                 : toolAwaitingApproval
                                     ? 'low'
-                                    : 'medium', activeShellPtyId: activeShellPtyId, embeddedShellFocused: embeddedShellFocused, config: config }) }), tool.status === ToolCallStatus.Confirming &&
+                                    : 'medium', activeShellPtyId, embeddedShellFocused, config }) }), tool.status === ToolCallStatus.Confirming &&
                         isConfirming &&
-                        tool.confirmationDetails && (_jsx(ToolConfirmationMessage, { confirmationDetails: tool.confirmationDetails, config: config, isFocused: isFocused, availableTerminalHeight: availableTerminalHeightPerToolMessage, terminalWidth: innerWidth })), tool.outputFile && (_jsx(Box, { marginX: 1, children: _jsxs(Text, { color: theme.text.primary, children: ["Output too long and was saved to: ", tool.outputFile] }) }))] }, tool.callId));
+                        tool.confirmationDetails && (_jsx(ToolConfirmationMessage, { confirmationDetails: tool.confirmationDetails, config, isFocused, availableTerminalHeight: availableTerminalHeightPerToolMessage, terminalWidth: innerWidth })), tool.outputFile && (_jsx(Box, { marginX: 1, children: _jsxs(Text, { color: theme.text.primary, children: ["Output too long and was saved to: ", tool.outputFile] }) }))] }, tool.callId));
         }) }));
 };
 //# sourceMappingURL=ToolGroupMessage.js.map

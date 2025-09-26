@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ContextWindow, ContextSuggestion, ContextAnalysis } from './types.js';
 import type { PrioritizationConfig, CompressionConfig, StorageConfig, ContextWindowConfig, CodeAnalysisConfig, SuggestionEngineConfig, UserInteraction } from './types.js';
 /**

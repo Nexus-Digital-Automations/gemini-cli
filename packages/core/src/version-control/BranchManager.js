@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Automated Branch Management for Version Control Automation
  * Intelligent branch creation, naming, lifecycle management, and protection rules
@@ -75,7 +76,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to create branch', {
-                error: error,
+                error,
                 options,
             });
             throw error;
@@ -123,7 +124,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to apply protection rules', {
-                error: error,
+                error,
                 branchName,
             });
             throw error;
@@ -151,7 +152,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to cleanup merged branches', {
-                error: error,
+                error,
             });
             throw error;
         }
@@ -183,7 +184,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to analyze branch health', {
-                error: error,
+                error,
             });
             throw error;
         }
@@ -258,7 +259,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to get repository status', {
-                error: error,
+                error,
             });
             throw error;
         }
@@ -285,7 +286,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to switch to branch', {
-                error: error,
+                error,
                 branchName,
             });
             throw error;
@@ -303,7 +304,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.warn('Failed to pull latest changes from remote', {
-                error: error,
+                error,
                 baseBranch,
             });
         }
@@ -415,7 +416,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to get branch info', {
-                error: error,
+                error,
                 branchName,
             });
             throw error;
@@ -459,7 +460,7 @@ export class BranchManager {
                 }
                 catch (error) {
                     logger.warn('Failed to get info for branch', {
-                        error: error,
+                        error,
                         branchName: name,
                     });
                 }
@@ -467,7 +468,7 @@ export class BranchManager {
             return branches;
         }
         catch (error) {
-            logger.error('Failed to get all branches', { error: error });
+            logger.error('Failed to get all branches', { error });
             return [];
         }
     }
@@ -494,7 +495,7 @@ export class BranchManager {
                 }
                 catch (error) {
                     logger.warn('Failed to get info for merged branch', {
-                        error: error,
+                        error,
                         branchName: name,
                     });
                 }
@@ -502,7 +503,7 @@ export class BranchManager {
             return branches;
         }
         catch (error) {
-            logger.error('Failed to get merged branches', { error: error });
+            logger.error('Failed to get merged branches', { error });
             return [];
         }
     }
@@ -531,7 +532,7 @@ export class BranchManager {
         }
         catch (error) {
             logger.error('Failed to delete branch', {
-                error: error,
+                error,
                 branchName,
             });
             throw error;

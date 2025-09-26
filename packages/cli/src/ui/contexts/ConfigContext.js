@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import React, { useContext } from 'react';
 import {} from '@google/gemini-cli-core';
 export const ConfigContext = React.createContext(undefined);

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -28,7 +29,7 @@ describe('ExtensionEnablementManager', () => {
     afterEach(() => {
         testDir.cleanup();
         // Reset the singleton instance for test isolation
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         ExtensionEnablementManager.instance = undefined;
     });
     describe('isEnabled', () => {

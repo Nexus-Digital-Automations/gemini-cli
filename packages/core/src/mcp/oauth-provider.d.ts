@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { EventEmitter } from 'node:events';
 import type { OAuthToken } from './token-storage/types.js';
-import { MCPOAuthTokenStorage } from './oauth-token-storage.js';
+import type { MCPOAuthTokenStorage } from './oauth-token-storage.js';
 export declare const OAUTH_DISPLAY_MESSAGE_EVENT: "oauth-display-message";
 /**
  * OAuth configuration for an MCP server.

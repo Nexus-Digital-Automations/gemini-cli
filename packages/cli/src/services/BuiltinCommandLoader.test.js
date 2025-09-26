@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 vi.mock('../ui/commands/aboutCommand.js', async () => {
     const { CommandKind } = await import('../ui/commands/types.js');
     return {

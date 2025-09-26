@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Integration test to verify circular reference handling with proxy agents
  */
@@ -21,12 +22,12 @@ describe('Circular Reference Integration Test', () => {
             getProxy: () => 'http://proxy.example.com:8080',
         };
         // Simulate the structure that causes the circular reference error
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const proxyAgentLike = {
             sockets: {},
             options: { proxy: 'http://proxy.example.com:8080' },
         };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const socketLike = {
             _httpMessage: {
                 agent: proxyAgentLike,
@@ -46,7 +47,7 @@ describe('Circular Reference Integration Test', () => {
         // Test that ClearcutLogger can handle this
         const logger = ClearcutLogger.getInstance(mockConfig);
         expect(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             logger?.enqueueLogEvent(problematicEvent);
         }).not.toThrow();
     });

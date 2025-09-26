@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach, afterEach, afterAll, } from 'vitest';
 import { Logger, MessageSenderType, encodeTagName, decodeTagName, } from './logger.js';
 import { Storage } from '../config/storage.js';

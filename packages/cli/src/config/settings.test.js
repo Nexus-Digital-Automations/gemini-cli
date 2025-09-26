@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /// <reference types="vitest/globals" />
 // Mock 'os' first.
 import * as osActual from 'node:os'; // Import for type info for the mock factory

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as path from 'node:path';
 import process from 'node:process';
 import { AuthType, createContentGenerator, createContentGeneratorConfig, } from '../core/contentGenerator.js';
@@ -464,7 +465,7 @@ export class Config {
             });
         }
         catch (error) {
-            logger.error('Config initialization failed', { error: error });
+            logger.error('Config initialization failed', { error });
             throw error;
         }
         finally {
@@ -956,7 +957,7 @@ export class Config {
             return registry;
         }
         catch (error) {
-            logger.error('Tool registry creation failed', { error: error });
+            logger.error('Tool registry creation failed', { error });
             throw error;
         }
         finally {

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 // Create a simple chalk fallback when not available
 const createChalkFallback = () => {
     const identity = (str) => str;

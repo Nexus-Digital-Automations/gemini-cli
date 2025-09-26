@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';

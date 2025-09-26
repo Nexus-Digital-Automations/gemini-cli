@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CoreToolScheduler, type GeminiClient } from '@google/gemini-cli-core';
-import type { CompletedToolCall, ToolCallRequestInfo, ServerGeminiStreamEvent, ToolCallConfirmationDetails, Config } from '@google/gemini-cli-core';
+
+import { type GeminiClient } from '@google/gemini-cli-core';
+import type { CompletedToolCall, ToolCallRequestInfo, ServerGeminiStreamEvent, ToolCallConfirmationDetails, Config , CoreToolScheduler} from '@google/gemini-cli-core';
 import type { RequestContext } from '@a2a-js/sdk/server';
 import { type ExecutionEventBus } from '@a2a-js/sdk/server';
 import type { TaskState, Part } from '@a2a-js/sdk';

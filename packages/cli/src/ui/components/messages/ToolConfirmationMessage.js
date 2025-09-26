@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
@@ -49,7 +55,7 @@ export const ToolConfirmationMessage = ({ confirmationDetails, config, isFocused
     const handleSelect = (item) => handleConfirm(item);
     let bodyContent = null; // Removed contextDisplay here
     let question;
-    const options = new Array();
+    const options = [];
     // Body content is now the DiffRenderer, passing filename to it
     // The bordered box is removed from here and handled within DiffRenderer
     function availableBodyContentHeight() {
@@ -169,6 +175,6 @@ export const ToolConfirmationMessage = ({ confirmationDetails, config, isFocused
             value: ToolConfirmationOutcome.Cancel,
         });
     }
-    return (_jsxs(Box, { flexDirection: "column", padding: 1, width: childWidth, children: [_jsx(Box, { flexGrow: 1, flexShrink: 1, overflow: "hidden", marginBottom: 1, children: bodyContent }), _jsx(Box, { marginBottom: 1, flexShrink: 0, children: _jsx(Text, { color: theme.text.primary, wrap: "truncate", children: question }) }), _jsx(Box, { flexShrink: 0, children: _jsx(RadioButtonSelect, { items: options, onSelect: handleSelect, isFocused: isFocused }) })] }));
+    return (_jsxs(Box, { flexDirection: "column", padding: 1, width: childWidth, children: [_jsx(Box, { flexGrow: 1, flexShrink: 1, overflow: "hidden", marginBottom: 1, children: bodyContent }), _jsx(Box, { marginBottom: 1, flexShrink: 0, children: _jsx(Text, { color: theme.text.primary, wrap: "truncate", children: question }) }), _jsx(Box, { flexShrink: 0, children: _jsx(RadioButtonSelect, { items: options, onSelect: handleSelect, isFocused }) })] }));
 };
 //# sourceMappingURL=ToolConfirmationMessage.js.map

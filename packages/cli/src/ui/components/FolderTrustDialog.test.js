@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -34,7 +40,7 @@ describe('FolderTrustDialog', () => {
     });
     it('should call onSelect with DO_NOT_TRUST when escape is pressed and not restarting', async () => {
         const onSelect = vi.fn();
-        const { stdin } = renderWithProviders(_jsx(FolderTrustDialog, { onSelect: onSelect, isRestarting: false }));
+        const { stdin } = renderWithProviders(_jsx(FolderTrustDialog, { onSelect, isRestarting: false }));
         stdin.write('\x1b'); // escape key
         await waitFor(() => {
             expect(onSelect).toHaveBeenCalledWith(FolderTrustChoice.DO_NOT_TRUST);
@@ -42,7 +48,7 @@ describe('FolderTrustDialog', () => {
     });
     it('should not call onSelect when escape is pressed and is restarting', async () => {
         const onSelect = vi.fn();
-        const { stdin } = renderWithProviders(_jsx(FolderTrustDialog, { onSelect: onSelect, isRestarting: true }));
+        const { stdin } = renderWithProviders(_jsx(FolderTrustDialog, { onSelect, isRestarting: true }));
         stdin.write('\x1b'); // escape key
         await waitFor(() => {
             expect(onSelect).not.toHaveBeenCalled();

@@ -10,7 +10,7 @@
  * @author Claude Code - Pair-Programming Implementation Agent
  * @version 1.0.0
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 /**
  * Conflict resolver for collaborative programming sessions
  */
@@ -235,19 +235,18 @@ export class ConflictResolver extends EventEmitter {
             return highestPriorityChange.content;
         });
         // Version Branching strategy
-        this.resolutionStrategies.set(ConflictResolutionStrategy.VERSION_BRANCHING, async (conflict) => {
-            // Create a merged version containing all changes
-            return {
-                type: 'branched_versions',
-                versions: conflict.changes.map((change, index) => ({
-                    branchId: `branch_${index}`,
-                    participantId: change.participantId,
-                    content: change.content,
-                    timestamp: change.timestamp,
-                })),
-                mergeRequired: true,
-            };
-        });
+        this.resolutionStrategies.set(ConflictResolutionStrategy.VERSION_BRANCHING, async (conflict) => 
+        // Create a merged version containing all changes
+        ({
+            type: 'branched_versions',
+            versions: conflict.changes.map((change, index) => ({
+                branchId: `branch_${index}`,
+                participantId: change.participantId,
+                content: change.content,
+                timestamp: change.timestamp,
+            })),
+            mergeRequired: true,
+        }));
         // Manual resolution (requires external handling)
         this.resolutionStrategies.set(ConflictResolutionStrategy.MANUAL, async (conflict, _resolvingParticipant, resolutionData) => {
             if (!resolutionData) {

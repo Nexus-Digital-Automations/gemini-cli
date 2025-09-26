@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import {
   PRStatus,
   ReviewStatus,
@@ -863,8 +863,8 @@ export class PullRequestAutomator {
         { cwd: this.workingDir, encoding: 'utf-8' },
       );
 
-      let added = 0,
-        deleted = 0;
+      let added = 0;
+        let deleted = 0;
       diffStat.split('\n').forEach((line) => {
         if (line.trim()) {
           const [addedStr, deletedStr] = line.split('\t');

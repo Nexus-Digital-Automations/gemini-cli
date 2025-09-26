@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export declare const GEMINI_DIR = ".gemini";
 export declare const GOOGLE_ACCOUNTS_FILENAME = "google_accounts.json";
 /**

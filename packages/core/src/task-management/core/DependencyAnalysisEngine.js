@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { DependencyNode, DependencyEdge, ViolationType, ViolationSeverity, NodeExecutionStatus, DependencyStatus, GraphErrorType, GraphWarningType, OptimizationType, OptimizationComplexity } from '../types/Dependency';
 /**
  * Advanced dependency analysis engine with intelligent graph processing

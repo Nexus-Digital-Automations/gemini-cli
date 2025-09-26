@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { BudgetSettings, BudgetSecurityContext } from '../types.js';
-import { BudgetPermission } from '../types.js';
+import type { BudgetPermission } from '../types.js';
 /**
  * Configuration validation errors
  */

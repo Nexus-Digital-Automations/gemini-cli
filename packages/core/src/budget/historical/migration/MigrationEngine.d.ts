@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { MigrationEngine, SchemaMigration, SchemaVersion, MigrationDirection, MigrationResult, MigrationRegistry } from './types.js';
 /**
  * Migration execution engine with comprehensive schema evolution support

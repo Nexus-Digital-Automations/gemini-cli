@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget Usage Data Controller
  * Handles all budget usage tracking, retrieval, and management operations

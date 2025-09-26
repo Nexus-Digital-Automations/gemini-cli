@@ -10,7 +10,7 @@
  * @author Claude Code - Pair-Programming Implementation Agent
  * @version 1.0.0
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { ConflictResolver } from './ConflictResolver.js';
 import { ContextSynchronizer } from './ContextSynchronizer.js';
 import { CollaborationEventBus } from './CollaborationEventBus.js';

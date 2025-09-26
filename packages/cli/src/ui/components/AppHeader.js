@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * @license
@@ -14,6 +20,6 @@ export const AppHeader = ({ version }) => {
     const settings = useSettings();
     const config = useConfig();
     const { nightly } = useUIState();
-    return (_jsxs(Box, { flexDirection: "column", children: [!(settings.merged.ui?.hideBanner || config.getScreenReader()) && (_jsx(Header, { version: version, nightly: nightly })), !(settings.merged.ui?.hideTips || config.getScreenReader()) && (_jsx(Tips, { config: config }))] }));
+    return (_jsxs(Box, { flexDirection: "column", children: [!(settings.merged.ui?.hideBanner || config.getScreenReader()) && (_jsx(Header, { version, nightly })), !(settings.merged.ui?.hideTips || config.getScreenReader()) && (_jsx(Tips, { config }))] }));
 };
 //# sourceMappingURL=AppHeader.js.map

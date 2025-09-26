@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Resource utilization optimization system
  * Provides intelligent optimization for resource utilization patterns and allocation efficiency

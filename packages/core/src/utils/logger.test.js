@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getLogger, getComponentLogger, LogLevel, createTimer, createLoggerConfigFromAppConfig, WinstonStructuredLogger, } from './logger.js';
 describe('Structured Logger', () => {

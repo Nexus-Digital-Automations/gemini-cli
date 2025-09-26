@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -188,7 +194,7 @@ index 123..789 100644
      second hunk');`,
             },
         ])('with terminalWidth $terminalWidth and height $height', ({ terminalWidth, height, expected }) => {
-            const { lastFrame } = render(_jsx(OverflowProvider, { children: _jsx(DiffRenderer, { diffContent: diffWithMultipleHunks, filename: "multi.js", terminalWidth: terminalWidth, availableTerminalHeight: height }) }));
+            const { lastFrame } = render(_jsx(OverflowProvider, { children: _jsx(DiffRenderer, { diffContent: diffWithMultipleHunks, filename: "multi.js", terminalWidth, availableTerminalHeight: height }) }));
             const output = lastFrame();
             expect(sanitizeOutput(output, terminalWidth)).toEqual(expected);
         });

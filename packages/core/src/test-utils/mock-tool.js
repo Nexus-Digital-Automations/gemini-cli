@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { BaseDeclarativeTool, BaseToolInvocation, Kind, } from '../tools/tools.js';
 class MockToolInvocation extends BaseToolInvocation {
     tool;

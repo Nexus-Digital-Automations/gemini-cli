@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Migration engine implementation for data schema evolution
  * Provides comprehensive migration capabilities with rollback and validation

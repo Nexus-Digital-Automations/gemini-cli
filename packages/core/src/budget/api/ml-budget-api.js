@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { createMLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
 /**
  * ML Budget API class providing endpoints for cost projection and forecasting

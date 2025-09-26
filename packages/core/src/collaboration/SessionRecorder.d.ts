@@ -10,7 +10,7 @@
  * @author Claude Code - Pair-Programming Implementation Agent
  * @version 1.0.0
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type { SessionRecording, CollaborationEvent, CollaborationEventType } from './types.js';
 /**
  * Configuration for session recording

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget utility functions and data transformations
  * Provides helper functions for budget calculations, formatting, and data manipulation

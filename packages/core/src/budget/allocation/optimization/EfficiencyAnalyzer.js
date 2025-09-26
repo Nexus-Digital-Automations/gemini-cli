@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { getLogger } from '../../../utils/logger.js';
 /**
  * Analyzes allocation efficiency and optimization opportunities

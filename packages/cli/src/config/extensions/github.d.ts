@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ExtensionInstallMetadata, GeminiCLIExtension } from '@google/gemini-cli-core';
-import { ExtensionUpdateState } from '../../ui/state/extensions.js';
+import type { ExtensionUpdateState } from '../../ui/state/extensions.js';
 /**
  * Clones a Git repository to a specified local path.
  * @param installMetadata The metadata for the extension to install.

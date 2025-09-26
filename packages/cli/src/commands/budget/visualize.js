@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { loadSettings } from '../../config/settings.js';
 import { createBudgetTracker, createAnalyticsEngine, createBudgetDashboard, } from '@google/gemini-cli-core';
 /**

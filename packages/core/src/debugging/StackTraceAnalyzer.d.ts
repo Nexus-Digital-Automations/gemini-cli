@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { StackTraceFrame, StackTraceAnalysis, ContextLine, LanguageSupport, SourceLocation } from './types.js';
 /**
  * Configuration for stack trace analyzer

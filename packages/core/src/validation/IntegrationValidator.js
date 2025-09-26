@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { logger } from '../utils/logger.js';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -100,7 +101,7 @@ export class IntegrationValidator {
         }
         catch (error) {
             this.logger.error('Integration validation failed', {
-                error: error,
+                error,
                 taskId: context.taskId,
             });
             return [
@@ -144,7 +145,7 @@ export class IntegrationValidator {
             }));
         }
         catch (error) {
-            this.logger.error('System compatibility check failed', { error: error });
+            this.logger.error('System compatibility check failed', { error });
             return [
                 {
                     id: `compatibility-error-${Date.now()}`,
@@ -241,7 +242,7 @@ export class IntegrationValidator {
             ];
         }
         catch (error) {
-            this.logger.error('Integration tests failed', { error: error });
+            this.logger.error('Integration tests failed', { error });
             return [
                 {
                     id: `integration-tests-error-${Date.now()}`,
@@ -290,7 +291,7 @@ export class IntegrationValidator {
             ];
         }
         catch (error) {
-            this.logger.error('E2E tests failed', { error: error });
+            this.logger.error('E2E tests failed', { error });
             return [
                 {
                     id: `e2e-tests-error-${Date.now()}`,
@@ -335,7 +336,7 @@ export class IntegrationValidator {
             ];
         }
         catch (error) {
-            this.logger.error('Load tests failed', { error: error });
+            this.logger.error('Load tests failed', { error });
             return [
                 {
                     id: `load-tests-error-${Date.now()}`,
@@ -369,7 +370,7 @@ export class IntegrationValidator {
             }));
         }
         catch (error) {
-            this.logger.error('Monitoring checks failed', { error: error });
+            this.logger.error('Monitoring checks failed', { error });
             return [
                 {
                     id: `monitoring-error-${Date.now()}`,

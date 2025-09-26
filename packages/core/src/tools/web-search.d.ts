@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { GroundingMetadata } from '@google/genai';
 import type { ToolInvocation, ToolResult } from './tools.js';
 import { BaseDeclarativeTool } from './tools.js';

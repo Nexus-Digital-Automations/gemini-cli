@@ -114,7 +114,7 @@ async function watchSessionStatus(argv) {
             console.log(chalk.gray('─'.repeat(60)));
 
             const sessionManager = new SessionManager();
-            let targetSessionId = argv.sessionId || await getCurrentSessionId();
+            const targetSessionId = argv.sessionId || await getCurrentSessionId();
 
             if (!targetSessionId) {
                 console.log(chalk.yellow('ℹ️  No active collaboration session'));

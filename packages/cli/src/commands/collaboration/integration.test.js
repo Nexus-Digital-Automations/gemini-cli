@@ -12,7 +12,7 @@ import { ConflictResolver } from '@gemini-cli/core/src/collaboration/ConflictRes
 import { SessionRecorder } from '@gemini-cli/core/src/collaboration/SessionRecorder.js';
 
 describe('Collaboration System Integration', () => {
-    let sessionManager, eventBus, contextSync, conflictResolver, recorder;
+    let sessionManager; let eventBus; let contextSync; let conflictResolver; let recorder;
 
     beforeEach(() => {
         sessionManager = new SessionManager();
@@ -235,7 +235,7 @@ describe('Collaboration System Integration', () => {
     });
 
     test('should handle event bus communication', async () => {
-        let receivedEvents = [];
+        const receivedEvents = [];
 
         // Subscribe to events
         eventBus.on('collaborationEvent', (event) => {

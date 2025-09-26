@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useState, useEffect } from 'react';
 import { getWorkspaceExtensions, } from '../../config/extension.js';
 import { SettingScope } from '../../config/settings.js';

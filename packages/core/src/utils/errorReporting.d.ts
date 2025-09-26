@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Content } from '@google/genai';
 /**
  * Generates an error report, writes it to a temporary file, and logs information to console.error.

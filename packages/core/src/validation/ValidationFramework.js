@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 /**
@@ -133,7 +134,7 @@ export class ValidationFramework extends EventEmitter {
         }
         catch (error) {
             this.logger.error(`Validation failed for task: ${context.taskId}`, {
-                error: error,
+                error,
             });
             this.emit('validationFailed', context.taskId, error);
             throw error;
@@ -250,7 +251,7 @@ export class ValidationFramework extends EventEmitter {
             return enrichedResults;
         }
         catch (error) {
-            this.logger.error(`Validation rule failed: ${rule.id}`, { error: error });
+            this.logger.error(`Validation rule failed: ${rule.id}`, { error });
             this.emit('ruleFailed', rule.id, error);
             // Return failure result
             return [
@@ -285,7 +286,7 @@ export class ValidationFramework extends EventEmitter {
             catch (error) {
                 lastError = error instanceof Error ? error : new Error(String(error));
                 if (attempt < retries) {
-                    this.logger.warn(`Validation attempt ${attempt + 1} failed, retrying...`, { error: error });
+                    this.logger.warn(`Validation attempt ${attempt + 1} failed, retrying...`, { error });
                     await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1))); // Exponential backoff
                 }
             }

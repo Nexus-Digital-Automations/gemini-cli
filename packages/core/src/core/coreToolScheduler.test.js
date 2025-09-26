@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CoreToolScheduler, convertToFunctionResponse, truncateAndSaveToFile, } from './coreToolScheduler.js';
 import { DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES, DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD, BaseDeclarativeTool, BaseToolInvocation, ToolConfirmationOutcome, Kind, ApprovalMode, } from '../index.js';
@@ -531,7 +532,7 @@ describe('CoreToolScheduler edit cancellation', () => {
             .calls[0][0];
         expect(completedCalls[0].status).toBe('cancelled');
         // Check that the diff is preserved
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const cancelledCall = completedCalls[0];
         expect(cancelledCall.response.resultDisplay).toBeDefined();
         expect(cancelledCall.response.resultDisplay.fileDiff).toBe('--- test.txt\n+++ test.txt\n@@ -1,1 +1,1 @@\n-old content\n+new content');

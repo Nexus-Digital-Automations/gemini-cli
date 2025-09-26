@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import updateNotifier from 'update-notifier';
 import semver from 'semver';
 import { getPackageJson } from '../../utils/package.js';

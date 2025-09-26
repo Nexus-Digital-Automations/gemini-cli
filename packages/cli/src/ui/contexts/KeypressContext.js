@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 import { KittySequenceOverflowEvent, logKittySequenceOverflow, } from '@google/gemini-cli-core';
 import { useStdin } from 'ink';
@@ -578,6 +584,6 @@ export function KeypressProvider({ children, kittyProtocolEnabled, config, debug
         subscribers,
         debugKeystrokeLogging,
     ]);
-    return (_jsx(KeypressContext.Provider, { value: { subscribe, unsubscribe }, children: children }));
+    return (_jsx(KeypressContext.Provider, { value: { subscribe, unsubscribe }, children }));
 }
 //# sourceMappingURL=KeypressContext.js.map

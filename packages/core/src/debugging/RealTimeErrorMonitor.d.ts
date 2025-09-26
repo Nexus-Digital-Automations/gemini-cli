@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ErrorEvent, ErrorMetrics, MonitoringAlert, MonitoredApplication, AlertRule, SystemHealth } from './types.js';
 import { type ErrorAnalysisEngineConfig } from './ErrorAnalysisEngine.js';
 /**

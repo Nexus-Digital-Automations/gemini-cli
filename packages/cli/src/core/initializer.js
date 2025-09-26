@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { IdeClient, IdeConnectionEvent, IdeConnectionType, logIdeConnection, } from '@google/gemini-cli-core';
 import {} from '../config/settings.js';
 import { performInitialAuth } from './auth.js';

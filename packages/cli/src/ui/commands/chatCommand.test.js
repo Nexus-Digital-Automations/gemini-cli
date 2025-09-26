@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import * as fsPromises from 'node:fs/promises';

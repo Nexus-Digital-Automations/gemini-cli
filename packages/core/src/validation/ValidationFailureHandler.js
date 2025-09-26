@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
@@ -22,7 +23,7 @@ export var FailureHandlingStrategy;
 /**
  * Circuit breaker state
  */
-var CircuitBreakerState;
+let CircuitBreakerState;
 (function (CircuitBreakerState) {
     CircuitBreakerState["CLOSED"] = "closed";
     CircuitBreakerState["OPEN"] = "open";

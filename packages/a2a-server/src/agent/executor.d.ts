@@ -3,10 +3,11 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { Task as SDKTask } from '@a2a-js/sdk';
 import type { TaskStore, AgentExecutor, RequestContext, ExecutionEventBus } from '@a2a-js/sdk/server';
 import type { AgentSettings } from '../types.js';
-import { Task } from './task.js';
+import type { Task } from './task.js';
 /**
  * Provides a wrapper for Task. Passes data from Task to SDKTask.
  * The idea is to use this class inside CoderAgentExecutor to replace Task.

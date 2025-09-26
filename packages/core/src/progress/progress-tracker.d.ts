@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { OperationContext, OperationProgress, ProgressUpdate, ProgressInteraction } from './types.js';
 export type ProgressUpdateCallback = (update: ProgressUpdate) => void;
 export declare class ProgressTracker {

@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useState, useCallback, useMemo, } from 'react';
 const OverflowStateContext = createContext(undefined);
@@ -33,6 +39,6 @@ export const OverflowProvider = ({ children, }) => {
         addOverflowingId,
         removeOverflowingId,
     }), [addOverflowingId, removeOverflowingId]);
-    return (_jsx(OverflowStateContext.Provider, { value: stateValue, children: _jsx(OverflowActionsContext.Provider, { value: actionsValue, children: children }) }));
+    return (_jsx(OverflowStateContext.Provider, { value: stateValue, children: _jsx(OverflowActionsContext.Provider, { value: actionsValue, children }) }));
 };
 //# sourceMappingURL=OverflowContext.js.map

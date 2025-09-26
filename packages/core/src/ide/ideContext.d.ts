@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { IdeContext } from './types.js';
 type IdeContextSubscriber = (ideContext?: IdeContext) => void;
 export declare class IdeContextStore {

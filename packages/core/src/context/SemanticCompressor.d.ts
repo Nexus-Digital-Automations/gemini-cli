@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ContextItem, CompressionConfig, CompressionResult } from './types.js';
 /**
  * Default configuration for semantic compression

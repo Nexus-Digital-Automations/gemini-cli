@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
@@ -44,7 +50,7 @@ export const StreamingResults = ({ operation, maxResults = 10, maxHeight = 8, sh
     }
     return (_jsxs(Box, { flexDirection: "column", borderStyle: "single", borderColor: theme.ui.comment, paddingX: 1, paddingY: 1, height: Math.min(maxHeight, displayResults.length + 2), children: [_jsxs(Box, { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 1, children: [_jsx(Text, { color: theme.text.accent, bold: true, children: "Live Results" }), _jsxs(Text, { color: theme.text.muted, children: [displayResults.length, maxResults < operation.intermediateResults.length
                                 ? `/${operation.intermediateResults.length}`
-                                : ''] })] }), _jsx(Box, { flexDirection: "column", children: displayResults.map((result, index) => (_jsx(ResultItem, { result: result, isLatest: index === displayResults.length - 1, compact: isNarrow }, `${result.stepId}-${index}`))) }), operation.intermediateResults.length > maxResults && (_jsx(Box, { marginTop: 1, justifyContent: "center", children: _jsxs(Text, { color: theme.text.muted, children: ["\u2191 ", operation.intermediateResults.length - maxResults, " earlier results"] }) }))] }));
+                                : ''] })] }), _jsx(Box, { flexDirection: "column", children: displayResults.map((result, index) => (_jsx(ResultItem, { result, isLatest: index === displayResults.length - 1, compact: isNarrow }, `${result.stepId}-${index}`))) }), operation.intermediateResults.length > maxResults && (_jsx(Box, { marginTop: 1, justifyContent: "center", children: _jsxs(Text, { color: theme.text.muted, children: ["\u2191 ", operation.intermediateResults.length - maxResults, " earlier results"] }) }))] }));
 };
 /**
  * Renders an individual result item with appropriate styling and type indicators.
@@ -130,7 +136,7 @@ export const LiveUpdateDisplay = ({ updates, maxUpdates = 5, compact = false, })
     if (recentUpdates.length === 0) {
         return null;
     }
-    return (_jsxs(Box, { flexDirection: "column", padding: 1, children: [_jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.text.secondary, bold: true, children: "Recent Updates" }) }), recentUpdates.map((update, index) => (_jsx(UpdateItem, { update: update, compact: compact }, `${update.operationId}-${update.timestamp.getTime()}-${index}`)))] }));
+    return (_jsxs(Box, { flexDirection: "column", padding: 1, children: [_jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.text.secondary, bold: true, children: "Recent Updates" }) }), recentUpdates.map((update, index) => (_jsx(UpdateItem, { update, compact }, `${update.operationId}-${update.timestamp.getTime()}-${index}`)))] }));
 };
 /**
  * Renders an individual progress update item with appropriate icons and formatting.

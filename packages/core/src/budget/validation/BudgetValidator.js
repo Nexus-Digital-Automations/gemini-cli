@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Budget validation and constraint checking system
  * Provides comprehensive validation for budget operations and constraints
@@ -341,7 +342,7 @@ export class BudgetValidator {
                 ruleTimings[rule.id] = Date.now() - ruleStart;
                 this.logger.error('Rule validation failed', {
                     ruleId: rule.id,
-                    error: error,
+                    error,
                 });
             }
         }

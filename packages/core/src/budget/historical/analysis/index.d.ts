@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Historical data analysis system exports
  * Provides comprehensive trend analysis, insights generation, and pattern detection

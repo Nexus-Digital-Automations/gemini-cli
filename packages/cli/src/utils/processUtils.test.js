@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { vi } from 'vitest';
 import { RELAUNCH_EXIT_CODE, relaunchApp } from './processUtils.js';
 import * as cleanup from './cleanup.js';

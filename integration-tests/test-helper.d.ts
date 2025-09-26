@@ -19,7 +19,7 @@ export declare class TestRig {
     testName?: string;
     _lastRunStdout?: string;
     constructor();
-    getDefaultTimeout(): 30000 | 60000 | 15000;
+    getDefaultTimeout(): 30000 | 15000 | 60000;
     setup(testName: string, options?: {
         settings?: Record<string, unknown>;
     }): void;

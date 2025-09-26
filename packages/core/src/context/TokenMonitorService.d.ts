@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { ContextWindowManager } from './ContextWindowManager.js';
 import EventEmitter from 'node:events';
 /**

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Scenario-based budget allocation planning system
  * Provides scenario generation, impact prediction, and planning tools for budget allocation decisions

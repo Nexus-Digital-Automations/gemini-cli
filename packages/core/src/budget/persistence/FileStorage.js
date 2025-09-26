@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview File-based storage implementation for budget data
  * Provides robust file-based persistence with atomic operations and backup support
@@ -105,7 +106,7 @@ export class FileStorage {
                 storageId: 'file-storage',
                 duration: Date.now() - start,
                 success: false,
-                error: error,
+                error,
             });
             this.logger.error('Failed to initialize file storage', error);
             return {
@@ -215,7 +216,7 @@ export class FileStorage {
                 storageId: 'file-storage',
                 duration,
                 success: false,
-                error: error,
+                error,
             });
             this.logger.error('Failed to read usage data', error);
             return {
@@ -268,7 +269,7 @@ export class FileStorage {
                 storageId: 'file-storage',
                 duration,
                 success: false,
-                error: error,
+                error,
             });
             this.logger.error('Failed to write usage data', error);
             return {
@@ -331,7 +332,7 @@ export class FileStorage {
                 storageId: 'file-storage',
                 duration,
                 success: false,
-                error: error,
+                error,
             });
             return {
                 success: false,
@@ -376,7 +377,7 @@ export class FileStorage {
                 storageId: 'file-storage',
                 duration,
                 success: false,
-                error: error,
+                error,
             });
             return {
                 success: false,

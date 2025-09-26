@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { GeminiEventType as ServerGeminiEventType, getErrorMessage, isNodeError, MessageSenderType, logUserPrompt, GitService, UnauthorizedError, UserPromptEvent, DEFAULT_GEMINI_FLASH_MODEL, logConversationFinishedEvent, ConversationFinishedEvent, ApprovalMode, parseAndFormatApiError, ToolConfirmationOutcome, promptIdContext, } from '@google/gemini-cli-core';
 import { FinishReason } from '@google/genai';

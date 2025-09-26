@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -89,7 +95,7 @@ describe('<LoadingIndicator />', () => {
     });
     it('should render rightContent when provided', () => {
         const rightContent = _jsx(Text, { children: "Extra Info" });
-        const { lastFrame } = renderWithContext(_jsx(LoadingIndicator, { ...defaultProps, rightContent: rightContent }), StreamingState.Responding);
+        const { lastFrame } = renderWithContext(_jsx(LoadingIndicator, { ...defaultProps, rightContent }), StreamingState.Responding);
         expect(lastFrame()).toContain('Extra Info');
     });
     it('should transition correctly between states using rerender', () => {

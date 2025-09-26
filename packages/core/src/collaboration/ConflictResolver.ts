@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type {
   CollaborationConflict,
   ConflictType,
@@ -325,9 +325,9 @@ export class ConflictResolver extends EventEmitter {
     });
 
     // Version Branching strategy
-    this.resolutionStrategies.set(ConflictResolutionStrategy.VERSION_BRANCHING, async (conflict) => {
+    this.resolutionStrategies.set(ConflictResolutionStrategy.VERSION_BRANCHING, async (conflict) => 
       // Create a merged version containing all changes
-      return {
+       ({
         type: 'branched_versions',
         versions: conflict.changes.map((change, index) => ({
           branchId: `branch_${index}`,
@@ -336,8 +336,8 @@ export class ConflictResolver extends EventEmitter {
           timestamp: change.timestamp,
         })),
         mergeRequired: true,
-      };
-    });
+      })
+    );
 
     // Manual resolution (requires external handling)
     this.resolutionStrategies.set(ConflictResolutionStrategy.MANUAL, async (conflict, _resolvingParticipant, resolutionData) => {

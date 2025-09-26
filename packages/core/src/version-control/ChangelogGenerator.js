@@ -3,9 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { execSync } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { ReleaseType, ChangelogFormat, } from './types.js';
 /**
  * ChangelogGenerator - Intelligent automated changelog and release notes generation

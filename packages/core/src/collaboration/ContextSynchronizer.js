@@ -10,7 +10,7 @@
  * @author Claude Code - Pair-Programming Implementation Agent
  * @version 1.0.0
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 /**
  * Context synchronizer for collaborative programming sessions
  */
@@ -40,9 +40,7 @@ export class ContextSynchronizer extends EventEmitter {
             removeItem: async (itemId, participantId) => {
                 await this.removeContextItem(contextId, itemId, participantId);
             },
-            getContextForParticipant: (participantId) => {
-                return this.getContextForParticipant(contextId, participantId);
-            },
+            getContextForParticipant: (participantId) => this.getContextForParticipant(contextId, participantId),
             synchronize: async () => {
                 await this.synchronizeSession(contextId);
             },
@@ -141,11 +139,10 @@ export class ContextSynchronizer extends EventEmitter {
         }
         const items = Array.from(sharedContext.items.values());
         // Filter based on participant permissions and preferences
-        return items.filter(item => {
-            // Basic filtering - in production, this would be more sophisticated
-            // considering participant roles, permissions, and preferences
-            return item.type !== ContextType.SYSTEM || this.hasSystemAccess(participantId);
-        }).sort((a, b) => {
+        return items.filter(item => 
+        // Basic filtering - in production, this would be more sophisticated
+        // considering participant roles, permissions, and preferences
+        item.type !== ContextType.SYSTEM || this.hasSystemAccess(participantId)).sort((a, b) => {
             // Sort by priority and recency
             const priorityOrder = {
                 [ContextPriority.CRITICAL]: 0,

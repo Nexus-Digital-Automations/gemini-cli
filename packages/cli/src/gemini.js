@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { jsx as _jsx } from "react/jsx-runtime";
 /**
  * @license
@@ -98,7 +104,7 @@ export async function startInteractiveUI(config, settings, startupWarnings, work
     // Create wrapper component to use hooks inside render
     const AppWrapper = () => {
         const kittyProtocolStatus = useKittyKeyboardProtocol();
-        return (_jsx(SettingsContext.Provider, { value: settings, children: _jsx(KeypressProvider, { kittyProtocolEnabled: kittyProtocolStatus.enabled, config: config, debugKeystrokeLogging: settings.merged.general?.debugKeystrokeLogging, children: _jsx(SessionStatsProvider, { children: _jsx(VimModeProvider, { settings: settings, children: _jsx(AppContainer, { config: config, settings: settings, startupWarnings: startupWarnings, version: version, initializationResult: initializationResult }) }) }) }) }));
+        return (_jsx(SettingsContext.Provider, { value: settings, children: _jsx(KeypressProvider, { kittyProtocolEnabled: kittyProtocolStatus.enabled, config, debugKeystrokeLogging: settings.merged.general?.debugKeystrokeLogging, children: _jsx(SessionStatsProvider, { children: _jsx(VimModeProvider, { settings, children: _jsx(AppContainer, { config, settings, startupWarnings, version, initializationResult }) }) }) }) }));
     };
     const instance = render(process.env['DEBUG'] ? (_jsx(React.StrictMode, { children: _jsx(AppWrapper, {}) })) : (_jsx(AppWrapper, {})), {
         exitOnCtrlC: false,

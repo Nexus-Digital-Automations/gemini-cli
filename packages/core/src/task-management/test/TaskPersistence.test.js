@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll, } from 'vitest';
 import * as path from 'node:path';
 import * as fse from 'fs-extra';
