@@ -38,6 +38,9 @@ import {
 } from '@google/gemini-cli-core';
 import type { Settings } from './settings.js';
 
+// Re-export Config type for use in tests
+export type { Config };
+
 import type { Extension } from './extension.js';
 import { annotateActiveExtensions } from './extension.js';
 import { getCliVersion } from '../utils/version.js';

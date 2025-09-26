@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Resource ranking and priority assignment system
  * Provides intelligent resource ranking based on multiple criteria and business priorities
@@ -10,7 +11,17 @@
  * @author Claude Code - Budget Allocation Agent
  * @version 1.0.0
  */
-import type { AllocationCandidate, AllocationPriority, AllocationStrategy, FeatureCostAnalysis, AllocationLogger } from '../types.js';
+import type { AllocationCandidate, AllocationPriority, AllocationStrategy } from '../types.js';
+import type { FeatureCostAnalysis } from '../../analytics/AnalyticsEngine.js';
+/**
+ * Logger interface for allocation operations
+ */
+export interface AllocationLogger {
+    info(message: string, data?: Record<string, unknown>): void;
+    warn(message: string, data?: Record<string, unknown>): void;
+    error(message: string, data?: Record<string, unknown>): void;
+    debug(message: string, data?: Record<string, unknown>): void;
+}
 /**
  * Resource ranking configuration
  */
@@ -285,7 +296,7 @@ export declare class ResourceRanking {
      * @param historicalData - Historical performance data
      * @returns Resource ranking result
      */
-    rankResource(candidate: AllocationCandidate, historicalData: FeatureCostAnalysis[]): ResourceRanking;
+    rankResource(candidate: AllocationCandidate, historicalData: FeatureCostAnalysis[]): ResourceRankingResult;
     /**
      * Rank portfolio of resources
      * @param candidates - Array of resource allocation candidates

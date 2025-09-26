@@ -187,6 +187,10 @@ export class TaskQueue extends EventEmitter {
       priority: definition.options?.priority || TaskPriority.NORMAL,
       dependencies: definition.options?.dependencies || [],
       tags: definition.options?.tags || [],
+      status: 'pending' as any,
+      errorCount: 0,
+      progress: 0,
+      retryCount: 0,
       metadata: {
         executor: definition.executor,
         params: definition.params,

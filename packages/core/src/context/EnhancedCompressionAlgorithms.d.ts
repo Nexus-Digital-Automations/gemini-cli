@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { CompressionResult, ContextItem } from './types.js';
-import { CompressionStrategy } from './types.js';
+import type { CompressionStrategy } from './types.js';
 /**
  * Enhanced compression configuration
  */

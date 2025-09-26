@@ -91,9 +91,9 @@ export const addTaskCommand = {
                 performance: TaskType.PERFORMANCE,
             };
             let parsedContext = {};
-            if (argv.context) {
+            if (argv['context']) {
                 try {
-                    parsedContext = JSON.parse(argv.context);
+                    parsedContext = JSON.parse(argv['context']);
                 }
                 catch (_error) {
                     console.error(chalk.red('❌ Invalid JSON format for context'));
@@ -114,13 +114,13 @@ export const addTaskCommand = {
             const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             // Create task object
             const newTask = {
-                title: generateTaskTitle(argv.description),
-                description: argv.description,
-                type: typeMap[argv.type || 'implementation'],
-                priority: priorityMap[argv.priority || 'medium'],
-                category: argv.category,
+                title: generateTaskTitle(argv['description']),
+                description: argv['description'],
+                type: typeMap[argv['type'] || 'implementation'],
+                priority: priorityMap[argv['priority'] || 'medium'],
+                category: argv['category'],
                 maxExecutionTimeMinutes: argv['max-time'] || 60,
-                dependencies: argv.dependencies || [],
+                dependencies: argv['dependencies'] || [],
                 context: parsedContext,
                 expectedOutputs: parsedExpectedOutputs,
             };
@@ -159,7 +159,7 @@ export const addTaskCommand = {
                     console.log(`   Max Time: ${newTask.maxExecutionTimeMinutes} minutes`);
                 });
             }
-            if (newTask.dependencies.length > 0) {
+            if (newTask.dependencies && newTask.dependencies.length > 0) {
                 console.log(`   Dependencies: ${chalk.yellow(newTask.dependencies.join(', '))}`);
             }
             console.log(chalk.blue('\n🔄 Next Steps:'));

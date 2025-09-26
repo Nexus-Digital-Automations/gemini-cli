@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
-import { Logger } from '../../utils/logger.js';
+import { WinstonStructuredLogger } from "@google/gemini-cli-core/src/utils/logger.js";
 import { TaskStatus as _TaskStatus } from '../../monitoring/TaskStatusMonitor.js';
 /**
  * Task Queue Performance Optimizer
@@ -43,7 +44,7 @@ export class PerformanceOptimizer extends EventEmitter {
     };
     constructor(taskQueue) {
         super();
-        this.logger = new Logger('PerformanceOptimizer');
+        this.logger = new WinstonStructuredLogger({ defaultMeta: { component: 'PerformanceOptimizer' } });
         this.taskQueue = taskQueue;
         this.performanceHistory = new Map();
         this.appliedOptimizations = new Map();
@@ -158,7 +159,7 @@ export class PerformanceOptimizer extends EventEmitter {
                 applied: false,
                 success: false,
                 appliedAt: new Date(),
-                sideEffects: [`Optimization failed: ${error}`],
+                sideEffects: [`Optimization failed: ${error instanceof Error ? error.message : String(error)}`],
             };
             this.appliedOptimizations.set(recommendationId, result);
             this.logger.error('Optimization failed', { recommendationId, error });
@@ -171,13 +172,13 @@ export class PerformanceOptimizer extends EventEmitter {
     async revertOptimization(recommendationId) {
         const result = this.appliedOptimizations.get(recommendationId);
         if (!result || !result.applied) {
-            this.logger.warning('Cannot revert optimization - not found or not applied', {
+            this.logger.warn('Cannot revert optimization - not found or not applied', {
                 recommendationId,
             });
             return false;
         }
         if (!result.revertAction) {
-            this.logger.warning('Cannot revert optimization - no revert action available', {
+            this.logger.warn('Cannot revert optimization - no revert action available', {
                 recommendationId,
             });
             return false;
@@ -238,7 +239,7 @@ export class PerformanceOptimizer extends EventEmitter {
         // Initialize performance history for different intervals
         ['minute', 'hour', 'day', 'week'].forEach((interval) => {
             this.performanceHistory.set(interval, {
-                interval: interval,
+                interval,
                 dataPoints: [],
                 trends: {
                     throughput: 'stable',
@@ -572,7 +573,6 @@ export class PerformanceOptimizer extends EventEmitter {
         return recommendations;
     }
     async executeOptimization(recommendation) {
-        const _startTime = Date.now();
         let revertAction;
         try {
             // Execute actions based on recommendation type
@@ -611,7 +611,7 @@ export class PerformanceOptimizer extends EventEmitter {
                 applied: false,
                 success: false,
                 appliedAt: new Date(),
-                sideEffects: [`Optimization failed: ${error}`],
+                sideEffects: [`Optimization failed: ${error instanceof Error ? error.message : String(error)}`],
                 revertAction,
             };
         }
@@ -841,8 +841,8 @@ export class PerformanceOptimizer extends EventEmitter {
             efficiencyTrend === 'decreasing' ? 'degrading' : 'stable';
         const errorTrend = this.determineTrend(olderAvg.systemMetrics.errorRate, // Inverted - lower error rate is better
         recentAvg.systemMetrics.errorRate);
-        history.trends.errorRate = errorTrend === 'increasing' ? 'improving' :
-            errorTrend === 'decreasing' ? 'degrading' : 'stable';
+        history.trends.errorRate = errorTrend === 'increasing' ? 'increasing' :
+            errorTrend === 'decreasing' ? 'decreasing' : 'stable';
     }
     calculateAverageMetrics(dataPoints) {
         // Calculate average metrics across data points

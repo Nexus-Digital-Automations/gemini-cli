@@ -21,26 +21,31 @@ interface SystemConfig {
   persistenceConfig: {
     type: 'file' | 'memory';
     path: string;
+    [key: string]: unknown;
   };
   logging: {
     level: 'debug' | 'info' | 'warn' | 'error';
     output: 'console' | 'file';
+    [key: string]: unknown;
   };
   agentConfig: {
     maxConcurrentAgents: number;
     heartbeatInterval: number;
     sessionTimeout: number;
+    [key: string]: unknown;
   };
   qualityConfig: {
     enableLinting: boolean;
     enableTesting: boolean;
     enableSecurity: boolean;
     enablePerformance: boolean;
+    [key: string]: unknown;
   };
   featureConfig: {
     featuresFilePath: string;
     requireApproval: boolean;
     autoRejectTimeout: number;
+    [key: string]: unknown;
   };
   monitoring: {
     enableMetrics: boolean;
@@ -49,7 +54,9 @@ interface SystemConfig {
       taskQueueSize: number;
       avgExecutionTime: number;
       failureRate: number;
+      [key: string]: unknown;
     };
+    [key: string]: unknown;
   };
   [key: string]: unknown;
 }

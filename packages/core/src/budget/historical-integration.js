@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { createBudgetTracker } from './budget-tracker.js';
@@ -560,103 +561,100 @@ export class HistoricalBudgetService {
             case 'monthly':
                 now.setMonth(now.getMonth() + 1);
                 break;
+            default:
+                // Handle unexpected values
+                break;
         }
         return now.toISOString();
     }
-    default;
-}
-async;
-saveSchedule(schedule, AnalysisSchedule);
-Promise < void  > {
-    try: {
-        const: schedulePath = path.join(this.schedulesDir, `${schedule.id}.json`),
-        await, fs, : .writeFile(schedulePath, JSON.stringify(schedule, null, 2))
-    }, catch(error) {
-        console.error(`Failed to save schedule ${schedule.id}:`, error);
+    async saveSchedule(schedule) {
+        try {
+            const schedulePath = path.join(this.schedulesDir, `${schedule.id}.json`);
+            await fs.writeFile(schedulePath, JSON.stringify(schedule, null, 2));
+        }
+        catch (error) {
+            console.error(`Failed to save schedule ${schedule.id}:`, error);
+        }
     }
-};
-async;
-loadSchedules();
-Promise < AnalysisSchedule[] > {
-    try: {
-        const: files = await fs.readdir(this.schedulesDir),
-        const: schedules, AnalysisSchedule, []:  = [],
-        for(, file, of, files) {
-            if (file.endsWith('.json')) {
+    async loadSchedules() {
+        try {
+            const files = await fs.readdir(this.schedulesDir);
+            const schedules = [];
+            for (const file of files) {
+                if (file.endsWith('.json')) {
+                    try {
+                        const data = await fs.readFile(path.join(this.schedulesDir, file), 'utf-8');
+                        schedules.push(JSON.parse(data));
+                    }
+                    catch (error) {
+                        console.warn(`Failed to load schedule from ${file}:`, error);
+                    }
+                }
+            }
+            return schedules;
+        }
+        catch (error) {
+            return [];
+        }
+    }
+    async executeScheduledJob(schedule) {
+        switch (schedule.type) {
+            case 'trend_analysis':
+                await this.performAnalysis({
+                    includeTrends: true,
+                    includeForecasts: false,
+                    includeAnomalies: false,
+                    includeVisualizations: false,
+                });
+                break;
+            case 'forecast_update':
+                await this.performAnalysis({
+                    includeTrends: false,
+                    includeForecasts: true,
+                    includeAnomalies: false,
+                    includeVisualizations: false,
+                });
+                break;
+            case 'anomaly_detection':
+                await this.performAnalysis({
+                    includeTrends: false,
+                    includeForecasts: false,
+                    includeAnomalies: true,
+                    includeVisualizations: false,
+                });
+                break;
+            case 'report_generation':
+                const results = await this.performAnalysis();
+                await this.generateReports(results);
+                break;
+            default:
+                throw new Error(`Unknown scheduled job type: ${schedule.type}`);
+        }
+    }
+    async cleanupVisualizations(daysToKeep) {
+        try {
+            const visualizationDir = path.join(this.projectRoot, '.gemini', 'visualizations');
+            const files = await fs.readdir(visualizationDir);
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+            for (const file of files) {
                 try {
-                    const data = await fs.readFile(path.join(this.schedulesDir, file), 'utf-8');
-                    schedules.push(JSON.parse(data));
+                    const filePath = path.join(visualizationDir, file);
+                    const stats = await fs.stat(filePath);
+                    if (stats.mtime < cutoffDate) {
+                        await fs.unlink(filePath);
+                    }
                 }
                 catch (error) {
-                    console.warn(`Failed to load schedule from ${file}:`, error);
+                    // File might have been deleted already
                 }
-            }
-        },
-        return: schedules
-    }, catch(error) {
-        return [];
-    }
-};
-async;
-executeScheduledJob(schedule, AnalysisSchedule);
-Promise < void  > {
-    switch(schedule) { }, : .type
-};
-{
-    'trend_analysis';
-    await this.performAnalysis({
-        includeTrends: true,
-        includeForecasts: false,
-        includeAnomalies: false,
-        includeVisualizations: false,
-    });
-    break;
-    'forecast_update';
-    await this.performAnalysis({
-        includeTrends: false,
-        includeForecasts: true,
-        includeAnomalies: false,
-        includeVisualizations: false,
-    });
-    break;
-    'anomaly_detection';
-    await this.performAnalysis({
-        includeTrends: false,
-        includeForecasts: false,
-        includeAnomalies: true,
-        includeVisualizations: false,
-    });
-    break;
-    'report_generation';
-    const results = await this.performAnalysis();
-    await this.generateReports(results);
-    break;
-    throw new Error(`Unknown scheduled job type: ${schedule.type}`);
-}
-async;
-cleanupVisualizations(daysToKeep, number);
-Promise < void  > {
-    try: {
-        const: visualizationDir = path.join(this.projectRoot, '.gemini', 'visualizations'),
-        const: files = await fs.readdir(visualizationDir),
-        const: cutoffDate = new Date(),
-        cutoffDate, : .setDate(cutoffDate.getDate() - daysToKeep),
-        for(, file, of, files) {
-            try {
-                const filePath = path.join(visualizationDir, file);
-                const stats = await fs.stat(filePath);
-                if (stats.mtime < cutoffDate) {
-                    await fs.unlink(filePath);
-                }
-            }
-            catch (error) {
-                // File might have been deleted already
             }
         }
-    }, catch(error) {
-        // Directory might not exist
+        catch (error) {
+            // Directory might not exist
+        }
     }
-};
+}
 /**
  * Create a new HistoricalBudgetService instance
  */

@@ -3,10 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { describe, test, expect, beforeEach } from 'vitest';
-import { Task, TaskDependency, ResourceConstraint } from '../../../packages/core/src/task-management/types.js';
-import { ParallelOptimizer as SequenceOptimizer, ParallelOptimizationConfig, ParallelStrategy } from '../../../packages/core/src/decision/ParallelOptimizer.js';
+import { Task, TaskDependency, ResourceConstraint, } from '../../../packages/core/src/task-management/types.js';
+import { ParallelOptimizer as SequenceOptimizer, ParallelOptimizationConfig, ParallelStrategy, } from '../../../packages/core/src/decision/ParallelOptimizer.js';
 describe('SequenceOptimizer', () => {
     let optimizer;
     let sampleTasks;
@@ -20,7 +19,7 @@ describe('SequenceOptimizer', () => {
             targetResourceUtilization: 0.8,
             minTaskDurationForParallelization: 1000,
             enablePredictiveAllocation: false,
-            learningRate: 0.1
+            learningRate: 0.1,
         };
         optimizer = new SequenceOptimizer(config);
         // Create sample tasks
@@ -37,8 +36,8 @@ describe('SequenceOptimizer', () => {
                     updatedAt: new Date('2024-01-01T00:00:00Z'),
                     createdBy: 'system',
                     estimatedDuration: 3000,
-                    tags: ['database', 'backend']
-                }
+                    tags: ['database', 'backend'],
+                },
             },
             {
                 id: 'task-2',
@@ -52,8 +51,8 @@ describe('SequenceOptimizer', () => {
                     updatedAt: new Date('2024-01-01T01:00:00Z'),
                     createdBy: 'system',
                     estimatedDuration: 5000,
-                    tags: ['backend', 'api']
-                }
+                    tags: ['backend', 'api'],
+                },
             },
             {
                 id: 'task-3',
@@ -67,8 +66,8 @@ describe('SequenceOptimizer', () => {
                     updatedAt: new Date('2024-01-01T02:00:00Z'),
                     createdBy: 'system',
                     estimatedDuration: 4000,
-                    tags: ['frontend', 'ui']
-                }
+                    tags: ['frontend', 'ui'],
+                },
             },
             {
                 id: 'task-4',
@@ -82,8 +81,8 @@ describe('SequenceOptimizer', () => {
                     updatedAt: new Date('2024-01-01T03:00:00Z'),
                     createdBy: 'system',
                     estimatedDuration: 2000,
-                    tags: ['testing']
-                }
+                    tags: ['testing'],
+                },
             },
             {
                 id: 'task-5',
@@ -97,8 +96,8 @@ describe('SequenceOptimizer', () => {
                     updatedAt: new Date('2024-01-01T04:00:00Z'),
                     createdBy: 'system',
                     estimatedDuration: 3000,
-                    tags: ['documentation']
-                }
+                    tags: ['documentation'],
+                },
             },
         ];
         // Create sample dependencies

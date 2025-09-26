@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Default resource ranking configuration
  */
@@ -232,7 +233,7 @@ export class ResourceRanking {
     calculateROIScore(candidate, historicalData) {
         if (historicalData.length === 0)
             return 50; // Default score
-        const avgROI = historicalData.reduce((sum, data) => sum + data.revenue / Math.max(data.totalCost, 1), 0) / historicalData.length;
+        const avgROI = historicalData.reduce((sum, data) => sum + data.roi, 0) / historicalData.length;
         // Convert ROI to 0-100 score (ROI of 2.0 = 100 points)
         return Math.min(100, Math.max(0, avgROI * 50));
     }
@@ -242,7 +243,7 @@ export class ResourceRanking {
     calculateCostEfficiencyScore(candidate, historicalData) {
         if (historicalData.length === 0)
             return 50;
-        const avgCostPerUnit = historicalData.reduce((sum, data) => sum + data.totalCost / Math.max(data.usage, 1), 0) / historicalData.length;
+        const avgCostPerUnit = historicalData.reduce((sum, data) => sum + data.totalCost / Math.max(data.usageFrequency, 1), 0) / historicalData.length;
         const currentCostPerUnit = candidate.currentAllocation / Math.max(candidate.projectedUsage, 1);
         // Better efficiency (lower cost per unit) gets higher score
         const efficiency = Math.max(0.1, avgCostPerUnit / Math.max(currentCostPerUnit, 0.1));
@@ -315,7 +316,7 @@ export class ResourceRanking {
         if (historicalData.length < 3)
             return 50;
         // Calculate usage trend
-        const usageValues = historicalData.map((data) => data.usage);
+        const usageValues = historicalData.map((data) => data.usageFrequency);
         const trend = this.calculateTrendSlope(usageValues);
         // Positive trend gets higher score
         const trendScore = 50 + trend * 25;
@@ -485,7 +486,7 @@ export class ResourceRanking {
         }
         // Increase confidence for consistent high performance
         if (historicalData.length > 10) {
-            const avgPerformance = historicalData.reduce((sum, data) => sum + (data.performance || 50), 0) / historicalData.length;
+            const avgPerformance = historicalData.reduce((sum, data) => sum + data.businessValue, 0) / historicalData.length;
             if (avgPerformance > 80) {
                 confidence += 10;
             }

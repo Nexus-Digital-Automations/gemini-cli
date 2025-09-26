@@ -19,7 +19,7 @@ import {
   initializeAgent,
 } from '../taskManagerApi.js';
 
-interface AddTaskOptions {
+interface _AddTaskOptions {
   priority: string;
   category: string;
   type: string;
@@ -31,7 +31,7 @@ interface AddTaskOptions {
   [key: string]: unknown;
 }
 
-export const addTaskCommand: CommandModule<object, AddTaskOptions> = {
+export const addTaskCommand: CommandModule = {
   command: 'add <description>',
   describe: 'Add a new task to the autonomous system',
   builder: (yargs) =>

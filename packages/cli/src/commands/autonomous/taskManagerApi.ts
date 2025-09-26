@@ -52,8 +52,12 @@ export interface AutonomousTask {
   title?: string;
   description?: string;
   category?: string;
-  type?: string;
-  priority?: string;
+  type?: string | unknown;
+  priority?: string | unknown;
+  maxExecutionTimeMinutes?: number;
+  dependencies?: string[];
+  context?: Record<string, unknown>;
+  expectedOutputs?: Record<string, unknown>;
 }
 
 /**

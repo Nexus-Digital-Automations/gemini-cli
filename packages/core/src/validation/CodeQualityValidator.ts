@@ -17,7 +17,7 @@ import {
 } from './ValidationFramework.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const _path = path; // Declare usage to avoid unused variable warning
 
 /**
@@ -55,7 +55,7 @@ interface ESLintResult {
 /**
  * Security scan result structure
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 interface _SecurityScanResult {
   tool: string;
   severity: string;

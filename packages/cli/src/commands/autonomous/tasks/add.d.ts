@@ -5,4 +5,16 @@
  */
 
 import type { CommandModule } from 'yargs';
-export declare const addTaskCommand: CommandModule;
+interface AddTaskOptions {
+    priority: string;
+    category: string;
+    type: string;
+    description: string;
+    'max-time': number;
+    dependencies: string[];
+    context?: string;
+    'expected-outputs'?: string;
+    [key: string]: unknown;
+}
+export declare const addTaskCommand: CommandModule<object, AddTaskOptions>;
+export {};

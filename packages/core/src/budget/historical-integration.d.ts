@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import type { BudgetSettings } from './types.js';
 import { type TrendAnalysis, type BudgetForecast, type AnomalyDetection } from './historical-analysis.js';
 import { type ForecastingModelConfig, type ScenarioConfig, type EnsembleForecast } from './forecasting-models.js';

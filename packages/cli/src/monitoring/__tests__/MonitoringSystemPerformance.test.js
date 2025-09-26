@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, beforeEach, afterEach, it, expect, vi, beforeAll, afterAll as _afterAll, } from 'vitest';
 import { performance } from 'node:perf_hooks';
 import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';

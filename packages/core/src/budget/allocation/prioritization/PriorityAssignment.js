@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * Default priority assignment configuration
  */
@@ -321,7 +322,7 @@ export class PriorityAssignment {
         }
         else if (performanceChange > 0.2 &&
             this.config.dynamicAdjustment.sensitivity !== 'low') {
-            return this.deeecalatePriority(currentPriority);
+            return this.deEscalatePriority(currentPriority);
         }
         return currentPriority;
     }
@@ -383,7 +384,7 @@ export class PriorityAssignment {
     /**
      * De-escalate priority to previous level
      */
-    deeecalatePriority(currentPriority) {
+    deEscalatePriority(currentPriority) {
         const priorityOrder = [
             'deferred',
             'low',

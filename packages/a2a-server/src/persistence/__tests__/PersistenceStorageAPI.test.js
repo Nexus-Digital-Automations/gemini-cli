@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
@@ -72,7 +73,7 @@ describe('PersistenceStorageAPI', () => {
     });
     describe('Task Storage Operations', () => {
         test('should save task successfully', async () => {
-            mockFse.pathExists.mockResolvedValue(false);
+            vi.mocked(mockFse.pathExists).mockResolvedValue(false);
             await storageAPI.save(mockTask);
             expect(mockFse.ensureDir).toHaveBeenCalled();
             expect(mockFse.writeJSON).toHaveBeenCalled();
@@ -90,8 +91,8 @@ describe('PersistenceStorageAPI', () => {
                     properties: {},
                 },
             };
-            mockFse.pathExists.mockResolvedValue(true);
-            mockFse.readJSON.mockResolvedValue(taskMetadata);
+            vi.mocked(mockFse.pathExists).mockResolvedValue(true);
+            vi.mocked(mockFse.readJSON).mockResolvedValue(taskMetadata);
             const loadedTask = await storageAPI.load('test-task-id');
             expect(loadedTask).toBeDefined();
             expect(loadedTask?.id).toBe('test-task-id');

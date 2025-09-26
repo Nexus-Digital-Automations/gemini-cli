@@ -9,6 +9,8 @@ import { Logger } from '../logger/Logger.js';
 import { ValidationSeverity, ValidationStatus, ValidationCategory, } from './ValidationFramework.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+ 
+const _path = path; // Declare usage to avoid unused variable warning
 /**
  * Code quality validation automation system
  * Handles linting, formatting, and security scanning
@@ -270,7 +272,7 @@ export class CodeQualityValidator {
     /**
      * Run TypeScript compiler validation
      */
-    async runTypeScript(context) {
+    async runTypeScript(_context) {
         const startTime = Date.now();
         try {
             this.logger.debug('Running TypeScript validation');
@@ -332,7 +334,7 @@ export class CodeQualityValidator {
     /**
      * Run security scanner validation
      */
-    async runSecurityScanner(scanner, context) {
+    async runSecurityScanner(scanner, _context) {
         const startTime = Date.now();
         try {
             this.logger.debug(`Running ${scanner} security scan`);

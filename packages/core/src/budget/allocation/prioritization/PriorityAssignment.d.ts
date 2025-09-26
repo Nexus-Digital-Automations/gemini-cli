@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Priority assignment algorithms and management system
  * Provides intelligent priority assignment based on dynamic business conditions and resource constraints
@@ -10,7 +11,9 @@
  * @author Claude Code - Budget Allocation Agent
  * @version 1.0.0
  */
-import type { AllocationCandidate, AllocationPriority, AllocationConstraints, FeatureCostAnalysis, AllocationLogger } from '../types.js';
+import type { AllocationCandidate, AllocationPriority, AllocationConstraints } from '../types.js';
+import type { FeatureCostAnalysis } from '../analytics/AnalyticsEngine.js';
+import type { AllocationLogger } from '../algorithms/BaseAllocationAlgorithm.js';
 import type { BusinessContextConfig, ResourceRankingResult } from './ResourceRanking.js';
 /**
  * Priority assignment configuration
@@ -381,7 +384,7 @@ export declare class PriorityAssignment {
      * @param historicalData - Historical performance data
      * @returns Priority assignment result
      */
-    assignPriority(candidate: AllocationCandidate, ranking: ResourceRanking, historicalData: FeatureCostAnalysis[]): PriorityAssignmentResult;
+    assignPriority(candidate: AllocationCandidate, ranking: ResourceRankingResult, historicalData: FeatureCostAnalysis[]): PriorityAssignmentResult;
     /**
      * Assign priorities to portfolio of resources
      * @param candidates - Array of resource allocation candidates
@@ -425,7 +428,7 @@ export declare class PriorityAssignment {
     /**
      * De-escalate priority to previous level
      */
-    private deeecalatePriority;
+    private deEscalatePriority;
     /**
      * Adjust priority numerically
      */

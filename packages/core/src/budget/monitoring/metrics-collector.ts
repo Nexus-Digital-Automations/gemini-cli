@@ -433,6 +433,10 @@ export class MetricsCollector extends EventEmitter {
       case '1week':
         startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
+      default:
+        // Handle unexpected values
+        startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Default to 1 day
+        break;
     }
 
     const periodData = this.historicalData.filter(
@@ -483,9 +487,6 @@ export class MetricsCollector extends EventEmitter {
       averageTokensPerRequest:
         totalRequests > 0 ? totalTokens / totalRequests : 0,
     };
-      default:
-        // Handle unexpected values
-        break;
   }
 
   /**

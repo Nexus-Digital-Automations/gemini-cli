@@ -52,6 +52,7 @@ interface _ListTasksOptions {
   limit: number;
   json: boolean;
   'show-completed': boolean;
+  [key: string]: unknown;
 }
 
 export const listTasksCommand: CommandModule = {
@@ -117,14 +118,19 @@ export const listTasksCommand: CommandModule = {
       await initializeAgent(agentId);
 
       // Try to fetch from TaskManager API first
-      let tasks = [];
+      let tasks: DisplayTask[] = [];
       let useApiData = false;
 
-      const filter = {
-        ...(argv.status && { status: argv.status }),
-        ...(argv.priority && { priority: argv.priority }),
-        ...(argv.category && { category: argv.category }),
-      };
+      const filter: Record<string, string> = {};
+      if (argv['status']) {
+        filter['status'] = argv['status'] as string;
+      }
+      if (argv['priority']) {
+        filter['priority'] = argv['priority'] as string;
+      }
+      if (argv['category']) {
+        filter['category'] = argv['category'] as string;
+      }
 
       const apiResponse = await listFeatures(
         Object.keys(filter).length > 0 ? filter : undefined,
@@ -163,9 +169,9 @@ export const listTasksCommand: CommandModule = {
           {
             id: 'task_001',
             title: 'Implement user authentication system',
-            status: TaskStatus.RUNNING,
-            priority: TaskPriority.HIGH,
-            category: TaskCategory.FEATURE,
+            status: 'running',
+            priority: 'high',
+            category: 'feature',
             progress: 65,
             assignedAgent: 'SECURITY_AGENT_001',
             createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
@@ -175,9 +181,9 @@ export const listTasksCommand: CommandModule = {
           {
             id: 'task_002',
             title: 'Fix memory leak in task queue',
-            status: TaskStatus.QUEUED,
-            priority: TaskPriority.CRITICAL,
-            category: TaskCategory.BUG_FIX,
+            status: 'queued',
+            priority: 'critical',
+            category: 'bug_fix',
             progress: 0,
             createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
             dependencies: ['task_001'],
@@ -185,9 +191,9 @@ export const listTasksCommand: CommandModule = {
           {
             id: 'task_003',
             title: 'Update API documentation',
-            status: TaskStatus.COMPLETED,
-            priority: TaskPriority.MEDIUM,
-            category: TaskCategory.DOCUMENTATION,
+            status: 'completed',
+            priority: 'medium',
+            category: 'documentation',
             progress: 100,
             assignedAgent: 'DOCUMENTATION_AGENT_001',
             createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
@@ -196,9 +202,9 @@ export const listTasksCommand: CommandModule = {
           {
             id: 'task_004',
             title: 'Optimize database queries',
-            status: TaskStatus.BLOCKED,
-            priority: TaskPriority.HIGH,
-            category: TaskCategory.PERFORMANCE,
+            status: 'blocked',
+            priority: 'high',
+            category: 'performance',
             progress: 25,
             assignedAgent: 'PERFORMANCE_AGENT_001',
             createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
@@ -209,32 +215,25 @@ export const listTasksCommand: CommandModule = {
 
       // Apply filters
       let filteredTasks = tasks.filter((task) => {
-        if (argv.status && task.status !== argv.status) return false;
-        if (argv.category && task.category !== argv.category) return false;
-        if (!argv['show-completed'] && task.status === TaskStatus.COMPLETED)
+        if (argv['status'] && task.status !== argv['status']) return false;
+        if (argv['category'] && task.category !== argv['category']) return false;
+        if (!argv['show-completed'] && task.status === 'completed')
           return false;
 
-        // Priority filtering (convert string to enum value)
-        if (argv.priority) {
-          const priorityMap: Record<string, TaskPriority> = {
-            critical: TaskPriority.CRITICAL,
-            high: TaskPriority.HIGH,
-            medium: TaskPriority.MEDIUM,
-            low: TaskPriority.LOW,
-            background: TaskPriority.BACKGROUND,
-          };
-          if (task.priority !== priorityMap[argv.priority]) return false;
+        // Priority filtering (compare string priorities directly)
+        if (argv['priority']) {
+          if (task.priority !== argv['priority']) return false;
         }
 
         return true;
       });
 
       // Apply limit
-      if (argv.limit && argv.limit > 0) {
-        filteredTasks = filteredTasks.slice(0, argv.limit);
+      if (argv['limit'] && (argv['limit'] as number) > 0) {
+        filteredTasks = filteredTasks.slice(0, argv['limit'] as number);
       }
 
-      if (argv.json) {
+      if (argv['json']) {
         console.log(JSON.stringify(filteredTasks, null, 2));
         return;
       }
@@ -281,8 +280,8 @@ export const listTasksCommand: CommandModule = {
 };
 
 function displayTask(task: DisplayTask) {
-  const statusIcon = getStatusIcon(task.status);
-  const statusColor = getStatusColor(task.status);
+  const statusIcon = getStatusIcon(task.status as TaskStatus);
+  const statusColor = getStatusColor(task.status as TaskStatus);
   const priorityColor = getPriorityColor(task.priority);
 
   // Header line with title and status
@@ -368,20 +367,33 @@ function getStatusColor(status: TaskStatus) {
   return colors[status] || chalk.white;
 }
 
-function getPriorityColor(priority: TaskPriority) {
-  if (priority >= TaskPriority.CRITICAL) return chalk.red.bold;
-  if (priority >= TaskPriority.HIGH) return chalk.red;
-  if (priority >= TaskPriority.MEDIUM) return chalk.yellow;
-  if (priority >= TaskPriority.LOW) return chalk.blue;
+function getPriorityColor(priority: TaskPriority | string) {
+  const priorityValue = typeof priority === 'string' ? getPriorityValue(priority) : priority;
+  if (priorityValue >= TaskPriority.CRITICAL) return chalk.red.bold;
+  if (priorityValue >= TaskPriority.HIGH) return chalk.red;
+  if (priorityValue >= TaskPriority.MEDIUM) return chalk.yellow;
+  if (priorityValue >= TaskPriority.LOW) return chalk.blue;
   return chalk.gray;
 }
 
-function getPriorityName(priority: TaskPriority): string {
-  if (priority >= TaskPriority.CRITICAL) return 'CRITICAL';
-  if (priority >= TaskPriority.HIGH) return 'HIGH';
-  if (priority >= TaskPriority.MEDIUM) return 'MEDIUM';
-  if (priority >= TaskPriority.LOW) return 'LOW';
+function getPriorityName(priority: TaskPriority | string): string {
+  const priorityValue = typeof priority === 'string' ? getPriorityValue(priority) : priority;
+  if (priorityValue >= TaskPriority.CRITICAL) return 'CRITICAL';
+  if (priorityValue >= TaskPriority.HIGH) return 'HIGH';
+  if (priorityValue >= TaskPriority.MEDIUM) return 'MEDIUM';
+  if (priorityValue >= TaskPriority.LOW) return 'LOW';
   return 'BACKGROUND';
+}
+
+function getPriorityValue(priority: string): TaskPriority {
+  const priorityMap: Record<string, TaskPriority> = {
+    critical: TaskPriority.CRITICAL,
+    high: TaskPriority.HIGH,
+    medium: TaskPriority.MEDIUM,
+    low: TaskPriority.LOW,
+    background: TaskPriority.BACKGROUND,
+  };
+  return priorityMap[priority] || TaskPriority.MEDIUM;
 }
 
 function createProgressBar(progress: number, width: number = 20): string {

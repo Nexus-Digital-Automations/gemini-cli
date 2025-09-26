@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { setCommand, getCommand, resetCommand, extendCommand, enableCommand, disableCommand, visualizeCommand, } from './budget/index.js';
 export const budgetCommand = {
     command: 'budget',

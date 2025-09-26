@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Stack Trace Analyzer for Interactive Debugging Assistance
  * Provides intelligent parsing and analysis of stack traces with source mapping and context analysis

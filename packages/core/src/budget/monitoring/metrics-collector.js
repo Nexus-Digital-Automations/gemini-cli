@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Comprehensive metrics collection and aggregation system
  * Collects detailed usage metrics from token tracker and other sources
@@ -251,6 +252,10 @@ export class MetricsCollector extends EventEmitter {
             case '1week':
                 startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                 break;
+            default:
+                // Handle unexpected values
+                startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Default to 1 day
+                break;
         }
         const periodData = this.historicalData.filter((point) => point.timestamp >= startTime);
         if (periodData.length === 0) {
@@ -289,265 +294,280 @@ export class MetricsCollector extends EventEmitter {
             averageTokensPerRequest: totalRequests > 0 ? totalTokens / totalRequests : 0,
         };
     }
-    default;
-}
-calculateTrends();
-TrendAnalysis;
-{
-    if (!this.config.enableTrendAnalysis || this.historicalData.length < 10) {
+    /**
+     * Calculate trend analysis
+     */
+    calculateTrends() {
+        if (!this.config.enableTrendAnalysis || this.historicalData.length < 10) {
+            return {
+                costTrend: this.createNullTrend(),
+                usageTrend: this.createNullTrend(),
+                performanceTrend: this.createNullTrend(),
+                errorTrend: this.createNullTrend(),
+                predictions: {
+                    nextHourCost: 0,
+                    nextDayCost: 0,
+                    budgetRunoutPrediction: null,
+                    confidence: 0,
+                },
+            };
+        }
+        const recentData = this.historicalData.slice(-this.config.movingAverageWindow);
         return {
-            costTrend: this.createNullTrend(),
-            usageTrend: this.createNullTrend(),
-            performanceTrend: this.createNullTrend(),
-            errorTrend: this.createNullTrend(),
-            predictions: {
+            costTrend: this.calculateTrendData(recentData.map((d) => d.totalCost)),
+            usageTrend: this.calculateTrendData(recentData.map((d) => d.totalTokens)),
+            performanceTrend: this.calculateTrendData(recentData.map((d) => d.averageResponseTime)),
+            errorTrend: this.calculateTrendData(recentData.map((d) => d.errorRate)),
+            predictions: this.calculatePredictions(recentData),
+        };
+    }
+    /**
+     * Calculate trend data for a series of values
+     */
+    calculateTrendData(values) {
+        if (values.length < 2) {
+            return this.createNullTrend();
+        }
+        // Linear regression to find trend
+        const n = values.length;
+        const x = Array.from({ length: n }, (_, i) => i);
+        const sumX = x.reduce((a, b) => a + b, 0);
+        const sumY = values.reduce((a, b) => a + b, 0);
+        const sumXY = x.reduce((acc, xi, i) => acc + xi * values[i], 0);
+        const sumX2 = x.reduce((acc, xi) => acc + xi * xi, 0);
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        // Calculate correlation coefficient
+        const meanX = sumX / n;
+        const meanY = sumY / n;
+        const numerator = x.reduce((acc, xi, i) => acc + (xi - meanX) * (values[i] - meanY), 0);
+        const denomX = Math.sqrt(x.reduce((acc, xi) => acc + Math.pow(xi - meanX, 2), 0));
+        const denomY = Math.sqrt(values.reduce((acc, yi) => acc + Math.pow(yi - meanY, 2), 0));
+        const correlation = denomX && denomY ? numerator / (denomX * denomY) : 0;
+        // Determine trend direction and magnitude
+        const startValue = intercept;
+        const endValue = intercept + slope * (n - 1);
+        const magnitude = startValue !== 0
+            ? Math.abs((endValue - startValue) / startValue) * 100
+            : 0;
+        let direction = 'stable';
+        if (Math.abs(slope) > 0.01) {
+            // Threshold for significant change
+            direction = slope > 0 ? 'up' : 'down';
+        }
+        return {
+            direction,
+            magnitude,
+            confidence: Math.abs(correlation),
+            period: `${n} data points`,
+            dataPoints: n,
+            correlation,
+        };
+    }
+    /**
+     * Create null trend data
+     */
+    createNullTrend() {
+        return {
+            direction: 'stable',
+            magnitude: 0,
+            confidence: 0,
+            period: '0 data points',
+            dataPoints: 0,
+            correlation: 0,
+        };
+    }
+    /**
+     * Calculate predictions for future usage
+     */
+    calculatePredictions(recentData) {
+        if (recentData.length < 5) {
+            return {
                 nextHourCost: 0,
                 nextDayCost: 0,
                 budgetRunoutPrediction: null,
                 confidence: 0,
-            },
-        };
-    }
-    const recentData = this.historicalData.slice(-this.config.movingAverageWindow);
-    return {
-        costTrend: this.calculateTrendData(recentData.map((d) => d.totalCost)),
-        usageTrend: this.calculateTrendData(recentData.map((d) => d.totalTokens)),
-        performanceTrend: this.calculateTrendData(recentData.map((d) => d.averageResponseTime)),
-        errorTrend: this.calculateTrendData(recentData.map((d) => d.errorRate)),
-        predictions: this.calculatePredictions(recentData),
-    };
-}
-calculateTrendData(values, number[]);
-TrendData;
-{
-    if (values.length < 2) {
-        return this.createNullTrend();
-    }
-    // Linear regression to find trend
-    const n = values.length;
-    const x = Array.from({ length: n }, (_, i) => i);
-    const sumX = x.reduce((a, b) => a + b, 0);
-    const sumY = values.reduce((a, b) => a + b, 0);
-    const sumXY = x.reduce((acc, xi, i) => acc + xi * values[i], 0);
-    const sumX2 = x.reduce((acc, xi) => acc + xi * xi, 0);
-    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-    // Calculate correlation coefficient
-    const meanX = sumX / n;
-    const meanY = sumY / n;
-    const numerator = x.reduce((acc, xi, i) => acc + (xi - meanX) * (values[i] - meanY), 0);
-    const denomX = Math.sqrt(x.reduce((acc, xi) => acc + Math.pow(xi - meanX, 2), 0));
-    const denomY = Math.sqrt(values.reduce((acc, yi) => acc + Math.pow(yi - meanY, 2), 0));
-    const correlation = denomX && denomY ? numerator / (denomX * denomY) : 0;
-    // Determine trend direction and magnitude
-    const startValue = intercept;
-    const endValue = intercept + slope * (n - 1);
-    const magnitude = startValue !== 0
-        ? Math.abs((endValue - startValue) / startValue) * 100
-        : 0;
-    let direction = 'stable';
-    if (Math.abs(slope) > 0.01) {
-        // Threshold for significant change
-        direction = slope > 0 ? 'up' : 'down';
-    }
-    return {
-        direction,
-        magnitude,
-        confidence: Math.abs(correlation),
-        period: `${n} data points`,
-        dataPoints: n,
-        correlation,
-    };
-}
-createNullTrend();
-TrendData;
-{
-    return {
-        direction: 'stable',
-        magnitude: 0,
-        confidence: 0,
-        period: '0 data points',
-        dataPoints: 0,
-        correlation: 0,
-    };
-}
-calculatePredictions(recentData, MetricsDataPoint[]);
-PredictionData;
-{
-    if (recentData.length < 5) {
+            };
+        }
+        // Simple linear extrapolation based on recent cost rate
+        const costRates = recentData
+            .map((d) => d.costRate)
+            .filter((rate) => rate > 0);
+        if (costRates.length === 0) {
+            return {
+                nextHourCost: 0,
+                nextDayCost: 0,
+                budgetRunoutPrediction: null,
+                confidence: 0,
+            };
+        }
+        const avgCostRate = costRates.reduce((sum, rate) => sum + rate, 0) / costRates.length;
+        const nextHourCost = avgCostRate * 60; // Cost per minute * 60
+        const nextDayCost = avgCostRate * 60 * 24;
+        // Calculate confidence based on variance in cost rates
+        const variance = costRates.reduce((sum, rate) => sum + Math.pow(rate - avgCostRate, 2), 0) / costRates.length;
+        const standardDeviation = Math.sqrt(variance);
+        const confidence = Math.max(0, Math.min(1, 1 - standardDeviation / avgCostRate));
         return {
-            nextHourCost: 0,
-            nextDayCost: 0,
-            budgetRunoutPrediction: null,
-            confidence: 0,
+            nextHourCost,
+            nextDayCost,
+            budgetRunoutPrediction: null, // Would need budget limit to calculate
+            confidence,
         };
     }
-    // Simple linear extrapolation based on recent cost rate
-    const costRates = recentData
-        .map((d) => d.costRate)
-        .filter((rate) => rate > 0);
-    if (costRates.length === 0) {
-        return {
-            nextHourCost: 0,
-            nextDayCost: 0,
-            budgetRunoutPrediction: null,
-            confidence: 0,
-        };
+    /**
+     * Detect anomalies in current data point
+     */
+    detectAnomalies(snapshot) {
+        if (this.historicalData.length < this.config.movingAverageWindow) {
+            return; // Not enough data for anomaly detection
+        }
+        const recentData = this.historicalData.slice(-this.config.movingAverageWindow);
+        // Check for cost spikes
+        this.detectAnomalyInMetric(snapshot, 'costRate', snapshot.costRate, recentData.map((d) => d.costRate), 'cost_spike');
+        // Check for usage spikes
+        this.detectAnomalyInMetric(snapshot, 'tokenRate', snapshot.tokenRate, recentData.map((d) => d.tokenRate), 'usage_spike');
+        // Check for error spikes
+        this.detectAnomalyInMetric(snapshot, 'errorRate', snapshot.errorRate, recentData.map((d) => d.errorRate), 'error_spike');
+        // Check for performance drops (higher is worse for response time)
+        this.detectAnomalyInMetric(snapshot, 'averageResponseTime', snapshot.averageResponseTime, recentData.map((d) => d.averageResponseTime), 'performance_drop');
     }
-    const avgCostRate = costRates.reduce((sum, rate) => sum + rate, 0) / costRates.length;
-    const nextHourCost = avgCostRate * 60; // Cost per minute * 60
-    const nextDayCost = avgCostRate * 60 * 24;
-    // Calculate confidence based on variance in cost rates
-    const variance = costRates.reduce((sum, rate) => sum + Math.pow(rate - avgCostRate, 2), 0) / costRates.length;
-    const standardDeviation = Math.sqrt(variance);
-    const confidence = Math.max(0, Math.min(1, 1 - standardDeviation / avgCostRate));
-    return {
-        nextHourCost,
-        nextDayCost,
-        budgetRunoutPrediction: null, // Would need budget limit to calculate
-        confidence,
-    };
-}
-detectAnomalies(snapshot, MetricsDataPoint);
-void {
-    : .historicalData.length < this.config.movingAverageWindow
-};
-{
-    return; // Not enough data for anomaly detection
-}
-const recentData = this.historicalData.slice(-this.config.movingAverageWindow);
-// Check for cost spikes
-this.detectAnomalyInMetric(snapshot, 'costRate', snapshot.costRate, recentData.map((d) => d.costRate), 'cost_spike');
-// Check for usage spikes
-this.detectAnomalyInMetric(snapshot, 'tokenRate', snapshot.tokenRate, recentData.map((d) => d.tokenRate), 'usage_spike');
-// Check for error spikes
-this.detectAnomalyInMetric(snapshot, 'errorRate', snapshot.errorRate, recentData.map((d) => d.errorRate), 'error_spike');
-// Check for performance drops (higher is worse for response time)
-this.detectAnomalyInMetric(snapshot, 'averageResponseTime', snapshot.averageResponseTime, recentData.map((d) => d.averageResponseTime), 'performance_drop');
-detectAnomalyInMetric(snapshot, MetricsDataPoint, metricName, string, currentValue, number, historicalValues, number[], anomalyType, AnomalyData['type']);
-void {
-    if(historicalValues) { }, : .length === 0, return: ,
-    const: mean =
-        historicalValues.reduce((sum, val) => sum + val, 0) /
-            historicalValues.length,
-    const: variance =
-        historicalValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
-            historicalValues.length,
-    const: standardDeviation = Math.sqrt(variance),
-    if(standardDeviation) { }
-} === 0;
-return; // No variation
-const deviationScore = Math.abs(currentValue - mean) / standardDeviation;
-if (deviationScore > this.config.anomalyThreshold) {
-    const severity = this.getAnomalySeverity(deviationScore);
-    const anomaly = {
-        timestamp: snapshot.timestamp,
-        type: anomalyType,
-        severity,
-        value: currentValue,
-        expectedValue: mean,
-        deviationScore,
-        description: this.generateAnomalyDescription(anomalyType, currentValue, mean, deviationScore),
-    };
-    this.anomalies.push(anomaly);
-    // Keep only recent anomalies
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
-    const recentAnomaliesCount = this.anomalies.length;
-    this.anomalies.splice(0, this.anomalies.length);
-    this.anomalies.push(...this.anomalies.filter((a) => a.timestamp >= cutoff));
-    this.logger.warn('Anomaly detected', {
-        type: anomalyType,
-        severity,
-        metric: metricName,
-        currentValue,
-        expectedValue: mean,
-        deviationScore,
-    });
-    this.emit('anomaly_detected', {
-        type: 'anomaly_detected',
-        timestamp: snapshot.timestamp,
-        data: anomaly,
-    });
-}
-getAnomalySeverity(deviationScore, number);
-AnomalyData['severity'];
-{
-    if (deviationScore > 5)
-        return 'critical';
-    if (deviationScore > 4)
-        return 'high';
-    if (deviationScore > 3)
-        return 'medium';
-    return 'low';
-}
-generateAnomalyDescription(type, AnomalyData['type'], currentValue, number, expectedValue, number, deviationScore, number);
-string;
-{
-    const percentageChange = expectedValue !== 0
-        ? Math.abs((currentValue - expectedValue) / expectedValue) * 100
-        : 0;
-    switch (type) {
-        case 'cost_spike':
-            return `Cost rate is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(4)} vs ${expectedValue.toFixed(4)} per minute)`;
-        case 'usage_spike':
-            return `Token usage rate is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(0)} vs ${expectedValue.toFixed(0)} tokens per minute)`;
-        case 'error_spike':
-            return `Error rate is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(1)}% vs ${expectedValue.toFixed(1)}%)`;
-        case 'performance_drop':
-            return `Average response time is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(0)}ms vs ${expectedValue.toFixed(0)}ms)`;
-        default:
-            return `Anomaly detected: current value ${currentValue} deviates from expected ${expectedValue} by ${deviationScore.toFixed(1)} standard deviations`;
+    /**
+     * Detect anomaly in a specific metric
+     */
+    detectAnomalyInMetric(snapshot, metricName, currentValue, historicalValues, anomalyType) {
+        if (historicalValues.length === 0)
+            return;
+        const mean = historicalValues.reduce((sum, val) => sum + val, 0) /
+            historicalValues.length;
+        const variance = historicalValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+            historicalValues.length;
+        const standardDeviation = Math.sqrt(variance);
+        if (standardDeviation === 0)
+            return; // No variation
+        const deviationScore = Math.abs(currentValue - mean) / standardDeviation;
+        if (deviationScore > this.config.anomalyThreshold) {
+            const severity = this.getAnomalySeverity(deviationScore);
+            const anomaly = {
+                timestamp: snapshot.timestamp,
+                type: anomalyType,
+                severity,
+                value: currentValue,
+                expectedValue: mean,
+                deviationScore,
+                description: this.generateAnomalyDescription(anomalyType, currentValue, mean, deviationScore),
+            };
+            this.anomalies.push(anomaly);
+            // Keep only recent anomalies
+            const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
+            const recentAnomaliesCount = this.anomalies.length;
+            this.anomalies.splice(0, this.anomalies.length);
+            this.anomalies.push(...this.anomalies.filter((a) => a.timestamp >= cutoff));
+            this.logger.warn('Anomaly detected', {
+                type: anomalyType,
+                severity,
+                metric: metricName,
+                currentValue,
+                expectedValue: mean,
+                deviationScore,
+            });
+            this.emit('anomaly_detected', {
+                type: 'anomaly_detected',
+                timestamp: snapshot.timestamp,
+                data: anomaly,
+            });
+        }
+    }
+    /**
+     * Determine anomaly severity based on deviation score
+     */
+    getAnomalySeverity(deviationScore) {
+        if (deviationScore > 5)
+            return 'critical';
+        if (deviationScore > 4)
+            return 'high';
+        if (deviationScore > 3)
+            return 'medium';
+        return 'low';
+    }
+    /**
+     * Generate human-readable anomaly description
+     */
+    generateAnomalyDescription(type, currentValue, expectedValue, deviationScore) {
+        const percentageChange = expectedValue !== 0
+            ? Math.abs((currentValue - expectedValue) / expectedValue) * 100
+            : 0;
+        switch (type) {
+            case 'cost_spike':
+                return `Cost rate is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(4)} vs ${expectedValue.toFixed(4)} per minute)`;
+            case 'usage_spike':
+                return `Token usage rate is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(0)} vs ${expectedValue.toFixed(0)} tokens per minute)`;
+            case 'error_spike':
+                return `Error rate is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(1)}% vs ${expectedValue.toFixed(1)}%)`;
+            case 'performance_drop':
+                return `Average response time is ${percentageChange.toFixed(1)}% higher than expected (${currentValue.toFixed(0)}ms vs ${expectedValue.toFixed(0)}ms)`;
+            default:
+                return `Anomaly detected: current value ${currentValue} deviates from expected ${expectedValue} by ${deviationScore.toFixed(1)} standard deviations`;
+        }
+    }
+    /**
+     * Get recent anomalies
+     */
+    getRecentAnomalies(hours) {
+        const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+        return this.anomalies.filter((anomaly) => anomaly.timestamp >= cutoff);
+    }
+    /**
+     * Get top models by usage
+     */
+    getTopModels(stats, limit) {
+        return Object.values(stats.modelBreakdown)
+            .sort((a, b) => b.cost - a.cost)
+            .slice(0, limit);
+    }
+    /**
+     * Get top features by usage
+     */
+    getTopFeatures(stats, limit) {
+        return Object.entries(stats.featureBreakdown)
+            .map(([feature, usage]) => ({ feature, usage }))
+            .sort((a, b) => b.usage.tokenCosts.input +
+            b.usage.tokenCosts.output -
+            (a.usage.tokenCosts.input + a.usage.tokenCosts.output))
+            .slice(0, limit);
+    }
+    /**
+     * Get top sessions by usage
+     */
+    getTopSessions(stats, limit) {
+        return Object.entries(stats.sessionBreakdown)
+            .map(([sessionId, usage]) => ({ sessionId, usage }))
+            .sort((a, b) => b.usage.tokenCosts.input +
+            b.usage.tokenCosts.output -
+            (a.usage.tokenCosts.input + a.usage.tokenCosts.output))
+            .slice(0, limit);
+    }
+    /**
+     * Setup event listeners for the token tracker
+     */
+    setupTokenTrackerListeners() {
+        this.tokenTracker.on('request_complete', (event) => {
+            // Real-time updates could be handled here
+            this.emit('metrics_event', {
+                type: 'request_complete',
+                timestamp: new Date(),
+                data: event.data,
+            });
+        });
+        this.tokenTracker.on('anomaly_detected', (event) => {
+            this.emit('metrics_event', {
+                type: 'anomaly_detected',
+                timestamp: new Date(),
+                data: event.data,
+            });
+        });
     }
 }
-getRecentAnomalies(hours, number);
-AnomalyData[];
-{
-    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return this.anomalies.filter((anomaly) => anomaly.timestamp >= cutoff);
-}
-getTopModels(stats, TokenUsageStats, limit, number);
-ModelUsageData[];
-{
-    return Object.values(stats.modelBreakdown)
-        .sort((a, b) => b.cost - a.cost)
-        .slice(0, limit);
-}
-getTopFeatures(stats, TokenUsageStats, limit, number);
-Array < { feature: string, usage: TokenUsageData } > {
-    return: Object.entries(stats.featureBreakdown)
-        .map(([feature, usage]) => ({ feature, usage }))
-        .sort((a, b) => b.usage.tokenCosts.input +
-        b.usage.tokenCosts.output -
-        (a.usage.tokenCosts.input + a.usage.tokenCosts.output))
-        .slice(0, limit)
-};
-getTopSessions(stats, TokenUsageStats, limit, number);
-Array < { sessionId: string, usage: TokenUsageData } > {
-    return: Object.entries(stats.sessionBreakdown)
-        .map(([sessionId, usage]) => ({ sessionId, usage }))
-        .sort((a, b) => b.usage.tokenCosts.input +
-        b.usage.tokenCosts.output -
-        (a.usage.tokenCosts.input + a.usage.tokenCosts.output))
-        .slice(0, limit)
-};
-setupTokenTrackerListeners();
-void {
-    this: .tokenTracker.on('request_complete', (event) => {
-        // Real-time updates could be handled here
-        this.emit('metrics_event', {
-            type: 'request_complete',
-            timestamp: new Date(),
-            data: event.data,
-        });
-    }),
-    this: .tokenTracker.on('anomaly_detected', (event) => {
-        this.emit('metrics_event', {
-            type: 'anomaly_detected',
-            timestamp: new Date(),
-            data: event.data,
-        });
-    })
-};
 /**
  * Create a new MetricsCollector instance
  */

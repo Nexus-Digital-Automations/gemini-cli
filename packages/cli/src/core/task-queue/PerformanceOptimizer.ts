@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { WinstonStructuredLogger } from '../../../../core/src/utils/logger.js';
+import { WinstonStructuredLogger } from "@google/gemini-cli-core/src/utils/logger.js";
 import type {
   TaskPriority,
   TaskType,

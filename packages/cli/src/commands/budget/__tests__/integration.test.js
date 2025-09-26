@@ -3,9 +3,10 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs/promises';
-import { mockCommandContext } from '../../../test-utils/mockCommandContext.js';
+import { createMockCommandContext } from '../../../test-utils/createMockCommandContext.js';
 import { budgetCommand } from '../../../commands/budget.js';
 import { getCommand } from '../get.js';
 import { setCommand } from '../set.js';
@@ -68,7 +69,7 @@ describe('Budget CLI Integration Tests', () => {
     });
     describe('Main Budget Command', () => {
         it('should display help when no subcommand provided', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -78,7 +79,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('set'));
         });
         it('should display help for invalid subcommand', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['invalid-command'],
             });
@@ -86,7 +87,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Unknown budget command'));
         });
         it('should delegate to get command', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['get'],
             });
@@ -96,7 +97,7 @@ describe('Budget CLI Integration Tests', () => {
     });
     describe('Budget Get Command', () => {
         it('should display current budget status when enabled', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -111,7 +112,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 enabled: false,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -123,7 +124,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockUsageData,
                 requestCount: 105,
             }));
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -133,7 +134,7 @@ describe('Budget CLI Integration Tests', () => {
         });
         it('should handle missing usage file gracefully', async () => {
             vi.mocked(fs.readFile).mockRejectedValue(new Error('File not found'));
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -141,7 +142,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Usage: 0/100 (0.0%)'));
         });
         it('should show detailed information with --verbose flag', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['--verbose'],
             });
@@ -152,7 +153,7 @@ describe('Budget CLI Integration Tests', () => {
     });
     describe('Budget Set Command', () => {
         it('should set daily limit successfully', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['150'],
             });
@@ -166,7 +167,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Daily budget limit set to 150 requests'));
         });
         it('should reject invalid limit values', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['-10'],
             });
@@ -175,7 +176,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(mockConfig.updateSettings).not.toHaveBeenCalled();
         });
         it('should reject non-numeric limit values', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['abc'],
             });
@@ -188,7 +189,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 enabled: false,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['200'],
             });
@@ -203,7 +204,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Budget tracking has been enabled'));
         });
         it('should handle missing argument gracefully', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -218,7 +219,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 enabled: false,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -236,7 +237,7 @@ describe('Budget CLI Integration Tests', () => {
                 enabled: false,
                 dailyLimit: undefined,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -250,7 +251,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Budget tracking has been enabled'));
         });
         it('should inform when budget is already enabled', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -261,7 +262,7 @@ describe('Budget CLI Integration Tests', () => {
     });
     describe('Budget Disable Command', () => {
         it('should disable budget tracking', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -279,7 +280,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 enabled: false,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -290,7 +291,7 @@ describe('Budget CLI Integration Tests', () => {
     });
     describe('Budget Reset Command', () => {
         it('should reset usage data successfully', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -303,7 +304,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 enabled: false,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -313,7 +314,7 @@ describe('Budget CLI Integration Tests', () => {
         });
         it('should handle file system errors gracefully', async () => {
             vi.mocked(fs.writeFile).mockRejectedValue(new Error('Write failed'));
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -321,7 +322,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to reset budget usage'));
         });
         it('should confirm reset with --confirm flag', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['--confirm'],
             });
@@ -332,7 +333,7 @@ describe('Budget CLI Integration Tests', () => {
     });
     describe('Budget Extend Command', () => {
         it('should extend daily limit successfully', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['50'],
             });
@@ -347,7 +348,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('New limit: 150 requests'));
         });
         it('should reject invalid extension amounts', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['-10'],
             });
@@ -360,7 +361,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 enabled: false,
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['50'],
             });
@@ -369,7 +370,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(mockConfig.updateSettings).not.toHaveBeenCalled();
         });
         it('should handle missing argument gracefully', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -382,7 +383,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockUsageData,
                 requestCount: 120, // Already over budget
             }));
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['20'],
             });
@@ -404,7 +405,7 @@ describe('Budget CLI Integration Tests', () => {
                 dailyLimit: undefined,
             });
             // 1. Enable budget
-            const enableContext = mockCommandContext({
+            const enableContext = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -414,13 +415,13 @@ describe('Budget CLI Integration Tests', () => {
                 enabled: true,
                 dailyLimit: 100,
             });
-            const setContext = mockCommandContext({
+            const setContext = createMockCommandContext({
                 config: mockConfig,
                 args: ['150'],
             });
             await setCommand.handler(setContext);
             // 3. Check status
-            const getContext = mockCommandContext({
+            const getContext = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -437,14 +438,14 @@ describe('Budget CLI Integration Tests', () => {
                 requestCount: 105,
             }));
             // 1. Check over budget status
-            const getContext = mockCommandContext({
+            const getContext = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
             await getCommand.handler(getContext);
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Over Budget!'));
             // 2. Extend budget
-            const extendContext = mockCommandContext({
+            const extendContext = createMockCommandContext({
                 config: mockConfig,
                 args: ['50'],
             });
@@ -455,7 +456,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 dailyLimit: 150,
             });
-            const finalGetContext = mockCommandContext({
+            const finalGetContext = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -464,13 +465,13 @@ describe('Budget CLI Integration Tests', () => {
         });
         it('should handle reset and reconfiguration workflow', async () => {
             // 1. Reset usage data
-            const resetContext = mockCommandContext({
+            const resetContext = createMockCommandContext({
                 config: mockConfig,
                 args: ['--confirm'],
             });
             await resetCommand.handler(resetContext);
             // 2. Reconfigure with new limit
-            const setContext = mockCommandContext({
+            const setContext = createMockCommandContext({
                 config: mockConfig,
                 args: ['200'],
             });
@@ -486,7 +487,7 @@ describe('Budget CLI Integration Tests', () => {
                 ...mockBudgetSettings,
                 dailyLimit: 200,
             });
-            const getContext = mockCommandContext({
+            const getContext = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -505,7 +506,7 @@ describe('Budget CLI Integration Tests', () => {
             mockConfig.getBudgetSettings = vi.fn().mockImplementation(() => {
                 throw new Error('Config read failed');
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -516,7 +517,7 @@ describe('Budget CLI Integration Tests', () => {
             mockConfig.updateSettings = vi.fn().mockImplementation(() => {
                 throw new Error('Config update failed');
             });
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['150'],
             });
@@ -525,7 +526,7 @@ describe('Budget CLI Integration Tests', () => {
         });
         it('should handle usage file corruption gracefully', async () => {
             vi.mocked(fs.readFile).mockResolvedValue('invalid json');
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -535,7 +536,7 @@ describe('Budget CLI Integration Tests', () => {
         });
         it('should handle permission errors when writing files', async () => {
             vi.mocked(fs.mkdir).mockRejectedValue(new Error('Permission denied'));
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });
@@ -543,7 +544,7 @@ describe('Budget CLI Integration Tests', () => {
             expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to reset budget usage'));
         });
         it('should handle extreme numeric values', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [Number.MAX_SAFE_INTEGER.toString()],
             });
@@ -556,7 +557,7 @@ describe('Budget CLI Integration Tests', () => {
             });
         });
         it('should handle float values by rounding down', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: ['150.75'],
             });
@@ -569,7 +570,7 @@ describe('Budget CLI Integration Tests', () => {
             });
         });
         it('should handle concurrent command execution safely', async () => {
-            const contexts = Array.from({ length: 5 }, () => mockCommandContext({
+            const contexts = Array.from({ length: 5 }, () => createMockCommandContext({
                 config: mockConfig,
                 args: [],
             }));
@@ -591,7 +592,7 @@ describe('Budget CLI Integration Tests', () => {
                 extendCommand,
             ];
             for (const command of commands) {
-                const context = mockCommandContext({
+                const context = createMockCommandContext({
                     config: mockConfig,
                     args: ['--help'],
                 });
@@ -600,7 +601,7 @@ describe('Budget CLI Integration Tests', () => {
             }
         });
         it('should display command descriptions correctly', async () => {
-            const context = mockCommandContext({
+            const context = createMockCommandContext({
                 config: mockConfig,
                 args: [],
             });

@@ -340,7 +340,7 @@
     ],
     "initialization_stats": {
       "total_initializations": 17,
-      "total_reinitializations": 280,
+      "total_reinitializations": 281,
       "current_day": "2025-09-26",
       "time_buckets": {
         "09:00-13:59": {
@@ -353,7 +353,7 @@
         },
         "19:00-23:59": {
           "init": 0,
-          "reinit": 9
+          "reinit": 10
         },
         "00:00-04:59": {
           "init": 0,
@@ -448,7 +448,7 @@
         }
       ],
       "last_reset": "2025-09-26T00:03:10.026Z",
-      "last_updated": "2025-09-26T00:37:30.285Z"
+      "last_updated": "2025-09-26T00:49:52.596Z"
     }
   },
   "workflow_config": {
@@ -468,190 +468,6 @@
     ]
   },
   "agents": {
-    "RECOVERY_AGENT": {
-      "lastHeartbeat": "2025-09-25T19:29:55.567Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:29:55.567Z",
-      "sessionId": "d44cf2cea2f48dd7",
-      "previousSessions": []
-    },
-    "AGENT_001": {
-      "lastHeartbeat": "2025-09-25T23:51:48.990Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:51:48.990Z",
-      "sessionId": "37e89efd581605cf",
-      "previousSessions": [
-        "d90c4840e7b99e0a",
-        "6ba3a4ff272f283c"
-      ]
-    },
-    "TYPESCRIPT_FIX_AGENT": {
-      "lastHeartbeat": "2025-09-25T19:33:28.078Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:28.078Z",
-      "sessionId": "bda57dcb790d96aa",
-      "previousSessions": []
-    },
-    "TYPESCRIPT_DECLARATIONS_FIXER": {
-      "lastHeartbeat": "2025-09-25T19:33:28.406Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:28.406Z",
-      "sessionId": "374e9371371ce3ce",
-      "previousSessions": []
-    },
-    "interface-compliance-agent": {
-      "lastHeartbeat": "2025-09-25T19:33:28.604Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:28.604Z",
-      "sessionId": "4ad264057180eeaf",
-      "previousSessions": []
-    },
-    "typescript-fixer": {
-      "lastHeartbeat": "2025-09-25T19:33:29.749Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:29.749Z",
-      "sessionId": "1c8922ad5351c555",
-      "previousSessions": []
-    },
-    "command-module-fixer": {
-      "lastHeartbeat": "2025-09-25T19:33:30.190Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:30.190Z",
-      "sessionId": "bb49cac33cbde836",
-      "previousSessions": []
-    },
-    "BUDGET_TYPE_FIXES": {
-      "lastHeartbeat": "2025-09-25T19:33:31.508Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:31.508Z",
-      "sessionId": "349c851433061a6e",
-      "previousSessions": []
-    },
-    "SYNTAX_FIX_AGENT": {
-      "lastHeartbeat": "2025-09-25T19:33:31.590Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:31.590Z",
-      "sessionId": "6a5b9c6c7aa259ed",
-      "previousSessions": []
-    },
-    "agent_persistence_fixes": {
-      "lastHeartbeat": "2025-09-25T19:33:36.247Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:36.247Z",
-      "sessionId": "d0cf8f9fe6b70c47",
-      "previousSessions": []
-    },
-    "autonomous-fix-agent": {
-      "lastHeartbeat": "2025-09-25T19:33:37.014Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:33:37.014Z",
-      "sessionId": "42cbae6b3d679b95",
-      "previousSessions": []
-    },
-    "AGENT_AUTO_COMPRESSION": {
-      "lastHeartbeat": "2025-09-26T00:03:10.012Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T00:03:10.012Z",
-      "sessionId": "9df98ea2d5f84276",
-      "previousSessions": [
-        "7c66888737896f13"
-      ]
-    },
-    "CONTINUATION_AGENT": {
-      "lastHeartbeat": "2025-09-25T19:50:25.960Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:50:25.960Z",
-      "sessionId": "68f896d1670560b7",
-      "previousSessions": []
-    },
-    "SWITCH_DEFAULT_FIXER": {
-      "lastHeartbeat": "2025-09-25T19:52:34.643Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:52:34.643Z",
-      "sessionId": "aa61bc5cab32bcc4",
-      "previousSessions": []
-    },
-    "batch3-linter-agent": {
-      "lastHeartbeat": "2025-09-26T00:09:46.588Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T00:09:46.588Z",
-      "sessionId": "a87a5b7b23b3ca59",
-      "previousSessions": [
-        "809ac36f24b2766d"
-      ]
-    },
-    "LINTER_COORDINATOR": {
-      "lastHeartbeat": "2025-09-25T19:52:35.363Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T19:52:35.363Z",
-      "sessionId": "476bec530ea06552",
-      "previousSessions": []
-    },
-    "AGENT_LINTER_FIX": {
-      "lastHeartbeat": "2025-09-25T23:50:39.488Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:50:39.488Z",
-      "sessionId": "4cb4e71e211f2952",
-      "previousSessions": []
-    },
-    "jeremyparker_linter_fix_1758844308": {
-      "lastHeartbeat": "2025-09-25T23:51:48.548Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:51:48.548Z",
-      "sessionId": "8abaa2627233e8bb",
-      "previousSessions": []
-    },
-    "ESLINT_FIXER": {
-      "lastHeartbeat": "2025-09-25T23:51:48.754Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:51:48.754Z",
-      "sessionId": "75fcedb7053feae9",
-      "previousSessions": []
-    },
-    "AGENT_VAR_FIXER": {
-      "lastHeartbeat": "2025-09-25T23:51:57.296Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:51:57.296Z",
-      "sessionId": "8f398f64c1ef1d0c",
-      "previousSessions": [
-        "921fefcd727593fd"
-      ]
-    },
-    "LINTER_CLEANUP_AGENT": {
-      "lastHeartbeat": "2025-09-25T23:51:50.502Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:51:50.502Z",
-      "sessionId": "dd0cbbcf7a10c2c6",
-      "previousSessions": []
-    },
-    "MONITORING_TEST_FIXER": {
-      "lastHeartbeat": "2025-09-25T23:51:51.805Z",
-      "status": "active",
-      "reinitialized": "2025-09-25T23:51:51.805Z",
-      "sessionId": "475e71f723a27e43",
-      "previousSessions": []
-    },
-    "agent_var_fixes": {
-      "lastHeartbeat": "2025-09-26T00:05:15.067Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T00:05:15.067Z",
-      "sessionId": "4f9e54aa898863b5",
-      "previousSessions": []
-    },
-    "BUILD_FAILURE_FIXER": {
-      "lastHeartbeat": "2025-09-26T00:06:15.262Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T00:06:15.262Z",
-      "sessionId": "7f8e3df1d30d25b1",
-      "previousSessions": []
-    },
-    "LINTING_TIMEOUT_FIXER": {
-      "lastHeartbeat": "2025-09-26T00:06:15.592Z",
-      "status": "active",
-      "reinitialized": "2025-09-26T00:06:15.592Z",
-      "sessionId": "51b07065d767bafd",
-      "previousSessions": []
-    },
     "linter-cleanup-agent": {
       "lastHeartbeat": "2025-09-26T00:29:04.553Z",
       "status": "active",
@@ -678,6 +494,13 @@
       "status": "active",
       "reinitialized": "2025-09-26T00:37:30.280Z",
       "sessionId": "a5716049d3af124e",
+      "previousSessions": []
+    },
+    "AGENT_AUTO_COMPRESSION": {
+      "lastHeartbeat": "2025-09-26T00:49:52.582Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T00:49:52.582Z",
+      "sessionId": "826d107ccd8006b4",
       "previousSessions": []
     }
   },

@@ -5,7 +5,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { TaskComplexity, TaskStatus, TaskCategory, TaskPriority } from '../task-management/types.js';
+import { TaskComplexity } from '../task-management/types.js';
 import { TaskBreakdownEngine } from './task-breakdown-engine.js';
 import { AutonomousExecutionEngine } from './execution-engine.js';
 import { ComprehensiveValidationEngine } from './validation-engine.js';

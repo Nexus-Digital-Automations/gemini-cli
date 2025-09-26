@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';

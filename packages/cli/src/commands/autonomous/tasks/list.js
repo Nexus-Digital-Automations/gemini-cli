@@ -59,11 +59,16 @@ export const listTasksCommand = {
             // Try to fetch from TaskManager API first
             let tasks = [];
             let useApiData = false;
-            const filter = {
-                ...(argv.status && { status: argv.status }),
-                ...(argv.priority && { priority: argv.priority }),
-                ...(argv.category && { category: argv.category }),
-            };
+            const filter = {};
+            if (argv['status']) {
+                filter['status'] = argv['status'];
+            }
+            if (argv['priority']) {
+                filter['priority'] = argv['priority'];
+            }
+            if (argv['category']) {
+                filter['category'] = argv['category'];
+            }
             const apiResponse = await listFeatures(Object.keys(filter).length > 0 ? filter : undefined);
             if (handleApiResponse(apiResponse, 'Task list retrieval')) {
                 // Convert TaskManager features to task format
@@ -139,14 +144,14 @@ export const listTasksCommand = {
             }
             // Apply filters
             let filteredTasks = tasks.filter((task) => {
-                if (argv.status && task.status !== argv.status)
+                if (argv['status'] && task.status !== argv['status'])
                     return false;
-                if (argv.category && task.category !== argv.category)
+                if (argv['category'] && task.category !== argv['category'])
                     return false;
                 if (!argv['show-completed'] && task.status === TaskStatus.COMPLETED)
                     return false;
                 // Priority filtering (convert string to enum value)
-                if (argv.priority) {
+                if (argv['priority']) {
                     const priorityMap = {
                         critical: TaskPriority.CRITICAL,
                         high: TaskPriority.HIGH,
@@ -154,16 +159,17 @@ export const listTasksCommand = {
                         low: TaskPriority.LOW,
                         background: TaskPriority.BACKGROUND,
                     };
-                    if (task.priority !== priorityMap[argv.priority])
+                    const priorityKey = argv['priority'];
+                    if (task.priority !== priorityMap[priorityKey])
                         return false;
                 }
                 return true;
             });
             // Apply limit
-            if (argv.limit && argv.limit > 0) {
-                filteredTasks = filteredTasks.slice(0, argv.limit);
+            if (argv['limit'] && argv['limit'] > 0) {
+                filteredTasks = filteredTasks.slice(0, argv['limit']);
             }
-            if (argv.json) {
+            if (argv['json']) {
                 console.log(JSON.stringify(filteredTasks, null, 2));
                 return;
             }
@@ -265,26 +271,38 @@ function getStatusColor(status) {
     return colors[status] || chalk.white;
 }
 function getPriorityColor(priority) {
-    if (priority >= TaskPriority.CRITICAL)
+    const priorityValue = typeof priority === 'string' ? getPriorityValue(priority) : priority;
+    if (priorityValue >= TaskPriority.CRITICAL)
         return chalk.red.bold;
-    if (priority >= TaskPriority.HIGH)
+    if (priorityValue >= TaskPriority.HIGH)
         return chalk.red;
-    if (priority >= TaskPriority.MEDIUM)
+    if (priorityValue >= TaskPriority.MEDIUM)
         return chalk.yellow;
-    if (priority >= TaskPriority.LOW)
+    if (priorityValue >= TaskPriority.LOW)
         return chalk.blue;
     return chalk.gray;
 }
 function getPriorityName(priority) {
-    if (priority >= TaskPriority.CRITICAL)
+    const priorityValue = typeof priority === 'string' ? getPriorityValue(priority) : priority;
+    if (priorityValue >= TaskPriority.CRITICAL)
         return 'CRITICAL';
-    if (priority >= TaskPriority.HIGH)
+    if (priorityValue >= TaskPriority.HIGH)
         return 'HIGH';
-    if (priority >= TaskPriority.MEDIUM)
+    if (priorityValue >= TaskPriority.MEDIUM)
         return 'MEDIUM';
-    if (priority >= TaskPriority.LOW)
+    if (priorityValue >= TaskPriority.LOW)
         return 'LOW';
     return 'BACKGROUND';
+}
+function getPriorityValue(priority) {
+    const priorityMap = {
+        critical: TaskPriority.CRITICAL,
+        high: TaskPriority.HIGH,
+        medium: TaskPriority.MEDIUM,
+        low: TaskPriority.LOW,
+        background: TaskPriority.BACKGROUND,
+    };
+    return priorityMap[priority] || TaskPriority.MEDIUM;
 }
 function createProgressBar(progress, width = 20) {
     const filled = Math.round((progress / 100) * width);

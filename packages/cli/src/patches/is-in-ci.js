@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 // This is a replacement for the `is-in-ci` package that always returns false.
 // We are doing this to avoid the issue where `ink` does not render the UI
 // when it detects that it is running in a CI environment.
