@@ -498,9 +498,7 @@ export class DecisionDependencyGraph {
       default:
           // Handle unexpected values
           break;
-    
-
-      }
+    }
 
     // Analyze weak dependencies for removal
     const weakDependencies = this.findWeakDependencies();
