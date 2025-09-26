@@ -37,19 +37,18 @@ import { RealtimeQueueSnapshot as _RealtimeQueueSnapshot } from './RealtimeQueue
 /**
  * Types of optimization strategies available
  */
-export const OptimizationType = {};
-(function (OptimizationType) {
-  OptimizationType['ALGORITHM_SWITCH'] = 'algorithm_switch';
-  OptimizationType['CONCURRENCY_TUNING'] = 'concurrency_tuning';
-  OptimizationType['RESOURCE_REALLOCATION'] = 'resource_reallocation';
-  OptimizationType['PRIORITY_ADJUSTMENT'] = 'priority_adjustment';
-  OptimizationType['BATCH_SIZE_OPTIMIZATION'] = 'batch_size_optimization';
-  OptimizationType['SCHEDULING_POLICY'] = 'scheduling_policy';
-  OptimizationType['MEMORY_OPTIMIZATION'] = 'memory_optimization';
-  OptimizationType['CACHING_STRATEGY'] = 'caching_strategy';
-  OptimizationType['LOAD_BALANCING'] = 'load_balancing';
-  OptimizationType['PREDICTIVE_SCALING'] = 'predictive_scaling';
-})(OptimizationType || (OptimizationType = {}));
+export const OptimizationType = {
+  ALGORITHM_SWITCH: 'algorithm_switch',
+  CONCURRENCY_TUNING: 'concurrency_tuning',
+  RESOURCE_REALLOCATION: 'resource_reallocation',
+  PRIORITY_ADJUSTMENT: 'priority_adjustment',
+  BATCH_SIZE_OPTIMIZATION: 'batch_size_optimization',
+  SCHEDULING_POLICY: 'scheduling_policy',
+  MEMORY_OPTIMIZATION: 'memory_optimization',
+  CACHING_STRATEGY: 'caching_strategy',
+  LOAD_BALANCING: 'load_balancing',
+  PREDICTIVE_SCALING: 'predictive_scaling'
+};
 /**
  * Automatic Queue Optimizer with intelligent performance tuning
  */
@@ -338,7 +337,7 @@ export class AutomaticQueueOptimizer extends EventEmitter {
   /**
    * Calculate performance trends from historical data
    */
-  calculatePerformanceTrends(currentMetrics) {
+  calculatePerformanceTrends(_currentMetrics) {
     const recentHistory = this.performanceHistory.slice(-10); // Last 10 analysis
     if (recentHistory.length < 2) {
       return {
@@ -1331,7 +1330,7 @@ class LearningEngine {
       `[LearningEngine] Recording ${result.success ? 'successful' : 'failed'} optimization: ${recommendation.type}`,
     );
   }
-  async updateModel(result) {
+  async updateModel(_result) {
     // Update internal learning based on optimization results
     console.log(`[LearningEngine] Updating model with optimization result`);
   }

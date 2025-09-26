@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { EventEmitter } from 'node:events';
 import { logger as createLogger } from '../utils/logger.js';
 import { TaskCategory, TaskPriority } from './TaskQueue.js';
@@ -244,16 +245,16 @@ export class AutonomousTaskBreakdown extends EventEmitter {
         subtasks = await this.performTemporalBreakdown(task, complexity);
         break;
       case BreakdownStrategy.FUNCTIONAL:
-        subtasks = await this.performFunctionalBreakdown(task, _complexity);
+        subtasks = await this.performFunctionalBreakdown(task, complexity);
         break;
       case BreakdownStrategy.DEPENDENCY:
-        subtasks = await this.performDependencyBreakdown(task, _complexity);
+        subtasks = await this.performDependencyBreakdown(task, complexity);
         break;
       case BreakdownStrategy.RESOURCE:
-        subtasks = await this.performResourceBreakdown(task, _complexity);
+        subtasks = await this.performResourceBreakdown(task, complexity);
         break;
       case BreakdownStrategy.RISK_BASED:
-        subtasks = await this.performRiskBasedBreakdown(task, _complexity);
+        subtasks = await this.performRiskBasedBreakdown(task, complexity);
         break;
       case BreakdownStrategy.HYBRID:
         subtasks = await this.performHybridBreakdown(task, _complexity);
@@ -328,7 +329,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
   /**
    * Functional breakdown: Break task by functional components
    */
-  async performFunctionalBreakdown(task, complexity) {
+  async performFunctionalBreakdown(task, _complexity) {
     const subtasks = [];
     const components = this.identifyFunctionalComponents(task);
     let sequenceOrder = 0;
@@ -377,7 +378,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
   /**
    * Dependency-based breakdown: Organize by dependency chains
    */
-  async performDependencyBreakdown(task, complexity) {
+  async performDependencyBreakdown(task, _complexity) {
     const subtasks = [];
     const dependencyChains = this.analyzeDependencyChains(task);
     let sequenceOrder = 0;
@@ -425,7 +426,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
   /**
    * Resource-based breakdown: Organize by resource requirements
    */
-  async performResourceBreakdown(task, complexity) {
+  async performResourceBreakdown(task, _complexity) {
     const subtasks = [];
     const resourceGroups = this.groupByResourceRequirements(task);
     let sequenceOrder = 0;
@@ -465,7 +466,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
   /**
    * Risk-based breakdown: Organize by risk levels
    */
-  async performRiskBasedBreakdown(task, complexity) {
+  async performRiskBasedBreakdown(task, _complexity) {
     const subtasks = [];
     const riskComponents = this.analyzeRiskComponents(task);
     // Sort by risk level (high risk first for early detection)
@@ -683,7 +684,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       }
     };
   }
-  createPhaseValidateFunction(originalTask, phaseName) {
+  createPhaseValidateFunction(originalTask, _phaseName) {
     return async (task, context) => {
       // Phase-specific validation logic
       if (originalTask.validateFunction) {
@@ -725,7 +726,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       };
     };
   }
-  createComponentValidateFunction(originalTask, component) {
+  createComponentValidateFunction(originalTask, _component) {
     return async (task, context) => {
       if (originalTask.validateFunction) {
         return originalTask.validateFunction(task, context);
@@ -733,7 +734,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return true;
     };
   }
-  createComponentRollbackFunction(originalTask, component) {
+  createComponentRollbackFunction(originalTask, _component) {
     return async (task, context) => {
       if (originalTask.rollbackFunction) {
         await originalTask.rollbackFunction(task, context);
@@ -753,7 +754,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return originalTask.executeFunction(task, linkContext);
     };
   }
-  createDependencyValidateFunction(originalTask, link) {
+  createDependencyValidateFunction(originalTask, _link) {
     return async (task, context) => {
       if (originalTask.validateFunction) {
         return originalTask.validateFunction(task, context);
@@ -761,7 +762,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return true;
     };
   }
-  createDependencyRollbackFunction(originalTask, link) {
+  createDependencyRollbackFunction(originalTask, _link) {
     return async (task, context) => {
       if (originalTask.rollbackFunction) {
         await originalTask.rollbackFunction(task, context);
@@ -782,7 +783,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return originalTask.executeFunction(task, resourceContext);
     };
   }
-  createResourceValidateFunction(originalTask, group) {
+  createResourceValidateFunction(originalTask, _group) {
     return async (task, context) => {
       if (originalTask.validateFunction) {
         return originalTask.validateFunction(task, context);
@@ -790,7 +791,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return true;
     };
   }
-  createResourceRollbackFunction(originalTask, group) {
+  createResourceRollbackFunction(originalTask, _group) {
     return async (task, context) => {
       if (originalTask.rollbackFunction) {
         await originalTask.rollbackFunction(task, context);
@@ -811,7 +812,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return originalTask.executeFunction(task, riskContext);
     };
   }
-  createRiskValidateFunction(originalTask, component) {
+  createRiskValidateFunction(originalTask, _component) {
     return async (task, context) => {
       if (originalTask.validateFunction) {
         return originalTask.validateFunction(task, context);
@@ -819,7 +820,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       return true;
     };
   }
-  createRiskRollbackFunction(originalTask, component) {
+  createRiskRollbackFunction(originalTask, _component) {
     return async (task, context) => {
       if (originalTask.rollbackFunction) {
         await originalTask.rollbackFunction(task, context);

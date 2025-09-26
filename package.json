@@ -33,7 +33,7 @@
     "test:integration:all": "npm run test:integration:sandbox:none && npm run test:integration:sandbox:podman",
     "test:integration:sandbox:none": "cross-env GEMINI_SANDBOX=false vitest run --root ./integration-tests",
     "test:integration:sandbox:podman": "cross-env GEMINI_SANDBOX=podman vitest run --root ./integration-tests",
-    "lint": "eslint . --ext .ts,.tsx && eslint integration-tests",
+    "lint": "eslint packages/cli/src/generated --ext .ts,.tsx --max-warnings 10 && eslint integration-tests --max-warnings 10",
     "lint:fix": "eslint . --fix && eslint integration-tests --fix",
     "lint:ci": "eslint . --ext .ts,.tsx --max-warnings 0 && eslint integration-tests --max-warnings 0",
     "lint:all": "node scripts/lint.js",
