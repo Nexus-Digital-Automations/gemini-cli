@@ -6,24 +6,19 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestRig } from './test-helper.js';
- 
+
 import { spawn, ChildProcess as _ChildProcess } from 'node:child_process';
 import {
-   
   writeFileSync as _writeFileSync,
-   
   readFileSync as _readFileSync,
-   
   existsSync as _existsSync,
-   
   unlinkSync as _unlinkSync,
-   
   statSync as _statSync,
 } from 'node:fs';
- 
+
 import { join as _join } from 'node:path';
 import { performance } from 'node:perf_hooks';
- 
+
 import { promisify as _promisify } from 'node:util';
 /**
  * Performance Benchmarking and Optimization Testing Suite
@@ -269,7 +264,7 @@ describe('Performance Benchmarks & Optimization', () => {
         );
         const startTime = Date.now();
         const results = [];
-         
+
         const _requestCount = 0; // Unused variable for consistency
         while (Date.now() - startTime < test.duration) {
           const intervalStart = Date.now();
@@ -278,13 +273,12 @@ describe('Performance Benchmarks & Optimization', () => {
           for (let i = 0; i < test.targetRPS; i++) {
             const requestStart = performance.now();
             const promise = execTaskManagerCommand(test.operation, [])
-               
               .then((_result) => ({
                 success: true,
                 latency: performance.now() - requestStart,
                 timestamp: Date.now(),
               }))
-               
+
               .catch((_error) => ({
                 success: false,
                 latency: performance.now() - requestStart,
@@ -697,7 +691,6 @@ describe('Performance Benchmarks & Optimization', () => {
           try {
             const result = JSON.parse(stdout);
             resolve(result);
-             
           } catch (_error) {
             reject(
               new Error(`Failed to parse JSON: ${stdout.substring(0, 200)}...`),
