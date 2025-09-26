@@ -172,7 +172,7 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    _context: TaskBreakdownContext,
+    context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
@@ -311,7 +311,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    _context: TaskBreakdownContext,
+    context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;
@@ -462,7 +462,7 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
 
   async analyze(
     request: string,
-    _context: TaskBreakdownContext,
+    context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult> {
     const factors: ComplexityFactor[] = [];
     let complexity = TaskComplexity.SIMPLE;

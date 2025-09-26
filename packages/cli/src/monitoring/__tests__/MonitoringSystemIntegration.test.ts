@@ -174,6 +174,8 @@ describe('Monitoring System Integration Tests', () => {
         errorCount: 0,
         retryCount: 0,
         estimatedDuration: 30000,
+        tags: [],
+        metadata: {},
       });
 
       // Record a performance metric
@@ -204,7 +206,14 @@ describe('Monitoring System Integration Tests', () => {
         description: 'Task for testing data synchronization',
         type: TaskType.TESTING,
         priority: TaskPriority.HIGH,
+        status: TaskStatus.PENDING,
+        dependencies: [],
+        progress: 0,
+        errorCount: 0,
+        retryCount: 0,
         estimatedDuration: 60000,
+        tags: [],
+        metadata: {},
       });
 
       taskStatusMonitor.registerAgent('test-agent-1', [
@@ -270,7 +279,14 @@ describe('Monitoring System Integration Tests', () => {
           description: 'Task for predictive analysis',
           type: TaskType.IMPLEMENTATION,
           priority: i % 3 === 0 ? TaskPriority.HIGH : TaskPriority.NORMAL,
+          status: TaskStatus.PENDING,
+          dependencies: [],
+          progress: 0,
+          errorCount: 0,
+          retryCount: 0,
           estimatedDuration: 30000 + i * 1000,
+          tags: [],
+          metadata: {},
         });
 
         // Simulate some completions

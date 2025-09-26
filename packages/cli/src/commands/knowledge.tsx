@@ -516,7 +516,8 @@ export const knowledgeCommand = {
         async () => {
           try {
             await knowledgeBaseManager.initialize();
-            const _stats = knowledgeBaseManager.getStats();
+            // Get stats for potential future use
+            // const _stats = knowledgeBaseManager.getStats();
 
             // Get all sources from the manager (we'll need to expose this method)
             const allSources: KnowledgeSource[] = [];
