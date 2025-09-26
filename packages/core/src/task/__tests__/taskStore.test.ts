@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TaskStore } from '../taskStore';
-import type { Task} from '../types';
-import { TaskStatus, TaskPriority } from '../types';
+import { TaskStore } from '../taskStore.js';
+import type { Task} from '../types.js';
+import { TaskStatus, TaskPriority } from '../types.js';
 import { promises as _fs } from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';

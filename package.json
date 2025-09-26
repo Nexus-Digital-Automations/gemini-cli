@@ -93,6 +93,7 @@
     "yargs": "^17.7.2"
   },
   "dependencies": {
+    "@opentelemetry/sdk-metrics": "^2.1.0",
     "simple-git": "^3.28.0"
   },
   "optionalDependencies": {

@@ -336,14 +336,12 @@ export class AutonomousTaskManagerIntegration {
 
       // Get incomplete states
       const states = await this.stateManager.listStates();
-      const incompleteStates = (
-        states as Array<Record<string, unknown>>
-      ).filter(
-        (state): state is Record<string, unknown> =>
+      const incompleteStates = states.filter(
+        (state) =>
           state &&
           typeof state === 'object' &&
           'status' in state &&
-          ['in_progress', 'pending'].includes(state['status'] as TaskStatus),
+          ['in_progress', 'pending'].includes(state.status as TaskStatus),
       );
 
       for (const state of incompleteStates) {
@@ -358,7 +356,7 @@ export class AutonomousTaskManagerIntegration {
 
               // Reconstruct task and continue execution
               const task = this.reconstructTaskFromState(
-                restoredState as Record<string, unknown>,
+                restoredState as unknown as Record<string, unknown>,
               );
               if (task) {
                 this.activeTasks.set(task.id, task);

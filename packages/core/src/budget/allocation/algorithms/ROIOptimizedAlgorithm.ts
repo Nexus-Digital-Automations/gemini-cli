@@ -582,7 +582,10 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
           allocationChange,
         ),
         dependencies: [],
-        priority: candidate.priority,
+        priority:
+          candidate.priority === 'deferred'
+            ? 'low'
+            : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
         estimatedTimeToImplement: `${Math.ceil(analysis.timeToROI / 7)}-${Math.ceil(analysis.timeToROI / 7) + 1} weeks`,
         category: 'roi_optimization',
         tags: ['roi-optimized', 'efficient-frontier', 'data-driven'],
@@ -793,6 +796,41 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
   }
 
   /**
+   * Ensure budget balance across recommendations
+   * @param originalCandidates - Original allocation candidates
+   * @param recommendations - Initial recommendations
+   * @returns Balanced recommendations
+   */
+  private ensureBudgetBalance(
+    originalCandidates: AllocationCandidate[],
+    recommendations: AllocationRecommendation[],
+  ): AllocationRecommendation[] {
+    const totalOriginalBudget = originalCandidates.reduce(
+      (sum, candidate) => sum + candidate.currentAllocation,
+      0,
+    );
+
+    const totalRecommendedBudget = recommendations.reduce(
+      (sum, rec) => sum + rec.recommendedAllocation,
+      0,
+    );
+
+    // If budgets are balanced, return as-is
+    if (Math.abs(totalRecommendedBudget - totalOriginalBudget) < 0.01) {
+      return recommendations;
+    }
+
+    // Apply proportional scaling to maintain budget balance
+    const scalingFactor = totalOriginalBudget / totalRecommendedBudget;
+
+    return recommendations.map(rec => ({
+      ...rec,
+      recommendedAllocation: rec.recommendedAllocation * scalingFactor,
+      allocationChange: (rec.recommendedAllocation * scalingFactor) - rec.currentAllocation,
+    }));
+  }
+
+  /**
    * Create identity recommendation (no change)
    * @param candidate - Allocation candidate
    * @returns Identity recommendation
@@ -830,7 +868,10 @@ export class ROIOptimizedAlgorithm extends BaseAllocationAlgorithm {
         negativeProbability: 0,
       },
       dependencies: [],
-      priority: candidate.priority,
+      priority:
+        candidate.priority === 'deferred'
+          ? 'low'
+          : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
       estimatedTimeToImplement: 'immediate',
       category: 'roi_optimization',
       tags: ['roi-optimized', 'no-change', 'stable'],

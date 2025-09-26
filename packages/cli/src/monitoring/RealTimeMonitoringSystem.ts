@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import {
   taskStatusMonitor,
   type TaskMetadata,
@@ -223,7 +223,7 @@ export interface PredictiveInsight {
  * - Cross-system monitoring integration
  */
 export class RealTimeMonitoringSystem extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: MonitoringConfig;
 
   // Core monitoring state
@@ -257,7 +257,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
 
   constructor(config: Partial<MonitoringConfig> = {}, httpServer?: Server) {
     super();
-    this.logger = new Logger('RealTimeMonitoringSystem');
+    this.logger = getComponentLogger('RealTimeMonitoringSystem');
 
     // Set default configuration
     this.config = {
@@ -410,7 +410,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
    */
   startMonitoring(): void {
     if (this.monitoringInterval) {
-      this.logger.warning('Monitoring already started');
+      this.logger.warn('Monitoring already started');
       return;
     }
 
@@ -768,7 +768,7 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         break;
 
       default:
-        this.logger.warning('Unknown alert action type', {
+        this.logger.warn('Unknown alert action type', {
           type: actionConfig.type,
           ruleId: rule.id,
         });

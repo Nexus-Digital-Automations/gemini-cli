@@ -93,10 +93,16 @@ export interface ExecutionState {
   status: TaskStatus;
   progress: number; // 0-100
   currentStep: string;
+  stepIndex: number;
+  totalSteps: number;
   completedSteps: string[];
   failedSteps: string[];
-  snapshot?: Record<string, unknown>;
+  startTime: Date;
   lastUpdate: Date;
+  snapshot?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  checkpoints?: string[];
+  error?: Error;
 }
 
 /**
@@ -675,6 +681,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
     message: string,
     context: TaskExecutionContext,
   ): Promise<void> {
+    const existingState = this.taskStates.get(taskId);
     const state: ExecutionState = {
       taskId,
       status,
@@ -685,8 +692,11 @@ export class AutonomousExecutionEngine extends EventEmitter {
             ? 50
             : 0,
       currentStep: message,
-      completedSteps: this.taskStates.get(taskId)?.completedSteps || [],
-      failedSteps: this.taskStates.get(taskId)?.failedSteps || [],
+      stepIndex: existingState?.stepIndex || 0,
+      totalSteps: existingState?.totalSteps || 1,
+      completedSteps: existingState?.completedSteps || [],
+      failedSteps: existingState?.failedSteps || [],
+      startTime: existingState?.startTime || new Date(),
       lastUpdate: new Date(),
     };
 

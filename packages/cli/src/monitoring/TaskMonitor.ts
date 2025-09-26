@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type {
   TaskMetadata,
   TaskStatus,
@@ -118,14 +118,14 @@ export interface IntegratedTaskStatus {
  * - Health monitoring and diagnostics
  */
 export class TaskMonitor extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private monitoredTasks: Map<string, TaskMonitoringConfig>;
   private healthScores: Map<string, number>;
   private monitoringInterval?: NodeJS.Timeout;
 
   constructor() {
     super();
-    this.logger = new Logger('TaskMonitor');
+    this.logger = getComponentLogger('TaskMonitor');
     this.monitoredTasks = new Map();
     this.healthScores = new Map();
 

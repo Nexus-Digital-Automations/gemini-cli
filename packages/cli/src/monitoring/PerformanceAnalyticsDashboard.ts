@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type {
   TaskMetadata,
   TaskStatusUpdate,
@@ -72,7 +72,7 @@ export interface PerformanceBenchmark {
  * for autonomous task management system with real-time analytics and optimization recommendations.
  */
 export class PerformanceAnalyticsDashboard extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private metrics: Map<string, PerformanceMetric[]>;
   private insights: AnalyticsInsight[];
   private benchmarks: Map<string, PerformanceBenchmark>;
@@ -108,7 +108,7 @@ export class PerformanceAnalyticsDashboard extends EventEmitter {
     } = {},
   ) {
     super();
-    this.logger = new Logger('PerformanceAnalyticsDashboard');
+    this.logger = getComponentLogger('PerformanceAnalyticsDashboard');
     this.metrics = new Map();
     this.insights = [];
     this.benchmarks = new Map();

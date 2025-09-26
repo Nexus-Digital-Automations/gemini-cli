@@ -45,6 +45,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
     "@opentelemetry/instrumentation-http": "^0.203.0",
     "@opentelemetry/resource-detector-gcp": "^0.40.0",
+    "@opentelemetry/sdk-metrics": "^2.1.0",
     "@opentelemetry/sdk-node": "^0.203.0",
     "@types/glob": "^8.1.0",
     "@types/html-to-text": "^9.0.4",
@@ -72,9 +73,10 @@
     "simple-git": "^3.28.0",
     "strip-ansi": "^7.1.0",
     "undici": "^7.10.0",
+    "uuid": "^9.0.1",
     "winston": "^3.17.0",
     "ws": "^8.18.0",
-    "uuid": "^9.0.1"
+    "zod": "^3.25.76"
   },
   "optionalDependencies": {
     "@lydell/node-pty": "1.1.0",

@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import { taskStatusMonitor } from './TaskStatusMonitor.js';
 import { progressTracker } from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
@@ -89,7 +89,7 @@ export interface DiagnosticReport {
  * - Integration with all monitoring subsystems
  */
 export class HealthDiagnostics extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private healthChecks: Map<string, HealthCheckConfig>;
   private lastHealthResults: Map<string, HealthCheckResult>;
   private checkTimers: Map<string, NodeJS.Timeout>;
@@ -99,7 +99,7 @@ export class HealthDiagnostics extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('HealthDiagnostics');
+    this.logger = getComponentLogger('HealthDiagnostics');
     this.healthChecks = new Map();
     this.lastHealthResults = new Map();
     this.checkTimers = new Map();
@@ -185,7 +185,7 @@ export class HealthDiagnostics extends EventEmitter {
       });
     } else if (result.status === 'warning') {
       this.emit('health-check:warning', { component: componentName, result });
-      this.logger.warning('Health check warning', {
+      this.logger.warn('Health check warning', {
         component: componentName,
         message: result.message,
       });

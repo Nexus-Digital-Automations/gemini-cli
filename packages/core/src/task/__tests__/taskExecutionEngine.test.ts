@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TaskExecutionEngine } from '../taskExecutionEngine';
-import type { TaskManager } from '../taskManager';
-import type { Task, ToolCall } from '../types';
-import { TaskStatus, TaskPriority } from '../types';
+import { TaskExecutionEngine } from '../taskExecutionEngine.js';
+import type { TaskManager } from '../taskManager.js';
+import type { Task, ToolCall } from '../types.js';
+import { TaskStatus, TaskPriority } from '../types.js';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 
 // Mock the global default_api object

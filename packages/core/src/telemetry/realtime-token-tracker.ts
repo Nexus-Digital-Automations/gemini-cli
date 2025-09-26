@@ -148,6 +148,10 @@ export class RealtimeTokenTracker extends EventEmitter {
   ) {
     super();
 
+    // Mark performanceCache and geminiConfig as intentionally unused for now
+    void this.performanceCache;
+    void this.geminiConfig;
+
     this.config = {
       enableStreaming: true,
       batchSize: 50,

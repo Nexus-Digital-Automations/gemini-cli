@@ -52,13 +52,26 @@ describe('RealTimeMonitoringSystem', () => {
 
     // Setup default mock responses
     mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({
+      cpu: {
+        usage: 45,
+        cores: 4,
+        loadAverage: [1.2, 1.1, 1.0],
+      },
+      memory: {
+        used: 2147483648, // 2GB
+        total: 8589934592, // 8GB
+        percentage: 25,
+      },
+      disk: {
+        used: 107374182400, // 100GB
+        total: 536870912000, // 500GB
+        percentage: 20,
+      },
       totalTasks: 100,
       completedTasks: 85,
       failedTasks: 10,
-      systemUptime: new Date(Date.now() - 3600000), // 1 hour ago
-      throughputPerHour: 50,
       averageTaskDuration: 2000,
-      systemEfficiency: 85,
+      throughput: 50,
     });
 
     mockTaskStatusMonitor.getAllTasks.mockReturnValue([
@@ -514,7 +527,28 @@ describe('RealTimeMonitoringSystem', () => {
 
   describe('Error Handling', () => {
     it('should handle missing data gracefully', () => {
-      mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({});
+      mockTaskStatusMonitor.getPerformanceMetrics.mockReturnValue({
+        cpu: {
+          usage: 0,
+          cores: 1,
+          loadAverage: [0, 0, 0],
+        },
+        memory: {
+          used: 0,
+          total: 1,
+          percentage: 0,
+        },
+        disk: {
+          used: 0,
+          total: 1,
+          percentage: 0,
+        },
+        totalTasks: 0,
+        completedTasks: 0,
+        failedTasks: 0,
+        averageTaskDuration: 0,
+        throughput: 0,
+      });
       mockTaskStatusMonitor.getAllTasks.mockReturnValue([]);
       mockTaskStatusMonitor.getAllAgents.mockReturnValue([]);
 

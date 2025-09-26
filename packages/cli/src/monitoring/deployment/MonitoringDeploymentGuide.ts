@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Logger } from '../../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import {
   monitoringIntegrationHub,
   type MonitoringIntegrationConfig as _MonitoringIntegrationConfig,
@@ -126,7 +126,7 @@ export interface OperationalProcedures {
  * - Disaster recovery and backup procedures
  */
 export class MonitoringDeploymentManager {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private deploymentConfig?: DeploymentConfig;
   private healthCheckConfig?: HealthCheckConfig;
   private operationalProcedures?: OperationalProcedures;
@@ -134,7 +134,7 @@ export class MonitoringDeploymentManager {
   private deploymentPath: string;
 
   constructor() {
-    this.logger = new Logger('MonitoringDeploymentManager');
+    this.logger = getComponentLogger('MonitoringDeploymentManager');
     this.deploymentPath = path.join(process.cwd(), '.tmp', 'deployment');
   }
 
@@ -782,7 +782,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
         const memoryUsage = process.memoryUsage();
         const availableMemory = memoryUsage.heapTotal - memoryUsage.heapUsed;
         if (availableMemory < 512 * 1024 * 1024) {
-          this.logger.warning('Low available memory detected', {
+          this.logger.warn('Low available memory detected', {
             available: Math.round(availableMemory / 1024 / 1024),
             recommended: 512,
           });
@@ -900,7 +900,7 @@ Environment: ${this.deploymentConfig?.environment || 'unknown'}
   }
 
   private async rollbackDeployment(): Promise<void> {
-    this.logger.warning('Rolling back monitoring system deployment');
+    this.logger.warn('Rolling back monitoring system deployment');
 
     try {
       // Stop monitoring systems

@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import {
   realTimeMonitoringSystem,
   type MonitoringSnapshot,
@@ -124,7 +124,7 @@ export interface ChartData {
  * - Export and reporting capabilities
  */
 export class EnhancedMonitoringDashboard extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
 
   // Dashboard configuration
   private layouts: Map<string, DashboardLayout> = new Map();
@@ -150,7 +150,7 @@ export class EnhancedMonitoringDashboard extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('EnhancedMonitoringDashboard');
+    this.logger = getComponentLogger('EnhancedMonitoringDashboard');
 
     // Setup persistence paths
     const tempDir = path.join(process.cwd(), '.tmp', 'dashboard');

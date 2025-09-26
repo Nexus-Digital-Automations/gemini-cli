@@ -149,7 +149,7 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
     usageMetrics: Map<string, UsageMetric>,
   ): Map<string, number> {
     const adjustments = new Map<string, number>();
-    const _totalCurrentBudget = this.calculateTotalCurrentBudget(candidates);
+    // const _totalCurrentBudget = this.calculateTotalCurrentBudget(candidates);
 
     for (const candidate of candidates) {
       const metrics = usageMetrics.get(candidate.resourceId);
@@ -428,7 +428,10 @@ export class UsageBasedAlgorithm extends BaseAllocationAlgorithm {
         ),
         riskAssessment: this.assessRisk(candidate, metrics, allocationChange),
         dependencies: [],
-        priority: candidate.priority,
+        priority:
+          candidate.priority === 'deferred'
+            ? 'low'
+            : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
         estimatedTimeToImplement: '1-2 days',
         category: 'cost_optimization',
         tags: ['usage-based', 'automatic', 'data-driven'],

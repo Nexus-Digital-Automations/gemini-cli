@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import {
   realTimeMonitoringSystem,
   type MonitoringSnapshot,
@@ -79,7 +79,7 @@ export interface HealthCheckResult {
  * - Handles data synchronization and persistence
  */
 export class MonitoringIntegrationHub extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private readonly config: MonitoringIntegrationConfig;
 
   // Monitoring system references
@@ -105,7 +105,7 @@ export class MonitoringIntegrationHub extends EventEmitter {
 
   constructor(config: Partial<MonitoringIntegrationConfig> = {}) {
     super();
-    this.logger = new Logger('MonitoringIntegrationHub');
+    this.logger = getComponentLogger('MonitoringIntegrationHub');
 
     this.config = {
       enableRealTimeMonitoring: true,

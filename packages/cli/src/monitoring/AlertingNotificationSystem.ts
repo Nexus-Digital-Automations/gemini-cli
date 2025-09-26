@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type {
   PerformanceMetric,
   AnalyticsInsight,
@@ -179,7 +179,7 @@ export interface NotificationTemplate {
  * multi-channel notifications, escalation policies, and alert lifecycle management.
  */
 export class AlertingNotificationSystem extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private alertRules: Map<string, AlertRule>;
   private activeAlerts: Map<string, Alert>;
   private alertHistory: Alert[];
@@ -205,7 +205,7 @@ export class AlertingNotificationSystem extends EventEmitter {
     } = {},
   ) {
     super();
-    this.logger = new Logger('AlertingNotificationSystem');
+    this.logger = getComponentLogger('AlertingNotificationSystem');
     this.alertRules = new Map();
     this.activeAlerts = new Map();
     this.alertHistory = [];

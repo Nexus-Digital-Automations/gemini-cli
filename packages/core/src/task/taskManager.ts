@@ -5,8 +5,8 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import type { Task, TaskMetadata } from './types';
-import { TaskStatus, TaskPriority } from './types';
+import type { Task, TaskMetadata } from './types.js';
+import { TaskStatus, TaskPriority } from './types.js';
 import type { TaskStore } from './taskStore.js';
 
 export class TaskManager {

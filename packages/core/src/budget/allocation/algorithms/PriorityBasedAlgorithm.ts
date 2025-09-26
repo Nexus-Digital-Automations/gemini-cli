@@ -617,7 +617,10 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
         dependencies: analysis.dependencies.map(
           (dep) => dep.dependentResourceId,
         ),
-        priority: candidate.priority,
+        priority:
+          candidate.priority === 'deferred'
+            ? 'low'
+            : (candidate.priority as 'critical' | 'high' | 'medium' | 'low'),
         estimatedTimeToImplement: `${Math.ceil(analysis.timeToImplement / 7)} weeks`,
         category: 'priority_optimization',
         tags: ['priority-based', 'strategic', 'business-aligned'],
@@ -845,6 +848,42 @@ export class PriorityBasedAlgorithm extends BaseAllocationAlgorithm {
     recommendations: AllocationRecommendation[],
   ): AllocationRecommendation[] {
     return this.ensureBudgetBalance(originalCandidates, recommendations);
+  }
+
+  /**
+   * Ensure budget balance across recommendations
+   * @param originalCandidates - Original allocation candidates
+   * @param recommendations - Initial recommendations
+   * @returns Balanced recommendations
+   */
+  private ensureBudgetBalance(
+    originalCandidates: AllocationCandidate[],
+    recommendations: AllocationRecommendation[],
+  ): AllocationRecommendation[] {
+    const totalOriginalBudget = originalCandidates.reduce(
+      (sum, candidate) => sum + candidate.currentAllocation,
+      0,
+    );
+
+    const totalRecommendedBudget = recommendations.reduce(
+      (sum, rec) => sum + rec.recommendedAllocation,
+      0,
+    );
+
+    // If budgets are balanced, return as-is
+    if (Math.abs(totalRecommendedBudget - totalOriginalBudget) < 0.01) {
+      return recommendations;
+    }
+
+    // Apply proportional scaling to maintain budget balance
+    const scalingFactor = totalOriginalBudget / totalRecommendedBudget;
+
+    return recommendations.map((rec) => ({
+      ...rec,
+      recommendedAllocation: rec.recommendedAllocation * scalingFactor,
+      allocationChange:
+        rec.recommendedAllocation * scalingFactor - rec.currentAllocation,
+    }));
   }
 
   /**

@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type { TaskMetadata as _TaskMetadata, TaskStatus as _TaskStatus } from './TaskStatusMonitor.js';
 
 /**
@@ -103,7 +103,7 @@ export enum ProgressEventType {
  * - Performance pattern analysis
  */
 export class ProgressTracker extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private checkpoints: Map<string, ProgressCheckpoint>;
   private taskConfigs: Map<string, ProgressTrackingConfig>;
   private taskMetrics: Map<string, ProgressMetrics>;
@@ -116,7 +116,7 @@ export class ProgressTracker extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('ProgressTracker');
+    this.logger = getComponentLogger('ProgressTracker');
     this.checkpoints = new Map();
     this.taskConfigs = new Map();
     this.taskMetrics = new Map();

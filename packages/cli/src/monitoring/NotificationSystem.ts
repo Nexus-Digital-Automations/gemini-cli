@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type { StatusEvent, NotificationConfig } from './StatusUpdateBroker.js';
 import { statusUpdateBroker, StatusEventType } from './StatusUpdateBroker.js';
 // Imports available but unused in current implementation
@@ -63,7 +63,7 @@ export interface DeliveredNotification {
  * - Rich formatting and variable substitution
  */
 export class NotificationSystem extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private userPreferences: Map<string, NotificationPreferences>;
   private templates: Map<string, NotificationTemplate>;
   private deliveredNotifications: Map<string, DeliveredNotification>;
@@ -79,7 +79,7 @@ export class NotificationSystem extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('NotificationSystem');
+    this.logger = getComponentLogger('NotificationSystem');
     this.userPreferences = new Map();
     this.templates = new Map();
     this.deliveredNotifications = new Map();
@@ -143,7 +143,7 @@ export class NotificationSystem extends EventEmitter {
   ): void {
     const existing = this.userPreferences.get(userId);
     if (!existing) {
-      this.logger.warning('Attempt to update preferences for unknown user', {
+      this.logger.warn('Attempt to update preferences for unknown user', {
         userId,
       });
       return;
@@ -175,7 +175,7 @@ export class NotificationSystem extends EventEmitter {
   ): Promise<void> {
     const preferences = this.userPreferences.get(userId);
     if (!preferences) {
-      this.logger.warning('Cannot send notification to unknown user', {
+      this.logger.warn('Cannot send notification to unknown user', {
         userId,
       });
       return;
@@ -237,7 +237,7 @@ export class NotificationSystem extends EventEmitter {
   ): void {
     const notification = this.deliveredNotifications.get(notificationId);
     if (!notification || notification.userId !== userId) {
-      this.logger.warning('Invalid notification acknowledgment', {
+      this.logger.warn('Invalid notification acknowledgment', {
         notificationId,
         userId,
       });

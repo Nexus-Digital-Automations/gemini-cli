@@ -52,7 +52,10 @@ describe('EnhancedMonitoringDashboard', () => {
         inProgress: 5,
         completed: 130,
         failed: 5,
+        blocked: 0,
+        cancelled: 0,
         successRate: 96.3,
+        averageExecutionTimeMs: 2000,
         throughputPerHour: 50,
       },
       agentMetrics: {
@@ -60,6 +63,7 @@ describe('EnhancedMonitoringDashboard', () => {
         active: 3,
         idle: 1,
         busy: 2,
+        offline: 0,
         averageUtilization: 75,
         averagePerformance: 92,
       },

@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type { TaskMetadata as _TaskMetadata } from './TaskStatusMonitor.js';
 import {
   TaskStatusMonitor as _TaskStatusMonitor,
@@ -106,7 +106,7 @@ export interface WebhookPayload {
  * - Data export and synchronization capabilities
  */
 export class MonitoringIntegrations extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private todoWriteState: TodoWriteState;
   private externalSystems: Map<string, ExternalSystemConfig>;
   private integrationStats: {
@@ -120,7 +120,7 @@ export class MonitoringIntegrations extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('MonitoringIntegrations');
+    this.logger = getComponentLogger('MonitoringIntegrations');
     this.todoWriteState = {
       tasks: [],
       totalTasks: 0,
@@ -176,7 +176,7 @@ export class MonitoringIntegrations extends EventEmitter {
   unregisterExternalSystem(systemName: string): void {
     const config = this.externalSystems.get(systemName);
     if (!config) {
-      this.logger.warning('Attempt to unregister unknown system', {
+      this.logger.warn('Attempt to unregister unknown system', {
         systemName,
       });
       return;

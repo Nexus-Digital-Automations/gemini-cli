@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { cpus, freemem, totalmem, loadavg } from 'node:os';
 import { performance } from 'node:perf_hooks';
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
 import type {
   TaskMetadata,
   TaskStatus,
@@ -188,7 +188,7 @@ export interface SystemAnalytics {
  * - Automated performance optimization recommendations
  */
 export class MetricsCollector extends EventEmitter {
-  private readonly logger: Logger;
+  private readonly logger: StructuredLogger;
   private systemMetricsHistory: SystemMetrics[];
   private taskMetrics: Map<string, TaskPerformanceMetrics>;
   private agentMetrics: Map<string, AgentPerformanceMetrics>;
@@ -205,7 +205,7 @@ export class MetricsCollector extends EventEmitter {
 
   constructor() {
     super();
-    this.logger = new Logger('MetricsCollector');
+    this.logger = getComponentLogger('MetricsCollector');
     this.systemMetricsHistory = [];
     this.taskMetrics = new Map();
     this.agentMetrics = new Map();
@@ -351,7 +351,7 @@ export class MetricsCollector extends EventEmitter {
         `task-${taskId}-duration`,
       );
     } catch (error) {
-      this.logger.warning('Failed to collect performance marks', {
+      this.logger.warn('Failed to collect performance marks', {
         taskId,
         error,
       });
@@ -556,7 +556,7 @@ export class MetricsCollector extends EventEmitter {
     // Emit events for new bottlenecks
     for (const bottleneck of currentBottlenecks) {
       this.emit('bottleneck:detected', bottleneck);
-      this.logger.warning('Performance bottleneck detected', {
+      this.logger.warn('Performance bottleneck detected', {
         type: bottleneck.type,
         severity: bottleneck.severity,
         description: bottleneck.description,
@@ -673,7 +673,7 @@ export class MetricsCollector extends EventEmitter {
         entryTypes: ['measure', 'navigation', 'mark'],
       });
     } catch (error) {
-      this.logger.warning('Performance observer not available', { error });
+      this.logger.warn('Performance observer not available', { error });
     }
   }
 
@@ -1008,7 +1008,7 @@ export class MetricsCollector extends EventEmitter {
     };
 
     this.emit('alert:triggered', alert);
-    this.logger.warning('Performance alert triggered', alert);
+    this.logger.warn('Performance alert triggered', alert);
   }
 
   private cleanupOldMetrics(): void {

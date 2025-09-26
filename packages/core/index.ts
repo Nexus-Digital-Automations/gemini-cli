@@ -97,6 +97,7 @@ export type {
   KnowledgeQuery,
   KnowledgeSearchResult,
   KnowledgeSuggestion,
+  KnowledgeStats,
   InstitutionalPattern,
   PatternExample,
 } from './src/knowledge/KnowledgeBaseManager.js';

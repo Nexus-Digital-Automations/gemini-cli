@@ -49,6 +49,19 @@ export type {
   ScenarioOutcome,
 } from '../types.js';
 
+// Import types for internal use
+import type {
+  AllocationStrategy,
+  AllocationAlgorithmConfig,
+} from '../types.js';
+import {
+  BaseAllocationAlgorithm,
+  type AllocationLogger,
+} from './BaseAllocationAlgorithm.js';
+import { createUsageBasedAlgorithm } from './UsageBasedAlgorithm.js';
+import { createROIOptimizedAlgorithm } from './ROIOptimizedAlgorithm.js';
+import { createPriorityBasedAlgorithm } from './PriorityBasedAlgorithm.js';
+
 /**
  * Algorithm registry for dynamic algorithm selection
  */

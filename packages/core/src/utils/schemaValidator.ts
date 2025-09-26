@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import AjvPkg from 'ajv';
-import * as addFormats from 'ajv-formats';
-// Ajv's ESM/CJS interop: handle both named and default exports
-const AjvClass = (AjvPkg as { default?: unknown } & { new(...args: unknown[]): unknown }).default || AjvPkg;
-const ajValidator = new AjvClass();
-const addFormatsFunc = (addFormats as { default?: unknown } & Record<string, unknown>).default || addFormats;
-addFormatsFunc(ajValidator);
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ajValidator = new (Ajv as any)({
+  allowUnionTypes: true,
+  strict: false,
+});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(addFormats as any)(ajValidator);
 
 /**
  * Simple utility to validate objects against JSON Schemas

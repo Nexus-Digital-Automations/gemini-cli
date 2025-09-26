@@ -6,7 +6,7 @@
 
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
-import type { Task } from './types';
+import type { Task } from './types.js';
 
 const TASKS_FILE_NAME = '.gemini/tasks.json';
 
