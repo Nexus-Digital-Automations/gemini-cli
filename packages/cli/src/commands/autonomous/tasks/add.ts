@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { CommandModule } from 'yargs';
+import type { CommandModule, Argv } from 'yargs';
 import chalk from 'chalk';
 import {
   TaskPriority,
@@ -19,22 +19,10 @@ import {
   initializeAgent,
 } from '../taskManagerApi.js';
 
-interface _AddTaskOptions {
-  priority: string;
-  category: string;
-  type: string;
-  description: string;
-  'max-time': number;
-  dependencies: string[];
-  context?: string;
-  'expected-outputs'?: string;
-  [key: string]: unknown;
-}
-
 export const addTaskCommand: CommandModule = {
   command: 'add <description>',
   describe: 'Add a new task to the autonomous system',
-  builder: (yargs) =>
+  builder: (yargs: Argv) =>
     yargs
       .positional('description', {
         type: 'string',
@@ -104,7 +92,7 @@ export const addTaskCommand: CommandModule = {
         'Add documentation task with 30 min limit',
       ),
 
-  handler: async (argv) => {
+  handler: async (argv: _AddTaskOptions) => {
     try {
       console.log(chalk.cyan('➕ Adding new task to autonomous system...'));
 
@@ -141,7 +129,9 @@ export const addTaskCommand: CommandModule = {
       let parsedExpectedOutputs: Record<string, unknown> = {};
       if (argv['expected-outputs']) {
         try {
-          parsedExpectedOutputs = JSON.parse(argv['expected-outputs'] as string);
+          parsedExpectedOutputs = JSON.parse(
+            argv['expected-outputs'] as string,
+          );
         } catch (_error) {
           console.error(
             chalk.red('❌ Invalid JSON format for expected-outputs'),
@@ -157,8 +147,8 @@ export const addTaskCommand: CommandModule = {
       const newTask = {
         title: generateTaskTitle(argv['description'] as string),
         description: argv['description'] as string,
-        type: typeMap[argv['type'] as string || 'implementation'],
-        priority: priorityMap[argv['priority'] as string || 'medium'],
+        type: typeMap[(argv['type'] as string) || 'implementation'],
+        priority: priorityMap[(argv['priority'] as string) || 'medium'],
         category: argv['category'] as TaskCategory,
         maxExecutionTimeMinutes: (argv['max-time'] as number) || 60,
         dependencies: (argv['dependencies'] as string[]) || [],

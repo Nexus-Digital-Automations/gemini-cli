@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { CommandModule } from 'yargs';
+import type { CommandModule, Argv } from 'yargs';
 import chalk from 'chalk';
 
 interface RetryTaskOptions {
@@ -19,7 +19,7 @@ interface RetryTaskOptions {
 export const retryTaskCommand: CommandModule<object, RetryTaskOptions> = {
   command: 'retry <taskId>',
   describe: 'Retry a failed or cancelled task',
-  builder: (yargs) =>
+  builder: (yargs: Argv) =>
     yargs
       .positional('taskId', {
         type: 'string',
@@ -64,7 +64,7 @@ export const retryTaskCommand: CommandModule<object, RetryTaskOptions> = {
         'Retry with reason',
       ),
 
-  handler: async (argv) => {
+  handler: async (argv: RetryTaskOptions) => {
     try {
       console.log(
         chalk.cyan(`🔄 Preparing to retry task: ${chalk.bold(argv.taskId)}...`),

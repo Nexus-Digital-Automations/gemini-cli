@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { CommandModule } from 'yargs';
+import type { CommandModule, Argv } from 'yargs';
 import chalk from 'chalk';
 import {
   TaskStatus,
@@ -58,7 +58,7 @@ interface _ListTasksOptions {
 export const listTasksCommand: CommandModule = {
   command: 'list',
   describe: 'List tasks in the autonomous system',
-  builder: (yargs) =>
+  builder: (yargs: Argv) =>
     yargs
       .option('status', {
         type: 'string',
@@ -108,7 +108,7 @@ export const listTasksCommand: CommandModule = {
         'Include completed tasks',
       ),
 
-  handler: async (argv) => {
+  handler: async (argv: _ListTasksOptions) => {
     try {
       console.log(chalk.cyan('📋 Task List'));
       console.log(chalk.gray('─'.repeat(80)));
@@ -216,7 +216,8 @@ export const listTasksCommand: CommandModule = {
       // Apply filters
       let filteredTasks = tasks.filter((task) => {
         if (argv['status'] && task.status !== argv['status']) return false;
-        if (argv['category'] && task.category !== argv['category']) return false;
+        if (argv['category'] && task.category !== argv['category'])
+          return false;
         if (!argv['show-completed'] && task.status === 'completed')
           return false;
 
@@ -368,7 +369,8 @@ function getStatusColor(status: TaskStatus) {
 }
 
 function getPriorityColor(priority: TaskPriority | string) {
-  const priorityValue = typeof priority === 'string' ? getPriorityValue(priority) : priority;
+  const priorityValue =
+    typeof priority === 'string' ? getPriorityValue(priority) : priority;
   if (priorityValue >= TaskPriority.CRITICAL) return chalk.red.bold;
   if (priorityValue >= TaskPriority.HIGH) return chalk.red;
   if (priorityValue >= TaskPriority.MEDIUM) return chalk.yellow;
@@ -377,7 +379,8 @@ function getPriorityColor(priority: TaskPriority | string) {
 }
 
 function getPriorityName(priority: TaskPriority | string): string {
-  const priorityValue = typeof priority === 'string' ? getPriorityValue(priority) : priority;
+  const priorityValue =
+    typeof priority === 'string' ? getPriorityValue(priority) : priority;
   if (priorityValue >= TaskPriority.CRITICAL) return 'CRITICAL';
   if (priorityValue >= TaskPriority.HIGH) return 'HIGH';
   if (priorityValue >= TaskPriority.MEDIUM) return 'MEDIUM';
