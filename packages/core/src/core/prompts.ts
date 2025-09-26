@@ -18,6 +18,7 @@ import { WriteFileTool } from '../tools/write-file.js';
 import process from 'node:process';
 import { isGitRepository } from '../utils/gitUtils.js';
 import { MemoryTool, GEMINI_CONFIG_DIR } from '../tools/memoryTool.js';
+import { personaManager } from '../persona/PersonaManager.js';
 
 export function resolvePathFromEnv(envVar?: string): {
   isSwitch: boolean;
@@ -335,7 +336,19 @@ Your core function is efficient and safe assistance. Balance extreme conciseness
       ? `\n\n---\n\n${userMemory.trim()}`
       : '';
 
-  return `${basePrompt}${memorySuffix}`;
+  // Add persona-based customization to system prompt
+  let personaPrompt = '';
+  try {
+    const personaInstructions = personaManager.generateSystemPrompt();
+    if (personaInstructions) {
+      personaPrompt = `\n\n---\n\n${personaInstructions}`;
+    }
+  } catch (error) {
+    // If persona system fails, continue without persona customization
+    console.warn('Failed to load persona instructions:', error);
+  }
+
+  return `${basePrompt}${personaPrompt}${memorySuffix}`;
 }
 
 /**

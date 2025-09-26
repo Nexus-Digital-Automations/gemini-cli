@@ -40,6 +40,18 @@ export { makeFakeConfig } from './src/test-utils/config.js';
 export * from './src/utils/pathReader.js';
 export { ClearcutLogger } from './src/telemetry/clearcut-logger/clearcut-logger.js';
 
+// Persona management exports
+export {
+  PersonaManager,
+  personaManager,
+} from './src/persona/PersonaManager.js';
+export type {
+  PersonaProfile,
+  PersonalityTraits,
+  BehavioralPatterns,
+  PersonaCustomization,
+} from './src/persona/PersonaManager.js';
+
 // Budget tracking exports
 export {
   BudgetTracker,
@@ -71,3 +83,20 @@ export type {
   ProgressUpdateCallback,
   ToolCallInfo,
 } from './src/progress/index.js';
+
+// Knowledge base management exports
+export {
+  KnowledgeBaseManager,
+  knowledgeBaseManager,
+  createKnowledgeBaseManager,
+  KnowledgeSourceType,
+} from './src/knowledge/KnowledgeBaseManager.js';
+export type {
+  KnowledgeSource,
+  KnowledgeDocument,
+  KnowledgeQuery,
+  KnowledgeSearchResult,
+  KnowledgeSuggestion,
+  InstitutionalPattern,
+  PatternExample,
+} from './src/knowledge/KnowledgeBaseManager.js';

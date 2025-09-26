@@ -8,6 +8,8 @@ import { spawn } from 'node:child_process';
 import type {
   AutonomousTask,
   TaskBreakdownContext,
+} from './task-breakdown-engine.js';
+import {
   TaskCategory,
   TaskStatus,
   TaskPriority,
@@ -107,7 +109,21 @@ export class TaskManagerAPIClient implements TaskManagerClient {
   ) {
     this.apiPath = apiPath;
     this.timeout = timeout;
-    this.logger = logger || this.createDefaultLogger();
+    this.logger = logger || {
+      debug: (message: string, context?: Record<string, unknown>) =>
+        console.debug(message, context),
+      info: (message: string, context?: Record<string, unknown>) =>
+        console.info(message, context),
+      warn: (message: string, context?: Record<string, unknown>) =>
+        console.warn(message, context),
+      error: (
+        message: string,
+        error?: Error,
+        context?: Record<string, unknown>,
+      ) => console.error(message, error, context),
+      metric: (name: string, value: number, labels?: Record<string, string>) =>
+        console.log(`METRIC ${name}=${value}`, labels),
+    };
   }
 
   async reinitialize(agentId: string): Promise<TaskManagerResponse> {
@@ -195,18 +211,6 @@ export class TaskManagerAPIClient implements TaskManagerClient {
         });
       });
     });
-  }
-
-  private createDefaultLogger(): ExecutionLogger {
-    return {
-      debug: (msg, ctx) => console.debug(`[TaskManagerClient] ${msg}`, ctx),
-      info: (msg, ctx) => console.info(`[TaskManagerClient] ${msg}`, ctx),
-      warn: (msg, ctx) => console.warn(`[TaskManagerClient] ${msg}`, ctx),
-      error: (msg, err, ctx) =>
-        console.error(`[TaskManagerClient] ${msg}`, err, ctx),
-      metric: (name, value, labels) =>
-        console.log(`[TaskManagerClient] ${name}: ${value}`, labels),
-    };
   }
 }
 
@@ -562,16 +566,18 @@ export class AutonomousTaskManagerIntegration {
     return 'general';
   }
 
-  private reconstructTaskFromState(state: Record<string, unknown>): AutonomousTask | null {
+  private reconstructTaskFromState(
+    state: Record<string, unknown>,
+  ): AutonomousTask | null {
     // Reconstruct task from execution state
     // This is a simplified implementation
     return {
       id: state.taskId,
       title: `Recovered: ${state.currentStep}`,
       description: state.currentStep,
-      category: TaskCategory.EXECUTE,
+      category: TaskCategory.INFRASTRUCTURE,
       complexity: TaskComplexity.MODERATE,
-      priority: TaskPriority.NORMAL,
+      priority: TaskPriority.MEDIUM,
       status: state.status as TaskStatus,
       createdAt: new Date(state.lastUpdate),
       updatedAt: new Date(state.lastUpdate),

@@ -7,7 +7,11 @@
 import { randomUUID } from 'node:crypto';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import { TaskComplexity } from '../task-management/types.js';
-import type { TaskCategory, TaskPriority } from '../task-management/types.js';
+import {
+  TaskCategory,
+  TaskPriority,
+  TaskStatus,
+} from '../task-management/types.js';
 
 /**
  * Using canonical enums from types.ts:
@@ -15,18 +19,6 @@ import type { TaskCategory, TaskPriority } from '../task-management/types.js';
  * - TaskCategory: implementation, testing, documentation, analysis, refactoring, deployment
  * - TaskPriority: critical, high, medium, low
  */
-
-/**
- * Task execution status
- */
-export enum TaskStatus {
-  PENDING = 'pending',
-  IN_PROGRESS = 'in_progress',
-  BLOCKED = 'blocked',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-}
 
 /**
  * Represents a decomposed task with metadata and execution context
@@ -344,45 +336,45 @@ export class TaskBreakdownEngine {
       lowerRequest.includes('view') ||
       lowerRequest.includes('show')
     ) {
-      return TaskCategory.READ;
+      return TaskCategory.DOCUMENTATION;
     }
     if (
       lowerRequest.includes('edit') ||
       lowerRequest.includes('modify') ||
       lowerRequest.includes('change')
     ) {
-      return TaskCategory.EDIT;
+      return TaskCategory.FEATURE;
     }
     if (
       lowerRequest.includes('create') ||
       lowerRequest.includes('add') ||
       lowerRequest.includes('new')
     ) {
-      return TaskCategory.CREATE;
+      return TaskCategory.FEATURE;
     }
     if (lowerRequest.includes('delete') || lowerRequest.includes('remove')) {
-      return TaskCategory.DELETE;
+      return TaskCategory.REFACTOR;
     }
     if (
       lowerRequest.includes('search') ||
       lowerRequest.includes('find') ||
       lowerRequest.includes('grep')
     ) {
-      return TaskCategory.SEARCH;
+      return TaskCategory.DOCUMENTATION;
     }
     if (
       lowerRequest.includes('analyze') ||
       lowerRequest.includes('review') ||
       lowerRequest.includes('inspect')
     ) {
-      return TaskCategory.ANALYZE;
+      return TaskCategory.TEST;
     }
     if (
       lowerRequest.includes('run') ||
       lowerRequest.includes('execute') ||
       lowerRequest.includes('build')
     ) {
-      return TaskCategory.EXECUTE;
+      return TaskCategory.INFRASTRUCTURE;
     }
     if (
       lowerRequest.includes('refactor') ||
@@ -394,35 +386,35 @@ export class TaskBreakdownEngine {
       return TaskCategory.TEST;
     }
     if (lowerRequest.includes('deploy') || lowerRequest.includes('release')) {
-      return TaskCategory.DEPLOY;
+      return TaskCategory.INFRASTRUCTURE;
     }
     if (lowerRequest.includes('validate') || lowerRequest.includes('check')) {
-      return TaskCategory.VALIDATE;
+      return TaskCategory.TEST;
     }
     if (
       lowerRequest.includes('optimize') ||
       lowerRequest.includes('improve') ||
       lowerRequest.includes('enhance')
     ) {
-      return TaskCategory.OPTIMIZE;
+      return TaskCategory.PERFORMANCE;
     }
     if (
       lowerRequest.includes('debug') ||
       lowerRequest.includes('fix') ||
       lowerRequest.includes('troubleshoot')
     ) {
-      return TaskCategory.DEBUG;
+      return TaskCategory.BUG_FIX;
     }
     if (
       lowerRequest.includes('document') ||
       lowerRequest.includes('comment') ||
       lowerRequest.includes('explain')
     ) {
-      return TaskCategory.DOCUMENT;
+      return TaskCategory.DOCUMENTATION;
     }
 
     // Default to analyze if uncertain
-    return TaskCategory.ANALYZE;
+    return TaskCategory.TEST;
   }
 
   /**
@@ -433,20 +425,20 @@ export class TaskBreakdownEngine {
     complexityResult: ComplexityAnalysisResult,
   ): TaskPriority {
     // Critical categories get higher priority
-    if (category === TaskCategory.DEBUG || category === TaskCategory.VALIDATE) {
+    if (category === TaskCategory.BUG_FIX || category === TaskCategory.TEST) {
       return TaskPriority.HIGH;
     }
 
     // Complex tasks get higher priority for early execution
-    if (complexityResult.complexity === TaskComplexity.HIGHLY_COMPLEX) {
+    if (complexityResult.complexity === TaskComplexity.ENTERPRISE) {
       return TaskPriority.HIGH;
     }
 
     if (complexityResult.complexity === TaskComplexity.COMPLEX) {
-      return TaskPriority.NORMAL;
+      return TaskPriority.MEDIUM;
     }
 
-    return TaskPriority.NORMAL;
+    return TaskPriority.MEDIUM;
   }
 
   /**
@@ -470,16 +462,16 @@ export class TaskBreakdownEngine {
     const criteria: string[] = [];
 
     switch (category) {
-      case TaskCategory.CREATE:
+      case TaskCategory.FEATURE:
         criteria.push('Files/resources created successfully');
         criteria.push('No compilation or syntax errors');
         break;
-      case TaskCategory.EDIT:
+      case TaskCategory.BUG_FIX:
         criteria.push('Changes applied correctly');
         criteria.push('No breaking changes introduced');
         criteria.push('Tests pass after modifications');
         break;
-      case TaskCategory.EXECUTE:
+      case TaskCategory.INFRASTRUCTURE:
         criteria.push('Command executed successfully');
         criteria.push('Expected output produced');
         criteria.push('No error codes returned');
@@ -506,13 +498,13 @@ export class TaskBreakdownEngine {
     const steps: string[] = [];
 
     switch (category) {
-      case TaskCategory.CREATE:
-      case TaskCategory.EDIT:
+      case TaskCategory.FEATURE:
+      case TaskCategory.BUG_FIX:
         steps.push('Verify file syntax and structure');
         steps.push('Run linter checks');
         steps.push('Execute relevant tests');
         break;
-      case TaskCategory.EXECUTE:
+      case TaskCategory.INFRASTRUCTURE:
         steps.push('Check exit code');
         steps.push('Verify expected output');
         steps.push('Check for error messages');
@@ -541,7 +533,7 @@ export class TaskBreakdownEngine {
         return 2;
       case TaskComplexity.COMPLEX:
         return 3;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return 3;
       default:
         return 2;
@@ -571,12 +563,18 @@ export class TaskBreakdownEngine {
     };
 
     // Adjust strategy based on category
-    if (category === TaskCategory.SEARCH || category === TaskCategory.READ) {
+    if (
+      category === TaskCategory.DOCUMENTATION ||
+      category === TaskCategory.DOCUMENTATION
+    ) {
       baseStrategy.type = 'parallel';
       baseStrategy.maxConcurrency = 3;
     }
 
-    if (category === TaskCategory.EXECUTE || category === TaskCategory.DELETE) {
+    if (
+      category === TaskCategory.INFRASTRUCTURE ||
+      category === TaskCategory.REFACTOR
+    ) {
       baseStrategy.requiresConfirmation = true;
     }
 
@@ -593,18 +591,18 @@ export class TaskBreakdownEngine {
     const steps: string[] = [];
 
     switch (category) {
-      case TaskCategory.CREATE:
+      case TaskCategory.FEATURE:
         steps.push('Remove created files/directories');
         steps.push('Revert configuration changes');
         break;
-      case TaskCategory.EDIT:
+      case TaskCategory.BUG_FIX:
         steps.push('Restore original file content');
         steps.push('Revert related changes');
         break;
-      case TaskCategory.DELETE:
+      case TaskCategory.REFACTOR:
         steps.push('Restore from backup if available');
         break;
-      case TaskCategory.EXECUTE:
+      case TaskCategory.INFRASTRUCTURE:
         steps.push('Stop running processes');
         steps.push('Clean up temporary resources');
         break;
@@ -624,7 +622,7 @@ export class TaskBreakdownEngine {
         return 15;
       case TaskComplexity.COMPLEX:
         return 30;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return 60;
       default:
         return 15;
@@ -633,9 +631,9 @@ export class TaskBreakdownEngine {
 
   private requiresConfirmation(category: TaskCategory): boolean {
     return [
-      TaskCategory.DELETE,
-      TaskCategory.EXECUTE,
-      TaskCategory.DEPLOY,
+      TaskCategory.REFACTOR,
+      TaskCategory.INFRASTRUCTURE,
+      TaskCategory.INFRASTRUCTURE,
     ].includes(category);
   }
 
@@ -645,10 +643,10 @@ export class TaskBreakdownEngine {
       'Check file permissions',
     ];
 
-    if (category === TaskCategory.EDIT) {
+    if (category === TaskCategory.FEATURE) {
       checks.push('Backup original files');
     }
-    if (category === TaskCategory.EXECUTE) {
+    if (category === TaskCategory.INFRASTRUCTURE) {
       checks.push('Validate command syntax');
     }
 
@@ -658,7 +656,10 @@ export class TaskBreakdownEngine {
   private getPostExecutionValidation(category: TaskCategory): string[] {
     const validation: string[] = ['Check task completion status'];
 
-    if (category === TaskCategory.CREATE || category === TaskCategory.EDIT) {
+    if (
+      category === TaskCategory.FEATURE ||
+      category === TaskCategory.FEATURE
+    ) {
       validation.push('Verify file integrity');
       validation.push('Run syntax validation');
     }
@@ -675,7 +676,7 @@ export class TaskBreakdownEngine {
         return 2;
       case TaskComplexity.COMPLEX:
         return 3;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return 4;
       default:
         return 1;
@@ -686,7 +687,7 @@ export class TaskBreakdownEngine {
     if (score <= 1.5) return TaskComplexity.SIMPLE;
     if (score <= 2.5) return TaskComplexity.MODERATE;
     if (score <= 3.5) return TaskComplexity.COMPLEX;
-    return TaskComplexity.HIGHLY_COMPLEX;
+    return TaskComplexity.ENTERPRISE;
   }
 
   private calculateConfidence(factors: ComplexityFactor[]): number {
@@ -715,7 +716,7 @@ export class TaskBreakdownEngine {
       case TaskComplexity.COMPLEX:
         baseCount = 6;
         break;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         baseCount = 12;
         break;
       default:
@@ -745,7 +746,7 @@ export class TaskBreakdownEngine {
       case TaskComplexity.COMPLEX:
         baseDuration = 45;
         break;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         baseDuration = 120;
         break;
       default:
@@ -821,3 +822,10 @@ export interface ComplexityAnalyzer {
     context: TaskBreakdownContext,
   ): Promise<ComplexityAnalysisResult>;
 }
+
+// Re-export enums for external use
+export {
+  TaskCategory,
+  TaskPriority,
+  TaskStatus,
+} from '../task-management/types.js';

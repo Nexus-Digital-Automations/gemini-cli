@@ -156,7 +156,7 @@ export class LinguisticComplexityAnalyzer implements ComplexityAnalyzer {
         return baseDuration * 2;
       case TaskComplexity.COMPLEX:
         return baseDuration * 4;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return baseDuration * 8;
       default:
         return baseDuration;
@@ -295,7 +295,7 @@ export class WorkspaceComplexityAnalyzer implements ComplexityAnalyzer {
         return Math.max(15, baseComplexity * 2);
       case TaskComplexity.COMPLEX:
         return Math.max(30, baseComplexity * 4);
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return Math.max(60, baseComplexity * 8);
       default:
         return Math.max(5, baseComplexity);
@@ -361,7 +361,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
     } else if (requiredTools.size <= 4 && maxWeight <= 0.7) {
       complexity = TaskComplexity.COMPLEX;
     } else {
-      complexity = TaskComplexity.HIGHLY_COMPLEX;
+      complexity = TaskComplexity.ENTERPRISE;
     }
 
     // Check for tool combination complexity
@@ -397,7 +397,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
         description: `Missing tools: ${missingTools.join(', ')}`,
         weight: 0.9,
       });
-      complexity = TaskComplexity.HIGHLY_COMPLEX;
+      complexity = TaskComplexity.ENTERPRISE;
     }
 
     return {
@@ -446,7 +446,7 @@ export class ToolComplexityAnalyzer implements ComplexityAnalyzer {
         return baseDuration * 1.5;
       case TaskComplexity.COMPLEX:
         return baseDuration * 3;
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return baseDuration * 5;
       default:
         return baseDuration;
@@ -631,7 +631,7 @@ export class DependencyComplexityAnalyzer implements ComplexityAnalyzer {
         return Math.max(15, dependencyComplexity * 2);
       case TaskComplexity.COMPLEX:
         return Math.max(30, dependencyComplexity * 3);
-      case TaskComplexity.HIGHLY_COMPLEX:
+      case TaskComplexity.ENTERPRISE:
         return Math.max(60, dependencyComplexity * 5);
       default:
         return Math.max(5, dependencyComplexity);

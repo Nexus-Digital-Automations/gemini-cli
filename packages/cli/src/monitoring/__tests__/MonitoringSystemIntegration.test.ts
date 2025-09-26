@@ -117,14 +117,12 @@ describe('Monitoring System Integration Tests', () => {
   });
 
   afterEach(async () => {
-    // Shutdown all components
+    // Shutdown all components that have shutdown methods
     await Promise.all(
       [
         realTimeMonitoring?.shutdown(),
         dashboard?.shutdown(),
         integrationHub?.shutdown(),
-        taskStatusMonitor?.shutdown?.(),
-        performanceAnalytics?.shutdown?.(),
       ].filter(Boolean),
     );
   });
@@ -165,11 +163,16 @@ describe('Monitoring System Integration Tests', () => {
       });
 
       // Trigger events from different systems
-      taskStatusMonitor.registerTask('test-task-1', {
+      taskStatusMonitor.registerTask({
         title: 'Test Task 1',
         description: 'Integration test task',
         type: TaskType.IMPLEMENTATION,
         priority: TaskPriority.NORMAL,
+        status: TaskStatus.QUEUED,
+        dependencies: [],
+        progress: 0,
+        errorCount: 0,
+        retryCount: 0,
         estimatedDuration: 30000,
       });
 
@@ -178,7 +181,7 @@ describe('Monitoring System Integration Tests', () => {
         'test_metric',
         100,
         'milliseconds',
-        'performance', // Fixed: changed from 'response_time' to valid category
+        'latency', // Fixed: changed to valid category
         { source: 'integration_test' },
       );
 
@@ -196,7 +199,7 @@ describe('Monitoring System Integration Tests', () => {
 
     it('should synchronize data across monitoring systems', async () => {
       // Register some test data
-      taskStatusMonitor.registerTask('sync-test-task', {
+      taskStatusMonitor.registerTask({
         title: 'Sync Test Task',
         description: 'Task for testing data synchronization',
         type: TaskType.TESTING,
@@ -262,7 +265,7 @@ describe('Monitoring System Integration Tests', () => {
       const snapshots = [];
       for (let i = 0; i < 15; i++) {
         // Add some tasks with varying completion patterns
-        const taskId = taskStatusMonitor.registerTask(`historical-task-${i}`, {
+        const taskId = taskStatusMonitor.registerTask({
           title: `Historical Task ${i}`,
           description: 'Task for predictive analysis',
           type: TaskType.IMPLEMENTATION,
@@ -288,7 +291,7 @@ describe('Monitoring System Integration Tests', () => {
           'task_completion_time',
           25000 + i * 500,
           'milliseconds',
-          'performance',
+          'latency',
           { taskId, index: i },
         );
       }
@@ -354,7 +357,7 @@ describe('Monitoring System Integration Tests', () => {
       realTimeMonitoring.addAlertRule(testRule);
 
       // Create a task to trigger the alert
-      taskStatusMonitor.registerTask('alert-trigger-task', {
+      taskStatusMonitor.registerTask({
         title: 'Alert Trigger Task',
         description: 'Task to trigger alert',
         type: TaskType.VALIDATION,
@@ -446,13 +449,13 @@ describe('Monitoring System Integration Tests', () => {
     it('should generate chart data for widgets', () => {
       // First create some test data
       const tasks = [
-        taskStatusMonitor.registerTask('chart-task-1', {
+        taskStatusMonitor.registerTask({
           title: 'Chart Task 1',
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.HIGH,
           estimatedDuration: 30000,
         }),
-        taskStatusMonitor.registerTask('chart-task-2', {
+        taskStatusMonitor.registerTask({
           title: 'Chart Task 2',
           type: TaskType.TESTING,
           priority: TaskPriority.NORMAL,
@@ -564,7 +567,7 @@ describe('Monitoring System Integration Tests', () => {
       });
 
       // Create correlated events from different systems
-      const taskId = taskStatusMonitor.registerTask('correlation-test-task', {
+      const taskId = taskStatusMonitor.registerTask({
         title: 'Correlation Test Task',
         type: TaskType.IMPLEMENTATION,
         priority: TaskPriority.NORMAL,
@@ -602,13 +605,13 @@ describe('Monitoring System Integration Tests', () => {
     it('should aggregate data from all monitoring systems', () => {
       // Create test data across different systems
       const taskIds = [
-        taskStatusMonitor.registerTask('aggregate-task-1', {
+        taskStatusMonitor.registerTask({
           title: 'Aggregate Task 1',
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.HIGH,
           estimatedDuration: 30000,
         }),
-        taskStatusMonitor.registerTask('aggregate-task-2', {
+        taskStatusMonitor.registerTask({
           title: 'Aggregate Task 2',
           type: TaskType.TESTING,
           priority: TaskPriority.NORMAL,
@@ -664,7 +667,7 @@ describe('Monitoring System Integration Tests', () => {
           name: 'api_response_time',
           value: 150,
           unit: 'milliseconds',
-          category: 'performance',
+          category: 'latency',
         },
         {
           name: 'memory_usage',
@@ -717,7 +720,7 @@ describe('Monitoring System Integration Tests', () => {
           'api_response_time',
           responseTime,
           'milliseconds',
-          'performance',
+          'latency',
           {
             timestamp: new Date(Date.now() - (9 - index) * 60000).toISOString(), // 9 minutes of data
             endpoint: 'test_endpoint',
@@ -756,7 +759,7 @@ describe('Monitoring System Integration Tests', () => {
   describe('Data Export and Persistence', () => {
     it('should export monitoring data in multiple formats', async () => {
       // Create some test data
-      const taskId = taskStatusMonitor.registerTask('export-test-task', {
+      const taskId = taskStatusMonitor.registerTask({
         title: 'Export Test Task',
         type: TaskType.VALIDATION,
         priority: TaskPriority.NORMAL,
@@ -922,7 +925,7 @@ describe('Monitoring System Integration Tests', () => {
       for (let i = 0; i < 50; i++) {
         operations.push(
           Promise.resolve().then(() => {
-            taskStatusMonitor.registerTask(`load-test-task-${i}`, {
+            taskStatusMonitor.registerTask({
               title: `Load Test Task ${i}`,
               type: TaskType.IMPLEMENTATION,
               priority: TaskPriority.NORMAL,
@@ -933,7 +936,7 @@ describe('Monitoring System Integration Tests', () => {
               `load_test_metric_${i}`,
               Math.random() * 1000,
               'milliseconds',
-              'performance',
+              'latency',
               { loadTest: true, index: i },
             );
 
@@ -991,7 +994,7 @@ describe('Monitoring System Integration Tests', () => {
 
       // Create many tasks to simulate load
       for (let i = 0; i < 20; i++) {
-        const taskId = taskStatusMonitor.registerTask(`degradation-test-${i}`, {
+        const taskId = taskStatusMonitor.registerTask({
           title: `Degradation Test Task ${i}`,
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.HIGH,

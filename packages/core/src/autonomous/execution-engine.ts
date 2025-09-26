@@ -7,12 +7,11 @@
 import { EventEmitter } from 'node:events';
 import type {
   AutonomousTask,
-  TaskStatus,
-  TaskPriority,
-  TaskCategory,
   ExecutionStrategy,
   RetryPolicy,
 } from './task-breakdown-engine.js';
+import { TaskStatus } from './task-breakdown-engine.js';
+import { TaskPriority, TaskCategory } from '../task-management/types.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
 import type { AnyDeclarativeTool } from '../tools/tools.js';
 
@@ -177,13 +176,7 @@ export interface ExecutionStrategySelector {
  */
 export class AutonomousExecutionEngine extends EventEmitter {
   private readonly strategySelector: ExecutionStrategySelector;
-  private readonly runningTasks = new Map<
-    string,
-    Promise<TaskExecutionResult>
-  >();
   private readonly taskStates = new Map<string, ExecutionState>();
-  private readonly executionQueue: AutonomousTask[] = [];
-  private isProcessing = false;
 
   constructor(strategySelector?: ExecutionStrategySelector) {
     super();
@@ -278,7 +271,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
         rollbackSteps: task.rollbackSteps || [],
       };
 
-      logger.error(`Task execution failed: ${task.title}`, error, {
+      logger.error(`Task execution failed: ${task.title}`, error as Error, {
         taskId: task.id,
       });
       this.emit('taskFailed', result);
@@ -394,7 +387,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
     // Update task state
     await this.updateTaskState(
       task.id,
-      TaskStatus.IN_PROGRESS,
+      TaskStatus.RUNNING,
       'Executing atomic task',
       context,
     );
@@ -509,7 +502,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
 
     await this.updateTaskState(
       task.id,
-      TaskStatus.IN_PROGRESS,
+      TaskStatus.RUNNING,
       'Executing composite task',
       context,
     );
@@ -642,20 +635,14 @@ export class AutonomousExecutionEngine extends EventEmitter {
   ): string {
     // Simple tool selection based on task category
     const toolMapping: Record<TaskCategory, string[]> = {
-      [TaskCategory.READ]: ['read-file', 'read-many-files', 'ls'],
-      [TaskCategory.EDIT]: ['edit', 'smart-edit'],
-      [TaskCategory.CREATE]: ['write-file', 'edit'],
-      [TaskCategory.DELETE]: ['shell'], // Use shell for rm commands
-      [TaskCategory.SEARCH]: ['grep', 'glob'],
-      [TaskCategory.ANALYZE]: ['read-file', 'grep'],
-      [TaskCategory.EXECUTE]: ['shell'],
+      [TaskCategory.FEATURE]: ['edit', 'write-file', 'shell'],
+      [TaskCategory.BUG_FIX]: ['read-file', 'edit', 'shell'],
+      [TaskCategory.TEST]: ['shell', 'read-file'],
+      [TaskCategory.DOCUMENTATION]: ['edit', 'write-file'],
       [TaskCategory.REFACTOR]: ['edit', 'smart-edit'],
-      [TaskCategory.TEST]: ['shell'],
-      [TaskCategory.DEPLOY]: ['shell'],
-      [TaskCategory.VALIDATE]: ['shell', 'read-file'],
-      [TaskCategory.OPTIMIZE]: ['edit', 'smart-edit'],
-      [TaskCategory.DEBUG]: ['read-file', 'shell'],
-      [TaskCategory.DOCUMENT]: ['edit', 'write-file'],
+      [TaskCategory.SECURITY]: ['read-file', 'edit', 'shell'],
+      [TaskCategory.PERFORMANCE]: ['edit', 'shell'],
+      [TaskCategory.INFRASTRUCTURE]: ['shell', 'edit'],
     };
 
     const possibleTools = toolMapping[task.category] || ['shell'];
@@ -694,7 +681,7 @@ export class AutonomousExecutionEngine extends EventEmitter {
       progress:
         status === TaskStatus.COMPLETED
           ? 100
-          : status === TaskStatus.IN_PROGRESS
+          : status === TaskStatus.RUNNING
             ? 50
             : 0,
       currentStep: message,
@@ -822,9 +809,9 @@ export class AutonomousExecutionEngine extends EventEmitter {
   private shouldRollback(task: AutonomousTask, error: ExecutionError): boolean {
     return (
       error.recoverable &&
-      task.category !== TaskCategory.READ &&
-      task.category !== TaskCategory.SEARCH &&
-      task.category !== TaskCategory.ANALYZE
+      task.category !== TaskCategory.DOCUMENTATION &&
+      task.category !== TaskCategory.DOCUMENTATION &&
+      task.category !== TaskCategory.TEST
     );
   }
 
@@ -837,7 +824,12 @@ export class AutonomousExecutionEngine extends EventEmitter {
           acc.validationChecks + result.metrics.validationChecks,
         cacheHits: (acc.cacheHits || 0) + (result.metrics.cacheHits || 0),
       }),
-      { toolInvocations: 0, retryAttempts: 0, validationChecks: 0 },
+      {
+        toolInvocations: 0,
+        retryAttempts: 0,
+        validationChecks: 0,
+        cacheHits: 0,
+      },
     );
   }
 
@@ -903,8 +895,8 @@ export class DefaultExecutionStrategySelector
         for (const file of task.targetFiles) {
           if (
             filePaths.has(file) &&
-            (task.category === TaskCategory.EDIT ||
-              task.category === TaskCategory.DELETE)
+            (task.category === TaskCategory.FEATURE ||
+              task.category === TaskCategory.REFACTOR)
           ) {
             return false; // Conflicting file access
           }
@@ -936,17 +928,17 @@ export class DefaultExecutionStrategySelector
 
   private requiresConfirmation(task: AutonomousTask): boolean {
     return [
-      TaskCategory.DELETE,
-      TaskCategory.EXECUTE,
-      TaskCategory.DEPLOY,
+      TaskCategory.REFACTOR,
+      TaskCategory.INFRASTRUCTURE,
+      TaskCategory.INFRASTRUCTURE,
     ].includes(task.category);
   }
 
   private isParallelizable(task: AutonomousTask): boolean {
     return [
-      TaskCategory.READ,
-      TaskCategory.SEARCH,
-      TaskCategory.ANALYZE,
+      TaskCategory.DOCUMENTATION,
+      TaskCategory.DOCUMENTATION,
+      TaskCategory.TEST,
     ].includes(task.category);
   }
 }

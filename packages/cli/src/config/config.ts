@@ -19,6 +19,8 @@ import type {
 import { extensionsCommand } from '../commands/extensions.js';
 import { budgetCommand } from '../commands/budget.js';
 import { autonomousCommand } from '../commands/autonomous.js';
+import { personaCommand } from '../commands/persona.js';
+import { knowledgeCommand } from '../commands/knowledge.js';
 import {
   Config,
   loadServerHierarchicalMemory,
@@ -346,6 +348,12 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
   // Register autonomous task management subcommands
   yargsInstance.command(autonomousCommand);
 
+  // Register persona management subcommands
+  yargsInstance.command(personaCommand);
+
+  // Register knowledge base management subcommands
+  yargsInstance.command(knowledgeCommand);
+
   yargsInstance
     .version(await getCliVersion()) // This will enable the --version flag based on package.json
     .alias('v', 'version')
@@ -357,13 +365,16 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
   yargsInstance.wrap(yargsInstance.terminalWidth());
   const result = await yargsInstance.parse();
 
-  // Handle case where MCP subcommands are executed - they should exit the process
+  // Handle case where subcommands are executed - they should exit the process
   // and not return to main CLI logic
   if (
     result._.length > 0 &&
-    (result._[0] === 'mcp' || result._[0] === 'extensions')
+    (result._[0] === 'mcp' ||
+      result._[0] === 'extensions' ||
+      result._[0] === 'persona' ||
+      result._[0] === 'knowledge')
   ) {
-    // MCP commands handle their own execution and process exit
+    // These commands handle their own execution and process exit
     process.exit(0);
   }
 

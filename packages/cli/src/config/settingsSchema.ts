@@ -1261,6 +1261,212 @@ const SETTINGS_SCHEMA = {
       },
     },
   },
+
+  persona: {
+    type: 'object',
+    label: 'AI Persona',
+    category: 'Persona',
+    requiresRestart: false,
+    default: Object.create(null) as Record<string, unknown>,
+    description: 'Customizable AI personality and behavior settings.',
+    showInDialog: true,
+    properties: {
+      active: {
+        type: 'string',
+        label: 'Active Persona',
+        category: 'Persona',
+        requiresRestart: false,
+        default: 'professional',
+        description: 'Currently active persona profile.',
+        showInDialog: true,
+      },
+      personality: {
+        type: 'object',
+        label: 'Personality Traits',
+        category: 'Persona',
+        requiresRestart: false,
+        default: Object.create(null) as Record<string, unknown>,
+        description: 'Core personality characteristics.',
+        showInDialog: false,
+        properties: {
+          formality: {
+            type: 'enum',
+            label: 'Communication Style',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'professional',
+            description: 'How formal or casual the AI communication should be.',
+            showInDialog: true,
+            options: [
+              { value: 'formal', label: 'Formal & Professional' },
+              { value: 'professional', label: 'Professional & Friendly' },
+              { value: 'casual', label: 'Casual & Conversational' },
+              { value: 'relaxed', label: 'Relaxed & Informal' },
+            ],
+          },
+          verbosity: {
+            type: 'enum',
+            label: 'Response Length',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'balanced',
+            description: 'How detailed and lengthy responses should be.',
+            showInDialog: true,
+            options: [
+              { value: 'concise', label: 'Concise & Brief' },
+              { value: 'balanced', label: 'Balanced Detail' },
+              { value: 'detailed', label: 'Detailed & Thorough' },
+              { value: 'comprehensive', label: 'Comprehensive & Extensive' },
+            ],
+          },
+          creativity: {
+            type: 'enum',
+            label: 'Creativity Level',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'practical',
+            description: 'How creative and experimental the AI should be.',
+            showInDialog: true,
+            options: [
+              { value: 'conservative', label: 'Conservative & Safe' },
+              { value: 'practical', label: 'Practical & Reliable' },
+              { value: 'innovative', label: 'Innovative & Creative' },
+              { value: 'experimental', label: 'Experimental & Bold' },
+            ],
+          },
+          teachingStyle: {
+            type: 'enum',
+            label: 'Teaching Approach',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'explanatory',
+            description: 'How the AI explains concepts and provides guidance.',
+            showInDialog: true,
+            options: [
+              { value: 'direct', label: 'Direct & Solution-Focused' },
+              { value: 'explanatory', label: 'Explanatory & Educational' },
+              { value: 'socratic', label: 'Socratic & Question-Guided' },
+              { value: 'mentoring', label: 'Mentoring & Supportive' },
+            ],
+          },
+        },
+      },
+      behavior: {
+        type: 'object',
+        label: 'Behavioral Patterns',
+        category: 'Persona',
+        requiresRestart: false,
+        default: Object.create(null) as Record<string, unknown>,
+        description: 'How the AI behaves and interacts.',
+        showInDialog: false,
+        properties: {
+          proactiveness: {
+            type: 'enum',
+            label: 'Proactiveness',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'balanced',
+            description:
+              'How proactive the AI should be in suggesting improvements.',
+            showInDialog: true,
+            options: [
+              { value: 'reactive', label: 'Reactive - Wait for Instructions' },
+              { value: 'balanced', label: 'Balanced - Moderate Suggestions' },
+              { value: 'proactive', label: 'Proactive - Suggest Improvements' },
+              { value: 'assertive', label: 'Assertive - Drive Best Practices' },
+            ],
+          },
+          errorHandling: {
+            type: 'enum',
+            label: 'Error Handling Style',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'helpful',
+            description: 'How the AI responds to and handles errors.',
+            showInDialog: true,
+            options: [
+              { value: 'concise', label: 'Concise - Brief Error Messages' },
+              { value: 'helpful', label: 'Helpful - Explain and Guide' },
+              { value: 'thorough', label: 'Thorough - Deep Problem Analysis' },
+              {
+                value: 'preventive',
+                label: 'Preventive - Focus on Prevention',
+              },
+            ],
+          },
+          codeStyle: {
+            type: 'enum',
+            label: 'Code Review Style',
+            category: 'Persona',
+            requiresRestart: false,
+            default: 'constructive',
+            description: 'How the AI approaches code review and suggestions.',
+            showInDialog: true,
+            options: [
+              { value: 'minimal', label: 'Minimal - Essential Changes Only' },
+              {
+                value: 'constructive',
+                label: 'Constructive - Balanced Feedback',
+              },
+              {
+                value: 'comprehensive',
+                label: 'Comprehensive - Detailed Review',
+              },
+              { value: 'mentoring', label: 'Mentoring - Teaching-Focused' },
+            ],
+          },
+        },
+      },
+      customization: {
+        type: 'object',
+        label: 'Custom Preferences',
+        category: 'Persona',
+        requiresRestart: false,
+        default: Object.create(null) as Record<string, unknown>,
+        description: 'Advanced customization options.',
+        showInDialog: false,
+        properties: {
+          preferredTerminology: {
+            type: 'object',
+            label: 'Preferred Terminology',
+            category: 'Persona',
+            requiresRestart: false,
+            default: Object.create(null) as Record<string, string>,
+            description: 'Custom terminology preferences for technical terms.',
+            showInDialog: false,
+          },
+          customPromptAdditions: {
+            type: 'string',
+            label: 'Custom Prompt Additions',
+            category: 'Persona',
+            requiresRestart: false,
+            default: '',
+            description: 'Additional instructions to add to the system prompt.',
+            showInDialog: true,
+          },
+          learningPreferences: {
+            type: 'array',
+            label: 'Learning Focus Areas',
+            category: 'Persona',
+            requiresRestart: false,
+            default: [] as string[],
+            description: 'Areas where you want the AI to focus on teaching.',
+            showInDialog: false,
+            mergeStrategy: MergeStrategy.UNION,
+          },
+        },
+      },
+      profiles: {
+        type: 'object',
+        label: 'Persona Profiles',
+        category: 'Persona',
+        requiresRestart: false,
+        default: Object.create(null) as Record<string, PersonaProfile>,
+        description: 'Saved persona configurations for quick switching.',
+        showInDialog: false,
+      },
+    },
+  },
 } as const satisfies SettingsSchema;
 
 /**
@@ -1352,4 +1558,88 @@ export interface FooterSettings {
   hideSandboxStatus?: boolean;
   /** Whether to hide the model name and context usage information */
   hideModelInfo?: boolean;
+}
+
+/**
+ * Personality trait values for AI behavior customization.
+ * Defines how the AI communicates and approaches different tasks.
+ */
+export interface PersonalityTraits {
+  /** Communication formality level */
+  formality?: 'formal' | 'professional' | 'casual' | 'relaxed';
+  /** Response detail level */
+  verbosity?: 'concise' | 'balanced' | 'detailed' | 'comprehensive';
+  /** Creativity and innovation level */
+  creativity?: 'conservative' | 'practical' | 'innovative' | 'experimental';
+  /** Teaching and explanation approach */
+  teachingStyle?: 'direct' | 'explanatory' | 'socratic' | 'mentoring';
+}
+
+/**
+ * Behavioral patterns for AI interaction style.
+ * Controls how the AI behaves in different situations.
+ */
+export interface BehavioralPatterns {
+  /** How proactive the AI should be */
+  proactiveness?: 'reactive' | 'balanced' | 'proactive' | 'assertive';
+  /** Error handling approach */
+  errorHandling?: 'concise' | 'helpful' | 'thorough' | 'preventive';
+  /** Code review and feedback style */
+  codeStyle?: 'minimal' | 'constructive' | 'comprehensive' | 'mentoring';
+}
+
+/**
+ * Advanced customization options for persona behavior.
+ * Allows fine-tuning of AI responses and terminology.
+ */
+export interface PersonaCustomization {
+  /** Custom terminology mappings for technical terms */
+  preferredTerminology?: Record<string, string>;
+  /** Additional instructions to add to system prompt */
+  customPromptAdditions?: string;
+  /** Areas of focus for educational content */
+  learningPreferences?: string[];
+}
+
+/**
+ * Complete persona profile configuration.
+ * Represents a saved set of personality, behavior, and customization preferences.
+ *
+ * @example
+ * ```typescript
+ * const mentorPersona: PersonaProfile = {
+ *   name: 'Coding Mentor',
+ *   description: 'Patient teacher focused on learning',
+ *   personality: {
+ *     formality: 'professional',
+ *     verbosity: 'detailed',
+ *     creativity: 'practical',
+ *     teachingStyle: 'mentoring'
+ *   },
+ *   behavior: {
+ *     proactiveness: 'proactive',
+ *     errorHandling: 'thorough',
+ *     codeStyle: 'mentoring'
+ *   },
+ *   customization: {
+ *     learningPreferences: ['best-practices', 'security', 'performance']
+ *   }
+ * };
+ * ```
+ */
+export interface PersonaProfile {
+  /** Display name for the persona */
+  name: string;
+  /** Description of the persona's characteristics */
+  description: string;
+  /** Personality trait configuration */
+  personality: PersonalityTraits;
+  /** Behavioral pattern configuration */
+  behavior: BehavioralPatterns;
+  /** Advanced customization options */
+  customization: PersonaCustomization;
+  /** Whether this is a built-in system persona */
+  isSystem?: boolean;
+  /** Creation or last modification timestamp */
+  updatedAt?: string;
 }
