@@ -678,6 +678,9 @@ export class QuotaManager extends EventEmitter {
       case 'log':
         this.logger.info('Quota limit exceeded', violation);
         break;
+      default:
+        // Handle unexpected values
+        break;
     }
 
     this.emitBudgetEvent('limit_exceeded', {
@@ -686,10 +689,6 @@ export class QuotaManager extends EventEmitter {
       usage: usage.currentUsage,
       limit: limit.maxValue,
     });
-      default:
-        // Handle unexpected values
-        break;
-  }
 
   /**
    * Initialize default quota limits
