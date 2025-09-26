@@ -16,7 +16,10 @@ import {
 } from 'vitest';
 import { performance } from 'node:perf_hooks';
 
-import { RealTimeMonitoringSystem } from '../RealTimeMonitoringSystem.js';
+import {
+  RealTimeMonitoringSystem,
+  type MonitoringSnapshot,
+} from '../RealTimeMonitoringSystem.js';
 import { EnhancedMonitoringDashboard } from '../EnhancedMonitoringDashboard.js';
 import { MonitoringIntegrationHub } from '../MonitoringIntegrationHub.js';
 import {
@@ -109,8 +112,6 @@ describe('Monitoring System Performance Tests', () => {
         realTimeMonitoring?.shutdown(),
         dashboard?.shutdown(),
         integrationHub?.shutdown(),
-        taskStatusMonitor?.shutdown?.(),
-        performanceAnalytics?.shutdown?.(),
       ].filter(Boolean),
     );
 
@@ -169,8 +170,7 @@ describe('Monitoring System Performance Tests', () => {
           id: `perf-test-rule-${i}`,
           name: `Performance Test Rule ${i}`,
           description: 'Alert rule for performance testing',
-          condition: (data: Record<string, unknown>) =>
-            (data['taskMetrics'] as { total: number }).total > i,
+          condition: (data: MonitoringSnapshot) => data.taskMetrics.total > i,
           severity: 'medium' as const,
           cooldownMs: 100,
           enabled: true,
@@ -189,11 +189,19 @@ describe('Monitoring System Performance Tests', () => {
 
       // Create tasks to trigger alerts
       for (let i = 0; i < 15; i++) {
-        taskStatusMonitor.registerTask(`alert-perf-task-${i}`, {
+        await taskStatusMonitor.registerTask({
           title: `Alert Performance Task ${i}`,
           type: TaskType.VALIDATION,
           priority: TaskPriority.NORMAL,
           estimatedDuration: 5000,
+          description: `Alert performance task ${i}`,
+          dependencies: [],
+          tags: [],
+          metadata: {},
+          status: TaskStatus.QUEUED,
+          progress: 0,
+          errorCount: 0,
+          retryCount: 0,
         });
       }
 
@@ -298,34 +306,41 @@ describe('Monitoring System Performance Tests', () => {
 
       // Create tasks in batches to simulate realistic load
       for (let batch = 0; batch < taskCount / batchSize; batch++) {
-        const batchPromise = Promise.resolve().then(() => {
+        const batchPromise = Promise.resolve().then(async () => {
           const batchTaskIds: string[] = [];
 
           for (let i = 0; i < batchSize; i++) {
             const taskIndex = batch * batchSize + i;
-            const taskId = taskStatusMonitor.registerTask(
-              `throughput-task-${taskIndex}`,
-              {
-                title: `Throughput Test Task ${taskIndex}`,
-                type: TaskType.IMPLEMENTATION,
-                priority: TaskPriority.NORMAL,
-                estimatedDuration: Math.random() * 30000 + 10000,
-              },
-            );
+            const taskId = await taskStatusMonitor.registerTask({
+              title: `Throughput Test Task ${taskIndex}`,
+              type: TaskType.IMPLEMENTATION,
+              priority: TaskPriority.NORMAL,
+              estimatedDuration: Math.random() * 30000 + 10000,
+              description: `Throughput test task ${taskIndex}`,
+              dependencies: [],
+              tags: [],
+              metadata: {},
+              status: TaskStatus.QUEUED,
+              progress: 0,
+              errorCount: 0,
+              retryCount: 0,
+            });
             batchTaskIds.push(taskId);
           }
 
           // Randomly complete some tasks
           batchTaskIds.forEach((taskId) => {
             if (Math.random() > 0.7) {
-              taskStatusMonitor.updateTaskStatus(taskId, {
-                status:
-                  Math.random() > 0.1
-                    ? TaskStatus.COMPLETED
-                    : TaskStatus.FAILED,
-                endTime: new Date(),
-                actualDuration: Math.random() * 25000 + 5000,
-              });
+              taskStatusMonitor.updateTaskStatus(
+                taskId,
+                Math.random() > 0.1 ? TaskStatus.COMPLETED : TaskStatus.FAILED,
+                {
+                  context: {
+                    endTime: new Date(),
+                    actualDuration: Math.random() * 25000 + 5000,
+                  },
+                },
+              );
             }
           });
 
@@ -386,8 +401,11 @@ describe('Monitoring System Performance Tests', () => {
                   `concurrent_test_${threadIndex}_${opIndex}`,
                   Math.random() * 1000,
                   'milliseconds',
-                  'performance',
-                  { thread: threadIndex, operation: opIndex },
+                  'latency',
+                  {
+                    thread: threadIndex.toString(),
+                    operation: opIndex.toString(),
+                  },
                 ),
             ];
 
@@ -450,25 +468,31 @@ describe('Monitoring System Performance Tests', () => {
       // Setup monitoring
       realTimeMonitoring.startMonitoring();
 
-      const loadTestInterval = setInterval(() => {
+      const loadTestInterval = setInterval(async () => {
         const opStart = performance.now();
 
         // Perform mixed operations
-        const taskId = taskStatusMonitor.registerTask(
-          `load-test-${operationCount}`,
-          {
-            title: `Load Test Task ${operationCount}`,
-            type: TaskType.VALIDATION,
-            priority: TaskPriority.NORMAL,
-            estimatedDuration: 5000,
-          },
-        );
+        const taskId = await taskStatusMonitor.registerTask({
+          title: `Load Test Task ${operationCount}`,
+          type: TaskType.VALIDATION,
+          priority: TaskPriority.NORMAL,
+          estimatedDuration: 5000,
+          description: `Load test task ${operationCount}`,
+          dependencies: [],
+          tags: [],
+          metadata: {},
+          status: TaskStatus.QUEUED,
+          progress: 0,
+          errorCount: 0,
+          retryCount: 0,
+        });
 
         if (operationCount % 3 === 0) {
-          taskStatusMonitor.updateTaskStatus(taskId, {
-            status: TaskStatus.COMPLETED,
-            endTime: new Date(),
-            actualDuration: Math.random() * 4000 + 1000,
+          taskStatusMonitor.updateTaskStatus(taskId, TaskStatus.COMPLETED, {
+            context: {
+              endTime: new Date(),
+              actualDuration: Math.random() * 4000 + 1000,
+            },
           });
         }
 
@@ -563,24 +587,30 @@ describe('Monitoring System Performance Tests', () => {
         // Create and process tasks
         const taskIds = [];
         for (let i = 0; i < 10; i++) {
-          const taskId = taskStatusMonitor.registerTask(
-            `memory-test-${cycle}-${i}`,
-            {
-              title: `Memory Test Task ${cycle}-${i}`,
-              type: TaskType.IMPLEMENTATION,
-              priority: TaskPriority.NORMAL,
-              estimatedDuration: 15000,
-            },
-          );
+          const taskId = await taskStatusMonitor.registerTask({
+            title: `Memory Test Task ${cycle}-${i}`,
+            type: TaskType.IMPLEMENTATION,
+            priority: TaskPriority.NORMAL,
+            estimatedDuration: 15000,
+            description: `Memory test task ${cycle}-${i}`,
+            dependencies: [],
+            tags: [],
+            metadata: {},
+            status: TaskStatus.QUEUED,
+            progress: 0,
+            errorCount: 0,
+            retryCount: 0,
+          });
           taskIds.push(taskId);
         }
 
         // Complete tasks
         taskIds.forEach((taskId) => {
-          taskStatusMonitor.updateTaskStatus(taskId, {
-            status: TaskStatus.COMPLETED,
-            endTime: new Date(),
-            actualDuration: Math.random() * 12000 + 3000,
+          taskStatusMonitor.updateTaskStatus(taskId, TaskStatus.COMPLETED, {
+            context: {
+              endTime: new Date(),
+              actualDuration: Math.random() * 12000 + 3000,
+            },
           });
         });
 
@@ -594,8 +624,8 @@ describe('Monitoring System Performance Tests', () => {
           'memory_test_metric',
           Math.random() * 500,
           'milliseconds',
-          'performance',
-          { cycle },
+          'latency',
+          { cycle: cycle.toString() },
         );
 
         // Take memory snapshot every 10 cycles
@@ -650,23 +680,25 @@ describe('Monitoring System Performance Tests', () => {
 
         for (let i = 0; i < batchSize; i++) {
           const taskIndex = batch * batchSize + i;
-          const taskId = taskStatusMonitor.registerTask(
-            `large-dataset-${taskIndex}`,
-            {
-              title: `Large Dataset Task ${taskIndex}`,
-              description: `Task ${taskIndex} for large dataset testing with additional metadata and longer descriptions to simulate real-world data complexity`,
-              type: TaskType.IMPLEMENTATION,
-              priority: TaskPriority.NORMAL,
-              estimatedDuration: Math.random() * 60000 + 30000,
-              metadata: {
-                category: 'large-dataset-test',
-                batch,
-                index: i,
-                complexity: Math.random() > 0.5 ? 'high' : 'low',
-                tags: [`tag-${i % 10}`, `batch-${batch}`, 'large-dataset'],
-              },
+          const taskId = await taskStatusMonitor.registerTask({
+            title: `Large Dataset Task ${taskIndex}`,
+            description: `Task ${taskIndex} for large dataset testing with additional metadata and longer descriptions to simulate real-world data complexity`,
+            type: TaskType.IMPLEMENTATION,
+            priority: TaskPriority.NORMAL,
+            estimatedDuration: Math.random() * 60000 + 30000,
+            dependencies: [],
+            tags: [`tag-${i % 10}`, `batch-${batch}`, 'large-dataset'],
+            metadata: {
+              category: 'large-dataset-test',
+              batch,
+              index: i,
+              complexity: Math.random() > 0.5 ? 'high' : 'low',
             },
-          );
+            status: TaskStatus.QUEUED,
+            progress: 0,
+            errorCount: 0,
+            retryCount: 0,
+          });
           batchTasks.push(taskId);
         }
 
@@ -674,11 +706,16 @@ describe('Monitoring System Performance Tests', () => {
         batchTasks.forEach((taskId) => {
           const random = Math.random();
           if (random > 0.3) {
-            taskStatusMonitor.updateTaskStatus(taskId, {
-              status: random > 0.1 ? TaskStatus.COMPLETED : TaskStatus.FAILED,
-              endTime: new Date(),
-              actualDuration: Math.random() * 45000 + 15000,
-            });
+            taskStatusMonitor.updateTaskStatus(
+              taskId,
+              random > 0.1 ? TaskStatus.COMPLETED : TaskStatus.FAILED,
+              {
+                context: {
+                  endTime: new Date(),
+                  actualDuration: Math.random() * 45000 + 15000,
+                },
+              },
+            );
           }
         });
 
@@ -737,18 +774,27 @@ describe('Monitoring System Performance Tests', () => {
       const exportDataSize = 1000;
 
       for (let i = 0; i < exportDataSize; i++) {
-        const taskId = taskStatusMonitor.registerTask(`export-test-${i}`, {
+        const taskId = await taskStatusMonitor.registerTask({
           title: `Export Test Task ${i}`,
           type: TaskType.IMPLEMENTATION,
           priority: TaskPriority.NORMAL,
           estimatedDuration: Math.random() * 30000 + 10000,
+          description: `Export test task ${i}`,
+          dependencies: [],
+          tags: [],
+          metadata: {},
+          status: TaskStatus.QUEUED,
+          progress: 0,
+          errorCount: 0,
+          retryCount: 0,
         });
 
         if (i % 2 === 0) {
-          taskStatusMonitor.updateTaskStatus(taskId, {
-            status: TaskStatus.COMPLETED,
-            endTime: new Date(),
-            actualDuration: Math.random() * 25000 + 5000,
+          taskStatusMonitor.updateTaskStatus(taskId, TaskStatus.COMPLETED, {
+            context: {
+              endTime: new Date(),
+              actualDuration: Math.random() * 25000 + 5000,
+            },
           });
         }
 
@@ -757,8 +803,8 @@ describe('Monitoring System Performance Tests', () => {
           `export_test_metric_${i}`,
           Math.random() * 1000,
           'milliseconds',
-          'performance',
-          { exportTest: true, index: i },
+          'latency',
+          { exportTest: 'true', index: i.toString() },
         );
       }
 
@@ -830,23 +876,32 @@ describe('Monitoring System Performance Tests', () => {
 
         // Generate dataset
         for (let i = 0; i < dataSize; i++) {
-          const taskId = taskStatusMonitor.registerTask(
-            `scale-test-${dataSize}-${i}`,
-            {
-              title: `Scale Test Task ${i}`,
-              type: TaskType.IMPLEMENTATION,
-              priority: TaskPriority.NORMAL,
-              estimatedDuration: Math.random() * 20000 + 10000,
-            },
-          );
+          const taskId = await taskStatusMonitor.registerTask({
+            title: `Scale Test Task ${i}`,
+            type: TaskType.IMPLEMENTATION,
+            priority: TaskPriority.NORMAL,
+            estimatedDuration: Math.random() * 20000 + 10000,
+            description: `Scale test task ${i}`,
+            dependencies: [],
+            tags: [],
+            metadata: {},
+            status: TaskStatus.QUEUED,
+            progress: 0,
+            errorCount: 0,
+            retryCount: 0,
+          });
 
           if (Math.random() > 0.3) {
-            taskStatusMonitor.updateTaskStatus(taskId, {
-              status:
-                Math.random() > 0.1 ? TaskStatus.COMPLETED : TaskStatus.FAILED,
-              endTime: new Date(),
-              actualDuration: Math.random() * 18000 + 2000,
-            });
+            taskStatusMonitor.updateTaskStatus(
+              taskId,
+              Math.random() > 0.1 ? TaskStatus.COMPLETED : TaskStatus.FAILED,
+              {
+                context: {
+                  endTime: new Date(),
+                  actualDuration: Math.random() * 18000 + 2000,
+                },
+              },
+            );
           }
         }
 
