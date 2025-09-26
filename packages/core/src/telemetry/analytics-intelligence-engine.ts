@@ -1107,7 +1107,10 @@ export class AnalyticsIntelligenceEngine extends EventEmitter {
     }
 
     if (highFrequencyHours.length > 0) {
-      const batchableRequests = highFrequencyHours.reduce((sum, hour) => sum + (requestsByHour.get(hour)?.length || 0), 0);
+      const batchableRequests = highFrequencyHours.reduce(
+        (sum, hour) => sum + (requestsByHour.get(hour)?.length || 0),
+        0,
+      );
 
       const potentialSavings = batchableRequests * 0.002; // Estimate $0.002 savings per batched request
 

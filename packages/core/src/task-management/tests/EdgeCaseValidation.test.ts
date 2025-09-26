@@ -25,7 +25,7 @@ import {
   TestUtilities,
   PerformanceMetrics,
   StressTestRunner,
-} from './utils/TestFactories';
+} from './utils/TestFactories.js';
 
 describe('Edge Case Validation Suite', () => {
   let taskStore: MockTaskStore;

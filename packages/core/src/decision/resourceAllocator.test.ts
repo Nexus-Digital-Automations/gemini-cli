@@ -5,15 +5,15 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { ResourceInfo, AllocationRequest } from './resourceAllocator';
+import type { ResourceInfo, AllocationRequest } from './resourceAllocator.js';
 import {
   ResourceAllocator,
   ResourceType,
   AllocationStrategies,
   type AllocationResult,
   type ResourceRequirement,
-} from './resourceAllocator';
-import { DecisionPriority, type DecisionContext } from './types';
+} from './resourceAllocator.js';
+import { DecisionPriority, type DecisionContext } from './types.js';
 
 describe('ResourceAllocator', () => {
   let allocator: ResourceAllocator;

@@ -5,7 +5,7 @@
  */
 
 import type { BudgetTracker } from '../budget-tracker.js';
-import type { AnalyticsEngine } from '../index';
+import type { AnalyticsEngine } from '../index.js';
 
 /**
  * Real-time usage tracking data

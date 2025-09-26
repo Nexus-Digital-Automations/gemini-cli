@@ -26,7 +26,7 @@ import {
   TestUtilities,
   PerformanceMetrics,
   SafetyMonitor,
-} from './utils/TestFactories';
+} from './utils/TestFactories.js';
 
 describe('Infinite Loop Protection System', () => {
   let taskStore: MockTaskStore;

@@ -8,10 +8,7 @@ import { EventEmitter } from 'node:events';
 import { WinstonStructuredLogger as Logger } from '../utils/logger.js';
 
 // Import validation system components
-import {
-  ValidationFramework,
-  ValidationCategory,
-} from './ValidationFramework.js';
+import { ValidationFramework, ValidationCategory } from './ValidationFramework.js';
 import { ValidationRules, RuleCategory } from './ValidationRules.js';
 import type {
   TaskValidationContext,
@@ -655,7 +652,7 @@ export class ValidationIntegration extends EventEmitter {
       task,
       validationType: TaskValidationType.PRE_EXECUTION,
       validationLevel: this.config.phases.preExecution.validationLevel,
-      dependencies: context.dependencies || [],
+      dependencies: (context.dependencies || []).map(dep => typeof dep === 'string' ? dep : dep.id),
       dependencyResults: new Map(),
       previousSnapshots: [],
       executionMetrics: undefined,
@@ -787,7 +784,7 @@ export class ValidationIntegration extends EventEmitter {
       taskResult: this.createTaskResultFromContext(task, context),
       validationType: TaskValidationType.POST_EXECUTION,
       validationLevel: this.config.phases.postExecution.validationLevel,
-      dependencies: context.dependencies || [],
+      dependencies: (context.dependencies || []).map(dep => typeof dep === 'string' ? dep : dep.id),
       dependencyResults: new Map(),
       previousSnapshots: this.rollbackManager.getTaskSnapshots(task.id),
       executionMetrics,

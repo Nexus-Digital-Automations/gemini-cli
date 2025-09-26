@@ -166,7 +166,7 @@ export function validateRequest(
       const validationTime = Date.now() - startTime;
 
       logger.error('Validation middleware error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         validationTime,
         location,
         path: req.path,
@@ -280,7 +280,7 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
       const validationTime = Date.now() - startTime;
 
       logger.error('Multiple validation error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         validationTime,
         path: req.path,
       });
@@ -425,7 +425,7 @@ export function validateCustomFields(
       const validationTime = Date.now() - startTime;
 
       logger.error('Custom field validation error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         validationTime,
         path: req.path,
       });
@@ -521,7 +521,7 @@ export function validateSecurity(
       const validationTime = Date.now() - startTime;
 
       logger.error('Security validation error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         validationTime,
         path: req.path,
       });

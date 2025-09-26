@@ -283,7 +283,7 @@ export class ValidationFramework extends EventEmitter {
 
     this.logger.info(`Executing ${applicableRules.length} validation rules`, {
       taskId: context.taskId,
-      categories: [...new Set(applicableRules.map((r) => r.category))],
+      categories: Array.from(new Set(applicableRules.map((r) => r.category))),
     });
 
     // Execute rules with dependency resolution
@@ -361,7 +361,7 @@ export class ValidationFramework extends EventEmitter {
         });
 
         // Execute remaining rules anyway with warnings
-        for (const rule of pendingRules.values()) {
+        for (const rule of Array.from(pendingRules.values())) {
           const result = await this.executeValidationRule(rule, context);
           results.push(...result);
           completedRules.add(rule.id);
@@ -433,7 +433,9 @@ export class ValidationFramework extends EventEmitter {
 
       return enrichedResults;
     } catch (error) {
-      this.logger.error(`Validation rule failed: ${rule.id}`, { error: error as Error | undefined });
+      this.logger.error(`Validation rule failed: ${rule.id}`, {
+        error: error as Error | undefined,
+      });
       this.emit('ruleFailed', rule.id, error as Error | undefined);
 
       // Return failure result

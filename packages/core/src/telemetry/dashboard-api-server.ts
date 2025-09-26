@@ -659,7 +659,9 @@ export class DashboardApiServer extends EventEmitter {
       startTime: query.startTime
         ? parseInt(query.startTime as string, 10)
         : undefined,
-      endTime: query.endTime ? parseInt(query.endTime as string, 10) : undefined,
+      endTime: query.endTime
+        ? parseInt(query.endTime as string, 10)
+        : undefined,
       limit: query.limit ? parseInt(query.limit as string, 10) : 100,
       offset: query.offset ? parseInt(query.offset as string, 10) : 0,
       sortBy: query.sortBy as keyof TokenUsageData,
@@ -762,7 +764,9 @@ export class DashboardApiServer extends EventEmitter {
       startTime: query.startTime
         ? parseInt(query.startTime as string, 10)
         : undefined,
-      endTime: query.endTime ? parseInt(query.endTime as string, 10) : undefined,
+      endTime: query.endTime
+        ? parseInt(query.endTime as string, 10)
+        : undefined,
     };
 
     const stream = await this.storageEngine.exportData(analyticsQuery, format);

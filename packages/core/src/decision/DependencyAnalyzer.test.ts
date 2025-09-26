@@ -9,9 +9,9 @@ import {
   DependencyAnalyzer,
   type DependencyAnalysisConfig,
   type DependencyAnalysisResult,
-} from './DependencyAnalyzer';
-import type { Task, TaskDependency, TaskId } from '../task-management/types';
-import type { DecisionContext } from './types';
+} from './DependencyAnalyzer.js';
+import type { Task, TaskDependency, TaskId } from '../task-management/types.js';
+import type { DecisionContext } from './types.js';
 
 describe('DependencyAnalyzer', () => {
   let analyzer: DependencyAnalyzer;

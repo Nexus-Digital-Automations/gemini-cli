@@ -6,13 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { logger as parentLogger } from '../utils/logger.js';
-import type {
-  ValidationResult,
-} from './ValidationFramework.js';
-import {
-  ValidationStatus,
-  ValidationCategory,
-} from './ValidationFramework.js';
+import type { ValidationResult } from './ValidationFramework.js';
+import { ValidationStatus, ValidationCategory } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 
 /**
@@ -231,7 +226,9 @@ export interface QualityAssessorEvents {
  * - Continuous quality monitoring
  */
 export class QualityAssessor extends EventEmitter {
-  private readonly logger = parentLogger().child({ component: 'QualityAssessor' });
+  private readonly logger = parentLogger().child({
+    component: 'QualityAssessor',
+  });
   private readonly assessmentCriteria: Map<
     QualityAssessmentLevel,
     QualityAssessmentCriteria
@@ -406,7 +403,9 @@ export class QualityAssessor extends EventEmitter {
       this.emit('assessmentCompleted', result);
       return result;
     } catch (error) {
-      this.logger.error(`Quality assessment failed: ${taskId}`, { error: error as Error | undefined });
+      this.logger.error(`Quality assessment failed: ${taskId}`, {
+        error: error as Error | undefined,
+      });
       this.emit('assessmentFailed', taskId, error as Error);
       throw error;
     } finally {
@@ -509,7 +508,9 @@ export class QualityAssessor extends EventEmitter {
             this.logger.debug(`Assessor ${name} completed`, { result });
             return result;
           } catch (error) {
-            this.logger.error(`Assessor ${name} failed`, { error: error as Error | undefined });
+            this.logger.error(`Assessor ${name} failed`, {
+              error: error as Error | undefined,
+            });
             return {};
           }
         },

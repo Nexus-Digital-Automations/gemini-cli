@@ -308,7 +308,9 @@ export interface RollbackManagerConfig {
  * for maintaining system reliability and recovery from validation failures.
  */
 export class RollbackManager extends EventEmitter {
-  private readonly logger = parentLogger().child({ component: 'RollbackManager' });
+  private readonly logger = parentLogger().child({
+    component: 'RollbackManager',
+  });
   private readonly config: RollbackManagerConfig;
 
   // Snapshot storage
@@ -431,7 +433,9 @@ export class RollbackManager extends EventEmitter {
 
       environment: {
         variables: Object.fromEntries(
-          Object.entries(process.env).filter(([, value]) => value !== undefined)
+          Object.entries(process.env).filter(
+            ([, value]) => value !== undefined,
+          ),
         ) as Record<string, string>,
         workingDirectory: process.cwd(),
         processInfo: {
@@ -579,7 +583,7 @@ export class RollbackManager extends EventEmitter {
     task: Task,
   ): Promise<void> {
     snapshot.environment.variables = Object.fromEntries(
-      Object.entries(process.env).filter(([, value]) => value !== undefined)
+      Object.entries(process.env).filter(([, value]) => value !== undefined),
     ) as Record<string, string>;
     snapshot.environment.workingDirectory = process.cwd();
     snapshot.environment.processInfo = {

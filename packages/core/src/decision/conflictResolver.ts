@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { DecisionContext, DecisionPriority } from './types';
+import type { DecisionContext, DecisionPriority } from './types.js';
 
 /**
  * Types of conflicts that can occur in the system

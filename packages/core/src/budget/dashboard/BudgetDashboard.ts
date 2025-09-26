@@ -9,7 +9,7 @@ import type {
   AnalyticsEngine,
   FeatureCostAnalysis,
   OptimizationRecommendation,
-} from '../index';
+} from '../index.js';
 import {
   createRealTimeTracker,
   type RealTimeTracker,

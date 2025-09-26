@@ -10,14 +10,8 @@ import type {
   ValidationFramework,
   ValidationResult,
 } from './ValidationFramework.js';
-import {
-  ValidationSeverity,
-  ValidationCategory,
-} from './ValidationFramework.js';
-import type {
-  TaskValidator,
-  TaskExecutionMetrics
-} from './TaskValidator.js';
+import { ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
+import type { TaskValidator, TaskExecutionMetrics } from './TaskValidator.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 
 /**
@@ -315,7 +309,9 @@ export interface QualityAssuranceConfig {
  * for maintaining high quality standards in autonomous task execution.
  */
 export class QualityAssurance extends EventEmitter {
-  private readonly logger = parentLogger().child({ component: 'QualityAssurance' });
+  private readonly logger = parentLogger().child({
+    component: 'QualityAssurance',
+  });
   private readonly validationFramework: ValidationFramework;
   private readonly config: QualityAssuranceConfig;
 
@@ -644,9 +640,7 @@ export class QualityAssurance extends EventEmitter {
       business: {
         userSatisfaction: 4.2, // TODO: Implement user satisfaction tracking
         featureCompleteness:
-          task.status === 'completed'
-            ? 100
-            : (task as any).progress || 0,
+          task.status === 'completed' ? 100 : (task as any).progress || 0,
         requirementsCoverage: 95, // TODO: Implement requirements coverage
         businessValue: 75, // TODO: Calculate business value
         roi: 2.1, // TODO: Calculate ROI

@@ -10,7 +10,7 @@
  *
  * @example Basic Algorithm Validation
  * ```typescript
- * import { AlgorithmValidator } from './validation';
+ * import { AlgorithmValidator } from './validation.js';
  *
  * const validator = new AlgorithmValidator();
  * const report = await validator.runValidationSuite(myAlgorithm);
@@ -19,7 +19,7 @@
  *
  * @example Performance Monitoring
  * ```typescript
- * import { PerformanceMonitor } from './validation';
+ * import { PerformanceMonitor } from './validation.js';
  *
  * const monitor = new PerformanceMonitor();
  * const benchmark = await monitor.benchmarkAlgorithm('myAlgorithm', algorithm, testData);
@@ -28,7 +28,7 @@
  *
  * @example Comprehensive Testing
  * ```typescript
- * import { TestHarness } from './validation';
+ * import { TestHarness } from './validation.js';
  *
  * const harness = new TestHarness();
  * const result = await harness.executeTestSuite(algorithmSpec, testConfig);

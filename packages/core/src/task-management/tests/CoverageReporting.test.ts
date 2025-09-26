@@ -28,7 +28,7 @@ import {
   PerformanceMetrics,
   CoverageAnalyzer,
   ReportGenerator,
-} from './utils/TestFactories';
+} from './utils/TestFactories.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 

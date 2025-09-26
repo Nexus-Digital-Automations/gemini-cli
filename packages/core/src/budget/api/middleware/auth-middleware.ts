@@ -117,7 +117,7 @@ export function authenticateRequest(
       logger.warn('Authentication failed - no valid credentials', {
         path: req.path,
         ip: req.ip,
-        error: authResult.error,
+        error: new Error(authResult.error || 'Authentication error'),
       });
 
       res.status(401).json({
@@ -197,7 +197,7 @@ export function authenticateRequest(
     const authTime = Date.now() - startTime;
 
     logger.error('Authentication error', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error : new Error('Unknown error'),
       authTime,
       path: req.path,
       ip: req.ip,
@@ -294,7 +294,7 @@ export function requirePermissions(requiredPermissions: BudgetPermission[]) {
       const authTime = Date.now() - startTime;
 
       logger.error('Authorization error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         authTime,
         userId: req.user?.id,
         path: req.path,
@@ -513,7 +513,7 @@ function validateBasicAuth(credentials: string): UserAuthData | null {
     return null;
   } catch (error) {
     logger.warn('Basic auth decode error', {
-      error: error instanceof Error ? error.message : 'Decode error',
+      error: error instanceof Error ? error : new Error('Decode error'),
     });
     return null;
   }

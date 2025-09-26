@@ -7,14 +7,13 @@
 import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
-import type {
-  Task,
+import {
   TaskPriority,
   TaskCategory,
   TaskStatus,
-  TaskExecutionResult,
   PriorityFactors,
 } from './TaskQueue.js';
+import type { Task, TaskExecutionResult } from './TaskQueue.js';
 
 /**
  * @fileoverview Advanced Task Priority Scheduler with Dynamic Adjustment
@@ -1155,6 +1154,14 @@ export class TaskPriorityScheduler extends EventEmitter {
       this.config.maxPriorityBoost,
       extraWaitTime * boostPerMinute,
     );
+  }
+
+  /**
+   * Calculate priority score for a task (used by tests)
+   */
+  calculatePriorityScore(task: Task): number {
+    const context = this.buildAdjustmentContext();
+    return this.calculateDynamicPriority(task, context);
   }
 
   /**

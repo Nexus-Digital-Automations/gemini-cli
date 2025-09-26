@@ -75,7 +75,11 @@ export interface UtilizationOptimizationConfig {
  */
 export interface OptimizationObjective {
   /** Objective type */
-  type: 'minimize_cost' | 'maximize_utilization' | 'optimize_performance' | 'balance_load';
+  type:
+    | 'minimize_cost'
+    | 'maximize_utilization'
+    | 'optimize_performance'
+    | 'balance_load';
   /** Objective weight in optimization */
   weight: number;
   /** Objective constraints */
@@ -191,7 +195,12 @@ export interface UtilizationForecast {
  */
 export interface OptimizationOpportunity {
   /** Opportunity type */
-  type: 'rightsizing' | 'consolidation' | 'load_balancing' | 'auto_scaling' | 'scheduling';
+  type:
+    | 'rightsizing'
+    | 'consolidation'
+    | 'load_balancing'
+    | 'auto_scaling'
+    | 'scheduling';
   /** Opportunity priority */
   priority: 'critical' | 'high' | 'medium' | 'low';
   /** Opportunity description */
@@ -351,7 +360,7 @@ export class ResourceUtilizationOptimizer {
    */
   constructor(
     config: Partial<UtilizationOptimizationConfig> = {},
-    logger: AllocationLogger
+    logger: AllocationLogger,
   ) {
     this.config = { ...DEFAULT_UTILIZATION_CONFIG, ...config };
     this.logger = logger;
@@ -366,12 +375,15 @@ export class ResourceUtilizationOptimizer {
    */
   optimizeResourceUtilization(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): UtilizationAnalysis {
-    this.logger.info(`Starting utilization optimization for resource ${candidate.resourceId}`, {
-      currentAllocation: candidate.currentAllocation,
-      projectedUsage: candidate.projectedUsage,
-    });
+    this.logger.info(
+      `Starting utilization optimization for resource ${candidate.resourceId}`,
+      {
+        currentAllocation: candidate.currentAllocation,
+        projectedUsage: candidate.projectedUsage,
+      },
+    );
 
     // Calculate current utilization metrics
     const current = this.calculateCurrentUtilization(candidate, historicalData);
@@ -380,16 +392,31 @@ export class ResourceUtilizationOptimizer {
     const historical = this.analyzeUtilizationPatterns(historicalData);
 
     // Generate demand forecast
-    const predicted = this.forecastUtilization(historicalData, this.config.demandPrediction.horizon);
+    const predicted = this.forecastUtilization(
+      historicalData,
+      this.config.demandPrediction.horizon,
+    );
 
     // Identify optimization opportunities
-    const opportunities = this.identifyOptimizationOpportunities(candidate, current, historical, predicted);
+    const opportunities = this.identifyOptimizationOpportunities(
+      candidate,
+      current,
+      historical,
+      predicted,
+    );
 
     // Analyze capacity requirements
-    const capacity = this.analyzeCapacityRequirements(candidate, current, predicted);
+    const capacity = this.analyzeCapacityRequirements(
+      candidate,
+      current,
+      predicted,
+    );
 
     // Analyze performance correlation
-    const performance = this.analyzePerformanceCorrelation(candidate, historicalData);
+    const performance = this.analyzePerformanceCorrelation(
+      candidate,
+      historicalData,
+    );
 
     const analysis: UtilizationAnalysis = {
       resourceId: candidate.resourceId,
@@ -401,11 +428,17 @@ export class ResourceUtilizationOptimizer {
       performance,
     };
 
-    this.logger.info(`Utilization optimization completed for ${candidate.resourceId}`, {
-      currentUtilization: current.average,
-      opportunityCount: opportunities.length,
-      potentialSavings: opportunities.reduce((sum, opp) => sum + opp.benefits.costSavings, 0),
-    });
+    this.logger.info(
+      `Utilization optimization completed for ${candidate.resourceId}`,
+      {
+        currentUtilization: current.average,
+        opportunityCount: opportunities.length,
+        potentialSavings: opportunities.reduce(
+          (sum, opp) => sum + opp.benefits.costSavings,
+          0,
+        ),
+      },
+    );
 
     return analysis;
   }
@@ -418,28 +451,40 @@ export class ResourceUtilizationOptimizer {
    */
   optimizePortfolioUtilization(
     candidates: AllocationCandidate[],
-    historicalData: Record<string, FeatureCostAnalysis[]>
+    historicalData: Record<string, FeatureCostAnalysis[]>,
   ): PortfolioUtilizationResult {
     this.logger.info('Starting portfolio utilization optimization', {
       resourceCount: candidates.length,
     });
 
     // Analyze each resource
-    const resources = candidates.map(candidate =>
-      this.optimizeResourceUtilization(candidate, historicalData[candidate.resourceId] || [])
+    const resources = candidates.map((candidate) =>
+      this.optimizeResourceUtilization(
+        candidate,
+        historicalData[candidate.resourceId] || [],
+      ),
     );
 
     // Identify cross-resource opportunities
-    const crossResourceOpportunities = this.identifyCrossResourceOpportunities(resources, candidates);
+    const crossResourceOpportunities = this.identifyCrossResourceOpportunities(
+      resources,
+      candidates,
+    );
 
     // Calculate overall optimization score
     const overallScore = this.calculatePortfolioScore(resources);
 
     // Generate portfolio insights
-    const insights = this.generatePortfolioInsights(resources, crossResourceOpportunities);
+    const insights = this.generatePortfolioInsights(
+      resources,
+      crossResourceOpportunities,
+    );
 
     // Create implementation roadmap
-    const roadmap = this.createImplementationRoadmap(resources, crossResourceOpportunities);
+    const roadmap = this.createImplementationRoadmap(
+      resources,
+      crossResourceOpportunities,
+    );
 
     const result: PortfolioUtilizationResult = {
       overallScore,
@@ -451,7 +496,9 @@ export class ResourceUtilizationOptimizer {
 
     this.logger.info('Portfolio utilization optimization completed', {
       overallScore,
-      totalOpportunities: resources.reduce((sum, r) => sum + r.opportunities.length, 0) + crossResourceOpportunities.length,
+      totalOpportunities:
+        resources.reduce((sum, r) => sum + r.opportunities.length, 0) +
+        crossResourceOpportunities.length,
       totalSavings: insights.totalSavings,
     });
 
@@ -466,21 +513,27 @@ export class ResourceUtilizationOptimizer {
    */
   generateUtilizationRecommendations(
     candidate: AllocationCandidate,
-    analysis: UtilizationAnalysis
+    analysis: UtilizationAnalysis,
   ): AllocationRecommendation[] {
     const recommendations: AllocationRecommendation[] = [];
 
     // Generate recommendations based on opportunities
     for (const opportunity of analysis.opportunities) {
-      const recommendation = this.createRecommendationFromOpportunity(candidate, opportunity, analysis);
+      const recommendation = this.createRecommendationFromOpportunity(
+        candidate,
+        opportunity,
+        analysis,
+      );
       recommendations.push(recommendation);
     }
 
     // Sort by priority and expected benefits
     recommendations.sort((a, b) => {
       const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
-      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
+      const aPriority =
+        priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
+      const bPriority =
+        priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
 
       if (aPriority !== bPriority) return bPriority - aPriority;
       return b.expectedImpact.costImpact - a.expectedImpact.costImpact;
@@ -494,7 +547,7 @@ export class ResourceUtilizationOptimizer {
    */
   private calculateCurrentUtilization(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): UtilizationMetrics {
     if (historicalData.length === 0) {
       // Return default metrics for new resources
@@ -509,21 +562,27 @@ export class ResourceUtilizationOptimizer {
       };
     }
 
-    const utilizationRates = historicalData.map(data => data.utilizationRate);
-    const average = utilizationRates.reduce((sum, rate) => sum + rate, 0) / utilizationRates.length;
+    const utilizationRates = historicalData.map((data) => data.utilizationRate);
+    const average =
+      utilizationRates.reduce((sum, rate) => sum + rate, 0) /
+      utilizationRates.length;
     const peak = Math.max(...utilizationRates);
     const minimum = Math.min(...utilizationRates);
 
     // Calculate variance
-    const variance = utilizationRates.reduce(
-      (sum, rate) => sum + Math.pow(rate - average, 2), 0
-    ) / utilizationRates.length;
+    const variance =
+      utilizationRates.reduce(
+        (sum, rate) => sum + Math.pow(rate - average, 2),
+        0,
+      ) / utilizationRates.length;
 
     // Determine trend
     const recentData = utilizationRates.slice(-5);
     const olderData = utilizationRates.slice(0, 5);
-    const recentAvg = recentData.reduce((sum, rate) => sum + rate, 0) / recentData.length;
-    const olderAvg = olderData.reduce((sum, rate) => sum + rate, 0) / olderData.length;
+    const recentAvg =
+      recentData.reduce((sum, rate) => sum + rate, 0) / recentData.length;
+    const olderAvg =
+      olderData.reduce((sum, rate) => sum + rate, 0) / olderData.length;
 
     let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
     if (recentAvg > olderAvg + 0.05) trend = 'increasing';
@@ -532,7 +591,7 @@ export class ResourceUtilizationOptimizer {
     // Calculate efficiency score
     const targetUtilization = this.config.targetUtilization;
     const deviation = Math.abs(average - targetUtilization);
-    const efficiency = Math.max(0, Math.min(100, 100 - (deviation * 200)));
+    const efficiency = Math.max(0, Math.min(100, 100 - deviation * 200));
 
     // Calculate waste percentage
     const waste = Math.max(0, (1 - average) * 100);
@@ -551,7 +610,9 @@ export class ResourceUtilizationOptimizer {
   /**
    * Analyze utilization patterns
    */
-  private analyzeUtilizationPatterns(historicalData: FeatureCostAnalysis[]): UtilizationPattern[] {
+  private analyzeUtilizationPatterns(
+    historicalData: FeatureCostAnalysis[],
+  ): UtilizationPattern[] {
     if (historicalData.length < 14) {
       return []; // Need at least 2 weeks of data for pattern analysis
     }
@@ -576,7 +637,9 @@ export class ResourceUtilizationOptimizer {
   /**
    * Analyze daily utilization patterns
    */
-  private analyzeDailyPattern(historicalData: FeatureCostAnalysis[]): UtilizationPattern {
+  private analyzeDailyPattern(
+    historicalData: FeatureCostAnalysis[],
+  ): UtilizationPattern {
     const hourlyUtilization: Record<number, number[]> = {};
 
     // Group data by hour
@@ -590,20 +653,28 @@ export class ResourceUtilizationOptimizer {
     const hourlyAverages: Array<{ hour: number; utilization: number }> = [];
     for (let hour = 0; hour < 24; hour++) {
       if (hourlyUtilization[hour]) {
-        const avg = hourlyUtilization[hour].reduce((sum, rate) => sum + rate, 0) / hourlyUtilization[hour].length;
+        const avg =
+          hourlyUtilization[hour].reduce((sum, rate) => sum + rate, 0) /
+          hourlyUtilization[hour].length;
         hourlyAverages.push({ hour, utilization: avg });
       }
     }
 
     // Identify peaks and valleys
-    const sorted = [...hourlyAverages].sort((a, b) => b.utilization - a.utilization);
-    const peaks = sorted.slice(0, 3).map(item => `${item.hour}:00`);
-    const valleys = sorted.slice(-3).map(item => `${item.hour}:00`);
+    const sorted = [...hourlyAverages].sort(
+      (a, b) => b.utilization - a.utilization,
+    );
+    const peaks = sorted.slice(0, 3).map((item) => `${item.hour}:00`);
+    const valleys = sorted.slice(-3).map((item) => `${item.hour}:00`);
 
     // Calculate pattern strength (coefficient of variation)
-    const utilizationValues = hourlyAverages.map(item => item.utilization);
-    const mean = utilizationValues.reduce((sum, val) => sum + val, 0) / utilizationValues.length;
-    const variance = utilizationValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / utilizationValues.length;
+    const utilizationValues = hourlyAverages.map((item) => item.utilization);
+    const mean =
+      utilizationValues.reduce((sum, val) => sum + val, 0) /
+      utilizationValues.length;
+    const variance =
+      utilizationValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      utilizationValues.length;
     const stdDev = Math.sqrt(variance);
     const strength = (stdDev / mean) * 100;
 
@@ -627,7 +698,9 @@ export class ResourceUtilizationOptimizer {
   /**
    * Analyze weekly utilization patterns
    */
-  private analyzeWeeklyPattern(historicalData: FeatureCostAnalysis[]): UtilizationPattern {
+  private analyzeWeeklyPattern(
+    historicalData: FeatureCostAnalysis[],
+  ): UtilizationPattern {
     const dailyUtilization: Record<number, number[]> = {};
 
     // Group data by day of week (0 = Sunday, 6 = Saturday)
@@ -639,24 +712,40 @@ export class ResourceUtilizationOptimizer {
 
     // Calculate average utilization by day
     const dailyAverages: Array<{ day: number; utilization: number }> = [];
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayNames = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
 
     for (let day = 0; day < 7; day++) {
       if (dailyUtilization[day]) {
-        const avg = dailyUtilization[day].reduce((sum, rate) => sum + rate, 0) / dailyUtilization[day].length;
+        const avg =
+          dailyUtilization[day].reduce((sum, rate) => sum + rate, 0) /
+          dailyUtilization[day].length;
         dailyAverages.push({ day, utilization: avg });
       }
     }
 
     // Identify patterns
-    const sorted = [...dailyAverages].sort((a, b) => b.utilization - a.utilization);
-    const peaks = sorted.slice(0, 2).map(item => dayNames[item.day]);
-    const valleys = sorted.slice(-2).map(item => dayNames[item.day]);
+    const sorted = [...dailyAverages].sort(
+      (a, b) => b.utilization - a.utilization,
+    );
+    const peaks = sorted.slice(0, 2).map((item) => dayNames[item.day]);
+    const valleys = sorted.slice(-2).map((item) => dayNames[item.day]);
 
     // Calculate pattern strength
-    const utilizationValues = dailyAverages.map(item => item.utilization);
-    const mean = utilizationValues.reduce((sum, val) => sum + val, 0) / utilizationValues.length;
-    const variance = utilizationValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / utilizationValues.length;
+    const utilizationValues = dailyAverages.map((item) => item.utilization);
+    const mean =
+      utilizationValues.reduce((sum, val) => sum + val, 0) /
+      utilizationValues.length;
+    const variance =
+      utilizationValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      utilizationValues.length;
     const stdDev = Math.sqrt(variance);
     const strength = (stdDev / mean) * 100;
 
@@ -680,7 +769,10 @@ export class ResourceUtilizationOptimizer {
   /**
    * Forecast future utilization
    */
-  private forecastUtilization(historicalData: FeatureCostAnalysis[], horizon: number): UtilizationForecast {
+  private forecastUtilization(
+    historicalData: FeatureCostAnalysis[],
+    horizon: number,
+  ): UtilizationForecast {
     if (historicalData.length < 7) {
       // Return default forecast for insufficient data
       return {
@@ -702,19 +794,30 @@ export class ResourceUtilizationOptimizer {
     const n = utilizationData.length;
     const sumX = utilizationData.reduce((sum, point) => sum + point.x, 0);
     const sumY = utilizationData.reduce((sum, point) => sum + point.y, 0);
-    const sumXY = utilizationData.reduce((sum, point) => sum + point.x * point.y, 0);
-    const sumX2 = utilizationData.reduce((sum, point) => sum + point.x * point.x, 0);
+    const sumXY = utilizationData.reduce(
+      (sum, point) => sum + point.x * point.y,
+      0,
+    );
+    const sumX2 = utilizationData.reduce(
+      (sum, point) => sum + point.x * point.x,
+      0,
+    );
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
 
     // Generate predictions
     const predictions = [];
-    const lastTimestamp = new Date(historicalData[historicalData.length - 1].timestamp);
+    const lastTimestamp = new Date(
+      historicalData[historicalData.length - 1].timestamp,
+    );
 
     for (let i = 1; i <= horizon; i++) {
       const futureX = n + i;
-      const predictedUtilization = Math.max(0, Math.min(1, slope * futureX + intercept));
+      const predictedUtilization = Math.max(
+        0,
+        Math.min(1, slope * futureX + intercept),
+      );
       const futureTimestamp = new Date(lastTimestamp);
       futureTimestamp.setDate(futureTimestamp.getDate() + i);
 
@@ -736,9 +839,18 @@ export class ResourceUtilizationOptimizer {
     // Calculate insights
     const growthRate = slope * 30; // Monthly growth rate
     const seasonality = historicalData.length > 30; // Assume seasonality with enough data
-    const anomalyRisk = Math.min(0.5, Math.abs(slope) + (Math.sqrt(utilizationData.reduce(
-      (sum, point) => sum + Math.pow(point.y - (slope * point.x + intercept), 2), 0
-    ) / n) * 2));
+    const anomalyRisk = Math.min(
+      0.5,
+      Math.abs(slope) +
+        Math.sqrt(
+          utilizationData.reduce(
+            (sum, point) =>
+              sum + Math.pow(point.y - (slope * point.x + intercept), 2),
+            0,
+          ) / n,
+        ) *
+          2,
+    );
 
     return {
       horizon: `${horizon} days`,
@@ -755,7 +867,7 @@ export class ResourceUtilizationOptimizer {
     candidate: AllocationCandidate,
     current: UtilizationMetrics,
     historical: UtilizationPattern[],
-    _predicted: UtilizationForecast
+    _predicted: UtilizationForecast,
   ): OptimizationOpportunity[] {
     const opportunities: OptimizationOpportunity[] = [];
 
@@ -767,7 +879,8 @@ export class ResourceUtilizationOptimizer {
         description: 'Resource is underutilized and could be downsized',
         benefits: {
           costSavings: (1 - current.average) * 30,
-          utilizationGain: (this.config.targetUtilization - current.average) * 100,
+          utilizationGain:
+            (this.config.targetUtilization - current.average) * 100,
           performanceGain: 0,
         },
         complexity: 'low',
@@ -785,7 +898,8 @@ export class ResourceUtilizationOptimizer {
         benefits: {
           costSavings: 0,
           utilizationGain: 0,
-          performanceGain: (current.average - this.config.targetUtilization) * 50,
+          performanceGain:
+            (current.average - this.config.targetUtilization) * 50,
         },
         complexity: 'medium',
         effort: '2-5 days',
@@ -799,7 +913,8 @@ export class ResourceUtilizationOptimizer {
       opportunities.push({
         type: 'auto_scaling',
         priority: 'medium',
-        description: 'High utilization variance suggests auto-scaling would be beneficial',
+        description:
+          'High utilization variance suggests auto-scaling would be beneficial',
         benefits: {
           costSavings: current.variance * 20,
           utilizationGain: current.variance * 30,
@@ -813,16 +928,31 @@ export class ResourceUtilizationOptimizer {
     }
 
     // Check for scheduling opportunities based on patterns
-    const strongPatterns = historical.filter(pattern => pattern.strength > 50);
+    const strongPatterns = historical.filter(
+      (pattern) => pattern.strength > 50,
+    );
     if (strongPatterns.length > 0) {
       opportunities.push({
         type: 'scheduling',
         priority: 'medium',
-        description: 'Strong usage patterns detected - scheduled scaling could optimize costs',
+        description:
+          'Strong usage patterns detected - scheduled scaling could optimize costs',
         benefits: {
-          costSavings: strongPatterns.reduce((sum, pattern) => sum + pattern.impact.cost, 0) / 4,
-          utilizationGain: strongPatterns.reduce((sum, pattern) => sum + pattern.impact.utilization, 0) / 4,
-          performanceGain: strongPatterns.reduce((sum, pattern) => sum + pattern.impact.performance, 0) / 4,
+          costSavings:
+            strongPatterns.reduce(
+              (sum, pattern) => sum + pattern.impact.cost,
+              0,
+            ) / 4,
+          utilizationGain:
+            strongPatterns.reduce(
+              (sum, pattern) => sum + pattern.impact.utilization,
+              0,
+            ) / 4,
+          performanceGain:
+            strongPatterns.reduce(
+              (sum, pattern) => sum + pattern.impact.performance,
+              0,
+            ) / 4,
         },
         complexity: 'medium',
         effort: '3-7 days',
@@ -840,7 +970,7 @@ export class ResourceUtilizationOptimizer {
   private analyzeCapacityRequirements(
     candidate: AllocationCandidate,
     current: UtilizationMetrics,
-    predicted: UtilizationForecast
+    predicted: UtilizationForecast,
   ): CapacityAnalysis {
     const allocated = candidate.currentAllocation;
     const used = allocated * current.average;
@@ -851,11 +981,16 @@ export class ResourceUtilizationOptimizer {
     const headroom = (1 - current.peak) * 100;
 
     // Predict future capacity needs
-    const avgPredictedUtilization = predicted.predictions.length > 0
-      ? predicted.predictions.reduce((sum, pred) => sum + pred.utilization, 0) / predicted.predictions.length
-      : current.average;
+    const avgPredictedUtilization =
+      predicted.predictions.length > 0
+        ? predicted.predictions.reduce(
+            (sum, pred) => sum + pred.utilization,
+            0,
+          ) / predicted.predictions.length
+        : current.average;
 
-    const recommended = allocated * (avgPredictedUtilization / this.config.targetUtilization);
+    const recommended =
+      allocated * (avgPredictedUtilization / this.config.targetUtilization);
 
     // Calculate insights
     const overProvisioned = Math.max(0, (1 - current.average) * 100);
@@ -886,7 +1021,7 @@ export class ResourceUtilizationOptimizer {
    */
   private analyzePerformanceCorrelation(
     candidate: AllocationCandidate,
-    historicalData: FeatureCostAnalysis[]
+    historicalData: FeatureCostAnalysis[],
   ): PerformanceCorrelation {
     if (historicalData.length < 10) {
       return {
@@ -900,14 +1035,22 @@ export class ResourceUtilizationOptimizer {
     }
 
     // Calculate correlations (simplified)
-    const utilizationValues = historicalData.map(data => data.utilizationRate);
-    const performanceValues = historicalData.map(data => data.performance || 80); // Default performance
+    const utilizationValues = historicalData.map(
+      (data) => data.utilizationRate,
+    );
+    const performanceValues = historicalData.map(
+      (data) => data.performance || 80,
+    ); // Default performance
 
     // Simple correlation calculation
-    const correlation = this.calculateCorrelation(utilizationValues, performanceValues);
+    const correlation = this.calculateCorrelation(
+      utilizationValues,
+      performanceValues,
+    );
 
     // Determine relationship type
-    let relationship: 'linear' | 'exponential' | 'threshold' | 'complex' = 'linear';
+    let relationship: 'linear' | 'exponential' | 'threshold' | 'complex' =
+      'linear';
     if (Math.abs(correlation) < 0.3) relationship = 'complex';
     else if (correlation < -0.7) relationship = 'exponential';
     else if (correlation > 0.7) relationship = 'threshold';
@@ -949,7 +1092,9 @@ export class ResourceUtilizationOptimizer {
     const sumY2 = y.reduce((sum, val) => sum + val * val, 0);
 
     const numerator = n * sumXY - sumX * sumY;
-    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    const denominator = Math.sqrt(
+      (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
+    );
 
     return denominator === 0 ? 0 : numerator / denominator;
   }
@@ -959,12 +1104,14 @@ export class ResourceUtilizationOptimizer {
    */
   private identifyCrossResourceOpportunities(
     resources: UtilizationAnalysis[],
-    _candidates: AllocationCandidate[]
+    _candidates: AllocationCandidate[],
   ): OptimizationOpportunity[] {
     const opportunities: OptimizationOpportunity[] = [];
 
     // Find consolidation opportunities
-    const underutilizedResources = resources.filter(r => r.current.average < 0.4);
+    const underutilizedResources = resources.filter(
+      (r) => r.current.average < 0.4,
+    );
     if (underutilizedResources.length >= 2) {
       opportunities.push({
         type: 'consolidation',
@@ -978,20 +1125,25 @@ export class ResourceUtilizationOptimizer {
         complexity: 'high',
         effort: '2-4 weeks',
         risks: ['Data migration', 'Downtime', 'Complex dependencies'],
-        metrics: ['consolidated_utilization', 'total_cost', 'migration_success'],
+        metrics: [
+          'consolidated_utilization',
+          'total_cost',
+          'migration_success',
+        ],
       });
     }
 
     // Find load balancing opportunities
-    const utilizationVariance = resources.reduce(
-      (sum, r) => sum + r.current.variance, 0
-    ) / resources.length;
+    const utilizationVariance =
+      resources.reduce((sum, r) => sum + r.current.variance, 0) /
+      resources.length;
 
     if (utilizationVariance > 0.15) {
       opportunities.push({
         type: 'load_balancing',
         priority: 'medium',
-        description: 'High utilization variance across resources suggests load balancing benefits',
+        description:
+          'High utilization variance across resources suggests load balancing benefits',
         benefits: {
           costSavings: utilizationVariance * 30,
           utilizationGain: utilizationVariance * 50,
@@ -1013,15 +1165,16 @@ export class ResourceUtilizationOptimizer {
   private calculatePortfolioScore(resources: UtilizationAnalysis[]): number {
     if (resources.length === 0) return 0;
 
-    const avgUtilization = resources.reduce(
-      (sum, r) => sum + r.current.average, 0
-    ) / resources.length;
+    const avgUtilization =
+      resources.reduce((sum, r) => sum + r.current.average, 0) /
+      resources.length;
 
-    const avgEfficiency = resources.reduce(
-      (sum, r) => sum + r.current.efficiency, 0
-    ) / resources.length;
+    const avgEfficiency =
+      resources.reduce((sum, r) => sum + r.current.efficiency, 0) /
+      resources.length;
 
-    const utilizationScore = 100 - Math.abs(avgUtilization - this.config.targetUtilization) * 200;
+    const utilizationScore =
+      100 - Math.abs(avgUtilization - this.config.targetUtilization) * 200;
     const efficiencyScore = avgEfficiency;
 
     return (utilizationScore + efficiencyScore) / 2;
@@ -1032,26 +1185,50 @@ export class ResourceUtilizationOptimizer {
    */
   private generatePortfolioInsights(
     resources: UtilizationAnalysis[],
-    crossResourceOpportunities: OptimizationOpportunity[]
+    crossResourceOpportunities: OptimizationOpportunity[],
   ): {
     totalSavings: number;
     utilizationImprovement: number;
     riskAdjustedBenefits: number;
   } {
-    const totalSavings = resources.reduce(
-      (sum, r) => sum + r.opportunities.reduce((oSum, opp) => oSum + opp.benefits.costSavings, 0), 0
-    ) + crossResourceOpportunities.reduce((sum, opp) => sum + opp.benefits.costSavings, 0);
+    const totalSavings =
+      resources.reduce(
+        (sum, r) =>
+          sum +
+          r.opportunities.reduce(
+            (oSum, opp) => oSum + opp.benefits.costSavings,
+            0,
+          ),
+        0,
+      ) +
+      crossResourceOpportunities.reduce(
+        (sum, opp) => sum + opp.benefits.costSavings,
+        0,
+      );
 
-    const utilizationImprovement = resources.reduce(
-      (sum, r) => sum + r.opportunities.reduce((oSum, opp) => oSum + opp.benefits.utilizationGain, 0), 0
-    ) / resources.length;
+    const utilizationImprovement =
+      resources.reduce(
+        (sum, r) =>
+          sum +
+          r.opportunities.reduce(
+            (oSum, opp) => oSum + opp.benefits.utilizationGain,
+            0,
+          ),
+        0,
+      ) / resources.length;
 
     // Calculate risk-adjusted benefits
     const riskWeights = { low: 0.9, medium: 0.7, high: 0.4 };
-    const riskAdjustedBenefits = resources.reduce((sum, r) => sum + r.opportunities.reduce((oSum, opp) => {
-        const weight = riskWeights[opp.complexity as keyof typeof riskWeights] || 0.5;
-        return oSum + (opp.benefits.costSavings * weight);
-      }, 0), 0);
+    const riskAdjustedBenefits = resources.reduce(
+      (sum, r) =>
+        sum +
+        r.opportunities.reduce((oSum, opp) => {
+          const weight =
+            riskWeights[opp.complexity as keyof typeof riskWeights] || 0.5;
+          return oSum + opp.benefits.costSavings * weight;
+        }, 0),
+      0,
+    );
 
     return {
       totalSavings,
@@ -1065,27 +1242,29 @@ export class ResourceUtilizationOptimizer {
    */
   private createImplementationRoadmap(
     resources: UtilizationAnalysis[],
-    crossResourceOpportunities: OptimizationOpportunity[]
+    crossResourceOpportunities: OptimizationOpportunity[],
   ): {
     quickWins: OptimizationOpportunity[];
     strategic: OptimizationOpportunity[];
     longTerm: OptimizationOpportunity[];
   } {
     const allOpportunities = [
-      ...resources.flatMap(r => r.opportunities),
+      ...resources.flatMap((r) => r.opportunities),
       ...crossResourceOpportunities,
     ];
 
     const quickWins = allOpportunities.filter(
-      opp => opp.complexity === 'low' && (opp.priority === 'high' || opp.priority === 'critical')
+      (opp) =>
+        opp.complexity === 'low' &&
+        (opp.priority === 'high' || opp.priority === 'critical'),
     );
 
     const strategic = allOpportunities.filter(
-      opp => opp.complexity === 'medium' && opp.benefits.costSavings > 20
+      (opp) => opp.complexity === 'medium' && opp.benefits.costSavings > 20,
     );
 
     const longTerm = allOpportunities.filter(
-      opp => opp.complexity === 'high' || opp.benefits.costSavings > 50
+      (opp) => opp.complexity === 'high' || opp.benefits.costSavings > 50,
     );
 
     return { quickWins, strategic, longTerm };
@@ -1097,7 +1276,7 @@ export class ResourceUtilizationOptimizer {
   private createRecommendationFromOpportunity(
     candidate: AllocationCandidate,
     opportunity: OptimizationOpportunity,
-    analysis: UtilizationAnalysis
+    analysis: UtilizationAnalysis,
   ): AllocationRecommendation {
     // Calculate recommended allocation based on opportunity
     let recommendedAllocation = candidate.currentAllocation;
@@ -1105,9 +1284,15 @@ export class ResourceUtilizationOptimizer {
     switch (opportunity.type) {
       case 'rightsizing':
         if (analysis.current.average < this.config.utilizationRange.min) {
-          recommendedAllocation = candidate.currentAllocation * (this.config.targetUtilization / analysis.current.average);
-        } else if (analysis.current.average > this.config.utilizationRange.max) {
-          recommendedAllocation = candidate.currentAllocation * (this.config.targetUtilization / analysis.current.average);
+          recommendedAllocation =
+            candidate.currentAllocation *
+            (this.config.targetUtilization / analysis.current.average);
+        } else if (
+          analysis.current.average > this.config.utilizationRange.max
+        ) {
+          recommendedAllocation =
+            candidate.currentAllocation *
+            (this.config.targetUtilization / analysis.current.average);
         }
         break;
       case 'consolidation':
@@ -1117,16 +1302,41 @@ export class ResourceUtilizationOptimizer {
         recommendedAllocation = analysis.capacity.recommended;
     }
 
-    const allocationChange = recommendedAllocation - candidate.currentAllocation;
+    const allocationChange =
+      recommendedAllocation - candidate.currentAllocation;
+    const potentialSavings = Math.max(opportunity.benefits.costSavings, 0);
 
     return {
       // Required AllocationRecommendation properties
       id: `allocation-${candidate.resourceId}-${Date.now()}`,
+      type: 'cost_reduction',
       title: `Optimize ${candidate.resourceName || candidate.resourceId} allocation`,
-      potentialSavings: Math.max(opportunity.benefits.costSavings, 0),
-      savingsPercentage: candidate.currentAllocation > 0 ? (Math.max(opportunity.benefits.costSavings, 0) / candidate.currentAllocation) * 100 : 0,
-      estimatedTimeToImplement: opportunity.complexity === 'low' ? 2 : opportunity.complexity === 'high' ? 8 : 4,
-      category: 'resource_optimization',
+      description: opportunity.description,
+      potentialSavings,
+      savingsPercentage:
+        candidate.currentAllocation > 0
+          ? (potentialSavings / candidate.currentAllocation) * 100
+          : 0,
+      implementationComplexity: opportunity.complexity,
+      timeToImplement:
+        opportunity.complexity === 'low'
+          ? '2 hours'
+          : opportunity.complexity === 'high'
+            ? '8 hours'
+            : '4 hours',
+      priority: opportunity.priority as 'critical' | 'high' | 'medium' | 'low',
+      confidenceScore: 80,
+      applicableFeatures: [candidate.resourceId],
+      actionItems: [
+        `Adjust allocation from ${candidate.currentAllocation} to ${recommendedAllocation}`,
+        'Monitor performance metrics',
+        'Validate efficiency gains',
+      ],
+      metrics: {
+        currentCost: candidate.currentAllocation,
+        projectedCost: recommendedAllocation,
+        expectedReduction: Math.abs(allocationChange),
+      },
       resourceId: candidate.resourceId,
       currentAllocation: candidate.currentAllocation,
       recommendedAllocation,
@@ -1138,25 +1348,38 @@ export class ResourceUtilizationOptimizer {
         performanceImpact: opportunity.benefits.performanceGain,
         utilizationImpact: opportunity.benefits.utilizationGain,
         businessValueImpact: opportunity.benefits.performanceGain * 0.5,
-        roiImpact: opportunity.benefits.costSavings / Math.abs(allocationChange || 1),
+        roiImpact:
+          opportunity.benefits.costSavings / Math.abs(allocationChange || 1),
         impactTimeline: 'short_term',
       },
       riskAssessment: {
-        riskLevel: opportunity.complexity === 'low' ? 'low' : opportunity.complexity === 'high' ? 'high' : 'medium',
+        riskLevel:
+          opportunity.complexity === 'low'
+            ? 'low'
+            : opportunity.complexity === 'high'
+              ? 'high'
+              : 'medium',
         riskFactors: opportunity.risks,
-        mitigationStrategies: [`Monitor ${opportunity.metrics.join(', ')}`, 'Gradual implementation', 'Rollback plan'],
+        mitigationStrategies: [
+          `Monitor ${opportunity.metrics.join(', ')}`,
+          'Gradual implementation',
+          'Rollback plan',
+        ],
         maxNegativeImpact: Math.abs(allocationChange) * 0.2,
         negativeProbability: opportunity.complexity === 'high' ? 30 : 10,
       },
       dependencies: [],
-      // OptimizationRecommendation fields
-      type: 'cost_reduction',
-      priority: opportunity.priority as 'critical' | 'high' | 'medium' | 'low',
-      description: opportunity.description,
+      estimatedTimeToImplement:
+        opportunity.complexity === 'low'
+          ? 2
+          : opportunity.complexity === 'high'
+            ? 8
+            : 4,
+      category: 'resource_optimization',
       expectedSavings: opportunity.benefits.costSavings,
-      implementationComplexity: opportunity.complexity,
       validationCriteria: opportunity.metrics,
       rollbackPlan: `Revert allocation to ${candidate.currentAllocation}`,
+      tags: ['resource_optimization', 'utilization', opportunity.type],
     };
   }
 
@@ -1168,7 +1391,9 @@ export class ResourceUtilizationOptimizer {
 
     // Validate utilization range
     if (utilizationRange.min >= utilizationRange.max) {
-      throw new Error('Minimum utilization must be less than maximum utilization');
+      throw new Error(
+        'Minimum utilization must be less than maximum utilization',
+      );
     }
 
     if (utilizationRange.min < 0 || utilizationRange.max > 1) {
@@ -1176,7 +1401,10 @@ export class ResourceUtilizationOptimizer {
     }
 
     // Validate target utilization
-    if (this.config.targetUtilization < utilizationRange.min || this.config.targetUtilization > utilizationRange.max) {
+    if (
+      this.config.targetUtilization < utilizationRange.min ||
+      this.config.targetUtilization > utilizationRange.max
+    ) {
       throw new Error('Target utilization must be within utilization range');
     }
 
@@ -1186,7 +1414,10 @@ export class ResourceUtilizationOptimizer {
     }
 
     // Validate objectives
-    const totalWeight = this.config.objectives.reduce((sum, obj) => sum + obj.weight, 0);
+    const totalWeight = this.config.objectives.reduce(
+      (sum, obj) => sum + obj.weight,
+      0,
+    );
     if (Math.abs(totalWeight - 1.0) > 0.01) {
       throw new Error('Optimization objective weights must sum to 1.0');
     }
@@ -1201,7 +1432,7 @@ export class ResourceUtilizationOptimizer {
  */
 export function createResourceUtilizationOptimizer(
   config?: Partial<UtilizationOptimizationConfig>,
-  logger?: AllocationLogger
+  logger?: AllocationLogger,
 ): ResourceUtilizationOptimizer {
   const defaultLogger: AllocationLogger = {
     info: () => {},

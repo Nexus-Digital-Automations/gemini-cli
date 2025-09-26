@@ -15,7 +15,7 @@ import type {
 } from './performance-monitor.js';
 import { AlgorithmValidator } from './algorithm-validator.js';
 import { PerformanceMonitor } from './performance-monitor.js';
-import { Logger } from '../../utils/logger.js';
+import { getComponentLogger } from '../../../utils/logger.js';
 
 /**
  * Test suite configuration

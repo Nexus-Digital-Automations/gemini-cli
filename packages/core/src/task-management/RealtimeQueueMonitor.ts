@@ -25,12 +25,12 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { TaskPriority } from './TaskQueue';
-import { Task, TaskStatus } from './TaskQueue';
+import type { TaskPriority } from './TaskQueue.js';
+import { Task, TaskStatus } from './TaskQueue.js';
 import type {
   QueueMetrics,
   AutonomousQueueMetrics,
-} from './EnhancedAutonomousTaskQueue';
+} from './EnhancedAutonomousTaskQueue.js';
 
 /**
  * Comprehensive monitoring configuration for queue surveillance

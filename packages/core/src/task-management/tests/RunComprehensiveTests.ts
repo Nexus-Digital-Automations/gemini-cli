@@ -35,8 +35,8 @@ import {
   TestSuiteOrchestrator,
   testSuiteCategories,
   qualityGates,
-} from './TestSuiteConfiguration';
-import { CoverageTestUtilities } from './CoverageReporting.test';
+} from './TestSuiteConfiguration.js';
+import { CoverageTestUtilities } from './CoverageReporting.test.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import chalk from 'chalk';

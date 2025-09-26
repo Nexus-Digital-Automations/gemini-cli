@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 21,
+      "total_reinitializations": 24,
       "current_day": "2025-09-26",
       "time_buckets": {
         "10:00-14:59": {
           "init": 0,
-          "reinit": 8
+          "reinit": 11
         },
         "15:00-19:59": {
           "init": 0,
@@ -90,7 +90,7 @@
         }
       ],
       "last_reset": "2025-09-26T16:42:44.790Z",
-      "last_updated": "2025-09-26T17:08:56.847Z"
+      "last_updated": "2025-09-26T17:28:42.544Z"
     }
   },
   "workflow_config": {
@@ -197,6 +197,27 @@
       "status": "active",
       "reinitialized": "2025-09-26T17:03:10.569Z",
       "sessionId": "151865cbfb225d46",
+      "previousSessions": []
+    },
+    "budget-fix-agent": {
+      "lastHeartbeat": "2025-09-26T17:18:28.829Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T17:18:28.829Z",
+      "sessionId": "2ec2ca67c95d7d6e",
+      "previousSessions": []
+    },
+    "agent_typescript_fixes": {
+      "lastHeartbeat": "2025-09-26T17:20:32.291Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T17:20:32.291Z",
+      "sessionId": "257713215639c660",
+      "previousSessions": []
+    },
+    "CORE_TS_FIXER": {
+      "lastHeartbeat": "2025-09-26T17:28:42.543Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T17:28:42.543Z",
+      "sessionId": "681c5aa2eb8e14f0",
       "previousSessions": []
     }
   }

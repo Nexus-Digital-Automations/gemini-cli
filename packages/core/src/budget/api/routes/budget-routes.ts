@@ -14,7 +14,8 @@
  */
 
 import { Router } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
+import type { Request, Response, NextFunction } from 'express';
+import { WinstonStructuredLogger } from '../../../utils/logger.js';
 import { BudgetController } from '../controllers/budget-controller.js';
 import { AnalyticsController } from '../controllers/analytics-controller.js';
 import { ConfigurationController } from '../controllers/configuration-controller.js';
@@ -33,7 +34,9 @@ import {
   notificationRequestSchema,
 } from '../schemas/request-schemas.js';
 
-const logger = new Logger('BudgetAPIRoutes');
+const logger = new WinstonStructuredLogger({
+  defaultMeta: { component: 'BudgetAPIRoutes' },
+});
 
 /**
  * Create the main budget API router with all endpoints
@@ -147,7 +150,7 @@ export function createBudgetRouter(): Router {
     '/config/validate',
     authenticateRequest,
     validateRequest(configurationRequestSchema, 'query'),
-    configurationController.validateConfiguration.bind(configurationController),
+    configurationController.validateConfigurationEndpoint.bind(configurationController),
   );
 
   // === ANALYTICS AND REPORTING ENDPOINTS ===
@@ -330,9 +333,9 @@ export function createBudgetRouter(): Router {
 
   // Error handling middleware
   router.use(
-    (error: Error, req: Request, res: Response, next: NextFunction) => {
+    (error: Error, req: Request, res: Response, _next: NextFunction) => {
       logger.error('Budget API route error', {
-        error: error.message,
+        error: error,
         path: req.path,
         method: req.method,
         timestamp: new Date().toISOString(),
@@ -348,7 +351,7 @@ export function createBudgetRouter(): Router {
   );
 
   logger.info('Budget API routes initialized successfully', {
-    routesCount: router.stack.length,
+    routesCount: router.stack?.length || 0,
     timestamp: new Date().toISOString(),
   });
 

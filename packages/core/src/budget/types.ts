@@ -340,3 +340,252 @@ export enum BudgetPermission {
   /** Administrative access */
   ADMIN = 'admin',
 }
+
+/**
+ * Machine Learning Enhanced Budget Types
+ */
+
+/**
+ * Forecast point for budget predictions
+ */
+export interface ForecastPoint {
+  /** Timestamp of the forecast point */
+  timestamp: string;
+  /** Predicted cost at this point */
+  predictedCost: number;
+  /** Confidence level (0-1) */
+  confidence: number;
+  /** Lower bound of prediction */
+  lowerBound: number;
+  /** Upper bound of prediction */
+  upperBound: number;
+  /** Contributing factors */
+  factors?: Record<string, number>;
+}
+
+/**
+ * ML-powered budget recommendation
+ */
+export interface MLBudgetRecommendation {
+  /** Unique recommendation ID */
+  id: string;
+  /** Recommendation type */
+  type: BudgetRecommendationType;
+  /** Priority level (1-5, 5 being highest) */
+  priority: number;
+  /** Recommendation title */
+  title: string;
+  /** Detailed description */
+  description: string;
+  /** Expected impact */
+  expectedImpact: {
+    /** Cost savings estimate */
+    costSavings: number;
+    /** Confidence in the estimate (0-1) */
+    confidence: number;
+    /** Time frame for impact */
+    timeFrame: string;
+  };
+  /** Implementation difficulty (1-5) */
+  difficulty: number;
+  /** Actionable steps */
+  actions: string[];
+  /** Expiration timestamp */
+  expiresAt?: string;
+  /** Metadata */
+  metadata?: Record<string, any>;
+}
+
+/**
+ * ML risk assessment for budget management
+ */
+export interface MLRiskAssessment {
+  /** Overall risk level (0-1) */
+  overallRisk: number;
+  /** Risk category */
+  category: BudgetRiskCategory;
+  /** Specific risk factors */
+  factors: RiskFactor[];
+  /** Risk trend (increasing, stable, decreasing) */
+  trend: 'increasing' | 'stable' | 'decreasing';
+  /** Mitigation recommendations */
+  mitigations: string[];
+  /** Predicted timeline for risk escalation */
+  timeline?: string;
+  /** Historical risk data */
+  historicalRisk?: number[];
+}
+
+/**
+ * Prediction confidence metrics
+ */
+export interface PredictionConfidence {
+  /** Overall confidence score (0-1) */
+  overall: number;
+  /** Data quality score (0-1) */
+  dataQuality: number;
+  /** Model accuracy score (0-1) */
+  modelAccuracy: number;
+  /** Historical performance (0-1) */
+  historicalPerformance: number;
+  /** Sample size adequacy (0-1) */
+  sampleSize: number;
+  /** Factors affecting confidence */
+  factors: ConfidenceFactor[];
+  /** Confidence interval */
+  interval: {
+    lower: number;
+    upper: number;
+  };
+}
+
+/**
+ * Budget recommendation types
+ */
+export enum BudgetRecommendationType {
+  /** Reduce spending in specific area */
+  COST_REDUCTION = 'cost_reduction',
+  /** Optimize resource allocation */
+  OPTIMIZATION = 'optimization',
+  /** Increase budget limit */
+  BUDGET_INCREASE = 'budget_increase',
+  /** Change usage patterns */
+  USAGE_PATTERN = 'usage_pattern',
+  /** Emergency action required */
+  EMERGENCY = 'emergency',
+  /** Performance improvement */
+  PERFORMANCE = 'performance',
+  /** Security related */
+  SECURITY = 'security',
+}
+
+/**
+ * Budget risk categories
+ */
+export enum BudgetRiskCategory {
+  /** Low risk situation */
+  LOW = 'low',
+  /** Medium risk situation */
+  MEDIUM = 'medium',
+  /** High risk situation */
+  HIGH = 'high',
+  /** Critical risk situation */
+  CRITICAL = 'critical',
+  /** Unknown risk level */
+  UNKNOWN = 'unknown',
+}
+
+/**
+ * Individual risk factor
+ */
+export interface RiskFactor {
+  /** Factor name */
+  name: string;
+  /** Risk impact (0-1) */
+  impact: number;
+  /** Probability of occurrence (0-1) */
+  probability: number;
+  /** Description */
+  description: string;
+  /** Category */
+  category: string;
+}
+
+/**
+ * Confidence factor affecting prediction accuracy
+ */
+export interface ConfidenceFactor {
+  /** Factor name */
+  name: string;
+  /** Impact on confidence (-1 to 1) */
+  impact: number;
+  /** Description */
+  description: string;
+  /** Weight in overall confidence calculation */
+  weight: number;
+}
+
+/**
+ * Extended MLRiskAssessment with missing properties
+ */
+export interface ExtendedMLRiskAssessment extends MLRiskAssessment {
+  /** Risk level classification */
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  /** Probability of exceeding budget (0-1) */
+  budgetExceedProbability: number;
+  /** Time until budget exceeded (in hours) */
+  timeToExceedBudget?: number;
+  /** Critical threshold points */
+  criticalThresholds: Array<{
+    threshold: number;
+    probability: number;
+    estimatedTime: number;
+  }>;
+}
+
+/**
+ * Extended ForecastPoint with required predictedValue
+ */
+export interface ExtendedForecastPoint extends ForecastPoint {
+  /** Predicted value (requests or cost) */
+  predictedValue: number;
+}
+
+/**
+ * Model metrics for ML system
+ */
+export interface ModelMetrics {
+  /** Individual model information */
+  models: Array<{
+    name: string;
+    accuracy: number;
+    lastTraining: Date;
+    trainingDataPoints: number;
+    performance: 'excellent' | 'good' | 'fair' | 'poor';
+  }>;
+  /** Overall system accuracy */
+  overallAccuracy: number;
+  /** Data quality metrics */
+  dataQuality: {
+    completeness: number;
+    consistency: number;
+    recency: number;
+    volume: number;
+  };
+  /** Improvement recommendations */
+  recommendations: string[];
+}
+
+/**
+ * Anomaly detection result
+ */
+export interface AnomalyDetectionResult {
+  /** Detected anomalies */
+  anomalies: Array<{
+    timestamp: number;
+    value: number;
+    severity: 'low' | 'medium' | 'high';
+    reason: string;
+    impact: string;
+    suggestedAction: string;
+  }>;
+  /** Usage patterns */
+  patterns: {
+    seasonality: {
+      detected: boolean;
+      period?: number;
+      strength?: number;
+      description: string;
+    };
+    trends: {
+      direction: 'increasing' | 'decreasing' | 'stable';
+      confidence: number;
+      description: string;
+    };
+    volatility: {
+      level: 'low' | 'medium' | 'high';
+      coefficient: number;
+      description: string;
+    };
+  };
+}

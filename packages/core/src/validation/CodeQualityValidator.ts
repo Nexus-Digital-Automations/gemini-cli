@@ -19,7 +19,6 @@ import {
   ValidationCategory,
 } from './ValidationFramework.js';
 import * as fs from 'node:fs/promises';
- 
 
 /**
  * Code quality validation configuration
@@ -56,7 +55,7 @@ interface ESLintResult {
 /**
  * Security scan result structure
  */
- 
+
 // interface SecurityScanResult {
 //   tool: string;
 //   severity: string;
@@ -242,7 +241,9 @@ export class CodeQualityValidator {
 
       return results;
     } catch (error) {
-      this.logger.error('ESLint validation failed', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('ESLint validation failed', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return [
         {
           id: `eslint-error-${Date.now()}`,
@@ -355,7 +356,9 @@ export class CodeQualityValidator {
 
       return results;
     } catch (error) {
-      this.logger.error('Prettier validation failed', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Prettier validation failed', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return [
         {
           id: `prettier-error-${Date.now()}`,
@@ -517,7 +520,9 @@ export class CodeQualityValidator {
 
       return results;
     } catch (error) {
-      this.logger.error(`${scanner} security scan failed`, { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error(`${scanner} security scan failed`, {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return [
         {
           id: `${scanner}-error-${Date.now()}`,
@@ -571,7 +576,9 @@ export class CodeQualityValidator {
         } catch (error) {
           this.logger.warn(
             `Failed to read file for custom rule validation: ${filePath}`,
-            { error: error instanceof Error ? error : new Error(String(error)) },
+            {
+              error: error instanceof Error ? error : new Error(String(error)),
+            },
           );
         }
       }

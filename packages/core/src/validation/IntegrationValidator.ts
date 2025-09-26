@@ -272,7 +272,9 @@ export class IntegrationValidator {
         duration: result.duration || Date.now() - startTime,
       }));
     } catch (error) {
-      this.logger.error('System compatibility check failed', { error: error as Error | undefined });
+      this.logger.error('System compatibility check failed', {
+        error: error as Error | undefined,
+      });
       return [
         {
           id: `compatibility-error-${Date.now()}`,
@@ -390,7 +392,9 @@ export class IntegrationValidator {
         },
       ];
     } catch (error) {
-      this.logger.error('Integration tests failed', { error: error as Error | undefined });
+      this.logger.error('Integration tests failed', {
+        error: error as Error | undefined,
+      });
       return [
         {
           id: `integration-tests-error-${Date.now()}`,
@@ -447,7 +451,9 @@ export class IntegrationValidator {
         },
       ];
     } catch (error) {
-      this.logger.error('E2E tests failed', { error: error as Error | undefined });
+      this.logger.error('E2E tests failed', {
+        error: error as Error | undefined,
+      });
       return [
         {
           id: `e2e-tests-error-${Date.now()}`,
@@ -499,7 +505,9 @@ export class IntegrationValidator {
         },
       ];
     } catch (error) {
-      this.logger.error('Load tests failed', { error: error as Error | undefined });
+      this.logger.error('Load tests failed', {
+        error: error as Error | undefined,
+      });
       return [
         {
           id: `load-tests-error-${Date.now()}`,
@@ -539,7 +547,9 @@ export class IntegrationValidator {
         duration: result.duration || Date.now() - startTime,
       }));
     } catch (error) {
-      this.logger.error('Monitoring checks failed', { error: error as Error | undefined });
+      this.logger.error('Monitoring checks failed', {
+        error: error as Error | undefined,
+      });
       return [
         {
           id: `monitoring-error-${Date.now()}`,
@@ -588,7 +598,10 @@ export class IntegrationValidator {
 
     const isCompatible = this.config.systemCompatibility.nodeVersions.some(
       (version) => {
-        const targetMajor = parseInt(version.replace('x', '').replace('.', ''), 10);
+        const targetMajor = parseInt(
+          version.replace('x', '').replace('.', ''),
+          10,
+        );
         return majorVersion === targetMajor;
       },
     );

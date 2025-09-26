@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from '@google/gemini-cli/src/utils/logger.js';
+import { getComponentLogger } from '../../utils/logger.js';
 import type {
   CostCalculationParams,
   BudgetCalculationContext,
@@ -132,7 +132,7 @@ const DEFAULT_MODEL_PRICING: ModelPricing[] = [
  * Cost calculation engine with model pricing and usage analytics
  */
 export class CostCalculationEngine {
-  private readonly logger: Logger;
+  private readonly logger = getComponentLogger('CostCalculationEngine');
   private readonly modelPricing: Map<string, ModelPricing>;
   private readonly calculationHistory: CostCalculationResult[] = [];
   private readonly usageHistory: Map<string, UsageCalculationResult[]> =
@@ -143,7 +143,6 @@ export class CostCalculationEngine {
    * @param customPricing - Optional custom model pricing
    */
   constructor(customPricing?: ModelPricing[]) {
-    this.logger = new Logger('CostCalculationEngine');
     this.modelPricing = new Map();
 
     // Load default pricing
@@ -310,7 +309,7 @@ export class CostCalculationEngine {
 
       return result;
     } catch (error) {
-      this.logger.error('Usage calculation failed', error as Error);
+      this.logger.error('Usage calculation failed', { error: error as Error });
       throw error;
     }
   }

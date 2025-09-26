@@ -17,7 +17,7 @@ import type {
   GraphValidationError,
   GraphValidationWarning,
   Bottleneck,
-  BreakingPoint} from '../types/Dependency';
+  BreakingPoint} from '../types/Dependency.js';
 import {
   DependencyNode,
   DependencyEdge,
@@ -29,8 +29,8 @@ import {
   GraphWarningType,
   OptimizationType,
   OptimizationComplexity
-} from '../types/Dependency';
-import type { Task, TaskId } from '../types/Task';
+} from '../types/Dependency.js';
+import type { Task, TaskId } from '../types/Task.js';
 
 /**
  * Advanced dependency analysis engine with intelligent graph processing

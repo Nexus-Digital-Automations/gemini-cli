@@ -23,7 +23,7 @@ import type {
   Decision,
   DecisionType,
   DecisionPriority,
-} from './types';
+} from './types.js';
 
 /**
  * Task resource profile for decision making

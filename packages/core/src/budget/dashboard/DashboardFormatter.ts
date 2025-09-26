@@ -33,7 +33,7 @@ import type {
   DashboardSections,
   BudgetAlert,
 } from './BudgetDashboard.js';
-import type { FeatureCostAnalysis, OptimizationRecommendation } from '../index';
+import type { FeatureCostAnalysis, OptimizationRecommendation } from '../index.js';
 import { ChartRenderer } from './ChartRenderer.js';
 
 /**

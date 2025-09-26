@@ -274,7 +274,7 @@ export function rateLimitMiddleware(
       const checkTime = Date.now() - startTime;
 
       logger.error('Rate limiting error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         checkTime,
         path: req.path,
         ip: req.ip,

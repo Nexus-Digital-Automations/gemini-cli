@@ -23,7 +23,7 @@ import {
   MockTaskStore,
   TestUtilities,
   PerformanceMetrics,
-} from './utils/TestFactories';
+} from './utils/TestFactories.js';
 import type {
   Task,
   TaskExecutionEngine,
@@ -31,7 +31,7 @@ import type {
   DependencyResolver,
   TaskPriorityScheduler,
   ExecutionMonitoringSystem,
-} from '../types';
+} from '../types.js';
 
 describe('Comprehensive Error Handling System', () => {
   let taskStore: MockTaskStore;

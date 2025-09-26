@@ -89,10 +89,10 @@ export class MLBudgetCLI {
         console.log('─'.repeat(50));
 
         for (const rec of recommendations.slice(0, 5)) {
-          const icon = this.getRecommendationIcon(rec.type, rec.priority);
-          console.log(`${icon} [${rec.priority.toUpperCase()}] ${rec.message}`);
-          if (rec.suggestedAction) {
-            console.log(`   💡 Action: ${rec.suggestedAction}`);
+          const icon = this.getRecommendationIcon(rec.type.toString(), rec.priority.toString());
+          console.log(`${icon} [${rec.priority}] ${rec.description}`);
+          if (rec.actions && rec.actions.length > 0) {
+            console.log(`   💡 Action: ${rec.actions[0]}`);
           }
         }
       }
@@ -150,7 +150,7 @@ export class MLBudgetCLI {
         `📊 Potential Savings: ${potentialSavings.percentage.toFixed(1)}% (${potentialSavings.estimatedRequests} requests)`,
       );
       console.log(
-        `🎯 Confidence: ${potentialSavings.confidence.toUpperCase()}`,
+        `🎯 Confidence: ${potentialSavings.confidence}`,
       );
 
       // Display categorized recommendations
@@ -370,7 +370,8 @@ export class MLBudgetCLI {
           console.log('\n⏱️  Next 6 Hours Forecast:');
           console.log('─'.repeat(50));
 
-          for (const [index, forecast] of nextHours.entries()) {
+          for (let index = 0; index < nextHours.length; index++) {
+            const forecast = nextHours[index];
             const time = new Date(forecast.timestamp).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
@@ -417,14 +418,14 @@ export class MLBudgetCLI {
 
           const topRecs = mlPredictions.recommendations
             .filter(
-              (rec) => rec.priority === 'high' || rec.priority === 'medium',
+              (rec) => rec.priority >= 3,
             )
             .slice(0, 3);
 
           for (const rec of topRecs) {
-            const icon = this.getRecommendationIcon(rec.type, rec.priority);
+            const icon = this.getRecommendationIcon(rec.type.toString(), rec.priority.toString());
             console.log(
-              `${icon} [${rec.priority.toUpperCase()}] ${rec.message}`,
+              `${icon} [${rec.priority}] ${rec.description}`,
             );
           }
         }
@@ -504,9 +505,9 @@ export class MLBudgetCLI {
 
       for (const rec of recommendations) {
         const icon = this.getRecommendationIcon(rec.type, rec.priority);
-        console.log(`${icon} [${rec.impact.toUpperCase()}] ${rec.message}`);
-        if (rec.suggestedAction) {
-          console.log(`   💡 Action: ${rec.suggestedAction}`);
+        console.log(`${icon} [${rec.expectedImpact.confidence}] ${rec.description}`);
+        if (rec.actions && rec.actions.length > 0) {
+          console.log(`   💡 Action: ${rec.actions[0]}`);
         }
       }
     }

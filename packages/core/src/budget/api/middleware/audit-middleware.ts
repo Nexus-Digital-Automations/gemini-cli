@@ -326,7 +326,7 @@ export function auditLogMiddleware(
       auditStore.add(auditEvent);
     } catch (error) {
       logger.error('Failed to create audit event', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         requestId,
         path: req.path,
       });

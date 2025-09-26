@@ -17,8 +17,8 @@ import type {
   TaskExecutionContext,
   WorkflowExecutionResult as _WorkflowExecutionResult,
 } from './ValidationWorkflow.js';
-import type { ValidationFailureHandler } from './ValidationFailureHandler.js';
-import type { ValidationReporting } from './ValidationReporting.js';
+import type { ValidationFailureHandler } from 'ValidationFailureHandler.js';
+import type { ValidationReporting } from 'ValidationReporting.js';
 
 /**
  * Monitoring trigger types
@@ -182,7 +182,9 @@ export interface ContinuousValidationMonitorConfig {
  * Provides real-time monitoring, health checks, and automated validation triggers
  */
 export class ContinuousValidationMonitor extends EventEmitter {
-  private readonly logger = _logger().child({ component: 'ContinuousValidationMonitor' });
+  private readonly logger = _logger().child({
+    component: 'ContinuousValidationMonitor',
+  });
 
   constructor(
     _config: Partial<ContinuousValidationMonitorConfig>,

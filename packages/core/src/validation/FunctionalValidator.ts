@@ -286,7 +286,9 @@ export class FunctionalValidator {
 
       return results;
     } catch (error) {
-      this.logger.error(`${framework} test execution failed`, { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error(`${framework} test execution failed`, {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return [
         {
           id: `${framework}-error-${Date.now()}`,
@@ -379,7 +381,9 @@ export class FunctionalValidator {
 
       return results;
     } catch (error) {
-      this.logger.error('Coverage analysis failed', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Coverage analysis failed', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return [
         {
           id: `coverage-error-${Date.now()}`,
@@ -554,7 +558,9 @@ export class FunctionalValidator {
 
       return results;
     } catch (error) {
-      this.logger.error('Performance validation failed', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Performance validation failed', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return [
         {
           id: `performance-error-${Date.now()}`,
@@ -666,7 +672,9 @@ export class FunctionalValidator {
           break;
       }
     } catch (error) {
-      this.logger.warn(`Failed to parse ${framework} results`, { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.warn(`Failed to parse ${framework} results`, {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       // Return generic result
       results.push({
         name: 'Parse Error',
@@ -709,7 +717,9 @@ export class FunctionalValidator {
         },
       };
     } catch (error) {
-      this.logger.warn('Failed to parse coverage report', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.warn('Failed to parse coverage report', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       return {
         lines: { total: 0, covered: 0, percentage: 0 },
         functions: { total: 0, covered: 0, percentage: 0 },

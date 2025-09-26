@@ -16,7 +16,7 @@
  *
  * @example
  * ```typescript
- * import { createValidationSystem } from '@google/gemini-cli-core/validation';
+ * import { createValidationSystem } from '@google/gemini-cli-core/validation.js';
  *
  * const validationSystem = await createValidationSystem({
  *   codeQuality: {
@@ -101,14 +101,14 @@ export {
   type CircuitBreakerConfig,
   type EscalationConfig,
   type FallbackConfig,
-} from './ValidationFailureHandler.js';
+} from 'ValidationFailureHandler.js';
 
 // Reporting and analytics exports
 export {
   ValidationReporting,
   ReportFormat,
   AnalyticsPeriod,
-} from './ValidationReporting.js';
+} from 'ValidationReporting.js';
 
 // Continuous monitoring exports
 export {
@@ -120,7 +120,7 @@ export {
   type HealthCheck,
   type MonitoringAlert,
   type SystemHealthMetrics,
-} from './ContinuousValidationMonitor.js';
+} from 'ContinuousValidationMonitor.js';
 
 // Import types and classes needed for ValidationSystemConfig and ValidationSystem interfaces
 import {
@@ -144,16 +144,16 @@ import {
   ValidationFailureHandler,
   FailureHandlingStrategy,
   type ValidationFailureHandlerConfig,
-} from './ValidationFailureHandler.js';
+} from 'ValidationFailureHandler.js';
 import {
   ValidationReporting,
   ReportFormat,
   type ValidationReportingConfig,
-} from './ValidationReporting.js';
+} from 'ValidationReporting.js';
 import {
   ContinuousValidationMonitor,
   type ContinuousValidationMonitorConfig,
-} from './ContinuousValidationMonitor.js';
+} from 'ContinuousValidationMonitor.js';
 import {
   ValidationFramework,
   ValidationSeverity,
@@ -307,64 +307,74 @@ export async function createValidationSystem(
       retryDelay: 1000,
     },
     validatorConfigs: {
-      codeQuality: config.codeQuality ? {
-        enabledLinters: config.codeQuality.enabledLinters || [],
-        securityScanners: config.codeQuality.securityScanners || [],
-        ...config.codeQuality
-      } : undefined,
-      functional: config.functional ? {
-        testFrameworks: config.functional.testFrameworks || [],
-        coverageThreshold: config.functional.coverageThreshold || {
-          lines: 80,
-          functions: 80,
-          branches: 70,
-          statements: 80
-        },
-        testPatterns: config.functional.testPatterns || ['**/*.test.ts', '**/*.spec.ts'],
-        behaviorValidation: config.functional.behaviorValidation || {
-          enabled: false,
-          scenarios: []
-        },
-        performanceThresholds: config.functional.performanceThresholds || {
-          maxExecutionTime: 30000,
-          maxMemoryUsage: 512
-        },
-        ...config.functional
-      } : undefined,
-      integration: config.integration ? {
-        systemCompatibility: config.integration.systemCompatibility || {
-          nodeVersions: ['18.x', '20.x'],
-          operatingSystems: ['linux', 'darwin'],
-          architectures: ['x64', 'arm64'],
-          dependencies: []
-        },
-        performanceBenchmarks: config.integration.performanceBenchmarks || [],
-        integrationTests: config.integration.integrationTests || {
-          enabled: false,
-          testCommand: '',
-          timeout: 30000
-        },
-        e2eTests: config.integration.e2eTests || {
-          enabled: false,
-          testCommand: '',
-          timeout: 60000
-        },
-        loadTesting: config.integration.loadTesting || {
-          enabled: false,
-          concurrent: 10,
-          duration: 60000,
-          targetRps: 100
-        },
-        monitoringChecks: config.integration.monitoringChecks || {
-          healthEndpoints: [],
-          resourceLimits: {
-            maxMemory: 1024,
-            maxCpu: 80,
-            maxDiskUsage: 90
+      codeQuality: config.codeQuality
+        ? {
+            enabledLinters: config.codeQuality.enabledLinters || [],
+            securityScanners: config.codeQuality.securityScanners || [],
+            ...config.codeQuality,
           }
-        },
-        ...config.integration
-      } : undefined,
+        : undefined,
+      functional: config.functional
+        ? {
+            testFrameworks: config.functional.testFrameworks || [],
+            coverageThreshold: config.functional.coverageThreshold || {
+              lines: 80,
+              functions: 80,
+              branches: 70,
+              statements: 80,
+            },
+            testPatterns: config.functional.testPatterns || [
+              '**/*.test.ts',
+              '**/*.spec.ts',
+            ],
+            behaviorValidation: config.functional.behaviorValidation || {
+              enabled: false,
+              scenarios: [],
+            },
+            performanceThresholds: config.functional.performanceThresholds || {
+              maxExecutionTime: 30000,
+              maxMemoryUsage: 512,
+            },
+            ...config.functional,
+          }
+        : undefined,
+      integration: config.integration
+        ? {
+            systemCompatibility: config.integration.systemCompatibility || {
+              nodeVersions: ['18.x', '20.x'],
+              operatingSystems: ['linux', 'darwin'],
+              architectures: ['x64', 'arm64'],
+              dependencies: [],
+            },
+            performanceBenchmarks:
+              config.integration.performanceBenchmarks || [],
+            integrationTests: config.integration.integrationTests || {
+              enabled: false,
+              testCommand: '',
+              timeout: 30000,
+            },
+            e2eTests: config.integration.e2eTests || {
+              enabled: false,
+              testCommand: '',
+              timeout: 60000,
+            },
+            loadTesting: config.integration.loadTesting || {
+              enabled: false,
+              concurrent: 10,
+              duration: 60000,
+              targetRps: 100,
+            },
+            monitoringChecks: config.integration.monitoringChecks || {
+              healthEndpoints: [],
+              resourceLimits: {
+                maxMemory: 1024,
+                maxCpu: 80,
+                maxDiskUsage: 90,
+              },
+            },
+            ...config.integration,
+          }
+        : undefined,
     },
     reporting: {
       aggregateReports: true,

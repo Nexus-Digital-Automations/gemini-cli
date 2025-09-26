@@ -13,10 +13,11 @@ import type {
 import { QualityAssurance, QualityCheckType } from '../QualityAssurance.js';
 import type {
   ValidationCategory,
-  ValidationStatus} from '../ValidationFramework.js';
+  ValidationStatus,
+} from '../ValidationFramework.js';
 import {
   ValidationFramework,
-  ValidationSeverity
+  ValidationSeverity,
 } from '../ValidationFramework.js';
 import type { TaskExecutionMetrics } from '../TaskValidator.js';
 import { TaskValidator } from '../TaskValidator.js';

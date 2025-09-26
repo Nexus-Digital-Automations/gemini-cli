@@ -19,7 +19,12 @@ import {
   RollbackType,
 } from '../RollbackManager.js';
 import type { Task, TaskResult } from '../../task-management/types.js';
-import { TaskPriority, TaskStatus, TaskCategory, TaskType } from '../../task-management/types.js';
+import {
+  TaskPriority,
+  TaskStatus,
+  TaskCategory,
+  TaskType,
+} from '../../task-management/types.js';
 
 // Mock logger to avoid console output during tests
 vi.mock('../../logger/Logger.js');

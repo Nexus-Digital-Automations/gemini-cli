@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../utils/logger.js';
+import { WinstonStructuredLogger } from '../../utils/logger.js';
 import type {
   BudgetSettings,
   NotificationSettings,
@@ -76,7 +76,7 @@ export const DEFAULT_BUDGET_SETTINGS: Required<BudgetSettings> = {
  * Budget configuration manager with validation and security
  */
 export class BudgetConfigManager {
-  private readonly logger: Logger;
+  private readonly logger: WinstonStructuredLogger;
   private settings: BudgetSettings;
   private readonly securityContext?: BudgetSecurityContext;
 
@@ -89,7 +89,9 @@ export class BudgetConfigManager {
     initialSettings: Partial<BudgetSettings> = {},
     securityContext?: BudgetSecurityContext,
   ) {
-    this.logger = new Logger('BudgetConfigManager');
+    this.logger = new WinstonStructuredLogger({
+      defaultMeta: { component: 'BudgetConfigManager' },
+    });
     this.securityContext = securityContext;
     this.settings = this.mergeWithDefaults(initialSettings);
 
@@ -122,7 +124,9 @@ export class BudgetConfigManager {
 
       return settings;
     } catch (error) {
-      this.logger.error('Failed to retrieve budget settings', error as Error);
+      this.logger.error('Failed to retrieve budget settings', {
+        error: error as Error,
+      });
       throw error;
     }
   }
@@ -253,7 +257,9 @@ export class BudgetConfigManager {
         executionTime: Date.now() - start,
       });
     } catch (error) {
-      this.logger.error('Budget settings validation failed', error as Error);
+      this.logger.error('Budget settings validation failed', {
+        error: error as Error,
+      });
       throw error;
     }
   }

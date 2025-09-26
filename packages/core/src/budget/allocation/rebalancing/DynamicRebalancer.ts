@@ -1437,19 +1437,42 @@ export class DynamicRebalancer {
       throw new Error(`Candidate not found for resource ${action.resourceId}`);
     }
 
+    const potentialSavings = Math.max(0, -action.changeAmount);
+
     return {
       // Required AllocationRecommendation properties
       id: `rebalance-${action.resourceId}-${Date.now()}`,
+      type: 'budget_reallocation',
       title: `Rebalance ${action.resourceId} allocation`,
-      potentialSavings: Math.max(0, -action.changeAmount),
-      savingsPercentage: action.currentAllocation > 0 ? (Math.max(0, -action.changeAmount) / action.currentAllocation) * 100 : 0,
-      estimatedTimeToImplement: 3,
-      category: 'rebalancing',
+      description: action.rationale,
+      potentialSavings,
+      savingsPercentage:
+        action.currentAllocation > 0
+          ? (potentialSavings / action.currentAllocation) * 100
+          : 0,
+      implementationComplexity: 'medium',
+      timeToImplement: action.timeline,
+      priority:
+        action.priority === 'immediate'
+          ? 'critical'
+          : (action.priority as 'high' | 'medium' | 'low'),
+      confidenceScore: 80,
+      applicableFeatures: [action.resourceId],
+      actionItems: [
+        `${action.type === 'increase' ? 'Increase' : action.type === 'decrease' ? 'Decrease' : 'Adjust'} allocation for ${action.resourceId}`,
+        'Monitor performance impact',
+        'Validate resource utilization',
+      ],
+      metrics: {
+        currentCost: action.currentAllocation,
+        projectedCost: action.recommendedAllocation,
+        expectedReduction: Math.abs(action.changeAmount),
+      },
       resourceId: action.resourceId,
       currentAllocation: action.currentAllocation,
       recommendedAllocation: action.recommendedAllocation,
       allocationChange: action.changeAmount,
-      strategy: 'usage_based', // Default strategy
+      strategy: 'usage_based' as AllocationStrategy,
       confidence: 80,
       expectedImpact: {
         costImpact: action.expectedImpact.cost,
@@ -1475,18 +1498,16 @@ export class DynamicRebalancer {
         negativeProbability: action.expectedImpact.risk / 2,
       },
       dependencies: [],
-      // Additional fields from OptimizationRecommendation
-      type: 'budget_reallocation',
-      priority: action.priority as 'high' | 'medium' | 'low',
-      description: action.rationale,
-      expectedSavings: Math.max(0, -action.changeAmount),
-      implementationComplexity: 'medium',
+      estimatedTimeToImplement: 3,
+      category: 'rebalancing',
+      expectedSavings: potentialSavings,
       validationCriteria: [
         'Performance metrics',
         'Utilization rates',
         'Cost efficiency',
       ],
       rollbackPlan: 'Revert allocation to previous values',
+      tags: ['rebalancing', 'dynamic_allocation', action.type],
     };
   }
 

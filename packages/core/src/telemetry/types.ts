@@ -11,10 +11,7 @@ import type { CompletedToolCall } from '../core/coreToolScheduler.js';
 import { DiscoveredMCPTool } from '../tools/mcp-tool.js';
 import type { FileDiff } from '../tools/tools.js';
 import { AuthType } from '../core/contentGenerator.js';
-import {
-  getDecisionFromOutcome,
-  ToolCallDecision,
-} from './tool-call-decision.js';
+import { getDecisionFromOutcome, ToolCallDecision } from './tool-call-decision.js';
 import type { FileOperation } from './metrics.js';
 export { ToolCallDecision };
 import type { ToolRegistry } from '../tools/tool-registry.js';

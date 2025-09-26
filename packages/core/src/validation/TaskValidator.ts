@@ -234,7 +234,9 @@ export interface TaskValidatorConfig {
  * - Comprehensive reporting and recommendations
  */
 export class TaskValidator extends EventEmitter {
-  private readonly logger = parentLogger().child({ component: 'TaskValidator' });
+  private readonly logger = parentLogger().child({
+    component: 'TaskValidator',
+  });
   private readonly validationFramework: ValidationFramework;
   private readonly config: TaskValidatorConfig;
   private readonly snapshots: Map<string, TaskSnapshot[]> = new Map();
@@ -588,7 +590,11 @@ export class TaskValidator extends EventEmitter {
       });
       return true;
     } catch (error) {
-      this.logger.error('Task rollback failed', { taskId, snapshotId, error: error as Error | undefined });
+      this.logger.error('Task rollback failed', {
+        taskId,
+        snapshotId,
+        error: error as Error | undefined,
+      });
       return false;
     }
   }
