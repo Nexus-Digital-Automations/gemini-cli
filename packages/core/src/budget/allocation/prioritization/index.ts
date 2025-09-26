@@ -59,6 +59,7 @@ export type {
   AllocationCandidate,
   AllocationPriority,
   AllocationConstraints,
-  FeatureCostAnalysis,
-  AllocationLogger,
 } from '../types.js';
+
+export type { FeatureCostAnalysis } from '../../analytics/AnalyticsEngine.js';
+export type { AllocationLogger } from '../algorithms/BaseAllocationAlgorithm.js';
