@@ -857,7 +857,7 @@ export class TaskQueue extends EventEmitter {
       this.logger.error('Failed to assign task to agent', {
         taskId: task.id,
         agentId: agent.agentId,
-        error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return null;
     }
@@ -946,7 +946,7 @@ export class TaskQueue extends EventEmitter {
     if (update.newStatus === TaskStatus.COMPLETED) {
       this.updateTaskCompletion(task.id);
     } else if (update.newStatus === TaskStatus.FAILED) {
-      this.handleTaskFailure(task.id, update.error?.message || 'Unknown error');
+      this.handleTaskFailure(task.id, update.error || new Error('Unknown error'));
     }
   }
 
@@ -976,7 +976,7 @@ export class TaskQueue extends EventEmitter {
   }
 
   private handleTaskFailure(taskId: string, error: unknown): void {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorInstance = error instanceof Error ? error : new Error(String(error));
     const currentFailures = this.failedTasks.get(taskId) || 0;
     this.failedTasks.set(taskId, currentFailures + 1);
 
@@ -1007,7 +1007,7 @@ export class TaskQueue extends EventEmitter {
           taskId,
           failureCount: currentFailures + 1,
           maxRetries,
-          error: errorMessage,
+          error: errorInstance,
         });
       }
     } else {
@@ -1016,7 +1016,7 @@ export class TaskQueue extends EventEmitter {
         taskId,
         failureCount: currentFailures + 1,
         maxRetries,
-        error: errorMessage,
+        error: errorInstance,
       });
     }
 
@@ -1055,7 +1055,7 @@ export class TaskQueue extends EventEmitter {
       // Emit persistence event for external systems to handle
       this.emit('queue:state-persisted', { queueState });
     } catch (error) {
-      this.logger.error('Failed to persist queue state', { error });
+      this.logger.error('Failed to persist queue state', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

@@ -165,8 +165,9 @@ export class TaskPersistence extends EventEmitter {
         backupRetention: this.config.backupRetentionDays,
       });
     } catch (error) {
-      this.logger.error('Failed to initialize task persistence', { error });
-      throw error;
+      const errorInstance = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Failed to initialize task persistence', { error: errorInstance });
+      throw errorInstance;
     }
   }
 
@@ -234,9 +235,10 @@ export class TaskPersistence extends EventEmitter {
         agents: queueState.agents.registry.length,
       });
     } catch (error) {
-      this.logger.error('Failed to persist queue state', { error });
-      this.emit('persistence:error', { operation: 'persist', error });
-      throw error;
+      const errorInstance = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Failed to persist queue state', { error: errorInstance });
+      this.emit('persistence:error', { operation: 'persist', error: errorInstance });
+      throw errorInstance;
     } finally {
       await this.releaseLock();
       this.operationInProgress = false;
@@ -325,8 +327,9 @@ export class TaskPersistence extends EventEmitter {
         this.logger.error('Failed to recover queue state from any source');
       }
     } catch (error) {
-      recoveryInfo.errors.push(`Recovery error: ${error}`);
-      this.logger.error('Queue state recovery failed', { error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      recoveryInfo.errors.push(`Recovery error: ${errorMessage}`);
+      this.logger.error('Queue state recovery failed', { error: error instanceof Error ? error : new Error(String(error)) });
     } finally {
       recoveryInfo.recoveryDurationMs = Date.now() - startTime;
     }
@@ -368,8 +371,9 @@ export class TaskPersistence extends EventEmitter {
 
       return backupPath;
     } catch (error) {
-      this.logger.error('Failed to create backup', { error, label });
-      throw error;
+      const errorInstance = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Failed to create backup', { error: errorInstance, label });
+      throw errorInstance;
     }
   }
 
@@ -425,7 +429,7 @@ export class TaskPersistence extends EventEmitter {
         (a, b) => b.created.getTime() - a.created.getTime(),
       );
     } catch (error) {
-      this.logger.error('Failed to list backups', { error });
+      this.logger.error('Failed to list backups', { error: error instanceof Error ? error : new Error(String(error)) });
       return [];
     }
   }
@@ -464,8 +468,9 @@ export class TaskPersistence extends EventEmitter {
 
       return recoveredState;
     } catch (error) {
-      this.logger.error('Failed to restore from backup', { backupPath, error });
-      throw error;
+      const errorInstance = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Failed to restore from backup', { backupPath, error: errorInstance });
+      throw errorInstance;
     }
   }
 
@@ -552,7 +557,7 @@ export class TaskPersistence extends EventEmitter {
     try {
       await this.ensureDirectories();
     } catch (error) {
-      this.logger.error('Failed to setup persistence directories', { error });
+      this.logger.error('Failed to setup persistence directories', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 
@@ -576,7 +581,8 @@ export class TaskPersistence extends EventEmitter {
       await fs.writeFile(testFile, 'test');
       await fs.unlink(testFile);
     } catch (error) {
-      throw new Error(`Storage directory not writable: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Storage directory not writable: ${errorMessage}`);
     }
 
     // Check disk space
@@ -781,7 +787,7 @@ export class TaskPersistence extends EventEmitter {
 
       return state;
     } catch (error) {
-      this.logger.warn('Recovery attempt failed', { filePath, error });
+      this.logger.warn('Recovery attempt failed', { filePath, error: error instanceof Error ? error : new Error(String(error)) });
       return null;
     }
   }
@@ -849,12 +855,12 @@ export class TaskPersistence extends EventEmitter {
         } catch (error) {
           this.logger.warn('Failed to delete old backup', {
             path: backup.path,
-            error,
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }
     } catch (error) {
-      this.logger.error('Failed to clean old backups', { error });
+      this.logger.error('Failed to clean old backups', { error: error instanceof Error ? error : new Error(String(error)) });
     }
   }
 

@@ -5,22 +5,21 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 import {
-  PullRequest,
-  VCAutomationConfig,
   PRStatus,
   ReviewStatus,
   CheckStatus,
+  MergeStrategy,
+} from './types.js';
+import type {
+  PullRequest,
+  VCAutomationConfig,
   PRTemplate,
   PRMetrics,
   AutoMergeConfig,
   PRValidationResult,
   ReviewerSuggestion,
   PRAnalysis,
-  MergeStrategy,
-  PRNotification,
   PRAutomationRule,
   PRWorkflow,
   QualityGate,
@@ -617,7 +616,7 @@ export class PullRequestAutomator {
     pr: PullRequest,
     status: PRStatus,
   ): Promise<void> {
-    for (const [ruleId, rule] of this.automationRules) {
+    for (const [, rule] of this.automationRules) {
       if (rule.trigger === status && this.evaluateRuleCondition(pr, rule)) {
         await this.executeRuleAction(pr, rule);
       }
@@ -766,7 +765,7 @@ export class PullRequestAutomator {
   ): Promise<{ success: boolean; commitSha?: string; error?: string }> {
     try {
       const mergeCommand = this.buildMergeCommand(pr);
-      const result = execSync(mergeCommand, {
+      execSync(mergeCommand, {
         cwd: this.workingDir,
         encoding: 'utf-8',
       });
