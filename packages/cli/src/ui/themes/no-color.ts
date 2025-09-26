@@ -35,6 +35,7 @@ const noColorSemanticColors: SemanticColors = {
   },
   background: {
     primary: '',
+    secondary: '',
     diff: {
       added: '',
       removed: '',
@@ -53,6 +54,7 @@ const noColorSemanticColors: SemanticColors = {
     error: '',
     success: '',
     warning: '',
+    info: '',
   },
 };
 

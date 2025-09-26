@@ -45,51 +45,58 @@
  */
 
 // Core monitoring components
-export {
-  TaskStatusMonitor,
+export { TaskStatusMonitor, taskStatusMonitor } from './TaskStatusMonitor.js';
+export type {
   TaskStatus,
   TaskType,
   TaskPriority,
   TaskMetadata,
   TaskStatusUpdate,
   AgentStatus,
-  taskStatusMonitor,
 } from './TaskStatusMonitor.js';
 
 export {
   StatusUpdateBroker,
+  statusUpdateBroker,
+} from './StatusUpdateBroker.js';
+export type {
   StatusEventType,
   StatusEvent,
   NotificationConfig,
-  statusUpdateBroker,
 } from './StatusUpdateBroker.js';
 
 export {
   NotificationSystem,
+  notificationSystem,
+} from './NotificationSystem.js';
+export type {
   NotificationPreferences,
   NotificationTemplate,
   DeliveredNotification,
-  notificationSystem,
 } from './NotificationSystem.js';
 
 export {
   StatusHistoryAnalytics,
+  statusHistoryAnalytics,
+} from './StatusHistoryAnalytics.js';
+export type {
   AnalyticsTimeframe,
   TaskAnalytics,
   AgentAnalytics,
   SystemAnalytics,
   StatusHistoryEntry,
   HistoryQuery,
-  statusHistoryAnalytics,
 } from './StatusHistoryAnalytics.js';
 
 export {
   MonitoringIntegrations,
+  monitoringIntegrations,
+} from './MonitoringIntegrations.js';
+export type {
   TodoWriteTask,
   TodoWriteState,
   ExternalSystemConfig,
   WebhookPayload,
-  monitoringIntegrations,
 } from './MonitoringIntegrations.js';
 
 // Dashboard and visualization
@@ -145,12 +152,13 @@ export async function initializeMonitoringSystem(
   let dashboard: unknown = null;
 
   if (enableDashboard) {
-    const { StatusDashboard } = await import('./StatusDashboard.js');
-    dashboard = new StatusDashboard({
+    // StatusDashboard is a React component, not a class constructor
+    // It would be instantiated by a React renderer, not with 'new'
+    dashboard = {
       autoRefresh: dashboardConfig.autoRefresh ?? true,
       refreshInterval: dashboardConfig.refreshInterval ?? 5000,
       initialView: dashboardConfig.initialView ?? 'overview',
-    });
+    };
   }
 
   return {
@@ -256,8 +264,8 @@ export const MonitoringUtils = {
     return taskStatusMonitor.registerTask({
       title,
       description,
-      type: options.type ?? TaskType.IMPLEMENTATION,
-      priority: options.priority ?? TaskPriority.NORMAL,
+      type: (options.type as TaskType) ?? TaskType.IMPLEMENTATION,
+      priority: (options.priority as TaskPriority) ?? TaskPriority.NORMAL,
       assignedAgent: options.assignedAgent,
       dependencies: [],
       tags: options.tags ?? [],

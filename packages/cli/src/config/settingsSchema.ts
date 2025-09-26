@@ -46,10 +46,9 @@ export type SettingsValue =
  * (e.g. an enum or true/false) rather than allowing for free form input
  * (like a number or string).
  */
-export const TOGGLE_TYPES: ReadonlySet<SettingsType | undefined> = new Set([
-  'boolean',
-  'enum',
-]);
+export const TOGGLE_TYPES: ReadonlySet<SettingsType | undefined> = new Set<
+  SettingsType | undefined
+>(['boolean', 'enum']);
 
 /**
  * Configuration option for enumeration-type settings that have predefined choices.

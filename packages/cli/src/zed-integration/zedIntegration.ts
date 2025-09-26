@@ -820,7 +820,7 @@ class Session {
           processedQueryParts.push({
             text: contextPart.text,
           });
-        } else {
+        } else if ('blob' in contextPart) {
           processedQueryParts.push({
             inlineData: {
               mimeType: contextPart.mimeType ?? 'application/octet-stream',

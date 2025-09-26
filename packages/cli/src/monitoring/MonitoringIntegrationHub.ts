@@ -5,17 +5,17 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import type {
+ ExecutionMonitoringSystem ,
+  getComponentLogger,
+  type StructuredLogger } from '@google/gemini-cli-core';
 import {
   realTimeMonitoringSystem,
   type MonitoringSnapshot,
 } from './RealTimeMonitoringSystem.js';
 import { enhancedMonitoringDashboard } from './EnhancedMonitoringDashboard.js';
-import {
-  taskStatusMonitor,
-} from './TaskStatusMonitor.js';
+import { taskStatusMonitor } from './TaskStatusMonitor.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
-import type { ExecutionMonitoringSystem } from '../../core/src/task-management/ExecutionMonitoringSystem.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
@@ -760,7 +760,9 @@ export class MonitoringIntegrationHub extends EventEmitter {
     }
   }
 
-  private convertToCSV(data: Record<string, unknown>): string {
+  private convertToCSV(
+    data: ReturnType<typeof this.getAggregatedData>,
+  ): string {
     // Convert aggregated data to CSV format
     const lines: string[] = [];
 
@@ -809,7 +811,9 @@ export class MonitoringIntegrationHub extends EventEmitter {
     return lines.join('\n');
   }
 
-  private convertToPrometheus(data: Record<string, unknown>): string {
+  private convertToPrometheus(
+    data: ReturnType<typeof this.getAggregatedData>,
+  ): string {
     // Convert aggregated data to Prometheus format
     const timestamp = data.timestamp.getTime();
     const lines: string[] = [];

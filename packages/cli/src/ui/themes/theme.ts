@@ -166,6 +166,7 @@ export class Theme {
       },
       background: {
         primary: this.colors.Background,
+        secondary: this.colors.Gray,
         diff: {
           added: this.colors.DiffAdded,
           removed: this.colors.DiffRemoved,
@@ -184,6 +185,7 @@ export class Theme {
         error: this.colors.AccentRed,
         success: this.colors.AccentGreen,
         warning: this.colors.AccentYellow,
+        info: this.colors.AccentBlue,
       },
     };
     this._colorMap = Object.freeze(this._buildColorMap(rawMappings)); // Build and freeze the map
@@ -420,6 +422,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
     },
     background: {
       primary: customTheme.background?.primary ?? colors.Background,
+      secondary: customTheme.background?.secondary ?? colors.Gray,
       diff: {
         added: customTheme.background?.diff?.added ?? colors.DiffAdded,
         removed: customTheme.background?.diff?.removed ?? colors.DiffRemoved,
@@ -438,6 +441,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       error: customTheme.status?.error ?? colors.AccentRed,
       success: customTheme.status?.success ?? colors.AccentGreen,
       warning: customTheme.status?.warning ?? colors.AccentYellow,
+      info: customTheme.status?.info ?? colors.AccentBlue,
     },
   };
 

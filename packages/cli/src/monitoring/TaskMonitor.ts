@@ -5,14 +5,21 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { getComponentLogger, type StructuredLogger } from '@google/gemini-cli-core';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '@google/gemini-cli-core';
 import type {
   TaskMetadata,
   TaskStatus,
   AgentStatus,
 } from './TaskStatusMonitor.js';
 import { taskStatusMonitor, _TaskStatusUpdate } from './TaskStatusMonitor.js';
-import { progressTracker, ProgressGranularity } from './ProgressTracker.js';
+import {
+  progressTracker,
+  ProgressGranularity,
+  type ProgressMetrics as TrackerProgressMetrics,
+} from './ProgressTracker.js';
 import { performanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard.js';
 import { _statusUpdateBroker } from './StatusUpdateBroker.js';
 import { _notificationSystem } from './NotificationSystem.js';
@@ -527,7 +534,7 @@ export class TaskMonitor extends EventEmitter {
   private async calculateTaskAnalytics(
     taskId: string,
     task: TaskMetadata,
-    progressMetrics: ProgressMetrics | null,
+    progressMetrics: TrackerProgressMetrics | null,
     config: TaskMonitoringConfig,
   ): Promise<IntegratedTaskStatus['analytics']> {
     const bottleneckAnalysis = progressTracker.analyzeBottlenecks(taskId);
