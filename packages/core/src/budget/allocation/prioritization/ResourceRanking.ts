@@ -17,7 +17,7 @@ import type {
   AllocationPriority,
   AllocationStrategy,
 } from '../types.js';
-import type { FeatureCostAnalysis } from '../analytics/AnalyticsEngine.js';
+import type { FeatureCostAnalysis } from '../../analytics/AnalyticsEngine.js';
 
 /**
  * Logger interface for allocation operations
@@ -585,7 +585,7 @@ export class ResourceRanking {
 
     const avgROI =
       historicalData.reduce(
-        (sum, data) => sum + data.revenue / Math.max(data.totalCost, 1),
+        (sum, data) => sum + data.roi,
         0,
       ) / historicalData.length;
 
@@ -604,7 +604,7 @@ export class ResourceRanking {
 
     const avgCostPerUnit =
       historicalData.reduce(
-        (sum, data) => sum + data.totalCost / Math.max(data.usage, 1),
+        (sum, data) => sum + data.totalCost / Math.max(data.usageFrequency, 1),
         0,
       ) / historicalData.length;
 
@@ -699,7 +699,7 @@ export class ResourceRanking {
     if (historicalData.length < 3) return 50;
 
     // Calculate usage trend
-    const usageValues = historicalData.map((data) => data.usage);
+    const usageValues = historicalData.map((data) => data.usageFrequency);
     const trend = this.calculateTrendSlope(usageValues);
 
     // Positive trend gets higher score
@@ -873,7 +873,7 @@ export class ResourceRanking {
     // Add business context factors
     if (
       this.config.businessContext.strategicFocus.some((focus) =>
-        candidate.metadata.tags?.includes(focus),
+        (candidate.metadata.tags as string[])?.includes(focus),
       )
     ) {
       businessContext.push('Aligns with strategic focus areas');
@@ -927,7 +927,7 @@ export class ResourceRanking {
     if (historicalData.length > 10) {
       const avgPerformance =
         historicalData.reduce(
-          (sum, data) => sum + (data.performance || 50),
+          (sum, data) => sum + data.businessValue,
           0,
         ) / historicalData.length;
       if (avgPerformance > 80) {
