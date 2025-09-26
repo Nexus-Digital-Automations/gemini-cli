@@ -16,9 +16,10 @@ import type {
   AllocationCandidate,
   AllocationPriority,
   AllocationConstraints,
-  FeatureCostAnalysis,
-  AllocationLogger,
 } from '../types.js';
+
+import type { FeatureCostAnalysis } from '../../analytics/AnalyticsEngine.js';
+import type { AllocationLogger } from '../algorithms/BaseAllocationAlgorithm.js';
 
 import type {
   ResourceRankingConfig,
@@ -831,10 +832,10 @@ export class PriorityAssignment {
     // Check performance trends
     const recentPerformance = historicalData
       .slice(-3)
-      .map((data) => data.performance || 80);
+      .map((data) => data.businessValue || 80);
     const olderPerformance = historicalData
       .slice(0, 3)
-      .map((data) => data.performance || 80);
+      .map((data) => data.businessValue || 80);
 
     const recentAvg =
       recentPerformance.reduce((sum, p) => sum + p, 0) /
@@ -892,7 +893,7 @@ export class PriorityAssignment {
           const recent = historicalData[historicalData.length - 1];
           const previous = historicalData[historicalData.length - 2];
           const degradation =
-            (previous.performance - recent.performance) / previous.performance;
+            (previous.businessValue - recent.businessValue) / previous.businessValue;
           return degradation > 0.2;
         }
         return false;

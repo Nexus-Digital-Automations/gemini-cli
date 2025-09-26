@@ -352,11 +352,11 @@ export class PerformanceOptimizer extends EventEmitter {
         applied: false,
         success: false,
         appliedAt: new Date(),
-        sideEffects: [`Optimization failed: ${error}`],
+        sideEffects: [`Optimization failed: ${error instanceof Error ? error.message : String(error)}`],
       };
 
       this.appliedOptimizations.set(recommendationId, result);
-      this.logger.error('Optimization failed', { recommendationId, error });
+      this.logger.error('Optimization failed', { recommendationId, error: error as Error });
 
       return result;
     }
@@ -369,7 +369,7 @@ export class PerformanceOptimizer extends EventEmitter {
     const result = this.appliedOptimizations.get(recommendationId);
 
     if (!result || !result.applied) {
-      this.logger.warning(
+      this.logger.warn(
         'Cannot revert optimization - not found or not applied',
         {
           recommendationId,
@@ -379,7 +379,7 @@ export class PerformanceOptimizer extends EventEmitter {
     }
 
     if (!result.revertAction) {
-      this.logger.warning(
+      this.logger.warn(
         'Cannot revert optimization - no revert action available',
         {
           recommendationId,
@@ -399,7 +399,7 @@ export class PerformanceOptimizer extends EventEmitter {
     } catch (error) {
       this.logger.error('Failed to revert optimization', {
         recommendationId,
-        error,
+        error: error as Error,
       });
       return false;
     }
@@ -590,7 +590,7 @@ export class PerformanceOptimizer extends EventEmitter {
         efficiency: metrics.queueMetrics.queueEfficiency,
       });
     } catch (error) {
-      this.logger.error('Failed to collect performance metrics', { error });
+      this.logger.error('Failed to collect performance metrics', { error: error as Error });
     }
   }
 
@@ -648,7 +648,7 @@ export class PerformanceOptimizer extends EventEmitter {
 
       this.optimizationState.lastOptimizationRun = new Date();
     } catch (error) {
-      this.logger.error('Optimization cycle failed', { error });
+      this.logger.error('Optimization cycle failed', { error: error as Error });
     }
   }
 
@@ -917,7 +917,7 @@ export class PerformanceOptimizer extends EventEmitter {
         applied: false,
         success: false,
         appliedAt: new Date(),
-        sideEffects: [`Optimization failed: ${error}`],
+        sideEffects: [`Optimization failed: ${error instanceof Error ? error.message : String(error)}`],
         revertAction,
       };
     }
@@ -1212,8 +1212,8 @@ export class PerformanceOptimizer extends EventEmitter {
       olderAvg.systemMetrics.errorRate, // Inverted - lower error rate is better
       recentAvg.systemMetrics.errorRate,
     );
-    history.trends.errorRate = errorTrend === 'increasing' ? 'decreasing' :
-                               errorTrend === 'decreasing' ? 'increasing' : 'stable';
+    history.trends.errorRate = errorTrend === 'increasing' ? 'increasing' :
+                               errorTrend === 'decreasing' ? 'decreasing' : 'stable';
   }
 
   private calculateAverageMetrics(
