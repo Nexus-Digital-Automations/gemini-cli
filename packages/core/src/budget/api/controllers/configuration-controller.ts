@@ -14,11 +14,15 @@
  */
 
 import type { Request, Response } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
 import type { BudgetSettings } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
 
-const logger = new Logger('ConfigurationController');
+// Simple console-based logging for now
+const logger = {
+  info: (message: string, meta?: unknown) => console.info(`[ConfigurationController] ${message}`, meta),
+  warn: (message: string, meta?: unknown) => console.warn(`[ConfigurationController] ${message}`, meta),
+  error: (message: string, meta?: unknown) => console.error(`[ConfigurationController] ${message}`, meta),
+};
 
 /**
  * Enhanced request interface with user context
@@ -72,7 +76,7 @@ export class ConfigurationController {
       }
 
       // Get current settings
-      const settings = await budgetTracker.getSettings();
+      const settings = budgetTracker.getBudgetSettings();
 
       const responseTime = Date.now() - startTime;
       const response = {
@@ -83,7 +87,7 @@ export class ConfigurationController {
             timestamp: new Date().toISOString(),
             responseTime,
             version: '1.0.0',
-            lastModified: await budgetTracker.getLastConfigUpdate(),
+            lastModified: new Date().toISOString(),
           },
         },
       };
@@ -141,7 +145,7 @@ export class ConfigurationController {
       }
 
       // Get current settings for validation
-      const currentSettings = await budgetTracker.getSettings();
+      const currentSettings = budgetTracker.getBudgetSettings();
 
       // Merge and validate new settings
       const updatedSettings: BudgetSettings = {
@@ -150,7 +154,7 @@ export class ConfigurationController {
       };
 
       // Perform validation
-      const validationResult = this.validateConfiguration(updatedSettings);
+      const validationResult = this.validateConfigurationInternal(updatedSettings);
       if (!validationResult.valid) {
         logger.warn('Configuration validation failed', {
           errors: validationResult.errors,
@@ -166,7 +170,7 @@ export class ConfigurationController {
       }
 
       // Apply the new settings
-      await budgetTracker.updateSettings(updatedSettings);
+      budgetTracker.updateSettings(updatedSettings);
 
       const responseTime = Date.now() - startTime;
       const response = {
@@ -236,7 +240,7 @@ export class ConfigurationController {
       }
 
       // Get current settings for backup
-      const previousSettings = await budgetTracker.getSettings();
+      const previousSettings = budgetTracker.getBudgetSettings();
 
       // Reset to default settings
       const defaultSettings: BudgetSettings = {
@@ -246,7 +250,7 @@ export class ConfigurationController {
         warningThresholds: [50, 75, 90],
       };
 
-      await budgetTracker.updateSettings(defaultSettings);
+      budgetTracker.updateSettings(defaultSettings);
 
       const responseTime = Date.now() - startTime;
       const response = {
@@ -290,7 +294,7 @@ export class ConfigurationController {
    * Validate configuration without applying changes
    * GET /api/budget/config/validate
    */
-  async validateConfiguration(
+  async validateConfigurationEndpoint(
     req: AuthenticatedRequest,
     res: Response,
   ): Promise<void> {
@@ -308,7 +312,7 @@ export class ConfigurationController {
       const parsedSettings = this.parseQueryParameters(settingsToValidate);
 
       // Perform validation
-      const validationResult = this.validateConfiguration(parsedSettings);
+      const validationResult = this.validateConfigurationInternal(parsedSettings);
 
       const responseTime = Date.now() - startTime;
       const response = {
@@ -353,7 +357,7 @@ export class ConfigurationController {
   /**
    * Validate configuration settings
    */
-  private validateConfiguration(settings: Partial<BudgetSettings>): {
+  private validateConfigurationInternal(settings: Partial<BudgetSettings>): {
     valid: boolean;
     errors: string[];
     warnings?: string[];
@@ -441,7 +445,7 @@ export class ConfigurationController {
   /**
    * Parse query parameters to appropriate types
    */
-  private parseQueryParameters(params: any): Partial<BudgetSettings> {
+  private parseQueryParameters(params: unknown): Partial<BudgetSettings> {
     const parsed: Partial<BudgetSettings> = {};
 
     if (params.enabled !== undefined) {

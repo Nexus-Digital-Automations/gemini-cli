@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { Storage } from '@google-cloud/storage';
 import * as fse from 'fs-extra';
 import { promises as fsPromises, createReadStream } from 'node:fs';

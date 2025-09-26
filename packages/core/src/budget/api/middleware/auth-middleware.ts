@@ -14,11 +14,11 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
+import { getComponentLogger } from '../../../utils/logger.js';
 import type { BudgetSecurityContext } from '../../types.js';
 import { BudgetPermission } from '../../types.js';
 
-const logger = new Logger('AuthMiddleware');
+const logger = getComponentLogger('AuthMiddleware');
 
 /**
  * Enhanced request interface with authentication context

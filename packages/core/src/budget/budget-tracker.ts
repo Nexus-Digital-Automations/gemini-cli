@@ -153,6 +153,12 @@ export class BudgetTracker {
       date: today,
       requestCount: 0,
       totalCost: 0,
+      tokenUsage: {
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        tokenCosts: { input: 0, output: 0 }
+      },
       lastResetTime: resetTime,
       warningsShown: [],
     };
@@ -222,6 +228,12 @@ export class BudgetTracker {
       date: today,
       requestCount: 0,
       totalCost: 0,
+      tokenUsage: {
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        tokenCosts: { input: 0, output: 0 }
+      },
       lastResetTime: now,
       warningsShown: [],
     };

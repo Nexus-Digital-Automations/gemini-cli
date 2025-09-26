@@ -15,11 +15,17 @@
 
 import type { Request, Response } from 'express';
 import { WebSocket, WebSocketServer } from 'ws';
-import { Logger } from '../../../../../src/utils/logger.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
-import { BudgetEventType } from '../../types.js';
+// Budget types available if needed
+// import type { BudgetEventType } from '../../types.js';
 
-const logger = new Logger('StreamingController');
+// Simple console-based logging for now
+const logger = {
+  info: (message: string, meta?: unknown) => console.info(`[StreamingController] ${message}`, meta),
+  warn: (message: string, meta?: unknown) => console.warn(`[StreamingController] ${message}`, meta),
+  error: (message: string, meta?: unknown) => console.error(`[StreamingController] ${message}`, meta),
+  debug: (message: string, meta?: unknown) => console.debug(`[StreamingController] ${message}`, meta),
+};
 
 /**
  * Enhanced request interface with user context
@@ -441,7 +447,7 @@ export class StreamingController {
         const budgetTracker = await getBudgetTracker();
         if (!budgetTracker) return;
 
-        const usageData = await budgetTracker.getCurrentUsage();
+        const usageData = await budgetTracker.getTodayUsage();
 
         this.broadcastMessage(
           {

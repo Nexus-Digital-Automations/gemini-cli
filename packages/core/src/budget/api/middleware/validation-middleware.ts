@@ -14,13 +14,13 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
+import { getComponentLogger } from '../../../utils/logger.js';
 import type {
   SchemaValidator,
   ValidationResult,
 } from '../schemas/request-schemas.js';
 
-const logger = new Logger('ValidationMiddleware');
+const logger = getComponentLogger('ValidationMiddleware');
 
 /**
  * Request validation location type
@@ -131,7 +131,8 @@ export function validateRequest(
           validationTime,
         };
 
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // Apply sanitization if enabled and validator provided sanitized data
@@ -256,7 +257,7 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
           path: req.path,
         });
 
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: 'Multiple validation failures',
           details: {
@@ -266,6 +267,7 @@ export function validateMultiple(validationConfigs: ValidationConfig[]) {
           timestamp: new Date().toISOString(),
           validationTime,
         });
+        return;
       }
 
       logger.debug('Multiple validation successful', {
@@ -317,7 +319,7 @@ export function validateContentType(expectedTypes: string[]) {
         path: req.path,
       });
 
-      return res.status(415).json({
+      res.status(415).json({
         success: false,
         error: 'Unsupported Media Type',
         details: {
@@ -326,6 +328,7 @@ export function validateContentType(expectedTypes: string[]) {
         },
         timestamp: new Date().toISOString(),
       });
+      return;
     }
 
     next();
@@ -353,7 +356,7 @@ export function validateRequestSize(maxSize: number = 1024 * 1024) {
         path: req.path,
       });
 
-      return res.status(413).json({
+      res.status(413).json({
         success: false,
         error: 'Request Entity Too Large',
         details: {
@@ -362,6 +365,7 @@ export function validateRequestSize(maxSize: number = 1024 * 1024) {
         },
         timestamp: new Date().toISOString(),
       });
+      return;
     }
 
     next();
@@ -401,13 +405,14 @@ export function validateCustomFields(
           path: req.path,
         });
 
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: 'Custom field validation failed',
           details: { errors },
           timestamp: new Date().toISOString(),
           validationTime,
         });
+        return;
       }
 
       logger.debug('Custom field validation successful', {
@@ -496,13 +501,14 @@ export function validateSecurity(
           ip: req.ip,
         });
 
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: 'Security validation failed',
           details: { issues: securityIssues },
           timestamp: new Date().toISOString(),
           validationTime,
         });
+        return;
       }
 
       logger.debug('Security validation passed', {

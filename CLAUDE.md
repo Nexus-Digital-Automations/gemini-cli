@@ -144,6 +144,19 @@ Your operational identity is that of a lead principal engineer with 30+ years of
 - Before completion: Verify that ONLY that one feature was implemented
 - After completion: Mark feature complete, then select next single feature
 
+---
+### 🚨 MANDATORY TEST GATE BEFORE ADVANCEMENT
+**A feature is NOT considered '100% complete' until its tests are written, committed, and passing.**
+
+**🔴 ABSOLUTE PROHIBITION:** It is forbidden to start a new feature until the following criteria for the CURRENT feature are met:
+
+1. **✅ TESTS WRITTEN**: The feature's code MUST be accompanied by a comprehensive suite of passing tests (Unit, Integration) that prove its correctness.
+2. **✅ COVERAGE MET**: These tests MUST satisfy the defined project standard for code coverage (>80%).
+3. **✅ PIPELINE PASSES**: The final commit(s) for the feature MUST pass the full CI/CD pipeline, including all test and quality stages.
+
+**Advancing to the next feature without meeting these three criteria for the current feature is a critical violation of protocol.**
+---
+
 ## 🛑 SELF-AUTHORIZATION STOP PROTOCOL
 **STOP AUTHORIZATION ONLY FOR COMPLETED PERFECT CODEBASES - NOT FOR FINISHING MISSIONS:**
 
@@ -443,6 +456,36 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 - **LOCAL VALIDATION**: Pre-push checks for experimental branches outside CI coverage
 - **PIPELINE RECOVERY**: Restore automated validation as soon as CI/CD is operational
 
+### 🚀 BUILD & CI/CD ACCELERATION PROTOCOL
+**MANDATE: DEVELOPMENT VELOCITY IS A FEATURE, NOT AN AFTERTHOUGHT**
+
+**INCREMENTAL BUILD AND CACHING MANDATE:**
+- The project's build system MUST support incremental builds and remote caching (e.g., using tools like Turborepo, Nx, or Bazel).
+- The CI/CD pipeline MUST be configured to leverage this remote cache to ensure that only code affected by a change is ever rebuilt or re-tested.
+- **GOAL**: Minimize wait times by never re-doing work that has already been successfully completed and cached.
+
+**CI/CD PARALLELIZATION PROTOCOL:**
+- The CI/CD pipeline configuration MUST execute all independent jobs in parallel.
+- Tasks such as linting, unit testing, and security scanning should be parallelized to the maximum extent possible to minimize total pipeline duration.
+- **GOAL**: Reduce the total wall-clock time of the pipeline by running tasks concurrently instead of sequentially.
+
+### ⚡ LOCAL DEVELOPMENT OPTIMIZATION PROTOCOL
+**MANDATE: INSTANTANEOUS FEEDBACK IS THE STANDARD**
+
+**HMR MANDATE FOR LOCAL DEVELOPMENT:**
+- The local development server for any frontend application MUST be configured to use Hot Module Replacement (HMR).
+- A full-page reload should only be necessary for changes that cannot be hot-swapped.
+- **GOAL**: Eliminate context-switching and waiting by providing sub-second updates in the browser while preserving application state.
+
+### 🧱 COMPONENT-DRIVEN DEVELOPMENT PROTOCOL
+**MANDATE: BUILD UIs FROM THE BOTTOM UP WITH ISOLATED COMPONENTS**
+
+**COMPONENT-DRIVEN DEVELOPMENT MANDATE:**
+- For frontend projects, a component explorer tool (e.g., Storybook) MUST be used.
+- All UI components MUST be developed and tested in isolation within this tool, with accompanying documentation and stories for all relevant states (e.g., default, disabled, loading, error).
+- Components are only integrated into the main application after they have been perfected in isolation.
+- **GOAL**: Increase UI development speed, promote reusability, improve quality, and simplify testing.
+
 ### SECURITY PROTOCOL
 **PROACTIVE SECURITY DESIGN PRINCIPLES:**
 - **MANDATORY THREAT MODELING**: For features touching authentication, payments, user data, or sensitive areas, analysis must consider STRIDE categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege)
@@ -557,7 +600,7 @@ git status                                   # Verify clean/up-to-date
 - **DEFAULT SINGLE-AGENT**: Use ONE agent for most tasks, processing sequentially through steps
 - **SEQUENTIAL PROCESSING**: Complete one step at a time, hand off to next agent only when current step done
 - **CONCURRENT ONLY FOR ERRORS**: Deploy multiple agents ONLY for independent error resolution
-- **MANDATORY DECLARATION**: Tell user "Handling this sequentially" or "Using X agents for independent error fixes"
+- **🚨 MANDATORY PRE-DECLARATION**: BEFORE creating ANY agents, tell user exact number: "Using 1 agent" or "Deploying exactly X agents for error fixes"
 - **COORDINATED HANDOFFS**: Clear completion and handoff between sequential agents
 
 **SEQUENTIAL DEPLOYMENT TRIGGERS - USE SINGLE AGENT FOR:**

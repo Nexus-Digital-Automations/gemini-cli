@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 15,
+      "total_reinitializations": 20,
       "current_day": "2025-09-26",
       "time_buckets": {
         "10:00-14:59": {
           "init": 0,
-          "reinit": 2
+          "reinit": 7
         },
         "15:00-19:59": {
           "init": 0,
@@ -90,7 +90,7 @@
         }
       ],
       "last_reset": "2025-09-26T16:42:44.790Z",
-      "last_updated": "2025-09-26T16:44:37.753Z"
+      "last_updated": "2025-09-26T17:03:10.572Z"
     }
   },
   "workflow_config": {
@@ -160,6 +160,41 @@
       "status": "active",
       "reinitialized": "2025-09-26T16:44:37.750Z",
       "sessionId": "6b5aa12c7fb5b65a",
+      "previousSessions": []
+    },
+    "BUDGET_API_FIXER": {
+      "lastHeartbeat": "2025-09-26T16:53:03.481Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T16:53:03.481Z",
+      "sessionId": "cea40c99d9410b24",
+      "previousSessions": []
+    },
+    "core-logger-fix-agent": {
+      "lastHeartbeat": "2025-09-26T16:59:32.311Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T16:59:32.311Z",
+      "sessionId": "ea0be97ec15a0bf4",
+      "previousSessions": []
+    },
+    "agent-allocation-fix": {
+      "lastHeartbeat": "2025-09-26T16:59:32.317Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T16:59:32.317Z",
+      "sessionId": "92f88a91fda6433e",
+      "previousSessions": []
+    },
+    "CORE_API_TYPE_FIXES": {
+      "lastHeartbeat": "2025-09-26T16:59:32.955Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T16:59:32.955Z",
+      "sessionId": "e5cf57943d47756e",
+      "previousSessions": []
+    },
+    "TypeScriptErrorFixer": {
+      "lastHeartbeat": "2025-09-26T17:03:10.569Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T17:03:10.569Z",
+      "sessionId": "151865cbfb225d46",
       "previousSessions": []
     }
   }

@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { DiagConsoleLogger, DiagLogLevel, diag } from '@opentelemetry/api';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc';
@@ -206,7 +207,7 @@ export function initializeTelemetry(config) {
     initializeMetrics(config);
   } catch (error) {
     const logger = getComponentLogger('TelemetrySDK');
-    logger.error('Error starting OpenTelemetry SDK', { error: error });
+    logger.error('Error starting OpenTelemetry SDK', { error });
   }
   process.on('SIGTERM', () => {
     shutdownTelemetry(config);
@@ -254,7 +255,7 @@ export async function shutdownTelemetry(config) {
     }
   } catch (error) {
     const logger = getComponentLogger('TelemetrySDK');
-    logger.error('Error shutting down SDK', { error: error });
+    logger.error('Error shutting down SDK', { error });
   } finally {
     telemetryInitialized = false;
   }

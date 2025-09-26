@@ -14,13 +14,18 @@
  */
 
 import type { Request, Response } from 'express';
-import { Logger } from '../../../utils/logger.js';
-import type { BudgetSettings } from '../../types.js';
+// Budget types available for import if needed
+// import type { BudgetSettings } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
 import { getMLBudgetAPI } from '../../api/ml-budget-api.js';
 import { AnalyticsEngine } from '../../analytics/AnalyticsEngine.js';
 
-const logger = new Logger('AnalyticsController');
+// Simple console-based logging for now
+const logger = {
+  info: (message: string, meta?: unknown) => console.info(`[AnalyticsController] ${message}`, meta),
+  warn: (message: string, meta?: unknown) => console.warn(`[AnalyticsController] ${message}`, meta),
+  error: (message: string, meta?: unknown) => console.error(`[AnalyticsController] ${message}`, meta),
+};
 
 /**
  * Enhanced request interface with user context
@@ -46,10 +51,64 @@ interface AnalyticsQuery {
 }
 
 /**
+ * Trend data structure
+ */
+interface TrendData {
+  trends?: Array<{
+    direction: 'increasing' | 'decreasing' | 'stable';
+    confidence: number;
+    value?: number;
+  }>;
+}
+
+/**
+ * Anomaly detection patterns
+ */
+interface AnomalyPatterns {
+  seasonality?: {
+    detected: boolean;
+    period: string;
+  };
+  volatility?: {
+    level: 'low' | 'medium' | 'high';
+  };
+}
+
+/**
+ * Anomaly data structure
+ */
+interface AnomalyData {
+  patterns?: AnomalyPatterns;
+  anomalies?: Array<Record<string, unknown>>;
+}
+
+/**
+ * Breakdown category structure
+ */
+interface BreakdownCategory {
+  cost?: number;
+  requests?: number;
+  percentage?: number;
+  rank?: number;
+  averageCostPerRequest?: number;
+  [key: string]: unknown;
+}
+
+/**
+ * Cost breakdown data structure
+ */
+interface BreakdownData {
+  categories?: BreakdownCategory[];
+  totalCost?: number;
+  totalRequests?: number;
+  [key: string]: unknown;
+}
+
+/**
  * Controller for budget analytics and reporting endpoints
  */
 export class AnalyticsController {
-  private analyticsEngine: AnalyticsEngine;
+  private analyticsEngine: AnalyticsEngine | null = null;
 
   /**
    * Initialize analytics controller with dependencies
@@ -60,7 +119,25 @@ export class AnalyticsController {
       version: '1.0.0',
     });
 
-    this.analyticsEngine = new AnalyticsEngine();
+    // Initialize analytics engine lazily since it requires budgetTracker
+    this.analyticsEngine = null;
+  }
+
+  /**
+   * Get or create analytics engine instance
+   */
+  private async getAnalyticsEngine(): Promise<AnalyticsEngine> {
+    if (this.analyticsEngine) {
+      return this.analyticsEngine;
+    }
+
+    const budgetTracker = await getBudgetTracker();
+    if (!budgetTracker) {
+      throw new Error('Budget tracker unavailable');
+    }
+
+    this.analyticsEngine = new AnalyticsEngine(process.cwd(), budgetTracker);
+    return this.analyticsEngine;
   }
 
   /**
@@ -94,7 +171,8 @@ export class AnalyticsController {
         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
       // Generate analytics data
-      const analyticsData = await this.analyticsEngine.generateAnalytics({
+      const analyticsEngine = await this.getAnalyticsEngine();
+      const analyticsData = await analyticsEngine.generateAnalytics({
         startDate,
         endDate,
         granularity: query.granularity || 'day',
@@ -110,12 +188,12 @@ export class AnalyticsController {
         const [mlForecast, mlOptimization] = await Promise.all([
           mlAPI.generateForecast({
             projectRoot: process.cwd(),
-            settings: await budgetTracker.getSettings(),
+            settings: budgetTracker.getBudgetSettings(),
             forecastHours: 24,
           }),
           mlAPI.getOptimizationSuggestions({
             projectRoot: process.cwd(),
-            settings: await budgetTracker.getSettings(),
+            settings: budgetTracker.getBudgetSettings(),
           }),
         ]);
 
@@ -127,8 +205,7 @@ export class AnalyticsController {
         }
       } catch (mlError) {
         logger.warn('ML analytics unavailable', {
-          error:
-            mlError instanceof Error ? mlError.message : 'Unknown ML error',
+          error: mlError instanceof Error ? mlError : new Error('Unknown ML error'),
         });
       }
 
@@ -161,7 +238,7 @@ export class AnalyticsController {
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to generate analytics', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         responseTime,
         userId: req.user?.id,
       });
@@ -203,11 +280,12 @@ export class AnalyticsController {
       const mlAPI = getMLBudgetAPI();
       const anomalies = await mlAPI.detectAnomalies({
         projectRoot: process.cwd(),
-        settings: await budgetTracker.getSettings(),
+        settings: budgetTracker.getBudgetSettings(),
       });
 
       // Generate trend analytics
-      const trendData = await this.analyticsEngine.analyzeTrends({
+      const analyticsEngine = await this.getAnalyticsEngine();
+      const trendData = await analyticsEngine.analyzeTrends({
         startDate:
           query.startDate ||
           new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
@@ -244,7 +322,7 @@ export class AnalyticsController {
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to analyze trends', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         responseTime,
         userId: req.user?.id,
       });
@@ -290,20 +368,20 @@ export class AnalyticsController {
       const mlAPI = getMLBudgetAPI();
       const forecast = await mlAPI.generateForecast({
         projectRoot: process.cwd(),
-        settings: await budgetTracker.getSettings(),
+        settings: budgetTracker.getBudgetSettings(),
         forecastHours: parseInt(forecastHours as string, 10),
       });
 
       // Generate optimization recommendations
       const optimization = await mlAPI.getOptimizationSuggestions({
         projectRoot: process.cwd(),
-        settings: await budgetTracker.getSettings(),
+        settings: budgetTracker.getBudgetSettings(),
       });
 
       // Get model performance metrics
       const modelMetrics = await mlAPI.getModelMetrics({
         projectRoot: process.cwd(),
-        settings: await budgetTracker.getSettings(),
+        settings: budgetTracker.getBudgetSettings(),
       });
 
       const responseTime = Date.now() - startTime;
@@ -336,7 +414,7 @@ export class AnalyticsController {
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to generate predictions', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         responseTime,
         userId: req.user?.id,
       });
@@ -378,7 +456,8 @@ export class AnalyticsController {
       }
 
       // Generate detailed cost breakdown
-      const breakdown = await this.analyticsEngine.generateCostBreakdown({
+      const analyticsEngine = await this.getAnalyticsEngine();
+      const breakdown = await analyticsEngine.generateCostBreakdown({
         startDate:
           query.startDate ||
           new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -396,33 +475,33 @@ export class AnalyticsController {
         data: {
           breakdown: enrichedBreakdown,
           summary: {
-            totalCost: enrichedBreakdown.totalCost,
-            totalRequests: enrichedBreakdown.totalRequests,
+            totalCost: (enrichedBreakdown as BreakdownData).totalCost || 0,
+            totalRequests: (enrichedBreakdown as BreakdownData).totalRequests || 0,
             averageCostPerRequest:
-              enrichedBreakdown.totalCost /
-              Math.max(enrichedBreakdown.totalRequests, 1),
-            topCostDrivers: enrichedBreakdown.categories?.slice(0, 5) || [],
+              ((enrichedBreakdown as BreakdownData).totalCost || 0) /
+              Math.max((enrichedBreakdown as BreakdownData).totalRequests || 1, 1),
+            topCostDrivers: (enrichedBreakdown as BreakdownData).categories?.slice(0, 5) || [],
           },
           metadata: {
             timestamp: new Date().toISOString(),
             responseTime,
             groupBy: query.groupBy || 'feature',
-            categoriesCount: enrichedBreakdown.categories?.length || 0,
+            categoriesCount: (enrichedBreakdown as BreakdownData).categories?.length || 0,
           },
         },
       };
 
       logger.info('Cost breakdown generated successfully', {
         responseTime,
-        totalCost: enrichedBreakdown.totalCost,
-        categoriesCount: enrichedBreakdown.categories?.length || 0,
+        totalCost: (enrichedBreakdown as BreakdownData).totalCost || 0,
+        categoriesCount: (enrichedBreakdown as BreakdownData).categories?.length || 0,
       });
 
       res.status(200).json(response);
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to generate cost breakdown', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         responseTime,
         userId: req.user?.id,
       });
@@ -465,7 +544,8 @@ export class AnalyticsController {
       }
 
       // Execute custom analytics query
-      const results = await this.analyticsEngine.executeCustomQuery({
+      const analyticsEngine = await this.getAnalyticsEngine();
+      const results = await analyticsEngine.executeCustomQuery({
         query,
         aggregations: aggregations || {},
         filters: filters || {},
@@ -501,7 +581,7 @@ export class AnalyticsController {
     } catch (error) {
       const responseTime = Date.now() - startTime;
       logger.error('Failed to execute custom analytics', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error : new Error('Unknown error'),
         responseTime,
         userId: req.user?.id,
       });
@@ -518,11 +598,12 @@ export class AnalyticsController {
   /**
    * Generate insights from trend data
    */
-  private generateTrendInsights(trendData: any, anomalyData: any): string[] {
+  private generateTrendInsights(trendData: unknown, anomalyData: unknown): string[] {
     const insights: string[] = [];
 
-    if (trendData?.trends) {
-      for (const trend of trendData.trends) {
+    const typedTrendData = trendData as TrendData;
+    if (typedTrendData?.trends) {
+      for (const trend of typedTrendData.trends) {
         if (trend.direction === 'increasing' && trend.confidence > 0.8) {
           insights.push(
             `Cost trend is increasing with ${Math.round(trend.confidence * 100)}% confidence`,
@@ -535,13 +616,14 @@ export class AnalyticsController {
       }
     }
 
-    if (anomalyData?.patterns?.seasonality?.detected) {
+    const typedAnomalyData = anomalyData as AnomalyData;
+    if (typedAnomalyData?.patterns?.seasonality?.detected) {
       insights.push(
-        `Seasonal usage pattern detected with ${anomalyData.patterns.seasonality.period} period`,
+        `Seasonal usage pattern detected with ${typedAnomalyData.patterns.seasonality.period} period`,
       );
     }
 
-    if (anomalyData?.patterns?.volatility?.level === 'high') {
+    if (typedAnomalyData?.patterns?.volatility?.level === 'high') {
       insights.push(
         'High cost volatility detected - consider implementing stronger budget controls',
       );
@@ -553,36 +635,37 @@ export class AnalyticsController {
   /**
    * Enrich breakdown data with percentages and rankings
    */
-  private enrichBreakdownData(breakdown: any): any {
-    if (!breakdown.categories || !Array.isArray(breakdown.categories)) {
-      return breakdown;
+  private enrichBreakdownData(breakdown: unknown): BreakdownData {
+    const typedBreakdown = breakdown as BreakdownData;
+    if (!typedBreakdown.categories || !Array.isArray(typedBreakdown.categories)) {
+      return typedBreakdown;
     }
 
-    const totalCost = breakdown.categories.reduce(
-      (sum: number, cat: any) => sum + (cat.cost || 0),
+    const totalCost = typedBreakdown.categories.reduce(
+      (sum: number, cat: BreakdownCategory) => sum + (cat.cost || 0),
       0,
     );
-    const totalRequests = breakdown.categories.reduce(
-      (sum: number, cat: any) => sum + (cat.requests || 0),
+    const totalRequests = typedBreakdown.categories.reduce(
+      (sum: number, cat: BreakdownCategory) => sum + (cat.requests || 0),
       0,
     );
 
-    const enrichedCategories = breakdown.categories
-      .map((category: any, index: number) => ({
+    const enrichedCategories = typedBreakdown.categories
+      .map((category: BreakdownCategory, index: number): BreakdownCategory => ({
         ...category,
-        percentage: totalCost > 0 ? (category.cost / totalCost) * 100 : 0,
+        percentage: totalCost > 0 && category.cost ? (category.cost / totalCost) * 100 : 0,
         rank: index + 1,
         averageCostPerRequest:
-          category.requests > 0 ? category.cost / category.requests : 0,
+          category.requests && category.requests > 0 && category.cost ? category.cost / category.requests : 0,
       }))
-      .sort((a: any, b: any) => b.cost - a.cost) // Sort by cost descending
-      .map((category: any, index: number) => ({
+      .sort((a: BreakdownCategory, b: BreakdownCategory) => (b.cost || 0) - (a.cost || 0)) // Sort by cost descending
+      .map((category: BreakdownCategory, index: number): BreakdownCategory => ({
         ...category,
         rank: index + 1,
       }));
 
     return {
-      ...breakdown,
+      ...typedBreakdown,
       categories: enrichedCategories,
       totalCost,
       totalRequests,

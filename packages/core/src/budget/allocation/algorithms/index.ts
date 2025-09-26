@@ -55,8 +55,9 @@ import type {
   AllocationAlgorithmConfig,
   AllocationOptimizationResult,
 } from '../types.js';
+import type {
+  BaseAllocationAlgorithm} from './BaseAllocationAlgorithm.js';
 import {
-  BaseAllocationAlgorithm,
   type AllocationLogger,
 } from './BaseAllocationAlgorithm.js';
 import { createUsageBasedAlgorithm } from './UsageBasedAlgorithm.js';

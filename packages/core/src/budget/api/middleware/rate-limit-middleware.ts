@@ -14,9 +14,9 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
+import { getComponentLogger } from '../../../utils/logger.js';
 
-const logger = new Logger('RateLimitMiddleware');
+const logger = getComponentLogger('RateLimitMiddleware');
 
 /**
  * Rate limit configuration interface
@@ -235,11 +235,12 @@ export function rateLimitMiddleware(
 
         // Call custom handler if provided
         if (finalConfig.onLimitReached) {
-          return finalConfig.onLimitReached(req, res);
+          finalConfig.onLimitReached(req, res);
+          return;
         }
 
         // Default rate limit response
-        return res.status(429).json({
+        res.status(429).json({
           success: false,
           error: 'Rate limit exceeded',
           details: {
@@ -253,6 +254,7 @@ export function rateLimitMiddleware(
           ),
           timestamp: new Date().toISOString(),
         });
+        return;
       }
 
       // Set informational headers

@@ -13,10 +13,10 @@
  * @version 1.0.0
  */
 
-import { Logger } from '../../../../../src/utils/logger.js';
+import { getComponentLogger } from '../../../utils/logger.js';
 import { BudgetEnforcementLevel, NotificationFrequency } from '../../types.js';
 
-const logger = new Logger('BudgetRequestSchemas');
+const logger = getComponentLogger('BudgetRequestSchemas');
 
 /**
  * Base validation result interface

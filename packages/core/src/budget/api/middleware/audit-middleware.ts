@@ -14,10 +14,10 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { Logger } from '../../../../../src/utils/logger.js';
+import { getComponentLogger } from '../../../utils/logger.js';
 import { BudgetEventType, EventSeverity } from '../../types.js';
 
-const logger = new Logger('AuditMiddleware');
+const logger = getComponentLogger('AuditMiddleware');
 
 /**
  * Audit event interface
