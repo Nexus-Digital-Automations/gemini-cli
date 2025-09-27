@@ -36,6 +36,7 @@ export {
   logApiError,
   logApiResponse,
   logFlashFallback,
+  logFlashEscalation,
   logSlashCommand,
   logConversationFinishedEvent,
   logKittySequenceOverflow,

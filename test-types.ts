@@ -33,7 +33,12 @@ export interface AlertEvent extends TestEventBase {
 
 // Dependency and task-related structures
 export interface DependencyChange {
-  type: 'remove_dependency' | 'add_task' | 'merge_tasks' | 'update_task' | 'resolve_conflict';
+  type:
+    | 'remove_dependency'
+    | 'add_task'
+    | 'merge_tasks'
+    | 'update_task'
+    | 'resolve_conflict';
   taskId?: string;
   dependencyId?: string;
   sourceTaskId?: string;
@@ -61,10 +66,14 @@ export interface CircularDependencyResult {
 // Validation and quality assessment
 export interface MockValidationFramework {
   validateTask: jest.MockedFunction<(task: unknown) => ValidationResult>;
-  validateDependencies: jest.MockedFunction<(deps: unknown[]) => ValidationResult>;
+  validateDependencies: jest.MockedFunction<
+    (deps: unknown[]) => ValidationResult
+  >;
   getValidationRules: jest.MockedFunction<() => ValidationRule[]>;
   setValidationLevel: jest.MockedFunction<(level: string) => void>;
-  on: jest.MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
+  on: jest.MockedFunction<
+    (event: string, handler: (data: unknown) => void) => void
+  >;
 }
 
 export interface ValidationResult {
@@ -98,7 +107,12 @@ export interface ValidationRule {
 
 // Context and compression-related types
 export interface CompressionEvent extends TestEventBase {
-  type: 'compression' | 'decompression' | 'cache_hit' | 'cache_miss' | 'emergency';
+  type:
+    | 'compression'
+    | 'decompression'
+    | 'cache_hit'
+    | 'cache_miss'
+    | 'emergency';
   compressionRatio?: number;
   originalSize?: number;
   compressedSize?: number;
@@ -107,7 +121,10 @@ export interface CompressionEvent extends TestEventBase {
 }
 
 export interface TokenLimitEvent extends TestEventBase {
-  type: 'token_limit_warning' | 'token_limit_exceeded' | 'compression_triggered';
+  type:
+    | 'token_limit_warning'
+    | 'token_limit_exceeded'
+    | 'compression_triggered';
   tokenCount: number;
   limit: number;
   action?: string;
@@ -152,16 +169,26 @@ export interface PerformanceMetrics {
 
 // Tool-related mock types
 export interface MockGeminiClient {
-  generateContent: jest.MockedFunction<(request: unknown) => Promise<GenerationResponse>>;
-  countTokens: jest.MockedFunction<(request: unknown) => Promise<TokenCountResponse>>;
-  embedContent: jest.MockedFunction<(request: unknown) => Promise<EmbedResponse>>;
+  generateContent: jest.MockedFunction<
+    (request: unknown) => Promise<GenerationResponse>
+  >;
+  countTokens: jest.MockedFunction<
+    (request: unknown) => Promise<TokenCountResponse>
+  >;
+  embedContent: jest.MockedFunction<
+    (request: unknown) => Promise<EmbedResponse>
+  >;
 }
 
 export interface MockIdeClient {
   readFile: jest.MockedFunction<(path: string) => Promise<string>>;
-  writeFile: jest.MockedFunction<(path: string, content: string) => Promise<void>>;
+  writeFile: jest.MockedFunction<
+    (path: string, content: string) => Promise<void>
+  >;
   listFiles: jest.MockedFunction<(directory: string) => Promise<string[]>>;
-  executeCommand: jest.MockedFunction<(command: string) => Promise<CommandResult>>;
+  executeCommand: jest.MockedFunction<
+    (command: string) => Promise<CommandResult>
+  >;
 }
 
 export interface GenerationResponse {
@@ -227,7 +254,11 @@ export interface CommandResult {
 
 // Budget monitoring types
 export interface BudgetEvent extends TestEventBase {
-  type: 'budget_warning' | 'budget_exceeded' | 'usage_recorded' | 'cost_calculated';
+  type:
+    | 'budget_warning'
+    | 'budget_exceeded'
+    | 'usage_recorded'
+    | 'cost_calculated';
   amount?: number;
   currency?: string;
   budgetType?: string;
@@ -251,25 +282,37 @@ export interface MockBudgetResponse {
 
 // Service and communication types
 export interface AgentCommunicationEvent extends TestEventBase {
-  type: 'message_sent' | 'message_received' | 'agent_connected' | 'agent_disconnected';
+  type:
+    | 'message_sent'
+    | 'message_received'
+    | 'agent_connected'
+    | 'agent_disconnected';
   agentId: string;
   message?: string;
   channel?: string;
 }
 
 export interface MockAgentCommunicationHub {
-  sendMessage: jest.MockedFunction<(agentId: string, message: unknown) => Promise<void>>;
+  sendMessage: jest.MockedFunction<
+    (agentId: string, message: unknown) => Promise<void>
+  >;
   broadcastMessage: jest.MockedFunction<(message: unknown) => Promise<void>>;
   connectAgent: jest.MockedFunction<(agentId: string) => Promise<boolean>>;
   disconnectAgent: jest.MockedFunction<(agentId: string) => Promise<boolean>>;
-  on: jest.MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
+  on: jest.MockedFunction<
+    (event: string, handler: (data: unknown) => void) => void
+  >;
 }
 
 // Utility types for common test scenarios
 export interface MockEventEmitter {
-  on: jest.MockedFunction<(event: string, listener: (...args: unknown[]) => void) => void>;
+  on: jest.MockedFunction<
+    (event: string, listener: (...args: unknown[]) => void) => void
+  >;
   emit: jest.MockedFunction<(event: string, ...args: unknown[]) => boolean>;
-  removeListener: jest.MockedFunction<(event: string, listener: (...args: unknown[]) => void) => void>;
+  removeListener: jest.MockedFunction<
+    (event: string, listener: (...args: unknown[]) => void) => void
+  >;
   removeAllListeners: jest.MockedFunction<(event?: string) => void>;
   setMaxListeners: jest.MockedFunction<(n: number) => void>;
 }

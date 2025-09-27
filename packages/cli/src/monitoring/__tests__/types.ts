@@ -20,7 +20,9 @@ export interface MockRealTimeMonitoring {
   emit: MockedFunction<(event: string, data: unknown) => void>;
   getAlertHistory: MockedFunction<() => AlertEvent[]>;
   getPerformanceMetrics: MockedFunction<() => PerformanceMetrics>;
-  updateConfiguration: MockedFunction<(config: Record<string, unknown>) => void>;
+  updateConfiguration: MockedFunction<
+    (config: Record<string, unknown>) => void
+  >;
   getActiveAlerts: MockedFunction<() => AlertSummary[]>;
   getPredictiveInsights: MockedFunction<() => Array<Record<string, unknown>>>;
   getMonitoringHistory: MockedFunction<() => Array<Record<string, unknown>>>;
@@ -30,23 +32,27 @@ export interface MockTaskStatusMonitor {
   getPerformanceMetrics: MockedFunction<() => TaskPerformanceMetrics>;
   getCurrentStatus: MockedFunction<() => TaskStatus>;
   getTaskHistory: MockedFunction<() => TaskHistoryItem[]>;
-  getAllTasks: MockedFunction<() => Array<{
-    id: string;
-    status: string;
-    type: string;
-    priority: string;
-    startedAt: Date;
-    completedAt?: Date;
-  }>>;
-  getAllAgents: MockedFunction<() => Array<{
-    id: string;
-    status: string;
-    capabilities: string[];
-    currentTasks: string[];
-    performance: { successRate: number; taskThroughput: number };
-    completedTasks: number;
-    failedTasks: number;
-  }>>;
+  getAllTasks: MockedFunction<
+    () => Array<{
+      id: string;
+      status: string;
+      type: string;
+      priority: string;
+      startedAt: Date;
+      completedAt?: Date;
+    }>
+  >;
+  getAllAgents: MockedFunction<
+    () => Array<{
+      id: string;
+      status: string;
+      capabilities: string[];
+      currentTasks: string[];
+      performance: { successRate: number; taskThroughput: number };
+      completedTasks: number;
+      failedTasks: number;
+    }>
+  >;
   on: MockedFunction<(event: string, handler: (data: unknown) => void) => void>;
   shutdown: MockedFunction<() => void>;
 }
@@ -191,6 +197,8 @@ export interface TaskPerformanceMetrics extends PerformanceMetrics {
   failedTasks: number;
   averageTaskDuration: number;
   throughput: number;
+  systemUptime: Date;
+  systemEfficiency: number;
 }
 
 export interface SystemHealth {

@@ -821,7 +821,10 @@ export class TaskManager extends EventEmitter {
     console.log(`✅ Task completed successfully: ${task.title}`);
 
     // Emit event for CLI integration
-    this.emit('taskCompleted', task.id, { success: true, output: task.metadata });
+    this.emit('taskCompleted', task.id, {
+      success: true,
+      output: task.metadata,
+    });
 
     if (this.monitoring) {
       this.monitoring.recordEvent({
@@ -841,6 +844,12 @@ export class TaskManager extends EventEmitter {
 
   private async handleTaskFailed(task: Task, error: string): Promise<void> {
     console.error(`❌ Task failed: ${task.title} - ${error}`);
+
+    // Emit event for CLI integration
+    this.emit('taskFailed', task.id, {
+      success: false,
+      error: { message: error },
+    });
 
     if (this.monitoring) {
       this.monitoring.recordEvent({
