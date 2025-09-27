@@ -18,11 +18,11 @@ import type {
   ErrorAnalysisContext,
   ErrorPattern,
   ErrorCategory,
-  LanguageSupport,
+  // LanguageSupport,
   ErrorSeverity,
   ErrorSignature,
-  ErrorContext,
-  AnalysisResult,
+  // ErrorContext,
+  // AnalysisResult,
   ErrorInsight,
   ContextualFactor,
   RelatedError,
@@ -30,10 +30,10 @@ import type {
   ErrorFrequencyData,
   SimilarityScore,
   PerformanceMetrics,
-  CodeQualityMetrics,
+  // CodeQualityMetrics,
   SecurityImplications,
   ProjectImpact,
-  ResourceUsage,
+  // ResourceUsage,
 } from './types.js';
 
 import {
@@ -105,7 +105,7 @@ export const DEFAULT_ERROR_ANALYSIS_ENGINE_CONFIG: ErrorAnalysisEngineConfig = {
 /**
  * Common error categories and their characteristics
  */
-const ERROR_CATEGORY_METADATA = {
+const _ERROR_CATEGORY_METADATA = {
   syntax: {
     severity: 'error' as ErrorSeverity,
     blocksExecution: true,
@@ -317,10 +317,33 @@ export class ErrorAnalysisEngine {
           context,
         ),
         patterns: patternMatches,
-        fixSuggestions: await this.generateFixSuggestions(
-          patternMatches,
-          context,
-        ),
+        fixSuggestions: (
+          await this.generateFixSuggestions(patternMatches, context)
+        ).map((suggestion, index) => ({
+          id: `fix-${Date.now()}-${index}`,
+          description: suggestion,
+          explanation: `Fix suggestion for error pattern`,
+          codeChanges: [],
+          confidence: 0.7,
+          impact: {
+            scope: 'file' as ImpactScope,
+            breakingChanges: false,
+            affectedFiles: [],
+            testsRequiringUpdates: [],
+            dependencyImpact: [],
+            performanceImpact: {
+              cpuChange: 0,
+              memoryChange: 0,
+              responseTimeChange: 0,
+              throughputChange: 0,
+            },
+          },
+          prerequisites: [],
+          risks: [],
+          estimatedTime: '5-10 minutes',
+          priority: FixPriority.MEDIUM,
+          category: FixCategory.QUICK_FIX,
+        })),
         insights: await this.generateInsights(
           errorText,
           patternMatches,
@@ -423,7 +446,7 @@ export class ErrorAnalysisEngine {
       knownSignature,
       _frequencyData,
     ] of this.errorHistory.entries()) {
-      if (knownSignature === signature) continue;
+      if (knownSignature === signature.id) continue;
 
       const similarity = this.calculateErrorSimilarity(
         signature,
@@ -589,7 +612,7 @@ export class ErrorAnalysisEngine {
     }
 
     // Weighted average of pattern confidences
-    const totalWeight = patternMatches.reduce((sum, match) => sum + 1, 0);
+    const totalWeight = patternMatches.reduce((sum, _match) => sum + 1, 0);
     const weightedSum = patternMatches.reduce(
       (sum, match) => sum + match.confidence,
       0,
@@ -604,7 +627,7 @@ export class ErrorAnalysisEngine {
   private async identifyRootCause(
     errorText: string,
     patternMatches: ErrorPattern[],
-    context: ErrorAnalysisContext,
+    _context: ErrorAnalysisContext,
   ): Promise<string> {
     // Use pattern-based root cause if available
     if (patternMatches.length > 0) {
@@ -638,7 +661,7 @@ export class ErrorAnalysisEngine {
    */
   private async generateFixSuggestions(
     patternMatches: ErrorPattern[],
-    context: ErrorAnalysisContext,
+    _context: ErrorAnalysisContext,
   ): Promise<string[]> {
     const suggestions: string[] = [];
 
@@ -674,7 +697,7 @@ export class ErrorAnalysisEngine {
   private async generateInsights(
     errorText: string,
     patternMatches: ErrorPattern[],
-    context: ErrorAnalysisContext,
+    _context: ErrorAnalysisContext,
   ): Promise<ErrorInsight[]> {
     if (!this.config.enableMLInsights) {
       return [];
@@ -847,7 +870,7 @@ export class ErrorAnalysisEngine {
    */
   private async analyzePerformanceImpact(
     errorText: string,
-    context: ErrorAnalysisContext,
+    _context: ErrorAnalysisContext,
   ): Promise<PerformanceMetrics | undefined> {
     const errorLower = errorText.toLowerCase();
     let impact = 'low' as 'low' | 'medium' | 'high';
@@ -892,7 +915,7 @@ export class ErrorAnalysisEngine {
    */
   private async analyzeSecurityImplications(
     errorText: string,
-    context: ErrorAnalysisContext,
+    _context: ErrorAnalysisContext,
   ): Promise<SecurityImplications | undefined> {
     const errorLower = errorText.toLowerCase();
     let riskLevel = 'low' as 'low' | 'medium' | 'high' | 'critical';
@@ -994,7 +1017,7 @@ export class ErrorAnalysisEngine {
    */
   private estimateFixTime(
     errorText: string,
-    context: ErrorAnalysisContext,
+    _context: ErrorAnalysisContext,
   ): string {
     const errorLower = errorText.toLowerCase();
 
@@ -1041,7 +1064,7 @@ export class ErrorAnalysisEngine {
     const normalizedError = errorText
       .replace(/\d+/g, 'N') // Replace numbers with N
       .replace(/['"`][^'"`]*['"`]/g, 'STR') // Replace strings with STR
-      .replace(/\/[^\/\s]+/g, 'PATH') // Replace paths with PATH
+      .replace(/\/[^/\s]+/g, 'PATH') // Replace paths with PATH
       .toLowerCase();
 
     // Create hash-like signature
@@ -1072,7 +1095,7 @@ export class ErrorAnalysisEngine {
    */
   private async updateErrorFrequency(
     signature: ErrorSignature,
-    analysis: ErrorAnalysis,
+    _analysis: ErrorAnalysis,
   ): Promise<void> {
     const existing = this.errorHistory.get(signature.id);
     const now = new Date();
@@ -1105,7 +1128,7 @@ export class ErrorAnalysisEngine {
    */
   private async updateRelatedErrors(
     signature: ErrorSignature,
-    analysis: ErrorAnalysis,
+    _analysis: ErrorAnalysis,
   ): Promise<void> {
     // This would implement more sophisticated relationship detection
     // For now, it's a placeholder

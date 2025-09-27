@@ -1401,7 +1401,7 @@ export interface ErrorFrequencyData {
   /** Trend information */
   trend: ErrorTrend;
   /** Recent occurrences */
-  occurrences?: number;
+  occurrences?: Date[];
   /** Last analysis timestamp */
   lastAnalysis?: Date;
 }
