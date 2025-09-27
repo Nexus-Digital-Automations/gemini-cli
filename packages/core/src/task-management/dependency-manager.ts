@@ -13,8 +13,8 @@ import type {
   ExecutionSequence,
   ExecutionPlan,
   TaskQueueConfig,
+  ResourceAllocation,
 } from './types.js';
-import type { ResourceAllocation as _ResourceAllocation } from './types.js';
 import { DependencyGraphManager } from './dependency-graph.js';
 import { TaskSequencer } from './task-sequencer.js';
 import { getComponentLogger } from '../../utils/logger.js';

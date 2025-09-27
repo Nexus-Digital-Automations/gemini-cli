@@ -729,6 +729,8 @@ export class AutonomousTaskIntegrator extends EventEmitter {
         args: {
           todos: [{ description: task.description, status: 'in_progress' }],
         },
+        isClientInitiated: false,
+        prompt_id: `task_${task.id}_prompt`,
       });
     }
 

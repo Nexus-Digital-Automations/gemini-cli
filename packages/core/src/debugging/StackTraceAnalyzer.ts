@@ -19,6 +19,15 @@ import type {
   StackTraceAnalysis,
   LanguageSupport,
   ErrorAnalysis,
+  StackTraceFrame,
+  ContextLine,
+  SourceLocation,
+  FrameAnalysis,
+  CallChainAnalysis,
+  StackTracePattern,
+  FrameImportance,
+  RecursionDetection,
+  AsyncCallChain,
 } from './types.js';
 
 const logger = getComponentLogger('stack-trace-analyzer');
@@ -326,7 +335,7 @@ export class StackTraceAnalyzer {
       const analysis: StackTraceAnalysis = {
         id: crypto.randomUUID(),
         originalTrace: stackTraceText,
-        frames: frames,
+        frames,
         errorOrigin: frames[0] || { functionName: 'unknown', filePath: 'unknown', lineNumber: 0, columnNumber: 0, isAsync: false, isNative: false } as StackFrame,
         propagationPath: frames.map(f => f.functionName || 'anonymous'),
         variableStates: {},
@@ -603,6 +612,7 @@ export class StackTraceAnalyzer {
       isUserCode: this.isUserCodeFrame(filePath),
       isThirdParty: this.isThirdPartyFrame(filePath),
       isAsync: this.isAsyncFrame(originalText),
+      isNative: false, // Assume not native unless specifically detected
       sourceLocation: null, // Will be resolved if source maps enabled
       context: [], // Will be populated if context extraction enabled
     };

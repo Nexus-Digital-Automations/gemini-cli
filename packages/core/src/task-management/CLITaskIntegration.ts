@@ -19,7 +19,8 @@
  */
 
 import type { Config } from '../config/config.js';
-import { TaskManager, type TaskManagerConfig } from './TaskManager.js';
+import { TaskManager } from './TaskManager.js';
+import type { TaskManagerConfig } from './TaskManager.js';
 import type { TaskStateManager } from './TaskStateManager.js';
 import { ExtendedTaskState } from './TaskStateManager.js';
 import type { AutonomousExecutionEngine } from './AutonomousExecutionEngine.js';
@@ -406,6 +407,7 @@ export class CLITaskIntegration {
       args: ['title', 'description'],
       mapToTask: async ([title, description], options) => ({
         id: '',
+        name: title || 'Untitled Task',
         title: title || 'Untitled Task',
         description: description || 'No description provided',
         status: 'pending',
@@ -425,6 +427,7 @@ export class CLITaskIntegration {
       description: 'Get status of all active tasks',
       mapToTask: async () => ({
         id: '',
+        name: 'System Status Check',
         title: 'System Status Check',
         description: 'Get comprehensive system and task status',
         status: 'pending',
@@ -443,6 +446,7 @@ export class CLITaskIntegration {
       description: 'Optimize task queue and system performance',
       mapToTask: async (args, options) => ({
         id: '',
+        name: 'System Optimization',
         title: 'System Optimization',
         description: 'Analyze and optimize task queue performance',
         status: 'pending',

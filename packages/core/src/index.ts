@@ -119,5 +119,50 @@ export { sessionId } from './utils/session.js';
 export * from './utils/browser.js';
 export { Storage } from './config/storage.js';
 
+// Export budget system
+export * from './budget/index.js';
+
+// Export task management system
+export * from './task-management/index.js';
+
+// Export knowledge base system
+export {
+  KnowledgeBaseManager,
+  createKnowledgeBaseManager,
+  knowledgeBaseManager,
+  KnowledgeSourceType,
+} from './knowledge/KnowledgeBaseManager.js';
+export type {
+  KnowledgeSource,
+  KnowledgeSourceAuth,
+  IndexingConfig,
+  KnowledgeDocument,
+  KnowledgeQuery,
+  ProjectKnowledgeFilters,
+  KnowledgeSearchResult,
+  InstitutionalPattern,
+  PatternExample,
+  KnowledgeSuggestion,
+  KnowledgeStats,
+} from './knowledge/KnowledgeBaseManager.js';
+
+// Export persona system
+export {
+  PersonaManager,
+  personaManager,
+} from './persona/PersonaManager.js';
+export type {
+  PersonalityTraits,
+  BehavioralPatterns,
+  PersonaCustomization,
+  PersonaProfile,
+} from './persona/PersonaManager.js';
+
+// Export progress tracking system
+export * from './progress/index.js';
+
+// Export component logger
+export { getComponentLogger } from './utils/logger.js';
+
 // Export test utils
 export * from './test-utils/index.js';

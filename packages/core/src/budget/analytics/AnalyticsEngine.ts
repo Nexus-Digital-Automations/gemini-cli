@@ -66,6 +66,8 @@ export interface UsageMetrics {
   tokens?: number;
   geographic?: string;
   metadata?: Record<string, unknown>;
+  // Index signature for Record<string, unknown> compatibility
+  [key: string]: unknown;
 }
 
 /**
@@ -256,7 +258,9 @@ export class AnalyticsEngine {
 
     const usageRecord: UsageMetrics = {
       timestamp: new Date().toISOString(),
-      ...metrics,
+      requestCount: 0, // Default values
+      cost: 0,
+      ...metrics, // Override with actual values
     };
 
     await this.saveMetrics(usageRecord);
@@ -547,7 +551,7 @@ export class AnalyticsEngine {
     const groups = new Map<string, UsageMetrics[]>();
 
     for (const metric of metrics) {
-      const key = metric[dimension] || 'unknown';
+      const key = String(metric[dimension] || 'unknown');
       if (!groups.has(key)) {
         groups.set(key, []);
       }

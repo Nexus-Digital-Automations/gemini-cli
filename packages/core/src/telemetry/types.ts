@@ -289,6 +289,22 @@ export class FlashFallbackEvent implements BaseTelemetryEvent {
   }
 }
 
+export class FlashEscalationEvent implements BaseTelemetryEvent {
+  'event.name': 'flash_escalation';
+  'event.timestamp': string;
+  auth_type: string;
+  failure_reason: string;
+  escalation_trigger: string;
+
+  constructor(auth_type: string, failure_reason: string, escalation_trigger: string) {
+    this['event.name'] = 'flash_escalation';
+    this['event.timestamp'] = new Date().toISOString();
+    this.auth_type = auth_type;
+    this.failure_reason = failure_reason;
+    this.escalation_trigger = escalation_trigger;
+  }
+}
+
 export class RipgrepFallbackEvent implements BaseTelemetryEvent {
   'event.name': 'ripgrep_fallback';
   'event.timestamp': string;

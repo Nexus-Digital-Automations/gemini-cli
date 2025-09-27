@@ -24,6 +24,9 @@ import {
   type AutonomousTask,
   type RegisteredAgent,
   type TaskEvent,
+  type AgentCapability,
+  type TaskPriority,
+  type TaskType,
 } from './autonomousTaskIntegrator.js';
 
 export interface TaskManagerApiResponse {
@@ -222,7 +225,7 @@ export class IntegrationBridge extends EventEmitter {
    */
   async registerAgent(agentConfig: {
     id: string;
-    capabilities: string[];
+    capabilities: AgentCapability[];
     maxConcurrentTasks?: number;
   }): Promise<void> {
     if (!this.isInitialized) {

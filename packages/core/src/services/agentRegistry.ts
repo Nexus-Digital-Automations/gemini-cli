@@ -30,6 +30,7 @@ export interface AgentRegistration {
   version: string;
   capabilities: AgentCapability[];
   maxConcurrentTasks: number;
+  currentTasks: string[];
   configuration: Record<string, unknown>;
   endpoints?: {
     health: string;

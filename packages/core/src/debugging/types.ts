@@ -1944,3 +1944,175 @@ export interface FixStrategy {
   templates: FixTemplate[];
   automated: boolean;
 }
+
+/**
+ * Extended stack trace frame with additional analysis data
+ */
+export interface StackTraceFrame extends StackFrame {
+  /** Frame index in the stack trace */
+  index?: number;
+  /** Original text from stack trace */
+  originalText?: string;
+  /** Programming language */
+  language?: LanguageSupport;
+  /** Is this user code? */
+  isUserCode?: boolean;
+  /** Is this third-party library code? */
+  isThirdParty?: boolean;
+  /** Source location after source map resolution */
+  sourceLocation?: SourceLocation | null;
+  /** Context lines around the frame */
+  context?: ContextLine[];
+}
+
+/**
+ * Context line information
+ */
+export interface ContextLine {
+  /** Line number */
+  lineNumber: number;
+  /** Line content */
+  content: string;
+  /** Is this the error line? */
+  isErrorLine?: boolean;
+  /** Line significance */
+  significance?: 'high' | 'medium' | 'low';
+}
+
+/**
+ * Source location after source map resolution
+ */
+export interface SourceLocation {
+  /** Original source file */
+  file: string;
+  /** Original line number */
+  line: number;
+  /** Original column number */
+  column: number;
+  /** Original function/symbol name */
+  name?: string;
+  /** Original source code */
+  source?: string;
+}
+
+/**
+ * Frame analysis result
+ */
+export interface FrameAnalysis {
+  /** The analyzed frame */
+  frame: StackTraceFrame;
+  /** Importance level */
+  importance: FrameImportance;
+  /** Frame category */
+  category: 'user-code' | 'third-party' | 'system' | 'runtime';
+  /** Analysis confidence */
+  confidence: number;
+  /** Generated insights */
+  insights: string[];
+  /** Related frames */
+  relatedFrames: StackTraceFrame[];
+}
+
+/**
+ * Frame importance levels
+ */
+export type FrameImportance = 'high' | 'medium' | 'low';
+
+/**
+ * Call chain analysis result
+ */
+export interface CallChainAnalysis {
+  /** Total call stack depth */
+  totalDepth: number;
+  /** User code depth */
+  userCodeDepth: number;
+  /** Third-party code depth */
+  thirdPartyDepth: number;
+  /** System code depth */
+  systemDepth: number;
+  /** Entry point frame */
+  entryPoint: StackTraceFrame | null;
+  /** Error origin frame */
+  errorOrigin: StackTraceFrame | null;
+  /** Critical path frames */
+  criticalPath: StackTraceFrame[];
+  /** Async boundary frames */
+  asyncBoundaries: StackTraceFrame[];
+  /** Library transition points */
+  libraryTransitions: Array<{
+    from: StackTraceFrame;
+    to: StackTraceFrame;
+    transitionType: 'user-to-library' | 'library-to-user';
+  }>;
+}
+
+/**
+ * Stack trace pattern detection result
+ */
+export interface StackTracePattern {
+  /** Pattern type */
+  type: 'recursion' | 'asyncUnhandled' | 'memoryLeak' | 'typeError';
+  /** Confidence score */
+  confidence: number;
+  /** Pattern description */
+  description: string;
+  /** Evidence text */
+  evidence: string;
+  /** Recommendations */
+  recommendations: string[];
+}
+
+/**
+ * Recursion detection result
+ */
+export interface RecursionDetection {
+  /** Is recursion detected? */
+  isRecursive: boolean;
+  /** Recursive function name */
+  recursiveFunction: string;
+  /** Number of calls */
+  callCount: number;
+  /** Recursion pattern */
+  pattern: string;
+  /** Stack depth */
+  depth: number;
+  /** Recommendation */
+  recommendation: string;
+}
+
+/**
+ * Async call chain analysis
+ */
+export interface AsyncCallChain {
+  /** Has async boundaries */
+  hasAsyncBoundaries: boolean;
+  /** Number of async frames */
+  asyncFrameCount: number;
+  /** Promise chain depth */
+  promiseChainDepth: number;
+  /** Has unhandled rejection */
+  unhandledRejection: boolean;
+  /** Has await pattern */
+  awaitPattern: boolean;
+  /** Recommendations */
+  recommendations: string[];
+}
+
+/**
+ * Task performance metrics for system monitoring
+ */
+export interface TaskPerformanceMetrics extends PerformanceMetrics {
+  /** Total number of tasks */
+  totalTasks: number;
+  /** Number of completed tasks */
+  completedTasks: number;
+  /** Number of failed tasks */
+  failedTasks: number;
+  /** Average task duration in milliseconds */
+  averageTaskDuration: number;
+  /** System uptime */
+  systemUptime: Date;
+  /** System efficiency percentage */
+  systemEfficiency: number;
+}
+

@@ -346,7 +346,13 @@ export class RuleEngine {
       lastUsed: Date;
     }
   > {
-    const stats: Record<string, unknown> = {};
+    const stats: Record<string, {
+      evaluations: number;
+      matches: number;
+      matchRate: number;
+      avgEvaluationTime: number;
+      lastUsed: Date;
+    }> = {};
 
     for (const [ruleId, ruleStat] of this.ruleStats) {
       stats[ruleId] = {

@@ -84,6 +84,9 @@ export interface DecisionContext {
 
   /** Timestamp of context creation */
   timestamp: number;
+
+  /** Index signature for Record<string, unknown> compatibility */
+  [key: string]: unknown;
 }
 
 /**

@@ -266,7 +266,7 @@ export class AutonomousTaskManagementService extends EventEmitter {
       | 'analysis';
     priority: 'critical' | 'high' | 'normal' | 'low';
     dependencies?: string[];
-    requiredCapabilities?: string[];
+    requiredCapabilities?: AgentCapability[];
     featureId?: string;
     metadata?: Record<string, unknown>;
   }): Promise<AutonomousTask> {
@@ -287,7 +287,7 @@ export class AutonomousTaskManagementService extends EventEmitter {
    */
   async registerAgent(agentConfig: {
     id: string;
-    capabilities: string[];
+    capabilities: AgentCapability[];
     maxConcurrentTasks?: number;
   }): Promise<void> {
     if (!this.isInitialized) {

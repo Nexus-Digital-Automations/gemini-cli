@@ -60,6 +60,7 @@ export interface SubTask {
   rollbackFunction?: (task: Task, context: TaskContext) => Promise<void>;
 
   // Metadata
+  metadata?: Record<string, unknown>;
   breakdownStrategy: BreakdownStrategy;
   sequenceOrder: number;
   canRunInParallel: boolean;

@@ -6,20 +6,72 @@
 
 import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine.js';
-// import type {
-//   ResourceInfo,
-//   AllocationRequest,
-//   AllocationResult,
-// } from './resourceAllocator.js';
-// import {
-//   ResourceAllocator,
-//   ResourceType,
-//   AllocationStrategies,
-//   type AllocationStrategy,
-//   type ResourceRequirement,
-// } from './resourceAllocator.js';
 import { DecisionType, DecisionPriority } from './types.js';
 import type { DecisionContext, Decision } from './types.js';
+
+// Define missing types locally until resourceAllocator module is available
+export enum ResourceType {
+  CPU = 'cpu',
+  MEMORY = 'memory',
+  STORAGE = 'storage',
+  NETWORK = 'network',
+  GPU = 'gpu',
+  AGENT = 'agent',
+  CONCURRENT_TASKS = 'concurrent_tasks',
+}
+
+export interface ResourceRequirement {
+  type: ResourceType;
+  amount: number;
+  unit: string;
+}
+
+export interface ResourceInfo {
+  id: string;
+  type: ResourceType;
+  available: number;
+  total: number;
+  unit: string;
+}
+
+export interface AllocationResult {
+  success: boolean;
+  allocatedResources: ResourceRequirement[];
+  cost: number;
+  estimatedDuration: number;
+  error?: string;
+}
+
+export type AllocationStrategy = 'balanced' | 'cost-optimized' | 'performance-optimized' | 'power-efficient';
+
+export const AllocationStrategies = {
+  Balanced: 'balanced' as AllocationStrategy,
+  CostOptimized: 'cost-optimized' as AllocationStrategy,
+  PerformanceOptimized: 'performance-optimized' as AllocationStrategy,
+  PowerEfficient: 'power-efficient' as AllocationStrategy,
+};
+
+export class ResourceAllocator {
+  constructor(private strategy: AllocationStrategy) {}
+
+  initializeResources(resources: ResourceInfo[]): void {
+    // Placeholder implementation
+  }
+
+  allocate(requirements: ResourceRequirement[]): AllocationResult {
+    // Placeholder implementation
+    return {
+      success: true,
+      allocatedResources: requirements,
+      cost: 0,
+      estimatedDuration: 0,
+    };
+  }
+
+  deallocate(allocation: AllocationResult): void {
+    // Placeholder implementation
+  }
+}
 
 /**
  * Task resource profile for decision making

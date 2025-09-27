@@ -951,8 +951,8 @@ export class CompressionEngineImpl implements CompressionEngine {
   /**
    * Create batches for parallel processing
    */
-  private createBatches<T>(items: Array<T>, batchSize: number): Array<Array<T>> {
-    const batches: Array<Array<T>> = [];
+  private createBatches<T>(items: T[], batchSize: number): T[][] {
+    const batches: T[][] = [];
     for (let i = 0; i < items.length; i += batchSize) {
       batches.push(items.slice(i, i + batchSize));
     }
