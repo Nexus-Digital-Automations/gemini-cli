@@ -98,6 +98,9 @@ import {
   createTokenMonitoringIntegration,
   createMonitoringEnabledContentGenerator,
 } from './integration.js';
+import type { Config } from '../../config/config.js';
+import type { ContentGenerator } from '../../core/contentGenerator.js';
+import type { BudgetSettings } from '../types.js';
 
 /**
  * Default configuration presets for different monitoring scenarios
@@ -301,8 +304,8 @@ export const MonitoringUtils = {
    * Create monitoring integration with environment-based configuration
    */
   createForEnvironment: async (
-    config: any,
-    budgetSettings: any,
+    config: Record<string, unknown>,
+    budgetSettings: Record<string, unknown>,
     environment: 'production' | 'development' | 'testing' = 'development',
   ) => {
     const preset =
@@ -314,23 +317,27 @@ export const MonitoringUtils = {
             : 'Development'
       ];
 
-    return createTokenMonitoringIntegration(config, budgetSettings, preset);
+    return createTokenMonitoringIntegration(
+      config as Config,
+      budgetSettings as BudgetSettings,
+      preset,
+    );
   },
 
   /**
    * Setup monitoring with automatic error handling
    */
   setupWithErrorHandling: async (
-    baseContentGenerator: any,
-    config: any,
-    budgetSettings: any,
+    baseContentGenerator: unknown,
+    config: Record<string, unknown>,
+    budgetSettings: Record<string, unknown>,
     onError?: (error: Error) => void,
   ) => {
     try {
       return await createMonitoringEnabledContentGenerator(
-        baseContentGenerator,
-        config,
-        budgetSettings,
+        baseContentGenerator as ContentGenerator,
+        config as Config,
+        budgetSettings as BudgetSettings,
         MonitoringPresets.Production,
       );
     } catch (error) {
