@@ -730,6 +730,36 @@ export class CrossSessionStorage {
       await this.cleanup();
     }
   }
+
+  /**
+   * Update storage configuration (stub implementation)
+   */
+  updateConfig(newConfig: Partial<StorageConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    logger.info('Storage configuration updated', { newConfig });
+  }
+
+  /**
+   * Export storage data (stub implementation)
+   */
+  async exportData(): Promise<any> {
+    logger.info('Exporting storage data (stub)');
+    const stats = await this.getStorageStats();
+    return {
+      sessions: [], // Would export session data
+      stats,
+      config: this.config,
+      exportTimestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Import storage data (stub implementation)
+   */
+  async importData(data: any): Promise<void> {
+    logger.info('Importing storage data (stub)', { hasData: !!data });
+    // Would import session data
+  }
 }
 
 /**

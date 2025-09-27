@@ -14,12 +14,11 @@
 
 import type {
   ContextItem,
-  ContextType,
-  ContextPriority,
   SessionContext,
   CodeContextSnapshot,
   ContextSuggestion,
 } from '../types.js';
+import { ContextType, ContextPriority } from '../types.js';
 
 /**
  * Token estimation utilities

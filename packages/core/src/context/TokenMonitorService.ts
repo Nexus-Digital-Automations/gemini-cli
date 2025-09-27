@@ -294,7 +294,7 @@ export class TokenMonitorService extends EventEmitter {
   private contextManagers: Map<string, ContextWindowManager> = new Map();
   private usageHistory: TokenUsageSnapshot[] = [];
   private eventHistory: TokenMonitorEvent[] = [];
-  private monitoringTimer: NodeJS.Timer | null = null;
+  private monitoringTimer: NodeJS.Timeout | null = null;
   private isHighFrequencyMode = false;
   private lastThresholdLevel: string | null = null;
   private performanceCounters = {
