@@ -24,7 +24,7 @@ import { RollbackManager, RollbackTrigger } from './RollbackManager.js';
 
 // Import task management types (using our types as they are compatible)
 import type { Task, TaskResult } from '../task-management/types.js';
-import { TaskStatus } from '../task-management/TaskQueue.js';
+import { TaskStatus } from '../task-management/types.js';
 
 // Import existing task execution engine types
 import type { TaskExecutionContext } from '../task-management/TaskExecutionEngine.js';

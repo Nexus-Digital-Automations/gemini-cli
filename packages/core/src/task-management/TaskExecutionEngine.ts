@@ -10,11 +10,10 @@ import type { AnyDeclarativeTool as _AnyDeclarativeTool } from '../tools/tools.j
 import type {
   TaskCategory as _TaskCategory,
   TaskId as _TaskId,
-  TaskPriority,
   TaskMetadata as _TaskMetadata,
   Task as BaseTask,
 } from './types.js';
-import { TaskComplexity, TaskStatus } from './types.js';
+import { TaskComplexity, TaskStatus, TaskPriority, TaskType, TaskCategory } from './types.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import {
   SubAgentScope,
@@ -52,18 +51,8 @@ import * as _path from 'node:path';
  */
 
 /**
- * Task types for specialized handling and agent assignment
+ * Task types for specialized handling and agent assignment (imported from types.js)
  */
-export enum TaskType {
-  IMPLEMENTATION = 'implementation', // Code implementation
-  TESTING = 'testing', // Test creation/execution
-  VALIDATION = 'validation', // Quality assurance
-  DOCUMENTATION = 'documentation', // Documentation creation
-  ANALYSIS = 'analysis', // Research and analysis
-  DEPLOYMENT = 'deployment', // Deployment and operations
-  SECURITY = 'security', // Security assessment/fixes
-  PERFORMANCE = 'performance', // Performance optimization
-}
 
 /**
  * Dependency types for task orchestration
@@ -632,6 +621,12 @@ export class TaskExecutionEngine {
       complexity,
       priority: options.priority || TaskPriority.NORMAL,
       status: TaskStatus.QUEUED,
+      category: TaskCategory.FEATURE, // Default category
+      metadata: {
+        createdAt: now,
+        updatedAt: now,
+        createdBy: 'TaskExecutionEngine',
+      }, // Required metadata properties
       progress: 0,
       requiredCapabilities: [], // Will be determined during breakdown
       subtaskIds: [],

@@ -45,6 +45,15 @@ export enum ErrorSeverity {
 }
 
 /**
+ * Impact levels for contextual factors
+ */
+export enum ImpactLevel {
+  HIGH = 'high',
+  MEDIUM = 'medium',
+  LOW = 'low',
+}
+
+/**
  * Programming languages supported
  */
 export enum SupportedLanguage {
@@ -234,6 +243,8 @@ export interface ImpactAssessment {
 export enum ImpactScope {
   FILE = 'file',
   MODULE = 'module',
+  COMPONENT = 'component',
+  LOCAL = 'local',
   PACKAGE = 'package',
   PROJECT = 'project',
   SYSTEM = 'system',
@@ -1064,6 +1075,8 @@ export interface PerformanceMetrics {
   cpuUsage: number;
   /** Cache hit rate */
   cacheHitRate: number;
+  /** Performance impact assessment */
+  impact: string;
 }
 
 /**
@@ -1254,7 +1267,7 @@ export interface TestCaseGeneration {
  */
 export interface ErrorAnalysisContext {
   /** File path where error occurred */
-  filePath?: unknown;
+  filePath?: string;
   /** Line number */
   lineNumber?: number;
   /** Column number */
@@ -1267,6 +1280,16 @@ export interface ErrorAnalysisContext {
   stackTrace?: string[];
   /** Environment information */
   environment?: Record<string, unknown>;
+  /** Execution context */
+  executionContext?: {
+    environment?: string;
+    [key: string]: unknown;
+  };
+  /** Project context */
+  projectContext?: {
+    framework?: string;
+    [key: string]: unknown;
+  };
   /** Index signature for Record compatibility */
   [key: string]: unknown;
 }
@@ -1296,6 +1319,8 @@ export interface ErrorSignature {
   id: string;
   /** Error pattern */
   pattern: string;
+  /** Error patterns (array) */
+  patterns: string[];
   /** Error category */
   category: ErrorCategory;
   /** Confidence score */
@@ -1350,14 +1375,14 @@ export interface ErrorInsight {
  * Contextual factor affecting error
  */
 export interface ContextualFactor {
+  /** Factor type */
+  type: string;
   /** Factor name */
   name: string;
-  /** Factor value */
-  value: unknown;
-  /** Impact score */
-  impact: number;
+  /** Impact level */
+  impact: ImpactLevel;
   /** Description */
-  description?: string;
+  description: string;
 }
 
 /**
@@ -1366,6 +1391,8 @@ export interface ContextualFactor {
 export interface RelatedError {
   /** Error ID */
   id: string;
+  /** Error signature */
+  signature: string;
   /** Similarity score */
   similarity: number;
   /** Relationship type */
@@ -1394,6 +1421,8 @@ export interface ErrorTrend {
 export interface ErrorFrequencyData {
   /** Total occurrences */
   total: number;
+  /** Total count (alias for total) */
+  totalCount: number;
   /** Daily frequency */
   daily: number[];
   /** Peak times */
@@ -1402,6 +1431,8 @@ export interface ErrorFrequencyData {
   trend: ErrorTrend;
   /** Recent occurrences */
   occurrences?: Date[];
+  /** Last occurrence date */
+  lastOccurrence?: Date;
   /** Last analysis timestamp */
   lastAnalysis?: Date;
 }
@@ -1446,6 +1477,8 @@ export interface SecurityImplications {
   mitigations: string[];
   /** Compliance impact */
   complianceImpact?: string[];
+  /** Security vulnerabilities */
+  vulnerabilities: string[];
 }
 
 /**
@@ -1460,6 +1493,8 @@ export interface ProjectImpact {
   estimatedTime: string;
   /** Business impact */
   businessImpact: string;
+  /** Impact scope */
+  scope: ImpactScope;
 }
 
 /**

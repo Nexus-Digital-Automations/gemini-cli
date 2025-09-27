@@ -9,13 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger as getLogger } from '../utils/logger.js';
 
 const logger = getLogger();
-import {
-  TaskPriority,
-  TaskStatus
-} from './TaskQueue.js';
-import type { Task, TaskExecutionResult ,
-  TaskCategory,
-  PriorityFactors} from './TaskQueue.js';
+import type { Task, TaskExecutionResult, PriorityFactors} from './TaskQueue.js';
+import { TaskPriority, TaskStatus, TaskCategory } from './types.js';
 
 /**
  * @fileoverview Advanced Task Priority Scheduler with Dynamic Adjustment

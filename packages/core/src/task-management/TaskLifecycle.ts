@@ -372,7 +372,7 @@ export class TaskLifecycle extends EventEmitter {
     } catch (error) {
       logger().error(`State transition failed: ${currentState} -> ${newState}`, {
         taskId,
-        error: error instanceof Error ? error.message : String(error),
+        errorMessage: error instanceof Error ? error.message : String(error),
       });
 
       this.emit('transitionError', taskId, currentState, newState, error);
@@ -1111,7 +1111,7 @@ export class TaskLifecycle extends EventEmitter {
           taskId: task.id,
           state,
           timing,
-          error: error instanceof Error ? error.message : String(error),
+          errorMessage: error instanceof Error ? error.message : String(error),
         });
 
         this.emit('hookError', hook, task, context, error);
@@ -1248,7 +1248,7 @@ export class TaskLifecycle extends EventEmitter {
       this.cleanupTimer = setInterval(() => {
         this.cleanup().catch((error) => {
           logger().error('Cleanup process failed', {
-            error: error instanceof Error ? error.message : String(error),
+            errorMessage: error instanceof Error ? error.message : String(error),
           });
         });
       }, this.options.cleanupInterval);

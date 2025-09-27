@@ -28,6 +28,7 @@ export enum TaskStatus {
   IN_PROGRESS = 'in_progress',
   RUNNING = 'running',
   BLOCKED = 'blocked',
+  VALIDATION = 'validation',
   COMPLETED = 'completed',
   FAILED = 'failed',
   CANCELLED = 'cancelled',
@@ -203,6 +204,10 @@ export interface Task {
   lastError?: string;
   /** Execution metrics */
   metrics?: TaskExecutionMetrics;
+  /** Task creation timestamp */
+  createdAt?: Date;
+  /** Task last update timestamp */
+  updatedAt?: Date;
 }
 
 /**

@@ -39,7 +39,7 @@ import type {
   ErrorLocation,
 } from './types.js';
 
-import { FixPriority, FixCategory, ErrorSeverity } from './types.js';
+import { FixPriority, FixCategory, ErrorSeverity, ImpactLevel } from './types.js';
 
 import {
   ErrorPatternRecognition,
@@ -796,7 +796,7 @@ export class ErrorAnalysisEngine {
       factors.push({
         type: 'language',
         name: `Programming Language: ${context.language}`,
-        impact: 'medium',
+        impact: ImpactLevel.MEDIUM,
         description: `Error occurred in ${context.language} code`,
       });
     }
@@ -804,7 +804,7 @@ export class ErrorAnalysisEngine {
     // Environment factor
     if (context.executionContext?.environment) {
       const impact =
-        context.executionContext.environment === 'production' ? 'high' : 'low';
+        context.executionContext.environment === 'production' ? ImpactLevel.HIGH : ImpactLevel.LOW;
       factors.push({
         type: 'environment',
         name: `Environment: ${context.executionContext.environment}`,
@@ -818,7 +818,7 @@ export class ErrorAnalysisEngine {
       factors.push({
         type: 'framework',
         name: `Framework: ${context.projectContext.framework}`,
-        impact: 'medium',
+        impact: ImpactLevel.MEDIUM,
         description: `Project uses ${context.projectContext.framework} framework`,
       });
     }
@@ -830,7 +830,7 @@ export class ErrorAnalysisEngine {
         factors.push({
           type: 'file',
           name: `File Type: .${fileExtension}`,
-          impact: 'low',
+          impact: ImpactLevel.LOW,
           description: `Error in ${fileExtension} file`,
         });
       }

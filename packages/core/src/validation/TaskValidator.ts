@@ -17,7 +17,7 @@ import {
   ValidationCategory,
 } from './ValidationFramework.js';
 import type { Task, TaskResult } from '../task-management/types.js';
-import { TaskStatus } from '../task-management/TaskQueue.js';
+import { TaskStatus } from '../task-management/types.js';
 import type {
   TaskPriority as _TaskPriority,
   DependencyType as _DependencyType,

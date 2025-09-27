@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 10,
+      "total_reinitializations": 12,
       "current_day": "2025-09-27",
       "time_buckets": {
         "11:00-15:59": {
@@ -22,11 +22,11 @@
         },
         "21:00-01:59": {
           "init": 0,
-          "reinit": 3
+          "reinit": 4
         },
         "02:00-06:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 1
         },
         "07:00-11:59": {
           "init": 0,
@@ -35,29 +35,32 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-27T05:00:57.747Z",
-      "last_updated": "2025-09-27T05:53:11.750Z"
+      "last_updated": "2025-09-27T10:46:20.679Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {
-    "claude-agent-build-fix": {
-      "lastHeartbeat": "2025-09-27T05:53:11.690Z",
+    "gemini-cli-agent": {
+      "lastHeartbeat": "2025-09-27T10:46:20.675Z",
       "status": "active",
-      "reinitialized": "2025-09-27T05:53:11.690Z",
-      "sessionId": "f32aed6df7407b54",
-      "previousSessions": ["3c230495ef44e371", "01763c35cb11b858"]
-    },
-    "claude-agent-001": {
-      "lastHeartbeat": "2025-09-27T05:19:42.845Z",
-      "status": "active",
-      "reinitialized": "2025-09-27T05:19:42.845Z",
-      "sessionId": "650d0431fb5c5c20",
-      "previousSessions": ["d70ac25cc442011b"]
+      "reinitialized": "2025-09-27T10:46:20.675Z",
+      "sessionId": "3a6b34ae6e8142a7",
+      "previousSessions": []
     }
   },
   "tasks": [],

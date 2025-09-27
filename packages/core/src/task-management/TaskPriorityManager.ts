@@ -6,8 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import type { Task, TaskPriority, PriorityFactors } from './TaskQueue.js';
-import { TaskCategory, TaskStatus } from './TaskQueue.js';
+import type { Task, PriorityFactors } from './TaskQueue.js';
+import { TaskPriority, TaskCategory, TaskStatus } from './types.js';
 
 /**
  * Advanced priority calculation algorithms

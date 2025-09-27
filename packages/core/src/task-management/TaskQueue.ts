@@ -10,50 +10,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { logger as getLogger } from '../utils/logger.js';
 import type { TaskMetadata } from './types.js';
+import { TaskPriority, TaskStatus, TaskCategory } from './types.js';
 
 const logger = getLogger();
 
 /**
- * Task priority levels with intelligent scoring system
+ * Task priority levels, status, and categories imported from types.js
  */
-export enum TaskPriority {
-  CRITICAL = 1000, // Security, critical bugs, system failures
-  HIGH = 800, // User-blocking issues, major features
-  NORMAL = 500, // Regular features, enhancements
-  MEDIUM = 400, // Moderate priority features
-  LOW = 200, // Nice-to-have, optimizations
-  BACKGROUND = 50, // Cleanup, documentation
-}
-
-/**
- * Task execution status
- */
-export enum TaskStatus {
-  PENDING = 'pending',
-  QUEUED = 'queued',
-  ANALYZED = 'analyzed',
-  ASSIGNED = 'assigned',
-  IN_PROGRESS = 'in_progress',
-  RUNNING = 'running',
-  BLOCKED = 'blocked',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-}
-
-/**
- * Task category for intelligent grouping and optimization
- */
-export enum TaskCategory {
-  FEATURE = 'feature',
-  BUG_FIX = 'bug_fix',
-  TEST = 'test',
-  DOCUMENTATION = 'documentation',
-  REFACTOR = 'refactor',
-  SECURITY = 'security',
-  PERFORMANCE = 'performance',
-  INFRASTRUCTURE = 'infrastructure',
-}
 
 /**
  * Dependency relationship types
