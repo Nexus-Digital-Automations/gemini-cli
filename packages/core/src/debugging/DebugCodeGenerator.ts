@@ -90,6 +90,7 @@ const DEBUG_CODE_TEMPLATES: Record<
         description: 'Simple console.log statement for variable inspection',
         template: `console.log('🔍 Debug: ${'{label}'}:', ${'{variable}'});`,
         parameters: ['label', 'variable'],
+        requiredParameters: ['label', 'variable'],
         category: 'logging',
         complexity: 'simple',
         useCases: ['Variable inspection', 'Flow tracking'],
@@ -107,6 +108,7 @@ console.log('📦 Data:', ${'{data}'});
 console.trace('📚 Stack Trace');
 console.groupEnd();`,
         parameters: ['groupName', 'location', 'data'],
+        requiredParameters: ['groupName', 'location', 'data'],
         category: 'logging',
         complexity: 'moderate',
         useCases: ['Detailed debugging', 'Issue investigation'],
@@ -126,6 +128,7 @@ try {
   ${'{errorHandler}'}
 }`,
         parameters: ['code', 'location', 'errorHandler'],
+        requiredParameters: ['code', 'location', 'errorHandler'],
         category: 'error-handling',
         complexity: 'simple',
         useCases: ['Error prevention', 'Safe execution'],
@@ -148,6 +151,11 @@ async function ${'{functionName}'}() {
   }
 }`,
         parameters: ['functionName', 'asyncOperation', 'fallbackBehavior'],
+        requiredParameters: [
+          'functionName',
+          'asyncOperation',
+          'fallbackBehavior',
+        ],
         category: 'error-handling',
         complexity: 'moderate',
         useCases: ['Async operations', 'Promise handling'],

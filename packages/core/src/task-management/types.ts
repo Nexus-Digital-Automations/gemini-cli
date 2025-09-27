@@ -133,6 +133,10 @@ export interface TaskMetadata {
   actualDuration?: number;
   /** Number of retry attempts */
   retryCount?: number;
+  /** Business value score (0-100) */
+  businessValue?: number;
+  /** Estimated resource usage units */
+  estimatedResourceUsage?: number;
   /** Tags for categorization */
   tags?: string[];
   /** Custom metadata */
