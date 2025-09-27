@@ -26,7 +26,13 @@ import {
 } from './EnhancedAutonomousTaskQueue.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import { TaskQueue, TaskPriority, TaskStatus as QueueTaskStatus, type TaskExecutionResult } from './TaskQueue.js';
+import type {
+  TaskStatus as QueueTaskStatus} from './TaskQueue.js';
+import {
+  TaskQueue,
+  TaskPriority,
+  type TaskExecutionResult,
+} from './TaskQueue.js';
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
 import type {
@@ -238,10 +244,7 @@ export class TaskManager {
     // Initialize monitoring system
     if (options.enableMonitoring !== false) {
       console.log('📊 Initializing ExecutionMonitoringSystem...');
-      this.monitoring = new ExecutionMonitoringSystem(
-        this.config,
-        options.monitoringConfig,
-      );
+      this.monitoring = new ExecutionMonitoringSystem(this.config);
     }
 
     // Initialize hook integration
@@ -265,7 +268,7 @@ export class TaskManager {
 
     // Initialize persistence engine
     console.log('💾 Initializing CrossSessionPersistenceEngine...');
-    this.persistence = new CrossSessionPersistenceEngine(this.config, {
+    this.persistence = new CrossSessionPersistenceEngine({
       enableCompression: true,
       encryptionEnabled: true,
       maxSessionHistory: 100,
@@ -361,9 +364,6 @@ export class TaskManager {
         executeFunction: async (task, executionContext) =>
           this.executeTaskWithQualityGates(task, executionContext),
         dependencies: options?.dependencies,
-        // executionContext: options?.executionContext, // Not supported by addTask
-        parameters: options?.parameters,
-        expectedOutputs: options?.expectedOutputs,
         forceBreakdown:
           options?.forceBreakdown || decision.decision === 'breakdown',
       });
@@ -438,7 +438,7 @@ export class TaskManager {
         error: undefined,
         metadata: undefined,
         artifacts: undefined,
-        nextTasks: undefined
+        nextTasks: undefined,
       };
     } catch (error) {
       console.error(`❌ Task execution failed: ${task.title}`, error);
@@ -449,7 +449,7 @@ export class TaskManager {
         duration: 0,
         metadata: undefined,
         artifacts: undefined,
-        nextTasks: undefined
+        nextTasks: undefined,
       };
     }
   }
@@ -466,7 +466,7 @@ export class TaskManager {
   }> {
     // Check autonomous queue first (getTaskStatus method doesn't exist, use getTasks)
     const autonomousTasks = this.autonomousQueue.getTasks();
-    const autonomousTask = autonomousTasks.find(t => t.id === taskId);
+    const autonomousTask = autonomousTasks.find((t) => t.id === taskId);
     if (autonomousTask) {
       return {
         status: autonomousTask.status as TaskStatus,
@@ -594,8 +594,7 @@ export class TaskManager {
     const queueState = this.getSystemStatus().taskCounts;
 
     return {
-      systemLoad:
-        queueState.inProgress / 8, // Fixed value since maxConcurrentTasks not available
+      systemLoad: queueState.inProgress / 8, // Fixed value since maxConcurrentTasks not available
       availableResources: {
         cpu: 0.7, // Mock values - would be real system metrics
         memory: 0.8,
