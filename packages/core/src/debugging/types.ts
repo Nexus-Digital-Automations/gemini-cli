@@ -116,6 +116,14 @@ export interface ErrorAnalysis {
   timestamp: Date;
   /** Additional context */
   context: Record<string, unknown>;
+  /** Analysis metadata */
+  metadata?: Record<string, unknown>;
+  /** Error signature */
+  signature?: ErrorSignature;
+  /** Related patterns */
+  patterns?: ErrorPattern[];
+  /** Fix suggestions (alias for suggestedFixes) */
+  fixSuggestions?: FixSuggestion[];
 }
 
 /**
@@ -275,6 +283,10 @@ export interface ErrorPattern {
   lastSeen: Date;
   /** Tags for categorization */
   tags: string[];
+  /** Error category */
+  category?: ErrorCategory;
+  /** Error severity */
+  severity?: ErrorSeverity;
 }
 
 /**
@@ -1235,4 +1247,231 @@ export interface TestCaseGeneration {
   includeErrorScenarios?: boolean;
   /** Programming language */
   language?: LanguageSupport;
+}
+
+/**
+ * Error analysis context information
+ */
+export interface ErrorAnalysisContext {
+  /** File path where error occurred */
+  filePath?: unknown;
+  /** Line number */
+  lineNumber?: number;
+  /** Column number */
+  columnNumber?: number;
+  /** Programming language */
+  language?: LanguageSupport;
+  /** Function name */
+  functionName?: string;
+  /** Stack trace */
+  stackTrace?: string[];
+  /** Environment information */
+  environment?: Record<string, unknown>;
+  /** Index signature for Record compatibility */
+  [key: string]: unknown;
+}
+
+/**
+ * Error category classification
+ */
+export type ErrorCategory =
+  | 'syntax'
+  | 'runtime'
+  | 'logic'
+  | 'performance'
+  | 'security'
+  | 'configuration'
+  | 'network'
+  | 'database'
+  | 'validation'
+  | 'import'
+  | 'type'
+  | 'unknown';
+
+/**
+ * Error signature for pattern matching
+ */
+export interface ErrorSignature {
+  /** Unique signature identifier */
+  id: string;
+  /** Error pattern */
+  pattern: string;
+  /** Error category */
+  category: ErrorCategory;
+  /** Confidence score */
+  confidence: number;
+  /** Hash of error characteristics */
+  hash: string;
+}
+
+/**
+ * Additional error context
+ */
+export interface ErrorContext {
+  /** Request context */
+  request?: Record<string, unknown>;
+  /** User context */
+  user?: Record<string, unknown>;
+  /** Session context */
+  session?: Record<string, unknown>;
+  /** Application state */
+  state?: Record<string, unknown>;
+}
+
+/**
+ * Analysis result container
+ */
+export interface AnalysisResult {
+  /** Analysis identifier */
+  id: string;
+  /** Result data */
+  data: Record<string, unknown>;
+  /** Confidence score */
+  confidence: number;
+  /** Timestamp */
+  timestamp: Date;
+}
+
+/**
+ * Error insight information
+ */
+export interface ErrorInsight {
+  /** Insight type */
+  type: string;
+  /** Description */
+  description: string;
+  /** Confidence */
+  confidence: number;
+  /** Supporting evidence */
+  evidence?: string[];
+}
+
+/**
+ * Contextual factor affecting error
+ */
+export interface ContextualFactor {
+  /** Factor name */
+  name: string;
+  /** Factor value */
+  value: unknown;
+  /** Impact score */
+  impact: number;
+  /** Description */
+  description?: string;
+}
+
+/**
+ * Related error information
+ */
+export interface RelatedError {
+  /** Error ID */
+  id: string;
+  /** Similarity score */
+  similarity: number;
+  /** Relationship type */
+  relationship: string;
+  /** Error message */
+  message: string;
+}
+
+/**
+ * Error trend data
+ */
+export interface ErrorTrend {
+  /** Time period */
+  period: string;
+  /** Frequency count */
+  count: number;
+  /** Trend direction */
+  direction: 'increasing' | 'decreasing' | 'stable';
+  /** Change percentage */
+  changePercent: number;
+}
+
+/**
+ * Error frequency statistics
+ */
+export interface ErrorFrequencyData {
+  /** Total occurrences */
+  total: number;
+  /** Daily frequency */
+  daily: number[];
+  /** Peak times */
+  peakTimes: string[];
+  /** Trend information */
+  trend: ErrorTrend;
+  /** Recent occurrences */
+  occurrences?: number;
+  /** Last analysis timestamp */
+  lastAnalysis?: Date;
+}
+
+/**
+ * Similarity scoring data
+ */
+export interface SimilarityScore {
+  /** Score value (0-1) */
+  score: number;
+  /** Comparison method */
+  method: string;
+  /** Contributing factors */
+  factors: Record<string, number>;
+  /** Overall similarity score */
+  overall?: number;
+}
+
+/**
+ * Code quality metrics
+ */
+export interface CodeQualityMetrics {
+  /** Complexity score */
+  complexity: number;
+  /** Coverage percentage */
+  coverage: number;
+  /** Maintainability index */
+  maintainability: number;
+  /** Technical debt ratio */
+  technicalDebt: number;
+}
+
+/**
+ * Security implications assessment
+ */
+export interface SecurityImplications {
+  /** Risk level */
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  /** Security concerns */
+  concerns: string[];
+  /** Mitigation strategies */
+  mitigations: string[];
+  /** Compliance impact */
+  complianceImpact?: string[];
+}
+
+/**
+ * Project impact assessment
+ */
+export interface ProjectImpact {
+  /** Affected components */
+  components: string[];
+  /** Severity level */
+  severity: ErrorSeverity;
+  /** Estimated resolution time */
+  estimatedTime: string;
+  /** Business impact */
+  businessImpact: string;
+}
+
+/**
+ * Resource usage information
+ */
+export interface ResourceUsage {
+  /** CPU usage percentage */
+  cpu: number;
+  /** Memory usage in MB */
+  memory: number;
+  /** Disk I/O operations */
+  diskIO: number;
+  /** Network usage */
+  network: number;
 }

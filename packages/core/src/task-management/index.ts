@@ -32,7 +32,9 @@ export {
   DependencyType,
   AgentCapability,
   SubagentTerminateMode,
+} from './TaskExecutionEngine.js';
 
+export type {
   // Interfaces
   Task,
   TaskDependency,
@@ -112,8 +114,9 @@ export {
   type AutonomousQueueMetrics,
 } from './EnhancedAutonomousTaskQueue.js';
 
-export {
-  ExecutionMonitoringSystem,
+export { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
+
+export type {
   ExecutionMetrics,
   TaskExecutionEvent,
   AlertConfig,
@@ -152,8 +155,8 @@ export class TaskManagementSystemFactory {
     options?: {
       enableMonitoring?: boolean;
       enableHookIntegration?: boolean;
-      hookIntegrationConfig?: any;
-      monitoringConfig?: any;
+      hookIntegrationConfig?: Record<string, unknown>;
+      monitoringConfig?: Record<string, unknown>;
     },
   ): Promise<{
     taskEngine: TaskExecutionEngine;
@@ -355,8 +358,8 @@ export class TaskManagementSystemFactory {
     options?: {
       enableMonitoring?: boolean;
       enableHookIntegration?: boolean;
-      hookIntegrationConfig?: any;
-      monitoringConfig?: any;
+      hookIntegrationConfig?: Record<string, unknown>;
+      monitoringConfig?: Record<string, unknown>;
     },
   ): Promise<{
     taskEngine: TaskExecutionEngine;
@@ -519,7 +522,7 @@ export class TaskManagementSystemFactory {
  */
 export async function createTaskManagementSystem(
   config: Config,
-  options?: any,
+  options?: Record<string, unknown>,
 ) {
   return createTaskManager({
     config,
@@ -555,7 +558,7 @@ export function createAutonomousTaskQueue(
 export async function createCompleteWithAutonomousQueue(
   config: Config,
   queueConfig?: Partial<EnhancedQueueConfig>,
-  options?: any,
+  options?: Record<string, unknown>,
 ) {
   return TaskManagementSystemFactory.createCompleteWithAutonomousQueue(
     config,
