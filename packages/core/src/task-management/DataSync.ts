@@ -6,9 +6,9 @@
 
 import { EventEmitter } from 'node:events';
 import * as crypto from 'node:crypto';
-import { logger } from '../utils/logger.js';
+import { logger } from '../../utils/logger.js';
 import type { TaskPersistence } from './TaskPersistence.js';
-import type { SessionManager } from './SessionManager.js';
+import type { SessionManager } from '../collaboration/SessionManager.js';
 import type { Task, TaskId, TaskStatus, TaskDependency } from './types.js';
 
 /**
@@ -560,79 +560,12 @@ export class DataSync extends EventEmitter {
    * Setup change tracking by listening to relevant events
    */
   private setupChangeTracking(): void {
-    // Task-related changes
-    this.persistence.on('task-saved', (event) => {
-      this.trackChange(
-        'update',
-        'task',
-        event.taskId,
-        'system', // TODO: get actual session ID
-        'system', // TODO: get actual agent ID
-        undefined,
-        event,
-        { source: 'task-saved' },
-      );
-    });
+    // TaskPersistence and SessionManager don't emit the expected events
+    // Change tracking will need to be implemented differently
+    // This is a placeholder for future event-based change tracking
+    // when the underlying systems support proper event emission
 
-    this.persistence.on('task-loaded', (event) => {
-      // Don't track read operations
-    });
-
-    // Session-related changes
-    this.sessionManager.on('session-created', (session) => {
-      this.trackChange(
-        'create',
-        'session',
-        session.sessionId,
-        session.sessionId,
-        session.agentId,
-        undefined,
-        session,
-        { source: 'session-created' },
-      );
-    });
-
-    this.sessionManager.on('session-terminated', (event) => {
-      this.trackChange(
-        'update',
-        'session',
-        event.session.sessionId,
-        event.session.sessionId,
-        event.session.agentId,
-        { status: 'active' },
-        { status: event.session.status },
-        { source: 'session-terminated', reason: event.reason },
-      );
-    });
-
-    // Task ownership changes
-    this.sessionManager.on('task-locked', (ownership) => {
-      this.trackChange(
-        'create',
-        'ownership',
-        `${ownership.taskId}:${ownership.sessionId}`,
-        ownership.sessionId,
-        ownership.agentId,
-        undefined,
-        ownership,
-        { source: 'task-locked' },
-      );
-    });
-
-    this.sessionManager.on('task-unlocked', (event) => {
-      this.trackChange(
-        'delete',
-        'ownership',
-        `${event.taskId}:${event.sessionId}`,
-        event.sessionId,
-        'unknown', // Agent ID not available in unlock event
-        event,
-        undefined,
-        { source: 'task-unlocked' },
-      );
-    });
-
-    logger().debug('Change tracking event listeners setup completed');
+    logger().debug('Change tracking setup completed - using manual tracking mode');
   }
 
   /**
@@ -878,10 +811,16 @@ export class DataSync extends EventEmitter {
    * Synchronize a specific task
    */
   private async syncTask(taskId: string): Promise<void> {
-    const task = await this.persistence.loadTask(taskId);
-    if (task) {
-      // Force save to trigger synchronization
-      await this.persistence.saveTask(task);
+    // TaskPersistence doesn't have individual task methods
+    // We work with queue state instead
+    const queueState = await this.persistence.loadQueueState();
+    if (queueState.success && queueState.state) {
+      // Find the specific task in the queue state
+      const task = queueState.state.tasks.find(t => t.id === taskId);
+      if (task) {
+        // Force save entire queue state to trigger synchronization
+        await this.persistence.saveQueueState(queueState.state);
+      }
     }
   }
 

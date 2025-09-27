@@ -12,28 +12,13 @@
  * @version 1.0.0
  */
 
+import * as crypto from 'node:crypto';
 import { getComponentLogger } from '../utils/logger.js';
 import type {
-  StackTrace,
-  StackTraceFrame,
+  StackFrame,
   StackTraceAnalysis,
-  SourceMapInfo,
-  ContextLine,
-  FrameAnalysis,
-  CallChainAnalysis,
   LanguageSupport,
-  StackTracePattern,
-  FrameImportance,
-  ErrorPathAnalysis,
-  FrameContext,
-  SourceLocation,
-  FunctionSignature,
-  AsyncCallChain,
-  RecursionDetection,
-  ExternalLibraryFrame,
-  UserCodeFrame,
-  ThirdPartyFrame,
-  SystemFrame,
+  ErrorAnalysis,
 } from './types.js';
 
 const logger = getComponentLogger('stack-trace-analyzer');
@@ -339,27 +324,15 @@ export class StackTraceAnalyzer {
       const duration = performance.now() - startTime;
 
       const analysis: StackTraceAnalysis = {
-        originalStackTrace: stackTraceText,
-        language,
-        totalFrames: frames.length,
-        analyzedFrames: frameAnalyses,
-        callChain: callChainAnalysis,
-        rootCause,
-        errorPatterns,
-        frameClassification,
-        recursionDetection,
-        asyncAnalysis,
-        insights: this.generateInsights(
-          frameAnalyses,
-          callChainAnalysis,
-          errorPatterns,
-        ),
-        metadata: {
-          processingTime: Math.round(duration),
-          sourceMapsUsed: this.config.enableSourceMaps,
-          contextExtracted: options.includeContext || false,
-          analysisDepth: analyzedFrames.length,
-        },
+        id: crypto.randomUUID(),
+        originalTrace: stackTraceText,
+        frames: frames,
+        errorOrigin: frames[0] || { functionName: 'unknown', filePath: 'unknown', lineNumber: 0, columnNumber: 0, isAsync: false, isNative: false } as StackFrame,
+        propagationPath: frames.map(f => f.functionName || 'anonymous'),
+        variableStates: {},
+        recommendations: ['Check error origin in frame 0', 'Review stack trace for patterns'],
+        relatedErrors: [],
+        confidence: 0.8,
       };
 
       logger.info(

@@ -12,6 +12,7 @@ import type {
   ResourceConstraint,
   ExecutionSequence,
 } from '../task-management/types.js';
+import { TaskPriority } from '../task-management/types.js';
 import type { Decision, DecisionContext } from './types.js';
 import { DecisionType, DecisionPriority } from './types.js';
 import {
@@ -192,7 +193,7 @@ interface ParallelExecutionHistory {
 export class ParallelOptimizer {
   private config: ParallelOptimizationConfig;
   private dependencyAnalyzer: DependencyAnalyzer;
-  private dependencyGraph: DecisionDependencyGraph;
+  private dependencyGraph: DecisionDependencyGraphManager;
   private executionHistory: Map<string, ParallelExecutionHistory>;
   private learningModel: Map<string, number>;
   private resourcePredictions: Map<string, number>;
@@ -200,7 +201,7 @@ export class ParallelOptimizer {
   constructor(
     config: Partial<ParallelOptimizationConfig> = {},
     dependencyAnalyzer?: DependencyAnalyzer,
-    dependencyGraph?: DecisionDependencyGraph,
+    dependencyGraph?: DecisionDependencyGraphManager,
   ) {
     this.config = {
       strategy: ParallelStrategy.ADAPTIVE_DYNAMIC,
@@ -895,7 +896,7 @@ export class ParallelOptimizer {
         ['cpu', 1],
         ['memory', 512],
       ];
-      for (const [resourceType, amount] of Array.from(taskDefaults.entries())) {
+      for (const [resourceType, amount] of taskDefaults) {
         requirements.set(resourceType, amount);
       }
     }
@@ -1167,7 +1168,7 @@ export class ParallelOptimizer {
     // Check for critical tasks
     const criticalTasks = taskIds.filter((id) => {
       const task = tasks.get(id);
-      return task?.priority === 'critical';
+      return task?.priority === TaskPriority.CRITICAL;
     });
 
     if (criticalTasks.length > 0) {

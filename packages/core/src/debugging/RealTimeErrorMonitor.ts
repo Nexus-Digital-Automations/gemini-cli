@@ -23,6 +23,7 @@ import type {
   AlertRule,
   SystemHealth,
   PerformanceMetrics,
+  LanguageSupport,
 } from './types.js';
 
 import {
@@ -378,7 +379,7 @@ export class RealTimeErrorMonitor {
         const analysis = await this.errorAnalysisEngine.analyzeError(
           error.message,
           {
-            language: app?.language,
+            language: app?.language as LanguageSupport,
             applicationId: error.applicationId,
             timestamp: errorEvent.timestamp,
           },
@@ -864,7 +865,7 @@ export class RealTimeErrorMonitor {
       id: `pattern-${patternId}-${Date.now()}`,
       type: 'pattern',
       severity: 'warning',
-      title: patternConfig.name,
+      title: String(patternConfig.name),
       description: `${patternConfig.description}: ${description}`,
       timestamp: new Date(),
       applicationId: triggerEvent.applicationId,

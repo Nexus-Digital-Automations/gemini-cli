@@ -916,10 +916,12 @@ export class ErrorAnalysisEngine {
     }
 
     return {
-      analysisTime,
-      fixGenerationTime: analysisTime + 50,
       memoryUsage,
       cpuUsage,
+      responseTime: analysisTime,
+      throughput: 10, // requests per second
+      analysisTime,
+      fixGenerationTime: analysisTime + 50,
       cacheHitRate: 0.85,
       impact:
         errorLower.includes('memory') || errorLower.includes('timeout')

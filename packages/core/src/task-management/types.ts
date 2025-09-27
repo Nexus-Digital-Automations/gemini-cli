@@ -230,6 +230,8 @@ export interface TaskExecutionMetrics {
 export interface Task {
   /** Unique task identifier */
   id: TaskId;
+  /** Human-readable task name */
+  name: string;
   /** Human-readable task title */
   title: string;
   /** Detailed task description */
@@ -262,6 +264,8 @@ export interface Task {
   createdAt?: Date;
   /** Task last update timestamp */
   updatedAt?: Date;
+  /** Estimated effort in minutes */
+  estimatedEffort?: number;
   /** Function to execute the task */
   executeFunction?: (
     task: Task,

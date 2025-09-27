@@ -14,10 +14,10 @@ import type {
   ExecutionPlan,
   TaskQueueConfig,
 } from './types.js';
-import { ResourceAllocation as _ResourceAllocation } from './types.js';
+import type { ResourceAllocation as _ResourceAllocation } from './types.js';
 import { DependencyGraphManager } from './dependency-graph.js';
 import { TaskSequencer } from './task-sequencer.js';
-import { getComponentLogger } from '../utils/logger.js';
+import { getComponentLogger } from '../../utils/logger.js';
 
 const logger = getComponentLogger('DependencyManager');
 
@@ -274,7 +274,7 @@ export class DependencyManager {
   ): boolean {
     // Sort resolution strategies by impact (low impact first)
     const sortedStrategies = [...cycle.resolutionStrategies].sort((a, b) => {
-      const impactOrder = { low: 0, medium: 1, high: 2 };
+      const impactOrder: { [key: string]: number } = { low: 0, medium: 1, high: 2 };
       return impactOrder[a.impact] - impactOrder[b.impact];
     });
 

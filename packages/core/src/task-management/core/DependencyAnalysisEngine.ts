@@ -19,7 +19,7 @@ import type {
   Bottleneck,
   BreakingPoint,
 } from '../types/Dependency.js';
-import {
+import type {
   DependencyNode,
   DependencyEdge,
   ViolationType,

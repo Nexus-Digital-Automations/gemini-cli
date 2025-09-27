@@ -32,6 +32,7 @@ import type {
 
 // Define interfaces locally since original imports are not available
 export interface ITask extends Task {
+  name: string;
   updatedAt: Date;
   parameters?: Record<string, unknown>;
   tags: string[];
@@ -1218,13 +1219,13 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
     const startTime = performance.now();
 
     try {
-      const result = await super.deleteTask(queueId, true, transaction);
+      const result = await this.deleteTask(queueId, true, transaction);
 
       this.emit('queue-deleted-cross-session', {
         queueId,
         sessionId: this.sessionMetadata.sessionId,
         duration: performance.now() - startTime,
-        transactionId: transaction?.id,
+        transactionId: transaction?.transactionId,
       });
 
       return result;
@@ -1235,7 +1236,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
         sessionId: this.sessionMetadata.sessionId,
         error,
         duration: performance.now() - startTime,
-        transactionId: transaction?.id,
+        transactionId: transaction?.transactionId,
       });
       throw error;
     }

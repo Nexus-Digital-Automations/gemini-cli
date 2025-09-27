@@ -6,18 +6,18 @@
 
 import { EventEmitter } from 'node:events';
 import type { DecisionEngine } from './decisionEngine.js';
-import type {
-  ResourceInfo,
-  AllocationRequest,
-  AllocationResult,
-} from './resourceAllocator.js';
-import {
-  ResourceAllocator,
-  ResourceType,
-  AllocationStrategies,
-  type AllocationStrategy,
-  type ResourceRequirement,
-} from './resourceAllocator.js';
+// import type {
+//   ResourceInfo,
+//   AllocationRequest,
+//   AllocationResult,
+// } from './resourceAllocator.js';
+// import {
+//   ResourceAllocator,
+//   ResourceType,
+//   AllocationStrategies,
+//   type AllocationStrategy,
+//   type ResourceRequirement,
+// } from './resourceAllocator.js';
 import { DecisionType, DecisionPriority } from './types.js';
 import type { DecisionContext, Decision } from './types.js';
 

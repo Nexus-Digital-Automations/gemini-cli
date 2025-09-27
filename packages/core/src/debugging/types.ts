@@ -740,18 +740,27 @@ export interface PerformanceThresholds {
  * Alert rule configuration
  */
 export interface AlertRule {
+  /** Rule identifier */
+  id: string;
   /** Rule name */
   name: string;
+  /** Rule description */
+  description?: string;
   /** Condition to trigger alert */
-  condition: string;
+  condition: {
+    type: string;
+    patternId?: string;
+    threshold: number;
+    timeWindow: number;
+  };
   /** Alert severity */
-  severity: ErrorSeverity;
+  severity: ErrorSeverity | 'warning' | 'info';
   /** Alert message template */
-  messageTemplate: string;
+  messageTemplate?: string;
   /** Actions to take */
-  actions: AlertAction[];
+  actions?: AlertAction[];
   /** Cooldown period in ms */
-  cooldownPeriod: number;
+  cooldownPeriod?: number;
   /** Is rule enabled? */
   enabled: boolean;
 }
@@ -1090,18 +1099,22 @@ export interface LanguageUsage {
  * System performance metrics
  */
 export interface PerformanceMetrics {
-  /** Error analysis time in ms */
-  analysisTime: number;
-  /** Fix generation time in ms */
-  fixGenerationTime: number;
-  /** Memory usage in MB */
+  /** Memory usage percentage */
   memoryUsage: number;
   /** CPU usage percentage */
   cpuUsage: number;
+  /** Response time in ms */
+  responseTime: number;
+  /** Throughput requests per second */
+  throughput: number;
+  /** Error analysis time in ms */
+  analysisTime?: number;
+  /** Fix generation time in ms */
+  fixGenerationTime?: number;
   /** Cache hit rate */
-  cacheHitRate: number;
+  cacheHitRate?: number;
   /** Performance impact assessment */
-  impact: string;
+  impact?: string;
 }
 
 /**
@@ -1637,7 +1650,7 @@ export interface PatternLearningData {
  */
 export interface CommonErrorPattern extends ErrorPattern {
   /** Built-in pattern category */
-  category: string;
+  category: ErrorCategory;
   /** Pattern language */
   language: SupportedLanguage;
   /** Usage frequency */
@@ -1813,10 +1826,16 @@ export interface LearningFix {
 export interface ErrorEvent {
   id: string;
   timestamp: Date;
-  type: ErrorType;
-  severity: ErrorSeverity;
+  type?: ErrorType;
+  severity: ErrorSeverity | 'low' | 'medium' | 'high' | 'critical';
   message: string;
-  source: string;
+  source?: string;
+  stack?: string;
+  applicationId: string;
+  context?: Record<string, unknown>;
+  analyzed: boolean;
+  patterns?: string[];
+  analysis?: ErrorAnalysis;
   metadata?: Record<string, unknown>;
 }
 
@@ -1826,9 +1845,17 @@ export interface ErrorEvent {
 export interface ErrorMetrics {
   totalErrors: number;
   errorRate: number;
-  criticalErrors: number;
-  timeWindow: string;
-  trends: {
+  criticalErrors?: number;
+  timeWindow?: string;
+  errorsBySeverity: {
+    low: number;
+    medium: number;
+    high: number;
+    critical: number;
+  };
+  errorsByApplication: Record<string, number>;
+  lastUpdated: Date;
+  trends?: {
     increasing: boolean;
     percentageChange: number;
   };
@@ -1839,18 +1866,23 @@ export interface ErrorMetrics {
  */
 export interface MonitoringAlert {
   id: string;
-  name: string;
+  name?: string;
+  title?: string;
   description: string;
-  condition: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  enabled: boolean;
-  actions: string[];
+  condition?: string;
+  type?: string;
+  severity: 'low' | 'medium' | 'high' | 'critical' | 'info' | 'warning' | 'error';
+  enabled?: boolean;
+  actions?: string[];
+  timestamp: Date;
+  applicationId: string;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * System health status
  */
-export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | 'warning' | 'critical';
 
 /**
  * Monitored application configuration
@@ -1858,19 +1890,23 @@ export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
 export interface MonitoredApplication {
   id: string;
   name: string;
-  version: string;
-  environment: string;
-  endpoints: string[];
+  version?: string;
+  environment?: string;
+  language?: SupportedLanguage | string;
+  endpoints?: string[];
+  logSources?: string[];
   healthCheckUrl?: string;
+  status: HealthStatus;
+  lastSeen: Date;
 }
 
 /**
  * Error event subscriber
  */
 export interface ErrorSubscriber {
-  id: string;
-  name: string;
-  callback: (event: ErrorEvent) => void;
+  id?: string;
+  name?: string;
+  callback: (alert: MonitoringAlert) => void;
   filters?: {
     severity?: ErrorSeverity[];
     type?: ErrorType[];
@@ -1883,11 +1919,20 @@ export interface ErrorSubscriber {
  */
 export interface SystemHealth {
   status: HealthStatus;
-  lastChecked: Date;
-  uptime: number;
+  lastChecked?: Date;
+  lastUpdated: Date;
+  uptime?: number;
   errorRate: number;
-  responseTime: number;
-  components: Record<string, HealthStatus>;
+  responseTime?: number;
+  systemMetrics: PerformanceMetrics;
+  activeAlerts: MonitoringAlert[];
+  applicationHealth: Array<{
+    applicationId: string;
+    status: HealthStatus;
+    lastSeen: Date;
+  }>;
+  issues: string[];
+  components?: Record<string, HealthStatus>;
 }
 
 /**
