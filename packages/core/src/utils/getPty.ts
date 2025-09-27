@@ -19,11 +19,27 @@ export type PtyImplementation = {
   name: 'lydell-node-pty' | 'node-pty';
 } | null;
 
+// Import IDisposable interface for proper typing
+interface IDisposable {
+  dispose(): void;
+}
+
 export interface PtyProcess {
   readonly pid: number;
-  onData(callback: (data: string) => void): void;
-  onExit(callback: (e: { exitCode: number; signal?: number }) => void): void;
+  readonly cols: number;
+  readonly rows: number;
+  readonly process: string;
+  handleFlowControl: boolean;
+  onData(callback: (data: string) => void): IDisposable;
+  onExit(
+    callback: (e: { exitCode: number; signal?: number }) => void,
+  ): IDisposable;
+  resize(columns: number, rows: number): void;
+  clear(): void;
+  write(data: string): void;
   kill(signal?: string): void;
+  pause(): void;
+  resume(): void;
 }
 
 export const getPty = async (): Promise<PtyImplementation> => {

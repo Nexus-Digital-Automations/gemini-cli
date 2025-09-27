@@ -468,8 +468,9 @@ export type {
 // Export progress tracking system
 export * from './progress/index.js';
 
-// Export component logger
+// Export component logger and StructuredLogger interface
 export { getComponentLogger } from './utils/logger.js';
+export type { StructuredLogger } from './utils/logger.js';
 
 // Export test utils
 export * from './test-utils/index.js';
