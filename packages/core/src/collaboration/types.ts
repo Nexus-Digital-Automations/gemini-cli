@@ -457,6 +457,8 @@ export interface SessionRecording {
     eventCount: number;
     /** Recording duration */
     durationMs: number;
+    /** Reason for stopping recording */
+    stoppedReason?: string;
   };
 }
 

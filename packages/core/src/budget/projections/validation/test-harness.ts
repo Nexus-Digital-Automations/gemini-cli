@@ -5,6 +5,7 @@
  */
 
 import type { CostDataPoint, CostProjection } from '../types.js';
+import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 import type {
   ValidationReport,
   ValidationTestCase,
@@ -15,7 +16,6 @@ import type {
 } from './performance-monitor.js';
 import { AlgorithmValidator } from './algorithm-validator.js';
 import { PerformanceMonitor } from './performance-monitor.js';
-import { getComponentLogger } from '../../../utils/logger.js';
 
 /**
  * Test suite configuration
@@ -103,13 +103,13 @@ export interface TestDataConfig {
  * Provides automated testing, validation, and performance monitoring
  */
 export class TestHarness {
-  private logger: Logger;
+  private logger: StructuredLogger;
   private validator: AlgorithmValidator;
   private performanceMonitor: PerformanceMonitor;
   private testDataCache: Map<string, CostDataPoint[]> = new Map();
 
   constructor() {
-    this.logger = new Logger('TestHarness');
+    this.logger = getComponentLogger('TestHarness');
     this.validator = new AlgorithmValidator();
     this.performanceMonitor = new PerformanceMonitor();
     this.logger.info('Test harness initialized');
@@ -798,6 +798,7 @@ export class TestHarness {
       algorithm: string;
       issues: string[];
       recommendations: string[];
+      success: boolean;
     }>,
     commonIssues: string[],
   ): string[] {

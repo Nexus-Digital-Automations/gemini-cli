@@ -200,7 +200,7 @@ export class AutoCompressionManager extends EventEmitter {
   private tokenUsageHistory: TokenUsageSnapshot[] = [];
   private lastCompressionTime = 0;
   private compressionAttempts = 0;
-  private monitoringTimer: NodeJS.Timer | null = null;
+  private monitoringTimer: NodeJS.Timeout | null = null;
   private isCompressing = false;
   private totalTokensCache = 0;
   private lastCacheUpdate = 0;

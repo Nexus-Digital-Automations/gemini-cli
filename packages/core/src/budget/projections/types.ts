@@ -6,6 +6,9 @@
 
 import type { BudgetUsageData } from '../types.js';
 
+// Re-export BudgetUsageData for consumers
+export type { BudgetUsageData };
+
 /**
  * Core interfaces for cost projection and budget alert system
  * Specialized component for advanced cost forecasting and proactive budget management
@@ -264,6 +267,14 @@ export interface BudgetAlert {
       estimatedOverage: number;
       daysUntilBudgetExhaustion: number;
     };
+    /** Whether this alert was escalated */
+    escalated?: boolean;
+    /** Escalation rule ID if escalated */
+    escalationRule?: string;
+    /** Time when alert was escalated */
+    escalationTime?: Date;
+    /** Original severity before escalation */
+    originalSeverity?: string;
   };
 
   /** Recommended actions */

@@ -15,12 +15,14 @@
 import { getComponentLogger } from '../utils/logger.js';
 import type {
   ContextItem,
-  ContextType,
-  ContextPriority,
   PrioritizationConfig,
   ContextScoring,
   PrioritizationResult,
   PrioritizationStats,
+} from './types.js';
+import {
+  ContextType,
+  ContextPriority,
 } from './types.js';
 
 const logger = getComponentLogger('context-prioritizer');

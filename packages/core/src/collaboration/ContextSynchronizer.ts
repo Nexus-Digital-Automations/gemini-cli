@@ -20,7 +20,9 @@ import type {
   ContextConflict,
   WorkspaceConfig,
 } from './types.js';
-import type { ContextItem, ContextType, ContextPriority } from '../context/types.js';
+import { ConflictStatus } from './types.js';
+import type { ContextItem } from '../context/types.js';
+import { ContextType, ContextPriority } from '../context/types.js';
 
 /**
  * Context synchronizer for collaborative programming sessions
@@ -312,7 +314,7 @@ export class ContextSynchronizer extends EventEmitter {
           timestamp: new Date(),
         },
       ],
-      status: 'pending',
+      status: ConflictStatus.PENDING,
     };
 
     sharedContext.syncState.conflicts.push(conflict);

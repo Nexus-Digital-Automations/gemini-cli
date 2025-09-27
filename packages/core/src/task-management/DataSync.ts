@@ -213,7 +213,7 @@ export class DataSync extends EventEmitter {
       },
     };
 
-    logger.info('DataSync initialized with configuration:', this.config);
+    logger().info('DataSync initialized with configuration:', this.config);
   }
 
   /**
@@ -221,7 +221,7 @@ export class DataSync extends EventEmitter {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      logger.warn('DataSync already initialized');
+      logger().warn('DataSync already initialized');
       return;
     }
 
@@ -237,9 +237,9 @@ export class DataSync extends EventEmitter {
       this.isInitialized = true;
       this.emit('initialized');
 
-      logger.info('DataSync initialized successfully');
+      logger().info('DataSync initialized successfully');
     } catch (error) {
-      logger.error('Failed to initialize DataSync:', error);
+      logger().error('Failed to initialize DataSync:', error);
       throw error;
     }
   }
@@ -294,7 +294,7 @@ export class DataSync extends EventEmitter {
       this.trimChangeBuffer();
     }
 
-    logger.debug(`Tracked change ${changeId} for ${entityType} ${entityId}`);
+    logger().debug(`Tracked change ${changeId} for ${entityType} ${entityId}`);
     this.emit('change-tracked', change);
 
     // Trigger immediate sync for critical changes
@@ -310,7 +310,7 @@ export class DataSync extends EventEmitter {
    */
   async syncChanges(force = false): Promise<SyncResult> {
     if (this.isSyncing && !force) {
-      logger.debug('Sync already in progress, skipping');
+      logger().debug('Sync already in progress, skipping');
       return {
         success: true,
         changesSynced: 0,
@@ -328,7 +328,7 @@ export class DataSync extends EventEmitter {
         .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
       if (pendingChanges.length === 0) {
-        logger.debug('No pending changes to synchronize');
+        logger().debug('No pending changes to synchronize');
         return {
           success: true,
           changesSynced: 0,
@@ -337,7 +337,7 @@ export class DataSync extends EventEmitter {
         };
       }
 
-      logger.info(
+      logger().info(
         `Starting synchronization of ${pendingChanges.length} changes`,
       );
 
@@ -353,7 +353,7 @@ export class DataSync extends EventEmitter {
           changesSynced += result.changesSynced;
           conflictsFound += result.conflictsFound;
         } catch (error) {
-          logger.error(`Failed to process batch ${batch.id}:`, error);
+          logger().error(`Failed to process batch ${batch.id}:`, error);
           // Continue with next batch
         }
       }
@@ -371,14 +371,14 @@ export class DataSync extends EventEmitter {
         duration,
       };
 
-      logger.info(
+      logger().info(
         `Synchronization completed: ${changesSynced} changes synced, ${conflictsFound} conflicts found`,
       );
       this.emit('sync-completed', result);
 
       return result;
     } catch (error) {
-      logger.error('Synchronization failed:', error);
+      logger().error('Synchronization failed:', error);
       this.updateSyncStats(false, Date.now() - startTime);
 
       const result: SyncResult = {
@@ -410,7 +410,7 @@ export class DataSync extends EventEmitter {
     }
 
     if (conflict.resolved) {
-      logger.warn(`Conflict ${conflictId} is already resolved`);
+      logger().warn(`Conflict ${conflictId} is already resolved`);
       return;
     }
 
@@ -463,12 +463,12 @@ export class DataSync extends EventEmitter {
       this.syncState.activeConflicts--;
       this.syncState.stats.conflictsResolved++;
 
-      logger.info(
+      logger().info(
         `Resolved conflict ${conflictId} using ${resolveStrategy} strategy`,
       );
       this.emit('conflict-resolved', conflict);
     } catch (error) {
-      logger.error(`Failed to resolve conflict ${conflictId}:`, error);
+      logger().error(`Failed to resolve conflict ${conflictId}:`, error);
       throw error;
     }
   }
@@ -548,10 +548,10 @@ export class DataSync extends EventEmitter {
           );
       }
 
-      logger.info(`Force synchronized ${entityType} ${entityId}`);
+      logger().info(`Force synchronized ${entityType} ${entityId}`);
       this.emit('force-sync-completed', { entityType, entityId });
     } catch (error) {
-      logger.error(`Failed to force sync ${entityType} ${entityId}:`, error);
+      logger().error(`Failed to force sync ${entityType} ${entityId}:`, error);
       throw error;
     }
   }
@@ -632,7 +632,7 @@ export class DataSync extends EventEmitter {
       );
     });
 
-    logger.debug('Change tracking event listeners setup completed');
+    logger().debug('Change tracking event listeners setup completed');
   }
 
   /**
@@ -647,11 +647,11 @@ export class DataSync extends EventEmitter {
       try {
         await this.syncChanges();
       } catch (error) {
-        logger.error('Real-time sync error:', error);
+        logger().error('Real-time sync error:', error);
       }
     }, this.config.syncInterval);
 
-    logger.debug(
+    logger().debug(
       `Started real-time sync with interval ${this.config.syncInterval}ms`,
     );
   }
@@ -698,7 +698,7 @@ export class DataSync extends EventEmitter {
       this.changeBuffer.set(id, change);
     });
 
-    logger.debug(`Trimmed change buffer to ${this.changeBuffer.size} entries`);
+    logger().debug(`Trimmed change buffer to ${this.changeBuffer.size} entries`);
   }
 
   /**
@@ -731,7 +731,7 @@ export class DataSync extends EventEmitter {
   private async processBatch(
     batch: SyncBatch,
   ): Promise<{ changesSynced: number; conflictsFound: number }> {
-    logger.debug(
+    logger().debug(
       `Processing batch ${batch.id} with ${batch.changes.length} changes`,
     );
 
@@ -758,13 +758,13 @@ export class DataSync extends EventEmitter {
         change.syncAttempts++;
         changesSynced++;
       } catch (error) {
-        logger.error(`Failed to process change ${change.id}:`, error);
+        logger().error(`Failed to process change ${change.id}:`, error);
         change.syncAttempts++;
 
         // Remove failed changes after max retries
         if (change.syncAttempts >= this.config.maxRetries) {
           this.changeBuffer.delete(change.id);
-          logger.warn(
+          logger().warn(
             `Removing change ${change.id} after ${change.syncAttempts} failed attempts`,
           );
         }
@@ -806,7 +806,7 @@ export class DataSync extends EventEmitter {
       resolved: false,
     };
 
-    logger.warn(
+    logger().warn(
       `Detected conflict ${conflictId} for ${change.entityType} ${change.entityId}`,
     );
     return conflict;
@@ -840,14 +840,14 @@ export class DataSync extends EventEmitter {
   private async applyTaskChange(change: DataChange): Promise<void> {
     // In a real implementation, this would apply the change to the task
     // For now, we'll just log it
-    logger.debug(`Applied task change ${change.id} to task ${change.entityId}`);
+    logger().debug(`Applied task change ${change.id} to task ${change.entityId}`);
   }
 
   /**
    * Apply dependency-related change
    */
   private async applyDependencyChange(change: DataChange): Promise<void> {
-    logger.debug(
+    logger().debug(
       `Applied dependency change ${change.id} to dependency ${change.entityId}`,
     );
   }
@@ -856,7 +856,7 @@ export class DataSync extends EventEmitter {
    * Apply session-related change
    */
   private async applySessionChange(change: DataChange): Promise<void> {
-    logger.debug(
+    logger().debug(
       `Applied session change ${change.id} to session ${change.entityId}`,
     );
   }
@@ -865,7 +865,7 @@ export class DataSync extends EventEmitter {
    * Apply ownership-related change
    */
   private async applyOwnershipChange(change: DataChange): Promise<void> {
-    logger.debug(
+    logger().debug(
       `Applied ownership change ${change.id} to ownership ${change.entityId}`,
     );
   }
@@ -886,7 +886,7 @@ export class DataSync extends EventEmitter {
    */
   private async syncDependency(dependencyId: string): Promise<void> {
     // In a real implementation, this would sync dependency data
-    logger.debug(`Syncing dependency ${dependencyId}`);
+    logger().debug(`Syncing dependency ${dependencyId}`);
   }
 
   /**
@@ -984,7 +984,7 @@ export class DataSync extends EventEmitter {
       change.synchronized = true;
     }
 
-    logger.info(`Applied resolution for conflict ${conflict.id}`);
+    logger().info(`Applied resolution for conflict ${conflict.id}`);
   }
 
   /**
@@ -1012,7 +1012,7 @@ export class DataSync extends EventEmitter {
    * Shutdown the data synchronization system
    */
   async shutdown(): Promise<void> {
-    logger.info('Shutting down DataSync...');
+    logger().info('Shutting down DataSync...');
 
     // Clear sync timer
     if (this.syncTimer) {
@@ -1022,11 +1022,11 @@ export class DataSync extends EventEmitter {
 
     // Perform final sync of pending changes
     if (this.changeBuffer.size > 0) {
-      logger.info('Performing final synchronization before shutdown...');
+      logger().info('Performing final synchronization before shutdown...');
       try {
         await this.syncChanges(true);
       } catch (error) {
-        logger.error('Final synchronization failed:', error);
+        logger().error('Final synchronization failed:', error);
       }
     }
 
@@ -1037,7 +1037,7 @@ export class DataSync extends EventEmitter {
     this.isSyncing = false;
 
     this.emit('shutdown');
-    logger.info('DataSync shutdown completed');
+    logger().info('DataSync shutdown completed');
   }
 }
 

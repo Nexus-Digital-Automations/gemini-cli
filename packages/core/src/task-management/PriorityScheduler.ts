@@ -114,7 +114,7 @@ export class PriorityScheduler extends EventEmitter {
     this.initializeAlgorithmConfigs();
     this.initializePerformanceMetrics();
 
-    logger.info('PriorityScheduler initialized', {
+    logger().info('PriorityScheduler initialized', {
       algorithm: this.currentAlgorithm,
       options: this.options,
     });
@@ -130,7 +130,7 @@ export class PriorityScheduler extends EventEmitter {
   ): Promise<SchedulingDecision> {
     const startTime = Date.now();
 
-    logger.debug('Starting task scheduling', {
+    logger().debug('Starting task scheduling', {
       eligibleTasks: eligibleTasks.length,
       availableSlots,
       algorithm: this.currentAlgorithm,
@@ -160,7 +160,7 @@ export class PriorityScheduler extends EventEmitter {
       // Update performance metrics
       this.updateAlgorithmPerformance(algorithm, startTime);
 
-      logger.info('Task scheduling completed', {
+      logger().info('Task scheduling completed', {
         selectedTasks: decision.selectedTasks.length,
         algorithm: decision.metadata.algorithm,
         confidence: decision.metadata.confidenceScore,
@@ -171,7 +171,7 @@ export class PriorityScheduler extends EventEmitter {
 
       return decision;
     } catch (error) {
-      logger.error('Scheduling failed, falling back to priority-based', {
+      logger().error('Scheduling failed, falling back to priority-based', {
         error: error instanceof Error ? error.message : String(error),
         algorithm: this.currentAlgorithm,
       });
@@ -1133,7 +1133,7 @@ export class PriorityScheduler extends EventEmitter {
       decision,
     );
 
-    logger.debug('Scheduling decision recorded for learning', {
+    logger().debug('Scheduling decision recorded for learning', {
       selectedTasks: decision.selectedTasks.length,
       algorithm: decision.metadata.algorithm,
       confidence: decision.metadata.confidenceScore,
@@ -1185,7 +1185,7 @@ export class PriorityScheduler extends EventEmitter {
       outcomes.filter((o) => o.success).length / outcomes.length;
     const algorithm = decision.metadata.algorithm;
 
-    logger.debug('Execution outcome recorded for learning', {
+    logger().debug('Execution outcome recorded for learning', {
       algorithm,
       successRate,
       taskCount: outcomes.length,
@@ -1222,7 +1222,7 @@ export class PriorityScheduler extends EventEmitter {
     const oldAlgorithm = this.currentAlgorithm;
     this.currentAlgorithm = algorithm;
 
-    logger.info('Scheduling algorithm changed', {
+    logger().info('Scheduling algorithm changed', {
       from: oldAlgorithm,
       to: algorithm,
     });
@@ -1309,7 +1309,7 @@ export class PriorityScheduler extends EventEmitter {
     this.schedulingHistory.clear();
     this.initializePerformanceMetrics();
 
-    logger.info('PriorityScheduler reset completed');
+    logger().info('PriorityScheduler reset completed');
     this.emit('reset');
   }
 }

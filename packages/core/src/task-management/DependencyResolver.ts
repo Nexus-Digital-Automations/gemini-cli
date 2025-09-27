@@ -112,7 +112,7 @@ export class DependencyResolver extends EventEmitter {
     this.calculateExecutionLevels();
     this.identifyCriticalPath();
 
-    logger.info('Dependency graph built', {
+    logger().info('Dependency graph built', {
       totalNodes: this.dependencyGraph.size,
       totalEdges: dependencies.size,
     });
@@ -128,7 +128,7 @@ export class DependencyResolver extends EventEmitter {
     const hasCycles = cycles.length > 0;
 
     if (hasCycles && strategy === ResolutionStrategy.STRICT) {
-      logger.warn('Circular dependencies detected in strict mode', { cycles });
+      logger().warn('Circular dependencies detected in strict mode', { cycles });
     }
 
     const criticalPath = this.findCriticalPath();
@@ -151,7 +151,7 @@ export class DependencyResolver extends EventEmitter {
       estimatedDuration,
     };
 
-    logger.info('Dependency analysis completed', {
+    logger().info('Dependency analysis completed', {
       hasCycles,
       cycleCount: cycles.length,
       criticalPathLength: criticalPath.length,
@@ -194,7 +194,7 @@ export class DependencyResolver extends EventEmitter {
             const cycle = path.slice(cycleStart);
             cycle.push(depId); // Complete the cycle
             cycles.push(cycle);
-            logger.warn(`Cycle detected: ${cycle.join(' -> ')}`);
+            logger().warn(`Cycle detected: ${cycle.join(' -> ')}`);
           } else if (state === 'white') {
             dfsVisit(depId);
           }
@@ -311,7 +311,7 @@ export class DependencyResolver extends EventEmitter {
       }
     }
 
-    logger.info('Critical path identified', {
+    logger().info('Critical path identified', {
       path: longestPath,
       estimatedDuration: maxDuration,
     });
@@ -520,7 +520,7 @@ export class DependencyResolver extends EventEmitter {
     for (const cycle of conflicts) {
       switch (strategy) {
         case ResolutionStrategy.STRICT:
-          logger.error(
+          logger().error(
             `Cannot resolve circular dependency in strict mode: ${cycle.join(' -> ')}`,
           );
           throw new Error(
@@ -574,7 +574,7 @@ export class DependencyResolver extends EventEmitter {
 
     if (targetDependency) {
       this.removeDependency(targetDependency);
-      logger.info(
+      logger().info(
         `Removed dependency to resolve cycle: ${targetDependency.dependsOnTaskId} -> ${targetDependency.dependentTaskId}`,
       );
     }
@@ -598,7 +598,7 @@ export class DependencyResolver extends EventEmitter {
           dependency.type = 'enables' as DependencyType;
           dependency.isOptional = true;
 
-          logger.info(
+          logger().info(
             `Converted blocking dependency to enabling: ${fromTaskId} -> ${toTaskId}`,
           );
         }
@@ -664,7 +664,7 @@ export class DependencyResolver extends EventEmitter {
     this.calculateExecutionLevels();
     this.identifyCriticalPath();
 
-    logger.info('Dependency graph rebuilt after conflict resolution');
+    logger().info('Dependency graph rebuilt after conflict resolution');
     this.emit('graphRebuilt');
   }
 
@@ -816,7 +816,7 @@ export class DependencyResolver extends EventEmitter {
     this.dependencyGraph.clear();
     this.taskDependencies.clear();
 
-    logger.info('Dependency resolver cleared');
+    logger().info('Dependency resolver cleared');
     this.emit('cleared');
   }
 }

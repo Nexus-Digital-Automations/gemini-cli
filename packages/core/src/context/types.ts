@@ -160,6 +160,8 @@ export enum CompressionStrategy {
  * Compression result
  */
 export interface CompressionResult {
+  /** Whether compression was successful */
+  success: boolean;
   /** Original content */
   original: string;
   /** Compressed content */
@@ -465,4 +467,24 @@ export interface ContextUsageStats {
   utilizationRate: number;
   /** Cache hit rate */
   cacheHitRate: number;
+}
+
+/**
+ * User interaction tracking
+ */
+export interface UserInteraction {
+  /** Interaction timestamp */
+  timestamp: Date;
+  /** Type of interaction */
+  type: 'command' | 'file_access' | 'edit' | 'search' | 'suggestion_accepted' | 'suggestion_rejected';
+  /** Context or description of the interaction */
+  context: string;
+  /** Files involved in the interaction */
+  files?: string[];
+  /** Command executed (if applicable) */
+  command?: string;
+  /** Success status of the interaction */
+  success: boolean;
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
 }

@@ -5,8 +5,9 @@
  */
 
 import os from 'node:os';
-import type { CostDataPoint, ValidationMetrics } from '../types.js';
-import { Logger } from '../../utils/logger.js';
+import type { CostDataPoint } from '../types.js';
+import type { ValidationMetrics } from './algorithm-validator.js';
+import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 
 /**
  * Performance benchmark for algorithm comparison
@@ -144,13 +145,13 @@ export interface DegradationDetection {
  * Tracks algorithm performance over time and detects degradation
  */
 export class PerformanceMonitor {
-  private logger: Logger;
+  private logger: StructuredLogger;
   private benchmarks: Map<string, PerformanceBenchmark[]> = new Map();
   private alerts: Map<string, PerformanceAlert> = new Map();
   private monitoringInterval: NodeJS.Timeout | null = null;
 
   constructor() {
-    this.logger = new Logger('PerformanceMonitor');
+    this.logger = getComponentLogger('PerformanceMonitor');
     this.logger.info('Performance monitor initialized');
     this.initializeDefaultAlerts();
   }
@@ -437,9 +438,9 @@ export class PerformanceMonitor {
 
       // Check each metric for degradation
       const metrics = [
-        { key: 'executionTime', threshold: 0.2, direction: 'increase' },
-        { key: 'memoryUsage', threshold: 0.3, direction: 'increase' },
-        { key: 'throughput', threshold: -0.2, direction: 'decrease' },
+        { key: 'executionTime', threshold: 0.2, direction: 'increase' as const },
+        { key: 'memoryUsage', threshold: 0.3, direction: 'increase' as const },
+        { key: 'throughput', threshold: -0.2, direction: 'decrease' as const },
       ];
 
       metrics.forEach((metric) => {

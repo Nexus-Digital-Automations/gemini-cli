@@ -213,7 +213,7 @@ export class EnhancedTaskQueue extends TaskQueue {
     // Start advanced optimization processes
     this.startAdvancedOptimization();
 
-    logger.info('EnhancedTaskQueue initialized with advanced scheduling', {
+    logger().info('EnhancedTaskQueue initialized with advanced scheduling', {
       algorithm: this.schedulingConfig.algorithm,
       loadBalancing: this.schedulingConfig.loadBalancing,
       resourcePolicy: this.schedulingConfig.resourcePolicy,
@@ -270,7 +270,7 @@ export class EnhancedTaskQueue extends TaskQueue {
           );
           this.starvationTracker.set(task.id, new Date());
 
-          logger.debug(`Priority boosted for starving task: ${task.title}`, {
+          logger().debug(`Priority boosted for starving task: ${task.title}`, {
             taskId: task.id,
             originalPriority: task.priority,
             boostedPriority: effectivePriority,
@@ -560,7 +560,7 @@ export class EnhancedTaskQueue extends TaskQueue {
   registerExecutor(executor: ExecutorNode): void {
     this.executorNodes.set(executor.id, executor);
 
-    logger.info('Executor registered for task distribution', {
+    logger().info('Executor registered for task distribution', {
       executorId: executor.id,
       capabilities: executor.capabilities,
       maxConcurrentTasks: executor.maxConcurrentTasks,
@@ -944,7 +944,7 @@ export class EnhancedTaskQueue extends TaskQueue {
   private updatePredictionModel(): void {
     // Placeholder for ML model updates
     // In a real implementation, this would retrain the model with recent execution stats
-    logger.debug('ML model update triggered', {
+    logger().debug('ML model update triggered', {
       statsCount: this.executionStats.length,
     });
   }
@@ -1026,7 +1026,7 @@ export class EnhancedTaskQueue extends TaskQueue {
       this.monitorExecutorHealth();
     }, 10000); // Every 10 seconds
 
-    logger.info('Advanced optimization processes started');
+    logger().info('Advanced optimization processes started');
   }
 
   private preventTaskStarvation(): void {
@@ -1044,7 +1044,7 @@ export class EnhancedTaskQueue extends TaskQueue {
     });
 
     if (starvationCount > 0) {
-      logger.warn(`Detected ${starvationCount} starving tasks`, {
+      logger().warn(`Detected ${starvationCount} starving tasks`, {
         maxStarvationTime: this.schedulingConfig.maxStarvationTime,
       });
 
@@ -1063,7 +1063,7 @@ export class EnhancedTaskQueue extends TaskQueue {
         utilizationValues.length;
 
       if (avgUtilization > 0.9) {
-        logger.info(
+        logger().info(
           'High system utilization detected, optimizing resource allocation',
           {
             avgUtilization,
@@ -1085,7 +1085,7 @@ export class EnhancedTaskQueue extends TaskQueue {
 
       if (timeSinceLastHeartbeat > healthCheckTimeout) {
         executor.healthStatus = 'unhealthy';
-        logger.warn(`Executor health check failed: ${id}`, {
+        logger().warn(`Executor health check failed: ${id}`, {
           timeSinceLastHeartbeat,
           healthCheckTimeout,
         });

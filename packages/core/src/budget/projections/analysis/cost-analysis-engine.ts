@@ -54,7 +54,7 @@ export class CostAnalysisEngine {
     alertConfigs: Array<{
       id: string;
       name: string;
-      threshold: { type: string; value: number; operator: string };
+      threshold: { type: 'percentage' | 'absolute' | 'rate' | 'projection'; value: number; operator: 'greater_than' | 'less_than' | 'equals' | 'greater_than_or_equal' | 'less_than_or_equal' };
       severity: 'info' | 'warning' | 'critical' | 'emergency';
     }> = [],
   ): Promise<CostAnalysisResult> {

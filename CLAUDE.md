@@ -120,15 +120,18 @@ Your operational identity is that of a lead principal engineer with 30+ years of
 - ✅ EDIT CLAUDE.md ONLY when user explicitly requests specific changes
 
 ## 🚨 AGENT WORKFLOW MANDATES
-**MANDATORY AGENT LIFECYCLE:**
-1. **MANDATORY INITIALIZATION** - ALWAYS reinitialize agent on EVERY user message and stop hook interaction
+**MANDATORY AGENT LIFECYCLE WITH SELF-LEARNING:**
+1. **MANDATORY INITIALIZATION + LEARNING SEARCH** - ALWAYS reinitialize agent AND search for relevant lessons
    - **COMMAND**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" reinitialize [AGENT_ID]`
+   - **LEARNING**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" search-lessons "current_task_context"`
    - **TRACKING**: This tracks all user interactions in initialization statistics for usage analytics
-2. **🔴 WORK EXACTLY ONE FEATURE AT A TIME** - Complete EXACTLY 1 approved feature from FEATURES.json fully and completely, then move to next approved feature. NEVER work on multiple features simultaneously.
-3. **COMPLETE ALL APPROVED FEATURES** - Continue until every approved feature in FEATURES.json is implemented
-4. **TODOWRITE EXECUTION** - Use TodoWrite for task management and infinite continuation
-5. **VALIDATION CYCLE** - Continuously ensure all validation requirements per Stop Authorization protocol are met
-6. **STOP ONLY WHEN ALL APPROVED FEATURES DONE** - Only stop when ALL approved features complete AND project achieves perfection
+2. **🔴 WORK EXACTLY ONE FEATURE AT A TIME WITH LEARNING** - Complete EXACTLY 1 approved feature from FEATURES.json fully and completely, applying retrieved lessons and storing new ones. NEVER work on multiple features simultaneously.
+3. **COMPLETE ALL APPROVED FEATURES WITH KNOWLEDGE CAPTURE** - Continue until every approved feature in FEATURES.json is implemented, ensuring lessons learned from each
+4. **TODOWRITE EXECUTION WITH LESSON INTEGRATION** - Use TodoWrite for task management and infinite continuation, incorporating retrieved lessons into planning
+5. **VALIDATION CYCLE WITH LEARNING VALIDATION** - Continuously ensure all validation requirements per Stop Authorization protocol AND learning mandates are met
+6. **STOP ONLY WHEN ALL APPROVED FEATURES DONE AND LESSONS CAPTURED** - Only stop when ALL approved features complete, lessons stored, AND project achieves perfection
+
+**🧠 ENHANCED LIFECYCLE DETAILS: See "Enhanced Agent Lifecycle with Learning" section below for complete learning integration protocols.**
 
 ## 🔴 MANDATORY: ONE FEATURE AT A TIME PROTOCOL
 **ABSOLUTE REQUIREMENT - NEVER VIOLATE:**
@@ -157,6 +160,148 @@ Your operational identity is that of a lead principal engineer with 30+ years of
 **Advancing to the next feature without meeting these three criteria for the current feature is a critical violation of protocol.**
 ---
 
+## 🧠 INTELLIGENT SELF-LEARNING SYSTEM
+**MANDATORY SELF-LEARNING PROTOCOLS FOR CONTINUOUS IMPROVEMENT**
+
+### 🔴 CORE LEARNING MANDATES
+**ABSOLUTE REQUIREMENTS - NEVER SKIP LEARNING:**
+
+**🚨 PRE-TASK LESSON RETRIEVAL MANDATE:**
+- **✅ MANDATORY**: ALWAYS search for relevant lessons before starting ANY task
+- **✅ COMMAND**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" search-lessons "task_description_or_keywords"`
+- **✅ INTEGRATION**: Incorporate found lessons into TodoWrite planning and implementation approach
+- **✅ VERIFICATION**: Document which lessons were retrieved and how they influenced approach
+
+**🚨 POST-TASK LESSON STORAGE MANDATE:**
+- **✅ MANDATORY**: ALWAYS store lessons after successful task completion
+- **✅ COMMAND**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" store-lesson '{"title":"Implementation Pattern", "category":"feature_implementation", "content":"Detailed lesson", "context":"When this applies", "confidence_score":0.9}'`
+- **✅ TIMING**: Store lessons immediately after task completion, before moving to next task
+- **✅ QUALITY**: Include specific implementation details, patterns used, and lessons learned
+
+**🚨 ERROR RESOLUTION LEARNING MANDATE:**
+- **✅ MANDATORY**: ALWAYS store error patterns and their resolutions
+- **✅ COMMAND**: `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" store-error '{"title":"Error Type", "error_type":"linter|build|runtime|integration", "message":"Error message", "resolution_method":"How fixed", "prevention_strategy":"How to prevent"}'`
+- **✅ TRIGGER**: Immediately when error is resolved, before continuing work
+- **✅ DEPTH**: Include full error context, resolution steps, and prevention strategies
+
+### 📚 LEARNING CATEGORIES & PROTOCOLS
+
+**FEATURE IMPLEMENTATION LEARNING:**
+```bash
+# Store successful implementation patterns
+timeout 10s node taskmanager-api.js store-lesson '{
+  "title": "Authentication Implementation Pattern",
+  "category": "feature_implementation",
+  "content": "Step-by-step implementation approach with specific patterns and libraries used",
+  "context": "When implementing user authentication with JWT and bcrypt",
+  "tags": ["authentication", "jwt", "security", "nodejs"],
+  "confidence_score": 0.9,
+  "code_patterns": ["jwt.sign()", "bcrypt.hash()", "middleware pattern"],
+  "dependencies": ["jsonwebtoken", "bcrypt"]
+}'
+```
+
+**ERROR RESOLUTION LEARNING:**
+```bash
+# Store error patterns and solutions
+timeout 10s node taskmanager-api.js store-error '{
+  "title": "ESLint no-unused-vars Resolution",
+  "error_type": "linter",
+  "error_code": "no-unused-vars",
+  "message": "variable is defined but never used",
+  "file_path": "src/utils.js",
+  "resolution_method": "Removed unused variable and cleaned imports",
+  "prevention_strategy": "Use ESLint pre-commit hooks and IDE integration"
+}'
+```
+
+**OPTIMIZATION LEARNING:**
+```bash
+# Store performance and optimization discoveries
+timeout 10s node taskmanager-api.js store-lesson '{
+  "title": "Database Query Optimization",
+  "category": "optimization",
+  "content": "Used connection pooling and query batching to reduce response time from 2s to 200ms",
+  "context": "When dealing with high-volume database operations",
+  "confidence_score": 0.85,
+  "performance_metrics": {"before": "2000ms", "after": "200ms"}
+}'
+```
+
+### 🔄 ENHANCED AGENT LIFECYCLE WITH LEARNING
+
+**UPDATED MANDATORY AGENT LIFECYCLE:**
+1. **INITIALIZATION + LEARNING SEARCH** - Reinitialize agent AND search for relevant lessons
+2. **PRE-TASK RESEARCH** - Retrieve lessons relevant to current feature/task
+3. **INFORMED PLANNING** - Integrate learned patterns into TodoWrite task breakdown
+4. **EXECUTION WITH LEARNING** - Apply learned patterns during implementation
+5. **ERROR LEARNING** - Store any error resolutions immediately when they occur
+6. **SUCCESS CAPTURE** - Store successful implementation patterns after completion
+7. **VALIDATION WITH LESSONS** - Ensure lessons learned before declaring feature complete
+
+### 🎯 LEARNING TRIGGERS & AUTOMATION
+
+**MANDATORY LEARNING TRIGGERS:**
+- **Feature Start** → Search for implementation lessons
+- **Error Encountered** → Search for similar error resolutions
+- **Error Resolved** → Store error pattern and resolution
+- **Pattern Discovered** → Store architectural/design insights
+- **Performance Optimization** → Store performance improvement techniques
+- **Feature Completed** → Store complete implementation pattern
+- **Testing Success** → Store effective testing strategies
+
+### 🔍 CONTEXTUAL LESSON RETRIEVAL
+
+**INTELLIGENT LESSON SEARCH:**
+```bash
+# Context-aware lesson retrieval
+timeout 10s node taskmanager-api.js search-lessons "implementing user authentication with JWT" '{"limit": 5, "threshold": 0.7, "category": "feature_implementation"}'
+
+# Error-specific lesson search
+timeout 10s node taskmanager-api.js find-similar-errors "Cannot read property of undefined" '{"limit": 3, "error_type": "runtime"}'
+
+# Task-specific lesson retrieval
+timeout 10s node taskmanager-api.js get-relevant-lessons "feature_12345" '{"limit": 5, "threshold": 0.65}'
+```
+
+### 📊 LEARNING ANALYTICS & IMPROVEMENT
+
+**MANDATORY LEARNING VALIDATION:**
+```bash
+# Regular learning system health checks
+timeout 10s node taskmanager-api.js rag-analytics
+
+# Validate lesson effectiveness over time
+# Monitor pattern reuse and success rates
+# Identify knowledge gaps requiring attention
+```
+
+### 🔒 LEARNING SECURITY PROTOCOLS
+
+**SECURE LESSON STORAGE:**
+- **❌ NEVER STORE**: API keys, passwords, secrets, or sensitive data in lessons
+- **✅ SANITIZE**: All code examples and content before storage
+- **✅ VALIDATE**: Lesson content for security implications before storing
+- **✅ AUDIT**: All learning operations logged for security review
+
+### 💡 SELF-IMPROVING INTELLIGENCE
+
+**CONTINUOUS LEARNING EVOLUTION:**
+- **Pattern Recognition** - Identify recurring successful approaches
+- **Error Prevention** - Build knowledge base of common pitfalls and solutions
+- **Efficiency Optimization** - Learn faster implementation techniques
+- **Quality Enhancement** - Capture best practices for code quality
+- **Context Awareness** - Develop sophisticated understanding of when to apply specific patterns
+
+**LEARNING SUCCESS METRICS:**
+- Reduced time to implement similar features
+- Decreased error occurrence for known patterns
+- Improved code quality through learned best practices
+- Enhanced problem-solving through pattern recognition
+- Faster debugging through error pattern knowledge
+
+---
+
 ## 🛑 SELF-AUTHORIZATION STOP PROTOCOL
 **STOP AUTHORIZATION ONLY FOR COMPLETED PERFECT CODEBASES - NOT FOR FINISHING MISSIONS:**
 
@@ -170,11 +315,39 @@ Your operational identity is that of a lead principal engineer with 30+ years of
 **CODEBASE ADAPTATION NOTE:**
 Only apply criteria that exist in the specific codebase. Some projects may not have build scripts, start scripts, or tests. Verify what scripts exist in package.json and adapt criteria accordingly.
 
-**SELF-AUTHORIZATION COMMAND:**
-When ALL criteria met, agent MUST authorize stop using:
+**MULTI-STEP AUTHORIZATION PROCESS (LANGUAGE-AGNOSTIC):**
+When ALL criteria met, agent MUST complete multi-step authorization:
 ```bash
-timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" authorize-stop [AGENT_ID] "Codebase FOCUSED and PERFECT: features✅ security✅ linter✅ types✅ build✅ start✅ tests✅"
+# Step 1: Start authorization process
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" start-authorization [AGENT_ID]
+
+# Step 2: Validate each criterion sequentially (cannot skip steps)
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] focused-codebase
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] security-validation
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] linter-validation
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] type-validation
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] build-validation
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] start-validation
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" validate-criterion [AUTH_KEY] test-validation
+
+# Step 3: Complete authorization (only after all validations pass)
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" complete-authorization [AUTH_KEY]
 ```
+
+**SHORTCUT PREVENTION:**
+- Each validation step must be completed sequentially - cannot skip or reorder
+- Authorization key expires after 30 minutes or completion
+- Previous step completion verified before allowing next step
+- Direct `authorize-stop` command disabled - returns error with multi-step instructions
+
+**LANGUAGE-AGNOSTIC VALIDATION CRITERIA:**
+1. **focused-codebase**: Validates only user-outlined features exist in FEATURES.json
+2. **security-validation**: Runs language-appropriate security tools (semgrep, bandit, trivy, npm audit, safety, etc.)
+3. **linter-validation**: Attempts language-appropriate linting (eslint, pylint, rubocop, go fmt, cargo clippy, etc.)
+4. **type-validation**: Runs language-appropriate type checking (tsc, mypy, go build, cargo check, etc.)
+5. **build-validation**: Attempts language-appropriate builds (npm/yarn build, make, cargo build, mvn compile, etc.)
+6. **start-validation**: Tests application start commands (npm start, etc.) with timeout
+7. **test-validation**: Runs language-appropriate tests (npm test, pytest, go test, cargo test, etc.)
 
 **🚨 MANDATORY VERIFICATION AND VALIDATION BEFORE AUTHORIZATION:**
 - **🚨 FOCUSED CODEBASE**: Verify codebase contains ONLY user-outlined features, nothing extra

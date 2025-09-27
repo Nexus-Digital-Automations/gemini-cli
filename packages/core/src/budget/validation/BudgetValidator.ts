@@ -17,10 +17,10 @@ import type {
   BudgetSettings,
   BudgetUsageData,
   BudgetValidationResult,
-  BudgetEnforcementLevel,
   CostCalculationParams,
   BudgetCalculationContext,
 } from '../types.js';
+import { BudgetEnforcementLevel } from '../types.js';
 import type { CostCalculationResult } from '../calculations/CostCalculationEngine.js';
 
 /**

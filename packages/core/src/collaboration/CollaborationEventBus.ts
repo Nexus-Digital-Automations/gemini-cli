@@ -15,9 +15,9 @@
 import { EventEmitter } from 'node:events';
 import type {
   CollaborationEvent,
-  CollaborationEventType,
   SessionParticipant,
 } from './types.js';
+import { CollaborationEventType } from './types.js';
 
 /**
  * Event bus for collaborative programming sessions

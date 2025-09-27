@@ -14,7 +14,7 @@ import type {
   VarianceDetection,
   BurnRateAnalysis,
 } from '../types.js';
-import { Logger } from '../../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 
 /**
  * Validation metrics for algorithm performance assessment
@@ -176,11 +176,11 @@ export interface ValidationReport {
  * Provides comprehensive testing and validation capabilities
  */
 export class AlgorithmValidator {
-  private logger: Logger;
+  private logger: StructuredLogger;
   private testCases: Map<string, ValidationTestCase> = new Map();
 
   constructor() {
-    this.logger = new Logger('AlgorithmValidator');
+    this.logger = getComponentLogger('AlgorithmValidator');
     this.logger.info('Algorithm validator initialized');
     this.initializeStandardTestCases();
   }

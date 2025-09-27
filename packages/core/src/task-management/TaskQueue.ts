@@ -680,7 +680,7 @@ export class TaskQueue extends EventEmitter {
           maxRetries: task.maxRetries,
         });
 
-        this.emit('taskRetrying', task, executionRecord, error);
+        this.emit('taskRetrying', task, executionRecord, executionRecord.error);
 
         // Exponential backoff before retry
         const backoffMs = Math.min(
@@ -698,7 +698,7 @@ export class TaskQueue extends EventEmitter {
           totalAttempts: task.currentRetries,
         });
 
-        this.emit('taskFailed', task, executionRecord, error);
+        this.emit('taskFailed', task, executionRecord, executionRecord.error);
 
         // Handle rollback if defined
         if (task.rollbackFunction) {

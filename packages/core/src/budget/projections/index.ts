@@ -56,6 +56,9 @@ export type {
   CostAnalysisResult,
 } from './types.js';
 
+// Import types for local usage
+import type { BudgetAlertConfig } from './types.js';
+
 // Mathematical algorithms
 export { MathematicalAlgorithms } from './algorithms/mathematical-algorithms.js';
 
@@ -100,7 +103,7 @@ export {
 } from './validation/index.js';
 
 // Re-export utilities
-import { Logger } from '../utils/logger.js';
+import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
 import { CostForecastingEngine } from './forecasting/cost-forecasting-engine.js';
 import { BudgetAlertSystem } from './alerts/budget-alert-system.js';
 import { CostAnalysisEngine } from './analysis/cost-analysis-engine.js';
@@ -144,7 +147,7 @@ export interface CostProjectionSystemConfig {
  * Integrates all components for complete budget management solution
  */
 export class CostProjectionSystem {
-  private logger: Logger;
+  private logger: StructuredLogger;
   private config: CostProjectionSystemConfig;
   private forecastingEngine: CostForecastingEngine;
   private alertSystem: BudgetAlertSystem;
@@ -155,7 +158,7 @@ export class CostProjectionSystem {
 
   constructor(config: CostProjectionSystemConfig) {
     this.config = config;
-    this.logger = new Logger('CostProjectionSystem');
+    this.logger = getComponentLogger('CostProjectionSystem');
     this.logger.info('Initializing cost projection system', { config });
 
     // Initialize core components
@@ -193,31 +196,51 @@ export class CostProjectionSystem {
       }
 
       // Generate projection using forecasting engine
-      const projection = await this.forecastingEngine.generateProjections(
+      const projection = await CostForecastingEngine.generateProjections(
         historicalData,
         projectionDays,
-        'ensemble',
+        0.95,
       );
 
       // Enhance projection with additional analysis
-      const analysis = await this.analysisEngine.performComprehensiveAnalysis(
+      const defaultBudget = {
+        total: projection.summary.totalProjectedCost * 2, // Default budget as 2x projected cost
+        used: historicalData.reduce((sum, point) => sum + point.cost, 0),
+        remaining: projection.summary.totalProjectedCost,
+      };
+      const analysis = await CostAnalysisEngine.performComprehensiveAnalysis(
         historicalData,
-        projection,
+        defaultBudget,
+      );
+
+      // Calculate required parameters for optimization
+      const trend = await import('./algorithms/mathematical-algorithms.js').then(
+        m => m.MathematicalAlgorithms.performTrendAnalysis(historicalData)
+      );
+      const variance = await import('./algorithms/mathematical-algorithms.js').then(
+        m => m.MathematicalAlgorithms.detectVariances(historicalData)
+      );
+      const burnRate = await CostForecastingEngine.calculateBurnRateAnalysis(
+        historicalData,
+        defaultBudget.total,
       );
 
       // Add optimization recommendations
-      const optimizations =
-        await this.optimizationEngine.generateOptimizationPlan(
-          historicalData,
-          projection,
-        );
+      const optimizations = await BudgetOptimizationEngine.generateOptimizationPlan(
+        historicalData,
+        defaultBudget,
+        projection,
+        burnRate,
+        trend,
+        variance,
+      );
 
       // Enhance projection with optimization insights
       const enhancedProjection = {
         ...projection,
         summary: {
           ...projection.summary,
-          optimizationPotential: optimizations.potentialSavings.totalSavings,
+          optimizationPotential: optimizations.summary.totalPotentialSavings,
           recommendedActions: optimizations.recommendations.length,
         },
         metadata: {
@@ -231,7 +254,7 @@ export class CostProjectionSystem {
       this.logger.info('Cost projection generated successfully', {
         projectedCost: enhancedProjection.summary.totalProjectedCost,
         healthScore: analysis.healthScore.overall,
-        optimizationPotential: optimizations.potentialSavings.totalSavings,
+        optimizationPotential: optimizations.summary.totalPotentialSavings,
         generationTime: duration,
       });
 
@@ -255,21 +278,31 @@ export class CostProjectionSystem {
   ): Promise<Array<import('./types.js').BudgetAlert>> {
     const startTime = Date.now();
     this.logger.info('Starting budget monitoring and alerting', {
-      currentUsage: currentUsage.totalUsed,
+      currentUsage: currentUsage.totalCost,
       budgetLimit,
       alertConfigCount: alertConfigs.length,
     });
 
     try {
-      // Add alert configurations
-      for (const config of alertConfigs) {
-        await this.alertSystem.addAlert(config);
-      }
+      // Convert current usage to cost data points for analysis
+      const currentCostData = [{
+        timestamp: new Date(),
+        cost: currentUsage.totalCost,
+        tokens: currentUsage.tokenUsage.totalTokens || 0,
+      }];
 
-      // Check all alerts
-      const alerts = await this.alertSystem.checkAllAlerts(
-        currentUsage,
-        budgetLimit,
+      // Create default budget object
+      const budgetData = {
+        total: budgetLimit,
+        used: currentUsage.totalCost,
+        remaining: budgetLimit - currentUsage.totalCost,
+      };
+
+      // Monitor and check all alerts using static method
+      const alerts = await BudgetAlertSystem.monitorAndAlert(
+        currentCostData,
+        alertConfigs,
+        budgetData,
       );
 
       const duration = Date.now() - startTime;
@@ -300,8 +333,18 @@ export class CostProjectionSystem {
     });
 
     try {
-      const analysis =
-        await this.analysisEngine.performComprehensiveAnalysis(costData);
+      // Create default budget for analysis
+      const totalCost = costData.reduce((sum, point) => sum + point.cost, 0);
+      const defaultBudget = {
+        total: totalCost * 1.5, // Default budget as 1.5x of current cost
+        used: totalCost,
+        remaining: totalCost * 0.5,
+      };
+
+      const analysis = await CostAnalysisEngine.performComprehensiveAnalysis(
+        costData,
+        defaultBudget,
+      );
 
       const duration = Date.now() - startTime;
       this.logger.info('Cost analysis completed', {
@@ -335,16 +378,46 @@ export class CostProjectionSystem {
     });
 
     try {
-      const optimizationPlan =
-        await this.optimizationEngine.generateOptimizationPlan(
-          historicalData,
-          currentProjection,
-        );
+      // Calculate required parameters for optimization
+      const totalCost = historicalData.reduce((sum, point) => sum + point.cost, 0);
+      const defaultBudget = {
+        total: totalCost * 2,
+        used: totalCost,
+        remaining: totalCost,
+      };
+
+      // Calculate additional required parameters
+      const trend = await import('./algorithms/mathematical-algorithms.js').then(
+        m => m.MathematicalAlgorithms.performTrendAnalysis(historicalData)
+      );
+      const variance = await import('./algorithms/mathematical-algorithms.js').then(
+        m => m.MathematicalAlgorithms.detectVariances(historicalData)
+      );
+      const burnRate = await CostForecastingEngine.calculateBurnRateAnalysis(
+        historicalData,
+        defaultBudget.total,
+      );
+
+      // Use current projection or generate one if not provided
+      const projection = currentProjection || await CostForecastingEngine.generateProjections(
+        historicalData,
+        30,
+        0.95,
+      );
+
+      const optimizationPlan = await BudgetOptimizationEngine.generateOptimizationPlan(
+        historicalData,
+        defaultBudget,
+        projection,
+        burnRate,
+        trend,
+        variance,
+      );
 
       const duration = Date.now() - startTime;
       this.logger.info('Optimization recommendations generated', {
         recommendationCount: optimizationPlan.recommendations.length,
-        potentialSavings: optimizationPlan.potentialSavings.totalSavings,
+        potentialSavings: optimizationPlan.summary.totalPotentialSavings,
         generationTime: duration,
       });
 
@@ -375,7 +448,7 @@ export class CostProjectionSystem {
     try {
       // Create a test algorithm that combines forecasting and analysis
       const testAlgorithm = (data: Array<import('./types.js').CostDataPoint>) =>
-        this.forecastingEngine.generateProjections(data, 30, 'ensemble');
+        CostForecastingEngine.generateProjections(data, 30, 0.95);
 
       const report = await this.validator.runValidationSuite(testAlgorithm);
 

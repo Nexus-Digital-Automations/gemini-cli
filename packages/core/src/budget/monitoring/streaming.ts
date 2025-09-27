@@ -14,15 +14,15 @@
 
 import { EventEmitter } from 'node:events';
 import { getComponentLogger } from '../../utils/logger.js';
-import type { TokenTracker, TokenUsageStats } from './token-tracker.js';
-import type { MetricsCollector, MetricsSummary } from './metrics-collector.js';
+import type { TokenTracker, TokenUsageStats as _TokenUsageStats } from './token-tracker.js';
+import type { MetricsCollector, MetricsSummary as _MetricsSummary } from './metrics-collector.js';
 import type { BudgetEventManager } from './events.js';
 import type {
-  BudgetEvent,
+  BudgetEvent as _BudgetEvent,
   BudgetEventType,
   EventSeverity,
-  TokenUsageData,
-  ModelUsageData,
+  TokenUsageData as _TokenUsageData,
+  ModelUsageData as _ModelUsageData,
 } from '../types.js';
 
 /**
@@ -50,7 +50,7 @@ export interface StreamSubscription {
   /** Whether subscription is active */
   active: boolean;
   /** Subscription metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -92,7 +92,7 @@ export interface StreamUpdate {
   /** Update sequence number */
   sequence: number;
   /** Update data */
-  data: any;
+  data: unknown;
   /** Update metadata */
   metadata?: {
     source?: string;
@@ -106,6 +106,8 @@ export interface StreamUpdate {
  * Stream error information
  */
 export interface StreamError {
+  /** Error name */
+  name: string;
   /** Error code */
   code: string;
   /** Error message */
@@ -115,7 +117,7 @@ export interface StreamError {
   /** Subscription ID that caused error */
   subscriptionId?: string;
   /** Error details */
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -465,6 +467,7 @@ export class RealTimeStreamingService extends EventEmitter {
       }
     } catch (error) {
       this.handleStreamError(subscriptionId, {
+        name: 'StreamUpdateError',
         code: 'UPDATE_FAILED',
         message: error instanceof Error ? error.message : String(error),
         timestamp: new Date(),
@@ -597,6 +600,7 @@ export class RealTimeStreamingService extends EventEmitter {
         await this.sendPeriodicUpdates(subscription);
       } catch (error) {
         this.handleStreamError(subscription.id, {
+          name: 'StreamPeriodicUpdateError',
           code: 'PERIODIC_UPDATE_FAILED',
           message: error instanceof Error ? error.message : String(error),
           timestamp: new Date(),
@@ -725,6 +729,7 @@ export class RealTimeStreamingService extends EventEmitter {
       }
     } catch (error) {
       this.handleStreamError(subscription.id, {
+        name: 'StreamDeliveryError',
         code: 'UPDATE_DELIVERY_FAILED',
         message: error instanceof Error ? error.message : String(error),
         timestamp: new Date(),

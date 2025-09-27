@@ -49,7 +49,7 @@ export interface StorageConfig {
 /**
  * Default storage configuration
  */
-const DEFAULT_STORAGE_CONFIG: StorageConfig = {
+export const DEFAULT_STORAGE_CONFIG: StorageConfig = {
   baseDir: join(Storage.getGlobalGeminiDir(), 'context'),
   maxSessions: 100,
   maxSessionAgeDays: 30,

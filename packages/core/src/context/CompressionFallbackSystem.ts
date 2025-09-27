@@ -231,7 +231,7 @@ export class CompressionFallbackSystem {
             break;
           }
         } else {
-          fallbackErrors.push(result.error?.message || 'Unknown error');
+          fallbackErrors.push('Compression failed - success is false');
         }
 
       } catch (error) {

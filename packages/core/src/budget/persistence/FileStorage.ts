@@ -199,7 +199,7 @@ export class FileStorage implements ObservableStorage {
       // Update metrics
       this.metrics.uptime = Date.now() - this.startTime;
 
-      healthy = details.baseDirectoryExists && details.baseDirectoryWritable;
+      healthy = Boolean(details.baseDirectoryExists) && Boolean(details.baseDirectoryWritable);
     } catch (error) {
       healthy = false;
       details.error = (error as Error).message;

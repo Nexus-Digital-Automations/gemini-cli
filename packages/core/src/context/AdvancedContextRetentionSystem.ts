@@ -49,12 +49,12 @@ import {
 import type {
   PrioritizationConfig,
   CompressionConfig,
-  StorageConfig,
-  ContextWindowConfig,
-  CodeAnalysisConfig,
-  SuggestionEngineConfig,
   UserInteraction,
 } from './types.js';
+import type { StorageConfig } from './CrossSessionStorage.js';
+import type { ContextWindowConfig } from './ContextWindowManager.js';
+import type { CodeAnalysisConfig } from './CodeContextAnalyzer.js';
+import type { SuggestionEngineConfig } from './SuggestionEngine.js';
 
 const logger = getComponentLogger('advanced-context-retention-system');
 

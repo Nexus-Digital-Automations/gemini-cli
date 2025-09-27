@@ -19,9 +19,8 @@ import type {
   SessionUsageData,
   HistoricalDataPoint,
   ModelUsageData,
-  BudgetEnforcementLevel,
-  NotificationFrequency,
 } from '../types.js';
+import { BudgetEnforcementLevel, NotificationFrequency } from '../types.js';
 
 /**
  * Currency formatting options

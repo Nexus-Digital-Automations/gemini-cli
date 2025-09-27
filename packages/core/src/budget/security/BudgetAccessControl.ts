@@ -13,7 +13,8 @@
  */
 
 import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
-import type { BudgetSecurityContext, BudgetPermission } from '../types.js';
+import type { BudgetSecurityContext } from '../types.js';
+import { BudgetPermission } from '../types.js';
 
 /**
  * Security audit log entry

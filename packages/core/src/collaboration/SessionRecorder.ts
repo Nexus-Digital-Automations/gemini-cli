@@ -18,10 +18,10 @@ import { join } from 'node:path';
 import type {
   SessionRecording,
   CollaborationEvent,
-  CollaborationEventType,
   SessionParticipant,
   CollaborationSession,
 } from './types.js';
+import { CollaborationEventType } from './types.js';
 
 /**
  * Configuration for session recording

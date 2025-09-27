@@ -17,14 +17,11 @@ import type {
   CollaborationSession,
   SessionParticipant,
   SessionConfig,
-  SessionStatus,
-  SessionType,
-  ParticipantRole,
   CollaborationEvent,
-  CollaborationEventType,
   AsyncHandoff,
   SessionMetrics,
 } from './types.js';
+import { SessionStatus, SessionType, ParticipantRole, CollaborationEventType } from './types.js';
 import type { ContextItem } from '../context/types.js';
 import { ConflictResolver } from './ConflictResolver.js';
 import { ContextSynchronizer } from './ContextSynchronizer.js';

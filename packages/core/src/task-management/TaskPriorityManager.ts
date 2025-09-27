@@ -9,9 +9,9 @@ import { logger } from '../utils/logger.js';
 import type {
   Task,
   TaskPriority,
-  TaskCategory,
   PriorityFactors,
 } from './TaskQueue.js';
+import { TaskCategory } from './TaskQueue.js';
 
 /**
  * Advanced priority calculation algorithms
@@ -162,7 +162,7 @@ export class TaskPriorityManager extends EventEmitter {
       topPriorityFactors: [],
     };
 
-    logger.info('TaskPriorityManager initialized', {
+    logger().info('TaskPriorityManager initialized', {
       algorithm: this.config.algorithm,
       weights: Object.keys(this.config.weights).length,
       boostFactors: Object.keys(this.config.boostFactors).length,
@@ -180,7 +180,7 @@ export class TaskPriorityManager extends EventEmitter {
     const startTime = Date.now();
     const oldPriority = task.dynamicPriority;
 
-    logger.debug(
+    logger().debug(
       `Calculating priority for task ${task.id} using ${this.config.algorithm}`,
       {
         taskTitle: task.title,
@@ -189,7 +189,7 @@ export class TaskPriorityManager extends EventEmitter {
       },
     );
 
-    const adjustmentReasons: PriorityAdjustmentReason[] = [];
+    let adjustmentReasons: PriorityAdjustmentReason[] = [];
 
     let newPriority: number;
     let confidence = 0.8; // Default confidence
@@ -290,7 +290,7 @@ export class TaskPriorityManager extends EventEmitter {
     // Emit event for monitoring
     this.emit('priorityCalculated', result);
 
-    logger.debug(`Priority calculated for task ${task.id}`, {
+    logger().debug(`Priority calculated for task ${task.id}`, {
       oldPriority,
       newPriority,
       change:
@@ -353,7 +353,7 @@ export class TaskPriorityManager extends EventEmitter {
     // Dependency weight - tasks blocking others get higher priority
     const blockedTasksCount = task.dependents.filter((depId) => {
       const depTask = allTasks.find((t) => t.id === depId);
-      return depTask?.status === 'PENDING';
+      return depTask?.status === TaskStatus.PENDING;
     }).length;
 
     const depWeight = 1 + blockedTasksCount * 0.1;
@@ -667,7 +667,7 @@ export class TaskPriorityManager extends EventEmitter {
 
     if (similarTasksData.length < 10) {
       // Not enough data, fall back to weighted factors
-      logger.debug('Insufficient ML data, falling back to weighted factors');
+      logger().debug('Insufficient ML data, falling back to weighted factors');
       return this.calculateWeightedFactorsPriority(task, allTasks, reasons);
     }
 
@@ -725,7 +725,7 @@ export class TaskPriorityManager extends EventEmitter {
     let maxPath = 0;
     for (const dependentId of dependents) {
       const dependentTask = allTasks.find((t) => t.id === dependentId);
-      if (dependentTask && dependentTask.status === 'PENDING') {
+      if (dependentTask && dependentTask.status === TaskStatus.PENDING) {
         const pathLength =
           1 +
           this.calculateCriticalPathLength(
@@ -751,7 +751,7 @@ export class TaskPriorityManager extends EventEmitter {
     const conflicts: string[] = [];
     let totalContention = 0;
 
-    const runningTasks = allTasks.filter((t) => t.status === 'RUNNING');
+    const runningTasks = allTasks.filter((t) => t.status === TaskStatus.RUNNING);
 
     for (const resource of task.requiredResources) {
       let resourceContention = 0;
@@ -854,7 +854,7 @@ export class TaskPriorityManager extends EventEmitter {
 
     this.factorLearningData.set(task.category, categoryData);
 
-    logger.debug(`Learning data updated for category ${task.category}`, {
+    logger().debug(`Learning data updated for category ${task.category}`, {
       outcome,
       dataPoints: categoryData.length,
     });
@@ -944,7 +944,7 @@ export class TaskPriorityManager extends EventEmitter {
       decayFactors: { ...this.config.decayFactors, ...newConfig.decayFactors },
     };
 
-    logger.info('Priority calculation configuration updated', {
+    logger().info('Priority calculation configuration updated', {
       algorithm: this.config.algorithm,
       weightsUpdated: Object.keys(newConfig.weights || {}).length,
       boostFactorsUpdated: Object.keys(newConfig.boostFactors || {}).length,

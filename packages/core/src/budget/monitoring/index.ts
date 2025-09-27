@@ -93,8 +93,9 @@ export {
 } from './integration.js';
 
 // Import for internal usage
+import type {
+  TokenMonitoringIntegration} from './integration.js';
 import {
-  TokenMonitoringIntegration,
   createTokenMonitoringIntegration,
   createMonitoringEnabledContentGenerator,
 } from './integration.js';

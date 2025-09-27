@@ -47,7 +47,7 @@ export interface SuggestionConfig {
 /**
  * Default configuration for suggestion engine
  */
-export const DEFAULT_SUGGESTION_CONFIG: SuggestionConfig = {
+export const DEFAULT_SUGGESTION_ENGINE_CONFIG: SuggestionConfig = {
   minConfidenceThreshold: 0.3,
   maxSuggestions: 10,
   enablePatternLearning: true,
@@ -166,7 +166,7 @@ export class SuggestionEngine {
   private contextPrioritizer: ContextPrioritizer;
 
   constructor(config: Partial<SuggestionConfig> = {}) {
-    this.config = { ...DEFAULT_SUGGESTION_CONFIG, ...config };
+    this.config = { ...DEFAULT_SUGGESTION_ENGINE_CONFIG, ...config };
     this.contextPrioritizer = new ContextPrioritizer();
 
     logger.info('SuggestionEngine initialized', {

@@ -1316,12 +1316,10 @@ export class Config {
       const registry = new ToolRegistry(this, this.eventEmitter);
 
       // helper to create & register core tools that are enabled
-      type ToolConstructor = new (...args: unknown[]) => {
-        Name?: string;
-      };
+      type ToolConstructor = new (...args: unknown[]) => any;
       const registerCoreTool = (ToolClass: ToolConstructor, ...args: unknown[]) => {
         const className = ToolClass.name;
-        const toolName = ToolClass.Name || className;
+        const toolName = (ToolClass as any).Name || className;
         const coreTools = this.getCoreTools();
         const excludeTools = this.getExcludeTools() || [];
         // On some platforms, the className can be minified to _ClassName.

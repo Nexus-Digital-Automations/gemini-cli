@@ -127,7 +127,7 @@ export class QueueOptimizer extends EventEmitter {
     metrics: QueueMetrics,
     strategy: OptimizationStrategy = OptimizationStrategy.BALANCED,
   ): OptimizationRecommendation[] {
-    logger.info('Starting queue optimization', {
+    logger().info('Starting queue optimization', {
       taskCount: tasks.size,
       strategy,
       readyTasks: dependencyAnalysis.readyTasks.length,
@@ -200,7 +200,7 @@ export class QueueOptimizer extends EventEmitter {
       actualImprovement: 0,
     });
 
-    logger.info('Queue optimization completed', {
+    logger().info('Queue optimization completed', {
       recommendationCount: recommendations.length,
       strategy,
       highPriorityCount: recommendations.filter((r) => r.priority === 'high')
@@ -247,7 +247,7 @@ export class QueueOptimizer extends EventEmitter {
       resourceEfficiencyGain,
     };
 
-    logger.info('Batch optimization completed', {
+    logger().info('Batch optimization completed', {
       originalTaskCount: originalOrder.length,
       batchCount: optimizedBatches.length,
       expectedSpeedup: `${(expectedSpeedup * 100).toFixed(1)}%`,
@@ -338,7 +338,7 @@ export class QueueOptimizer extends EventEmitter {
       }
     }
 
-    logger.info('Load balancing analysis completed', {
+    logger().info('Load balancing analysis completed', {
       overloadedResources: overloadedResources.length,
       underutilizedResources: underutilizedResources.length,
       recommendations: recommendations.length,
@@ -401,7 +401,7 @@ export class QueueOptimizer extends EventEmitter {
     // Sort by impact
     bottlenecks.sort((a, b) => b.impact - a.impact);
 
-    logger.info('Bottleneck analysis completed', {
+    logger().info('Bottleneck analysis completed', {
       totalBottlenecks: bottlenecks.length,
       highImpactBottlenecks: bottlenecks.filter((b) => b.impact > 0.3).length,
     });
@@ -478,7 +478,7 @@ export class QueueOptimizer extends EventEmitter {
       confidenceScore,
     };
 
-    logger.info('Performance prediction completed', {
+    logger().info('Performance prediction completed', {
       expectedThroughput: expectedThroughput.toFixed(2),
       expectedCompletionTime: `${(expectedCompletionTime / (1000 * 60 * 60)).toFixed(1)} hours`,
       confidenceScore: `${(confidenceScore * 100).toFixed(1)}%`,
@@ -530,7 +530,7 @@ export class QueueOptimizer extends EventEmitter {
         });
         failed++;
 
-        logger.warn('Failed to apply optimization recommendation', {
+        logger().warn('Failed to apply optimization recommendation', {
           type: recommendation.type,
           error: error instanceof Error ? error.message : String(error),
         });
@@ -544,7 +544,7 @@ export class QueueOptimizer extends EventEmitter {
       lastOptimization.appliedRecommendations = applied;
     }
 
-    logger.info('Optimization application completed', {
+    logger().info('Optimization application completed', {
       applied,
       failed,
       successRate: `${((applied / (applied + failed)) * 100).toFixed(1)}%`,
@@ -1322,11 +1322,11 @@ export class QueueOptimizer extends EventEmitter {
           return this.applyResourceRebalancing(tasks, recommendation);
 
         default:
-          logger.warn(`Unknown optimization type: ${recommendation.type}`);
+          logger().warn(`Unknown optimization type: ${recommendation.type}`);
           return false;
       }
     } catch (error) {
-      logger.error('Failed to apply recommendation', {
+      logger().error('Failed to apply recommendation', {
         type: recommendation.type,
         error: error instanceof Error ? error.message : String(error),
       });

@@ -15,7 +15,7 @@
 import { EventEmitter } from 'node:events';
 import { getComponentLogger } from '../../utils/logger.js';
 import type {
-  BudgetSettings,
+  BudgetSettings as _BudgetSettings,
   BudgetValidationResult,
   BudgetEvent,
   EventSeverity,
@@ -508,7 +508,7 @@ export class QuotaManager extends EventEmitter {
    */
   private checkRateLimit(
     requestType: string,
-    context?: Record<string, any>,
+    context?: Record<string, unknown>,
   ): BudgetValidationResult {
     const key = `${requestType}:${context?.userId || 'global'}`;
     const limiter = this.rateLimiters.get(key);
@@ -711,7 +711,7 @@ export class QuotaManager extends EventEmitter {
           new SlidingWindowLimiter(config.maxRequests, config.windowMs),
         );
         break;
-      case 'token_bucket':
+      case 'token_bucket': {
         const refillRate =
           config.recoveryRate || config.maxRequests / (config.windowMs / 1000);
         this.rateLimiters.set(
@@ -719,6 +719,7 @@ export class QuotaManager extends EventEmitter {
           new TokenBucket(config.maxRequests, refillRate),
         );
         break;
+      }
       // Add other strategies as needed
       default:
         // Handle unexpected values
@@ -887,7 +888,7 @@ export class QuotaManager extends EventEmitter {
    */
   private emitBudgetEvent(
     type: BudgetEventType,
-    data: Record<string, any>,
+    data: Record<string, unknown>,
   ): void {
     const event: BudgetEvent = {
       type,

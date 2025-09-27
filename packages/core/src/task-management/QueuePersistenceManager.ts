@@ -126,7 +126,7 @@ export class QueuePersistenceManager extends EventEmitter {
 
     this.currentSessionId = uuidv4();
 
-    logger.info('QueuePersistenceManager initialized', {
+    logger().info('QueuePersistenceManager initialized', {
       persistenceDir: this.config.persistenceDir,
       sessionId: this.currentSessionId,
       compression: this.config.enableCompression,
@@ -157,9 +157,9 @@ export class QueuePersistenceManager extends EventEmitter {
       this.isInitialized = true;
       this.emit('initialized');
 
-      logger.info('QueuePersistenceManager initialized successfully');
+      logger().info('QueuePersistenceManager initialized successfully');
     } catch (error) {
-      logger.error('Failed to initialize QueuePersistenceManager:', error);
+      logger().error('Failed to initialize QueuePersistenceManager:', error);
       throw new Error(`Persistence initialization failed: ${error}`);
     }
   }
@@ -177,7 +177,7 @@ export class QueuePersistenceManager extends EventEmitter {
     const startTime = Date.now();
     const warnings: string[] = [];
 
-    logger.info('Saving queue state', {
+    logger().info('Saving queue state', {
       taskCount: tasks.size,
       dependencyCount: dependencies.size,
       saveReason,
@@ -223,7 +223,7 @@ export class QueuePersistenceManager extends EventEmitter {
         result = await this.saveIncremental(snapshot);
         if (!result.success) {
           // Fall back to full save
-          logger.warn('Incremental save failed, falling back to full save');
+          logger().warn('Incremental save failed, falling back to full save');
           result = await this.saveFullSnapshot(snapshot);
         }
       } else {
@@ -247,7 +247,7 @@ export class QueuePersistenceManager extends EventEmitter {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      logger.error('Failed to save queue state:', error);
+      logger().error('Failed to save queue state:', error);
 
       return {
         success: false,
@@ -275,7 +275,7 @@ export class QueuePersistenceManager extends EventEmitter {
   } | null> {
     const startTime = Date.now();
 
-    logger.info('Loading queue state', { snapshotId });
+    logger().info('Loading queue state', { snapshotId });
 
     try {
       let snapshot: QueueSnapshot;
@@ -287,14 +287,14 @@ export class QueuePersistenceManager extends EventEmitter {
       }
 
       if (!snapshot) {
-        logger.info('No queue state snapshot found');
+        logger().info('No queue state snapshot found');
         return null;
       }
 
       // Validate snapshot integrity
       const validationResult = await this.validateSnapshot(snapshot);
       if (!validationResult.isValid) {
-        logger.error('Snapshot validation failed:', validationResult.errors);
+        logger().error('Snapshot validation failed:', validationResult.errors);
         throw new Error(
           `Invalid snapshot: ${validationResult.errors.join(', ')}`,
         );
@@ -313,7 +313,7 @@ export class QueuePersistenceManager extends EventEmitter {
 
       const duration = Date.now() - startTime;
 
-      logger.info('Queue state loaded successfully', {
+      logger().info('Queue state loaded successfully', {
         snapshotId: snapshot.id,
         taskCount: tasks.size,
         dependencyCount: dependencies.size,
@@ -340,7 +340,7 @@ export class QueuePersistenceManager extends EventEmitter {
         },
       };
     } catch (error) {
-      logger.error('Failed to load queue state:', error);
+      logger().error('Failed to load queue state:', error);
       throw error;
     }
   }
@@ -400,7 +400,7 @@ export class QueuePersistenceManager extends EventEmitter {
             }
           }
         } catch (error) {
-          logger.warn(`Failed to read snapshot ${file}:`, error);
+          logger().warn(`Failed to read snapshot ${file}:`, error);
         }
       }
 
@@ -426,7 +426,7 @@ export class QueuePersistenceManager extends EventEmitter {
         orphanedTasks,
       };
     } catch (error) {
-      logger.error('Failed to get recovery info:', error);
+      logger().error('Failed to get recovery info:', error);
       throw error;
     }
   }
@@ -474,7 +474,7 @@ export class QueuePersistenceManager extends EventEmitter {
         };
       }
     } catch (error) {
-      logger.error(`Failed to save snapshot ${snapshot.id}:`, error);
+      logger().error(`Failed to save snapshot ${snapshot.id}:`, error);
       throw error;
     }
   }
@@ -487,7 +487,7 @@ export class QueuePersistenceManager extends EventEmitter {
   ): Promise<PersistenceResult> {
     // For now, implement as full save
     // In a production system, this would calculate deltas and save only changes
-    logger.debug('Incremental save requested, using full save for now');
+    logger().debug('Incremental save requested, using full save for now');
     return this.saveFullSnapshot(snapshot);
   }
 
@@ -536,7 +536,7 @@ export class QueuePersistenceManager extends EventEmitter {
         const stats = await fse.stat(file);
         sortedFiles.push({ file, mtime: stats.mtime });
       } catch (error) {
-        logger.warn(`Failed to stat file ${file}:`, error);
+        logger().warn(`Failed to stat file ${file}:`, error);
       }
     }
 
@@ -551,14 +551,14 @@ export class QueuePersistenceManager extends EventEmitter {
           if (validation.isValid) {
             return snapshot;
           } else {
-            logger.warn(
+            logger().warn(
               `Skipping invalid snapshot ${file}:`,
               validation.errors,
             );
           }
         }
       } catch (error) {
-        logger.warn(`Failed to load snapshot ${file}:`, error);
+        logger().warn(`Failed to load snapshot ${file}:`, error);
       }
     }
 
@@ -580,7 +580,7 @@ export class QueuePersistenceManager extends EventEmitter {
         return await fse.readJSON(filePath);
       }
     } catch (error) {
-      logger.error(`Failed to read snapshot file ${filePath}:`, error);
+      logger().error(`Failed to read snapshot file ${filePath}:`, error);
       return null;
     }
   }
@@ -744,14 +744,14 @@ export class QueuePersistenceManager extends EventEmitter {
             }
           }
         } catch (error) {
-          logger.warn(
+          logger().warn(
             `Failed to check orphaned tasks in snapshot ${snapshotInfo.id}:`,
             error,
           );
         }
       }
     } catch (error) {
-      logger.warn('Failed to find orphaned tasks:', error);
+      logger().warn('Failed to find orphaned tasks:', error);
     }
 
     return [...new Set(orphanedTasks)]; // Remove duplicates
@@ -786,7 +786,7 @@ export class QueuePersistenceManager extends EventEmitter {
       this.emit('autoSaveRequested');
     }, this.config.autoSaveInterval);
 
-    logger.debug('Auto-save timer started', {
+    logger().debug('Auto-save timer started', {
       interval: this.config.autoSaveInterval,
     });
   }
@@ -823,7 +823,7 @@ export class QueuePersistenceManager extends EventEmitter {
           const stats = await fse.stat(filePath);
           snapshotFiles.push({ file: filePath, mtime: stats.mtime });
         } catch (error) {
-          logger.warn(`Failed to stat snapshot file ${file}:`, error);
+          logger().warn(`Failed to stat snapshot file ${file}:`, error);
         }
       }
 
@@ -840,14 +840,14 @@ export class QueuePersistenceManager extends EventEmitter {
         for (const { file } of filesToDelete) {
           try {
             await fse.remove(file);
-            logger.debug(`Removed old snapshot: ${file}`);
+            logger().debug(`Removed old snapshot: ${file}`);
           } catch (error) {
-            logger.warn(`Failed to remove old snapshot ${file}:`, error);
+            logger().warn(`Failed to remove old snapshot ${file}:`, error);
           }
         }
       }
     } catch (error) {
-      logger.warn('Failed to cleanup old snapshots:', error);
+      logger().warn('Failed to cleanup old snapshots:', error);
     }
   }
 
@@ -879,10 +879,10 @@ export class QueuePersistenceManager extends EventEmitter {
 
             if (stats.mtime.getTime() < cutoffTime) {
               await fse.remove(filePath);
-              logger.debug(`Removed expired snapshot: ${file}`);
+              logger().debug(`Removed expired snapshot: ${file}`);
             }
           } catch (error) {
-            logger.warn(
+            logger().warn(
               `Failed to check/remove expired snapshot ${file}:`,
               error,
             );
@@ -890,9 +890,9 @@ export class QueuePersistenceManager extends EventEmitter {
         }
       }
 
-      logger.debug('Maintenance cleanup completed');
+      logger().debug('Maintenance cleanup completed');
     } catch (error) {
-      logger.warn('Failed to perform maintenance cleanup:', error);
+      logger().warn('Failed to perform maintenance cleanup:', error);
     }
   }
 
@@ -926,7 +926,7 @@ export class QueuePersistenceManager extends EventEmitter {
       }
     }
 
-    logger.info('QueuePersistenceManager configuration updated', {
+    logger().info('QueuePersistenceManager configuration updated', {
       autoSaveInterval: this.config.autoSaveInterval,
       compression: this.config.enableCompression,
       maxBackups: this.config.maxBackupSnapshots,
@@ -946,7 +946,7 @@ export class QueuePersistenceManager extends EventEmitter {
    * Shutdown persistence manager
    */
   async shutdown(): Promise<void> {
-    logger.info('Shutting down QueuePersistenceManager...');
+    logger().info('Shutting down QueuePersistenceManager...');
 
     this.stopAutoSave();
 
@@ -954,6 +954,6 @@ export class QueuePersistenceManager extends EventEmitter {
     await this.performMaintenanceCleanup();
 
     this.emit('shutdown');
-    logger.info('QueuePersistenceManager shutdown completed');
+    logger().info('QueuePersistenceManager shutdown completed');
   }
 }

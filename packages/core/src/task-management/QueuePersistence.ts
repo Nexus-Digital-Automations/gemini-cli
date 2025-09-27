@@ -156,7 +156,7 @@ export class QueuePersistence extends EventEmitter {
     this.initializeStorage();
     this.startAutoSave();
 
-    logger.info('QueuePersistence initialized', {
+    logger().info('QueuePersistence initialized', {
       backend: this.config.backend,
       dataDirectory: this.config.dataDirectory,
       autoSaveInterval: this.config.autoSaveInterval,
@@ -180,7 +180,7 @@ export class QueuePersistence extends EventEmitter {
     const snapshotId = uuidv4();
 
     try {
-      logger.info('Starting queue snapshot save', {
+      logger().info('Starting queue snapshot save', {
         snapshotId,
         taskCount: tasks.size,
         description,
@@ -222,7 +222,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.info('Queue snapshot saved successfully', {
+      logger().info('Queue snapshot saved successfully', {
         snapshotId,
         duration: operation.duration,
         size: operation.bytesTransferred,
@@ -244,7 +244,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.error('Queue snapshot save failed', {
+      logger().error('Queue snapshot save failed', {
         snapshotId,
         error: operation.error,
         duration: operation.duration,
@@ -263,12 +263,12 @@ export class QueuePersistence extends EventEmitter {
     const targetSnapshotId = snapshotId || (await this.getLatestSnapshotId());
 
     if (!targetSnapshotId) {
-      logger.warn('No snapshots found to load');
+      logger().warn('No snapshots found to load');
       return null;
     }
 
     try {
-      logger.info('Loading queue snapshot', { snapshotId: targetSnapshotId });
+      logger().info('Loading queue snapshot', { snapshotId: targetSnapshotId });
 
       const snapshot = await this.readSnapshot(targetSnapshotId);
 
@@ -297,7 +297,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.info('Queue snapshot loaded successfully', {
+      logger().info('Queue snapshot loaded successfully', {
         snapshotId: targetSnapshotId,
         duration: operation.duration,
         taskCount: snapshot.tasks.size,
@@ -319,7 +319,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.error('Queue snapshot load failed', {
+      logger().error('Queue snapshot load failed', {
         snapshotId: targetSnapshotId,
         error: operation.error,
         duration: operation.duration,
@@ -338,7 +338,7 @@ export class QueuePersistence extends EventEmitter {
     const backupId = `backup-${Date.now()}-${uuidv4().substring(0, 8)}`;
 
     try {
-      logger.info('Creating queue backup', { backupId, description });
+      logger().info('Creating queue backup', { backupId, description });
 
       // Get latest snapshot
       const latestSnapshot = await this.loadSnapshot();
@@ -387,7 +387,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.info('Queue backup created successfully', {
+      logger().info('Queue backup created successfully', {
         backupId,
         duration: operation.duration,
         path: backupPath,
@@ -409,7 +409,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.error('Queue backup creation failed', {
+      logger().error('Queue backup creation failed', {
         backupId,
         error: operation.error,
         duration: operation.duration,
@@ -427,7 +427,7 @@ export class QueuePersistence extends EventEmitter {
     const startTime = Date.now();
 
     try {
-      logger.info('Restoring from backup', { backupId });
+      logger().info('Restoring from backup', { backupId });
 
       const snapshot = await this.readBackup(backupId);
       if (!snapshot) {
@@ -466,7 +466,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.info('Restore from backup completed successfully', {
+      logger().info('Restore from backup completed successfully', {
         backupId,
         newSnapshotId,
         duration: operation.duration,
@@ -488,7 +488,7 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.error('Restore from backup failed', {
+      logger().error('Restore from backup failed', {
         backupId,
         error: operation.error,
         duration: operation.duration,
@@ -602,7 +602,7 @@ export class QueuePersistence extends EventEmitter {
       // Implementation would depend on storage backend
       return this.getSnapshotList();
     } catch (error) {
-      logger.error('Failed to list snapshots', {
+      logger().error('Failed to list snapshots', {
         error: error instanceof Error ? error.message : String(error),
       });
       return [];
@@ -702,7 +702,7 @@ export class QueuePersistence extends EventEmitter {
     const startTime = Date.now();
 
     try {
-      logger.info('Starting storage compaction');
+      logger().info('Starting storage compaction');
 
       // Remove duplicate transactions
       this.transactionLog = this.deduplicateTransactions(this.transactionLog);
@@ -727,13 +727,13 @@ export class QueuePersistence extends EventEmitter {
 
       this.recordOperation(operation);
 
-      logger.info('Storage compaction completed', {
+      logger().info('Storage compaction completed', {
         duration: operation.duration,
       });
 
       this.emit('storageCompacted', operation);
     } catch (error) {
-      logger.error('Storage compaction failed', {
+      logger().error('Storage compaction failed', {
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
@@ -751,12 +751,12 @@ export class QueuePersistence extends EventEmitter {
         await fs.mkdir(this.config.backupDirectory, { recursive: true });
       }
 
-      logger.debug('Storage directories initialized', {
+      logger().debug('Storage directories initialized', {
         dataDirectory: this.config.dataDirectory,
         backupDirectory: this.config.backupDirectory,
       });
     } catch (error) {
-      logger.error('Failed to initialize storage directories', {
+      logger().error('Failed to initialize storage directories', {
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
@@ -772,7 +772,7 @@ export class QueuePersistence extends EventEmitter {
         this.emit('autoSaveRequested');
       }, this.config.autoSaveInterval);
 
-      logger.debug('Auto-save timer started', {
+      logger().debug('Auto-save timer started', {
         interval: this.config.autoSaveInterval,
       });
     }
@@ -865,7 +865,7 @@ export class QueuePersistence extends EventEmitter {
     await fs.writeFile(tempFilepath, serializedData, 'utf8');
     await fs.rename(tempFilepath, filepath);
 
-    logger.debug('Snapshot written to storage', {
+    logger().debug('Snapshot written to storage', {
       snapshotId: snapshot.metadata.id,
       filepath,
       size: serializedData.length,
@@ -1003,7 +1003,7 @@ export class QueuePersistence extends EventEmitter {
           const parsed = JSON.parse(data);
           snapshots.push(parsed.metadata);
         } catch (error) {
-          logger.warn(`Failed to read snapshot metadata from ${file}`, {
+          logger().warn(`Failed to read snapshot metadata from ${file}`, {
             error: error instanceof Error ? error.message : String(error),
           });
         }
@@ -1013,7 +1013,7 @@ export class QueuePersistence extends EventEmitter {
         (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
       );
     } catch (error) {
-      logger.error('Failed to get snapshot list', {
+      logger().error('Failed to get snapshot list', {
         error: error instanceof Error ? error.message : String(error),
       });
       return [];
@@ -1049,7 +1049,7 @@ export class QueuePersistence extends EventEmitter {
       const calculatedChecksum = this.calculateChecksum(serializedData);
       return calculatedChecksum === snapshot.metadata.checksumMD5;
     } catch (error) {
-      logger.error('Snapshot integrity verification failed', {
+      logger().error('Snapshot integrity verification failed', {
         snapshotId: snapshot.metadata.id,
         error: error instanceof Error ? error.message : String(error),
       });
@@ -1103,12 +1103,12 @@ export class QueuePersistence extends EventEmitter {
           const filepath = join(this.config.dataDirectory, filename);
           await fs.unlink(filepath);
 
-          logger.debug('Old snapshot deleted', {
+          logger().debug('Old snapshot deleted', {
             snapshotId: snapshot.id,
             timestamp: snapshot.timestamp,
           });
         } catch (error) {
-          logger.warn('Failed to delete old snapshot', {
+          logger().warn('Failed to delete old snapshot', {
             snapshotId: snapshot.id,
             error: error instanceof Error ? error.message : String(error),
           });
@@ -1141,12 +1141,12 @@ export class QueuePersistence extends EventEmitter {
             this.recoveryPoints.splice(index, 1);
           }
 
-          logger.debug('Old backup deleted', {
+          logger().debug('Old backup deleted', {
             backupId: backup.id,
             timestamp: backup.timestamp,
           });
         } catch (error) {
-          logger.warn('Failed to delete old backup', {
+          logger().warn('Failed to delete old backup', {
             backupId: backup.id,
             error: error instanceof Error ? error.message : String(error),
           });
@@ -1182,7 +1182,7 @@ export class QueuePersistence extends EventEmitter {
   private async mergeSnapshots(): Promise<void> {
     // Implementation would analyze snapshots and merge where beneficial
     // This is a placeholder for complex merge logic
-    logger.debug('Snapshot merging completed');
+    logger().debug('Snapshot merging completed');
   }
 
   /**
@@ -1192,7 +1192,7 @@ export class QueuePersistence extends EventEmitter {
     // Implementation would depend on storage backend
     // File system: defragmentation, compression
     // Database: vacuum, reindex, etc.
-    logger.debug('Storage optimization completed');
+    logger().debug('Storage optimization completed');
   }
 
   /**
@@ -1209,7 +1209,7 @@ export class QueuePersistence extends EventEmitter {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    logger.info('QueuePersistence shutdown completed');
+    logger().info('QueuePersistence shutdown completed');
     this.emit('shutdown');
   }
 }

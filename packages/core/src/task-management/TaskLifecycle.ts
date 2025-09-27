@@ -199,7 +199,7 @@ export class TaskLifecycle extends EventEmitter {
     this.initializeDefaultHooks();
     this.startCleanupProcess();
 
-    logger.info('TaskLifecycle manager initialized', {
+    logger().info('TaskLifecycle manager initialized', {
       options: this.options,
     });
   }
@@ -261,7 +261,7 @@ export class TaskLifecycle extends EventEmitter {
 
     await this.recordEvent(event);
 
-    logger.debug(`Task lifecycle initialized: ${task.title}`, {
+    logger().debug(`Task lifecycle initialized: ${task.title}`, {
       taskId: task.id,
       initialState: context.currentState,
     });
@@ -287,7 +287,7 @@ export class TaskLifecycle extends EventEmitter {
   ): Promise<boolean> {
     const context = this.lifecycleContexts.get(taskId);
     if (!context) {
-      logger.warn(`Cannot transition unknown task: ${taskId}`);
+      logger().warn(`Cannot transition unknown task: ${taskId}`);
       return false;
     }
 
@@ -295,7 +295,7 @@ export class TaskLifecycle extends EventEmitter {
 
     // Prevent concurrent transitions
     if (this.activeTransitions.has(taskId)) {
-      logger.warn(`Task ${taskId} already in transition, skipping`);
+      logger().warn(`Task ${taskId} already in transition, skipping`);
       return false;
     }
 
@@ -307,7 +307,7 @@ export class TaskLifecycle extends EventEmitter {
         this.options.enableStateValidation &&
         !this.isValidTransition(currentState, newState)
       ) {
-        logger.warn(
+        logger().warn(
           `Invalid state transition: ${currentState} -> ${newState}`,
           { taskId },
         );
@@ -355,7 +355,7 @@ export class TaskLifecycle extends EventEmitter {
         this.updateMetrics(taskId, event);
       }
 
-      logger.info(`Task state transition: ${currentState} -> ${newState}`, {
+      logger().info(`Task state transition: ${currentState} -> ${newState}`, {
         taskId,
         trigger,
         duration: Date.now() - transitionStart,
@@ -375,7 +375,7 @@ export class TaskLifecycle extends EventEmitter {
 
       return true;
     } catch (error) {
-      logger.error(`State transition failed: ${currentState} -> ${newState}`, {
+      logger().error(`State transition failed: ${currentState} -> ${newState}`, {
         taskId,
         error: error instanceof Error ? error.message : String(error),
       });
@@ -527,7 +527,7 @@ export class TaskLifecycle extends EventEmitter {
     stateHooks.sort((a, b) => b.priority - a.priority);
     this.lifecycleHooks.set(hook.state, stateHooks);
 
-    logger.debug(`Lifecycle hook registered: ${hook.id}`, {
+    logger().debug(`Lifecycle hook registered: ${hook.id}`, {
       state: hook.state,
       timing: hook.timing,
       priority: hook.priority,
@@ -542,7 +542,7 @@ export class TaskLifecycle extends EventEmitter {
       const index = hooks.findIndex((h) => h.id === hookId);
       if (index > -1) {
         hooks.splice(index, 1);
-        logger.debug(`Lifecycle hook unregistered: ${hookId}`, { state });
+        logger().debug(`Lifecycle hook unregistered: ${hookId}`, { state });
         return true;
       }
     }
@@ -660,7 +660,7 @@ export class TaskLifecycle extends EventEmitter {
       }, 5000);
     }
 
-    logger.info(`Lifecycle cleanup completed`, {
+    logger().info(`Lifecycle cleanup completed`, {
       tasksCleaned: tasksToClean.length,
       cutoffTime: new Date(cutoff),
     });
@@ -919,7 +919,7 @@ export class TaskLifecycle extends EventEmitter {
       action: async (task: Task, context: LifecycleContext) => {
         // Simulate resource allocation
         context.resources.allocated = [...task.requiredResources];
-        logger.debug(`Resources allocated for task: ${task.id}`, {
+        logger().debug(`Resources allocated for task: ${task.id}`, {
           resources: context.resources.allocated,
         });
       },
@@ -935,7 +935,7 @@ export class TaskLifecycle extends EventEmitter {
       action: async (task: Task, context: LifecycleContext) => {
         context.resources.released = [...context.resources.allocated];
         context.resources.allocated = [];
-        logger.debug(`Resources released for task: ${task.id}`, {
+        logger().debug(`Resources released for task: ${task.id}`, {
           resources: context.resources.released,
         });
       },
@@ -1046,7 +1046,7 @@ export class TaskLifecycle extends EventEmitter {
     taskId: TaskId,
     context: LifecycleContext,
   ): Promise<void> {
-    logger.debug(`Executing state action: ${action}`, { taskId });
+    logger().debug(`Executing state action: ${action}`, { taskId });
 
     switch (action) {
       case 'validate':
@@ -1078,7 +1078,7 @@ export class TaskLifecycle extends EventEmitter {
         break;
 
       default:
-        logger.debug(`Unknown state action: ${action}`, { taskId });
+        logger().debug(`Unknown state action: ${action}`, { taskId });
     }
   }
 
@@ -1106,13 +1106,13 @@ export class TaskLifecycle extends EventEmitter {
         // Execute hook action
         await hook.action(task, context);
 
-        logger.debug(`Lifecycle hook executed: ${hook.id}`, {
+        logger().debug(`Lifecycle hook executed: ${hook.id}`, {
           taskId: task.id,
           state,
           timing,
         });
       } catch (error) {
-        logger.error(`Lifecycle hook failed: ${hook.id}`, {
+        logger().error(`Lifecycle hook failed: ${hook.id}`, {
           taskId: task.id,
           state,
           timing,
@@ -1252,7 +1252,7 @@ export class TaskLifecycle extends EventEmitter {
     if (this.options.cleanupInterval && this.options.cleanupInterval > 0) {
       this.cleanupTimer = setInterval(() => {
         this.cleanup().catch((error) => {
-          logger.error('Cleanup process failed', {
+          logger().error('Cleanup process failed', {
             error: error instanceof Error ? error.message : String(error),
           });
         });
@@ -1272,7 +1272,7 @@ export class TaskLifecycle extends EventEmitter {
     // Perform final cleanup
     await this.cleanup(0); // Clean all
 
-    logger.info('TaskLifecycle manager shutdown completed');
+    logger().info('TaskLifecycle manager shutdown completed');
     this.emit('shutdown');
   }
 }

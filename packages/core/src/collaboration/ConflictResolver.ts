@@ -15,15 +15,13 @@
 import { EventEmitter } from 'node:events';
 import type {
   CollaborationConflict,
-  ConflictType,
-  ConflictStatus,
-  ConflictResolutionStrategy,
   ConflictResolution,
   ConflictingChange,
   ContextConflict,
   SessionParticipant,
-  ParticipantRole,
 } from './types.js';
+import { ConflictResolutionStrategy, ParticipantRole } from './types.js';
+import { ConflictType, ConflictStatus } from './types.js';
 import type { ContextItem } from '../context/types.js';
 
 /**

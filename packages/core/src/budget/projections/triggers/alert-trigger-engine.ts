@@ -465,7 +465,7 @@ export class AlertTriggerEngine {
         escalation: {
           escalateAfterMinutes: 60,
           escalatedSeverity: 'emergency',
-          escalatedChannels: ['console', 'email', 'slack', 'sms'],
+          escalatedChannels: ['console', 'email', 'slack', 'webhook'],
         },
         suppression: { cooldownMinutes: 180, maxAlertsPerHour: 2 },
       });
