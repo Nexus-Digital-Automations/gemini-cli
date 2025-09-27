@@ -338,7 +338,11 @@ export class TaskQueue extends EventEmitter {
       rollbackFunction: taskDefinition.rollbackFunction,
 
       tags: taskDefinition.tags ?? [],
-      metadata: taskDefinition.metadata ?? {},
+      metadata: taskDefinition.metadata ?? {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'system',
+      },
 
       requiredResources: taskDefinition.requiredResources ?? [],
       resourceConstraints: taskDefinition.resourceConstraints ?? {},
